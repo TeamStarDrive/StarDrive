@@ -470,12 +470,12 @@ namespace Ship_Game
 
         void OnSaveBlueprintsClick()
         {
-            ScreenManager.AddScreen(new SaveBlueprintsScreen(this, CreateBlueprintsTemplate()));
+            ScreenManager.AddScreen(new SaveLoadBlueprintsScreen(this, CreateBlueprintsTemplate()));
         }
 
         void OnLoadBlueprintsClick()
         {
-            ScreenManager.AddScreen(new LoadBlueprintsScreen(this));
+            ScreenManager.AddScreen(new SaveLoadBlueprintsScreen(this));
         }
 
         public void AfterBluprintsSave(BlueprintsTemplate template)

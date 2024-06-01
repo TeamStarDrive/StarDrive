@@ -7,13 +7,13 @@ using Ship_Game.Data.Yaml;
 
 namespace Ship_Game;
 
-public sealed class LoadBlueprintsToColonyScreen : GenericLoadSaveScreen
+public sealed class LoadBlueprintsToColonyScreen : SaveLoadBlueprintsScreen
 {
     readonly GovernorDetailsComponent GovernorTab;
-    static SubTexture BlueprintsIcon = ResourceManager.Texture("NewUI/blueprints");
+
 
     public LoadBlueprintsToColonyScreen(GameScreen caller, GovernorDetailsComponent governorTab, string planetName) 
-        : base(caller, SLMode.Load, "", $"Load Blueprints To {planetName}", "Saved Blueprints", 60)
+        : base(caller, planetName)
     {
         GovernorTab = governorTab;
     }
@@ -26,6 +26,9 @@ public sealed class LoadBlueprintsToColonyScreen : GenericLoadSaveScreen
         ExitScreen();
     }
 
+    // Cannot save in this screen.
+    public override void DoSave(){ }
+
     FileData CreateBlueprintsSaveItem(BlueprintsTemplate blueprints)
     {
         string title1;
@@ -35,13 +38,12 @@ public sealed class LoadBlueprintsToColonyScreen : GenericLoadSaveScreen
                                         : $"Switch to: {blueprints.ColonyType}";
 
         string title2 = blueprints.Validated && blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
-        return new(null, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, HelperFunctions.GetBlueprintsIconColor(blueprints));
+        return new(null, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, GetBlueprintsIconColor(blueprints));
     }
 
     protected override void InitSaveList()
     {
         Array<FileData> items = new();
-        string modName = BlueprintsTemplate.CurrentModName;
         foreach (BlueprintsTemplate template in ResourceManager.GetAllBlueprints())
         {
             items.Add(CreateBlueprintsSaveItem(template));
