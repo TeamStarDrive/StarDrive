@@ -45,7 +45,7 @@ namespace Ship_Game
         float InitPopulationBillion = 5;
         float InitFertility = 1;
         float InitRichness = 1;
-        float InitTax = 25;
+        float InitTax = 0.25f;
 
         readonly ScrollList<BlueprintsBuildableListItem> BuildableList;
         readonly DropOptions<Planet.ColonyType> SwitchColonyType;
@@ -77,9 +77,13 @@ namespace Ship_Game
         bool CanBuildTroops;
         bool CanBuildShips;
 
-        public BlueprintsScreen(UniverseScreen parent, Empire player, BlueprintsTemplate template = null) : base(parent, toPause: parent)
+        readonly GovernorDetailsComponent GovernorTab;
+
+        public BlueprintsScreen(UniverseScreen parent, Empire player, BlueprintsTemplate template = null, GovernorDetailsComponent govTab = null) 
+            : base(parent, toPause: parent)
         {
             Player = player;
+            GovernorTab = govTab;
             TextFont = LowRes ? Font8 : Font12;
             var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             base.Add(new Menu2(titleRect));
@@ -112,7 +116,7 @@ namespace Ship_Game
             base.Add(new Submenu(buildableMenuR, GameText.Buildings));
 
             RectF experimentalR = new(LeftMenu.X + 20, LeftMenu.Y + 40 + SubBlueprintsOptions.Height, 0.4f * LeftMenu.Width, 0.294f * (LeftMenu.Height - 80));
-            base.Add(new Submenu(experimentalR, GameText.Buildings));
+            base.Add(new Submenu(experimentalR, GameText.BlueprintsSimulation));
 
 
             float blueprintsOptionsX = SubBlueprintsOptions.X + 10;
@@ -147,8 +151,8 @@ namespace Ship_Game
             InitRichnessSlider.OnChange = (s) => { InitRichness = s.AbsoluteValue.RoundToFractionOf10(); RecalculateGeneralStats(); };
 
             RectF initTaxR = new(blueprintsOptionsX, experimentalR.Y + 190, SubBlueprintsOptions.Width * 0.6, 50);
-            InitTaxSlider = Slider(initTaxR, GameText.TaxRate, 0, 100, InitTax);
-            InitTaxSlider.OnChange =(s) => { InitTax = s.AbsoluteValue.RoundUpTo(1); RecalculateGeneralStats(); };
+            InitTaxSlider = Slider(SliderStyle.Percent, initTaxR, GameText.TaxRate, 0, 1, InitTax);
+            InitTaxSlider.OnChange =(s) => { InitTax = s.AbsoluteValue; RecalculateGeneralStats(); };
 
 
             RectF buildableR = new(buildableMenuR.X, buildableMenuR.Y+20, buildableMenuR.W, buildableMenuR.H -20);
@@ -342,7 +346,7 @@ namespace Ship_Game
 
         void RecalculateGeneralStats()
         {
-            float tax = InitTax * 0.01f;
+            float tax = InitTax;
             float taxInverted = 1 - tax;
 
             float taxRateMultiplier = 1f + Player.data.Traits.TaxMod;
@@ -369,7 +373,7 @@ namespace Ship_Game
             {
                 PlannedGrossMoney += b.Income + b.CreditsPerColonist*PlannedPopulation;
                 taxRateMultiplier += b.PlusTaxPercentage;
-                PlannedMaintenance = b.Maintenance;
+                PlannedMaintenance += b.Maintenance;
                 PlannedFertility += b.MaxFertilityOnBuildFor(Player, Player.data.PreferredEnvPlanet);
                 PlannedFlatFood += b.PlusFlatFoodAmount;
                 PlannedFoodPerCol += b.PlusFoodPerColonist;
@@ -472,6 +476,7 @@ namespace Ship_Game
         {
             BlueprintsName.Text = template.Name;
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: false);
+            GovernorTab?.OnBlueprintsChanged(template);
         }
 
         public void LoadBlueprintsTemplate(BlueprintsTemplate template)

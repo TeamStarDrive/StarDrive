@@ -10,11 +10,7 @@ using Ship_Game.Ships;
 using Ship_Game.SpriteSystem;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
-using Ship_Game.Universe.SolarBodies;
-using System.Windows.Forms;
-using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Numerics;
 
 namespace Ship_Game
 {
@@ -81,7 +77,8 @@ namespace Ship_Game
         UITextEntry ManualGrdBudget;
         UITextEntry ManualSpcBudget;
 
-        UILabel ColonyBlueprints, BlueprintsCompletionLbl, BlueprintsAchiveable;
+        UILabel ColonyBlueprints, BlueprintsCompletionLbl, BlueprintsAchiveable, BlueprintsName, 
+            BlueprintsExclusive, BlueprintsLink, BlueprintsGovChange;
         ProgressBar BlueprintsCompletion;
 
 
@@ -110,20 +107,24 @@ namespace Ship_Game
             Planet = p;
             RemoveAll(); // delete all components
 
+            Font    = Font12;
+            FontBig = Font14;
+            if      (Screen.Width < 1600) { Font = Font8; FontBig = Font10; }
+            else if (Screen.Width < 1920) { Font = Font10; FontBig = Font12; }
+
             // NOTE: Using RootContent here to avoid lag from resource unloading and reloading
             PortraitSprite = DrawableSprite.SubTex(ResourceManager.RootContent, $"Portraits/{Planet.Owner.data.PortraitName}");
 
             Portrait         = Add(new UIPanel(PortraitSprite));
-            WorldType        = Add(new UILabel(Planet.WorldType, Font12));
+            WorldType        = Add(new UILabel(Planet.WorldType, FontBig));
             WorldDescription = Add(new UILabel(Font12));
-            ColonyBlueprints = Add(new UILabel(Font12));
-            BlueprintsCompletionLbl = Add(new UILabel(GameText.Completion, Font12, Color.Wheat));
-            BlueprintsAchiveable    = Add(new UILabel(GameText.Achievable, Font12, Color.Gray));
-
-            Font    = Font12;
-            FontBig = Font14;
-            if      (Screen.Width < 1600) {Font = Font8;  FontBig = Font10; }
-            else if (Screen.Width < 1920) {Font = Font10; FontBig = Font12; }
+            ColonyBlueprints = Add(new UILabel(GameText.ColonyBlueprintsTitle, FontBig, Color.Wheat));
+            BlueprintsName   = Add(new UILabel("", FontBig, Color.Gold));
+            BlueprintsCompletionLbl = Add(new UILabel(GameText.Completion, Font, Color.Wheat));
+            BlueprintsAchiveable    = Add(new UILabel(GameText.Achievable, Font, Color.Gray));
+            BlueprintsGovChange     = Add(new UILabel(GameText.GovernorChangedTo, Font, Color.White));
+            BlueprintsExclusive     = Add(new UILabel(GameText.GovernorChangedTo, Font, Color.Gold));
+            BlueprintsLink          = Add(new UILabel(GameText.GovernorChangedTo, Font, Color.Gold));
 
             GovOrbitals    = Add(new UICheckBox(() => Planet.GovOrbitals, Font, title:GameText.GovernorManagesOrbitals, tooltip:GameText.TheGovernorWillBuildStations));
             AutoTroops     = Add(new UICheckBox(() => Planet.AutoBuildTroops, Font, title:GameText.GovernorBuildsMilitia, tooltip:GameText.TheGovernorWillCreateA));
@@ -200,7 +201,7 @@ namespace Ship_Game
             GrdBudgetBar = new ProgressBar(GrdBudgetRect);
             SpcBudgetBar = new ProgressBar(SpcBudgetRect);
 
-            Rectangle completionRect = new((int)X + 100, (int)Y + 50, (int)(Width * 0.5f), 30);
+            Rectangle completionRect = new((int)X + 100, (int)Y + 70, (int)(Width * 0.5f), 30);
             BlueprintsCompletion = new ProgressBar(completionRect, 0, 0)
             { DrawPercentage = true, color = "green" };
 
@@ -248,26 +249,25 @@ namespace Ship_Game
             Portrait.Size = new Vector2((float)Math.Round(aspect*height), height);
             Portrait.Pos  = new Vector2(X + 10, Y + 30);
 
-            WorldType.Pos          = new Vector2(Portrait.Right + 10, Portrait.Y);
-            ColonyTypeList.Pos     = new Vector2(WorldType.X, Portrait.Y + 16);
-            WorldDescription.Pos   = new Vector2(WorldType.X, Portrait.Y + 40);
-            WorldDescription.Text  = GetParsedDescription();
-            ColonyBlueprints.Pos   = new Vector2(WorldType.X, Portrait.Y + 95);
-            ColonyBlueprints.Text  = GameText.ColonyBlueprintsTitle;
-
+            WorldType.Pos           = new Vector2(Portrait.Right + 10, Portrait.Y);
+            ColonyTypeList.Pos      = new Vector2(WorldType.X, Portrait.Y + 21);
+            WorldDescription.Pos    = new Vector2(WorldType.X, Portrait.Y + 40);
+            WorldDescription.Text   = GetParsedDescription();
+            ColonyBlueprints.Pos    = new Vector2(X + 10, Y + 40);
+            ColonyBlueprints.Text   = ColonyBlueprints.Text.Text + ":";
+            BlueprintsName.Pos      = new Vector2(X + 15 + FontBig.MeasureString(ColonyBlueprints.Text).X, Y + 40);
+            BlueprintsGovChange.Pos = new Vector2(X + 10, Y + 100);
+            BlueprintsExclusive.Pos = new Vector2(X + 10, Y + 130);
+            BlueprintsLink.Pos      = new Vector2(X + 10, Y + 160);
 
             CreateBlueprints.Pos   = new Vector2(X+ 10,  Y+ Height - 30);
             EditBlueprints.Pos     = new Vector2(X + Width - 240, CreateBlueprints.Y);
             ClearBlueprints.Pos    = new Vector2(X + Width - 160, CreateBlueprints.Y);
             LoadBlueprints.Pos     = new Vector2(X + Width - 80, CreateBlueprints.Y); 
 
-            //BlueprintsCompletion.Pos     = new Vector2(WorldType.X, Portrait.Y + 115);
-            //BlueprintsCompletion.Text    = GameText.Completion;
-            //BlueprintsCompletion. = GameText.CompletionTip;
-            //BlueprintsCompletionVal.Pos  = new Vector2(WorldType.X+85, Portrait.Y + 115);
-            BlueprintsAchiveable.Pos        = new Vector2(X+110 + Width*0.5f, Y + 50);
+            BlueprintsAchiveable.Pos        = new Vector2(X+110 + Width*0.5f, Y + 70);
             BlueprintsAchiveable.Tooltip    = GameText.AchievableTip;
-            BlueprintsCompletionLbl.Pos     = new Vector2(X + 10, Y + 50);
+            BlueprintsCompletionLbl.Pos     = new Vector2(X + 10, Y + 70);
             BlueprintsCompletionLbl.Tooltip = GameText.CompletionTip;
 
             Quarantine.Pos         = new Vector2(Portrait.X, Bottom - 24);
@@ -338,6 +338,7 @@ namespace Ship_Game
             UpdateGovOrbitalStats();
             UpdateBudgets();
             UpdateBlueprintsStats();
+            UpdateBlueprintsChanged();
             base.PerformLayout(); // update all the sub-elements, like checkbox rects
         }
 
@@ -361,6 +362,21 @@ namespace Ship_Game
             Planet.DontScrapBuildings = false;
             Planet.AddBlueprints(template, Player);
             ColonyTypeList.ActiveValue = Planet.CType;
+            OnColonyTypeChanged(Planet.CType);
+            BlueprintsName.Text = template.Name;
+            UpdateBlueprintsChanged();
+        }
+
+        void UpdateBlueprintsChanged()
+        {
+            BlueprintsName.Text = Planet.HasBlueprints ? Planet.Blueprints.Name : "";
+            BlueprintsGovChange.Text = Planet.HasBlueprints && Planet.Blueprints.ColonyType != Planet.ColonyType.Colony
+                ? BlueprintsGovChange.Text = $"{Localizer.Token(GameText.GovernorChangedTo)} {Planet.Blueprints.ColonyType}"
+                : BlueprintsGovChange.Text = "";
+
+
+            BlueprintsExclusive.Text = Planet.HasBlueprints && Planet.Blueprints.Exclusive ? GameText.ExclusiveBlueprints : "";
+            BlueprintsLink.Text = Planet.HasBlueprints ? $"{Localizer.Token(GameText.LinkedBlueprints)} {Planet.Blueprints.LinkedBlueprintsName}" : "";
         }
 
         public override void Update(float fixedDeltaTime)
@@ -385,14 +401,14 @@ namespace Ship_Game
                 // Not for trade hubs, which do not build structures anyway
                 GovNoScrap.Visible = GovernorTabView && Planet.CType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer && !Planet.HasBlueprints;
 
-                int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(Planet.Universe.Player);
+                int numTroopsCanLaunch    = DefenseTabView ? Planet.NumTroopsCanLaunchFor(Planet.Universe.Player) : 0;
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
                 CallTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
-                LaunchSingleTroop.Visible = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 0;
-                LaunchAllTroops.Visible   = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 1;
+                LaunchSingleTroop.Visible = CallTroops.Visible && numTroopsCanLaunch > 0;
+                LaunchAllTroops.Visible   = CallTroops.Visible && numTroopsCanLaunch > 1;
                 Garrison.Visible          = DefenseTabView && Planet.OwnerIsPlayer;
-                AutoTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
-                GovOrbitals.Visible       = DefenseTabView && Planet.OwnerIsPlayer && GovernorOn;
+                AutoTroops.Visible        = Garrison.Visible;
+                GovOrbitals.Visible       = Garrison.Visible && GovernorOn;
                 GovGround.Visible         = GovOrbitals.Visible;
                 BuildPlatform.Visible     = DefenseTabView && Planet.OwnerIsPlayer && (!Planet.GovOrbitals || GovernorOff);
                 BuildShipyard.Visible     = BuildPlatform.Visible;
@@ -414,7 +430,6 @@ namespace Ship_Game
                 OverrideCiv.TextColor     = OverrideCivBudget ? Color.White : Color.Gray;
                 OverrideGrd.TextColor     = OverrideGrdBudget ? Color.White : Color.Gray;
                 OverrideSpc.TextColor     = OverrideSpcBudget ? Color.White : Color.Gray;
-                ColonyBlueprints.Color    = Planet.HasBlueprints ? Color.Gold : Color.Wheat;
 
                 if (ManualOrbitals.Visible && Planet.ManualOrbitals)
                 {
@@ -446,9 +461,13 @@ namespace Ship_Game
                 LoadBlueprints.Visible   = CreateBlueprints.Visible && GovernorOn && Planet.CType != Planet.ColonyType.TradeHub;
                 EditBlueprints.Visible   = CreateBlueprints.Visible && Planet.HasBlueprints;
                 ClearBlueprints.Visible  = EditBlueprints.Visible;
-                ColonyBlueprints.Visible = BlueprintsTabView && Planet.OwnerIsPlayer && Planet.GovernorOn && Planet.CType != Planet.ColonyType.TradeHub;
+                BlueprintsName.Visible   = EditBlueprints.Visible;
+                ColonyBlueprints.Visible = LoadBlueprints.Visible && Planet.HasBlueprints;
                 BlueprintsCompletionLbl.Visible = EditBlueprints.Visible;
                 BlueprintsAchiveable.Visible    = EditBlueprints.Visible && Planet.Blueprints.PercentAchivable < 100;
+                BlueprintsGovChange.Visible = EditBlueprints.Visible && BlueprintsGovChange.Text != "";
+                BlueprintsExclusive.Visible = EditBlueprints.Visible && Planet.Blueprints.Exclusive;
+                BlueprintsLink.Visible      = EditBlueprints.Visible && Planet.Blueprints.LinkedBlueprintsName != "";
             }
 
             UpdateButtonTimer(fixedDeltaTime);
@@ -573,6 +592,7 @@ namespace Ship_Game
         void OnClearBlueprintsClicked(UIButton b)
         {
             Planet.RemoveBlueprints();
+            BlueprintsName.Text = "";
         }
 
         void OnCreateBlueprintsClicked(UIButton b)
@@ -591,7 +611,7 @@ namespace Ship_Game
         void OnEditblueprintsClicked(UIButton b)
         {
             if (Planet.HasBlueprints && ResourceManager.TryGetBlueprints(Planet.Blueprints.Name, out BlueprintsTemplate template))
-                Screen.ScreenManager.AddScreen(new BlueprintsScreen(Universe, Player, template));
+                Screen.ScreenManager.AddScreen(new BlueprintsScreen(Universe, Player, template, this));
         }
 
         void OnLaunchTroopsClicked(UIButton b)

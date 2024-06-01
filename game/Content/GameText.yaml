@@ -15023,6 +15023,15 @@ OutpostsCannotBeRemoved:
 LockedRightClickToRemove:
  Id: 6206
  ENG: "This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though."         
+BlueprintsSimulation:
+ Id: 6207
+ ENG: "Colony Simulation"          
+GovernorChangedTo:
+ Id: 6208
+ ENG: "Colony Type was changed to"           
+LinkedBlueprints:
+ Id: 6209
+ ENG: "Linked Blueprints:"            
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."
