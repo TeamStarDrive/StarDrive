@@ -478,11 +478,21 @@ namespace Ship_Game
             ScreenManager.AddScreen(new LoadBlueprintsScreen(this));
         }
 
-    public void AfterBluprintsSave(BlueprintsTemplate template)
+        public void AfterBluprintsSave(BlueprintsTemplate template)
         {
             BlueprintsName.Text = template.Name;
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: false);
             GovernorTab?.OnBlueprintsChanged(template);
+        }
+
+        public void AfterBluprintsDelete(BlueprintsTemplate template)
+        {
+            Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: true);
+        }
+
+        public void RemoveAllBlueprintsLinkTo(BlueprintsTemplate template)
+        {
+            Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: false);
         }
 
         public void LoadBlueprintsTemplate(BlueprintsTemplate template)

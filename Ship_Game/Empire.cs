@@ -2591,15 +2591,22 @@ namespace Ship_Game
                     else
                         planet.Blueprints.ChangeTemplate(template);
                 }
-                
             }
         }
 
-        public void ValidatePlanetsBlueprints(BlueprintsTemplate[] validTemplates)
+        public void ValidateAndReloadPlanetsBlueprints()
         {
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasBlueprints && !ResourceManager.TryGetBlueprints(planet.Blueprints.Name, out _))
+                if (!planet.HasBlueprints)
+                    continue;
+
+                if (ResourceManager.TryGetBlueprints(planet.Blueprints.Name, out BlueprintsTemplate template))
+                {
+                    // We are also reloading in case the template was changed (IE - linked Blueprints) and game was not saved
+                    planet.Blueprints.ChangeTemplate(template);
+                }
+                else
                 {
                     Log.Warning($"Blueprints template name {planet.Blueprints.Name} not valid, removing blueprints from planet {planet}");
                     planet.RemoveBlueprints();

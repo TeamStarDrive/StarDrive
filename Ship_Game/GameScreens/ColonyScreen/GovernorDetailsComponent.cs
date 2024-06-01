@@ -118,13 +118,13 @@ namespace Ship_Game
             Portrait         = Add(new UIPanel(PortraitSprite));
             WorldType        = Add(new UILabel(Planet.WorldType, FontBig));
             WorldDescription = Add(new UILabel(Font12));
-            ColonyBlueprints = Add(new UILabel(GameText.ColonyBlueprintsTitle, FontBig, Color.Wheat));
+            ColonyBlueprints = Add(new UILabel(GameText.ColonyBlueprintsTitle, FontBig, Color.White));
             BlueprintsName   = Add(new UILabel("", FontBig, Color.Gold));
             BlueprintsCompletionLbl = Add(new UILabel(GameText.Completion, Font, Color.Wheat));
             BlueprintsAchiveable    = Add(new UILabel(GameText.Achievable, Font, Color.Gray));
-            BlueprintsGovChange     = Add(new UILabel(GameText.GovernorChangedTo, Font, Color.White));
-            BlueprintsExclusive     = Add(new UILabel(GameText.GovernorChangedTo, Font, Color.Gold));
-            BlueprintsLink          = Add(new UILabel(GameText.GovernorChangedTo, Font, Color.Gold));
+            BlueprintsGovChange     = Add(new UILabel(GameText.GovernorChangedTo, Font, Color.Gray));
+            BlueprintsExclusive     = Add(new UILabel("", Font, Color.LightGreen));
+            BlueprintsLink          = Add(new UILabel("", Font, Color.Wheat));
 
             GovOrbitals    = Add(new UICheckBox(() => Planet.GovOrbitals, Font, title:GameText.GovernorManagesOrbitals, tooltip:GameText.TheGovernorWillBuildStations));
             AutoTroops     = Add(new UICheckBox(() => Planet.AutoBuildTroops, Font, title:GameText.GovernorBuildsMilitia, tooltip:GameText.TheGovernorWillCreateA));

@@ -1,9 +1,11 @@
 ﻿using System.IO;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Data.Yaml;
+using Ship_Game.Data.YamlSerializer;
 
 namespace Ship_Game;
 
@@ -34,6 +36,34 @@ public sealed class LoadBlueprintsScreen : GenericLoadSaveScreen
         ExitScreen();
     }
 
+    protected override bool DeleteFile(FileData toDelete)
+    {
+        if (!base.DeleteFile(toDelete))
+            return false;
+
+        var deleteBluprints = (BlueprintsTemplate)toDelete.Data;
+        string deletedName  = deleteBluprints.Name;
+        Screen.AfterBluprintsDelete(deleteBluprints);
+
+        string modName = BlueprintsTemplate.CurrentModName;
+        foreach (FileInfo info in Dir.GetFiles(Path, "yaml"))
+        {
+            var blueprints = YamlParser.DeserializeOne<BlueprintsTemplate>(info);
+            if (modName == blueprints.ModName && blueprints.LinkTo == deletedName)
+            {
+                blueprints.LinkTo = "";
+                string path = Path + blueprints.Name + ".yaml";
+                YamlSerializer.SerializeOne(path, blueprints);
+                ResourceManager.AddBlueprintsTemplate(blueprints);
+                Screen.RemoveAllBlueprintsLinkTo(blueprints);
+            }
+        }
+
+        SavesSL.Reset();
+        InitSaveList();
+        return true;
+    }
+
     FileData CreateBlueprintsSaveItem(FileInfo info, BlueprintsTemplate blueprints)
     {
         string title1;
@@ -50,7 +80,7 @@ public sealed class LoadBlueprintsScreen : GenericLoadSaveScreen
         }
 
         string title2 = blueprints.Validated && blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
-        return new(info, info, blueprints.Name, title1, title2, "", BlueprintsIcon, HelperFunctions.GetBlueprintsIconColor(blueprints)) 
+        return new(info, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, HelperFunctions.GetBlueprintsIconColor(blueprints)) 
         { Enabled = blueprints.Validated };
     }
 
