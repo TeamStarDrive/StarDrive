@@ -5298,6 +5298,20 @@ namespace Ship_Game
         GovernorChangedTo = 6208,
         /// <summary>linked Blueprings</summary>
         LinkedBlueprints = 6209,
+        /// <summary>Upload Colony Blueprints for the Governor to follow</summary>
+        UploadBluprintsTip = 6210,
+        /// <summary>Clear</summary>
+        Clear = 6211,
+        /// <summary>Delete the current uploaded Blueprints and let</summary>
+        ClearBluprintsTip = 6212,
+        /// <summary>Edit</summary>
+        Edit = 6213,
+        /// <summary>Make changes to the current loaded Blueprints</summary>
+        EditBluprintsTip = 6214,
+        /// <summary>Snapshot</summary>
+        BlueprintsSnapshot = 6215,
+        /// <summary>Create Blueprints from the current Applicable</summary>
+        BlueprintsSnapshotTip = 6216,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
