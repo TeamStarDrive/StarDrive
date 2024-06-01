@@ -148,6 +148,7 @@ namespace Ship_Game.GameScreens.LoadGame
             us.Screen.LoadContent();
             us.Objects.UpdateLists(removeInactiveObjects: false);
 
+            us.ValidateEmpiresPlanetsBlueprints();
             GameAudio.StopGenericMusic(fadeout: true);
 
             step.Finish(); // finish everything
