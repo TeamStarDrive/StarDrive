@@ -1110,6 +1110,9 @@ namespace Ship_Game
             if (LookingAtPlanet)
                 return;
 
+            if (input.OpenScreenSaveMenu)
+                ScreenManager.AddScreen(new SaveGameScreen(this));
+
             float worldWidthOnScreen = (float)VisibleWorldRect.Width;
 
             float x = input.CursorX, y = input.CursorY;

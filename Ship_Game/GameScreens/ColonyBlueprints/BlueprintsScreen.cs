@@ -421,6 +421,12 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (input.OpenScreenSaveMenu && SaveBlueprints.Enabled)
+            {
+                OnSaveBlueprintsClick();
+                return true;
+            }
+
             PlanAreaHovered = BuildableList.IsDragging && SubPlanArea.HitTest(Input.CursorPosition);
             HoveredBuilding = GetHoveredBuildingFromBuildableList(input);
             foreach (BlueprintsTile tile in TilesList)
