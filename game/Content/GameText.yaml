@@ -15032,6 +15032,27 @@ GovernorChangedTo:
 LinkedBlueprints:
  Id: 6209
  ENG: "Linked Blueprints:"            
+UploadBluprintsTip:
+ Id: 6210
+ ENG: "Upload Colony Blueprints for the Governor to follow. Note that some Blueprints are configured to change the Colony Type."             
+Clear:
+ Id: 6211
+ ENG: "Clear"               
+ClearBluprintsTip:
+ Id: 6212
+ ENG: "Delete the current uploaded Blueprints and let the governor Do what it thinks is the best. Not that if you change the Colony Type to Tradehub or remove the govenror, the blueprints will be removed as well."              
+Edit:
+ Id: 6213
+ ENG: "Edit"                
+EditBluprintsTip:
+ Id: 6214
+ ENG: "Make changes to the current loaded Blueprints. If you save the Bluperints adter editing, it will update all Colonies with the same Blueprints. If you save in a different name, The Govenror of this colony will swtich to the new Blueprints, but other Colonies will not be updated, unless you overwrite existing Blueprints.                 
+BlueprintsSnapshot:
+ Id: 6215
+ ENG: "Snapshot"                 
+BlueprintsSnapshotTip:
+ Id: 6216
+ ENG: "Create Blueprints from the current Applicable buildings on this planet."                  
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

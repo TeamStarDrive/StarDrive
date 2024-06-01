@@ -158,10 +158,14 @@ namespace Ship_Game
             ColonyTypeList.ActiveValue = Planet.CType;
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 
-            CreateBlueprints = Button(ButtonStyle.Medium, "Snapshot", OnCreateBlueprintsClicked);
-            EditBlueprints   = Button(ButtonStyle.Small, "Edit", OnEditblueprintsClicked);
-            ClearBlueprints  = Button(ButtonStyle.Small, "Clear", OnClearBlueprintsClicked);
+            CreateBlueprints = Button(ButtonStyle.Medium, GameText.BlueprintsSnapshot, OnCreateBlueprintsClicked);
+            EditBlueprints   = Button(ButtonStyle.Small, GameText.Edit, OnEditblueprintsClicked);
+            ClearBlueprints  = Button(ButtonStyle.Small, GameText.Clear, OnClearBlueprintsClicked);
             LoadBlueprints   = Button(ButtonStyle.Small, GameText.Load, OnLoadBlueprintsClicked);
+            CreateBlueprints.Tooltip = GameText.BlueprintsSnapshotTip;
+            EditBlueprints.Tooltip   = GameText.EditBluprintsTip;
+            ClearBlueprints.Tooltip  = GameText.ClearBluprintsTip;
+            LoadBlueprints.Tooltip   = GameText.UploadBluprintsTip;
 
             ButtonUpdateTimer    = 1;
             BuildCapital         = Button(ButtonStyle.BigDip, GameText.ButtonBuildCapitalName, OnBuildCapitalClicked);

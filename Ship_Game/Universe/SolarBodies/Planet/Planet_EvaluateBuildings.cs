@@ -570,17 +570,6 @@ namespace Ship_Game
         float CalcBuildingScore(Building b, float totalProd, bool chooseBest)
         {
             float score = 0;
-            if (Blueprints?.Exclusive == true && b.IsSuitableForBlueprints && Blueprints.IsNotRequired(b))
-            {
-                if (IsPlanetExtraDebugTarget())
-                {
-                    Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-10} " +
-                                                $"{score.SignString()} {"",3} {"Not required in exclusive blueprints",-13}");
-                }
-
-                return score;
-            }
-
             score += EvalTraits(Priorities[ColonyPriority.FoodFlat],        b.PlusFlatFoodAmount);
             score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist * 3);
             score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount * 2);
@@ -606,6 +595,10 @@ namespace Ship_Game
             // Cost effectiveness, since we want to compare the buildings without cost modifiers
             float effectiveness = chooseBest ? CostEffectivenessMultiplier(b.Cost, totalProd) : 1;
             score *= effectiveness;
+
+
+            if (RequiredInBlueprints(b))
+                score = score.LowerBound(1);
 
             if (IsPlanetExtraDebugTarget())
             {
