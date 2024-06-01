@@ -75,16 +75,21 @@ namespace Ship_Game
         {
         }
 
-        protected void DeleteFile(FileData toDelete)
+        protected virtual bool DeleteFile(FileData toDelete)
         {
-            GameAudio.EchoAffirmative();
-            
             try
             {
                 toDelete.FileLink.Delete(); // delete the file
-            } catch { }
+            } 
+            catch 
+            {
+                GameAudio.NegativeClick();
+                return false;
+            }
 
+            GameAudio.EchoAffirmative();
             SavesSL.RemoveFirstIf(item => item.Data == toDelete);
+            return true;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
