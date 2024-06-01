@@ -5312,6 +5312,10 @@ namespace Ship_Game
         BlueprintsSnapshot = 6215,
         /// <summary>Create Blueprints from the current Applicable</summary>
         BlueprintsSnapshotTip = 6216,
+        /// <summary>Colony Blueprints can be uoloaded for the</summary>
+        BluePrintsOverView = 6217,
+        /// <summary>Enable a Govenror in order upload Blueprints.</summary>
+        BluePrintsEnableGovernorToLoad = 6218,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
