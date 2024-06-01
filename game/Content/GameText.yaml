@@ -15052,7 +15052,13 @@ BlueprintsSnapshot:
  ENG: "Snapshot"                 
 BlueprintsSnapshotTip:
  Id: 6216
- ENG: "Create Blueprints from the current Applicable buildings on this planet."                  
+ ENG: "Create Blueprints from the current applicable buildings on this planet. It wont work if non of the current buildings can be inserted into Blueprints."                  
+BluePrintsOverView:
+ Id: 6217
+ ENG: "Colony Blueprints are mainly lists of buildings which can be uoloaded for the Governor to follow. The governor will prioritize these building if possible, and in case the Blueprints are Exclusive, the govenror will build only the specified buildings in the Uploaded Blueprints. Blueprints can also be linked to other Blueprints so when they finished, new Blueprints are uploaded."                   
+BluePrintsEnableGovernorToLoad:
+ Id: 6218
+ ENG: "Enable a Govenror in order upload Blueprints."                    
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

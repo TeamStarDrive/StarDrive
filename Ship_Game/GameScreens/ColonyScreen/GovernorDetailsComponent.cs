@@ -77,8 +77,8 @@ namespace Ship_Game
         UITextEntry ManualGrdBudget;
         UITextEntry ManualSpcBudget;
 
-        UILabel ColonyBlueprints, BlueprintsCompletionLbl, BlueprintsAchiveable, BlueprintsName, 
-            BlueprintsExclusive, BlueprintsLink, BlueprintsGovChange;
+        UILabel ColonyBlueprints, BlueprintsCompletionLbl, BlueprintsAchiveable, BlueprintsName,
+            BlueprintsExclusive, BlueprintsLink, BlueprintsGovChange, Blueprintsoverview, BlueprintsEnableGov;
         ProgressBar BlueprintsCompletion;
 
 
@@ -125,6 +125,8 @@ namespace Ship_Game
             BlueprintsGovChange     = Add(new UILabel(GameText.GovernorChangedTo, Font, Color.Gray));
             BlueprintsExclusive     = Add(new UILabel("", Font, Color.LightGreen));
             BlueprintsLink          = Add(new UILabel("", Font, Color.Wheat));
+            Blueprintsoverview    = Add(new UILabel("", Font, Color.Wheat));
+            BlueprintsEnableGov     = Add(new UILabel("", Font, Color.Gold));
 
             GovOrbitals    = Add(new UICheckBox(() => Planet.GovOrbitals, Font, title:GameText.GovernorManagesOrbitals, tooltip:GameText.TheGovernorWillBuildStations));
             AutoTroops     = Add(new UICheckBox(() => Planet.AutoBuildTroops, Font, title:GameText.GovernorBuildsMilitia, tooltip:GameText.TheGovernorWillCreateA));
@@ -263,6 +265,10 @@ namespace Ship_Game
             BlueprintsGovChange.Pos = new Vector2(X + 10, Y + 100);
             BlueprintsExclusive.Pos = new Vector2(X + 10, Y + 130);
             BlueprintsLink.Pos      = new Vector2(X + 10, Y + 160);
+            Blueprintsoverview.Pos  = ColonyBlueprints.Pos;
+            Blueprintsoverview.Text = GetParsedBlueprintsOverview();
+            BlueprintsEnableGov.Pos  = new Vector2(X + 10, Bottom - 60);
+            BlueprintsEnableGov.Text = GameText.BluePrintsEnableGovernorToLoad;
 
             CreateBlueprints.Pos   = new Vector2(X+ 10,  Y+ Height - 30);
             EditBlueprints.Pos     = new Vector2(X + Width - 240, CreateBlueprints.Y);
@@ -348,8 +354,14 @@ namespace Ship_Game
 
         string GetParsedDescription()
         {
-            float maxWidth = (Right - 10 - WorldType.X);
-            return Fonts.Arial12Bold.ParseText(Planet.ColonyTypeInfoText, maxWidth);
+            float maxWidth = Right - 10 - WorldType.X;
+            return Font.ParseText(Planet.ColonyTypeInfoText, maxWidth);
+        }
+
+        string GetParsedBlueprintsOverview()
+        {
+            float maxWidth = Right - 30;
+            return Font.ParseText(Localizer.Token(GameText.BluePrintsOverView), maxWidth);
         }
 
         void OnColonyTypeChanged(Planet.ColonyType type)
@@ -472,6 +484,8 @@ namespace Ship_Game
                 BlueprintsGovChange.Visible = EditBlueprints.Visible && BlueprintsGovChange.Text != "";
                 BlueprintsExclusive.Visible = EditBlueprints.Visible && Planet.Blueprints.Exclusive;
                 BlueprintsLink.Visible      = EditBlueprints.Visible && Planet.Blueprints.LinkedBlueprintsName != "";
+                Blueprintsoverview.Visible  = CreateBlueprints.Visible && !Planet.HasBlueprints;
+                BlueprintsEnableGov.Visible = Blueprintsoverview.Visible && GovernorOff;
             }
 
             UpdateButtonTimer(fixedDeltaTime);
