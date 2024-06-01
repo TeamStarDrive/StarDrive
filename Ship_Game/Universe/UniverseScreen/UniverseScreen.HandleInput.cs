@@ -1163,7 +1163,7 @@ namespace Ship_Game
                     snappingToShip = false;
                     ViewingShip    = false;
                 }
-                if (InRange(y, minBottom, maxBottom) || (enableKeys && input.KeysDownHeld(arrowKeys)))
+                if (InRange(y, minBottom, maxBottom) || (enableKeys && input.KeysDownHeld(arrowKeys) && !input.IsCtrlKeyDown))
                 {
                     CamDestination.Y += 0.008f * worldWidthOnScreen;
                     snappingToShip = false;

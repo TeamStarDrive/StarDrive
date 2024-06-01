@@ -377,5 +377,12 @@ public partial class UniverseState
         foreach (Empire empire in MajorEmpires)
             empire.RefreshPlanetsBlueprints(template, delete);
     }
+
+    public void ValidateEmpiresPlanetsBlueprints()
+    {
+        var templates =  ResourceManager.GetAllBlueprints();
+        foreach (Empire empire in MajorEmpires)
+            empire.ValidatePlanetsBlueprints(templates);
+    }
 }
 
