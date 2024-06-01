@@ -5292,6 +5292,12 @@ namespace Ship_Game
         OutpostsCannotBeRemoved = 6205,
         /// <summary>The Outpost cannot be removed</summary>
         LockedRightClickToRemove = 6206,
+        /// <summary>Colony Simulation</summary>
+        BlueprintsSimulation = 6207,
+        /// <summary>Governor Was changed to</summary>
+        GovernorChangedTo = 6208,
+        /// <summary>linked Blueprings</summary>
+        LinkedBlueprints = 6209,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

@@ -20,10 +20,10 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] BlueprintsTemplate Template;
 
         public string Name => Template.Name;
-        public string LinkedBlueprintsName => Template.LinkTo;
+        public string LinkedBlueprintsName => Template.LinkTo ?? "";
         public bool Exclusive => Template.Exclusive; // Build only these buildings and remove the rest
         HashSet<string> PlannedBuildings => Template.PlannedBuildings;
-        ColonyType ColonyType => Template.ColonyType;
+        public ColonyType ColonyType => Template.ColonyType;
         public bool Completed => PercentCompleted == 100;
 
 
@@ -105,16 +105,21 @@ namespace Ship_Game.Universe.SolarBodies
 
         public bool ShouldScrapNonRequiredBuilding()
         {
-            if (Exclusive)
+            return Exclusive ? ContainsNotRequiredBuildings() 
+                             : P.FreeHabitableTiles == 0 
+                                && P.GetBuildingsCanBuild().Any(IsRequired) 
+                                && ContainsNotRequiredBuildings();
+
+            bool ContainsNotRequiredBuildings()
             {
                 foreach (Building b in P.Buildings)
                 {
-                    if (b.IsSuitableForBlueprints && IsNotRequired(b))
+                    if (b.IsSuitableForBlueprints && IsNotRequired(b) && Owner.IsBuildingUnlocked(b.Name))
                         return true;
                 }
-            }
 
-            return false;
+                return false;
+            }
         }
     }
 }
