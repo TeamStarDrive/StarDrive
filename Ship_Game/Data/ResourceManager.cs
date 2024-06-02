@@ -20,7 +20,6 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
-using System.Linq;
 
 #pragma warning disable CA2237, RCS1194 // Mark ISerializable types with serializable
 
