@@ -48,12 +48,13 @@ public sealed class LinkBlueprintsScreen : SaveLoadBlueprintsScreen
         }
         else
         {
-            title2 = $"Cannot link these Blueprints as their link chain leads to {BlueprintsNameRequsetingLink}";
-            infoColor = Color.Pink;
+            title2 = "Linking to these Blueprints will result in cyclic link chain";
+            infoColor = Color.Red;
         }
 
-        return new(null, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, GetBlueprintsIconColor(blueprints)) 
-        { Enabled = infoColor == Color.White, InfoColor = infoColor };
+        Color color = BlueprintsScreen.GetBlueprintsIconColor(blueprints);
+        return new(null, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, color) 
+        { Enabled = infoColor == Color.White, InfoColor = infoColor, FileNameColor = color };
     }
 
     protected override void InitSaveList()

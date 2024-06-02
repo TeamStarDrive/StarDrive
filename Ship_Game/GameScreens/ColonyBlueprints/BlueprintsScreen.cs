@@ -1,16 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using Ship_Game.GameScreens.ShipDesign;
-using Ship_Game.Graphics;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
-using Ship_Game.UI;
-using System;
 using SDUtils;
-using System.Drawing;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
-using Ship_Game.Ships;
 using Ship_Game.Audio;
 using Font = Ship_Game.Graphics.Font;
 using Ship_Game.Universe.SolarBodies;
@@ -39,12 +32,14 @@ namespace Ship_Game
         readonly UIButton SaveBlueprints;
         readonly UIButton LoadBlueprints;
         readonly UIButton LinkBlueprints;
+        readonly UIButton UnlinkBlueprints;
         float InitPopulationBillion = 5;
         float InitFertility = 1;
         float InitRichness = 1;
         float InitTax = 0.25f;
 
         readonly ScrollList<BlueprintsBuildableListItem> BuildableList;
+        readonly ScrollList<BlueprintsChainListItem> BlueprintsChainList;
         readonly DropOptions<Planet.ColonyType> SwitchColonyType;
         readonly UILabel LinkBlueprintsName;
 
@@ -146,10 +141,14 @@ namespace Ship_Game
             Vector2 loadPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 90, SubBlueprintsOptions.Y + 170);
             LoadBlueprints = base.Add(new UIButton(ButtonStyle.Small, loadPos, GameText.Load));
             LoadBlueprints.OnClick = (b) => OnLoadBlueprintsClick();
-            Vector2 linkPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 180, SubBlueprintsOptions.Y + 170);
+            Vector2 linkPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 170, SubBlueprintsOptions.Y + 170);
             LinkBlueprints = base.Add(new UIButton(ButtonStyle.Small, linkPos, "Link"));
             LinkBlueprints.OnClick = (b) => OnLinkBlueprintsClick();
             LinkBlueprints.Enabled = false;
+            Vector2 unlinkPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 250, SubBlueprintsOptions.Y + 170);
+            UnlinkBlueprints = base.Add(new UIButton(ButtonStyle.Small, unlinkPos, "Unlink"));
+            UnlinkBlueprints.OnClick = (b) => OnUnlinkBlueprintsClick();
+            UnlinkBlueprints.Enabled = false;
 
             RectF initPopR = new(blueprintsOptionsX, experimentalR.Y + 40, SubBlueprintsOptions.Width*0.6, 50);
             InitPopulationSlider = SliderDecimal1(initPopR, GameText.Population, 0.1f, 20, InitPopulationBillion);
@@ -176,6 +175,9 @@ namespace Ship_Game
             BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
             BuildableList.EnableDragOutEvents = true;
             BuildableList.OnDragOut = OnBuildableListDrag;
+            RectF chainlistR = new(chainR.X, chainR.Y + 20, chainR.W, chainR.H - 20);
+            BlueprintsChainList = base.Add(new ScrollList<BlueprintsChainListItem>(chainlistR, 40));
+            BlueprintsChainList.EnableItemHighlight = true;
 
 
             base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 50 + Font14.LineSpacing * 3),
@@ -261,6 +263,22 @@ namespace Ship_Game
             RecalculateGeneralStats();
         }
 
+        void RefreshChainList()
+        {
+            BlueprintsChainList.Reset();
+            BuildChain(LinkBlueprintsName.Text.Text);
+
+            void BuildChain(string linkTo)
+            {
+                if (linkTo?.NotEmpty() == true
+                    && ResourceManager.TryGetBlueprints(linkTo, out BlueprintsTemplate linked))
+                {
+                    BlueprintsChainList.AddItem(new BlueprintsChainListItem(linked));
+                    BuildChain(linked.LinkTo);
+                }
+            }
+        }
+
         void AddOutpost()
         {
             Building outpost = ResourceManager.GetBuildingTemplate(Building.OutpostId);
@@ -298,7 +316,7 @@ namespace Ship_Game
             bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
             ColonyScreen.DrawBuildingStaticInfo(ref bCursor, batch, TextFont, Player, PlannedFertility, 
                 InitRichness, Player.data.Traits.PreferredEnv, HoveredBuilding);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepairBlueprints(PlanetLevel), 
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepair(PlanetLevel), 
                 "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
             ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, PlanetLevel);
         }
@@ -333,6 +351,8 @@ namespace Ship_Game
                 "NewUI/icon_storage_production", GameText.Storage);
             ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedShields,
                 "NewUI/icon_storage_production", GameText.PlanetaryShieldStrengthAdded);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedRepairPerTurn,
+                "NewUI/icon_storage_production", GameText.ShipRepair);
         }
 
 
@@ -377,7 +397,7 @@ namespace Ship_Game
                 PlannnedInfrastructure += b.Infrastructure;
                 PlannedStorage += b.StorageAdded;
                 PlannedShields += b.PlanetaryShieldStrengthAdded;
-                PlannedRepairPerTurn += b.ShipRepair;
+                PlannedRepairPerTurn += b.ActualShipRepair(PlanetLevel);
                 CanBuildTroops |= b.AllowInfantry;
                 CanBuildShips |= b.AllowShipBuilding || b.IsSpacePort;
                 b.UpdateOffense(PlanetLevel, Player.Universe);
@@ -418,6 +438,7 @@ namespace Ship_Game
             PlannedFertilityLbl.Visible = PlannedFertility.NotEqual(InitFertility);
             PlannedPopLbl.Color = PlannedPopulation >= InitPopulationBillion ? Color.LightGreen : Color.Pink;
             PlannedFertilityLbl.Color = PlannedFertility >= InitFertility ? Color.LightGreen : Color.Pink;
+            UnlinkBlueprints.Enabled = LinkBlueprintsName.Text != "";
             base.Update(elapsedTime);
         }
 
@@ -495,18 +516,25 @@ namespace Ship_Game
             ScreenManager.AddScreen(new LinkBlueprintsScreen(this, BlueprintsName.Text.Text));
         }
 
+        void OnUnlinkBlueprintsClick()
+        {
+            LinkBlueprintsName.Text = "";
+            RefreshChainList();
+        }
+
         public void AfterBluprintsSave(BlueprintsTemplate template)
         {
             BlueprintsName.Text = template.Name;
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: false);
             GovernorTab?.OnBlueprintsChanged(template);
             LinkBlueprints.Enabled = true;
+            RefreshChainList();
         }
 
         public void AfterBluprintsDelete(BlueprintsTemplate template)
         {
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: true);
-            LinkBlueprints.Enabled = false;
+            LinkBlueprints.Enabled = BlueprintsName.Text != template.Name;
         } 
 
         public void RemoveAllBlueprintsLinkTo(BlueprintsTemplate template)
@@ -519,6 +547,7 @@ namespace Ship_Game
         public void OnBlueprintsLinked(BlueprintsTemplate linkedBlueprints)
         {
             LinkBlueprintsName.Text = linkedBlueprints.Name;
+            RefreshChainList();
         }
 
         public void LoadBlueprintsTemplate(BlueprintsTemplate template)
@@ -545,6 +574,8 @@ namespace Ship_Game
                 if (b != null) 
                     TryAddBuilding(b, Player.IsBuildingUnlocked(name));
             }
+
+            RefreshChainList();
         }
 
         void ClearPlannedBuildings()
@@ -583,6 +614,19 @@ namespace Ship_Game
             }
 
             return null; // default: use Plan Statistics
+        }
+
+        public static Color GetBlueprintsIconColor(BlueprintsTemplate template)
+        {
+            switch (template.ColonyType)
+            {
+                case Planet.ColonyType.Research:     return Color.CornflowerBlue;
+                case Planet.ColonyType.Industrial:   return Color.Orange;
+                case Planet.ColonyType.Agricultural: return Color.Green;
+                case Planet.ColonyType.Military:     return Color.Red;
+                case Planet.ColonyType.Core:         return Color.White;
+                default:                             return Color.Yellow;
+            }
         }
 
         public override void ExitScreen()

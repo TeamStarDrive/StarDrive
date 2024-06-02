@@ -15064,7 +15064,7 @@ LinkBlueprintsTip:
  ENG: "When linking Blueprints to these Blueprints, the linked Blueprints will be uploaded after the Governor completes these Bluerpints. You can link Blueprints after you save them."                     
 LinksChain:
  Id: 6220
- ENG: "Links Chain"
+ ENG: "Forward Link Chain"
 BlueprintsScreenTip:
  Id: 6221
  ENG: "Opens the Blueprints Screen, which allows you to create, delete and edit Blueprints for colonies." 
