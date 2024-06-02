@@ -79,7 +79,7 @@ namespace Ship_Game
         {
             Color buildColor = Hovered ? Color.Gold : Color.Gray;
             if (BuildingDescr == null)
-                BuildingDescr = Font8.ParseText(BuildingShortDescription(b), TextWidth);
+                BuildingDescr = Font8.ParseText(b.GetShortDescrText(), TextWidth);
 
             batch.Draw(b.IconTex, new Vector2(X, Y - 2), new Vector2(IconSize), Screen.PlanAreaHovered && Hovered ? Color.Green : Color.White); // Icon
             batch.DrawString(Font12, b.TranslatedName.Text, TextX + 2, Y + 2, Color.White); // Title
@@ -94,11 +94,5 @@ namespace Ship_Game
         }
 
         float GetMaintenance(Building b) => b.ActualMaintenance(Screen.Player) - b.Income;
-
-        string BuildingShortDescription(Building b)
-        {
-            string description = b.GetShortDescrText(null);
-            return description;
-        }
     }
 }
