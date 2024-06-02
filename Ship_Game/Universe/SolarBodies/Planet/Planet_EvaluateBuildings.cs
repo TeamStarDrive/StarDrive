@@ -10,6 +10,7 @@ namespace Ship_Game
 {
     public partial class Planet
     {
+        static float BuildingScoreThreshold = 1;
         bool LowProdPotential => Prod.GrossMaxPotential < 1;
         bool LowFoodPotential => NonCybernetic && Food.GrossMaxPotential < 1;
 
@@ -400,7 +401,7 @@ namespace Ship_Game
                 Log.Info(ConsoleColor.Cyan, $"==== Planet  {Name}  CHOOSE BEST BUILDING, Budget: {budget} ====");
 
 
-            float highestScore = 1f; // Score threshold to build stuff
+            float highestScore = BuildingScoreThreshold; // Score threshold to build stuff
             float totalProd    = Storage.Prod + IncomingProd;
 
             for (int i = 0; i < buildings.Count; i++)
@@ -598,7 +599,7 @@ namespace Ship_Game
 
 
             if (RequiredInBlueprints(b))
-                score = score.LowerBound(1);
+                score = score.LowerBound(BuildingScoreThreshold + 0.1f);
 
             if (IsPlanetExtraDebugTarget())
             {

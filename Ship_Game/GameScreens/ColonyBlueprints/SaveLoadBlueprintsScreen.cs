@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -36,6 +35,14 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
     public SaveLoadBlueprintsScreen(GameScreen parent, string planetName)
         : base(parent, SLMode.Load, "", $"Load Blueprints To {planetName}", "Saved Blueprints", ListItemHeight)
     {
+        InitPath();
+    }
+
+    // Link blueprints to other Blueprints.
+    public SaveLoadBlueprintsScreen(string blueprintsName, BlueprintsScreen parent)
+        : base(parent, SLMode.Load, "", $"Link Blueprints To {blueprintsName}", "Saved Blueprints", ListItemHeight)
+    {
+        BlueprintsScreen = parent;
         InitPath();
     }
 
@@ -83,16 +90,17 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
         {
             var blueprints = YamlParser.DeserializeOne<BlueprintsTemplate>(SelectedFile?.FileLink);
             BlueprintsScreen.LoadBlueprintsTemplate(blueprints);
+            ExitScreen();
         }
         else
         {
             GameAudio.NegativeClick();
         }
-        ExitScreen();
     }
 
     protected override bool DeleteFile(FileData toDelete)
     {
+
         if (!base.DeleteFile(toDelete))
             return false;
 
@@ -122,6 +130,7 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
     FileData CreateBlueprintsSaveItem(FileInfo info, BlueprintsTemplate blueprints)
     {
         string title1;
+        Color infoColor = Color.White;
         if (blueprints.Validated)
         {
             title1 = blueprints.Exclusive ? Localizer.Token(GameText.ExclusiveBlueprints) : "";
@@ -132,11 +141,12 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
         else
         {
             title1 = "These Blueprints have some missing buildings and cannot be loaded.";
+            infoColor = Color.Pink;
         }
 
         string title2 = blueprints.Validated && blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
         return new(info, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, GetBlueprintsIconColor(blueprints))
-        { Enabled = blueprints.Validated };
+        { Enabled = blueprints.Validated, InfoColor = infoColor };
     }
 
     protected override void InitSaveList()
@@ -157,12 +167,12 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
     {
         switch (template.ColonyType)
         {
-            case Planet.ColonyType.Research: return Color.CornflowerBlue;
-            case Planet.ColonyType.Industrial: return Color.Orange;
+            case Planet.ColonyType.Research:     return Color.CornflowerBlue;
+            case Planet.ColonyType.Industrial:   return Color.Orange;
             case Planet.ColonyType.Agricultural: return Color.Green;
-            case Planet.ColonyType.Military: return Color.Red;
-            case Planet.ColonyType.Core: return Color.Gold;
-            default: return Color.White;
+            case Planet.ColonyType.Military:     return Color.Red;
+            case Planet.ColonyType.Core:         return Color.Gold;
+            default:                             return Color.White;
         }
     }
 }

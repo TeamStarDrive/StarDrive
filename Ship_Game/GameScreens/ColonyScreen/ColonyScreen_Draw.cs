@@ -785,6 +785,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, font, ColonyResource.ProdYieldFormula(richness, b.PlusProdPerColonist - 1, owner), "NewUI/icon_production", GameText.ProductionPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, font, b.ProdCache, "NewUI/icon_production", GameText.ProductionRemainingHereThisBuilding, signs: false, digits: 0);
             DrawBuildingInfo(ref bCursor, batch, font, b.PlusFlatPopulation / 1000, "NewUI/icon_population", GameText.ColonistsPerTurn, digits: 3);
+            DrawBuildingInfo(ref bCursor, batch, font, b.MaxPopIncrease / 1000, "NewUI/icon_population", GameText.PopMax, digits: 2);
             DrawBuildingInfo(ref bCursor, batch, font, b.PlusFlatResearchAmount, "NewUI/icon_science", GameText.ResearchPerTurn);
             DrawBuildingInfo(ref bCursor, batch, font, b.PlusResearchPerColonist, "NewUI/icon_science", GameText.ResearchPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, font, b.PlusTaxPercentage * 100, "NewUI/icon_money", GameText.IncreaseToTaxIncomes, percent: true);
