@@ -81,9 +81,9 @@ namespace Ship_Game
             if (BuildingDescr == null)
                 BuildingDescr = Font8.ParseText(BuildingShortDescription(b), TextWidth);
 
-            batch.Draw(b.IconTex, new Vector2(X, Y - 2), new Vector2(IconSize), Screen.PlanAreaHovered ? Color.Green : Color.White); // Icon
+            batch.Draw(b.IconTex, new Vector2(X, Y - 2), new Vector2(IconSize), Screen.PlanAreaHovered && Hovered ? Color.Green : Color.White); // Icon
             batch.DrawString(Font12, b.TranslatedName.Text, TextX + 2, Y + 2, Color.White); // Title
-            batch.DrawString(Font8, BuildingDescr, TextX + 4, Y + 16, Screen.PlanAreaHovered ? Color.Green : buildColor); // Description
+            batch.DrawString(Font8, BuildingDescr, TextX + 4, Y + 16, Screen.PlanAreaHovered && Hovered ? Color.Green : buildColor); // Description
             int creditCost = b.IsMilitary ? GetCreditCharge((int)b.ActualCost) : 0;
             DrawProductionInfo(batch, GetMaintenance(b), b.ActualCost, creditCost);
         }

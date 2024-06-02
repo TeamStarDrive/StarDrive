@@ -15062,6 +15062,12 @@ BluePrintsEnableGovernorToLoad:
 LinkBlueprintsTip:
  Id: 6219
  ENG: "When linking Blueprints to these Blueprints, the linked Blueprints will be uploaded after the Governor completes these Bluerpints. You can link Blueprints after you save them."                     
+LinksChain:
+ Id: 6220
+ ENG: "Links Chain"
+BlueprintsScreenTip:
+ Id: 6221
+ ENG: "Opens the Blueprints Screen, which allows you to create, delete and edit Blueprints for colonies." 
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."
