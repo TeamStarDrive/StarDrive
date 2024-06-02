@@ -480,7 +480,7 @@ namespace Ship_Game
                 BlueprintsName.Visible   = EditBlueprints.Visible;
                 ColonyBlueprints.Visible = LoadBlueprints.Visible && Planet.HasBlueprints;
                 BlueprintsCompletionLbl.Visible = EditBlueprints.Visible;
-                BlueprintsAchiveable.Visible    = EditBlueprints.Visible && Planet.Blueprints.PercentAchivable < 100;
+                BlueprintsAchiveable.Visible    = EditBlueprints.Visible && Planet.Blueprints.PercentAchievable < 100;
                 BlueprintsGovChange.Visible = EditBlueprints.Visible && BlueprintsGovChange.Text != "";
                 BlueprintsExclusive.Visible = EditBlueprints.Visible && Planet.Blueprints.Exclusive;
                 BlueprintsLink.Visible      = EditBlueprints.Visible && Planet.Blueprints.LinkedBlueprintsName != "";
@@ -792,7 +792,7 @@ namespace Ship_Game
                 return;
 
             BlueprintsCompletion.Progress = Planet.Blueprints.PercentCompleted;
-            BlueprintsAchiveable.Text = $"({Planet.Blueprints.PercentAchivable.String()}% {Localizer.Token(GameText.Achievable)})";
+            BlueprintsAchiveable.Text = $"({Planet.Blueprints.PercentAchievable.String()}% {Localizer.Token(GameText.Achievable)})";
         }
 
         void UpdateBudgets()
