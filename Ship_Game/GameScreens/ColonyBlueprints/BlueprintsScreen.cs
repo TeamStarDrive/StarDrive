@@ -500,6 +500,7 @@ namespace Ship_Game
             BlueprintsName.Text = template.Name;
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: false);
             GovernorTab?.OnBlueprintsChanged(template);
+            LinkBlueprints.Enabled = true;
         }
 
         public void AfterBluprintsDelete(BlueprintsTemplate template)

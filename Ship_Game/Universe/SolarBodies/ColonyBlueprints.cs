@@ -16,7 +16,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] readonly Planet P;
         [StarData] public Array<Building> PlannedBuildingsWeCanBuild { get; private set; }
         [StarData] public int PercentCompleted { get; private set; }
-        [StarData] public int PercentAchivable { get; private set; }
+        [StarData] public int PercentAchievable { get; private set; }
         [StarData] BlueprintsTemplate Template;
 
         public string Name => Template.Name;
@@ -76,7 +76,7 @@ namespace Ship_Game.Universe.SolarBodies
             var unlockedBuildings = Owner.GetUnlockedBuildings();
             int totalPlannedBuildings = PlannedBuildings.Count;
             int totalCanBuild = unlockedBuildings.Count(IsRequired);
-            PercentAchivable = (int)(100 * (float)totalCanBuild / totalPlannedBuildings);
+            PercentAchievable = (int)(100 * (float)totalCanBuild / totalPlannedBuildings);
         }
 
         void ChangeTemplateIfLinked()
