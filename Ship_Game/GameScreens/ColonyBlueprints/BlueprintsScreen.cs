@@ -121,6 +121,12 @@ namespace Ship_Game
             RectF experimentalR = new(LeftMenu.X + 20, LeftMenu.Y + 40 + SubBlueprintsOptions.Height, 0.4f * LeftMenu.Width, 0.294f * (LeftMenu.Height - 80));
             base.Add(new Submenu(experimentalR, GameText.BlueprintsSimulation));
 
+            RectF chainR = new(LeftMenu.X + 20, 
+                               blueprintsStatsRect.Y,
+                               0.4f * LeftMenu.Width,
+                               LeftMenu.Height - 20 - SubPlanArea.Height - 40);
+            base.Add(new Submenu(chainR, GameText.LinksChain));
+
 
             float blueprintsOptionsX = SubBlueprintsOptions.X + 10;
             BlueprintsName = base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 30), 
@@ -143,7 +149,7 @@ namespace Ship_Game
             Vector2 linkPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 180, SubBlueprintsOptions.Y + 170);
             LinkBlueprints = base.Add(new UIButton(ButtonStyle.Small, linkPos, "Link"));
             LinkBlueprints.OnClick = (b) => OnLinkBlueprintsClick();
-            LinkBlueprints.Visible = false;
+            LinkBlueprints.Enabled = false;
 
             RectF initPopR = new(blueprintsOptionsX, experimentalR.Y + 40, SubBlueprintsOptions.Width*0.6, 50);
             InitPopulationSlider = SliderDecimal1(initPopR, GameText.Population, 0.1f, 20, InitPopulationBillion);
@@ -243,10 +249,13 @@ namespace Ship_Game
         {
             BuildableList.Reset();
             AddOutpost();
-            foreach (Building b in Player.GetUnlockedBuildings())
+            foreach (Building b in Player.GetUnlockedBuildings().Sorted(b => b.Name))
             {
                 if (b.IsSuitableForBlueprints && !TilesList.Any(t => t.BuildingNameHereIS(b.Name)))
+                {
+                    b.UpdateOffense(PlanetLevel, Player.Universe);
                     BuildableList.AddItem(new BlueprintsBuildableListItem(this, b));
+                }
             }
 
             RecalculateGeneralStats();
@@ -370,7 +379,8 @@ namespace Ship_Game
                 PlannedShields += b.PlanetaryShieldStrengthAdded;
                 PlannedRepairPerTurn += b.ShipRepair;
                 CanBuildTroops |= b.AllowInfantry;
-                CanBuildShips |= b.AllowShipBuilding;
+                CanBuildShips |= b.AllowShipBuilding || b.IsSpacePort;
+                b.UpdateOffense(PlanetLevel, Player.Universe);
             }
 
             PlannedGrossMoney  *= 1+taxRateMultiplier;
@@ -495,7 +505,7 @@ namespace Ship_Game
         public void AfterBluprintsDelete(BlueprintsTemplate template)
         {
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: true);
-            LinkBlueprints.Visible = false;
+            LinkBlueprints.Enabled = false;
         } 
 
         public void RemoveAllBlueprintsLinkTo(BlueprintsTemplate template)
@@ -514,7 +524,7 @@ namespace Ship_Game
         {
             ClearPlannedBuildings();
             LinkBlueprintsName.Text = "";
-            LinkBlueprints.Visible = true;
+            LinkBlueprints.Enabled = true;
             BlueprintsName.Text = template.Name;
             Exclusive = template.Exclusive;
             SwitchColonyType.ActiveValue = template.ColonyType;

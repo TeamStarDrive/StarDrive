@@ -5318,6 +5318,10 @@ namespace Ship_Game
         BluePrintsEnableGovernorToLoad = 6218,
         /// <summary>When linking Blueprints to these Blueprints</summary>
         LinkBlueprintsTip = 6219,
+        /// <summary>links Chain</summary>
+        LinksChain = 6220,
+        /// <summary>Opens the Blueprints Screen, which allows you to create</summary>
+        BlueprintsScreenTip = 6221,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
