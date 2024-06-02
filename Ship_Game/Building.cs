@@ -164,13 +164,13 @@ namespace Ship_Game
             return b;
         }
 
-        void CreateWeapon(Planet p)
+        void CreateWeapon(UniverseState us, int planetLevel)
         {
             if (IsWeapon && ResourceManager.GetWeaponTemplate(Weapon, out IWeaponTemplate t))
             {
-                TheWeapon = new(p.Universe, t, null, null, null);
+                TheWeapon = new(us, t, null, null, null);
                 SpaceRange = TheWeapon.BaseRange;
-                UpdateOffense(p);
+                UpdateOffense(planetLevel, us);
             }
         }
 
@@ -220,15 +220,17 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateOffense(Planet p)
+        public void UpdateOffense(Planet p) => UpdateOffense(p.Level, p.Universe);
+
+        public void UpdateOffense(int planetLevel, UniverseState us)
         {
             if (IsWeapon)
             {
                 if (TheWeapon == null)
-                    CreateWeapon(p);
+                    CreateWeapon(us, planetLevel);
 
                 if (TheWeapon != null)
-                    Offense = TheWeapon.CalculateOffense(null) * p.Level; // fire delay is shorter when planet level is higher
+                    Offense = TheWeapon.CalculateOffense(null) * planetLevel; // fire delay is shorter when planet level is higher
             }
         }
 

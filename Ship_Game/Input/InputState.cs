@@ -107,6 +107,7 @@ namespace Ship_Game
         public bool ShipListScreen       => KeyPressed(Keys.K);
         public bool FleetDesignScreen    => KeyPressed(Keys.J);
         public bool AutomationWindow     => KeyPressed(Keys.H);
+        public bool BlueprintsSceen      => KeyPressed(Keys.F);
         public bool Fleet1               => KeyPressed(Keys.D1) && !IsAltKeyDown;
         public bool Fleet2               => KeyPressed(Keys.D2) && !IsAltKeyDown;
         public bool Fleet3               => KeyPressed(Keys.D3) && !IsAltKeyDown;

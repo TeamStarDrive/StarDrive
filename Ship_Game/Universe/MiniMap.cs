@@ -68,11 +68,9 @@ namespace Ship_Game
             ZoomOut            = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
             ExoticScreen       = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_exotic_systems", ExoticScreen_OnClick));
             ExoticBonuses      = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
-            ColonyBlueprints   = listR.Add(new ToggleButton(ToggleButtonStyle.Button, "AI", ColonyBlueprints_OnClick));
-
+            ColonyBlueprints   = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "NewUI/blueprints_minimap", ColonyBlueprints_OnClick));
             Scale = ActualMap.Width / (Universe.UState.Size * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
-
         }
 
         Vector2 WorldToMiniPos(Vector2 pos)
@@ -439,7 +437,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(GameText.OpensTheAutomationPanelWhich, "H");
 
             if (ColonyBlueprints.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(GameText.OpensTheAutomationPanelWhich, "H");
+                ToolTip.CreateTooltip(GameText.BlueprintsScreenTip, "F");
 
             if (ExoticBonuses.Rect.HitTest(input.CursorPosition))
             {
