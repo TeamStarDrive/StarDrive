@@ -85,7 +85,6 @@ namespace Ship_Game.Universe.SolarBodies
                 && ResourceManager.TryGetBlueprints(LinkedBlueprintsName, out BlueprintsTemplate template))
             {
                 ChangeTemplate(template);
-                // need to verify non cyclic plan links
             }
         }
 

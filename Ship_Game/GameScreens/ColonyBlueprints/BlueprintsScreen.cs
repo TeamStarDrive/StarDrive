@@ -559,13 +559,7 @@ namespace Ship_Game
             Exclusive = template.Exclusive;
             SwitchColonyType.ActiveValue = template.ColonyType;
             if (template.LinkTo!= null && ResourceManager.TryGetBlueprints(template.LinkTo, out _)) 
-            {
                 LinkBlueprintsName.Text = template.LinkTo;
-            }
-            else
-            {
-                // message that the linked plans do not exist
-            }
 
             AddOutpost();
             foreach (string name in template.PlannedBuildings) 
@@ -592,11 +586,10 @@ namespace Ship_Game
             if (outside && item != null) // TODO: somehow `item` can be null, not sure how it happens
             {
                 if (PlanAreaHovered)
+                {
                     OnBuildableItemDoubleClicked(item);
-                else
-                    GameAudio.NegativeClick();
-
-                return;
+                    return;
+                }
             }
 
             GameAudio.NegativeClick();
