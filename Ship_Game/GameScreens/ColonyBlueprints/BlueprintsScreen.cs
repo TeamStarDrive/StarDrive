@@ -21,27 +21,24 @@ namespace Ship_Game
 {
     public partial class BlueprintsScreen : GameScreen
     {
+        public bool PlanAreaHovered { get; private set; }
         readonly Array<BlueprintsTile> TilesList = new(35);
-
         readonly Menu1 LeftMenu;
         readonly Menu1 RightMenu;
         readonly Submenu SubBlueprintsOptions;
         readonly Submenu PlanStats;
-        readonly Submenu SubExperimentalParameters;
         readonly UILabel BlueprintsName;
         readonly UILabel CannotBuildTroopsWarning, CannotBuildShipsWarning;
         readonly UICheckBox ExclusiveCheckbox;
         public bool Exclusive;
         readonly Submenu SubPlanArea;
-        public bool PlanAreaHovered { get; private set; }
-        readonly Rectangle PlanetShieldIconRect;
-        readonly ProgressBar PlanetShieldBar;
         readonly FloatSlider InitPopulationSlider;
         readonly FloatSlider InitFertilitySlider;
         readonly FloatSlider InitRichnessSlider;
         readonly FloatSlider InitTaxSlider;
         readonly UIButton SaveBlueprints;
         readonly UIButton LoadBlueprints;
+        readonly UIButton LinkBlueprints;
         float InitPopulationBillion = 5;
         float InitFertility = 1;
         float InitRichness = 1;
@@ -49,7 +46,7 @@ namespace Ship_Game
 
         readonly ScrollList<BlueprintsBuildableListItem> BuildableList;
         readonly DropOptions<Planet.ColonyType> SwitchColonyType;
-        readonly DropOptions<string> LinkBlueprints;
+        readonly UILabel LinkBlueprintsName;
 
         Building HoveredBuilding;
         readonly Font Font8 = Fonts.Arial8Bold;
@@ -57,6 +54,7 @@ namespace Ship_Game
         readonly Font Font14 = Fonts.Arial14Bold;
         readonly Font Font20 = Fonts.Arial20Bold;
         readonly Font TextFont;
+        readonly Font BigFont;
         public readonly Empire Player;
 
         float PlannedGrossMoney;
@@ -73,9 +71,13 @@ namespace Ship_Game
         float PlannnedInfrastructure;
         float PlannedRepairPerTurn;
         float PlannedStorage;
+        float PlannedShields;
+        int PlanetLevel;
 
         bool CanBuildTroops;
         bool CanBuildShips;
+
+        UILabel PlannedFertilityLbl, PlannedPopLbl;
 
         readonly GovernorDetailsComponent GovernorTab;
 
@@ -85,6 +87,7 @@ namespace Ship_Game
             Player = player;
             GovernorTab = govTab;
             TextFont = LowRes ? Font8 : Font12;
+            BigFont = LowRes ? Font12 : Font14;
             var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             base.Add(new Menu2(titleRect));
             Vector2 titlePos = new(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString
@@ -112,7 +115,7 @@ namespace Ship_Game
 
 
             RectF buildableMenuR = new(RightMenu.X + 20, RightMenu.Y + 20,
-                                   RightMenu.Width - 40, 0.5f * (RightMenu.Height - 40));
+                                   RightMenu.Width - 40, RightMenu.Height - 40);
             base.Add(new Submenu(buildableMenuR, GameText.Buildings));
 
             RectF experimentalR = new(LeftMenu.X + 20, LeftMenu.Y + 40 + SubBlueprintsOptions.Height, 0.4f * LeftMenu.Width, 0.294f * (LeftMenu.Height - 80));
@@ -137,14 +140,20 @@ namespace Ship_Game
             Vector2 loadPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 90, SubBlueprintsOptions.Y + 170);
             LoadBlueprints = base.Add(new UIButton(ButtonStyle.Small, loadPos, GameText.Load));
             LoadBlueprints.OnClick = (b) => OnLoadBlueprintsClick();
+            Vector2 linkPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 180, SubBlueprintsOptions.Y + 170);
+            LinkBlueprints = base.Add(new UIButton(ButtonStyle.Small, linkPos, "Link"));
+            LinkBlueprints.OnClick = (b) => OnLinkBlueprintsClick();
+            LinkBlueprints.Visible = false;
 
             RectF initPopR = new(blueprintsOptionsX, experimentalR.Y + 40, SubBlueprintsOptions.Width*0.6, 50);
-            InitPopulationSlider = SliderDecimal1(initPopR, GameText.Population, 0, 20, InitPopulationBillion);
+            InitPopulationSlider = SliderDecimal1(initPopR, GameText.Population, 0.1f, 20, InitPopulationBillion);
             InitPopulationSlider.OnChange = (s) => { InitPopulationBillion = s.AbsoluteValue.RoundToFractionOf10(); RecalculateGeneralStats(); };
+            PlannedPopLbl = base.Add(new UILabel(Font14));
 
             RectF initFertR = new(blueprintsOptionsX, experimentalR.Y + 90, SubBlueprintsOptions.Width * 0.6, 50);
             InitFertilitySlider = SliderDecimal1(initFertR, GameText.Fertility, 0, 3, InitFertility);
             InitFertilitySlider.OnChange = (s) => { InitFertility = s.AbsoluteValue.RoundToFractionOf10(); RecalculateGeneralStats(); };
+            PlannedFertilityLbl = base.Add(new UILabel(Font14));
 
             RectF initRichR = new(blueprintsOptionsX, experimentalR.Y + 140, SubBlueprintsOptions.Width * 0.6, 50);
             InitRichnessSlider = SliderDecimal1(initRichR, GameText.MineralRichness, 0, 5, InitRichness);
@@ -164,8 +173,9 @@ namespace Ship_Game
 
 
             base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 50 + Font14.LineSpacing * 3),
-                "Link Blueprints to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
-            LinkBlueprints = base.Add(Add(new DropOptions<string>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 50 + Font14.LineSpacing * 3, 200, 18)));
+                "Linked Blueprints:", TextFont, Color.Wheat, GameText.LinkBlueprintsTip));
+            LinkBlueprintsName = base.Add(new UILabel(new Vector2(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 50 + Font14.LineSpacing * 3),
+                "", TextFont, Color.White));
 
             base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 45 + Font14.LineSpacing * 2),
                 "Switch Governor to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
@@ -178,41 +188,9 @@ namespace Ship_Game
             SwitchColonyType.AddOption(option: GameText.Military, Planet.ColonyType.Military);
             SwitchColonyType.ActiveValue = Planet.ColonyType.Colony;
 
-
-
-
-            int iconSize = LowRes ? 80 : 128;
-            int iconOffsetX = LowRes ? 100 : 148;
-            int iconOffsetY = LowRes ? 0 : 25;
-
-            /*Rectangle planetShieldBarRect = new Rectangle(PlanetIcon.X, PlanetInfo.Rect.Y + 4, PlanetIcon.Width, 20);
-            PlanetShieldBar = new ProgressBar(planetShieldBarRect)
-            {
-                color = "blue"
-            };
-
-            PlanetShieldIconRect = new Rectangle(planetShieldBarRect.X - 30, planetShieldBarRect.Y - 2, 20, 20); */
-            //PlanetName = Add(new UITextEntry(p.Name));
-            //PlanetName.Color = Colors.Cream;
-            //PlanetName.MaxCharacters = 20;
-
-            /*
-            if (p.Owner != null)
-            {
-                GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.RectF, governorTabSelected));
-            }
-            else
-            {
-                p.Universe.Screen.LookingAtPlanet = false;
-            }*/
-
-            //P.RefreshBuildingsWeCanBuildHere();
-            // Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
-
             Rectangle gridPos = new Rectangle(SubPlanArea.Rect.X + 10, SubPlanArea.Rect.Y + 30, 
                                               SubPlanArea.Rect.Width - 20, SubPlanArea.Rect.Height - 35);
             CreateBlueprintsTiles(gridPos);
-            RefreshLinkToOptions();
             RefreshBuildableList();
             if (template != null)
             {
@@ -220,6 +198,13 @@ namespace Ship_Game
                 LoadBlueprints.Visible = false;
                 BlueprintsName.Text = template.Name;
             }
+        }
+
+        public override void PerformLayout()
+        {
+            PlannedPopLbl.Pos       = new Vector2(InitPopulationSlider.Right, InitPopulationSlider.Y+23);
+            PlannedFertilityLbl.Pos = new Vector2(InitFertilitySlider.Right, InitFertilitySlider.Y+23);
+            base.PerformLayout();
         }
 
         void CreateBlueprintsTiles(Rectangle gridPos)
@@ -304,14 +289,9 @@ namespace Ship_Game
             bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
             ColonyScreen.DrawBuildingStaticInfo(ref bCursor, batch, TextFont, Player, PlannedFertility, 
                 InitRichness, Player.data.Traits.PreferredEnv, HoveredBuilding);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepairBlueprints(3), 
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepairBlueprints(PlanetLevel), 
                 "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
-
-            //DrawBuildingInfo(ref bCursor, batch, font, b.ActualShipRepair(P), "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
-            //if (selectedBuilding.IsWeapon)
-            //    selectedBuilding.CalcMilitaryStrength(P); // So the building will have TheWeapon for stats
-
-            ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, planetLevel: 3);
+            ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, PlanetLevel);
         }
 
         void DrawPlanStatistics(SpriteBatch batch)
@@ -319,28 +299,31 @@ namespace Ship_Game
             if (HoveredBuilding != null)
                 return;
 
-            Font textFont = LowRes ? Font12 : Font14;
             Vector2 bCursor = new Vector2(PlanStats.X + 15, PlanStats.Y + 35);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedGrossMoney,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedGrossMoney,
                 "UI/icon_money_22", GameText.GrossIncome);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, -PlannedMaintenance,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, -PlannedMaintenance,
                 "UI/icon_money_22", GameText.Expenditure2);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedNetIncome,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedNetIncome,
                 "UI/icon_money_22", GameText.NetIncome);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedFoodPerCol,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedFoodPerCol,
                 "NewUI/icon_food", GameText.NetFoodPerColonistAllocated);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedFlatFood,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedFlatFood,
                 "NewUI/icon_food", GameText.NetFlatFoodGeneratedPer);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedProdPerCol,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedProdPerCol,
                 "NewUI/icon_production", GameText.NetProductionPerColonistAllocated);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedFlatProd,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedFlatProd,
                 "NewUI/icon_production", GameText.NetFlatProductionGeneratedPer);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedFlatResearch,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedFlatResearch,
                 "NewUI/icon_science", GameText.NetResearchPerColonistAllocated);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedResearchPerCol,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedResearchPerCol,
                 "NewUI/icon_science", GameText.NetFlatResearchGeneratedPer);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannnedInfrastructure,
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannnedInfrastructure,
                 "NewUI/icon_queue_rushconstruction", GameText.MaximumProductionToQueuePer);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedStorage,
+                "NewUI/icon_storage_production", GameText.Storage);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedShields,
+                "NewUI/icon_storage_production", GameText.PlanetaryShieldStrengthAdded);
         }
 
 
@@ -354,7 +337,7 @@ namespace Ship_Game
             PlannedMaintenance = 0;
             PlannedNetIncome   = 0;
             PlannedFertility   = InitFertility;
-            PlannedPopulation  = InitPopulationBillion + plannedBuildings.Sum(b => b.PlusFlatPopulation)*0.001f;
+            PlannedPopulation  = InitPopulationBillion + plannedBuildings.Sum(b => b.MaxPopIncrease)*0.001f;
             PlannedGrossMoney  = PlannedPopulation;
             PlannedFlatFood        = 0;
             PlannedFoodPerCol      = 0;
@@ -365,6 +348,7 @@ namespace Ship_Game
             PlannnedInfrastructure = 1;
             PlannedRepairPerTurn   = 0;
             PlannedStorage         = 0;
+            PlannedShields         = 0;
             CanBuildShips = false;
             CanBuildTroops = false;
 
@@ -383,14 +367,18 @@ namespace Ship_Game
                 PlannedResearchPerCol += b.PlusResearchPerColonist;
                 PlannnedInfrastructure += b.Infrastructure;
                 PlannedStorage += b.StorageAdded;
+                PlannedShields += b.PlanetaryShieldStrengthAdded;
                 PlannedRepairPerTurn += b.ShipRepair;
                 CanBuildTroops |= b.AllowInfantry;
                 CanBuildShips |= b.AllowShipBuilding;
             }
 
-            PlannedGrossMoney  *= tax * taxRateMultiplier;
+            PlannedGrossMoney  *= 1+taxRateMultiplier;
             PlannedMaintenance *= Player.data.Traits.MaintMultiplier;
             PlannedNetIncome = PlannedGrossMoney - PlannedMaintenance;
+            PlannedShields *= 1 + Player.data.ShieldPowerMod;
+            PlannedFertility = PlannedFertility.LowerBound(0);
+            PlanetLevel = Planet.GetLevel(PlannedPopulation);
 
             float foodConsumptionPerColonist = Player.NonCybernetic ? 1 + Player.data.Traits.ConsumptionModifier : 0;
             PlannedFoodPerCol = ColonyResource.FoodYieldFormula(PlannedFertility, PlannedFoodPerCol) - foodConsumptionPerColonist;
@@ -407,16 +395,30 @@ namespace Ship_Game
 
             CannotBuildShipsWarning.Visible = !CanBuildShips && plannedBuildings.Length > 1;
             CannotBuildTroopsWarning.Visible = !CanBuildTroops && plannedBuildings.Length > 1;
-            if (Exclusive)
-                CannotBuildShipsWarning.Color = CannotBuildTroopsWarning.Color = Color.Red;
-            else
-                CannotBuildShipsWarning.Color = CannotBuildTroopsWarning.Color = Color.Yellow;
+
+            PlannedPopLbl.Text = $"({PlannedPopulation})";
+            PlannedFertilityLbl.Text = $"({PlannedFertility})";
         }
 
         public override void Update(float elapsedTime)
         {
             SaveBlueprints.Enabled = TilesList.Count(t => t.HasBuilding) > 1;
+            UpdateShipAndTroopBuioildWarnings();
+            PlannedPopLbl.Visible = PlannedPopulation.NotEqual(InitPopulationBillion);
+            PlannedFertilityLbl.Visible = PlannedFertility.NotEqual(InitFertility);
+            PlannedPopLbl.Color = PlannedPopulation >= InitPopulationBillion ? Color.LightGreen : Color.Pink;
+            PlannedFertilityLbl.Color = PlannedFertility >= InitFertility ? Color.LightGreen : Color.Pink;
             base.Update(elapsedTime);
+        }
+
+        void UpdateShipAndTroopBuioildWarnings()
+        {
+            if (CannotBuildShipsWarning.Visible)
+                CannotBuildShipsWarning.Color = Exclusive ? Color.Red : Color.Yellow;
+
+            if (CannotBuildTroopsWarning.Visible)
+                CannotBuildTroopsWarning.Color = Exclusive ? Color.Red : Color.Yellow;
+
         }
 
         public override bool HandleInput(InputState input)
@@ -465,7 +467,7 @@ namespace Ship_Game
         BlueprintsTemplate CreateBlueprintsTemplate()
         {
             HashSet<string> plannedBuildings = TilesList.FilterSelect(t => t.HasBuilding && !t.Building.IsOutpost, t => t.Building.Name).ToHashSet();
-            return new BlueprintsTemplate(BlueprintsName.Text.Text, Exclusive, LinkBlueprints.ActiveValue, plannedBuildings, SwitchColonyType.ActiveValue);
+            return new BlueprintsTemplate(BlueprintsName.Text.Text, Exclusive, LinkBlueprintsName.Text.Text, plannedBuildings, SwitchColonyType.ActiveValue);
         }
 
         void OnSaveBlueprintsClick()
@@ -478,6 +480,11 @@ namespace Ship_Game
             ScreenManager.AddScreen(new SaveLoadBlueprintsScreen(this));
         }
 
+        void OnLinkBlueprintsClick()
+        {
+            ScreenManager.AddScreen(new LinkBlueprintsScreen(this, BlueprintsName.Text.Text));
+        }
+
         public void AfterBluprintsSave(BlueprintsTemplate template)
         {
             BlueprintsName.Text = template.Name;
@@ -488,23 +495,32 @@ namespace Ship_Game
         public void AfterBluprintsDelete(BlueprintsTemplate template)
         {
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: true);
-        }
+            LinkBlueprints.Visible = false;
+        } 
 
         public void RemoveAllBlueprintsLinkTo(BlueprintsTemplate template)
         {
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: false);
+            if (LinkBlueprintsName.Text.Text == template.Name)
+                    LinkBlueprintsName.Text = "";
+        }
+
+        public void OnBlueprintsLinked(BlueprintsTemplate linkedBlueprints)
+        {
+            LinkBlueprintsName.Text = linkedBlueprints.Name;
         }
 
         public void LoadBlueprintsTemplate(BlueprintsTemplate template)
         {
             ClearPlannedBuildings();
+            LinkBlueprintsName.Text = "";
+            LinkBlueprints.Visible = true;
             BlueprintsName.Text = template.Name;
             Exclusive = template.Exclusive;
             SwitchColonyType.ActiveValue = template.ColonyType;
-            RefreshLinkToOptions();
             if (template.LinkTo!= null && ResourceManager.TryGetBlueprints(template.LinkTo, out _)) 
             {
-                LinkBlueprints.ActiveValue = template.LinkTo;
+                LinkBlueprintsName.Text = template.LinkTo;
             }
             else
             {
@@ -518,14 +534,6 @@ namespace Ship_Game
                 if (b != null) 
                     TryAddBuilding(b, Player.IsBuildingUnlocked(name));
             }
-        }
-
-        void RefreshLinkToOptions()
-        {
-            LinkBlueprints.Clear();
-            LinkBlueprints.AddOption(option: "--", "");
-            foreach (BlueprintsTemplate template in ResourceManager.GetAllBlueprints().Filter(bp => bp.Name != BlueprintsName.Text))
-                LinkBlueprints.AddOption(option: template.Name, template.Name);
         }
 
         void ClearPlannedBuildings()

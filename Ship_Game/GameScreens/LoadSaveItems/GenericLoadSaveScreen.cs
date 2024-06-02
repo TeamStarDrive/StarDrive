@@ -205,10 +205,10 @@ namespace Ship_Game
             }
         }
 
-        protected void AddItemsToSaveSL(IEnumerable<FileData> files)
+        protected void AddItemsToSaveSL(IEnumerable<FileData> files, bool addCancel = true)
         {
             foreach (FileData data in files)
-                SavesSL.AddItem(new SaveLoadListItem(this, data));
+                SavesSL.AddItem(new SaveLoadListItem(this, data, addCancel));
         }
 
         protected void ExportSave()
@@ -272,11 +272,12 @@ namespace Ship_Game
         {
             readonly GenericLoadSaveScreen Screen;
             public FileData Data;
-            public SaveLoadListItem(GenericLoadSaveScreen screen, FileData data)
+            public SaveLoadListItem(GenericLoadSaveScreen screen, FileData data, bool addCencel)
             {
                 Screen = screen;
                 Data = data;
-                AddCancel(new Vector2(-30, 0), "Delete Save File", OnDeleteClicked);
+                if (addCencel)
+                    AddCancel(new Vector2(-30, 0), "Delete Save File", OnDeleteClicked);
             }
             void OnDeleteClicked()
             {
@@ -288,6 +289,8 @@ namespace Ship_Game
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
+                base.Draw(batch, elapsed);
+
                 float iconHeight = (int)(Height * 0.89f);
                 float iconWidth = (int)Data.Icon.GetWidthFromHeightAspect(iconHeight);
                 batch.Draw(Data.Icon, Pos, new Vector2(iconWidth, iconHeight), Data.IconColor);
@@ -297,10 +300,10 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial20Bold, Data.FileName, tCursor, mainColor);
 
                 tCursor.Y += Fonts.Arial20Bold.LineSpacing;
-                batch.DrawString(Fonts.Arial12Bold, Data.Info, tCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, Data.Info, tCursor, Data.InfoColor);
 
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                batch.DrawString(Fonts.Arial12Bold, Data.ExtraInfo, tCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, Data.ExtraInfo, tCursor, Data.InfoColor);
 
                 if (Hovered && Data.Tooltip.NotEmpty())
                     ToolTip.CreateTooltip(Data.Tooltip, "", null, maxWidth:400);
@@ -318,6 +321,7 @@ namespace Ship_Game
             public FileInfo FileLink;
             public object Data;
             public bool Enabled = true; // new feature: show incompatible entries as grayed out and unselectable
+            public Color InfoColor = Color.White;
 
             public FileData(FileInfo fileLink, object data,
                 string fileName, string info, string extraInfo, string tooltip, SubTexture icon, Color iconColor)

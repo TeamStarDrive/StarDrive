@@ -33,4 +33,19 @@ public sealed class BlueprintsTemplate
     }
 
     public bool Validated => ResourceManager.BlueprintsValid(this, out _);
+
+    public bool CanSafelyLinkFor(string requestingTemplateName)
+    {
+        if (LinkTo == null || LinkTo == "")
+            return true;
+
+        if (LinkTo == requestingTemplateName)
+            return false;
+
+        if (ResourceManager.TryGetBlueprints(LinkTo, out BlueprintsTemplate nextTemplate))
+            return nextTemplate.CanSafelyLinkFor(requestingTemplateName);
+
+        Log.Error($"Could not find template for {LinkTo} in Resource Manager");
+        return true;
+    }
 }
