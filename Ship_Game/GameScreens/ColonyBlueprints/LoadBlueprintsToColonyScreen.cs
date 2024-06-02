@@ -1,9 +1,5 @@
-﻿using System.IO;
-using Microsoft.Xna.Framework.Graphics;
-using SDGraphics;
-using SDUtils;
-using Ship_Game.Audio;
-using Ship_Game.Data.Yaml;
+﻿using SDUtils;
+using System.IO;
 
 namespace Ship_Game;
 
@@ -37,7 +33,7 @@ public sealed class LoadBlueprintsToColonyScreen : SaveLoadBlueprintsScreen
             title1 = title1.NotEmpty() ? $"{title1} | Switch to: {blueprints.ColonyType}"
                                         : $"Switch to: {blueprints.ColonyType}";
 
-        string title2 = blueprints.Validated && blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
+        string title2 = blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
         return new(null, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, GetBlueprintsIconColor(blueprints));
     }
 
@@ -49,6 +45,6 @@ public sealed class LoadBlueprintsToColonyScreen : SaveLoadBlueprintsScreen
             items.Add(CreateBlueprintsSaveItem(template));
         }
 
-        AddItemsToSaveSL(items);
+        AddItemsToSaveSL(items, addCancel: false);
     }
 }

@@ -15059,6 +15059,9 @@ BluePrintsOverView:
 BluePrintsEnableGovernorToLoad:
  Id: 6218
  ENG: "Enable a Govenror in order upload Blueprints."                    
+LinkBlueprintsTip:
+ Id: 6219
+ ENG: "When linking Blueprints to these Blueprints, the linked Blueprints will be uploaded after the Governor completes these Bluerpints. You can link Blueprints after you save them."                     
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

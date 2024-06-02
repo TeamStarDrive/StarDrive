@@ -5296,7 +5296,7 @@ namespace Ship_Game
         BlueprintsSimulation = 6207,
         /// <summary>Governor Was changed to</summary>
         GovernorChangedTo = 6208,
-        /// <summary>linked Blueprings</summary>
+        /// <summary>linked Blueprints</summary>
         LinkedBlueprints = 6209,
         /// <summary>Upload Colony Blueprints for the Governor to follow</summary>
         UploadBluprintsTip = 6210,
@@ -5316,6 +5316,8 @@ namespace Ship_Game
         BluePrintsOverView = 6217,
         /// <summary>Enable a Govenror in order upload Blueprints.</summary>
         BluePrintsEnableGovernorToLoad = 6218,
+        /// <summary>When linking Blueprints to these Blueprints</summary>
+        LinkBlueprintsTip = 6219,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

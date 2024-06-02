@@ -950,6 +950,15 @@ namespace Ship_Game
                 DevelopmentStatus += Localizer.Token(GameText.ThisPlanetIsHeavilyFortified); // military culture
         }
 
+        public static int GetLevel(float popBillion)
+        {
+            if      (popBillion <= 0.5f) return 1;
+            else if (popBillion <= 2f)   return 2;
+            else if (popBillion <= 5f)   return 3;
+            else if (popBillion <= 10f)  return 4;
+            else                         return 5;
+        }
+
         void UpdateOrbitalsMaintenance()
         {
             SpaceDefMaintenance = 0;
