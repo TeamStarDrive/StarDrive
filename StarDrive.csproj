@@ -256,6 +256,7 @@
     <Compile Include="Ship_Game\Gameplay\WeaponTemplateWrapper.cs" />
     <Compile Include="Ship_Game\Gameplay\WeaponTestWrapper.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\BlueprintsBuildableListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\BlueprintsChainListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\BlueprintsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\BlueprintsTemplate.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\LoadBlueprintsToColonyScreen.cs" />

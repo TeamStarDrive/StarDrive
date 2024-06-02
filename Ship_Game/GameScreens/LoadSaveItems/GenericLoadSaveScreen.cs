@@ -296,7 +296,7 @@ namespace Ship_Game
                 batch.Draw(Data.Icon, Pos, new Vector2(iconWidth, iconHeight), Data.IconColor);
 
                 var tCursor = new Vector2(X + 50f, Y);
-                var mainColor = Data.Enabled ? Color.Orange : Color.Gray;
+                var mainColor = Data.Enabled ? Data.FileNameColor : Color.Gray;
                 batch.DrawString(Fonts.Arial20Bold, Data.FileName, tCursor, mainColor);
 
                 tCursor.Y += Fonts.Arial20Bold.LineSpacing;
@@ -322,6 +322,7 @@ namespace Ship_Game
             public object Data;
             public bool Enabled = true; // new feature: show incompatible entries as grayed out and unselectable
             public Color InfoColor = Color.White;
+            public Color FileNameColor = Color.Orange;
 
             public FileData(FileInfo fileLink, object data,
                 string fileName, string info, string extraInfo, string tooltip, SubTexture icon, Color iconColor)

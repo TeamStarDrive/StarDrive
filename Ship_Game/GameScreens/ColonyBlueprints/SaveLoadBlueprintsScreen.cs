@@ -141,12 +141,13 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
         else
         {
             title1 = "These Blueprints have some missing buildings and cannot be loaded.";
-            infoColor = Color.Pink;
+            infoColor = Color.Red;
         }
 
         string title2 = blueprints.Validated && blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
-        return new(info, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, GetBlueprintsIconColor(blueprints))
-        { Enabled = blueprints.Validated, InfoColor = infoColor };
+        Color color = BlueprintsScreen.GetBlueprintsIconColor(blueprints);
+        return new(info, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, color)
+        { Enabled = blueprints.Validated, InfoColor = infoColor, FileNameColor = color };
     }
 
     protected override void InitSaveList()
@@ -161,18 +162,5 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
         }
 
         AddItemsToSaveSL(items);
-    }
-
-    public Color GetBlueprintsIconColor(BlueprintsTemplate template)
-    {
-        switch (template.ColonyType)
-        {
-            case Planet.ColonyType.Research:     return Color.CornflowerBlue;
-            case Planet.ColonyType.Industrial:   return Color.Orange;
-            case Planet.ColonyType.Agricultural: return Color.Green;
-            case Planet.ColonyType.Military:     return Color.Red;
-            case Planet.ColonyType.Core:         return Color.Gold;
-            default:                             return Color.White;
-        }
     }
 }
