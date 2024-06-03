@@ -461,7 +461,7 @@ namespace Ship_Game.Ships
             }
             else if (MechanicalBoardingDefense > 0f)
             {
-                if (Loyalty.Random.RollDice(troopDamageChance))
+                if (Loyalty.Random.RollDice(troopDamageChance*0.1f))
                     MechanicalBoardingDefense -= 1f;
             }
         }

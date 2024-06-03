@@ -10316,10 +10316,7 @@ ThisSmallOrdnancePodFor:
  UKR: "Невеликий боєкомплект для оснащення винищувачів та інших малих суден боєприпасами, необхідними для ведення тривалого бою"
 AlthoughUselessAgainstShieldedTargets:
  Id: 1065
- ENG: "Although useless against shielded targets, this weapon will strip a starship's boarding defenses by killing troops and crew. The effectiveness of the blaster is somewhat random, having an approximately 50% chance to strip 1 point of defense per second."
- RUS: "Будучи совершенно неэффективным против щитов, это оружие, тем не менее, может оставить космический корабль беззащитным, убивая экипаж и войска на борту. Бластер примерно с 50% вероятностью снимает с вражеского корабля 1 очко защиты в секунду."
- SPA: "Aunque es inútil contra objetivos con escudo, esta arma mermará las defensas antiabordaje de una nave al matar a su tropa y tripulación. La eficacia de la descarga es algo aleatoria, con una probabilidad aproximada del 50% de reducir 1 punto de defensa por segundo."
- UKR: "Хоча ця зброя марна проти захищених цілей, вона знищує абордажний захист зорельота, вбиваючи солдатів і членів екіпажу. Ефективність бластера є дещо випадковою і має приблизно 50% шанс знищити 1 пункт захисту за секунду."
+ ENG: "Although almost useless against shielded targets, this weapon will strip a starship's boarding defenses by killing troops and crew, having an approximately 3 point of defense stripped per second. The effect on Mechanical Boarding Defense is only 10%"
 ABombBaySpeciallyEquipped:
  Id: 929
  ENG: "A bomb bay specially equipped to deliver prion-based death spore ordnance to planetary surfaces. This weapon is ineffective against hard targets but very effective against ground troops and planetary population. The Target planet will suffer temporary reduction to its Fertility level. Constant bombing might permanently reduce fertility and even change the plant climate forever."

@@ -32,7 +32,7 @@
   <BeamTexture>beam_red</BeamTexture>
   
   <!-- Projectile Information -->
-  <DamageAmount>2.0</DamageAmount>
+  <DamageAmount>2</DamageAmount>
   <TroopDamageChance>5</TroopDamageChance>
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>90</BeamPowerCostPerSecond>
@@ -41,6 +41,6 @@
   <WeaponType>Energy Beam</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
-
+  <OffPowerMod>10</OffPowerMod>
 
 </Weapon>

@@ -39,6 +39,10 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             S = screen;
             var toggleEdit = Button(ButtonStyle.Low100, "Hull Editor", b => ToggleHullEditMode());
+            if (!GlobalStats.Defaults.EnableHullEditor)
+                toggleEdit.Tooltip = "Allows you to edit slots in hulls. This is disabled by default since changing hull will " +
+                    "invalidate all related AI designs, making the game easier. Enable it in Globals.yaml file if you know what" +
+                    "you are doing.";
             toggleEdit.SetLocalPos(0,0);
             Title = LabelRel("EDITING HULL", Fonts.Arial14Bold, 120, 0);
 
@@ -115,9 +119,16 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void ToggleHullEditMode()
         {
-            S.HullEditMode = !S.HullEditMode;
-            SetHullEditVisibility(IsEditing);
-            S.ChangeHull(S.CurrentHull, zoomToHull:false);
+            if (GlobalStats.Defaults.EnableHullEditor)
+            {
+                S.HullEditMode = !S.HullEditMode;
+                SetHullEditVisibility(IsEditing);
+                S.ChangeHull(S.CurrentHull, zoomToHull: false);
+            }
+            else
+            {
+                GameAudio.NegativeClick();
+            }
         }
 
         void SetHullEditVisibility(bool visible)
