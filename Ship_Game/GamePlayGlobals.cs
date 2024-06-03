@@ -106,6 +106,7 @@ public class GamePlayGlobals
 
     // misc settings
     [StarData] public string CustomMenuMusic;
+    [StarData] public bool EnableHullEditor;
     // In case an event building has defense drones and drones are not researched
     [StarData] public string DefaultEventDrone;
     [StarData] public string ResearchRootUIDToDisplay;
