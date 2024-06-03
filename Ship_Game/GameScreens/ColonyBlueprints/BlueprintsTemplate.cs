@@ -36,7 +36,7 @@ public sealed class BlueprintsTemplate
 
     public bool CanSafelyLinkFor(string requestingTemplateName)
     {
-        if (LinkTo == null || LinkTo == "")
+        if (string.IsNullOrEmpty(LinkTo))
             return true;
 
         if (LinkTo == requestingTemplateName)
