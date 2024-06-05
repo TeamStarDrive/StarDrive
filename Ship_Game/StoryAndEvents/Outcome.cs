@@ -161,7 +161,8 @@ namespace Ship_Game
                 Empire pirates = p.Universe.PirateFactions.Length > 0 ? triggeredBy.Random.Item(p.Universe.PirateFactions)
                                                                     : p.Universe.Unknown;
                 foreach (string shipName in PirateShipsToSpawn)
-                    Ship.CreateShipNearPlanet(us, shipName, pirates.IsAtWarWith(triggeredBy) ? pirates : p.Universe.Unknown, p, doOrbit: true);
+                    Ship.CreateShipNearPlanet(us, shipName, pirates.IsAtWarWith(triggeredBy) ? pirates : p.Universe.Unknown, 
+                        p, doOrbit: true);
             }
         }
 
@@ -287,11 +288,8 @@ namespace Ship_Game
             else if (SetRandomPlanet(triggeredBy.Universe)) //events that trigger on other planets
             {
                 p = SelectedPlanet;
-
                 if (eventLocation == null)
-                {
                     eventLocation = p.TilesList[p.TilesList.Count / 2];
-                }
 
                 BuildingActions(p, eventLocation);
                 TroopActions(triggeredBy, p, eventLocation);
