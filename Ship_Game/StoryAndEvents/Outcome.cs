@@ -161,7 +161,7 @@ namespace Ship_Game
                 Empire pirates = p.Universe.PirateFactions.Length > 0 ? triggeredBy.Random.Item(p.Universe.PirateFactions)
                                                                     : p.Universe.Unknown;
                 foreach (string shipName in PirateShipsToSpawn)
-                    Ship.CreateShipNearPlanet(us, shipName, pirates, p, doOrbit: true);
+                    Ship.CreateShipNearPlanet(us, shipName, pirates.IsAtWarWith(triggeredBy) ? pirates : p.Universe.Unknown, p, doOrbit: true);
             }
         }
 
