@@ -322,7 +322,7 @@ namespace Ship_Game
                 else
                 {
                     ResourceManager.Event(Building.EventTriggerUID)
-                        .TriggerPlanetEvent(planet, EventOutcomeNum , empire, this, planet.Universe.Screen);
+                        .TriggerPlanetEvent(planet, empire, this, planet.Universe.Screen);
                 }
             }
         }

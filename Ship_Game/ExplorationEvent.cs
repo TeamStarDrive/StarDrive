@@ -21,37 +21,11 @@ namespace Ship_Game
             triggeredOutcome.CheckOutComes(null, null, triggeredBy, null);
         }
 
-        public void TriggerPlanetEvent(Planet p, short outcomeNum, Empire triggeredBy,
+        public void TriggerPlanetEvent(Planet p, Empire triggeredBy,
             PlanetGridSquare eventLocation, UniverseScreen screen)
         {
-            int cursor = 0;
-            Outcome triggeredOutcome      = null;
-            var filteredPotentialOutcomes = FilteredPotentialOutcomes(p);
-            int sumChances                = filteredPotentialOutcomes.Sum(o => o.Chance);
 
-            // for save compatibility - can be removed in 2022 :)
-            if (outcomeNum == 0 && eventLocation.EventOnTile) 
-                outcomeNum = 1; 
-            // **************************************************
-
-            if (outcomeNum > sumChances)
-            {
-                Log.Warning($"outcomeNum ({outcomeNum}) was larger than sum of all chance in tile for event {FileName} on {p.Name}. Setting to 1\n" +
-                            "This can occur if an event outcome chances were changed and a save was loaded");
-                outcomeNum = 1;
-            }
-
-            foreach (Outcome outcome in FilteredPotentialOutcomes(p))
-            {
-                cursor += outcome.Chance;
-                if (outcomeNum <= cursor) 
-                {
-                    triggeredOutcome = outcome;
-                    break;
-                }
-            }
-
-            if (triggeredOutcome != null)
+            if (TryGetOutcome(p, eventLocation.EventOutcomeNum, out Outcome triggeredOutcome))
             {
                 EventPopup popup = null;
                 if (triggeredBy == screen.Player)
@@ -64,6 +38,38 @@ namespace Ship_Game
                     GameAudio.NotifyAlert();
                 }
             }
+        }
+
+        bool TryGetOutcome(Planet p, short outcomeNum, out Outcome triggeredOutcome)
+        {
+            int cursor = 0;
+            triggeredOutcome = null;
+            var filteredPotentialOutcomes = FilteredPotentialOutcomes(p);
+            int sumChances = filteredPotentialOutcomes.Sum(o => o.Chance);
+
+            if (outcomeNum > sumChances)
+            {
+                Log.Warning($"outcomeNum ({outcomeNum}) was larger than sum of all chance in tile for event {FileName} on {p.Name}. Setting to 1\n" +
+                            "This can occur if an event outcome chances were changed and a save was loaded");
+                outcomeNum = 1;
+            }
+
+            foreach (Outcome outcome in filteredPotentialOutcomes)
+            {
+                cursor += outcome.Chance;
+                if (outcomeNum <= cursor)
+                {
+                    triggeredOutcome = outcome;
+                    break;
+                }
+            }
+
+            return triggeredOutcome != null;
+        }
+
+        public bool OutcomeWillLaunchEnemyShip(Planet p, short outcomeNum)
+        {
+            return TryGetOutcome(p, outcomeNum, out Outcome outcome) && outcome.WillSpawnEnemies;
         }
 
         public short SetOutcomeNum(Planet p)
