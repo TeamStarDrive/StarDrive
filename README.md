@@ -20,8 +20,8 @@ Note that the game now has an auto update logic; You can install the Major Relea
 
 # Mods
 The only mods which currently supports Blackbox are 
-* [Combined Arms] (https://github.com/TeamStarDrive/CombinedArms), which is a huge content mod. 
-* [Star Trek] (https://github.com/TeamStarDrive/StarTrekShatteredAlliance), which uses Vanilla races with addtion of Star Trek races and ships.
+* [Combined Arms](https://github.com/TeamStarDrive/CombinedArms), which is a huge content mod. 
+* [Star Trek](https://github.com/TeamStarDrive/StarTrekShatteredAlliance), which uses Vanilla races with addtion of Star Trek races and ships.
 
 # Community
 Feel free to drop in for questions, bug reports, requests and what not. 

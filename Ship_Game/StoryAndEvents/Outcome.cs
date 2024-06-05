@@ -156,15 +156,18 @@ namespace Ship_Game
                 ship.AI.DefaultAIState = AIState.Exterminate;
             }
 
-            if (PirateShipsToSpawn.Count != 0 && p.Universe.PirateFactions.Length != 0)
+            if (PirateShipsToSpawn.Count > 0)
             {
-                Empire pirates = triggeredBy.Random.Item(p.Universe.PirateFactions);
+                Empire pirates = p.Universe.PirateFactions.Length > 0 ? triggeredBy.Random.Item(p.Universe.PirateFactions)
+                                                                    : p.Universe.Unknown;
                 foreach (string shipName in PirateShipsToSpawn)
-                {
                     Ship.CreateShipNearPlanet(us, shipName, pirates, p, doOrbit: true);
-                }
             }
         }
+
+        public bool WillSpawnEnemies => PirateShipsToSpawn.Count > 0
+                                        || RemnantShipsToSpawn.Count > 0
+                                        || TroopsToSpawn.Count > 0;
 
         void BuildingActions(Planet p, PlanetGridSquare eventLocation)
         {

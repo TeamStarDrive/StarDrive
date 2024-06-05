@@ -55,6 +55,23 @@ namespace Ship_Game
             AbortLandingPlayerFleets();
             Owner.TryTransferCapital(this);
             Universe.Stats.StatAddColony(Universe.StarDate, this);
+            TriggerBadEvents();
+        }
+
+        void TriggerBadEvents()
+        {
+            foreach (PlanetGridSquare tile in TilesList.Filter(t => t.EventOnTile))
+            {
+                if (tile.IsCrashSiteActive)
+                    continue;
+
+                ExplorationEvent exEvent = ResourceManager.Event(tile.Building.EventTriggerUID);
+                if (exEvent.OutcomeWillLaunchEnemyShip(this, tile.EventOutcomeNum))
+                {
+                    ResourceManager.Event(tile.Building.EventTriggerUID)
+                        .TriggerPlanetEvent(this, Owner, tile, Universe.Screen);
+                }
+            }
         }
 
         void SetupColonyType()
