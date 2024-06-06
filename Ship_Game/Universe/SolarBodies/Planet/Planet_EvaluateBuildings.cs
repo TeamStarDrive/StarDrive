@@ -482,7 +482,8 @@ namespace Ship_Game
                 || b.IsMilitary
                 || !b.Scrappable
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
-                || b.BuildOnlyOnce)
+                || b.BuildOnlyOnce
+                || b.PlusTerraformPoints > 0) // using this instead of IsTerraformer since some event building might also terraform without the terraformer building ID
             {
                 return false;
             }
