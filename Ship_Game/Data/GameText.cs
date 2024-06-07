@@ -5326,6 +5326,10 @@ namespace Ship_Game
         GameOptionsInfluenceAlpha = 6222,
         /// <summary>Adjust the empires' border color strength</summary>
         GameOptionsInfluenceAlphaTip = 6223,
+        /// <summary>Refit In Fleed</summary>
+        RefitInFleet = 6224,
+        /// <summary>All Ships of the same type in the</summary>
+        RefitInFleetTip = 6225,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
