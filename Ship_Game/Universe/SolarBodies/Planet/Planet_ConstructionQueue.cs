@@ -423,10 +423,12 @@ public partial class Planet
         BuildingGeodeticOffense = SumBuildings(b => b.Offense);
 
         HabitablePercentage = (float)TilesList.Count(tile => tile.Habitable) / TileArea;
-        HabitableBuiltCoverage = 1 - (float)FreeHabitableTiles/TotalHabitableTiles;
 
         FreeHabitableTiles = TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         TotalHabitableTiles = TilesList.Count(tile => tile.Habitable);
+        HabiableBuiltCoverage = 1 - (float)FreeHabitableTiles / TotalHabitableTiles;
+        NumFreeBiospheres = TilesList.Count(t => t.Biosphere && !t.BuildingOnTile);
+
         TotalMoneyBuildings = TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
         MoneyBuildingRatio = (float)TotalMoneyBuildings / TotalBuildings;
 

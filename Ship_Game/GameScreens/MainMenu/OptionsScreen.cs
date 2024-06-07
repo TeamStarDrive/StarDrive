@@ -111,6 +111,7 @@ namespace Ship_Game
 
         FloatSlider MusicVolumeSlider;
         FloatSlider EffectsVolumeSlider;
+        FloatSlider EffectsInfluenceNodeAlpha;
         AudioHandle EffectSound = new();
 
         FloatSlider IconSize;
@@ -249,10 +250,10 @@ namespace Ship_Game
             botLeft.AddSplit(new UILabel(GameText.SoundDevice), SoundDevices);
             MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.MusicVolume, 0f, 1f, GlobalStats.MusicVolume));
             EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.EffectsVolume, 0f, 1f, GlobalStats.EffectsVolume));
-            
+            EffectsInfluenceNodeAlpha = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.GameOptionsInfluenceAlpha, 0f, 1f, GlobalStats.InfluenceNodeAlpha));
+            EffectsInfluenceNodeAlpha.Tip = GameText.GameOptionsInfluenceAlphaTip;
             CurrentLanguage = new DropOptions<Language>(105, 18);
             Add(botLeft, GameText.Language, CurrentLanguage);
-
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
             
             UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
@@ -265,6 +266,7 @@ namespace Ship_Game
             
             MusicVolumeSlider.OnChange = (s) => GlobalStats.MusicVolume = s.AbsoluteValue;
             EffectsVolumeSlider.OnChange = (s) => SetEffectsVolume(s.AbsoluteValue);
+            EffectsInfluenceNodeAlpha.OnChange = (s) => GlobalStats.InfluenceNodeAlpha = s.AbsoluteValue;
             MaxDynamicLightSources.OnChange = (s) => GlobalStats.MaxDynamicLightSources = (int)s.AbsoluteValue;
             IconSize.OnChange = (s) => GlobalStats.IconSize = (int)s.AbsoluteValue;
             AutoSaveFreq.OnChange = (s) => GlobalStats.AutoSaveFreq = (int)s.AbsoluteValue;
@@ -411,8 +413,9 @@ namespace Ship_Game
             Original = New.GetClone(); // accepted!
             GlobalStats.SaveSettings();
 
-            EffectsVolumeSlider.RelativeValue = GlobalStats.EffectsVolume;
-            MusicVolumeSlider.RelativeValue   = GlobalStats.MusicVolume;
+            EffectsVolumeSlider.RelativeValue       = GlobalStats.EffectsVolume;
+            MusicVolumeSlider.RelativeValue         = GlobalStats.MusicVolume;
+            EffectsInfluenceNodeAlpha.RelativeValue = GlobalStats.InfluenceNodeAlpha;
         }
 
         void CancelChanges()

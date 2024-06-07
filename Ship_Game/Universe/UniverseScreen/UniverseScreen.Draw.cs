@@ -72,74 +72,77 @@ namespace Ship_Game
             graphics.SetRenderTarget(0, BorderRT);
             graphics.Clear(Color.TransparentBlack);
 
-            // the node texture has a smooth fade, so we need to scale it by a lot to match the actual SSP radius
-            float nodeScale = 1.8f;
-            float connectorScale = 1.2f;
-            float currentZ = 0;
-            var nodeTex = ResourceManager.Texture("UI/node");
-            var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
-
-            var frustum = VisibleWorldRect;
-
-            Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
-            foreach (Empire empire in empires)
+            if (GlobalStats.InfluenceNodeAlpha > 0.1f)
             {
-                bool canShowBorders = Debug || empire == Player || Player.IsKnown(empire);
-                if (!canShowBorders)
-                    continue;
+                // the node texture has a smooth fade, so we need to scale it by a lot to match the actual SSP radius
+                float nodeScale = 1.8f;
+                float connectorScale = 1.2f;
+                float currentZ = 0;
+                var nodeTex = ResourceManager.Texture("UI/node");
+                var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
-                empire.BorderNodeCache.Update(empire);
+                var frustum = VisibleWorldRect;
 
-                Empire.InfluenceNode[] nodes = empire.BorderNodeCache.BorderNodes;
-                if (nodes.Length == 0)
-                    continue;
-
-                draw3d.Begin(ViewProjection);
-                
-                // since we draw every empire's influence in its own layer, depth is not needed
-                // drawing every empire in its own layer will solve almost all artifact issues
-                RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:false);
-
-                // enable additive only for the alpha channel, this will smoothly blend multiple
-                // overlapping gradient edges into nice blobs
-                RenderStates.EnableSeparateAlphaBlend(graphics, BorderBlendSrc, BorderBlendDest);
-                RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
-                //RenderStates.DisableAlphaTest(graphics);
-                
-                Color empireColor = empire.EmpireColor;
-                for (int x = 0; x < nodes.Length; x++)
+                Empire[] empires = UState.Empires.Sorted(e => e.MilitaryScore);
+                foreach (Empire empire in empires)
                 {
-                    ref Empire.InfluenceNode inf = ref nodes[x];
-                    if (inf.KnownToPlayer && frustum.Overlaps(inf.Position, inf.Radius))
-                    {
-                        Quad3D nodeQuad = new(inf.Position, inf.Radius * nodeScale, zValue: currentZ);
-                        currentZ += 10f;
-                        draw3d.Draw(nodeTex, nodeQuad, empireColor);
-                    }
-                }
+                    bool canShowBorders = Debug || empire == Player || Player.IsKnown(empire);
+                    if (!canShowBorders)
+                        continue;
 
-                // draw connection bridges
-                // NOTE: all BorderNodeCache.Connections are those which are `KnownToPlayer`
-                foreach (InfluenceConnection c in empire.BorderNodeCache.Connections)
-                {
-                    Empire.InfluenceNode a = c.Node1;
-                    Empire.InfluenceNode b = c.Node2;
-                    if (frustum.Overlaps(a.Position, a.Radius) || frustum.Overlaps(b.Position, b.Radius))
+                    empire.BorderNodeCache.Update(empire);
+
+                    Empire.InfluenceNode[] nodes = empire.BorderNodeCache.BorderNodes;
+                    if (nodes.Length == 0)
+                        continue;
+
+                    draw3d.Begin(ViewProjection);
+
+                    // since we draw every empire's influence in its own layer, depth is not needed
+                    // drawing every empire in its own layer will solve almost all artifact issues
+                    RenderStates.BasicBlendMode(graphics, additive: false, depthWrite: false);
+
+                    // enable additive only for the alpha channel, this will smoothly blend multiple
+                    // overlapping gradient edges into nice blobs
+                    RenderStates.EnableSeparateAlphaBlend(graphics, BorderBlendSrc, BorderBlendDest);
+                    RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
+                    //RenderStates.DisableAlphaTest(graphics);
+
+                    Color empireColor = empire.EmpireColor.Alpha(GlobalStats.InfluenceNodeAlpha);
+                    for (int x = 0; x < nodes.Length; x++)
                     {
-                        // always use the smaller radius to prevent artifacts when
-                        // a really big system connects to a tiny projector
-                        float radius = Math.Min(a.Radius, b.Radius);
-                        float width = 2.0f * radius * connectorScale;
-                        
-                        // make a quad by reusing the Quad3D line constructor
-                        Quad3D connectLine = new(a.Position, b.Position, width, zValue: currentZ);
-                        currentZ += 10f;
-                        draw3d.Draw(connectTex, connectLine, empireColor);
+                        ref Empire.InfluenceNode inf = ref nodes[x];
+                        if (inf.KnownToPlayer && frustum.Overlaps(inf.Position, inf.Radius))
+                        {
+                            Quad3D nodeQuad = new(inf.Position, inf.Radius * nodeScale, zValue: currentZ);
+                            currentZ += 10f;
+                            draw3d.Draw(nodeTex, nodeQuad, empireColor);
+                        }
                     }
+
+                    // draw connection bridges
+                    // NOTE: all BorderNodeCache.Connections are those which are `KnownToPlayer`
+                    foreach (InfluenceConnection c in empire.BorderNodeCache.Connections)
+                    {
+                        Empire.InfluenceNode a = c.Node1;
+                        Empire.InfluenceNode b = c.Node2;
+                        if (frustum.Overlaps(a.Position, a.Radius) || frustum.Overlaps(b.Position, b.Radius))
+                        {
+                            // always use the smaller radius to prevent artifacts when
+                            // a really big system connects to a tiny projector
+                            float radius = Math.Min(a.Radius, b.Radius);
+                            float width = 2.0f * radius * connectorScale;
+
+                            // make a quad by reusing the Quad3D line constructor
+                            Quad3D connectLine = new(a.Position, b.Position, width, zValue: currentZ);
+                            currentZ += 10f;
+                            draw3d.Draw(connectTex, connectLine, empireColor);
+                        }
+                    }
+
+                    draw3d.End();
+                    RenderStates.DisableSeparateAlphaChannelBlend(graphics);
                 }
-                
-                draw3d.End();
-                RenderStates.DisableSeparateAlphaChannelBlend(graphics);
             }
 
             graphics.SetRenderTarget(0, null);

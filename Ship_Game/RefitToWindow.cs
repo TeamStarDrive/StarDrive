@@ -21,6 +21,7 @@ namespace Ship_Game
         ScrollList<RefitShipListItem> RefitShipList;
         UIButton RefitOne;
         UIButton RefitAll;
+        UIButton RefitInFleet;
         UICheckBox RushRefit;
         IShipDesign RefitTo;
         DanButton ConfirmRefit;
@@ -100,10 +101,12 @@ namespace Ship_Game
 
             ConfirmRefit = new DanButton(new Vector2(shipDesignsRect.X, (shipDesignsRect.Y + 505)), "Do Refit");
 
-            RefitOne = ButtonMedium(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, text:GameText.RefitOne, click: OnRefitOneClicked);
-            RefitOne.Tooltip = Localizer.Token(GameText.RefitOnlyThisShipTo);
-            RefitAll = ButtonMedium(shipDesignsRect.X + 250, shipDesignsRect.Y + 505, text:GameText.RefitAll, click: OnRefitAllClicked);
-            RefitAll.Tooltip = Localizer.Token(GameText.RefitAllShipsOfThis);
+            RefitOne = ButtonMedium(shipDesignsRect.X + 10, shipDesignsRect.Y + 505, text:GameText.RefitOne, click: OnRefitOneClicked);
+            RefitOne.Tooltip = GameText.RefitOnlyThisShipTo;
+            RefitAll = ButtonMedium(shipDesignsRect.X + 270, shipDesignsRect.Y + 505, text:GameText.RefitAll, click: OnRefitAllClicked);
+            RefitAll.Tooltip = GameText.RefitAllShipsOfThis;
+            RefitInFleet = ButtonMedium(shipDesignsRect.X + 140, shipDesignsRect.Y + 505, text: GameText.RefitInFleet, click: OnRefitFleetClicked);
+            RefitInFleet.Tooltip = GameText.RefitInFleetTip;
             RushRefit = Add(new UICheckBox(() => Rush, Fonts.Arial12Bold,
                 title: GameText.RushRefit, tooltip: GameText.RushRefitTip));
             RushRefit.TextColor = Color.Gray;
@@ -118,14 +121,14 @@ namespace Ship_Game
             };
 
             base.LoadContent();
+            RefitOne.Visible = RefitAll.Visible = RefitInFleet.Visible = RushRefit.Visible = false;
         }
 
         void OnRefitShipItemClicked(RefitShipListItem item)
         {
             RefitTo = item.Design;
-            RefitOne.Enabled = RefitTo != null;
-            RefitAll.Enabled = RefitTo != null;
-            RushRefit.Enabled = RefitTo != null;
+            RushRefit.Visible = RefitAll.Visible = RefitOne.Visible = RefitTo != null;
+            RefitInFleet.Visible = RefitAll.Visible && ShipToRefit.Fleet != null;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -140,10 +143,6 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial14Bold, text, cursor, Color.White);
             }
             batch.SafeEnd();
-
-            RefitOne.Visible = RefitTo != null;
-            RefitAll.Visible = RefitTo != null;
-            RushRefit.Visible= RefitTo != null;
         }
 
         public override void ExitScreen()
@@ -161,6 +160,16 @@ namespace Ship_Game
 
         void OnRefitAllClicked(UIButton b)
         {
+            RefitAllShips();
+            foreach (Fleet fleet in Player.AllFleets)
+                fleet.RefitNodeName(ShipToRefit.Name, RefitTo.Name);
+
+            GameAudio.EchoAffirmative();
+            ExitScreen();
+        }
+
+        void RefitAllShips()
+        {
             var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
@@ -170,10 +179,12 @@ namespace Ship_Game
 
             foreach (Planet planet in Player.GetPlanets())
                 planet.Construction.RefitShipsBeingBuilt(ShipToRefit, RefitTo);
+        }
 
-            foreach (Fleet fleet in Player.ActiveFleets)
-                fleet.RefitNodeName(ShipToRefit.Name, RefitTo.Name);
-
+        void OnRefitFleetClicked(UIButton b)
+        {
+            ShipToRefit.Fleet?.RefitNodeName(ShipToRefit.Name, RefitTo.Name);
+            RefitAllShips();
             GameAudio.EchoAffirmative();
             ExitScreen();
         }

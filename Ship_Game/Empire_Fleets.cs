@@ -80,6 +80,9 @@ public sealed partial class Empire
     /// <summary>Returns only active fleets which have ships</summary>
     public FleetEnumerator ActiveFleets => new FleetEnumerator(Fleets.GetInternalArrayItems(), Fleets.Count);
 
+    /// <summary> Gets All Fleets for data nodes hnadling (refit, for isntance)</summary>
+    public IReadOnlyList<Fleet> AllFleets => Fleets;
+
     /// <summary>Check if any of the active fleets matches the predicate test</summary>
     public IEnumerable<Fleet> GetActiveFleetsTargetingEmpire(Empire empire)
     {

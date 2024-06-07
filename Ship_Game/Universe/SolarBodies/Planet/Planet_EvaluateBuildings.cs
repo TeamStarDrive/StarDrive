@@ -482,7 +482,8 @@ namespace Ship_Game
                 || b.IsMilitary
                 || !b.Scrappable
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
-                || b.BuildOnlyOnce)
+                || b.BuildOnlyOnce
+                || b.PlusTerraformPoints > 0) // using this instead of IsTerraformer since some event building might also terraform without the terraformer building ID
             {
                 return false;
             }
@@ -761,9 +762,7 @@ namespace Ship_Game
         bool TryBuildBiospheres(float budget, out bool shouldScrapBioSpheres)
         {
             shouldScrapBioSpheres = false;
-
             if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
-                || PopulationRatio < 0.99f && HabitableBuiltCoverage.Less(1)
                 || BiosphereInTheWorks
                 || IsStarving
                 || HabitablePercentage.AlmostEqual(1)) // all tiles are habitable
@@ -775,15 +774,30 @@ namespace Ship_Game
             if (bio == null || bio.ActualMaintenance(this) > budget)
                 return false; // not within budget or not profitable and more than 5
 
-            if  (!BioSphereProfitable(bio))
+            if (!BioSphereProfitable(bio))
             {
-                int numBio = CountBuildings(b => b.IsBiospheres);
-                if (numBio > 5)
-                    shouldScrapBioSpheres = true;
-
-                if (numBio >= 5)
+                int numBuildingsWeCanBuild = GetBuildingsListToChooseFrom(BuildingsCanBuild).Count;
+                if (NumFreeBiospheres > 0)
+                {
+                    // We do not need more than 1 free biospheres if not profitable.
+                    // We need only 1 free biosphere if we have anything to built at all
+                    shouldScrapBioSpheres = NumFreeBiospheres > 1 || numBuildingsWeCanBuild == 0;
                     return false;
+                }
+                else if (numBuildingsWeCanBuild == 0 || HabiableBuiltCoverage.Less(1))
+                {
+                    // no need to build unprofitable biospheres if we have nothing to build here
+                    return false;
+                }
             }
+            else if (PopulationRatio < 0.95f 
+                     && (NumFreeBiospheres > 0 || HabiableBuiltCoverage.Less(1)))
+            {
+                // dont build even if profitable, if pop is not big enough.
+                // but ensure there is at least 1 free biospheres if there are no free tiles
+                return false;
+            }
+
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
@@ -798,7 +812,7 @@ namespace Ship_Game
 
         bool BioSphereProfitable(Building bio)
         {
-            return Money.NetRevenueGain(bio).GreaterOrEqual(0);
+            return Money.NetRevenueGain(bio) >= 0;
         }
 
         // FB - For unit tests only!

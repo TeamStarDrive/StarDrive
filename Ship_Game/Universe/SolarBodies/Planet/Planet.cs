@@ -1507,7 +1507,9 @@ namespace Ship_Game
         public int TotalBuildings { get; private set; }
         public int  TerraformersHere { get; private set; }
         public float HabitablePercentage { get; private set; }
-        public float HabitableBuiltCoverage { get; private set; }
+        public int NumFreeBiospheres { get; private set; }
+
+        public float HabiableBuiltCoverage { get; private set; }
         public int TotalInvadeInjure { get; private set; }
         public float BuildingGeodeticOffense { get; private set; }
 
