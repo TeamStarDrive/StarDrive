@@ -5322,6 +5322,10 @@ namespace Ship_Game
         LinksChain = 6220,
         /// <summary>Opens the Blueprints Screen, which allows you to create</summary>
         BlueprintsScreenTip = 6221,
+        /// <summary>Border Color Strength</summary>
+        GameOptionsInfluenceAlpha = 6222,
+        /// <summary>Adjust the empires' border color strength</summary>
+        GameOptionsInfluenceAlphaTip = 6223,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

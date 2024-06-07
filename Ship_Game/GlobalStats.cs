@@ -256,6 +256,7 @@ public static class GlobalStats
     // Music, Sound & Language settings
     public static float MusicVolume   = 0.7f;
     public static float EffectsVolume = 1f;
+    public static float InfluenceNodeAlpha = 1f;
     public static string SoundDevice  = "Default"; // Use windows default device if not explicitly specified
 
     // Language options
@@ -333,6 +334,7 @@ public static class GlobalStats
 
         if (TryGetSetting(config, "MusicVolume", out int musicVol)) MusicVolume = musicVol / 100f;
         if (TryGetSetting(config, "EffectsVolume", out int fxVol)) EffectsVolume = fxVol / 100f;
+        if (TryGetSetting(config, "InfluenceNodeAlpha", out int nodeAlpha)) InfluenceNodeAlpha = nodeAlpha / 100f;
         GetSetting(config, "SoundDevice", ref SoundDevice);
         GetSetting(config, "Language", ref Language);
         GetSetting(config, "VerboseLogging", ref VerboseLogging);
@@ -494,6 +496,7 @@ public static class GlobalStats
 
         WriteSetting(config, "MusicVolume", (int)(MusicVolume * 100));
         WriteSetting(config, "EffectsVolume", (int)(EffectsVolume * 100));
+        WriteSetting(config, "InfluenceNodeAlpha", (int)(InfluenceNodeAlpha * 100));
         WriteSetting(config, "SoundDevice", SoundDevice);
         WriteSetting(config, "Language", Language);
         WriteSetting(config, "VerboseLogging", VerboseLogging);
