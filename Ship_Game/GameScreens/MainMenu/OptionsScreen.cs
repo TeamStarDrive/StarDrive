@@ -250,11 +250,10 @@ namespace Ship_Game
             botLeft.AddSplit(new UILabel(GameText.SoundDevice), SoundDevices);
             MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.MusicVolume, 0f, 1f, GlobalStats.MusicVolume));
             EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.EffectsVolume, 0f, 1f, GlobalStats.EffectsVolume));
-
-            CurrentLanguage = new DropOptions<Language>(105, 18);
-            Add(botLeft, GameText.Language, CurrentLanguage);
             EffectsInfluenceNodeAlpha = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, GameText.GameOptionsInfluenceAlpha, 0f, 1f, GlobalStats.InfluenceNodeAlpha));
             EffectsInfluenceNodeAlpha.Tip = GameText.GameOptionsInfluenceAlphaTip;
+            CurrentLanguage = new DropOptions<Language>(105, 18);
+            Add(botLeft, GameText.Language, CurrentLanguage);
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
             
             UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
