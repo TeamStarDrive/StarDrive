@@ -3,6 +3,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Universe;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,9 @@ namespace Ship_Game.GameScreens.NewGame
 
         public readonly UniverseParams P;
         ScrollList<RaceArchetypeListItem> ChooseRaceList;
-        IEmpireData SelectedData;
+        UITextBox TeamsSelector;
+        FoeSelectionContainer FoeSelectedContainer;
+        readonly IEmpireData SelectedData;
 
         public FoeSelectionScreen(GameScreen parent, UniverseParams p, IEmpireData selectedData) : base(parent, toPause: null)
         {
@@ -36,12 +39,21 @@ namespace Ship_Game.GameScreens.NewGame
             //                           TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 4);
             //Add(new UILabel(titlePos, "Select other empires", Fonts.Laserian14, Colors.Cream));
             var TitleBar = new Rectangle(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
-            RectF chooseRace = new(ScreenWidth / 2,
+            RectF chooseRace = new(ScreenWidth / 6,
                                   (int)TitleBar.Bottom + 15,
                                   (int)(ScreenWidth * 0.3f),
                                   (int)(ScreenHeight - TitleBar.Bottom));
-            if (chooseRace.H > 780)
+
+            RectF selectedRaces = new(3 * ScreenWidth / 6,
+                                  (int)TitleBar.Bottom + 15,
+                                  (int)(ScreenWidth * 0.3f),
+                                  (int)(ScreenHeight - TitleBar.Bottom));
+
+            if (chooseRace.H > 780 || selectedRaces.H > 780)
+            {
                 chooseRace.H = 780;
+                selectedRaces.H = 780;
+            }
 
             ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
             ChooseRaceList.SetBackground(new Menu1(chooseRace));
@@ -51,6 +63,8 @@ namespace Ship_Game.GameScreens.NewGame
                                 data => data.ArchetypeName != SelectedData.ArchetypeName);
             foreach (IEmpireData e in majorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
+
+            FoeSelectedContainer = Add(new FoeSelectionContainer(this, P, selectedRaces));
 
             OnExit += () =>
             {
