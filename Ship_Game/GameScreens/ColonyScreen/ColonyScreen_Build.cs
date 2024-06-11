@@ -125,8 +125,7 @@ namespace Ship_Game
             else if (P.Owner != null)
             {
                 buildableShips = P.Owner.ShipsWeCanBuild
-                    .Filter(ship => ship.IsBuildableByPlayer(Universe.Player)
-                                    && Universe.Screen.Player.WeCanBuildThis(ship)
+                    .Filter(ship => (ship.IsBuildableByPlayer(Universe.Player) && Universe.Screen.Player.WeCanBuildThis(ship) || Universe.Debug)
                                     && !ship.IsResearchStation
                                     && !ship.IsMiningStation
                                     && !ship.IsConstructor);
