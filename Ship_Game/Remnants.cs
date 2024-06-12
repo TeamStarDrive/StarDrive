@@ -794,7 +794,19 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int level, int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int shipGroupSize  = 12 - (Level / 2).LowerBound(3);
+            int ShipGroupSize()
+            {
+                switch (Universe.P.Difficulty)
+                {
+                    default:
+                    case GameDifficulty.Normal: return 20;
+                    case GameDifficulty.Hard:   return 15;
+                    case GameDifficulty.Brutal: return 12;
+                    case GameDifficulty.Insane: return 10;
+                }
+            }
+
+            int shipGroupSize  = ShipGroupSize() - (Level / 2).LowerBound(3);
             int fleetModifier  = shipsInFleet / shipGroupSize;
             int effectiveLevel = (level + (int)Universe.P.Difficulty + fleetModifier).UpperBound(level *2);
             int roll           = shipsInFleet.LowerBound(1) % shipGroupSize != 0 
@@ -851,7 +863,9 @@ namespace Ship_Game
                         case 3: return RemnantShipType.Carrier;
                     }
                 case 20: 
-                default: return RemnantShipType.Behemoth;
+                default: return Universe.P.Difficulty == GameDifficulty.Normal && !Random.RollDice(10) 
+                        ?  RemnantShipType.Exterminator
+                        :  RemnantShipType.Behemoth;
             }
         }
 
