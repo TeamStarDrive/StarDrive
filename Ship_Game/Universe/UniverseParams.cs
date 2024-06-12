@@ -39,6 +39,7 @@ public class UniverseParams
     [StarData] public float ShipMaintenanceMultiplier;
     [StarData] public bool AIUsesPlayerDesigns;
     [StarData] public bool UseUpkeepByHullSize;
+    [StarData] public bool UseLegacyEspionage;
     [StarData] public float StartingPlanetRichnessBonus;
 
     // in-system FTL modifier is the BASE FTL modifier when ships are inside solar systems
@@ -97,6 +98,7 @@ public class UniverseParams
         ShipMaintenanceMultiplier = s.ShipMaintenanceMultiplier;
         AIUsesPlayerDesigns = s.AIUsesPlayerDesigns;
         UseUpkeepByHullSize = s.UseUpkeepByHullSize;
+        UseLegacyEspionage = s.UseLegacyEspionage;
         StartingPlanetRichnessBonus = s.StartingPlanetRichnessBonus;
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;

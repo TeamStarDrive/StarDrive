@@ -118,6 +118,7 @@ namespace Ship_Game.Gameplay
 
         [StarData] public EmpireRiskAssessment Risk;
         [StarData] public EmpireInformation KnownInformation;
+        [StarData] public Espionage Espionage;
 
         [StarData] public bool DoNotSurrenderToThem;
 
@@ -168,11 +169,13 @@ namespace Ship_Game.Gameplay
         [StarDataConstructor]
         Relationship() {}
 
-        public Relationship(Empire them)
+        public Relationship(Empire us, Empire them)
         {
             Them = them;
             Risk = new EmpireRiskAssessment(this);
             KnownInformation = new EmpireInformation(this);
+            if (!us.Universe.P.UseLegacyEspionage)
+                Espionage = new Espionage(us, them);
         }
 
         public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer = 250)

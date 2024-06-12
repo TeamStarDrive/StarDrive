@@ -307,12 +307,15 @@ namespace Ship_Game
 
             if (us.GetRelationsOrNull(them) == null)
             {
-                us.AddNewRelationToThem(them, rel: new(them));
+                us.AddNewRelationToThem(them, rel: new(us, them));
             }
             if (them.GetRelationsOrNull(us) == null)
             {
-                them.AddNewRelationToThem(us, rel: new(us));
+                them.AddNewRelationToThem(us, rel: new(them, us));
             }
+
+            if (!us.Universe.P.UseLegacyEspionage)
+                us.SetCanBeScannedByPlayer(false);
         }
 
         public void SetRelationsAsKnown(Relationship rel, Empire them)

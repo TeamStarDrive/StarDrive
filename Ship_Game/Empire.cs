@@ -1849,6 +1849,7 @@ namespace Ship_Game
             }
 
             Research.Update();
+            UpdateEspionage(Research.TaxedResearch);
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();

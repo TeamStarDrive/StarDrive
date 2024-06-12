@@ -5341,6 +5341,10 @@ namespace Ship_Game
         RefitInFleet = 6224,
         /// <summary>All Ships of the same type in the</summary>
         RefitInFleetTip = 6225,
+        /// <summary>Enable Legacy Espionage</summary>
+        UseLegacyEspionage = 6226,
+        /// <summary>Enable Legacy Espionage (Agents) instead of the rewritten one</summary>
+        UseLegacyEspionageTip = 6227,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
