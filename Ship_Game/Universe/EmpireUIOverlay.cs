@@ -321,7 +321,10 @@ namespace Ship_Game
                 if (input.KeyPressed(Keys.E))
                 {
                     GameAudio.EchoAffirmative();
-                    Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
+                    if (Universe.Player.Universe.P.UseLegacyEspionage)
+                        Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
+                    else
+                        Universe.ScreenManager.AddScreen(new InfiltrationScreen(Universe));
                     return true;
                 }
                 if (input.KeyPressed(Keys.P))
@@ -468,7 +471,11 @@ namespace Ship_Game
                         }
                         else if (b.launches == "Espionage")
                         {
-                            Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
+                            if (Universe.Player.Universe.P.UseLegacyEspionage)
+                                Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
+                            else
+                                Universe.ScreenManager.AddScreen(new InfiltrationScreen(Universe));
+
                             GameAudio.EchoAffirmative();
                         }
                         else if (b.launches == "?")

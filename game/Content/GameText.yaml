@@ -15101,6 +15101,9 @@ UseLegacyEspionage:
 UseLegacyEspionageTip:
  Id: 6227
  ENG: "Enable Legacy Espionage (Agents) instead of the rewritten system (Infiltration Levels)"    
+InfiltrationDefesneTip:
+ Id: 6228
+ ENG: "Indicates the percentage of Taxed Research invested in Infiltration Defense by this empire. The higher the percentage, the slower we can progress in setting up spy networks within this empire."     
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

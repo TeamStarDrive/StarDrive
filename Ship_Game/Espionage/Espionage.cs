@@ -11,12 +11,15 @@ namespace Ship_Game
     [StarDataType]
     public class Espionage
     {
-        const byte MaxLevel = 5;
+        public const byte MaxLevel = 5;
         [StarData] public byte Level;
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
         [StarData] public float LevelProgress { get; private set; }
         [StarData] int Weight;
+
+        [StarDataConstructor]
+        public Espionage() { }
 
         public Espionage(Empire us, Empire them) 
         {
@@ -47,13 +50,21 @@ namespace Ship_Game
 
         public void IncreaseProgrees(float taxedResearch, int totalWeight)
         {
-            if (Level >= MaxLevel)
+            if (AtMaxLevel)
                 return;
 
-            float progressToIncrease = taxedResearch * (Weight / totalWeight);
+            float progressToIncrease = GetProgressToIncrease(taxedResearch, totalWeight);
             LevelProgress = (LevelProgress + progressToIncrease).UpperBound(LevelCost(MaxLevel));
             if (LevelProgress >= NextLevelCost)
                 IncreaseInfiltrationLevel();
+        }
+
+        public float GetProgressToIncrease(float taxedResearch, int totalWeight)
+        {
+            return taxedResearch
+                   * (Weight / totalWeight.LowerBound(1))
+                   * (Them.TotalPopBillion / Owner.TotalPopBillion.LowerBound(0.1f))
+                   * (1 - Them.EspionageDefenseRatio * 0.75f);
         }
 
         public void SetWeight(int value)
@@ -63,7 +74,7 @@ namespace Ship_Game
 
         public int GetWeight()
         {
-            return Level < MaxLevel ? Weight : 0;
+            return !AtMaxLevel ? Weight : 0;
         }
 
         public int LevelCost(int level)
@@ -73,9 +84,13 @@ namespace Ship_Game
             // 3 - 450
             // 4 - 1350
             // 5 - 4050
-            return (int)(50 * Math.Pow(3, level-1) * Owner.Universe.SettingsResearchModifier);
+            return level == 0 ? 0 : (int)(50 * Math.Pow(3, level-1) * Owner.Universe.SettingsResearchModifier);
         }
 
         public int NextLevelCost => LevelCost(Level+1);
+        public bool ShowDefenseRatio => Level >= 2;
+        public bool AtMaxLevel => Level >= MaxLevel;
+
+        public float RelativeProgressPercent => (LevelProgress - LevelCost(Level)) / (NextLevelCost - LevelCost(Level)) * 100;
     }
 }

@@ -5345,6 +5345,8 @@ namespace Ship_Game
         UseLegacyEspionage = 6226,
         /// <summary>Enable Legacy Espionage (Agents) instead of the rewritten one</summary>
         UseLegacyEspionageTip = 6227,
+        /// <summary>Indicates the persentage of Taxed Research</summary>
+        InfiltrationDefesneTip = 6228,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

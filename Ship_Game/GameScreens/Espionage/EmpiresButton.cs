@@ -5,14 +5,23 @@ using SDUtils;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.GameScreens.Espionage;
+using Ship_Game.Gameplay;
+using Ship_Game.UI;
 
-namespace Ship_Game.GameScreens.Espionage
+namespace Ship_Game.GameScreens
 {
     public class EmpireButton : UIElementV2
     {
         public readonly Empire Empire;
         readonly EspionageScreen Screen;
+        readonly InfiltrationScreen InfiltrationScreen;
         readonly Action<EmpireButton> OnClick;
+        readonly Ship_Game.Espionage Espionage;
+        readonly Empire Player;
+        FloatSlider InfiltrationDefense;
+
+        bool UsingLegacyEspionage => Screen != null;
 
         public EmpireButton(EspionageScreen screen, Empire e, in Rectangle rect, Action<EmpireButton> onClick)
             : base(rect)
@@ -20,6 +29,34 @@ namespace Ship_Game.GameScreens.Espionage
             Empire = e;
             Screen = screen;
             OnClick = onClick;
+            Player = Empire.Universe.Player;
+        }
+
+        public EmpireButton(InfiltrationScreen screen, Empire e, in Rectangle rect, Action<EmpireButton> onClick)
+            : base(rect)
+        {
+            Empire = e;
+            InfiltrationScreen = screen;
+            OnClick = onClick;
+            Player = Empire.Universe.Player;
+            if (!Empire.isPlayer)
+            {
+                Espionage = Player.GetRelations(Empire).Espionage;
+            }
+        }
+
+        public override void PerformLayout()
+        {
+            if (Empire == Player) 
+            {
+                var defenseRect = new Rectangle(Rect.Left, Rect.Y + 210, 140, 40);
+                InfiltrationDefense = new FloatSlider(defenseRect, GameText.SpyDefense, min: 0, max: 50, value: Player.EspionageDefenseWeight);
+                InfiltrationDefense.OnChange = (s) =>
+                {
+                    Player.SetEspionageDefenseWeight(s.AbsoluteValue.RoundUpTo(1));
+                };
+            }
+            base.PerformLayout();
         }
 
         public override bool HandleInput(InputState input)
@@ -30,27 +67,20 @@ namespace Ship_Game.GameScreens.Espionage
                 OnClick(this);
                 return true;
             }
+
+            if (InfiltrationDefense != null && InfiltrationDefense.HandleInput(input))
+                return true;
+
             return false;
         }
 
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Empire player = Empire.Universe.Player;
-
             // red background:
-            if (player != Empire && player.IsAtWarWith(Empire) && !Empire.IsDefeated)
+            if (Player != Empire && Player.IsAtWarWith(Empire) && !Empire.IsDefeated)
             {
                 batch.FillRectangle(Rect.Bevel(2), Color.Red);
-            }
-
-            void DrawRacePortrait()
-            {
-                batch.Draw(ResourceManager.Texture("Portraits/" + Empire.data.PortraitName), Rect, Color.White);
-                batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), Rect, Color.White);
-
-                Vector2 size = Fonts.Arial12Bold.MeasureString(Empire.data.Traits.Name);
-                var nameCursor = new Vector2(Rect.X + 62 - size.X / 2f, Rect.Y + 148 + 8);
-                batch.DrawString(Fonts.Arial12Bold, Empire.data.Traits.Name, nameCursor, Color.White);
             }
 
             if (Empire.IsDefeated)
@@ -68,12 +98,49 @@ namespace Ship_Game.GameScreens.Espionage
                     batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                 }
             }
-            else if (player == Empire || player.IsKnown(Empire))
+            else if (Player == Empire || Player.IsKnown(Empire))
             {
+                if (!UsingLegacyEspionage)
+                    DrawDefenseRatio();
+
                 DrawRacePortrait();
+                if (UsingLegacyEspionage)
+                    DrawLegacySpyDefense();
+                else
+                    DrawInfiltration();
 
+                if (Player == Empire)
+                    DrawDefenseSlider();
+            }
+            else if (Player != Empire)
+            {
+                batch.Draw(ResourceManager.Texture("Portraits/unknown"), Rect, Color.White);
+            }
+
+            if (UsingLegacyEspionage && Empire == Screen.SelectedEmpire
+                || !UsingLegacyEspionage && Empire == InfiltrationScreen.SelectedEmpire)
+            {
+                batch.DrawRectangle(Rect, Color.Orange);
+            }
+            else if (UsingLegacyEspionage && Rect.HitTest(Screen.Input.CursorPosition)
+                || !UsingLegacyEspionage && Rect.HitTest(InfiltrationScreen.Input.CursorPosition))
+            {
+                batch.DrawRectangle(Rect, Color.White);
+            }
+
+            void DrawRacePortrait()
+            {
+                batch.Draw(ResourceManager.Texture("Portraits/" + Empire.data.PortraitName), Rect, Color.White);
+                batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), Rect, Color.White);
+
+                Vector2 size = Fonts.Arial12Bold.MeasureString(Empire.data.Traits.Name);
+                var nameCursor = new Vector2(Rect.X + 62 - size.X / 2f, Rect.Y + 148 + 8);
+                batch.DrawString(Fonts.Arial12Bold, Empire.data.Traits.Name, nameCursor, Empire.EmpireColor);
+            }
+
+            void DrawLegacySpyDefense()
+            {
                 SubTexture shield = ResourceManager.Texture("UI/icon_shield");
-
                 // Added by McShooterz: Display Spy Defense value
                 var defenseIcon = new Rectangle(Rect.Center.X - shield.Width, Rect.Y + Fonts.Arial12.LineSpacing + 164, shield.Width, shield.Height);
                 batch.Draw(shield, defenseIcon, Color.White);
@@ -85,13 +152,51 @@ namespace Ship_Game.GameScreens.Espionage
                 if (defenseIcon.HitTest(Screen.Input.CursorPosition))
                     ToolTip.CreateTooltip(Localizer.Token(GameText.IndicatesTheCounterespionageStrengthOf));
             }
-            else if (player != Empire)
+
+            void DrawDefenseRatio()
             {
-                batch.Draw(ResourceManager.Texture("Portraits/unknown"), Rect, Color.White);
+                SubTexture shield = ResourceManager.Texture("UI/icon_shield");
+                var defenseIcon = new Rectangle(Rect.Center.X - shield.Width, Rect.Y - Fonts.Arial12.LineSpacing -10, shield.Width, shield.Height);
+                batch.Draw(shield, defenseIcon, Color.White);
+                string espionageDefense = Empire.isPlayer || Espionage.ShowDefenseRatio
+                    ? $"{((int)(Empire.EspionageDefenseRatio * 100)).String()}%"
+                    : "?";
+
+                var defPos = new Vector2(defenseIcon.Right + 2, defenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+                batch.DrawString(Fonts.Arial12Bold, espionageDefense, defPos, Color.White);
+                if (defenseIcon.HitTest(InfiltrationScreen.Input.CursorPosition))
+                    ToolTip.CreateTooltip(Localizer.Token(GameText.InfiltrationDefesneTip));
             }
 
-            if (Empire == Screen.SelectedEmpire)
-                batch.DrawRectangle(Rect, Color.Orange);
+            void DrawInfiltration()
+            {
+                if (Empire.isPlayer)
+                    return;
+
+                SubTexture spy = ResourceManager.Texture("UI/icon_spy");
+                var spyPos = new Vector2(Rect.Right - 160, Rect.Y + Fonts.Arial12.LineSpacing + 164);
+                for (byte i = 1; i <= Ship_Game.Espionage.MaxLevel; i++)
+                {
+                    var r = new Rectangle((int)spyPos.X + 27 * i, (int)spyPos.Y, 20, 21);
+                    batch.Draw(spy, r, Espionage.Level >= i || i <=5? Player.EmpireColor : new Color(30,30,30));
+                }
+
+                var progressPos = new Vector2(Rect.X + 2, spyPos.Y + 30);
+                batch.DrawString(Fonts.Arial12Bold, "Progress:", progressPos, Empire.EmpireColor);
+                string percentProgress = $"{Espionage.RelativeProgressPercent.String(1)}%";
+                var percentPos = new Vector2(Rect.Right - (int)Fonts.Arial12Bold.MeasureString(percentProgress).X, spyPos.Y + 30);
+                batch.DrawString(Fonts.Arial12Bold, percentProgress, percentPos, Color.Wheat);
+                var infiltrationPos = new Vector2(Rect.X + 2, spyPos.Y + 50);
+                batch.DrawString(Fonts.Arial12Bold, "Points/Turn:", infiltrationPos, Empire.EmpireColor);
+                string pointsPerTurn = Espionage.GetProgressToIncrease(Player.Research.TaxedResearch, Player.CalcTotalEspionageWeight()).String(1);
+                var pointsValuePos = new Vector2(Rect.Right - (int)Fonts.Arial12Bold.MeasureString(pointsPerTurn).X, spyPos.Y + 50);
+                batch.DrawString(Fonts.Arial12Bold, pointsPerTurn, pointsValuePos, Color.Wheat);
+            }
+
+            void DrawDefenseSlider()
+            {
+                InfiltrationDefense.Draw(batch, elapsed);
+            }
         }
     }
 }
