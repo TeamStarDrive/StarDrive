@@ -30,12 +30,13 @@ namespace Ship_Game
         void IncreaseInfiltrationLevel()
         {
             Level++;
+            LevelProgress = 0;
         }
 
         public void DecreaseInfiltrationLevelTo(byte value)
         {
             Level = value;
-            LevelProgress = Level > 0 ? LevelCost(Level) : 0;
+            LevelProgress = 0;
         }
 
         public void DecreaseProgrees(float value)
@@ -43,12 +44,12 @@ namespace Ship_Game
             if (Level == 0)
                 return;
 
-            LevelProgress = (LevelProgress - value).LowerBound(0);
-            if (LevelProgress < LevelCost(Level))
-                Level--;
+            LevelProgress -= value;
+            if (LevelProgress < 0)
+                DecreaseInfiltrationLevelTo((byte)(Level-1));
         }
 
-        public void IncreaseProgrees(float taxedResearch, int totalWeight)
+        public void IncreaseProgress(float taxedResearch, int totalWeight)
         {
             if (AtMaxLevel)
                 return;
@@ -59,12 +60,17 @@ namespace Ship_Game
                 IncreaseInfiltrationLevel();
         }
 
-        public float GetProgressToIncrease(float taxedResearch, int totalWeight)
+        public float GetProgressToIncrease(float taxedResearch, float totalWeight)
         {
+            float lala = taxedResearch;
+            lala *= (Weight / totalWeight.LowerBound(1));
+            lala *= (Them.TotalPopBillion / Owner.TotalPopBillion.LowerBound(0.1f));
+            lala *= (1 - Them.EspionageDefenseRatio * 0.75f);
+
             return taxedResearch
                    * (Weight / totalWeight.LowerBound(1))
                    * (Them.TotalPopBillion / Owner.TotalPopBillion.LowerBound(0.1f))
-                   * (1 - Them.EspionageDefenseRatio * 0.75f);
+                   * (1 - Them.EspionageDefenseRatio*0.75f);
         }
 
         public void SetWeight(int value)
@@ -80,17 +86,17 @@ namespace Ship_Game
         public int LevelCost(int level)
         {
             // 1 - 50
-            // 2 - 150
-            // 3 - 450
-            // 4 - 1350
-            // 5 - 4050
-            return level == 0 ? 0 : (int)(50 * Math.Pow(3, level-1) * Owner.Universe.SettingsResearchModifier);
+            // 2 - 100
+            // 3 - 200
+            // 4 - 400
+            // 5 - 800
+            return level == 0 ? 0 : (int)(50 * Math.Pow(2, level-1) * Owner.Universe.SettingsResearchModifier);
         }
 
         public int NextLevelCost => LevelCost(Level+1);
         public bool ShowDefenseRatio => Level >= 2;
         public bool AtMaxLevel => Level >= MaxLevel;
 
-        public float RelativeProgressPercent => (LevelProgress - LevelCost(Level)) / (NextLevelCost - LevelCost(Level)) * 100;
+        public float ProgressPercent => LevelProgress/NextLevelCost * 100;
     }
 }

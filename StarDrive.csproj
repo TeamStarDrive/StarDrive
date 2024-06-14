@@ -264,6 +264,8 @@
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\LoadBlueprintsToColonyScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\SaveLoadBlueprintsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\EspionageLevelPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel1.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButton.cs" />

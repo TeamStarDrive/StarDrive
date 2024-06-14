@@ -47,15 +47,24 @@ namespace Ship_Game.GameScreens
 
         public override void PerformLayout()
         {
+            var weightRect = new Rectangle(Rect.Left, Rect.Y + 250, 140, 40);
             if (Empire == Player) 
             {
-                var defenseRect = new Rectangle(Rect.Left, Rect.Y + 210, 140, 40);
-                InfiltrationDefense = new FloatSlider(defenseRect, GameText.SpyDefense, min: 0, max: 50, value: Player.EspionageDefenseWeight);
+                InfiltrationDefense = new FloatSlider(weightRect, GameText.SpyDefense, min: 0, max: 50, value: Player.EspionageDefenseWeight);
                 InfiltrationDefense.OnChange = (s) =>
                 {
                     Player.SetEspionageDefenseWeight(s.AbsoluteValue.RoundUpTo(1));
                 };
             }
+            else if (Player.IsKnown(Empire))
+            {
+                InfiltrationDefense = new FloatSlider(weightRect, GameText.SpyDefense, min: 0, max: 10, value: Espionage.GetWeight());
+                InfiltrationDefense.OnChange = (s) =>
+                {
+                    Espionage.SetWeight(s.AbsoluteValue.RoundUpTo(1));
+                };
+            }
+
             base.PerformLayout();
         }
 
@@ -109,7 +118,7 @@ namespace Ship_Game.GameScreens
                 else
                     DrawInfiltration();
 
-                if (Player == Empire)
+                if (Player == Empire || Player.IsKnown(Empire))
                     DrawDefenseSlider();
             }
             else if (Player != Empire)
@@ -183,12 +192,12 @@ namespace Ship_Game.GameScreens
 
                 var progressPos = new Vector2(Rect.X + 2, spyPos.Y + 30);
                 batch.DrawString(Fonts.Arial12Bold, "Progress:", progressPos, Empire.EmpireColor);
-                string percentProgress = $"{Espionage.RelativeProgressPercent.String(1)}%";
+                string percentProgress = $"{Espionage.ProgressPercent.String(1)}%";
                 var percentPos = new Vector2(Rect.Right - (int)Fonts.Arial12Bold.MeasureString(percentProgress).X, spyPos.Y + 30);
                 batch.DrawString(Fonts.Arial12Bold, percentProgress, percentPos, Color.Wheat);
                 var infiltrationPos = new Vector2(Rect.X + 2, spyPos.Y + 50);
                 batch.DrawString(Fonts.Arial12Bold, "Points/Turn:", infiltrationPos, Empire.EmpireColor);
-                string pointsPerTurn = Espionage.GetProgressToIncrease(Player.Research.TaxedResearch, Player.CalcTotalEspionageWeight()).String(1);
+                string pointsPerTurn = Espionage.GetProgressToIncrease(Player.Research.TaxedResearch, Player.CalcTotalEspionageWeight()).String(3);
                 var pointsValuePos = new Vector2(Rect.Right - (int)Fonts.Arial12Bold.MeasureString(pointsPerTurn).X, spyPos.Y + 50);
                 batch.DrawString(Fonts.Arial12Bold, pointsPerTurn, pointsValuePos, Color.Wheat);
             }

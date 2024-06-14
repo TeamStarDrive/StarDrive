@@ -36,7 +36,7 @@ namespace Ship_Game.GameScreens.EspionageNew
         {
             if (Screen.Universe.Player == button.Empire || Screen.Universe.Player.IsKnown(button.Empire))
             {
-                Screen.SelectedEmpire = button.Empire;
+                Screen.RefreshSelectedEmpire(button.Empire);
             }
         }
     }

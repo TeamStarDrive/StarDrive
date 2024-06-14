@@ -305,5 +305,10 @@ namespace Ship_Game
                    || system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(owner))
                    || influence == InfluenceStatus.Friendly;
         }
+
+        static public int GetMiddlePosForTitle(string title, Font font, float width, int x)
+        {
+            return (int)(x+ width*0.5f - font.MeasureString(title).X*0.5f);
+        }
     }
 }
