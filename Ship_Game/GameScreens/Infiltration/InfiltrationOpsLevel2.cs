@@ -5,14 +5,14 @@ using Ship_Game.Graphics;
 
 namespace Ship_Game.GameScreens.EspionageNew
 {
-    public class InfiltrationOpsLevel1 : UIElementContainer
+    public class InfiltrationOpsLevel2 : UIElementContainer
     {
         readonly InfiltrationScreen Screen;
         readonly Empire Player;
         readonly Font Font;
         readonly UILabel LevelDescription;
 
-        public InfiltrationOpsLevel1(InfiltrationScreen screen, Empire player, in Rectangle rect)
+        public InfiltrationOpsLevel2(InfiltrationScreen screen, Empire player, in Rectangle rect)
             : base(rect)
         {
             Screen = screen;
@@ -25,8 +25,8 @@ namespace Ship_Game.GameScreens.EspionageNew
         public override void PerformLayout()
         {
             base.PerformLayout();
-            LevelDescription.Pos  = new Vector2(Rect.X + 5, Rect.Y + 100);
-            string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel1Desc), Rect.Width - 10);
+            LevelDescription.Pos = new Vector2(Rect.X + 5, Rect.Y + 100);
+            string description = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel2Desc), Rect.Width - 10);
             LevelDescription.Text = description;
         }
 

@@ -45,6 +45,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             {
                 default:
                 case 1: LevelOps = Add(new InfiltrationOpsLevel1(screen, player, rect)); break;
+                case 2: LevelOps = Add(new InfiltrationOpsLevel2(screen, player, rect)); break;
             }
         }
 
@@ -81,7 +82,9 @@ namespace Ship_Game.GameScreens.EspionageNew
 
             Ship_Game.Espionage espionage = Player.GetRelations(Screen.SelectedEmpire).Espionage;
             LevelProgress.Max = espionage.LevelCost(Level);
-            LevelProgress.Progress = espionage.Level >= Level ? LevelProgress.Max: espionage.LevelProgress;
+            LevelProgress.Progress = Level >= espionage.Level + 1 ? 0
+                                                                  : Level >= espionage.Level ? LevelProgress.Max 
+                                                                                             : espionage.LevelProgress;
             if (espionage.Level >= Level)
                 LevelPanel.Color = new Color((byte)(Player.EmpireColor.R * 0.15f), (byte)(Player.EmpireColor.G * 0.15f), (byte)(Player.EmpireColor.B * 0.15f));
             else

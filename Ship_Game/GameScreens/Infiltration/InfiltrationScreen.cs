@@ -56,6 +56,8 @@ namespace Ship_Game.GameScreens
             InfiltrationTitle = Add(new UILabel("INFILTRATION LEVELS", Fonts.Arial20Bold, Color.Wheat));
             var levelRect = new Rectangle(ourRect.X + 35, ourRect.Y + 430, 250, 250);
             Level1 = Add(new EspionageLevelPanel(this, Player, levelRect, 1));
+            levelRect = new Rectangle(levelRect.Right + 20, levelRect.Y, 250, 250);
+            Level2 = Add(new EspionageLevelPanel(this, Player, levelRect, 2));
             Add(new InfiltrationPanel(this, Universe.Player, ourRect));
             RefreshSelectedEmpire(Player);
             GameAudio.MuteRacialMusic();
@@ -106,27 +108,22 @@ namespace Ship_Game.GameScreens
             SeperatorColor = SelectedEmpire.isPlayer || !Player.IsKnown(SelectedEmpire) ? Player.EmpireColor : SelectedEmpire.EmpireColor;
             InfiltrationTitle.Color = SeperatorColor;
             Level1.Visible = !SelectedEmpire.isPlayer;
+            Level2.Visible = !SelectedEmpire.isPlayer;
             InfiltrationTitle.Visible = !SelectedEmpire.isPlayer;
 
             if (Level1.Visible)
                 Level1.RefreshEmpire();
+
+            if (Level2.Visible)
+                Level2.RefreshEmpire();
         }
 
         public void RefreshInfiltrationLevelStatus(Ship_Game.Espionage espionage)
         {
             if (Level1.Visible)
                 Level1.RefreshStatus(espionage);
-        }
-
-        void SetLevelsVisibility(bool value)
-        {
-
-        }
-
-        void SetLevel1PanelVisibility(bool value)
-        {
-            //Level1.Visible = 
-            
+            if (Level2.Visible)
+                Level2.RefreshStatus(espionage);
         }
     }
 }
