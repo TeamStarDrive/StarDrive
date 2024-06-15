@@ -11,8 +11,6 @@ using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Graphics;
 using static Ship_Game.Data.Serialization.Types.RawArraySerializer;
-using Microsoft.Xna.Framework;
-using System.Drawing;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using Font = Ship_Game.Graphics.Font;
 
@@ -211,108 +209,15 @@ namespace Ship_Game
             var flagRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width - 60, SelectedInfoRect.Y + 10, 40, 40);
             batch.Draw(ResourceManager.Flag(SelectedEmpire.data.Traits.FlagIndex), flagRect, SelectedEmpire.EmpireColor);
             textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 4);
-            if (Player == SelectedEmpire && !SelectedEmpire.IsDefeated)
+
+            if (SelectedEmpire.isPlayer)
             {
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.You), textCursor, Color.White);
-                Vector2 ColumnBCursor = textCursor;
-                ColumnBCursor.X = ColumnBCursor.X + 190f;
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                var sortlist = new Array<Empire>();
-                foreach (Empire e in Universe.UState.Empires)
-                {
-                    if (e.IsFaction || e.IsDefeated)
-                    {
-                        if (SelectedEmpire == e)
-                            sortlist.Add(e);
-                    }
-                    else if (e != Player)
-                    {
-                        if (Player.IsKnown(e))
-                            sortlist.Add(e);
-                    }
-                    else
-                    {
-                        sortlist.Add(e);
-                    }
-                }
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.EconomicStrength), textCursor, Color.White);
-                IOrderedEnumerable<Empire> MoneySortedList = 
-                    from empire in sortlist
-                    orderby empire.GrossIncome descending
-                    select empire;
-                int rank = 1;
-                foreach (Empire e in MoneySortedList)
-                {
-                    if (e == SelectedEmpire)
-                    {
-                        break;
-                    }
-                    rank++;
-                }
-                batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                IOrderedEnumerable<Empire> ResSortedList = 
-                    from empire in sortlist
-                    orderby GetScientificStr(empire) descending
-                    select empire;
-                rank = 1;
-                foreach (Empire e in ResSortedList)
-                {
-                    if (e == SelectedEmpire)
-                    {
-                        break;
-                    }
-                    rank++;
-                }
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.ScientificStrength), textCursor, Color.White);
-                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                IOrderedEnumerable<Empire> MilSorted = 
-                    from empire in sortlist
-                    orderby empire.CurrentMilitaryStrength descending
-                    select empire;
-                rank = 1;
-                foreach (Empire e in MilSorted)
-                {
-                    if (e == SelectedEmpire)
-                    {
-                        break;
-                    }
-                    rank++;
-                }
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.MilitaryStrength), textCursor, Color.White);
-                batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                IOrderedEnumerable<Empire> PopSortedList = 
-                    from empire in sortlist
-                    orderby GetPop(empire) descending
-                    select empire;
-                rank = 1;
-                foreach (Empire e in PopSortedList)
-                {
-                    if (e == SelectedEmpire)
-                    {
-                        break;
-                    }
-                    rank++;
-                }
-
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population), textCursor, Color.White);
-                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                Rectangle ArtifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 210, SelectedInfoRect.Width - 40, 130);
-                Vector2 ArtifactsCursor = new Vector2(ArtifactsRect.X, ArtifactsRect.Y - 8);
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.OwnedArtifacts), ArtifactsCursor, Color.White);
-                ArtifactsCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                textCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                Rectangle artifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 210, SelectedInfoRect.Width - 40, 130);
+                Vector2 artifactsCursor = new Vector2(artifactsRect.X, artifactsRect.Y - 8);
+                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.OwnedArtifacts), artifactsCursor, Color.White);
+                artifactsCursor.Y += Fonts.Arial12Bold.LineSpacing;
             }
             else if (SelectedEmpire.IsDefeated)
             {
@@ -352,99 +257,46 @@ namespace Ship_Game
                 if (!UsingNewEspioange || relation.Espionage.CanViewArtifacts)
                     DrawDiploLine(batch, Font12Bold, Localizer.Token(GameText.OwnedArtifacts), Color.White, ref artifactsCursor);
 
-                var Sortlist = new Array<Empire>();
-                foreach (Empire e in Universe.UState.Empires)
-                {
-                    if (e.IsFaction || e.IsDefeated)
-                    {
-                        if (SelectedEmpire == e)
-                            Sortlist.Add(e);
-                    }
-                    else if (e != Player)
-                    {
-                        if (Player.IsKnown(e))
-                            Sortlist.Add(e);
-                    }
-                    else
-                    {
-                        Sortlist.Add(e);
-                    }
-                }
-                Contact.Draw(ScreenManager);
-                Vector2 ColumnBCursor = textCursor;
-                ColumnBCursor.X = ColumnBCursor.X + 190f;
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.EconomicStrength), textCursor, Color.White);
-                IOrderedEnumerable<Empire> MoneySortedList = 
-                    from empire in Sortlist
-                    orderby empire.GrossIncome descending
-                    select empire;
-                int rank = 1;
-
-                foreach (Empire e in MoneySortedList)
-                {
-                    if (e == SelectedEmpire)
-                    {
-                        break;
-                    }
-                    rank++;
-                }
-                batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                IOrderedEnumerable<Empire> ResSortedList = 
-                    from empire in Sortlist
-                    orderby GetScientificStr(empire) descending
-                    select empire;
-                rank = 1;
-                foreach (Empire e in ResSortedList)
-                {
-                    if (e == SelectedEmpire)
-                    {
-                        break;
-                    }
-                    rank++;
-                }
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.ScientificStrength), textCursor, Color.White);
-                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                IOrderedEnumerable<Empire> MilSorted = 
-                    from empire in Sortlist
-                    orderby empire.CurrentMilitaryStrength descending
-                    select empire;
-                rank = 1;
-                foreach (Empire e in MilSorted)
-                {
-                    if (e == SelectedEmpire)
-                    {
-                        break;
-                    }
-                    rank++;
-                }
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.MilitaryStrength), textCursor, Color.White);
-                batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-                IOrderedEnumerable<Empire> PopSortedList =
-                    from empire in Sortlist
-                    orderby GetPop(empire) descending
-                    select empire;
-                rank = 1;
-                foreach (Empire e in PopSortedList)
-                {
-                    if (e == SelectedEmpire)
-                    {
-                        break;
-                    }
-                    rank++;
-                }
-
-                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population), textCursor, Color.White);
-                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
             }
 
+            if (!SelectedEmpire.isPlayer && Player.IsKnown(SelectedEmpire))
+                Contact.Draw(ScreenManager);
+
+            if (SelectedEmpire.isPlayer || !UsingNewEspioange || UsingNewEspioange && Player.GetRelations(SelectedEmpire).Espionage.CanViewRanks)
+            {
+
+                Empire[] empireList = UsingNewEspioange
+                    ? Universe.UState.ActiveMajorEmpires.Filter(e => e.isPlayer || Player.GetRelations(e).Espionage.CanViewRanks)
+                    : Universe.UState.ActiveMajorEmpires.Filter(e => e.isPlayer || Player.IsKnown(e));
+
+                Vector2 columnBCursor = textCursor;
+                columnBCursor.X += 190f;
+                columnBCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                textCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.EconomicStrength), textCursor, Color.White);
+                empireList.Sort(e => -e.GrossIncome);
+                batch.DrawString(Fonts.Arial12Bold, $"# {GetRank(SelectedEmpire, empireList)}", columnBCursor, Color.White);
+                columnBCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                textCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+
+                empireList.Sort(e => -GetScientificStr(e));
+                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.ScientificStrength), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, $"# {GetRank(SelectedEmpire, empireList)}", columnBCursor, Color.White);
+                columnBCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                textCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+
+                empireList.Sort(e => -e.CurrentMilitaryStrength);
+                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.MilitaryStrength), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, $"# {GetRank(SelectedEmpire, empireList)}", columnBCursor, Color.White);
+                columnBCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                textCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                empireList.Sort(e => -GetPop(e));
+                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, $"# {GetRank(SelectedEmpire, empireList)}", columnBCursor, Color.White);
+
+                textCursor.Y += Fonts.Arial12Bold.LineSpacing + 12;
+                batch.DrawString(Fonts.Arial12, $"(out of {empireList.Length} empires)", textCursor, Color.Wheat);
+            }
             //Added by McShooterz:  intel report
             Espionage espionage = SelectedEmpire.isPlayer || !UsingNewEspioange ? null : Player.GetRelations(SelectedEmpire).Espionage;
             textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
@@ -452,7 +304,7 @@ namespace Ship_Game
             if (UsingNewEspioange && !SelectedEmpire.isPlayer)
                 intReport += espionage.Level == 0 ? " (basic)" : $" (level {espionage.Level})";
 
-            batch.DrawDropShadowText(intReport, textCursor, Fonts.Arial20Bold);
+            batch.DrawDropShadowText(intReport, textCursor, Fonts.Arial20Bold, SelectedEmpire.EmpireColor);
             textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 5);
 
             if (UsingNewEspioange || IntelligenceLevel(SelectedEmpire) > 0)
@@ -533,8 +385,8 @@ namespace Ship_Game
 
             //End of intel report
             textCursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
-            batch.DrawDropShadowText((SelectedEmpire.isPlayer ? Localizer.Token(GameText.YourEmpiresBonuses) : Localizer.Token(GameText.TheirBonuses)), textCursor, Fonts.Arial20Bold);
-            textCursor.Y = textCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
+            batch.DrawDropShadowText((SelectedEmpire.isPlayer ? Localizer.Token(GameText.YourEmpiresBonuses) : Localizer.Token(GameText.TheirBonuses)), textCursor, Fonts.Arial20Bold, SelectedEmpire.EmpireColor);
+            textCursor.Y += Fonts.Arial20Bold.LineSpacing + 5;
             //Added by McShooterz: Only display modified bonuses
             if (SelectedEmpire.isPlayer 
                 || UsingNewEspioange && espionage.CanViewBonuses 
@@ -623,6 +475,20 @@ namespace Ship_Game
             }
             base.Draw(batch, elapsed);
             batch.SafeEnd();
+        }
+
+        int GetRank(Empire selectedEmpire, Empire[] empireList)
+        {
+            for (int i = 0; i < empireList.Length; i++)
+            {
+                Empire e = empireList[i];
+                if (selectedEmpire == e)
+                {
+                    return i + 1;
+                }
+            }
+
+            return empireList.Length;
         }
 
         private void DrawBadStat(string text, string text2, ref Vector2 Position)
@@ -720,13 +586,19 @@ namespace Ship_Game
 
         float GetScientificStr(Empire e)
         {
-            float scientificStr = 0f;
-            if (Friends.Contains(e) || e.isPlayer)
+            if (UsingNewEspioange && (e.isPlayer || Player.GetRelations(e).Espionage.CanViewRanks))
             {
                 var techs = e.UnlockedTechs;
                 return techs.Length == 0 ? 0 : techs.Sum(t => t.Tech.Cost);
             }
 
+            if (Friends.Contains(e) || e.isPlayer || IntelligenceLevel(e) > 2)
+            {
+                var techs = e.UnlockedTechs;
+                return techs.Length == 0 ? 0 : techs.Sum(t => t.Tech.Cost);
+            }
+
+            float scientificStr = 0f;
             var techList = new HashSet<string>();
             Player.AI.ThreatMatrix.GetTechsFromPins(techList, e);
             foreach (Empire ally in Friends)

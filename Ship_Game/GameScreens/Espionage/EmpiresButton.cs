@@ -131,8 +131,9 @@ namespace Ship_Game.GameScreens
             {
                 batch.DrawRectangle(Rect, Color.Orange);
             }
-            else if (UsingLegacyEspionage && Rect.HitTest(Screen.Input.CursorPosition)
-                || !UsingLegacyEspionage && Rect.HitTest(InfiltrationScreen.Input.CursorPosition))
+            else if (Player.IsKnown(Empire) &&
+                (UsingLegacyEspionage && Rect.HitTest(Screen.Input.CursorPosition)
+                || !UsingLegacyEspionage && Rect.HitTest(InfiltrationScreen.Input.CursorPosition)))
             {
                 batch.DrawRectangle(Rect, Color.White);
             }

@@ -104,12 +104,13 @@ namespace Ship_Game
 
         public bool CanViewDefenseRatio => Level >= 2;
         public bool CanViewNumShips     => Level >= 2;
-        public bool CanViewBonuses      => Level >= 2;
         public bool CanViewTechType     => Level >= 2;
         public bool CanViewArtifacts    => Level >= 2;
+        public bool CanViewRanks        => Level >= 2;
 
         public bool CanViewMoneyAndMaint => Level >= 3;
         public bool CanViewResearchTopic => Level >= 3;
+        public bool CanViewBonuses       => Level >= 3;
 
         public bool AtMaxLevel => Level >= MaxLevel;
         public float ProgressPercent => LevelProgress/NextLevelCost * 100;
