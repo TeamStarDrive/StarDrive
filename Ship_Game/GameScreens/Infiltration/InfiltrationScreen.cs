@@ -132,8 +132,8 @@ namespace Ship_Game.GameScreens
 
         public void RefreshSelectedEmpire(Empire selectedEmpire)
         {
-            SeperatorColor = selectedEmpire.isPlayer || Player.IsKnown(selectedEmpire) ? Player.EmpireColor : selectedEmpire.EmpireColor;
-            InfiltrationTitle.Color = selectedEmpire.SeperatorColor;
+            SeperatorColor = selectedEmpire.isPlayer || !Player.IsKnown(selectedEmpire) ? Player.EmpireColor : selectedEmpire.EmpireColor;
+            InfiltrationTitle.Color = SeperatorColor;
             SelectedEmpire = selectedEmpire;
             Level1.Visible = SelectedEmpire != Player;
 

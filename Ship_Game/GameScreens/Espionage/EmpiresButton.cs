@@ -167,7 +167,7 @@ namespace Ship_Game.GameScreens
                 SubTexture shield = ResourceManager.Texture("UI/icon_shield");
                 var defenseIcon = new Rectangle(Rect.Center.X - shield.Width, Rect.Y - Fonts.Arial12.LineSpacing -10, shield.Width, shield.Height);
                 batch.Draw(shield, defenseIcon, Color.White);
-                string espionageDefense = Empire.isPlayer || Espionage.ShowDefenseRatio
+                string espionageDefense = Empire.isPlayer || Espionage.CanViewDefenseRatio
                     ? $"{((int)(Empire.EspionageDefenseRatio * 100)).String()}%"
                     : "?";
 

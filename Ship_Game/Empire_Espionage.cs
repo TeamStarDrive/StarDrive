@@ -15,7 +15,7 @@ namespace Ship_Game
         [StarData] public float EspionageDefenseRatio { get; private set; } = 1;
 
 
-        void SetCanBeScannedByPlayer(bool value)
+        public void SetCanBeScannedByPlayer(bool value)
         {
             CanBeScannedByPlayer = value;
         }

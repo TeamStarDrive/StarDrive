@@ -31,12 +31,14 @@ namespace Ship_Game
         {
             Level++;
             LevelProgress = 0;
+            Them.SetCanBeScannedByPlayer(Level > 0);
         }
 
         public void DecreaseInfiltrationLevelTo(byte value)
         {
             Level = value;
             LevelProgress = 0;
+            Them.SetCanBeScannedByPlayer(Level > 0);
         }
 
         public void DecreaseProgrees(float value)
@@ -94,7 +96,19 @@ namespace Ship_Game
         }
 
         public int NextLevelCost => LevelCost(Level+1);
-        public bool ShowDefenseRatio => Level >= 2;
+
+        public bool CanViewPersonality => Level >= 1;
+        public bool CanViewNumPlanets  => Level >= 1;
+        public bool CanViewPop         => Level >= 1;
+
+        public bool CanViewDefenseRatio => Level >= 2;
+        public bool CanViewNumShips     => Level >= 2;
+        public bool CanViewBonuses      => Level >= 2;
+        public bool CanViewTechType     => Level >= 2;
+        public bool CanViewArtifacts    => Level >= 2;
+
+        public bool CanViewMoneyAndMaint => Level >= 3;
+        public bool CanViewResearchTopic => Level >= 3;
         public bool AtMaxLevel => Level >= MaxLevel;
 
         public float ProgressPercent => LevelProgress/NextLevelCost * 100;
