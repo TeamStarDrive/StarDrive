@@ -138,6 +138,7 @@ namespace Ship_Game.Ships
         {
             if (!Loyalty.CanBeScannedByPlayer)
                 return;
+
             SubTexture symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
             SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             SubTexture lightningBolt = ResourceManager.Texture("UI/lightningBolt");

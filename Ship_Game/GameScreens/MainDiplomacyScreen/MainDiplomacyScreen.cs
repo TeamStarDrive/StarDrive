@@ -10,6 +10,11 @@ using Ship_Game.GameScreens.DiplomacyScreen;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Graphics;
+using static Ship_Game.Data.Serialization.Types.RawArraySerializer;
+using Microsoft.Xna.Framework;
+using System.Drawing;
+using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Font = Ship_Game.Graphics.Font;
 
 namespace Ship_Game
 {
@@ -94,7 +99,7 @@ namespace Ship_Game
             if (Traders.Contains(e) && Player.GetRelations(e).Treaty_Trade_TurnsExisted > 30)
                 return 1;
 
-            if (e == Player)
+            if (e.isPlayer)
                 return 3;
 
             foreach(Empire empire in Friends)
@@ -439,127 +444,100 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population), textCursor, Color.White);
                 batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
             }
-            textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
-            batch.DrawDropShadowText(Localizer.Token(GameText.IntelligenceReport), textCursor, Fonts.Arial20Bold);
-            textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 5);
-            if (UsingNewEspioange || IntelligenceLevel(SelectedEmpire) > 0)
-            {
-                batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.HomeWorld)+SelectedEmpire.data.Traits.HomeworldName, textCursor, Color.Wheat);
-                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-            }
 
             //Added by McShooterz:  intel report
+            Espionage espionage = SelectedEmpire.isPlayer || !UsingNewEspioange ? null : Player.GetRelations(SelectedEmpire).Espionage;
+            textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
+            string intReport = Localizer.Token(GameText.IntelligenceReport);
+            if (UsingNewEspioange && !SelectedEmpire.isPlayer)
+                intReport += espionage.Level == 0 ? " (basic)" : $" (level {espionage.Level})";
+
+            batch.DrawDropShadowText(intReport, textCursor, Fonts.Arial20Bold);
+            textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 5);
+
+            if (UsingNewEspioange || IntelligenceLevel(SelectedEmpire) > 0)
+                DrawDiploLine(batch, Font12, Localizer.Token(GameText.HomeWorld)+SelectedEmpire.data.Traits.HomeworldName, Color.Wheat, ref textCursor);
+
             if (UsingNewEspioange || IntelligenceLevel(SelectedEmpire) > 0)
             {
                 if (SelectedEmpire.Capital != null)
                 {
-                    batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.ControlsHomeWorld)+((SelectedEmpire.Capital.Owner == SelectedEmpire) ? Localizer.Token(GameText.Yes) : Localizer.Token(GameText.No)), textCursor, Color.Wheat);
-                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                    string controlsHomeworld = Localizer.Token(GameText.ControlsHomeWorld) + ((SelectedEmpire.Capital.Owner == SelectedEmpire)
+                        ? Localizer.Token(GameText.Yes)
+                        : Localizer.Token(GameText.No));
+
+                    DrawDiploLine(batch, Font12, controlsHomeworld, Color.Wheat, ref textCursor);
                 }
 
-                Espionage espionage = SelectedEmpire == Player || !UsingNewEspioange ? null : Player.GetRelations(SelectedEmpire).Espionage;
-                bool alwaysShow = SelectedEmpire == Player || !UsingNewEspioange;
+                bool alwaysShow = SelectedEmpire.isPlayer || !UsingNewEspioange;
                 if (alwaysShow || espionage.CanViewNumPlanets)
-                {
-                    batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(GameText.TotalPlanets), SelectedEmpire.GetPlanets().Count), textCursor, Color.Wheat);
-                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                }
+                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalPlanets)} {SelectedEmpire.GetPlanets().Count}", Color.Wheat, ref textCursor);
 
                 if (alwaysShow || espionage.CanViewNumShips)
-                {
-                    batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(GameText.TotalStarships), SelectedEmpire.OwnedShips.Count), textCursor, Color.Wheat);
-                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                }
+                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalStarships)} {SelectedEmpire.OwnedShips.Count}", Color.Wheat, ref textCursor);
 
                 if (alwaysShow || espionage.CanViewMoneyAndMaint)
                 {
-                    batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.Treasury) + SelectedEmpire.Money.String(2), textCursor, Color.Wheat);
-                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                    batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.MaintenanceCosts) + SelectedEmpire.BuildingAndShipMaint.String(2), textCursor, Color.Wheat);
-                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.Treasury)} {SelectedEmpire.Money.String(2)}", Color.Wheat, ref textCursor);
+                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.MaintenanceCosts)} {SelectedEmpire.BuildingAndShipMaint.String(2)}", Color.Wheat, ref textCursor);
                 }
 
                 if (SelectedEmpire.Research.HasTopic)
                 {
                     if (UsingNewEspioange && espionage.CanViewResearchTopic || IntelligenceLevel(SelectedEmpire) > 1)
-                        batch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.Research.Current.Tech.Name.Text, textCursor, Color.Wheat);
+                        DrawDiploLine(batch, Font12, $"Researching: {SelectedEmpire.Research.Current.Tech.Name.Text}", Color.Wheat, ref textCursor);
                     else if (UsingNewEspioange && espionage.CanViewTechType || IntelligenceLevel(SelectedEmpire) > 0)
-                        batch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.Research.Current.TechnologyType, textCursor, Color.Wheat);
+                        DrawDiploLine(batch, Font12, $"Researching: {SelectedEmpire.Research.Current.TechnologyType}", Color.Wheat, ref textCursor);
                     else
-                        batch.DrawString(Fonts.Arial12, "Researching: Unknown", textCursor, Color.Wheat);
-
-                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                        DrawDiploLine(batch, Font12, "Researching: Unknown", Color.Wheat, ref textCursor);
                 }
             }
 
-            if (!UsingNewEspioange && IntelligenceLevel(SelectedEmpire)>1)
+            if (!UsingNewEspioange)
             {
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(GameText.TotalSpies), SelectedEmpire.data.AgentList.Count), textCursor, Color.Wheat);
-                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                if (IntelligenceLevel(SelectedEmpire) > 1)
+                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalSpies)} {SelectedEmpire.data.AgentList.Count}", Color.LightGreen, ref textCursor);
+                else if (IntelligenceLevel(SelectedEmpire) > 0)
+                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalSpies)} {(SelectedEmpire.data.AgentList.Count >= Player.data.AgentList.Count ? "Many" : "Few")}", Color.Yellow, ref textCursor);
+                else
+                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalSpies)} Unknown", Color.Pink, ref textCursor);
             }
-            else if (IntelligenceLevel(SelectedEmpire)>0)
+            else if (SelectedEmpire != Player)
             {
-                batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.TotalSpies)+(SelectedEmpire.data.AgentList.Count >=Player.data.AgentList.Count ? "Many":"Few" ), textCursor, Color.Wheat);
-                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-            }
-            else 
-            {
-                batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.TotalSpies)+"Unknown", textCursor, Color.Wheat);
-                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                DrawDiploLine(batch, Font12, $"Their Infiltration Level: {espionage.TheirInfiltrationLevel()}", Color.Wheat, ref textCursor);
             }
 
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(GameText.Population2), GetPop(SelectedEmpire).String(1), $" {Localizer.Token(GameText.Billion)}"), textCursor, Color.Wheat);
+            DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.Population2)} {GetPop(SelectedEmpire).String(1)} {Localizer.Token(GameText.Billion)}", Color.Wheat, ref textCursor);
+
             //Diplomatic Relations
             foreach (Relationship rel in SelectedEmpire.AllRelations)
             {
                 if (!rel.Known || rel.Them.IsFaction || rel.Them.IsDefeated)
                     continue;
 
-                Color color = rel.Them.EmpireColor;
-                string name = rel.Them.data.Traits.Name;
-                if (IntelligenceLevel(SelectedEmpire) > 0)
+                if (SelectedEmpire.isPlayer 
+                    || UsingNewEspioange && espionage.CanViewTheirTreaties
+                    || IntelligenceLevel(SelectedEmpire) > 0)
                 {
-                    // "and Trade"
-                    string andTrade = rel.Treaty_Trade ? Localizer.Token(GameText.AndTrade) : "";
-                    if (rel.Treaty_Alliance)
-                    {
-                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.Alliance), andTrade), textCursor, color);
-                    }
-                    else if (rel.Treaty_OpenBorders)
-                    {
-                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.OpenBorders), andTrade), textCursor, color);
-                    }
-                    else if (rel.Treaty_NAPact)
-                    {
-                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.NonaggressionPact2), andTrade), textCursor, color);
-                    }
-                    else if (rel.Treaty_Peace)
-                    {
-                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.PeaceTreaty), andTrade), textCursor, color);
-                    }
-                    else if (rel.AtWar)
-                    {
-                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.AtWar)), textCursor, color);
-                    }
-                    else
-                    {
-                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, name + " " + (rel.Treaty_Trade ? Localizer.Token(GameText.None2) : Localizer.Token(GameText.MilitaryStrength)), textCursor, color);
-                    }
+                    Color color = rel.Them.EmpireColor;
+                    string name = rel.Them.data.Traits.Name;
+                    string andTrade = rel.Treaty_Trade ? Localizer.Token(GameText.AndTrade) : ""; // "and Trade"
+
+                    if      (rel.Treaty_Alliance)    DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.Alliance)} {andTrade}", color, ref textCursor);
+                    else if (rel.Treaty_OpenBorders) DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.OpenBorders)} {andTrade}", color, ref textCursor);
+                    else if (rel.Treaty_NAPact)      DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.NonaggressionPact2)} {andTrade}", color, ref textCursor);
+                    else if (rel.Treaty_Peace)       DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.PeaceTreaty)} {andTrade}", color, ref textCursor);
+                    else if (rel.AtWar)              DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.AtWar)} {andTrade}", color, ref textCursor);
                 }
             }
+
             //End of intel report
             textCursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
-            batch.DrawDropShadowText((SelectedEmpire == Player ? Localizer.Token(GameText.YourEmpiresBonuses) : Localizer.Token(GameText.TheirBonuses)), textCursor, Fonts.Arial20Bold);
+            batch.DrawDropShadowText((SelectedEmpire.isPlayer ? Localizer.Token(GameText.YourEmpiresBonuses) : Localizer.Token(GameText.TheirBonuses)), textCursor, Fonts.Arial20Bold);
             textCursor.Y = textCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
             //Added by McShooterz: Only display modified bonuses
-            if (SelectedEmpire == Player 
-                || UsingNewEspioange && Player.GetRelations(SelectedEmpire).Espionage.CanViewBonuses 
+            if (SelectedEmpire.isPlayer 
+                || UsingNewEspioange && espionage.CanViewBonuses 
                 || IntelligenceLevel(SelectedEmpire) > 0)
             {
                 if (SelectedEmpire.data.Traits.PopGrowthMax > 0f)
@@ -876,7 +854,9 @@ namespace Ship_Game
             Array<EmpireAndIntelLevel> empiresAndIntel = new Array<EmpireAndIntelLevel>();
             foreach (Empire empire in Universe.UState.ActiveMajorEmpires)
             {
-                int intel = empire.isPlayer ? 3 : IntelligenceLevel(empire);
+                int intel = empire.isPlayer ? 3 
+                                            :  UsingNewEspioange ? Player.GetRelations(empire).Espionage.Level
+                                                                 : IntelligenceLevel(empire);
                 empiresAndIntel.Add(new EmpireAndIntelLevel(empire, intel));
             }
 

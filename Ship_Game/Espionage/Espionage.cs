@@ -97,9 +97,10 @@ namespace Ship_Game
 
         public int NextLevelCost => LevelCost(Level+1);
 
-        public bool CanViewPersonality => Level >= 1;
-        public bool CanViewNumPlanets  => Level >= 1;
-        public bool CanViewPop         => Level >= 1;
+        public bool CanViewPersonality   => Level >= 1;
+        public bool CanViewNumPlanets    => Level >= 1;
+        public bool CanViewPop           => Level >= 1;
+        public bool CanViewTheirTreaties => Level >= 1;
 
         public bool CanViewDefenseRatio => Level >= 2;
         public bool CanViewNumShips     => Level >= 2;
@@ -109,8 +110,23 @@ namespace Ship_Game
 
         public bool CanViewMoneyAndMaint => Level >= 3;
         public bool CanViewResearchTopic => Level >= 3;
-        public bool AtMaxLevel => Level >= MaxLevel;
 
+        public bool AtMaxLevel => Level >= MaxLevel;
         public float ProgressPercent => LevelProgress/NextLevelCost * 100;
+
+        public string TheirInfiltrationLevel()
+        {
+            if (Level <= 1)
+                return "Unknown";
+
+            int theirInfiltrationLevel = Them.GetRelations(Owner).Espionage.Level;
+            if (Level <= 2)
+                return theirInfiltrationLevel > 0 ? "Exists" : "Probably None";
+
+            if (Level <= 4)
+                return theirInfiltrationLevel > 3 ? "Deep" : "Shallow";
+
+            return $"{theirInfiltrationLevel}";
+        }
     }
 }
