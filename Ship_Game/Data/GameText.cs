@@ -5349,6 +5349,8 @@ namespace Ship_Game
         InfiltrationDefesneTip = 6228,
         /// <summary>Allows ship scanning (Tab key) as well as </summary>
         InfiltrationLevel1Desc = 6229,
+        /// <summary>Allows Diplomacy Screen view of their total Ships, </summary>
+        InfiltrationLevel2Desc = 6230,
         /// <summary>Infiltration Status: </summary>
         InfiltrationStatus = 6234,
         /// <summary>Established!</summary>

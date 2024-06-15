@@ -15106,7 +15106,10 @@ InfiltrationDefesneTip:
  ENG: "Indicates the percentage of Taxed Research invested in Infiltration Defense by this empire. The higher the percentage, the slower we can progress in setting up spy networks within this empire."     
 InfiltrationLevel1Desc:
  Id: 6229
- ENG: "Allows ship scanning (Tab key) as well as Deplomacy Screen view of their total Population, Personality, total owned Planets and Treaties."      
+ ENG: "Allows ship scanning (Tab key) as well as Diplomacy Screen view of their total Population, Personality, total owned Planets and Treaties."      
+InfiltrationLevel2Desc:
+ Id: 6230
+ ENG: "Allows Diplomacy Screen view of their total Ships, Research Tech type, their Spy Defense and rank statistics of Economic, Science, Population and Military."       
 InfiltrationStatus:
  Id: 6234
  ENG: "Infiltration Status: "       
