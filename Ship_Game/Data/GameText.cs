@@ -5347,6 +5347,14 @@ namespace Ship_Game
         UseLegacyEspionageTip = 6227,
         /// <summary>Indicates the persentage of Taxed Research</summary>
         InfiltrationDefesneTip = 6228,
+        /// <summary>Allows ship scanning (Tab key) as well as </summary>
+        InfiltrationLevel1Desc = 6229,
+        /// <summary>Infiltration Status: </summary>
+        InfiltrationStatus = 6234,
+        /// <summary>Established!</summary>
+        InfiltrationStatusEstablished = 6235,
+        /// <summary>Halted</summary>
+        InfiltrationStatusHalted = 6236,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

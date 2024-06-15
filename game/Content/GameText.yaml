@@ -15104,6 +15104,18 @@ UseLegacyEspionageTip:
 InfiltrationDefesneTip:
  Id: 6228
  ENG: "Indicates the percentage of Taxed Research invested in Infiltration Defense by this empire. The higher the percentage, the slower we can progress in setting up spy networks within this empire."     
+InfiltrationLevel1Desc:
+ Id: 6229
+ ENG: "Allows ship scanning (Tab key) as well as Deplomacy Screen view of their total Population, Personality, total owned Planets and Treaties."      
+InfiltrationStatus:
+ Id: 6234
+ ENG: "Infiltration Status: "       
+InfiltrationStatusEstablished:
+ Id: 6235
+ ENG: "Established!"        
+InfiltrationStatusHalted:
+ Id: 6236
+ ENG: "Halted"         
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

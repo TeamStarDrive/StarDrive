@@ -54,39 +54,8 @@ namespace Ship_Game.GameScreens
             CloseButton(ourRect.Right - 40, ourRect.Y + 20);
 
             InfiltrationTitle = Add(new UILabel("INFILTRATION LEVELS", Fonts.Arial20Bold, Color.Wheat));
-            var levelRect = new Rectangle(ourRect.X + 35, ourRect.Y + 400, 250, 250);
+            var levelRect = new Rectangle(ourRect.X + 35, ourRect.Y + 430, 250, 250);
             Level1 = Add(new EspionageLevelPanel(this, Player, levelRect, 1));
-            /*
-            Level1 = Add(new UIPanel(levelRect, PanelBackground));
-            levelRect = new Rectangle(levelRect.Right + 20, levelRect.Y, 250, 250);
-            Level2 = Add(new UIPanel(levelRect, PanelBackground));
-            levelRect = new Rectangle(levelRect.Right + 20, levelRect.Y, 250, 250);
-            Level3 = Add(new UIPanel(levelRect, PanelBackground));
-            levelRect = new Rectangle(levelRect.Right + 20, levelRect.Y, 250, 250);
-            Level4 = Add(new UIPanel(levelRect, PanelBackground));
-            levelRect = new Rectangle(levelRect.Right + 20, levelRect.Y, 250, 250);
-            Level5 = Add(new UIPanel(levelRect, PanelBackground));
-            
-            UIPanel AddInfiltrationLevel(Rectangle rect, int level, out ProgressBar progress)
-            {
-                string title = $"Infiltration Level {level}";
-                Vector2 pos = new Vector2(rect.X, rect.Y+5);
-                Add(new UILabel(pos, title, Fonts.Arial12Bold, Color.White));
-                var levelRect = new Rectangle(rect.X + 15 + 20*level, rect.Y + 320, 250, 250);
-                progress = Add(new ProgressBar())
-                return Add(new UIPanel(levelRect, PanelBackground));
-            }
-
-            
-            
-            Add(new AgentsPanel(this, agentsRect));
-            Add(new DossierPanel(this, dossierRect));
-            Add(new OperationsPanel(this, operationsRect));
-            */
-            /*
-            RectF agentComponentRect = new(agentsRect.X + 20, agentsRect.Y + 35, agentsRect.Width - 40, agentsRect.Height - 95);
-            Agents = Add(new AgentComponent(this, agentComponentRect, operationsRect));
-            */
             Add(new InfiltrationPanel(this, Universe.Player, ourRect));
             RefreshSelectedEmpire(Player);
             GameAudio.MuteRacialMusic();
@@ -95,7 +64,7 @@ namespace Ship_Game.GameScreens
         public override void PerformLayout()
         {
             base.PerformLayout();
-            InfiltrationTitle.Pos = new Vector2(HelperFunctions.GetMiddlePosForTitle(InfiltrationTitle.Text.Text, Fonts.Arial20Bold, Width, 0), Level1.Y - 20);
+            InfiltrationTitle.Pos = new Vector2(HelperFunctions.GetMiddlePosForTitle(InfiltrationTitle.Text.Text, Fonts.Arial20Bold, Width, 0), Level1.Y - 55);
             RefreshSelectedEmpire(Player);
         }
 
@@ -104,11 +73,12 @@ namespace Ship_Game.GameScreens
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.SafeBegin();
             base.Draw(batch, elapsed);
-            if (SelectedEmpire != Player)
+            if (!SelectedEmpire.isPlayer)
             {
-                //Level1Progress.Draw(batch);
+                batch.DrawLine(new Vector2(Level1.X, Level1.Y - 30), new Vector2(Level1.X + Level1.Width * 5, Level1.Y - 30), SeperatorColor, 2);
+                batch.DrawLine(new Vector2(Level1.X, Level1.Y - 60), new Vector2(Level1.X + Level1.Width * 5, Level1.Y - 60), SeperatorColor, 2);
             }
-            batch.DrawLine(new Vector2(Level1.X, Level1.Y - 30), new Vector2(Level1.X + Level1.Width*5, Level1.Y - 30), SeperatorColor, 2);
+
             batch.SafeEnd();
         }
 
@@ -132,14 +102,20 @@ namespace Ship_Game.GameScreens
 
         public void RefreshSelectedEmpire(Empire selectedEmpire)
         {
-            SeperatorColor = selectedEmpire.isPlayer || !Player.IsKnown(selectedEmpire) ? Player.EmpireColor : selectedEmpire.EmpireColor;
-            InfiltrationTitle.Color = SeperatorColor;
             SelectedEmpire = selectedEmpire;
-            Level1.Visible = SelectedEmpire != Player;
-
+            SeperatorColor = SelectedEmpire.isPlayer || !Player.IsKnown(SelectedEmpire) ? Player.EmpireColor : SelectedEmpire.EmpireColor;
+            InfiltrationTitle.Color = SeperatorColor;
+            Level1.Visible = !SelectedEmpire.isPlayer;
+            InfiltrationTitle.Visible = !SelectedEmpire.isPlayer;
 
             if (Level1.Visible)
                 Level1.RefreshEmpire();
+        }
+
+        public void RefreshInfiltrationLevelStatus(Ship_Game.Espionage espionage)
+        {
+            if (Level1.Visible)
+                Level1.RefreshStatus(espionage);
         }
 
         void SetLevelsVisibility(bool value)

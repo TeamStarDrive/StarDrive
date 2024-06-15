@@ -62,6 +62,8 @@ namespace Ship_Game.GameScreens
                 InfiltrationDefense.OnChange = (s) =>
                 {
                     Espionage.SetWeight(s.AbsoluteValue.RoundUpTo(1));
+                    if (Empire == InfiltrationScreen.SelectedEmpire)
+                        InfiltrationScreen.RefreshInfiltrationLevelStatus(Espionage);
                 };
             }
 
@@ -188,7 +190,7 @@ namespace Ship_Game.GameScreens
                 for (byte i = 1; i <= Ship_Game.Espionage.MaxLevel; i++)
                 {
                     var r = new Rectangle((int)spyPos.X + 27 * i, (int)spyPos.Y, 20, 21);
-                    batch.Draw(spy, r, Espionage.Level >= i || i <=5? Player.EmpireColor : new Color(30,30,30));
+                    batch.Draw(spy, r, Espionage.Level >= i ? Player.EmpireColor : new Color(30,30,30));
                 }
 
                 var progressPos = new Vector2(Rect.X + 2, spyPos.Y + 30);

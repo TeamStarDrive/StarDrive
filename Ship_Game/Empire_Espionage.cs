@@ -11,7 +11,7 @@ namespace Ship_Game
     public partial class Empire
     {
         [StarData] public bool CanBeScannedByPlayer { get; private set; } = true;
-        [StarData] public int EspionageDefenseWeight { get; private set; } = 100;
+        [StarData] public int EspionageDefenseWeight { get; private set; } = 50;
         [StarData] public float EspionageDefenseRatio { get; private set; } = 1;
 
 
