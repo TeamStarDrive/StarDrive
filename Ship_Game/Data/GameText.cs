@@ -5359,6 +5359,12 @@ namespace Ship_Game
         InfiltrationStatusEstablished = 6235,
         /// <summary>Halted</summary>
         InfiltrationStatusHalted = 6236,
+        /// <summary>We can now view Remnant ships' Internals (Tab key).</summary>
+        CanScanRemnantsEvent = 6237,
+        /// <summary>We can now view this pirates faction ships' Internals (Tab key).</summary>
+        CanScanPiratesEvent = 6238,
+        /// <summary>Our Projectors can now warn us of incoming Remnant fleets.</summary>
+        CanWarnRemnantsEvent = 6239,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

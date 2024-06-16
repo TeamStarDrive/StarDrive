@@ -109,8 +109,10 @@ namespace Ship_Game.GameScreens
             SelectedEmpire = selectedEmpire;
             SeperatorColor = SelectedEmpire.isPlayer || !Player.IsKnown(SelectedEmpire) ? Player.EmpireColor : SelectedEmpire.EmpireColor;
             InfiltrationTitle.Color = SeperatorColor;
+            // need to change that to only inprogress level is shown
             Level1.Visible = !SelectedEmpire.isPlayer;
             Level2.Visible = !SelectedEmpire.isPlayer;
+            Level3.Visible = !SelectedEmpire.isPlayer;
             InfiltrationTitle.Visible = !SelectedEmpire.isPlayer;
 
             if (Level1.Visible) Level1.RefreshEmpire();

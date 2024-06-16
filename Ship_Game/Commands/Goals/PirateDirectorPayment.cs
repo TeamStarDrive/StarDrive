@@ -90,9 +90,7 @@ namespace Ship_Game.Commands.Goals
             Log.Info(ConsoleColor.Green,$"Pirates: {Owner.Name} Payment Director - Demanding payment from {TargetEmpire.Name}");
 
             if (!Pirates.Owner.IsKnown(TargetEmpire))
-            {
                 Empire.SetRelationsAsKnown(Pirates.Owner, TargetEmpire);
-            }
 
             if (TargetEmpire.isPlayer)
                 Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Owner.Universe.Screen);
@@ -101,8 +99,15 @@ namespace Ship_Game.Commands.Goals
 
             // We demanded payment for the first time, let the game begin
             if (Pirates.ThreatLevelFor(TargetEmpire) == -1)
+            {
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-
+                if (!TargetEmpire.Universe.P.UseLegacyEspionage)
+                {
+                    TargetEmpire.GetRelations(Owner).Espionage.IncreaseInfiltrationLevelTo(1);
+                    if (TargetEmpire.isPlayer)
+                        TargetEmpire.Universe.Notifications.AddPiratesAbleToScan(Owner);
+                }
+            }
             return true;
         }
 

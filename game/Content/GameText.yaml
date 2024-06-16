@@ -15122,6 +15122,15 @@ InfiltrationStatusEstablished:
 InfiltrationStatusHalted:
  Id: 6236
  ENG: "Halted"         
+CanScanRemnantsEvent:
+ Id: 6237
+ ENG: "We can now view Remnant ships' Internals (Tab key)."          
+CanScanPiratesEvent:
+ Id: 6238
+ ENG: "We can now view this pirates faction ships'\nInternals (Tab key)."           
+CanWarnRemnantsEvent:
+ Id: 6239
+ ENG: "Our Projectors can now warn us of incoming Remnant fleets."           
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

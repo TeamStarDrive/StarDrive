@@ -462,6 +462,26 @@ namespace Ship_Game
                 Action          = "LoadEvent"
             }, "sd_ui_notification_encounter");
         }
+        
+        public void AddRemnantAbleToScanOrWarn(Empire remnants, GameText gameText)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = remnants,
+                Pause = false,
+                Message = Localizer.Token(gameText)
+            }, "sd_ui_notification_encounter"); ;
+        }
+
+        public void AddPiratesAbleToScan(Empire pirates)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Pause = false,
+                Message = $"{Localizer.Token(GameText.CanScanPiratesEvent)}"
+            }, "sd_ui_notification_encounter");
+        }
 
         public void AddNotify(Technology.TriggeredEvent techEvent, string message) => 
             AddNotify(ResourceManager.EventsDict[techEvent.EventUID], message);

@@ -19,7 +19,6 @@ namespace Ship_Game.GameScreens.EspionageNew
             Player = player;
             Font = screen.LowRes ? Fonts.Arial8Bold : Fonts.Arial12;
             LevelDescription = Add(new UILabel("", Font, Color.Wheat));
-            LevelDescription.Visible = false;
         }
 
         public override void PerformLayout()

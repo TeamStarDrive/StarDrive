@@ -37,6 +37,9 @@ namespace Ship_Game
 
         void IncreaseInfiltrationLevel()
         {
+            if (Level == MaxLevel) 
+                return;
+
             Level++;
             LevelProgress = 0;
             Them.SetCanBeScannedByPlayer(Level > 0);
@@ -44,7 +47,7 @@ namespace Ship_Game
 
         public void DecreaseInfiltrationLevelTo(byte value)
         {
-            Level = value;
+            Level = value.LowerBound(0);
             LevelProgress = 0;
             Them.SetCanBeScannedByPlayer(Level > 0);
         }

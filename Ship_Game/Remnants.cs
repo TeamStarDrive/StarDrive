@@ -77,7 +77,10 @@ namespace Ship_Game
                         Universe.Notifications.AddRemnantUpdateNotify(expEvent, Owner);
 
                     if (StoryStep == 1 && !Universe.P.UseLegacyEspionage) // enable view overlay (scan)
+                    {
                         empire.GetRelations(Owner).Espionage.IncreaseInfiltrationLevelTo(1);
+                        Universe.Notifications.AddRemnantAbleToScanOrWarn(Owner, GameText.CanScanRemnantsEvent);
+                    }
 
                     StoryStep += 1;
                 }
@@ -135,6 +138,8 @@ namespace Ship_Game
                 case RemnantStory.AncientPeaceKeepers:
                     Owner.AI.AddGoal(new RemnantEngagements(Owner));
                     Universe.Notifications.AddRemnantsStoryActivation(Owner);
+                    if (!Universe.P.UseLegacyEspionage)
+                        Universe.Notifications.AddRemnantAbleToScanOrWarn(Owner, GameText.CanWarnRemnantsEvent);
                     break;
             }
 
