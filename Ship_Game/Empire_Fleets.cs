@@ -273,9 +273,11 @@ public sealed partial class Empire
     public Array<Fleet> GetKnownHostileFleets()
     {
         var knownFleets = new Array<Fleet>();
+        bool legacyEspionage = Universe.P.UseLegacyEspionage;
         foreach (Relationship rel in AllRelations)
         {
-            if (IsAtWarWith(rel.Them) || (rel.Them.isPlayer && !IsNAPactWith(rel.Them)))
+            if (IsAtWarWith(rel.Them) || (rel.Them.isPlayer && !IsNAPactWith(rel.Them))
+                && (legacyEspionage || rel.Espionage.ProjectorsCanAlert))
             {
                 foreach (Fleet f in rel.Them.ActiveFleets)
                 {

@@ -27,6 +27,14 @@ namespace Ship_Game
             Them  = them;
         }
 
+
+        // Used for Remnants and Pirates
+        public void IncreaseInfiltrationLevelTo(byte value)
+        {
+            for (byte i = 1; i <= value; i++)
+                IncreaseInfiltrationLevel();
+        }
+
         void IncreaseInfiltrationLevel()
         {
             Level++;
@@ -111,6 +119,7 @@ namespace Ship_Game
         public bool CanViewMoneyAndMaint => Level >= 3;
         public bool CanViewResearchTopic => Level >= 3;
         public bool CanViewBonuses       => Level >= 3;
+        public bool ProjectorsCanAlert   => Level >= 3;
 
         public bool AtMaxLevel => Level >= MaxLevel;
         public float ProgressPercent => LevelProgress/NextLevelCost * 100;

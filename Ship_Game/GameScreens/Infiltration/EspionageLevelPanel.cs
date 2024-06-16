@@ -46,6 +46,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 default:
                 case 1: LevelOps = Add(new InfiltrationOpsLevel1(screen, player, rect)); break;
                 case 2: LevelOps = Add(new InfiltrationOpsLevel2(screen, player, rect)); break;
+                case 3: LevelOps = Add(new InfiltrationOpsLevel3(screen, player, rect)); break;
             }
         }
 

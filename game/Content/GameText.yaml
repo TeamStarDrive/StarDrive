@@ -8513,7 +8513,7 @@ RemnantDetectionArray:
  UKR: "Масив виявлення Древніх"
 OurScientistsBelieveThatThis:
  Id: 2149
- ENG: "Our scientists believe that this building will allow us to detect any remnant fleet targeting a system if this building in built on any of it's planets. it will also ETA."
+ ENG: "Our scientists believe that this building will allow us to detect any remnant fleet targeting a system if this building in built on any of it's planets. it will also have an ETA."
  RUS: "Ученые считают, что это здание позволит нам обнаружить любой флот Предтечей, нацеленный на систему, если это здание построено на любой из ее планет."
  SPA: "Nuestros científicos creen que este edificio nos permitirá detectar el origen de la señal que controla los drones Remanentes en nuestra galaxia. "
  UKR: "Наші вчені вважають, що ця будівля дозволить нам виявити будь-який флот Древніх, що націлився на систему, якщо ця будівля буде побудована на одній з її планет. вона також визначить час прибуття."
@@ -11458,9 +11458,9 @@ OurScientistsReportThatThey:
  UKR: "Наші вчені повідомляють, що вони спостерігали збільшення\n радіаційних сигналів в галактиці і, можливо,\n Древні стають сильнішими."
 OurScientistsReportThatThey2:
  Id: 4171
- ENG: "Our Scientists report that they observed increased\nradiation signatures in the galaxy. They believe\na new, powerful object has manifested somewhere\nand it is related to the Remnants."
- RUS: "Наши ученые сообщают, что они фиксируют увеличение\nрадиационных сигнатур в галактике. Они полагают\nчто где-то появился новый мощный объект\nи это связано с Предтечами."
- UKR: "Наші вчені повідомляють, що вони спостерігали підвищений рівень\n радіаційних сигналів в галактиці. Вони вважають,\n що десь з'явився новий потужний об'єкт,\n і він пов'язаний із Древніми."
+ ENG: "Our Scientists report that they observed increased\nradiation signatures in the galaxy. They believe\na new, powerful object has manifested somewhere\nand it is related to the Remnants.\nOur Projectors can now warn us if they\nDetect incoming Remnants Fleets."
+ RUS: "Наши ученые сообщают, что они фиксируют увеличение\nрадиационных сигнатур в галактике. Они полагают\nчто где-то появился новый мощный объект\nи это связано с Предтечами.\nНаши проекторы теперь могут предупредить нас, если\nони обнаружат приближающиеся остатки флота."
+ UKR: "Наші вчені повідомляють, що вони спостерігали підвищений рівень\n радіаційних сигналів в галактиці. Вони вважають,\n що десь з'явився новий потужний об'єкт,\n і він пов'язаний із Древніми.\nНаші проектори тепер можуть попереджати нас,\nякщо вони виявляють вхідні залишки флоту."
 YourScientistsReportMassiveRadiation:
  Id: 4172
  ENG: "Your Scientists report massive radiation increase\nin the galaxy. They suspect another Remnant portal\nwas created in the galaxy!"
@@ -15110,6 +15110,9 @@ InfiltrationLevel1Desc:
 InfiltrationLevel2Desc:
  Id: 6230
  ENG: "Allows Diplomacy Screen view of their total Ships, Research Tech type, their Spy Defense and rank statistics of Economic, Science, Population and Military."       
+InfiltrationLevel3Desc:
+ Id: 6231
+ ENG: "Subspace Projectors are able to alert us if this empire fleet is heading to our colonies, Diplomacy Screen view of their Empire Bonuses, total Funds and Maintenance."        
 InfiltrationStatus:
  Id: 6234
  ENG: "Infiltration Status: "       

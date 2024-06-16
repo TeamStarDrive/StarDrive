@@ -37,7 +37,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 return;
 
             Ship_Game.Espionage espionage = Player.GetRelations(Screen.SelectedEmpire).Espionage;
-            LevelDescription.Visible = espionage.Level < 1;
+            //LevelDescription.Visible = espionage.Level < 1;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

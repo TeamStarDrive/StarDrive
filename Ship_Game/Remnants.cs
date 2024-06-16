@@ -76,6 +76,9 @@ namespace Ship_Game
                     if (GetStoryEvent(out ExplorationEvent expEvent))
                         Universe.Notifications.AddRemnantUpdateNotify(expEvent, Owner);
 
+                    if (StoryStep == 1 && !Universe.P.UseLegacyEspionage) // enable view overlay (scan)
+                        empire.GetRelations(Owner).Espionage.IncreaseInfiltrationLevelTo(1);
+
                     StoryStep += 1;
                 }
             }
@@ -135,6 +138,12 @@ namespace Ship_Game
                     break;
             }
 
+            if (!Universe.P.UseLegacyEspionage)
+            {
+                // All Empires can now detect incoming threats vis SSPs
+                foreach (Empire e in Universe.ActiveMajorEmpires)
+                    e.GetRelations(Owner).Espionage.IncreaseInfiltrationLevelTo(3);
+            }
         }
 
         public void SetFocusOnEmpire(Empire e)

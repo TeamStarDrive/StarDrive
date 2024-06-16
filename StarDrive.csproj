@@ -267,6 +267,7 @@
     <Compile Include="Ship_Game\GameScreens\Infiltration\EspionageLevelPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel1.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel2.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel3.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButton.cs" />

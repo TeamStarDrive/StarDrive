@@ -5351,6 +5351,8 @@ namespace Ship_Game
         InfiltrationLevel1Desc = 6229,
         /// <summary>Allows Diplomacy Screen view of their total Ships, </summary>
         InfiltrationLevel2Desc = 6230,
+        /// <summary>Subspace Projectors are able to alert us if this</summary>
+        InfiltrationLevel3Desc = 6231,
         /// <summary>Infiltration Status: </summary>
         InfiltrationStatus = 6234,
         /// <summary>Established!</summary>
