@@ -410,8 +410,9 @@ public sealed partial class Empire
             return;
 
         float projectorRadius = GetProjectorRadius();
-        foreach (Mole mole in data.MoleList)
+        for (int i = 0; i < data.MoleList.Count; i++)
         {
+            Mole mole = data.MoleList[i];
             var p = Universe.GetPlanet(mole.PlanetId);
             if (p != null)
             {

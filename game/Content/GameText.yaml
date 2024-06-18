@@ -15109,10 +15109,10 @@ InfiltrationLevel1Desc:
  ENG: "Allows ship scanning (Tab key) as well as Diplomacy Screen view of their total Population, Personality, total owned Planets and Treaties."      
 InfiltrationLevel2Desc:
  Id: 6230
- ENG: "Allows Diplomacy Screen view of their total Ships, Research Tech type, their Spy Defense and rank statistics of Economic, Science, Population and Military."       
+ ENG: "Subspace Projectors are able to alert us if this empire fleet is heading to our colonies, Allows Diplomacy Screen view of their total Ships, Research Tech type and rank statistics of Economic, Science, Population and Military."       
 InfiltrationLevel3Desc:
  Id: 6231
- ENG: "Subspace Projectors are able to alert us if this empire fleet is heading to our colonies, Diplomacy Screen view of their Empire Bonuses, total Funds and Maintenance."        
+ ENG: "Diplomacy Screen view of their Empire Bonuses, total Funds and Maintenance. Espionage view of their Spy Defense"        
 InfiltrationStatus:
  Id: 6234
  ENG: "Infiltration Status: "       
