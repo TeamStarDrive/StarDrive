@@ -5365,6 +5365,16 @@ namespace Ship_Game
         CanScanPiratesEvent = 6238,
         /// <summary>Our Projectors can now warn us of incoming Remnant fleets.</summary>
         CanWarnRemnantsEvent = 6239,
+        /// <summary>Available Operations</summary>
+        EspionageOperationsTitle = 6240,
+        /// <summary>Scan Ships</summary>
+        EspionageOpsAllowScanShips = 6241,
+        /// <summary>We can view ship internals of this Empire.</summary>
+        EspionageOpsAllowScanShipsTip = 6242,
+        /// <summary>Projectors Alert.</summary>
+        EspionageOpsProjectorsAlert = 6243,
+        /// <summary>Subspace Projectors are able to alert us if </summary>
+        EspionageOpsProjectorsAlertTip = 6244,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

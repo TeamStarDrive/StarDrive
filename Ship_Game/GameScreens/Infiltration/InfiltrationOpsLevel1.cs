@@ -11,22 +11,31 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly Empire Player;
         readonly Font Font;
         readonly UILabel LevelDescription;
-
-        public InfiltrationOpsLevel1(InfiltrationScreen screen, Empire player, in Rectangle rect)
+        readonly UILabel PassiveTitle, Passive;
+        readonly int LevelDescriptionY, PassiveY;
+        const int Level = 1;
+        public InfiltrationOpsLevel1(InfiltrationScreen screen, Empire player, in Rectangle rect, int levelDescY, int passiveY, Font font)
             : base(rect)
         {
             Screen = screen;
             Player = player;
-            Font = screen.LowRes ? Fonts.Arial8Bold : Fonts.Arial12;
-            LevelDescription = Add(new UILabel("", Font, Color.Wheat));
+            Font   = font;
+            LevelDescription  = Add(new UILabel("", Font, Color.Wheat));
+            PassiveTitle      = Add(new UILabel("Passive:", Font, Color.Wheat));
+            Passive           = Add(new UILabel(GameText.EspionageOpsAllowScanShips, Font, Color.Gray));
+            Passive.Tooltip   = GameText.EspionageOpsAllowScanShipsTip;
+            LevelDescriptionY = levelDescY;
+            PassiveY = passiveY;
         }
 
         public override void PerformLayout()
         {
             base.PerformLayout();
-            LevelDescription.Pos  = new Vector2(Rect.X + 5, Rect.Y + 100);
+            LevelDescription.Pos  = new Vector2(Rect.X + 5, LevelDescriptionY);
             string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel1Desc), Rect.Width - 10);
             LevelDescription.Text = description;
+            PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
+            Passive.Pos           = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
         }
 
         public override void Update(float fixedDeltaTime)
@@ -36,6 +45,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 return;
 
             Ship_Game.Espionage espionage = Player.GetRelations(Screen.SelectedEmpire).Espionage;
+
             //LevelDescription.Visible = espionage.Level < 1;
         }
 

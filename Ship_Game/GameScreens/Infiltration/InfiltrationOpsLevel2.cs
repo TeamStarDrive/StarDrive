@@ -3,6 +3,7 @@ using Rectangle = SDGraphics.Rectangle;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
 
+
 namespace Ship_Game.GameScreens.EspionageNew
 {
     public class InfiltrationOpsLevel2 : UIElementContainer
@@ -11,22 +12,31 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly Empire Player;
         readonly Font Font;
         readonly UILabel LevelDescription;
+        readonly UILabel PassiveTitle, Passive;
+        readonly int LevelDescriptionY, PassiveY;
 
-        public InfiltrationOpsLevel2(InfiltrationScreen screen, Empire player, in Rectangle rect)
+        public InfiltrationOpsLevel2(InfiltrationScreen screen, Empire player, in Rectangle rect, int levelDescY, int passiveY, Font font)
             : base(rect)
         {
             Screen = screen;
             Player = player;
-            Font = screen.LowRes ? Fonts.Arial8Bold : Fonts.Arial12;
-            LevelDescription = Add(new UILabel("", Font, Color.Wheat));
+            Font   = font;
+            LevelDescription  = Add(new UILabel("", Font, Color.Wheat));
+            PassiveTitle      = Add(new UILabel("Passive:", Font, Color.Wheat));
+            Passive           = Add(new UILabel(GameText.EspionageOpsProjectorsAlert, Font, Color.Gray));
+            Passive.Tooltip   = GameText.EspionageOpsProjectorsAlertTip;
+            LevelDescriptionY = levelDescY;
+            PassiveY = passiveY;
         }
 
         public override void PerformLayout()
         {
             base.PerformLayout();
-            LevelDescription.Pos = new Vector2(Rect.X + 5, Rect.Y + 100);
-            string description = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel2Desc), Rect.Width - 10);
+            LevelDescription.Pos  = new Vector2(Rect.X + 5, LevelDescriptionY);
+            string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel2Desc), Rect.Width - 10);
             LevelDescription.Text = description;
+            PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
+            Passive.Pos           = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
         }
 
         public override void Update(float fixedDeltaTime)

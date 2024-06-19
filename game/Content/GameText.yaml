@@ -15106,10 +15106,10 @@ InfiltrationDefesneTip:
  ENG: "Indicates the percentage of Taxed Research invested in Infiltration Defense by this empire. The higher the percentage, the slower we can progress in setting up spy networks within this empire."     
 InfiltrationLevel1Desc:
  Id: 6229
- ENG: "Allows ship scanning (Tab key) as well as Diplomacy Screen view of their total Population, Personality, total owned Planets and Treaties."      
+ ENG: "Allows Diplomacy Screen view of their total Population, Personality, total owned Planets and Treaties."      
 InfiltrationLevel2Desc:
  Id: 6230
- ENG: "Subspace Projectors are able to alert us if this empire fleet is heading to our colonies, Allows Diplomacy Screen view of their total Ships, Research Tech type and rank statistics of Economic, Science, Population and Military."       
+ ENG: "Allows Diplomacy Screen view of their total Ships, Research Tech type and rank statistics of Economic, Science, Population and Military."       
 InfiltrationLevel3Desc:
  Id: 6231
  ENG: "Diplomacy Screen view of their Empire Bonuses, total Funds and Maintenance. Espionage view of their Spy Defense"        
@@ -15131,6 +15131,21 @@ CanScanPiratesEvent:
 CanWarnRemnantsEvent:
  Id: 6239
  ENG: "Our Projectors can now warn us of incoming Remnant fleets."           
+EspionageOperationsTitle:
+ Id: 6240
+ ENG: "Available Operations"             
+EspionageOpsAllowScanShips:
+ Id: 6241
+ ENG: "Scan Ships"            
+EspionageOpsAllowScanShipsTip:
+ Id: 6242
+ ENG: "We can view ship internals of this Empire (Tab key)."             
+EspionageOpsProjectorsAlert:
+ Id: 6243
+ ENG: "Projectors Alert"            
+EspionageOpsProjectorsAlertTip:
+ Id: 6244
+ ENG: "Subspace Projectors are able to alert us if this Empire's fleets are heading to our colonies by calculating their attack vectors."              
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."
