@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
 
 
+
 namespace Ship_Game.GameScreens.EspionageNew
 {
     public class InfiltrationOpsLevel2 : UIElementContainer
@@ -12,8 +13,21 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly Empire Player;
         readonly Font Font;
         readonly UILabel LevelDescription;
-        readonly UILabel PassiveTitle, Passive;
+        readonly UILabel PassiveTitle, Passive, ActiveTitle;
+        readonly UICheckBox PlantMoleBox;
         readonly int LevelDescriptionY, PassiveY;
+        const int Level = 2;
+        bool PlantingMole;
+        Ship_Game.Espionage Espionage;
+
+        void PlantMole(UICheckBox b)
+        {
+            if (PlantingMole)
+                Espionage.AddMission(InfiltrationMissionType.PlantMole);
+            else
+                Espionage.RemoveMission(InfiltrationMissionType.PlantMole);
+        }
+
 
         public InfiltrationOpsLevel2(InfiltrationScreen screen, Empire player, in Rectangle rect, int levelDescY, int passiveY, Font font)
             : base(rect)
@@ -23,7 +37,11 @@ namespace Ship_Game.GameScreens.EspionageNew
             Font   = font;
             LevelDescription  = Add(new UILabel("", Font, Color.Wheat));
             PassiveTitle      = Add(new UILabel("Passive:", Font, Color.Wheat));
+            ActiveTitle       = Add(new UILabel("Active:", Font, Color.Wheat));
             Passive           = Add(new UILabel(GameText.EspionageOpsProjectorsAlert, Font, Color.Gray));
+            PlantMoleBox      = Add(new UICheckBox(() => PlantingMole, Font, "Plant Mole", "Plant Mole"));
+            PlantMoleBox.OnChange = PlantMole;
+            PlantMoleBox.CheckedTextColor = player.EmpireColor;
             Passive.Tooltip   = GameText.EspionageOpsProjectorsAlertTip;
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
@@ -36,7 +54,18 @@ namespace Ship_Game.GameScreens.EspionageNew
             string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel2Desc), Rect.Width - 10);
             LevelDescription.Text = description;
             PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
+            ActiveTitle.Pos       = new Vector2(Rect.X + 5, PassiveY + Font.LineSpacing + 2);
+            PlantMoleBox.Pos      = new Vector2(Rect.X + 75, ActiveTitle.Y);
             Passive.Pos           = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
+
+            if (!Screen.SelectedEmpire.isPlayer)
+            {
+                Espionage = Player.GetEspionage(Screen.SelectedEmpire);
+                Passive.Color = Espionage.Level >= Level ? Player.EmpireColor : Color.Gray;
+                PlantMoleBox.Enabled = Espionage.Level >= Level;
+                PlantMoleBox.TextColor = PlantMoleBox.Enabled ? Color.White : Color.Gray;
+                PlantingMole = !Screen.SelectedEmpire.isPlayer && Player.GetEspionage(Screen.SelectedEmpire).IsPlantingMole;
+            }
         }
 
         public override void Update(float fixedDeltaTime)
@@ -45,7 +74,8 @@ namespace Ship_Game.GameScreens.EspionageNew
             if (Screen.SelectedEmpire.isPlayer)
                 return;
 
-            Ship_Game.Espionage espionage = Player.GetRelations(Screen.SelectedEmpire).Espionage;
+            //Ship_Game.Espionage espionage = Player.GetEspionage(Screen.SelectedEmpire);
+            //if (espionage.missio)
             //LevelDescription.Visible = espionage.Level < 2;
         }
 

@@ -38,9 +38,11 @@ namespace Ship_Game
 
             int totalWeight = CalcTotalEspionageWeight();
             foreach (Empire empire in Universe.ActiveMajorEmpires.Filter(e => e != this))
-                GetRelations(empire).Espionage.IncreaseProgress(taxedResearch, totalWeight);
+                GetRelations(empire).Espionage.Update(taxedResearch, totalWeight);
 
             EspionageDefenseRatio = EspionageDefenseWeight / totalWeight.LowerBound(1);
         }
+
+        public Espionage GetEspionage(Empire targetEmpire) => GetRelations(targetEmpire).Espionage;
     }
 }

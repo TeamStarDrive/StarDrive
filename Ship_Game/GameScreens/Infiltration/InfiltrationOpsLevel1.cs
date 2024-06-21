@@ -2,6 +2,7 @@
 using Rectangle = SDGraphics.Rectangle;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
+using System.Windows.Forms;
 
 namespace Ship_Game.GameScreens.EspionageNew
 {
@@ -22,7 +23,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             Font   = font;
             LevelDescription  = Add(new UILabel("", Font, Color.Wheat));
             PassiveTitle      = Add(new UILabel("Passive:", Font, Color.Wheat));
-            Passive           = Add(new UILabel(GameText.EspionageOpsAllowScanShips, Font, Color.Gray));
+            Passive           = Add(new UILabel(GameText.EspionageOpsAllowScanShips, Font));
             Passive.Tooltip   = GameText.EspionageOpsAllowScanShipsTip;
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
@@ -36,6 +37,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             LevelDescription.Text = description;
             PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
             Passive.Pos           = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
+            Passive.Color         = Screen.SelectedEmpire.CanBeScannedByPlayer ? Player.EmpireColor : Color.Gray;
         }
 
         public override void Update(float fixedDeltaTime)
@@ -44,9 +46,9 @@ namespace Ship_Game.GameScreens.EspionageNew
             if (Screen.SelectedEmpire.isPlayer)
                 return;
 
-            Ship_Game.Espionage espionage = Player.GetRelations(Screen.SelectedEmpire).Espionage;
 
-            //LevelDescription.Visible = espionage.Level < 1;
+            //Ship_Game.Espionage espionage = Player.GetEspionage(Screen.SelectedEmpire);
+            //LevelDescription.Visible = espionage.Level < Level;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

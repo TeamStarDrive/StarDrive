@@ -2633,6 +2633,23 @@ namespace Ship_Game
             InitEmpireUnlocks();
         }
 
+        public void RemoveMoles(int plantId)
+        {
+            for (int i = data.MoleList.Count - 1; i >= 0; i--)
+            {
+                Mole mole = data.MoleList[i];
+                if (mole.PlanetId == plantId)
+                {
+                    data.MoleList.Remove(mole);
+                    if (Universe.P.UseLegacyEspionage)
+                    {
+                        Agent agent = data.AgentList.Find(a => a.TargetPlanetId == plantId);
+                        agent.AssignMission(AgentMission.Defending, this, "");
+                    }
+                }
+            }
+        }
+
         // For Testing only!
         public void TestSetCanBuildCarriersFalse()
         {

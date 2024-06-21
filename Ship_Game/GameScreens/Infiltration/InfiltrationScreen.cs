@@ -29,6 +29,7 @@ namespace Ship_Game.GameScreens
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             Player = Universe.Player;
+            SelectedEmpire = Player;
         }
 
         public override void LoadContent()
@@ -101,7 +102,28 @@ namespace Ship_Game.GameScreens
                 ExitScreen();
                 return true;
             }
+
+            if (Player.Universe.Debug && !SelectedEmpire.isPlayer && HandleDebugInput(input))
+                return true;
+
+
             return base.HandleInput(input);
+        }
+
+        bool HandleDebugInput(InputState input)
+        {
+            Keys[] keys = [Keys.D0, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5];
+            for (byte i = 0; i < keys.Length; i++) 
+            {
+                if (input.KeyPressed(keys[i]))
+                {
+                    Player.GetEspionage(SelectedEmpire).SetInfiltrationLevelTo(i);
+                    RefreshSelectedEmpire(SelectedEmpire);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void RefreshSelectedEmpire(Empire selectedEmpire)

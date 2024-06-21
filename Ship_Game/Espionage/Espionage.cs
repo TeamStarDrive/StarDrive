@@ -1,4 +1,5 @@
 ﻿using SDGraphics;
+using SDUtils;
 using Ship_Game.Data.Serialization;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace Ship_Game
         [StarData] readonly Empire Them;
         [StarData] public float LevelProgress { get; private set; }
         [StarData] int Weight;
+        [StarData] Array<InfiltrationMission> Missions = new();
 
         [StarDataConstructor]
         public Espionage() { }
@@ -42,48 +44,67 @@ namespace Ship_Game
 
             Level++;
             LevelProgress = 0;
-            Them.SetCanBeScannedByPlayer(Level > 0);
+            Them.SetCanBeScannedByPlayer(true); // This ability cannot be lost after it was achieved.
         }
 
-        public void DecreaseInfiltrationLevelTo(byte value)
+        public void SetInfiltrationLevelTo(byte value)
         {
             Level = value.LowerBound(0);
             LevelProgress = 0;
-            Them.SetCanBeScannedByPlayer(Level > 0);
+            RemoveMissions();
         }
 
-        public void DecreaseProgrees(float value)
+        public void DecreaseProgress(float value)
         {
             if (Level == 0)
                 return;
 
             LevelProgress -= value;
             if (LevelProgress < 0)
-                DecreaseInfiltrationLevelTo((byte)(Level-1));
+                SetInfiltrationLevelTo((byte)(Level-1));
         }
 
-        public void IncreaseProgress(float taxedResearch, int totalWeight)
+        public void Update(float taxedResearch, int totalWeight)
         {
+            RemoveMissions();
+            float progressToIncrease = GetProgressToIncrease(taxedResearch, totalWeight);
+            UpdateMissions(Missions.Count > 0 ? progressToIncrease / Missions.Count : 0);
+
             if (AtMaxLevel)
                 return;
 
-            float progressToIncrease = GetProgressToIncrease(taxedResearch, totalWeight);
             LevelProgress = (LevelProgress + progressToIncrease).UpperBound(LevelCost(MaxLevel));
             if (LevelProgress >= NextLevelCost)
                 IncreaseInfiltrationLevel();
         }
 
+        void RemoveMissions()
+        {
+            for (int i = Missions.Count - 1; i >= 0; i--)
+            {
+                InfiltrationMission mission = Missions[i];
+                if (mission.Level > Level)
+                    Missions.Remove(mission);
+            }
+        }
+
+        void UpdateMissions(float progress)
+        {
+            for (int i = 0; i < Missions.Count; i++)
+            {
+                InfiltrationMission mission = Missions[i];
+                mission.Update(progress);
+            }
+        }
+
         public float GetProgressToIncrease(float taxedResearch, float totalWeight)
         {
-            float lala = taxedResearch;
-            lala *= (Weight / totalWeight.LowerBound(1));
-            lala *= (Them.TotalPopBillion / Owner.TotalPopBillion.LowerBound(0.1f));
-            lala *= (1 - Them.EspionageDefenseRatio * 0.75f);
-
+            float activeMissionRatio = Missions.Count > 0 ? 0.5f : 1;
             return taxedResearch
                    * (Weight / totalWeight.LowerBound(1))
                    * (Them.TotalPopBillion / Owner.TotalPopBillion.LowerBound(0.1f))
-                   * (1 - Them.EspionageDefenseRatio*0.75f);
+                   * (1 - Them.EspionageDefenseRatio*0.75f)
+                   * activeMissionRatio;
         }
 
         public void SetWeight(int value)
@@ -138,9 +159,39 @@ namespace Ship_Game
                 return theirInfiltrationLevel > 0 ? "Exists" : "Probably None";
 
             if (Level <= 4)
-                return theirInfiltrationLevel > 3 ? "Deep" : "Shallow";
+                return theirInfiltrationLevel == 0 ? "None" 
+                                                   : theirInfiltrationLevel > 3 ? "Deep" : "Shallow";
 
             return $"{theirInfiltrationLevel}";
         }
+
+        public void AddMission(InfiltrationMissionType type)
+        {
+            if (Missions.Any(m => m.Type == type))
+                Log.Error($"Mission type {type} already exists for {Owner}");
+
+            switch (type) 
+            {
+                case InfiltrationMissionType.PlantMole: AddMissionPlantMole(); break;
+            }
+        }
+
+        public void RemoveMission(InfiltrationMissionType type) 
+        {
+            for (int i = Missions.Count - 1; i >= 0; i--)
+            {
+                InfiltrationMission mission = Missions[i];
+                if (mission.Type == type)
+                    Missions.Remove(mission);
+            }
+        }
+
+        void AddMissionPlantMole()
+        {
+            InfiltrationMissionPlantMole planetMole = new(Owner, Them, LevelCost(Level), Level);
+            Missions.Add(planetMole);
+        }
+
+        public bool IsPlantingMole => Missions.Any(m => m.Type == InfiltrationMissionType.PlantMole);
     }
 }

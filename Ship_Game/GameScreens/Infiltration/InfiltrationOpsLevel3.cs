@@ -11,8 +11,9 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly Empire Player;
         readonly Font Font;
         readonly UILabel LevelDescription;
-        readonly UILabel PassiveTitle, Passive;
+        readonly UILabel PassiveTitle, Passive, ActiveTitle;
         readonly int LevelDescriptionY, PassiveY;
+        const int Level = 3;
 
         public InfiltrationOpsLevel3(InfiltrationScreen screen, Empire player, in Rectangle rect, int levelDescY, int passiveY, Font font)
             : base(rect)
@@ -22,7 +23,9 @@ namespace Ship_Game.GameScreens.EspionageNew
             Font   = font;
             LevelDescription = Add(new UILabel("", Font, Color.Wheat));
             PassiveTitle     = Add(new UILabel("Passive:", Font, Color.Wheat));
+            ActiveTitle      = Add(new UILabel("Active:", Font, Color.Wheat));
             Passive          = Add(new UILabel(GameText.EspionageOpsProjectorsAlert, Font, Color.Gray));
+
             Passive.Tooltip  = GameText.EspionageOpsProjectorsAlert;
             LevelDescription.Visible = false;
             LevelDescriptionY = levelDescY;
@@ -52,6 +55,16 @@ namespace Ship_Game.GameScreens.EspionageNew
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             base.Draw(batch, elapsed);
+        }
+
+        bool GetPlantMole()
+        {
+            return true;
+        }
+
+        void SetPlantMole(bool value)
+        {
+
         }
     }
 }

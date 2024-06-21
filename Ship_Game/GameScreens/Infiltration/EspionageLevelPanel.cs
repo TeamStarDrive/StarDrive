@@ -93,7 +93,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             if (Screen.SelectedEmpire.isPlayer)
                 return;
 
-            Ship_Game.Espionage espionage = Player.GetRelations(Screen.SelectedEmpire).Espionage;
+            Ship_Game.Espionage espionage = Player.GetEspionage(Screen.SelectedEmpire);
             LevelProgress.Max = espionage.LevelCost(Level);
             if (espionage.Level >= Level)
                 LevelProgress.Progress = LevelProgress.Max;
@@ -112,7 +112,12 @@ namespace Ship_Game.GameScreens.EspionageNew
                 LevelPanel.Color = InfiltrationScreen.PanelBackground;
             }
 
-            RefreshStatus(espionage);
+            Visible = Level <= espionage.Level + 1;
+            if (Visible)
+            {
+                RefreshStatus(espionage);
+                LevelOps.PerformLayout();
+            }
         }
 
         public void RefreshStatus(Ship_Game.Espionage espionage)

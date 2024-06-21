@@ -571,6 +571,13 @@ namespace Ship_Game.Universe
         {
             owner.RemoveBorderNode(planet);
             Influence.Remove(owner, planet);
+            RemoveMoles(planet.Id);
+        }
+
+        void RemoveMoles(int plantId)
+        {
+            foreach (Empire empire in ActiveMajorEmpires)
+                empire.RemoveMoles(plantId);
         }
 
         public void CalcInitialSettings()

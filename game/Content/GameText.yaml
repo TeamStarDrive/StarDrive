@@ -15139,7 +15139,7 @@ EspionageOpsAllowScanShips:
  ENG: "Scan Ships"            
 EspionageOpsAllowScanShipsTip:
  Id: 6242
- ENG: "We can view ship internals of this Empire (Tab key)."             
+ ENG: "We can permenantly view ship internals of this Empire (Tab key). This Ability will never be lost, even if the entire spy network is lost."             
 EspionageOpsProjectorsAlert:
  Id: 6243
  ENG: "Projectors Alert"            
