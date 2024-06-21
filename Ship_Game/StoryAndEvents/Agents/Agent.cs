@@ -194,9 +194,15 @@ namespace Ship_Game
                     aftermath.Message = GameText.SuccessfullyInfiltratedAColony;
                     aftermath.GoodResult = true;
                     Infiltrations++;
-                    InfiltratePlanet(us, victim, out string planetName);
-                    AssignMission(AgentMission.Undercover, us, victim.data.Traits.Name);
-                    aftermath.CustomMessage = $"{Name}, {Localizer.Token(GameText.SuccessfullyInfiltratedAColony)} {planetName} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
+                    if (InfiltratePlanet(us, victim, out string planetName))
+                    {
+                        AssignMission(AgentMission.Undercover, us, victim.data.Traits.Name);
+                        aftermath.CustomMessage = $"{Name}, {Localizer.Token(GameText.SuccessfullyInfiltratedAColony)} {planetName} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
+                    }
+                    else
+                    {
+                        aftermath.Message = GameText.WasUnableToInfiltrateA2;
+                    }
                     break;
                 case SpyMissionStatus.Failed:
                     aftermath.Message= GameText.WasUnableToInfiltrateA2;
@@ -511,10 +517,13 @@ namespace Ship_Game
             AssignMission(AgentMission.Defending, us, "");
         }
 
-        void InfiltratePlanet(Empire us, Empire victim, out string planetName)
+        bool InfiltratePlanet(Empire us, Empire victim, out string planetName)
         {
             Mole m = Mole.PlantMole(us, victim, out planetName);
-            TargetPlanetId = m.PlanetId;
+            if (m != null)
+                TargetPlanetId = m.PlanetId;
+
+            return m != null;
         }
 
         void AssassinateEnemyAgent(Empire us, Empire victim, out string targetName)
