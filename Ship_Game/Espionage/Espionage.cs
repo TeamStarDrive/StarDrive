@@ -2,10 +2,6 @@
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -16,7 +12,7 @@ namespace Ship_Game
         public const byte MaxLevel = 5;
         [StarData] public byte Level;
         [StarData] readonly Empire Owner;
-        [StarData] readonly Empire Them;
+        [StarData] public readonly Empire Them;
         [StarData] public float LevelProgress { get; private set; }
         [StarData] int Weight;
         [StarData] Array<InfiltrationMission> Missions = new();
@@ -47,6 +43,10 @@ namespace Ship_Game
             LevelProgress = 0;
             Them.SetCanBeScannedByPlayer(true); // This ability cannot be lost after it was achieved.
         }
+
+        public void WipeoutInfiltration() => SetInfiltrationLevelTo(0);
+
+        public void ReduceInfiltrationLevel() => SetInfiltrationLevelTo((byte)(Level.LowerBound(1) - 1));
 
         public void SetInfiltrationLevelTo(byte value)
         {

@@ -5375,6 +5375,24 @@ namespace Ship_Game
         EspionageOpsProjectorsAlert = 6243,
         /// <summary>Subspace Projectors are able to alert us if </summary>
         EspionageOpsProjectorsAlertTip = 6244,
+        /// <summary>We have successfully infiltrated a colony:</summary>
+        NewSuccessfullyInfiltratedAColony = 6245,
+        /// <summary>We could not find a new colony to infiltrate for</summary>
+        NoColonyForInfiltration = 6246,
+        /// <summary>We could not find a new colony to infiltrate for</summary>
+        WeMadeInfiltrationProgress = 6247,
+        /// <summary>Our Agents were unable to infiltrate a colony there.</summary>
+        NewWasUnableToInfiltrate = 6248,
+        /// <summary>Our Agents have miserably failed infiltraing a colony.</summary>
+        NewWasUnableToInfiltrateMiserable = 6249,
+        /// <summary>One of our Agents was caught when trying to infiltrae a colony</summary>
+        NewWasUnableToInfiltrateDetected = 6250,
+        /// <summary>Our agent was caught when trying to infiltrae a colony there</summary>
+        NewWasUnableToInfiltrateWipedOut = 6251,
+        /// <summary>We uncovered and wiped out a spy network when one</summary>
+        NewWipedOutNetworkInfiltration = 6252,
+        /// <summary>Their Infiltration Level was</summary>
+        TheirInfiltrationLevelWas = 6253,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

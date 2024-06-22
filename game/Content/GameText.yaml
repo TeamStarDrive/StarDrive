@@ -15146,6 +15146,30 @@ EspionageOpsProjectorsAlert:
 EspionageOpsProjectorsAlertTip:
  Id: 6244
  ENG: "Subspace Projectors are able to alert us if this Empire's fleets are heading to our colonies by calculating their attack vectors."              
+NewSuccessfullyInfiltratedAColony:
+ Id: 6245
+ ENG: "We have successfully infiltrated a colony:" 
+NoColonyForInfiltration:
+ Id: 6246
+ ENG: "We could not find a new colony to infiltrate for "  
+WeMadeInfiltrationProgress:
+ Id: 6247
+ ENG: "We have made good progrees for the next infiltration operation."   
+NewWasUnableToInfiltrate:
+ Id: 6248
+ ENG: "Our agents were unable to infiltrate a colony there. They were not detected."    
+NewWasUnableToInfiltrateMiserable:
+ Id: 6249
+ ENG: "Our agents have miserably failed infiltraing a colony there.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."     
+NewWasUnableToInfiltrateDetected:
+ Id: 6250
+ ENG: "One of our agents was caught when trying to infiltrae a colony there.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."     
+NewWasUnableToInfiltrateWipedOut:
+ Id: 6251
+ ENG: "Our Agent was caught when trying to infiltrae a colony there.\nOur entire spy network was exposed and wiped out!"      
+NewWipedOutNetworkInfiltration:
+ Id: 6252
+ ENG: "We uncovered and wiped out a spy network when one\nof their agents was trying to infiltrate one our colonies."       
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

@@ -36,6 +36,7 @@ namespace Ship_Game
         public readonly float DistanceToDefendAllyThreshold; // Defend Allies' systems if they are closer to us, basaed on this threshold lower is closer
         public readonly float ImperialistWarPlanetsToTakeMult; // multiplier for how many planets to take from available enemy planets if we have better score
         public readonly float PiratePayChanceModifier; // How inclined to pay pirates
+        public readonly float SpyDamageRelationsMultiplier; // Multipler for base rations damage when caught spying. Works for new Espionage logic
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -48,6 +49,7 @@ namespace Ship_Game
                     PlayerWarContributionMaxWarnings       = 2;
                     ImperialistWarPlanetsToTakeMult = 0.4f;
                     DistanceToDefendAllyThreshold   = 1f;
+                    SpyDamageRelationsMultiplier = 1;
                     TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -81,6 +83,7 @@ namespace Ship_Game
                     PlayerWarContributionMaxWarnings       = 1;
                     ImperialistWarPlanetsToTakeMult = 0.6f;
                     DistanceToDefendAllyThreshold   = 0.8f;
+                    SpyDamageRelationsMultiplier = 1;
                     TurnsAbove95FederationNeeded = 350;
                     TurnsAbove95AllianceTreshold = 300;
                     AllianceValueAlliedWithEnemy = 0.4f;
@@ -114,6 +117,7 @@ namespace Ship_Game
                     PlayerWarContributionMaxWarnings       = 1;
                     ImperialistWarPlanetsToTakeMult = 0.8f;
                     DistanceToDefendAllyThreshold   = 0.6f;
+                    SpyDamageRelationsMultiplier = 1.25f;
                     TurnsAbove95FederationNeeded = 420;
                     TurnsAbove95AllianceTreshold = 250;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -147,6 +151,7 @@ namespace Ship_Game
                     PlayerWarContributionMaxWarnings       = 1;
                     ImperialistWarPlanetsToTakeMult = 0.5f;
                     DistanceToDefendAllyThreshold   = 0.7f;
+                    SpyDamageRelationsMultiplier = 2.5f;
                     TurnsAbove95FederationNeeded = 600;
                     TurnsAbove95AllianceTreshold = 200;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -181,6 +186,7 @@ namespace Ship_Game
                     PlayerWarContributionMaxWarnings       = 2;
                     ImperialistWarPlanetsToTakeMult = 0.7f;
                     DistanceToDefendAllyThreshold   = 0.9f;
+                    SpyDamageRelationsMultiplier = 0.5f;
                     TurnsAbove95FederationNeeded = 320;
                     TurnsAbove95AllianceTreshold = 150;
                     AllianceValueAlliedWithEnemy = 0.6f;
@@ -214,6 +220,7 @@ namespace Ship_Game
                     PlayerWarContributionMaxWarnings       = 1;
                     ImperialistWarPlanetsToTakeMult = 0.5f;
                     DistanceToDefendAllyThreshold   = 1.25f;
+                    SpyDamageRelationsMultiplier = 2f;
                     TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 125;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -247,6 +254,7 @@ namespace Ship_Game
                     PlayerWarContributionMaxWarnings       = 2;
                     ImperialistWarPlanetsToTakeMult = 0.4f;
                     DistanceToDefendAllyThreshold   = 1.4f;
+                    SpyDamageRelationsMultiplier = 1.5f;
                     TurnsAbove95FederationNeeded = 300;
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.8f;
