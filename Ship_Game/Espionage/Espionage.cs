@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
+    // This is a new Espionage System that uses Infiltration Level instead of Agents
     [StarDataType]
     public class Espionage
     {
@@ -119,6 +120,7 @@ namespace Ship_Game
 
         public int LevelCost(int level)
         {
+            // default costs
             // 1 - 50
             // 2 - 100
             // 3 - 200
@@ -149,7 +151,7 @@ namespace Ship_Game
         public bool AtMaxLevel => Level >= MaxLevel;
         public float ProgressPercent => LevelProgress/NextLevelCost * 100;
 
-        public string TheirInfiltrationLevel()
+        public string InfiltrationLevelSummary()
         {
             if (Level <= 1)
                 return "Unknown";

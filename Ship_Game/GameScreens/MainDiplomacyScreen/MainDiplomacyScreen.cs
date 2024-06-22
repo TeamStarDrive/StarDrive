@@ -298,7 +298,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12, $"(out of {empireList.Length} empires)", textCursor, Color.Wheat);
             }
             //Added by McShooterz:  intel report
-            Espionage espionage = SelectedEmpire.isPlayer || !UsingNewEspioange ? null : Player.GetRelations(SelectedEmpire).Espionage;
+            Espionage espionage = SelectedEmpire.isPlayer || !UsingNewEspioange ? null : Player.GetEspionage(SelectedEmpire);
             textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
             string intReport = Localizer.Token(GameText.IntelligenceReport);
             if (UsingNewEspioange && !SelectedEmpire.isPlayer)
@@ -356,7 +356,7 @@ namespace Ship_Game
             }
             else if (SelectedEmpire != Player)
             {
-                DrawDiploLine(batch, Font12, $"Their Infiltration Level: {espionage.TheirInfiltrationLevel()}", Color.Wheat, ref textCursor);
+                DrawDiploLine(batch, Font12, $"Their Infiltration Level: {espionage.InfiltrationLevelSummary()}", Color.Wheat, ref textCursor);
             }
 
             DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.Population2)} {GetPop(SelectedEmpire).String(1)} {Localizer.Token(GameText.Billion)}", Color.Wheat, ref textCursor);
