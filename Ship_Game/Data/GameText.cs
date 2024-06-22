@@ -5393,6 +5393,8 @@ namespace Ship_Game
         NewWipedOutNetworkInfiltration = 6252,
         /// <summary>Their Infiltration Level was</summary>
         TheirInfiltrationLevelWas = 6253,
+        /// <summary>We have leeched 10% from a tech they have</summary>
+        NotifyLeechedTech = 6254,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

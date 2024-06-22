@@ -1323,7 +1323,8 @@ namespace Ship_Game
             UpdateShipMaintenance();
             UpdatePlanetStorageStats();
             float incomeFromExoticBonus = GetIncomeFromExoticBonus();
-            AddMoney(NetIncome + incomeFromExoticBonus);
+            float remainingMoney = MoneyAfterLeech(NetIncome + incomeFromExoticBonus);
+            AddMoney(remainingMoney);
         }
 
         float GetIncomeFromExoticBonus()
@@ -1334,6 +1335,25 @@ namespace Ship_Game
                 ? NetPlanetIncomes*exoticBonus - NetPlanetIncomes
                 : NetPlanetIncomes * exoticBonus;
             return planetIncomeWithBonus;
+        }
+
+        float MoneyAfterLeech(float money)
+        {
+            if (Universe.P.UseLegacyEspionage)
+                return money;
+
+            float remainingMoney = money;
+            foreach (Empire leecher in Universe.ActiveMajorEmpires.Filter(e => e != this))
+            {
+                Espionage espionage = leecher.GetEspionage(this);
+                if (espionage.CanLeechMoney)
+                {
+                    espionage.AddLeechedMoney(money * 0.02f);
+                    remainingMoney -= money * 0.02f;
+                }
+            }
+
+            return remainingMoney;
         }
 
         void ResetMoneySpentOnProduction()

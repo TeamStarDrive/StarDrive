@@ -16,6 +16,8 @@ namespace Ship_Game
         [StarData] public float LevelProgress { get; private set; }
         [StarData] int Weight;
         [StarData] Array<InfiltrationMission> Missions = new();
+        [StarData] Mole StickyMole;
+        [StarData] public float TotalMoneyLeeched { get; private set; }
 
         [StarDataConstructor]
         public Espionage() { }
@@ -41,7 +43,7 @@ namespace Ship_Game
 
             Level++;
             LevelProgress = 0;
-            Them.SetCanBeScannedByPlayer(true); // This ability cannot be lost after it was achieved.
+            EnablePassiveEffects();
         }
 
         public void WipeoutInfiltration() => SetInfiltrationLevelTo(0);
@@ -53,6 +55,7 @@ namespace Ship_Game
             Level = value.LowerBound(0);
             LevelProgress = 0;
             RemoveMissions();
+            EnablePassiveEffects();
         }
 
         public void DecreaseProgress(float value)
@@ -87,6 +90,12 @@ namespace Ship_Game
                 if (mission.Level > Level)
                     Missions.Remove(mission);
             }
+
+            if (!CanPlanetStickyMole && StickyMole != null)
+            {
+                Owner.data.MoleList.Remove(StickyMole);
+                StickyMole = null;
+            }
         }
 
         void UpdateMissions(float progress)
@@ -95,6 +104,22 @@ namespace Ship_Game
             {
                 InfiltrationMission mission = Missions[i];
                 mission.Update(progress);
+            }
+        }
+
+        void EnablePassiveEffects()
+        {
+            if (Level >= 1)
+                Them.SetCanBeScannedByPlayer(true); // This ability cannot be lost after it was achieved.
+
+            if (CanPlanetStickyMole && StickyMole == null)
+            {
+                StickyMole = Mole.PlantStickyMoleAtHomeworld(Owner, Them, out string targetPlanetName);
+                if (StickyMole != null)
+                {
+                    string message = $"{Localizer.Token(GameText.NewSuccessfullyInfiltratedAColony)} {targetPlanetName}";
+                    Owner.Universe.Notifications.AddAgentResult(true, message, Owner);
+                }
             }
         }
 
@@ -129,6 +154,12 @@ namespace Ship_Game
             return level == 0 ? 0 : (int)(50 * Math.Pow(2, level-1) * Owner.Universe.SettingsResearchModifier);
         }
 
+        public void AddLeechedMoney(float money)
+        {
+            Owner.AddMoney(money);
+            TotalMoneyLeeched += money;
+        }
+
         public int NextLevelCost => LevelCost(Level+1);
 
         public bool CanViewPersonality   => Level >= 1;
@@ -146,6 +177,12 @@ namespace Ship_Game
         public bool CanViewMoneyAndMaint => Level >= 3;
         public bool CanViewResearchTopic => Level >= 3;
         public bool CanViewBonuses       => Level >= 3;
+        bool CanPlanetStickyMole         => Level >= 3;
+
+        public bool CanLeechTech => Level >= 4;
+
+        public bool CanLeechMoney => Level >= 5;
+
 
 
         public bool AtMaxLevel => Level >= MaxLevel;

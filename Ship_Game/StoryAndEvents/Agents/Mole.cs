@@ -33,7 +33,7 @@ namespace Ship_Game
             return mole;
         }
 
-        public static void PlantMoleAtHomeworld(Empire owner, Empire target, out string targetPlanetName)
+        public static Mole PlantStickyMoleAtHomeworld(Empire owner, Empire target, out string targetPlanetName)
         {
             targetPlanetName = "";
             Planet targetPlanet = null;
@@ -49,6 +49,7 @@ namespace Ship_Game
             };
 
             owner.data.MoleList.Add(mole);
+            return mole;
         }
     }
 }

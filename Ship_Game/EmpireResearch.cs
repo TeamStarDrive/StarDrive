@@ -137,6 +137,36 @@ namespace Ship_Game
                 Empire.UnlockTech(tech, TechUnlockType.Normal, null);
                 if (Empire.isPlayer)
                     Empire.Universe?.Notifications.AddResearchComplete(tech.UID, Empire);
+
+                LeechTechByEspionage(tech.UID);
+            }
+        }
+
+        void LeechTechByEspionage(string techName)
+        {
+            if (Empire.Universe.P.UseLegacyEspionage)
+                return;
+
+            foreach (Empire leecher in Empire.Universe.ActiveMajorEmpires.Filter(e => e != Empire))
+            {
+                if (leecher.GetEspionage(Empire).CanLeechTech)
+                {
+                    var tech = leecher.GetTechEntry(techName);
+                    if (tech.Locked && !tech.ContentRestrictedTo(Empire))
+                    {
+                        tech.AddToProgress(tech.TechCost * 0.1f, leecher, out bool unlocked);
+                        if (unlocked)
+                        {
+                            leecher.UnlockTech(tech, TechUnlockType.Normal, null);
+                            if (leecher.isPlayer)
+                                leecher.Universe?.Notifications.AddResearchComplete(tech.UID, leecher);
+                        }
+
+                        ResourceManager.TryGetTech(techName, out Technology technology);
+                        string message = $"{Empire.data.Traits.Name} - {Localizer.Token(GameText.NotifyLeechedTech)} {technology?.Name.Text ?? techName}";
+                        leecher.Universe.Notifications.AddAgentResult(true, techName, leecher);
+                    }
+                }
             }
         }
 
