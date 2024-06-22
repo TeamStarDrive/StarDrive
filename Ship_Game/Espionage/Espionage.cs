@@ -174,7 +174,7 @@ namespace Ship_Game
 
             switch (type) 
             {
-                case InfiltrationMissionType.PlantMole: AddMissionPlantMole(); break;
+                case InfiltrationMissionType.PlantMole: Missions.Add(new InfiltrationMissionPlantMole(Owner, Them, LevelCost(Level), Level)); break;
             }
         }
 
@@ -188,12 +188,6 @@ namespace Ship_Game
             }
         }
 
-        void AddMissionPlantMole()
-        {
-            InfiltrationMissionPlantMole planetMole = new(Owner, Them, LevelCost(Level), Level);
-            Missions.Add(planetMole);
-        }
-
-        public bool IsPlantingMole => Missions.Any(m => m.Type == InfiltrationMissionType.PlantMole);
+        public bool IsMissionActive(InfiltrationMissionType type) => Missions.Any(m => m.Type == type);
     }
 }

@@ -107,7 +107,9 @@ namespace Ship_Game
 
     public enum InfiltrationMissionType
     {
-        PlantMole
+        PlantMole,
+        Uprise,
+        CounterEspionage
     }
 
     public enum InfiltrationMissionResult

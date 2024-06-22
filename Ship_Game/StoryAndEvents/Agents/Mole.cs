@@ -8,7 +8,7 @@ namespace Ship_Game
     public sealed class Mole
     {
         [StarData] public int PlanetId;
-        [StarData] public bool Sticky { get; private set; } // cannot be removed with counter espionage in new espionage system
+        [StarData] public bool Sticky { get; set; } // cannot be removed with counter espionage in new espionage system
 
         public static Mole PlantMole(Empire owner, Empire target, out string targetPlanetName)
         {

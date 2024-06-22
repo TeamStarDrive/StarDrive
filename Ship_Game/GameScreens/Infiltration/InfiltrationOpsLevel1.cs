@@ -2,7 +2,6 @@
 using Rectangle = SDGraphics.Rectangle;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
-using System.Windows.Forms;
 
 namespace Ship_Game.GameScreens.EspionageNew
 {
@@ -38,17 +37,14 @@ namespace Ship_Game.GameScreens.EspionageNew
             PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
             Passive.Pos           = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
             Passive.Color         = Screen.SelectedEmpire.CanBeScannedByPlayer ? Player.EmpireColor : Color.Gray;
+
+            if (!Screen.SelectedEmpire.isPlayer)
+                LevelDescription.Color = Player.GetEspionage(Screen.SelectedEmpire).Level >= Level ? Player.EmpireColor : Color.Gray;
         }
 
         public override void Update(float fixedDeltaTime)
         {
             base.Update(fixedDeltaTime);
-            if (Screen.SelectedEmpire.isPlayer)
-                return;
-
-
-            //Ship_Game.Espionage espionage = Player.GetEspionage(Screen.SelectedEmpire);
-            //LevelDescription.Visible = espionage.Level < Level;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

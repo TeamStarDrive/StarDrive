@@ -12,8 +12,11 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly Font Font;
         readonly UILabel LevelDescription;
         readonly UILabel PassiveTitle, Passive, ActiveTitle;
+        readonly UICheckBox UpriseBox, CounterBox;
         readonly int LevelDescriptionY, PassiveY;
         const int Level = 3;
+        Ship_Game.Espionage Espionage;
+        bool Uprising, CounteringEspionage;
 
         public InfiltrationOpsLevel3(InfiltrationScreen screen, Empire player, in Rectangle rect, int levelDescY, int passiveY, Font font)
             : base(rect)
@@ -25,9 +28,13 @@ namespace Ship_Game.GameScreens.EspionageNew
             PassiveTitle     = Add(new UILabel("Passive:", Font, Color.Wheat));
             ActiveTitle      = Add(new UILabel("Active:", Font, Color.Wheat));
             Passive          = Add(new UILabel(GameText.EspionageOpsProjectorsAlert, Font, Color.Gray));
+            UpriseBox        = Add(new UICheckBox(() => Uprising, Font, "Arrange Uprise", "Arrange Uprise"));
+            CounterBox       = Add(new UICheckBox(() => Uprising, Font, "Counter Espionage", "Counter Espionage"));
+            UpriseBox.OnChange  = ArrangeUprise;
+            CounterBox.OnChange = CounterEspionage;
+            UpriseBox.CheckedTextColor = CounterBox.CheckedTextColor = player.EmpireColor;
 
-            Passive.Tooltip  = GameText.EspionageOpsProjectorsAlert;
-            LevelDescription.Visible = false;
+            Passive.Tooltip   = GameText.EspionageOpsProjectorsAlert;
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
         }
@@ -40,16 +47,25 @@ namespace Ship_Game.GameScreens.EspionageNew
             LevelDescription.Text = description;
             PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
             Passive.Pos           = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
+            ActiveTitle.Pos       = new Vector2(Rect.X + 5, PassiveY + Font.LineSpacing + 2);
+            UpriseBox.Pos         = new Vector2(Rect.X + 75, ActiveTitle.Y);
+            CounterBox.Pos        = new Vector2(Rect.X + 75, ActiveTitle.Y + Font.LineSpacing + 2);
+
+            if (!Screen.SelectedEmpire.isPlayer)
+            {
+                Espionage     = Player.GetEspionage(Screen.SelectedEmpire);
+                Passive.Color = Espionage.Level >= Level ? Player.EmpireColor : Color.Gray;
+                UpriseBox.Enabled      = CounterBox.Enabled = Espionage.Level >= Level;
+                UpriseBox.TextColor    = CounterBox.TextColor = UpriseBox.Enabled ? Color.White : Color.Gray;
+                LevelDescription.Color = UpriseBox.Enabled  ? Player.EmpireColor : Color.Gray;
+                Uprising               = Espionage.IsMissionActive(InfiltrationMissionType.Uprise);
+                CounteringEspionage    = Espionage.IsMissionActive(InfiltrationMissionType.CounterEspionage);
+            }
         }
 
         public override void Update(float fixedDeltaTime)
         {
             base.Update(fixedDeltaTime);
-            if (Screen.SelectedEmpire.isPlayer)
-                return;
-
-            Ship_Game.Espionage espionage = Player.GetRelations(Screen.SelectedEmpire).Espionage;
-            LevelDescription.Visible = espionage.Level < 3;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -57,14 +73,20 @@ namespace Ship_Game.GameScreens.EspionageNew
             base.Draw(batch, elapsed);
         }
 
-        bool GetPlantMole()
+        void ArrangeUprise(UICheckBox b)
         {
-            return true;
+            if (Uprising)
+                Espionage.AddMission(InfiltrationMissionType.Uprise);
+            else
+                Espionage.RemoveMission(InfiltrationMissionType.Uprise);
         }
 
-        void SetPlantMole(bool value)
+        void CounterEspionage(UICheckBox b)
         {
-
+            if (CounteringEspionage)
+                Espionage.AddMission(InfiltrationMissionType.CounterEspionage);
+            else
+                Espionage.RemoveMission(InfiltrationMissionType.CounterEspionage);
         }
     }
 }

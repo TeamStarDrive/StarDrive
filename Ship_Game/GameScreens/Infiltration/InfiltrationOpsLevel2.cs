@@ -20,15 +20,6 @@ namespace Ship_Game.GameScreens.EspionageNew
         bool PlantingMole;
         Ship_Game.Espionage Espionage;
 
-        void PlantMole(UICheckBox b)
-        {
-            if (PlantingMole)
-                Espionage.AddMission(InfiltrationMissionType.PlantMole);
-            else
-                Espionage.RemoveMission(InfiltrationMissionType.PlantMole);
-        }
-
-
         public InfiltrationOpsLevel2(InfiltrationScreen screen, Empire player, in Rectangle rect, int levelDescY, int passiveY, Font font)
             : base(rect)
         {
@@ -60,28 +51,31 @@ namespace Ship_Game.GameScreens.EspionageNew
 
             if (!Screen.SelectedEmpire.isPlayer)
             {
-                Espionage = Player.GetEspionage(Screen.SelectedEmpire);
+                Espionage     = Player.GetEspionage(Screen.SelectedEmpire);
                 Passive.Color = Espionage.Level >= Level ? Player.EmpireColor : Color.Gray;
-                PlantMoleBox.Enabled = Espionage.Level >= Level;
+                PlantMoleBox.Enabled   = Espionage.Level >= Level;
                 PlantMoleBox.TextColor = PlantMoleBox.Enabled ? Color.White : Color.Gray;
-                PlantingMole = !Screen.SelectedEmpire.isPlayer && Player.GetEspionage(Screen.SelectedEmpire).IsPlantingMole;
+                LevelDescription.Color = PlantMoleBox.Enabled ? Player.EmpireColor : Color.Gray;
+                PlantingMole           = Espionage.IsMissionActive(InfiltrationMissionType.PlantMole);
             }
         }
 
         public override void Update(float fixedDeltaTime)
         {
             base.Update(fixedDeltaTime);
-            if (Screen.SelectedEmpire.isPlayer)
-                return;
-
-            //Ship_Game.Espionage espionage = Player.GetEspionage(Screen.SelectedEmpire);
-            //if (espionage.missio)
-            //LevelDescription.Visible = espionage.Level < 2;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             base.Draw(batch, elapsed);
+        }
+
+        void PlantMole(UICheckBox b)
+        {
+            if (PlantingMole)
+                Espionage.AddMission(InfiltrationMissionType.PlantMole);
+            else
+                Espionage.RemoveMission(InfiltrationMissionType.PlantMole);
         }
     }
 }

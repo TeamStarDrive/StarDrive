@@ -25,6 +25,7 @@ namespace Ship_Game.GameScreens.EspionageNew
         int InfiltrationProgress;
         int LevelCost;
         readonly int Level;
+        bool ShowProgress;
 
         public EspionageLevelPanel(InfiltrationScreen screen, Empire player, in Rectangle rect, int level)
             : base(rect)
@@ -45,7 +46,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             TitleFont = screen.LowRes ? Fonts.Arial12Bold : Fonts.Arial20Bold;
             Font      = screen.LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
             Font Textfont = screen.LowRes? Fonts.Arial8Bold: Fonts.Arial12;
-            int levelDescriptionY = rect.Y + 60;
+            int levelDescriptionY = rect.Y + 35;
             int passiveY = rect.Bottom - Font.LineSpacing*5;
             switch (level) 
             {
@@ -59,11 +60,11 @@ namespace Ship_Game.GameScreens.EspionageNew
         public override void PerformLayout()
         {
             base.PerformLayout();
-            Title.Pos        = new Vector2(HelperFunctions.GetMiddlePosForTitle(Title.Text.Text, TitleFont, Rect.Width, Rect.X), Rect.Y + 35);
+            Title.Pos        = new Vector2(HelperFunctions.GetMiddlePosForTitle(Title.Text.Text, TitleFont, Rect.Width, Rect.X), Rect.Y + 5);
             StatusLbl.Pos    = new Vector2(Rect.X + 5, Rect.Bottom - 20);
             Status.Pos       = new Vector2(Rect.X + 150, Rect.Bottom - 20);
-            AvailableOps.Pos = new Vector2(HelperFunctions.GetMiddlePosForTitle(AvailableOps.Text.Text, Font, Rect.Width, Rect.X), Rect.Bottom - Font.LineSpacing*6);
-            var levelRect    = new Rectangle(Rect.X + 5, Rect.Y + 5, Rect.Width - 10, 30);
+            AvailableOps.Pos = new Vector2(HelperFunctions.GetMiddlePosForTitle(AvailableOps.Text.Text, Font, Rect.Width, Rect.X), Rect.Bottom - Font.LineSpacing*6 - 4);
+            var levelRect    = new Rectangle(Rect.X + 5, Rect.Bottom - Font.LineSpacing * 7 - 15, Rect.Width - 10, 30);
 
             LevelProgress.SetRect(levelRect);
             RefreshEmpire();
@@ -77,7 +78,9 @@ namespace Ship_Game.GameScreens.EspionageNew
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             base.Draw(batch, elapsed);
-            LevelProgress.Draw(batch);
+            if (ShowProgress)
+                LevelProgress.Draw(batch);
+
             int line1Y = Rect.Bottom - Font.LineSpacing - 8;
             int line2Y = Rect.Bottom - Font.LineSpacing*6 - 8;
             batch.DrawLine(new Vector2(Rect.X, line1Y), new Vector2(Rect.X + Rect.Width, line1Y), Color.Black, 3);
@@ -118,6 +121,8 @@ namespace Ship_Game.GameScreens.EspionageNew
                 RefreshStatus(espionage);
                 LevelOps.PerformLayout();
             }
+
+            ShowProgress = espionage.Level < Level;
         }
 
         public void RefreshStatus(Ship_Game.Espionage espionage)
