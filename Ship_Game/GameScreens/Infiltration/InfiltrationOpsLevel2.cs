@@ -56,7 +56,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 PlantMoleBox.Enabled   = Espionage.Level >= Level;
                 PlantMoleBox.TextColor = PlantMoleBox.Enabled ? Color.White : Color.Gray;
                 LevelDescription.Color = PlantMoleBox.Enabled ? Player.EmpireColor : Color.Gray;
-                PlantingMole           = Espionage.IsMissionActive(InfiltrationMissionType.PlantMole);
+                PlantingMole           = Espionage.IsOperationActive(InfiltrationOpsType.PlantMole);
             }
         }
 
@@ -73,9 +73,9 @@ namespace Ship_Game.GameScreens.EspionageNew
         void PlantMole(UICheckBox b)
         {
             if (PlantingMole)
-                Espionage.AddMission(InfiltrationMissionType.PlantMole);
+                Espionage.AddOperation(InfiltrationOpsType.PlantMole);
             else
-                Espionage.RemoveMission(InfiltrationMissionType.PlantMole);
+                Espionage.RemoveOperation(InfiltrationOpsType.PlantMole);
         }
     }
 }

@@ -4,30 +4,30 @@ namespace Ship_Game
 {
 
     [StarDataType]
-    public class InfiltrationMissionPlantMole : InfiltrationMission
+    public class InfiltrationOpsUprise : InfiltrationOperation
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
         const float PercentOfLevelCost = 0.2f;
-        const int SuccessTargetNumber = 20; // need to get 20 and above in a roll of d100)
+        const int SuccessTargetNumber  = 20; // need to get 20 and above in a roll of d100)
         const float BaseRelationDamage = 10;
 
-        public InfiltrationMissionPlantMole(Empire owner, Empire them, int levelCost, byte level) :
-            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationMissionType.PlantMole)
+        public InfiltrationOpsUprise(Empire owner, Empire them, int levelCost, byte level) :
+            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.PlantMole)
         {
             Owner = owner;
             Them = them;
         }
 
-        public override void CompleteMission()
+        public override void CompleteOperation()
         {
-            InfiltrationMissionResolve aftermath = new InfiltrationMissionResolve(Owner, Them);
+            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber, Level);
             Espionage espionage = Owner.GetEspionage(Them);
             switch (result)
             {
-                case InfiltrationMissionResult.GreatSuccess:
-                case InfiltrationMissionResult.Success:
+                case InfiltrationOpsResult.GreatSuccess:
+                case InfiltrationOpsResult.Success:
                     SetProgress(Cost * 0.5f);
                     aftermath.GoodResult = true;
                     var mole = Mole.PlantMole(Owner, Them, out string planetName);
@@ -36,7 +36,7 @@ namespace Ship_Game
                     else
                         aftermath.CustomMessage = $"{Localizer.Token(GameText.NoColonyForInfiltration)} {Them.data.Traits.Name}";
 
-                    if (result == InfiltrationMissionResult.GreatSuccess)
+                    if (result == InfiltrationOpsResult.GreatSuccess)
                     {
                         SetProgress(Cost * 0.5f);
                         if (mole != null)
@@ -44,21 +44,21 @@ namespace Ship_Game
                     }
 
                     break;
-                case InfiltrationMissionResult.Fail:
+                case InfiltrationOpsResult.Fail:
                     aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrate)}";
                     break;
-                case InfiltrationMissionResult.MiserableFail:
+                case InfiltrationOpsResult.MiserableFail:
                     aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateMiserable)}";
                     espionage.ReduceInfiltrationLevel();
                     break;
-                case InfiltrationMissionResult.CriticalFail:
+                case InfiltrationOpsResult.CriticalFail:
                     aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateDetected)}";
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage);
                     aftermath.DamageReason = "Caught Spying";
                     espionage.ReduceInfiltrationLevel();
                     break;
-                case InfiltrationMissionResult.Disaster:
+                case InfiltrationOpsResult.Disaster:
                     aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateWipedOut)}";
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkInfiltration)}\n" +
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +

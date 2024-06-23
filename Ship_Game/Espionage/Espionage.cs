@@ -10,12 +10,13 @@ namespace Ship_Game
     public class Espionage
     {
         public const byte MaxLevel = 5;
+        public const float PercentMoneyLeech = 0.02f;
         [StarData] public byte Level;
         [StarData] readonly Empire Owner;
         [StarData] public readonly Empire Them;
         [StarData] public float LevelProgress { get; private set; }
         [StarData] int Weight;
-        [StarData] Array<InfiltrationMission> Missions = new();
+        [StarData] Array<InfiltrationOperation> Operations = new();
         [StarData] Mole StickyMole;
         [StarData] public float TotalMoneyLeeched { get; private set; }
 
@@ -54,7 +55,7 @@ namespace Ship_Game
         {
             Level = value.LowerBound(0);
             LevelProgress = 0;
-            RemoveMissions();
+            RemoveOperations();
             EnablePassiveEffects();
         }
 
@@ -70,9 +71,9 @@ namespace Ship_Game
 
         public void Update(float taxedResearch, int totalWeight)
         {
-            RemoveMissions();
+            RemoveOperations();
             float progressToIncrease = GetProgressToIncrease(taxedResearch, totalWeight);
-            UpdateMissions(Missions.Count > 0 ? progressToIncrease / Missions.Count : 0);
+            UpdateOperations(Operations.Count > 0 ? progressToIncrease / Operations.Count : 0);
 
             if (AtMaxLevel)
                 return;
@@ -82,13 +83,13 @@ namespace Ship_Game
                 IncreaseInfiltrationLevel();
         }
 
-        void RemoveMissions()
+        void RemoveOperations()
         {
-            for (int i = Missions.Count - 1; i >= 0; i--)
+            for (int i = Operations.Count - 1; i >= 0; i--)
             {
-                InfiltrationMission mission = Missions[i];
+                InfiltrationOperation mission = Operations[i];
                 if (mission.Level > Level)
-                    Missions.Remove(mission);
+                    Operations.Remove(mission);
             }
 
             if (!CanPlanetStickyMole && StickyMole != null)
@@ -98,11 +99,11 @@ namespace Ship_Game
             }
         }
 
-        void UpdateMissions(float progress)
+        void UpdateOperations(float progress)
         {
-            for (int i = 0; i < Missions.Count; i++)
+            for (int i = 0; i < Operations.Count; i++)
             {
-                InfiltrationMission mission = Missions[i];
+                InfiltrationOperation mission = Operations[i];
                 mission.Update(progress);
             }
         }
@@ -125,7 +126,7 @@ namespace Ship_Game
 
         public float GetProgressToIncrease(float taxedResearch, float totalWeight)
         {
-            float activeMissionRatio = Missions.Count > 0 ? 0.5f : 1;
+            float activeMissionRatio = Operations.Count > 0 ? 0.5f : 1;
             return taxedResearch
                    * (Weight / totalWeight.LowerBound(1))
                    * (Them.TotalPopBillion / Owner.TotalPopBillion.LowerBound(0.1f))
@@ -204,27 +205,27 @@ namespace Ship_Game
             return $"{theirInfiltrationLevel}";
         }
 
-        public void AddMission(InfiltrationMissionType type)
+        public void AddOperation(InfiltrationOpsType type)
         {
-            if (Missions.Any(m => m.Type == type))
+            if (Operations.Any(m => m.Type == type))
                 Log.Error($"Mission type {type} already exists for {Owner}");
 
             switch (type) 
             {
-                case InfiltrationMissionType.PlantMole: Missions.Add(new InfiltrationMissionPlantMole(Owner, Them, LevelCost(Level), Level)); break;
+                case InfiltrationOpsType.PlantMole: Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, LevelCost(Level), Level)); break;
             }
         }
 
-        public void RemoveMission(InfiltrationMissionType type) 
+        public void RemoveOperation(InfiltrationOpsType type) 
         {
-            for (int i = Missions.Count - 1; i >= 0; i--)
+            for (int i = Operations.Count - 1; i >= 0; i--)
             {
-                InfiltrationMission mission = Missions[i];
+                InfiltrationOperation mission = Operations[i];
                 if (mission.Type == type)
-                    Missions.Remove(mission);
+                    Operations.Remove(mission);
             }
         }
 
-        public bool IsMissionActive(InfiltrationMissionType type) => Missions.Any(m => m.Type == type);
+        public bool IsOperationActive(InfiltrationOpsType type) => Operations.Any(m => m.Type == type);
     }
 }

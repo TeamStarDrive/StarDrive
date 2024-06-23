@@ -5,14 +5,14 @@ using Ship_Game.Universe;
 namespace Ship_Game
 {
     [StarDataType]
-    public abstract class InfiltrationMission
+    public abstract class InfiltrationOperation
     {
         [StarData] public readonly int Cost;
         [StarData] public readonly byte Level;
-        [StarData] public readonly InfiltrationMissionType Type;
+        [StarData] public readonly InfiltrationOpsType Type;
         [StarData] public float Progress { get; private set; }
 
-        public InfiltrationMission(int cost, byte level, InfiltrationMissionType type)
+        public InfiltrationOperation(int cost, byte level, InfiltrationOpsType type)
         {
             Cost = cost;
             Level = level;
@@ -24,7 +24,7 @@ namespace Ship_Game
             Progress = value;
         }
 
-        public abstract void CompleteMission();
+        public abstract void CompleteOperation();
 
 
         public void Update(float progressToUdpate)
@@ -33,27 +33,27 @@ namespace Ship_Game
             if (Progress >= Cost)
             {
                 Progress = 0;
-                CompleteMission();
+                CompleteOperation();
             }
         }
 
-        protected InfiltrationMissionResult RollMissionResult(Empire owner, 
+        protected InfiltrationOpsResult RollMissionResult(Empire owner, 
             Empire them, int targetNumber, byte missionLevel)
         {
 
             int baseModifier = (owner.GetEspionage(them).Level - missionLevel).LowerBound(0);
             int baseResult   = owner.Random.RollDie(100) + baseModifier;
 
-            if (baseResult >= 99) return InfiltrationMissionResult.GreatSuccess;
-            if (baseResult <= 2)  return InfiltrationMissionResult.Disaster;
+            if (baseResult >= 99) return InfiltrationOpsResult.GreatSuccess;
+            if (baseResult <= 2)  return InfiltrationOpsResult.Disaster;
 
             int defense = (int)(them.EspionageDefenseRatio * 20);
             int modifiedResult = (int)(baseResult - defense + owner.data.OffensiveSpyBonus + owner.data.SpyModifier);
 
-            if (modifiedResult < targetNumber/10) return InfiltrationMissionResult.CriticalFail;
-            if (modifiedResult < targetNumber/5)  return InfiltrationMissionResult.MiserableFail;
-            if (modifiedResult < targetNumber)    return InfiltrationMissionResult.Fail;
-            else                                  return InfiltrationMissionResult.Success;
+            if (modifiedResult < targetNumber/10) return InfiltrationOpsResult.CriticalFail;
+            if (modifiedResult < targetNumber/5)  return InfiltrationOpsResult.MiserableFail;
+            if (modifiedResult < targetNumber)    return InfiltrationOpsResult.Fail;
+            else                                  return InfiltrationOpsResult.Success;
         }
 
         protected float CalcRelationDamage(float baseDamage, Espionage espionage, bool withLevelMultiplier = false)
@@ -65,7 +65,7 @@ namespace Ship_Game
             return baseDamage * espionage.Them.PersonalityModifiers.SpyDamageRelationsMultiplier * levelMultiplier;
         }
 
-        protected struct InfiltrationMissionResolve
+        protected struct InfiltrationOpsResolve
         {
             public bool GoodResult;
             public LocalizedText Message;
@@ -76,7 +76,7 @@ namespace Ship_Game
             private readonly Empire Us;
             private readonly Empire Victim;
 
-            public InfiltrationMissionResolve(Empire us, Empire victim)
+            public InfiltrationOpsResolve(Empire us, Empire victim)
             {
                 Us              = us;
                 Victim          = victim;
@@ -105,14 +105,14 @@ namespace Ship_Game
         }
     }
 
-    public enum InfiltrationMissionType
+    public enum InfiltrationOpsType
     {
         PlantMole,
         Uprise,
         CounterEspionage
     }
 
-    public enum InfiltrationMissionResult
+    public enum InfiltrationOpsResult
     {
         GreatSuccess,  // Natural 99 or 100
         Success,       // target reached

@@ -58,8 +58,8 @@ namespace Ship_Game.GameScreens.EspionageNew
                 UpriseBox.Enabled      = CounterBox.Enabled = Espionage.Level >= Level;
                 UpriseBox.TextColor    = CounterBox.TextColor = UpriseBox.Enabled ? Color.White : Color.Gray;
                 LevelDescription.Color = UpriseBox.Enabled  ? Player.EmpireColor : Color.Gray;
-                Uprising               = Espionage.IsMissionActive(InfiltrationMissionType.Uprise);
-                CounteringEspionage    = Espionage.IsMissionActive(InfiltrationMissionType.CounterEspionage);
+                Uprising               = Espionage.IsOperationActive(InfiltrationOpsType.Uprise);
+                CounteringEspionage    = Espionage.IsOperationActive(InfiltrationOpsType.CounterEspionage);
             }
         }
 
@@ -76,17 +76,17 @@ namespace Ship_Game.GameScreens.EspionageNew
         void ArrangeUprise(UICheckBox b)
         {
             if (Uprising)
-                Espionage.AddMission(InfiltrationMissionType.Uprise);
+                Espionage.AddOperation(InfiltrationOpsType.Uprise);
             else
-                Espionage.RemoveMission(InfiltrationMissionType.Uprise);
+                Espionage.RemoveOperation(InfiltrationOpsType.Uprise);
         }
 
         void CounterEspionage(UICheckBox b)
         {
             if (CounteringEspionage)
-                Espionage.AddMission(InfiltrationMissionType.CounterEspionage);
+                Espionage.AddOperation(InfiltrationOpsType.CounterEspionage);
             else
-                Espionage.RemoveMission(InfiltrationMissionType.CounterEspionage);
+                Espionage.RemoveOperation(InfiltrationOpsType.CounterEspionage);
         }
     }
 }
