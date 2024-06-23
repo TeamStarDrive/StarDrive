@@ -1,5 +1,6 @@
 ﻿using SDGraphics;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Ships;
 using Ship_Game.Universe;
 
 namespace Ship_Game
@@ -11,12 +12,15 @@ namespace Ship_Game
         [StarData] public readonly byte Level;
         [StarData] public readonly InfiltrationOpsType Type;
         [StarData] public float Progress { get; private set; }
+        [StarData] readonly int RampUpTurns;
+        [StarData] int RampUpTimer;
 
-        public InfiltrationOperation(int cost, byte level, InfiltrationOpsType type)
+        public InfiltrationOperation(int cost, byte level, InfiltrationOpsType type, int rampUpTurns, Empire owner)
         {
             Cost = cost;
             Level = level;
             Type = type;
+            RampUpTimer = RampUpTurns = (int)(rampUpTurns * owner.Universe.SettingsResearchModifier * owner.Universe.P.Pace);
         }
 
         public void SetProgress(float value)
@@ -29,13 +33,23 @@ namespace Ship_Game
 
         public void Update(float progressToUdpate)
         {
-            Progress += progressToUdpate;
-            if (Progress >= Cost)
+            if (IsRampingUp)
+                RampUpTimer = (RampUpTimer - 1).LowerBound(0);
+            else
             {
-                Progress = 0;
-                CompleteOperation();
+                Progress += progressToUdpate;
+                if (Progress >= Cost)
+                {
+                    Progress = 0;
+                    CompleteOperation();
+                    RampUpTimer = RampUpTurns;
+                }
             }
         }
+
+        public bool IsRampingUp => RampUpTimer > 0;
+
+        public bool Active => RampUpTimer == 0;
 
         protected InfiltrationOpsResult RollMissionResult(Empire owner, 
             Empire them, int targetNumber, byte missionLevel)
@@ -44,12 +58,13 @@ namespace Ship_Game
             int baseModifier = (owner.GetEspionage(them).Level - missionLevel).LowerBound(0);
             int baseResult   = owner.Random.RollDie(100) + baseModifier;
 
-            if (baseResult >= 99) return InfiltrationOpsResult.GreatSuccess;
+            if (baseResult >= 99) return InfiltrationOpsResult.Phenomenal;
             if (baseResult <= 2)  return InfiltrationOpsResult.Disaster;
 
             int defense = (int)(them.EspionageDefenseRatio * 20);
             int modifiedResult = (int)(baseResult - defense + owner.data.OffensiveSpyBonus + owner.data.SpyModifier);
 
+            if (modifiedResult >= targetNumber*2) return InfiltrationOpsResult.GreatSuccess;
             if (modifiedResult < targetNumber/10) return InfiltrationOpsResult.CriticalFail;
             if (modifiedResult < targetNumber/5)  return InfiltrationOpsResult.MiserableFail;
             if (modifiedResult < targetNumber)    return InfiltrationOpsResult.Fail;
@@ -114,7 +129,8 @@ namespace Ship_Game
 
     public enum InfiltrationOpsResult
     {
-        GreatSuccess,  // Natural 99 or 100
+        Phenomenal,    // Natural 99 or 100
+        GreatSuccess,  // target * 2
         Success,       // target reached
         Fail,          // below target
         MiserableFail, // 0.2 of target

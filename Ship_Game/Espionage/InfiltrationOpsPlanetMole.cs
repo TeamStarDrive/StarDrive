@@ -11,9 +11,10 @@ namespace Ship_Game
         const float PercentOfLevelCost = 0.2f;
         const int SuccessTargetNumber = 20; // need to get 20 and above in a roll of d100)
         const float BaseRelationDamage = 10;
+        const int BaseRampUpTurns = 20;
 
         public InfiltrationOpsPlantMole(Empire owner, Empire them, int levelCost, byte level) :
-            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.PlantMole)
+            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.PlantMole, BaseRampUpTurns, owner)
         {
             Owner = owner;
             Them = them;
@@ -26,9 +27,8 @@ namespace Ship_Game
             Espionage espionage = Owner.GetEspionage(Them);
             switch (result)
             {
-                case InfiltrationOpsResult.GreatSuccess:
+                case InfiltrationOpsResult.Phenomenal:
                 case InfiltrationOpsResult.Success:
-                    SetProgress(Cost * 0.5f);
                     aftermath.GoodResult = true;
                     var mole = Mole.PlantMole(Owner, Them, out string planetName);
                     if (mole != null)
@@ -36,9 +36,9 @@ namespace Ship_Game
                     else
                         aftermath.CustomMessage = $"{Localizer.Token(GameText.NoColonyForInfiltration)} {Them.data.Traits.Name}";
 
-                    if (result == InfiltrationOpsResult.GreatSuccess)
+                    if (result is InfiltrationOpsResult.Phenomenal or InfiltrationOpsResult.GreatSuccess)
                     {
-                        SetProgress(Cost * 0.5f);
+                        SetProgress(Cost * (result is InfiltrationOpsResult.Phenomenal ? 0.5f : 0.25f));
                         if (mole != null)
                             aftermath.CustomMessage = $"{aftermath.CustomMessage}\n{Localizer.Token(GameText.WeMadeInfiltrationProgress)}";
                     }

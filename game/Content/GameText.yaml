@@ -15154,7 +15154,7 @@ NoColonyForInfiltration:
  ENG: "We could not find a new colony to infiltrate for "  
 WeMadeInfiltrationProgress:
  Id: 6247
- ENG: "We have made good progrees for the next infiltration operation."   
+ ENG: "We have made good progress for the next infiltration operation."   
 NewWasUnableToInfiltrate:
  Id: 6248
  ENG: "Our agents were unable to infiltrate a colony there. They were not detected."    
@@ -15173,9 +15173,9 @@ NewWipedOutNetworkInfiltration:
 TheirInfiltrationLevelWas:
  Id: 6253
  ENG: "Their Infiltration Level was"        
-LeechedTech:
- Id: 6253
- ENG: "We have leeched 10% from tech they have\njust researched: "         
+NotifyLeechedTech:
+ Id: 6254
+ ENG: "We have leeched 10% from a tech they have\njust researched: "         
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

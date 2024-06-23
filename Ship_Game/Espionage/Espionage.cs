@@ -152,7 +152,7 @@ namespace Ship_Game
             // 3 - 200
             // 4 - 400
             // 5 - 800
-            return level == 0 ? 0 : (int)(50 * Math.Pow(2, level-1) * Owner.Universe.SettingsResearchModifier);
+            return level == 0 ? 0 : (int)(50 * Math.Pow(2, level-1) * Owner.Universe.SettingsResearchModifier * Owner.Universe.P.Pace);
         }
 
         public void AddLeechedMoney(float money)

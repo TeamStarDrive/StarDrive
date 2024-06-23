@@ -5379,7 +5379,7 @@ namespace Ship_Game
         NewSuccessfullyInfiltratedAColony = 6245,
         /// <summary>We could not find a new colony to infiltrate for</summary>
         NoColonyForInfiltration = 6246,
-        /// <summary>We could not find a new colony to infiltrate for</summary>
+        /// <summary>We have made good progress for the next infiltration operation</summary>
         WeMadeInfiltrationProgress = 6247,
         /// <summary>Our Agents were unable to infiltrate a colony there.</summary>
         NewWasUnableToInfiltrate = 6248,
