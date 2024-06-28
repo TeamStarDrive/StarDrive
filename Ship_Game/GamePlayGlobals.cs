@@ -96,7 +96,6 @@ public class GamePlayGlobals
     // setting this to true means upkeep depends on number of hull design slots
     [StarData] public bool UseUpkeepByHullSize;
     [StarData] public bool EnableRandomizedAIFleetSizes;
-    [StarData(DefaultValue=true)] public bool UseLegacyEspionage;
 
     // visual modifiers
     [StarData] public float SpaceportScale = 0.5f;

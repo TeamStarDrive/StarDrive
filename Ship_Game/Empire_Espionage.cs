@@ -44,5 +44,36 @@ namespace Ship_Game
         }
 
         public Espionage GetEspionage(Empire targetEmpire) => GetRelations(targetEmpire).Espionage;
+
+        public void AddRebellion(Planet targetPlanet, int numTroops)
+        {
+            Empire rebels = null;
+            if (!data.RebellionLaunched)
+                rebels = Universe.CreateRebelsFromEmpireData(data, this);
+
+            if (rebels == null)
+                rebels = Universe.GetEmpireByName(data.RebelName);
+
+            for (int i = 0; i < numTroops; i++)
+            {
+                foreach (string troopType in ResourceManager.TroopTypes)
+                {
+                    if (WeCanBuildTroop(troopType) && ResourceManager.TryCreateTroop(troopType, rebels, out Troop t))
+                    {
+
+                        t.Name = rebels.data.TroopName.Text;
+                        t.Description = rebels.data.TroopDescription.Text;
+                        if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 &&
+                            !targetPlanet.BumpOutTroop(Universe.Corsairs) &&
+                            !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
+                        {
+                            t.Launch(targetPlanet); // launch the rebels
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

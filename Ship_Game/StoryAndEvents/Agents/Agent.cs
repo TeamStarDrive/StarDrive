@@ -366,14 +366,14 @@ namespace Ship_Game
                 case SpyMissionStatus.GreatSuccess:
                     aftermath.GoodResult = true;
                     Rebellions++;
-                    AddRebellion(victim, targetPlanet, (int)(Level * 1.5));
+                    victim.AddRebellion(targetPlanet, (int)(Level * 1.5));
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentHasIncited)} {targetPlanet.Name}";
                     aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.IncitedASeriousRebellionOn)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                     break;
                 case SpyMissionStatus.Success:
                     aftermath.GoodResult = true;
                     Rebellions++;
-                    AddRebellion(victim, targetPlanet, Level);
+                    victim.AddRebellion(targetPlanet, Level);
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentHasIncited)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.IncitedASeriousRebellionOn)} {targetPlanet.Name} {Localizer.Token(GameText.NhoweverTheyKnowWeAre)}";
                     aftermath.RelationDamage  = 25;
@@ -534,37 +534,6 @@ namespace Ship_Game
             if (targetAgent.Mission == AgentMission.Undercover)
             {
                 us.data.MoleList.RemoveFirst(m => m.PlanetId == targetAgent.TargetPlanetId);
-            }
-        }
-
-        void AddRebellion(Empire victim, Planet targetPlanet, int numTroops)
-        {
-            Empire rebels = null;
-            if (!victim.data.RebellionLaunched)
-                rebels = victim.Universe.CreateRebelsFromEmpireData(victim.data, victim);
-
-            if (rebels == null) 
-                rebels = victim.Universe.GetEmpireByName(victim.data.RebelName);
-
-            for (int i = 0; i < numTroops; i++)
-            {
-                foreach (string troopType in ResourceManager.TroopTypes)
-                {
-                    if (!victim.WeCanBuildTroop(troopType))
-                        continue;
-                    if (!ResourceManager.TryCreateTroop(troopType, rebels, out Troop t))
-                        continue;
-                    t.Name        = rebels.data.TroopName.Text;
-                    t.Description = rebels.data.TroopDescription.Text;
-                    if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 &&
-                        !targetPlanet.BumpOutTroop(victim.Universe.Corsairs) &&
-                        !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
-                    {
-                        t.Launch(targetPlanet); // launch the rebels
-                    }
-
-                    break;
-                }
             }
         }
 

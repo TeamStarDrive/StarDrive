@@ -15166,7 +15166,7 @@ NewWasUnableToInfiltrateDetected:
  ENG: "One of our agents was caught when trying to infiltrae a colony there.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."     
 NewWasUnableToInfiltrateWipedOut:
  Id: 6251
- ENG: "Our Agent was caught when trying to infiltrae a colony there.\nOur entire spy network was exposed and wiped out!"      
+ ENG: "Our Agent was caught when trying to infiltrate a colony there.\nOur entire spy network was exposed and wiped out!"      
 NewWipedOutNetworkInfiltration:
  Id: 6252
  ENG: "We uncovered and wiped out a spy network when one\nof their agents was trying to infiltrate one our colonies."       
@@ -15176,6 +15176,42 @@ TheirInfiltrationLevelWas:
 NotifyLeechedTech:
  Id: 6254
  ENG: "We have leeched 10% from a tech they have\njust researched: "         
+WeIncitedUprise: 
+ Id: 6255
+ ENG: "We have incited an uprise on"         
+IncitedUpriseOn: 
+ Id: 6256
+ ENG: "An uprise was incited on"          
+NewFailedToInciteUprise:
+ Id: 6257
+ ENG: "Our agents have failed setting up an uprise on their colonies."       
+NewFailedToInciteUpriseMiserable:
+ Id: 6258
+ ENG: "Our agents have miserably failed setting up an uprise on their colonies.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."      
+NewFailedToInciteUpriseDetected:
+ Id: 6259
+ ENG: "One of our agents was caught when trying to incide an uprise.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."      
+FailedToInciteUpriseWipedOut:
+ Id: 6260
+ ENG: "Our Agents were caught when trying to incide uprise.\nOur entire spy network was exposed and wiped out!"       
+NewWipedOutNetworkUprise:
+ Id: 6261
+ ENG: "We uncovered and wiped out a spy network when its\nagents were incite uprise in one our colonies."        
+PlantAgentTip:
+ Id: 6262
+ ENG: "Plant an Agent in one of their colonies. We will be able to view their colony sensor range and have access to their colony screen."         
+Active:
+ Id: 6263
+ ENG: "Active:"          
+Passive:
+ Id: 6264
+ ENG: "Passive:"           
+ArrangeUprise:
+ Id: 6265
+ ENG: "Arrange Uprise"            
+ArrangeUpriseTip:
+ Id: 6266
+ ENG: "Send some Agents to arrange an uprise in one of the smaller population worlds. If successful, rebels will try to take the planet."             
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

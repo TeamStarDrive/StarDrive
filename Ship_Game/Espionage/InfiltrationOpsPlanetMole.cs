@@ -28,6 +28,7 @@ namespace Ship_Game
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
+                case InfiltrationOpsResult.GreatSuccess:
                 case InfiltrationOpsResult.Success:
                     aftermath.GoodResult = true;
                     var mole = Mole.PlantMole(Owner, Them, out string planetName);
@@ -55,8 +56,8 @@ namespace Ship_Game
                     aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateDetected)}";
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage);
-                    aftermath.DamageReason = "Caught Spying";
                     espionage.ReduceInfiltrationLevel();
+                    aftermath.DamageReason = "Caught Spying";
                     break;
                 case InfiltrationOpsResult.Disaster:
                     aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateWipedOut)}";

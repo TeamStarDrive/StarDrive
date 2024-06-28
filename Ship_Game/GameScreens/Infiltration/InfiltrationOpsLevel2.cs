@@ -27,10 +27,10 @@ namespace Ship_Game.GameScreens.EspionageNew
             Player = player;
             Font   = font;
             LevelDescription  = Add(new UILabel("", Font, Color.Wheat));
-            PassiveTitle      = Add(new UILabel("Passive:", Font, Color.Wheat));
-            ActiveTitle       = Add(new UILabel("Active:", Font, Color.Wheat));
+            PassiveTitle      = Add(new UILabel(GameText.Passive, Font, Color.Wheat));
+            ActiveTitle       = Add(new UILabel(GameText.Active, Font, Color.Wheat));
             Passive           = Add(new UILabel(GameText.EspionageOpsProjectorsAlert, Font, Color.Gray));
-            PlantMoleBox      = Add(new UICheckBox(() => PlantingMole, Font, "Plant Mole", "Plant Mole"));
+            PlantMoleBox      = Add(new UICheckBox(() => PlantingMole, Font, GameText.PlantAgent, GameText.PlantAgentTip));
             PlantMoleBox.OnChange = PlantMole;
             PlantMoleBox.CheckedTextColor = player.EmpireColor;
             Passive.Tooltip   = GameText.EspionageOpsProjectorsAlertTip;

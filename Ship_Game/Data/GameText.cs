@@ -5395,6 +5395,30 @@ namespace Ship_Game
         TheirInfiltrationLevelWas = 6253,
         /// <summary>We have leeched 10% from a tech they have</summary>
         NotifyLeechedTech = 6254,
+        /// <summary>We have incited an uprise on</summary>
+        WeIncitedUprise = 6255,
+        /// <summary>An uprise was incited on</summary>
+        IncitedUpriseOn = 6256,
+        /// <summary>Our agents have failed setting up an uprise</summary>
+        NewFailedToInciteUprise = 6257,
+        /// <summary>Our agents have miserably failed setting up an uprise</summary>
+        NewFailedToInciteUpriseMiserable = 6258,
+        /// <summary>One of our agents was caught when trying to incide an uprise.</summary>
+        NewFailedToInciteUpriseDetected = 6259,
+        /// <summary>Our Agents were caught when trying to incide uprise.</summary>
+        FailedToInciteUpriseWipedOut = 6260,
+        /// <summary>We uncovered and wiped out a spy network</summary>
+        NewWipedOutNetworkUprise = 6261,
+        /// <summary>Plant an Agent in one of their colonies.</summary>
+        PlantAgentTip = 6262,
+        /// <summary>Active:</summary>
+        Active = 6263,
+        /// <summary>Passive:</summary>
+        Passive = 6264,
+        /// <summary>Arrange Uprise</summary>
+        ArrangeUprise = 6265,
+        /// <summary>Send some Agents to arrange an uprise</summary>
+        ArrangeUpriseTip = 6266,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

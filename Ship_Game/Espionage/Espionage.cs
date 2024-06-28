@@ -210,9 +210,11 @@ namespace Ship_Game
             if (Operations.Any(m => m.Type == type))
                 Log.Error($"Mission type {type} already exists for {Owner}");
 
+            int levelCost = LevelCost(Level);
             switch (type) 
             {
-                case InfiltrationOpsType.PlantMole: Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, LevelCost(Level), Level)); break;
+                case InfiltrationOpsType.PlantMole: Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost, Level)); break;
+                case InfiltrationOpsType.Uprise:    Operations.Add(new InfiltrationOpsUprise(Owner, Them, levelCost, Level));    break;
             }
         }
 

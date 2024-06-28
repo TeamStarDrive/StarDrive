@@ -98,7 +98,6 @@ public class UniverseParams
         ShipMaintenanceMultiplier = s.ShipMaintenanceMultiplier;
         AIUsesPlayerDesigns = s.AIUsesPlayerDesigns;
         UseUpkeepByHullSize = s.UseUpkeepByHullSize;
-        UseLegacyEspionage = s.UseLegacyEspionage;
         StartingPlanetRichnessBonus = s.StartingPlanetRichnessBonus;
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;

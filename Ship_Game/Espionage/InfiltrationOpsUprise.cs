@@ -1,4 +1,6 @@
-﻿using Ship_Game.Data.Serialization;
+﻿using Microsoft.Xna.Framework;
+using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
@@ -25,42 +27,41 @@ namespace Ship_Game
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber, Level);
             Espionage espionage = Owner.GetEspionage(Them);
+            var potentials      = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
+            Planet targetPlanet = Them.Random.Item(potentials);
+            bool addRebellion   = false;
+            int numRebels       = 5;
+
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
+                    aftermath.GoodResult = addRebellion = true;
+                    numRebels += 7;
+                    break;
+                case InfiltrationOpsResult.GreatSuccess:
+                    aftermath.GoodResult = addRebellion = true;
+                    numRebels += 3;
+                    break;
                 case InfiltrationOpsResult.Success:
-                    aftermath.GoodResult = true;
-                    var mole = Mole.PlantMole(Owner, Them, out string planetName);
-                    if (mole != null)
-                        aftermath.CustomMessage = $"{Localizer.Token(GameText.NewSuccessfullyInfiltratedAColony)} {planetName}.";
-                    else
-                        aftermath.CustomMessage = $"{Localizer.Token(GameText.NoColonyForInfiltration)} {Them.data.Traits.Name}";
-
-                    if (result == InfiltrationOpsResult.Phenomenal)
-                    {
-                        SetProgress(Cost * 0.5f);
-                        if (mole != null)
-                            aftermath.CustomMessage = $"{aftermath.CustomMessage}\n{Localizer.Token(GameText.WeMadeInfiltrationProgress)}";
-                    }
-
+                    aftermath.GoodResult = addRebellion = true;
                     break;
                 case InfiltrationOpsResult.Fail:
-                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrate)}";
+                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewFailedToInciteUprise)}";
                     break;
                 case InfiltrationOpsResult.MiserableFail:
-                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateMiserable)}";
+                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewFailedToInciteUpriseMiserable)}";
                     espionage.ReduceInfiltrationLevel();
                     break;
                 case InfiltrationOpsResult.CriticalFail:
-                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateDetected)}";
+                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewFailedToInciteUpriseDetected)}";
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage);
-                    aftermath.DamageReason = "Caught Spying";
                     espionage.ReduceInfiltrationLevel();
+                    aftermath.DamageReason = "Caught Spying";
                     break;
                 case InfiltrationOpsResult.Disaster:
-                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateWipedOut)}";
-                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkInfiltration)}\n" +
+                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.FailedToInciteUpriseWipedOut)}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkUprise)}\n" +
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +
                                                 $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {espionage.Level}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage, withLevelMultiplier: true);
@@ -69,6 +70,12 @@ namespace Ship_Game
                     break;
             }
 
+            if (addRebellion)
+            {
+                aftermath.MessageToVictim = $"{Localizer.Token(GameText.IncitedUpriseOn)} {targetPlanet.Name}";
+                aftermath.CustomMessage = $"{Localizer.Token(GameText.WeIncitedUprise)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
+                Them.AddRebellion(targetPlanet, numRebels);
+            }
             aftermath.SendNotifications(Owner.Universe);
         }
     }
