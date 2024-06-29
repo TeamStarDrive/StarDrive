@@ -5419,6 +5419,8 @@ namespace Ship_Game
         ArrangeUprise = 6265,
         /// <summary>Send some Agents to arrange an uprise</summary>
         ArrangeUpriseTip = 6266,
+        /// <summary>Our Counter Espionage effort against them did not</summary>
+        CounterEspioangeOpsFailed = 6267,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

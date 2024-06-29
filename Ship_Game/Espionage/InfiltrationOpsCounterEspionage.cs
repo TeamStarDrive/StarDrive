@@ -1,21 +1,22 @@
 ﻿using Microsoft.Xna.Framework;
 using SDUtils;
 using Ship_Game.Data.Serialization;
+using System.Linq;
 
 namespace Ship_Game
 {
 
     [StarDataType]
-    public class InfiltrationOpsUprise : InfiltrationOperation
+    public class InfiltrationOpsCounterEspionage : InfiltrationOperation
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
         const float PercentOfLevelCost = 0.2f;
-        const int SuccessTargetNumber  = 40; // need to get 40 and above in a roll of d100)
+        const int SuccessTargetNumber = 40; // need to get 40 and above in a roll of d100)
         const float BaseRelationDamage = 10;
-        const int BaseRampUpTurns = 30;
+        const int BaseRampUpTurns = 20;
 
-        public InfiltrationOpsUprise(Empire owner, Empire them, int levelCost, byte level) :
+        public InfiltrationOpsCounterEspionage(Empire owner, Empire them, int levelCost, byte level) :
             base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.PlantMole, BaseRampUpTurns, owner)
         {
             Owner = owner;
@@ -27,26 +28,29 @@ namespace Ship_Game
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber, Level);
             Espionage espionage = Owner.GetEspionage(Them);
-            var potentials      = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
-            Planet targetPlanet = Them.Random.Item(potentials);
-            bool addRebellion   = false;
-            int numRebels       = 5;
+            Espionage theirEspionage = Them.GetEspionage(Owner);
+            var potentialMoles = Them.data.MoleList.Filter(m => !m.Sticky && Owner.GetPlanets().Any(p => p.Id == m.PlanetId));
 
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    aftermath.GoodResult = addRebellion = true;
-                    numRebels += 7;
+                    if (theirEspionage.Level > 0)
+                        theirEspionage.WipeoutInfiltration();
+                    else if (potentialMoles.Length > 0)
+                        Them.RemoveMole(Them.Random.Item(potentialMoles));
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    aftermath.GoodResult = addRebellion = true;
-                    numRebels += 3;
+                    if (theirEspionage.Level > 0)
+                        theirEspionage.ReduceInfiltrationLevel();
+                    else if (potentialMoles.Length > 0)
+                        Them.RemoveMole(Them.Random.Item(potentialMoles));
                     break;
                 case InfiltrationOpsResult.Success:
-                    aftermath.GoodResult = addRebellion = true;
+                    if (potentialMoles.Length > 0)
+                        Them.RemoveMole(Them.Random.Item(potentialMoles));
                     break;
                 case InfiltrationOpsResult.Fail:
-                    aftermath.Message = GameText.NewFailedToInciteUprise;
+                    aftermath.Message = Localizer.Token(GameText.CounterEspioangeOpsFailed);
                     break;
                 case InfiltrationOpsResult.MiserableFail:
                     aftermath.Message = GameText.NewFailedToInciteUpriseMiserable;
@@ -70,12 +74,6 @@ namespace Ship_Game
                     break;
             }
 
-            if (addRebellion)
-            {
-                aftermath.MessageToVictim = $"{Localizer.Token(GameText.IncitedUpriseOn)} {targetPlanet.Name}";
-                aftermath.CustomMessage = $"{Localizer.Token(GameText.WeIncitedUprise)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
-                Them.AddRebellion(targetPlanet, numRebels);
-            }
             aftermath.SendNotifications(Owner.Universe);
         }
     }

@@ -115,11 +115,11 @@ namespace Ship_Game
 
             if (CanPlanetStickyMole && StickyMole == null)
             {
-                StickyMole = Mole.PlantStickyMoleAtHomeworld(Owner, Them, out string targetPlanetName);
+                StickyMole = Mole.PlantStickyMoleAtHomeworld(Owner, Them, out Planet targetPlanet);
                 if (StickyMole != null)
                 {
-                    string message = $"{Localizer.Token(GameText.NewSuccessfullyInfiltratedAColony)} {targetPlanetName}";
-                    Owner.Universe.Notifications.AddAgentResult(true, message, Owner);
+                    string message = $"{Localizer.Token(GameText.NewSuccessfullyInfiltratedAColony)} {targetPlanet.Name}";
+                    Owner.Universe.Notifications.AddAgentResult(true, message, Owner, targetPlanet);
                 }
             }
         }
@@ -213,8 +213,9 @@ namespace Ship_Game
             int levelCost = LevelCost(Level);
             switch (type) 
             {
-                case InfiltrationOpsType.PlantMole: Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost, Level)); break;
-                case InfiltrationOpsType.Uprise:    Operations.Add(new InfiltrationOpsUprise(Owner, Them, levelCost, Level));    break;
+                case InfiltrationOpsType.PlantMole:        Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost, Level));        break;
+                case InfiltrationOpsType.Uprise:           Operations.Add(new InfiltrationOpsUprise(Owner, Them, levelCost, Level));           break;
+                case InfiltrationOpsType.CounterEspionage: Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
             }
         }
 

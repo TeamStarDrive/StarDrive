@@ -10,9 +10,9 @@ namespace Ship_Game
         [StarData] public int PlanetId;
         [StarData] public bool Sticky { get; set; } // cannot be removed with counter espionage in new espionage system
 
-        public static Mole PlantMole(Empire owner, Empire target, out string targetPlanetName)
+        public static Mole PlantMole(Empire owner, Empire target, out Planet targetPlanet)
         {
-            targetPlanetName = "";
+            targetPlanet = null;
             if (target.IsDefeated) 
                 return null;
 
@@ -23,7 +23,6 @@ namespace Ship_Game
                 potentials = target.GetPlanets().ToArray();
 
             Planet targetplanet = target.Random.Item(potentials);
-            targetPlanetName    = targetplanet.Name;
             Mole mole = new()
             {
                 PlanetId = targetplanet.Id,
@@ -33,16 +32,14 @@ namespace Ship_Game
             return mole;
         }
 
-        public static Mole PlantStickyMoleAtHomeworld(Empire owner, Empire target, out string targetPlanetName)
+        public static Mole PlantStickyMoleAtHomeworld(Empire owner, Empire target, out Planet targetPlanet)
         {
-            targetPlanetName = "";
-            Planet targetPlanet = null;
+            targetPlanet = null;
             var planets = target.GetPlanets().Filter(p => p.IsHomeworld || p.HasCapital);
 
             targetPlanet = planets.Length == 0 ? target.GetPlanets().FindMax(p => p.PopulationBillion)
                                                 : target.Random.Item(planets);
 
-            targetPlanetName = targetPlanet.Name;
             Mole mole = new()
             {
                 PlanetId = targetPlanet.Id, Sticky = true,  

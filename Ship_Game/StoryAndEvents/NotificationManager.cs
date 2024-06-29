@@ -71,16 +71,19 @@ namespace Ship_Game
                 NotificationList.Add(notify);
         }
 
-        public void AddAgentResult(bool good, string result, Empire owner)
+        public void AddAgentResult(bool good, string result, Empire owner, Planet planet = null)
         {
             if (!owner.isPlayer || owner.data.SpyMute)
                 return;
 
             AddNotification(new Notification
             {
-                Message = result,
-                IconPath = good ? "NewUI/icon_spy_notification" : "NewUI/icon_spy_notification_bad"
-            }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02");
+                Message         = result,
+                SymbolPath      = good ? "NewUI/icon_spy_notification" : "NewUI/icon_spy_notification_bad",
+                ReferencedItem1 = planet,
+                IconPath        = planet?.IconPath ?? null,
+                Action          = planet != null ? "SnapToPlanet" : "",
+            }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02"); 
         }
 
         public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader, float strRatio)
@@ -969,6 +972,11 @@ namespace Ship_Game
                 {
                     var flag = n.RelevantEmpire.data.Traits.FlagIndex;
                     batch.Draw(ResourceManager.Flag(flag), n.ClickRect, n.RelevantEmpire.EmpireColor);
+                }
+                else if (n.SymbolPath != null)
+                {
+                    var flag = n.RelevantEmpire.data.Traits.FlagIndex;
+                    batch.Draw(ResourceManager.Texture(n.SymbolPath), n.ClickRect, Color.White);
                 }
                 if (n.ShowMessage)
                 {

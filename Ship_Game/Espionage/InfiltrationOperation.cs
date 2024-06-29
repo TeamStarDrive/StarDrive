@@ -88,14 +88,16 @@ namespace Ship_Game
             public string CustomMessage;
             public float RelationDamage;
             public string DamageReason;
-            private readonly Empire Us;
-            private readonly Empire Victim;
+            public bool MessageUseTheirName = true;
+            public Planet Planet;
+            readonly Empire Us;
+            readonly Empire Victim;
+            
 
             public InfiltrationOpsResolve(Empire us, Empire victim)
             {
                 Us              = us;
                 Victim          = victim;
-                GoodResult      = false;
                 Message         = LocalizedText.None;
                 RelationDamage  = 0;
                 MessageToVictim = "";
@@ -106,13 +108,16 @@ namespace Ship_Game
             public void SendNotifications(UniverseState u)
             {
                 if (Message.IsEmpty) // default message
-                    u.Notifications.AddAgentResult(GoodResult, $"{Message.Text}", Us);
+                {
+                    string message = MessageUseTheirName ? $"{Victim.data.Traits.Name}: {Message.Text}" : Message.Text;
+                    u.Notifications.AddAgentResult(GoodResult, message, Us, Planet);
+                }
 
                 if (CustomMessage.NotEmpty())
-                    u.Notifications.AddAgentResult(GoodResult, CustomMessage, Us);
+                    u.Notifications.AddAgentResult(GoodResult, CustomMessage, Us, Planet);
 
                 if (MessageToVictim.NotEmpty())
-                    u.Notifications.AddAgentResult(!GoodResult, MessageToVictim, Victim);
+                    u.Notifications.AddAgentResult(!GoodResult, MessageToVictim, Victim, Planet);
 
                 if (RelationDamage > 0 && DamageReason.NotEmpty())
                     Victim.GetRelations(Us).DamageRelationship(Victim, Us, DamageReason, RelationDamage, null);

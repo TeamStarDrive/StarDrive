@@ -2661,7 +2661,7 @@ namespace Ship_Game
                 Mole mole = data.MoleList[i];
                 if (mole.PlanetId == plantId)
                 {
-                    data.MoleList.Remove(mole);
+                    RemoveMole(mole);
                     if (Universe.P.UseLegacyEspionage)
                     {
                         Agent agent = data.AgentList.Find(a => a.TargetPlanetId == plantId);
@@ -2669,6 +2669,11 @@ namespace Ship_Game
                     }
                 }
             }
+        }
+
+        public void RemoveMole(Mole m)
+        {
+            data.MoleList.Remove(m);
         }
 
         // For Testing only!

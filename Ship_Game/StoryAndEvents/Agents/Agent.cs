@@ -519,10 +519,11 @@ namespace Ship_Game
 
         bool InfiltratePlanet(Empire us, Empire victim, out string planetName)
         {
-            Mole m = Mole.PlantMole(us, victim, out planetName);
+            Mole m = Mole.PlantMole(us, victim, out Planet planet);
             if (m != null)
                 TargetPlanetId = m.PlanetId;
 
+            planetName = planet?.Name ?? "";
             return m != null;
         }
 

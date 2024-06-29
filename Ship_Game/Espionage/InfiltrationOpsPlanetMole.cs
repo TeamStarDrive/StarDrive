@@ -31,11 +31,10 @@ namespace Ship_Game
                 case InfiltrationOpsResult.GreatSuccess:
                 case InfiltrationOpsResult.Success:
                     aftermath.GoodResult = true;
-                    var mole = Mole.PlantMole(Owner, Them, out string planetName);
-                    if (mole != null)
-                        aftermath.CustomMessage = $"{Localizer.Token(GameText.NewSuccessfullyInfiltratedAColony)} {planetName}.";
-                    else
-                        aftermath.CustomMessage = $"{Localizer.Token(GameText.NoColonyForInfiltration)} {Them.data.Traits.Name}";
+                    var mole = Mole.PlantMole(Owner, Them, out Planet planet);
+                    aftermath.Planet = planet; // Planet will not be nul if mole is not null
+                    aftermath.CustomMessage = mole != null ? $"{Localizer.Token(GameText.NewSuccessfullyInfiltratedAColony)} {planet.Name}." 
+                                                           : $"{Localizer.Token(GameText.NoColonyForInfiltration)} {Them.data.Traits.Name}";
 
                     if (result is InfiltrationOpsResult.Phenomenal or InfiltrationOpsResult.GreatSuccess)
                     {
@@ -46,21 +45,21 @@ namespace Ship_Game
 
                     break;
                 case InfiltrationOpsResult.Fail:
-                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrate)}";
+                    aftermath.Message = GameText.NewWasUnableToInfiltrate;
                     break;
                 case InfiltrationOpsResult.MiserableFail:
-                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateMiserable)}";
+                    aftermath.Message = GameText.NewWasUnableToInfiltrateMiserable;
                     espionage.ReduceInfiltrationLevel();
                     break;
                 case InfiltrationOpsResult.CriticalFail:
-                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateDetected)}";
+                    aftermath.Message = GameText.NewWasUnableToInfiltrateDetected;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage);
                     espionage.ReduceInfiltrationLevel();
                     aftermath.DamageReason = "Caught Spying";
                     break;
                 case InfiltrationOpsResult.Disaster:
-                    aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.NewWasUnableToInfiltrateWipedOut)}";
+                    aftermath.Message = GameText.NewWasUnableToInfiltrateWipedOut;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkInfiltration)}\n" +
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +
                                                 $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {espionage.Level}";
