@@ -80,9 +80,9 @@ namespace Ship_Game
             {
                 Message         = result,
                 SymbolPath      = good ? "NewUI/icon_spy_notification" : "NewUI/icon_spy_notification_bad",
-                ReferencedItem1 = planet,
+                ReferencedItem1 = planet?.System ?? null,
                 IconPath        = planet?.IconPath ?? null,
-                Action          = planet != null ? "SnapToPlanet" : "",
+                Action          = planet != null ? "SnapToSystem" : "",
             }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02"); 
         }
 
@@ -975,9 +975,9 @@ namespace Ship_Game
                 }
                 else if (n.SymbolPath != null)
                 {
-                    var flag = n.RelevantEmpire.data.Traits.FlagIndex;
                     batch.Draw(ResourceManager.Texture(n.SymbolPath), n.ClickRect, Color.White);
                 }
+
                 if (n.ShowMessage)
                 {
                     Vector2 msgSize = Fonts.Arial12Bold.MeasureString(n.Message);

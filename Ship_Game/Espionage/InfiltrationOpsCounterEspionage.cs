@@ -34,40 +34,58 @@ namespace Ship_Game
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
+                    aftermath.GoodResult = true;
                     if (theirEspionage.Level > 0)
+                    {
                         theirEspionage.WipeoutInfiltration();
+                        aftermath.CustomMessage = $"{Them.data.Traits.Name}: {Localizer.Token(GameText.CounterEspioangeOpsExposedWeWipedOut)}\n" +
+                                                  $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {theirEspionage.Level}";
+                        aftermath.MessageToVictim = $"{Owner.data.Traits.Name}: {Localizer.Token(GameText.CounterEspioangeOpsExposedAndWipedOut)}";
+                    }
                     else if (potentialMoles.Length > 0)
-                        Them.RemoveMole(Them.Random.Item(potentialMoles));
+                    {
+                        RemoveMole();
+                    }
+
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
+                    aftermath.GoodResult = true;
                     if (theirEspionage.Level > 0)
+                    {
+                        aftermath.Message = GameText.CounterEspioangeOpsWeExposedPartially;
+                        aftermath.MessageToVictim = $"{Owner.data.Traits.Name}: {Localizer.Token(GameText.CounterEspioangeOpsWeExposedPartially)}";
                         theirEspionage.ReduceInfiltrationLevel();
+                    }
                     else if (potentialMoles.Length > 0)
-                        Them.RemoveMole(Them.Random.Item(potentialMoles));
+                    {
+                        RemoveMole();
+                    }
+
                     break;
                 case InfiltrationOpsResult.Success:
+                    aftermath.GoodResult = true;
                     if (potentialMoles.Length > 0)
-                        Them.RemoveMole(Them.Random.Item(potentialMoles));
+                        RemoveMole();
                     break;
                 case InfiltrationOpsResult.Fail:
                     aftermath.Message = Localizer.Token(GameText.CounterEspioangeOpsFailed);
                     break;
                 case InfiltrationOpsResult.MiserableFail:
-                    aftermath.Message = GameText.NewFailedToInciteUpriseMiserable;
+                    aftermath.Message = GameText.CounterEspioangeOpsFailedMiserably;
                     espionage.ReduceInfiltrationLevel();
                     break;
                 case InfiltrationOpsResult.CriticalFail:
-                    aftermath.Message = GameText.NewFailedToInciteUpriseDetected;
-                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
+                    aftermath.Message = GameText.CounterEspioangeOpsFailedDetected;
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.CounterEspioangeOpsFailedAgentCaught)}\n{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage);
                     espionage.ReduceInfiltrationLevel();
                     aftermath.DamageReason = "Caught Spying";
                     break;
                 case InfiltrationOpsResult.Disaster:
-                    aftermath.Message = GameText.FailedToInciteUpriseWipedOut;
-                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkUprise)}\n" +
+                    aftermath.Message = GameText.CounterEspioangeOpsFailedWipeout;
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.CounterEspioangeOpsFailedWipeoutVictim)}\n" +
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +
-                                                $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {espionage.Level}";
+                                                $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {espionage.Level}.";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage, withLevelMultiplier: true);
                     aftermath.DamageReason = "Caught Spying Failed";
                     espionage.WipeoutInfiltration();
@@ -75,6 +93,15 @@ namespace Ship_Game
             }
 
             aftermath.SendNotifications(Owner.Universe);
+
+            void RemoveMole()
+            {
+                Mole mole = Them.Random.Item(potentialMoles);
+                aftermath.Planet = Them.Universe.GetPlanet(mole.PlanetId);
+                aftermath.CustomMessage = $"{Localizer.Token(GameText.EliminatedMole)} {aftermath.Planet.Name}\n({Them.data.Traits.Name})";
+                aftermath.MessageToVictim = $"{Localizer.Token(GameText.LostMole)} {aftermath.Planet.Name}";
+                Them.RemoveMole(mole);
+            }
         }
     }
 }

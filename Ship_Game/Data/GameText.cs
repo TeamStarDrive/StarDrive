@@ -5421,6 +5421,28 @@ namespace Ship_Game
         ArrangeUpriseTip = 6266,
         /// <summary>Our Counter Espionage effort against them did not</summary>
         CounterEspioangeOpsFailed = 6267,
+        /// <summary>Our Counter-Espioange effort badly failed.</summary>
+        CounterEspioangeOpsFailedMiserably = 6268,
+        /// <summary>Our Counter-Espioange effort badly failed.\nand</summary>
+        CounterEspioangeOpsFailedDetected = 6269,
+        /// <summary>A Counter-Espioange effort badly failed.</summary>
+        CounterEspioangeOpsFailedAgentCaught = 6270,
+        /// <summary>Our Counter-Espioange was a disaster.</summary>
+        CounterEspioangeOpsFailedWipeout = 6271,
+        /// <summary>We managed to uncover a Counter-Espionage operation</summary>
+        CounterEspioangeOpsFailedWipeoutVictim = 6272,
+        /// <summary>We have eliminated an enemy agent in</summary>
+        EliminatedMole = 6273,
+        /// <summary>We have lost contact with an agent on</summary>
+        LostMole = 6274,
+        /// <summary>Our Spy Network was exposed by a Counter-Espionage</summary>
+        CounterEspioangeOpsExposedAndWipedOut = 6275,
+        /// <summary>We have wiped out an their entire Spy Network.</summary>
+        CounterEspioangeOpsExposedWeWipedOut = 6276,
+        /// <summary>Our Spy Network was partially exposed by a Counter-Espionage</summary>
+        CounterEspioangeOpsWasExposedPartially = 6277,
+        /// <summary>We believe our Counter-Espionage operation has</summary>
+        CounterEspioangeOpsWeExposedPartially = 6278,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
