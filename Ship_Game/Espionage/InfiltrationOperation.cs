@@ -30,8 +30,7 @@ namespace Ship_Game
 
         public abstract void CompleteOperation();
 
-
-        public void Update(float progressToUdpate)
+        public virtual void Update(float progressToUdpate)
         {
             if (IsRampingUp)
                 RampUpTimer = (RampUpTimer - 1).LowerBound(0);
@@ -129,7 +128,11 @@ namespace Ship_Game
     {
         PlantMole,
         Uprise,
-        CounterEspionage
+        CounterEspionage,
+        Sabotage,
+        SlowResearch,
+        Rebellion,
+        StealTech
     }
 
     public enum InfiltrationOpsResult

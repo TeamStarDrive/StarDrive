@@ -15248,6 +15248,27 @@ CounterEspioangeOpsWasExposedPartially:
 CounterEspioangeOpsWeExposedPartially:
  Id: 6278
  ENG: "We believe our Counter-Espionage operation has\nspooked them and set them back a bit, but we can never be sure."
+CounterEspioangeOps:
+ Id: 6279
+ ENG: "Counter-Espionage" 
+CounterEspioangeOpsTip:
+ Id: 6280
+ ENG: "The Counter-Espionage operation will use our spy network active resources in order to intercept their spy network and eliminate moles by bribing and using double Agents."  
+EspioangeOpsLeechTech:
+ Id: 6281
+ ENG: "Leech Technology"   
+EspioangeOpsLeechTechTip:
+ Id: 6282
+ ENG: "When they research a new tech that we do not have, we get 10% of that tech."    
+EspioangeOpsSabotageTip:
+ Id: 6283
+ ENG: "Sabotage Operations will disrupt a colony production for a period of time, and can also destory Research Labs or Mining Stations if they exist."     
+EspioangeOpsSlowResearch:
+ Id: 6284
+ ENG: "Disrupt Research"      
+EspioangeOpsSlowResearchTip:
+ Id: 6285
+ ENG: "Research Disruption Ops will slow their research by 10% per turn at start, but the chance to slow their research will be reduced per turn until we complete the operation again."       
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

@@ -164,7 +164,7 @@ namespace Ship_Game
 
                         ResourceManager.TryGetTech(techName, out Technology technology);
                         string message = $"{Empire.data.Traits.Name} - {Localizer.Token(GameText.NotifyLeechedTech)} {technology?.Name.Text ?? techName}";
-                        leecher.Universe.Notifications.AddAgentResult(true, techName, leecher);
+                        leecher.Universe.Notifications.AddAgentResult(true, message, leecher);
                     }
                 }
             }

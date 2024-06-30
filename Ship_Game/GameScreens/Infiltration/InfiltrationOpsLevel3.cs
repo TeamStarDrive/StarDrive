@@ -29,7 +29,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             ActiveTitle      = Add(new UILabel(GameText.Active, Font, Color.Wheat));
             Passive          = Add(new UILabel(GameText.EspionageOpsProjectorsAlert, Font, Color.Gray));
             UpriseBox        = Add(new UICheckBox(() => Uprising, Font, GameText.ArrangeUprise, GameText.ArrangeUpriseTip));
-            CounterBox       = Add(new UICheckBox(() => Uprising, Font, "Counter Espionage", "Counter Espionage"));
+            CounterBox       = Add(new UICheckBox(() => CounteringEspionage, Font, GameText.CounterEspioangeOps, GameText.CounterEspioangeOpsTip));
             UpriseBox.OnChange  = ArrangeUprise;
             CounterBox.OnChange = CounterEspionage;
             UpriseBox.CheckedTextColor = CounterBox.CheckedTextColor = player.EmpireColor;

@@ -18,6 +18,7 @@ namespace Ship_Game
         [StarData] int Weight;
         [StarData] Array<InfiltrationOperation> Operations = new();
         [StarData] Mole StickyMole;
+        [StarData] public int SlowResearchChance { get; private set; }
         [StarData] public float TotalMoneyLeeched { get; private set; }
 
         [StarDataConstructor]
@@ -92,11 +93,14 @@ namespace Ship_Game
                     Operations.Remove(mission);
             }
 
-            if (!CanPlanetStickyMole && StickyMole != null)
+            if (!CanPlantStickyMole && StickyMole != null)
             {
                 Owner.data.MoleList.Remove(StickyMole);
                 StickyMole = null;
             }
+
+            if (!CanSlowResearch && SlowResearchChance > 0) 
+                SlowResearchChance = 0;
         }
 
         void UpdateOperations(float progress)
@@ -108,12 +112,22 @@ namespace Ship_Game
             }
         }
 
+        void DecreaseSlowResearchChance()
+        {
+            SlowResearchChance -= 1;
+        }
+
+        void SetSlowResearchChance(int value)
+        {
+            SlowResearchChance = value;
+        }
+
         void EnablePassiveEffects()
         {
             if (Level >= 1)
                 Them.SetCanBeScannedByPlayer(true); // This ability cannot be lost after it was achieved.
 
-            if (CanPlanetStickyMole && StickyMole == null)
+            if (CanPlantStickyMole && StickyMole == null)
             {
                 StickyMole = Mole.PlantStickyMoleAtHomeworld(Owner, Them, out Planet targetPlanet);
                 if (StickyMole != null)
@@ -178,9 +192,10 @@ namespace Ship_Game
         public bool CanViewMoneyAndMaint => Level >= 3;
         public bool CanViewResearchTopic => Level >= 3;
         public bool CanViewBonuses       => Level >= 3;
-        bool CanPlanetStickyMole         => Level >= 3;
+        bool CanPlantStickyMole         => Level >= 3;
 
-        public bool CanLeechTech => Level >= 4;
+        public bool CanLeechTech    => Level >= 4;
+        public bool CanSlowResearch => Level >= 4 && SlowResearchChance > 0;
 
         public bool CanLeechMoney => Level >= 5;
 
@@ -216,6 +231,8 @@ namespace Ship_Game
                 case InfiltrationOpsType.PlantMole:        Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost, Level));        break;
                 case InfiltrationOpsType.Uprise:           Operations.Add(new InfiltrationOpsUprise(Owner, Them, levelCost, Level));           break;
                 case InfiltrationOpsType.CounterEspionage: Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
+                case InfiltrationOpsType.Sabotage:         Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
+                case InfiltrationOpsType.SlowResearch:     Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
             }
         }
 

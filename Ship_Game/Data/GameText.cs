@@ -5443,6 +5443,20 @@ namespace Ship_Game
         CounterEspioangeOpsWasExposedPartially = 6277,
         /// <summary>We believe our Counter-Espionage operation has</summary>
         CounterEspioangeOpsWeExposedPartially = 6278,
+        /// <summary>Counter-Espionage</summary>
+        CounterEspioangeOps = 6279,
+        /// <summary>The Counter-Espionage operation will use our</summary>
+        CounterEspioangeOpsTip = 6280,
+        /// <summary>Leech Technology</summary>
+        EspioangeOpsLeechTech = 6281,
+        /// <summary>When they research a new tech that we do not have</summary>
+        EspioangeOpsLeechTechTip = 6282,
+        /// <summary>Sabotage Operations will disrupt a colony production for a period</summary>
+        EspioangeOpsSabotageTip = 6283,
+        /// <summary>Disrupt Research</summary>
+        EspioangeOpsSlowResearch = 6284,
+        /// <summary>Research Disruption Ops will slow their research by 10%</summary>
+        EspioangeOpsSlowResearchTip = 6285,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
