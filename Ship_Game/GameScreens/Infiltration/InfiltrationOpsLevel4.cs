@@ -43,7 +43,7 @@ namespace Ship_Game.GameScreens.EspionageNew
         {
             base.PerformLayout();
             LevelDescription.Pos  = new Vector2(Rect.X + 5, LevelDescriptionY);
-            string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel3Desc), Rect.Width - 10);
+            string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel4Desc), Rect.Width - 10);
             LevelDescription.Text = description;
             PassiveTitle.Pos = new Vector2(Rect.X + 5, PassiveY);
             Passive.Pos      = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);

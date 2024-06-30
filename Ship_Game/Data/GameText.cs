@@ -5457,6 +5457,8 @@ namespace Ship_Game
         EspioangeOpsSlowResearch = 6284,
         /// <summary>Research Disruption Ops will slow their research by 10%</summary>
         EspioangeOpsSlowResearchTip = 6285,
+        /// <summary>Diplomacy Screen view of their Racial Traits.</summary>
+        InfiltrationLevel4Desc = 6286,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

@@ -15269,6 +15269,9 @@ EspioangeOpsSlowResearch:
 EspioangeOpsSlowResearchTip:
  Id: 6285
  ENG: "Research Disruption Ops will slow their research by 10% per turn at start, but the chance to slow their research will be reduced per turn until we complete the operation again."       
+InfiltrationLevel4Desc:
+ Id: 6286
+ ENG: "Diplomacy Screen view of their Racial Traits."         
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

@@ -151,6 +151,7 @@ namespace Ship_Game
         [StarData] public Array<string> PersonalityTraitsWeights = new();
         [StarData] public Array<string> EconomicTraitsWeights = new();
         [StarData] public Array<Agent> AgentList = new();
+        [StarData] public string SelectedTraitSet;
         [StarData] public string AbsorbedBy;
         [StarData] public string StartingShip;
         [StarData] public string StartingScout;

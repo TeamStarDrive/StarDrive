@@ -287,7 +287,7 @@ public partial class UniverseState
         data.DiplomaticPersonality = CreateDiplomaticTrait();
         data.EconomicPersonality = CreateEconimicTrait();
         // Added by McShooterz: set values for alternate race file structure
-        data.Traits.LoadTraitConstraints(isPlayer, Random, data.Name, P.DisableAlternateAITraits);
+        data.Traits.LoadTraitConstraints(isPlayer, Random, data.Name, P.DisableAlternateAITraits, out data.SelectedTraitSet);
         empire.dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
         data.SpyModifier = data.Traits.SpyMultiplier;
         data.Traits = data.Traits;

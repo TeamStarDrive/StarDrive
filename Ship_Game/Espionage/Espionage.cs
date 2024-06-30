@@ -192,10 +192,11 @@ namespace Ship_Game
         public bool CanViewMoneyAndMaint => Level >= 3;
         public bool CanViewResearchTopic => Level >= 3;
         public bool CanViewBonuses       => Level >= 3;
-        bool CanPlantStickyMole         => Level >= 3;
+        bool CanPlantStickyMole          => Level >= 3;
 
         public bool CanLeechTech    => Level >= 4;
         public bool CanSlowResearch => Level >= 4 && SlowResearchChance > 0;
+        public bool CanViewTraitSet => Level >= 4;
 
         public bool CanLeechMoney => Level >= 5;
 

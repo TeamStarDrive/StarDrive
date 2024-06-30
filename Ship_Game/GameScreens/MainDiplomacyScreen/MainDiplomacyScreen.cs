@@ -360,6 +360,11 @@ namespace Ship_Game
             }
 
             DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.Population2)} {GetPop(SelectedEmpire).String(1)} {Localizer.Token(GameText.Billion)}", Color.Wheat, ref textCursor);
+            if (UsingNewEspioange && espionage?.CanViewTraitSet == true || IntelligenceLevel(SelectedEmpire) > 1)
+            {
+                string traitlist = Font12.ParseText($"Racial Traits: {SelectedEmpire.data.SelectedTraitSet}", IntelligenceRect.Width - 10);
+                DrawDiploLine(batch, Font12, traitlist, SelectedEmpire.EmpireColor, ref textCursor);
+            }
 
             //Diplomatic Relations
             foreach (Relationship rel in SelectedEmpire.AllRelations)
