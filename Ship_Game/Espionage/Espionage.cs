@@ -11,6 +11,7 @@ namespace Ship_Game
     {
         public const byte MaxLevel = 5;
         public const float PercentMoneyLeech = 0.02f;
+        public const float SlowResearchBy = 0.1f;
         [StarData] public byte Level;
         [StarData] readonly Empire Owner;
         [StarData] public readonly Empire Them;
@@ -112,12 +113,12 @@ namespace Ship_Game
             }
         }
 
-        void DecreaseSlowResearchChance()
+        public void DecreaseSlowResearchChance()
         {
             SlowResearchChance -= 1;
         }
 
-        void SetSlowResearchChance(int value)
+        public void SetSlowResearchChance(int value)
         {
             SlowResearchChance = value;
         }

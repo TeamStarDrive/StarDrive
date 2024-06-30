@@ -20,7 +20,7 @@ namespace Ship_Game
             Cost = cost;
             Level = level;
             Type = type;
-            RampUpTimer = RampUpTurns = (int)(rampUpTurns * owner.Universe.SettingsResearchModifier * owner.Universe.P.Pace);
+            RampUpTimer = RampUpTurns = (int)(rampUpTurns * owner.Universe.SettingsResearchModifier * owner.Universe.ProductionPace);
         }
 
         public void SetProgress(float value)
@@ -33,7 +33,9 @@ namespace Ship_Game
         public virtual void Update(float progressToUdpate)
         {
             if (IsRampingUp)
+            {
                 RampUpTimer = (RampUpTimer - 1).LowerBound(0);
+            }
             else
             {
                 Progress += progressToUdpate;

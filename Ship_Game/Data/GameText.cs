@@ -5459,6 +5459,34 @@ namespace Ship_Game
         EspioangeOpsSlowResearchTip = 6285,
         /// <summary>Diplomacy Screen view of their Racial Traits.</summary>
         InfiltrationLevel4Desc = 6286,
+        /// <summary>Our Research Disruption Operation against them was a\nphenomenal</summary>
+        InfiltrationDisruptPhenomenalSuccess = 6287,
+        /// <summary>Our Research Efforts are being disrupted by a series</summary>
+        InfiltrationDisruptSuccessVictim = 6288,
+        /// <summary>Our Research Disruption Operation against them was a\ngreat</summary>
+        InfiltrationDisruptGreatSuccess = 6289,
+        /// <summary>Our Research Disruption Operation against them was a\nsuccess</summary>
+        InfiltrationDisruptSuccess = 6290,
+        /// <summary>Our Research Disruption Operation against\n them has failed</summary>
+        InfiltrationDisruptFail = 6291,
+        /// <summary>Our Research Disruption Operation against\n them has badly failed</summary>
+        InfiltrationDisruptMiserableFail = 6292,
+        /// <summary>Our Research Disruption Operation against\n them has badly failed</summary>
+        InfiltrationDisruptCriticalFail = 6293,
+        /// <summary>Our Research Disruption Operation against\n them was disastrous</summary>
+        InfiltrationDisruptDisaster = 6294,
+        /// <summary>Unknown Agents tried to disrupt our research efforts. They Failed.</summary>
+        InfiltrationDisruptMiserableFailVictim = 6295,
+        /// <summary>Agents attempted disruption of our research efforts and failed.</summary>
+        InfiltrationDisruptCriticalFailVictim = 6296,
+        /// <summary>We uncovered and wiped out a spy network when one\nof their agents was trying to disrupt</summary>
+        InfiltrationDisruptDisasterVictim = 6297,
+        /// <summary>An Agent was foiled attempting to arrange an uprise in one of our colonies.</summary>
+        InfiltrationUpriseCriticalFailVictim = 6298,
+        /// <summary>Unknown Agents tried to arrange an uprise in one of our colonies. They Failed</summary>
+        InfiltrationUpriseMiserableFailVictim = 6299,
+        /// <summary>Unknown Agents tried uncover our spy network. They Failed</summary>
+        InfiltrationCounterEspionageMiserableFailVictim = 6300,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

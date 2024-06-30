@@ -15244,7 +15244,7 @@ CounterEspioangeOpsExposedWeWipedOut:
  ENG: "We have wiped out an their entire Spy Network."           
 CounterEspioangeOpsWasExposedPartially:
  Id: 6277
- ENG: "Our Spy Network was partially exposed by their Counter-Espionage operation.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network. "           
+ ENG: "Our Spy Network was partially exposed by their Counter-Espionage operation.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."           
 CounterEspioangeOpsWeExposedPartially:
  Id: 6278
  ENG: "We believe our Counter-Espionage operation has\nspooked them and set them back a bit, but we can never be sure."
@@ -15272,6 +15272,48 @@ EspioangeOpsSlowResearchTip:
 InfiltrationLevel4Desc:
  Id: 6286
  ENG: "Diplomacy Screen view of their Racial Traits."         
+InfiltrationDisruptPhenomenalSuccess:
+ Id: 6287
+ ENG: "Our Research Disruption Operation against them was a\nphenomenal success. Their research will be slowed for quite some time."          
+InfiltrationDisruptSuccessVictim:
+ Id: 6288
+ ENG: "Our Research Efforts are being disrupted by a series\nof accidents and inefficienies. We suspect a foreign\ninvolvment from an unknown party."           
+InfiltrationDisruptGreatSuccess:
+ Id: 6289
+ ENG: "Our Research Disruption Operation against them was a\ngreat success. Their research will be slowed for some time."           
+InfiltrationDisruptSuccess:
+ Id: 6290
+ ENG: "Our Research Disruption Operation against them was a\nsuccess. Their research will be slowed for limited period."            
+InfiltrationDisruptFail:
+ Id: 6291
+ ENG: "Our Research Disruption Operation against\n them has failed this time."             
+InfiltrationDisruptMiserableFail:
+ Id: 6292
+ ENG: "Our Research Disruption Operation against\n them has badly failed. We had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."              
+InfiltrationDisruptCriticalFail:
+ Id: 6293
+ ENG: "Our Research Disruption Operation against\n was a failure. Our agents were detected and\nwe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                
+InfiltrationDisruptDisaster:
+ Id: 6294
+ ENG: "Our Research Disruption Operation against\n them was disastrous. Our agents were detected and our entire spy network\nwas exposed and wiped out!"               
+InfiltrationDisruptMiserableFailVictim:
+ Id: 6295
+ ENG: "Unknown Agents tried to disrupt our research efforts. They Failed."               
+InfiltrationDisruptCriticalFailVictim:
+ Id: 6296
+ ENG: "An Agent attempted disruption of our research efforts and failed."       
+InfiltrationDisruptDisasterVictim:
+ Id: 6297
+ ENG: "We uncovered and wiped out a spy network when one\nof their agents was trying to disrupt our research efforts."        
+InfiltrationUpriseCriticalFailVictim:
+ Id: 6298
+ ENG: "An Agent was foiled attempting to arrange an uprise in one of our colonies."        
+InfiltrationUpriseMiserableFailVictim:
+ Id: 6299
+ ENG: "Unknown Agents tried arranging an uprise in one of our colonies. They Failed."                
+InfiltrationCounterEspionageMiserableFailVictim:
+ Id: 6300
+ ENG: "Unknown Agents tried uncover our spy network. They Failed."                 
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

@@ -72,6 +72,7 @@ namespace Ship_Game
                     break;
                 case InfiltrationOpsResult.MiserableFail:
                     aftermath.Message = GameText.CounterEspioangeOpsFailedMiserably;
+                    aftermath.MessageToVictim = Localizer.Token(GameText.InfiltrationCounterEspionageMiserableFailVictim);
                     espionage.ReduceInfiltrationLevel();
                     break;
                 case InfiltrationOpsResult.CriticalFail:

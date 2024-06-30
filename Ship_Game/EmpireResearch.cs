@@ -85,31 +85,57 @@ namespace Ship_Game
             NetResearch = ResearchStationResearchPerturn;
             MaxResearchPotential = ResearchStationResearchPerturn;
             TaxedResearch = 0;
-            foreach (Planet planet in Empire.GetPlanets())
+            IReadOnlyList<Planet> planets = Empire.GetPlanets();
+            for (int i = 0; i < planets.Count; i++)
             {
+                Planet planet = planets[i];
                 NetResearch          += planet.Res.NetIncome;
                 TaxedResearch        += planet.Res.GrossIncome - planet.Res.NetIncome;
                 MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
 
-            float ResearchFromAlliances = 0;
+            UpdateNetResearchDistuption();
+            float researchFromAlliances = GetResearchFromAllies();
+            NetResearch          += researchFromAlliances;
+            MaxResearchPotential += researchFromAlliances;
+        }
+
+        float GetResearchFromAllies()
+        {
+            float researchFromAlliances = 0;
             foreach (Empire ally in Empire.Universe.GetAllies(Empire))
             {
                 if (Empire.isPlayer && ally.DifficultyModifiers.ResearchMod.NotZero())
                 {
                     float grossResearch = ally.Research.NetResearch / ally.DifficultyModifiers.ResearchMod;
                     float netMultiplier = ally.data.Traits.ResearchMod / ally.DifficultyModifiers.ResearchMod;
-                    ResearchFromAlliances += grossResearch * netMultiplier;
+                    researchFromAlliances += grossResearch * netMultiplier;
                 }
                 else
                 {
-                    ResearchFromAlliances += ally.Research.NetResearch;
+                    researchFromAlliances += ally.Research.NetResearch;
                 }
             }
 
-            ResearchFromAlliances *= GlobalStats.Defaults.ResearchBenefitFromAlliance + Empire.data.Traits.ResearchBenefitFromAlliance;
-            NetResearch += ResearchFromAlliances;
-            MaxResearchPotential += ResearchFromAlliances;
+            researchFromAlliances *= GlobalStats.Defaults.ResearchBenefitFromAlliance + Empire.data.Traits.ResearchBenefitFromAlliance;
+            return researchFromAlliances;
+        }
+
+
+
+        void UpdateNetResearchDistuption()
+        {
+            if (Empire.Universe.P.UseLegacyEspionage)
+                return;
+
+            Empire[] empires = Empire.Universe.ActiveMajorEmpires.Filter(e => e != Empire);
+            for (int i = 0; i < empires.Length; i++)
+            {
+                Empire empire = empires[i];
+                Espionage espionage = empire.GetEspionage(Empire);
+                if (espionage.CanSlowResearch && empire.Random.RollDice(espionage.SlowResearchChance))
+                    NetResearch *= 1 - Espionage.SlowResearchBy;
+            }
         }
 
         public void AddResearchStationResearchPerTurn(float value)
