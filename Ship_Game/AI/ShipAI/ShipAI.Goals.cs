@@ -57,8 +57,6 @@ namespace Ship_Game.AI
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
             DisposeOrders();
-            EscortTarget = null;
-            PatrolTarget = null;
             Orbit?.ExitOrbit();
             SystemToDefend = null;
             IgnoreCombat = false;
@@ -70,6 +68,8 @@ namespace Ship_Game.AI
                 ExplorationTarget = null;
             }
 
+            EscortTarget = null; // This must come after ChangeAIState since it needs to reduce incoming ordnance of EscortTarget
+            PatrolTarget = null;
             OrderQueue.Clear();
             SetPriorityOrder(priority);
         }
@@ -79,7 +79,8 @@ namespace Ship_Game.AI
             switch (State)
             {
                 case AIState.Ferrying:
-                    if (Owner.ShipData.Role == RoleName.supply)
+                case AIState.Escort:
+                    if (Owner.IsSupplyShuttle)
                         EscortTarget?.Supply.ChangeIncomingOrdnance(-Owner.Ordinance);
                     break;
             }

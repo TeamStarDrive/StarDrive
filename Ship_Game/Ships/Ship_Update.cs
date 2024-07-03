@@ -151,7 +151,7 @@ namespace Ship_Game.Ships
                 if (LaunchShip.Done)
                 {
                     LaunchShip = null;
-                    if (IsHangarShip && !Mothership.InCombat && AI.State != AIState.AssaultPlanet )
+                    if (IsHangarShip && !Mothership.InCombat && AI.State != AIState.AssaultPlanet && !IsSupplyShuttle)
                         AI.BackToCarrier();
                 }
             }

@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
         /// <param name="radius">Generally Sensor range of ship</param>
         public void ProcessSupplyShuttles(float radius)
         {
-            if (Owner == null || Owner.engineState == Ship.MoveState.Warp || !Owner.Carrier.HasSupplyBays)
+            if (Owner == null || Owner.IsSpoolingOrInWarp || !Owner.Carrier.HasSupplyBays)
                 return;
 
             if (TryGetShipsInNeedOfSupplyByPriority(radius, out Ship[] shipsNeedingSupply)
@@ -42,9 +42,20 @@ namespace Ship_Game.Ships
                     {
                         Ship supplyTarget = shipsNeedingSupply[shipInNeedIndex];
                         if (supplyShipInSpace != null)
-                            OrderIdleSupplyShips(supplyShipInSpace, supplyTarget);
+                        {
+                            if (supplyShipInSpace.AI.State != AIState.Ferrying && supplyShipInSpace.Ordinance > 0)
+                                OrderIdleSupplyShips(supplyShipInSpace, supplyTarget);
+
+                            continue;
+                        }
                         else if (canLaunchAnotherShuttle)
+                        {
                             canLaunchAnotherShuttle = LaunchShipSupplyShuttle(hangar, supplyTarget);
+                        }
+                        else
+                        {
+                            continue;
+                        }
 
                         if (!ShipNeedsMoreOrdnance(supplyTarget))
                             shipInNeedIndex++;
@@ -61,7 +72,7 @@ namespace Ship_Game.Ships
 
         bool LaunchShipSupplyShuttle(ShipModule hangar, Ship supplyTarget)
         {
-            if (!hangar.Active || hangar.HangarTimer > 0f)
+            if (!hangar.Active || hangar.HangarTimer > 0f || hangar.IsHangarShipActive)
                 return true; // This hangar cant launch, but others might
 
             if (!CarrierHasSupplyToLaunch(hangar))
@@ -71,18 +82,12 @@ namespace Ship_Game.Ships
             if (supplyShuttle != null)
             {
                 supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax); // setting to 0 so it could load from mothership
-                if (SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax))
-                {
-                    return false;
-                }
-                else
-                {
-                    float supplyToLoad = supplyShuttle.OrdinanceMax.UpperBound(Owner.Ordinance);
-                    Owner.OnShipLaunched(supplyShuttle, hangar);
-                    supplyShuttle.ChangeOrdnance(supplyToLoad);
-                    SetSupplyTarget(supplyShuttle, supplyTarget);
-                    return true;
-                }
+                float supplyToLoad = supplyShuttle.OrdinanceMax.UpperBound(Owner.Ordinance);
+                Owner.OnShipLaunched(supplyShuttle, hangar);
+                supplyShuttle.ChangeOrdnance(supplyToLoad);
+                Owner.ChangeOrdnance(-supplyToLoad);
+                SetSupplyTarget(supplyShuttle, supplyTarget);
+                return !SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax);
             }
             else
             {
@@ -94,7 +99,7 @@ namespace Ship_Game.Ships
         {
             hangar.HangarShipUID = Owner.Loyalty.GetSupplyShuttleName();
             Ship supplyShuttleTemplate = ResourceManager.GetShipTemplate(hangar.HangarShipUID);
-            return supplyShuttleTemplate.ShipOrdLaunchCost + 5 < Owner.Ordinance;
+            return supplyShuttleTemplate.ShipOrdLaunchCost + (supplyShuttleTemplate.OrdinanceMax*0.75f) < Owner.Ordinance;
         }
 
         bool SupplyShipNeedsResupply(float shuttleStorage) => shuttleStorage * 0.25f > Owner.Ordinance;
