@@ -235,10 +235,10 @@ namespace Ship_Game
                 .SetLocalPos(ChooseRaceList.Width / 2 + 10, ChooseRaceList.Height + 10);
 
             var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.H + 10);
-            ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
-            ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
-            Button(pos.X, pos.Y, text: GameText.RuleOptions, click: OnRuleOptionsClicked);
-            Button(pos.X, pos.Y + 40, text: "Select opponents", click: OnFoeSelectionClicked);
+            ButtonMedium(pos.X - 274, pos.Y, "Load Setup", OnLoadSetupClicked);
+            ButtonMedium(pos.X + 198, pos.Y, "Save Setup", OnSaveSetupClicked);
+            Button(ButtonStyle.Military, pos.X - 142, pos.Y, text: GameText.RuleOptions, click: OnRuleOptionsClicked);
+            Button(ButtonStyle.Military, pos.X + 28, pos.Y, text: "Select opponents", click: OnFoeSelectionClicked);
 
             ChooseRaceList.SlideInFromOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.SlideInFromOffset(offset:new(DescriptionTextList.Width, 0), TransitionOnTime);

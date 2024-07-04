@@ -4,6 +4,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.ShipDesign;
+using Ship_Game.UI;
 using Ship_Game.Universe;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,8 @@ namespace Ship_Game.GameScreens.NewGame
 
         public readonly UniverseParams P;
         ScrollList<RaceArchetypeListItem> ChooseRaceList;
-        UITextBox TeamsSelector;
-        FoeSelectionContainer FoeSelectedContainer;
         readonly IEmpireData SelectedData;
+        UIList SelectedRacesList;
 
         public FoeSelectionScreen(GameScreen parent, UniverseParams p, IEmpireData selectedData) : base(parent, toPause: null)
         {
@@ -64,13 +64,14 @@ namespace Ship_Game.GameScreens.NewGame
             foreach (IEmpireData e in majorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            FoeSelectedContainer = Add(new FoeSelectionContainer(this, P, selectedRaces));
+            SelectedRacesList = Add(new UIList(selectedRaces, Color.TransparentBlack));
+            SelectedRacesList.Visible = true;
+            DrawSelectedFoesList();
 
             OnExit += () =>
             {
                 ChooseRaceList.SlideOutToOffset(offset: new(-ChooseRaceList.Width, 0), TransitionOffTime);
-                //DescriptionTextList.SlideOutToOffset(offset: new(DescriptionTextList.Width, 0), TransitionOffTime);
-                //EnvMenu.SlideOutToOffset(offset: new(-EnvMenu.Width, 0), TransitionOffTime);
+                SelectedRacesList.SlideOutToOffset(offset: new(SelectedRacesList.Width, 0), TransitionOffTime);  
             };
 
             base.LoadContent();
@@ -90,6 +91,7 @@ namespace Ship_Game.GameScreens.NewGame
             if (P.SelectedFoes.Contains(item.EmpireData))
             {
                 P.SelectedFoes.Remove(item.EmpireData);
+                DrawSelectedFoesList();
                 return;
             }
 
@@ -100,6 +102,16 @@ namespace Ship_Game.GameScreens.NewGame
             }
 
             P.SelectedFoes.Add(item.EmpireData);
+            DrawSelectedFoesList();
+        }
+
+        void DrawSelectedFoesList()
+        {
+            SelectedRacesList.RemoveAll();
+            for (int i = 0; i < P.SelectedFoes.Count; i++)
+            {
+                SelectedRacesList.Add(new BlueButton( P.SelectedFoes[i].ArchetypeName));
+            }
         }
     }
 } 
