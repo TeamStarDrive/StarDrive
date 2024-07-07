@@ -108,7 +108,7 @@ namespace Ship_Game
 
             public void SendNotifications(UniverseState u)
             {
-                if (Message.IsEmpty) // default message
+                if (Message.NotEmpty) // default message
                 {
                     string message = MessageUseTheirName ? $"{Victim.data.Traits.Name}: {Message.Text}" : Message.Text;
                     u.Notifications.AddAgentResult(GoodResult, message, Us, Planet);

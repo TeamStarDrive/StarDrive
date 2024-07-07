@@ -177,6 +177,7 @@
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsCounterEspionage.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsDisruptResearch.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsPlanetMole.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsSabotage.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsUprise.cs" />
     <Compile Include="Ship_Game\ExoticBonusesWindow.cs" />
     <Compile Include="Ship_Game\Audio\AudioConfig.cs" />

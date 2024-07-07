@@ -5487,6 +5487,22 @@ namespace Ship_Game
         InfiltrationUpriseMiserableFailVictim = 6299,
         /// <summary>Unknown Agents tried uncover our spy network. They Failed</summary>
         InfiltrationCounterEspionageMiserableFailVictim = 6300,
+        /// <summary>Our Agents saboraged</summary>
+        InfiltrationSabotageSuccessMessage = 6301,
+        /// <summary>was sabotaged by unknown agents for</summary>
+        InfiltrationSabotageSuccessMessageVictim = 6302,
+        /// <summary>We failed sabotaging their planets this time</summary>
+        InfiltrationSabotageMessageFail = 6303,
+        /// <summary>We failed sabotaging their planets this time.\nWe had to pull</summary>
+        InfiltrationSabotageMessageFailMiserable = 6304,
+        /// <summary>Unknown agents tried to sabotage our planets and failed</summary>
+        InfiltrationSabotageMessageFailMiserableVictim = 6305,
+        /// <summary>Our agent was caught when trying to infiltrate their planets.</summary>
+        InfiltrationSabotageMessageFailCritical = 6306,
+        /// <summary>Our agent was caught when trying to sabotage their planets\nand our</summary>
+        InfiltrationSabotageMessageFailDisaster = 6307,
+        /// <summary>We wiped out a spy network when on of their agents was trying</summary>
+        InfiltrationSabotageMessageFailDisasterVictim = 6308,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

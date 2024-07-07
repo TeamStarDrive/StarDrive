@@ -252,7 +252,7 @@ namespace Ship_Game
                     aftermath.GoodResult = true;
                     Sabotages++;
                     crippledTurns               = 5 + Level*5;
-                    targetPlanet.CrippledTurns += crippledTurns;
+                    targetPlanet.AddCrippledTurns(crippledTurns);
                     aftermath.MessageToVictim   = $"{Localizer.Token(GameText.AnEnemyAgentHasSabotaged)}  {targetPlanet.Name}";
                     aftermath.CustomMessage     = $"{Name} {Localizer.Token(GameText.SabotagedProductionFor)} {crippledTurns} {Localizer.Token(GameText.Turns3)} " +
                                                   $"{targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
@@ -261,7 +261,7 @@ namespace Ship_Game
                     aftermath.GoodResult = true;
                     Sabotages++;
                     crippledTurns               = 5 + Level*3;
-                    targetPlanet.CrippledTurns += crippledTurns;
+                    targetPlanet.AddCrippledTurns(crippledTurns);
                     aftermath.MessageToVictim   = $"{Localizer.Token(GameText.AnEnemyAgentHasSabotaged)}  {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.CustomMessage     = $"{Name} {Localizer.Token(GameText.SabotagedProductionFor)} {crippledTurns} {Localizer.Token(GameText.Turns3)} " +
                                                   $"{targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
