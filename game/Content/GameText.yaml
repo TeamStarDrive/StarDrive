@@ -12996,6 +12996,12 @@ ThisTileCanBeTerraformed:
  Id: 4523
  ENG: "This tile can be terraformed as part of terraforming operations.
  UKR: "Ця плитка може бути терраформована в рамках операцій терраформування." 
+DisableScreenPanningOption:
+ Id: 4524
+ ENG: "Disable Mouse Screen Panning" 
+DisableScreenPanningOptionTip:
+ Id: 4525
+ ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"

@@ -285,6 +285,7 @@ namespace Ship_Game
             right.AddCheckbox(() => GlobalStats.AutoErrorReport,              title: GameText.AutomaticErrorReport, tooltip: GameText.SendAutomaticErrorReportsTo);
             right.AddCheckbox(() => GlobalStats.DisableAsteroids,             title: GameText.DisableAsteroids, tooltip: GameText.ThisWillPreventAsteroidsFrom);
             right.AddCheckbox(() => GlobalStats.EnableEngineTrails,           title: GameText.EngineTrails, tooltip: GameText.TT_EngineTrails);
+            right.AddCheckbox(() => GlobalStats.DisableScreenPanning,         title: GameText.DisableScreenPanningOption, tooltip: GameText.DisableScreenPanningOptionTip); 
 
             var apply = Add(new UIButton(ButtonStyle.Default, new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), GameText.ApplySettings));
             apply.OnClick = button => RunOnNextFrame(ApplyOptions);
@@ -448,8 +449,10 @@ namespace Ship_Game
 
         public void SetEffectsVolume(float volume)
         {
+            if (GlobalStats.EffectsVolume != volume)
+                EffectSound.PlaySfxAsync("sd_weapon_bigcannon_01", emitter: null, replayTimeout: 0.5f);
+
             GlobalStats.EffectsVolume = volume;
-            EffectSound.PlaySfxAsync("Explo1", emitter: null, replayTimeout: 0.5f);
         }
     }
 }

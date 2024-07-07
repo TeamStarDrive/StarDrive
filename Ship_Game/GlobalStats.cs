@@ -133,7 +133,11 @@ public static class GlobalStats
     // USER_EXPERIENCE
     // global option for pausing on notifications, default should be OFF
     public static bool PauseOnNotification;
-        
+
+    // USER_EXPERIENCE
+    // global option for disabling universe screen pan, default should be OFF
+    public static bool DisableScreenPanning;
+
     // USER_EXPERIENCE
     // global option for Icon size
     public static int IconSize = 1;
@@ -328,6 +332,7 @@ public static class GlobalStats
         GetSetting(config, "AltArcControl", ref AltArcControl);
         GetSetting(config, "DisableAsteroids", ref DisableAsteroids);
         GetSetting(config, "EnableEngineTrails", ref EnableEngineTrails);
+        GetSetting(config, "DisableScreenPanning", ref DisableScreenPanning);
         GetSetting(config, "MaxDynamicLightSources", ref MaxDynamicLightSources);
         GetSetting(config, "SimulationFramesPerSecond", ref SimulationFramesPerSecond);
         GetSetting(config, "NotifyEnemyInSystemAfterLoad", ref NotifyEnemyInSystemAfterLoad);
@@ -490,6 +495,7 @@ public static class GlobalStats
         WriteSetting(config, "AltArcControl", AltArcControl);
         WriteSetting(config, "DisableAsteroids", DisableAsteroids);
         WriteSetting(config, "EnableEngineTrails", EnableEngineTrails);
+        WriteSetting(config, "DisableScreenPanning", DisableScreenPanning);
         WriteSetting(config, "MaxDynamicLightSources", MaxDynamicLightSources);
         WriteSetting(config, "SimulationFramesPerSecond", SimulationFramesPerSecond);
         WriteSetting(config, "NotifyEnemyInSystemAfterLoad", NotifyEnemyInSystemAfterLoad);

@@ -182,6 +182,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     float strRatioBySize = (OurStartingStrength + Us.OffensiveStrength) * 0.5f 
                         / ((theirWarWithPlayer.TheirStartingStrength + player.OffensiveStrength) * 0.5f).LowerBound(100);
                     float contributiopnRatio = StrengthKilled / (theirWarWithPlayer.StrengthLost*strRatioBySize).LowerBound(100);
+                    Relationship relToPlayer = Us.GetRelations(player);
                     if (contributiopnRatio > Us.PersonalityModifiers.PlayerWarContributionRatioThreshold)
                     {
                         // we are contributing more net effort than the player
@@ -189,8 +190,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                         if (PlayerContributionWarnings > Us.PersonalityModifiers.PlayerWarContributionMaxWarnings)
                         {
                             DiplomacyScreen.Show(Us, player, "PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION");
-                            OurRelationToThem.AddAngerDiplomaticConflict(100);
-                            OurRelationToThem.Trust = 0;
+                            relToPlayer.AddAngerDiplomaticConflict(100);
+                            relToPlayer.Trust = 0;
                             if (!Us.PersonalityModifiers.CanWeSurrenderToPlayerAfterBetrayal)
                                 OurRelationToThem.DoNotSurrenderToThem = true;
                             switch (Us.Personality)
@@ -206,7 +207,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                                     break;
                                 case PersonalityType.Xenophobic:
                                     Us.BreakAllTreatiesWith(player);
-                                    OurRelationToThem.Trust = -100;
+                                    relToPlayer.Trust = -100;
                                     break;
                                 case PersonalityType.Cunning:
                                     OurRelationToThem.RequestPeaceNow(Us);
@@ -218,7 +219,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                                     Us.BreakAllTreatiesWith(player);
                                     break;
                                 case PersonalityType.Honorable:
-                                    OurRelationToThem.Trust = -50;
+                                    relToPlayer.Trust = -50;
                                     OurRelationToThem.RequestPeaceNow(Us);
                                     Us.BreakAllTreatiesWith(player);
                                     if (!Us.IsPeaceTreaty(Them))
@@ -229,8 +230,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                         else
                         {
                             DiplomacyScreen.Show(Us, player, "PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING");
-                            OurRelationToThem.AddAngerDiplomaticConflict(50);
-                            OurRelationToThem.Trust -= 50;
+                            relToPlayer.AddAngerDiplomaticConflict(50);
+                            relToPlayer.Trust -= 50;
                         }
                     }
                 }

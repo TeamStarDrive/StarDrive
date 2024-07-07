@@ -98,7 +98,7 @@ public sealed class RuleOptionsScreen : GameScreen
         var minimumWarpRange = new Rectangle(x, leftRect.Y + 450, 270, 50);
         var maintenanceRect  = new Rectangle(x, leftRect.Y + 510, 270, 50);
 
-        TurnTimer = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 2, 18f, P.TurnTimer);
+        TurnTimer = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 4, 10f, P.TurnTimer);
         TurnTimer.OnChange = (s) => P.TurnTimer = (int)s.AbsoluteValue;
 
         MinAcceptableShipWarpRange = Slider(minimumWarpRange, GameText.MinAcceptableShipWarpRange, 0, 1200000f, P.MinAcceptableShipWarpRange);

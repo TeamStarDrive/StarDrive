@@ -1149,25 +1149,26 @@ namespace Ship_Game
             }
             else
             {
-                if (InRange(x, minLeft, maxLeft) || (enableKeys && input.KeysLeftHeld(arrowKeys)))
+                bool enableMousePanning = !GlobalStats.DisableScreenPanning;
+                if (enableMousePanning && InRange(x, minLeft, maxLeft) || (enableKeys && input.KeysLeftHeld(arrowKeys)))
                 {
                     CamDestination.X -= 0.008f * worldWidthOnScreen;
                     snappingToShip = false;
                     ViewingShip    = false;
                 }
-                if (InRange(x, minRight, maxRight) || (enableKeys && input.KeysRightHeld(arrowKeys)))
+                if (enableMousePanning && InRange(x, minRight, maxRight) || (enableKeys && input.KeysRightHeld(arrowKeys)))
                 {
                     CamDestination.X += 0.008f * worldWidthOnScreen;
                     snappingToShip = false;
                     ViewingShip    = false;
                 }
-                if (InRange(y, minTop, maxTop) || (enableKeys && input.KeysUpHeld(arrowKeys)))
+                if (enableMousePanning && InRange(y, minTop, maxTop) || (enableKeys && input.KeysUpHeld(arrowKeys)))
                 {
                     CamDestination.Y -= 0.008f * worldWidthOnScreen;
                     snappingToShip = false;
                     ViewingShip    = false;
                 }
-                if (InRange(y, minBottom, maxBottom) || (enableKeys && input.KeysDownHeld(arrowKeys) && !input.IsCtrlKeyDown))
+                if (enableMousePanning && InRange(y, minBottom, maxBottom) || (enableKeys && input.KeysDownHeld(arrowKeys) && !input.IsCtrlKeyDown))
                 {
                     CamDestination.Y += 0.008f * worldWidthOnScreen;
                     snappingToShip = false;

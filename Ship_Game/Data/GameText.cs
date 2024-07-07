@@ -4673,7 +4673,10 @@ namespace Ship_Game
         BioshperesAreBuiltHere = 4522,
         /// <summary>This tile can be Terraformed</summary>
         ThisTileCanBeTerraformed = 4523,
-
+        /// <summary>Disable Mouse Screen Panning</summary>
+        DisableScreenPanningOption = 4524,
+        /// <summary>Mouse pointer cannot be used for edge screen movement</summary>
+        DisableScreenPanningOptionTip = 4525,
 
 
 
