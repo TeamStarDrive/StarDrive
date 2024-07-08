@@ -17,7 +17,7 @@ namespace Ship_Game
         const int BaseRampUpTurns = 20;
 
         public InfiltrationOpsCounterEspionage(Empire owner, Empire them, int levelCost, byte level) :
-            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.PlantMole, BaseRampUpTurns, owner)
+            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.CounterEspionage, BaseRampUpTurns, owner)
         {
             Owner = owner;
             Them = them;

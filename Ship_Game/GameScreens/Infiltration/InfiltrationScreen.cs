@@ -63,6 +63,8 @@ namespace Ship_Game.GameScreens
             Level3 = Add(new EspionageLevelPanel(this, Player, levelRect, 3));
             levelRect = new Rectangle(levelRect.Right + 20, levelRect.Y, 250, 250);
             Level4 = Add(new EspionageLevelPanel(this, Player, levelRect, 4));
+            levelRect = new Rectangle(levelRect.Right + 20, levelRect.Y, 250, 250);
+            Level5 = Add(new EspionageLevelPanel(this, Player, levelRect, 5));
             Add(new InfiltrationPanel(this, Universe.Player, ourRect));
             RefreshSelectedEmpire(Player);
             GameAudio.MuteRacialMusic();
@@ -138,12 +140,14 @@ namespace Ship_Game.GameScreens
             Level2.Visible = !SelectedEmpire.isPlayer;
             Level3.Visible = !SelectedEmpire.isPlayer;
             Level4.Visible = !SelectedEmpire.isPlayer;
+            Level5.Visible = !SelectedEmpire.isPlayer;
             InfiltrationTitle.Visible = !SelectedEmpire.isPlayer;
 
             if (Level1.Visible) Level1.RefreshEmpire();
             if (Level2.Visible) Level2.RefreshEmpire();
             if (Level3.Visible) Level3.RefreshEmpire();
             if (Level4.Visible) Level4.RefreshEmpire();
+            if (Level5.Visible) Level5.RefreshEmpire();
         }
 
         public void RefreshInfiltrationLevelStatus(Ship_Game.Espionage espionage)

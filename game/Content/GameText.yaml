@@ -15331,10 +15331,25 @@ InfiltrationSabotageMessageFailMiserableVictim:
  ENG: "An unknown agent tried to sabotage our planets and failed."               
 InfiltrationSabotageMessageFailCritical:
  Id: 6306
- ENG: "Our agent was caught when trying to infiltrate their planets. \nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                   
+ ENG: "Our agent was caught when trying to sabotage their planets. \nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                   
 InfiltrationSabotageMessageFailDisaster:
  Id: 6307
- ENG: "Our agent was caught when trying to infiltrate their planets\nand our entire spy network was wiped out!"                    
+ ENG: "Our agent was caught when trying to sabotage their planets\nand our entire spy network was wiped out!"                    
+InfiltrationSabotageMessageFailDisasterVictim:
+ Id: 6308
+ ENG: "We wiped out a spy network when on of their agents was trying to sabotage our planets."                      
+EspioangeOpsLeechIncome:
+ Id: 6309
+ ENG: "Leech Income"   
+EspioangeOpsLeechIncomeTip:
+ Id: 6310
+ ENG: "We steal 2% of their income per turn."     
+EspioangeOpsRebellion:
+ Id: 6311
+ ENG: "Incite Rebellion"   
+EspioangeOpsRebellionTip:
+ Id: 6312
+ ENG: "Try to incite rebellion in one of their more advanced colonies."      
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

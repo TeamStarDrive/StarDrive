@@ -14,7 +14,7 @@ namespace Ship_Game
         const int BaseRampUpTurns = 40;
 
         public InfiltrationOpsDisruptResearch(Empire owner, Empire them, int levelCost, byte level) :
-            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.PlantMole, BaseRampUpTurns, owner)
+            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.SlowResearch, BaseRampUpTurns, owner)
         {
             Owner = owner;
             Them = them;

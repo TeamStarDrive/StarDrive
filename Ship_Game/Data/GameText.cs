@@ -5503,6 +5503,14 @@ namespace Ship_Game
         InfiltrationSabotageMessageFailDisaster = 6307,
         /// <summary>We wiped out a spy network when on of their agents was trying</summary>
         InfiltrationSabotageMessageFailDisasterVictim = 6308,
+        /// <summary>Leech Income</summary>
+        EspioangeOpsLeechIncome = 6309,
+        /// <summary>We steal 2% of their income per turn</summary>
+        EspioangeOpsLeechIncomeTip = 6310,
+        /// <summary>Incite Rebellion</summary>
+        EspioangeOpsRebellion = 6311,
+        /// <summary>Try to incite rebellion in one of their more advanced colonies</summary>
+        EspioangeOpsRebellionTip = 6312,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

@@ -177,6 +177,7 @@
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsCounterEspionage.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsDisruptResearch.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsPlanetMole.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsRebellion.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsSabotage.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsUprise.cs" />
     <Compile Include="Ship_Game\ExoticBonusesWindow.cs" />
@@ -275,6 +276,7 @@
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel2.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel3.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel4.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel5.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButton.cs" />

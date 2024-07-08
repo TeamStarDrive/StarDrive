@@ -235,6 +235,7 @@ namespace Ship_Game
                 case InfiltrationOpsType.CounterEspionage: Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
                 case InfiltrationOpsType.Sabotage:         Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
                 case InfiltrationOpsType.SlowResearch:     Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
+                case InfiltrationOpsType.Rebellion:        Operations.Add(new InfiltrationOpsRebellion(Owner, Them, levelCost, Level));        break;
             }
         }
 

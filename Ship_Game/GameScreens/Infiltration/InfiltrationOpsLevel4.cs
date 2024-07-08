@@ -86,7 +86,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             if (SlowingResearch)
                 Espionage.AddOperation(InfiltrationOpsType.SlowResearch);
             else
-                Espionage.RemoveOperation(InfiltrationOpsType.CounterEspionage);
+                Espionage.RemoveOperation(InfiltrationOpsType.SlowResearch);
         }
     }
 }

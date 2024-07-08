@@ -55,6 +55,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 case 2: LevelOps = Add(new InfiltrationOpsLevel2(screen, player, rect, levelDescriptionY, passiveY, Textfont)); break;
                 case 3: LevelOps = Add(new InfiltrationOpsLevel3(screen, player, rect, levelDescriptionY, passiveY, Textfont)); break;
                 case 4: LevelOps = Add(new InfiltrationOpsLevel4(screen, player, rect, levelDescriptionY, passiveY, Textfont)); break;
+                case 5: LevelOps = Add(new InfiltrationOpsLevel5(screen, player, rect, levelDescriptionY, passiveY, Textfont)); break;
             }
         }
 
