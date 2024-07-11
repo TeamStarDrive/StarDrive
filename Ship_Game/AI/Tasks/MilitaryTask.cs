@@ -467,6 +467,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.DefendPostInvasion:
                 case TaskType.GlassPlanet:
                 case TaskType.CorsairRaid:
+                case TaskType.RemnantPortalDefense:
                 case TaskType.ClearAreaOfEnemies: taskCat |= TaskCategory.War; break;
                 case TaskType.AssaultPirateBase:
                 case TaskType.Patrol:
