@@ -15190,10 +15190,10 @@ NewFailedToInciteUpriseMiserable:
  ENG: "Our agents have miserably failed setting up an uprise on their colonies.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."      
 NewFailedToInciteUpriseDetected:
  Id: 6259
- ENG: "One of our agents was caught when trying to incide an uprise.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."      
+ ENG: "One of our agents was caught when trying to incite an uprise.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."      
 FailedToInciteUpriseWipedOut:
  Id: 6260
- ENG: "Our Agents were caught when trying to incide uprise.\nOur entire spy network was exposed and wiped out!"       
+ ENG: "Our Agents were caught when trying to incite uprise.\nOur entire spy network was exposed and wiped out!"       
 NewWipedOutNetworkUprise:
  Id: 6261
  ENG: "We uncovered and wiped out a spy network when its\nagents were incite uprise in one our colonies."        
@@ -15331,7 +15331,7 @@ InfiltrationSabotageMessageFailMiserableVictim:
  ENG: "An unknown agent tried to sabotage our planets and failed."               
 InfiltrationSabotageMessageFailCritical:
  Id: 6306
- ENG: "Our agent was caught when trying to sabotage their planets. \nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                   
+ ENG: "Our agent was caught when trying to sabotage their planets.\nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                   
 InfiltrationSabotageMessageFailDisaster:
  Id: 6307
  ENG: "Our agent was caught when trying to sabotage their planets\nand our entire spy network was wiped out!"                    
@@ -15350,6 +15350,27 @@ EspioangeOpsRebellion:
 EspioangeOpsRebellionTip:
  Id: 6312
  ENG: "Try to incite rebellion in one of their more advanced colonies."      
+NewFailedToInciteRebellion:
+ Id: 6313
+ ENG: "Our agents have failed to incite a rebellion in their colonies."        
+NewFailedToInciteRebellionMiserable:
+ Id: 6314
+ ENG: "Our agents have failed to incite a rebellion in their colonies.\nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."         
+InfiltrationRebellionMiserableFailVictim:
+ Id: 6315
+ ENG: "Unknown Agents tried incing a rebellon in one of our colonies. They Failed."                 
+NewFailedToInciteRebellionDetected:
+ Id: 6316
+ ENG: "One of our agents was caught when trying to incite a rebellion.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."       
+InfiltrationRebellionCriticalFailVictim:
+ Id: 6317
+ ENG: "An Agent was foiled attempting to arrange a rebellion in one of our colonies."         
+FailedToInciteRebellionWipedOut:
+ Id: 6318
+ ENG: "Our Agents were caught when trying to incite a rebellion.\nOur entire spy network was exposed and wiped out!"        
+NewWipedOutNetworkRebellion:
+ Id: 6319
+ ENG: "We uncovered and wiped out a spy network when its\nagents were incite a rebellion in one our colonies."         
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

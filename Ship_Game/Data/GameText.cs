@@ -5511,6 +5511,20 @@ namespace Ship_Game
         EspioangeOpsRebellion = 6311,
         /// <summary>Try to incite rebellion in one of their more advanced colonies</summary>
         EspioangeOpsRebellionTip = 6312,
+        /// <summary>Our agents have failed to incite a rebellion in their colonies</summary>
+        NewFailedToInciteRebellion = 6313,
+        /// <summary>Our agents have failed to incite a rebellion in their colonies. We had to pull assets</summary>
+        NewFailedToInciteRebellionMiserable = 6314,
+        /// <summary>Unknown Agents tried incing a rebellon in one of our colonies. They Failed</summary>
+        InfiltrationRebellionMiserableFailVictim = 6315,
+        /// <summary>One of our agents was caught when trying to incite a rebellion</summary>
+        NewFailedToInciteRebellionDetected = 6316,
+        /// <summary>An Agent was foiled attempting to arrange a rebellion in one of our colonies</summary>
+        InfiltrationRebellionCriticalFailVictim = 6317,
+        /// <summary>Our Agents were caught when trying to incite a rebellion</summary>
+        FailedToInciteRebellionWipedOut = 6318,
+        /// <summary>We uncovered and wiped out a spy network when its\nagents were incite a rebellion</summary>
+        NewWipedOutNetworkRebellion = 6319,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

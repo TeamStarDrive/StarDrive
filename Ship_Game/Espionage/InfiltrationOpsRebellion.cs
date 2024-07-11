@@ -50,23 +50,23 @@ namespace Ship_Game
                     aftermath.GoodResult = addRebellion = true;
                     break;
                 case InfiltrationOpsResult.Fail:
-                    aftermath.Message = GameText.NewFailedToInciteUprise;
+                    aftermath.Message = GameText.NewFailedToInciteRebellion;
                     break;
                 case InfiltrationOpsResult.MiserableFail:
-                    aftermath.Message = GameText.NewFailedToInciteUpriseMiserable;
-                    aftermath.MessageToVictim = Localizer.Token(GameText.InfiltrationUpriseMiserableFailVictim);
+                    aftermath.Message = GameText.NewFailedToInciteRebellionMiserable;
+                    aftermath.MessageToVictim = Localizer.Token(GameText.InfiltrationRebellionMiserableFailVictim);
                     espionage.ReduceInfiltrationLevel();
                     break;
                 case InfiltrationOpsResult.CriticalFail:
-                    aftermath.Message = GameText.NewFailedToInciteUpriseDetected;
-                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.InfiltrationUpriseCriticalFailVictim)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
+                    aftermath.Message = GameText.NewFailedToInciteRebellionDetected;
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.InfiltrationRebellionCriticalFailVictim)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage);
                     espionage.ReduceInfiltrationLevel();
                     aftermath.DamageReason = "Caught Spying";
                     break;
                 case InfiltrationOpsResult.Disaster:
-                    aftermath.Message = GameText.FailedToInciteUpriseWipedOut;
-                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkUprise)}\n" +
+                    aftermath.Message = GameText.FailedToInciteRebellionWipedOut;
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.FailedToInciteRebellionWipedOut)}\n" +
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +
                                                 $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {espionage.Level}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage, withLevelMultiplier: true);
@@ -82,6 +82,11 @@ namespace Ship_Game
                 Them.AddRebellion(targetPlanet, numRebels);
                 TakeOverOrbitals(targetPlanet, takeoverOrbitalChance);
             }
+            else
+            {
+                aftermath.MessageUseTheirName = true;
+            }
+
             aftermath.SendNotifications(Owner.Universe);
         }
 
