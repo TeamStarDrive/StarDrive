@@ -75,5 +75,11 @@ namespace Ship_Game
                 }
             }
         }
+
+        public bool TryGetRebels(out Empire rebels)
+        {
+            rebels = Universe.GetEmpireByName(data.RebelName);
+            return rebels != null;
+        }
     }
 }

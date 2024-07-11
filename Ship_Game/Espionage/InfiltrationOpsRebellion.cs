@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using SDUtils;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -31,16 +32,19 @@ namespace Ship_Game
             Planet targetPlanet = Them.Random.Item(potentials);
             bool addRebellion = false;
             int numRebels = 5;
+            float takeoverOrbitalChance = 50;
 
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
                     aftermath.GoodResult = addRebellion = true;
                     numRebels += 7;
+                    takeoverOrbitalChance = 100;
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
                     aftermath.GoodResult = addRebellion = true;
                     numRebels += 3;
+                    takeoverOrbitalChance = 75;
                     break;
                 case InfiltrationOpsResult.Success:
                     aftermath.GoodResult = addRebellion = true;
@@ -76,8 +80,27 @@ namespace Ship_Game
                 aftermath.MessageToVictim = $"{Localizer.Token(GameText.IncitedUpriseOn)} {targetPlanet.Name}";
                 aftermath.CustomMessage = $"{Localizer.Token(GameText.WeIncitedUprise)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                 Them.AddRebellion(targetPlanet, numRebels);
+                TakeOverOrbitals(targetPlanet, takeoverOrbitalChance);
             }
             aftermath.SendNotifications(Owner.Universe);
+        }
+
+        public void TakeOverOrbitals(Planet targetPlanet, float takeoverOrbitalChance)
+        {
+            if (Them.TryGetRebels(out Empire rebels))
+            {
+                foreach (Ship orbital in targetPlanet.OrbitalStations)
+                {
+                    if (Them.Random.RollDice(takeoverOrbitalChance))
+                    {
+                        var troops = orbital.GetOurTroops();
+                        foreach (Troop troop in troops)
+                            troop.ChangeLoyalty(rebels);
+
+                        orbital.LoyaltyChangeFromBoarding(rebels, false);
+                    }
+                }
+            }
         }
     }
 }
