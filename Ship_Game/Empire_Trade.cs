@@ -88,7 +88,7 @@ namespace Ship_Game
                 DispatchOrBuildFreighters(Goods.Food, OwnedPlanets, false);
 
             float popRatio              = TotalPopBillion / MaxPopBillion;
-            float productionFirstChance = popRatio * 100;
+            float productionFirstChance = popRatio * (NonCybernetic ? 200 : 300);
             if (Random.RollDice(productionFirstChance))
             {
                 DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
