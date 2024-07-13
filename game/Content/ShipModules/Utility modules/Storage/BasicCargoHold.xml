@@ -16,8 +16,7 @@
   <Name>Small Cargo Hold</Name>
   <IconTexturePath>Modules/cargoSmall</IconTexturePath>
   <Mass>3</Mass>
-  <Health>300</Health>
-  <HealthMax>10</HealthMax>
+  <HealthMax>300</HealthMax>
   <energyreq>0</energyreq>
   
   

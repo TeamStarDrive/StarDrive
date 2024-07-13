@@ -2,11 +2,10 @@
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
 
-  <Cost>8</Cost>
   <!-- Tech Level -->
   <TechLevel>1</TechLevel>
   <TechBranch>Storage</TechBranch>
-  <Cost>3</Cost>
+  <Cost>8</Cost>
   <XSize>2</XSize>
   <YSize>2</YSize>
   <!-- common traits shared by all ship modules -->

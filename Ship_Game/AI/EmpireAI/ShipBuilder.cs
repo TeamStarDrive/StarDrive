@@ -285,9 +285,9 @@ namespace Ship_Game.AI
 
         public static IShipDesign PickFreighter(Empire empire, float fastVsBig)
         {
-            if (empire.isPlayer && empire.AutoFreighters &&
-                !empire.Universe.Player.AutoPickBestFreighter &&
-                ResourceManager.Ships.GetDesign(empire.data.CurrentAutoFreighter, out IShipDesign freighter))
+            if (empire.isPlayer 
+                && !empire.Universe.Player.AutoPickBestFreighter 
+                && ResourceManager.Ships.GetDesign(empire.data.CurrentAutoFreighter, out IShipDesign freighter))
             {
                 return freighter;
             }
