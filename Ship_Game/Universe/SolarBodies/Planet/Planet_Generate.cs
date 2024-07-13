@@ -491,7 +491,9 @@ namespace Ship_Game
                 (float chance, int minInstance, int maxInstance) = item.ChanceMinMaxInstance(Category);
                 SpawnRandomItem(item, chance, minInstance, maxInstance);
             }
-            AddTileEvents();
+
+            if (!System.IsStartingSystem)
+                AddTileEvents();
         }
 
         public void RecreateSceneObject()

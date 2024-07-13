@@ -3,6 +3,9 @@
   <Faction>1</Faction>
   <PortraitName>unknown</PortraitName>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
+  <DefaultTroopShip>Human Troop</DefaultTroopShip>
+  <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>  
   <Traits>
     <Name>Unknown</Name>
     <Singular>Unknown</Singular>
