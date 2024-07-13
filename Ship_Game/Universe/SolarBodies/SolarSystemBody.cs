@@ -216,8 +216,8 @@ namespace Ship_Game
         public int NumBuildings => BuildingList.Count;
         public ReadOnlySpan<Building> Buildings => BuildingList.AsReadOnlySpan();
 
-        [StarData] public float ShieldStrengthCurrent;
-        public float ShieldStrengthMax;        
+        [StarData] public float ShieldStrengthCurrent { get; private set; }
+        public float ShieldStrengthMax { get; private set; }
         float PosUpdateTimer = 1f;
         float ZrotateAmount  = 0.03f;
         [StarData] public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
@@ -663,6 +663,16 @@ namespace Ship_Game
                     System.MoonList.Add(moon);
                 }
             }
+        }
+
+        public void SetShieldStrengthMax(float value)
+        {
+            ShieldStrengthMax = value;
+        }
+
+        public void ChangeCurrentplanetaryShield(float value)
+        {
+            ShieldStrengthCurrent = (ShieldStrengthCurrent + value).Clamped(0, ShieldStrengthMax);
         }
 
         // Used only for Unit tests!
