@@ -349,8 +349,8 @@ namespace Ship_Game
                 case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList, 1.25f); break;
                 case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);                      break;
                 case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);                      break;
-                case RemnantStory.AncientPeaceKeepers:  target = FindRandomEmpireAtWar(empiresList);                  break;
-                case RemnantStory.AncientWarMongers:    target = FindRandomEmpireAtPeace(empiresList);                break;
+                case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);               break;
+                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);               break;
             }
 
             return target != null;
@@ -389,22 +389,22 @@ namespace Ship_Game
             return false;
         }
 
-        Empire FindRandomEmpireAtPeace(Empire[] empiresList)
+        Empire FindStrongestEmpireAtPeace(Empire[] empiresList)
         {
             var potentialTargets = empiresList.Filter(e => !e.IsAtWarWithMajorEmpire);
             if (potentialTargets.Length == 0)
-                return null;
+                return empiresList.FindMin(e => e.OffensiveStrength); // get the weakest if everybody is at war
 
-            return Owner.Random.Item(potentialTargets); ;
+            return potentialTargets.FindMax(e => e.OffensiveStrength);
         }
 
-        Empire FindRandomEmpireAtWar(Empire[] empiresList)
+        Empire FindStrongestEmpireAtWar(Empire[] empiresList)
         {
             var potentialTargets = empiresList.Filter(e => e.IsAtWarWithMajorEmpire);
             if (potentialTargets.Length == 0)
-                return Universe.Player;
+                return null;
 
-            return Owner.Random.Item(potentialTargets); ;
+            return potentialTargets.FindMax(e => e.OffensiveStrength);
         }
 
         Empire FindStrongestByAveragePopAndStr(Empire[] empiresList, float ratioOverAverageThreshold = 1f)
