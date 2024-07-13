@@ -350,7 +350,7 @@ namespace Ship_Game
                 case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);                      break;
                 case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);                      break;
                 case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);               break;
-                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);               break;
+                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);             break;
             }
 
             return target != null;
