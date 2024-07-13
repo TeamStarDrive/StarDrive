@@ -596,7 +596,7 @@ namespace Ship_Game.AI
 
         public void OrderReturnHome()
         {
-            ClearOrders(priority:true);
+            ClearOrders(priority:false);
             AddShipGoal(Plan.ReturnHome, AIState.ReturnHome);
         }
 

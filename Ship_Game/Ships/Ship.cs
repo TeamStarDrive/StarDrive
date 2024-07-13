@@ -1271,7 +1271,7 @@ namespace Ship_Game.Ships
             }
 
             // return home if it is a defense ship
-            if (!InCombat && IsHomeDefense && !HomePlanet.SpaceCombatNearPlanet && AI.State != AIState.ReturnHome)
+            if (!InCombat && IsHomeDefense && !IsLaunching && !HomePlanet.SpaceCombatNearPlanet && AI.State != AIState.ReturnHome)
                 ReturnHome();
 
             // Ship Repair
