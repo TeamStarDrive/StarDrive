@@ -233,7 +233,6 @@ namespace Ship_Game
             PlayerDesignsToggle.IsToggled = !Universe.P.ShowAllDesigns;
             PlayerDesignsToggle.Tooltip = GameText.ToggleToDisplayOnlyPlayerdesigned;
             PlayerDesignsToggle.OnClick = OnPlayerDesignsToggleClicked;
-
             ResetBuildableTabs();
 
             float queueBottom = RightMenu.Bottom - 20;
