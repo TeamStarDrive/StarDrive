@@ -138,8 +138,7 @@ namespace Ship_Game
         [StarData] public string DiplomacyDialogPath;
         [StarData] public DTrait DiplomaticPersonality;
         [StarData] public ETrait EconomicPersonality;
-
-        float TaxRateValue = 0.25f;
+        [StarData] float TaxRateValue;
 
         // player modified tax rate
         [StarData]
