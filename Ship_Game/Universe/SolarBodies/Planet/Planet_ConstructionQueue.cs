@@ -445,10 +445,8 @@ public partial class Planet
 
         PlusFlatPopulationPerTurn = SumBuildings(bb => bb.PlusFlatPopulation);
 
-        ShieldStrengthMax = SumBuildings(bb => bb.PlanetaryShieldStrengthAdded);
-        ShieldStrengthMax *= 1 + (Owner?.data.ShieldPowerMod ?? 0);
-        ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0, ShieldStrengthMax);
-
+        SetShieldStrengthMax(SumBuildings(bb => bb.PlanetaryShieldStrengthAdded) * (1 + (Owner?.data.ShieldPowerMod ?? 0)));
+        ChangeCurrentplanetaryShield(0); // done for clamping the shields
         TotalRepair = SumBuildings(bb => bb.ShipRepair).LowerBound(0);
     }
 }

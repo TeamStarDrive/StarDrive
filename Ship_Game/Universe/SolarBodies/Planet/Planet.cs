@@ -844,16 +844,16 @@ namespace Ship_Game
             }
         }
 
-        private void RechargePlanetaryShields()
+        void RechargePlanetaryShields()
         {
-            if (ShieldStrengthMax.LessOrEqual(0) || ShieldStrengthCurrent.GreaterOrEqual(ShieldStrengthMax))
-                return; // fully recharged
+            if (ShieldStrengthMax.AlmostZero() || ShieldStrengthCurrent.AlmostEqual(ShieldStrengthMax))
+                return;
 
-            float maxRechargeRate = ShieldStrengthMax / (SpaceCombatNearPlanet ? 100 : 30);
-            float rechargeRate    = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
+            float maxRechargeRate = SpaceCombatNearPlanet ? ShieldStrengthMax * 0.005f : ShieldStrengthMax * 0.05f;
+            float rechargeRate = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
             Owner.AddExoticConsumption(ExoticBonusType.ShieldRecharge, rechargeRate);
             float rechargeExoticBonus = Owner.GetDynamicExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);
-            ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate*rechargeExoticBonus).Clamped(0, ShieldStrengthMax);
+            ChangeCurrentplanetaryShield(rechargeRate * rechargeExoticBonus);
         }
 
         private void UpdateColonyValue() => ColonyValue = Owner != null ? ColonyBaseValue(Owner) : 0;
@@ -1232,7 +1232,7 @@ namespace Ship_Game
                     Shield.HitShield(this, ship, Position, Radius + 100f);
                 }
 
-                ShieldStrengthCurrent = (ShieldStrengthCurrent - damage).LowerBound(0);
+                ChangeCurrentplanetaryShield(-damage);
                 return true;
             }
         }
