@@ -26,7 +26,7 @@ namespace Ship_Game
         void OnPlayerDesignsToggleClicked(ToggleButton button)
         {
             Universe.P.ShowAllDesigns = !Universe.P.ShowAllDesigns;
-            PlayerDesignsToggle.IsToggled = Universe.P.ShowAllDesigns;
+            PlayerDesignsToggle.IsToggled = !Universe.P.ShowAllDesigns;
             ResetBuildableList = true;
         }
 

@@ -165,12 +165,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             AvailableDesignsList.OnClick       = OnDesignListItemClicked;
             AvailableDesignsList.OnDoubleClick = OnDesignListItemDoubleClicked;
 
-            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(designs.Right - 44, designs.Y)));
+            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(designs.Right - 44, designs.Y-1)));
+            PlayerDesignsToggle.IsToggled = ShowOnlyPlayerDesigns = !Screen.Player.Universe.P.ShowAllDesigns;
             PlayerDesignsToggle.OnClick = p =>
             {
                 GameAudio.AcceptClick();
-                ShowOnlyPlayerDesigns = !ShowOnlyPlayerDesigns;
-                PlayerDesignsToggle.IsToggled = !ShowOnlyPlayerDesigns;
+                Screen.Player.Universe.P.ShowAllDesigns = !Screen.Player.Universe.P.ShowAllDesigns;
+                ShowOnlyPlayerDesigns = !Screen.Player.Universe.P.ShowAllDesigns;
+                PlayerDesignsToggle.IsToggled = !Screen.Player.Universe.P.ShowAllDesigns;
                 Filter.Text = DefaultFilterText;
                 LoadShipTemplates(filter:null);
             };
@@ -349,9 +351,8 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public class PlayerDesignToggleButton : ToggleButton
         {
-            public PlayerDesignToggleButton(Vector2 pos) : base(pos, ToggleButtonStyle.PlayerDesigns, "SelectionBox/icon_grid")
+            public PlayerDesignToggleButton(Vector2 pos) : base(pos, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
-                IsToggled = true;
                 Tooltip = GameText.ToggleToDisplayOnlyPlayerdesigned;
             }
         }
