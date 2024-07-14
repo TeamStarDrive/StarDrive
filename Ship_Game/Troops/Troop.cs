@@ -89,8 +89,7 @@ namespace Ship_Game
         [XmlIgnore] public bool CanLaunch =>
                 HostPlanet?.Owner == null || Loyalty.isPlayer ? CanMove : CanMove && IsHealthFull;
 
-        public float ActualCost(Empire e) => Cost * (1 + e.DifficultyModifiers.TroopCostMod) 
-            * UniverseState.DummyProductionPacePlaceholder;
+        public float ActualCost(Empire e) => Cost * (1 + e.DifficultyModifiers.TroopCostMod) * e.Universe.ProductionPace;
 
         SpriteSystem.TextureAtlas TroopAnim;
 

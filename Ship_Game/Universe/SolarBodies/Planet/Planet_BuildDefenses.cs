@@ -397,7 +397,7 @@ namespace Ship_Game
             if (MilitaryBuildingInTheWorks)
                 return;
 
-            var cheapestInfantryBuilding = BuildingsCanBuild.FindMinFiltered(b => b.AllowInfantry, b => b.ActualCost);
+            var cheapestInfantryBuilding = BuildingsCanBuild.FindMinFiltered(b => b.AllowInfantry, b => b.ActualCost(Owner));
             if (cheapestInfantryBuilding != null)
                 Construction.Enqueue(cheapestInfantryBuilding);
         }

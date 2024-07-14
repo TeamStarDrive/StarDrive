@@ -274,7 +274,7 @@ public partial class Planet
     public void ScrapBuilding(Building b, PlanetGridSquare tile = null)
     {
         RemoveBuildingFromPlanet(b, tile, refund:true);
-        ProdHere += b.ActualCost / 2f;
+        ProdHere += b.ActualCost(Owner) / 2f;
     }
 
     public void DestroyBuildingOn(PlanetGridSquare tile) => RemoveBuildingFromPlanet(null, tile, refund:false);

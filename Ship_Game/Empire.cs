@@ -2129,7 +2129,7 @@ namespace Ship_Game
             {
                 Planet p = OwnedPlanets[i];
                 ExpansionScore  += p.Fertility*10 + p.MineralRichness*10 + p.PopulationBillion;
-                IndustrialScore += p.SumBuildings(b => b.ActualCost);
+                IndustrialScore += p.SumBuildings(b => b.ActualCost(this));
             }
             IndustrialScore *= 0.05f;
 
@@ -2537,7 +2537,7 @@ namespace Ship_Game
         public void RefundCreditsPostRemoval(Building b)
         {
             if (b.IsMilitary)
-                RefundCredits(b.ActualCost, 0.5f);
+                RefundCredits(b.ActualCost(this), 0.5f);
         }
 
         public void ChargeRushFees(float productionCost, bool immediate)

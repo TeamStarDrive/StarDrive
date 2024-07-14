@@ -90,13 +90,14 @@ namespace Ship_Game
         [XmlIgnore] [StarData] public float Offense { get; private set; }
         [XmlIgnore] [StarData] public float MilitaryStrength { get; private set; }
         [XmlIgnore] [StarData] public int CurrentNumDefenseShips { get; private set; }
-        [XmlIgnore] public float ActualCost => Cost * UniverseState.DummyProductionPacePlaceholder;
         [XmlIgnore] public bool IsBadCacheResourceBuilding => 
             FoodCache > 0 && PlusFlatFoodAmount == 0 && PlusFoodPerColonist == 0 
             || ProdCache > 0 && PlusProdPerColonist == 0 && PlusFlatProductionAmount == 0 && PlusProdPerRichness == 0;
 
         public override string ToString()
-            => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{GetShortDescrText()}";
+            => $"BID:{BID} Name:{Name} Gross Cost:{Cost} +Tax:{PlusTaxPercentage}  Short:{GetShortDescrText()}";
+
+        public float ActualCost(Empire e) => Cost * e.Universe.ProductionPace;
 
         [XmlIgnore] public LocalizedText TranslatedName  => new(NameTranslationIndex);
         [XmlIgnore] public LocalizedText DescriptionText => new(DescriptionIndex);

@@ -84,7 +84,7 @@ public sealed class RuleOptionsScreen : GameScreen
         var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
         var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
 
-        GravityWellSize = Slider(gwRect, GameText.GravityWellRadius, 0, 20000, P.GravityWellRange);
+        GravityWellSize = Slider(gwRect, GameText.GravityWellRadius, 4000, 16000, P.GravityWellRange);
         GravityWellSize.OnChange = (s) => P.GravityWellRange = s.AbsoluteValue;
 
         ExtraPlanets = Slider(epRect, GameText.ExtraPlanets, 0, 3f, P.ExtraPlanets);

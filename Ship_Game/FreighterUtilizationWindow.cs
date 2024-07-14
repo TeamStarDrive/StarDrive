@@ -125,7 +125,7 @@ namespace Ship_Game
 
         public override void Update(float fixedDeltaTime)
         {
-            if (!IsOpen || Player.Universe.Paused)
+            if (!IsOpen) 
                 return;
 
             UpdateTimer -= fixedDeltaTime;
