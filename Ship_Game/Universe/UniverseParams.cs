@@ -31,7 +31,6 @@ public class UniverseParams
     [StarData(DefaultValue=1f)] public float StarsModifier = 1f;
 
     // Universe customization parameters:
-    [StarData] public float MinAcceptableShipWarpRange;
     [StarData] public int TurnTimer; // seconds between Empire turns, every turn advances stardate by 0.1
     [StarData] public bool PreventFederations;
     [StarData] public bool EliminationMode;
@@ -91,7 +90,6 @@ public class UniverseParams
 
         NumOpponents = s.DefaultNumOpponents.UpperBound(ResourceManager.MajorRaces.Count - 1);
         RacialTraitPoints = s.TraitPoints;
-        MinAcceptableShipWarpRange = s.MinAcceptableShipWarpRange;
         TurnTimer = s.TurnTimer;
         CustomMineralDecay = s.CustomMineralDecay;
         VolcanicActivity = s.VolcanicActivity;

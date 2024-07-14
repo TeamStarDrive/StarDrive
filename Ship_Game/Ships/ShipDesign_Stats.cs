@@ -261,7 +261,7 @@ public partial class ShipDesign
         if (IsPlatformOrStation)
             return true;
 
-        float neededRange = e.Universe.P.MinAcceptableShipWarpRange;
+        float neededRange = GlobalStats.Defaults.MinAcceptableShipWarpRange;
         if (neededRange <= 0f)
             return true;
 
