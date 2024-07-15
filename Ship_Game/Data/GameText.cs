@@ -5525,6 +5525,49 @@ namespace Ship_Game
         FailedToInciteRebellionWipedOut = 6318,
         /// <summary>We uncovered and wiped out a spy network when its\nagents were incite a rebellion</summary>
         NewWipedOutNetworkRebellion = 6319,
+        /// <summary>We have restored stability to our Sub-Space projection network</summary>
+        SubspaceProjectionStableAgain = 6320,
+        /// <summary>Our Agents were able to hack and distabilize their</summary>
+        InfiltrationDisruptProjectionSuccess = 6321,
+        /// <summary>Our Agents failed to disrupt their Subspace Projection Network</summary>
+        InfiltrationDisruptProjectionFail = 6322,
+        /// <summary>Our Subspace Projection Network hack against\nthem has badly failed</summary>
+        InfiltrationDisruptProjectionMiserableFail = 6323,
+        /// <summary>Unknown agents have tried to hack our Subspace Projection Network</summary>
+        InfiltrationDisruptProjectionMiserableFailVictim = 6324,
+        /// <summary>Our Subspace Projection Network hack against\nthem has failed and an agent was caught</summary>
+        InfiltrationDisruptProjectionCriticalFail = 6325,
+        /// <summary>We caught an agent trying to hack our Subspace projection Network</summary>
+        InfiltrationDisruptProjectionCriticalFailVictim = 6326,
+        /// <summary>Our Agents were caught when trying to hack their Subspace</summary>
+        InfiltrationDisruptProjectionDisaster = 6327,
+        /// <summary>We uncovered and wiped out a spy network when its\nagents were trying to hack</summary>
+        InfiltrationDisruptProjectionDisasterVictim = 6328,
+        /// <summary>Disrupt Projection</summary>
+        EspioangeOpsDisruptProjection = 6329,
+        /// <summary>Hack their Subspace Projection network and disatabilize</summary>
+        EspioangeOpsDisruptProjectionTip = 6330,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

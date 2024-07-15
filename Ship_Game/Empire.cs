@@ -1027,6 +1027,7 @@ namespace Ship_Game
                 AI.Update(); // Must be done before DoMoney and Take turn
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
+                TryDisableInfluence();
                 CalculateExoticBonuses();
                 TakeTurn(us);
 
@@ -1168,7 +1169,8 @@ namespace Ship_Game
         public void AssessSystemsInDanger(FixedSimTime timeStep)
         {
             ThreatDetector ??= new(); // savegame compatibility
-            ThreatDetector.Update(this, timeStep);
+            if (InfluenceActive)
+                ThreatDetector.Update(this, timeStep);
         }
 
         // Using memory to save CPU time. the question is how often is the value used and

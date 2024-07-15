@@ -184,14 +184,18 @@ namespace Ship_Game.Universe
 
         static InfluenceStatus GetStatus(Empire us, Empire other)
         {
-            if (us == other)
+            if (us == other && us.InfluenceActive)
                 return InfluenceStatus.Friendly;
 
-            Relationship r = us.GetRelations(other);
-            if (r.Treaty_Alliance || r.Treaty_Trade)
-                return InfluenceStatus.Friendly;
-            if (r.AtWar)
-                return InfluenceStatus.Enemy;
+            if (other.InfluenceActive)
+            {
+                Relationship r = us.GetRelations(other);
+                if (r.Treaty_Alliance || r.Treaty_Trade)
+                    return InfluenceStatus.Friendly;
+                if (r.AtWar)
+                    return InfluenceStatus.Enemy;
+            }
+
             return InfluenceStatus.Neutral;
         }
 

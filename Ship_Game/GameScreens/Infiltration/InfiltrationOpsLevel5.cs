@@ -12,11 +12,11 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly Font Font;
         readonly UILabel LevelDescription;
         readonly UILabel PassiveTitle, Passive, ActiveTitle;
-        readonly UICheckBox RebellionBox, StealTechBox;
+        readonly UICheckBox RebellionBox, ProjectionBox;
         readonly int LevelDescriptionY, PassiveY;
         const int Level = 5;
         Ship_Game.Espionage Espionage;
-        bool IncitingRebellion, StealingTech;
+        bool IncitingRebellion, DistuptingProjection;
 
         public InfiltrationOpsLevel5(InfiltrationScreen screen, Empire player, in Rectangle rect, int levelDescY, int passiveY, Font font)
             : base(rect)
@@ -29,10 +29,10 @@ namespace Ship_Game.GameScreens.EspionageNew
             ActiveTitle = Add(new UILabel(GameText.Active, Font, Color.Wheat));
             Passive = Add(new UILabel(GameText.EspioangeOpsLeechIncome, Font, Color.Gray));
             RebellionBox = Add(new UICheckBox(() => IncitingRebellion, Font, GameText.EspioangeOpsRebellion, GameText.EspioangeOpsRebellionTip));
-            StealTechBox = Add(new UICheckBox(() => StealingTech, Font, GameText.EspioangeOpsSlowResearch, GameText.EspioangeOpsSlowResearchTip));
+            ProjectionBox = Add(new UICheckBox(() => DistuptingProjection, Font, GameText.EspioangeOpsDisruptProjection, GameText.EspioangeOpsDisruptProjectionTip));
             RebellionBox.OnChange = Rebellion;
-            StealTechBox.OnChange = StealTech;
-            RebellionBox.CheckedTextColor = StealTechBox.CheckedTextColor = player.EmpireColor;
+            ProjectionBox.OnChange = StealTech;
+            RebellionBox.CheckedTextColor = ProjectionBox.CheckedTextColor = player.EmpireColor;
 
             Passive.Tooltip = GameText.EspioangeOpsLeechIncomeTip;
             LevelDescriptionY = levelDescY;
@@ -49,17 +49,17 @@ namespace Ship_Game.GameScreens.EspionageNew
             Passive.Pos = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
             ActiveTitle.Pos = new Vector2(Rect.X + 5, PassiveY + Font.LineSpacing + 2);
             RebellionBox.Pos = new Vector2(Rect.X + 75, ActiveTitle.Y);
-            StealTechBox.Pos = new Vector2(Rect.X + 75, ActiveTitle.Y + Font.LineSpacing + 2);
+            ProjectionBox.Pos = new Vector2(Rect.X + 75, ActiveTitle.Y + Font.LineSpacing + 2);
 
             if (!Screen.SelectedEmpire.isPlayer)
             {
                 Espionage = Player.GetEspionage(Screen.SelectedEmpire);
                 Passive.Color = Espionage.Level >= Level ? Player.EmpireColor : Color.Gray;
-                RebellionBox.Enabled = StealTechBox.Enabled = Espionage.Level >= Level;
-                RebellionBox.TextColor = StealTechBox.TextColor = RebellionBox.Enabled ? Color.White : Color.Gray;
+                RebellionBox.Enabled = ProjectionBox.Enabled = Espionage.Level >= Level;
+                RebellionBox.TextColor = ProjectionBox.TextColor = RebellionBox.Enabled ? Color.White : Color.Gray;
                 LevelDescription.Color = RebellionBox.Enabled ? Player.EmpireColor : Color.Gray;
                 IncitingRebellion = Espionage.IsOperationActive(InfiltrationOpsType.Rebellion);
-                StealingTech = Espionage.IsOperationActive(InfiltrationOpsType.StealTech);
+                DistuptingProjection = Espionage.IsOperationActive(InfiltrationOpsType.DisruptProjection);
             }
         }
 
@@ -83,10 +83,10 @@ namespace Ship_Game.GameScreens.EspionageNew
 
         void StealTech(UICheckBox b)
         {
-            if (StealingTech)
-                Espionage.AddOperation(InfiltrationOpsType.StealTech);
+            if (DistuptingProjection)
+                Espionage.AddOperation(InfiltrationOpsType.DisruptProjection);
             else
-                Espionage.RemoveOperation(InfiltrationOpsType.StealTech);
+                Espionage.RemoveOperation(InfiltrationOpsType.DisruptProjection);
         }
     }
 }

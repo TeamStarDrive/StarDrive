@@ -134,7 +134,7 @@ namespace Ship_Game
         Sabotage,
         SlowResearch,
         Rebellion,
-        StealTech
+        DisruptProjection
     }
 
     public enum InfiltrationOpsResult

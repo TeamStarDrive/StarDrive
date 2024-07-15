@@ -15371,6 +15371,39 @@ FailedToInciteRebellionWipedOut:
 NewWipedOutNetworkRebellion:
  Id: 6319
  ENG: "We uncovered and wiped out a spy network when its\nagents were incite a rebellion in one our colonies."         
+SubspaceProjectionStableAgain:
+ Id: 6320
+ ENG: "We have restored stability to our Sub-Space projection network."          
+InfiltrationDisruptProjectionSuccess:
+ Id: 6321
+ ENG: "Our Agents were able to hack and distabilize their Subspace Projection Network.\nThey will need some time to fully restore it."    
+InfiltrationDisruptProjectionFail:
+ Id: 6322
+ ENG: "Our Agents failed to disrupt their Subspace Projection Network."     
+InfiltrationDisruptProjectionMiserableFail:
+ Id: 6323
+ ENG: "Our Subspace Projection Network hack against\nthem has badly failed. We had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."               
+InfiltrationDisruptProjectionMiserableFailVictim:
+ Id: 6324
+ ENG: "Unknown agents have tried to hack our Subspace Projection Network. They have failed."                
+InfiltrationDisruptProjectionCriticalFail:
+ Id: 6325
+ ENG: "Our Subspace Projection Network hack against\nthem has failed and an agent was caught.\nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                
+InfiltrationDisruptProjectionCriticalFailVictim:
+ Id: 6326
+ ENG: "We caught an agent trying to hack our Subspace projection Network."                 
+InfiltrationDisruptProjectionDisaster:
+ Id: 6327
+ ENG: "Our Agents were caught when trying to hack their Subspace Projection Network.\nOur entire spy network was exposed and wiped out!"                 
+InfiltrationDisruptProjectionDisasterVictim:
+ Id: 6328
+ ENG: "We uncovered and wiped out a spy network when its\nagents were trying to hack our Subspace Projection Network."          
+EspioangeOpsDisruptProjection:
+ Id: 6329
+ ENG: "Disrupt Projection"      
+EspioangeOpsDisruptProjectionTip:
+ Id: 6330
+ ENG: "Hack their Subspace Projection network and disatabilize it for a period of time where it will flicker until they manage to stabilize it."        
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

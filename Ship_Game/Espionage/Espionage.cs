@@ -123,6 +123,11 @@ namespace Ship_Game
             SlowResearchChance = value;
         }
 
+        public void SetDisruptProjectionChance(int value)
+        {
+            Them.SetInfluenceDisableChance(value);
+        }
+
         void EnablePassiveEffects()
         {
             if (Level >= 1)
@@ -230,12 +235,13 @@ namespace Ship_Game
             int levelCost = LevelCost(Level);
             switch (type) 
             {
-                case InfiltrationOpsType.PlantMole:        Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost, Level));        break;
-                case InfiltrationOpsType.Uprise:           Operations.Add(new InfiltrationOpsUprise(Owner, Them, levelCost, Level));           break;
-                case InfiltrationOpsType.CounterEspionage: Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
-                case InfiltrationOpsType.Sabotage:         Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
-                case InfiltrationOpsType.SlowResearch:     Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level)); break;
-                case InfiltrationOpsType.Rebellion:        Operations.Add(new InfiltrationOpsRebellion(Owner, Them, levelCost, Level));        break;
+                case InfiltrationOpsType.PlantMole:         Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost, Level));         break;
+                case InfiltrationOpsType.Uprise:            Operations.Add(new InfiltrationOpsUprise(Owner, Them, levelCost, Level));            break;
+                case InfiltrationOpsType.CounterEspionage:  Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level));  break;
+                case InfiltrationOpsType.Sabotage:          Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level));  break;
+                case InfiltrationOpsType.SlowResearch:      Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level));  break;
+                case InfiltrationOpsType.Rebellion:         Operations.Add(new InfiltrationOpsRebellion(Owner, Them, levelCost, Level));         break;
+                case InfiltrationOpsType.DisruptProjection: Operations.Add(new InfiltrationOpsDisruptProjection(Owner, Them, levelCost, Level)); break;
             }
         }
 
