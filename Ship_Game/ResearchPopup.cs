@@ -51,15 +51,17 @@ public sealed class ResearchPopup : PopupWindow
         UnlockSL = Add(new ScrollList<UnlockListItem>(rect, 100));
 
         Array<UnlockItem> unlocks = UnlockItem.CreateUnlocksList(Technology, Universe.Player);
-        UnlockSL.SetItems(unlocks.Select(u => new UnlockListItem(u)));
+        UnlockSL.SetItems(unlocks.Select(u => new UnlockListItem(u, Universe.Player)));
     }
 
     class UnlockListItem : ScrollListItem<UnlockListItem>
     {
         readonly UnlockItem Unlock;
-        public UnlockListItem(UnlockItem unlock)
+        readonly Empire Player;
+        public UnlockListItem(UnlockItem unlock, Empire player)
         {
             Unlock = unlock;
+            Player = player;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -83,7 +85,7 @@ public sealed class ResearchPopup : PopupWindow
                         iconRect = new(X + 16, CenterY - 32, 64, 64);
                         if (Unlock.building != null)
                         {
-                            comment = $"    Production Cost: {Unlock.building.ActualCost}";
+                            comment = $"    Production Cost: {Unlock.building.ActualCost(Player)}";
                         }
                         summary = Unlock.building?.GetShortDescrText() ?? "";
                         break;

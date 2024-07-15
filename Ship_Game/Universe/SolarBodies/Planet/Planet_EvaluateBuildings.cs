@@ -752,7 +752,7 @@ namespace Ship_Game
             if (potentialBio.Length == 0)
                 return;
 
-            PlanetGridSquare tile = Random.Item(potentialBio.Sorted(t => t.Building?.ActualCost ?? 0));
+            PlanetGridSquare tile = Random.Item(potentialBio.Sorted(t => t.Building?.ActualCost(Owner) ?? 0));
             if (!tile.Building?.CanBuildAnywhere == true)
                 ScrapBuilding(tile.Building, tile);
 

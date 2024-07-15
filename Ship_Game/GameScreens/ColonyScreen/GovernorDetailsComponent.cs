@@ -793,6 +793,8 @@ namespace Ship_Game
 
             BlueprintsCompletion.Progress = Planet.Blueprints.PercentCompleted;
             BlueprintsAchiveable.Text = $"({Planet.Blueprints.PercentAchievable.String()}% {Localizer.Token(GameText.Achievable)})";
+            if (Planet.HasBlueprints && Planet.Blueprints.Name != BlueprintsName.Text)
+                UpdateBlueprintsChanged();
         }
 
         void UpdateBudgets()

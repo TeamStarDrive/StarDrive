@@ -1102,7 +1102,6 @@ namespace UnitTests.Serialization
             AssertEqual(instance.Mode, result.Mode);
             AssertEqual(instance.Pace, result.Pace);
             AssertEqual(instance.StarsModifier, result.StarsModifier);
-            AssertEqual(instance.MinAcceptableShipWarpRange, result.MinAcceptableShipWarpRange);
             AssertEqual(instance.TurnTimer, result.TurnTimer);
             AssertEqual(instance.PreventFederations, result.PreventFederations);
             AssertEqual(instance.EliminationMode, result.EliminationMode);

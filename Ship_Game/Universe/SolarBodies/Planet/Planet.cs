@@ -460,7 +460,7 @@ namespace Ship_Game
             float value = 0;
             value += ColonyRawValue(empire);
             value += HasCapital ? 100 : 0;
-            value += SumBuildings(b => b.ActualCost) * 0.01f;
+            value += SumBuildings(b => b.ActualCost(empire)) * 0.01f;
             value += PopulationBillion * 5;
 
             return value;

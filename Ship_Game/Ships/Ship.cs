@@ -1849,7 +1849,7 @@ namespace Ship_Game.Ships
         {
             if (!Active)
                 return false;
-            float minRange = Universe?.P.MinAcceptableShipWarpRange ?? GlobalStats.Defaults.MinAcceptableShipWarpRange;
+            float minRange = GlobalStats.Defaults.MinAcceptableShipWarpRange;
             bool warpTimeGood = IsWarpRangeGood(minRange);
             return warpTimeGood;
         }

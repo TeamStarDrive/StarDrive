@@ -43,9 +43,10 @@ namespace Ship_Game.AI
         /// This is a quick set check to see if we are financially able to rush production
         /// </summary>
         public bool SafeToRush => CreditRating > 0.8f;
+        public bool SafeToRushColonyShips => OwnerEmpire.IsExpansionists ? CreditRating > 0.5f : CreditRating > 0.6f;
 
         // Empire spaceDefensive Reserves high enough to support fractional build budgets
-        public bool EmpireCanSupportSpcDefense => DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;
+        public bool EmpireCanSupportSpcDefense => DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.9f;
 
         /// <summary>
         /// This is the budgeted amount of money that will be available to empire looking over 20 years.
@@ -53,18 +54,16 @@ namespace Ship_Game.AI
         public float ProjectedMoney { get; private set; } = 0;
 
         /// <summary>
-        /// This a ratio of projectedMoney and the normalized money then multiplied by 2 then add 1 - taxrate
-        /// then the whole thing divided by 3. This puts a large emphasis on money goal to money ratio
+        /// This a ratio of projectedMoney and the normalized money then multiplied by 3 then add 1 - taxrate
+        /// then the whole thing divided by 4. This puts a large emphasis on money goal to money ratio
         /// but a high tax will greatly effect the result.
         /// </summary>
         public float CreditRating
         {
             get
             {
-                float normalMoney = OwnerEmpire.Money;
-                float goalRatio = normalMoney / ProjectedMoney;
-
-                return (goalRatio.UpperBound(1) * 3 + (1 - OwnerEmpire.data.TaxRate)) / 4f;
+                float goalRatio = OwnerEmpire.Money / ProjectedMoney;
+                return (goalRatio.UpperBound(1)*3 + (1-OwnerEmpire.data.TaxRate)) * 0.25f;
             }
         }
 

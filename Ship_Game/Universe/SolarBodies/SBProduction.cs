@@ -282,7 +282,7 @@ namespace Ship_Game.Universe.SolarBodies
                 IsMilitary      = b.IsMilitary,
                 Building        = b,
                 pgs             = where,
-                Cost            = b.ActualCost,
+                Cost            = b.ActualCost(P.Owner),
                 ProductionSpent = 0.0f,
                 NotifyOnEmpty   = false,
                 Rush            = P.Owner.RushAllConstruction,

@@ -12,14 +12,32 @@ Globals:
   CostBasedOnSizeThreshold: 3000
   HangarCombatShipCostMultiplier: 1
   RequiredExpansionPopRatio: 0.4 # required empire pop ratio before expansion is considered
-  ShipyardBonus: 0.25 # default 0.25
+  ShipyardBonus: 0.25 # default 0.25, this also improves repair rate
   CustomMineralDecay: 1 # default 1
   VolcanicActivity: 1 # default 1
   GravityWellRange: 8000 # sets the default gravity well range, 0 means disabled
   StartingPlanetRichnessBonus: 1 # bonus richness for empire capitals (default is 1 for richness of 2)
   ShipMaintenanceMultiplier: 1 # default 1
+  ResearchStationProductionPerResearch: 2 # default 2
   RushCostPercentage: 1 # default 1, How much rushing costs in percentage of production cost
   MinAcceptableShipWarpRange: 600000 # minimum ship warp range which is accepted as good
+  # gameplay: repair
+  BaseShipyardRepair: 10.0 # # repair multiplier of ship repair per turn from planetary buildings (per SECOND)
+  BonusRepairPerColonyLevel: 0.1 # +bonus based on colony level, 0.1 would be +10% increase per level
+  InCombatRepairModifier: 0.5 # repair rate modifier when a ship or planet is in combat
+  BonusColonyEMPRecovery: 5.0 # multiplier of EMP damage removed from shipyard repair when orbiting a colony
+  SelfRepairMultiplier: 1.0 # base repair rate from ship command/engineering modules per SECOND
+  BonusRepairPerCrewLevel: 0.2 # +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
+  InCombatSelfRepairModifier: 0.2 # repair rate modifier for command/engineering self repair when in combat
+  ShieldPowerMultiplier: 1.0 # Global multiplier for Shields
+  ProjectileHitpointsMultiplier: 1.0 # Global multiplier for Projectile Hit Points (mainly affects missiles)
+  ConstructionShipOrbitalDiscount: 100 # When building orbitals, constructor ship cost over this threshold will be added to the gross orbital cost
+  ConstructionModuleBuildRate: 100 # How much consturction the construction module can process per turn   
+  BuilderShipConstructionAdded: 100 # How much consturction Builder ships add when they reach the contructor
+  ResearchBenefitFromAlliance: 0.1 # How much research each alliance is giving you (from other party research)  
+  MiningStationFoodPerOneRefining: 0.25 # How much Food is consumed per 1 refining point
+  ExoticRatioStorage: 0.02 # How much exotic resource storage an empire has per resource based on all planet normal storage  
+  EnableHullEditor: false # Alows modders to edut hulls. it is disabled by default since it will weaken the AI if not done correctly.
 
   # feature flags
   DisableShipPicker: true

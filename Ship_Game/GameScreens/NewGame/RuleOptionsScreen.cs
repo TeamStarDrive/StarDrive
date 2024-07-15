@@ -15,7 +15,6 @@ public sealed class RuleOptionsScreen : GameScreen
     FloatSlider GravityWellSize;
     FloatSlider ExtraPlanets;
     FloatSlider IncreaseMaintenance;
-    FloatSlider MinAcceptableShipWarpRange;
     FloatSlider StartingRichness;
     FloatSlider TurnTimer;
     FloatSlider CustomMineralDecay;
@@ -84,7 +83,7 @@ public sealed class RuleOptionsScreen : GameScreen
         var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
         var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
 
-        GravityWellSize = Slider(gwRect, GameText.GravityWellRadius, 0, 20000, P.GravityWellRange);
+        GravityWellSize = Slider(gwRect, GameText.GravityWellRadius, 4000, 16000, P.GravityWellRange);
         GravityWellSize.OnChange = (s) => P.GravityWellRange = s.AbsoluteValue;
 
         ExtraPlanets = Slider(epRect, GameText.ExtraPlanets, 0, 3f, P.ExtraPlanets);
@@ -95,14 +94,10 @@ public sealed class RuleOptionsScreen : GameScreen
 
 
         var optionTurnTimer  = new Rectangle(x, leftRect.Y + 390, 270, 50);
-        var minimumWarpRange = new Rectangle(x, leftRect.Y + 450, 270, 50);
-        var maintenanceRect  = new Rectangle(x, leftRect.Y + 510, 270, 50);
+        var maintenanceRect  = new Rectangle(x, leftRect.Y + 450, 270, 50);
 
         TurnTimer = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 4, 10f, P.TurnTimer);
         TurnTimer.OnChange = (s) => P.TurnTimer = (int)s.AbsoluteValue;
-
-        MinAcceptableShipWarpRange = Slider(minimumWarpRange, GameText.MinAcceptableShipWarpRange, 0, 1200000f, P.MinAcceptableShipWarpRange);
-        MinAcceptableShipWarpRange.OnChange = (s) => P.MinAcceptableShipWarpRange = s.AbsoluteValue;
 
         IncreaseMaintenance = Slider(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 10f, P.ShipMaintenanceMultiplier);
         IncreaseMaintenance.OnChange = (s) => P.ShipMaintenanceMultiplier = s.AbsoluteValue;
@@ -118,7 +113,6 @@ public sealed class RuleOptionsScreen : GameScreen
             extraPlanetsTip = $"{extraPlanetsTip} {Localizer.Token(GameText.ThisWillSlightlyIncreaseResearch)}";
 
         ExtraPlanets.Tip = extraPlanetsTip;
-        MinAcceptableShipWarpRange.Tip = GameText.MinAcceptableWarpRangeAShip;
         IncreaseMaintenance.Tip = GameText.MultiplyGlobalMaintenanceCostBy;
         StartingRichness.Tip = GameText.AddToAllStartingEmpire;
         TurnTimer.Tip = GameText.TimeInSecondsPerTurn;
