@@ -231,8 +231,20 @@ public partial class Planet
         return Storage.Max - effectiveProd; // Negative means we have excess prod
     }
 
-    public bool IsColonyShipInQueue() => FirstShipRoleInQueue(RoleName.colony) != null;
-    public bool IsColonyShipInQueue(Goal g) => ConstructionQueue.Any(q => q.isShip && q.Goal == g);
+    public bool IsColonyShipInQueue(Goal g) => ConstructionQueue.Any(qi => qi.isShip && qi.Goal == g);
+
+    public bool IsColonyShipInQueue(Goal g, out int queueIndex)
+    {
+        for (queueIndex = 0; queueIndex < ConstructionQueue.Count; queueIndex++) 
+        {
+            QueueItem qi = ConstructionQueue[queueIndex];
+            if (qi.isShip && qi.Goal == g)
+                return true;
+        }
+
+        return false;
+    }
+        
 
     public Ship FirstShipRoleInQueue(RoleName role)
     {

@@ -204,7 +204,11 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoToNextStep;
             }
 
-            if (!IsPlanetBuildingColonyShip())
+            if (IsPlanetBuildingColonyShip(out int queueIndex))
+            {
+                TryRushColonyShip(queueIndex);
+            }
+            else
             {
                 PlanetBuildingAt = null;
                 return GoalStep.RestartGoal;
@@ -315,12 +319,13 @@ namespace Ship_Game.Commands.Goals
             return spaceStrength > 10 || groundStr > 0;
         }
 
-        bool IsPlanetBuildingColonyShip()
+        bool IsPlanetBuildingColonyShip(out int queueIndex)
         {
+            queueIndex = 0;
             if (PlanetBuildingAt == null)
                 return false;
 
-            return PlanetBuildingAt.IsColonyShipInQueue();
+            return PlanetBuildingAt.IsColonyShipInQueue(this, out queueIndex);
         }
 
         Ship FindIdleColonyShip()
@@ -356,6 +361,15 @@ namespace Ship_Game.Commands.Goals
         {
             return Task?.Fleet != null && LifeTime > 5 // Timeout
                 || Task?.Fleet?.TaskStep != 7; // we lost
+        }
+
+        void TryRushColonyShip(int queueIndex)
+        {
+            if (Owner.isPlayer || queueIndex != 0 || !Owner.AI.SafeToRushColonyShips)
+                return;
+
+            float rush = 50f.UpperBound(PlanetBuildingAt.ProdHere);
+            PlanetBuildingAt.Construction.RushProduction(0, rush);
         }
     }
 }
