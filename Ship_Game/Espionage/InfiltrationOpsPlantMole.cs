@@ -1,4 +1,6 @@
 ﻿using Ship_Game.Data.Serialization;
+using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -8,23 +10,24 @@ namespace Ship_Game
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
-        const float PercentOfLevelCost = 0.2f;
+        [StarData] readonly Espionage Espionage;
+        public const float PercentOfLevelCost = 0.2f;
         const int SuccessTargetNumber = 20; // need to get 20 and above in a roll of d100)
         const float BaseRelationDamage = 10;
-        const int BaseRampUpTurns = 20;
+        public const int BaseRampUpTurns = 20;
 
-        public InfiltrationOpsPlantMole(Empire owner, Empire them, int levelCost, byte level) :
-            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.PlantMole, BaseRampUpTurns, owner)
+        public InfiltrationOpsPlantMole(Empire owner, Empire them, int levelCost) :
+            base((int)(levelCost * PercentOfLevelCost), InfiltrationOpsType.PlantMole, BaseRampUpTurns, owner)
         {
             Owner = owner;
             Them = them;
+            Espionage = Owner.GetEspionage(Them);
         }
 
         public override void CompleteOperation()
         {
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
-            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber, Level);
-            Espionage espionage = Owner.GetEspionage(Them);
+            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
@@ -49,23 +52,23 @@ namespace Ship_Game
                     break;
                 case InfiltrationOpsResult.MiserableFail:
                     aftermath.Message = GameText.NewWasUnableToInfiltrateMiserable;
-                    espionage.ReduceInfiltrationLevel();
+                    Espionage.ReduceInfiltrationLevel();
                     break;
                 case InfiltrationOpsResult.CriticalFail:
                     aftermath.Message = GameText.NewWasUnableToInfiltrateDetected;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
-                    aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage);
-                    espionage.ReduceInfiltrationLevel();
+                    aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, Espionage);
+                    Espionage.ReduceInfiltrationLevel();
                     aftermath.DamageReason = "Caught Spying";
                     break;
                 case InfiltrationOpsResult.Disaster:
                     aftermath.Message = GameText.NewWasUnableToInfiltrateWipedOut;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkInfiltration)}\n" +
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +
-                                                $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {espionage.Level}";
-                    aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage, withLevelMultiplier: true);
+                                                $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {Espionage.Level}";
+                    aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, Espionage, withLevelMultiplier: true);
                     aftermath.DamageReason = "Caught Spying Failed";
-                    espionage.WipeoutInfiltration();
+                    Espionage.WipeoutInfiltration();
                     break;
             }
 

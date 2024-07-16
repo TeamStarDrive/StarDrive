@@ -8,13 +8,13 @@ namespace Ship_Game
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
-        const float PercentOfLevelCost = 0.2f;
+        public const float PercentOfLevelCost = 0.2f;
         const int SuccessTargetNumber = 40; // need to get 40 and above in a roll of d100)
         const float BaseRelationDamage = 15;
-        const int BaseRampUpTurns = 40;
+        public const int BaseRampUpTurns = 40;
 
-        public InfiltrationOpsDisruptResearch(Empire owner, Empire them, int levelCost, byte level) :
-            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.SlowResearch, BaseRampUpTurns, owner)
+        public InfiltrationOpsDisruptResearch(Empire owner, Empire them, int levelCost) :
+            base((int)(levelCost * PercentOfLevelCost), InfiltrationOpsType.SlowResearch, BaseRampUpTurns, owner)
         {
             Owner = owner;
             Them = them;
@@ -29,7 +29,7 @@ namespace Ship_Game
         public override void CompleteOperation()
         {
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
-            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? (int)(SuccessTargetNumber * 0.75f) : SuccessTargetNumber, Level);
+            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? (int)(SuccessTargetNumber * 0.75f) : SuccessTargetNumber);
             Espionage espionage = Owner.GetEspionage(Them);
             switch (result)
             {

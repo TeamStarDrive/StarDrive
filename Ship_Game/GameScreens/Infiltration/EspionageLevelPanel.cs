@@ -24,10 +24,10 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly UIElementContainer LevelOps;
         int InfiltrationProgress;
         int LevelCost;
-        readonly int Level;
+        readonly byte Level;
         bool ShowProgress;
 
-        public EspionageLevelPanel(InfiltrationScreen screen, Empire player, in Rectangle rect, int level)
+        public EspionageLevelPanel(InfiltrationScreen screen, Empire player, in Rectangle rect, byte level)
             : base(rect)
         {
             Screen = screen;

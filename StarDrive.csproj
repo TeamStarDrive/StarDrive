@@ -177,7 +177,7 @@
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsCounterEspionage.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsDisruptProjection.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsDisruptResearch.cs" />
-    <Compile Include="Ship_Game\Espionage\InfiltrationOpsPlanetMole.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsPlantMole.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsRebellion.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsSabotage.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsUprise.cs" />

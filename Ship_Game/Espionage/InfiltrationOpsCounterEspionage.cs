@@ -11,13 +11,13 @@ namespace Ship_Game
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
-        const float PercentOfLevelCost = 0.2f;
+        public const float PercentOfLevelCost = 0.2f;
         const int SuccessTargetNumber = 40; // need to get 40 and above in a roll of d100)
         const float BaseRelationDamage = 10;
-        const int BaseRampUpTurns = 20;
+        public const int BaseRampUpTurns = 20;
 
-        public InfiltrationOpsCounterEspionage(Empire owner, Empire them, int levelCost, byte level) :
-            base((int)(levelCost * PercentOfLevelCost), level, InfiltrationOpsType.CounterEspionage, BaseRampUpTurns, owner)
+        public InfiltrationOpsCounterEspionage(Empire owner, Empire them, int levelCost) :
+            base((int)(levelCost * PercentOfLevelCost), InfiltrationOpsType.CounterEspionage, BaseRampUpTurns, owner)
         {
             Owner = owner;
             Them = them;
@@ -26,7 +26,7 @@ namespace Ship_Game
         public override void CompleteOperation()
         {
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
-            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber, Level);
+            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
             Espionage espionage = Owner.GetEspionage(Them);
             Espionage theirEspionage = Them.GetEspionage(Owner);
             var potentialMoles = Them.data.MoleList.Filter(m => !m.Sticky && Owner.GetPlanets().Any(p => p.Id == m.PlanetId));

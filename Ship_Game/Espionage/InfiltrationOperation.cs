@@ -2,6 +2,7 @@
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
+using System;
 
 namespace Ship_Game
 {
@@ -15,12 +16,12 @@ namespace Ship_Game
         [StarData] readonly int RampUpTurns;
         [StarData] int RampUpTimer;
 
-        public InfiltrationOperation(int cost, byte level, InfiltrationOpsType type, int rampUpTurns, Empire owner)
+        public InfiltrationOperation(int cost, InfiltrationOpsType type, int baseRampUpTurns, Empire owner)
         {
             Cost = cost;
-            Level = level;
             Type = type;
-            RampUpTimer = RampUpTurns = (int)(rampUpTurns * owner.Universe.SettingsResearchModifier * owner.Universe.ProductionPace);
+            Level = Espionage.GetOpsLevel(type);
+            RampUpTimer = RampUpTurns = (int)(baseRampUpTurns * owner.Universe.SettingsResearchModifier * owner.Universe.ProductionPace);
         }
 
         public void SetProgress(float value)
@@ -28,7 +29,37 @@ namespace Ship_Game
             Progress = value;
         }
 
+        static public int BaseRemainingTurns(InfiltrationOpsType type, int levelCost, float progressPerTurn, UniverseState us)
+        {
+            if (progressPerTurn == 0)
+                return -1;
+
+            (int baseRampUpTurns, float percentOfLevelCost) = GetRampUpAndPercentLevel(type);
+            int rampupTurns = (int)(baseRampUpTurns * us.SettingsResearchModifier * us.ProductionPace);
+            int opsCost = (int)(levelCost * percentOfLevelCost);
+            return rampupTurns + (int)(opsCost / progressPerTurn);
+        }
+
+        static (int baseRampupTurns, float percentOfLevelCost) GetRampUpAndPercentLevel(InfiltrationOpsType type)
+        {
+            switch (type) 
+            {
+                case InfiltrationOpsType.PlantMole:         return (InfiltrationOpsPlantMole.BaseRampUpTurns, InfiltrationOpsPlantMole.PercentOfLevelCost);
+                case InfiltrationOpsType.CounterEspionage:  return (InfiltrationOpsCounterEspionage.BaseRampUpTurns, InfiltrationOpsCounterEspionage.PercentOfLevelCost);
+                case InfiltrationOpsType.DisruptProjection: return (InfiltrationOpsDisruptProjection.BaseRampUpTurns, InfiltrationOpsDisruptProjection.PercentOfLevelCost);
+                case InfiltrationOpsType.SlowResearch:      return (InfiltrationOpsDisruptResearch.BaseRampUpTurns, InfiltrationOpsDisruptResearch.PercentOfLevelCost);
+                case InfiltrationOpsType.Rebellion:         return (InfiltrationOpsRebellion.BaseRampUpTurns, InfiltrationOpsRebellion.PercentOfLevelCost);
+                case InfiltrationOpsType.Sabotage:          return (InfiltrationOpsSabotage.BaseRampUpTurns, InfiltrationOpsSabotage.PercentOfLevelCost);
+                case InfiltrationOpsType.Uprise:            return (InfiltrationOpsUprise.BaseRampUpTurns, InfiltrationOpsUprise.PercentOfLevelCost);
+                default:                                    throw new ArgumentOutOfRangeException("InfiltrationOpsType", $"InfiltrationOpsType {type} case not defined");
+            }
+        }
+
         public abstract void CompleteOperation();
+
+        public int TurnsToComplete(float progressPerTurn) => progressPerTurn > 0 
+            ? (int)(RampUpTimer + (Cost - Progress).LowerBound(0)/progressPerTurn) 
+            : -1;
 
         public virtual void Update(float progressToUdpate)
         {
@@ -53,10 +84,10 @@ namespace Ship_Game
         public bool Active => RampUpTimer == 0;
 
         protected InfiltrationOpsResult RollMissionResult(Empire owner, 
-            Empire them, int targetNumber, byte missionLevel)
+            Empire them, int targetNumber)
         {
 
-            int baseModifier = (owner.GetEspionage(them).Level - missionLevel).LowerBound(0);
+            int baseModifier = (owner.GetEspionage(them).Level - Level).LowerBound(0);
             int baseResult   = owner.Random.RollDie(100) + baseModifier;
 
             if (baseResult >= 99) return InfiltrationOpsResult.Phenomenal;

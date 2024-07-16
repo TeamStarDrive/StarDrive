@@ -46,7 +46,7 @@ namespace Ship_Game
 
             int totalWeight = CalcTotalEspionageWeight();
             foreach (Empire empire in Universe.ActiveMajorEmpires.Filter(e => e != this))
-                GetEspionage(empire).Update(EspionagePointsPerTurn, totalWeight);
+                GetEspionage(empire).Update(totalWeight);
 
             UpdateEspionageDefenseRatio(totalWeight);
         }

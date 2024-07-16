@@ -71,10 +71,10 @@ namespace Ship_Game
                 SetInfiltrationLevelTo((byte)(Level-1));
         }
 
-        public void Update(float espionagePoints, int totalWeight)
+        public void Update(int totalWeight)
         {
             RemoveOperations();
-            float progressToIncrease = GetProgressToIncrease(espionagePoints, totalWeight);
+            float progressToIncrease = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight);
             UpdateOperations(Operations.Count > 0 ? progressToIncrease / Operations.Count : 0);
 
             if (AtMaxLevel)
@@ -83,6 +83,34 @@ namespace Ship_Game
             LevelProgress = (LevelProgress + progressToIncrease).UpperBound(LevelCost(MaxLevel));
             if (LevelProgress >= NextLevelCost)
                 IncreaseInfiltrationLevel();
+        }
+
+        public string RemainingTurnsForOps(InfiltrationOpsType type)
+        {
+            int remainingTurns =  CalcRemainingTurnsForOps(type);
+            return remainingTurns > -1 ? $"({remainingTurns} turns)" : "(INF)";
+        }
+
+        int CalcRemainingTurnsForOps(InfiltrationOpsType type)
+        {
+            if (Weight == 0)
+                return -1;
+
+            int totalWeight = Owner.CalcTotalEspionageWeight();
+            float progressPerTurn = 0;
+            InfiltrationOperation ops = Operations.Find(o => o.Type == type);
+            if (ops != null)
+            {
+                progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight) / Operations.Count;
+                return ops.TurnsToComplete(progressPerTurn);
+            }
+            else
+            {
+                progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight) / (Operations.Count+1);
+                if (Operations.Count == 0)
+                    progressPerTurn *= 0.5f; // We are simulating at least 1 operation, so the progress alocated is going to be halved
+                return InfiltrationOperation.BaseRemainingTurns(type, LevelCost(GetOpsLevel(type)), progressPerTurn, Owner.Universe);
+            }
         }
 
         void RemoveOperations()
@@ -144,10 +172,10 @@ namespace Ship_Game
             }
         }
 
-        public float GetProgressToIncrease(float taxedResearch, float totalWeight)
+        public float GetProgressToIncrease(float espionagePoints, float totalWeight)
         {
             float activeMissionRatio = Operations.Count > 0 ? 0.5f : 1;
-            return taxedResearch
+            return espionagePoints
                    * (Weight / totalWeight.LowerBound(1))
                    * (Them.TotalPopBillion / Owner.TotalPopBillion.LowerBound(0.1f))
                    * (1 - Them.EspionageDefenseRatio*0.75f)
@@ -164,7 +192,7 @@ namespace Ship_Game
             return !AtMaxLevel ? Weight : 0;
         }
 
-        public int LevelCost(int level)
+        public int LevelCost(byte level)
         {
             // default costs
             // 1 - 50
@@ -181,7 +209,7 @@ namespace Ship_Game
             TotalMoneyLeeched += money;
         }
 
-        public int NextLevelCost => LevelCost(Level+1);
+        public int NextLevelCost => LevelCost((byte)(Level+1));
 
         public bool CanViewPersonality   => Level >= 1;
         public bool CanViewNumPlanets    => Level >= 1;
@@ -230,18 +258,23 @@ namespace Ship_Game
         public void AddOperation(InfiltrationOpsType type)
         {
             if (Operations.Any(m => m.Type == type))
+            {
                 Log.Error($"Mission type {type} already exists for {Owner}");
+                return;
+            }
 
-            int levelCost = LevelCost(Level);
+            int levelCost = LevelCost(GetOpsLevel(type));
+
             switch (type) 
             {
-                case InfiltrationOpsType.PlantMole:         Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost, Level));         break;
-                case InfiltrationOpsType.Uprise:            Operations.Add(new InfiltrationOpsUprise(Owner, Them, levelCost, Level));            break;
-                case InfiltrationOpsType.CounterEspionage:  Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level));  break;
-                case InfiltrationOpsType.Sabotage:          Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level));  break;
-                case InfiltrationOpsType.SlowResearch:      Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost, Level));  break;
-                case InfiltrationOpsType.Rebellion:         Operations.Add(new InfiltrationOpsRebellion(Owner, Them, levelCost, Level));         break;
-                case InfiltrationOpsType.DisruptProjection: Operations.Add(new InfiltrationOpsDisruptProjection(Owner, Them, levelCost, Level)); break;
+                case InfiltrationOpsType.PlantMole:         Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost));         break;
+                case InfiltrationOpsType.Uprise:            Operations.Add(new InfiltrationOpsUprise(Owner, Them, levelCost));            break;
+                case InfiltrationOpsType.CounterEspionage:  Operations.Add(new InfiltrationOpsCounterEspionage(Owner, Them, levelCost));  break;
+                case InfiltrationOpsType.Sabotage:          Operations.Add(new InfiltrationOpsSabotage(Owner, Them, levelCost));          break;
+                case InfiltrationOpsType.SlowResearch:      Operations.Add(new InfiltrationOpsDisruptResearch(Owner, Them, levelCost));   break;
+                case InfiltrationOpsType.Rebellion:         Operations.Add(new InfiltrationOpsRebellion(Owner, Them, levelCost));         break;
+                case InfiltrationOpsType.DisruptProjection: Operations.Add(new InfiltrationOpsDisruptProjection(Owner, Them, levelCost)); break;
+                default: throw new ArgumentOutOfRangeException("InfiltrationOpsType", $"InfiltrationOpsType {type} case not defined");
             }
         }
 
@@ -256,5 +289,20 @@ namespace Ship_Game
         }
 
         public bool IsOperationActive(InfiltrationOpsType type) => Operations.Any(m => m.Type == type);
+
+        static public byte GetOpsLevel(InfiltrationOpsType type)
+        {
+            switch (type)
+            {
+                case InfiltrationOpsType.PlantMole:         return 2;
+                case InfiltrationOpsType.Uprise:            return 3;
+                case InfiltrationOpsType.CounterEspionage:  return 3;
+                case InfiltrationOpsType.Sabotage:          return 4;
+                case InfiltrationOpsType.SlowResearch:      return 4;
+                case InfiltrationOpsType.Rebellion:         return 5;
+                case InfiltrationOpsType.DisruptProjection: return 5;
+                default: throw new ArgumentOutOfRangeException("InfiltrationOpsType", $"InfiltrationOpsType {type} case not defined");
+            }
+        }
     }
 }

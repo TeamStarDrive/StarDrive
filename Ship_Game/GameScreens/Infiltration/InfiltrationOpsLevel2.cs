@@ -15,6 +15,7 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly UILabel LevelDescription;
         readonly UILabel PassiveTitle, Passive, ActiveTitle;
         readonly UICheckBox PlantMoleBox;
+        readonly UILabel PlantMoleTurnsRemaning;
         readonly int LevelDescriptionY, PassiveY;
         const int Level = 2;
         bool PlantingMole;
@@ -36,6 +37,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             Passive.Tooltip   = GameText.EspionageOpsProjectorsAlertTip;
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
+            PlantMoleTurnsRemaning = Add(new UILabel("", Font, Color.Wheat));
         }
 
         public override void PerformLayout()
@@ -46,8 +48,9 @@ namespace Ship_Game.GameScreens.EspionageNew
             LevelDescription.Text = description;
             PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
             ActiveTitle.Pos       = new Vector2(Rect.X + 5, PassiveY + Font.LineSpacing + 2);
-            PlantMoleBox.Pos      = new Vector2(Rect.X + 75, ActiveTitle.Y);
-            Passive.Pos           = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
+            PlantMoleBox.Pos      = new Vector2(Rect.X + 60, ActiveTitle.Y);
+            Passive.Pos           = new Vector2(Rect.X + 60, PassiveTitle.Pos.Y);
+            PlantMoleTurnsRemaning.Pos = new Vector2(Rect.Right -80, ActiveTitle.Y);
 
             if (!Screen.SelectedEmpire.isPlayer)
             {
@@ -62,6 +65,10 @@ namespace Ship_Game.GameScreens.EspionageNew
 
         public override void Update(float fixedDeltaTime)
         {
+            PlantMoleTurnsRemaning.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.PlantMole);
+            PlantMoleTurnsRemaning.Pos = HelperFunctions.GetRightAlignedPosForTitle(PlantMoleTurnsRemaning.Text.Text, 
+                PlantMoleTurnsRemaning.Font, Rect.Right, ActiveTitle.Y);
+
             base.Update(fixedDeltaTime);
         }
 
