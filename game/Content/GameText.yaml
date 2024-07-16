@@ -15404,6 +15404,30 @@ EspioangeOpsDisruptProjection:
 EspioangeOpsDisruptProjectionTip:
  Id: 6330
  ENG: "Hack their Subspace Projection network and disatabilize it for a period of time where it will flicker until they manage to stabilize it."        
+EspioangeBudgetMuliplier:
+ Id: 6331
+ ENG: "Budget Multiplier"         
+EspioangeBudgetMuliplierTip:
+ Id: 6332
+ ENG: "Normally, we get 1 Espionage Point per Billion colonists for free. These points go into our Spy defense and infiltration level increase per empire we know. We can increase the Espionage Points we get per Billion colonists, but it will costs us credits per turn."          
+EspioangeHomeworldMole:
+ Id: 6333
+ ENG: "Homeworld Mole"           
+EspioangeHomeworldMoleTip:
+ Id: 6334
+ ENG: "Planet a Mole at the target's homeworld, allowing us to see their colony details and sensors. This mole cannot be removed by their counter-espionage."  
+EspioangeDefenseWeight:
+ Id: 6335
+ ENG: "Defense Weight"            
+EspioangeInfiltrationWeight:
+ Id: 6336
+ ENG: "Infiltration Weight"             
+EspioangeDefenseWeightTip:
+ Id: 6337
+ ENG: "Set the weight out of the total Espionage points you want to invest in your empire's spy defense. The higher the weight comparing to Infiltration Weight per other empires, the slower it will tike them to increase their Infiltration level in our empire."             
+EspioangeInfiltrationWeightTip:
+ Id: 6338
+ ENG: "Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within this empire. The higher the weight, the more points are allocated to increasing Infiltration Levels and execution time of Active missions. The progress is also affected by their Spy Defense weight and size of empire. Bigger empires are easier to infiltrate."              
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

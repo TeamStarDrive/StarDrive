@@ -5547,6 +5547,22 @@ namespace Ship_Game
         EspioangeOpsDisruptProjection = 6329,
         /// <summary>Hack their Subspace Projection network and disatabilize</summary>
         EspioangeOpsDisruptProjectionTip = 6330,
+        /// <summary>Budget Multiplier</summary>
+        EspioangeBudgetMuliplier = 6331,
+        /// <summary>Budget Multiplier</summary>
+        EspioangeBudgetMuliplierTip = 6332,
+        /// <summary>Homeworld Mole</summary>
+        EspioangeHomeworldMole = 6333,
+        /// <summary>Planet a Mole at the target's homeworld</summary>
+        EspioangeHomeworldMoleTip = 6334,
+        /// <summary>Defense Weight</summary>
+        EspioangeDefenseWeight = 6335,
+        /// <summary>Infiltration Weight</summary>
+        EspioangeInfiltrationWeight = 6336,
+        /// <summary>Set the weight out of the total Espionage points you want to invest in your empire's spy defense</summary>
+        EspioangeDefenseWeightTip = 6337,
+        /// <summary>Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within</summary>
+        EspioangeInfiltrationWeightTip = 6338,
 
 
 

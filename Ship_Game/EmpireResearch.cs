@@ -29,7 +29,6 @@ namespace Ship_Game
         public float NetResearch { get; private set; }
         public float MaxResearchPotential { get; private set; }
 
-        public float TaxedResearch { get; private set; }
         public float ResearchStationResearchPerturn { get; private set; }
         float LeftoverResearch;
 
@@ -84,13 +83,11 @@ namespace Ship_Game
             Initialize();
             NetResearch = ResearchStationResearchPerturn;
             MaxResearchPotential = ResearchStationResearchPerturn;
-            TaxedResearch = 0;
             IReadOnlyList<Planet> planets = Empire.GetPlanets();
             for (int i = 0; i < planets.Count; i++)
             {
                 Planet planet = planets[i];
                 NetResearch          += planet.Res.NetIncome;
-                TaxedResearch        += planet.Res.GrossIncome - planet.Res.NetIncome;
                 MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
 

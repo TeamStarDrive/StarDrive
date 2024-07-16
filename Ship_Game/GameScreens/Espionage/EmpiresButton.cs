@@ -20,6 +20,8 @@ namespace Ship_Game.GameScreens
         readonly Ship_Game.Espionage Espionage;
         readonly Empire Player;
         FloatSlider InfiltrationDefense;
+        FloatSlider EspionageBudgetMultiplier;
+        UILabel CostPerTurn;
 
         bool UsingLegacyEspionage => Screen != null;
 
@@ -48,20 +50,39 @@ namespace Ship_Game.GameScreens
         public override void PerformLayout()
         {
             var weightRect = new Rectangle(Rect.Left, Rect.Y + 250, 140, 40);
-            if (Empire == Player) 
+            if (Empire == Player)
             {
-                InfiltrationDefense = new FloatSlider(weightRect, GameText.SpyDefense, min: 0, max: 50, value: Player.EspionageDefenseWeight);
+                InfiltrationDefense = new FloatSlider(weightRect, GameText.EspioangeDefenseWeight, min: 0, max: 50, value: Player.EspionageDefenseWeight);
+                InfiltrationDefense.Tip = GameText.EspioangeDefenseWeightTip;
                 InfiltrationDefense.OnChange = (s) =>
                 {
                     Player.SetEspionageDefenseWeight(s.AbsoluteValue.RoundUpTo(1));
+                    Player.UpdateEspionageDefenseRatio();
                 };
+
+                if (Player.Universe.MajorEmpires.Any(e => !e.isPlayer && Player.IsKnown(e)))
+                {
+                    var budgetRect = new Rectangle(Rect.Left, Rect.Y + 180, 140, 40);
+                    EspionageBudgetMultiplier = new FloatSlider(SliderStyle.Decimal1, budgetRect, GameText.EspioangeBudgetMuliplier, 1f, 5f, value: Player.EspionageBudgetMultiplier);
+                    EspionageBudgetMultiplier.Tip = GameText.EspioangeBudgetMuliplierTip;
+                    EspionageBudgetMultiplier.OnChange = (s) =>
+                    {
+                        Player.SetEspionageBudgetMultiplier(s.AbsoluteValue.RoundToFractionOf10());
+                        UpdateCostPerTurn();
+                    };
+
+                    CostPerTurn = new UILabel(new Vector2(Rect.Left, Rect.Y + 220), "", Fonts.Arial12);
+                    UpdateCostPerTurn();
+                }
             }
             else if (Player.IsKnown(Empire))
             {
-                InfiltrationDefense = new FloatSlider(weightRect, GameText.SpyDefense, min: 0, max: 10, value: Espionage.GetWeight());
+                InfiltrationDefense = new FloatSlider(weightRect, GameText.EspioangeInfiltrationWeight, min: 0, max: 10, value: Espionage.GetWeight());
+                InfiltrationDefense.Tip = GameText.EspioangeInfiltrationWeightTip;
                 InfiltrationDefense.OnChange = (s) =>
                 {
                     Espionage.SetWeight(s.AbsoluteValue.RoundUpTo(1));
+                    Player.UpdateEspionageDefenseRatio();
                     if (Empire == InfiltrationScreen.SelectedEmpire)
                         InfiltrationScreen.RefreshInfiltrationLevelStatus(Espionage);
                 };
@@ -80,6 +101,9 @@ namespace Ship_Game.GameScreens
             }
 
             if (InfiltrationDefense != null && InfiltrationDefense.HandleInput(input))
+                return true;
+
+            if (EspionageBudgetMultiplier != null && EspionageBudgetMultiplier.HandleInput(input))
                 return true;
 
             return false;
@@ -120,7 +144,7 @@ namespace Ship_Game.GameScreens
                 else
                     DrawInfiltration();
 
-                if (Player == Empire || Player.IsKnown(Empire))
+                if (Empire.isPlayer || Player.IsKnown(Empire))
                     DrawDefenseSlider();
             }
             else if (Player != Empire)
@@ -200,7 +224,7 @@ namespace Ship_Game.GameScreens
                 batch.DrawString(Fonts.Arial12Bold, percentProgress, percentPos, Color.Wheat);
                 var infiltrationPos = new Vector2(Rect.X + 2, spyPos.Y + 50);
                 batch.DrawString(Fonts.Arial12Bold, "Points/Turn:", infiltrationPos, Empire.EmpireColor);
-                string pointsPerTurn = Espionage.GetProgressToIncrease(Player.Research.TaxedResearch, Player.CalcTotalEspionageWeight()).String(3);
+                string pointsPerTurn = Espionage.GetProgressToIncrease(Player.EspionagePointsPerTurn, Player.CalcTotalEspionageWeight()).String(3);
                 var pointsValuePos = new Vector2(Rect.Right - (int)Fonts.Arial12Bold.MeasureString(pointsPerTurn).X, spyPos.Y + 50);
                 batch.DrawString(Fonts.Arial12Bold, pointsPerTurn, pointsValuePos, Color.Wheat);
             }
@@ -208,7 +232,19 @@ namespace Ship_Game.GameScreens
             void DrawDefenseSlider()
             {
                 InfiltrationDefense.Draw(batch, elapsed);
+                if (Empire.isPlayer)
+                {
+                    EspionageBudgetMultiplier?.Draw(batch, elapsed);
+                    CostPerTurn?.Draw(batch, elapsed);
+                }
             }
+        }
+
+        void UpdateCostPerTurn()
+        {
+            float espionageCost = Player.EspionageCost;
+            CostPerTurn.Text = $"{(espionageCost > 0 ? -espionageCost : espionageCost).String(1)} bc/y";
+            CostPerTurn.Color = espionageCost > 0 ? Color.Pink : Color.LightGreen;
         }
     }
 }

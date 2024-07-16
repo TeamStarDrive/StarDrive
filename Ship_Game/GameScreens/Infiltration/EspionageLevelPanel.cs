@@ -129,7 +129,7 @@ namespace Ship_Game.GameScreens.EspionageNew
 
         public void RefreshStatus(Ship_Game.Espionage espionage)
         {
-            float pointPerTurn = espionage.GetProgressToIncrease(Player.Research.TaxedResearch, Player.CalcTotalEspionageWeight());
+            float pointPerTurn = espionage.GetProgressToIncrease(Player.EspionagePointsPerTurn, Player.CalcTotalEspionageWeight());
             if (espionage.Level >= Level)
             {
                 Status.Text = GameText.InfiltrationStatusEstablished;

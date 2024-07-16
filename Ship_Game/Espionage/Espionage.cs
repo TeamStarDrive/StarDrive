@@ -71,10 +71,10 @@ namespace Ship_Game
                 SetInfiltrationLevelTo((byte)(Level-1));
         }
 
-        public void Update(float taxedResearch, int totalWeight)
+        public void Update(float espionagePoints, int totalWeight)
         {
             RemoveOperations();
-            float progressToIncrease = GetProgressToIncrease(taxedResearch, totalWeight);
+            float progressToIncrease = GetProgressToIncrease(espionagePoints, totalWeight);
             UpdateOperations(Operations.Count > 0 ? progressToIncrease / Operations.Count : 0);
 
             if (AtMaxLevel)

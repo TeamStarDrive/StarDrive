@@ -13,6 +13,9 @@ namespace Ship_Game
         [StarData] public bool CanBeScannedByPlayer { get; private set; } = true;
         [StarData] public int EspionageDefenseWeight { get; private set; } = 50;
         [StarData] public float EspionageDefenseRatio { get; private set; } = 1;
+        [StarData] public float EspionageBudgetMultiplier { get; private set; } = 1; // 1-5
+        public float EspionagePointsPerTurn => TotalPopBillion * EspionageBudgetMultiplier;
+        public float EspionageCost => TotalPopBillion * (EspionageBudgetMultiplier - 1);
 
 
         public void SetCanBeScannedByPlayer(bool value)
@@ -31,16 +34,31 @@ namespace Ship_Game
             EspionageDefenseWeight = value;
         }
 
-        public void UpdateEspionage(float taxedResearch)
+        public void SetEspionageBudgetMultiplier(float value)
+        {
+            EspionageBudgetMultiplier = value;
+        }
+
+        public void UpdateEspionage()
         {
             if (Universe.P.UseLegacyEspionage)
                 return;
 
             int totalWeight = CalcTotalEspionageWeight();
             foreach (Empire empire in Universe.ActiveMajorEmpires.Filter(e => e != this))
-                GetRelations(empire).Espionage.Update(taxedResearch, totalWeight);
+                GetEspionage(empire).Update(EspionagePointsPerTurn, totalWeight);
 
-            EspionageDefenseRatio = EspionageDefenseWeight / totalWeight.LowerBound(1);
+            UpdateEspionageDefenseRatio(totalWeight);
+        }
+
+        public void UpdateEspionageDefenseRatio(int totalWeight)
+        {
+            EspionageDefenseRatio = (float)EspionageDefenseWeight / totalWeight.LowerBound(1);
+        }
+
+        public void UpdateEspionageDefenseRatio()
+        {
+            UpdateEspionageDefenseRatio(CalcTotalEspionageWeight());
         }
 
         public Espionage GetEspionage(Empire targetEmpire) => GetRelations(targetEmpire).Espionage;

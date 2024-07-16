@@ -47,7 +47,7 @@ namespace Ship_Game
         [StarData] public float Money
         {
             get => MoneyValue;
-            set => MoneyValue = value.NaNChecked(0f, "Empire.Money");
+            set => MoneyValue = value.NaNChecked(MoneyLastTurn, "Empire.Money");
         }
 
         [StarData] readonly Array<Planet> OwnedPlanets;
@@ -1326,7 +1326,8 @@ namespace Ship_Game
             UpdatePlanetStorageStats();
             float incomeFromExoticBonus = GetIncomeFromExoticBonus();
             float remainingMoney = MoneyAfterLeech(NetIncome + incomeFromExoticBonus);
-            AddMoney(remainingMoney);
+            float espionageCost = Universe.P.UseLegacyEspionage ? 0 : EspionageCost;
+            AddMoney(remainingMoney - espionageCost);
         }
 
         float GetIncomeFromExoticBonus()
@@ -1872,7 +1873,7 @@ namespace Ship_Game
             }
 
             Research.Update();
-            UpdateEspionage(Research.TaxedResearch);
+            UpdateEspionage();
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
