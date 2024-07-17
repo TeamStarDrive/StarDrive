@@ -135,6 +135,7 @@ namespace Ship_Game
             && !IsDynamicUpdate 
             && !IsTerraformer
             && !IsCommodity
+            && !BuildOnlyOnce
             && Scrappable;
 
 
