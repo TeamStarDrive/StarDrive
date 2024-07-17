@@ -33,7 +33,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             Passive           = Add(new UILabel(GameText.EspionageOpsProjectorsAlert, Font, Color.Gray));
             PlantMoleBox      = Add(new UICheckBox(() => PlantingMole, Font, GameText.PlantAgent, GameText.PlantAgentTip));
             PlantMoleBox.OnChange = PlantMole;
-            PlantMoleBox.CheckedTextColor = player.EmpireColor;
+            PlantMoleBox.CheckedTextColor = Color.LightGreen;
             Passive.Tooltip   = GameText.EspionageOpsProjectorsAlertTip;
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
@@ -48,23 +48,25 @@ namespace Ship_Game.GameScreens.EspionageNew
             LevelDescription.Text = description;
             PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
             ActiveTitle.Pos       = new Vector2(Rect.X + 5, PassiveY + Font.LineSpacing + 2);
-            PlantMoleBox.Pos      = new Vector2(Rect.X + 60, ActiveTitle.Y);
+            PlantMoleBox.Pos      = new Vector2(Rect.X + 55, ActiveTitle.Y);
             Passive.Pos           = new Vector2(Rect.X + 60, PassiveTitle.Pos.Y);
             PlantMoleTurnsRemaning.Pos = new Vector2(Rect.Right -80, ActiveTitle.Y);
 
             if (!Screen.SelectedEmpire.isPlayer)
             {
                 Espionage     = Player.GetEspionage(Screen.SelectedEmpire);
-                Passive.Color = Espionage.Level >= Level ? Player.EmpireColor : Color.Gray;
+                Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
                 PlantMoleBox.Enabled   = Espionage.Level >= Level;
-                PlantMoleBox.TextColor = PlantMoleBox.Enabled ? Color.White : Color.Gray;
+                PlantMoleBox.TextColor = PlantMoleBox.Enabled ? Color.Red : Color.Gray;
                 LevelDescription.Color = PlantMoleBox.Enabled ? Player.EmpireColor : Color.Gray;
                 PlantingMole           = Espionage.IsOperationActive(InfiltrationOpsType.PlantMole);
+                PlantMoleTurnsRemaning.Visible = Espionage.Level >= Level;
             }
         }
 
         public override void Update(float fixedDeltaTime)
         {
+            PlantMoleTurnsRemaning.Color = PlantMoleBox.Checked ? Color.LightGreen : Color.Red;
             PlantMoleTurnsRemaning.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.PlantMole);
             PlantMoleTurnsRemaning.Pos = HelperFunctions.GetRightAlignedPosForTitle(PlantMoleTurnsRemaning.Text.Text, 
                 PlantMoleTurnsRemaning.Font, Rect.Right, ActiveTitle.Y);

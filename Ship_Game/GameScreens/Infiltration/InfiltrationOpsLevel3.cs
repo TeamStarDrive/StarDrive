@@ -13,6 +13,7 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly UILabel LevelDescription;
         readonly UILabel PassiveTitle, Passive, ActiveTitle;
         readonly UICheckBox UpriseBox, CounterBox;
+        readonly UILabel UpriseTurnsRemaining, CounterTurnsRemaining;
         readonly int LevelDescriptionY, PassiveY;
         const int Level = 3;
         Ship_Game.Espionage Espionage;
@@ -32,11 +33,15 @@ namespace Ship_Game.GameScreens.EspionageNew
             CounterBox       = Add(new UICheckBox(() => CounteringEspionage, Font, GameText.CounterEspioangeOps, GameText.CounterEspioangeOpsTip));
             UpriseBox.OnChange  = ArrangeUprise;
             CounterBox.OnChange = CounterEspionage;
-            UpriseBox.CheckedTextColor = CounterBox.CheckedTextColor = player.EmpireColor;
+            UpriseBox.CheckedTextColor = CounterBox.CheckedTextColor = Color.LightGreen;
 
             Passive.Tooltip   = GameText.EspioangeHomeworldMoleTip;
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
+
+            UpriseTurnsRemaining  = Add(new UILabel("", Font, Color.Wheat));
+            CounterTurnsRemaining = Add(new UILabel("", Font, Color.Wheat));
+
         }
 
         public override void PerformLayout()
@@ -46,25 +51,38 @@ namespace Ship_Game.GameScreens.EspionageNew
             string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel3Desc), Rect.Width - 10);
             LevelDescription.Text = description;
             PassiveTitle.Pos      = new Vector2(Rect.X + 5, PassiveY);
-            Passive.Pos           = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
+            Passive.Pos           = new Vector2(Rect.X + 60, PassiveTitle.Pos.Y);
             ActiveTitle.Pos       = new Vector2(Rect.X + 5, PassiveY + Font.LineSpacing + 2);
-            UpriseBox.Pos         = new Vector2(Rect.X + 75, ActiveTitle.Y);
-            CounterBox.Pos        = new Vector2(Rect.X + 75, ActiveTitle.Y + Font.LineSpacing + 2);
+            UpriseBox.Pos         = new Vector2(Rect.X + 55, ActiveTitle.Y);
+            CounterBox.Pos        = new Vector2(Rect.X + 55, ActiveTitle.Y + Font.LineSpacing + 2);
+            UpriseTurnsRemaining.Pos  = new Vector2(Rect.Right - 80, ActiveTitle.Y);
+            CounterTurnsRemaining.Pos = new Vector2(Rect.Right - 80, CounterBox.Y);
 
             if (!Screen.SelectedEmpire.isPlayer)
             {
                 Espionage     = Player.GetEspionage(Screen.SelectedEmpire);
-                Passive.Color = Espionage.Level >= Level ? Player.EmpireColor : Color.Gray;
+                Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
                 UpriseBox.Enabled      = CounterBox.Enabled = Espionage.Level >= Level;
-                UpriseBox.TextColor    = CounterBox.TextColor = UpriseBox.Enabled ? Color.White : Color.Gray;
+                UpriseBox.TextColor    = CounterBox.TextColor = UpriseBox.Enabled ? Color.Red : Color.Gray;
                 LevelDescription.Color = UpriseBox.Enabled  ? Player.EmpireColor : Color.Gray;
                 Uprising               = Espionage.IsOperationActive(InfiltrationOpsType.Uprise);
                 CounteringEspionage    = Espionage.IsOperationActive(InfiltrationOpsType.CounterEspionage);
+                UpriseTurnsRemaining.Visible = CounterTurnsRemaining.Visible = Espionage.Level >= Level;
             }
         }
 
         public override void Update(float fixedDeltaTime)
         {
+            UpriseTurnsRemaining.Color = UpriseBox.Checked ? Color.LightGreen : Color.Red;
+            UpriseTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.Uprise);
+            UpriseTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(UpriseTurnsRemaining.Text.Text,
+                UpriseTurnsRemaining.Font, Rect.Right, UpriseTurnsRemaining.Y);
+
+            CounterTurnsRemaining.Color = CounterBox.Checked ? Color.LightGreen : Color.Red;
+            CounterTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.CounterEspionage);
+            CounterTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(CounterTurnsRemaining.Text.Text,
+                CounterTurnsRemaining.Font, Rect.Right, CounterTurnsRemaining.Y);
+
             base.Update(fixedDeltaTime);
         }
 

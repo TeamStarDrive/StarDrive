@@ -37,10 +37,10 @@ namespace Ship_Game.GameScreens.EspionageNew
 
             string title = $"Infiltration Level {level}";
 
-            Title     = Add(new UILabel(title, Fonts.Arial20Bold, Color.White));
-            StatusLbl = Add(new UILabel(GameText.InfiltrationStatus, Fonts.Arial12Bold, Color.White));
+            Title     = Add(new UILabel(title, Fonts.Arial20Bold, Color.Wheat));
+            StatusLbl = Add(new UILabel(GameText.InfiltrationStatus, Fonts.Arial12Bold, Color.Wheat));
             Status    = Add(new UILabel("", Fonts.Arial12Bold));
-            AvailableOps  = Add(new UILabel(GameText.EspionageOperationsTitle, Fonts.Arial12Bold, Color.White));
+            AvailableOps  = Add(new UILabel(GameText.EspionageOperationsTitle, Fonts.Arial12Bold, Color.Wheat));
             LevelProgress = new ProgressBar(rect, 50, 0);
             LevelProgress.color = "green";
             TitleFont = screen.LowRes ? Fonts.Arial12Bold : Fonts.Arial20Bold;
@@ -148,7 +148,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             else
             {
                 Status.Text = GameText.InfiltrationStatusHalted;
-                Status.Color = Screen.ApplyCurrentAlphaToColor(Color.Pink);
+                Status.Color = Screen.ApplyCurrentAlphaToColor(Color.Red);
             }
 
             float startPos = Rect.Right - Font.MeasureString(Status.Text.Text).X - 10;

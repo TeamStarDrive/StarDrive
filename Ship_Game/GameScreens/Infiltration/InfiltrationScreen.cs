@@ -156,6 +156,7 @@ namespace Ship_Game.GameScreens
             if (Level2.Visible) Level2.RefreshStatus(espionage);
             if (Level3.Visible) Level3.RefreshStatus(espionage);
             if (Level4.Visible) Level4.RefreshStatus(espionage);
+            if (Level5.Visible) Level5.RefreshStatus(espionage);
         }
     }
 }

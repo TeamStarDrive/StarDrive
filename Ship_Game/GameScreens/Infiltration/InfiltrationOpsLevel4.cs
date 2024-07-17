@@ -13,6 +13,7 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly UILabel LevelDescription;
         readonly UILabel PassiveTitle, Passive, ActiveTitle;
         readonly UICheckBox SabotageBox, SlowBox;
+        readonly UILabel SabotageTurnsRemaining, SlowResearchTurnsRemaining;
         readonly int LevelDescriptionY, PassiveY;
         const int Level = 4;
         Ship_Game.Espionage Espionage;
@@ -32,11 +33,14 @@ namespace Ship_Game.GameScreens.EspionageNew
             SlowBox          = Add(new UICheckBox(() => SlowingResearch, Font, GameText.EspioangeOpsSlowResearch, GameText.EspioangeOpsSlowResearchTip));
             SabotageBox.OnChange = Sabotage;
             SlowBox.OnChange     = SlowResearch;
-            SabotageBox.CheckedTextColor = SlowBox.CheckedTextColor = player.EmpireColor;
+            SabotageBox.CheckedTextColor = SlowBox.CheckedTextColor = Color.LightGreen;
 
             Passive.Tooltip = GameText.EspioangeOpsLeechTechTip;
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
+
+            SabotageTurnsRemaining     = Add(new UILabel("", Font, Color.Wheat));
+            SlowResearchTurnsRemaining = Add(new UILabel("", Font, Color.Wheat));
         }
 
         public override void PerformLayout()
@@ -46,25 +50,38 @@ namespace Ship_Game.GameScreens.EspionageNew
             string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel4Desc), Rect.Width - 10);
             LevelDescription.Text = description;
             PassiveTitle.Pos = new Vector2(Rect.X + 5, PassiveY);
-            Passive.Pos      = new Vector2(Rect.X + 75, PassiveTitle.Pos.Y);
+            Passive.Pos      = new Vector2(Rect.X + 60, PassiveTitle.Pos.Y);
             ActiveTitle.Pos  = new Vector2(Rect.X + 5, PassiveY + Font.LineSpacing + 2);
-            SabotageBox.Pos  = new Vector2(Rect.X + 75, ActiveTitle.Y);
-            SlowBox.Pos      = new Vector2(Rect.X + 75, ActiveTitle.Y + Font.LineSpacing + 2);
+            SabotageBox.Pos  = new Vector2(Rect.X + 55, ActiveTitle.Y);
+            SlowBox.Pos      = new Vector2(Rect.X + 55, ActiveTitle.Y + Font.LineSpacing + 2);
+            SabotageTurnsRemaining.Pos = new Vector2(Rect.Right - 80, ActiveTitle.Y);
+            SlowResearchTurnsRemaining.Pos = new Vector2(Rect.Right - 80, SlowBox.Y);
 
             if (!Screen.SelectedEmpire.isPlayer)
             {
                 Espionage     = Player.GetEspionage(Screen.SelectedEmpire);
-                Passive.Color = Espionage.Level >= Level ? Player.EmpireColor : Color.Gray;
+                Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
                 SabotageBox.Enabled    = SlowBox.Enabled = Espionage.Level >= Level;
-                SabotageBox.TextColor  = SlowBox.TextColor = SabotageBox.Enabled ? Color.White : Color.Gray;
+                SabotageBox.TextColor  = SlowBox.TextColor = SabotageBox.Enabled ? Color.Red : Color.Gray;
                 LevelDescription.Color = SabotageBox.Enabled ? Player.EmpireColor : Color.Gray;
                 Sabotaging      = Espionage.IsOperationActive(InfiltrationOpsType.Sabotage);
                 SlowingResearch = Espionage.IsOperationActive(InfiltrationOpsType.SlowResearch);
+                SabotageTurnsRemaining.Visible = SlowResearchTurnsRemaining.Visible = Espionage.Level >= Level;
             }
         }
 
         public override void Update(float fixedDeltaTime)
         {
+            SabotageTurnsRemaining.Color = SabotageBox.Checked ? Color.LightGreen : Color.Red;
+            SabotageTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.Sabotage);
+            SabotageTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(SabotageTurnsRemaining.Text.Text,
+                SabotageTurnsRemaining.Font, Rect.Right, SabotageTurnsRemaining.Y);
+
+            SlowResearchTurnsRemaining.Color = SlowBox.Checked ? Color.LightGreen : Color.Red;
+            SlowResearchTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.SlowResearch);
+            SlowResearchTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(SlowResearchTurnsRemaining.Text.Text,
+                SlowResearchTurnsRemaining.Font, Rect.Right, SlowResearchTurnsRemaining.Y);
+
             base.Update(fixedDeltaTime);
         }
 
