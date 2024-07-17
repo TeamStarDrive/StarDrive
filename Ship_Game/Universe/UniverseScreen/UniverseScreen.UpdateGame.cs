@@ -306,6 +306,7 @@ namespace Ship_Game
                     {
                         Empire empire = wereUpdated[i];
                         empire.UpdateMilitaryStrengths();
+                        empire.UpdateMoneyLeechedLastTurn();
                     }
                 }
 

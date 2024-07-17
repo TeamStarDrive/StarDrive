@@ -13,6 +13,7 @@ namespace Ship_Game
         [StarData] public bool CanBeScannedByPlayer { get; private set; } = true;
         [StarData] public int EspionageDefenseWeight { get; private set; } = 50;
         [StarData] public float EspionageDefenseRatio { get; private set; } = 1;
+        [StarData] public float TotalMoneyLeechedLastTurn { get; private set; }
         [StarData] public float EspionageBudgetMultiplier { get; private set; } = 1; // 1-5
         public float EspionagePointsPerTurn => TotalPopBillion * EspionageBudgetMultiplier;
         public float EspionageCost => TotalPopBillion * (EspionageBudgetMultiplier - 1);
@@ -21,6 +22,16 @@ namespace Ship_Game
         public void SetCanBeScannedByPlayer(bool value)
         {
             CanBeScannedByPlayer = value;
+        }
+
+        public void UpdateMoneyLeechedLastTurn()
+        {
+            if (Universe.P.UseLegacyEspionage)
+                return;
+
+            TotalMoneyLeechedLastTurn = 0;
+            foreach (Empire e in Universe.ActiveMajorEmpires.Filter(e => e != this))
+                TotalMoneyLeechedLastTurn += GetEspionage(e).ExtractMoneyLeechedThisTurn();
         }
 
         public int CalcTotalEspionageWeight()

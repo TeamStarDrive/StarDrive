@@ -15428,6 +15428,9 @@ EspioangeDefenseWeightTip:
 EspioangeInfiltrationWeightTip:
  Id: 6338
  ENG: "Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within this empire. The higher the weight, the more points are allocated to increasing Infiltration Levels and execution time of Active missions. The progress is also affected by their Spy Defense weight and size of empire. Bigger empires are easier to infiltrate."              
+InfiltrationLevel5Desc:
+ Id: 6339
+ ENG: "Diplomacy view of the number of Moles the have planted in our Colonies."              
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

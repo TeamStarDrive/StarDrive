@@ -21,6 +21,7 @@ namespace Ship_Game
         [StarData] Mole StickyMole;
         [StarData] public int SlowResearchChance { get; private set; }
         [StarData] public float TotalMoneyLeeched { get; private set; }
+        [StarData] public float MoneyLeechedThisTurn { get; private set; }
 
         [StarDataConstructor]
         public Espionage() { }
@@ -207,6 +208,14 @@ namespace Ship_Game
         {
             Owner.AddMoney(money);
             TotalMoneyLeeched += money;
+            MoneyLeechedThisTurn += money;
+        }
+
+        public float ExtractMoneyLeechedThisTurn()
+        {
+            float monetLeeched = MoneyLeechedThisTurn;
+            MoneyLeechedThisTurn = 0;
+            return monetLeeched;
         }
 
         public int NextLevelCost => LevelCost((byte)(Level+1));

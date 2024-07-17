@@ -47,7 +47,7 @@ namespace Ship_Game.GameScreens.EspionageNew
         {
             base.PerformLayout();
             LevelDescription.Pos  = new Vector2(Rect.X + 5, LevelDescriptionY);
-            string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel4Desc), Rect.Width - 10);
+            string description    = Font.ParseText(Localizer.Token(GameText.InfiltrationLevel5Desc), Rect.Width - 10);
             LevelDescription.Text = description;
             PassiveTitle.Pos  = new Vector2(Rect.X + 5, PassiveY);
             Passive.Pos       = new Vector2(Rect.X + 60, PassiveTitle.Pos.Y);
@@ -62,7 +62,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage = Player.GetEspionage(Screen.SelectedEmpire);
                 Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
                 RebellionBox.Enabled = ProjectionBox.Enabled = Espionage.Level >= Level;
-                RebellionBox.TextColor = ProjectionBox.TextColor = RebellionBox.Enabled ? Color.White : Color.Gray;
+                RebellionBox.TextColor = ProjectionBox.TextColor = RebellionBox.Enabled ? Color.Red : Color.Gray;
                 LevelDescription.Color = RebellionBox.Enabled ? Player.EmpireColor : Color.Gray;
                 IncitingRebellion = Espionage.IsOperationActive(InfiltrationOpsType.Rebellion);
                 DistuptingProjection = Espionage.IsOperationActive(InfiltrationOpsType.DisruptProjection);

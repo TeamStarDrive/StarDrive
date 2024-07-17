@@ -190,7 +190,7 @@ namespace Ship_Game
         public float MaximumIncome       => PotentialIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus; // + AverageTradeIncome + data.FlatMoneyBonus;
         public float MaximumStableIncome => PotentialIncome + AverageTradeIncome + data.FlatMoneyBonus;
         // Income this turn before deducting ship maintenance
-        public float GrossIncome                 => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
+        public float GrossIncome                 => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus + TotalMoneyLeechedLastTurn;
         public float NetIncome                   => GrossIncome - AllSpending;
         public float TotalBuildingMaintenance    =>  GrossPlanetIncome - (NetPlanetIncomes + TroopCostOnPlanets);
         public float BuildingAndShipMaint        => TotalBuildingMaintenance + TotalShipMaintenance;

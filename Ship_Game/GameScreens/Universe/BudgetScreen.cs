@@ -169,6 +169,7 @@ namespace Ship_Game.GameScreens
             income.AddItem(GameText.PlanetaryTaxes, () => Player.GrossPlanetIncome); // "Planetary Taxes"
             income.AddItem(GameText.Other, () => Player.data.FlatMoneyBonus);
             income.AddItem("Excess Goods", () => Player.ExcessGoodsMoneyAddedThisTurn);
+            income.AddItem("Money Leeched", () => Player.TotalMoneyLeechedLastTurn);
             income.SetTotalFooter(() => Player.GrossIncome); // "Total"
         }
 

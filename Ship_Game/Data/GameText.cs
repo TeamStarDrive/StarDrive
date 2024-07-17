@@ -5563,6 +5563,8 @@ namespace Ship_Game
         EspioangeDefenseWeightTip = 6337,
         /// <summary>Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within</summary>
         EspioangeInfiltrationWeightTip = 6338,
+        /// <summary>Diplomacy view of the number of Moles the have</summary>
+        InfiltrationLevel5Desc = 6339,
 
 
 
