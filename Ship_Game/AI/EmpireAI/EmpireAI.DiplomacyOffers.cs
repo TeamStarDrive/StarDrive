@@ -536,7 +536,7 @@ namespace Ship_Game.AI
 
             if (usToThem.ActiveWar != null)
             {
-                if (us.Universe.StarDate - usToThem.ActiveWar.StartDate < 10)
+                if (us.Universe.StarDate - usToThem.ActiveWar.StartDate < (10 * us.Universe.P.Pace))
                     return ProcessPeace("REJECT_OFFER_PEACE_UNWILLING_BC");
             }
 

@@ -1111,7 +1111,7 @@ namespace Ship_Game.Gameplay
 
         void RequestPeace(Empire us, bool requestNow = false)
         {
-            if (ActiveWar.TurnsAtWar == 0 || ActiveWar.TurnsAtWar % 100 > 0 && !requestNow)
+            if (ActiveWar.TurnsAtWar == 0 || ActiveWar.TurnsAtWar % (int)(100 * us.Universe.P.Pace) > 0 && !requestNow)
                 return;
 
             WarState warState    = ActiveWar.GetWarScoreState();
