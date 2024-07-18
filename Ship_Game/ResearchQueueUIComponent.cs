@@ -80,21 +80,17 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped)
-            {
-                Screen.ExitScreen();
-                return true;
-            }
-
-            if (ResearchQueueList.Visible && input.RightMouseClick &&
-                ResearchQueueList.HitTest(input.CursorPosition))
-            {
-                Screen.ExitScreen();
-                return true;
-            }
-
             if (CurrentResearch != null && CurrentResearch.HandleInput(input))
                 return true;
+
+            if (ResearchQueueList.Visible && input.RightMouseClick && ResearchQueueList.Any(item => item.HitTest(input.CursorPosition)))
+                return base.HandleInput(input);
+
+            if (input.Escaped || input.RightMouseClick)
+            {
+                Screen.ExitScreen();
+                return true;
+            }
 
             return base.HandleInput(input);
         }

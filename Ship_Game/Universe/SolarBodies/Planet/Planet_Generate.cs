@@ -130,9 +130,9 @@ namespace Ship_Game
             }
         }
 
-        void GeneratePlanetFromSystemData(RandomBase random, SolarSystemData.Ring data)
+        void GeneratePlanetFromSystemData(RandomBase random, SolarSystemData.Ring data, out PlanetType type)
         {
-            PlanetType type = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet);
+            type = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet);
 
             float scale;
             if (data.planetScale > 0)

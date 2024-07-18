@@ -336,7 +336,7 @@ namespace Ship_Game
                 }
             }
 
-            if (input.ResearchExitScreen || input.RightMouseClick)
+            if (!Queue.HitTest(input.CursorPosition) && (input.ResearchExitScreen || input.RightMouseClick))
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
