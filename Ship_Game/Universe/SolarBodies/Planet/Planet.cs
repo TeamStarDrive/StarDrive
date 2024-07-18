@@ -293,7 +293,8 @@ namespace Ship_Game
             }
             else if (data != null)
             {
-                GeneratePlanetFromSystemData(random, data);
+                GeneratePlanetFromSystemData(random, data, out PlanetType type);
+                TrySetExoticPlanet(type, random, system.IsStartingSystem ?  exoticPlanetMultiplier*0.33f : exoticPlanetMultiplier);
             }
             else
             {
@@ -308,21 +309,7 @@ namespace Ship_Game
                 if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
 
-                if (!Universe.P.DisableResearchStations 
-                    && !type.Habitable 
-                    && random.RollDice(type.ResearchableChance * exoticPlanetMultiplier))
-                {
-                    SetResearchable(true, Universe);
-                    //Log.Info($"{Name} can be researched");
-                }
-                else if (!Universe.P.DisableMiningOps 
-                    && type.Category == PlanetCategory.GasGiant 
-                    && random.RollDice(type.MiningChance * exoticPlanetMultiplier))
-                {
-                    Mining = new(this);
-                    //Log.Info($"{Name} can be mined");
-                }
-
+                TrySetExoticPlanet(type, random, exoticPlanetMultiplier);
                 InitNewMinorPlanet(random, type, scale);
             }
 
@@ -343,6 +330,24 @@ namespace Ship_Game
             if (HasRings)
             {
                 RingTilt = random.Float(-80f, -45f).ToRadians();
+            }
+        }
+
+        void TrySetExoticPlanet(PlanetType type, RandomBase random, float exoticPlanetMultiplier)
+        {
+            if (!Universe.P.DisableResearchStations
+                && !type.Habitable
+                && random.RollDice(type.ResearchableChance * exoticPlanetMultiplier))
+            {
+                SetResearchable(true, Universe);
+                //Log.Info($"{Name} can be researched");
+            }
+            else if (!Universe.P.DisableMiningOps
+                && type.Category == PlanetCategory.GasGiant
+                && random.RollDice(type.MiningChance * exoticPlanetMultiplier))
+            {
+                Mining = new(this);
+                //Log.Info($"{Name} can be mined");
             }
         }
 
