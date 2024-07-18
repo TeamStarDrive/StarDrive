@@ -110,5 +110,10 @@ namespace Ship_Game
             rebels = Universe.GetEmpireByName(data.RebelName);
             return rebels != null;
         }
+
+        public int GetNumOfTheirMoles(Empire them)
+        {
+            return them.data.MoleList.Count(m =>  Universe.GetPlanet(m.PlanetId).Owner == this);
+        }
     }
 }

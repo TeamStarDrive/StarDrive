@@ -21,7 +21,7 @@ namespace Ship_Game
         [StarData] Mole StickyMole;
         [StarData] public int SlowResearchChance { get; private set; }
         [StarData] public float TotalMoneyLeeched { get; private set; }
-        [StarData] public float MoneyLeechedThisTurn { get; private set; }
+        [StarData] float MoneyLeechedThisTurn;
 
         [StarDataConstructor]
         public Espionage() { }
@@ -241,8 +241,8 @@ namespace Ship_Game
         public bool CanSlowResearch => Level >= 4 && SlowResearchChance > 0;
         public bool CanViewTraitSet => Level >= 4;
 
-        public bool CanLeechMoney => Level >= 5;
-
+        public bool CanLeechMoney     => Level >= 5;
+        public bool CanViewTheirMoles => Level >= 5;
 
 
         public bool AtMaxLevel => Level >= MaxLevel;

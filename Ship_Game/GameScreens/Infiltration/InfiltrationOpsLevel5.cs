@@ -2,6 +2,7 @@
 using Rectangle = SDGraphics.Rectangle;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
+using SDUtils;
 
 namespace Ship_Game.GameScreens.EspionageNew
 {
@@ -13,7 +14,7 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly UILabel LevelDescription;
         readonly UILabel PassiveTitle, Passive, ActiveTitle;
         readonly UICheckBox RebellionBox, ProjectionBox;
-        readonly UILabel RebellionTurnsRemaining, ProjectionTurnsRemaining;
+        readonly UILabel RebellionTurnsRemaining, ProjectionTurnsRemaining, MoneyLeeched;
         readonly int LevelDescriptionY, PassiveY;
         const int Level = 5;
         Ship_Game.Espionage Espionage;
@@ -41,6 +42,7 @@ namespace Ship_Game.GameScreens.EspionageNew
 
             RebellionTurnsRemaining  = Add(new UILabel("", Font, Color.Wheat));
             ProjectionTurnsRemaining = Add(new UILabel("", Font, Color.Wheat));
+            MoneyLeeched = Add(new UILabel("", Font, Color.White));
         }
 
         public override void PerformLayout()
@@ -57,6 +59,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             RebellionTurnsRemaining.Pos  = new Vector2(Rect.Right - 80, ActiveTitle.Y);
             ProjectionTurnsRemaining.Pos = new Vector2(Rect.Right - 80, ProjectionBox.Y);
 
+
             if (!Screen.SelectedEmpire.isPlayer)
             {
                 Espionage = Player.GetEspionage(Screen.SelectedEmpire);
@@ -67,6 +70,9 @@ namespace Ship_Game.GameScreens.EspionageNew
                 IncitingRebellion = Espionage.IsOperationActive(InfiltrationOpsType.Rebellion);
                 DistuptingProjection = Espionage.IsOperationActive(InfiltrationOpsType.DisruptProjection);
                 RebellionTurnsRemaining.Visible = ProjectionTurnsRemaining.Visible = Espionage.Level >= Level;
+                MoneyLeeched.Text = $"({HelperFunctions.GetNumberString(Espionage.TotalMoneyLeeched)} bc)";
+                MoneyLeeched.Pos = HelperFunctions.GetRightAlignedPosForTitle(MoneyLeeched.Text.Text,
+                    MoneyLeeched.Font, Rect.Right, Passive.Y); 
             }
         }
 
