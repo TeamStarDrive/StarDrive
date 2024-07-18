@@ -15431,6 +15431,9 @@ EspioangeInfiltrationWeightTip:
 InfiltrationLevel5Desc:
  Id: 6339
  ENG: "Diplomacy Screen view of the number of Moles the have planted in our Colonies."              
+MessageInfiltrationLevelIncrease:
+ Id: 6340
+ ENG: "We have infiltrated into their empire.\nOur Infiltration Level is now"               
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

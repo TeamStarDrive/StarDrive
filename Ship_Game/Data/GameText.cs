@@ -5565,7 +5565,8 @@ namespace Ship_Game
         EspioangeInfiltrationWeightTip = 6338,
         /// <summary>Diplomacy view of the number of Moles the have</summary>
         InfiltrationLevel5Desc = 6339,
-
+        /// <summary>We have infiltrated into their empire.</summary>
+        MessageInfiltrationLevelIncrease = 6340,
 
 
 
