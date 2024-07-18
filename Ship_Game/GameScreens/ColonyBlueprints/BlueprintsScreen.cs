@@ -535,6 +535,7 @@ namespace Ship_Game
         {
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: true);
             LinkBlueprints.Enabled = BlueprintsName.Text != template.Name;
+            ResourceManager.BlueprintsTemplatesDict.Remove(template.Name);
         } 
 
         public void RemoveAllBlueprintsLinkTo(BlueprintsTemplate template)
