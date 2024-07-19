@@ -213,7 +213,7 @@ namespace Ship_Game
             float totalProdSlots  = (totalProdNeeded / averageFreighterCargoCap).LowerBound(0);
 
             if (IsCybernetic) // They need prod as food
-                totalProdSlots += ((int)(-Prod.NetIncome * AverageProdImportTurns / averageFreighterCargoCap)).LowerBound(0);
+                totalProdSlots += ((int)(-Prod.NetIncome * AverageProdImportTurns / averageFreighterCargoCap)).LowerBound(1);
 
             return (int)totalProdSlots.Clamped(0, maxSlots);
         }

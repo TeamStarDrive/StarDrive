@@ -268,7 +268,8 @@ namespace Ship_Game
                 case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.02f;  break;
             }
 
-            IncreaseFastVsBigFreighterRatio(ratioDiff);
+            float numPiratesAtWarModifier = 0.1f * Universe.PirateFactions.Count(e => IsAtWarWith(e));
+            IncreaseFastVsBigFreighterRatio(ratioDiff+ numPiratesAtWarModifier);
         }
 
         public void AffectFastVsBigFreighterByEta(Planet importPlanet, Goods goods, float eta)

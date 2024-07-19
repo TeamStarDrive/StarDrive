@@ -136,6 +136,7 @@ namespace Ship_Game
         public float LimitedProductionExpenditure(float availableProductionToQueue)
         {
             float prodToSpend;
+            float prodIncome = Prod.NetIncome > 0 ? Prod.NetIncome : InfraStructure.UpperBound(Storage.Prod);
             bool empireCanExport = Owner.TotalProdExportSlots - FreeProdExportSlots > Level.LowerBound(3);
             if (CType == ColonyType.Colony)
             {
@@ -146,13 +147,13 @@ namespace Ship_Game
                         break;
                     case GoodState.STORE:
                         if (Storage.ProdRatio.AlmostEqual(1))
-                            prodToSpend = Prod.NetIncome; // Spend all our Income since storage is full
+                            prodToSpend = prodIncome; // Spend all our Income since storage is full
                         else
-                            prodToSpend = Prod.NetIncome * 0.5f; // Store 50% of our prod income
+                            prodToSpend = prodIncome * 0.5f; // Store 50% of our prod income
                         break;
                     case GoodState.EXPORT:
                         if (OutgoingProdFreighters > 0)
-                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
+                            prodToSpend = prodIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
                         else
                             prodToSpend = ProdHere * 0.5f; // Spend 50% from our current stores and net production
                         break;
@@ -165,24 +166,24 @@ namespace Ship_Game
                     default: // Importing
                         if (!empireCanExport)
                         {
-                            prodToSpend = Prod.NetIncome * 0.5f; ; 
+                            prodToSpend = prodIncome * 0.5f; ; 
                             break;
                         }
                         if (IncomingProdFreighters > 0)
-                            prodToSpend = ProdHere + Prod.NetIncome; // We have incoming prod, so we can spend more now
+                            prodToSpend = ProdHere + prodIncome; // We have incoming prod, so we can spend more now
                         else
-                            prodToSpend = Prod.NetIncome + Storage.ProdRatio*2; // Spend less since nothing is coming
+                            prodToSpend = prodIncome + Storage.ProdRatio*2; // Spend less since nothing is coming
                         break;
                     case GoodState.STORE:
                         if (empireCanExport)
                         {
-                            prodToSpend = Prod.NetIncome + 10; // Our empire has open export slots, so we can allow storage to dwindle
+                            prodToSpend = prodIncome + 10; // Our empire has open export slots, so we can allow storage to dwindle
                             break;
                         }
                         if (Storage.ProdRatio.AlmostEqual(1))
-                            prodToSpend = Prod.NetIncome; // Spend all our Income since storage is full
+                            prodToSpend = prodIncome; // Spend all our Income since storage is full
                         else
-                            prodToSpend = Prod.NetIncome * 0.5f; // Store 50% of our prod income
+                            prodToSpend = prodIncome * 0.5f; // Store 50% of our prod income
                         break;
                     case GoodState.EXPORT:
                         if (empireCanExport)
@@ -192,9 +193,9 @@ namespace Ship_Game
                         }
 
                         if (Storage.ProdRatio > 0.8f)
-                            prodToSpend = Prod.NetIncome + Storage.Prod * 0.1f; // We are actively exporting but can afford some storage spending
+                            prodToSpend = prodIncome + Storage.Prod * 0.1f; // We are actively exporting but can afford some storage spending
                         else
-                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
+                            prodToSpend = prodIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
                         break;
                 }
             }
@@ -202,7 +203,9 @@ namespace Ship_Game
             if (IsStarving && Construction.FirstItemCanFeedUs())
                 prodToSpend = ProdHere;
 
-            return prodToSpend.UpperBound(availableProductionToQueue);
+            // if we have negative NetIncome (cybernetics)  - we try to take amonut of Infra (if available) to continue building the queue
+            float upperBound = Prod.NetIncome <= 0 ? prodIncome : availableProductionToQueue;
+            return prodToSpend.UpperBound(upperBound);
         }
 
         void CreateAndOrUpdateBudget()

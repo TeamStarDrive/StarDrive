@@ -63,7 +63,7 @@ namespace Ship_Game
         }
 
         public int MinimumColoniesForPayment   => Owner.data.MinimumColoniesForStartPayment;
-        int PaymentPeriodTurns                 => Owner.data.PiratePaymentPeriodTurns;
+        int PaymentPeriodTurns                 => (int)(Owner.data.PiratePaymentPeriodTurns * Owner.Universe.ProductionPace);
         public bool PaidBy(Empire victim)      => !Owner.IsAtWarWith(victim);
 
         float PirateBaseDetectionChance => Level * 4 + ((Owner.Universe.StarDate - 1000) * 0.025f);
