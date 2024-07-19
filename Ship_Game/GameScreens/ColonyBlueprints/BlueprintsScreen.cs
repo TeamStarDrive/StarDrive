@@ -342,9 +342,9 @@ namespace Ship_Game
             ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedFlatProd,
                 "NewUI/icon_production", GameText.NetFlatProductionGeneratedPer);
             ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedFlatResearch,
-                "NewUI/icon_science", GameText.NetResearchPerColonistAllocated);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedResearchPerCol,
                 "NewUI/icon_science", GameText.NetFlatResearchGeneratedPer);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedResearchPerCol,
+                "NewUI/icon_science", GameText.NetResearchPerColonistAllocated); 
             ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannnedInfrastructure,
                 "NewUI/icon_queue_rushconstruction", GameText.MaximumProductionToQueuePer);
             ColonyScreen.DrawBuildingInfo(ref bCursor, batch, BigFont, PlannedStorage,
@@ -403,7 +403,7 @@ namespace Ship_Game
                 b.UpdateOffense(PlanetLevel, Player.Universe);
             }
 
-            PlannedGrossMoney  *= 1+taxRateMultiplier;
+            PlannedGrossMoney  = PlannedGrossMoney * tax * taxRateMultiplier;
             PlannedMaintenance *= Player.data.Traits.MaintMultiplier;
             PlannedNetIncome = PlannedGrossMoney - PlannedMaintenance;
             PlannedShields *= 1 + Player.data.ShieldPowerMod;
@@ -535,6 +535,7 @@ namespace Ship_Game
         {
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: true);
             LinkBlueprints.Enabled = BlueprintsName.Text != template.Name;
+            ResourceManager.BlueprintsTemplatesDict.Remove(template.Name);
         } 
 
         public void RemoveAllBlueprintsLinkTo(BlueprintsTemplate template)

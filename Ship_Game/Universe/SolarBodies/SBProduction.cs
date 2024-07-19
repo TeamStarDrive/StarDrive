@@ -433,6 +433,11 @@ namespace Ship_Game.Universe.SolarBodies
                     int totalFreighters = Owner.TotalFreighters;
                     ConstructionQueue.Sort(q => q.GetAndUpdatePriorityForAI(P, totalFreighters));
                 }
+                else if (item.Rush && item.QType == QueueItemType.OrbitalUrgent)
+                {
+                    // prioritize projector bridges for the player.
+                    MoveTo(0, Count - 1);
+                }
             }
         }
 
