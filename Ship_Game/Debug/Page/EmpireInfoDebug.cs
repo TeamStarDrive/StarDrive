@@ -44,7 +44,7 @@ public class EmpireInfoDebug : DebugPage
         }
         Text.String($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
        
-        Text.String($"Treasury Goal: {(int)eAI.ProjectedMoney} ({(int)( e.AI.CreditRating * 100)}%)");
+        Text.String($"Treasury Goal: {(int)eAI.ProjectedMoney} (cr {(int)( e.AI.CreditRating * 100)}%)");
         float taxRate = e.data.TaxRate * 100f;
         
         var ships = e.OwnedShips;

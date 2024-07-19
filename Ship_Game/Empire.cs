@@ -1897,7 +1897,7 @@ namespace Ship_Game
 
         void CheckFederationVsPlayer(UniverseState us)
         {
-            if (us.P.PreventFederations || us.StarDate < 1100f || us.StarDate % 1 > 0)
+            if (us.P.PreventFederations || us.StarDate < 1100f || us.StarDate % 10 > 0)
                 return;
 
             float playerScore    = TotalScore;

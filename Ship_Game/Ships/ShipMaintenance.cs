@@ -43,7 +43,7 @@ namespace Ship_Game.Ships
             }
             else
             {
-                float shipCost    = ship.GetCost(empire);
+                float shipCost    = ship.GetCost(empire, ignorePace: true);
                 float hangarsArea = ship.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
                 float surfaceArea = ship.BaseHull.SurfaceArea + hangarsArea;
                 maint = hullUpkeep ? surfaceArea * MaintModifierBySize : shipCost * MaintModifierByCost;

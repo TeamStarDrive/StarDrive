@@ -150,7 +150,7 @@ public interface IShipDesign
 
     TacticalIcon GetTacticalIcon();
 
-    float GetCost(Empire e);
+    float GetCost(Empire e, bool ignorePace = false);
 
     float GetMaintenanceCost(Empire empire);
 

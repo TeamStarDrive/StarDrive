@@ -194,12 +194,14 @@ public partial class ShipDesign
             ShipCategory = ShipCategory.Conservative;
     }
 
-    public float GetCost(Empire e)
+    // Ignore pace is for maintenance calc
+    public float GetCost(Empire e, bool ignorePace)
     {
+        float pace = ignorePace ? 1 : e.Universe.ProductionPace;
         if (FixedCost > 0)
-            return FixedCost * e.Universe.ProductionPace;
+            return FixedCost * pace;
 
-        float cost = BaseCost * e.Universe.ProductionPace;
+        float cost = BaseCost * pace;
         cost += Bonuses.StartingCost;
         cost += cost * e.data.Traits.ShipCostMod;
         cost *= 1f - Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
