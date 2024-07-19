@@ -99,8 +99,8 @@ public sealed class RuleOptionsScreen : GameScreen
         TurnTimer = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 4, 10f, P.TurnTimer);
         TurnTimer.OnChange = (s) => P.TurnTimer = (int)s.AbsoluteValue;
 
-        IncreaseMaintenance = Slider(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 10f, P.ShipMaintenanceMultiplier);
-        IncreaseMaintenance.OnChange = (s) => P.ShipMaintenanceMultiplier = s.AbsoluteValue;
+        IncreaseMaintenance = SliderDecimal1(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 2, P.ShipMaintenanceMultiplier);
+        IncreaseMaintenance.OnChange = (s) => P.ShipMaintenanceMultiplier = s.AbsoluteValue.RoundToFractionOf10();
 
         EnemyFTLPenaltySlider.Tip = GameText.UsingThisSliderYouCan2;
         CustomMineralDecay.Tip = GameText.HigherMineralDecayIncreasesThe;

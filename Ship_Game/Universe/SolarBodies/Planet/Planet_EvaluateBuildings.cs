@@ -182,7 +182,7 @@ namespace Ship_Game
                                        : (flatProdToFeedAll - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0);
 
             float richnessMultiplier = NonCybernetic ? 5 : 10;
-            float perRichness        = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus / 2).LowerBound(0);
+            float perRichness        = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus * 0.5f).LowerBound(0);
             float perCol             = 10 - netProdPerColonist - flatProdToFeedAll * richnessBonus;
             perCol                   = (perCol * MineralRichness).LowerBound(0);
 
@@ -198,9 +198,10 @@ namespace Ship_Game
             perCol += (1 - Storage.ProdRatio) * MineralRichness;
             perCol *= PopulationRatio;
 
-            float flatMulti = Prod.NetMaxPotential < 1 ? 4 : 1;
+            float maxPotentialThreshold = IsCybernetic ? 2 : 1;
+            float flatMulti = (IsCybernetic ? maxPotentialThreshold / Prod.NetMaxPotential.LowerBound(0.1f) : 4).Clamped(4, 20);
             flat        = ApplyGovernorBonus(flat, 1f, 2f, 1f, 1f, 1.5f) * flatMulti;
-            perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
+            perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f) * flatMulti;
             perCol      = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
             Priorities[ColonyPriority.ProdFlat]        = flat;
             Priorities[ColonyPriority.ProdPerRichness] = perRichness;

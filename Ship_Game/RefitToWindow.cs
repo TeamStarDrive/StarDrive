@@ -168,12 +168,12 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        void RefitAllShips()
+        void RefitAllShips(Fleet specificFleet = null)
         {
             var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
-                if (ship.Name == ShipToRefit.Name)
+                if (ship.Name == ShipToRefit.Name && (specificFleet == null || ship.Fleet == specificFleet))
                     Player.AI.AddGoalAndEvaluate(GetRefitGoal(ship));
             }
 
@@ -184,7 +184,7 @@ namespace Ship_Game
         void OnRefitFleetClicked(UIButton b)
         {
             ShipToRefit.Fleet?.RefitNodeName(ShipToRefit.Name, RefitTo.Name);
-            RefitAllShips();
+            RefitAllShips(ShipToRefit.Fleet);
             GameAudio.EchoAffirmative();
             ExitScreen();
         }

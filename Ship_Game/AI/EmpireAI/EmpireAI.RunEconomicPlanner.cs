@@ -115,7 +115,7 @@ namespace Ship_Game.AI
             // spy budget is a special case currently and is not distributed.
             if (OwnerEmpire.isPlayer)
             {
-                float budgetBalance = (build + spy) / 2f;
+                float budgetBalance = (build + spy) * 0.5f;
                 defense            += budgetBalance;
                 colony             += budgetBalance;
                 SSP                += budgetBalance;

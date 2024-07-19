@@ -35,7 +35,7 @@ namespace Ship_Game
         public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
         public bool ManualTrade          => isPlayer && !AutoFreighters;
         public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
-        public int NumTradeTreaties      => TradeTreaties.Count;
+        public bool EconomicSafeToBuildFreighter => AI.CreditRating >= 0.4;
 
         Array<Relationship> TradeTreaties = new();
         public IReadOnlyList<Relationship> TradeRelations => TradeTreaties;
@@ -242,7 +242,7 @@ namespace Ship_Game
 
         void BuildFreighter()
         {
-            if (ManualTrade)
+            if (ManualTrade || !EconomicSafeToBuildFreighter)
                 return;
 
             int beingBuilt = FreightersBeingBuilt;
@@ -268,7 +268,8 @@ namespace Ship_Game
                 case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.02f;  break;
             }
 
-            IncreaseFastVsBigFreighterRatio(ratioDiff);
+            float numPiratesAtWarModifier = 0.1f * Universe.PirateFactions.Count(e => IsAtWarWith(e));
+            IncreaseFastVsBigFreighterRatio(ratioDiff+ numPiratesAtWarModifier);
         }
 
         public void AffectFastVsBigFreighterByEta(Planet importPlanet, Goods goods, float eta)
