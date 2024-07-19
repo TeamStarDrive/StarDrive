@@ -803,12 +803,26 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
 
+            return Construction.Enqueue(bio, GetPrefettedTile()); // Preferred is null safe in this call
 
-            PlanetGridSquare preferred = Owner.IsBuildingUnlocked(Building.TerraformerId) 
-                ? TilesList.Find(t => !t.Habitable && !t.Terraformable)
-                : null;
+            PlanetGridSquare GetPrefettedTile()
+            {
+                PlanetGridSquare preferred = null;
+                if (Owner.IsBuildingUnlocked(Building.TerraformerId))
+                {
+                    preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable && !t.BuildingOnTile);
+                    if (preferred == null)
+                        preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable);
+                }
+                else
+                {
+                    preferred = TilesList.Find(t => !t.Habitable && !t.BuildingOnTile);
+                    if (preferred == null)
+                        preferred = TilesList.Find(t => !t.Habitable);
+                }
 
-            return Construction.Enqueue(bio, preferred); // Preferred is null safe in this call
+                return preferred;
+            }
         }
 
         bool BioSphereProfitable(Building bio)
