@@ -262,11 +262,12 @@ public sealed partial class Empire
             switch (planet.CType)
             {
                 case ColonyType.TradeHub:
+                case ColonyType.Colony:       maxPotential  = planet.Prod.NetIncome; break;
                 case ColonyType.Core:         maxPotential *= 0.5f;                  break;
                 case ColonyType.Agricultural: maxPotential *= 0.25f;                 break;
                 case ColonyType.Military:     maxPotential *= 0.75f;                 break;
                 case ColonyType.Research:     maxPotential *= 0.1f;                  break;
-                case ColonyType.Colony:       maxPotential  = planet.Prod.NetIncome; break;
+
             }
 
             return maxPotential;

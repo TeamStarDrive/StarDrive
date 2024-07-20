@@ -25,7 +25,7 @@ namespace Ship_Game
         private UIPanel Portrait;
         private UILabel WorldType, WorldDescription;
         DropOptions<Planet.ColonyType> ColonyTypeList;
-        private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals, GovGround;
+        private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals, GovGround, SpecializedTradeHub;
         private UICheckBox OverrideCiv, OverrideGrd, OverrideSpc;
         private FloatSlider Garrison;
         private FloatSlider ManualPlatforms;
@@ -137,6 +137,10 @@ namespace Ship_Game
             OverrideCiv    = Add(new UICheckBox(() => OverrideCivBudget, Font, title: GameText.Override, tooltip: GameText.OverrideThisBudgetAndSet));
             OverrideGrd    = Add(new UICheckBox(() => OverrideGrdBudget, Font, title: GameText.Override, tooltip: GameText.OverrideThisBudgetAndSet));
             OverrideSpc    = Add(new UICheckBox(() => OverrideSpcBudget, Font, title: GameText.Override, tooltip: GameText.OverrideThisBudgetAndSet));
+
+            SpecializedTradeHub = Add(new UICheckBox(() => p.SpecializedTradeHub, Font, title: GameText.SpecializedTradeHub, tooltip: GameText.SpecializedTradeHubTip));
+            SpecializedTradeHub.OnChange = cb => { Planet.SetSpecializedTradeHub(cb.Checked); };
+            SpecializedTradeHub.TextColor = Color.Gray;
 
             Garrison        = Slider(200, 200, 160, 40, GameText.GarrisonSize, 0, 25,Planet.GarrisonSize);
             ManualPlatforms = Slider(200, 200, 120, 40, GameText.ManualLimit, 0, 15, Planet.WantedPlatforms);
@@ -285,6 +289,8 @@ namespace Ship_Game
             BudgetLimitReached.Pos = new Vector2(ColonyTypeList.Right + 10, ColonyTypeList.Pos.Y);
             BuildCapital.Pos       = new Vector2(ColonyTypeList.Right + 50, Quarantine.Pos.Y - 26);
 
+            SpecializedTradeHub.Pos = new Vector2(Quarantine.X, Quarantine.Y - 26);
+
             AutoTroops.Pos        = new Vector2(TopLeft.X + 10, Y + 30);
             Garrison.Pos          = new Vector2(TopLeft.X + 20, Y + 50);
             CallTroops.Pos        = new Vector2(TopLeft.X + 10, Bottom - 30);
@@ -370,12 +376,16 @@ namespace Ship_Game
             WorldType.Text = Planet.WorldType;
             WorldDescription.Text = GetParsedDescription();
             if (type is Planet.ColonyType.Colony or Planet.ColonyType.TradeHub)
+            {
                 Planet.RemoveBlueprints();
+                Planet.SetSpecializedTradeHub(false);
+            }
         }
 
         public void OnBlueprintsChanged(BlueprintsTemplate template)
         {
             Planet.DontScrapBuildings = false;
+            Planet.SetSpecializedTradeHub(false);
             Planet.AddBlueprints(template, Player);
             ColonyTypeList.ActiveValue = Planet.CType;
             OnColonyTypeChanged(Planet.CType);
@@ -405,17 +415,25 @@ namespace Ship_Game
                 WorldType.Visible          = GovernorTabView;
                 Quarantine.Visible         = GovernorTabView && Planet.OwnerIsPlayer;
                 Quarantine.TextColor       = Planet.Quarantine ? Color.Red : Color.Gray;
-                BudgetLimitReached.Visible = GovernorTabView && Planet.OwnerIsPlayer && GovernorOn && BudgetLimitWarningVisible;
+                BudgetLimitReached.Visible = ColonyTypeList.Visible && GovernorOn && Planet.CType != Planet.ColonyType.TradeHub && !Planet.SpecializedTradeHub && BudgetLimitWarningVisible;
                 BudgetLimitReached.Color   = Screen.CurrentFlashColorRed;
                 BuildCapital.Visible       = GovernorTabView 
                                              && Planet.OwnerIsPlayer 
                                              && !Planet.Owner.GetPlanets().Any(p => p.IsHomeworld);
 
+                SpecializedTradeHub.Visible = Quarantine.Visible && GovernorOn && Planet.CType != Planet.ColonyType.TradeHub && !Planet.HasBlueprints;
+                SpecializedTradeHub.CheckedTextColor = Portrait.Border;
+
                 if (Planet.OwnerIsPlayer && Planet.Owner.Capital == Planet && Planet.HasCapital)
                     BuildCapital.Visible = false; // This is for old save support. It can be removed post Mars.
 
                 // Not for trade hubs, which do not build structures anyway
-                GovNoScrap.Visible = GovernorTabView && Planet.CType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer && !Planet.HasBlueprints;
+                GovNoScrap.Visible = GovernorTabView 
+                    && Planet.CType != Planet.ColonyType.TradeHub 
+                    && GovernorOn 
+                    && Planet.OwnerIsPlayer 
+                    && !Planet.SpecializedTradeHub
+                    && !Planet.HasBlueprints;
 
                 int numTroopsCanLaunch    = DefenseTabView ? Planet.NumTroopsCanLaunchFor(Planet.Universe.Player) : 0;
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
@@ -462,14 +480,14 @@ namespace Ship_Game
 
                 BudgetSum.Visible       = BudgetTabView;
                 BudgetPercent.Visible   = BudgetTabView && GovernorOn;
-                OverrideCiv.Visible     = BudgetTabView && GovernorOn && Planet.OwnerIsPlayer;
+                OverrideCiv.Visible     = BudgetTabView && GovernorOn && Planet.OwnerIsPlayer && Planet.CType is not Planet.ColonyType.TradeHub && !Planet.SpecializedTradeHub;
                 OverrideGrd.Visible     = OverrideCiv.Visible;
                 OverrideSpc.Visible     = OverrideCiv.Visible;
                 ManualCivBudget.Visible = OverrideCiv.Visible && OverrideCiv.Checked;
                 ManualGrdBudget.Visible = OverrideGrd.Visible && OverrideGrd.Checked;
                 ManualSpcBudget.Visible = OverrideSpc.Visible && OverrideSpc.Checked;
 
-                NoGovernorCivExpense.Visible = BudgetTabView && GovernorOff;
+                NoGovernorCivExpense.Visible = BudgetTabView && !OverrideCiv.Visible;
                 NoGovernorGrdExpense.Visible = NoGovernorCivExpense.Visible;
                 NoGovernorSpcExpense.Visible = NoGovernorCivExpense.Visible;
 
@@ -565,7 +583,7 @@ namespace Ship_Game
 
         void DrawBudgetsTab(SpriteBatch batch)
         {
-            if (GovernorOn)
+            if (GovernorOn && Planet.CType is not Planet.ColonyType.TradeHub && !Planet.SpecializedTradeHub)
             {
                 CivBudgetBar.Draw(batch);
                 GrdBudgetBar.Draw(batch);

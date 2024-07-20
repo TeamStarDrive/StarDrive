@@ -26,9 +26,10 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
-            if (CType == ColonyType.Colony || OwnerIsPlayer && !GovOrbitals
-                                                || SpaceCombatNearPlanet
-                                                || !HasSpacePort)
+            if (CType == ColonyType.Colony 
+                || OwnerIsPlayer && (!GovOrbitals || SpecializedTradeHub)
+                || SpaceCombatNearPlanet
+                || !HasSpacePort)
             {
                 return;
             }

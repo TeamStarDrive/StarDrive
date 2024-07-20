@@ -100,7 +100,7 @@ namespace Ship_Game
             set => Resource.PercentLock = value;
         }
 
-        bool IsAIGovernor => P.CType != Planet.ColonyType.Colony;
+        bool IsAIGovernor => P.CType != Planet.ColonyType.Colony && P.CType != Planet.ColonyType.TradeHub;
 
         public override bool HandleInput(InputState input)
         {

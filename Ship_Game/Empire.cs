@@ -594,6 +594,7 @@ namespace Ship_Game
         public void RemovePlanet(Planet planet)
         {
             OwnedPlanets.Remove(planet);
+            planet.SetSpecializedTradeHub(false);
             Universe.OnPlanetOwnerRemoved(this, planet);
 
             if (!planet.System.HasPlanetsOwnedBy(this)) // system no more in owned planets?

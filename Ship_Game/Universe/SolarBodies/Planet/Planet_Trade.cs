@@ -169,7 +169,7 @@ namespace Ship_Game
 
             if (NoGovernorAndNotTradeHub)
             {
-                // for players with no governor or with trade hub - only 90% storage or less will open slots
+                // for players with no governor or trade hub - only 90% storage or less will open slots
                 if (Storage.FoodRatio > 0.9f)
                     return 0;  
             }

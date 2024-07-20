@@ -4686,8 +4686,10 @@ namespace Ship_Game
 
 
 
-
-
+        /// <summary>Specialzied Trade-Hubs</summary>
+        SpecializedTradeHub = 4920,
+        /// <summary>Spacialized Trade-hub will enable the Governor management</summary>
+        SpecializedTradeHubTip = 4921,
         /// <summary>Prioritize Projectors</summary>
         PrioritizeProjector = 4922,
         /// <summary>Whenever a Subspace Projector is placed in</summary>
