@@ -1133,6 +1133,7 @@ namespace UnitTests.Serialization
             AssertEqual(instance.FixedPlayerCreditCharge, result.FixedPlayerCreditCharge);
             AssertEqual(instance.DisableResearchStations, result.DisableResearchStations);
             AssertEqual(instance.DisableMiningOps, result.DisableMiningOps);
+            AssertEqual(instance.PrioitizeProjectors, result.PrioitizeProjectors);
         }
 
         [TestMethod]

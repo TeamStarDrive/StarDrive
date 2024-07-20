@@ -113,7 +113,8 @@ namespace Ship_Game
             int numLocked = Sliders.Count(s => s.LockedByUser);
             foreach (ColonySlider s in Sliders)
             {
-                s.CanDrag = !s.LockedByUser && numLocked <= 1 && P.CType == Planet.ColonyType.Colony;
+                s.CanDrag = !s.LockedByUser && numLocked <= 1 
+                    && (P.CType is Planet.ColonyType.Colony or Planet.ColonyType.TradeHub);
             }
 
             Prod.IsCrippled = P.CrippledTurns > 0;

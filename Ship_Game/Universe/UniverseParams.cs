@@ -70,6 +70,7 @@ public class UniverseParams
     [StarData] public bool ShipListFilterNotInFleets;
     [StarData] public bool CordrazinePlanetCaptured;
     [StarData] public bool DisableVolcanoWarning;
+    [StarData] public bool PrioitizeProjectors;
     [StarData(DefaultValue=true)] public bool ShowAllDesigns = true;
     [StarData] public bool FilterOldModules;
 

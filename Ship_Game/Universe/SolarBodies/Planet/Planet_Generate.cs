@@ -151,9 +151,10 @@ namespace Ship_Game
 
         public void GenerateNewHomeWorld(RandomBase random, Empire owner, SolarSystemData.Ring data = null)
         {
-            PlanetType type = ResourceManager.Planets.RandomPlanet(owner.data.PreferredEnvPlanet);
-            float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
+            PlanetType type = data?.WhichPlanet > 0 ? ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet) 
+                                                    : ResourceManager.Planets.RandomPlanet(owner.data.PreferredEnvPlanet);
 
+            float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
             InitPlanetType(type, scale, fromSave: false);
             SetOwner(owner);
             IsHomeworld = true;

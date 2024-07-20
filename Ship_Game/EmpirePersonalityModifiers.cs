@@ -35,6 +35,7 @@ namespace Ship_Game
         public readonly bool CanWeSurrenderToPlayerAfterBetrayal; // Will the AI be able to surrender to player after s/he betrayed them in allied war
         public readonly float DistanceToDefendAllyThreshold; // Defend Allies' systems if they are closer to us, basaed on this threshold lower is closer
         public readonly float ImperialistWarPlanetsToTakeMult; // multiplier for how many planets to take from available enemy planets if we have better score
+        public readonly float PiratePayChanceModifier; // How inclined to pay pirates
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -55,6 +56,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = false; 
                     AddAngerAlliedWithEnemy      = 0;
+                    PiratePayChanceModifier      = 1;
                     CloserToUsClaimWarn   = 0.3f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1;
@@ -87,6 +89,7 @@ namespace Ship_Game
                     ClearNeutralExoticSystems    = true;
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
+                    PiratePayChanceModifier      = 0.4f;
                     CloserToUsClaimWarn   = 0.5f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.15f;
@@ -119,6 +122,7 @@ namespace Ship_Game
                     ClearNeutralExoticSystems    = true;
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
+                    PiratePayChanceModifier      = 0.5f;
                     CloserToUsClaimWarn   = 0.4f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1.1f;
@@ -151,6 +155,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.25f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = true;
                     AddAngerAlliedWithEnemy      = 100;
+                    PiratePayChanceModifier      = 0.6f;
                     CloserToUsClaimWarn   = 0.6f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.05f;
@@ -184,6 +189,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = false;
                     AddAngerAlliedWithEnemy      = 0;
+                    PiratePayChanceModifier      = 0.7f;
                     CloserToUsClaimWarn   = 0.3f;
                     DefenseTaskWeight     = 1.3f;
                     FleetStrMultiplier    = 0.95f;
@@ -216,6 +222,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.55f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = false;
                     AddAngerAlliedWithEnemy      = 75;
+                    PiratePayChanceModifier      = 0.25f;
                     CloserToUsClaimWarn   = 0.4f;
                     DefenseTaskWeight     = 1.5f;
                     FleetStrMultiplier    = 1f;
@@ -248,6 +255,7 @@ namespace Ship_Game
                     ClearNeutralExoticSystems    = false;
                     PlanetStoleTrustMultiplier   = 0.8f;
                     AddAngerAlliedWithEnemy      = 0;
+                    PiratePayChanceModifier      = 0.75f;
                     CloserToUsClaimWarn   = 0.2f;
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 0.9f;

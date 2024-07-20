@@ -692,7 +692,8 @@ namespace Ship_Game
                 return true;
             }
 
-            ClearSelectedItems(clearFlags: false);
+            if (!input.IsShiftKeyDown && !input.IsAltKeyDown && !input.IsCtrlKeyDown)
+                ClearSelectedItems(clearFlags: false);
             return false;
         }
 

@@ -18,16 +18,19 @@ namespace Ship_Game
         float EstimatedAverageFood => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
         [StarData] public ColonyBlueprints Blueprints {get; private set;}
+        [StarData] public bool SpecializedTradeHub { get; private set; }
 
         public bool HasBlueprints => Blueprints != null;
         public bool HasExclusiveBlueprints => Blueprints?.Exclusive == true;
         bool RequiredInBlueprints(Building b) => Blueprints?.IsRequired(b) == true;
 
-
+        public void SetSpecializedTradeHub(bool value)
+        {
+            SpecializedTradeHub = value;
+        }
 
         public void DoGoverning()
         {
-            UpdateShipyards(); // FB: this can be removed later (lets say Feb 2024) - only for save support
             RefreshBuildingsWeCanBuildHere();
             if (RecentCombat)
                 return; // Cant Build stuff when there is combat on the planet
@@ -49,15 +52,17 @@ namespace Ship_Game
             if (!OwnerIsPlayer && Owner.GetPlanets().Count == 1)
                 CType = ColonyType.Core;
 
-            Food.Percent = 0;
-            Prod.Percent = 0;
-            Res.Percent  = 0;
+            if (CType != ColonyType.TradeHub)
+            {
+                Food.Percent = 0;
+                Prod.Percent = 0;
+                Res.Percent = 0;
+            }
 
             CreateAndOrUpdateBudget();
             switch (CType) // New resource management by Gretman
             {
                 case ColonyType.TradeHub:
-                    AssignCoreWorldWorkers();
                     DetermineFoodState(0.2f, 0.8f);
                     DetermineProdState(0.2f, 0.8f);
                     break;
@@ -128,6 +133,9 @@ namespace Ship_Game
         //New Build Logic by Gretman, modified by Fat Bastard
         void BuildAndScrapBuildings(PlanetBudget colonyBudget)
         {
+            if (OwnerIsPlayer && SpecializedTradeHub)
+                return;
+
             BuildAndScrapCivilianBuildings(colonyBudget.RemainingCivilian);
             BuildAndScrapMilitaryBuildings(colonyBudget.RemainingGroundDef);
         }

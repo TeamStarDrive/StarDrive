@@ -2121,9 +2121,9 @@ Tradehub:
  UKR: "Торговий хаб"
 GovernorWillControlProductionLevels:
  Id: 394
- ENG: "Governor will control production levels as a core system, but will not build any structures. It will start importing if stores are below 20% and continue importing until they reach 40%. It will start exporting if stores are above 80% and continue exporting until stores go down to 40%."
- RUS: "Губернатор будет контролировать уровни производства,но не будет строить никаких зданий.Он начнет импорт при запасах 20%,и продолжит импорт, пока не достигнет 40% склад.запасов.Начнет экспорт,если на складе будет 80% ,и продолжит экспорт, пока склад не опустеет до 40%."
- UKR: "Губернатор контролюватиме рівень виробництва як основні світи, але не будуватиме жодних структур. Він почне імпортувати, якщо запаси будуть нижчими за 20%, і продовжуватиме імпортувати, поки вони не досягнуть 40%. Він почне експортувати, якщо запаси перевищують 80%, і продовжуватиме експортувати, поки запаси не знизяться до 40%."
+ ENG: "Governor will not build any structures or assign labor, It will only Control Import/Export. It will start importing if stores are below 20% and continue importing until they reach 40%. It will start exporting if stores are above 80% and continue exporting until stores go down to 40%."
+ RUS: "Губернатор не будет строить никаких сооружений или назначать рабочую силу, он будет только контролировать импорт/экспорт. Он начнет импорт, если уровень запасов будет ниже 20%, и продолжит импорт, пока он не достигнет 40%. Он начнет экспортировать, если запасы превысят 80%, и продолжит экспорт, пока запасы не упадут до 40%."
+ UKR: "Губернатор не буде будувати жодних структур чи призначати робочу силу, він лише контролюватиме імпорт/експорт. Він розпочне імпорт, якщо кількість магазинів буде нижчою за 20%, і продовжить імпорт, доки не досягне 40%. Він розпочне експорт, якщо кількість магазинів перевищить 80%, і продовжить експорт, доки кількість магазинів не знизиться до 40%."
 AbandonedMine:
  Id: 400
  ENG: "Abandoned Mine"
@@ -11738,9 +11738,9 @@ OverrideThisBudgetAndSet:
  UKR: "Перевизначте цей бюджет і встановіть свій власний."
 CivilianBuildingsExpenditurebudgetInByc:
  Id: 4228
- ENG: "Civilian Buildings Expenditure/Budget in BY/C. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them."
- RUS: "Расходы/бюджет на гражданские здания в МК/Г (Миллиард Кредитов/Год). Если вы наблюдаете превышение бюджета, возможно, есть здания, которые вы построили вручную, и губернатор не может их снести."
- UKR: "Витрати/бюджет на цивільні будівлі в BY/C. Якщо ви бачите перевиконання бюджету, можливо, у вас є будівлі, які ви побудували вручну, і губернатор не може їх здати на металобрухт."
+ ENG: "Civilian Buildings Expenditure/Budget in bc/y. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them."
+ RUS: "Расходы/бюджет на гражданские здания в МГ/K (Миллиард Кредитов/Год). Если вы наблюдаете превышение бюджета, возможно, есть здания, которые вы построили вручную, и губернатор не может их снести."
+ UKR: "Витрати/бюджет на цивільні будівлі в bc/y. Якщо ви бачите перевиконання бюджету, можливо, у вас є будівлі, які ви побудували вручну, і губернатор не може їх здати на металобрухт."
 GroundDefenseBuildingsExpenditurebudgetIn:
  Id: 4229
  ENG: "Ground Defense Buildings Expenditure/Budget in BY/C. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them."
@@ -13002,6 +13002,18 @@ DisableScreenPanningOption:
 DisableScreenPanningOptionTip:
  Id: 4525
  ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
+SpecializedTradeHub:
+ Id: 4920
+ ENG: "Specialzied Trade-Hub"  
+SpecializedTradeHubTip:
+ Id: 4921
+ ENG: "Spacialized Trade-hub will enable the Governor management for Import/Export preferences based on the Govenror Type and for the automation of Labor sliders, again, based on the Governor type. it wiil not build or scrap buildings." 
+PrioritizeProjector:
+ Id: 4922
+ ENG: "Prioritize Projectors"
+rioritizeProjectorTip:
+ Id: 4923
+ ENG: "Whenever a Subspace Projector is placed in a planet's consturction queue, manually or automatically, it would be placed at the top of the list."  
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"
