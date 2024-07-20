@@ -13002,6 +13002,12 @@ DisableScreenPanningOption:
 DisableScreenPanningOptionTip:
  Id: 4525
  ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
+PrioritizeProjector:
+ Id: 4922
+ ENG: "Prioritize Projectors"
+rioritizeProjectorTip:
+ Id: 4923
+ ENG: "Whenever a Subspace Projector is placed in a planet's consturction queue, manually or automatically, it would be placed at the top of the list."  
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"

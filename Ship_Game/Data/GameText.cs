@@ -4688,7 +4688,13 @@ namespace Ship_Game
 
 
 
-
+        /// <summary>Prioritize Projectors</summary>
+        PrioritizeProjector = 4922,
+        /// <summary>Whenever a Subspace Projector is placed in</summary>
+        PrioritizeProjectorTip = 4923,
+        // -------------------------------------
+        // 4924 to 4987 is reserved and used !!!
+        // -------------------------------------
         /// <summary>Ship Maintenance Modifier</summary>
         ShipMaintenanceModifier = 4988,
         /// <summary>on surface</summary>
