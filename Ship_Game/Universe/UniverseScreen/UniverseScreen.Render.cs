@@ -397,11 +397,9 @@ namespace Ship_Game
                     foreach (int planetId in SelectedShip.TradeRoutes)
                     {
                         Planet planet = UState.GetPlanet(planetId);
-                        if (planet.Owner != null)
-                        {
-                            DrawLineToPlanet(SelectedShip.Position, planet.Position, planet.Owner.EmpireColor);
-                            DrawZones(Fonts.Arial14Bold, $"- {planet.Name}", ref cursorY, planet.Owner.EmpireColor);
-                        }
+                        Color color = planet.Owner?.EmpireColor ?? Color.Gray;
+                        DrawLineToPlanet(SelectedShip.Position, planet.Position, color);
+                        DrawZones(Fonts.Arial14Bold, $"- {planet.Name}", ref cursorY, color);
                     }
                 }
             }

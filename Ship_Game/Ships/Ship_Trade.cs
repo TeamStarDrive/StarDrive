@@ -33,10 +33,10 @@ namespace Ship_Game.Ships
 
         public bool AddTradeRoute(Planet planet)
         {
-            if (planet.Owner == null)
-                return false;
-
-            if (planet.Owner == Loyalty || Loyalty.IsTradeTreaty(planet.Owner))
+            if (planet.Owner == Loyalty
+                || Loyalty.IsTradeTreaty(planet.Owner)
+                || planet.IsMineable
+                || planet.IsResearchable)
             {
                 TradeRoutes.AddUnique(planet.Id);
                 return true;
@@ -155,18 +155,25 @@ namespace Ship_Game.Ships
 
         public bool IsValidTradeRoute(Planet planet)
         {
-            if (TradeRoutes.IsEmpty)
-                return true; // need at least 2 routes or AO for it to filter
-
-            foreach (int planetId in TradeRoutes)
-                if (planetId == planet.Id)
-                    return true;
-            return false;
+            // need at least 2 routes or AO for it to filter
+            return TradeRoutes.IsEmpty || TradeRoutes.Contains(planet.Id);
         }
 
         public bool InTradingZones(Ship targetStation)
         {
-            return Loyalty.isPlayer ? InsideAreaOfOperation(targetStation.Position) : true; 
+            if (!Loyalty.isPlayer)
+                return true; // only player ships can have trade AO or trade routes
+
+            bool tetheredInZones = false;
+            if (targetStation.IsTethered)
+            {
+                Planet p = targetStation.GetTether();
+                tetheredInZones = InTradingZones(p);
+            }
+
+            return tetheredInZones
+                || AreaOfOperation.NotEmpty && InsideAreaOfOperation(targetStation.Position)
+                || AreaOfOperation.IsEmpty && TradeRoutes?.Count == 0;
         }
 
         public bool InTradingZones(Planet planet)
