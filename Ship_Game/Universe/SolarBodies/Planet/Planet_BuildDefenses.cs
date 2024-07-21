@@ -428,7 +428,7 @@ namespace Ship_Game
             }
 
             if (HasExclusiveBlueprints && BuildingList.Any(b => b.IsMilitary && !RequiredInBlueprints(b))
-                || HasBlueprints && FreeHabitableTiles == 0 && !Blueprints.Completed)
+                || HasBlueprints && !Blueprints.Exclusive && FreeHabitableTiles == 0 && !Blueprints.IsAchievableCompleted)
             {
                 TryScrapMilitaryBuilding();
             }
