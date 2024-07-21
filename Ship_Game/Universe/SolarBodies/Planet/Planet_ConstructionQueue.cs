@@ -300,6 +300,8 @@ public partial class Planet
         var biosphere = FindBuilding(b => b.IsBiospheres);
         if (biosphere != null)
             BuildingList.Remove(biosphere);
+
+        UpdatePlanetStatsFromRemovedBuilding(biosphere);
     }
 
     /// <summary>

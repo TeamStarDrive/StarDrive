@@ -24,7 +24,9 @@ namespace Ship_Game.Universe.SolarBodies
         public bool Exclusive => Template.Exclusive; // Build only these buildings and remove the rest
         HashSet<string> PlannedBuildings => Template.PlannedBuildings;
         public ColonyType ColonyType => Template.ColonyType;
-        public bool Completed => PercentCompleted == 100;
+        bool Completed => PercentCompleted == 100;
+
+        public bool IsAchievableCompleted => PercentAchievable == 0 || PercentAchievable == PercentCompleted;
 
 
         public bool IsRequired(Building b) => PlannedBuildings.Contains(b.Name);

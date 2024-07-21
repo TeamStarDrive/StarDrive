@@ -748,7 +748,7 @@ namespace Ship_Game
                 return;
 
             var potentialBio = TilesList.Filter(
-                t => t.Biosphere && (t.NoBuildingOnTile || t.Building.IsMilitary && !t.Building.IsPlayerAdded)
+                t => t.Biosphere && (t.NoBuildingOnTile)
             );
             if (potentialBio.Length == 0)
                 return;
@@ -762,6 +762,8 @@ namespace Ship_Game
 
         bool TryBuildBiospheres(float budget, out bool shouldScrapBioSpheres)
         {
+            if (Name == "Shiron I")
+                Log.Info("FF");
             shouldScrapBioSpheres = false;
             if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
                 || BiosphereInTheWorks
@@ -782,7 +784,8 @@ namespace Ship_Game
                 {
                     // We do not need more than 1 free biospheres if not profitable.
                     // We need only 1 free biosphere if we have anything to built at all
-                    shouldScrapBioSpheres = NumFreeBiospheres > 1 || numBuildingsWeCanBuild == 0;
+                    shouldScrapBioSpheres = NumFreeBiospheres > 1 
+                        || numBuildingsWeCanBuild == 0 && (!HasBlueprints || Blueprints.IsAchievableCompleted);
                     return false;
                 }
                 else if (numBuildingsWeCanBuild == 0 || HabiableBuiltCoverage.Less(1))
