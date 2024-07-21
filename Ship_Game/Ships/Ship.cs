@@ -1124,9 +1124,21 @@ namespace Ship_Game.Ships
                 UpdateSystem();
                 UpdateRebaseTarget();
                 SecondsAlive += 1;
+                if (Loyalty.WeAreRemnants)
+                    RemnantGuardianBombard();
 
                 if (Carrier.HasHangars)
                     Carrier.HandleHangarShipsByPlayerLaunchButton();
+            }
+        }
+
+        void RemnantGuardianBombard()
+        {
+            if (Fleet == null && HasBombs && AI.State is AIState.Orbit && System != null && Loyalty.Random.RollDice(2))
+            {
+                Planet planet = System.PlanetList.Find(p => p.Owner != null && p.Owner != Loyalty);
+                if (planet != null)
+                    AI.OrderBombardPlanet(planet, true);
             }
         }
 

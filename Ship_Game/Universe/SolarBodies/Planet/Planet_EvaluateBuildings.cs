@@ -762,8 +762,6 @@ namespace Ship_Game
 
         bool TryBuildBiospheres(float budget, out bool shouldScrapBioSpheres)
         {
-            if (Name == "Shiron I")
-                Log.Info("FF");
             shouldScrapBioSpheres = false;
             if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
                 || BiosphereInTheWorks
