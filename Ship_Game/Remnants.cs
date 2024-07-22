@@ -1174,6 +1174,8 @@ namespace Ship_Game
 
             if (Random.RollDice(5))
                 AddGuardians(1, RemnantShipType.Assimilator, p);
+
+            AddBombers(RemnantShipType.BomberMedium, 1, p);
         }
 
         void AddCorvetteScreen(Planet p) 
@@ -1193,6 +1195,7 @@ namespace Ship_Game
 
             AddGuardians(numXenoFighters, RemnantShipType.Fighter, p);
             AddGuardians(numDrones, RemnantShipType.Corvette, p);
+            AddBombers(RemnantShipType.BomberLight, 2, p);
             if (Random.RollDice(10))
                 AddGuardians(1, RemnantShipType.BattleCorvette, p);
             if (Random.RollDice(10))
@@ -1202,8 +1205,8 @@ namespace Ship_Game
         void AddMiniFleet(Planet p)  //Added by Gretman
         {
             int numXenoFighters = Random.RollDie(3);
-
             AddGuardians(numXenoFighters, RemnantShipType.Fighter, p);
+            AddBombers(RemnantShipType.BomberLight, 1, p);
             if (Random.RollDice(10)) 
                 AddGuardians(1, RemnantShipType.BeamCorvette, p);
             else
@@ -1213,7 +1216,9 @@ namespace Ship_Game
         void AddSupportShips(Planet p)  //Added by Gretman
         {
             int numSupportDrones = Random.RollDie(4);
+            AddBombers(RemnantShipType.BomberLight, 3, p);
             AddGuardians(numSupportDrones, RemnantShipType.SmallSupport, p);
+
             if (Random.RollDice(10))
                 AddGuardians(1, RemnantShipType.BattleCorvette, p);
         }
@@ -1223,6 +1228,8 @@ namespace Ship_Game
             AddGuardians(1, RemnantShipType.Carrier, p);
             if (Random.RollDice(20)) // 20% chance for another carrier
                 AddGuardians(1, RemnantShipType.Carrier, p);
+
+            AddBombers(RemnantShipType.Bomber, 1, p);
         }
 
         void AddFrigates(Planet p)  //Added by Gretman
@@ -1232,6 +1239,15 @@ namespace Ship_Game
                 AddCorvetteScreen(p);
             if (Random.RollDice(10)) 
                 AddGuardians(1, RemnantShipType.TorpedoCruiser, p);
+        }
+
+        void AddBombers(RemnantShipType bomberType, int numShips, Planet p)
+        {
+            if (Universe.P.Difficulty is GameDifficulty.Normal)
+                return;
+
+            int numBombers = Random.RollDie(numShips);
+            AddGuardians(numBombers, bomberType, p);
         }
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
