@@ -16,6 +16,7 @@ namespace Ship_Game
         [StarData] readonly Empire Owner;
         [StarData] public readonly Empire Them;
         [StarData] public float LevelProgress { get; private set; }
+        [StarData] public byte LimitLevel { get; private set; } = MaxLevel;
         [StarData] int Weight;
         [StarData] Array<InfiltrationOperation> Operations = new();
         [StarData] Mole StickyMole;
@@ -80,7 +81,7 @@ namespace Ship_Game
             float progressToIncrease = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight);
             UpdateOperations(Operations.Count > 0 ? progressToIncrease / Operations.Count : 0);
 
-            if (AtMaxLevel)
+            if (AtLimitLevel)
                 return;
 
             LevelProgress = (LevelProgress + progressToIncrease).UpperBound(LevelCost(MaxLevel));
@@ -177,7 +178,14 @@ namespace Ship_Game
 
         public float GetProgressToIncrease(float espionagePoints, float totalWeight)
         {
-            float activeMissionRatio = Operations.Count > 0 ? 0.5f : 1;
+            float activeMissionRatio = !HasOperations
+                                       ? 1
+                                       : AtLimitLevel ? 1 : 0.5f;
+                                       
+
+            if (AtLimitLevel && !HasOperations)
+                return 0;
+
             return espionagePoints
                    * (Weight / totalWeight.LowerBound(1))
                    * (Them.TotalPopBillion / Owner.TotalPopBillion.LowerBound(0.1f))
@@ -190,9 +198,14 @@ namespace Ship_Game
             Weight = value;
         }
 
+        public void SetLimitLevel(byte value) 
+        {
+            LimitLevel = value;
+        }
+
         public int GetWeight()
         {
-            return !AtMaxLevel ? Weight : 0;
+            return AtLimitLevel && !HasOperations ? 0 : Weight;
         }
 
         public int LevelCost(byte level)
@@ -247,8 +260,10 @@ namespace Ship_Game
         public bool CanViewTheirMoles => Level >= 5;
 
 
-        public bool AtMaxLevel => Level >= MaxLevel;
+        bool AtLimitLevel => Level >= LimitLevel;
         public float ProgressPercent => LevelProgress/NextLevelCost * 100;
+
+        bool HasOperations => Operations.Count > 0;
 
         public string InfiltrationLevelSummary()
         {

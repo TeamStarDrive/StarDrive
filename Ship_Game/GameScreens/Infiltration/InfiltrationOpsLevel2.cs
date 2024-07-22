@@ -37,7 +37,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             Passive.Tooltip   = GameText.EspionageOpsProjectorsAlertTip;
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
-            PlantMoleTurnsRemaning = Add(new UILabel("", Font, Color.Wheat));
+            PlantMoleTurnsRemaning = Add(new UILabel("", Font, Color.White));
         }
 
         public override void PerformLayout()
@@ -57,7 +57,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage     = Player.GetEspionage(Screen.SelectedEmpire);
                 Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
                 PlantMoleBox.Enabled   = Espionage.Level >= Level;
-                PlantMoleBox.TextColor = PlantMoleBox.Enabled ? Color.Red : Color.Gray;
+                PlantMoleBox.TextColor = PlantMoleBox.Enabled ? Color.White : Color.Gray;
                 LevelDescription.Color = PlantMoleBox.Enabled ? Player.EmpireColor : Color.Gray;
                 PlantingMole           = Espionage.IsOperationActive(InfiltrationOpsType.PlantMole);
                 PlantMoleTurnsRemaning.Visible = Espionage.Level >= Level;
@@ -66,7 +66,7 @@ namespace Ship_Game.GameScreens.EspionageNew
 
         public override void Update(float fixedDeltaTime)
         {
-            PlantMoleTurnsRemaning.Color = PlantMoleBox.Checked ? Color.LightGreen : Color.Red;
+            PlantMoleTurnsRemaning.Color = PlantMoleBox.Checked ? Color.LightGreen : Color.White;
             PlantMoleTurnsRemaning.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.PlantMole);
             PlantMoleTurnsRemaning.Pos = HelperFunctions.GetRightAlignedPosForTitle(PlantMoleTurnsRemaning.Text.Text, 
                 PlantMoleTurnsRemaning.Font, Rect.Right, ActiveTitle.Y);

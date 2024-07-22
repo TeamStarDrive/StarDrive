@@ -132,8 +132,8 @@ namespace Ship_Game.GameScreens.EspionageNew
             float pointPerTurn = espionage.GetProgressToIncrease(Player.EspionagePointsPerTurn, Player.CalcTotalEspionageWeight());
             if (espionage.Level >= Level)
             {
-                Status.Text = GameText.InfiltrationStatusEstablished;
-                Status.Color = Color.LightGreen;
+                Status.Text = espionage.LimitLevel >= Level ? GameText.InfiltrationStatusEstablished : GameText.InfiltrationStatusHalted;
+                Status.Color = espionage.LimitLevel >= Level ?  Color.LightGreen : Color.Yellow;
             }
             else if (espionage.LevelProgress == 0 && pointPerTurn == 0 || espionage.Level < Level-1)
             {

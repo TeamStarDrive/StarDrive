@@ -40,8 +40,8 @@ namespace Ship_Game.GameScreens.EspionageNew
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
 
-            RebellionTurnsRemaining  = Add(new UILabel("", Font, Color.Wheat));
-            ProjectionTurnsRemaining = Add(new UILabel("", Font, Color.Wheat));
+            RebellionTurnsRemaining  = Add(new UILabel("", Font, Color.White));
+            ProjectionTurnsRemaining = Add(new UILabel("", Font, Color.White));
             MoneyLeeched = Add(new UILabel("", Font, Color.White));
         }
 
@@ -65,7 +65,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage = Player.GetEspionage(Screen.SelectedEmpire);
                 Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
                 RebellionBox.Enabled = ProjectionBox.Enabled = Espionage.Level >= Level;
-                RebellionBox.TextColor = ProjectionBox.TextColor = RebellionBox.Enabled ? Color.Red : Color.Gray;
+                RebellionBox.TextColor = ProjectionBox.TextColor = RebellionBox.Enabled ? Color.White : Color.Gray;
                 LevelDescription.Color = RebellionBox.Enabled ? Player.EmpireColor : Color.Gray;
                 IncitingRebellion = Espionage.IsOperationActive(InfiltrationOpsType.Rebellion);
                 DistuptingProjection = Espionage.IsOperationActive(InfiltrationOpsType.DisruptProjection);
@@ -78,10 +78,12 @@ namespace Ship_Game.GameScreens.EspionageNew
 
         public override void Update(float fixedDeltaTime)
         {
+            RebellionTurnsRemaining.Color = RebellionBox.Checked ? Color.LightGreen : Color.White;
             RebellionTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.Rebellion);
             RebellionTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(RebellionTurnsRemaining.Text.Text,
                 RebellionTurnsRemaining.Font, Rect.Right, RebellionTurnsRemaining.Y);
 
+            ProjectionTurnsRemaining.Color = ProjectionBox.Checked ? Color.LightGreen : Color.White;
             ProjectionTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.DisruptProjection);
             ProjectionTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(ProjectionTurnsRemaining.Text.Text,
                 ProjectionTurnsRemaining.Font, Rect.Right, ProjectionTurnsRemaining.Y);

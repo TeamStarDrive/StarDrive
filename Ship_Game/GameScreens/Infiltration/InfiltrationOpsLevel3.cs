@@ -39,8 +39,8 @@ namespace Ship_Game.GameScreens.EspionageNew
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
 
-            UpriseTurnsRemaining  = Add(new UILabel("", Font, Color.Wheat));
-            CounterTurnsRemaining = Add(new UILabel("", Font, Color.Wheat));
+            UpriseTurnsRemaining  = Add(new UILabel("", Font, Color.White));
+            CounterTurnsRemaining = Add(new UILabel("", Font, Color.White));
 
         }
 
@@ -63,7 +63,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage     = Player.GetEspionage(Screen.SelectedEmpire);
                 Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
                 UpriseBox.Enabled      = CounterBox.Enabled = Espionage.Level >= Level;
-                UpriseBox.TextColor    = CounterBox.TextColor = UpriseBox.Enabled ? Color.Red : Color.Gray;
+                UpriseBox.TextColor    = CounterBox.TextColor = UpriseBox.Enabled ? Color.White : Color.Gray;
                 LevelDescription.Color = UpriseBox.Enabled  ? Player.EmpireColor : Color.Gray;
                 Uprising               = Espionage.IsOperationActive(InfiltrationOpsType.Uprise);
                 CounteringEspionage    = Espionage.IsOperationActive(InfiltrationOpsType.CounterEspionage);
@@ -73,12 +73,12 @@ namespace Ship_Game.GameScreens.EspionageNew
 
         public override void Update(float fixedDeltaTime)
         {
-            UpriseTurnsRemaining.Color = UpriseBox.Checked ? Color.LightGreen : Color.Red;
+            UpriseTurnsRemaining.Color = UpriseBox.Checked ? Color.LightGreen : Color.White;
             UpriseTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.Uprise);
             UpriseTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(UpriseTurnsRemaining.Text.Text,
                 UpriseTurnsRemaining.Font, Rect.Right, UpriseTurnsRemaining.Y);
 
-            CounterTurnsRemaining.Color = CounterBox.Checked ? Color.LightGreen : Color.Red;
+            CounterTurnsRemaining.Color = CounterBox.Checked ? Color.LightGreen : Color.White;
             CounterTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.CounterEspionage);
             CounterTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(CounterTurnsRemaining.Text.Text,
                 CounterTurnsRemaining.Font, Rect.Right, CounterTurnsRemaining.Y);

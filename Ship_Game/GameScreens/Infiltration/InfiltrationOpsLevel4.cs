@@ -39,8 +39,8 @@ namespace Ship_Game.GameScreens.EspionageNew
             LevelDescriptionY = levelDescY;
             PassiveY = passiveY;
 
-            SabotageTurnsRemaining     = Add(new UILabel("", Font, Color.Wheat));
-            SlowResearchTurnsRemaining = Add(new UILabel("", Font, Color.Wheat));
+            SabotageTurnsRemaining     = Add(new UILabel("", Font, Color.White));
+            SlowResearchTurnsRemaining = Add(new UILabel("", Font, Color.White));
         }
 
         public override void PerformLayout()
@@ -62,7 +62,7 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage     = Player.GetEspionage(Screen.SelectedEmpire);
                 Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
                 SabotageBox.Enabled    = SlowBox.Enabled = Espionage.Level >= Level;
-                SabotageBox.TextColor  = SlowBox.TextColor = SabotageBox.Enabled ? Color.Red : Color.Gray;
+                SabotageBox.TextColor  = SlowBox.TextColor = SabotageBox.Enabled ? Color.White : Color.Gray;
                 LevelDescription.Color = SabotageBox.Enabled ? Player.EmpireColor : Color.Gray;
                 Sabotaging      = Espionage.IsOperationActive(InfiltrationOpsType.Sabotage);
                 SlowingResearch = Espionage.IsOperationActive(InfiltrationOpsType.SlowResearch);
@@ -72,12 +72,12 @@ namespace Ship_Game.GameScreens.EspionageNew
 
         public override void Update(float fixedDeltaTime)
         {
-            SabotageTurnsRemaining.Color = SabotageBox.Checked ? Color.LightGreen : Color.Red;
+            SabotageTurnsRemaining.Color = SabotageBox.Checked ? Color.LightGreen : Color.White;
             SabotageTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.Sabotage);
             SabotageTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(SabotageTurnsRemaining.Text.Text,
                 SabotageTurnsRemaining.Font, Rect.Right, SabotageTurnsRemaining.Y);
 
-            SlowResearchTurnsRemaining.Color = SlowBox.Checked ? Color.LightGreen : Color.Red;
+            SlowResearchTurnsRemaining.Color = SlowBox.Checked ? Color.LightGreen : Color.White;
             SlowResearchTurnsRemaining.Text = Espionage.RemainingTurnsForOps(InfiltrationOpsType.SlowResearch);
             SlowResearchTurnsRemaining.Pos  = HelperFunctions.GetRightAlignedPosForTitle(SlowResearchTurnsRemaining.Text.Text,
                 SlowResearchTurnsRemaining.Font, Rect.Right, SlowResearchTurnsRemaining.Y);

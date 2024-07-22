@@ -13,7 +13,6 @@ namespace Ship_Game
         const int SuccessTargetNumber = 40; // need to get 40 and above in a roll of d100)
         const float BaseRelationDamage = 15;
         public const int BaseRampUpTurns = 30;
-        public const byte Level = 4;
 
         public InfiltrationOpsSabotage(Empire owner, Empire them, int levelCost) :
             base((int)(levelCost * PercentOfLevelCost), InfiltrationOpsType.Sabotage, BaseRampUpTurns, owner)
