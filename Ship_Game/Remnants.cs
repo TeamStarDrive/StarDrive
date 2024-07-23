@@ -611,8 +611,9 @@ namespace Ship_Game
 
         public float RequiredAttackFleetStr(Empire targetEmpire)
         {
-            float strMultiplier = !targetEmpire.isPlayer ? 1 : 1 + (int)Owner.Universe.P.Difficulty*0.1f; // 1, 1.1, 1.2, 1.3
-            float str = targetEmpire.OffensiveStrength * strMultiplier * Owner.GetFleetStrEmpireMultiplier(targetEmpire);
+            float strMultiplier = !targetEmpire.isPlayer ? 1 : 1 + (int)Owner.Universe.P.Difficulty*0.334f; // 1, 1.33, 1.66, ~2
+            float str = targetEmpire.OffensiveStrength * strMultiplier 
+                * Owner.GetFleetStrEmpireMultiplier(targetEmpire) / Owner.DifficultyModifiers.RemnantStrModifier;
             float effectiveLevel = Level * strMultiplier;
             return str.Clamped(min: Level * Level * 1000 * strMultiplier,
                                max: str * effectiveLevel / MaxLevel);

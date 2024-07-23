@@ -135,6 +135,7 @@ namespace Ship_Game.Commands.Goals
 
                 production *= Owner.DifficultyModifiers.RemnantResourceMod;
                 production *= (int)(UState.P.GalaxySize + 1) * 2 * UState.P.StarsModifier / UState.MajorEmpires.Length;
+                production = production/Owner.Universe.P.Pace * Remnants.Level;
                 Remnants.GenerateProduction(production);
             }
 
