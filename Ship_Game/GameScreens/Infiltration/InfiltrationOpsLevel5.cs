@@ -63,7 +63,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             if (!Screen.SelectedEmpire.isPlayer)
             {
                 Espionage = Player.GetEspionage(Screen.SelectedEmpire);
-                Passive.Color = Espionage.Level >= Level ? Color.LightGreen : Color.Gray;
+                Passive.Color = Espionage.Level >= Level && Espionage.LimitLevel >= Level ? Color.LightGreen : Color.Gray;
                 RebellionBox.Enabled = ProjectionBox.Enabled = Espionage.Level >= Level;
                 RebellionBox.TextColor = ProjectionBox.TextColor = RebellionBox.Enabled ? Color.White : Color.Gray;
                 LevelDescription.Color = RebellionBox.Enabled ? Player.EmpireColor : Color.Gray;

@@ -5567,6 +5567,10 @@ namespace Ship_Game
         InfiltrationLevel5Desc = 6339,
         /// <summary>We have infiltrated into their empire.</summary>
         MessageInfiltrationLevelIncrease = 6340,
+        /// <summary>Limit Level</summary>
+        EspionageLimitLevel = 6341,
+        /// <summary>Left click to increase by 1\nright click to decrease by 1\nWhen limiting Infiltration Level</summary>
+        EspionageLimitLevelTip = 6342,
 
 
 

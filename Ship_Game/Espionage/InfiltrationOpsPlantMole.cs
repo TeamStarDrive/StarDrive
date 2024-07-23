@@ -65,7 +65,7 @@ namespace Ship_Game
                     aftermath.Message = GameText.NewWasUnableToInfiltrateWipedOut;
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkInfiltration)}\n" +
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +
-                                                $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {Espionage.Level}";
+                                                $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {Espionage.EffectiveLevel}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, Espionage, withLevelMultiplier: true);
                     aftermath.DamageReason = "Caught Spying Failed";
                     Espionage.WipeoutInfiltration();

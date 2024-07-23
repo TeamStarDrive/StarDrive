@@ -302,7 +302,7 @@ namespace Ship_Game
             textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
             string intReport = Localizer.Token(GameText.IntelligenceReport);
             if (UsingNewEspioange && !SelectedEmpire.isPlayer)
-                intReport += espionage.Level == 0 ? " (basic)" : $" (level {espionage.Level})";
+                intReport += espionage.EffectiveLevel == 0 ? " (basic)" : $" (level {espionage.EffectiveLevel})";
 
             batch.DrawDropShadowText(intReport, textCursor, Fonts.Arial20Bold, SelectedEmpire.EmpireColor);
             textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 5);

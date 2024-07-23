@@ -77,9 +77,11 @@ namespace Ship_Game
 
         public void Update(int totalWeight)
         {
+            EnablePassiveEffects();
             RemoveOperations();
             float progressToIncrease = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight);
-            UpdateOperations(Operations.Count > 0 ? progressToIncrease / Operations.Count : 0);
+            int validOps = ValidOps;
+            UpdateOperations(validOps > 0 ? progressToIncrease / validOps : 0);
 
             if (AtLimitLevel)
                 return;
@@ -98,28 +100,36 @@ namespace Ship_Game
 
         int CalcRemainingTurnsForOps(InfiltrationOpsType type)
         {
-            if (Weight == 0)
+            if (Weight == 0 || GetOpsLevel(type) > LimitLevel)
                 return -1;
 
             float progressPerTurn = 0;
+            int validOps = ValidOps;
             InfiltrationOperation ops = Operations.Find(o => o.Type == type);
             if (ops != null)
             {
+                if (validOps == 0)
+                    return -1;
+
                 int totalWeight = Owner.CalcTotalEspionageWeight();
-                progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight) / Operations.Count;
+                progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight) / validOps;
                 return ops.TurnsToComplete(progressPerTurn);
             }
-            else if (GetOpsLevel(type) <= LimitLevel)
+            else if (GetOpsLevel(type) <= LimitLevel) // Checking the a
             {
                 int totalWeight = Owner.CalcTotalEspionageWeight(grossWeight: true);
-                progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight, true) / (Operations.Count+1);
-                if (Operations.Count == 0)
-                    progressPerTurn *= 0.5f; // We are simulating at least 1 operation, so the progress alocated is going to be halved
+                progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight, true) / (validOps + 1);
+                if (ActualWeight > 0 && validOps == 0)
+                    progressPerTurn *= 0.5f;
                 return InfiltrationOperation.BaseRemainingTurns(type, LevelCost(GetOpsLevel(type)), progressPerTurn, Owner.Universe);
             }
 
             return -1; // ops level over LimitLevel
         }
+
+        int ValidOps => Operations.Count(o => o.Level <= LimitLevel);
+
+        public byte EffectiveLevel => Level.UpperBound(LimitLevel);
 
         void RemoveOperations()
         {
@@ -144,8 +154,9 @@ namespace Ship_Game
         {
             for (int i = 0; i < Operations.Count; i++)
             {
-                InfiltrationOperation mission = Operations[i];
-                mission.Update(progress);
+                InfiltrationOperation operation = Operations[i];
+                if (operation.Level <= LimitLevel)
+                    operation.Update(progress);
             }
         }
 
@@ -246,19 +257,19 @@ namespace Ship_Game
         public bool CanViewTechType     => Level >= 2;
         public bool CanViewArtifacts    => Level >= 2;
         public bool CanViewRanks        => Level >= 2;
-        public bool ProjectorsCanAlert  => Level >= 2;
+        public bool ProjectorsCanAlert  => EffectiveLevel >= 2;
 
         public bool CanViewDefenseRatio  => Level >= 3;
         public bool CanViewMoneyAndMaint => Level >= 3;
         public bool CanViewResearchTopic => Level >= 3;
         public bool CanViewBonuses       => Level >= 3;
-        bool CanPlantStickyMole          => Level >= 3;
+        bool CanPlantStickyMole          => EffectiveLevel>= 3;
 
-        public bool CanLeechTech    => Level >= 4;
-        public bool CanSlowResearch => Level >= 4 && SlowResearchChance > 0;
+        public bool CanLeechTech    => EffectiveLevel >= 4;
+        public bool CanSlowResearch => EffectiveLevel >= 4 && SlowResearchChance > 0;
         public bool CanViewTraitSet => Level >= 4;
 
-        public bool CanLeechMoney     => Level >= 5;
+        public bool CanLeechMoney     => EffectiveLevel >= 5;
         public bool CanViewTheirMoles => Level >= 5;
 
 

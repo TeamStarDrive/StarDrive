@@ -15434,6 +15434,12 @@ InfiltrationLevel5Desc:
 MessageInfiltrationLevelIncrease:
  Id: 6340
  ENG: "We have infiltrated into their empire.\nOur Infiltration Level is now"               
+EspionageLimitLevel:
+ Id: 6341
+ ENG: "Limit Level"                
+EspionageLevelLimitTip:
+ Id: 6342
+ ENG: "Left click to increase by 1\nright click to decrease by 1\nWhen limiting Infiltration Level, we progress up to the level limit specified. If our Infiltration Level is above the limit level, all relevant operations and passive effects will be paused, and if our infiltration level is discovered, they will only see our limited level."                 
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

@@ -79,7 +79,7 @@ namespace Ship_Game.GameScreens
             }
             else if (Player.IsKnown(Empire))
             {
-                InfiltrationDefense = new FloatSlider(weightRect, GameText.EspioangeInfiltrationWeight, min: 0, max: 10, value: Espionage.ActualWeight);
+                InfiltrationDefense = new FloatSlider(weightRect, GameText.EspioangeInfiltrationWeight, min: 0, max: 10, value: Espionage.GrossWeight);
                 InfiltrationDefense.Tip = GameText.EspioangeInfiltrationWeightTip;
                 InfiltrationDefense.OnChange = (s) =>
                 {
@@ -91,13 +91,13 @@ namespace Ship_Game.GameScreens
 
                 var limitRect = new Rectangle(weightRect.X, weightRect.Y + 42, 100, 18);
                 LimitLevel = new UILabel(new Vector2(weightRect.Right-23, limitRect.Y), Espionage.LimitLevel.ToString(), Fonts.Arial11Bold, Player.EmpireColor);
-                InfiltrationScreen.Add(new UIButton(ButtonStyle.Low100, new Vector2(100, 18), LocalizedText.Parse("Limit Level:"))
+                InfiltrationScreen.Add(new UIButton(ButtonStyle.Low100, new Vector2(100, 18), GameText.EspionageLimitLevel)
                 {
                     Font = Fonts.Arial11Bold,
                     OnClick = OnLimitLevelClicked,
-                    Tooltip = LocalizedText.Parse("Limit Level"),
+                    Tooltip = GameText.EspionageLimitLevelTip,
                     AcceptRightClicks = true,
-                    Pos = new Vector2(weightRect.X, weightRect.Y+40),
+                    Pos = new Vector2(weightRect.X, weightRect.Y + 40),
                 });
             }
 
@@ -228,7 +228,7 @@ namespace Ship_Game.GameScreens
                 {
                     var r = new Rectangle((int)spyPos.X + 27 * i, (int)spyPos.Y, 20, 21);
                     if (Espionage.Level >= i)
-                        batch.Draw(spy, r, Espionage.Level >= i ? Player.EmpireColor : new Color(30,30,30));
+                        batch.Draw(spy, r, i <= Espionage.LimitLevel ? Player.EmpireColor : Color.Gray);
                     else if (i <= Espionage.LimitLevel)
                         batch.Draw(spy, r, Espionage.Level >= i ? Player.EmpireColor : new Color(30, 30, 30));
                 }
@@ -241,7 +241,7 @@ namespace Ship_Game.GameScreens
                 var infiltrationPos = new Vector2(Rect.X + 2, spyPos.Y + 50);
                 batch.DrawString(Fonts.Arial12Bold, "Points/Turn:", infiltrationPos, Empire.EmpireColor);
                 string pointsPerTurn = Espionage.GetProgressToIncrease(Player.EspionagePointsPerTurn, Player.CalcTotalEspionageWeight()).String(3);
-                var pointsValuePos = new Vector2(Rect.Right - (int)Fonts.Arial12Bold.MeasureString(pointsPerTurn).X, spyPos.Y + 50);
+                    var pointsValuePos = new Vector2(Rect.Right - (int)Fonts.Arial12Bold.MeasureString(pointsPerTurn).X, spyPos.Y + 50);
                 batch.DrawString(Fonts.Arial12Bold, pointsPerTurn, pointsValuePos, Color.Wheat);
             }
 

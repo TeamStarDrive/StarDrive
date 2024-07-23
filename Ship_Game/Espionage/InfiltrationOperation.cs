@@ -108,7 +108,7 @@ namespace Ship_Game
             if (espionage.Them.isPlayer)
                 return baseDamage;
 
-            float levelMultiplier = withLevelMultiplier ? (float)(espionage.Level * 0.5f) : 1;
+            float levelMultiplier = withLevelMultiplier ? (float)(espionage.EffectiveLevel * 0.5f) : 1;
             return baseDamage * espionage.Them.PersonalityModifiers.SpyDamageRelationsMultiplier * levelMultiplier;
         }
 
