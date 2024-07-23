@@ -92,7 +92,8 @@ namespace Ship_Game
         public string RemainingTurnsForOps(InfiltrationOpsType type)
         {
             int remainingTurns =  CalcRemainingTurnsForOps(type);
-            return remainingTurns > -1 ? $"({remainingTurns} turns)" : "(INF)";
+            string turns = remainingTurns < 10_000 ? "turns" : "ts";
+            return remainingTurns > -1 ? $"({HelperFunctions.GetNumberString(remainingTurns)} {turns})" : "(INF)";
         }
 
         int CalcRemainingTurnsForOps(InfiltrationOpsType type)
@@ -100,21 +101,24 @@ namespace Ship_Game
             if (Weight == 0)
                 return -1;
 
-            int totalWeight = Owner.CalcTotalEspionageWeight();
             float progressPerTurn = 0;
             InfiltrationOperation ops = Operations.Find(o => o.Type == type);
             if (ops != null)
             {
+                int totalWeight = Owner.CalcTotalEspionageWeight();
                 progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight) / Operations.Count;
                 return ops.TurnsToComplete(progressPerTurn);
             }
-            else
+            else if (GetOpsLevel(type) <= LimitLevel)
             {
-                progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight) / (Operations.Count+1);
+                int totalWeight = Owner.CalcTotalEspionageWeight(grossWeight: true);
+                progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight, true) / (Operations.Count+1);
                 if (Operations.Count == 0)
                     progressPerTurn *= 0.5f; // We are simulating at least 1 operation, so the progress alocated is going to be halved
                 return InfiltrationOperation.BaseRemainingTurns(type, LevelCost(GetOpsLevel(type)), progressPerTurn, Owner.Universe);
             }
+
+            return -1; // ops level over LimitLevel
         }
 
         void RemoveOperations()
@@ -176,14 +180,14 @@ namespace Ship_Game
             }
         }
 
-        public float GetProgressToIncrease(float espionagePoints, float totalWeight)
+        public float GetProgressToIncrease(float espionagePoints, float totalWeight, bool forFirstOperation = false)
         {
             float activeMissionRatio = !HasOperations
                                        ? 1
                                        : AtLimitLevel ? 1 : 0.5f;
                                        
 
-            if (AtLimitLevel && !HasOperations)
+            if (AtLimitLevel && !HasOperations && !forFirstOperation)
                 return 0;
 
             return espionagePoints
@@ -203,10 +207,7 @@ namespace Ship_Game
             LimitLevel = value;
         }
 
-        public int GetWeight()
-        {
-            return AtLimitLevel && !HasOperations ? 0 : Weight;
-        }
+        public int ActualWeight => AtLimitLevel && !HasOperations ? 0 : Weight;
 
         public int LevelCost(byte level)
         {
@@ -233,6 +234,7 @@ namespace Ship_Game
             return monetLeeched;
         }
 
+        public int GrossWeight => Weight;
         public int NextLevelCost => LevelCost((byte)(Level+1));
 
         public bool CanViewPersonality   => Level >= 1;

@@ -5,6 +5,7 @@ using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Utils;
+using System;
 
 namespace Ship_Game
 {
@@ -34,10 +35,12 @@ namespace Ship_Game
                 TotalMoneyLeechedLastTurn += GetEspionage(e).ExtractMoneyLeechedThisTurn();
         }
 
-        public int CalcTotalEspionageWeight()
+        public int CalcTotalEspionageWeight(bool grossWeight = false)
         {
-            return Universe.ActiveMajorEmpires.Filter(e => e != this)
-                .Sum(e => GetRelations(e).Espionage.GetWeight()) + EspionageDefenseWeight;
+            return !grossWeight ? Universe.ActiveMajorEmpires.Filter(e => e != this)
+                                    .Sum(e => GetRelations(e).Espionage.ActualWeight) + EspionageDefenseWeight
+                                : Universe.ActiveMajorEmpires.Filter(e => e != this)
+                                    .Sum(e => GetRelations(e).Espionage.GrossWeight) + EspionageDefenseWeight;
         }
 
         public void SetEspionageDefenseWeight(int value)

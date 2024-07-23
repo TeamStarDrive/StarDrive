@@ -79,7 +79,7 @@ namespace Ship_Game.GameScreens
             }
             else if (Player.IsKnown(Empire))
             {
-                InfiltrationDefense = new FloatSlider(weightRect, GameText.EspioangeInfiltrationWeight, min: 0, max: 10, value: Espionage.GetWeight());
+                InfiltrationDefense = new FloatSlider(weightRect, GameText.EspioangeInfiltrationWeight, min: 0, max: 10, value: Espionage.ActualWeight);
                 InfiltrationDefense.Tip = GameText.EspioangeInfiltrationWeightTip;
                 InfiltrationDefense.OnChange = (s) =>
                 {
