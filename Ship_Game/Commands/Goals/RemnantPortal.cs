@@ -129,13 +129,11 @@ namespace Ship_Game.Commands.Goals
             FocusOnEmpireIfUnderAttack();
             if (Portal.System != null)
             {
-                float production = Owner.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
+                float production = (Owner.Universe.StarDate - 1000).LowerBound(Remnants.Level * 100f);
+                production *= Owner.DifficultyModifiers.RemnantResourceMod;
+                production *= (int)(UState.P.GalaxySize + 1) * 4 * UState.P.StarsModifier / UState.ActiveMajorEmpires.Length;
                 if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
                     production *= 0.5f;
-
-                production *= Owner.DifficultyModifiers.RemnantResourceMod;
-                production *= (int)(UState.P.GalaxySize + 1) * 2 * UState.P.StarsModifier / UState.MajorEmpires.Length;
-                production = production/Owner.Universe.P.Pace * Remnants.Level;
                 Remnants.GenerateProduction(production);
             }
 

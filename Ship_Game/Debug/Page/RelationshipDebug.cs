@@ -45,6 +45,8 @@ public class RelationshipDebug : DebugPage
 
             Text.String(rel.Them.EmpireColor, $"{rel.Them.Name}");
             Text.String(rel.Them.EmpireColor, $"Posture: {rel.Posture}");
+            Text.String(rel.Them.EmpireColor, $"Strentgh:         {rel.GetStrength()}");
+            Text.String(rel.Them.EmpireColor, $"Threat:           {rel.Threat}");
             Text.String(rel.Them.EmpireColor, $"Trust (A/U/T)   : {rel.AvailableTrust.String(2)}/{rel.TrustUsed.String(2)}/{rel.Trust.String(2)}");
             Text.String(rel.Them.EmpireColor, $"Anger Diplomatic: {rel.Anger_DiplomaticConflict.String(2)}");
             Text.String(rel.Them.EmpireColor, $"Anger Border    : {rel.Anger_FromShipsInOurBorders.String(2)}");
