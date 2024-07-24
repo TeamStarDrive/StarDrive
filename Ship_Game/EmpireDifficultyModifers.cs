@@ -36,6 +36,7 @@
         public readonly float HullTechMultiplier; // used in ship progression to modify hull tech cost if needed
         public readonly int CombatShipGoalsPerPlanet;
         public readonly int MiningOpsTurnsPerRun; // Mining Ops planner turn timer
+        public readonly int MinimumThreatStr; // This is the minimum str empires begin to assess threat (number is in 1K)
 
         // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier
         public readonly float RemnantStrModifier; 
@@ -86,6 +87,7 @@
                     ColonyRankModifier   = 0;
                     TaskForceStrength    = 1.25f;
                     ShipLevel            = 0;
+                    MinimumThreatStr     = 10;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
                     CreditsMultiplier    = 0.2f;
@@ -102,7 +104,7 @@
                     BaseColonyGoals      = 2;
                     ColonyGoalMultiplier = 0.5f;
                     StandByColonyShips   = 0;
-                    TrustLostStoleColony = 5;
+                    TrustLostStoleColony = 15;
                     FleetStrModifier     = 0.2f;
                     NumSystemsToSniff    = 2;
                     NumWarTasksPerWar    = 2;
@@ -120,6 +122,7 @@
                     ColonyRankModifier   = 1;
                     TaskForceStrength    = 1.5f;
                     ShipLevel            = 2;
+                    MinimumThreatStr     = 20;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
@@ -136,7 +139,7 @@
                     BaseColonyGoals      = 4;
                     ColonyGoalMultiplier = 0.75f;
                     StandByColonyShips   = 3;
-                    TrustLostStoleColony = 10;
+                    TrustLostStoleColony = 30;
                     FleetStrModifier     = 0.3f;
                     NumSystemsToSniff    = 3;
                     NumWarTasksPerWar    = 3;
@@ -165,6 +168,7 @@
                     ColonyRankModifier   = 2;
                     TaskForceStrength    = 1.75f;
                     ShipLevel            = 3;
+                    MinimumThreatStr     = 35;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.4f : 0.075f;
@@ -181,7 +185,7 @@
                     BaseColonyGoals      = 5;
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 4;
-                    TrustLostStoleColony = 15;
+                    TrustLostStoleColony = 45;
                     FleetStrModifier     = 0.4f;
                     NumSystemsToSniff    = 4;
                     NumWarTasksPerWar    = 4;
@@ -212,6 +216,7 @@
                     ColonyRankModifier   = 2;
                     TaskForceStrength    = 1.75f;
                     ShipLevel            = 5;
+                    MinimumThreatStr     = 50;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
@@ -228,7 +233,7 @@
                     BaseColonyGoals      = 6;
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 5;
-                    TrustLostStoleColony = 20;
+                    TrustLostStoleColony = 60;
                     FleetStrModifier     = 0.5f;
                     NumSystemsToSniff    = 5;
                     NumWarTasksPerWar    = 4;

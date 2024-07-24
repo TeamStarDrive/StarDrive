@@ -54,11 +54,18 @@ namespace Ship_Game.AI
         {
             float territorialDiv = OwnerEmpire.IsPacifist ? 50 : 10;
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / territorialDiv);
+            var potentialTargets = new Array<Empire>();
             foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (!DoNotInteract(rel, rel.Them))
-                    rel.DoConservative(OwnerEmpire, rel.Them);
+                if (DoNotInteract(rel, rel.Them))
+                    continue;
+
+                rel.DoConservative(OwnerEmpire, rel.Them, out bool theyArePotentialTargets);
+                if (theyArePotentialTargets)
+                    potentialTargets.Add(rel.Them);
             }
+
+            PrepareToAttackClosest(potentialTargets);
         }
 
         void DoRuthlessRelations()

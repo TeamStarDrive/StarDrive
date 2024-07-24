@@ -288,12 +288,15 @@ namespace Ship_Game.Gameplay
 
         public void StoleOurColonyClaim(Empire owner, Planet claimedPlanet, out bool newTheft)
         {
-            NumberStolenClaims++;
-            AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
-            Trust -= owner.DifficultyModifiers.TrustLostStoleColony;
-            Trust -= owner.data.DiplomaticPersonality.Territorialism/5 * StolenSystems.Count.LowerBound(1);
             newTheft = !StolenSystems.Contains(claimedPlanet.System);
-            StolenSystems.AddUnique(claimedPlanet.System);
+            if (newTheft)
+            {
+                NumberStolenClaims++;
+                AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
+                Trust -= owner.DifficultyModifiers.TrustLostStoleColony;
+                Trust -= owner.data.DiplomaticPersonality.Territorialism / 5 * StolenSystems.Count.LowerBound(1);
+                StolenSystems.AddUnique(claimedPlanet.System);
+            }
         }
 
         public void WarnClaimThiefPlayer(Planet claimedPlanet, Empire victim)
@@ -503,7 +506,6 @@ namespace Ship_Game.Gameplay
 
         public void SetInitialStrength(float n)
         {
-            Trust           = n;
             InitialStrength = 50f + n;
         }
 
@@ -789,7 +791,7 @@ namespace Ship_Game.Gameplay
                 float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 25
                                              : us.CurrentMilitaryStrength * 50 ; // We are less concerned if we have NAP with them
 
-                float borderAnger = (100f - Trust) / 100f * strShipsInBorders / ourStr.LowerBound(1);
+                float borderAnger = (151f - Trust) * 0.01f * strShipsInBorders / ourStr.LowerBound(1);
                 AddAngerShipsInOurBorders(borderAnger);
             }
         }
@@ -829,8 +831,8 @@ namespace Ship_Game.Gameplay
 
         void UpdateThreat(Empire us, Empire them)
         {
-            float ourMilScore   = (us.CurrentMilitaryStrength*0.001f).LowerBound(50); 
-            float theirMilScore = (them.CurrentMilitaryStrength*0.001f).LowerBound(50);
+            float ourMilScore   = (us.OffensiveStrength*0.001f).LowerBound(us.DifficultyModifiers.MinimumThreatStr); 
+            float theirMilScore = (them.OffensiveStrength * 0.001f).LowerBound(us.DifficultyModifiers.MinimumThreatStr);
             float newThreat     = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
             Threat = HelperFunctions.ExponentialMovingAverage(Threat, newThreat, 0.98f);
         }
@@ -936,7 +938,7 @@ namespace Ship_Game.Gameplay
                 || !Treaty_NAPact
                 || !Treaty_Trade
                 || Treaty_OpenBorders
-                || AvailableTrust < us.data.DiplomaticPersonality.Territorialism / 2f
+                || AvailableTrust < us.data.DiplomaticPersonality.Territorialism
                 || Anger_TerritorialConflict + Anger_FromShipsInOurBorders > 0.75f * territorialism)
             {
                 return;
@@ -968,7 +970,7 @@ namespace Ship_Game.Gameplay
         void OfferAlliance(Empire us)
         {
             if (TurnsAbove95 < us.PersonalityModifiers.TurnsAbove95AllianceTreshold * Them.Universe.P.Pace
-                || turnsSinceLastContact < 100
+                || turnsSinceLastContact < SecondDemand
                 || Treaty_Alliance
                 || !Treaty_Trade
                 || !Treaty_NAPact
@@ -1418,6 +1420,31 @@ namespace Ship_Game.Gameplay
             WarnAboutShips(us);
         }
 
+        bool TheyArePotentialTargetHonorable(Empire us, Empire them)
+        {
+            if (Treaty_Peace || AtWar || PreparingForWar || TurnsKnown < SecondDemand)
+                return false;
+
+            if (Threat > -10 && Threat < 10 && !Treaty_Alliance && TotalAnger > 75 && !them.IsAtWar)
+                return true;
+
+            return false;
+        }
+
+        bool TheyArePotentialTargetCunning(Empire us, Empire them)
+        {
+            if (Treaty_Peace || AtWar || PreparingForWar || TurnsKnown < SecondDemand)
+                return false;
+
+            if (Threat < -50 && them.GetAverageWarGrade() < 5)
+                return true;
+
+            if (Threat < -25 && them.GetAverageWarGrade() < 3)
+                return true;
+
+            return false;
+        }
+
         bool TheyArePotentialTargetRuthless(Empire us, Empire them)
         {
             if (Treaty_Peace || AtWar || PreparingForWar )
@@ -1446,7 +1473,7 @@ namespace Ship_Game.Gameplay
                 if (TotalAnger > 75f || us.MaxColonyValue < them.MaxColonyValue)
                     return true;
             }
-            else if (Threat <= -75f && TotalAnger > 20f)
+            else if (Threat <= -75f)
             {
                 return true;
             }
@@ -1463,7 +1490,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Pacifist, Cunning, Honorable
-        public void DoConservative(Empire us, Empire them)
+        public void DoConservative(Empire us, Empire them, out bool theyArePotentialTargets)
         {
             switch (Posture)
             {
@@ -1494,6 +1521,13 @@ namespace Ship_Game.Gameplay
                     AssessDiplomaticAnger(us);
                     ChangeToNeutralIfPossible(us);
                     break;
+            }
+
+            switch (us.Personality)
+            {
+                case PersonalityType.Cunning:   theyArePotentialTargets = TheyArePotentialTargetCunning(us, them);   break;
+                case PersonalityType.Honorable: theyArePotentialTargets = TheyArePotentialTargetHonorable(us, them); break;
+                default:                        theyArePotentialTargets = false;                                     break;
             }
         }
 
