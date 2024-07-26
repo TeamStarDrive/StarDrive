@@ -131,6 +131,8 @@ namespace Ship_Game
 
         public byte EffectiveLevel => Level.UpperBound(LimitLevel);
 
+        public bool IsCounterEspionageActive => IsOperationActive(InfiltrationOpsType.CounterEspionage);
+
         void RemoveOperations()
         {
             for (int i = Operations.Count - 1; i >= 0; i--)

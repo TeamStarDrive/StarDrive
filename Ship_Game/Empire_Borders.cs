@@ -128,6 +128,7 @@ public sealed partial class Empire
 
     void TryDisableInfluence()
     {
+        SetInfluenceActive(true);
         if (InfluenceDisableChance == 0)
             return;
 

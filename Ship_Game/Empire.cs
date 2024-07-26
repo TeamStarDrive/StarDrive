@@ -1326,7 +1326,7 @@ namespace Ship_Game
             UpdatePlanetStorageStats();
             float incomeFromExoticBonus = GetIncomeFromExoticBonus();
             float remainingMoney = MoneyAfterLeech(NetIncome + incomeFromExoticBonus);
-            float espionageCost = Universe.P.UseLegacyEspionage ? 0 : EspionageCost;
+            float espionageCost = Universe.P.UseLegacyEspionage ? 0 : GetEspionageCost();
             AddMoney(remainingMoney - espionageCost);
         }
 
@@ -1564,6 +1564,9 @@ namespace Ship_Game
 
         public int GetSpyDefense()
         {
+            if (!Universe.P.UseLegacyEspionage)
+                throw new NotSupportedException("Tried getting spydefense while legacy spy is not used");
+
             float defense = 0;
             for (int i = 0; i < data.AgentList.Count; i++)
             {
@@ -1584,10 +1587,26 @@ namespace Ship_Game
             if (!isPlayer) // Only for the Player
                 return false;
 
-            int playerSpyDefense = GetSpyDefense();
-            int aiSpyDefense     = ai.GetSpyDefense() + ai.DifficultyModifiers.WarSneakiness + ai.PersonalityModifiers.WarSneakiness;
-            int rollModifier     = playerSpyDefense - aiSpyDefense; // higher modifier will make the roll smaller, which is better
-            return Random.RollDie(100 - rollModifier) <= playerSpyDefense;
+            if (Universe.P.UseLegacyEspionage)
+            {
+                int playerSpyDefense = GetSpyDefense();
+                int aiSpyDefense = ai.GetSpyDefense() + ai.DifficultyModifiers.WarSneakiness + ai.PersonalityModifiers.WarSneakiness;
+                int rollModifier = playerSpyDefense - aiSpyDefense; // higher modifier will make the roll smaller, which is better
+                return Random.RollDie(100 - rollModifier) <= playerSpyDefense;
+            }
+            else
+            {
+                Espionage espionage = GetEspionage(ai);
+                float detectionChance = espionage.EffectiveLevel*20;
+                if (ai.GetEspionage(this).IsCounterEspionageActive)
+                    detectionChance *= 0.5f;
+
+                detectionChance += data.OffensiveSpyBonus + data.SpyModifier 
+                                - ai.data.DefensiveSpyBonus - ai.data.SpyModifier 
+                                - ai.DifficultyModifiers.WarSneakiness - ai.PersonalityModifiers.WarSneakiness;
+
+                return Random.RollDice(detectionChance);
+            }
         }
 
         /// <summary>
@@ -1792,8 +1811,11 @@ namespace Ship_Game
             foreach (Planet planet in list1)
                 OwnedPlanets.Remove(planet);
 
-            for (int index = 0; index < data.AgentList.Count; ++index)
-                data.AgentList[index].Update(this);
+            if (Universe.P.UseLegacyEspionage)
+            {
+                for (int index = 0; index < data.AgentList.Count; ++index)
+                    data.AgentList[index].Update(this);
+            }
 
             if (Money < 0.0 && !IsFaction)
             {

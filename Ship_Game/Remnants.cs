@@ -159,11 +159,10 @@ namespace Ship_Game
 
         void NotifyPlayerOnLevelUp()
         {
-            float espionageStr = Universe.Player.GetSpyDefense();
-            if (espionageStr <= Level * 3)
-                return; // not enough espionage strength to learn about Remnant activities
-
-            Universe.Notifications.AddRemnantsAreGettingStronger(Owner);
+            float espionageStr = Universe.Player.Universe.Player.GetEspionageDefenseStrVsPiratesOrRemnants(MaxLevel);
+            int effectiveLevel = Universe.P.UseLegacyEspionage ? Level * 3: Level;
+            if (espionageStr >= effectiveLevel)
+                Universe.Notifications.AddRemnantsAreGettingStronger(Owner);
         }
 
         public void TryLevelUpByDate()

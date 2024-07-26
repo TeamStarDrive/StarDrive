@@ -145,7 +145,13 @@ namespace Ship_Game.AI
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
-                RunAgentManager();
+
+                if (OwnerEmpire.Universe.P.UseLegacyEspionage)
+                    RunAgentManager();
+                else
+                    RunEspionagePlanner();
+
+
                 if (OwnerEmpire.Universe?.Debug == true && OwnerEmpire.Universe?.StarDate % 50 == 0)
                 {
                     int techScore     = 0;

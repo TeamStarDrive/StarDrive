@@ -17,8 +17,6 @@ namespace Ship_Game
         [StarData] public float TotalMoneyLeechedLastTurn { get; private set; }
         [StarData] public float EspionageBudgetMultiplier { get; private set; } = 1; // 1-5
         public float EspionagePointsPerTurn => TotalPopBillion * EspionageBudgetMultiplier;
-        public float EspionageCost => TotalPopBillion * (EspionageBudgetMultiplier - 1);
-
 
         public void SetCanBeScannedByPlayer(bool value)
         {
@@ -33,6 +31,24 @@ namespace Ship_Game
             TotalMoneyLeechedLastTurn = 0;
             foreach (Empire e in Universe.ActiveMajorEmpires.Filter(e => e != this))
                 TotalMoneyLeechedLastTurn += GetEspionage(e).ExtractMoneyLeechedThisTurn();
+        }
+
+        public float GetEspionageCost()
+        {
+            if (CalcTotalEspionageWeight() == EspionageDefenseWeight)
+                return 0;
+
+            else 
+                return TotalPopBillion * (EspionageBudgetMultiplier - 1);
+        }
+
+        public void SetAiEspionageBudgetMultiplier(float budget)
+        {
+            float totalPopBillion = TotalPopBillion;
+            if (totalPopBillion < 10)
+                EspionageBudgetMultiplier = 1;
+
+            EspionageBudgetMultiplier = (budget / totalPopBillion) + 1;
         }
 
         public int CalcTotalEspionageWeight(bool grossWeight = false)
@@ -117,6 +133,11 @@ namespace Ship_Game
         public int GetNumOfTheirMoles(Empire them)
         {
             return them.data.MoleList.Count(m =>  Universe.GetPlanet(m.PlanetId).Owner == this);
+        }
+
+        public float GetEspionageDefenseStrVsPiratesOrRemnants(int factionMaxLevel)
+        {
+            return Universe.P.UseLegacyEspionage ? GetSpyDefense() : EspionageDefenseRatio * factionMaxLevel;
         }
     }
 }

@@ -259,7 +259,7 @@ namespace Ship_Game.GameScreens
 
         void UpdateCostPerTurn()
         {
-            float espionageCost = Player.EspionageCost;
+            float espionageCost = Player.GetEspionageCost();
             CostPerTurn.Text = $"{(espionageCost > 0 ? -espionageCost : espionageCost).String(1)} bc/y";
             CostPerTurn.Color = espionageCost > 0 ? Color.Pink : Color.LightGreen;
         }
