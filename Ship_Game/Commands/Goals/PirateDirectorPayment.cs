@@ -101,7 +101,7 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.ThreatLevelFor(TargetEmpire) == -1)
             {
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                if (!TargetEmpire.Universe.P.UseLegacyEspionage)
+                if (TargetEmpire.NewEspionageEnabled)
                 {
                     TargetEmpire.GetRelations(Owner).Espionage.IncreaseInfiltrationLevelTo(1);
                     if (TargetEmpire.isPlayer)

@@ -125,6 +125,8 @@ public partial class UniverseState
         else
         {
             e.AI?.ExpansionAI.InitExpansionIntervalTimer(e.Id);
+            if (e.NewEspionageEnabled)
+                e.AI?.EspionageManager.InitEspionageManager(e.Id);
         }
 
         switch (e.data.Traits.Name)

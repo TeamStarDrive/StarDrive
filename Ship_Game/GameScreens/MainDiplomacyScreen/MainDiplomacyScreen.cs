@@ -57,7 +57,7 @@ namespace Ship_Game
             Player = screen.Player;
             Friends = screen.UState.GetAllies(Player);
             Traders = screen.UState.GetTradePartners(Player);
-            UsingNewEspioange = !Player.Universe.P.UseLegacyEspionage;
+            UsingNewEspioange = Player.NewEspionageEnabled;
 
             // find empires where player or friends have moles
             var empires = new HashSet<Empire>();

@@ -174,7 +174,7 @@ namespace Ship_Game.Gameplay
             Them = them;
             Risk = new EmpireRiskAssessment(this);
             KnownInformation = new EmpireInformation(this);
-            if (!us.Universe.P.UseLegacyEspionage)
+            if (us.NewEspionageEnabled)
                 Espionage = new Espionage(us, them);
         }
 

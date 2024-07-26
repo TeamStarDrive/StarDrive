@@ -22,8 +22,6 @@ namespace Ship_Game.GameScreens.EspionageNew
         readonly ProgressBar LevelProgress;
         readonly Font TitleFont, Font;
         readonly UIElementContainer LevelOps;
-        int InfiltrationProgress;
-        int LevelCost;
         readonly byte Level;
         bool ShowProgress;
 

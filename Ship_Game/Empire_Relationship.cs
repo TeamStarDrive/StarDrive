@@ -314,7 +314,7 @@ namespace Ship_Game
                 them.AddNewRelationToThem(us, rel: new(them, us));
             }
 
-            if (!us.Universe.P.UseLegacyEspionage)
+            if (us.NewEspionageEnabled)
                 us.SetCanBeScannedByPlayer(false);
         }
 
@@ -462,7 +462,7 @@ namespace Ship_Game
 
             float GetDetectionChance()
             {
-                if (Universe.P.UseLegacyEspionage)
+                if (LegacyEspionageEnabled)
                     return GetSpyDefense() * 5;
 
                 Espionage espionageToThem = GetEspionage(them);

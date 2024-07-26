@@ -37,6 +37,7 @@ namespace Ship_Game.AI
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
         [StarData] public ExpansionAI.ResearchStationPlanner ResearchStationsAI;
         [StarData] public ExpansionAI.MiningOpsPlanner MiningOpsAI;
+        [StarData] public EspionageManager EspionageManager;
         [StarData] public SpaceRoadsManager SpaceRoadsManager;
         BudgetPriorities BudgetSettings;
 
@@ -65,6 +66,9 @@ namespace Ship_Game.AI
 
             if (OwnerEmpire.IsFaction && OwnerEmpire.data.IsRemnantFaction)
                 OwnerEmpire.SetAsRemnants(this);
+
+            if (!OwnerEmpire.isPlayer && OwnerEmpire.NewEspionageEnabled)
+                EspionageManager = new(e);
         }
 
         void InitializeManagers(Empire e)
@@ -146,10 +150,10 @@ namespace Ship_Game.AI
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
 
-                if (OwnerEmpire.Universe.P.UseLegacyEspionage)
+                if (OwnerEmpire.LegacyEspionageEnabled)
                     RunAgentManager();
-                else
-                    RunEspionagePlanner();
+                else if (!OwnerEmpire.isPlayer)
+                    EspionageManager.RunEspionagePlanner();
 
 
                 if (OwnerEmpire.Universe?.Debug == true && OwnerEmpire.Universe?.StarDate % 50 == 0)

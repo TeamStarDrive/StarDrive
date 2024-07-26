@@ -321,7 +321,7 @@ namespace Ship_Game
                 if (input.KeyPressed(Keys.E))
                 {
                     GameAudio.EchoAffirmative();
-                    if (Universe.Player.Universe.P.UseLegacyEspionage)
+                    if (Universe.Player.LegacyEspionageEnabled)
                         Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
                     else
                         Universe.ScreenManager.AddScreen(new InfiltrationScreen(Universe));
@@ -471,7 +471,7 @@ namespace Ship_Game
                         }
                         else if (b.launches == "Espionage")
                         {
-                            if (Universe.Player.Universe.P.UseLegacyEspionage)
+                            if (Universe.Player.LegacyEspionageEnabled)
                                 Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
                             else
                                 Universe.ScreenManager.AddScreen(new InfiltrationScreen(Universe));

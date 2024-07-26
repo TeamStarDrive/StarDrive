@@ -661,7 +661,7 @@ namespace Ship_Game
         void CommonInitialize()
         {
             CreateEmpireTechTree(); // update or init the tech tree
-            KnownEmpires.Set(Id); // we know ourselves
+            KnownEmpires.Set(Id); // we know ourselves - FB: there might be a bug here where the ID is still 0 at this stage in a new game.
             InitDifficultyModifiers();
             InitPersonalityModifiers();
             CreateThrusterColors();
@@ -1326,7 +1326,7 @@ namespace Ship_Game
             UpdatePlanetStorageStats();
             float incomeFromExoticBonus = GetIncomeFromExoticBonus();
             float remainingMoney = MoneyAfterLeech(NetIncome + incomeFromExoticBonus);
-            float espionageCost = Universe.P.UseLegacyEspionage ? 0 : GetEspionageCost();
+            float espionageCost = LegacyEspionageEnabled ? 0 : GetEspionageCost();
             AddMoney(remainingMoney - espionageCost);
         }
 
@@ -1342,7 +1342,7 @@ namespace Ship_Game
 
         float MoneyAfterLeech(float money)
         {
-            if (Universe.P.UseLegacyEspionage)
+            if (LegacyEspionageEnabled)
                 return money;
 
             float remainingMoney = money;
@@ -1564,8 +1564,9 @@ namespace Ship_Game
 
         public int GetSpyDefense()
         {
-            if (!Universe.P.UseLegacyEspionage)
-                throw new NotSupportedException("Tried getting spydefense while legacy spy is not used");
+            if (NewEspionageEnabled)
+                throw new InvalidOperationException("Tried getting spy defense while legacy espionage is disabled." +
+                    " Check Empire_Espionage.cs for new espionage logic");
 
             float defense = 0;
             for (int i = 0; i < data.AgentList.Count; i++)
@@ -1587,7 +1588,7 @@ namespace Ship_Game
             if (!isPlayer) // Only for the Player
                 return false;
 
-            if (Universe.P.UseLegacyEspionage)
+            if (LegacyEspionageEnabled)
             {
                 int playerSpyDefense = GetSpyDefense();
                 int aiSpyDefense = ai.GetSpyDefense() + ai.DifficultyModifiers.WarSneakiness + ai.PersonalityModifiers.WarSneakiness;
@@ -1811,7 +1812,7 @@ namespace Ship_Game
             foreach (Planet planet in list1)
                 OwnedPlanets.Remove(planet);
 
-            if (Universe.P.UseLegacyEspionage)
+            if (LegacyEspionageEnabled)
             {
                 for (int index = 0; index < data.AgentList.Count; ++index)
                     data.AgentList[index].Update(this);
@@ -2687,7 +2688,7 @@ namespace Ship_Game
                 if (mole.PlanetId == plantId)
                 {
                     RemoveMole(mole);
-                    if (Universe.P.UseLegacyEspionage)
+                    if (LegacyEspionageEnabled)
                     {
                         Agent agent = data.AgentList.Find(a => a.TargetPlanetId == plantId);
                         agent.AssignMission(AgentMission.Defending, this, "");

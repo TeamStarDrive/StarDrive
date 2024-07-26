@@ -16,6 +16,9 @@ namespace Ship_Game
         [StarData] public float EspionageDefenseRatio { get; private set; } = 1;
         [StarData] public float TotalMoneyLeechedLastTurn { get; private set; }
         [StarData] public float EspionageBudgetMultiplier { get; private set; } = 1; // 1-5
+
+        public bool LegacyEspionageEnabled => Universe.P.UseLegacyEspionage;
+        public bool NewEspionageEnabled => !Universe.P.UseLegacyEspionage;
         public float EspionagePointsPerTurn => TotalPopBillion * EspionageBudgetMultiplier;
 
         public void SetCanBeScannedByPlayer(bool value)
@@ -25,7 +28,7 @@ namespace Ship_Game
 
         public void UpdateMoneyLeechedLastTurn()
         {
-            if (Universe.P.UseLegacyEspionage)
+            if (LegacyEspionageEnabled)
                 return;
 
             TotalMoneyLeechedLastTurn = 0;
@@ -71,7 +74,7 @@ namespace Ship_Game
 
         public void UpdateEspionage()
         {
-            if (Universe.P.UseLegacyEspionage)
+            if (LegacyEspionageEnabled)
                 return;
 
             int totalWeight = CalcTotalEspionageWeight();
@@ -137,7 +140,7 @@ namespace Ship_Game
 
         public float GetEspionageDefenseStrVsPiratesOrRemnants(int factionMaxLevel)
         {
-            return Universe.P.UseLegacyEspionage ? GetSpyDefense() : EspionageDefenseRatio * factionMaxLevel;
+            return LegacyEspionageEnabled ? GetSpyDefense() : EspionageDefenseRatio * factionMaxLevel;
         }
     }
 }

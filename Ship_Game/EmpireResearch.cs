@@ -122,7 +122,7 @@ namespace Ship_Game
 
         void UpdateNetResearchDistuption()
         {
-            if (Empire.Universe.P.UseLegacyEspionage)
+            if (Empire.LegacyEspionageEnabled)
                 return;
 
             Empire[] empires = Empire.Universe.ActiveMajorEmpires.Filter(e => e != Empire);
@@ -167,7 +167,7 @@ namespace Ship_Game
 
         void LeechTechByEspionage(string techName)
         {
-            if (Empire.Universe.P.UseLegacyEspionage)
+            if (Empire.LegacyEspionageEnabled)
                 return;
 
             foreach (Empire leecher in Empire.Universe.ActiveMajorEmpires.Filter(e => e != Empire))

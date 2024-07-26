@@ -305,7 +305,6 @@ namespace Ship_Game
             }
 
             int levelCost = LevelCost(GetOpsLevel(type));
-
             switch (type) 
             {
                 case InfiltrationOpsType.PlantMole:         Operations.Add(new InfiltrationOpsPlantMole(Owner, Them, levelCost));         break;
@@ -330,6 +329,17 @@ namespace Ship_Game
         }
 
         public bool IsOperationActive(InfiltrationOpsType type) => Operations.Any(m => m.Type == type);
+
+        bool CanActivateOperation(InfiltrationOpsType type) => Level >= GetOpsLevel(type);
+
+        public void ActivateOpsIfAble(InfiltrationOpsType type)
+        {
+            if (IsOperationActive(type))
+                return;
+
+            if (CanActivateOperation(type))
+                AddOperation(type);
+        }
 
         static public byte GetOpsLevel(InfiltrationOpsType type)
         {
