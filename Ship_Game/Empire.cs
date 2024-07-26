@@ -2680,26 +2680,28 @@ namespace Ship_Game
             InitEmpireUnlocks();
         }
 
-        public void RemoveMoles(int plantId)
+        public void RemoveMoles(int planetId, Empire planetOwner)
         {
             for (int i = data.MoleList.Count - 1; i >= 0; i--)
             {
                 Mole mole = data.MoleList[i];
-                if (mole.PlanetId == plantId)
+                if (mole.PlanetId == planetId)
                 {
-                    RemoveMole(mole);
+                    RemoveMole(mole, planetOwner);
                     if (LegacyEspionageEnabled)
                     {
-                        Agent agent = data.AgentList.Find(a => a.TargetPlanetId == plantId);
+                        Agent agent = data.AgentList.Find(a => a.TargetPlanetId == planetId);
                         agent.AssignMission(AgentMission.Defending, this, "");
                     }
                 }
             }
         }
 
-        public void RemoveMole(Mole m)
+        public void RemoveMole(Mole m, Empire victim)
         {
             data.MoleList.Remove(m);
+            if (NewEspionageEnabled && !victim.IsFaction)
+                GetEspionage(victim).DecreasePlantedMoleCount();
         }
 
         // For Testing only!

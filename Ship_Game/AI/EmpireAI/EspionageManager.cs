@@ -4,6 +4,9 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.GameScreens.Espionage;
 using Ship_Game.Data.Serialization;
+using System.Collections.Generic;
+using System.Reflection;
+using System;
 
 
 namespace Ship_Game.AI
@@ -59,18 +62,71 @@ namespace Ship_Game.AI
                 Relationship relations = Owner.GetRelations(empire);
                 Espionage espionage = relations.Espionage;
                 SetEspionageLimitLevel(relations, espionage);
-                EnableDisableEspionageOperations(relations, espionage);
+                EnableDisableEspionageOperations(relations, espionage, empire);
             }
         }
 
-        void SetEspionageLimitLevel(Relationship relations, Espionage espionage)    
+        void SetEspionageLimitLevel(Relationship relations, Espionage espionage)
         {
+            byte limitLevel = Espionage.MaxLevel;
+            switch (Owner.Personality)
+            {
+                case PersonalityType.Aggressive:
+                    if ((relations.Treaty_Alliance || relations.Treaty_OpenBorders) && !relations.PreparingForWar)
+                        limitLevel = 4;
+                    else
+                        limitLevel = Espionage.MaxLevel;
+                    break;
+                case PersonalityType.Ruthless:
+                case PersonalityType.Cunning:
+                    limitLevel = Espionage.MaxLevel;
+                    break;
+                case PersonalityType.Xenophobic:
+                case PersonalityType.Honorable:
+                    limitLevel = (byte)(relations.Treaty_Alliance && !relations.PreparingForWar ? 3 : Espionage.MaxLevel);
+                    break;
+                case PersonalityType.Pacifist:
+                    limitLevel = (byte)(!relations.AtWar && !relations.PreparingForWar ? 3 : Espionage.MaxLevel);
+                    break;
+            }
+
+            espionage.SetLimitLevel(limitLevel);
 
         }
 
-        void EnableDisableEspionageOperations(Relationship relations, Espionage espionage)
+        void EnableDisableEspionageOperations(Relationship relations, Espionage espionage, Empire them)
         {
+            Map<InfiltrationOpsType, bool> operations = InitOperationsWanted();
+            UpdateOperationsByPersonality(operations, relations, espionage, them);
+            foreach (var type in operations.Keys)
+            {
+                if (operations[type] == true)
+                    espionage.ActivateOpsIfAble(type);
+                else
+                    espionage.RemoveOperation(type);
+            }
+        }
 
+        Map<InfiltrationOpsType, bool> InitOperationsWanted()
+        {
+            Map<InfiltrationOpsType, bool> operations = new();
+            foreach (InfiltrationOpsType type in (InfiltrationOpsType[])Enum.GetValues(typeof(InfiltrationOpsType)))
+                operations[type] = false;
+
+            return operations;
+        }
+
+        void UpdateOperationsByPersonality(Map<InfiltrationOpsType, bool> operations, Relationship relations, Espionage espionage, Empire them)
+        {
+            bool moleCoverageReched = espionage.MoleCoverageReached;
+            switch (Owner.Personality)
+            {
+                default:
+                case PersonalityType.Aggressive:
+                    break;
+
+
+            }
         }
     }
 }

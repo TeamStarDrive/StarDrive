@@ -49,7 +49,19 @@ namespace Ship_Game
 
             if (mission == AgentMission.Undercover)
             {
-                owner.data.MoleList.RemoveFirst(m => m.PlanetId == TargetPlanetId);
+                Mole mole = owner.data.MoleList.Find(m => m.PlanetId == TargetPlanetId);
+                if (mole != null)
+                {
+                    foreach (Empire empire in owner.Universe.ActiveMajorEmpires)
+                    {
+                        Planet targetPlanet = owner.FindPlanet(TargetPlanetId);
+                        if (targetPlanet != null)
+                        {
+                            owner.RemoveMole(mole, targetPlanet.Owner);
+                            break;
+                        }
+                    }
+                }
             }
 
             owner.AddMoney(-cost);
@@ -534,7 +546,9 @@ namespace Ship_Game
             victim.data.AgentList.Remove(targetAgent);
             if (targetAgent.Mission == AgentMission.Undercover)
             {
-                us.data.MoleList.RemoveFirst(m => m.PlanetId == targetAgent.TargetPlanetId);
+                Mole mole = victim.data.MoleList.Find(m => m.PlanetId == targetAgent.TargetPlanetId);
+                if (mole != null)
+                    victim.RemoveMole(mole, us);
             }
         }
 

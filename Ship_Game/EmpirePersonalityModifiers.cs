@@ -37,6 +37,7 @@ namespace Ship_Game
         public readonly float ImperialistWarPlanetsToTakeMult; // multiplier for how many planets to take from available enemy planets if we have better score
         public readonly float PiratePayChanceModifier; // How inclined to pay pirates
         public readonly float SpyDamageRelationsMultiplier; // Multipler for base rations damage when caught spying. Works for new Espionage logic
+        public readonly float WantedMoleCovreage; // Coverage of mole threshold from the victim total planets
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -60,6 +61,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     PiratePayChanceModifier      = 1;
                     CloserToUsClaimWarn   = 0.3f;
+                    WantedMoleCovreage    = 0.25f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1;
                     FederationPopRatioWar = 4f;
@@ -94,6 +96,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 50;
                     PiratePayChanceModifier      = 0.4f;
                     CloserToUsClaimWarn   = 0.5f;
+                    WantedMoleCovreage    = 0.25f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.15f;
                     FederationPopRatioWar = 3.5f;
@@ -128,6 +131,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 25;
                     PiratePayChanceModifier      = 0.5f;
                     CloserToUsClaimWarn   = 0.4f;
+                    WantedMoleCovreage    = 0.2f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1.1f;
                     FederationPopRatioWar = 3.2f;
@@ -162,6 +166,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 100;
                     PiratePayChanceModifier      = 0.6f;
                     CloserToUsClaimWarn   = 0.6f;
+                    WantedMoleCovreage    = 0.15f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.05f;
                     FederationPopRatioWar = 4f;
@@ -197,6 +202,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     PiratePayChanceModifier      = 0.7f;
                     CloserToUsClaimWarn   = 0.3f;
+                    WantedMoleCovreage    = 0.5f;
                     DefenseTaskWeight     = 1.3f;
                     FleetStrMultiplier    = 0.95f;
                     FederationPopRatioWar = 3f;
@@ -231,6 +237,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 75;
                     PiratePayChanceModifier      = 0.25f;
                     CloserToUsClaimWarn   = 0.4f;
+                    WantedMoleCovreage    = 0.15f;
                     DefenseTaskWeight     = 1.5f;
                     FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 2.5f;
@@ -265,6 +272,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     PiratePayChanceModifier      = 0.75f;
                     CloserToUsClaimWarn   = 0.2f;
+                    WantedMoleCovreage    = 0.25f;
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 0.9f;
                     FederationPopRatioWar = 2f;

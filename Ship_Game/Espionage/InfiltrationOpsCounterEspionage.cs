@@ -101,7 +101,7 @@ namespace Ship_Game
                 aftermath.Planet = Them.Universe.GetPlanet(mole.PlanetId);
                 aftermath.CustomMessage = $"{Localizer.Token(GameText.EliminatedMole)} {aftermath.Planet.Name}\n({Them.data.Traits.Name})";
                 aftermath.MessageToVictim = $"{Localizer.Token(GameText.LostMole)} {aftermath.Planet.Name}";
-                Them.RemoveMole(mole);
+                Them.RemoveMole(mole, Owner);
             }
         }
     }

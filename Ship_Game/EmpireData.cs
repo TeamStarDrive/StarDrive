@@ -164,7 +164,7 @@ namespace Ship_Game
         [StarData] public bool RebellionLaunched;
         [StarData] public string MusicCue;
         [StarData] public Array<string> ResearchQueue = new();
-        [StarData] public Array<Mole> MoleList = new();
+        [StarData] public Array<Mole> MoleList = new(); // do not interact this with directly. Use PlantMole or RemoveMole methods
         [StarData] public float CounterIntelligenceBudget;
 
         // NOTE: This is currently the main unique identifier?

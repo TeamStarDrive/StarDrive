@@ -23,6 +23,7 @@ namespace Ship_Game
         [StarData] public int SlowResearchChance { get; private set; }
         [StarData] public float TotalMoneyLeeched { get; private set; }
         [StarData] float MoneyLeechedThisTurn;
+        [StarData] public int NumPlantedMoles { get; private set; }
 
         [StarDataConstructor]
         public Espionage() { }
@@ -51,6 +52,16 @@ namespace Ship_Game
             string message = $"{Them.data.Name}: {Localizer.Token(GameText.MessageInfiltrationLevelIncrease)} {Level}.";
             Owner.Universe.Notifications.AddAgentResult(true, message, Owner);
             EnablePassiveEffects();
+        }
+
+        public void IncreasePlantedMoleCount()
+        {
+            NumPlantedMoles++;
+        }
+
+        public void DecreasePlantedMoleCount()
+        {
+            NumPlantedMoles--;
         }
 
         public void WipeoutInfiltration() => SetInfiltrationLevelTo(0);
@@ -133,6 +144,8 @@ namespace Ship_Game
 
         public bool IsCounterEspionageActive => IsOperationActive(InfiltrationOpsType.CounterEspionage);
 
+        public bool MoleCoverageReached => NumPlantedMoles / Them.GetPlanets().Count.LowerBound(1) >= Owner.PersonalityModifiers.WantedMoleCovreage;
+
         void RemoveOperations()
         {
             for (int i = Operations.Count - 1; i >= 0; i--)
@@ -144,7 +157,7 @@ namespace Ship_Game
 
             if (!CanPlantStickyMole && StickyMole != null)
             {
-                Owner.data.MoleList.Remove(StickyMole);
+                Owner.RemoveMole(StickyMole, Them);
                 StickyMole = null;
             }
 
