@@ -153,7 +153,7 @@ namespace Ship_Game.AI
                 if (OwnerEmpire.LegacyEspionageEnabled)
                     RunAgentManager();
                 else if (!OwnerEmpire.isPlayer)
-                    EspionageManager.RunEspionagePlanner();
+                    EspionageManager.Update();
 
 
                 if (OwnerEmpire.Universe?.Debug == true && OwnerEmpire.Universe?.StarDate % 50 == 0)

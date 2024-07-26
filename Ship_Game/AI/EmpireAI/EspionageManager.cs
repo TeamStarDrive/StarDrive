@@ -22,11 +22,12 @@ namespace Ship_Game.AI
         {
             Owner = e;
         }
-        public void RunEspionagePlanner(bool forceRun = false)
+
+        public void Update(bool forceRun = false)
         {
             DetermineBudget();
             SetupDefenseWeight();
-            SetupWeights(forceRun);
+            SetupWeightsAndOps(forceRun);
         }
 
         [StarDataConstructor]
@@ -49,7 +50,7 @@ namespace Ship_Game.AI
 
         }
 
-        void SetupWeights(bool ignoreTimer)
+        void SetupWeightsAndOps(bool ignoreTimer)
         {
             if (!ignoreTimer && --EspionageUpdateTimer > 0)
                 return;
@@ -61,8 +62,12 @@ namespace Ship_Game.AI
             {
                 Relationship relations = Owner.GetRelations(empire);
                 Espionage espionage = relations.Espionage;
-                SetEspionageLimitLevel(relations, espionage);
-                EnableDisableEspionageOperations(relations, espionage, empire);
+                // implement setupweights here
+                if (relations.Known && espionage.Level > 0)
+                {
+                    SetEspionageLimitLevel(relations, espionage);
+                    EnableDisableEspionageOperations(relations, espionage, empire);
+                }
             }
         }
 
@@ -118,14 +123,35 @@ namespace Ship_Game.AI
 
         void UpdateOperationsByPersonality(Map<InfiltrationOpsType, bool> operations, Relationship relations, Espionage espionage, Empire them)
         {
-            bool moleCoverageReched = espionage.MoleCoverageReached;
+            bool moleCoverageReached = !espionage.MoleCoverageReached;
+            bool theyHaveInfiltratedUs = espionage.WeHaveInfoOnTheirInfiltration && them.GetEspionage(Owner).EffectiveLevel > 0;
+            if (theyHaveInfiltratedUs)
+                operations[InfiltrationOpsType.CounterEspionage] = true;
+
             switch (Owner.Personality)
             {
                 default:
                 case PersonalityType.Aggressive:
+                    if (relations.AtWar)
+                    {
+                        operations[InfiltrationOpsType.DisruptProjection] = true;
+                        operations[InfiltrationOpsType.Sabotage] = true;
+                        if (!moleCoverageReached)
+                            operations[InfiltrationOpsType.PlantMole] = true;
+                        break;
+                    }
+
+                    if (relations.PreparingForWar)
+                    {
+
+                        if (!moleCoverageReached)
+                            operations[InfiltrationOpsType.PlantMole] = true;
+                    }
+                    operations[InfiltrationOpsType.SlowResearch] = true;
+
+
+
                     break;
-
-
             }
         }
     }

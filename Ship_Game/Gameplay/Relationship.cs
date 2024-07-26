@@ -234,11 +234,19 @@ namespace Ship_Game.Gameplay
         {
             switch (treatyType)
             {
-                case TreatyType.Alliance:      Treaty_Alliance    = value; HandleAlliance();              break;
-                case TreatyType.NonAggression: Treaty_NAPact      = value;                                break;
-                case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                break;
-                case TreatyType.Peace:         Treaty_Peace       = value; HandlePeace();                 break;
-                case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0; break;
+                case TreatyType.Alliance:      Treaty_Alliance    = value; HandleAlliance(); break;
+                case TreatyType.NonAggression: Treaty_NAPact      = value;                   break;
+                case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                   break;
+                case TreatyType.Peace:         Treaty_Peace       = value; HandlePeace();    break;
+                case TreatyType.Trade:         Treaty_Trade       = value; HandleTrade();    break;
+            }
+
+            if (!us.isPlayer && us.NewEspionageEnabled)
+                us.AI.EspionageManager.Update(forceRun: true);
+
+            void HandleTrade()
+            {
+                Treaty_Trade_TurnsExisted = 0;
             }
 
             void HandlePeace()

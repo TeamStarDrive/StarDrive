@@ -135,7 +135,9 @@ namespace Ship_Game
 
         public int GetNumOfTheirMoles(Empire them)
         {
-            return them.data.MoleList.Count(m =>  Universe.GetPlanet(m.PlanetId).Owner == this);
+
+            return NewEspionageEnabled ? GetEspionage(them).NumPlantedMoles 
+                                       : them.data.MoleList.Count(m =>  Universe.GetPlanet(m.PlanetId).Owner == this);
         }
 
         public float GetEspionageDefenseStrVsPiratesOrRemnants(int factionMaxLevel)

@@ -52,15 +52,8 @@ namespace Ship_Game
                 Mole mole = owner.data.MoleList.Find(m => m.PlanetId == TargetPlanetId);
                 if (mole != null)
                 {
-                    foreach (Empire empire in owner.Universe.ActiveMajorEmpires)
-                    {
-                        Planet targetPlanet = owner.FindPlanet(TargetPlanetId);
-                        if (targetPlanet != null)
-                        {
-                            owner.RemoveMole(mole, targetPlanet.Owner);
-                            break;
-                        }
-                    }
+                    Planet targetPlanet = owner.Universe.GetPlanet(TargetPlanetId);
+                    owner.RemoveMole(mole, targetPlanet.Owner);
                 }
             }
 

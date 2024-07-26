@@ -52,6 +52,8 @@ namespace Ship_Game
             string message = $"{Them.data.Name}: {Localizer.Token(GameText.MessageInfiltrationLevelIncrease)} {Level}.";
             Owner.Universe.Notifications.AddAgentResult(true, message, Owner);
             EnablePassiveEffects();
+            if (!Owner.isPlayer)
+                Owner.AI.EspionageManager.Update(forceRun: true);
         }
 
         public void IncreasePlantedMoleCount()
@@ -74,6 +76,8 @@ namespace Ship_Game
             LevelProgress = 0;
             RemoveOperations();
             EnablePassiveEffects();
+            if (!Owner.isPlayer)
+                Owner.AI.EspionageManager.Update(forceRun: true);
         }
 
         public void DecreaseProgress(float value)
@@ -290,15 +294,14 @@ namespace Ship_Game
 
         bool AtLimitLevel => Level >= LimitLevel;
         public float ProgressPercent => LevelProgress/NextLevelCost * 100;
-
         bool HasOperations => Operations.Count > 0;
-
+        public bool WeHaveInfoOnTheirInfiltration => Level >= 2;
         public string InfiltrationLevelSummary()
         {
             if (Level <= 1)
                 return "Unknown";
 
-            int theirInfiltrationLevel = Them.GetRelations(Owner).Espionage.Level;
+            int theirInfiltrationLevel = Them.GetRelations(Owner).Espionage.EffectiveLevel;
             if (Level <= 2)
                 return theirInfiltrationLevel > 0 ? "Exists" : "Probably None";
 

@@ -2700,7 +2700,7 @@ namespace Ship_Game
         public void RemoveMole(Mole m, Empire victim)
         {
             data.MoleList.Remove(m);
-            if (NewEspionageEnabled && !victim.IsFaction)
+            if (NewEspionageEnabled && victim != null && !victim.IsFaction && victim != this)
                 GetEspionage(victim).DecreasePlantedMoleCount();
         }
 
