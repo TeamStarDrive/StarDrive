@@ -80,6 +80,7 @@ namespace Ship_Game
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.CounterEspioangeOpsFailedAgentCaught)}\n{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage);
                     espionage.ReduceInfiltrationLevel();
+                    aftermath.breakTreatiesIfAllied = false;
                     aftermath.DamageReason = "Caught Spying";
                     break;
                 case InfiltrationOpsResult.Disaster:
@@ -88,6 +89,7 @@ namespace Ship_Game
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +
                                                 $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {espionage.EffectiveLevel}.";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage, withLevelMultiplier: true);
+                    aftermath.breakTreatiesIfAllied = false;
                     aftermath.DamageReason = "Caught Spying Failed";
                     espionage.WipeoutInfiltration();
                     break;

@@ -60,6 +60,7 @@ namespace Ship_Game
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, Espionage);
                     Espionage.ReduceInfiltrationLevel();
                     aftermath.DamageReason = "Caught Spying";
+                    aftermath.breakTreatiesIfAllied = false;
                     break;
                 case InfiltrationOpsResult.Disaster:
                     aftermath.Message = GameText.NewWasUnableToInfiltrateWipedOut;

@@ -121,6 +121,7 @@ namespace Ship_Game
             public float RelationDamage;
             public string DamageReason;
             public bool MessageUseTheirName = true;
+            public bool breakTreatiesIfAllied = true;
             public Planet Planet;
             readonly Empire Us;
             readonly Empire Victim;
@@ -152,7 +153,7 @@ namespace Ship_Game
                     u.Notifications.AddAgentResult(!GoodResult, MessageToVictim, Victim, Planet);
 
                 if (RelationDamage > 0 && DamageReason.NotEmpty())
-                    Victim.GetRelations(Us).DamageRelationship(Victim, Us, DamageReason, RelationDamage, null);
+                    Victim.GetRelations(Us).DamageRelationship(Victim, Us, DamageReason, RelationDamage, null, breakTreatiesIfAllied);
             }
         }
     }

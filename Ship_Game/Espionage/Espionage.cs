@@ -346,7 +346,7 @@ namespace Ship_Game
 
         public bool IsOperationActive(InfiltrationOpsType type) => Operations.Any(m => m.Type == type);
 
-        bool CanActivateOperation(InfiltrationOpsType type) => Level >= GetOpsLevel(type);
+        public bool CanActivateOperation(InfiltrationOpsType type) => Level >= GetOpsLevel(type);
 
         public void ActivateOpsIfAble(InfiltrationOpsType type)
         {

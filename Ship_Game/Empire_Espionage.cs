@@ -16,6 +16,7 @@ namespace Ship_Game
         [StarData] public float EspionageDefenseRatio { get; private set; } = 1;
         [StarData] public float TotalMoneyLeechedLastTurn { get; private set; }
         [StarData] public float EspionageBudgetMultiplier { get; private set; } = 1; // 1-5
+        public const int MaxEspionageDefenseWeight = 50;
 
         public bool LegacyEspionageEnabled => Universe.P.UseLegacyEspionage;
         public bool NewEspionageEnabled => !Universe.P.UseLegacyEspionage;
@@ -64,7 +65,7 @@ namespace Ship_Game
 
         public void SetEspionageDefenseWeight(int value)
         {
-            EspionageDefenseWeight = value;
+            EspionageDefenseWeight = value.Clamped(0, MaxEspionageDefenseWeight); 
         }
 
         public void SetEspionageBudgetMultiplier(float value)
@@ -145,6 +146,6 @@ namespace Ship_Game
             return LegacyEspionageEnabled ? GetSpyDefense() : EspionageDefenseRatio * factionMaxLevel;
         }
 
-        public bool SafeToActivateOpsOnAllies(Empire ally) => ally.isPlayer || ally.GetRelations(this).TimesSpiedOnAlly <= 1;
+        public bool IsSafeToActivateOpsOnAllies(Empire ally) => ally.isPlayer || ally.GetRelations(this).TimesSpiedOnAlly <= 1;
     }
 }

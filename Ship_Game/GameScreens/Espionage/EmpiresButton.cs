@@ -54,7 +54,9 @@ namespace Ship_Game.GameScreens
             var weightRect = new Rectangle(Rect.Left, Rect.Y + 250, 140, 40);
             if (Empire == Player)
             {
-                InfiltrationDefense = new FloatSlider(weightRect, GameText.EspioangeDefenseWeight, min: 0, max: 50, value: Player.EspionageDefenseWeight);
+                InfiltrationDefense = new FloatSlider(weightRect, GameText.EspioangeDefenseWeight, min: 0, 
+                    max: Empire.MaxEspionageDefenseWeight, value: Player.EspionageDefenseWeight);
+
                 InfiltrationDefense.Tip = GameText.EspioangeDefenseWeightTip;
                 InfiltrationDefense.OnChange = (s) =>
                 {

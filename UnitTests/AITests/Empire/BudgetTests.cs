@@ -36,12 +36,16 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void TestBudgetLoad()
         {
+            CreatePlanets(1);
             BudgetPriorities budget = new BudgetPriorities(Enemy);
             var budgetAreas = Enum.GetValues(typeof(BudgetPriorities.BudgetAreas));
             foreach (BudgetPriorities.BudgetAreas area in budgetAreas)
             {
-                bool found = budget.GetBudgetFor(area) > 0;
-                Assert.IsTrue(found, $"{area} not found in budget");
+                if (area != BudgetPriorities.BudgetAreas.Espionage) // espioinage is inserted to spy area
+                {
+                    bool found = budget.GetBudgetFor(area) > 0;
+                    Assert.IsTrue(found, $"{area} not found in budget");
+                }
             }
         }
 
@@ -50,7 +54,7 @@ namespace UnitTests.AITests.Empire
         {
             CreatePlanets(extraPlanets: 5);
             var budget = new BudgetPriorities(Enemy);
-            int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
+            int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length - 1;
 
             Assert.IsTrue(budget.Count() == budgetAreas);
 
