@@ -130,7 +130,7 @@ public sealed partial class DebugInfoScreen : GameScreen
             DebugModes.Input => new InputDebug(this),
             DebugModes.Pirates => new PiratesDebug(this),
             DebugModes.Remnants => new RemnantsDebug(this),
-            DebugModes.Agents => new AgentsDebug(this),
+            DebugModes.Agents => Universe.P.UseLegacyEspionage ? new AgentsDebug(this) : new EspionageDebug(this),
             DebugModes.Relationship => new RelationshipDebug(this),
             DebugModes.FleetMulti => new FleetMultipliersDebug(this),
             DebugModes.Trade => new TradeDebug(this),

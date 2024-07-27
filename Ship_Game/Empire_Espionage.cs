@@ -49,10 +49,11 @@ namespace Ship_Game
         public void SetAiEspionageBudgetMultiplier(float budget)
         {
             float totalPopBillion = TotalPopBillion;
-            if (totalPopBillion < 10)
+            int lala = CalcTotalEspionageWeight();
+            if (totalPopBillion < 10 || EspionageDefenseWeight == CalcTotalEspionageWeight())
                 EspionageBudgetMultiplier = 1;
-
-            EspionageBudgetMultiplier = (budget / totalPopBillion) + 1;
+            else
+                EspionageBudgetMultiplier = (budget / totalPopBillion) + 1;
         }
 
         public int CalcTotalEspionageWeight(bool grossWeight = false)

@@ -126,7 +126,7 @@ namespace Ship_Game.AI
             DefenseBudget   = ExponentialMovingAverage(DefenseBudget, DetermineDefenseBudget(moneyStrategy, defense, ThreatLevel));
             SSPBudget       = ExponentialMovingAverage(SSPBudget, DetermineSSPBudget(moneyStrategy, SSP));
             BuildCapacity   = ExponentialMovingAverage(BuildCapacity, DetermineBuildCapacity(moneyStrategy, ThreatLevel, build));
-            SpyBudget       = ExponentialMovingAverage(SpyBudget, DetermineSpyBudget(moneyStrategy, spy));
+            SpyBudget       = ExponentialMovingAverage(SpyBudget, OwnerEmpire.LegacyEspionageEnabled ? DetermineSpyBudget(moneyStrategy, spy) : spy);
             ColonyBudget    = ExponentialMovingAverage(ColonyBudget, DetermineColonyBudget(moneyStrategy, colony));
             TerraformBudget = ExponentialMovingAverage(TerraformBudget, DetermineColonyBudget(moneyStrategy, terraform));
 

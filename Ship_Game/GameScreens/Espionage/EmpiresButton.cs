@@ -51,6 +51,9 @@ namespace Ship_Game.GameScreens
 
         public override void PerformLayout()
         {
+            if (Player.LegacyEspionageEnabled)
+                return;
+
             var weightRect = new Rectangle(Rect.Left, Rect.Y + 250, 140, 40);
             if (Empire == Player)
             {
@@ -155,12 +158,15 @@ namespace Ship_Game.GameScreens
 
                 DrawRacePortrait();
                 if (UsingLegacyEspionage)
+                {
                     DrawLegacySpyDefense();
+                }
                 else
+                {
                     DrawInfiltration();
-
-                if (Empire.isPlayer || Player.IsKnown(Empire))
-                    DrawDefenseSlider();
+                    if (Empire.isPlayer || Player.IsKnown(Empire))
+                        DrawDefenseSlider();
+                }
             }
             else if (Player != Empire)
             {
