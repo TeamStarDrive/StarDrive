@@ -149,8 +149,8 @@ namespace Ship_Game.Gameplay
             {
                 if (!(haveRejectedDemandTech = value))
                     return;
+
                 Trust -= 20f;
-                TotalAnger += 20f; // TODO check this
                 AddAngerDiplomaticConflict(20);
             }
         }

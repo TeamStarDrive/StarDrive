@@ -262,7 +262,7 @@
 
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
             DiploWeightVsPlayer = (int)difficulty + 1;
-            Anger               = 1 + ((int)difficulty + 1) * 0.2f;
+            Anger               = ((int)difficulty + 1) * 0.2f;
 
             if (empire.isPlayer)
             {

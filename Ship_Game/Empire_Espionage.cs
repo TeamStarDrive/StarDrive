@@ -144,5 +144,7 @@ namespace Ship_Game
         {
             return LegacyEspionageEnabled ? GetSpyDefense() : EspionageDefenseRatio * factionMaxLevel;
         }
+
+        public bool SafeToActivateOpsOnAllies(Empire ally) => ally.isPlayer || ally.GetRelations(this).TimesSpiedOnAlly <= 1;
     }
 }

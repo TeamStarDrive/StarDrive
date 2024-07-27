@@ -40,7 +40,7 @@ namespace Ship_Game.AI
 
         void DetermineBudget()
         {
-            float espionageCreditRating = (Owner.AI.CreditRating - 0.6f).LowerBound(0); // will get 0-0.4
+            float espionageCreditRating = (Owner.AI.CreditRating - 0.6f).Clamped(0, 0.4f);
             float allowedBudget = Owner.AI.SpyBudget * espionageCreditRating / 0.4f;
             Owner.SetAiEspionageBudgetMultiplier(allowedBudget);
         }
