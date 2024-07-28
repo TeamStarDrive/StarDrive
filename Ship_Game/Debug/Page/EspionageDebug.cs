@@ -23,15 +23,6 @@ public class EspionageDebug : DebugPage
     public EspionageDebug(DebugInfoScreen parent) : base(parent, DebugModes.Agents)
     {
         EmpireSelect = base.Add(new DebugEmpireSelectionSubmenu(parent, parent.ModesTab.ClientArea.CutTop(10)));
-
-        //DebugStatus = EmpireSelect.Add(new UIList(new LocalPos(50, 100), new Vector2(100), ListLayoutStyle.ResizeList));
-        //DebugStatus.Add(new UILabel(_ => $"Us: {SelEmpire.Name}"));
-        //DebugStatus.Add(new UILabel(_ => $"OurClusters: {SelThreats.OurClusters.Length}"));
-        //DebugStatus.Add(new UILabel(_ => $"RivalClusters: {SelThreats.RivalClusters.Length}"));
-
-        // we shouldn't keep track of any empty clusters, because they should be auto-pruned
-        //DebugStatus.Add(new UILabel(_ => $"# of Empty OurClusters (BUG): {SelThreats.OurClusters.Count(c => c.Ships.Length == 0)}"));
-        //DebugStatus.Add(new UILabel(_ => $"# of Empty RivalClusters (check TTL): {SelThreats.RivalClusters.Count(c => c.Ships.Length == 0)}"));
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -39,7 +30,7 @@ public class EspionageDebug : DebugPage
         if (!Visible || SelEmpire.IsDefeated)
             return;
 
-        if (SelEmpire != SelectedEmpireDebug.Empire)
+        if (SelectedEmpireDebug == null || SelEmpire != SelectedEmpireDebug.Empire)
         {
             SelectedEmpireDebug = new SelectedEmpireEspionageDebug(SelEmpire);
             Empire[] empires = SelEmpire.Universe.ActiveMajorEmpires.Filter(e => e != SelEmpire);
@@ -47,7 +38,7 @@ public class EspionageDebug : DebugPage
             for (int i = 0; i < empires.Length; i++)
             {
                 Empire empire = empires[i];
-                EmpiresDebug.Add(new EmpireEspionageDebug(empire, SelEmpire.GetEspionage(empire)));
+                EmpiresDebug.Add(new EmpireEspionageDebug(SelEmpire,empire));
             }
         }
 
@@ -55,13 +46,13 @@ public class EspionageDebug : DebugPage
         Text.String($"Empire: {SelectedEmpireDebug.Empire.Name}");
         if (!SelEmpire.isPlayer)
         {
-            Text.String($"Personality: {SelEmpire.Personality}");
-            Text.String($"Espionage Budget: {SelectedEmpireDebug.SpyBudget.String(1)}");
+            Text.String($"Personality:           {SelEmpire.Personality}");
+            Text.String($"Espionage Budget:      {SelectedEmpireDebug.SpyBudget.String(1)}");
         }
-        Text.String($"Budget Multiplier: {SelectedEmpireDebug.BudgetMultiplier}");
-        Text.String($"Budget/Points PerTurn: {SelectedEmpireDebug.PointsPerTurn}");
-        Text.String($"Defense Weight: {SelectedEmpireDebug.DefenseWeight}");
-        Text.String($"Defense Ratio: {SelectedEmpireDebug.DefenseRatio}");
+        Text.String($"Budget Multiplier:           {SelectedEmpireDebug.BudgetMultiplier}");
+        Text.String($"Budget/Points PerTurn:  {SelectedEmpireDebug.PointsPerTurn}");
+        Text.String($"Defense Weight:             {SelectedEmpireDebug.DefenseWeight}");
+        Text.String($"Defense Ratio:                {SelectedEmpireDebug.DefenseRatio}");
 
         for (int i = 0; i < EmpiresDebug.Count; i++) 
         {
@@ -69,12 +60,15 @@ public class EspionageDebug : DebugPage
             if (!SelEmpire.IsKnown(empireDebug.Empire) || empireDebug.Empire.IsDefeated)
                 continue;
 
-            Text.SetCursor(75 + i * 300, 400, empireDebug.Empire.EmpireColor);
-            Text.String($"Infiltration Weight: {empireDebug.InfiltrationWeight}");
-            Text.String($"Level: {empireDebug.Level}");
-            Text.String($"Level Progress: {empireDebug.LevelProgress}/{empireDebug.NextLevelCost}");
-            Text.String($"EffectiveLevel: {empireDebug.EffectiveLevel}");
-            Text.String($"Progress Per Turn: {empireDebug.ProgressPerTurn}");
+            Text.SetCursor(75 + (i - (i > 4 ? 5 : 0)) * 250, 350 * (i > 4 ? 2 : 1), empireDebug.Empire.EmpireColor);
+            Text.String($"-----------------------------------------------");
+            Text.String($"Empire: {empireDebug.Empire.Name}");
+            Text.String($"Infiltration Weight:        {empireDebug.InfiltrationWeight}/{empireDebug.TotalWeight}");
+            Text.String($"Level:                            {empireDebug.Level}");
+            Text.String($"Level Progress:             {empireDebug.LevelProgress.String(2)}/{empireDebug.NextLevelCost}");
+            Text.String($"EffectiveLevel:              {empireDebug.EffectiveLevel}");
+            Text.String($"Progress Per Turn:        {empireDebug.ProgressPerTurn.String(2)}");
+            Text.String($"-----------------------------------------------");
         }
 
         if (--UpdateTimer > 0)
@@ -92,14 +86,14 @@ public class EspionageDebug : DebugPage
         base.Draw(batch, elapsed);
     }
 
-    protected struct SelectedEmpireEspionageDebug
+    protected class SelectedEmpireEspionageDebug
     {
         public readonly Empire Empire;
-        public float SpyBudget;
-        public float BudgetMultiplier;
-        public int DefenseWeight;
-        public float DefenseRatio;
-        public float PointsPerTurn;
+        public float SpyBudget { get; private set; }
+        public float BudgetMultiplier { get; private set; }
+        public int DefenseWeight { get; private set; }
+        public float DefenseRatio { get; private set; }
+        public float PointsPerTurn { get; private set; }
 
         public SelectedEmpireEspionageDebug(Empire empire)
         {
@@ -117,25 +111,28 @@ public class EspionageDebug : DebugPage
         }
     }
 
-    protected struct EmpireEspionageDebug
-    { 
+    protected class EmpireEspionageDebug
+    {
         public readonly Empire Empire;
-        public readonly Espionage Espionage;
-        public int InfiltrationWeight;
-        public float LevelProgress;
-        public byte Level;
-        public byte EffectiveLevel;
-        public int NumMoles;
-        public float TotalMoneyLeeched;
-        public float NextLevelCost;
-        public float ProgressPerTurn;
+        readonly Empire SelEmpire;
+        readonly Espionage Espionage;
+        public int InfiltrationWeight { get; private set; }
+        public float LevelProgress { get; private set; }
+        public byte Level { get; private set; }
+        public byte EffectiveLevel { get; private set; }
+        public int NumMoles { get; private set; }
+        public float TotalMoneyLeeched { get; private set; }
+        public float NextLevelCost { get; private set; }
+        public float ProgressPerTurn { get; private set; }
+        public float TotalWeight { get; private set; }
 
 
-        public EmpireEspionageDebug(Empire empire, Espionage espionage)
+        public EmpireEspionageDebug(Empire selEmpire, Empire empire)
         {
+            SelEmpire = selEmpire;
             Empire = empire;
-            Espionage = espionage;
-            Update(empire.CalcTotalEspionageWeight());
+            Espionage = selEmpire.GetEspionage(empire);
+            Update(selEmpire.CalcTotalEspionageWeight());
         }
 
         public void Update(float totalWeight)
@@ -147,7 +144,8 @@ public class EspionageDebug : DebugPage
             NumMoles           = Espionage.NumPlantedMoles;
             TotalMoneyLeeched  = Espionage.TotalMoneyLeeched;
             NextLevelCost      = Espionage.NextLevelCost;
-            ProgressPerTurn    = Espionage.GetProgressToIncrease(Empire.EspionagePointsPerTurn, totalWeight);
+            ProgressPerTurn    = Espionage.GetProgressToIncrease(SelEmpire.EspionagePointsPerTurn, totalWeight);
+            TotalWeight        = totalWeight;
         }
     }
 
