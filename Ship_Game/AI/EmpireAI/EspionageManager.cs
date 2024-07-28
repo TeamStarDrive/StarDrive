@@ -49,7 +49,7 @@ namespace Ship_Game.AI
         {
             int numWars = Owner.AtWarCount;
             int numAllies = Owner.Universe.ActiveMajorEmpires.Filter(e => e != Owner && e.IsAlliedWith(Owner)).Length;
-            int total = numWars = numAllies;
+            int total = numWars + numAllies;
             int weight = (total * 10).Clamped(10, Empire.MaxEspionageDefenseWeight);
             Owner.SetEspionageDefenseWeight(weight);    
         }
@@ -74,12 +74,14 @@ namespace Ship_Game.AI
             {
                 Relationship relations = Owner.GetRelations(empire);
                 Espionage espionage = relations.Espionage;
-                // implement setupweights here
-                if (relations.Known && espionage.Level > 0)
+                if (relations.Known)
                 {
                     SetupInfiltrationWeights(relations, espionage, empire);
-                    SetEspionageLimitLevel(relations, espionage);
-                    EnableDisableEspionageOperations(relations, espionage, empire);
+                    if (espionage.Level > 0)
+                    {
+                        SetEspionageLimitLevel(relations, espionage);
+                        EnableDisableEspionageOperations(relations, espionage, empire);
+                    }
                 }
             }
         }
@@ -100,10 +102,18 @@ namespace Ship_Game.AI
                     limitLevel = Espionage.MaxLevel;
                     break;
                 case PersonalityType.Xenophobic:
+                    if (espionage.Level < Espionage.MaxLevel)
+                        break;
+
+                    limitLevel = (byte)(relations.Treaty_Alliance && !relations.PreparingForWar ? 3 : Espionage.MaxLevel);
+                    break;
                 case PersonalityType.Honorable:
                     limitLevel = (byte)(relations.Treaty_Alliance && !relations.PreparingForWar ? 3 : Espionage.MaxLevel);
                     break;
                 case PersonalityType.Pacifist:
+                    if (espionage.Level < Espionage.MaxLevel-1)
+                        break;
+
                     limitLevel = (byte)(!relations.AtWar && !relations.PreparingForWar ? 3 : Espionage.MaxLevel);
                     break;
             }
@@ -136,13 +146,12 @@ namespace Ship_Game.AI
 
         void UpdateOperationsByPersonality(Map<InfiltrationOpsType, bool> operations, Relationship relations, Espionage espionage, Empire them)
         {
-            bool moleCoverageReached = !espionage.MoleCoverageReached;
             bool theyHaveInfiltratedUs = espionage.WeHaveInfoOnTheirInfiltration && them.GetEspionage(Owner).EffectiveLevel > 0;
             Array<InfiltrationOpsType> opsWanted = new();
             if (theyHaveInfiltratedUs)
                 opsWanted.Add(InfiltrationOpsType.CounterEspionage);
 
-            if (!moleCoverageReached)
+            if (espionage.MoleCoverageReached)
                 opsWanted.Add(InfiltrationOpsType.PlantMole);
 
             switch (Owner.Personality)
@@ -177,9 +186,7 @@ namespace Ship_Game.AI
                     if (!relations.Treaty_Alliance && relations.TotalAnger > 50)
                     {
                         opsWanted.Add(InfiltrationOpsType.Rebellion);
-                        opsWanted.Add(espionage.CanActivateOperation(InfiltrationOpsType.DisruptProjection)
-                                                ? InfiltrationOpsType.DisruptProjection
-                                                : InfiltrationOpsType.Uprise);
+                        opsWanted.Add(InfiltrationOpsType.DisruptProjection);
                     }
 
                     break;
@@ -196,9 +203,6 @@ namespace Ship_Game.AI
                     {
                         opsWanted.Add(InfiltrationOpsType.Rebellion);
                         opsWanted.Add(InfiltrationOpsType.SlowResearch);
-                        opsWanted.Add(espionage.CanActivateOperation(InfiltrationOpsType.DisruptProjection)
-                                                ? InfiltrationOpsType.DisruptProjection
-                                                : InfiltrationOpsType.Uprise);
                     }
 
                     break;
@@ -220,7 +224,6 @@ namespace Ship_Game.AI
                 case PersonalityType.Pacifist:
                     if (relations.AtWar || relations.PreparingForWar)
                     {
-                        opsWanted.Add(InfiltrationOpsType.Rebellion);
                         opsWanted.Add(InfiltrationOpsType.Uprise);
                         opsWanted.Add(InfiltrationOpsType.SlowResearch);
                         break;

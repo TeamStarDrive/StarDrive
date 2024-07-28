@@ -96,7 +96,7 @@ namespace Ship_Game
             if (baseResult >= 99) return InfiltrationOpsResult.Phenomenal;
             if (baseResult <= 2)  return InfiltrationOpsResult.Disaster;
 
-            int defense = (int)(them.EspionageDefenseRatio * 20);
+            int defense = (int)(them.EspionageDefenseRatio * 20) + (int)them.data.DefensiveSpyBonus;
             int modifiedResult = (int)(baseResult - defense + owner.data.OffensiveSpyBonus + owner.data.SpyModifier);
 
             if (modifiedResult >= targetNumber*2) return InfiltrationOpsResult.GreatSuccess;

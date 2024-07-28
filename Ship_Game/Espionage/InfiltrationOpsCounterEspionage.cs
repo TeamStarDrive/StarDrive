@@ -11,10 +11,10 @@ namespace Ship_Game
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
-        public const float PercentOfLevelCost = 0.2f;
-        const int SuccessTargetNumber = 40; // need to get 40 and above in a roll of d100)
+        public const float PercentOfLevelCost = 0.5f;
+        const int SuccessTargetNumber = 25; // need to get 25 and above in a roll of d100)
         const float BaseRelationDamage = 10;
-        public const int BaseRampUpTurns = 20;
+        public const int BaseRampUpTurns = 30;
 
         [StarDataConstructor]
         public InfiltrationOpsCounterEspionage() { }

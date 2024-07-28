@@ -10,10 +10,10 @@ namespace Ship_Game
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
-        public const float PercentOfLevelCost = 0.2f;
+        public const float PercentOfLevelCost = 0.5f;
         const int SuccessTargetNumber  = 40; // need to get 40 and above in a roll of d100)
         const float BaseRelationDamage = 10;
-        public const int BaseRampUpTurns = 30;
+        public const int BaseRampUpTurns = 40;
 
         [StarDataConstructor]
         public InfiltrationOpsUprise() { }
@@ -33,17 +33,17 @@ namespace Ship_Game
             var potentials      = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
             Planet targetPlanet = Them.Random.Item(potentials);
             bool addRebellion   = false;
-            int numRebels       = 5;
+            int numRebels       = 3;
 
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
                     aftermath.GoodResult = addRebellion = true;
-                    numRebels += 7;
+                    numRebels += 4;
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
                     aftermath.GoodResult = addRebellion = true;
-                    numRebels += 3;
+                    numRebels += 2;
                     break;
                 case InfiltrationOpsResult.Success:
                     aftermath.GoodResult = addRebellion = true;

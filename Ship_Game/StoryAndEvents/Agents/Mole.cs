@@ -43,6 +43,9 @@ namespace Ship_Game
             targetPlanet = planets.Length == 0 ? target.GetPlanets().FindMax(p => p.PopulationBillion)
                                                 : target.Random.Item(planets);
 
+            if (targetPlanet == null)
+                return null;
+
             Mole mole = new()
             {
                 PlanetId = targetPlanet.Id, Sticky = true,  

@@ -148,7 +148,8 @@ namespace Ship_Game
 
         public bool IsCounterEspionageActive => IsOperationActive(InfiltrationOpsType.CounterEspionage);
 
-        public bool MoleCoverageReached => NumPlantedMoles / Them.GetPlanets().Count.LowerBound(1) >= Owner.PersonalityModifiers.WantedMoleCovreage;
+        float MoleCoverage => (float)(NumPlantedMoles) / Them.GetPlanets().Count.LowerBound(1);
+        public bool MoleCoverageReached => MoleCoverage >= Owner.PersonalityModifiers.WantedMoleCovreage;
 
         void RemoveOperations()
         {

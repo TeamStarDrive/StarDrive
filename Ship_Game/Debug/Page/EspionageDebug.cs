@@ -64,13 +64,14 @@ public class EspionageDebug : DebugPage
             Text.SetCursor(75 + (i - (i > 4 ? 5 : 0)) * 300, 350 * (i > 4 ? 2 : 1), empireDebug.Empire.EmpireColor);
             Text.String($"-----------------------------------------------");
             Text.String($"Empire: {empireDebug.Empire.Name}");
+            Text.String($"{empireDebug.Empire.Personality}");
             Text.String($"Infiltration Weight:        {empireDebug.InfiltrationWeight}/{empireDebug.TotalWeight}");
             Text.String($"Level:                            {empireDebug.Level}");
             Text.String($"LimitLevel:                    {empireDebug.LimitLevel}");
             Text.String($"EffectiveLevel:              {empireDebug.EffectiveLevel}");
             Text.String($"Level Progress:             {empireDebug.LevelProgress.String(2)}/{empireDebug.NextLevelCost}");
-
             Text.String($"Progress Per Turn:        {empireDebug.ProgressPerTurn.String(2)}");
+            Text.String($"Number of Moles:          {empireDebug.NumMoles}");
             Text.NewLine();
             foreach (OpsTurns operation in empireDebug.Operations)
                 Text.String($"({operation.Level}) {operation.Type}: {operation.TurnsLeft}");
