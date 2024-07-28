@@ -194,7 +194,7 @@ namespace Ship_Game
         public float NetIncome                   => GrossIncome - AllSpending;
         public float TotalBuildingMaintenance    =>  GrossPlanetIncome - (NetPlanetIncomes + TroopCostOnPlanets);
         public float BuildingAndShipMaint        => TotalBuildingMaintenance + TotalShipMaintenance;
-        public float AllSpending                 => BuildingAndShipMaint + MoneySpendOnProductionThisTurn + TroopCostOnPlanets;
+        public float AllSpending                 => BuildingAndShipMaint + MoneySpendOnProductionThisTurn + TroopCostOnPlanets + EspionageCostLastTurn;
         public bool IsExpansionists              => data.EconomicPersonality?.Name == "Expansionists";
         public bool IsIndustrialists             => data.EconomicPersonality?.Name == "Industrialists";
         public bool IsGeneralists                => data.EconomicPersonality?.Name == "Generalists";
@@ -1326,8 +1326,8 @@ namespace Ship_Game
             UpdatePlanetStorageStats();
             float incomeFromExoticBonus = GetIncomeFromExoticBonus();
             float remainingMoney = MoneyAfterLeech(NetIncome + incomeFromExoticBonus);
-            float espionageCost = LegacyEspionageEnabled ? 0 : GetEspionageCost();
-            AddMoney(remainingMoney - espionageCost);
+            EspionageCostLastTurn = LegacyEspionageEnabled ? 0 : GetEspionageCost();
+            AddMoney(remainingMoney - EspionageCostLastTurn);
         }
 
         float GetIncomeFromExoticBonus()

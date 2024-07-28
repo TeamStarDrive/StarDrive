@@ -13,6 +13,9 @@ namespace Ship_Game
         const float BaseRelationDamage = 15;
         public const int BaseRampUpTurns = 40;
 
+        [StarDataConstructor]
+        public InfiltrationOpsDisruptResearch() { }
+
         public InfiltrationOpsDisruptResearch(Empire owner, Empire them, int levelCost) :
             base((int)(levelCost * PercentOfLevelCost), InfiltrationOpsType.SlowResearch, BaseRampUpTurns, owner)
         {

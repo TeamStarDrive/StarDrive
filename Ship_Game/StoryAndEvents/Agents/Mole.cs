@@ -22,10 +22,10 @@ namespace Ship_Game
             if (potentials.Length == 0)
                 potentials = target.GetPlanets().ToArray();
 
-            Planet targetplanet = target.Random.Item(potentials);
+            targetPlanet = target.Random.Item(potentials);
             Mole mole = new()
             {
-                PlanetId = targetplanet.Id,
+                PlanetId = targetPlanet.Id,
             };
 
             owner.data.MoleList.Add(mole);

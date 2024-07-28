@@ -6,6 +6,7 @@ using Ship_Game.UI;
 using Ship_Game.Ships.Components;
 using System;
 using SDUtils;
+using System.Windows.Forms.VisualStyles;
 
 namespace Ship_Game.Debug.Page;
 
@@ -60,14 +61,20 @@ public class EspionageDebug : DebugPage
             if (!SelEmpire.IsKnown(empireDebug.Empire) || empireDebug.Empire.IsDefeated)
                 continue;
 
-            Text.SetCursor(75 + (i - (i > 4 ? 5 : 0)) * 250, 350 * (i > 4 ? 2 : 1), empireDebug.Empire.EmpireColor);
+            Text.SetCursor(75 + (i - (i > 4 ? 5 : 0)) * 300, 350 * (i > 4 ? 2 : 1), empireDebug.Empire.EmpireColor);
             Text.String($"-----------------------------------------------");
             Text.String($"Empire: {empireDebug.Empire.Name}");
             Text.String($"Infiltration Weight:        {empireDebug.InfiltrationWeight}/{empireDebug.TotalWeight}");
             Text.String($"Level:                            {empireDebug.Level}");
-            Text.String($"Level Progress:             {empireDebug.LevelProgress.String(2)}/{empireDebug.NextLevelCost}");
+            Text.String($"LimitLevel:                    {empireDebug.LimitLevel}");
             Text.String($"EffectiveLevel:              {empireDebug.EffectiveLevel}");
+            Text.String($"Level Progress:             {empireDebug.LevelProgress.String(2)}/{empireDebug.NextLevelCost}");
+
             Text.String($"Progress Per Turn:        {empireDebug.ProgressPerTurn.String(2)}");
+            Text.NewLine();
+            foreach (OpsTurns operation in empireDebug.Operations)
+                Text.String($"({operation.Level}) {operation.Type}: {operation.TurnsLeft}");
+            
             Text.String($"-----------------------------------------------");
         }
 
@@ -120,11 +127,15 @@ public class EspionageDebug : DebugPage
         public float LevelProgress { get; private set; }
         public byte Level { get; private set; }
         public byte EffectiveLevel { get; private set; }
+
+        public byte LimitLevel { get; private set; }
         public int NumMoles { get; private set; }
         public float TotalMoneyLeeched { get; private set; }
         public float NextLevelCost { get; private set; }
         public float ProgressPerTurn { get; private set; }
         public float TotalWeight { get; private set; }
+
+        public Array<OpsTurns> Operations { get; private set; } = new();
 
 
         public EmpireEspionageDebug(Empire selEmpire, Empire empire)
@@ -141,11 +152,29 @@ public class EspionageDebug : DebugPage
             LevelProgress      = Espionage.LevelProgress;
             Level              = Espionage.Level;
             EffectiveLevel     = Espionage.EffectiveLevel;
+            LimitLevel         = Espionage.LimitLevel;
             NumMoles           = Espionage.NumPlantedMoles;
             TotalMoneyLeeched  = Espionage.TotalMoneyLeeched;
             NextLevelCost      = Espionage.NextLevelCost;
             ProgressPerTurn    = Espionage.GetProgressToIncrease(SelEmpire.EspionagePointsPerTurn, totalWeight);
             TotalWeight        = totalWeight;
+
+            Operations.Clear();
+            foreach (InfiltrationOpsType type in (InfiltrationOpsType[])Enum.GetValues(typeof(InfiltrationOpsType)))
+                Operations.Add(new OpsTurns(type, Espionage));
+        }
+    }
+    protected struct OpsTurns
+    {
+        public readonly InfiltrationOpsType Type;
+        public readonly string TurnsLeft;
+        public readonly byte Level;
+
+        public OpsTurns(InfiltrationOpsType type, Espionage espionage)
+            {
+            Type = type;
+            TurnsLeft = espionage.IsOperationActive(type) ? espionage.RemainingTurnsForOps(type) : "Inactive";
+            Level = Espionage.GetOpsLevel(type);
         }
     }
 

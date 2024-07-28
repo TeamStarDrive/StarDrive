@@ -84,8 +84,8 @@ namespace Ship_Game.GameScreens
             base.Draw(batch, elapsed);
             if (!SelectedEmpire.isPlayer)
             {
-                batch.DrawLine(new Vector2(Level1.X, Level1.Y - 20), new Vector2(Level1.X + Level1.Width * 5, Level1.Y - 20), SeperatorColor, 2);
-                batch.DrawLine(new Vector2(Level1.X, Level1.Y - 50), new Vector2(Level1.X + Level1.Width * 5, Level1.Y - 50), SeperatorColor, 2);
+                batch.DrawLine(new Vector2(Level1.X, Level1.Y - 20), new Vector2(Level1.X + 80 + Level1.Width * 5, Level1.Y - 20), SeperatorColor, 2);
+                batch.DrawLine(new Vector2(Level1.X, Level1.Y - 50), new Vector2(Level1.X + 80 + Level1.Width * 5, Level1.Y - 50), SeperatorColor, 2);
             }
 
             batch.SafeEnd();

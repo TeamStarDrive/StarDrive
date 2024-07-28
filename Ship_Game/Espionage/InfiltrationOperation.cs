@@ -16,6 +16,9 @@ namespace Ship_Game
         [StarData] readonly int RampUpTurns;
         [StarData] int RampUpTimer;
 
+        [StarDataConstructor]
+        public InfiltrationOperation() {}
+
         public InfiltrationOperation(int cost, InfiltrationOpsType type, int baseRampUpTurns, Empire owner)
         {
             Cost = cost;

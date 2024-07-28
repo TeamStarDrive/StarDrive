@@ -15,6 +15,7 @@ namespace Ship_Game
         [StarData] public int EspionageDefenseWeight { get; private set; } = 50;
         [StarData] public float EspionageDefenseRatio { get; private set; } = 1;
         [StarData] public float TotalMoneyLeechedLastTurn { get; private set; }
+        [StarData] public float EspionageCostLastTurn { get; private set; }
         [StarData] public float EspionageBudgetMultiplier { get; private set; } = 1; // 1-5
         public const int MaxEspionageDefenseWeight = 50;
 

@@ -16,6 +16,9 @@ namespace Ship_Game
         const float BaseRelationDamage = 20;
         public const int BaseRampUpTurns = 40;
 
+        [StarDataConstructor]
+        public InfiltrationOpsRebellion() { }
+
         public InfiltrationOpsRebellion(Empire owner, Empire them, int levelCost) :
             base((int)(levelCost * PercentOfLevelCost), InfiltrationOpsType.Rebellion, BaseRampUpTurns, owner)
         {
