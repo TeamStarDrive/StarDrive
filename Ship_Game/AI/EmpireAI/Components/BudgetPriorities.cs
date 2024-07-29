@@ -60,15 +60,15 @@ namespace Ship_Game.AI.Components
                     foreach (var area in budget.Budgets)
                     {
                         if (area.Key == BudgetAreas.Spy && empire.LegacyEspionageEnabled)
-                            budgets[area.Key] = empire.Universe.P.Difficulty == GameDifficulty.Normal ? 0 : area.Value;
+                            budgets[area.Key] = area.Value;
                         else if (area.Key == BudgetAreas.Espionage && empire.NewEspionageEnabled)
-                            budgets[BudgetAreas.Spy] = area.Value;
+                            budgets[BudgetAreas.Spy] = empire.Universe.P.Difficulty == GameDifficulty.Normal ? 0 : area.Value;
                         else
                             budgets[area.Key] = area.Value;
                     }
 
-                    if (!budgets.TryGetValue(BudgetAreas.Spy, out _))
-                        budgets[BudgetAreas.Spy] = 0;  // support mods with no Espionage in their yaml
+                    if (!budgets.TryGetValue(BudgetAreas.Espionage, out _) && empire.NewEspionageEnabled)
+                        budgets[BudgetAreas.Spy] = 1;  // support mods with no Espionage in their yaml
                 }
             }
 
