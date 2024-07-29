@@ -11,7 +11,7 @@ namespace Ship_Game
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
-        public const float PercentOfLevelCost = 0.5f;
+        public const float PercentOfLevelCost = 0.25f;
         const int SuccessTargetNumber = 25; // need to get 25 and above in a roll of d100)
         const float BaseRelationDamage = 10;
         public const int BaseRampUpTurns = 30;

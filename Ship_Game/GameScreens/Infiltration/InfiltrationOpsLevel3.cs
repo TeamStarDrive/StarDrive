@@ -105,6 +105,8 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage.AddOperation(InfiltrationOpsType.CounterEspionage);
             else
                 Espionage.RemoveOperation(InfiltrationOpsType.CounterEspionage);
+
+            Player.UpdateEspionageDefenseRatio();
         }
     }
 }

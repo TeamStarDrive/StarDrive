@@ -245,12 +245,12 @@ namespace Ship_Game
         public int LevelCost(byte level)
         {
             // default costs
-            // 1 - 50
-            // 2 - 100
-            // 3 - 200
-            // 4 - 400
-            // 5 - 800
-            return level == 0 ? 0 : (int)(50 * Math.Pow(2, level-1) * Owner.Universe.SettingsResearchModifier * Owner.Universe.P.Pace);
+            // 1 - 75
+            // 2 - 150
+            // 3 - 300
+            // 4 - 600
+            // 5 - 1200
+            return level == 0 ? 0 : (int)(75 * Math.Pow(2, level-1) * Owner.Universe.SettingsResearchModifier * Owner.Universe.P.Pace);
         }
 
         public void AddLeechedMoney(float money)

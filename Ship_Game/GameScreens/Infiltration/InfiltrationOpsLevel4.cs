@@ -104,6 +104,8 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage.AddOperation(InfiltrationOpsType.SlowResearch);
             else
                 Espionage.RemoveOperation(InfiltrationOpsType.SlowResearch);
+
+            Player.UpdateEspionageDefenseRatio();
         }
     }
 }

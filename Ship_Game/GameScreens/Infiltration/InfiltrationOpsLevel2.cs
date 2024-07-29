@@ -85,6 +85,8 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage.AddOperation(InfiltrationOpsType.PlantMole);
             else
                 Espionage.RemoveOperation(InfiltrationOpsType.PlantMole);
+
+            Player.UpdateEspionageDefenseRatio();
         }
     }
 }

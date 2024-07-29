@@ -110,6 +110,8 @@ namespace Ship_Game.GameScreens.EspionageNew
                 Espionage.AddOperation(InfiltrationOpsType.DisruptProjection);
             else
                 Espionage.RemoveOperation(InfiltrationOpsType.DisruptProjection);
+
+            Player.UpdateEspionageDefenseRatio();
         }
     }
 }
