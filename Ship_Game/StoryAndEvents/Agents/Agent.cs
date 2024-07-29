@@ -49,7 +49,12 @@ namespace Ship_Game
 
             if (mission == AgentMission.Undercover)
             {
-                owner.data.MoleList.RemoveFirst(m => m.PlanetId == TargetPlanetId);
+                Mole mole = owner.data.MoleList.Find(m => m.PlanetId == TargetPlanetId);
+                if (mole != null)
+                {
+                    Planet targetPlanet = owner.Universe.GetPlanet(TargetPlanetId);
+                    owner.RemoveMole(mole, targetPlanet.Owner);
+                }
             }
 
             owner.AddMoney(-cost);
@@ -75,9 +80,9 @@ namespace Ship_Game
         {
             float diceRoll = us.Random.RollDie(100) + Level*us.Random.RollDie(3);
 
-            diceRoll += us.data.OffensiveSpyBonus;  // +10 with Duplicitous 
+            diceRoll += us.data.OffensiveSpyBonus; // +5 with Xeno Intelligence 
             if (Mission != AgentMission.Training)
-                diceRoll += us.data.SpyModifier; // +5 with Xeno Intelligence 
+                diceRoll += us.data.SpyModifier; // +10 with Duplicitous 
 
             if (victim != null && victim != us)
                 diceRoll -= victim.GetSpyDefense();
@@ -194,9 +199,15 @@ namespace Ship_Game
                     aftermath.Message = GameText.SuccessfullyInfiltratedAColony;
                     aftermath.GoodResult = true;
                     Infiltrations++;
-                    InfiltratePlanet(us, victim, out string planetName);
-                    AssignMission(AgentMission.Undercover, us, victim.data.Traits.Name);
-                    aftermath.CustomMessage = $"{Name}, {Localizer.Token(GameText.SuccessfullyInfiltratedAColony)} {planetName} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
+                    if (InfiltratePlanet(us, victim, out string planetName))
+                    {
+                        AssignMission(AgentMission.Undercover, us, victim.data.Traits.Name);
+                        aftermath.CustomMessage = $"{Name}, {Localizer.Token(GameText.SuccessfullyInfiltratedAColony)} {planetName} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
+                    }
+                    else
+                    {
+                        aftermath.Message = GameText.WasUnableToInfiltrateA2;
+                    }
                     break;
                 case SpyMissionStatus.Failed:
                     aftermath.Message= GameText.WasUnableToInfiltrateA2;
@@ -246,7 +257,7 @@ namespace Ship_Game
                     aftermath.GoodResult = true;
                     Sabotages++;
                     crippledTurns               = 5 + Level*5;
-                    targetPlanet.CrippledTurns += crippledTurns;
+                    targetPlanet.AddCrippledTurns(crippledTurns);
                     aftermath.MessageToVictim   = $"{Localizer.Token(GameText.AnEnemyAgentHasSabotaged)}  {targetPlanet.Name}";
                     aftermath.CustomMessage     = $"{Name} {Localizer.Token(GameText.SabotagedProductionFor)} {crippledTurns} {Localizer.Token(GameText.Turns3)} " +
                                                   $"{targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
@@ -255,7 +266,7 @@ namespace Ship_Game
                     aftermath.GoodResult = true;
                     Sabotages++;
                     crippledTurns               = 5 + Level*3;
-                    targetPlanet.CrippledTurns += crippledTurns;
+                    targetPlanet.AddCrippledTurns(crippledTurns);
                     aftermath.MessageToVictim   = $"{Localizer.Token(GameText.AnEnemyAgentHasSabotaged)}  {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.CustomMessage     = $"{Name} {Localizer.Token(GameText.SabotagedProductionFor)} {crippledTurns} {Localizer.Token(GameText.Turns3)} " +
                                                   $"{targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
@@ -360,14 +371,14 @@ namespace Ship_Game
                 case SpyMissionStatus.GreatSuccess:
                     aftermath.GoodResult = true;
                     Rebellions++;
-                    AddRebellion(victim, targetPlanet, (int)(Level * 1.5));
+                    victim.AddRebellion(targetPlanet, (int)(Level * 1.5));
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentHasIncited)} {targetPlanet.Name}";
                     aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.IncitedASeriousRebellionOn)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                     break;
                 case SpyMissionStatus.Success:
                     aftermath.GoodResult = true;
                     Rebellions++;
-                    AddRebellion(victim, targetPlanet, Level);
+                    victim.AddRebellion(targetPlanet, Level);
                     aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentHasIncited)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasSentBy)} {us.data.Traits.Name}";
                     aftermath.CustomMessage   = $"{Name} {Localizer.Token(GameText.IncitedASeriousRebellionOn)} {targetPlanet.Name} {Localizer.Token(GameText.NhoweverTheyKnowWeAre)}";
                     aftermath.RelationDamage  = 25;
@@ -511,10 +522,14 @@ namespace Ship_Game
             AssignMission(AgentMission.Defending, us, "");
         }
 
-        void InfiltratePlanet(Empire us, Empire victim, out string planetName)
+        bool InfiltratePlanet(Empire us, Empire victim, out string planetName)
         {
-            Mole m = Mole.PlantMole(us, victim, out planetName);
-            TargetPlanetId = m.PlanetId;
+            Mole m = Mole.PlantMole(us, victim, out Planet planet);
+            if (m != null)
+                TargetPlanetId = m.PlanetId;
+
+            planetName = planet?.Name ?? "";
+            return m != null;
         }
 
         void AssassinateEnemyAgent(Empire us, Empire victim, out string targetName)
@@ -524,38 +539,9 @@ namespace Ship_Game
             victim.data.AgentList.Remove(targetAgent);
             if (targetAgent.Mission == AgentMission.Undercover)
             {
-                us.data.MoleList.RemoveFirst(m => m.PlanetId == targetAgent.TargetPlanetId);
-            }
-        }
-
-        void AddRebellion(Empire victim, Planet targetPlanet, int numTroops)
-        {
-            Empire rebels = null;
-            if (!victim.data.RebellionLaunched)
-                rebels = victim.Universe.CreateRebelsFromEmpireData(victim.data, victim);
-
-            if (rebels == null) 
-                rebels = victim.Universe.GetEmpireByName(victim.data.RebelName);
-
-            for (int i = 0; i < numTroops; i++)
-            {
-                foreach (string troopType in ResourceManager.TroopTypes)
-                {
-                    if (!victim.WeCanBuildTroop(troopType))
-                        continue;
-                    if (!ResourceManager.TryCreateTroop(troopType, rebels, out Troop t))
-                        continue;
-                    t.Name        = rebels.data.TroopName.Text;
-                    t.Description = rebels.data.TroopDescription.Text;
-                    if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 &&
-                        !targetPlanet.BumpOutTroop(victim.Universe.Corsairs) &&
-                        !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
-                    {
-                        t.Launch(targetPlanet); // launch the rebels
-                    }
-
-                    break;
-                }
+                Mole mole = victim.data.MoleList.Find(m => m.PlanetId == targetAgent.TargetPlanetId);
+                if (mole != null)
+                    victim.RemoveMole(mole, us);
             }
         }
 

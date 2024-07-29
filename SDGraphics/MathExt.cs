@@ -79,6 +79,10 @@ public static class MathExt
     {
         return Min(max, value);
     }
+    public static byte UpperBound(this byte value, byte max)
+    {
+        return Min(max, value);
+    }
 
 
     // This is a common pattern in the codebase, there is some amount

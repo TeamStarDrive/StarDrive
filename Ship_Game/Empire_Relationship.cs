@@ -307,12 +307,15 @@ namespace Ship_Game
 
             if (us.GetRelationsOrNull(them) == null)
             {
-                us.AddNewRelationToThem(them, rel: new(them));
+                us.AddNewRelationToThem(them, rel: new(us, them));
             }
             if (them.GetRelationsOrNull(us) == null)
             {
-                them.AddNewRelationToThem(us, rel: new(us));
+                them.AddNewRelationToThem(us, rel: new(them, us));
             }
+
+            if (us.NewEspionageEnabled)
+                us.SetCanBeScannedByPlayer(false);
         }
 
         public void SetRelationsAsKnown(Relationship rel, Empire them)
@@ -391,9 +394,8 @@ namespace Ship_Game
 
             string dialog    = treatySigned ? "CUTTING_DEALS_WITH_ENEMY" : "TRIED_CUTTING_DEALS_WITH_ENEMY";
             float multiplier = treatySigned ? 1 : 0.5f;
-            float spyDefense = GetSpyDefense();
             Relationship rel = GetRelations(them);
-            if (treatySigned || Random.RollDice(spyDefense * 5))
+            if (treatySigned || Random.RollDice(GetDetectionChance()))
             {
                 rel.turnsSinceLastContact = 0;
                 them.AddToDiplomacyContactView(this, dialog);
@@ -456,6 +458,21 @@ namespace Ship_Game
             {
                 AI.AcceptOffer(new Offer { PeaceTreaty = true }, new Offer { PeaceTreaty = true },
                     this, empireTheySignedWith, Offer.Attitude.Respectful);
+            }
+
+            float GetDetectionChance()
+            {
+                if (LegacyEspionageEnabled)
+                    return GetSpyDefense() * 5;
+
+                Espionage espionageToThem = GetEspionage(them);
+                Espionage espionageTo3rdParty = GetEspionage(empireTheySignedWith);
+                Espionage theirEspionagetoUs = them.GetEspionage(this);
+                Espionage otherEmpireEspionagetoUs = empireTheySignedWith.GetEspionage(this);
+                float chance = Math.Max(espionageToThem.EffectiveLevel, espionageTo3rdParty.EffectiveLevel) * 20;
+                if (theirEspionagetoUs.IsCounterEspionageActive)       chance *= 0.75f;
+                if (otherEmpireEspionagetoUs.IsCounterEspionageActive) chance *= 0.75f;
+                return chance;
             }
         }
 

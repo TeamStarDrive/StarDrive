@@ -30,6 +30,19 @@
   <ThrustColor1R>34</ThrustColor1R>
   <ThrustColor1G>139</ThrustColor1G>
   <ThrustColor1B>34</ThrustColor1B>      
+  
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+    <string>Ruthless</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Honorable</string>	
+  </PersonalityTraitsWeights>    
   <Traits>
     <Name>Cordrazine Collective</Name>
     <Singular>Cordrazine</Singular>

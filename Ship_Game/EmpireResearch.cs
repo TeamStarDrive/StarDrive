@@ -28,6 +28,7 @@ namespace Ship_Game
         // NET research this turn
         public float NetResearch { get; private set; }
         public float MaxResearchPotential { get; private set; }
+
         public float ResearchStationResearchPerturn { get; private set; }
         float LeftoverResearch;
 
@@ -82,30 +83,56 @@ namespace Ship_Game
             Initialize();
             NetResearch = ResearchStationResearchPerturn;
             MaxResearchPotential = ResearchStationResearchPerturn;
-            foreach (Planet planet in Empire.GetPlanets())
+            IReadOnlyList<Planet> planets = Empire.GetPlanets();
+            for (int i = 0; i < planets.Count; i++)
             {
+                Planet planet = planets[i];
                 NetResearch          += planet.Res.NetIncome;
                 MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
 
-            float ResearchFromAlliances = 0;
+            UpdateNetResearchDisruption();
+            float researchFromAlliances = GetResearchFromAllies();
+            NetResearch          += researchFromAlliances;
+            MaxResearchPotential += researchFromAlliances;
+        }
+
+        float GetResearchFromAllies()
+        {
+            float researchFromAlliances = 0;
             foreach (Empire ally in Empire.Universe.GetAllies(Empire))
             {
                 if (Empire.isPlayer && ally.DifficultyModifiers.ResearchMod.NotZero())
                 {
                     float grossResearch = ally.Research.NetResearch / ally.DifficultyModifiers.ResearchMod;
                     float netMultiplier = ally.data.Traits.ResearchMod / ally.DifficultyModifiers.ResearchMod;
-                    ResearchFromAlliances += grossResearch * netMultiplier;
+                    researchFromAlliances += grossResearch * netMultiplier;
                 }
                 else
                 {
-                    ResearchFromAlliances += ally.Research.NetResearch;
+                    researchFromAlliances += ally.Research.NetResearch;
                 }
             }
 
-            ResearchFromAlliances *= GlobalStats.Defaults.ResearchBenefitFromAlliance + Empire.data.Traits.ResearchBenefitFromAlliance;
-            NetResearch += ResearchFromAlliances;
-            MaxResearchPotential += ResearchFromAlliances;
+            researchFromAlliances *= GlobalStats.Defaults.ResearchBenefitFromAlliance + Empire.data.Traits.ResearchBenefitFromAlliance;
+            return researchFromAlliances;
+        }
+
+
+
+        void UpdateNetResearchDisruption()
+        {
+            if (Empire.LegacyEspionageEnabled)
+                return;
+
+            Empire[] empires = Empire.Universe.ActiveMajorEmpires.Filter(e => e != Empire);
+            for (int i = 0; i < empires.Length; i++)
+            {
+                Empire empire = empires[i];
+                Espionage espionage = empire.GetEspionage(Empire);
+                if (espionage.CanSlowResearch && empire.Random.RollDice(espionage.SlowResearchChance))
+                    NetResearch *= 1 - Espionage.SlowResearchBy;
+            }
         }
 
         public void AddResearchStationResearchPerTurn(float value)
@@ -133,6 +160,36 @@ namespace Ship_Game
                 Empire.UnlockTech(tech, TechUnlockType.Normal, null);
                 if (Empire.isPlayer)
                     Empire.Universe?.Notifications.AddResearchComplete(tech.UID, Empire);
+
+                LeechTechByEspionage(tech.UID);
+            }
+        }
+
+        void LeechTechByEspionage(string techName)
+        {
+            if (Empire.LegacyEspionageEnabled)
+                return;
+
+            foreach (Empire leecher in Empire.Universe.ActiveMajorEmpires.Filter(e => e != Empire))
+            {
+                if (leecher.GetEspionage(Empire).CanLeechTech)
+                {
+                    var tech = leecher.GetTechEntry(techName);
+                    if (tech.Locked && !tech.ContentRestrictedTo(Empire))
+                    {
+                        tech.AddToProgress(tech.TechCost * 0.1f, leecher, out bool unlocked);
+                        if (unlocked)
+                        {
+                            leecher.UnlockTech(tech, TechUnlockType.Normal, null);
+                            if (leecher.isPlayer)
+                                leecher.Universe?.Notifications.AddResearchComplete(tech.UID, leecher);
+                        }
+
+                        ResourceManager.TryGetTech(techName, out Technology technology);
+                        string message = $"{Empire.data.Traits.Name} - {Localizer.Token(GameText.NotifyLeechedTech)} {technology?.Name.Text ?? techName}";
+                        leecher.Universe.Notifications.AddAgentResult(true, message, leecher);
+                    }
+                }
             }
         }
 

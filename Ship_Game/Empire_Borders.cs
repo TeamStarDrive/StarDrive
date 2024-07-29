@@ -6,12 +6,14 @@ using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;
 using Ship_Game.AI;
-using System.Collections.Generic;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game;
 
 public sealed partial class Empire
 {
+    [StarData] public bool InfluenceActive { get; private set; } = true; // New espionage can disable Influence
+    [StarData] public int InfluenceDisableChance { get; private set; }
     public struct InfluenceNode
     {
         public Vector2 Position;
@@ -112,9 +114,36 @@ public sealed partial class Empire
         }
     }
 
+    void SetInfluenceActive(bool value)
+    {
+        InfluenceActive = value;
+        if (!value)
+            ThreatDetector.Clear();
+    }
+
+    public void SetInfluenceDisableChance(int value)
+    {
+        InfluenceDisableChance = value;
+    }
+
+    void TryDisableInfluence()
+    {
+        SetInfluenceActive(true);
+        if (InfluenceDisableChance == 0)
+            return;
+
+        SetInfluenceActive(Random.RollDice(InfluenceDisableChance));
+        InfluenceDisableChance -= 1;
+        if (InfluenceDisableChance == 0)
+            Universe.Notifications.AddAgentResult(good: true, Localizer.Token(GameText.SubspaceProjectionStableAgain), this);
+    }
+
     // For Player Projectors to display enemy empire flags if found in projection radius
     void UpdatePlayerProjectorScan()
     {
+        if (!InfluenceActive)
+            return;
+
         var playerProjectors = OwnedProjectors;
         float scanRadius = GetProjectorRadius();
         for (int i = 0; i < playerProjectors.Count; i++)
@@ -360,8 +389,12 @@ public sealed partial class Empire
 
         UpdateOurBorderNodes();
         // TODO: use double-buffered approach here, because # of nodes doesn't always change
-        TempBorderNodes.AddRange(OurBorderSystems);
-        TempBorderNodes.AddRange(OurBorderShips);
+        if (InfluenceActive)
+        {
+            TempBorderNodes.AddRange(OurBorderSystems);
+            TempBorderNodes.AddRange(OurBorderShips);
+        }
+
         BorderNodes = TempBorderNodes.ToArray();
         TempBorderNodes.Clear();
 
@@ -410,8 +443,9 @@ public sealed partial class Empire
             return;
 
         float projectorRadius = GetProjectorRadius();
-        foreach (Mole mole in data.MoleList)
+        for (int i = 0; i < data.MoleList.Count; i++)
         {
+            Mole mole = data.MoleList[i];
             var p = Universe.GetPlanet(mole.PlanetId);
             if (p != null)
             {

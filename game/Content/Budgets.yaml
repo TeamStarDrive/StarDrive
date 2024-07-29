@@ -1,3 +1,4 @@
+# Note that Espionage and Spy are alternated based on the espionage system - it will pick one of these
 - BudgetSettings:
   PortraitName: All
   Budgets:
@@ -5,6 +6,7 @@
     SSP: 1
     Build: 6
     Spy: 25
+    Espionage: 1 
     Colony: 8
     Terraform: 2
     Savings: 400

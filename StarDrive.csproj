@@ -163,6 +163,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Components\BudgetPriorities.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EspionageManager.cs" />
     <Compile Include="Ship_Game\AI\ExpansionAI\MiningOpsPlanner.cs" />
     <Compile Include="Ship_Game\AI\ExpansionAI\ResearchStationPlanner.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI_Trade.cs" />
@@ -170,8 +171,18 @@
     <Compile Include="Ship_Game\AI\ThreatClusterUpdate.cs" />
     <Compile Include="Ship_Game\AI\ThreatMatrix_ClustersGenerator.cs" />
     <Compile Include="Ship_Game\AI\ThreatMatrix_Update.cs" />
+    <Compile Include="Ship_Game\Debug\Page\EspionageDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\MiningOpsDebug.cs" />
+    <Compile Include="Ship_Game\Empire_Espionage.cs" />
     <Compile Include="Ship_Game\Empire_Find.cs" />
+    <Compile Include="Ship_Game\Espionage\Espionage.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsCounterEspionage.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsDisruptProjection.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsDisruptResearch.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsPlantMole.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsRebellion.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsSabotage.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOpsUprise.cs" />
     <Compile Include="Ship_Game\ExoticBonusesWindow.cs" />
     <Compile Include="Ship_Game\Audio\AudioConfig.cs" />
     <Compile Include="Ship_Game\Audio\AudioEmitter.cs" />
@@ -262,6 +273,15 @@
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\LoadBlueprintsToColonyScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\SaveLoadBlueprintsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\EspionageLevelPanel.cs" />
+    <Compile Include="Ship_Game\Espionage\InfiltrationOperation.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel1.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel2.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel3.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel4.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel5.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButton.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButtonsList.cs" />
     <Compile Include="Ship_Game\GameScreens\GameCursors.cs" />

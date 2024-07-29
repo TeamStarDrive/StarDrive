@@ -71,16 +71,19 @@ namespace Ship_Game
                 NotificationList.Add(notify);
         }
 
-        public void AddAgentResult(bool good, string result, Empire owner)
+        public void AddAgentResult(bool good, string result, Empire owner, Planet planet = null)
         {
             if (!owner.isPlayer || owner.data.SpyMute)
                 return;
 
             AddNotification(new Notification
             {
-                Message = result,
-                IconPath = good ? "NewUI/icon_spy_notification" : "NewUI/icon_spy_notification_bad"
-            }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02");
+                Message         = result,
+                SymbolPath      = good ? "NewUI/icon_spy_notification" : "NewUI/icon_spy_notification_bad",
+                ReferencedItem1 = planet?.System ?? null,
+                IconPath        = planet?.IconPath ?? null,
+                Action          = planet != null ? "SnapToSystem" : "",
+            }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02"); 
         }
 
         public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader, float strRatio)
@@ -460,6 +463,26 @@ namespace Ship_Game
                 Message         = $"{expEvent.LocalizedName}\nClick for more info",
                 ReferencedItem1 = expEvent,
                 Action          = "LoadEvent"
+            }, "sd_ui_notification_encounter");
+        }
+        
+        public void AddRemnantAbleToScanOrWarn(Empire remnants, GameText gameText)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = remnants,
+                Pause = false,
+                Message = Localizer.Token(gameText)
+            }, "sd_ui_notification_encounter"); ;
+        }
+
+        public void AddPiratesAbleToScan(Empire pirates)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Pause = false,
+                Message = $"{Localizer.Token(GameText.CanScanPiratesEvent)}"
             }, "sd_ui_notification_encounter");
         }
 
@@ -950,6 +973,11 @@ namespace Ship_Game
                     var flag = n.RelevantEmpire.data.Traits.FlagIndex;
                     batch.Draw(ResourceManager.Flag(flag), n.ClickRect, n.RelevantEmpire.EmpireColor);
                 }
+                else if (n.SymbolPath != null)
+                {
+                    batch.Draw(ResourceManager.Texture(n.SymbolPath), n.ClickRect, Color.White);
+                }
+
                 if (n.ShowMessage)
                 {
                     Vector2 msgSize = Fonts.Arial12Bold.MeasureString(n.Message);

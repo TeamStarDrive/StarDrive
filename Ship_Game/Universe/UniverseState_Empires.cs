@@ -125,6 +125,8 @@ public partial class UniverseState
         else
         {
             e.AI?.ExpansionAI.InitExpansionIntervalTimer(e.Id);
+            if (e.NewEspionageEnabled)
+                e.AI?.EspionageManager.InitEspionageManager(e.Id);
         }
 
         switch (e.data.Traits.Name)
@@ -287,7 +289,7 @@ public partial class UniverseState
         data.DiplomaticPersonality = CreateDiplomaticTrait();
         data.EconomicPersonality = CreateEconimicTrait();
         // Added by McShooterz: set values for alternate race file structure
-        data.Traits.LoadTraitConstraints(isPlayer, Random, data.Name, P.DisableAlternateAITraits);
+        data.Traits.LoadTraitConstraints(isPlayer, Random, data.Name, P.DisableAlternateAITraits, out data.SelectedTraitSet);
         empire.dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
         data.SpyModifier = data.Traits.SpyMultiplier;
         data.Traits = data.Traits;

@@ -271,15 +271,15 @@ namespace Ship_Game
             if (!Owner.IsKnown(Universe.Player))
                 return;
 
-            float espionageStr = Universe.Player.GetSpyDefense();
-            if (espionageStr <= Level)
-                return; // Not enough espionage strength to learn about pirate activities
-
-            switch (warningType)
+            float espionageStr = Universe.Player.GetEspionageDefenseStrVsPiratesOrRemnants(MaxLevel);
+            if (espionageStr >= Level)
             {
-                case PirateOpsWarning.LevelUp:   Owner.Universe.Notifications.AddPiratesAreGettingStronger(Owner, Level); break;
-                case PirateOpsWarning.LevelDown: Owner.Universe.Notifications.AddPiratesAreGettingWeaker(Owner, Level);   break;
-                case PirateOpsWarning.Flagship:  Owner.Universe.Notifications.AddPiratesFlagshipSighted(Owner);           break;
+                switch (warningType)
+                {
+                    case PirateOpsWarning.LevelUp:   Owner.Universe.Notifications.AddPiratesAreGettingStronger(Owner, Level); break;
+                    case PirateOpsWarning.LevelDown: Owner.Universe.Notifications.AddPiratesAreGettingWeaker(Owner, Level);   break;
+                    case PirateOpsWarning.Flagship:  Owner.Universe.Notifications.AddPiratesFlagshipSighted(Owner);           break;
+                }
             }
         }
 
@@ -831,11 +831,13 @@ namespace Ship_Game
             }
             else
             {
-                // We might use this ship for defense or future attacks
-                if (ship.AI.State != AIState.Orbit 
-                    || ship.AI.State != AIState.Escort 
-                    || ship.AI.State != AIState.Resupply)
+                if (ShipsWeCanSpawn.Contains(ship.Name))
+                    ship.QueueTotalRemoval();
+                else if (ship.AI.State != AIState.Orbit 
+                         || ship.AI.State != AIState.Escort 
+                         || ship.AI.State != AIState.Resupply)
                 {
+                    // We might use this ship for defense or future attacks
                     ship.AI.AddEscortGoal(pirateBase);
                 }
             }

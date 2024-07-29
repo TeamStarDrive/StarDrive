@@ -23,7 +23,8 @@ public sealed class Notification
 
     public SubTexture Icon;
     public string IconPath;
-        
+    public string SymbolPath; // similar ro Relevant Empire, but with custom Texture
+
     public bool Tech;
     public bool ShowMessage;
     public bool Pause = true;

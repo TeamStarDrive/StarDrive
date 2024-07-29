@@ -69,9 +69,9 @@ namespace Ship_Game.GameScreens
 
             //Setup containers
             var taxRect    = new Rectangle(Window.Menu.X + 20, Window.Menu.Y + 37, 350, 84); // top area for tax rate slider
-            var incomeRect = new Rectangle(taxRect.X, taxRect.Bottom + 6, 168, 130); // Middle-Left
-            var costRect   = new Rectangle(incomeRect.Right + 12, incomeRect.Y, 168, 130); // Middle-Right
-            var tradeRect  = new Rectangle(taxRect.X, incomeRect.Bottom + 6, 168, 188); // Bottom left
+            var incomeRect = new Rectangle(taxRect.X, taxRect.Bottom + 6, 168, 150); // Middle-Left
+            var costRect   = new Rectangle(incomeRect.Right + 12, incomeRect.Y, 168, 150); // Middle-Right
+            var tradeRect  = new Rectangle(taxRect.X, incomeRect.Bottom + 6, 168, 166); // Bottom left
             var budgetRect = new Rectangle(costRect.X, costRect.Bottom + 6, 168, 112); // Bottom right
             var footerRect = new Rectangle(budgetRect.X, budgetRect.Bottom + 6, 168, 86);
 
@@ -159,6 +159,9 @@ namespace Ship_Game.GameScreens
             costs.AddItem(GameText.ShipMaint, () => -Player.TotalShipMaintenance); // "Ship Maint."
             costs.AddItem(GameText.TroopMaint, () => -Player.GetTroopMaintThisTurn()); // "Troop Maint."
             costs.AddItem(GameText.ProductionFees, () => -(Player.MoneySpendOnProductionThisTurn+Player.MoneySpendOnProductionNow)); // "production costs."
+            if (Player.NewEspionageEnabled)
+                costs.AddItem("Espionage", () => -Player.EspionageCostLastTurn);
+
             costs.SetTotalFooter(() => -(Player.AllSpending+Player.MoneySpendOnProductionNow)); // "Total"
         }
 
@@ -169,6 +172,7 @@ namespace Ship_Game.GameScreens
             income.AddItem(GameText.PlanetaryTaxes, () => Player.GrossPlanetIncome); // "Planetary Taxes"
             income.AddItem(GameText.Other, () => Player.data.FlatMoneyBonus);
             income.AddItem("Excess Goods", () => Player.ExcessGoodsMoneyAddedThisTurn);
+            income.AddItem("Money Leeched", () => Player.TotalMoneyLeechedLastTurn);
             income.SetTotalFooter(() => Player.GrossIncome); // "Total"
         }
 
