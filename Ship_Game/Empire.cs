@@ -47,7 +47,7 @@ namespace Ship_Game
         [StarData] public float Money
         {
             get => MoneyValue;
-            set => MoneyValue = value.NaNChecked(0f, "Empire.Money");
+            set => MoneyValue = value.NaNChecked(MoneyLastTurn, "Empire.Money");
         }
 
         [StarData] readonly Array<Planet> OwnedPlanets;
@@ -190,11 +190,11 @@ namespace Ship_Game
         public float MaximumIncome       => PotentialIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus; // + AverageTradeIncome + data.FlatMoneyBonus;
         public float MaximumStableIncome => PotentialIncome + AverageTradeIncome + data.FlatMoneyBonus;
         // Income this turn before deducting ship maintenance
-        public float GrossIncome                 => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
+        public float GrossIncome                 => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus + TotalMoneyLeechedLastTurn;
         public float NetIncome                   => GrossIncome - AllSpending;
         public float TotalBuildingMaintenance    =>  GrossPlanetIncome - (NetPlanetIncomes + TroopCostOnPlanets);
         public float BuildingAndShipMaint        => TotalBuildingMaintenance + TotalShipMaintenance;
-        public float AllSpending                 => BuildingAndShipMaint + MoneySpendOnProductionThisTurn + TroopCostOnPlanets;
+        public float AllSpending                 => BuildingAndShipMaint + MoneySpendOnProductionThisTurn + TroopCostOnPlanets + EspionageCostLastTurn;
         public bool IsExpansionists              => data.EconomicPersonality?.Name == "Expansionists";
         public bool IsIndustrialists             => data.EconomicPersonality?.Name == "Industrialists";
         public bool IsGeneralists                => data.EconomicPersonality?.Name == "Generalists";
@@ -661,7 +661,7 @@ namespace Ship_Game
         void CommonInitialize()
         {
             CreateEmpireTechTree(); // update or init the tech tree
-            KnownEmpires.Set(Id); // we know ourselves
+            KnownEmpires.Set(Id); // we know ourselves - FB: there might be a bug here where the ID is still 0 at this stage in a new game.
             InitDifficultyModifiers();
             InitPersonalityModifiers();
             CreateThrusterColors();
@@ -684,7 +684,6 @@ namespace Ship_Game
                 UpdateTimer = 0;
 
             AI = new(this);
-            Research.Update();
         }
 
         private void CreateThrusterColors()
@@ -1027,6 +1026,7 @@ namespace Ship_Game
                 AI.Update(); // Must be done before DoMoney and Take turn
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
+                TryDisableInfluence();
                 CalculateExoticBonuses();
                 TakeTurn(us);
 
@@ -1168,7 +1168,8 @@ namespace Ship_Game
         public void AssessSystemsInDanger(FixedSimTime timeStep)
         {
             ThreatDetector ??= new(); // savegame compatibility
-            ThreatDetector.Update(this, timeStep);
+            if (InfluenceActive)
+                ThreatDetector.Update(this, timeStep);
         }
 
         // Using memory to save CPU time. the question is how often is the value used and
@@ -1323,7 +1324,9 @@ namespace Ship_Game
             UpdateShipMaintenance();
             UpdatePlanetStorageStats();
             float incomeFromExoticBonus = GetIncomeFromExoticBonus();
-            AddMoney(NetIncome + incomeFromExoticBonus);
+            float remainingMoney = MoneyAfterLeech(NetIncome + incomeFromExoticBonus);
+            EspionageCostLastTurn = LegacyEspionageEnabled ? 0 : GetEspionageCost();
+            AddMoney(remainingMoney - EspionageCostLastTurn);
         }
 
         float GetIncomeFromExoticBonus()
@@ -1334,6 +1337,26 @@ namespace Ship_Game
                 ? NetPlanetIncomes*exoticBonus - NetPlanetIncomes
                 : NetPlanetIncomes * exoticBonus;
             return planetIncomeWithBonus;
+        }
+
+        float MoneyAfterLeech(float money)
+        {
+            if (LegacyEspionageEnabled)
+                return money;
+
+            float remainingMoney = money;
+            foreach (Empire leecher in Universe.ActiveMajorEmpires.Filter(e => e != this))
+            {
+                Espionage espionage = leecher.GetEspionage(this);
+                if (espionage.CanLeechMoney)
+                {
+                    float moneyToLeech = money * Espionage.PercentMoneyLeech;
+                    espionage.AddLeechedMoney(moneyToLeech);
+                    remainingMoney -= moneyToLeech;
+                }
+            }
+
+            return remainingMoney;
         }
 
         void ResetMoneySpentOnProduction()
@@ -1540,6 +1563,10 @@ namespace Ship_Game
 
         public int GetSpyDefense()
         {
+            if (NewEspionageEnabled)
+                throw new InvalidOperationException("Tried getting spy defense while legacy espionage is disabled." +
+                    " Check Empire_Espionage.cs for new espionage logic");
+
             float defense = 0;
             for (int i = 0; i < data.AgentList.Count; i++)
             {
@@ -1560,10 +1587,26 @@ namespace Ship_Game
             if (!isPlayer) // Only for the Player
                 return false;
 
-            int playerSpyDefense = GetSpyDefense();
-            int aiSpyDefense     = ai.GetSpyDefense() + ai.DifficultyModifiers.WarSneakiness + ai.PersonalityModifiers.WarSneakiness;
-            int rollModifier     = playerSpyDefense - aiSpyDefense; // higher modifier will make the roll smaller, which is better
-            return Random.RollDie(100 - rollModifier) <= playerSpyDefense;
+            if (LegacyEspionageEnabled)
+            {
+                int playerSpyDefense = GetSpyDefense();
+                int aiSpyDefense = ai.GetSpyDefense() + ai.DifficultyModifiers.WarSneakiness + ai.PersonalityModifiers.WarSneakiness;
+                int rollModifier = playerSpyDefense - aiSpyDefense; // higher modifier will make the roll smaller, which is better
+                return Random.RollDie(100 - rollModifier) <= playerSpyDefense;
+            }
+            else
+            {
+                Espionage espionage = GetEspionage(ai);
+                float detectionChance = espionage.EffectiveLevel*20;
+                if (ai.GetEspionage(this).IsCounterEspionageActive)
+                    detectionChance *= 0.5f;
+
+                detectionChance += data.OffensiveSpyBonus + data.SpyModifier 
+                                - ai.data.DefensiveSpyBonus - ai.data.SpyModifier 
+                                - ai.DifficultyModifiers.WarSneakiness - ai.PersonalityModifiers.WarSneakiness;
+
+                return Random.RollDice(detectionChance);
+            }
         }
 
         /// <summary>
@@ -1768,8 +1811,11 @@ namespace Ship_Game
             foreach (Planet planet in list1)
                 OwnedPlanets.Remove(planet);
 
-            for (int index = 0; index < data.AgentList.Count; ++index)
-                data.AgentList[index].Update(this);
+            if (LegacyEspionageEnabled)
+            {
+                for (int index = 0; index < data.AgentList.Count; ++index)
+                    data.AgentList[index].Update(this);
+            }
 
             if (Money < 0.0 && !IsFaction)
             {
@@ -1849,6 +1895,7 @@ namespace Ship_Game
             }
 
             Research.Update();
+            UpdateEspionage();
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
@@ -2630,6 +2677,30 @@ namespace Ship_Game
 
             ResetUnlocks();
             InitEmpireUnlocks();
+        }
+
+        public void RemoveMoles(int planetId, Empire planetOwner)
+        {
+            for (int i = data.MoleList.Count - 1; i >= 0; i--)
+            {
+                Mole mole = data.MoleList[i];
+                if (mole.PlanetId == planetId)
+                {
+                    RemoveMole(mole, planetOwner);
+                    if (LegacyEspionageEnabled)
+                    {
+                        Agent agent = data.AgentList.Find(a => a.TargetPlanetId == planetId);
+                        agent.AssignMission(AgentMission.Defending, this, "");
+                    }
+                }
+            }
+        }
+
+        public void RemoveMole(Mole m, Empire victim)
+        {
+            data.MoleList.Remove(m);
+            if (NewEspionageEnabled && victim != null && !victim.IsFaction && victim != this)
+                GetEspionage(victim).DecreasePlantedMoleCount();
         }
 
         // For Testing only!

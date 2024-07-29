@@ -1,4 +1,4 @@
-using System;
+using System.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 
@@ -8,53 +8,53 @@ namespace Ship_Game
     public sealed class Mole
     {
         [StarData] public int PlanetId;
+        [StarData] public bool Sticky { get; set; } // cannot be removed with counter espionage in new espionage system
 
-        public static Mole PlantMole(Empire owner, Empire target, out string targetPlanetName)
+        public static Mole PlantMole(Empire owner, Empire target, out Planet targetPlanet)
         {
-            targetPlanetName = "";
-            var potentials = new Array<Planet>();
-            foreach (Planet p in target.GetPlanets())
-            {
-                if (!p.IsExploredBy(owner))
-                {
-                    continue;
-                }
-                bool GoodPlanet = true;
-                foreach (Mole m in target.data.MoleList)
-                {
-                    if (m.PlanetId != p.Id)
-                    {
-                        continue;
-                    }
-                    GoodPlanet = false;
-                    break;
-                }
-                if (!GoodPlanet)
-                {
-                    break;
-                }
-                potentials.Add(p);
-            }
-            if (potentials.Count == 0)
-            {
-                potentials = new Array<Planet>(target.GetPlanets());
-            }
-            Mole mole = null;
-            if (potentials.Count > 0)
-            {
-                int Random = (int)owner.Random.Float(0f, potentials.Count + 0.7f);
-                if (Random > potentials.Count - 1)
-                {
-                    Random = potentials.Count - 1;
-                }
-                mole = new Mole
-                {
-                    PlanetId = potentials[Random].Id
-                };
+            targetPlanet = null;
+            if (target.IsDefeated) 
+                return null;
 
-                targetPlanetName = potentials[Random].Name;
-                owner.data.MoleList.Add(mole);
-            }
+            var potentials = target.GetPlanets().Filter(p => p.IsExploredBy(owner) 
+                                                             && !owner.data.MoleList.Any(m => m.PlanetId == p.Id));
+
+            if (potentials.Length == 0)
+                potentials = target.GetPlanets().ToArray();
+
+            targetPlanet = target.Random.Item(potentials);
+            Mole mole = new()
+            {
+                PlanetId = targetPlanet.Id,
+            };
+
+            owner.data.MoleList.Add(mole);
+            if (owner.NewEspionageEnabled)
+                owner.GetEspionage(target).IncreasePlantedMoleCount();
+
+            return mole;
+        }
+
+        public static Mole PlantStickyMoleAtHomeworld(Empire owner, Empire target, out Planet targetPlanet)
+        {
+            targetPlanet = null;
+            var planets = target.GetPlanets().Filter(p => p.IsHomeworld || p.HasCapital);
+
+            targetPlanet = planets.Length == 0 ? target.GetPlanets().FindMax(p => p.PopulationBillion)
+                                                : target.Random.Item(planets);
+
+            if (targetPlanet == null)
+                return null;
+
+            Mole mole = new()
+            {
+                PlanetId = targetPlanet.Id, Sticky = true,  
+            };
+
+            owner.data.MoleList.Add(mole);
+            if (owner.NewEspionageEnabled)
+                owner.GetEspionage(target).IncreasePlantedMoleCount();
+
             return mole;
         }
     }

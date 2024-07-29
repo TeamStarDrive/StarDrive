@@ -253,6 +253,15 @@ namespace Ship_Game
 
                     solarSystem.UpdateFullyExploredBy(Player);
                 }
+
+                if (!UState.P.UseLegacyEspionage)
+                {
+                    if (UState.Debug)
+                    {
+                        foreach (Empire empire in UState.ActiveEmpires)
+                            empire.SetCanBeScannedByPlayer(true);
+                    }
+                }
             }
 
             if (Debug)

@@ -5341,6 +5341,256 @@ namespace Ship_Game
         RefitInFleet = 6224,
         /// <summary>All Ships of the same type in the</summary>
         RefitInFleetTip = 6225,
+        /// <summary>Enable Legacy Espionage</summary>
+        UseLegacyEspionage = 6226,
+        /// <summary>Enable Legacy Espionage (Agents) instead of the rewritten one</summary>
+        UseLegacyEspionageTip = 6227,
+        /// <summary>Indicates the persentage of Taxed Research</summary>
+        InfiltrationDefesneTip = 6228,
+        /// <summary>Allows ship scanning (Tab key) as well as </summary>
+        InfiltrationLevel1Desc = 6229,
+        /// <summary>Allows Diplomacy Screen view of their total Ships, </summary>
+        InfiltrationLevel2Desc = 6230,
+        /// <summary>Subspace Projectors are able to alert us if this</summary>
+        InfiltrationLevel3Desc = 6231,
+        /// <summary>Infiltration Status: </summary>
+        InfiltrationStatus = 6234,
+        /// <summary>Established!</summary>
+        InfiltrationStatusEstablished = 6235,
+        /// <summary>Halted</summary>
+        InfiltrationStatusHalted = 6236,
+        /// <summary>We can now view Remnant ships' Internals (Tab key).</summary>
+        CanScanRemnantsEvent = 6237,
+        /// <summary>We can now view this pirates faction ships' Internals (Tab key).</summary>
+        CanScanPiratesEvent = 6238,
+        /// <summary>Our Projectors can now warn us of incoming Remnant fleets.</summary>
+        CanWarnRemnantsEvent = 6239,
+        /// <summary>Available Operations</summary>
+        EspionageOperationsTitle = 6240,
+        /// <summary>Scan Ships</summary>
+        EspionageOpsAllowScanShips = 6241,
+        /// <summary>We can view ship internals of this Empire.</summary>
+        EspionageOpsAllowScanShipsTip = 6242,
+        /// <summary>Projectors Alert.</summary>
+        EspionageOpsProjectorsAlert = 6243,
+        /// <summary>Subspace Projectors are able to alert us if </summary>
+        EspionageOpsProjectorsAlertTip = 6244,
+        /// <summary>We have successfully infiltrated a colony:</summary>
+        NewSuccessfullyInfiltratedAColony = 6245,
+        /// <summary>We could not find a new colony to infiltrate for</summary>
+        NoColonyForInfiltration = 6246,
+        /// <summary>We have made good progress for the next infiltration operation</summary>
+        WeMadeInfiltrationProgress = 6247,
+        /// <summary>Our Agents were unable to infiltrate a colony there.</summary>
+        NewWasUnableToInfiltrate = 6248,
+        /// <summary>Our Agents have miserably failed infiltraing a colony.</summary>
+        NewWasUnableToInfiltrateMiserable = 6249,
+        /// <summary>One of our Agents was caught when trying to infiltrae a colony</summary>
+        NewWasUnableToInfiltrateDetected = 6250,
+        /// <summary>Our agent was caught when trying to infiltrae a colony there</summary>
+        NewWasUnableToInfiltrateWipedOut = 6251,
+        /// <summary>We uncovered and wiped out a spy network when one</summary>
+        NewWipedOutNetworkInfiltration = 6252,
+        /// <summary>Their Infiltration Level was</summary>
+        TheirInfiltrationLevelWas = 6253,
+        /// <summary>We have leeched 10% from a tech they have</summary>
+        NotifyLeechedTech = 6254,
+        /// <summary>We have incited an uprise on</summary>
+        WeIncitedUprise = 6255,
+        /// <summary>An uprise was incited on</summary>
+        IncitedUpriseOn = 6256,
+        /// <summary>Our agents have failed setting up an uprise</summary>
+        NewFailedToInciteUprise = 6257,
+        /// <summary>Our agents have miserably failed setting up an uprise</summary>
+        NewFailedToInciteUpriseMiserable = 6258,
+        /// <summary>One of our agents was caught when trying to incide an uprise.</summary>
+        NewFailedToInciteUpriseDetected = 6259,
+        /// <summary>Our Agents were caught when trying to incide uprise.</summary>
+        FailedToInciteUpriseWipedOut = 6260,
+        /// <summary>We uncovered and wiped out a spy network</summary>
+        NewWipedOutNetworkUprise = 6261,
+        /// <summary>Plant an Agent in one of their colonies.</summary>
+        PlantAgentTip = 6262,
+        /// <summary>Active:</summary>
+        Active = 6263,
+        /// <summary>Passive:</summary>
+        Passive = 6264,
+        /// <summary>Arrange Uprise</summary>
+        ArrangeUprise = 6265,
+        /// <summary>Send some Agents to arrange an uprise</summary>
+        ArrangeUpriseTip = 6266,
+        /// <summary>Our Counter Espionage effort against them did not</summary>
+        CounterEspioangeOpsFailed = 6267,
+        /// <summary>Our Counter-Espioange effort badly failed.</summary>
+        CounterEspioangeOpsFailedMiserably = 6268,
+        /// <summary>Our Counter-Espioange effort badly failed.\nand</summary>
+        CounterEspioangeOpsFailedDetected = 6269,
+        /// <summary>A Counter-Espioange effort badly failed.</summary>
+        CounterEspioangeOpsFailedAgentCaught = 6270,
+        /// <summary>Our Counter-Espioange was a disaster.</summary>
+        CounterEspioangeOpsFailedWipeout = 6271,
+        /// <summary>We managed to uncover a Counter-Espionage operation</summary>
+        CounterEspioangeOpsFailedWipeoutVictim = 6272,
+        /// <summary>We have eliminated an enemy agent in</summary>
+        EliminatedMole = 6273,
+        /// <summary>We have lost contact with an agent on</summary>
+        LostMole = 6274,
+        /// <summary>Our Spy Network was exposed by a Counter-Espionage</summary>
+        CounterEspioangeOpsExposedAndWipedOut = 6275,
+        /// <summary>We have wiped out an their entire Spy Network.</summary>
+        CounterEspioangeOpsExposedWeWipedOut = 6276,
+        /// <summary>Our Spy Network was partially exposed by a Counter-Espionage</summary>
+        CounterEspioangeOpsWasExposedPartially = 6277,
+        /// <summary>We believe our Counter-Espionage operation has</summary>
+        CounterEspioangeOpsWeExposedPartially = 6278,
+        /// <summary>Counter-Espionage</summary>
+        CounterEspioangeOps = 6279,
+        /// <summary>The Counter-Espionage operation will use our</summary>
+        CounterEspioangeOpsTip = 6280,
+        /// <summary>Leech Technology</summary>
+        EspioangeOpsLeechTech = 6281,
+        /// <summary>When they research a new tech that we do not have</summary>
+        EspioangeOpsLeechTechTip = 6282,
+        /// <summary>Sabotage Operations will disrupt a colony production for a period</summary>
+        EspioangeOpsSabotageTip = 6283,
+        /// <summary>Disrupt Research</summary>
+        EspioangeOpsSlowResearch = 6284,
+        /// <summary>Research Disruption Ops will slow their research by 10%</summary>
+        EspioangeOpsSlowResearchTip = 6285,
+        /// <summary>Diplomacy Screen view of their Racial Traits.</summary>
+        InfiltrationLevel4Desc = 6286,
+        /// <summary>Our Research Disruption Operation against them was a\nphenomenal</summary>
+        InfiltrationDisruptPhenomenalSuccess = 6287,
+        /// <summary>Our Research Efforts are being disrupted by a series</summary>
+        InfiltrationDisruptSuccessVictim = 6288,
+        /// <summary>Our Research Disruption Operation against them was a\ngreat</summary>
+        InfiltrationDisruptGreatSuccess = 6289,
+        /// <summary>Our Research Disruption Operation against them was a\nsuccess</summary>
+        InfiltrationDisruptSuccess = 6290,
+        /// <summary>Our Research Disruption Operation against\n them has failed</summary>
+        InfiltrationDisruptFail = 6291,
+        /// <summary>Our Research Disruption Operation against\n them has badly failed</summary>
+        InfiltrationDisruptMiserableFail = 6292,
+        /// <summary>Our Research Disruption Operation against\n them has badly failed</summary>
+        InfiltrationDisruptCriticalFail = 6293,
+        /// <summary>Our Research Disruption Operation against\n them was disastrous</summary>
+        InfiltrationDisruptDisaster = 6294,
+        /// <summary>Unknown Agents tried to disrupt our research efforts. They Failed.</summary>
+        InfiltrationDisruptMiserableFailVictim = 6295,
+        /// <summary>Agents attempted disruption of our research efforts and failed.</summary>
+        InfiltrationDisruptCriticalFailVictim = 6296,
+        /// <summary>We uncovered and wiped out a spy network when one\nof their agents was trying to disrupt</summary>
+        InfiltrationDisruptDisasterVictim = 6297,
+        /// <summary>An Agent was foiled attempting to arrange an uprise in one of our colonies.</summary>
+        InfiltrationUpriseCriticalFailVictim = 6298,
+        /// <summary>Unknown Agents tried to arrange an uprise in one of our colonies. They Failed</summary>
+        InfiltrationUpriseMiserableFailVictim = 6299,
+        /// <summary>Unknown Agents tried uncover our spy network. They Failed</summary>
+        InfiltrationCounterEspionageMiserableFailVictim = 6300,
+        /// <summary>Our Agents saboraged</summary>
+        InfiltrationSabotageSuccessMessage = 6301,
+        /// <summary>was sabotaged by unknown agents for</summary>
+        InfiltrationSabotageSuccessMessageVictim = 6302,
+        /// <summary>We failed sabotaging their planets this time</summary>
+        InfiltrationSabotageMessageFail = 6303,
+        /// <summary>We failed sabotaging their planets this time.\nWe had to pull</summary>
+        InfiltrationSabotageMessageFailMiserable = 6304,
+        /// <summary>Unknown agents tried to sabotage our planets and failed</summary>
+        InfiltrationSabotageMessageFailMiserableVictim = 6305,
+        /// <summary>Our agent was caught when trying to infiltrate their planets.</summary>
+        InfiltrationSabotageMessageFailCritical = 6306,
+        /// <summary>Our agent was caught when trying to sabotage their planets\nand our</summary>
+        InfiltrationSabotageMessageFailDisaster = 6307,
+        /// <summary>We wiped out a spy network when on of their agents was trying</summary>
+        InfiltrationSabotageMessageFailDisasterVictim = 6308,
+        /// <summary>Leech Income</summary>
+        EspioangeOpsLeechIncome = 6309,
+        /// <summary>We steal 2% of their income per turn</summary>
+        EspioangeOpsLeechIncomeTip = 6310,
+        /// <summary>Incite Rebellion</summary>
+        EspioangeOpsRebellion = 6311,
+        /// <summary>Try to incite rebellion in one of their more advanced colonies</summary>
+        EspioangeOpsRebellionTip = 6312,
+        /// <summary>Our agents have failed to incite a rebellion in their colonies</summary>
+        NewFailedToInciteRebellion = 6313,
+        /// <summary>Our agents have failed to incite a rebellion in their colonies. We had to pull assets</summary>
+        NewFailedToInciteRebellionMiserable = 6314,
+        /// <summary>Unknown Agents tried incing a rebellon in one of our colonies. They Failed</summary>
+        InfiltrationRebellionMiserableFailVictim = 6315,
+        /// <summary>One of our agents was caught when trying to incite a rebellion</summary>
+        NewFailedToInciteRebellionDetected = 6316,
+        /// <summary>An Agent was foiled attempting to arrange a rebellion in one of our colonies</summary>
+        InfiltrationRebellionCriticalFailVictim = 6317,
+        /// <summary>Our Agents were caught when trying to incite a rebellion</summary>
+        FailedToInciteRebellionWipedOut = 6318,
+        /// <summary>We uncovered and wiped out a spy network when its\nagents were incite a rebellion</summary>
+        NewWipedOutNetworkRebellion = 6319,
+        /// <summary>We have restored stability to our Sub-Space projection network</summary>
+        SubspaceProjectionStableAgain = 6320,
+        /// <summary>Our Agents were able to hack and distabilize their</summary>
+        InfiltrationDisruptProjectionSuccess = 6321,
+        /// <summary>Our Agents failed to disrupt their Subspace Projection Network</summary>
+        InfiltrationDisruptProjectionFail = 6322,
+        /// <summary>Our Subspace Projection Network hack against\nthem has badly failed</summary>
+        InfiltrationDisruptProjectionMiserableFail = 6323,
+        /// <summary>Unknown agents have tried to hack our Subspace Projection Network</summary>
+        InfiltrationDisruptProjectionMiserableFailVictim = 6324,
+        /// <summary>Our Subspace Projection Network hack against\nthem has failed and an agent was caught</summary>
+        InfiltrationDisruptProjectionCriticalFail = 6325,
+        /// <summary>We caught an agent trying to hack our Subspace projection Network</summary>
+        InfiltrationDisruptProjectionCriticalFailVictim = 6326,
+        /// <summary>Our Agents were caught when trying to hack their Subspace</summary>
+        InfiltrationDisruptProjectionDisaster = 6327,
+        /// <summary>We uncovered and wiped out a spy network when its\nagents were trying to hack</summary>
+        InfiltrationDisruptProjectionDisasterVictim = 6328,
+        /// <summary>Disrupt Projection</summary>
+        EspioangeOpsDisruptProjection = 6329,
+        /// <summary>Hack their Subspace Projection network and disatabilize</summary>
+        EspioangeOpsDisruptProjectionTip = 6330,
+        /// <summary>Budget Multiplier</summary>
+        EspioangeBudgetMuliplier = 6331,
+        /// <summary>Budget Multiplier</summary>
+        EspioangeBudgetMuliplierTip = 6332,
+        /// <summary>Homeworld Mole</summary>
+        EspioangeHomeworldMole = 6333,
+        /// <summary>Planet a Mole at the target's homeworld</summary>
+        EspioangeHomeworldMoleTip = 6334,
+        /// <summary>Defense Weight</summary>
+        EspioangeDefenseWeight = 6335,
+        /// <summary>Infiltration Weight</summary>
+        EspioangeInfiltrationWeight = 6336,
+        /// <summary>Set the weight out of the total Espionage points you want to invest in your empire's spy defense</summary>
+        EspioangeDefenseWeightTip = 6337,
+        /// <summary>Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within</summary>
+        EspioangeInfiltrationWeightTip = 6338,
+        /// <summary>Diplomacy view of the number of Moles the have</summary>
+        InfiltrationLevel5Desc = 6339,
+        /// <summary>We have infiltrated into their empire.</summary>
+        MessageInfiltrationLevelIncrease = 6340,
+        /// <summary>Limit Level</summary>
+        EspionageLimitLevel = 6341,
+        /// <summary>Left click to increase by 1\nright click to decrease by 1\nWhen limiting Infiltration Level</summary>
+        EspionageLimitLevelTip = 6342,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>

@@ -8513,7 +8513,7 @@ RemnantDetectionArray:
  UKR: "Масив виявлення Древніх"
 OurScientistsBelieveThatThis:
  Id: 2149
- ENG: "Our scientists believe that this building will allow us to detect any remnant fleet targeting a system if this building in built on any of it's planets. it will also ETA."
+ ENG: "Our scientists believe that this building will allow us to detect any remnant fleet targeting a system if this building in built on any of it's planets. it will also have an ETA."
  RUS: "Ученые считают, что это здание позволит нам обнаружить любой флот Предтечей, нацеленный на систему, если это здание построено на любой из ее планет."
  SPA: "Nuestros científicos creen que este edificio nos permitirá detectar el origen de la señal que controla los drones Remanentes en nuestra galaxia. "
  UKR: "Наші вчені вважають, що ця будівля дозволить нам виявити будь-який флот Древніх, що націлився на систему, якщо ця будівля буде побудована на одній з її планет. вона також визначить час прибуття."
@@ -11458,9 +11458,9 @@ OurScientistsReportThatThey:
  UKR: "Наші вчені повідомляють, що вони спостерігали збільшення\n радіаційних сигналів в галактиці і, можливо,\n Древні стають сильнішими."
 OurScientistsReportThatThey2:
  Id: 4171
- ENG: "Our Scientists report that they observed increased\nradiation signatures in the galaxy. They believe\na new, powerful object has manifested somewhere\nand it is related to the Remnants."
- RUS: "Наши ученые сообщают, что они фиксируют увеличение\nрадиационных сигнатур в галактике. Они полагают\nчто где-то появился новый мощный объект\nи это связано с Предтечами."
- UKR: "Наші вчені повідомляють, що вони спостерігали підвищений рівень\n радіаційних сигналів в галактиці. Вони вважають,\n що десь з'явився новий потужний об'єкт,\n і він пов'язаний із Древніми."
+ ENG: "Our Scientists report that they observed increased\nradiation signatures in the galaxy. They believe\na new, powerful object has manifested somewhere\nand it is related to the Remnants.\nOur Projectors can now warn us if they\nDetect incoming Remnants Fleets."
+ RUS: "Наши ученые сообщают, что они фиксируют увеличение\nрадиационных сигнатур в галактике. Они полагают\nчто где-то появился новый мощный объект\nи это связано с Предтечами.\nНаши проекторы теперь могут предупредить нас, если\nони обнаружат приближающиеся остатки флота."
+ UKR: "Наші вчені повідомляють, що вони спостерігали підвищений рівень\n радіаційних сигналів в галактиці. Вони вважають,\n що десь з'явився новий потужний об'єкт,\n і він пов'язаний із Древніми.\nНаші проектори тепер можуть попереджати нас,\nякщо вони виявляють вхідні залишки флоту."
 YourScientistsReportMassiveRadiation:
  Id: 4172
  ENG: "Your Scientists report massive radiation increase\nin the galaxy. They suspect another Remnant portal\nwas created in the galaxy!"
@@ -15095,6 +15095,351 @@ RefitInFleet:
 RefitInFleetTip:
  Id: 6225
  ENG: "All Ships of the same type in the selected ship's fleet will be refitted."    
+UseLegacyEspionage:
+ Id: 6226
+ ENG: "Enable Legacy Espionage"    
+UseLegacyEspionageTip:
+ Id: 6227
+ ENG: "Enable Legacy Espionage (Agents) instead of the rewritten system (Infiltration Levels)"    
+InfiltrationDefesneTip:
+ Id: 6228
+ ENG: "Indicates budget weight invested in Infiltration Defense by this empire. The higher the percentage, the slower they can progress in setting up spy networks within their empire, but the better they defend against offensive spy operations. Increased budget will also affect this. 100% means the invest all their Espionage points in defense but this does not guarantee immunity to offensive operations."
+InfiltrationLevel1Desc:
+ Id: 6229
+ ENG: "Allows Diplomacy Screen view of their total Population, Personality, total owned Planets and Treaties."      
+InfiltrationLevel2Desc:
+ Id: 6230
+ ENG: "Allows Diplomacy Screen view of their total Ships, Research Tech type and rank statistics of Economic, Science, Population and Military."       
+InfiltrationLevel3Desc:
+ Id: 6231
+ ENG: "Diplomacy Screen view of their Empire Bonuses, total Funds and Maintenance. Espionage view of their Spy Defense"        
+InfiltrationStatus:
+ Id: 6234
+ ENG: "Infiltration Status: "       
+InfiltrationStatusEstablished:
+ Id: 6235
+ ENG: "Established!"        
+InfiltrationStatusHalted:
+ Id: 6236
+ ENG: "Halted"         
+CanScanRemnantsEvent:
+ Id: 6237
+ ENG: "We can now view Remnant ships' Internals (Tab key)."          
+CanScanPiratesEvent:
+ Id: 6238
+ ENG: "We can now view this pirates faction ships'\nInternals (Tab key)."           
+CanWarnRemnantsEvent:
+ Id: 6239
+ ENG: "Our Projectors can now warn us of incoming Remnant fleets."           
+EspionageOperationsTitle:
+ Id: 6240
+ ENG: "Available Operations"             
+EspionageOpsAllowScanShips:
+ Id: 6241
+ ENG: "Scan Ships"            
+EspionageOpsAllowScanShipsTip:
+ Id: 6242
+ ENG: "We can permenantly view ship internals of this Empire (Tab key). This Ability will never be lost, even if the entire spy network is lost."             
+EspionageOpsProjectorsAlert:
+ Id: 6243
+ ENG: "Projectors Alert"            
+EspionageOpsProjectorsAlertTip:
+ Id: 6244
+ ENG: "Subspace Projectors are able to alert us if this Empire's fleets are heading to our colonies by calculating their attack vectors."              
+NewSuccessfullyInfiltratedAColony:
+ Id: 6245
+ ENG: "We have successfully infiltrated a colony:" 
+NoColonyForInfiltration:
+ Id: 6246
+ ENG: "We could not find a new colony to infiltrate for "  
+WeMadeInfiltrationProgress:
+ Id: 6247
+ ENG: "We have made good progress for the next infiltration operation."   
+NewWasUnableToInfiltrate:
+ Id: 6248
+ ENG: "Our agents were unable to infiltrate a colony there. They were not detected."    
+NewWasUnableToInfiltrateMiserable:
+ Id: 6249
+ ENG: "Our agents have miserably failed infiltraing a colony there.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."     
+NewWasUnableToInfiltrateDetected:
+ Id: 6250
+ ENG: "One of our agents was caught when trying to infiltrae a colony there.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."     
+NewWasUnableToInfiltrateWipedOut:
+ Id: 6251
+ ENG: "Our Agent was caught when trying to infiltrate a colony there.\nOur entire spy network was exposed and wiped out!"      
+NewWipedOutNetworkInfiltration:
+ Id: 6252
+ ENG: "We uncovered and wiped out a spy network when one\nof their agents was trying to infiltrate one our colonies."       
+TheirInfiltrationLevelWas:
+ Id: 6253
+ ENG: "Their Infiltration Level was"        
+NotifyLeechedTech:
+ Id: 6254
+ ENG: "We have leeched 10% from a tech they have\njust researched: "         
+WeIncitedUprise: 
+ Id: 6255
+ ENG: "We have incited an uprise on"         
+IncitedUpriseOn: 
+ Id: 6256
+ ENG: "An uprise was incited on"          
+NewFailedToInciteUprise:
+ Id: 6257
+ ENG: "Our agents have failed setting up an uprise on their colonies."       
+NewFailedToInciteUpriseMiserable:
+ Id: 6258
+ ENG: "Our agents have miserably failed setting up an uprise on their colonies.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."      
+NewFailedToInciteUpriseDetected:
+ Id: 6259
+ ENG: "One of our agents was caught when trying to incite an uprise.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."      
+FailedToInciteUpriseWipedOut:
+ Id: 6260
+ ENG: "Our Agents were caught when trying to incite uprise.\nOur entire spy network was exposed and wiped out!"       
+NewWipedOutNetworkUprise:
+ Id: 6261
+ ENG: "We uncovered and wiped out a spy network when its\nagents were incite uprise in one our colonies."        
+PlantAgentTip:
+ Id: 6262
+ ENG: "Plant an Agent in one of their colonies. We will be able to view their colony sensor range and have access to their colony screen."         
+Active:
+ Id: 6263
+ ENG: "Active:"          
+Passive:
+ Id: 6264
+ ENG: "Passive:"           
+ArrangeUprise:
+ Id: 6265
+ ENG: "Arrange Uprise"            
+ArrangeUpriseTip:
+ Id: 6266
+ ENG: "Send some Agents to arrange an uprise in one of the smaller population worlds. If successful, rebels will try to take the planet."             
+CounterEspioangeOpsFailed:
+ Id: 6267
+ ENG: "Our Counter Espionage effort against them did not\nyield any result this time."             
+CounterEspioangeOpsFailedMiserably:
+ Id: 6268
+ ENG: "Our Counter-Espioange effort has badly failed.\nThey noticed the effort but don't know who did it."       
+CounterEspioangeOpsFailedDetected:
+ Id: 6269
+ ENG: "Our Counter-Espioange effort has badly failed and our agents were detected.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."        
+CounterEspioangeOpsFailedAgentCaught:
+ Id: 6270
+ ENG: "A foreign Counter-Espioange effort has badly failed.\nTheir spy networked suffered a setback."         
+CounterEspioangeOpsFailedWipeout:
+ Id: 6271
+ ENG: "Our Counter-Espioange was a disaster.\n Our agents were detected and our entire spy network was exposed and wiped out!"         
+CounterEspioangeOpsFailedWipeoutVictim:
+ Id: 6272
+ ENG: "We managed to uncover a Counter-Espionage operation and eliminate their entire network."          
+EliminatedMole:
+ Id: 6273
+ ENG: "We have eliminated an enemy agent on"           
+LostMole:
+ Id: 6274
+ ENG: "We have lost contact with an agent on"            
+CounterEspioangeOpsExposedAndWipedOut:
+ Id: 6275
+ ENG: "Our Spy Network was exposed by their Counter-Espionage operation and was completely eliminated!"          
+CounterEspioangeOpsExposedWeWipedOut:
+ Id: 6276
+ ENG: "We have wiped out an their entire Spy Network."           
+CounterEspioangeOpsWasExposedPartially:
+ Id: 6277
+ ENG: "Our Spy Network was partially exposed by their Counter-Espionage operation.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."           
+CounterEspioangeOpsWeExposedPartially:
+ Id: 6278
+ ENG: "We believe our Counter-Espionage operation has\nspooked them and set them back a bit, but we can never be sure."
+CounterEspioangeOps:
+ Id: 6279
+ ENG: "Counter-Espionage" 
+CounterEspioangeOpsTip:
+ Id: 6280
+ ENG: "The Counter-Espionage operation will use our spy network active resources in order to intercept their spy network and eliminate moles by bribing and using double Agents."  
+EspioangeOpsLeechTech:
+ Id: 6281
+ ENG: "Leech Technology"   
+EspioangeOpsLeechTechTip:
+ Id: 6282
+ ENG: "When they research a new tech that we do not have, we get 10% of that tech."    
+EspioangeOpsSabotageTip:
+ Id: 6283
+ ENG: "Sabotage Operations will disrupt a colony production for a period of time, and can also destory Research Labs or Mining Stations if they exist."     
+EspioangeOpsSlowResearch:
+ Id: 6284
+ ENG: "Disrupt Research"      
+EspioangeOpsSlowResearchTip:
+ Id: 6285
+ ENG: "Research Disruption Ops will slow their research by 10% per turn at start, but the chance to slow their research will be reduced per turn until we complete the operation again."       
+InfiltrationLevel4Desc:
+ Id: 6286
+ ENG: "Diplomacy Screen view of their Racial Traits."         
+InfiltrationDisruptPhenomenalSuccess:
+ Id: 6287
+ ENG: "Our Research Disruption Operation against them was a\nphenomenal success. Their research will be slowed for quite some time."          
+InfiltrationDisruptSuccessVictim:
+ Id: 6288
+ ENG: "Our Research Efforts are being disrupted by a series\nof accidents and inefficienies. We suspect a foreign\ninvolvment from an unknown party."           
+InfiltrationDisruptGreatSuccess:
+ Id: 6289
+ ENG: "Our Research Disruption Operation against them was a\ngreat success. Their research will be slowed for some time."           
+InfiltrationDisruptSuccess:
+ Id: 6290
+ ENG: "Our Research Disruption Operation against them was a\nsuccess. Their research will be slowed for limited period."            
+InfiltrationDisruptFail:
+ Id: 6291
+ ENG: "Our Research Disruption Operation against\n them has failed this time."             
+InfiltrationDisruptMiserableFail:
+ Id: 6292
+ ENG: "Our Research Disruption Operation against\n them has badly failed. We had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."              
+InfiltrationDisruptCriticalFail:
+ Id: 6293
+ ENG: "Our Research Disruption Operation against\n was a failure. Our agents were detected and\nwe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                
+InfiltrationDisruptDisaster:
+ Id: 6294
+ ENG: "Our Research Disruption Operation against\n them was disastrous. Our agents were detected and our entire spy network\nwas exposed and wiped out!"               
+InfiltrationDisruptMiserableFailVictim:
+ Id: 6295
+ ENG: "Unknown Agents tried to disrupt our research efforts. They Failed."               
+InfiltrationDisruptCriticalFailVictim:
+ Id: 6296
+ ENG: "An Agent attempted disruption of our research efforts and failed."       
+InfiltrationDisruptDisasterVictim:
+ Id: 6297
+ ENG: "We uncovered and wiped out a spy network when one\nof their agents was trying to disrupt our research efforts."        
+InfiltrationUpriseCriticalFailVictim:
+ Id: 6298
+ ENG: "An Agent was foiled attempting to arrange an uprise in one of our colonies."        
+InfiltrationUpriseMiserableFailVictim:
+ Id: 6299
+ ENG: "Unknown Agents tried arranging an uprise in one of our colonies. They Failed."                
+InfiltrationCounterEspionageMiserableFailVictim:
+ Id: 6300
+ ENG: "Unknown Agents tried uncover our spy network. They Failed."                 
+InfiltrationSabotageSuccessMessage:
+ Id: 6301
+ ENG: "Our Agents saboraged"                  
+InfiltrationSabotageSuccessMessageVictim:
+ Id: 6302
+ ENG: "was sabotaged by unknown agents for"                   
+InfiltrationSabotageMessageFail:
+ Id: 6303
+ ENG: "We failed sabotaging their planets this time."                   
+InfiltrationSabotageMessageFailMiserable:
+ Id: 6304
+ ENG: "We failed sabotaging their planets this time.\nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."              
+InfiltrationSabotageMessageFailMiserableVictim:
+ Id: 6305
+ ENG: "An unknown agent tried to sabotage our planets and failed."               
+InfiltrationSabotageMessageFailCritical:
+ Id: 6306
+ ENG: "Our agent was caught when trying to sabotage their planets.\nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                   
+InfiltrationSabotageMessageFailDisaster:
+ Id: 6307
+ ENG: "Our agent was caught when trying to sabotage their planets\nand our entire spy network was wiped out!"                    
+InfiltrationSabotageMessageFailDisasterVictim:
+ Id: 6308
+ ENG: "We wiped out a spy network when on of their agents was trying to sabotage our planets."                      
+EspioangeOpsLeechIncome:
+ Id: 6309
+ ENG: "Leech Income"   
+EspioangeOpsLeechIncomeTip:
+ Id: 6310
+ ENG: "We steal 2% of their income per turn."     
+EspioangeOpsRebellion:
+ Id: 6311
+ ENG: "Incite Rebellion"   
+EspioangeOpsRebellionTip:
+ Id: 6312
+ ENG: "Try to incite rebellion in one of their more advanced colonies."      
+NewFailedToInciteRebellion:
+ Id: 6313
+ ENG: "Our agents have failed to incite a rebellion in their colonies."        
+NewFailedToInciteRebellionMiserable:
+ Id: 6314
+ ENG: "Our agents have failed to incite a rebellion in their colonies.\nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."         
+InfiltrationRebellionMiserableFailVictim:
+ Id: 6315
+ ENG: "Unknown Agents tried incing a rebellon in one of our colonies. They Failed."                 
+NewFailedToInciteRebellionDetected:
+ Id: 6316
+ ENG: "One of our agents was caught when trying to incite a rebellion.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."       
+InfiltrationRebellionCriticalFailVictim:
+ Id: 6317
+ ENG: "An Agent was foiled attempting to arrange a rebellion in one of our colonies."         
+FailedToInciteRebellionWipedOut:
+ Id: 6318
+ ENG: "Our Agents were caught when trying to incite a rebellion.\nOur entire spy network was exposed and wiped out!"        
+NewWipedOutNetworkRebellion:
+ Id: 6319
+ ENG: "We uncovered and wiped out a spy network when its\nagents were incite a rebellion in one our colonies."         
+SubspaceProjectionStableAgain:
+ Id: 6320
+ ENG: "We have restored stability to our Sub-Space projection network."          
+InfiltrationDisruptProjectionSuccess:
+ Id: 6321
+ ENG: "Our Agents were able to hack and distabilize their Subspace Projection Network.\nThey will need some time to fully restore it."    
+InfiltrationDisruptProjectionFail:
+ Id: 6322
+ ENG: "Our Agents failed to disrupt their Subspace Projection Network."     
+InfiltrationDisruptProjectionMiserableFail:
+ Id: 6323
+ ENG: "Our Subspace Projection Network hack against\nthem has badly failed. We had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."               
+InfiltrationDisruptProjectionMiserableFailVictim:
+ Id: 6324
+ ENG: "Unknown agents have tried to hack our Subspace Projection Network. They have failed."                
+InfiltrationDisruptProjectionCriticalFail:
+ Id: 6325
+ ENG: "Our Subspace Projection Network hack against\nthem has failed and an agent was caught.\nWe had to pull out assets and reduce our Infiltration Level\nto avoid full exposure of our spy network."                
+InfiltrationDisruptProjectionCriticalFailVictim:
+ Id: 6326
+ ENG: "We caught an agent trying to hack our Subspace projection Network."                 
+InfiltrationDisruptProjectionDisaster:
+ Id: 6327
+ ENG: "Our Agents were caught when trying to hack their Subspace Projection Network.\nOur entire spy network was exposed and wiped out!"                 
+InfiltrationDisruptProjectionDisasterVictim:
+ Id: 6328
+ ENG: "We uncovered and wiped out a spy network when its\nagents were trying to hack our Subspace Projection Network."          
+EspioangeOpsDisruptProjection:
+ Id: 6329
+ ENG: "Disrupt Projection"      
+EspioangeOpsDisruptProjectionTip:
+ Id: 6330
+ ENG: "Hack their Subspace Projection network and disatabilize it for a period of time where it will flicker until they manage to stabilize it."        
+EspioangeBudgetMuliplier:
+ Id: 6331
+ ENG: "Budget Multiplier"         
+EspioangeBudgetMuliplierTip:
+ Id: 6332
+ ENG: "Normally, we get 1 Espionage Point per Billion colonists for free. These points go into our Spy defense and infiltration level increase per empire we know. We can increase the Espionage Points we get per Billion colonists, but it will cost us credits per turn."          
+EspioangeHomeworldMole:
+ Id: 6333
+ ENG: "Homeworld Mole"           
+EspioangeHomeworldMoleTip:
+ Id: 6334
+ ENG: "Planet a Mole at the target's homeworld, allowing us to see their colony details and sensors. This mole cannot be removed by their counter-espionage."  
+EspioangeDefenseWeight:
+ Id: 6335
+ ENG: "Defense Weight"            
+EspioangeInfiltrationWeight:
+ Id: 6336
+ ENG: "Infiltration Weight"             
+EspioangeDefenseWeightTip:
+ Id: 6337
+ ENG: "Sets the weight out of the total Espionage points you want to invest in your empire's spy defense. The higher the weight comparing to Infiltration Weight we invest in other empires, the slower it will tike them to increase their Infiltration level in our empire."             
+EspioangeInfiltrationWeightTip:
+ Id: 6338
+ ENG: "Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within this empire. The higher the weight, the more points are allocated to increasing Infiltration Levels and execution time of Active missions. The progress is also affected by their Spy Defense weight and size of empire. Bigger empires are easier to infiltrate."              
+InfiltrationLevel5Desc:
+ Id: 6339
+ ENG: "Diplomacy Screen view of the number of Moles they have planted in our Colonies."              
+MessageInfiltrationLevelIncrease:
+ Id: 6340
+ ENG: "We have infiltrated into their empire.\nOur Infiltration Level is now"               
+EspionageLimitLevel:
+ Id: 6341
+ ENG: "Limit Level"                
+EspionageLevelLimitTip:
+ Id: 6342
+ ENG: "Left click to increase by 1\nright click to decrease by 1\nWhen limiting Infiltration Level, we progress up to the level limit specified. If our Infiltration Level is above the limit level, all relevant operations and passive effects will be paused, and if our infiltration level is discovered, they will only see our limited level."                 
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

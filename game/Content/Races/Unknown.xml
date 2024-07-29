@@ -6,6 +6,7 @@
   <DefaultTroopShip>Human Troop</DefaultTroopShip>
   <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>  
+  <StartingShip>Xeno Fighter</StartingShip>
   <Traits>
     <Name>Unknown</Name>
     <Singular>Unknown</Singular>

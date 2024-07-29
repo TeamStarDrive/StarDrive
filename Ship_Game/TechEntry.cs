@@ -260,7 +260,7 @@ namespace Ship_Game
         }
 
         // checks if any of the bonuses are exclusively restricted for this Empire
-        bool ContentRestrictedTo(Empire empire)
+        public bool ContentRestrictedTo(Empire empire)
         {
             bool hulls     = Tech.HullsUnlocked.Any(item => Technology.IsTypeRestrictedTo(item.ShipType, empire));
             bool buildings = Tech.BuildingsUnlocked.Any(item => Technology.IsTypeRestrictedTo(item.Type, empire));

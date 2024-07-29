@@ -46,7 +46,7 @@ namespace Ship_Game
         [StarData] public bool Quarantine         = false;
         public bool AllowInfantry;
 
-        [StarData] public int CrippledTurns;
+        [StarData] public int CrippledTurns { get; private set; }
         public int TotalDefensiveStrength { get; private set; }
         public float TotalTroopConsumption { get; private set; }
         [StarData] int NumBuildShipsCanLaunch; // How many builder ships (for orbital) this planet can launch
@@ -331,6 +331,10 @@ namespace Ship_Game
             {
                 RingTilt = random.Float(-80f, -45f).ToRadians();
             }
+        }
+        public void AddCrippledTurns(int value)
+        {
+            CrippledTurns += value;
         }
 
         void TrySetExoticPlanet(PlanetType type, RandomBase random, float exoticPlanetMultiplier)

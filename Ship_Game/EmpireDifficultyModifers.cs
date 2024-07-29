@@ -122,7 +122,7 @@
                     ColonyRankModifier   = 1;
                     TaskForceStrength    = 1.5f;
                     ShipLevel            = 2;
-                    MinimumThreatStr     = 20;
+                    MinimumThreatStr     = 15;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
@@ -168,7 +168,7 @@
                     ColonyRankModifier   = 2;
                     TaskForceStrength    = 1.75f;
                     ShipLevel            = 3;
-                    MinimumThreatStr     = 35;
+                    MinimumThreatStr     = 20;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.4f : 0.075f;
@@ -216,7 +216,7 @@
                     ColonyRankModifier   = 2;
                     TaskForceStrength    = 1.75f;
                     ShipLevel            = 5;
-                    MinimumThreatStr     = 50;
+                    MinimumThreatStr     = 25;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
@@ -262,7 +262,7 @@
 
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
             DiploWeightVsPlayer = (int)difficulty + 1;
-            Anger               = 1 + ((int)difficulty + 1) * 0.2f;
+            Anger               = ((int)difficulty + 1) * 0.2f;
 
             if (empire.isPlayer)
             {

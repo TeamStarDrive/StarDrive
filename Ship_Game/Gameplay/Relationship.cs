@@ -118,6 +118,7 @@ namespace Ship_Game.Gameplay
 
         [StarData] public EmpireRiskAssessment Risk;
         [StarData] public EmpireInformation KnownInformation;
+        [StarData] public Espionage Espionage;
 
         [StarData] public bool DoNotSurrenderToThem;
 
@@ -148,8 +149,8 @@ namespace Ship_Game.Gameplay
             {
                 if (!(haveRejectedDemandTech = value))
                     return;
+
                 Trust -= 20f;
-                TotalAnger += 20f; // TODO check this
                 AddAngerDiplomaticConflict(20);
             }
         }
@@ -168,11 +169,13 @@ namespace Ship_Game.Gameplay
         [StarDataConstructor]
         Relationship() {}
 
-        public Relationship(Empire them)
+        public Relationship(Empire us, Empire them)
         {
             Them = them;
             Risk = new EmpireRiskAssessment(this);
             KnownInformation = new EmpireInformation(this);
+            if (us.NewEspionageEnabled)
+                Espionage = new Espionage(us, them);
         }
 
         public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer = 250)
@@ -231,11 +234,19 @@ namespace Ship_Game.Gameplay
         {
             switch (treatyType)
             {
-                case TreatyType.Alliance:      Treaty_Alliance    = value; HandleAlliance();              break;
-                case TreatyType.NonAggression: Treaty_NAPact      = value;                                break;
-                case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                break;
-                case TreatyType.Peace:         Treaty_Peace       = value; HandlePeace();                 break;
-                case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0; break;
+                case TreatyType.Alliance:      Treaty_Alliance    = value; HandleAlliance(); break;
+                case TreatyType.NonAggression: Treaty_NAPact      = value;                   break;
+                case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                   break;
+                case TreatyType.Peace:         Treaty_Peace       = value; HandlePeace();    break;
+                case TreatyType.Trade:         Treaty_Trade       = value; HandleTrade();    break;
+            }
+
+            if (!us.isPlayer && us.NewEspionageEnabled)
+                us.AI.EspionageManager.Update(forceRun: true);
+
+            void HandleTrade()
+            {
+                Treaty_Trade_TurnsExisted = 0;
             }
 
             void HandlePeace()
@@ -312,7 +323,8 @@ namespace Ship_Game.Gameplay
             victim.RespondPlayerStoleColony(this);
         }
 
-        public void DamageRelationship(Empire us, Empire them, string why, float amount, Planet p)
+        public void DamageRelationship(Empire us, Empire them, string why, float amount, Planet p,
+            bool breakTreatiesWithAllyifCaughtSpying = true)
         {
             if (us.data.DiplomaticPersonality == null || us.isPlayer)
                 return;
@@ -330,10 +342,9 @@ namespace Ship_Game.Gameplay
             {
                 if (why == "Caught Spying")
                 {
-                    SpiesDetected            += 1;
+                    SpiesDetected += 1;
                     AddAngerDiplomaticConflict(amount);
-                    TotalAnger               += amount;
-                    Trust                    -= amount;
+                    Trust -= amount;
 
                     if (Treaty_Alliance)
                     {
@@ -350,11 +361,13 @@ namespace Ship_Game.Gameplay
                             if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
-                            us.BreakAllTreatiesWith(them);
+                            if (breakTreatiesWithAllyifCaughtSpying)
+                                us.BreakAllTreatiesWith(them);
+
                             turnsSinceLastContact = 0;
                         }
                     }
-                    else if (SpiesDetected == 1 && !AtWar && them.isPlayer && !us.IsFaction)
+                    else if (!AtWar && them.isPlayer && !us.IsFaction)
                     {
                         if (SpiesDetected == 1)
                         {
@@ -383,8 +396,7 @@ namespace Ship_Game.Gameplay
                 else if (why == "Caught Spying Failed")
                 {
                     AddAngerDiplomaticConflict(amount);
-                    TotalAnger               += amount;
-                    Trust                    -= amount;
+                    Trust -= amount;
 
                     SpiesKilled += 1;
 
@@ -401,7 +413,9 @@ namespace Ship_Game.Gameplay
                             if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
-                            us.BreakAllTreatiesWith(them);
+                            if (breakTreatiesWithAllyifCaughtSpying)
+                                us.BreakAllTreatiesWith(them);
+
                             Posture = Posture.Hostile;
                         }
                     }
@@ -413,8 +427,7 @@ namespace Ship_Game.Gameplay
                 else if (why == "Insulted")
                 {
                     AddAngerDiplomaticConflict(amount);
-                    TotalAnger               += amount;
-                    Trust                    -= amount;
+                    Trust -= amount;
                 }
                 else if (why == "Colonized Owned System")
                 {
@@ -492,8 +505,7 @@ namespace Ship_Game.Gameplay
         public void ImproveRelations(float trustEarned, float angerToReduce)
         {
             AddAngerDiplomaticConflict(-angerToReduce);
-            TotalAnger               -= angerToReduce;
-            Trust                    += trustEarned;
+            Trust += trustEarned;
         }
 
         public void SetImperialistWar() //TODO what about AtWar?
@@ -791,7 +803,7 @@ namespace Ship_Game.Gameplay
                 float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 25
                                              : us.CurrentMilitaryStrength * 50 ; // We are less concerned if we have NAP with them
 
-                float borderAnger = (151f - Trust) * 0.01f * strShipsInBorders / ourStr.LowerBound(1);
+                float borderAnger = (100f - Trust) * 0.01f * strShipsInBorders / ourStr.LowerBound(1);
                 AddAngerShipsInOurBorders(borderAnger);
             }
         }
@@ -832,7 +844,7 @@ namespace Ship_Game.Gameplay
         void UpdateThreat(Empire us, Empire them)
         {
             float ourMilScore   = (us.OffensiveStrength*0.001f).LowerBound(us.DifficultyModifiers.MinimumThreatStr); 
-            float theirMilScore = (them.OffensiveStrength * 0.001f).LowerBound(us.DifficultyModifiers.MinimumThreatStr);
+            float theirMilScore = (them.OffensiveStrength*0.001f).LowerBound(us.DifficultyModifiers.MinimumThreatStr);
             float newThreat     = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
             Threat = HelperFunctions.ExponentialMovingAverage(Threat, newThreat, 0.98f);
         }

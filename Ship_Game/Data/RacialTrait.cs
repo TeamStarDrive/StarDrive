@@ -155,23 +155,22 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: set old values from new bools
-        public void LoadTraitConstraints(bool isPlayer, RandomBase random, string raceName, bool disableAlternateTraits)
+        public void LoadTraitConstraints(bool isPlayer, RandomBase random, string raceName, bool disableAlternateTraits, out string selectedTraits)
         {
+            selectedTraits = string.Empty;
             if (TraitSets.Count == 0)
                 return;
 
             Array<string> traitOptions = isPlayer || disableAlternateTraits 
                 ? PlayerTraitOptions 
-                : random.Item(TraitSets).TraitOptions; 
+                : random.Item(TraitSets).TraitOptions;
+
+            foreach (string trait in traitOptions)
+                selectedTraits += $"{trait}, ";
 
             if (Log.HasDebugger)
-            {
-                string selectedTraits = string.Empty;
-                foreach (string trait in traitOptions)
-                    selectedTraits += $"{trait}, "; ;
-
                 Log.Info($"Selected traits for {raceName}: {selectedTraits}");
-            }
+
 
             var traits = ResourceManager.RaceTraits;
             if (traits.TraitList == null)

@@ -32,6 +32,18 @@
   <ThrustColor1R>245</ThrustColor1R>
   <ThrustColor1G>245</ThrustColor1G>
   <ThrustColor1B>245</ThrustColor1B>     
+  
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>  
+  
   <Traits>
     <Name>The Draylok Council</Name>
     <Singular>Draylok</Singular>

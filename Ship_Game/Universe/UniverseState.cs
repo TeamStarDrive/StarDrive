@@ -571,6 +571,13 @@ namespace Ship_Game.Universe
         {
             owner.RemoveBorderNode(planet);
             Influence.Remove(owner, planet);
+            RemoveMoles(planet.Id, owner);
+        }
+
+        void RemoveMoles(int planetId, Empire planetOwner)
+        {
+            foreach (Empire empire in ActiveMajorEmpires)
+                empire.RemoveMoles(planetId, planetOwner);
         }
 
         public void CalcInitialSettings()
@@ -615,7 +622,7 @@ namespace Ship_Game.Universe
             float playerRatio     = (float)idealNumPlayers / numMajorEmpires;
             float settingsRatio   = galSizeModifier * extraPlanetsMod * playerRatio * P.StarsModifier;
 
-            return settingsRatio;
+            return settingsRatio; // P.Pace cannot be added here since we use clamping in cost multiplier before adding pace.
         }
 
         public float ProductionPace => 1 + (P.Pace - 1) * 0.5f;
