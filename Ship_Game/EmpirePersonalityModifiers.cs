@@ -38,6 +38,12 @@ namespace Ship_Game
         public readonly float PiratePayChanceModifier; // How inclined to pay pirates
         public readonly float SpyDamageRelationsMultiplier; // Multipler for base rations damage when caught spying. Works for new Espionage logic
         public readonly float WantedMoleCovreage; // Coverage of mole threshold from the victim total planets
+        // Espionage AI Operation activation thresholds
+        public readonly float EspionageTechScoreOpsMultiplier;
+        public readonly float EspionageExpansionScoreOpsMultiplier;
+        public readonly float EspionageIndustryScoreOpsMultiplier;
+        public readonly float EspionageMilitaryScoreOpsMultiplier;
+        public readonly float EspionageTotalScoreOpsMultiplier;
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -77,6 +83,12 @@ namespace Ship_Game
                     WarTasksLifeTime      = 1;
                     TrustCostNaPact       = 0;
                     WarSneakiness         = 0;
+
+                    EspionageTechScoreOpsMultiplier      = 2;
+                    EspionageExpansionScoreOpsMultiplier = 2;
+                    EspionageIndustryScoreOpsMultiplier  = 2;
+                    EspionageMilitaryScoreOpsMultiplier  = 2;
+                    EspionageTotalScoreOpsMultiplier     = 2;
                     break;
                 case PersonalityType.Aggressive:
                     ColonizationClaimRatioWarningThreshold = 0.9f;
@@ -112,6 +124,12 @@ namespace Ship_Game
                     WarTasksLifeTime      = 3;
                     GoToWarTolerance      = 1.1f;
                     WarSneakiness         = 5;
+
+                    EspionageTechScoreOpsMultiplier      = 1.2f;
+                    EspionageExpansionScoreOpsMultiplier = 1.3f;
+                    EspionageIndustryScoreOpsMultiplier  = 1.25f;
+                    EspionageMilitaryScoreOpsMultiplier  = 1;
+                    EspionageTotalScoreOpsMultiplier     = 1.5f;
                     break;
                 case PersonalityType.Ruthless:
                     ColonizationClaimRatioWarningThreshold = 0.8f;
@@ -147,6 +165,12 @@ namespace Ship_Game
                     WarTasksLifeTime      = 2.5f;
                     GoToWarTolerance      = 1.15f;
                     WarSneakiness         = 0;
+
+                    EspionageTechScoreOpsMultiplier      = 1.25f;
+                    EspionageExpansionScoreOpsMultiplier = 1.5f;
+                    EspionageIndustryScoreOpsMultiplier  = 1.2f;
+                    EspionageMilitaryScoreOpsMultiplier  = 1.2f;
+                    EspionageTotalScoreOpsMultiplier     = 1.25f;
                     break;
                 case PersonalityType.Xenophobic:
                     ColonizationClaimRatioWarningThreshold = 0.6f;
@@ -182,6 +206,13 @@ namespace Ship_Game
                     WarTasksLifeTime      = 2.5f;
                     GoToWarTolerance      = 1.5f;
                     WarSneakiness         = 0;
+
+                    EspionageTechScoreOpsMultiplier      = 1.2f;
+                    EspionageExpansionScoreOpsMultiplier = 1.2f;
+                    EspionageIndustryScoreOpsMultiplier  = 1.2f;
+                    EspionageMilitaryScoreOpsMultiplier  = 1.2f;
+                    EspionageTotalScoreOpsMultiplier     = 1.4f;
+
                     break;
                 case PersonalityType.Cunning:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -218,6 +249,12 @@ namespace Ship_Game
                     WarTasksLifeTime      = 2;
                     GoToWarTolerance      = 1.5f;
                     WarSneakiness         = 10;
+
+                    EspionageTechScoreOpsMultiplier      = 1.1f;
+                    EspionageExpansionScoreOpsMultiplier = 1.1f;
+                    EspionageIndustryScoreOpsMultiplier  = 1.1f;
+                    EspionageMilitaryScoreOpsMultiplier  = 1.1f;
+                    EspionageTotalScoreOpsMultiplier     = 1.15f;
                     break;
                 case PersonalityType.Honorable:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -253,6 +290,12 @@ namespace Ship_Game
                     WarTasksLifeTime      = 3;
                     GoToWarTolerance      = 1.1f;
                     WarSneakiness         = -10;
+
+                    EspionageTechScoreOpsMultiplier      = 1.6f;
+                    EspionageExpansionScoreOpsMultiplier = 1.5f;
+                    EspionageIndustryScoreOpsMultiplier  = 1.5f;
+                    EspionageMilitaryScoreOpsMultiplier  = 1.75f;
+                    EspionageTotalScoreOpsMultiplier     = 2f;
                     break;
                 case PersonalityType.Pacifist:
                     ColonizationClaimRatioWarningThreshold = 1.25f;
@@ -288,6 +331,12 @@ namespace Ship_Game
                     WarTasksLifeTime      = 1.5f;
                     GoToWarTolerance      = 2f;
                     WarSneakiness         = -5;
+
+                    EspionageTechScoreOpsMultiplier      = 1.5f;
+                    EspionageExpansionScoreOpsMultiplier = 1.6f;
+                    EspionageIndustryScoreOpsMultiplier  = 1.75f;
+                    EspionageMilitaryScoreOpsMultiplier  = 1.75f;
+                    EspionageTotalScoreOpsMultiplier     = 2f;
                     break;
             }
         }

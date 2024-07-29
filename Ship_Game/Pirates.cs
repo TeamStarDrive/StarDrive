@@ -831,11 +831,13 @@ namespace Ship_Game
             }
             else
             {
-                // We might use this ship for defense or future attacks
-                if (ship.AI.State != AIState.Orbit 
-                    || ship.AI.State != AIState.Escort 
-                    || ship.AI.State != AIState.Resupply)
+                if (ShipsWeCanSpawn.Contains(ship.Name))
+                    ship.QueueTotalRemoval();
+                else if (ship.AI.State != AIState.Orbit 
+                         || ship.AI.State != AIState.Escort 
+                         || ship.AI.State != AIState.Resupply)
                 {
+                    // We might use this ship for defense or future attacks
                     ship.AI.AddEscortGoal(pirateBase);
                 }
             }

@@ -151,113 +151,86 @@ namespace Ship_Game.AI
             if (theyHaveInfiltratedUs)
                 opsWanted.Add(InfiltrationOpsType.CounterEspionage);
 
-            if (espionage.MoleCoverageReached)
+            if (!espionage.MoleCoverageReached)
                 opsWanted.Add(InfiltrationOpsType.PlantMole);
 
-            switch (Owner.Personality)
+            if (Owner.Universe.P.Difficulty != GameDifficulty.Normal)
             {
-                default:
-                case PersonalityType.Aggressive:
-                    if (relations.AtWar || relations.PreparingForWar)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.DisruptProjection);
-                        opsWanted.Add(InfiltrationOpsType.Sabotage);
-                        opsWanted.Add(InfiltrationOpsType.Uprise);
-                        break;
-                    }
-
-                    if (!relations.Treaty_Alliance && relations.TotalAnger > 50)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.SlowResearch);
-                        opsWanted.Add(espionage.CanActivateOperation(InfiltrationOpsType.Rebellion) 
-                                                ? InfiltrationOpsType.Rebellion 
-                                                : InfiltrationOpsType.Uprise);
-                    }
-
-                    break;
-                case PersonalityType.Ruthless:
-                    if (relations.AtWar || relations.PreparingForWar)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.Rebellion);
-                        opsWanted.Add(InfiltrationOpsType.SlowResearch);
-                        break;
-                    }
-
-                    if (!relations.Treaty_Alliance && relations.TotalAnger > 50)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.Rebellion);
-                        opsWanted.Add(InfiltrationOpsType.DisruptProjection);
-                    }
-
-                    break;
-                case PersonalityType.Xenophobic:
-                    if (relations.AtWar || relations.PreparingForWar)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.DisruptProjection);
-                        opsWanted.Add(InfiltrationOpsType.Sabotage);
-                        opsWanted.Add(InfiltrationOpsType.Uprise);
-                        break;
-                    }
-
-                    if (relations.TotalAnger > 25 || relations.GetStrength() < 20)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.Rebellion);
-                        opsWanted.Add(InfiltrationOpsType.SlowResearch);
-                    }
-
-                    break;
-                case PersonalityType.Honorable:
-                    if (relations.AtWar || relations.PreparingForWar)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.DisruptProjection);
-                        opsWanted.Add(InfiltrationOpsType.SlowResearch);
-                        break;
-                    }
-
-                    if (!relations.Treaty_Alliance && relations.TotalAnger > 50)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.SlowResearch);
-                        opsWanted.Add(InfiltrationOpsType.Uprise);
-                    }
-
-                    break;
-                case PersonalityType.Pacifist:
-                    if (relations.AtWar || relations.PreparingForWar)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.Uprise);
-                        opsWanted.Add(InfiltrationOpsType.SlowResearch);
-                        break;
-                    }
-
-                    break;
-                case PersonalityType.Cunning:
-                    if (relations.AtWar || relations.PreparingForWar)
-                    {
-                        opsWanted.Add(InfiltrationOpsType.DisruptProjection);
-                        opsWanted.Add(InfiltrationOpsType.Sabotage);
-                        opsWanted.Add(InfiltrationOpsType.Uprise);
-                        break;
-                    }
-
-                    if (!relations.Treaty_Alliance || Owner.IsSafeToActivateOpsOnAllies(them))
-                    {
-                        if (Owner.TechScore < them.TechScore)
-                            opsWanted.Add(InfiltrationOpsType.SlowResearch);
-
-                        if (Owner.ExpansionScore < them.ExpansionScore)
-                            opsWanted.Add(InfiltrationOpsType.Uprise);
-
-                        if (Owner.IndustrialScore < them.IndustrialScore)
-                            opsWanted.Add(InfiltrationOpsType.Sabotage);
-
-                        if (Owner.MilitaryScore < them.MilitaryScore)
-                            opsWanted.Add(InfiltrationOpsType.Rebellion);
-
-                        if (Owner.TotalScore < them.TotalScore)
+                switch (Owner.Personality)
+                {
+                    default:
+                    case PersonalityType.Aggressive:
+                        if (relations.AtWar || relations.PreparingForWar)
+                        {
                             opsWanted.Add(InfiltrationOpsType.DisruptProjection);
-                    }
+                            opsWanted.Add(InfiltrationOpsType.Sabotage);
+                            break;
+                        }
+                        break;
+                    case PersonalityType.Ruthless:
+                        if (relations.AtWar || relations.PreparingForWar)
+                        {
+                            opsWanted.Add(InfiltrationOpsType.Rebellion);
+                            opsWanted.Add(InfiltrationOpsType.SlowResearch);
+                            break;
+                        }
 
-                    break;
+                        break;
+                    case PersonalityType.Xenophobic:
+                        if (relations.AtWar || relations.PreparingForWar)
+                        {
+                            opsWanted.Add(InfiltrationOpsType.DisruptProjection);
+                            opsWanted.Add(InfiltrationOpsType.Sabotage);
+                            opsWanted.Add(InfiltrationOpsType.Uprise);
+                            break;
+                        }
+
+                        break;
+                    case PersonalityType.Honorable:
+                        if (relations.AtWar || relations.PreparingForWar)
+                        {
+                            opsWanted.Add(InfiltrationOpsType.DisruptProjection);
+                            opsWanted.Add(InfiltrationOpsType.SlowResearch);
+                            break;
+                        }
+
+                        break;
+                    case PersonalityType.Pacifist:
+                        if (relations.AtWar || relations.PreparingForWar)
+                        {
+                            opsWanted.Add(InfiltrationOpsType.Uprise);
+                            opsWanted.Add(InfiltrationOpsType.SlowResearch);
+                            break;
+                        }
+
+                        break;
+                    case PersonalityType.Cunning:
+                        if (relations.AtWar || relations.PreparingForWar)
+                        {
+                            opsWanted.Add(InfiltrationOpsType.DisruptProjection);
+                            opsWanted.Add(InfiltrationOpsType.Sabotage);
+                            break;
+                        }
+                        break;
+                }
+            }
+
+            if (!relations.Treaty_Alliance || Owner.IsSafeToActivateOpsOnAllies(them))
+            {
+                if (Owner.TechScore * Owner.PersonalityModifiers.EspionageTechScoreOpsMultiplier < them.TechScore)
+                    opsWanted.Add(InfiltrationOpsType.SlowResearch);
+
+                if (Owner.ExpansionScore * Owner.PersonalityModifiers.EspionageExpansionScoreOpsMultiplier  < them.ExpansionScore)
+                    opsWanted.Add(InfiltrationOpsType.Uprise);
+
+                if (Owner.IndustrialScore * Owner.PersonalityModifiers.EspionageIndustryScoreOpsMultiplier < them.IndustrialScore)
+                    opsWanted.Add(InfiltrationOpsType.Sabotage);
+
+                if (Owner.MilitaryScore * Owner.PersonalityModifiers.EspionageMilitaryScoreOpsMultiplier < them.MilitaryScore)
+                    opsWanted.Add(InfiltrationOpsType.Rebellion);
+
+                if (Owner.TotalScore * Owner.PersonalityModifiers.EspionageTotalScoreOpsMultiplier < them.TotalScore)
+                    opsWanted.Add(InfiltrationOpsType.DisruptProjection);
             }
 
             foreach (InfiltrationOpsType type in opsWanted)

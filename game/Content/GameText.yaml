@@ -15217,7 +15217,7 @@ CounterEspioangeOpsFailed:
  ENG: "Our Counter Espionage effort against them did not\nyield any result this time."             
 CounterEspioangeOpsFailedMiserably:
  Id: 6268
- ENG: "Our Counter-Espioange effort has badly failed.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."       
+ ENG: "Our Counter-Espioange effort has badly failed.\nThey noticed the effort but don't know who did it."       
 CounterEspioangeOpsFailedDetected:
  Id: 6269
  ENG: "Our Counter-Espioange effort has badly failed and our agents were detected.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."        

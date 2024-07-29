@@ -50,7 +50,9 @@ namespace Ship_Game
             Level++;
             LevelProgress = 0;
             string message = $"{Them.data.Name}: {Localizer.Token(GameText.MessageInfiltrationLevelIncrease)} {Level}.";
-            Owner.Universe.Notifications.AddAgentResult(true, message, Owner);
+            if (!Them.IsFaction)
+                Owner.Universe.Notifications.AddAgentResult(true, message, Owner);
+
             EnablePassiveEffects();
             if (!Owner.isPlayer)
                 Owner.AI.EspionageManager.Update(forceRun: true);
