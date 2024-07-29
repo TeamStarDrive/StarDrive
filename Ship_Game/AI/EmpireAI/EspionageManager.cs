@@ -99,7 +99,7 @@ namespace Ship_Game.AI
                     break;
                 case PersonalityType.Ruthless:
                 case PersonalityType.Cunning:
-                    limitLevel = Espionage.MaxLevel;
+                    limitLevel = (byte)(relations.Treaty_Alliance && !relations.PreparingForWar ? 4 : Espionage.MaxLevel);
                     break;
                 case PersonalityType.Xenophobic:
                     if (espionage.Level < Espionage.MaxLevel)
