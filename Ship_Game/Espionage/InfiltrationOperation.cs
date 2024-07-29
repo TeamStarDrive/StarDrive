@@ -89,12 +89,11 @@ namespace Ship_Game
         protected InfiltrationOpsResult RollMissionResult(Empire owner, 
             Empire them, int targetNumber)
         {
-
             int baseModifier = (owner.GetEspionage(them).Level - Level).LowerBound(0);
             int baseResult   = owner.Random.RollDie(100) + baseModifier;
 
-            if (baseResult >= 99) return InfiltrationOpsResult.Phenomenal;
-            if (baseResult <= 2)  return InfiltrationOpsResult.Disaster;
+            if (baseResult >= 98) return InfiltrationOpsResult.Phenomenal;
+            if (baseResult <= 3)  return InfiltrationOpsResult.Disaster;
 
             int defense = (int)(them.EspionageDefenseRatio * 25) + (int)them.data.DefensiveSpyBonus;
             int modifiedResult = (int)(baseResult - defense + owner.data.OffensiveSpyBonus + owner.data.SpyModifier);
@@ -175,12 +174,12 @@ namespace Ship_Game
 
     public enum InfiltrationOpsResult
     {
-        Disaster,      // natural 1 or 2
+        Disaster,      // natural 1 to 3
         CriticalFail,  // 0.05 of target
         MiserableFail, // 0.1 of target
         Fail,          // below target
         Success,       // target reached
         GreatSuccess,  // target * 2
-        Phenomenal     // Natural 99 or 100
+        Phenomenal     // Natural 98 to 100
     }
 }

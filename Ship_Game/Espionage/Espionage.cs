@@ -132,7 +132,7 @@ namespace Ship_Game
                 progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight) / validOps;
                 return ops.TurnsToComplete(progressPerTurn);
             }
-            else if (GetOpsLevel(type) <= LimitLevel) // Checking the a
+            else if (GetOpsLevel(type) <= LimitLevel) // Checking the first Operation
             {
                 int totalWeight = Owner.CalcTotalEspionageWeight(grossWeight: true);
                 progressPerTurn = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight, true) / (validOps + 1);
@@ -158,7 +158,7 @@ namespace Ship_Game
             for (int i = Operations.Count - 1; i >= 0; i--)
             {
                 InfiltrationOperation mission = Operations[i];
-                if (mission.Level > Level)
+                if (mission.Level > Level) // not checking actual level since ops above limit level are paused and not removed.
                     Operations.Remove(mission);
             }
 
@@ -353,10 +353,7 @@ namespace Ship_Game
 
         public void ActivateOpsIfAble(InfiltrationOpsType type)
         {
-            if (IsOperationActive(type))
-                return;
-
-            if (CanActivateOperation(type))
+            if (!IsOperationActive(type) && CanActivateOperation(type))
                 AddOperation(type);
         }
 

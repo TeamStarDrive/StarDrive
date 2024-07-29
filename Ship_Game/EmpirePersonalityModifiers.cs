@@ -37,7 +37,7 @@ namespace Ship_Game
         public readonly float ImperialistWarPlanetsToTakeMult; // multiplier for how many planets to take from available enemy planets if we have better score
         public readonly float PiratePayChanceModifier; // How inclined to pay pirates
         public readonly float SpyDamageRelationsMultiplier; // Multipler for base rations damage when caught spying. Works for new Espionage logic
-        public readonly float WantedMoleCovreage; // Coverage of mole threshold from the victim total planets
+        public readonly float WantedMoleCovreage; // Coverage of mole threshold of the victim total planets
         // Espionage AI Operation activation thresholds
         public readonly float EspionageTechScoreOpsMultiplier;
         public readonly float EspionageExpansionScoreOpsMultiplier;

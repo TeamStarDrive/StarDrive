@@ -50,7 +50,6 @@ namespace Ship_Game
         public void SetAiEspionageBudgetMultiplier(float budget)
         {
             float totalPopBillion = TotalPopBillion;
-            int lala = CalcTotalEspionageWeight();
             if (totalPopBillion < 10 || EspionageDefenseWeight == CalcTotalEspionageWeight())
                 EspionageBudgetMultiplier = 1;
             else
@@ -137,7 +136,6 @@ namespace Ship_Game
 
         public int GetNumOfTheirMoles(Empire them)
         {
-
             return NewEspionageEnabled ? GetEspionage(them).NumPlantedMoles 
                                        : them.data.MoleList.Count(m =>  Universe.GetPlanet(m.PlanetId).Owner == this);
         }

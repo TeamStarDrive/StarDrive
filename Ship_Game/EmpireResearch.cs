@@ -91,7 +91,7 @@ namespace Ship_Game
                 MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
 
-            UpdateNetResearchDistuption();
+            UpdateNetResearchDisruption();
             float researchFromAlliances = GetResearchFromAllies();
             NetResearch          += researchFromAlliances;
             MaxResearchPotential += researchFromAlliances;
@@ -120,7 +120,7 @@ namespace Ship_Game
 
 
 
-        void UpdateNetResearchDistuption()
+        void UpdateNetResearchDisruption()
         {
             if (Empire.LegacyEspionageEnabled)
                 return;
