@@ -74,6 +74,7 @@ namespace Ship_Game.GameScreens
                     EspionageBudgetMultiplier.Tip = GameText.EspioangeBudgetMuliplierTip;
                     EspionageBudgetMultiplier.OnChange = (s) =>
                     {
+                        Player.UpdateEspionageDefenseRatio();
                         Player.SetEspionageBudgetMultiplier(s.AbsoluteValue.RoundToFractionOf10());
                         UpdateCostPerTurn();
                     };

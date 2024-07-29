@@ -89,7 +89,7 @@ namespace Ship_Game
 
         public void UpdateEspionageDefenseRatio(int totalWeight)
         {
-            EspionageDefenseRatio = (float)EspionageDefenseWeight / totalWeight.LowerBound(1);
+            EspionageDefenseRatio = ((float)EspionageDefenseWeight / totalWeight.LowerBound(1) * EspionageBudgetMultiplier).UpperBound(1);
         }
 
         public void UpdateEspionageDefenseRatio()

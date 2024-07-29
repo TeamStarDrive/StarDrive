@@ -28,29 +28,25 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
+            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
             var potentials = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
             Planet targetPlanet = Them.Random.Item(potentials);
-            bool addRebellion = false;
-            int numRebels = 5;
+            int numRebels = 5 + targetPlanet.Level/2;
             float takeoverOrbitalChance = 50;
 
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    aftermath.GoodResult = addRebellion = true;
                     numRebels += 7;
                     takeoverOrbitalChance = 100;
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    aftermath.GoodResult = addRebellion = true;
                     numRebels += 3;
                     takeoverOrbitalChance = 75;
                     break;
                 case InfiltrationOpsResult.Success:
-                    aftermath.GoodResult = addRebellion = true;
                     break;
                 case InfiltrationOpsResult.Fail:
                     aftermath.Message = GameText.NewFailedToInciteRebellion;
@@ -78,7 +74,7 @@ namespace Ship_Game
                     break;
             }
 
-            if (addRebellion)
+            if (aftermath.GoodResult)
             {
                 aftermath.MessageToVictim = $"{Localizer.Token(GameText.IncitedUpriseOn)} {targetPlanet.Name}";
                 aftermath.CustomMessage = $"{Localizer.Token(GameText.WeIncitedUprise)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";

@@ -28,8 +28,8 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
+            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
             Espionage theirEspionage = Them.GetEspionage(Owner);
             var potentialMoles = Them.data.MoleList.Filter(m => !m.Sticky && Owner.GetPlanets().Any(p => p.Id == m.PlanetId));
@@ -37,7 +37,6 @@ namespace Ship_Game
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    aftermath.GoodResult = true;
                     if (theirEspionage.Level > 0)
                     {
                         theirEspionage.WipeoutInfiltration();
@@ -52,7 +51,6 @@ namespace Ship_Game
 
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    aftermath.GoodResult = true;
                     if (theirEspionage.Level > 0)
                     {
                         aftermath.Message = GameText.CounterEspioangeOpsWeExposedPartially;
@@ -66,7 +64,6 @@ namespace Ship_Game
 
                     break;
                 case InfiltrationOpsResult.Success:
-                    aftermath.GoodResult = true;
                     if (potentialMoles.Length > 0)
                         RemoveMole();
                     break;

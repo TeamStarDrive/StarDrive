@@ -25,22 +25,19 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, SuccessTargetNumber);
+            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
             aftermath.MessageUseTheirName = true;
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    aftermath.GoodResult = true;
                     espionage.SetDisruptProjectionChance(100);
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    aftermath.GoodResult = true;
                     espionage.SetDisruptProjectionChance(75);
                     break;
                 case InfiltrationOpsResult.Success:
-                    aftermath.GoodResult = true;
                     espionage.SetDisruptProjectionChance(50);
                     break;
                 case InfiltrationOpsResult.Fail:

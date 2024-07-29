@@ -96,12 +96,12 @@ namespace Ship_Game
             if (baseResult >= 99) return InfiltrationOpsResult.Phenomenal;
             if (baseResult <= 2)  return InfiltrationOpsResult.Disaster;
 
-            int defense = (int)(them.EspionageDefenseRatio * 20) + (int)them.data.DefensiveSpyBonus;
+            int defense = (int)(them.EspionageDefenseRatio * 25) + (int)them.data.DefensiveSpyBonus;
             int modifiedResult = (int)(baseResult - defense + owner.data.OffensiveSpyBonus + owner.data.SpyModifier);
 
             if (modifiedResult >= targetNumber*2) return InfiltrationOpsResult.GreatSuccess;
-            if (modifiedResult < targetNumber/10) return InfiltrationOpsResult.CriticalFail;
-            if (modifiedResult < targetNumber/5)  return InfiltrationOpsResult.MiserableFail;
+            if (modifiedResult < targetNumber/20) return InfiltrationOpsResult.CriticalFail;
+            if (modifiedResult < targetNumber/10) return InfiltrationOpsResult.MiserableFail;
             if (modifiedResult < targetNumber)    return InfiltrationOpsResult.Fail;
             else                                  return InfiltrationOpsResult.Success;
         }
@@ -117,7 +117,7 @@ namespace Ship_Game
 
         protected struct InfiltrationOpsResolve
         {
-            public bool GoodResult;
+            public readonly bool GoodResult;
             public LocalizedText Message;
             public string MessageToVictim;
             public string CustomMessage;
@@ -130,7 +130,7 @@ namespace Ship_Game
             readonly Empire Victim;
             
 
-            public InfiltrationOpsResolve(Empire us, Empire victim)
+            public InfiltrationOpsResolve(Empire us, Empire victim, InfiltrationOpsResult result)
             {
                 Us              = us;
                 Victim          = victim;
@@ -139,6 +139,7 @@ namespace Ship_Game
                 MessageToVictim = "";
                 CustomMessage   = "";
                 DamageReason    = "";
+                GoodResult      = result >= InfiltrationOpsResult.Success;
             }
 
             public void SendNotifications(UniverseState u)
@@ -174,12 +175,12 @@ namespace Ship_Game
 
     public enum InfiltrationOpsResult
     {
-        Phenomenal,    // Natural 99 or 100
-        GreatSuccess,  // target * 2
-        Success,       // target reached
+        Disaster,      // natural 1 or 2
+        CriticalFail,  // 0.05 of target
+        MiserableFail, // 0.1 of target
         Fail,          // below target
-        MiserableFail, // 0.2 of target
-        CriticalFail,  // 0.1 of target
-        Disaster       // natural 1 or 2
+        Success,       // target reached
+        GreatSuccess,  // target * 2
+        Phenomenal     // Natural 99 or 100
     }
 }

@@ -29,14 +29,13 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
+            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
                 case InfiltrationOpsResult.GreatSuccess:
                 case InfiltrationOpsResult.Success:
-                    aftermath.GoodResult = true;
                     var mole = Mole.PlantMole(Owner, Them, out Planet planet);
                     aftermath.Planet = planet; // Planet will not be nul if mole is not null
                     aftermath.CustomMessage = mole != null ? $"{Localizer.Token(GameText.NewSuccessfullyInfiltratedAColony)} {planet.Name}." 

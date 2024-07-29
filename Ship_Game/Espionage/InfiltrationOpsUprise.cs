@@ -27,8 +27,8 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
+            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
             var potentials      = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
             Planet targetPlanet = Them.Random.Item(potentials);
@@ -38,15 +38,12 @@ namespace Ship_Game
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    aftermath.GoodResult = addRebellion = true;
                     numRebels += 4;
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    aftermath.GoodResult = addRebellion = true;
                     numRebels += 2;
                     break;
                 case InfiltrationOpsResult.Success:
-                    aftermath.GoodResult = addRebellion = true;
                     break;
                 case InfiltrationOpsResult.Fail:
                     aftermath.Message = GameText.NewFailedToInciteUprise;

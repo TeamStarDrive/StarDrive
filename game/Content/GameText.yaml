@@ -15103,7 +15103,7 @@ UseLegacyEspionageTip:
  ENG: "Enable Legacy Espionage (Agents) instead of the rewritten system (Infiltration Levels)"    
 InfiltrationDefesneTip:
  Id: 6228
- ENG: "Indicates the percentage of Taxed Research invested in Infiltration Defense by this empire. The higher the percentage, the slower we can progress in setting up spy networks within this empire."     
+ ENG: "Indicates budget weight invested in Infiltration Defense by this empire. The higher the percentage, the slower they can progress in setting up spy networks within their empire, but the better they defend against offensive spy operations. Increased budget will also affect this."
 InfiltrationLevel1Desc:
  Id: 6229
  ENG: "Allows Diplomacy Screen view of their total Population, Personality, total owned Planets and Treaties."      

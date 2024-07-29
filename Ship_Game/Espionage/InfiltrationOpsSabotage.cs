@@ -26,27 +26,23 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them);
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? (int)(SuccessTargetNumber * 0.75f) : SuccessTargetNumber);
+            InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
-            Planet targetPlanet = null;
-            int crippledTurns = (int)(25 * Them.Universe.ProductionPace);
+            int crippledTurns = (int)(50 * Them.Universe.ProductionPace);
+            int numPlanetsToSelect = 20;
 
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    aftermath.GoodResult = true;
-                    targetPlanet  = Them.Random.Item(Them.GetPlanets().SortedDescending(p => p.Prod.GrossMaxPotential).TakeItems(5));
-                    crippledTurns*= 2;
+                    numPlanetsToSelect = 5;
+                    crippledTurns *= 2;
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    aftermath.GoodResult = true;
-                    targetPlanet  = Them.Random.Item(Them.GetPlanets().SortedDescending(p => p.Prod.GrossMaxPotential).TakeItems(10));
+                    numPlanetsToSelect = 10;
                     crippledTurns = (int)(crippledTurns * 1.5f);
                     break;
                 case InfiltrationOpsResult.Success:
-                    aftermath.GoodResult = true;
-                    targetPlanet = Them.Random.Item(Them.GetPlanets());
                     break;
                 case InfiltrationOpsResult.Fail:
                     aftermath.Message = GameText.InfiltrationSabotageMessageFail;
@@ -77,6 +73,9 @@ namespace Ship_Game
 
             if (aftermath.GoodResult)
             {
+                Planet targetPlanet = Them.Random.Item(Them.GetPlanets()
+                    .SortedDescending(p => p.Prod.GrossMaxPotential).TakeItems(numPlanetsToSelect));
+
                 aftermath.Planet = targetPlanet;
                 aftermath.MessageUseTheirName = true;
                 aftermath.CustomMessage = $"{Localizer.Token(GameText.InfiltrationSabotageSuccessMessage)} {targetPlanet.Name} ({Them.data.Traits.Name})" +
