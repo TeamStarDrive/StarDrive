@@ -68,7 +68,7 @@ namespace Ship_Game.AI.Components
                     }
 
                     if (!budgets.TryGetValue(BudgetAreas.Espionage, out _) && empire.NewEspionageEnabled)
-                        budgets[BudgetAreas.Spy] = 1;  // support mods with no Espionage in their yaml
+                        budgets[BudgetAreas.Spy] = empire.Universe.P.Difficulty == GameDifficulty.Normal ? 0 : 1;
                 }
             }
 
