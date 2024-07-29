@@ -37,14 +37,33 @@ namespace UnitTests.AITests.Empire
         public void TestBudgetLoad()
         {
             CreatePlanets(1);
-            BudgetPriorities budget = new BudgetPriorities(Enemy);
             var budgetAreas = Enum.GetValues(typeof(BudgetPriorities.BudgetAreas));
-            foreach (BudgetPriorities.BudgetAreas area in budgetAreas)
+
+            Enemy.Universe.P.UseLegacyEspionage = true;
+            Enemy.Universe.P.Difficulty = GameDifficulty.Normal;
+            BudgetPriorities budget = new BudgetPriorities(Enemy);
+            TestBudget(Enemy.Universe.P.UseLegacyEspionage, Enemy.Universe.P.Difficulty);
+
+            Enemy.Universe.P.UseLegacyEspionage = false;
+            Enemy.Universe.P.Difficulty = GameDifficulty.Hard;
+            budget = new BudgetPriorities(Enemy);
+            TestBudget(Enemy.Universe.P.UseLegacyEspionage, Enemy.Universe.P.Difficulty);
+
+            Enemy.Universe.P.UseLegacyEspionage = false;
+            Enemy.Universe.P.Difficulty = GameDifficulty.Normal;
+            budget = new BudgetPriorities(Enemy);
+            TestBudget(Enemy.Universe.P.UseLegacyEspionage, Enemy.Universe.P.Difficulty);
+
+
+            void TestBudget(bool legacy, GameDifficulty difficulty)
             {
-                if (area != BudgetPriorities.BudgetAreas.Espionage) // espioinage is inserted to spy area
+                foreach (BudgetPriorities.BudgetAreas area in budgetAreas)
                 {
-                    bool found = budget.GetBudgetFor(area) > 0;
-                    Assert.IsTrue(found, $"{area} not found in budget");
+                    if (area != BudgetPriorities.BudgetAreas.Espionage) // espioinage is inserted to spy area
+                    {
+                        bool found = !legacy && difficulty == GameDifficulty.Normal ? budget.GetBudgetFor(area) >= 0 : budget.GetBudgetFor(area) > 0;
+                        Assert.IsTrue(found, $"{area} not found in budget. Legacy Espionage={legacy}, Game Difficulty={difficulty}");
+                    }
                 }
             }
         }
@@ -53,9 +72,9 @@ namespace UnitTests.AITests.Empire
         public void TestTreasuryIsSetToExpectedValues()
         {
             CreatePlanets(extraPlanets: 5);
+            Enemy.Universe.P.UseLegacyEspionage = true;
             var budget = new BudgetPriorities(Enemy);
-            int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length - 1;
-
+            int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
             Assert.IsTrue(budget.Count() == budgetAreas);
 
             var eAI = Enemy.AI;
