@@ -35,6 +35,9 @@ public sealed partial class Empire
 
         SpacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
         SafeSpacePorts = SafePlanets.Filter(p => p.HasSpacePort);
+        if (isPlayer)
+            PlayerPrioritizedPorts = OwnedPlanets.Filter(p => p.HasSpacePort && p.PrioritizedPort);
+
         UnsafeSpacePorts = UnsafePlanets.Filter(p => p.HasSpacePort);
         UpdatePlayerPrioritizedPorts();
 
