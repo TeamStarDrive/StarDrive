@@ -336,7 +336,7 @@ namespace Ship_Game
 
                 if (SelectedEmpire.Research.HasTopic)
                 {
-                    if (UsingNewEspioange && espionage.CanViewResearchTopic || IntelligenceLevel(SelectedEmpire) > 1)
+                    if (SelectedEmpire.isPlayer || UsingNewEspioange && espionage.CanViewResearchTopic || IntelligenceLevel(SelectedEmpire) > 1)
                         DrawDiploLine(batch, Font12, $"Researching: {SelectedEmpire.Research.Current.Tech.Name.Text}", Color.Wheat, ref textCursor);
                     else if (UsingNewEspioange && espionage.CanViewTechType || IntelligenceLevel(SelectedEmpire) > 0)
                         DrawDiploLine(batch, Font12, $"Researching: {SelectedEmpire.Research.Current.TechnologyType}", Color.Wheat, ref textCursor);
