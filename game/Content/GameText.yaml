@@ -3366,10 +3366,10 @@ BB_Tech_ReactionDrive_Desc:
  UKR: "Реакційний двигун спрямовує сильно іонізовану плазму через підпросторове поле, яке збуджує і вивільняє потенційну енергію, що міститься всередині.  Потік, що утворюється, може бути використаний для пропульсивних цілей.   "
 BB_Tech_ReactionDrive_STLSpeedBonus_Bonus:
  Id: 651
- ENG: "By converting all of our engines to the reaction drive standard, we can achieve 20% faster sub-light speeds and maneuverability."
- RUS: "Переведя все корабли на новые двигатели, мы сможем получить 20% бонус к субсветовым скоростям и маневренности."
- SPA: "Al pasar todos nuestros motores al estándar de impulsión de reacción, podemos aumentar un 20% la maniobrabilidad y las velocidades infraluminales."
- UKR: "Переобладнавши всі наші двигуни під стандарт реактивного приводу, ми зможемо досягти на 20% вищих субсвітлових швидкостей і маневреності."
+ ENG: "By converting all of our engines to the reaction drive standard, we can achieve 20% faster sub-light speeds."
+ RUS: "Переведя все корабли на новые двигатели, мы сможем получить 20% бонус к субсветовым скоростям."
+ SPA: "Al pasar todos nuestros motores al estándar de impulsión de reacción, podemos aumentar un 20% la velocidades infraluminales."
+ UKR: "Переобладнавши всі наші двигуни під стандарт реактивного приводу, ми зможемо досягти на 20% вищих субсвітлових швидкостей."
 BB_Tech_ScientificFoundations_Name:
  Id: 652
  ENG: "Scientific Foundations"
