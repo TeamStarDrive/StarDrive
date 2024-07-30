@@ -45,6 +45,7 @@ namespace Ship_Game
         [StarData] public bool DontScrapBuildings = false;
         [StarData] public bool Quarantine         = false;
         public bool AllowInfantry;
+        [StarData] public bool PrioritizedPort { get; private set; }
 
         [StarData] public int CrippledTurns { get; private set; }
         public int TotalDefensiveStrength { get; private set; }
@@ -177,6 +178,11 @@ namespace Ship_Game
             // Only Terraformers researched
             int potentialTiles = TilesList.Count(t => t.Terraformable);
             return (BasePopPerTile*potentialTiles*racialEnvModifier + PopulationBonus).LowerBound(MinimumPop);
+        }
+
+        public void SetPrioritizedPort(bool value)
+        {
+            PrioritizedPort = value;
         }
 
         public float PopPerBiosphere(Empire empire)

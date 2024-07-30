@@ -4686,6 +4686,12 @@ namespace Ship_Game
 
 
 
+
+
+        /// <summary>Prioritzed Port</summary>
+        PrioritizedPort = 4918,
+        /// <summary>When set, all ship construction will be queued on this planet</summary>
+        PrioritizedPortTip = 4919,
         /// <summary>Specialzied Trade-Hubs</summary>
         SpecializedTradeHub = 4920,
         /// <summary>Spacialized Trade-hub will enable the Governor management</summary>

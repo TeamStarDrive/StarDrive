@@ -581,7 +581,6 @@ namespace Ship_Game
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
         public int NumPlanets                               => OwnedPlanets.Count;
         public int NumSystems                               => OwnedSolarSystems.Count;
-
         public int GetTotalPlanetsWarValue() => (int)OwnedPlanets.Sum(p => p.ColonyWarValueTo(this));
 
         public void RemovePlanet(Planet planet, Empire attacker)
@@ -593,6 +592,12 @@ namespace Ship_Game
 
         public void RemovePlanet(Planet planet)
         {
+            if (isPlayer && PlayerPrioritizedPorts.Length == 1 && planet.PrioritizedPort)
+            {
+                // message player that no more prioritized ports left and default logic will be used
+            }
+
+            planet.SetPrioritizedPort(false);
             OwnedPlanets.Remove(planet);
             planet.SetSpecializedTradeHub(false);
             Universe.OnPlanetOwnerRemoved(this, planet);

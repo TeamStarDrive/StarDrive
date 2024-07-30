@@ -21,6 +21,7 @@ public sealed partial class Empire
     public Planet[] SpacePorts = Empty<Planet>.Array;
     public Planet[] SafeSpacePorts = Empty<Planet>.Array; // p.Safe == true
     public Planet[] UnsafeSpacePorts = Empty<Planet>.Array; // p.Safe == false
+    public Planet[] PlayerPrioritizedPorts = Empty<Planet>.Array; // p.PrioritizedPort  for players
 
     /// <summary>
     /// This is important to cache RallyPoints for different retreat decisions.
@@ -34,6 +35,9 @@ public sealed partial class Empire
 
         SpacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
         SafeSpacePorts = SafePlanets.Filter(p => p.HasSpacePort);
+        if (isPlayer)
+            PlayerPrioritizedPorts = OwnedPlanets.Filter(p => p.HasSpacePort && p.PrioritizedPort);
+
         UnsafeSpacePorts = UnsafePlanets.Filter(p => p.HasSpacePort);
 
         Array<Planet> safeRallies = new(SafeSpacePorts);
@@ -165,15 +169,18 @@ public sealed partial class Empire
     public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, IShipDesign ship, out Planet chosen, 
         float priority = 1f, float portQuality = 0.5f)
     {
-        if (ports.Count != 0)
+        // bypass ports if player has prioritized ports list
+        IReadOnlyList<Planet> actualPorts = isPlayer && PlayerPrioritizedPorts.Length > 0 ? PlayerPrioritizedPorts : ports;
+        if (actualPorts.Count != 0)
         {
             float cost = ship.GetCost(this);
-            chosen = FindPlanetToBuildAt(ports, cost, ship, portQuality, priority);
+            chosen = FindPlanetToBuildAt(actualPorts, cost, ship, portQuality, priority);
             return chosen != null;
         }
 
         if (NumPlanets != 0)
-            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
+            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{actualPorts.Count}");
+
         chosen = null;
         return false;
     }
