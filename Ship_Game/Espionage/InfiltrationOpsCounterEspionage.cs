@@ -12,7 +12,7 @@ namespace Ship_Game
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
         public const float PercentOfLevelCost = 0.25f;
-        const int SuccessTargetNumber = 25; // need to get 25 and above in a roll of d100)
+        const int SuccessTargetNumber = 35; // need to get 35 and above in a roll of d100)
         const float BaseRelationDamage = 10;
         public const int BaseRampUpTurns = 30;
 
@@ -28,7 +28,7 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
+            var result = RollMissionResult(Owner, Them, SuccessTargetNumber);
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
             Espionage theirEspionage = Them.GetEspionage(Owner);
@@ -54,7 +54,7 @@ namespace Ship_Game
                     if (theirEspionage.Level > 0)
                     {
                         aftermath.Message = GameText.CounterEspioangeOpsWeExposedPartially;
-                        aftermath.MessageToVictim = $"{Owner.data.Traits.Name}: {Localizer.Token(GameText.CounterEspioangeOpsWeExposedPartially)}";
+                        aftermath.MessageToVictim = $"{Owner.data.Traits.Name}: {Localizer.Token(GameText.CounterEspioangeOpsWasExposedPartially)}";
                         theirEspionage.ReduceInfiltrationLevel();
                     }
                     else if (potentialMoles.Length > 0)
