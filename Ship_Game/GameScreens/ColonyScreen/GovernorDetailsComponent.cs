@@ -360,7 +360,6 @@ namespace Ship_Game
                 {
                     Planet.SetPrioritizedPort(cb.Checked);
                 });
-
             };
 
             UpdateButtons();
