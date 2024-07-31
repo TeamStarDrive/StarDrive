@@ -1277,7 +1277,9 @@ namespace Ship_Game
         static TextureAtlas FlagTextures;
         
         public static SubTexture Flag(int index) =>
-            FlagTextures != null && FlagTextures.TryGetTexture(index, out SubTexture t) ? t : null;
+            FlagTextures != null && FlagTextures.TryGetTexture(index, out SubTexture t) 
+                         ? t 
+                         : FlagTextures.TryGetTexture(0, out SubTexture t0) ? t0 : null;
         
         public static SubTexture Flag(Empire e) => Flag(e.data.Traits.FlagIndex);
         
