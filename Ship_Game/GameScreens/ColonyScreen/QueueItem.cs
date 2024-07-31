@@ -71,7 +71,7 @@ namespace Ship_Game
             var tCursor = new Vector2(at.X + 40f, at.Y);
             var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing + 4, 150, 18);
             var pb = new ProgressBar(pbRect, ActualCost, ProductionSpent);
-            var rushCursor = new Vector2(at.X + 200f, at.Y + 18);
+            Graphics.Font font = lowRes ? Fonts.Arial8Bold : Fonts.Arial10;
 
             if (isBuilding)
             {
@@ -99,7 +99,7 @@ namespace Ship_Game
 
             if (Rush)
             {
-                Graphics.Font font = lowRes ? Fonts.Arial8Bold : Fonts.Arial10;
+                var rushCursor = new Vector2(at.X + 200f, at.Y + 22);
                 batch.DrawString(font, "Continuous Rush", rushCursor, Color.IndianRed);
             }
         }

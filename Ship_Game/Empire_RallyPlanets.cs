@@ -21,6 +21,7 @@ public sealed partial class Empire
     public Planet[] SpacePorts = Empty<Planet>.Array;
     public Planet[] SafeSpacePorts = Empty<Planet>.Array; // p.Safe == true
     public Planet[] UnsafeSpacePorts = Empty<Planet>.Array; // p.Safe == false
+    public Planet[] PlayerPrioritizedPorts = Empty<Planet>.Array; // p.PrioritizedPort  for players
 
     /// <summary>
     /// This is important to cache RallyPoints for different retreat decisions.
@@ -35,6 +36,7 @@ public sealed partial class Empire
         SpacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
         SafeSpacePorts = SafePlanets.Filter(p => p.HasSpacePort);
         UnsafeSpacePorts = UnsafePlanets.Filter(p => p.HasSpacePort);
+        UpdatePlayerPrioritizedPorts();
 
         Array<Planet> safeRallies = new(SafeSpacePorts);
         Array<Planet> unsafeRallies = new(UnsafeSpacePorts);
@@ -93,6 +95,12 @@ public sealed partial class Empire
 
         SafeRallyPoints = safeRallies.ToArray();
         UnsafeRallyPoints = unsafeRallies.ToArray();
+    }
+
+    public void UpdatePlayerPrioritizedPorts()
+    {
+        if (isPlayer)
+            PlayerPrioritizedPorts = OwnedPlanets.Filter(p => p.HasSpacePort && !p.IsCrippled && p.PrioritizedPort);
     }
     
     /// <summary>
@@ -165,15 +173,18 @@ public sealed partial class Empire
     public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, IShipDesign ship, out Planet chosen, 
         float priority = 1f, float portQuality = 0.5f)
     {
-        if (ports.Count != 0)
+        // bypass ports if player has prioritized ports list
+        IReadOnlyList<Planet> actualPorts = isPlayer && PlayerPrioritizedPorts.Length > 0 ? PlayerPrioritizedPorts : ports;
+        if (actualPorts.Count != 0)
         {
             float cost = ship.GetCost(this);
-            chosen = FindPlanetToBuildAt(ports, cost, ship, portQuality, priority);
+            chosen = FindPlanetToBuildAt(actualPorts, cost, ship, portQuality, priority);
             return chosen != null;
         }
 
         if (NumPlanets != 0)
-            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
+            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{actualPorts.Count}");
+
         chosen = null;
         return false;
     }
@@ -229,9 +240,11 @@ public sealed partial class Empire
         return planet != null;
     }
 
+    // Only for AI since prioritized ports are not filtered here
     public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(float portQuality)
         => GetBestPortsForShipBuilding(OwnedPlanets, portQuality);
-    
+
+    // Only for AI since prioritized ports are not filtered here
     public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(IReadOnlyList<Planet> ports, float portQuality)
     {
         if (ports == null) return Empty<Planet>.Array;
@@ -250,7 +263,7 @@ public sealed partial class Empire
         {
             float averageMaxProd = ports.Average(ModifiedNetMaxProductionPotential);
             bestPorts = ports.Filter(p => !p.IsCrippled
-                                     && (p.CType != ColonyType.Research || !filterResearchPorts)
+                                     && (p.CType != ColonyType.Research || !filterResearchPorts || p.PrioritizedPort)
                                      && (p.CType != ColonyType.Colony && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality))
                                          || p.CType == ColonyType.Colony && p.Prod.NetIncome.GreaterOrEqual(averageMaxProd * portQuality));
         }

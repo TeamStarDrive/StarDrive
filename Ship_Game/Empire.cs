@@ -581,7 +581,6 @@ namespace Ship_Game
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
         public int NumPlanets                               => OwnedPlanets.Count;
         public int NumSystems                               => OwnedSolarSystems.Count;
-
         public int GetTotalPlanetsWarValue() => (int)OwnedPlanets.Sum(p => p.ColonyWarValueTo(this));
 
         public void RemovePlanet(Planet planet, Empire attacker)
@@ -593,6 +592,7 @@ namespace Ship_Game
 
         public void RemovePlanet(Planet planet)
         {
+            planet.SetPrioritizedPort(false);
             OwnedPlanets.Remove(planet);
             planet.SetSpecializedTradeHub(false);
             Universe.OnPlanetOwnerRemoved(this, planet);

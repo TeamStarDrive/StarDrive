@@ -13002,6 +13002,12 @@ DisableScreenPanningOption:
 DisableScreenPanningOptionTip:
  Id: 4525
  ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
+PrioritizedPort:
+ Id: 4918
+ ENG: "Prioritzed Port"   
+PrioritizedPortTip:
+ Id: 4919
+ ENG: "When set, all ship construction will be queued on this planet, providing that it has a Space Port. If several planets are set as Prioritzed Ports, the suitable planet for consturction will be decided based on production their capacity. If no port in your Empire is prioritized, production capacity logic selection will be applied to all planets."    
 SpecializedTradeHub:
  Id: 4920
  ENG: "Specialzied Trade-Hub"  
