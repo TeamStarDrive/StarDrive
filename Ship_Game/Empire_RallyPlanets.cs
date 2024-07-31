@@ -35,10 +35,8 @@ public sealed partial class Empire
 
         SpacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
         SafeSpacePorts = SafePlanets.Filter(p => p.HasSpacePort);
-        if (isPlayer)
-            PlayerPrioritizedPorts = OwnedPlanets.Filter(p => p.HasSpacePort && p.PrioritizedPort);
-
         UnsafeSpacePorts = UnsafePlanets.Filter(p => p.HasSpacePort);
+        UpdatePlayerPrioritizedPorts();
 
         Array<Planet> safeRallies = new(SafeSpacePorts);
         Array<Planet> unsafeRallies = new(UnsafeSpacePorts);
@@ -97,6 +95,12 @@ public sealed partial class Empire
 
         SafeRallyPoints = safeRallies.ToArray();
         UnsafeRallyPoints = unsafeRallies.ToArray();
+    }
+
+    public void UpdatePlayerPrioritizedPorts()
+    {
+        if (isPlayer)
+            PlayerPrioritizedPorts = OwnedPlanets.Filter(p => p.HasSpacePort && !p.IsCrippled && p.PrioritizedPort);
     }
     
     /// <summary>
@@ -236,9 +240,11 @@ public sealed partial class Empire
         return planet != null;
     }
 
+    // Only for AI since prioritized ports are not filtered here
     public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(float portQuality)
         => GetBestPortsForShipBuilding(OwnedPlanets, portQuality);
-    
+
+    // Only for AI since prioritized ports are not filtered here
     public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(IReadOnlyList<Planet> ports, float portQuality)
     {
         if (ports == null) return Empty<Planet>.Array;
@@ -257,7 +263,7 @@ public sealed partial class Empire
         {
             float averageMaxProd = ports.Average(ModifiedNetMaxProductionPotential);
             bestPorts = ports.Filter(p => !p.IsCrippled
-                                     && (p.CType != ColonyType.Research || !filterResearchPorts)
+                                     && (p.CType != ColonyType.Research || !filterResearchPorts || p.PrioritizedPort)
                                      && (p.CType != ColonyType.Colony && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality))
                                          || p.CType == ColonyType.Colony && p.Prod.NetIncome.GreaterOrEqual(averageMaxProd * portQuality));
         }

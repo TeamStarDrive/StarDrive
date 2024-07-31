@@ -233,6 +233,9 @@ namespace Ship_Game
             }
             Rectangle planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 25, PlanetNameRect.Height - 50, PlanetNameRect.Height - 50);
             batch.Draw(P.PlanetTexture, planetIconRect, Color.White);
+            if (P.PrioritizedPort)
+                batch.DrawString(Fonts.Arial10, GameText.PrioritizedPort, new Vector2(planetIconRect.X, planetIconRect.Bottom + 8), Color.Green);
+
             var cursor = new Vector2(PopRect.X + PopRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float population = P.PopulationBillion;
             string popstring = population.String();
@@ -290,7 +293,6 @@ namespace Ship_Game
             {
                 QueueItem qi = P.ConstructionQueue[0];
                 qi.DrawAt(P.Universe, batch, new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 - 30), LowRes);
-
                 batch.Draw((ApplyProdHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
                 batch.Draw((CancelProdHover ? ResourceManager.Texture("NewUI/icon_queue_delete_hover1") : ResourceManager.Texture("NewUI/icon_queue_delete")), CancelProductionRect, Color.White);
                 DrawQueueStats(batch);

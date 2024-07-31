@@ -143,6 +143,7 @@ namespace Ship_Game
             SpecializedTradeHub.OnChange = cb => { Planet.SetSpecializedTradeHub(cb.Checked); };
             SpecializedTradeHub.TextColor = Quarantine.TextColor = Prioritized.TextColor = Color.Gray;
             Quarantine.CheckedTextColor = Color.Red;
+            Prioritized.CheckedTextColor = Color.Green;
 
             Garrison        = Slider(200, 200, 160, 40, GameText.GarrisonSize, 0, 25,Planet.GarrisonSize);
             ManualPlatforms = Slider(200, 200, 120, 40, GameText.ManualLimit, 0, 15, Planet.WantedPlatforms);
@@ -289,10 +290,10 @@ namespace Ship_Game
             BudgetLimitReached.Pos = new Vector2(ColonyTypeList.Right + 10, ColonyTypeList.Pos.Y);
 
             SpecializedTradeHub.Pos = new Vector2(Portrait.X, Bottom - 20);
-            GovNoScrap.Pos = new Vector2(TopRight.X - 250, SpecializedTradeHub.Pos.Y);
-            BuildCapital.Pos = new Vector2(ColonyTypeList.Right + 50, SpecializedTradeHub.Pos.Y - 35);
-            Quarantine.Pos = new Vector2(Portrait.X, SpecializedTradeHub.Pos.Y - 17);
-            Prioritized.Pos = new Vector2(Portrait.X, SpecializedTradeHub.Pos.Y - 35);
+            GovNoScrap.Pos          = new Vector2(TopRight.X - 250, SpecializedTradeHub.Pos.Y);
+            BuildCapital.Pos        = new Vector2(ColonyTypeList.Right + 50, SpecializedTradeHub.Pos.Y - 35);
+            Quarantine.Pos          = new Vector2(Portrait.X, SpecializedTradeHub.Pos.Y - 35);
+            Prioritized.Pos         = new Vector2(Portrait.X, SpecializedTradeHub.Pos.Y - 17);
 
             AutoTroops.Pos        = new Vector2(TopLeft.X + 10, Y + 30);
             Garrison.Pos          = new Vector2(TopLeft.X + 20, Y + 50);
@@ -355,7 +356,11 @@ namespace Ship_Game
 
             Prioritized.OnChange = cb =>
             {
-                Planet.SetPrioritizedPort(cb.Checked);
+                Universe.RunOnSimThread(() =>
+                {
+                    Planet.SetPrioritizedPort(cb.Checked);
+                });
+
             };
 
             UpdateButtons();

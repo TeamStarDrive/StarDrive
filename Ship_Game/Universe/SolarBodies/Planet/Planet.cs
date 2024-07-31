@@ -183,6 +183,7 @@ namespace Ship_Game
         public void SetPrioritizedPort(bool value)
         {
             PrioritizedPort = value;
+            Owner?.UpdatePlayerPrioritizedPorts();
         }
 
         public float PopPerBiosphere(Empire empire)

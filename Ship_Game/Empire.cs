@@ -592,11 +592,6 @@ namespace Ship_Game
 
         public void RemovePlanet(Planet planet)
         {
-            if (isPlayer && PlayerPrioritizedPorts.Length == 1 && planet.PrioritizedPort)
-            {
-                // message player that no more prioritized ports left and default logic will be used
-            }
-
             planet.SetPrioritizedPort(false);
             OwnedPlanets.Remove(planet);
             planet.SetSpecializedTradeHub(false);
