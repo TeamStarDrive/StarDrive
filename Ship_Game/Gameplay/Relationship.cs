@@ -987,8 +987,10 @@ namespace Ship_Game.Gameplay
                 || Treaty_Alliance
                 || !Treaty_Trade
                 || !Treaty_NAPact
-                || !Treaty_OpenBorders
-                || Anger_DiplomaticConflict >= 20)
+                || !Treaty_OpenBorders  
+                || Anger_DiplomaticConflict >= 20
+                // should maybe remove after implementing trust based on E and D personallity
+                || Them.OffensiveStrength < us.OffensiveStrength * us.PersonalityModifiers.AlliancOfferStrThreshold)
             {
                 return;
             }
