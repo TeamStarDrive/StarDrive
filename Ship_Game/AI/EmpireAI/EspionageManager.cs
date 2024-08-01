@@ -75,6 +75,9 @@ namespace Ship_Game.AI
 
             foreach (Empire empire in Owner.Universe.ActiveMajorEmpires.Filter(e => e != Owner)) 
             {
+                if (GlobalStats.RestrictAIPlayerInteraction && empire.isPlayer)
+                    continue;
+
                 Relationship relations = Owner.GetRelations(empire);
                 Espionage espionage = relations.Espionage;
                 if (relations.Known)
