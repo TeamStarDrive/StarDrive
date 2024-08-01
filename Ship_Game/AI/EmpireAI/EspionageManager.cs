@@ -25,6 +25,9 @@ namespace Ship_Game.AI
 
         public void Update(bool forceRun = false)
         {
+            if (Owner.IsFaction || Owner.data.IsRebelFaction)
+                return;
+
             DetermineBudget();
             SetupDefenseWeight();
             SetupWeightsAndOps(forceRun);

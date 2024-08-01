@@ -266,7 +266,7 @@ namespace Ship_Game
             if (!HasTerrainToTerraform)
                 return false;
 
-            TerraformPoints += TerraformToAdd * 4f; // Terraforming Terrain or Volcano is faster than the whole planet
+            AddTerraformPoints(speed: 4); // Terraforming Terrain or Volcano is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTerrainTerraforming(random, TilesList.Filter(t => t.VolcanoHere || t.TerrainCanBeTerraformed));
 
@@ -278,7 +278,7 @@ namespace Ship_Game
             if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
-            TerraformPoints += TerraformToAdd * 3f; // Terraforming a tile is faster than the whole planet
+            AddTerraformPoints(speed: 3); // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(random, TilesList.Filter(t => !t.Habitable && t.Terraformable || t.BioCanTerraform));
 
@@ -293,7 +293,7 @@ namespace Ship_Game
             if (TerraformPoints.AlmostZero()) // Starting terraform
                 SetBaseFertilityTerraform();
 
-            TerraformPoints += TerraformToAdd;
+            AddTerraformPoints();
 
             // Increase MaxBaseFertility if the target MaxBaseFertility is higher than current 
             if (TerraformedMaxFertility.Greater(BaseMaxFertility))
@@ -301,6 +301,11 @@ namespace Ship_Game
 
             if (TerraformPoints.GreaterOrEqual(1))
                 CompletePlanetTerraform();
+        }
+
+        void AddTerraformPoints(int speed = 1)
+        {
+            TerraformPoints += TerraformToAdd * speed / Universe.ProductionPace;
         }
 
         void CompleteTerrainTerraforming(RandomBase random, PlanetGridSquare[] possibleTiles)

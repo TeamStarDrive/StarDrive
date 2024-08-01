@@ -14,7 +14,6 @@ public class EspionageDebug : DebugPage
 {
     readonly DebugEmpireSelectionSubmenu EmpireSelect;
     Empire SelEmpire => EmpireSelect.Selected;
-    UIList DebugStatus;
     Array<EmpireEspionageDebug> EmpiresDebug = new();
     SelectedEmpireEspionageDebug SelectedEmpireDebug;
     const int DefaultUpdateTimer = 60;

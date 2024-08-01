@@ -58,7 +58,7 @@ namespace Ship_Game
                     break;
                 case InfiltrationOpsResult.CriticalFail:
                     aftermath.Message = GameText.NewWasUnableToInfiltrateDetected;
-                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.AnEnemyAgentWasFoiled)} {Owner.data.Traits.Name}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, Espionage);
                     Espionage.ReduceInfiltrationLevel();
                     aftermath.DamageReason = "Caught Spying";

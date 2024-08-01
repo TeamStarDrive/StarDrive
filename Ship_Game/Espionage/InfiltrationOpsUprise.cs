@@ -32,7 +32,6 @@ namespace Ship_Game
             Espionage espionage = Owner.GetEspionage(Them);
             var potentials      = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
             Planet targetPlanet = Them.Random.Item(potentials);
-            bool addRebellion   = false;
             int numRebels       = 3;
 
             switch (result)
@@ -71,12 +70,13 @@ namespace Ship_Game
                     break;
             }
 
-            if (addRebellion)
+            if (aftermath.GoodResult)
             {
                 aftermath.MessageToVictim = $"{Localizer.Token(GameText.IncitedUpriseOn)} {targetPlanet.Name}";
                 aftermath.CustomMessage = $"{Localizer.Token(GameText.WeIncitedUprise)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
                 Them.AddRebellion(targetPlanet, numRebels);
             }
+
             aftermath.SendNotifications(Owner.Universe);
         }
     }

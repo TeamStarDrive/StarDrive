@@ -180,7 +180,7 @@ namespace Ship_Game
             var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.IsFaction, 
                 w => GetRelations(w.Them).KnownInformation);
 
-            int minStr                = (int)(Universe.P.GalaxySize + 1) * 5000;
+            int minStr = DifficultyModifiers.MinimumThreatStr * (them.isPlayer ? 500 : 1000);
             float currentEnemyStr     = currentWarInformation.Sum(i => i.OffensiveStrength);
             float currentEnemyBuild   = currentWarInformation.Sum(i => i.EconomicStrength);
             float ourCurrentStrength  = ShipsReadyForFleet.AccumulatedStrength;

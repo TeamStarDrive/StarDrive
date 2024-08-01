@@ -843,10 +843,11 @@ namespace Ship_Game.Gameplay
 
         void UpdateThreat(Empire us, Empire them)
         {
-            float ourMilScore   = (us.OffensiveStrength*0.001f).LowerBound(us.DifficultyModifiers.MinimumThreatStr); 
-            float theirMilScore = (them.OffensiveStrength*0.001f).LowerBound(us.DifficultyModifiers.MinimumThreatStr);
+            float minimumThreat = them.isPlayer ? us.DifficultyModifiers.MinimumThreatStr * 0.5f : us.DifficultyModifiers.MinimumThreatStr;
+            float ourMilScore   = (us.OffensiveStrength*0.001f).LowerBound(minimumThreat); 
+            float theirMilScore = (them.OffensiveStrength*0.001f).LowerBound(minimumThreat);
             float newThreat     = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
-            Threat = HelperFunctions.ExponentialMovingAverage(Threat, newThreat, 0.98f);
+            Threat = HelperFunctions.ExponentialMovingAverage(Threat, newThreat, 0.9f);
         }
 
         public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader)
@@ -986,8 +987,10 @@ namespace Ship_Game.Gameplay
                 || Treaty_Alliance
                 || !Treaty_Trade
                 || !Treaty_NAPact
-                || !Treaty_OpenBorders
-                || Anger_DiplomaticConflict >= 20)
+                || !Treaty_OpenBorders  
+                || Anger_DiplomaticConflict >= 20
+                // should maybe remove after implementing trust based on E and D personallity
+                || Them.OffensiveStrength < us.OffensiveStrength * us.PersonalityModifiers.AlliancOfferStrThreshold)
             {
                 return;
             }

@@ -1836,6 +1836,7 @@ namespace Ship_Game
                     snapshot.ShipCount = OwnedShips.Count;
                     snapshot.MilitaryStrength = CurrentMilitaryStrength;
                     snapshot.TaxRate = data.TaxRate;
+                    snapshot.Population = OwnedPlanets.Sum(p => p.Population);
                 }
             }
 
@@ -1888,14 +1889,11 @@ namespace Ship_Game
                 }
             }
 
-            if (!data.IsRebelFaction)
+            if (!IsFaction && !data.IsRebelFaction)
             {
-                if (Universe.Stats.GetSnapshot(Universe.StarDate, this, out Snapshot snapshot))
-                    snapshot.Population = OwnedPlanets.Sum(p => p.Population);
+                Research.Update();
+                UpdateEspionage();
             }
-
-            Research.Update();
-            UpdateEspionage();
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
