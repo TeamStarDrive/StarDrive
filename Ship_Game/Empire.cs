@@ -16,6 +16,7 @@ using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.AI.Tasks;
 
 namespace Ship_Game
 {
@@ -587,7 +588,9 @@ namespace Ship_Game
         {
             GetRelations(attacker).LostAColony(planet, attacker);
             RemovePlanet(planet);
-            //UpdateWarRallyPlanetsLostPlanet(planet, attacker);
+
+            if (!isPlayer && attacker.data.IsRebelFaction)
+                MilitaryTask.CreateClaimTask(this, planet, KnownEnemyStrengthIn(planet.System), attacker, 1);
         }
 
         public void RemovePlanet(Planet planet)
@@ -1341,7 +1344,7 @@ namespace Ship_Game
 
         float MoneyAfterLeech(float money)
         {
-            if (LegacyEspionageEnabled)
+            if (LegacyEspionageEnabled || money <= 0)
                 return money;
 
             float remainingMoney = money;

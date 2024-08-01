@@ -34,7 +34,7 @@ namespace Ship_Game.GameScreens
             {
                 if (title.NotEmpty)
                 {
-                    Header = new UILabel(title, Fonts.Arial14Bold)
+                    Header = new UILabel(title, Fonts.Arial14Bold, Color.Wheat)
                     {
                         DropShadow = true
                     };
@@ -170,9 +170,10 @@ namespace Ship_Game.GameScreens
             SummaryPanel income = Add(new SummaryPanel(GameText.Income, incomeRect, new Color(18, 29, 29)));
 
             income.AddItem(GameText.PlanetaryTaxes, () => Player.GrossPlanetIncome); // "Planetary Taxes"
-            income.AddItem(GameText.Other, () => Player.data.FlatMoneyBonus);
+            income.AddItem("Trade Cargo", () => Player.TotalTradeMoneyAddedThisTurn);
             income.AddItem("Excess Goods", () => Player.ExcessGoodsMoneyAddedThisTurn);
             income.AddItem("Money Leeched", () => Player.TotalMoneyLeechedLastTurn);
+            income.AddItem(GameText.Other, () => Player.data.FlatMoneyBonus);
             income.SetTotalFooter(() => Player.GrossIncome); // "Total"
         }
 

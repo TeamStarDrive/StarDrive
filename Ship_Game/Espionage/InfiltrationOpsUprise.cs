@@ -10,7 +10,7 @@ namespace Ship_Game
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Empire Them;
-        public const float PercentOfLevelCost = 0.3f;
+        public const float PercentOfLevelCost = 0.5f;
         const int SuccessTargetNumber  = 40; // need to get 40 and above in a roll of d100)
         const float BaseRelationDamage = 10;
         public const int BaseRampUpTurns = 40;
@@ -27,12 +27,12 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
+            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? (int)(SuccessTargetNumber * 0.75f) : SuccessTargetNumber);
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
             var potentials      = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
             Planet targetPlanet = Them.Random.Item(potentials);
-            int numRebels       = 3;
+            int numRebels       = 3 + targetPlanet.GetDefendingTroopCount()/2 + targetPlanet.NumMilitaryBuildings/2;
 
             switch (result)
             {
@@ -61,7 +61,7 @@ namespace Ship_Game
                     break;
                 case InfiltrationOpsResult.Disaster:
                     aftermath.Message = GameText.FailedToInciteUpriseWipedOut;
-                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkUprise)}\n" +
+                    aftermath.MessageToVictim = $"{Localizer.Token(GameText.NewWipedOutNetworkUprise)}" +
                                                 $"{Localizer.Token(GameText.NtheAgentWasSentBy)} {Owner.data.Traits.Name}\n" +
                                                 $"{Localizer.Token(GameText.TheirInfiltrationLevelWas)} {espionage.EffectiveLevel}";
                     aftermath.RelationDamage = CalcRelationDamage(BaseRelationDamage, espionage, withLevelMultiplier: true);

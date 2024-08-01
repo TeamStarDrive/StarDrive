@@ -42,16 +42,19 @@ namespace Ship_Game
                 IncreaseInfiltrationLevel();
         }
 
-        void IncreaseInfiltrationLevel()
+        public void IncreaseInfiltrationLevel(bool withMessage = true)
         {
             if (Level == MaxLevel) 
                 return;
 
             Level++;
             LevelProgress = 0;
-            string message = $"{Them.data.Name}: {Localizer.Token(GameText.MessageInfiltrationLevelIncrease)} {Level}.";
-            if (!Them.IsFaction)
+
+            if (!Them.IsFaction && withMessage)
+            {
+                string message = $"{Them.data.Name}: {Localizer.Token(GameText.MessageInfiltrationLevelIncrease)} {Level}.";
                 Owner.Universe.Notifications.AddAgentResult(true, message, Owner);
+            }
 
             EnablePassiveEffects();
             if (!Owner.isPlayer)
