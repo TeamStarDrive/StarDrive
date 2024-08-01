@@ -97,6 +97,9 @@ namespace Ship_Game
 
         public void Update(int totalWeight)
         {
+            if (GlobalStats.RestrictAIPlayerInteraction && Them.isPlayer)
+                return;
+
             EnablePassiveEffects();
             RemoveOperations();
             float progressToIncrease = GetProgressToIncrease(Owner.EspionagePointsPerTurn, totalWeight);
