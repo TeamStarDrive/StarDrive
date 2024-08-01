@@ -28,12 +28,12 @@ namespace Ship_Game
 
         public override void CompleteOperation()
         {
-            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? SuccessTargetNumber / 2 : SuccessTargetNumber);
+            var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? (int)(SuccessTargetNumber * 0.75f) : SuccessTargetNumber);
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
             var potentials = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
             Planet targetPlanet = Them.Random.Item(potentials);
-            int numRebels = 5 + targetPlanet.Level/2;
+            int numRebels = 5 + targetPlanet.GetDefendingTroopCount() + targetPlanet.NumMilitaryBuildings;
             float takeoverOrbitalChance = 50;
 
             switch (result)

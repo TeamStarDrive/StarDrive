@@ -30,7 +30,7 @@ namespace Ship_Game
 
         public void UpdateMoneyLeechedLastTurn()
         {
-            if (LegacyEspionageEnabled)
+            if (LegacyEspionageEnabled || IsFaction || data.IsRebelFaction)
                 return;
 
             TotalMoneyLeechedLastTurn = 0;
@@ -115,12 +115,8 @@ namespace Ship_Game
                     {
                         t.Name = rebels.data.TroopName.Text;
                         t.Description = rebels.data.TroopDescription.Text;
-                        if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 
-                            || targetPlanet.BumpOutTroop(t.Loyalty) 
-                            || !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
-                        {
+                        if (!t.TryLandTroop(targetPlanet))
                             t.Launch(targetPlanet); // launch the rebels
-                        }
 
                         break;
                     }

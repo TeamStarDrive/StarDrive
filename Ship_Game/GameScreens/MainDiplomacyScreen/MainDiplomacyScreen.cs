@@ -132,7 +132,7 @@ namespace Ship_Game
 
         void DrawDiploLine(SpriteBatch batch, Font font, string text, Color color, ref Vector2 textCursor)
         {
-            batch.DrawString(Fonts.Arial12Bold, text, textCursor, color);
+            batch.DrawString(font, text, textCursor, color);
             textCursor.Y += (font.LineSpacing + 2);
         }
 
@@ -252,7 +252,7 @@ namespace Ship_Game
                 if (relation.Treaty_Alliance)
                     DrawDiploLine(batch, Font12Bold, Localizer.Token(GameText.Alliance), Color.LightGreen, ref textCursor);
 
-                Rectangle artifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 210, SelectedInfoRect.Width - 40, 130);
+                Rectangle artifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 250, SelectedInfoRect.Width - 40, 130);
                 Vector2 artifactsCursor = new Vector2(artifactsRect.X, artifactsRect.Y - 8);
                 if (!UsingNewEspioange || relation.Espionage.CanViewArtifacts)
                     DrawDiploLine(batch, Font12Bold, Localizer.Token(GameText.OwnedArtifacts), Color.White, ref artifactsCursor);
@@ -294,7 +294,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population), textCursor, Color.White);
                 batch.DrawString(Fonts.Arial12Bold, $"# {GetRank(SelectedEmpire, empireList)}", columnBCursor, Color.White);
 
-                textCursor.Y += Fonts.Arial12Bold.LineSpacing + 12;
+                textCursor.Y += Fonts.Arial12Bold.LineSpacing + 4;
                 batch.DrawString(Fonts.Arial12, $"(out of {empireList.Length} empires)", textCursor, Color.Wheat);
             }
             //Added by McShooterz:  intel report
@@ -367,12 +367,6 @@ namespace Ship_Game
                 DrawDiploLine(batch, Font12, traitlist, Color.Wheat, ref textCursor);
             }
 
-            if (UsingNewEspioange && espionage?.CanViewTraitSet == true || IntelligenceLevel(SelectedEmpire) > 1)
-            {
-                string traitlist = Font12.ParseText($"Racial Traits: {SelectedEmpire.data.SelectedTraitSet}", IntelligenceRect.Width - 10);
-                DrawDiploLine(batch, Font12, traitlist, SelectedEmpire.EmpireColor, ref textCursor);
-            }
-
             //Diplomatic Relations
             foreach (Relationship rel in SelectedEmpire.AllRelations)
             {
@@ -393,6 +387,13 @@ namespace Ship_Game
                     else if (rel.Treaty_Peace)       DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.PeaceTreaty)} {andTrade}", color, ref textCursor);
                     else if (rel.AtWar)              DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.AtWar)} {andTrade}", color, ref textCursor);
                 }
+            }
+
+            if (UsingNewEspioange && espionage?.CanViewTraitSet == true || IntelligenceLevel(SelectedEmpire) > 1)
+            {
+                textCursor.Y += Font12.LineSpacing + 2;
+                string traitlist = Font12.ParseText($"Racial Traits: {SelectedEmpire.data.SelectedTraitSet}", IntelligenceRect.Width - 50);
+                DrawDiploLine(batch, Font12, traitlist, SelectedEmpire.EmpireColor, ref textCursor);
             }
 
             //End of intel report
@@ -700,7 +701,7 @@ namespace Ship_Game
             IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             
-            RectF artifacts = new(SelectedInfoRect.X , SelectedInfoRect.Y + 190, SelectedInfoRect.Width - 40, 130);
+            RectF artifacts = new(SelectedInfoRect.X , SelectedInfoRect.Y + 250, SelectedInfoRect.Width - 40, 130);
             ArtifactsSL = Add(new ScrollList<ArtifactItemListItem>(artifacts));
             
             Contact = new DanButton(new Vector2(SelectedInfoRect.X + SelectedInfoRect.Width / 2 - 91, SelectedInfoRect.Y + SelectedInfoRect.Height - 45), Localizer.Token(GameText.Contact))

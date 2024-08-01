@@ -15226,16 +15226,16 @@ CounterEspioangeOpsFailedMiserably:
  ENG: "Our Counter-Espioange effort has badly failed.\nThey noticed the effort but don't know who did it."       
 CounterEspioangeOpsFailedDetected:
  Id: 6269
- ENG: "Our Counter-Espioange effort has badly failed and our agents were detected.\nWe had to pull out assets and reduce our Infiltration Level by 1\nto avoid full exposure of our spy network."        
+ ENG: "Our Counter-Espioange effort has badly failed and our agents were detected.\nThey might have expanded their Spy Network on us."        
 CounterEspioangeOpsFailedAgentCaught:
  Id: 6270
  ENG: "A foreign Counter-Espioange effort has badly failed.\nTheir spy networked suffered a setback."         
 CounterEspioangeOpsFailedWipeout:
  Id: 6271
- ENG: "Our Counter-Espioange was a disaster.\n Our agents were detected and our entire spy network was exposed and wiped out!"         
+ ENG: "Our Counter-Espioange was a disaster.\n Our agents were detected our Infiltration Level was reduced.\Moreover, it is possible they gained Infiltration Level."         
 CounterEspioangeOpsFailedWipeoutVictim:
  Id: 6272
- ENG: "We managed to uncover a Counter-Espionage operation and eliminate their entire network."          
+ ENG: "We managed to uncover a Counter-Espionage operation and turn some of their agent to double agents.\n"          
 EliminatedMole:
  Id: 6273
  ENG: "We have eliminated an enemy agent on"           
