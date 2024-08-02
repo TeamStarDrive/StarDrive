@@ -124,21 +124,13 @@ namespace Ship_Game.Ships
                 switch (Category)
                 {
                     case ShipCategory.Unclassified:
-                        break;
                     case ShipCategory.Civilian:
-                        break;
                     case ShipCategory.Recon:
-                        return RoleName.scout;
                     case ShipCategory.Conservative:
-                        break;
                     case ShipCategory.Neutral:
-                        break;
                     case ShipCategory.Reckless:
-                        break;
-                    case ShipCategory.Kamikaze:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    case ShipCategory.Kamikaze: break;
+                    default: throw new ArgumentOutOfRangeException();
                 }
             }
 
