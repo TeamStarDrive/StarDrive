@@ -23,6 +23,7 @@ namespace Ship_Game.GameScreens
         FloatSlider InfiltrationDefense;
         FloatSlider EspionageBudgetMultiplier;
         UILabel CostPerTurn, LimitLevel;
+        UICheckBox EspionageDisableMessages;
 
 
         bool UsingLegacyEspionage => Screen != null;
@@ -66,6 +67,9 @@ namespace Ship_Game.GameScreens
                     Player.SetEspionageDefenseWeight(s.AbsoluteValue.RoundUpTo(1));
                     Player.UpdateEspionageDefenseRatio();
                 };
+
+                EspionageDisableMessages = InfiltrationScreen.Add(new UICheckBox(weightRect.X, weightRect.Y + 42, () => Player.data.SpyMute, Fonts.Arial12, "Disable Messages", 
+                    "Disable all Espionage notifications."));
 
                 if (Player.Universe.MajorEmpires.Any(e => !e.isPlayer && Player.IsKnown(e)))
                 {

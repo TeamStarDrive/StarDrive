@@ -177,7 +177,7 @@ namespace Ship_Game
                 return;
             }
 
-            importingPlanets.Sort(p => p.GetCachedIncomingCargo(goods));
+            importingPlanets.Sort(p => p.GetCachedIncomingCargoPriority(goods));
 
             for (int i = 0; i < importingPlanets.Length; i++)
             {

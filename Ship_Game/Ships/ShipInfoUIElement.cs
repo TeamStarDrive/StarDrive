@@ -263,7 +263,7 @@ namespace Ship_Game.Ships
 
         void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
-            if (ship.HealthPercent > 0.999f)
+            if (ship.InternalSlotsHealthPercent > 0.999f)
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
@@ -271,11 +271,11 @@ namespace Ship_Game.Ships
                 Color.White, numStatus);
 
             var textPos = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
-            int health = (int)(ship.HealthPercent * 100);
+            int integrity = (int)(ship.InternalSlotsHealthPercent * 100);
 
             float repairPerSec = ship.CurrentRepairPerSecond;
             float timeUntilRepaired = (ship.HealthMax - ship.Health) / repairPerSec;
-            string integrityText = $"{health}% (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
+            string integrityText = $"{integrity}% (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
             batch.DrawString(Fonts.Arial12, integrityText, textPos, Color.White);
             numStatus++;
         }

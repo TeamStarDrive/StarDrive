@@ -1539,10 +1539,8 @@ namespace Ship_Game.Ships
                 return false;
 
             // will ship instantly explode?
-            if (proj is { Explodes: true } && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
-            {
+            if (IsMeteor || proj is { Explodes: true } && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
                 return true;
-            }
 
             if (Loyalty.Random.RollDice(35))
             {

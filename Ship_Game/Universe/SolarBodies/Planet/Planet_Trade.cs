@@ -122,10 +122,10 @@ namespace Ship_Game
                 return ManualFoodExportSlots;
 
             int min = Storage.FoodRatio > 0.75f ? 2 : 1;
-            int maxSlots = CType is ColonyType.Agricultural or ColonyType.Colony ? 14 : 10;
+            int maxSlots = CType is ColonyType.Agricultural or ColonyType.Colony or ColonyType.TradeHub? 14 : 7;
             int storageSlots = (int)(Storage.Food / Owner.AverageFreighterCargoCap);
             int outputSlots  = (int)(Food.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
-            return (storageSlots + outputSlots).Clamped(min, maxSlots);
+            return (storageSlots + outputSlots).Clamped(min, maxSlots+outputSlots);
         }
 
         int GetProdExportSlots()
@@ -137,18 +137,20 @@ namespace Ship_Game
                 return ManualProdExportSlots;
 
             int min = Storage.ProdRatio > 0.5f ? 2 : 1;
-            int maxSlots = IsCybernetic ? 6 : 5;
+            int maxSlots = 5;
             switch (CType)
             {
-                case ColonyType.Industrial: maxSlots += 7; break;
-                case ColonyType.Core:       maxSlots += 5; break;
-                case ColonyType.Research:   maxSlots += 3;  break;
+                case ColonyType.Colony:
+                case ColonyType.TradeHub:   maxSlots += IsCybernetic ? 9 : 5; break;
+                case ColonyType.Industrial: maxSlots += IsCybernetic ? 9 : 7; break;
+                case ColonyType.Core:       maxSlots += IsCybernetic ? 7 : 5; break;
+                case ColonyType.Research:   maxSlots += 3;                    break;
             }
 
             int storageSlots = (int)(Storage.Prod / Owner.AverageFreighterCargoCap);
-            int outputSlots  = (int)(Prod.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
+            int outputSlots  = (int)(Prod.NetIncome * AverageProdExportTurns / Owner.AverageFreighterCargoCap);
 
-            return (storageSlots + outputSlots).Clamped(min, maxSlots);
+            return (storageSlots + outputSlots).Clamped(min, maxSlots + outputSlots);
         }
 
         int GetColonistsExportSlots()
@@ -372,13 +374,18 @@ namespace Ship_Game
             return numActiveFreighters;
         }
 
-        // total (cached) amount of cargo of specified type incoming via freighters
-        public float GetCachedIncomingCargo(Goods goods)
+        // total (cached) amount of cargo of specified type incoming via freighters for prioritize importing planets
+        public float GetCachedIncomingCargoPriority(Goods goods)
         {
-            if (goods == Goods.Food) return IncomingFood;
-            if (goods == Goods.Production) return IncomingProd;
-            if (goods == Goods.Colonists) return IncomingPop;
-            return 0f;
+            switch (goods)
+            { 
+                case Goods.Production when IsCybernetic && IsStarving: return Prod.NetIncome*10 + IncomingProd;
+                case Goods.Production:           return IncomingProd;
+                case Goods.Food when IsStarving: return Food.NetIncome*10 + IncomingFood; // food net income is negative when starting
+                case Goods.Food:                 return IncomingFood;
+                case Goods.Colonists:            return IncomingPop;
+                default:                         return 0;
+            }
         }
 
         float GetTotalCargo(Ship[] freighterList, Goods goods)

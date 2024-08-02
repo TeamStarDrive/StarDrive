@@ -322,8 +322,7 @@ namespace Ship_Game
             {
                 FoodStorage.Draw(batch);
                 FoodDropDown.Draw(batch);
-                if (!IsTradeTabSelected)
-                    DrawFoodSlots(batch);
+                DrawFoodSlots(batch);
             }
             else
             {
@@ -336,8 +335,7 @@ namespace Ship_Game
             else if (P.PS == Planet.GoodState.IMPORT) ProdDropDown.ActiveIndex = 1;
             else if (P.PS == Planet.GoodState.EXPORT) ProdDropDown.ActiveIndex = 2;
             ProdDropDown.Draw(batch);
-            if (!IsTradeTabSelected)
-                DrawProdSlots(batch);
+            DrawProdSlots(batch);
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
 
@@ -366,7 +364,6 @@ namespace Ship_Game
             }
 
             DrawTradeSlots(batch, textPos, text, Color.LightGreen, enroute, maxSlots, amount);
-
         }
 
         void DrawProdSlots(SpriteBatch batch)
