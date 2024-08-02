@@ -386,12 +386,6 @@ namespace Ship_Game
                 case Goods.Colonists:            return IncomingPop;
                 default:                         return 0;
             }
-
-
-            if (goods == Goods.Food) return IncomingFood;
-            if (goods == Goods.Production) return IncomingProd;
-            if (goods == Goods.Colonists) return IncomingPop;
-            return 0f;
         }
 
         float GetTotalCargo(Ship[] freighterList, Goods goods)

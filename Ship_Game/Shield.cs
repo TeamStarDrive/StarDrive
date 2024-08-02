@@ -95,8 +95,12 @@ namespace Ship_Game
 
         public void HitShield(Planet planet, Ship ship, Vector2 planetCenter, float shieldRadius)
         {
-            Matrix soWorld = (Matrix)ship.GetSO().World;
-            HitShield(planet, soWorld, ship.Position.ToVec3(soWorld.Translation.Z), planetCenter, shieldRadius);
+            var shipSo = ship.GetSO();
+            if (shipSo != null)
+            {
+                Matrix soWorld = (Matrix)shipSo.World;
+                HitShield(planet, soWorld, ship.Position.ToVec3(soWorld.Translation.Z), planetCenter, shieldRadius);
+            }
         }
 
         public void HitShield(Planet planet, in Matrix world, Vector3 pos, Vector2 planetCenter, float shieldRadius)
