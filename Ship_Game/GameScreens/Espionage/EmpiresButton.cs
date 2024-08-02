@@ -266,6 +266,7 @@ namespace Ship_Game.GameScreens
                 {
                     EspionageBudgetMultiplier?.Draw(batch, elapsed);
                     CostPerTurn?.Draw(batch, elapsed);
+                    //EspionageDisableMessages?.Draw(batch, elapsed);
                 }
             }
         }
