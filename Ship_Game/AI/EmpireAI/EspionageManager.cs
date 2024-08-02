@@ -152,7 +152,9 @@ namespace Ship_Game.AI
 
         void UpdateOperationsByPersonality(Map<InfiltrationOpsType, bool> operations, Relationship relations, Espionage espionage, Empire them)
         {
-            bool theyHaveInfiltratedUs = espionage.WeHaveInfoOnTheirInfiltration && them.GetEspionage(Owner).EffectiveLevel > 0;
+            bool theyHaveInfiltratedUs = espionage.WeHaveInfoOnTheirInfiltration 
+                && them.GetEspionage(Owner).EffectiveLevel > (relations.Treaty_Alliance ? 3 : 2);
+
             Array<InfiltrationOpsType> opsWanted = new();
             if (theyHaveInfiltratedUs)
                 opsWanted.Add(InfiltrationOpsType.CounterEspionage);
@@ -223,20 +225,21 @@ namespace Ship_Game.AI
 
             if (!relations.Treaty_Alliance || Owner.IsSafeToActivateOpsOnAllies(them))
             {
-                if (Owner.TechScore * Owner.PersonalityModifiers.EspionageTechScoreOpsMultiplier < them.TechScore)
-                    opsWanted.Add(InfiltrationOpsType.SlowResearch);
+                int allyMultiplier = relations.Treaty_Alliance ? 2 : 1;
+                if (Owner.TechScore * Owner.PersonalityModifiers.EspionageTechScoreOpsMultiplier * allyMultiplier  < them.TechScore)
+                    opsWanted.AddUnique(InfiltrationOpsType.SlowResearch);
 
-                if (Owner.ExpansionScore * Owner.PersonalityModifiers.EspionageExpansionScoreOpsMultiplier  < them.ExpansionScore)
-                    opsWanted.Add(InfiltrationOpsType.Uprise);
+                if (Owner.ExpansionScore * Owner.PersonalityModifiers.EspionageExpansionScoreOpsMultiplier  * allyMultiplier < them.ExpansionScore)
+                    opsWanted.AddUnique(InfiltrationOpsType.Uprise);
 
-                if (Owner.IndustrialScore * Owner.PersonalityModifiers.EspionageIndustryScoreOpsMultiplier < them.IndustrialScore)
-                    opsWanted.Add(InfiltrationOpsType.Sabotage);
+                if (Owner.IndustrialScore * Owner.PersonalityModifiers.EspionageIndustryScoreOpsMultiplier * allyMultiplier < them.IndustrialScore)
+                    opsWanted.AddUnique(InfiltrationOpsType.Sabotage);
 
-                if (Owner.MilitaryScore * Owner.PersonalityModifiers.EspionageMilitaryScoreOpsMultiplier < them.MilitaryScore)
-                    opsWanted.Add(InfiltrationOpsType.Rebellion);
+                if (Owner.MilitaryScore * Owner.PersonalityModifiers.EspionageMilitaryScoreOpsMultiplier * allyMultiplier < them.MilitaryScore)
+                    opsWanted.AddUnique(InfiltrationOpsType.Rebellion);
 
-                if (Owner.TotalScore * Owner.PersonalityModifiers.EspionageTotalScoreOpsMultiplier < them.TotalScore)
-                    opsWanted.Add(InfiltrationOpsType.DisruptProjection);
+                if (Owner.TotalScore * Owner.PersonalityModifiers.EspionageTotalScoreOpsMultiplier * allyMultiplier < them.TotalScore)
+                    opsWanted.AddUnique(InfiltrationOpsType.DisruptProjection);
             }
 
             foreach (InfiltrationOpsType type in opsWanted)

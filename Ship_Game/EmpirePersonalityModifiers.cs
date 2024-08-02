@@ -300,11 +300,11 @@ namespace Ship_Game
                     GoToWarTolerance      = 1.1f;
                     WarSneakiness         = -10;
 
-                    EspionageTechScoreOpsMultiplier      = 1.6f;
-                    EspionageExpansionScoreOpsMultiplier = 1.5f;
-                    EspionageIndustryScoreOpsMultiplier  = 1.5f;
-                    EspionageMilitaryScoreOpsMultiplier  = 1.75f;
-                    EspionageTotalScoreOpsMultiplier     = 2f;
+                    EspionageTechScoreOpsMultiplier      = 2.6f;
+                    EspionageExpansionScoreOpsMultiplier = 2.5f;
+                    EspionageIndustryScoreOpsMultiplier  = 2.5f;
+                    EspionageMilitaryScoreOpsMultiplier  = 2.75f;
+                    EspionageTotalScoreOpsMultiplier     = 3f;
                     break;
                 case PersonalityType.Pacifist:
                     ColonizationClaimRatioWarningThreshold = 1.25f;
@@ -342,11 +342,11 @@ namespace Ship_Game
                     GoToWarTolerance      = 2f;
                     WarSneakiness         = -5;
 
-                    EspionageTechScoreOpsMultiplier      = 1.5f;
-                    EspionageExpansionScoreOpsMultiplier = 1.6f;
-                    EspionageIndustryScoreOpsMultiplier  = 1.75f;
-                    EspionageMilitaryScoreOpsMultiplier  = 1.75f;
-                    EspionageTotalScoreOpsMultiplier     = 2f;
+                    EspionageTechScoreOpsMultiplier      = 2f;
+                    EspionageExpansionScoreOpsMultiplier = 2.5f;
+                    EspionageIndustryScoreOpsMultiplier  = 2.75f;
+                    EspionageMilitaryScoreOpsMultiplier  = 2.75f;
+                    EspionageTotalScoreOpsMultiplier     = 3f;
                     break;
             }
         }
