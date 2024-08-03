@@ -505,7 +505,7 @@ namespace Ship_Game
             PlanetGridSquare tileToLand = PickTileToLand(planet, freeTiles);
             AssignTroopToTile(planet, tileToLand, resetMove);
             // some buildings can injure landing troops
-            if (Loyalty != planet.Owner)
+            if (Loyalty != planet.Owner && !Loyalty.data.IsRebelFaction)
                 DamageTroop(planet.TotalInvadeInjure, planet, tileToLand,  out bool _);
 
             tileToLand.CheckAndTriggerEvent(planet, Loyalty);
