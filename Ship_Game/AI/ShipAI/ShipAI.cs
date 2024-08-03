@@ -799,9 +799,14 @@ namespace Ship_Game.AI
 
         void ResetStateFlee()
         {
-            if (State != AIState.Flee || BadGuysNear || State == AIState.Resupply || HasPriorityOrder) return;
-            if (OrderQueue.NotEmpty)
+            if (State == AIState.Flee
+                && !BadGuysNear 
+                && !HasPriorityOrder
+                && CombatState != CombatState.Evade
+                && OrderQueue.NotEmpty)
+            {
                 OrderQueue.RemoveLast();
+            }
         }
 
         void PrioritizePlayerCommands()

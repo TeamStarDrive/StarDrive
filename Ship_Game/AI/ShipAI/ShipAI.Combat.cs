@@ -695,7 +695,15 @@ namespace Ship_Game.AI
 
             if (badGuysNear && !inCombat && Target != null && ShouldEnterAutoCombat())
             {
-                EnterCombatState(AIState.Combat);
+                if (CombatState == CombatState.Evade)
+                {
+                    OrderFlee();
+                    Owner.InCombat = true;
+                }
+                else
+                {
+                    EnterCombatState(AIState.Combat);
+                }
             }
             // no nearby bad guys, no priority target, exit auto-combat
             else if (!badGuysNear && inCombat && Target == null)

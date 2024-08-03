@@ -264,10 +264,6 @@ namespace Ship_Game.Ships
         public void SetCombatStance(CombatState stance)
         {
             AI.CombatState = stance;
-            if (stance == CombatState.HoldPosition)
-            {
-                AI.OrderAllStop();
-            }
             ShipStatusChanged = true;
         }
 
