@@ -111,7 +111,7 @@ public class AutoUpdateChecker : UIElementContainer
 
         void OnAutoUpdateClicked()
         {
-            Log.LogEventStats(Log.GameEvent.AutoUpdateClicked);
+            //Log.LogEventStats(Log.GameEvent.AutoUpdateClicked);
 
             Remove();
             var mb = new MessageBoxScreen(Screen, "This will automatically update to the latest version. Continue?", 10f);

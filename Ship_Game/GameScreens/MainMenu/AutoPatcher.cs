@@ -35,7 +35,7 @@ internal class AutoPatcher : PopupWindow
     {
         base.LoadContent();
 
-        Log.LogEventStats(Log.GameEvent.AutoUpdateStarted);
+        //Log.LogEventStats(Log.GameEvent.AutoUpdateStarted);
 
         ProgressSteps = Add(new UIList(new(460, 200), ListLayoutStyle.ResizeList));
         ProgressSteps.AxisAlign = Align.TopCenter;
@@ -404,7 +404,7 @@ internal class AutoPatcher : PopupWindow
     {
         Log.Write("AutoUpdate finished. Restarting in 3 seconds...");
         Log.FlushAllLogs();
-        Log.LogEventStats(Log.GameEvent.AutoUpdateFinished);
+        //Log.LogEventStats(Log.GameEvent.AutoUpdateFinished);
 
         Thread.Sleep(2900);
         Program.RunCleanup();
