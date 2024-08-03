@@ -45,7 +45,7 @@ namespace Ship_Game.Ships
             Owner.Velocity = dir * (Owner.MaxSTLSpeed * 0.8f).LowerBound(200);
             Scale = Owner.Position.Distance(CrashPos) / Distance;
 
-            if (Owner.Position.InRadius(CrashPos, 200))
+            if (Owner.Position.InRadius(CrashPos, 200f))
             {
                 P.TryCrashOn(Owner);
                 Owner.SetReallyDie();

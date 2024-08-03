@@ -67,7 +67,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                                     Owner.Universe.Notifications.AddEnemyLaunchedTroopsVsFleet(PlanetBuildingAt, Owner);
                             }
 
-                            float distance = ship.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 1500) ? 300 : 600;
+                            float distance = ship.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 1500f) ? 300 : 600;
                             troopShip.Position = ship.Position.GenerateRandomPointOnCircle(distance, Owner.Random);
                             troopShip.Rotation = troopShip.Position.DirectionToTarget(ship.Position).ToRadians();
                             troopShip.InitLaunch(LaunchPlan.Hangar, troopShip.RotationDegrees);

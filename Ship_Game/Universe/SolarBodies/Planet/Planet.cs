@@ -664,7 +664,7 @@ namespace Ship_Game
             for (int i = 0; i < System.ShipList.Count; ++i)
             {
                 Ship ship = System.ShipList[i];
-                if (ship?.Position.InRadius(Position, 15000) == true
+                if (ship?.Position.InRadius(Position, 15000f) == true
                     && ship.BaseStrength > 10
                     && (!ship.IsTethered || ship.GetTether() == this) // orbitals orbiting another nearby planet
                     && Owner.IsEmpireAttackable(ship.Loyalty))
@@ -865,7 +865,8 @@ namespace Ship_Game
             if (ShieldStrengthMax.AlmostZero() || ShieldStrengthCurrent.AlmostEqual(ShieldStrengthMax))
                 return;
 
-            float maxRechargeRate = SpaceCombatNearPlanet ? ShieldStrengthMax * 0.005f : ShieldStrengthMax * 0.05f;
+            bool threatPresent = ThreatsNearPlanet(System.DangerousForcesPresent(Owner));
+            float maxRechargeRate = threatPresent ? ShieldStrengthMax * 0.005f : ShieldStrengthMax * 0.05f;
             float rechargeRate = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
             Owner.AddExoticConsumption(ExoticBonusType.ShieldRecharge, rechargeRate);
             float rechargeExoticBonus = Owner.GetDynamicExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);

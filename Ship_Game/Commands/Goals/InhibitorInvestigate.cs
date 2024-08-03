@@ -17,7 +17,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Vector2 InvestigatePos { get; set; }
         [StarData] float StrNeeded { get; set; }
 
-        public override bool IsInvsestigationHere(Vector2 pos) => pos.InRadius(InvestigatePos, 50_000);
+        public override bool IsInvsestigationHere(Vector2 pos) => pos.InRadius(InvestigatePos, 50000f);
 
 
         [StarDataConstructor]

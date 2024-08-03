@@ -262,7 +262,7 @@ namespace Ship_Game.Ships
                 return;
 
             TroopUpdateTimer = Universe.P.TurnTimer;
-            if (OurTroops.Count > 0)
+            if (OurTroops.Count > 0 && !Loyalty.WeArePirates)
             {
                 // leave a garrison of 1 if a ship without barracks was boarded
                 int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1);

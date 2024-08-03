@@ -607,7 +607,7 @@ namespace Ship_Game.AI
 
         bool ShouldReturnToFleet(Fleet fleet)
         {
-            if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), 400))
+            if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), 400f))
                 return false;
             // separated for clarity as this section can be very confusing.
             // we might need a toggle for the player action here.
@@ -799,9 +799,14 @@ namespace Ship_Game.AI
 
         void ResetStateFlee()
         {
-            if (State != AIState.Flee || BadGuysNear || State == AIState.Resupply || HasPriorityOrder) return;
-            if (OrderQueue.NotEmpty)
+            if (State == AIState.Flee
+                && !BadGuysNear 
+                && !HasPriorityOrder
+                && CombatState != CombatState.Evade
+                && OrderQueue.NotEmpty)
+            {
                 OrderQueue.RemoveLast();
+            }
         }
 
         void PrioritizePlayerCommands()

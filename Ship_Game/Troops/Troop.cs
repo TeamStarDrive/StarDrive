@@ -253,10 +253,9 @@ namespace Ship_Game
 
         void DrawTexture(SpriteBatch sb, SubTexture tex, Rectangle drawRect, bool flip)
         {
-            Troop t = ResourceManager.GetTroopTemplate(Name);
-            int x_offset = t.idle_x_offset;
-            int y_offset = t.idle_y_offset;
-            int width = Idle ? tex.Width : t.attack_width;
+            int x_offset = idle_x_offset;
+            int y_offset = idle_y_offset;
+            int width = Idle ? tex.Width : attack_width;
 
             float scale = drawRect.Width / 128f;
             drawRect.Width = (int)(width * scale);
@@ -505,7 +504,7 @@ namespace Ship_Game
             PlanetGridSquare tileToLand = PickTileToLand(planet, freeTiles);
             AssignTroopToTile(planet, tileToLand, resetMove);
             // some buildings can injure landing troops
-            if (Loyalty != planet.Owner)
+            if (Loyalty != planet.Owner && !Loyalty.data.IsRebelFaction)
                 DamageTroop(planet.TotalInvadeInjure, planet, tileToLand,  out bool _);
 
             tileToLand.CheckAndTriggerEvent(planet, Loyalty);

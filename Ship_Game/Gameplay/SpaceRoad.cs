@@ -247,7 +247,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
-                if (node.Position.InRadius(buildPos, 100))
+                if (node.Position.InRadius(buildPos, 100f))
                 {
                     SetProjectorAtNode(node, projector);
                     return true;
