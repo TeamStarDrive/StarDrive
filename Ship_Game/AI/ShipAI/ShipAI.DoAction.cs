@@ -749,7 +749,7 @@ namespace Ship_Game.AI
             }
 
             ThrustOrWarpToPos(goal.MovePosition, timeStep);
-            if (Owner.Position.InRadius(goal.MovePosition, 200))
+            if (Owner.Position.InRadius(goal.MovePosition, 200f))
             {
                 goal.TargetPlanet.LandBuilderShip();
                 Owner.QueueTotalRemoval();

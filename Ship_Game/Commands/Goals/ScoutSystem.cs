@@ -96,7 +96,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.RestartGoal;
             }
 
-            return FinishedShip.Position.InRadius(FinishedShip.AI.ExplorationTarget.Position, 20000) 
+            return FinishedShip.Position.InRadius(FinishedShip.AI.ExplorationTarget.Position, 20000f) 
                     ? GoalStep.GoalComplete 
                     : GoalStep.TryAgain;
         }

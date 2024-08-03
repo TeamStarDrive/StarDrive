@@ -117,7 +117,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 Owner.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);
-                if (position.InRadius(orbital.Position, 500))
+                if (position.InRadius(orbital.Position, 500f))
                     return true;
             }
 
@@ -129,7 +129,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             return Owner.AI.Goals.Any(g => g != this 
                                            && g is BuildOrbital bo && bo.TetherPlanet == TetherPlanet 
-                                           && g.BuildPosition.InRadius(position, 500));
+                                           && g.BuildPosition.InRadius(position, 500f));
 
             /*var ships = Owner.OwnedShips;
             foreach (Ship ship in ships.Filter(s => s.IsConstructor))

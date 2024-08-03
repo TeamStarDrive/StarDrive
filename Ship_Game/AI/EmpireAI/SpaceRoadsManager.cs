@@ -61,7 +61,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < Owner.AI.Goals.Count; i++)
             {
                 Goal g = Owner.AI.Goals[i];
-                if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, 1000))
+                if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, 1000f))
                     return true;
             }
 
