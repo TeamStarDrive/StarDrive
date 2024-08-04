@@ -359,7 +359,10 @@ namespace Ship_Game.Gameplay
                         else if (TimesSpiedOnAlly > 1)
                         {
                             if (them.isPlayer && !us.IsFaction)
-                                DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
+                            {
+                                DiplomacyScreen.ShowEndOnly(us, them,
+                                    breakTreatiesWithAllyifCaughtSpying ? "Caught_Spying_Ally_2" : "Caught_Spying_Ally_1");
+                            }
 
                             if (breakTreatiesWithAllyifCaughtSpying)
                                 us.BreakAllTreatiesWith(them);
