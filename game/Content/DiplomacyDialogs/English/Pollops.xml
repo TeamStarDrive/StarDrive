@@ -461,6 +461,10 @@
       <DialogType>AI_ALLIANCE_REJECT</DialogType>
       <Default>No, no, no. Sorry, SING, but an alliance requires a lot of trust and we just aren't there yet.</Default>
     </DialogLine>
+	<DialogLine>
+      <DialogType>TREATY_TOO_SOON_REJECT</DialogType>
+      <Default>Not yet. We need more light to shine on our relationships. Maybe later.</Default>
+    </DialogLine>			
     <DialogLine>
       <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
       <Default>Nope! Not going to happen! You think you can just walk all over us? Well this grass BITES!</Default>
@@ -615,7 +619,7 @@
       <Default>We will not sign peace with you while you are sunbathing with our enemies.</Default>
     </DialogLine>
     <DialogLine>
-      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+    <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
       <Default>Thunderstorms! How can we ally you while you shed light on our enemies?</Default>
     </DialogLine>
     <DialogLine>

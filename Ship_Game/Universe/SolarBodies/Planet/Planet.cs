@@ -457,7 +457,7 @@ namespace Ship_Game
             else 
                 worth += (ProdHere / 25f);
 
-            return worth.LowerBound(5);
+            return (worth * HabitablePercentage).LowerBound(1);
         }
 
         public void SetInGroundCombat(Empire empire, bool notify = false)

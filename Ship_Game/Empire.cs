@@ -2171,14 +2171,14 @@ namespace Ship_Game
 
         void CalculateScore(bool fromSave = false)
         {
-            TechScore = TechEntries.Sum(e => e.Unlocked ? e.TechCost : 0) * 0.01f;
+            TechScore = TechEntries.Sum(e => e.Unlocked ? e.TechCost : 0) * 0.01f / Universe.P.Pace;
             IndustrialScore = 0;
             ExpansionScore  = 0;
             for (int i = 0; i < OwnedPlanets.Count; i++)
             {
                 Planet p = OwnedPlanets[i];
                 ExpansionScore  += p.Fertility*10 + p.MineralRichness*10 + p.PopulationBillion;
-                IndustrialScore += p.SumBuildings(b => b.ActualCost(this));
+                IndustrialScore += p.SumBuildings(b => b.Cost);
             }
             IndustrialScore *= 0.05f;
 

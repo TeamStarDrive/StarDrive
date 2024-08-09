@@ -81,6 +81,7 @@
       <Trade>15</Trade>
       <Trustworthiness>0</Trustworthiness>
       <WeaknessDecline>.3</WeaknessDecline>
+	  <AngerDissipation>0.05</AngerDissipation>
       <PowerIncrease>.1</PowerIncrease>
     </DTrait>
   </DiplomaticTraitsList>

@@ -485,6 +485,10 @@ Heed well our warrior-poets, SING, and anger not the mighty Kulrathi</Neutral>
       <DialogType>AI_ALLIANCE_REJECT</DialogType>
       <Default>We appreciate you considering us for this honor. However, we cannot accept your offer at this time because - bluntly - we do not trust you enough yet.</Default>
     </DialogLine>
+	<DialogLine>
+      <DialogType>TREATY_TOO_SOON_REJECT</DialogType>
+      <Default>It is too soon for that kind of treaty.</Default>
+    </DialogLine>				
     <DialogLine>
       <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
       <Default>The Drums of War have already sounded. The blades are sharp, the warriors' hearts prepared. The Drum cannot be un-sounded. </Default>

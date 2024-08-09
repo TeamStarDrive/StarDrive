@@ -483,6 +483,10 @@
       <DialogType>AI_ALLIANCE_REJECT</DialogType>
       <Default>Oooooohhh. Well, we appreciate you asking us but...it isn't you, it's me. I'm just not ready for this level of commitment.</Default>
     </DialogLine>
+	<DialogLine>
+      <DialogType>TREATY_TOO_SOON_REJECT</DialogType>
+      <Default>Nice offer, but Master says we need more time to think about it.</Default>
+    </DialogLine>	
     <DialogLine>
       <DialogType>Declare War Defense BrokenNA</DialogType>
       <Default>What Treachery is this!? We had a PACT! Doesn't that mean anything to you brutes?! We will defend ourselves! </Default>

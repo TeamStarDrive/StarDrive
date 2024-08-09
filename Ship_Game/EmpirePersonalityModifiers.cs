@@ -39,6 +39,7 @@ namespace Ship_Game
         public readonly float SpyDamageRelationsMultiplier; // Multipler for base rations damage when caught spying. Works for new Espionage logic
         public readonly float WantedMoleCovreage; // Coverage of mole threshold of the victim total planets
         public readonly float AlliancOfferStrThreshold; // Dont offer alliance normally if they are too weak
+        public readonly float TrustChangeThreshold; // used to change some trust when this threshold is passed, depending on E personality as well and scores.
 
         // Espionage AI Operation activation thresholds
         public readonly float EspionageTechScoreOpsMultiplier;
@@ -69,6 +70,7 @@ namespace Ship_Game
                     ClearNeutralExoticSystems    = false; 
                     AddAngerAlliedWithEnemy      = 0;
                     PiratePayChanceModifier      = 1;
+                    TrustChangeThreshold         = 1.5f;
                     AlliancOfferStrThreshold     = 1.5f;
                     CloserToUsClaimWarn   = 0.3f;
                     WantedMoleCovreage    = 0.25f;
@@ -111,6 +113,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
                     PiratePayChanceModifier      = 0.4f;
+                    TrustChangeThreshold         = 1.25f;
                     AlliancOfferStrThreshold     = 0.75f;
                     CloserToUsClaimWarn   = 0.5f;
                     WantedMoleCovreage    = 0.25f;
@@ -153,6 +156,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
                     PiratePayChanceModifier      = 0.5f;
+                    TrustChangeThreshold         = 1.2f;
                     AlliancOfferStrThreshold     = 0.7f;
                     CloserToUsClaimWarn   = 0.4f;
                     WantedMoleCovreage    = 0.2f;
@@ -195,6 +199,7 @@ namespace Ship_Game
                     ClearNeutralExoticSystems    = true;
                     AddAngerAlliedWithEnemy      = 100;
                     PiratePayChanceModifier      = 0.6f;
+                    TrustChangeThreshold         = 1.1f;
                     AlliancOfferStrThreshold     = 0.7f;
                     CloserToUsClaimWarn   = 0.6f;
                     WantedMoleCovreage    = 0.15f;
@@ -240,6 +245,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     PiratePayChanceModifier      = 0.7f;
                     AlliancOfferStrThreshold     = 0.8f;
+                    TrustChangeThreshold         = 1.4f;
                     CloserToUsClaimWarn   = 0.3f;
                     WantedMoleCovreage    = 0.5f;
                     DefenseTaskWeight     = 1.3f;
@@ -279,6 +285,7 @@ namespace Ship_Game
                     PlanetStoleTrustMultiplier   = 0.4f;
                     WarGradeThresholdForPeace    = 0.55f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = false;
+                    TrustChangeThreshold         = 1.25f;
                     AddAngerAlliedWithEnemy      = 75;
                     PiratePayChanceModifier      = 0.25f;
                     AlliancOfferStrThreshold     = 0.5f;
@@ -321,6 +328,7 @@ namespace Ship_Game
                     WarGradeThresholdForPeace    = 0.75f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = false;
                     PlanetStoleTrustMultiplier   = 0.8f;
+                    TrustChangeThreshold         = 1.5f;
                     AddAngerAlliedWithEnemy      = 0;
                     PiratePayChanceModifier      = 0.75f;
                     AlliancOfferStrThreshold     = 0.2f;

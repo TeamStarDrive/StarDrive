@@ -41,7 +41,7 @@ namespace Ship_Game.Gameplay
     }
 
     [StarDataType]
-    public sealed class Relationship
+    public partial class Relationship
     {
         [StarData] public Empire Them { get; private set; }
         [StarData] public bool Known;
@@ -102,7 +102,9 @@ namespace Ship_Game.Gameplay
         [StarData] public float InitialStrength;
         [StarData] public int TurnsKnown;
         [StarData] public int TurnsAbove95; // Trust
-        [StarData] public int TurnsAllied;
+        [StarData] public int TurnsAllied { get; private set; }
+        [StarData] public int TurnsInNap { get; private set; }
+        [StarData] public int TurnsInOpenBorders { get; private set; }
 
         [StarData] public Array<TrustEntry> TrustEntries = new();
         [StarData] public Array<FearEntry> FearEntries = new();
@@ -597,6 +599,8 @@ namespace Ship_Game.Gameplay
             TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
             Treaty_Trade_TurnsExisted = Treaty_Trade ? Treaty_Trade_TurnsExisted + 1 : 0;
             TurnsAllied = Treaty_Alliance ? TurnsAllied + 1 : 0;
+            TurnsInNap = Treaty_NAPact ? TurnsInNap + 1 : 0;
+            TurnsInOpenBorders = Treaty_OpenBorders ? TurnsInOpenBorders + 1 : 0;
 
             ++TurnsKnown;
             ++turnsSinceLastContact;
@@ -616,8 +620,8 @@ namespace Ship_Game.Gameplay
             {
                 DTrait dt = us.data.DiplomaticPersonality;
                 UpdateThreat(us, them);
-                UpdateIntelligence(us, them);
-                UpdateTrust(us, them, dt);
+                UpdateIntelligence(us, them); // TODO support espionage
+                UpdateTrust(us, them, dt, us.data.EconomicPersonality?.EconomicPersonality() ?? EconomicPersonalityType.Generalists);
                 UpdateAnger(us, them, dt);
                 UpdateFear();
 
@@ -692,94 +696,6 @@ namespace Ship_Game.Gameplay
 
             FearUsed += FearEntries.Sum(f => f.TurnsInExistence < f.TurnTimer ? f.FearCost : 0);
             FearEntries.RemoveAll(f => f.TurnsInExistence >= f.TurnTimer);
-        }
-
-        void UpdateTrust(Empire us, Empire them, DTrait personality)
-        {
-            foreach (TrustEntry te in TrustEntries)
-                te.TurnsInExistence += 1;
-
-            TrustUsed = TrustEntries.Sum(t => t.TurnsInExistence < t.TurnTimer ? t.TrustCost : 0);
-            TrustEntries.RemoveAll(t => t.TurnsInExistence >= t.TurnTimer);
-
-            float trustToAdd = 0;
-            switch (Posture)
-            {
-                case Posture.Friendly:                      trustToAdd += personality.TrustGainedAtPeace * 2;    break;
-                case Posture.Neutral when !us.IsXenophobic: trustToAdd += personality.TrustGainedAtPeace;        break;
-                case Posture.Hostile when !us.IsXenophobic: trustToAdd += personality.TrustGainedAtPeace * 0.2f; break;
-                case Posture.Hostile:                                                                            return;
-            }
-
-            float trustGain = GetTrustGain();
-            if (Treaty_NAPact)      trustToAdd += trustGain;
-            if (Treaty_OpenBorders) trustToAdd += trustGain;
-            if (Treaty_Trade)       trustToAdd += trustGain;
-
-            if (us.IsXenophobic
-                && them.GetPlanets().Count >  us.GetPlanets().Count * 1.2f )
-            {
-                trustToAdd -= 0.1f;
-            }
-
-            Trust        += trustToAdd * TrustMultiplier();
-            Trust        = Trust.Clamped(-50, Treaty_Alliance ? 150 : 100);
-            TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
-
-            float GetTrustGain()
-            {
-                float gain = 0.0125f;
-
-                switch (us.Personality)
-                {
-                    case PersonalityType.Aggressive when them.IsAggressive:
-                    case PersonalityType.Aggressive when them.IsXenophobic: gain *= 0.7f;  break;
-                    case PersonalityType.Aggressive when them.IsRuthless:   gain *= 0.85f; break;
-                    case PersonalityType.Ruthless   when them.IsAggressive: gain *= 0.75f; break;
-                    case PersonalityType.Ruthless   when them.IsRuthless:   gain *= 0.7f;  break;
-                    case PersonalityType.Ruthless   when them.IsXenophobic: gain *= 0.8f;  break;
-                    case PersonalityType.Xenophobic when them.IsAggressive:
-                    case PersonalityType.Xenophobic when them.IsRuthless:   gain *= 0.5f;  break;
-                    case PersonalityType.Xenophobic when them.IsXenophobic: gain *= 0.2f;  break;
-                    case PersonalityType.Honorable  when them.IsHonorable:  gain *= 2f;    break;
-                    case PersonalityType.Honorable  when them.IsPacifist:   gain *= 1.1f;  break;
-                    case PersonalityType.Honorable  when them.IsCunning:    gain *= 1.05f; break;
-                    case PersonalityType.Pacifist   when them.IsHonorable:  gain *= 1.2f;  break;
-                    case PersonalityType.Pacifist   when them.IsPacifist:   gain *= 2f;    break;
-                    case PersonalityType.Pacifist   when them.IsCunning:    gain *= 1.1f;  break;
-                    case PersonalityType.Cunning    when them.IsHonorable:
-                    case PersonalityType.Cunning    when them.IsPacifist:   gain *= 1.1f;  break;
-                    case PersonalityType.Cunning    when them.IsCunning:    gain *= 0.8f;  break;
-                    case PersonalityType.Xenophobic:                        gain *= 0.6f;  break;
-                    case PersonalityType.Aggressive:                        gain *= 0.75f; break;
-                    case PersonalityType.Ruthless:                          gain *= 0.7f;  break;
-                    case PersonalityType.Pacifist:                          gain *= 1.25f; break;
-                    case PersonalityType.Honorable:                         gain *= 1.1f;  break;
-                }
-
-
- 
-                if (them.isPlayer)
-                {
-                    gain /= ((int)us.Universe.P.Difficulty).LowerBound(1);
-                }
-                else
-                {
-                    Relationship themToUs = them.GetRelationsOrNull(us);
-                    if (themToUs != null && themToUs.Posture == Posture.Friendly)
-                        gain *= 2;
-                }
-
-                return gain;
-            }
-
-            float TrustMultiplier() // Based on number of planet they stole from us
-            {
-                if (NumberStolenClaims == 0 || !them.isPlayer) // AI has their internal trust gain
-                    return 1;
-
-                return us.PersonalityModifiers.PlanetStoleTrustMultiplier / NumberStolenClaims;
-            }
         }
 
         void UpdatePeace(Empire us, Empire them)
@@ -1099,7 +1015,7 @@ namespace Ship_Game.Gameplay
         void ReferToMilitary(Empire us, float threatForInsult, bool compliment = true)
         {
             Empire them = Them;
-            float anger = us.IsAggressive ? 15 : 5;
+            float anger = us.IsAggressive ? 0.15f : 0.1f;
             if (Threat <= threatForInsult)
             {
                 if (!HaveInsulted_Military && TurnsKnown > FirstDemand)
@@ -1587,7 +1503,7 @@ namespace Ship_Game.Gameplay
         {
             theyArePotentialTargets = false;
             AssessDiplomaticAnger(us);
-            ReferToMilitary(us, threatForInsult: 0);
+            ReferToMilitary(us, threatForInsult: -10);
             switch (Posture)
             {
                 case Posture.Friendly:

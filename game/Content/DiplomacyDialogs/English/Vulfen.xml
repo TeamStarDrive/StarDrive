@@ -461,6 +461,10 @@
       <DialogType>AI_ALLIANCE_REJECT</DialogType>
       <Default>Grrrrrrr! You think you are friends with us? You are not!</Default>
     </DialogLine>
+	<DialogLine>
+      <DialogType>TREATY_TOO_SOON_REJECT</DialogType>
+      <Default>Hurr, no treaty yet! Come back in the future.</Default>
+    </DialogLine>					
     <DialogLine>
       <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
       <Default>Hurrr hurrr! No! No peace!</Default>

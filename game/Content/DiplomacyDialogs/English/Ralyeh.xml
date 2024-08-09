@@ -457,6 +457,10 @@
       <DialogType>AI_ALLIANCE_REJECT</DialogType>
       <Default>Ah. No, SING. We will not be your allies.</Default>
     </DialogLine>
+	<DialogLine>
+      <DialogType>TREATY_TOO_SOON_REJECT</DialogType>
+      <Default>No, we need more time to read omens of the Eldar God before we agree to this treaty.</Default>
+    </DialogLine>				
     <DialogLine>
       <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
       <Default>And what tithes have you offered the Elder God for his forgiveness? Hmm? What worlds will you give him? Think on this before you ask that he spare your lives.</Default>
