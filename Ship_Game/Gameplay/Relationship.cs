@@ -48,8 +48,6 @@ namespace Ship_Game.Gameplay
         [StarData] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
 
         [StarData] public FederationQuest FedQuest;
-        [StarData] public float IntelligenceBudget;
-        [StarData] public float IntelligencePenetration;
         [StarData] public int turnsSinceLastContact;
         [StarData] public int TurnsSinceLastTechTrade;
         [StarData] public bool WarnedAboutShips;
@@ -119,7 +117,6 @@ namespace Ship_Game.Gameplay
         [StarData] public bool RefusedMerge; // Refused merge or surrenders from us (mostly the player can refuse)
 
         [StarData] public EmpireRiskAssessment Risk;
-        [StarData] public EmpireInformation KnownInformation;
         [StarData] public Espionage Espionage;
 
         [StarData] public bool DoNotSurrenderToThem;
@@ -175,7 +172,6 @@ namespace Ship_Game.Gameplay
         {
             Them = them;
             Risk = new EmpireRiskAssessment(this);
-            KnownInformation = new EmpireInformation(this);
             if (us.NewEspionageEnabled)
                 Espionage = new Espionage(us, them);
         }
@@ -526,33 +522,6 @@ namespace Ship_Game.Gameplay
             InitialStrength = 50f + n;
         }
 
-        void UpdateIntelligence(Empire us, Empire them) // Todo - not sure what this does
-        {
-            // Moving towards adding intelligence. 
-            // everything after the update is not used.
-            // what should happen is that the information level is figured out.
-            // then knowninformation is updated with the intelligence level. 
-            KnownInformation.Update(IntelligenceLevel);
-            if (us.Money < IntelligenceBudget || IntelligencePenetration > 100f)
-                return;
-
-            us.AddMoney(-IntelligenceBudget);
-            int moleCount = 0;
-            var theirPlanets = them.GetPlanets();
-            foreach (Mole mole in us.data.MoleList)
-            {
-                foreach (Planet p in theirPlanets)
-                {
-                    if (p.Id != mole.PlanetId)
-                        continue;
-                    moleCount++;
-                }
-            }
-            IntelligencePenetration += (IntelligenceBudget + IntelligenceBudget * (0.1f * moleCount + us.data.SpyModifier)) / 30f;
-            if (IntelligencePenetration > 100f)
-                IntelligencePenetration = 100f;
-        }
-
         // updates basic relationship metrics
         // but doesn't create big side-effects
         public void UpdateRelationship(Empire us, Empire them)
@@ -620,7 +589,6 @@ namespace Ship_Game.Gameplay
             {
                 DTrait dt = us.data.DiplomaticPersonality;
                 UpdateThreat(us, them);
-                UpdateIntelligence(us, them); // TODO support espionage
                 UpdateTrust(us, them, dt, us.data.EconomicPersonality?.EconomicPersonality() ?? EconomicPersonalityType.Generalists);
                 UpdateAnger(us, them, dt);
                 UpdateFear();
@@ -631,7 +599,6 @@ namespace Ship_Game.Gameplay
         
         void UpdatePlayerRelations(Empire us, Empire them)
         {
-            UpdateIntelligence(us, them);
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
@@ -953,19 +920,19 @@ namespace Ship_Game.Gameplay
         void Federate(Empire us, Empire them)
         {
             if (them.isPlayer
-                || them.IsXenophobic
+                || them.IsXenophobic && !us.IsXenophobic
                 || TurnsAbove95 < TurnsAbove95Federation(us)
-                || turnsSinceLastContact < 100
+                || turnsSinceLastContact < 100 * Them.Universe.P.Pace
                 || !Treaty_Alliance
-                || TotalAnger > 0
+                || TotalAnger > 10
                 || Trust < 100
                 || them.TotalScore < us.TotalScore * 1.5f)
             {
                 return;
             }
 
-            turnsSinceLastContact = 0; // Try again after 100 turns
-            if ((Trust >= 150 && us.TotalPopBillion < them.TotalPopBillion
+            turnsSinceLastContact = 0; // Try again after 100 turns * Pace
+            if ((Trust >= 120 && us.TotalPopBillion < them.TotalPopBillion
                 || Trust >= 100 && us.TotalPopBillion < them.TotalPopBillion / 3)
                 && Is3RdPartyBiggerThenUs(us, them))
             {

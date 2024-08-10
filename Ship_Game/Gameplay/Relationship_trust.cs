@@ -252,6 +252,9 @@ namespace Ship_Game.Gameplay
             if (us.NewEspionageEnabled && Espionage.Level > 3 && them.GetEspionage(us).LimitLevel > 3)
                 gain -= baseGain;
 
+            if (them.IsXenophobic)
+                gain += baseGain*2;
+
             return gain;
         }
 

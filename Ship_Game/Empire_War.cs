@@ -177,28 +177,33 @@ namespace Ship_Game
             if (them.IsDefeated || !rel.PreparingForWar || rel.AtWar || IsPeaceTreaty(them))
                 return false;
 
-            var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.IsFaction, 
-                w => GetRelations(w.Them).KnownInformation);
-
+            var currentEnemies = AllActiveWars.FilterSelect(w => !w.Them.IsFaction, w => w.Them);
             int minStr = DifficultyModifiers.MinimumThreatStr * (them.isPlayer ? 500 : 1000);
-            float currentEnemyStr     = currentWarInformation.Sum(i => i.OffensiveStrength);
-            float currentEnemyBuild   = currentWarInformation.Sum(i => i.EconomicStrength);
-            float ourCurrentStrength  = ShipsReadyForFleet.AccumulatedStrength;
-            float theirKnownStrength  = (rel.KnownInformation.AllianceTotalStrength + currentEnemyStr).LowerBound(minStr);
-            float theirBuildCapacity  = (rel.KnownInformation.AllianceEconomicStrength + currentEnemyBuild).LowerBound(10);
-            float ourBuildCapacity    = AI.BuildCapacity;
+            float currentEnemyStr   = currentEnemies.Sum(e => e.isPlayer ? e.OffensiveStrength : e.ShipsReadyForFleet.AccumulatedStrength);
+            float currentEnemyBuild = currentEnemies.Sum(e => e.AI.BuildCapacity);
 
-            var array = Universe.GetAllies(this);
-            for (int i = 0; i < array.Count; i++)
-            {
-                var ally = array[i];
-                ourBuildCapacity   += ally.AI.BuildCapacity;
-                ourCurrentStrength += ally.OffensiveStrength;
-            }
 
-            bool weAreStronger = ourCurrentStrength > theirKnownStrength * PersonalityModifiers.GoToWarTolerance
-                                 && ourBuildCapacity > theirBuildCapacity 
+            (float ourCurrentStrength, float ourBuildCapacity) = GetAlliedStr(this);
+            (float theirKnownStrength, float theirBuildCapacity) = GetAlliedStr(them);
+            theirKnownStrength = theirKnownStrength.LowerBound(minStr);
+            theirBuildCapacity = theirBuildCapacity.LowerBound(10);
+            bool weAreStronger = ourCurrentStrength > theirKnownStrength * PersonalityModifiers.GoToWarTolerance && ourBuildCapacity > theirBuildCapacity 
                                  || ourCurrentStrength > theirKnownStrength * PersonalityModifiers.GoToWarTolerance*1.5f;
+
+            (float alliesBuildCapacity, float alliesStr) GetAlliedStr(Empire e)
+            {
+                float buildCap = e.AI.BuildCapacity;
+                float currentStr = e.isPlayer ? e.OffensiveStrength : e.ShipsReadyForFleet.AccumulatedStrength;
+                var array = Universe.GetAllies(e);
+                for (int i = 0; i < array.Count; i++)
+                {
+                    var ally = array[i];
+                    buildCap += ally.AI.BuildCapacity;
+                    currentStr += ally.isPlayer ? ally.OffensiveStrength : ally.ShipsReadyForFleet.AccumulatedStrength;
+                }
+
+                return (buildCap, currentStr);
+            }
 
             return weAreStronger;
         }

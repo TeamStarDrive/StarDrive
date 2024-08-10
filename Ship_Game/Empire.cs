@@ -1906,18 +1906,6 @@ namespace Ship_Game
 
             UpdateRelationships(takeTurn: true);
 
-            if (Money > data.CounterIntelligenceBudget)
-            {
-                Money -= data.CounterIntelligenceBudget;
-                foreach (Relationship rel in ActiveRelations)
-                {
-                    Relationship relWithUs = rel.Them.GetRelations(this);
-                    relWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
-                    if (relWithUs.IntelligencePenetration < 0.0f)
-                        relWithUs.IntelligencePenetration = 0.0f;
-                }
-            }
-
             if (!IsFaction)
             {
                 CalcWeightedCenter();

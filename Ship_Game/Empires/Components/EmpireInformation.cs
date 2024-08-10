@@ -44,11 +44,13 @@ namespace Ship_Game.Empires.Components
                 case InformationLevel.None:
                     break;
                 case InformationLevel.Minimal:
+                    OffensiveStrength = Them.OffensiveStrength;
                     break;
                 case InformationLevel.Normal:
+                    EconomicStrength = Them.AI.BuildCapacity;
+                    OffensiveStrength = Them.OffensiveStrength;
                     break;
                 case InformationLevel.High:
-                    break;
                 case InformationLevel.Full:
 
                     EconomicStrength  = Them.AI.BuildCapacity;

@@ -188,7 +188,6 @@ namespace Ship_Game
         [StarData] public string MusicCue;
         [StarData] public Array<string> ResearchQueue = new();
         [StarData] public Array<Mole> MoleList = new(); // do not interact this with directly. Use PlantMole or RemoveMole methods
-        [StarData] public float CounterIntelligenceBudget;
 
         // NOTE: This is currently the main unique identifier?
         [StarData] public string PortraitName;
@@ -415,7 +414,6 @@ namespace Ship_Game
             data.AgentList = new();
             data.MoleList = new();
 
-            data.CounterIntelligenceBudget = 0.0f;
             data.FlatMoneyBonus = 0.0f;
             data.TurnsBelowZero = 0;
             data.TaxRate = 0.25f;

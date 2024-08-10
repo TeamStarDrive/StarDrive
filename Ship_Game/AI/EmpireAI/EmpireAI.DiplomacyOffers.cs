@@ -204,10 +204,10 @@ namespace Ship_Game.AI
             string answer;
             if (!theirOffer.IsBlank() || !ourOffer.IsBlank())
                 answer = "OFFER_ALLIANCE_TOO_COMPLICATED";
-            else if (usToThem.Trust < 90f || usToThem.TotalAnger >= 20f || usToThem.TurnsKnown <= 100 * them.Universe.P.Pace)
-                answer = "AI_ALLIANCE_REJECT";
             else if (them.isPlayer && usToThem.TurnsInOpenBorders < 100 * OwnerEmpire.Universe.P.Pace)
                 answer = "TREATY_TOO_SOON_REJECT";
+            else if (usToThem.AvailableTrust < OwnerEmpire.data.DiplomaticPersonality.Alliance + usToThem.TotalAnger || usToThem.TurnsKnown <= 100 * them.Universe.P.Pace)
+                answer = "AI_ALLIANCE_REJECT";
             else if (WeCanAllyWithThem(them, usToThem, out answer))
                 usToThem.SetAlliance(true, OwnerEmpire, them);
 
@@ -349,12 +349,6 @@ namespace Ship_Game.AI
             valueToThem += ourOffer.ArtifactsOffered.Count * ArtifactValue;
             valueToUs   += theirOffer.ArtifactsOffered.Count * ArtifactValue;
 
-            if (us.GetPlanets().Count - ourOffer.ColoniesOffered.Count + theirOffer.ColoniesOffered.Count < 1)
-            {
-                // todo not sure this is needed, better check the colony value
-                usToThem.DamageRelationship(us, them, "Insulted", 25f, null);
-                return "OfferResponse_Reject_Insulting";
-            }
             foreach (string planetName in ourOffer.ColoniesOffered)
             {
                 foreach (Planet p in us.GetPlanets())
