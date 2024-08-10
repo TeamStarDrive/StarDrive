@@ -13,7 +13,7 @@ namespace Ship_Game
         [StarData] readonly Espionage Espionage;
         public const float PercentOfLevelCost = 0.4f;
         const int SuccessTargetNumber = 20; // need to get 20 and above in a roll of d100)
-        const float BaseRelationDamage = 5;
+        const float BaseRelationDamage = 3;
         public const int BaseRampUpTurns = 20;
 
         [StarDataConstructor]

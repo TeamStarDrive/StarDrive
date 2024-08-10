@@ -490,6 +490,10 @@
       <DialogType>AI_ALLIANCE_REJECT</DialogType>
       <Default>I am afraid that an alliance is currently not in the cards for us. We need greater trust between our peoples first. Give it time. </Default>
     </DialogLine>
+	<DialogLine>
+      <DialogType>TREATY_TOO_SOON_REJECT</DialogType>
+      <Default>We are not ready yet for this treaty. Sorry about that.</Default>
+    </DialogLine>			
     <DialogLine>
       <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
       <Default>No, the time for diplomacy is long past. Bend your...alien equivalent of a knee...and we might consider peace. Otherwise it is to the last gasp!</Default>

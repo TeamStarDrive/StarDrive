@@ -218,10 +218,13 @@ public sealed partial class Empire
         planet = null;
         int travelMultiplier = travelBack ? 2 : 1;
 
-        if (ports.Count == 0)
+        if (isPlayer && PlayerPrioritizedPorts.Length > 0)
+            return FindPlanetToBuildShipAt(ports, newShip, out planet);
+
+        if (ports.Count == 0 || !GetBestPorts(ports, out Planet[] bestPorts, 1))
             return false;
 
-        planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip)
+        planet = bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip)
                                   + ship.GetAstrogateTimeTo(p) * travelMultiplier);
         return planet != null;
     }
@@ -232,11 +235,13 @@ public sealed partial class Empire
         if (ports.Count == 0)
             return false;
 
-        ports  = ports.Filter(p => !p.IsCrippled);
-        if (ports.Count == 0)
+        if (isPlayer && PlayerPrioritizedPorts.Length > 0)
+            return FindPlanetToBuildShipAt(ports, newShip, out planet);
+
+        if (!GetBestPorts(ports, out Planet[] bestPorts, 1))
             return false;
 
-        planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip));
+        planet = bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip));
         return planet != null;
     }
 

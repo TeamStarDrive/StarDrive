@@ -203,17 +203,13 @@ namespace Ship_Game.AI
         {
             string answer;
             if (!theirOffer.IsBlank() || !ourOffer.IsBlank())
-            {
                 answer = "OFFER_ALLIANCE_TOO_COMPLICATED";
-            }
-            else if (usToThem.Trust < 90f || usToThem.TotalAnger >= 20f || usToThem.TurnsKnown <= 100)
-            {
+            else if (them.isPlayer && usToThem.TurnsInOpenBorders < 100 * OwnerEmpire.Universe.P.Pace)
+                answer = "TREATY_TOO_SOON_REJECT";
+            else if (usToThem.AvailableTrust < OwnerEmpire.data.DiplomaticPersonality.Alliance + usToThem.TotalAnger || usToThem.TurnsKnown <= 100 * them.Universe.P.Pace)
                 answer = "AI_ALLIANCE_REJECT";
-            }
             else if (WeCanAllyWithThem(them, usToThem, out answer))
-            {
                 usToThem.SetAlliance(true, OwnerEmpire, them);
-            }
 
             return answer;
         }
@@ -281,6 +277,18 @@ namespace Ship_Game.AI
             if (theirOffer.PeaceTreaty)
                 return ProcessPeace(theirOffer, ourOffer, them, attitude);
 
+
+            float treayThreshold = 100 * OwnerEmpire.Universe.P.Pace;
+            if (them.isPlayer)
+            {
+                if (theirOffer.NAPact && usToThem.TurnsKnown < treayThreshold
+                    || theirOffer.TradeTreaty && usToThem.TurnsInNap < treayThreshold
+                    || theirOffer.OpenBorders && usToThem.Treaty_Trade_TurnsExisted < treayThreshold)
+                {
+                    return "TREATY_TOO_SOON_REJECT";
+                }
+            }
+
             float totalTrustRequiredFromUs = 0f;
             DTrait dt = us.data.DiplomaticPersonality;
             if (ourOffer.TradeTreaty)
@@ -341,12 +349,6 @@ namespace Ship_Game.AI
             valueToThem += ourOffer.ArtifactsOffered.Count * ArtifactValue;
             valueToUs   += theirOffer.ArtifactsOffered.Count * ArtifactValue;
 
-            if (us.GetPlanets().Count - ourOffer.ColoniesOffered.Count + theirOffer.ColoniesOffered.Count < 1)
-            {
-                // todo not sure this is needed, better check the colony value
-                usToThem.DamageRelationship(us, them, "Insulted", 25f, null);
-                return "OfferResponse_Reject_Insulting";
-            }
             foreach (string planetName in ourOffer.ColoniesOffered)
             {
                 foreach (Planet p in us.GetPlanets())
@@ -370,7 +372,7 @@ namespace Ship_Game.AI
                         continue;
                     }
                     float worth = p.ColonyDiplomaticValueTo(us);
-                    float multiplier = 1 + (p.System.PlanetList.Count(other => other.Owner == them)*0.25f);
+                    float multiplier = 1 + (p.System.PlanetList.Count(other => other.Owner == them)*0.2f);
                     worth *= multiplier;
                     valueToUs += worth;
                 }
@@ -380,7 +382,8 @@ namespace Ship_Game.AI
 
             if (valueToThem.AlmostZero() && valueToUs > 0f)
             {
-                usToThem.ImproveRelations(valueToUs.UpperBound(25), valueToUs.UpperBound(50));
+                float modifier = 1 / ((int)us.Universe.P.Difficulty).LowerBound(1);
+                usToThem.ImproveRelations(valueToUs.UpperBound(25/ modifier), valueToUs.UpperBound(50 / modifier));
                 AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                 ourOffer.AcceptDL = "OfferResponse_Accept_Gift";
                 return "OfferResponse_Accept_Gift";

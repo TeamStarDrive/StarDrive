@@ -464,6 +464,10 @@
       <DialogType>AI_ALLIANCE_REJECT</DialogType>
       <Default>Unfortunately the Draylok Council must reject your offer at this time. Perhaps when we trust each other more we can do this.</Default>
     </DialogLine>
+	<DialogLine>
+      <DialogType>TREATY_TOO_SOON_REJECT</DialogType>
+      <Default>The Draylok Council rejects your offer for now, since need more time to get to know you.</Default>
+    </DialogLine>		
     <DialogLine>
       <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
       <Default>No, I am afraid there will be no peace. If you wish to bend the knee, then perhaps we would let you live. Otherwise, this war must go on.</Default>

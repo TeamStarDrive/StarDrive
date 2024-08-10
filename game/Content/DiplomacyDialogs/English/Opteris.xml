@@ -458,6 +458,10 @@
       <DialogType>AI_ALLIANCE_REJECT</DialogType>
       <Default>Output: false. No alliance.</Default>
     </DialogLine>
+	<DialogLine>
+      <DialogType>TREATY_TOO_SOON_REJECT</DialogType>
+      <Default>Output: false. Too soon.</Default>
+    </DialogLine>		
     <DialogLine>
       <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
       <Default>You must be terminated. No peace.</Default>

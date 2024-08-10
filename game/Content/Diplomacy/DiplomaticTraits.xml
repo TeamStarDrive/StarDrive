@@ -3,7 +3,7 @@
     <DTrait>
       <Name>Xenophobic</Name>
       <Description>Xenophobic races are slow to trust and quick to take offense, but can make strong allies if treated well.</Description>
-      <Territorialism>30</Territorialism>
+      <Territorialism>50</Territorialism>
       <Opportunism>.5</Opportunism>
       <NAPact>10</NAPact>
       <Alliance>45</Alliance>
@@ -46,7 +46,7 @@
     <DTrait>
       <Name>Aggressive</Name>
       <Description>Aggressive races respect power and loathe weakness. Do not let your guard down when facing an aggressive opponent. </Description>
-      <Territorialism>25</Territorialism>
+      <Territorialism>40</Territorialism>
       <Opportunism>.75</Opportunism>
       <NAPact>10</NAPact>
       <Alliance>35</Alliance>
@@ -61,7 +61,7 @@
     <DTrait>
       <Name>Pacifist</Name>
       <Description>Pacifist races are not interested in conquering the galaxy and are easy to befriend. </Description>
-      <Territorialism>60</Territorialism>
+      <Territorialism>35</Territorialism>
       <Opportunism>.2</Opportunism>
       <NAPact>0</NAPact>
       <Alliance>15</Alliance>
@@ -74,13 +74,14 @@
     <DTrait>
       <Name>Ruthless</Name>
       <Description>Ruthless races are unpredictable and aggressive. </Description>
-      <Territorialism>25</Territorialism>
+      <Territorialism>30</Territorialism>
       <Opportunism>.75</Opportunism>
       <NAPact>13</NAPact>
       <Alliance>50</Alliance>
       <Trade>15</Trade>
       <Trustworthiness>0</Trustworthiness>
       <WeaknessDecline>.3</WeaknessDecline>
+	  <AngerDissipation>0.05</AngerDissipation>
       <PowerIncrease>.1</PowerIncrease>
     </DTrait>
   </DiplomaticTraitsList>

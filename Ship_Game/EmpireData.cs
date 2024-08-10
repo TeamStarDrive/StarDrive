@@ -80,6 +80,16 @@ namespace Ship_Game
         Pacifist
     }
 
+    public enum EconomicPersonalityType
+    { 
+        Expansionists,
+        Generalists,
+        Industrialists,
+        Militarists,
+        Technologists
+    }
+
+
     /// <summary>
     /// This class looks pretty useless. I think we need another class for "mood" or find the mood of the empire buried in the code.
     /// mostly only the name or type is used. the logic is a little confusing. 
@@ -97,6 +107,19 @@ namespace Ship_Game
         [StarData] public string EconomicResearchStrategy;
         [StarData] public int ColonyGoalsPlus;
         [StarData] public int ShipGoalsPlus;
+
+        public EconomicPersonalityType EconomicPersonality()
+        {
+            switch (EconomicResearchStrategy)
+            {
+                default:
+                case "Generalists":    return EconomicPersonalityType.Generalists;
+                case "Expansionists":  return EconomicPersonalityType.Expansionists;
+                case "Industrialists": return EconomicPersonalityType.Industrialists;
+                case "Militarists":    return EconomicPersonalityType.Militarists;
+                case "Technologists":  return EconomicPersonalityType.Technologists;
+            }
+        }
     }
 
     // Read-Only interface of EmpireData
@@ -165,7 +188,6 @@ namespace Ship_Game
         [StarData] public string MusicCue;
         [StarData] public Array<string> ResearchQueue = new();
         [StarData] public Array<Mole> MoleList = new(); // do not interact this with directly. Use PlantMole or RemoveMole methods
-        [StarData] public float CounterIntelligenceBudget;
 
         // NOTE: This is currently the main unique identifier?
         [StarData] public string PortraitName;
@@ -392,7 +414,6 @@ namespace Ship_Game
             data.AgentList = new();
             data.MoleList = new();
 
-            data.CounterIntelligenceBudget = 0.0f;
             data.FlatMoneyBonus = 0.0f;
             data.TurnsBelowZero = 0;
             data.TaxRate = 0.25f;
