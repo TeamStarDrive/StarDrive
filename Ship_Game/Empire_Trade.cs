@@ -263,12 +263,12 @@ namespace Ship_Game
             {
                 case FreighterPriority.TooSmall:         ratioDiff = -0.01f;  break;
                 case FreighterPriority.TooBig:           ratioDiff = +0.01f;  break;
-                case FreighterPriority.TooSlow:          ratioDiff = +0.02f;  break;
+                case FreighterPriority.TooSlow:          ratioDiff = +0.01f;  break;
                 case FreighterPriority.ExcessCargoLeft:  ratioDiff = +0.005f; break;
                 case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.02f;  break;
             }
 
-            float numPiratesAtWarModifier = 0.02f * Universe.PirateFactions.Count(e => IsAtWarWith(e));
+            float numPiratesAtWarModifier = 0.005f * Universe.PirateFactions.Count(e => IsAtWarWith(e));
             IncreaseFastVsBigFreighterRatio(ratioDiff+ numPiratesAtWarModifier);
         }
 
