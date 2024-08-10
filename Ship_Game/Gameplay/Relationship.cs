@@ -113,7 +113,6 @@ namespace Ship_Game.Gameplay
         [StarData] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
         [StarData] public bool IsHostile = true; // New: If target empire is hostile and might attack us
         [StarData] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
-        [StarData] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
         [StarData] public bool RefusedMerge; // Refused merge or surrenders from us (mostly the player can refuse)
 
         [StarData] public EmpireRiskAssessment Risk;

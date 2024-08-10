@@ -11,6 +11,7 @@ namespace Ship_Game.Empires.Components
     [StarDataType]
     public class EmpireInformation
     {
+        // only to supoport old saves. should be removed in the future or when we spin up save version (deleted entire class)
         public enum InformationLevel
         {
             None,
@@ -18,59 +19,6 @@ namespace Ship_Game.Empires.Components
             Normal,
             High,
             Full
-        }
-
-        [StarData] public float EconomicStrength { get; private set; }
-        [StarData] public float OffensiveStrength{ get; private set; }
-
-
-        [StarData] public float AllianceEconomicStrength { get; private set; }
-        [StarData] public float AllianceTotalStrength { get; private set; }
-
-
-        Empire Them => Relation.Them;
-        [StarData] Relationship Relation;
-
-        [StarDataConstructor]
-        public EmpireInformation(Relationship relation)
-        {
-            Relation = relation;
-        }
-
-        public void Update(InformationLevel knowledge)
-        {
-            switch(knowledge)
-            {
-                case InformationLevel.None:
-                    break;
-                case InformationLevel.Minimal:
-                    OffensiveStrength = Them.OffensiveStrength;
-                    break;
-                case InformationLevel.Normal:
-                    EconomicStrength = Them.AI.BuildCapacity;
-                    OffensiveStrength = Them.OffensiveStrength;
-                    break;
-                case InformationLevel.High:
-                case InformationLevel.Full:
-
-                    EconomicStrength  = Them.AI.BuildCapacity;
-                    OffensiveStrength = Them.OffensiveStrength;
-
-                    AllianceEconomicStrength = EconomicStrength;
-                    AllianceTotalStrength = OffensiveStrength;
-                    var array = Them.Universe.GetAllies(Them);
-                    for (int i = 0; i < array.Count; i++)
-                    {
-                        var empire = array[i];
-                        AllianceTotalStrength += empire.CurrentMilitaryStrength;
-                        AllianceEconomicStrength += empire.AI.BuildCapacity;
-                    }
-
-
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(knowledge), knowledge, null);
-            }
         }
     }
 }
