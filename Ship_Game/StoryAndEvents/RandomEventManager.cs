@@ -53,9 +53,9 @@ namespace Ship_Game
             {
                 switch (potential)
                 {
-                    case Potentials.Habitable when planet.Habitable:                           potentials.Add(planet); break;
-                    case Potentials.Improved  when planet.Category == PlanetCategory.Volcanic: potentials.Add(planet); break;
-                    case Potentials.HasOwner  when planet.Owner != null:                       potentials.Add(planet); break;
+                    case Potentials.Habitable when planet.Habitable:     potentials.Add(planet); break;
+                    case Potentials.Improved  when Improveable(planet):  potentials.Add(planet); break;
+                    case Potentials.HasOwner  when planet.Owner != null: potentials.Add(planet); break;
                 }
             }
 
@@ -63,6 +63,12 @@ namespace Ship_Game
                 affectedPlanet = u.Random.Item(potentials);
 
             return affectedPlanet != null;
+
+            bool Improveable(Planet p)
+            {
+                return p.Category is PlanetCategory.Volcanic
+                    && (!p.System.IsSunDangerous || p.System.PlanetList[0] != p);
+            }
         }
 
         public void UpdateEvents(UniverseState u)
@@ -218,9 +224,7 @@ namespace Ship_Game
             for (int i = 0; i < numVolcanoes; i++)
             {
                 PlanetGridSquare tile = planet.Random.ItemFilter(planet.TilesList, t => !t.VolcanoHere);
-                if (tile == null)
-                    break;
-                tile.CreateVolcano(planet);
+                tile?.CreateVolcano(planet);
             }
 
             Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
