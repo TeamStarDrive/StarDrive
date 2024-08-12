@@ -145,7 +145,7 @@ namespace Ship_Game
                     if (tile.Biosphere)
                         DestroyBioSpheres(tile, destroyBuilding: false);
 
-                    tile.Habitable = true;
+                    tile.SetHabitable(true);
                 }
 
                 tile.Terraformable = !habitableTile && Random.RollDice(25);
@@ -229,7 +229,7 @@ namespace Ship_Game
             for (int i = 0; i < 28; ++i)
             {
                 PlanetGridSquare tile = random.Item(TilesList.Filter(t => !t.Habitable));
-                tile.Habitable = true;
+                tile.SetHabitable(true);
             }
         }
 
@@ -458,7 +458,7 @@ namespace Ship_Game
             if (tile.LavaHere)
                 DestroyBuildingOn(tile);
 
-            tile.Habitable = true;
+            tile.SetHabitable(true);
             tile.Terraformable = false;
             UpdateMaxPopulation();
         }

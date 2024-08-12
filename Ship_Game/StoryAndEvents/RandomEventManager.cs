@@ -38,7 +38,7 @@ namespace Ship_Game
             if      (random == 1) HyperSpaceFlux(u);
             else if (random <= 3) ShiftInOrbit(u);
             else if (random <= 5) FoundMinerals(u);
-            else if (random <= 7) VolcanicToHabitable(u);
+            else if (random <= 6) VolcanicToHabitable(u);
             else if (random <= 15) Meteors(u);
         }
 

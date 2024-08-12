@@ -271,7 +271,7 @@ public partial class Planet
         if (!tile.VolcanoHere && destroyBuilding)
             DestroyBuildingOn(tile);
 
-        tile.Habitable = false;
+        tile.SetHabitable(false);
         if (tile.QItem is { isBuilding: true } && !tile.QItem.Building.CanBuildAnywhere)
             Construction.Cancel(tile.QItem);
 
@@ -302,6 +302,22 @@ public partial class Planet
             BuildingList.Remove(biosphere);
 
         UpdatePlanetStatsFromRemovedBuilding(biosphere);
+    }
+
+    public void VerifyQueueBuildingsCanBePlacedAt(PlanetGridSquare tile)
+    {
+        for (int i = ConstructionQueue.Count - 1; i >= 0; i--)
+        {
+            QueueItem qi = ConstructionQueue[i];
+            if (qi.isBuilding 
+                && qi.pgs != null 
+                && (!qi.pgs.BuildingOnTile || qi.Building.Name != qi.pgs.Building.Name)
+                && !qi.pgs.CanPlaceBuildingHere(qi.Building))
+            {
+                Construction.Cancel(qi);
+                return;
+            }
+        }
     }
 
     /// <summary>
