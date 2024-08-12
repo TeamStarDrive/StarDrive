@@ -25,7 +25,7 @@ namespace Ship_Game
         [StarData] public bool Biosphere;
         [StarData] public bool Terraformable; // This tile can be habitable if terraformed
         [StarData] public Building Building { get; private set; }
-        [StarData] public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
+        [StarData] public bool Habitable { get; private set; } // FB - this also affects max population (because of pop per habitable tile)
         [StarData] public QueueItem QItem { get; private set; }
         public Rectangle ClickRect = new();
         [StarData] public short EventOutcomeNum { get; private set; }
@@ -93,6 +93,13 @@ namespace Ship_Game
 
             return true;
         } 
+
+        public void SetHabitable(bool value)
+        {
+            Habitable = value;
+            if (!Habitable)
+                P.VerifyQueueBuildingsCanBePlacedAt(this);
+        }
 
         public void RemoveQueueItem()
         {
@@ -189,7 +196,7 @@ namespace Ship_Game
                 if (Habitable)
                     return; // Tile was Habitable when Biospheres completed. Probably due to Terraforming
 
-                Habitable = true;
+                SetHabitable(true);
                 Biosphere = true;
             }
             else
@@ -200,6 +207,7 @@ namespace Ship_Game
                     p.DestroyBuildingOn(this);
                 }
                 Building = b;
+                p.VerifyQueueBuildingsCanBePlacedAt(this);
             }
 
             p.PlaceBuildingAt(b);

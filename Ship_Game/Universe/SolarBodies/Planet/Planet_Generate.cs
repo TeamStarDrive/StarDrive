@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
@@ -130,6 +131,34 @@ namespace Ship_Game
             }
         }
 
+        public void AlterPlanet(PlanetType type, float scale)
+        {
+            InitPlanetType(type, scale, fromSave: false);
+            BasePopPerTile = ((int)(type.PopPerTile.Generate(Random) * scale)).RoundUpToMultipleOf(10);
+            BaseMaxFertility = type.BaseFertility.Generate(Random).Clamped(type.MinBaseFertility, 100.0f);
+            float habitableChance = PType.HabitableTileChance.Generate(Random);
+            foreach (PlanetGridSquare tile in TilesList)
+            {
+                bool habitableTile = Random.RollDice(habitableChance);
+                if (habitableTile && !tile.Habitable)
+                {
+                    if (tile.Biosphere)
+                        DestroyBioSpheres(tile, destroyBuilding: false);
+
+                    tile.SetHabitable(true);
+                }
+
+                tile.Terraformable = !habitableTile && Random.RollDice(25);
+            }
+
+            for (int i = ConstructionQueue.Count - 1; i >= 0; i--)
+            {
+                QueueItem qi = ConstructionQueue[i];
+                if (qi.isBuilding && qi.Building.IsBiospheres && qi.pgs.Habitable == true)
+                    Construction.Cancel(qi);
+            }
+        }
+
         void GeneratePlanetFromSystemData(RandomBase random, SolarSystemData.Ring data, out PlanetType type)
         {
             type = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet);
@@ -200,7 +229,7 @@ namespace Ship_Game
             for (int i = 0; i < 28; ++i)
             {
                 PlanetGridSquare tile = random.Item(TilesList.Filter(t => !t.Habitable));
-                tile.Habitable = true;
+                tile.SetHabitable(true);
             }
         }
 
@@ -429,7 +458,7 @@ namespace Ship_Game
             if (tile.LavaHere)
                 DestroyBuildingOn(tile);
 
-            tile.Habitable = true;
+            tile.SetHabitable(true);
             tile.Terraformable = false;
             UpdateMaxPopulation();
         }

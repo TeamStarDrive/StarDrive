@@ -17,6 +17,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public sealed override Empire TargetEmpire { get; set; }
         [StarData] public sealed override Planet TargetPlanet { get; set; }
         [StarData] public bool IsManualColonizationOrder;
+        [StarData] readonly bool CheckNewOwnersInSystem;
 
         public override bool IsColonizationGoal(Planet planet) => TargetPlanet == planet;
 
@@ -38,6 +39,13 @@ namespace Ship_Game.Commands.Goals
         {
             TargetPlanet = toColonize;
             IsManualColonizationOrder = isManual;
+            if (!owner.isPlayer
+                && (TargetPlanet.System.OwnerList.Count == 0
+                    || TargetPlanet.System.OwnerList.Count > 0 && TargetPlanet.System.IsExclusivelyOwnedBy(Owner)))
+            {
+                CheckNewOwnersInSystem = true;
+            }
+
             if (AIControlsColonization && PositiveEnemyPresence(out _)) 
                 return;
 
@@ -278,7 +286,8 @@ namespace Ship_Game.Commands.Goals
             if (!Owner.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.System, Owner))
                 return false;
 
-            if (TargetPlanet.System.OwnerList.Count > 0
+            if (CheckNewOwnersInSystem
+                && TargetPlanet.System.OwnerList.Count > 0
                 && !TargetPlanet.System.IsExclusivelyOwnedBy(Owner))
             {
                 // Someone got planets in that system, need to check if we warned them

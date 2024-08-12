@@ -38,7 +38,7 @@ namespace Ship_Game
             if      (random == 1) HyperSpaceFlux(u);
             else if (random <= 3) ShiftInOrbit(u);
             else if (random <= 5) FoundMinerals(u);
-            else if (random <= 7) VolcanicToHabitable(u);
+            else if (random <= 6) VolcanicToHabitable(u);
             else if (random <= 15) Meteors(u);
         }
 
@@ -53,9 +53,9 @@ namespace Ship_Game
             {
                 switch (potential)
                 {
-                    case Potentials.Habitable when planet.Habitable:                           potentials.Add(planet); break;
-                    case Potentials.Improved  when planet.Category == PlanetCategory.Volcanic: potentials.Add(planet); break;
-                    case Potentials.HasOwner  when planet.Owner != null:                       potentials.Add(planet); break;
+                    case Potentials.Habitable when planet.Habitable:     potentials.Add(planet); break;
+                    case Potentials.Improved  when Improveable(planet):  potentials.Add(planet); break;
+                    case Potentials.HasOwner  when planet.Owner != null: potentials.Add(planet); break;
                 }
             }
 
@@ -63,6 +63,14 @@ namespace Ship_Game
                 affectedPlanet = u.Random.Item(potentials);
 
             return affectedPlanet != null;
+
+            bool Improveable(Planet p)
+            {
+                return p.Category is PlanetCategory.Volcanic
+                    && !p.IsResearchable
+                    && !p.IsMineable
+                    && (!p.System.IsSunDangerous || p.System.PlanetList[0] != p);
+            }
         }
 
         public void UpdateEvents(UniverseState u)
@@ -206,24 +214,32 @@ namespace Ship_Game
             if (!GetAffectedPlanet(u, Potentials.Improved, out Planet planet)) 
                 return;
 
+            bool wasHabitable = planet.Habitable;
             PlanetCategory category = planet.Random.RollDice(75) ? PlanetCategory.Barren : PlanetCategory.Desert;
             PlanetType newType = ResourceManager.Planets.RandomPlanet(category);
-            var random = new SeededRandom();
-            planet.GenerateNewFromPlanetType(random, newType, planet.Scale);
-            planet.RecreateSceneObject();
-            NotifyPlayerIfAffected(planet, GameText.HasExperiencedAMassiveVolcanic);
-            int numVolcanoes = category == PlanetCategory.Barren
-                ? planet.Random.RollDie(15)
-                : planet.Random.RollDie(7);
-            for (int i = 0; i < numVolcanoes; i++)
+
+            if (wasHabitable)
             {
-                PlanetGridSquare tile = planet.Random.ItemFilter(planet.TilesList, t => !t.VolcanoHere);
-                if (tile == null)
-                    break;
-                tile.CreateVolcano(planet);
+                planet.AlterPlanet(newType, planet.Scale);
+                Log.Info($"Event Notification: Habitable Volcanic to Habitable at {planet}");
+            }
+            else
+            {
+                planet.GenerateNewFromPlanetType(planet.Random, newType, planet.Scale);
+                planet.RecreateSceneObject();
+                int numVolcanoes = category == PlanetCategory.Barren
+                    ? planet.Random.RollDie(15)
+                    : planet.Random.RollDie(7);
+                for (int i = 0; i < numVolcanoes; i++)
+                {
+                    PlanetGridSquare tile = planet.Random.ItemFilter(planet.TilesList, t => !t.VolcanoHere);
+                    tile?.CreateVolcano(planet);
+                }
+
+                Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
             }
 
-            Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
+            NotifyPlayerIfAffected(planet, GameText.HasExperiencedAMassiveVolcanic);
         }
 
         void FoundMinerals(UniverseState u) // Increase Mineral Richness

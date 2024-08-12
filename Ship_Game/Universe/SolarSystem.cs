@@ -321,6 +321,7 @@ namespace Ship_Game
         }
 
         public float SunDangerRadius => Sun.RadiationDamage.AlmostZero() ? 0 : Sun.RadiationRadius + 2000; 
+        public bool IsSunDangerous => SunDangerRadius > 0;
 
         // overload for ship info UI or AI maybe
         public bool ShipWithinRadiationRadius(Ship ship)
@@ -518,9 +519,10 @@ namespace Ship_Game
 
             float researchableChance = Sun.ResearchableChance;
             // now, if number of planets is <= 2 and they are barren,
-            // then 33% chance to have neutron star:
-            if (PlanetList.Count <= 2 + us.P.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic)
-                && random.RollDice(percent:15))
+            // then 20% chance to have neutron star:
+            if (PlanetList.Count <= 2 + us.P.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic) 
+                && (PlanetList.Count == 0 || !PlanetList[0].Habitable) // avoid habitable planets near radiation zones
+                && random.RollDice(percent:20))
             {
                 Sun = SunType.RandomBarrenSun(random);
                 researchableChance = Sun.ResearchableChance;

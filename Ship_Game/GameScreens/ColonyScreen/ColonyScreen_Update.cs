@@ -10,6 +10,13 @@ namespace Ship_Game
         // this is called every UI frame, ~60fps
         public override void Update(float elapsedTime)
         {
+            if (P.Owner == null)
+            {
+                if (!IsExiting)
+                    ExitScreen();
+                return;
+            }
+
             P.UpdateIncomes();
             UpdateBuildAndConstructLists(elapsedTime);
             UpdateTradeTab();

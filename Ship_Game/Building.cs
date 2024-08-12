@@ -374,7 +374,7 @@ namespace Ship_Game
             if (EventHere && !CanBuildAnywhere) // set a random tile habitable for the event
             {
                 PlanetGridSquare targetTile = p.Random.Item(p.TilesList);
-                targetTile.Habitable = true;
+                targetTile.SetHabitable(true);
                 tile = AssignBuildingToRandomTile(p);
                 return tile != null;
             }
