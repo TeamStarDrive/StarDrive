@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
@@ -127,6 +128,34 @@ namespace Ship_Game
             else
             {
                 MineralRichness = IsMineable ? Mining.Richness : 0.0f;
+            }
+        }
+
+        public void AlterPlanet(PlanetType type, float scale)
+        {
+            InitPlanetType(type, scale, fromSave: false);
+            BasePopPerTile = ((int)(type.PopPerTile.Generate(Random) * scale)).RoundUpToMultipleOf(10);
+            BaseMaxFertility = type.BaseFertility.Generate(Random).Clamped(type.MinBaseFertility, 100.0f);
+            float habitableChance = PType.HabitableTileChance.Generate(Random);
+            foreach (PlanetGridSquare tile in TilesList)
+            {
+                bool habitableTile = Random.RollDice(habitableChance);
+                if (habitableTile && !tile.Habitable)
+                {
+                    if (tile.Biosphere)
+                        DestroyBioSpheres(tile, destroyBuilding: false);
+
+                    tile.Habitable = true;
+                }
+
+                tile.Terraformable = !habitableTile && Random.RollDice(25);
+            }
+
+            for (int i = ConstructionQueue.Count - 1; i >= 0; i--)
+            {
+                QueueItem qi = ConstructionQueue[i];
+                if (qi.isBuilding && qi.Building.IsBiospheres && qi.pgs.Habitable == true)
+                    Construction.Cancel(qi);
             }
         }
 

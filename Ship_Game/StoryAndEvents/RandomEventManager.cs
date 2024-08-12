@@ -67,6 +67,8 @@ namespace Ship_Game
             bool Improveable(Planet p)
             {
                 return p.Category is PlanetCategory.Volcanic
+                    && !p.IsResearchable
+                    && !p.IsMineable
                     && (!p.System.IsSunDangerous || p.System.PlanetList[0] != p);
             }
         }
@@ -212,22 +214,32 @@ namespace Ship_Game
             if (!GetAffectedPlanet(u, Potentials.Improved, out Planet planet)) 
                 return;
 
+            bool wasHabitable = planet.Habitable;
             PlanetCategory category = planet.Random.RollDice(75) ? PlanetCategory.Barren : PlanetCategory.Desert;
             PlanetType newType = ResourceManager.Planets.RandomPlanet(category);
-            var random = new SeededRandom();
-            planet.GenerateNewFromPlanetType(random, newType, planet.Scale);
-            planet.RecreateSceneObject();
-            NotifyPlayerIfAffected(planet, GameText.HasExperiencedAMassiveVolcanic);
-            int numVolcanoes = category == PlanetCategory.Barren
-                ? planet.Random.RollDie(15)
-                : planet.Random.RollDie(7);
-            for (int i = 0; i < numVolcanoes; i++)
+
+            if (wasHabitable)
             {
-                PlanetGridSquare tile = planet.Random.ItemFilter(planet.TilesList, t => !t.VolcanoHere);
-                tile?.CreateVolcano(planet);
+                planet.AlterPlanet(newType, planet.Scale);
+                Log.Info($"Event Notification: Habitable Volcanic to Habitable at {planet}");
+            }
+            else
+            {
+                planet.GenerateNewFromPlanetType(planet.Random, newType, planet.Scale);
+                planet.RecreateSceneObject();
+                int numVolcanoes = category == PlanetCategory.Barren
+                    ? planet.Random.RollDie(15)
+                    : planet.Random.RollDie(7);
+                for (int i = 0; i < numVolcanoes; i++)
+                {
+                    PlanetGridSquare tile = planet.Random.ItemFilter(planet.TilesList, t => !t.VolcanoHere);
+                    tile?.CreateVolcano(planet);
+                }
+
+                Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
             }
 
-            Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
+            NotifyPlayerIfAffected(planet, GameText.HasExperiencedAMassiveVolcanic);
         }
 
         void FoundMinerals(UniverseState u) // Increase Mineral Richness
