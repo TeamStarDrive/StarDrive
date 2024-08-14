@@ -19,6 +19,7 @@ namespace Ship_Game
         [StarData] public Planet Planet;
         [StarData] public bool isBuilding;
         [StarData] public bool IsMilitary; // Military building
+        [StarData] public bool IsTerraformer; 
         [StarData] public bool isShip;
         [StarData] public bool isOrbital;
         [StarData] public bool isTroop;

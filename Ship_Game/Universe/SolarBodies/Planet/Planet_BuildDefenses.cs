@@ -461,7 +461,7 @@ namespace Ship_Game
                 Construction.Enqueue(best);
         }
         
-        void TryScrapMilitaryBuilding()
+        bool TryScrapMilitaryBuilding()
         {
             Building weakest = null;
             if (HasBlueprints)
@@ -475,7 +475,12 @@ namespace Ship_Game
                                                        b => b.CostEffectiveness);
 
             if (weakest != null)
+            {
                 ScrapBuilding(weakest);
+                return true;
+            }
+
+            return false;
         }
 
         public void AddTroop(Troop troop, PlanetGridSquare tile)

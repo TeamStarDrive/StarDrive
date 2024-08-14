@@ -557,7 +557,7 @@ namespace Ship_Game
         int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)
         {
             int score = 0;
-            Ping ping = new(tile, planet, 1);
+            PlanetGridSquare.Ping ping = new(tile, 1);
             for (int y = ping.Top; y <= ping.Bottom; ++y)
             {
                 for (int x = ping.Left; x <= ping.Right; ++x)
@@ -574,7 +574,7 @@ namespace Ship_Game
         {
             int bestScore = 0;
             targetTile = null;
-            Ping ping = new(tile, planet, ActualRange);
+            PlanetGridSquare.Ping ping = new(tile, ActualRange);
             for (int y = ping.Top; y <= ping.Bottom; ++y)
             {
                 for (int x = ping.Left; x <= ping.Right; ++x)
@@ -590,24 +590,6 @@ namespace Ship_Game
             }
 
             return bestScore > 0;
-        }
-
-        struct Ping
-        {
-            public readonly int Left;
-            public readonly int Right;
-            public readonly int Top;
-            public readonly int Bottom;
-            public readonly int Width;
-
-            public Ping(PlanetGridSquare tile, Planet planet, int pingSize)
-            {
-                Left   = (tile.X - pingSize).LowerBound(0);
-                Right  = (tile.X + pingSize).UpperBound(SolarSystemBody.TileMaxX - 1);
-                Top    = (tile.Y - pingSize).LowerBound(0);
-                Bottom = (tile.Y + pingSize).UpperBound(SolarSystemBody.TileMaxY - 1);
-                Width  = SolarSystemBody.TileMaxX;
-            }
         }
 
         void RemoveTroopFromHostShip()

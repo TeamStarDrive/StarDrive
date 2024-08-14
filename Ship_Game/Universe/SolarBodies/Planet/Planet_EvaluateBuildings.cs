@@ -369,7 +369,7 @@ namespace Ship_Game
             for (int i = 0; i < ConstructionQueue.Count; i++)
             {
                 QueueItem qi = ConstructionQueue[i];
-                if (qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
+                if (Owner.AutoBuildTerraformers && qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
                 {
                     Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} CANCELED Terrformer" +
                         $" on planet {Name} since Terraformer Budget was 0.");
@@ -679,6 +679,9 @@ namespace Ship_Game
         public void UpdateTerraformBudget(ref float currentEmpireBudget, float terraformerMaint)
         {
             TerraformBudget = 0;
+            if (HasBlueprints && !Blueprints.OkToBuildTerraformers)
+                return;
+
             if (currentEmpireBudget >= terraformerMaint && Terraformable)
             {
                 // This will let each planet to build 1 terraformer at a time and save the budget to other planets
@@ -707,19 +710,61 @@ namespace Ship_Game
 
             if (terraformerMaint <= remainingBudget) // we can build at least 1 terraformer with the budget
             {
-                var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
+                var unHabitableTiles = TilesList.Filter(t => !t.Habitable && t.CanEnqueueBuildingHere(terraformer));
                 if (unHabitableTiles.Length > 0) // try to build a terraformer on an uninhabitable tile first
                 {
-                    PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
+                    PlanetGridSquare tile = PickTileForTerraformer(unHabitableTiles);
                     Construction.Enqueue(terraformer, tile);
                 }
-                else if (!Construction.Enqueue(terraformer))
+                else
                 {
-                    // If could not add a terraformer anywhere due to planet being full
-                    // try to scrap a building and then retry construction
-                    if (TryScrapBuilding(true, scrapZeroMaintenance: true, terraformerOverride: true))
-                        Construction.Enqueue(terraformer);
+                    var freeTiles = TilesList.Filter(t => t.CanEnqueueBuildingHere(terraformer));
+                    if (freeTiles.Length > 0) // fall back to free tiles
+                    {
+                        PlanetGridSquare tile = PickTileForTerraformer(unHabitableTiles);
+                        Construction.Enqueue(terraformer, tile);
+                    }
+                    else if (!Construction.Enqueue(terraformer))
+                    {
+                        // If could not add a terraformer anywhere due to planet being full
+                        // try to scrap a building and then retry construction
+                        if (CType != ColonyType.Military && TryScrapMilitaryBuilding()
+                            || TryScrapBuilding(true, scrapZeroMaintenance: true, terraformerOverride: true))
+                        {
+                            Construction.Enqueue(terraformer);
+                        }
+                    }
                 }
+            }
+        }
+
+        PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] unHabitableTiles)
+        {
+            var potentialTiles = new Array<PlanetGridSquare>();
+            for (int i = 0; i < unHabitableTiles.Length; ++i)
+            {
+                PlanetGridSquare tile = unHabitableTiles[i];
+                if (NoVolcanosAround(tile))
+                    potentialTiles.Add(tile);
+
+            }
+
+            return Random.Item(potentialTiles.Count > 0 ? potentialTiles : unHabitableTiles.ToArrayList());
+
+            bool NoVolcanosAround(PlanetGridSquare tile)
+            {
+                PlanetGridSquare.Ping ping = new(tile, 1);
+                for (int y = ping.Top; y <= ping.Bottom; ++y)
+                {
+                    for (int x = ping.Left; x <= ping.Right; ++x)
+                    {
+                        PlanetGridSquare checkedTile = TilesList[x + y * ping.Width];
+                        if (checkedTile.VolcanoHere)
+                            return false;
+                    }
+                }
+
+                return true;
             }
         }
 
@@ -804,9 +849,9 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
 
-            return Construction.Enqueue(bio, GetPrefettedTile()); // Preferred is null safe in this call
+            return Construction.Enqueue(bio, GetPreferredTile()); // Preferred is null safe in this call
 
-            PlanetGridSquare GetPrefettedTile()
+            PlanetGridSquare GetPreferredTile()
             {
                 PlanetGridSquare preferred = null;
                 if (Owner.IsBuildingUnlocked(Building.TerraformerId))
@@ -949,7 +994,7 @@ namespace Ship_Game
                 case ColonyType.Core         when !b.IsMilitary: return NumBuildings * 0.05f;
             }
 
-            return NumBuildings * 0.1f;
+            return NumBuildings * (b.IsTerraformer ? 0.25f : 0.1f);
         }
 
         void PrioritizeCriticalProductionBuildings()

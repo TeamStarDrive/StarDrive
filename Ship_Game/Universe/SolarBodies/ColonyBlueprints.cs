@@ -27,10 +27,12 @@ namespace Ship_Game.Universe.SolarBodies
         bool Completed => PercentCompleted == 100;
 
         public bool IsAchievableCompleted => PercentAchievable == 0 || PercentAchievable == PercentCompleted;
-
+        bool IsHalfAchievableCompleted => PercentAchievable == 0 || PercentAchievable >= PercentCompleted/2;
 
         public bool IsRequired(Building b) => PlannedBuildings.Contains(b.Name);
         public bool IsNotRequired(Building b) => !IsRequired(b);
+
+        public bool OkToBuildTerraformers => PlannedBuildings.Count < P.TileArea / 2 ? IsAchievableCompleted : IsHalfAchievableCompleted;
 
         [StarDataConstructor]
         public ColonyBlueprints() { }
