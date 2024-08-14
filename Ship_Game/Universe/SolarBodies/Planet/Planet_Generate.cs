@@ -286,7 +286,8 @@ namespace Ship_Game
 
         public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform);
         public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
-        public int TerraformerLimit         => Owner != null && Owner.data.Traits.TerraformingLevel < 2 ? 2 : TilesList.Count(t => t.CanTerraform)/2 + 2;
+        public int TerraformerLimit         => Owner != null 
+            && Owner.data.Traits.TerraformingLevel < 2 ? 2 : (TilesList.Count(t => t.CanTerraform)/2 + 2).UpperBound(TileArea/5);
 
         public bool HasTerrainToTerraform => HasBuilding(b => b.CanBeTerraformed);
 
