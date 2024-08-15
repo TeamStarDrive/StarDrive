@@ -15446,6 +15446,12 @@ EspionageLimitLevel:
 EspionageLevelLimitTip:
  Id: 6342
  ENG: "Left click to increase by 1\nright click to decrease by 1\nWhen limiting Infiltration Level, we progress up to the level limit specified. If our Infiltration Level is above the limit level, all relevant operations and passive effects will be paused, and if our infiltration level is discovered, they will only see our limited level."                 
+DisableCrashSiteAlerts:
+ Id: 6343
+ ENG: "Disable Ship Crash Alerts"                 
+DisableCrashSiteAlertsTip:
+ Id: 6344
+ ENG: "Disable all ship crash on planet alreats. Recovered ship crash site notifications will be sent only if an actual ship was recovered."                  
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

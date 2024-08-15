@@ -5577,6 +5577,10 @@ namespace Ship_Game
         EspionageLimitLevel = 6341,
         /// <summary>Left click to increase by 1\nright click to decrease by 1\nWhen limiting Infiltration Level</summary>
         EspionageLimitLevelTip = 6342,
+        /// <summary>Disable Ship Crash Alerts</summary>
+        DisableCrashSiteAlerts = 6343,
+        /// <summary>Disable Ship Crash Alerts</summary>
+        DisableCrashSiteAlertsTip = 6344,
 
 
 
