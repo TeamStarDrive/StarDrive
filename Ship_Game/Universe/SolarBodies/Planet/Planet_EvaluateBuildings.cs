@@ -51,7 +51,7 @@ namespace Ship_Game
         void BuildAndScrapCivilianBuildings(float budget)
         {
             UpdateGovernorPriorities();
-            bool overBudget = budget < -0.0499f;
+            bool overBudget = budget < -0.1f;
             if (overBudget || Blueprints?.ShouldScrapNonRequiredBuilding() == true)
             {
                 // We must scrap something to bring us above of our debt tolerance
@@ -724,15 +724,11 @@ namespace Ship_Game
                         PlanetGridSquare tile = PickTileForTerraformer(unHabitableTiles);
                         Construction.Enqueue(terraformer, tile);
                     }
-                    else if (!Construction.Enqueue(terraformer))
+                    else if (TryScrapBuilding(true, scrapZeroMaintenance: true, terraformerOverride: true))
                     {
                         // If could not add a terraformer anywhere due to planet being full
                         // try to scrap a building and then retry construction
-                        if (CType != ColonyType.Military && TryScrapMilitaryBuilding()
-                            || TryScrapBuilding(true, scrapZeroMaintenance: true, terraformerOverride: true))
-                        {
-                            Construction.Enqueue(terraformer);
-                        }
+                        Construction.Enqueue(terraformer);
                     }
                 }
             }
