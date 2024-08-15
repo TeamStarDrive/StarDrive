@@ -60,7 +60,7 @@ namespace Ship_Game
                 if (TrySetArtifactEffect(ref bonus, FertilityMod,
                     triggerer.data.Traits, "Fertility Bonus to all Owned Colonies: ",popup))
                 {
-                    triggerer.data.EmpireFertilityBonus += triggeredOutcome.GetArtifact().FertilityMod;
+                    triggerer.data.EmpireFertilityBonus += bonus;
                     foreach (Planet planet in triggerer.GetPlanets())
                     {
                         planet.AddMaxBaseFertility(bonus);
