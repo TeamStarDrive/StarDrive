@@ -903,7 +903,11 @@ namespace Ship_Game
                 TerraTargetFertility   = TerraformTargetFertility();
                 MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);
                 TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);
-                UpdateTimer            = 150;
+
+                if (TerraformLevel > 0 && PFacilities.Tabs.Count < 4)
+                    PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name);
+
+                UpdateTimer = 150;
             }
             else
             {
