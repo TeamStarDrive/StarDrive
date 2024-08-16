@@ -378,6 +378,24 @@ namespace Ship_Game
             }
             return p;
         }
+
+        public struct Ping
+        {
+            public readonly int Left;
+            public readonly int Right;
+            public readonly int Top;
+            public readonly int Bottom;
+            public readonly int Width;
+
+            public Ping(PlanetGridSquare tile, int pingSize)
+            {
+                Left   = (tile.X - pingSize).LowerBound(0);
+                Right  = (tile.X + pingSize).UpperBound(SolarSystemBody.TileMaxX - 1);
+                Top    = (tile.Y - pingSize).LowerBound(0);
+                Bottom = (tile.Y + pingSize).UpperBound(SolarSystemBody.TileMaxY - 1);
+                Width  = SolarSystemBody.TileMaxX;
+            }
+        }
     }
 
     public enum TileDirection

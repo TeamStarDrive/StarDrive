@@ -286,7 +286,8 @@ namespace Ship_Game
 
         public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform);
         public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
-        public int TerraformerLimit         => TilesList.Count(t => t.CanTerraform)/2 + 2;
+        public int TerraformerLimit         => Owner != null 
+            && Owner.data.Traits.TerraformingLevel < 2 ? 2 : (TilesList.Count(t => t.CanTerraform)/2 + 2).UpperBound(TileArea/5);
 
         public bool HasTerrainToTerraform => HasBuilding(b => b.CanBeTerraformed);
 
@@ -424,11 +425,11 @@ namespace Ship_Game
             }
         }
 
-        void RemoveTerraformers(bool removeOne = false)
+        void RemoveTerraformers(bool removeOne = false, bool fullCompletion = false)
         {
             foreach (PlanetGridSquare tile in TilesList)
             {
-                if (tile.Building?.PlusTerraformPoints > 0)
+                if (tile.BuildingOnTile && (tile.Building.IsTerraformer || fullCompletion && tile.Building.IsEventTerraformer))
                 {
                     ScrapBuilding(tile.Building);
                     if (removeOne)
@@ -475,7 +476,7 @@ namespace Ship_Game
             if (BasePopPerTile <= 200)
                 BasePopPerTile = (BasePopPerTile * 2).LowerBound(200);
             UpdateMaxPopulation();
-            RemoveTerraformers();
+            RemoveTerraformers(fullCompletion: true);
         }
 
         private void ReCalculateHabitableChances(RandomBase random) // FB - We might need it for planet degrade

@@ -30,7 +30,7 @@ namespace Ship_Game
         {
             Screen = screen;
             const int windowWidth = 220;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 100, windowWidth, 685);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 89, windowWidth, 710);
             CanEscapeFromScreen = false;
         }
 
@@ -94,6 +94,7 @@ namespace Ship_Game
             rest.AddCheckbox(() => UState.P.SuppressOnBuildNotifications, title: GameText.DisableBuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);
             rest.AddCheckbox(() => UState.P.DisableInhibitionWarning,     title: GameText.DisableInhibitionAlerts, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
             rest.AddCheckbox(() => UState.P.DisableVolcanoWarning,        title: GameText.DisableVolcanoAlerts, tooltip: GameText.DisableVolcanoActivationOrDeactivation);
+            rest.AddCheckbox(() => UState.P.DisableCrashSiteWarning,      title: GameText.DisableCrashSiteAlerts, tooltip: GameText.DisableCrashSiteAlertsTip);
             rest.AddCheckbox(() => UState.P.EnableStarvationWarning,      title: GameText.EnableStarvationWarning, tooltip: GameText.EnableStarvationWarningTip);
             rest.AddCheckbox(() => UState.P.PrioitizeProjectors,          title: GameText.PrioritizeProjector, tooltip: GameText.PrioritizeProjectorTip);
 

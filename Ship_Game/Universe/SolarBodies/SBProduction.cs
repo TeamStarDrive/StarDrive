@@ -141,8 +141,8 @@ namespace Ship_Game.Universe.SolarBodies
         {
             bool ok = false;
 
-            if (q.isBuilding) ok = OnBuildingComplete(q);
-            else if (q.isShip) ok = OnShipComplete(q);
+            if (q.isBuilding)   ok = OnBuildingComplete(q);
+            else if (q.isShip)  ok = OnShipComplete(q);
             else if (q.isTroop) ok = TrySpawnTroop(q);
 
             Finish(q, success: ok);
@@ -269,17 +269,15 @@ namespace Ship_Game.Universe.SolarBodies
         //         FALSE if `where` is occupied or if there is no free random tiles
         public bool Enqueue(Building b, PlanetGridSquare where = null, bool playerAdded = false)
         {
-            if (b.Unique || b.BuildOnlyOnce)
-            {
-                if (P.BuildingBuiltOrQueued(b))
-                    return false; // unique building already built
-            }
+            if ((b.Unique || b.BuildOnlyOnce) && P.BuildingBuiltOrQueued(b))
+                return false; // unique building already built
 
             var qi = new QueueItem(P)
             {
                 IsPlayerAdded   = playerAdded,
                 isBuilding      = true,
                 IsMilitary      = b.IsMilitary,
+                IsTerraformer   = b.IsTerraformer,
                 Building        = b,
                 pgs             = where,
                 Cost            = b.ActualCost(P.Owner),
@@ -433,11 +431,17 @@ namespace Ship_Game.Universe.SolarBodies
                     int totalFreighters = Owner.TotalFreighters;
                     ConstructionQueue.Sort(q => q.GetAndUpdatePriorityForAI(P, totalFreighters));
                 }
-                else if (item.Rush && item.QType == QueueItemType.OrbitalUrgent 
-                    || P.Universe.P.PrioitizeProjectors && item.QType == QueueItemType.RoadNode)
+                else
                 {
-                    // prioritize projector bridges for the player (or any projector if flag is set).
-                    MoveTo(0, Count - 1);
+                    if (P.Owner.AutoBuildTerraformers && P.Owner.data.Traits.TerraformingLevel > 0 && !item.IsPlayerAdded)
+                        DePrioritizeTerraformer();
+
+                    if (item.Rush && item.QType == QueueItemType.OrbitalUrgent
+                        || P.Universe.P.PrioitizeProjectors && item.QType == QueueItemType.RoadNode)
+                    {
+                        // prioritize projector bridges for the player (or any projector if flag is set).
+                        MoveTo(0, Count - 1);
+                    }
                 }
             }
         }
@@ -512,6 +516,23 @@ namespace Ship_Game.Universe.SolarBodies
                     && q.Goal.BuildPosition == buildPos)
                 {
                     MoveTo(0, i);
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Relevant for player who is using Governor, since there is no prioritization ofr buildings
+        /// but we need to prefer buildings which are not terraformers.
+        /// </summary>
+        public void DePrioritizeTerraformer()
+        {
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.IsTerraformer)
+                {
+                    MoveTo(Count-1, i);
                     break;
                 }
             }

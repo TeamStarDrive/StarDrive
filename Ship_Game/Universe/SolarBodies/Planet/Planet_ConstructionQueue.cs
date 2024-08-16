@@ -66,8 +66,8 @@ public partial class Planet
         return TilesList.All(tile => tile.Habitable);
     }
         
-    public bool MilitaryBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && b.IsMilitary);
-    public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(b => b.IsCivilianBuilding);
+    public bool MilitaryBuildingInTheWorks => ConstructionQueue.Any(qi => qi.IsMilitary);
+    public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(qi => qi.IsCivilianBuilding && !qi.IsTerraformer);
 
     public bool CanBuildInfantry         => HasBuilding(b => b.AllowInfantry);
     public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);

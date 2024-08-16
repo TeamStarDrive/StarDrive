@@ -2574,7 +2574,7 @@ namespace Ship_Game
         public void RefundCreditsPostRemoval(Building b)
         {
             if (b.IsMilitary)
-                RefundCredits(b.ActualCost(this), 0.5f);
+                RefundCredits(EstimateCreditCost(b.ActualCost(this)), 0.5f);
         }
 
         public void ChargeRushFees(float productionCost, bool immediate)

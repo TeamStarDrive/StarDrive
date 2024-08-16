@@ -551,6 +551,9 @@ namespace Ship_Game
 
         public void AddShipCrashed(Planet p, string message)
         {
+            if (p.Universe.P.DisableCrashSiteWarning)
+                return;
+
             AddNotification(new Notification
             {
                 Pause           = false,
@@ -567,6 +570,9 @@ namespace Ship_Game
         /// </summary>
         public void AddShipRecovered(Planet p, Ship s, string message)
         {
+            if (s == null && p.Universe.P.DisableCrashSiteWarning)
+                return;
+
             var recover = new Notification
             {
                 Pause   = false,
