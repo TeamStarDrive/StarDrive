@@ -721,7 +721,7 @@ namespace Ship_Game
                     var freeTiles = TilesList.Filter(t => t.CanEnqueueBuildingHere(terraformer));
                     if (freeTiles.Length > 0) // fall back to free tiles
                     {
-                        PlanetGridSquare tile = PickTileForTerraformer(unHabitableTiles);
+                        PlanetGridSquare tile = PickTileForTerraformer(freeTiles);
                         Construction.Enqueue(terraformer, tile);
                     }
                     else if (TryScrapBuilding(true, scrapZeroMaintenance: true, terraformerOverride: true))
@@ -734,18 +734,18 @@ namespace Ship_Game
             }
         }
 
-        PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] unHabitableTiles)
+        PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] tileList)
         {
             var potentialTiles = new Array<PlanetGridSquare>();
-            for (int i = 0; i < unHabitableTiles.Length; ++i)
+            for (int i = 0; i < tileList.Length; ++i)
             {
-                PlanetGridSquare tile = unHabitableTiles[i];
+                PlanetGridSquare tile = tileList[i];
                 if (NoVolcanosAround(tile))
                     potentialTiles.Add(tile);
 
             }
 
-            return Random.Item(potentialTiles.Count > 0 ? potentialTiles : unHabitableTiles.ToArrayList());
+            return Random.Item(potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList());
 
             bool NoVolcanosAround(PlanetGridSquare tile)
             {
