@@ -742,7 +742,6 @@ namespace Ship_Game
                 PlanetGridSquare tile = tileList[i];
                 if (NoVolcanosAround(tile))
                     potentialTiles.Add(tile);
-
             }
 
             return Random.Item(potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList());
