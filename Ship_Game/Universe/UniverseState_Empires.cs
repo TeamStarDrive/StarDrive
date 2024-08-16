@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Universe;
@@ -16,6 +17,8 @@ namespace Ship_Game.Universe;
 
 public partial class UniverseState
 {
+    [StarData] public int NumPirateFactions { get; private set; }
+
     public IReadOnlyList<Empire> Empires => EmpireList;
     public int NumEmpires => EmpireList.Count;
 
@@ -146,6 +149,11 @@ public partial class UniverseState
         }
 
         return e;
+    }
+
+    public void UpdateNumPirateFactions()
+    {
+        NumPirateFactions = Factions.Count(f => f.WeArePirates && !f.IsDefeated);
     }
 
     void ClearEmpires()
