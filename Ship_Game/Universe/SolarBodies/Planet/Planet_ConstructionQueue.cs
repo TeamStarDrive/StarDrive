@@ -389,10 +389,9 @@ public partial class Planet
     void UpdatePlanetStatsFromPlacedBuilding(Building b)
     {
         HasSpacePort |= b.IsSpacePort || b.AllowShipBuilding;
-
         // this is automatically unset
-        HasLimitedResourceBuilding |= (b.ProdCache > 0 && b.PlusProdPerColonist > 0)
-                                   || (b.FoodCache > 0 && b.PlusFlatFoodAmount > 0);
+        HasLimitedResourceBuilding |= (b.ProdCache > 0 && (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0))
+                                   || (b.FoodCache > 0 && (b.PlusFlatFoodAmount > 0 || b.PlusFoodPerColonist > 0));
 
         UpdatePlanetStatsByRecalculation();
 

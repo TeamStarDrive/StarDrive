@@ -158,7 +158,6 @@ namespace Ship_Game
                     }
 
                     AutoAdjustSimulationFrameRate();
-
                     if (GlobalStats.RestrictAIPlayerInteraction)
                     {
                         if (TurnTimePerf.MeasuredSamples > 0 && TurnTimePerf.AvgTime * UState.GameSpeed < 0.05f)
@@ -310,6 +309,7 @@ namespace Ship_Game
                     }
                 }
 
+                UState.UpdateNumPirateFactions();
                 if (UState.Objects.EnableParallelUpdate)
                     Parallel.For(wereUpdated.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
                 else

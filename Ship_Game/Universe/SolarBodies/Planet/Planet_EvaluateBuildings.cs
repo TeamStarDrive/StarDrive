@@ -217,15 +217,15 @@ namespace Ship_Game
 
         void CalcPopulationPriorities()
         {
-            float eatableRatio = IsCybernetic ? Storage.ProdRatio : Storage.FoodRatio;
-            float popGrowth    = (10 - PopulationRatio * 10).LowerBound(0);
-            popGrowth   *= eatableRatio;
+            float empirePopRatio = Owner.TotalPopBillion / Owner.MaxPopBillion;
+            float popGrowth = 20 - PopulationRatio*10 - empirePopRatio*10;
             float popCap = 0;
+
             if (FreeHabitableTiles > 0 && PopulationRatio > 0.5f)
                 popCap = (PopulationRatio - 0.5f) * 2;
 
-            popGrowth    = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
-            popCap       = ApplyGovernorBonus(popCap, 1f, 1f, 1f, 1f, 1f);
+            popGrowth = ApplyGovernorBonus(popGrowth, 1.5f, 1f, 1f, 1.5f, 1f);
+            popCap    = ApplyGovernorBonus(popCap, 1.5f, 1f, 1f, 1f, 1f);
             Priorities[ColonyPriority.PopGrowth] = popGrowth;
             Priorities[ColonyPriority.PopCap]    = popCap;
         }
@@ -577,7 +577,7 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist * 3);
             score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount * 2);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerCol],      b.PlusProdPerColonist * 2);
-            score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
+            score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness * 3);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.IncreaseRichness * 50);
             score += EvalTraits(Priorities[ColonyPriority.PopGrowth],       b.PlusFlatPopulation / 10);
             score += EvalTraits(Priorities[ColonyPriority.PopCap],          b.MaxPopIncrease / 200);
@@ -721,7 +721,7 @@ namespace Ship_Game
                     var freeTiles = TilesList.Filter(t => t.CanEnqueueBuildingHere(terraformer));
                     if (freeTiles.Length > 0) // fall back to free tiles
                     {
-                        PlanetGridSquare tile = PickTileForTerraformer(unHabitableTiles);
+                        PlanetGridSquare tile = PickTileForTerraformer(freeTiles);
                         Construction.Enqueue(terraformer, tile);
                     }
                     else if (TryScrapBuilding(true, scrapZeroMaintenance: true, terraformerOverride: true))
@@ -734,18 +734,18 @@ namespace Ship_Game
             }
         }
 
-        PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] unHabitableTiles)
+        PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] tileList)
         {
             var potentialTiles = new Array<PlanetGridSquare>();
-            for (int i = 0; i < unHabitableTiles.Length; ++i)
+            for (int i = 0; i < tileList.Length; ++i)
             {
-                PlanetGridSquare tile = unHabitableTiles[i];
+                PlanetGridSquare tile = tileList[i];
                 if (NoVolcanosAround(tile))
                     potentialTiles.Add(tile);
 
             }
 
-            return Random.Item(potentialTiles.Count > 0 ? potentialTiles : unHabitableTiles.ToArrayList());
+            return Random.Item(potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList());
 
             bool NoVolcanosAround(PlanetGridSquare tile)
             {
