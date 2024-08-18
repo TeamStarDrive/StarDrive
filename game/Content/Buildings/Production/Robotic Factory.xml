@@ -3,7 +3,7 @@
   <Icon>Robotic_Factory</Icon>
   
   <Cost>500</Cost>
-  <Maintenance>3</Maintenance>
+  <Maintenance>4</Maintenance>
   
   <PlusFlatProductionAmount>8</PlusFlatProductionAmount>
   <MaxFertilityOnBuild>-0.4</MaxFertilityOnBuild>
