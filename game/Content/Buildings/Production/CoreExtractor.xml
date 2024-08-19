@@ -3,7 +3,7 @@
   <Icon>CoreExtractor</Icon>
   
   <Cost>380</Cost>
-  <Maintenance>2.5/Maintenance>
+  <Maintenance>2.5</Maintenance>
   
   <PlusProdPerRichness>3</PlusProdPerRichness>
   <PlusProdPerColonist>0.7</PlusProdPerColonist>

@@ -327,7 +327,7 @@ namespace Ship_Game.AI.Tasks
             return true;
         }
 
-        public void GetRallyPlanet(Vector2 pos)
+        public void SetRallyPlanet(Vector2 pos)
         {
             RallyPlanet = Owner.FindNearestSafeRallyPoint(pos);
         }

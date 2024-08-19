@@ -30,12 +30,12 @@ namespace Ship_Game.Commands.Goals
             Log.Info(ConsoleColor.Green, $"---- WarMission: New {Owner.Name} Vs.: {TargetEmpire.Name} ----");
         }
 
-        public WarMission(Empire owner, Empire enemy, Planet targetPlanet, MilitaryTask task) : this(owner)
+        public WarMission(Empire owner, Empire enemy, Planet targetPlanet, MilitaryTask task, int initialStep) : this(owner)
         {
             TargetEmpire  = enemy;
             TargetPlanet  = targetPlanet;
             ChangeToStep(Process);
-            Fleet.CreateStrikeFromCurrentTask(task.Fleet, task, Owner, this);
+            Fleet.CreateStrikeFromCurrentTask(task.Fleet, task, Owner, this, initialStep);
             Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {Owner.Name} Vs. {TargetEmpire.Name} ----");
         }
 

@@ -4,6 +4,7 @@ using SDGraphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.DiplomacyScreen;
+using SDUtils;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -97,8 +98,8 @@ namespace Ship_Game.AI
                 foreach (Relationship rel in us.AllRelations)
                 {
                     // damage our relations with other factions that are not
-                    // already at war with them
-                    if (rel.Them != them && !rel.Them.IsAtWarWith(them))
+                    // already at war with them or they are not our allies
+                    if (rel.Them != them && !rel.AtWar && !rel.Treaty_Alliance)
                     {
                         Relationship otherRelationToUs = rel.Them.GetRelations(us);
                         otherRelationToUs.Trust -= 50f;
@@ -111,10 +112,11 @@ namespace Ship_Game.AI
                 themToUs.UpdateRelationship(them, us);
             }
 
+            if (usToThem.Treaty_Alliance)
+                UpdateEveryoneWeDeclaredWarOnAllies();
+
             if (them.isPlayer && !usToThem.AtWar)
-            {
                 AIDeclaresWarOnPlayer(them, warType, usToThem);
-            }
 
             ShowWarDeclaredNotification(us, them);
 
@@ -123,7 +125,6 @@ namespace Ship_Game.AI
             usToThem.ActiveWar = War.CreateInstance(us, them, warType, playerAskedUsToJoin);
             usToThem.Trust     = 0f;
             us.BreakAllTreatiesWith(them, includingPeace: true);
-
             them.AI.GetWarDeclaredOnUs(us, warType);
         }
 
@@ -218,6 +219,15 @@ namespace Ship_Game.AI
             usToThem.Trust     = 0f;
             OwnerEmpire.BreakAllTreatiesWith(them, includingPeace: true);
             them.AI.GetWarDeclaredOnUs(OwnerEmpire, wt);
+        }
+
+        void UpdateEveryoneWeDeclaredWarOnAllies()
+        {
+            foreach (Empire empire in OwnerEmpire.Universe.ActiveMajorEmpires.Filter(e => e != OwnerEmpire))
+            {
+                var relations = empire.GetRelations(OwnerEmpire);
+                relations.SetDeclaredWarOnAlly();
+            }
         }
 
         public void EndWarFromEvent(Empire them)

@@ -638,7 +638,6 @@ namespace Ship_Game
                 if (!Player.DifficultyModifiers.HideTacticalData || debug || fleet.Owner.isPlayer || fleet.Owner.AlliedWithPlayer)
                 {
                     batch.DrawDropShadowText(fleet.Name, commandShipCenterOnScreen + FleetNameOffset, Fonts.Arial8Bold);
-                    
                 }
 
                 if (debug)

@@ -31,15 +31,24 @@ namespace Ship_Game
 
         Planet[] PotentialPlanetTargetsImperialistWar(Empire enemy)
         {
+            if (enemy.isPlayer && (IsAlliedWith(enemy) || IsOpenBordersTreaty(enemy)))
+                return PotentialTargetsPlayerSurprise(enemy);
+
             float ratio = (float)TotalScore / enemy.TotalScore;
-            int NumClosestPlaetToTake = 3;
+            int numClosestPlanetsToTake = 3;
             float finalRatio = (ratio < 1
                 ? ratio * 0.3f
                 : ratio * PersonalityModifiers.ImperialistWarPlanetsToTakeMult).UpperBound(1);
 
-            NumClosestPlaetToTake = (int)(finalRatio * enemy.GetPlanets().Count).LowerBound(3);
+            numClosestPlanetsToTake = (int)(finalRatio * enemy.GetPlanets().Count).LowerBound(3);
             var potentialPlanets = enemy.GetPlanets().Filter(p => !HasWarMissionTargeting(p));
-            return potentialPlanets.Sorted(p => p.System.Position.SqDist(WeightedCenter)).Take(NumClosestPlaetToTake).ToArray();
+            return potentialPlanets.Sorted(p => p.System.Position.SqDist(WeightedCenter)).Take(numClosestPlanetsToTake).ToArray();
+        }
+
+        Planet[] PotentialTargetsPlayerSurprise(Empire enemy) 
+        {
+            var potentialPlanets = enemy.GetPlanets().Filter(p => !HasWarMissionTargeting(p));
+            return potentialPlanets.SortedDescending(p => p.ColonyWarValueTo(enemy)).Take(5).ToArray();
         }
 
         Planet[] PotentialPlanetTargetsBorderWar(Empire enemy)
@@ -190,7 +199,7 @@ namespace Ship_Game
             bool weAreStronger = ourCurrentStrength > theirKnownStrength * PersonalityModifiers.GoToWarTolerance && ourBuildCapacity > theirBuildCapacity 
                                  || ourCurrentStrength > theirKnownStrength * PersonalityModifiers.GoToWarTolerance*1.5f;
 
-            (float alliesBuildCapacity, float alliesStr) GetAlliedStr(Empire e)
+            (float alliesStr , float alliesBuildCapacity) GetAlliedStr(Empire e)
             {
                 float buildCap = e.AI.BuildCapacity;
                 float currentStr = e.isPlayer ? e.OffensiveStrength : e.ShipsReadyForFleet.AccumulatedStrength;
@@ -202,7 +211,7 @@ namespace Ship_Game
                     currentStr += ally.isPlayer ? ally.OffensiveStrength : ally.ShipsReadyForFleet.AccumulatedStrength;
                 }
 
-                return (buildCap, currentStr);
+                return (currentStr, buildCap);
             }
 
             return weAreStronger;
