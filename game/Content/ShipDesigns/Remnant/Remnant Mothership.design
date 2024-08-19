@@ -1,11 +1,10 @@
-﻿Version=1
+Version=1
 Name=Remnant Mothership
 Hull=Remnant/Mothership
 Role=capital
 Style=Remnant
 Size=42,45
 GridCenter=21,21
-DefaultAIState=DoNothing
 DefaultCombatState=Artillery
 ShipCategory=Unclassified
 HangarDesignation=General
@@ -13,7 +12,7 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=Crystal Armor Small;Crystal Armor Med;Crystal Armor Large;PolaronTurret4x4;OrdnanceLockerSmall;RemnantNuker;LRMmk2;MarineBarracks6x3;SubspaceSensors;EnergyPDHeavy;AdvancedCellMed;Main Engineering;AncientShield_3x3;EMPTurret3x3;Pulse Capacitor;AdvancedCellSmall;DisintegratorArray;Sickbay;AdvAmplifier;AncientArmor_1x1;Reinforced Bulkhead;TroopAssaultBay;AntiMatterReactor;DarkMatterCannon_1x2;CanopyShield;RemnantPort;RepairDrone;BosonTransmiter;RemnantHV2x3;CIC;Bridge;PhasorTurret3x3;HVTurret_3x3;Engine;AncientShield2kw;RemnantEngine2;RemnantEngine3;IonCannon1x3;RemnantEngine4;EnergyPDRapid
+ModuleUIDs=Crystal Armor Small;Crystal Armor Med;Crystal Armor Large;PolaronTurret4x4;OrdnanceLockerSmall;RemnantNuker;LRMmk2;MarineBarracks6x3;SubspaceSensors;EnergyPDHeavy;AdvancedCellMed;Main Engineering;AncientShield_3x3;EMPTurret3x3;Pulse Capacitor;AdvancedCellSmall;REDisintegratorArray;Sickbay;AdvAmplifier;AncientArmor_1x1;Reinforced Bulkhead;TroopAssaultBay;AntiMatterReactor;DarkMatterCannon_1x2;CanopyShield;RemnantPort;RepairDrone;BosonTransmiter;RemnantHV2x3;CIC;Bridge;PhasorTurret3x3;HVTurret_3x3;Engine;AncientShield2kw;RemnantEngine2;RemnantEngine3;IonCannon1x3;RemnantEngine4;EnergyPDRapid
 Modules=374
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 18,0;0

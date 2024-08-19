@@ -7,8 +7,8 @@
 
   <PlusFlatPopulation>3</PlusFlatPopulation>
 
-  <PlusResearchPerColonist>.1</PlusResearchPerColonist>
-  <PlusFlatResearchAmount>0.1</PlusFlatResearchAmount>
+  <PlusResearchPerColonist>0.05</PlusResearchPerColonist>
+  <PlusFlatResearchAmount>0.05</PlusFlatResearchAmount>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>421</NameTranslationIndex>
   <DescriptionIndex>422</DescriptionIndex>

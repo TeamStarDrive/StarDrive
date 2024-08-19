@@ -3,9 +3,9 @@
   <Icon>Upgraded_Xeno_mines</Icon>
   
   <Cost>250</Cost>
-  <Maintenance>1.5</Maintenance>
+  <Maintenance>2</Maintenance>
   
-  <PlusProdPerColonist>1.2</PlusProdPerColonist>
+  <PlusProdPerColonist>1.0</PlusProdPerColonist>
   <Infrastructure>2</Infrastructure>
   
   <!-- For localization in GameText.yaml -->

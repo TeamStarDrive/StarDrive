@@ -3,10 +3,10 @@
   <Icon>CoreExtractor</Icon>
   
   <Cost>380</Cost>
-  <Maintenance>2</Maintenance>
+  <Maintenance>2.5/Maintenance>
   
   <PlusProdPerRichness>3</PlusProdPerRichness>
-  <PlusProdPerColonist>1</PlusProdPerColonist>
+  <PlusProdPerColonist>0.7</PlusProdPerColonist>
   <MaxFertilityOnBuild>-0.65</MaxFertilityOnBuild>
   
   <!-- For localization in GameText.yaml -->
