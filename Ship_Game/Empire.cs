@@ -86,7 +86,7 @@ namespace Ship_Game
         [StarData] public EmpireAI AI;
         public ThreatMatrix Threats => AI.ThreatMatrix;
 
-        float UpdateTimer;
+        [StarData] float UpdateTimer;
 
         [StarData] public bool isPlayer;
         [StarData] public bool IsDefeated { get; private set; }
@@ -1133,7 +1133,6 @@ namespace Ship_Game
             EmpireShips.UpdatePublicLists();
             Research.UpdateNetResearch();
 
-            UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
             UpdateMilitaryStrengths();
             CalculateScore(fromSave: true);

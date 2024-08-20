@@ -15439,7 +15439,7 @@ InfiltrationLevel5Desc:
  ENG: "Diplomacy Screen view of the number of Moles they have planted in our Colonies."              
 MessageInfiltrationLevelIncrease:
  Id: 6340
- ENG: "We have infiltrated into their empire.\nOur Infiltration Level is now"               
+ ENG: "We have infiltrated their empire.\nOur Infiltration Level is now"             
 EspionageLimitLevel:
  Id: 6341
  ENG: "Limit Level"                
