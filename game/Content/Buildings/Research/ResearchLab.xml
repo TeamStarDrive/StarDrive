@@ -5,8 +5,8 @@
   <Cost>120</Cost>
   <Maintenance>1</Maintenance>
   
-  <PlusResearchPerColonist>.25</PlusResearchPerColonist>
-  <PlusFlatResearchAmount>0.15</PlusFlatResearchAmount>
+  <PlusResearchPerColonist>.20</PlusResearchPerColonist>
+  <PlusFlatResearchAmount>0.10</PlusFlatResearchAmount>
   
   <TechBranch>Discovery</TechBranch>
   

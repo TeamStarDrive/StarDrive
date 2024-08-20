@@ -568,7 +568,7 @@ namespace Ship_Game.Fleets
                 Owner.Universe.DebugWin?.DrawCircle(DebugModes.Tasks, FinalPosition, task.AORadius, Color.AntiqueWhite);
 
             if (task.RallyPlanet == null)
-                task.GetRallyPlanet(AveragePosition(force: true));
+                task.SetRallyPlanet(AveragePosition(force: true));
 
             TaskCombatStatus = FleetInAreaInCombat(task.AO, task.AORadius);
 
@@ -739,10 +739,10 @@ namespace Ship_Game.Fleets
             owner.AI.AddPendingTask(reclaim);
         }
 
-        public static void CreateStrikeFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, Goal goal)
+        public static void CreateStrikeFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, Goal goal, int taskStep)
         {
             task.FlagFleetNeededForAnotherTask();
-            fleet.TaskStep = 2;
+            fleet.TaskStep = taskStep;
             var strikeFleet = new MilitaryTask(task.TargetPlanet, owner, fleet, MilitaryTaskImportance.Normal)
             {
                 Goal = goal,
@@ -788,7 +788,7 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely())
                         break;
 
-                    task.GetRallyPlanet(task.TargetPlanet.Position);
+                    task.SetRallyPlanet(task.TargetPlanet.Position);
                     FleetTaskGatherAtRally(task); // move the fleet to the closest system to target planet
                     TaskStep = 2; 
                     break;
@@ -797,7 +797,28 @@ namespace Ship_Game.Fleets
                         break;
 
                     AddFleetProjectorGoal();
-                    TaskStep = 3; // Wait for PrepareForWar.cs goal to handle this fleet
+                    if (task.TargetPlanet.OwnerIsPlayer && Owner.Universe.P.Difficulty > GameDifficulty.Normal)
+                        TaskStep = 3;
+                    else
+                        TaskStep = 100; // Wait for PrepareForWar.cs goal to handle this fleet
+                    break;
+                case 3:
+                    if (FleetProjectorGoalIsStillBuildingConstructor(task.TargetPlanet.System))
+                        break;
+
+                    SetOrdersRadius(Ships, 5000);
+                    float offset = Owner.IsAlliedWith(task.TargetEmpire) || Owner.IsOpenBordersTreaty(task.TargetEmpire) ? 1 : 2;
+                    float radius = task.RallyPlanet.System == task.TargetPlanet.System ? task.TargetPlanet.Radius + 5000 
+                                                                                       : task.TargetPlanet.System.Radius * offset;
+                    GatherAtAO(task, distanceFromAO: radius);
+                    TaskStep = 4;
+                    break;
+                case 4:
+                    if (!ArrivedAtCombatRally(FinalPosition))
+                        break;
+
+                    TaskStep = 200; // Wait for PrepareForWar.cs goal to handle this fleet
+                    SetOrdersRadius(Ships, 5000f);
                     break;
             }
         }
@@ -878,7 +899,7 @@ namespace Ship_Game.Fleets
 
                     TaskStep = 5;
                     break;
-                case 5:
+                case 5: // strike fleets created from stage dleets might get this step at creation
                     Vector2 combatOffset  = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
                     MoveStatus inPosition = FleetMoveStatus(task.TargetPlanet.GravityWellRadius, combatOffset);
                     if (!inPosition.IsSet(MoveStatus.MajorityAssembled))

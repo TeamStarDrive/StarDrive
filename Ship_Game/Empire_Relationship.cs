@@ -573,23 +573,60 @@ namespace Ship_Game
             if (GetAverageWarGrade().Less(5) && !IsHonorable)
                 return false; // We have our hands in other wars and it is not looking good for us
 
-            float combinedStr = OffensiveStrength + ally.OffensiveStrength;
+            if (IsPreparingForWarWith(enemy))
+            {
+                dialog = "JoinWar_Allied_OK";
+                return true;
+            }
+
+            float strEnemyFaces = enemy.AllActiveWars.Sum(w => w.Them.IsAtWarWith(this) ? 0 : w.Them.OffensiveStrength);
+            float combinedStr = GetCombinedAlliedStr(ally, enemy) + strEnemyFaces;
+            bool enemyDeclaredWarOnAlly = GetRelations(enemy).TheyDeclaredWarOnAlly;
             if (IsAlliedWith(enemy))
             {
                 switch (Personality)
                 {
                     case PersonalityType.Pacifist:
-                    case PersonalityType.Honorable:
+                        if (enemyDeclaredWarOnAlly && combinedStr > enemy.CurrentMilitaryStrength)
+                        {
+                            dialog = "JoinWar_Allied_OK";
+                            return true;
+                        }
+
                         dialog = "JoinWar_Allied_DECLINE";
                         return false;
-                    case PersonalityType.Aggressive when OffensiveStrength > enemy.CurrentMilitaryStrength:
+                    case PersonalityType.Honorable:
+                        if (enemyDeclaredWarOnAlly)
+                        {
+                            dialog = "JoinWar_Allied_OK";
+                            return true;
+                        }
+
+                        dialog = "JoinWar_Allied_DECLINE";
+                        return false;
+                    case PersonalityType.Aggressive when OffensiveStrength > enemy.CurrentMilitaryStrength*0.5f:
                     case PersonalityType.Ruthless   when combinedStr > enemy.CurrentMilitaryStrength:
                         dialog = "JoinWar_Allied_OK";
                         return true;
-                    case PersonalityType.Xenophobic when combinedStr > enemy.CurrentMilitaryStrength: break;
-                    case PersonalityType.Cunning    when combinedStr > enemy.CurrentMilitaryStrength: break;
-                }
+                    case PersonalityType.Xenophobic when combinedStr > enemy.CurrentMilitaryStrength * PersonalityModifiers.AllyCallToWarRatio:
+                        dialog = "JoinWar_Allied_OK";
+                        return true;
+                    case PersonalityType.Cunning:
+                        float prepareForWarStr = Universe.ActiveMajorEmpires
+                            .Sum(e => e != ally
+                                 && e != this
+                                 && !e.IsAtWarWith(enemy)
+                                 && (LegacyEspionageEnabled || NewEspionageEnabled && GetEspionage(e).Level >= 3)
+                                 && e.IsPreparingForWarWith(enemy) ? e.OffensiveStrength : 0);
 
+                        if (prepareForWarStr + combinedStr > enemy.CurrentMilitaryStrength)
+                        {
+                            dialog = "JoinWar_Allied_OK";
+                            return true;
+                        }
+
+                        break;
+                }
             }
 
             float enemyStr = IsAlliedWith(enemy) ? enemy.CurrentMilitaryStrength : KnownEmpireStrength(enemy);
@@ -605,6 +642,27 @@ namespace Ship_Game
 
             dialog = "JoinWar_Reject_TooDangerous";
             return false;
+        }
+
+        float GetCombinedAlliedStr(Empire ally, Empire enemy)
+        {
+            float potentialStr = 0;
+            var theirAllies = ally.Universe.GetAllies(ally);
+            foreach (var theirAlly in theirAllies.Filter(e => e == this || !e.IsAlliedWith(enemy))) 
+                potentialStr += theirAlly.OffensiveStrength;
+
+            var ourAllies = Universe.GetAllies(this);
+            foreach (var ourAllys in ourAllies.Filter(e => !e.IsAlliedWith(enemy)))
+            {
+                if (theirAllies.Contains(ourAllys)) 
+                    potentialStr += ourAllys.OffensiveStrength;
+            }
+
+            var enemyAllies = Universe.GetAllies(enemy).Filter(e => e != this);
+            foreach (var enemyAlly in enemyAllies.Filter(e => !e.IsAlliedWith(this) && !e.IsAlliedWith(ally)))
+                potentialStr -= enemyAlly.OffensiveStrength;
+
+            return potentialStr;
         }
 
         public bool IsLosingInWarWith(Empire enemy)

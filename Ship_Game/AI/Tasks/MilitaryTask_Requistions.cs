@@ -393,7 +393,6 @@ namespace Ship_Game.AI.Tasks
             switch (Type)
             {
                 default:                            return "General Fleet";
-                case TaskType.StageFleet:           return "Stage Fleet";
                 case TaskType.StrikeForce:          return "Strike Fleet";
                 case TaskType.AssaultPlanet:        return "Invasion Fleet";
                 case TaskType.GlassPlanet:          return "Doom Fleet";
@@ -404,6 +403,8 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.DefendClaim:          return "Scout Fleet";
                 case TaskType.ClearAreaOfEnemies:   return "Defensive Fleet";
                 case TaskType.InhibitorInvestigate: return "Investigation Fleet";
+                case TaskType.StageFleet when TargetEmpire.isPlayer && Owner.Universe.P.Difficulty > GameDifficulty.Normal: return "Defensive Fleet";
+                case TaskType.StageFleet:           return "Stage Fleet";
             }
         }
 

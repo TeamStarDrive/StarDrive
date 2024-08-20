@@ -119,6 +119,7 @@ namespace Ship_Game.Gameplay
         [StarData] public Espionage Espionage;
 
         [StarData] public bool DoNotSurrenderToThem;
+        [StarData] public bool TheyDeclaredWarOnAlly { get; private set; } // They cannot be trusted
 
         [XmlIgnore] public float AvailableTrust => Trust - TrustUsed;
 
@@ -173,6 +174,11 @@ namespace Ship_Game.Gameplay
             Risk = new EmpireRiskAssessment(this);
             if (us.NewEspionageEnabled)
                 Espionage = new Espionage(us, them);
+        }
+
+        public void SetDeclaredWarOnAlly()
+        {
+            TheyDeclaredWarOnAlly = true;
         }
 
         public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer = 250)
@@ -1254,7 +1260,7 @@ namespace Ship_Game.Gameplay
 
         public void RequestHelpFromAllies(Empire us, Empire enemy, int contactThreshold)
         {
-            if (ActiveWar == null) // They Accepted Peace
+            if (ActiveWar == null || ActiveWar.TurnsAtWar < 25 && !enemy.isPlayer) // They Accepted Peace or too soon
                 return;
 
             var allies = new Array<Empire>();
@@ -1320,10 +1326,13 @@ namespace Ship_Game.Gameplay
             WarnAboutShips(us);
         }
 
-        bool TheyArePotentialTargetHonorable(Empire us, Empire them)
+        bool TheyArePotentialTargetHonorable(Empire them)
         {
             if (Treaty_Peace || AtWar || PreparingForWar || TurnsKnown < SecondDemand)
                 return false;
+
+            if (Treaty_Alliance && TheyDeclaredWarOnAlly && Trust < 50 && Threat < 10)
+                return true;
 
             if (Threat > -10 && Threat < 10 && !Treaty_Alliance && TotalAnger > 75 && !them.IsAtWar)
                 return true;
@@ -1331,15 +1340,26 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        bool TheyArePotentialTargetCunning(Empire us, Empire them)
+        bool TheyArePotentialTargetsPacifist(Empire us)
+        {
+            if (us.Universe.P.Difficulty is GameDifficulty.Normal || Treaty_Peace || AtWar || PreparingForWar || TurnsKnown < SecondDemand)
+                return false;
+
+            if (!Treaty_Alliance &&  us.Universe.GetAllies(us).Count > 0 && TheyDeclaredWarOnAlly && Trust < 0 && Threat < -10)
+                return true;
+
+            return false;
+        }
+
+        bool TheyArePotentialTargetCunning(Empire them)
         {
             if (Treaty_Peace || AtWar || PreparingForWar || TurnsKnown < SecondDemand)
                 return false;
 
-            if (Threat < -50 && them.GetAverageWarGrade() < 5)
+            if (Threat < -50 && them.GetAverageWarGrade() < 5 || Threat < -25 && them.GetAverageWarGrade() < 3)
                 return true;
 
-            if (Threat < -25 && them.GetAverageWarGrade() < 3)
+            if (!Treaty_Alliance && Threat < 0 && them.AtWarCount > 1 && them.GetAverageWarGrade() < 7)
                 return true;
 
             return false;
@@ -1347,17 +1367,14 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetRuthless(Empire us, Empire them)
         {
-            if (Treaty_Peace || AtWar || PreparingForWar )
-                return false;
-
-            if (Threat > 0f || TurnsKnown < SecondDemand)
+            if (Treaty_Peace || AtWar || PreparingForWar || Threat > 0f || TurnsKnown < SecondDemand)
                 return false;
 
             if (Threat < -50f && !Treaty_Alliance)
                 return true;
 
             // Ruthless will break alliances if the other party does not have strong military but valuable colonies
-            if (Threat < -75f && us.TotalColonyValues < them.TotalColonyValues)
+            if (Threat < -30f && us.TotalColonyValues < them.TotalColonyValues)
                 return true;
 
             return false;
@@ -1370,7 +1387,7 @@ namespace Ship_Game.Gameplay
 
             if (Threat < -40f && TurnsKnown > SecondDemand && !Treaty_Alliance)
             {
-                if (TotalAnger > 75f || us.MaxColonyValue < them.MaxColonyValue)
+                if (TotalAnger > 75f || us.MaxColonyValue > them.MaxColonyValue*1.25f)
                     return true;
             }
             else if (Threat <= -75f)
@@ -1386,7 +1403,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace || AtWar || PreparingForWar || Posture == Posture.Friendly)
                 return false;
 
-            return them.GetPlanets().Count > us.GetPlanets().Count * 1.25f && TotalAnger > 20f;
+            return them.ExpansionScore > us.ExpansionScore * 1.25f && TotalAnger > 20f;
         }
 
         // Pacifist, Cunning, Honorable
@@ -1425,9 +1442,10 @@ namespace Ship_Game.Gameplay
 
             switch (us.Personality)
             {
-                case PersonalityType.Cunning:   theyArePotentialTargets = TheyArePotentialTargetCunning(us, them);   break;
-                case PersonalityType.Honorable: theyArePotentialTargets = TheyArePotentialTargetHonorable(us, them); break;
-                default:                        theyArePotentialTargets = false;                                     break;
+                case PersonalityType.Cunning:   theyArePotentialTargets = TheyArePotentialTargetCunning(them);   break;
+                case PersonalityType.Honorable: theyArePotentialTargets = TheyArePotentialTargetHonorable(them); break;
+                case PersonalityType.Pacifist:  theyArePotentialTargets = TheyArePotentialTargetsPacifist(us);   break;
+                default:                        theyArePotentialTargets = false;                                 break;
             }
         }
 

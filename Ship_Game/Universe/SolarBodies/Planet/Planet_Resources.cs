@@ -76,18 +76,16 @@ namespace Ship_Game
         public bool ExportFood => FS == GoodState.EXPORT;
         public bool ExportProd => PS == GoodState.EXPORT;
 
-        GoodState ColonistsTradeState
+        GoodState ColonistsTradeState()
         {
-            get
-            {
-                bool needFood = ShortOnFood();
-                if (needFood && Population > 500f)                  return GoodState.EXPORT;
-                if (!needFood && PopulationRatio < 0.8f)            return GoodState.IMPORT;
-                if (MaxPopulation > 2000 && PopulationRatio > 0.9f) return GoodState.EXPORT;
-
-                return GoodState.STORE;
-            }
+            bool needFood = ShortOnFood();
+            if (needFood && Population > 500f)                       return GoodState.EXPORT;
+            if (!needFood && ShouldImportColonists(PopulationRatio)) return GoodState.IMPORT;
+            if (MaxPopulation > 2000 && PopulationRatio > 0.9f)      return GoodState.EXPORT;
+            return GoodState.STORE;
         }
+
+        bool ShouldImportColonists(float popRatio) => popRatio < 0.8f || BiosphereInTheWorks && PopPerBiosphere(Owner) > 100 && popRatio < 0.99f;
 
         public bool ShortOnFood()
         {
@@ -119,7 +117,7 @@ namespace Ship_Game
             {
                 case Goods.Food:       return FS;
                 case Goods.Production: return PS;
-                case Goods.Colonists:  return ColonistsTradeState;
+                case Goods.Colonists:  return ColonistsTradeState();
                 default:               return 0;
             }
         }

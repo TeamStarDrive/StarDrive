@@ -5579,8 +5579,13 @@ namespace Ship_Game
         EspionageLimitLevelTip = 6342,
         /// <summary>Disable Ship Crash Alerts</summary>
         DisableCrashSiteAlerts = 6343,
-        /// <summary>Disable Ship Crash Alerts</summary>
+        /// <summary>Disable all ship crash on planet alrets</summary>
         DisableCrashSiteAlertsTip = 6344,
+        /// <summary>Assets they lost</summary>
+        UpriseAssetsTheyLost = 6345,
+        /// <summary>All Military Buildings</summary>
+        UpriseAllMilitaryBuildings = 6346,
+
 
 
 

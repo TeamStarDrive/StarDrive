@@ -139,11 +139,7 @@ namespace Ship_Game.Ships
                 if (visible && (Progress.InRange(0f, 0.25f) || Progress.InRange(0.48f, 0.52f)))
                     Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), scale);
 
-                if (Progress >= 0.9f)
-                {
-                    Owner.UpdateThrusters(timeStep, Progress);
-                }
-                else
+                if (Progress < 0.9f)
                 {
                     Owner.YRotation = 0;
                     Owner.RotationDegrees = RotationDegZ;
@@ -194,9 +190,6 @@ namespace Ship_Game.Ships
                 Owner.RotationDegrees = RotationDegZ;
                 Owner.XRotation = (InitialRotationDegX - (Progress * InitialRotationDegX)).ToRadians();
                 posZ = StartingPosZ * (1 - Progress);
-
-                if (Owner.DesignRole is RoleName.fighter or RoleName.corvette || Progress >= 0.9f)
-                    Owner.UpdateThrusters(timeStep, 1);
 
                 if (visible && Progress.InRange(InitialProgress, InitialProgress + 0.1f))
                     Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, 1, posZ), Progress);
@@ -254,10 +247,6 @@ namespace Ship_Game.Ships
                 {
                     Owner.YRotation = 0;
                     Owner.RotationDegrees = RotationDegZ;
-                }
-                else
-                {
-                    Owner.UpdateThrusters(timeStep, scale);
                 }
             }
 
@@ -359,11 +348,7 @@ namespace Ship_Game.Ships
                     Owner.YRotation = 0;
                     Owner.RotationDegrees = RotationDegZ;
                 }
-                else if (Progress > 0.8f)
-                {
-                    Owner.UpdateThrusters(timeStep, scale);
-                }
-                else
+                else if (Progress < 0.8f)
                 {
                     float speedLimitFactor = Progress.Clamped(0.25f, MaxSpeedMultiplier);
                     Owner.SetSTLSpeedLimit(Owner.MaxSTLSpeed * speedLimitFactor);
@@ -372,7 +357,6 @@ namespace Ship_Game.Ships
 
             public bool Done => Progress >= 1f;
         }
-
     }
     
     public enum LaunchPlan

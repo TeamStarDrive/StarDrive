@@ -32,6 +32,7 @@ namespace Ship_Game
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
+            UpdateBiospheresBeingBuilt();
             if (RecentCombat)
                 return; // Cant Build stuff when there is combat on the planet
 
@@ -105,6 +106,11 @@ namespace Ship_Game
             }
 
             BuildPlatformsAndStations(Budget);
+        }
+
+        void UpdateBiospheresBeingBuilt()
+        {
+            BiosphereInTheWorks = BuildingInQueue(Building.BiospheresId);
         }
 
         public float CivilianBuildingsMaintenance  => Money.Maintenance - GroundDefMaintenance;
@@ -256,6 +262,46 @@ namespace Ship_Game
         public void AddBlueprints(BlueprintsTemplate template, Empire owner)
         {
             Blueprints = new ColonyBlueprints(template, this, Owner);
+        }
+
+        public void DestroyBuildingInUprise(UpriseBuildingType type, out string buildingNameDestroyed)
+        {
+            buildingNameDestroyed = "";
+            if (type is UpriseBuildingType.None)
+                return;
+
+            Building[] potentialBuildings = BuildingList.Filter(b => b.Scrappable);
+            if (potentialBuildings.Length == 0)
+                return;
+
+            switch (type) 
+            {
+                case UpriseBuildingType.HighestPrice: 
+                    potentialBuildings = potentialBuildings.SortedDescending(b => b.Cost).Take(5).ToArray();
+                    break;
+                case UpriseBuildingType.Storage:      
+                    potentialBuildings = potentialBuildings.SortedDescending(b => b.StorageAdded).Take(5).ToArray();
+                    break;
+                case UpriseBuildingType.AllMilitary: 
+                    for (int i = BuildingList.Count - 1; i >= 0; i--)
+                    {
+                        Building b = potentialBuildings[i];
+                        if (b.Scrappable && b.IsMilitary)
+                        {
+                            DestroyBuilding(b);
+                            buildingNameDestroyed = $"{Localizer.Token(GameText.UpriseAllMilitaryBuildings)}.";
+                        }
+                    }
+
+                    if (buildingNameDestroyed.NotEmpty())
+                        return;
+
+                    break; // fallback to random buildings
+            }
+
+            Building toDestroy = Universe.Random.Item(potentialBuildings);
+            buildingNameDestroyed = toDestroy.TranslatedName.Text;
+            DestroyBuilding(toDestroy);
         }
     }
 }

@@ -3366,10 +3366,10 @@ BB_Tech_ReactionDrive_Desc:
  UKR: "Реакційний двигун спрямовує сильно іонізовану плазму через підпросторове поле, яке збуджує і вивільняє потенційну енергію, що міститься всередині.  Потік, що утворюється, може бути використаний для пропульсивних цілей.   "
 BB_Tech_ReactionDrive_STLSpeedBonus_Bonus:
  Id: 651
- ENG: "By converting all of our engines to the reaction drive standard, we can achieve 20% faster sub-light speeds and maneuverability."
- RUS: "Переведя все корабли на новые двигатели, мы сможем получить 20% бонус к субсветовым скоростям и маневренности."
- SPA: "Al pasar todos nuestros motores al estándar de impulsión de reacción, podemos aumentar un 20% la maniobrabilidad y las velocidades infraluminales."
- UKR: "Переобладнавши всі наші двигуни під стандарт реактивного приводу, ми зможемо досягти на 20% вищих субсвітлових швидкостей і маневреності."
+ ENG: "By converting all of our engines to the reaction drive standard, we can achieve 20% faster sub-light speeds."
+ RUS: "Переведя все корабли на новые двигатели, мы сможем получить 20% бонус к субсветовым скоростям."
+ SPA: "Al pasar todos nuestros motores al estándar de impulsión de reacción, podemos aumentar un 20% la velocidades infraluminales."
+ UKR: "Переобладнавши всі наші двигуни під стандарт реактивного приводу, ми зможемо досягти на 20% вищих субсвітлових швидкостей."
 BB_Tech_ScientificFoundations_Name:
  Id: 652
  ENG: "Scientific Foundations"
@@ -15187,7 +15187,7 @@ WeIncitedUprise:
  ENG: "We have incited an uprise on"         
 IncitedUpriseOn: 
  Id: 6256
- ENG: "An uprise was incited on"          
+ ENG: "An uprise was incited by unknown agents.\nAssets lost:"          
 NewFailedToInciteUprise:
  Id: 6257
  ENG: "Our agents have failed setting up an uprise on their colonies."       
@@ -15217,7 +15217,7 @@ ArrangeUprise:
  ENG: "Arrange Uprise"            
 ArrangeUpriseTip:
  Id: 6266
- ENG: "Send some Agents to arrange an uprise in one of the smaller population worlds. If successful, rebels will try to take the planet."             
+ ENG: "Send some Agents to arrange an uprise in one of their worlds, potentially destroying production, food and/or key buildings."             
 CounterEspioangeOpsFailed:
  Id: 6267
  ENG: "Our Counter Espionage effort against them did not\nyield any result this time."             
@@ -15439,7 +15439,7 @@ InfiltrationLevel5Desc:
  ENG: "Diplomacy Screen view of the number of Moles they have planted in our Colonies."              
 MessageInfiltrationLevelIncrease:
  Id: 6340
- ENG: "We have infiltrated into their empire.\nOur Infiltration Level is now"               
+ ENG: "We have infiltrated their empire.\nOur Infiltration Level is now"             
 EspionageLimitLevel:
  Id: 6341
  ENG: "Limit Level"                
@@ -15451,7 +15451,13 @@ DisableCrashSiteAlerts:
  ENG: "Disable Ship Crash Alerts"                 
 DisableCrashSiteAlertsTip:
  Id: 6344
- ENG: "Disable all ship crash on planet alreats. Recovered ship crash site notifications will be sent only if an actual ship was recovered."                  
+ ENG: "Disable all ship crash on planet alrets. Recovered ship crash site notifications will be sent only if an actual ship was recovered."                  
+UpriseAssetsTheyLost: 
+ Id: 6345
+ ENG: "Assets they lost:"                  
+UpriseAllMilitaryBuildings: 
+ Id: 6346
+ ENG: "All Military Buildings."                   
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

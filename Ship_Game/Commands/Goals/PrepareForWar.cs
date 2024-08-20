@@ -98,11 +98,17 @@ namespace Ship_Game.Commands.Goals
 
             if (!Owner.IsPreparingForWarWith(TargetEmpire))
             {
+                if (Owner.IsAtWarWith(TargetEmpire))
+                {
+                    Owner.AI.AddGoal(new WarMission(Owner, TargetEmpire, TargetPlanet, task, 2));
+                    return GoalStep.GoalComplete;
+                }
+
                 task.EndTask();
                 return GoalStep.GoalFailed;
             }
 
-            if (task.Fleet?.TaskStep == 3)
+            if (task.Fleet?.TaskStep >= 100)
             {
                 if (!Owner.TryGetPrepareForWarType(TargetEmpire, out WarType warType)
                     || !Owner.GetPotentialTargetPlanets(TargetEmpire, warType, out _))
@@ -113,13 +119,8 @@ namespace Ship_Game.Commands.Goals
                 }
 
                 Owner.AI.DeclareWarOn(TargetEmpire, warType);
-                Owner.AI.AddGoal(new WarMission(Owner, TargetEmpire, TargetPlanet, task));
-                return GoalStep.GoalComplete;
-            }
-
-            if (Owner.IsAtWarWith(TargetEmpire))
-            {
-                task.EndTask();
+                int initialStrikeFleetTaskStep = task.Fleet.TaskStep == 100 ? 2 : 6;
+                Owner.AI.AddGoal(new WarMission(Owner, TargetEmpire, TargetPlanet, task, initialStrikeFleetTaskStep));
                 return GoalStep.GoalComplete;
             }
 

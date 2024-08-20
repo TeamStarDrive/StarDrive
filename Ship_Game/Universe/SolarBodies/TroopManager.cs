@@ -40,7 +40,7 @@ namespace Ship_Game
         public int NumTroopsCanMoveFor(Empire empire) => GetTroopsOf(empire).Count(t => t.CanMove);
 
         float DecisionTimer;
-        float InCombatTimer;
+        [StarData]  float InCombatTimer;
         int NumInvadersLast;
         bool Init = true; // Force initial timers update in case of combat when the class is created
 
