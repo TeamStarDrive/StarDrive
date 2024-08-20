@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 
@@ -30,18 +31,18 @@ namespace Ship_Game
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? (int)(SuccessTargetNumber * 0.75f) : SuccessTargetNumber);
             InfiltrationOpsResolve aftermath = new InfiltrationOpsResolve(Owner, Them, result);
             Espionage espionage = Owner.GetEspionage(Them);
-            var potentials      = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
-            Planet targetPlanet = Them.Random.Item(potentials);
-            int numRebels       = 3 + targetPlanet.GetDefendingTroopCount()/2 + targetPlanet.NumMilitaryBuildings/2;
-
+            int planetsToTake = 20;
+            int damageDieBonus = 0;
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    numRebels += 4;
+                    planetsToTake = 5;
+                    damageDieBonus = 4;
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    numRebels += 2;
-                    break;
+                    planetsToTake = 10;
+                    damageDieBonus = 2;
+                    break; 
                 case InfiltrationOpsResult.Success:
                     break;
                 case InfiltrationOpsResult.Fail:
@@ -72,12 +73,67 @@ namespace Ship_Game
 
             if (aftermath.GoodResult)
             {
-                aftermath.MessageToVictim = $"{Localizer.Token(GameText.IncitedUpriseOn)} {targetPlanet.Name}";
-                aftermath.CustomMessage = $"{Localizer.Token(GameText.WeIncitedUprise)} {targetPlanet.Name} {Localizer.Token(GameText.NtheAgentWasNotDetected)}";
-                Them.AddRebellion(targetPlanet, numRebels);
+
+                Planet[] potentials = potentials = Them.GetPlanets().SortedDescending(p => p.ProdHere + p.FoodHere).TakeItems(planetsToTake);
+                Planet targetPlanet = Them.Random.Item(potentials);
+                UpriseBuildingType typeToDestroy = UpriseBuildingType.None;
+                bool removeProd = true;
+                bool removeFood = false;
+                float fertilityReduction = 1f;
+                int damageResult = Owner.Random.RollDie(4) + damageDieBonus;
+
+                if (damageResult >= 2) typeToDestroy = UpriseBuildingType.Random;
+                if (damageResult >= 3) typeToDestroy = UpriseBuildingType.Storage;
+                if (damageResult >= 4) fertilityReduction = 0.75f;
+                if (damageResult >= 5) removeFood = true;
+                if (damageResult >= 6) typeToDestroy = UpriseBuildingType.HighestPrice;
+                if (damageResult >= 7) typeToDestroy = UpriseBuildingType.AllMilitary;
+                if (damageResult >= 8) fertilityReduction = 0.5f;
+
+                targetPlanet.DestroyBuildingInUprise(typeToDestroy, out string buildingDestroyed);
+
+                string assetsLost = "";
+                if (removeProd && targetPlanet.ProdHere > 1)
+                {
+                    assetsLost += $"{targetPlanet.ProdHere} {Localizer.Token(GameText.Production)}.";
+                    targetPlanet.ProdHere = 0;
+                }
+
+                if (removeFood && Them.NonCybernetic && targetPlanet.FoodHere > 1)
+                {
+                    assetsLost += $"{targetPlanet.FoodHere} {Localizer.Token(GameText.Food)}.";
+                    targetPlanet.FoodHere = 0;
+                }
+
+                if (buildingDestroyed.NotEmpty())
+                {
+                    assetsLost += $"\n{buildingDestroyed}.";
+                }
+
+                if (targetPlanet.Fertility > 0 && fertilityReduction.NotEqual(1f))
+                {
+                    float fertilityLost = targetPlanet.Fertility * fertilityReduction;
+                    assetsLost += $"{(fertilityLost).String(2)} {Localizer.Token(GameText.Fertility)}.";
+                    targetPlanet.AddBaseFertility(-fertilityLost);
+                }
+
+                aftermath.MessageToVictim = $"{targetPlanet.Name}: {Localizer.Token(GameText.IncitedUpriseOn)} {assetsLost}";
+                aftermath.CustomMessage = $"{Localizer.Token(GameText.WeIncitedUprise)} {targetPlanet.Name} " +
+                    $"{Localizer.Token(GameText.NtheAgentWasNotDetected)}\n " +
+                    $"{Localizer.Token(GameText.UpriseAssetsTheyLost)} " +
+                    $"{assetsLost}";
             }
 
             aftermath.SendNotifications(Owner.Universe);
         }
+    }
+
+    public enum UpriseBuildingType
+    {
+        HighestPrice,
+        Storage,
+        Random,
+        AllMilitary,
+        None, // skip destruction
     }
 }
