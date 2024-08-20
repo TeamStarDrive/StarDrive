@@ -32,6 +32,7 @@ namespace Ship_Game
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
+            UpdateBiospheresBeingBuilt();
             if (RecentCombat)
                 return; // Cant Build stuff when there is combat on the planet
 
@@ -105,6 +106,11 @@ namespace Ship_Game
             }
 
             BuildPlatformsAndStations(Budget);
+        }
+
+        void UpdateBiospheresBeingBuilt()
+        {
+            BiosphereInTheWorks = BuildingInQueue(Building.BiospheresId);
         }
 
         public float CivilianBuildingsMaintenance  => Money.Maintenance - GroundDefMaintenance;

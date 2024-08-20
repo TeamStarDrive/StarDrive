@@ -4,11 +4,13 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game;
 
 public partial class Planet
 {
+    [StarData] public bool BiosphereInTheWorks { get; private set; }
     Array<Building>GetBuildingsWeCanBuildHere()
     {
         Array<Building> canBuild = [];
@@ -73,7 +75,7 @@ public partial class Planet
     public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
     public bool OrbitalsInTheWorks       => ConstructionQueue.Any(b => b.isOrbital || b.ShipData?.IsShipyard == true);
     public int NumTroopsInTheWorks       => ConstructionQueue.Count(t => t.isTroop);
-    public bool BiosphereInTheWorks      => BuildingInQueue(Building.BiospheresId);
+
     public bool TerraformerInTheWorks    => BuildingInQueue(Building.TerraformerId);
     public bool BuildingBuilt(int bid)   => HasBuilding(existing => existing.BID == bid);
     public bool BuildingInQueue(int bid) => ConstructionQueue.Any(q => q.isBuilding && q.Building.BID == bid);

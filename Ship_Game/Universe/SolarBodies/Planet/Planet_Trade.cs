@@ -155,7 +155,7 @@ namespace Ship_Game
 
         int GetColonistsExportSlots()
         {
-            if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
+            if (TradeBlocked || ColonistsTradeState() != GoodState.EXPORT)
                 return 0;
 
             if (ManualColoExportSlots > 0 && Owner == Universe.Player)
@@ -222,13 +222,14 @@ namespace Ship_Game
 
         int GetColonistsImportSlots()
         {
-            if (TradeBlocked || ColonistsTradeState != GoodState.IMPORT)
+            if (TradeBlocked || ColonistsTradeState() != GoodState.IMPORT)
                 return 0;
 
             if (ManualColoImportSlots > 0 && Owner == Universe.Player)
                 return ManualColoImportSlots;
 
-            float slots = 2 / PopulationRatio.LowerBound(0.2f);
+            float popRatio = PopulationRatio.LowerBound(0.2f);
+            float slots = popRatio > 0.95 ? 1 : 2 / popRatio;
             return (int)slots.Clamped(1, 5);
         }
 
