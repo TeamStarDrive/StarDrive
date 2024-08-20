@@ -73,7 +73,6 @@ namespace Ship_Game
 
             if (aftermath.GoodResult)
             {
-
                 Planet[] potentials = potentials = Them.GetPlanets().SortedDescending(p => p.ProdHere + p.FoodHere).TakeItems(planetsToTake);
                 Planet targetPlanet = Them.Random.Item(potentials);
                 UpriseBuildingType typeToDestroy = UpriseBuildingType.None;
@@ -95,25 +94,25 @@ namespace Ship_Game
                 string assetsLost = "";
                 if (removeProd && targetPlanet.ProdHere > 1)
                 {
-                    assetsLost += $"{targetPlanet.ProdHere} {Localizer.Token(GameText.Production)}.";
+                    assetsLost += $"{targetPlanet.ProdHere.String(0)} {Localizer.Token(GameText.Production)}. ";
                     targetPlanet.ProdHere = 0;
                 }
 
                 if (removeFood && Them.NonCybernetic && targetPlanet.FoodHere > 1)
                 {
-                    assetsLost += $"{targetPlanet.FoodHere} {Localizer.Token(GameText.Food)}.";
+                    assetsLost += $"{targetPlanet.FoodHere.String(0)} {Localizer.Token(GameText.Food)}. ";
                     targetPlanet.FoodHere = 0;
                 }
 
                 if (buildingDestroyed.NotEmpty())
                 {
-                    assetsLost += $"\n{buildingDestroyed}.";
+                    assetsLost += $"{buildingDestroyed}. ";
                 }
 
                 if (targetPlanet.Fertility > 0 && fertilityReduction.NotEqual(1f))
                 {
                     float fertilityLost = targetPlanet.Fertility * fertilityReduction;
-                    assetsLost += $"{(fertilityLost).String(2)} {Localizer.Token(GameText.Fertility)}.";
+                    assetsLost += $"{(fertilityLost).String(2)} {Localizer.Token(GameText.Fertility)}. ";
                     targetPlanet.AddBaseFertility(-fertilityLost);
                 }
 

@@ -15456,8 +15456,8 @@ UpriseAssetsTheyLost:
  Id: 6345
  ENG: "Assets they lost:"                  
 UpriseAllMilitaryBuildings: 
- Id: 6345
- ENG: "All Military Buildings"                   
+ Id: 6346
+ ENG: "All Military Buildings."                   
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

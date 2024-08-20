@@ -271,10 +271,10 @@ namespace Ship_Game
             switch (type) 
             {
                 case UpriseBuildingType.HighestPrice: 
-                    potentialBuildings = BuildingList.SortedDescending(b => b.Cost).Take(5).ToArray();
+                    potentialBuildings = potentialBuildings.SortedDescending(b => b.Cost).Take(5).ToArray();
                     break;
                 case UpriseBuildingType.Storage:      
-                    potentialBuildings = BuildingList.SortedDescending(b => b.StorageAdded).Take(5).ToArray();
+                    potentialBuildings = potentialBuildings.SortedDescending(b => b.StorageAdded).Take(5).ToArray();
                     break;
                 case UpriseBuildingType.AllMilitary: 
                     for (int i = BuildingList.Count - 1; i >= 0; i--)
