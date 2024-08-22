@@ -256,7 +256,7 @@ namespace Ship_Game
             // 3 - 300
             // 4 - 600
             // 5 - 1200
-            return level == 0 ? 0 : (int)(75 * Math.Pow(2, level-1) * Owner.Universe.SettingsResearchModifier * Owner.Universe.P.Pace);
+            return level == 0 ? 0 : (int)(75 * Math.Pow(2, level-1) * Owner.Universe.SettingsResearchModifier.LowerBound(0.25f) * Owner.Universe.P.Pace);
         }
 
         public void AddLeechedMoney(float money)

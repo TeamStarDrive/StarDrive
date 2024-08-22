@@ -5,6 +5,7 @@ using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
+using Ship_Game.Ships.Components;
 using static Ship_Game.AI.ShipAI;
 using Vector2 = SDGraphics.Vector2;
 
@@ -212,8 +213,16 @@ namespace Ship_Game.AI
             Target = toIntercept;
         }
 
-        public void OrderLandAllTroops(Planet target, bool clearOrders)
+        public bool OrderLandAllTroops(Planet target, bool clearOrders, Vector2 cursorPos = default)
         {
+            Empire us = Owner.Loyalty;
+            if (us.InvasionBlockedNotEnoughWarmup(target.Owner))
+            {
+                if (cursorPos != default)
+                    ToolTip.CreateFloatingText(GameText.InvasionblockedWarmup, "", cursorPos, 3);
+                return false;
+            }
+
             if (clearOrders)
                 ResetPriorityOrderWithClear();
 
@@ -223,6 +232,8 @@ namespace Ship_Game.AI
                 // This deals also with single Troop Ships / Assault Shuttles
                 AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet);
             }
+
+            return true;
         }
 
         public void OrderMoveTo(Vector2 position, Vector2 finalDir, MoveOrder order = MoveOrder.Regular)

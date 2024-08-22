@@ -285,7 +285,7 @@ namespace Ship_Game
                 case UpriseBuildingType.AllMilitary: 
                     for (int i = BuildingList.Count - 1; i >= 0; i--)
                     {
-                        Building b = potentialBuildings[i];
+                        Building b = BuildingList[i];
                         if (b.Scrappable && b.IsMilitary)
                         {
                             DestroyBuilding(b);

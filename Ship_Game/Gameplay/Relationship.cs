@@ -230,8 +230,8 @@ namespace Ship_Game.Gameplay
 
         public float GetTurnsForFederationWithPlayer(Empire us) => TurnsAbove95Federation(us);
 
-        int TurnsAbove95Federation(Empire us) => (int)(us.PersonalityModifiers.TurnsAbove95FederationNeeded 
-                                                 * (int)(us.Universe.P.GalaxySize + 1) * us.Universe.P.Pace);
+        int TurnsAbove95Federation(Empire us) => ((int)(us.PersonalityModifiers.TurnsAbove95FederationNeeded 
+                                                 * (int)(us.Universe.P.GalaxySize + 1) * us.Universe.P.Pace * 0.5f)).LowerBound(1);
         
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
@@ -938,7 +938,7 @@ namespace Ship_Game.Gameplay
 
             turnsSinceLastContact = 0; // Try again after 100 turns * Pace
             if ((Trust >= 120 && us.TotalPopBillion < them.TotalPopBillion
-                || Trust >= 100 && us.TotalPopBillion < them.TotalPopBillion / 3)
+                || Trust >= 100 && us.TotalPopBillion < them.TotalPopBillion / 2)
                 && Is3RdPartyBiggerThenUs(us, them))
             {
                 us.Universe.Notifications.AddPeacefulMergerNotification(us, them);
@@ -955,7 +955,7 @@ namespace Ship_Game.Gameplay
                 if (e == us || e == them)
                     continue;
 
-                float ratio = us.IsAtWarWith(e) && averageWarsGrade < 2.5f ? popRatioWar : 10f;
+                float ratio = us.IsAtWarWith(e) && averageWarsGrade < 2.5f ? popRatioWar : 5;
                 if (e.TotalPopBillion / us.TotalPopBillion > ratio) // 3rd party is a potential risk
                     return true;
             }

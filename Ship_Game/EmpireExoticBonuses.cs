@@ -72,12 +72,6 @@ namespace Ship_Game
                 default: break;
             }
 
-            if (float.IsNaN(consumption)) // FB: remove by Feb 24 - i think i solved it
-            {
-                Log.Error($"consumption was nan for {Owner.Name}, {Good.ExoticBonusType}!");
-                return;
-            }
-
             Consumption = consumption * Good.ConsumptionMultiplier;
         }
 

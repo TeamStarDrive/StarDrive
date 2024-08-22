@@ -115,10 +115,10 @@ public class FleetButton : UIPanel
             Ship ship = fleet.Ships[i];
             RectF iconHousing = new(shipSpacingH.X, shipSpacingH.Y, 15, 15);
             shipSpacingH.X += 18f;
-            if (shipSpacingH.X > 237) // 10 Ships per row
+            if (shipSpacingH.X >= x + 180) // 10 Ships per row
             {
                 shipSpacingH.X  = x;
-                shipSpacingH.Y += 18f;
+                shipSpacingH.Y += 16f;
             }
 
             Color statColor = ship.GetStatusColor();
