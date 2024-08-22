@@ -84,7 +84,7 @@ namespace Ship_Game.Commands.Goals
 
                 empireAi.AddPendingTask(Task);
             }
-            else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System) && Owner.Universe.P.Difficulty > GameDifficulty.Normal)
+            else if (Owner.Universe.P.Difficulty > GameDifficulty.Normal && !Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System))
             {
                 // This task is independent and not related to this goal Task var
                 Owner.AI.AddPendingTask(MilitaryTask.CreateGuardTask(Owner, TargetPlanet));
