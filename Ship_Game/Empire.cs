@@ -1563,6 +1563,15 @@ namespace Ship_Game
             return troopShip != null;
         }
 
+        public bool InvasionBlockedNotEnoughWarmup(Empire target)
+        {
+            if (!isPlayer || target == null || target == this) 
+                return false;
+
+            Relationship relations = GetRelations(target);
+            return relations.AtWar && relations.TurnsAtWar < 10; 
+        }
+
         public int GetSpyDefense()
         {
             if (NewEspionageEnabled)

@@ -104,7 +104,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.6f;
                     DistanceToDefendAllyThreshold   = 0.8f;
                     SpyDamageRelationsMultiplier = 1;
-                    TurnsAbove95FederationNeeded = 350;
+                    TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 300;
                     AllianceValueAlliedWithEnemy = 0.4f;
                     WantedAgentMissionMultiplier = 0.115f;
@@ -119,7 +119,7 @@ namespace Ship_Game
                     WantedMoleCovreage    = 0.25f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.15f;
-                    FederationPopRatioWar = 3.5f;
+                    FederationPopRatioWar = 2.5f;
                     PopRatioBeforeMerge   = 0.15f;
                     DoomFleetThreshold    = 1.5f;
                     AssaultBomberRatio    = 0.75f;
@@ -147,7 +147,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.8f;
                     DistanceToDefendAllyThreshold   = 0.6f;
                     SpyDamageRelationsMultiplier = 1.25f;
-                    TurnsAbove95FederationNeeded = 420;
+                    TurnsAbove95FederationNeeded = 320;
                     TurnsAbove95AllianceTreshold = 250;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.115f;
@@ -162,7 +162,7 @@ namespace Ship_Game
                     WantedMoleCovreage    = 0.2f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1.1f;
-                    FederationPopRatioWar = 3.2f;
+                    FederationPopRatioWar = 2.2f;
                     PopRatioBeforeMerge   = 0.125f;
                     DoomFleetThreshold    = 1f;
                     AssaultBomberRatio    = 1;
@@ -190,7 +190,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.5f;
                     DistanceToDefendAllyThreshold   = 0.7f;
                     SpyDamageRelationsMultiplier = 2.5f;
-                    TurnsAbove95FederationNeeded = 600;
+                    TurnsAbove95FederationNeeded = 400;
                     TurnsAbove95AllianceTreshold = 200;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.13f;
@@ -205,7 +205,7 @@ namespace Ship_Game
                     WantedMoleCovreage    = 0.15f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.05f;
-                    FederationPopRatioWar = 4f;
+                    FederationPopRatioWar = 3f;
                     PopRatioBeforeMerge   = 0.03f;
                     DoomFleetThreshold    = 1.75f;
                     AllyCallToWarRatio    = 1.1f;
@@ -235,7 +235,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.7f;
                     DistanceToDefendAllyThreshold   = 0.9f;
                     SpyDamageRelationsMultiplier = 0.5f;
-                    TurnsAbove95FederationNeeded = 320;
+                    TurnsAbove95FederationNeeded = 220;
                     TurnsAbove95AllianceTreshold = 150;
                     AllianceValueAlliedWithEnemy = 0.6f;
                     WantedAgentMissionMultiplier = 0.13f;
@@ -250,7 +250,7 @@ namespace Ship_Game
                     WantedMoleCovreage    = 0.5f;
                     DefenseTaskWeight     = 1.3f;
                     FleetStrMultiplier    = 0.95f;
-                    FederationPopRatioWar = 3f;
+                    FederationPopRatioWar = 2f;
                     PopRatioBeforeMerge   = 0.2f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.8f;
@@ -278,7 +278,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.5f;
                     DistanceToDefendAllyThreshold   = 1.25f;
                     SpyDamageRelationsMultiplier = 2f;
-                    TurnsAbove95FederationNeeded = 250;
+                    TurnsAbove95FederationNeeded = 200;
                     TurnsAbove95AllianceTreshold = 125;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.1f;
@@ -293,7 +293,7 @@ namespace Ship_Game
                     WantedMoleCovreage    = 0.15f;
                     DefenseTaskWeight     = 1.5f;
                     FleetStrMultiplier    = 1f;
-                    FederationPopRatioWar = 2.5f;
+                    FederationPopRatioWar = 1.5f;
                     PopRatioBeforeMerge   = 0.15f;
                     HullTechMultiplier    = 0.9f;
                     DoomFleetThreshold    = 2.5f;
@@ -321,7 +321,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.4f;
                     DistanceToDefendAllyThreshold   = 1.4f;
                     SpyDamageRelationsMultiplier = 1.5f;
-                    TurnsAbove95FederationNeeded = 300;
+                    TurnsAbove95FederationNeeded = 200;
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.8f;
                     WantedAgentMissionMultiplier = 0.1f;
@@ -336,7 +336,7 @@ namespace Ship_Game
                     WantedMoleCovreage    = 0.25f;
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 0.9f;
-                    FederationPopRatioWar = 2f;
+                    FederationPopRatioWar = 1.2f;
                     PopRatioBeforeMerge   = 0.2f;
                     HullTechMultiplier    = 1f;
                     DoomFleetThreshold    = 3;

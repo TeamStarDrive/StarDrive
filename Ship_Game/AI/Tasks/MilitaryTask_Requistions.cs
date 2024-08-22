@@ -403,7 +403,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.DefendClaim:          return "Scout Fleet";
                 case TaskType.ClearAreaOfEnemies:   return "Defensive Fleet";
                 case TaskType.InhibitorInvestigate: return "Investigation Fleet";
-                case TaskType.StageFleet when TargetEmpire.isPlayer && Owner.Universe.P.Difficulty > GameDifficulty.Normal: return "Defensive Fleet";
+                case TaskType.StageFleet when TargetEmpire.isPlayer && Owner.Universe.P.Difficulty > GameDifficulty.Normal: return "Investigation Fleet";
                 case TaskType.StageFleet:           return "Stage Fleet";
             }
         }

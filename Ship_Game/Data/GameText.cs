@@ -5585,7 +5585,8 @@ namespace Ship_Game
         UpriseAssetsTheyLost = 6345,
         /// <summary>All Military Buildings</summary>
         UpriseAllMilitaryBuildings = 6346,
-
+        /// <summary>Not enough time passed since war started</summary>
+        InvasionblockedWarmup = 6347,
 
 
 

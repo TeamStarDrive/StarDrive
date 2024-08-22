@@ -405,6 +405,11 @@ namespace Ship_Game
 
         void OnLandAllClicked(UIButton b)
         {
+            if (Player.InvasionBlockedNotEnoughWarmup(P.Owner))
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
             bool instantLand = P.WeCanLandTroopsViaSpacePort(Player);
             if (instantLand)
                 GameAudio.TroopLand();
@@ -424,7 +429,7 @@ namespace Ship_Game
                     && troopShip.AI.State != AI.AIState.RebaseToShip
                     && troopShip.AI.State != AI.AIState.AssaultPlanet)
                 {
-                    troopShip.AI.OrderLandAllTroops(P, clearOrders:true);
+                    troopShip.AI.OrderLandAllTroops(P, clearOrders: true, Input.CursorPosition);
                 }
             }
             OrbitSL.Reset();
@@ -539,13 +544,13 @@ namespace Ship_Game
         {
             Ship ship = item.Troop.HostShip;
             if (ship != null && ship.Carrier.TryScrambleSingleAssaultShuttle(item.Troop, out Ship shuttle))
-                shuttle.AI.OrderLandAllTroops(P, clearOrders:true);
+                shuttle.AI.OrderLandAllTroops(P, clearOrders: true, Input.CursorPosition);
         }
 
         void TryLandTroop(CombatScreenOrbitListItem item,
                           PlanetGridSquare where = null)
         {
-            if (item.Troop.TryLandTroop(P, where))
+            if (!Player.InvasionBlockedNotEnoughWarmup(P.Owner) && item.Troop.TryLandTroop(P, where))
             {
                 GameAudio.TroopLand();
                 OrbitSL.Remove(item);

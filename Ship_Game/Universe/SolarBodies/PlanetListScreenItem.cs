@@ -358,14 +358,23 @@ namespace Ship_Game
         {
             if (Player.GetTroopShipForRebase(out Ship troopShip, Planet.Position, Planet.Name))
             {
+                if (Player.InvasionBlockedNotEnoughWarmup(Planet.Owner))
+                {
+                    ToolTip.CreateFloatingText(GameText.InvasionblockedWarmup, "", Screen.Input.CursorPosition, 3);
+                    GameAudio.NegativeClick();
+                    return;
+                }
+
                 GameAudio.EchoAffirmative();
-                troopShip.AI.OrderLandAllTroops(Planet, clearOrders:true);
+                troopShip.AI.OrderLandAllTroops(Planet, clearOrders: true);
                 Screen.RefreshSendTroopButtonsVisibility();
                 Player.Universe.Objects.UpdateLists();
                 UpdateButtonSendTroops();
             }
             else
+            {
                 GameAudio.NegativeClick();
+            }
         }
 
         void OnSendTroopsRightClick() // cancel one incoming troop

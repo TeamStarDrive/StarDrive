@@ -501,14 +501,23 @@ namespace Ship_Game
             {
                 if (Player.GetTroopShipForRebase(out Ship troopShip, P.Position, P.Name))
                 {
-                    GameAudio.EchoAffirmative();
-                    troopShip.AI.OrderLandAllTroops(P, clearOrders:true);
-                    if (Player.Universe.Paused) 
-                        Player.Universe.Objects.UpdateLists();
+                    if (!troopShip.AI.OrderLandAllTroops(P, clearOrders: true, input.CursorPosition))
+                    {
+                        GameAudio.NegativeClick();
+                    }
+                    else
+                    {
+                        GameAudio.EchoAffirmative();
+                        if (Player.Universe.Paused)
+                            Player.Universe.Objects.UpdateLists();
+                    }
                 }
                 else
+                {
                     GameAudio.BlipClick();
+                }
             }
+
             if (P.IsResearchable && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);

@@ -120,7 +120,7 @@ namespace Ship_Game.Universe
                 if (planet.Owner == null || ship.Loyalty.IsAtWarWith(planet.Owner))
                 {
                     // Land troops on unclaimed planets or enemy planets
-                    ship.AI.OrderLandAllTroops(planet, clearOrders);
+                    ship.AI.OrderLandAllTroops(planet, clearOrders, Input.CursorPosition);
                 }
             }
             else

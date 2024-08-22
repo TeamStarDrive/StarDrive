@@ -549,12 +549,13 @@ namespace Ship_Game
 
         float BuildingCombatStrength(Building b)
         {
-            float strength = 0;
-            if (b?.IsAttackable == true)
-            {
+            if (b == null)
+                return 0;
+
+            float strength = b.InvadeInjurePoints * Ground.TileArea / 2f;
+            if (b.IsAttackable)
                 strength += b.CombatStrength;
-                strength += b.InvadeInjurePoints * Ground.TileArea/2f;
-            }
+
             return strength;
         }
 
