@@ -1,11 +1,7 @@
 ﻿using Ship_Game.Gameplay;
-using System.IO;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.GameScreens.Espionage;
 using Ship_Game.Data.Serialization;
-using System.Collections.Generic;
-using System.Reflection;
 using System;
 
 
@@ -51,16 +47,16 @@ namespace Ship_Game.AI
         void SetupDefenseWeight()
         {
             int numWars = Owner.AtWarCount;
-            int numAllies = Owner.Universe.ActiveMajorEmpires.Filter(e => e != Owner && e.IsAlliedWith(Owner)).Length;
-            int total = numWars + numAllies;
-            int weight = (total * 10).Clamped(10, Empire.MaxEspionageDefenseWeight);
+            int numAllies = Owner.Universe.GetAllies(Owner).Count;
+            int total = numWars + numAllies + (Owner.IsAtWarWith(Owner.Universe.Player) ? 20 : 0);
+            int weight = (total * 10).LowerBound(10);
             Owner.SetEspionageDefenseWeight(weight);    
         }
 
-        void SetupInfiltrationWeights(Relationship relations, Espionage espionage, Empire them)
+        void SetupInfiltrationWeights(Relationship relations, Espionage espionage)
         {
             if (relations.AtWar || relations.PreparingForWar) espionage.SetWeight(10);
-            else if (relations.Treaty_Alliance)               espionage.SetWeight(3);
+            else if (relations.Treaty_Alliance)               espionage.SetWeight(2);
             else if (relations.TotalAnger > 50)               espionage.SetWeight(7);
             else                                              espionage.SetWeight(5);
         }
@@ -82,7 +78,7 @@ namespace Ship_Game.AI
                 Espionage espionage = relations.Espionage;
                 if (relations.Known)
                 {
-                    SetupInfiltrationWeights(relations, espionage, empire);
+                    SetupInfiltrationWeights(relations, espionage);
                     if (espionage.Level > 0)
                     {
                         SetEspionageLimitLevel(relations, espionage);

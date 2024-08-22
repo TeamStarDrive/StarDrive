@@ -84,7 +84,7 @@ namespace Ship_Game.Commands.Goals
 
                 empireAi.AddPendingTask(Task);
             }
-            else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System))
+            else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System) && Owner.Universe.P.Difficulty > GameDifficulty.Normal)
             {
                 // This task is independent and not related to this goal Task var
                 Owner.AI.AddPendingTask(MilitaryTask.CreateGuardTask(Owner, TargetPlanet));
@@ -283,8 +283,11 @@ namespace Ship_Game.Commands.Goals
 
         bool PlanetCanBeColonized()
         {
-            if (!Owner.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.System, Owner))
+            if (!Owner.isPlayer && (PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.System, Owner)
+                                   || TargetPlanet.Owner?.ParentEmpire != null && !Owner.IsAtWarWith(TargetPlanet.Owner.ParentEmpire)))
+            {
                 return false;
+            }
 
             if (CheckNewOwnersInSystem
                 && TargetPlanet.System.OwnerList.Count > 0

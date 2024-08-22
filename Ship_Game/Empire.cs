@@ -202,7 +202,9 @@ namespace Ship_Game
         public bool IsMilitarists                => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists              => data.EconomicPersonality?.Name == "Technologists";
         public float HomeDefenseShipCostMultiplier => DifficultyModifiers.CreditsMultiplier;
+        public bool Rebels => data.IsRebelFaction;
 
+        [StarData] public Empire ParentEmpire { get; private set; }
         public float MoneySpendOnProductionThisTurn { get; private set; }
         public float MoneySpendOnProductionNow { get; private set; }
 
@@ -281,6 +283,7 @@ namespace Ship_Game
 
             Initialize();
             UpdatePopulation();
+            ParentEmpire = parentEmpire;
         }
 
         [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData), typeof(UniverseParams), typeof(Planet))]
@@ -614,11 +617,24 @@ namespace Ship_Game
             OwnedSolarSystems.Clear();
         }
 
+        public void HandleRebelPlanetTaken(Empire planetTaker)
+        {
+            if (this != planetTaker
+                && !IsDefeated
+                && !IsAtWarWith(planetTaker))
+            {
+                if (IsAlliedWith(planetTaker))
+                    BreakAllianceWith(planetTaker);
+
+                AI.DeclareWarOn(planetTaker, WarType.BorderConflict);
+            }
+        }
+
         public void AddPlanet(Planet planet, Empire loser)
         {
             GetRelations(loser).WonAColony(planet, loser);
             AddPlanet(planet);
-            // UpdateWarRallyPlanetsWonPlanet(planet, loser);
+            loser.ParentEmpire?.HandleRebelPlanetTaken(this);
         }
 
         public void AddPlanet(Planet planet)

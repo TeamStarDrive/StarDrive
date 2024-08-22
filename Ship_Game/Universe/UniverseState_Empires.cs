@@ -356,8 +356,6 @@ public partial class UniverseState
 
         DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
         data.DiplomaticPersonality = parent.Random.Item(dt.DiplomaticTraitsList);
-        data.DiplomaticPersonality = parent.Random.Item(dt.DiplomaticTraitsList);
-        data.EconomicPersonality   = parent.Random.Item(dt.EconomicTraitsList);
         data.EconomicPersonality   = parent.Random.Item(dt.EconomicTraitsList);
         data.SpyModifier = data.Traits.SpyMultiplier;
         data.IsRebelFaction  = true;

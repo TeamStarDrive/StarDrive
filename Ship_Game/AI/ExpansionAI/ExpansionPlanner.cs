@@ -203,7 +203,12 @@ namespace Ship_Game.AI.ExpansionAI
 
         bool CanBeColonized(Planet p)
         {
-            return p.IsExploredBy(Owner) && p.Habitable && (p.Owner == null || p.Owner.IsFaction);
+            return p.IsExploredBy(Owner) 
+                   && p.Habitable 
+                   && (p.Owner == null 
+                       || p.Owner.IsFaction && (p.Owner.ParentEmpire == null
+                                                || p.Owner.ParentEmpire == Owner
+                                                || Owner.IsAtWarWith(p.Owner.ParentEmpire)));
         }
 
         Array<Planet> GetPotentialPlanetsNonLocal(SolarSystem[] systems)
