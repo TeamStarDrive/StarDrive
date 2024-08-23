@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
         public bool HasOurTroops => OurTroops.NotEmpty;
 
         // TRUE if we have own troops or if we launched these troops on to operations
-        public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttles > 0;
+        public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttlesWithTroops > 0;
 
         public bool TroopsAreBoardingShip => HostileTroops.Count > 0;
         public int NumPlayerTroopsOnShip  => Loyalty.isPlayer ? OurTroops.Count : HostileTroops.Count;
@@ -224,9 +224,7 @@ namespace Ship_Game.Ships
                     Loyalty, Position, troop, LaunchPlan.Hangar);
 
                 assaultShip.Velocity = Velocity + Loyalty.Random.Direction2D() * assaultShip.MaxSTLSpeed;
-
                 Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
-
                 bool rebaseSucceeded = false;
                 if (friendlyTroopShipToRebase != null)
                     rebaseSucceeded = friendlyTroopShipToRebase.Carrier.RebaseAssaultShip(assaultShip);
@@ -241,7 +239,7 @@ namespace Ship_Game.Ships
 
         Ship FindClosestAllyToRebase(Ship ship)
         {
-            ship.AI.ScanForFriendlies(ship, ship.AI.GetSensorRadius());
+            ship.AI.ScanForFriendlies(ship, ship.SensorRange);
             return ship.AI.FriendliesNearby.FindMinFiltered(
                 troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace < troopShip.TroopCapacity &&
                              troopShip.Carrier.HasActiveTroopBays,
@@ -264,8 +262,8 @@ namespace Ship_Game.Ships
             TroopUpdateTimer = Universe.P.TurnTimer;
             if (OurTroops.Count > 0 && !Loyalty.WeArePirates)
             {
-                // leave a garrison of 1 if a ship without barracks was boarded
-                int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1);
+                // leave a garrison of 1 if a ship without barracks was boarded and not remnants
+                int troopThreshold = TroopCapacity + (TroopCapacity > 0 || Loyalty.WeAreRemnants ? 0 : 1);
                 if (!InCombat && HostileTroops.Count == 0 && OurTroops.Count > troopThreshold)
                 {
                     DisengageExcessTroops(OurTroops.Count - troopThreshold);
@@ -289,7 +287,7 @@ namespace Ship_Game.Ships
                 }
 
                 if (OurTroops.Count == 0 &&
-                    MechanicalBoardingDefense <= 0f &&
+                    CurrentMechanicalBoardingDefense <= 0f &&
                     HostileTroops.Count > 0) // enemy troops won:
                 {
                     LoyaltyChangeFromBoarding(HostileTroops[0].Loyalty);
@@ -331,12 +329,12 @@ namespace Ship_Game.Ships
             void TroopCombatDefenseTurn(float hostilesAvgLevel)
         {
 
-            if (OurTroops.Count == 0 && MechanicalBoardingDefense.AlmostEqual(0))
+            if (OurTroops.Count == 0 && CurrentMechanicalBoardingDefense.AlmostEqual(0))
                 return;
 
             float ourCombinedDefense      = 0f;
             float mechanicalDefenseChance = EMPDisabled ? 20 : 50; // 50% or 20% if EMPed
-            for (int i = 0; i < MechanicalBoardingDefense; ++i)
+            for (int i = 0; i < CurrentMechanicalBoardingDefense; ++i)
                 if (Loyalty.Random.RollDice(mechanicalDefenseChance - hostilesAvgLevel)) 
                     ourCombinedDefense += 1f;
 
@@ -369,9 +367,9 @@ namespace Ship_Game.Ships
             }
 
             // Deal with mechanical defense first
-            MechanicalBoardingDefense -= enemyAttackPower;
-            float remainingAttack      = MechanicalBoardingDefense < 0 ? Math.Abs(MechanicalBoardingDefense) : 0;
-            MechanicalBoardingDefense  = MechanicalBoardingDefense.LowerBound(0);
+            CurrentMechanicalBoardingDefense -= enemyAttackPower;
+            float remainingAttack            = CurrentMechanicalBoardingDefense < 0 ? Math.Abs(CurrentMechanicalBoardingDefense) : 0;
+            CurrentMechanicalBoardingDefense = CurrentMechanicalBoardingDefense.LowerBound(0);
 
             // spend rest of the attack strength to damage defending troops
             foreach (Troop goodGuy in OurTroops.ToArray()) // OurTroops will be modified

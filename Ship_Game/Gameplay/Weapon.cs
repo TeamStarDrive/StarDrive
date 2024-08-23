@@ -441,9 +441,9 @@ namespace Ship_Game.Gameplay
         public bool TargetValid(GameObject fireTarget)
         {
             if (fireTarget.Type == GameObjectType.ShipModule)
-                return TargetValid(((ShipModule)fireTarget).GetParent().ShipData.HullRole);
+                return ShipTargetValid(((ShipModule)fireTarget).GetParent());
             if (fireTarget.Type == GameObjectType.Ship)
-                return TargetValid(((Ship)fireTarget).ShipData.HullRole);
+                return ShipTargetValid((Ship)fireTarget);
             return true;
         }
 
@@ -672,9 +672,12 @@ namespace Ship_Game.Gameplay
             return damageModifier;
         }
 
-        public bool TargetValid(RoleName role)
+        public bool ShipTargetValid(Ship ship)
         {
-            switch (role)
+            if (ship.TroopsAreBoardingShip)
+                return false;
+
+            switch (ship.ShipData.HullRole)
             {
                 case RoleName.fighter    when ExcludesFighters:
                 case RoleName.scout      when ExcludesFighters:

@@ -86,6 +86,13 @@ public partial class Ship
             PerformRegeneration();
     }
 
+    void RepairMechanicalBoardingDefense()
+    {
+        if (!InCombat)
+            CurrentMechanicalBoardingDefense = (CurrentMechanicalBoardingDefense 
+                + (MechanicalBoardingDefense*0.02f).LowerBound(10)).UpperBound(MechanicalBoardingDefense);
+    }
+
     void PerformRegeneration()
     {
         if (!HasRegeneratingModules)
@@ -110,7 +117,7 @@ public partial class Ship
     /// <param name="repairAmount">How many HP-s to repair</param>
     /// <param name="repairInterval">This repair event interval in seconds, important for correct UI estimation</param>
     /// <param name="repairLevel">Level which improves repair decisions</param>
-    public void ApplyAllRepair(float repairAmount, float repairInterval, int repairLevel)
+    void ApplyAllRepair(float repairAmount, float repairInterval, int repairLevel)
     {
         if (HealthPercent >= 1)
         {

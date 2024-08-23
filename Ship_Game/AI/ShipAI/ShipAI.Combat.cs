@@ -394,7 +394,7 @@ namespace Ship_Game.AI
 
         float GetTargetPriority(Ship tgt)
         {
-            if (tgt.IsInWarp)
+            if (tgt.IsInWarp || tgt.TroopsAreBoardingShip)
                 return 0;
 
             // when selecting enemy targets, we should see how easy they are to kill
@@ -644,7 +644,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void ExitCombatState()
+        public void ExitCombatState()
         {
             if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
                 goal?.Plan == Plan.DoCombat)

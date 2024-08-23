@@ -68,7 +68,7 @@ namespace Ship_Game.AI
             return ship.Active
                    && !ship.Dying
                    && !ship.IsInWarp
-                   && Missile.Weapon.TargetValid(ship.ShipData.HullRole)
+                   && Missile.Weapon.ShipTargetValid(ship)
                    && Missile.Loyalty.IsEmpireAttackable(ship.Loyalty);
         }
 

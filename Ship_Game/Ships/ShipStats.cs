@@ -53,7 +53,6 @@ namespace Ship_Game.Ships
 
             float maxSensorBonus = 0f;
             int activeInternalSlots = 0;
-            bool inCombat = S.InCombat;
 
             S.ActiveInternalModuleSlots = 0;
             S.BonusEMPProtection     = 0f;
@@ -72,9 +71,7 @@ namespace Ship_Game.Ships
             S.TargetingAccuracy       = 0;
             S.ResearchPerTurn         = 0;
             S.TotalRefining           = 0;
-
-            if (!inCombat)
-                S.MechanicalBoardingDefense = 0;
+            S.MechanicalBoardingDefense = 0;
 
             for (int i = 0; i < modules.Length; i++)
             {
@@ -103,9 +100,7 @@ namespace Ship_Game.Ships
                     S.ECMValue = Math.Max(S.ECMValue, module.ECM).Clamped(0f, 1f);
                     S.ResearchPerTurn += module.ResearchPerTurn;
                     S.TotalRefining += module.Refining;
-
-                    if (!inCombat)
-                        S.MechanicalBoardingDefense += module.MechanicalBoardingDefense;
+                    S.MechanicalBoardingDefense += module.MechanicalBoardingDefense;
                 }
             }
             

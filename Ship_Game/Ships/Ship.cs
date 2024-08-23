@@ -56,7 +56,8 @@ namespace Ship_Game.Ships
         public float EMPDamage { get; private set; }
         [StarData] public float YRotation;
         public float MechanicalBoardingDefense;
-        public float TroopBoardingDefense;
+        [StarData] public float CurrentMechanicalBoardingDefense { get; private set; }
+        public float TroopBoardingDefense { get; private set; }
         public float ECMValue;
         [StarData] public IShipDesign ShipData;
         [StarData] public int Kills;
@@ -159,7 +160,7 @@ namespace Ship_Game.Ships
         public float ResearchPerTurn;
         public float TotalRefining;
 
-        public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
+        public float BoardingDefenseTotal => CurrentMechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;
         [StarData] public Planet HomePlanet { get; private set; }
@@ -455,10 +456,10 @@ namespace Ship_Game.Ships
                     first.DamageTroop(this, ref damage);
                 }
             }
-            else if (MechanicalBoardingDefense > 0f)
+            else if (CurrentMechanicalBoardingDefense > 0f)
             {
                 if (Loyalty.Random.RollDice(troopDamageChance*0.1f))
-                    MechanicalBoardingDefense -= 1f;
+                    CurrentMechanicalBoardingDefense -= 1f;
             }
         }
 
@@ -1285,6 +1286,9 @@ namespace Ship_Game.Ships
             // Ship Repair
             if (HealthPercent < 1)
                 Repair(timeSinceLastUpdate);
+
+            if (CurrentMechanicalBoardingDefense < MechanicalBoardingDefense)
+                RepairMechanicalBoardingDefense();
 
             UpdateResupply();
             UpdateTroops(timeSinceLastUpdate);

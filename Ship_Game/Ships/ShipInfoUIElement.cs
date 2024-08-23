@@ -159,7 +159,7 @@ namespace Ship_Game.Ships
             OBar.Draw(batch);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
             var defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            float totalBoardingDefense = s.MechanicalBoardingDefense + s.TroopBoardingDefense;
+            float totalBoardingDefense = s.CurrentMechanicalBoardingDefense + s.TroopBoardingDefense;
             batch.DrawString(Fonts.Arial12Bold, totalBoardingDefense.String(0), defPos, Color.White);
             batch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
             DrawTroopStatus(s);

@@ -319,6 +319,8 @@ namespace Ship_Game.Ships
         }
 
         public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
+
+        public bool ActiveAssultShipHasTroops => TryGetHangarShip(out Ship ship) && ship.Active && ship.TroopCount > 0;
         public bool TryGetHangarShipActive(out Ship ship) => TryGetHangarShip(out ship) && ship.Active;
 
         [StarDataConstructor]

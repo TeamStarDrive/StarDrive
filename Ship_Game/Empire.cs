@@ -2675,6 +2675,16 @@ namespace Ship_Game
             }
         }
 
+        public void ResetTargetsForShipsTargetingAfterBoarding(Ship thisShip)
+        {
+            var targetingShips = FindShipsAt(thisShip.Position, 100_000, s => s.InCombat);
+            for (int i = 0; i < targetingShips.Length; i++)
+            {
+                Ship ship = targetingShips[i];
+                ship.AI.ExitCombatState();
+            }
+        }
+
         public void ResetAllTechsAndBonuses()
         // FB - There is a bug here. Some tech bonuses are not reset after they are unlocked
         // For instance - pop growth is not reset

@@ -591,17 +591,17 @@ namespace Ship_Game.Ships
 
         void InitConstantsAfterUpdate(bool fromSave)
         {
+            MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
             if (!fromSave)
             {
                 PowerCurrent = PowerStoreMax;
                 InitShieldsPower(Stats.ShieldAmplifyPerShield);
+                CurrentMechanicalBoardingDefense = MechanicalBoardingDefense;
             }
 
             UpdateShields();
             if (ShipData.Role == RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
-
-            MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
         }
 
         void InitShieldsPower(float shieldAmplify)
