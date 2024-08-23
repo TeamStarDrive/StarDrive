@@ -22,7 +22,7 @@ namespace Ship_Game.AI
             HasPriorityTarget = true;
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
-            if (Owner.TroopCount < 1 || escortTarget == null || !escortTarget.Active || escortTarget.Loyalty == Owner.Loyalty)
+            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.Loyalty == Owner.Loyalty)
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -40,6 +40,7 @@ namespace Ship_Game.AI
             if (distance < escortTarget.Radius + 300f)
             {
                 Owner.TryLandSingleTroopOnShip(escortTarget);
+                Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(escortTarget);
                 OrderReturnToHangar();
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)

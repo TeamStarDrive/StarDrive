@@ -180,7 +180,7 @@ namespace Ship_Game.Ships
             AllTroopBays.Count(hangar => hangar.Active && hangar.HangarTimer <= 0 && !hangar.IsHangarShipActive);
 
         // this will return the number of assault shuttles in space
-        public int LaunchedAssaultShuttles => AllTroopBays.Count(hangar => hangar.IsHangarShipActive);
+        public int LaunchedAssaultShuttlesWithTroops => AllTroopBays.Count(hangar => hangar.ActiveAssultShipHasTroops);
 
         /// <summary>
         /// Are any of the supply shuttles launched
@@ -195,7 +195,7 @@ namespace Ship_Game.Ships
                 if (Owner == null)
                     return 0;
 
-                return Owner.TroopCount + LaunchedAssaultShuttles;
+                return Owner.TroopCount + LaunchedAssaultShuttlesWithTroops;
             }
         }
 
@@ -382,7 +382,7 @@ namespace Ship_Game.Ships
                 if (Owner == null)
                     return 0;
 
-                int troopsNotInTroopListCount = LaunchedAssaultShuttles;
+                int troopsNotInTroopListCount = LaunchedAssaultShuttlesWithTroops;
                 troopsNotInTroopListCount    += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
 
                 return Owner.TroopCapacity - (Owner.TroopCount + troopsNotInTroopListCount);

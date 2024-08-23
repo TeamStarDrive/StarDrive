@@ -102,6 +102,7 @@ namespace Ship_Game.Ships.Components
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
             SafelyTransferShip(ship, oldLoyalty, newLoyalty);
+            newLoyalty.ResetTargetsForShipsTargetingAfterBoarding(ship);
 
             if (notification)
             {

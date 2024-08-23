@@ -76,28 +76,6 @@ namespace Ship_Game.AI.CombatTactics
 
             return sendingTroops;
         }
-
-        /// <summary>
-        /// Expand later
-        /// </summary>
-        /// <returns></returns>
-        public bool TryInvadePlanet()
-        {
-            //This is the auto invade feature. FB: this should be expanded to check for building strength and compare troops in ship vs planet
-            if (Owner.SecondsAlive < 2)
-                return false; // Initial Delay in launching shuttles if spawned
-
-            if (Owner == null || !Owner.Carrier.AnyAssaultOpsAvailable || Owner.Loyalty.WeArePirates || Owner.TroopsAreBoardingShip)
-                return false;
-
-            Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
-                                owner => owner.Owner != null && owner.Owner != Owner.Loyalty && Owner.Loyalty.IsAtWarWith(owner.Owner),
-                                p => p.Troops.Count);
-            if (invadeThis != null)
-                Owner.Carrier.AssaultPlanet(invadeThis);
-            
-            return true;
-        }
     }
 }
 

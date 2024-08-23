@@ -53,6 +53,7 @@ namespace Ship_Game.Ships
 
             float maxSensorBonus = 0f;
             int activeInternalSlots = 0;
+
             S.ActiveInternalModuleSlots = 0;
             S.BonusEMPProtection     = 0f;
             S.PowerStoreMax           = 0f;
@@ -81,6 +82,7 @@ namespace Ship_Game.Ships
 
                 // FB - so destroyed/unpowered modules with repair wont have full repair rate
                 S.RepairRate += module.ActualBonusRepairRate * (active && module.Powered ? 1f : 0.1f);
+
 
                 if (active && (module.Powered || module.PowerDraw <= 0f))
                 {

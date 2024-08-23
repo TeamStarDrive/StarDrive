@@ -15460,7 +15460,7 @@ UpriseAllMilitaryBuildings:
  ENG: "All Military Buildings."                   
 InvasionblockedWarmup: 
  Id: 6347
- ENG: "Not enough time passed since war started. 10 turns warmup needed."
+ ENG: "Not enough time passed since war started. 5 turns warmup needed."
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

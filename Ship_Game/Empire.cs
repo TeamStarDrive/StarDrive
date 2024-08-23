@@ -1585,7 +1585,7 @@ namespace Ship_Game
                 return false;
 
             Relationship relations = GetRelations(target);
-            return relations.AtWar && relations.TurnsAtWar < 10; 
+            return relations.AtWar && relations.TurnsAtWar < 5; 
         }
 
         public int GetSpyDefense()
@@ -2672,6 +2672,16 @@ namespace Ship_Game
                     Log.Warning($"Blueprints template name {planet.Blueprints.Name} not valid, removing blueprints from planet {planet}");
                     planet.RemoveBlueprints();
                 }
+            }
+        }
+
+        public void ResetTargetsForShipsTargetingAfterBoarding(Ship thisShip)
+        {
+            var targetingShips = FindShipsAt(thisShip.Position, 100_000, s => s.InCombat);
+            for (int i = 0; i < targetingShips.Length; i++)
+            {
+                Ship ship = targetingShips[i];
+                ship.AI.ExitCombatState();
             }
         }
 
