@@ -1585,7 +1585,7 @@ namespace Ship_Game
                 return false;
 
             Relationship relations = GetRelations(target);
-            return relations.AtWar && relations.TurnsAtWar < 10; 
+            return relations.AtWar && relations.TurnsAtWar < 5; 
         }
 
         public int GetSpyDefense()
