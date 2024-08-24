@@ -415,7 +415,7 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
-                if (ship.PlayerShipCanTakeFleetOrders())
+                if (ship.PlayerShipCanTakeFleetOrders() || !ship.IsSubspaceProjector || !ship.IsPlatformOrStation)
                 {
                     // set PriorityOrder = true, so that our ships don't scatter after arriving
                     ship.AI.ResetPriorityOrder(clearOrders: false);

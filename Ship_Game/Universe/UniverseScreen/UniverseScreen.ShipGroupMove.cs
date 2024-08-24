@@ -135,7 +135,7 @@ namespace Ship_Game
                 {
                     ShipCommands.RightClickOnPlanet(SelectedShip, planetClicked, true);
                 }
-                else if (!UnselectableShip())
+                else if (!UnselectableShip() && !SelectedShip.IsPlatformOrStation && !SelectedShip.IsSubspaceProjector)
                 {
                     MoveShipToMouse(SelectedShip, wasProjecting: false /*click*/);
                 }
