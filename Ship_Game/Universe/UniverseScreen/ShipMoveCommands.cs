@@ -35,7 +35,7 @@ namespace Ship_Game.Universe
 
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
-            if (targetShip == null || selectedShip == targetShip || !selectedShip.PlayerShipCanTakeFleetOrders())
+            if (targetShip == null || selectedShip == targetShip || !selectedShip.PlayerShipCanTakeFleetOrders(forAttack: true))
                 return false;
 
             if (targetShip.Loyalty == Universe.Player)
