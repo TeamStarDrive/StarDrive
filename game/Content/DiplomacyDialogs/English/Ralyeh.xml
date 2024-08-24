@@ -552,6 +552,10 @@
       <Default>But why would we do this, when we are strong and you...well, you are not as strong? We cannot.</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>Federation_WeAreNotWeak</DialogType>
+      <Default>We are your allies, SING. We do not wish to "upgrade" our relationships yet.</Default>
+    </DialogLine>				
+    <DialogLine>
       <DialogType>Federation_Accept</DialogType>
       <Default>This is a most auspicious day. You have helped us find life in the blackness. Today we join you. Long live our Federation!</Default>
     </DialogLine>

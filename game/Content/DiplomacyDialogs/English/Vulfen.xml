@@ -554,6 +554,10 @@
       <Default>Why would you be in charge? We are stronger than you.</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>Federation_WeAreNotWeak</DialogType>
+      <Default>We are strong enough to be in charge of our own empire.</Default>
+    </DialogLine>				
+    <DialogLine>
       <DialogType>Federation_Accept</DialogType>
       <Default>You want us to be pack? Yes! We agree! Awoooo! From here on out, PLURAL and Vulfar are pack!</Default>
     </DialogLine>

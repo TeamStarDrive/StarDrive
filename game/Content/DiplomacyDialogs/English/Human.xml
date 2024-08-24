@@ -563,6 +563,10 @@
       <Default>Humans are a prideful lot, SING. I'm afraid we can't join your empire when in truth ours is more powerful.</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>Federation_WeAreNotWeak</DialogType>
+      <Default>We prefer to manager the Terran empire ourselves, thank you.</Default>
+    </DialogLine>		
+    <DialogLine>
       <DialogType>Federation_Accept</DialogType>
       <Default>Alright, we're in. God help us but we're in! What should we call it? Personally I think the United Federation has a nice ring. But those are just details! Man! Let's get smashed!</Default>
     </DialogLine>

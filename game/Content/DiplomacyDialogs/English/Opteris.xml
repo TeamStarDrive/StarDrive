@@ -543,6 +543,10 @@
       <Default>Negative. Opteris is superior.</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>Federation_WeAreNotWeak</DialogType>
+      <Default>Negative. Opteris is strong enough to be independent.</Default>
+    </DialogLine>		
+    <DialogLine>
       <DialogType>Federation_Accept</DialogType>
       <Default>Full System Integration? ...Your individuality added to our own? It is agreed. We shall merge and create something superior.</Default>
     </DialogLine>
