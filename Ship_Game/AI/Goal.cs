@@ -55,7 +55,8 @@ namespace Ship_Game.AI
         SupplyGoodsToStation,
         InhibitorInvestigate,
         RemnantDefendPortal,
-        MiningOps
+        MiningOps,
+        RemnantHelpEmpire
     }
 
     public enum GoalStep
