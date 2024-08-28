@@ -425,6 +425,12 @@ namespace Ship_Game.AI.Tasks
             TargetPlanet = p;
         }
 
+        public void SetTargetPlanetAsAO(Planet p)
+        {
+            SetTargetPlanet(p);
+            ChangeAO(p.System.Position);
+        }
+
         public enum TaskType
         {
             // The order of these can not change without breaking save games. 

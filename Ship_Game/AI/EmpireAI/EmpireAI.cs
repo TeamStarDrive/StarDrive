@@ -456,6 +456,10 @@ namespace Ship_Game.AI
 
         public int NumTroopGoals() => GoalsList.Filter(g => g.Type == GoalType.BuildTroop).Length;
 
+        public bool AnyProjectorBridgeGoalTargetingSystem(SolarSystem system, Empire loyalty)
+            => GoalsList.Any(g => g.Type == GoalType.ProjectorBridge
+               && g.BuildPosition.InRadius(system.Position, loyalty.AI.SpaceRoadsManager.ProgectorBridgeRadiusThreshold * 1.025f));
+
         public bool HasGoal(GoalType type)
         {
             for (int i = 0; i < GoalsList.Count; ++i)

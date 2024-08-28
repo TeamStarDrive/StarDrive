@@ -15461,6 +15461,15 @@ UpriseAllMilitaryBuildings:
 InvasionblockedWarmup: 
  Id: 6347
  ENG: "Not enough time passed since war started. 5 turns warmup needed."
+RemnantHelpersGiftStep1: 
+ Id: 6348
+ ENG: "A fleet of Remnant ships has set position near one of our systems.\nWe were preparing for battle when suddenly the ships powered downcompletely.\nWe were able to board the ships and take control of them.\nWe are not sure why they did it." 
+RemnantHelpersGiftStep2: 
+ Id: 6349
+ ENG: "Yet again, a fleet of remnant ships powered down and we took contorl over them. Their reasoning still eludes us."
+RemnantHelpersGiftStep3Plus: 
+ Id: 6350
+ ENG: "Another fleet of remnant ships gave away control to us.\nWe estimate they do it since we are weak compared to other empires."
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

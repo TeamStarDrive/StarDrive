@@ -50,7 +50,7 @@ namespace Ship_Game.Commands.Goals
         bool SelectTargetPlanet()
         {
             var planets = TargetEmpire.GetPlanets();
-            TargetPlanet = planets.FindMax(p => p.ColonyWarValueTo(TargetEmpire)); ; // Using TargetPlanet for better readability
+            TargetPlanet = planets.FindMax(p => p.ColonyWarValueTo(TargetEmpire)); // Using TargetPlanet for better readability
             return TargetPlanet != null;
         }
 
@@ -153,11 +153,12 @@ namespace Ship_Game.Commands.Goals
             if (Remnants.Hibernating)
                 return ReturnToClosestPortal();
 
-            if (TargetPlanet.Owner != TargetEmpire)
+            if (TargetPlanet.Owner != TargetEmpire) // Planet was conquered by another empire
             {
                 if (SelectTargetPlanet())
                 {
                     Fleet.TaskStep = 1;
+                    Fleet.FleetTask.SetTargetPlanetAsAO(TargetPlanet);
                     return GoalStep.TryAgain;
                 }
                 else
@@ -174,6 +175,9 @@ namespace Ship_Game.Commands.Goals
                 TargetEmpire = newVictim;
                 Fleet.FleetTask.TargetEmpire = newVictim;
                 Fleet.TaskStep = 1;
+                if (SelectTargetPlanet())
+                    Fleet.FleetTask.SetTargetPlanetAsAO(TargetPlanet);
+                
                 // New target is too strong, need to get a new fleet
                 if (Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())
                     return ReturnToClosestPortal();
@@ -198,11 +202,13 @@ namespace Ship_Game.Commands.Goals
                     Ship s = ships[i];
                     s.KillAllTroops();
                     s.LoyaltyChangeByGift(TargetEmpire, false);
-                    // if player - need a notification
                 }
 
                 if (Owner.LegacyEspionageEnabled || TargetEmpire.isPlayer || Owner.Universe.Player.GetEspionage(TargetEmpire).CanDetectRemnantGifts)
-                    Remnants.IncrementKillsForStory(Owner.Universe.Player, (int)(Remnants.StepXpTrigger * 0.1f));
+                    Remnants.IncrementKillsForStory(Owner.Universe.Player, (int)(Remnants.StepXpTrigger * (TargetEmpire.isPlayer ? 0.1f : 0.05f)));
+
+                if (TargetEmpire.isPlayer)
+                    Owner.Universe.Notifications.AddRemnantHelpersGiftMessage(Remnants.StoryStep-1, TargetPlanet.System, Owner);
 
                 return GoalStep.GoalComplete;
             }

@@ -1282,7 +1282,7 @@ namespace Ship_Game.Fleets
                     if (FleetInAreaInCombat(AveragePos, 50000) == CombatStatus.InCombat)
                         break;
 
-                    GatherAtAO(task, target.System.Radius * 2);
+                    GatherAtAO(task, target.System.Radius * 1.25f);
                     TaskStep = 2;
                     break;
                 case 2:
