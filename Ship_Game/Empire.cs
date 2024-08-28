@@ -2417,7 +2417,7 @@ namespace Ship_Game
                 return false;
 
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
-            Remnants.IncrementKills(they, (int)killedExpSettings.KillExp);
+            Remnants.IncrementKillsForStory(they, (int)killedExpSettings.KillExp);
             return true;
         }
 

@@ -35,7 +35,7 @@ namespace Ship_Game.Universe
 
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
-            if (targetShip == null || selectedShip == targetShip || !selectedShip.PlayerShipCanTakeFleetOrders())
+            if (targetShip == null || selectedShip == targetShip || !selectedShip.PlayerShipCanTakeFleetOrders(forAttack: true))
                 return false;
 
             if (targetShip.Loyalty == Universe.Player)
@@ -63,7 +63,7 @@ namespace Ship_Game.Universe
         public void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
         {
             Log.Assert(planet != null, "RightClickOnPlanet: planet cannot be null!");
-            if (ship.IsConstructor)
+            if (ship.IsConstructor || ship.IsPlatformOrStation || ship.IsSubspaceProjector)
             {
                 if (audio)
                 {
@@ -206,7 +206,7 @@ namespace Ship_Game.Universe
             fleet.AssignPositions(Vectors.Up);
             foreach (Ship fleetShip in fleet.Ships)
             {
-                if (fleetShip.PlayerShipCanTakeFleetOrders())
+                if (fleetShip.PlayerShipCanTakeFleetOrders(forAttack: true))
                     AttackSpecificShip(fleetShip, shipToAttack);
             }
 

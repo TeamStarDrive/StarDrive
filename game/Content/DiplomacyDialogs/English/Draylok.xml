@@ -568,6 +568,10 @@
       <Default>You wish for us to hitch our Prize Stallion to your rickety cart. No, SING. Show us your strength first.</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>Federation_WeAreNotWeak</DialogType>
+      <Default>The council thinks we are strong enough to hold our own.</Default>
+    </DialogLine>		
+    <DialogLine>
       <DialogType>Federation_Accept</DialogType>
       <Default>Our people have come far, SING. The Council agrees that to face the greater dangers of the Galaxy, a strong Federation must be built! With open arms and eyes, then, we join you. To Peace, to Prosperity, to the Future!</Default>
     </DialogLine>

@@ -25,6 +25,8 @@ namespace Ship_Game.AI
         [StarData] public readonly Array<SpaceRoad> SpaceRoads = new();
         [StarData] public readonly Empire Owner;
 
+        public float ProgectorBridgeRadiusThreshold => Owner.GetProjectorRadius() * 0.6f;
+
         bool ShouldManageRoads => Owner.CanBuildPlatforms
                                   && (!Owner.isPlayer || Owner.isPlayer && Owner.AutoBuildSpaceRoads);
 
@@ -247,6 +249,7 @@ namespace Ship_Game.AI
         public void SetupProjectorBridgeIfNeeded(Ship ship, ProjectorBridgeEndCondition endCondition)
         {
             if (ship.System == null
+                || ship.System.HasPlanetsOwnedBy(ship.Loyalty)
                 || Owner.IsFaction
                 || Owner.isPlayer && !Owner.AutoBuildSpaceRoads)
             {
@@ -259,7 +262,8 @@ namespace Ship_Game.AI
             bool CheckBridgeNeededColonyShip()
             {
                 if (ship.ShipData.IsColonyShip && ship.AI.State == AIState.Colonize
-                                          && !Owner.AI.SpaceRoadsManager.InfluenceNodeExistsAt(ship.Position))
+                                          && !Owner.AI.SpaceRoadsManager.InfluenceNodeExistsAt(ship.Position)
+                                          && !Owner.AI.AnyProjectorBridgeGoalTargetingSystem(ship.System, ship.Loyalty))
                 {
                     // find where the ship was coming from and setup a projector bridge
                     Goal colonizationGoal = Owner.AI.FindGoal(g => g.FinishedShip == ship);
@@ -278,7 +282,8 @@ namespace Ship_Game.AI
             void CheckBridgeNeededTradeOrConstruction()
             {
                 if ((ship.IsFreighter || ship.IsConstructor) 
-                    && !Owner.AI.SpaceRoadsManager.InfluenceNodeExistsAt(ship.Position))
+                    && !Owner.AI.SpaceRoadsManager.InfluenceNodeExistsAt(ship.Position)
+                    && !Owner.AI.AnyProjectorBridgeGoalTargetingSystem(ship.System, ship.Loyalty))
                 {
                     // find where the ship was coming from and setup a projector bridge
                     if (ship.AI.State == AIState.SystemTrader)

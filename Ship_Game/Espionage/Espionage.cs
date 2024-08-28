@@ -287,11 +287,12 @@ namespace Ship_Game
         public bool CanViewRanks        => Level >= 2;
         public bool ProjectorsCanAlert  => EffectiveLevel >= 2;
 
-        public bool CanViewDefenseRatio  => Level >= 3;
-        public bool CanViewMoneyAndMaint => Level >= 3;
-        public bool CanViewResearchTopic => Level >= 3;
-        public bool CanViewBonuses       => Level >= 3;
-        bool CanPlantStickyMole          => EffectiveLevel>= 3;
+        public bool CanViewDefenseRatio   => Level >= 3;
+        public bool CanViewMoneyAndMaint  => Level >= 3;
+        public bool CanViewResearchTopic  => Level >= 3;
+        public bool CanViewBonuses        => Level >= 3;
+        public bool CanDetectRemnantGifts => Level >= 3;
+        bool CanPlantStickyMole           => EffectiveLevel>= 3;
 
         public bool CanLeechTech    => EffectiveLevel >= 4;
         public bool CanSlowResearch => EffectiveLevel >= 4 && SlowResearchChance > 0;

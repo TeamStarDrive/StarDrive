@@ -1,0 +1,13 @@
+﻿<ExplorationEvent>
+  <Name>Remnant History</Name>
+  <StoryStep>5</StoryStep>
+  <Story>AncientHelpers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <Image>Encounters/remnstory5.png</Image>      
+      <TitleText>Remnant History - Ancient Balancers</TitleText>
+      <DescriptionText>We now know a significant part of the Remnant history. The Remnant was a peaceful race which lived Eons ago. Their part of the galaxy was a heaven for many alien empires, until one empire decided they need to expand and destroy all other races. The Remnants were the last race remaining in the end, but an unknown race, more powerful than the Remnant themselves manifested and gave the Remnant devistating tech, which destroyed the hostile empire. before the final destruction, the remnant swore to help other races as they were helped. Their robotic sentinels are given to struggling races in order tp uplift them. We believe the Remnants were disappeared Eons ego, as well as their powerful patrons. Destroying all Remnant portals will ensure they will not longer have access to our sector and we will be free to conquer it, or live peacefully with our neighbors. The choice is ours. Good Luck!</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

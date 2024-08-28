@@ -561,6 +561,10 @@
       <Default>Oooohh. Well, it's not me, it's you. You just...aren't strong enough for us to join you. Friends?</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>Federation_WeAreNotWeak</DialogType>
+      <Default>Ohh, thats's nice of you to offer, dear SING. We prefer to have it our own way, right now.</Default>
+    </DialogLine>		
+    <DialogLine>
       <DialogType>Federation_Accept</DialogType>
       <Default>YES! A hundred times yes! Oh the Owlwoks are going to be SO happy in their new homes! Wow! I just...I'm so happy right now. Yes, you beautiful fools, we'll join your Federation!</Default>
     </DialogLine>

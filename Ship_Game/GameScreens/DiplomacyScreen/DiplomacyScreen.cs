@@ -935,7 +935,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             if (!ThemAndUs.Treaty_Alliance)
             {
-                if (ThemAndUs.TurnsKnown < 50 * Them.Universe.P.Pace)
+                if (ThemAndUs.TurnsKnown < 100 * Them.Universe.P.Pace)
                     text += GetDialogueByName("Federation_JustMet");
                 else if (ThemAndUs.GetStrength() >= 75f)
                     text += GetDialogueByName("Federation_NoAlliance");
@@ -946,8 +946,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             {
                 text += GetDialogueByName("Federation_AllianceTooYoung");
             }
-            else if (Them.TotalScore > Us.TotalScore * 1.5f && Relationship.Is3RdPartyBiggerThenUs(Us, Them))
+            else if (Them.TotalScore * 1.5f < Us.TotalScore)
             {
+                if (!Relationship.Is3RdPartyBiggerThenUs(Them, Us))
+                {
+                    text += GetDialogueByName("Federation_WeAreNotWeak");
+                }
+                else
+                {
                     var theirWarTargets = new Array<Empire>();
                     var ourWarTargets = new Array<Empire>();
 
@@ -995,6 +1001,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                         text += GetDialogueByName("Federation_Accept");
                         Us.AbsorbEmpire(Them);
                     }
+                }
             }
             else
             {

@@ -584,6 +584,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.GlassPlanet:          DoGlassPlanet(task);          break;
                 case MilitaryTask.TaskType.AssaultPirateBase:    DoAssaultPirateBase(task);    break;
                 case MilitaryTask.TaskType.RemnantEngagement:    DoRemnantEngagement(task);    break;
+                case MilitaryTask.TaskType.RemnantHelp:          DoRemnantHelp(task);          break;
                 case MilitaryTask.TaskType.DefendVsRemnants:     DoDefendVsRemnant(task);      break;
                 case MilitaryTask.TaskType.GuardBeforeColonize:  DoPreColonizationGuard(task); break;
                 case MilitaryTask.TaskType.StageFleet:           DoStagingFleet(task);         break;
@@ -1242,6 +1243,60 @@ namespace Ship_Game.Fleets
                 case 7:
                     OrderFleetOrbit(target, clearOrders:true);
                     break; // Change in task step is done from Remnant goals
+                case 8: // Go back to portal, this step is set from the Remnant goal
+                    ClearOrders();
+                    task.SetTargetPlanet(null);
+                    AutoArrange();
+                    GatherAtAO(task, 500);
+                    TaskStep = 9;  // Tasks steps below 9 are a signal that the remnant fleet still on target (GetRemnantEngagementsGoalsFor)
+                    break;
+                case 9:
+                    // Find other targets automatically for this fleet since Remnant were defeated.
+                    // Fight till death
+                    if (Owner.Remnants.NoPortals)
+                    {
+                        Name = $"Ancient Extermination Fleet";
+                        task.SetTargetPlanet(Owner.Remnants.GetTargetPlanetForFleetTaskWhenNoPortals(AveragePos));
+                        task.ChangeAO(task.TargetPlanet.Position);
+                        TaskStep = 1;
+                    }
+
+                    if (ArrivedAtCombatRally(FinalPosition, radiusMultiplier: 10))
+                        TaskStep = 10;
+
+                    break;
+                case 10: // Goal will wait for fleet to be in this task to disband it.
+                    if (Owner.Remnants.NoPortals)
+                        TaskStep = 9;
+
+                    break;
+            }
+        }
+
+        void DoRemnantHelp(MilitaryTask task)
+        {
+            Planet target = FleetTask.TargetPlanet;
+            switch (TaskStep)
+            {
+                case 1:
+                    if (FleetInAreaInCombat(AveragePos, 50000) == CombatStatus.InCombat)
+                        break;
+
+                    GatherAtAO(task, target.System.Radius * 1.25f);
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(FinalPosition))
+                        break;
+
+                    TaskStep = 3;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    break;
+                case 3: // Goal should now do Loyalty change
+                    if (Owner.Remnants.NoPortals)
+                        TaskStep = 9;
+
+                    break;
                 case 8: // Go back to portal, this step is set from the Remnant goal
                     ClearOrders();
                     task.SetTargetPlanet(null);

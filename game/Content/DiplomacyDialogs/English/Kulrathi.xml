@@ -558,6 +558,10 @@ Heed well our warrior-poets, SING, and anger not the mighty Kulrathi</Neutral>
       <Default>The Kulrathi respect strength, SING! Strength which we have and you do not! I am sorry, but we cannot merge our empire with those who are weaker than us.</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>Federation_WeAreNotWeak</DialogType>
+      <Default>You have been a long lasting ally, SING. We are honored to have been your friend, but we believe we have our own place in the galaxy, for now.</Default>
+    </DialogLine>	
+    <DialogLine>
       <DialogType>Federation_Accept</DialogType>
       <Default>Yes. Our bond has grown. Your people are our people. Your blood is our blood. Together, the Galaxy shall be ours. To the Federation!</Default>
     </DialogLine>

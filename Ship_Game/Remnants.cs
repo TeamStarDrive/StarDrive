@@ -59,7 +59,7 @@ namespace Ship_Game
             CalculateShipCosts();
         }
 
-        public void IncrementKills(Empire empire, int xp)
+        public void IncrementKillsForStory(Empire empire, int xp)
         {
             if (!Activated)
                 StoryTriggerKillsXp += xp;
@@ -90,11 +90,13 @@ namespace Ship_Game
             //    Activate();
         }
 
-        float StepXpTrigger => (ShipRole.GetMaxExpValue() * StoryStep * StoryStep * 0.5f).UpperBound(ActivationXpNeeded);
+        public float StepXpTrigger => (ShipRole.GetMaxExpValue() * StoryStep * StoryStep * 0.5f).UpperBound(ActivationXpNeeded);
         public float ProductionLimit => 300 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 480K 
-        public float MaxDefenseProduction => ProductionLimit * (1 + (int)Universe.P.Difficulty);
         public float ExpansionRisk => 0; // Might change this based on future story
         public bool NoPortals => !GetPortals(out _);
+        public float MaxDefenseProduction => ProductionLimit
+                                             * (1 + (int)Universe.P.Difficulty)
+                                             * (Story is RemnantStory.AncientHelpers ? 3 : 1);
 
         public float BorderRisk(Empire empire)
         {
@@ -136,6 +138,7 @@ namespace Ship_Game
                 case RemnantStory.AncientRaidersRandom:
                 case RemnantStory.AncientWarMongers:
                 case RemnantStory.AncientPeaceKeepers:
+                case RemnantStory.AncientHelpers:
                     Owner.AI.AddGoal(new RemnantEngagements(Owner));
                     Universe.Notifications.AddRemnantsStoryActivation(Owner);
                     if (Owner.NewEspionageEnabled)
@@ -324,6 +327,7 @@ namespace Ship_Game
                     }
                     break;
                 case RemnantStory.AncientPeaceKeepers:
+                case RemnantStory.AncientHelpers:
                     Activated = false;
                     break;
             }
@@ -359,11 +363,12 @@ namespace Ship_Game
 
             switch (Story)
             {
-                case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList, 1.25f); break;
                 case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);                      break;
                 case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);                      break;
                 case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);               break;
                 case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);             break;
+                case RemnantStory.AncientHelpers:       target = FindWeakestByAveragePopAndStr(empiresList, 1.25f);   break;
+                case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList, 1.25f); break;
             }
 
             return target != null;
@@ -378,7 +383,7 @@ namespace Ship_Game
             return targetEmpire.GetPlanets().FindMin(p => p.Position.SqDist(fleetPos));
         }
 
-        public bool TargetEmpireStillValid(Empire currentTarget, Ship portal)
+        public bool TargetEmpireStillValid(Empire currentTarget)
         {
             if (Hibernating)
                 return false;
@@ -420,7 +425,7 @@ namespace Ship_Game
             return potentialTargets.FindMax(e => e.OffensiveStrength);
         }
 
-        Empire FindStrongestByAveragePopAndStr(Empire[] empiresList, float ratioOverAverageThreshold = 1f)
+        Empire FindStrongestByAveragePopAndStr(Empire[] empiresList, float ratioOverAverageThreshold)
         {
             if (empiresList.Length == 1)
                 return empiresList.First();
@@ -442,6 +447,29 @@ namespace Ship_Game
 
 
             return bestEmpire != null && ratioOverAverage > ratioOverAverageThreshold ? bestEmpire : null;
+        }
+
+        Empire FindWeakestByAveragePopAndStr(Empire[] empiresList, float ratioOverAverageThreshold)
+        {
+            if (empiresList.Length == 1)
+                return empiresList.First();
+
+            var averagePop = empiresList.Average(e => e.TotalPopBillion);
+            var averageStr = empiresList.Average(e => e.OffensiveStrength);
+            Empire worstEmpire = null;
+            float ratioBelowAverage = float.MaxValue;
+            foreach (Empire empire in empiresList)
+            {
+                float ratio = (empire.TotalPopBillion / averagePop +
+                               empire.OffensiveStrength / averageStr) * 0.5f;
+                if (ratio < ratioBelowAverage)
+                {
+                    ratioBelowAverage = ratio;
+                    worstEmpire       = empire;
+                }
+            }
+
+            return worstEmpire != null && ratioBelowAverage < ratioOverAverageThreshold ? worstEmpire : null;
         }
 
         Empire FindWeakestEmpire(Empire[] empiresList)
@@ -550,7 +578,7 @@ namespace Ship_Game
             if (planet.Owner == null || planet.Owner.IsFaction)
                 return;
 
-            if (planet.OwnerIsPlayer) // Warn the player is able
+            if (planet.OwnerIsPlayer) // Warn the player if able
             {
                 SolarSystem system = planet.System;
                 if (system.PlanetList.Any(p => p.Owner == Universe.Player
@@ -1290,6 +1318,7 @@ namespace Ship_Game
             if (roll <= 20)  return RemnantStory.AncientWarMongers;
             if (roll <= 40)  return RemnantStory.AncientExterminators;
             if (roll <= 60)  return RemnantStory.AncientRaidersRandom;
+            if (roll <= 70)  return RemnantStory.AncientHelpers;
 
             return RemnantStory.AncientBalancers;
         }
@@ -1301,7 +1330,8 @@ namespace Ship_Game
             AncientExterminators,
             AncientRaidersRandom,
             AncientWarMongers,
-            AncientPeaceKeepers
+            AncientPeaceKeepers,
+            AncientHelpers
         }
     }
 

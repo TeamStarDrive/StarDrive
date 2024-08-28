@@ -121,6 +121,9 @@ namespace Ship_Game.Ships
                 S.RepairRate = S.RepairRate.LowerBound(25);
             }
 
+            if (S.IsSubspaceProjector)
+                S.RepairRate = S.RepairRate.LowerBound(10);
+
             S.SensorRange *= e.data.SensorModifier;
             S.SensorRange *= Hull.Bonuses.SensorModifier;
 

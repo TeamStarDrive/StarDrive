@@ -5587,6 +5587,12 @@ namespace Ship_Game
         UpriseAllMilitaryBuildings = 6346,
         /// <summary>Not enough time passed since war started</summary>
         InvasionblockedWarmup = 6347,
+        /// <summary>A fleet of Remnant ships has set position near one of our systems</summary>
+        RemnantHelpersGiftStep1 = 6348,
+        /// <summary>Yet again, a fleet of remnant ships powered down and we took contorl over them</summary>
+        RemnantHelpersGiftStep2 = 6349,
+        /// <summary>Another fleet of remnant ships gave away control to us</summary>
+        RemnantHelpersGiftStep3Plus = 6350,
 
 
 

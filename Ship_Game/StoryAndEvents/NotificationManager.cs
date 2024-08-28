@@ -9,6 +9,7 @@ using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
+using System.Windows.Forms;
 
 namespace Ship_Game
 {
@@ -857,6 +858,21 @@ namespace Ship_Game
                 IconPath        = "UI/icon_rebellion",
                 Action          = "SnapToSystem"
             }, "sd_troop_march_01", "sd_notify_alert");
+        }
+
+        public void AddRemnantHelpersGiftMessage(int storyStep, SolarSystem system, Empire remnants)
+        {
+            GameText messageIndex = GameText.RemnantHelpersGiftStep1;
+            if (storyStep >= 3) messageIndex = GameText.RemnantHelpersGiftStep3Plus;
+            if (storyStep >= 2) messageIndex = GameText.RemnantHelpersGiftStep2;
+
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = remnants,
+                Message         = Localizer.Token(messageIndex),
+                ReferencedItem1 = system,
+                Action          = "SnapToSystem"
+            }, "sd_ui_notification_encounter");
         }
 
         public void AddResearchComplete(string unlocked, Empire emp)

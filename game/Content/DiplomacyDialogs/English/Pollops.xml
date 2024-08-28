@@ -557,6 +557,10 @@
       <Default>Well, we've thought about it, but the truth is that our empire is better than yours. If you were stronger then maybe we could do it, but we don't need to fold into your empire right now.</Default>
     </DialogLine>
     <DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreNotWeak</DialogType>
+      <Default>Ah, you care for us so much you want to be in charge of us. This is so nice. But right now we'd like to stay independent.</Default>
+    </DialogLine>			
       <DialogType>Federation_Accept</DialogType>
       <Default>Sunshine! Bright, warm sunshine! Do you have any beaches on your planets? We love beaches. We'll have lots of time to explore now that we are in a Federation. Did I ever tell you about Polmar? Polmar is so great. You have to come visit! Oh! There's this beach there, man it's great. Anyhoo. WE ARE GOING TO BE BEST FRIENDS!</Default>
     </DialogLine>

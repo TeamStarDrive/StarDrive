@@ -297,7 +297,8 @@ namespace Ship_Game.Ships
 
         public bool CanBeAddedToFleets()
         {
-            return !IsPlatformOrStation 
+            return !IsPlatformOrStation
+                   && !IsSubspaceProjector
                    && !IsSupplyShuttle 
                    && !IsMiningShip 
                    && !IsConstructor 
@@ -348,14 +349,20 @@ namespace Ship_Game.Ships
             HomePlanet = planet;
         }
 
-        public bool PlayerShipCanTakeFleetOrders()
+        public bool PlayerShipCanTakeFleetOrders(bool forAttack = false)
         {
-            if (Loyalty.isPlayer && !CanTakeFleetOrders)
+            if (Loyalty.isPlayer)
             {
-                ResupplyReason resupplyReason = Supply.Resupply();
-                // Resupply reason is not severe enough for the player ship to ignore fleet commands.
-                return resupplyReason == ResupplyReason.LowOrdnanceNonCombat
-                    || resupplyReason == ResupplyReason.NotNeeded;
+                if (!forAttack && (IsPlatformOrStation || IsSubspaceProjector))
+                    return false;
+
+                if (!CanTakeFleetOrders)
+                {
+                    ResupplyReason resupplyReason = Supply.Resupply();
+                    // Resupply reason is not severe enough for the player ship to ignore fleet commands.
+                    return resupplyReason == ResupplyReason.LowOrdnanceNonCombat
+                        || resupplyReason == ResupplyReason.NotNeeded;
+                }
             }
 
             return true; // AI ship or a player ship which can take fleet orders

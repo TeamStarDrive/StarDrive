@@ -144,6 +144,11 @@ namespace Ship_Game.AI.Tasks
             return new(TaskType.RemnantEngagement, owner, planet.Position, aoRadius: 50000f, planet);
         }
 
+        public static MilitaryTask CreateRemnantHelp(Planet planet, Empire owner)
+        {
+            return new(TaskType.RemnantHelp, owner, planet.Position, aoRadius: 50000f, planet);
+        }
+
         public static MilitaryTask CreateRemnantDefendPortal(Empire owner, Ship portal)
         {   
             MilitaryTask task = new(TaskType.RemnantPortalDefense, owner, portal.Position, aoRadius: 150000f);
@@ -420,6 +425,12 @@ namespace Ship_Game.AI.Tasks
             TargetPlanet = p;
         }
 
+        public void SetTargetPlanetAsAO(Planet p)
+        {
+            SetTargetPlanet(p);
+            ChangeAO(p.System.Position);
+        }
+
         public enum TaskType
         {
             // The order of these can not change without breaking save games. 
@@ -442,7 +453,8 @@ namespace Ship_Game.AI.Tasks
             StageFleet,
             ReclaimPlanet,
             InhibitorInvestigate,
-            RemnantPortalDefense
+            RemnantPortalDefense,
+            RemnantHelp,
         }
 
         [Flags]
@@ -474,6 +486,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.InhibitorInvestigate:
                 case TaskType.DefendVsRemnants:
                 case TaskType.RemnantEngagement:
+                case TaskType.RemnantHelp:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
                 case TaskType.DefendClaim:
                 case TaskType.GuardBeforeColonize:
