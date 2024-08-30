@@ -69,7 +69,7 @@ namespace Ship_Game.Commands.Goals
 
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
 
-        GoalStep ReturnToClosestPortal()
+        GoalStep ReturnToClosestPortalAndReroute()
         {
             if (Fleet.TaskStep < 8)
             {
@@ -209,7 +209,7 @@ namespace Ship_Game.Commands.Goals
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
             if (Remnants.Hibernating)
-                return ReturnToClosestPortal();
+                return ReturnToClosestPortalAndReroute();
 
             int numBombers = Remnants.NumBombersInFleet(Fleet);
             if (BombersLevel > 0 && numBombers < BombersLevel / 2)
@@ -219,7 +219,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (Fleet.TaskStep <= 7)
                     Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
-                return ReturnToClosestPortal();
+                return ReturnToClosestPortalAndReroute();
             }
 
             if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Not cleared enemy at target planet yet
@@ -229,13 +229,13 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.TargetEmpireStillValid(TargetEmpire))
             {
                 if (!Remnants.FindValidTarget(out Empire newVictim))
-                    return ReturnToClosestPortal();
+                    return ReturnToClosestPortalAndReroute();
 
                 TargetEmpire = newVictim;
 
                 // New target is too strong, need to get a new fleet
                 if (Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())
-                    return ReturnToClosestPortal();
+                    return ReturnToClosestPortalAndReroute();
             }
 
             if (TargetPlanet == null)
@@ -244,13 +244,13 @@ namespace Ship_Game.Commands.Goals
                 if (!SelectTargetPlanet())
                 {
                     Log.Warning($"Could not find a new Remnant target planet vs {TargetEmpire.Name}. Remnant fleet will return home.");
-                    return ReturnToClosestPortal();
+                    return ReturnToClosestPortalAndReroute();
                 }
             }
 
             // Select a new closest planet
             if (!Remnants.TargetNextPlanet(TargetEmpire, TargetPlanet, Remnants.NumBombersInFleet(Fleet), out Planet nextPlanet))
-                return ReturnToClosestPortal();
+                return ReturnToClosestPortalAndReroute();
 
             Fleet.ClearOrders();
             int changeToStep = TargetPlanet.System == nextPlanet.System ? 5 : 1;

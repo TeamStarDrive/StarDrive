@@ -1,4 +1,5 @@
 ﻿using System;
+using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
@@ -25,17 +26,17 @@ namespace Ship_Game.Commands.Goals
 
         void EngageEmpire(Ship[] portals)
         {
-            if (!Remnants.CanDoAnotherEngagement())
+            if (!Remnants.TryGetPortalForEngagement(portals, out Array<Ship> availablePortals)
+                || !Remnants.FindValidTarget(out Empire target))
+            {
                 return;
+            }
 
-            if (!Remnants.FindValidTarget(out Empire target))
-                return;
-
-            Ship portal = Remnants.Owner.Random.Item(portals);
+            Ship closestPortal = availablePortals.FindMin(p => p.Position.SqDist(target.WeightedCenter));
             if (Remnants.Story is Remnants.RemnantStory.AncientHelpers)
-                Owner.AI.AddGoal(new RemnantHelpEmpire(Owner, portal, target));
+                Owner.AI.AddGoal(new RemnantHelpEmpire(Owner, closestPortal, target));
             else
-                Owner.AI.AddGoal(new RemnantEngageEmpire(Owner, portal, target));
+                Owner.AI.AddGoal(new RemnantEngageEmpire(Owner, closestPortal, target));
         }
 
         GoalStep CreateFirstPortal()

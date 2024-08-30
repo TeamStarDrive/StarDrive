@@ -131,7 +131,7 @@ namespace Ship_Game.Commands.Goals
             {
                 float production = (Owner.Universe.StarDate - 1000).LowerBound(Remnants.Level * 100f);
                 production *= Owner.DifficultyModifiers.RemnantResourceMod;
-                production *= (int)(UState.P.GalaxySize + 1) * 4 * UState.P.StarsModifier / UState.ActiveMajorEmpires.Length;
+                production *= (int)(UState.P.GalaxySize + 2) * UState.P.StarsModifier / UState.ActiveMajorEmpires.Length;
                 if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
                     production *= 0.5f;
                 Remnants.GenerateProduction(production);

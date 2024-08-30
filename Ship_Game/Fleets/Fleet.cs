@@ -977,6 +977,10 @@ namespace Ship_Game.Fleets
 
         void DoDeepSpaceInvestigate(MilitaryTask task)
         {
+            float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 100_000);
+            if (EndInvalidTask(!CanTakeThisFight(enemyStr, task)))
+                return;
+
             switch (TaskStep)
             {
                 case 0:
@@ -1006,13 +1010,10 @@ namespace Ship_Game.Fleets
                         AttackEnemyStrengthClumpsInAO(task);
                         TaskStep = 4;
                     }
+
                     break;
                 case 4:
-                    float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 30_000);
                     task.TargetEmpire = Owner.Threats.GetStrongestHostileAt(task.AO, 30_000);
-                    if (EndInvalidTask(!CanTakeThisFight(enemyStr, task)))
-                        return;
-
                     if (enemyStr == 0)
                         task.EndTask();
 
