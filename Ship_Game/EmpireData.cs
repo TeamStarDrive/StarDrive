@@ -296,7 +296,6 @@ namespace Ship_Game
         [StarData] public bool IsPirateFaction;
         [StarData] public int PiratePaymentPeriodTurns = 100; 
         [StarData] public int MinimumColoniesForStartPayment = 3;
-        [StarData] public float MilitaryScoreAverage;
 
         // FB - For Remnants
         [StarData] public bool IsRemnantFaction;

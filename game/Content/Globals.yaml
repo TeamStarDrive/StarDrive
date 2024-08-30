@@ -54,7 +54,7 @@ Globals:
   DisableRemnantStory: false
   DisablePirates: false
   AIUsesPlayerDesigns: true
-  EnableRandomizedAIFleetSizes: true # Allows Ai to slightly alter fleet sizes within range specified in FleetBuildRatios.yaml
+  EnableRandomizedAIFleetSizes: false # Allows Ai to slightly alter fleet sizes within range specified in FleetBuildRatios.yaml
 
   # visuals modifiers
   SpaceportScale: 0.5

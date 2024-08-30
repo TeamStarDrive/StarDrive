@@ -42,7 +42,7 @@ public class RemnantsDebug : DebugPage
         {
             Empire empire = Universe.MajorEmpires[i];
             if (!empire.IsDefeated)
-                Text.String(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.TotalPopBillion.String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
+                Text.String(empire.EmpireColor, $"{empire.data.Name} - Score: {empire.TotalScore.String()}, Pop: {empire.TotalPopBillion.String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
         }
 
         var empiresList = GlobalStats.RestrictAIPlayerInteraction ? Universe.NonPlayerMajorEmpires.Filter(emp => !emp.IsDefeated)
@@ -50,22 +50,19 @@ public class RemnantsDebug : DebugPage
 
         Text.NewLine();
         float averagePop = empiresList.Average(empire => empire.TotalPopBillion);
-        float averageStr = empiresList.Average(empire => empire.CurrentMilitaryStrength);
+        var averageScore = empiresList.Average(empire => empire.TotalScore);
         Text.String($"AI Empire Average Pop:         {averagePop.String(1)}");
-        Text.String($"AI Empire Average Strength: {averageStr.String(0)}");
+        Text.String($"AI Empire Average Score: {averageScore.String(0)}");
 
         Text.NewLine();
-        Empire bestPop  = empiresList.FindMax(empire => empire.TotalPopBillion);
-        Empire bestStr  = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
-        Empire worstStr = empiresList.FindMin(empire => empire.CurrentMilitaryStrength);
+        Empire bestStr  = empiresList.FindMax(empire => empire.TotalScore);
+        Empire worstStr = empiresList.FindMin(empire => empire.TotalScore);
 
-        float diffFromAverageScore    = bestPop.TotalPopBillion / averagePop.LowerBound(1) * 100;
-        float diffFromAverageStrBest  = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
-        float diffFromAverageStrWorst = worstStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+        var diffFromAverageScoreBest  = bestStr.TotalScore / averageScore.LowerBound(1) * 100;
+        var diffFromAverageScoreWorst = worstStr.TotalScore / averageScore.LowerBound(1) * 100;
 
-        Text.String(bestPop.EmpireColor, $"Highest Pop Empire: {bestPop.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
-        Text.String(bestStr.EmpireColor, $"Strongest Empire:   {bestStr.data.Name} ({(diffFromAverageStrBest - 100).String(1)}% above average)");
-        Text.String(worstStr.EmpireColor, $"Weakest Empire:     {worstStr.data.Name} ({(diffFromAverageStrWorst - 100).String(1)}% below average)");
+        Text.String(bestStr.EmpireColor, $"Strongest Empire:   {bestStr.data.Name} ({(diffFromAverageScoreBest - 100).String(1)}% above average)");
+        Text.String(worstStr.EmpireColor, $"Weakest Empire:     {worstStr.data.Name} ({(diffFromAverageScoreWorst - 100).String(1)}% below average)");
 
         Text.NewLine();
         Text.String("Goals:");

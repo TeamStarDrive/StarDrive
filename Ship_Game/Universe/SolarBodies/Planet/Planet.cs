@@ -812,9 +812,8 @@ namespace Ship_Game
 
         public Vector2 GetBuilderShipTargetVector(bool launch, out bool fromShipyard)
         {
-
-            fromShipyard= false;
-            if (Owner.Random.RollDie(1+NumShipyards) > 1)
+            fromShipyard = false;
+            if (Owner != null && Owner.Random.RollDie(1+NumShipyards) > 1)
             {
                 var potentialShipyards = OrbitalStations.Filter(s => s.IsShipyard);
                 if (potentialShipyards.Length > 0)

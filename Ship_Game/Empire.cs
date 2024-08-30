@@ -113,11 +113,11 @@ namespace Ship_Game
         [StarData] public bool AutoResearch;
         [StarData] public bool AutoBuildResearchStations;
         [StarData] public bool AutoBuildMiningStations;
-        public int TotalScore;
-        public float TechScore;
-        public float ExpansionScore;
-        public float MilitaryScore;
-        public float IndustrialScore;
+        [StarData] public int TotalScore;
+        [StarData] public float TechScore;
+        [StarData] public float ExpansionScore;
+        [StarData] public float MilitaryScore;
+        [StarData] public float IndustrialScore;
 
         // This is the original capital of the empire. It is used in capital elimination and 
         // is used in capital elimination and also to determine if another capital will be moved here if the
@@ -140,8 +140,8 @@ namespace Ship_Game
         public bool CanBuildShipyards { get; private set; }
         public bool CanBuildResearchStations { get; private set; }
         public bool CanBuildMiningStations { get; private set; }
-        public float CurrentMilitaryStrength;
-        public float OffensiveStrength; // No Orbitals
+        [StarData] public float CurrentMilitaryStrength;
+        [StarData] public float OffensiveStrength; // No Orbitals
         [StarData] public LoyaltyLists EmpireShips;
         public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
@@ -2183,7 +2183,7 @@ namespace Ship_Game
 
         void CalculateScore(bool fromSave = false)
         {
-            TechScore = TechEntries.Sum(e => e.Unlocked ? e.TechCost : 0) * 0.01f / Universe.P.Pace;
+            TechScore = TechEntries.Sum(e => e.Unlocked ? e.TechCost : 0) * 0.1f / Universe.P.Pace;
             IndustrialScore = 0;
             ExpansionScore  = 0;
             for (int i = 0; i < OwnedPlanets.Count; i++)
@@ -2193,12 +2193,9 @@ namespace Ship_Game
                 IndustrialScore += p.SumBuildings(b => b.Cost);
             }
             IndustrialScore *= 0.05f;
+            ExpansionScore *= 10;
 
-            if (fromSave)
-                MilitaryScore = data.MilitaryScoreAverage;
-            else
-                MilitaryScore = HelperFunctions.ExponentialMovingAverage(MilitaryScore, CurrentMilitaryStrength);
-
+            MilitaryScore = HelperFunctions.ExponentialMovingAverage(MilitaryScore, CurrentMilitaryStrength*0.01f);
             TotalScore = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
         }
 

@@ -459,34 +459,29 @@ namespace Ship_Game.AI
 
                 public void ScrapAsNeeded(Empire empire)
                 {
-                    if (CurrentCount <= DesiredCount + 1
-                       || CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
+                    if (CurrentCount <= DesiredCount + 1 
+                        || CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
+                    {
+                        WeAreScrapping = false;
                         return;
+                    }
 
+                    WeAreScrapping = true;
                     foreach (var ship in CurrentShips
                         .OrderBy(ship => ship.ShipData.TechsNeeded.Count))
                     {
-                        if(ship.OnLowAlert &&
-                                        (ship.Fleet == null)
-                                        && ship.AI.State != AIState.Scuttle
-                                        && ship.AI.State != AIState.Resupply
-                                        && ship.CanBeScrapped && ship.Active
-                                        && ship.GetMaintCost(empire) > 0)
+                        if (ship.OnLowAlert 
+                            && ship.Fleet == null
+                            && ship.AI.State != AIState.Scuttle
+                            && ship.AI.State != AIState.Resupply
+                            && ship.CanBeScrapped && ship.Active
+                            && ship.GetMaintCost(empire) > 0
+                            && ship.AI.State != AIState.Scrap)
                         {
-                            if (ship.AI.State != AIState.Scrap)
-                            {
-                                if (CurrentCount <= DesiredCount + 1
-                                    && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
-                                    break;
-                                CurrentCount--;
-                                CurrentMaintenance -= ship.GetMaintCost();
-                                ship.AI.OrderScrapShip();
-                                WeAreScrapping = true;
-                            }
-                            else
-                            {
-                                WeAreScrapping = true;
-                            }
+                            CurrentCount--;
+                            CurrentMaintenance -= ship.GetMaintCost();
+                            ship.AI.OrderScrapShip();
+                            break; // screp one of each role at a time
                         }
                     }
                 }
@@ -535,7 +530,7 @@ namespace Ship_Game.AI
                         case RoleName.cruiser:    return CombatRole.Cruiser;
                         case RoleName.battleship: return CombatRole.Battleship;
                         case RoleName.capital:    return CombatRole.Capital;
-                        default:                           return CombatRole.Disabled;
+                        default:                  return CombatRole.Disabled;
                     }
                 }
             }

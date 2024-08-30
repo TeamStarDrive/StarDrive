@@ -333,16 +333,19 @@ namespace Ship_Game
             }
         }
 
-        public bool CanDoAnotherEngagement()
+        public bool TryGetPortalForEngagement(Ship[] portals, out Array<Ship>  availablePortals)
         {
+            availablePortals = new();
             if (Hibernating)
                 return false;
 
-            if (Owner.AI.HasGoal(g => g.IsRaid && g is FleetGoal))
-                return false;  // Limit building fleet to 1 at a time
+            foreach (Ship potentialPortal in portals)
+            {
+                if (Owner.AI.CountGoals(g => g.IsRaid && g.TargetShip == potentialPortal) == 0)
+                    availablePortals.Add(potentialPortal);
+            }
 
-            int ongoingRaids = Owner.AI.CountGoals(g => g.IsRaid);
-            return ongoingRaids < NumPortals();
+            return availablePortals.Count > 0;
         }
 
         public bool FindValidTarget(out Empire target)
@@ -363,12 +366,12 @@ namespace Ship_Game
 
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);                      break;
-                case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);                      break;
-                case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);               break;
-                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);             break;
-                case RemnantStory.AncientHelpers:       target = FindWeakestByAveragePopAndStr(empiresList, 1.25f);   break;
-                case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList, 1.25f); break;
+                case RemnantStory.AncientHelpers: 
+                case RemnantStory.AncientExterminators: target = FindWeakestByScore(empiresList, 1.25f);   break;
+                case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);    break;
+                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);  break;
+                case RemnantStory.AncientBalancers:     target = FindStrongestByScore(empiresList, 1.25f); break;
+                case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);           break;
             }
 
             return target != null;
@@ -410,80 +413,36 @@ namespace Ship_Game
         Empire FindStrongestEmpireAtPeace(Empire[] empiresList)
         {
             var potentialTargets = empiresList.Filter(e => !e.IsAtWarWithMajorEmpire);
-            if (potentialTargets.Length == 0)
-                return empiresList.FindMin(e => e.OffensiveStrength); // get the weakest if everybody is at war
-
-            return potentialTargets.FindMax(e => e.OffensiveStrength);
+            return potentialTargets.Length == 0 ? empiresList.FindMax(e => e.TotalScore) 
+                                                : potentialTargets.FindMax(e => e.TotalScore);
         }
 
         Empire FindStrongestEmpireAtWar(Empire[] empiresList)
         {
             var potentialTargets = empiresList.Filter(e => e.IsAtWarWithMajorEmpire);
-            if (potentialTargets.Length == 0)
-                return null;
-
-            return potentialTargets.FindMax(e => e.OffensiveStrength);
+            return potentialTargets.Length == 0 ? null : potentialTargets.FindMax(e => e.TotalScore);
         }
 
-        Empire FindStrongestByAveragePopAndStr(Empire[] empiresList, float ratioOverAverageThreshold)
+        Empire FindStrongestByScore(Empire[] empiresList, float ratioThreshold)
         {
             if (empiresList.Length == 1)
                 return empiresList.First();
 
-            var averagePop    = empiresList.Average(e => e.TotalPopBillion);
-            var averageStr    = empiresList.Average(e => e.OffensiveStrength);
-            Empire bestEmpire = null;
-            float ratioOverAverage = 0;
-            foreach (Empire empire in empiresList)
-            {
-                float ratio = (empire.TotalPopBillion / averagePop +
-                               empire.OffensiveStrength / averageStr) * 0.5f;
-                if (ratio > ratioOverAverage)
-                {
-                    ratioOverAverage = ratio;
-                    bestEmpire = empire;
-                }
-            }
+            var averageScore = empiresList.Average(e => e.TotalScore);
+            Empire strongest = empiresList.FindMax(e => e.TotalScore);
 
-
-            return bestEmpire != null && ratioOverAverage > ratioOverAverageThreshold ? bestEmpire : null;
+            return strongest.TotalScore > averageScore * ratioThreshold  ? strongest : null;
         }
 
-        Empire FindWeakestByAveragePopAndStr(Empire[] empiresList, float ratioOverAverageThreshold)
+        Empire FindWeakestByScore(Empire[] empiresList, float ratioThreshold)
         {
             if (empiresList.Length == 1)
                 return empiresList.First();
 
-            var averagePop = empiresList.Average(e => e.TotalPopBillion);
-            var averageStr = empiresList.Average(e => e.OffensiveStrength);
-            Empire worstEmpire = null;
-            float ratioBelowAverage = float.MaxValue;
-            foreach (Empire empire in empiresList)
-            {
-                float ratio = (empire.TotalPopBillion / averagePop +
-                               empire.OffensiveStrength / averageStr) * 0.5f;
-                if (ratio < ratioBelowAverage)
-                {
-                    ratioBelowAverage = ratio;
-                    worstEmpire       = empire;
-                }
-            }
+            var averageScore = empiresList.Average(e => e.TotalScore);
+            Empire weakest   = empiresList.FindMin(e => e.TotalScore);
 
-            return worstEmpire != null && ratioBelowAverage < ratioOverAverageThreshold ? worstEmpire : null;
-        }
-
-        Empire FindWeakestEmpire(Empire[] empiresList)
-        {
-            if (empiresList.Length == 1)
-                return empiresList.First();
-
-            var potentialTargets = empiresList.Filter(e =>
-            {
-                var planets = e.GetPlanets();
-                return planets.Count > 1 || planets.Count == 1 && Level > planets[0].Level + 1;
-            });
-
-            return potentialTargets.Length == 0 ? null : potentialTargets.FindMin(e => e.OffensiveStrength);
+            return weakest.TotalScore < averageScore * ratioThreshold ? weakest : null;  
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, float neededStr, out Array<Ship> ships)
