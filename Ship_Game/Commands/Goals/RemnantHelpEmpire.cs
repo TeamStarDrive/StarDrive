@@ -179,7 +179,7 @@ namespace Ship_Game.Commands.Goals
                     Fleet.FleetTask.SetTargetPlanetAsAO(TargetPlanet);
                 
                 // New target is too strong, need to get a new fleet
-                if (Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())
+                if (TargetPlanet == null || Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())
                     return ReturnToClosestPortal();
             }
 
