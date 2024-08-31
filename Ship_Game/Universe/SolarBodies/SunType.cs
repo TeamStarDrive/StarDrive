@@ -174,7 +174,7 @@ namespace Ship_Game.Universe.SolarBodies
         public void DrawSunMesh(SolarSystem sys, in Matrix view, in Matrix projection)
         {
             Vector2 pos  = ScreenPosition(sys.Position, view, projection);
-            Vector2 edge = ScreenPosition(sys.Position + new Vector2(Radius, 0f), view, projection);
+            Vector2 edge = ScreenPosition(sys.Position + new Vector2(sys.SunRadius, 0f), view, projection);
 
             float relSizeOnScreen = (edge.X - pos.X) / GameBase.ScreenWidth;
             float sizeScaleOnScreen = 1.25f * relSizeOnScreen; // this yields the base star size

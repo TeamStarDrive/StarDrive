@@ -422,6 +422,7 @@
     <Compile Include="Ship_Game\Universe\InfluenceTree.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyBlueprints.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\DistanceDisplay.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\DysonSwarm.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ExoticSystemsListScreenItem.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ExoticSystemsListScreen.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetRenderer.cs" />

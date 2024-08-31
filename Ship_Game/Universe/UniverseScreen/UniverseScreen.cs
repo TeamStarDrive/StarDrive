@@ -206,20 +206,22 @@ namespace Ship_Game
             AddLight("Global Back Light", new Vector2(0, 0), 0.6f, globalLightRad, Color.White, +globalLightZPos, fillLight: false, shadowQuality: 0f);
 
             foreach (SolarSystem system in UState.Systems)
-            {
-                system.Lights.Clear();
+                ResetSolarSystemLights(system);
+        }
 
-                Color color     = system.Sun.LightColor;
-                float intensity = system.Sun.LightIntensity;
-                float radius    = system.Sun.Radius;
-                var light1 = AddLight("Key",               system, intensity,         radius,         color, -5500);
-                var light2 = AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
-                var light3 = AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
-                //AddLight("Back", system, intensity * 0.5f , radius, color, 2500, fallOff: 0, fillLight: true);
-                system.Lights.Add(light1);
-                system.Lights.Add(light2);
-                system.Lights.Add(light3);
-            }
+        public void ResetSolarSystemLights(SolarSystem system)
+        {
+            system.Lights.Clear();
+            Color color     = system.Sun.LightColor;
+            float intensity = system.Sun.LightIntensity;
+            float radius    = system.SunRadius;
+            var light1 = AddLight("Key",               system, intensity,         radius,         color, -5500);
+            var light2 = AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
+            var light3 = AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
+            //AddLight("Back", system, intensity * 0.5f , radius, color, 2500, fallOff: 0, fillLight: true);
+            system.Lights.Add(light1);
+            system.Lights.Add(light2);
+            system.Lights.Add(light3);
         }
 
         void RemoveLighting()
