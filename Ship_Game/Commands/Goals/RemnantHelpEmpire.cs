@@ -150,7 +150,7 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.TaskStep == 10) // Arrived back to portal
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
-            if (Remnants.Hibernating)
+            if (TargetPlanet == null || Remnants.Hibernating)
                 return ReturnToClosestPortal();
 
             if (TargetPlanet.Owner != TargetEmpire) // Planet was conquered by another empire
