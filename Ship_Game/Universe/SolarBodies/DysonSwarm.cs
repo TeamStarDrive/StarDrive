@@ -27,8 +27,9 @@ namespace Ship_Game.Universe.SolarBodies
         public float PercentOverClocked => CurrentOverclock / (float)MaxOverclock;
         public bool IsCompleted => Completion.AlmostEqual(1);
         public float ProductionBoost => Completion*3 + CurrentOverclock/100f;
-
         public float SunRadiusMultiplier => 1 - FertilityPercentLoss;
+        public int SwarmSatsInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
+        //public bool ShouldBuildMoreSwarmSats => !IsCompleted &&  intheworks and goals targeting build pos
 
         public DysonSwarm(SolarSystem system, Empire owner) 
         {
@@ -58,17 +59,20 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void Update() // once per turn
+        public void Update() // Once per turn or when a new Dyson Swarm Sat is deployed
         {
+            // todo check if owner is still eligible to have dyson swarm in this system
+
+
             int count = 0;
-            foreach (var item in Swarm)
+            foreach (KeyValuePair<Vector2, Ship> item in Swarm)
             {
-                if (item.Value != null)
+                Ship swarmSat = item.Value;
+                if (swarmSat != null)
                 {
-                    if (!item.Value.Active)
-                        Swarm[item.Key] = null;
-                    else
-                        count++;
+                    if      (!swarmSat.Active)          Swarm[item.Key] = null;
+                    else if (swarmSat.Loyalty != Owner) swarmSat.AI.OrderScuttleShip();
+                    else                                count++;
                 }
             }
 
@@ -77,6 +81,18 @@ namespace Ship_Game.Universe.SolarBodies
             FertilityPercentLoss = Completion * 0.25f + PercentOverClocked * 0.25f; // 0.0 to 0.5
         }
 
+        public void KillSwarm()
+        {
+            float scuttleTimer = 1;
+            foreach (Ship swarmSat in Swarm.Values)
+            {
+                if (swarmSat?.Active == true) 
+                {
+                    swarmSat.ScuttleTimer = scuttleTimer;
+                    scuttleTimer += 0.25f;
+                }
+            }
+        }
     }
 }
 

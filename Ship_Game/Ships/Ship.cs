@@ -178,6 +178,7 @@ namespace Ship_Game.Ships
         public bool IsTroopShip             => ShipData.IsTroopShip;
         public bool IsBomber                => ShipData.IsBomber;
         public bool IsSubspaceProjector     => ShipData.IsSubspaceProjector;
+        public bool IsDysonSwarmSat         => ShipData.IsDysonSwarmSat;
         public bool IsResearchStation       => ShipData.IsResearchStation;
         public bool IsMiningStation         => ShipData.IsMiningStation;
 

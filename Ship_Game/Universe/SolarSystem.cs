@@ -175,6 +175,15 @@ namespace Ship_Game
             }
         }
 
+        public void KillDysonSwarm()
+        {
+            if (HasDysonSwarm)
+            {
+                DysonSwarm.KillSwarm();
+                DysonSwarm = null;
+            }
+        }
+
         // Need in order for threat matrix to update starting remnants for Astronomers trait
         public void NewGameAddRemnantShipToList(Ship s)
         {

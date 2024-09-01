@@ -92,6 +92,7 @@ public interface IShipDesign
     bool IsStation           { get; }
     bool IsConstructor       { get; }
     bool IsSubspaceProjector { get; }
+    bool IsDysonSwarmSat     { get; }
     bool IsColonyShip        { get; }
     bool IsSupplyCarrier     { get; } // this ship launches supply ships
     bool IsSupplyShuttle     { get; }
