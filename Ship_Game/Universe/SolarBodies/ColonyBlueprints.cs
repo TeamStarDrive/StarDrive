@@ -117,7 +117,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 foreach (Building b in P.Buildings)
                 {
-                    if (b.IsSuitableForBlueprints && IsNotRequired(b) && Owner.IsBuildingUnlocked(b.Name))
+                    if (b.IsSuitableForBlueprints && IsNotRequired(b))
                         return true;
                 }
 
