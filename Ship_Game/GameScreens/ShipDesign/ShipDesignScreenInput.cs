@@ -384,7 +384,7 @@ namespace Ship_Game
         {
             if (!DisplayedBulkReplacementHint && ModuleGrid.RepeatedReplaceActionsThreshold())
             {
-                ToolTip.CreateFloatingText(GameText.YouCanUseShiftClick, "", pos, 10);
+                ToolTip.CreateFloatingText(GameText.YouCanUseShiftClick, "", pos, 5);
                 DisplayedBulkReplacementHint = true;
             }
         }
