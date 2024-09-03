@@ -35,7 +35,7 @@ public sealed class LoadBlueprintsToColonyScreen : SaveLoadBlueprintsScreen
                                         : $"Switch to: {blueprints.ColonyType}";
 
         string title2 = blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
-        Color color = BlueprintsScreen.GetBlueprintsIconColor(blueprints);
+        Color color = BlueprintsScreen.GetBlueprintsIconColor(blueprints.ColonyType);
         return new(null, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, color) 
         { FileNameColor = color };
     }

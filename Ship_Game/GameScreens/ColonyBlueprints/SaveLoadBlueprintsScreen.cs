@@ -145,7 +145,7 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
         }
 
         string title2 = blueprints.Validated && blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
-        Color color = BlueprintsScreen.GetBlueprintsIconColor(blueprints);
+        Color color = BlueprintsScreen.GetBlueprintsIconColor(blueprints.ColonyType);
         return new(info, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, color)
         { Enabled = blueprints.Validated, InfoColor = infoColor, FileNameColor = color };
     }

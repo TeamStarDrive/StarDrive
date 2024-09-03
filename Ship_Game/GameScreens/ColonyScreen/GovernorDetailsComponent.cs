@@ -23,6 +23,7 @@ namespace Ship_Game
         Empire Player => Planet.Universe.Player;
         private DrawableSprite PortraitSprite;
         private UIPanel Portrait;
+        UIPanel BluePrintsIcon;
         private UILabel WorldType, WorldDescription;
         DropOptions<Planet.ColonyType> ColonyTypeList;
         private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals, GovGround, SpecializedTradeHub, Prioritized;
@@ -116,9 +117,10 @@ namespace Ship_Game
             PortraitSprite = DrawableSprite.SubTex(ResourceManager.RootContent, $"Portraits/{Planet.Owner.data.PortraitName}");
 
             Portrait         = Add(new UIPanel(PortraitSprite));
+            BluePrintsIcon   = Add(new UIPanel(ResourceManager.Texture("NewUI/blueprints")));
             WorldType        = Add(new UILabel(Planet.WorldType, FontBig));
             WorldDescription = Add(new UILabel(Font12));
-            ColonyBlueprints = Add(new UILabel(GameText.ColonyBlueprintsTitle, FontBig, Color.White));
+            ColonyBlueprints = Add(new UILabel(GameText.ColonyBlueprintsTitle, FontBig, Color.Wheat));
             BlueprintsName   = Add(new UILabel("", FontBig, Color.Gold));
             BlueprintsCompletionLbl = Add(new UILabel(GameText.Completion, Font, Color.Wheat));
             BlueprintsAchiveable    = Add(new UILabel(GameText.Achievable, Font, Color.Gray));
@@ -143,7 +145,7 @@ namespace Ship_Game
             SpecializedTradeHub.OnChange = cb => { Planet.SetSpecializedTradeHub(cb.Checked); };
             SpecializedTradeHub.TextColor = Quarantine.TextColor = Prioritized.TextColor = Color.Gray;
             Quarantine.CheckedTextColor = Color.Red;
-            Prioritized.CheckedTextColor = Color.Green;
+            Prioritized.CheckedTextColor = Color.Purple;
 
             Garrison        = Slider(200, 200, 160, 40, GameText.GarrisonSize, 0, 25,Planet.GarrisonSize);
             ManualPlatforms = Slider(200, 200, 120, 40, GameText.ManualLimit, 0, 15, Planet.WantedPlatforms);
@@ -255,12 +257,17 @@ namespace Ship_Game
             base.PerformLayout();
         }
 
+        Color BlueprintsColor => Planet.HasBlueprints ? BlueprintsScreen.GetBlueprintsIconColor(Planet.Blueprints.ColonyType) : Color.White;
+
         public override void PerformLayout()
         {
             float aspect  = PortraitSprite.Size.X / PortraitSprite.Size.Y;
             float height  = (float)Math.Round(Height * 0.6f);
             Portrait.Size = new Vector2((float)Math.Round(aspect*height), height);
             Portrait.Pos  = new Vector2(X + 10, Y + 30);
+            BluePrintsIcon.Size = new Vector2(40, 40);
+            BluePrintsIcon.Pos  = Portrait.Pos;
+            BluePrintsIcon.Color = BlueprintsName.Color = BlueprintsColor;
 
             WorldType.Pos           = new Vector2(Portrait.Right + 10, Portrait.Y);
             ColonyTypeList.Pos      = new Vector2(WorldType.X, Portrait.Y + 21);
@@ -407,6 +414,7 @@ namespace Ship_Game
 
         void UpdateBlueprintsChanged()
         {
+            BlueprintsName.Color = BluePrintsIcon.Color = BlueprintsColor;
             BlueprintsName.Text = Planet.HasBlueprints ? Planet.Blueprints.Name : "";
             BlueprintsGovChange.Text = Planet.HasBlueprints && Planet.Blueprints.ColonyType != Planet.ColonyType.Colony
                 ? BlueprintsGovChange.Text = $"{Localizer.Token(GameText.GovernorChangedTo)} {Planet.Blueprints.ColonyType}"
@@ -424,6 +432,7 @@ namespace Ship_Game
                 WorldDescription.Visible   = GovernorTabView && Planet.OwnerIsPlayer;
                 ColonyTypeList.Visible     = GovernorTabView && Planet.OwnerIsPlayer;
                 Portrait.Visible           = GovernorTabView;
+                BluePrintsIcon.Visible     = Portrait.Visible && Planet.HasBlueprints;
                 WorldType.Visible          = GovernorTabView;
                 Quarantine.Visible         = GovernorTabView && Planet.OwnerIsPlayer;
                 Prioritized.Visible        = Quarantine.Visible && Planet.HasSpacePort;

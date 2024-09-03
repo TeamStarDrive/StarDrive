@@ -52,7 +52,7 @@ public sealed class LinkBlueprintsScreen : SaveLoadBlueprintsScreen
             infoColor = Color.Red;
         }
 
-        Color color = BlueprintsScreen.GetBlueprintsIconColor(blueprints);
+        Color color = BlueprintsScreen.GetBlueprintsIconColor(blueprints.ColonyType);
         return new(null, blueprints, blueprints.Name, title1, title2, "", BlueprintsIcon, color) 
         { Enabled = infoColor == Color.White, InfoColor = infoColor, FileNameColor = color };
     }
