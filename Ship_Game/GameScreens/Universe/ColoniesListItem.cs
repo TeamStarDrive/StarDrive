@@ -234,7 +234,18 @@ namespace Ship_Game
             Rectangle planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 25, PlanetNameRect.Height - 50, PlanetNameRect.Height - 50);
             batch.Draw(P.PlanetTexture, planetIconRect, Color.White);
             if (P.PrioritizedPort)
-                batch.DrawString(Fonts.Arial10, GameText.PrioritizedPort, new Vector2(planetIconRect.X, planetIconRect.Bottom + 8), Color.Green);
+            {
+                batch.DrawString(Fonts.Arial12, GameText.PrioritizedPort,
+                    new Vector2(planetIconRect.X + planetIconRect.Width + 10, planetIconRect.Top - 22), Screen.ApplyCurrentAlphaToColor(Color.Purple));
+            }
+
+            if (P.HasBlueprints) 
+            {
+                var color = BlueprintsScreen.GetBlueprintsIconColor(P.Blueprints.ColonyType);
+                batch.DrawString(Fonts.Arial12, P.Blueprints.Name, new Vector2(planetIconRect.X + planetIconRect.Width+10, planetIconRect.Bottom+5), color);
+                batch.Draw(ResourceManager.Texture("NewUI/blueprints"), 
+                    new Vector2(planetIconRect.X+2, planetIconRect.Bottom), new Vector2(25, 25), color);
+            }
 
             var cursor = new Vector2(PopRect.X + PopRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float population = P.PopulationBillion;

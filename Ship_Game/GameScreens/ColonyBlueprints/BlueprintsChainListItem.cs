@@ -14,7 +14,7 @@ namespace Ship_Game
         {
             BlueprintsName = template.Name;
             Info = template.Exclusive ? Localizer.Token(GameText.ExclusiveBlueprints) : "";
-            IconColor = BlueprintsScreen.GetBlueprintsIconColor(template);
+            IconColor = BlueprintsScreen.GetBlueprintsIconColor(template.ColonyType);
             if (template.ColonyType != Planet.ColonyType.Colony)
             {
                 Info = Info.NotEmpty() ? $"{Info} | Switch to: {template.ColonyType}"

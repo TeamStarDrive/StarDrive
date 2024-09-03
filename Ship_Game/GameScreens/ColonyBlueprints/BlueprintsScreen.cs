@@ -610,9 +610,9 @@ namespace Ship_Game
             return null; // default: use Plan Statistics
         }
 
-        public static Color GetBlueprintsIconColor(BlueprintsTemplate template)
+        public static Color GetBlueprintsIconColor(Planet.ColonyType colonyType)
         {
-            switch (template.ColonyType)
+            switch (colonyType)
             {
                 case Planet.ColonyType.Research:     return Color.CornflowerBlue;
                 case Planet.ColonyType.Industrial:   return Color.Orange;

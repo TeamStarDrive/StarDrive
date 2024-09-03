@@ -150,7 +150,7 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.TaskStep == 10) // Arrived back to portal
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
-            if (Remnants.Hibernating)
+            if (TargetPlanet == null || Remnants.Hibernating)
                 return ReturnToClosestPortal();
 
             if (TargetPlanet.Owner != TargetEmpire) // Planet was conquered by another empire
@@ -179,7 +179,7 @@ namespace Ship_Game.Commands.Goals
                     Fleet.FleetTask.SetTargetPlanetAsAO(TargetPlanet);
                 
                 // New target is too strong, need to get a new fleet
-                if (Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())
+                if (TargetPlanet == null || Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())
                     return ReturnToClosestPortal();
             }
 

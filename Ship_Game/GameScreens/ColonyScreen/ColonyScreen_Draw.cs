@@ -130,14 +130,14 @@ namespace Ship_Game
             {
                 if (pgs.Building.PlusFlatFoodAmount > 0f || pgs.Building.PlusFoodPerColonist > 0f)
                 {
-                    numFood += pgs.Building.PlusFoodPerColonist * P.PopulationBillion * P.Food.Percent;
+                    numFood += pgs.Building.PlusFoodPerColonist * P.PopulationBillion * P.Food.Percent * P.Fertility;
                     numFood += pgs.Building.PlusFlatFoodAmount;
                 }
 
                 if (pgs.Building.PlusFlatProductionAmount > 0f || pgs.Building.PlusProdPerColonist > 0f)
                 {
                     numProd += pgs.Building.PlusFlatProductionAmount;
-                    numProd += pgs.Building.PlusProdPerColonist * P.PopulationBillion * P.Prod.Percent;
+                    numProd += pgs.Building.PlusProdPerColonist * P.PopulationBillion * P.Prod.Percent * P.MineralRichness;
                 }
 
                 if (pgs.Building.PlusProdPerRichness > 0f)
