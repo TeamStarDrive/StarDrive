@@ -105,7 +105,7 @@ namespace Ship_Game.Ships
             if (IsSubspaceProjector)
                 Loyalty.AI.SpaceRoadsManager.RemoveProjectorFromRoadList(this);
 
-            if (IsDysonSwarmSat)
+            if (IsDysonSwarmController)
                 System.DysonSwarm?.Update();
 
             if (Loyalty.CanBuildPlatforms)

@@ -20,7 +20,7 @@ public partial class ShipDesign
     public bool IsStation           { get; private set; }
     public bool IsConstructor       { get; private set; }
     public bool IsSubspaceProjector { get; private set; }
-    public bool IsDysonSwarmSat     { get; private set; }
+    public bool IsDysonSwarmController     { get; private set; }
     public bool IsColonyShip        { get; private set; }
     public bool IsSupplyCarrier     { get; private set; } // this ship launches supply ships
     public bool IsSupplyShuttle     { get; private set; }
@@ -186,7 +186,7 @@ public partial class ShipDesign
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
         IsMiningStation   = IsPlatformOrStation && BaseRefiningPerTurn > 0;
-        IsDysonSwarmSat   = Name == "Swarm Sat";
+        IsDysonSwarmController  = Name == "Dyson Swarm Controller";
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");

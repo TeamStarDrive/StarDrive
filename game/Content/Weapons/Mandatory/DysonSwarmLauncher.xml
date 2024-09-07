@@ -1,0 +1,25 @@
+﻿<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Tag_Cannon>true</Tag_Cannon>
+  <Tag_Kinetic>true</Tag_Kinetic>
+
+  <UID>DysonSwarmLauncher</UID>
+  <FireDelay>1</FireDelay>
+  <Range>6000</Range>
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <FireCueName>sd_weapon_flakcannon_01</FireCueName>
+
+   <!-- Projectile Information -->
+  <DamageAmount>0</DamageAmount>
+  <Scale>1.2</Scale>
+  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileRadius>3</ProjectileRadius> 
+  
+  <ProjectileTexturePath>projLong_02_orange_dual</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
+  <FireCone>0</FireCone>
+</Weapon>

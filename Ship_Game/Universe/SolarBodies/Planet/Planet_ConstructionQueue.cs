@@ -75,7 +75,7 @@ public partial class Planet
     public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
     public bool OrbitalsInTheWorks       => ConstructionQueue.Any(b => b.isOrbital || b.ShipData?.IsShipyard == true);
     public int NumTroopsInTheWorks       => ConstructionQueue.Count(t => t.isTroop);
-    public bool SwarmSatInTheWorks       => ConstructionQueue.Any(qi => qi.isShip && qi.ShipData.IsDysonSwarmSat);
+    public bool SwarmSatInTheWorks       => ConstructionQueue.Any(qi => qi.isShip && qi.ShipData.IsDysonSwarmController);
 
     public bool TerraformerInTheWorks    => BuildingInQueue(Building.TerraformerId);
     public bool BuildingBuilt(int bid)   => HasBuilding(existing => existing.BID == bid);

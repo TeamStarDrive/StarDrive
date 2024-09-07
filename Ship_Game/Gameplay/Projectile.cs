@@ -158,7 +158,7 @@ namespace Ship_Game.Gameplay
         }
 
         // new projectile from planet
-        public static Projectile Create(Weapon weapon, Planet planet, Empire loyalty, Vector2 direction, GameObject target)
+        public static Projectile Create(Weapon weapon, Planet planet, Empire loyalty, Vector2 direction, GameObject target, bool IsSwarmSat = false)
         {
             if (loyalty == null) throw new NullReferenceException(nameof(loyalty));
             if (planet.Universe == null) throw new NullReferenceException(nameof(planet.Universe));
@@ -167,7 +167,7 @@ namespace Ship_Game.Gameplay
             {
                 ZPos  = 2500f, // +Z: deep in background, away from camera
             };
-            p.Initialize(weapon.Origin, direction, target, playSound: true, Vector2.Zero);
+            p.Initialize(weapon.Origin, direction, target, playSound: true, Vector2.Zero, IsSwarmSat: IsSwarmSat);
             return p;
         }
 
@@ -222,12 +222,13 @@ namespace Ship_Game.Gameplay
             return weapon != null;
         }
 
-        void Initialize(Vector2 origin, Vector2 direction, GameObject target, bool playSound, Vector2 inheritedVelocity, bool isMirv = false)
+        void Initialize(Vector2 origin, Vector2 direction, GameObject target, bool playSound, 
+            Vector2 inheritedVelocity, bool isMirv = false, bool IsSwarmSat = false)
         {
             Position = origin;
             Emitter.Position = new Vector3(origin, 0f);
 
-            Range                 = Weapon.BaseRange;
+            Range                 = IsSwarmSat ? origin.Distance(target.Position) : Weapon.BaseRange;
             Radius                = Weapon.ProjectileRadius;
             Explodes              = Weapon.Explodes;
             FakeExplode           = Weapon.FakeExplode;

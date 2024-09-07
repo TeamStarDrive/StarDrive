@@ -657,6 +657,7 @@ namespace Ship_Game
             OwnedSolarSystems.AddUniqueRef(planet.System);
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
+            planet.SetDysonSwarmWeapon(loadWeapon: planet.System.HasDysonSwarm && planet.Owner == planet.System.DysonSwarm.Owner);
         }
 
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);

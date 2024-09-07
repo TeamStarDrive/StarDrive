@@ -567,9 +567,8 @@ namespace Ship_Game.Gameplay
             if (ProjectedImpactPoint(target, out Vector2 pip))
             {
                 Vector2 direction = (pip - Origin).Normalized();
-
                 foreach (FireSource fireSource in EnumFireSources(PlanetOrigin, direction))
-                    Projectile.Create(this, planet, planet.Owner, fireSource.Direction, target);
+                    Projectile.Create(this, planet, planet.Owner, fireSource.Direction, target, IsSwarmSat: UID == "DysonSwarmLauncher");
             }
         }
 

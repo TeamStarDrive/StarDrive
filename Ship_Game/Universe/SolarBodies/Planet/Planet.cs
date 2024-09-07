@@ -41,6 +41,8 @@ namespace Ship_Game
         
         [StarData] public TroopManager Troops;
         [StarData] public PlanetBudget Budget;
+        [StarData] Weapon DysonSwarmLauncher;
+        [StarData] float DysonSwarmLauncherTimer;
 
         [StarData] public bool DontScrapBuildings = false;
         [StarData] public bool Quarantine         = false;
@@ -598,6 +600,8 @@ namespace Ship_Game
             GeodeticManager.Update(timeStep);
             // this needs some work
             UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
+            if (System.DysonSwarm?.Owner == Owner)
+                UpdateDysonSwarmLaunch(timeStep);
         }
 
         void UpdateDynamicBuildings()
@@ -622,6 +626,41 @@ namespace Ship_Game
             OrbitalStations.RemoveSwapLast(orbital);
             if (orbital.IsShipyard)
                 UpdateShipyards();
+        }
+
+        void UpdateDysonSwarmLaunch(FixedSimTime timeStep)
+        {
+            if (SpaceCombatNearPlanet
+                || Level == 1
+                || System.DysonSwarm.IsSwarmCompleted
+                || System.DysonSwarm.ControllerCompletion < 0.1f)
+            {
+                return;
+            }
+
+            DysonSwarmLauncherTimer += timeStep.FixedTime;
+            if (DysonSwarmLauncherTimer >= DysonSwarmLauncher.FireDelay / Level)
+            {
+                float productionCost = System.DysonSwarm.SwarmSatProductionCost;
+                if (ProdHere >= productionCost && (NonCybernetic || Prod.Percent > 0.1f) && System.DysonSwarm.TryGetRandomControllerTarget(out Ship target))
+                { 
+                    DysonSwarmLauncher.FireFromPlanet(this, target);
+                    ProdHere -= productionCost;
+                }
+
+                DysonSwarmLauncherTimer = 0;
+            }
+        }
+
+        public void SetDysonSwarmWeapon(bool loadWeapon)
+        {
+            DysonSwarmLauncher = null;
+            if (loadWeapon)
+            {
+                // Todo ensure this template exists when mod/vanilla content is loaded
+                ResourceManager.GetWeaponTemplate("DysonSwarmLauncher", out IWeaponTemplate t);
+                DysonSwarmLauncher = new(Universe, t, null, null, null);
+            }
         }
 
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
@@ -906,7 +945,7 @@ namespace Ship_Game
             MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
         }
 
-        public int Level { get; private set; }
+        public int Level { get; private set; } // Level has a minimum of 1
         public string DevelopmentStatus { get; private set; } = "Undeveloped";
 
         public void UpdateDevelopmentLevel() // need to check this with Racial env

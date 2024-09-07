@@ -14,41 +14,44 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class DysonSwarm
     {
-        public const int TotalSwarmSats = 50;
+        public const int TotalSwarmControllers = 50;
         [StarData] public readonly Map<Vector2, Ship> Swarm;
         [StarData] public readonly SolarSystem System;
+        [StarData] public readonly float SwarmSatProductionCost;
         [StarData] public Empire Owner { get; private set; }
-        [StarData] public float Completion { get; private set; } // 0.0 to 1.0
+        [StarData] public float ControllerCompletion { get; private set; } // 0.0 to 1.0
+        [StarData] public float SwarmCompletion { get; private set; } // 0.0 to 1.0, cannot be reduced unless owner decides to.
         [StarData] public bool Overclock { get; private set; }
         [StarData] public int MaxOverclock { get; private set; } = 50;
         [StarData] public int CurrentOverclock { get; private set; }
         [StarData] public float FertilityPercentLoss { get; private set; }
 
         public float PercentOverClocked => CurrentOverclock / (float)MaxOverclock;
-        public bool IsCompleted => Completion.AlmostEqual(1);
-        public float ProductionBoost => Completion*3 + CurrentOverclock/100f;
+        public bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
+        public bool IsSwarmCompleted => SwarmCompletion.AlmostEqual(1);
+        public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)*100 + CurrentOverclock;
         public float SunRadiusMultiplier => 1 - FertilityPercentLoss;
-        public int SwarmSatsInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
+        public int SwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         //public bool ShouldBuildMoreSwarmSats => !IsCompleted &&  intheworks and goals targeting build pos
 
         public DysonSwarm(SolarSystem system, Empire owner) 
         {
             Owner = owner;
             System = system;
-            Swarm = new Map<Vector2, Ship>();
+            Swarm = [];
+            SwarmSatProductionCost = owner.Universe.ProductionPace;
             Init();
         }
 
-
         void Init()
         {
-            AddSwarmPositions(20, 20_000);
-            AddSwarmPositions(15, 10_000);
-            AddSwarmPositions(8, 5000);
-            AddSwarmPositions(6, 2500);
-            AddSwarmPositions(1, 0); // total of 50
+            AddControllerPositions(20, 20_000);
+            AddControllerPositions(15, 10_000);
+            AddControllerPositions(8, 5000);
+            AddControllerPositions(6, 2500);
+            AddControllerPositions(1, 0); // total of 50
 
-            void AddSwarmPositions(int numPerRing, int distance)
+            void AddControllerPositions(int numPerRing, int distance)
             {
                 float degrees = 360 / numPerRing;
                 for (int i = 0; i < numPerRing; i++)
@@ -56,6 +59,12 @@ namespace Ship_Game.Universe.SolarBodies
                     var offset = MathExt.PointOnCircle(i * degrees, distance);
                     Swarm.Add(System.Position + offset, null);
                 }
+            }
+
+            foreach (Planet p in System.PlanetList) 
+            {
+                if (p.Owner == Owner) 
+                    p.SetDysonSwarmWeapon(loadWeapon: true);
             }
         }
 
@@ -67,31 +76,43 @@ namespace Ship_Game.Universe.SolarBodies
             int count = 0;
             foreach (KeyValuePair<Vector2, Ship> item in Swarm)
             {
-                Ship swarmSat = item.Value;
-                if (swarmSat != null)
+                Ship swarmController = item.Value;
+                if (swarmController != null)
                 {
-                    if      (!swarmSat.Active)          Swarm[item.Key] = null;
-                    else if (swarmSat.Loyalty != Owner) swarmSat.AI.OrderScuttleShip();
-                    else                                count++;
+                    if      (!swarmController.Active)          Swarm[item.Key] = null;
+                    else if (swarmController.Loyalty != Owner) swarmController.AI.OrderScuttleShip();
+                    else                                       count++;
                 }
             }
 
-            Completion = count / TotalSwarmSats;
+            ControllerCompletion = count / TotalSwarmControllers;
             CurrentOverclock += ((Overclock ? MaxOverclock : 0) - CurrentOverclock).Clamped(-1, 1);
-            FertilityPercentLoss = Completion * 0.25f + PercentOverClocked * 0.25f; // 0.0 to 0.5
+            FertilityPercentLoss = SwarmCompletion * 0.25f + PercentOverClocked * 0.25f; // 0.0 to 0.5
+        }
+
+        public bool TryGetRandomControllerTarget(out Ship controller)
+        {
+            controller = null;
+            var controllers = Swarm.Values.Filter(s => s != null);
+            if (controllers.Length > 0)
+                controller = Owner.Random.Item(controllers);
+
+            return controller != null;
         }
 
         public void KillSwarm()
         {
             float scuttleTimer = 1;
-            foreach (Ship swarmSat in Swarm.Values)
+            foreach (Ship swarmController in Swarm.Values)
             {
-                if (swarmSat?.Active == true) 
+                if (swarmController?.Active == true) 
                 {
-                    swarmSat.ScuttleTimer = scuttleTimer;
+                    swarmController.ScuttleTimer = scuttleTimer;
                     scuttleTimer += 0.25f;
                 }
             }
+
+            SwarmCompletion = 0;
         }
     }
 }
