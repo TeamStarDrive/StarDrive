@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+  <Version>2</Version>
+  <UID>DysonSwarm1</UID>
+  <TechnologyType>Industry</TechnologyType>
+  <Cost>2000</Cost>
+  <NameIndex>4909</NameIndex>
+  <DescriptionIndex>4910</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>DysonSwarmOverclock</UID>
+    </LeadsToTech>  
+  </LeadsTo>
+  <ModulesUnlocked>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+	  <Name>A single Dyson Swarm Project</Name>
+      <BonusType>Max Dyson Swarm</BonusType>
+      <Bonus>1</Bonus>
+      <BonusIndex>4911</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

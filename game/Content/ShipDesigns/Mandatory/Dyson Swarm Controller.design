@@ -7,6 +7,7 @@ Size=8,7
 GridCenter=4,4
 DefaultCombatState=AttackRuns
 ShipCategory=Civilian
+FixedCost=300
 HangarDesignation=General
 IsShipyard=false
 IsOrbitalDefense=false

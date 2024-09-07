@@ -13004,6 +13004,33 @@ DisableScreenPanningOption:
 DisableScreenPanningOptionTip:
  Id: 4525
  ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
+BB_Tech_DysonSwarm1_Name: 
+ Id: 4909
+ ENG: "Dyson Swarm"   
+BB_Tech_DysonSwarm1_Desc: 
+ Id: 4910
+ ENG: "We can enable a way to tap to the energy of a star by buildings millions of Solar Satellites which will collect energy from the star, and direct it to Swarm Controllers. The Controllers will distribute the energy to our Colonies in that system and gain massive production boost. The sunlight will dim a bit and each colony will lose 25% of its fertility."    
+BB_Tech_DysonSwarm1_Bonus: 
+ Id: 4911
+ ENG: "Enables us to build a single Dyson Swarm Project which will grant 100 Flat production bonus to our colonies in the system. This bonus will not affect Mineral Decay"     
+BB_Tech_DysonSwarmOverclock_Name: 
+ Id: 4912
+ ENG: "Swarm Overclock"   
+BB_Tech_DysonSwarmOverclock_Desc: 
+ Id: 4913
+ ENG: "Enable overclocking Dyson swarm controllers, which will give additional production per colony. The overclocked production will, however, affect Mineral Decay of the planets and cause additional 25% fertility loss."    
+BB_Tech_DysonOverclock_Bonus: 
+ Id: 4914
+ ENG: "Overclock production by 50 for our colonies in a system with a Dyson Swarm project we own."      
+BB_Tech_DysonSwarm2_Name: 
+ Id: 4915
+ ENG: "More Dyson Swarm"   
+BB_Tech_DysonSwarm2_Desc: 
+ Id: 4916
+ ENG: "We can build another Dyson Swarm project within our Empire"    
+BB_Tech_DysonSwarm2_Bonus: 
+ Id: 4917
+ ENG: "Additional Dyson Swarm Project"      
 PrioritizedPort:
  Id: 4918
  ENG: "Prioritzed Port"   

@@ -25,7 +25,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float SwarmSatProductionCost;
         [StarData] public Empire Owner { get; private set; }
         [StarData] public float ControllerCompletion { get; private set; } // 0.0 to 1.0
-        [StarData] public bool Overclock { get; private set; }
+        [StarData] public bool EnableOverclock { get; private set; }
         [StarData] public int MaxOverclock { get; private set; } = 50;
         [StarData] public int CurrentOverclock { get; private set; }
         [StarData] public int NumSwarmSats { get; private set; }
@@ -36,6 +36,7 @@ namespace Ship_Game.Universe.SolarBodies
         public float SwarmCompletion => NumSwarmSats / RequiredSwarmSats; // 0.0 to 1.0
         public bool IsSwarmCompleted => SwarmCompletion.AlmostEqual(1);
         public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)*100 + CurrentOverclock;
+        public float ProductionNotAffectingDecay => ControllerCompletion.UpperBound(SwarmCompletion) * 100;
         public float SunRadiusMultiplier => 1 - FertilityPercentLoss;
         public int NunSwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         public bool ShouldBuildMoreSwarmControllers => !AreControllersCompleted 
@@ -93,7 +94,9 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             ControllerCompletion = count / TotalSwarmControllers;
-            CurrentOverclock += ((Overclock ? MaxOverclock : 0) - CurrentOverclock).Clamped(-1, 1);
+            CurrentOverclock += ((EnableOverclock ? MaxOverclock : 0) - CurrentOverclock).Clamped(-1, 1);
+            float completionLimit = ControllerCompletion.UpperBound(SwarmCompletion);
+            CurrentOverclock = CurrentOverclock.UpperBound((int)(completionLimit * MaxOverclock));
             FertilityPercentLoss = SwarmCompletion * 0.25f + PercentOverClocked * 0.25f; // 0.0 to 0.5
         }
 
