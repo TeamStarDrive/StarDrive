@@ -2,6 +2,7 @@
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
@@ -37,6 +38,16 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
+        /// <summary>
+        ///  build Dyson Swarm Controller
+        /// </summary>
+        public BuildConstructionShip(Vector2 buildPos, Empire owner, Planet planetToBuildAt)
+            : this(owner)
+        {
+            PlanetBuildingAt = planetToBuildAt;
+            Initialize(DysonSwarm.DysonSwarmControllerName, buildPos, null);
+        }
+
         public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, Planet tetherPlanet, Vector2 tetherOffset)
             : this(owner)
         {
@@ -47,15 +58,20 @@ namespace Ship_Game.Commands.Goals
         {
             float structureCost = ToBuild.GetCost(Owner);
             IShipDesign constructor = BuildableShip.GetConstructor(Owner, TetherPlanet?.System ?? TargetSystem, structureCost);
-            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, ToBuild, out Planet planet, priority: 0.25f))
-                return GoalStep.TryAgain;
 
-            PlanetBuildingAt = planet;
+            if (PlanetBuildingAt == null)
+            {
+                if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, ToBuild, out Planet planet, priority: 0.25f))
+                    return GoalStep.TryAgain;
+
+                PlanetBuildingAt = planet;
+            }
+
             QueueItemType itemType = ToBuild.IsSubspaceProjector ? QueueItemType.RoadNode : QueueItemType.Orbital;
             if (Build.Rush)
                 itemType = QueueItemType.OrbitalUrgent;
-            
-            planet.Construction.Enqueue(itemType, ToBuild, constructor, structureCost, Build.Rush, this);
+
+            PlanetBuildingAt.Construction.Enqueue(itemType, ToBuild, constructor, structureCost, Build.Rush, this);
             return GoalStep.GoToNextStep;
         }
 

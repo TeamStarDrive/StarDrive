@@ -104,6 +104,7 @@ namespace Ship_Game
         [StarData] public bool TaxGoods; // unlocked by tech
         [StarData] public bool SmartMissiles; // unlocked by tech
         [StarData] public int TerraformingLevel;  // unlocked by tech, FB from 0 to 3
+        [StarData] public int DysonSwarmMax = 1;  // unlocked by tech
         [StarData] public float EnemyPlanetInhibitionPercentCounter;  // unlocked by tech, FB - from 0 to 0.75
         [StarData] public bool Assimilators;
         [StarData] public float PassengerModifier = 1f;

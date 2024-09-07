@@ -215,6 +215,8 @@ namespace Ship_Game
         [StarData] protected Array<Building> BuildingList = new();
         public int NumBuildings => BuildingList.Count;
 
+        protected float DysonFertilityMultiplier => System.HasDysonSwarm ? 1 - System.DysonSwarm.FertilityPercentLoss : 1;
+
         public int NumMilitaryBuildings => BuildingList.Count(b => b.IsMilitary);
         public ReadOnlySpan<Building> Buildings => BuildingList.AsReadOnlySpan();
 

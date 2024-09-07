@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.Universe.SolarBodies;
 using static Ship_Game.Ships.Ship;
 
 namespace Ship_Game.Ships;
@@ -186,7 +187,7 @@ public partial class ShipDesign
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
         IsMiningStation   = IsPlatformOrStation && BaseRefiningPerTurn > 0;
-        IsDysonSwarmController  = Name == "Dyson Swarm Controller";
+        IsDysonSwarmController  = Name == DysonSwarm.DysonSwarmControllerName;
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");

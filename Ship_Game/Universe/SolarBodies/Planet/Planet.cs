@@ -41,7 +41,7 @@ namespace Ship_Game
         
         [StarData] public TroopManager Troops;
         [StarData] public PlanetBudget Budget;
-        [StarData] Weapon DysonSwarmLauncher;
+        Weapon DysonSwarmLauncher;
         [StarData] float DysonSwarmLauncherTimer;
 
         [StarData] public bool DontScrapBuildings = false;
@@ -129,7 +129,9 @@ namespace Ship_Game
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * Empire.RacialEnvModifer(Category, empire);
-        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * Empire.RacialEnvModifer(Category, empire);
+        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) 
+                                                       * DysonFertilityMultiplier
+                                                       * Empire.RacialEnvModifer(Category, empire);
         public float MaxBaseFertilityFor(Empire empire) => BaseMaxFertility * Empire.RacialEnvModifer(Category, empire);
 
         public bool IsCybernetic  => Owner is { IsCybernetic: true };
@@ -600,8 +602,7 @@ namespace Ship_Game
             GeodeticManager.Update(timeStep);
             // this needs some work
             UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
-            if (System.DysonSwarm?.Owner == Owner)
-                UpdateDysonSwarmLaunch(timeStep);
+            UpdateDysonSwarmLaunch(timeStep);
         }
 
         void UpdateDynamicBuildings()
@@ -630,22 +631,29 @@ namespace Ship_Game
 
         void UpdateDysonSwarmLaunch(FixedSimTime timeStep)
         {
-            if (SpaceCombatNearPlanet
-                || Level == 1
-                || System.DysonSwarm.IsSwarmCompleted
-                || System.DysonSwarm.ControllerCompletion < 0.1f)
+            DysonSwarm dysonSwarm = System.DysonSwarm;
+            if (dysonSwarm == null
+                || dysonSwarm.Owner != Owner
+                || SpaceCombatNearPlanet
+                || Level == 1 && Storage.ProdRatio < 0.5f
+                || dysonSwarm.IsSwarmCompleted
+                || dysonSwarm.ControllerCompletion < 0.1f) // need at least 1 controller deployed
             {
                 return;
             }
 
+            if (DysonSwarmLauncher == null) // after loading a game
+                SetDysonSwarmWeapon(true);
+
             DysonSwarmLauncherTimer += timeStep.FixedTime;
             if (DysonSwarmLauncherTimer >= DysonSwarmLauncher.FireDelay / Level)
             {
-                float productionCost = System.DysonSwarm.SwarmSatProductionCost;
-                if (ProdHere >= productionCost && (NonCybernetic || Prod.Percent > 0.1f) && System.DysonSwarm.TryGetRandomControllerTarget(out Ship target))
+                float productionCost = dysonSwarm.SwarmSatProductionCost;
+                if (ProdHere >= productionCost && (NonCybernetic || Storage.ProdRatio > 0.1f) && dysonSwarm.TryGetRandomControllerTarget(out Ship target))
                 { 
                     DysonSwarmLauncher.FireFromPlanet(this, target);
                     ProdHere -= productionCost;
+                    dysonSwarm.DeploySwarmSat();
                 }
 
                 DysonSwarmLauncherTimer = 0;
@@ -658,7 +666,7 @@ namespace Ship_Game
             if (loadWeapon)
             {
                 // Todo ensure this template exists when mod/vanilla content is loaded
-                ResourceManager.GetWeaponTemplate("DysonSwarmLauncher", out IWeaponTemplate t);
+                ResourceManager.GetWeaponTemplate(DysonSwarm.DysonSwarmLauncherTemplate, out IWeaponTemplate t);
                 DysonSwarmLauncher = new(Universe, t, null, null, null);
             }
         }

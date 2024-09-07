@@ -108,11 +108,11 @@ namespace Ship_Game.Ships
             ShieldMax = UpdateShieldPowerMax(ShieldAmplifyPerShield);
 
             S.ShieldMax = ShieldMax;
-            S.NetPower = Power.Calculate(modules, e);
+            S.NetPower  = Power.Calculate(modules, e);
             S.PowerStoreMax  = S.NetPower.PowerStoreMax;
             S.PowerFlowMax   = S.NetPower.PowerFlowMax;
-            S.ShieldPercent = (100f * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
-            S.SensorRange   += maxSensorBonus;
+            S.ShieldPercent  = (100f * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
+            S.SensorRange    += maxSensorBonus;
 
             // Apply modifiers to stats
             if (S.IsPlatform)
@@ -132,10 +132,6 @@ namespace Ship_Game.Ships
             S.CargoSpaceMax = GetCargoSpace(S.CargoSpaceMax, Hull);
 
             S.SetActiveInternalSlotCount(activeInternalSlots);
-
-            // TODO: are these used? (legacy?)
-            //S.TrackingPower += 1 + e.data.Traits.Militaristic + (S.IsPlatform ? 3 : 0);
-            //S.TargetingAccuracy += 1 + e.data.Traits.Militaristic + (S.IsPlatform ? 3 : 0);
         }
 
         public void UpdateMassRelated()

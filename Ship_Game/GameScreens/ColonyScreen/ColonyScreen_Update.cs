@@ -138,9 +138,10 @@ namespace Ship_Game
                                             && TerraformLevel >= 3 && TerraMaxPopBillion.Less(MinEstimatedMaxPop);
         }
 
-        bool IsTerraformTabSelected => PFacilities.SelectedIndex == 3;
-        bool IsTradeTabSelected     => PFacilities.SelectedIndex == 2;
-        bool IsStatTabSelected      => PFacilities.SelectedIndex == 0;
+        bool IsDysonSwarmTabSelected => PFacilities.IsTabSelected(Localizer.Token(GameText.DysonSwarm));
+        bool IsTerraformTabSelected  => PFacilities.IsTabSelected(Localizer.Token(GameText.BB_Tech_Terraforming_Name));
+        bool IsTradeTabSelected      => PFacilities.SelectedIndex == 2;
+        bool IsStatTabSelected       => PFacilities.SelectedIndex == 0;
 
         Color GetManualImportSlotsOverrideColor()
         {

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
@@ -869,6 +870,16 @@ namespace Ship_Game
         bool BioSphereProfitable(Building bio)
         {
             return Money.NetRevenueGain(bio) >= 0;
+        }
+
+        void TryBuildDysonSwarmControllers()
+        {
+            if (System.EmpireOwnsDysonSwarm(Owner)
+                && System.DysonSwarm.ShouldBuildMoreSwarmControllers
+                && System.DysonSwarm.TryGetAvailablePosForController(out Vector2 pos))
+            {
+                Owner.AI.AddGoalAndEvaluate(new BuildConstructionShip(pos, DysonSwarm.DysonSwarmControllerName, Owner));
+            }
         }
 
         // FB - For unit tests only!

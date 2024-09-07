@@ -213,6 +213,9 @@ namespace Ship_Game.Universe.SolarBodies
 
             float exoticProduction = Planet.Owner.GetStaticExoticBonusMuliplier(ExoticBonusType.Production);
             YieldPerColonist = ProdYieldFormula(richness, plusPerColonist, Planet.Owner) * exoticProduction;
+            if (Planet.System.EmpireOwnsDysonSwarm(Planet.Owner))
+                FlatBonus += Planet.System.DysonSwarm.ProductionBoost;
+
             FlatBonus *= exoticProduction;
 
             // Cybernetics consume production and will starve at 100% tax, so ease up on them

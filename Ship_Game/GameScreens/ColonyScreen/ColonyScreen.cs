@@ -184,16 +184,8 @@ namespace Ship_Game
                                      LeftMenu.Width - 60 - PlanetInfo.Width,
                                      LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
 
-            Array<LocalizedText> pFacTabs = new()
-            {
-                GameText.Statistics2,
-                GameText.Description,
-                GameText.Trade2,
-            };
-            if (Player.data.Traits.TerraformingLevel > 0 || P.Terraformable)
-                pFacTabs.Add(GameText.BB_Tech_Terraforming_Name); // Terraforming
-
-            PFacilities = base.Add(new Submenu(pFacilitiesR, pFacTabs));
+            PFacilities = base.Add(new Submenu(pFacilitiesR));
+            PopulatePfacilitieTabs();
             PFacilities.OnTabChange = OnPFacilitiesTabChange;
             // FB - sticky tab selection on colony change via arrows
             if (facilitiesTabSelected < PFacilities.Tabs.Count)
@@ -287,6 +279,20 @@ namespace Ship_Game
             Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
             CreateTradeDetails(detailsVector);
             CreateTerraformingDetails(detailsVector);
+        }
+
+        void PopulatePfacilitieTabs()
+        {
+            PFacilities.ClearTabs();
+            PFacilities.AddTab(GameText.Statistics2);
+            PFacilities.AddTab(GameText.Description);
+            PFacilities.AddTab(GameText.Trade2);
+
+            if (Player.data.Traits.TerraformingLevel > 0 || P.Terraformable)
+                PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name);
+
+            if (DysonSwarmTabAllowed)
+                PFacilities.AddTab(GameText.DysonSwarm);
         }
 
         void AddLabel(ref UILabel uiLabel, Vector2 pos, LocalizedText text, Font font, Color color)
