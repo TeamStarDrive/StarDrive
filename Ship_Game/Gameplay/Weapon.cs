@@ -10,6 +10,7 @@ using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Utils;
 using Ship_Game.Universe;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game.Gameplay
 {
@@ -568,7 +569,7 @@ namespace Ship_Game.Gameplay
             {
                 Vector2 direction = (pip - Origin).Normalized();
                 foreach (FireSource fireSource in EnumFireSources(PlanetOrigin, direction))
-                    Projectile.Create(this, planet, planet.Owner, fireSource.Direction, target, IsSwarmSat: UID == "DysonSwarmLauncher");
+                    Projectile.Create(this, planet, planet.Owner, fireSource.Direction, target, IsSwarmSat: UID == DysonSwarm.DysonSwarmLauncherTemplate);
             }
         }
 

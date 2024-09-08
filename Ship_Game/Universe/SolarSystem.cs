@@ -48,7 +48,7 @@ namespace Ship_Game
         public bool HasDysonSwarm => DysonSwarm != null;
         public bool EmpireOwnsDysonSwarm(Empire empire) => HasDysonSwarm && DysonSwarm.Owner == empire;
 
-        public float SunRadius => HasDysonSwarm ? 1 - DysonSwarm.FertilityPercentLoss : Sun.Radius;
+        public float SunRadius => HasDysonSwarm ? Sun.Radius * (1 - DysonSwarm.FertilityPercentLoss) : Sun.Radius;
 
         public SunType Sun
         {
@@ -174,6 +174,11 @@ namespace Ship_Game
                     }
                 }
             }
+        }
+
+        public void ActivateDysonSwarm(Empire empire)
+        {
+            DysonSwarm = new(this, empire);
         }
 
         public void KillDysonSwarm()

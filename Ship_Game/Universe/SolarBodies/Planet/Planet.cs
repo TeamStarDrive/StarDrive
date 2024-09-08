@@ -637,7 +637,7 @@ namespace Ship_Game
                 || SpaceCombatNearPlanet
                 || Level == 1 && Storage.ProdRatio < 0.5f
                 || dysonSwarm.IsSwarmCompleted
-                || dysonSwarm.ControllerCompletion < 0.1f) // need at least 1 controller deployed
+                || dysonSwarm.SwarmCompletion >= dysonSwarm.ControllerCompletion) // need at least 1 controller deployed
             {
                 return;
             }

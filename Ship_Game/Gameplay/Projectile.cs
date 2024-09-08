@@ -228,7 +228,7 @@ namespace Ship_Game.Gameplay
             Position = origin;
             Emitter.Position = new Vector3(origin, 0f);
 
-            Range                 = IsSwarmSat ? origin.Distance(target.Position) : Weapon.BaseRange;
+            Range                 = IsSwarmSat ? origin.Distance(target.Position)*0.5f : Weapon.BaseRange;
             Radius                = Weapon.ProjectileRadius;
             Explodes              = Weapon.Explodes;
             FakeExplode           = Weapon.FakeExplode;

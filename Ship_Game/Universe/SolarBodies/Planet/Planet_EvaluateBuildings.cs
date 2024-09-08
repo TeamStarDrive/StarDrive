@@ -875,10 +875,11 @@ namespace Ship_Game
         void TryBuildDysonSwarmControllers()
         {
             if (System.EmpireOwnsDysonSwarm(Owner)
+                && !SwarmSatInTheWorks
                 && System.DysonSwarm.ShouldBuildMoreSwarmControllers
                 && System.DysonSwarm.TryGetAvailablePosForController(out Vector2 pos))
             {
-                Owner.AI.AddGoalAndEvaluate(new BuildConstructionShip(pos, DysonSwarm.DysonSwarmControllerName, Owner));
+                Owner.AI.AddGoalAndEvaluate(new BuildConstructionShip(pos, Owner, this));
             }
         }
 

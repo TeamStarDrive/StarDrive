@@ -33,7 +33,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public float PercentOverClocked => CurrentOverclock / (float)MaxOverclock;
         public bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
-        public float SwarmCompletion => NumSwarmSats / RequiredSwarmSats; // 0.0 to 1.0
+        public float SwarmCompletion => NumSwarmSats / (float)RequiredSwarmSats; // 0.0 to 1.0
         public bool IsSwarmCompleted => SwarmCompletion.AlmostEqual(1);
         public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)*100 + CurrentOverclock;
         public float ProductionNotAffectingDecay => ControllerCompletion.UpperBound(SwarmCompletion) * 100;
@@ -93,7 +93,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
 
-            ControllerCompletion = count / TotalSwarmControllers;
+            ControllerCompletion = count / (float)TotalSwarmControllers;
             CurrentOverclock += ((EnableOverclock ? MaxOverclock : 0) - CurrentOverclock).Clamped(-1, 1);
             float completionLimit = ControllerCompletion.UpperBound(SwarmCompletion);
             CurrentOverclock = CurrentOverclock.UpperBound((int)(completionLimit * MaxOverclock));
@@ -127,7 +127,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void DeploySwarmSat()
         {
-            NumSwarmSats += NumSwarmSats.UpperBound(RequiredSwarmSats);
+            NumSwarmSats = (NumSwarmSats + 1).UpperBound(RequiredSwarmSats);
         }
 
         public bool TryGetAvailablePosForController(out Vector2 pos)
@@ -145,6 +145,20 @@ namespace Ship_Game.Universe.SolarBodies
                 pos = Owner.Random.Item(potentialVectors);
 
             return pos != Vector2.Zero;
+        }
+
+        public bool TryConnectControllerToGrid(Ship controller)
+        {
+            foreach (KeyValuePair<Vector2, Ship> item in SwarmControllers)
+            {
+                if (controller.Position.InRadius(item.Key, 25))
+                {
+                    SwarmControllers[item.Key] = controller;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

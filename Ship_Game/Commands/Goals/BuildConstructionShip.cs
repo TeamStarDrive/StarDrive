@@ -67,8 +67,10 @@ namespace Ship_Game.Commands.Goals
                 PlanetBuildingAt = planet;
             }
 
-            QueueItemType itemType = ToBuild.IsSubspaceProjector ? QueueItemType.RoadNode : QueueItemType.Orbital;
-            if (Build.Rush)
+            QueueItemType itemType = ToBuild.IsSubspaceProjector ? QueueItemType.RoadNode 
+                                                                 : ToBuild.IsDysonSwarmController ? QueueItemType.SwarmController 
+                                                                                                  : QueueItemType.Orbital;
+            if (Build.Rush && !ToBuild.IsDysonSwarmController)
                 itemType = QueueItemType.OrbitalUrgent;
 
             PlanetBuildingAt.Construction.Enqueue(itemType, ToBuild, constructor, structureCost, Build.Rush, this);

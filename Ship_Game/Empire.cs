@@ -1044,6 +1044,7 @@ namespace Ship_Game
 
                 ShipsReadyForFleet = new FleetShips(this, AllFleetReadyShips());
                 AI.Update(); // Must be done before DoMoney and Take turn
+                UpdateDysonSwarms();
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
                 TryDisableInfluence();
@@ -1058,6 +1059,24 @@ namespace Ship_Game
             UpdateFleets(timeStep);
 
             return didUpdate;
+        }
+
+        void UpdateDysonSwarms() // todo - maybe cache this when a dyson swarm is activated.
+        {
+            int maxUpdates = data.Traits.DysonSwarmMax;
+            //if (maxUpdates == 0)
+            //    return;
+
+            foreach (SolarSystem system in OwnedSolarSystems)
+            {
+                if (system.EmpireOwnsDysonSwarm(this))
+                {
+                    system.DysonSwarm.Update();
+                    maxUpdates--;
+                    if (maxUpdates == 0)
+                        break;
+                }
+            }
         }
 
         // called every time Player empire update is triggered
