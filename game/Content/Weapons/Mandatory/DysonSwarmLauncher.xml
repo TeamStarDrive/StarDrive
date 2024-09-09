@@ -11,7 +11,7 @@
    <!-- Projectile Information -->
   <DamageAmount>0</DamageAmount>
   <Scale>1.2</Scale>
-  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileSpeed>1500</ProjectileSpeed>
   <ProjectileRadius>3</ProjectileRadius> 
   
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
@@ -20,6 +20,7 @@
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Ballistic Cannon</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
+  <WeaponTrailEffect>MuzzleSmokeFire</WeaponTrailEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
   <FireCone>0</FireCone>
 </Weapon>

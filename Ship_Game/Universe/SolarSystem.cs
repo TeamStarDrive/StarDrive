@@ -43,7 +43,7 @@ namespace Ship_Game
 
         SunType TheSunType;
         public SunLayerState[] SunLayers;
-        public DysonSwarm DysonSwarm {  get; private set; }
+        [StarData] public DysonSwarm DysonSwarm {  get; private set; }
 
         public bool HasDysonSwarm => DysonSwarm != null;
         public bool EmpireOwnsDysonSwarm(Empire empire) => HasDysonSwarm && DysonSwarm.Owner == empire;

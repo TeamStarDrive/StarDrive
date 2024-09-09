@@ -16,7 +16,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class DysonSwarm
     {
         public const int TotalSwarmControllers = 50;
-        public const int RequiredSwarmSats = 10_000;
+        public const int RequiredSwarmSats = 50_000;
         public const string DysonSwarmLauncherTemplate = "DysonSwarmLauncher";
         public const string DysonSwarmControllerName = "Dyson Swarm Controller";
 
@@ -51,13 +51,15 @@ namespace Ship_Game.Universe.SolarBodies
             Init();
         }
 
+        [StarDataConstructor]
+        public DysonSwarm() { }
+
         void Init()
         {
-            AddControllerPositions(20, 20_000);
-            AddControllerPositions(15, 10_000);
-            AddControllerPositions(8, 5000);
-            AddControllerPositions(6, 2500);
-            AddControllerPositions(1, 0); // total of 50
+            AddControllerPositions(24, 10000);
+            AddControllerPositions(12, 5000);
+            AddControllerPositions(9,  2500);
+            AddControllerPositions(5,  1250);  // total of 50
 
             void AddControllerPositions(int numPerRing, int distance)
             {
