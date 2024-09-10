@@ -1,4 +1,5 @@
-﻿using SDGraphics;
+﻿using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
@@ -16,7 +17,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class DysonSwarm
     {
         public const int TotalSwarmControllers = 50;
-        public const int RequiredSwarmSats = 50_000;
+        public const int RequiredSwarmSats = 500;
         public const string DysonSwarmLauncherTemplate = "DysonSwarmLauncher";
         public const string DysonSwarmControllerName = "Dyson Swarm Controller";
 
@@ -31,6 +32,8 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public int NumSwarmSats { get; private set; }
         [StarData] public float FertilityPercentLoss { get; private set; }
 
+        public SunLayerState[] DysonSwarmRings { get; private set; } = [];
+
         public float PercentOverClocked => CurrentOverclock / (float)MaxOverclock;
         public bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
         public float SwarmCompletion => NumSwarmSats / (float)RequiredSwarmSats; // 0.0 to 1.0
@@ -41,6 +44,7 @@ namespace Ship_Game.Universe.SolarBodies
         public int NunSwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         public bool ShouldBuildMoreSwarmControllers => !AreControllersCompleted 
             && NunSwarmControllersInTheWorks + SwarmControllers.Values.Count(s => s != null) < TotalSwarmControllers;
+        bool NeedDysonRingsChange => (int)(SwarmCompletion * 100) / 10 != DysonSwarmRings.Length;
 
         public DysonSwarm(SolarSystem system, Empire owner) 
         {
@@ -56,8 +60,8 @@ namespace Ship_Game.Universe.SolarBodies
 
         void Init()
         {
-            AddControllerPositions(24, 10000);
-            AddControllerPositions(12, 5000);
+            AddControllerPositions(24, 5000);
+            AddControllerPositions(12, 3750);
             AddControllerPositions(9,  2500);
             AddControllerPositions(5,  1250);  // total of 50
 
@@ -100,6 +104,8 @@ namespace Ship_Game.Universe.SolarBodies
             float completionLimit = ControllerCompletion.UpperBound(SwarmCompletion);
             CurrentOverclock = CurrentOverclock.UpperBound((int)(completionLimit * MaxOverclock));
             FertilityPercentLoss = SwarmCompletion * 0.25f + PercentOverClocked * 0.25f; // 0.0 to 0.5
+            if (NeedDysonRingsChange)
+                LoadDysonRings();
         }
 
         public bool TryGetRandomControllerTarget(out Ship controller)
@@ -131,6 +137,45 @@ namespace Ship_Game.Universe.SolarBodies
         {
             NumSwarmSats = (NumSwarmSats + 1).UpperBound(RequiredSwarmSats);
         }
+      
+        void LoadDysonRings()
+        {
+            int neededRings = (int)(SwarmCompletion * 100) / 5;
+            lock (DysonSwarmRings) 
+            {
+                if (neededRings == 0)
+                {
+                    DysonSwarmRings = [];
+                    return;
+                }
+
+                float startRotation = DysonSwarmRings.Length > 0 ? DysonSwarmRings[0].Sprite.Rotation : -1;
+                DysonSwarmRings = new SunLayerState[neededRings];
+                for (int i = 0; i < neededRings; i++) 
+                {
+                    DysonSwarmRings[i] = new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[0], startRotation + i*0.3f);
+                    //DysonSwarmRings[i+10] = new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[1], startRotation + i*0.3f);
+                }
+            }
+        }
+
+        public void DrawDysonRings(SpriteBatch batch, Vector2 pos, float sizeScaleOnScreen)
+        {
+            for (int i = 0; i < DysonSwarmRings.Length; i++)
+            {
+                SunLayerState ring = DysonSwarmRings[i];
+                ring.Draw(batch, pos, sizeScaleOnScreen);
+            }
+        }
+
+        public void UpdateDysonRings(FixedSimTime timeStep)
+        {
+            for (int i = 0; i < DysonSwarmRings.Length; i++)
+            {
+                SunLayerState ring = DysonSwarmRings[i];
+                ring.Update(timeStep);
+            }
+        }
 
         public bool TryGetAvailablePosForController(out Vector2 pos)
         {
@@ -139,7 +184,7 @@ namespace Ship_Game.Universe.SolarBodies
             Array<Vector2> potentialVectors = [];
             foreach (KeyValuePair<Vector2, Ship> item in SwarmControllers)
             {
-                if (item.Value == null && (currentGoals.Length == 0 || currentGoals.Any(g=> g.BuildPosition.InRadius(item.Key, 25))))
+                if (item.Value == null && (currentGoals.Length == 0 || !currentGoals.Any(g=> g.BuildPosition.InRadius(item.Key, 25))))
                    potentialVectors.Add(item.Key);
             }
 

@@ -174,7 +174,7 @@ namespace Ship_Game.Universe.SolarBodies
         public void DrawSunMesh(SolarSystem sys, in Matrix view, in Matrix projection)
         {
             Vector2 pos  = ScreenPosition(sys.Position, view, projection);
-            Vector2 edge = ScreenPosition(sys.Position + new Vector2(sys.SunRadius, 0f), view, projection);
+            Vector2 edge = ScreenPosition(sys.Position + new Vector2(sys.Sun.Radius, 0f), view, projection);
 
             float relSizeOnScreen = (edge.X - pos.X) / GameBase.ScreenWidth;
             float sizeScaleOnScreen = 1.25f * relSizeOnScreen; // this yields the base star size
@@ -182,8 +182,10 @@ namespace Ship_Game.Universe.SolarBodies
             SpriteBatch batch = GameBase.ScreenManager.SpriteBatch;
             batch.SafeEnd();
             {
+                //sys.DysonSwarm?.DrawDysonRings(batch, pos, sizeScaleOnScreen);
                 foreach (SunLayerState layer in sys.SunLayers)
                     layer.Draw(batch, pos, sizeScaleOnScreen);
+                sys.DysonSwarm?.DrawDysonRings(batch, pos, sizeScaleOnScreen);
             }
             batch.SafeBegin();
         }
@@ -193,7 +195,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class SunLayerState
     {
         public readonly SunLayerInfo Info;
-        readonly DrawableSprite Sprite;
+        public readonly DrawableSprite Sprite;
         float PulseTimer;
         public float Intensity { get; private set; } = 1f; // current sun intensity
         float ScaleIntensity = 1f;
@@ -202,14 +204,28 @@ namespace Ship_Game.Universe.SolarBodies
         public SunLayerState(GameContentManager content, SunLayerInfo info, RandomBase random)
         {
             Info = info;
+            Sprite = CreateSprite(content, info);
+            InitializeSprite(info.RotationStart.Generate(random));
+        }
 
-            if (info.AnimationPath.NotEmpty())
-                Sprite = DrawableSprite.Animation(content, info.AnimationPath, looping: true);
-            else
-                Sprite = DrawableSprite.SubTex(content, info.TexturePath);
-            
+        public SunLayerState(GameContentManager content, SunLayerInfo info, float rotation)
+        {
+            Info = info;
+            Sprite = CreateSprite(content, info);
+            InitializeSprite(rotation);
+        }
+
+        // Helper method to create the sprite based on the info
+        DrawableSprite CreateSprite(GameContentManager content, SunLayerInfo info)
+        {
+            return info.AnimationPath.NotEmpty() ? DrawableSprite.Animation(content, info.AnimationPath, looping: true)
+                                                 : DrawableSprite.SubTex(content, info.TexturePath);
+        }
+
+        void InitializeSprite(float rotation)
+        {
             Sprite.Effects = SpriteEffects.FlipVertically;
-            Sprite.Rotation = info.RotationStart.Generate(random);
+            Sprite.Rotation = rotation;
         }
 
         public void Update(FixedSimTime timeStep)
@@ -257,4 +273,15 @@ namespace Ship_Game.Universe.SolarBodies
 
     }
 
+    [StarDataType]
+    public class DysonRings
+    {
+        [StarData] public static Array<SunLayerInfo> Rings { get; private set; }
+
+        public static void LoadDysonRings()
+        {
+            FileInfo file = ResourceManager.GetModOrVanillaFile("DysonRings.yaml");
+            Rings = YamlParser.DeserializeArray<SunLayerInfo>(file);
+        }
+    }
 }

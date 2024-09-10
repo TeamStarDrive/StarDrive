@@ -253,12 +253,6 @@
   Habitable: true
   Layers:
     - Layer:
-      TexturePath: Suns/test.dds
-      BlendMode: AlphaBlend
-      RotationSpeed: -0.02
-      PulsePeriod: 5.0 
-      LayerScale: 0.1
-    - Layer:
       TexturePath: Suns/star_yellow2.dds
       BlendMode: AlphaBlend
       RotationSpeed: 0.03
@@ -272,13 +266,6 @@
       PulsePeriod: 5.0
       PulseScale: [0.96,1.04]
       PulseColor: [1.0,1.20]
-    - Layer:
-      TexturePath: Suns/test.dds
-      BlendMode: AlphaBlend
-      RotationSpeed: -0.02
-      PulsePeriod: 5.0 
-      LayerScale: 0.1
-
 - Sun:
   Id: star_blue
   IconPath: Suns/star_blue_icon.png

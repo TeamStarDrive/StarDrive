@@ -214,7 +214,7 @@ namespace Ship_Game
             system.Lights.Clear();
             Color color     = system.Sun.LightColor;
             float intensity = system.Sun.LightIntensity;
-            float radius    = system.SunRadius;
+            float radius    = system.Sun.Radius;
             var light1 = AddLight("Key",               system, intensity,         radius,         color, -5500);
             var light2 = AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
             var light3 = AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);

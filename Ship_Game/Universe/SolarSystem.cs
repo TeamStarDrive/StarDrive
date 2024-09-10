@@ -48,8 +48,6 @@ namespace Ship_Game
         public bool HasDysonSwarm => DysonSwarm != null;
         public bool EmpireOwnsDysonSwarm(Empire empire) => HasDysonSwarm && DysonSwarm.Owner == empire;
 
-        public float SunRadius => HasDysonSwarm ? Sun.Radius * (1 - DysonSwarm.FertilityPercentLoss) : Sun.Radius;
-
         public SunType Sun
         {
             get
@@ -137,6 +135,8 @@ namespace Ship_Game
                 {
                     MoonList[i].UpdateVisibleMoon(timeStep);
                 }
+
+                DysonSwarm?.UpdateDysonRings(timeStep);
             }
             else if (WasVisibleLastFrame)
             {

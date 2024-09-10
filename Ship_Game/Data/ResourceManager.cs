@@ -292,6 +292,7 @@ namespace Ship_Game
             Profiled(LoadProjectileMeshes);
             // Hotspot #3 174.8ms  7.91%
             Profiled("LoadSunTypes", () => SunType.LoadSunTypes(loadIcons: !GlobalStats.IsUnitTest));
+            Profiled("LoadDysonRings", DysonRings.LoadDysonRings);
             Profiled("LoadBeamFX", () =>
             {
                 Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");

@@ -45,7 +45,7 @@ namespace Ship_Game.Commands.Goals
             : this(owner)
         {
             PlanetBuildingAt = planetToBuildAt;
-            Initialize(DysonSwarm.DysonSwarmControllerName, buildPos, null);
+            Initialize(DysonSwarm.DysonSwarmControllerName, buildPos, planetToBuildAt.System);
         }
 
         public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, Planet tetherPlanet, Vector2 tetherOffset)
