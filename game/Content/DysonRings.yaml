@@ -1,12 +1,12 @@
 ﻿- Layer:
   TexturePath: Suns/DysonSwarmRingBack.dds
   BlendMode: Additive
-  RotationSpeed: -0.02
+  RotationSpeed: -0.005
   PulsePeriod: 5.0 
   LayerScale: 0.1
 - Layer:
   TexturePath: Suns/DysonSwarmRingFront.dds
   BlendMode: AlphaBlend
-  RotationSpeed: -0.02
+  RotationSpeed: -0.005
   PulsePeriod: 5.0 
   LayerScale: 0.1  

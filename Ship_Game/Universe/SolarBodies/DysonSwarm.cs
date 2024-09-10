@@ -31,8 +31,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public int CurrentOverclock { get; private set; }
         [StarData] public int NumSwarmSats { get; private set; }
         [StarData] public float FertilityPercentLoss { get; private set; }
-
-        public SunLayerState[] DysonSwarmRings { get; private set; } = [];
+        public Array<SunLayerState> DysonSwarmRings { get; private set; } = [];
 
         public float PercentOverClocked => CurrentOverclock / (float)MaxOverclock;
         public bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
@@ -44,7 +43,7 @@ namespace Ship_Game.Universe.SolarBodies
         public int NunSwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         public bool ShouldBuildMoreSwarmControllers => !AreControllersCompleted 
             && NunSwarmControllersInTheWorks + SwarmControllers.Values.Count(s => s != null) < TotalSwarmControllers;
-        bool NeedDysonRingsChange => (int)(SwarmCompletion * 100) / 10 != DysonSwarmRings.Length;
+        bool NeedDysonRingsChange => (int)(SwarmCompletion * 100) / 5 != DysonSwarmRings.Count;
 
         public DysonSwarm(SolarSystem system, Empire owner) 
         {
@@ -143,25 +142,30 @@ namespace Ship_Game.Universe.SolarBodies
             int neededRings = (int)(SwarmCompletion * 100) / 5;
             lock (DysonSwarmRings) 
             {
+                float startRotation = DysonSwarmRings.Count > 0 ? DysonSwarmRings[0].Sprite.Rotation : -1;
+                DysonSwarmRings.Clear();
                 if (neededRings == 0)
-                {
-                    DysonSwarmRings = [];
                     return;
-                }
 
-                float startRotation = DysonSwarmRings.Length > 0 ? DysonSwarmRings[0].Sprite.Rotation : -1;
-                DysonSwarmRings = new SunLayerState[neededRings];
+                Array<SunLayerState> frontLayers = [];
                 for (int i = 0; i < neededRings; i++) 
                 {
-                    DysonSwarmRings[i] = new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[0], startRotation + i*0.3f);
-                    //DysonSwarmRings[i+10] = new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[1], startRotation + i*0.3f);
+                    if (i % 2 == 0)
+                        DysonSwarmRings.Add(new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[0], startRotation + i * 0.15f));
+                    else
+                        frontLayers.Add(new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[1], startRotation + (i-1) * 0.15f));
                 }
+
+                DysonSwarmRings.AddRange(frontLayers);
             }
         }
 
         public void DrawDysonRings(SpriteBatch batch, Vector2 pos, float sizeScaleOnScreen)
         {
-            for (int i = 0; i < DysonSwarmRings.Length; i++)
+            if (Owner.Universe.IsShipViewOrCloser)
+                return;
+
+            for (int i = 0; i < DysonSwarmRings.Count; i++)
             {
                 SunLayerState ring = DysonSwarmRings[i];
                 ring.Draw(batch, pos, sizeScaleOnScreen);
@@ -170,7 +174,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void UpdateDysonRings(FixedSimTime timeStep)
         {
-            for (int i = 0; i < DysonSwarmRings.Length; i++)
+            for (int i = 0; i < DysonSwarmRings.Count; i++)
             {
                 SunLayerState ring = DysonSwarmRings[i];
                 ring.Update(timeStep);
