@@ -554,7 +554,7 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        public void FireFromPlanet(Planet planet, Ship targetShip, bool ignorePredictionForSwarmSat = false)
+        public void FireFromPlanet(Planet planet, Ship targetShip, int randomRadiusFromTarget = 0)
         {
             PlanetOrigin = planet.Position.GenerateRandomPointInsideCircle(planet.Radius * 0.66f, planet.Random);
             GameObject target = targetShip.GetRandomInternalModule(this) ?? (GameObject) targetShip;
@@ -565,12 +565,22 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            Vector2 pip = target.Position;
-            if (ignorePredictionForSwarmSat || ProjectedImpactPoint(target, out pip))
+            Vector2 pip;
+            if (randomRadiusFromTarget != 0)
+            {
+                pip = target.Position.GenerateRandomPointInsideCircle(randomRadiusFromTarget, planet.Random);
+                CreateProjectile(pip);
+            }
+            else if (ProjectedImpactPoint(target, out pip))
+            {
+                CreateProjectile(pip);
+            }
+
+            void CreateProjectile(Vector2 pip)
             {
                 Vector2 direction = (pip - Origin).Normalized();
                 foreach (FireSource fireSource in EnumFireSources(PlanetOrigin, direction))
-                    Projectile.Create(this, planet, planet.Owner, fireSource.Direction, target, IsSwarmSat: ignorePredictionForSwarmSat);
+                    Projectile.Create(this, planet, planet.Owner, fireSource.Direction, target, IsSwarmSat: randomRadiusFromTarget != 0);
             }
         }
 

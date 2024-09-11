@@ -16,8 +16,8 @@
   <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
-	  <Name>A single Dyson Swarm Project</Name>
-      <BonusType>Max Dyson Swarm</BonusType>
+	  <Name>Potential Stars that can support Type 1 Dyson Swarm</Name>
+      <BonusType>Dyson Swarm Type</BonusType>
       <Bonus>1</Bonus>
       <BonusIndex>4911</BonusIndex>
     </UnlockedBonus>

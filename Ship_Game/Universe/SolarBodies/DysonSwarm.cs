@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using static Ship_Game.UniverseScreen;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Universe.SolarBodies
@@ -16,10 +16,13 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class DysonSwarm
     {
-        public const int TotalSwarmControllers = 50;
-        public const int RequiredSwarmSats = 500;
+        const int TotalSwarmControllers = 50;
+        const int BaseRequiredSwarmSats = 100_000;
         public const string DysonSwarmLauncherTemplate = "DysonSwarmLauncher";
         public const string DysonSwarmControllerName = "Dyson Swarm Controller";
+
+        readonly int RequiredSwarmSats;
+        readonly byte SwarmType; // 1 or 2
 
         [StarData] public readonly Map<Vector2, Ship> SwarmControllers;
         [StarData] public readonly SolarSystem System;
@@ -31,7 +34,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public int CurrentOverclock { get; private set; }
         [StarData] public int NumSwarmSats { get; private set; }
         [StarData] public float FertilityPercentLoss { get; private set; }
-        public Array<SunLayerState> DysonSwarmRings { get; private set; } = [];
+        Array<SunLayerState> DysonSwarmRings = [];
 
         public float PercentOverClocked => CurrentOverclock / (float)MaxOverclock;
         public bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
@@ -43,14 +46,19 @@ namespace Ship_Game.Universe.SolarBodies
         public int NunSwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         public bool ShouldBuildMoreSwarmControllers => !AreControllersCompleted 
             && NunSwarmControllersInTheWorks + SwarmControllers.Values.Count(s => s != null) < TotalSwarmControllers;
-        bool NeedDysonRingsChange => (int)(SwarmCompletion * 100) / 5 != DysonSwarmRings.Count;
+        bool NeedDysonRingsChange => (int)(SwarmCompletion * 100) / 10 != DysonSwarmRings.Count;
 
         public DysonSwarm(SolarSystem system, Empire owner) 
         {
             Owner = owner;
             System = system;
             SwarmControllers = [];
+            SwarmType = system.DysonSwarmType.LowerBound(1); // log error if type is 0
+            RequiredSwarmSats = BaseRequiredSwarmSats / SwarmType;
             SwarmSatProductionCost = owner.Universe.ProductionPace;
+            if (SwarmType == 2)
+                SwarmSatProductionCost *= 3;
+
             Init();
         }
 
@@ -139,7 +147,7 @@ namespace Ship_Game.Universe.SolarBodies
       
         void LoadDysonRings()
         {
-            int neededRings = (int)(SwarmCompletion * 100) / 5;
+            int neededRings = (int)(SwarmCompletion * 100) / 10;
             lock (DysonSwarmRings) 
             {
                 float startRotation = DysonSwarmRings.Count > 0 ? DysonSwarmRings[0].Sprite.Rotation : -1;
@@ -162,13 +170,19 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void DrawDysonRings(SpriteBatch batch, Vector2 pos, float sizeScaleOnScreen)
         {
-            if (Owner.Universe.IsShipViewOrCloser)
+            if (DysonSwarmRings.Count == 0) 
+                return;
+
+            float alphaRange = ((int)UnivScreenState.PlanetView - (int)UnivScreenState.ShipView);
+            float alpha = (float)((Owner.Universe.CamPos.Z - (double)(UnivScreenState.ShipView)) / alphaRange);
+            alpha = alpha.Clamped(0, 1);
+            if (alpha == 0)
                 return;
 
             for (int i = 0; i < DysonSwarmRings.Count; i++)
             {
                 SunLayerState ring = DysonSwarmRings[i];
-                ring.Draw(batch, pos, sizeScaleOnScreen);
+                ring.Draw(batch, pos, sizeScaleOnScreen, alpha);
             }
         }
 

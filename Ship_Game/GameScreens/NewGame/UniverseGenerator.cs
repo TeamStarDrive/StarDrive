@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
@@ -321,7 +323,7 @@ namespace Ship_Game.GameScreens.NewGame
             }
 
             UState.MineablePlanets.Sort(p => -p.Mining.Richness);
-
+            UState.GeneratePotentialDysonSwarms();
             step.Finish();
         }
 

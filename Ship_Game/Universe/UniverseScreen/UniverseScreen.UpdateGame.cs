@@ -314,6 +314,12 @@ namespace Ship_Game
                     Parallel.For(wereUpdated.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
                 else
                     PostEmpireUpdate(0, wereUpdated.Count);
+
+                for (int i = 0; i < UState.DysonSwarmPotentials.Length; i++)
+                {
+                    SolarSystem system = UState.DysonSwarmPotentials[i];
+                    system.DysonSwarm?.Update();
+                }
             }
 
             PostEmpirePerf.Stop();

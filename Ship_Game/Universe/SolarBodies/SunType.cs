@@ -247,18 +247,25 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void Draw(SpriteBatch batch, Vector2 screenPos, float sizeScaleOnScreen)
+        public void Draw(SpriteBatch batch, Vector2 screenPos, float sizeScaleOnScreen, float fixedAlpha = -1)
         {
             batch.SafeBegin(Info.BlendMode);
 
             float scale = ScaleIntensity * sizeScaleOnScreen * Info.LayerScale;
             Color color = Info.TextureColor;
 
-            // draw this layer multiple times to increase the intensity
-            for (float intensity = ColorIntensity; intensity.Greater(0f); intensity -= 1f)
+            if (fixedAlpha == -1)
             {
-                Color c = intensity > 1f ? color : new Color(color, intensity);
-                Sprite.Draw(batch, screenPos, scale, c);
+                // draw this layer multiple times to increase the intensity
+                for (float intensity = ColorIntensity; intensity.Greater(0f); intensity -= 1f)
+                {
+                    Color c = intensity > 1f ? color : new Color(color, intensity);
+                    Sprite.Draw(batch, screenPos, scale, c);
+                }
+            }
+            else
+            {
+                Sprite.Draw(batch, screenPos, scale, color.Alpha(fixedAlpha));
             }
 
             batch.SafeEnd();

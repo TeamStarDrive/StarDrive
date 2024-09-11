@@ -40,6 +40,7 @@ namespace Ship_Game
         [StarData] public Array<Asteroid> AsteroidsList = new();
         [StarData] public Array<Moon> MoonList = new();
         [StarData] SmallBitSet FullyExplored;
+        [StarData] public byte DysonSwarmType { get; private set; } // 0, 1 or 2
 
         SunType TheSunType;
         public SunLayerState[] SunLayers;
@@ -197,7 +198,6 @@ namespace Ship_Game
             s.SetSystem(this);
         }
             
-
         public void SetPiratePresence(bool value)
         {
             PiratePresence = value;
@@ -239,6 +239,14 @@ namespace Ship_Game
         public bool HasPlanetsOwnedByHostiles(Empire us)
         {
             return OwnerList.Any(e => e.IsEmpireHostile(us));
+        }
+
+        public void SetDysonSwarmType(byte value)
+        {
+            if (value > 2)
+                Log.Error($"Dyson Swarm Type Can only be 0, 1 or 2. Tried setting {value}");
+            else
+                DysonSwarmType = value;
         }
 
         public void UpdateOwnerList()
