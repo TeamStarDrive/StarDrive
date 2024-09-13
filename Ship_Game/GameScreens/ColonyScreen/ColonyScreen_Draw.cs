@@ -491,6 +491,13 @@ namespace Ship_Game
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
+            if (DysonSwarmTypeTitle.Visible)
+            {
+                DysonSwarmControllerProgress.Draw(batch);
+                DysonSwarmProgress.Draw(batch);
+                return;
+            }
+
             if (IsStatTabSelected)
             {
                 DrawMoney(ref bCursor, batch);
@@ -904,10 +911,7 @@ namespace Ship_Game
                 TerraTargetFertility   = TerraformTargetFertility();
                 MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);
                 TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);
-                DysonSwarmTabAllowed   = P.Owner.data.Traits.DysonSwarmType > 0
-                                         && !P.System.IsSunDangerous
-                                         && (P.System.HasDysonSwarm && P.System.DysonSwarm.Owner == P.Owner
-                                             || P.Owner.GetOwnedSystems().Count(s => s.HasDysonSwarm && s.DysonSwarm.Owner == P.Owner) < P.Owner.data.Traits.DysonSwarmType);
+                DysonSwarmTabAllowed   = P.Owner.data.Traits.DysonSwarmType > 0 && !P.System.IsSunDangerous && P.System.EmpireOwnsDysonSwarm(P.Owner);
 
                 if (TerraformLevel > 0 && !PFacilities.Tabs.Any(t => t.Title == Localizer.Token(GameText.BB_Tech_Terraforming_Name))
                     || DysonSwarmTabAllowed && !PFacilities.Tabs.Any(t => t.Title == Localizer.Token(GameText.DysonSwarm)))

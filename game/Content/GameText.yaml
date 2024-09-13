@@ -15502,6 +15502,30 @@ RemnantHelpersGiftStep3Plus:
 DysonSwarm: 
  Id: 6351
  ENG: "Dyson Swarm"  
+DysonSwarmType1: 
+ Id: 6352
+ ENG: "Dyson Swarm Type 1"   
+DysonSwarmType2: 
+ Id: 6353
+ ENG: "Dyson Swarm Type 2"    
+BuildDysonSwarm: 
+ Id: 6354
+ ENG: "Build Dyson Swarm"     
+BuildDysonSwarmTip: 
+ Id: 6355
+ ENG: "Start constrcution of A Dyson Swarm around the Star in this Solar System. This might take a long time to complete and your colonies in this system will participate in the construction unless they have very low population and less than 50% of production in storage."      
+KillDysonSwarm: 
+ Id: 6356
+ ENG: "Kill Dyson Swarm"      
+KillDysonSwarmTip: 
+ Id: 6357
+ ENG: "Order complete destruction of the Dyson Swarm in this system. This is irreversible and you will need to start new construction all over again."       
+DysonSwarmControllerProgressTip: 
+ Id: 6358
+ ENG: "This is the progress of the built Swarm Controllers in this system. The maximum production boost each colony can get is limited by the Controllers' completion as well as the Swarm Satellites' completion."       
+DysonSwarmProgressTip: 
+ Id: 6359
+ ENG: "This is the progress of the built Swarm satellites in this system. The maximum production boost each colony can get is limited by the Satellites' completion as well as the Swarm Controllers' completion. However, swarm controllers can be destroyed by enemy fire while Swarm Satellites are too numerous to be affected."        
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

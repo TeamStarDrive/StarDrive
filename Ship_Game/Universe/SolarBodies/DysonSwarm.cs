@@ -21,8 +21,8 @@ namespace Ship_Game.Universe.SolarBodies
         public const string DysonSwarmLauncherTemplate = "DysonSwarmLauncher";
         public const string DysonSwarmControllerName = "Dyson Swarm Controller";
 
-        readonly int RequiredSwarmSats;
-        readonly byte SwarmType; // 1 or 2
+        [StarData] public readonly int RequiredSwarmSats;
+        [StarData] readonly byte SwarmType; // 1 or 2
 
         [StarData] public readonly Map<Vector2, Ship> SwarmControllers;
         [StarData] public readonly SolarSystem System;
@@ -36,11 +36,12 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public float FertilityPercentLoss { get; private set; }
         Array<SunLayerState> DysonSwarmRings = [];
 
-        public float PercentOverClocked => CurrentOverclock / (float)MaxOverclock;
+        public float PercentOverClocked => MaxOverclock != 0 ? CurrentOverclock / (float)MaxOverclock : 0;
         public bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
         public float SwarmCompletion => NumSwarmSats / (float)RequiredSwarmSats; // 0.0 to 1.0
         public bool IsSwarmCompleted => SwarmCompletion.AlmostEqual(1);
         public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)*100 + CurrentOverclock;
+        public int MaxProductionBoost => 100 + MaxOverclock;
         public float ProductionNotAffectingDecay => ControllerCompletion.UpperBound(SwarmCompletion) * 100;
         public int NunSwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         public bool ShouldBuildMoreSwarmControllers => !AreControllersCompleted 
@@ -105,6 +106,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
 
+            MaxOverclock = Owner.data.Traits.DysonSwarmMaxOverclock;
             ControllerCompletion = count / (float)TotalSwarmControllers;
             CurrentOverclock += ((EnableOverclock ? MaxOverclock : 0) - CurrentOverclock).Clamped(-1, 1);
             float completionLimit = ControllerCompletion.UpperBound(SwarmCompletion);
@@ -214,6 +216,8 @@ namespace Ship_Game.Universe.SolarBodies
 
             return false;
         }
+
+        public LocalizedText DysonSwarmTypeTitle => SwarmType == 1 ? GameText.DysonSwarmType1 : GameText.DysonSwarmType2;
     }
 }
 

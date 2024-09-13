@@ -109,6 +109,14 @@ namespace Ship_Game
         UILabel EstimatedMaxPopTitle;
         UILabel EstimatedMaxPop;
 
+        UILabel DysonSwarmTypeTitle;
+        UIButton DysonSwarmStartButton;
+        UIButton DysonSwarmKillButton;
+        UIPanel DysonSwarmControllerPanel;
+        UIPanel DysonSwarmPanel;
+        ProgressBar DysonSwarmControllerProgress;
+        ProgressBar DysonSwarmProgress;
+
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, 
             int governorTabSelected = 0, int facilitiesTabSelected = 0)
             : base(parent, p)
@@ -279,6 +287,7 @@ namespace Ship_Game
             Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
             CreateTradeDetails(detailsVector);
             CreateTerraformingDetails(detailsVector);
+            CreateDysonSwarmDetails(detailsVector);
         }
 
         void PopulatePfacilitieTabs()
@@ -301,6 +310,15 @@ namespace Ship_Game
                 uiLabel = Add(new UILabel(pos, text, font, color));
 
             uiLabel.Visible = false;
+        }
+
+        void AddButton(ref UIButton button, Vector2 pos, LocalizedText text, ButtonStyle buttonStyle, LocalizedText tip) 
+        {
+            if (button == null)
+                button = Add(new UIButton(buttonStyle, pos, text));
+
+            button.Visible = false;
+            button.Tooltip = tip;
         }
 
         void AddPanel(ref UIPanel panel, Vector2 pos, string texPath, int size, LocalizedText tip)
@@ -335,6 +353,37 @@ namespace Ship_Game
                 slider.ZeroString = Localizer.Token(GameText.Automatic);
                 slider.Tip        = tip;
             }
+        }
+
+        void CreateDysonSwarmDetails(Vector2 pos)
+        {
+            Font font = LowRes ? Font8 : Font14;
+            int spacing = font.LineSpacing + 10;
+            int barWidth = (int)(PFacilities.Width * 0.5f);
+            float indent = 30;
+            float indentTradeAmount = indent + barWidth + 5;
+
+            AddLabel(ref DysonSwarmTypeTitle, pos, P.System.DysonSwarm.DysonSwarmTypeTitle, font, Color.White);
+
+            Vector2 buttonsPos = new Vector2(pos.X, pos.Y + spacing);
+            AddButton(ref DysonSwarmStartButton, buttonsPos, GameText.BuildDysonSwarm, ButtonStyle.Default, GameText.BuildDysonSwarmTip);
+            AddButton(ref DysonSwarmKillButton, buttonsPos, GameText.KillDysonSwarm, ButtonStyle.Military, GameText.KillDysonSwarmTip);
+
+            // Controller Progress
+            Vector2 controllerProgressPos = new Vector2(pos.X, buttonsPos.Y + spacing + 3);
+            AddPanel(ref DysonSwarmControllerPanel, controllerProgressPos, "NewUI/icon_food", font.LineSpacing, GameText.DysonSwarmControllerProgressTip);
+            Rectangle dysonSwarmControllerProgressRect = new Rectangle((int)(controllerProgressPos.X + indent), 
+                                                                       (int)controllerProgressPos.Y, 
+                                                                       barWidth, 20);
+            AddProgressBar(ref DysonSwarmControllerProgress, dysonSwarmControllerProgressRect, 100, "green", percentage: true);
+            
+            // Swarm Progress
+            Vector2 swarmProgressPos = new Vector2(controllerProgressPos.X, controllerProgressPos.Y + spacing + 3);
+            AddPanel(ref DysonSwarmPanel, swarmProgressPos, "NewUI/icon_food", font.LineSpacing, GameText.DysonSwarmProgressTip);
+            Rectangle dysonSwarmProgressRect = new Rectangle((int)(swarmProgressPos.X + indent),
+                                                             (int)swarmProgressPos.Y,
+                                                             barWidth, 20);
+            AddProgressBar(ref DysonSwarmProgress, dysonSwarmProgressRect, P.System.DysonSwarm.RequiredSwarmSats, "yellow");
         }
 
         void CreateTradeDetails(Vector2 pos)

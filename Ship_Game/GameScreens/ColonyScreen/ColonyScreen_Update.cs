@@ -21,6 +21,7 @@ namespace Ship_Game
             UpdateBuildAndConstructLists(elapsedTime);
             UpdateTradeTab();
             UpdateTerraformTab();
+            UpdateDysonSwarmTab();
             base.Update(elapsedTime);
         }
 
@@ -80,6 +81,18 @@ namespace Ship_Game
             OutgoingTradeTitle.Color = GetOutgoingTradeTitleColor();
             ManualImportTitle.Color  = GetManualImportSlotsOverrideColor();
             ManualExportTitle.Color  = GetManualExportSlotsOverrideColor();
+        }
+
+        void UpdateDysonSwarmTab()
+        {
+            DysonSwarmTypeTitle.Visible = IsDysonSwarmTabSelected;
+            DysonSwarmStartButton.Visible = DysonSwarmTypeTitle.Visible && !P.System.HasDysonSwarm && P.OwnerIsPlayer;
+            DysonSwarmKillButton.Visible = DysonSwarmTypeTitle.Visible && P.System.HasDysonSwarm && P.OwnerIsPlayer;
+            DysonSwarmControllerPanel.Visible =
+            DysonSwarmPanel.Visible           = DysonSwarmTypeTitle.Visible;
+
+            DysonSwarmControllerProgress.Progress = P.System.DysonSwarm.ControllerCompletion * 100;
+            DysonSwarmProgress.Progress = P.System.DysonSwarm.NumSwarmSats;
         }
 
         void UpdateTerraformTab()

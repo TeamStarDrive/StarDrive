@@ -5595,6 +5595,22 @@ namespace Ship_Game
         RemnantHelpersGiftStep3Plus = 6350,
         /// <summary>Dyson Swarm</summary>
         DysonSwarm = 6351,
+        /// <summary>Dyson Swarm Type 1</summary>
+        DysonSwarmType1 = 6352,
+        /// <summary>Dyson Swarm Type 2</summary>
+        DysonSwarmType2 = 6353,
+        /// <summary>Build Dyson Swarm</summary>
+        BuildDysonSwarm = 6354,
+        /// <summary>Start construction of Dyson Swarm</summary>
+        BuildDysonSwarmTip = 6355,
+        /// <summary>Kill Dyson Swarm</summary>
+        KillDysonSwarm = 6356,
+        /// <summary>Completely Remove the Dyson Swarm</summary>
+        KillDysonSwarmTip = 6357,
+        /// <summary>Dyson Swarm Controller Coverage</summary>
+        DysonSwarmControllerProgressTip = 6358,
+        /// <summary>Dyson Swarm Satellite Coverage</summary>
+        DysonSwarmProgressTip = 6359,
 
 
 
