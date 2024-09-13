@@ -169,7 +169,6 @@ namespace Ship_Game.Ships
         public float MaxWeaponError = 0;
 
         public bool IsLaunching => LaunchShip != null;
-
         public bool IsMiningShip            => Loyalty.data.DefaultMiningShip == Name || Empire.DefaultMiningShipName == Name;
         public bool IsDefaultAssaultShuttle => Loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (Loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);

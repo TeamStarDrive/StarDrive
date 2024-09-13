@@ -42,7 +42,6 @@ namespace Ship_Game.Universe.SolarBodies
         public bool IsSwarmCompleted => SwarmCompletion.AlmostEqual(1);
         public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)*100 + CurrentOverclock;
         public float ProductionNotAffectingDecay => ControllerCompletion.UpperBound(SwarmCompletion) * 100;
-        public float SunRadiusMultiplier => 1 - FertilityPercentLoss;
         public int NunSwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         public bool ShouldBuildMoreSwarmControllers => !AreControllersCompleted 
             && NunSwarmControllersInTheWorks + SwarmControllers.Values.Count(s => s != null) < TotalSwarmControllers;
@@ -113,16 +112,6 @@ namespace Ship_Game.Universe.SolarBodies
             FertilityPercentLoss = SwarmCompletion * 0.25f + PercentOverClocked * 0.25f; // 0.0 to 0.5
             if (NeedDysonRingsChange)
                 LoadDysonRings();
-        }
-
-        public bool TryGetRandomControllerTarget(out Ship controller)
-        {
-            controller = null;
-            var controllers = SwarmControllers.Values.Filter(s => s != null);
-            if (controllers.Length > 0)
-                controller = Owner.Random.Item(controllers);
-
-            return controller != null;
         }
 
         public void KillSwarm()

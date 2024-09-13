@@ -649,9 +649,9 @@ namespace Ship_Game
             if (DysonSwarmLauncherTimer >= DysonSwarmLauncher.FireDelay / Level)
             {
                 float productionCost = dysonSwarm.SwarmSatProductionCost;
-                if (ProdHere >= productionCost && (NonCybernetic || Storage.ProdRatio > 0.1f) && dysonSwarm.TryGetRandomControllerTarget(out Ship target))
+                if (ProdHere >= productionCost && (NonCybernetic || Storage.ProdRatio > 0.1f))
                 { 
-                    DysonSwarmLauncher.FireFromPlanet(this, target, randomRadiusFromTarget: 5000);
+                    DysonSwarmLauncher.FireDysonSwarmSat(this);
                     ProdHere -= productionCost;
                     dysonSwarm.DeploySwarmSat();
                 }
