@@ -54,7 +54,7 @@ namespace Ship_Game.Universe.SolarBodies
             System = system;
             SwarmControllers = [];
             SwarmType = system.DysonSwarmType.LowerBound(1); // log error if type is 0
-            RequiredSwarmSats = BaseRequiredSwarmSats / SwarmType;
+            RequiredSwarmSats = GetRequiredSwarmSats(SwarmType);
             SwarmSatProductionCost = owner.Universe.ProductionPace;
             if (SwarmType == 2)
                 SwarmSatProductionCost *= 3;
@@ -217,7 +217,9 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public LocalizedText DysonSwarmTypeTitle => SwarmType == 1 ? GameText.DysonSwarmType1 : GameText.DysonSwarmType2;
+        static public LocalizedText DysonSwarmTypeTitle(byte swarmType) => swarmType == 1 ? GameText.DysonSwarmType1 : GameText.DysonSwarmType2;
+
+        static public int GetRequiredSwarmSats(byte swarmType) => BaseRequiredSwarmSats / swarmType.LowerBound(1);
     }
 }
 

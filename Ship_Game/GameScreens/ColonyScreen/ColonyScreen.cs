@@ -8,6 +8,7 @@ using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.UI;
 using System;
 using SDUtils;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -301,7 +302,11 @@ namespace Ship_Game
                 PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name);
 
             if (DysonSwarmTabAllowed)
+            {
                 PFacilities.AddTab(GameText.DysonSwarm);
+                Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
+                CreateDysonSwarmDetails(detailsVector);
+            }
         }
 
         void AddLabel(ref UILabel uiLabel, Vector2 pos, LocalizedText text, Font font, Color color)
@@ -357,18 +362,21 @@ namespace Ship_Game
 
         void CreateDysonSwarmDetails(Vector2 pos)
         {
+            if (P.Owner == null || !DysonSwarmTabAllowed)
+                return;
+
             Font font = LowRes ? Font8 : Font14;
             int spacing = font.LineSpacing + 10;
             int barWidth = (int)(PFacilities.Width * 0.5f);
             float indent = 30;
-            float indentTradeAmount = indent + barWidth + 5;
 
-            AddLabel(ref DysonSwarmTypeTitle, pos, P.System.DysonSwarm.DysonSwarmTypeTitle, font, Color.White);
+            AddLabel(ref DysonSwarmTypeTitle, pos, DysonSwarm.DysonSwarmTypeTitle(P.System.DysonSwarmType), font, Color.White);
 
             Vector2 buttonsPos = new Vector2(pos.X, pos.Y + spacing);
             AddButton(ref DysonSwarmStartButton, buttonsPos, GameText.BuildDysonSwarm, ButtonStyle.Default, GameText.BuildDysonSwarmTip);
             AddButton(ref DysonSwarmKillButton, buttonsPos, GameText.KillDysonSwarm, ButtonStyle.Military, GameText.KillDysonSwarmTip);
-
+            DysonSwarmStartButton.OnClick = (b) => OnStartDysonSwarmClick();
+            DysonSwarmKillButton.OnClick = (b) => OnStartDysonSwarmKill();
             // Controller Progress
             Vector2 controllerProgressPos = new Vector2(pos.X, buttonsPos.Y + spacing + 3);
             AddPanel(ref DysonSwarmControllerPanel, controllerProgressPos, "NewUI/icon_food", font.LineSpacing, GameText.DysonSwarmControllerProgressTip);
@@ -383,7 +391,22 @@ namespace Ship_Game
             Rectangle dysonSwarmProgressRect = new Rectangle((int)(swarmProgressPos.X + indent),
                                                              (int)swarmProgressPos.Y,
                                                              barWidth, 20);
-            AddProgressBar(ref DysonSwarmProgress, dysonSwarmProgressRect, P.System.DysonSwarm.RequiredSwarmSats, "yellow");
+            AddProgressBar(ref DysonSwarmProgress, dysonSwarmProgressRect, DysonSwarm.GetRequiredSwarmSats(P.System.DysonSwarmType), "yellow");
+        }
+
+        void OnStartDysonSwarmClick()
+        {
+            if (P.OwnerIsPlayer)
+                P.System.ActivateDysonSwarm(P.Owner);
+        }
+
+        void OnStartDysonSwarmKill()
+        {
+            if (!P.OwnerIsPlayer)
+                return;
+
+            HideDysonSwarmUI();
+            P.System.KillDysonSwarm();
         }
 
         void CreateTradeDetails(Vector2 pos)

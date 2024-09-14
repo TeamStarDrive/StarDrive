@@ -215,8 +215,6 @@ namespace Ship_Game
         [StarData] protected Array<Building> BuildingList = new();
         public int NumBuildings => BuildingList.Count;
 
-        protected float DysonFertilityMultiplier => System.HasDysonSwarm ? 1 - System.DysonSwarm.FertilityPercentLoss : 1;
-
         public int NumMilitaryBuildings => BuildingList.Count(b => b.IsMilitary);
         public ReadOnlySpan<Building> Buildings => BuildingList.AsReadOnlySpan();
 
@@ -717,6 +715,18 @@ namespace Ship_Game
         public Building FindMaxBuilding(Func<Building, float> selector)
         {
             return BuildingList.FindMax(selector);
+        }
+
+        protected float GetgDysonFertilityMultiplier()
+        {
+            if (System.HasDysonSwarm)
+            {
+                float percentLoss = System.DysonSwarm.FertilityPercentLoss;
+                if (percentLoss > 0)
+                    return percentLoss > 0 ? (1 - percentLoss).LowerBound(0.01f) : 1;
+            }
+
+            return 1;
         }
     }
 }

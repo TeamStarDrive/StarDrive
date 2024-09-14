@@ -85,14 +85,32 @@ namespace Ship_Game
 
         void UpdateDysonSwarmTab()
         {
-            DysonSwarmTypeTitle.Visible = IsDysonSwarmTabSelected;
-            DysonSwarmStartButton.Visible = DysonSwarmTypeTitle.Visible && !P.System.HasDysonSwarm && P.OwnerIsPlayer;
-            DysonSwarmKillButton.Visible = DysonSwarmTypeTitle.Visible && P.System.HasDysonSwarm && P.OwnerIsPlayer;
-            DysonSwarmControllerPanel.Visible =
-            DysonSwarmPanel.Visible           = DysonSwarmTypeTitle.Visible;
+            if (!IsDysonSwarmTabSelected)
+            {
+                if (DysonSwarmTypeTitle?.Visible == true)
+                    HideDysonSwarmUI();
 
-            DysonSwarmControllerProgress.Progress = P.System.DysonSwarm.ControllerCompletion * 100;
-            DysonSwarmProgress.Progress = P.System.DysonSwarm.NumSwarmSats;
+                return;
+            }
+            DysonSwarmTypeTitle.Visible       =
+            DysonSwarmControllerPanel.Visible =
+            DysonSwarmPanel.Visible           = true;
+            DysonSwarmStartButton.Visible = !P.System.HasDysonSwarm && P.OwnerIsPlayer;
+            DysonSwarmKillButton.Visible = P.System.HasDysonSwarm && P.OwnerIsPlayer;
+            if (P.System.HasDysonSwarm)
+            {
+                DysonSwarmControllerProgress.Progress = P.System.DysonSwarm.ControllerCompletion * 100;
+                DysonSwarmProgress.Progress = P.System.DysonSwarm.NumSwarmSats;
+            }
+        }
+
+        void HideDysonSwarmUI()
+        {
+            DysonSwarmTypeTitle.Visible =
+            DysonSwarmControllerPanel.Visible =
+            DysonSwarmPanel.Visible = 
+            DysonSwarmStartButton.Visible = 
+            DysonSwarmKillButton.Visible = false;
         }
 
         void UpdateTerraformTab()
