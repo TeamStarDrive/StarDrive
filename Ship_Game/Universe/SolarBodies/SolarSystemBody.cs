@@ -716,17 +716,5 @@ namespace Ship_Game
         {
             return BuildingList.FindMax(selector);
         }
-
-        protected float GetgDysonFertilityMultiplier()
-        {
-            if (System.HasDysonSwarm)
-            {
-                float percentLoss = System.DysonSwarm.FertilityPercentLoss;
-                if (percentLoss > 0)
-                    return percentLoss > 0 ? (1 - percentLoss).LowerBound(0.01f) : 1;
-            }
-
-            return 1;
-        }
     }
 }

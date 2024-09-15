@@ -130,7 +130,6 @@ namespace Ship_Game
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * Empire.RacialEnvModifer(Category, empire);
         public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) 
-                                                       * GetgDysonFertilityMultiplier()
                                                        * Empire.RacialEnvModifer(Category, empire);
         public float MaxBaseFertilityFor(Empire empire) => BaseMaxFertility * Empire.RacialEnvModifer(Category, empire);
 
@@ -1079,7 +1078,7 @@ namespace Ship_Game
 
         void UpdateBaseFertility()
         {
-            float totalFertility = BaseMaxFertility + BuildingsFertility;
+            float totalFertility = BaseMaxFertility + BuildingsFertility; 
             if (BaseFertility.AlmostEqual(totalFertility))
                 return;
 

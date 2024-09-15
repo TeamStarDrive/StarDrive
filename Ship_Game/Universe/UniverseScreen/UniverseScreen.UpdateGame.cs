@@ -215,6 +215,7 @@ namespace Ship_Game
             // We need to update objects at least once to have visibility
             UState.Objects.InitializeFromSave();
 
+            UpdateDysonSwarms();
             EndOfTurnUpdate(UState.Empires, FixedSimTime.Zero);
         }
 
@@ -280,11 +281,21 @@ namespace Ship_Game
             Array<Empire> updated = null;
             if (!UState.Paused && IsActive)
             {
+                UpdateDysonSwarms();
                 EmpireUpdatePerf.Start();
                 updated = UpdateEmpires(timeStep);
                 EmpireUpdatePerf.Stop();
             }
             return updated ?? new();
+        }
+
+        void UpdateDysonSwarms()
+        {
+            for (int i = 0; i < UState.DysonSwarmPotentials.Length; i++)
+            {
+                SolarSystem system = UState.DysonSwarmPotentials[i];
+                system.DysonSwarm?.Update();
+            }
         }
 
         /// <summary>
@@ -314,12 +325,6 @@ namespace Ship_Game
                     Parallel.For(wereUpdated.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
                 else
                     PostEmpireUpdate(0, wereUpdated.Count);
-
-                for (int i = 0; i < UState.DysonSwarmPotentials.Length; i++)
-                {
-                    SolarSystem system = UState.DysonSwarmPotentials[i];
-                    system.DysonSwarm?.Update();
-                }
             }
 
             PostEmpirePerf.Stop();
