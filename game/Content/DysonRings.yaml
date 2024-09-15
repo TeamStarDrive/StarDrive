@@ -1,12 +1,25 @@
-﻿- Layer:
-  TexturePath: Suns/DysonSwarmRingBack2048.dds
+﻿## Note - This layer structure is currently hard coded. Dont change the structure, but TexturePaths can be changed.
+- Layer:
+  TexturePath: Suns/Type1DysonSwarmRingBack2048.dds
+  BlendMode: Additive
+  RotationSpeed: -0.001
+  PulsePeriod: 5.0 
+  LayerScale: 0.15
+- Layer:
+  TexturePath: Suns/Type1DysonSwarmRingFront2048.dds
+  BlendMode: AlphaBlend
+  RotationSpeed: -0.001
+  PulsePeriod: 5.0 
+  LayerScale: 0.15  
+- Layer:
+  TexturePath: Suns/Type2DysonSwarmRingBack2048.dds
   BlendMode: Additive
   RotationSpeed: -0.005
   PulsePeriod: 5.0 
   LayerScale: 0.15
 - Layer:
-  TexturePath: Suns/DysonSwarmRingFront2048.dds
+  TexturePath: Suns/Type2DysonSwarmRingFront2048.dds
   BlendMode: AlphaBlend
   RotationSpeed: -0.005
   PulsePeriod: 5.0 
-  LayerScale: 0.15  
+  LayerScale: 0.15    

@@ -147,9 +147,15 @@ namespace Ship_Game.Universe.SolarBodies
                 for (int i = 0; i < neededRings; i++) 
                 {
                     if (i % 2 == 0)
-                        DysonSwarmRings.Add(new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[0], startRotation + i * 0.15f));
+                    {
+                        int index = SwarmType == 1 ? 0 : 2;
+                        DysonSwarmRings.Add(new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[index], startRotation + i * 0.15f));
+                    }
                     else
-                        frontLayers.Add(new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[1], startRotation + (i-1) * 0.15f));
+                    {
+                        int index = SwarmType == 1 ? 1 : 3;
+                        frontLayers.Add(new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[index], startRotation + (i - 1) * 0.15f));
+                    }
                 }
 
                 DysonSwarmRings.AddRange(frontLayers);
