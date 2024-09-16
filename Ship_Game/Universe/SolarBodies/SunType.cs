@@ -49,6 +49,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float RadiationRadius = 0f;
         [StarData] public readonly Array<SunLayerInfo> Layers;
         [StarData] public readonly float ResearchableChance; // Can this star contribute to research efforts (needs a research station)
+        [StarData] public readonly bool MultiSun; // Binary or trinary sun
 
         public bool Disposed; // if true, this SunType was Disposed because of Hotloading
         public SubTexture Icon { get; private set; } // lo-res icon used in background star fields
@@ -59,6 +60,7 @@ namespace Ship_Game.Universe.SolarBodies
         public static SunType FindSun(string id) => Map[id];
         static SunType[] HabitableSuns;
         static SunType[] BarrenSuns;
+        static SunType[] MultiSuns;
 
         public static SunType RandomHabitableSun(RandomBase random, Predicate<SunType> filter = null)
         {
@@ -70,6 +72,12 @@ namespace Ship_Game.Universe.SolarBodies
         {
             return random.Item(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
         }
+
+        public static SunType RandomMultiSun(RandomBase random)
+        {
+            return random.Item(MultiSuns.Length != 0 ? MultiSuns : HabitableSuns);
+        }
+
         public static SubTexture[] GetLoResTextures()
         {
             return Map.FilterValues(s => s.Icon != null).Select(s => s.Icon);
@@ -89,6 +97,7 @@ namespace Ship_Game.Universe.SolarBodies
             Map.Clear();
             HabitableSuns = Empty<SunType>.Array;
             BarrenSuns    = Empty<SunType>.Array;
+            MultiSuns     = Empty<SunType>.Array;
         }
 
         static void LoadSuns(FileInfo file, bool loadIcons = true)
@@ -117,6 +126,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             HabitableSuns = all.Filter(s => s.Habitable);
             BarrenSuns    = all.Filter(s => !s.Habitable);
+            MultiSuns     = all.Filter(s => s.MultiSun);
         }
 
         public float DamageMultiplier(float distFromSun)

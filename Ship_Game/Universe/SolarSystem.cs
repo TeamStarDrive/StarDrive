@@ -475,10 +475,10 @@ namespace Ship_Game
 
         public void GenerateRandomSystem(UniverseState us, RandomBase random, string name, Empire owner, float exoticPlanetMultiplier = 1)
         {
-            // Changed by RedFox: 3% chance to get a tri-sun "star_binary"
-            Sun = random.RollDice(percent:3)
-                ? SunType.FindSun("star_binary")
-                : SunType.RandomHabitableSun(random, s => s.Id != "star_binary");
+            // Changed by RedFox + FatBastard: 5% chance to get a multiple sun"
+            Sun = random.RollDice(percent: 5)
+                ? SunType.RandomMultiSun(random)
+                : SunType.RandomHabitableSun(random, s => !s.MultiSun);
 
             Name = name;
             int starRadius = random.Int(250, 500);

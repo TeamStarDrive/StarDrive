@@ -6,6 +6,7 @@
   Radius: 100000 # radius of the light source
   LightColor: [255,160,122] # LightSalmon, light source color, default: White
   Habitable: true
+  MultiSun: false # Indicates this is a binary to trinary sun
   Layers:
     - Layer:
       TexturePath: Suns/star_red.png # path to texture, please add .png suffix or .xnb suffix to avoid conflicts
@@ -266,6 +267,7 @@
       PulsePeriod: 5.0
       PulseScale: [0.96,1.04]
       PulseColor: [1.0,1.20]
+      
 - Sun:
   Id: star_blue
   IconPath: Suns/star_blue_icon.png
@@ -299,14 +301,53 @@
   Radius: 40000
   LightColor: [255,255,255] # White
   Habitable: true
+  MultiSun: true  
   Layers:
     - Layer:
-      TexturePath: Suns/star_binary.png
+      TexturePath: Suns/star_binary.dds
       BlendMode: AlphaBlend
       RotationSpeed: 0.05
       PulsePeriod: 5.0
       PulseScale: [1,1]
       PulseColor: [1.0,1.20]
+      
+- Sun:
+  Id: star_binary2
+  ResearchableChance: 10
+  IconPath: Suns/star_binary2_icon.png
+  IconScale: 6
+  LightIntensity: 1.7
+  Radius: 50000
+  LightColor: [255,255,255] # White
+  Habitable: true
+  MultiSun: true  
+  Layers:
+    - Layer:
+      TexturePath: Suns/star_binary2.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.05
+      PulsePeriod: 5.0
+      PulseScale: [1,1]
+      PulseColor: [1.0,1.20]      
+
+- Sun:
+  Id: star_binary3
+  ResearchableChance: 10
+  IconPath: Suns/star_binary3_icon.png
+  IconScale: 6
+  LightIntensity: 1.7
+  Radius: 50000
+  LightColor: [255,255,255] # White
+  Habitable: true
+  MultiSun: true  
+  Layers:
+    - Layer:
+      TexturePath: Suns/star_binary3.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.05
+      PulsePeriod: 5.0
+      PulseScale: [1,1]
+      PulseColor: [1.0,1.20]      
 
 - Sun:
   Id: star_green

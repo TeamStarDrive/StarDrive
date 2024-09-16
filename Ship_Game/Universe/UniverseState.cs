@@ -331,9 +331,9 @@ namespace Ship_Game.Universe
 
             if (wantedType1DysonSwarm + wantedType2DysonSwarm > 0)
             {
-                var potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && s.PlanetList.Count(p => p.Habitable) > 1);
+                var potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && s.PlanetList.Count(p => p.Habitable) >= 3);
                 if (potantialDysonSwarms.Length == 0)
-                    potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && s.PlanetList.Any(p => p.Habitable));
+                    potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun  && s.PlanetList.Any(p => p.Habitable));
 
                 if (potantialDysonSwarms.Length > 0)
                 {
