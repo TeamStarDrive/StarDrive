@@ -332,12 +332,55 @@
       PulseScale: [0.96,1.04]
       PulseColor: [1.0,1.20]
 
+- Sun:
+  Id: star_purple
+  IconPath: Suns/star_purple_icon.png
+  IconScale: 4
+  LightIntensity: 1
+  Radius: 75000
+  LightColor: [255,0,255]a
+  Habitable: true
+  Layers:
+    - Layer:
+      TexturePath: Suns/star_purple.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: 1.00
+      PulsePeriod: 5.0
+    - Layer:
+      TexturePath: Suns/star_purple.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.03
+      PulsePeriod: 7.0      
+      PulseScale: [0.9,1.1.0]
+      PulseColor: [1.0,1.20]      
+      
+- Sun:
+  Id: star_brown_dwarf
+  IconPath: Suns/Brown_dwarf_icon.png
+  IconScale: 5
+  LightIntensity: 1
+  Radius: 50000
+  LightColor: [255,255,255] # White
+  Habitable: false
+  Layers:
+    - Layer:
+      TexturePath: Suns/Brown_dwarf.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.5
+      PulsePeriod: 5.0
+    - Layer:
+      TexturePath: Suns/Brown_dwarf.dds
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.03
+      PulsePeriod: 7.0      
+      PulseScale: [0.95,1.0]
+      PulseColor: [1.0,1.20]      
 # more docile neutron star, not emitting a pulsar beam
 # but there is still a gentle additive neutron blast
 - Sun:
   Id: star_neutron
   IconPath: Suns/neutron_blast_icon.png
-  IconScale: 1
+  IconScale: 8
   IconLayer: 2 # get rotation from glow flare
   LightIntensity: 1.4
   Radius: 150000
