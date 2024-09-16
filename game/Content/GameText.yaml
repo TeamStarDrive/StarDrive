@@ -13006,7 +13006,7 @@ DisableScreenPanningOptionTip:
  ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
 BB_Tech_DysonSwarm1_Name: 
  Id: 4909
- ENG: "Dyson Swarm Type1"   
+ ENG: "Dyson Swarm 1"   
 BB_Tech_DysonSwarm1_Desc: 
  Id: 4910
  ENG: "We can research a way to tap to the energy of a star by buildings millions of Solar Satellites which will collect energy from the star, and direct it to Swarm Controllers. The Controllers will distribute the energy to friendly Colonies in that system and gain massive production boost. The sunlight will dim a bit and each colony will lose 25% of its fertility."    
@@ -13024,7 +13024,7 @@ BB_Tech_DysonOverclock_Bonus:
  ENG: "Overclock production by 50 for friendly colonies in a system with a Dyson Swarm project we own."      
 BB_Tech_DysonSwarm2_Name: 
  Id: 4915
- ENG: "Dyson Swarm Type2"   
+ ENG: "Dyson Swarm 2"   
 BB_Tech_DysonSwarm2_Desc: 
  Id: 4916
  ENG: "Type 2 Dyson Swarms, which are harder to build, but will enable is to get additional Dyson Swarms."    
@@ -15526,6 +15526,12 @@ DysonSwarmControllerProgressTip:
 DysonSwarmProgressTip: 
  Id: 6359
  ENG: "This is the progress of the built Swarm satellites in this system. The maximum production boost each colony can get is limited by the Satellites' completion as well as the Swarm Controllers' completion. However, swarm controllers can be destroyed by enemy fire while Swarm Satellites are too numerous to be affected."        
+DysonSwarmDeploymentCompleted: 
+ Id: 6360
+ ENG: "Deployment Completed"
+DysonSwarmProductionBoostTip: 
+ Id: 6361
+ ENG: "Indicates how much production boost this colony is getting from the Dyson Swarm. The Maximum cna change if Overclock is enabled." 
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

@@ -5611,6 +5611,10 @@ namespace Ship_Game
         DysonSwarmControllerProgressTip = 6358,
         /// <summary>Dyson Swarm Satellite Coverage</summary>
         DysonSwarmProgressTip = 6359,
+        /// <summary>Deployment Completed</summary>
+        DysonSwarmDeploymentCompleted = 6360,
+        /// <summary>DysonSwarmProductionBoostTip</summary>
+        DysonSwarmProductionBoostTip = 6361,
 
 
 

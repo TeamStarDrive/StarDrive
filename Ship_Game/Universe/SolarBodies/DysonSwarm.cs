@@ -39,9 +39,10 @@ namespace Ship_Game.Universe.SolarBodies
 
 
         public float PercentOverClocked => MaxOverclock != 0 ? CurrentOverclock / (float)MaxOverclock : 0;
-        public bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
+        bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
         public float SwarmCompletion => NumSwarmSats / (float)RequiredSwarmSats; // 0.0 to 1.0
         public bool IsSwarmCompleted => SwarmCompletion.AlmostEqual(1);
+        public bool IsCompleted => IsSwarmCompleted && AreControllersCompleted;
         public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)* BaseSwarmProductionBoost + CurrentOverclock;
         public int MaxProductionBoost => BaseSwarmProductionBoost + (OverclockEnabled ?  MaxOverclock : 0);
         public float ProductionNotAffectingDecay => ControllerCompletion.UpperBound(SwarmCompletion) * BaseSwarmProductionBoost;

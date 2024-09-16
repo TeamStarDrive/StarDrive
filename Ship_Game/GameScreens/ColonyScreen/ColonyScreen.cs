@@ -111,6 +111,7 @@ namespace Ship_Game
         UILabel EstimatedMaxPop;
 
         UILabel DysonSwarmTypeTitle;
+        UILabel DysonSwarmStatus;
         UIButton DysonSwarmStartButton;
         UIButton DysonSwarmKillButton;
         UIPanel DysonSwarmControllerPanel;
@@ -376,7 +377,8 @@ namespace Ship_Game
 
             Vector2 buttonsPos = new Vector2(pos.X, pos.Y + spacing);
             AddButton(ref DysonSwarmStartButton, buttonsPos, GameText.BuildDysonSwarm, ButtonStyle.Default, GameText.BuildDysonSwarmTip);
-            AddButton(ref DysonSwarmKillButton, buttonsPos, GameText.KillDysonSwarm, ButtonStyle.Military, GameText.KillDysonSwarmTip);
+            AddButton(ref DysonSwarmKillButton, new Vector2(buttonsPos.X + barWidth- spacing-110, buttonsPos.Y), GameText.KillDysonSwarm, ButtonStyle.Military, GameText.KillDysonSwarmTip);
+            AddLabel(ref DysonSwarmStatus, new Vector2(buttonsPos.X+5, buttonsPos.Y+3), GameText.Completion, font, Color.Green);
             DysonSwarmStartButton.OnClick = (b) => OnStartDysonSwarmClick();
             DysonSwarmKillButton.OnClick = (b) => OnStartDysonSwarmKill();
             // Controller Progress
@@ -397,7 +399,7 @@ namespace Ship_Game
 
             // Swarm production boost
             Vector2 swarmProdBoostPos = new Vector2(swarmProgressPos.X, swarmProgressPos.Y + spacing + 3);
-            AddPanel(ref DysonSwarmProdBoost, swarmProdBoostPos, "NewUI/icon_production", font.LineSpacing, GameText.DysonSwarmProgressTip);
+            AddPanel(ref DysonSwarmProdBoost, swarmProdBoostPos, "NewUI/icon_production", font.LineSpacing, GameText.DysonSwarmProductionBoostTip);
             Rectangle dysonSwarmProdBoostRect = new Rectangle((int)(swarmProdBoostPos.X + indent),
                                                               (int)swarmProdBoostPos.Y,
                                                                barWidth, 20);

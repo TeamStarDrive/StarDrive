@@ -1,4 +1,5 @@
 using System;
+using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -98,11 +99,23 @@ namespace Ship_Game
             DysonSwarmPanel.Visible           = true;
             DysonSwarmStartButton.Visible = !P.System.HasDysonSwarm && P.OwnerIsPlayer;
             DysonSwarmKillButton.Visible = P.System.HasDysonSwarm && P.OwnerIsPlayer;
+            DysonSwarmStatus.Visible = P.System.HasDysonSwarm;
             if (P.System.HasDysonSwarm)
             {
                 DysonSwarmControllerProgress.Progress = P.System.DysonSwarm.ControllerCompletion * 100;
                 DysonSwarmProgress.Progress = P.System.DysonSwarm.NumSwarmSats;
                 DysonSwarmProductionBoost.Progress = P.System.DysonSwarm.ProductionBoost;
+                if (P.System.DysonSwarm.IsCompleted)
+                {
+                    DysonSwarmStatus.Text = GameText.DysonSwarmDeploymentCompleted;
+                    DysonSwarmStatus.Color = Color.Green;
+                }
+                else
+                {
+                    DysonSwarmStatus.Text =  GameText.TerraformersInProgress;
+                    DysonSwarmStatus.Color = ApplyCurrentAlphaToColor(Color.Yellow);
+                }
+                
             }
         }
 
@@ -112,7 +125,8 @@ namespace Ship_Game
             DysonSwarmControllerPanel.Visible =
             DysonSwarmProdBoost.Visible =
             DysonSwarmPanel.Visible = 
-            DysonSwarmStartButton.Visible = 
+            DysonSwarmStartButton.Visible =
+            DysonSwarmStatus.Visible = 
             DysonSwarmKillButton.Visible = false;
         }
 
