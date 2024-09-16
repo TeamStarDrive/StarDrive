@@ -94,6 +94,7 @@ namespace Ship_Game
             }
             DysonSwarmTypeTitle.Visible       =
             DysonSwarmControllerPanel.Visible =
+            DysonSwarmProdBoost.Visible       =
             DysonSwarmPanel.Visible           = true;
             DysonSwarmStartButton.Visible = !P.System.HasDysonSwarm && P.OwnerIsPlayer;
             DysonSwarmKillButton.Visible = P.System.HasDysonSwarm && P.OwnerIsPlayer;
@@ -101,6 +102,7 @@ namespace Ship_Game
             {
                 DysonSwarmControllerProgress.Progress = P.System.DysonSwarm.ControllerCompletion * 100;
                 DysonSwarmProgress.Progress = P.System.DysonSwarm.NumSwarmSats;
+                DysonSwarmProductionBoost.Progress = P.System.DysonSwarm.ProductionBoost;
             }
         }
 
@@ -108,6 +110,7 @@ namespace Ship_Game
         {
             DysonSwarmTypeTitle.Visible =
             DysonSwarmControllerPanel.Visible =
+            DysonSwarmProdBoost.Visible =
             DysonSwarmPanel.Visible = 
             DysonSwarmStartButton.Visible = 
             DysonSwarmKillButton.Visible = false;

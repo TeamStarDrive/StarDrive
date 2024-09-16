@@ -16,11 +16,13 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class DysonSwarm
     {
-        const int BaseSwarmProductionBoost = 100;
         const int TotalSwarmControllers = 50;
         const int BaseRequiredSwarmSats = 100_000;
+        public const int BaseSwarmProductionBoost = 100;
         public const string DysonSwarmLauncherTemplate = "DysonSwarmLauncher";
         public const string DysonSwarmControllerName = "Dyson Swarm Controller";
+
+        Array<SunLayerState> DysonSwarmRings = [];
 
         [StarData] public readonly int RequiredSwarmSats;
         [StarData] readonly byte SwarmType; // 1 or 2
@@ -31,15 +33,18 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public Empire Owner { get; private set; }
         [StarData] public float ControllerCompletion { get; private set; } // 0.0 to 1.0
         [StarData] public int MaxOverclock { get; private set; }
-        [StarData] public int CurrentOverclock { get; private set; }        [StarData] public int NumSwarmSats { get; private set; }        Array<SunLayerState> DysonSwarmRings = [];
+        [StarData] public int CurrentOverclock { get; private set; }  
+        [StarData] public int NumSwarmSats { get; private set; }
+        [StarData] public bool OverclockEnabled { get; private set; }
+
 
         public float PercentOverClocked => MaxOverclock != 0 ? CurrentOverclock / (float)MaxOverclock : 0;
         public bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
         public float SwarmCompletion => NumSwarmSats / (float)RequiredSwarmSats; // 0.0 to 1.0
         public bool IsSwarmCompleted => SwarmCompletion.AlmostEqual(1);
-        public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)*100 + CurrentOverclock;
-        public int MaxProductionBoost => BaseSwarmProductionBoost + MaxOverclock;
-        public float ProductionNotAffectingDecay => ControllerCompletion.UpperBound(SwarmCompletion) * 100;
+        public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)* BaseSwarmProductionBoost + CurrentOverclock;
+        public int MaxProductionBoost => BaseSwarmProductionBoost + (OverclockEnabled ?  MaxOverclock : 0);
+        public float ProductionNotAffectingDecay => ControllerCompletion.UpperBound(SwarmCompletion) * BaseSwarmProductionBoost;
         public int NunSwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         public bool ShouldBuildMoreSwarmControllers => !AreControllersCompleted 
             && NunSwarmControllersInTheWorks + SwarmControllers.Values.Count(s => s != null) < TotalSwarmControllers;
@@ -106,7 +111,8 @@ namespace Ship_Game.Universe.SolarBodies
 
             MaxOverclock = Owner.data.Traits.DysonSwarmMaxOverclock;
             ControllerCompletion = count / (float)TotalSwarmControllers;
-            CurrentOverclock += (MaxOverclock - CurrentOverclock).Clamped(-1, 1);
+            int desiredOverclock = OverclockEnabled ? MaxOverclock : 0;
+            CurrentOverclock += desiredOverclock - CurrentOverclock.Clamped(-1, 1);
             float completionLimit = ControllerCompletion.UpperBound(SwarmCompletion);
             CurrentOverclock = CurrentOverclock.UpperBound((int)(completionLimit * MaxOverclock));
             if (NeedDysonRingsChange)
@@ -218,6 +224,11 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             return false;
+        }
+
+        public void SetOverclock(bool value)
+        {
+            OverclockEnabled = value;
         }
 
         static public LocalizedText DysonSwarmTypeTitle(byte swarmType) => swarmType == 1 ? GameText.DysonSwarmType1 : GameText.DysonSwarmType2;

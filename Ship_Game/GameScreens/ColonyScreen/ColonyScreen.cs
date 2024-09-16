@@ -115,8 +115,10 @@ namespace Ship_Game
         UIButton DysonSwarmKillButton;
         UIPanel DysonSwarmControllerPanel;
         UIPanel DysonSwarmPanel;
+        UIPanel DysonSwarmProdBoost;
         ProgressBar DysonSwarmControllerProgress;
         ProgressBar DysonSwarmProgress;
+        ProgressBar DysonSwarmProductionBoost;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, 
             int governorTabSelected = 0, int facilitiesTabSelected = 0)
@@ -379,19 +381,28 @@ namespace Ship_Game
             DysonSwarmKillButton.OnClick = (b) => OnStartDysonSwarmKill();
             // Controller Progress
             Vector2 controllerProgressPos = new Vector2(pos.X, buttonsPos.Y + spacing + 3);
-            AddPanel(ref DysonSwarmControllerPanel, controllerProgressPos, "NewUI/icon_food", font.LineSpacing, GameText.DysonSwarmControllerProgressTip);
+            AddPanel(ref DysonSwarmControllerPanel, controllerProgressPos, "Suns/red_giant_icon", font.LineSpacing, GameText.DysonSwarmControllerProgressTip);
             Rectangle dysonSwarmControllerProgressRect = new Rectangle((int)(controllerProgressPos.X + indent), 
                                                                        (int)controllerProgressPos.Y, 
                                                                        barWidth, 20);
-            AddProgressBar(ref DysonSwarmControllerProgress, dysonSwarmControllerProgressRect, 100, "green", percentage: true);
+            AddProgressBar(ref DysonSwarmControllerProgress, dysonSwarmControllerProgressRect, 100, "red", percentage: true);
             
             // Swarm Progress
             Vector2 swarmProgressPos = new Vector2(controllerProgressPos.X, controllerProgressPos.Y + spacing + 3);
-            AddPanel(ref DysonSwarmPanel, swarmProgressPos, "NewUI/icon_food", font.LineSpacing, GameText.DysonSwarmProgressTip);
+            AddPanel(ref DysonSwarmPanel, swarmProgressPos, "NewUI/icon_projection", font.LineSpacing, GameText.DysonSwarmProgressTip);
             Rectangle dysonSwarmProgressRect = new Rectangle((int)(swarmProgressPos.X + indent),
                                                              (int)swarmProgressPos.Y,
                                                              barWidth, 20);
-            AddProgressBar(ref DysonSwarmProgress, dysonSwarmProgressRect, DysonSwarm.GetRequiredSwarmSats(P.System.DysonSwarmType), "yellow");
+            AddProgressBar(ref DysonSwarmProgress, dysonSwarmProgressRect, DysonSwarm.GetRequiredSwarmSats(P.System.DysonSwarmType), "blue");
+
+            // Swarm production boost
+            Vector2 swarmProdBoostPos = new Vector2(swarmProgressPos.X, swarmProgressPos.Y + spacing + 3);
+            AddPanel(ref DysonSwarmProdBoost, swarmProdBoostPos, "NewUI/icon_production", font.LineSpacing, GameText.DysonSwarmProgressTip);
+            Rectangle dysonSwarmProdBoostRect = new Rectangle((int)(swarmProdBoostPos.X + indent),
+                                                              (int)swarmProdBoostPos.Y,
+                                                               barWidth, 20);
+            AddProgressBar(ref DysonSwarmProductionBoost, dysonSwarmProdBoostRect,
+                P.System.HasDysonSwarm ? P.System.DysonSwarm.MaxProductionBoost : DysonSwarm.BaseSwarmProductionBoost, "brown");
         }
 
         void OnStartDysonSwarmClick()

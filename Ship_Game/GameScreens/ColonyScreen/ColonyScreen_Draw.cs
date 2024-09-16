@@ -495,6 +495,7 @@ namespace Ship_Game
             {
                 DysonSwarmControllerProgress.Draw(batch);
                 DysonSwarmProgress.Draw(batch);
+                DysonSwarmProductionBoost.Draw(batch);
                 return;
             }
 
