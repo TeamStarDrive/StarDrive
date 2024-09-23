@@ -13010,16 +13010,16 @@ PrioritizedPortTip:
  ENG: "When set, all ship construction will be queued on this planet, providing that it has a Space Port. If several planets are set as Prioritzed Ports, the suitable planet for consturction will be decided based on production their capacity. If no port in your Empire is prioritized, production capacity logic selection will be applied to all planets.    "    
 SpecializedTradeHub:
  Id: 4920
- ENG: "Specialzied Trade-Hub"  
+ ENG: "Specialized Trade-Hub"  
 SpecializedTradeHubTip:
  Id: 4921
- ENG: "Spacialized Trade-hub will enable the Governor management for Import/Export preferences based on the Govenror Type and for the automation of Labor sliders, again, based on the Governor type. it wiil not build or scrap buildings." 
+ ENG: "Specialized Trade-hub will enable the Governor management for Import/Export preferences based on the Governor Type and for the automation of Labor sliders, again, based on the Governor type. It will not build or scrap buildings." 
 PrioritizeProjector:
  Id: 4922
  ENG: "Prioritize Projectors"
 rioritizeProjectorTip:
  Id: 4923
- ENG: "Whenever a Subspace Projector is placed in a planet's consturction queue, manually or automatically, it would be placed at the top of the list."  
+ ENG: "Whenever a Subspace Projector is placed in a planet's construction queue, manually or automatically, it would be placed at the top of the list."  
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"
@@ -15061,13 +15061,13 @@ Clear:
  ENG: "Clear"               
 ClearBluprintsTip:
  Id: 6212
- ENG: "Delete the current uploaded Blueprints and let the governor Do what it thinks is the best. Not that if you change the Colony Type to Tradehub or remove the govenror, the blueprints will be removed as well."              
+ ENG: "Delete the current uploaded Blueprints and let the governor do what it thinks is the best. Not that if you change the Colony Type to Tradehub or remove the Govenor, the blueprints will be removed as well."              
 Edit:
  Id: 6213
  ENG: "Edit"                
 EditBluprintsTip:
  Id: 6214
- ENG: "Make changes to the current loaded Blueprints. If you save the Bluperints adter editing, it will update all Colonies with the same Blueprints. If you save in a different name, The Govenror of this colony will swtich to the new Blueprints, but other Colonies will not be updated, unless you overwrite existing Blueprints.                 
+ ENG: "Make changes to the current loaded Blueprints. If you save the Blueprints after editing, it will update all Colonies with the same Blueprints. If you save in a different name, the Governor of this colony will switch to the new Blueprints, but other Colonies will not be updated, unless you overwrite existing Blueprints.                 
 BlueprintsSnapshot:
  Id: 6215
  ENG: "Snapshot"                 
@@ -15076,10 +15076,10 @@ BlueprintsSnapshotTip:
  ENG: "Create Blueprints from the current applicable buildings on this planet. It wont work if non of the current buildings can be inserted into Blueprints."                  
 BluePrintsOverView:
  Id: 6217
- ENG: "Colony Blueprints are mainly lists of buildings which can be uoloaded for the Governor to follow. The governor will prioritize these building if possible, and in case the Blueprints are Exclusive, the govenror will build only the specified buildings in the Uploaded Blueprints. Blueprints can also be linked to other Blueprints so when they finished, new Blueprints are uploaded."                   
+ ENG: "Colony Blueprints are mainly lists of buildings which can be uploaded for the Governor to follow. The Governor will prioritize these building if possible, and in case the Blueprints are Exclusive, the Governor will build only the specified buildings in the uploaded Blueprints. Blueprints can also be linked to other Blueprints so when they finished, new Blueprints are uploaded."                   
 BluePrintsEnableGovernorToLoad:
  Id: 6218
- ENG: "Enable a Govenror in order upload Blueprints."                    
+ ENG: "Enable a Governor in order upload Blueprints."                    
 LinkBlueprintsTip:
  Id: 6219
  ENG: "When linking Blueprints to these Blueprints, the linked Blueprints will be uploaded after the Governor completes these Bluerpints. You can link Blueprints after you save them."                     
