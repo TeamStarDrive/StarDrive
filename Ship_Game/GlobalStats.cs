@@ -14,7 +14,8 @@ public enum Language
     English,
     Russian,
     Spanish,
-    Ukrainian
+    Ukrainian,
+    German,
 }
 
 public enum WindowMode

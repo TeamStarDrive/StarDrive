@@ -36,6 +36,9 @@ namespace UnitTests.Data
 
             ResourceManager.LoadLanguage(Language.Ukrainian);
             AssertEqual("Нова гра", textNewGame.Text);
+
+            ResourceManager.LoadLanguage(Language.German);
+            AssertEqual("Neues Spiel", textNewGame.Text);
         }
 
         [TestMethod]
@@ -52,6 +55,9 @@ namespace UnitTests.Data
 
             ResourceManager.LoadLanguage(Language.Ukrainian);
             AssertEqual("Нова гра", textNewGame.Text);
+
+            ResourceManager.LoadLanguage(Language.German);
+            AssertEqual("Neues Spiel", textNewGame.Text);
         }
 
         [TestMethod]
@@ -67,6 +73,9 @@ namespace UnitTests.Data
             AssertEqual("RawText: {1}", rawText.Text); // should not change
 
             ResourceManager.LoadLanguage(Language.Ukrainian);
+            AssertEqual("RawText: {1}", rawText.Text); // should not change
+
+            ResourceManager.LoadLanguage(Language.German);
             AssertEqual("RawText: {1}", rawText.Text); // should not change
         }
 
@@ -88,6 +97,10 @@ namespace UnitTests.Data
             ResourceManager.LoadLanguage(Language.Ukrainian);
             AssertEqual("Parsed: Нова гра ", parsed1.Text);
             AssertEqual("Parsed: Нова гра Завантажити гру ", parsed2.Text);
+
+            ResourceManager.LoadLanguage(Language.German);
+            AssertEqual("Parsed: Neues Spiel ", parsed1.Text);
+            AssertEqual("Parsed: Neues Spiel Spiel laden ", parsed2.Text);
         }
 
         [TestMethod]
@@ -217,7 +230,16 @@ namespace UnitTests.Data
                 Assert.Fail(string.Join("\n", err));
         }
 
-        
+        [TestMethod]
+        public void EnsureGermanTextIsDrawable()
+        {
+            ResourceManager.LoadLanguage(Language.German);
+            Fonts.LoadFonts(ResourceManager.RootContent, Language.German);
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArr());
+            if (err.NotEmpty)
+                Assert.Fail(string.Join("\n", err));
+        }
+
         [TestMethod]
         public void ParseTextDoesNotCrashOnInvalidCharacters()
         {
@@ -251,6 +273,10 @@ namespace UnitTests.Data
             ResourceManager.LoadLanguage(Language.Ukrainian);
             AssertEqual("Parsed: Нова гра ", parsed1.Text);
             AssertEqual("Parsed: Нова гра Завантажити гру ", parsed2.Text);
+
+            ResourceManager.LoadLanguage(Language.German);
+            AssertEqual("Parsed: Neues Spiel ", parsed1.Text);
+            AssertEqual("Parsed: Neues Spiel Spiel laden ", parsed2.Text);
         }
 
         double MB(long mem) => mem / (1024.0*1024.0);
