@@ -36,6 +36,7 @@ namespace Ship_Game.Tools.Localization
                     db.AddFromYaml($"{gameContent}\\GameText.Missing.RUS.yaml", logMerge:true);
                     db.AddFromYaml($"{gameContent}\\GameText.Missing.SPA.yaml", logMerge:true);
                     db.AddFromYaml($"{gameContent}\\GameText.Missing.UKR.yaml", logMerge:true);
+                    db.AddFromYaml($"{gameContent}\\GameText.Missing.GER.yaml", logMerge:true);
                 }
             }
             if (db.NumLocalizations == 0)
@@ -44,6 +45,7 @@ namespace Ship_Game.Tools.Localization
                 db.AddLocalizations(GetGameText("RUS", $"{gameContent}\\Localization\\Russian\\GameText_RU.xml"));
                 db.AddLocalizations(GetGameText("SPA", $"{gameContent}\\Localization\\Spanish\\GameText.xml"));
                 db.AddLocalizations(GetGameText("UKR", $"{gameContent}\\Localization\\Ukrainian\\GameText_UKR.xml"));
+                db.AddLocalizations(GetGameText("GER", $"{gameContent}\\Localization\\German\\GameText_GER.xml"));
             }
 
             if (Directory.Exists(outputDir))
@@ -57,6 +59,7 @@ namespace Ship_Game.Tools.Localization
             db.ExportMissingTranslationsYaml("RUS", $"{gameContent}\\GameText.Missing.RUS.yaml");
             db.ExportMissingTranslationsYaml("SPA", $"{gameContent}\\GameText.Missing.SPA.yaml");
             db.ExportMissingTranslationsYaml("UKR", $"{gameContent}\\GameText.Missing.UKR.yaml");
+            db.ExportMissingTranslationsYaml("GER", $"{gameContent}\\GameText.Missing.GER.yaml");
 
             if (Directory.Exists(modContent))
             {
@@ -67,6 +70,7 @@ namespace Ship_Game.Tools.Localization
                         db.AddFromModYaml($"{modContent}\\GameText.Missing.RUS.yaml", logMerge:true);
                         db.AddFromModYaml($"{modContent}\\GameText.Missing.SPA.yaml", logMerge:true);
                         db.AddFromModYaml($"{modContent}\\GameText.Missing.UKR.yaml", logMerge:true);
+                        db.AddFromModYaml($"{modContent}\\GameText.Missing.GER.yaml", logMerge:true);
                     }
                 }
                 if (db.NumModLocalizations == 0)
@@ -74,12 +78,14 @@ namespace Ship_Game.Tools.Localization
                     db.AddModLocalizations(GetGameText("ENG", $"{modContent}\\Localization\\English\\GameText_EN.xml"));
                     db.AddModLocalizations(GetGameText("RUS", $"{modContent}\\Localization\\Russian\\GameText_RU.xml"));
                     db.AddModLocalizations(GetGameText("UKR", $"{modContent}\\Localization\\Ukrainian\\GameText_UKR.xml"));
+                    db.AddModLocalizations(GetGameText("GER", $"{modContent}\\Localization\\German\\GameText_GER.xml"));
                 }
                 db.FinalizeModLocalization();
                 db.ExportModYaml($"{modContent}\\GameText.yaml");
                 db.ExportMissingModYaml("RUS", $"{modContent}\\GameText.Missing.RUS.yaml");
                 db.ExportMissingModYaml("SPA", $"{modContent}\\GameText.Missing.SPA.yaml");
                 db.ExportMissingModYaml("UKR", $"{modContent}\\GameText.Missing.UKR.yaml");
+                db.ExportMissingModYaml("GER", $"{modContent}\\GameText.Missing.GER.yaml");
             }
             return db;
         }
