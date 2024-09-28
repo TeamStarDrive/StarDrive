@@ -6,12 +6,14 @@ NewGame:
  RUS: "Новая игра"
  SPA: "Nueva partida"
  UKR: "Нова гра"
+ GER: "Neues Spiel"
 LoadGame:
  Id: 2
  ENG: "Load Game"
  RUS: "Загрузить игру"
  SPA: "Cargar partida"
  UKR: "Завантажити гру"
+ GER: "Spiel laden" 
 Tutorials:
  Id: 3
  ENG: "Tutorials"
