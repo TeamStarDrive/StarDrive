@@ -112,6 +112,10 @@ namespace Ship_Game.GameScreens.NewGame
             {
                 SelectedRacesList.Add(new BlueButton( P.SelectedFoes[i].ArchetypeName));
             }
+            for (int i = 0; i < P.NumOpponents - P.SelectedFoes.Count; i++)
+            {
+                SelectedRacesList.Add(new BlueButton("Random"));
+            }
         }
     }
 } 
