@@ -98,7 +98,7 @@ namespace Ship_Game.Commands.Goals
 
             if (!Owner.IsPreparingForWarWith(TargetEmpire))
             {
-                if (Owner.IsAtWarWith(TargetEmpire))
+                if (Owner.IsAtWarWith(TargetEmpire) && task.Fleet != null)
                 {
                     Owner.AI.AddGoal(new WarMission(Owner, TargetEmpire, TargetPlanet, task, 2));
                     return GoalStep.GoalComplete;
