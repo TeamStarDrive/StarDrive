@@ -11,7 +11,7 @@
         public readonly int ColonyRankModifier;
         public readonly float TaskForceStrength;
         public readonly bool DataVisibleToPlayer;
-        public readonly float Anger;
+        public readonly float AngerMultiplierVsPlayer;
         public readonly int ShipLevel;
         public readonly bool HideTacticalData;
         public readonly float MaxDesiredPlanets;
@@ -262,7 +262,7 @@
 
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
             DiploWeightVsPlayer = (int)difficulty + 1;
-            Anger               = ((int)difficulty + 1) * 0.2f;
+            AngerMultiplierVsPlayer = 1 + ((int)difficulty) * 0.25f;
 
             if (empire.isPlayer)
             {

@@ -12,6 +12,7 @@ using Ship_Game.Debug;
 using Ship_Game.Empires.Components;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
+using System.Windows.Forms.VisualStyles;
 
 namespace Ship_Game.Gameplay
 {
@@ -50,6 +51,8 @@ namespace Ship_Game.Gameplay
         [StarData] public FederationQuest FedQuest;
         [StarData] public int turnsSinceLastContact;
         [StarData] public int TurnsSinceLastTechTrade;
+        [StarData] public int TurnsSinceLastTechDemand;
+        [StarData] public int TurnsSinceLastThreathened;
         [StarData] public bool WarnedAboutShips;
         [StarData] public bool WarnedAboutColonizing;
         [StarData] public int PlayerContactStep; //  Encounter Step to use when the player contacts this faction
@@ -86,7 +89,6 @@ namespace Ship_Game.Gameplay
         [StarData] public Array<SolarSystem> WarnedSystemsList = new();
         [StarData] public bool HaveInsulted_Military;
         [StarData] public bool HaveComplimented_Military;
-        [StarData] public bool XenoDemandedTech;
         [StarData] public bool HaveWarnedTwice;
         [StarData] public bool HaveWarnedThrice;
         // TODO: remove ID
@@ -129,7 +131,9 @@ namespace Ship_Game.Gameplay
         private float FirstDemand   => 50 * Them.Universe.P.Pace;
         public float SecondDemand   =>  75 * Them.Universe.P.Pace;
         public float TechTradeTurns => 100 * Them.Universe.P.Pace;
+        public float DemandTechTurns => 175 * Them.Universe.P.Pace;
         public float TryPlayerSurrenderTimer => RefusedMerge ? SecondDemand * 2 : SecondDemand;
+        public float ThreatenedTurnsThreshold => 30 * Them.Universe.P.Pace;
 
         /// <summary>
         /// Tech transfer restriction.
@@ -181,8 +185,9 @@ namespace Ship_Game.Gameplay
             TheyDeclaredWarOnAlly = true;
         }
 
-        public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer = 250)
+        public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer)
         {
+            turnTimer = (int)(turnTimer * Them.Universe.ProductionPace);
             if (attitude != Offer.Attitude.Threaten)
             {
                 TrustEntries.Add(new TrustEntry
@@ -191,15 +196,20 @@ namespace Ship_Game.Gameplay
                     TurnTimer = turnTimer,
                     Type = type
                 });
+
+                TrustUsed += cost;
             }
             else
             {
+                float fearCost = Treaty_Alliance ? cost * 2 : cost;
                 FearEntries.Add(new FearEntry
                 {
-                    FearCost = cost,
+                    FearCost = fearCost,
                     TurnTimer = turnTimer,
                     Type = type
                 });
+
+                FearUsed += fearCost;
             }
         }
 
@@ -336,10 +346,10 @@ namespace Ship_Game.Gameplay
                 return;
 
             if (them.isPlayer)
-                amount *= us.DifficultyModifiers.Anger;
+                amount *= us.DifficultyModifiers.AngerMultiplierVsPlayer;
 
             if (us.IsHonorable || us.IsXenophobic)
-                amount *= 2;
+                amount *= us.PersonalityModifiers.AngerMultiplierRelDamage;
 
             if (why != null)
             {
@@ -348,6 +358,7 @@ namespace Ship_Game.Gameplay
                     SpiesDetected += 1;
                     AddAngerDiplomaticConflict(amount);
                     Trust -= amount;
+                    CalcTotalAnger();
 
                     if (Treaty_Alliance)
                     {
@@ -403,6 +414,7 @@ namespace Ship_Game.Gameplay
                 {
                     AddAngerDiplomaticConflict(amount);
                     Trust -= amount;
+                    CalcTotalAnger();
 
                     SpiesKilled += 1;
 
@@ -432,7 +444,8 @@ namespace Ship_Game.Gameplay
                 }
                 else if (why == "Insulted")
                 {
-                    AddAngerDiplomaticConflict(amount);
+                    AddAngerDiplomaticConflict(Treaty_Alliance ?  amount*2 : amount);
+                    CalcTotalAnger();
                     Trust -= amount;
                 }
                 else if (why == "Colonized Owned System")
@@ -454,6 +467,7 @@ namespace Ship_Game.Gameplay
                     float expansion = us.Universe.Systems.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;
                     AddAngerTerritorialConflict(amount + expansion);
                     Trust -= amount;
+                    CalcTotalAnger();
 
                     if (Anger_TerritorialConflict < us.data.DiplomaticPersonality.Territorialism && !AtWar)
                     {
@@ -489,6 +503,7 @@ namespace Ship_Game.Gameplay
                     {
                         AddAngerMilitaryConflict(amount);
                         Trust -= amount;
+                        CalcTotalAnger();
                         if (them.isPlayer && !us.IsFaction)
                         {
                             if (Anger_MilitaryConflict < 2f)
@@ -512,6 +527,7 @@ namespace Ship_Game.Gameplay
         {
             AddAngerDiplomaticConflict(-angerToReduce);
             Trust += trustEarned;
+            CalcTotalAnger();
         }
 
         public void SetImperialistWar() //TODO what about AtWar?
@@ -579,6 +595,8 @@ namespace Ship_Game.Gameplay
             ++TurnsKnown;
             ++turnsSinceLastContact;
             ++TurnsSinceLastTechTrade;
+            ++TurnsSinceLastTechDemand;
+            ++TurnsSinceLastThreathened;
 
             if (AtWar && ActiveWar != null)
                 ActiveWar.TurnsAtWar += 1f;
@@ -594,11 +612,9 @@ namespace Ship_Game.Gameplay
             {
                 DTrait dt = us.data.DiplomaticPersonality;
                 UpdateThreat(us, them);
-                UpdateTrust(us, them, dt, us.data.EconomicPersonality?.EconomicPersonality() ?? EconomicPersonalityType.Generalists);
+                UpdateTrust(us, them, us.data.EconomicPersonality?.EconomicPersonality() ?? EconomicPersonalityType.Generalists);
                 UpdateAnger(us, them, dt);
                 UpdateFear();
-
-                InitialStrength += dt.NaturalRelChange;
             }
         }
         
@@ -654,7 +670,11 @@ namespace Ship_Game.Gameplay
             AddAngerShipsInOurBorders(angerDissipation);
             AddAngerDiplomaticConflict(angerDissipation);
             AddAngerMilitaryConflict(angerDissipation);
+            CalcTotalAnger();
+        }
 
+        void CalcTotalAnger()
+        {
             TotalAnger = (Anger_DiplomaticConflict
                          + Anger_FromShipsInOurBorders
                          + Anger_MilitaryConflict
@@ -666,7 +686,7 @@ namespace Ship_Game.Gameplay
             foreach (FearEntry f in FearEntries)
                 f.TurnsInExistence += 1;
 
-            FearUsed += FearEntries.Sum(f => f.TurnsInExistence < f.TurnTimer ? f.FearCost : 0);
+            FearUsed = FearEntries.Sum(f => f.TurnsInExistence < f.TurnTimer ? f.FearCost : 0);
             FearEntries.RemoveAll(f => f.TurnsInExistence >= f.TurnTimer);
         }
 
@@ -737,7 +757,7 @@ namespace Ship_Game.Gameplay
             float minimumThreat = them.isPlayer ? us.DifficultyModifiers.MinimumThreatStr * 0.5f : us.DifficultyModifiers.MinimumThreatStr;
             float ourMilScore   = (us.OffensiveStrength*0.001f).LowerBound(minimumThreat); 
             float theirMilScore = (them.OffensiveStrength*0.001f).LowerBound(minimumThreat);
-            float newThreat     = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
+            float newThreat     = ((theirMilScore - ourMilScore) / ourMilScore * 100).Clamped(-100, 100); // This will give a threat of -100 to 100
             Threat = HelperFunctions.ExponentialMovingAverage(Threat, newThreat, 0.9f);
         }
 
@@ -797,8 +817,6 @@ namespace Ship_Game.Gameplay
                 DiplomacyScreen.Show(us, "Offer Trade", offer2, offer1);
             else
                 them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
-
-            turnsSinceLastContact = 0;
         }
 
         void OfferNonAggression(Empire us)
@@ -829,8 +847,6 @@ namespace Ship_Game.Gameplay
                 DiplomacyScreen.Show(us, "Offer NAPact", offer2, offer1);
             else
                 them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
-
-            turnsSinceLastContact = 0;
         }
 
         void OfferOpenBorders(Empire us)
@@ -838,7 +854,7 @@ namespace Ship_Game.Gameplay
             float territorialism = us.data.DiplomaticPersonality.Territorialism;
             if (turnsSinceLastContact < SecondDemand
                 || AtWar
-                || Trust < 20f
+                || Trust < 40f
                 || !Treaty_NAPact
                 || !Treaty_Trade
                 || Treaty_OpenBorders
@@ -867,8 +883,6 @@ namespace Ship_Game.Gameplay
                 DiplomacyScreen.Show(us, friendlyOpen ? "Offer Open Borders Friends" : "Offer Open Borders", ourOffer, openBordersOffer);
             else
                 them.AI.AnalyzeOffer(ourOffer, openBordersOffer, us, Offer.Attitude.Pleading);
-
-            turnsSinceLastContact = 0;
         }
 
         void OfferAlliance(Empire us)
@@ -918,8 +932,6 @@ namespace Ship_Game.Gameplay
                     x => { HaveRejected_Alliance = x; });
                 them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
             }
-
-            turnsSinceLastContact = 0;
         }
 
         void Federate(Empire us, Empire them)
@@ -1096,14 +1108,13 @@ namespace Ship_Game.Gameplay
 
         void DemandTech(Empire us)
         {
-            if (TurnsKnown < FirstDemand
-                || Treaty_NAPact
-                || HaveRejectedDemandTech
-                || XenoDemandedTech)
+            if (TurnsKnown < SecondDemand
+                || TurnsSinceLastTechDemand < DemandTechTurns)
             {
                 return;
             }
 
+            TurnsSinceLastTechDemand = 0;
             Empire them = Them;
             if (!them.AI.TradableTechs(us, out Array<TechEntry> potentialDemands, true))
                 return;
@@ -1124,9 +1135,6 @@ namespace Ship_Game.Gameplay
                 DiplomacyScreen.Show(us, "Xeno Demand Tech", demandTech, theirDemand);
             else
                 them.AI.AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
-            
-            XenoDemandedTech = true;
-            turnsSinceLastContact = 0;
         }
 
         void TradeTech(Empire us)
@@ -1162,8 +1170,7 @@ namespace Ship_Game.Gameplay
                 theirOffer.TechnologiesOffered.Add(techName);
 
             Offer.Attitude ourAttitude = us.IsAggressive || us.IsRuthless || us.IsXenophobic ? Offer.Attitude.Respectful : Offer.Attitude.Pleading;
-            them.AI.AnalyzeOffer(ourOffer, theirOffer, us, ourAttitude);
-            turnsSinceLastContact = 0;
+            them.AI.AnalyzeOffer(ourOffer, theirOffer, us, ourAttitude, resetTurnsSinceLastContacted: false);
         }
 
         bool TechsToOffer(Empire us, Empire them, out Array<TechEntry> techs)
@@ -1406,6 +1413,27 @@ namespace Ship_Game.Gameplay
             return them.ExpansionScore > us.ExpansionScore * 1.25f && TotalAnger > 20f;
         }
 
+        void UpdateTreatiesByTrust(Empire us, Empire them)
+        {
+            if (turnsSinceLastContact < 10)
+                return;
+
+            if (Treaty_OpenBorders && Trust < 5)
+            {
+                if (them.isPlayer)
+                    DiplomacyScreen.Show(us, "TRUST_LOW_OPEN_BORDERS");
+                us.BreakAllianceAndOpenBordersWith(them);
+                turnsSinceLastContact = 0;
+            }
+            else if (Treaty_Alliance && Trust < 40)
+            {
+                if (them.isPlayer)
+                    DiplomacyScreen.Show(us, "TRUST_LOW_ALLIANCE");
+                us.BreakAllianceAndOpenBordersWith(them);
+                turnsSinceLastContact = 0;
+            }
+        }
+
         // Pacifist, Cunning, Honorable
         public void DoConservative(Empire us, Empire them, out bool theyArePotentialTargets)
         {
@@ -1437,6 +1465,8 @@ namespace Ship_Game.Gameplay
                 case Posture.Hostile:
                     AssessDiplomaticAnger(us);
                     ChangeToNeutralIfPossible(us);
+                    if (them.isPlayer && Threat < -75 && us.IsCunning && us.Universe.P.Difficulty > GameDifficulty.Normal)
+                        DemandTech(us);
                     break;
             }
 
@@ -1447,6 +1477,8 @@ namespace Ship_Game.Gameplay
                 case PersonalityType.Pacifist:  theyArePotentialTargets = TheyArePotentialTargetsPacifist(us);   break;
                 default:                        theyArePotentialTargets = false;                                 break;
             }
+
+            UpdateTreatiesByTrust(us, them);
         }
 
         public void DoRuthless(Empire us, Empire them, out bool theyArePotentialTargets)
@@ -1454,13 +1486,20 @@ namespace Ship_Game.Gameplay
             switch (Posture)
             {
                 case Posture.Friendly:
+                    if (them.isPlayer && Threat < -95 && us.Universe.P.Difficulty > GameDifficulty.Hard)
+                        DemandTech(us);
+
                     OfferNonAggression(us);
                     OfferTrade(us);
                     TradeTech(us);
                     Federate(us, them);
+                    OfferAlliance(us);
                     ChangeToNeutralIfPossible(us);
                     break;
                 case Posture.Neutral:
+                    if (them.isPlayer && Threat < -75 && us.Universe.P.Difficulty > GameDifficulty.Normal)
+                        DemandTech(us);
+
                     AssessDiplomaticAnger(us);
                     OfferNonAggression(us);
                     OfferTrade(us);
@@ -1475,12 +1514,16 @@ namespace Ship_Game.Gameplay
                 case
                     Posture.Hostile:
                     ReferToMilitary(us, threatForInsult: -15, compliment: false);
+                    if (them.isPlayer && Threat < -65)
+                        DemandTech(us);
+
                     AssessDiplomaticAnger(us);
                     ChangeToNeutralIfPossible(us);
                     break;
             }
 
             theyArePotentialTargets = TheyArePotentialTargetRuthless(us, them);
+            UpdateTreatiesByTrust(us, them);
         }
 
         public void DoAggressive(Empire us, Empire them, out bool theyArePotentialTargets)
@@ -1491,6 +1534,9 @@ namespace Ship_Game.Gameplay
             switch (Posture)
             {
                 case Posture.Friendly:
+                    if (them.isPlayer && Threat < -95 && us.Universe.P.Difficulty > GameDifficulty.Hard)
+                        DemandTech(us);
+
                     OfferNonAggression(us);
                     OfferTrade(us);
                     TradeTech(us);
@@ -1500,6 +1546,9 @@ namespace Ship_Game.Gameplay
                     ChangeToNeutralIfPossible(us);
                     break;
                 case Posture.Neutral:
+                    if (them.isPlayer && Threat < -75 && us.Universe.P.Difficulty > GameDifficulty.Normal)
+                        DemandTech(us);
+
                     OfferNonAggression(us);
                     OfferTrade(us);
                     TradeTech(us);
@@ -1511,9 +1560,14 @@ namespace Ship_Game.Gameplay
                     RequestHelpFromAllies(us, them, 50);
                     break;
                 case Posture.Hostile:
+                    if (them.isPlayer && Threat < -35)
+                        DemandTech(us);
+
                     theyArePotentialTargets = TheyArePotentialTargetAggressive(us, them);
                     break;
             }
+
+            UpdateTreatiesByTrust(us, them);
         }
 
         public void DoXenophobic(Empire us, Empire them, out bool theyArePotentialTargets)
@@ -1526,9 +1580,10 @@ namespace Ship_Game.Gameplay
                     TradeTech(us);
                     ChangeToNeutralIfPossible(us);
                     Federate(us, them);
+                    OfferAlliance(us);
                     break;
                 case Posture.Neutral:
-                    if (them.isPlayer)
+                    if (them.isPlayer && Threat < -75 && us.Universe.P.Difficulty > GameDifficulty.Normal)
                         DemandTech(us);
 
                     ChangeToFriendlyIfPossible(us);
@@ -1538,13 +1593,14 @@ namespace Ship_Game.Gameplay
                     RequestPeace(us);
                     break;
                 case Posture.Hostile:
-                    if (them.isPlayer)
+                    if (them.isPlayer && Threat < -45)
                         DemandTech(us);
                     ChangeToNeutralIfPossible(us);
                     break;
             }
 
             theyArePotentialTargets = TheyArePotentialTargetXenophobic(us, them);
+            UpdateTreatiesByTrust(us, them);
         }
 
         void ChangeToFriendlyIfPossible(Empire us)

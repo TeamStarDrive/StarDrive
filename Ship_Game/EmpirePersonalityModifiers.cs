@@ -40,6 +40,7 @@ namespace Ship_Game
         public readonly float WantedMoleCovreage; // Coverage of mole threshold of the victim total planets
         public readonly float AlliancOfferStrThreshold; // Dont offer alliance normally if they are too weak
         public readonly float TrustChangeThreshold; // used to change some trust when this threshold is passed, depending on E personality as well and scores.
+        public readonly float AngerMultiplierRelDamage;
 
         // Espionage AI Operation activation thresholds
         public readonly float EspionageTechScoreOpsMultiplier;
@@ -72,6 +73,7 @@ namespace Ship_Game
                     PiratePayChanceModifier      = 1;
                     TrustChangeThreshold         = 1.5f;
                     AlliancOfferStrThreshold     = 1.5f;
+                    AngerMultiplierRelDamage     = 1f;
                     CloserToUsClaimWarn   = 0.3f;
                     WantedMoleCovreage    = 0.25f;
                     DefenseTaskWeight     = 1;
@@ -115,6 +117,7 @@ namespace Ship_Game
                     PiratePayChanceModifier      = 0.4f;
                     TrustChangeThreshold         = 1.25f;
                     AlliancOfferStrThreshold     = 0.75f;
+                    AngerMultiplierRelDamage     = 1f;
                     CloserToUsClaimWarn   = 0.5f;
                     WantedMoleCovreage    = 0.25f;
                     DefenseTaskWeight     = 1.2f;
@@ -158,6 +161,7 @@ namespace Ship_Game
                     PiratePayChanceModifier      = 0.5f;
                     TrustChangeThreshold         = 1.2f;
                     AlliancOfferStrThreshold     = 0.7f;
+                    AngerMultiplierRelDamage     = 1f;
                     CloserToUsClaimWarn   = 0.4f;
                     WantedMoleCovreage    = 0.2f;
                     DefenseTaskWeight     = 1;
@@ -201,6 +205,7 @@ namespace Ship_Game
                     PiratePayChanceModifier      = 0.6f;
                     TrustChangeThreshold         = 1.1f;
                     AlliancOfferStrThreshold     = 0.7f;
+                    AngerMultiplierRelDamage     = 2f;
                     CloserToUsClaimWarn   = 0.6f;
                     WantedMoleCovreage    = 0.15f;
                     DefenseTaskWeight     = 1.2f;
@@ -246,6 +251,7 @@ namespace Ship_Game
                     PiratePayChanceModifier      = 0.7f;
                     AlliancOfferStrThreshold     = 0.8f;
                     TrustChangeThreshold         = 1.4f;
+                    AngerMultiplierRelDamage     = 0.8f;
                     CloserToUsClaimWarn   = 0.3f;
                     WantedMoleCovreage    = 0.5f;
                     DefenseTaskWeight     = 1.3f;
@@ -289,6 +295,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 75;
                     PiratePayChanceModifier      = 0.25f;
                     AlliancOfferStrThreshold     = 0.5f;
+                    AngerMultiplierRelDamage     = 2f;
                     CloserToUsClaimWarn   = 0.4f;
                     WantedMoleCovreage    = 0.15f;
                     DefenseTaskWeight     = 1.5f;
@@ -332,6 +339,7 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemy      = 0;
                     PiratePayChanceModifier      = 0.75f;
                     AlliancOfferStrThreshold     = 0.2f;
+                    AngerMultiplierRelDamage     = 1;
                     CloserToUsClaimWarn   = 0.2f;
                     WantedMoleCovreage    = 0.25f;
                     DefenseTaskWeight     = 2;

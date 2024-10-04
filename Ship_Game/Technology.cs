@@ -216,9 +216,9 @@ namespace Ship_Game
         }
 
         // @param baseValue base value per research point
-        public float DiplomaticValueTo(Empire us, Empire offeringEmpire, float valuePerTechCost = 0.01f)
+        public float DiplomaticValueTo(Empire us, Empire offeringEmpire)
         {
-            float value = Cost * valuePerTechCost;
+            float value = ActualCost(us.Universe) / us.Research.MaxResearchPotential * 2f;
             if (us.isPlayer && !us.IsAlliedWith(offeringEmpire)) // Some modifiers vs. Player based on Difficulty and AI personality
                 value *= offeringEmpire.PersonalityModifiers.TechValueModifier;
 

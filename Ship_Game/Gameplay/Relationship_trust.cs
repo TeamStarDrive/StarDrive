@@ -17,7 +17,7 @@ namespace Ship_Game.Gameplay
 {
     public partial class Relationship
     {
-        void UpdateTrust(Empire us, Empire them, DTrait personality, EconomicPersonalityType eType)
+        void UpdateTrust(Empire us, Empire them, EconomicPersonalityType eType)
             {
             foreach (TrustEntry te in TrustEntries)
                 te.TurnsInExistence += 1;
@@ -28,7 +28,7 @@ namespace Ship_Game.Gameplay
             if (AtWar || !Known)
                 return;
 
-            float trustToAdd = GetTrustGain(us, them, personality, eType);
+            float trustToAdd = GetTrustGain(us, them, eType);
             Trust += trustToAdd * TrustMultiplier();
             Trust = Trust.Clamped(-50, Treaty_Alliance ? 150 : 100);
             TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
@@ -44,10 +44,10 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        float GetTrustGain(Empire us, Empire them, DTrait personality, EconomicPersonalityType eType)
+        float GetTrustGain(Empire us, Empire them, EconomicPersonalityType eType)
         {
             float baseGain = 0.0125f;
-            float trust = 0;
+            float trust = TotalAnger.LowerBound(0) * -0.1f * baseGain;
             switch (us.Personality)
             {
                 case PersonalityType.Pacifist:   trust = PacifistTrustGain(baseGain, us, them, eType);   break;

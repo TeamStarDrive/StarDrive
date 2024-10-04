@@ -688,5 +688,15 @@ Heed well our warrior-poets, SING, and anger not the mighty Kulrathi</Neutral>
       <DL_Hon>You have no honor. We joined this war to support you, yet you do not contribute your share. The Kulrathi will not tolerate dishonor!</DL_Hon>
     </DialogLine> 
 	
+	<!-- Treaties With Low Trust -->
+    <DialogLine>
+      <DialogType>TRUST_LOW_ALLIANCE</DialogType>
+	  <Default>PLURAL, you have no honor. We cannot remain your allies anymore. Maybe in the future.</Default>
+    </DialogLine>  			
+    <DialogLine>
+      <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
+	  <Default>You are not trustworthy as an Open Borders partner anymore, SING.</Default>
+    </DialogLine> 	
+	
   </Dialogs>
 </DiplomacyDialog>

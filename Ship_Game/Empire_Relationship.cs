@@ -92,6 +92,14 @@ namespace Ship_Game
             BreakTreatyWith(them, TreatyType.NonAggression);
         }
 
+        public void BreakAllianceAndOpenBordersWith(Empire them)
+        {
+            if (IsAlliedWith(them))
+                BreakTreatyWith(them, TreatyType.Alliance);
+
+            BreakTreatyWith(them, TreatyType.OpenBorders);
+        }
+
         public void SignAllianceWith(Empire them)
         {
 
@@ -346,8 +354,7 @@ namespace Ship_Game
         {
             if (GetRelations(e, out Relationship rel))
             {
-                if (why == "Colonized Owned System" || why == "Destroyed Ship")
-                    rel.DamageRelationship(this, e, why, amount, p);
+                rel.DamageRelationship(this, e, why, amount, p);
             }
         }
 
@@ -457,7 +464,7 @@ namespace Ship_Game
             void SignPeaceWithEmpireTheySignedWith()
             {
                 AI.AcceptOffer(new Offer { PeaceTreaty = true }, new Offer { PeaceTreaty = true },
-                    this, empireTheySignedWith, Offer.Attitude.Respectful);
+                    this, empireTheySignedWith, Offer.Attitude.Respectful, 1);
             }
 
             float GetDetectionChance()

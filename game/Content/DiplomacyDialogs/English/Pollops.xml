@@ -686,5 +686,16 @@
       <DL_Pac>We do not want to fight your wars for you. We like peace and tranquility.</DL_Pac>
       <DL_Hon>Shadows cast over our alliance, PLURAL. You did not do enough in a war you requested us to join.</DL_Hon>
     </DialogLine> 
+	
+	<!-- Treaties With Low Trust -->
+    <DialogLine>
+      <DialogType>TRUST_LOW_ALLIANCE</DialogType>
+	  <Default>You cast a long shadow over our Alliance, SING. We cannot continue being allies.</Default>
+    </DialogLine>  			
+    <DialogLine>
+      <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
+	  <Default>We are revoking our Open Borders Treaty. We cannot trust your light anymore.</Default>
+    </DialogLine> 	
+	
   </Dialogs>
 </DiplomacyDialog>

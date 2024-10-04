@@ -683,5 +683,15 @@
       <DL_Pac>We will not fight your wars for you, SING!</DL_Pac>
       <DL_Hon>Grrrr! You dishonor us with your lack of fighting, PLURAL!</DL_Hon>
     </DialogLine> 		
+
+	<!-- Treaties With Low Trust -->
+    <DialogLine>
+      <DialogType>TRUST_LOW_ALLIANCE</DialogType>
+	  <Default>No more Alliance!</Default>
+    </DialogLine>  			
+    <DialogLine>
+      <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
+	  <Default>Grrrrm, SING. We do not trust you with an Open Borders Treaty anymore.</Default>
+    </DialogLine>	
   </Dialogs>
 </DiplomacyDialog>

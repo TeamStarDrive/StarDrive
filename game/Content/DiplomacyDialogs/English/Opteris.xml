@@ -671,5 +671,16 @@
       <DL_Pac>Error: Opteris do not want to fight joint war anymore. Opteris want peace. PLURAL are not fighting. Recalibrating.</DL_Pac>
       <DL_Hon>Error: Dishonor detected. PLURAL are not fighting in our joint war. Recalibrating.</DL_Hon>
     </DialogLine> 	
+	
+	<!-- Treaties With Low Trust -->
+    <DialogLine>
+      <DialogType>TRUST_LOW_ALLIANCE</DialogType>
+	  <Default>Error: PLURALS are not to be trusted with Alliance. Alliance status - revoked.</Default>
+    </DialogLine>  			
+    <DialogLine>
+      <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
+	  <Default>Open Border treaty cannot continue. Low Trust detected.</Default>
+    </DialogLine> 	
+	
   </Dialogs>
 </DiplomacyDialog>

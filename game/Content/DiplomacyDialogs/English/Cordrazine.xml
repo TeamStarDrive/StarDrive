@@ -691,5 +691,15 @@
       <DL_Pac>PLURAL, you dragged us into this war although you know we dislike fighting. Since you are doing nothing, perhaps we should end our war with them and our friendship with you.</DL_Pac>
       <DL_Hon>Oh nooo! PLURAL did not do enough in our war. Master is angry.</DL_Hon>
     </DialogLine>  		
+	
+	<!-- Treaties With Low Trust -->
+    <DialogLine>
+      <DialogType>TRUST_LOW_ALLIANCE</DialogType>
+	  <Default>KWAK! We don't trust you anymore with Alliance.</Default>
+    </DialogLine>  			
+    <DialogLine>
+      <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
+	  <Default>Master says you are not good friend for Open Borders anymore, sorry.</Default>
+    </DialogLine>  				
   </Dialogs>
 </DiplomacyDialog>
