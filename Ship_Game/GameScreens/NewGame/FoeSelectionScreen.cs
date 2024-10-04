@@ -34,11 +34,10 @@ namespace Ship_Game.GameScreens.NewGame
         }
         public override void LoadContent()
         {
-            //TitleBar = Add(new Menu2(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80));
-            //var titlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DesignYourRace)).X / 2f,
-            //                           TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 4);
-            //Add(new UILabel(titlePos, "Select other empires", Fonts.Laserian14, Colors.Cream));
             var TitleBar = new Rectangle(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
+
+            Add(new UILabel(new Rectangle(TitleBar.X, TitleBar.Y + 60, TitleBar.Width, TitleBar.Height), 
+                "Select other empires", Fonts.Laserian14, Color.Goldenrod));
             RectF chooseRace = new(ScreenWidth / 6,
                                   (int)TitleBar.Bottom + 15,
                                   (int)(ScreenWidth * 0.3f),

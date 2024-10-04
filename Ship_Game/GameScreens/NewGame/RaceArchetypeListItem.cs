@@ -52,7 +52,7 @@ namespace Ship_Game
 
             if (((Screen as FoeSelectionScreen)?.P?.SelectedFoes?.Contains(EmpireData)) ?? false)
             {
-                batch.DrawRectangle(portrait, Color.BurlyWood);
+                batch.DrawRectangle(portrait, Color.White);
             }
 
         }
