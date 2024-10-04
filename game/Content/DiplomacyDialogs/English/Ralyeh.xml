@@ -681,5 +681,16 @@
       <DL_Pac>The Elder God dislikes violence, we will not fight your battles for you anymore.</DL_Pac>
       <DL_Hon>The Eldar God, in it's wisdom, deemed you dishonorable. You did not fight well enough in our joint war. We will now fix this.</DL_Hon>
     </DialogLine> 	
+	
+	<!-- Treaties With Low Trust -->
+    <DialogLine>
+      <DialogType>TRUST_LOW_ALLIANCE</DialogType>
+	  <Default>The Elder Gods sees all, PLURAL, and has declared our alliance an abomination.</Default>
+    </DialogLine>  			
+    <DialogLine>
+      <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
+	  <Default>You are not to be trusted anymore with an Open Borders Agreement. We are revoking it.</Default>
+    </DialogLine>
+	
   </Dialogs>
 </DiplomacyDialog>

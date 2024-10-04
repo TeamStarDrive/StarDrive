@@ -699,5 +699,15 @@
       <DL_Pac>PLURAL, we refuse to continue a war that has no point and such low contribution from your side. This is not our way.</DL_Pac>
       <DL_Hon>The Council decided you are not worthy of our respcet. We honored our alliance and join your war, yet you and avoiding it. We've had enough.</DL_Hon>
     </DialogLine>  
+	
+	<!-- Treaties With Low Trust -->
+    <DialogLine>
+      <DialogType>TRUST_LOW_ALLIANCE</DialogType>
+	  <Default>The Council is worried that you are not to be trusted as an ally, SING.</Default>
+    </DialogLine>  			
+    <DialogLine>
+      <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
+	  <Default>The Council has decided to revoke our Open Borders Treaty as we have trust issues with your empire.</Default>
+    </DialogLine>  					
   </Dialogs>
 </DiplomacyDialog>

@@ -14,7 +14,6 @@ namespace Ship_Game.Commands.Goals
     {
         [StarData] public sealed override Ship TargetShip { get; set; }
         [StarData] public sealed override Empire TargetEmpire { get; set; }
-        [StarData] int BombersLevel;
         [StarData] public override Planet TargetPlanet { get; set; }
 
         Remnants Remnants => Owner.Remnants;

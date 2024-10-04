@@ -42,7 +42,6 @@ namespace Ship_Game
         [StarData] public int Alliance;
         [StarData] public int Trade;
         [StarData] public int Trustworthiness;
-        [StarData] public float NaturalRelChange;
         [StarData] public float AngerDissipation;
         [StarData] public float WeaknessDecline;
         [StarData] public float PowerIncrease;

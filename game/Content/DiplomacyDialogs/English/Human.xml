@@ -693,5 +693,15 @@
       <DL_Pac>PLURAL, you dragged us into this war although you know we dislike fighting. Since you are doing nothing, perhaps we should end our war with them and our friendship with you.</DL_Pac>
       <DL_Hon>We did not know PLURAL are honorless. You failed to help with a war you requested our aid.</DL_Hon>
     </DialogLine>  	
+	
+	<!-- Treaties With Low Trust -->
+    <DialogLine>
+      <DialogType>TRUST_LOW_ALLIANCE</DialogType>
+	  <Default>PLURAL, we cannot trust you for an alliance, we are revoking it.</Default>
+    </DialogLine>  			
+    <DialogLine>
+      <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
+	  <Default>Perhaps we make a mistake, signing an Open Border treaty with you. We respecfully revoke it.</Default>
+    </DialogLine> 	
   
 </DiplomacyDialog>

@@ -113,6 +113,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 case "TRIED_CUTTING_DEALS_WITH_ENEMY":
                 case "PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING":
                 case "PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION":
+                case "TRUST_LOW_ALLIANCE":
+                case "TRUST_LOW_OPEN_BORDERS":
                     SetDialogText(GetDialogueByName(whichDialog), DialogState.End);
                     break;
                 default:
@@ -710,7 +712,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             if (OurOffer.ValueToModify != null)   OurOffer.ValueToModify.Value = true;
 
             SetDialogText(GetDialogueByName(TheirOffer.AcceptDL), DialogState.End);
-            Us.AI.AcceptOffer(OurOffer, TheirOffer, Us, Them, Attitude);
+            Us.AI.AcceptOffer(OurOffer, TheirOffer, Us, Them, Attitude, 250);
         }
 
         void OnRejectClicked(GenericButton b)

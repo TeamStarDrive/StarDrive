@@ -9,7 +9,6 @@
       <Alliance>45</Alliance>
       <Trade>15</Trade>
       <Trustworthiness>50</Trustworthiness>
-      <NaturalRelChange>-.1</NaturalRelChange>
       <WeaknessDecline>.1</WeaknessDecline>
       <PowerIncrease>-.1</PowerIncrease>
       <AngerDissipation>.1</AngerDissipation>
@@ -39,7 +38,6 @@
       <Alliance>15</Alliance>
       <Trade>2</Trade>
       <Trustworthiness>25</Trustworthiness>
-      <NaturalRelChange>0</NaturalRelChange>
       <AngerDissipation>.1</AngerDissipation>
       <TrustGainedAtPeace>.1</TrustGainedAtPeace>
     </DTrait>
@@ -52,7 +50,6 @@
       <Alliance>35</Alliance>
       <Trade>12</Trade>
       <Trustworthiness>60</Trustworthiness>
-      <NaturalRelChange>0</NaturalRelChange>
       <WeaknessDecline>.2</WeaknessDecline>
       <PowerIncrease>.1</PowerIncrease>
       <AngerDissipation>.1</AngerDissipation>
@@ -67,7 +64,6 @@
       <Alliance>15</Alliance>
       <Trade>2</Trade>
       <Trustworthiness>80</Trustworthiness>
-      <NaturalRelChange>.1</NaturalRelChange>
       <AngerDissipation>.2</AngerDissipation>
       <TrustGainedAtPeace>.2</TrustGainedAtPeace>
     </DTrait>
