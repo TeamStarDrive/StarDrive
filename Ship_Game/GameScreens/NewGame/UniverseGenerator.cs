@@ -202,14 +202,6 @@ namespace Ship_Game.GameScreens.NewGame
 
         void CreateOpponents(ProgressCounter step)
         {
-            //IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
-            //                    data => data.ArchetypeName != Player.data.ArchetypeName);
-
-            // create a randomly shuffled list of opponents
-            //var opponents = new Array<IEmpireData>(majorRaces);
-            //opponents.Shuffle();
-            //opponents.Resize(Math.Min(opponents.Count, NumOpponents)); // truncate
-
             step.Start(FoeList.Count + ResourceManager.MinorRaces.Count);
 
             foreach (IEmpireData readOnlyData in FoeList)

@@ -59,7 +59,7 @@ namespace Ship_Game
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu, toPause: null)
         {
             IsPopup = true; // it has to be a popup, otherwise the MainMenuScreen will not be drawn
-            //P = new UniverseParams();
+
             MainMenu = mainMenu;
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
