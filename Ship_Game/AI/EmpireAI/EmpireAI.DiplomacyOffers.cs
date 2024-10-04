@@ -510,6 +510,7 @@ namespace Ship_Game.AI
                     if (us.IsRuthless || usToThem.TurnsSinceLastThreathened < usToThem.ThreatenedTurnsThreshold)
                         return "OfferResponse_InsufficientFear";
 
+                    usToThem.TurnsSinceLastThreathened = 0;
                     if (offerQuality == OfferQuality.Great)
                     {
                         AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
