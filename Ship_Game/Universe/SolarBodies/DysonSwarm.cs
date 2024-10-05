@@ -17,7 +17,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class DysonSwarm
     {
         const int TotalSwarmControllers = 50;
-        const int BaseRequiredSwarmSats = 100_000;
+        const int BaseRequiredSwarmSats = 500;
         public const int BaseSwarmProductionBoost = 100;
         public const string DysonSwarmLauncherTemplate = "DysonSwarmLauncher";
         public const string DysonSwarmControllerName = "Dyson Swarm Controller";

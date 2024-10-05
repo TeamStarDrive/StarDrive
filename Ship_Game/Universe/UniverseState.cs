@@ -45,7 +45,6 @@ namespace Ship_Game.Universe
         public bool IsSystemViewOrCloser => ViewState <= UnivScreenState.SystemView;
         public bool IsPlanetViewOrCloser => ViewState <= UnivScreenState.PlanetView;
         public bool IsShipViewOrCloser => ViewState <= UnivScreenState.ShipView;
-        public bool ExoticFeaturesDisabled => P.DisableMiningOps && P.DisableResearchStations;
 
         [StarData] public float SettingsResearchModifier = 1f;
         public float RemnantPaceModifier = 20;
@@ -324,16 +323,22 @@ namespace Ship_Game.Universe
         {
             int wantedType1DysonSwarm = ((int)P.GalaxySize / 3 + (int)P.StarsCount / 3).LowerBound(1);
             int wantedType2DysonSwarm = (int)P.GalaxySize / 2 + (int)P.StarsCount / 2;
+
+            if (wantedType1DysonSwarm == 1 && P.GalaxySize >= GalSize.Medium && Random.RollDice(50))
+                wantedType1DysonSwarm += 1;
+            
             if (wantedType2DysonSwarm < 3 && Random.RollDice(30))
-                wantedType2DysonSwarm++;
+                wantedType2DysonSwarm += 1;
+
             if (wantedType2DysonSwarm == 0 && Random.RollDice(50))
                 wantedType2DysonSwarm += 1;
 
             if (wantedType1DysonSwarm + wantedType2DysonSwarm > 0)
             {
-                var potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && s.PlanetList.Count(p => p.Habitable) >= 3);
+                var potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && !s.IsStartingSystem 
+                                                               && !s.HasMinablesOrResearchables() && s.PlanetList.Count(p => p.Habitable) >= 3);
                 if (potantialDysonSwarms.Length == 0)
-                    potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun  && s.PlanetList.Any(p => p.Habitable));
+                    potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && !s.HasMinablesOrResearchables() && s.PlanetList.Any(p => p.Habitable));
 
                 if (potantialDysonSwarms.Length > 0)
                 {
@@ -342,12 +347,14 @@ namespace Ship_Game.Universe
                         var system = potantialDysonSwarms[i];
                         if (wantedType1DysonSwarm + wantedType2DysonSwarm == 0)
                             break;
+
                         if (wantedType1DysonSwarm > 0)
                         {
                             wantedType1DysonSwarm--;
                             system.SetDysonSwarmType(1);
                             continue;
                         }
+
                         if (wantedType2DysonSwarm > 0)
                         {
                             wantedType2DysonSwarm--;

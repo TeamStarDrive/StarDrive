@@ -482,6 +482,8 @@ namespace Ship_Game
             value += SumBuildings(b => b.ActualCost(empire)) * 0.01f;
             value += PopulationBillion * 5;
 
+            if (System.EmpireOwnsDysonSwarm(empire))
+                value += System.PlanetList.Count(p => p.Owner == empire) * System.DysonSwarm.ProductionBoost;
             return value;
         }
 
@@ -515,6 +517,8 @@ namespace Ship_Game
 
             value += SpecialCommodities * 10;
             value += PotentialMaxPopBillionsFor(empire) * HabitableMultiplier();
+            if (System.DysonSwarmType > 0)
+                value += System.PlanetList.Count(p => p.Habitable) * 50;
 
             return value;
 

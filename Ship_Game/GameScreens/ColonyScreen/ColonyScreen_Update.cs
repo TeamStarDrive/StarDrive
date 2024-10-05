@@ -98,7 +98,7 @@ namespace Ship_Game
             DysonSwarmProdBoost.Visible       =
             DysonSwarmPanel.Visible           = true;
             DysonSwarmStartButton.Visible = !P.System.HasDysonSwarm && P.OwnerIsPlayer;
-            DysonSwarmKillButton.Visible = P.System.HasDysonSwarm && P.OwnerIsPlayer;
+            DysonSwarmKillButton.Visible = P.System.HasDysonSwarm && P.OwnerIsPlayer && !ShipInfoOverlay.Visible;
             DysonSwarmStatus.Visible = P.System.HasDysonSwarm;
             if (P.System.HasDysonSwarm)
             {

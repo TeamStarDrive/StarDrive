@@ -13009,7 +13009,7 @@ BB_Tech_DysonSwarm1_Name:
  ENG: "Dyson Swarm 1"   
 BB_Tech_DysonSwarm1_Desc: 
  Id: 4910
- ENG: "We can research a way to tap to the energy of a star by buildings millions of Solar Satellites which will collect energy from the star, and direct it to Swarm Controllers. The Controllers will distribute the energy to friendly Colonies in that system and gain massive production boost. The sunlight will dim a bit and each colony will lose 25% of its fertility."    
+ ENG: "We can research a way to tap to the energy of a star by buildings millions of Solar Satellites which will collect energy from the star, and direct it to Swarm Controllers. The Controllers will distribute the energy to friendly Colonies in that system and gain massive production boost. After completing the research, check the Planet Array to see which Suns are applicable."    
 BB_Tech_DysonSwarm1_Bonus: 
  Id: 4911
  ENG: "Allow mapping known stable stars that can support Dyson Swarm Type 1 Project which will grant 100 Flat production bonus to friendly colonies in the system. This bonus will not affect Mineral Decay."     

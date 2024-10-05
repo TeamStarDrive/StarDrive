@@ -743,6 +743,10 @@ namespace Ship_Game
         {
             return PlanetList.Any(p => p.IsMineable);
         }
+        public bool HasMinablesOrResearchables()
+        {
+            return IsResearchable || PlanetList.Any(p => p.IsMineable || p.IsResearchable);
+        }
 
         public Array<Empire> GetKnownOwners(Empire player)
         {
