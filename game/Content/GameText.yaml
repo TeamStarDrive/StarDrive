@@ -15532,6 +15532,12 @@ DysonSwarmDeploymentCompleted:
 DysonSwarmProductionBoostTip: 
  Id: 6361
  ENG: "Indicates how much production boost this colony is getting from the Dyson Swarm. The Maximum cna change if Overclock is enabled." 
+DysonSwarmOverClockSwarm: 
+ Id: 6362
+ ENG: "Overclock Swarm"  
+DysonSwarmOverClockSwarmTip: 
+ Id: 6363
+ ENG: "Enable Swarm overclocking which will increase the production boost of the Dyson Swarm. The overclocked production will, however, speed up the Mineral Richness Decay of the Planets."
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

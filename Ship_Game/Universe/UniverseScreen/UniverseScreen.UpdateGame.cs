@@ -281,7 +281,6 @@ namespace Ship_Game
             Array<Empire> updated = null;
             if (!UState.Paused && IsActive)
             {
-                UpdateDysonSwarms();
                 EmpireUpdatePerf.Start();
                 updated = UpdateEmpires(timeStep);
                 EmpireUpdatePerf.Stop();
@@ -317,10 +316,14 @@ namespace Ship_Game
                         Empire empire = wereUpdated[i];
                         empire.UpdateMilitaryStrengths();
                         empire.UpdateMoneyLeechedLastTurn();
+                        if (empire.isPlayer) // update this once per turns
+                        {
+                            UpdateDysonSwarms();
+                            UState.UpdateNumPirateFactions();
+                        }
                     }
                 }
 
-                UState.UpdateNumPirateFactions();
                 if (UState.Objects.EnableParallelUpdate)
                     Parallel.For(wereUpdated.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
                 else

@@ -872,14 +872,26 @@ namespace Ship_Game
             return Money.NetRevenueGain(bio) >= 0;
         }
 
-        void TryBuildDysonSwarmControllers()
+        void TryBuildDysonSwarm()
         {
-            if (System.EmpireOwnsDysonSwarm(Owner)
-                && !SwarmSatInTheWorks
-                && System.DysonSwarm.ShouldBuildMoreSwarmControllers
-                && System.DysonSwarm.TryGetAvailablePosForController(out Vector2 pos))
+            if (!Owner.isPlayer
+                && !System.HasDysonSwarm
+                && Owner.CanBuildDysonSwarmIn(System))
             {
-                Owner.AI.AddGoalAndEvaluate(new BuildConstructionShip(pos, Owner, this));
+                System.ActivateDysonSwarm(Owner);
+            }
+
+            if (System.EmpireOwnsDysonSwarm(Owner))
+            {
+                if (!SwarmSatInTheWorks
+                    && System.DysonSwarm.ShouldBuildMoreSwarmControllers
+                    && System.DysonSwarm.TryGetAvailablePosForController(out Vector2 pos))
+                {
+                    Owner.AI.AddGoalAndEvaluate(new BuildConstructionShip(pos, Owner, this));
+                }
+
+                if (!Owner.isPlayer && Owner.data.Traits.DysonSwarmMaxOverclock > 0)
+                    System.DysonSwarm.SetOverclock(true);
             }
         }
 

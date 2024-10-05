@@ -90,7 +90,7 @@ namespace Ship_Game
             {
                 MarkedForMining = true;
             }
-            else if (System.DysonSwarmType > 0 && Player.data.Traits.DysonSwarmType >= System.DysonSwarmType)
+            else if (Player.CanBuildDysonSwarmIn(System))
             {
                 DysonSwarmActiveByPlayer = System.HasDysonSwarm && System.DysonSwarm.Owner == Player;
             }
@@ -297,7 +297,7 @@ namespace Ship_Game
             var namePos = new Vector2(ResourceRect.X + 30, ResourceRect.Y + ResourceRect.Height / 2 - SmallFont.LineSpacing / 2);
             Color labelColor = researchable ? Color.CornflowerBlue
                                             : mineable ? Color.White 
-                                                       : Color.LightGoldenrodYellow;
+                                                       : Color.Gold; // Dyson Swarm
             var resourceName = Label(namePos, GetResourceLabel(), SmallFont, labelColor);
 
             resourceName.Tooltip = researchable ? new LocalizedText(GameText.ResearchPointsAreAddedInto) 

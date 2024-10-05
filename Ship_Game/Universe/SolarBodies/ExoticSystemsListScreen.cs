@@ -79,7 +79,7 @@ namespace Ship_Game
 
             foreach (SolarSystem system in Universe.UState.Systems.OrderBy(s => s.Position.Distance(Universe.Player.WeightedCenter)))
             {
-                if (system.DysonSwarmType > 0 && system.IsExploredBy(Player) && Player.data.Traits.DysonSwarmType >= system.DysonSwarmType)
+                if (system.IsExploredBy(Player) && Player.CanBuildDysonSwarmIn(system))
                     ExploredSolarBodies.Add(system);
                 if (system.IsResearchable && system.IsExploredBy(Player))
                     ExploredSolarBodies.Add(system);

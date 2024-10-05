@@ -98,13 +98,15 @@ namespace Ship_Game
             DysonSwarmProdBoost.Visible       =
             DysonSwarmPanel.Visible           = true;
             DysonSwarmStartButton.Visible = !P.System.HasDysonSwarm && P.OwnerIsPlayer;
-            DysonSwarmKillButton.Visible = P.System.HasDysonSwarm && P.OwnerIsPlayer && !ShipInfoOverlay.Visible;
+            DysonSwarmKillButton.Visible  = P.System.HasDysonSwarm && P.OwnerIsPlayer && !ShipInfoOverlay.Visible;
+            DysonSwarmOverclock.Visible   = P.System.EmpireOwnsDysonSwarm(Player) && Player.data.Traits.DysonSwarmMaxOverclock > 0;
             DysonSwarmStatus.Visible = P.System.HasDysonSwarm;
             if (P.System.HasDysonSwarm)
             {
                 DysonSwarmControllerProgress.Progress = P.System.DysonSwarm.ControllerCompletion * 100;
                 DysonSwarmProgress.Progress = P.System.DysonSwarm.NumSwarmSats;
                 DysonSwarmProductionBoost.Progress = P.System.DysonSwarm.ProductionBoost;
+                DysonSwarmProductionBoost.Max = P.System.DysonSwarm.MaxProductionBoost;
                 if (P.System.DysonSwarm.IsCompleted)
                 {
                     DysonSwarmStatus.Text = GameText.DysonSwarmDeploymentCompleted;
@@ -128,6 +130,7 @@ namespace Ship_Game
             DysonSwarmStartButton.Visible =
             DysonSwarmStatus.Visible = 
             DysonSwarmKillButton.Visible = false;
+            DysonSwarmOverclock.Visible = false;
         }
 
         void UpdateTerraformTab()

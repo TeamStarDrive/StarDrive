@@ -3,11 +3,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using static Ship_Game.UniverseScreen;
 using Vector2 = SDGraphics.Vector2;
 
@@ -17,7 +13,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class DysonSwarm
     {
         const int TotalSwarmControllers = 50;
-        const int BaseRequiredSwarmSats = 500;
+        const int BaseRequiredSwarmSats = 100_000;
         public const int BaseSwarmProductionBoost = 100;
         public const string DysonSwarmLauncherTemplate = "DysonSwarmLauncher";
         public const string DysonSwarmControllerName = "Dyson Swarm Controller";
@@ -113,7 +109,7 @@ namespace Ship_Game.Universe.SolarBodies
             MaxOverclock = Owner.data.Traits.DysonSwarmMaxOverclock;
             ControllerCompletion = count / (float)TotalSwarmControllers;
             int desiredOverclock = OverclockEnabled ? MaxOverclock : 0;
-            CurrentOverclock += desiredOverclock - CurrentOverclock.Clamped(-1, 1);
+            CurrentOverclock += (desiredOverclock - CurrentOverclock).Clamped(-1, 1);
             float completionLimit = ControllerCompletion.UpperBound(SwarmCompletion);
             CurrentOverclock = CurrentOverclock.UpperBound((int)(completionLimit * MaxOverclock));
             if (NeedDysonRingsChange)

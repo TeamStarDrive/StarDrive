@@ -335,19 +335,21 @@ namespace Ship_Game.Universe
 
             if (wantedType1DysonSwarm + wantedType2DysonSwarm > 0)
             {
-                var potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && !s.IsStartingSystem 
-                                                               && !s.HasMinablesOrResearchables() && s.PlanetList.Count(p => p.Habitable) >= 3);
-                if (potantialDysonSwarms.Length == 0)
-                    potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && !s.HasMinablesOrResearchables() && s.PlanetList.Any(p => p.Habitable));
+                Array<SolarSystem> potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && !s.IsStartingSystem 
+                                                               && !s.HasMinablesOrResearchables() && s.PlanetList.Count(p => p.Habitable) >= 3).ToArrayList();
+                if (potantialDysonSwarms.Count == 0)
+                    potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && !s.HasMinablesOrResearchables() && s.PlanetList.Any(p => p.Habitable)).ToArrayList();
 
-                if (potantialDysonSwarms.Length > 0)
+                if (potantialDysonSwarms.Count > 0)
                 {
-                    for (int i = 0; i < potantialDysonSwarms.Length; i++)
+                    int totalWanted = wantedType1DysonSwarm + wantedType2DysonSwarm;
+                    for (int i = 0; i < totalWanted; i++)
                     {
-                        var system = potantialDysonSwarms[i];
-                        if (wantedType1DysonSwarm + wantedType2DysonSwarm == 0)
+                        if (potantialDysonSwarms.Count == 0 || wantedType1DysonSwarm + wantedType2DysonSwarm == 0)
                             break;
 
+                        var system = Random.Item(potantialDysonSwarms);
+                        potantialDysonSwarms.Remove(system);
                         if (wantedType1DysonSwarm > 0)
                         {
                             wantedType1DysonSwarm--;

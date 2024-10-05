@@ -5613,8 +5613,16 @@ namespace Ship_Game
         DysonSwarmProgressTip = 6359,
         /// <summary>Deployment Completed</summary>
         DysonSwarmDeploymentCompleted = 6360,
-        /// <summary>DysonSwarmProductionBoostTip</summary>
+        /// <summary>Indicates how much production boost this colony is </summary>
         DysonSwarmProductionBoostTip = 6361,
+        /// <summary>Overclock Swarm</summary>
+        DysonSwarmOverClockSwarm = 6362,
+        /// <summary>Enable Swarm overclocking which will increase the production boost</summary>
+        DysonSwarmOverClockSwarmTip = 6363,
+
+
+
+
 
 
 

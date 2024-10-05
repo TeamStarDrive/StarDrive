@@ -114,6 +114,7 @@ namespace Ship_Game
         UILabel DysonSwarmStatus;
         UIButton DysonSwarmStartButton;
         UIButton DysonSwarmKillButton;
+        UICheckBox DysonSwarmOverclock;
         UIPanel DysonSwarmControllerPanel;
         UIPanel DysonSwarmPanel;
         UIPanel DysonSwarmProdBoost;
@@ -378,6 +379,12 @@ namespace Ship_Game
             Vector2 buttonsPos = new Vector2(pos.X, pos.Y + spacing);
             AddButton(ref DysonSwarmStartButton, buttonsPos, GameText.BuildDysonSwarm, ButtonStyle.Default, GameText.BuildDysonSwarmTip);
             AddButton(ref DysonSwarmKillButton, new Vector2(buttonsPos.X + barWidth- spacing-110, buttonsPos.Y), GameText.KillDysonSwarm, ButtonStyle.Military, GameText.KillDysonSwarmTip);
+            DysonSwarmOverclock = Add(new UICheckBox(buttonsPos.X, buttonsPos.Y + 130,
+                () => P.System.DysonSwarm.OverclockEnabled,
+                P.System.DysonSwarm.SetOverclock,
+                font, GameText.DysonSwarmOverClockSwarm, GameText.DysonSwarmOverClockSwarmTip));
+            DysonSwarmOverclock.CheckedTextColor = Color.Red;
+            DysonSwarmOverclock.Visible = false;
             AddLabel(ref DysonSwarmStatus, new Vector2(buttonsPos.X+5, buttonsPos.Y+3), GameText.Completion, font, Color.Green);
             DysonSwarmStartButton.OnClick = (b) => OnStartDysonSwarmClick();
             DysonSwarmKillButton.OnClick = (b) => OnStartDysonSwarmKill();
