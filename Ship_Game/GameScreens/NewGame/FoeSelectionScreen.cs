@@ -36,8 +36,7 @@ namespace Ship_Game.GameScreens.NewGame
         {
             var TitleBar = new Rectangle(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
 
-            Add(new UILabel(new Rectangle(TitleBar.X, TitleBar.Y + 60, TitleBar.Width, TitleBar.Height), 
-                "Select other empires", Fonts.Laserian14, Color.Goldenrod));
+            
             RectF chooseRace = new(ScreenWidth / 6,
                                   (int)TitleBar.Bottom + 15,
                                   (int)(ScreenWidth * 0.3f),
@@ -47,13 +46,15 @@ namespace Ship_Game.GameScreens.NewGame
                                   (int)TitleBar.Bottom + 15,
                                   (int)(ScreenWidth * 0.3f),
                                   (int)(ScreenHeight - TitleBar.Bottom));
-
+            var background = new Rectangle((int)chooseRace.X - 20, TitleBar.Y, (int)(chooseRace.W + selectedRaces.W) + 100, (int)chooseRace.H + 10);
             if (chooseRace.H > 780 || selectedRaces.H > 780)
             {
                 chooseRace.H = 780;
                 selectedRaces.H = 780;
             }
-
+            Add(new Menu2(background, Color.Black));
+            Add(new UILabel(new Rectangle(TitleBar.X, TitleBar.Y + 60, TitleBar.Width, TitleBar.Height),
+                "Select other empires", Fonts.Laserian14, Color.Goldenrod));
             ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
             ChooseRaceList.SetBackground(new Menu1(chooseRace));
             ChooseRaceList.OnClick = OnRaceItemSelected;
