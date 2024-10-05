@@ -18,7 +18,7 @@
     <UnlockedBonus>
 	  <Name>Potential Stars that can support Type 2 Dyson Swarm</Name>
       <BonusType>Dyson Swarm Type</BonusType>
-      <Bonus>2</Bonus>
+      <Bonus>2</Bonus> <!-- This is an absolute value, not an addition-->
       <BonusIndex>4917</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

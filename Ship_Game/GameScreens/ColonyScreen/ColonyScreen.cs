@@ -366,6 +366,7 @@ namespace Ship_Game
 
         void CreateDysonSwarmDetails(Vector2 pos)
         {
+            DysonSwarmTabAllowed = P.Owner.CanBuildDysonSwarmIn(P.System);
             if (P.Owner == null || !DysonSwarmTabAllowed)
                 return;
 
@@ -380,8 +381,10 @@ namespace Ship_Game
             AddButton(ref DysonSwarmStartButton, buttonsPos, GameText.BuildDysonSwarm, ButtonStyle.Default, GameText.BuildDysonSwarmTip);
             AddButton(ref DysonSwarmKillButton, new Vector2(buttonsPos.X + barWidth- spacing-110, buttonsPos.Y), GameText.KillDysonSwarm, ButtonStyle.Military, GameText.KillDysonSwarmTip);
             DysonSwarmOverclock = Add(new UICheckBox(buttonsPos.X, buttonsPos.Y + 130,
-                () => P.System.DysonSwarm.OverclockEnabled,
-                P.System.DysonSwarm.SetOverclock,
+                () => DysonSwarmEnabled,
+                (x) => { if (P.System.HasDysonSwarm)
+                            P.System.DysonSwarm.SetOverclock(x);
+                },
                 font, GameText.DysonSwarmOverClockSwarm, GameText.DysonSwarmOverClockSwarmTip));
             DysonSwarmOverclock.CheckedTextColor = Color.Red;
             DysonSwarmOverclock.Visible = false;
@@ -414,6 +417,8 @@ namespace Ship_Game
             AddProgressBar(ref DysonSwarmProductionBoost, dysonSwarmProdBoostRect,
                 P.System.HasDysonSwarm ? P.System.DysonSwarm.MaxProductionBoost : DysonSwarm.BaseSwarmProductionBoost, "brown");
         }
+
+        bool DysonSwarmEnabled => P.System.EmpireOwnsDysonSwarm(Player) ? P.System.DysonSwarm.OverclockEnabled : false;
 
         void OnStartDysonSwarmClick()
         {

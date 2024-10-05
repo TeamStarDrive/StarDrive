@@ -503,7 +503,6 @@ namespace Ship_Game
             {
                 DrawMoney(ref bCursor, batch);
                 DrawPlanetStat(ref bCursor, batch, TextFont);
-                //DrawCommoditiesArea(bCursor);
                 return;
             }
 
@@ -912,9 +911,7 @@ namespace Ship_Game
                 TerraTargetFertility   = TerraformTargetFertility();
                 MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);
                 TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);
-                DysonSwarmTabAllowed   = P.Owner.data.Traits.DysonSwarmType > 0 
-                                         && !P.System.IsSunDangerous 
-                                         && (P.System.EmpireOwnsDysonSwarm(P.Owner) || P.System.DysonSwarmType > 0);
+                DysonSwarmTabAllowed   = P.Owner.CanBuildDysonSwarmIn(P.System);
 
                 if (TerraformLevel > 0 && !PFacilities.Tabs.Any(t => t.Title == Localizer.Token(GameText.BB_Tech_Terraforming_Name))
                     || DysonSwarmTabAllowed && !PFacilities.Tabs.Any(t => t.Title == Localizer.Token(GameText.DysonSwarm)))

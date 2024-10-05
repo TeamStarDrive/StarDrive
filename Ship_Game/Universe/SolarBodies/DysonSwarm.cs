@@ -106,7 +106,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
 
-            MaxOverclock = Owner.data.Traits.DysonSwarmMaxOverclock;
+            UpdateMaxOverclock();
             ControllerCompletion = count / (float)TotalSwarmControllers;
             int desiredOverclock = OverclockEnabled ? MaxOverclock : 0;
             CurrentOverclock += (desiredOverclock - CurrentOverclock).Clamped(-1, 1);
@@ -114,6 +114,11 @@ namespace Ship_Game.Universe.SolarBodies
             CurrentOverclock = CurrentOverclock.UpperBound((int)(completionLimit * MaxOverclock));
             if (NeedDysonRingsChange)
                 LoadDysonRings();
+        }
+
+        public void UpdateMaxOverclock()
+        {
+            MaxOverclock = Owner.data.Traits.DysonSwarmMaxOverclock;
         }
 
         public void KillSwarm()
@@ -226,6 +231,7 @@ namespace Ship_Game.Universe.SolarBodies
         public void SetOverclock(bool value)
         {
             OverclockEnabled = value;
+            UpdateMaxOverclock();
         }
 
         static public LocalizedText DysonSwarmTypeTitle(byte swarmType) => swarmType == 1 ? GameText.DysonSwarmType1 : GameText.DysonSwarmType2;
