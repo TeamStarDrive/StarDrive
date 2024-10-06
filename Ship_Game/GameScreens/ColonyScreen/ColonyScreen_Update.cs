@@ -21,6 +21,7 @@ namespace Ship_Game
             UpdateBuildAndConstructLists(elapsedTime);
             UpdateTradeTab();
             UpdateTerraformTab();
+            UpdateDysonSwarmTab();
             base.Update(elapsedTime);
         }
 
@@ -82,6 +83,55 @@ namespace Ship_Game
             ManualExportTitle.Color  = GetManualExportSlotsOverrideColor();
         }
 
+        void UpdateDysonSwarmTab()
+        {
+            if (!IsDysonSwarmTabSelected)
+            {
+                if (DysonSwarmTypeTitle?.Visible == true)
+                    HideDysonSwarmUI();
+
+                return;
+            }
+            DysonSwarmTypeTitle.Visible       = true;
+            DysonSwarmControllerPanel.Visible = true;
+            DysonSwarmProdBoost.Visible       = true;
+            DysonSwarmPanel.Visible           = true;
+            DysonSwarmStartButton.Visible = !P.System.HasDysonSwarm && P.OwnerIsPlayer;
+            DysonSwarmKillButton.Visible  = P.System.HasDysonSwarm && P.OwnerIsPlayer && !ShipInfoOverlay.Visible;
+            DysonSwarmOverclock.Visible   = P.System.EmpireOwnsDysonSwarm(Player) && Player.data.Traits.DysonSwarmMaxOverclock > 0;
+            DysonSwarmStatus.Visible = P.System.HasDysonSwarm;
+            if (P.System.HasDysonSwarm)
+            {
+                DysonSwarmControllerProgress.Progress = P.System.DysonSwarm.ControllerCompletion * 100;
+                DysonSwarmProgress.Progress = P.System.DysonSwarm.NumSwarmSats;
+                DysonSwarmProductionBoost.Progress = P.System.DysonSwarm.ProductionBoost;
+                DysonSwarmProductionBoost.Max = P.System.DysonSwarm.MaxProductionBoost;
+                if (P.System.DysonSwarm.IsCompleted)
+                {
+                    DysonSwarmStatus.Text = GameText.DysonSwarmDeploymentCompleted;
+                    DysonSwarmStatus.Color = Color.Green;
+                }
+                else
+                {
+                    DysonSwarmStatus.Text =  GameText.TerraformersInProgress;
+                    DysonSwarmStatus.Color = ApplyCurrentAlphaToColor(Color.Yellow);
+                }
+                
+            }
+        }
+
+        void HideDysonSwarmUI()
+        {
+            DysonSwarmTypeTitle.Visible       = false;
+            DysonSwarmControllerPanel.Visible = false;
+            DysonSwarmProdBoost.Visible       = false;
+            DysonSwarmPanel.Visible           = false;
+            DysonSwarmStartButton.Visible     = false;
+            DysonSwarmStatus.Visible          = false;
+            DysonSwarmKillButton.Visible      = false;
+            DysonSwarmOverclock.Visible       = false;
+        }
+
         void UpdateTerraformTab()
         {
             if (TerraformLevel < 1)
@@ -138,9 +188,10 @@ namespace Ship_Game
                                             && TerraformLevel >= 3 && TerraMaxPopBillion.Less(MinEstimatedMaxPop);
         }
 
-        bool IsTerraformTabSelected => PFacilities.SelectedIndex == 3;
-        bool IsTradeTabSelected     => PFacilities.SelectedIndex == 2;
-        bool IsStatTabSelected      => PFacilities.SelectedIndex == 0;
+        bool IsDysonSwarmTabSelected => PFacilities.IsTabSelected(Localizer.Token(GameText.DysonSwarm));
+        bool IsTerraformTabSelected  => PFacilities.IsTabSelected(Localizer.Token(GameText.BB_Tech_Terraforming_Name));
+        bool IsTradeTabSelected      => PFacilities.SelectedIndex == 2;
+        bool IsStatTabSelected       => PFacilities.SelectedIndex == 0;
 
         Color GetManualImportSlotsOverrideColor()
         {

@@ -64,6 +64,7 @@ namespace Ship_Game.AI
                                           && s.GetMaintenanceCost(empire).Less(maintBudget)
                                           && !s.IsShipyard
                                           && !s.IsSubspaceProjector
+                                          && !s.IsDysonSwarmController
                                           && !s.IsResearchStation
                                           && !s.IsMiningStation);
 
@@ -415,8 +416,16 @@ namespace Ship_Game.AI
         public static IShipDesign BestShipWeCanBuild(RoleName role, Empire empire)
         {
             IShipDesign bestShip = PickFromCandidates(role, empire);
-            if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector || bestShip.IsResearchStation || bestShip.IsMiningStation) 
+            if (bestShip == null
+                || bestShip.IsShipyard
+                || bestShip.IsSubspaceProjector
+                || bestShip.IsResearchStation
+                || bestShip.IsMiningStation
+                || bestShip.IsDysonSwarmController)
+            {
                 return null;
+            }
+
             return bestShip;
         }
     }

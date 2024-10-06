@@ -201,7 +201,8 @@ namespace Ship_Game
         Building,
         Orbital,
         OrbitalUrgent,
-        RoadNode
+        RoadNode,
+        SwarmController
     }
 
 }

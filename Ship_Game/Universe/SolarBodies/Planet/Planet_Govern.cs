@@ -39,6 +39,8 @@ namespace Ship_Game
             BuildTroops();
             BuildTroopsForEvents(); // For AI to explore event in colony
             TryBuildTerraformers(TerraformBudget); // Build Terraformers if needed/enabled
+            TryBuildDysonSwarm();
+
             // If there is no Outpost or Capital, build it. This is done for non governor planets as well
             BuildOutpostOrCapitalIfAble();
 

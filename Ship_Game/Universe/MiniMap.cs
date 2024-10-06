@@ -355,17 +355,10 @@ namespace Ship_Game
 
         public void ExoticScreen_OnClick(ToggleButton toggleButton)
         {
-            if (Player.Universe.ExoticFeaturesDisabled)
-            {
-                GameAudio.NegativeClick();
-            }
-            else
-            {
-                GameAudio.AcceptClick();
-                ExoticScreen.IsToggled = false;
-                Universe.ScreenManager.AddScreen(new ExoticSystemsListScreen(Universe, Universe.EmpireUI));
-                ExoticScreen.IsToggled = Universe.FreighterUtilizationWindow.IsOpen;
-            }
+            GameAudio.AcceptClick();
+            ExoticScreen.IsToggled = false;
+            Universe.ScreenManager.AddScreen(new ExoticSystemsListScreen(Universe, Universe.EmpireUI));
+            ExoticScreen.IsToggled = Universe.FreighterUtilizationWindow.IsOpen;
         }
 
         public void GravityWells_OnClick(ToggleButton toggleButton)
@@ -424,10 +417,8 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(GameText.OpensPlanetReconnaissancePanel, "L");
 
             if (ExoticScreen.Rect.HitTest(input.CursorPosition))
-            {
-                ToolTip.CreateTooltip(Player.Universe.ExoticFeaturesDisabled ? GameText.OpensExoticPlanetsPanelDisabled 
-                                                                             : GameText.OpensExoticPlanetsPanel, "G");
-            }
+                ToolTip.CreateTooltip(GameText.OpensExoticPlanetsPanel, "G");
+
             if (GravityWells.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.FtlOverlayVisualisesSubspaceProjection, "F1");
 

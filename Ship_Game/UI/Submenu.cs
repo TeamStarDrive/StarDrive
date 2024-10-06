@@ -258,6 +258,11 @@ public class Submenu : UIPanel
         }
     }
 
+    public bool IsTabSelected(string tabName)
+    {
+        return CurSelectedIndex >= 0 ? Tabs[CurSelectedIndex].Title == tabName : false;
+    }
+
     public override bool HandleInput(InputState input)
     {
         if (!Visible || !Enabled)

@@ -267,6 +267,15 @@ namespace Ship_Game.AI
             if (orbital.IsSubspaceProjector)
                 Owner.Loyalty.AI.SpaceRoadsManager.AddProjectorToRoadList(orbital, goal.BuildPosition);
 
+            if (orbital.IsDysonSwarmController)
+            {
+                if (!Owner.System.EmpireOwnsDysonSwarm(Owner.Loyalty) 
+                    || !Owner.System.DysonSwarm.TryConnectControllerToGrid(orbital))
+                {
+                    orbital.QueueTotalRemoval();
+                }
+            }
+
             Owner.QueueTotalRemoval();
             if (goal.OldShip?.Active == true) // we are refitting something
             {

@@ -35,6 +35,7 @@ namespace Ship_Game
         int NumTerrain; // Terrain to terraform
         int NumTerraformableTiles;
         int TerraformLevel;
+        bool DysonSwarmTabAllowed;
         float MinEstimatedMaxPop;
         float TerraMaxPopBillion; // After terraforming
         float TerraTargetFertility; // After terraforming
@@ -490,11 +491,18 @@ namespace Ship_Game
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
+            if (IsDysonSwarmTabSelected)
+            {
+                DysonSwarmControllerProgress.Draw(batch);
+                DysonSwarmProgress.Draw(batch);
+                DysonSwarmProductionBoost.Draw(batch);
+                return;
+            }
+
             if (IsStatTabSelected)
             {
                 DrawMoney(ref bCursor, batch);
                 DrawPlanetStat(ref bCursor, batch, TextFont);
-                //DrawCommoditiesArea(bCursor);
                 return;
             }
 
@@ -903,9 +911,13 @@ namespace Ship_Game
                 TerraTargetFertility   = TerraformTargetFertility();
                 MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);
                 TerraMaxPopBillion     = P.PotentialMaxPopBillionsFor(P.Owner, true);
+                DysonSwarmTabAllowed   = P.Owner.CanBuildDysonSwarmIn(P.System);
 
-                if (TerraformLevel > 0 && PFacilities.Tabs.Count < 4)
-                    PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name);
+                if (TerraformLevel > 0 && !PFacilities.Tabs.Any(t => t.Title == Localizer.Token(GameText.BB_Tech_Terraforming_Name))
+                    || DysonSwarmTabAllowed && !PFacilities.Tabs.Any(t => t.Title == Localizer.Token(GameText.DysonSwarm)))
+                {
+                    PopulatePfacilitieTabs();
+                }
 
                 UpdateTimer = 150;
             }

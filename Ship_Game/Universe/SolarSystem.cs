@@ -40,9 +40,14 @@ namespace Ship_Game
         [StarData] public Array<Asteroid> AsteroidsList = new();
         [StarData] public Array<Moon> MoonList = new();
         [StarData] SmallBitSet FullyExplored;
+        [StarData] public byte DysonSwarmType { get; private set; } // 0, 1 or 2
 
         SunType TheSunType;
         public SunLayerState[] SunLayers;
+        [StarData] public DysonSwarm DysonSwarm {  get; private set; }
+
+        public bool HasDysonSwarm => DysonSwarm != null;
+        public bool EmpireOwnsDysonSwarm(Empire empire) => HasDysonSwarm && DysonSwarm.Owner == empire;
 
         public SunType Sun
         {
@@ -131,6 +136,8 @@ namespace Ship_Game
                 {
                     MoonList[i].UpdateVisibleMoon(timeStep);
                 }
+
+                DysonSwarm?.UpdateDysonRings(timeStep);
             }
             else if (WasVisibleLastFrame)
             {
@@ -170,6 +177,20 @@ namespace Ship_Game
             }
         }
 
+        public void ActivateDysonSwarm(Empire empire)
+        {
+            DysonSwarm = new(this, empire);
+        }
+
+        public void KillDysonSwarm()
+        {
+            if (HasDysonSwarm)
+            {
+                DysonSwarm.KillSwarm();
+                DysonSwarm = null;
+            }
+        }
+
         // Need in order for threat matrix to update starting remnants for Astronomers trait
         public void NewGameAddRemnantShipToList(Ship s)
         {
@@ -177,7 +198,6 @@ namespace Ship_Game
             s.SetSystem(this);
         }
             
-
         public void SetPiratePresence(bool value)
         {
             PiratePresence = value;
@@ -219,6 +239,14 @@ namespace Ship_Game
         public bool HasPlanetsOwnedByHostiles(Empire us)
         {
             return OwnerList.Any(e => e.IsEmpireHostile(us));
+        }
+
+        public void SetDysonSwarmType(byte value)
+        {
+            if (value > 2)
+                Log.Error($"Dyson Swarm Type Can only be 0, 1 or 2. Tried setting {value}");
+            else
+                DysonSwarmType = value;
         }
 
         public void UpdateOwnerList()
@@ -447,10 +475,10 @@ namespace Ship_Game
 
         public void GenerateRandomSystem(UniverseState us, RandomBase random, string name, Empire owner, float exoticPlanetMultiplier = 1)
         {
-            // Changed by RedFox: 3% chance to get a tri-sun "star_binary"
-            Sun = random.RollDice(percent:3)
-                ? SunType.FindSun("star_binary")
-                : SunType.RandomHabitableSun(random, s => s.Id != "star_binary");
+            // Changed by RedFox + FatBastard: 5% chance to get a multiple sun"
+            Sun = random.RollDice(percent: 5)
+                ? SunType.RandomMultiSun(random)
+                : SunType.RandomHabitableSun(random, s => !s.MultiSun);
 
             Name = name;
             int starRadius = random.Int(250, 500);
@@ -714,6 +742,10 @@ namespace Ship_Game
         public bool HasMinables()
         {
             return PlanetList.Any(p => p.IsMineable);
+        }
+        public bool HasMinablesOrResearchables()
+        {
+            return IsResearchable || PlanetList.Any(p => p.IsMineable || p.IsResearchable);
         }
 
         public Array<Empire> GetKnownOwners(Empire player)

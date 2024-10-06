@@ -292,6 +292,7 @@ namespace Ship_Game
             Profiled(LoadProjectileMeshes);
             // Hotspot #3 174.8ms  7.91%
             Profiled("LoadSunTypes", () => SunType.LoadSunTypes(loadIcons: !GlobalStats.IsUnitTest));
+            Profiled("LoadDysonRings", DysonRings.LoadDysonRings);
             Profiled("LoadBeamFX", () =>
             {
                 Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
@@ -2173,13 +2174,18 @@ namespace Ship_Game
                 /*meteors*/"Meteor A", "Meteor B", "Meteor C", "Meteor D", "Meteor E", "Meteor F", "Meteor G",
                 /*debug*/"Bondage-Class Mk IIIa Cruiser", "Target Dummy",
                 /*hangarhack*/"DynamicAntiShip", "DynamicInterceptor", "DynamicLaunch",
-                /*defaults*/"Subspace Projector", "Supply Shuttle", "Assault Shuttle", "Terran Constructor", "Basic Research Station", "Basic Mining Station"
+                /*defaults*/"Subspace Projector", "Supply Shuttle", "Assault Shuttle", "Terran Constructor", "Basic Research Station", "Basic Mining Station", "Dyson Swarm Controller"
             };
 
             foreach (string requiredShip in requiredShips)
             {
                 Assert(null, requiredShip, "RequiredShip");
             }
+
+            GetWeaponTemplate(DysonSwarm.DysonSwarmLauncherTemplate, out IWeaponTemplate t);
+            if (t == null)
+                Log.Error($"Assert Weapon Template Exists failed! {DysonSwarm.DysonSwarmLauncherTemplate}.xml. " +
+                    "Check BB+ Weapons/Mandatory directory for that file and copy it to your mod.");
         }
     }
 }

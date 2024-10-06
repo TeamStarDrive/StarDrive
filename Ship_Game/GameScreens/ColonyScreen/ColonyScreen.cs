@@ -8,6 +8,7 @@ using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.UI;
 using System;
 using SDUtils;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -109,6 +110,18 @@ namespace Ship_Game
         UILabel EstimatedMaxPopTitle;
         UILabel EstimatedMaxPop;
 
+        UILabel DysonSwarmTypeTitle;
+        UILabel DysonSwarmStatus;
+        UIButton DysonSwarmStartButton;
+        UIButton DysonSwarmKillButton;
+        UICheckBox DysonSwarmOverclock;
+        UIPanel DysonSwarmControllerPanel;
+        UIPanel DysonSwarmPanel;
+        UIPanel DysonSwarmProdBoost;
+        ProgressBar DysonSwarmControllerProgress;
+        ProgressBar DysonSwarmProgress;
+        ProgressBar DysonSwarmProductionBoost;
+
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, 
             int governorTabSelected = 0, int facilitiesTabSelected = 0)
             : base(parent, p)
@@ -184,16 +197,8 @@ namespace Ship_Game
                                      LeftMenu.Width - 60 - PlanetInfo.Width,
                                      LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
 
-            Array<LocalizedText> pFacTabs = new()
-            {
-                GameText.Statistics2,
-                GameText.Description,
-                GameText.Trade2,
-            };
-            if (Player.data.Traits.TerraformingLevel > 0 || P.Terraformable)
-                pFacTabs.Add(GameText.BB_Tech_Terraforming_Name); // Terraforming
-
-            PFacilities = base.Add(new Submenu(pFacilitiesR, pFacTabs));
+            PFacilities = base.Add(new Submenu(pFacilitiesR));
+            PopulatePfacilitieTabs();
             PFacilities.OnTabChange = OnPFacilitiesTabChange;
             // FB - sticky tab selection on colony change via arrows
             if (facilitiesTabSelected < PFacilities.Tabs.Count)
@@ -287,6 +292,25 @@ namespace Ship_Game
             Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
             CreateTradeDetails(detailsVector);
             CreateTerraformingDetails(detailsVector);
+            CreateDysonSwarmDetails(detailsVector);
+        }
+
+        void PopulatePfacilitieTabs()
+        {
+            PFacilities.ClearTabs();
+            PFacilities.AddTab(GameText.Statistics2);
+            PFacilities.AddTab(GameText.Description);
+            PFacilities.AddTab(GameText.Trade2);
+
+            if (Player.data.Traits.TerraformingLevel > 0 || P.Terraformable)
+                PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name);
+
+            if (DysonSwarmTabAllowed)
+            {
+                PFacilities.AddTab(GameText.DysonSwarm);
+                Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
+                CreateDysonSwarmDetails(detailsVector);
+            }
         }
 
         void AddLabel(ref UILabel uiLabel, Vector2 pos, LocalizedText text, Font font, Color color)
@@ -295,6 +319,15 @@ namespace Ship_Game
                 uiLabel = Add(new UILabel(pos, text, font, color));
 
             uiLabel.Visible = false;
+        }
+
+        void AddButton(ref UIButton button, Vector2 pos, LocalizedText text, ButtonStyle buttonStyle, LocalizedText tip) 
+        {
+            if (button == null)
+                button = Add(new UIButton(buttonStyle, pos, text));
+
+            button.Visible = false;
+            button.Tooltip = tip;
         }
 
         void AddPanel(ref UIPanel panel, Vector2 pos, string texPath, int size, LocalizedText tip)
@@ -329,6 +362,77 @@ namespace Ship_Game
                 slider.ZeroString = Localizer.Token(GameText.Automatic);
                 slider.Tip        = tip;
             }
+        }
+
+        void CreateDysonSwarmDetails(Vector2 pos)
+        {
+            DysonSwarmTabAllowed = P.Owner.CanBuildDysonSwarmIn(P.System);
+            if (P.Owner == null || !DysonSwarmTabAllowed)
+                return;
+
+            Font font = LowRes ? Font8 : Font14;
+            int spacing = font.LineSpacing + 10;
+            int barWidth = (int)(PFacilities.Width * 0.5f);
+            float indent = 30;
+
+            AddLabel(ref DysonSwarmTypeTitle, pos, DysonSwarm.DysonSwarmTypeTitle(P.System.DysonSwarmType), font, Color.White);
+
+            Vector2 buttonsPos = new Vector2(pos.X, pos.Y + spacing);
+            AddButton(ref DysonSwarmStartButton, buttonsPos, GameText.BuildDysonSwarm, ButtonStyle.Default, GameText.BuildDysonSwarmTip);
+            AddButton(ref DysonSwarmKillButton, new Vector2(buttonsPos.X + barWidth- spacing-110, buttonsPos.Y), GameText.KillDysonSwarm, ButtonStyle.Military, GameText.KillDysonSwarmTip);
+            DysonSwarmOverclock = Add(new UICheckBox(buttonsPos.X, buttonsPos.Y + 130,
+                () => DysonSwarmEnabled,
+                (x) => { if (P.System.HasDysonSwarm)
+                            P.System.DysonSwarm.SetOverclock(x);
+                },
+                font, GameText.DysonSwarmOverClockSwarm, GameText.DysonSwarmOverClockSwarmTip));
+            DysonSwarmOverclock.CheckedTextColor = Color.Red;
+            DysonSwarmOverclock.Visible = false;
+            AddLabel(ref DysonSwarmStatus, new Vector2(buttonsPos.X+5, buttonsPos.Y+3), GameText.Completion, font, Color.Green);
+            DysonSwarmStartButton.OnClick = (b) => OnStartDysonSwarmClick();
+            DysonSwarmKillButton.OnClick = (b) => OnStartDysonSwarmKill();
+            // Controller Progress
+            Vector2 controllerProgressPos = new Vector2(pos.X, buttonsPos.Y + spacing + 3);
+            AddPanel(ref DysonSwarmControllerPanel, controllerProgressPos, "Suns/red_giant_icon", font.LineSpacing, GameText.DysonSwarmControllerProgressTip);
+            Rectangle dysonSwarmControllerProgressRect = new Rectangle((int)(controllerProgressPos.X + indent), 
+                                                                       (int)controllerProgressPos.Y, 
+                                                                       barWidth, 20);
+            AddProgressBar(ref DysonSwarmControllerProgress, dysonSwarmControllerProgressRect, 100, "red", percentage: true);
+            
+            // Swarm Progress
+            Vector2 swarmProgressPos = new Vector2(controllerProgressPos.X, controllerProgressPos.Y + spacing + 3);
+            AddPanel(ref DysonSwarmPanel, swarmProgressPos, "NewUI/icon_projection", font.LineSpacing, GameText.DysonSwarmProgressTip);
+            DysonSwarmPanel.Color = Color.Yellow;
+            Rectangle dysonSwarmProgressRect = new Rectangle((int)(swarmProgressPos.X + indent),
+                                                             (int)swarmProgressPos.Y,
+                                                             barWidth, 20);
+            AddProgressBar(ref DysonSwarmProgress, dysonSwarmProgressRect, DysonSwarm.GetRequiredSwarmSats(P.System.DysonSwarmType), "yellow");
+
+            // Swarm production boost
+            Vector2 swarmProdBoostPos = new Vector2(swarmProgressPos.X, swarmProgressPos.Y + spacing + 3);
+            AddPanel(ref DysonSwarmProdBoost, swarmProdBoostPos, "NewUI/icon_production", font.LineSpacing, GameText.DysonSwarmProductionBoostTip);
+            Rectangle dysonSwarmProdBoostRect = new Rectangle((int)(swarmProdBoostPos.X + indent),
+                                                              (int)swarmProdBoostPos.Y,
+                                                               barWidth, 20);
+            AddProgressBar(ref DysonSwarmProductionBoost, dysonSwarmProdBoostRect,
+                P.System.HasDysonSwarm ? P.System.DysonSwarm.MaxProductionBoost : DysonSwarm.BaseSwarmProductionBoost, "brown");
+        }
+
+        bool DysonSwarmEnabled => P.System.EmpireOwnsDysonSwarm(Player) ? P.System.DysonSwarm.OverclockEnabled : false;
+
+        void OnStartDysonSwarmClick()
+        {
+            if (P.OwnerIsPlayer)
+                P.System.ActivateDysonSwarm(P.Owner);
+        }
+
+        void OnStartDysonSwarmKill()
+        {
+            if (!P.OwnerIsPlayer)
+                return;
+
+            HideDysonSwarmUI();
+            P.System.KillDysonSwarm();
         }
 
         void CreateTradeDetails(Vector2 pos)
