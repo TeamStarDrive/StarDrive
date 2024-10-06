@@ -2181,6 +2181,11 @@ namespace Ship_Game
             {
                 Assert(null, requiredShip, "RequiredShip");
             }
+
+            GetWeaponTemplate(DysonSwarm.DysonSwarmLauncherTemplate, out IWeaponTemplate t);
+            if (t == null)
+                Log.Error($"Assert Weapon Template Exists failed! {DysonSwarm.DysonSwarmLauncherTemplate}.xml. " +
+                    "Check BB+ Weapons/Mandatory directory for that file and copy it to your mod.");
         }
     }
 }
