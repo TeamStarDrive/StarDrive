@@ -92,19 +92,18 @@ public interface IShipDesign
     bool IsStation           { get; }
     bool IsConstructor       { get; }
     bool IsSubspaceProjector { get; }
-    bool IsDysonSwarmController { get; }
     bool IsColonyShip        { get; }
     bool IsSupplyCarrier     { get; } // this ship launches supply ships
     bool IsSupplyShuttle     { get; }
     bool IsFreighter         { get; }
-    bool IsCandidateForTradingBuild { get; }
     bool IsUnitTestShip      { get; }
-
     bool IsSingleTroopShip { get; }
     bool IsTroopShip       { get; }
     bool IsBomber          { get; }
     bool IsResearchStation { get; }
-    bool IsMiningStation { get; }
+    bool IsMiningStation   { get; }
+    bool IsCandidateForTradingBuild { get; }
+    bool IsDysonSwarmController     { get; }
 
     // base stats like cost and mass
     float BaseCost       { get; }

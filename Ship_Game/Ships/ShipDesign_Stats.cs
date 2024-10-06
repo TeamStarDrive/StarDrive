@@ -21,20 +21,16 @@ public partial class ShipDesign
     public bool IsStation           { get; private set; }
     public bool IsConstructor       { get; private set; }
     public bool IsSubspaceProjector { get; private set; }
-    public bool IsDysonSwarmController     { get; private set; }
     public bool IsColonyShip        { get; private set; }
     public bool IsSupplyCarrier     { get; private set; } // this ship launches supply ships
     public bool IsSupplyShuttle     { get; private set; }
     public bool IsFreighter         { get; private set; }
     public bool IsResearchStation   { get; private set; }
-    public bool IsMiningStation { get; private set; }
-    public bool IsCandidateForTradingBuild { get; private set; }
+    public bool IsMiningStation     { get; private set; }
     public bool IsUnitTestShip      { get; private set; }
-
-    public bool IsSingleTroopShip { get; private set; }
-    public bool IsTroopShip       { get; private set; }
-    public bool IsBomber          { get; private set; }
-
+    public bool IsSingleTroopShip   { get; private set; }
+    public bool IsTroopShip         { get; private set; }
+    public bool IsBomber            { get; private set; }
     public float BaseCost       { get; private set; }
     public float BaseStrength   { get; private set; }
     public float BaseThrust     { get; private set; }
@@ -43,9 +39,11 @@ public partial class ShipDesign
     public bool  BaseCanWarp    { get; private set; }
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
-    public float BaseResearchPerTurn { get; private set; }
-    public float BaseRefiningPerTurn { get; private set; }
-    public byte NumConstructionModules { get; private set; }
+    public float BaseResearchPerTurn       { get; private set; }
+    public float BaseRefiningPerTurn       { get; private set; }
+    public byte NumConstructionModules     { get; private set; }
+    public bool IsCandidateForTradingBuild { get; private set; }
+    public bool IsDysonSwarmController     { get; private set; }
 
     public Power NetPower;
 

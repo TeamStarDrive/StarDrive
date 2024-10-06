@@ -1,5 +1,4 @@
 using System;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -93,9 +92,9 @@ namespace Ship_Game
 
                 return;
             }
-            DysonSwarmTypeTitle.Visible       =
-            DysonSwarmControllerPanel.Visible =
-            DysonSwarmProdBoost.Visible       =
+            DysonSwarmTypeTitle.Visible       = true;
+            DysonSwarmControllerPanel.Visible = true;
+            DysonSwarmProdBoost.Visible       = true;
             DysonSwarmPanel.Visible           = true;
             DysonSwarmStartButton.Visible = !P.System.HasDysonSwarm && P.OwnerIsPlayer;
             DysonSwarmKillButton.Visible  = P.System.HasDysonSwarm && P.OwnerIsPlayer && !ShipInfoOverlay.Visible;
@@ -123,14 +122,14 @@ namespace Ship_Game
 
         void HideDysonSwarmUI()
         {
-            DysonSwarmTypeTitle.Visible =
-            DysonSwarmControllerPanel.Visible =
-            DysonSwarmProdBoost.Visible =
-            DysonSwarmPanel.Visible = 
-            DysonSwarmStartButton.Visible =
-            DysonSwarmStatus.Visible = 
-            DysonSwarmKillButton.Visible = false;
-            DysonSwarmOverclock.Visible = false;
+            DysonSwarmTypeTitle.Visible       = false;
+            DysonSwarmControllerPanel.Visible = false;
+            DysonSwarmProdBoost.Visible       = false;
+            DysonSwarmPanel.Visible           = false;
+            DysonSwarmStartButton.Visible     = false;
+            DysonSwarmStatus.Visible          = false;
+            DysonSwarmKillButton.Visible      = false;
+            DysonSwarmOverclock.Visible       = false;
         }
 
         void UpdateTerraformTab()

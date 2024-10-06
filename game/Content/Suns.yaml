@@ -64,6 +64,15 @@
       PulsePeriod: 15.0
       PulseScale: [1.0,1.0]
       PulseColor: [1.0,1.80]
+    - Layer:
+      TexturePath: Suns/star_red2.dds
+      LayerScale: 0.6
+      BlendMode: Additive
+      RotationSpeed: 0.01
+      RotationStart: 0
+      PulsePeriod: 15.0
+      PulseScale: [1.0,1.0]
+      PulseColor: [0.2,0.5]
 
 - Sun:
   Id: Blue_giant 
@@ -310,7 +319,7 @@
       PulsePeriod: 5.0
       PulseScale: [1,1]
       PulseColor: [1.0,1.20]
-      
+
 - Sun:
   Id: star_binary2
   ResearchableChance: 10
@@ -377,23 +386,24 @@
   Id: star_purple
   IconPath: Suns/star_purple_icon.png
   IconScale: 4
-  LightIntensity: 1
+  LightIntensity: 0.5
   Radius: 75000
-  LightColor: [255,0,255]a
+  LightColor: [255,128,255]
   Habitable: true
   Layers:
     - Layer:
       TexturePath: Suns/star_purple.dds
       BlendMode: AlphaBlend
-      RotationSpeed: 1.00
+      RotationSpeed: 2.00
       PulsePeriod: 5.0
+      LayerScale: 1.1
     - Layer:
       TexturePath: Suns/star_purple.dds
       BlendMode: AlphaBlend
       RotationSpeed: 0.03
-      PulsePeriod: 7.0      
-      PulseScale: [0.9,1.1.0]
-      PulseColor: [1.0,1.20]      
+      PulsePeriod: 7.0
+      PulseScale: [0.9,1.0]
+      PulseColor: [1.0,1.2]
       
 - Sun:
   Id: star_brown_dwarf

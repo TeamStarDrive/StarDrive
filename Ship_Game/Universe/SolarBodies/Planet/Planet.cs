@@ -518,7 +518,7 @@ namespace Ship_Game
             value += SpecialCommodities * 10;
             value += PotentialMaxPopBillionsFor(empire) * HabitableMultiplier();
             if (System.DysonSwarmType > 0)
-                value += System.PlanetList.Count(p => p.Habitable) * 50;
+                value += System.PlanetList.Count(p => p.Habitable) * (DysonSwarm.BaseSwarmProductionBoost + empire.data.Traits.DysonSwarmMaxOverclock);
 
             return value;
 
@@ -668,7 +668,6 @@ namespace Ship_Game
             DysonSwarmLauncher = null;
             if (loadWeapon)
             {
-                // Todo ensure this template exists when mod/vanilla content is loaded
                 ResourceManager.GetWeaponTemplate(DysonSwarm.DysonSwarmLauncherTemplate, out IWeaponTemplate t);
                 DysonSwarmLauncher = new(Universe, t, null, null, null);
             }
@@ -1082,7 +1081,7 @@ namespace Ship_Game
 
         void UpdateBaseFertility()
         {
-            float totalFertility = BaseMaxFertility + BuildingsFertility; 
+            float totalFertility = BaseMaxFertility + BuildingsFertility;
             if (BaseFertility.AlmostEqual(totalFertility))
                 return;
 

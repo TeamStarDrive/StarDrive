@@ -184,7 +184,7 @@ namespace Ship_Game.Universe.SolarBodies
         public void DrawSunMesh(SolarSystem sys, in Matrix view, in Matrix projection)
         {
             Vector2 pos  = ScreenPosition(sys.Position, view, projection);
-            Vector2 edge = ScreenPosition(sys.Position + new Vector2(sys.Sun.Radius, 0f), view, projection);
+            Vector2 edge = ScreenPosition(sys.Position + new Vector2(Radius, 0f), view, projection);
 
             float relSizeOnScreen = (edge.X - pos.X) / GameBase.ScreenWidth;
             float sizeScaleOnScreen = 1.25f * relSizeOnScreen; // this yields the base star size
@@ -192,7 +192,6 @@ namespace Ship_Game.Universe.SolarBodies
             SpriteBatch batch = GameBase.ScreenManager.SpriteBatch;
             batch.SafeEnd();
             {
-                //sys.DysonSwarm?.DrawDysonRings(batch, pos, sizeScaleOnScreen);
                 foreach (SunLayerState layer in sys.SunLayers)
                     layer.Draw(batch, pos, sizeScaleOnScreen);
                 sys.DysonSwarm?.DrawDysonRings(batch, pos, sizeScaleOnScreen);

@@ -33,19 +33,22 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public int NumSwarmSats { get; private set; }
         [StarData] public bool OverclockEnabled { get; private set; }
 
-
+        bool NeedDysonRingsChange       => (int)(SwarmCompletion * 100) / 10 != DysonSwarmRings.Count;
+        bool AreControllersCompleted    => ControllerCompletion.AlmostEqual(1);
         public float PercentOverClocked => MaxOverclock != 0 ? CurrentOverclock / (float)MaxOverclock : 0;
-        bool AreControllersCompleted => ControllerCompletion.AlmostEqual(1);
-        public float SwarmCompletion => NumSwarmSats / (float)RequiredSwarmSats; // 0.0 to 1.0
-        public bool IsSwarmCompleted => SwarmCompletion.AlmostEqual(1);
-        public bool IsCompleted => IsSwarmCompleted && AreControllersCompleted;
-        public float ProductionBoost => ControllerCompletion.UpperBound(SwarmCompletion)* BaseSwarmProductionBoost + CurrentOverclock;
-        public int MaxProductionBoost => BaseSwarmProductionBoost + (OverclockEnabled ?  MaxOverclock : 0);
+        public float SwarmCompletion    => NumSwarmSats / (float)RequiredSwarmSats; // 0.0 to 1.0
+        public bool IsSwarmCompleted    => SwarmCompletion.AlmostEqual(1);
+        public bool IsCompleted         => IsSwarmCompleted && AreControllersCompleted;
+        public float ProductionBoost    => ControllerCompletion.UpperBound(SwarmCompletion)* BaseSwarmProductionBoost + CurrentOverclock;
+        public int MaxProductionBoost   => BaseSwarmProductionBoost + (OverclockEnabled ?  MaxOverclock : 0);
         public float ProductionNotAffectingDecay => ControllerCompletion.UpperBound(SwarmCompletion) * BaseSwarmProductionBoost;
         public int NunSwarmControllersInTheWorks => System.PlanetList.Count(p => p.Owner == Owner && p.SwarmSatInTheWorks);
         public bool ShouldBuildMoreSwarmControllers => !AreControllersCompleted 
             && NunSwarmControllersInTheWorks + SwarmControllers.Values.Count(s => s != null) < TotalSwarmControllers;
-        bool NeedDysonRingsChange => (int)(SwarmCompletion * 100) / 10 != DysonSwarmRings.Count;
+
+        static public LocalizedText DysonSwarmTypeTitle(byte swarmType) => 
+            swarmType == 1 ? GameText.DysonSwarmType1 : GameText.DysonSwarmType2;
+        static public int GetRequiredSwarmSats(byte swarmType) => BaseRequiredSwarmSats / swarmType.LowerBound(1);
 
         public DysonSwarm(SolarSystem system, Empire owner) 
         {
@@ -90,10 +93,6 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Update() // Once per turn or when a new Dyson Swarm Sat is deployed
         {
-            // todo check if owner is still eligible to have dyson swarm in this system
-            // diplomacy bonuses
-
-
             int count = 0;
             foreach (KeyValuePair<Vector2, Ship> item in SwarmControllers)
             {
@@ -233,10 +232,6 @@ namespace Ship_Game.Universe.SolarBodies
             OverclockEnabled = value;
             UpdateMaxOverclock();
         }
-
-        static public LocalizedText DysonSwarmTypeTitle(byte swarmType) => swarmType == 1 ? GameText.DysonSwarmType1 : GameText.DysonSwarmType2;
-
-        static public int GetRequiredSwarmSats(byte swarmType) => BaseRequiredSwarmSats / swarmType.LowerBound(1);
     }
 }
 

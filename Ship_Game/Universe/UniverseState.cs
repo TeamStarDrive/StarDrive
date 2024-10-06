@@ -32,7 +32,7 @@ namespace Ship_Game.Universe
 
         [StarData] public UniverseParams P;
 
-        public float UniverseWidth => Size * 2f;
+        public float UniverseWidth => Size*2f;
         public float UniverseRadius => Size;
         [StarData] public Empire Player;
         [StarData] public Empire Cordrazine;
