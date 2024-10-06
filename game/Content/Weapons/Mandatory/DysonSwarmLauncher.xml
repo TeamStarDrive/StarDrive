@@ -14,7 +14,7 @@
   <ProjectileSpeed>1500</ProjectileSpeed>
   <ProjectileRadius>3</ProjectileRadius> 
   
-  <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
+  <ProjectileTexturePath>projTear_02_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
