@@ -3557,7 +3557,7 @@ BB_Tech_Terraforming_Name:
  ENG: "Terraform"
  RUS: "Терраформировать"
  SPA: "Terraformar"
- UKR: "Тераформа"
+ UKR: "Тераформувати"
 BB_Tech_ThalaronBlaster_Name:
  Id: 685
  ENG: "Thalaron Blaster"
