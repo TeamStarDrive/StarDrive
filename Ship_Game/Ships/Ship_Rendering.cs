@@ -370,7 +370,7 @@ namespace Ship_Game.Ships
                 destRect.X += 2;
                 string icon = hasSelectIcon ? "SelectionBox Ships/" + ShipData.BaseHull.SelectIcon 
                                             : ShipData.BaseHull.IconPath;
-                batch.Draw(ResourceManager.Texture(icon), destRect, Color.White);
+                batch.Draw(ResourceManager.Texture(icon), destRect, hasSelectIcon ? Color.White : Color.LightGreen);
                 if (hasSelectIcon && ShieldPower > 0)
                 {
                     batch.Draw(ResourceManager.Texture(icon + "_shields"), destRect,
