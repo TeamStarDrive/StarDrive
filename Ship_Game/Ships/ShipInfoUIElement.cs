@@ -125,7 +125,8 @@ namespace Ship_Game.Ships
 
             DrawOrderButtons(batch, transitionOffset);
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
-            GridButton.Draw(batch, elapsed);
+            if (s.Loyalty.CanBeScannedByPlayer)
+                GridButton.Draw(batch, elapsed);
 
             Vector2 namePos       = new(Housing.X + 30, Housing.Y + 63);
             Vector2 shipSuperName = new(Housing.X + 30, Housing.Y + 79);
@@ -143,7 +144,7 @@ namespace Ship_Game.Ships
             string text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(s), 120);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
 
-            s.RenderOverlay(batch, ShipInfoRect, ShowModules);
+            s.RenderOverlay(batch, ShipInfoRect, ShowModules && s.Loyalty.CanBeScannedByPlayer);
             batch.Draw(ResourceManager.Texture("Modules/NuclearReactorMedium"), Power, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Shield_1KW"), Shields, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);

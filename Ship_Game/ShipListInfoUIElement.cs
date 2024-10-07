@@ -151,7 +151,7 @@ namespace Ship_Game
             else
             {
                 HoverOff = 0f;
-                HoveredShip.RenderOverlay(batch, ShipInfoRect, ShowModules);
+                HoveredShip.RenderOverlay(batch, ShipInfoRect, ShowModules && HoveredShip.Loyalty.CanBeScannedByPlayer);
                 string text = HoveredShip.VanityName;
                 Vector2 tpos = new Vector2(Housing.X + 30, Housing.Y + 63);
                 string name = (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name);
@@ -196,8 +196,8 @@ namespace Ship_Game
 
             OrdersButtons.Draw(batch, elapsed);
             
-
-            GridButton.Draw(batch, elapsed);
+            if (ShipList.Any(s => s.Loyalty.CanBeScannedByPlayer))
+                GridButton.Draw(batch, elapsed);
         }
 
         public void CalcAndDrawProgressBars(SpriteBatch batch)
