@@ -6,6 +6,7 @@ Style=Corsair
 Size=50,48
 MeshOffset=0,0
 IconPath=ShipIcons/station_blue
+SelectIcon=
 ModelPath=Model/Stations/spacestation01_outer
 SelectIcon=3
 Animated=false

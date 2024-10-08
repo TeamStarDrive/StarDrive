@@ -7,6 +7,7 @@ Size=18,32
 MeshOffset=0,2
 IconPath=ShipIcons/mauler
 ModelPath=Model/Ships/Kulrathi/ship12a
+SelectIcon=12c
 Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
