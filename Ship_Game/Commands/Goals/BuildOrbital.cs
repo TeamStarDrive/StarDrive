@@ -130,21 +130,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             return Owner.AI.Goals.Any(g => g != this 
                                            && g is BuildOrbital bo && bo.TetherPlanet == TetherPlanet 
                                            && g.BuildPosition.InRadius(position, 500f));
-
-            /*var ships = Owner.OwnedShips;
-            foreach (Ship ship in ships.Filter(s => s.IsConstructor))
-            {
-                if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) &&
-                    g.Goal is BuildOrbital bo && bo.TetherPlanet == TetherPlanet)
-                {
-                    Owner.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
-                        g.Goal.BuildPosition, 1000, Color.LightCyan, 10.0f);
-                    if (position.InRadius(g.Goal.BuildPosition, 1000))
-                        return true;
-                }
-            }
-
-            return false;*/
         }
 
         bool ConstructionShipOk => FinishedShip?.Active == true;

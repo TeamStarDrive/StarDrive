@@ -3554,10 +3554,10 @@ BB_Tech_TachyonScanning_SensorRangeBonus_Bonus:
  UKR: "Подвоює дальність дії всіх датчиків"
 BB_Tech_Terraforming_Name:
  Id: 683
- ENG: "Terraforming"
- RUS: "Терраформинг"
- SPA: "Terraformación"
- UKR: "Тераформування"
+ ENG: "Terraform"
+ RUS: "Терраформировать"
+ SPA: "Terraformar"
+ UKR: "Тераформувати"
 BB_Tech_ThalaronBlaster_Name:
  Id: 685
  ENG: "Thalaron Blaster"
@@ -13004,6 +13004,33 @@ DisableScreenPanningOption:
 DisableScreenPanningOptionTip:
  Id: 4525
  ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
+BB_Tech_DysonSwarm1_Name: 
+ Id: 4909
+ ENG: "Dyson Swarm 1"   
+BB_Tech_DysonSwarm1_Desc: 
+ Id: 4910
+ ENG: "We can research a way to tap to the energy of a star by buildings millions of Solar Satellites which will collect energy from the star, and direct it to Swarm Controllers. The Controllers will distribute the energy to friendly Colonies in that system and gain massive production boost. After completing the research, check the Planet Array to see which Suns are applicable."    
+BB_Tech_DysonSwarm1_Bonus: 
+ Id: 4911
+ ENG: "Allow mapping known stable stars that can support Dyson Swarm Type 1 Project which will grant 100 Flat production bonus to friendly colonies in the system. This bonus will not affect Mineral Decay."     
+BB_Tech_DysonSwarmOverclock_Name: 
+ Id: 4912
+ ENG: "Swarm Overclock"   
+BB_Tech_DysonSwarmOverclock_Desc: 
+ Id: 4913
+ ENG: "Enable overclocking Dyson swarm controllers, which will give additional production per friendly colony. The overclocked production will, however, affect Mineral Decay of the planets."    
+BB_Tech_DysonOverclock_Bonus: 
+ Id: 4914
+ ENG: "Overclock production by 50 for friendly colonies in a system with a Dyson Swarm project we own."      
+BB_Tech_DysonSwarm2_Name: 
+ Id: 4915
+ ENG: "Dyson Swarm 2"   
+BB_Tech_DysonSwarm2_Desc: 
+ Id: 4916
+ ENG: "Type 2 Dyson Swarms, which are harder to build, but will enable is to get additional Dyson Swarms."    
+BB_Tech_DysonSwarm2_Bonus: 
+ Id: 4917
+ ENG: "Enable Dyson Swarm Type 2 and Map Stars which support it. It is possible that no Star in our Galaxy can support Type 2 Dyson Swarm."      
 PrioritizedPort:
  Id: 4918
  ENG: "Prioritzed Port"   
@@ -15472,6 +15499,45 @@ RemnantHelpersGiftStep2:
 RemnantHelpersGiftStep3Plus: 
  Id: 6350
  ENG: "Another fleet of remnant ships gave away control to us.\nWe estimate they do it since we are weak compared to other empires."
+DysonSwarm: 
+ Id: 6351
+ ENG: "Dyson Swarm"  
+DysonSwarmType1: 
+ Id: 6352
+ ENG: "Dyson Swarm Type 1"   
+DysonSwarmType2: 
+ Id: 6353
+ ENG: "Dyson Swarm Type 2"    
+BuildDysonSwarm: 
+ Id: 6354
+ ENG: "Build Dyson Swarm"     
+BuildDysonSwarmTip: 
+ Id: 6355
+ ENG: "Start constrcution of A Dyson Swarm around the Star in this Solar System. This might take a long time to complete and your colonies in this system will participate in the construction unless they have very low population and less than 50% of production in storage."      
+KillDysonSwarm: 
+ Id: 6356
+ ENG: "Kill Dyson Swarm"      
+KillDysonSwarmTip: 
+ Id: 6357
+ ENG: "Order complete destruction of the Dyson Swarm in this system. This is irreversible and you will need to start new construction all over again."       
+DysonSwarmControllerProgressTip: 
+ Id: 6358
+ ENG: "This is the progress of the built Swarm Controllers in this system. The maximum production boost each colony can get is limited by the Controllers' completion as well as the Swarm Satellites' completion."       
+DysonSwarmProgressTip: 
+ Id: 6359
+ ENG: "This is the progress of the built Swarm satellites in this system. The maximum production boost each colony can get is limited by the Satellites' completion as well as the Swarm Controllers' completion. However, swarm controllers can be destroyed by enemy fire while Swarm Satellites are too numerous to be affected."        
+DysonSwarmDeploymentCompleted: 
+ Id: 6360
+ ENG: "Deployment Completed"
+DysonSwarmProductionBoostTip: 
+ Id: 6361
+ ENG: "Indicates how much production boost this colony is getting from the Dyson Swarm. The Maximum cna change if Overclock is enabled." 
+DysonSwarmOverClockSwarm: 
+ Id: 6362
+ ENG: "Overclock Swarm"  
+DysonSwarmOverClockSwarmTip: 
+ Id: 6363
+ ENG: "Enable Swarm overclocking which will increase the production boost of the Dyson Swarm. The overclocked production will, however, speed up the Mineral Richness Decay of the Planets."
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

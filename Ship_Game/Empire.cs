@@ -606,6 +606,9 @@ namespace Ship_Game
             if (!planet.System.HasPlanetsOwnedBy(this)) // system no more in owned planets?
                 OwnedSolarSystems.Remove(planet.System);
 
+            if (planet.System.EmpireOwnsDysonSwarm(this) && !planet.System.HasPlanetsOwnedBy(this))
+                planet.System.KillDysonSwarm();
+
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
             AI.SpaceRoadsManager.RemoveRoadIfNeeded(planet.System);
@@ -657,6 +660,7 @@ namespace Ship_Game
             OwnedSolarSystems.AddUniqueRef(planet.System);
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
+            planet.SetDysonSwarmWeapon(loadWeapon: planet.System.HasDysonSwarm && planet.Owner == planet.System.DysonSwarm.Owner);
         }
 
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
@@ -2721,6 +2725,11 @@ namespace Ship_Game
             data.MoleList.Remove(m);
             if (NewEspionageEnabled && victim != null && !victim.IsFaction && victim != this)
                 GetEspionage(victim).DecreasePlantedMoleCount();
+        }
+
+        public bool CanBuildDysonSwarmIn(SolarSystem system)
+        {
+            return system.DysonSwarmType > 0 && data.Traits.DysonSwarmType >= system.DysonSwarmType;
         }
 
         // For Testing only!

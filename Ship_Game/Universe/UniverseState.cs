@@ -44,8 +44,7 @@ namespace Ship_Game.Universe
         public bool IsSectorViewOrCloser => ViewState <= UnivScreenState.SectorView;
         public bool IsSystemViewOrCloser => ViewState <= UnivScreenState.SystemView;
         public bool IsPlanetViewOrCloser => ViewState <= UnivScreenState.PlanetView;
-        public bool IsShipViewOrCloser   => ViewState <= UnivScreenState.ShipView;
-        public bool ExoticFeaturesDisabled => P.DisableMiningOps && P.DisableResearchStations;
+        public bool IsShipViewOrCloser => ViewState <= UnivScreenState.ShipView;
 
         [StarData] public float SettingsResearchModifier = 1f;
         public float RemnantPaceModifier = 20;
@@ -55,7 +54,7 @@ namespace Ship_Game.Universe
         // Can be used to assign ID-s for any kind of object
         // Id <= 0 is always invalid, valid ID-s start at 1
         [StarData] int UniqueObjectIds;
-        
+
         public bool CanShowDiplomacyScreen = true;
         public bool Paused = true; // always start paused
         public bool Debug;
@@ -109,6 +108,7 @@ namespace Ship_Game.Universe
         [StarData] readonly Array<Planet> AllPlanetsList = new();
         [StarData] public readonly Map<ExplorableGameObject, HashSet<int>> ResearchableSolarBodies = new();
         [StarData] public readonly Array<Planet> MineablePlanets = new();
+        [StarData] public SolarSystem[] DysonSwarmPotentials { get; private set;} = [];
 
         // TODO: remove PlanetsDict
         [StarData] readonly Map<int, Planet> PlanetsDict = new();
@@ -317,6 +317,57 @@ namespace Ship_Game.Universe
             PlanetsTree.UpdateAll(AllPlanetsList.ToArr());
 
             InitializeEmpiresFromSave();
+        }
+
+        public void GeneratePotentialDysonSwarms()
+        {
+            int wantedType1DysonSwarm = ((int)P.GalaxySize / 3 + (int)P.StarsCount / 3).LowerBound(1);
+            int wantedType2DysonSwarm = (int)P.GalaxySize / 2 + (int)P.StarsCount / 2;
+
+            if (wantedType1DysonSwarm == 1 && P.GalaxySize >= GalSize.Medium && Random.RollDice(50))
+                wantedType1DysonSwarm += 1;
+            
+            if (wantedType2DysonSwarm < 3 && Random.RollDice(30))
+                wantedType2DysonSwarm += 1;
+
+            if (wantedType2DysonSwarm == 0 && Random.RollDice(50))
+                wantedType2DysonSwarm += 1;
+
+            if (wantedType1DysonSwarm + wantedType2DysonSwarm > 0)
+            {
+                Array<SolarSystem> potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && !s.IsStartingSystem 
+                                                               && !s.HasMinablesOrResearchables() && s.PlanetList.Count(p => p.Habitable) >= 3).ToArrayList();
+                if (potantialDysonSwarms.Count == 0)
+                    potantialDysonSwarms = Systems.Filter(s => !s.IsSunDangerous && !s.Sun.MultiSun && !s.HasMinablesOrResearchables() && s.PlanetList.Any(p => p.Habitable)).ToArrayList();
+
+                if (potantialDysonSwarms.Count > 0)
+                {
+                    int totalWanted = wantedType1DysonSwarm + wantedType2DysonSwarm;
+                    for (int i = 0; i < totalWanted; i++)
+                    {
+                        if (potantialDysonSwarms.Count == 0 || wantedType1DysonSwarm + wantedType2DysonSwarm == 0)
+                            break;
+
+                        var system = Random.Item(potantialDysonSwarms);
+                        potantialDysonSwarms.Remove(system);
+                        if (wantedType1DysonSwarm > 0)
+                        {
+                            wantedType1DysonSwarm--;
+                            system.SetDysonSwarmType(1);
+                            continue;
+                        }
+
+                        if (wantedType2DysonSwarm > 0)
+                        {
+                            wantedType2DysonSwarm--;
+                            system.SetDysonSwarmType(2);
+                            continue;
+                        }
+                    }
+
+                    DysonSwarmPotentials = Systems.Filter(s => s.DysonSwarmType > 0);
+                }
+            }
         }
 
         public void SetDebugMode(bool debug)

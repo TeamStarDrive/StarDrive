@@ -79,6 +79,8 @@ namespace Ship_Game
 
             foreach (SolarSystem system in Universe.UState.Systems.OrderBy(s => s.Position.Distance(Universe.Player.WeightedCenter)))
             {
+                if (system.IsExploredBy(Player) && Player.CanBuildDysonSwarmIn(system))
+                    ExploredSolarBodies.Add(system);
                 if (system.IsResearchable && system.IsExploredBy(Player))
                     ExploredSolarBodies.Add(system);
 
@@ -254,7 +256,7 @@ namespace Ship_Game
             HandleButton(input, Sb_Sys, sb => sb is Planet p ? p.System.Name : sb is SolarSystem s ? s.Name : "");
             HandleButton(input, Sb_Name, sb => sb is Planet p ? p.Name : "");
             HandleButton(input, Sb_Distance, DistancesToClosestColony);
-            HandleButton(input, Sb_Resource, sb => sb is Planet p ? (p?.Mining?.TranslatedResourceName.Text ?? ""): "");
+            HandleButton(input, Sb_Resource, sb => sb is Planet p ? (p?.Mining?.TranslatedResourceName.Text ?? "" ) : sb is SolarSystem s && s.DysonSwarmType > 0 ? s.DysonSwarmType.ToString() : "");
             HandleButton(input, Sb_Richness, sb => sb is Planet p ? (p?.Mining?.Richness ?? (Sb_Richness.Ascending ? 1000 : 0)) : (Sb_Richness.Ascending ? 1000 : 0));
             HandleButton(input, Sb_Owner, sb => sb is Planet p && p.IsMineable && p.Mining.HasOpsOwner? p.Mining.Owner.data.Traits.Singular : "");
 

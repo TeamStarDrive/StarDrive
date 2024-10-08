@@ -7,6 +7,7 @@ Size=26,18
 MeshOffset=0,0
 IconPath=ShipIcons/Acolyte
 ModelPath=Model/Ships/Ralyeh/Ship17d
+SelectIcon=17e
 Animated=true
 IsShipyard=false
 IsOrbitalDefense=false

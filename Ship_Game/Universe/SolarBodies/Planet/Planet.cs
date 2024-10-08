@@ -41,6 +41,8 @@ namespace Ship_Game
         
         [StarData] public TroopManager Troops;
         [StarData] public PlanetBudget Budget;
+        Weapon DysonSwarmLauncher;
+        [StarData] float DysonSwarmLauncherTimer;
 
         [StarData] public bool DontScrapBuildings = false;
         [StarData] public bool Quarantine         = false;
@@ -127,7 +129,8 @@ namespace Ship_Game
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * Empire.RacialEnvModifer(Category, empire);
-        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * Empire.RacialEnvModifer(Category, empire);
+        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) 
+                                                       * Empire.RacialEnvModifer(Category, empire);
         public float MaxBaseFertilityFor(Empire empire) => BaseMaxFertility * Empire.RacialEnvModifer(Category, empire);
 
         public bool IsCybernetic  => Owner is { IsCybernetic: true };
@@ -479,6 +482,8 @@ namespace Ship_Game
             value += SumBuildings(b => b.ActualCost(empire)) * 0.01f;
             value += PopulationBillion * 5;
 
+            if (System.EmpireOwnsDysonSwarm(empire))
+                value += System.PlanetList.Count(p => p.Owner == empire) * System.DysonSwarm.ProductionBoost;
             return value;
         }
 
@@ -512,6 +517,8 @@ namespace Ship_Game
 
             value += SpecialCommodities * 10;
             value += PotentialMaxPopBillionsFor(empire) * HabitableMultiplier();
+            if (System.DysonSwarmType > 0)
+                value += System.PlanetList.Count(p => p.Habitable) * (DysonSwarm.BaseSwarmProductionBoost + empire.data.Traits.DysonSwarmMaxOverclock);
 
             return value;
 
@@ -598,6 +605,7 @@ namespace Ship_Game
             GeodeticManager.Update(timeStep);
             // this needs some work
             UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
+            UpdateDysonSwarmLaunch(timeStep);
         }
 
         void UpdateDynamicBuildings()
@@ -622,6 +630,47 @@ namespace Ship_Game
             OrbitalStations.RemoveSwapLast(orbital);
             if (orbital.IsShipyard)
                 UpdateShipyards();
+        }
+
+        void UpdateDysonSwarmLaunch(FixedSimTime timeStep)
+        {
+            DysonSwarm dysonSwarm = System.DysonSwarm;
+            if (dysonSwarm == null
+                || dysonSwarm.Owner != Owner
+                || SpaceCombatNearPlanet
+                || Level == 1 && Storage.ProdRatio < 0.5f
+                || dysonSwarm.IsSwarmCompleted
+                || dysonSwarm.SwarmCompletion >= dysonSwarm.ControllerCompletion) // need at least 1 controller deployed
+            {
+                return;
+            }
+
+            if (DysonSwarmLauncher == null) // after loading a game
+                SetDysonSwarmWeapon(true);
+
+            DysonSwarmLauncherTimer += timeStep.FixedTime;
+            if (DysonSwarmLauncherTimer >= DysonSwarmLauncher.FireDelay / Level)
+            {
+                float productionCost = dysonSwarm.SwarmSatProductionCost;
+                if (ProdHere >= productionCost && (NonCybernetic || Storage.ProdRatio > 0.1f))
+                { 
+                    DysonSwarmLauncher.FireDysonSwarmSat(this);
+                    ProdHere -= productionCost;
+                    dysonSwarm.DeploySwarmSat();
+                }
+
+                DysonSwarmLauncherTimer = 0;
+            }
+        }
+
+        public void SetDysonSwarmWeapon(bool loadWeapon)
+        {
+            DysonSwarmLauncher = null;
+            if (loadWeapon)
+            {
+                ResourceManager.GetWeaponTemplate(DysonSwarm.DysonSwarmLauncherTemplate, out IWeaponTemplate t);
+                DysonSwarmLauncher = new(Universe, t, null, null, null);
+            }
         }
 
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
@@ -906,7 +955,7 @@ namespace Ship_Game
             MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
         }
 
-        public int Level { get; private set; }
+        public int Level { get; private set; } // Level has a minimum of 1
         public string DevelopmentStatus { get; private set; } = "Undeveloped";
 
         public void UpdateDevelopmentLevel() // need to check this with Racial env
@@ -1392,7 +1441,11 @@ namespace Ship_Game
                 return;
 
             // If the planet outputs 100 production on Brutal, the chance to decay is 2.5%, normal will be 1%
-            float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / Universe.P.CustomMineralDecay);
+            float grossIncome = Prod.GrossIncome;
+            if (System.EmpireOwnsDysonSwarm(Owner))
+                grossIncome -= System.DysonSwarm.ProductionNotAffectingDecay;
+                
+            float decayChance = grossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / Universe.P.CustomMineralDecay);
 
             // Larger planets have less chance for reduction
             decayChance /= Scale.LowerBound(0.1f);

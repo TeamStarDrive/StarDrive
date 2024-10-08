@@ -215,6 +215,7 @@ namespace Ship_Game
             // We need to update objects at least once to have visibility
             UState.Objects.InitializeFromSave();
 
+            UpdateDysonSwarms();
             EndOfTurnUpdate(UState.Empires, FixedSimTime.Zero);
         }
 
@@ -287,6 +288,15 @@ namespace Ship_Game
             return updated ?? new();
         }
 
+        void UpdateDysonSwarms()
+        {
+            for (int i = 0; i < UState.DysonSwarmPotentials.Length; i++)
+            {
+                SolarSystem system = UState.DysonSwarmPotentials[i];
+                system.DysonSwarm?.Update();
+            }
+        }
+
         /// <summary>
         /// Should be run once at the end of a game turn, once before game start, and once after load.
         /// Anything that the game needs at the start should be placed here.
@@ -306,10 +316,14 @@ namespace Ship_Game
                         Empire empire = wereUpdated[i];
                         empire.UpdateMilitaryStrengths();
                         empire.UpdateMoneyLeechedLastTurn();
+                        if (empire.isPlayer) // update this once per turns
+                        {
+                            UpdateDysonSwarms();
+                            UState.UpdateNumPirateFactions();
+                        }
                     }
                 }
 
-                UState.UpdateNumPirateFactions();
                 if (UState.Objects.EnableParallelUpdate)
                     Parallel.For(wereUpdated.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
                 else

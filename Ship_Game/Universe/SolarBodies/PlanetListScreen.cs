@@ -118,12 +118,10 @@ namespace Ship_Game
                 x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", ""));
 
             Vector2 exoticPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width - 200, TitleBar.Menu.Y + 30);
-            if (!Player.Universe.ExoticFeaturesDisabled)
-            {
-                ExoticSystemsButton = Add(new UIButton(ButtonStyle.Military, exoticPos, GameText.ExoticSystemsArray));
-                ExoticSystemsButton.OnClick = (b) => OnExoticSystemsScreenClick();
-                ExoticSystemsButton.Tooltip = Localizer.Token(GameText.ExoticSystemsArrayTip);
-            }
+
+            ExoticSystemsButton = Add(new UIButton(ButtonStyle.Military, exoticPos, GameText.ExoticSystemsArray));
+            ExoticSystemsButton.OnClick = (b) => OnExoticSystemsScreenClick();
+            ExoticSystemsButton.Tooltip = Localizer.Token(GameText.ExoticSystemsArrayTip);
 
             Vector2 troopPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width + 17, TitleBar.Menu.Y + 65);
             AvailableTroops  = Add(new UILabel(troopPos, $"Available Troops: ", Fonts.Arial20Bold, Color.LightGreen));

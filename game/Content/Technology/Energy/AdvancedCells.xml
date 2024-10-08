@@ -6,7 +6,11 @@
   <Cost>800</Cost>
   <NameIndex>17689</NameIndex>
   <DescriptionIndex>17690</DescriptionIndex>
-  <LeadsTo />
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>DysonSwarm1</UID>
+    </LeadsToTech>
+  </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>AdvancedCellSmall</ModuleUID>

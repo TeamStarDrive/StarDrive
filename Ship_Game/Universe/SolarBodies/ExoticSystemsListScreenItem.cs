@@ -42,15 +42,18 @@ namespace Ship_Game
         readonly float Distance;
         bool MarkedForResearch;
         bool MarkedForMining;
+        bool DysonSwarmActiveByPlayer;
         readonly UniverseState Universe;
 
         UILabel DeployTextInfo;
         UILabel MiningDeployedTextInfo;
         UILabel MiningInProgressTextInfo;
+        UILabel Owner;
         bool IsPlanet => Planet != null;
         public bool IsStar => Planet == null;
-        public bool IsForResearch => IsStar || Planet.IsResearchable;
-        public bool IsForMining => !IsForResearch;
+        public bool IsForResearch => IsStar && System.IsResearchable || Planet?.IsResearchable == true;
+        public bool IsForMining => !IsStar && Planet.IsMineable;
+        public bool IsForDysonSwarm => IsStar && System.DysonSwarmType > 0;
         ExplorableGameObject SolarBody;
 
         public ExoticSystemsListScreenItem(ExplorableGameObject solarBody, float distance)
@@ -87,6 +90,10 @@ namespace Ship_Game
             {
                 MarkedForMining = true;
             }
+            else if (Player.CanBuildDysonSwarmIn(System))
+            {
+                DysonSwarmActiveByPlayer = System.HasDysonSwarm && System.DysonSwarm.Owner == Player;
+            }
         }
 
         public override void PerformLayout()
@@ -103,11 +110,17 @@ namespace Ship_Game
                 LocalizedText researchText = !MarkedForResearch ? GameText.DeployResearchStation : GameText.AbortDeployent;
                 DeployButton = Button(researchStyle, researchText, OnResearchClicked);
             }
-            else // Mineable
+            else if (Planet?.IsMineable == true)
             {
                 ButtonStyle mineableStyle = MarkedForMining ? ButtonStyle.Military : ButtonStyle.Default;
                 LocalizedText miningText = !MarkedForMining ? GameText.DeployMiningStation : GameText.AbortDeployent;
                 DeployButton = Button(mineableStyle, miningText, OnMiningClicked);
+            }
+            else
+            {
+                ButtonStyle dysonStyle = DysonSwarmActiveByPlayer ? ButtonStyle.Military : ButtonStyle.Default;
+                LocalizedText dysonText = !DysonSwarmActiveByPlayer ? GameText.BuildDysonSwarm : GameText.KillDysonSwarm;
+                DeployButton = Button(dysonStyle, dysonText, OnDysonSwarmClicked);
             }
 
             DeployButton.Font = Fonts.TahomaBold9;
@@ -132,7 +145,7 @@ namespace Ship_Game
             PlanetNameEntry.SetPos(PlanetIconRect.Right + 10, y);
 
             ResourceIconRect = new Rectangle(ResourceRect.X + 5, ResourceRect.Y + 10, 20, 20);
-            ResourceNameEntry.Text = IsForResearch ? "Research" : Planet.Mining.TranslatedResourceName.Text;
+            ResourceNameEntry.Text = GetResourceLabel();
             ResourceNameEntry.SetPos(ResourceIconRect.Right + 10, y);
 
             var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
@@ -142,6 +155,7 @@ namespace Ship_Game
             AddHostileWarning();
             SetResearchVisibility();
             SetMiningVisibility();
+            SetDysonSwarmVisibility();
             AddTextureAndStatus();
             AddDistanceStats();
             AddPlanetName();
@@ -229,6 +243,19 @@ namespace Ship_Game
             }
         }
 
+        void SetDysonSwarmVisibility()
+        {
+            if (!IsForDysonSwarm)
+                return;
+
+            if (System.HasDysonSwarm && System.DysonSwarm.Owner != Player
+                || Player.data.Traits.DysonSwarmType < System.DysonSwarmType
+                || !System.HasPlanetsOwnedBy(Player))
+            {
+                DeployButton.Visible = false;
+            }
+        }
+
         public override bool HandleInput(InputState input)
         {
             return base.HandleInput(input);
@@ -266,15 +293,28 @@ namespace Ship_Game
         void AddResourceName()
         {
             bool researchable = IsForResearch;
+            bool mineable = IsForMining;
             var namePos = new Vector2(ResourceRect.X + 30, ResourceRect.Y + ResourceRect.Height / 2 - SmallFont.LineSpacing / 2);
-            var resourceName = Label(namePos, researchable ? "Research" : Planet.Mining.TranslatedResourceName.Text, 
-                SmallFont, researchable ? Color.CornflowerBlue : Color.LightGoldenrodYellow);
+            Color labelColor = researchable ? Color.CornflowerBlue
+                                            : mineable ? Color.White 
+                                                       : Color.Gold; // Dyson Swarm
+            var resourceName = Label(namePos, GetResourceLabel(), SmallFont, labelColor);
 
-            resourceName.Tooltip = researchable ? new LocalizedText(GameText.ResearchPointsAreAddedInto) : Planet.Mining.ResourceDescription;
+            resourceName.Tooltip = researchable ? new LocalizedText(GameText.ResearchPointsAreAddedInto) 
+                                                : mineable ? Planet.Mining.ResourceDescription
+                                                           : "";
 
-            Panel(ResourceIconRect, researchable 
+            Panel(ResourceIconRect, IsForDysonSwarm ? Color.Yellow : Color.White, researchable 
                 ? ResourceManager.Texture("NewUI/icon_science") 
-                : Planet.Mining.ExoticResourceIcon);
+                : mineable ? Planet.Mining.ExoticResourceIcon
+                           : ResourceManager.Texture("NewUI/icon_projection"));
+        }
+
+        string GetResourceLabel()
+        {
+            return IsForResearch ? "Research"
+                                 : IsForMining ? Planet.Mining.TranslatedResourceName.Text
+                                               : $"{Localizer.Token(GameText.DysonSwarm)} {System.DysonSwarmType}";
         }
 
         void AddRichnessStat()
@@ -287,12 +327,18 @@ namespace Ship_Game
 
         void AddOwner()
         {
-            if (IsStar || !Planet.IsMineable)
-                return;
-
-            string owner = Planet.Mining.HasOpsOwner ? Planet.Mining.Owner.data.Traits.Singular : "None";
-            var ownerNameCursor = new Vector2(OwnerRect.X + 25, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
-            Label(ownerNameCursor, owner, SmallFont, owner == "None" ? Cream : Planet.Mining.Owner.EmpireColor);
+            if (IsForDysonSwarm)
+            {
+                string owner = System.HasDysonSwarm ? System.DysonSwarm.Owner.data.Traits.Singular : "None";
+                var ownerNameCursor = new Vector2(OwnerRect.X + 25, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
+                Owner = Label(ownerNameCursor, owner, SmallFont, owner == "None" ? Cream : System.DysonSwarm.Owner.EmpireColor);
+            }
+            else if (Planet?.IsMineable == true)
+            {
+                string owner = Planet.Mining.HasOpsOwner ? Planet.Mining.Owner.data.Traits.Singular : "None";
+                var ownerNameCursor = new Vector2(OwnerRect.X + 25, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
+                Owner = Label(ownerNameCursor, owner, SmallFont, owner == "None" ? Cream : Planet.Mining.Owner.EmpireColor);
+            }
         }
 
         void AddHostileWarning()
@@ -368,6 +414,28 @@ namespace Ship_Game
             }
 
             SetMiningVisibility();
+        }
+
+        void OnDysonSwarmClicked(UIButton b)
+        {
+            if (System.HasDysonSwarm)
+            {
+                System.KillDysonSwarm();
+                DeployButton.Text = GameText.BuildDysonSwarm;
+                DeployButton.Style = ButtonStyle.Default;
+                DysonSwarmActiveByPlayer = false;
+                Owner.Text = "None";
+                Owner.Color = Cream;
+            }
+            else
+            {
+                System.ActivateDysonSwarm(Player);
+                DeployButton.Text = GameText.KillDysonSwarm;
+                DeployButton.Style = ButtonStyle.Military;
+                DysonSwarmActiveByPlayer = true;
+                Owner.Text = Player.data.Traits.Singular;
+                Owner.Color = Player.EmpireColor;
+            }
         }
     }
 }
