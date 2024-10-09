@@ -649,7 +649,7 @@ namespace Ship_Game
                 SetDysonSwarmWeapon(true);
 
             DysonSwarmLauncherTimer += timeStep.FixedTime;
-            if (DysonSwarmLauncherTimer >= DysonSwarmLauncher.FireDelay / Level)
+            if (DysonSwarmLauncherTimer >= DysonSwarmLauncher.FireDelay / (Level*2))
             {
                 float productionCost = dysonSwarm.SwarmSatProductionCost;
                 if (ProdHere >= productionCost && (NonCybernetic || Storage.ProdRatio > 0.1f))
