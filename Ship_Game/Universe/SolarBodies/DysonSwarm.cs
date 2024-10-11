@@ -13,7 +13,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class DysonSwarm
     {
         const int TotalSwarmControllers = 50;
-        const int BaseRequiredSwarmSats = 50_000;
+        const int BaseRequiredSwarmSats = 30_000;
         public const int BaseSwarmProductionBoost = 100;
         public const string DysonSwarmLauncherTemplate = "DysonSwarmLauncher";
         public const string DysonSwarmControllerName = "Dyson Swarm Controller";
@@ -111,7 +111,7 @@ namespace Ship_Game.Universe.SolarBodies
             CurrentOverclock += (desiredOverclock - CurrentOverclock).Clamped(-1, 1);
             float completionLimit = ControllerCompletion.UpperBound(SwarmCompletion);
             CurrentOverclock = CurrentOverclock.UpperBound((int)(completionLimit * MaxOverclock));
-            if (NeedDysonRingsChange)
+            if (DysonSwarmRings.Count == 0)
                 LoadDysonRings();
         }
 
@@ -142,48 +142,35 @@ namespace Ship_Game.Universe.SolarBodies
       
         void LoadDysonRings()
         {
-            int neededRings = (int)(SwarmCompletion * 100) / 10;
             lock (DysonSwarmRings) 
             {
-                float startRotation = DysonSwarmRings.Count > 0 ? DysonSwarmRings[0].Sprite.Rotation : -1;
-                DysonSwarmRings.Clear();
-                if (neededRings == 0)
-                    return;
-
-                Array<SunLayerState> frontLayers = [];
-                for (int i = 0; i < neededRings; i++) 
+                var dysonRings = DysonRings.GetDysonRings(SwarmType);
+                for (int i = 0; i < dysonRings.Rings.Count; i++)
                 {
-                    if (i % 2 == 0)
-                    {
-                        int index = SwarmType == 1 ? 0 : 2;
-                        DysonSwarmRings.Add(new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[index], startRotation + i * 0.15f));
-                    }
-                    else
-                    {
-                        int index = SwarmType == 1 ? 1 : 3;
-                        frontLayers.Add(new SunLayerState(ResourceManager.RootContent, DysonRings.Rings[index], startRotation + (i - 1) * 0.15f));
-                    }
+                    DysonSwarmRings.Add(new SunLayerState(ResourceManager.RootContent, dysonRings.Rings[i], -1));
                 }
-
-                DysonSwarmRings.AddRange(frontLayers);
             }
         }
 
-        public void DrawDysonRings(SpriteBatch batch, Vector2 pos, float sizeScaleOnScreen)
+        public void DrawDysonRings(SpriteBatch batch, Vector2 pos, float sizeScaleOnScreen, bool drawBackRings = false)
         {
             if (DysonSwarmRings.Count == 0) 
                 return;
 
             float alphaRange = ((int)UnivScreenState.PlanetView - (int)UnivScreenState.ShipView);
-            float alpha = (float)((Owner.Universe.CamPos.Z - (double)(UnivScreenState.ShipView)) / alphaRange);
-            alpha = alpha.Clamped(0, 1);
-            if (alpha == 0)
+            float zoomAlpha = (float)((Owner.Universe.CamPos.Z - (double)(UnivScreenState.ShipView)) / alphaRange);
+            zoomAlpha = zoomAlpha.Clamped(0, 1);
+            if (zoomAlpha == 0)
                 return;
 
-            for (int i = 0; i < DysonSwarmRings.Count; i++)
+            for (int i = 0; i < (drawBackRings ? (DysonRings.NumBacktRings*2)-1 : DysonSwarmRings.Count); i++)
             {
-                SunLayerState ring = DysonSwarmRings[i];
-                ring.Draw(batch, pos, sizeScaleOnScreen, alpha);
+                float alpha = DysonRings.GetRingAlpha(i, SwarmCompletion);
+                if (alpha > 0)
+                {
+                    SunLayerState ring = DysonSwarmRings[i];
+                    ring.Draw(batch, pos, sizeScaleOnScreen, alpha.UpperBound(zoomAlpha));
+                }
             }
         }
 
