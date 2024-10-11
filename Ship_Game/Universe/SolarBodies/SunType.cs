@@ -192,8 +192,10 @@ namespace Ship_Game.Universe.SolarBodies
             SpriteBatch batch = GameBase.ScreenManager.SpriteBatch;
             batch.SafeEnd();
             {
+                sys.DysonSwarm?.DrawDysonRings(batch, pos, sizeScaleOnScreen, drawBackRings: true);
                 foreach (SunLayerState layer in sys.SunLayers)
                     layer.Draw(batch, pos, sizeScaleOnScreen);
+
                 sys.DysonSwarm?.DrawDysonRings(batch, pos, sizeScaleOnScreen);
             }
             batch.SafeBegin();
@@ -292,12 +294,26 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class DysonRings
     {
-        [StarData] public static Array<SunLayerInfo> Rings { get; private set; }
+        // Hardcoded 8 rings. 4 back, 4 front
+        [StarData] public Array<SunLayerInfo> Rings { get; private set; }
+        [StarData] public byte Type { get; private set; }
+        public static int NumBacktRings = 4;
 
+        static readonly Map<byte, DysonRings> Map = new();
         public static void LoadDysonRings()
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile("DysonRings.yaml");
-            Rings = YamlParser.DeserializeArray<SunLayerInfo>(file);
+            Array<DysonRings> all = YamlParser.DeserializeArray<DysonRings>(file);
+            foreach (DysonRings dysonRing in all)
+                Map[dysonRing.Type] = dysonRing;
+        }
+
+        public static DysonRings GetDysonRings(byte type) => Map[type];
+
+        public static float GetRingAlpha(int ringIndex, float completion)
+        {
+            int ringNum = ringIndex <= 3 ? ringIndex: ringIndex-4;
+            return ((completion - 0.25f*ringNum) * 4).Clamped(0,1);
         }
     }
 }

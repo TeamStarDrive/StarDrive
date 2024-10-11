@@ -752,7 +752,7 @@ namespace Ship_Game
                 {
                     if (!ship.IsLaunching)
                     {
-                        if (!IsCinematicModeEnabled)
+                        if ((viewState > UnivScreenState.PlanetView || ShowingFTLOverlay) && !IsCinematicModeEnabled)
                             DrawTacticalIcon(ship);
 
                         DrawOverlay(ship);
@@ -822,9 +822,8 @@ namespace Ship_Game
 
         void DrawTacticalIcon(Ship ship)
         {
-            if (!LookingAtPlanet && (!ship.IsPlatform  && !ship.IsSubspaceProjector || 
-                                     ((ShowingFTLOverlay || viewState != UnivScreenState.GalaxyView) &&
-                                      (!ShowingFTLOverlay || ship.IsSubspaceProjector))))
+            if (!LookingAtPlanet && (!ship.IsSubspaceProjector || ShowingFTLOverlay))  
+                                  
             {
                 ship.DrawTacticalIcon(this, viewState);
             }

@@ -8227,7 +8227,7 @@ RepairDroneLauncher:
  UKR: "Модуль ремонтних дронів"
 ThisModuleLaunchesRepairDrones:
  Id: 2101
- ENG: "This module launches repair drones equipped with nano-repair modules. These drones will automatically target and heal nearby vessels, but they WONT heal ship that lanuched them. When their nanite supply is exhausted, the drones will deactivate. It is recommended to pair these modules with ordnance fabricators."
+ ENG: "This module launches repair drones equipped with nano-repair modules. These drones will automatically target and heal nearby vessels, but they WONT heal ship that launched them. When their nanite supply is exhausted, the drones will deactivate. It is recommended to pair these modules with ordnance fabricators."
  RUS: "Этот модель выпускает в пространство специальные зонды, оснащенные ремонтными наномодулями. Эти зонды будут автоматически искать поврежденные корабли и ремонтировать их. После выработки ресурса зонды будут деактивированы. Рекомендуется использовать их в паре с изготовителями боеприпасов."
  SPA: "Este módulo lanza drones de reparación equipados con módulos de nanorreparación. Estos drones tratarán de reparar automáticamente las naves cercanas. Cuando sus reservas de nanobots se agotan, los drones se desactivan. Se recomienda dotar estos módulos con fabricadores de munición."
  UKR: "Цей модуль запускає ремонтні дрони, оснащені наноремонтними модулями. Ці дрони автоматично націлюватимуться на сусідні судна і ремонтуватимуть їх, але вони НЕ будуть ремонтувати кораблі, які їх висадили. Коли запас нанітів вичерпається, дрони деактивуються. Рекомендується використовувати ці модулі в парі з виробниками боєприпасів."
@@ -13231,7 +13231,7 @@ TraitCompensationName:
  UKR: "План компенсації екіпажу"
 TraitCompensationDesc:
  Id: 4969
- ENG: "Your empire will compansate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
+ ENG: "Your empire will compensate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
  UKR: "Ваша імперія виплатить компенсацію сім'ям загиблих у бою з розрахунку 1 кредит за 20 слотів кораблів, вбитих ворогами."
 TraitTerranHomeworldName:
  Id: 4970
@@ -17823,7 +17823,7 @@ RapidFirePDTech:
  UKR: "Швидка зентіна гармата"
 RapidFirePDTechdescr:
  Id: 17558
- ENG: "Rapid Fire Point deference was designed to counter fast moving maneuverable missiles that are usually fired in salvos. Those turrets exchange fast reloads over damage thus making them less effective against torpedoes."
+ ENG: "Rapid Fire Point Defense was designed to counter fast moving maneuverable missiles that are usually fired in salvos. Those turrets exchange fast reloads over damage thus making them less effective against torpedoes."
  UKR: "Точка швидкого вогню була розроблена для протидії швидким маневреним ракетам, які зазвичай випускаються залпами. Ці башти швидко перезаряджаються через пошкодження, що робить їх менш ефективними проти торпед."
 HeavyPDTech:
  Id: 17559
@@ -17935,7 +17935,7 @@ CoreExtracttech:
  UKR: "Сифонізація ядра"
 CoreExtracttechdesc:
  Id: 17587
- ENG: "By taping into the planets core we are able to extract huge amounts precious and rare elements, minerals and metals, unfortunately afterwards they need to go over a complex refinement process that creates heavy pollution"
+ ENG: "By tapping into the planets core we are able to extract huge amounts precious and rare elements, minerals and metals, unfortunately afterwards they need to go over a complex refinement process that creates heavy pollution"
  UKR: "Проникаючи в ядро планет, ми можемо видобувати величезну кількість дорогоцінних і рідкісних елементів, мінералів і металів, але, на жаль, після цього вони повинні пройти складний процес очищення, який створює сильне забруднення навколишнього середовища."
 CoreExtract:
  Id: 17588
