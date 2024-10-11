@@ -15435,7 +15435,7 @@ BB_ExoticStorageTechDescrBonus:
  UKR: "20% збільшення екзотичного сховища по всій імперії"
 ExoticResourceRefinedPulsefieldName:
  Id: 4933 
- GER: "Gepulstes Feld"
+ GER: "Pulsfeldgas"
  ENG: "Pulsefield"  
  UKR: "Пульсфільд"  
 ExoticResourceRefinedLuxariumName:
