@@ -10760,7 +10760,7 @@ OrdersSelectedShipOrShips:
  UKR: "Відступ і поповнення - Наказує вибраному кораблю або кораблям відступити до найближчої верфі для поповнення запасів і ремонту"
 None3:
  Id: 2263
- GER: "nichts3"
+ GER: "Unbewohnt"
  ENG: "None"
  RUS: "Нет"
  SPA: "Nada"
@@ -14671,7 +14671,7 @@ BB_MoltenGold:
  UKR: "Яма з розплавленим золотом"
 BB_MoltenGoldDesc:
  Id: 4394
- GER: "„Eine mit geschmolzenem Gold gefüllte Grube, die durch intensive vulkanische Aktivität entsteht, die sich erhitzt und große Mengen Gold an die Oberfläche drückt. In diesem Zustand kann man es nur auf sehr heißen Vulkanplaneten finden.“"
+ GER: "Eine mit geschmolzenem Gold gefüllte Grube, die durch intensive vulkanische Aktivität entsteht, die sich erhitzt und große Mengen Gold an die Oberfläche drückt. In diesem Zustand kann man es nur auf sehr heißen Vulkanplaneten finden."
  ENG: "A pit filled with molten gold thats is created by intense volcanic activity, that heats up and pushes to the survace large amounts of gold, it can be found in this state only on very hot volcanic planets."
  UKR: "Яма, заповнена розплавленим золотом, що утворюється внаслідок інтенсивної вулканічної активності, яка нагріває і виштовхує на поверхню велику кількість золота, його можна знайти в такому стані тільки на дуже гарячих вулканічних планетах."
 BB_MoltenGoldDescShort:
