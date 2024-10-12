@@ -574,7 +574,7 @@ NavalTradition:
  UKR: "Корабельні традиції"
 RacesWithStrongNavalTraditions:
  Id: 83
- GER: "„Rassen mit starken Marinetraditionen profitieren von einer Reduzierung der Schiffbaukosten um 35%, da sie über gut entwickelte Wirtschaftspraktiken im Schiffbau verfügen"
+ GER: "Rassen mit starken Marinetraditionen profitieren von einer Reduzierung der Schiffbaukosten um 35%, da sie über gut entwickelte Wirtschaftspraktiken im Schiffbau verfügen"
  ENG: "Races with strong naval traditions gain a 35% reduction to ship building costs due to having well developed economic practices concerning ship construction"
  RUS: "Расы с сильными флотскими традициями получают 35% скидку к стоимости производства кораблей вследствие адаптации экономики под их строительство."
  SPA: "A las razas con una sólida tradición naval les cuesta un 35% menos la fabricación de naves porque disponen de prácticas económicas muy desarrolladas en lo que a la construcción naval se refiere"
@@ -2284,7 +2284,7 @@ CombatStrength:
  UKR: "Бойова сила"
 CreditsPerTurnInMaintenance:
  Id: 365
- GER: "Credits/Runde Instanthaltung"
+ GER: "Credits/Runde Instandhaltung"
  ENG: "credits per turn in maintenance"
  RUS: "кредитов за ход на содержание"
  SPA: "créditos por turno en mantenimiento"
@@ -2833,12 +2833,12 @@ Terraformer:
  UKR: "Тераформер"
 TheseMachinesWhileExpensiveTo:
  Id: 462
- GER: "Diese Maschinen sind zwar teuer in der Wartung, verwandeln aber unermüdlich karge Felsbrocken in lebenswerte Welten mit atmungsaktiver Atmosphäre.  Die Terraform-Stufe eines Imperiums kann zwischen 1 und 3 liegen. Jede Stufe erhöht die Effektivität von Terraforming-Operationen, bis sie in der Lage sind, einen kargen Planeten in einen Himmel für Ihr Volk zu verwandeln."
+ GER: "Teuer in der Wartung, verwandeln sie aber unaufhörlich karge Felsbrocken in Welten mit benötigter Atmosphäre.  Die Stufe reicht von I bis III. Jede Stufe erhöht die Effektivität der Maschine, bis sie in der Lage sind, einen kargen Planeten in ein Paradies für unser Volk zu verwandeln."
  ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. Terraform Level of an empire can be 1 to 3. Each level increases the effectiveness of terraforming operations until they are able to terraform a barren planet into a heaven for your people."
  UKR: "Ці машини, хоч і дорогі в обслуговуванні, невтомно перетворюватимуть безплідні шматки скелі на придатні для життя світи з придатною для дихання атмосферою. Рівень тераформування імперії може бути від 1 до 3. Кожен рівень підвищує ефективність операцій тераформування, поки вони не зможуть перетворити пустельну планету на рай для ваших людей."
 TerraformsThePlanetToYour:
  Id: 463
- GER: "Terraformiert den Planeten basierend auf der Terraforming-Stufe des Imperiums"
+ GER: "Formt den Planeten basierend auf der erforschten Terraform-Stufe"
  ENG: "Terraforms the planet based on the Empire's Terraforming Level"
  UKR: "Тераформує планету на основі рівня тераформування Імперії"
 TrackingStation:
@@ -3912,7 +3912,7 @@ BB_Tech_RapidCloning_Name:
  UKR: "Швидке клонування"
 BB_Tech_RapidCloning_Desc:
  Id: 648
- GER: "„Wir sind schon lange in der Lage, Dinge zu klonen, aber bisher konnten wir die Reiferate nicht steigern. Mit dieser Technologie können wir einen Klon in Wochen statt in Jahren zur Erwachsenenreife heranziehen.“"
+ GER: "Wir sind schon lange in der Lage, Dinge zu klonen, aber bisher konnten wir die Reiferate nicht steigern. Mit dieser Technologie können wir einen Klon in Wochen statt in Jahren zur Erwachsenenreife heranziehen."
  ENG: "We have been able to clone things for a long time but we have not been able to increase the maturation rate until now. With this technology we can raise a clone to adult maturity in weeks rather than years. "
  RUS: "Мы давно уже отладили процесс клонирования, но до недавнего времени нам никак не удавалось ускорить процесс роста клонов. С этой технологией клоны будут достигать зрелости за считанные недели, а не годы."
  SPA: "Llevamos mucho tiempo clonando, pero hasta ahora no hemos podido incrementar el ritmo de maduración. Con esta tecnología, podemos lograr que un clon alcance la madurez en cuestión de semanas y no de años. "
@@ -8860,13 +8860,13 @@ TT_BurstWpnPwerDrain:
  UKR: "Це вказує на те, що існує чистий відтік енергії з резервів корабля (з урахуванням перезарядки), коли вся енергетична зброя корабля, разом з променями на повній потужності, постійно веде вогонь по цілях, виходячи з потужності зброї в секунду при стрільбі."
 TT_ExcessWpnPwrDrain:
  Id: 1989
- GER: "„Dies deutet darauf hin, dass die Reserven des Schiffes (nach Berücksichtigung der Energieaufladung) netto an Energie verlieren, wenn alle Energiewaffen des Schiffes ständig auf Ziele schießen, basierend auf der Energie pro Sekunde der Waffen beim Abfeuern.“"
+ GER: "Dies deutet darauf hin, dass die Reserven des Schiffes (nach Berücksichtigung der Energieaufladung) netto an Energie verlieren, wenn alle Energiewaffen des Schiffes ständig auf Ziele schießen, basierend auf der Energie pro Sekunde der Waffen beim Abfeuern."
  ENG: "This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons are persistently firing on targets, based on the weapons' power per second upon firing"
  RUS: "Указывает на чистую утечку энергии из резервов корабля (с учетом перезарядки энергии), когда все энергетическое оружие корабля постоянно стреляет по целям, в зависимости от мощности оружия в секунду при стрельбе."
  UKR: "Це вказує на те, що існує чистий відтік енергії з резервів корабля (з урахуванням перезарядки), коли вся енергетична зброя корабля постійно веде вогонь по цілях, виходячи з потужності зброї в секунду під час стрільби."
 ThisWeaponFiresMoreThan:
  Id: 1990
- GER: "„Diese Waffe feuert mehr als ein Projektil pro Schuss ab. Sie feuert auch mehrere Projektile pro Salve ab, wenn sie über Salvenfeuer verfügt. Eine Waffe mit einer Projektilzahl von 2 und einer Salve von 3 feuert beispielsweise 6 Projektile pro Salve ab"
+ GER: "Diese Waffe feuert mehr als ein Projektil pro Schuss ab. Sie feuert auch mehrere Projektile pro Salve ab, wenn sie über Salvenfeuer verfügt. Eine Waffe mit einer Projektilzahl von 2 und einer Salve von 3 feuert beispielsweise 6 Projektile pro Salve ab"
  ENG: "This weapon fires more than one projectile per shot. It will also fire this multiple projectiles per Salvo, if it has Salvo fire. A weapon with projectile count of 2 and salvo of 3, for instance, will fire 6 projectiles per salvo"
  RUS: "Это оружие выпускает более одного снаряда за выстрел. Он также будет стрелять этими несколькими снарядами за залп, если у него есть залповый огонь. Например, оружие с числом снарядов 2 и залпом 3 будет выпускать 6 снарядов за залп"
  UKR: "Ця зброя вистрілює більше одного снаряда за постріл. Вона також вистрілить цю кількість снарядів за залп, якщо у неї є залповий вогонь. Наприклад, зброя з кількістю снарядів 2 і залпом 3 вистрілить 6 снарядів за залп"
@@ -9969,7 +9969,7 @@ RemnantDetectionArray:
  UKR: "Масив виявлення Древніх"
 OurScientistsBelieveThatThis:
  Id: 2149
- GER: "„Unsere Wissenschaftler glauben, dass dieses Gebäude es uns ermöglichen wird, alle 'Remnant'-Flotten zu entdecken, die auf ein System abzielen, wenn dieses Gebäude auf einem seiner Planeten gebaut wurde. Es wird auch eine voraussichtliche Ankunftszeit ermitteln können.“"
+ GER: "Unsere Wissenschaftler glauben, dass dieses Gebäude es uns ermöglichen wird, alle 'Remnant'-Flotten zu entdecken, die auf ein System abzielen, wenn dieses Gebäude auf einem seiner Planeten gebaut wurde. Es wird auch eine voraussichtliche Ankunftszeit ermitteln können."
  ENG: "Our scientists believe that this building will allow us to detect any remnant fleet targeting a system if this building in built on any of it's planets. it will also have an ETA."
  RUS: "Ученые считают, что это здание позволит нам обнаружить любой флот Предтечей, нацеленный на систему, если это здание построено на любой из ее планет."
  SPA: "Nuestros científicos creen que este edificio nos permitirá detectar el origen de la señal que controla los drones Remanentes en nuestra galaxia. "
@@ -11508,7 +11508,7 @@ FurthermoreWeRequestATreaty:
  UKR: "Крім того, ми просимо укласти договір, який дозволить приватним особам наших імперій вільно торгувати між собою."
 WeProposeATreatyAllowing:
  Id: 3009
- GER: "„Wir schlagen einen Vertrag vor, der den Privatbürgern unserer Reiche die Freiheit gibt, miteinander Handel zu treiben."
+ GER: "Wir schlagen einen Vertrag vor, der den Privatbürgern unserer Reiche die Freiheit gibt, miteinander Handel zu treiben."
  ENG: "We propose a treaty allowing the private citizens of our empires the freedom to trade with one another. "
  RUS: "Мы предлагаем заключить торговый договор, чтобы граждане наших империй могли свободно торговать друг с другом. "
  SPA: "Proponemos un tratado por el que las personas físicas de nuestros respectivos imperios tengan libertad para comerciar entre sí. "
@@ -13160,13 +13160,13 @@ SecondsPerTurn:
  UKR: "Секунди за хід"
 TimeInSecondsPerTurn:
  Id: 4126
- GER: "„Zeit in Sekunden pro Spielzug. Produktions-, Nahrungs-, Forschungs- und Finanzberechnungen werden pro Spielzug durchgeführt."
+ GER: "Zeit in Sekunden pro Spielzug. Produktions-, Nahrungs-, Forschungs- und Finanzberechnungen werden pro Spielzug durchgeführt."
  ENG: "Time in seconds per turn. Production, Food, Research and Treasury calculations are performed per turn."
  RUS: "Время хода (сек). Расчеты производства продукции, производства пищи, научно-исследовательских работ и финансов (казначейские расчеты) которые выполняются за один ход."
  UKR: "Час у секундах на хід. Розрахунки виробництва, їжі, досліджень і скарбниці виконуються за хід."
 MaintenanceMultiplier:
  Id: 4127
- GER: "Instanthaltungsmultiplikator"
+ GER: "Instandhaltungsmultiplikator"
  ENG: "Maintenance Multiplier"
  RUS: "Множитель содержания"
  UKR: "Мультиплікатор обслуговування"
@@ -13190,7 +13190,7 @@ AutomaticErrorReport:
  UKR: "Автоматичний звіт про помилки"
 SendAutomaticErrorReportsTo:
  Id: 4131
- GER: "Senden Sie automatische Fehlerberichte an Blackbox-Entwickler."
+ GER: "Senden Sie automatische Fehlerberichte an die Blackbox-Entwickler."
  ENG: "Send automatic error reports to Blackbox developers."
  RUS: "Отправьте автоматический отчет об ошибках разработчикам Blackbox."
  UKR: "Надсилайте автоматичні звіти про помилки розробникам Blackbox."
@@ -14084,7 +14084,7 @@ AMeteorHasCrashedOn:
  UKR: "Метеор впав на поверхню! \nНа місці падіння знайдено загадкову речовину."
 AMeteorHasCrashedOn2:
  Id: 4281
- GER: "„Ein Meteor ist auf der Oberfläche abgestürzt!\nEdelmetalle wurden rund um die Absturzstelle gefunden."
+ GER: "Ein Meteor ist auf der Oberfläche abgestürzt!\nEdelmetalle wurden rund um die Absturzstelle gefunden."
  ENG: "A Meteor has crashed on the surface!\nPrecious metals were found around the crash site."
  RUS: "Метеор упал на поверхность!\nВокруг места крушения были обнаружены драгоценные металлы."
  UKR: "Метеор впав на поверхню! \nНа місці падіння знайдено дорогоцінні метали."
@@ -15346,7 +15346,7 @@ BB_Tech_DysonSwarmOverclock_Name:
  ENG: "Swarm Overclock"   
 BB_Tech_DysonSwarmOverclock_Desc: 
  Id: 4913
- GER: "Aktivieren Sie die Übertaktung der Dyson-Schwarm-Kontroller, was zu zusätzlicher Produktion pro befreundeter Kolonie führt. Die übertaktete Produktion wird sich jedoch auf den Mineralzerfall der Planeten auswirken.“"
+ GER: "Aktivieren Sie die Übertaktung der Dyson-Schwarm-Kontroller, was zu zusätzlicher Produktion pro befreundeter Kolonie führt. Die übertaktete Produktion wird sich jedoch auf den Mineralzerfall der Planeten auswirken."
  ENG: "Enable overclocking Dyson swarm controllers, which will give additional production per friendly colony. The overclocked production will, however, affect Mineral Decay of the planets."    
 BB_Tech_DysonOverclock_Bonus: 
  Id: 4914
@@ -15435,7 +15435,7 @@ BB_ExoticStorageTechDescrBonus:
  UKR: "20% збільшення екзотичного сховища по всій імперії"
 ExoticResourceRefinedPulsefieldName:
  Id: 4933 
- GER: "Pulsfeldgas"
+ GER: "Gepulstes Feld"
  ENG: "Pulsefield"  
  UKR: "Пульсфільд"  
 ExoticResourceRefinedLuxariumName:
@@ -17351,7 +17351,7 @@ AutoTaxes:
  UKR: "Податок на авто"
 InsystemEnemyFtlSpeedModifier:
  Id: 6139
- GER: "In-System Gegmer UL-Modifikator"
+ GER: "In-System Gegner UL-Modifikator"
  ENG: "In-System Enemy FTL Speed Modifier"
  RUS: "Внутрисис.модификатор скорости FLT врага"
  SPA: "Modificador de la velocidad supraluminal en territorio enemigo "
@@ -17742,7 +17742,7 @@ ExclusiveBlueprints:
  ENG: "Exclusive Blueprints"   
 ExclusiveBlueprintsTip:
  Id: 6197
- GER: "„Wenn exklusive Blaupausen geladen sind, wird der Gouverneur nur die genauen Gebäude dieser Blaupausen bauen und alle anderen Gebäude, einschließlich der vom Spieler gebauten, verwerfen. Bei nicht exklusiven Blaupausen wird der Gouverneur den Rest des Planeten entsprechend seiner Logik mit Gebäuden füllen  und nutzte auch seine Build-Logik, wenn die geladenen Blueprints noch nicht abgeschlossen werden konnten."
+ GER: "Wenn exklusive Blaupausen geladen sind, wird der Gouverneur nur die genauen Gebäude dieser Blaupausen bauen und alle anderen Gebäude, einschließlich der vom Spieler gebauten, verwerfen. Bei nicht exklusiven Blaupausen wird der Gouverneur den Rest des Planeten entsprechend seiner Logik mit Gebäuden füllen  und nutzte auch seine Build-Logik, wenn die geladenen Blueprints noch nicht abgeschlossen werden konnten."
  ENG: "When Exclusive Blueprints are loaded, the Governor will only build the exact buildings of these Blueprints and will scrap all other buildings, including player built ones. In non exclusive Blueprints, the governor will fill the rest of the planet with buildings according to its logic and also used its build logic if it cannot yet complete the Blueprints loaded."  
 Completion:
  Id: 6198
@@ -18034,7 +18034,7 @@ CounterEspioangeOpsFailedWipeout:
  ENG: "Our Counter-Espioange was a disaster.\n Our agents were detected our Infiltration Level was reduced.\Moreover, it is possible they gained Infiltration Level."         
 CounterEspioangeOpsFailedWipeoutVictim:
  Id: 6272
- GER: "„Es ist uns gelungen, eine Spionageabwehroperation aufzudecken und einige ihrer Agenten in Doppelagenten umzuwandeln.\n"
+ GER: "Es ist uns gelungen, eine Spionageabwehroperation aufzudecken und einige ihrer Agenten in Doppelagenten umzuwandeln.\n"
  ENG: "We managed to uncover a Counter-Espionage operation and turn some of their agent to double agents.\n"          
 EliminatedMole:
  Id: 6273
