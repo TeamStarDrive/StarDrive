@@ -94,16 +94,20 @@ namespace Ship_Game.Universe.SolarBodies
         public void Update() // Once per turn or when a new Dyson Swarm Sat is deployed
         {
             int count = 0;
+            List<Vector2> keysToUpdate = new List<Vector2>();
             foreach (KeyValuePair<Vector2, Ship> item in SwarmControllers)
             {
                 Ship swarmController = item.Value;
                 if (swarmController != null)
                 {
-                    if      (!swarmController.Active)          SwarmControllers[item.Key] = null;
+                    if      (!swarmController.Active)           keysToUpdate.Add(item.Key);
                     else if (swarmController.Loyalty != Owner) swarmController.AI.OrderScuttleShip();
                     else                                       count++;
                 }
             }
+
+            for (int i = 0; i < keysToUpdate.Count; i++)
+                SwarmControllers[keysToUpdate[i]] = null;
 
             UpdateMaxOverclock();
             ControllerCompletion = count / (float)TotalSwarmControllers;
