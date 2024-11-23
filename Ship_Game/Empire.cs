@@ -2144,7 +2144,7 @@ namespace Ship_Game
                         empire = ship.Universe.GetEmpireByShipType(hull.ShipType);
                         if (empire == null)
                         {
-                            Log.Warning("Unlock by Scrap - tried to unlock rom an empire which does" +
+                            Log.Warning("Unlock by Scrap - tried to unlock from an empire which does" +
                                         $"not exist in this game ({hull.ShipType}), probably " +
                                         "due to debug spawn ships or fleets.");
 
