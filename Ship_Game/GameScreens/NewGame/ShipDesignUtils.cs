@@ -154,10 +154,10 @@ namespace Ship_Game.GameScreens.NewGame
                     // add the full tree of techs to TechsNeeded
                     foreach (string techName in leafTechsNeeds)
                         AddRange(ship.TechsNeeded, techTreePaths[techName]);
-
-                    // also add techs from basehull (already full tree)
-                    AddRange(ship.TechsNeeded, ship.BaseHull.TechsNeeded);
                 }
+
+                // add techs from basehull (already full tree), allow reverse engineering of this hull.
+                AddRange(ship.TechsNeeded, ship.BaseHull.TechsNeeded);
             }
         }
     }

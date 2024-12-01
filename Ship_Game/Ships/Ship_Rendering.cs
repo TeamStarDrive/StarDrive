@@ -363,17 +363,20 @@ namespace Ship_Game.Ships
                                   bool moduleHealthColor = true)
         {
             bool drawIconOnly = !showModules || ModuleSlotList.Length == 0;
-            if (drawIconOnly && ShipData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
+            if (drawIconOnly) // draw ship icon plus shields
             {
+                bool hasSelectIcon = ShipData.BaseHull.SelectIcon.NotEmpty();
                 Rectangle destRect = drawRect;
                 destRect.X += 2;
-                string icon = "SelectionBox Ships/" + ShipData.SelectionGraphic;
-                batch.Draw(ResourceManager.Texture(icon), destRect, Color.White);
-                if (ShieldPower > 0.0)
+                string icon = hasSelectIcon ? "SelectionBox Ships/" + ShipData.BaseHull.SelectIcon 
+                                            : ShipData.BaseHull.IconPath;
+                batch.Draw(ResourceManager.Texture(icon), destRect, hasSelectIcon ? Color.White : Color.LightGreen);
+                if (hasSelectIcon && ShieldPower > 0)
                 {
                     batch.Draw(ResourceManager.Texture(icon + "_shields"), destRect,
-                               new Color(Color.White, ShieldPercent));
+                                new Color(Color.White, ShieldPercent));
                 }
+
                 return;
             }
             

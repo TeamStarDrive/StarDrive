@@ -3554,10 +3554,10 @@ BB_Tech_TachyonScanning_SensorRangeBonus_Bonus:
  UKR: "Подвоює дальність дії всіх датчиків"
 BB_Tech_Terraforming_Name:
  Id: 683
- ENG: "Terraforming"
- RUS: "Терраформинг"
- SPA: "Terraformación"
- UKR: "Тераформування"
+ ENG: "Terraform"
+ RUS: "Терраформировать"
+ SPA: "Terraformar"
+ UKR: "Тераформувати"
 BB_Tech_ThalaronBlaster_Name:
  Id: 685
  ENG: "Thalaron Blaster"
@@ -8227,7 +8227,7 @@ RepairDroneLauncher:
  UKR: "Модуль ремонтних дронів"
 ThisModuleLaunchesRepairDrones:
  Id: 2101
- ENG: "This module launches repair drones equipped with nano-repair modules. These drones will automatically target and heal nearby vessels, but they WONT heal ship that lanuched them. When their nanite supply is exhausted, the drones will deactivate. It is recommended to pair these modules with ordnance fabricators."
+ ENG: "This module launches repair drones equipped with nano-repair modules. These drones will automatically target and heal nearby vessels, but they WONT heal ship that launched them. When their nanite supply is exhausted, the drones will deactivate. It is recommended to pair these modules with ordnance fabricators."
  RUS: "Этот модель выпускает в пространство специальные зонды, оснащенные ремонтными наномодулями. Эти зонды будут автоматически искать поврежденные корабли и ремонтировать их. После выработки ресурса зонды будут деактивированы. Рекомендуется использовать их в паре с изготовителями боеприпасов."
  SPA: "Este módulo lanza drones de reparación equipados con módulos de nanorreparación. Estos drones tratarán de reparar automáticamente las naves cercanas. Cuando sus reservas de nanobots se agotan, los drones se desactivan. Se recomienda dotar estos módulos con fabricadores de munición."
  UKR: "Цей модуль запускає ремонтні дрони, оснащені наноремонтними модулями. Ці дрони автоматично націлюватимуться на сусідні судна і ремонтуватимуть їх, але вони НЕ будуть ремонтувати кораблі, які їх висадили. Коли запас нанітів вичерпається, дрони деактивуються. Рекомендується використовувати ці модулі в парі з виробниками боєприпасів."
@@ -13004,6 +13004,33 @@ DisableScreenPanningOption:
 DisableScreenPanningOptionTip:
  Id: 4525
  ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
+BB_Tech_DysonSwarm1_Name: 
+ Id: 4909
+ ENG: "Dyson Swarm 1"   
+BB_Tech_DysonSwarm1_Desc: 
+ Id: 4910
+ ENG: "We can research a way to tap to the energy of a star by buildings millions of Solar Satellites which will collect energy from the star, and direct it to Swarm Controllers. The Controllers will distribute the energy to friendly Colonies in that system and gain massive production boost. After completing the research, check the Planet Array to see which Suns are applicable."    
+BB_Tech_DysonSwarm1_Bonus: 
+ Id: 4911
+ ENG: "Allow mapping known stable stars that can support Dyson Swarm Type 1 Project which will grant 100 Flat production bonus to friendly colonies in the system. This bonus will not affect Mineral Decay."     
+BB_Tech_DysonSwarmOverclock_Name: 
+ Id: 4912
+ ENG: "Swarm Overclock"   
+BB_Tech_DysonSwarmOverclock_Desc: 
+ Id: 4913
+ ENG: "Enable overclocking Dyson swarm controllers, which will give additional production per friendly colony. The overclocked production will, however, affect Mineral Decay of the planets."    
+BB_Tech_DysonOverclock_Bonus: 
+ Id: 4914
+ ENG: "Overclock production by 50 for friendly colonies in a system with a Dyson Swarm project we own."      
+BB_Tech_DysonSwarm2_Name: 
+ Id: 4915
+ ENG: "Dyson Swarm 2"   
+BB_Tech_DysonSwarm2_Desc: 
+ Id: 4916
+ ENG: "Type 2 Dyson Swarms, which are harder to build, but will enable is to get additional Dyson Swarms."    
+BB_Tech_DysonSwarm2_Bonus: 
+ Id: 4917
+ ENG: "Enable Dyson Swarm Type 2 and Map Stars which support it. It is possible that no Star in our Galaxy can support Type 2 Dyson Swarm."      
 PrioritizedPort:
  Id: 4918
  ENG: "Prioritzed Port"   
@@ -13204,7 +13231,7 @@ TraitCompensationName:
  UKR: "План компенсації екіпажу"
 TraitCompensationDesc:
  Id: 4969
- ENG: "Your empire will compansate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
+ ENG: "Your empire will compensate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
  UKR: "Ваша імперія виплатить компенсацію сім'ям загиблих у бою з розрахунку 1 кредит за 20 слотів кораблів, вбитих ворогами."
 TraitTerranHomeworldName:
  Id: 4970
@@ -15472,8 +15499,47 @@ RemnantHelpersGiftStep2:
 RemnantHelpersGiftStep3Plus: 
  Id: 6350
  ENG: "Another fleet of remnant ships gave away control to us.\nWe estimate they do it since we are weak compared to other empires."
-SelectOtherEmpires: 
+DysonSwarm: 
  Id: 6351
+ ENG: "Dyson Swarm"  
+DysonSwarmType1: 
+ Id: 6352
+ ENG: "Dyson Swarm Type 1"   
+DysonSwarmType2: 
+ Id: 6353
+ ENG: "Dyson Swarm Type 2"    
+BuildDysonSwarm: 
+ Id: 6354
+ ENG: "Build Dyson Swarm"     
+BuildDysonSwarmTip: 
+ Id: 6355
+ ENG: "Start constrcution of A Dyson Swarm around the Star in this Solar System. This might take a long time to complete and your colonies in this system will participate in the construction unless they have very low population and less than 50% of production in storage."      
+KillDysonSwarm: 
+ Id: 6356
+ ENG: "Kill Dyson Swarm"      
+KillDysonSwarmTip: 
+ Id: 6357
+ ENG: "Order complete destruction of the Dyson Swarm in this system. This is irreversible and you will need to start new construction all over again."       
+DysonSwarmControllerProgressTip: 
+ Id: 6358
+ ENG: "This is the progress of the built Swarm Controllers in this system. The maximum production boost each colony can get is limited by the Controllers' completion as well as the Swarm Satellites' completion."       
+DysonSwarmProgressTip: 
+ Id: 6359
+ ENG: "This is the progress of the built Swarm satellites in this system. The maximum production boost each colony can get is limited by the Satellites' completion as well as the Swarm Controllers' completion. However, swarm controllers can be destroyed by enemy fire while Swarm Satellites are too numerous to be affected."        
+DysonSwarmDeploymentCompleted: 
+ Id: 6360
+ ENG: "Deployment Completed"
+DysonSwarmProductionBoostTip: 
+ Id: 6361
+ ENG: "Indicates how much production boost this colony is getting from the Dyson Swarm. The Maximum cna change if Overclock is enabled." 
+DysonSwarmOverClockSwarm: 
+ Id: 6362
+ ENG: "Overclock Swarm"  
+DysonSwarmOverClockSwarmTip: 
+ Id: 6363
+ ENG: "Enable Swarm overclocking which will increase the production boost of the Dyson Swarm. The overclocked production will, however, speed up the Mineral Richness Decay of the Planets."
+SelectOtherEmpires: 
+ Id: 6364
  ENG: "Select other empires"
  UKR: "Оберіть інші імперії"
  SPA: "Seleccionar otros imperios"
@@ -17762,7 +17828,7 @@ RapidFirePDTech:
  UKR: "Швидка зентіна гармата"
 RapidFirePDTechdescr:
  Id: 17558
- ENG: "Rapid Fire Point deference was designed to counter fast moving maneuverable missiles that are usually fired in salvos. Those turrets exchange fast reloads over damage thus making them less effective against torpedoes."
+ ENG: "Rapid Fire Point Defense was designed to counter fast moving maneuverable missiles that are usually fired in salvos. Those turrets exchange fast reloads over damage thus making them less effective against torpedoes."
  UKR: "Точка швидкого вогню була розроблена для протидії швидким маневреним ракетам, які зазвичай випускаються залпами. Ці башти швидко перезаряджаються через пошкодження, що робить їх менш ефективними проти торпед."
 HeavyPDTech:
  Id: 17559
@@ -17874,7 +17940,7 @@ CoreExtracttech:
  UKR: "Сифонізація ядра"
 CoreExtracttechdesc:
  Id: 17587
- ENG: "By taping into the planets core we are able to extract huge amounts precious and rare elements, minerals and metals, unfortunately afterwards they need to go over a complex refinement process that creates heavy pollution"
+ ENG: "By tapping into the planets core we are able to extract huge amounts precious and rare elements, minerals and metals, unfortunately afterwards they need to go over a complex refinement process that creates heavy pollution"
  UKR: "Проникаючи в ядро планет, ми можемо видобувати величезну кількість дорогоцінних і рідкісних елементів, мінералів і металів, але, на жаль, після цього вони повинні пройти складний процес очищення, який створює сильне забруднення навколишнього середовища."
 CoreExtract:
  Id: 17588

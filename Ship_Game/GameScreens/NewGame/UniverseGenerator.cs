@@ -316,7 +316,7 @@ namespace Ship_Game.GameScreens.NewGame
             }
 
             UState.MineablePlanets.Sort(p => -p.Mining.Richness);
-
+            UState.GeneratePotentialDysonSwarms();
             step.Finish();
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.Universe.SolarBodies;
 using static Ship_Game.Ships.Ship;
 
 namespace Ship_Game.Ships;
@@ -25,14 +26,11 @@ public partial class ShipDesign
     public bool IsSupplyShuttle     { get; private set; }
     public bool IsFreighter         { get; private set; }
     public bool IsResearchStation   { get; private set; }
-    public bool IsMiningStation { get; private set; }
-    public bool IsCandidateForTradingBuild { get; private set; }
+    public bool IsMiningStation     { get; private set; }
     public bool IsUnitTestShip      { get; private set; }
-
-    public bool IsSingleTroopShip { get; private set; }
-    public bool IsTroopShip       { get; private set; }
-    public bool IsBomber          { get; private set; }
-
+    public bool IsSingleTroopShip   { get; private set; }
+    public bool IsTroopShip         { get; private set; }
+    public bool IsBomber            { get; private set; }
     public float BaseCost       { get; private set; }
     public float BaseStrength   { get; private set; }
     public float BaseThrust     { get; private set; }
@@ -41,9 +39,11 @@ public partial class ShipDesign
     public bool  BaseCanWarp    { get; private set; }
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
-    public float BaseResearchPerTurn { get; private set; }
-    public float BaseRefiningPerTurn { get; private set; }
-    public byte NumConstructionModules { get; private set; }
+    public float BaseResearchPerTurn       { get; private set; }
+    public float BaseRefiningPerTurn       { get; private set; }
+    public byte NumConstructionModules     { get; private set; }
+    public bool IsCandidateForTradingBuild { get; private set; }
+    public bool IsDysonSwarmController     { get; private set; }
 
     public Power NetPower;
 
@@ -184,7 +184,8 @@ public partial class ShipDesign
         IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
-        IsMiningStation = IsPlatformOrStation && BaseRefiningPerTurn > 0;
+        IsMiningStation   = IsPlatformOrStation && BaseRefiningPerTurn > 0;
+        IsDysonSwarmController  = Name == DysonSwarm.DysonSwarmControllerName;
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");

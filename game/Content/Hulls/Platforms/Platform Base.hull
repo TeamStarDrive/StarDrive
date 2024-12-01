@@ -7,6 +7,7 @@ Size=8,7
 MeshOffset=0,8
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Ships/Platforms/platform_base
+SelectIcon=
 Animated=false
 IsShipyard=false
 IsOrbitalDefense=false

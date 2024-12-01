@@ -49,6 +49,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float RadiationRadius = 0f;
         [StarData] public readonly Array<SunLayerInfo> Layers;
         [StarData] public readonly float ResearchableChance; // Can this star contribute to research efforts (needs a research station)
+        [StarData] public readonly bool MultiSun; // Binary or trinary sun
 
         public bool Disposed; // if true, this SunType was Disposed because of Hotloading
         public SubTexture Icon { get; private set; } // lo-res icon used in background star fields
@@ -59,6 +60,7 @@ namespace Ship_Game.Universe.SolarBodies
         public static SunType FindSun(string id) => Map[id];
         static SunType[] HabitableSuns;
         static SunType[] BarrenSuns;
+        static SunType[] MultiSuns;
 
         public static SunType RandomHabitableSun(RandomBase random, Predicate<SunType> filter = null)
         {
@@ -70,6 +72,12 @@ namespace Ship_Game.Universe.SolarBodies
         {
             return random.Item(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
         }
+
+        public static SunType RandomMultiSun(RandomBase random)
+        {
+            return random.Item(MultiSuns.Length != 0 ? MultiSuns : HabitableSuns);
+        }
+
         public static SubTexture[] GetLoResTextures()
         {
             return Map.FilterValues(s => s.Icon != null).Select(s => s.Icon);
@@ -89,6 +97,7 @@ namespace Ship_Game.Universe.SolarBodies
             Map.Clear();
             HabitableSuns = Empty<SunType>.Array;
             BarrenSuns    = Empty<SunType>.Array;
+            MultiSuns     = Empty<SunType>.Array;
         }
 
         static void LoadSuns(FileInfo file, bool loadIcons = true)
@@ -117,6 +126,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             HabitableSuns = all.Filter(s => s.Habitable);
             BarrenSuns    = all.Filter(s => !s.Habitable);
+            MultiSuns     = all.Filter(s => s.MultiSun);
         }
 
         public float DamageMultiplier(float distFromSun)
@@ -182,8 +192,11 @@ namespace Ship_Game.Universe.SolarBodies
             SpriteBatch batch = GameBase.ScreenManager.SpriteBatch;
             batch.SafeEnd();
             {
+                sys.DysonSwarm?.DrawDysonRings(batch, pos, sizeScaleOnScreen, drawBackRings: true);
                 foreach (SunLayerState layer in sys.SunLayers)
                     layer.Draw(batch, pos, sizeScaleOnScreen);
+
+                sys.DysonSwarm?.DrawDysonRings(batch, pos, sizeScaleOnScreen);
             }
             batch.SafeBegin();
         }
@@ -193,7 +206,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class SunLayerState
     {
         public readonly SunLayerInfo Info;
-        readonly DrawableSprite Sprite;
+        public readonly DrawableSprite Sprite;
         float PulseTimer;
         public float Intensity { get; private set; } = 1f; // current sun intensity
         float ScaleIntensity = 1f;
@@ -202,14 +215,28 @@ namespace Ship_Game.Universe.SolarBodies
         public SunLayerState(GameContentManager content, SunLayerInfo info, RandomBase random)
         {
             Info = info;
+            Sprite = CreateSprite(content, info);
+            InitializeSprite(info.RotationStart.Generate(random));
+        }
 
-            if (info.AnimationPath.NotEmpty())
-                Sprite = DrawableSprite.Animation(content, info.AnimationPath, looping: true);
-            else
-                Sprite = DrawableSprite.SubTex(content, info.TexturePath);
-            
+        public SunLayerState(GameContentManager content, SunLayerInfo info, float rotation)
+        {
+            Info = info;
+            Sprite = CreateSprite(content, info);
+            InitializeSprite(rotation);
+        }
+
+        // Helper method to create the sprite based on the info
+        DrawableSprite CreateSprite(GameContentManager content, SunLayerInfo info)
+        {
+            return info.AnimationPath.NotEmpty() ? DrawableSprite.Animation(content, info.AnimationPath, looping: true)
+                                                 : DrawableSprite.SubTex(content, info.TexturePath);
+        }
+
+        void InitializeSprite(float rotation)
+        {
             Sprite.Effects = SpriteEffects.FlipVertically;
-            Sprite.Rotation = info.RotationStart.Generate(random);
+            Sprite.Rotation = rotation;
         }
 
         public void Update(FixedSimTime timeStep)
@@ -231,18 +258,25 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void Draw(SpriteBatch batch, Vector2 screenPos, float sizeScaleOnScreen)
+        public void Draw(SpriteBatch batch, Vector2 screenPos, float sizeScaleOnScreen, float fixedAlpha = -1)
         {
             batch.SafeBegin(Info.BlendMode);
 
             float scale = ScaleIntensity * sizeScaleOnScreen * Info.LayerScale;
             Color color = Info.TextureColor;
 
-            // draw this layer multiple times to increase the intensity
-            for (float intensity = ColorIntensity; intensity.Greater(0f); intensity -= 1f)
+            if (fixedAlpha == -1)
             {
-                Color c = intensity > 1f ? color : new Color(color, intensity);
-                Sprite.Draw(batch, screenPos, scale, c);
+                // draw this layer multiple times to increase the intensity
+                for (float intensity = ColorIntensity; intensity.Greater(0f); intensity -= 1f)
+                {
+                    Color c = intensity > 1f ? color : new Color(color, intensity);
+                    Sprite.Draw(batch, screenPos, scale, c);
+                }
+            }
+            else
+            {
+                Sprite.Draw(batch, screenPos, scale, color.Alpha(fixedAlpha));
             }
 
             batch.SafeEnd();
@@ -257,4 +291,29 @@ namespace Ship_Game.Universe.SolarBodies
 
     }
 
+    [StarDataType]
+    public class DysonRings
+    {
+        // Hardcoded 8 rings. 4 back, 4 front
+        [StarData] public Array<SunLayerInfo> Rings { get; private set; }
+        [StarData] public byte Type { get; private set; }
+        public static int NumBacktRings = 4;
+
+        static readonly Map<byte, DysonRings> Map = new();
+        public static void LoadDysonRings()
+        {
+            FileInfo file = ResourceManager.GetModOrVanillaFile("DysonRings.yaml");
+            Array<DysonRings> all = YamlParser.DeserializeArray<DysonRings>(file);
+            foreach (DysonRings dysonRing in all)
+                Map[dysonRing.Type] = dysonRing;
+        }
+
+        public static DysonRings GetDysonRings(byte type) => Map[type];
+
+        public static float GetRingAlpha(int ringIndex, float completion)
+        {
+            int ringNum = ringIndex <= 3 ? ringIndex: ringIndex-4;
+            return ((completion - 0.25f*ringNum) * 4).Clamped(0,1);
+        }
+    }
 }

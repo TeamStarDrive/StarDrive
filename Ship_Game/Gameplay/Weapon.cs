@@ -10,6 +10,7 @@ using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Utils;
 using Ship_Game.Universe;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game.Gameplay
 {
@@ -556,7 +557,7 @@ namespace Ship_Game.Gameplay
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
             PlanetOrigin = planet.Position.GenerateRandomPointInsideCircle(planet.Radius * 0.66f, planet.Random);
-            GameObject target = targetShip.GetRandomInternalModule(this) ?? (GameObject) targetShip;
+            GameObject target = targetShip.GetRandomInternalModule(this) ?? (GameObject)targetShip;
 
             if (IsBeam)
             {
@@ -567,10 +568,18 @@ namespace Ship_Game.Gameplay
             if (ProjectedImpactPoint(target, out Vector2 pip))
             {
                 Vector2 direction = (pip - Origin).Normalized();
-
                 foreach (FireSource fireSource in EnumFireSources(PlanetOrigin, direction))
                     Projectile.Create(this, planet, planet.Owner, fireSource.Direction, target);
             }
+        }
+
+        public void FireDysonSwarmSat(Planet planet)
+        {
+            PlanetOrigin = planet.Position.GenerateRandomPointInsideCircle(planet.Radius * 0.66f, planet.Random);
+            var pos = planet.System.Position.GenerateRandomPointInsideCircle(10000, planet.Random);
+            Vector2 direction = (pos - Origin).Normalized();
+            foreach (FireSource fireSource in EnumFireSources(PlanetOrigin, direction))
+                Projectile.Create(this, planet, planet.Owner, fireSource.Direction, planet.System, IsSwarmSat: true);
         }
 
         public void ApplyDamageModifiers(Projectile projectile)
