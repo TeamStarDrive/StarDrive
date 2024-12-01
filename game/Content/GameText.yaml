@@ -15538,6 +15538,11 @@ DysonSwarmOverClockSwarm:
 DysonSwarmOverClockSwarmTip: 
  Id: 6363
  ENG: "Enable Swarm overclocking which will increase the production boost of the Dyson Swarm. The overclocked production will, however, speed up the Mineral Richness Decay of the Planets."
+SelectOtherEmpires: 
+ Id: 6364
+ ENG: "Select other empires"
+ UKR: "Оберіть інші імперії"
+ SPA: "Seleccionar otros imperios"
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

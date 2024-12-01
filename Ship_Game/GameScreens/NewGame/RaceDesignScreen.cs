@@ -12,6 +12,8 @@ using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
 using Ship_Game.Data;
 using System.Linq;
+using System.Windows.Forms;
+using NAudio.Wave;
 
 namespace Ship_Game
 {
@@ -20,7 +22,7 @@ namespace Ship_Game
         readonly MainMenuScreen MainMenu;
         readonly Array<TraitEntry> AllTraits = new();
         RacialTrait RaceSummary = new();
-        UniverseParams P = new();
+        UniverseParams P;
 
         Rectangle FlagLeft;
         Rectangle FlagRight;
@@ -57,9 +59,12 @@ namespace Ship_Game
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu, toPause: null)
         {
             IsPopup = true; // it has to be a popup, otherwise the MainMenuScreen will not be drawn
+
             MainMenu = mainMenu;
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
+
+            P = new UniverseParams();
             foreach (RacialTraitOption t in ResourceManager.RaceTraits.TraitList)
                 AllTraits.Add(new TraitEntry { Trait = t });
         }
@@ -230,9 +235,10 @@ namespace Ship_Game
                 .SetLocalPos(ChooseRaceList.Width / 2 + 10, ChooseRaceList.Height + 10);
 
             var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.H + 10);
-            ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
-            ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
-            Button(pos.X, pos.Y, text: GameText.RuleOptions, click: OnRuleOptionsClicked);
+            ButtonMedium(pos.X - 274, pos.Y, "Load Setup", OnLoadSetupClicked);
+            ButtonMedium(pos.X + 198, pos.Y, "Save Setup", OnSaveSetupClicked);
+            ButtonMedium(pos.X - 122, pos.Y, GameText.RuleOptions, OnRuleOptionsClicked);
+            ButtonMedium(pos.X + 28, pos.Y, "Select Foes", OnFoeSelectionClicked);
 
             ChooseRaceList.SlideInFromOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.SlideInFromOffset(offset:new(DescriptionTextList.Width, 0), TransitionOnTime);
@@ -340,6 +346,11 @@ namespace Ship_Game
             ScreenManager.AddScreen(new RuleOptionsScreen(this, P));
         }
 
+        void OnFoeSelectionClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new FoeSelectionScreen(this, P, SelectedData));
+        }
+
         void OnAbortClicked(UIButton b)
         {
             ExitScreen();
@@ -427,7 +438,17 @@ namespace Ship_Game
             int maxOpponents = P.Mode == GameMode.Corners ? 3 : GlobalStats.Defaults.MaxOpponents;
             P.NumOpponents += OptionIncrement;
             if (P.NumOpponents > maxOpponents) P.NumOpponents = 1;
-            else if (P.NumOpponents < 1)       P.NumOpponents = maxOpponents;
+            else if (P.NumOpponents < 1) P.NumOpponents = maxOpponents;
+
+            ResizeFoeList();
+        }
+
+        private void ResizeFoeList()
+        {
+            if (P.SelectedFoes != null && P.NumOpponents < P.SelectedFoes.Count)
+            {
+                P.SelectedFoes.Resize(P.NumOpponents);
+            }
         }
 
         void OnPacingClicked(UIButton b)
@@ -522,6 +543,10 @@ namespace Ship_Game
             UpdateTraits();
             DoRaceDescription();
             EnvMenu.UpdateArchetype(SelectedData, RaceSummary);
+            if (P.SelectedFoes?.First(i => i.ArchetypeName == item.EmpireData.ArchetypeName) != null)
+            {
+                P.SelectedFoes?.Remove(P.SelectedFoes.First(i => i.ArchetypeName == item.EmpireData.ArchetypeName));
+            }
         }
 
         void OnEngageClicked(UIButton b)
@@ -547,6 +572,20 @@ namespace Ship_Game
             P.PlayerData.DiplomaticPersonality = new DTrait();
 
             (P.NumSystems, P.StarsModifier) = GetNumStars(P.StarsCount, P.GalaxySize, P.NumOpponents);
+
+            //set selected opponents or choose random ones
+            if (P.SelectedFoes.Count <= P.NumOpponents)
+            {
+                var majorRacesLeft = ResourceManager.MajorRaces.Filter(
+                                data => (data.ArchetypeName != P.PlayerData.ArchetypeName) && !P.SelectedFoes.Any(i => i.ArchetypeName == data.ArchetypeName));
+
+                majorRacesLeft.Shuffle();
+                for (int i = 0; i <= P.NumOpponents - P.SelectedFoes.Count; i++)
+                {
+                    P.SelectedFoes.Add(majorRacesLeft[i]);
+                }
+            }
+
             var ng = new CreatingNewGameScreen(MainMenu, P);
 
             ScreenManager.GoToScreen(ng, clear3DObjects:true);

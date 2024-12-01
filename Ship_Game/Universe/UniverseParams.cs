@@ -1,5 +1,7 @@
 ﻿using SDGraphics;
+using SDUtils;
 using Ship_Game.Data.Serialization;
+using System;
 using static Ship_Game.RaceDesignScreen;
 
 namespace Ship_Game.Universe;
@@ -9,6 +11,7 @@ public class UniverseParams
 {
     // this is only used during first time universe generation and shouldn't be serialized
     public EmpireData PlayerData;
+    public Array<IEmpireData> SelectedFoes;
 
     // Universe Generator parameters:
     [StarData(DefaultValue=GameDifficulty.Normal)]
