@@ -32,6 +32,7 @@ namespace Ship_Game.GameScreens.NewGame
                                   (int)(ScreenHeight - TitleBar.Bottom));
 
             var background = new Rectangle((int)chooseRace.X - 20, TitleBar.Y, (int)(chooseRace.W) + 100, (int)chooseRace.H + 10);
+
             if (chooseRace.H > 780)
             {
                 chooseRace.H = 780;
@@ -40,6 +41,7 @@ namespace Ship_Game.GameScreens.NewGame
             Add(new UILabel(new Rectangle(TitleBar.X, TitleBar.Y + 60, TitleBar.Width, TitleBar.Height),
                 GameText.SelectOtherEmpires, Fonts.Laserian14, Color.Goldenrod));
             ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
+            Add(CloseButton(background.Right - 45, background.Y + 20));
             ChooseRaceList.SetBackground(new Menu1(chooseRace));
             ChooseRaceList.OnClick = OnRaceItemSelected;
             ChooseRaceList.OnDoubleClick = OnRaceItemSelected;
