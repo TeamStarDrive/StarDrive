@@ -5593,8 +5593,8 @@ namespace Ship_Game
         RemnantHelpersGiftStep2 = 6349,
         /// <summary>Another fleet of remnant ships gave away control to us</summary>
         RemnantHelpersGiftStep3Plus = 6350,
-
-
+        /// <summary>Select other empires</summary>
+        SelectOtherEmpires = 6351,
 
 
 

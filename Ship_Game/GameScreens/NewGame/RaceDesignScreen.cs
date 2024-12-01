@@ -238,7 +238,7 @@ namespace Ship_Game
             ButtonMedium(pos.X - 274, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 198, pos.Y, "Save Setup", OnSaveSetupClicked);
             ButtonMedium(pos.X - 122, pos.Y, GameText.RuleOptions, OnRuleOptionsClicked);
-            ButtonMedium(pos.X + 28, pos.Y, "Select opponents", OnFoeSelectionClicked);
+            ButtonMedium(pos.X + 28, pos.Y, "Select Foes", OnFoeSelectionClicked);
 
             ChooseRaceList.SlideInFromOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.SlideInFromOffset(offset:new(DescriptionTextList.Width, 0), TransitionOnTime);
@@ -543,6 +543,10 @@ namespace Ship_Game
             UpdateTraits();
             DoRaceDescription();
             EnvMenu.UpdateArchetype(SelectedData, RaceSummary);
+            if (P.SelectedFoes?.First(i => i.ArchetypeName == item.EmpireData.ArchetypeName) != null)
+            {
+                P.SelectedFoes?.Remove(P.SelectedFoes.First(i => i.ArchetypeName == item.EmpireData.ArchetypeName));
+            }
         }
 
         void OnEngageClicked(UIButton b)

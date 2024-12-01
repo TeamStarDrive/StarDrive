@@ -2,26 +2,15 @@
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
-using Ship_Game.GameScreens.MainMenu;
-using Ship_Game.GameScreens.ShipDesign;
-using Ship_Game.UI;
 using Ship_Game.Universe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Ship_Game.RaceDesignScreen;
 
 namespace Ship_Game.GameScreens.NewGame
 {
     public class FoeSelectionScreen : GameScreen
     {
-
         public readonly UniverseParams P;
-        ScrollList<RaceArchetypeListItem> ChooseRaceList;
-        readonly IEmpireData SelectedData;
-        UIList SelectedRacesList;
+        private ScrollList<RaceArchetypeListItem> ChooseRaceList;
+        private readonly IEmpireData SelectedData;
 
         public FoeSelectionScreen(GameScreen parent, UniverseParams p, IEmpireData selectedData) : base(parent, toPause: null)
         {
@@ -32,46 +21,37 @@ namespace Ship_Game.GameScreens.NewGame
             SelectedData = selectedData;
             p.SelectedFoes = p.SelectedFoes == null ? new Array<IEmpireData>(P.NumOpponents) : p.SelectedFoes;
         }
+
         public override void LoadContent()
         {
             var TitleBar = new Rectangle(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
 
-            
-            RectF chooseRace = new(ScreenWidth / 6,
+            RectF chooseRace = new(2 * ScreenWidth / 6,
                                   (int)TitleBar.Bottom + 15,
                                   (int)(ScreenWidth * 0.3f),
                                   (int)(ScreenHeight - TitleBar.Bottom));
 
-            RectF selectedRaces = new(3 * ScreenWidth / 6,
-                                  (int)TitleBar.Bottom + 15,
-                                  (int)(ScreenWidth * 0.3f),
-                                  (int)(ScreenHeight - TitleBar.Bottom));
-            var background = new Rectangle((int)chooseRace.X - 20, TitleBar.Y, (int)(chooseRace.W + selectedRaces.W) + 100, (int)chooseRace.H + 10);
-            if (chooseRace.H > 780 || selectedRaces.H > 780)
+            var background = new Rectangle((int)chooseRace.X - 20, TitleBar.Y, (int)(chooseRace.W) + 100, (int)chooseRace.H + 10);
+            if (chooseRace.H > 780)
             {
                 chooseRace.H = 780;
-                selectedRaces.H = 780;
             }
             Add(new Menu2(background, Color.Black));
             Add(new UILabel(new Rectangle(TitleBar.X, TitleBar.Y + 60, TitleBar.Width, TitleBar.Height),
-                "Select other empires", Fonts.Laserian14, Color.Goldenrod));
+                GameText.SelectOtherEmpires, Fonts.Laserian14, Color.Goldenrod));
             ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
             ChooseRaceList.SetBackground(new Menu1(chooseRace));
             ChooseRaceList.OnClick = OnRaceItemSelected;
+            ChooseRaceList.OnDoubleClick = OnRaceItemSelected;
 
             IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
                                 data => data.ArchetypeName != SelectedData.ArchetypeName);
             foreach (IEmpireData e in majorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            SelectedRacesList = Add(new UIList(selectedRaces, Color.TransparentBlack));
-            SelectedRacesList.Visible = true;
-            DrawSelectedFoesList();
-
             OnExit += () =>
             {
                 ChooseRaceList.SlideOutToOffset(offset: new(-ChooseRaceList.Width, 0), TransitionOffTime);
-                SelectedRacesList.SlideOutToOffset(offset: new(SelectedRacesList.Width, 0), TransitionOffTime);  
             };
 
             base.LoadContent();
@@ -86,12 +66,12 @@ namespace Ship_Game.GameScreens.NewGame
 
             batch.SafeEnd();
         }
-        void OnRaceItemSelected(RaceArchetypeListItem item)
+
+        private void OnRaceItemSelected(RaceArchetypeListItem item)
         {
             if (P.SelectedFoes.Contains(item.EmpireData))
             {
                 P.SelectedFoes.Remove(item.EmpireData);
-                DrawSelectedFoesList();
                 return;
             }
 
@@ -102,20 +82,6 @@ namespace Ship_Game.GameScreens.NewGame
             }
 
             P.SelectedFoes.Add(item.EmpireData);
-            DrawSelectedFoesList();
-        }
-
-        void DrawSelectedFoesList()
-        {
-            SelectedRacesList.RemoveAll();
-            for (int i = 0; i < P.SelectedFoes.Count; i++)
-            {
-                SelectedRacesList.Add(new BlueButton( P.SelectedFoes[i].ArchetypeName));
-            }
-            for (int i = 0; i < P.NumOpponents - P.SelectedFoes.Count; i++)
-            {
-                SelectedRacesList.Add(new BlueButton("Random"));
-            }
         }
     }
-} 
+}

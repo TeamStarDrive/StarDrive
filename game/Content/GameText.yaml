@@ -15472,6 +15472,11 @@ RemnantHelpersGiftStep2:
 RemnantHelpersGiftStep3Plus: 
  Id: 6350
  ENG: "Another fleet of remnant ships gave away control to us.\nWe estimate they do it since we are weak compared to other empires."
+SelectOtherEmpires: 
+ Id: 6351
+ ENG: "Select other empires"
+ UKR: "Оберіть інші імперії"
+ SPA: "Seleccionar otros imperios"
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."
