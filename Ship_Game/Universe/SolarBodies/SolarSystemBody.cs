@@ -544,7 +544,6 @@ namespace Ship_Game
         public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel) // TODO: FB - this code needs refactor
         {
             Empire oldOwner = Owner;
-            newOwner.DecreaseFleetStrEmpireMultiplier(Owner);
             var thisPlanet = (Planet)this;
 
             thisPlanet.Construction.ClearQueue();

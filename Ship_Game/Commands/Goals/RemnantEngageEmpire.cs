@@ -192,10 +192,8 @@ namespace Ship_Game.Commands.Goals
         GoalStep WaitForCompletion()
         {
             if (Fleet == null || Fleet.Ships.Count == 0)
-            {
-                Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return GoalStep.GoalFailed; // fleet is dead
-            }
+
             if (!IsPortalValidOrRerouted())
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalFailed);
 
@@ -216,16 +214,11 @@ namespace Ship_Game.Commands.Goals
                 RequestBombers(numBombers);
 
             if (numBombers / 3 >= Fleet.Ships.Count - numBombers) // only bombers and some combat ships left
-            {
-                if (Fleet.TaskStep <= 7)
-                    Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return ReturnToClosestPortalAndReroute();
-            }
 
             if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Not cleared enemy at target planet yet
                 return GoalStep.TryAgain;
 
-            Owner.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
             if (!Remnants.TargetEmpireStillValid(TargetEmpire))
             {
                 if (!Remnants.FindValidTarget(out Empire newVictim))
