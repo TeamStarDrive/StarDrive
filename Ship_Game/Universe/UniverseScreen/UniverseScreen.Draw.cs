@@ -750,13 +750,10 @@ namespace Ship_Game
                 Ship ship = ships[i];
                 if (ship.InFrustum && ship.InPlayerSensorRange)
                 {
-                    if (!ship.IsLaunching)
-                    {
-                        if ((viewState > UnivScreenState.PlanetView || ShowingFTLOverlay) && !IsCinematicModeEnabled)
+                        if ((viewState > UnivScreenState.ShipView || ShowingFTLOverlay || !ship.HasSO) && !IsCinematicModeEnabled)
                             DrawTacticalIcon(ship);
 
                         DrawOverlay(ship);
-                    }
 
                     if (SelectedShip == ship || SelectedShips.Contains(ship))
                     {

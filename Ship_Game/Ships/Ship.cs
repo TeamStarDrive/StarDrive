@@ -853,6 +853,8 @@ namespace Ship_Game.Ships
             return ShipSO;
         }
 
+        public bool HasSO => ShipSO != null;
+
         public void ReturnHome()
         {
             AI.OrderReturnHome();
