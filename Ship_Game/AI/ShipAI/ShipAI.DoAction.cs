@@ -219,6 +219,7 @@ namespace Ship_Game.AI
             }
             else if (Owner.CargoSpaceFree > planet.Mining.Richness 
                 && Owner.Position.OutsideRadius(planet.Position, planet.Mining.MaxMiningRadius*1.25f))
+
             {
                 OrderMinePlanet(planet);
             }
