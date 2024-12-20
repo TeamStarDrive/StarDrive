@@ -283,7 +283,7 @@ namespace Ship_Game.Ships
                 scale = (1 - (Progress * TotalDuration / TotalDuration) * 0.7f).LowerBound(0.3f);
                 posZ = EndPosZ * Progress;
                 Owner.XRotation = (InitialRotationDegX - (Progress * InitialRotationDegX)).ToRadians();
-                float speedLimitFactor = ((1 - Progress) * 2).Clamped(0.25f, MaxSpeedMultiplier);
+                float speedLimitFactor = ((1 - Progress) * 2).Clamped(0.5f, MaxSpeedMultiplier);
                 Owner.SetSTLSpeedLimit(Owner.MaxSTLSpeed * speedLimitFactor);
                 if (Progress <= 0.2)
                 {
