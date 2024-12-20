@@ -200,7 +200,7 @@ namespace Ship_Game.AI
 
             Planet planet = g.TargetPlanet;
             Vector2 wantedPos = g.MovePosition;
-            if (wantedPos.OutsideRadius(Owner.Position, (Owner.CurrentVelocity * 2).Clamped(50, 500)))
+            if (wantedPos.OutsideRadius(Owner.Position, 50))
             {
                 ThrustOrWarpToPos(wantedPos, timeStep, Owner.STLSpeedLimit);
                 return;
@@ -218,7 +218,7 @@ namespace Ship_Game.AI
                 OrderReturnToHangar();
             }
             else if (Owner.CargoSpaceFree > planet.Mining.Richness 
-                && Owner.Position.OutsideRadius(planet.Position, planet.Mining.MaxMiningRadius*1.5f))
+                && Owner.Position.OutsideRadius(planet.Position, planet.Mining.MaxMiningRadius*1.25f))
             {
                 OrderMinePlanet(planet);
             }
