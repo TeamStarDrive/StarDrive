@@ -26,7 +26,7 @@ namespace Ship_Game
         public float RefiningRatio => ResourceType.RefiningRatio; // How much of the resource is processed per turn
         public ExoticBonusType ExoticBonusType => ResourceType.ExoticBonusType;
         float MinMiningRadius => P.Radius * 0.4f;
-        public float MaxMiningRadius => P.Radius * 0.7f;
+        public float MaxMiningRadius => P.Radius * 0.6f;
         int NumMiningGoalsFor(Empire empire) => empire.AI.CountGoals(g => g.IsMiningOpsGoal(P));
 
         public Vector2 GetMinePos()
