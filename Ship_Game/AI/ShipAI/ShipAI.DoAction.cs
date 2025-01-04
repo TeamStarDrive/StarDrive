@@ -200,7 +200,7 @@ namespace Ship_Game.AI
 
             Planet planet = g.TargetPlanet;
             Vector2 wantedPos = g.MovePosition;
-            if (wantedPos.OutsideRadius(Owner.Position, 50))
+            if (wantedPos.OutsideRadius(Owner.Position, Owner.MaxSTLSpeed * 0.5f))
             {
                 ThrustOrWarpToPos(wantedPos, timeStep, Owner.STLSpeedLimit);
                 return;
