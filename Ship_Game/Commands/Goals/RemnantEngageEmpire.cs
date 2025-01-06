@@ -219,7 +219,8 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Not cleared enemy at target planet yet
                 return GoalStep.TryAgain;
 
-            if (!Remnants.TargetEmpireStillValid(TargetEmpire))
+            if (!Remnants.TargetEmpireStillValid(TargetEmpire, 
+                stickToSameRandomTarget: TargetPlanet?.System.HasPlanetsOwnedBy(TargetEmpire) == true))
             {
                 if (!Remnants.FindValidTarget(out Empire newVictim))
                     return ReturnToClosestPortalAndReroute();

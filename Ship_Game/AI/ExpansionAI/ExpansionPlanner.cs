@@ -24,7 +24,7 @@ namespace Ship_Game.AI.ExpansionAI
         public ExpansionPlanner(Empire empire)
         {
             Owner = empire;
-            SetMaxSystemsToCheckedDiv(Owner.IsExpansionists ? 4 : 6);
+            SetMaxSystemsToCheckedDiv(Owner.IsExpansionists ? 8 : 10);
             ResetExpandSearchTimer();
         }
 

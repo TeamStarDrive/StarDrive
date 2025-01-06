@@ -386,13 +386,13 @@ namespace Ship_Game
             return targetEmpire.GetPlanets().FindMin(p => p.Position.SqDist(fleetPos));
         }
 
-        public bool TargetEmpireStillValid(Empire currentTarget)
+        public bool TargetEmpireStillValid(Empire currentTarget, bool stickToSameRandomTarget = true)
         {
             if (Hibernating)
                 return false;
 
             if (UsingRandomTargets() && !currentTarget.IsDefeated)
-                return true;
+                return stickToSameRandomTarget;
 
             FindValidTarget(out Empire expectedTarget);
             return expectedTarget == currentTarget;
