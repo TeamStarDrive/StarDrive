@@ -59,6 +59,22 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipOnPlan)
                 return GoalStep.GoalFailed;
 
+            if (!PlanetBuildingAt.Safe)
+            {
+                OldShip.AI.ClearOrders();
+                if (!Owner.FindPlanetToScrapIn(OldShip, out Planet buildAt))
+                {
+                    return GoalStep.GoalFailed;
+                }
+                else
+                {
+                    PlanetBuildingAt = buildAt;
+                    OldShip.AI.IgnoreCombat = true;
+                    OldShip.AI.OrderMoveAndScrap(buildAt);
+                }
+            }
+
+
             if (OldShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 300f))
                 return GoalStep.GoToNextStep;
 
