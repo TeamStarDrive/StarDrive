@@ -97,7 +97,7 @@
                     ExpansionMultiplier  = 1.0f;
                     ExpansionCheckInterval = 7; // every 7 turns
                     MinStartingColonies  = 3;
-                    ExpandSearchTurns    = 50;
+                    ExpandSearchTurns    = 200;
                     RemnantTurnsLevelUp  = 350;
                     RemnantResourceMod   = 0.5f;
                     RemnantNumBombers    = 0.75f;
@@ -132,7 +132,7 @@
                     ExpansionMultiplier  = 0.5f;
                     ExpansionCheckInterval = 5; // every 5 turns
                     MinStartingColonies  = 5;
-                    ExpandSearchTurns    = 30;
+                    ExpandSearchTurns    = 150;
                     RemnantTurnsLevelUp  = 325;
                     RemnantResourceMod   = 1f;
                     RemnantNumBombers    = 1f;
@@ -178,7 +178,7 @@
                     ExpansionMultiplier  = 0.25f; 
                     ExpansionCheckInterval = 3; // every 3 turns
                     MinStartingColonies  = 6;
-                    ExpandSearchTurns    = 20;
+                    ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 300;
                     RemnantResourceMod   = 1.5f;
                     RemnantNumBombers    = 1.25f;
@@ -226,7 +226,7 @@
                     ExpansionMultiplier  = 0.1f; // 10x lower threshold, Insane AI can expand as much as it wants!
                     ExpansionCheckInterval = 1; // every turn, there is no limit!
                     MinStartingColonies  = 6;
-                    ExpandSearchTurns    = 20;
+                    ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 275;
                     RemnantResourceMod   = 2f;
                     RemnantNumBombers    = 1.5f;
