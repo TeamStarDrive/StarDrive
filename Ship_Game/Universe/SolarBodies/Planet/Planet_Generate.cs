@@ -180,9 +180,7 @@ namespace Ship_Game
 
         public void GenerateNewHomeWorld(RandomBase random, Empire owner, SolarSystemData.Ring data = null)
         {
-            PlanetType type = data?.WhichPlanet > 0 ? ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet) 
-                                                    : ResourceManager.Planets.RandomPlanet(owner.data.PreferredEnvPlanet);
-
+            PlanetType type = GetPLanetType();
             float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
             InitPlanetType(type, scale, fromSave: false);
             SetOwner(owner);
@@ -204,6 +202,13 @@ namespace Ship_Game
 
             UpdateDevelopmentLevel();
             CreateHomeWorldBuildings();
+
+            PlanetType GetPLanetType()
+            {
+                PlanetType traitPreferredType   = ResourceManager.Planets.RandomPlanet(owner.data.PreferredEnvPlanet);
+                PlanetType xmlDataPreferredtype = data?.WhichPlanet > 0 ? ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet) : null;
+                return xmlDataPreferredtype?.Category == traitPreferredType.Category ? xmlDataPreferredtype : traitPreferredType;
+            }
         }
 
         void SetTileHabitability(RandomBase random, float tileChance, out int numHabitableTiles)
