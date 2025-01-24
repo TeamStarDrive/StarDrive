@@ -185,7 +185,7 @@ namespace Ship_Game
             InitPlanetType(type, scale, fromSave: false);
             SetOwner(owner);
             IsHomeworld = true;
-            Owner.SetCapital(this);
+            owner.SetCapital(this);
             SetTileHabitability(random, 0, out _); // Create the homeworld's tiles without making them habitable yet
             SetHomeworldTiles(random);
             ResetGarrisonSize();
