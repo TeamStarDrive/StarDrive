@@ -12695,6 +12695,7 @@ ResearchPerTurnStatTip:
 ResearchStationResearchTimeStat:
  Id: 4415
  ENG: "Research Time (turns)"
+ UKR: "Час дослідження (ходи)"
 ResearchStationResearchTimeStatTip:
  Id: 4416
  ENG: "Number of turns this Station can produce Research until Production stocks are depleted."
@@ -12842,6 +12843,7 @@ RefiningPerTurnStatTip:
 MiningStationRefiningTimeStat:
  Id: 4451
  ENG: "Processing Turns"
+ UKR: "Час на обробку"
 MiningStationRefiningTimeStatTip:
  Id: 4452
  ENG: "Number of turns this Station can refine raw exotic resources until Food stocks are depleted."
@@ -13141,30 +13143,39 @@ DisableScreenPanningOptionTip:
 BB_Tech_DysonSwarm1_Name:
  Id: 4909
  ENG: "Dyson Swarm 1"
+ UKR: "Дайсонський рій 1"
 BB_Tech_DysonSwarm1_Desc:
  Id: 4910
  ENG: "We can research a way to tap to the energy of a star by buildings millions of Solar Satellites which will collect energy from the star, and direct it to Swarm Controllers. The Controllers will distribute the energy to friendly Colonies in that system and gain massive production boost. After completing the research, check the Planet Array to see which Suns are applicable."
+ UKR: "Ми можемо дослідити спосіб використання енергії зірки, побудувавши мільйони сонячних супутників, які збиратимуть енергію від зірки і спрямовуватимуть її до ройових контролерів. Контролери розподілять енергію між дружніми колоніями в цій системі і отримають значний приріст виробництва. Після завершення дослідження перевірте масив планет, щоб побачити, які сонця підходять для цього."
 BB_Tech_DysonSwarm1_Bonus:
  Id: 4911
  ENG: "Allow mapping known stable stars that can support Dyson Swarm Type 1 Project which will grant 100 Flat production bonus to friendly colonies in the system. This bonus will not affect Mineral Decay."
+ UKR: "Дозволити нанесення на мапу відомих стабільних зірок, які можуть підтримувати проект рою Дайсона типу 1, який надасть бонус виробництва 100 дружнім колоніям у системі. Цей бонус не вплине на розпад мінералів."
 BB_Tech_DysonSwarmOverclock_Name:
  Id: 4912
  ENG: "Swarm Overclock"
+ UKR: "Розгін рою"
 BB_Tech_DysonSwarmOverclock_Desc:
  Id: 4913
  ENG: "Enable overclocking Dyson swarm controllers, which will give additional production per friendly colony. The overclocked production will, however, affect Mineral Decay of the planets."
+ UKR: "Увімкніть розгін контролерів рою Дайсона, що дасть додатковий видобуток на дружню колонію. Однак розгін виробництва вплине на мінеральний розпад планет."
 BB_Tech_DysonOverclock_Bonus:
  Id: 4914
  ENG: "Overclock production by 50 for friendly colonies in a system with a Dyson Swarm project we own."
+ UKR: "Розгін виробництва на 50 для дружніх колоній у системі з власним проектом Dyson Swarm."
 BB_Tech_DysonSwarm2_Name:
  Id: 4915
  ENG: "Dyson Swarm 2"
+ UKR: "Рій Дайсона 2"
 BB_Tech_DysonSwarm2_Desc:
  Id: 4916
  ENG: "Type 2 Dyson Swarms, which are harder to build, but will enable is to get additional Dyson Swarms."
+ UKR: "Рої Дайсона типу 2, які важче будувати, але вони дозволять отримати додаткові рої Дайсона."
 BB_Tech_DysonSwarm2_Bonus:
  Id: 4917
  ENG: "Enable Dyson Swarm Type 2 and Map Stars which support it. It is possible that no Star in our Galaxy can support Type 2 Dyson Swarm."
+ UKR: "Увімкніть Рой Дайсона типу 2 і позначте зорі, які його підтримують. Можливо, що жодна зоря в нашій Галактиці не може підтримувати рой Дайсона типу 2."
 PrioritizedPort:
  Id: 4918
  ENG: "Prioritzed Port"
@@ -15368,6 +15379,7 @@ Edit:
 EditBluprintsTip:
  Id: 6214
  ENG: "Make changes to the current loaded Blueprints. If you save the Blueprints after editing, it will update all Colonies with the same Blueprints. If you save in a different name, the Governor of this colony will switch to the new Blueprints, but other Colonies will not be updated, unless you overwrite existing Blueprints."
+ UKR: "Внесіть зміни до поточних завантажених креслень. Якщо ви збережете креслення після редагування, то оновите всі колонії з однаковими кресленнями. Якщо ви збережете під іншим ім'ям, губернатор цієї колонії перейде на нові креслення, але інші колонії не будуть оновлені, якщо тільки ви не перезапишете існуючі креслення."
 BlueprintsSnapshot:
  Id: 6215
  ENG: "Snapshot"
@@ -15523,9 +15535,11 @@ NotifyLeechedTech:
 WeIncitedUprise:
  Id: 6255
  ENG: "We have incited an uprise on"
+ UKR: "Ми підбурили повстання на"
 IncitedUpriseOn:
  Id: 6256
  ENG: "An uprise was incited by unknown agents.\nAssets lost:"
+ UKR: "Повстання було спровоковане невідомими агентами.\nВтрачено майно:"
 NewFailedToInciteUprise:
  Id: 6257
  ENG: "Our agents have failed setting up an uprise on their colonies."
@@ -15881,60 +15895,79 @@ DisableCrashSiteAlertsTip:
 UpriseAssetsTheyLost:
  Id: 6345
  ENG: "Assets they lost:"
+ UKR: "Активи, які вони втратили:"
 UpriseAllMilitaryBuildings:
  Id: 6346
  ENG: "All Military Buildings."
+ UKR: "Всі військові будівлі."
 InvasionblockedWarmup:
  Id: 6347
  ENG: "Not enough time passed since war started. 5 turns warmup needed."
+ UKR: "Від початку війни минуло не так багато часу. Потрібно розігрітись 5 ходів."
 RemnantHelpersGiftStep1:
  Id: 6348
  ENG: "A fleet of Remnant ships has set position near one of our systems.\nWe were preparing for battle when suddenly the ships powered downcompletely.\nWe were able to board the ships and take control of them.\nWe are not sure why they did it."
+ UKR: "Флот кораблів Древніх зайняв позицію біля однієї з наших систем. Ми готувалися до бою, коли раптом кораблі повністю вимкнулися. Ми змогли взяти кораблі на абордаж і взяти їх під свій контроль."
 RemnantHelpersGiftStep2:
  Id: 6349
  ENG: "Yet again, a fleet of remnant ships powered down and we took contorl over them. Their reasoning still eludes us."
+ UKR: "Знову ж таки, флот уцілілих кораблів вимкнувся, і ми взяли над ними контроль. Їхні міркування все ще вислизають від нас."
 RemnantHelpersGiftStep3Plus:
  Id: 6350
  ENG: "Another fleet of remnant ships gave away control to us.\nWe estimate they do it since we are weak compared to other empires."
+ UKR: "Інший флот кораблів Древніх віддав нам контроль.\nМи вважаємо, що вони зробили це, тому що ми слабкі в порівнянні з іншими імперіями."
 DysonSwarm:
  Id: 6351
  ENG: "Dyson Swarm"
+ UKR: "Рій Дайсона"
 DysonSwarmType1:
  Id: 6352
  ENG: "Dyson Swarm Type 1"
+ UKR: "Рій Дайсона Тип 1"
 DysonSwarmType2:
  Id: 6353
  ENG: "Dyson Swarm Type 2"
+ UKR: "Рій Дайсона Тип 2"
 BuildDysonSwarm:
  Id: 6354
  ENG: "Build Dyson Swarm"
+ UKR: "Створіть Рій Дайсона"
 BuildDysonSwarmTip:
  Id: 6355
  ENG: "Start constrcution of A Dyson Swarm around the Star in this Solar System. This might take a long time to complete and your colonies in this system will participate in the construction unless they have very low population and less than 50% of production in storage."
+ UKR: "Почніть будівництво рою Дайсона навколо зірки в цій сонячній системі. Це може зайняти багато часу, і ваші колонії в цій системі братимуть участь у будівництві, якщо тільки вони не мають дуже низького населення і не зберігають менше 50% продукції."
 KillDysonSwarm:
  Id: 6356
  ENG: "Kill Dyson Swarm"
+ UKR: "Вбити рой Дайсона"
 KillDysonSwarmTip:
  Id: 6357
  ENG: "Order complete destruction of the Dyson Swarm in this system. This is irreversible and you will need to start new construction all over again."
+ UKR: "Накажіть повністю знищити рій Дайсона у цій системі. Це незворотній процес, і вам доведеться починати будівництво заново."
 DysonSwarmControllerProgressTip:
  Id: 6358
  ENG: "This is the progress of the built Swarm Controllers in this system. The maximum production boost each colony can get is limited by the Controllers' completion as well as the Swarm Satellites' completion."
+ UKR: "Це прогрес побудованих контролерів рою в цій системі. Максимальний приріст виробництва, який може отримати кожна колонія, обмежений завершенням будівництва контролерів і супутників рою."
 DysonSwarmProgressTip:
  Id: 6359
  ENG: "This is the progress of the built Swarm satellites in this system. The maximum production boost each colony can get is limited by the Satellites' completion as well as the Swarm Controllers' completion. However, swarm controllers can be destroyed by enemy fire while Swarm Satellites are too numerous to be affected."
+ UKR: "Це прогрес побудованих супутників рою в цій системі. Максимальний приріст виробництва, який може отримати кожна колонія, обмежений завершенням будівництва супутників, а також завершенням будівництва контролерів рою. Однак контролери рою можуть бути знищені ворожим вогнем, тоді як супутників рою занадто багато, щоб на них можна було вплинути."
 DysonSwarmDeploymentCompleted:
  Id: 6360
  ENG: "Deployment Completed"
+ UKR: "Розгортання завершено"
 DysonSwarmProductionBoostTip:
  Id: 6361
- ENG: "Indicates how much production boost this colony is getting from the Dyson Swarm. The Maximum cna change if Overclock is enabled."
+ ENG: "Indicates how much production boost this colony is getting from the Dyson Swarm. The Maximum can change if Overclock is enabled."
+ UKR: "Показує, який приріст виробництва ця колонія отримує від рою Дайсона. Максимум зміниться, якщо увімкнено розгін."
 DysonSwarmOverClockSwarm:
  Id: 6362
  ENG: "Overclock Swarm"
+ UKR: "Розігнати Рій"
 DysonSwarmOverClockSwarmTip:
  Id: 6363
  ENG: "Enable Swarm overclocking which will increase the production boost of the Dyson Swarm. The overclocked production will, however, speed up the Mineral Richness Decay of the Planets."
+ UKR: "Увімкніть розгін рою, який збільшить приріст виробництва рою Дайсона. Розгін виробництва, однак, прискорить занепад мінерального багатства планет."
 Tech_CeramicArmor_Name:
  Id: 6563
  ENG: "Ceramic Armor"
