@@ -13143,7 +13143,7 @@ DisableScreenPanningOptionTip:
 BB_Tech_DysonSwarm1_Name:
  Id: 4909
  ENG: "Dyson Swarm 1"
- UKR: "Дайсонський рій 1"
+ UKR: "Рій Дайсона 1"
 BB_Tech_DysonSwarm1_Desc:
  Id: 4910
  ENG: "We can research a way to tap to the energy of a star by buildings millions of Solar Satellites which will collect energy from the star, and direct it to Swarm Controllers. The Controllers will distribute the energy to friendly Colonies in that system and gain massive production boost. After completing the research, check the Planet Array to see which Suns are applicable."
