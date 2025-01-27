@@ -7,7 +7,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Universe;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using System.Linq;
 
 namespace Ship_Game;
 
@@ -210,9 +209,7 @@ public sealed partial class Empire
         bool empireKnown = IsThisEmpireKnownByPlayer();
         bool known = empireKnown || planet.IsExploredBy(Universe.Player);
 
-        // NOTE: planets always provide influence
-
-
+        // NOTE: planets always provide influence and actually project it from system center.
         if (!OurBorderSystems.Any(n => n.Source == planet.System))
             OurBorderSystems.Add(new(planet.System, GetProjectorRadius(), known));
 
