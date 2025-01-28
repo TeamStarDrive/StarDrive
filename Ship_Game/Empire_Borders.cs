@@ -210,12 +210,17 @@ public sealed partial class Empire
         bool known = empireKnown || planet.IsExploredBy(Universe.Player);
 
         // NOTE: planets always provide influence and actually project it from system center.
-        if (!OurBorderSystems.Any(n => n.Source == planet.System))
+        if (!IsSystemInOurBorderSystems(planet.System))
             OurBorderSystems.Add(new(planet.System, GetProjectorRadius(), known));
 
         OurSensorPlanets.Add(new(planet, planet.SensorRange, empireKnown));
     }
-        
+
+    public bool IsSystemInOurBorderSystems(SolarSystem system)
+    {
+        return OurBorderSystems.Any(n => n.Source == system);
+    }
+
     // @return True if source is a border node which provides influence in InfluenceTree
     public bool RemoveBorderNode(GameObject source)
     {
@@ -279,7 +284,7 @@ public sealed partial class Empire
         }
         foreach (ref InfluenceNode n in borderSystems)
         {
-            n.Radius = GetProjectorRadius();
+            n.Radius = projectorRadius;
         }
     }
 

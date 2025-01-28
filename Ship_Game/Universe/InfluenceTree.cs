@@ -65,7 +65,7 @@ namespace Ship_Game.Universe
             if (source is SolarSystem system)
             {
                 if (system.Position == Vector2.Zero)
-                    Log.Error("InfluenceTree: Planet.ParentSystem position is Zero!");
+                    Log.Error("InfluenceTree: System position is Zero!");
 
                 float radius = owner.GetProjectorRadius();
                 float maxRadius = radius * 1.05f;
@@ -77,6 +77,9 @@ namespace Ship_Game.Universe
 
         public void Insert(Empire owner, GameObject source)
         {
+            if (source is SolarSystem system && owner.IsSystemInOurBorderSystems(system))
+                return;
+
             (Vector2 center, float radius, float maxRadius) = GetInfluenceCenterAndMaxRadius(source, owner);
             AABoundingBox2Di cb = GetCellBounds(center, maxRadius);
 
@@ -119,6 +122,9 @@ namespace Ship_Game.Universe
 
         public void Remove(Empire owner, GameObject source)
         {
+            if (source is SolarSystem system && system.HasPlanetsOwnedBy(owner))
+                return;
+
             (Vector2 center, float _, float maxRadius) = GetInfluenceCenterAndMaxRadius(source, owner);
             AABoundingBox2Di cb = GetCellBounds(center, maxRadius);
 
