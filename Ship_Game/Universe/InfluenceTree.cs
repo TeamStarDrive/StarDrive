@@ -54,7 +54,7 @@ namespace Ship_Game.Universe
         #endif
         }
 
-        (Vector2, float, float) GetInfluenceCenterAndMaxRadius(GameObject source)
+        (Vector2, float, float) GetInfluenceCenterAndMaxRadius(GameObject source, Empire owner)
         {
             if (source is Ship projector)
             {
@@ -62,20 +62,14 @@ namespace Ship_Game.Universe
                 return (source.Position, radius, radius);
             }
 
-            if (source is Planet planet)
+            if (source is SolarSystem system)
             {
-                if (planet.System.Position == Vector2.Zero)
-                    Log.Error("InfluenceTree: Planet.ParentSystem position is Zero!");
+                if (system.Position == Vector2.Zero)
+                    Log.Error("InfluenceTree: System position is Zero!");
 
-                // for Planets, because they constantly orbit their solar system
-                // we set their influence bounds to the center of the system
-                // with their orbital radius added to the influence radius
-                if (planet.OrbitalRadius == 0f)
-                    Log.Error("InfluenceTree: Planet OrbitalRadius was not initialized!");
-
-                float radius = planet.GetProjectorRange();
-                float maxRadius = planet.OrbitalRadius + radius;
-                return (planet.System.Position, radius, maxRadius);
+                float radius = owner.GetProjectorRadius();
+                float maxRadius = radius * 1.05f;
+                return (system.Position, radius, maxRadius);
             }
 
             throw new InvalidOperationException($"Unsupported object: {source}");
@@ -83,7 +77,10 @@ namespace Ship_Game.Universe
 
         public void Insert(Empire owner, GameObject source)
         {
-            (Vector2 center, float radius, float maxRadius) = GetInfluenceCenterAndMaxRadius(source);
+            if (IsSourceSystemInOurBorderSystems(owner, source))
+                return;
+
+            (Vector2 center, float radius, float maxRadius) = GetInfluenceCenterAndMaxRadius(source, owner);
             AABoundingBox2Di cb = GetCellBounds(center, maxRadius);
 
             var inf = new InfluenceObj
@@ -125,7 +122,10 @@ namespace Ship_Game.Universe
 
         public void Remove(Empire owner, GameObject source)
         {
-            (Vector2 center, float _, float maxRadius) = GetInfluenceCenterAndMaxRadius(source);
+            if (IsSourceSystemInOurBorderSystems(owner, source))
+                return;
+
+            (Vector2 center, float _, float maxRadius) = GetInfluenceCenterAndMaxRadius(source, owner);
             AABoundingBox2Di cb = GetCellBounds(center, maxRadius);
 
             float origin = WorldOrigin;
@@ -146,6 +146,11 @@ namespace Ship_Game.Universe
                         Grid[x + y * Size] = null;
                 }
             }
+        }
+
+        bool IsSourceSystemInOurBorderSystems(Empire owner, GameObject source)
+        {
+            return source is SolarSystem system && owner.IsSystemInOurBorderSystems(system);
         }
 
         /// <summary>

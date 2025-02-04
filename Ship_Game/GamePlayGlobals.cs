@@ -79,7 +79,6 @@ public class GamePlayGlobals
     [StarData] public bool UseCombatRepair;
     [StarData] public bool EnableECM;
     [StarData] public bool UseDestroyers;
-    [StarData] public bool UsePlanetaryProjection;
     [StarData] public bool ReconDropDown;
     // Research costs will be increased based on map size to balance the increased capacity of larger maps
     [StarData] public bool ChangeResearchCostBasedOnSize;

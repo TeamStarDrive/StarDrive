@@ -785,7 +785,6 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, font, b.FoodCache, "NewUI/icon_food", GameText.FoodRemainingHereThisBuilding, signs: false, digits: 0);
             DrawBuildingInfo(ref bCursor, batch, font, ColonyResource.FoodYieldFormula(fertility, b.PlusFoodPerColonist - 1), "NewUI/icon_food", GameText.FoodPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, font, b.SensorRange, "NewUI/icon_sensors", GameText.SensorRange, signs: false);
-            DrawBuildingInfo(ref bCursor, batch, font, b.ProjectorRange, "NewUI/icon_projection", GameText.SubspaceProjectionArea, signs: false);
             DrawBuildingInfo(ref bCursor, batch, font, b.PlusFlatProductionAmount, "NewUI/icon_production", GameText.ProductionPerTurn);
             DrawBuildingInfo(ref bCursor, batch, font, ColonyResource.ProdYieldFormula(richness, b.PlusProdPerColonist - 1, owner), "NewUI/icon_production", GameText.ProductionPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, font, b.ProdCache, "NewUI/icon_production", GameText.ProductionRemainingHereThisBuilding, signs: false, digits: 0);
