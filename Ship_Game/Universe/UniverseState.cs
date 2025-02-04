@@ -614,8 +614,9 @@ namespace Ship_Game.Universe
         {
             if (planet.Budget?.Owner != owner)
                 planet.CreatePlanetBudget(owner);
-            owner.AddBorderNode(planet);
+
             Influence.Insert(owner, planet.System);
+            owner.AddBorderNode(planet);
         }
 
         public void OnPlanetOwnerRemoved(Empire owner, Planet planet)

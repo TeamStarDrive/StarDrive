@@ -77,7 +77,7 @@ namespace Ship_Game.Universe
 
         public void Insert(Empire owner, GameObject source)
         {
-            if (source is SolarSystem system && owner.IsSystemInOurBorderSystems(system))
+            if (IsSourceSystemInOurBorderSystems(owner, source))
                 return;
 
             (Vector2 center, float radius, float maxRadius) = GetInfluenceCenterAndMaxRadius(source, owner);
@@ -122,7 +122,7 @@ namespace Ship_Game.Universe
 
         public void Remove(Empire owner, GameObject source)
         {
-            if (source is SolarSystem system && system.HasPlanetsOwnedBy(owner))
+            if (IsSourceSystemInOurBorderSystems(owner, source))
                 return;
 
             (Vector2 center, float _, float maxRadius) = GetInfluenceCenterAndMaxRadius(source, owner);
@@ -146,6 +146,11 @@ namespace Ship_Game.Universe
                         Grid[x + y * Size] = null;
                 }
             }
+        }
+
+        bool IsSourceSystemInOurBorderSystems(Empire owner, GameObject source)
+        {
+            return source is SolarSystem system && owner.IsSystemInOurBorderSystems(system);
         }
 
         /// <summary>
