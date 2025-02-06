@@ -13,6 +13,7 @@ namespace Ship_Game
 
         // The FIRST item (0) is always the Current research topic
         Array<string> Queue => Empire.data.ResearchQueue;
+        HashSet<string> ShipModulesInQueue => Empire.data.ShipModulesInResearchQueues;
 
         // Enumerates items in the back of the queue
         // This does not include the Current research topic
@@ -59,6 +60,7 @@ namespace Ship_Game
             MaxResearchPotential = 0;
             LeftoverResearch = 0;
             Queue.Clear();
+            ShipModulesInQueue.Clear();
         }
 
         public void Initialize()
@@ -96,6 +98,8 @@ namespace Ship_Game
             NetResearch          += researchFromAlliances;
             MaxResearchPotential += researchFromAlliances;
         }
+
+        public bool IsShipModuleQueuedForResearch(string shipModuleName) => ShipModulesInQueue.Contains(shipModuleName);
 
         float GetResearchFromAllies()
         {
@@ -220,15 +224,31 @@ namespace Ship_Game
         // @return TRUE if tech was added to the queue and wasn't already present
         public bool AddToQueue(string techUID)
         {
-            if (!Empire.TryGetTechEntry(techUID, out _))
+            if (!Empire.TryGetTechEntry(techUID, out TechEntry entry))
             {
                 Log.Error($"AddToResearchQueue: Unrecognized tech: {techUID}");
                 return false;
             }
+
+            var unlockableModules = entry.GetUnlockableModules(Empire);
+            foreach (var module in unlockableModules ) 
+                ShipModulesInQueue.Add(module.ModuleUID); 
+
             return Queue.AddUnique(techUID);
         }
 
-        public void RemoveFromQueue(string techUID) => Queue.Remove(techUID);
+        public void RemoveFromQueue(string techUID)
+        {
+            if (Empire.TryGetTechEntry(techUID, out TechEntry entry))
+            {
+                var unlockableModules = entry.GetUnlockableModules(Empire);
+                foreach (var module in unlockableModules)
+                    ShipModulesInQueue.Remove(module.ModuleUID);
+            }
+
+            Queue.Remove(techUID); 
+        }
+
         public int IndexInQueue(string techUID) => Queue.IndexOf(techUID);
         public bool IsQueued(string tech) => Queue.Contains(tech);
 
@@ -246,7 +266,7 @@ namespace Ship_Game
         {
             void RemoveLeadsToRecursive(string tech)
             {
-                Queue.Remove(tech);
+                RemoveFromQueue(tech);
                 foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(tech).LeadsTo)
                     RemoveLeadsToRecursive(dependent.UID);
             }

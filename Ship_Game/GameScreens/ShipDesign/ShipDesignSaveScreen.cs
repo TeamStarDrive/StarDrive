@@ -47,12 +47,14 @@ namespace Ship_Game
             readonly ShipHull Hull;
             readonly bool CanBuild;
             readonly bool CanModifyDesign;
-            public ShipDesignListItem(IShipDesign template, bool canBuild)
+            Color NameColor = Color.White;
+            public ShipDesignListItem(IShipDesign template, bool canBuild, Color color)
             {
                 ShipName = template.Name;
                 Design = template;
                 CanBuild = canBuild;
                 CanModifyDesign = Design.IsPlayerDesign;
+                NameColor = color;
             }
             public ShipDesignListItem(ShipHull hull)
             {
@@ -68,7 +70,7 @@ namespace Ship_Game
                 SubTexture icon = Design?.Icon ?? Hull?.Icon;
 
                 batch.Draw(icon, new Rectangle((int)X, (int)Y, 48, 48));
-                batch.DrawString(Fonts.Arial12Bold, ShipName, X+52, Y+4, CanBuild ? Color.White : Color.Gray);
+                batch.DrawString(Fonts.Arial12Bold, ShipName, X+52, Y+4, CanBuild ? NameColor : Color.Gray);
                 batch.DrawString(Fonts.Arial8Bold, $"{role} {reserved}", X+54, Y+19, CanModifyDesign ? Color.Green : Color.IndianRed);
                 base.Draw(batch, elapsed);
             }
@@ -123,7 +125,7 @@ namespace Ship_Game
                     .Filter(s => !s.Deleted && s.Name.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(shipList.Select(s => 
-                    new ShipDesignListItem(s, Screen.Player.CanBuildShip(s))));
+                    new ShipDesignListItem(s, Screen.Player.CanBuildShip(s), Screen.Player.EmpireColor)));
             }
         }
 

@@ -9,6 +9,8 @@ using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Universe;
 using Ship_Game.UI;
+using System.Diagnostics;
+using System.Web;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -18,11 +20,13 @@ namespace Ship_Game.GameScreens.ShipDesign
         UniverseState Universe => Screen.ParentUniverse.UState;
 
         bool ShowOnlyPlayerDesigns;
+        bool ShowEmpireLockedDesigns;
         readonly bool UnlockAllDesigns;
 
         UITextEntry Filter;
         string DefaultFilterText;
         PlayerDesignToggleButton PlayerDesignsToggle;
+        ToggleButton ShowMissingTechDesignToggleButton;
         ScrollList<DesignListItem> AvailableDesignsList;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
@@ -30,6 +34,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         IShipDesign SelectedWIP;
 
         Array<Ships.ShipDesign> WIPs = new Array<Ships.ShipDesign>();
+        string[] AlligibleEmpiresForLockedShipDisplay;
 
         public ShipDesignLoadScreen(ShipDesignScreen screen, bool unlockAll) : base(screen, toPause: null)
         {
@@ -38,6 +43,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
             UnlockAllDesigns = unlockAll;
+            PopulateAlligibleEmpiresForLockedShipDisplay();
+        }
+
+        void PopulateAlligibleEmpiresForLockedShipDisplay()
+        {
+            AlligibleEmpiresForLockedShipDisplay = Universe.MajorEmpires.FilterSelect
+                (e => e.isPlayer || e.data.AbsorbedBy == Screen.Player.data.Traits.Name, e => e.data.ShipType);
         }
 
         class DesignListItem : ScrollListItem<DesignListItem>
@@ -45,23 +57,40 @@ namespace Ship_Game.GameScreens.ShipDesign
             readonly ShipDesignLoadScreen Screen;
             public readonly IShipDesign Design;
             public readonly bool IsWIP;
-            
+            public readonly bool CanBeBuilt;
+            readonly string[] MissingTechs;
+            readonly string[] MissingTechsAlreadyIQueue;
+            readonly Empire Player;
+
             public DesignListItem(ShipDesignLoadScreen screen, string headerText) : base(headerText)
             {
                 Screen = screen;
+                Player = screen.Screen.Player;
+                MissingTechs = Array.Empty<string>();
+                MissingTechsAlreadyIQueue = Array.Empty<string>();
             }
 
             public DesignListItem(ShipDesignLoadScreen screen, IShipDesign design, bool isWIP)
             {
                 Screen = screen;
                 Design = design;
-                IsWIP = isWIP;
+                IsWIP  = isWIP;
+                Player = screen.Screen.Player;
+                CanBeBuilt = Player.WeCanBuildThis(design);
+                MissingTechs = Design.TechsNeeded.Filter(t => !Player.UnlockedTechs.Any(te => te.UID == t));
+                MissingTechsAlreadyIQueue = MissingTechs.Filter(Player.Research.IsQueued);
 
                 if (!isWIP)
                 {
                     if (!design.IsReadonlyDesign && !design.IsFromSave)
                         AddCancel(new(-30, 0), "Delete this Ship Design", 
                             () => PromptDeleteShip(design.Name));
+
+                    if (!CanBeBuilt && MissingTechs.Length > 0 && MissingTechsAlreadyIQueue.Length < MissingTechs.Length)
+                    {
+                        AddResearch(new(-50, 0), "Research This Ship", () => PromptResearchShip(design.Name, MissingTechs, MissingTechsAlreadyIQueue));
+                    }
+
                 }
                 else
                 {
@@ -71,6 +100,18 @@ namespace Ship_Game.GameScreens.ShipDesign
                     AddDelete(new(-30, 15), "Delete all related versions of this WIP Design",
                         () => PromptDeleteWIPVersions(design.Name));
                 }
+            }
+
+            void PromptResearchShip(string shipId, string[] missingTechs, string[] techsInQueue)
+            {
+                string techList = string.Join("\n", missingTechs.Filter(t => !techsInQueue.Contains(t)));
+                string inQueue = string.Join("\n", techsInQueue);
+                string alreadyInQueue = inQueue.IsEmpty() ? string.Empty : $"Already in Queue:\n{inQueue}\n\n";
+                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, $"Confirm Research Missing Techs ({missingTechs.Length}) for {shipId}:\n\n" +
+                    $"{alreadyInQueue} Will be added to Queue:\n{techList}")
+                {
+                    Accepted = () => Screen.ResearchShipTech(missingTechs)
+                });
             }
 
             void PromptDeleteShip(string shipId)
@@ -126,10 +167,8 @@ namespace Ship_Game.GameScreens.ShipDesign
                 {
                     var icon = new Vector2(X + 35f, Y);
                     batch.Draw(Design.Icon, new RectF(icon.X, icon.Y, 29, 30), Color.White);
-
-
                     var p = new Vector2(icon.X + 40f, icon.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, Design.Name, p, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, Design.Name, p, CanBeBuilt ? Screen.Screen.Player.EmpireColor : Color.Gray);
                     p.Y += Fonts.Arial12Bold.LineSpacing;
 
                     if (!IsWIP)
@@ -165,7 +204,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             AvailableDesignsList.OnClick       = OnDesignListItemClicked;
             AvailableDesignsList.OnDoubleClick = OnDesignListItemDoubleClicked;
 
-            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(designs.Right - 44, designs.Y-1)));
+            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(designs.Right - 65, designs.Y+1)));
             PlayerDesignsToggle.IsToggled = ShowOnlyPlayerDesigns = !Screen.Player.Universe.P.ShowAllDesigns;
             PlayerDesignsToggle.OnClick = p =>
             {
@@ -176,7 +215,19 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Filter.Text = DefaultFilterText;
                 LoadShipTemplates(filter:null);
             };
-            
+
+            ShowMissingTechDesignToggleButton = Add(new ToggleButton(new Vector2(designs.Right - 30, designs.Y + 1),  ToggleButtonStyle.LockedDesigns, "SelectionBox/icon_formation_stop"));
+            ShowMissingTechDesignToggleButton.IsToggled = ShowEmpireLockedDesigns;
+            ShowMissingTechDesignToggleButton.Tooltip = GameText.ShowEmpireLockedDesignsTip;
+            ShowMissingTechDesignToggleButton.OnClick = p =>
+            {
+                GameAudio.AcceptClick();
+                ShowEmpireLockedDesigns = !ShowEmpireLockedDesigns;
+                ShowMissingTechDesignToggleButton.IsToggled = ShowEmpireLockedDesigns;
+                Filter.Text = DefaultFilterText;
+                LoadShipTemplates(filter: null);
+            };
+
             DefaultFilterText = Localizer.Token(GameText.ChooseAShipToLoad);
             Filter = Add(new UITextEntry(X + 20, Y + 20, designs.Width - 120, Fonts.Arial20Bold, DefaultFilterText));
             Filter.AutoCaptureOnKeys = true;
@@ -225,23 +276,39 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void OnDesignListItemDoubleClicked(DesignListItem item)
         {
-            OnDesignListItemClicked(item);
-            LoadShipToScreen();
+            if (item.CanBeBuilt)
+            {
+                OnDesignListItemClicked(item);
+                LoadShipToScreen();
+            }
+            else
+            {
+                GameAudio.NegativeClick();
+            }
+        }
+
+        void ResearchShipTech(string[] neededTechs)
+        {
+            var techEntries = neededTechs.Select(t => Screen.Player.GetTechEntry(t)).Sorted(t => t.TechCost);
+            foreach (TechEntry enrty in techEntries)
+                Screen.Player.Research.AddTechToQueue(enrty.UID);
+
+            PostResearchOrDeleteDesign();
         }
 
         void DeleteAccepted(string shipToDelete)
         {
             ResourceManager.DeleteShip(Universe, shipToDelete);
-            PostDeleteDesign();
+            PostResearchOrDeleteDesign();
         }
 
         void DeleteWIPVersionAccepted(string wipToDelete)
         {
             ShipDesignWIP.RemoveRelatedWiPs(Universe, wipToDelete);
-            PostDeleteDesign();
+            PostResearchOrDeleteDesign();
         }
 
-        void PostDeleteDesign()
+        void PostResearchOrDeleteDesign()
         {
             GameAudio.EchoAffirmative();
             ShipInfoOverlay.Hide();
@@ -337,7 +404,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             return !design.Deleted
                 && !design.IsShipyard
-                && Screen.Player.WeCanBuildThis(design)
+                && (Screen.Player.WeCanBuildThis(design) || CanShowPlayerLockedDesign(design))
                 && (!design.IsSubspaceProjector || Screen.EnableDebugFeatures) // ignore subspace projectors (unless debug features are enabled)
                 && (!design.IsDysonSwarmController || Screen.EnableDebugFeatures) // ignore Dyson Swarm Sats (unless debug features are enabled)
                 && (!design.IsUnitTestShip || Screen.EnableDebugFeatures) // ignore unit testing ships (unless debug features are enabled)
@@ -350,9 +417,17 @@ namespace Ship_Game.GameScreens.ShipDesign
             ExitScreen();
         }
 
+        bool CanShowPlayerLockedDesign(IShipDesign design)
+        {
+            if (!ShowEmpireLockedDesigns || !Screen.Player.IsHullUnlocked(design.Hull))
+                return false;
+
+            return AlligibleEmpiresForLockedShipDisplay.Contains(design.ShipStyle);
+        }
+
         public class PlayerDesignToggleButton : ToggleButton
         {
-            public PlayerDesignToggleButton(Vector2 pos) : base(pos, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
+            public PlayerDesignToggleButton(Vector2 pos) :  base(pos, ToggleButtonStyle.PlayerDesigns, "SelectionBox/icon_PlayerDesigns")
             {
                 Tooltip = GameText.ToggleToDisplayOnlyPlayerdesigned;
             }

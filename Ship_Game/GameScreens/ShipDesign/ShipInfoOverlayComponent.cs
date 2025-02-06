@@ -106,7 +106,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             var shipOverlay = new Rectangle((int)Right - size - 24, (int)Y + 28, size, size);
             new Menu2(Rect).Draw(batch, elapsed); // background with menu2 borders
 
-            s.RenderOverlay(batch, shipOverlay, showModules:true, drawHullBackground:true, moduleHealthColor:false);
+            s.RenderOverlay(batch, shipOverlay, showModules:true, drawHullBackground:true, moduleHealthColor:false, markLockedModules: true);
             float mass          = s.Stats.GetMass(Player);
             float warpSpeed     = s.Stats.GetFTLSpeed(mass, Player);
             float subLightSpeed = s.Stats.GetSTLSpeed(mass, Player);

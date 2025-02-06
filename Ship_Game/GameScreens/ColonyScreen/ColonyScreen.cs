@@ -233,8 +233,8 @@ namespace Ship_Game
             if (p.OwnerIsPlayer || p.Universe.Debug)
                 BuildableList.OnDragOut = OnBuildableListDrag;
 
-            PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y-1),
-                                                       ToggleButtonStyle.Grid, "SelectionBox/icon_grid"));
+            PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y+1),
+                                                       ToggleButtonStyle.PlayerDesigns, "SelectionBox/icon_PlayerDesigns"));
             PlayerDesignsToggle.IsToggled = !Universe.P.ShowAllDesigns;
             PlayerDesignsToggle.Tooltip = GameText.ToggleToDisplayOnlyPlayerdesigned;
             PlayerDesignsToggle.OnClick = OnPlayerDesignsToggleClicked;
