@@ -15108,7 +15108,7 @@ BluePrintsOverView:
  ENG: "Colony Blueprints are mainly lists of buildings which can be uploaded for the Governor to follow. The Governor will prioritize these building if possible, and in case the Blueprints are Exclusive, the Governor will build only the specified buildings in the uploaded Blueprints. Blueprints can also be linked to other Blueprints so when they finished, new Blueprints are uploaded."                   
 BluePrintsEnableGovernorToLoad:
  Id: 6218
- ENG: "Enable a Governor in order upload Blueprints."                    
+ ENG: "Enable a Governor in order to upload Blueprints."                    
 LinkBlueprintsTip:
  Id: 6219
  ENG: "When linking Blueprints to these Blueprints, the linked Blueprints will be uploaded after the Governor completes these Bluerpints. You can link Blueprints after you save them."                     
@@ -15538,6 +15538,9 @@ DysonSwarmOverClockSwarm:
 DysonSwarmOverClockSwarmTip: 
  Id: 6363
  ENG: "Enable Swarm overclocking which will increase the production boost of the Dyson Swarm. The overclocked production will, however, speed up the Mineral Richness Decay of the Planets."
+ShowEmpireLockedDesignsTip: 
+ Id: 6364
+ ENG: "Show designs which are still locked due to lack of technology, for our available hulls" 
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

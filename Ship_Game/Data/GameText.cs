@@ -5619,7 +5619,8 @@ namespace Ship_Game
         DysonSwarmOverClockSwarm = 6362,
         /// <summary>Enable Swarm overclocking which will increase the production boost</summary>
         DysonSwarmOverClockSwarmTip = 6363,
-
+        /// <summary>Show designs which are still locked due</summary>
+        ShowEmpireLockedDesignsTip = 6364,
 
 
 

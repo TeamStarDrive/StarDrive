@@ -50,7 +50,6 @@ Globals:
   UseDestroyers: false
   EnableECM: false
   UseCombatRepair: false
-  UsePlanetaryProjection: false
   DisableRemnantStory: false
   DisablePirates: false
   AIUsesPlayerDesigns: true

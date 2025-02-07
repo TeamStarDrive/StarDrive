@@ -467,9 +467,6 @@ public partial class Planet
         float sensorRange = FindMaxBuilding(bb => bb.SensorRange)?.SensorRange ?? 0;
         SensorRange = sensorRange.LowerBound(Radius + 10_000) * (Owner?.data.SensorModifier ?? 1);
 
-        float projectorRange = FindMaxBuilding(bb => bb.ProjectorRange)?.ProjectorRange ?? 0;
-        ProjectorRange = projectorRange + Radius;
-
         InfraStructure = SumBuildings(bb => bb.Infrastructure).LowerBound(1);
 
         // Larger planets take more time to terraform, visa versa for smaller ones

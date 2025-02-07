@@ -40,6 +40,18 @@ namespace Ship_Game
             Press    = ResourceManager.Texture("SelectionBox/button_formation_pressed")
         };
 
+        public static readonly ToggleButtonStyle LockedDesigns = new ToggleButtonStyle
+        {
+            Width  = 20,
+            Height = 20,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "SelectionBox/",
+            Active   = ResourceManager.Texture("SelectionBox/button_LockedDesigns_active"),
+            Inactive = ResourceManager.Texture("SelectionBox/button_formation_inactive"),
+            Hover    = ResourceManager.Texture("SelectionBox/button_formation_hover"),
+            Press    = ResourceManager.Texture("SelectionBox/button_formation_pressed")
+        };
+
         public static readonly ToggleButtonStyle Grid = new ToggleButtonStyle
         {
             Width  = 34,
@@ -58,8 +70,8 @@ namespace Ship_Game
             Height = 20,
             ContentId = ResourceManager.ContentId,
             Folder   = "SelectionBox/",
-            Active   = ResourceManager.Texture("SelectionBox/PlayerDesignsPressed"),
-            Inactive = ResourceManager.Texture("SelectionBox/PlayerDesignsActive"),
+            Active   = ResourceManager.Texture("SelectionBox/button_PlayerDesigns_active"),
+            Inactive = ResourceManager.Texture("SelectionBox/button_grid_inactive"),
             Hover    = ResourceManager.Texture("SelectionBox/button_grid_hover"),
             Press    = ResourceManager.Texture("SelectionBox/button_grid_pressed")
         };
@@ -237,7 +249,7 @@ namespace Ship_Game
             {
                 batch.Draw(Style.Inactive, Rect, Color.White);
             }
-
+            
             if (IconTexture == null)
             {
                 batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, IsToggled ? Color.White : Color.Gray);
@@ -245,7 +257,7 @@ namespace Ship_Game
             else
             {
                 Rectangle iconRect = IconActive == null ? IconRect : Rect;
-                batch.Draw(IconActive ?? IconTexture, iconRect, Color.White);            
+                batch.Draw(IsToggled &&IconActive != null ? IconActive : IconTexture, iconRect, Color.White);            
             }
         }
 

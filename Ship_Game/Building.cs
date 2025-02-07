@@ -68,7 +68,6 @@ namespace Ship_Game
         [StarData] public float PlusProdPerColonist;
         [StarData] public float PlusFlatProductionAmount;
         [StarData] public float SensorRange;
-        [StarData] public float ProjectorRange;
         [StarData] public float ShipRepair; // Note that thee is a multiplier in globals.yamls for this
         [StarData] public BuildingCategory Category;
         [StarData] public bool IsPlayerAdded;

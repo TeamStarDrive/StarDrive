@@ -39,6 +39,7 @@ namespace Ship_Game
         public readonly Hoverable QueueRush;
         public readonly Hoverable QueueDelete;
         public readonly Hoverable Delete;
+        public readonly Hoverable ResearchTech;
 
         public ScrollListStyleTextures(string folder)
         {
@@ -53,6 +54,7 @@ namespace Ship_Game
             QueueRush      = new Hoverable("NewUI/icon_queue_rushconstruction");
             QueueDelete    = new Hoverable("NewUI/icon_queue_delete");
             Delete         = new Hoverable("NewUI/icon_clear_filter");
+            ResearchTech   = new Hoverable("NewUI/icon_research_ship");
         }
 
         static int ContentId;

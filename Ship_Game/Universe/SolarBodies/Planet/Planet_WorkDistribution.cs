@@ -97,9 +97,15 @@ namespace Ship_Game
             if (NonCybernetic)
             {
                 if (ConstructionQueue.Count > 0)
-                    Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
+                {
+                    Prod.Percent = CType is ColonyType.Agricultural && Storage.FoodRatio < percentFood * 0.9f 
+                        ? remainingWork 
+                        : (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
+                }
                 else
+                {
                     Prod.Percent = remainingWork - MinimumResearchNoQueue(remainingWork, percentProd);
+                }
             }
 
             Res.AutoBalanceWorkers(); // rest goes to research

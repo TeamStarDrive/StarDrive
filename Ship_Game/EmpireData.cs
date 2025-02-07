@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using SDGraphics;
@@ -186,6 +187,7 @@ namespace Ship_Game
         [StarData] public bool RebellionLaunched;
         [StarData] public string MusicCue;
         [StarData] public Array<string> ResearchQueue = new();
+        [StarData] public HashSet<string> ShipModulesInResearchQueues = new();
         [StarData] public Array<Mole> MoleList = new(); // do not interact this with directly. Use PlantMole or RemoveMole methods
 
         // NOTE: This is currently the main unique identifier?

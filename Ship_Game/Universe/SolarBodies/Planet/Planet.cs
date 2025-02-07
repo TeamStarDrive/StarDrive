@@ -72,7 +72,6 @@ namespace Ship_Game
 
         [StarData] public Mineable Mining;
         [StarData] public float SensorRange { get; private set; }
-        public float ProjectorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
@@ -1125,18 +1124,6 @@ namespace Ship_Game
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
             Money.Update();
-        }
-
-        public float GetProjectorRadius(Empire owner)
-        {
-            return owner?.GetProjectorRadius() + 10000f * PopulationBillion ?? 0;
-        }
-
-        public float GetProjectorRange()
-        {
-            if (GlobalStats.Defaults.UsePlanetaryProjection)
-                return ProjectorRange;
-            return GetProjectorRadius(Owner);
         }
 
         public void UpdateShipyards()

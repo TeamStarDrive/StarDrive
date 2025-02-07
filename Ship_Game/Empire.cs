@@ -601,11 +601,10 @@ namespace Ship_Game
             planet.SetPrioritizedPort(false);
             OwnedPlanets.Remove(planet);
             planet.SetSpecializedTradeHub(false);
-            Universe.OnPlanetOwnerRemoved(this, planet);
-
             if (!planet.System.HasPlanetsOwnedBy(this)) // system no more in owned planets?
                 OwnedSolarSystems.Remove(planet.System);
 
+            Universe.OnPlanetOwnerRemoved(this, planet);
             if (planet.System.EmpireOwnsDysonSwarm(this) && !planet.System.HasPlanetsOwnedBy(this))
                 planet.System.KillDysonSwarm();
 
@@ -649,6 +648,7 @@ namespace Ship_Game
                 throw new ArgumentNullException(nameof(planet.System));
 
             OwnedPlanets.Add(planet);
+            OwnedSolarSystems.AddUniqueRef(planet.System);
             planet.RemoveBlueprints();
             Universe.OnPlanetOwnerAdded(this, planet);
             if (planet.System.GetPotentialOpsOwner(out Empire potentialMiningOpsOwner))
@@ -657,7 +657,6 @@ namespace Ship_Game
                     mineable.Mining.ChangeOwnershipIfNeeded(potentialMiningOpsOwner);
             }
 
-            OwnedSolarSystems.AddUniqueRef(planet.System);
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
             planet.SetDysonSwarmWeapon(loadWeapon: planet.System.HasDysonSwarm && planet.Owner == planet.System.DysonSwarm.Owner);
@@ -956,6 +955,7 @@ namespace Ship_Game
                 case TechUnlockType.Event     when techEntry.Unlock(this):
                 case TechUnlockType.Diplomacy when techEntry.UnlockFromDiplomacy(this, otherEmpire):
                 case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire):
+                    AddToShipTechLists(techEntry);
                     UpdateForNewTech();
                     TriggerRemoveGovernorQueuedBuildingsTechUnlock(techEntry);
                     break;
