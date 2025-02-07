@@ -360,7 +360,8 @@ namespace Ship_Game.Ships
         public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, 
                                   bool showModules, 
                                   bool drawHullBackground = false,
-                                  bool moduleHealthColor = true)
+                                  bool moduleHealthColor = true,
+                                  bool markLockedModules = false)
         {
             bool drawIconOnly = !showModules || ModuleSlotList.Length == 0;
             if (drawIconOnly) // draw ship icon plus shields
@@ -428,6 +429,13 @@ namespace Ship_Game.Ships
                     if (!drawHullBackground)
                         batch.FillRectangle(rect, new Color(40, 40, 40));
                     batch.Draw(tex, rect, Color.White);
+                }
+
+                if (markLockedModules && !Loyalty.IsModuleUnlocked(m.UID))
+                {
+                    batch.FillRectangle(rect,Color.Black.Alpha(0.5f));
+                    batch.DrawRectangle(rect, Loyalty.Research.IsShipModuleQueuedForResearch(m.UID) 
+                        ? Color.CornflowerBlue : Color.Red, 0.5f);
                 }
             }
         }

@@ -955,6 +955,7 @@ namespace Ship_Game
                 case TechUnlockType.Event     when techEntry.Unlock(this):
                 case TechUnlockType.Diplomacy when techEntry.UnlockFromDiplomacy(this, otherEmpire):
                 case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire):
+                    AddToShipTechLists(techEntry);
                     UpdateForNewTech();
                     TriggerRemoveGovernorQueuedBuildingsTechUnlock(techEntry);
                     break;
