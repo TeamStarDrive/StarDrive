@@ -104,14 +104,26 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             void PromptResearchShip(string shipId, string[] missingTechs, string[] techsInQueue)
             {
-                string techList = string.Join("\n", missingTechs.Filter(t => !techsInQueue.Contains(t)));
-                string inQueue = string.Join("\n", techsInQueue);
+                string techList = string.Join("\n", EnrichTechListWithTranslatedNames(missingTechs.Filter(t => !techsInQueue.Contains(t))));
+                string inQueue = string.Join("\n", EnrichTechListWithTranslatedNames(techsInQueue));
                 string alreadyInQueue = inQueue.IsEmpty() ? string.Empty : $"Already in Queue:\n{inQueue}\n\n";
                 Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, $"Confirm Research Missing Techs ({missingTechs.Length}) for {shipId}:\n\n" +
                     $"{alreadyInQueue} Will be added to Queue:\n{techList}")
                 {
                     Accepted = () => Screen.ResearchShipTech(missingTechs)
                 });
+
+                Array<string> EnrichTechListWithTranslatedNames(string[] techList)
+                {
+                    Array<string> translatedTechs = new Array<string>();
+                    foreach (string techName in techList)
+                    {
+                        if (Player.TryGetTechEntry(techName, out TechEntry tech))
+                            translatedTechs.Add(tech.Tech.Name.Text);
+                    }
+
+                    return translatedTechs;
+                }
             }
 
             void PromptDeleteShip(string shipId)
@@ -119,7 +131,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (Screen.Universe.Ships.Any(s => s.Name == shipId))
                 {
                     GameAudio.NegativeClick();
-                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, $"{shipId} currently exist the universe." +
+                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, $"{shipId} currently exists the universe." +
                                                                        " You cannot delete a design with this name.",
                                                                        MessageBoxButtons.Ok));
                     return;
@@ -131,14 +143,14 @@ namespace Ship_Game.GameScreens.ShipDesign
                     if (playerPlanets.NotEmpty())
                     {
                         Screen.ScreenManager.AddScreen(new MessageBoxScreen
-                            (Screen, $"{shipId} currently exist the your planets' build queue." +
+                            (Screen, $"{shipId} currently exists the your planets' build queue." +
                                      $" You cannot delete this design name.\n Related planets: {playerPlanets}.",
                                      MessageBoxButtons.Ok));
                     }
                     else
                     {
                         Screen.ScreenManager.AddScreen(new MessageBoxScreen
-                            (Screen, $"{shipId} currently exist the universe (maybe by another empire). " +
+                            (Screen, $"{shipId} currently exists the universe (maybe by another empire). " +
                                     "You cannot delete this design name.", MessageBoxButtons.Ok));
                     }
 
