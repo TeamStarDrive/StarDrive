@@ -11,6 +11,7 @@ HangarDesignation=General
 IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
+FixedUpkeep=20
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=AncientArmorV2_3x3;AncientArmorV2_1x1;AdvancedCellMed;REAegis;AdvancedCellSmall;PhasorTurret2x2;AncientShield2kw;ArmoredMissile;Pulse Capacitor;OrdnanceLocker;PolaronTurret3x3;BosonTransmiter;MarineBarracks8x4;RemnantPort;AncientShield_3x3;OrdnanceLockerSmall;LaserCannon;PlasmaThrower;Phalanx PD;CanopyShield;Main Engineering;PolaronTurret4x4;Amplifier;AncientArmorV2_2x2;Fabricator;RepairDrone;CIC;AntiMatterReactor;AdvAmplifier;EMPTurret3x3;PowerConduit;PhotonTurret3x3;Internal Bulkhead;Crystal Armor Small;SubspaceSensors;LargeOrdStorage
 Modules=791

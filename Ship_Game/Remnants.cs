@@ -619,6 +619,14 @@ namespace Ship_Game
                                max: str * effectiveLevel / MaxLevel);
         }
 
+        public bool HostileTargetingSystem(SolarSystem solarSystem)
+        {
+            if (Story == RemnantStory.AncientHelpers)
+                return false; 
+
+            return Owner.AnyActiveFleetsTargetingSystem(solarSystem);
+        }
+
         public void CallGuardians(Ship portal) // One guarding from each relevant system
         {
             foreach (SolarSystem system in portal.Universe.Systems)

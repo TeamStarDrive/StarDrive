@@ -12,6 +12,7 @@ HangarDesignation=General
 IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
+FixedUpkeep=0.05
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorMed;PlaSteelArmorSmall;FusionTurret2x2;RemnantSmallFuelCell;RemnantDrisruptor_2x2;AncientShield2kw;EnergyPDHeavy;EnergyPDRapid;IonCannon1x3;AncientReactorMed;Reinforced Bulkhead;MarineBarracks2x2;RemnantSmallReactor;Bridge;RemnantEngine1;RemnantEngine2
 Modules=78

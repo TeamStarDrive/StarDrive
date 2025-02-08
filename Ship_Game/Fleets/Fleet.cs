@@ -969,7 +969,7 @@ namespace Ship_Game.Fleets
             bool combatEffective   = StillCombatEffective(task);
             bool remnantsTargeting = !Owner.WeAreRemnants
                 && CommandShip?.System == task.TargetPlanet.System
-                && Owner.Universe.Remnants.AnyActiveFleetsTargetingSystem(task.TargetPlanet.System);
+                && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
 
             EndInvalidTask(remnantsTargeting 
                            || !MajorityTroopShipsAreInWell(task.TargetPlanet) && (!invasionEffective || !combatEffective));
@@ -1610,7 +1610,7 @@ namespace Ship_Game.Fleets
 
             bool remnantsTargeting = !Owner.WeAreRemnants
                 && CommandShip?.System == task.TargetPlanet.System
-                && Owner.Universe.Remnants.AnyActiveFleetsTargetingSystem(task.TargetPlanet.System);
+                && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
 
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
                 return;

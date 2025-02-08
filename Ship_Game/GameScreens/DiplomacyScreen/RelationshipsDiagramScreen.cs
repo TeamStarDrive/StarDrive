@@ -157,7 +157,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         void DrawTreatyPeerLines(SpriteBatch batch, Peer us, Peer peer)
         {
             Relationship rel = us.Empire.GetRelationsOrNull(peer.Empire);
-            if (rel == null || rel.AtWar || rel.Treaty_Alliance)
+            if (rel == null)
                 return;
 
             if (rel.Treaty_Peace)
@@ -176,13 +176,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 else if (rel.Treaty_NAPact)
                     DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorNap);
             }
-            else
-            {
-                if (rel.AtWar)
-                    DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorWar, thickness: 3);
-                else if (rel.Treaty_Alliance)
-                    DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorAlly, thickness: 3);
-            }
+
+            if (rel.AtWar)
+                DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorWar, thickness: 3);
+            else if (rel.Treaty_Alliance)
+                DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorAlly, thickness: 3);
+            
         }
 
         void DrawPeerLine(SpriteBatch batch, Vector2 pos1, Vector2 pos2, Color color, int thickness = 1)

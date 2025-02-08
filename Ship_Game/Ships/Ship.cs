@@ -65,7 +65,7 @@ namespace Ship_Game.Ships
         public bool EnginesKnockedOut;
         public float InhibitionRadius;
         public bool IsPlatform;
-        public bool IsGuardian; // Remnant Guardian created at game start
+        public bool IsGuardian; // All Remnant ships are guardians
         SceneObject ShipSO;
         public bool ManualHangarOverride;
         [StarData] public Ship Mothership;
