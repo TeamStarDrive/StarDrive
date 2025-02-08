@@ -176,12 +176,22 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 else if (rel.Treaty_NAPact)
                     DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorNap);
             }
+<<<<<<< HEAD
 
             if (rel.AtWar)
                 DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorWar, thickness: 3);
             else if (rel.Treaty_Alliance)
                 DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorAlly, thickness: 3);
             
+=======
+            else
+            {
+                if (rel.AtWar)
+                    DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorWar, thickness: 3);
+                else if (rel.Treaty_Alliance)
+                    DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorAlly, thickness: 3);
+            }
+>>>>>>> 90cccf444 (Fix: Always display trade lines in relationship  cross reference if the trade treaties checkbox is checked.)
         }
 
         void DrawPeerLine(SpriteBatch batch, Vector2 pos1, Vector2 pos2, Color color, int thickness = 1)
