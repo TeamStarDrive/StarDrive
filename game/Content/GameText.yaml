@@ -12303,8 +12303,8 @@ EmpireRelationships:
  UKR: "Перехресні посилання на імперські відносини"
 ViewWarsOrAlliancesName:
  Id: 4350
- ENG: "View Wars or Alliances"
- UKR: "Переглянути війни або альянси"
+ ENG: "View Only Wars or Alliances"
+ UKR: "Перегляньте лише війни чи союзи"
 ViewWarsOrAlliancesTip:
  Id: 4351
  ENG: "Filters out non War or Alliances links"
