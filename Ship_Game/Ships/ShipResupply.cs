@@ -85,7 +85,7 @@ namespace Ship_Game.Ships
                 || Ship.IsSingleTroopShip
                 || Ship.IsSupplyShuttle
                 || Ship.Carrier.HasSupplyShuttlesInSpace
-                || (Ship.AI.HasPriorityOrder || Ship.AI.HasPriorityTarget) && Ship.AI.State != AIState.Bombard && !Ship.Resupplying)
+                || Ship.AI.HasPriorityOrder && Ship.AI.State != AIState.Bombard && !Ship.Resupplying)
             {
                 return ResupplyReason.NotNeeded;
             }
@@ -100,7 +100,7 @@ namespace Ship_Game.Ships
 
             if (ResupplyNeededLowOrdnance())
             {
-                if (InCombat)
+                if (InCombat || Ship.OrdnancePercent < OrdnanceThresholdCombat)
                     return ResupplyReason.LowOrdnanceCombat;
 
                 return Ship.IsPlatformOrStation ? ResupplyReason.RequestResupplyForOrbital 
