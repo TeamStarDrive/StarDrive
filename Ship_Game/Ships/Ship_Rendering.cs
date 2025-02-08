@@ -297,7 +297,7 @@ namespace Ship_Game.Ships
             }
             else if (viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
-                if  (!HasSO)
+                if (!HasSO)
                     DrawTactical(us, pos, radius, radius, radius*1.8f);
 
                 DrawStatusIcons(us, radius, pos);
