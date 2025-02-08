@@ -135,19 +135,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         void DrawRelations(SpriteBatch batch)
         {
             Peer[] knownPeers = Peers.Filter(p => p.IntelLevel > 0);
-            if (!ViewOnlyWarsOrAllies)
-            {
-                foreach (Peer us in knownPeers)
-                    foreach (Peer peer in Peers)
-                        if (ShowPeer(us.Empire, peer.Empire)) 
-                            DrawPeerLinesNoWarOrAlliance(batch, us, peer);
-            }
-
-            // Drawing War/Alliance on top of all other lines
             foreach (Peer us in knownPeers)
                 foreach (Peer peer in Peers)
-                    if (ShowPeer(us.Empire, peer.Empire))
-                        DrawPeerLinesWarOrAlliance(batch, us, peer);
+                    if (ShowPeer(us.Empire, peer.Empire)) 
+                        DrawTreatyPeerLines(batch, us, peer);
 
             foreach (Peer empire in Peers)
             {
@@ -163,10 +154,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                               && (SelectedEmpire == null || SelectedEmpire == us || SelectedEmpire == peer);
         }
 
-        void DrawPeerLinesNoWarOrAlliance(SpriteBatch batch, Peer us, Peer peer)
+        void DrawTreatyPeerLines(SpriteBatch batch, Peer us, Peer peer)
         {
             Relationship rel = us.Empire.GetRelationsOrNull(peer.Empire);
-            if (rel == null || rel.AtWar || rel.Treaty_Alliance)
+            if (rel == null)
                 return;
 
             if (rel.Treaty_Peace)
@@ -175,25 +166,22 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 return;
             }
 
-            if (rel.Treaty_OpenBorders)
-                DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorBorders);
-            else if (rel.Treaty_NAPact)
-                DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorNap);
-
             if (ViewTradeTreaties && rel.Treaty_Trade)
                 DrawPeerLine(batch, us.TradePos, peer.TradePos, ColorTrade);
-        }
 
-        void DrawPeerLinesWarOrAlliance(SpriteBatch batch, Peer source, Peer peer)
-        {
-            Relationship rel = source.Empire.GetRelationsOrNull(peer.Empire);
-            if (rel == null)
-                return;
+            if (!ViewOnlyWarsOrAllies)
+            {
+                if (rel.Treaty_OpenBorders)
+                    DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorBorders);
+                else if (rel.Treaty_NAPact)
+                    DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorNap);
+            }
 
             if (rel.AtWar)
-                DrawPeerLine(batch, source.LinkPos, peer.LinkPos, ColorWar, thickness: 3);
+                DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorWar, thickness: 3);
             else if (rel.Treaty_Alliance)
-                DrawPeerLine(batch, source.LinkPos, peer.LinkPos, ColorAlly, thickness: 3);
+                DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorAlly, thickness: 3);
+            
         }
 
         void DrawPeerLine(SpriteBatch batch, Vector2 pos1, Vector2 pos2, Color color, int thickness = 1)

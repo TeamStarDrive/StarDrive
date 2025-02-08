@@ -72,7 +72,7 @@ namespace Ship_Game
 
         [StarData] public Mineable Mining;
         [StarData] public float SensorRange { get; private set; }
-        public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
+        public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is no owner for the planet
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
         public float SpaceDefMaintenance { get; private set; }
@@ -597,7 +597,7 @@ namespace Ship_Game
                 PlanetUpdatePerTurnTimer = Universe.P.TurnTimer;
                 UpdateBaseFertility();
                 UpdateDynamicBuildings();
-                Mend(((int)InfraStructure + Level).Clamped(1, 10));
+                Mend(SpaceCombatNearPlanet || RecentCombat ? 1 : (int)(InfraStructure + Level).Clamped(1, 10));
             }
 
             Troops.Update(timeStep);
@@ -883,6 +883,7 @@ namespace Ship_Game
             if (ShieldStrengthCurrent == 0 && Shield != null)
                 Shield = null;
         }
+
         public bool CanRepairOrHeal()
         {
             return BombingIntensity == 0 || Random.RollDice(100 - BombingIntensity);

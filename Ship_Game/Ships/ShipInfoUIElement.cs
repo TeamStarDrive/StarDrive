@@ -385,10 +385,10 @@ namespace Ship_Game.Ships
                         }
                         break;
                     case ResupplyReason.LowOrdnanceNonCombat:
-                    case ResupplyReason.LowOrdnanceCombat:      text = "Ammo Reserves Critical";           break;
-                    case ResupplyReason.NoCommand:              text = "No Command, Cannot Attack";        break;
-                    case ResupplyReason.FighterReactorsDamaged: text = "Reactors Damaged";                 break;
-                    case ResupplyReason.LowHealth:              text = "Structural Integrity Compromised"; break;
+                    case ResupplyReason.LowOrdnanceCombatOrDepleted: text = "Ammo Reserves Critical";           break;
+                    case ResupplyReason.NoCommand:                   text = "No Command, Cannot Attack";        break;
+                    case ResupplyReason.FighterReactorsDamaged:      text = "Reactors Damaged";                 break;
+                    case ResupplyReason.LowHealth:                   text = "Structural Integrity Compromised"; break;
                     case ResupplyReason.LowTroops:
                         text = "Need Troops";
                         int numTroopRebasing = ship.NumTroopsRebasingHere;

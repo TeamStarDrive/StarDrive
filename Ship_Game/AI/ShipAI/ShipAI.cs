@@ -367,7 +367,7 @@ namespace Ship_Game.AI
             Planet nearestRallyPoint = null;
             switch (resupplyReason)
             {
-                case ResupplyReason.LowOrdnanceCombat:
+                case ResupplyReason.LowOrdnanceCombatOrDepleted:
                 case ResupplyReason.LowOrdnanceNonCombat:
                     Ship supplyShip = NearBySupplyShip;
                     if (supplyShip != null && State != AIState.ResupplyEscort)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
@@ -33,17 +34,17 @@ namespace Ship_Game
             Espionage espionage = Owner.GetEspionage(Them);
             var potentials = Them.GetPlanets().Sorted(p => p.PopulationBillion).TakeItems(5);
             Planet targetPlanet = Them.Random.Item(potentials);
-            int numRebels = 5 + targetPlanet.GetDefendingTroopCount() + targetPlanet.NumMilitaryBuildings;
+            int numRebels = (targetPlanet.GetDefendingTroopCount() + targetPlanet.NumMilitaryBuildings - 2).LowerBound(2);
             float takeoverOrbitalChance = 50;
 
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    numRebels += 7;
+                    numRebels += 5;
                     takeoverOrbitalChance = 100;
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    numRebels += 3;
+                    numRebels += 2;
                     takeoverOrbitalChance = 75;
                     break;
                 case InfiltrationOpsResult.Success:

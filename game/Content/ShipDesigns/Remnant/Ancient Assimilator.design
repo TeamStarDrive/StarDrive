@@ -12,6 +12,7 @@ HangarDesignation=General
 IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
+FixedUpkeep=1
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=AncientArmor_3x3;AncientArmor_2x2;Sensor1x2;AncientArmor_1x1;LaserCannon;EnergyPDRapid;MarineBarracks6x3;EnergyPDHeavy;TroopAssaultBay;AdvAmplifier;EMPTurret3x3;AncientShield_3x3;Amplifier;Bridge;SiphonBeam2x3;Main Engineering;ThalaronBeam2x3;AncientReactorMed;AncientShield2kw;RemnantSmallReactor;Reinforced Bulkhead;TractorBeamTurret2x2;Internal Bulkhead;RemnantEngine1;RemnantEngine3
 Modules=131
