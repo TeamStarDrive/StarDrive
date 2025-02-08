@@ -216,7 +216,7 @@ namespace UnitTests.Ships
 
             // NOTE: This requires Carrier to have low ordnance production capability
             ResupplyReason resupplyReason = Carrier.Supply.Resupply();
-            AssertEqual(resupplyReason, ResupplyReason.LowOrdnanceNonCombat, "Carrier should want to resupply non combat");
+            AssertEqual(resupplyReason, ResupplyReason.LowOrdnanceCombatOrDepleted, "Carrier should want to resupply depleted");
 
             Carrier.ChangeOrdnance(Carrier.OrdinanceMax); // add all ordnance
             AssertEqual(Carrier.Ordinance, Carrier.OrdinanceMax, "Carrier ordnance storage should be full");

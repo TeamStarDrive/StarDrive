@@ -101,7 +101,7 @@ namespace Ship_Game.Ships
             if (ResupplyNeededLowOrdnance())
             {
                 if (InCombat || Ship.OrdnancePercent < OrdnanceThresholdCombat)
-                    return ResupplyReason.LowOrdnanceCombat;
+                    return ResupplyReason.LowOrdnanceCombatOrDepleted;
 
                 return Ship.IsPlatformOrStation ? ResupplyReason.RequestResupplyForOrbital 
                                                 : ResupplyReason.LowOrdnanceNonCombat;
@@ -317,7 +317,7 @@ namespace Ship_Game.Ships
     {
         NotNeeded,
         LowHealth,
-        LowOrdnanceCombat,
+        LowOrdnanceCombatOrDepleted,
         LowOrdnanceNonCombat,
         LowTroops,
         FighterReactorsDamaged,

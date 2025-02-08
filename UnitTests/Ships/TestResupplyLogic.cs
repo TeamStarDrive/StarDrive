@@ -49,7 +49,7 @@ namespace UnitTests.Ships
 
             OurShip.ChangeOrdnance(-OurShip.OrdinanceMax);
             resupplyReason = OurShip.Supply.Resupply();
-            Assert.IsTrue(resupplyReason == ResupplyReason.LowOrdnanceNonCombat, "Ship should need resupply for low ordnance not in combat");
+            Assert.IsTrue(resupplyReason == ResupplyReason.LowOrdnanceCombatOrDepleted, "Ship should need resupply for low ordnance depleted");
             OurShip.AI.ProcessResupply(resupplyReason);
             Assert.IsTrue(OurShip.AI.IgnoreCombat, "Ship should ignore combat after processing resupply");
             Assert.IsTrue(OurShip.AI.HasPriorityOrder, "Ship should have a priority order when resupplying");
@@ -88,7 +88,7 @@ namespace UnitTests.Ships
 
             OurShip.ChangeOrdnance(-2); // Now go below he combat threshold
             resupplyReason = OurShip.Supply.Resupply();
-            Assert.IsTrue(resupplyReason == ResupplyReason.LowOrdnanceCombat, "Ship should need resupply if ordnance below combat threshold");
+            Assert.IsTrue(resupplyReason == ResupplyReason.LowOrdnanceCombatOrDepleted, "Ship should need resupply if ordnance below combat threshold");
         }
 
         [TestMethod]
