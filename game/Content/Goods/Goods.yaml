@@ -55,7 +55,7 @@ Good:
   IsGasGiantMineable: true  
   ExoticBonusType: Credits  
   MaxBonus: 0.5
-  ConsumptionMultiplier: 0.03
+  ConsumptionMultiplier: 0.12
 Good:
   UID: Fortifume
   RefiningRatio: 0.5
