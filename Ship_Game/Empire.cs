@@ -90,7 +90,6 @@ namespace Ship_Game
 
         [StarData] public bool isPlayer;
         [StarData] public bool IsDefeated { get; private set; }
-
         public float TotalShipMaintenance { get; private set; }
         public float TotalWarShipMaintenance { get; private set; }
         public float TotalCivShipMaintenance { get; private set; }
@@ -99,6 +98,7 @@ namespace Ship_Game
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
         public float NetPlanetIncomes { get; private set; }
+        public float ExoticCreditsBonus { get; private set; } = 1;
         public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
         public float TroopInSpaceFoodNeeds { get; private set; }
         public float TotalFoodPerColonist { get; private set; }
@@ -1345,20 +1345,9 @@ namespace Ship_Game
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             UpdatePlanetStorageStats();
-            float incomeFromExoticBonus = GetIncomeFromExoticBonus();
-            float remainingMoney = MoneyAfterLeech(NetIncome + incomeFromExoticBonus);
             EspionageCostLastTurn = LegacyEspionageEnabled ? 0 : GetEspionageCost();
+            float remainingMoney = MoneyAfterLeech(NetIncome);
             AddMoney(remainingMoney - EspionageCostLastTurn);
-        }
-
-        float GetIncomeFromExoticBonus()
-        {
-            float exoticBonus = GetStaticExoticBonusMuliplier(ExoticBonusType.Credits);
-            exoticBonus = NetPlanetIncomes < 0 ? 1 / exoticBonus : exoticBonus;
-            float planetIncomeWithBonus = NetPlanetIncomes > 0 
-                ? NetPlanetIncomes*exoticBonus - NetPlanetIncomes
-                : NetPlanetIncomes * exoticBonus;
-            return planetIncomeWithBonus;
         }
 
         float MoneyAfterLeech(float money)
@@ -1396,6 +1385,7 @@ namespace Ship_Game
             PotentialIncome               = 0;
             TotalFoodPerColonist          = 0;
 
+            ExoticCreditsBonus = GetStaticExoticBonusMuliplier(ExoticBonusType.Credits);
             for (int i = 0; i < OwnedPlanets.Count; i++)
             {
                 Planet p = OwnedPlanets[i];

@@ -181,7 +181,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorWar, thickness: 3);
             else if (rel.Treaty_Alliance)
                 DrawPeerLine(batch, us.LinkPos, peer.LinkPos, ColorAlly, thickness: 3);
-            
         }
 
         void DrawPeerLine(SpriteBatch batch, Vector2 pos1, Vector2 pos2, Color color, int thickness = 1)

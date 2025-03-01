@@ -35,7 +35,7 @@ namespace Ship_Game.Universe
             WorldOrigin = -(universeWidth/2);
 
             CellSize = (float)Math.Floor(projectorRadius * 1.5f * 1000) / 1000;
-            Size = (int)Math.Ceiling(WorldSize / CellSize);
+            Size = (int)Math.Ceiling(WorldSize / CellSize) + 1;
 
             Clear();
         }

@@ -327,7 +327,8 @@ namespace Ship_Game.Universe.SolarBodies
             TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
 
-            GrossRevenue = ((Planet.PopulationBillion * IncomePerColonist) + IncomeFromBuildings) * TaxRate;
+            float grossRevenue = ((Planet.PopulationBillion * IncomePerColonist) + IncomeFromBuildings) * TaxRate;
+            GrossRevenue = grossRevenue > 0 ? grossRevenue * Planet.Owner.ExoticCreditsBonus : grossRevenue;
             NetRevenue   = GrossRevenue - Maintenance;
 
             // Needed for empire treasury goal
