@@ -1777,7 +1777,7 @@
       <Version>2.2.1</Version>
     </PackageReference>
     <PackageReference Include="Sentry">
-      <Version>3.29.1</Version>
+      <Version>3.41.4</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.Metadata">
       <Version>9.0.2</Version>
