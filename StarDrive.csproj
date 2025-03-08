@@ -1786,7 +1786,7 @@
       <Version>6.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Json">
-      <Version>8.0.4</Version>
+      <Version>9.0.2</Version>
     </PackageReference>
     <PackageReference Include="WiX">
       <Version>3.14.1</Version>
