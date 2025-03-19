@@ -12962,7 +12962,7 @@ FreightersUnderConstruction:
  Id: 4514 
  ENG: "Under Construction:"     
  UKR: "Будується"
-BuildFrieghter: 
+BuildFreighter: 
  Id: 4515 
  ENG: "Build Freighter"      
  UKR: "Збудувати транспорт"

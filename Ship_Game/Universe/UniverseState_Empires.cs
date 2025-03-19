@@ -17,8 +17,6 @@ namespace Ship_Game.Universe;
 
 public partial class UniverseState
 {
-    [StarData] public int NumPirateFactions { get; private set; }
-
     public IReadOnlyList<Empire> Empires => EmpireList;
     public int NumEmpires => EmpireList.Count;
 
@@ -149,11 +147,6 @@ public partial class UniverseState
         }
 
         return e;
-    }
-
-    public void UpdateNumPirateFactions()
-    {
-        NumPirateFactions = Factions.Count(f => f.WeArePirates && !f.IsDefeated);
     }
 
     void ClearEmpires()

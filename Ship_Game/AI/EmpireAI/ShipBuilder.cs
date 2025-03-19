@@ -267,25 +267,27 @@ namespace Ship_Game.AI
             }
         }
 
-        static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
+        static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig, int levelsOfPiratesAtWarWithUs)
         {
             float maxKFTL  = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
             float maxDSTL  = ShipStats.GetSTLSpeed(s, empire) * 0.1f;
             float cargo    = ShipStats.GetCargoSpace(s.BaseCargoSpace, s);
             float turnRate = ShipStats.GetTurnRadsPerSec(s).ToDegrees();
             float fastVsBigWeight = fastVsBig * 10;
-            float costWeight     = s.GetCost(empire) * empire.Universe.ProductionPace * empire.Universe.NumPirateFactions;
-            float movementWeight = (maxKFTL + maxDSTL + turnRate) * fastVsBigWeight;
-            float cargoWeight    = cargo * (10 - fastVsBigWeight);
-            float score          = movementWeight + cargoWeight - costWeight;
+            float costWeight      = s.GetCost(empire) * empire.Universe.ProductionPace * (1 + levelsOfPiratesAtWarWithUs*0.1f);
+            float movementWeight  = (maxKFTL + maxDSTL + turnRate) * fastVsBigWeight;
+            float cargoWeight     = cargo * (10 - fastVsBigWeight);
+            float score           = movementWeight + cargoWeight - costWeight;
 
-            // For faster , cheaper ships vs big and maybe slower ships
+            // For faster, cheaper ships vs big and maybe slower ships
             return score;
         }
 
 
-        public static IShipDesign PickFreighter(Empire empire, float fastVsBig)
+        public static IShipDesign PickFreighter(Empire empire)
         {
+            float fastVsBig = empire.FastVsBigFreighterRatio;
+            int levelsOfPiratesAtWarWithUs = empire.TotalLevelsOfPirateFactionsAtWar;
             if (empire.isPlayer 
                 && !empire.Universe.Player.AutoPickBestFreighter 
                 && ResourceManager.Ships.GetDesign(empire.data.CurrentAutoFreighter, out IShipDesign freighter))
@@ -303,12 +305,11 @@ namespace Ship_Game.AI
                 if (empire.Universe?.Debug == true)
                 {
                     Log.Info(ConsoleColor.Cyan,
-                        $"pick freighter: {design.Name}: Value: {FreighterValue(design, empire, fastVsBig)}");
+                        $"pick freighter: {design.Name}: Value: {FreighterValue(design, empire, fastVsBig, levelsOfPiratesAtWarWithUs)}");
                 }
             }
 
-            freighter = freighters.FindMax(ship => FreighterValue(ship, empire, fastVsBig));
-
+            freighter = freighters.FindMax(ship => FreighterValue(ship, empire, fastVsBig, levelsOfPiratesAtWarWithUs));
             if (empire.Universe?.Debug == true)
                 Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"} (fast vs big: {fastVsBig.String()}/{(1-fastVsBig).String()})");
 

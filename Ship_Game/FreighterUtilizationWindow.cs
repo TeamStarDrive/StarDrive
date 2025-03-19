@@ -5,7 +5,6 @@ using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using SDUtils;
 using Ship_Game.Ships;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
@@ -40,7 +39,7 @@ namespace Ship_Game
             GoodsUtilizationMap.Add(Goods.Production, new GoodsUtilization(Goods.Production, this));
             GoodsUtilizationMap.Add(Goods.Colonists, new GoodsUtilization(Goods.Colonists, this));
             UtilizationBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0) { DrawPercentage = true };
-            BuildFreighter = Button(ButtonStyle.BigDip, GameText.BuildFrieghter, OnBuildFreighterClick);
+            BuildFreighter = Button(ButtonStyle.BigDip, GameText.BuildFreighter, OnBuildFreighterClick);
         }
 
         public override void LoadContent()
