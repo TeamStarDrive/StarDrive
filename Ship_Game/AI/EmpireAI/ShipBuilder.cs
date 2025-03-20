@@ -274,7 +274,7 @@ namespace Ship_Game.AI
             float cargo    = ShipStats.GetCargoSpace(s.BaseCargoSpace, s);
             float turnRate = ShipStats.GetTurnRadsPerSec(s).ToDegrees();
             float fastVsBigWeight = fastVsBig * 10;
-            float costWeight      = s.GetCost(empire) * empire.Universe.ProductionPace * (1 + levelsOfPiratesAtWarWithUs*0.1f);
+            float costWeight      = s.GetCost(empire) * (1 + levelsOfPiratesAtWarWithUs*0.1f);
             float movementWeight  = (maxKFTL + maxDSTL + turnRate) * fastVsBigWeight;
             float cargoWeight     = cargo * (10 - fastVsBigWeight);
             float score           = movementWeight + cargoWeight - costWeight;
