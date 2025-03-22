@@ -10,7 +10,7 @@ namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        public float TradeTimer = 300;
+        public float TradeTimer = 100;
         [StarData] public bool TransportingColonists  { get; set; }
         [StarData] public bool TransportingFood       { get; set; }
         [StarData] public bool TransportingProduction { get; set; }

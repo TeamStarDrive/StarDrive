@@ -26,9 +26,7 @@ namespace Ship_Game
 
         public int  TotalProdExportSlots { get; private set; }
 
-        int FreighterCapUpperBound => OwnedPlanets.Count * (IsCybernetic ? 2 : 3);
-        public int FreighterCap => (int)(AveragePlanetStorage / AverageFreighterCargoCap
-            * OwnedPlanets.Count * (IsCybernetic ? 1.2f : 1.8f)).Clamped(1, FreighterCapUpperBound);
+        public int FreighterCap => (int)(AveragePlanetStorage / AverageFreighterCargoCap * OwnedPlanets.Count).Clamped(1, OwnedPlanets.Count*10);
         public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue  => (int)Math.Ceiling((OwnedPlanets.Count / 5f)).Clamped(2, 5);
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
@@ -36,6 +34,7 @@ namespace Ship_Game
         public bool ManualTrade          => isPlayer && !AutoFreighters;
         public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
         public bool EconomicSafeToBuildFreighter => AI.CreditRating >= 0.4;
+        public int TotalLevelsOfPirateFactionsAtWar => Universe.PirateFactions.Sum(e => IsAtWarWith(e) ? e.Pirates.Level : 0);
 
         Array<Relationship> TradeTreaties = new();
         public IReadOnlyList<Relationship> TradeRelations => TradeTreaties;
@@ -131,13 +130,18 @@ namespace Ship_Game
                     if (freighter.TradeTimer < 0)
                     {
                         freighter.AI.OrderScrapShip();
-                        freighter.TradeTimer = Universe.P.TurnTimer * 60;
+                        ResetTradeTimer(freighter);
                     }
                 }
                 else
                 {
-                    freighter.TradeTimer = Universe.P.TurnTimer * 60;
+                    ResetTradeTimer(freighter);
                 }
+            }
+
+            void ResetTradeTimer(Ship freighter)
+            {
+                freighter.TradeTimer = Universe.P.TurnTimer * 20;
             }
         }
 
@@ -268,8 +272,7 @@ namespace Ship_Game
                 case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.02f;  break;
             }
 
-            float numPiratesAtWarModifier = 0.005f * Universe.PirateFactions.Count(e => IsAtWarWith(e));
-            IncreaseFastVsBigFreighterRatio(ratioDiff+ numPiratesAtWarModifier);
+            IncreaseFastVsBigFreighterRatio(ratioDiff);
         }
 
         public void AffectFastVsBigFreighterByEta(Planet importPlanet, Goods goods, float eta)
@@ -287,6 +290,7 @@ namespace Ship_Game
 
         public void IncreaseFastVsBigFreighterRatio(float amount)
         {
+            // 1.0f = all fast, 0.1f = all big
             FastVsBigFreighterRatio = (FastVsBigFreighterRatio + amount).Clamped(0.1f, 1);
         }
 
@@ -310,7 +314,7 @@ namespace Ship_Game
             if (ManualTrade || TotalFreighters / (float)FreighterCap <= 0.75f)
                 return;
 
-            IShipDesign betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
+            IShipDesign betterFreighter = ShipBuilder.PickFreighter(this);
             if (betterFreighter == null)
                 return;
 
@@ -325,10 +329,10 @@ namespace Ship_Game
         // Percentage to check if there is better suited freighter model available
         public void CheckForRefitFreighter(Ship freighter, int percentage, IShipDesign betterFreighter = null)
         {
-            if (!ManualTrade && Random.RollDice(percentage) && TotalFreighters / (float)FreighterCap > 0.75f)
+            if (!ManualTrade && Random.RollDice(percentage) && TotalFreighters / (float)FreighterCap > 0.5f)
             {
                 if (betterFreighter == null)
-                    betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
+                    betterFreighter = ShipBuilder.PickFreighter(this);
 
                 if (betterFreighter != null && betterFreighter.Name != freighter.Name)
                     AI.AddGoalAndEvaluate(new RefitShip(freighter, betterFreighter, this));
