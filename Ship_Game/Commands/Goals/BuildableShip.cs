@@ -45,7 +45,7 @@ namespace Ship_Game.Commands.Goals
         {
             IShipDesign freighter = ShipBuilder.PickFreighter(owner);
             if (freighter == null)
-                throw new(ErrMsg(owner, "PickFrieghter"));
+                throw new(ErrMsg(owner, "PickFreighter"));
             return freighter;
         }
     }

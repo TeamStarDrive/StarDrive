@@ -26,7 +26,7 @@ namespace Ship_Game
 
         public int  TotalProdExportSlots { get; private set; }
 
-        public int FreighterCap => (int)(AveragePlanetStorage / AverageFreighterCargoCap * OwnedPlanets.Count).LowerBound(1);
+        public int FreighterCap => (int)(AveragePlanetStorage / AverageFreighterCargoCap * OwnedPlanets.Count).Clamped(1, OwnedPlanets.Count*10);
         public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue  => (int)Math.Ceiling((OwnedPlanets.Count / 5f)).Clamped(2, 5);
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
