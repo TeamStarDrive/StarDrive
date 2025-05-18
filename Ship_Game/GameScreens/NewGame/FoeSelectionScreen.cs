@@ -31,7 +31,7 @@ namespace Ship_Game.GameScreens.NewGame
                                   (int)(ScreenWidth * 0.3f),
                                   (int)(ScreenHeight - TitleBar.Bottom));
 
-            var background = new Rectangle((int)chooseRace.X - 20, TitleBar.Y, (int)(chooseRace.W) + 100, (int)chooseRace.H + 10);
+            var background = new Rectangle((int)chooseRace.X - 20, TitleBar.Y, (int)(chooseRace.W) + 30, (int)chooseRace.H);
 
             if (chooseRace.H > 780)
             {
@@ -51,10 +51,10 @@ namespace Ship_Game.GameScreens.NewGame
             foreach (IEmpireData e in majorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            OnExit += () =>
-            {
-                ChooseRaceList.SlideOutToOffset(offset: new(-ChooseRaceList.Width, 0), TransitionOffTime);
-            };
+            //OnExit += () =>
+            //{
+            //    ChooseRaceList.SlideOutToOffset(offset: new(-ChooseRaceList.Width, 0), TransitionOffTime);
+            //};
 
             base.LoadContent();
         }
