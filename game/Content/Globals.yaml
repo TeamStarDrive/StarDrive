@@ -77,7 +77,7 @@ Globals:
   # Mod:
   #   Name: "Example Mod"
   #   Version: "0.1"
-  #   SupportedBlackBoxVersions: "mars-1.41,mars-1.50"
+  #   SupportedBlackBoxVersions: "mars-1.51,mars-1.50"
   #   IconPath: small.png
   #   Description: "Example Mod Setup"
   #   Author: "The StarDrive Team"

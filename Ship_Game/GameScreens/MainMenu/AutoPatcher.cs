@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Principal;
@@ -116,19 +117,55 @@ internal class AutoPatcher : PopupWindow
             TryDeleteFolder(outputFolder); // delete all stale data, just in case
             Directory.CreateDirectory(outputFolder);
 
-            Log.Write($"Downloading {Info.ZipUrl} to {outputFolder}");
+            Log.Write($"Downloading {Info.ZipUrls} to {outputFolder}");
             TimeSpan timeout = TimeSpan.FromMinutes(60);
-            string zipArchive = AutoUpdateChecker.DownloadZip(Info.ZipUrl, outputFolder, CurrentTask, p.SetProgress, timeout);
+            List<string> zipChunks = AutoUpdateChecker.DownloadZip(Info.ZipUrls, outputFolder, CurrentTask, p.SetProgress, timeout);
             Log.Write($"Download finished: {outputFolder}");
             
+            string zipArchive = PostProcessMultipleZipChunks(zipChunks);
             AddProgressAndRunTaskOnNextFrame($"Unzipping {Info.Version}", nextP => Unzip(zipArchive, outputFolder, nextP));
         }
         catch (Exception e)
         {
             // this can fail for a lot of reasons, so it's not a critical error
-            Log.Warning($"Download {Info.ZipUrl} failed: {e.Message}");
+            Log.Warning($"Download {Info.ZipUrls} failed: {e.Message}");
             AddErrorMessageAndAllowExit("Download failed!", e.Message);
         }
+    }
+
+    string PostProcessMultipleZipChunks(List<string> zipChunks)
+    {
+        if (zipChunks.Count == 1)
+            return zipChunks[0]; // there is only 1 file
+
+        FileInfo firstChunk = new(zipChunks[0]);
+        string newFile = Path.Combine(firstChunk.DirectoryName, "combined.zip");
+        using (FileStream output = File.Create(newFile))
+        {
+            foreach (string part in zipChunks)
+            {
+                using (FileStream input = File.OpenRead(part))
+                {
+                    input.CopyTo(output);
+                }
+            }
+        }
+
+        foreach (string part in zipChunks)
+        {
+            try
+            {
+                Log.Write($"Deleting zip chunk {part}");
+                File.Delete(part);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to delete zip chunk {part}: {e.Message}");
+            }
+        }
+
+        Log.Write($"Combined {zipChunks.Count} zip chunks into {newFile}");
+        return newFile;
     }
 
     void Unzip(string zipArchive, string outputFolder, ProgressBarElement p)

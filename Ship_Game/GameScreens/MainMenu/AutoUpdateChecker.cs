@@ -16,7 +16,7 @@ namespace Ship_Game.GameScreens.MainMenu;
 /// <summary>
 /// All the necessary information needed for updating to a new release
 /// </summary>
-public record struct ReleaseInfo(string Name, string Version, string Changelog, string ZipUrl, string InstallerUrl);
+public record struct ReleaseInfo(string Name, string Version, string Changelog, List<string> ZipUrls, string InstallerUrl);
 
 /// <summary>
 /// Automatic update checker that will show a popup panel
@@ -147,7 +147,7 @@ public class AutoUpdateChecker : UIElementContainer
 
     void NotifyLatestVersion(ReleaseInfo info, bool isMod)
     {
-        Log.Write($"Latest Version: {info.Name} at {info.ZipUrl}");
+        Log.Write($"Latest Version: {info.Name} at {info.ZipUrls}");
 
         Screen.RunOnNextFrame(() =>
         {
@@ -178,7 +178,7 @@ public class AutoUpdateChecker : UIElementContainer
                 // "https://github.com/TeamStarDrive/StarDrive/releases" --> "TeamStarDrive/StarDrive"
                 string teamAndRepo = RegexExtractTeamAndRepo(downloadUrl, "\\/([\\w-]+\\/[\\w-]+)\\/releases");
                 downloadUrl = $"https://api.github.com/repos/{teamAndRepo}/releases/latest";
-                info = GetLatestVersionInfoGitHub(modName, downloadUrl, isMod);
+                info = GetLatestVersionInfoGitHub(downloadUrl, isMod);
             }
             else if (downloadUrl.Contains("bitbucket.org"))
             {
@@ -208,12 +208,34 @@ public class AutoUpdateChecker : UIElementContainer
     {
         string currentVersion = !isMod ? GlobalStats.Version.Split(' ').First()
                                        : GlobalStats.ActiveMod.Mod.Version;
+
+        if (!isMod && !IsSameMajorVer(latestVersion, currentVersion))
+            return false;
+
         Log.Write($"AutoUpdater: latest  {latestVersion}");
         Log.Write($"AutoUpdater: current {currentVersion}");
         return string.CompareOrdinal(latestVersion, currentVersion) > 0;
     }
 
-    ReleaseInfo? GetLatestVersionInfoGitHub(string modName, string url, bool isMod)
+    static bool IsSameMajorVer(string latestVersion, string currentVersion)
+    {
+        if (JoinVersionParts(latestVersion) != JoinVersionParts(currentVersion))
+        {
+            Log.Write($"AutoUpdater: Major version mismatch: (latest) " +
+                $"{latestVersion} != {currentVersion} (current). Will not update");
+            return false;
+        }
+
+        return true;
+
+        string JoinVersionParts(string version)
+        {
+            return string.Join(".", version.Split('.').Take(2));
+        }
+    }
+
+
+    ReleaseInfo? GetLatestVersionInfoGitHub(string url, bool isMod)
     {
         string jsonText = DownloadWithCancel(url, AsyncTask, timeout: TimeSpan.FromSeconds(30));
         if (AsyncTask is { IsCancelRequested: true })
@@ -228,15 +250,15 @@ public class AutoUpdateChecker : UIElementContainer
         if (IsLatestVerNewer(latestVersion, isMod))
         {
             ReleaseInfo info = new(name, latestVersion, changelog, null, null);
+            info.ZipUrls = new List<string>();
             foreach (dynamic asset in latestRelease["assets"])
             {
                 string assetName = asset["name"];
                 if (assetName.EndsWith(".zip"))
-                {
-                    info.ZipUrl = asset["browser_download_url"];
-                    return info;
-                }
+                    info.ZipUrls.Add(asset["browser_download_url"]);
             }
+
+            return info;
         }
         return null;
     }
@@ -255,7 +277,7 @@ public class AutoUpdateChecker : UIElementContainer
 
         if (IsLatestVerNewer(latestVersion, isMod))
         {
-            string downloadLink = value["links"]["self"]["href"];
+            List<string> downloadLink = [value["links"]["self"]["href"]];
             string prettyName = $"{modName} {latestVersion}";
             return new(prettyName, latestVersion, zipName, downloadLink, null);
         }
@@ -298,8 +320,9 @@ public class AutoUpdateChecker : UIElementContainer
     /// <summary>
     /// Downloads Zip from `url` into `localFolder`. The task can be cancelled by the user.
     /// Returns the path to the local file. Otherwise throws an exception on failure or cancellation.
+    /// If there are several urls, they will be downloaded sequentially.
     /// </summary>
-    public static string DownloadZip(string url, string localFolder, TaskResult cancellableTask, 
+    public static List<string> DownloadZip(List<string> urls, string localFolder, TaskResult cancellableTask, 
                                      Action<int> onProgressPercent, TimeSpan timeout)
     {
         int lastPercent = -1;
@@ -318,10 +341,16 @@ public class AutoUpdateChecker : UIElementContainer
             }
         });
 
-        string localFile = Path.Combine(localFolder, Path.GetFileName(url));
-        var download = wc.DownloadFileTaskAsync(url, localFile);
-        WaitForTask(download, cancellableTask, timeout);
-        return localFile;
+        List<string> localFiles = new(urls.Count);
+        foreach (string url in urls)
+        {
+            string localFile = Path.Combine(localFolder, Path.GetFileName(url));
+            var download = wc.DownloadFileTaskAsync(url, localFile);
+            WaitForTask(download, cancellableTask, timeout);
+            localFiles.Add(localFile);
+        }
+
+        return localFiles;
     }
 
     static WebClient CreateWebClient(DownloadProgressChangedEventHandler e)

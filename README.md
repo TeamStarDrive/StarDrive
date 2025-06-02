@@ -11,10 +11,10 @@ Do not use this for immoral or personal financial gain, donation requests are ok
 Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam.
 
 # Downloads
-Currently downloadable Releases contain Major and Patch versions. Major versions are big, 700-800MB installs. Patches are relatively small and are always cumulative, which means you only need to install the Major version (1.50) and latest patch (1.50-patch).
+Currently downloadable Releases contain Major and Patch versions. Major versions are big, 700-800MB installs. Patches are relatively small and are always cumulative, which means you only need to install the Major version (1.51) and latest patch (1.51-patch).
 Note that the game now has an auto update logic; You can install the Major Release and the game will prompt and install the latest patch for you. Hover over the prompt message to see change log.
 
-[Current Major Release Link (read the instructions!)](https://github.com/TeamStarDrive/StarDrive/releases/tag/mars-release-1.50)
+[Current Major Release Link (read the instructions!)](https://github.com/TeamStarDrive/StarDrive/releases/tag/mars-release-1.51)
 
 [Go To Downloads](https://github.com/TeamStarDrive/StarDrive/releases) (for reference)
 
@@ -59,7 +59,7 @@ The future goals of BlackBox - Hyperion are:
     * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively _(Important!!!)_
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
     * Advanced Options When cloning: [v] Recurse submodules _(Important!!!)_
-* Switch to `mars-1.50` branch, which is our main branch for latest ongoing development.
+* Switch to `mars-1.51` branch, which is our main branch for latest ongoing development.
 * Launch Visual Studio, any required DLL references should be in `BlackBox/game` directory.
 * Launch a full build (Build -> Build Solution) in `Release` configuration to produce the BlackBox StarDrive executable.
     * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to Visual Studio installer and enable Desktop development with C++
@@ -99,7 +99,7 @@ contact us in [Discord](https://discord.gg/dfvnfH4) for more information on modd
 
 # Development Cycle
 ## For new features, refactors, old bug fixes  (feature)
-* Create a new feature branch from `mars-1.50`.
+* Create a new feature branch from `mars-1.51`.
 * Always add NEW feature unit tests and playtest your changes.
 * Create a pull request and wait for review. Be ready to make a few tweaks! It is easy to create unintentional bugs in this legacy codebase.
 ## If bugs are found in main branch (hotfix)
@@ -115,7 +115,7 @@ C:\Projects\BlackBox\game>StarDrive.exe --help
 13:50:43.698ms: Loaded App Settings
 13:50:43.768ms:
  ======================================================
- ==== Mars : 1.50.15000 develop-latest             ====
+ ==== Mars : 1.51.15100 develop-latest             ====
  ==== UTC: 12/13/2021 13:50:43                     ====
  ======================================================
 

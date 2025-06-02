@@ -16,7 +16,7 @@ parser.add_argument('--patch', action='store_true', help='Is this a cumulative p
 parser.add_argument('--type', type=str, help='Type of installer: nsis, zip, msi', default='nsis')
 args = parser.parse_args()
 
-BUILD_VERSION = env('APPVEYOR_BUILD_VERSION', default='1.50.15000')
+BUILD_VERSION = env('APPVEYOR_BUILD_VERSION', default='1.51.15100')
 
 os.chdir(args.root_dir)
 

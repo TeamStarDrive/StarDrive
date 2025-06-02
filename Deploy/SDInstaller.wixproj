@@ -7,7 +7,7 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>991f9257-97a2-4cf0-8959-c8ec09f17796</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>StarDrive_BlackBox_Mars_1.50</OutputName>
+    <OutputName>StarDrive_BlackBox_Mars_1.51</OutputName>
     <OutputType>Package</OutputType>
     <SuppressPdbOutput>true</SuppressPdbOutput>
     <NuGetPackageImportStamp>
