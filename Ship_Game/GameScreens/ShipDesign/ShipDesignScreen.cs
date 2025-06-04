@@ -449,7 +449,8 @@ namespace Ship_Game
         void CreateGUI()
         {
             RemoveAll();
-            ModuleSelectComponent = Add(new ModuleSelection(this, new(5, LowRes ? 45 : 100), new(305, LowRes ? 350 : 490)));
+
+            ModuleSelectComponent = Add(new ModuleSelection(this, new(5, LowRes ? 45 : 100), new(305, (ScreenHeight-100)*0.45f)));
 
             BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
             ClassifCursor = new Vector2(ScreenWidth * .5f,ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
