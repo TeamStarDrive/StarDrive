@@ -123,9 +123,7 @@ namespace Ship_Game
             RectF traitsList = new(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
                                   (int)NameMenu.Bottom + 5,
                                   (int)(ScreenWidth * 0.5f), 
-                                  (int)(ScreenHeight - TitleBar.Bottom - 0.28f*ScreenHeight));
-            if (traitsList.H > 580)
-                traitsList.H = 580;
+                                  (int)(ScreenHeight - TitleBar.Bottom - 0.25f*ScreenHeight));
 
             LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition, "Environment" };
             Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20), traitNames));
@@ -210,13 +208,14 @@ namespace Ship_Game
             Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
             Picker.Visible = false;
 
-            ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:GameText.Engage, click: OnEngageClicked);
-            ButtonMedium(10, ScreenHeight - 40, text:GameText.Abort, click: OnAbortClicked);
-
             const int containerMarginBottom = 10;
             const int containerPaddingLeft = 10;
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
                 .SetLocalPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
+
+            float lowerButtonsY = traitsList.Y + traitsList.H + containerMarginBottom;
+            ButtonMedium(ScreenWidth - 140, lowerButtonsY, text: GameText.Engage, click: OnEngageClicked);
+            ButtonMedium(10, lowerButtonsY, text: GameText.Abort, click: OnAbortClicked);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
@@ -225,9 +224,9 @@ namespace Ship_Game
             var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width, 150);
             EnvMenu = Add(new EnvPreferencesPanel(this, RaceSummary, envRect));
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
-                .SetLocalPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
+                .SetLocalPos(ChooseRaceList.Width / 2 - 142, lowerButtonsY);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked)
-                .SetLocalPos(ChooseRaceList.Width / 2 + 10, ChooseRaceList.Height + 10);
+                .SetLocalPos(ChooseRaceList.Width / 2 + 10, lowerButtonsY);
 
             var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.H + 10);
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
