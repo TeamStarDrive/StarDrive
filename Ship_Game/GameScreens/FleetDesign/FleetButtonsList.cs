@@ -77,6 +77,15 @@ public class FleetButtonsList : UIList
             if (input.Fleet13) return 13;
             if (input.Fleet14) return 14;
             if (input.Fleet15) return 15;
+
+            if (screenHeight >= 1440)
+            {
+                if (input.Fleet16) return 16;
+                if (input.Fleet17) return 17;
+                if (input.Fleet18) return 18;
+                if (input.Fleet19) return 19;
+                if (input.Fleet20) return 20;
+            }
         }
 
         return -1;
