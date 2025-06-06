@@ -128,11 +128,12 @@ namespace Ship_Game
             LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition, "Environment" };
             Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20), traitNames));
             Traits.OnTabChange = OnTraitsTabChanged;
-            Traits.SetBackground(new Menu1(traitsList));
 
             TraitsList = Traits.List;
             TraitsList.EnableItemHighlight = true;
             TraitsList.OnClick = OnTraitsListItemClicked;
+            RectF traitsListBg = new(traitsList.X+60, traitsList.Y+90, traitsList.W, traitsList.H);
+            TraitsList.SetBackground(new Menu1(traitsListBg));
 
             RectF chooseRace = new(5, (int)traitsList.Y, (int)traitsList.X - 10, (int)traitsList.H);
             ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
@@ -213,9 +214,8 @@ namespace Ship_Game
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
                 .SetLocalPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
 
-            float lowerButtonsY = traitsList.Y + traitsList.H + containerMarginBottom;
-            ButtonMedium(ScreenWidth - 140, lowerButtonsY, text: GameText.Engage, click: OnEngageClicked);
-            ButtonMedium(10, lowerButtonsY, text: GameText.Abort, click: OnAbortClicked);
+            Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.Engage, click: OnEngageClicked);
+            Button(ButtonStyle.BigDip, 10, ScreenHeight - 40, GameText.Abort, click: OnAbortClicked);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
@@ -224,24 +224,29 @@ namespace Ship_Game
             var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width, 150);
             EnvMenu = Add(new EnvPreferencesPanel(this, RaceSummary, envRect));
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
-                .SetLocalPos(ChooseRaceList.Width / 2 - 142, lowerButtonsY);
+                .SetLocalPos(ChooseRaceList.Width / 2 - 52, ChooseRaceList.Height + containerMarginBottom);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked)
-                .SetLocalPos(ChooseRaceList.Width / 2 + 10, lowerButtonsY);
+                .SetLocalPos(ChooseRaceList.Width / 2 + 90, ChooseRaceList.Height + containerMarginBottom);
 
             var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.H + 10);
-            ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
-            ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
-            Button(pos.X, pos.Y, text: GameText.RuleOptions, click: OnRuleOptionsClicked);
+            Traits.ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked)
+                .SetLocalPos(Traits.Width / 2 + 98, Traits.Height + containerMarginBottom*3);
+            Traits.ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked)
+                .SetLocalPos(Traits.Width / 2 - 200, Traits.Height + containerMarginBottom*3);
+            Traits.Button(ButtonStyle.MediumMenu, GameText.RuleOptions, click: OnRuleOptionsClicked)
+                .SetLocalPos(Traits.Width / 2 - 52, Traits.Height + containerMarginBottom*3);
 
             ChooseRaceList.SlideInFromOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.SlideInFromOffset(offset:new(DescriptionTextList.Width, 0), TransitionOnTime);
             EnvMenu.SlideInFromOffset(offset:new(-EnvMenu.Width, 0), TransitionOnTime);
+            Traits.SlideInFromOffset(offset: new(0, Traits.Height), TransitionOnTime);
 
             OnExit += () =>
             {
                 ChooseRaceList.SlideOutToOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOffTime);
                 DescriptionTextList.SlideOutToOffset(offset:new(DescriptionTextList.Width, 0), TransitionOffTime);
                 EnvMenu.SlideOutToOffset(offset:new(-EnvMenu.Width, 0), TransitionOffTime);
+                Traits.SlideOutToOffset(offset: new(0, Traits.Height), TransitionOffTime);
             };
 
             base.LoadContent();
