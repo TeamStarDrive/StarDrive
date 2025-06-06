@@ -217,6 +217,7 @@ namespace Ship_Game
 
             Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.Engage, click: OnEngageClicked);
             Button(ButtonStyle.BigDip, 10, ScreenHeight - 40, GameText.Abort, click: OnAbortClicked);
+
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
 
