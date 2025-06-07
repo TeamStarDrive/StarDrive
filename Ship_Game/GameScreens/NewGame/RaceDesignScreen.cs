@@ -90,7 +90,8 @@ namespace Ship_Game
             P = settings;
         }
         
-        Graphics.Font DescriptionTextFont => LowRes ? Fonts.Arial10 : Fonts.Arial12;
+        Graphics.Font DescriptionTextFont => LowRes ? Fonts.Arial10 
+                                                    : HiRes ? Fonts.Arial14Bold : Fonts.Arial12;
 
         public override void LoadContent()
         {
@@ -224,9 +225,9 @@ namespace Ship_Game
             var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width, 150);
             EnvMenu = Add(new EnvPreferencesPanel(this, RaceSummary, envRect));
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
-                .SetLocalPos(ChooseRaceList.Width / 2 - 52, ChooseRaceList.Height + containerMarginBottom);
+                .SetLocalPos(ChooseRaceList.Width / 2 - 152, ChooseRaceList.Height + containerMarginBottom);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked)
-                .SetLocalPos(ChooseRaceList.Width / 2 + 90, ChooseRaceList.Height + containerMarginBottom);
+                .SetLocalPos(ChooseRaceList.Width / 2 - 10, ChooseRaceList.Height + containerMarginBottom);
 
             var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.H + 10);
             Traits.ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked)
@@ -615,7 +616,8 @@ namespace Ship_Game
             public SelectedTraitsSummary(RaceDesignScreen screen)
             {
                 Screen = screen;
-                Font = screen.LowRes ? Fonts.Arial10 : Fonts.Arial12Bold;
+                Font = screen.LowRes ? Fonts.Arial10 
+                                     : screen.HiRes ? Fonts.Arial14Bold : Fonts.Arial12Bold;
             }
 
             public override bool HandleInput(InputState input)
@@ -636,7 +638,6 @@ namespace Ship_Game
                 Vector2 cursor = r;
 
                 int line = 0;
-                int maxLines = Screen.LowRes ? 7 : 9;
                 bool switchedToNegative = false;
                 foreach (TraitEntry t in Screen.AllTraits.OrderByDescending(t => t.Trait.Cost))
                 {
@@ -645,7 +646,7 @@ namespace Ship_Game
                         switchedToNegative = true;
                         line = 0;
                         cursor.Y = r.Y;
-                        cursor.X += Font.TextWidth(title) + (Screen.LowRes ? 50 : 100);
+                        cursor.X += Font.TextWidth(title) + (Screen.LowRes ? 50 : Screen.HiRes ? 150 : 100);
                     }
 
                     if (t.Selected)
