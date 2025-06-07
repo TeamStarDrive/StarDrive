@@ -123,6 +123,11 @@ namespace Ship_Game
         public bool Fleet13              => KeyPressed(Keys.D3) && IsAltKeyDown;
         public bool Fleet14              => KeyPressed(Keys.D4) && IsAltKeyDown;
         public bool Fleet15              => KeyPressed(Keys.D5) && IsAltKeyDown;
+        public bool Fleet16              => KeyPressed(Keys.D6) && IsAltKeyDown;
+        public bool Fleet17              => KeyPressed(Keys.D7) && IsAltKeyDown;
+        public bool Fleet18              => KeyPressed(Keys.D8) && IsAltKeyDown;
+        public bool Fleet19              => KeyPressed(Keys.D9) && IsAltKeyDown;
+        public bool Fleet20              => KeyPressed(Keys.D0) && IsAltKeyDown;
         public bool AddToFleet           => IsCtrlKeyDown && IsShiftKeyDown;
         public bool ReplaceFleet         => IsCtrlKeyDown && !IsShiftKeyDown;
         public bool QueueAction          => IsShiftKeyDown;

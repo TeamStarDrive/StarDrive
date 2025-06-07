@@ -51,8 +51,31 @@ elif args.type == 'zip':
         fatal_error('7za.exe was not found: MakeInstaller.py must be executed with WorkingDir=BlackBox/')
 
     installer = 'Deploy\\GeneratedFilesList.txt'
-    archive = f'Deploy\\upload\\BlackBox_Mars_{BUILD_VERSION}.zip'
+    archive_filename = f'BlackBox_Mars_{BUILD_VERSION}.zip'
+    archive = f'Deploy\\upload\\{archive_filename}'    
     console(f'\nMakeZIP {installer}')
     result = os.system(f'cd game && "{zip7}" a -tzip ..\\{archive} @..\\{installer}')
     if result != 0: fatal_error(f'7zip returned with error: {result}')
-    else: exit_with_message('7zip succeeded')
+    else: 
+        max_size = 25 * 1024 * 1024  # 25MB
+        if os.path.getsize(archive) > max_size:
+            console(f'Archive is over 25MB, splitting: {archive}')
+            output_dir = os.path.dirname(archive)
+            
+            with open(archive, 'rb') as f:
+                i = 1
+                while True:
+                    chunk = f.read(max_size)
+                    if not chunk:
+                        break
+                        
+                    part_name = f'{i:03d}-{archive_filename}'
+                    part_path = os.path.join(output_dir, part_name)
+                    with open(part_path, 'wb') as part_file:
+                        part_file.write(chunk)
+                    console(f'Created {part_name}')
+                    i += 1
+            
+            os.remove(archive)
+            console(f'Removed original large archive: {archive}')
+        exit_with_message('7zip succeeded')

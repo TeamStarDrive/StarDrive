@@ -36,7 +36,7 @@ namespace Ship_Game
 
             ModuleSelectList = base.Add(new ModuleSelectScrollList(this, Screen));
 
-            RectF acsub = new(Rect.X, Rect.Bottom + 15, 305, 400);
+            RectF acsub = new(Rect.X, Rect.Bottom + 15, 305, Screen.Height - (Rect.Y + Rect.Height) - 100);
             ActiveModSubMenu = base.Add(new Submenu(acsub, "Active Module"));
             // rounded black background
             ActiveModSubMenu.SetBackground(Colors.TransparentBlackFill);
