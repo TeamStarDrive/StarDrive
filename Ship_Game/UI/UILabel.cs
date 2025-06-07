@@ -79,7 +79,7 @@ namespace Ship_Game
         public TextAlign TextAlign = TextAlign.Default;
 
         public LocalizedText Tooltip;
-        public float ToolTipWidth = ToolTip.DefaultWidth;
+        public float ToolTipWidth;
 
         public LocalizedText Text
         {
@@ -156,6 +156,7 @@ namespace Ship_Game
         {
             LabelFont = font;
             Size = new Vector2(font.LineSpacing); // give it a mock size to ease debugging
+            ToolTipWidth = ToolTip.DefaultWidth;
         }
 
         public UILabel(float x, float y, in LocalizedText text)
@@ -190,6 +191,7 @@ namespace Ship_Game
             LabelFont = font;
             LabelText = text;
             UpdateSizeFromText(text.Text);
+            ToolTipWidth = ToolTip.DefaultWidth;
         }
         public UILabel(Vector2 pos, Vector2 minSize, in LocalizedText text, Graphics.Font font)
             : base(pos, minSize)
@@ -197,12 +199,14 @@ namespace Ship_Game
             LabelFont = font;
             LabelText = text;
             UpdateSizeFromText(text.Text);
+            ToolTipWidth = ToolTip.DefaultWidth;
         }
         public UILabel(in Rectangle rect, in LocalizedText text, Graphics.Font font, Color color)
         {
             LabelFont = font;
             LabelText = text;
             UpdateSizeFromText(text.Text);
+            ToolTipWidth = ToolTip.DefaultWidth;
             Color = color;
             Rect = rect;
         }
@@ -223,6 +227,7 @@ namespace Ship_Game
             LabelFont = font;
             Text = text; // NOTE: triggers UpdateSizeFromText 
             Color = color;
+            ToolTipWidth = ToolTip.DefaultWidth;
         }
 
         public UILabel(Func<UILabel, string> getText) : this(getText, Fonts.Arial12Bold)
@@ -236,6 +241,7 @@ namespace Ship_Game
         {
             LabelFont = font;
             DynamicText = getText;
+            ToolTipWidth = ToolTip.DefaultWidth;
         }
         
         /////////////////////////////////////////////////////////////////////////////////////////////////
