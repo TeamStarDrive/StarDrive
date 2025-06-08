@@ -493,6 +493,8 @@ namespace Ship_Game.Ships
             textVector.X += text.Length * 7;
         }
 
+        public bool IsHandlingNameInput => ShipNameArea.HandlingInput;
+
         public override bool HandleInput(InputState input)
         {
             if (Universe.SelectedShip == null || Universe.LookingAtPlanet)

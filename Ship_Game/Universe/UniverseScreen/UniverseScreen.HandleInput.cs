@@ -1159,6 +1159,9 @@ namespace Ship_Game
             }
             else
             {
+                if (ShipInfoUIElement.IsHandlingNameInput)
+                    return; // don't pan the camera if the ship name area is being edited
+
                 bool enableMousePanning = !GlobalStats.DisableScreenPanning;
                 if (enableMousePanning && InRange(x, minLeft, maxLeft) || (enableKeys && input.KeysLeftHeld(arrowKeys)))
                 {

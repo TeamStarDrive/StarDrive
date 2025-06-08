@@ -4,6 +4,7 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -25,8 +26,7 @@ namespace Ship_Game
         // how fast a tip fades in/out
         const float TipFadeInOutTime = 0.35f;
 
-        // default width of a tool tip
-        public const float DefaultWidth = 200;
+        public static float DefaultWidth => GameBase.ScreenManager.ScreenCenter.Y >= 720 ? 300 : 200;
 
         static readonly Array<TipItem> ActiveTips = new();
 
@@ -40,6 +40,8 @@ namespace Ship_Game
         public static void CreateFloatingText(in LocalizedText tip, string hotKey, Vector2? position, float lifeTime) 
             => CreateTooltip(tip, hotKey, position, lifeTime);
 
+        static Font GetTipFont => GameBase.ScreenManager.ScreenCenter.Y >= 720 ? Fonts.Arial14Bold : Fonts.Arial12Bold;
+
         /// <summary>
         /// Sets the currently active Tooltip
         /// </summary>
@@ -49,7 +51,7 @@ namespace Ship_Game
         /// <param name="minShowTime">Minimum time to show this Tooltip, regardless of being hovered</param>
         /// <param name="maxWidth">Maximum width for the tooltip</param>
         public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position,
-                                         float minShowTime = 0, float maxWidth = DefaultWidth)
+                                         float minShowTime = 0, float maxWidth = 0)
         {
             string rawText = tip.Text;
             if (rawText.IsEmpty())
@@ -65,16 +67,20 @@ namespace Ship_Game
                 return;
             }
 
+            if (maxWidth == 0)
+                maxWidth = DefaultWidth;
+
+            var font = GetTipFont;
             tipItem = new(minShowTime);
             ActiveTips.Add(tipItem);
 
             tipItem.RawText = rawText;
-            tipItem.Text = Fonts.Arial12Bold.ParseText(rawText, maxWidth);
+            tipItem.Text = font.ParseText(rawText, maxWidth);
             tipItem.HotKey = hotKey;
 
-            Vector2 size = Fonts.Arial12Bold.MeasureString(tipItem.Text);
+            Vector2 size = font.MeasureString(tipItem.Text);
             if (hotKey.NotEmpty()) // Reserve space for HotKey as well:
-                size.Y += Fonts.Arial12Bold.LineSpacing * 2;
+                size.Y += font.LineSpacing * 2;
             
             Vector2 pos = position ?? GameBase.ScreenManager.input.CursorPosition;
             var tipRect = new Rectangle((int)pos.X  + 10, (int)pos.Y  + 10,
@@ -89,8 +95,8 @@ namespace Ship_Game
             tipItem.Rect = tipRect;
         }
 
-        public static void CreateTooltip(in LocalizedText tip, string hotKey, float maxWidth = DefaultWidth) => CreateTooltip(tip, hotKey, null, maxWidth: maxWidth);
-        public static void CreateTooltip(in LocalizedText tip, float maxWidth = DefaultWidth) => CreateTooltip(tip, "", null, maxWidth: maxWidth);
+        public static void CreateTooltip(in LocalizedText tip, string hotKey, float maxWidth = 0) => CreateTooltip(tip, hotKey, null, maxWidth: maxWidth);
+        public static void CreateTooltip(in LocalizedText tip, float maxWidth = 0) => CreateTooltip(tip, "", null, maxWidth: maxWidth);
         
         // Clears the current tooltip (if any)
         public static void Clear()
@@ -106,6 +112,7 @@ namespace Ship_Game
             public Rectangle Rect;
             public bool HoveredThisFrame = true;
             float MinShowTime; // Let the tip show regardless of being hovered on
+            readonly Font TipFont;
 
             float LifeTime;
             bool Visible;
@@ -113,6 +120,7 @@ namespace Ship_Game
             public TipItem(float minShowTime)
             {
                 MinShowTime = minShowTime;
+                TipFont = GetTipFont;
             }
 
             // @return FALSE: tip died, TRUE: tip is OK
@@ -165,21 +173,21 @@ namespace Ship_Game
                 var sel = new Selector(Rect, new Color(Color.Black, (byte)alpha),  alpha);
                 sel.Draw(batch, elapsed);
 
-                var textColor = new Color(255, 239, 208, (byte) alpha);
+                var textColor =  new Color(102, 178, 255, (byte) alpha);
                 if (HotKey.NotEmpty())
                 {
                     string title = Localizer.Token(GameText.Hotkey) + ": ";
 
-                    batch.DrawString(Fonts.Arial12Bold, title, textPos, textColor);
+                    batch.DrawString(TipFont, title, textPos, textColor);
 
                     Vector2 hotKey = textPos;
-                    hotKey.X += Fonts.Arial12Bold.MeasureString(title).X;
+                    hotKey.X += TipFont.MeasureString(title).X;
 
-                    batch.DrawString(Fonts.Arial12Bold, HotKey, hotKey, new Color(Color.Gold, (byte)alpha));
-                    textPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
+                    batch.DrawString(TipFont, HotKey, hotKey, new Color(Color.Gold, (byte)alpha));
+                    textPos.Y += TipFont.LineSpacing * 2;
                 }
 
-                batch.DrawString(Fonts.Arial12Bold, Text, textPos, textColor);
+                batch.DrawString(TipFont, Text, textPos, textColor);
             }
         }
 

@@ -240,6 +240,7 @@ namespace Ship_Game
             {
                 float limit = 2000f;
                 float cameraPanSpeed = GlobalStats.CameraPanSpeed * 2;
+                if (input.IsCtrlKeyDown) return;
                 if (input.WASDLeft  && CameraPos.X > -limit) CameraPos.X -= cameraPanSpeed;
                 if (input.WASDRight && CameraPos.X < +limit) CameraPos.X += cameraPanSpeed;
                 if (input.WASDUp   && CameraPos.Y > -limit) CameraPos.Y -= cameraPanSpeed;
