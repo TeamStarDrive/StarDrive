@@ -178,7 +178,7 @@ namespace Ship_Game
                 {
                     string title = Localizer.Token(GameText.Hotkey) + ": ";
 
-                    batch.DrawString(TipFont, title, textPos, textColor);
+                    batch.DrawString(TipFont, title, textPos, Color.White);
 
                     Vector2 hotKey = textPos;
                     hotKey.X += TipFont.MeasureString(title).X;
