@@ -214,7 +214,7 @@ namespace Ship_Game
             const int containerPaddingLeft = 10;
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
                 .SetLocalPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
-            DescriptionTextList.Button(ButtonStyle.BigDip, "Select Opponents", OnClearClicked)
+            DescriptionTextList.Button(ButtonStyle.BigDip, "Select Opponents", OnSelectOpponentsClicked)
                 .SetLocalPos(containerPaddingLeft + 150, DescriptionTextList.Height + containerMarginBottom);
 
             Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.Engage, click: OnEngageClicked);
@@ -345,6 +345,11 @@ namespace Ship_Game
         void OnRuleOptionsClicked(UIButton b)
         {
             ScreenManager.AddScreen(new RuleOptionsScreen(this, P));
+        }
+
+        void OnSelectOpponentsClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new SelectOpponnetsScreen(this, P, SelectedData));
         }
 
         void OnAbortClicked(UIButton b)

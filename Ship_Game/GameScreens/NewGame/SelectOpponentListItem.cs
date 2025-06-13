@@ -1,22 +1,25 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using Ship_Game.GameScreens.NewGame;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
-    public class RaceArchetypeListItem : ScrollListItem<RaceArchetypeListItem>
+    public class SelectOpponentListItem : ScrollListItem<SelectOpponentListItem>
     {
-        public RaceDesignScreen Screen;
+        public SelectOpponnetsScreen Screen;
         public IEmpireData EmpireData;
         public SubTexture Portrait;
 
-        public RaceArchetypeListItem(RaceDesignScreen screen, IEmpireData empireData)
+        public SelectOpponentListItem(SelectOpponnetsScreen screen, IEmpireData empireData)
         {
             Screen = screen;
             EmpireData = empireData;
-            Portrait = ResourceManager.Texture("Races/" + empireData.VideoPath);
+            Portrait = ResourceManager.Texture("Portraits/" + empireData.VideoPath);
         }
 
+        /*
         public override int ItemHeight
         {
             get
@@ -24,7 +27,7 @@ namespace Ship_Game
                 int width = (int)(List.Width * 0.8f);
                 return (int)Portrait.GetHeightFromWidthAspect(width);
             }
-        }
+        }*/
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -32,12 +35,12 @@ namespace Ship_Game
 
             int height = (int)Height;
             int width = (int)Portrait.GetWidthFromHeightAspect(height);
-            var portrait = new Rectangle((int)CenterX - width/2, (int)Y, width, height);
+            var portrait = new Rectangle((int)X +10, (int)Y, width, height);
             batch.Draw(Portrait, portrait, Color.White);
 
-            if (Screen.SelectedData == EmpireData)
+            if (Screen.Params.SelectedOpponents.Contains(EmpireData))
             {
-                batch.DrawRectangle(portrait, Color.BurlyWood);
+                batch.DrawRectangle(portrait, Color.White);
             }
         }
     }
