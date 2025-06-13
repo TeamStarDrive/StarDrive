@@ -214,6 +214,8 @@ namespace Ship_Game
             const int containerPaddingLeft = 10;
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
                 .SetLocalPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
+            DescriptionTextList.Button(ButtonStyle.BigDip, "Select Opponents", OnClearClicked)
+                .SetLocalPos(containerPaddingLeft + 150, DescriptionTextList.Height + containerMarginBottom);
 
             Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.Engage, click: OnEngageClicked);
             Button(ButtonStyle.BigDip, 10, ScreenHeight - 40, GameText.Abort, click: OnAbortClicked);
