@@ -209,10 +209,9 @@ namespace Ship_Game.GameScreens.NewGame
             var randomOpponents = new Array<IEmpireData>(randomMajorRaces);
             randomOpponents.Shuffle();
             randomOpponents.Resize(Math.Min(randomOpponents.Count, randomMajorRacesNeeded)); // truncate
-
-            step.Start(randomOpponents.Count + SelectedOpponents.Count + ResourceManager.MinorRaces.Count);
             // combined the random opponents with the already selected ones
             SelectedOpponents.AddRange(randomOpponents);
+            step.Start(SelectedOpponents.Count + ResourceManager.MinorRaces.Count);
             foreach (IEmpireData readOnlyData in SelectedOpponents)
             {
                 Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);

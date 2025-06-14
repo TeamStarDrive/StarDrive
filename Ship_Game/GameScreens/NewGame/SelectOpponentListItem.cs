@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.GameScreens.NewGame;
 using Rectangle = SDGraphics.Rectangle;
@@ -30,10 +29,7 @@ namespace Ship_Game
             float alpha = selected ? 1f : 0.3f;
             batch.Draw(Portrait, portrait, Color.White.Alpha(alpha));
             if (selected)
-            {
                 batch.DrawRectangle(portrait, EmpireData.Traits.Color, thickness: 2);
-
-            }
         }
     }
 }
