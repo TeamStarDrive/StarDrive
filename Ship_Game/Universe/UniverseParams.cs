@@ -1,4 +1,5 @@
 ﻿using SDGraphics;
+using SDUtils;
 using Ship_Game.Data.Serialization;
 using static Ship_Game.RaceDesignScreen;
 
@@ -22,7 +23,9 @@ public class UniverseParams
     
     [StarData(DefaultValue=ExtraRemnantPresence.Normal)]
     public ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
-    
+
+    public Array<IEmpireData> SelectedOpponents = new();
+
     [StarData] public int NumSystems;
     [StarData] public int NumOpponents;
     [StarData] public int RacialTraitPoints;

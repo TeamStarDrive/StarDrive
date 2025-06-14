@@ -291,6 +291,8 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\AutoPatcher.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\AutoUpdateChecker.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenusDescr.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\SelectOpponentListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\SelectOpponentsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\UniverseGenerator.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\ObjectSpawnInfo.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneActions.cs" />

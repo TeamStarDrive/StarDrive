@@ -21,7 +21,7 @@ namespace Ship_Game.GameScreens.NewGame
         readonly RaceDesignScreen.GameMode Mode;
         readonly GameDifficulty Difficulty;
         readonly int NumOpponents;
-
+        readonly Array<IEmpireData> SelectedOpponents;
         readonly Empire Player;
         readonly UniverseScreen us;
         readonly UniverseState UState;
@@ -42,6 +42,7 @@ namespace Ship_Game.GameScreens.NewGame
             Mode = p.Mode;
             NumOpponents = p.NumOpponents;
             NumSystems = p.NumSystems;
+            SelectedOpponents = p.SelectedOpponents;
             ResourceManager.LoadEncounters();
 
             float uSize;
@@ -199,17 +200,19 @@ namespace Ship_Game.GameScreens.NewGame
 
         void CreateOpponents(ProgressCounter step)
         {
-            IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
-                                data => data.ArchetypeName != Player.data.ArchetypeName);
+            IEmpireData[] randomMajorRaces = ResourceManager.MajorRaces.Filter(
+                                data => data.ArchetypeName != Player.data.ArchetypeName
+                                && !SelectedOpponents.Contains(data));
 
-            // create a randomly shuffled list of opponents
-            var opponents = new Array<IEmpireData>(majorRaces);
-            opponents.Shuffle();
-            opponents.Resize(Math.Min(opponents.Count, NumOpponents)); // truncate
-
-            step.Start(opponents.Count + ResourceManager.MinorRaces.Count);
-
-            foreach (IEmpireData readOnlyData in opponents)
+            // create a randomly shuffled list of opponents which were not yet selected for the game.
+            int randomMajorRacesNeeded = NumOpponents - SelectedOpponents.Count;
+            var randomOpponents = new Array<IEmpireData>(randomMajorRaces);
+            randomOpponents.Shuffle();
+            randomOpponents.Resize(Math.Min(randomOpponents.Count, randomMajorRacesNeeded)); // truncate
+            // combined the random opponents with the already selected ones
+            SelectedOpponents.AddRange(randomOpponents);
+            step.Start(SelectedOpponents.Count + ResourceManager.MinorRaces.Count);
+            foreach (IEmpireData readOnlyData in SelectedOpponents)
             {
                 Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
                 RacialTrait t = e.data.Traits;
