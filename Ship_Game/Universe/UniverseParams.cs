@@ -24,7 +24,7 @@ public class UniverseParams
     [StarData(DefaultValue=ExtraRemnantPresence.Normal)]
     public ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
 
-    [StarData] public Array<IEmpireData> SelectedOpponents = new();
+    public Array<IEmpireData> SelectedOpponents = new();
 
     [StarData] public int NumSystems;
     [StarData] public int NumOpponents;
