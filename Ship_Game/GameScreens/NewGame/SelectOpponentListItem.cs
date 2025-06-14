@@ -16,18 +16,8 @@ namespace Ship_Game
         {
             Screen = screen;
             EmpireData = empireData;
-            Portrait = ResourceManager.Texture("Portraits/" + empireData.VideoPath);
+            Portrait = ResourceManager.Texture("Races/" + empireData.VideoPath);
         }
-
-        /*
-        public override int ItemHeight
-        {
-            get
-            {
-                int width = (int)(List.Width * 0.8f);
-                return (int)Portrait.GetHeightFromWidthAspect(width);
-            }
-        }*/
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -36,11 +26,13 @@ namespace Ship_Game
             int height = (int)Height;
             int width = (int)Portrait.GetWidthFromHeightAspect(height);
             var portrait = new Rectangle((int)X +10, (int)Y, width, height);
-            batch.Draw(Portrait, portrait, Color.White);
-
-            if (Screen.Params.SelectedOpponents.Contains(EmpireData))
+            bool selected = Screen.Params.SelectedOpponents.Contains(EmpireData);
+            float alpha = selected ? 1f : 0.3f;
+            batch.Draw(Portrait, portrait, Color.White.Alpha(alpha));
+            if (selected)
             {
-                batch.DrawRectangle(portrait, Color.White);
+                batch.DrawRectangle(portrait, EmpireData.Traits.Color, thickness: 2);
+
             }
         }
     }

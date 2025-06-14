@@ -32,6 +32,7 @@ namespace Ship_Game
         UIColorPicker Picker;
 
         UIButton ModeBtn;
+        UIButton SelectOpponentsBtn;
         Rectangle FlagRect;
         ScrollList<RaceArchetypeListItem> ChooseRaceList;
         UITextBox DescriptionTextList;
@@ -214,8 +215,8 @@ namespace Ship_Game
             const int containerPaddingLeft = 10;
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
                 .SetLocalPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
-            DescriptionTextList.Button(ButtonStyle.BigDip, "Select Opponents", OnSelectOpponentsClicked)
-                .SetLocalPos(containerPaddingLeft + 150, DescriptionTextList.Height + containerMarginBottom);
+            SelectOpponentsBtn = DescriptionTextList.Button(ButtonStyle.BigDip, "", OnSelectOpponentsClicked);
+            SelectOpponentsBtn.SetLocalPos(containerPaddingLeft + 150, DescriptionTextList.Height + containerMarginBottom);
 
             Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.Engage, click: OnEngageClicked);
             Button(ButtonStyle.BigDip, 10, ScreenHeight - 40, GameText.Abort, click: OnAbortClicked);
@@ -440,6 +441,8 @@ namespace Ship_Game
             P.NumOpponents += OptionIncrement;
             if (P.NumOpponents > maxOpponents) P.NumOpponents = 1;
             else if (P.NumOpponents < 1)       P.NumOpponents = maxOpponents;
+            SelectOpponentsBtn.Visible = P.NumOpponents != maxOpponents;
+            VerifySelectedOpponents();
         }
 
         void OnPacingClicked(UIButton b)
@@ -533,7 +536,16 @@ namespace Ship_Game
             SetRacialTraits(SelectedData.Traits);
             UpdateTraits();
             DoRaceDescription();
+            VerifySelectedOpponents();
             EnvMenu.UpdateArchetype(SelectedData, RaceSummary);
+        }
+
+        void VerifySelectedOpponents()
+        {
+            P.SelectedOpponents.Remove(SelectedData);
+            if (P.SelectedOpponents.Count > P.NumOpponents)
+                for (int i = P.SelectedOpponents.Count - 1; i >= P.NumOpponents; --i)
+                    P.SelectedOpponents.RemoveAt(i);
         }
 
         void OnEngageClicked(UIButton b)
@@ -567,8 +579,22 @@ namespace Ship_Game
         public override void Update(float fixedDeltaTime)
         {
             CreateRaceSummary();
-
+            UpdateSelectedOpponentsButton();
             base.Update(fixedDeltaTime);
+        }
+
+        void UpdateSelectedOpponentsButton()
+        {
+            if (P.SelectedOpponents.Count > 0)
+            {
+                SelectOpponentsBtn.Style = ButtonStyle.Military;
+                SelectOpponentsBtn.Text = $"Select Opponents ({P.SelectedOpponents.Count}/{P.NumOpponents})";
+            }
+            else
+            {
+                SelectOpponentsBtn.Style = ButtonStyle.BigDip;
+                SelectOpponentsBtn.Text = $"Select Opponents";
+            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

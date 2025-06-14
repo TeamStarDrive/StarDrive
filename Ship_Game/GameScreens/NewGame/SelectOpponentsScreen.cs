@@ -12,7 +12,7 @@ namespace Ship_Game.GameScreens.NewGame
         public readonly UniverseParams Params;
         ScrollList<SelectOpponentListItem> ChooseRaceList;
         readonly IEmpireData PlayerData;
-
+        UILabel RandomOppenentsCount;
 
         public SelectOpponnetsScreen(GameScreen parent, UniverseParams p, IEmpireData selectedData) : base(parent, toPause: null)
         {
@@ -25,34 +25,38 @@ namespace Ship_Game.GameScreens.NewGame
 
         public override void LoadContent()
         {
-            var titleBar = new Rectangle(ScreenWidth / 2 - 203, (LowRes ? 44 : 144), 406, 80);
-            RectF racesRect = new(ScreenWidth / 2 -200,
+            var titleBar = new Rectangle(ScreenWidth / 2 - 225, (LowRes ? 140 : 280), 450, 80);
+            RectF racesListRect = new(titleBar.X,
                                   titleBar.Bottom + 10,
-                                  400,
-                                  600);
+                                  450,
+                                  ScreenHeight * 0.6);
 
-            RectF background = new RectF(racesRect.X+10, racesRect.Y+40, racesRect.W -20, racesRect.H-50);
+            RectF background = new RectF(racesListRect.X+10, racesListRect.Y+40, racesListRect.W -20, racesListRect.H-50);
             Add(new Menu2(titleBar, Color.Black));
-            Add(new UILabel(new Rectangle(titleBar.X+70, titleBar.Y+35, titleBar.Width, titleBar.Height),
-                "Select Opponents", Fonts.Laserian14, Color.Goldenrod));
-            Add(new Menu1(racesRect));
-            Params.SelectedOpponents.Remove(PlayerData);
+            Add(new UILabel(new Rectangle(titleBar.X+83, titleBar.Y+35, titleBar.Width, titleBar.Height),
+                "Select Opponents", Fonts.Laserian14, Color.Wheat));
+            Add(new Menu1(racesListRect));
             ChooseRaceList = Add(new ScrollList<SelectOpponentListItem>(background, 135));
-            Add(CloseButton(racesRect.Right - 45, racesRect.Y + 20));
+            Add(CloseButton(racesListRect.Right - 45, racesListRect.Y + 20));
             ChooseRaceList.OnClick = OnRaceItemSelected;
             ChooseRaceList.OnDoubleClick = OnRaceItemSelected;
-
+            RandomOppenentsCount = Add(new UILabel(
+                               new Rectangle((int)racesListRect.X + 30, (int)racesListRect.Y + 20, 200, 30),
+                                              "", Fonts.Arial20Bold, Color.White));
             IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
                                 data => data.ArchetypeName != PlayerData.ArchetypeName);
             foreach (IEmpireData e in majorRaces)
                 ChooseRaceList.AddItem(new SelectOpponentListItem(this, e));
 
-            //OnExit += () =>
-            //{
-            //    ChooseRaceList.SlideOutToOffset(offset: new(-ChooseRaceList.Width, 0), TransitionOffTime);
-            //};
-
             base.LoadContent();
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (input.RightMouseClick && ChooseRaceList.HitTest(input.CursorPosition))
+                return true;
+
+            return base.HandleInput(input);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -63,6 +67,13 @@ namespace Ship_Game.GameScreens.NewGame
             base.Draw(batch, elapsed);
 
             batch.SafeEnd();
+        }
+
+        public override void Update(float fixedDeltaTime)
+        {
+            RandomOppenentsCount.Text = $"Random Opponents: {Params.NumOpponents - Params.SelectedOpponents.Count}";
+            RandomOppenentsCount.Color = Params.SelectedOpponents.Count == Params.NumOpponents ? Color.Gray : Color.Green;
+            base.Update(fixedDeltaTime);
         }
 
         private void OnRaceItemSelected(SelectOpponentListItem item)
