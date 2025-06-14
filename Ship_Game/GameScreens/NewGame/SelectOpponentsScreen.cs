@@ -25,7 +25,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         public override void LoadContent()
         {
-            var titleBar = new Rectangle(ScreenWidth / 2 - 225, (LowRes ? 140 : 280), 450, 80);
+            var titleBar = new Rectangle(ScreenWidth / 2 - 225, ScreenHeight / 5, 450, 80);
             RectF racesListRect = new(titleBar.X,
                                   titleBar.Bottom + 10,
                                   450,
