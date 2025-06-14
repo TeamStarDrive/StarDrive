@@ -8,11 +8,11 @@ namespace Ship_Game
 {
     public class SelectOpponentListItem : ScrollListItem<SelectOpponentListItem>
     {
-        public SelectOpponnetsScreen Screen;
+        public SelectOpponentsScreen Screen;
         public IEmpireData EmpireData;
         public SubTexture Portrait;
 
-        public SelectOpponentListItem(SelectOpponnetsScreen screen, IEmpireData empireData)
+        public SelectOpponentListItem(SelectOpponentsScreen screen, IEmpireData empireData)
         {
             Screen = screen;
             EmpireData = empireData;

@@ -350,7 +350,7 @@ namespace Ship_Game
 
         void OnSelectOpponentsClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new SelectOpponnetsScreen(this, P, SelectedData));
+            ScreenManager.AddScreen(new SelectOpponentsScreen(this, P, SelectedData));
         }
 
         void OnAbortClicked(UIButton b)

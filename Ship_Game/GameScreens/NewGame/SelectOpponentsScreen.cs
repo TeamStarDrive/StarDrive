@@ -7,14 +7,14 @@ using Ship_Game.Universe;
 
 namespace Ship_Game.GameScreens.NewGame
 {
-    public class SelectOpponnetsScreen : GameScreen
+    public class SelectOpponentsScreen : GameScreen
     {
         public readonly UniverseParams Params;
         ScrollList<SelectOpponentListItem> ChooseRaceList;
         readonly IEmpireData PlayerData;
-        UILabel RandomOppenentsCount;
+        UILabel RandomOpponentsCount;
 
-        public SelectOpponnetsScreen(GameScreen parent, UniverseParams p, IEmpireData selectedData) : base(parent, toPause: null)
+        public SelectOpponentsScreen(GameScreen parent, UniverseParams p, IEmpireData selectedData) : base(parent, toPause: null)
         {
             IsPopup = true;
             TransitionOnTime = 0.75f;
@@ -40,7 +40,7 @@ namespace Ship_Game.GameScreens.NewGame
             Add(CloseButton(racesListRect.Right - 45, racesListRect.Y + 20));
             ChooseRaceList.OnClick = OnRaceItemSelected;
             ChooseRaceList.OnDoubleClick = OnRaceItemSelected;
-            RandomOppenentsCount = Add(new UILabel(
+            RandomOpponentsCount = Add(new UILabel(
                                new Rectangle((int)racesListRect.X + 30, (int)racesListRect.Y + 20, 200, 30),
                                               "", Fonts.Arial20Bold, Color.White));
             IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
@@ -71,8 +71,8 @@ namespace Ship_Game.GameScreens.NewGame
 
         public override void Update(float fixedDeltaTime)
         {
-            RandomOppenentsCount.Text = $"Random Opponents: {Params.NumOpponents - Params.SelectedOpponents.Count}";
-            RandomOppenentsCount.Color = Params.SelectedOpponents.Count == Params.NumOpponents ? Color.Gray : Color.Green;
+            RandomOpponentsCount.Text = $"Random Opponents: {Params.NumOpponents - Params.SelectedOpponents.Count}";
+            RandomOpponentsCount.Color = Params.SelectedOpponents.Count == Params.NumOpponents ? Color.Gray : Color.Green;
             base.Update(fixedDeltaTime);
         }
 
