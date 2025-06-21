@@ -914,7 +914,7 @@ namespace Ship_Game
                 return;
 
             bool threatPresent = ThreatsNearPlanet(System.DangerousForcesPresent(Owner));
-            float maxRechargeRate = threatPresent ? ShieldStrengthMax * 0.005f : ShieldStrengthMax * 0.05f;
+            float maxRechargeRate = threatPresent ? 1 : ShieldStrengthMax * 0.05f;
             float rechargeRate = (ShieldStrengthCurrent * 0.2f).Clamped(1, maxRechargeRate);
             Owner.AddExoticConsumption(ExoticBonusType.ShieldRecharge, rechargeRate);
             float rechargeExoticBonus = Owner.GetDynamicExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);
