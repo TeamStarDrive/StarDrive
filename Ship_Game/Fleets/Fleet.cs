@@ -24,7 +24,7 @@ namespace Ship_Game.Fleets
         
         // unique object id assigned by the universe
         [StarData] public readonly int Id;
-        
+            
         // fleet key [1..9] when assigned to the Empire
         [StarData] public int Key;
         
@@ -61,6 +61,10 @@ namespace Ship_Game.Fleets
         [StarData] public bool ReadyForWarp { get; private set; }
 
         [StarData] public bool InFormationMove { get; private set; }
+
+        [StarData] public FleetPatrol Patrol;
+
+        public bool HasPatrolPlan => Patrol != null;
 
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} ID={Id} task={FleetTask?.Type}";
@@ -2415,11 +2419,18 @@ namespace Ship_Game.Fleets
         /// </summary>
         public void Reset(bool clearOrders = true)
         {
+
             RemoveAllShips(clearOrders: clearOrders);
             Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;
             FleetTask = null;
             Key = 0;
+        }
+
+        void ClearPatrol()
+        {
+            OrderAbortMove();
+            Patrol = null;
         }
 
         /// <summary>
