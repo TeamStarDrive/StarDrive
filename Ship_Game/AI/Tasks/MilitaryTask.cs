@@ -169,6 +169,12 @@ namespace Ship_Game.AI.Tasks
             };
         }
 
+        public static MilitaryTask CreatePatrolTask(Empire owner, FleetPatrol patrol)
+        {
+            MilitaryTask task = new(TaskType.Patrol, owner, patrol.CurrentWaypoint, aoRadius: 12_000);
+            return task;
+        }
+
         public MilitaryTask(TaskType type, Empire owner, Vector2 center, float radius, SolarSystem system, 
             float strengthWanted, MilitaryTaskImportance importance) : this(type, owner, center, radius)
         {

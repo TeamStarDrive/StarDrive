@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Fleets
 {
@@ -12,13 +15,24 @@ namespace Ship_Game.Fleets
     {
         public string PatrolName { get; private set; }
         public WayPoints WayPoints { get; private set; } = new();
+        int CurrentWaypointNum;
 
         public FleetPatrol(string name, WayPoints waypoints)
         {
             PatrolName = name;
-            WayPoints = waypoints;
+            WayPoints = new WayPoints();
+            WayPoints.Set(waypoints.ToArray());
+            CurrentWaypointNum = 0;
         }
 
         [StarDataConstructor] FleetPatrol() { }
+
+        public Vector2 ChangeToNextWaypoint()
+        {
+            CurrentWaypointNum = ++CurrentWaypointNum % WayPoints.Count;
+            return WayPoints.ElementAt(CurrentWaypointNum).Position;
+        }
+
+        public Vector2 CurrentWaypoint => WayPoints.ElementAt(CurrentWaypointNum).Position;
     }
 }
