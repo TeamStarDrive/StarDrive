@@ -1356,15 +1356,15 @@ namespace Ship_Game.Fleets
         {
             switch (TaskStep)
             {
-                case 1:
+                case 0:
                     if (EndInvalidTask(HasPatrolPlan))
                         return;
 
                     FinalPosition = task.AO;
                     FleetMoveToPosition(task.AO, task.AORadius, MoveOrder.Aggressive);
-                    TaskStep = 2;
+                    TaskStep = 1;
                     break;
-                case 2:
+                case 1:
                     if (!ArrivedAtCombatRally(task.AO))
                         break;
 
@@ -1374,7 +1374,7 @@ namespace Ship_Game.Fleets
                         Patrol.ChangeToNextWaypoint();
                         task.ChangeAO(Patrol.CurrentWaypoint);
                     }
-                    TaskStep = 1;
+                    TaskStep = 0;
                     break;
             }
         }
