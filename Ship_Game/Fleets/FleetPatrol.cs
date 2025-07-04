@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using Ship_Game.AI;
-using Ship_Game.Data.Serialization;
-using Ship_Game.Fleets;
-using Ship_Game.Ships;
+﻿using Ship_Game.Data.Serialization;
 using Ship_Game.Ships.AI;
 using Vector2 = SDGraphics.Vector2;
 
@@ -20,8 +14,7 @@ namespace Ship_Game.Fleets
         public FleetPatrol(string name, WayPoints waypoints)
         {
             PatrolName = name;
-            WayPoints = new WayPoints();
-            WayPoints.Set(waypoints.ToArray());
+            WayPoints = waypoints;
             CurrentWaypointNum = 0;
         }
 
@@ -29,7 +22,7 @@ namespace Ship_Game.Fleets
 
         public Vector2 ChangeToNextWaypoint()
         {
-            CurrentWaypointNum = ++CurrentWaypointNum % WayPoints.Count;
+            CurrentWaypointNum = (CurrentWaypointNum + 1) % WayPoints.Count;
             return WayPoints.ElementAt(CurrentWaypointNum).Position;
         }
 

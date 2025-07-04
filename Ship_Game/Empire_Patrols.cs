@@ -14,12 +14,14 @@ namespace Ship_Game
     {
         [StarData] public Array<FleetPatrol> FleetPatrols { get; private set; } = new();
 
-        public void AddPatrolRoute(Fleet fleet, WayPoints waypoints)
+        public FleetPatrol AddPatrolRoute(Fleet fleet, WayPoints waypoints)
         {
             WayPoints clonedWayPoints = new WayPoints();
             clonedWayPoints.Set(waypoints.ToArray());
             // todo create custom names and check if exists
-            FleetPatrols.Add(new FleetPatrol(fleet.Name, clonedWayPoints));
+            FleetPatrol newPatrol = new FleetPatrol(fleet.Name, clonedWayPoints);
+            FleetPatrols.Add(newPatrol);
+            return newPatrol;
         }
 
         public FleetPatrol GetLastPatrolRoute() => FleetPatrols.LastOrDefault();

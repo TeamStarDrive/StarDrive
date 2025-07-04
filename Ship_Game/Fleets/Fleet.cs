@@ -175,8 +175,7 @@ namespace Ship_Game.Fleets
         public void CreatePatrol(WayPoints waypoints)
         {
             ClearOrders();
-            Owner.AddPatrolRoute(this, waypoints);
-            Patrol = Owner.GetLastPatrolRoute();
+            Patrol = Owner.AddPatrolRoute(this, waypoints);
             Owner.AI.AddPendingTask(MilitaryTask.CreatePatrolTask(Owner, Patrol));
         }
 
