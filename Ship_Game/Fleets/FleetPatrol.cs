@@ -7,13 +7,13 @@ namespace Ship_Game.Fleets
     [StarDataType]
     public class FleetPatrol
     {
-        public string PatrolName { get; private set; }
+        public string Name { get; private set; }
         public WayPoints WayPoints { get; private set; } = new();
         int CurrentWaypointIndex;
 
         public FleetPatrol(string name, WayPoints waypoints)
         {
-            PatrolName = name;
+            Name = name;
             WayPoints = waypoints;
             CurrentWaypointIndex = 0;
         }

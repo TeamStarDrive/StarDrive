@@ -2,7 +2,6 @@
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Ship_Game.Ships.AI;
-using System.Linq;
 
 namespace Ship_Game
 {
@@ -14,12 +13,22 @@ namespace Ship_Game
         {
             WayPoints clonedWayPoints = new WayPoints();
             clonedWayPoints.Set(waypoints.ToArray());
-            // todo create custom names and check if exists
-            FleetPatrol newPatrol = new FleetPatrol(fleet.Name, clonedWayPoints);
+            FleetPatrol newPatrol = new FleetPatrol(GetNewPatrolName(fleet.Name), clonedWayPoints);
             FleetPatrols.Add(newPatrol);
             return newPatrol;
         }
 
-        public FleetPatrol GetLastPatrolRoute() => FleetPatrols.LastOrDefault();
+        string GetNewPatrolName(string fleetName)
+        {
+            string baseName = fleetName;
+            string uniqueName = $"{fleetName} patrol";
+            int suffix = 1;
+            while (FleetPatrols.Any(p => p.Name == uniqueName))
+            {
+                uniqueName = $"{baseName}_{suffix++}";
+            }
+
+            return uniqueName;
+        }
     }
 }
