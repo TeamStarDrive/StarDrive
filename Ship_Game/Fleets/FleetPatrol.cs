@@ -9,23 +9,23 @@ namespace Ship_Game.Fleets
     {
         public string PatrolName { get; private set; }
         public WayPoints WayPoints { get; private set; } = new();
-        int CurrentWaypointNum;
+        int CurrentWaypointIndex;
 
         public FleetPatrol(string name, WayPoints waypoints)
         {
             PatrolName = name;
             WayPoints = waypoints;
-            CurrentWaypointNum = 0;
+            CurrentWaypointIndex = 0;
         }
 
         [StarDataConstructor] FleetPatrol() { }
 
         public Vector2 ChangeToNextWaypoint()
         {
-            CurrentWaypointNum = (CurrentWaypointNum + 1) % WayPoints.Count;
-            return WayPoints.ElementAt(CurrentWaypointNum).Position;
+            CurrentWaypointIndex = (CurrentWaypointIndex + 1) % WayPoints.Count;
+            return WayPoints.ElementAt(CurrentWaypointIndex).Position;
         }
 
-        public Vector2 CurrentWaypoint => WayPoints.ElementAt(CurrentWaypointNum).Position;
+        public Vector2 CurrentWaypoint => WayPoints.ElementAt(CurrentWaypointIndex).Position;
     }
 }
