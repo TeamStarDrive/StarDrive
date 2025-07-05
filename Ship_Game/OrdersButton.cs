@@ -6,6 +6,8 @@ using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using SDUtils;
+using Ship_Game.Fleets;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game
 {
@@ -21,6 +23,7 @@ namespace Ship_Game
         public LocalizedText Tooltip;
         public Array<Ship> ShipList = new Array<Ship>();
         public bool Active;
+        readonly Fleet Fleet;
 
         public OrdersButton(Ship ship, OrderType ot, LocalizedText tooltip)
         {
@@ -32,8 +35,9 @@ namespace Ship_Game
 
         public OrdersButton(Array<Ship> shipList, OrderType ot, LocalizedText tooltip)
         {
-            Tooltip = tooltip;
+            Tooltip   = tooltip;
             ShipList  = shipList;
+            Fleet     = shipList.First.Fleet;
             OrderType = ot;
             ClickRect = new Rectangle(0, 0, 48, 48);
         }
@@ -70,12 +74,12 @@ namespace Ship_Game
                 case OrderType.TroopToggle:        DrawButton(batch, rect, ResourceManager.Texture("UI/icon_troop"));                 break;
                 case OrderType.Explore:            DrawButton(batch, rect, ResourceManager.Texture("UI/icon_explore"));               break;
                 case OrderType.OrderResupply:      DrawButton(batch, rect, ResourceManager.Texture("Modules/Ordnance"));              break;
-                case OrderType.EmpireDefense:      DrawButton(batch, rect, ResourceManager.Texture("UI/icon_shield"));                break;
                 case OrderType.Scrap:              DrawButton(batch, rect, ResourceManager.Texture("UI/icon_planetslist"));           break;
                 case OrderType.Refit:              DrawButton(batch, rect, ResourceManager.Texture("UI/icon_dsbw"));                  break;
                 case OrderType.AllowInterTrade:    DrawButton(batch, rect, ResourceManager.Texture("NewUI/icon_intertrade"));         break;
                 case OrderType.DefineTradeRoutes:  DrawTradeRoutesButton(batch, rect, Ship);                                          break;
                 case OrderType.DefineAO:           DrawAOButton(batch, rect, Ship);                                                   break;
+                case OrderType.EmpireDefense:      DrawPatrolButton(batch, rect, Fleet);                                              break;
             }
         }
 
@@ -99,6 +103,18 @@ namespace Ship_Game
                                            ship.AreaOfOperation.Count);
         }
 
+        void DrawPatrolButton(SpriteBatch batch, Rectangle rect, Fleet fleet)
+        {
+            if (fleet == null)
+                return;
+
+            DrawDynamicButton(batch, rect, ResourceManager.Texture("SelectionBox/button_action"),
+                                           ResourceManager.Texture("SelectionBox/button_action_disabled"),
+                                           fleet.HasPatrolPlan ? 1 : 0);
+
+            DrawButton(batch, rect, ResourceManager.Texture("UI/icon_shield"));
+        }
+
         private void DrawDynamicButton(SpriteBatch batch, Rectangle rect, SubTexture activated, SubTexture deactivated, int counter)
         {
             SubTexture tex = counter > 0 ? activated : deactivated;
@@ -117,7 +133,7 @@ namespace Ship_Game
             batch.Draw(tex, iconRect, Color.White);
         }
 
-        public bool HandleInput(InputState input, ScreenManager sm)
+        public bool HandleInput(InputState input)
         {
             if (!ClickRect.HitTest(input.CursorPosition))
             {
@@ -134,6 +150,7 @@ namespace Ship_Game
                     Ship ship = ShipList[i];
                     switch (OrderType)
                     {
+                        case OrderType.EmpireDefense:      OnPatrolClicked(input);                                 return true;
                         case OrderType.TradeFood:          ship.TransportingFood         = !input.RightMouseClick; break;
                         case OrderType.TradeProduction:    ship.TransportingProduction   = !input.RightMouseClick; break;
                         case OrderType.TransportColonists: ship.TransportingColonists    = !input.RightMouseClick; break;
@@ -168,6 +185,36 @@ namespace Ship_Game
                 return true;
             }
             return Hovering;
+        }
+
+        void OnPatrolClicked(InputState input)
+        {
+            if (Fleet == null || Fleet.Ships.Count == 0)
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
+            if (input.RightMouseClick)
+            {
+                if (Fleet.HasPatrolPlan)
+                    Fleet.ClearPatrol();
+
+                return;
+            }
+
+            Ship firstShip = Fleet.Ships.First;
+            if (!firstShip.AI.WaypointsGoodForPatrol)
+            {
+                GameAudio.NegativeClick();
+                ToolTip.CreateFloatingText("No more than one waypoint, cannot create patrol.", "", new Vector2(ClickRect.X, ClickRect.Y-60), 3);
+            }
+            else
+            {
+                WayPoints waypoints = new WayPoints();
+                waypoints.Set(firstShip.AI.CopyWayPoints());
+                Fleet.CreatePatrol(waypoints);  
+            }
         }
     }
 }

@@ -292,7 +292,7 @@ namespace Ship_Game
                     bool orderHover = false;
                     foreach (OrdersButton ob in Orders)
                     {
-                        if (!ob.HandleInput(input, ScreenManager))
+                        if (!ob.HandleInput(input))
                         {
                             continue;
                         }
@@ -497,6 +497,16 @@ namespace Ship_Game
                     SimpleToggle = true
                 };
                 Orders.Add(allowInterEmpireTrade);
+            }
+
+            if (isFleet)
+            {
+                OrdersButton patrol = new(ShipList, OrderType.EmpireDefense, GameText.OrderShipBackToThe)
+                {
+                    SimpleToggle = true,
+                    Active = false
+                };
+                Orders.Add(patrol);
             }
 
             //Added by McShooterz: fleet scrap button

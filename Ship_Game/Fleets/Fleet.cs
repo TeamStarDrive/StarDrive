@@ -174,19 +174,46 @@ namespace Ship_Game.Fleets
 
         public void CreatePatrol(WayPoints waypoints)
         {
-            ClearOrders();
-            Patrol = Owner.AddPatrolRoute(this, waypoints);
-            Owner.AI.AddPendingTask(MilitaryTask.CreatePatrolTask(Owner, Patrol));
+            ClearFleetOrdersAndWaypoints();
+            FleetPatrol patrol = Owner.AddPatrolRoute(this, waypoints);
+            ExecutePatrol(patrol);
+        }
+
+        void ClearFleetOrdersAndWaypoints()
+        {
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                ship.AI.ClearOrdersAndWayPoints();
+            }
         }
 
         public void LoadPatrol(FleetPatrol patrol)
         {
-            ClearOrders();
+            ClearFleetOrdersAndWaypoints();
             Patrol = patrol;
+            ExecutePatrol(Patrol);
+        }
+
+        void ExecutePatrol(FleetPatrol patrol)
+        {
+            Patrol = patrol;
+            FleetTask = MilitaryTask.CreatePatrolTask(Owner, patrol);
+            if (Owner.isPlayer)
+            {
+                TaskStep = 1;
+                DoPatrol(FleetTask);
+            }
+            else
+            {
+                // todo add implementation for AI fleet patrol, if needed (task eval)
+                Owner.AI.AddPendingTask(FleetTask);
+            }
         }
 
         public void ClearPatrol()
         {
+            ClearOrders();
             Patrol = null;
         }
 
@@ -1354,17 +1381,20 @@ namespace Ship_Game.Fleets
 
         void DoPatrol(MilitaryTask task)
         {
+            if (!HasPatrolPlan)
+            {
+                EndPatrolFleetTask();
+                return;
+            }
+
             switch (TaskStep)
             {
-                case 0:
-                    if (EndInvalidTask(HasPatrolPlan))
-                        return;
-
+                case 1:
                     FinalPosition = task.AO;
                     FleetMoveToPosition(task.AO, task.AORadius, MoveOrder.Aggressive);
-                    TaskStep = 1;
+                    TaskStep = 2;
                     break;
-                case 1:
+                case 2:
                     if (!ArrivedAtCombatRally(task.AO))
                         break;
 
@@ -1374,7 +1404,7 @@ namespace Ship_Game.Fleets
                         Patrol.ChangeToNextWaypoint();
                         task.ChangeAO(Patrol.CurrentWaypoint);
                     }
-                    TaskStep = 0;
+                    TaskStep = 1;
                     break;
             }
         }
@@ -1795,6 +1825,15 @@ namespace Ship_Game.Fleets
                     TaskStep = 2;
                     break;
             }
+        }
+
+        /// Ends the patrol fleet task, clearing the FleetTask reference for player fleets.
+        void EndPatrolFleetTask()
+        {
+            if (Owner.isPlayer)
+                FleetTask = null;
+            else
+                FleetTask?.EndTask();
         }
 
         bool EndInvalidTask(bool condition)

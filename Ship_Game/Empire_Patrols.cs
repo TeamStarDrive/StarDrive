@@ -20,8 +20,8 @@ namespace Ship_Game
 
         string GetNewPatrolName(string fleetName)
         {
-            string baseName = fleetName;
-            string uniqueName = $"{fleetName} patrol";
+            string baseName = $"{fleetName} Patrol";
+            string uniqueName = baseName;
             int suffix = 1;
             while (FleetPatrols.Any(p => p.Name == uniqueName))
             {

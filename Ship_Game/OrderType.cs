@@ -16,6 +16,6 @@ namespace Ship_Game
         Scrap,
         Refit,
         AllowInterTrade,
-        DefineTradeRoutes
+        DefineTradeRoutes,
 	}
 }

@@ -28,6 +28,7 @@ namespace Ship_Game.AI
         }
 
         public bool HasWayPoints => WayPoints.Count > 0;
+        public bool WaypointsGoodForPatrol => WayPoints.Count > 1;
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
         public Vector2 DebugDrawPosition => Owner.Position + Owner.Velocity.Normalized() * Owner.Radius;
