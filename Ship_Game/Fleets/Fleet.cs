@@ -14,6 +14,7 @@ using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Universe;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game.Fleets
 {
@@ -169,6 +170,24 @@ namespace Ship_Game.Fleets
         {
             shipToAdd.Fleet = this;
             return AssignExistingOrCreateNewNode(shipToAdd);
+        }
+
+        public void CreatePatrol(WayPoints waypoints)
+        {
+            ClearOrders();
+            Patrol = Owner.AddPatrolRoute(this, waypoints);
+            Owner.AI.AddPendingTask(MilitaryTask.CreatePatrolTask(Owner, Patrol));
+        }
+
+        public void LoadPatrol(FleetPatrol patrol)
+        {
+            ClearOrders();
+            Patrol = patrol;
+        }
+
+        public void ClearPatrol()
+        {
+            Patrol = null;
         }
 
         void ClearFlankList()
@@ -594,6 +613,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.StageFleet:           DoStagingFleet(task);         break;
                 case MilitaryTask.TaskType.InhibitorInvestigate: DoDeepSpaceInvestigate(task); break;
                 case MilitaryTask.TaskType.RemnantPortalDefense: DoRemnantPortalDefense(task); break;
+                case MilitaryTask.TaskType.Patrol:               DoPatrol(task);               break;
             }
         }
 
@@ -1328,6 +1348,33 @@ namespace Ship_Game.Fleets
                     if (Owner.Remnants.NoPortals)
                         TaskStep = 9;
 
+                    break;
+            }
+        }
+
+        void DoPatrol(MilitaryTask task)
+        {
+            switch (TaskStep)
+            {
+                case 0:
+                    if (EndInvalidTask(HasPatrolPlan))
+                        return;
+
+                    FinalPosition = task.AO;
+                    FleetMoveToPosition(task.AO, task.AORadius, MoveOrder.Aggressive);
+                    TaskStep = 1;
+                    break;
+                case 1:
+                    if (!ArrivedAtCombatRally(task.AO))
+                        break;
+
+                    CancelFleetMoveInArea(FinalPosition, task.AORadius*2);
+                    if (HasPatrolPlan)
+                    {
+                        Patrol.ChangeToNextWaypoint();
+                        task.ChangeAO(Patrol.CurrentWaypoint);
+                    }
+                    TaskStep = 0;
                     break;
             }
         }
@@ -2425,12 +2472,6 @@ namespace Ship_Game.Fleets
             TaskStep = 0;
             FleetTask = null;
             Key = 0;
-        }
-
-        void ClearPatrol()
-        {
-            OrderAbortMove();
-            Patrol = null;
         }
 
         /// <summary>

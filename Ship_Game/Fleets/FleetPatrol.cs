@@ -1,24 +1,31 @@
-﻿using System;
-using Ship_Game.AI;
-using Ship_Game.Data.Serialization;
-using Ship_Game.Fleets;
-using Ship_Game.Ships;
+﻿using Ship_Game.Data.Serialization;
 using Ship_Game.Ships.AI;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Fleets
 {
     [StarDataType]
     public class FleetPatrol
     {
-        public string PatrolName { get; private set; }
+        public string Name { get; private set; }
         public WayPoints WayPoints { get; private set; } = new();
+        int CurrentWaypointIndex;
 
         public FleetPatrol(string name, WayPoints waypoints)
         {
-            PatrolName = name;
+            Name = name;
             WayPoints = waypoints;
+            CurrentWaypointIndex = 0;
         }
 
         [StarDataConstructor] FleetPatrol() { }
+
+        public Vector2 ChangeToNextWaypoint()
+        {
+            CurrentWaypointIndex = (CurrentWaypointIndex + 1) % WayPoints.Count;
+            return WayPoints.ElementAt(CurrentWaypointIndex).Position;
+        }
+
+        public Vector2 CurrentWaypoint => WayPoints.ElementAt(CurrentWaypointIndex).Position;
     }
 }

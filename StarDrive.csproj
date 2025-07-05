@@ -176,6 +176,7 @@
     <Compile Include="Ship_Game\Debug\Page\MiningOpsDebug.cs" />
     <Compile Include="Ship_Game\Empire_Espionage.cs" />
     <Compile Include="Ship_Game\Empire_Find.cs" />
+    <Compile Include="Ship_Game\Empire_Patrols.cs" />
     <Compile Include="Ship_Game\Espionage\Espionage.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsCounterEspionage.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOpsDisruptProjection.cs" />
