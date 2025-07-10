@@ -210,7 +210,7 @@ namespace Ship_Game
             if (!firstShip.AI.WaypointsGoodForPatrol)
             {
                 GameAudio.NegativeClick();
-                ToolTip.CreateFloatingText("No more than one waypoint, cannot create patrol.", "", new Vector2(ClickRect.X, ClickRect.Y-60), 3);
+                ToolTip.CreateFloatingText("Need at least 2 waypoints to create patrol.", "", new Vector2(ClickRect.X, ClickRect.Y-60), 3);
             }
             else
             {
