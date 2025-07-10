@@ -999,10 +999,9 @@ namespace Ship_Game
             }
 
             if (waypoints.Length > 2)
-            {
                 DrawLineProjected(waypoints[waypoints.Length - 1].Position, waypoints[0].Position, color);
-                DrawTextureProjected(icon, waypoints[waypoints.Length - 1].Position, 0.5f, 0.0f, color);
-            }
+
+            DrawTextureProjected(icon, waypoints[waypoints.Length - 1].Position, 0.5f, 0.0f, color);
         }
 
         void DrawShields()

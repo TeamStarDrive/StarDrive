@@ -207,7 +207,7 @@ namespace Ship_Game
                 return;
 
             Ship firstShip = Fleet.Ships.First;
-            if (!firstShip.AI.WaypointsGoodForPatrol)
+            if (!firstShip.AI.HasValidPatrolWaypoints)
             {
                 GameAudio.NegativeClick();
                 ToolTip.CreateFloatingText("Need at least 2 waypoints to create patrol.", "", new Vector2(ClickRect.X, ClickRect.Y-60), 3);
