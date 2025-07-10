@@ -479,6 +479,9 @@ namespace Ship_Game
                 if (ship.AI.State is AIState.Bombard or AIState.AssaultPlanet or AIState.Resupply)
                     continue;
 
+                if (ship.Fleet?.HasPatrolPlan == true && ship.AI.HasPriorityOrder)
+                    continue; // skip ships which their fleet has patrol plan but got another priority order
+
                 totalShipSurface += ship.SurfaceArea;
                 if (!ship.IsSpoolingOrInWarp)
                 {
@@ -507,7 +510,7 @@ namespace Ship_Game
                     moveStatus |= MoveStatus.Dispersed;
             }
 
-            if (surfaceAssembled / totalShipSurface > 0.85f)
+            if (totalShipSurface > 0 && surfaceAssembled / totalShipSurface > 0.85f)
                 moveStatus |= MoveStatus.MajorityAssembled;
 
             return moveStatus;

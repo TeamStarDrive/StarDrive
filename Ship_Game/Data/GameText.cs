@@ -5621,6 +5621,8 @@ namespace Ship_Game
         DysonSwarmOverClockSwarmTip = 6363,
         /// <summary>Show designs which are still locked due</summary>
         ShowEmpireLockedDesignsTip = 6364,
+        /// <summary>If you have set at least 2 way points (with the Shift key)</summary>
+        OrderFleetPatrol = 6365,
 
 
 

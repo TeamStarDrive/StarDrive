@@ -186,6 +186,7 @@ namespace Ship_Game
             if (fleet.Ships.Count == 0)
                 return;
 
+            fleet.ClearPatrol();
             Ship[] enemyShips = targetPlanet != null || targetShip != null ? [] : GetVisibleEnemyShipsInScreen();
             if (wasProjecting)
             {

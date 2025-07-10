@@ -174,19 +174,46 @@ namespace Ship_Game.Fleets
 
         public void CreatePatrol(WayPoints waypoints)
         {
-            ClearOrders();
-            Patrol = Owner.AddPatrolRoute(this, waypoints);
-            Owner.AI.AddPendingTask(MilitaryTask.CreatePatrolTask(Owner, Patrol));
+            ClearFleetOrdersAndWaypoints();
+            FleetPatrol patrol = Owner.AddPatrolRoute(this, waypoints);
+            ExecutePatrol(patrol);
+        }
+
+        void ClearFleetOrdersAndWaypoints()
+        {
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                ship.AI.ClearOrdersAndWayPoints();
+            }
         }
 
         public void LoadPatrol(FleetPatrol patrol)
         {
-            ClearOrders();
+            ClearFleetOrdersAndWaypoints();
             Patrol = patrol;
+            ExecutePatrol(Patrol);
+        }
+
+        void ExecutePatrol(FleetPatrol patrol)
+        {
+            Patrol = patrol;
+            FleetTask = MilitaryTask.CreatePatrolTask(Owner, patrol);
+            if (Owner.isPlayer)
+            {
+                TaskStep = 1;
+                DoPatrol(FleetTask);
+            }
+            else
+            {
+                // todo add implementation for AI fleet patrol, if needed (task eval)
+                Owner.AI.AddPendingTask(FleetTask);
+            }
         }
 
         public void ClearPatrol()
         {
+            ClearOrders();
             Patrol = null;
         }
 
@@ -1354,18 +1381,21 @@ namespace Ship_Game.Fleets
 
         void DoPatrol(MilitaryTask task)
         {
+            if (!HasPatrolPlan)
+            {
+                EndPatrolFleetTask();
+                return;
+            }
+
             switch (TaskStep)
             {
-                case 0:
-                    if (EndInvalidTask(HasPatrolPlan))
-                        return;
-
-                    FinalPosition = task.AO;
-                    FleetMoveToPosition(task.AO, task.AORadius, MoveOrder.Aggressive);
-                    TaskStep = 1;
-                    break;
                 case 1:
-                    if (!ArrivedAtCombatRally(task.AO))
+                    FinalPosition = task.AO;
+                    FleetMoveToPosition(task.AO, 0, MoveOrder.Aggressive);
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(task.AO, 4))
                         break;
 
                     CancelFleetMoveInArea(FinalPosition, task.AORadius*2);
@@ -1374,7 +1404,7 @@ namespace Ship_Game.Fleets
                         Patrol.ChangeToNextWaypoint();
                         task.ChangeAO(Patrol.CurrentWaypoint);
                     }
-                    TaskStep = 0;
+                    TaskStep = 1;
                     break;
             }
         }
@@ -1797,6 +1827,15 @@ namespace Ship_Game.Fleets
             }
         }
 
+        /// Ends the patrol fleet task, clearing the FleetTask reference for player fleets.
+        void EndPatrolFleetTask()
+        {
+            if (Owner.isPlayer)
+                FleetTask = null;
+            else
+                FleetTask?.EndTask();
+        }
+
         bool EndInvalidTask(bool condition)
         {
             if (!condition) 
@@ -1959,11 +1998,14 @@ namespace Ship_Game.Fleets
                 for (int i = 0; i < Ships.Count; i++)
                 {
                     var ship = Ships[i];
-                    if (ship.IsSpoolingOrInWarp || ship.InCombat || ship.AI.State != AIState.AwaitingOrders)
-                        continue;
-                    if (ship.InRadius(position, radius)) continue;
-                    Vector2 movePos = position + ship.AI.FleetNode.RelativeFleetOffset / size;
-                    ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
+                    if (!ship.IsSpoolingOrInWarp
+                        && !ship.InCombat
+                        && (ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.HoldPosition && HasPatrolPlan)
+                        && !ship.InRadius(position, radius))
+                    {
+                        Vector2 movePos = position + ship.AI.FleetNode.RelativeFleetOffset / size;
+                        ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
+                    }
                 }
             }
 
