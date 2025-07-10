@@ -1003,18 +1003,6 @@ namespace Ship_Game
                 DrawLineProjected(waypoints[waypoints.Length - 1].Position, waypoints[0].Position, color);
                 DrawTextureProjected(icon, waypoints[waypoints.Length - 1].Position, 0.5f, 0.0f, color);
             }
-
-            /*
-            // Draw tactical icons after way point lines (looks better this way)
-            var tactical = new Color(color, (byte)(color.A + 70));
-
-            WayPoint wp = wayPoints[0];
-            DrawShipProjectionIcon(ship, wp.Position, wp.Direction, tactical);
-            for (int i = 1; i < wayPoints.Length; ++i)
-            {
-                wp = wayPoints[i];
-                DrawShipProjectionIcon(ship, wp.Position, wp.Direction, tactical);
-            }*/
         }
 
         void DrawShields()
