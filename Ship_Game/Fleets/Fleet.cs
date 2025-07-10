@@ -1391,11 +1391,11 @@ namespace Ship_Game.Fleets
             {
                 case 1:
                     FinalPosition = task.AO;
-                    FleetMoveToPosition(task.AO, task.AORadius, MoveOrder.Aggressive);
+                    FleetMoveToPosition(task.AO, 0, MoveOrder.Aggressive);
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtCombatRally(task.AO))
+                    if (!ArrivedAtCombatRally(task.AO, 4))
                         break;
 
                     CancelFleetMoveInArea(FinalPosition, task.AORadius*2);
@@ -1998,11 +1998,14 @@ namespace Ship_Game.Fleets
                 for (int i = 0; i < Ships.Count; i++)
                 {
                     var ship = Ships[i];
-                    if (ship.IsSpoolingOrInWarp || ship.InCombat || ship.AI.State != AIState.AwaitingOrders)
-                        continue;
-                    if (ship.InRadius(position, radius)) continue;
-                    Vector2 movePos = position + ship.AI.FleetNode.RelativeFleetOffset / size;
-                    ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
+                    if (!ship.IsSpoolingOrInWarp
+                        && !ship.InCombat
+                        && (ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.HoldPosition && HasPatrolPlan)
+                        && !ship.InRadius(position, radius))
+                    {
+                        Vector2 movePos = position + ship.AI.FleetNode.RelativeFleetOffset / size;
+                        ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
+                    }
                 }
             }
 

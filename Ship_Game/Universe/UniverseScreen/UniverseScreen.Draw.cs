@@ -988,6 +988,35 @@ namespace Ship_Game
             }
         }
 
+        void DrawFleetPatrolPlan(Fleet fleet, Color color)
+        {
+            WayPoint[] waypoints = fleet.Patrol.WayPoints.ToArray();
+            SubTexture icon = fleet.Icon;
+            for (int i = 0; i < waypoints.Length-1; ++i)
+            {
+                DrawLineProjected(waypoints[i].Position, waypoints[i+1].Position, color);
+                DrawTextureProjected(icon, waypoints[i].Position, 0.5f, 0.0f, color);
+            }
+
+            if (waypoints.Length > 2)
+            {
+                DrawLineProjected(waypoints[waypoints.Length - 1].Position, waypoints[0].Position, color);
+                DrawTextureProjected(icon, waypoints[waypoints.Length - 1].Position, 0.5f, 0.0f, color);
+            }
+
+            /*
+            // Draw tactical icons after way point lines (looks better this way)
+            var tactical = new Color(color, (byte)(color.A + 70));
+
+            WayPoint wp = wayPoints[0];
+            DrawShipProjectionIcon(ship, wp.Position, wp.Direction, tactical);
+            for (int i = 1; i < wayPoints.Length; ++i)
+            {
+                wp = wayPoints[i];
+                DrawShipProjectionIcon(ship, wp.Position, wp.Direction, tactical);
+            }*/
+        }
+
         void DrawShields()
         {
             DrawShieldsPerf.Start();

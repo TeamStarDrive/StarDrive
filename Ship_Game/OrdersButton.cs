@@ -203,6 +203,9 @@ namespace Ship_Game
                 return;
             }
 
+            if (Fleet.HasPatrolPlan)
+                return;
+
             Ship firstShip = Fleet.Ships.First;
             if (!firstShip.AI.WaypointsGoodForPatrol)
             {
