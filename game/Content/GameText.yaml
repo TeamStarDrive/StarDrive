@@ -15541,6 +15541,9 @@ DysonSwarmOverClockSwarmTip:
 ShowEmpireLockedDesignsTip: 
  Id: 6364
  ENG: "Show designs which are still locked due to lack of technology, for our available hulls" 
+OrderFleetPatrol: 
+ Id: 6365
+ ENG: "If you have set at least 2 way points (with the Shift key), clicking this button will create a patrol plan for the fleet based on these way points. Right click will cancel the patrol plan. Patrol fleets will attack any enemy within their sensor range. When you create a new patrol it is automatically loaded to your empires patrol list. You can then assign patrol plans to other fleets in the Patrol Plans Screen (minimap button)."  
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

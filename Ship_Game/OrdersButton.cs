@@ -37,7 +37,7 @@ namespace Ship_Game
         {
             Tooltip   = tooltip;
             ShipList  = shipList;
-            Fleet     = shipList.First.Fleet;
+            Fleet     = shipList.First?.Fleet ?? null;
             OrderType = ot;
             ClickRect = new Rectangle(0, 0, 48, 48);
         }
@@ -79,7 +79,7 @@ namespace Ship_Game
                 case OrderType.AllowInterTrade:    DrawButton(batch, rect, ResourceManager.Texture("NewUI/icon_intertrade"));         break;
                 case OrderType.DefineTradeRoutes:  DrawTradeRoutesButton(batch, rect, Ship);                                          break;
                 case OrderType.DefineAO:           DrawAOButton(batch, rect, Ship);                                                   break;
-                case OrderType.EmpireDefense:      DrawPatrolButton(batch, rect, Fleet);                                              break;
+                case OrderType.Patrol:             DrawPatrolButton(batch, rect, Fleet);                                              break;
             }
         }
 
@@ -150,7 +150,7 @@ namespace Ship_Game
                     Ship ship = ShipList[i];
                     switch (OrderType)
                     {
-                        case OrderType.EmpireDefense:      OnPatrolClicked(input);                                 return true;
+                        case OrderType.Patrol:             OnPatrolClicked(input);                                 return true;
                         case OrderType.TradeFood:          ship.TransportingFood         = !input.RightMouseClick; break;
                         case OrderType.TradeProduction:    ship.TransportingProduction   = !input.RightMouseClick; break;
                         case OrderType.TransportColonists: ship.TransportingColonists    = !input.RightMouseClick; break;

@@ -12,7 +12,7 @@ namespace Ship_Game
         TroopToggle,
         Explore,
         OrderResupply,
-        EmpireDefense,
+        Patrol,
         Scrap,
         Refit,
         AllowInterTrade,

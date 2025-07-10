@@ -501,7 +501,7 @@ namespace Ship_Game
 
             if (isFleet)
             {
-                OrdersButton patrol = new(ShipList, OrderType.EmpireDefense, GameText.OrderShipBackToThe)
+                OrdersButton patrol = new(ShipList, OrderType.Patrol, GameText.OrderFleetPatrol)
                 {
                     SimpleToggle = true,
                     Active = false
