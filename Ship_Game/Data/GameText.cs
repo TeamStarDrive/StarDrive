@@ -5623,7 +5623,10 @@ namespace Ship_Game
         ShowEmpireLockedDesignsTip = 6364,
         /// <summary>If you have set at least 2 way points (with the Shift key)</summary>
         OrderFleetPatrol = 6365,
-
+        /// <summary>Load Patrol</summary>
+        LoadPatrol = 6366,
+        /// <summary>Load Patrol Plan to this fleet</summary>
+        LoadPatrolTip = 6367,
 
 
 

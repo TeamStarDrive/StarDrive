@@ -7,9 +7,9 @@ namespace Ship_Game.Fleets
     [StarDataType]
     public class FleetPatrol
     {
-        public string Name { get; private set; }
+        [StarData] public string Name { get; private set; }
         public WayPoints WayPoints { get; private set; } = new();
-        int CurrentWaypointIndex;
+        [StarData] int CurrentWaypointIndex;
 
         public FleetPatrol(string name, WayPoints waypoints)
         {
@@ -19,6 +19,13 @@ namespace Ship_Game.Fleets
         }
 
         [StarDataConstructor] FleetPatrol() { }
+
+        [StarData]
+        WayPoint[] WayPointsSave
+        {
+            get => WayPoints.ToArray();
+            set => WayPoints.Set(value);
+        }
 
         public Vector2 ChangeToNextWaypoint()
         {

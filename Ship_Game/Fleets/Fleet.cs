@@ -145,6 +145,8 @@ namespace Ship_Game.Fleets
             ship.AI.FleetNode = node;
             ship.FleetOffset = node.RelativeFleetOffset;
             ship.RelativeFleetOffset = node.RelativeFleetOffset;
+            if (Ships.Count == 1 && HasPatrolPlan)
+                ExecutePatrol(Patrol);
 
             for (int i = 0; i < AllFlanks.Count; i++)
             {

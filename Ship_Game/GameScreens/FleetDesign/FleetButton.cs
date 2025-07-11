@@ -54,6 +54,7 @@ public class FleetButton : UIPanel
             DrawBackground(batch, f, isSelected, r);
             DrawIcon(batch, f, r);
             DrawRequisitionIcon(batch, f, r);
+            DrawPatrolIcon(batch, f, r);
             DrawFleetKey(batch, isSelected, r);
             DrawFleetShipIcons(batch, f, r);
         }
@@ -83,6 +84,16 @@ public class FleetButton : UIPanel
             RectF autoReq = new(r.X - 18, r.Y + 5, 15, 20);
             Color colorReq = Screen.ApplyCurrentAlphaToColor(Player.EmpireColor);
             batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, colorReq);
+        }
+    }
+
+    void DrawPatrolIcon(SpriteBatch batch, Fleet f, in RectF r)
+    {
+        if (f.HasPatrolPlan)
+        {
+            RectF patrolRect = new(r.X - 20, r.Y + 25, 20, 20);
+            Color patrolColor = Screen.ApplyCurrentAlphaToColor(Player.EmpireColor);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_patrol_Active"), patrolRect, patrolColor);
         }
     }
 

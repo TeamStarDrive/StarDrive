@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.AI
 {

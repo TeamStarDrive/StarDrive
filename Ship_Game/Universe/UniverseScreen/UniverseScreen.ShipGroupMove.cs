@@ -2,6 +2,7 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using System.Linq;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -31,6 +32,13 @@ namespace Ship_Game
             }
             else if (!Project.Started && Input.RightMouseReleased)
             {
+                for (int i = 0; i < ScreenManager.Screens.Count; i++)
+                {
+                    GameScreen screen = ScreenManager.Screens[i];
+                    if (screen.IsExiting)
+                        return; // don't process right click if screen is exiting or not universe
+                }
+
                 MoveSelectedShipsToMouse();
             }
         }
