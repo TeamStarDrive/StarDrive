@@ -369,24 +369,6 @@ namespace Ship_Game
                     StatusText = GetStatusText(Ship);
                     return true;
                 }
-
-                // FB - Disabled until we make it better
-                // System defense button for ship list
-                /*
-                if (PatrolButton.HandleInput(input)) 
-                {
-                    if (ship.AI.State == AIState.SystemDefender || ship.DoingSystemDefense)
-                    {
-                        ship.DoingSystemDefense = false;
-                        ship.AI.ClearOrders();
-                    }
-                    else
-                    {
-                        ship.DoingSystemDefense = true;
-                    }
-                    Status_Text = GetStatusText(ship);
-                    return true;
-                }*/
             }
 
             if (RefitButton.HandleInput(input))

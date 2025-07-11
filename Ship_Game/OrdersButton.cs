@@ -37,7 +37,7 @@ namespace Ship_Game
         {
             Tooltip   = tooltip;
             ShipList  = shipList;
-            Fleet     = shipList.First?.Fleet ?? null;
+            Fleet     = ShipList.Count > 0 ? shipList.First.Fleet : null;
             OrderType = ot;
             ClickRect = new Rectangle(0, 0, 48, 48);
         }
@@ -203,14 +203,10 @@ namespace Ship_Game
                 return;
             }
 
-            if (Fleet.HasPatrolPlan)
-                return;
-
             Ship firstShip = Fleet.Ships.First;
-            if (!firstShip.AI.HasValidPatrolWaypoints)
+            if (Fleet.HasPatrolPlan || !firstShip.AI.HasValidPatrolWaypoints)
             {
-                GameAudio.NegativeClick();
-                ToolTip.CreateFloatingText("Need at least 2 waypoints to create patrol.", "", new Vector2(ClickRect.X, ClickRect.Y-60), 3);
+                Fleet.Owner.Universe.Screen.ScreenManager.AddScreen(new ChoosePatrolPlan(Fleet.Owner.Universe.Screen, Fleet));
             }
             else
             {

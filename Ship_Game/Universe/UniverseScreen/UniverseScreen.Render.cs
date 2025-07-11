@@ -592,9 +592,7 @@ namespace Ship_Game
             {
                 if (ShouldDrawFleetPatrolPlan(SelectedFleet))
                 {
-                    Ship ship = SelectedShipList.First();
-                    if (ship != null && ship.Fleet == SelectedFleet)
-                        DrawFleetPatrolPlan(SelectedFleet, ApplyCurrentAlphaToColor(ship.Loyalty.EmpireColor));
+                    DrawFleetPatrolPlan(SelectedFleet, ApplyCurrentAlphaToColor(SelectedFleet.Owner.EmpireColor));
                 }
 
                 if (alpha > 0)
@@ -619,7 +617,7 @@ namespace Ship_Game
 
             bool ShouldDrawFleetPatrolPlan(Fleet fleet)
             {
-                return fleet != null
+                return fleet != null 
                        && fleet.HasPatrolPlan
                        && (fleet.Owner.isPlayer || Player.IsAlliedWith(fleet.Owner) || Debug);
             }

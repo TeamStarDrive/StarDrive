@@ -7,6 +7,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -18,7 +19,7 @@ namespace Ship_Game
 
         public Ship CommandShip
         {
-            get         => LeadShip?.Leader;
+            get => LeadShip?.Leader;
             private set => LeadShip = new GroupLeader(value, value?.Fleet);
         }
 
@@ -74,7 +75,7 @@ namespace Ship_Game
             Vector2 fleetCenter = AssembleDefaultGroup(shipList, start, end);
             ProjectPos(fleetCenter, direction);
         }
-        
+
         public void ProjectPos(Vector2 projectedPos, Vector2 direction)
         {
             ProjectedPos = projectedPos;
@@ -86,7 +87,7 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
-                ship.ProjectedPosition = projectedPos + angle.RadiansToDirection()*distance;
+                ship.ProjectedPosition = projectedPos + angle.RadiansToDirection() * distance;
             }
         }
 
@@ -134,7 +135,7 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
-                ship.FleetOffset = angle.RadiansToDirection()*distance;
+                ship.FleetOffset = angle.RadiansToDirection() * distance;
             }
         }
 
@@ -149,7 +150,7 @@ namespace Ship_Game
             if (!finalDirection.IsUnitVector())
                 Log.Error($"AssembleFleet newDirection {finalDirection} must be a direction unit vector!");
 
-            FinalPosition  = finalPosition;
+            FinalPosition = finalPosition;
             FinalDirection = finalDirection;
             float facing = finalDirection.ToRadians();
 
@@ -160,7 +161,7 @@ namespace Ship_Game
                 {
                     float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                     float distance = ship.RelativeFleetOffset.Length();
-                    ship.FleetOffset = angle.RadiansToDirection()*distance;
+                    ship.FleetOffset = angle.RadiansToDirection() * distance;
                 }
             }
         }
@@ -177,16 +178,16 @@ namespace Ship_Game
         {
             switch (ship.DesignRole)
             {
-                case RoleName.fighter:    return 1;
-                case RoleName.gunboat:    return 1;
-                case RoleName.corvette:   return 1;
-                case RoleName.bomber:     return 2; // bombers behind fighters
-                case RoleName.frigate:    return 3;
-                case RoleName.destroyer:  return 3;
-                case RoleName.cruiser:    return 3;
-                case RoleName.prototype:  return 3;
+                case RoleName.fighter: return 1;
+                case RoleName.gunboat: return 1;
+                case RoleName.corvette: return 1;
+                case RoleName.bomber: return 2; // bombers behind fighters
+                case RoleName.frigate: return 3;
+                case RoleName.destroyer: return 3;
+                case RoleName.cruiser: return 3;
+                case RoleName.prototype: return 3;
                 case RoleName.battleship: return 4;
-                case RoleName.capital:    return 5;
+                case RoleName.capital: return 5;
                 default: return 6; // everything else to the back
             }
         }
@@ -195,7 +196,7 @@ namespace Ship_Game
         // fleet offsets even if ship groups are recreated
         static Ship[] ConsistentSort(Array<Ship> ships)
         {
-            return ships.Sorted((a,b) =>
+            return ships.Sorted((a, b) =>
             {
                 int order = GetShipOrder(a) - GetShipOrder(b);
                 if (order != 0) return order;
@@ -244,24 +245,24 @@ namespace Ship_Game
             int i = 0;
             for (int y = 0; y < h; ++y)
             {
-                bool lastLine = (y == h-1);
+                bool lastLine = (y == h - 1);
                 if (!lastLine) // fill front lines:
                 {
                     for (int x = 0; x < w; ++x)
                     {
-                        var ship = Ships[i++]; 
-                        ship.RelativeFleetOffset = new Vector2(x-cx, y) * shipSpacing;
+                        var ship = Ships[i++];
+                        ship.RelativeFleetOffset = new Vector2(x - cx, y) * shipSpacing;
                         AssignPositionTo(ship);
                     }
                 }
                 else
                 {
                     int remaining = ships.Length - i;
-                    float cx2 = remaining*0.5f - 0.5f; // last line center offset by remaining ships
+                    float cx2 = remaining * 0.5f - 0.5f; // last line center offset by remaining ships
                     for (int x = 0; x < remaining; ++x)
                     {
                         var ship = Ships[i++];
-                        ship.RelativeFleetOffset = new Vector2(x-cx2, y) * shipSpacing;
+                        ship.RelativeFleetOffset = new Vector2(x - cx2, y) * shipSpacing;
                         AssignPositionTo(ship);
                     }
                 }
@@ -331,7 +332,7 @@ namespace Ship_Game
 
             float totalRatioSum = 1f;
             Vector2 avg = biggestShip.Position - biggestShip.FleetOffset;
- 
+
             for (int i = 1; i < count; ++i)
             {
                 Ship ship = items[i];
@@ -339,7 +340,7 @@ namespace Ship_Game
                 {
                     float ratio = ship.SurfaceArea / biggestSize;
                     totalRatioSum += ratio;
-                    Vector2 p = (ship.Position -  ship.FleetOffset) * ratio;
+                    Vector2 p = (ship.Position - ship.FleetOffset) * ratio;
                     avg.X += p.X;
                     avg.Y += p.Y;
                 }
@@ -446,21 +447,21 @@ namespace Ship_Game
                 if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius))
                     continue;
 
-                ship.OrderToOrbit(planet, clearOrders:true, MoveOrder.Aggressive);
+                ship.OrderToOrbit(planet, clearOrders: true, MoveOrder.Aggressive);
             }
         }
 
         [Flags]
         public enum MoveStatus
         {
-            None              = 0,
-            Dispersed         = 1,
-            Assembled         = 2,
+            None = 0,
+            Dispersed = 1,
+            Assembled = 2,
             DispersedInCombat = 4,
             AssembledInCombat = 8,
             MajorityAssembled = 16,
-            All               = ~(~0 << 5)
-            
+            All = ~(~0 << 5)
+
         }
 
         public MoveStatus FleetMoveStatus(float radius, Vector2? ao = null)
@@ -499,7 +500,7 @@ namespace Ship_Game
                         surfaceAssembled += ship.SurfaceArea;
                         moveStatus |= MoveStatus.Assembled;
 
-                        if (ourStrengthInAO > enemyStrengthInAO && 
+                        if (ourStrengthInAO > enemyStrengthInAO &&
                             ship.AI.Target?.BaseStrength > 0 && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
                         {
                             moveStatus |= MoveStatus.AssembledInCombat;
@@ -581,7 +582,7 @@ namespace Ship_Game
         /// </summary>
         public Vector2 GetFinalPos(Ship ship)
         {
-            if (CommandShip?.InCombat == true && 
+            if (CommandShip?.InCombat == true &&
                 FinalPosition.InRadius(CommandShip.Position, CommandShip.AI.FleetNode.OrdersRadius))
             {
                 return CommandShip.Position + ship.FleetOffset;
@@ -662,6 +663,21 @@ namespace Ship_Game
                 STLSpeedLimit = speedCapSTL != 0f ? Math.Max(50, (float)Math.Round(speedCapSTL * 0.8f)) : 0f;
                 FTLSpeedLimit = speedCapFTL != 0f ? Math.Max(50, (float)Math.Round(speedCapFTL * 0.8f)) : 0f;
             }
+        }
+
+        public float GetMinFleetSpeedFTL()
+        {
+            return Ships.Min(s => s.MaxFTLSpeed).LowerBound(Ship.LightSpeedConstant);
+        }
+
+        public float GetMinFleetSpeedSTL()
+        {
+            return Ships.Count == 0 ? 50f : Ships.Min(s => s.MaxSTLSpeed);
+        }
+
+        public float GetAverageWarpOutDistance()
+        {
+            return Ships.Count == 0 ? 7500f : Ships.Average(ship => ship.WarpOutDistance);
         }
     }
 }
