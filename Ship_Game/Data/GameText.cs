@@ -5627,7 +5627,22 @@ namespace Ship_Game
         LoadPatrol = 6366,
         /// <summary>Load Patrol Plan to this fleet</summary>
         LoadPatrolTip = 6367,
-
+        /// <summary>Load Patrol Plan to this fleet</summary>
+        EmpirePatrolsScreenTip = 6368,
+        /// <summary>Empire Patrol Plans</summary>
+        EmpirePatrolsScreenTitle = 6369,
+        /// <summary>Patrol Plan Name</summary>
+        PatrolPlanName = 6370,
+        /// <summary>Waypoints #</summary>
+        NumWayPoints = 6371,
+        /// <summary>Assigned Fleets #</summary>
+        PatrolNumAssignedFleets = 6372,
+        /// <summary>Assigned Fleets</summary>
+        PatrolAssignedFleets = 6373,
+        /// <summary>Rename Patrol</summary>
+        RenamePatrol = 6374,
+        /// <summary>Delete Patrol</summary>
+        DeletePatrol = 6375,
 
 
 

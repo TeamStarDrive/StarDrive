@@ -15550,6 +15550,30 @@ LoadPatrol:
 LoadPatrolTip: 
  Id: 6367
  ENG: "Load Patrol Plan to this fleet. It will repalce any existing patrol plan."    
+EmpirePatrolsScreenTip: 
+ Id: 6368
+ ENG: "Opens the Empire Patrols screen, which allows you to rename or delete stored patrol plans."     
+EmpirePatrolsScreenTitle: 
+ Id: 6369
+ ENG: "Empire Patrol Plans"      
+PatrolPlanName: 
+ Id: 6370
+ ENG: "Patrol Plan Name"       
+NumWayPoints: 
+ Id: 6371
+ ENG: "Waypoints #"  
+PatrolNumAssignedFleets: 
+ Id: 6372
+ ENG: "Assigned Fleets #" 
+PatrolAssignedFleets: 
+ Id: 6373
+ ENG: "Assigned Fleets"  
+RenamePatrol: 
+ Id: 6374
+ ENG: "Rename Patrol"   
+DeletePatrol: 
+ Id: 6375
+ ENG: "Delete Patrol" 
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

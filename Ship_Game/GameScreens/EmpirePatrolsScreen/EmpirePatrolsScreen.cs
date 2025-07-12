@@ -1,0 +1,239 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework.Graphics;
+using SDGraphics.Input;
+using SDGraphics;
+using SDUtils;
+using Ship_Game.Audio;
+using Vector2 = SDGraphics.Vector2;
+using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
+using Ship_Game.Fleets;
+
+namespace Ship_Game
+{
+    public sealed class EmpirePatrolsScreen : GameScreen
+    {
+        readonly Menu2 TitleBar;
+        readonly Vector2 TitlePos;
+        readonly Menu2 EMenu;
+
+        public UniverseScreen Universe;
+        public UniverseState UState => Universe.UState;
+        readonly Empire Player;
+
+        public Planet SelectedPlanet { get; private set; }
+        readonly ScrollList<EmpirePatrolsScreenListItem> PatrolsSL;
+
+        readonly SortButton SbPatrolName;
+        readonly SortButton SbNumWaypoints;
+        readonly SortButton SbNumFleetsAssigned;
+        readonly SortButton SbFleetsAssigned;
+
+
+        RectF ERect;
+        SortButton LastSorted;
+
+        public EmpirePatrolsScreen(UniverseScreen parent, Empire player)
+            : base(parent, toPause: parent)
+        {
+            Universe = parent;
+            Player = player;
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
+            IsPopup = true;
+
+            Rectangle titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
+            TitleBar = new Menu2(titleRect);
+            TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.EmpirePatrolsScreenTitle)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
+            EMenu = new Menu2(leftRect);
+            Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
+            ERect = new(leftRect.X + 20, titleRect.Bottom + 50, ScreenWidth - 40,
+                        leftRect.Bottom - (titleRect.Bottom + 46) - 31);
+            RectF slRect = new(ERect.X, ERect.Y - 10, ERect.W, ERect.H + 10);
+            PatrolsSL = Add(new ScrollList<EmpirePatrolsScreenListItem>(slRect));
+            PatrolsSL.EnableItemHighlight = true;
+            foreach (FleetPatrol patrol in player.FleetPatrols)
+            {
+                PatrolsSL.AddItem(new EmpirePatrolsScreenListItem(this, patrol, player));
+            }
+
+            SbPatrolName = new SortButton(Player.data.PLSort, Localizer.Token(GameText.PatrolPlanName));
+            SbNumWaypoints = new SortButton(Player.data.PLSort, Localizer.Token(GameText.NumWayPoints));
+            SbNumFleetsAssigned = new SortButton(Player.data.PLSort, Localizer.Token(GameText.PatrolNumAssignedFleets));
+            SbFleetsAssigned = new SortButton(Player.data.PLSort, Localizer.Token(GameText.PatrolAssignedFleets));
+        }
+
+        Vector2 GetCenteredTextOffset(Rectangle rect, GameText text)
+        {
+            return new Vector2(rect.X + rect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(text)).X / 2f,
+                               ERect.Y - Fonts.Arial20Bold.LineSpacing);
+        }
+
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            batch.SafeBegin();
+            TitleBar.Draw(batch, elapsed);
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.EmpirePatrolsScreenTitle), TitlePos, Colors.Cream);
+            EMenu.Draw(batch, elapsed);
+            base.Draw(batch, elapsed);
+
+            if (PatrolsSL.NumEntries > 0)
+            {
+                EmpirePatrolsScreenListItem e1 = PatrolsSL.ItemAtTop;
+                Graphics.Font fontStyle = Fonts.Arial20Bold;
+
+                var textCursor = GetCenteredTextOffset(e1.PatrolNameRect, GameText.System);
+                SbPatrolName.Update(textCursor);
+                SbPatrolName.Draw(ScreenManager);
+
+                textCursor = GetCenteredTextOffset(e1.NumWaypointsRect, GameText.Fertility);
+                SbNumWaypoints.Update(textCursor);
+                SbNumWaypoints.Draw(ScreenManager, fontStyle);
+
+                textCursor = GetCenteredTextOffset(e1.NumFleetsRect, GameText.Richness);
+                SbNumFleetsAssigned.Update(textCursor);
+                SbNumFleetsAssigned.Draw(ScreenManager, fontStyle);
+
+                textCursor = GetCenteredTextOffset(e1.FleetsRect, GameText.MaxPopulation);
+                SbFleetsAssigned.Update(textCursor);
+                SbFleetsAssigned.Draw(ScreenManager, fontStyle);
+
+                Color lineColor = new Color(118, 102, 67, 255);
+                float columnTop = ERect.Y + 15;
+                float columnBot = ERect.Y + ERect.H - 20;
+                Vector2 topLeftSL = new(e1.PatrolNameRect.X, columnTop);
+                Vector2 botSL = new(topLeftSL.X, columnBot);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
+                topLeftSL = new Vector2((e1.NumWaypointsRect.X), columnTop);
+                botSL = new Vector2(topLeftSL.X, columnBot);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
+                topLeftSL = new Vector2(e1.NumFleetsRect.X, columnTop);
+                botSL = new Vector2(topLeftSL.X, columnBot);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
+                topLeftSL = new Vector2((e1.FleetsRect.X + 5), columnTop);
+                botSL = new Vector2(topLeftSL.X, columnBot);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
+
+                batch.DrawRectangle(PatrolsSL.ItemsHousing, lineColor); // items housing border
+            }
+            batch.SafeEnd();
+        }
+
+        void InitSortedItems(SortButton button)
+        {
+            LastSorted = button;
+            GameAudio.BlipClick();
+            button.Ascending = !button.Ascending;
+            PatrolsSL.Reset();
+        }
+
+        void Sort<T>(SortButton button, Func<Planet, T> sortPredicate)
+        {
+            /*
+            InitSortedItems(button);
+            Planet[] planets = ExploredPlanets.Sorted(button.Ascending, sortPredicate);
+            foreach (Planet p in planets)
+            {
+                if (ShouldAddItem(p))
+                {
+                    var e = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
+                    PatrolsSL.AddItem(e);
+                }
+            }*/
+        }
+
+        void Sort(SortButton button, Map<Planet, float> list)
+        {
+            InitSortedItems(button);
+            var sortedList = button.Ascending ? list.OrderBy(d => d.Value)
+                                              : list.OrderByDescending(d => d.Value);
+
+            /*
+            foreach (KeyValuePair<Planet, float> kv in sortedList)
+            {
+                Planet p = kv.Key;
+                float distance = kv.Value;
+
+                if (ShouldAddItem(p))
+                {
+                    var e = new PlanetListScreenItem(this, p, distance, NumAvailableTroops > 0);
+                    PatrolsSL.AddItem(e);
+                }
+            }*/
+        }
+
+        void HandleButton<T>(InputState input, SortButton button, Func<Planet, T> sortPredicate)
+        {
+            if (button.HandleInput(input))
+                Sort(button, sortPredicate);
+        }
+
+        void HandleButton(InputState input, SortButton button, Map<Planet, float> list)
+        {
+            if (button.HandleInput(input))
+                Sort(button, list);
+        }
+
+        void ResetButton<T>(SortButton button, Func<Planet, T> sortPredicate)
+        {
+            if (LastSorted.Text == button.Text)
+                Sort(button, sortPredicate);
+        }
+
+        void ResetButton(SortButton button, Map<Planet, float> list)
+        {
+            if (LastSorted.Text == button.Text)
+                Sort(button, list);
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (PatrolsSL.NumEntries == 0)
+                ResetList();
+
+            HandleButton(input, SbPatrolName, p => p.Name);
+            HandleButton(input, SbNumWaypoints, p => p.FertilityFor(Player));
+            HandleButton(input, SbNumFleetsAssigned, p => p.MineralRichness);
+            HandleButton(input, SbFleetsAssigned, p => p.MaxPopulationFor(Player));
+
+            if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
+            {
+                GameAudio.EchoAffirmative();
+                ExitScreen();
+                return true;
+            }
+            return base.HandleInput(input);
+        }
+
+        public void ResetList()
+        {
+            PatrolsSL.Reset();
+
+            if (LastSorted == null)
+            {
+                /*
+                foreach (Planet p in ExploredPlanets)
+                {
+                    if (ShouldAddItem(p))
+                    {
+                        var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
+                        PatrolsSL.AddItem(entry);
+                    }
+                }*/
+            }
+            else
+            {
+                ResetButton(SbPatrolName, p => p.Name);
+                ResetButton(SbNumWaypoints, p => p.FertilityFor(Player));
+                ResetButton(SbNumFleetsAssigned, p => p.MineralRichness);
+                ResetButton(SbFleetsAssigned, p => p.MaxPopulationFor(Player));
+            }
+
+            //SelectedPlanet = PatrolsSL.NumEntries > 0 ? PatrolsSL.AllEntries[0].Planet : null;
+        }
+    }
+}
