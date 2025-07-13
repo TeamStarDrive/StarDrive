@@ -86,35 +86,35 @@ namespace Ship_Game
                 EmpirePatrolsScreenListItem e1 = PatrolsSL.ItemAtTop;
                 Graphics.Font fontStyle = Fonts.Arial20Bold;
 
-                var textCursor = GetCenteredTextOffset(e1.PatrolNameRect, GameText.System);
+                var textCursor = GetCenteredTextOffset(e1.PatrolNameRect, GameText.PatrolPlanName);
                 SbPatrolName.Update(textCursor);
                 SbPatrolName.Draw(ScreenManager);
 
-                textCursor = GetCenteredTextOffset(e1.NumWaypointsRect, GameText.Fertility);
+                textCursor = GetCenteredTextOffset(e1.NumWaypointsRect, GameText.NumWayPoints);
                 SbNumWaypoints.Update(textCursor);
                 SbNumWaypoints.Draw(ScreenManager, fontStyle);
 
-                textCursor = GetCenteredTextOffset(e1.NumFleetsRect, GameText.Richness);
+                textCursor = GetCenteredTextOffset(e1.NumFleetsRect, GameText.PatrolNumAssignedFleets);
                 SbNumFleetsAssigned.Update(textCursor);
                 SbNumFleetsAssigned.Draw(ScreenManager, fontStyle);
 
-                textCursor = GetCenteredTextOffset(e1.FleetsRect, GameText.MaxPopulation);
+                textCursor = GetCenteredTextOffset(e1.FleetsRect, GameText.PatrolAssignedFleets);
                 SbFleetsAssigned.Update(textCursor);
                 SbFleetsAssigned.Draw(ScreenManager, fontStyle);
 
                 Color lineColor = new Color(118, 102, 67, 255);
                 float columnTop = ERect.Y + 15;
                 float columnBot = ERect.Y + ERect.H - 20;
-                Vector2 topLeftSL = new(e1.PatrolNameRect.X, columnTop);
+                Vector2 topLeftSL = new(e1.NumWaypointsRect.X, columnTop);
                 Vector2 botSL = new(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((e1.NumWaypointsRect.X), columnTop);
+                topLeftSL = new Vector2((e1.NumFleetsRect.X), columnTop);
                 botSL = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2(e1.NumFleetsRect.X, columnTop);
+                topLeftSL = new Vector2(e1.FleetsRect.X, columnTop);
                 botSL = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((e1.FleetsRect.X + 5), columnTop);
+                topLeftSL = new Vector2((e1.FleetsRect.X + e1.FleetsRect.Width + 5), columnTop);
                 botSL = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
 

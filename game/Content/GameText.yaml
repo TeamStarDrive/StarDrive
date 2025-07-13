@@ -15561,10 +15561,10 @@ PatrolPlanName:
  ENG: "Patrol Plan Name"       
 NumWayPoints: 
  Id: 6371
- ENG: "Waypoints #"  
+ ENG: "# Waypoints"  
 PatrolNumAssignedFleets: 
  Id: 6372
- ENG: "Assigned Fleets #" 
+ ENG: "# Assigned Fleets" 
 PatrolAssignedFleets: 
  Id: 6373
  ENG: "Assigned Fleets"  

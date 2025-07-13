@@ -60,10 +60,10 @@ namespace Ship_Game
                 return new Rectangle(next, y, (int)width, h);
             }
 
-            PatrolNameRect = NextRect(w * 0.1f);
-            NumWaypointsRect = NextRect(200);
-            NumFleetsRect = NextRect(200);
-            FleetsRect = NextRect(500);
+            PatrolNameRect = NextRect(w * 0.15f);
+            NumWaypointsRect = NextRect(w * 0.08f);
+            NumFleetsRect = NextRect(w * 0.08f);
+            FleetsRect = NextRect(w * 0.4f);
 
 
             ShipIconRect = new Rectangle(PatrolNameRect.X + 5, PatrolNameRect.Y + 5, 50, 50);
@@ -71,11 +71,40 @@ namespace Ship_Game
             PlanetNameEntry.SetPos(ShipIconRect.Right + 10, y);
 
             var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
-            RenamePatrol.Rect = new Rectangle(FleetsRect.X + 10, FleetsRect.Y + FleetsRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
-            DeletePatrol.Rect = new RectF(FleetsRect.X + RenamePatrol.Width + 10, RenamePatrol.Y, RenamePatrol.Width, RenamePatrol.Height);
+            RenamePatrol.Rect = new Rectangle(FleetsRect.X + FleetsRect.Width + 10, FleetsRect.Y + FleetsRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
+            DeletePatrol.Rect = new RectF(FleetsRect.X + FleetsRect.Width +  RenamePatrol.Width + 10, RenamePatrol.Y, RenamePatrol.Width, RenamePatrol.Height);
 
-            AddPatrolName();
+            Array<string> fleetsAssigned = GetFleetsAssignedText();
+            Color color = fleetsAssigned.Count == 0 ? Color.Gray : Player.EmpireColor;
+            AddLabels(PatrolNameRect, FleetPatrol.Name, color);
+            AddLabels(NumWaypointsRect, FleetPatrol.WayPoints.Count.ToString(), color);
+            AddLabels(NumFleetsRect, fleetsAssigned.Count.ToString(), color);
+            AddLabels(FleetsRect, AssignedFleetNames(fleetsAssigned), color, centered: false);
             base.PerformLayout();
+        }
+
+        Array<string> GetFleetsAssignedText()
+        {
+            Array<string> fleets = new();
+            foreach (Fleet fleet in Player.AllFleets)
+            {
+                if (fleet.HasPatrolPlan && fleet.Patrol.Name == FleetPatrol.Name)
+                    fleets.Add(fleet.Name);
+            }
+
+            return fleets;
+        }
+
+        string AssignedFleetNames(Array<string> fleets)
+        {
+            if (fleets.Count == 0)
+                return "";
+
+            string text = "";
+            foreach (string fleet in fleets)
+                text = text == "" ? $"{fleet}" : $"{text}, {fleet}";
+
+            return text;
         }
 
         public override bool HandleInput(InputState input)
@@ -83,14 +112,19 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        void AddPatrolName()
+        void AddLabels(Rectangle rect, string text, Color color, bool centered = true)
         {
-            string patrolName = FleetPatrol.Name;
-            Graphics.Font patrolFont = NormalFont.MeasureString(patrolName).X <= PatrolNameRect.Width ? NormalFont : SmallFont;
-            var sysNameCursor = new Vector2(PatrolNameRect.X + PatrolNameRect.Width / 2 - patrolFont.MeasureString(patrolName).X / 2f,
-                                        2 + PatrolNameRect.Y + PatrolNameRect.Height / 2 - patrolFont.LineSpacing / 2);
+            Graphics.Font font = NormalFont.MeasureString(text).X < rect.Width 
+                                ? NormalFont 
+                                : SmallFont.MeasureString(text).X < rect.Width ? SmallFont
+                                                                               : Fonts.Arial8Bold;
+                        
+            var cursor = centered ? new Vector2(rect.X + rect.Width / 2 - font.MeasureString(text).X / 2f,
+                                        2 + rect.Y + rect.Height / 2 - font.LineSpacing / 2)
+                                  : new Vector2(rect.X +5,
+                                        2 + rect.Y + rect.Height / 2 - font.LineSpacing / 2);
 
-            Label(sysNameCursor, patrolName, patrolFont, Player.EmpireColor);
+            Label(cursor, text, font, color);
         }
 
         void OnDeletePatrolClicked(UIButton b)
