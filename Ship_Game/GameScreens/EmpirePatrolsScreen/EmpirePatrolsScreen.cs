@@ -171,7 +171,7 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public void ResetList()
+        void ResetList()
         {
             PatrolsSL.Reset();
 
@@ -187,6 +187,22 @@ namespace Ship_Game
                 ResetButton(SbPatrolName, p => p.Name);
                 ResetButton(SbNumWaypoints, p => p.WayPoints.Count);
                 ResetButton(SbNumFleetsAssigned, p => Player.FleetPatrols.Count(pt => pt.Name == p.Name));
+            }
+        }
+
+        public void DeletePatrol(FleetPatrol patrol)
+        {
+            lock (Player.FleetPatrols)
+            {
+                foreach (Fleet fleet in Player.AllFleets)
+                {
+                    if (fleet.HasPatrolPlan && fleet.Patrol.Name == patrol.Name)
+                        fleet.ClearPatrol();
+                }
+
+                Player.FleetPatrols.Remove(patrol);
+                GameAudio.EchoAffirmative();
+                ResetList();
             }
         }
     }
