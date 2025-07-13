@@ -131,63 +131,26 @@ namespace Ship_Game
             PatrolsSL.Reset();
         }
 
-        void Sort<T>(SortButton button, Func<Planet, T> sortPredicate)
-        {
-            /*
-            InitSortedItems(button);
-            Planet[] planets = ExploredPlanets.Sorted(button.Ascending, sortPredicate);
-            foreach (Planet p in planets)
-            {
-                if (ShouldAddItem(p))
-                {
-                    var e = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
-                    PatrolsSL.AddItem(e);
-                }
-            }*/
-        }
-
-        void Sort(SortButton button, Map<Planet, float> list)
+        void Sort<T>(SortButton button, Func<FleetPatrol, T> sortPredicate)
         {
             InitSortedItems(button);
-            var sortedList = button.Ascending ? list.OrderBy(d => d.Value)
-                                              : list.OrderByDescending(d => d.Value);
-
-            /*
-            foreach (KeyValuePair<Planet, float> kv in sortedList)
+            FleetPatrol[] patrols = Player.FleetPatrols.Sorted(button.Ascending, sortPredicate);
+            foreach (FleetPatrol patrol in patrols)
             {
-                Planet p = kv.Key;
-                float distance = kv.Value;
-
-                if (ShouldAddItem(p))
-                {
-                    var e = new PlanetListScreenItem(this, p, distance, NumAvailableTroops > 0);
-                    PatrolsSL.AddItem(e);
-                }
-            }*/
+                PatrolsSL.AddItem(new EmpirePatrolsScreenListItem(this, patrol, Player));
+            }
         }
 
-        void HandleButton<T>(InputState input, SortButton button, Func<Planet, T> sortPredicate)
+        void HandleButton<T>(InputState input, SortButton button, Func<FleetPatrol, T> sortPredicate)
         {
             if (button.HandleInput(input))
                 Sort(button, sortPredicate);
         }
 
-        void HandleButton(InputState input, SortButton button, Map<Planet, float> list)
-        {
-            if (button.HandleInput(input))
-                Sort(button, list);
-        }
-
-        void ResetButton<T>(SortButton button, Func<Planet, T> sortPredicate)
+        void ResetButton<T>(SortButton button, Func<FleetPatrol, T> sortPredicate)
         {
             if (LastSorted.Text == button.Text)
                 Sort(button, sortPredicate);
-        }
-
-        void ResetButton(SortButton button, Map<Planet, float> list)
-        {
-            if (LastSorted.Text == button.Text)
-                Sort(button, list);
         }
 
         public override bool HandleInput(InputState input)
@@ -196,9 +159,8 @@ namespace Ship_Game
                 ResetList();
 
             HandleButton(input, SbPatrolName, p => p.Name);
-            HandleButton(input, SbNumWaypoints, p => p.FertilityFor(Player));
-            HandleButton(input, SbNumFleetsAssigned, p => p.MineralRichness);
-            HandleButton(input, SbFleetsAssigned, p => p.MaxPopulationFor(Player));
+            HandleButton(input, SbNumWaypoints, p => p.WayPoints.Count);
+            HandleButton(input, SbNumFleetsAssigned, p => Player.FleetPatrols.Count(pt => pt.Name == p.Name));
 
             if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
             {
@@ -215,25 +177,17 @@ namespace Ship_Game
 
             if (LastSorted == null)
             {
-                /*
-                foreach (Planet p in ExploredPlanets)
+                foreach (FleetPatrol patrol in Player.FleetPatrols)
                 {
-                    if (ShouldAddItem(p))
-                    {
-                        var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
-                        PatrolsSL.AddItem(entry);
-                    }
-                }*/
+                    PatrolsSL.AddItem(new EmpirePatrolsScreenListItem(this, patrol, Player));
+                }
             }
             else
             {
                 ResetButton(SbPatrolName, p => p.Name);
-                ResetButton(SbNumWaypoints, p => p.FertilityFor(Player));
-                ResetButton(SbNumFleetsAssigned, p => p.MineralRichness);
-                ResetButton(SbFleetsAssigned, p => p.MaxPopulationFor(Player));
+                ResetButton(SbNumWaypoints, p => p.WayPoints.Count);
+                ResetButton(SbNumFleetsAssigned, p => Player.FleetPatrols.Count(pt => pt.Name == p.Name));
             }
-
-            //SelectedPlanet = PatrolsSL.NumEntries > 0 ? PatrolsSL.AllEntries[0].Planet : null;
         }
     }
 }
