@@ -129,6 +129,7 @@ namespace Ship_Game
 
         void OnDeletePatrolClicked(UIButton b)
         {
+            GameAudio.EchoAffirmative();
             Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, "This will permenantly remove the Patrol Plan from your Empire's database and from any fleets assigned to it as well.")
             {
                 Accepted = () => Screen.DeletePatrol(FleetPatrol)
@@ -137,6 +138,8 @@ namespace Ship_Game
 
         void OnRenamePatrolClicked(UIButton b)
         {
+            GameAudio.EchoAffirmative();
+            Screen.ScreenManager.AddScreen(new RenamePatrolPlanScreen(Screen, FleetPatrol));
         }
     }
 }

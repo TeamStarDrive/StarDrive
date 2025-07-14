@@ -280,6 +280,7 @@
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\EmpirePatrolsScreen\EmpirePatrolsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\EmpirePatrolsScreen\EmpirePatrolsScreenListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\EmpirePatrolsScreen\RenamePatrolPlanScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\EspionageLevelPanel.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOperation.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel1.cs" />
