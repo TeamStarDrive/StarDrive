@@ -5643,7 +5643,8 @@ namespace Ship_Game
         RenamePatrol = 6374,
         /// <summary>Delete Patrol</summary>
         DeletePatrol = 6375,
-
+        /// <summary>Selected patrol name already Exists!</summary>
+        PatrolNameAlreadyExists = 6376,
 
 
 

@@ -34,5 +34,10 @@ namespace Ship_Game.Fleets
         }
 
         public Vector2 CurrentWaypoint => WayPoints.ElementAt(CurrentWaypointIndex).Position;
+
+        public void ChangeName(string newName)
+        {
+            Name = newName;
+        }
     }
 }

@@ -21,7 +21,7 @@ namespace Ship_Game
 
         public UniverseScreen Universe;
         public UniverseState UState => Universe.UState;
-        readonly Empire Player;
+        public readonly Empire Player;
 
         public Planet SelectedPlanet { get; private set; }
         readonly ScrollList<EmpirePatrolsScreenListItem> PatrolsSL;
@@ -203,6 +203,22 @@ namespace Ship_Game
                 Player.FleetPatrols.Remove(patrol);
                 GameAudio.EchoAffirmative();
                 ResetList();
+            }
+        }
+
+        public bool RenamePatrol(FleetPatrol patrol, string newName)
+        {
+            lock (Player.FleetPatrols)
+            {
+                patrol.ChangeName(newName);
+                foreach (Fleet fleet in Player.AllFleets)
+                {
+                    if (fleet.HasPatrolPlan && fleet.Patrol.Name == newName)
+                        fleet.Patrol.ChangeName(newName);
+                }
+                GameAudio.EchoAffirmative();
+                ResetList();
+                return true;
             }
         }
     }

@@ -15557,7 +15557,7 @@ EmpirePatrolsScreenTitle:
  Id: 6369
  ENG: "Empire Patrol Plans"      
 PatrolPlanName: 
- Id: 6370
+ Id: 6370   
  ENG: "Patrol Plan Name"       
 NumWayPoints: 
  Id: 6371
@@ -15574,6 +15574,9 @@ RenamePatrol:
 DeletePatrol: 
  Id: 6375
  ENG: "Delete Patrol" 
+NameAlreadyExists:
+ Id: 6376
+ ENG: "Selected patrol name already Exists!"  
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

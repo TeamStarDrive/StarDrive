@@ -25,7 +25,7 @@ namespace Ship_Game
             int suffix = 1;
             while (FleetPatrols.Any(p => p.Name == uniqueName))
             {
-                uniqueName = $"{baseName}_{suffix++}";
+                uniqueName = $"{baseName}-{suffix++}";
             }
 
             return uniqueName;
