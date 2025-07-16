@@ -165,8 +165,8 @@ namespace Ship_Game
             AdjustCamTimer = 0.5f;
             CamDestination = fleet.AveragePosition().ToVec3d(CamDestination.Z);
 
-            if (CamPos.Z <= 1_000_000)
-                CamDestination.Z = GetZfromScreenState(UnivScreenState.PlanetView);
+            if (CamPos.Z <= (int)UnivScreenState.DetailView)
+                CamDestination.Z = GetZfromScreenState(UnivScreenState.DetailView);
         }
 
         void ViewSystem(SolarSystem s)

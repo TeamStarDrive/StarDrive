@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.AI
 {
@@ -28,6 +29,7 @@ namespace Ship_Game.AI
         }
 
         public bool HasWayPoints => WayPoints.Count > 0;
+        public bool HasValidPatrolWaypoints => WayPoints.Count > 1;
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
         public Vector2 DebugDrawPosition => Owner.Position + Owner.Velocity.Normalized() * Owner.Radius;

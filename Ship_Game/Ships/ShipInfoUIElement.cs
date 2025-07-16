@@ -560,7 +560,7 @@ namespace Ship_Game.Ships
             {
                 foreach (OrdersButton ordersButton in Orders)
                 {
-                    if (ordersButton.HandleInput(input, ScreenManager))
+                    if (ordersButton.HandleInput(input))
                         return true;
                 }
                 if (SlidingElement.ButtonHousing.HitTest(input.CursorPosition))

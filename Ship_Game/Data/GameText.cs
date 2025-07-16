@@ -5621,9 +5621,30 @@ namespace Ship_Game
         DysonSwarmOverClockSwarmTip = 6363,
         /// <summary>Show designs which are still locked due</summary>
         ShowEmpireLockedDesignsTip = 6364,
-
-
-
+        /// <summary>If you have set at least 2 way points (with the Shift key)</summary>
+        OrderFleetPatrol = 6365,
+        /// <summary>Load Patrol</summary>
+        LoadPatrol = 6366,
+        /// <summary>Load Patrol Plan to this fleet</summary>
+        LoadPatrolTip = 6367,
+        /// <summary>Load Patrol Plan to this fleet</summary>
+        EmpirePatrolsScreenTip = 6368,
+        /// <summary>Empire Patrol Plans</summary>
+        EmpirePatrolsScreenTitle = 6369,
+        /// <summary>Patrol Plan Name</summary>
+        PatrolPlanName = 6370,
+        /// <summary>Waypoints #</summary>
+        NumWayPoints = 6371,
+        /// <summary>Assigned Fleets #</summary>
+        PatrolNumAssignedFleets = 6372,
+        /// <summary>Assigned Fleets</summary>
+        PatrolAssignedFleets = 6373,
+        /// <summary>Rename Patrol</summary>
+        RenamePatrol = 6374,
+        /// <summary>Delete Patrol</summary>
+        DeletePatrol = 6375,
+        /// <summary>Selected patrol name already Exists!</summary>
+        PatrolNameAlreadyExists = 6376,
 
 
 

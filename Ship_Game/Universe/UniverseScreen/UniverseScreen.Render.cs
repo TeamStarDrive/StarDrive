@@ -11,6 +11,7 @@ using Ship_Game.Ships;
 using Vector3 = SDGraphics.Vector3;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Fleets;
 
 namespace Ship_Game
 {
@@ -583,31 +584,42 @@ namespace Ship_Game
         private void SelectShipLinesToDraw()
         {
             byte alpha = (byte)Math.Max(0f, 150f * SelectedSomethingTimer / 3f);
-            if (alpha > 0)
+            if (alpha > 0 && SelectedShip != null && ShouldDrawGoalsAndWayPoints(SelectedShip))
             {
-                if (SelectedShip != null && (Debug
-                                             || SelectedShip.Loyalty.isPlayer
-                                             || !Player.DifficultyModifiers.HideTacticalData 
-                                             || Player.IsAlliedWith(SelectedShip.Loyalty)
-                                             || SelectedShip.AI.Target != null))
+                DrawShipGoalsAndWayPoints(SelectedShip, alpha);
+            }
+            else
+            {
+                if (ShouldDrawFleetPatrolPlan(SelectedFleet))
                 {
-                    DrawShipGoalsAndWayPoints(SelectedShip, alpha);
+                    DrawFleetPatrolPlan(SelectedFleet, ApplyCurrentAlphaToColor(SelectedFleet.Owner.EmpireColor));
                 }
-                else 
+
+                if (alpha > 0)
                 {
                     for (int i = 0; i < SelectedShipList.Count; ++i)
                     {
                         Ship ship = SelectedShipList[i];
-                        if (ship.Loyalty.isPlayer
-                            || Player.IsAlliedWith(ship.Loyalty)
-                            || Debug
-                            || !Player.DifficultyModifiers.HideTacticalData
-                            || ship.AI.Target != null)
-                        {
+                        if (ShouldDrawGoalsAndWayPoints(ship))
                             DrawShipGoalsAndWayPoints(ship, alpha);
-                        }
                     }
                 }
+            }
+
+            bool ShouldDrawGoalsAndWayPoints(Ship ship)
+            {
+                return ship.Loyalty.isPlayer
+                        || Player.IsAlliedWith(ship.Loyalty)
+                        || Debug
+                        || !Player.DifficultyModifiers.HideTacticalData
+                        || ship.AI.Target != null;
+            }
+
+            bool ShouldDrawFleetPatrolPlan(Fleet fleet)
+            {
+                return fleet != null 
+                       && fleet.HasPatrolPlan
+                       && (fleet.Owner.isPlayer || Player.IsAlliedWith(fleet.Owner) || Debug);
             }
         }
     }
