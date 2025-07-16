@@ -186,7 +186,7 @@ namespace Ship_Game
             {
                 ResetButton(SbPatrolName, p => p.Name);
                 ResetButton(SbNumWaypoints, p => p.WayPoints.Count);
-                ResetButton(SbNumFleetsAssigned, p => Player.FleetPatrols.Count(pt => pt.Name == p.Name));
+                ResetButton(SbNumFleetsAssigned, p => Player.AllFleets.Count(fleet => fleet.HasPatrolPlan && fleet.Patrol.Name == p.Name));
             }
         }
 
