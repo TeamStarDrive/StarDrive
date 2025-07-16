@@ -14,6 +14,7 @@ using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Universe;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game.Fleets
 {
@@ -24,7 +25,7 @@ namespace Ship_Game.Fleets
         
         // unique object id assigned by the universe
         [StarData] public readonly int Id;
-        
+            
         // fleet key [1..9] when assigned to the Empire
         [StarData] public int Key;
         
@@ -61,6 +62,10 @@ namespace Ship_Game.Fleets
         [StarData] public bool ReadyForWarp { get; private set; }
 
         [StarData] public bool InFormationMove { get; private set; }
+
+        [StarData] public FleetPatrol Patrol;
+
+        public bool HasPatrolPlan => Patrol != null;
 
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} ID={Id} task={FleetTask?.Type}";
@@ -140,6 +145,8 @@ namespace Ship_Game.Fleets
             ship.AI.FleetNode = node;
             ship.FleetOffset = node.RelativeFleetOffset;
             ship.RelativeFleetOffset = node.RelativeFleetOffset;
+            if (Ships.Count == 1 && HasPatrolPlan)
+                ExecutePatrol(Patrol);
 
             for (int i = 0; i < AllFlanks.Count; i++)
             {
@@ -165,6 +172,51 @@ namespace Ship_Game.Fleets
         {
             shipToAdd.Fleet = this;
             return AssignExistingOrCreateNewNode(shipToAdd);
+        }
+
+        public void CreatePatrol(WayPoints waypoints)
+        {
+            ClearFleetOrdersAndWaypoints();
+            FleetPatrol patrol = Owner.AddPatrolRoute(this, waypoints);
+            ExecutePatrol(patrol);
+        }
+
+        void ClearFleetOrdersAndWaypoints()
+        {
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                ship.AI.ClearOrdersAndWayPoints();
+            }
+        }
+
+        public void LoadPatrol(FleetPatrol patrol)
+        {
+            ClearFleetOrdersAndWaypoints();
+            Patrol = patrol;
+            ExecutePatrol(Patrol);
+        }
+
+        void ExecutePatrol(FleetPatrol patrol)
+        {
+            Patrol = patrol;
+            FleetTask = MilitaryTask.CreatePatrolTask(Owner, patrol);
+            if (Owner.isPlayer)
+            {
+                TaskStep = 1;
+                DoPatrol(FleetTask);
+            }
+            else
+            {
+                // todo add implementation for AI fleet patrol, if needed (task eval)
+                Owner.AI.AddPendingTask(FleetTask);
+            }
+        }
+
+        public void ClearPatrol()
+        {
+            ClearOrders();
+            Patrol = null;
         }
 
         void ClearFlankList()
@@ -590,6 +642,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.StageFleet:           DoStagingFleet(task);         break;
                 case MilitaryTask.TaskType.InhibitorInvestigate: DoDeepSpaceInvestigate(task); break;
                 case MilitaryTask.TaskType.RemnantPortalDefense: DoRemnantPortalDefense(task); break;
+                case MilitaryTask.TaskType.Patrol:               DoPatrol(task);               break;
             }
         }
 
@@ -1328,6 +1381,36 @@ namespace Ship_Game.Fleets
             }
         }
 
+        void DoPatrol(MilitaryTask task)
+        {
+            if (!HasPatrolPlan)
+            {
+                EndPatrolFleetTask();
+                return;
+            }
+
+            switch (TaskStep)
+            {
+                case 1:
+                    FinalPosition = task.AO;
+                    FleetMoveToPosition(task.AO, 0, MoveOrder.Aggressive);
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(task.AO, 4))
+                        break;
+
+                    CancelFleetMoveInArea(FinalPosition, task.AORadius*2);
+                    if (HasPatrolPlan)
+                    {
+                        Patrol.ChangeToNextWaypoint();
+                        task.ChangeAO(Patrol.CurrentWaypoint);
+                    }
+                    TaskStep = 1;
+                    break;
+            }
+        }
+
         void DoRemnantPortalDefense(MilitaryTask task)
         {
             if (RetaskFleetIfNoPortals())
@@ -1746,6 +1829,15 @@ namespace Ship_Game.Fleets
             }
         }
 
+        /// Ends the patrol fleet task, clearing the FleetTask reference for player fleets.
+        void EndPatrolFleetTask()
+        {
+            if (Owner.isPlayer)
+                FleetTask = null;
+            else
+                FleetTask?.EndTask();
+        }
+
         bool EndInvalidTask(bool condition)
         {
             if (!condition) 
@@ -1908,11 +2000,14 @@ namespace Ship_Game.Fleets
                 for (int i = 0; i < Ships.Count; i++)
                 {
                     var ship = Ships[i];
-                    if (ship.IsSpoolingOrInWarp || ship.InCombat || ship.AI.State != AIState.AwaitingOrders)
-                        continue;
-                    if (ship.InRadius(position, radius)) continue;
-                    Vector2 movePos = position + ship.AI.FleetNode.RelativeFleetOffset / size;
-                    ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
+                    if (!ship.IsSpoolingOrInWarp
+                        && !ship.InCombat
+                        && (ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.HoldPosition && HasPatrolPlan)
+                        && !ship.InRadius(position, radius))
+                    {
+                        Vector2 movePos = position + ship.AI.FleetNode.RelativeFleetOffset / size;
+                        ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
+                    }
                 }
             }
 
@@ -2415,6 +2510,9 @@ namespace Ship_Game.Fleets
         /// </summary>
         public void Reset(bool clearOrders = true)
         {
+            if (clearOrders)
+                ClearPatrol();
+
             RemoveAllShips(clearOrders: clearOrders);
             Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;

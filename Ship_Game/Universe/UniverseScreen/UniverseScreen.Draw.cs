@@ -988,6 +988,23 @@ namespace Ship_Game
             }
         }
 
+        void DrawFleetPatrolPlan(Fleet fleet, Color color)
+        {
+            float texScale = viewState <= UnivScreenState.SectorView ? 0.5f : 0.75f;
+            WayPoint[] waypoints = fleet.Patrol.WayPoints.ToArray();
+            SubTexture icon = fleet.Icon;
+            for (int i = 0; i < waypoints.Length-1; ++i)
+            {
+                DrawLineWideProjected(waypoints[i].Position, waypoints[i+1].Position, color, 2);
+                DrawTextureProjected(icon, waypoints[i].Position, texScale, 0.0f, color);
+            }
+
+            if (waypoints.Length > 2)
+                DrawLineWideProjected(waypoints[waypoints.Length - 1].Position, waypoints[0].Position, color, 2);
+
+            DrawTextureProjected(icon, waypoints[waypoints.Length - 1].Position, texScale, 0.0f, color);
+        }
+
         void DrawShields()
         {
             DrawShieldsPerf.Start();

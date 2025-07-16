@@ -31,6 +31,13 @@ namespace Ship_Game
             }
             else if (!Project.Started && Input.RightMouseReleased)
             {
+                for (int i = 0; i < ScreenManager.Screens.Count; i++)
+                {
+                    GameScreen screen = ScreenManager.Screens[i];
+                    if (screen.IsExiting)
+                        return; // don't process right click if screen is exiting or not universe
+                }
+
                 MoveSelectedShipsToMouse();
             }
         }
@@ -186,6 +193,7 @@ namespace Ship_Game
             if (fleet.Ships.Count == 0)
                 return;
 
+            fleet.ClearPatrol();
             Ship[] enemyShips = targetPlanet != null || targetShip != null ? [] : GetVisibleEnemyShipsInScreen();
             if (wasProjecting)
             {

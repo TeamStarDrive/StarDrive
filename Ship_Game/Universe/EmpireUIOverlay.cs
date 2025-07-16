@@ -327,7 +327,7 @@ namespace Ship_Game
                         Universe.ScreenManager.AddScreen(new InfiltrationScreen(Universe));
                     return true;
                 }
-                if (input.KeyPressed(Keys.P))
+                if (input.InGameWiki)
                 {
                     GameAudio.TacticalPause();
                     Universe.ScreenManager.AddScreen(new InGameWiki(Universe));
