@@ -2510,6 +2510,8 @@ namespace Ship_Game.Fleets
         /// </summary>
         public void Reset(bool clearOrders = true)
         {
+            if (clearOrders)
+                ClearPatrol();
 
             RemoveAllShips(clearOrders: clearOrders);
             Owner.AI?.RemoveFleetFromGoals(this);
