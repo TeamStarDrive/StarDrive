@@ -15574,7 +15574,7 @@ RenamePatrol:
 DeletePatrol: 
  Id: 6375
  ENG: "Delete Patrol" 
-NameAlreadyExists:
+PatrolNameAlreadyExists:
  Id: 6376
  ENG: "Selected patrol name already Exists!"  
 IndicatesTheChanceOfEcm:

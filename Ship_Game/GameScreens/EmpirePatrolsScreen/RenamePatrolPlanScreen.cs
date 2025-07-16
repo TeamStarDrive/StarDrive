@@ -34,7 +34,7 @@ namespace Ship_Game
             PatrolNameEntry.MaxCharacters = 40;
             PatrolNameEntry.OnTextChanged = OnPatrolNameTextChanged;
             PatrolNameEntry.Background = new Submenu(new RectF(PatrolNameEntry.X-10, PatrolNameEntry.Y-3, PatrolNameEntry.Width+220, PatrolNameEntry.Height+6));
-            NameAlreadyExistsLabel = Add(new UILabel(Menu.X + 20, Menu.Y + 80, GameText.PatrolNameAlreadyExists));
+            NameAlreadyExistsLabel = Add(new UILabel(Menu.X + 30, Menu.Y + 90, GameText.PatrolNameAlreadyExists));
             NameAlreadyExistsLabel.Color = Color.Red;
             Add(new CloseButton(Menu.Right - 40, Menu.Y + 15));
             RenameButton = ButtonMedium(Menu.X + 30, Menu.Bottom - 50, GameText.RenamePatrol, OnRenameClicked);
