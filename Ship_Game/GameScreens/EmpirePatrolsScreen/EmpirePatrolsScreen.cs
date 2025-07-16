@@ -160,7 +160,7 @@ namespace Ship_Game
 
             HandleButton(input, SbPatrolName, p => p.Name);
             HandleButton(input, SbNumWaypoints, p => p.WayPoints.Count);
-            HandleButton(input, SbNumFleetsAssigned, p => Player.FleetPatrols.Count(pt => pt.Name == p.Name));
+            HandleButton(input, SbNumFleetsAssigned, p => Player.AllFleets.Count(fleet => fleet.HasPatrolPlan && fleet.Patrol == p));
 
             if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
             {
