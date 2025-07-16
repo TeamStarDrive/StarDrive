@@ -102,6 +102,7 @@ namespace Ship_Game
         public bool ExoticListScreen     => KeyPressed(Keys.G);
         public bool ExoticBonusesWindow  => KeyPressed(Keys.M);
         public bool FreighterUtilWindow  => KeyPressed(Keys.N);
+        public bool EmpirePatrolsScreen  => KeyPressed(Keys.P);
         public bool FTLOverlay           => KeyPressed(Keys.F1);
         public bool RangeOverlay         => KeyPressed(Keys.F2);
         public bool ShipListScreen       => KeyPressed(Keys.K);
@@ -134,7 +135,7 @@ namespace Ship_Game
         public bool ShipPieMenu          => KeyPressed(Keys.Q);
         
         // IngameWiki
-        public bool ExitWiki => KeyPressed(Keys.P);
+        public bool InGameWiki => KeyPressed(Keys.Back);
 
         // FleetDesignScreen
         public bool FleetRemoveSquad => KeyPressed(Keys.Back) || KeyPressed(Keys.Delete);

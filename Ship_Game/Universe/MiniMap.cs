@@ -21,6 +21,7 @@ namespace Ship_Game
         readonly ToggleButton ExoticBonuses;
         readonly ToggleButton FreighterUtil;
         readonly ToggleButton ColonyBlueprints;
+        readonly ToggleButton EmpirePatrols;
 
         readonly UniverseScreen Universe;
         readonly Rectangle Housing;
@@ -46,7 +47,7 @@ namespace Ship_Game
 
         public MiniMap(UniverseScreen universe, in Rectangle housing) : base(housing)
         {
-            Universe = universe;
+            Universe       = universe;
             Housing        = housing;
             MiniMapHousing = ResourceManager.Texture("Minimap/radar_over");
             Node           = ResourceManager.Texture("UI/node");
@@ -69,6 +70,7 @@ namespace Ship_Game
             ExoticScreen       = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_exotic_systems", ExoticScreen_OnClick));
             ExoticBonuses      = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
             ColonyBlueprints   = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "NewUI/blueprints_minimap", ColonyBlueprints_OnClick));
+            EmpirePatrols      = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "NewUI/icon_patrol_list", EmpirePatrols_OnClick));
             Scale = ActualMap.Width / (Universe.UState.Size * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
         }
@@ -353,6 +355,13 @@ namespace Ship_Game
             Universe.ScreenManager.AddScreen(new BlueprintsScreen(Universe, Universe.Player));
         }
 
+        public void EmpirePatrols_OnClick(ToggleButton toggleButton)
+        {
+            GameAudio.AcceptClick();
+            EmpirePatrols.IsToggled = false;
+            Universe.ScreenManager.AddScreen(new EmpirePatrolsScreen(Universe, Universe.Player));
+        }
+
         public void ExoticScreen_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
@@ -429,6 +438,9 @@ namespace Ship_Game
 
             if (ColonyBlueprints.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.BlueprintsScreenTip, "F");
+
+            if (EmpirePatrols.Rect.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(GameText.EmpirePatrolsScreenTip, "P");
 
             if (ExoticBonuses.Rect.HitTest(input.CursorPosition))
             {

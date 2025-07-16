@@ -77,6 +77,7 @@ namespace Ship_Game
             if (input.FTLOverlay)                 ToggleUIComponent("sd_ui_accept_alt3", ref ShowingFTLOverlay);
             if (input.RangeOverlay)               ToggleUIComponent("sd_ui_accept_alt3", ref ShowingRangeOverlay);
             if (input.BlueprintsSceen)            ScreenManager.AddScreen(new BlueprintsScreen(this, Player));
+            if (input.EmpirePatrolsScreen)        ScreenManager.AddScreen(new EmpirePatrolsScreen(this, Player));
             if (input.AutomationWindow && !Debug) aw.ToggleVisibility();
             if (input.ExoticBonusesWindow) ExoticBonusesWindow.ToggleVisibility();
             if (input.FreighterUtilWindow) FreighterUtilizationWindow.ToggleVisibility();
