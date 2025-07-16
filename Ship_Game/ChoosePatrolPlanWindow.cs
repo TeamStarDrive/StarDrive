@@ -64,7 +64,7 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 bool active = Screen.Fleet.HasPatrolPlan && FleetPatrol.Name == Screen.Fleet.Patrol.Name;
-                batch.Draw(ResourceManager.Texture("UI/icon_shield"), new Rectangle((int)X, (int)Y, 29, 30), Color.White);
+                batch.Draw(ResourceManager.Texture("UI/icon_shield"), new Rectangle((int)X, (int)Y, 29, 30), active ? Screen.ApplyCurrentAlphaToColor(Color.White) : Color.White);
                 var tCursor = new Vector2(X + 40f, Y + 3f);
                 batch.DrawString(Fonts.Arial12Bold, FleetPatrol.Name, tCursor, Color.White);
 
@@ -75,13 +75,13 @@ namespace Ship_Game
                     if (active)
                         CompletionText = $"{CompletionText} (active)";
 
-                    batch.DrawString(Fonts.Arial12Bold, CompletionText, tCursor, active ? Color.Gold : Color.Green);
+                    batch.DrawString(Fonts.Arial12Bold, CompletionText, tCursor, active ? Player.EmpireColor : Color.Gray);
                 }
 
                 var waypointRect = new Rectangle((int)X + 285, (int)Y+7, 21, 20);
                 var waypointText = new Vector2((waypointRect.X + 25), (waypointRect.Y + 2));
-                batch.Draw(ResourceManager.Texture("NewUI/icon_waypoints"), waypointRect, active ? Color.Gold : Player.EmpireColor);
-                batch.DrawString(Fonts.Arial12Bold, $"{FleetPatrol.WayPoints.Count}", waypointText, active ? Color.Gold : Color.White);
+                batch.Draw(ResourceManager.Texture("NewUI/icon_waypoints"), waypointRect, active ? Player.EmpireColor : Color.Gray);
+                batch.DrawString(Fonts.Arial12Bold, $"{FleetPatrol.WayPoints.Count}", waypointText, Color.White);
             }
         }
         

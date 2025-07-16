@@ -28,14 +28,14 @@ namespace Ship_Game
             Menu = Add(new Menu1((int)Screen.Width / 2 - 250, (int)Screen.Height / 2 - 100, 500, 200));
             RectF subRect = new (Menu.X + 15, Menu.Y + 15, Menu.Width - 30, Menu.Height - 30);
             Add(new Submenu(subRect, "Change Patrol Plan Name"));
-            PatrolNameEntry = Add(new UITextEntry(Menu.X + 20, Menu.Y + 50, 100, Fonts.Arial20Bold, FleetPatrol.Name));
+            PatrolNameEntry = Add(new UITextEntry(Menu.X + 30, Menu.Y + 50, 200, Fonts.Arial20Bold, FleetPatrol.Name));
             PatrolNameEntry.AutoCaptureOnHover = true;
             PatrolNameEntry.AutoCaptureOnKeys = true;
             PatrolNameEntry.MaxCharacters = 40;
             PatrolNameEntry.OnTextChanged = OnPatrolNameTextChanged;
+            PatrolNameEntry.Background = new Submenu(new RectF(PatrolNameEntry.X-10, PatrolNameEntry.Y-3, PatrolNameEntry.Width+220, PatrolNameEntry.Height+6));
             NameAlreadyExistsLabel = Add(new UILabel(Menu.X + 20, Menu.Y + 80, GameText.PatrolNameAlreadyExists));
             NameAlreadyExistsLabel.Color = Color.Red;
-            NameAlreadyExistsLabel.Visible = false;
             Add(new CloseButton(Menu.Right - 40, Menu.Y + 15));
             RenameButton = ButtonMedium(Menu.X + 30, Menu.Bottom - 50, GameText.RenamePatrol, OnRenameClicked);
             CancelButton = ButtonBigDip(Menu.X + 180, Menu.Bottom - 50, GameText.RenamePatrol, OnCancelClicked);
@@ -44,6 +44,8 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
+            RenameButton.Enabled = false;
+            NameAlreadyExistsLabel.Visible = false;
             RenameButton.Text = "Rename";
             CancelButton.Text = "Cancel";
             base.PerformLayout();
@@ -59,6 +61,12 @@ namespace Ship_Game
 
         void OnPatrolNameTextChanged(string newName)
         {
+            if (FleetPatrol.Name == newName)
+            {
+                RenameButton.Enabled = false;
+                return;
+            }
+
             if (Screen.Player.FleetPatrols.Any(p => p.Name == newName))
             {
                 NameAlreadyExistsLabel.Visible = true;

@@ -234,10 +234,6 @@ namespace Ship_Game
 
             bool wasHovering = Hover; // was hovering last frame
             Hover = HitTest(input.CursorPosition);
-            if (Hover)
-            {
-                Log.Info("Dd");
-            }
             bool autoKeysDown = AutoCaptureOnKeys && AnyValidInputKeysDown(input);
             bool autoHover    = AutoCaptureOnHover && Hover;
             bool hoverAndClick = Hover && input.LeftMouseClick;
