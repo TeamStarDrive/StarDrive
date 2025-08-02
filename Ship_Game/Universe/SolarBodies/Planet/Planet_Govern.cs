@@ -272,7 +272,7 @@ namespace Ship_Game
             if (type is UpriseBuildingType.None)
                 return;
 
-            Building[] potentialBuildings = BuildingList.Filter(b => b.Scrappable);
+            Building[] potentialBuildings = BuildingList.Filter(b => b.Scrappable && !b.IsBiospheres);
             if (potentialBuildings.Length == 0)
                 return;
 

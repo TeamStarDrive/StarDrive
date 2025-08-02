@@ -31,10 +31,10 @@ namespace Ship_Game
         /// <summary>
         /// This will decrease the str needed vs the target empire slightly. Empire is null safe.
         /// It should be called when a fleet task succeeds
-        /// There is hard limit of 5 or (more if Remnants) on the multiplier
+        /// There is hard limit of 5 or (more if target empire is Remnants) on the multiplier
         /// </summary>
-        public void DecreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, -DecreaseValue);
-        public void IncreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, IncreaseValue);
+        public void DecreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, WeAreRemnants ? -0.1f : -DecreaseValue);
+        public void IncreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, WeAreRemnants ? 0.025f : IncreaseValue);
 
         void TryUpdateFleetStrEmpireMultiplier(Empire targetEmpire, float value)
         {
@@ -52,7 +52,7 @@ namespace Ship_Game
                 if (newValue > maxMultiplier)
                     newValue *= 0.5f; // reached upper limit, restart at lower value
 
-                FleetStrEmpireMultiplier[targetEmpire.Id] = newValue.LowerBound(WeAreRemnants ? 1 : 0.5f);
+                FleetStrEmpireMultiplier[targetEmpire.Id] = newValue.LowerBound(WeAreRemnants ? 0.25f : 0.5f);
             }
             else
             {

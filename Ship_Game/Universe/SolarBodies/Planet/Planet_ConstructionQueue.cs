@@ -286,14 +286,65 @@ public partial class Planet
         UpdateMaxPopulation();
     }
 
-    public void ScrapBuilding(Building b, PlanetGridSquare tile = null)
+    public void ScrapBuilding(Building b)
     {
-        RemoveBuildingFromPlanet(b, tile, refund:true);
+        RemoveBuildingFromPlanet(b, refund:true);
         ProdHere += b.ActualCost(Owner) / 2f;
     }
 
-    public void DestroyBuildingOn(PlanetGridSquare tile) => RemoveBuildingFromPlanet(null, tile, refund:false);
-    public void DestroyBuilding(Building b) => RemoveBuildingFromPlanet(b, null, refund:false);
+    public void DestroyBuildingOn(PlanetGridSquare tile) //  => RemoveBuildingFromPlanet(null, tile, refund:false);
+    {
+        Building b = tile.Building;
+        if (b == null)
+            return;
+
+        if (b.IsBiospheres)
+        {
+           Log.Error($"{Name} - Building on tile is a bioshpere, this should not be possible!");
+           return;
+        }
+
+        ClearBuildingFromTileAndUpdate(b, tile);
+    }
+
+    public void DestroyBuilding(Building b) => RemoveBuildingFromPlanet(b, refund:false);
+
+    void RemoveBuildingFromPlanet(Building b, bool refund)
+    {
+        if (b.IsBiospheres)
+        {
+            PlanetGridSquare tile = TilesList.Find(t => t.Biosphere == true);
+            if (tile != null)
+                DestroyBioSpheres(tile);
+            else
+                Log.Error($"Failed to find tile with biospheres on {Name}");
+        }
+        else if (ClearBuildingFromTileAndUpdate(b) && refund)
+        {
+            Owner?.RefundCreditsPostRemoval(b);
+        }
+    }
+
+    bool ClearBuildingFromTileAndUpdate(Building b, PlanetGridSquare tile = null)
+    {
+        // only trigger removal effects once -- we shouldn't touch
+        // TilesList unless the building was actually in the BuildingList
+        if (BuildingList.Remove(b))
+        {
+            tile ??= TilesList.Find(t => t.Building == b);
+            // TODO: we need a better cleanup of planetary tiles,
+            //       current system with CrashSites and Volcanoes is too fragile
+            tile.ClearBuilding();
+            tile.CrashSite = null;
+            UpdatePlanetStatsFromRemovedBuilding(b);
+            return true;
+        }
+        else
+        {
+            Log.Error($"Building {b.Name} was not found on building list - planet {Name}");
+            return false;
+        }
+    }
 
     // TODO: actually remove Biospheres properly
     void ClearBioSpheresFromList(PlanetGridSquare tile)
@@ -357,36 +408,6 @@ public partial class Planet
         }
     }
     
-    void RemoveBuildingFromPlanet(Building b, PlanetGridSquare tile, bool refund)
-    {
-        b ??= tile?.Building;
-        if (b == null)
-            return;
-
-        // only trigger removal effects once -- we shouldn't touch
-        // TilesList unless the building was actually in the BuildingList
-        if (BuildingList.Remove(b))
-        {
-            tile ??= TilesList.Find(t => t.Building == b);
-            if (tile != null)
-            {
-                tile.ClearBuilding();
-                // TODO: we need a better cleanup of planetary tiles,
-                //       current system with CrashSites and Volcanoes is too fragile
-                tile.CrashSite = null;
-            }
-            else
-            {
-                Log.Error("Failed to find tile with building");
-            }
-
-            if (refund)
-                Owner?.RefundCreditsPostRemoval(b);
-
-            UpdatePlanetStatsFromRemovedBuilding(b);
-        }
-    }
-
     // this should update planet stats based on buildings
     // try to avoid Adding to integer stats here, and instead recalculate the value
     void UpdatePlanetStatsFromPlacedBuilding(Building b)
