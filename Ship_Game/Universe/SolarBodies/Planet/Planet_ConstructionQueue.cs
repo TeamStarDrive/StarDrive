@@ -300,7 +300,7 @@ public partial class Planet
 
         if (b.IsBiospheres)
         {
-           Log.Error($"{Name} - Building on tile is a bioshpere, this should not be possible!");
+           Log.Error($"{Name} - Building on tile is a biosphere, this should not be possible!");
            return;
         }
 
