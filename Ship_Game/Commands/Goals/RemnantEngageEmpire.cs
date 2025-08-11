@@ -120,6 +120,7 @@ namespace Ship_Game.Commands.Goals
                 if (i == 0)
                 {
                     Task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, Owner);
+                    Task.TargetEmpire = TargetEmpire;
                     Owner.AI.AddPendingTask(Task);
                     Task.CreateRemnantFleet(Owner, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
                     continue;
@@ -192,7 +193,10 @@ namespace Ship_Game.Commands.Goals
         GoalStep WaitForCompletion()
         {
             if (Fleet == null || Fleet.Ships.Count == 0)
+            {
+                Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return GoalStep.GoalFailed; // fleet is dead
+            }
 
             if (!IsPortalValidOrRerouted())
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalFailed);
@@ -214,13 +218,16 @@ namespace Ship_Game.Commands.Goals
                 RequestBombers(numBombers);
 
             if (numBombers / 3 >= Fleet.Ships.Count - numBombers) // only bombers and some combat ships left
+            {
+                Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return ReturnToClosestPortalAndReroute();
-
+            }
             if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Not cleared enemy at target planet yet
                 return GoalStep.TryAgain;
 
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, 
-                stickToSameRandomTarget: TargetPlanet?.System.HasPlanetsOwnedBy(TargetEmpire) == true))
+                stickToSameRandomTarget: TargetPlanet?.System.HasPlanetsOwnedBy(TargetEmpire) == true 
+                && Owner.Universe.P.Difficulty >= GameDifficulty.Hard))
             {
                 if (!Remnants.FindValidTarget(out Empire newVictim))
                     return ReturnToClosestPortalAndReroute();

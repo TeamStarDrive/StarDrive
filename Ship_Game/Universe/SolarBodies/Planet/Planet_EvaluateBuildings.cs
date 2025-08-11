@@ -796,7 +796,7 @@ namespace Ship_Game
 
             PlanetGridSquare tile = Random.Item(potentialBio.Sorted(t => t.Building?.ActualCost(Owner) ?? 0));
             if (!tile.Building?.CanBuildAnywhere == true)
-                ScrapBuilding(tile.Building, tile);
+                ScrapBuilding(tile.Building);
 
             DestroyBioSpheres(tile, false);
         }

@@ -613,7 +613,7 @@ namespace Ship_Game
         {
             float strMultiplier = !targetEmpire.isPlayer ? 1 : 1 + (int)Owner.Universe.P.Difficulty*0.334f; // 1, 1.33, 1.66, ~2
             float str = targetEmpire.OffensiveStrength * strMultiplier 
-                * Owner.GetFleetStrEmpireMultiplier(targetEmpire) / Owner.DifficultyModifiers.RemnantStrModifier;
+                * Owner.GetFleetStrEmpireMultiplier(targetEmpire) / GlobalStats.Defaults.RemnantDesignStrMultiplier.LowerBound(0.1f);
             float effectiveLevel = Level * strMultiplier;
             return str.Clamped(min: Level * Level * 1000 * strMultiplier,
                                max: str * effectiveLevel / MaxLevel);

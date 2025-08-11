@@ -1268,7 +1268,7 @@ namespace Ship_Game.Fleets
                 case 4:
                     if (!ArrivedAtCombatRally(FinalPosition))
                     {
-                        StartBombing(FleetTask.TargetPlanet);
+                        StartBombing(target);
                         break;
                     }
 
@@ -1278,10 +1278,14 @@ namespace Ship_Game.Fleets
                 case 5:
                     if (FleetInAreaInCombat(task.AO, task.AORadius) == CombatStatus.InCombat)
                     {
-                        StartBombing(FleetTask.TargetPlanet);
+                        StartBombing(target);
                         AttackEnemyStrengthClumpsInAO(task);
                         if (target.Owner == null)
+                        {
                             TaskStep = 7;
+                            Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
+                        }
+
                         break;
                     }
 
@@ -1291,6 +1295,9 @@ namespace Ship_Game.Fleets
                 case 6:
                     if (StartBombing(FleetTask.TargetPlanet))
                         break;
+
+                    if (target.Owner == null)
+                        Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
 
                     TaskStep = 7;
                     break;
@@ -1306,9 +1313,9 @@ namespace Ship_Game.Fleets
                     break;
                 case 9:
                     // Find other targets automatically for this fleet since Remnant were defeated.
-                    // Fight till death
                     if (Owner.Remnants.NoPortals)
                     {
+                        // Fight till death
                         Name = $"Ancient Extermination Fleet";
                         task.SetTargetPlanet(Owner.Remnants.GetTargetPlanetForFleetTaskWhenNoPortals(AveragePos));
                         task.ChangeAO(task.TargetPlanet.Position);
@@ -2144,15 +2151,14 @@ namespace Ship_Game.Fleets
             => Owner.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         // @return TRUE if we can take this fight, potentially, maybe...
-        public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool debug = false)
+        public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task)
         {
             float ourStrengthThreshold = GetStrength() * 2;
             if (enemyFleetStrength < ourStrengthThreshold)
                 return true;
 
             // We cannot win, update fleet multipliers for next time
-            if (!debug)
-                Owner.IncreaseFleetStrEmpireMultiplier(task.TargetEmpire);
+            Owner.IncreaseFleetStrEmpireMultiplier(task.TargetEmpire);
 
             return false;
         }
