@@ -694,7 +694,7 @@ namespace Ship_Game.AI
                         Owner.Mothership.LoadCargo(cargoId, Owner.GetOtherCargo(cargoId).UpperBound(maxToload));
                     }
                 }
-
+                Owner.Carrier.ScuttleHangarShips();
                 Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
                 Owner.QueueTotalRemoval();
                 

@@ -602,6 +602,7 @@ namespace Ship_Game.AI
         public void OrderReturnToHangar()
         {
             ClearOrders(AIState.ReturnToHangar, priority: true);
+            Owner.Carrier.RecoverFighters();
             AddShipGoal(Plan.ReturnToHangar, AIState.ReturnToHangar);
         }
 
