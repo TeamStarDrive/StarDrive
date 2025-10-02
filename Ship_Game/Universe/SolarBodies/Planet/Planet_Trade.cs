@@ -69,7 +69,7 @@ namespace Ship_Game
         public int NumFreightersPickingUpFood { get; private set; }
         public int NumFreightersPickingUpProd { get; private set; }
 
-        void UpdateIncomingTradeGoods()
+        public void UpdateIncomingTradeGoods()
         {
             // synchronization point
             // TODO: this might not be needed if Empires are updated after Ships parallel update
