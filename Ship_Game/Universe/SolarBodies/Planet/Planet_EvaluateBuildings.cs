@@ -49,10 +49,10 @@ namespace Ship_Game
                    && colony.P == this;
         }
 
-        void BuildAndScrapCivilianBuildings(float budget)
+        void BuildAndScrapCivilianBuildings(float budget, float tolerance)
         {
             UpdateGovernorPriorities();
-            bool overBudget = budget < -0.1f;
+            bool overBudget = budget < tolerance;
             if (overBudget || Blueprints?.ShouldScrapNonRequiredBuilding() == true)
             {
                 // We must scrap something to bring us above of our debt tolerance

@@ -117,7 +117,7 @@ namespace Ship_Game
 
         public float CivilianBuildingsMaintenance  => Money.Maintenance - GroundDefMaintenance;
 
-        public float GetColonyDebtTolerance()
+        public float GetColonyInitialBudgetTolerance()
         {
             if (Owner == null || GovernorOff || MaxPopBillionNoBuildingBonus >= 5f || PopulationBillion > 5f)
                 return 0;
@@ -138,14 +138,13 @@ namespace Ship_Game
             return total.LowerBound(0);
         }
 
-        //New Build Logic by Gretman, modified by Fat Bastard
         void BuildAndScrapBuildings(PlanetBudget colonyBudget)
         {
             if (OwnerIsPlayer && SpecializedTradeHub)
                 return;
 
-            BuildAndScrapCivilianBuildings(colonyBudget.RemainingCivilian);
-            BuildAndScrapMilitaryBuildings(colonyBudget.RemainingGroundDef);
+            BuildAndScrapCivilianBuildings(colonyBudget.RemainingCivilian, colonyBudget.CivilianTolerance);
+            BuildAndScrapMilitaryBuildings(colonyBudget.RemainingGroundDef, colonyBudget.GroundDefTolerance);
         }
 
         // returns the amount of production to spend in the build queue based on import/export state
