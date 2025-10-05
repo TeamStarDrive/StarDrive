@@ -233,7 +233,7 @@ namespace Ship_Game
                 if (CurrentGroup == null)
                     return; // projection is not valid YET, come back next update
 
-                Vector2 correctedPos = ShipCommands.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
                 Log.Info("MoveShipGroupToMouse (CurrentGroup)");
                 CurrentGroup.MoveTo(correctedPos, CurrentGroup.ProjectedDirection, moveType);
                 return;
@@ -248,7 +248,7 @@ namespace Ship_Game
                 Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
                 Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
                 CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, Player);
-                Vector2 correctedPos = ShipCommands.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 CurrentGroup.MoveTo(correctedPos, direction, moveType);
             }
@@ -257,7 +257,7 @@ namespace Ship_Game
                 Log.Info("MoveShipGroupToMouse (existing)");
                 Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition(force: true));
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
-                Vector2 correctedPos = ShipCommands.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, finalPos);
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, finalPos);
                 CurrentGroup.MoveTo(correctedPos, finalDir, moveType);
             }
         }

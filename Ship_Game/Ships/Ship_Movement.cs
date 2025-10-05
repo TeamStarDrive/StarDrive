@@ -1,7 +1,7 @@
-﻿using System;
-using SDGraphics;
+﻿using SDGraphics;
 using SDUtils;
 using Ship_Game.Universe;
+using System;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships

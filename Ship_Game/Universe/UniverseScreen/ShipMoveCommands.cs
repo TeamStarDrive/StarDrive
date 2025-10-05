@@ -248,12 +248,9 @@ namespace Ship_Game.Universe
             if (QueueFleetMovement(movePosition, facingDir, fleet))
                 return;
 
-            foreach (var ship in fleet.Ships)
-                if (ship.PlayerShipCanTakeFleetOrders())
-                    ship.AI.ClearOrders();
-
-            Vector2 correctedPos = GetCorrectedMovePosWithAudio(fleet.Ships, enemyShips, movePosition);
-            fleet.MoveTo(correctedPos, facingDir, GetMoveOrderType());
+            Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio(fleet.Ships, enemyShips, movePosition);
+            fleet.MoveTo(corrected, facingDir, GetMoveOrderType());
+            return;
         }
 
         public void MoveShipToLocation(Ship[] enemyShips, Vector2 pos, Vector2 direction, Ship ship)
@@ -264,28 +261,8 @@ namespace Ship_Game.Universe
                 return;
             }
 
-            Vector2 correctedPos = GetCorrectedMovePosWithAudio([ship], enemyShips, pos);
-            ship.AI.OrderMoveTo(correctedPos, direction, GetMoveOrderType());
-        }
-
-        public Vector2 GetCorrectedMovePosWithAudio(Array<Ship> ships, Ship[] enemyShips, Vector2 pos)
-        {
-            float minimumDistance = (ships.Count * 100).LowerBound(5000);
-            float minimumDistanceInBattle = (minimumDistance * 2).LowerBound(5000);
-            var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= minimumDistance);
-            if (ships.All(s => s.InFrustum && s.Position.Distance(pos) < minimumDistanceInBattle) || enemyShipsTooClose.Length == 0)
-            {
-                GameAudio.AffirmativeClick();
-                return pos;
-            }
-
-            GameAudio.SmallServo(); // Notify player that order was not exactly followed 
-            Ship closestEnemy = enemyShipsTooClose.FindMin(s => s.Position.Distance(pos));
-            Vector2 closestEnemySPos = closestEnemy.Position;
-            float distanceNeeded = minimumDistance - closestEnemySPos.Distance(pos);
-            Vector2 directionToProjectedPos = closestEnemySPos.DirectionToTarget(pos);
-            Vector2 corrected = pos + directionToProjectedPos*distanceNeeded;
-            return corrected;
+            Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio([ship], enemyShips, pos);
+            ship.AI.OrderMoveTo(pos, direction, GetMoveOrderType());
         }
     }
 }
