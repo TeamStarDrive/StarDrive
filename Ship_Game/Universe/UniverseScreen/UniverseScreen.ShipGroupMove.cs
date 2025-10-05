@@ -163,7 +163,7 @@ namespace Ship_Game
                     {
                         ShipCommands.RightClickOnShip(selectedShip, shipClicked);
                         if (planetClicked != null)
-                            ShipCommands.RightClickOnPlanet(selectedShip, planetClicked);
+                            ShipCommands.RightClickOnPlanet(selectedShip, planetClicked, true);
                     }
                 }
                 else
@@ -190,11 +190,23 @@ namespace Ship_Game
 
         void MoveFleetToMouse(Fleet fleet, Planet targetPlanet, Ship targetShip, bool wasProjecting)
         {
-            if (fleet.Ships.Count == 0)
+            if (fleet.Ships.Count == 0) 
                 return;
 
+            bool attackSingleEnemyShip = targetShip != null && !targetShip.Loyalty.isPlayer == true;
+            Ship[] enemyShips = targetPlanet == null && (targetShip == null || attackSingleEnemyShip)
+                ?  GetVisibleEnemyShipsInScreen() 
+                : HelperFunctions.GetAllPotentialTargetsIfInWarp(fleet.Ships);
+
+            // When attacking enemy ship, allow moving even if in warp at the code will over shoot our ships if needed
+            if (!attackSingleEnemyShip 
+                && !HelperFunctions.CanExitWarpForChangingDirectionByCommand(fleet.Ships.ToArray(), enemyShips))
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
             fleet.ClearPatrol();
-            Ship[] enemyShips = targetPlanet != null || targetShip != null ? [] : GetVisibleEnemyShipsInScreen();
             if (wasProjecting)
             {
                 ShipCommands.MoveFleetToLocation(enemyShips, targetShip, targetPlanet, Project.FleetCenter, Project.Direction, fleet);
@@ -226,12 +238,18 @@ namespace Ship_Game
 
         void MoveShipGroupToMouse(bool wasProjecting)
         {
-            MoveOrder moveType = ShipCommands.GetMoveOrderType() | MoveOrder.ForceReassembly;
             Ship[] enemyShips = GetVisibleEnemyShipsInScreen();
+            MoveOrder moveType = ShipCommands.GetMoveOrderType() | MoveOrder.ForceReassembly;
             if (wasProjecting) // dragging right mouse
             {
                 if (CurrentGroup == null)
                     return; // projection is not valid YET, come back next update
+
+                if (!HelperFunctions.CanExitWarpForChangingDirectionByCommand(CurrentGroup.Ships.ToArray(), enemyShips))
+                {
+                    GameAudio.NegativeClick();
+                    return;
+                }
 
                 Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
                 Log.Info("MoveShipGroupToMouse (CurrentGroup)");
@@ -248,12 +266,24 @@ namespace Ship_Game
                 Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
                 Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
                 CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, Player);
+                if (!HelperFunctions.CanExitWarpForChangingDirectionByCommand(CurrentGroup.Ships.ToArray(), enemyShips))
+                {
+                    GameAudio.NegativeClick();
+                    return;
+                }
+
                 Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 CurrentGroup.MoveTo(correctedPos, direction, moveType);
             }
             else // move existing group
             {
+                if (!HelperFunctions.CanExitWarpForChangingDirectionByCommand(CurrentGroup.Ships.ToArray(), enemyShips))
+                {
+                    GameAudio.NegativeClick();
+                    return;
+                }
+
                 Log.Info("MoveShipGroupToMouse (existing)");
                 Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition(force: true));
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);

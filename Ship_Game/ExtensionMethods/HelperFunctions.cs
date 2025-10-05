@@ -322,12 +322,6 @@ namespace Ship_Game
             float minimumDistance = (ships.Count * 100).LowerBound(5000);
             float minimumDistanceInBattle = (minimumDistance * 2).LowerBound(5000);
             var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= minimumDistance);
-            /*if (ships.Any(s => s.IsInWarp && enemyShips.Any(enemy => enemy.Position.Distance(s.Position) < minimumDistance)))
-            {
-                GameAudio.NegativeClick();
-                return pos;
-            }*/
-
             if (ships.All(s => s.InFrustum && !s.IsInWarp && s.Position.Distance(pos) < minimumDistanceInBattle) || enemyShipsTooClose.Length == 0)
             {
                 GameAudio.AffirmativeClick();
@@ -357,6 +351,37 @@ namespace Ship_Game
             float distanceNeeded = minimumDistance + FarthestEnemyPos.Distance(ship.Position);
             Vector2 corrected = ship.Position + ship.Direction * distanceNeeded;
             return corrected;
+        }
+
+        static public bool CanExitWarpForChangingDirectionByCommand(Ship[] ships, Ship[] enemyShips)
+        {
+            if (enemyShips.Length == 0)
+                return true;
+
+            float minimumDistance = 5000f;
+            if (ships.Any(s => s.IsInWarp && enemyShips.Any(enemy => enemy.Position.Distance(s.Position) < minimumDistance)))
+                return false;
+
+            return true;
+        }
+
+        static public Ship[] GetAllPotentialTargetsIfInWarp(Array<Ship> ships)
+        {
+            Array<Ship> potentialTargets = new();
+            if (!ships.Any(s => s.IsInWarp))
+                return [];
+
+            for (int i = 0; i < ships.Count; ++i)
+            {
+                Ship ship = ships[i];
+                for (int j = 0; j < ship.AI.PotentialTargets.Length; j++)
+                {
+                    Ship target = ship.AI.PotentialTargets[j];
+                    potentialTargets.AddUniqueRef(target);
+                }
+            }
+
+            return potentialTargets.ToArray();
         }
     }
 }
