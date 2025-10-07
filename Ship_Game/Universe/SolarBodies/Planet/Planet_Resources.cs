@@ -159,25 +159,16 @@ namespace Ship_Game
                 return;
             }
 
-            if (Food.FlatBonus > PopulationBillion) // Account for possible overproduction from FlatFood
-            {
-                float offsetAmount = (Food.FlatBonus - PopulationBillion) * 0.05f;
-                offsetAmount       = offsetAmount.Clamped(0.00f, 0.15f);
-                importThreshold    = (importThreshold - offsetAmount).Clamped(0.1f, 1f);
-                exportThreshold    = (exportThreshold - offsetAmount).Clamped(0.1f, 1f);
-            }
-
             float ratio               = Storage.FoodRatio;
             bool belowImportThreshold = ratio < importThreshold 
                                         && CType != ColonyType.Agricultural
                                         && Food.NetFlatBonus < Consumption;
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
-            if      (ShortOnFood() || belowImportThreshold)                  FS = GoodState.IMPORT; 
-            else if (Food.NetMaxPotential + Food.NetFlatBonus < 0)           FS = GoodState.STORE; // We are struggling to produce food but not short on food
-            else if (FS == GoodState.IMPORT && ratio >= importThreshold * 2) FS = GoodState.STORE;  // Until you reach 2x importThreshold, then switch to Store
-            else if (FS == GoodState.EXPORT && ratio <= exportThreshold / 2) FS = GoodState.STORE;  // If we were exporting, and drop below half exportThreshold, stop exporting
-            else if (ratio > exportThreshold)                                FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
+            if      (ShortOnFood() || belowImportThreshold)   FS = GoodState.IMPORT; 
+            else if (Food.NetMaxPotential < 0 && ratio > 0.9) FS = GoodState.STORE;  // We are negative on food prodution but have a lot of food
+            else if (ratio > exportThreshold)                 FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
+            else                                              FS = GoodState.STORE;  // We are between our thresholds
         }
 
         void DetermineProdState(float importThreshold, float exportThreshold)
@@ -207,9 +198,7 @@ namespace Ship_Game
             }
 
             float ratio = Storage.ProdRatio;
-            if (ratio < importThreshold) PS = GoodState.IMPORT;
-            else if (PS == GoodState.IMPORT && ratio >= importThreshold * 2) PS = GoodState.STORE;
-            else if (PS == GoodState.EXPORT && ratio <= exportThreshold / 2) PS = GoodState.STORE;
+            if (ratio < importThreshold)      PS = GoodState.IMPORT;
             else if (ratio > exportThreshold) PS = GoodState.EXPORT;
         }
     }

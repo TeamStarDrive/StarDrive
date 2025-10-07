@@ -640,7 +640,7 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            if (Level == 1)
+            if (Level <= 3)
                 return 0;
 
             RemnantShipType bomberType = GetBomberType(out int numBombers);
@@ -661,16 +661,16 @@ namespace Ship_Game
         {
             numBombers = (int)(Level * Owner.DifficultyModifiers.RemnantNumBombers);
 
-            if (Level <= 5)
+            if (Level <= 6)
             {
                 numBombers *= (Level-1).LowerBound(1);
                 return RemnantShipType.BomberLight;
             }
 
-            if (Level <= 9)
+            if (Level <= 12)
                 return RemnantShipType.BomberMedium;
 
-            // Level 10 and above
+            // Level 12 and above
             numBombers /= 2;
             return RemnantShipType.Bomber;
         }
@@ -942,7 +942,10 @@ namespace Ship_Game
         public void GenerateProduction(float amount)
         {
             if (Hibernating)
-                amount *= 0.2f;
+                amount *= 0.05f;
+
+            if (Owner.AI.CountGoals(g => g.Type == GoalType.RemnantPortal) > 1)
+                amount = amount * 0.75f;
 
             if (DefenseProduction < MaxDefenseProduction)
             {

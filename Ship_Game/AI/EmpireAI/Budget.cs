@@ -61,7 +61,7 @@ namespace Ship_Game.AI.Budget
             TotalAlloc     = GrdDefAlloc + SpcDefAlloc + CivilianAlloc;
         }
 
-        public float CivilianTolerance => (-CivilianAlloc * 0.1f).RoundToFractionOf10();
+        public float CivilianTolerance => (CivilianAlloc * 0.1f).RoundToFractionOf10().LowerBound(0.1f);
 
         public float GroundDefTolerance => (-GrdDefAlloc * 0.1f).RoundToFractionOf10();
 
