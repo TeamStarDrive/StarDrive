@@ -5,7 +5,6 @@ using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
-using Ship_Game.Ships.Components;
 using static Ship_Game.AI.ShipAI;
 using Vector2 = SDGraphics.Vector2;
 
@@ -116,18 +115,29 @@ namespace Ship_Game.AI
 
             Intercepting = true;
             ClearWayPoints();
-            Target = toAttack;
             IgnoreCombat = false;
 
             //HACK. To fix this all the fleet tasks that use attackspecifictarget must be changed
             //if they also use hold position to keep ships from moving.
             if (!Owner.Loyalty.isPlayer)
                 CombatState = Owner.ShipData.DefaultCombatState;
-            TargetQueue.Add(toAttack);
-            HasPriorityTarget = true;
-
             ClearOrders();
-            EnterCombatState(AIState.AttackTarget);
+            bool overshot = false;
+            if (Owner.Loyalty.isPlayer && Owner.IsInWarp)
+            {
+                Vector2 correcedPos = HelperFunctions.GetWarpOvershootMovePosWithAudio(Owner, PotentialTargets, toAttack.Position);
+                if (correcedPos != toAttack.Position)
+                {
+                    OrderMoveToNoStop(correcedPos, Owner.Direction, AIState.MoveTo, MoveOrder.Regular);
+                    SetPriorityOrder(false);
+                    overshot = true;
+                }
+            }
+
+            TargetQueue.Add(toAttack);
+            Target = toAttack;
+            HasPriorityTarget = true;
+            EnterCombatState(AIState.AttackTarget, pushToFront: !overshot);
         }
 
         public void OrderBombardPlanet(Planet toBombard, bool clearOrders)
@@ -602,6 +612,7 @@ namespace Ship_Game.AI
         public void OrderReturnToHangar()
         {
             ClearOrders(AIState.ReturnToHangar, priority: true);
+            Owner.Carrier.RecoverFighters();
             AddShipGoal(Plan.ReturnToHangar, AIState.ReturnToHangar);
         }
 

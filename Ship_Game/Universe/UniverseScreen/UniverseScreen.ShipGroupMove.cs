@@ -135,6 +135,13 @@ namespace Ship_Game
                 {
                     if (UnselectableShip())
                         return;
+                    if (SelectedShip.Position.Distance(shipClicked.Position) > 7500f
+                        && !HelperFunctions.CanExitWarpForChangingDirectionByCommand([SelectedShip], SelectedShip.AI.PotentialTargets))
+                    {
+                        GameAudio.NegativeClick();
+                        return;
+                    }
+
                     GameAudio.AffirmativeClick();
                     ShipCommands.AttackSpecificShip(SelectedShip, shipClicked);
                 }
@@ -163,7 +170,7 @@ namespace Ship_Game
                     {
                         ShipCommands.RightClickOnShip(selectedShip, shipClicked);
                         if (planetClicked != null)
-                            ShipCommands.RightClickOnPlanet(selectedShip, planetClicked);
+                            ShipCommands.RightClickOnPlanet(selectedShip, planetClicked, true);
                     }
                 }
                 else
@@ -190,11 +197,23 @@ namespace Ship_Game
 
         void MoveFleetToMouse(Fleet fleet, Planet targetPlanet, Ship targetShip, bool wasProjecting)
         {
-            if (fleet.Ships.Count == 0)
+            if (fleet.Ships.Count == 0) 
                 return;
 
-            fleet.ClearPatrol();
-            Ship[] enemyShips = targetPlanet != null || targetShip != null ? [] : GetVisibleEnemyShipsInScreen();
+            bool attackSingleEnemyShip = targetShip != null && !targetShip.Loyalty.isPlayer;
+            Ship[] enemyShips = targetPlanet == null && (targetShip == null || attackSingleEnemyShip)
+                ?  GetVisibleEnemyShipsInScreen() 
+                : HelperFunctions.GetAllPotentialTargetsIfInWarp(fleet.Ships);
+
+            // When attacking enemy ship, allow moving even if in warp at the code will over shoot our ships if needed
+            if (!attackSingleEnemyShip 
+                && !HelperFunctions.CanExitWarpForChangingDirectionByCommand(fleet.Ships.ToArray(), enemyShips))
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
+            fleet.ClearPatrol(clearOrders: false);
             if (wasProjecting)
             {
                 ShipCommands.MoveFleetToLocation(enemyShips, targetShip, targetPlanet, Project.FleetCenter, Project.Direction, fleet);
@@ -226,14 +245,20 @@ namespace Ship_Game
 
         void MoveShipGroupToMouse(bool wasProjecting)
         {
-            MoveOrder moveType = ShipCommands.GetMoveOrderType() | MoveOrder.ForceReassembly;
             Ship[] enemyShips = GetVisibleEnemyShipsInScreen();
+            MoveOrder moveType = ShipCommands.GetMoveOrderType() | MoveOrder.ForceReassembly;
             if (wasProjecting) // dragging right mouse
             {
                 if (CurrentGroup == null)
                     return; // projection is not valid YET, come back next update
 
-                Vector2 correctedPos = ShipCommands.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
+                if (!HelperFunctions.CanExitWarpForChangingDirectionByCommand(CurrentGroup.Ships.ToArray(), enemyShips))
+                {
+                    GameAudio.NegativeClick();
+                    return;
+                }
+
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
                 Log.Info("MoveShipGroupToMouse (CurrentGroup)");
                 CurrentGroup.MoveTo(correctedPos, CurrentGroup.ProjectedDirection, moveType);
                 return;
@@ -248,16 +273,28 @@ namespace Ship_Game
                 Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
                 Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
                 CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, Player);
-                Vector2 correctedPos = ShipCommands.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
+                if (!HelperFunctions.CanExitWarpForChangingDirectionByCommand(CurrentGroup.Ships.ToArray(), enemyShips))
+                {
+                    GameAudio.NegativeClick();
+                    return;
+                }
+
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, CurrentGroup.ProjectedPos);
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 CurrentGroup.MoveTo(correctedPos, direction, moveType);
             }
             else // move existing group
             {
+                if (!HelperFunctions.CanExitWarpForChangingDirectionByCommand(CurrentGroup.Ships.ToArray(), enemyShips))
+                {
+                    GameAudio.NegativeClick();
+                    return;
+                }
+
                 Log.Info("MoveShipGroupToMouse (existing)");
                 Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition(force: true));
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
-                Vector2 correctedPos = ShipCommands.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, finalPos);
+                Vector2 correctedPos = HelperFunctions.GetCorrectedMovePosWithAudio(CurrentGroup.Ships, enemyShips, finalPos);
                 CurrentGroup.MoveTo(correctedPos, finalDir, moveType);
             }
         }

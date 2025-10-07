@@ -45,9 +45,6 @@ namespace Ship_Game.AI
         public bool SafeToRush => CreditRating > 0.8f;
         public bool SafeToRushColonyShips => OwnerEmpire.IsExpansionists ? CreditRating > 0.5f : CreditRating > 0.6f;
 
-        // Empire spaceDefensive Reserves high enough to support fractional build budgets
-        public bool EmpireCanSupportSpcDefense => DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.9f;
-
         /// <summary>
         /// This is the budgeted amount of money that will be available to empire looking over 20 years.
         /// </summary>

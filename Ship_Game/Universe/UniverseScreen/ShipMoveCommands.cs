@@ -1,9 +1,11 @@
-﻿using System.Linq;
-using SDGraphics;
+﻿using SDGraphics;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using System.Linq;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Universe
@@ -35,11 +37,20 @@ namespace Ship_Game.Universe
 
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
-            if (targetShip == null || selectedShip == targetShip || !selectedShip.PlayerShipCanTakeFleetOrders(forAttack: true))
-                return false;
-
-            if (targetShip.Loyalty == Universe.Player)
+            if (targetShip == null 
+                || selectedShip == targetShip 
+                || !selectedShip.PlayerShipCanTakeFleetOrders(forAttack: true))
             {
+                return false; 
+            }
+
+            if (targetShip.Loyalty.isPlayer)
+            {
+                if (!HelperFunctions.CanExitWarpForChangingDirectionByCommand([selectedShip], selectedShip.AI.PotentialTargets))
+                {
+                    GameAudio.NegativeClick();
+                    return false;
+                }
                 if (selectedShip.DesignRole == RoleName.troop)
                 {
                     if (targetShip.TroopCount < targetShip.TroopCapacity)
@@ -48,7 +59,9 @@ namespace Ship_Game.Universe
                         selectedShip.AI.AddEscortGoal(targetShip);
                 }
                 else
+                {
                     selectedShip.AI.AddEscortGoal(targetShip);
+                }
             }
             else if (selectedShip.DesignRole == RoleName.troop)
                 selectedShip.AI.OrderTroopToBoardShip(targetShip);
@@ -63,12 +76,14 @@ namespace Ship_Game.Universe
         public void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
         {
             Log.Assert(planet != null, "RightClickOnPlanet: planet cannot be null!");
-            if (ship.IsConstructor || ship.IsPlatformOrStation || ship.IsSubspaceProjector)
+            if (ship.IsConstructor 
+                || ship.IsPlatformOrStation 
+                || ship.IsSubspaceProjector 
+                || !HelperFunctions.CanExitWarpForChangingDirectionByCommand([ship], ship.AI.PotentialTargets))
             {
                 if (audio)
-                {
                     GameAudio.NegativeClick();
-                }
+
                 return;
             }
 
@@ -157,14 +172,18 @@ namespace Ship_Game.Universe
 
             fleet.FinalPosition = planetClicked.Position; //fbedard: center fleet on planet
             foreach (Ship ship in fleet.Ships)
+            {
+                ResetShipsTargetAndPriorityOrders(ship);
                 RightClickOnPlanet(ship, planetClicked, false);
+            }
+
+            GameAudio.AffirmativeClick();
             return true;
         }
 
         public bool AttackSpecificShip(Ship ship, Ship target)
         {
-            if (ship.IsConstructor ||
-                ship.IsSupplyShuttle)
+            if (ship.IsConstructor || ship.IsSupplyShuttle)
             {
                 GameAudio.NegativeClick();
                 return false;
@@ -185,7 +204,6 @@ namespace Ship_Game.Universe
                 return true;
             }
 
-            //if (ship.loyalty == player)
             {
                 if (ship.ShipData.Role == RoleName.troop)
                     ship.AI.OrderTroopToBoardShip(target);
@@ -199,17 +217,25 @@ namespace Ship_Game.Universe
 
         bool TryFleetAttackShip(ShipGroup fleet, Ship shipToAttack)
         {
-            if (shipToAttack == null || shipToAttack.Loyalty == Universe.Player)
-                return false;
-
             fleet.FinalPosition = shipToAttack.Position;
             fleet.AssignPositions(Vectors.Up);
+            if (fleet.Ships.Any(s => s.Position.Distance(shipToAttack.Position) > 7500f
+                   && !HelperFunctions.CanExitWarpForChangingDirectionByCommand([s], s.AI.PotentialTargets)))
+            {
+                GameAudio.NegativeClick();
+                return false;
+            }
+
             foreach (Ship fleetShip in fleet.Ships)
             {
                 if (fleetShip.PlayerShipCanTakeFleetOrders(forAttack: true))
+                {
+                    ResetShipsTargetAndPriorityOrders(fleetShip);
                     AttackSpecificShip(fleetShip, shipToAttack);
+                }
             }
 
+            GameAudio.AffirmativeClick();
             return true;
         }
 
@@ -218,9 +244,13 @@ namespace Ship_Game.Universe
             if (Input.QueueAction && fleet.Ships[0].AI.HasWayPoints)
             {
                 foreach (Ship ship in fleet.Ships)
+                {
+                    ResetShipsTargetAndPriorityOrders(ship);
                     ship.AI.ClearOrdersIfCombat();
+                }
 
                 fleet.MoveTo(movePosition, direction, GetMoveOrderType());
+                GameAudio.AffirmativeClick();
                 return true;
             }
 
@@ -231,61 +261,40 @@ namespace Ship_Game.Universe
             Vector2 movePosition, Vector2 facingDir, ShipGroup fleet = null)
         {
             fleet = fleet ?? Universe.SelectedFleet;
-            GameAudio.AffirmativeClick();
-            foreach (Ship ship in fleet.Ships)
+            if (shipClicked != null && !shipClicked.Loyalty.isPlayer)
             {
-                ship.AI.Target = null;
-                if (ship.PlayerShipCanTakeFleetOrders())
-                    ship.AI.ResetPriorityOrder(!Input.QueueAction);
-            }
-
-            if (TryFleetAttackShip(fleet, shipClicked))
+                TryFleetAttackShip(fleet, shipClicked);
                 return;
+            }
 
             if (MoveFleetToPlanet(planetClicked, fleet))
                 return;
 
+            GameAudio.AffirmativeClick();
             if (QueueFleetMovement(movePosition, facingDir, fleet))
                 return;
 
-            foreach (var ship in fleet.Ships)
-                if (ship.PlayerShipCanTakeFleetOrders())
-                    ship.AI.ClearOrders();
+            Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio(fleet.Ships, enemyShips, movePosition);
+            fleet.MoveTo(corrected, facingDir, GetMoveOrderType());
+        }
 
-            Vector2 correctedPos = GetCorrectedMovePosWithAudio(fleet.Ships, enemyShips, movePosition);
-            fleet.MoveTo(correctedPos, facingDir, GetMoveOrderType());
+        void ResetShipsTargetAndPriorityOrders(Ship ship)
+        {
+            ship.AI.Target = null;
+            if (ship.PlayerShipCanTakeFleetOrders())
+                ship.AI.ResetPriorityOrder(!Input.QueueAction);
         }
 
         public void MoveShipToLocation(Ship[] enemyShips, Vector2 pos, Vector2 direction, Ship ship)
         {
-            if (ship.IsPlatformOrStation)
+            if (ship.IsPlatformOrStation || !HelperFunctions.CanExitWarpForChangingDirectionByCommand([ship], enemyShips))
             {
                 GameAudio.NegativeClick();
                 return;
             }
 
-            Vector2 correctedPos = GetCorrectedMovePosWithAudio([ship], enemyShips, pos);
-            ship.AI.OrderMoveTo(correctedPos, direction, GetMoveOrderType());
-        }
-
-        public Vector2 GetCorrectedMovePosWithAudio(Array<Ship> ships, Ship[] enemyShips, Vector2 pos)
-        {
-            float minimumDistance = (ships.Count * 100).LowerBound(5000);
-            float minimumDistanceInBattle = (minimumDistance * 2).LowerBound(5000);
-            var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= minimumDistance);
-            if (ships.All(s => s.InFrustum && s.Position.Distance(pos) < minimumDistanceInBattle) || enemyShipsTooClose.Length == 0)
-            {
-                GameAudio.AffirmativeClick();
-                return pos;
-            }
-
-            GameAudio.SmallServo(); // Notify player that order was not exactly followed 
-            Ship closestEnemy = enemyShipsTooClose.FindMin(s => s.Position.Distance(pos));
-            Vector2 closestEnemySPos = closestEnemy.Position;
-            float distanceNeeded = minimumDistance - closestEnemySPos.Distance(pos);
-            Vector2 directionToProjectedPos = closestEnemySPos.DirectionToTarget(pos);
-            Vector2 corrected = pos + directionToProjectedPos*distanceNeeded;
-            return corrected;
+            Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio([ship], enemyShips, pos);
+            ship.AI.OrderMoveTo(corrected, direction, GetMoveOrderType());
         }
     }
 }

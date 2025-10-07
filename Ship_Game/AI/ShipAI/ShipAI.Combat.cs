@@ -614,7 +614,7 @@ namespace Ship_Game.AI
             return Owner.SensorRange;
         }
 
-        void EnterCombatState(AIState combatState)
+        void EnterCombatState(AIState combatState, bool pushToFront = true)
         {
             if (!Owner.InCombat)
             {
@@ -634,7 +634,7 @@ namespace Ship_Game.AI
                 default:
                     if (!FindGoal(Plan.DoCombat, out ShipGoal _))
                     {
-                        AddShipGoal(Plan.DoCombat, combatState, pushToFront: true);
+                        AddShipGoal(Plan.DoCombat, combatState, pushToFront);
                     }
                     break;
 

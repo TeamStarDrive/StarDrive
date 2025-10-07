@@ -77,43 +77,180 @@ namespace Ship_Game
             AllTimeTradeIncome      += (int)taxedGoods;
         }
 
-        // once per turn 
+        // once per turn with 3 passes if possible
         void DispatchBuildAndScrapFreighters()
         {
             UpdateTradeTreaties();
+            TradeState tradeState = new(this, false);
+            for (int i = 1; i <= 3; i++)
+            {
+                if (tradeState.NoFreeFreighters)
+                    break;
+
+                if (NonCybernetic)
+                    DispatchOrBuildFreighters(Goods.Food, OwnedPlanets, false, ref tradeState);
+
+                float popRatio = TotalPopBillion / MaxPopBillion;
+                float productionFirstChance = popRatio * (NonCybernetic ? 200 : 300);
+                if (Random.RollDice(productionFirstChance))
+                {
+                    DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false, ref tradeState);
+                    DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false, ref tradeState);
+                }
+                else
+                {
+                    DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false, ref tradeState);
+                    DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false, ref tradeState);
+                }
+
+                tradeState.UpdatePlanetsTradeGoods();
+            }
 
             // Cybernetic factions never touch Food trade. Filthy Opteris are disgusted by protein-bugs. Ironic.
-            if (NonCybernetic)
-                DispatchOrBuildFreighters(Goods.Food, OwnedPlanets, false);
-
-            float popRatio              = TotalPopBillion / MaxPopBillion;
-            float productionFirstChance = popRatio * (NonCybernetic ? 200 : 300);
-            if (Random.RollDice(productionFirstChance))
+            if (tradeState.HasFreeFreighters && (!isPlayer || Universe.P.AllowPlayerInterTrade))
             {
-                DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
-                DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false);
-            }
-            else
-            {
-                DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false);
-                DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
-            }
-
-            if (!isPlayer || Universe.P.AllowPlayerInterTrade)
-            {
+                Ship[] idleFreighters = tradeState.IdleFreighters.ToArr();
+                tradeState = new(this, true);
+                tradeState.SetIdleFreighters(idleFreighters);
                 var interTradePlanets = TradingEmpiresPlanetList();
                 if (interTradePlanets.Count > 0)
                 {
                     // export stuff to Empires which have trade treaties with us
                     if (NonCybernetic)
-                        DispatchOrBuildFreighters(Goods.Food, interTradePlanets, true);
+                        DispatchOrBuildFreighters(Goods.Food, interTradePlanets, true, ref tradeState);
 
-                    DispatchOrBuildFreighters(Goods.Production, interTradePlanets, true);
+                    DispatchOrBuildFreighters(Goods.Production, interTradePlanets, true, ref tradeState);
                 }
             }
 
             UpdateFreighterTimersAndScrap();
         }
+
+        struct TradeState
+        {
+            readonly bool InterTrade;
+            public Ship[] IdleFreighters {get; private set; }
+            public EmpireIdleFreighters State { get; private set; }
+            bool BuildFreighterRequested;
+            readonly Empire Owner;
+            HashSet<Planet> PlanetsNeedUpdate = new();
+            public bool HasImportingFoodPlanets { get; private set; } = true;
+            public bool HasImportingProductionPlanets { get; private set; } = true;
+            public bool HasImportingColonistsPlanets { get; private set; } = true;
+            public bool HasExportingFoodPlanets { get; private set; } = true;
+            public bool HasExportingProductionPlanets { get; private set; } = true;
+            public bool HasExportingColonistsPlanets { get; private set; } = true;
+
+            public TradeState(Empire owner,  bool interTrade)
+            {
+                IdleFreighters = Array.Empty<Ship>();
+                State = EmpireIdleFreighters.Fetch;
+                InterTrade = interTrade;
+                Owner = owner;
+            }
+
+            public Ship[] FetchIdleFreightersOrBuild()
+            {
+                if (State == EmpireIdleFreighters.Fetch)
+                {
+                    IdleFreighters = Owner.GetIdleFreighters(InterTrade);
+                    SetIdleFreightesState();
+                    if (IdleFreighters.Length == 0)
+                        BuildFreighter();
+                }
+
+                return IdleFreighters;
+            }
+
+            public void SetIdleFreighters(Ship[] freighters)
+            {
+                IdleFreighters = freighters;
+                SetIdleFreightesState();
+            }
+
+            public void SetIdleFreightesState()
+            {
+                if (IdleFreighters.Length > 0)
+                    State = EmpireIdleFreighters.SomeIdle;
+                else
+                    State = EmpireIdleFreighters.None;
+            }
+
+            public void BuildFreighter()
+            {
+                if (!BuildFreighterRequested && !InterTrade)
+                {
+                    BuildFreighterRequested = true;
+                    Owner.BuildFreighter();
+                }
+            }
+
+            public void AddToPlanetsNeedUpdate(Planet import, Planet export)
+            {
+                PlanetsNeedUpdate.Add(import);
+                PlanetsNeedUpdate.Add(export);
+            }
+
+            public void UpdatePlanetsTradeGoods()
+            {
+                foreach (Planet p in PlanetsNeedUpdate)
+                    p.UpdateIncomingTradeGoods();
+
+                PlanetsNeedUpdate = new();
+            }
+
+            public void SetNoImportPlanetOf(Goods goods)
+            {
+                switch (goods)
+                {
+                    case Goods.Food:       HasImportingFoodPlanets       = false; break;
+                    case Goods.Production: HasImportingProductionPlanets = false; break;
+                    case Goods.Colonists:  HasImportingColonistsPlanets  = false; break;
+                }
+            }
+
+            public void SetNoExportPlanetOf(Goods goods)
+            {
+                switch (goods)
+                {
+                    case Goods.Food:       HasExportingFoodPlanets       = false; break;
+                    case Goods.Production: HasExportingProductionPlanets = false; break;
+                    case Goods.Colonists:  HasExportingColonistsPlanets  = false; break;
+                }
+            }
+
+            public bool HasImportPlanetOf(Goods goods)
+            {
+                return goods switch
+                {
+                    Goods.Food       => HasImportingFoodPlanets,
+                    Goods.Production => HasImportingProductionPlanets,
+                    Goods.Colonists  => HasImportingColonistsPlanets,
+                };
+            }
+
+            public bool HasExportPlanetOf(Goods goods)
+            {
+                return goods switch
+                {
+                    Goods.Food       => HasExportingFoodPlanets,
+                    Goods.Production => HasExportingProductionPlanets,
+                    Goods.Colonists  => HasExportingColonistsPlanets,
+                };
+            }
+
+            public bool NoFreeFreighters => State == EmpireIdleFreighters.None;
+            public bool HasFreeFreighters => State == EmpireIdleFreighters.SomeIdle;
+            public bool ShouldFetchIdleFreighters => State == EmpireIdleFreighters.Fetch;
+        }
+
+        enum EmpireIdleFreighters
+        {
+            Fetch,
+            SomeIdle,
+            None,
+        }
+
 
         void UpdateFreighterTimersAndScrap()
         {
@@ -160,26 +297,46 @@ namespace Ship_Game
             return GetTradeParameters(goods, idleFreighters, targetStation, exportingPlanets, out exportAndFreighter);
         }
 
-        void DispatchOrBuildFreighters(Goods goods, Array<Planet> importPlanetList, bool interTrade)
+        void DispatchOrBuildFreighters(Goods goods, Array<Planet> importPlanetList, bool interTrade, ref TradeState state)
         {
+            if (state.NoFreeFreighters)
+                return;
+
             // Order importing planets to balance freighters distribution
-            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
-            if (importingPlanets.Length == 0)
-                return;
-
-            // TODO: maybe use IEnumerable generators for these?
-            Planet[] exportingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsExportSlots(goods) > 0);
-            if (exportingPlanets.Length == 0)
-                return;
-
-            Ship[] idleFreighters = GetIdleFreighters(interTrade);
-            if (idleFreighters.Length == 0) // Need trade for auto trade but no freighters found
+            Planet[] importingPlanets = Array.Empty<Planet>();
+            if (state.HasImportPlanetOf(goods))
             {
-                if (!interTrade) 
-                    BuildFreighter();
-
+                importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
+                if (importingPlanets.Length == 0)
+                {
+                    state.SetNoImportPlanetOf(goods);
+                    return;
+                }
+            }
+            else
+            {
                 return;
             }
+
+            Planet[] exportingPlanets = Array.Empty<Planet>();
+            if (state.HasExportPlanetOf(goods))
+            {
+                // TODO: maybe use IEnumerable generators for these?
+                exportingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsExportSlots(goods) > 0);
+                if (exportingPlanets.Length == 0)
+                {
+                    state.SetNoExportPlanetOf(goods);
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+
+            Ship[] idleFreighters = state.FetchIdleFreightersOrBuild();
+            if (state.NoFreeFreighters) // Need trade for auto trade but no freighters found
+                return;
 
             importingPlanets.Sort(p => p.GetCachedIncomingCargoPriority(goods));
 
@@ -198,8 +355,12 @@ namespace Ship_Game
                     // Remove the export planet from the exporting list if no more export slots left
                     if (exportPlanet.FreeGoodsExportSlots(goods) == 0)
                         exportingPlanets.Remove(exportPlanet, out exportingPlanets);
+
+                    state.AddToPlanetsNeedUpdate(importPlanet, exportPlanet);
                 }
             }
+
+            state.SetIdleFreighters(idleFreighters);
         }
 
         Ship[] GetIdleFreighters(bool interTrade)

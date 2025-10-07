@@ -40,8 +40,8 @@ namespace Ship_Game
             UpdateWantedOrbitals(rank);
 
             BuildOrScrapShipyard(WantedShipyards, budget.RemainingSpaceDef);
-            BuildOrScrapStations(currentStations, WantedStations, budget.RemainingSpaceDef);
-            BuildOrScrapPlatforms(currentPlatforms, WantedPlatforms, budget.RemainingSpaceDef);
+            BuildOrScrapStations(currentStations, WantedStations, budget.RemainingSpaceDef, budget.SpaceDefTolerance);
+            BuildOrScrapPlatforms(currentPlatforms, WantedPlatforms, budget.RemainingSpaceDef, budget.SpaceDefTolerance);
         }
 
         public int GetColonyRank()
@@ -50,11 +50,11 @@ namespace Ship_Game
             return ApplyRankModifiers(rank);
         }
 
-        void BuildOrScrapStations(Array<Ship> orbitals, byte wanted, float budget)
-            => BuildOrScrapOrbitals(orbitals, wanted, RoleName.station, budget);
+        void BuildOrScrapStations(Array<Ship> orbitals, byte wanted, float budget, float tolerance)
+            => BuildOrScrapOrbitals(orbitals, wanted, RoleName.station, budget, tolerance);
 
-        void BuildOrScrapPlatforms(Array<Ship> orbitals, byte wanted, float budget)
-            => BuildOrScrapOrbitals(orbitals, wanted, RoleName.platform, budget);
+        void BuildOrScrapPlatforms(Array<Ship> orbitals, byte wanted, float budget, float tolerance)
+            => BuildOrScrapOrbitals(orbitals, wanted, RoleName.platform, budget, tolerance);
 
         bool GovernorShouldNotScrapBuilding => OwnerIsPlayer && DontScrapBuildings;
 
@@ -109,14 +109,14 @@ namespace Ship_Game
             return shipyardsInQ;
         }
 
-        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, byte orbitalsWeWant, RoleName role, float budget)
+        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, byte orbitalsWeWant, RoleName role, float budget, float tolerance)
         {
             int orbitalsWeHave = orbitalList.Filter(o => !o.ShipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
             var eAI = Owner.AI;
 
-            if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || (budget < 0 && !eAI.EmpireCanSupportSpcDefense)))
+            if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || budget < tolerance))
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
                 if (weakest != null)
@@ -124,14 +124,13 @@ namespace Ship_Game
                 return;
             }
 
-            if (orbitalsWeHave < orbitalsWeWant) // lets build an orbital
+            if (budget > 0)
             {
-                BuildOrbital(role, budget);
-                return;
+                if (orbitalsWeHave < orbitalsWeWant) // lets build an orbital
+                    BuildOrbital(role, budget);
+                else if (orbitalList.Count > 0)
+                    ReplaceOrbital(orbitalList, role, budget);  // check if we can replace an orbital with a better one
             }
-
-            if (orbitalList.Count > 0)
-                ReplaceOrbital(orbitalList, role, budget);  // check if we can replace an orbital with a better one
         }
 
         private void ScrapOrbital(Ship orbital)
@@ -412,7 +411,7 @@ namespace Ship_Game
             Construction.Enqueue(cheapestTroop, QueueItemType.Troop);
         }
 
-        void BuildAndScrapMilitaryBuildings(float budget)
+        void BuildAndScrapMilitaryBuildings(float budget, float tolerance)
         {
             if (OwnerIsPlayer && !GovGroundDefense && !HasBlueprints
                 || MilitaryBuildingInTheWorks)
@@ -420,8 +419,7 @@ namespace Ship_Game
                 return;
             }
 
-            bool lowBudget = budget < -0.0499f;
-            if (lowBudget && (HasBlueprints || GovGroundDefense || !OwnerIsPlayer))
+            if (budget < tolerance && (HasBlueprints || GovGroundDefense || !OwnerIsPlayer))
             {
                 TryScrapMilitaryBuilding();
                 return;

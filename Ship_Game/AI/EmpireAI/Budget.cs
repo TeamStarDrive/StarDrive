@@ -45,7 +45,7 @@ namespace Ship_Game.AI.Budget
             float defenseBudget = EmpireDefenseBudget * defenseRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
-            float civBudget     = EmpireColonizationBudget * EmpireRatio + P.GetColonyDebtTolerance() + P.TerraformBudget;
+            float civBudget     = EmpireColonizationBudget * EmpireRatio + P.GetColonyInitialBudgetTolerance() + P.TerraformBudget;
             float grdBudget     = defenseBudget * groundRatio;
             if (!Owner.isPlayer && P.System.HostileForcesPresent(Owner))
                 grdBudget *= 3; // Try to add more temp ground defense to clear enemies
@@ -60,6 +60,12 @@ namespace Ship_Game.AI.Budget
             TotalRemaining = RemainingSpaceDef + RemainingGroundDef + RemainingCivilian; // total remaining budget for this planet
             TotalAlloc     = GrdDefAlloc + SpcDefAlloc + CivilianAlloc;
         }
+
+        public float CivilianTolerance => (CivilianAlloc * 0.1f).RoundToFractionOf10().LowerBound(0.1f);
+
+        public float GroundDefTolerance => (-GrdDefAlloc * 0.1f).RoundToFractionOf10();
+
+        public float SpaceDefTolerance => (-SpcDefAlloc * 0.1f).RoundToFractionOf10();
 
         public void UpdateManualUI()
         {

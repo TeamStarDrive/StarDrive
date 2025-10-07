@@ -1,19 +1,20 @@
+using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
+using SDUtils;
+using Ship_Game.Audio;
+using Ship_Game.Data.Yaml;
+using Ship_Game.Fleets;
+using Ship_Game.Graphics;
+using Ship_Game.Ships;
+using Ship_Game.Universe;
 using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
-using SDGraphics;
-using SDUtils;
-using Ship_Game.Fleets;
-using Ship_Game.Graphics;
-using Ship_Game.Ships;
-using Ship_Game.Universe;
-using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
-using Ship_Game.Data.Yaml;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -314,6 +315,73 @@ namespace Ship_Game
         static public Vector2 GetRightAlignedPosForTitle(string title, Font font, float right, float y, int offest = 5)
         {
             return new Vector2(right - font.MeasureString(title).X - offest, y);
+        }
+
+        static public Vector2 GetCorrectedMovePosWithAudio(Array<Ship> ships, Ship[] enemyShips, Vector2 pos)
+        {
+            float minimumDistance = (ships.Count * 100).LowerBound(5000);
+            float minimumDistanceInBattle = (minimumDistance * 2).LowerBound(5000);
+            var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= minimumDistance);
+            if (ships.All(s => s.InFrustum && !s.IsInWarp && s.Position.Distance(pos) < minimumDistanceInBattle) || enemyShipsTooClose.Length == 0)
+            {
+                GameAudio.AffirmativeClick();
+                return pos;
+            }
+
+            GameAudio.SmallServo(); // Notify player that order was not exactly followed 
+            Vector2 closestEnemySPos = enemyShipsTooClose.FindMin(s => s.Position.SqDist(pos)).Position;
+            float distanceNeeded = minimumDistance - closestEnemySPos.Distance(pos);
+            Vector2 directionToProjectedPos = closestEnemySPos.DirectionToTarget(pos);
+            Vector2 corrected = pos + directionToProjectedPos * distanceNeeded;
+            return corrected;
+        }
+
+        static public Vector2 GetWarpOvershootMovePosWithAudio(Ship ship, Ship[] enemyShips, Vector2 pos)
+        {
+            float minimumDistance = 7500;
+            var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(ship.Position) <= minimumDistance);
+            if (enemyShipsTooClose.Length == 0)
+            {
+                GameAudio.AffirmativeClick();
+                return pos;
+            }
+
+            GameAudio.SmallServo();
+            Vector2 FarthestEnemyPos = enemyShipsTooClose.FindMax(s => s.Position.SqDist(ship.Position)).Position;
+            float distanceNeeded = minimumDistance + FarthestEnemyPos.Distance(ship.Position);
+            Vector2 corrected = ship.Position + ship.Direction * distanceNeeded;
+            return corrected;
+        }
+
+        static public bool CanExitWarpForChangingDirectionByCommand(Ship[] ships, Ship[] enemyShips)
+        {
+            if (enemyShips.Length == 0)
+                return true;
+
+            float minimumDistance = 5000f;
+            if (ships.Any(s => s.IsInWarp && enemyShips.Any(enemy => enemy.Position.Distance(s.Position) < minimumDistance)))
+                return false;
+
+            return true;
+        }
+
+        static public Ship[] GetAllPotentialTargetsIfInWarp(Array<Ship> ships)
+        {
+            Array<Ship> potentialTargets = new();
+            if (!ships.Any(s => s.IsInWarp))
+                return [];
+
+            for (int i = 0; i < ships.Count; ++i)
+            {
+                Ship ship = ships[i];
+                for (int j = 0; j < ship.AI.PotentialTargets.Length; j++)
+                {
+                    Ship target = ship.AI.PotentialTargets[j];
+                    potentialTargets.AddUniqueRef(target);
+                }
+            }
+
+            return potentialTargets.ToArray();
         }
     }
 }

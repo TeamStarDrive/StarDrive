@@ -49,29 +49,29 @@ namespace Ship_Game
                    && colony.P == this;
         }
 
-        void BuildAndScrapCivilianBuildings(float budget)
+        void BuildAndScrapCivilianBuildings(float budget, float tolerance)
         {
             UpdateGovernorPriorities();
-            bool overBudget = budget < -0.1f;
+            bool overBudget = budget < (-tolerance);
             if (overBudget || Blueprints?.ShouldScrapNonRequiredBuilding() == true)
             {
                 // We must scrap something to bring us above of our debt tolerance
                 // or we can try scrap buildings not in blueprints
                 TryScrapBuilding(overBudget);
                 if (!overBudget) // we can try to build something if we have blueprints
-                    BuildOrReplaceBuilding(budget, overBudget);
+                    BuildOrReplaceBuilding(budget, tolerance, overBudget);
             }
             else
             {
-                BuildOrReplaceBuilding(budget, overBudget);
+                BuildOrReplaceBuilding(budget, tolerance, overBudget);
                 if (!TryBuildBiospheres(budget, out bool shouldScrapBiospheres) && shouldScrapBiospheres)
                     TryScrapBiospheres(); // Build or scrap Biospheres if needed
             }
         }
 
-        void BuildOrReplaceBuilding(float budget, bool overBudget)
+        void BuildOrReplaceBuilding(float budget, float tolerance, bool overBudget)
         {
-            if (TryCancelOverBudgetCivilianBuilding(budget))
+            if (TryCancelOverBudgetCivilianBuilding(budget + tolerance))
                 return;
 
             if (FreeHabitableTiles > 0)

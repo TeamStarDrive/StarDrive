@@ -213,9 +213,11 @@ namespace Ship_Game.Fleets
             }
         }
 
-        public void ClearPatrol()
+        public void ClearPatrol(bool clearOrders = true)
         {
-            ClearOrders();
+            if (clearOrders) 
+                ClearOrders();
+
             Patrol = null;
         }
 

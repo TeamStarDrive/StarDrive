@@ -113,7 +113,7 @@
                     WarSneakiness        = 0;
                     HullTechMultiplier   = 1f;
                     MiningOpsTurnsPerRun = 10;
-                    RemnantPortalCreationMod = 10;
+                    RemnantPortalCreationMod = 12;
                     CombatShipGoalsPerPlanet = 3;
                     break;
                 case GameDifficulty.Hard:
@@ -148,7 +148,7 @@
                     WarSneakiness        = 10;
                     HullTechMultiplier   = 0.85f;
                     MiningOpsTurnsPerRun = 7;
-                    RemnantPortalCreationMod = 6;
+                    RemnantPortalCreationMod = 10;
                     CombatShipGoalsPerPlanet = 4;
                     if (!empire.isPlayer)
                     {
@@ -194,7 +194,7 @@
                     WarSneakiness        = 25;
                     HullTechMultiplier   = 0.7f;
                     MiningOpsTurnsPerRun = 5;
-                    RemnantPortalCreationMod = 5;
+                    RemnantPortalCreationMod = 6;
                     CombatShipGoalsPerPlanet = 5;
                     if (!empire.isPlayer)
                     {
@@ -242,7 +242,7 @@
                     WarSneakiness        = 40;
                     HullTechMultiplier   = 0.6f;
                     MiningOpsTurnsPerRun = 3;
-                    RemnantPortalCreationMod = 4;
+                    RemnantPortalCreationMod = 5;
                     CombatShipGoalsPerPlanet = 6;
                     if (!empire.isPlayer)
                     {
