@@ -276,7 +276,6 @@ namespace Ship_Game.Universe
 
             Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio(fleet.Ships, enemyShips, movePosition);
             fleet.MoveTo(corrected, facingDir, GetMoveOrderType());
-            return;
         }
 
         void ResetShipsTargetAndPriorityOrders(Ship ship)
