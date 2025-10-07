@@ -135,7 +135,7 @@ namespace Ship_Game
                 {
                     if (UnselectableShip())
                         return;
-                    if  (SelectedShip.Position.Distance(shipClicked.Position) > 7500f
+                    if (SelectedShip.Position.Distance(shipClicked.Position) > 7500f
                         && !HelperFunctions.CanExitWarpForChangingDirectionByCommand([SelectedShip], SelectedShip.AI.PotentialTargets))
                     {
                         GameAudio.NegativeClick();
