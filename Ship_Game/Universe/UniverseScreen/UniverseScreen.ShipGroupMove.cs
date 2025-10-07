@@ -135,6 +135,13 @@ namespace Ship_Game
                 {
                     if (UnselectableShip())
                         return;
+                    if  (SelectedShip.Position.Distance(shipClicked.Position) > 7500f
+                        && !HelperFunctions.CanExitWarpForChangingDirectionByCommand([SelectedShip], SelectedShip.AI.PotentialTargets))
+                    {
+                        GameAudio.NegativeClick();
+                        return;
+                    }
+
                     GameAudio.AffirmativeClick();
                     ShipCommands.AttackSpecificShip(SelectedShip, shipClicked);
                 }
@@ -193,7 +200,7 @@ namespace Ship_Game
             if (fleet.Ships.Count == 0) 
                 return;
 
-            bool attackSingleEnemyShip = targetShip != null && !targetShip.Loyalty.isPlayer == true;
+            bool attackSingleEnemyShip = targetShip != null && !targetShip.Loyalty.isPlayer;
             Ship[] enemyShips = targetPlanet == null && (targetShip == null || attackSingleEnemyShip)
                 ?  GetVisibleEnemyShipsInScreen() 
                 : HelperFunctions.GetAllPotentialTargetsIfInWarp(fleet.Ships);
@@ -206,7 +213,7 @@ namespace Ship_Game
                 return;
             }
 
-            fleet.ClearPatrol();
+            fleet.ClearPatrol(clearOrders: false);
             if (wasProjecting)
             {
                 ShipCommands.MoveFleetToLocation(enemyShips, targetShip, targetPlanet, Project.FleetCenter, Project.Direction, fleet);

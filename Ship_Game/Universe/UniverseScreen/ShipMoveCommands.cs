@@ -1,9 +1,11 @@
-﻿using System.Linq;
-using SDGraphics;
+﻿using SDGraphics;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using System.Linq;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Universe
@@ -170,15 +172,18 @@ namespace Ship_Game.Universe
 
             fleet.FinalPosition = planetClicked.Position; //fbedard: center fleet on planet
             foreach (Ship ship in fleet.Ships)
+            {
+                ResetShipsTargetAndPriorityOrders(ship);
                 RightClickOnPlanet(ship, planetClicked, false);
+            }
+
+            GameAudio.AffirmativeClick();
             return true;
         }
 
         public bool AttackSpecificShip(Ship ship, Ship target)
         {
-            if (ship.IsConstructor 
-                || ship.IsSupplyShuttle 
-                || !HelperFunctions.CanExitWarpForChangingDirectionByCommand([ship], ship.AI.PotentialTargets))
+            if (ship.IsConstructor || ship.IsSupplyShuttle)
             {
                 GameAudio.NegativeClick();
                 return false;
@@ -199,7 +204,6 @@ namespace Ship_Game.Universe
                 return true;
             }
 
-            //if (ship.loyalty == player)
             {
                 if (ship.ShipData.Role == RoleName.troop)
                     ship.AI.OrderTroopToBoardShip(target);
@@ -213,17 +217,25 @@ namespace Ship_Game.Universe
 
         bool TryFleetAttackShip(ShipGroup fleet, Ship shipToAttack)
         {
-            if (shipToAttack == null || shipToAttack.Loyalty == Universe.Player)
-                return false;
-
             fleet.FinalPosition = shipToAttack.Position;
             fleet.AssignPositions(Vectors.Up);
+            if (fleet.Ships.Any(s => s.Position.Distance(shipToAttack.Position) > 7500f
+                   && !HelperFunctions.CanExitWarpForChangingDirectionByCommand([s], s.AI.PotentialTargets)))
+            {
+                GameAudio.NegativeClick();
+                return false;
+            }
+
             foreach (Ship fleetShip in fleet.Ships)
             {
                 if (fleetShip.PlayerShipCanTakeFleetOrders(forAttack: true))
+                {
+                    ResetShipsTargetAndPriorityOrders(fleetShip);
                     AttackSpecificShip(fleetShip, shipToAttack);
+                }
             }
 
+            GameAudio.AffirmativeClick();
             return true;
         }
 
@@ -232,9 +244,13 @@ namespace Ship_Game.Universe
             if (Input.QueueAction && fleet.Ships[0].AI.HasWayPoints)
             {
                 foreach (Ship ship in fleet.Ships)
+                {
+                    ResetShipsTargetAndPriorityOrders(ship);
                     ship.AI.ClearOrdersIfCombat();
+                }
 
                 fleet.MoveTo(movePosition, direction, GetMoveOrderType());
+                GameAudio.AffirmativeClick();
                 return true;
             }
 
@@ -245,26 +261,29 @@ namespace Ship_Game.Universe
             Vector2 movePosition, Vector2 facingDir, ShipGroup fleet = null)
         {
             fleet = fleet ?? Universe.SelectedFleet;
-            GameAudio.AffirmativeClick();
-            foreach (Ship ship in fleet.Ships)
+            if (shipClicked != null && !shipClicked.Loyalty.isPlayer)
             {
-                ship.AI.Target = null;
-                if (ship.PlayerShipCanTakeFleetOrders())
-                    ship.AI.ResetPriorityOrder(!Input.QueueAction);
-            }
-
-            if (TryFleetAttackShip(fleet, shipClicked))
+                TryFleetAttackShip(fleet, shipClicked);
                 return;
+            }
 
             if (MoveFleetToPlanet(planetClicked, fleet))
                 return;
 
+            GameAudio.AffirmativeClick();
             if (QueueFleetMovement(movePosition, facingDir, fleet))
                 return;
 
             Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio(fleet.Ships, enemyShips, movePosition);
             fleet.MoveTo(corrected, facingDir, GetMoveOrderType());
             return;
+        }
+
+        void ResetShipsTargetAndPriorityOrders(Ship ship)
+        {
+            ship.AI.Target = null;
+            if (ship.PlayerShipCanTakeFleetOrders())
+                ship.AI.ResetPriorityOrder(!Input.QueueAction);
         }
 
         public void MoveShipToLocation(Ship[] enemyShips, Vector2 pos, Vector2 direction, Ship ship)
@@ -276,7 +295,7 @@ namespace Ship_Game.Universe
             }
 
             Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio([ship], enemyShips, pos);
-            ship.AI.OrderMoveTo(pos, direction, GetMoveOrderType());
+            ship.AI.OrderMoveTo(corrected, direction, GetMoveOrderType());
         }
     }
 }

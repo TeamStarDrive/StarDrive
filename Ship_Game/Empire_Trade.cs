@@ -143,7 +143,7 @@ namespace Ship_Game
 
             public TradeState(Empire owner,  bool interTrade)
             {
-                IdleFreighters = new Ship[0];
+                IdleFreighters = Array.Empty<Ship>();
                 State = EmpireIdleFreighters.Fetch;
                 InterTrade = interTrade;
                 Owner = owner;
@@ -303,7 +303,7 @@ namespace Ship_Game
                 return;
 
             // Order importing planets to balance freighters distribution
-            Planet[] importingPlanets = new Planet[0]; 
+            Planet[] importingPlanets = Array.Empty<Planet>();
             if (state.HasImportPlanetOf(goods))
             {
                 importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
@@ -318,7 +318,7 @@ namespace Ship_Game
                 return;
             }
 
-            Planet[] exportingPlanets = new Planet[0];
+            Planet[] exportingPlanets = Array.Empty<Planet>();
             if (state.HasExportPlanetOf(goods))
             {
                 // TODO: maybe use IEnumerable generators for these?
