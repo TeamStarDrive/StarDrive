@@ -43,6 +43,9 @@ namespace Ship_Game.AI
         // Forces ships to HoldPosition
         // WARNING: DO NOT USE THIS OUTSIDE OF TESTS, IT WILL CRIPPLE THE AI
         HoldPosition = (1 << 9),
+
+        // Try to overtake target
+        Pursue = (1 << 10)
     }
 
     public sealed partial class ShipAI
@@ -293,7 +296,10 @@ namespace Ship_Game.AI
 
             // FB - if offensive move is true, ships will break and attack targets on the way to the destination
             bool offensiveMove = order.IsSet(MoveOrder.Aggressive);
-            ClearOrders(wantedState, priority: !offensiveMove);
+            if (order.IsSet(MoveOrder.Pursue))
+                ClearOrders(wantedState, priority: !offensiveMove);
+            else
+                ClearOrders(wantedState, priority: true);
 
             MovePosition = position;
 

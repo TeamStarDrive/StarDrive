@@ -203,7 +203,7 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
 
-            if (goal.HasAggressiveMoveOrder || goal.HasRegularMoveOrder)
+            if (goal.HasAggressiveMoveOrder || goal.HasRegularMoveOrder || goal.IsInPursue)
             {
                 if (HasPriorityOrder) // Dont stuck in final approach if there are enemies (unless Standing Ground)
                 {

@@ -170,6 +170,14 @@ namespace Ship_Game.AI
 
         void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
+            if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget())
+            {
+                Vector2 prediction = target.Position + (target.Direction * (target.CurrentVelocity * 4 + 7500));
+                Owner.AI.OrderMoveToNoStop(prediction, target.Direction, AIState.Combat, MoveOrder.Pursue);
+                ThrustOrWarpToPos(prediction, timeStep);
+                return;
+            }
+
             // TODO: ADD fleet formation warp logic here. 
             if (CombatRangeType == StanceType.RangedCombatMovement )
             {
@@ -187,6 +195,18 @@ namespace Ship_Game.AI
             else
             {
                 ThrustOrWarpToPos(Target.Position, timeStep);
+            }
+
+            bool ShouldTryOvertakeTarget()
+            {
+                if (Owner.Loyalty.Random.RollDice(95))
+                    return false;
+
+                float distance = Owner.Position.Distance(target.Position);
+                return !Owner.IsInWarp
+                    && !target.IsInWarp
+                    && distance > Owner.WeaponsMaxRange * 0.7f
+                    && Owner.MaxSTLSpeed < target.CurrentVelocity;
             }
         }
 
