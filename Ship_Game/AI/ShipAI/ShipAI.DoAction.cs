@@ -199,14 +199,11 @@ namespace Ship_Game.AI
 
             bool ShouldTryOvertakeTarget()
             {
-                if (Owner.Loyalty.Random.RollDice(95))
+                if (Owner.IsInWarp || target.IsInWarp && Owner.Loyalty.Random.RollDice(95))
                     return false;
 
                 float distance = Owner.Position.Distance(target.Position);
-                return !Owner.IsInWarp
-                    && !target.IsInWarp
-                    && distance > Owner.WeaponsMaxRange * 0.7f
-                    && Owner.MaxSTLSpeed < target.CurrentVelocity;
+                return distance > Owner.WeaponsMaxRange * 0.7f && Owner.MaxSTLSpeed < target.CurrentVelocity;
             }
         }
 
@@ -434,6 +431,8 @@ namespace Ship_Game.AI
                 if (Owner.TryGetScoutFleeVector(out Vector2 escapePos))
                 {
                     OrderMoveTo(escapePos, Owner.Direction.DirectionToTarget(escapePos), AIState.Flee, MoveOrder.NoStop);
+                    Vector2 secondaryPos = escapePos.GenerateRandomPointOnCircle(20_000, Random);  
+                    OrderMoveTo(secondaryPos, escapePos.DirectionToTarget(secondaryPos), AIState.Flee, MoveOrder.NoStop | MoveOrder.AddWayPoint);
                     AddShipGoal(Plan.Explore, AIState.Explore); // Add a new exploration order to the queue to fall back to after flee is done
                 }
                 else
