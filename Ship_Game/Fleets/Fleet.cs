@@ -1797,7 +1797,17 @@ namespace Ship_Game.Fleets
                     SolarSystem  system = task.TargetSystem;
                     if (!system.PlanetList.Any(p => p.Owner != null && Owner.IsAtWarWith(p.Owner)))
                     {
-                        EndInvalidTask(true);
+                        Ship enemyStation = system.ShipList.Find(s => (s.IsResearchStation || s.IsMiningStation) && s.Loyalty.IsAtWarWith(Owner));
+                        if (enemyStation != null && enemyStation.Active)
+                        {
+                            task.AO = enemyStation.Position;
+                            GatherAtAO(task, distanceFromAO: 20000);
+                            TaskStep = 2;
+                        }
+                        else
+                        {
+                            EndInvalidTask(true);
+                        }
                     }
                     else
                     {
@@ -2039,68 +2049,57 @@ namespace Ship_Game.Fleets
             if (clusters.Length == 0)
                 return false;
 
-            var availableShips = new Array<Ship>(ships);
-            while (availableShips.Count > 0)
+
+            int clusterIndex = 0;
+            float attackStr = 0;
+            ThreatCluster currentCluster = clusters[0];
+            float clusterStr = currentCluster.Strength * Owner.GetFleetStrEmpireMultiplier(currentCluster.Loyalty);
+            int shipIndex = 0;
+            for (int i = 0; i < ships.Count; i++)
             {
-                foreach (ThreatCluster c in clusters)
+                shipIndex = i;
+                Ship ship = ships[i];
+                if (ship.AI.HasPriorityOrder
+                      || ship.InCombat
+                      || ship.AI.State == AIState.AssaultPlanet
+                      || ship.AI.State == AIState.Bombard)
                 {
-                    if (availableShips.Count == 0)
-                        break;
+                    continue;
+                }
 
-                    float attackStr = 0.0f;
-                    for (int i = availableShips.Count - 1; i >= 0; --i)
+                ship.AI.OrderAttackMoveTo(currentCluster.Position);
+                attackStr += ship.GetStrength();
+                if (attackStr >= clusterStr)
+                {
+                    if (++clusterIndex < clusters.Length)
                     {
-                        Ship ship = availableShips[i];
-                        if (ship.AI.HasPriorityOrder
-                            || ship.InCombat
-                            || ship.AI.State == AIState.AssaultPlanet
-                            || ship.AI.State == AIState.Bombard)
-                        {
-                        }
-                        else
-                        {
-                            ship.AI.OrderAttackMoveTo(c.Position);
-                            attackStr += ship.GetStrength();
-                        }
-
-                        availableShips.RemoveAtSwapLast(i);
+                        currentCluster = clusters[clusterIndex];
+                        clusterStr = currentCluster.Strength * Owner.GetFleetStrEmpireMultiplier(currentCluster.Loyalty);
+                        attackStr = 0;
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
             }
 
-            foreach (Ship needEscort in RearShips)
+            // if some ships remaining, let them escort the rear ships (which are usually troop ships)
+            for (int i = shipIndex + 1, j = 0; i < ships.Count && j < RearShips.Count; i++, j++)
             {
-                if (availableShips.TryPopLast(out Ship ship))
-                    ship.DoEscort(needEscort);
-                else
-                    break; // no more ships for escort duties
+                Ship ship = ships[i];
+                ship.DoEscort(RearShips[j]);
+                shipIndex = i;
             }
 
-            // other ships should move 
-            foreach (Ship ship in availableShips)
+            // remaining ships should move 
+            for (int i = shipIndex+1; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
                 ship.AI.OrderMoveTo(task.AO, FinalPosition.DirectionToTarget(task.AO));
+            }
 
             return true;
-        }
-
-        bool MoveFleetToNearestCluster(MilitaryTask task)
-        {
-            ThreatCluster[] clusters = Owner.AI.ThreatMatrix.FindHostileClusters(task.AO, task.AORadius);
-            if (clusters.Length != 0)
-            {
-                float totalStrength = clusters.Sum(c => c.Strength);
-
-                // if we are stronger than them?
-                // TODO: For AI, use difficulty-based ratios, on EASY, AI should engage even if they are going to lose
-                //                                            on HARD, the AI should be more careful and engage with superiority
-                if (totalStrength < GetStrength())
-                {
-                    ThreatCluster strongest = clusters.FindMax(c => c.Strength);
-                    FleetMoveToPosition(strongest.Position, 7500, MoveOrder.Aggressive);
-                    return true;
-                }
-            }
-            return false;
         }
 
         bool ShipsOffMission(MilitaryTask task)

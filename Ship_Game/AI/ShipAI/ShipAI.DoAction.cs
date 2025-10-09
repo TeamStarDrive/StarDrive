@@ -71,9 +71,12 @@ namespace Ship_Game.AI
         {
             if (IsTargetValid(Target))
                 return Target;
+            
+            if (State == AIState.Pursue)
+                DequeueCurrentOrder();
 
-            Target = PotentialTargets.Find(t => IsTargetValid(t) 
-                                            && t.Position.InRadius(Owner.Position, Owner.SensorRange));
+            Target = PotentialTargets.Find(t => IsTargetValid(t)
+                                                && t.Position.InRadius(Owner.Position, Owner.SensorRange));
             return Target;
         }
 
@@ -170,10 +173,10 @@ namespace Ship_Game.AI
 
         void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
-            if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget())
+            if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget() && !Owner.IsInhibitedByUnfriendlyGravityWell)
             {
                 Vector2 prediction = target.Position + (target.Direction * (target.CurrentVelocity * 4 + 7500));
-                Owner.AI.OrderMoveToNoStop(prediction, target.Direction, AIState.Combat, MoveOrder.Pursue);
+                Owner.AI.OrderMoveToNoStop(prediction, target.Direction, AIState.Pursue, MoveOrder.Pursue);
                 ThrustOrWarpToPos(prediction, timeStep);
                 return;
             }
@@ -199,11 +202,11 @@ namespace Ship_Game.AI
 
             bool ShouldTryOvertakeTarget()
             {
-                if (Owner.IsInWarp || target.IsInWarp && Owner.Loyalty.Random.RollDice(95))
+                if (Owner.IsInWarp || target.IsInWarp || Owner.Loyalty.Random.RollDice(95))
                     return false;
 
                 float distance = Owner.Position.Distance(target.Position);
-                return distance > Owner.WeaponsMaxRange * 0.7f && Owner.MaxSTLSpeed < target.CurrentVelocity;
+                return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && Owner.MaxSTLSpeed < target.CurrentVelocity;
             }
         }
 

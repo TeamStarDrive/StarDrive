@@ -181,9 +181,10 @@ namespace Ship_Game
                     default: // Importing
                         if (!empireCanExport)
                         {
-                            prodToSpend = prodIncome * 0.5f; ; 
+                            prodToSpend = prodIncome; 
                             break;
                         }
+
                         if (IncomingProdFreighters > 0)
                             prodToSpend = ProdHere + prodIncome; // We have incoming prod, so we can spend more now
                         else
