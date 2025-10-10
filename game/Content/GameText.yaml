@@ -131,7 +131,7 @@ HistoryAndTradition:
 Engage:
  Id: 22
  ENG: "Engage"
- RUS: "Активировать"
+ RUS: "Начать"
  SPA: "Listo"
  UKR: "Запустити"
 Abort:
@@ -16850,7 +16850,7 @@ Kineticweapons:
  UKR: "Кінетична турель"
 BB_Tech_SpaceWeapons_Desc:
  Id: 662
- ENG: "Taking a cue from naval tradition, early spacecraft rely heavily on hail of bullets, shells or flak. Their raw destructive power combined with excellent range crate best first strike weapon, though they do require ammunition."
+ ENG: "Taking a cue from naval tradition, early spacecraft rely heavily on hail of bullets, shells or flak. Their raw destructive power combined with excellent range create best first strike weapon, though they do require ammunition."
  UKR: "Наслідуючи військово-морські традиції, ранні космічні кораблі значною мірою покладалися на град куль, снарядів та авіаційних снарядів. Їхня необроблена руйнівна сила в поєднанні з відмінною дальністю польоту робить їх найкращою зброєю для першого удару, хоча вони і потребують боєприпасів."
 HVTurrets:
  Id: 17474
@@ -18253,14 +18253,17 @@ BB_SpaceportTechDescr:
 BB_Bunker:
  Id: 17657
  ENG: "Bunker"
+ RUS: "Бункер"
  UKR: "Бункер"
 BB_BunkerDescr:
  Id: 17658
  ENG: "Highly fortifed building used to hold defensive lines, capable of withstanding a longer peroid of bombarding, but lacks in firepower."
+ RUS: "Сильно укрепленное здание, используемое для удержания оборонительных рубежей, способное выдержать более длительный период обстрела, но не обладающее достаточной огневой мощью."
  UKR: "Високоукріплена споруда, що використовувалася для утримання оборонних ліній, здатна витримати довший період бомбардування, але не має достатньої вогневої потужності."
 BB_BunkerDescrShort:
  Id: 17659
  ENG: "Highly defensive building"
+ RUS: "Высокозащищенное здание"
  UKR: "Високообороноздатна будівля"
 Tech_AncientArmor_Name:
  Id: 17953
@@ -18305,15 +18308,18 @@ ThisSimpleStructureIsUsed:
 Tech_Terraforming_Name:
  Id: 18279
  ENG: "Terraforming I"
+ RUS: "Терраформирование I"
  UKR: "Тераформування I"
 Tech_Terraforming_Desc:
  Id: 18280
  ENG: "Terraforming planets is a slow process but it can produce excellent results. If researched, we would be able to construct Terraformers; Vast machines which can transform even the most deadly Volcano into a nice, harmless hill."
+ RUS: "Терраформирование планет - медленный процесс, но он может дать отличные результаты. Если исследовать, мы сможем бы построить Терраформеры; Огромные машины, способные превратить даже самый смертоносный вулкан в милый, безобидный холмик."
  UKR: "Тераформування планет - це повільний процес, але він може дати чудові результати. Якщо його дослідити, ми зможемо побудувати тераформери - величезні машини, здатні перетворити навіть найсмертоносніший вулкан на милий, нешкідливий пагорб."
 Tech_Terraforming2_Name:
  Id: 18281
  ENG: "Terraforming II"
  UKR: "Тераформування II"
+ RUS: "Терраформирование II"
 Tech_Terraforming2_Desc:
  Id: 18282
  ENG: "Continuing the line of Terraforming research, we will be able to make Terraformers even more effective. Terraformers will be able to transform unhabitable sections of the planet into fully habitable lands, increasing population capacity."
@@ -18322,8 +18328,10 @@ Tech_Terraforming3_Name:
  Id: 18283
  ENG: "Terraforming III"
  UKR: "Тераформування III"
+ RUS: "Терраформирование III"
 Tech_Terraforming3_Desc:
  Id: 18284
  ENG: "The most advanced technology avaialble for Terraformers. They will be able to transform any habitable planet to the planet environment type our population prefers. This is a true technological marvel!"
  UKR: "Найсучасніша технологія, доступна для тераформерів. Вони зможуть перетворити будь-яку придатну для життя планету на той тип планетарного середовища, якому надає перевагу наше населення. Це справжнє технологічне диво!"
+ RUS: "Самая передовая технология, доступная для терраформеров. Они смогут трансформировать любую пригодную для жизни планету в тот тип среды, который предпочитает наше население. Это настоящее технологическое чудо!"
 # DO NOT USE 18K index for bb+  - use empty spaces between 4000-5000
