@@ -1213,8 +1213,8 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 6:
-                    AttackEnemyStrengthClumpsInAO(task);
-                    TaskStep = 7;
+                    if (!AttackEnemyStrengthClumpsInAO(task))
+                        TaskStep = 7;
                     break;
                 case 7:
                     if (!DoOrbitTaskArea(task, excludeInvade: true))
