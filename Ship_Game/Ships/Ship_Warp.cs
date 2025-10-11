@@ -123,7 +123,6 @@ namespace Ship_Game.Ships
         protected bool UpdateHyperspaceInhibited(FixedSimTime timeStep, bool warpingOrSpooling)
         {
             InhibitedCheckTimer -= timeStep.FixedTime;
-
             if (InhibitedCheckTimer <= 0f)
             {
                 if (Universe.Events.ActiveEvent?.InhibitWarp == true)

@@ -656,7 +656,8 @@ namespace Ship_Game.Fleets
 
             if (EndInvalidTask(!eventBuildingFound
                                || targetPlanet.Owner != null && !Owner.IsAtWarWith(targetPlanet.Owner)
-                               || !MajorityTroopShipsAreInWell(targetPlanet) && (!StillInvasionEffective(task) || !StillCombatEffective(task))))
+                               || !MajorityTroopShipsAreInWell(targetPlanet) && (!StillInvasionEffective(task) 
+                               || !StillCombatEffective(task, inCombat: TaskStep >= 4))))
             {
                 return;
             }
@@ -882,9 +883,16 @@ namespace Ship_Game.Fleets
         void DoAssaultPlanet(MilitaryTask task)
         {
             if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
+            {
                 TaskStep = 8;
+            }
             else
+            {
                 task.TargetEmpire = task.TargetPlanet.Owner;
+                float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 100_000);
+                if (EndInvalidTask(TaskStep < 6 && !CanTakeThisFight(enemyStr, task, inCombat: TaskStep >= 6)))
+                    return;
+            }
 
             switch (TaskStep)
             {
@@ -964,7 +972,7 @@ namespace Ship_Game.Fleets
                             ClearPriorityOrderForShipsInAO(Ships, combatOffset, GetRelativeSize().Length());
                     }
 
-                    Vector2 resetPos = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
+                    Vector2 resetPos = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.Radius);
                     EngageCombatToPlanet(resetPos, MoveOrder.Aggressive);
                     TaskStep = 6;
                     break;
@@ -1021,7 +1029,7 @@ namespace Ship_Game.Fleets
             }
 
             bool invasionEffective = StillInvasionEffective(task);
-            bool combatEffective   = StillCombatEffective(task);
+            bool combatEffective   = StillCombatEffective(task, inCombat: TaskStep >= 6);
             bool remnantsTargeting = !Owner.WeAreRemnants
                 && CommandShip?.System == task.TargetPlanet.System
                 && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
@@ -1034,7 +1042,7 @@ namespace Ship_Game.Fleets
         void DoDeepSpaceInvestigate(MilitaryTask task)
         {
             float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 100_000);
-            if (EndInvalidTask(!CanTakeThisFight(enemyStr, task)))
+            if (EndInvalidTask(!CanTakeThisFight(enemyStr, task, inCombat: TaskStep >= 4)))
                 return;
 
             switch (TaskStep)
@@ -1095,7 +1103,7 @@ namespace Ship_Game.Fleets
 
         bool CanInvadeNow(Planet p, MilitaryTask task)
         {
-            if (!StillCombatEffective(task) || !TryGetTroopShipsInArea(p.Position, p.System.Radius, out Ship[] troopShips))
+            if (!StillCombatEffective(task, inCombat: false) || !TryGetTroopShipsInArea(p.Position, p.System.Radius, out Ship[] troopShips))
                 return false;
 
             float troopStr  = troopShips.Sum(s => s.GetOurTroopStrength(s.TroopCount));
@@ -1157,7 +1165,7 @@ namespace Ship_Game.Fleets
             if (EndInvalidTask(task.TargetPlanet.Owner != null 
                                && !task.TargetPlanet.Owner.IsFaction 
                                && !task.TargetPlanet.Owner.data.IsRebelFaction
-                               || !CanTakeThisFight(task.EnemyStrength, task)))
+                               || !CanTakeThisFight(task.EnemyStrength, task, inCombat: TaskStep >= 6)))
             {
                 return;
             }
@@ -1531,7 +1539,7 @@ namespace Ship_Game.Fleets
         void DoDefendVsRemnant(MilitaryTask task)
         {
             // Should we abort the fight against remnants taskforce?
-            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task)))
+            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task, inCombat: TaskStep >= 2)))
             {
                 ClearOrders();
                 return;
@@ -1555,7 +1563,7 @@ namespace Ship_Game.Fleets
 
         void DoAssaultPirateBase(MilitaryTask task)
         {
-            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task)))
+            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task, inCombat: TaskStep >= 4)))
                 return;
 
             if (EndInvalidTask(task.TargetShip == null || !task.TargetShip.Active)) // Pirate base is dead
@@ -1705,7 +1713,7 @@ namespace Ship_Game.Fleets
                 && CommandShip?.System == task.TargetPlanet.System
                 && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
 
-            if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
+            if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task, inCombat: TaskStep >= 4)))
                 return;
 
             bool bombOk = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
@@ -1722,7 +1730,7 @@ namespace Ship_Game.Fleets
             bool threatIncoming = Owner.IsSystemUnderThreatForUs(FleetTask.TargetSystem)
                 || Owner.IsSystemUnderThreatForAllies(FleetTask.TargetSystem);
 
-            if (threatIncoming && EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
+            if (threatIncoming && EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task, inCombat: TaskStep >= 3))) 
                 return; // If no threat is incoming, stay put to clear remaining lone ships
 
             float aoRadius = task.TargetSystem?.Radius * 2 ?? task.RallyPlanet.System.Radius * 2;
@@ -2153,22 +2161,23 @@ namespace Ship_Game.Fleets
             => Owner.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         // @return TRUE if we can take this fight, potentially, maybe...
-        public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task)
+        public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool inCombat)
         {
-            float ourStrengthThreshold = GetStrength() * 2;
-            if (enemyFleetStrength < ourStrengthThreshold)
+            float ourStrengthThreshold = GetStrength() * 1.2f;
+            if (enemyFleetStrength * Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire) < ourStrengthThreshold)
                 return true;
 
-            // We cannot win, update fleet multipliers for next time
-            Owner.IncreaseFleetStrEmpireMultiplier(task.TargetEmpire);
+            // We fighting and cannot win, update fleet multipliers for next time
+            if (inCombat)
+                Owner.IncreaseFleetStrEmpireMultiplier(task.TargetEmpire);
 
             return false;
         }
 
-        bool StillCombatEffective(MilitaryTask task)
+        bool StillCombatEffective(MilitaryTask task, bool inCombat)
         {
             float enemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(task.AO, task.AORadius);
-            if (CanTakeThisFight(enemyStrength, task))
+            if (CanTakeThisFight(enemyStrength, task, inCombat))
                 return true;
 
             DebugInfo(task, $"Enemy Strength too high. Them: {enemyStrength} Us: {GetStrength()}");
@@ -2537,7 +2546,7 @@ namespace Ship_Game.Fleets
             {
                 var ship = Ships.PopLast();
                 RemoveShip(ship, clearOrders: clearOrders);
-                if (fleeIfInCombat && ship.Active && ship.InCombat)
+                if (fleeIfInCombat && ship.Active && ship.AI.BadGuysNear)
                     ship.AI.OrderFlee();
             }
         }

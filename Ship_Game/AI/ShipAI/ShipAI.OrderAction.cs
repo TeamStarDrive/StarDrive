@@ -408,15 +408,18 @@ namespace Ship_Game.AI
             Intercepting = false;
             Owner.HyperspaceReturn();
             ClearOrders(State, HasPriorityOrder);
+            ResupplyTarget = Owner.Loyalty.GetPlanets().FindClosestTo(Owner, IsSafePlanet)
+                            // fallback to any safe planet - this is a very rare case where no alternatives were found
+                            ?? Owner.Universe.Planets.FindClosestTo(Owner, IsSafePlanet);
 
-                ResupplyTarget = Owner.Loyalty.GetPlanets().FindClosestTo(Owner, IsSafePlanet)
-                             // fallback to any safe planet - this is a very rare case where no alternatives were found
-                             ?? Owner.Universe.Planets.FindClosestTo(Owner, IsSafePlanet);
+            if (BadGuysNear)
+            {
+                if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
+                    OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), AIState.Flee);
+            }
 
             if (ResupplyTarget != null)
                 AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee, priority: true);
-            else if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
-                OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), AIState.Flee);
             else
                 ClearOrders(); // give up and resume combat
 
