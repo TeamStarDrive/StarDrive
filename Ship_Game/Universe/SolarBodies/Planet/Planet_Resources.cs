@@ -200,6 +200,7 @@ namespace Ship_Game
             float ratio = Storage.ProdRatio;
             if (ratio < importThreshold)      PS = GoodState.IMPORT;
             else if (ratio > exportThreshold) PS = GoodState.EXPORT;
+            else                              PS = GoodState.STORE;
         }
     }
 }

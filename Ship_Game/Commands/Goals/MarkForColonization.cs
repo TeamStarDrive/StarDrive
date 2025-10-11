@@ -371,8 +371,8 @@ namespace Ship_Game.Commands.Goals
 
         bool ClaimTaskInvalid()
         {
-            return Task?.Fleet != null && LifeTime > 5 // Timeout
-                || Task?.Fleet?.TaskStep != 7; // we lost
+            return Task?.Fleet != null && LifeTime > 7 // Timeout
+                || Task?.Fleet?.TaskStep < 6; // fleet is not engaging combat or not in target system anymore
         }
 
         void TryRushColonyShip(int queueIndex)

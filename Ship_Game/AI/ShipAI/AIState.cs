@@ -41,6 +41,7 @@ namespace Ship_Game.AI
         ReturnHome = 33,
         SupplyReturnHome = 34,
         Research = 35,
-        Mining = 36
+        Mining = 36,
+        Pursue = 37,
     }
 }
