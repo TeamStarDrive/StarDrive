@@ -2546,7 +2546,7 @@ namespace Ship_Game.Fleets
             {
                 var ship = Ships.PopLast();
                 RemoveShip(ship, clearOrders: clearOrders);
-                if (fleeIfInCombat && ship.Active && ship.AI.BadGuysNear)
+                if (fleeIfInCombat && ship.Active)
                     ship.AI.OrderFlee();
             }
         }
