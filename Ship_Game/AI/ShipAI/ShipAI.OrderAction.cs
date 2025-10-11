@@ -414,7 +414,7 @@ namespace Ship_Game.AI
                              ?? Owner.Universe.Planets.FindClosestTo(Owner, IsSafePlanet);
 
             if (ResupplyTarget != null)
-                AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee);
+                AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee, priority: true);
             else if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
                 OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), AIState.Flee);
             else

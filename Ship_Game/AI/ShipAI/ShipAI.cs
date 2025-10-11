@@ -609,6 +609,8 @@ namespace Ship_Game.AI
         {
             if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), 400f))
                 return false;
+            if (State == AIState.Pursue)
+                return false;
             // separated for clarity as this section can be very confusing.
             // we might need a toggle for the player action here.
             if (State == AIState.FormationMoveTo && HasPriorityOrder || HadPO)

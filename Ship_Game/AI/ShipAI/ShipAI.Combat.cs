@@ -470,6 +470,10 @@ namespace Ship_Game.AI
                 }
             }
 
+            // keep reserach and mining stations as very low priority targets
+            if (tgt.IsResearchStation || tgt.IsMiningStation)
+                value *= 0.001f;
+
             if (debug) Debug($"relSize={relSize.String(2),-4}");
             if (debug) Debug($"{value.String(2)}");
             return value;

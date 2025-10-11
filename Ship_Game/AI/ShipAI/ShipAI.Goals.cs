@@ -240,9 +240,9 @@ namespace Ship_Game.AI
                                          null, speed, "", 0f, AIState.MoveTo, null));
         }
 
-        void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit)
+        void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit, bool priority = false)
         {
-            AddPlanetGoal(Plan.Orbit, p, newState);
+            AddPlanetGoal(Plan.Orbit, p, newState, priority: priority);
         }
 
         public void OrderMoveAndColonize(Planet planet, Goal g)

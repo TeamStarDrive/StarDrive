@@ -1026,8 +1026,9 @@ namespace Ship_Game.Fleets
                 && CommandShip?.System == task.TargetPlanet.System
                 && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
 
-            EndInvalidTask(remnantsTargeting 
-                           || !MajorityTroopShipsAreInWell(task.TargetPlanet) && (!invasionEffective || !combatEffective));
+            EndInvalidTask(remnantsTargeting
+                          || !MajorityTroopShipsAreInWell(task.TargetPlanet)
+                             && (!invasionEffective || !combatEffective));
         }
 
         void DoDeepSpaceInvestigate(MilitaryTask task)
@@ -2244,7 +2245,7 @@ namespace Ship_Game.Fleets
             Vector2 fleetMoveTo = moveTo + offset;
             FinalDirection = fleetMoveTo.DirectionToTarget(FleetTask.AO);
 
-            ship.AI.OrderMoveTo(fleetMoveTo, FinalDirection, ship.AI.State, order);
+            ship.AI.OrderMoveToNoStop(fleetMoveTo, FinalDirection, AI.AIState.Pursue, order);
         }
 
         private enum InvasionTactics
@@ -2427,7 +2428,7 @@ namespace Ship_Game.Fleets
                     }
                     return;
                 }
-                Reset();
+                Reset(fleeIfInCombat: false);
             }
         }
 
@@ -2515,12 +2516,12 @@ namespace Ship_Game.Fleets
         /// <summary>
         /// Resets this entire fleet by removing all ships and clearing fleet tasks & goals
         /// </summary>
-        public void Reset(bool clearOrders = true)
+        public void Reset(bool fleeIfInCombat, bool clearOrders = true)
         {
             if (clearOrders)
                 ClearPatrol();
 
-            RemoveAllShips(clearOrders: clearOrders);
+            RemoveAllShips(clearOrders: clearOrders, fleeIfInCombat);
             Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;
             FleetTask = null;
@@ -2530,12 +2531,14 @@ namespace Ship_Game.Fleets
         /// <summary>
         /// Removes all ships from this fleet, without resetting fleet goals
         /// </summary>
-        public void RemoveAllShips(bool clearOrders)
+        public void RemoveAllShips(bool clearOrders, bool fleeIfInCombat)
         {
             while (Ships.Count > 0)
             {
                 var ship = Ships.PopLast();
                 RemoveShip(ship, clearOrders: clearOrders);
+                if (fleeIfInCombat && ship.Active && ship.InCombat)
+                    ship.AI.OrderFlee();
             }
         }
 
