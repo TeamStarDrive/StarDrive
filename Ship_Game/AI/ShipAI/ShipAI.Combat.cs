@@ -397,14 +397,7 @@ namespace Ship_Game.AI
             if (tgt.IsInWarp || tgt.TroopsAreBoardingShip)
                 return 0;
 
-            // when selecting enemy targets, we should see how easy they are to kill
-            // if we chose strongest enemies, we could make 0 effect and get whittled down by small fries
-            // so instead choose base value from how killable the ship is
-            float dps = Owner.TotalDps;
-            if (dps == 0f) // not all ships have DPS, so equate them with a weak ship
-                dps = 100f;
-
-            float value = (10000f * dps) / (tgt.Health + tgt.ShieldPower).LowerBound(1);
+            float value = tgt.TotalDps / tgt.SurfaceArea + 100;
             value *= 1f + tgt.Carrier.AllFighterHangars.Length*0.75f;
             value *= 1 + tgt.TroopCapacity*0.5f;
             value *= 1 + (tgt.HasBombs ? tgt.BombBays.Count : tgt.BombBays.Count*0.25f);
@@ -429,16 +422,15 @@ namespace Ship_Game.AI
                 if (debug) Debug($"angle={angleDiff.String()}");
             }
             
-            float minimumDistance = Owner.Radius + tgt.Radius;
-            float distance = Owner.Distance(tgt).LowerBound(minimumDistance);
+            float distance = Owner.Distance(tgt).LowerBound(Owner.Radius + tgt.Radius);
             if (tgt.AI.Target == Owner && distance < tgt.DesiredCombatRange) // prefer enemies targeting us (within range)
                 value *= 2.0f;
             if (tgt.Resupplying) // lower priority to enemies that are retreating
-                value *= 0.75f;
+                value *= 0.5f;
 
-            float relDist = (distance / Owner.DesiredCombatRange) * 10;
-            value /= relDist; // prefer targets that are closer, but in 50m increments
-            if (debug) Debug($"d={distance.String(),-4} dv={relDist.String(2),-4}");
+            float distanceDivisor = distance*0.001f;
+            value /= distanceDivisor; // prefer targets that are closer
+            if (debug) Debug($"dv={distanceDivisor.String(2),-4}");
 
             // make ships prefer targets which are closer to their own size
             // this ensures fighters prefer fighters and frigates prefer frigates

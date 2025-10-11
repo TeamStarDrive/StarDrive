@@ -296,10 +296,11 @@ namespace Ship_Game.AI
 
             // FB - if offensive move is true, ships will break and attack targets on the way to the destination
             bool offensiveMove = order.IsSet(MoveOrder.Aggressive);
+            // FB - pursuing (anti kite move) will always have a priorty order
             if (order.IsSet(MoveOrder.Pursue))
-                ClearOrders(wantedState, priority: !offensiveMove);
-            else
                 ClearOrders(wantedState, priority: true);
+            else
+                ClearOrders(wantedState, priority: !offensiveMove);
 
             MovePosition = position;
 

@@ -955,7 +955,7 @@ namespace Ship_Game.Fleets
 
                     TaskStep = 5;
                     break;
-                case 5: // strike fleets created from stage dleets might get this step at creation
+                case 5: // strike fleets created from stage fleets might get this step at creation
                     Vector2 combatOffset  = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
                     MoveStatus inPosition = FleetMoveStatus(task.TargetPlanet.GravityWellRadius, combatOffset);
                     if (!inPosition.IsSet(MoveStatus.MajorityAssembled))
@@ -964,7 +964,7 @@ namespace Ship_Game.Fleets
                             ClearPriorityOrderForShipsInAO(Ships, combatOffset, GetRelativeSize().Length());
                     }
 
-                    Vector2 resetPos = task.AO.OffsetTowards(AveragePosition(), 1500);
+                    Vector2 resetPos = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
                     EngageCombatToPlanet(resetPos, MoveOrder.Aggressive);
                     TaskStep = 6;
                     break;

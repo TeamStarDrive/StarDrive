@@ -141,8 +141,8 @@ namespace Ship_Game
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 
-        [XmlIgnore]
-        public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
+        [XmlIgnore]public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
+        [XmlIgnore]float CurrentStrPercentage => Strength / StrengthMax;
 
         [StarDataDeserialized]
         public void OnDeserialized()
@@ -190,7 +190,14 @@ namespace Ship_Game
             AttackTimer = 10;
         }
 
-        public float ActualFireDelay(int planetLevel) => TheWeapon != null ? TheWeapon.FireDelay / planetLevel : 1;
+        public float ActualFireDelay(int planetLevel)
+        {
+            if (TheWeapon == null || Strength == 0 || planetLevel == 1)
+                return 1;
+
+            float fireDelay = (TheWeapon.FireDelay / planetLevel / CurrentStrPercentage).UpperBound(TheWeapon.FireDelay);
+            return fireDelay;
+        }
 
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
 

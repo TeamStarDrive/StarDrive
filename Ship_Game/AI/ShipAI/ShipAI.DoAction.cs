@@ -175,7 +175,8 @@ namespace Ship_Game.AI
         {
             if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget() && !Owner.IsInhibitedByUnfriendlyGravityWell)
             {
-                Vector2 prediction = target.Position + (target.Direction * (target.CurrentVelocity * 4 + 7500));
+                Vector2 prediction = target.Position.GenerateRandomPointOnForwardHalfArc(target.Rotation, 2000, Owner.Loyalty.Random)
+                    + (target.Direction * (target.CurrentVelocity * 4 + 7500 + Owner.Radius*5));
                 Owner.AI.OrderMoveToNoStop(prediction, target.Direction, AIState.Pursue, MoveOrder.Pursue);
                 ThrustOrWarpToPos(prediction, timeStep);
                 return;
