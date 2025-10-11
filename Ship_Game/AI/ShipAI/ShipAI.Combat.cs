@@ -429,7 +429,7 @@ namespace Ship_Game.AI
                 value *= 0.5f;
 
             float distanceDivisor = distance*0.001f;
-            value /= distanceDivisor; // prefer targets that are closer
+            value /= distanceDivisor * distanceDivisor; // prefer targets that are closer
             if (debug) Debug($"dv={distanceDivisor.String(2),-4}");
 
             // make ships prefer targets which are closer to their own size
