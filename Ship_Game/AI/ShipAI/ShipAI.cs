@@ -315,10 +315,6 @@ namespace Ship_Game.AI
             if (HadPO && State != AIState.AwaitingOrders)
                 HadPO = false;
 
-            ResetStateFlee();
-
-            Owner.Loyalty.data.Traits.ApplyTraitToShip(Owner);
-
             UpdateUtilityModuleAI(timeStep);
             ThrustTarget = Vector2.Zero;
 
@@ -799,7 +795,7 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.TroopToShip, State);
         }
 
-        void ResetStateFlee()
+        public void ResetStateFlee()
         {
             if (State == AIState.Flee
                 && !BadGuysNear 
@@ -807,7 +803,12 @@ namespace Ship_Game.AI
                 && CombatState != CombatState.Evade
                 && OrderQueue.NotEmpty)
             {
-                OrderQueue.RemoveLast();
+                ShipGoal order = OrderQueue.PeekFirst;
+                State = order.WantedState;
+                if (order.Plan == Plan.Orbit)
+                    State = AIState.Orbit;
+                else
+                    OrderQueue.RemoveLast();
             }
         }
 

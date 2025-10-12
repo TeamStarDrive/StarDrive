@@ -1122,6 +1122,8 @@ namespace Ship_Game.Ships
             if (UpdateTimer <= 0f)
             {
                 UpdateTimer += 1f;
+                Loyalty.data.Traits.ApplyTraitToShip(this);
+                AI.ResetStateFlee();
                 UpdateModulesAndStatus(FixedSimTime.One);
                 ExploreCurrentSystem(timeStep);
                 ScrambleFightersIfInCombat();

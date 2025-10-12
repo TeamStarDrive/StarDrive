@@ -2163,8 +2163,9 @@ namespace Ship_Game.Fleets
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool inCombat)
         {
-            float ourStrengthThreshold = GetStrength() * 1.2f;
-            if (enemyFleetStrength * Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire) < ourStrengthThreshold)
+            float ourStrengthThreshold = GetStrength() * Owner.PersonalityModifiers.CanWeTakeThisFightMultiplier;
+            float multiplier = Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire);
+            if (enemyFleetStrength * multiplier < ourStrengthThreshold)
                 return true;
 
             // We fighting and cannot win, update fleet multipliers for next time

@@ -132,6 +132,8 @@ namespace Ship_Game.AI.ShipMovement
                 Owner.SubLightAccelerate(stlSpeedLimit: precisionSpeed);
                 if (AI.State != AIState.Bombard)
                     AI.SetPriorityOrder(false);
+                if (AI.State == AIState.Flee)
+                    AI.State = AIState.Orbit;
             }
             else // we are still not there yet, so find a meaningful orbit position
             {

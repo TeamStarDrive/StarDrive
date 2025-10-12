@@ -369,7 +369,6 @@ namespace Ship_Game.Ships
                 return true;
             }
 
-            // todo - 
             Array<Planet> potentialWells = new();
             foreach (Planet planet in System.PlanetList)
                 if ((planet.Owner == null && !IsInFriendlyProjectorRange || planet.Owner.IsAtWarWith(Loyalty))
