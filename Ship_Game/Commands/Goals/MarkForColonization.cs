@@ -274,8 +274,8 @@ namespace Ship_Game.Commands.Goals
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != TargetPlanet)
             {
-                ReleaseColonyShipAndTask();
-                return GoalStep.GoalFailed;
+                ChangeToStep(CheckIfColonizationIsSafe);
+                return GoalStep.TryAgain;
             }
 
             return GoalStep.TryAgain;

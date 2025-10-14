@@ -246,7 +246,7 @@ namespace Ship_Game.Commands.Goals
                 return;
             SolarSystem system = TargetPlanet.System;
             float enemyStr     = Owner.KnownEnemyStrengthNoResearchStationsIn(system);
-            if (enemyStr > 0 && !Owner.HasWarTaskTargetingSystem(system))
+            if (enemyStr > 0 && MiningStation.AI.BadGuysNear && !Owner.HasWarTaskTargetingSystem(system))
                 Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), AI.Tasks.MilitaryTaskImportance.Normal);
         }
 
