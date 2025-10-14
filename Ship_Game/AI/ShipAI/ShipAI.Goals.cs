@@ -240,9 +240,9 @@ namespace Ship_Game.AI
                                          null, speed, "", 0f, AIState.MoveTo, null));
         }
 
-        void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit)
+        void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit, bool priority = false)
         {
-            AddPlanetGoal(Plan.Orbit, p, newState);
+            AddPlanetGoal(Plan.Orbit, p, newState, priority: priority);
         }
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
@@ -384,6 +384,8 @@ namespace Ship_Game.AI
 
             // If this a Move Order, is it just a plain old Regular move? (default)
             public bool HasRegularMoveOrder => (MoveOrder & MoveOrder.Regular) != 0;
+
+            public bool IsInPursue => (MoveOrder & MoveOrder.Pursue) != 0;
 
             public float GetSTLSpeedLimitFor(Ship ship) => ship.Fleet?.GetSTLSpeedLimitFor(ship) ?? SpeedLimit;
 

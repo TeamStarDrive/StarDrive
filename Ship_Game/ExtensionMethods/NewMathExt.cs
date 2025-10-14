@@ -1,9 +1,10 @@
-﻿using System;
-using System.Diagnostics.Contracts;
+﻿using NAudio.Gui;
 using SDGraphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
+using System;
+using System.Diagnostics.Contracts;
 using Vector2 = SDGraphics.Vector2;
 
 
@@ -21,6 +22,17 @@ namespace Ship_Game.ExtensionMethods
         {
             float randomRadius = random.Float(0f, radius);
             return center.GenerateRandomPointOnCircle(randomRadius, random);
+        }
+
+        public static Vector2 GenerateRandomPointOnForwardHalfArc(this Vector2 center, float rotation, float radius, RandomBase random)
+        {
+            float halfAngle = (float)Math.PI * 0.5f;
+            float randomAngle = rotation + random.Float(-halfAngle, halfAngle);
+
+            float x = center.X + (float)Math.Cos(randomAngle) * radius;
+            float y = center.Y + (float)Math.Sin(randomAngle) * radius;
+
+            return new Vector2(x, y);
         }
 
         // Gives a random point from a vector within a specified distance

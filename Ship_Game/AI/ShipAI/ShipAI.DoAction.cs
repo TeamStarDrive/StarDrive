@@ -71,9 +71,12 @@ namespace Ship_Game.AI
         {
             if (IsTargetValid(Target))
                 return Target;
+            
+            if (State == AIState.Pursue)
+                DequeueCurrentOrder();
 
-            Target = PotentialTargets.Find(t => IsTargetValid(t) 
-                                            && t.Position.InRadius(Owner.Position, Owner.SensorRange));
+            Target = PotentialTargets.Find(t => IsTargetValid(t)
+                                                && t.Position.InRadius(Owner.Position, Owner.SensorRange));
             return Target;
         }
 
@@ -170,6 +173,20 @@ namespace Ship_Game.AI
 
         void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
+            if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget() && !Owner.IsInhibitedByUnfriendlyGravityWell)
+            {
+                Vector2 prediction = target.Position.GenerateRandomPointOnForwardHalfArc(target.Rotation, 2000, Owner.Loyalty.Random)
+                    + (target.Direction * (target.CurrentVelocity * 4 + 7500 + Owner.Radius*5));
+
+                if (Owner.Position.Distance(prediction) > 15_000)
+                {
+                    Owner.AI.OrderMoveToNoStop(prediction, target.Direction, AIState.Pursue, MoveOrder.Pursue);
+                    ThrustOrWarpToPos(prediction, timeStep);
+                }
+
+                return;
+            }
+
             // TODO: ADD fleet formation warp logic here. 
             if (CombatRangeType == StanceType.RangedCombatMovement )
             {
@@ -187,6 +204,15 @@ namespace Ship_Game.AI
             else
             {
                 ThrustOrWarpToPos(Target.Position, timeStep);
+            }
+
+            bool ShouldTryOvertakeTarget()
+            {
+                if (Owner.IsInWarp || target.IsInWarp || Owner.Loyalty.Random.RollDice(95))
+                    return false;
+
+                float distance = Owner.Position.Distance(target.Position);
+                return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && Owner.MaxSTLSpeed < target.CurrentVelocity;
             }
         }
 
@@ -414,6 +440,8 @@ namespace Ship_Game.AI
                 if (Owner.TryGetScoutFleeVector(out Vector2 escapePos))
                 {
                     OrderMoveTo(escapePos, Owner.Direction.DirectionToTarget(escapePos), AIState.Flee, MoveOrder.NoStop);
+                    Vector2 secondaryPos = escapePos.GenerateRandomPointOnCircle(20_000, Random);  
+                    OrderMoveTo(secondaryPos, escapePos.DirectionToTarget(secondaryPos), AIState.Flee, MoveOrder.NoStop | MoveOrder.AddWayPoint);
                     AddShipGoal(Plan.Explore, AIState.Explore); // Add a new exploration order to the queue to fall back to after flee is done
                 }
                 else

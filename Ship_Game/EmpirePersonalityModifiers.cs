@@ -41,6 +41,7 @@ namespace Ship_Game
         public readonly float AlliancOfferStrThreshold; // Dont offer alliance normally if they are too weak
         public readonly float TrustChangeThreshold; // used to change some trust when this threshold is passed, depending on E personality as well and scores.
         public readonly float AngerMultiplierRelDamage;
+        public readonly float CanWeTakeThisFightMultiplier; // Multiplier for AI to decide if it can take the fight against enemy fleets
 
         // Espionage AI Operation activation thresholds
         public readonly float EspionageTechScoreOpsMultiplier;
@@ -62,6 +63,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.4f;
                     DistanceToDefendAllyThreshold   = 1f;
                     SpyDamageRelationsMultiplier = 1;
+                    CanWeTakeThisFightMultiplier = 1.5f;
                     TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -106,6 +108,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.6f;
                     DistanceToDefendAllyThreshold   = 0.8f;
                     SpyDamageRelationsMultiplier = 1;
+                    CanWeTakeThisFightMultiplier = 1.7f;
                     TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 300;
                     AllianceValueAlliedWithEnemy = 0.4f;
@@ -150,6 +153,7 @@ namespace Ship_Game
                     ImperialistWarPlanetsToTakeMult = 0.8f;
                     DistanceToDefendAllyThreshold   = 0.6f;
                     SpyDamageRelationsMultiplier = 1.25f;
+                    CanWeTakeThisFightMultiplier = 1.75f;
                     TurnsAbove95FederationNeeded = 320;
                     TurnsAbove95AllianceTreshold = 250;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -198,6 +202,7 @@ namespace Ship_Game
                     TurnsAbove95AllianceTreshold = 200;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.13f;
+                    CanWeTakeThisFightMultiplier = 1.5f;
                     PlanetStoleTrustMultiplier   = 0.1f;
                     WarGradeThresholdForPeace    = 0.25f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = true;
@@ -244,6 +249,7 @@ namespace Ship_Game
                     TurnsAbove95AllianceTreshold = 150;
                     AllianceValueAlliedWithEnemy = 0.6f;
                     WantedAgentMissionMultiplier = 0.13f;
+                    CanWeTakeThisFightMultiplier = 1.35f;
                     PlanetStoleTrustMultiplier   = 0.7f;
                     WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = false;
@@ -288,6 +294,7 @@ namespace Ship_Game
                     TurnsAbove95AllianceTreshold = 125;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.1f;
+                    CanWeTakeThisFightMultiplier = 1.45f;
                     PlanetStoleTrustMultiplier   = 0.4f;
                     WarGradeThresholdForPeace    = 0.55f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = false;
@@ -332,6 +339,7 @@ namespace Ship_Game
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.8f;
                     WantedAgentMissionMultiplier = 0.1f;
+                    CanWeTakeThisFightMultiplier = 1.4f;
                     WarGradeThresholdForPeace    = 0.75f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = false;
                     PlanetStoleTrustMultiplier   = 0.8f;

@@ -281,7 +281,7 @@ namespace Ship_Game
             FleetDesign data = YamlParser.Deserialize<FleetDesign>(file);
             RemoveSceneObjects(SelectedFleet);
             int currentFleetKey = SelectedFleet.Key;
-            SelectedFleet.Reset(clearOrders: true);
+            SelectedFleet.Reset(fleeIfInCombat: false, clearOrders: true);
             SelectedFleet.DataNodes.Clear();
             ClickableNodes.Clear();
             SelectedFleet.AllFlanks.ForEach(f => f.Clear());

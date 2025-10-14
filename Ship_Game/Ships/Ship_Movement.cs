@@ -331,10 +331,10 @@ namespace Ship_Game.Ships
         public bool TryGetScoutFleeVector(out Vector2 escapePos)
         {
             TryAddResearchableStarNotification();
-            System.SetExploredBy(Loyalty);
-            return GetEscapeJumpPosition(out escapePos, 100000, ignoreNonCombat: true, reverseIfInWell: true);
+            System?.SetExploredBy(Loyalty);
+            return GetEscapeJumpPosition(out escapePos, 100_000, ignoreNonCombat: true, reverseIfInWell: true);
         }
-        public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 20000,
+        public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 100_000,
             ignoreNonCombat: false, reverseIfInWell: false);
 
         /// <summary>
@@ -371,8 +371,12 @@ namespace Ship_Game.Ships
 
             Array<Planet> potentialWells = new();
             foreach (Planet planet in System.PlanetList)
-                if (Position.InRadius(planet.Position, desiredDistance + planet.GravityWellRadius))
+                if (((planet.Owner == null && !IsInFriendlyProjectorRange) 
+                    || planet.Owner.IsAtWarWith(Loyalty))
+                       && Position.InRadius(planet.Position, desiredDistance + planet.GravityWellRadius))
+                {
                     potentialWells.Add(planet);
+                }
 
             if (potentialWells.IsEmpty)
                 return true; // No wells nearby

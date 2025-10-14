@@ -103,8 +103,8 @@ namespace UnitTests.AITests.Ships
             // a final move position out of the system, and then add a new exploration order
             // to the queue in order to resume exploring
             scout.AI.DoExplore(TestSimStep); 
-            AssertEqual(3, scout.AI.OrderQueue.Count, "Scout should have 1 rotate order for the escape vector," +
-                                                          " 1 move order and 1 explore order in the end of the queue.");
+            AssertEqual(4, scout.AI.OrderQueue.Count, "Scout should have 1 rotate order for the escape vector," +
+                                                          " 2 move orders and 1 explore order in the end of the queue.");
             Assert.IsTrue(scout.AI.OrderQueue.PeekLast.Plan == Ship_Game.AI.ShipAI.Plan.Explore, "Scout last order should be exploration but it is not.");
         }
     }

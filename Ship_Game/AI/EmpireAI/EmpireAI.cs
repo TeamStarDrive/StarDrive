@@ -352,6 +352,7 @@ namespace Ship_Game.AI
             {
                 Ship ship = offPool[i];
                 if (ship.AI.BadGuysNear
+                    || ship.Fleet != null
                     || ship.IsFreighter
                     || ship.AI.HasPriorityOrder
                     || ship.AI.HasPriorityTarget

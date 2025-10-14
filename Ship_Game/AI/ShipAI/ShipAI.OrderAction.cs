@@ -43,6 +43,9 @@ namespace Ship_Game.AI
         // Forces ships to HoldPosition
         // WARNING: DO NOT USE THIS OUTSIDE OF TESTS, IT WILL CRIPPLE THE AI
         HoldPosition = (1 << 9),
+
+        // Try to overtake target
+        Pursue = (1 << 10)
     }
 
     public sealed partial class ShipAI
@@ -293,7 +296,11 @@ namespace Ship_Game.AI
 
             // FB - if offensive move is true, ships will break and attack targets on the way to the destination
             bool offensiveMove = order.IsSet(MoveOrder.Aggressive);
-            ClearOrders(wantedState, priority: !offensiveMove);
+            // FB - pursuing (anti kite move) will always have a priorty order
+            if (order.IsSet(MoveOrder.Pursue))
+                ClearOrders(wantedState, priority: true);
+            else
+                ClearOrders(wantedState, priority: !offensiveMove);
 
             MovePosition = position;
 
@@ -401,15 +408,18 @@ namespace Ship_Game.AI
             Intercepting = false;
             Owner.HyperspaceReturn();
             ClearOrders(State, HasPriorityOrder);
+            ResupplyTarget = Owner.Loyalty.GetPlanets().FindClosestTo(Owner, IsSafePlanet)
+                            // fallback to any safe planet - this is a very rare case where no alternatives were found
+                            ?? Owner.Universe.Planets.FindClosestTo(Owner, IsSafePlanet);
 
-                ResupplyTarget = Owner.Loyalty.GetPlanets().FindClosestTo(Owner, IsSafePlanet)
-                             // fallback to any safe planet - this is a very rare case where no alternatives were found
-                             ?? Owner.Universe.Planets.FindClosestTo(Owner, IsSafePlanet);
+            if (BadGuysNear)
+            {
+                if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
+                    OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), AIState.Flee);
+            }
 
             if (ResupplyTarget != null)
-                AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee);
-            else if (Owner.TryGetScoutFleeVector(out Vector2 pos)) // just get out of here
-                OrderMoveToNoStop(pos, Owner.Direction.DirectionToTarget(pos), AIState.Flee);
+                AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee, priority: true);
             else
                 ClearOrders(); // give up and resume combat
 
