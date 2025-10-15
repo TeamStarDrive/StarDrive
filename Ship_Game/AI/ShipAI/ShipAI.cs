@@ -239,7 +239,6 @@ namespace Ship_Game.AI
                                 || ExplorationTarget != null
                                 || OrderQueue.Any(g => g.Plan == Plan.Explore);
 
-
         void DoStandByColonize(FixedSimTime timeStep)
         {
             ReverseThrustUntilStopped(timeStep);
