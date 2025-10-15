@@ -179,10 +179,7 @@ namespace Ship_Game.AI
                     + (target.Direction * (target.CurrentVelocity * 4 + 7500 + Owner.Radius*5));
 
                 if (Owner.Position.Distance(prediction) > 15_000)
-                {
                     Owner.AI.OrderMoveToNoStop(prediction, target.Direction, AIState.Pursue, MoveOrder.Pursue);
-                    ThrustOrWarpToPos(prediction, timeStep);
-                }
 
                 return;
             }
@@ -208,7 +205,7 @@ namespace Ship_Game.AI
 
             bool ShouldTryOvertakeTarget()
             {
-                if (Owner.IsInWarp || target.IsInWarp || Owner.Loyalty.Random.RollDice(95))
+                if (Owner.IsInWarp || target.IsInWarp || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
                     return false;
 
                 float distance = Owner.Position.Distance(target.Position);

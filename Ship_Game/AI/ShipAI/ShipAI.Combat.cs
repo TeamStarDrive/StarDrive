@@ -14,7 +14,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        [StarData] public CombatState CombatState = CombatState.AttackRuns;
+        [StarData] public CombatState CombatState;
         public CombatAI CombatAI;
 
         public Ship[] PotentialTargets = Empty<Ship>.Array;
