@@ -30,6 +30,7 @@ namespace Ship_Game
 
             UpdateMaxPopulation();
             UpdateIncomes();
+            UpdatePlanetShields();
         }
     }
 }
