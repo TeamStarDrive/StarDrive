@@ -17,6 +17,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
