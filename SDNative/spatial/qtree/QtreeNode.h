@@ -101,5 +101,9 @@ namespace spatial
         }
     };
 
-    static_assert(sizeof(QtreeNode) <= 24, "QtreeNode must be 24 bytes");
+#if INTPTR_MAX == INT64_MAX
+    static_assert(sizeof(QtreeNode) <= 32, "QtreeNode must be <= 32 bytes on x64");
+#else
+    static_assert(sizeof(QtreeNode) <= 24, "QtreeNode must be <= 24 bytes on x86");
+#endif
 }
