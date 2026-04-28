@@ -90,14 +90,14 @@
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Platform)$(Configuration)\</IntDir>
     <OutDir>..\game\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp/src;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk/x64;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Platform)$(Configuration)\</IntDir>
     <OutDir>..\game\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp/src;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk/x64;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -174,7 +174,7 @@
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
+      <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\x64\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -198,7 +198,7 @@
       <AdditionalDependencies>libfbxsdk.lib;libpng16_static.lib;zlibstatic.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
+      <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\x64\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

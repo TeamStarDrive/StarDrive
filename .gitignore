@@ -3,6 +3,8 @@ packages/
 StarDrive/
 Deploy/Upload/
 x64/
+!SDNative/3rdparty/fbxsdk/x64/
+!SDNative/3rdparty/fbxsdk/x64/**
 .idea/
 *.psess
 *.vsp
