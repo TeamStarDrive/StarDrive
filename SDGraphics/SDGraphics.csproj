@@ -36,10 +36,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\game\Microsoft.Xna.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -81,10 +77,6 @@
     <Compile Include="Vector4.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj">
-      <Project>{dd32a813-1393-421a-baf8-455f02167be3}</Project>
-      <Name>Microsoft.Xna.Framework.Game</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SDUtils\SDUtils.csproj">
       <Project>{dd03444f-b149-40db-b1df-cb31541008ed}</Project>
       <Name>SDUtils</Name>

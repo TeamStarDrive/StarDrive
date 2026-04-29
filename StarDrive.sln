@@ -10,11 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarDrive", "StarDrive.cspr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDNative", "SDNative\SDNative.vcxproj", "{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Xna.Framework.Game", "Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj", "{DD32A813-1393-421A-BAF8-455F02167BE3}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680} = {6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDSunBurn", "SynapseGaming-SunBurn-Pro\SDSunBurn.csproj", "{BB003976-4764-4F4E-9A98-DDFB8449ECCD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680} = {6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}
@@ -73,16 +68,6 @@ Global
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release - Auto Fast|x64.Build.0 = Release|x64
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|x64.ActiveCfg = Release|x64
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|x64.Build.0 = Release|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Debug - Auto Fast|x64.ActiveCfg = Debug|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Debug - Auto Fast|x64.Build.0 = Debug|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Debug|x64.ActiveCfg = Debug|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Debug|x64.Build.0 = Debug|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Deploy|x64.ActiveCfg = Release|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Deploy|x64.Build.0 = Release|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Release - Auto Fast|x64.ActiveCfg = Release|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Release - Auto Fast|x64.Build.0 = Release|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Release|x64.ActiveCfg = Release|x64
-		{DD32A813-1393-421A-BAF8-455F02167BE3}.Release|x64.Build.0 = Release|x64
 		{BB003976-4764-4F4E-9A98-DDFB8449ECCD}.Debug - Auto Fast|x64.ActiveCfg = Debug|x64
 		{BB003976-4764-4F4E-9A98-DDFB8449ECCD}.Debug - Auto Fast|x64.Build.0 = Debug|x64
 		{BB003976-4764-4F4E-9A98-DDFB8449ECCD}.Debug|x64.ActiveCfg = Debug|x64

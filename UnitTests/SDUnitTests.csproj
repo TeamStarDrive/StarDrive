@@ -45,10 +45,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86">
-      <HintPath>..\game\Microsoft.Xna.Framework.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -167,10 +163,6 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj">
-      <Project>{dd32a813-1393-421a-baf8-455f02167be3}</Project>
-      <Name>Microsoft.Xna.Framework.Game</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SDGraphics\SDGraphics.csproj">
       <Project>{46c4d1db-3168-470f-aba8-4ccaef60f107}</Project>
       <Name>SDGraphics</Name>
@@ -194,18 +186,6 @@
     </Content>
     <Content Include="..\game\SDNative.dll">
       <Link>SDNative.dll</Link>
-    </Content>
-    <Content Include="XnaNative.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Microsoft.Xna.Framework.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="d3d9.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="d3dx9_31.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="X3DAudio1_6.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
