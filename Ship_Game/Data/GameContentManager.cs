@@ -13,8 +13,8 @@ using SDUtils;
 using SgMotion;
 using Ship_Game.Data.Mesh;
 using Ship_Game.SpriteSystem;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Processors;
+// TODO Phase 2: SynapseGaming.LightingSystem.Core/Processors usings removed in Phase 1.8.12
+// (SunBurn type loader stubbed). Restore if Phase 2 reintroduces SunBurn-derived asset loading.
 // ReSharper disable UnusedMember.Local
 
 namespace Ship_Game.Data
@@ -778,64 +778,22 @@ namespace Ship_Game.Data
             }
         }
 
+        // TODO Phase 2: restore SunBurn ContentTypeReader routing if SunBurn-derived
+        // types need to load via XNB. Phase 1.8.12 stubs this because:
+        //   1) SDSunBurn is excluded from the solution in Phase 1.9, so
+        //      `typeof(SceneInterface)` is no longer resolvable.
+        //   2) MonoGame's ContentTypeReaderManager has different private fields
+        //      (`readerTypeToReader`/`nameToReader`) than XNA 3.1, so the
+        //      MethodUtil.ReplaceMethod monkey-patch would silently no-op.
         static void FixSunBurnTypeLoader()
         {
-            Type readerMgrType  = typeof(ContentTypeReaderManager);
-            Type contentMgrType = typeof(GameContentManager);
-
-            FieldInfo readerType = readerMgrType.GetField("readerTypeToReader", BindingFlags.NonPublic | BindingFlags.Static);
-            FieldInfo nameTo     = readerMgrType.GetField("nameToReader", BindingFlags.NonPublic | BindingFlags.Static);
-            ReaderTypeToReader = readerType?.GetValue(null) as Dictionary<Type, ContentTypeReader>;
-            NameToReader       = nameTo?.GetValue(null) as Dictionary<string, ContentTypeReader>;
-
-            MethodInfo oldMethod = readerMgrType.GetMethod("InstantiateTypeReader", BindingFlags.NonPublic | BindingFlags.Static);
-            MethodInfo newMethod = contentMgrType.GetMethod("InstantiateTypeReader", BindingFlags.NonPublic | BindingFlags.Static);
-            MethodUtil.ReplaceMethod(newMethod, oldMethod);
-
-            XnaAssembly = readerMgrType.Assembly;
-            SunburnAssemblyName = typeof(SceneInterface).Assembly.FullName;
         }
 
-        static Dictionary<Type, ContentTypeReader> ReaderTypeToReader;
-        static Dictionary<string, ContentTypeReader> NameToReader;
-        static Assembly XnaAssembly;
-        static string SunburnAssemblyName;
-
-        // @note This IS used, but only through reflection. It's referenced by string in `FixSunBurnTypeLoader()`
+        // TODO Phase 2: restore SunBurn type rerouting (see FixSunBurnTypeLoader)
         static bool InstantiateTypeReader(string readerTypeName, ContentReader contentReader, out ContentTypeReader reader)
         {
-            try
-            {
-                Type type;
-                if (readerTypeName.StartsWith("SynapseGaming."))
-                {
-                    string typeName = readerTypeName.Substring(0, readerTypeName.IndexOf(','));
-                    string reroutedFullName = typeName + ", " + SunburnAssemblyName;
-                    type = Type.GetType(reroutedFullName);
-                }
-                else
-                {
-                    type = XnaAssembly.GetType(readerTypeName) ?? Type.GetType(readerTypeName);
-                }
-
-                if (type == null)
-                {
-                    throw new ContentLoadException($"{contentReader.AssetName} load failed: TypeReader not found for {readerTypeName}");
-                }
-                if (ReaderTypeToReader.TryGetValue(type, out reader))
-                {
-                    NameToReader.Add(readerTypeName, reader);
-                    return false;
-                }
-                reader = (ContentTypeReader)Activator.CreateInstance(type);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                if (ex is ArgumentException || ex is TargetInvocationException || (ex is TypeLoadException || ex is NotSupportedException) || (ex is MemberAccessException || ex is InvalidCastException))
-                    throw new ContentLoadException($"{contentReader.AssetName} load failed: TypeReader {readerTypeName} is invalid", ex);
-                throw;
-            }
+            reader = null;
+            return false;
         }
 
     }

@@ -1,11 +1,14 @@
-﻿using System;
+using System;
 using System.IO;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 
 namespace SDGraphics.Shaders;
 
+// TODO Phase 2: restore runtime HLSL compilation. XNA 3.1's CompilerIncludeHandler /
+// CompiledEffect / Effect.CompileEffectFromSource / TargetPlatform / CompilerOptions APIs
+// are all removed in MonoGame; effects must be precompiled to MGFX (.xnb) via the Content
+// Pipeline. Phase 1 §1.8.11 keeps the public surface and stubs runtime compilation.
 public class Shader : IDisposable
 {
     Effect Fx;
@@ -15,9 +18,10 @@ public class Shader : IDisposable
     {
         Fx = fx;
         FxParameters = new();
-        foreach (EffectParameter parameter in Fx.Parameters)
+        if (fx != null)
         {
-            FxParameters[parameter.Name] = parameter;
+            foreach (EffectParameter parameter in Fx.Parameters)
+                FxParameters[parameter.Name] = parameter;
         }
     }
 
@@ -37,29 +41,20 @@ public class Shader : IDisposable
         Mem.Dispose(ref Fx);
     }
 
-    public EffectParameter this[string name] => FxParameters[name];
-    public EffectTechnique CurrentTechnique => Fx.CurrentTechnique;
+    public EffectParameter this[string name] =>
+        FxParameters.TryGetValue(name, out EffectParameter p) ? p : null;
 
-    public class IncludeHandler : CompilerIncludeHandler
+    public EffectTechnique CurrentTechnique => Fx?.CurrentTechnique;
+
+    public class IncludeHandler
     {
         public string LocalDir { get; set; }
         public IncludeHandler(string rootDir)
         {
             LocalDir = rootDir;
         }
-        public override Stream Open(CompilerIncludeHandlerType includeType, string filename)
-        {
-            // TODO: this isn't fully mod compatible
-            string path = includeType == CompilerIncludeHandlerType.Local
-                ? Path.Combine(LocalDir, filename) // for local includes: #include "Simple.fxh"
-                : Path.Combine("Content", filename); // for game-global includes #include <Effects/Simple.fxh>
-            return new FileInfo(path).OpenRead();
-        }
     }
 
-    /// <summary>
-    /// Creates a new include handler, using `pathToShader` as the directory reference
-    /// </summary>
     public static IncludeHandler CreateIncludeHandler(string pathToShader)
     {
         string rootDir = Path.GetDirectoryName(pathToShader);
@@ -68,26 +63,18 @@ public class Shader : IDisposable
 
     public static Shader FromFile(GraphicsDevice device, string pathToShader)
     {
-        string sourceCode = File.ReadAllText(pathToShader);
-        IncludeHandler handler = CreateIncludeHandler(pathToShader);
-        CompiledEffect compiled = Effect.CompileEffectFromSource(sourceCode, Empty<CompilerMacro>.Array, handler,
-                                                                 CompilerOptions.None, TargetPlatform.Windows);
-        if (!compiled.Success)
-        {
-            throw new($"Shader.FromFile {pathToShader} failed: {compiled.ErrorsAndWarnings}");
-        }
-
-        var fx = new Effect(device, compiled.GetEffectCode(), CompilerOptions.None, null);
-        return new(fx);
+        // TODO Phase 2: load precompiled MGFX effect (e.g. via ContentManager.Load<Effect>)
+        throw new NotImplementedException(
+            $"Shader.FromFile({pathToShader}): runtime HLSL compilation removed in MonoGame; restore via MGFX in Phase 2");
     }
 
     public void Begin()
     {
-        Fx.Begin();
+        // TODO Phase 2: replace XNA Effect.Begin/End with EffectPass.Apply()
     }
 
     public void End()
     {
-        Fx.End();
+        // TODO Phase 2: replace XNA Effect.Begin/End with EffectPass.Apply()
     }
 }

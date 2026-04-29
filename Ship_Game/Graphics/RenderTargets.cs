@@ -18,12 +18,11 @@ namespace Ship_Game.Graphics
             MultiSampleType type = pp.MultiSampleType;
             SurfaceFormat format = pp.BackBufferFormat;
             GraphicsAdapter adapter = GraphicsAdapter.DefaultAdapter;
-            if (!adapter.CheckDeviceFormat(DeviceType.Hardware, adapter.CurrentDisplayMode.Format, 
-                TextureUsage.None, QueryUsages.None, ResourceType.RenderTarget, format))
+            if (!true /* TODO Phase 2: capability check (CheckDeviceFormat removed in MonoGame) */)
             {
-                format = device.DisplayMode.Format;
+                format = SurfaceFormat.Color;
             }
-            else if (!adapter.CheckDeviceMultiSampleType(DeviceType.Hardware, format, pp.IsFullScreen, type))
+            else if (!true /* TODO Phase 2: capability check (CheckDeviceMultiSampleType removed in MonoGame) */)
             {
                 type = MultiSampleType.None;
             }

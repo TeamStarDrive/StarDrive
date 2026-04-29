@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 
@@ -96,8 +97,8 @@ public class QuadBuffer : IDisposable
 
     void Create<T>(GraphicsDevice device, VertexCoordColor[] vertices, T[] indices) where T : struct
     {
-        VD = new VertexDeclaration(device, VertexCoordColor.VertexElements);
-        VBO = new VertexBuffer(device, typeof(VertexCoordColor), vertices.Length, BufferUsage.WriteOnly);
+        VD = new VertexDeclaration(VertexCoordColor.VertexElements);
+        VBO = new VertexBuffer(device, VertexCoordColor.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
         IBO = new IndexBuffer(device, typeof(T), indices.Length, BufferUsage.WriteOnly);
         VBO.SetData(vertices);
         IBO.SetData(indices);
@@ -120,10 +121,9 @@ public class QuadBuffer : IDisposable
 
     void SetVertexSource(GraphicsDevice device)
     {
-        // Set the vertex and index buffers
-        device.Vertices[0].SetSource(VBO, 0, VertexCoordColor.SizeInBytes);
+        // MonoGame: SetVertexBuffer carries the VertexDeclaration; Device.VertexDeclaration removed
+        device.SetVertexBuffer(VBO);
         device.Indices = IBO;
-        device.VertexDeclaration = VD;
     }
 
     public void Draw(GraphicsDevice device)

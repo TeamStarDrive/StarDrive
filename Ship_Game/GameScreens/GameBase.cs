@@ -60,34 +60,11 @@ namespace Ship_Game
 
             Graphics = new GraphicsDeviceManager(this)
             {
-                MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
-                MinimumVertexShaderProfile = ShaderProfile.VS_2_0,
-                PreferredDepthStencilFormat = DepthFormat.Depth16, // only supported: Depth24Stencil8, 
-                PreferMultiSampling = false
+                PreferredDepthStencilFormat = DepthFormat.Depth16, // only supported: Depth24Stencil8,
             };
-
-            Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
-        }
-
-        static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
-        {
-            GraphicsAdapter a = e.GraphicsDeviceInformation.Adapter;
-            PresentationParameters p = e.GraphicsDeviceInformation.PresentationParameters;
-
-            var samples = (MultiSampleType)GlobalStats.AntiAlias;
-            if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format,
-                false, samples, out int quality))
-            {
-                p.MultiSampleQuality = (quality == 1 ? 0 : 1);
-                p.MultiSampleType    = samples;
-            }
-            else
-            {
-                p.MultiSampleType    = MultiSampleType.None;
-                p.MultiSampleQuality = 0;
-            }
-
-            e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
+            Graphics.PreferMultiSampling = true;
+            Graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            Graphics.ApplyChanges();
         }
 
         void UpdateRendererPreferences(ref GraphicsSettings settings)

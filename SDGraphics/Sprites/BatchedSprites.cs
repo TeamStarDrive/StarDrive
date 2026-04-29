@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using SDGraphics.Rendering;
@@ -64,9 +65,9 @@ public sealed class BatchedSprites : IDisposable
             return; // nothing to do
 
         GraphicsDevice device = sr.Device;
-        device.Vertices[0].SetSource(VertexBuf, 0, VertexCoordColor.SizeInBytes);
+        // MonoGame: SetVertexBuffer carries the VertexDeclaration; Device.VertexDeclaration removed
+        device.SetVertexBuffer(VertexBuf);
         device.Indices = sr.IndexBuf;
-        device.VertexDeclaration = sr.VertexDeclaration;
 
         foreach (ref SpriteBatchSpan batch in Batches.AsSpan())
         {
@@ -140,7 +141,7 @@ public sealed class BatchedSprites : IDisposable
             if (currentIndex != numSprites)
                 throw new("Batched Sprite compilation failed");
 
-            vertexBuf = new(g, VertexCoordColor.SizeInBytes*vertices.Length, BufferUsage.WriteOnly);
+            vertexBuf = new(g, VertexCoordColor.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
             vertexBuf.SetData(vertices);
 
             Untextured.Clear();

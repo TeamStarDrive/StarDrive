@@ -1,144 +1,31 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
-using SDUtils;
-using Rectangle = SDGraphics.Rectangle;
-using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {
+    // TODO Phase 2: Restore bloom post-processing. XNA 3.1 APIs used here
+    // (DepthStencilBuffer, ResolveTexture2D, SpriteBlendMode, Effect.Begin/End,
+    // Device.SetRenderTarget(int, ...), Device.DepthStencilBuffer, GetTexture)
+    // are all removed in MonoGame. Phase 1 §1.8.9 keeps the public surface and
+    // makes Draw/LoadContent no-ops; UniverseScreen still gates creation behind
+    // GlobalStats.RenderBloom.
     public sealed class BloomComponent : IDisposable
     {
-        readonly GraphicsDevice Device;
-        #pragma warning disable CA2213
-        Effect bloomExtractEffect;
-        Effect bloomCombineEffect;
-        Effect gaussianBlurEffect;
-        #pragma warning restore CA2213
-        ResolveTexture2D resolveTarget;
-        RenderTarget2D renderTarget1;
-        RenderTarget2D renderTarget2;
-        DepthStencilBuffer buffer;
-
         public BloomSettings Settings { get; set; } = BloomSettings.PresetSettings[0];
         public IntermediateBuffer ShowBuffer { get; set; } = IntermediateBuffer.FinalResult;
 
         public BloomComponent(ScreenManager screenManager)
         {
-            Device = screenManager.GraphicsDevice;
-        }
-
-        float ComputeGaussian(float n)
-        {
-            float theta = Settings.BlurAmount;
-            return (float)(1 / Math.Sqrt(6.28318530717959 * theta) * Math.Exp(-(n * n) / (2f * theta * theta)));
-        }
-
-        public static DepthStencilBuffer CreateDepthStencil(RenderTarget2D target)
-        {
-            return new DepthStencilBuffer(target.GraphicsDevice, target.Width, target.Height, target.GraphicsDevice.DepthStencilBuffer.Format, target.MultiSampleType, target.MultiSampleQuality);
-        }
-
-        public static DepthStencilBuffer CreateDepthStencil(RenderTarget2D target, DepthFormat depth)
-        {
-            if (!GraphicsAdapter.DefaultAdapter.CheckDepthStencilMatch(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, target.Format, depth))
-            {
-                return CreateDepthStencil(target);
-            }
-            return new DepthStencilBuffer(target.GraphicsDevice, target.Width, target.Height, depth, target.MultiSampleType, target.MultiSampleQuality);
         }
 
         public void Draw(SpriteBatch batch)
         {
-            Device.ResolveBackBuffer(resolveTarget);
-            bloomExtractEffect.Parameters["BloomThreshold"].SetValue(Settings.BloomThreshold);
-            DrawFullscreenQuad(batch, resolveTarget, renderTarget1, bloomExtractEffect, IntermediateBuffer.PreBloom);
-            SetBlurEffectParameters(1f / renderTarget1.Width, 0f);
-            DrawFullscreenQuad(batch, renderTarget1.GetTexture(), renderTarget2, gaussianBlurEffect, IntermediateBuffer.BlurredHorizontally);
-            SetBlurEffectParameters(0f, 1f / renderTarget1.Height);
-            DrawFullscreenQuad(batch, renderTarget2.GetTexture(), renderTarget1, gaussianBlurEffect, IntermediateBuffer.BlurredBothWays);
-            Device.SetRenderTarget(0, null);
-            EffectParameterCollection parameters = bloomCombineEffect.Parameters;
-            parameters["BloomIntensity"].SetValue(Settings.BloomIntensity);
-            parameters["BaseIntensity"].SetValue(Settings.BaseIntensity);
-            parameters["BloomSaturation"].SetValue(Settings.BloomSaturation);
-            parameters["BaseSaturation"].SetValue(Settings.BaseSaturation);
-            Device.Textures[1] = resolveTarget;
-            Viewport viewport = GameBase.Viewport;
-            DrawFullscreenQuad(batch, renderTarget1.GetTexture(), viewport.Width, viewport.Height, bloomCombineEffect, IntermediateBuffer.FinalResult);
-        }
-
-        void DrawFullscreenQuad(SpriteBatch batch, Texture2D texture, RenderTarget2D renderTarget, Effect effect, IntermediateBuffer currentBuffer)
-        {
-            Device.SetRenderTarget(0, renderTarget);
-            DepthStencilBuffer old = Device.DepthStencilBuffer;
-            Device.DepthStencilBuffer = buffer;
-            DrawFullscreenQuad(batch, texture, renderTarget.Width, renderTarget.Height, effect, currentBuffer);
-            Device.SetRenderTarget(0, null);
-            Device.DepthStencilBuffer = old;
-        }
-
-        void DrawFullscreenQuad(SpriteBatch batch, Texture2D texture, int width, int height, Effect effect, IntermediateBuffer currentBuffer)
-        {
-            batch.SafeBegin(SpriteBlendMode.None, sortImmediate:true);
-            if (ShowBuffer >= currentBuffer)
-            {
-                effect.Begin();
-                effect.CurrentTechnique.Passes[0].Begin();
-            }
-            batch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
-            batch.SafeEnd();
-            if (ShowBuffer >= currentBuffer)
-            {
-                effect.CurrentTechnique.Passes[0].End();
-                effect.End();
-            }
+            // TODO Phase 2: bloom render path
         }
 
         public void LoadContent()
         {
-            // the effects are managed by the Root content manager
-            bloomExtractEffect = ResourceManager.RootContent.Load<Effect>("Effects/BloomExtract");
-            bloomCombineEffect = ResourceManager.RootContent.Load<Effect>("Effects/BloomCombine");
-            gaussianBlurEffect = ResourceManager.RootContent.Load<Effect>("Effects/GaussianBlur");
-            PresentationParameters pp = Device.PresentationParameters;
-            int width = pp.BackBufferWidth;
-            int height = pp.BackBufferHeight;
-            SurfaceFormat format = pp.BackBufferFormat;
-            resolveTarget = new ResolveTexture2D(Device, width, height, 1, format);
-            width /= 2;
-            height /= 2;
-            renderTarget1 = new RenderTarget2D(Device, width, height, 1, format);
-            renderTarget2 = new RenderTarget2D(Device, width, height, 1, format);
-            buffer = CreateDepthStencil(renderTarget1);
-        }
-
-        void SetBlurEffectParameters(float dx, float dy)
-        {
-            EffectParameter weightsParameter = gaussianBlurEffect.Parameters["SampleWeights"];
-            EffectParameter offsetsParameter = gaussianBlurEffect.Parameters["SampleOffsets"];
-            int sampleCount = weightsParameter.Elements.Count;
-            float[] sampleWeights = new float[sampleCount];
-            XnaVector2[] sampleOffsets = new XnaVector2[sampleCount];
-            sampleWeights[0] = ComputeGaussian(0f);
-            sampleOffsets[0] = new XnaVector2(0f);
-            float totalWeights = sampleWeights[0];
-            for (int i = 0; i < sampleCount / 2; i++)
-            {
-                float weight = ComputeGaussian(i + 1);
-                sampleWeights[i * 2 + 1] = weight;
-                sampleWeights[i * 2 + 2] = weight;
-                totalWeights = totalWeights + weight * 2f;
-                float sampleOffset = i * 2 + 1.5f;
-                XnaVector2 delta = new XnaVector2(dx, dy) * sampleOffset;
-                sampleOffsets[i * 2 + 1] = delta;
-                sampleOffsets[i * 2 + 2] = -delta;
-            }
-            for (int i = 0; i < sampleWeights.Length; i++)
-            {
-                sampleWeights[i] = sampleWeights[i] / totalWeights;
-            }
-            weightsParameter.SetValue(sampleWeights);
-            offsetsParameter.SetValue(sampleOffsets);
+            // TODO Phase 2: load BloomExtract / BloomCombine / GaussianBlur effects
         }
 
         public enum IntermediateBuffer
@@ -189,18 +76,7 @@ namespace Ship_Game
 
         public void Dispose()
         {
-            Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        ~BloomComponent() { Dispose(false); }
-
-        void Dispose(bool disposing)
-        {
-            Mem.Dispose(ref resolveTarget);
-            Mem.Dispose(ref renderTarget1);
-            Mem.Dispose(ref renderTarget2);
-            Mem.Dispose(ref buffer);
         }
     }
 }

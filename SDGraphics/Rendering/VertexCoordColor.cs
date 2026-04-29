@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace SDGraphics.Rendering;
@@ -16,10 +17,12 @@ public struct VertexCoordColor
 
     public static readonly VertexElement[] VertexElements = new VertexElement[3]
     {
-        new (0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0),
-        new (0, 12, VertexElementFormat.Color, VertexElementMethod.Default, VertexElementUsage.Color, 0),
-        new (0, 16, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0)
+        new (0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+        new (12, VertexElementFormat.Color, VertexElementUsage.Color, 0),
+        new (16, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
     };
+
+    public static readonly VertexDeclaration VertexDeclaration = new(VertexElements);
 
     public VertexCoordColor(in Vector3 pos, Color color, in Vector2 coords)
     {

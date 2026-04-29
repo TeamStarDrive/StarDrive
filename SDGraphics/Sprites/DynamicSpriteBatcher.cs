@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics.Rendering;
 using SDUtils;
@@ -263,9 +264,8 @@ internal unsafe class DynamicSpriteBatcher : IDisposable
             }
         }
 
-        // set the index buffer and vertex layout
+        // MonoGame: SetVertexBuffer carries the VertexDeclaration; Device.VertexDeclaration removed
         Device.Indices = sr.IndexBuf;
-        Device.VertexDeclaration = sr.VertexDeclaration;
 
         foreach (Batch batch in Batches.AsSpan())
         {

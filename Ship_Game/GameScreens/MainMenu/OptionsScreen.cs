@@ -305,7 +305,7 @@ namespace Ship_Game
             DisplayModeCollection displayModes = GraphicsAdapter.DefaultAdapter.SupportedDisplayModes;
             foreach (DisplayMode mode in displayModes)
             {
-                if (mode.Width < 1280 || mode.Format != SurfaceFormat.Bgr32)
+                if (mode.Width < 1280)
                     continue;
                 if (ResolutionDropDown.Contains(existing => mode.Width == existing.Width && mode.Height == existing.Height))
                     continue;
