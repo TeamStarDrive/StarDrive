@@ -18,7 +18,7 @@ namespace Ship_Game.Ships
         // NOTE: This implementation is both faster and more memory efficient
         //       than using a StringBuilder for this specific use case
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential)]
         struct ByteBuffer
         {
             public byte* Data;

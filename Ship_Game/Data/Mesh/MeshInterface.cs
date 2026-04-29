@@ -30,7 +30,7 @@ namespace Ship_Game.Data.Mesh
             Content = content;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential)]
         protected struct SdMesh
         {
             public readonly CStrView Name;
@@ -43,7 +43,7 @@ namespace Ship_Game.Data.Mesh
             public readonly int NumAnimClips;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential)]
         protected struct SdMaterial
         {
             public readonly CStrView Name; // name of the material instance
@@ -60,7 +60,7 @@ namespace Ship_Game.Data.Mesh
             public readonly float Alpha;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential)]
         [DebuggerDisplay("Offset={Offset} Size={Size} Format={Format} Usage={Usage}")]
         protected struct SdVertexElement
         {
@@ -70,7 +70,7 @@ namespace Ship_Game.Data.Mesh
             public VertexElementUsage  Usage;
         };
         
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential)]
         protected unsafe struct SdVertexData
         {
             public int VertexStride;
@@ -116,7 +116,7 @@ namespace Ship_Game.Data.Mesh
             }
         };
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential)]
         protected unsafe struct SdMeshGroup
         {
             public readonly int GroupId;
@@ -186,7 +186,7 @@ namespace Ship_Game.Data.Mesh
             public Vector3 Scale;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         protected struct SdModelBone
         {
             public CStrView Name;
@@ -195,7 +195,7 @@ namespace Ship_Game.Data.Mesh
             public Matrix Transform;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         protected struct SdSkinnedBone
         {
             public CStrView Name;

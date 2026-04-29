@@ -7,7 +7,7 @@ namespace Ship_Game
     /**
      * SDNative.dll  rpp::strview
      */
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct CStrView
     {
         readonly sbyte* Str;

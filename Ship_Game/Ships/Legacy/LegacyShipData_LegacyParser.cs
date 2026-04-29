@@ -130,7 +130,7 @@ namespace Ship_Game.Ships.Legacy
             public readonly float X, Y, Z, Scale;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential)]
         struct CModuleSlot
         {
             public readonly float PosX, PosY, Health, ShieldPower, Facing;
@@ -140,7 +140,7 @@ namespace Ship_Game.Ships.Legacy
             public readonly CStrView Restrictions;
             public readonly CStrView SlotOptions;
         }
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential)]
         unsafe struct CShipDataParser
         {
             public readonly CStrView Name;
