@@ -11,7 +11,7 @@ using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Graphics;
 using static Ship_Game.Data.Serialization.Types.RawArraySerializer;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Color = Microsoft.Xna.Framework.Color;
 using Font = Ship_Game.Graphics.Font;
 
 namespace Ship_Game

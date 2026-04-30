@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 using Vector2d = SDGraphics.Vector2d;

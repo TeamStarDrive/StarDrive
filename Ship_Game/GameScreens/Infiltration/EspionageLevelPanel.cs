@@ -1,4 +1,4 @@
-﻿using SDUtils;
+using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.GameScreens.Espionage;
@@ -8,7 +8,7 @@ using Ship_Game.Graphics;
 using Ship_Game;
 using SDGraphics;
 using System.Drawing;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Color = Microsoft.Xna.Framework.Color;
 using Font = Ship_Game.Graphics.Font;
 
 namespace Ship_Game.GameScreens.EspionageNew

@@ -47,7 +47,7 @@ public sealed class ParticleVertexBuffer : IDisposable
     {
         Shared = shared;
         Particles = new ParticleVertex[Size * 4];
-        VertexBuffer = new(shared.Device, ParticleVertex.SizeInBytes*Size*4, BufferUsage.WriteOnly);
+        VertexBuffer = new(shared.Device, shared.VertexDeclaration, Size*4, BufferUsage.WriteOnly);
     }
 
     public void Reset()
@@ -143,21 +143,16 @@ public sealed class ParticleVertexBuffer : IDisposable
         FirstPending = firstFree;
 
         GraphicsDevice device = Shared.Device;
-        // Set the particle vertex and index buffer.
-        device.Vertices[0].SetSource(vbo, 0, ParticleVertex.SizeInBytes);
+        // MonoGame: SetVertexBuffer carries VertexDeclaration; effect/pass Begin/End replaced by Apply.
+        device.SetVertexBuffer(vbo);
         device.Indices = Shared.IndexBuffer;
-        device.VertexDeclaration = Shared.VertexDeclaration;
 
-        effect.Begin();
         foreach (EffectPass pass in effect.CurrentTechnique.Passes)
         {
-            pass.Begin();
+            pass.Apply();
             device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                         firstActive * 4, numParticles * 4, // 4 points
-                                         firstActive * 6, numParticles * 2); // 2 triangles
-            pass.End();
+                                         firstActive * 6, numParticles * 2); // 2 triangles per quad
         }
-        effect.End();
     }
 
     ~ParticleVertexBuffer()

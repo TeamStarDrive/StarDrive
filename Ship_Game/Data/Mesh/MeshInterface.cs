@@ -83,36 +83,20 @@ namespace Ship_Game.Data.Mesh
 
             public IndexBuffer CopyIndices(GraphicsDevice device)
             {
-                ushort* src = IndexData;
-                var dst = new ushort[IndexCount];
-                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
-
-                var buf = new IndexBuffer(device, sizeof(ushort)*IndexCount, BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
-                buf.SetData(dst);
-                return buf;
+                // TODO Phase 2: mesh import disabled in Phase 1
+                throw new NotImplementedException("MeshInterface.SdVertexData.CopyIndices stubbed in Phase 1");
             }
 
             public VertexBuffer CopyVertices(GraphicsDevice device)
             {
-                byte* src = VertexData;
-                var dst = new byte[VertexStride*VertexCount];
-                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
-
-                var buf = new VertexBuffer(device, dst.Length, BufferUsage.WriteOnly);
-                buf.SetData(dst);
-                return buf;
+                // TODO Phase 2: mesh import disabled in Phase 1
+                throw new NotImplementedException("MeshInterface.SdVertexData.CopyVertices stubbed in Phase 1");
             }
 
             public VertexDeclaration CreateDeclaration(GraphicsDevice device)
             {
-                var elements = new Array<VertexElement>();
-                for (int i = 0; i < LayoutCount; ++i)
-                {
-                    var e = new VertexElement(0, Layout[i].Offset, Layout[i].Format,
-                        VertexElementMethod.Default, Layout[i].Usage, 0);
-                    elements.Add(e);
-                }
-                return new VertexDeclaration(device, elements.ToArray());
+                // TODO Phase 2: mesh import disabled in Phase 1
+                throw new NotImplementedException("MeshInterface.SdVertexData.CreateDeclaration stubbed in Phase 1");
             }
         };
 
@@ -294,7 +278,7 @@ namespace Ship_Game.Data.Mesh
                 case VertexElementFormat.Byte4:   return 4;
                 case VertexElementFormat.Short2:  return 4;
                 case VertexElementFormat.Short4:  return 8;
-                case VertexElementFormat.Rgba32:  return 4;
+                // VertexElementFormat.Rgba32 was removed in MonoGame; use Color (4 bytes packed RGBA).
             }
             return 4;
         }

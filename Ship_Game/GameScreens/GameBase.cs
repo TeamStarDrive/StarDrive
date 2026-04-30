@@ -183,7 +183,7 @@ namespace Ship_Game
             GameAudio.Initialize(null, "Audio/AudioConfig.yaml");
         }
 
-        protected void UpdateGame(float deltaTime)
+        protected void UpdateGame(GameTime gameTime)
         {
             if (Log.IsTerminating) // game is crashing, don't update anymore
             {
@@ -194,7 +194,8 @@ namespace Ship_Game
             try
             {
                 ++FrameId;
-                TotalElapsed = (float)base.TotalGameTime;
+                TotalElapsed = (float)gameTime.TotalGameTime.TotalSeconds;
+                float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
                 Elapsed = new UpdateTimes(deltaTime, TotalElapsed);
 
                 if (IsDeviceGood) // only Update if device is OK
@@ -203,7 +204,7 @@ namespace Ship_Game
                     ScreenManager.Update(Elapsed);
                 }
 
-                base.Update(deltaTime); // Update XNA components
+                base.Update(gameTime); // MonoGame Update
             }
             catch (Exception ex)
             {

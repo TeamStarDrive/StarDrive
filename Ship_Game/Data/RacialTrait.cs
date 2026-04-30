@@ -1,6 +1,7 @@
 using Ship_Game.Ships;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data;
@@ -134,7 +135,7 @@ namespace Ship_Game
 
         [XmlIgnore] public Color Color
         {
-            get => new Color((byte)R, (byte)G, (byte)B, 255);
+            get => new Color((byte)R, (byte)G, (byte)B, (byte)255);
             set
             {
                 R = value.R;

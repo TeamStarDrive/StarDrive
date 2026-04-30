@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDUtils;
 using Ship_Game.Data.Texture;
 using Rectangle = SDGraphics.Rectangle;
@@ -33,11 +34,14 @@ namespace Ship_Game.SpriteSystem
             {
                 // For this atlas, compression is forbidden, so we save with BGRA color
                 // Although this will take 4x more memory
-                using (var atlas = new Texture2D(ResourceManager.RootContent.Device, 
-                                                 Width, Height, 1, TextureUsage.None, SurfaceFormat.Color))
+                // TODO Phase 2: Texture2D.Save (DDS) removed in MonoGame; use SDNative
+                // ConvertToDDS path or restore via a custom DDS writer.
+                using (var atlas = new Texture2D(ResourceManager.RootContent.Device,
+                                                 Width, Height, false, SurfaceFormat.Color))
                 {
                     atlas.SetData(color);
-                    atlas.Save(texturePath, ImageFileFormat.Dds);
+                    using FileStream fs = File.Create(System.IO.Path.ChangeExtension(texturePath, "png"));
+                    atlas.SaveAsPng(fs, atlas.Width, atlas.Height);
                     atlas.Dispose();
                 }
             }

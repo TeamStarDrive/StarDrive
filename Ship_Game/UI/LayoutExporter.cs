@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Data.YamlSerializer;
 using Ship_Game.SpriteSystem;

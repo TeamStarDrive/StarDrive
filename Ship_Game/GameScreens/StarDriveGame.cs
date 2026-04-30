@@ -1,10 +1,11 @@
 using System;
 using System.IO;
 using System.Runtime;
+using Microsoft.Xna.Framework;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Utils;
 
@@ -136,10 +137,10 @@ namespace Ship_Game
             GraphicsDeviceWasReset = true;
         }
 
-        protected override void Update(float deltaTime)
+        protected override void Update(GameTime gameTime)
         {
             GameAudio.Update();
-            UpdateGame(deltaTime);
+            UpdateGame(gameTime);
 
             if (IsLoaded && ScreenManager.NumScreens == 0)
             {
@@ -147,13 +148,13 @@ namespace Ship_Game
             }
         }
 
-        protected override void Draw()
+        protected override void Draw(GameTime gameTime)
         {
             if (IsDeviceGood)
             {
                 ScreenManager.ClearScreen(Color.Black);
                 ScreenManager.Draw();
-                base.Draw();
+                base.Draw(gameTime);
             }
         }
 

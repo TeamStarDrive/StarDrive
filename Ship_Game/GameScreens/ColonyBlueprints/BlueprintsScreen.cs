@@ -3,7 +3,7 @@ using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using SDUtils;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Audio;
 using Font = Ship_Game.Graphics.Font;
 using Ship_Game.Universe.SolarBodies;

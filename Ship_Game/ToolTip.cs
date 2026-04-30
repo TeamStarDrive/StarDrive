@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
@@ -173,7 +174,7 @@ namespace Ship_Game
                 var sel = new Selector(Rect, new Color(Color.Black, (byte)alpha),  alpha);
                 sel.Draw(batch, elapsed);
 
-                var textColor =  new Color(102, 178, 255, (byte) alpha);
+                var textColor = new Color((byte)102, (byte)178, (byte)255, (byte)alpha);
                 if (HotKey.NotEmpty())
                 {
                     string title = Localizer.Token(GameText.Hotkey) + ": ";

@@ -50,10 +50,6 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="XNAnimation, Version=0.7.0.0, Culture=neutral, PublicKeyToken=0c21691816f8c6d0, processorArchitecture=x86">
-      <HintPath>..\game\XNAnimation.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AITests\Empire\BudgetTests.cs" />
@@ -174,10 +170,6 @@
     <ProjectReference Include="..\StarDrive.csproj">
       <Project>{8071e07a-300e-485d-b139-066e15e82178}</Project>
       <Name>StarDrive</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
-      <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>
-      <Name>SDSunBurn</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

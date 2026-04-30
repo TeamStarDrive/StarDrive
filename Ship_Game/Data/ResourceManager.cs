@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Microsoft.Xna.Framework.Media;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -795,7 +796,7 @@ namespace Ship_Game
 
         public static void CreateCoreGfxResources()
         {
-            WhitePixel = new Texture2D(RootContent.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
+            WhitePixel = new Texture2D(RootContent.Device, 1, 1, false, SurfaceFormat.Color);
             WhitePixel.SetData(new []{ Color.White });
         }
 

@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
 

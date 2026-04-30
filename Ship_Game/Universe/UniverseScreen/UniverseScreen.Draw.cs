@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -69,7 +70,7 @@ namespace Ship_Game
         {
             DrawBorders.Start();
 
-            graphics.SetRenderTarget(0, BorderRT);
+            graphics.SetRenderTarget(BorderRT);
             graphics.Clear(Color.TransparentBlack);
 
             if (GlobalStats.InfluenceNodeAlpha > 0.1f)
@@ -145,7 +146,7 @@ namespace Ship_Game
                 }
             }
 
-            graphics.SetRenderTarget(0, null);
+            graphics.SetRenderTarget(null);
 
             DrawBorders.Stop();
         }
@@ -197,9 +198,9 @@ namespace Ship_Game
         void UpdateFogMap(SpriteBatch batch, GraphicsDevice device)
         {
             var fogMapTarget = GetCachedFogMapRenderTarget(device, ref FogMapTarget);
-            device.SetRenderTarget(0, fogMapTarget);
+            device.SetRenderTarget(fogMapTarget);
 
-            device.Clear(Color.TransparentWhite);
+            device.Clear(new Color((byte)255, (byte)255, (byte)255, (byte)0));
             batch.SafeBegin(SpriteBlendMode.Additive);
             batch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
             double universeWidth = UState.Size * 2.0;
@@ -220,8 +221,8 @@ namespace Ship_Game
                 }
             }
             batch.SafeEnd();
-            device.SetRenderTarget(0, null);
-            FogMap = fogMapTarget.GetTexture();
+            device.SetRenderTarget(null);
+            FogMap = (fogMapTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
         }
 
         void UpdateFogOfWarInfluences(SpriteBatch batch, GraphicsDevice device)
@@ -230,7 +231,7 @@ namespace Ship_Game
 
             UpdateFogMap(batch, device);
 
-            device.SetRenderTarget(0, LightsTarget);
+            device.SetRenderTarget(LightsTarget);
             device.Clear(Color.White); // clear the lights RT to White
             batch.SafeBegin(SpriteBlendMode.AlphaBlend);
 
@@ -246,7 +247,7 @@ namespace Ship_Game
             DrawSensorNodesHighlights(batch);
 
             batch.SafeEnd();
-            device.SetRenderTarget(0, null);
+            device.SetRenderTarget(null);
 
             DrawFogInfluence.Stop();
         }
@@ -265,9 +266,9 @@ namespace Ship_Game
             SpriteRenderer sr = ScreenManager.SpriteRenderer;
 
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
-            graphics.SetRenderTarget(0, MainTarget);
+            graphics.SetRenderTarget(MainTarget);
             Render(sr, batch, elapsed);
-            graphics.SetRenderTarget(0, null);
+            graphics.SetRenderTarget(null);
             
             OverlaysGroupTotalPerf.Start();
             {
@@ -364,17 +365,14 @@ namespace Ship_Game
         {
             DrawFogOfWar.Start();
 
-            Texture2D texture1 = MainTarget.GetTexture();
-            Texture2D texture2 = LightsTarget.GetTexture();
+            Texture2D texture1 = (MainTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
+            Texture2D texture2 = (LightsTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
 
             batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:true);
-            basicFogOfWarEffect.Begin();
-            basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
+            basicFogOfWarEffect.CurrentTechnique.Passes[0].Apply();
             batch.Draw(texture1, new Rectangle(0, 0, ScreenWidth, ScreenHeight), Color.White);
-            basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
-            basicFogOfWarEffect.End();
             batch.SafeEnd();
 
             DrawFogOfWar.Stop();
@@ -1110,7 +1108,7 @@ namespace Ship_Game
                     if (troopCount > 0)
                     {
                         posOffSet.X += (18 * drawLocationOffset);
-                        DrawTextureWithToolTip(icon_troop, Color.TransparentWhite, $"Troops {troopCount}", mousePos,
+                        DrawTextureWithToolTip(icon_troop, new Color((byte)255, (byte)255, (byte)255, (byte)0), $"Troops {troopCount}", mousePos,
                                                (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }

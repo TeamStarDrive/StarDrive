@@ -32,12 +32,12 @@ namespace Ship_Game
             base.Initialize();
         }
 
-        protected override void Update(float deltaTime)
+        protected override void Update(GameTime gameTime)
         {
-            UpdateGame(deltaTime);
+            UpdateGame(gameTime);
         }
 
-        protected override void Draw()
+        protected override void Draw(GameTime gameTime)
         {
             ScreenManager.Draw();
         }

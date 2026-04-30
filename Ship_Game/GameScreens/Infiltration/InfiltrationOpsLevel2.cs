@@ -1,6 +1,7 @@
-﻿using Vector2 = SDGraphics.Vector2;
+using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Graphics;
 
 

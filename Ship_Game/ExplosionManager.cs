@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data;
@@ -11,6 +12,7 @@ using Ship_Game.SpriteSystem;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
+using SynapseGaming.LightingSystem.Rendering;
 
 using Rectangle = SDGraphics.Rectangle;
 

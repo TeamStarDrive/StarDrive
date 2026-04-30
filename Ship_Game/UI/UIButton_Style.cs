@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using System;
 using SDGraphics;
 using Vector2 = SDGraphics.Vector2;

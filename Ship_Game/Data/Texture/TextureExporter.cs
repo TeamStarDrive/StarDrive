@@ -49,20 +49,9 @@ namespace Ship_Game.Data.Texture
 
         public bool Save(Texture3D texture, string outPath)
         {
-            try
-            {
-                SurfaceFormat f = texture.Format;
-                string dir = Path.GetDirectoryName(outPath);
-                DirectoryInfo d = Directory.CreateDirectory(dir);
-                if (d.Exists)
-                {
-                    texture.Save(outPath, ImageFileFormat.Dds);
-                    return true;
-                }
-            }
-            catch
-            {
-            }
+            // TODO Phase 2: XNA 3.1 Texture.Save removed in MonoGame; restore Texture3D
+            // export through a custom DDS writer when needed.
+            Log.Warning($"Phase 1: Texture3D save disabled for {outPath}");
             return false;
         }
 

@@ -3,7 +3,6 @@ using System.IO;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
-using SgMotion;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Texture;
 
@@ -228,17 +227,8 @@ namespace Ship_Game.Data
                 return;
             }
 
-            try
-            {
-                SkinnedModel model = Content.LoadSkinnedModel(relativePath);
-                Log.Write(ConsoleColor.Cyan, $"  Export AnimatedMesh: {savePath}");
-                GameLoadingScreen.SetStatus("ExportMesh", savePath);
-                MeshExport.Export(model, nameNoExt, savePath);
-            }
-            catch (ContentLoadException e)
-            {
-                Log.Warning($"Failed to export {relativePath}: {e.Message}");
-            }
+            // TODO Phase 2: AnimatedMesh export removed with XNAnimation; restore once
+            // skeletal animation is rebuilt on MonoGame.
         }
 
         public void ExportAllXnbMeshes(string extension)

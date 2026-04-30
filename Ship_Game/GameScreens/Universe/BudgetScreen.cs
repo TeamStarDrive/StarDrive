@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics.Input;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;

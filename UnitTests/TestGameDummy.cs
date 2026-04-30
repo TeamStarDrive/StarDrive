@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game;
 using Vector2 = SDGraphics.Vector2;
 using SDGraphics.Input;
@@ -36,7 +38,7 @@ namespace UnitTests
             Started.Set();
         }
 
-        protected override void Update(float deltaTime)
+        protected override void Update(GameTime gameTime)
         {
             if (CachedVisibility != Visible)
             {
@@ -46,13 +48,13 @@ namespace UnitTests
 
             // Always Update, even if game is not visible
             // Let the ScreenManager/GameScreen system figure out what to do
-            base.Update(deltaTime);
+            base.Update(gameTime);
 
             if (Input.IsKeyDown(Keys.Escape))
                 Visible = false;
         }
 
-        protected override void Draw()
+        protected override void Draw(GameTime gameTime)
         {
             // Always Draw, even if game is not visible
             // Because we want our unit tests to go through the entire system
@@ -63,7 +65,8 @@ namespace UnitTests
             {
                 Batch.SafeBegin();
                 ScreenManager.Draw();
-                DrawComponents();
+                foreach (var c in Components)
+                    if (c is TestGameComponent tc) tc.Draw();
             }
             finally
             {
@@ -105,7 +108,7 @@ namespace UnitTests
             {
                 if (component is { Visible: false } || screen is { Visible: false })
                     break;
-                RunOne();
+                // Game.Tick() runs one Update+Draw frame in MonoGame; the XNA wrapper's RunOne is gone.
                 Tick();
             }
             

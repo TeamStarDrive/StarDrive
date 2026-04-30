@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Graphics;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
@@ -12,6 +13,16 @@ using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {
+    // MonoGame removed XNA 3.1's SpriteBlendMode enum (replaced by BlendState).
+    // Kept here so existing call sites (batch.SafeBegin(SpriteBlendMode.Additive)) compile;
+    // SafeBegin maps each value to a MonoGame BlendState internally.
+    public enum SpriteBlendMode
+    {
+        None,
+        AlphaBlend,
+        Additive,
+    }
+
     public static class SpriteExtensions
     {
         delegate void InternalDrawD(SpriteBatch batch, Texture2D tex, ref XnaVector4 dst, bool scaleDst, ref XnaRect? srcRect,
@@ -299,18 +310,30 @@ namespace Ship_Game
             }
         }
 
+        // MonoGame removed SpriteBlendMode and SaveStateMode; mapped to BlendState below.
+        // The saveState parameter is preserved for source-compat but ignored — MonoGame's
+        // SpriteBatch implicitly saves/restores GraphicsDevice render state per Begin/End.
+        static BlendState ToBlendState(SpriteBlendMode mode) => mode switch
+        {
+            SpriteBlendMode.Additive   => BlendState.Additive,
+            SpriteBlendMode.AlphaBlend => BlendState.AlphaBlend,
+            SpriteBlendMode.None       => BlendState.Opaque,
+            _                          => BlendState.AlphaBlend,
+        };
+
         public static bool SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode)
         {
+            BlendState bs = ToBlendState(blendMode);
             try
             {
-                batch.Begin(blendMode);
+                batch.Begin(blendState: bs);
                 return true;
             }
             catch
             {
                 if (batch.SafeEnd())
                 {
-                    batch.Begin(blendMode);
+                    batch.Begin(blendState: bs);
                     return true;
                 }
                 return false;
@@ -320,21 +343,21 @@ namespace Ship_Game
         /// <param name="batch"></param>
         /// <param name="blendMode">Sprite blending mode</param>
         /// <param name="sortImmediate">Sorts the sprites immediately. The default is false ("Deferred")</param>
-        /// <param name="saveState">Save the previous graphics device state?</param>
+        /// <param name="saveState">Ignored under MonoGame; SpriteBatch handles state save/restore implicitly.</param>
         public static bool SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState = false)
         {
             SpriteSortMode sortMode = sortImmediate ? SpriteSortMode.Immediate : SpriteSortMode.Deferred;
-            SaveStateMode stateMode = saveState ? SaveStateMode.SaveState : SaveStateMode.None;
+            BlendState bs = ToBlendState(blendMode);
             try
             {
-                batch.Begin(blendMode, sortMode, stateMode);
+                batch.Begin(sortMode, bs);
                 return true;
             }
             catch
             {
                 if (batch.SafeEnd())
                 {
-                    batch.Begin(blendMode, sortMode, stateMode);
+                    batch.Begin(sortMode, bs);
                     return true;
                 }
                 return false;
@@ -344,17 +367,18 @@ namespace Ship_Game
         public static bool SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState, in XnaMatrix transform)
         {
             SpriteSortMode sortMode = sortImmediate ? SpriteSortMode.Immediate : SpriteSortMode.Deferred;
-            SaveStateMode stateMode = saveState ? SaveStateMode.SaveState : SaveStateMode.None;
+            BlendState bs = ToBlendState(blendMode);
+            XnaMatrix t = transform;
             try
             {
-                batch.Begin(blendMode, sortMode, stateMode, transform);
+                batch.Begin(sortMode, bs, transformMatrix: t);
                 return true;
             }
             catch
             {
                 if (batch.SafeEnd())
                 {
-                    batch.Begin(blendMode, sortMode, stateMode, transform);
+                    batch.Begin(sortMode, bs, transformMatrix: t);
                     return true;
                 }
                 return false;

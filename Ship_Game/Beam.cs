@@ -147,7 +147,8 @@ namespace Ship_Game
             InitBeamMeshIndices();
             UpdateBeamMesh();
             UpdatePosition();
-            QuadVertexDecl = new(GameBase.Base.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+            // MonoGame: VertexPositionNormalTexture exposes a static VertexDeclaration.
+            QuadVertexDecl = VertexPositionNormalTexture.VertexDeclaration;
         }
 
         // cleanupOnly: just delete the projectile without showing visual death effects
@@ -194,7 +195,7 @@ namespace Ship_Game
             if (QuadVertexDecl == null)
                 InitMesh();
 
-            device.VertexDeclaration = QuadVertexDecl;
+            // MonoGame: VertexDeclaration is carried by VertexBuffer (no device-level setter).
             BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
             BeamEffect.Parameters["World"].SetValue(Matrix.XnaIdentity);
             string beamTexPath = "Beams/" + Weapon.BeamTexture;
@@ -204,15 +205,12 @@ namespace Ship_Game
                 Displacement = 1f;
 
             BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, Displacement));
-            BeamEffect.Begin();
-
             RenderStates.EnableAlphaTest(device, CompareFunction.GreaterEqual, 200);
 
             foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
             {
-                pass.Begin();
+                pass.Apply();
                 device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
-                pass.End();
             }
 
             RenderStates.DisableDepthWrite(device);
@@ -221,16 +219,13 @@ namespace Ship_Game
 
             foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
             {
-                pass.Begin();
+                pass.Apply();
                 device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
-                pass.End();
             }
             
             RenderStates.DisableAlphaTest(device);
             RenderStates.EnableClassicAlphaBlend(device); // restore default
             RenderStates.EnableDepthWrite(device);
-
-            BeamEffect.End();
         }
 
         private void InitBeamMeshIndices()

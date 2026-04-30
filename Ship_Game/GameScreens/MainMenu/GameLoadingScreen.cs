@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.MainMenu;
 using Rectangle = SDGraphics.Rectangle;

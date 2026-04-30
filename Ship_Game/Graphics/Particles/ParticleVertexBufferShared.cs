@@ -17,7 +17,8 @@ public sealed class ParticleVertexBufferShared : IDisposable
     public ParticleVertexBufferShared(GraphicsDevice device)
     {
         Device = device;
-        VertexDeclaration = new(device, ParticleVertex.VertexElements);
+        // MonoGame: VertexDeclaration ctor no longer takes a GraphicsDevice.
+        VertexDeclaration = new(ParticleVertex.VertexElements);
 
         // Create and populate the index buffer.
         ushort[] indices = new ushort[ParticleVertexBuffer.Size * 6];
@@ -33,7 +34,7 @@ public sealed class ParticleVertexBufferShared : IDisposable
             indices[i * 6 + 5] = (ushort)(i * 4 + 3);
         }
 
-        IndexBuffer = new(device, typeof(ushort), indices.Length, BufferUsage.WriteOnly);
+        IndexBuffer = new(device, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
         IndexBuffer.SetData(indices);
     }
 

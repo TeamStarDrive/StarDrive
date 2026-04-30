@@ -4,6 +4,7 @@ using Ship_Game.Ships.AI;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;

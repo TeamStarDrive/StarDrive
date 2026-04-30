@@ -1,5 +1,6 @@
-﻿using System.IO;
+using System.IO;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDUtils;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Data.YamlSerializer;

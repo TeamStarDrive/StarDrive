@@ -104,26 +104,7 @@ namespace UnitTests
             Directory.SetCurrentDirectory("../../../game");
             StarDriveAbsolutePath = Directory.GetCurrentDirectory();
             ResourceManager.InitContentDir();
-            try
-            {
-                var xnaFramework = Assembly.LoadFile(
-                    $"{StarDriveAbsolutePath}\\Microsoft.Xna.Framework.dll");
-                Console.WriteLine($"XNAFramework Path: {xnaFramework.Location}");
-
-                var xnAnimation = Assembly.LoadFile(
-                    $"{StarDriveAbsolutePath}\\XNAnimation.dll");
-                Console.WriteLine($"XNAnimation Path: {xnAnimation.Location}");
-            }
-            catch (FileNotFoundException e)
-            {
-                Console.WriteLine($"XNA Load Failed: {e.Message}\n{e.FileName}\n{e.FusionLog}");
-                throw;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"XNA Load Failed: {e.Message}\n");
-                throw;
-            }
+            // Phase 1.6: XNA 3.1 + XNAnimation removed; MonoGame is loaded normally via NuGet.
 
             try
             {

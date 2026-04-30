@@ -3,6 +3,7 @@ using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.StrategyAI.WarGoals;

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
@@ -52,15 +53,11 @@ namespace Ship_Game
             batch.SafeBegin(SpriteBlendMode.None, sortImmediate:true);
             if (desaturateEffect != null)
             {
-                desaturateEffect.Begin();
-                desaturateEffect.CurrentTechnique.Passes[0].Begin();
+                desaturateEffect.CurrentTechnique.Passes[0].Apply();
 
                 batch.Draw(LoseTexture, ScreenCenter, null,
-                    new Color(255, 255, 255, (byte)Saturation),
+                    new Color((byte)255, (byte)255, (byte)255, (byte)Saturation),
                     0f, Origin, scale, SpriteEffects.None, 1f);
-
-                desaturateEffect.CurrentTechnique.Passes[0].End();
-                desaturateEffect.End();
             }
             batch.SafeEnd();
 

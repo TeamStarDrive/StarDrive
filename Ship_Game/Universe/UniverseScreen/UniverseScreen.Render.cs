@@ -116,8 +116,8 @@ namespace Ship_Game
                 if (alpha > maxAlpha) alpha = maxAlpha;
                 else if (alpha < 10) alpha = 0;
 
-                var color = new Color(255, 255, 255, (byte)alpha);
-                batch.Draw(BorderRT.GetTexture(), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
+                var color = new Color((byte)255, (byte)255, (byte)255, (byte)alpha);
+                batch.Draw((BorderRT as Microsoft.Xna.Framework.Graphics.Texture2D), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
                 batch.SafeEnd();
             }
             DrawOverFog.Stop();

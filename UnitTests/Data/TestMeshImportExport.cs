@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SgMotion;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;

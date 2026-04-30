@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
@@ -7,6 +7,8 @@ using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Graphics;
 using SynapseGaming.LightingSystem.Lights;
+// MonoGame DirectionalLight (used by BasicEffect) collides with SunBurn's; alias the BasicEffect one.
+using XnaDirectionalLight = Microsoft.Xna.Framework.Graphics.DirectionalLight;
 using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
@@ -57,14 +59,14 @@ namespace Ship_Game.Universe.SolarBodies
             // this old AtmosphereColor.dds has a weird checkered transparent blue texture
             TexAtmosphere = content.RawContent.LoadTexture("Model/SpaceObjects/AtmosphereColor.dds");
 
-            FxPlanet = new BasicEffect(content.Device, null);
+            FxPlanet = new BasicEffect(content.Device);
             FxPlanet.TextureEnabled = true;
 
-            FxRings = new BasicEffect(content.Device, null);
+            FxRings = new BasicEffect(content.Device);
             FxRings.TextureEnabled = true;
             FxRings.DiffuseColor = new Vector3(1f, 1f, 1f);
 
-            FxClouds = new BasicEffect(content.Device, null);
+            FxClouds = new BasicEffect(content.Device);
             FxClouds.TextureEnabled = true;
             FxClouds.DiffuseColor = new Vector3(1f, 1f, 1f);
             FxClouds.LightingEnabled = true;
@@ -72,7 +74,7 @@ namespace Ship_Game.Universe.SolarBodies
             FxClouds.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
             FxClouds.SpecularPower = 4;
 
-            FxAtmoColor = new BasicEffect(content.Device, null);
+            FxAtmoColor = new BasicEffect(content.Device);
             FxAtmoColor.TextureEnabled = true;
             FxAtmoColor.LightingEnabled = true;
             FxAtmoColor.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
@@ -84,10 +86,10 @@ namespace Ship_Game.Universe.SolarBodies
             FxAtmoColor.DirectionalLight1.SpecularColor = new Vector3(1f, 1f, 1f);
             FxAtmoColor.DirectionalLight1.Direction = new Vector3(0.98f, -0.025f, 0.2f);
 
-            FxGlow = new BasicEffect(content.Device, null);
+            FxGlow = new BasicEffect(content.Device);
             FxGlow.TextureEnabled = true;
 
-            FxFresnel = new BasicEffect(content.Device, null);
+            FxFresnel = new BasicEffect(content.Device);
             FxFresnel.TextureEnabled = true;
 
             PlanetHaloFx = content.Load<Effect>("Effects/PlanetHalo");
@@ -276,7 +278,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        void SetLight(BasicDirectionalLight light, in Vector3 direction, ILight sunburnLight)
+        void SetLight(XnaDirectionalLight light, in Vector3 direction, ILight sunburnLight)
         {
             light.Enabled = true;
             light.Direction = direction;

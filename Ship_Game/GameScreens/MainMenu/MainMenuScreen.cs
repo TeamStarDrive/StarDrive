@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Audio;
 using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.Scene;

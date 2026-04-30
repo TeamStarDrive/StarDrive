@@ -11,7 +11,8 @@
       "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" StarDrive.sln -t:Restore,Build -p:Configuration=Debug -p:Platform=x64 -m -nologo -fl -flp:logfile=\"C:/Users/gkapu/.claude/plans/phase1-logs/phase1-7-x64-build-2.log;verbosity=normal\" -clp:Summary)",
       "Bash(wc -l \"c:\\\\\\\\Development\\\\\\\\stardrive\\\\\\\\BlackBoxPlus\\\\\\\\build_errors_phase1.8.log\")",
       "Bash(grep \"error CS\" \"c:\\\\\\\\Development\\\\\\\\stardrive\\\\\\\\BlackBoxPlus\\\\\\\\build_errors_phase1.8.log\")",
-      "Bash(git -C \"c:\\\\\\\\Development\\\\\\\\stardrive\\\\\\\\BlackBoxPlus\" status)"
+      "Bash(git -C \"c:\\\\\\\\Development\\\\\\\\stardrive\\\\\\\\BlackBoxPlus\" status)",
+      "Bash(grep -r \"SynapseGaming\\\\\\\\.LightingSystem\\\\\\\\.\" /c/Development/stardrive/BlackBoxPlus/Ship_Game --include=\"*.cs\")"
     ]
   }
 }

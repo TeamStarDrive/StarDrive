@@ -10,11 +10,11 @@ using Microsoft.Xna.Framework.Media;
 using SDGraphics;
 using SDGraphics.Shaders;
 using SDUtils;
-using SgMotion;
 using Ship_Game.Data.Mesh;
 using Ship_Game.SpriteSystem;
+using SynapseGaming.LightingSystem.Processors;
 // TODO Phase 2: SynapseGaming.LightingSystem.Core/Processors usings removed in Phase 1.8.12
-// (SunBurn type loader stubbed). Restore if Phase 2 reintroduces SunBurn-derived asset loading.
+// (SunBurn type loader stubbed). IEffectCache restored via SunBurnStubs.cs in Phase 1.9.
 // ReSharper disable UnusedMember.Local
 
 namespace Ship_Game.Data
@@ -153,8 +153,7 @@ namespace Ship_Game.Data
                 case SurfaceFormat.Dxt1: mul = 0.5f; break;
                 case SurfaceFormat.Dxt3: mul = 1.0f; break;
                 case SurfaceFormat.Dxt5: mul = 1.0f; break;
-                case SurfaceFormat.Rgb32: mul = 4.0f; break;
-                case SurfaceFormat.Rgba32: mul = 4.0f; break;
+                // MonoGame removed Rgb32/Rgba32; only Color/HalfVector4/etc. remain.
                 case SurfaceFormat.Color: mul = 4.0f; break;
             }
             try { if (tex.LevelCount > 1) mul *= 1.75f; } // mip maps 
@@ -190,8 +189,11 @@ namespace Ship_Game.Data
                 else if (asset is Model mod)
                 {
                     numBytes += mod.Bones.Count * 256;
+                    // TODO Phase 2: ModelMesh.IndexBuffer/VertexBuffer moved to ModelMeshPart in MonoGame.
                     foreach (ModelMesh mesh in mod.Meshes)
-                        numBytes += mesh.IndexBuffer.SizeInBytes + mesh.VertexBuffer.SizeInBytes;
+                        foreach (ModelMeshPart part in mesh.MeshParts)
+                            numBytes += (part.IndexBuffer?.IndexCount ?? 0) * 2
+                                      + (part.VertexBuffer?.VertexCount ?? 0) * part.VertexBuffer.VertexDeclaration.VertexStride;
                 }
                 else if (asset is Graphics.Font font)
                 {
@@ -275,13 +277,7 @@ namespace Ship_Game.Data
                         StaticMesh.DisposeModel(model);
                     }
                     break;
-                case SkinnedModel skinnedModel:
-                    if (!StaticMesh.IsModelDisposed(skinnedModel))
-                    {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing aniModel "+(assetName??skinnedModel.Model.Meshes[0].Name));
-                        StaticMesh.DisposeModel(skinnedModel);
-                    }
-                    break;
+                // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted, TODO Phase 2.
                 case SpriteFont font:
                     var texture = GetField<Texture2D>(font, "textureValue");
                     if (!texture.IsDisposed)
@@ -290,20 +286,8 @@ namespace Ship_Game.Data
                         texture.Dispose();
                     }
                     break;
-                case Effect fx:
-                    if (!fx.IsDisposed)
-                    {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing effect   "+(assetName??"unknown"));
-                        fx.Dispose();
-                    }
-                    break;
-                case Shader shader:
-                    if (!shader.IsDisposed)
-                    {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing shader   "+(assetName??"unknown"));
-                        shader.Dispose();
-                    }
-                    break;
+                // Effect and Shader cases removed — both inherit from GraphicsResource in MonoGame
+                // and are already handled by the case above. (XNA 3.1 had a different hierarchy.)
                 case Video _: // video is just a reference object, nothing to dispose
                     break;
                 case IDisposable disposable:
@@ -325,11 +309,10 @@ namespace Ship_Game.Data
                 case TextureAtlas atlas: return atlas.IsDisposed;
                 case StaticMesh mesh: return mesh.IsDisposed;
                 case Model model: return StaticMesh.IsModelDisposed(model);
-                case SkinnedModel sm: return StaticMesh.IsModelDisposed(sm);
+                // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted, TODO Phase 2.
                 case Video _: return false; // nothing to dispose
                 case SpriteFont font: return GetField<Texture2D>(font, "textureValue").IsDisposed;
-                case Effect fx: return fx.IsDisposed;
-                case Shader shader: return shader.IsDisposed;
+                // Effect/Shader cases removed — both inherit GraphicsResource (handled above).
             }
             // anything that falls here is of non-disposable type, such as `Video`
             return false;
@@ -649,19 +632,11 @@ namespace Ship_Game.Data
 
             if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadEffect {file.RelPath()}");
 
-            string pathToShader = file.FullName;
-            string sourceCode = File.ReadAllText(pathToShader);
-            var handler = Shader.CreateIncludeHandler(pathToShader);
-            CompiledEffect compiled = Effect.CompileEffectFromSource(sourceCode, Empty<CompilerMacro>.Array, handler, 
-                                                                     CompilerOptions.None, TargetPlatform.Windows);
-            if (!compiled.Success)
-            {
-                throw new($"LoadEffect {asset.RelPathWithExt} failed: {compiled.ErrorsAndWarnings}");
-            }
-            
-            var fx = new Effect(Device, compiled.GetEffectCode(), CompilerOptions.None, null);
-            lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref fx);
-            return fx;
+            // TODO Phase 2: XNA 3.1 runtime HLSL compilation API removed in MonoGame
+            // (CompiledEffect / CompileEffectFromSource / CompilerOptions / TargetPlatform).
+            // Phase 2 should switch to MGFX precompiled effects via the content pipeline.
+            throw new NotImplementedException(
+                $"Phase 1: runtime .fx compilation disabled, cannot LoadEffect '{asset.RelPathWithExt}'");
         }
 
         // Load and compile an .fx file as an SDGraphics Shader
@@ -704,14 +679,13 @@ namespace Ship_Game.Data
             {
                 mesh = RawContent.LoadStaticMesh(asset.RelPathWithExt);
             }
-            else if (animated)
-            {
-                // cannot cache these, otherwise we'll get a duplicate Model load
-                SkinnedModel skinned = LoadAsset<SkinnedModel>(asset.RelPathWithExt, useCache:false);
-                mesh = StaticMesh.FromSkinnedModel(asset.RelPathWithExt, skinned);
-            }
             else
             {
+                // TODO Phase 2: animated path used XNAnimation SkinnedModel; both branches
+                // now load a static Model until skeletal animation is reintroduced.
+                if (animated)
+                    Log.Warning($"Phase 1: skinned model '{asset.RelPathWithExt}' loaded as static (XNAnimation removed)");
+
                 Model model = LoadAsset<Model>(asset.RelPathWithExt, useCache:false);
                 mesh = StaticMesh.FromStaticModel(asset.RelPathWithExt, model);
             }
@@ -725,10 +699,8 @@ namespace Ship_Game.Data
             return Load<Model>(modelName);
         }
 
-        public SkinnedModel LoadSkinnedModel(string modelName)
-        {
-            return Load<SkinnedModel>(modelName);
-        }
+        // TODO Phase 2: SkinnedModel/XNAnimation removed in Phase 1.9.
+        // Restore once skeletal animation is rebuilt on MonoGame.
 
         protected override Stream OpenStream(string assetNameWithExt)
         {

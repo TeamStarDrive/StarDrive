@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Audio;
 using Keys = SDGraphics.Input.Keys;

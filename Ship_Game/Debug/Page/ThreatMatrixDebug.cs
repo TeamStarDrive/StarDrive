@@ -1,5 +1,6 @@
-﻿using Ship_Game.AI;
+using Ship_Game.AI;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Spatial;
 using Ship_Game.Ships;

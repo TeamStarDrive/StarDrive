@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDGraphics.Input;
@@ -8,7 +8,7 @@ using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.GameScreens.Espionage;
 using Ship_Game.GameScreens.EspionageNew;
 using System.Drawing;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Ship_Game.GameScreens
 {

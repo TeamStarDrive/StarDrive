@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
@@ -43,11 +43,12 @@ namespace Ship_Game.Data.Texture
 
         Texture2D LoadXna(string fullPath)
         {
+            // TODO Phase 2: XNA 3.1's Texture.GetCreationParameters/FromFile removed in MonoGame.
+            // Replace with Texture2D.FromStream once we lock down the format expectations.
             try
             {
-                TextureCreationParameters p = XGraphics.Texture.GetCreationParameters(Device, fullPath);
-                var tex = (Texture2D)XGraphics.Texture.FromFile(Device, fullPath, p);
-                return tex;
+                using FileStream fs = File.OpenRead(fullPath);
+                return Texture2D.FromStream(Device, fs);
             }
             catch (Exception e)
             {
@@ -92,7 +93,7 @@ namespace Ship_Game.Data.Texture
                 }
 
                 // finally create the texture and set the image pixels
-                var t = new Texture2D(Device, width, width, 0, TextureUsage.Linear, SurfaceFormat.Color);
+                var t = new Texture2D(Device, width, width, false, SurfaceFormat.Color);
                 t.SetData(pixels);
                 //t.Save(Dir.StarDriveAppData + "/Saved Games/fog.debug.png", ImageFileFormat.Png);
                 return t;

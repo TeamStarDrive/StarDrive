@@ -6,6 +6,7 @@ using Ship_Game.Debug;
 using Ship_Game.Ships;
 using Ship_Game.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Graphics.Particles;

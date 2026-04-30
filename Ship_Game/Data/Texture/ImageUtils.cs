@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = SDGraphics.Rectangle;
 #pragma warning disable CA1060
 #pragma warning disable CA2101
@@ -77,7 +78,7 @@ namespace Ship_Game.Data.Texture
             Texture2D tex = null;
             void OnLoaded(Color[] color, int size, int width, int height)
             {
-                tex = new Texture2D(device, width, height, 1, TextureUsage.None, SurfaceFormat.Color);
+                tex = new Texture2D(device, width, height, false, SurfaceFormat.Color);
                 tex.SetData(color);
             }
 

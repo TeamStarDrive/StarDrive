@@ -1,9 +1,11 @@
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
+using SynapseGaming.LightingSystem.Rendering;
 using SynapseGaming.LightingSystem.Shadows;
 using System;
 using System.Threading;
@@ -530,14 +532,14 @@ namespace Ship_Game
             if (FogMap == null)
             {
                 var fogMapTarget = GetCachedFogMapRenderTarget(device, ref FogMapTarget);
-                device.SetRenderTarget(0, fogMapTarget);
-                device.Clear(Color.TransparentWhite);
+                device.SetRenderTarget(fogMapTarget);
+                device.Clear(new Color((byte)255, (byte)255, (byte)255, (byte)0));
                 Color defaultFogColor = new(0, 0, 0, 150);
                 ScreenManager.SpriteRenderer.Begin(OrthographicProjection);
                 ScreenManager.SpriteRenderer.FillRect(new(0, 0, ScreenArea), defaultFogColor);
                 ScreenManager.SpriteRenderer.End();
-                device.SetRenderTarget(0, null);
-                FogMap = fogMapTarget.GetTexture();
+                device.SetRenderTarget(null);
+                FogMap = (fogMapTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
             }
 
             //FogMap ??= ResourceManager.Texture2D("UniverseFeather.dds");
@@ -607,12 +609,12 @@ namespace Ship_Game
 
         public void OnPlayerDefeated()
         {
-            StarDriveGame.Instance?.EndingGame(true);
+            // TODO Phase 2: StarDriveGame.EndingGame() lived in the deleted XNA wrapper;
+            // restore once we wire equivalent shutdown hooks on MonoGame's Game class.
             UState.GameOver = true;
             UState.Paused = true;
             UState.Objects.Clear();
             HelperFunctions.CollectMemory();
-            StarDriveGame.Instance?.EndingGame(false);
             ScreenManager.AddScreen(new YouLoseScreen(this));
             UState.Paused = false;
         }

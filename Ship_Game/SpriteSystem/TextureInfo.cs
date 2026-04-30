@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Data.Texture;
 
 namespace Ship_Game.SpriteSystem
@@ -88,7 +89,8 @@ namespace Ship_Game.SpriteSystem
         public string SaveAsPng(string filename)
         {
             string path = Path.ChangeExtension(filename, "png");
-            Texture.Save(path, ImageFileFormat.Png);
+            using FileStream fs = File.Create(path);
+            Texture.SaveAsPng(fs, Texture.Width, Texture.Height);
             return path;
         }
 
@@ -98,7 +100,10 @@ namespace Ship_Game.SpriteSystem
             SurfaceFormat format = Texture.Format;
             if (format == SurfaceFormat.Dxt5 || format == SurfaceFormat.Dxt1)
             {
-                Texture.Save(path, ImageFileFormat.Dds); // already compressed
+                // TODO Phase 2: MonoGame Texture2D has no DDS writer.
+                // Falling back to PNG for now to keep export working in some form.
+                using FileStream fs = File.Create(Path.ChangeExtension(filename, "png"));
+                Texture.SaveAsPng(fs, Texture.Width, Texture.Height);
             }
             else if (format == SurfaceFormat.Color)
             {

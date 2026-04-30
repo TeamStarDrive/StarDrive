@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -6,7 +6,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
 using SDUtils;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Ship_Game.GameScreens.MainMenu;
 

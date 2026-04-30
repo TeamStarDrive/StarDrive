@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using SDGraphics;
 
@@ -23,13 +24,13 @@ public struct ParticleVertex
 
     public static readonly VertexElement[] VertexElements =
     {
-        new VertexElement(0, 0,  VertexElementFormat.Short2,  VertexElementMethod.Default, VertexElementUsage.Position, 0),
-        new VertexElement(0, 4,  VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 1),
-        new VertexElement(0, 16, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0),
-        new VertexElement(0, 28, VertexElementFormat.Color,   VertexElementMethod.Default, VertexElementUsage.Color, 0),
-        new VertexElement(0, 32, VertexElementFormat.Color,   VertexElementMethod.Default, VertexElementUsage.Color, 1),
-        new VertexElement(0, 36, VertexElementFormat.Single,  VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0),
-        new VertexElement(0, 40, VertexElementFormat.Single,  VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 1)
+        new VertexElement(0,  VertexElementFormat.Short2,  VertexElementUsage.Position, 0),
+        new VertexElement(4,  VertexElementFormat.Vector3, VertexElementUsage.Position, 1),
+        new VertexElement(16, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
+        new VertexElement(28, VertexElementFormat.Color,   VertexElementUsage.Color, 0),
+        new VertexElement(32, VertexElementFormat.Color,   VertexElementUsage.Color, 1),
+        new VertexElement(36, VertexElementFormat.Single,  VertexElementUsage.TextureCoordinate, 0),
+        new VertexElement(40, VertexElementFormat.Single,  VertexElementUsage.TextureCoordinate, 1)
     };
 
     public const int SizeInBytes = 44;

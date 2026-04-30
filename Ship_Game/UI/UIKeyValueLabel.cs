@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,8 +30,8 @@ namespace Ship_Game.UI
 
         public UIKeyValueLabel(in LocalizedText keyText, in LocalizedText valueText,
                                Color? titleColor = null, Color? valueColor = null, float split = 0f)
-            : base(new UILabel(keyText.Concat(": "), titleColor ?? Microsoft.Xna.Framework.Graphics.Color.White),
-                   new UILabel(valueText, valueColor ?? Microsoft.Xna.Framework.Graphics.Color.White))
+            : base(new UILabel(keyText.Concat(": "), titleColor ?? Microsoft.Xna.Framework.Color.White),
+                   new UILabel(valueText, valueColor ?? Microsoft.Xna.Framework.Color.White))
         {
             Key = (UILabel)First;
             Value = (UILabel)Second;

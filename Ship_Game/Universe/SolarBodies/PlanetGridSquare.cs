@@ -5,7 +5,7 @@ using Ship_Game.Universe.SolarBodies;
 using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 using Point = SDGraphics.Point;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Color = Microsoft.Xna.Framework.Color;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
 

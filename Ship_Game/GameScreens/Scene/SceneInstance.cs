@@ -1,14 +1,18 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Graphics.Particles;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
+using SynapseGaming.LightingSystem.Rendering;
 using SynapseGaming.LightingSystem.Shadows;
 using SDUtils;
+// SunBurn and MonoGame both define DirectionalLight; we want SunBurn's here.
+using DirectionalLight = SynapseGaming.LightingSystem.Lights.DirectionalLight;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = SDGraphics.Matrix;
 using Ship_Game.Utils;

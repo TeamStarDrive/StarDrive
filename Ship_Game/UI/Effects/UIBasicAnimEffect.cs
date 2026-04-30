@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
@@ -37,8 +38,8 @@ namespace Ship_Game
         // if TRUE, then original color will be animated instead
         // by default, animates from black to white, no alpha
         public bool AnimateColor;
-        public Color MinColor = Microsoft.Xna.Framework.Graphics.Color.Black;
-        public Color MaxColor = Microsoft.Xna.Framework.Graphics.Color.White;
+        public Color MinColor = Microsoft.Xna.Framework.Color.Black;
+        public Color MaxColor = Microsoft.Xna.Framework.Color.White;
 
         // if TRUE, then position is being animated
         public bool AnimatePosition;
