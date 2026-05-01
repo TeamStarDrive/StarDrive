@@ -80,6 +80,39 @@ namespace Ship_Game
             ResourceManager.WaitForExit();
         }
 
+        // Verifies the Media Foundation backend is usable on this machine and that
+        // VideoPlayer can actually deliver frames. Sets GlobalStats.VideoDisabled
+        // when either check fails so GameLoadingScreen skips the splash entirely
+        // and jumps straight to MainMenu instead of presenting a half-broken state.
+        //
+        // 1) Construction + Volume setter — catches missing MF codec stack
+        //    (Win10/11 N/KN editions). IsLooped is known-unimplemented and
+        //    intentionally not exercised; ScreenMediaPlayer just doesn't call it.
+        // 2) Force-disabled below — MonoGame WindowsDX 3.8.0.1641 has a known
+        //    VideoPlayer bug where Play() throws NullReferenceException and
+        //    GetTexture() throws unconditionally (audio still decodes, but no
+        //    frames reach the GPU; see project_phase2_backlog_runtime.md).
+        //    The pin to 3.8.0.1641 is forced by net48 support; revisit when
+        //    the framework target moves to net6+ (then bump to 3.8.1+ which
+        //    fixes this) and remove the force-disable here.
+        static void ProbeVideoBackend()
+        {
+            try
+            {
+                using var player = new Microsoft.Xna.Framework.Media.VideoPlayer();
+                player.Volume = 0.5f;
+            }
+            catch (Exception ex)
+            {
+                GlobalStats.VideoDisabled = true;
+                Log.Warning($"Media Foundation unavailable; videos disabled: {ex.GetType().Name}: {ex.Message}");
+                return;
+            }
+
+            GlobalStats.VideoDisabled = true;
+            Log.Info("VideoPlayer force-disabled (MonoGame WindowsDX 3.8.0.1641 GetTexture bug); splash and loading icon skipped.");
+        }
+
         protected override void Initialize()
         {
             Instance = this;
@@ -88,6 +121,7 @@ namespace Ship_Game
             ScreenManager = new(this, Graphics);
             InitializeAudio();
             ApplyGraphics(GraphicsSettings.FromGlobalStats());
+            ProbeVideoBackend();
 
             // run initialization handler which is able to cancel and exit the game
             if (OnInitialize != null && OnInitialize() == false)

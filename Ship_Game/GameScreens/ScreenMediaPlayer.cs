@@ -58,21 +58,16 @@ namespace Ship_Game.GameScreens
 
         public bool IsDisposed { get; private set; }
 
-        public ScreenMediaPlayer(GameContentManager content, bool looping = true)
+        public ScreenMediaPlayer(GameContentManager content)
         {
             Content = content;
             Player = new VideoPlayer();
-            try
-            {
-                // TODO Phase 2: Media Foundation backend may not be fully initialized in the
-                // MonoGame migration; tolerate property setter failures so the game can boot.
-                Player.Volume = GlobalStats.MusicVolume;
-                Player.IsLooped = looping;
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"VideoPlayer init partially failed: {ex.Message} (Phase 2: Media Foundation)");
-            }
+            Player.Volume = GlobalStats.MusicVolume;
+            // VideoPlayer.IsLooped setter is unimplemented in MonoGame WindowsDX 3.8
+            // (PlatformSetIsLooped throws NotImplementedException). Looping requested
+            // by callers via PlayVideo(..., looping:true) is silently dropped; the
+            // "Loading 2" clip plays once and stops on the last frame, which the
+            // user only sees if loading takes longer than the clip.
         }
 
         ~ScreenMediaPlayer() { Dispose(false); }
@@ -126,22 +121,9 @@ namespace Ship_Game.GameScreens
                 Name = videoPath;
                 Rect = new Rectangle(0, 0, Video.Width, Video.Height);
 
-                // TODO Phase 2: VideoPlayer.IsLooped / Volume setters call into
-                // PlatformSetIsLooped / PlatformSetVolume which throw NotImplementedException
-                // in MonoGame WindowsDX 3.8 — Media Foundation backend isn't fully wired up.
-                // Tolerated here so video playback degrades gracefully (no looping / no
-                // volume control) instead of taking down the screen. Restore strict
-                // assignment once the MF backend is verified. See
-                // project_phase2_backlog_runtime.md priority #5.
-                try { Player.IsLooped = looping; }
-                catch (NotImplementedException) { /* MF not implemented; skip */ }
-
-                try
-                {
-                    if (Player.Volume.NotEqual(GlobalStats.MusicVolume))
-                        Player.Volume = GlobalStats.MusicVolume;
-                }
-                catch (NotImplementedException) { /* MF not implemented; skip */ }
+                if (Player.Volume.NotEqual(GlobalStats.MusicVolume))
+                    Player.Volume = GlobalStats.MusicVolume;
+                // IsLooped setter is unimplemented in MonoGame WindowsDX 3.8; see ctor.
 
                 BeginPlayTask = Parallel.Run(() =>
                 {
