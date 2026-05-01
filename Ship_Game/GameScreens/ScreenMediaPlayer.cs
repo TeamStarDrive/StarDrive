@@ -61,11 +61,18 @@ namespace Ship_Game.GameScreens
         public ScreenMediaPlayer(GameContentManager content, bool looping = true)
         {
             Content = content;
-            Player = new VideoPlayer
+            Player = new VideoPlayer();
+            try
             {
-                Volume = GlobalStats.MusicVolume,
-                IsLooped = looping
-            };
+                // TODO Phase 2: Media Foundation backend may not be fully initialized in the
+                // MonoGame migration; tolerate property setter failures so the game can boot.
+                Player.Volume = GlobalStats.MusicVolume;
+                Player.IsLooped = looping;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"VideoPlayer init partially failed: {ex.Message} (Phase 2: Media Foundation)");
+            }
         }
 
         ~ScreenMediaPlayer() { Dispose(false); }

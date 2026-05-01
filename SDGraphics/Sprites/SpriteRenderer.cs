@@ -32,9 +32,9 @@ public sealed class SpriteRenderer : IDisposable
         VertexDeclaration = new(VertexCoordColor.VertexElements);
         Batcher = new(device);
 
-        // load the shader with parameters
+        // load the shader with parameters; null = Phase 2 MGFX work pending, draws become no-ops
         Shader simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
-        DefaultEffect = new(simple);
+        DefaultEffect = simple != null ? new SpriteShader(simple) : null;
         CurrentEffect = DefaultEffect;
 
         // lastly, create buffers
@@ -72,7 +72,7 @@ public sealed class SpriteRenderer : IDisposable
         }
 
         CurrentEffect = effect ?? DefaultEffect;
-        CurrentEffect.SetViewProjection(viewProjection);
+        CurrentEffect?.SetViewProjection(viewProjection);
 
         IsBegin = true;
     }
@@ -95,8 +95,9 @@ public sealed class SpriteRenderer : IDisposable
         // some debug stuff
         AverageBatchSize = (AverageBatchSize + Batcher.Count) / 2;
 
-        // flush and draw all the quads
-        Batcher.DrawBatches(this);
+        // flush and draw all the quads (skip GPU submit when shader unavailable; Phase 2 MGFX TODO)
+        if (CurrentEffect != null)
+            Batcher.DrawBatches(this);
         Batcher.Reset();
     }
 
@@ -130,6 +131,7 @@ public sealed class SpriteRenderer : IDisposable
 
     internal void ShaderBegin(Texture2D texture, Color color)
     {
+        if (CurrentEffect == null) return; // Phase 1: shader load deferred to Phase 2 MGFX
         CurrentEffect.SetTexture(texture); // also set null
         CurrentEffect.SetUseTexture(useTexture: texture != null);
         CurrentEffect.SetColor(color);
@@ -140,6 +142,7 @@ public sealed class SpriteRenderer : IDisposable
 
     internal void ShaderEnd()
     {
+        if (CurrentEffect == null) return;
         // MonoGame: EffectPass has no End() — Apply() in ShaderBegin handles state
         CurrentEffect.Shader.End();
     }

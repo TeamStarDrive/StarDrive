@@ -472,7 +472,11 @@ namespace Ship_Game
             Log.Write("ScreenManager.LoadContent");
             UpdateGraphicsDevice();
 
-            Environment = ResourceManager.RootContent.Load<SceneEnvironment>("example/scene_environment");
+            // TODO Phase 2: example/scene_environment.xnb embeds a SunBurn ContentTypeReader
+            // (SynapseGaming.LightingSystem.Processors.SceneEnvironmentReader_Pro). Once the
+            // SunBurn lighting pipeline is replaced (or the asset is rebaked), restore the
+            // Load call. For Phase 1, skip the load and use a default-constructed stub.
+            Environment = new SceneEnvironment();
 
             if (deviceWasReset) // recover
             {

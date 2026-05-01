@@ -63,9 +63,11 @@ public class Shader : IDisposable
 
     public static Shader FromFile(GraphicsDevice device, string pathToShader)
     {
-        // TODO Phase 2: load precompiled MGFX effect (e.g. via ContentManager.Load<Effect>)
-        throw new NotImplementedException(
-            $"Shader.FromFile({pathToShader}): runtime HLSL compilation removed in MonoGame; restore via MGFX in Phase 2");
+        // TODO Phase 2: load precompiled MGFX effect (e.g. via ContentManager.Load<Effect>).
+        // For Phase 1 the runtime HLSL compilation path is gone; return null so callers
+        // that can degrade gracefully (e.g. SpriteRenderer) keep the game loop alive.
+        System.Diagnostics.Debug.WriteLine($"Shader.FromFile({pathToShader}): runtime HLSL compilation removed in MonoGame; returning null. Restore via MGFX in Phase 2");
+        return null;
     }
 
     public void Begin()
