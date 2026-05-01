@@ -125,10 +125,23 @@ namespace Ship_Game.GameScreens
                 Video = ResourceManager.LoadVideo(Content, videoPath);
                 Name = videoPath;
                 Rect = new Rectangle(0, 0, Video.Width, Video.Height);
-                Player.IsLooped = looping;
 
-                if (Player.Volume.NotEqual(GlobalStats.MusicVolume))
-                    Player.Volume = GlobalStats.MusicVolume;
+                // TODO Phase 2: VideoPlayer.IsLooped / Volume setters call into
+                // PlatformSetIsLooped / PlatformSetVolume which throw NotImplementedException
+                // in MonoGame WindowsDX 3.8 — Media Foundation backend isn't fully wired up.
+                // Tolerated here so video playback degrades gracefully (no looping / no
+                // volume control) instead of taking down the screen. Restore strict
+                // assignment once the MF backend is verified. See
+                // project_phase2_backlog_runtime.md priority #5.
+                try { Player.IsLooped = looping; }
+                catch (NotImplementedException) { /* MF not implemented; skip */ }
+
+                try
+                {
+                    if (Player.Volume.NotEqual(GlobalStats.MusicVolume))
+                        Player.Volume = GlobalStats.MusicVolume;
+                }
+                catch (NotImplementedException) { /* MF not implemented; skip */ }
 
                 BeginPlayTask = Parallel.Run(() =>
                 {

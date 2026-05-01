@@ -154,9 +154,14 @@ namespace Ship_Game
                 Graphics.ToggleFullScreen();
             }
 
-            bool deviceChanged = ApplySettings(ref settings);
-
-            if (settings.Mode != WindowMode.Fullscreen) // set to screen center
+            // Phase 2.2: in MonoGame WindowsDX 3.8 the WinForms platform binds the
+            // backbuffer size to the form's ClientSize via a SizeChanged handler. If we
+            // call ApplyChanges() BEFORE the form has been resized, the backbuffer stays
+            // at MonoGame's 800x480 default (the SizeChanged event hasn't fired yet to
+            // override the preferred values). Result: a tiny 800x480 backbuffer
+            // presented in the corner of the oversized form. Resize the form FIRST,
+            // then call ApplySettings so the backbuffer tracks the form's ClientSize.
+            if (settings.Mode != WindowMode.Fullscreen)
             {
                 form.WindowState = FormWindowState.Normal;
                 form.ClientSize = new Size(settings.Width, settings.Height);
@@ -171,9 +176,14 @@ namespace Ship_Game
                 // but also make sure that we stay inside the screen, otherwise XNA mouse cursor
                 // position reporting goes crazy
                 if (pt.X < bounds.Left) pt.X = bounds.Left;
-                if (pt.Y < bounds.Top) pt.Y = bounds.Top; 
+                if (pt.Y < bounds.Top) pt.Y = bounds.Top;
                 form.Location = pt;
             }
+
+            bool deviceChanged = ApplySettings(ref settings);
+
+            PresentationParameters pp = GraphicsDevice.PresentationParameters;
+            Log.Write(ConsoleColor.Cyan, $"ApplyGraphics: backbuffer={pp.BackBufferWidth}x{pp.BackBufferHeight} form={form.ClientSize.Width}x{form.ClientSize.Height}");
 
             return deviceChanged;
         }
