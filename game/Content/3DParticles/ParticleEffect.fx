@@ -293,8 +293,8 @@ technique FullDynamicParticles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 DynamicParticleVS();
-        PixelShader = compile ps_2_0 ParticlePixelShader();
+        VertexShader = compile vs_4_0_level_9_1 DynamicParticleVS();
+        PixelShader = compile ps_4_0_level_9_1 ParticlePixelShader();
     }
 }
 
@@ -302,8 +302,8 @@ technique DynamicAlignRotationToVelocityParticles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 DynamicAlignRotationToVelocityVS();
-        PixelShader = compile ps_2_0 ParticlePixelShader();
+        VertexShader = compile vs_4_0_level_9_1 DynamicAlignRotationToVelocityVS();
+        PixelShader = compile ps_4_0_level_9_1 ParticlePixelShader();
     }
 }
 
@@ -312,8 +312,8 @@ technique DynamicNonRotatingParticles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 DynamicNonRotatingVS();
-        PixelShader = compile ps_2_0 ParticlePixelShader();
+        VertexShader = compile vs_4_0_level_9_1 DynamicNonRotatingVS();
+        PixelShader = compile ps_4_0_level_9_1 ParticlePixelShader();
     }
 }
 
@@ -322,8 +322,8 @@ technique StaticRotatingParticles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 StaticRotatingVS();
-        PixelShader = compile ps_2_0 ParticlePixelShader();
+        VertexShader = compile vs_4_0_level_9_1 StaticRotatingVS();
+        PixelShader = compile ps_4_0_level_9_1 ParticlePixelShader();
     }
 }
 
@@ -332,7 +332,7 @@ technique StaticNonRotatingParticle
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 StaticNonRotatingVS();
-        PixelShader = compile ps_2_0 ParticlePixelShader();
+        VertexShader = compile vs_4_0_level_9_1 StaticNonRotatingVS();
+        PixelShader = compile ps_4_0_level_9_1 ParticlePixelShader();
     }
 }

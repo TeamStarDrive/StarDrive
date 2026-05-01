@@ -655,25 +655,34 @@ namespace Ship_Game.Data
             return new SubTexture(texture.Name, texture, modTexPath);
         }
 
-        // Load and compile an .fx file
+        // Load an Effect from either a precompiled .mgfx or a sibling .fx (lookup
+        // resolves to .mgfx if the .fx-named asset isn't present, then falls through
+        // to a .mgfx of the same base name).
         // TODO: replace LoadEffect calls with LoadShader
         public Effect LoadEffect(string effectFile)
         {
             AssetName asset = new(effectFile);
             if (TryGetAsset(asset.RelPathWithExt, out Effect existing))
                 return existing;
-            
-            FileInfo file = ResourceManager.GetModOrVanillaFile(asset.RelPathWithExt);
+
+            // Phase 2.2: XNA 3.1 runtime HLSL compilation API was removed in MonoGame.
+            // Effects must now be precompiled to MGFX via the MonoGame Effect Compiler
+            // (mgfxc) at build time, then loaded as raw bytes through the Effect ctor.
+            // For .fx requests, look for a sibling .mgfx with the same base name.
+            string mgfxPath = asset.RelPathWithExt.EndsWith(".fx", StringComparison.OrdinalIgnoreCase)
+                ? asset.RelPathWithExt.Substring(0, asset.RelPathWithExt.Length - 3) + ".mgfx"
+                : asset.RelPathWithExt;
+
+            FileInfo file = ResourceManager.GetModOrVanillaFile(mgfxPath);
             if (file == null)
-                throw new FileNotFoundException($"LoadEffect {asset.RelPathWithExt} failed");
+                throw new FileNotFoundException($"LoadEffect {asset.RelPathWithExt}: no precompiled MGFX at '{mgfxPath}'");
 
             if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadEffect {file.RelPath()}");
 
-            // TODO Phase 2: XNA 3.1 runtime HLSL compilation API removed in MonoGame
-            // (CompiledEffect / CompileEffectFromSource / CompilerOptions / TargetPlatform).
-            // Phase 2 should switch to MGFX precompiled effects via the content pipeline.
-            throw new NotImplementedException(
-                $"Phase 1: runtime .fx compilation disabled, cannot LoadEffect '{asset.RelPathWithExt}'");
+            byte[] bytes = File.ReadAllBytes(file.FullName);
+            var effect = new Effect(Device, bytes);
+            lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref effect);
+            return effect;
         }
 
         // Load and compile an .fx file as an SDGraphics Shader
