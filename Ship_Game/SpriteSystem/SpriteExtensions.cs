@@ -1,12 +1,10 @@
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.Graphics;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
-using XnaVector4 = Microsoft.Xna.Framework.Vector4;
 using XnaRect = Microsoft.Xna.Framework.Rectangle;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 #pragma warning disable CA1065
@@ -25,27 +23,23 @@ namespace Ship_Game
 
     public static class SpriteExtensions
     {
-        delegate void InternalDrawD(SpriteBatch batch, Texture2D tex, ref XnaVector4 dst, bool scaleDst, ref XnaRect? srcRect,
-                                    Color color, float rotation, ref XnaVector2 origin, SpriteEffects effects, float depth);
-
-        static readonly InternalDrawD DrawInternal;
         static readonly XnaRect? NullRectangle = new();
 
-        static SpriteExtensions()
+        // Phase 2: XNA 3.1's internal SpriteBatch.InternalDraw took a Vector4 destination
+        // (X, Y, W, H) for sub-pixel-precise quad drawing. MonoGame doesn't expose that
+        // method, but its public Draw(Texture2D, Vector2 position, ..., Vector2 scale, ...)
+        // overload gives the same sub-pixel precision: position carries the float top-left
+        // and scale converts source dimensions into the desired destination size.
+        // The legacy `scaleDst` flag is unused by every call site in this codebase
+        // (always false); the parameter is preserved only to minimize source churn.
+        static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF dstRect, bool scaleDst, XnaRect? srcRect,
+                                 Color color, float rotation, XnaVector2 origin, SpriteEffects effects, float depth)
         {
-            const BindingFlags anyMethod = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            MethodInfo method = typeof(SpriteBatch).GetMethod("InternalDraw", anyMethod);
-            if (method == null)
-                throw new InvalidOperationException("Missing InternalDraw from XNA.SpriteBatch");
-            DrawInternal = (InternalDrawD)Delegate.CreateDelegate(typeof(InternalDrawD), null, method);
-        }
-
-        static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF dstRect, bool scaleDst, XnaRect? srcRect, 
-                                 Color color, float rotation, XnaVector2 origin,  SpriteEffects effects, float depth)
-        {
-            var dst = new XnaVector4(dstRect.X, dstRect.Y, dstRect.W, dstRect.H);
-            DrawInternal.Invoke(batch, tex, ref dst, scaleDst, ref srcRect, color, 
-                                rotation, ref origin, effects, depth);
+            XnaVector2 position = new(dstRect.X, dstRect.Y);
+            int srcW = srcRect?.Width  ?? tex.Width;
+            int srcH = srcRect?.Height ?? tex.Height;
+            XnaVector2 scale = new(dstRect.W / srcW, dstRect.H / srcH);
+            batch.Draw(tex, position, srcRect, color, rotation, origin, scale, effects, depth);
         }
 
         [Conditional("DEBUG")] static void CheckTextureDisposed(Texture2D texture)

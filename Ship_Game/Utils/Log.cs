@@ -657,35 +657,41 @@ namespace Ship_Game
                 int currentThreadId = Thread.CurrentThread.ManagedThreadId;
                 lock (MonitoredThreads)
                 {
-                    // suspend as fast as possible, do nothing else!
+                    // Thread.Suspend/Resume are deprecated and throw ThreadStateException
+                    // when the target isn't in a suspendable state. Tolerate per-thread
+                    // failure so the exception logger doesn't itself crash and mask the
+                    // original error. Threads that can't be suspended are simply omitted
+                    // from the gathered stack-trace report.
                     for (int i = 0; i < MonitoredThreads.Count; ++i)
                     {
                         Thread monitored = MonitoredThreads[i];
-                        if (monitored.ManagedThreadId != currentThreadId) // don't suspend ourselves
+                        if (monitored.ManagedThreadId == currentThreadId) continue;
+                        try
                         {
                             #pragma warning disable 618 // Method is Deprecated
                             monitored.Suspend();
-                            #pragma warning restore 618 // Method is Deprecated
-                        }
-                    }
-                    // now that we suspended the threads, list them
-                    for (int i = 0; i < MonitoredThreads.Count; ++i)
-                    {
-                        Thread monitored = MonitoredThreads[i];
-                        if (monitored.ManagedThreadId != currentThreadId)
+                            #pragma warning restore 618
                             suspended.Add(new TraceContext { Thread = monitored });
+                        }
+                        catch
+                        {
+                            // Skip threads we couldn't suspend (terminated, not yet started, etc.)
+                        }
                     }
                 }
                 CollectSuspendedStackTraces(suspended);
             }
             finally
             {
-                // We got the stack traces, resume the threads
                 foreach (TraceContext context in suspended)
                 {
-                    #pragma warning disable 618 // Method is Deprecated
-                    context.Thread.Resume();
-                    #pragma warning restore 618 // Method is Deprecated
+                    try
+                    {
+                        #pragma warning disable 618 // Method is Deprecated
+                        context.Thread.Resume();
+                        #pragma warning restore 618
+                    }
+                    catch { /* best-effort; thread may have terminated since suspend */ }
                 }
             }
             return suspended;
