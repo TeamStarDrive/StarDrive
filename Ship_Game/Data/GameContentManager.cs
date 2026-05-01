@@ -61,6 +61,7 @@ namespace Ship_Game.Data
         static GameContentManager()
         {
             FixSunBurnTypeLoader();
+            Xna31Compat.Register();
         }
 
         public GameContentManager(IServiceProvider services, string name, string rootDirectory = "Content") : base(services, rootDirectory)
@@ -89,6 +90,12 @@ namespace Ship_Game.Data
         object GetField(string field)
             => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
         
+        // MonoGame's SpriteFont stores the underlying Texture2D in private field `_texture`
+        // (XNA 3.1 used `textureValue`). Reflection lookup tolerates absence so the
+        // disposal/size paths don't NRE on partially-constructed or stub fonts.
+        static Texture2D GetSpriteFontTexture(SpriteFont font)
+            => font == null ? null : GetField<Texture2D>(font, "_texture");
+
         static T GetField<T>(object obj, string name)
         {
             return (T)obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(obj);
@@ -218,7 +225,7 @@ namespace Ship_Game.Data
                 }
                 else if (asset is Graphics.Font font)
                 {
-                    var fontTex = GetField<Texture2D>(font, "textureValue");
+                    var fontTex = GetSpriteFontTexture(font.XnaFont);
                     numBytes += TextureSize(fontTex);
                     numBytes += font.NumCharacters * 64;
                 }
@@ -300,8 +307,8 @@ namespace Ship_Game.Data
                     break;
                 // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted, TODO Phase 2.
                 case SpriteFont font:
-                    var texture = GetField<Texture2D>(font, "textureValue");
-                    if (!texture.IsDisposed)
+                    var texture = GetSpriteFontTexture(font);
+                    if (texture != null && !texture.IsDisposed)
                     {
                         if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing font     "+(assetName??texture.Name));
                         texture.Dispose();
@@ -332,7 +339,7 @@ namespace Ship_Game.Data
                 case Model model: return StaticMesh.IsModelDisposed(model);
                 // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted, TODO Phase 2.
                 case Video _: return false; // nothing to dispose
-                case SpriteFont font: return GetField<Texture2D>(font, "textureValue").IsDisposed;
+                case SpriteFont font: { var t = GetSpriteFontTexture(font); return t == null || t.IsDisposed; }
                 // Effect/Shader cases removed — both inherit GraphicsResource (handled above).
             }
             // anything that falls here is of non-disposable type, such as `Video`

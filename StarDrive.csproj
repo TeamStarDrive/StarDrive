@@ -506,6 +506,7 @@
     <Compile Include="Ship_Game\Data\Serialization\DataField.cs" />
     <Compile Include="Ship_Game\Data\Texture\DxtReader.cs" />
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
+    <Compile Include="Ship_Game\Data\Xna31Texture2DReader.cs" />
     <Compile Include="Ship_Game\Data\Texture\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\RawArraySerializer.cs" />
