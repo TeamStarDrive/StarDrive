@@ -45,8 +45,11 @@ namespace Ship_Game
         {
             ScreenManager.ClearScreen(Color.Black);
             batch.SafeBegin(SpriteBlendMode.None, sortImmediate:true);
-            desaturateEffect.CurrentTechnique.Passes[0].Apply();
-            batch.Draw(LoseTexture, ScreenCenter, null, new Color((byte)255, (byte)255, (byte)255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
+            if (desaturateEffect != null) // TODO Phase 2.2: desaturate shader not yet rewritten
+            {
+                desaturateEffect.CurrentTechnique.Passes[0].Apply();
+                batch.Draw(LoseTexture, ScreenCenter, null, new Color((byte)255, (byte)255, (byte)255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
+            }
             batch.SafeEnd();
             batch.SafeBegin();
             batch.Draw(Reason, ReasonRect, Color.White);

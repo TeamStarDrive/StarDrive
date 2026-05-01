@@ -35,6 +35,27 @@ namespace Ship_Game.Data
 
         readonly object LoadSync = new();
 
+        // TODO Phase 2.2: each name here must be rewritten as HLSL and MGFX-compiled,
+        // then removed from this set. See memory: project_phase2_effect_xnb_drift.md
+        static readonly HashSet<string> Phase2BrokenEffectXnbs = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Effects/BeamFX.xnb",
+            "Effects/scale.xnb",
+            "Effects/Thrust.xnb",
+            "Effects/desaturate.xnb",
+            "Effects/BasicFogOfWar.xnb",
+            "Effects/PlanetHalo.xnb",
+        };
+        static readonly HashSet<string> Phase2WarnedEffects = new(StringComparer.OrdinalIgnoreCase);
+        static void WarnPhase2BrokenEffectOnce(string assetName)
+        {
+            lock (Phase2WarnedEffects)
+            {
+                if (Phase2WarnedEffects.Add(assetName))
+                    Log.Warning($"Phase 2.2 stub: returning null for Effect '{assetName}' (XNA 3.1 D3DX bytecode incompatible with MGFX)");
+            }
+        }
+
         public override string ToString() => $"Content:{Name} Assets:{LoadedAssets.Count} Root:{RootDirectory}";
 
         static GameContentManager()
@@ -418,6 +439,15 @@ namespace Ship_Game.Data
             var asset = new AssetName(assetName);
             if (assetType == typeof(SubTexture))
                 return (T)(object)LoadSubTexture(asset.RelPathWithExt);
+
+            // TODO Phase 2.2: XNA 3.1-baked Effect XNBs are D3DX fx_2_0 bytecode,
+            // which MonoGame's MGFX-based Effect reader rejects. Return null until each
+            // effect is rewritten as HLSL and MGFX-compiled. Call sites null-guard.
+            if (assetType == typeof(Effect) && Phase2BrokenEffectXnbs.Contains(asset.RelPathWithExt))
+            {
+                WarnPhase2BrokenEffectOnce(asset.RelPathWithExt);
+                return default;
+            }
 
             if (useCache && TryGetAsset(asset.RelPathWithExt, out T existing))
                 return existing;

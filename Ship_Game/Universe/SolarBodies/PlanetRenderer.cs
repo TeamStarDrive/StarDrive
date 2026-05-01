@@ -135,8 +135,11 @@ namespace Ship_Game.Universe.SolarBodies
             SetViewProjection(FxFresnel, view, projection);
             SetViewProjection(FxAtmoColor, view, projection);
             SetViewProjection(FxRings, view, projection);
-            PlanetHaloFx.Parameters["View"].SetValue(view);
-            PlanetHaloFx.Parameters["Projection"].SetValue(projection);
+            if (PlanetHaloFx != null) // TODO Phase 2.2: PlanetHalo shader not yet rewritten
+            {
+                PlanetHaloFx.Parameters["View"].SetValue(view);
+                PlanetHaloFx.Parameters["Projection"].SetValue(projection);
+            }
 
             RenderStates.BasicBlendMode(device, additive:true, depthWrite:false);
         }
@@ -217,7 +220,7 @@ namespace Ship_Game.Universe.SolarBodies
                 RenderPlanetGlow(p, type, pos3d, baseScale);
             }
 
-            if (type.Clouds && type.NoHalo == false) // draw the halo effect
+            if (type.Clouds && type.NoHalo == false && PlanetHaloFx != null) // TODO Phase 2.2: PlanetHalo shader not yet rewritten
             {
                 // inverted sphere
                 RenderStates.SetCullMode(Device, CullMode.CullClockwiseFace);

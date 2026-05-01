@@ -368,10 +368,13 @@ namespace Ship_Game
             Texture2D texture1 = (MainTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
             Texture2D texture2 = (LightsTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
             graphics.Clear(Color.Black);
-            basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
 
             batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:true);
-            basicFogOfWarEffect.CurrentTechnique.Passes[0].Apply();
+            if (basicFogOfWarEffect != null) // TODO Phase 2.2: BasicFogOfWar shader not yet rewritten
+            {
+                basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
+                basicFogOfWarEffect.CurrentTechnique.Passes[0].Apply();
+            }
             batch.Draw(texture1, new Rectangle(0, 0, ScreenWidth, ScreenHeight), Color.White);
             batch.SafeEnd();
 

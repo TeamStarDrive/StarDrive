@@ -60,6 +60,8 @@ public sealed class ShieldManager : IDisposable
         GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
 
         ShieldEffect = content.Load<Effect>("Effects/scale");
+        if (ShieldEffect == null) return; // TODO Phase 2.2: scale shader not yet rewritten
+
         ShieldEffect.CurrentTechnique = ShieldEffect.Techniques["Technique1"];
         ShieldEffect.Parameters["tex"].SetValue(ShieldTexture);
         ShieldEffect.Parameters["AlphaMap"].SetValue(GradientTexture);
@@ -129,6 +131,8 @@ public sealed class ShieldManager : IDisposable
     {
         if (IsDisposed)
             return;
+
+        if (ShieldEffect == null) return; // TODO Phase 2.2: scale shader not yet rewritten
 
         if (ShieldEffect.IsDisposed || ShieldTexture.IsDisposed)
         {
