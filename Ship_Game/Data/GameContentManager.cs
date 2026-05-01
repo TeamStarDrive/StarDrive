@@ -723,8 +723,25 @@ namespace Ship_Game.Data
                 if (animated)
                     Log.Warning($"Phase 1: skinned model '{asset.RelPathWithExt}' loaded as static (XNAnimation removed)");
 
-                Model model = LoadAsset<Model>(asset.RelPathWithExt, useCache:false);
-                mesh = StaticMesh.FromStaticModel(asset.RelPathWithExt, model);
+                // TODO Phase 2.2/3: XNA 3.1-baked Model XNBs use a VertexDeclaration
+                // binary layout that diverges from MonoGame 4.0+ (no stored vertexStride;
+                // VertexElement struct had Stream + ElementMethod fields that 4.0 dropped;
+                // exact per-element layout is undocumented and didn't fit any obvious
+                // shape in the empirical hex dump). MonoGame's ModelReader hits "Index
+                // was outside the bounds of the array" inside VertexDeclaration ctor.
+                // Tolerate by returning a stub StaticMesh — same pattern as MeshImporter.
+                // See memory: project_phase2_xnb_model_drift.md for the dump and plan.
+                try
+                {
+                    Model model = LoadAsset<Model>(asset.RelPathWithExt, useCache:false);
+                    mesh = StaticMesh.FromStaticModel(asset.RelPathWithExt, model);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning($"Phase 2.2 stub: XNB Model '{asset.RelPathWithExt}' load failed ({ex.GetType().Name}: {ex.Message}); returning empty StaticMesh");
+                    var stubBounds = new BoundingBox(-Microsoft.Xna.Framework.Vector3.One, Microsoft.Xna.Framework.Vector3.One);
+                    mesh = new StaticMesh(asset.RelPathWithExt, stubBounds);
+                }
             }
 
             lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref mesh);

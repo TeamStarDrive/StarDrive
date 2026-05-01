@@ -10,16 +10,14 @@ namespace Ship_Game.Data
 {
     public static class Xna31Compat
     {
-        // Raw XNB type-reader strings for XNA 3.1-baked Texture2D readers. These XNBs
-        // store the reader type as a BARE namespace-qualified name (no assembly,
-        // version, culture, or public key token). Confirmed by Xna31Compat.DumpXnbTypeReaders
-        // on Content/Fonts/Arial14Bold.xnb (target=w, ver=4). typeCreators is matched
-        // exact-string against the XNB blob BEFORE PrepareType normalizes anything,
-        // so this exact key is what we must register.
-        static readonly string[] Texture2DReaderVariants =
-        {
-            "Microsoft.Xna.Framework.Content.Texture2DReader",
-        };
+        // Raw XNB type-reader strings for XNA 3.1-baked content. These XNBs store
+        // reader type names as BARE namespace-qualified names (no assembly, version,
+        // culture, or public key token). Confirmed by Xna31Compat.DumpXnbTypeReaders
+        // on Content/Fonts/Arial14Bold.xnb (target=w, ver=4). typeCreators is
+        // matched exact-string against the XNB blob BEFORE PrepareType normalizes
+        // anything, so these exact keys are what we must register.
+        const string Texture2DReaderName = "Microsoft.Xna.Framework.Content.Texture2DReader";
+        const string Texture3DReaderName = "Microsoft.Xna.Framework.Content.Texture3DReader";
 
         static bool Registered;
 
@@ -28,8 +26,48 @@ namespace Ship_Game.Data
             if (Registered) return;
             Registered = true;
 
-            foreach (string s in Texture2DReaderVariants)
-                ContentTypeReaderManager.AddTypeCreator(s, () => new Xna31Texture2DReader());
+            ContentTypeReaderManager.AddTypeCreator(Texture2DReaderName, () => new Xna31Texture2DReader());
+            ContentTypeReaderManager.AddTypeCreator(Texture3DReaderName, () => new Xna31Texture3DReader());
+
+            // VertexDeclarationReader: XNA 3.1's binary format does not fit any of the
+            // obvious layouts and is undocumented. Skipped; XNB Model loads are stubbed
+            // at the GameContentManager.LoadStaticMesh level instead. See
+            // project_phase2_xnb_model_drift.md for the empirical hex dump and
+            // restoration plan.
+        }
+
+        // Shared translation table — XNA 3.1 SurfaceFormat int → MonoGame 3.8 SurfaceFormat.
+        // Used by both Xna31Texture2DReader and Xna31Texture3DReader.
+        internal static readonly Dictionary<int, SurfaceFormat> Xna31SurfaceFormatMap = new()
+        {
+            { 1,   SurfaceFormat.Color       },
+            { 17,  SurfaceFormat.Bgr565      },
+            { 18,  SurfaceFormat.Bgra5551    },
+            { 19,  SurfaceFormat.Bgra4444    },
+            { 28,  SurfaceFormat.Dxt1        },
+            { 30,  SurfaceFormat.Dxt3        },
+            { 32,  SurfaceFormat.Dxt5        },
+            { 60,  SurfaceFormat.Alpha8      },
+            { 110, SurfaceFormat.HalfSingle  },
+            { 112, SurfaceFormat.HalfVector2 },
+            { 113, SurfaceFormat.HalfVector4 },
+            { 114, SurfaceFormat.Single      },
+            { 115, SurfaceFormat.Vector2     },
+            { 116, SurfaceFormat.Vector4     },
+        };
+
+        internal static readonly HashSet<int> WarnedSurfaceFormats = new();
+
+        internal static SurfaceFormat TranslateSurfaceFormat(int raw, string readerName)
+        {
+            if (Xna31SurfaceFormatMap.TryGetValue(raw, out SurfaceFormat mapped))
+                return mapped;
+            lock (WarnedSurfaceFormats)
+            {
+                if (WarnedSurfaceFormats.Add(raw))
+                    Log.Warning($"{readerName}: unknown XNA 3.1 SurfaceFormat={raw}, defaulting to Color");
+            }
+            return SurfaceFormat.Color;
         }
 
         // Diagnostic: decompresses the given XNB and dumps its type-reader strings
@@ -172,41 +210,14 @@ namespace Ship_Game.Data
     // inside SpriteFont XNBs (SpriteFontReader → InnerReadObject<Texture2D>).
     public class Xna31Texture2DReader : ContentTypeReader<Texture2D>
     {
-        // XNA 3.1 SurfaceFormat (D3D9 D3DFORMAT-aligned) → MonoGame 3.8 SurfaceFormat
-        static readonly Dictionary<int, SurfaceFormat> Xna31FormatMap = new()
-        {
-            { 1,   SurfaceFormat.Color       }, // XNA 3.1 Color (32bpp R8G8B8A8)
-            { 17,  SurfaceFormat.Bgr565      },
-            { 18,  SurfaceFormat.Bgra5551    },
-            { 19,  SurfaceFormat.Bgra4444    },
-            { 28,  SurfaceFormat.Dxt1        },
-            { 30,  SurfaceFormat.Dxt3        },
-            { 32,  SurfaceFormat.Dxt5        },
-            { 60,  SurfaceFormat.Alpha8      }, // SpriteFont fonts are typically Alpha8
-            { 110, SurfaceFormat.HalfSingle  },
-            { 112, SurfaceFormat.HalfVector2 },
-            { 113, SurfaceFormat.HalfVector4 },
-            { 114, SurfaceFormat.Single      },
-            { 115, SurfaceFormat.Vector2     },
-            { 116, SurfaceFormat.Vector4     },
-        };
-
-        static readonly HashSet<int> WarnedFormats = new();
-
         protected override Texture2D Read(ContentReader reader, Texture2D existingInstance)
         {
             int formatRaw = reader.ReadInt32();
-            SurfaceFormat format = TranslateFormat(formatRaw);
+            SurfaceFormat format = Xna31Compat.TranslateSurfaceFormat(formatRaw, "Xna31Texture2DReader");
 
             int width      = reader.ReadInt32();
             int height     = reader.ReadInt32();
             int levelCount = reader.ReadInt32();
-
-            lock (WarnedFormats)
-            {
-                if (WarnedFormats.Add(formatRaw))
-                    Log.Info($"Xna31Texture2DReader: rawFmt={formatRaw} -> {format} ({width}x{height}, mips={levelCount})");
-            }
 
             GraphicsDevice device = reader.GetGraphicsDevice();
             var texture = new Texture2D(device, width, height, levelCount > 1, format);
@@ -220,23 +231,35 @@ namespace Ship_Game.Data
 
             return texture;
         }
+    }
 
-        // XNA 3.1 SurfaceFormat ints DO NOT collide cleanly with MonoGame's enum:
-        // XNA 3.1 Dxt5 = 32 == MonoGame Bgra32SRgb (also 32). XNA 3.1 Color = 1
-        // == MonoGame Bgr565 (also 1). The naive `(SurfaceFormat)raw` cast or
-        // `Enum.IsDefined` shortcut would mis-map silently. Always go through
-        // the translation table; only fall through if the value is unknown.
-        static SurfaceFormat TranslateFormat(int raw)
+
+    // 3D texture analog. XNB layout is also unchanged between 3.1 and 4.0; only the
+    // SurfaceFormat int needs translating. Used for volume textures like the
+    // `Effects/NoiseVolume` referenced by Thruster.
+    public class Xna31Texture3DReader : ContentTypeReader<Texture3D>
+    {
+        protected override Texture3D Read(ContentReader reader, Texture3D existingInstance)
         {
-            if (Xna31FormatMap.TryGetValue(raw, out SurfaceFormat mapped))
-                return mapped;
+            int formatRaw = reader.ReadInt32();
+            SurfaceFormat format = Xna31Compat.TranslateSurfaceFormat(formatRaw, "Xna31Texture3DReader");
 
-            lock (WarnedFormats)
+            int width      = reader.ReadInt32();
+            int height     = reader.ReadInt32();
+            int depth      = reader.ReadInt32();
+            int levelCount = reader.ReadInt32();
+
+            GraphicsDevice device = reader.GetGraphicsDevice();
+            var texture = new Texture3D(device, width, height, depth, levelCount > 1, format);
+
+            for (int level = 0; level < levelCount; level++)
             {
-                if (WarnedFormats.Add(raw))
-                    Log.Warning($"Xna31Texture2DReader: unknown XNA 3.1 SurfaceFormat={raw}, defaulting to Color");
+                int byteCount = reader.ReadInt32();
+                byte[] data = reader.ReadBytes(byteCount);
+                texture.SetData(level, 0, 0, width, height, 0, depth, data, 0, byteCount);
             }
-            return SurfaceFormat.Color;
+
+            return texture;
         }
     }
 }
