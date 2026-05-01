@@ -208,6 +208,13 @@ namespace Ship_Game.Data
     // needs translating. Register this reader via Xna31Compat.Register() at startup
     // so it intercepts both standalone Texture2D XNBs and the embedded Texture2D
     // inside SpriteFont XNBs (SpriteFontReader → InnerReadObject<Texture2D>).
+    // Empirical verification (2026-05-01) on game/Content/Fonts/Arial14Bold.xnb:
+    //   rawFmt=30 -> Dxt3, 256x512, byteCount=131072 (1.000 bpp).
+    //   First-block bytes: `00 00 00 0F 00 F0 00 00 FF FF FF FF 00 00 00 00`
+    //   = 8 bytes of 4-bit-per-pixel alpha (mostly transparent gutter + sparse
+    //   opaque glyph pixels), then 0xFFFF/0xFFFF white color endpoints, then
+    //   all-color0 indices. Classic Dxt3 font atlas layout. Mapping confirmed.
+    // Other observed formats: rawFmt=28 -> Dxt1 (0.5 bpp), rawFmt=1 -> Color (4 bpp).
     public class Xna31Texture2DReader : ContentTypeReader<Texture2D>
     {
         protected override Texture2D Read(ContentReader reader, Texture2D existingInstance)
