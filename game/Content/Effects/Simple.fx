@@ -8,7 +8,7 @@ technique Simple
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 SimpleVertexShader();
-        PixelShader = compile ps_2_0 SimplePixelShader();
+        VertexShader = compile vs_4_0_level_9_1 SimpleVertexShader();
+        PixelShader = compile ps_4_0_level_9_1 SimplePixelShader();
     }
 }

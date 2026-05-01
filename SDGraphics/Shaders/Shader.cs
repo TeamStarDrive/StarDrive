@@ -5,10 +5,10 @@ using SDUtils;
 
 namespace SDGraphics.Shaders;
 
-// TODO Phase 2: restore runtime HLSL compilation. XNA 3.1's CompilerIncludeHandler /
-// CompiledEffect / Effect.CompileEffectFromSource / TargetPlatform / CompilerOptions APIs
-// are all removed in MonoGame; effects must be precompiled to MGFX (.xnb) via the Content
-// Pipeline. Phase 1 §1.8.11 keeps the public surface and stubs runtime compilation.
+// XNA 3.1's runtime HLSL compilation APIs (CompiledEffect.FromFile, CompilerOptions, etc.)
+// are removed in MonoGame; effects are precompiled to .mgfx via mgfxc and loaded as raw
+// bytes through the Effect(GraphicsDevice, byte[]) ctor. FromFile expects a .fx path and
+// resolves to a sibling .mgfx of the same base name.
 public class Shader : IDisposable
 {
     Effect Fx;
@@ -63,20 +63,24 @@ public class Shader : IDisposable
 
     public static Shader FromFile(GraphicsDevice device, string pathToShader)
     {
-        // TODO Phase 2: load precompiled MGFX effect (e.g. via ContentManager.Load<Effect>).
-        // For Phase 1 the runtime HLSL compilation path is gone; return null so callers
-        // that can degrade gracefully (e.g. SpriteRenderer) keep the game loop alive.
-        System.Diagnostics.Debug.WriteLine($"Shader.FromFile({pathToShader}): runtime HLSL compilation removed in MonoGame; returning null. Restore via MGFX in Phase 2");
-        return null;
+        // Resolve sibling .mgfx for a .fx request; pass-through for an explicit .mgfx path.
+        string mgfxPath = pathToShader.EndsWith(".fx", StringComparison.OrdinalIgnoreCase)
+            ? pathToShader.Substring(0, pathToShader.Length - 3) + ".mgfx"
+            : pathToShader;
+        if (!File.Exists(mgfxPath))
+            throw new FileNotFoundException($"Shader.FromFile {pathToShader}: no precompiled MGFX at '{mgfxPath}'");
+        byte[] bytes = File.ReadAllBytes(mgfxPath);
+        return new Shader(new Effect(device, bytes));
     }
 
     public void Begin()
     {
-        // TODO Phase 2: replace XNA Effect.Begin/End with EffectPass.Apply()
+        // MonoGame has no Effect.Begin; the EffectPass.Apply() call done by callers
+        // (e.g. SpriteRenderer.ShaderBegin) handles all state binding.
     }
 
     public void End()
     {
-        // TODO Phase 2: replace XNA Effect.Begin/End with EffectPass.Apply()
+        // MonoGame has no Effect.End either; pass-state is owned by EffectPass.Apply().
     }
 }

@@ -32,18 +32,15 @@ namespace Ship_Game.SpriteSystem
             }
             else
             {
-                // For this atlas, compression is forbidden, so we save with BGRA color
-                // Although this will take 4x more memory
-                // TODO Phase 2: Texture2D.Save (DDS) removed in MonoGame; use SDNative
-                // ConvertToDDS path or restore via a custom DDS writer.
-                using (var atlas = new Texture2D(ResourceManager.RootContent.Device,
-                                                 Width, Height, false, SurfaceFormat.Color))
-                {
-                    atlas.SetData(color);
-                    using FileStream fs = File.Create(System.IO.Path.ChangeExtension(texturePath, "png"));
-                    atlas.SaveAsPng(fs, atlas.Width, atlas.Height);
-                    atlas.Dispose();
-                }
+                // Phase 2.4: PNG fallback for AtlasNoCompress atlases (EmpireTopBar,
+                // NewUI, Popup). atlasPixels is BGRA — symmetric with the compressed
+                // branch above which tells SDNative via DDSFlags.Dxt5BGRA. Without an
+                // explicit BGRA→RGBA swap here, the PNG ends up with BGRA bytes
+                // tagged as RGBA in the file header; SDNative.LoadPNGImage then swaps
+                // a second time on load, producing red/blue inversion ("blue tint").
+                // Save via SDNative directly to skip a throwaway GPU round-trip.
+                ImageUtils.ConvertToRGBA(Width, Height, color);
+                ImageUtils.SaveAsPng(System.IO.Path.ChangeExtension(texturePath, "png"), Width, Height, color);
             }
         }
 
