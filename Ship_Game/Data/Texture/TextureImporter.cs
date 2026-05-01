@@ -59,10 +59,9 @@ namespace Ship_Game.Data.Texture
         Texture2D ImageUtilsPNG_XnaDDS(string fullPath)
         {
             if (fullPath.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-            {
-                Texture2D tex = ImageUtils.LoadPng(Device, fullPath);
-                return tex;
-            }
+                return ImageUtils.LoadPng(Device, fullPath);
+            if (fullPath.EndsWith(".dds", StringComparison.OrdinalIgnoreCase))
+                return ImageUtils.LoadDds(Device, fullPath);
             return LoadXna(fullPath);
         }
 

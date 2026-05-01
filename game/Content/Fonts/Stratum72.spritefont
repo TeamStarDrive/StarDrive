@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Stratum72.spritefont
+  StratumNo2.otf (Bold weight). Orphan in Fonts.cs but baked for inventory parity.
+  Light + Regular weights also staged as StratumNo2-Light.otf / StratumNo2-Regular.otf
+  in case a future code change wants them; pick the one you want via FontName below.
+  Size 24 is a guess — the original "72" suffix in the .xnb name is unusual for the
+  StarDrive naming convention and may have been a much larger title size.
+-->
+<XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
+  <Asset Type="Graphics:FontDescription">
+    <FontName>StratumNo2</FontName>
+    <Size>24</Size>
+    <Spacing>0</Spacing>
+    <UseKerning>true</UseKerning>
+    <Style>Regular</Style>
+    <DefaultCharacter>?</DefaultCharacter>
+    <CharacterRegions>
+      <!-- ASCII printable -->
+      <CharacterRegion><Start>&#x20;</Start><End>&#x7E;</End></CharacterRegion>
+      <!-- Latin-1 Supplement (Western European: À-ÿ) -->
+      <CharacterRegion><Start>&#xA0;</Start><End>&#xFF;</End></CharacterRegion>
+      <!-- Cyrillic (Russian/Ukrainian per Fonts.cs slavic substitution) -->
+      <CharacterRegion><Start>&#x400;</Start><End>&#x45F;</End></CharacterRegion>
+    </CharacterRegions>
+  </Asset>
+</XnaContent>

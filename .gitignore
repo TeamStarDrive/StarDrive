@@ -125,3 +125,27 @@ game/Release.DeleteFiles.txt
 Deploy/Release/Release.DeleteFiles.txt
 Deploy/Release/Release.NewOrChanged.txt
 Deploy/Release/Vanilla.NewFiles.txt
+
+# Phase 2.3: MGCB build outputs land in-place under game/Content/Fonts/ (committed)
+# but the per-platform staging dir under game/Content/bin/ is intermediate only.
+game/Content/bin/
+
+# Phase 2.3 session debug snapshots (kept out of repo; useful only locally).
+game/blackbox.before-*.log
+game/blackbox.pre-*.log
+game/vertexdecl-diag.log
+game/xnb-readers-dump.log
+game/xnb-model-readers-dump.log
+
+# MonoGame / SharpDX runtime DLLs copied alongside StarDrive.exe by the build.
+game/MonoGame.Framework.dll
+game/SharpDX.dll
+game/SharpDX.D3DCompiler.dll
+game/SharpDX.DXGI.dll
+game/SharpDX.Direct2D1.dll
+game/SharpDX.Direct3D11.dll
+game/SharpDX.Direct3D9.dll
+game/SharpDX.Mathematics.dll
+game/SharpDX.MediaFoundation.dll
+game/SharpDX.XAudio2.dll
+game/SharpDX.XInput.dll

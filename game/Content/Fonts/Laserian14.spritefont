@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Laserian14.spritefont
+  Laserian.ttf (sourced from LASER4.TTF). Regular weight only.
+-->
+<XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
+  <Asset Type="Graphics:FontDescription">
+    <FontName>Laserian</FontName>
+    <Size>14</Size>
+    <Spacing>0</Spacing>
+    <UseKerning>true</UseKerning>
+    <Style>Regular</Style>
+    <DefaultCharacter>?</DefaultCharacter>
+    <CharacterRegions>
+      <CharacterRegion><Start>&#x20;</Start><End>&#x7E;</End></CharacterRegion>
+      <CharacterRegion><Start>&#xA0;</Start><End>&#xFF;</End></CharacterRegion>
+      <CharacterRegion><Start>&#x400;</Start><End>&#x45F;</End></CharacterRegion>
+    </CharacterRegions>
+  </Asset>
+</XnaContent>

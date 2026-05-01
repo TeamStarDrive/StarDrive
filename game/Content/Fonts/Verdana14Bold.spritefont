@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Verdana14Bold.spritefont -->
+<XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
+  <Asset Type="Graphics:FontDescription">
+    <FontName>Verdana</FontName>
+    <Size>14</Size>
+    <Spacing>0</Spacing>
+    <UseKerning>true</UseKerning>
+    <Style>Bold</Style>
+    <DefaultCharacter>?</DefaultCharacter>
+    <CharacterRegions>
+      <!-- ASCII printable -->
+      <CharacterRegion><Start>&#x20;</Start><End>&#x7E;</End></CharacterRegion>
+      <!-- Latin-1 Supplement (Western European: À-ÿ) -->
+      <CharacterRegion><Start>&#xA0;</Start><End>&#xFF;</End></CharacterRegion>
+      <!-- Cyrillic (Russian/Ukrainian per Fonts.cs slavic substitution) -->
+      <CharacterRegion><Start>&#x400;</Start><End>&#x45F;</End></CharacterRegion>
+    </CharacterRegions>
+  </Asset>
+</XnaContent>

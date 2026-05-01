@@ -1,0 +1,16 @@
+<Project>
+
+  <!--
+    Phase 2.3: MonoGame.Content.Builder.Task 3.8.0.1641 ships an mgcb.dll that targets
+    netcoreapp3.1, but only .NET 6+ runtimes are installed on dev machines here. The
+    package's MSBuild Exec invokes `$(DotnetCommand) $(MGCBPath) ...` which expands to
+    `dotnet mgcb.dll ...` — failing immediately with "You must install or update .NET
+    to run this application" because dotnet won't load a 3.1 binary on a 6+/7+/8+ host
+    without a roll-forward directive. Override DotnetCommand so all three csprojs
+    (StarDrive, SDGraphics, UnitTests) pass the flag.
+  -->
+  <PropertyGroup>
+    <DotnetCommand>dotnet --roll-forward Major</DotnetCommand>
+  </PropertyGroup>
+
+</Project>

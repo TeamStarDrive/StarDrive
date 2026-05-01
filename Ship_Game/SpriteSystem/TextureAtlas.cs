@@ -114,10 +114,23 @@ namespace Ship_Game.SpriteSystem
             if (Atlas != null)
                 return Atlas;
 
-            var atlasTex = new FileInfo(Path.PrePackedTex ?? Path.CacheAtlasTex);
+            // Phase 2.3: Atlas cache files may land as .dds OR .png on disk.
+            // CreateAtlasTexture chooses Compressed→DDS (via SDNative.ConvertToDDS) for
+            // Dxt-flagged atlases and falls back to Texture2D.SaveAsPng for the
+            // uncompressed RGBA path (Phase 1 left a TODO there because MonoGame
+            // removed Texture2D.Save for DDS). Loader must check both extensions.
+            string primary = Path.PrePackedTex ?? Path.CacheAtlasTex;
+            var atlasTex = new FileInfo(primary);
+            if (!atlasTex.Exists)
+            {
+                string pngFallback = System.IO.Path.ChangeExtension(primary, "png");
+                var pngTex = new FileInfo(pngFallback);
+                if (pngTex.Exists) atlasTex = pngTex;
+            }
+
             if (atlasTex.Exists)
             {
-                var atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasTex, "dds");
+                var atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasTex);
                 Width = atlas.Width;
                 Height = atlas.Height;
 
@@ -127,7 +140,7 @@ namespace Ship_Game.SpriteSystem
                 return atlas;
             }
 
-            Log.Error($"Atlas texture does not exist: {Path.PrePackedTex ?? Path.CacheAtlasTex}");
+            Log.Error($"Atlas texture does not exist: {primary} (also tried .png)");
             return null;
         }
 

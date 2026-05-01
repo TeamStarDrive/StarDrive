@@ -16,8 +16,10 @@ namespace Ship_Game.Data.Texture
     public class DxtReader
     {
         public Color[] DecodedImage { get; private set; } = new Color[0];
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
-        private DxtReader(byte[] ddsImage)
+        public DxtReader(byte[] ddsImage)
         {
             if (ddsImage == null) return;
             if (ddsImage.Length == 0) return;
@@ -34,7 +36,7 @@ namespace Ship_Game.Data.Texture
             }
         }
 
-        private DxtReader(Stream ddsImage)
+        public DxtReader(Stream ddsImage)
         {
             if (ddsImage == null) return;
             if (!ddsImage.CanRead) return;
@@ -54,6 +56,9 @@ namespace Ship_Game.Data.Texture
 
             if (header.depth == 0) header.depth = 1;
 
+            Width = (int)header.width;
+            Height = (int)header.height;
+
             PixelFormat format = GetFormat(header, out uint _);
             if (format == PixelFormat.UNKNOWN)
                 throw new InvalidFileHeaderException();
@@ -71,13 +76,14 @@ namespace Ship_Game.Data.Texture
             byte[] compdata;
             uint compsize;
 
-            if ((header.flags & DDSD_LINEARSIZE) > 1)
+            if ((header.flags & DDSD_LINEARSIZE) > 1 && header.sizeorpitch != 0)
             {
                 compdata = reader.ReadBytes((int)header.sizeorpitch);
                 compsize = (uint)compdata.Length;
             }
-            else
+            else if (header.pixelformat.rgbbitcount != 0 && (header.pixelformat.flags & DDPF_FOURCC) == 0)
             {
+                // Uncompressed: per-pixel bit count is meaningful
                 uint bps = header.width * header.pixelformat.rgbbitcount / 8;
                 compsize = bps * header.height * header.depth;
                 compdata = new byte[compsize];
@@ -96,6 +102,15 @@ namespace Ship_Game.Data.Texture
 
                 mem.Read(compdata, 0, compdata.Length);
                 mem.Close();
+            }
+            else
+            {
+                // Block-compressed (DXT1/DXT3/DXT5/etc.) with no LinearSize flag, or
+                // any case where the explicit size fields are zeroed: read everything
+                // remaining in the stream. The Decompress* methods only consume the
+                // base-level bytes they need; trailing mipmap data is harmless.
+                long remaining = reader.BaseStream.Length - reader.BaseStream.Position;
+                compdata = reader.ReadBytes((int)remaining);
             }
 
             return compdata;
