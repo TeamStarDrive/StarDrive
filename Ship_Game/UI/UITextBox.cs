@@ -13,7 +13,7 @@ namespace Ship_Game
         public readonly ScrollList<TextBoxItem> ItemsList;
         
         public UITextBox(in RectF rect, bool useBorder = true, Graphics.Font defaultFont = null)
-            : base(rect, Color.TransparentBlack)
+            : base(rect, Color.Transparent)
         {
             DefaultFont = defaultFont ?? Fonts.Arial12Bold;
 

@@ -94,7 +94,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         void CreateVersionArea()
         {
-            VersionArea = Panel(Rectangle.Empty, Color.TransparentBlack);
+            VersionArea = Panel(Rectangle.Empty, Color.Transparent);
             VersionArea.Name = "version_area";
             VersionArea.StartFadeIn(3.0f, delay: 2.0f);
 

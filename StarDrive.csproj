@@ -1,152 +1,47 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{8071E07A-300E-485D-B139-066E15E82178}</ProjectGuid>
-    <SchemaVersion>2.0</SchemaVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Platforms>x64</Platforms>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Ship_Game</RootNamespace>
     <AssemblyName>StarDrive</AssemblyName>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-    <OutputPath>game\</OutputPath>
-    <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
-    <Optimize>false</Optimize>
-    <WarningLevel>4</WarningLevel>
-    <DebugType>pdbonly</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>x64</PlatformTarget>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <NoWarn>3270</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <OutputPath>game\</OutputPath>
-    <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>STEAM</DefineConstants>
-    <Optimize>true</Optimize>
-    <WarningLevel>4</WarningLevel>
-    <DebugType>pdbonly</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>x64</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <NoWarn>3270</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup />
-  <PropertyGroup>
     <StartupObject>Ship_Game.Program</StartupObject>
-  </PropertyGroup>
-  <PropertyGroup />
-  <PropertyGroup>
     <ApplicationIcon>Icons\Mars.ico</ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x64'">
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Deterministic>true</Deterministic>
     <OutputPath>game\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <NoWarn>3270;CS8002</NoWarn>
+    <!-- Phase 2.6.A: Phase 2.3 baked SpriteFonts manually via mgfxc; we don't
+         need the MSBuild MGCB build pass (which in 3.8.1+ requires a dotnet
+         tool manifest with dotnet-mgcb installed). Skipping is functionally
+         equivalent and avoids the tool-manifest setup. Re-enable later if/when
+         we want CI to rebake fonts on every build. -->
+    <EnableMGCBItems>false</EnableMGCBItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DefineConstants>STEAM</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <NoWarn>3270</NoWarn>
+    <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug - Auto Fast|x64' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>game\</OutputPath>
-    <DefineConstants>DEBUG;STEAM AUTOFAST</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>false</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
-    <WarningLevel>0</WarningLevel>
-    <NoWarn>3270</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release - Auto Fast|x64' ">
-    <OutputPath>game\</OutputPath>
-    <DefineConstants>STEAM AUTOFAST</DefineConstants>
-    <Optimize>true</Optimize>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <NoWarn>3270</NoWarn>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup />
-  <PropertyGroup>
-    <ManifestCertificateThumbprint>22E1FFE2950C2070B3DCFA9341530ED359B8DFD4</ManifestCertificateThumbprint>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestKeyFile>StarDrive_TemporaryKey.pfx</ManifestKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <GenerateManifests>false</GenerateManifests>
-  </PropertyGroup>
-  <PropertyGroup>
-    <TargetZone>LocalIntranet</TargetZone>
-  </PropertyGroup>
-  <PropertyGroup />
-  <PropertyGroup>
-    <SignManifests>false</SignManifests>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Drawing" />
-  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Components\BudgetPriorities.cs" />
@@ -651,14 +546,11 @@
     <Compile Include="Ship_Game\ExceptionViewer.Designer.cs">
       <DependentUpon>ExceptionViewer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
     <Compile Include="Ship_Game\Spatial\LinearSearch.cs" />
@@ -777,14 +669,8 @@
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs" />
     <Compile Include="Ship_Game\Threading\Parallel.cs" />
-    <Compile Include="Ship_Game\Utils\Ref.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\UICheckBox.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
+    <Compile Include="Ship_Game\Utils\Ref.cs" />
+    <Compile Include="Ship_Game\UI\UICheckBox.cs" />
     <Compile Include="Ship_Game\Utils\SafeArrayBase.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingListSafe.cs" />
     <Compile Include="Ship_Game\Utils\SafeQueue.cs" />
@@ -795,879 +681,233 @@
     <Compile Include="Ship_Game\SpriteSystem\TextureAtlas.cs" />
     <Compile Include="Ship_Game\ShipModuleFlyweight.cs" />
     <Compile Include="Ship_Game\TechnologyType.cs" />
-    <Compile Include="Ship_Game\DanButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\TrustEntryType.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\Posture.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ShieldManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\QuestType.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\Restrictions.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Audio\GameAudio.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadSaveScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\UnexploredPlanetScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Body.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Header.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\BudgetScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\Relationship.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\ItemToOffer.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ToolTip.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DialogOption.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\StatementSet.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\DiplomacyDialog.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Graphics\BloomComponent.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SelectedShipListItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\UIElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\GamePlayMenuScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Spatial\SpatialManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\MissileAI.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ShipListInfoUIElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignSaveScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
+    <Compile Include="Ship_Game\DanButton.cs" />
+    <Compile Include="Ship_Game\Gameplay\TrustEntryType.cs" />
+    <Compile Include="Ship_Game\Gameplay\Posture.cs" />
+    <Compile Include="Ship_Game\ShieldManager.cs" />
+    <Compile Include="Ship_Game\Gameplay\QuestType.cs" />
+    <Compile Include="Ship_Game\Gameplay\Restrictions.cs" />
+    <Compile Include="Ship_Game\Audio\GameAudio.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadSaveScreen.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\UnexploredPlanetScreen.cs" />
+    <Compile Include="Ship_Game\Body.cs" />
+    <Compile Include="Ship_Game\Header.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\BudgetScreen.cs" />
+    <Compile Include="Ship_Game\Gameplay\Relationship.cs" />
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\ItemToOffer.cs" />
+    <Compile Include="Ship_Game\ToolTip.cs" />
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DialogOption.cs" />
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\StatementSet.cs" />
+    <Compile Include="Ship_Game\Gameplay\DiplomacyDialog.cs" />
+    <Compile Include="Ship_Game\Graphics\BloomComponent.cs" />
+    <Compile Include="Ship_Game\SelectedShipListItem.cs" />
+    <Compile Include="Ship_Game\UI\UIElement.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\GamePlayMenuScreen.cs" />
+    <Compile Include="Ship_Game\Spatial\SpatialManager.cs" />
+    <Compile Include="Ship_Game\AI\MissileAI.cs" />
+    <Compile Include="Ship_Game\ShipListInfoUIElement.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignSaveScreen.cs" />
     <Compile Include="Ship_Game\Utils\Log.cs" />
     <Compile Include="Ship_Game\Utils\PerfTimer.cs" />
     <Compile Include="Ship_Game\Utils\ScopedLock.cs" />
-    <Compile Include="Ship_Game\StoryAndEvents\YouWinScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Thruster.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
+    <Compile Include="Ship_Game\StoryAndEvents\YouWinScreen.cs" />
+    <Compile Include="Ship_Game\Thruster.cs" />
     <Compile Include="Ship_Game\Utils\SDArrayOptimizations.cs" />
     <Compile Include="Ship_Game\Utils\SeededRandom.cs" />
     <Compile Include="Ship_Game\Utils\SmallBitSet.cs" />
-    <Compile Include="Ship_Game\Utils\SteamManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GlobalStats.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\MainMenu\OptionsScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameObject.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Data\ResourceManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Technology.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\DialogLine.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Ships\ShipModule.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RefitToWindow.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SizeSlider.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
+    <Compile Include="Ship_Game\Utils\SteamManager.cs" />
+    <Compile Include="Ship_Game\GlobalStats.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\OptionsScreen.cs" />
+    <Compile Include="Ship_Game\GameObject.cs" />
+    <Compile Include="Ship_Game\Data\ResourceManager.cs" />
+    <Compile Include="Ship_Game\Technology.cs" />
+    <Compile Include="Ship_Game\Gameplay\DialogLine.cs" />
+    <Compile Include="Ship_Game\Ships\ShipModule.cs" />
+    <Compile Include="Ship_Game\RefitToWindow.cs" />
+    <Compile Include="Ship_Game\SizeSlider.cs" />
     <Compile Include="Ship_Game\Utils\SafeArray.cs" />
     <Compile Include="Ship_Game\Utils\ThreadSafeRandom.cs" />
     <Compile Include="Ship_Game\Utils\TimeTypes.cs" />
-    <Compile Include="Ship_Game\WeightSlider.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\FloatSlider.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\BlueButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\DefensiveCoordinator.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\SystemCommander.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ShipModuleType.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SlotStruct.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Ships\ShipDesign.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Data\RacialTrait.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Troops\Troop.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\Asteroid.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SkinnableButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\ToggleButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\TexturedButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ShipListScreenItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SortButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\EmpireUIOverlay.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Beam.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\History.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\PieMenu.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarSystemData.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\UnownedPlanetScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ExplosionManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\TraitEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\HelpTopics.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\HelpTopic.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\EncounterPopup.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\AnomalyManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Anomaly.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ReplayElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Empire.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\ColonyScreen\QueueItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Node.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Troops\TroopInfoUIElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\MessageBoxScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreenItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\TreeNode.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UnlocksGrid.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\StarDriveGame.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Program.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Camera2d.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Input\InputState.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\ResearchScreenNew.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\VariableUIElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SpaceStation.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarSystem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Ships\Ship.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\EmpireManagementScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\Submenu.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\Background.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Utils\SingleGlobalInstance.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Data\Localizer.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadGame\LoadUniverseScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\SpaceRoad.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\TechEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Response.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Message.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Encounter.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\DroneAI.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Graphics\Particles\Particle.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Menu2.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\UIButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\FleetDesign\RequisitionScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Primitives2D.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Fleets\Fleet.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\FTLManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Good.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\Selector.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\DeepSpaceBuildingWindow.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\NewGame\CreatingNewGameScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\FleetDesign\LoadFleetDesignScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SavedGame.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\TransitionCurve.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Direction.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Transition.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SpaceJunk.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\InGameWiki.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\MiniMap.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Agents\Mole.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\StrategyAI\WarType.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\StrategyAI\WarState.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Debug\DebugInfoScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\DimensionalPrison.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\EmpireAI\Offer.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ModInformation.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ModEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\RacialTraits.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\War.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\PopupWindow.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\EventPopup.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\ShipListScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\NodeState.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\YouLoseScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\DiplomaticTraits.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RootNode.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\ScreenManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ProgressBar.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ResearchPopup.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Bomb.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\StarField.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\SolarsystemOverlay.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\ArtifactEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RaceEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\Projectile.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Shield.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\ModuleSlot.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\MainDiplomacyScreen\MainDiplomacyScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\Tasks\MilitaryTask.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\OrderType.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\OrdersButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ExtensionMethods\HelperFunctions.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\CloseButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\CommodityBonusType.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Building.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\ShipAI\CombatAI.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Menu1.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\EconomicResearchStrategy.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ScreenState.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\ShipAI\AIState.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\ShipAI\CombatState.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GenericButton.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Ships\ShipInfoUIElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SlidingElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\Goal.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\UITextEntry.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ResearchQueueUIComponent.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveGameScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ResearchQItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetInfoUIElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AutomationWindow.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Artifact.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ExplorationEvent.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Outcome.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Espionage\MissionListItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Agents\Agent.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Espionage\AgentComponent.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DiplomacyScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\NotificationManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Notification.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\PieMenuNode.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\FleetDesign.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Graphics\Particles\ParticleEmitter.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\MarkovNameGenerator.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\Fonts.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\RandomEventManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\DropOptions.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Debug\DebugPrimitives.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\OrbitalAssetsUIElement.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\ColoniesListItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\StatTracker.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Snapshot.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ShipGroup.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Combat.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\EmpireData.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\MainMenu\TutorialScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RandomItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetGridSquare.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Quad.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RomanNumerals.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\BackgroundItem.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Universe\Background3D.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveFleetDesignScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ModManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\ThreatMatrix.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\Weapon.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\DropDownMenu.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
+    <Compile Include="Ship_Game\WeightSlider.cs" />
+    <Compile Include="Ship_Game\UI\FloatSlider.cs" />
+    <Compile Include="Ship_Game\BlueButton.cs" />
+    <Compile Include="Ship_Game\AI\DefensiveCoordinator.cs" />
+    <Compile Include="Ship_Game\AI\SystemCommander.cs" />
+    <Compile Include="Ship_Game\ShipModuleType.cs" />
+    <Compile Include="Ship_Game\SlotStruct.cs" />
+    <Compile Include="Ship_Game\Ships\ShipDesign.cs" />
+    <Compile Include="Ship_Game\Data\RacialTrait.cs" />
+    <Compile Include="Ship_Game\Troops\Troop.cs" />
+    <Compile Include="Ship_Game\Gameplay\Asteroid.cs" />
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen.cs" />
+    <Compile Include="Ship_Game\SkinnableButton.cs" />
+    <Compile Include="Ship_Game\UI\ToggleButton.cs" />
+    <Compile Include="Ship_Game\TexturedButton.cs" />
+    <Compile Include="Ship_Game\ShipListScreenItem.cs" />
+    <Compile Include="Ship_Game\SortButton.cs" />
+    <Compile Include="Ship_Game\Universe\EmpireUIOverlay.cs" />
+    <Compile Include="Ship_Game\Beam.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\History.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreen.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetScreen.cs" />
+    <Compile Include="Ship_Game\PieMenu.cs" />
+    <Compile Include="Ship_Game\Universe\SolarSystemData.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\UnownedPlanetScreen.cs" />
+    <Compile Include="Ship_Game\ExplosionManager.cs" />
+    <Compile Include="Ship_Game\Gameplay\TraitEntry.cs" />
+    <Compile Include="Ship_Game\HelpTopics.cs" />
+    <Compile Include="Ship_Game\HelpTopic.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\EncounterPopup.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\AnomalyManager.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\Anomaly.cs" />
+    <Compile Include="Ship_Game\ReplayElement.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet.cs" />
+    <Compile Include="Ship_Game\Empire.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\QueueItem.cs" />
+    <Compile Include="Ship_Game\Node.cs" />
+    <Compile Include="Ship_Game\Troops\TroopInfoUIElement.cs" />
+    <Compile Include="Ship_Game\GameScreens\MessageBoxScreen.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreenItem.cs" />
+    <Compile Include="Ship_Game\TreeNode.cs" />
+    <Compile Include="Ship_Game\UnlocksGrid.cs" />
+    <Compile Include="Ship_Game\GameScreens\StarDriveGame.cs" />
+    <Compile Include="Ship_Game\GameScreens\Program.cs" />
+    <Compile Include="Ship_Game\Camera2d.cs" />
+    <Compile Include="Ship_Game\Input\InputState.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\ResearchScreenNew.cs" />
+    <Compile Include="Ship_Game\VariableUIElement.cs" />
+    <Compile Include="Ship_Game\SpaceStation.cs" />
+    <Compile Include="Ship_Game\Universe\SolarSystem.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen.cs" />
+    <Compile Include="Ship_Game\Ships\Ship.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\EmpireManagementScreen.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.cs" />
+    <Compile Include="Ship_Game\UI\Submenu.cs" />
+    <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreen.cs" />
+    <Compile Include="Ship_Game\Universe\Background.cs" />
+    <Compile Include="Ship_Game\Utils\SingleGlobalInstance.cs" />
+    <Compile Include="Ship_Game\Data\Localizer.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadGame\LoadUniverseScreen.cs" />
+    <Compile Include="Ship_Game\Gameplay\SpaceRoad.cs" />
+    <Compile Include="Ship_Game\TechEntry.cs" />
+    <Compile Include="Ship_Game\Response.cs" />
+    <Compile Include="Ship_Game\Message.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\Encounter.cs" />
+    <Compile Include="Ship_Game\AI\DroneAI.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\Particle.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.cs" />
+    <Compile Include="Ship_Game\Menu2.cs" />
+    <Compile Include="Ship_Game\UI\UIButton.cs" />
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\RequisitionScreen.cs" />
+    <Compile Include="Ship_Game\Primitives2D.cs" />
+    <Compile Include="Ship_Game\Fleets\Fleet.cs" />
+    <Compile Include="Ship_Game\FTLManager.cs" />
+    <Compile Include="Ship_Game\Good.cs" />
+    <Compile Include="Ship_Game\UI\Selector.cs" />
+    <Compile Include="Ship_Game\DeepSpaceBuildingWindow.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\CreatingNewGameScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\LoadFleetDesignScreen.cs" />
+    <Compile Include="Ship_Game\SavedGame.cs" />
+    <Compile Include="Ship_Game\TransitionCurve.cs" />
+    <Compile Include="Ship_Game\Direction.cs" />
+    <Compile Include="Ship_Game\Transition.cs" />
+    <Compile Include="Ship_Game\SpaceJunk.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\InGameWiki.cs" />
+    <Compile Include="Ship_Game\Universe\MiniMap.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\Agents\Mole.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarType.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarState.cs" />
+    <Compile Include="Ship_Game\Debug\DebugInfoScreen.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\DimensionalPrison.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\Offer.cs" />
+    <Compile Include="Ship_Game\ModInformation.cs" />
+    <Compile Include="Ship_Game\ModEntry.cs" />
+    <Compile Include="Ship_Game\Gameplay\RacialTraits.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\War.cs" />
+    <Compile Include="Ship_Game\PopupWindow.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\EventPopup.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\ShipListScreen.cs" />
+    <Compile Include="Ship_Game\NodeState.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\YouLoseScreen.cs" />
+    <Compile Include="Ship_Game\Gameplay\DiplomaticTraits.cs" />
+    <Compile Include="Ship_Game\RootNode.cs" />
+    <Compile Include="Ship_Game\GameScreens\ScreenManager.cs" />
+    <Compile Include="Ship_Game\ProgressBar.cs" />
+    <Compile Include="Ship_Game\ResearchPopup.cs" />
+    <Compile Include="Ship_Game\Bomb.cs" />
+    <Compile Include="Ship_Game\Universe\StarField.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\SolarsystemOverlay.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\ArtifactEntry.cs" />
+    <Compile Include="Ship_Game\RaceEntry.cs" />
+    <Compile Include="Ship_Game\Gameplay\Projectile.cs" />
+    <Compile Include="Ship_Game\Shield.cs" />
+    <Compile Include="Ship_Game\Gameplay\ModuleSlot.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainDiplomacyScreen\MainDiplomacyScreen.cs" />
+    <Compile Include="Ship_Game\AI\Tasks\MilitaryTask.cs" />
+    <Compile Include="Ship_Game\OrderType.cs" />
+    <Compile Include="Ship_Game\OrdersButton.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\HelperFunctions.cs" />
+    <Compile Include="Ship_Game\UI\CloseButton.cs" />
+    <Compile Include="Ship_Game\CommodityBonusType.cs" />
+    <Compile Include="Ship_Game\Building.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\CombatAI.cs" />
+    <Compile Include="Ship_Game\Menu1.cs" />
+    <Compile Include="Ship_Game\EconomicResearchStrategy.cs" />
+    <Compile Include="Ship_Game\ScreenState.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\AIState.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\CombatState.cs" />
+    <Compile Include="Ship_Game\GenericButton.cs" />
+    <Compile Include="Ship_Game\Ships\ShipInfoUIElement.cs" />
+    <Compile Include="Ship_Game\SlidingElement.cs" />
+    <Compile Include="Ship_Game\AI\Goal.cs" />
+    <Compile Include="Ship_Game\UI\UITextEntry.cs" />
+    <Compile Include="Ship_Game\ResearchQueueUIComponent.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveGameScreen.cs" />
+    <Compile Include="Ship_Game\ResearchQItem.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetInfoUIElement.cs" />
+    <Compile Include="Ship_Game\AutomationWindow.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\Artifact.cs" />
+    <Compile Include="Ship_Game\ExplorationEvent.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\Outcome.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\MissionListItem.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\Agents\Agent.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\AgentComponent.cs" />
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DiplomacyScreen.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\NotificationManager.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\Notification.cs" />
+    <Compile Include="Ship_Game\PieMenuNode.cs" />
+    <Compile Include="Ship_Game\FleetDesign.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleEmitter.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\MarkovNameGenerator.cs" />
+    <Compile Include="Ship_Game\UI\Fonts.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\RandomEventManager.cs" />
+    <Compile Include="Ship_Game\DropOptions.cs" />
+    <Compile Include="Ship_Game\Debug\DebugPrimitives.cs" />
+    <Compile Include="Ship_Game\OrbitalAssetsUIElement.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\ColoniesListItem.cs" />
+    <Compile Include="Ship_Game\StatTracker.cs" />
+    <Compile Include="Ship_Game\Snapshot.cs" />
+    <Compile Include="Ship_Game\ShipGroup.cs" />
+    <Compile Include="Ship_Game\Combat.cs" />
+    <Compile Include="Ship_Game\EmpireData.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\TutorialScreen.cs" />
+    <Compile Include="Ship_Game\RandomItem.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetGridSquare.cs" />
+    <Compile Include="Ship_Game\Quad.cs" />
+    <Compile Include="Ship_Game\RomanNumerals.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen.cs" />
+    <Compile Include="Ship_Game\Universe\BackgroundItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen.cs" />
+    <Compile Include="Ship_Game\Universe\Background3D.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveFleetDesignScreen.cs" />
+    <Compile Include="Ship_Game\ModManager.cs" />
+    <Compile Include="Ship_Game\AI\ThreatMatrix.cs" />
+    <Compile Include="Ship_Game\Gameplay\Weapon.cs" />
+    <Compile Include="Ship_Game\DropDownMenu.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Ship_Game\ExceptionViewer.resx">
       <DependentUpon>ExceptionViewer.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -1677,38 +917,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -1724,73 +932,38 @@
     <Content Include="Icons\Mars.ico" />
     <Content Include="Icons\PipeSmoke.ico" />
   </ItemGroup>
+
   <ItemGroup>
-    <Folder Include="Ship_Game\Fleets\FleetGoals\" />
-    <Folder Include="Ship_Game\GameScreens\Sandbox\" />
+    <ProjectReference Include="SDGraphics\SDGraphics.csproj" />
+    <ProjectReference Include="SDUtils\SDUtils.csproj" />
   </ItemGroup>
+
+  <!-- Phase 2.6.A: net8 imports System.Range by default which collides with the
+       codebase's SDGraphics.Range float-min/max struct. The codebase doesn't
+       use System.Range slice syntax, so alias Range globally to the SDGraphics
+       version. Saves touching ~36 files with per-file using directives. -->
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <Using Include="SDGraphics.Range" Alias="Range" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="SDGraphics\SDGraphics.csproj">
-      <Project>{46c4d1db-3168-470f-aba8-4ccaef60f107}</Project>
-      <Name>SDGraphics</Name>
-    </ProjectReference>
-    <ProjectReference Include="SDUtils\SDUtils.csproj">
-      <Project>{dd03444f-b149-40db-b1df-cb31541008ed}</Project>
-      <Name>SDUtils</Name>
-    </ProjectReference>
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
+    <PackageReference Include="LargeAddressAware" Version="1.0.6" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="Sentry" Version="3.41.4" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.WindowsDX">
-      <Version>3.8.0.1641</Version>
-    </PackageReference>
-    <PackageReference Include="MonoGame.Content.Builder.Task">
-      <Version>3.8.0.1641</Version>
-    </PackageReference>
-    <PackageReference Include="IsExternalInit">
-      <Version>1.0.3</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="LargeAddressAware">
-      <Version>1.0.6</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Win32.Registry">
-      <Version>5.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="NAudio">
-      <Version>2.2.1</Version>
-    </PackageReference>
-    <PackageReference Include="Sentry">
-      <Version>3.41.4</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Metadata">
-      <Version>9.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.AccessControl">
-      <Version>6.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Text.Json">
-      <Version>9.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="WiX">
-      <Version>3.14.1</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <!-- Phase 2.6.A: dropped polyfill / now-built-in packages —
+       IsExternalInit, Microsoft.Win32.Registry, System.Reflection.Metadata,
+       System.Security.AccessControl, System.Text.Json all ship with net8.
+       WiX (installer-only) belongs in Deploy/, not the runtime build. -->
+
   <PropertyGroup>
     <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  (
   :: run the installer generator script with Python 3
   py -3 "$(SolutionDir)Deploy\MakeInstaller.py" --root_dir $(SolutionDir) --patch --type=zip
 )</PostBuildEvent>
   </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <!-- <Target Name="AfterBuild"> -->
-  <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
-  <!-- <XslTransformation XslInputPath="C:\Projects\ResharperCLT\dupFinder.xsl" XmlInputPaths="dupReport.xml" OutputPaths="dupReport.html"/> -->
-  <!-- </Target> -->
+
 </Project>

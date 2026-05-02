@@ -80,21 +80,15 @@ namespace Ship_Game
             ResourceManager.WaitForExit();
         }
 
-        // Verifies the Media Foundation backend is usable on this machine and that
-        // VideoPlayer can actually deliver frames. Sets GlobalStats.VideoDisabled
-        // when either check fails so GameLoadingScreen skips the splash entirely
-        // and jumps straight to MainMenu instead of presenting a half-broken state.
+        // Verifies the Media Foundation backend is usable on this machine.
+        // Catches missing MF codec stack (Win10/11 N/KN editions) by attempting
+        // to construct VideoPlayer and set Volume — both should succeed on a
+        // working install. Sets GlobalStats.VideoDisabled if either throws so
+        // GameLoadingScreen skips the splash and jumps straight to MainMenu.
         //
-        // 1) Construction + Volume setter — catches missing MF codec stack
-        //    (Win10/11 N/KN editions). IsLooped is known-unimplemented and
-        //    intentionally not exercised; ScreenMediaPlayer just doesn't call it.
-        // 2) Force-disabled below — MonoGame WindowsDX 3.8.0.1641 has a known
-        //    VideoPlayer bug where Play() throws NullReferenceException and
-        //    GetTexture() throws unconditionally (audio still decodes, but no
-        //    frames reach the GPU; see project_phase2_backlog_runtime.md).
-        //    The pin to 3.8.0.1641 is forced by net48 support; revisit when
-        //    the framework target moves to net6+ (then bump to 3.8.1+ which
-        //    fixes this) and remove the force-disable here.
+        // Phase 2.6.A: dropped the unconditional force-disable that worked
+        // around MonoGame WindowsDX 3.8.0.1641's broken VideoPlayer
+        // (Play/GetTexture both threw NRE). MonoGame 3.8.1+ fixes both.
         static void ProbeVideoBackend()
         {
             try
@@ -106,11 +100,7 @@ namespace Ship_Game
             {
                 GlobalStats.VideoDisabled = true;
                 Log.Warning($"Media Foundation unavailable; videos disabled: {ex.GetType().Name}: {ex.Message}");
-                return;
             }
-
-            GlobalStats.VideoDisabled = true;
-            Log.Info("VideoPlayer force-disabled (MonoGame WindowsDX 3.8.0.1641 GetTexture bug); splash and loading icon skipped.");
         }
 
         protected override void Initialize()

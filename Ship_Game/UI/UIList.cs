@@ -63,30 +63,30 @@ namespace Ship_Game
 
         public UIList()
         {
-            Color = Color.TransparentBlack;
+            Color = Color.Transparent;
         }
 
         public UIList(ListLayoutStyle style)
         {
             LayoutStyle = style;
-            Color = Color.TransparentBlack;
+            Color = Color.Transparent;
         }
 
         public UIList(Vector2 size, ListLayoutStyle style)
         {
             LayoutStyle = style;
             Size = size;
-            Color = Color.TransparentBlack;
+            Color = Color.Transparent;
         }
         
         public UIList(in LocalPos pos, Vector2 size, ListLayoutStyle style)
-            : base(pos, size, Color.TransparentBlack)
+            : base(pos, size, Color.Transparent)
         {
             LayoutStyle = style;
         }
 
         public UIList(Vector2 pos, Vector2 size)
-            : base(pos, size, Color.TransparentBlack)
+            : base(pos, size, Color.Transparent)
         {
         }
 

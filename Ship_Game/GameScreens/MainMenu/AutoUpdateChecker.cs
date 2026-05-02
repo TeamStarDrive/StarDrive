@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Web.Script.Serialization;
+using System.Text.Json;
 using SDGraphics;
 using Ship_Game.UI;
 using Ship_Game.Audio;
@@ -240,21 +240,22 @@ public class AutoUpdateChecker : UIElementContainer
         if (AsyncTask is { IsCancelRequested: true })
             return null;
 
-        dynamic latestRelease = new JavaScriptSerializer().DeserializeObject(jsonText);
-        string name = latestRelease["name"];
-        string tagName = latestRelease["tag_name"];
-        string changelog = latestRelease["body"];
+        using JsonDocument doc = JsonDocument.Parse(jsonText);
+        JsonElement latestRelease = doc.RootElement;
+        string name = latestRelease.GetProperty("name").GetString();
+        string tagName = latestRelease.GetProperty("tag_name").GetString();
+        string changelog = latestRelease.GetProperty("body").GetString();
         string latestVersion = tagName.Split('-').FindMax(s => s.Count(c => c == '.')); // part-v1.2.4-withmostdots
 
         if (IsLatestVerNewer(latestVersion, isMod))
         {
             ReleaseInfo info = new(name, latestVersion, changelog, null, null);
             info.ZipUrls = new List<string>();
-            foreach (dynamic asset in latestRelease["assets"])
+            foreach (JsonElement asset in latestRelease.GetProperty("assets").EnumerateArray())
             {
-                string assetName = asset["name"];
+                string assetName = asset.GetProperty("name").GetString();
                 if (assetName.EndsWith(".zip"))
-                    info.ZipUrls.Add(asset["browser_download_url"]);
+                    info.ZipUrls.Add(asset.GetProperty("browser_download_url").GetString());
             }
 
             return info;
@@ -268,15 +269,14 @@ public class AutoUpdateChecker : UIElementContainer
         if (AsyncTask is { IsCancelRequested: true })
             return null;
 
-        dynamic downloads = new JavaScriptSerializer().DeserializeObject(jsonText);
-        IEnumerable<dynamic> values = downloads["values"];
-        dynamic value = values.First();
-        string zipName = value["name"];
+        using JsonDocument doc = JsonDocument.Parse(jsonText);
+        JsonElement value = doc.RootElement.GetProperty("values").EnumerateArray().First();
+        string zipName = value.GetProperty("name").GetString();
         string latestVersion = ParseVersionFromDownloadName(zipName);
 
         if (IsLatestVerNewer(latestVersion, isMod))
         {
-            List<string> downloadLink = [value["links"]["self"]["href"]];
+            List<string> downloadLink = [value.GetProperty("links").GetProperty("self").GetProperty("href").GetString()];
             string prettyName = $"{modName} {latestVersion}";
             return new(prettyName, latestVersion, zipName, downloadLink, null);
         }

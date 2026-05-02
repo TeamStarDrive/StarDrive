@@ -53,21 +53,21 @@ public class Submenu : UIPanel
     int CurSelectedIndex = -1;
 
     public Submenu(in RectF rect, LocalizedText title, SubmenuStyle style = SubmenuStyle.Brown)
-        : base(rect, Color.TransparentBlack)
+        : base(rect, Color.Transparent)
     {
         Style = style;
         AddTab(title);
     }
 
     public Submenu(LocalPos pos, Vector2 size, LocalizedText title, SubmenuStyle style = SubmenuStyle.Brown)
-        : base(pos, size, Color.TransparentBlack)
+        : base(pos, size, Color.Transparent)
     {
         Style = style;
         AddTab(title);
     }
 
     public Submenu(in RectF rect, IEnumerable<LocalizedText> tabs, SubmenuStyle style = SubmenuStyle.Brown)
-        : base(rect, Color.TransparentBlack)
+        : base(rect, Color.Transparent)
     {
         Style = style;
         foreach (LocalizedText tab in tabs)
@@ -75,7 +75,7 @@ public class Submenu : UIPanel
     }
 
     public Submenu(LocalPos pos, Vector2 size, IEnumerable<LocalizedText> tabs, SubmenuStyle style = SubmenuStyle.Brown)
-        : base(pos, size, Color.TransparentBlack)
+        : base(pos, size, Color.Transparent)
     {
         Style = style;
         foreach (LocalizedText tab in tabs)
@@ -83,14 +83,14 @@ public class Submenu : UIPanel
     }
 
     public Submenu(in RectF theMenu, SubmenuStyle style = SubmenuStyle.Brown)
-        : base(theMenu, Color.TransparentBlack)
+        : base(theMenu, Color.Transparent)
     {
         Style = style;
         this.PerformLayout();
     }
 
     public Submenu(in Rectangle theMenu, SubmenuStyle style = SubmenuStyle.Brown)
-        : base(theMenu, Color.TransparentBlack)
+        : base(theMenu, Color.Transparent)
     {
         Style = style;
         this.PerformLayout();
@@ -107,7 +107,7 @@ public class Submenu : UIPanel
     }
 
     public Submenu(LocalPos pos, Vector2 size, SubmenuStyle style = SubmenuStyle.Brown)
-        : base(pos, size, Color.TransparentBlack)
+        : base(pos, size, Color.Transparent)
     {
         Style = style;
     }

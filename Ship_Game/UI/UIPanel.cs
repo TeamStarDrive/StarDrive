@@ -19,7 +19,7 @@ namespace Ship_Game
         public Color Color { get; set; } = Color.White;
 
         // If set to a color, will draw a colored border around the panel
-        public Color Border = Color.TransparentBlack;
+        public Color Border = Color.Transparent;
 
         // If set to true, any bleeding input hovering over this panel will be captured
         public bool CaptureInput;
@@ -51,7 +51,7 @@ namespace Ship_Game
         {
         }
 
-        // Hint: use Color.TransparentBlack to create Panels with no fill
+        // Hint: use Color.Transparent to create Panels with no fill
         public UIPanel(in RectF rect, Color color, DrawableSprite sprite = null) : base(rect)
         {
             Color = color;

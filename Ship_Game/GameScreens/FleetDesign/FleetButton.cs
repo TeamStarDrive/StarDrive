@@ -22,7 +22,7 @@ public class FleetButton : UIPanel
     public Func<FleetButton, bool> IsSelected;
 
     public FleetButton(UniverseScreen us, int key, Vector2 size)
-        : base(UI.LocalPos.Zero, size, Color.TransparentBlack)
+        : base(UI.LocalPos.Zero, size, Color.Transparent)
     {
         Screen = us;
         FleetKey = key;
@@ -69,7 +69,7 @@ public class FleetButton : UIPanel
         batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, background);
 
         // draw the borders
-        new Selector(r, Color.TransparentBlack).Draw(batch, null);
+        new Selector(r, Color.Transparent).Draw(batch, null);
     }
 
     void DrawIcon(SpriteBatch batch, Fleet f, in RectF r)

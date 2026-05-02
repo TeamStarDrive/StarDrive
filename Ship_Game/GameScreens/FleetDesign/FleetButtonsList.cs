@@ -22,7 +22,7 @@ public class FleetButtonsList : UIList
                             Action<FleetButton> onClick,
                             Action<FleetButton> onHotKey,
                             Func<FleetButton, bool> isSelected)
-        : base(rect, Color.TransparentBlack)
+        : base(rect, Color.Transparent)
     {
         Us = us;
         Player = us.Player;

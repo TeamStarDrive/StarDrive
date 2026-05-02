@@ -71,7 +71,7 @@ namespace Ship_Game
             DrawBorders.Start();
 
             graphics.SetRenderTarget(BorderRT);
-            graphics.Clear(Color.TransparentBlack);
+            graphics.Clear(Color.Transparent);
 
             if (GlobalStats.InfluenceNodeAlpha > 0.1f)
             {

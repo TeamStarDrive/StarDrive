@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading;
 using SDUtils;

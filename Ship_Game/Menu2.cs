@@ -21,7 +21,7 @@ namespace Ship_Game
 
         public bool Hollow;
         public Color Background;
-        public Color Border = Color.TransparentBlack; // mostly for debugging
+        public Color Border = Color.Transparent; // mostly for debugging
 
         public Menu2(in Rectangle theMenu) : this(theMenu, new Color(0, 0, 0, 240))
         {

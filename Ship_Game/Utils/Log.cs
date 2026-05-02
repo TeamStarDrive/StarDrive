@@ -632,21 +632,11 @@ namespace Ship_Game
 
         static void CollectSuspendedStackTraces(Array<TraceContext> suspended)
         {
-            for (int i = 0; i < suspended.Count; ++i)
-            {
-                TraceContext context = suspended[i];
-                try
-                {
-                    #pragma warning disable 618 // Method is Deprecated
-                    context.Trace = new StackTrace(context.Thread, true);
-                    #pragma warning restore 618 // Method is Deprecated
-                    suspended[i] = context;
-                }
-                catch
-                {
-                    suspended.RemoveAt(i--);
-                }
-            }
+            // Phase 2.6.A: net8 removed StackTrace(Thread, bool) — cross-thread stack
+            // capture isn't supported without unmanaged interop. Skip; the deadlock-
+            // detection logger will report which threads are suspended but not their
+            // call stacks. Restore via ClrMd or P/Invoke if needed.
+            suspended.Clear();
         }
 
         static Array<TraceContext> GatherMonitoredThreadStackTraces()

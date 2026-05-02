@@ -107,7 +107,7 @@ namespace Ship_Game.UI
                 info.Type = "List";
                 info.Padding = list.Padding;
                 info.ListLayout = list.LayoutStyle;
-                if (list.Color != Color.TransparentBlack)
+                if (list.Color != Color.Transparent)
                     info.Color = list.Color;
                 SetPanelInfo(info, list);
             }
@@ -173,7 +173,7 @@ namespace Ship_Game.UI
         static void SetPanelInfo(ElementInfo info, UIPanel panel)
         {
 
-            if (panel.Border != Color.TransparentBlack)
+            if (panel.Border != Color.Transparent)
                 info.BorderColor = panel.Border;
 
             if (panel.Tooltip.NotEmpty)

@@ -26,7 +26,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
 
             InputState input = ScreenManager.Instance.input;
 
-            Add(new UIPanel(LocalPos.Zero, Size, Color.TransparentBlack.Alpha(0.2f)));
+            Add(new UIPanel(LocalPos.Zero, Size, Color.Transparent.Alpha(0.2f)));
             var style = new UIButton.StyleTextures("NewUI/Debug/tech_button.png", ButtonStyle.DanButton);
 
             AddCustomBtn(BtnSpacing*0, style,

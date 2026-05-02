@@ -137,6 +137,19 @@ game/vertexdecl-diag.log
 game/xnb-readers-dump.log
 game/xnb-model-readers-dump.log
 
+# Phase 2.6.A: net8 SDK-style outputs — apphost split + dependency descriptors.
+game/StarDrive.dll
+game/StarDrive.dll.config
+game/StarDrive.deps.json
+game/StarDrive.runtimeconfig.json
+game/SDGraphics.deps.json
+game/SDUtils.deps.json
+game/runtimes/
+# MGCB tool dependencies pulled in transitively by MonoGame.Content.Builder.Task 3.8.1+
+game/Microsoft.CodeAnalysis.dll
+game/Microsoft.CodeAnalysis.CSharp.dll
+game/Microsoft.CodeAnalysis.VisualBasic.dll
+
 # MonoGame / SharpDX runtime DLLs copied alongside StarDrive.exe by the build.
 game/MonoGame.Framework.dll
 game/SharpDX.dll

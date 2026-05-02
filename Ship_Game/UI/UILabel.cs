@@ -69,7 +69,7 @@ namespace Ship_Game
             set
             {
                 TextHoverColor = value;
-                EnableHighlights = (value != Color.TransparentBlack);
+                EnableHighlights = (value != Color.Transparent);
             }
         }
 
