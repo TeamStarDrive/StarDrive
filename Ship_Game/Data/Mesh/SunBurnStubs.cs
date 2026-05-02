@@ -178,6 +178,36 @@ namespace SynapseGaming.LightingSystem.Core
                 var fx = (rm.Effect as Effects.Forward.LightingEffect) ?? SharedFx;
                 fx.World = so.World * rm.World;
 
+                // Phase 2.8.C hotfix #5: per-mesh effects (PlanetType.Material,
+                // ship Materials, etc.) need View/Projection from the current
+                // frame too — only SharedFx gets them in RenderScene at lines
+                // 154-155. Without these, the per-mesh effect renders with
+                // stale/default Identity matrices, putting the geometry far
+                // outside the camera frustum (planets disappeared this way
+                // even with textures bound and lighting enabled).
+                //
+                // Phase 2.8.C hotfix #6: also push the per-SO primary light
+                // (sun direction). Without this, per-mesh effects rely on
+                // BasicEffect.EnableDefaultLighting's hardcoded angles and
+                // light from a fixed wrong direction regardless of where the
+                // system's sun actually is.
+                if (fx != SharedFx)
+                {
+                    fx.View = SharedFx.View;
+                    fx.Projection = SharedFx.Projection;
+                    if (so.PrimaryLightEnabled)
+                    {
+                        fx.LightingEnabled = true;
+                        fx.DirectionalLight0.Enabled = true;
+                        fx.DirectionalLight0.Direction = so.PrimaryLightDirection;
+                        fx.DirectionalLight0.DiffuseColor = so.PrimaryLightColor;
+                        fx.DirectionalLight0.SpecularColor = so.PrimaryLightColor * 0.5f;
+                        fx.DirectionalLight1.Enabled = false;
+                        fx.DirectionalLight2.Enabled = false;
+                        fx.AmbientLightColor = so.PrimaryLightColor * 0.15f; // soft fill
+                    }
+                }
+
                 // Phase 2.8.C hotfix #3: planet bodies (and other SO consumers
                 // that wire textures via the LightingEffect's own DiffuseMapTexture
                 // — see PlanetType.CreateMaterial) had their textures stranded on
@@ -211,6 +241,22 @@ namespace SynapseGaming.LightingSystem.Core
                 // Submeshes inherit SceneObject.World only; bone-aware composite
                 // is a Phase 3 cleanup if/when skeletal hierarchies return.
                 fx.World = so.World;
+                if (fx != SharedFx) // see DrawRenderables for hotfixes #5 and #6
+                {
+                    fx.View = SharedFx.View;
+                    fx.Projection = SharedFx.Projection;
+                    if (so.PrimaryLightEnabled)
+                    {
+                        fx.LightingEnabled = true;
+                        fx.DirectionalLight0.Enabled = true;
+                        fx.DirectionalLight0.Direction = so.PrimaryLightDirection;
+                        fx.DirectionalLight0.DiffuseColor = so.PrimaryLightColor;
+                        fx.DirectionalLight0.SpecularColor = so.PrimaryLightColor * 0.5f;
+                        fx.DirectionalLight1.Enabled = false;
+                        fx.DirectionalLight2.Enabled = false;
+                        fx.AmbientLightColor = so.PrimaryLightColor * 0.15f;
+                    }
+                }
                 fx.ApplyToBasicEffect(); // see DrawRenderables for the why
 
                 foreach (ModelMeshPart part in mesh.MeshParts)
@@ -301,6 +347,18 @@ namespace SynapseGaming.LightingSystem.Rendering
         public Matrix World { get; set; } = Matrix.Identity;
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
+
+        // Phase 2.8.C hotfix #6: per-object primary light (the system's sun for
+        // planets/ships/asteroids). DrawRenderables binds this onto the per-mesh
+        // LightingEffect's DirectionalLight0 — without it, per-mesh effects fall
+        // back to BasicEffect.EnableDefaultLighting's hardcoded directions and
+        // light from the wrong angle (visible regression: Jupiter lit from below
+        // when the sun was upper-right). LightingEffectBinder.Apply only hits
+        // SharedFx in RenderScene, not per-mesh material effects, so this is
+        // the per-object hook for those.
+        public Vector3 PrimaryLightDirection { get; set; }
+        public Vector3 PrimaryLightColor { get; set; }
+        public bool PrimaryLightEnabled { get; set; }
 
         readonly List<RenderableMesh> Renderables = new();
         readonly List<(ModelMesh Mesh, Effect Effect)> ModelMeshes = new();
@@ -477,7 +535,18 @@ namespace SynapseGaming.LightingSystem.Effects
     // It pulls in BasicEffect's own DiffuseColor/SpecularPower; we shadow with `new`.
     public class BaseMaterialEffect : BasicEffect
     {
-        public BaseMaterialEffect(GraphicsDevice device) : base(device) { }
+        // Phase 2.8.C hotfix #4: the shadowed DiffuseColor / SpecularPower auto-
+        // properties default to Vector3.Zero / 0f. When ApplyToBasicEffect runs,
+        // it copies those defaults down to BasicEffect's slots, killing the
+        // material (texture × 0 = black; SpecularPower=0 NaN-pollutes lighting).
+        // Initialize to BasicEffect's documented defaults so callers that don't
+        // set these explicitly (PlanetType.CreateMaterial, etc.) get a working
+        // material out of the box. Callers that DO set them keep their values.
+        public BaseMaterialEffect(GraphicsDevice device) : base(device)
+        {
+            DiffuseColor = Vector3.One; // BasicEffect default = (1,1,1)
+            SpecularPower = 16f;        // BasicEffect default = 16
+        }
         public string MaterialName { get; set; }
         public string MaterialFile { get; set; }
         public string ProjectFile { get; set; }
