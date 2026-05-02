@@ -33,6 +33,12 @@
     <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <!-- Phase 2.6.A switched the default OutputType to WinExe (Windows subsystem),
+         which means Windows no longer allocates a console at startup. Log.Initialize
+         then sees Console.IsOutputRedirected==true and skips ShowConsoleWindow,
+         so the dev console disappears. Restore the pre-net8 console subsystem
+         for Debug builds only — Release/AutoFast/Deploy keep WinExe. -->
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
