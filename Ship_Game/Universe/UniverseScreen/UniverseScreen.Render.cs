@@ -116,7 +116,13 @@ namespace Ship_Game
                 if (alpha > maxAlpha) alpha = maxAlpha;
                 else if (alpha < 10) alpha = 0;
 
-                var color = new Color((byte)255, (byte)255, (byte)255, (byte)alpha);
+                // Phase 3.3 alpha fix: pre-multiply the tint so the (already-premul'd)
+                // BorderRT pixels get scaled by alpha at modulation time. Without
+                // pre-multiplication, MonoGame's premul AlphaBlend formula
+                // `dst = src.rgb + dst*(1-src.a)` adds the full RGB without
+                // attenuation — empire-projection halos rendered ~3x too bright at
+                // any non-full-camera-height since Phase 2.
+                var color = new Color((byte)alpha, (byte)alpha, (byte)alpha, (byte)alpha);
                 batch.Draw((BorderRT as Microsoft.Xna.Framework.Graphics.Texture2D), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
                 batch.SafeEnd();
             }

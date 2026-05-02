@@ -93,6 +93,16 @@ namespace Ship_Game.Data
             switch (format)
             {
                 case SurfaceFormat.Color:
+                    // R/B byte-swap: XNA 3.1's SurfaceFormat.Color was D3DFMT_A8R8G8B8
+                    // (memory byte order B G R A); MonoGame's SurfaceFormat.Color is
+                    // memory byte order R G B A. Hand the bytes to SetData unchanged
+                    // and the red and blue channels render swapped — confirmed visually
+                    // on loading-screen XNBs (the in-game art rendered blue-tinted
+                    // until this fix). Phase 2.7.B handled the DXT and PNG paths but
+                    // never touched raw-RGBA XNBs. Run this before the premultiply so
+                    // downstream byte[i]=R/byte[i+2]=B assumptions hold.
+                    SwapRedBlue(data);
+
                     // Heuristic: only premultiply textures that look non-premul.
                     // In a premultiplied texture every pixel satisfies RGB ≤ A; finding
                     // a pixel with RGB > A on any channel proves the buffer is not yet
@@ -138,6 +148,21 @@ namespace Ship_Game.Data
                             Log.Warning($"{readerName}: no premultiply path for {format}; alpha behavior may be incorrect under MonoGame's premultiplied AlphaBlend.");
                     }
                     return;
+            }
+        }
+
+        // In-place R↔B byte swap on an interleaved 32bpp buffer (4 bytes per pixel).
+        // Used to translate XNA 3.1 BGRA byte layout to MonoGame's RGBA byte layout
+        // for SurfaceFormat.Color XNB textures. Idempotent applies its own inverse —
+        // never call twice on the same buffer.
+        static void SwapRedBlue(byte[] rgba)
+        {
+            int n = rgba.Length & ~3;
+            for (int i = 0; i < n; i += 4)
+            {
+                byte b = rgba[i];
+                rgba[i]     = rgba[i + 2];
+                rgba[i + 2] = b;
             }
         }
 

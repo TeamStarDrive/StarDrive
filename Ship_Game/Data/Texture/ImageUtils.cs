@@ -74,13 +74,17 @@ namespace Ship_Game.Data.Texture
         static extern IntPtr LoadPNGImage([MarshalAs(UnmanagedType.LPStr)] string filename,
                                           OnImageLoaded onLoaded);
 
-        // premultiplyAlpha=false matches the atlas pipeline contract (atlas reload PNGs
-        // already contain premul bytes from CreateAtlasTexture's PremultiplyAlpha call,
-        // and atlas source loads must stay non-premul so atlas-DDS roundtrip's LoadDds
-        // premul applies exactly once). Direct sprite callers (cursors, standalone UI
-        // PNGs with alpha) should pass premultiplyAlpha=true so SpriteBatch.AlphaBlend
-        // (which expects premul) doesn't saturate bright-and-transparent pixels to white.
-        public static Texture2D LoadPng(GraphicsDevice device, string filename, bool premultiplyAlpha = false)
+        // Default `premultiplyAlpha=true` since Phase 3.3 (2026-05-03): MonoGame's
+        // BlendState.AlphaBlend expects premul bytes, and most direct PNG callers
+        // (YouLose/YouWin text panels, cursors, faction art, ad-hoc UI sprites)
+        // need premul to avoid white-edge halos. PremultiplyAlpha is idempotent
+        // (heuristic-skipped on already-premul buffers — see its body), so atlas-
+        // pipeline reloads of premul-baked atlas-PNG files don't double-premul.
+        // Atlas SOURCE PNG loads end up premul'd by this default, but downstream
+        // CreateAtlasTexture and LoadDds calls to PremultiplyAlpha are now no-ops
+        // for already-premul data. Net effect: every path converges to "premul'd
+        // on GPU exactly once".
+        public static Texture2D LoadPng(GraphicsDevice device, string filename, bool premultiplyAlpha = true)
         {
             Texture2D tex = null;
             void OnLoaded(Color[] color, int size, int width, int height)
@@ -124,8 +128,35 @@ namespace Ship_Game.Data.Texture
             return tex;
         }
 
+        // Idempotent in-place premultiply.
+        //
+        // Phase 3.3 (2026-05-03): added heuristic skip so callers that may receive
+        // already-premul data (LoadDds reloading a premul'd atlas, CreateAtlasTexture
+        // composing pixels sourced from premul'd LoadPng output, etc.) don't double-
+        // multiply. The heuristic mirrors Xna31Compat.PremultiplyAlphaIfNeeded /
+        // Primitives2D.ToPremulIfNeeded: a pixel with RGB > A on any channel proves
+        // the buffer is non-premul; if no such pixel exists the buffer is consistent
+        // with premultiplied or fully-opaque data and is left untouched. False
+        // positives (re-premul'ing a premul buffer) are mathematically impossible
+        // because RGB > A is incompatible with `RGB = orig_RGB * A`.
         public static void PremultiplyAlpha(Color[] pixels, int count)
         {
+            // Heuristic short-circuit: scan for proof of non-premul. Returns on the
+            // first non-premul pixel — already-premul buffers pay an O(N) scan with
+            // no writes, which is fine at load time.
+            bool needsPremul = false;
+            for (int i = 0; i < count; ++i)
+            {
+                Color c = pixels[i];
+                if (c.R > c.A || c.G > c.A || c.B > c.A)
+                {
+                    needsPremul = true;
+                    break;
+                }
+            }
+            if (!needsPremul)
+                return;
+
             for (int i = 0; i < count; ++i)
             {
                 Color c = pixels[i];
