@@ -65,6 +65,7 @@
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="Graphics\ForwardRendererTests.cs" />
     <Compile Include="Graphics\LightingEffectBinderTests.cs" />
+    <Compile Include="Graphics\ParticleManagerTests.cs" />
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\ArrayT_Tests.cs" />
     <Compile Include="Collections\TestCollectionExt.cs" />
