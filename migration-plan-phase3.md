@@ -196,6 +196,52 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
+## 3.3.A — Fix the Phase 2.3 SpriteFont rebake size regression
+
+**Priority**: HIGH — visibly annoying across every screen with text. User-flagged 2026-05-03 as the next-session priority. Pre-existing since Phase 2.3 (`5fae0d679`); not introduced by §3.3 effect work.
+
+**Goal**: in-game text renders at the same visible pixel size as pre-migration. UI layouts authored against XNA Content Pipeline glyph metrics stop overflowing / getting cropped / overlapping. No regression on the squares-as-text Dxt3 sampling issue Phase 2.3 fixed.
+
+**Root cause** (already diagnosed; full detail in `memory/project_phase2_3_font_rebake_size.md`): commit `5fae0d679` rebaked all 24 SpriteFont XNBs via MGCB after Phase 2.2 made the original Dxt3-baked XNBs render as white squares. MGCB's font rasterizer (FreeType / SharpFont) emits visibly larger glyphs than XNA Content Pipeline's GDI+ rasterizer at the same `<Size>` value — empirically ~20–30% larger across all sizes. The rebake fixed the squares issue but silently broke the visual baseline.
+
+**Three resolution paths**, in order of preference:
+
+1. **Option A — restore the XNA-baked XNBs from git history, fix the squares issue another way**
+   - `git show 5fae0d679^:game/Content/Fonts/<Font>.xnb > game/Content/Fonts/<Font>.xnb` for all 24 fonts. Or `git checkout 5fae0d679^ -- game/Content/Fonts/`.
+   - Pre-migration appearance restored exactly.
+   - Then re-attack the Phase 2.2 step 8 squares-as-text issue: it was Dxt3 BC2 alpha sampling under MonoGame WindowsDX 3.8. Phase 3.3 has shipped texture-loading shims (`Xna31Texture2DReader` with R/B swap + premul-heuristic for `SurfaceFormat.Color`) but NOT for Dxt3. Probe whether the squares issue can be fixed at the SpriteBatch sampler-state level (e.g., force `SamplerState.PointClamp` for SpriteFont rendering), or by adjusting how SpriteFont's glyph atlas SamplerState is set in MonoGame. If neither works, fall back to (B).
+   - Effort estimate: 1-2 hours if sampler-state fix works; 1 day if Dxt3 needs a deeper sampler audit.
+
+2. **Option B — re-rebake .spritefont with shrunk `<Size>`**
+   - For each of 24 .spritefont files, reduce `<Size>` by ~20% empirically (14 → 11, 12 → 9, 16 → 12, 20 → 16, etc.). Iterate per-font until visible size matches pre-migration.
+   - Run the rebake via `mgcb -build` using the `Directory.Build.props` configuration set up in `5fae0d679`.
+   - Keeps MGCB pipeline + `TextureFormat=Color` + Cyrillic glyph regions from Phase 2.3.
+   - Effort estimate: 0.5-1 day for full calibration sweep + visual verification.
+
+3. **Option C — hybrid** (mention only as fallback; probably overkill).
+
+**Steps for the recommended Option A path**:
+
+1. Restore originals: `git checkout 5fae0d679^ -- game/Content/Fonts/`. Build, run game, confirm fonts visible at pre-migration size and confirm whether the squares issue is back.
+2. If squares are back: probe the SpriteBatch sampler state at SpriteFont draw time. Add a temporary `Log.Info($"SpriteFont sampler: {device.SamplerStates[0]}")` right before a `batch.DrawString` call. Confirm whether it's `LinearWrap` / `PointClamp` / something else.
+3. Try forcing `SamplerState.PointClamp` for SpriteFont passes. SpriteBatch's `Begin(SpriteSortMode, BlendState, SamplerState, ...)` overload accepts it; the codebase's `SafeBegin` wrapper may need a new overload that propagates the sampler choice.
+4. Verify Dxt3 alpha sampling works correctly with PointClamp. If still squares, fall back to Option B.
+5. **Tests**: add `UnitTests/Content/SpriteFontSizeRegressionTests.cs` that loads `Arial14Bold.spritefont`'s baked XNB and asserts `LineSpacing` is in the pre-migration range (need to capture the value from a `git show 5fae0d679^:game/Content/Fonts/Arial14Bold.xnb`-extracted reading first). Pin the regression so it can't silently re-occur.
+
+**Verification**:
+- Side-by-side screenshot comparison of main menu, options screen, and universe-screen labels. Pre-migration release-build vs post-fix debug build. Both at Windows DPI scale = 100% on the same machine. No DPI-aware divergence.
+- Game shipping in 5+ languages — Cyrillic rendering must still work (the Phase 2.3 rebake added Cyrillic glyph regions because `Fonts.cs:72-94` substitutes runtime files for slavic locales). If Option A is taken, the original XNA-baked XNBs need to also have Cyrillic regions, OR the runtime substitution path needs validation.
+
+**Rollback**:
+- Option A rollback: `git checkout HEAD -- game/Content/Fonts/` to bring MGCB-baked back. Squares issue returns but layout is "right" until fix.
+- Option B rollback: revert the .spritefont edits + MGCB rebake commit; Phase 2.3 baseline restored.
+
+**Risk**: Medium. Option A's risk is that the squares issue isn't sampler-state-fixable and we have to fall through to Option B anyway, costing 0.5 day. Option B's risk is per-font calibration is empirical and may not produce pixel-perfect parity for every size. Both options preserve the squares-fix outcome by construction.
+
+**Why this jumped the queue**: text size is in every UI screen; the Mars 1.51-era code has hand-tuned UI layouts that depend on the XNA-baked metrics. Continuing further migration work without fixing this means every new layout decision risks getting baked against the wrong baseline.
+
+---
+
 ## 3.4 — XNB Model Decode — Static Meshes (~134 of 276)
 
 **Goal**: All static (non-skinned) ship/hull/projectile/station meshes load and render with original geometry + materials. The `LoadStaticMesh` Phase 2 stub is gone for static assets. The §3.1 CSV identifies the static subset: 122 confirmed static-sunburn + ~12 likely-static-sunburn (in the tool's unreadable set, runtime-confirmed). The 8 static-raw XNBs (3.1 VertexDeclaration drift) are handled in §3.4 step 5.
