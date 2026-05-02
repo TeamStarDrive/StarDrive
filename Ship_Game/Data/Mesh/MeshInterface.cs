@@ -60,14 +60,20 @@ namespace Ship_Game.Data.Mesh
             public readonly float Alpha;
         }
 
+        // SDNative writes its own SDElementFormat/SDElementUsage byte enums into
+        // these slots. The byte values match XNA 3.1's enum ordinals, NOT MonoGame's
+        // (MG renumbered both enums entirely — e.g. XNA 3.1 TextureCoordinate=5 vs
+        // MG TextureCoordinate=2; XNA 3.1 Sample=13 has no MG equivalent at all and
+        // throws "Unknown vertex element usage!" if passed to D3D11). We hold the
+        // raw bytes here and translate at SdVertexData.CreateDeclaration().
         [StructLayout(LayoutKind.Sequential)]
-        [DebuggerDisplay("Offset={Offset} Size={Size} Format={Format} Usage={Usage}")]
+        [DebuggerDisplay("Offset={Offset} Size={Size} NativeFormat={NativeFormat} NativeUsage={NativeUsage}")]
         protected struct SdVertexElement
         {
-            public byte Offset; // element offset in vertex buffer data
-            public byte Size;   // element size in bytes
-            public VertexElementFormat Format;
-            public VertexElementUsage  Usage;
+            public byte Offset;       // element offset in vertex buffer data
+            public byte Size;         // element size in bytes
+            public byte NativeFormat; // SDElementFormat (Single..Rgba32, 0..8)
+            public byte NativeUsage;  // SDElementUsage (Position..Sample, 0..13 with gap at 9)
         };
         
         [StructLayout(LayoutKind.Sequential)]
@@ -106,17 +112,84 @@ namespace Ship_Game.Data.Mesh
             // MonoGame VertexElement ctor is 4-arg (offset, format, usage, usageIndex);
             // XNA 3.1's VertexElementMethod was dropped. VertexDeclaration takes the
             // element array directly — no GraphicsDevice arg.
+            //
+            // Translates SDNative's XNA-3.1-shaped byte enums to MonoGame's. Skips
+            // any element whose usage doesn't map (e.g. SDElementUsage::Sample which
+            // is out of MG's enum range entirely) — without translation, the unknown
+            // byte propagates to D3D11 and throws "Unknown vertex element usage!"
+            // mid-Draw, killing the game.
             public VertexDeclaration CreateDeclaration()
             {
-                var elements = new VertexElement[LayoutCount];
+                var elements = new Array<VertexElement>(LayoutCount);
                 for (int i = 0; i < LayoutCount; ++i)
                 {
-                    elements[i] = new VertexElement(Layout[i].Offset, Layout[i].Format,
-                                                    Layout[i].Usage, 0);
+                    if (TranslateNativeUsage(Layout[i].NativeUsage, out VertexElementUsage usage)
+                     && TranslateNativeFormat(Layout[i].NativeFormat, out VertexElementFormat format))
+                    {
+                        elements.Add(new VertexElement(Layout[i].Offset, format, usage, 0));
+                    }
+                    else
+                    {
+                        Log.Warning($"SdVertexData.CreateDeclaration: dropping element #{i} " +
+                                    $"(NativeFormat={Layout[i].NativeFormat} NativeUsage={Layout[i].NativeUsage}) — " +
+                                    "no MonoGame equivalent");
+                    }
                 }
-                return new VertexDeclaration(elements);
+                return new VertexDeclaration(VertexStride, elements.ToArray());
             }
         };
+
+        // SDElementUsage ordinals (SdMeshGroup.h):
+        //   0:Position 1:BlendWeight 2:BlendIndices 3:Normal 4:PointSize 5:Coordinate
+        //   6:Tangent 7:BiNormal 8:TessellateFactor (gap 9) 10:Color 11:Fog 12:Depth 13:Sample
+        //
+        // MonoGame VertexElementUsage ordinals (Microsoft.Xna.Framework.Graphics):
+        //   0:Position 1:Color 2:TextureCoordinate 3:Normal 4:Binormal 5:Tangent
+        //   6:BlendIndices 7:BlendWeight 8:Depth 9:Fog 10:PointSize 11:Sample 12:TessellateFactor
+        protected static bool TranslateNativeUsage(byte native, out VertexElementUsage mg)
+        {
+            switch (native)
+            {
+                case 0:  mg = VertexElementUsage.Position;          return true;
+                case 1:  mg = VertexElementUsage.BlendWeight;       return true;
+                case 2:  mg = VertexElementUsage.BlendIndices;      return true;
+                case 3:  mg = VertexElementUsage.Normal;            return true;
+                case 4:  mg = VertexElementUsage.PointSize;         return true;
+                case 5:  mg = VertexElementUsage.TextureCoordinate; return true;
+                case 6:  mg = VertexElementUsage.Tangent;           return true;
+                case 7:  mg = VertexElementUsage.Binormal;          return true;
+                case 8:  mg = VertexElementUsage.TessellateFactor;  return true;
+                case 10: mg = VertexElementUsage.Color;             return true;
+                case 11: mg = VertexElementUsage.Fog;               return true;
+                case 12: mg = VertexElementUsage.Depth;             return true;
+                case 13: mg = VertexElementUsage.Sample;            return true;
+                default: mg = VertexElementUsage.Position;          return false;
+            }
+        }
+
+        // SDElementFormat ordinals (SdMeshGroup.h):
+        //   0:Single 1:Vector2 2:Vector3 3:Vector4 4:Color 5:Byte4 6:Short2 7:Short4 8:Rgba32
+        //
+        // MonoGame VertexElementFormat ordinals (Microsoft.Xna.Framework.Graphics):
+        //   0:Single 1:Vector2 2:Vector3 3:Vector4 4:Color 5:Byte4 6:Short2 7:Short4
+        //   8:NormalizedShort2 9:NormalizedShort4 10:HalfVector2 11:HalfVector4
+        // (no Rgba32 — MG removed it; map to Color which is also 4 bytes packed RGBA.)
+        protected static bool TranslateNativeFormat(byte native, out VertexElementFormat mg)
+        {
+            switch (native)
+            {
+                case 0: mg = VertexElementFormat.Single;  return true;
+                case 1: mg = VertexElementFormat.Vector2; return true;
+                case 2: mg = VertexElementFormat.Vector3; return true;
+                case 3: mg = VertexElementFormat.Vector4; return true;
+                case 4: mg = VertexElementFormat.Color;   return true;
+                case 5: mg = VertexElementFormat.Byte4;   return true;
+                case 6: mg = VertexElementFormat.Short2;  return true;
+                case 7: mg = VertexElementFormat.Short4;  return true;
+                case 8: mg = VertexElementFormat.Color;   return true; // SDNative::Rgba32 → MG::Color
+                default: mg = VertexElementFormat.Single; return false;
+            }
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         protected unsafe struct SdMeshGroup
@@ -265,41 +338,6 @@ namespace Ship_Game.Data.Mesh
             );
 
         /////////////////////////////////////////////////////////////////////////////
-
-        protected static SdVertexElement[] CreateVertexElements(VertexDeclaration vd)
-        {
-            VertexElement[] vertexElements = vd.GetVertexElements();
-            var elements = new SdVertexElement[vertexElements.Length];
-            for (int i = 0; i < vertexElements.Length; ++i)
-            {
-                VertexElement e = vertexElements[i];
-                elements[i] = new SdVertexElement
-                {
-                    Offset = (byte)e.Offset,
-                    Size   = (byte)ElementSizeInBytes(e.VertexElementFormat),
-                    Format = e.VertexElementFormat,
-                    Usage  = e.VertexElementUsage
-                };
-            }
-            return elements;
-        }
-
-        protected static int ElementSizeInBytes(VertexElementFormat format)
-        {
-            switch (format)
-            {
-                case VertexElementFormat.Single:  return sizeof(float);
-                case VertexElementFormat.Vector2: return sizeof(float)*2;
-                case VertexElementFormat.Vector3: return sizeof(float)*3;
-                case VertexElementFormat.Vector4: return sizeof(float)*4;
-                case VertexElementFormat.Color:   return sizeof(int); // packed color RGBA
-                case VertexElementFormat.Byte4:   return 4;
-                case VertexElementFormat.Short2:  return 4;
-                case VertexElementFormat.Short4:  return 8;
-                // VertexElementFormat.Rgba32 was removed in MonoGame; use Color (4 bytes packed RGBA).
-            }
-            return 4;
-        }
 
         /// <summary>
         /// Generates tangent space data (used for bump and specular mapping) from the provided vertex information.

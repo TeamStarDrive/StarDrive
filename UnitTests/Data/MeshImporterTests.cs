@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.Data.Mesh;
 using SynapseGaming.LightingSystem.Rendering;
@@ -45,5 +47,39 @@ public class MeshImporterTests : StarDriveTest
         // broken file or the buffer-copy methods produced empty buffers.
         Assert.IsTrue(totalVerts >= 50, $"Total verts={totalVerts}, expected >=50");
         Assert.IsTrue(totalPrims >= 50, $"Total prims={totalPrims}, expected >=50");
+    }
+
+    [TestMethod]
+    public void ImportStaticMesh_PlanetSphereObj_VertexDeclarationUsagesAreMonoGameValues()
+    {
+        // Regression net for the SDNative-byte → MonoGame-enum translation in
+        // SdVertexData.CreateDeclaration. SDNative writes XNA-3.1-ordinal bytes
+        // (Position=0, Normal=3, Coordinate=5) into NativeUsage; passing those
+        // unchanged into MG's VertexElement crashed the universe-screen draw
+        // with "Unknown vertex element usage!" from PlatformApplyState (because
+        // SDElementUsage::Sample=13 is out of MG's enum range entirely, and
+        // even valid bytes mean the wrong semantic — byte 5 is Tangent in MG,
+        // not TextureCoordinate).
+        StaticMesh mesh = Content.LoadStaticMesh("Model/SpaceObjects/planet_sphere.obj");
+        Assert.IsFalse(mesh.RawMeshes.IsEmpty);
+
+        var seenUsages = new HashSet<VertexElementUsage>();
+        foreach (MeshData md in mesh.RawMeshes)
+        {
+            foreach (VertexElement e in md.VertexDeclaration.GetVertexElements())
+            {
+                seenUsages.Add(e.VertexElementUsage);
+            }
+        }
+
+        // OBJ-imported geometry must carry at least Position; planet_sphere.obj
+        // ships with Normal + TextureCoordinate too.
+        Assert.IsTrue(seenUsages.Contains(VertexElementUsage.Position),
+            $"Missing Position usage. Saw: {string.Join(",", seenUsages)}");
+        Assert.IsTrue(seenUsages.Contains(VertexElementUsage.Normal),
+            $"Missing Normal usage. Saw: {string.Join(",", seenUsages)}");
+        Assert.IsTrue(seenUsages.Contains(VertexElementUsage.TextureCoordinate),
+            $"Missing TextureCoordinate usage — translation may have left native byte 5 " +
+            $"as Tangent. Saw: {string.Join(",", seenUsages)}");
     }
 }
