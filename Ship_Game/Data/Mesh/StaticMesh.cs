@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
+using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Data.Mesh;
 
 using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 // TODO Phase 2: rebuild against MonoGame's ModelMesh layout (IndexBuffer/VertexBuffer
@@ -138,9 +140,63 @@ public sealed class StaticMesh : IDisposable
         }
     }
 
-    // TODO Phase 2: Draw paths used XNA 3.1 patterns (effect.Begin/End, pass.Begin/End,
+    // Phase 2.8 sub-phase A2: real Draw via the new forward renderer.
+    // Iterates ModelMesh.MeshParts and RawMeshes (MeshData), binds the supplied
+    // LightingEffect's W/V/P, loops technique passes and issues DrawIndexedPrimitives.
+    // Empty-mesh guard early-returns if both backing collections are empty (the
+    // common case while Phase 2 model XNB loads return stub meshes).
+    public void Draw(GraphicsDevice device, XnaMatrix world, XnaMatrix view, XnaMatrix projection, LightingEffect effect)
+    {
+        if (effect == null || device == null) return;
+
+        bool hasModelMeshes = ModelMeshes != null && ModelMeshes.Count > 0;
+        bool hasRawMeshes = !RawMeshes.IsEmpty;
+        if (!hasModelMeshes && !hasRawMeshes) return;
+
+        effect.View = view;
+        effect.Projection = projection;
+        effect.World = world;
+
+        if (hasModelMeshes)
+        {
+            foreach (ModelMesh mesh in ModelMeshes)
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    if (part.PrimitiveCount == 0) continue;
+                    device.SetVertexBuffer(part.VertexBuffer);
+                    device.Indices = part.IndexBuffer;
+                    foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+                        device.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                            part.VertexOffset, part.StartIndex, part.PrimitiveCount);
+                    }
+                }
+            }
+        }
+
+        if (hasRawMeshes)
+        {
+            foreach (MeshData md in RawMeshes)
+            {
+                if (md.PrimitiveCount == 0 || md.VertexBuffer == null || md.IndexBuffer == null) continue;
+                device.SetVertexBuffer(md.VertexBuffer);
+                device.Indices = md.IndexBuffer;
+                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    device.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                        baseVertex: 0, startIndex: 0, primitiveCount: md.PrimitiveCount);
+                }
+            }
+        }
+    }
+
+    // TODO Phase 2: legacy overloads — XNA 3.1 patterns (effect.Begin/End, pass.Begin/End,
     // gd.Vertices[0].SetSource, the 6-arg DrawIndexedPrimitives) that no longer exist in MonoGame.
-    // Stubbed to no-ops so the rest of the game can compile and tick.
+    // Stubbed to no-ops so the rest of the game can compile and tick. Sub-phase B will
+    // reroute these to the GraphicsDevice-aware Draw above.
     public void Draw(Effect effect = null) { }
     public void Draw(BasicEffect effect, Texture2D texture) { }
     public static void Draw(Model model, Effect effect) { }

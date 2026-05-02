@@ -63,29 +63,162 @@ namespace SynapseGaming.LightingSystem.Core
         public float FogEnd = 10000f;
     }
 
+    // Phase 2.8 sub-phase B1: SceneState stores the per-frame view/proj/env/elapsed
+    // values that the renderer needs. ScreenManager.BeginFrameRendering populates
+    // it; SceneInterface.RenderScene (B3) reads from it.
     public class SceneState
     {
+        public Matrix View { get; private set; } = Matrix.Identity;
+        public Matrix Projection { get; private set; } = Matrix.Identity;
+        public float ElapsedSeconds { get; private set; }
+        public SceneEnvironment Environment { get; private set; }
+
         public void BeginFrameRendering(ref Matrix view, ref Matrix proj, float elapsed,
-                                        SceneEnvironment env, bool b) { }
+                                        SceneEnvironment env, bool b)
+        {
+            View = view;
+            Projection = proj;
+            ElapsedSeconds = elapsed;
+            Environment = env;
+        }
+
         public void EndFrameRendering() { }
     }
 
     public class SceneInterface : IDisposable
     {
-        public Lights.ILightManager LightManager { get; } = new Lights.LightManager();
-        public Rendering.IObjectManager ObjectManager { get; } = new Rendering.ObjectManager();
-        public Rendering.IRenderManager RenderManager { get; } = new Rendering.RenderManager();
+        public Lights.ILightManager LightManager { get; }
+        public Rendering.IObjectManager ObjectManager { get; }
+        public Rendering.IRenderManager RenderManager { get; }
 
-        public SceneInterface(IGraphicsDeviceService _) { }
-        public SceneInterface(GraphicsDeviceManager _) { }
+        // Phase 2.8 sub-phase B2: SceneInterface owns the GraphicsDevice + a
+        // lazy SharedLightingEffect that's re-bound from submitted lights every
+        // frame. RenderScene (B3) is the single forward pass.
+        public GraphicsDevice GraphicsDevice { get; }
+        SceneState LastFrameState;
+        Effects.Forward.LightingEffect SharedFx;
+
+        public SceneInterface(IGraphicsDeviceService gfx)
+        {
+            GraphicsDevice = gfx?.GraphicsDevice;
+            LightManager = new Lights.LightManager();
+            ObjectManager = new Rendering.ObjectManager();
+            RenderManager = new Rendering.RenderManager(this);
+        }
+
+        public SceneInterface(GraphicsDeviceManager gfx)
+        {
+            GraphicsDevice = gfx?.GraphicsDevice;
+            LightManager = new Lights.LightManager();
+            ObjectManager = new Rendering.ObjectManager();
+            RenderManager = new Rendering.RenderManager(this);
+        }
+
         public void CreateDefaultManagers(bool useDeferredRendering, bool usePostProcessing) { }
         public void AddManager(IManagerService m) { }
         public void Update(float deltaTime) { }
-        public void BeginFrameRendering(SceneState s) { }
+        public void BeginFrameRendering(SceneState s) { LastFrameState = s; }
         public void EndFrameRendering() { }
-        public void Unload() { }
         public void ApplyPreferences(LightingSystemPreferences p) { }
-        public void Dispose() { }
+
+        public void Unload()
+        {
+            SharedFx?.Dispose();
+            SharedFx = null;
+        }
+
+        public void Dispose()
+        {
+            Unload();
+            (LightManager as IDisposable)?.Dispose();
+            (ObjectManager as IDisposable)?.Dispose();
+        }
+
+        // Phase 2.8 sub-phase B3: actual forward-render pass.
+        // Iterates ObjectManager.ActiveObjects, applies submitted lights to the
+        // shared LightingEffect, and draws each SceneObject's RenderableMeshes
+        // and AddedModelMeshes. Per-mesh `Effect` overrides the shared effect
+        // (e.g., planet-halo custom shader paths). No-op when device or state
+        // unavailable, or no objects submitted.
+        public void RenderScene()
+        {
+            if (GraphicsDevice == null || LastFrameState == null) return;
+            if (ObjectManager is not Rendering.ObjectManager om) return;
+            if (om.ActiveObjects.Count == 0) return;
+
+            SharedFx ??= new Effects.Forward.LightingEffect(GraphicsDevice);
+
+            // Apply lights + ambient + fog from submitted state ONCE per frame.
+            Ship_Game.Data.Mesh.LightingEffectBinder.Apply(
+                SharedFx, LightManager.ActiveLights, LastFrameState.Environment);
+            SharedFx.View = LastFrameState.View;
+            SharedFx.Projection = LastFrameState.Projection;
+
+            foreach (Rendering.ISceneObject iso in om.ActiveObjects)
+            {
+                if (iso is not Rendering.SceneObject so || !so.HasMeshes) continue;
+                if (so.Visibility == ObjectVisibility.None) continue;
+
+                DrawRenderables(so);
+                DrawModelMeshes(so);
+            }
+        }
+
+        void DrawRenderables(Rendering.SceneObject so)
+        {
+            foreach (Rendering.RenderableMesh rm in so.RenderableMeshes)
+            {
+                if (rm.PrimitiveCount == 0 || rm.VertexBuffer == null || rm.IndexBuffer == null)
+                    continue;
+
+                // Per-mesh effect override; LightingEffect-typed effects are
+                // bound to the same shared light set; non-LightingEffect (e.g.,
+                // planet-halo custom shader) are passed through with caller-set
+                // matrices (stays the legacy contract).
+                var fx = (rm.Effect as Effects.Forward.LightingEffect) ?? SharedFx;
+                fx.World = so.World * rm.World;
+
+                if (rm.DiffuseTexture != null)
+                {
+                    fx.DiffuseMapTexture = rm.DiffuseTexture;
+                    fx.ApplyToBasicEffect();
+                }
+
+                GraphicsDevice.SetVertexBuffer(rm.VertexBuffer);
+                GraphicsDevice.Indices = rm.IndexBuffer;
+                foreach (EffectPass pass in fx.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    GraphicsDevice.DrawIndexedPrimitives(rm.PrimitiveType,
+                        rm.BaseVertex, rm.StartIndex, rm.PrimitiveCount);
+                }
+            }
+        }
+
+        void DrawModelMeshes(Rendering.SceneObject so)
+        {
+            foreach ((ModelMesh mesh, Effect effect) in so.AddedModelMeshes)
+            {
+                var fx = (effect as Effects.Forward.LightingEffect) ?? SharedFx;
+                // Note: parent-bone hierarchy walk omitted for Phase 2 simplicity.
+                // Submeshes inherit SceneObject.World only; bone-aware composite
+                // is a Phase 3 cleanup if/when skeletal hierarchies return.
+                fx.World = so.World;
+
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    if (part.PrimitiveCount == 0) continue;
+                    GraphicsDevice.SetVertexBuffer(part.VertexBuffer);
+                    GraphicsDevice.Indices = part.IndexBuffer;
+                    foreach (EffectPass pass in fx.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+                        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                            part.VertexOffset, part.StartIndex, part.PrimitiveCount);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -127,7 +260,15 @@ namespace SynapseGaming.LightingSystem.Rendering
 
     public class RenderManager : IRenderManager
     {
-        public void Render() { }
+        // Phase 2.8 sub-phase B3: back-ref to SceneInterface so the parameterless
+        // Render() method can pull GraphicsDevice / lights / objects / state from
+        // a single owner. The legacy parameterless ctor stays for any tooling that
+        // constructs the manager standalone (defensive — there's no live caller
+        // doing this today).
+        Core.SceneInterface Owner;
+        public RenderManager() { }
+        public RenderManager(Core.SceneInterface owner) { Owner = owner; }
+        public void Render() => Owner?.RenderScene();
     }
 
     public class AnimationStub
@@ -168,11 +309,50 @@ namespace SynapseGaming.LightingSystem.Rendering
 
     public class RenderableMesh
     {
+        // Phase 2.8 sub-phase A1: ctor args promoted from /dev/null to real storage
+        // so the forward renderer can iterate SceneObject.RenderableMeshes and feed
+        // the bound VB/IB into device.DrawIndexedPrimitives.
+        public SceneObject Owner { get; }
+        public Effect Effect { get; set; }   // setter so renderer can swap to a shared LightingEffect
+        public Matrix World { get; set; }
+        public BoundingSphere BoundingSphere { get; }
+        public IndexBuffer IndexBuffer { get; }
+        public VertexBuffer VertexBuffer { get; }
+        public VertexDeclaration VertexDeclaration { get; }
+        public int StreamOffset { get; }
+        public PrimitiveType PrimitiveType { get; }
+        public int PrimitiveCount { get; }
+        public int BaseVertex { get; }
+        public int NumVertices { get; }
+        public int StartIndex { get; }
+        public int VertexStride { get; }
+
+        // Material data — Phase 2 only uses DiffuseTexture; reserve MaterialOverrides
+        // dict for Phase 3 normal-map / specular / emissive additions.
+        public Texture2D DiffuseTexture { get; set; }
+        public Dictionary<string, object> MaterialOverrides { get; } = new();
+
         public RenderableMesh(SceneObject o, Effect e, Matrix world, BoundingSphere s,
                               IndexBuffer ib, VertexBuffer vb, VertexDeclaration vd,
                               int streamOffset, PrimitiveType pt,
                               int primitiveCount, int baseVertex, int numVertices,
-                              int startIndex, int vertexStride) { }
+                              int startIndex, int vertexStride)
+        {
+            Owner = o;
+            Effect = e;
+            World = world;
+            BoundingSphere = s;
+            IndexBuffer = ib;
+            VertexBuffer = vb;
+            VertexDeclaration = vd;
+            StreamOffset = streamOffset;
+            PrimitiveType = pt;
+            PrimitiveCount = primitiveCount;
+            BaseVertex = baseVertex;
+            NumVertices = numVertices;
+            StartIndex = startIndex;
+            VertexStride = vertexStride;
+        }
     }
 
     public sealed class MeshData : IDisposable
@@ -213,6 +393,7 @@ namespace SynapseGaming.LightingSystem.Lights
 
     public interface ILightManager : ISubmit<ILight>
     {
+        IReadOnlyList<ILight> ActiveLights { get; }
         void Submit(LightRig rig);
         void Clear();
     }
@@ -323,8 +504,55 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
 
     public class LightingEffect : BaseMaterialEffect
     {
-        public LightingEffect(GraphicsDevice device) : base(device) { }
-        public void SetTransparencyModeAndMap(TransparencyMode mode, float alpha, Texture2D map) { }
+        public LightingEffect(GraphicsDevice device) : base(device)
+        {
+            // BasicEffect default: no lights enabled, no texture. Renderer flips
+            // these via ApplyMaterial / ApplyLights / ApplyToBasicEffect.
+            EnableDefaultLighting();
+        }
+
+        // Phase 2.8 sub-phase A3: bridge `new`-shadowed material properties on
+        // BaseMaterialEffect down to the underlying BasicEffect. Without this,
+        // `effect.DiffuseColor = X` writes to BaseMaterialEffect.DiffuseColor
+        // (the `new` slot) and BasicEffect.DiffuseColor stays at default — the
+        // GPU never sees the value. Probe 2 confirmed this is real C# `new`
+        // shadowing semantics.
+        //
+        // Renderer flow: caller sets material/transparency/texture properties
+        // on the LightingEffect (or BaseMaterialEffect) view, then calls
+        // ApplyToBasicEffect() once before pass.Apply() to push values down.
+        public void ApplyToBasicEffect()
+        {
+            // Material — read the shadowed `new` slots, write to BasicEffect base.
+            base.DiffuseColor = DiffuseColor;
+            base.SpecularPower = SpecularPower;
+
+            // Texture: prefer DiffuseMapTexture if assigned; else BasicEffect's own.
+            if (DiffuseMapTexture != null)
+            {
+                Texture = DiffuseMapTexture;
+                TextureEnabled = true;
+            }
+        }
+
+        // Phase 2.8 sub-phase A3: was a stub. Now implements the SunBurn
+        // call-site contract by mapping mode/alpha/map onto BasicEffect's
+        // Alpha + TextureEnabled. Refractive/Standard are mapped to Standard
+        // (no refraction in Phase 2's BasicEffect-backed renderer).
+        public void SetTransparencyModeAndMap(TransparencyMode mode, float alpha, Texture2D map)
+        {
+            Alpha = alpha;
+            if (map != null)
+            {
+                Texture = map;
+                TextureEnabled = true;
+            }
+            else if (mode == TransparencyMode.None)
+            {
+                // No transparency — restore opaque alpha
+                Alpha = 1f;
+            }
+        }
     }
 }
 
