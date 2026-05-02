@@ -472,10 +472,11 @@ namespace Ship_Game
             Log.Write("ScreenManager.LoadContent");
             UpdateGraphicsDevice();
 
-            // TODO Phase 2: example/scene_environment.xnb embeds a SunBurn ContentTypeReader
-            // (SynapseGaming.LightingSystem.Processors.SceneEnvironmentReader_Pro). Once the
-            // SunBurn lighting pipeline is replaced (or the asset is rebaked), restore the
-            // Load call. For Phase 1, skip the load and use a default-constructed stub.
+            // Construct from code rather than loading example/scene_environment.xnb — the
+            // baked XNB embeds SynapseGaming.LightingSystem.Processors.SceneEnvironmentReader_Pro
+            // which doesn't exist post-SunBurn-purge. SceneEnvironment is now a plain data
+            // carrier (ambient + fog); defaults are fine for the menu/ship-design path. If
+            // per-scene environments come back in Phase 3, populate the properties here.
             Environment = new SceneEnvironment();
 
             if (deviceWasReset) // recover

@@ -4,6 +4,7 @@
 // TODO Phase 2: replace with MonoGame-native lighting/rendering implementation.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -53,7 +54,14 @@ namespace SynapseGaming.LightingSystem.Core
         public DetailPreference PostProcessingDetail { get; set; }
     }
 
-    public class SceneEnvironment { }
+    public class SceneEnvironment
+    {
+        public Vector3 AmbientLightColor = new(0.2f, 0.2f, 0.2f);
+        public bool FogEnabled;
+        public Vector3 FogColor = Vector3.Zero;
+        public float FogStart = 1000f;
+        public float FogEnd = 10000f;
+    }
 
     public class SceneState
     {
@@ -110,9 +118,11 @@ namespace SynapseGaming.LightingSystem.Rendering
 
     public class ObjectManager : IObjectManager
     {
-        public void Submit(ISceneObject obj) { }
-        public bool Remove(ISceneObject obj) => false;
-        public void Clear() { }
+        readonly List<ISceneObject> Objects = new();
+        public IReadOnlyList<ISceneObject> ActiveObjects => Objects;
+        public void Submit(ISceneObject obj) { if (obj != null) Objects.Add(obj); }
+        public bool Remove(ISceneObject obj) => obj != null && Objects.Remove(obj);
+        public void Clear() => Objects.Clear();
     }
 
     public class RenderManager : IRenderManager
@@ -142,9 +152,16 @@ namespace SynapseGaming.LightingSystem.Rendering
         public Matrix World { get; set; } = Matrix.Identity;
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
-        public bool HasMeshes => false;
-        public void Add(ModelMesh m, Effect e) { }
-        public void Add(RenderableMesh m) { }
+
+        readonly List<RenderableMesh> Renderables = new();
+        readonly List<(ModelMesh Mesh, Effect Effect)> ModelMeshes = new();
+
+        public IReadOnlyList<RenderableMesh> RenderableMeshes => Renderables;
+        public IReadOnlyList<(ModelMesh Mesh, Effect Effect)> AddedModelMeshes => ModelMeshes;
+        public bool HasMeshes => Renderables.Count > 0 || ModelMeshes.Count > 0;
+
+        public void Add(ModelMesh m, Effect e) { if (m != null) ModelMeshes.Add((m, e)); }
+        public void Add(RenderableMesh m) { if (m != null) Renderables.Add(m); }
         public void AffineTransform(Vector3 pos, Vector3 rotRads, Vector3 scale) { }
         public void UpdateAnimation(float deltaTime) { }
     }
@@ -202,12 +219,14 @@ namespace SynapseGaming.LightingSystem.Lights
 
     public class LightManager : ILightManager, SynapseGaming.LightingSystem.Core.IManagerService
     {
+        readonly List<ILight> Lights = new();
+        public IReadOnlyList<ILight> ActiveLights => Lights;
         public LightManager() { }
         public LightManager(IGraphicsDeviceService _) { }
-        public void Submit(LightRig rig) { }
-        public void Submit(ILight light) { }
-        public bool Remove(ILight light) => false;
-        public void Clear() { }
+        public void Submit(LightRig rig) { } // LightRig is a data-less stub; nothing to extract
+        public void Submit(ILight light) { if (light != null) Lights.Add(light); }
+        public bool Remove(ILight light) => light != null && Lights.Remove(light);
+        public void Clear() => Lights.Clear();
     }
 
     public class LightRig { }
