@@ -448,7 +448,10 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
-                Log.Assert(thruster.technique != null, "Thruster technique not initialized");
+                // thruster.Draw self-guards against null Effect/technique (Phase 2.2
+                // stub for Effects/Thrust.xnb). Removed the Log.Assert that fired on
+                // every frame because in Debug it triggers Debugger.Break — looking
+                // like a crash to anyone running with a debugger attached.
                 thruster.Draw(ref view, ref projection);
                 thruster.Draw(ref view, ref projection);
             }

@@ -66,6 +66,13 @@ namespace Ship_Game
 
         public void Draw(ref Matrix view, ref Matrix project)
         {
+            // Effect/technique are null when Effects/Thrust.xnb is on the Phase 2.2
+            // broken-Effect-XNB stub list (XNA 3.1 D3DX bytecode incompatible with MGFX).
+            // Skip rendering the thruster cone instead of NRE-ing the entire draw call.
+            // TODO Phase 3: rewrite Thrust shader as HLSL/MGFX so this guard becomes dead.
+            if (Effect == null || technique == null)
+                return;
+
             matrices_combined[0] = world_matrix;
             matrices_combined[1] = (world_matrix * view) * project;
             matrices_combined[2] = inverse_scale_transpose;

@@ -192,7 +192,21 @@ namespace Ship_Game
 
         public void AssignLightRig(LightRigIdentity identity, string rigContentPath)
         {
-            var lightRig = TransientContent.Load<LightRig>(rigContentPath);
+            // Phase 2: light rig XNBs are baked against SunBurn type-readers that
+            // are gone post-1.9 purge. LightRig itself is a stub with no data, so
+            // even on success there's nothing to extract. Catch the load failure
+            // and assign an empty rig — matches the no-op semantics of LightManager.Submit(LightRig).
+            // TODO Phase 3: rebake light rigs as plain data (YAML?) and remove this guard.
+            LightRig lightRig;
+            try
+            {
+                lightRig = TransientContent.Load<LightRig>(rigContentPath);
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"Phase 2 stub: LightRig '{rigContentPath}' load failed ({e.GetType().Name}); using empty rig");
+                lightRig = new LightRig();
+            }
             ScreenManager.AssignLightRig(identity, lightRig);
         }
 

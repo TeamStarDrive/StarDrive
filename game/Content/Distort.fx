@@ -16,43 +16,36 @@ float SampleWeights[SAMPLE_COUNT];
 // channel there is no exact value for 0.5. ZeroOffset adjusts for this error.
 const float ZeroOffset = 0.5f / 255.0f;
 
-float4 Distort_PixelShader(float2 TexCoord : TEXCOORD0, 
-    uniform bool distortionBlur) : COLOR0
+// Phase 2.8 (mgfxc port): mgfxc's parser does not support function-call arguments
+// on `compile` (XNA's fxc did). Split the original `uniform bool distortionBlur`
+// specialization into two zero-arg pixel shaders.
+float4 Distort_NoBlur_PixelShader(float2 TexCoord : TEXCOORD0) : COLOR0
 {
-    // Look up the displacement
     float2 displacement = tex2D(DistortionMap, TexCoord).rg;
-    
-    float4 finalColor = 0;
-    // We need to constrain the area potentially subjected to the gaussian blur to the
-    // distorted parts of the scene texture.  Therefore, we can sample for the color
-    // we used to clear the distortion map (black).  We used 0 to avoid any potential
-    // rounding errors.
+
     if ((displacement.x == 0) && (displacement.y == 0))
-    {
-        finalColor = tex2D(SceneTexture, TexCoord);
-    }
-    else
-    {
-        // Convert from [0,1] to [-.5, .5) 
-        // .5 is excluded by adjustment for zero
-        displacement -= .5 + ZeroOffset;
+        return tex2D(SceneTexture, TexCoord);
 
-        if (distortionBlur)
-        {
-            // Combine a number of weighted displaced-image filter taps
-            for (int i = 0; i < SAMPLE_COUNT; i++)
-            {
-                finalColor += tex2D(SceneTexture, TexCoord.xy + displacement + 
-                    SampleOffsets[i]) * SampleWeights[i];
-            }
-        }
-        else
-        {
-            // Look up the displaced color, without multisampling
-            finalColor = tex2D(SceneTexture, TexCoord.xy + displacement);  
-        }
-    }
+    // Convert from [0,1] to [-.5, .5)
+    displacement -= .5 + ZeroOffset;
+    return tex2D(SceneTexture, TexCoord.xy + displacement);
+}
 
+float4 Distort_Blur_PixelShader(float2 TexCoord : TEXCOORD0) : COLOR0
+{
+    float2 displacement = tex2D(DistortionMap, TexCoord).rg;
+
+    if ((displacement.x == 0) && (displacement.y == 0))
+        return tex2D(SceneTexture, TexCoord);
+
+    displacement -= .5 + ZeroOffset;
+
+    float4 finalColor = 0;
+    for (int i = 0; i < SAMPLE_COUNT; i++)
+    {
+        finalColor += tex2D(SceneTexture, TexCoord.xy + displacement +
+            SampleOffsets[i]) * SampleWeights[i];
+    }
     return finalColor;
 }
 
@@ -60,7 +53,7 @@ technique Distort
 {
     pass
     {
-        PixelShader = compile ps_1_4 Distort_PixelShader(false);
+        PixelShader = compile ps_4_0_level_9_1 Distort_NoBlur_PixelShader();
     }
 }
 
@@ -68,6 +61,6 @@ technique DistortBlur
 {
     pass
     {
-        PixelShader = compile ps_2_0 Distort_PixelShader(true);
+        PixelShader = compile ps_4_0_level_9_1 Distort_Blur_PixelShader();
     }
 }

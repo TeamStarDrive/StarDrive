@@ -52,8 +52,8 @@ technique DisplacementMapped
 {
     pass
     {
-        VertexShader = compile vs_1_1 TransformAndTexture_VertexShader();
-        PixelShader = compile ps_1_1 Textured_PixelShader();
+        VertexShader = compile vs_4_0_level_9_1 TransformAndTexture_VertexShader();
+        PixelShader = compile ps_4_0_level_9_1 Textured_PixelShader();
     }
 }
 
@@ -99,8 +99,8 @@ technique HeatHaze
 {
     pass
     {
-        VertexShader = compile vs_1_1 TransformAndCopyPosition_VertexShader();
-        PixelShader = compile ps_2_0 HeatHaze_PixelShader();
+        VertexShader = compile vs_4_0_level_9_1 TransformAndCopyPosition_VertexShader();
+        PixelShader = compile ps_4_0_level_9_1 HeatHaze_PixelShader();
     }
 }
 
@@ -146,8 +146,8 @@ technique PullIn
 {
     pass
     {
-        VertexShader = compile vs_1_1 PullIn_VertexShader();
-        PixelShader = compile ps_1_4 DisplacementPassthrough_PixelShader();
+        VertexShader = compile vs_4_0_level_9_1 PullIn_VertexShader();
+        PixelShader = compile ps_4_0_level_9_1 DisplacementPassthrough_PixelShader();
     }
 }
 
@@ -173,7 +173,7 @@ technique ZeroDisplacement
 {
     pass
     {
-        VertexShader = compile vs_1_1 TransformOnly_VertexShader();
-        PixelShader = compile ps_1_1 ZeroDisplacement_PixelShader();
+        VertexShader = compile vs_4_0_level_9_1 TransformOnly_VertexShader();
+        PixelShader = compile ps_4_0_level_9_1 ZeroDisplacement_PixelShader();
     }
 }
