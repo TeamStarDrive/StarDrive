@@ -74,11 +74,19 @@ namespace Ship_Game.Data.Texture
         static extern IntPtr LoadPNGImage([MarshalAs(UnmanagedType.LPStr)] string filename,
                                           OnImageLoaded onLoaded);
 
-        public static Texture2D LoadPng(GraphicsDevice device, string filename)
+        // premultiplyAlpha=false matches the atlas pipeline contract (atlas reload PNGs
+        // already contain premul bytes from CreateAtlasTexture's PremultiplyAlpha call,
+        // and atlas source loads must stay non-premul so atlas-DDS roundtrip's LoadDds
+        // premul applies exactly once). Direct sprite callers (cursors, standalone UI
+        // PNGs with alpha) should pass premultiplyAlpha=true so SpriteBatch.AlphaBlend
+        // (which expects premul) doesn't saturate bright-and-transparent pixels to white.
+        public static Texture2D LoadPng(GraphicsDevice device, string filename, bool premultiplyAlpha = false)
         {
             Texture2D tex = null;
             void OnLoaded(Color[] color, int size, int width, int height)
             {
+                if (premultiplyAlpha)
+                    PremultiplyAlpha(color, size);
                 tex = new Texture2D(device, width, height, false, SurfaceFormat.Color);
                 tex.SetData(color);
             }
@@ -116,7 +124,7 @@ namespace Ship_Game.Data.Texture
             return tex;
         }
 
-        static void PremultiplyAlpha(Color[] pixels, int count)
+        public static void PremultiplyAlpha(Color[] pixels, int count)
         {
             for (int i = 0; i < count; ++i)
             {

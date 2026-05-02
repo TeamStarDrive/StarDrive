@@ -205,7 +205,7 @@ DLLEXPORT const char* __stdcall LoadPNGImage(const char* filename, OnImageLoaded
     else if constexpr (PngImporter == ImageLib::LibPng)
     {
         PngLoader png;
-        err = png.load(filename, /*flipVertically:*/false, /*bgr:*/true);
+        err = png.load(filename, /*flipVertically:*/false, /*bgr:*/false);
         if (err)
         {
             fprintf(stderr, "LoadPNGImage failed: %s %dx%d %s\n", filename, png.width, png.height, err);

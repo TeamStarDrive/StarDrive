@@ -112,14 +112,14 @@ namespace Ship_Game.SpriteSystem
 
                 bool alpha = ImageUtils.HasTransparentPixels(color, Width, Height);
                 
-                DDSFlags flags = alpha ? DDSFlags.Dxt5BGRA : DDSFlags.Dxt1BGRA;
+                DDSFlags flags = alpha ? DDSFlags.Dxt5 : DDSFlags.Dxt1;
                 ImageUtils.ConvertToDDS(path, Width, Height, color, flags);
             }
             else if (format == SurfaceFormat.Bgr32)
             {
                 var color = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(color);
-                ImageUtils.ConvertToDDS(path, Width, Height, color, DDSFlags.Dxt1BGRA);
+                ImageUtils.ConvertToDDS(path, Width, Height, color, DDSFlags.Dxt1);
             }
             else
             {

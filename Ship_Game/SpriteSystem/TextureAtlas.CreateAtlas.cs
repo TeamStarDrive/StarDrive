@@ -27,19 +27,18 @@ namespace Ship_Game.SpriteSystem
                 // We compress the DDS color into DXT5 and then reload it later through XNA
                 // DXT5 size in mem after loading is 4x smaller than RGBA32, but quality sucks!
                 // DXT1 size in mem is 8x smaller than RGBA32
-                DDSFlags format = (flags & AtlasFlags.Alpha) != 0 ? DDSFlags.Dxt5BGRA : DDSFlags.Dxt1BGRA;
+                DDSFlags format = (flags & AtlasFlags.Alpha) != 0 ? DDSFlags.Dxt5 : DDSFlags.Dxt1;
                 ImageUtils.ConvertToDDS(texturePath, Width, Height, color, format);
             }
             else
             {
-                // Phase 2.4: PNG fallback for AtlasNoCompress atlases (EmpireTopBar,
-                // NewUI, Popup). atlasPixels is BGRA — symmetric with the compressed
-                // branch above which tells SDNative via DDSFlags.Dxt5BGRA. Without an
-                // explicit BGRA→RGBA swap here, the PNG ends up with BGRA bytes
-                // tagged as RGBA in the file header; SDNative.LoadPNGImage then swaps
-                // a second time on load, producing red/blue inversion ("blue tint").
-                // Save via SDNative directly to skip a throwaway GPU round-trip.
-                ImageUtils.ConvertToRGBA(Width, Height, color);
+                // PNG fallback for AtlasNoCompress atlases (EmpireTopBar, NewUI, Popup).
+                // SpriteBatch's AlphaBlend uses the premultiplied formula. The atlas-DDS
+                // path gets premul applied at LoadDds time; the PNG path's LoadPng does
+                // not premultiply, so we bake premultiplication into the saved PNG to
+                // keep the same on-GPU contract. Without this, bright-and-transparent
+                // pixels in NewUI/EmpireTopBar/Popup atlases saturate to white at draw.
+                ImageUtils.PremultiplyAlpha(color, color.Length);
                 ImageUtils.SaveAsPng(System.IO.Path.ChangeExtension(texturePath, "png"), Width, Height, color);
             }
         }

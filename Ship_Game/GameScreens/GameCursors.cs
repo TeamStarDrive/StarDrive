@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
+using Ship_Game.Data.Texture;
 #pragma warning disable CA1060
 
 namespace Ship_Game.GameScreens
@@ -105,7 +106,11 @@ namespace Ship_Game.GameScreens
             var wrappedCursor = new GameCursor();
             if (software)
             {
-                Texture2D texture = game.Content.LoadTexture(file);
+                // Direct PNG load with premultiplyAlpha:true — software cursors are
+                // drawn via SpriteBatch.AlphaBlend (premul math), so the cursor PNG
+                // must be premul to avoid bright-and-transparent edges saturating to white.
+                Texture2D texture = ImageUtils.LoadPng(game.GraphicsDevice, file.FullName, premultiplyAlpha:true);
+                texture.Name = file.FullName;
                 wrappedCursor.SoftwareCursor = texture;
                 wrappedCursor.HotSpot = new Vector2(hotSpotX*texture.Width, hotSpotY*texture.Height);
             }
