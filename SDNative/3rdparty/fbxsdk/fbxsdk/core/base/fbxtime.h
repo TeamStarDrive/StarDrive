@@ -74,7 +74,7 @@ public:
 		  * - \e eFrames50          50 frames/s
 		  * - \e eFrames48          48 frame/s
 		  * - \e eFrames30          30 frames/s (black and white NTSC)
-		  * - \e eFrames30Drop		30 frames/s (use when display in frame is selected, equivalent to NTSC drop)
+		  * - \e eFrames30Drop		Kept for legacy reasons. Being equivalent to NTSC drop, use eNTSCDropFrame instead.
 		  * - \e eNTSCDropFrame		~29.97 frames/s drop color NTSC
 		  * - \e eNTSCFullFrame		~29.97 frames/s color NTSC
 		  * - \e ePAL				25 frames/s	PAL/SECAM
@@ -85,6 +85,7 @@ public:
 		  * - \e eFrames96			96 frames/s
 		  * - \e eFrames72			72 frames/s
 		  * - \e eFrames59dot94		~59.94 frames/s
+		  * - \e eFrames119dot88	~119.88 frames/s
 		  * - \e eModesCount		Number of time modes
 		  */
 		enum EMode
@@ -107,6 +108,7 @@ public:
 			eFrames96,
 			eFrames72,
 			eFrames59dot94,
+			eFrames119dot88,
 			eModesCount
 		};
 

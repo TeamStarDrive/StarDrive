@@ -718,12 +718,31 @@ namespace Ship_Game.Data
             AssetName asset = new(meshName);
             if (TryGetAsset(asset.RelPathWithExt, out StaticMesh mesh))
                 return mesh;
-            
-            if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadStaticMesh {asset.RelPathWithExt}");
 
-            if (RawContentLoader.IsSupportedMesh(asset.RelPathWithExt))
+            // Phase 3.2: prefer .fbx/.obj sibling over stubbed .xnb. The XNB Model
+            // ContentTypeReader chain is still stubbed (§3.4 work); routing to the
+            // raw asset unblocks the visual restore for content shipping both
+            // source (.fbx/.obj) and baked (.xnb) forms — currently the 9 asteroids.
+            string loadPath = asset.RelPathWithExt;
+            if (loadPath.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase))
             {
-                mesh = RawContent.LoadStaticMesh(asset.RelPathWithExt);
+                string baseName = loadPath.Substring(0, loadPath.Length - 4);
+                foreach (string ext in new[] { ".fbx", ".obj" })
+                {
+                    string candidate = baseName + ext;
+                    if (File.Exists(RawContentLoader.GetContentPath(candidate)))
+                    {
+                        loadPath = candidate;
+                        break;
+                    }
+                }
+            }
+
+            if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadStaticMesh {loadPath}");
+
+            if (RawContentLoader.IsSupportedMesh(loadPath))
+            {
+                mesh = RawContent.LoadStaticMesh(loadPath);
             }
             else
             {

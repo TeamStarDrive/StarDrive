@@ -1,6 +1,6 @@
 /****************************************************************************************
  
-   Copyright (C) 2015 Autodesk, Inc.
+   Copyright (C) 2017 Autodesk, Inc.
    All rights reserved.
  
    Use of this software is subject to the terms of the Autodesk license agreement
@@ -82,10 +82,22 @@ public:
 
     /** This method will decode a string that has a ncl2 to it
     * \param pString
-    * \return Returns true if the pString has been modified
+    * \return Returns true if the pString has been fully modified according to the ncl2 codes
+    * or false if only a partial conversion (or no conversion at all) took place.
     */
     static bool DecodeCaseInsensitive(FbxString &pString);
 
+	/** Returns a name with its prefix removed.
+	* \param pName    A name containing a prefix.
+	* \return         The part of pName following the "::"
+	*/
+	static FbxString NoPrefixName(const char* pName);
+
+	/** Returns a name with its prefix removed.
+	* \param pName    A name containing a prefix.
+	* \return         The part of pName following the "::"
+	*/
+	static FbxString NoPrefixName(FbxString& pName);
 };
 
 #include <fbxsdk/fbxsdk_nsend.h>

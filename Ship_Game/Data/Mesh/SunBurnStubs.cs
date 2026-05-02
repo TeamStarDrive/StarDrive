@@ -369,7 +369,6 @@ namespace SynapseGaming.LightingSystem.Rendering
 
         public void Add(ModelMesh m, Effect e) { if (m != null) ModelMeshes.Add((m, e)); }
         public void Add(RenderableMesh m) { if (m != null) Renderables.Add(m); }
-        public void AffineTransform(Vector3 pos, Vector3 rotRads, Vector3 scale) { }
         public void UpdateAnimation(float deltaTime) { }
     }
 

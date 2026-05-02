@@ -15,8 +15,11 @@ namespace UnitTests.Data;
 ///   - SdVertexData.CopyIndices/CopyVertices/CreateDeclaration (un-stubbed in this sub-phase)
 ///   - SDNative SDMeshOpen for OBJ in x64
 ///   - MeshImporter.LoadMeshGroups assembly path (material map, bounds merge, group iter)
-/// FBX import is still gated by the SDK 2018→2020 ABI fix; covered by a separate
-/// test once §2.10 re-enables it.
+///
+/// Phase 3.2 extension: asteroid .fbx tests now also exercise the FBX 2020.3.7 SDK path
+/// (un-stubbed by dropping NANOMESH_NO_FBX=1). Catches regressions in Mesh_Fbx.cpp's
+/// FBX SDK use, the SDNative-side FbxArray ABI alignment, and the .fbx → SDMeshOpen
+/// extension routing in RawContentLoader.
 /// </summary>
 [TestClass]
 public class MeshImporterTests : StarDriveTest
@@ -47,6 +50,57 @@ public class MeshImporterTests : StarDriveTest
         // broken file or the buffer-copy methods produced empty buffers.
         Assert.IsTrue(totalVerts >= 50, $"Total verts={totalVerts}, expected >=50");
         Assert.IsTrue(totalPrims >= 50, $"Total prims={totalPrims}, expected >=50");
+    }
+
+    // Phase 3.2: ResourceManager.LoadAsteroids() walks the Asteroids folder for
+    // .xnb files and calls LoadStaticMesh with the .xnb path. With the XNB Model
+    // pipeline still stubbed (§3.4 work), the .xnb→.fbx sibling fallback in
+    // GameContentManager.LoadStaticMesh is what lets asteroids render. Pin it.
+    [TestMethod]
+    public void LoadStaticMesh_AsteroidXnb_FallsBackToFbxSibling()
+    {
+        StaticMesh mesh = Content.LoadStaticMesh("Model/Asteroids/asteroid1.xnb");
+        Assert.IsNotNull(mesh);
+        Assert.IsFalse(mesh.RawMeshes.IsEmpty,
+            "Asking for asteroid1.xnb should fall back to asteroid1.fbx and load real geometry; " +
+            "got an empty mesh, meaning the .xnb→.fbx fallback in LoadStaticMesh is broken.");
+    }
+
+    [DataTestMethod]
+    [DataRow("Model/Asteroids/asteroid1.fbx")]
+    [DataRow("Model/Asteroids/asteroid2.fbx")]
+    [DataRow("Model/Asteroids/asteroid3.fbx")]
+    [DataRow("Model/Asteroids/asteroid4.fbx")]
+    [DataRow("Model/Asteroids/asteroid5.fbx")]
+    [DataRow("Model/Asteroids/asteroid6.fbx")]
+    [DataRow("Model/Asteroids/asteroid7.fbx")]
+    [DataRow("Model/Asteroids/asteroid8.fbx")]
+    [DataRow("Model/Asteroids/asteroid9.fbx")]
+    public void ImportStaticMesh_AsteroidFbx_HasNonZeroGeometry(string assetPath)
+    {
+        StaticMesh mesh = Content.LoadStaticMesh(assetPath);
+
+        Assert.IsNotNull(mesh, $"LoadStaticMesh returned null for '{assetPath}'");
+        Assert.IsFalse(mesh.RawMeshes.IsEmpty,
+            $"'{assetPath}': RawMeshes empty — SDMeshOpen likely returned null. " +
+            $"Indicates FBX SDK 2020 lib/header mismatch or Mesh_Fbx.cpp regression.");
+
+        int totalVerts = 0, totalPrims = 0;
+        foreach (MeshData md in mesh.RawMeshes)
+        {
+            Assert.IsNotNull(md.VertexBuffer, $"'{assetPath}' group '{md.Name}': VertexBuffer is null");
+            Assert.IsNotNull(md.IndexBuffer, $"'{assetPath}' group '{md.Name}': IndexBuffer is null");
+            Assert.IsTrue(md.VertexCount > 0, $"'{assetPath}' group '{md.Name}': VertexCount={md.VertexCount}");
+            Assert.IsTrue(md.PrimitiveCount > 0, $"'{assetPath}' group '{md.Name}': PrimitiveCount={md.PrimitiveCount}");
+            totalVerts += md.VertexCount;
+            totalPrims += md.PrimitiveCount;
+        }
+
+        // Asteroid meshes are very low-poly rocks (smallest are ~44 prims).
+        // 30 is a sanity floor against a parser regression that produces a
+        // single-tri or degenerate mesh.
+        Assert.IsTrue(totalVerts >= 30, $"'{assetPath}': total verts={totalVerts}");
+        Assert.IsTrue(totalPrims >= 30, $"'{assetPath}': total prims={totalPrims}");
     }
 
     [TestMethod]

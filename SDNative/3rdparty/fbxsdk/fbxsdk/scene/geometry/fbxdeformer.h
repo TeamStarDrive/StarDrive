@@ -66,10 +66,10 @@ public:
           */
         enum EDeformerType
         {
-            eUnknown,		//!< Unknown deformer type
-            eSkin,			//!< Type FbxSkin
-			eBlendShape,	//!< Type FbxBlendShape
-            eVertexCache	//!< Type FbxVertexCacheDeformer
+            eUnknown,    //!< Unknown deformer type
+            eSkin,       //!< Type FbxSkin
+            eBlendShape, //!< Type FbxBlendShape
+            eVertexCache //!< Type FbxVertexCacheDeformer
         };
 
         /** Get the deformer type.
@@ -83,8 +83,8 @@ public:
 *****************************************************************************************************************************/
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 protected:
-	virtual void Construct(const FbxObject* pFrom);
-	virtual FbxStringList GetTypeFlags() const { return FbxStringList(); }
+	void Construct(const FbxObject* pFrom) override;
+	FbxStringList GetTypeFlags() const  override { return FbxStringList(); }
 
 	bool		mMultiLayer;
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS *****************************************************************************************/

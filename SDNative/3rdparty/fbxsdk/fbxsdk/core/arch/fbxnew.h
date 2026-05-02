@@ -356,23 +356,40 @@ template<typename T> void FbxDelete(const T* p)
 	}
 }
 
-template<typename T> T* FbxNewArray(const int n)
+#ifdef FBXSDK_CPU_32
+#define MALLOC_HEADER_SIZE 8
+#endif
+#ifdef FBXSDK_CPU_64
+#define MALLOC_HEADER_SIZE 16
+#endif
+
+template<typename T,typename I> T* FbxNewArray(const I n)
 {
+	const size_t lSize = FbxAllocSize(n, sizeof(T));
 	if( FBXSDK_IS_SIMPLE_TYPE(T) )
 	{
-		return (T*)FbxMalloc(sizeof(T)*n);
+		return (T*)FbxMalloc(lSize);
 	}
 	else
 	{
-		void* pTmp = FbxMalloc(sizeof(T) * n + sizeof(int));
-		T* p = (T*)((int*)pTmp+1);
-		*((int*)pTmp) = n;
-		for( int i = 0; i < n; ++i )
+		// malloc usually provides 8-byte or 16-byte alignment on 32bit and 64bit architectures
+		// respectively. By allocating 8 or 16 bytes for the header info, rather than sizeof(int),
+		// we ensure this function maintains the same alignment behaviour as malloc.
+		void* const pTmp = FbxMalloc(lSize + MALLOC_HEADER_SIZE);
+		*static_cast<size_t*>(pTmp) = n;
+		T* const p = reinterpret_cast<T*>(static_cast<char*>(pTmp) + MALLOC_HEADER_SIZE);
+
+		for(size_t i = 0; i < n; ++i )
 		{
-			new((T*)p+i)T;	//in-place new, not allocating memory so it is safe.
+			new(p+i)T; // in-place new, not allocating memory so it is safe.
 		}
 		return p;
 	}
+}
+
+template<typename T> T* FbxNewArray(const int n)
+{
+	return FbxNewArray<T,size_t>((size_t)n);
 }
 
 template<typename T> void FbxDeleteArray(T* p)
@@ -381,11 +398,22 @@ template<typename T> void FbxDeleteArray(T* p)
 	{
 		if( !FBXSDK_IS_SIMPLE_TYPE(T) )
 		{
-			for( int i = 0; i < ((int*)p)[-1]; ++i )
+// When compiling on MacOS with libstdc++ we cannot use remove_const (it does not exist - not C++11)
+#ifndef USING_LIBSTDCPP
+			typedef typename std::remove_const<T>::type TMutable;
+			TMutable* const pMutable = const_cast<TMutable*>(p);
+			// FbxNewArray allocates MALLOC_HEADER_SIZE extra bytes as a header to store the array length
+			void* const pTmp = reinterpret_cast<char*>(pMutable) - MALLOC_HEADER_SIZE;
+            const int n = *static_cast<int*>(pTmp);
+#else
+            void* const pTmp = (char*)(p) - MALLOC_HEADER_SIZE;
+            const int n = *(int*)(pTmp);
+#endif			
+			for( int i = 0; i < n; ++i )
 			{
-				((T*)p)[i].~T();
+				p[i].~T();
 			}
-			FbxFree((int*)p-1);
+			FbxFree(pTmp);
 		}
 		else
 		{
