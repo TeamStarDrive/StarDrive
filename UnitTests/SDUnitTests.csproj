@@ -58,6 +58,7 @@
     <Compile Include="Content\EffectXnbCompatTests.cs" />
     <Compile Include="Data\TestAudioConfig.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
+    <Compile Include="Data\MeshImporterTests.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />

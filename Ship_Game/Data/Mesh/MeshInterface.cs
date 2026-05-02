@@ -83,20 +83,38 @@ namespace Ship_Game.Data.Mesh
 
             public IndexBuffer CopyIndices(GraphicsDevice device)
             {
-                // TODO Phase 2: mesh import disabled in Phase 1
-                throw new NotImplementedException("MeshInterface.SdVertexData.CopyIndices stubbed in Phase 1");
+                ushort* src = IndexData;
+                var dst = new ushort[IndexCount];
+                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
+
+                var buf = new IndexBuffer(device, IndexElementSize.SixteenBits, IndexCount, BufferUsage.WriteOnly);
+                buf.SetData(dst);
+                return buf;
             }
 
-            public VertexBuffer CopyVertices(GraphicsDevice device)
+            public VertexBuffer CopyVertices(GraphicsDevice device, VertexDeclaration declaration)
             {
-                // TODO Phase 2: mesh import disabled in Phase 1
-                throw new NotImplementedException("MeshInterface.SdVertexData.CopyVertices stubbed in Phase 1");
+                byte* src = VertexData;
+                var dst = new byte[VertexStride*VertexCount];
+                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
+
+                var buf = new VertexBuffer(device, declaration, VertexCount, BufferUsage.WriteOnly);
+                buf.SetData(dst);
+                return buf;
             }
 
-            public VertexDeclaration CreateDeclaration(GraphicsDevice device)
+            // MonoGame VertexElement ctor is 4-arg (offset, format, usage, usageIndex);
+            // XNA 3.1's VertexElementMethod was dropped. VertexDeclaration takes the
+            // element array directly — no GraphicsDevice arg.
+            public VertexDeclaration CreateDeclaration()
             {
-                // TODO Phase 2: mesh import disabled in Phase 1
-                throw new NotImplementedException("MeshInterface.SdVertexData.CreateDeclaration stubbed in Phase 1");
+                var elements = new VertexElement[LayoutCount];
+                for (int i = 0; i < LayoutCount; ++i)
+                {
+                    elements[i] = new VertexElement(Layout[i].Offset, Layout[i].Format,
+                                                    Layout[i].Usage, 0);
+                }
+                return new VertexDeclaration(elements);
             }
         };
 
