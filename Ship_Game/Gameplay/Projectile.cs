@@ -459,7 +459,14 @@ namespace Ship_Game.Gameplay
 
         public static void DrawMesh(GameScreen screen, StaticMesh mesh, in Matrix world, Texture2D texture, float scale)
         {
+            // Phase 2.8.C: many projectile XNB meshes still hit the GameContentManager.LoadStaticMesh
+            // stub (SunBurn ContentTypeReader unresolvable; see project_phase2_xnb_model_drift.md)
+            // and come back as empty StaticMesh — no RawMeshes, no ModelMeshes, no effects. Skip
+            // the draw rather than NRE on the missing effect; the projectile's particle trail
+            // (ProjectileTrail / FireTrail) still spawns from Projectile.UpdateLogic.
             BasicEffect effect = mesh.GetFirstEffect<BasicEffect>();
+            if (effect == null) return;
+
             effect.World = Matrix.CreateScale(scale) * world;
             effect.View = screen.View;
             effect.Projection = screen.Projection;
