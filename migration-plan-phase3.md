@@ -72,6 +72,7 @@ The user runs `game/StarDrive.exe`. The process:
 | 3.1 | Baseline checkpoint, Phase 3 branch, asset inventory CSV | Low |
 | 3.2 | FBX SDK 2018 → 2020 ABI restoration; un-stub asteroid `.fbx` path | Medium |
 | 3.3 | Effect XNB-3.1 → MGFX shim; restore 6 broken effects | Medium–High |
+| **3.3.A** | **Fix Phase 2.3 SpriteFont rebake size regression (NEXT-SESSION PRIORITY)** | Medium |
 | 3.4 | XNB Model decode — static meshes (~210 of 276) | **High** |
 | 3.5 | XNB Model decode — skinned/animated meshes + animation runtime | **Very High** |
 | 3.6 | MainMenu Mars 3D sphere; Phase 2 cosmetic carryover cleanup | Low–Medium |
