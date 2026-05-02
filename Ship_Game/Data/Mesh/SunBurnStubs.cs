@@ -178,11 +178,18 @@ namespace SynapseGaming.LightingSystem.Core
                 var fx = (rm.Effect as Effects.Forward.LightingEffect) ?? SharedFx;
                 fx.World = so.World * rm.World;
 
+                // Phase 2.8.C hotfix #3: planet bodies (and other SO consumers
+                // that wire textures via the LightingEffect's own DiffuseMapTexture
+                // — see PlanetType.CreateMaterial) had their textures stranded on
+                // the LightingEffect's `new`-shadowed slot because ApplyToBasicEffect
+                // was only called when the renderable carried its own
+                // rm.DiffuseTexture override. Result: BasicEffect.Texture stayed
+                // null → planet rendered as an unlit dark sphere against the
+                // dark space background → invisible. Always pull from the shadow
+                // slots; rm.DiffuseTexture (when set) overrides only the texture.
                 if (rm.DiffuseTexture != null)
-                {
                     fx.DiffuseMapTexture = rm.DiffuseTexture;
-                    fx.ApplyToBasicEffect();
-                }
+                fx.ApplyToBasicEffect();
 
                 GraphicsDevice.SetVertexBuffer(rm.VertexBuffer);
                 GraphicsDevice.Indices = rm.IndexBuffer;
@@ -204,6 +211,7 @@ namespace SynapseGaming.LightingSystem.Core
                 // Submeshes inherit SceneObject.World only; bone-aware composite
                 // is a Phase 3 cleanup if/when skeletal hierarchies return.
                 fx.World = so.World;
+                fx.ApplyToBasicEffect(); // see DrawRenderables for the why
 
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
