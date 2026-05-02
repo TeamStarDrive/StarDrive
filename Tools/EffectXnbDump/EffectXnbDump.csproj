@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Platforms>x64</Platforms>
+    <RootNamespace>EffectXnbDump</RootNamespace>
+    <AssemblyName>EffectXnbDump</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <Deterministic>true</Deterministic>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />
+  </ItemGroup>
+
+  <!-- Phase 3.3 step 1: one-shot wire-format inventory of the 6 broken effect
+       XNBs. LZX-decompresses, dumps the type-reader manifest, shared-resource
+       count, primary-asset id, and a hex view of the body remainder so we can
+       decode the XNA 3.1 Effect payload empirically. Not in StarDrive.sln. -->
+
+</Project>

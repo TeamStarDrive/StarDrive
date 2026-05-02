@@ -35,16 +35,24 @@ namespace Ship_Game.Data
 
         readonly object LoadSync = new();
 
-        // TODO Phase 2.2: each name here must be rewritten as HLSL and MGFX-compiled,
-        // then removed from this set. See memory: project_phase2_effect_xnb_drift.md
+        // Phase 3.3: each XNA 3.1 D3DX-compiled Effect XNB still in this set is
+        // hand-rewritten as HLSL and shipped as a .mgfxo sibling — preferred via the
+        // .xnb -> .mgfxo fallback in LoadAsset before this stub fires. As entries are
+        // restored (mgfxo built + verified), remove them here. The set itself can go
+        // once it's empty. See memory: project_phase2_effect_xnb_drift.md
+        //
+        // 2026-05-02: Effects/desaturate.xnb restored via desaturate.mgfxo (probe).
+        // 2026-05-02: BasicFogOfWar attempted + reverted — 4-instruction PS rewrite did
+        //   not produce the right fog mask; revisit with a deeper RT-state audit
+        //   (LightsTarget content, sampler/RT-format coupling, alpha semantics).
+        // 2026-05-03: Effects/PlanetHalo.xnb restored via PlanetHalo.mgfxo (vs_2_0+ps_2_0
+        //   atmospheric ring rewrite; no textures so no sampler-binding pitfalls).
         static readonly HashSet<string> Phase2BrokenEffectXnbs = new(StringComparer.OrdinalIgnoreCase)
         {
             "Effects/BeamFX.xnb",
             "Effects/scale.xnb",
             "Effects/Thrust.xnb",
-            "Effects/desaturate.xnb",
             "Effects/BasicFogOfWar.xnb",
-            "Effects/PlanetHalo.xnb",
         };
         static readonly HashSet<string> Phase2WarnedEffects = new(StringComparer.OrdinalIgnoreCase);
         static void WarnPhase2BrokenEffectOnce(string assetName)
@@ -447,13 +455,33 @@ namespace Ship_Game.Data
             if (assetType == typeof(SubTexture))
                 return (T)(object)LoadSubTexture(asset.RelPathWithExt);
 
-            // TODO Phase 2.2: XNA 3.1-baked Effect XNBs are D3DX fx_2_0 bytecode,
-            // which MonoGame's MGFX-based Effect reader rejects. Return null until each
-            // effect is rewritten as HLSL and MGFX-compiled. Call sites null-guard.
-            if (assetType == typeof(Effect) && Phase2BrokenEffectXnbs.Contains(asset.RelPathWithExt))
+            // Phase 3.3: prefer a .mgfxo sibling over the (often broken) D3DX fx_2_0
+            // .xnb. The .mgfxo is a hand-rewritten HLSL effect compiled by mgfxc to
+            // MonoGame-compatible MGFX. Mod-friendly: GetContentPath resolves through
+            // Mods/Vanilla so a mod can ship its own .fx (compiled to .mgfxo) and have
+            // it win over the vendored one. Falls through to the legacy stub list when
+            // no sibling exists.
+            if (assetType == typeof(Effect) && asset.RelPathWithExt.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase))
             {
-                WarnPhase2BrokenEffectOnce(asset.RelPathWithExt);
-                return default;
+                if (useCache && TryGetAsset(asset.RelPathWithExt, out T cachedFx))
+                    return cachedFx;
+
+                string mgfxoRel = asset.RelPathWithExt.Substring(0, asset.RelPathWithExt.Length - 4) + ".mgfxo";
+                string mgfxoPath = RawContentLoader.GetContentPath(mgfxoRel);
+                if (File.Exists(mgfxoPath))
+                {
+                    byte[] mgfxBytes = File.ReadAllBytes(mgfxoPath);
+                    var fx = (T)(object)new Effect(Device, mgfxBytes) { Name = asset.RelPathWithExt };
+                    if (useCache)
+                        lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref fx);
+                    return fx;
+                }
+
+                if (Phase2BrokenEffectXnbs.Contains(asset.RelPathWithExt))
+                {
+                    WarnPhase2BrokenEffectOnce(asset.RelPathWithExt);
+                    return default;
+                }
             }
 
             if (useCache && TryGetAsset(asset.RelPathWithExt, out T existing))

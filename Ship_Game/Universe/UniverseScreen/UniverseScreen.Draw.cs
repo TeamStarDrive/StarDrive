@@ -370,7 +370,7 @@ namespace Ship_Game
             graphics.Clear(Color.Black);
 
             batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:true);
-            if (basicFogOfWarEffect != null) // TODO Phase 2.2: BasicFogOfWar shader not yet rewritten
+            if (basicFogOfWarEffect != null) // TODO Phase 3.3: BasicFogOfWar shader rewrite reverted
             {
                 basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
                 basicFogOfWarEffect.CurrentTechnique.Passes[0].Apply();

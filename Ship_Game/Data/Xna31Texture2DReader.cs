@@ -70,6 +70,116 @@ namespace Ship_Game.Data
             return SurfaceFormat.Color;
         }
 
+        // Phase 3.3 alpha-blend mismatch fix.
+        //
+        // XNA 3.1's default SpriteBlendMode.AlphaBlend used the non-premultiplied
+        // formula `dst = src.rgb*src.a + dst*(1-src.a)`. MonoGame's BlendState.AlphaBlend
+        // (despite the name) uses the premultiplied formula `dst = src.rgb + dst*(1-src.a)`.
+        // XNA-3.1-baked textures with white-RGB-where-transparent — a common artist
+        // convention — render as opaque white edges in MonoGame because the unpremul'd
+        // (255,255,255) gets added in directly. Loading screens, win/lose UI panels,
+        // and other 3.1-era XNB textures all hit this.
+        //
+        // Fix: premultiply at load time for raw RGBA. Block-compressed (DXT) and other
+        // packed formats can't be trivially premultiplied without decode/re-encode and
+        // are warned-once instead — most game art baked as DXT in the 3.1 era was
+        // premultiplied at content-pipeline time anyway. Atlas PNGs are unaffected
+        // (they go through TexImport.Load, not this reader, and were already
+        // premul-baked in Phase 2.7.B per project_phase2_png_rb_swap.md).
+        static readonly HashSet<SurfaceFormat> WarnedUnsupportedFormats = new();
+
+        internal static void PremultiplyAlphaIfNeeded(byte[] data, SurfaceFormat format, string readerName)
+        {
+            switch (format)
+            {
+                case SurfaceFormat.Color:
+                    // Heuristic: only premultiply textures that look non-premul.
+                    // In a premultiplied texture every pixel satisfies RGB ≤ A; finding
+                    // a pixel with RGB > A on any channel proves the buffer is not yet
+                    // premul'd. The XNA 3.1 content pipeline could be configured to
+                    // premultiply at bake time (used by some font atlases and effects);
+                    // we must skip those to avoid double-premultiplying and dulling the
+                    // anti-aliased edges. Confirmed visually 2026-05-03 — without this
+                    // guard, font glyphs render dim and "unclear".
+                    if (LooksNonPremultiplied(data))
+                        PremultiplyRgba8888(data);
+                    return;
+
+                // No alpha channel — nothing to do.
+                case SurfaceFormat.Bgr565:
+                case SurfaceFormat.Alpha8:
+                case SurfaceFormat.HalfSingle:
+                case SurfaceFormat.Single:
+                case SurfaceFormat.HalfVector2:
+                case SurfaceFormat.Vector2:
+                    return;
+
+                // DXT block formats and packed 16-bit alpha formats: premul would need
+                // decode/re-encode. Skip with a one-shot warning so a regression in this
+                // surface area is at least noisy.
+                case SurfaceFormat.Dxt1:
+                case SurfaceFormat.Dxt3:
+                case SurfaceFormat.Dxt5:
+                case SurfaceFormat.Bgra5551:
+                case SurfaceFormat.Bgra4444:
+                case SurfaceFormat.HalfVector4:
+                case SurfaceFormat.Vector4:
+                    lock (WarnedUnsupportedFormats)
+                    {
+                        if (WarnedUnsupportedFormats.Add(format))
+                            Log.Info($"{readerName}: skipping premultiply for {format} (block/packed format); rendering may show a white-edge ghost if the source XNB used non-premultiplied alpha.");
+                    }
+                    return;
+
+                default:
+                    lock (WarnedUnsupportedFormats)
+                    {
+                        if (WarnedUnsupportedFormats.Add(format))
+                            Log.Warning($"{readerName}: no premultiply path for {format}; alpha behavior may be incorrect under MonoGame's premultiplied AlphaBlend.");
+                    }
+                    return;
+            }
+        }
+
+        // Returns true if the buffer is provably non-premultiplied (any pixel with
+        // RGB > A on any channel). Returns false if the buffer is consistent with a
+        // premultiplied or fully-opaque texture. Short-circuits on the first
+        // non-premul pixel — typical art textures fail the check within a few pixels.
+        static bool LooksNonPremultiplied(byte[] rgba)
+        {
+            int n = rgba.Length & ~3;
+            for (int i = 0; i < n; i += 4)
+            {
+                byte a = rgba[i + 3];
+                if (rgba[i] > a || rgba[i + 1] > a || rgba[i + 2] > a)
+                    return true;
+            }
+            return false;
+        }
+
+        // In-place premultiply of an RGBA8888 buffer (matches SurfaceFormat.Color
+        // memory layout: byte[i+3] holds alpha regardless of channel-order swap).
+        // The +127 rounding term keeps round-trip behavior of pure-opaque (a=255)
+        // and pure-transparent (a=0) pixels exact; intermediate alphas are slightly
+        // biased toward the upper integer to match D3D's reference premul.
+        static void PremultiplyRgba8888(byte[] rgba)
+        {
+            int n = rgba.Length & ~3;
+            for (int i = 0; i < n; i += 4)
+            {
+                byte a = rgba[i + 3];
+                if (a == 255) continue;
+                if (a == 0)
+                {
+                    rgba[i] = 0; rgba[i + 1] = 0; rgba[i + 2] = 0;
+                    continue;
+                }
+                rgba[i]     = (byte)((rgba[i]     * a + 127) / 255);
+                rgba[i + 1] = (byte)((rgba[i + 1] * a + 127) / 255);
+                rgba[i + 2] = (byte)((rgba[i + 2] * a + 127) / 255);
+            }
+        }
+
         // Diagnostic: decompresses the given XNB and dumps its type-reader strings
         // and primary-asset reader id. Use to discover the exact strings the XNBs
         // contain when the variant list above misses. Calls into MonoGame's internal
@@ -233,6 +343,7 @@ namespace Ship_Game.Data
             {
                 int byteCount = reader.ReadInt32();
                 byte[] data = reader.ReadBytes(byteCount);
+                Xna31Compat.PremultiplyAlphaIfNeeded(data, format, "Xna31Texture2DReader");
                 texture.SetData(level, null, data, 0, byteCount);
             }
 
@@ -263,6 +374,7 @@ namespace Ship_Game.Data
             {
                 int byteCount = reader.ReadInt32();
                 byte[] data = reader.ReadBytes(byteCount);
+                Xna31Compat.PremultiplyAlphaIfNeeded(data, format, "Xna31Texture3DReader");
                 texture.SetData(level, 0, 0, width, height, 0, depth, data, 0, byteCount);
             }
 

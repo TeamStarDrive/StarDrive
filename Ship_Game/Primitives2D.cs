@@ -14,6 +14,27 @@ namespace Ship_Game
 
     public static class Primitives2D
     {
+        // Phase 3.3 alpha fix: MonoGame's BlendState.AlphaBlend uses the
+        // premultiplied formula `dst = src.rgb + dst*(1-src.a)`. Code authored in
+        // XNA 3.1 convention passes non-premul tint colors like
+        // `new Color(255, 255, 255, 30)` (intent: 12% white overlay), which then
+        // overbright-saturates when modulated against the opaque WhitePixel — the
+        // visible bug is the minimap viewport rectangle and similar fill tints
+        // washing out into near-solid white.
+        //
+        // The heuristic mirrors Xna31Compat.PremultiplyAlphaIfNeeded: if any RGB
+        // channel exceeds A, the color is provably non-premul → convert. Already-
+        // premul colors and opaque (A=255) colors pass through unchanged. Applied
+        // at the primitive draw helpers (FillRectangle, DrawLine) so all callers
+        // benefit without per-call-site changes.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static Color ToPremulIfNeeded(Color c)
+        {
+            if (c.A == 255 || (c.R <= c.A && c.G <= c.A && c.B <= c.A))
+                return c;
+            return new Color(c.R * c.A / 255, c.G * c.A / 255, c.B * c.A / 255, (int)c.A);
+        }
+
         public static void BracketRectangle(this SpriteBatch batch, Rectangle rect, Color color, int bracketSize)
         {
             float x = rect.X;
@@ -164,7 +185,7 @@ namespace Ship_Game
 
             // some hack here - the 1px texture is rotated and scaled to proper width/height
             var scale = new Vector2(distance, thickness);
-            batch.Draw(ResourceManager.WhitePixel, point1, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            batch.Draw(ResourceManager.WhitePixel, point1, null, ToPremulIfNeeded(color), angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
         public static void DrawLine(this SpriteBatch batch, in Vector2d point1, in Vector2d point2, Color color, float thickness = 1f)
@@ -180,8 +201,8 @@ namespace Ship_Game
 
             // some hack here - the 1px texture is rotated and scaled to proper width/height
             var scale = new Vector2(distance, thickness);
-            batch.Draw(ResourceManager.WhitePixel, new Vector2((float)point1.X, (float)point1.Y), null, 
-                      color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            batch.Draw(ResourceManager.WhitePixel, new Vector2((float)point1.X, (float)point1.Y), null,
+                      ToPremulIfNeeded(color), angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
         public static void DrawCrossHair(this SpriteBatch batch, in Vector2d center, double size, Color color, float thickness = 1f)
@@ -320,17 +341,17 @@ namespace Ship_Game
         public static void FillRectangle(this SpriteBatch batch, in Rectangle rect, Color color)
         {
             // TODO: This is the legacy draw with no sub-pixel capabilities
-            batch.Draw(ResourceManager.WhitePixel, rect, color);
+            batch.Draw(ResourceManager.WhitePixel, rect, ToPremulIfNeeded(color));
         }
 
         public static void FillRectangle(this SpriteBatch batch, in RectF rect, Color color)
         {
-            SpriteExtensions.Draw(batch, ResourceManager.WhitePixel, rect, color);
+            SpriteExtensions.Draw(batch, ResourceManager.WhitePixel, rect, ToPremulIfNeeded(color));
         }
 
         public static void FillRectangle(this SpriteBatch batch, Vector2 location, Vector2 size, Color color, float angle)
         {
-            batch.Draw(ResourceManager.WhitePixel, location, size, color, angle);
+            batch.Draw(ResourceManager.WhitePixel, location, size, ToPremulIfNeeded(color), angle);
         }
     }
 }
