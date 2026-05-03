@@ -191,6 +191,99 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
+        // Inverse of TranslateNativeUsage: MonoGame VertexElementUsage → SDNative XNA-3.1 byte
+        // ordinal. Used by the export path (CreateVertexElements). MG enums that have no XNA 3.1
+        // counterpart (none in practice — every MG usage maps cleanly back) fall through to 0.
+        protected static byte ToNativeUsage(VertexElementUsage mg)
+        {
+            switch (mg)
+            {
+                case VertexElementUsage.Position:          return 0;
+                case VertexElementUsage.BlendWeight:       return 1;
+                case VertexElementUsage.BlendIndices:      return 2;
+                case VertexElementUsage.Normal:            return 3;
+                case VertexElementUsage.PointSize:         return 4;
+                case VertexElementUsage.TextureCoordinate: return 5;
+                case VertexElementUsage.Tangent:           return 6;
+                case VertexElementUsage.Binormal:          return 7;
+                case VertexElementUsage.TessellateFactor:  return 8;
+                case VertexElementUsage.Color:             return 10;
+                case VertexElementUsage.Fog:               return 11;
+                case VertexElementUsage.Depth:             return 12;
+                case VertexElementUsage.Sample:            return 13;
+                default:                                   return 0;
+            }
+        }
+
+        // Inverse of TranslateNativeFormat: MonoGame VertexElementFormat → SDNative XNA-3.1 byte
+        // ordinal. NormalizedShort2/4 and HalfVector2/4 have no XNA 3.1 counterpart and round to
+        // the closest plain Short / Vector. The exporter doesn't expect to see them in baked
+        // ship XNBs (XNA 3.1 didn't emit them) but the fallback keeps the byte stream parseable
+        // by SDNative if mod content uses them.
+        protected static byte ToNativeFormat(VertexElementFormat mg)
+        {
+            switch (mg)
+            {
+                case VertexElementFormat.Single:           return 0;
+                case VertexElementFormat.Vector2:          return 1;
+                case VertexElementFormat.Vector3:          return 2;
+                case VertexElementFormat.Vector4:          return 3;
+                case VertexElementFormat.Color:            return 4;
+                case VertexElementFormat.Byte4:            return 5;
+                case VertexElementFormat.Short2:           return 6;
+                case VertexElementFormat.Short4:           return 7;
+                case VertexElementFormat.NormalizedShort2: return 6; // → Short2 (not exact)
+                case VertexElementFormat.NormalizedShort4: return 7; // → Short4 (not exact)
+                case VertexElementFormat.HalfVector2:      return 1; // → Vector2 (not exact)
+                case VertexElementFormat.HalfVector4:      return 3; // → Vector4 (not exact)
+                default:                                   return 0;
+            }
+        }
+
+        // Bytes occupied by one element of a MonoGame VertexElementFormat. Used by the export
+        // path to fill SdVertexElement.Size; consumers on the SDNative side compare this against
+        // the per-element format expected.
+        protected static int ElementSizeInBytes(VertexElementFormat format)
+        {
+            switch (format)
+            {
+                case VertexElementFormat.Single:           return 4;
+                case VertexElementFormat.Vector2:          return 8;
+                case VertexElementFormat.Vector3:          return 12;
+                case VertexElementFormat.Vector4:          return 16;
+                case VertexElementFormat.Color:            return 4;
+                case VertexElementFormat.Byte4:            return 4;
+                case VertexElementFormat.Short2:           return 4;
+                case VertexElementFormat.Short4:           return 8;
+                case VertexElementFormat.NormalizedShort2: return 4;
+                case VertexElementFormat.NormalizedShort4: return 8;
+                case VertexElementFormat.HalfVector2:      return 4;
+                case VertexElementFormat.HalfVector4:      return 8;
+                default:                                   return 0;
+            }
+        }
+
+        // Walks a MonoGame VertexDeclaration and emits SdVertexElement[] with SDNative's
+        // XNA-3.1-shaped byte ordinals. This is the export-side analog of
+        // SdVertexData.CreateDeclaration, which goes the other direction.
+        protected static SdVertexElement[] CreateVertexElements(VertexDeclaration vd)
+        {
+            VertexElement[] mgElements = vd.GetVertexElements();
+            var sd = new SdVertexElement[mgElements.Length];
+            for (int i = 0; i < mgElements.Length; ++i)
+            {
+                VertexElement e = mgElements[i];
+                sd[i] = new SdVertexElement
+                {
+                    Offset       = (byte)e.Offset,
+                    Size         = (byte)ElementSizeInBytes(e.VertexElementFormat),
+                    NativeFormat = ToNativeFormat(e.VertexElementFormat),
+                    NativeUsage  = ToNativeUsage(e.VertexElementUsage)
+                };
+            }
+            return sd;
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         protected unsafe struct SdMeshGroup
         {

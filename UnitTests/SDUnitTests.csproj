@@ -59,6 +59,7 @@
     <Compile Include="Content\SpriteFontXnbCompatTests.cs" />
     <Compile Include="Data\TestAudioConfig.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
+    <Compile Include="Data\MeshExporterStaticPathTests.cs" />
     <Compile Include="Data\MeshImporterTests.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
