@@ -72,7 +72,7 @@ The user runs `game/StarDrive.exe`. The process:
 | 3.1 | Baseline checkpoint, Phase 3 branch, asset inventory CSV | Low |
 | 3.2 | FBX SDK 2018 → 2020 ABI restoration; un-stub asteroid `.fbx` path | Medium |
 | 3.3 | Effect XNB-3.1 → MGFX shim; restore 6 broken effects | Medium–High |
-| **3.3.A** | **Fix Phase 2.3 SpriteFont rebake size regression (NEXT-SESSION PRIORITY)** | Medium |
+| 3.3.A | Fix Phase 2.3 SpriteFont rebake size regression (RESOLVED 2026-05-03, commit c0879d2c2) | Medium |
 | 3.4 | XNB Model decode — static meshes (~210 of 276) | **High** |
 | 3.5 | XNB Model decode — skinned/animated meshes + animation runtime | **Very High** |
 | 3.6 | MainMenu Mars 3D sphere; Phase 2 cosmetic carryover cleanup | Low–Medium |
@@ -198,6 +198,8 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 ---
 
 ## 3.3.A — Fix the Phase 2.3 SpriteFont rebake size regression
+
+**Status: RESOLVED 2026-05-03 in commit `c0879d2c2`.** Option A (restore pre-migration .xnb fonts) was chosen, with the squares-as-text Dxt3 risk addressed by adding software BC2 decompression in `Ship_Game/Data/Xna31Texture2DReader.cs` (`Xna31Compat.DecompressDxt3ToRgba8888`). Decoded RGBA8888 is uploaded as `SurfaceFormat.Color`, bypassing MonoGame WindowsDX 3.8's broken GPU BC2 alpha sampling for the XNA 3.1 font atlas layout. Regression pinned by `UnitTests/Content/SpriteFontXnbCompatTests`. The historical context below is preserved in case a similar XNA 3.1 → MonoGame texture-format issue arises elsewhere.
 
 **Priority**: HIGH — visibly annoying across every screen with text. User-flagged 2026-05-03 as the next-session priority. Pre-existing since Phase 2.3 (`5fae0d679`); not introduced by §3.3 effect work.
 
