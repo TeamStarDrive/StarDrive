@@ -89,7 +89,10 @@ namespace SdMesh
 
     void SDMeshGroup::SetVertexDataFor(Nano::MeshGroup& group, const SDVertexData& vd) const
     {
-        Matrix4 transform = Transform.inverse();
+        // Forward-multiply: bake the absolute bone transform into vertex positions
+        // so OBJ/FBX writers emit world-space verts. (Was Transform.inverse() — incorrect:
+        // XNA VBs store bone-local verts, so inverse-multiplying further de-scaled them.)
+        Matrix4 transform = Transform;
         int numVertices = vd.VertexCount;
         int stride = vd.VertexStride;
 

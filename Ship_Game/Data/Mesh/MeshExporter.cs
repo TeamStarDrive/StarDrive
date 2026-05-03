@@ -127,7 +127,11 @@ namespace Ship_Game.Data.Mesh
             Map<Effect, long> materials = ExportMaterials(mesh, modelExportDir, meshes);
             foreach (ModelMesh modelMesh in meshes)
             {
-                Matrix transform = new Matrix(modelMesh.ParentBone.Transform);
+                // Compose absolute world transform by walking up the parent-bone chain.
+                // ParentBone.Transform alone misses intermediate bones in deeper hierarchies.
+                Matrix transform = Matrix.Identity;
+                for (ModelBone b = modelMesh.ParentBone; b != null; b = b.Parent)
+                    transform = new Matrix(b.Transform) * transform;
 
                 for (int i = 0; i < modelMesh.MeshParts.Count; ++i)
                 {
@@ -234,7 +238,10 @@ namespace Ship_Game.Data.Mesh
                 // This happens a lot. Many ships share a common base texture.
                 if (AlreadySavedTextures.TryGetValue(texture, out string alreadySavedPath))
                 {
-                    return Path.GetFileName(alreadySavedPath);
+                    // Texture was already saved (possibly in a different model's folder).
+                    // Return a relative path so the .mtl reference resolves cross-folder
+                    // (e.g. "../ship09_d.dds"). Same-folder case yields just the filename.
+                    return MakeRelativePath(modelExportDir, alreadySavedPath);
                 }
 
                 AlreadySavedTextures.Add(texture, writeTo);
@@ -246,6 +253,18 @@ namespace Ship_Game.Data.Mesh
 
                 return Path.GetFileName(writeTo);
             }
+        }
+
+        // Computes a forward-slash relative path from `fromDir` to `toFile` using URI logic
+        // (works on .NET Framework 4.8 — Path.GetRelativePath is .NET Core+ only).
+        static string MakeRelativePath(string fromDir, string toFile)
+        {
+            string fromFull = Path.GetFullPath(fromDir);
+            if (!fromFull.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                fromFull += Path.DirectorySeparatorChar;
+            var fromUri = new Uri(fromFull);
+            var toUri = new Uri(Path.GetFullPath(toFile));
+            return Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
         }
 
         unsafe SdMaterial* ExportMaterial(SdMesh* mesh, BaseMaterialEffect fx, string matName, string modelExportDir)
