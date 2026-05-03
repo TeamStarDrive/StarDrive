@@ -104,6 +104,8 @@ game/PatchTemp/
 Deploy/GeneratedFilesList.nsh
 Deploy/GeneratedFilesList.txt
 SDGraphics/bin/
+Tools/*/bin/
+Tools/*/obj/
 game/SDGraphics.pdb
 game/SDGraphics.dll
 game/SDUtils.dll
