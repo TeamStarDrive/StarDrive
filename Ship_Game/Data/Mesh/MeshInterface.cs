@@ -146,7 +146,7 @@ namespace Ship_Game.Data.Mesh
         // MonoGame VertexElementUsage ordinals (Microsoft.Xna.Framework.Graphics):
         //   0:Position 1:Color 2:TextureCoordinate 3:Normal 4:Binormal 5:Tangent
         //   6:BlendIndices 7:BlendWeight 8:Depth 9:Fog 10:PointSize 11:Sample 12:TessellateFactor
-        protected static bool TranslateNativeUsage(byte native, out VertexElementUsage mg)
+        internal static bool TranslateNativeUsage(byte native, out VertexElementUsage mg)
         {
             switch (native)
             {
@@ -174,7 +174,7 @@ namespace Ship_Game.Data.Mesh
         //   0:Single 1:Vector2 2:Vector3 3:Vector4 4:Color 5:Byte4 6:Short2 7:Short4
         //   8:NormalizedShort2 9:NormalizedShort4 10:HalfVector2 11:HalfVector4
         // (no Rgba32 — MG removed it; map to Color which is also 4 bytes packed RGBA.)
-        protected static bool TranslateNativeFormat(byte native, out VertexElementFormat mg)
+        internal static bool TranslateNativeFormat(byte native, out VertexElementFormat mg)
         {
             switch (native)
             {

@@ -58,6 +58,7 @@
     <Compile Include="Content\EffectXnbCompatTests.cs" />
     <Compile Include="Content\SpriteFontXnbCompatTests.cs" />
     <Compile Include="Content\SunBurnReaderStubTests.cs" />
+    <Compile Include="Content\Xna31VertexDeclarationDecodeTests.cs" />
     <Compile Include="Data\TestAudioConfig.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\MeshExporterStaticPathTests.cs" />

@@ -29,11 +29,12 @@ namespace Ship_Game.Data
             ContentTypeReaderManager.AddTypeCreator(Texture2DReaderName, () => new Xna31Texture2DReader());
             ContentTypeReaderManager.AddTypeCreator(Texture3DReaderName, () => new Xna31Texture3DReader());
 
-            // VertexDeclarationReader: XNA 3.1's binary format does not fit any of the
-            // obvious layouts and is undocumented. Skipped; XNB Model loads are stubbed
-            // at the GameContentManager.LoadStaticMesh level instead. See
-            // project_phase2_xnb_model_drift.md for the empirical hex dump and
-            // restoration plan.
+            // Phase 3.4 step 5: XNA 3.1 VertexDeclaration binary format reader. Empirically
+            // decoded — see Xna31VertexDeclarationReader. Unblocks the 130 static Models
+            // that previously hit IndexOutOfRangeException in MonoGame's stock reader.
+            ContentTypeReaderManager.AddTypeCreator(
+                "Microsoft.Xna.Framework.Content.VertexDeclarationReader",
+                () => new Xna31VertexDeclarationReader());
         }
 
         // Shared translation table — XNA 3.1 SurfaceFormat int → MonoGame 3.8 SurfaceFormat.
