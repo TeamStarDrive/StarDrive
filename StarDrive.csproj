@@ -396,6 +396,7 @@
     <Compile Include="Ship_Game\Data\Mesh\MeshInterface.cs" />
     <Compile Include="Ship_Game\Data\Mesh\MeshImporter.cs" />
     <Compile Include="Ship_Game\Data\Mesh\SunBurnStubs.cs" />
+    <Compile Include="Ship_Game\Data\Mesh\SunBurnReaderStubs.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\ArrayListSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\ColorSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\EnumSerializer.cs" />

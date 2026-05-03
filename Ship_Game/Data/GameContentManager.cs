@@ -70,6 +70,7 @@ namespace Ship_Game.Data
         {
             FixSunBurnTypeLoader();
             Xna31Compat.Register();
+            Mesh.SunBurnReaderStubs.Register();
         }
 
         public GameContentManager(IServiceProvider services, string name, string rootDirectory = "Content") : base(services, rootDirectory)
