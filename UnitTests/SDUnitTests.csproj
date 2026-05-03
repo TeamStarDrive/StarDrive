@@ -56,6 +56,7 @@
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Content\EffectXnbCompatTests.cs" />
+    <Compile Include="Content\SpriteFontXnbCompatTests.cs" />
     <Compile Include="Data\TestAudioConfig.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\MeshImporterTests.cs" />

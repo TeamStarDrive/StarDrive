@@ -126,7 +126,11 @@ namespace Ship_Game.Data
 
                 // DXT block formats and packed 16-bit alpha formats: premul would need
                 // decode/re-encode. Skip with a one-shot warning so a regression in this
-                // surface area is at least noisy.
+                // surface area is at least noisy. Note: Dxt3 fonts are intercepted upstream
+                // in Xna31Texture2DReader.Read and decompressed to SurfaceFormat.Color
+                // before reaching this method (MonoGame WindowsDX 3.8 BC2 alpha sampling
+                // produces solid quads for the XNA 3.1 font atlas layout — squares-as-text
+                // bug). This case still triggers for non-font Dxt3 textures if any exist.
                 case SurfaceFormat.Dxt1:
                 case SurfaceFormat.Dxt3:
                 case SurfaceFormat.Dxt5:
@@ -149,6 +153,82 @@ namespace Ship_Game.Data
                     }
                     return;
             }
+        }
+
+        // Software BC2 (Dxt3) decompression. Workaround for the squares-as-text bug
+        // documented in commit 10b35d779: MonoGame WindowsDX 3.8's GPU BC2 alpha
+        // sampling produces solid white quads for XNA 3.1's font atlas layout (white
+        // RGB, alpha encodes the glyph). Decoding to RGBA8888 at load time costs ~4×
+        // VRAM (font atlases are tiny — Arial14Bold goes 128KB → 512KB) but routes
+        // sampling through the well-tested SurfaceFormat.Color path instead.
+        //
+        // BC2 block layout (16 bytes per 4×4 block, row-major across the texture):
+        //   bytes 0..7 : 16 explicit 4-bit alphas, row-major within block
+        //                (byte 0 low nibble = pixel(0,0), high nibble = pixel(1,0))
+        //   bytes 8..9 : color0 (RGB565, little-endian)
+        //   bytes 10..11: color1 (RGB565, little-endian)
+        //   bytes 12..15: 16 × 2-bit color indices, row-major within block
+        //                 (byte 12 holds row 0, bits 0..1 = pixel(0,0))
+        // BC2 always uses 4-color BC1 mode (color0 ≥ color1 path; transparent-black
+        // mode is suppressed because alpha is carried explicitly).
+        internal static byte[] DecompressDxt3ToRgba8888(byte[] dxt3, int width, int height)
+        {
+            int bx = (width + 3) >> 2;
+            int by = (height + 3) >> 2;
+            var rgba = new byte[width * height * 4];
+
+            for (int blockY = 0; blockY < by; blockY++)
+            {
+                for (int blockX = 0; blockX < bx; blockX++)
+                {
+                    int srcOff = (blockY * bx + blockX) * 16;
+                    if (srcOff + 16 > dxt3.Length) return rgba; // truncated source — bail
+
+                    ulong alpha64 = BitConverter.ToUInt64(dxt3, srcOff);
+                    ushort c0 = BitConverter.ToUInt16(dxt3, srcOff + 8);
+                    ushort c1 = BitConverter.ToUInt16(dxt3, srcOff + 10);
+                    uint indices = BitConverter.ToUInt32(dxt3, srcOff + 12);
+
+                    int c0r = ((c0 >> 11) & 0x1F) * 255 / 31;
+                    int c0g = ((c0 >> 5)  & 0x3F) * 255 / 63;
+                    int c0b = ( c0        & 0x1F) * 255 / 31;
+                    int c1r = ((c1 >> 11) & 0x1F) * 255 / 31;
+                    int c1g = ((c1 >> 5)  & 0x3F) * 255 / 63;
+                    int c1b = ( c1        & 0x1F) * 255 / 31;
+
+                    Span<byte> palette = stackalloc byte[12];
+                    palette[0] = (byte)c0r; palette[1] = (byte)c0g; palette[2]  = (byte)c0b;
+                    palette[3] = (byte)c1r; palette[4] = (byte)c1g; palette[5]  = (byte)c1b;
+                    palette[6] = (byte)((2 * c0r + c1r) / 3);
+                    palette[7] = (byte)((2 * c0g + c1g) / 3);
+                    palette[8] = (byte)((2 * c0b + c1b) / 3);
+                    palette[9]  = (byte)((c0r + 2 * c1r) / 3);
+                    palette[10] = (byte)((c0g + 2 * c1g) / 3);
+                    palette[11] = (byte)((c0b + 2 * c1b) / 3);
+
+                    for (int py = 0; py < 4; py++)
+                    {
+                        int y = (blockY << 2) + py;
+                        if (y >= height) break;
+                        for (int px = 0; px < 4; px++)
+                        {
+                            int x = (blockX << 2) + px;
+                            if (x >= width) break;
+
+                            int texelIdx = (py << 2) + px;
+                            int colorIdx = (int)((indices >> (texelIdx * 2)) & 0x3) * 3;
+                            int a4 = (int)((alpha64 >> (texelIdx * 4)) & 0xF);
+
+                            int dstOff = (y * width + x) * 4;
+                            rgba[dstOff]     = palette[colorIdx];
+                            rgba[dstOff + 1] = palette[colorIdx + 1];
+                            rgba[dstOff + 2] = palette[colorIdx + 2];
+                            rgba[dstOff + 3] = (byte)((a4 << 4) | a4);
+                        }
+                    }
+                }
+            }
+            return rgba;
         }
 
         // In-place R↔B byte swap on an interleaved 32bpp buffer (4 bytes per pixel).
@@ -362,17 +442,42 @@ namespace Ship_Game.Data
             int levelCount = reader.ReadInt32();
 
             GraphicsDevice device = reader.GetGraphicsDevice();
-            var texture = new Texture2D(device, width, height, levelCount > 1, format);
 
-            for (int level = 0; level < levelCount; level++)
+            // Dxt3 GPU BC2 alpha sampling is broken for XNA 3.1 font atlases under
+            // MonoGame WindowsDX 3.8 (squares-as-text bug; see commit 10b35d779
+            // and the Phase 2.3 rebake's commit message). Decode to RGBA8888 in
+            // software at load time so the texture lives as SurfaceFormat.Color and
+            // sampling goes through the known-good 32bpp path. Each mip is decoded
+            // independently; the resulting Texture2D is created in Color format.
+            if (format == SurfaceFormat.Dxt3)
             {
-                int byteCount = reader.ReadInt32();
-                byte[] data = reader.ReadBytes(byteCount);
-                Xna31Compat.PremultiplyAlphaIfNeeded(data, format, "Xna31Texture2DReader");
-                texture.SetData(level, null, data, 0, byteCount);
+                var texture = new Texture2D(device, width, height, levelCount > 1, SurfaceFormat.Color);
+                int mipW = width;
+                int mipH = height;
+                for (int level = 0; level < levelCount; level++)
+                {
+                    int byteCount = reader.ReadInt32();
+                    byte[] dxt3 = reader.ReadBytes(byteCount);
+                    byte[] rgba = Xna31Compat.DecompressDxt3ToRgba8888(dxt3, mipW, mipH);
+                    Xna31Compat.PremultiplyAlphaIfNeeded(rgba, SurfaceFormat.Color, "Xna31Texture2DReader[Dxt3->Color]");
+                    texture.SetData(level, null, rgba, 0, rgba.Length);
+                    mipW = Math.Max(1, mipW >> 1);
+                    mipH = Math.Max(1, mipH >> 1);
+                }
+                return texture;
             }
 
-            return texture;
+            {
+                var texture = new Texture2D(device, width, height, levelCount > 1, format);
+                for (int level = 0; level < levelCount; level++)
+                {
+                    int byteCount = reader.ReadInt32();
+                    byte[] data = reader.ReadBytes(byteCount);
+                    Xna31Compat.PremultiplyAlphaIfNeeded(data, format, "Xna31Texture2DReader");
+                    texture.SetData(level, null, data, 0, byteCount);
+                }
+                return texture;
+            }
         }
     }
 
