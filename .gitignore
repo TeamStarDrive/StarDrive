@@ -106,6 +106,10 @@ Deploy/GeneratedFilesList.txt
 SDGraphics/bin/
 Tools/*/bin/
 Tools/*/obj/
+
+# Per-user Claude Code permission cache. The non-.local sibling
+# (.claude/settings.json) holds shared project config and stays tracked.
+.claude/settings.local.json
 game/SDGraphics.pdb
 game/SDGraphics.dll
 game/SDUtils.dll
