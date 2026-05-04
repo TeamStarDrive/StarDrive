@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Graphics.PackedVector;
 using SDUtils;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game.Graphics.Particles;
 
@@ -73,10 +73,10 @@ public sealed class ParticleVertexBuffer : IDisposable
         dstVertex1 = srcVertex;
         dstVertex2 = srcVertex;
         dstVertex3 = srcVertex;
-        dstVertex0.Corner = new Short2(-1, -1); // TopLeft
-        dstVertex1.Corner = new Short2(+1, -1); // TopRight
-        dstVertex2.Corner = new Short2(+1, +1); // BotRight
-        dstVertex3.Corner = new Short2(-1, +1); // BotLeft
+        dstVertex0.Corner = new Vector2(-1, -1); // TopLeft
+        dstVertex1.Corner = new Vector2(+1, -1); // TopRight
+        dstVertex2.Corner = new Vector2(+1, +1); // BotRight
+        dstVertex3.Corner = new Vector2(-1, +1); // BotLeft
         return true;
     }
 
