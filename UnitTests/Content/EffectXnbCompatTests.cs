@@ -22,7 +22,6 @@ namespace UnitTests.Content
         static readonly string[] StubbedEffects =
         {
             "Effects/BeamFX",
-            "Effects/Thrust",
             "Effects/BasicFogOfWar",
         };
 
@@ -32,9 +31,10 @@ namespace UnitTests.Content
         // legacy XNA 3.1 .xnb still present on disk for mod compatibility.
         static readonly (string asset, string technique, string firstPass)[] RestoredEffects =
         {
-            ("Effects/desaturate", "Desaturate", "Pass1"),
-            ("Effects/PlanetHalo", "Planet",     "P1"),
-            ("Effects/scale",      "Technique1", "Pass1"),
+            ("Effects/desaturate", "Desaturate",       "Pass1"),
+            ("Effects/PlanetHalo", "Planet",           "P1"),
+            ("Effects/scale",      "Technique1",       "Pass1"),
+            ("Effects/Thrust",     "thrust_technique", "P1"),
         };
 
         [TestMethod]

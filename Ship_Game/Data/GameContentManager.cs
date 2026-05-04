@@ -50,10 +50,11 @@ namespace Ship_Game.Data
         //   atmospheric ring rewrite; no textures so no sampler-binding pitfalls).
         // 2026-05-04: Effects/scale.xnb restored via scale.mgfxo (vs_1_1+ps_2_0 shield
         //   gradient rewrite — UV-zoom VS, alpha-mask PS).
+        // 2026-05-04: Effects/Thrust.xnb restored via Thrust.mgfxo (vs_3_0+ps_3_0 thruster
+        //   cone rewrite — animated volume noise + cone falloff + silhouette term).
         static readonly HashSet<string> Phase2BrokenEffectXnbs = new(StringComparer.OrdinalIgnoreCase)
         {
             "Effects/BeamFX.xnb",
-            "Effects/Thrust.xnb",
             "Effects/BasicFogOfWar.xnb",
         };
         static readonly HashSet<string> Phase2WarnedEffects = new(StringComparer.OrdinalIgnoreCase);
