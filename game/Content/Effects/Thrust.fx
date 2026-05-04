@@ -30,10 +30,12 @@
 //        eP  = pow(f * heat, 3.5)           // end-of-cone heat factor
 //
 //        // edge silhouette: 1 - |dot(world Y axis of cylinder, world normal)|
-//        // (Original normalizes the *4D* column1 so translation contaminates
-//        //  length; for ships at distant world-coords this drives the term
-//        //  toward 0 → silhouette ≈ 1. Faithful match — visible difference is
-//        //  minimal and the alternative would diverge from pre-migration look.)
+//        // (Original normalizes the *4D* column1 of world_matrix, which under
+//        //  MonoGame's transpose-on-upload is HLSL row 1. For ships at
+//        //  distant world-coords pos.y dominates length(col1), driving
+//        //  worldYAxisQuirk → ~0 → silhouette ≈ 1 across the whole cone.
+//        //  This is load-bearing: a "more correct" formula collapses
+//        //  silhouette over much of the cone surface and the cone disappears.)
 //
 //        rgb = (nP * 2.5) * thrust_color[1].rgb
 //            + (nP * 10 * eP) * thrust_color[0].rgb
@@ -120,8 +122,11 @@ float4 PSThrust(VSOutput input) : COLOR0
 
     // Silhouette: build the world matrix's column-1 the way the original
     // preshader does (with the 4D-length normalization quirk preserved).
-    float4x4 W = world_matrices[0];
-    float4 col1 = float4(W[0].y, W[1].y, W[2].y, W[3].y);
+    // world_matrices[0][1] is HLSL row 1, which under MonoGame's
+    // transpose-on-upload is C#'s column 1 = (right.y, up.y, -fwd.y, pos.y).
+    // For ships at distant world coords, pos.y dominates the 4D length so
+    // worldYAxisQuirk collapses to a tiny vector and silhouette → 1.
+    float4 col1 = world_matrices[0][1];
     float3 worldYAxisQuirk = col1.xyz / length(col1);
     float silhouette = 1.0 - abs(dot(worldYAxisQuirk, input.NormalW));
 
