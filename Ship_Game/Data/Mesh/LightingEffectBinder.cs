@@ -49,7 +49,13 @@ public static class LightingEffectBinder
                             slot.Enabled = true;
                             slot.Direction = Vector3.Normalize(d.Direction);
                             slot.DiffuseColor = d.DiffuseColor * d.Intensity;
-                            slot.SpecularColor = d.DiffuseColor * d.Intensity * 0.5f;
+                            // Phase 3.7: tight specular only. SunIntensity tends to be 2-4
+                            // in legacy SunBurn scenes, and BasicEffect's specular term
+                            // (per-light * SpecularPower-falloff * uniform-mtl-spec) gets
+                            // gain-stacked, blowing out highlights to white over the
+                            // already-saturated diffuse. Keep a small specular tint —
+                            // texture-derived material spec dominates the highlight color.
+                            slot.SpecularColor = d.DiffuseColor * 0.15f;
                         }
                         else if (!s_warnedExtraDirectional)
                         {

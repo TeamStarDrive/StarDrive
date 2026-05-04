@@ -56,7 +56,12 @@ namespace SynapseGaming.LightingSystem.Core
 
     public class SceneEnvironment
     {
-        public Vector3 AmbientLightColor = new(0.2f, 0.2f, 0.2f);
+        // Phase 3.7: was (0.2, 0.2, 0.2) which leaks neutral-gray ambient onto
+        // every scene that doesn't explicitly override it — including MainMenu's
+        // submitted violet AmbientLight, which turned the carefully-authored cool
+        // ambient into a washed-out blue-gray. Default to zero; rely on
+        // scene-submitted AmbientLights for the actual ambient term.
+        public Vector3 AmbientLightColor = Vector3.Zero;
         public bool FogEnabled;
         public Vector3 FogColor = Vector3.Zero;
         public float FogStart = 1000f;
@@ -155,6 +160,11 @@ namespace SynapseGaming.LightingSystem.Core
             Ship_Game.Graphics.RenderStates.SetCullMode(
                 GraphicsDevice, CullMode.CullCounterClockwiseFace);
             Ship_Game.Graphics.RenderStates.EnableDepthWrite(GraphicsDevice);
+            // Phase 3.7: same hazard for BlendState — the MainMenu's BackAdditive
+            // sprite pass leaves SoftAdditive (InverseDestColor + One) bound, which
+            // would make ships/stations/asteroids render with a screen blend and
+            // appear translucent over the planet. Force opaque before the 3D pass.
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
             // Apply lights + ambient + fog from submitted state ONCE per frame.
             Ship_Game.Data.Mesh.LightingEffectBinder.Apply(
@@ -170,6 +180,32 @@ namespace SynapseGaming.LightingSystem.Core
                 DrawRenderables(so);
                 DrawModelMeshes(so);
             }
+        }
+
+        // Phase 3.7: per-mesh LightingEffects are constructed with EnableDefaultLighting
+        // (BasicEffect's hardcoded 3-light setup), and LightingEffectBinder.Apply only
+        // touches SharedFx. Without copying SharedFx's resolved lights onto the per-mesh
+        // effect, MainMenu asteroids/freighters render with neutral white default lights
+        // and lose the scene's warm sun + violet ambient — looking flat-gray instead of
+        // sun-lit-with-violet-fill on the unlit side. This path skips when the SO
+        // declares its own per-object PrimaryLight (Universe ships/planets, which set
+        // their own sun direction relative to the parent star).
+        void CopySharedLighting(Effects.Forward.LightingEffect fx)
+        {
+            fx.LightingEnabled = SharedFx.LightingEnabled;
+            fx.AmbientLightColor = SharedFx.AmbientLightColor;
+            CopyDirectional(fx.DirectionalLight0, SharedFx.DirectionalLight0);
+            CopyDirectional(fx.DirectionalLight1, SharedFx.DirectionalLight1);
+            CopyDirectional(fx.DirectionalLight2, SharedFx.DirectionalLight2);
+        }
+
+        static void CopyDirectional(Microsoft.Xna.Framework.Graphics.DirectionalLight dst,
+                                    Microsoft.Xna.Framework.Graphics.DirectionalLight src)
+        {
+            dst.Enabled = src.Enabled;
+            dst.Direction = src.Direction;
+            dst.DiffuseColor = src.DiffuseColor;
+            dst.SpecularColor = src.SpecularColor;
         }
 
         void DrawRenderables(Rendering.SceneObject so)
@@ -213,6 +249,10 @@ namespace SynapseGaming.LightingSystem.Core
                         fx.DirectionalLight1.Enabled = false;
                         fx.DirectionalLight2.Enabled = false;
                         fx.AmbientLightColor = so.PrimaryLightColor * 0.15f; // soft fill
+                    }
+                    else
+                    {
+                        CopySharedLighting(fx);
                     }
                 }
 
@@ -263,6 +303,10 @@ namespace SynapseGaming.LightingSystem.Core
                         fx.DirectionalLight1.Enabled = false;
                         fx.DirectionalLight2.Enabled = false;
                         fx.AmbientLightColor = so.PrimaryLightColor * 0.15f;
+                    }
+                    else
+                    {
+                        CopySharedLighting(fx);
                     }
                 }
                 fx.ApplyToBasicEffect(); // see DrawRenderables for the why
