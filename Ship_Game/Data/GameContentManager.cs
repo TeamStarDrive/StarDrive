@@ -48,10 +48,11 @@ namespace Ship_Game.Data
         //   (LightsTarget content, sampler/RT-format coupling, alpha semantics).
         // 2026-05-03: Effects/PlanetHalo.xnb restored via PlanetHalo.mgfxo (vs_2_0+ps_2_0
         //   atmospheric ring rewrite; no textures so no sampler-binding pitfalls).
+        // 2026-05-04: Effects/scale.xnb restored via scale.mgfxo (vs_1_1+ps_2_0 shield
+        //   gradient rewrite — UV-zoom VS, alpha-mask PS).
         static readonly HashSet<string> Phase2BrokenEffectXnbs = new(StringComparer.OrdinalIgnoreCase)
         {
             "Effects/BeamFX.xnb",
-            "Effects/scale.xnb",
             "Effects/Thrust.xnb",
             "Effects/BasicFogOfWar.xnb",
         };
