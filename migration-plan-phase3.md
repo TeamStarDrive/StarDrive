@@ -9,8 +9,8 @@
 | **276 XNB Model files** (ship/hull/projectile/station/effect meshes — some skinned/animated) | Stubbed at `GameContentManager.LoadStaticMesh`; returns minimum-viable `StaticMesh(name, unitBounds)` | §3.4 (static) + §3.5 (skinned/animated) |
 | **9 asteroid `.fbx` meshes** | `NANOMESH_NO_FBX=1` retained in x64; `Mesh::LoadFBX` returns `false` | §3.2 |
 | **6 broken Effect XNBs** (BeamFX, scale, Thrust, desaturate, BasicFogOfWar, PlanetHalo) | `Phase2BrokenEffectXnbs` set in `GameContentManager`; one-time warning, callers null-guard | §3.3 |
-| **Steam SDK x64** (parked at the very end of the migration) | `SteamManager.Initialize()` short-circuits to `false`; achievements/stats inactive | §3.10 (deferred final step, unchanged from Phase 2) |
-| **Cosmetic** (MainMenu Mars sphere; VideoPlayer.IsLooped) | Mars renders as a flat strip; Loading 2 video plays once instead of looping | §3.6 / §3.11 polish pass |
+| **Steam SDK x64** (parked at the very end of the migration) | `SteamManager.Initialize()` short-circuits to `false`; achievements/stats inactive | §3.11 (deferred final step, unchanged from Phase 2) |
+| **Cosmetic** (MainMenu Mars sphere; VideoPlayer.IsLooped) | Mars renders as a flat strip; Loading 2 video plays once instead of looping | §3.6 / §3.12 polish pass |
 
 **The user's framing**: this is the **most important phase**. "Issues are expected with XNB Models. Some of them also contain animations." Skinned-model XNBs embed bone hierarchies + animation clip data that depended on the now-purged `XNAnimation` library at runtime, plus SunBurn `LightingMaterialReader_Pro` for material data. The 8 static-raw XNBs (`ThrustCylinderB`, `Window`, `muzzleEnergy`, `projBall/Long/Tear`, `Kulrathi/ship12b/c`) additionally need an XNA 3.1 VertexDeclaration binary decoder.
 
@@ -40,7 +40,7 @@ The user runs `game/StarDrive.exe`. The process:
 6. **MainMenu Mars renders as a 3D sphere** (composited overlays + sphere mesh visible — currently flat strip).
 7. **Beam/projectile particle effects work** end-to-end (now that BeamFX/Thrust XNBs load).
 8. **Build matrix still green** across 5 configs × x64. No regressions.
-9. **Steam SDK** restored (§3.10) — achievements unlock; stats sync; cloud saves round-trip.
+9. **Steam SDK** restored (§3.11) — achievements unlock; stats sync; cloud saves round-trip.
 
 **Anti-goals for Phase 3** (deferred to a Phase 4 or treated as won't-fix):
 - Pixel-exact match to 2013 SunBurn deferred-renderer output. Forward-renderer-equivalent is the bar.
@@ -79,8 +79,9 @@ The user runs `game/StarDrive.exe`. The process:
 | 3.7 | Renderer feature parity: bloom, distortion, fog-of-war post-process passes | Medium |
 | 3.8 | Shadow maps (basic) | Medium–High |
 | 3.9 | Particle / beam / projectile FX restoration end-to-end | Medium |
-| 3.10 | **Deferred Final Step**: Steam SDK x64 via Steamworks.NET | Medium |
-| 3.11 | Phase 3 close: PHASE3_RESULTS.md, runtime smoke, final memory cleanup | Low |
+| 3.10 | FBX TransparencyFactor write fix + legacy mesh re-export (Combined Arms ships) | Medium |
+| 3.11 | **Deferred Final Step**: Steam SDK x64 via Steamworks.NET | Medium |
+| 3.12 | Phase 3 close: PHASE3_RESULTS.md, runtime smoke, final memory cleanup | Low |
 
 Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or `git reset --hard <tag>`.
 
@@ -478,7 +479,46 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
-## 3.10 — Deferred Final Step: Steam SDK x64 via Steamworks.NET
+## 3.10 — FBX TransparencyFactor Write Fix + Mesh Re-Export
+
+**Goal**: Fix the legacy mesh-exporter's FBX `TransparencyFactor` write/read inversion at the source, then re-run the legacy export so the corpus round-trips correctly without the C# workaround. Pulled forward from the Phase 4 candidate list because the **Combined Arms mod** introduces many additional ships that will go through the same exporter; landing the fix before that re-export saves a re-export cycle.
+
+**Reference**: see `Mesh_Fbx.cpp:812` (write) and `Mesh_Fbx.cpp:513` (read). The read path correctly inverts FBX's `TransparencyFactor` (FBX convention: 1.0 = fully transparent) into the engine's opacity-flavored `Alpha` (1.0 = opaque) via `Alpha = 1 - TransparencyFactor`. The write path stuffs opacity directly into `TransparencyFactor` without the inverse, so an opaque XNA material round-trips as `Alpha=0` and ships render fully transparent.
+
+The C# workaround landed in commit `76c9cdccb` ([SunBurnStubs.cs](Ship_Game/Data/Mesh/SunBurnStubs.cs) `SetTransparencyModeAndMap`) — when the call site declares `TransparencyMode.None`, force `Alpha=1` regardless of what the material reports. This is what makes ships visible today.
+
+**Steps**:
+1. Submodule (NanoMesh, on the local `blackbox-migration` branch — see `project_nanomesh_local_branch.md`):
+   ```cpp
+   // Mesh_Fbx.cpp:812
+   mat->TransparencyFactor.Set((double)(1.0 - m.Alpha));
+   ```
+   Commit on `blackbox-migration`. Bump parent submodule pointer.
+2. **Switch to `legacy/mesh_exporter_xna31`** parent branch — that's where the working MeshExporter and the XNA-3.1 toolchain live (per `project_phase4_legacy_mesh_export_sync.md`). Re-run the export over the full corpus, including the Combined Arms mod ship folders.
+3. Validate FBX round-trip: spot-check `ship15h.fbx` and `Kulrathi_Station.fbx` for `Alpha=1.00` in the [mat] log we used during the migration session (re-add temporarily if needed). Confirm no faction-specific transparent ships were broken (the few that were genuinely Alpha<1 should retain it).
+4. **Switch back to `migration/phase3-x64-monogame`**. Hand-copy the new FBX corpus into `game/Content/Model/...` (replaces the corpus committed in `9bd3b7128`).
+5. Drop the C# workaround at `SunBurnStubs.cs:626-641` — restore the simpler `Alpha = alpha` line. Re-test.
+6. Smoke-test: every faction's hull, the modded stations, the Combined Arms ships. Lit textured rendering, no invisible ships.
+
+**Tests added**: none — visual smoke is the validation gate.
+
+**Verification**:
+- All ships (vanilla + Combined Arms) render textured, no invisible/transparent regressions.
+- The `[mat]` log (when re-enabled briefly) shows `Alpha=1.00` for the previously-broken set.
+- The C# `TransparencyMode.None` branch in `SetTransparencyModeAndMap` is gone — confirms the fix is at the right layer.
+
+**Rollback**: keep the C# workaround in place — that path makes ships visible regardless. The C++ + re-export change is purely about correctness of the FBX corpus round-trip; if the re-export goes sideways, revert the corpus to `9bd3b7128` and leave the workaround.
+
+**Risk**: Medium. The C++ fix itself is one line. The risk is in the re-export — coverage of all factions including modded ones, whether the new FBXes happen to regress some other property the C# loader cares about, and the toolchain churn of switching branches and copying ~150 MB of binary content.
+
+**Dependencies / cross-refs**:
+- `project_phase4_legacy_mesh_export_sync.md` — the legacy/migration branch split. This sub-phase deliberately keeps the split; it doesn't resurrect the exporter on migration. The cross-port question stays open for Phase 4.
+- `project_nanomesh_local_branch.md` — the submodule's local-only branch state. The §3.10 fix lands on the same `blackbox-migration` branch.
+- `project_phase39_phaseC_textures.md` — Phase C texture migration. Independent; runs on its own §3.9 timeline.
+
+---
+
+## 3.11 — Deferred Final Step: Steam SDK x64 via Steamworks.NET
 
 **Goal**: Replace the parked `SteamManager` stub with a working Steamworks.NET integration. Achievements unlock; stats sync; cloud saves round-trip.
 
@@ -510,7 +550,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
-## 3.11 — Phase 3 Close: PHASE3_RESULTS.md, Runtime Smoke, Final Memory Cleanup
+## 3.12 — Phase 3 Close: PHASE3_RESULTS.md, Runtime Smoke, Final Memory Cleanup
 
 **Goal**: Sign off Phase 3. Produce a results document mirroring `PHASE1_RESULTS.md` / `PHASE2_RESULTS.md`. Run the full runtime smoke test. Update memory entries to reflect resolved status.
 
@@ -552,7 +592,7 @@ Phase 2's `EffectXnbCompatTests` pinned the broken-effect list — that test get
 
 ### Performance budget
 
-Phase 2 baseline (post-2.8) was ~16ms/frame at 1080p in MainMenu (60fps achievable). Phase 3's renderer additions (skinning, shadow map, post-process) need to fit in that budget. Per §3.7/§3.8, soft cap: <10% regression vs Phase 2 baseline at MainMenu, <20% at peak combat. Capture frametime in §3.11 smoke logs.
+Phase 2 baseline (post-2.8) was ~16ms/frame at 1080p in MainMenu (60fps achievable). Phase 3's renderer additions (skinning, shadow map, post-process) need to fit in that budget. Per §3.7/§3.8, soft cap: <10% regression vs Phase 2 baseline at MainMenu, <20% at peak combat. Capture frametime in §3.12 smoke logs.
 
 ### Mod compatibility
 
@@ -560,7 +600,7 @@ Mods under `game/Mods/` ship their own `*.hull` files (15 mod directories per §
 
 ### Branch hygiene
 
-Each sub-phase commits to `migration/phase3-x64-monogame`. Open one PR per sub-phase against `migration/monogame_migration` (matches Phase 2's pattern; PRs are easier to review per-step). Final §3.11 PR closes the phase.
+Each sub-phase commits to `migration/phase3-x64-monogame`. Open one PR per sub-phase against `migration/monogame_migration` (matches Phase 2's pattern; PRs are easier to review per-step). Final §3.12 PR closes the phase.
 
 ### Phase 4 placeholder
 
@@ -582,8 +622,9 @@ After Phase 3 ships, ARCHITECTURE.md §9 "Suggested Migration Order" lists "Phas
 | 3.7 Post-process | Medium | Per-pass commits; revert independently |
 | 3.8 Shadow maps | Medium–High | Strictly additive; falls back cleanly |
 | 3.9 Particle FX | Medium | Parameter name reconciliation per call-site |
-| 3.10 Steam SDK | Medium | Documented call-site surface; tiny scope |
-| 3.11 Sign-off | Low | Documentation only |
+| 3.10 FBX export fix + re-export | Medium | One-line C++ fix; risk is in the re-export coverage (~150 ships) and whether new FBXes regress anything visible. Combined Arms mod ships are why this matters. |
+| 3.11 Steam SDK | Medium | Documented call-site surface; tiny scope |
+| 3.12 Sign-off | Low | Documentation only |
 
 **Risk delta from the 2026-05-02 architectural unlock**: §3.4 dropped from High to Medium–High, §3.5 split into 3.5.A (Medium–High) + optional 3.5.B (Medium). The previous developer's mesh-export work + the §3.1 inventory together collapsed the original "research-grade XNB decoder + skeletal runtime" surface into "ContentTypeReader stubs + restore `MeshExporter` + reuse SDNative bone APIs." The 8-XNB static-raw cluster (3.1 VertexDeclaration drift) is now the only research-grade item, and its scope is tightly bounded.
 
