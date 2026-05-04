@@ -6,12 +6,15 @@ using Ship_Game.Data;
 namespace UnitTests.Content
 {
     /// <summary>
-    /// Phase 3.4 step 5 byte-level pin for <see cref="Xna31VertexDeclarationReader.DecodeXna31Bytes"/>.
+    /// Phase 3.4 step 5 / Phase 4 carryover — byte-level pin for
+    /// <see cref="Xna31VertexDeclarationReader.DecodeXna31Bytes"/>.
     /// Captured XNB byte sequences from real ship/projectile XNBs are the source of truth;
     /// if the wire-format hypothesis ever drifts (e.g. a future MG version reorders the
     /// translation tables, or someone tweaks the trailer-skip), these regressions catch it
     /// without needing the runtime smoke loop.
     ///
+    /// Note: the runtime path is unused today (Phase 3.4 pivoted to offline FBX export);
+    /// these tests preserve the decode work for the eventual Phase 4 Xna31ModelReader.
     /// Captured 2026-05-04 from the live boot diagnostic over the §3.1 inventory's
     /// static-sunburn set (see commit log for the ground-truth dump).
     /// </summary>

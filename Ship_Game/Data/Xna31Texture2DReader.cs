@@ -29,9 +29,16 @@ namespace Ship_Game.Data
             ContentTypeReaderManager.AddTypeCreator(Texture2DReaderName, () => new Xna31Texture2DReader());
             ContentTypeReaderManager.AddTypeCreator(Texture3DReaderName, () => new Xna31Texture3DReader());
 
-            // Phase 3.4 step 5: XNA 3.1 VertexDeclaration binary format reader. Empirically
-            // decoded — see Xna31VertexDeclarationReader. Unblocks the 130 static Models
-            // that previously hit IndexOutOfRangeException in MonoGame's stock reader.
+            // Phase 3.4 step 5 / TODO Phase 4: XNA 3.1 VertexDeclaration binary format
+            // reader. Empirically decoded — see Xna31VertexDeclarationReader. Originally
+            // intended to unblock runtime XNB Model loads, but Phase 3.4 pivoted to an
+            // offline FBX export pipeline (legacy/mesh_exporter_xna31 branch + commit
+            // 9bd3b7128) and Phase B archived all Model XNBs (commits 6f68b9396 +
+            // a5da742b4). Zero Model XNBs ship today; this registration is preserved
+            // as defensive infrastructure for the unlikely case a mod ever ships an
+            // XNA-3.1-baked Model XNB. Note: VertexDeclaration alone is not enough —
+            // the Model XNB itself has structural drift, so a full path also needs an
+            // Xna31ModelReader (deferred Phase 4).
             ContentTypeReaderManager.AddTypeCreator(
                 "Microsoft.Xna.Framework.Content.VertexDeclarationReader",
                 () => new Xna31VertexDeclarationReader());

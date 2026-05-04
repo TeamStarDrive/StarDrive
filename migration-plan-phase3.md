@@ -73,7 +73,7 @@ The user runs `game/StarDrive.exe`. The process:
 | 3.2 | FBX SDK 2018 → 2020 ABI restoration; un-stub asteroid `.fbx` path | Medium |
 | 3.3 | Effect XNB-3.1 → MGFX shim; restore 6 broken effects | Medium–High |
 | 3.3.A | Fix Phase 2.3 SpriteFont rebake size regression (RESOLVED 2026-05-03, commit c0879d2c2) | Medium |
-| 3.4 | XNB Model decode — static meshes (~210 of 276) | **High** |
+| 3.4 | ~~XNB Model decode — static meshes (~210 of 276)~~ **RESOLVED 2026-05-04 via offline FBX export pipeline (commit 9bd3b7128); Phase B archived all Model XNBs** | **High** |
 | 3.5 | Particle / beam / projectile FX restoration end-to-end (incl. Phase C texture XNB→DDS migration) | Medium |
 | 3.6 | XNB Model decode — skinned/animated meshes + animation runtime | **Very High** |
 | 3.7 | MainMenu Mars 3D sphere; Phase 2 cosmetic carryover cleanup | Low–Medium |
@@ -246,7 +246,24 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
-## 3.4 — XNB Model Decode — Static Meshes (~134 of 276)
+## 3.4 — XNB Model Decode — Static Meshes (~134 of 276) — **RESOLVED 2026-05-04**
+
+**Resolution summary**: the original strategy (runtime XNB decode via reader stubs + `MeshExporter.Export` FBX emit) was **superseded mid-flight** by an offline export pipeline. On `legacy/mesh_exporter_xna31` (XNA 3.1 + .NET 4.8, can read original XNB Models), `MeshExporter` was re-derived and run over the entire static corpus, producing FBX+DDS sidecars. Output committed to migration as `9bd3b7128 content: legacy mesh re-export drop (FBX + DDS + PNG, 147 MB)`. Phase B (commits `6f68b9396` + `a5da742b4`) then archived all 276 Model XNBs out of `game/Content/Model/` to `game/LegacyMesh/`. `GameContentManager.LoadStaticMesh` prefers `.fbx` → `.obj` → `.xnb`, so production load goes straight to the FBX corpus. **End-to-end visually verified at §3.7 close** — every faction's hulls render with materials; modded ships (Vulfen Type WIII, etc.) work identically.
+
+**What landed vs. plan**:
+- Steps 1, 4 (`MeshExporter.Export` runtime path) — superseded by offline export
+- Step 2 (SunBurn ContentTypeReader stubs, `LightingMaterialReader_Pro`) — done; lives at `Ship_Game/Data/Mesh/SunBurnReaderStubs.cs`
+- Step 3 (smoke `Load<Model>` for 5 representative XNBs) — superseded; the FBX corpus is its own coverage
+- Step 5 (`Xna31VertexDeclarationReader`) — partial (decode only; Model-XNB drift requires a companion `Xna31ModelReader`). Currently unreachable in production because no Model XNB ships. Re-tagged Phase 4 — the empirical decode is preserved at `Ship_Game/Data/Xna31VertexDeclarationReader.cs` with unit tests, ready for a future contributor if a mod ever needs it.
+- Step 6 (run extraction over static subset) — done via legacy branch + `9bd3b7128`
+- Step 7 (`.fbx`-first wire-up in `LoadStaticMesh`) — done; `.fbx` → `.obj` → `.xnb` precedence in [GameContentManager.cs:767](Ship_Game/Data/GameContentManager.cs#L767)
+- Step 8 (end-to-end validation) — done at §3.7 close
+
+**Carryovers**: cross-branch sync question (cherry-pick legacy commits `f964b6df7` + `5c3a218be` into migration vs. keep status-quo) lives in `project_phase4_legacy_mesh_export_sync.md` for Phase 4 debate.
+
+---
+
+### Original plan (kept for archaeological reference)
 
 **Goal**: All static (non-skinned) ship/hull/projectile/station meshes load and render with original geometry + materials. The `LoadStaticMesh` Phase 2 stub is gone for static assets. The §3.1 CSV identifies the static subset: 122 confirmed static-sunburn + ~12 likely-static-sunburn (in the tool's unreadable set, runtime-confirmed). The 8 static-raw XNBs (3.1 VertexDeclaration drift) are handled in §3.4 step 5.
 

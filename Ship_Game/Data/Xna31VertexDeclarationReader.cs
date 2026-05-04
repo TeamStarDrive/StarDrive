@@ -7,14 +7,22 @@ using SDUtils;
 
 namespace Ship_Game.Data
 {
-    // Phase 3.4 step 5: empirical decoder for the XNA 3.1 VertexDeclaration XNB binary
-    // format. MonoGame's stock VertexDeclarationReader expects 8 + 16*N bytes
+    // Phase 3.4 step 5 / TODO Phase 4: empirical decoder for the XNA 3.1 VertexDeclaration
+    // XNB binary format. MonoGame's stock VertexDeclarationReader expects 8 + 16*N bytes
     // (vertexStride:int + elementCount:int + per-element { offset:int, format:int,
     // usage:int, usageIndex:int }), but XNA 3.1 baked content uses a much more compact
     // wire format that the original 3.1 runtime understood. Reading XNA-3.1 bytes via
     // MG's reader walks past EOF or into the next reader's payload and throws
     // IndexOutOfRangeException — the dominant failure mode for ship/projectile XNBs
     // (141 occurrences in the §3.4 step-2 boot smoke).
+    //
+    // **Currently unused at runtime.** Phase 3.4 pivoted from "decode XNB at runtime"
+    // to "offline export to FBX/OBJ on legacy/mesh_exporter_xna31, hand-copy corpus to
+    // migration branch" (commit 9bd3b7128 — 147 MB FBX/DDS drop). Phase B then archived
+    // every Model XNB out of game/Content/Model/ (commits 6f68b9396 + a5da742b4), so no
+    // production load path reaches this reader anymore. Preserved as the foundation
+    // for a future Xna31ModelReader if/when a mod ships an XNA-3.1-baked Model XNB —
+    // the partial decode below is the hard-earned hex work and shouldn't be re-derived.
     //
     // Decoded layout (validated empirically against Effects/ThrustCylinderB.xnb whose
     // hex dump was preserved in project_phase2_xnb_model_drift.md):

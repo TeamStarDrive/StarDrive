@@ -789,16 +789,17 @@ namespace Ship_Game.Data
                 if (animated)
                     Log.Warning($"Phase 1: skinned model '{asset.RelPathWithExt}' loaded as static (XNAnimation removed)");
 
-                // TODO Phase 3.4: XNA 3.1-baked Model XNBs use a VertexDeclaration
-                // binary layout that diverges from MonoGame 4.0+ (no stored vertexStride;
-                // VertexElement struct had Stream + ElementMethod fields that 4.0 dropped;
-                // exact per-element layout is undocumented and didn't fit any obvious
-                // shape in the empirical hex dump). MonoGame's ModelReader hits "Index
-                // was outside the bounds of the array" inside VertexDeclaration ctor.
-                // Tolerate by returning a stub StaticMesh — same pattern as MeshImporter.
-                // §3.4 step 5 is the in-progress fix (Xna31VertexDeclarationReader);
-                // most callers route through the FBX/OBJ corpus instead now.
-                // See memory: project_phase2_xnb_model_drift.md for the dump and plan.
+                // Defensive XNB Model fallback. Phase 3.4 pivoted from "decode 3.1 XNB
+                // Models at runtime" to an offline FBX/OBJ export pipeline (see
+                // legacy/mesh_exporter_xna31 branch + commit 9bd3b7128); Phase B then
+                // archived every Model XNB out of game/Content/Model/ (commits
+                // 6f68b9396 + a5da742b4). The .fbx-first preference above means this
+                // branch only runs if a mod ships an XNB Model that has neither an
+                // .fbx nor .obj sibling. The Phase 1 Xna31VertexDeclarationReader
+                // decodes part of the XNA-3.1 wire format but not enough on its own —
+                // the Model XNB itself has structural drift (TODO Phase 4: write
+                // Xna31ModelReader). Stub-StaticMesh fallback keeps the runtime alive.
+                // See memory: project_phase2_xnb_model_drift.md for the original hex.
                 try
                 {
                     Model model = LoadAsset<Model>(asset.RelPathWithExt, useCache:false);
