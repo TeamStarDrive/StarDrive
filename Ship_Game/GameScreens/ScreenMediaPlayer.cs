@@ -63,8 +63,8 @@ namespace Ship_Game.GameScreens
             Content = content;
             Player = new VideoPlayer();
             Player.Volume = GlobalStats.MusicVolume;
-            // Phase 2.6.A: VideoPlayer.IsLooped setter is STILL unimplemented in
-            // MonoGame WindowsDX 3.8.1.303 (verified empirically — the framework
+            // Phase 2.6.A / re-verified Phase 3.7: VideoPlayer.IsLooped setter is
+            // STILL unimplemented in MonoGame WindowsDX 3.8.1.303 (the framework
             // upgrade fixed Play/GetTexture but not this). Looping requested by
             // callers is silently dropped; "Loading 2" plays once then stops.
             // The `looping` ctor param is kept for API stability and so future
@@ -125,7 +125,8 @@ namespace Ship_Game.GameScreens
 
                 if (Player.Volume.NotEqual(GlobalStats.MusicVolume))
                     Player.Volume = GlobalStats.MusicVolume;
-                // IsLooped setter still unimplemented in 3.8.1.303 (see ctor).
+                // IsLooped setter still unimplemented in 3.8.1.303 (see ctor;
+                // re-verified Phase 3.7).
                 // Player.IsLooped = looping;
 
                 BeginPlayTask = Parallel.Run(() =>
