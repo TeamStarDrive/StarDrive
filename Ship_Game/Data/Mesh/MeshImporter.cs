@@ -90,6 +90,11 @@ namespace Ship_Game.Data.Mesh
                     VertexCount       = data.VertexCount,
                     VertexStride      = data.VertexStride,
                     ObjectSpaceBoundingSphere = g->Bounds,
+                    // Per-group transform from FBX/OBJ root. Without this the renderer
+                    // composes fx.World = so.World * Identity and drops the FBX root
+                    // orientation (and any nested-bone offsets) — modded ships and
+                    // stations rendered "on their backs" until this got wired up.
+                    MeshToObject = g->Transform,
                 });
 
                 var bb = XnaBoundingBox.CreateFromSphere(g->Bounds);

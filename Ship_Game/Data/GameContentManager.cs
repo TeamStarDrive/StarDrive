@@ -756,6 +756,10 @@ namespace Ship_Game.Data
             if (loadPath.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase))
             {
                 string baseName = loadPath.Substring(0, loadPath.Length - 4);
+                // Prefer .fbx over .obj — FBX preserves per-group transforms and
+                // material parameters (alpha, specular, normal/specular paths) that
+                // the OBJ MTL format can't carry. OBJ stays as a fallback for content
+                // that ships without an FBX sibling.
                 foreach (string ext in new[] { ".fbx", ".obj" })
                 {
                     string candidate = baseName + ext;

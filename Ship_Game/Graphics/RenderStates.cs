@@ -37,9 +37,18 @@ namespace Ship_Game.Graphics
 
         public static void DisableAlphaTest(GraphicsDevice device) { }
 
+        static readonly RasterizerState CullCWState   = new() { CullMode = CullMode.CullClockwiseFace };
+        static readonly RasterizerState CullCCWState  = new() { CullMode = CullMode.CullCounterClockwiseFace };
+        static readonly RasterizerState CullNoneState = new() { CullMode = CullMode.None };
+
         public static void SetCullMode(GraphicsDevice device, CullMode mode)
         {
-            // TODO Phase 2: build a RasterizerState with the requested CullMode.
+            device.RasterizerState = mode switch
+            {
+                CullMode.CullClockwiseFace        => CullCWState,
+                CullMode.CullCounterClockwiseFace => CullCCWState,
+                _                                 => CullNoneState,
+            };
         }
 
         public static void EnableDepthWrite(GraphicsDevice device)

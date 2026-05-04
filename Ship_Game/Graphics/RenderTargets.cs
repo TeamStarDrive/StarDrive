@@ -15,8 +15,14 @@ namespace Ship_Game.Graphics
         {
             PresentationParameters pp = device.PresentationParameters;
             CheckTextureSize(width, height, out width, out height);
+            // Match the backbuffer's depth format. The pre-migration default was
+            // DepthFormat.None (the migration carried it forward), which silently
+            // disabled depth testing for everything drawn into MainTarget — closer
+            // ships rendered "behind" farther planets because there was no depth
+            // buffer to compare against, and the cloud/atmosphere additive blend
+            // in DrawPlanets painted right over them.
             return new RenderTarget2D(device, width, height, mipMap: false,
-                                      pp.BackBufferFormat, DepthFormat.None,
+                                      pp.BackBufferFormat, pp.DepthStencilFormat,
                                       pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
         }
 

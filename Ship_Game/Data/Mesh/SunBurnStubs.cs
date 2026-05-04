@@ -148,6 +148,14 @@ namespace SynapseGaming.LightingSystem.Core
 
             SharedFx ??= new Effects.Forward.LightingEffect(GraphicsDevice);
 
+            // Match the original SunBurn RenderManager default (Forward/RenderManager.cs:271).
+            // Without this, ships and stations inherit whatever rasterizer state the previous
+            // pass (background, sprite batch, BasicBlendMode-with-CullNone) left behind, and
+            // back-facing polygons render visibly — making meshes look "inside-out".
+            Ship_Game.Graphics.RenderStates.SetCullMode(
+                GraphicsDevice, CullMode.CullCounterClockwiseFace);
+            Ship_Game.Graphics.RenderStates.EnableDepthWrite(GraphicsDevice);
+
             // Apply lights + ambient + fog from submitted state ONCE per frame.
             Ship_Game.Data.Mesh.LightingEffectBinder.Apply(
                 SharedFx, LightManager.ActiveLights, LastFrameState.Environment);
@@ -617,16 +625,18 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // (no refraction in Phase 2's BasicEffect-backed renderer).
         public void SetTransparencyModeAndMap(TransparencyMode mode, float alpha, Texture2D map)
         {
-            Alpha = alpha;
+            // TransparencyMode.None means the surface is opaque regardless of the
+            // alpha value the caller supplied. This matters because the legacy FBX
+            // writer in SDNative/NanoMesh/Mesh_Fbx.cpp stuffs opacity directly into
+            // TransparencyFactor (write) while the reader applies (1 - factor) on
+            // load — so opaque XNA materials round-trip as Alpha=0 and ships render
+            // fully transparent. Until that round-trip is fixed and content is
+            // re-exported, honour mode=None as the source of truth here.
+            Alpha = (mode == TransparencyMode.None) ? 1f : alpha;
             if (map != null)
             {
                 Texture = map;
                 TextureEnabled = true;
-            }
-            else if (mode == TransparencyMode.None)
-            {
-                // No transparency — restore opaque alpha
-                Alpha = 1f;
             }
         }
     }
