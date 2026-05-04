@@ -321,7 +321,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 **Steps**:
 1. Audit the ParticleEmitter / Beam / Projectile / FogOfWar render paths — each was Phase 2 wired against fallback null-effect handling. Outcome of 2026-05-04 audit: no `Effect`-XNB null-guards exist in the particle pipeline (`ParticleEmitter.cs`, `ParticleEffect.cs`, `Particle.cs`, `ParticleManager.cs`) — particle shaders go through `LoadEffect("3DParticles/...")` which throws on missing rather than null-stubbing. The remaining guards are correctly placed: `Beam.cs:170,199` (BeamEffect) and `UniverseScreen.Draw.cs:373` (basicFogOfWarEffect) **stay** until step 5 lands their .mgfxo, and `Projectile.cs:468` is a `BasicEffect` cast-guard unrelated to broken Effect-XNB. The already-restored sites (`ShieldManager.cs:63,135`, `Thruster.cs:71-72`) keep defense-in-depth guards per established pattern. Step 1's only edit-action: refresh stale "Phase 3.3.A" / "Phase 3.3" comment text on the still-stubbed sites to point at "§3.5 step 5".
-2. Validate visually in combat: lasers, missiles, beam weapons, ship explosions, shield hits, warp transitions.
+2. Validate visually in combat: lasers, missiles, beam weapons, ship explosions, shield hits, warp transitions. **Carryover deferred to §3.8** (renderer feature parity): same-empire pre/post screenshots show ship hulls render flat without normal/specular/emissive material maps, which makes engine bells lose their warm hull-side glow and made the engine-trail palette read differently between pre- and post-migration shots even though the Thrust shader formula is op-for-op correct (cross-checked against `phase3-logs/thrust-chunks/thrust_ps_3_0.dis.txt`). Reference shots saved at `phase3-logs/visual-diff/engine-trail_{pre,post}.jpg`. Root cause is `Ship_Game/Data/Mesh/SunBurnStubs.cs::ApplyToBasicEffect` only pushing diffuse + lights to the underlying `BasicEffect` — `NormalMapTexture` / `SpecularColorMapTexture` / `EmissiveMapTexture` slots are populated by `MeshInterface.CreateMaterialEffect` but never sampled. Restoration plan in §3.8 step 4.
 3. Per-effect parameter audit — XNA 3.1 effect parameter names may differ subtly from the new shim's exposed names; reconcile via `Effect.Parameters[name]` lookups and update game code if needed.
 4. **Phase C texture migration sub-task** (per `project_phase35_phaseC_textures.md`) — replace the 9 retained .xnb texture files (`shieldgradient.xnb` + 8 projectile texture XNBs in `Model/Projectiles/textures/`) with their .dds equivalents. **RESOLVED 2026-05-04** via Option 1 (memory note): copied the four FBX-material `.dds` files (`missile_d`, `missile_s`, `torpedo_d`, `torpedo_s`) into `Model/Projectiles/textures/` so `LoadProjectileTextures` finds them; archived the 9 `.xnb` to `game/LegacyMesh/`; pointed `ShieldManager.cs:60` at the existing `shieldgradient.png`; the four `_0` mip-suffix duplicates were exporter-side artifacts (stripped by the legacy exporter at [RawContentLoader.cs:207](Ship_Game/Data/RawContentLoader.cs#L207)) — never read from `ProjTextDict` so dropped without replacement. `game/Content/Model/` now contains zero `.xnb` files (the Phase C completion marker).
 5. **Deferred §3.3 carryover — restore the last 2 broken Effect XNBs** (moved here on 2026-05-04 after steps 1–4 closed §3.3 at "4 of 6 restored"). Order matters: tackle the easier one first to not block the rest of §3.5 on R&D.
@@ -445,11 +445,11 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
-## 3.8 — Renderer Feature Parity: Bloom, Distortion, Fog-of-War Post-Process
+## 3.8 — Renderer Feature Parity: Bloom, Distortion, Fog-of-War, Material Maps
 
-**Goal**: Restore the post-process pass chain on top of the §2.8 forward renderer. Bloom from `BloomExtract.xnb` + `BloomCombine.xnb` (Phase 2-loadable; not in the broken set). Screen-space distortion from `Distort.xnb`. Fog-of-war overlay from `BasicFogOfWar` (loadable since §3.3).
+**Goal**: Restore the post-process pass chain on top of the §2.8 forward renderer. Bloom from `BloomExtract.xnb` + `BloomCombine.xnb` (Phase 2-loadable; not in the broken set). Screen-space distortion from `Distort.xnb`. Fog-of-war overlay from `BasicFogOfWar` (loadable since §3.3). Plus per-mesh material maps (normal / specular / emissive) that the Phase 1.9 `LightingEffect` stub silently dropped.
 
-**Why now**: depends on §3.3 (BasicFogOfWar) and the renderer's per-frame RenderTarget plumbing already in place from Phase 2.8.
+**Why now**: depends on §3.3 (BasicFogOfWar) and the renderer's per-frame RenderTarget plumbing already in place from Phase 2.8. The material-maps restoration depends on §3.4's FBX corpus already exposing `NormalMapTexture` / `SpecularColorMapTexture` / `EmissiveMapTexture` slots on the `LightingEffect` (`MeshInterface.CreateMaterialEffect` populates them today; `ApplyToBasicEffect` in `SunBurnStubs.cs` doesn't consume them — only diffuse + lights are pushed to the underlying `BasicEffect`).
 
 **Steps**:
 1. **Bloom**:
@@ -461,16 +461,23 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
    - Used by shield-hit visuals; integrate with the existing shield-hit notification code.
 3. **Fog of war**:
    - `BasicFogOfWar` shader operates on a per-system fog mask; integrate with the Universe screen's per-system explored/visible state.
-4. Integration tests — render a synthetic scene with a known input, capture the post-process output, assert pixel pattern.
+4. **Material maps (normal / specular / emissive)** (§3.5 carryover, see `visual-diff/engine-trail_*.jpg`):
+   - Today `LightingEffect` extends `BasicEffect` (Phase 1.9 stub at `Ship_Game/Data/Mesh/SunBurnStubs.cs`). `BasicEffect` natively supports diffuse + 3 directional lights + per-vertex specular but has no normal-map sampler and no emissive-map sampler. Result: ships render flat-shaded — engine bells lose their warm hull-side glow, hulls lose specular highlights and emissive panel-light detail.
+   - Write a custom HLSL shader (`Ship_Game/Content/Effects/MeshLighting.fx`) that samples diffuse + normal + specular + emissive maps and the existing 3-directional-light setup. Compile via mgfxc to `MeshLighting.mgfxo`.
+   - Subclass `LightingEffect` from `Effect` instead of `BasicEffect`, load the new MGFX, and bind `World/View/Projection` + lights + maps the same way `ApplyToBasicEffect` does today. Maintain the existing public API (`DiffuseMapTexture`, `NormalMapTexture`, `SpecularColorMapTexture`, `EmissiveMapTexture`) so call-sites (`MeshInterface.CreateMaterialEffect`, `PlanetType.CreateMaterial`, etc.) keep working unchanged.
+   - Validation: re-shoot the engine-trail comparison and confirm engine bells regain warm hull-side glow + specular highlights matching `phase3-logs/visual-diff/engine-trail_pre.jpg`. Add new pre/post pairs to `visual-diff/` for any other regressions exposed by hull-shader work (likely candidates: planet detail, station panels).
+5. Integration tests — render a synthetic scene with a known input, capture the post-process output, assert pixel pattern.
 
 **Tests added**:
 - `UnitTests/Graphics/BloomFilterTests.cs` — `RenderTexturedScene_BloomCombines_ProducesBrightening` (compare brightness sum pre/post bloom).
 - `UnitTests/Graphics/FogOfWarTests.cs` — synthetic mask + scene → expected output pattern.
+- `UnitTests/Graphics/MeshLightingEffectTests.cs` — load a sphere mesh with normal + specular + emissive maps, render to RT, assert non-uniform luminance distribution (specular highlights present, emissive lit areas brighter).
 
 **Verification**:
 - Universe map shows fog-of-war correctly.
 - Combat shield hits visibly distort.
 - Bright weapon impacts produce bloom highlights.
+- Ship hulls render with normal-mapped surface detail, specular highlights, and emissive panel glow (verify against `visual-diff/engine-trail_pre.jpg` reference).
 - Build matrix green; no perf regression >10% in the §2.10 perf baseline.
 
 **Rollback**: `git revert HEAD`. Post-process passes disable; renderer is bare-pass.
