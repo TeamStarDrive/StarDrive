@@ -370,7 +370,10 @@ namespace Ship_Game
             graphics.Clear(Color.Black);
 
             batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:true);
-            if (basicFogOfWarEffect != null) // TODO Phase 3.3: BasicFogOfWar shader rewrite reverted
+            // BasicFogOfWar null-stubbed pending §3.5 step 5 (RT/sampler-state anomaly,
+            // likely folded into §3.8 post-process). Until then the MainTarget renders
+            // without the LightsTarget mask — strategic-view fog overlay is currently flat.
+            if (basicFogOfWarEffect != null)
             {
                 basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
                 basicFogOfWarEffect.CurrentTechnique.Passes[0].Apply();
