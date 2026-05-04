@@ -57,7 +57,7 @@ public sealed class ShieldManager : IDisposable
         var content = ResourceManager.RootContent;
         ShieldModel = content.LoadStaticMesh("Model/Projectiles/shield");
         ShieldTexture = content.Load<Texture2D>("Model/Projectiles/shield_d.dds");
-        GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
+        GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient.png");
 
         ShieldEffect = content.Load<Effect>("Effects/scale");
         if (ShieldEffect == null) return; // TODO Phase 3.5: scale.mgfxo restored in §3.3.A but re-verify guard
