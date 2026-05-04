@@ -661,6 +661,12 @@ namespace Ship_Game.Gameplay
                     ProjSO = mesh.CreateSceneObject();
                     if (ProjSO != null)
                     {
+                        // SunBurnStubs.RenderScene skips any SO with Visibility==None,
+                        // and the auto-property defaults there. Ships/asteroids/etc set
+                        // it explicitly; UpdateMesh historically didn't, so missile/drone/
+                        // rocket meshes were dropped from the 3D pass even though their
+                        // particle trails (separate path) kept rendering.
+                        ProjSO.Visibility = ObjectVisibility.Rendered;
                         ProjSO.World = WorldMatrix;
                         Universe.Screen.AddObject(ProjSO);
                     }
