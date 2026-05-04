@@ -92,15 +92,28 @@ namespace Ship_Game.UI
             batch.SafeEnd();
         }
 
+        // Phase 3.7: pass the additive BlendState directly to SpriteBatch.Begin so it
+        // survives Immediate-mode batch flushes. The legacy "Begin AlphaBlend, then
+        // override device.BlendState" pattern only worked under XNA 3.1 because the
+        // device.RenderState was a free-standing API; under MonoGame the SpriteBatch
+        // re-applies its own blend state per flush. Without this fix, the MainMenu
+        // BackAdditive overlays (Lights_edge / Dust / Lights_center / Aurora) draw
+        // with plain alpha-blend and the planet's limb / city-lights / aurora effects
+        // collapse into a narrow, unblended core.
+        static readonly BlendState SoftAdditive = new()
+        {
+            Name = "SoftAdditive",
+            ColorSourceBlend = Blend.InverseDestinationColor,
+            AlphaSourceBlend = Blend.InverseDestinationColor,
+            ColorDestinationBlend = Blend.One,
+            AlphaDestinationBlend = Blend.One,
+            ColorBlendFunction = BlendFunction.Add,
+            AlphaBlendFunction = BlendFunction.Add,
+        };
+
         static void BeginAdditive(SpriteBatch batch, bool saveState = false)
         {
-            // NOTE: SaveState restores graphics device settings
-            //       just in case we mix 3D rendering with 2D rendering
-
-            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:saveState);
-
-            // TODO: this is a weird alpha setting
-            RenderStates.EnableAlphaBlend(batch.GraphicsDevice, Blend.InverseDestinationColor, Blend.One);
+            batch.Begin(SpriteSortMode.Immediate, SoftAdditive);
         }
         
         static void BatchDrawAdditive(SpriteBatch batch, DrawTimes elapsed, Array<UIElementV2> elements)

@@ -169,6 +169,15 @@ namespace Ship_Game.GameScreens.Scene
                 HalfLength *= 4;
             }
 
+            // Phase 3.7: ObjectVisibility defaults to None (enum 0), and the forward
+            // renderer skips any SO with Visibility==None (SunBurnStubs.RenderScene).
+            // Universe ships/asteroids set this from GlobalStats.AsteroidVisibility/
+            // ShipVisibility; MainMenu SceneObjs were missing the same step, so all
+            // 1400+ MainMenu asteroids and freighters submitted to ObjectManager
+            // were silently culled out of the render pass.
+            SO.Visibility = (Hull == null) ? GlobalStats.AsteroidVisibility
+                                           : GlobalStats.ShipVisibility;
+
             ScreenManager.Instance.AddObject(SO);
             // Do a first dummy update with deltaTime 0
             // to make sure we have correct position at first frame

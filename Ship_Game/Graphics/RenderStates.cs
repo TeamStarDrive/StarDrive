@@ -1,14 +1,13 @@
+using System.Collections.Concurrent;
 using Microsoft.Xna.Framework.Graphics;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.Graphics
 {
-    // TODO Phase 2: XNA 3.1 device.RenderState (and its sub-properties: AlphaBlendEnable,
-    // AlphaTestEnable, CullMode, DepthBufferEnable, ScissorTestEnable, MultiSampleAntiAlias,
-    // SeparateAlphaBlendEnabled, SourceBlend/DestinationBlend, AlphaFunction, etc.) was removed
-    // in MonoGame and replaced by BlendState / DepthStencilState / RasterizerState objects
-    // assigned to GraphicsDevice. The whole call surface here is currently no-ops; rebuild
-    // these helpers to compose MonoGame state objects when 3D rendering comes back online.
+    // Phase 3.7: composed state-object replacements for the XNA 3.1 device.RenderState
+    // sub-properties (AlphaBlendEnable, SourceBlend/DestinationBlend, AlphaTestEnable,
+    // AlphaFunction/ReferenceAlpha, etc.) that MonoGame removed. Each call assigns a
+    // cached BlendState/DepthStencilState/RasterizerState to GraphicsDevice.
     public class RenderStates
     {
         public static void EnableTextureWrap(GraphicsDevice device)
@@ -21,7 +20,26 @@ namespace Ship_Game.Graphics
             device.BlendState = BlendState.Opaque;
         }
 
-        public static void EnableAlphaBlend(GraphicsDevice device, Blend srcBlend, Blend dstBlend) { }
+        // Phase 3.7: cache custom BlendStates by (src,dst) pair. The MainMenu Mars
+        // overlays (Lights_edge / Dust / Aurora / Lights_center) call this with
+        // (InverseDestinationColor, One) for a screen-like additive that brightens
+        // without saturating; without it, the overlays draw in plain alpha-blend
+        // and the planet's limb / city-lights effects collapse.
+        static readonly ConcurrentDictionary<(Blend, Blend), BlendState> BlendCache = new();
+        public static void EnableAlphaBlend(GraphicsDevice device, Blend srcBlend, Blend dstBlend)
+        {
+            BlendState bs = BlendCache.GetOrAdd((srcBlend, dstBlend), key => new BlendState
+            {
+                Name = $"Custom-{key.Item1}-{key.Item2}",
+                ColorSourceBlend = key.Item1,
+                AlphaSourceBlend = key.Item1,
+                ColorDestinationBlend = key.Item2,
+                AlphaDestinationBlend = key.Item2,
+                ColorBlendFunction = BlendFunction.Add,
+                AlphaBlendFunction = BlendFunction.Add,
+            });
+            device.BlendState = bs;
+        }
 
         public static void EnableClassicAlphaBlend(GraphicsDevice device)
         {

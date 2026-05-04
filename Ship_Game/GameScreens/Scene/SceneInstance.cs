@@ -54,8 +54,14 @@ namespace Ship_Game.GameScreens.Scene
             Screen = screen;
             screen.ScreenManager.RemoveAllLights(LightRigIdentity.MainMenu);
 
-            // TODO: some issue with directional lights
-            //AddDirectionalLight("Scene Sun", SunColor, SunIntensity, SunPos, SunTarget);
+            // Phase 3.7: BasicEffect (forward path) doesn't support PointLights, so
+            // the SunBurn-era PointLight was filtered out by LightingEffectBinder and
+            // every ship/asteroid in the MainMenu scene rendered with ambient only —
+            // i.e. invisible against the dark space background. Add a DirectionalLight
+            // pointing from SunPos toward SunTarget alongside the legacy PointLight
+            // (which is now harmless: still warned-and-ignored, but mods/tooling that
+            // inspect ActiveLights still see it).
+            AddDirectionalLight("Scene Sun", SunColor, SunIntensity, SunPos, SunTarget);
             AddLight("Scene Sun", SunColor, SunIntensity, SunPos);
 
             screen.AddLight(new AmbientLight
