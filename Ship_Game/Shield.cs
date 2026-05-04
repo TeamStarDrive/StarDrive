@@ -46,7 +46,12 @@ namespace Ship_Game
         {
             if (Owner != null)
             {
-                World = Matrix.CreateScale(Radius /2) 
+                // Phase 3.5: factor was /2 in the XNA build where shield.xnb shipped
+                // as a unit-sphere mesh. The §3.4 FBX re-export corpus has shield.fbx
+                // at ~33-unit native radius (the source .max file's units), so /2 was
+                // putting the bubble a lot bigger than it should be. *0.025 brings it
+                // back to what looks right at typical ShieldHitRadius (60–210).
+                World = Matrix.CreateScale(Radius * 0.025f)
                       * Matrix.CreateRotationZ(Rotation)
                       * Matrix.CreateTranslation(Owner.Position.X, Owner.Position.Y, 0f);
             }

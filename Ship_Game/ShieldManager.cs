@@ -5,6 +5,7 @@ using SDUtils;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships;
 using Matrix = SDGraphics.Matrix;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game;
 
@@ -165,9 +166,15 @@ public sealed class ShieldManager : IDisposable
     {
         shield.UpdateWorldTransform();
 
+        // scale.fx declares `float2 scale` and `float2 displacement`. MonoGame's
+        // EffectParameter.SetValue(float) on a float2 parameter only writes the .x
+        // component, leaving .y at 0. shieldgradient.png is a vertical bell curve —
+        // row y=0 is pure black — so sampling at (d, 0) returns alphaMask=0 and the
+        // shield bubble renders fully transparent. Pass an explicit Vector2(d, d) so
+        // both components carry the value, matching the original D3DX scalar-broadcast.
         World.SetValue(shield.World);
-        Scale.SetValue(shield.TexScale);
-        Displacement.SetValue(shield.Displacement);
+        Scale.SetValue(new Vector2(shield.TexScale, shield.TexScale));
+        Displacement.SetValue(new Vector2(shield.Displacement, shield.Displacement));
 
         ShieldModel.Draw(ShieldEffect);
     }
