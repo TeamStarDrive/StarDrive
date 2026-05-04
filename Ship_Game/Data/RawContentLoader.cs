@@ -227,8 +227,9 @@ namespace Ship_Game.Data
                 return;
             }
 
-            // TODO Phase 2: AnimatedMesh export removed with XNAnimation; restore once
-            // skeletal animation is rebuilt on MonoGame.
+            // TODO Phase 3.6: AnimatedMesh export removed with XNAnimation; restore once
+            // skeletal animation is rebuilt on MonoGame (plan §3.6 — SgMotion stubs +
+            // skinned-mesh extraction path).
         }
 
         public void ExportAllXnbMeshes(string extension)

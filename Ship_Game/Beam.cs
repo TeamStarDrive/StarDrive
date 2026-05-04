@@ -167,7 +167,7 @@ namespace Ship_Game
 
         public static void UpdateBeamEffect(UniverseScreen u)
         {
-            if (BeamEffect == null) return; // TODO Phase 2.2: BeamFX shader not yet rewritten
+            if (BeamEffect == null) return; // TODO Phase 3.5: BeamFX still null-stubbed in §3.3.A; restore via .mgfxo
             BeamEffect.Parameters["View"].SetValue(u.View);
             BeamEffect.Parameters["Projection"].SetValue(u.Projection);
         }
@@ -196,7 +196,7 @@ namespace Ship_Game
             if (QuadVertexDecl == null)
                 InitMesh();
 
-            if (BeamEffect == null) return; // TODO Phase 2.2: BeamFX shader not yet rewritten
+            if (BeamEffect == null) return; // TODO Phase 3.5: BeamFX still null-stubbed in §3.3.A; restore via .mgfxo
 
             // MonoGame: VertexDeclaration is carried by VertexBuffer (no device-level setter).
             BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];

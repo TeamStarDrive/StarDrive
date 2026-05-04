@@ -3,12 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    // TODO Phase 2: Restore bloom post-processing. XNA 3.1 APIs used here
+    // TODO Phase 3.8: Restore bloom post-processing. XNA 3.1 APIs used here
     // (DepthStencilBuffer, ResolveTexture2D, SpriteBlendMode, Effect.Begin/End,
     // Device.SetRenderTarget(int, ...), Device.DepthStencilBuffer, GetTexture)
     // are all removed in MonoGame. Phase 1 §1.8.9 keeps the public surface and
     // makes Draw/LoadContent no-ops; UniverseScreen still gates creation behind
-    // GlobalStats.RenderBloom.
+    // GlobalStats.RenderBloom. Plan §3.8 covers the rebuild on top of the §2.8
+    // forward renderer's per-frame RenderTarget plumbing.
     public sealed class BloomComponent : IDisposable
     {
         public BloomSettings Settings { get; set; } = BloomSettings.PresetSettings[0];
@@ -20,12 +21,12 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch batch)
         {
-            // TODO Phase 2: bloom render path
+            // TODO Phase 3.8: bloom render path
         }
 
         public void LoadContent()
         {
-            // TODO Phase 2: load BloomExtract / BloomCombine / GaussianBlur effects
+            // TODO Phase 3.8: load BloomExtract / BloomCombine / GaussianBlur effects
         }
 
         public enum IntermediateBuffer

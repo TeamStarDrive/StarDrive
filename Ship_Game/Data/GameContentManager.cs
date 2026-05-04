@@ -13,8 +13,9 @@ using SDUtils;
 using Ship_Game.Data.Mesh;
 using Ship_Game.SpriteSystem;
 using SynapseGaming.LightingSystem.Processors;
-// TODO Phase 2: SynapseGaming.LightingSystem.Core/Processors usings removed in Phase 1.8.12
+// SynapseGaming.LightingSystem.Core/Processors usings were removed in Phase 1.8.12
 // (SunBurn type loader stubbed). IEffectCache restored via SunBurnStubs.cs in Phase 1.9.
+// Historical context only — no further action.
 // ReSharper disable UnusedMember.Local
 
 namespace Ship_Game.Data
@@ -226,7 +227,8 @@ namespace Ship_Game.Data
                 else if (asset is Model mod)
                 {
                     numBytes += mod.Bones.Count * 256;
-                    // TODO Phase 2: ModelMesh.IndexBuffer/VertexBuffer moved to ModelMeshPart in MonoGame.
+                    // Note: ModelMesh.IndexBuffer/VertexBuffer moved to ModelMeshPart in MonoGame
+                    // — already accounted for via the inner MeshParts loop below.
                     foreach (ModelMesh mesh in mod.Meshes)
                         foreach (ModelMeshPart part in mesh.MeshParts)
                             numBytes += (part.IndexBuffer?.IndexCount ?? 0) * 2
@@ -314,7 +316,8 @@ namespace Ship_Game.Data
                         StaticMesh.DisposeModel(model);
                     }
                     break;
-                // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted, TODO Phase 2.
+                // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted; TODO Phase 3.6
+                // (skinned-mesh extraction + runtime playback) restores it.
                 case SpriteFont font:
                     var texture = GetSpriteFontTexture(font);
                     if (texture != null && !texture.IsDisposed)
@@ -346,7 +349,8 @@ namespace Ship_Game.Data
                 case TextureAtlas atlas: return atlas.IsDisposed;
                 case StaticMesh mesh: return mesh.IsDisposed;
                 case Model model: return StaticMesh.IsModelDisposed(model);
-                // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted, TODO Phase 2.
+                // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted; TODO Phase 3.6
+                // (skinned-mesh extraction + runtime playback) restores it.
                 case Video _: return false; // nothing to dispose
                 case SpriteFont font: { var t = GetSpriteFontTexture(font); return t == null || t.IsDisposed; }
                 // Effect/Shader cases removed — both inherit GraphicsResource (handled above).
@@ -779,18 +783,21 @@ namespace Ship_Game.Data
             }
             else
             {
-                // TODO Phase 2: animated path used XNAnimation SkinnedModel; both branches
-                // now load a static Model until skeletal animation is reintroduced.
+                // TODO Phase 3.6: animated path used XNAnimation SkinnedModel; both branches
+                // currently load a static Model. Phase 3.6 adds the SgMotion stubs +
+                // skinned-mesh extraction so this branch can return a real skinned mesh.
                 if (animated)
                     Log.Warning($"Phase 1: skinned model '{asset.RelPathWithExt}' loaded as static (XNAnimation removed)");
 
-                // TODO Phase 2.2/3: XNA 3.1-baked Model XNBs use a VertexDeclaration
+                // TODO Phase 3.4: XNA 3.1-baked Model XNBs use a VertexDeclaration
                 // binary layout that diverges from MonoGame 4.0+ (no stored vertexStride;
                 // VertexElement struct had Stream + ElementMethod fields that 4.0 dropped;
                 // exact per-element layout is undocumented and didn't fit any obvious
                 // shape in the empirical hex dump). MonoGame's ModelReader hits "Index
                 // was outside the bounds of the array" inside VertexDeclaration ctor.
                 // Tolerate by returning a stub StaticMesh — same pattern as MeshImporter.
+                // §3.4 step 5 is the in-progress fix (Xna31VertexDeclarationReader);
+                // most callers route through the FBX/OBJ corpus instead now.
                 // See memory: project_phase2_xnb_model_drift.md for the dump and plan.
                 try
                 {
@@ -814,8 +821,8 @@ namespace Ship_Game.Data
             return Load<Model>(modelName);
         }
 
-        // TODO Phase 2: SkinnedModel/XNAnimation removed in Phase 1.9.
-        // Restore once skeletal animation is rebuilt on MonoGame.
+        // TODO Phase 3.6: SkinnedModel/XNAnimation removed in Phase 1.9.
+        // Restore once skeletal animation is rebuilt on MonoGame (plan §3.6).
 
         protected override Stream OpenStream(string assetNameWithExt)
         {
@@ -865,18 +872,20 @@ namespace Ship_Game.Data
             }
         }
 
-        // TODO Phase 2: restore SunBurn ContentTypeReader routing if SunBurn-derived
-        // types need to load via XNB. Phase 1.8.12 stubs this because:
+        // TODO Phase 4: restore SunBurn ContentTypeReader routing if SunBurn-derived
+        // types ever need to load via XNB. Phase 1.8.12 stubbed this because:
         //   1) SDSunBurn is excluded from the solution in Phase 1.9, so
         //      `typeof(SceneInterface)` is no longer resolvable.
         //   2) MonoGame's ContentTypeReaderManager has different private fields
         //      (`readerTypeToReader`/`nameToReader`) than XNA 3.1, so the
         //      MethodUtil.ReplaceMethod monkey-patch would silently no-op.
+        // No live callers depend on this rerouting today; the stubbed type readers
+        // (SunBurnReaderStubs.cs, Xna31* readers) cover the actual XNB load paths.
         static void FixSunBurnTypeLoader()
         {
         }
 
-        // TODO Phase 2: restore SunBurn type rerouting (see FixSunBurnTypeLoader)
+        // TODO Phase 4: restore SunBurn type rerouting (see FixSunBurnTypeLoader)
         static bool InstantiateTypeReader(string readerTypeName, ContentReader contentReader, out ContentTypeReader reader)
         {
             reader = null;

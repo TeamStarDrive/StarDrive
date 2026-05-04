@@ -1,7 +1,15 @@
 // Phase 1 migration stubs for SynapseGaming SunBurn types.
 // SDSunBurn project was excluded from the solution in Phase 1.9.
-// All members are no-ops; existing call sites compile but render nothing.
-// TODO Phase 2: replace with MonoGame-native lighting/rendering implementation.
+//
+// Phase 2.8 sub-phases A1–C built a MonoGame-native forward renderer on top of
+// these stubs (LightingEffect over BasicEffect; LightingEffectBinder pushes
+// submitted lights onto BasicEffect's slots; SceneInterface.RenderScene is a
+// real per-frame pass), so most of this file is now functional rather than no-op.
+// What remains stub-shaped is the SunBurn type *surface* (PointLight vs DirectionalLight,
+// ShadowType, etc.) — these compile-time types are kept so existing call sites build,
+// while the actual rendering decisions live in SunBurnStubs.RenderScene + LightingEffectBinder.
+// Full SunBurn behavior parity (PointLight falloff, deferred path, real shadow maps)
+// is Phase 3.9 (shadow maps) + Phase 4 (deferred renderer if ever needed).
 
 using System;
 using System.Collections.Generic;

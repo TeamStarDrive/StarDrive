@@ -60,7 +60,7 @@ public sealed class ShieldManager : IDisposable
         GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
 
         ShieldEffect = content.Load<Effect>("Effects/scale");
-        if (ShieldEffect == null) return; // TODO Phase 2.2: scale shader not yet rewritten
+        if (ShieldEffect == null) return; // TODO Phase 3.5: scale.mgfxo restored in §3.3.A but re-verify guard
 
         ShieldEffect.CurrentTechnique = ShieldEffect.Techniques["Technique1"];
         ShieldEffect.Parameters["tex"].SetValue(ShieldTexture);
@@ -132,7 +132,7 @@ public sealed class ShieldManager : IDisposable
         if (IsDisposed)
             return;
 
-        if (ShieldEffect == null) return; // TODO Phase 2.2: scale shader not yet rewritten
+        if (ShieldEffect == null) return; // TODO Phase 3.5: scale.mgfxo restored in §3.3.A but re-verify guard
 
         if (ShieldEffect.IsDisposed || ShieldTexture.IsDisposed)
         {

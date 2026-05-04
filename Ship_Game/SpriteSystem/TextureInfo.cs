@@ -100,8 +100,9 @@ namespace Ship_Game.SpriteSystem
             SurfaceFormat format = Texture.Format;
             if (format == SurfaceFormat.Dxt5 || format == SurfaceFormat.Dxt1)
             {
-                // TODO Phase 2: MonoGame Texture2D has no DDS writer.
-                // Falling back to PNG for now to keep export working in some form.
+                // TODO Phase 4: MonoGame Texture2D has no DDS writer; PNG fallback
+                // keeps export usable. Add a custom DDS writer if/when DXT round-trip
+                // is needed (no consumer requires it today).
                 using FileStream fs = File.Create(Path.ChangeExtension(filename, "png"));
                 Texture.SaveAsPng(fs, Texture.Width, Texture.Height);
             }
