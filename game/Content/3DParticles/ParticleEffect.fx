@@ -92,15 +92,24 @@ float4 GetPosition(float3 position, float3 velocity, float time)
     // Work out how fast the particle should be moving at the end of its life,
     // by applying a constant scaling factor to its starting velocity.
     float V_end = V_start * EndVelocity;
- 
+
     // Constant acceleration formula for calculating distance.
     // We are using normalized time [0.0;1.0], so Duration = 1.0
     // a = (V_end - V_start)/Duration
     // S = V_start*t + (at^2)/2
     float distance = V_start*time + (V_end-V_start)*time*time*0.5;
-     
-    position += normalize(velocity) * distance * Duration;
-    
+
+    // Safe-normalize: zero-velocity particles (e.g. Flash, called as
+    // AddParticle(pos) which passes Vector3.Zero) hit normalize(0) here.
+    // Under mgfxc / vs_4_0_level_9_1 that compiles to 0/0 = NaN, and NaN*0 = NaN,
+    // so the entire quad ends up at NaN clip-space and the GPU drops it. The
+    // XNA D3DX compiler must have folded this differently. Compute the unit
+    // direction inline with a max-against-epsilon divisor instead — when
+    // V_start==0 the velocity vector is also 0 so the result is 0/eps = 0,
+    // and when V_start>0 the divisor equals V_start so it matches normalize().
+    float3 dir = velocity / max(V_start, 0.0001);
+    position += dir * distance * Duration;
+
     return ToScreenCoords(position);
 }
 
