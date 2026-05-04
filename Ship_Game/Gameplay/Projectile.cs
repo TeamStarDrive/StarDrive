@@ -442,7 +442,12 @@ namespace Ship_Game.Gameplay
                 }
                 else if (ResourceManager.ProjectileMesh(ModelPath, out StaticMesh projMesh))
                 {
-                    DrawMesh(screen, projMesh, WorldMatrix, ProjectileTexture.Texture, Weapon.Scale*50f);
+                    // Phase 3.5 cheap test: dropped the legacy *50 multiplier. The
+                    // *50 compensated for XNB-baked projectile meshes whose verts
+                    // were ~unit-scale; the §3.4 FBX re-export corpus ships at
+                    // native game-unit scale (projTear ~80 long, projLong ~160
+                    // long), so the multiplier was making them ~50x too big.
+                    DrawMesh(screen, projMesh, WorldMatrix, ProjectileTexture.Texture, Weapon.Scale);
                 }
             }
 
