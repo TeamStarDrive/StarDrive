@@ -1301,11 +1301,22 @@ namespace Ship_Game
             TransportableGoods = YamlParser.DeserializeArray<Good>("/Goods/Goods.yaml");
         }
 
-        // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
+        // Gather mesh files for a folder, preferring .fbx (the canonical format post-Phase B),
+        // falling back to .obj, and finally .xnb if any are still on disk (e.g. unreleased mods).
+        // Mirrors what GameContentManager.LoadStaticMesh resolves at the per-asset level.
+        static FileInfo[] GatherMeshFilesModOrVanilla(string dir)
+        {
+            var files = GatherFilesModOrVanilla(dir, "fbx");
+            if (files.Length == 0) files = GatherFilesModOrVanilla(dir, "obj");
+            if (files.Length == 0) files = GatherFilesModOrVanilla(dir, "xnb");
+            return files;
+        }
+
+        // loads models from a model folder that match "modelPrefixNNN.{fbx,obj,xnb}" format, where N is an integer
         static void LoadNumberedModels(Array<StaticMesh> models, string modelFolder, string modelPrefix)
         {
             models.Clear();
-            var files = GatherFilesModOrVanilla(modelFolder, "xnb");
+            var files = GatherMeshFilesModOrVanilla(modelFolder);
             DebugResourceLoading(modelPrefix, files);
             foreach (FileInfo info in files)
             {
@@ -1445,7 +1456,7 @@ namespace Ship_Game
 
         static void LoadCustomProjectileMeshes(string modelFolder)
         {
-            var files = GatherFilesModOrVanilla(modelFolder, "xnb");
+            var files = GatherMeshFilesModOrVanilla(modelFolder);
             DebugResourceLoading(modelFolder, files);
 
             foreach (FileInfo info in files)
@@ -1647,9 +1658,14 @@ namespace Ship_Game
             ShipHull[] newHulls = Parallel.Select(hullFiles, LoadShipHull);
             foreach (ShipHull hull in newHulls)
             {
-                // error check that all models exist, otherwise the game could crash when this hull is spawned
+                // error check that all models exist, otherwise the game could crash when this hull is spawned.
+                // Mirror the GameContentManager.LoadStaticMesh sibling-fallback: accept .xnb (legacy bake)
+                // OR .fbx / .obj (raw mesh) — Phase B archived obsolete .xnb under game/LegacyMesh/, so
+                // the on-disk presence of an .xnb is no longer required for hulls that ship with FBX/OBJ.
                 if (GetModOrVanillaFile(hull.ModelPath) == null &&
-                    GetModOrVanillaFile(hull.ModelPath + ".xnb"/*legacy XNB models*/) == null)
+                    GetModOrVanillaFile(hull.ModelPath + ".xnb") == null &&
+                    GetModOrVanillaFile(hull.ModelPath + ".fbx") == null &&
+                    GetModOrVanillaFile(hull.ModelPath + ".obj") == null)
                 {
                     throw new FileNotFoundException(
                         $"Could not find ModelPath={hull.ModelPath} for hull {hull.Source.Name} in {ContentDirectory}"
