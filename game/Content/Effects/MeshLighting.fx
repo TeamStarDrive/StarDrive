@@ -73,6 +73,33 @@ float3 DirLight2Direction      = float3(0, -1, 0);
 float3 DirLight2DiffuseColor   = float3(0, 0, 0);
 float3 DirLight2SpecularColor  = float3(0, 0, 0);
 
+// Per-pixel point-light slots (3). Each shaded pixel computes its own
+// direction to each point and applies smooth-quadratic radius falloff
+// (`saturate(1 - (d/Radius)^2)`). That gives automatic per-ship parallax
+// AND faithful SunBurn-style multi-light scenes (a system's Key /
+// OverSaturationKey / LocalFill all affect the hull, with each light's
+// radius determining its reach — OverSaturationKey's small radius means
+// it only oversaturates ships near the sun, not the whole hull).
+// LightingEffectBinder populates these from the closest system's 3
+// PointLights; the slot is inert when not bound.
+bool   PointLight0Enabled       = false;
+float3 PointLight0Position      = float3(0, 0, 0);
+float3 PointLight0DiffuseColor  = float3(0, 0, 0);
+float3 PointLight0SpecularColor = float3(0, 0, 0);
+float  PointLight0Radius        = 1.0;
+
+bool   PointLight1Enabled       = false;
+float3 PointLight1Position      = float3(0, 0, 0);
+float3 PointLight1DiffuseColor  = float3(0, 0, 0);
+float3 PointLight1SpecularColor = float3(0, 0, 0);
+float  PointLight1Radius        = 1.0;
+
+bool   PointLight2Enabled       = false;
+float3 PointLight2Position      = float3(0, 0, 0);
+float3 PointLight2DiffuseColor  = float3(0, 0, 0);
+float3 PointLight2SpecularColor = float3(0, 0, 0);
+float  PointLight2Radius        = 1.0;
+
 float3 FogColor = float3(0, 0, 0);
 float  FogStart = 0.0;
 float  FogEnd   = 1.0;
@@ -175,6 +202,40 @@ LightTerms ComputeDirectional(
     return terms;
 }
 
+// Per-pixel point-light contribution with smooth-quadratic radius falloff.
+// Direction is recomputed from world position so each shaded pixel sees the
+// light from its own angle (parallax). Falloff is `saturate(1 - (d/R)^2)`,
+// full at d=0 and zero at d=R — close enough to SunBurn's deferred falloff
+// that the OverSaturationKey (R=7.5k) only over-saturates hulls near the
+// sun while the Key (R=150k) lights the whole orbit.
+LightTerms ComputePoint(
+    float3 normalWS, float3 viewDirWS, float3 positionWS,
+    bool enabled, float3 lightPos, float3 lightDiffuse, float3 lightSpecular, float lightRadius)
+{
+    LightTerms terms;
+    terms.Diffuse = float3(0, 0, 0);
+    terms.Specular = float3(0, 0, 0);
+    if (!enabled) return terms;
+
+    float3 toLightVec = lightPos - positionWS;
+    float dist = length(toLightVec);
+    float3 toLight = toLightVec / max(dist, 0.0001);
+
+    float ratio = saturate(dist / max(lightRadius, 0.0001));
+    float atten = saturate(1.0 - ratio * ratio);
+    if (atten <= 0.0) return terms;
+
+    float ndl = saturate(dot(normalWS, toLight));
+    terms.Diffuse = lightDiffuse * ndl * atten;
+
+    float3 halfWay = normalize(toLight + viewDirWS);
+    float ndh = saturate(dot(normalWS, halfWay));
+    float specMask = ndl > 0 ? 1.0 : 0.0;
+    terms.Specular = lightSpecular * pow(ndh, SpecularPower) * specMask * atten;
+
+    return terms;
+}
+
 VSOutput VSDefault(VSInput input)
 {
     VSOutput output;
@@ -253,8 +314,21 @@ float4 PSDefault(VSOutput input) : SV_TARGET
         LightTerms l2 = ComputeDirectional(normalWS, viewDirWS,
             DirLight2Direction, DirLight2DiffuseColor, DirLight2SpecularColor);
 
-        float3 diffuseAcc  = (l0.Diffuse  + l1.Diffuse  + l2.Diffuse)  * DiffuseColor;
-        float3 specularAcc = (l0.Specular + l1.Specular + l2.Specular) * SpecularColor * specularMask;
+        // Per-pixel point lights — direction recomputed per pixel from
+        // world position, smooth-quadratic radius falloff. All 3 sum
+        // additively into the same diffuse/specular accumulators.
+        LightTerms p0 = ComputePoint(normalWS, viewDirWS, input.PositionWS,
+            PointLight0Enabled, PointLight0Position,
+            PointLight0DiffuseColor, PointLight0SpecularColor, PointLight0Radius);
+        LightTerms p1 = ComputePoint(normalWS, viewDirWS, input.PositionWS,
+            PointLight1Enabled, PointLight1Position,
+            PointLight1DiffuseColor, PointLight1SpecularColor, PointLight1Radius);
+        LightTerms p2 = ComputePoint(normalWS, viewDirWS, input.PositionWS,
+            PointLight2Enabled, PointLight2Position,
+            PointLight2DiffuseColor, PointLight2SpecularColor, PointLight2Radius);
+
+        float3 diffuseAcc  = (l0.Diffuse  + l1.Diffuse  + l2.Diffuse  + p0.Diffuse  + p1.Diffuse  + p2.Diffuse)  * DiffuseColor;
+        float3 specularAcc = (l0.Specular + l1.Specular + l2.Specular + p0.Specular + p1.Specular + p2.Specular) * SpecularColor * specularMask;
 
         // Texture modulates ambient + diffuse but NOT specular (BasicEffect
         // convention — keeps highlights reading like reflections). Emissive

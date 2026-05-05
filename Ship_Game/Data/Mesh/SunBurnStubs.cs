@@ -191,8 +191,14 @@ namespace SynapseGaming.LightingSystem.Core
             GraphicsDevice.BlendState = BlendState.Opaque;
 
             // Apply lights + ambient + fog from submitted state ONCE per frame.
+            // Camera position is needed so the binder can pick the PointLight
+            // closest to the active view as the scene "sun" (per-system Key
+            // suns each submit their own PointLight; globally-brightest can
+            // pick a sun from a different system across the universe and
+            // light the ship from the wrong direction).
+            Vector3 cameraPos = Matrix.Invert(LastFrameState.View).Translation;
             Ship_Game.Data.Mesh.LightingEffectBinder.Apply(
-                SharedFx, LightManager.ActiveLights, LastFrameState.Environment);
+                SharedFx, LightManager.ActiveLights, LastFrameState.Environment, cameraPos);
             SharedFx.View = LastFrameState.View;
             SharedFx.Projection = LastFrameState.Projection;
 
@@ -220,6 +226,9 @@ namespace SynapseGaming.LightingSystem.Core
             CopyDirectional(fx.DirectionalLight0, SharedFx.DirectionalLight0);
             CopyDirectional(fx.DirectionalLight1, SharedFx.DirectionalLight1);
             CopyDirectional(fx.DirectionalLight2, SharedFx.DirectionalLight2);
+            fx.PointLight0 = SharedFx.PointLight0;
+            fx.PointLight1 = SharedFx.PointLight1;
+            fx.PointLight2 = SharedFx.PointLight2;
         }
 
         static void CopyDirectional(Microsoft.Xna.Framework.Graphics.DirectionalLight dst,
@@ -683,6 +692,16 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         readonly EffectParameter pDl1Direction, pDl1Diffuse, pDl1Specular;
         readonly EffectParameter pDl2Direction, pDl2Diffuse, pDl2Specular;
 
+        // 3 per-pixel PointLight slots. Each shaded pixel computes its own
+        // direction + smooth-quadratic radius falloff against PointLightN*.
+        // Replaces SunBurn's deferred per-system Key/OverSaturationKey/
+        // LocalFill — each light keeps its native radius so the small-radius
+        // OverSaturationKey only over-brightens hulls near the sun while
+        // Key + LocalFill light the whole orbit.
+        readonly EffectParameter pPl0Enabled, pPl0Position, pPl0Diffuse, pPl0Specular, pPl0Radius;
+        readonly EffectParameter pPl1Enabled, pPl1Position, pPl1Diffuse, pPl1Specular, pPl1Radius;
+        readonly EffectParameter pPl2Enabled, pPl2Position, pPl2Diffuse, pPl2Specular, pPl2Radius;
+
         // ── World/View/Projection ───────────────────────────────────────────
         public Matrix World      { get; set; } = Matrix.Identity;
         public Matrix Projection { get; set; } = Matrix.Identity;
@@ -709,6 +728,19 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         public DirectionalLight DirectionalLight0 { get; }
         public DirectionalLight DirectionalLight1 { get; }
         public DirectionalLight DirectionalLight2 { get; }
+
+        // PointLight slots — see field declaration above.
+        public struct PointLightSlot
+        {
+            public bool    Enabled;
+            public Vector3 Position;
+            public Vector3 DiffuseColor;
+            public Vector3 SpecularColor;
+            public float   Radius;
+        }
+        public PointLightSlot PointLight0;
+        public PointLightSlot PointLight1;
+        public PointLightSlot PointLight2;
 
         // ── Fog state ───────────────────────────────────────────────────────
         public bool    FogEnabled { get; set; }
@@ -755,6 +787,24 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pDl2Direction = Parameters["DirLight2Direction"];
             pDl2Diffuse   = Parameters["DirLight2DiffuseColor"];
             pDl2Specular  = Parameters["DirLight2SpecularColor"];
+
+            pPl0Enabled  = Parameters["PointLight0Enabled"];
+            pPl0Position = Parameters["PointLight0Position"];
+            pPl0Diffuse  = Parameters["PointLight0DiffuseColor"];
+            pPl0Specular = Parameters["PointLight0SpecularColor"];
+            pPl0Radius   = Parameters["PointLight0Radius"];
+
+            pPl1Enabled  = Parameters["PointLight1Enabled"];
+            pPl1Position = Parameters["PointLight1Position"];
+            pPl1Diffuse  = Parameters["PointLight1DiffuseColor"];
+            pPl1Specular = Parameters["PointLight1SpecularColor"];
+            pPl1Radius   = Parameters["PointLight1Radius"];
+
+            pPl2Enabled  = Parameters["PointLight2Enabled"];
+            pPl2Position = Parameters["PointLight2Position"];
+            pPl2Diffuse  = Parameters["PointLight2DiffuseColor"];
+            pPl2Specular = Parameters["PointLight2SpecularColor"];
+            pPl2Radius   = Parameters["PointLight2Radius"];
 
             // DirectionalLight binds direction/diffuse/specular parameters and
             // auto-pushes on property assignment. Enabled is a C# bool that we
@@ -856,6 +906,10 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             ApplyDirectional(DirectionalLight1, pDl1Diffuse, pDl1Specular);
             ApplyDirectional(DirectionalLight2, pDl2Diffuse, pDl2Specular);
 
+            ApplyPointLight(PointLight0, pPl0Enabled, pPl0Position, pPl0Diffuse, pPl0Specular, pPl0Radius);
+            ApplyPointLight(PointLight1, pPl1Enabled, pPl1Position, pPl1Diffuse, pPl1Specular, pPl1Radius);
+            ApplyPointLight(PointLight2, pPl2Enabled, pPl2Position, pPl2Diffuse, pPl2Specular, pPl2Radius);
+
             pFogEnabled?.SetValue(FogEnabled);
             pFogColor?.SetValue(FogColor);
             pFogStart?.SetValue(FogStart);
@@ -894,6 +948,18 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             if (light.Enabled) return;   // user-set diffuse/specular already pushed via property setters
             diffuseParam?.SetValue(Vector3.Zero);
             specularParam?.SetValue(Vector3.Zero);
+        }
+
+        static void ApplyPointLight(PointLightSlot slot,
+            EffectParameter enabledParam, EffectParameter positionParam,
+            EffectParameter diffuseParam, EffectParameter specularParam, EffectParameter radiusParam)
+        {
+            enabledParam?.SetValue(slot.Enabled);
+            if (!slot.Enabled) return;
+            positionParam?.SetValue(slot.Position);
+            diffuseParam?.SetValue(slot.DiffuseColor);
+            specularParam?.SetValue(slot.SpecularColor);
+            radiusParam?.SetValue(slot.Radius);
         }
     }
 }

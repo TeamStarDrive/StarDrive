@@ -211,25 +211,18 @@ namespace Ship_Game
             AddLight("Global Fill Light", new Vector2(0, 0), 0.7f, globalLightRad, Color.White, -globalLightZPos, fillLight: false, shadowQuality: 0f);
             AddLight("Global Back Light", new Vector2(0, 0), 0.6f, globalLightRad, Color.White, +globalLightZPos, fillLight: false, shadowQuality: 0f);
 
-            // Phase B refactor: scene-wide DirectionalLight + AmbientLight feed
-            // SharedFx via LightingEffectBinder so every SO (ships, planets,
-            // asteroids, launching ships, debris) gets consistent forward-renderer
-            // lighting without per-object PrimaryLight* setup. Direction is
-            // (0.7, 0, 0.7) — the same oblique angle the deleted
-            // Ship.UpdatePrimaryLight used as a fallback for ships outside any
-            // system, and close to the average parallax angle inside a system.
-            // Pure +Z straight-down would land N·L = 1.0 on every camera-facing
-            // pixel and erase normal-map detail + lit/shadow contrast. Ambient
-            // at 0.06× white matches the pre-refactor per-SO PrimaryLightColor
-            // × 0.06 ambient floor.
-            AddLight(new SynapseGaming.LightingSystem.Lights.DirectionalLight
-            {
-                Name = "Universe Sun",
-                DiffuseColor = Color.White.ToVector3(),
-                Intensity = 1.0f,
-                Direction = new Vector3(0.7f, 0f, 0.7f).Normalized(),
-                Enabled = true,
-            }, dynamic: false);
+            // Phase B refactor: scene-wide AmbientLight feeds SharedFx via
+            // LightingEffectBinder so every SO (ships, planets, asteroids,
+            // launching ships, debris) gets a consistent shadow-floor without
+            // per-object PrimaryLight* setup. The "sun" itself comes from the
+            // existing per-system Key/LocalFill/OverSaturationKey PointLights:
+            // LightingEffectBinder picks the closest system's 3 lights and
+            // populates the 3 PointLight slots in MeshLighting.fx. The shader
+            // recomputes light direction per-pixel from world position, with
+            // smooth-quadratic radius falloff per light — automatic per-ship
+            // parallax + faithful SunBurn-style multi-light contributions.
+            // Ambient at 0.06× white matches the pre-refactor per-SO ambient
+            // floor (PrimaryLightColor * 0.06 in the old contrast pass).
             AddLight(new AmbientLight
             {
                 Name = "Universe Ambient",

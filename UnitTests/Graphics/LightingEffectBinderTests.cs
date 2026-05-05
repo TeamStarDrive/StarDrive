@@ -37,7 +37,7 @@ public class LightingEffectBinderTests : StarDriveTest
         };
 
         using var fx = new LightingEffect(Game.GraphicsDevice);
-        LightingEffectBinder.Apply(fx, lightManager.ActiveLights, env);
+        LightingEffectBinder.Apply(fx, lightManager.ActiveLights, env, Vector3.Zero);
 
         Assert.IsTrue(fx.LightingEnabled, "LightingEnabled should be true once a directional light is submitted.");
         Assert.IsTrue(fx.DirectionalLight0.Enabled, "DirectionalLight0 should be enabled.");
@@ -64,7 +64,7 @@ public class LightingEffectBinderTests : StarDriveTest
         var lightManager = new SunBurnLights.LightManager();
         var env = new SceneEnvironment { AmbientLightColor = Vector3.Zero };
         using var fx = new LightingEffect(Game.GraphicsDevice);
-        LightingEffectBinder.Apply(fx, lightManager.ActiveLights, env);
+        LightingEffectBinder.Apply(fx, lightManager.ActiveLights, env, Vector3.Zero);
 
         Assert.IsFalse(fx.LightingEnabled, "LightingEnabled should be false when no lights and zero ambient.");
         Assert.IsFalse(fx.DirectionalLight0.Enabled);

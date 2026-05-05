@@ -20,21 +20,53 @@ namespace Ship_Game.Data.Mesh;
 /// </summary>
 public static class LightingEffectBinder
 {
-    static bool s_warnedPointLight;
     static bool s_warnedExtraDirectional;
 
     public static void Apply(LightingEffect fx,
                              IReadOnlyList<SunBurnLights.ILight> lights,
-                             SceneEnvironment env)
+                             SceneEnvironment env,
+                             Vector3 cameraPos)
     {
         if (fx == null) return;
 
-        // BasicEffect ships 3 directional-light slots; collect up to 3 directionals
-        // and an aggregated ambient. PointLights are unsupported by BasicEffect and
-        // logged-once.
+        // 3 directional slots + 3 per-pixel PointLight slots (the "Sun" group;
+        // see MeshLighting.fx ComputePoint). Point lights are populated from
+        // the closest enabled system Key by XY (universe scenes submit one Key
+        // per system); the 3 lights at that Key's XY (Key + LocalFill +
+        // OverSaturationKey) all bind into the slots so per-pixel parallax +
+        // each light's native radius falloff replicate SunBurn's deferred
+        // multi-light scene.
         Vector3 ambient = env?.AmbientLightColor ?? new Vector3(0.2f, 0.2f, 0.2f);
         XnaDirectionalLight[] slots = { fx.DirectionalLight0, fx.DirectionalLight1, fx.DirectionalLight2 };
         int dirIndex = 0;
+
+        // Pick the PointLight CLOSEST to the camera as the scene "sun" anchor.
+        // Universe submits per-system PointLights; with a globally-brightest
+        // selector, the active view could end up lit by a sun from a different
+        // system (visible regression: ship lit from the opposite side of the
+        // in-scene sun glow). Closest-to-camera correctly selects the system
+        // the player is looking at.
+        //
+        // XY-only distance: camera Z varies hugely with zoom (~-1000 zoomed
+        // in, ~-250000 zoomed out); including dz² makes every sun look
+        // equidistant when zoomed out and selection becomes order-dependent.
+        // The play plane sits at z=0 and all system Keys at z=-5500, so the
+        // sun the player is "looking at" is always the one closest in XY.
+        //
+        // Radius bounds: include only system-scale scene lights.
+        //   - Key      (z=-5500, R = sun.Radius ~150k)         ✓
+        //   - LocalFill (z=0,    R = sun.Radius ~150k)         ✓
+        //   - OverSaturationKey (z=-1500, R = 0.05*sun.Radius
+        //     ~7.5k) — included for the per-pixel falloff path; small
+        //     radius means it only over-brightens hulls within ~7.5k of
+        //     the sun (correct sun-near behavior, like SunBurn).
+        //   - Global Fill / Back (z=±150M, R ~150M) — excluded by R < 1M.
+        //     They were SunBurn ambient proxies; including them lets a
+        //     deep-space camera pick the (0,0,-150M) origin as the sun
+        //     and the dominant Z drives every pixel to N·L=1 (uniform
+        //     straight-down light, no shading).
+        SunBurnLights.PointLight bestSun = null;
+        float bestSunDist2 = float.MaxValue;
 
         if (lights != null)
         {
@@ -68,11 +100,14 @@ public static class LightingEffectBinder
                         ambient += a.DiffuseColor * a.Intensity;
                         break;
 
-                    case SunBurnLights.PointLight p when p.Enabled:
-                        if (!s_warnedPointLight)
+                    case SunBurnLights.PointLight p when p.Enabled && p.Radius >= 1000f && p.Radius < 1_000_000f:
+                        float dx = p.Position.X - cameraPos.X;
+                        float dy = p.Position.Y - cameraPos.Y;
+                        float dist2 = dx*dx + dy*dy;
+                        if (dist2 < bestSunDist2)
                         {
-                            s_warnedPointLight = true;
-                            Log.Warning("LightingEffectBinder: PointLight submitted but BasicEffect has no point-light support; ignored.");
+                            bestSun = p;
+                            bestSunDist2 = dist2;
                         }
                         break;
                 }
@@ -83,9 +118,50 @@ public static class LightingEffectBinder
         for (int i = dirIndex; i < slots.Length; ++i)
             slots[i].Enabled = false;
 
-        // LightingEnabled gates BasicEffect's per-pixel lighting math entirely.
-        // Enable only when at least one directional or non-trivial ambient is set.
-        fx.LightingEnabled = dirIndex > 0 || ambient.LengthSquared() > 0.0001f;
+        // Populate the 3 PointLight slots from the closest system's lights
+        // (those sharing XY with the chosen Key). Pre-migration SunBurn used
+        // 3 PointLights per system: Key (full radius scene light), LocalFill
+        // (full radius white fill), OverSaturationKey (small radius, 5×
+        // intensity sun-pixel oversaturator). Each had its own falloff in
+        // the deferred pass; the shader's per-pixel `1 - (d/R)^2` falloff
+        // replicates that — so OverSaturationKey only over-brightens hulls
+        // within its 7.5k radius without amplifying every hull 5× as a
+        // uniform factor would.
+        var slot0 = default(LightingEffect.PointLightSlot);
+        var slot1 = default(LightingEffect.PointLightSlot);
+        var slot2 = default(LightingEffect.PointLightSlot);
+        if (bestSun != null)
+        {
+            int slotIndex = 0;
+            for (int i = 0; i < lights.Count && slotIndex < 3; ++i)
+            {
+                if (lights[i] is SunBurnLights.PointLight q && q.Enabled
+                    && q.Radius >= 1000f && q.Radius < 1_000_000f
+                    && q.Position.X == bestSun.Position.X
+                    && q.Position.Y == bestSun.Position.Y)
+                {
+                    var slot = new LightingEffect.PointLightSlot
+                    {
+                        Enabled = true,
+                        Position = q.Position,
+                        DiffuseColor = q.DiffuseColor * q.Intensity,
+                        SpecularColor = q.DiffuseColor * 0.15f,
+                        Radius = q.Radius,
+                    };
+                    if      (slotIndex == 0) slot0 = slot;
+                    else if (slotIndex == 1) slot1 = slot;
+                    else                     slot2 = slot;
+                    slotIndex++;
+                }
+            }
+        }
+        fx.PointLight0 = slot0;
+        fx.PointLight1 = slot1;
+        fx.PointLight2 = slot2;
+
+        // LightingEnabled gates the per-pixel lighting math entirely. Enable
+        // when at least one directional, point light, or non-trivial ambient is set.
+        fx.LightingEnabled = dirIndex > 0 || bestSun != null || ambient.LengthSquared() > 0.0001f;
         fx.AmbientLightColor = ambient;
 
         // Fog
