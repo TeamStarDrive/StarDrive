@@ -6,21 +6,21 @@
 
 | Carryover | Phase 2 status | Phase 3 sub-phase |
 |---|---|---|
-| **276 XNB Model files** (ship/hull/projectile/station/effect meshes — some skinned/animated) | Stubbed at `GameContentManager.LoadStaticMesh`; returns minimum-viable `StaticMesh(name, unitBounds)` | §3.4 (static) + §3.6 (skinned/animated) |
+| **276 XNB Model files** (ship/hull/projectile/station/effect meshes — some skinned/animated) | Stubbed at `GameContentManager.LoadStaticMesh`; returns minimum-viable `StaticMesh(name, unitBounds)` | §3.4 (static) + §3.10 (skinned/animated) |
 | **9 asteroid `.fbx` meshes** | `NANOMESH_NO_FBX=1` retained in x64; `Mesh::LoadFBX` returns `false` | §3.2 |
 | **6 broken Effect XNBs** (BeamFX, scale, Thrust, desaturate, BasicFogOfWar, PlanetHalo) | `Phase2BrokenEffectXnbs` set in `GameContentManager`; one-time warning, callers null-guard | §3.3 |
 | **Steam SDK x64** (parked at the very end of the migration) | `SteamManager.Initialize()` short-circuits to `false`; achievements/stats inactive | §3.11 (deferred final step, unchanged from Phase 2) |
-| **Cosmetic** (MainMenu Mars sphere; VideoPlayer.IsLooped) | Mars renders as a flat strip; Loading 2 video plays once instead of looping | §3.7 / §3.12 polish pass |
+| **Cosmetic** (MainMenu Mars sphere; VideoPlayer.IsLooped) | Mars renders as a flat strip; Loading 2 video plays once instead of looping | §3.6 / §3.12 polish pass |
 
 **The user's framing**: this is the **most important phase**. "Issues are expected with XNB Models. Some of them also contain animations." Skinned-model XNBs embed bone hierarchies + animation clip data that depended on the now-purged `XNAnimation` library at runtime, plus SunBurn `LightingMaterialReader_Pro` for material data. The 8 static-raw XNBs (`ThrustCylinderB`, `Window`, `muzzleEnergy`, `projBall/Long/Tear`, `Kulrathi/ship12b/c`) additionally need an XNA 3.1 VertexDeclaration binary decoder.
 
 **§3.1 inventory close-out (2026-05-02 — see [phase3-logs/asset-survey-summary.md](phase3-logs/asset-survey-summary.md))**:
 - **122 confirmed static-sunburn Models** (+ ~12 likely-static in the tool's unreadable set, runtime-confirmed).
 - **8 confirmed static-raw Models** (the 3.1 VertexDeclaration drift cluster).
-- **1 confirmed skinned-sgmotion Model** (`Model/Ships/Ralyeh/ship17a.xnb`) + 5 likely-skinned siblings (`ship17b-f.xnb`). **Realistic §3.6 scope: 6 XNBs** (Ralyeh ship17 family), not the original "30-60" estimate.
+- **1 confirmed skinned-sgmotion Model** (`Model/Ships/Ralyeh/ship17a.xnb`) + 5 likely-skinned siblings (`ship17b-f.xnb`). **Realistic §3.10 scope: 6 XNBs** (Ralyeh ship17 family), not the original "30-60" estimate.
 - The asset inventory tool at `Tools/Phase3AssetInventory/` is one-shot and feeds sub-phase scoping; the §3.4 extraction pipeline uses MonoGame's runtime `ContentManager` (proven path), not this tool.
 
-**2026-05-02 architectural unlock — developer note from the original mesh-export author**: the previous developer had finished the C++ side of mesh export (NanoMesh FBX writer + complete bone APIs in `SDNative/SdMesh/SdAnimation.h`: `SDMeshAddBone`, `SDMeshAddSkinnedBone`, `SDMeshCreateAnimationClip`, `SDMeshAddBoneAnimation`, `SDMeshAddAnimationKeyFrame`). The mesh-conversion work was never finished only because of skeletal-mesh import on the C# side — bones + skin weights weren't being walked from the runtime-loaded XNB into the SDNative DLL. The intended architecture: **load XNB at runtime via `ContentManager` → walk bones/weights/clips in C# → call SDNative bone APIs → emit FBX**. This consolidates §3.4 + §3.6 into one extraction pipeline reusing the existing C++ infrastructure rather than building a parallel system. The strategy below reflects this.
+**2026-05-02 architectural unlock — developer note from the original mesh-export author**: the previous developer had finished the C++ side of mesh export (NanoMesh FBX writer + complete bone APIs in `SDNative/SdMesh/SdAnimation.h`: `SDMeshAddBone`, `SDMeshAddSkinnedBone`, `SDMeshCreateAnimationClip`, `SDMeshAddBoneAnimation`, `SDMeshAddAnimationKeyFrame`). The mesh-conversion work was never finished only because of skeletal-mesh import on the C# side — bones + skin weights weren't being walked from the runtime-loaded XNB into the SDNative DLL. The intended architecture: **load XNB at runtime via `ContentManager` → walk bones/weights/clips in C# → call SDNative bone APIs → emit FBX**. This consolidates §3.4 + §3.10 into one extraction pipeline reusing the existing C++ infrastructure rather than building a parallel system. The strategy below reflects this.
 
 **Related memory** (read these before starting any sub-phase):
 - [project_phase2_xnb_model_drift.md](c:/Users/gkapu/.claude/projects/c--Development-stardrive-BlackBoxPlus/memory/project_phase2_xnb_model_drift.md) — empirical hex dump + 3 resolution paths
@@ -46,7 +46,7 @@ The user runs `game/StarDrive.exe`. The process:
 - Pixel-exact match to 2013 SunBurn deferred-renderer output. Forward-renderer-equivalent is the bar.
 - Save-game compatibility with pre-migration XNA 3.1 saves (separate workstream if needed).
 - Network / multiplayer (none planned per ARCHITECTURE.md §5.6).
-- HDR tone mapping. Bloom is in §3.8.
+- HDR tone mapping. Bloom is in §3.7.
 - Sound / music engine changes (already working in Phase 2).
 
 ## Confirmed Strategic Decisions
@@ -56,7 +56,7 @@ The user runs `game/StarDrive.exe`. The process:
 | **XNB Model decode strategy** | **Runtime ContentTypeReader stubs + restore `MeshExporter.Export`**. Use MonoGame's existing `ContentManager` (proven LZX + ModelReader path) to load each XNB once. Stub readers consume SunBurn / SgMotion / 3.1-VD bytes so manifest resolution succeeds; the runtime then constructs a real `Microsoft.Xna.Framework.Graphics.Model`. `MeshExporter.Export(Model)` (currently a Phase 1 stub) walks the loaded Model and feeds NanoMesh via the existing SDNative bone DLLAPIs (`SDMeshAddBone`, `SDMeshAddVertex`, etc.) → NanoMesh emits `.fbx` sidecar → `RawContentLoader` reloads it on next access. | Reuses the proven runtime LZX/Model path and the original developer's already-finished C++ exporter. Avoids the standalone XNB decoder + research-grade VertexDeclaration parser the original plan called for. The previous mesh-conversion attempt got blocked specifically on the C#-side skeletal extraction; that's now narrowly scoped. Sidecars are commit-gated. |
 | **XNB Model — material data** | **SunBurn ContentTypeReader stubs** that read the `LightingMaterialReader_Pro` payload and convert to a portable material struct (`MaterialDef { diffuse, normal, specular, emissive, shininess }`). Stubs live in `Ship_Game/Data/Mesh/SunBurnReaderStubs.cs`. | The 130+ static XNBs all reference SunBurn type readers that XNA's `ContentReader.GetTypeReader` can't resolve (`SDSunBurn` was purged in Phase 1.9). Stubs only need to *consume* the bytes correctly so the manifest resolves — `MeshExporter` reads material data from the consumed structs and re-emits as FBX `FbxSurfacePhong`. |
 | **Skinned mesh extraction** | **SgMotion ContentTypeReader stubs + extend `MeshExporter` with skinned path**. Stubs (`SkinnedModelReader`, `SkinnedModelBoneReader`, `AnimationClipReader`, `TimeSpanReader`) consume the SgMotion-baked bones + skin weights + animation clips and surface them as portable C# structs. `MeshExporter` calls `SDMeshAddSkinnedBone` + `SDMeshCreateAnimationClip` + `SDMeshAddBoneAnimation` + `SDMeshAddAnimationKeyFrame` — APIs that already exist in `SdAnimation.h`. NanoMesh's FBX writer serializes the skin cluster + anim stack. | One pipeline handles static and skinned (skinned just adds the bone DLLAPI calls). The C++ side is already finished per the developer note; this is the C# bridge that was missing. Realistic scope is 6 XNBs (Ralyeh ship17 family — only confirmed-skinned set in the inventory). |
-| **Skinned mesh runtime rendering** | **Re-import-via-FBX path is the default**. Once §3.6 emits a skinned `.fbx` sidecar, the existing `RawContentLoader` + NanoMesh FBX import handles it at runtime. The skin shader + `BoneAnimationPlayer` are only required if we want clip playback in-engine — for §3.6's success-gate (mesh visible with bones), bind-pose-only rendering via the FBX import is acceptable. Custom skin shader / `BoneAnimationPlayer` is a Phase 3.5.B follow-up if clip playback is needed. | Decouples extraction (the hard part the previous developer was stuck on) from runtime animation playback (well-trodden territory we can land in a follow-up step). Lets §3.6 ship with visible Ralyeh hulls + bone hierarchies even if clip playback isn't wired. |
+| **Skinned mesh runtime rendering** | **Re-import-via-FBX path is the default**. Once §3.10 emits a skinned `.fbx` sidecar, the existing `RawContentLoader` + NanoMesh FBX import handles it at runtime. The skin shader + `BoneAnimationPlayer` are only required if we want clip playback in-engine — for §3.10's success-gate (mesh visible with bones), bind-pose-only rendering via the FBX import is acceptable. Custom skin shader / `BoneAnimationPlayer` is §3.10.B (optional follow-up) if clip playback is needed. | Decouples extraction (the hard part the previous developer was stuck on) from runtime animation playback (well-trodden territory we can land in a follow-up step). Lets §3.10 ship with visible Ralyeh hulls + bone hierarchies even if clip playback isn't wired. |
 | **3.1 VertexDeclaration binary decode** | **Custom `Xna31VertexDeclarationReader`** registered alongside the existing `Xna31Texture2D/3DReader`. Decodes the 3.1 binary format empirically from the 8 known static-raw XNBs and produces a MonoGame `VertexDeclaration`. | Narrow scope (8 XNBs, all known) makes empirical decode tractable. The 28-bytes-for-3-elements hex from `ThrustCylinderB.xnb` is preserved in `project_phase2_xnb_model_drift.md`; with 8 different samples we can build a reliable hypothesis. Failure fallback: hand-construct the equivalent `VertexDeclaration` in C# for each unique pattern (lookup table). |
 | **Animation classification** | **§3.1 inventory CSV** (`phase3-logs/asset-survey.csv`) drives scheduling. | The 276-asset surface was hand-audited via the inventory tool; results show much smaller skinned scope than originally feared. |
 | **Effect XNB-3.1 → MGFX shim** | **Custom `ContentTypeReader<Effect>` registered via `ContentTypeReaderManager.AddTypeCreator`** (same pattern as the §2.2 `Xna31Texture2DReader`). Reads XNA 3.1's `Effect` XNB layout (header + D3D9 shader bytecode + param metadata) and synthesizes an MGFX byte stream in-memory before constructing the MonoGame `Effect`. | One fix covers all 6 broken effects + any Effect XNB the codebase doesn't currently route. Avoids needing source `.fx` recovery (`BeamFX.fx`, `scale.fx` etc. don't exist on disk). Disassembly via `fxc /dumpbin` is the fallback per `project_phase2_effect_xnb_drift.md`. |
@@ -75,11 +75,11 @@ The user runs `game/StarDrive.exe`. The process:
 | 3.3.A | Fix Phase 2.3 SpriteFont rebake size regression (RESOLVED 2026-05-03, commit c0879d2c2) | Medium |
 | 3.4 | ~~XNB Model decode — static meshes (~210 of 276)~~ **RESOLVED 2026-05-04 via offline FBX export pipeline (commit 9bd3b7128); Phase B archived all Model XNBs** | **High** |
 | 3.5 | Particle / beam / projectile FX restoration end-to-end (incl. Phase C texture XNB→DDS migration) | Medium |
-| 3.6 | XNB Model decode — skinned/animated meshes + animation runtime | **Very High** |
-| 3.7 | MainMenu Mars 3D sphere; Phase 2 cosmetic carryover cleanup | Low–Medium |
-| 3.8 | Renderer feature parity: bloom, distortion, fog-of-war post-process passes | Medium |
-| 3.9 | Shadow maps (basic) | Medium–High |
-| 3.10 | FBX TransparencyFactor write fix + legacy mesh re-export (Combined Arms ships) | Medium |
+| 3.6 | MainMenu Mars 3D sphere; Phase 2 cosmetic carryover cleanup | Low–Medium |
+| 3.7 | Renderer feature parity: bloom, distortion, fog-of-war post-process passes, material maps | Medium |
+| 3.8 | Shadow maps (basic) | Medium–High |
+| 3.9 | FBX TransparencyFactor write fix + legacy mesh re-export (Combined Arms ships) | Medium |
+| 3.10 | XNB Model decode — skinned/animated meshes + animation runtime | **Very High** |
 | 3.11 | **Deferred Final Step**: Steam SDK x64 via Steamworks.NET | Medium |
 | 3.12 | Phase 3 close: PHASE3_RESULTS.md, runtime smoke, final memory cleanup | Low |
 
@@ -104,13 +104,13 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
      - Additionally contains `SkinningDataReader` / `AnimationClipReader` / `BoneReader` (whatever XNA 3.1 + SgMotion baked) → **skinned**.
    - For skinned meshes, extract bone count + clip count + clip names if reachable in the manifest.
    - Output `phase3-logs/asset-survey.csv`: `path, kind (static|skinned|unknown), bone_count, clip_count, clip_names, vertex_decl_bytes_hex`.
-   - Output `phase3-logs/asset-survey-summary.md`: counts by kind × directory; flag any directory where ≥1 asset is skinned (those folders need the §3.6 runtime to be visible at all).
-7. Cross-reference the survey with code: `grep -rn "LoadStaticMesh\|LoadModel\(" Ship_Game --include="*.cs"` — for each call site, mark whether the asset is critical-path (Universe combat, Ship Designer, splash) or peripheral (mod menu thumbnails). The CSV will drive §3.4 vs §3.6 priority.
+   - Output `phase3-logs/asset-survey-summary.md`: counts by kind × directory; flag any directory where ≥1 asset is skinned (those folders need the §3.10 runtime to be visible at all).
+7. Cross-reference the survey with code: `grep -rn "LoadStaticMesh\|LoadModel\(" Ship_Game --include="*.cs"` — for each call site, mark whether the asset is critical-path (Universe combat, Ship Designer, splash) or peripheral (mod menu thumbnails). The CSV will drive §3.4 vs §3.10 priority.
 8. Inventory `// TODO Phase 3:` markers: `grep -rn "TODO Phase 3" Ship_Game SDGraphics SDUtils SDNative` — surface every Phase 2 deferred site.
 
 **Verification**:
 - Build matrix green; baseline log captured; CSV produced and committed under `phase3-logs/`.
-- CSV + summary doc allow §3.4 / §3.6 scope to be costed before either sub-phase starts.
+- CSV + summary doc allow §3.4 / §3.10 scope to be costed before either sub-phase starts.
 
 **Rollback**: `git checkout migration/monogame_migration && git branch -D migration/phase3-x64-monogame`.
 
@@ -248,7 +248,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ## 3.4 — XNB Model Decode — Static Meshes (~134 of 276) — **RESOLVED 2026-05-04**
 
-**Resolution summary**: the original strategy (runtime XNB decode via reader stubs + `MeshExporter.Export` FBX emit) was **superseded mid-flight** by an offline export pipeline. On `legacy/mesh_exporter_xna31` (XNA 3.1 + .NET 4.8, can read original XNB Models), `MeshExporter` was re-derived and run over the entire static corpus, producing FBX+DDS sidecars. Output committed to migration as `9bd3b7128 content: legacy mesh re-export drop (FBX + DDS + PNG, 147 MB)`. Phase B (commits `6f68b9396` + `a5da742b4`) then archived all 276 Model XNBs out of `game/Content/Model/` to `game/LegacyMesh/`. `GameContentManager.LoadStaticMesh` prefers `.fbx` → `.obj` → `.xnb`, so production load goes straight to the FBX corpus. **End-to-end visually verified at §3.7 close** — every faction's hulls render with materials; modded ships (Vulfen Type WIII, etc.) work identically.
+**Resolution summary**: the original strategy (runtime XNB decode via reader stubs + `MeshExporter.Export` FBX emit) was **superseded mid-flight** by an offline export pipeline. On `legacy/mesh_exporter_xna31` (XNA 3.1 + .NET 4.8, can read original XNB Models), `MeshExporter` was re-derived and run over the entire static corpus, producing FBX+DDS sidecars. Output committed to migration as `9bd3b7128 content: legacy mesh re-export drop (FBX + DDS + PNG, 147 MB)`. Phase B (commits `6f68b9396` + `a5da742b4`) then archived all 276 Model XNBs out of `game/Content/Model/` to `game/LegacyMesh/`. `GameContentManager.LoadStaticMesh` prefers `.fbx` → `.obj` → `.xnb`, so production load goes straight to the FBX corpus. **End-to-end visually verified at §3.6 close** — every faction's hulls render with materials; modded ships (Vulfen Type WIII, etc.) work identically.
 
 **What landed vs. plan**:
 - Steps 1, 4 (`MeshExporter.Export` runtime path) — superseded by offline export
@@ -257,7 +257,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 - Step 5 (`Xna31VertexDeclarationReader`) — partial (decode only; Model-XNB drift requires a companion `Xna31ModelReader`). Currently unreachable in production because no Model XNB ships. Re-tagged Phase 4 — the empirical decode is preserved at `Ship_Game/Data/Xna31VertexDeclarationReader.cs` with unit tests, ready for a future contributor if a mod ever needs it.
 - Step 6 (run extraction over static subset) — done via legacy branch + `9bd3b7128`
 - Step 7 (`.fbx`-first wire-up in `LoadStaticMesh`) — done; `.fbx` → `.obj` → `.xnb` precedence in [GameContentManager.cs:767](Ship_Game/Data/GameContentManager.cs#L767)
-- Step 8 (end-to-end validation) — done at §3.7 close
+- Step 8 (end-to-end validation) — done at §3.6 close
 
 **Carryovers**: cross-branch sync question (cherry-pick legacy commits `f964b6df7` + `5c3a218be` into migration vs. keep status-quo) lives in `project_phase4_legacy_mesh_export_sync.md` for Phase 4 debate.
 
@@ -321,11 +321,11 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 **Steps**:
 1. Audit the ParticleEmitter / Beam / Projectile / FogOfWar render paths — each was Phase 2 wired against fallback null-effect handling. Outcome of 2026-05-04 audit: no `Effect`-XNB null-guards exist in the particle pipeline (`ParticleEmitter.cs`, `ParticleEffect.cs`, `Particle.cs`, `ParticleManager.cs`) — particle shaders go through `LoadEffect("3DParticles/...")` which throws on missing rather than null-stubbing. The remaining guards are correctly placed: `Beam.cs:170,199` (BeamEffect) and `UniverseScreen.Draw.cs:373` (basicFogOfWarEffect) **stay** until step 5 lands their .mgfxo, and `Projectile.cs:468` is a `BasicEffect` cast-guard unrelated to broken Effect-XNB. The already-restored sites (`ShieldManager.cs:63,135`, `Thruster.cs:71-72`) keep defense-in-depth guards per established pattern. Step 1's only edit-action: refresh stale "Phase 3.3.A" / "Phase 3.3" comment text on the still-stubbed sites to point at "§3.5 step 5".
-2. Validate visually in combat: lasers, missiles, beam weapons, ship explosions, shield hits, warp transitions. **Carryover deferred to §3.8** (renderer feature parity): same-empire pre/post screenshots show ship hulls render flat without normal/specular/emissive material maps, which makes engine bells lose their warm hull-side glow and made the engine-trail palette read differently between pre- and post-migration shots even though the Thrust shader formula is op-for-op correct (cross-checked against `phase3-logs/thrust-chunks/thrust_ps_3_0.dis.txt`). Reference shots saved at `phase3-logs/visual-diff/engine-trail_{pre,post}.jpg`. Root cause is `Ship_Game/Data/Mesh/SunBurnStubs.cs::ApplyToBasicEffect` only pushing diffuse + lights to the underlying `BasicEffect` — `NormalMapTexture` / `SpecularColorMapTexture` / `EmissiveMapTexture` slots are populated by `MeshInterface.CreateMaterialEffect` but never sampled. Restoration plan in §3.8 step 4.
+2. Validate visually in combat: lasers, missiles, beam weapons, ship explosions, shield hits, warp transitions. **Carryover deferred to §3.7** (renderer feature parity): same-empire pre/post screenshots show ship hulls render flat without normal/specular/emissive material maps, which makes engine bells lose their warm hull-side glow and made the engine-trail palette read differently between pre- and post-migration shots even though the Thrust shader formula is op-for-op correct (cross-checked against `phase3-logs/thrust-chunks/thrust_ps_3_0.dis.txt`). Reference shots saved at `phase3-logs/visual-diff/engine-trail_{pre,post}.jpg`. Root cause is `Ship_Game/Data/Mesh/SunBurnStubs.cs::ApplyToBasicEffect` only pushing diffuse + lights to the underlying `BasicEffect` — `NormalMapTexture` / `SpecularColorMapTexture` / `EmissiveMapTexture` slots are populated by `MeshInterface.CreateMaterialEffect` but never sampled. Restoration plan in §3.7 step 4.
 3. Per-effect parameter audit — XNA 3.1 effect parameter names may differ subtly from the new shim's exposed names; reconcile via `Effect.Parameters[name]` lookups and update game code if needed.
 4. **Phase C texture migration sub-task** (per `project_phase35_phaseC_textures.md`) — replace the 9 retained .xnb texture files (`shieldgradient.xnb` + 8 projectile texture XNBs in `Model/Projectiles/textures/`) with their .dds equivalents. **RESOLVED 2026-05-04** via Option 1 (memory note): copied the four FBX-material `.dds` files (`missile_d`, `missile_s`, `torpedo_d`, `torpedo_s`) into `Model/Projectiles/textures/` so `LoadProjectileTextures` finds them; archived the 9 `.xnb` to `game/LegacyMesh/`; pointed `ShieldManager.cs:60` at the existing `shieldgradient.png`; the four `_0` mip-suffix duplicates were exporter-side artifacts (stripped by the legacy exporter at [RawContentLoader.cs:207](Ship_Game/Data/RawContentLoader.cs#L207)) — never read from `ProjTextDict` so dropped without replacement. `game/Content/Model/` now contains zero `.xnb` files (the Phase C completion marker).
 5. **Deferred §3.3 carryover — restore the last 2 broken Effect XNBs** (moved here on 2026-05-04 after steps 1–4 closed §3.3 at "4 of 6 restored"). Order matters: tackle the easier one first to not block the rest of §3.5 on R&D.
-   - **`Effects/BasicFogOfWar.xnb`** — disassembly + a previous rewrite attempt already exist (see `project_phase3_3_effects_partial.md`). Open question is RT-state coupling on the LightsTarget RT (s1 binding, `saveState:true` on SafeBegin, sampler/RT-format compatibility). Lives naturally with the §3.8 post-process pass restoration; if §3.8 lands first, fold this in there and drop step 5's BasicFogOfWar bullet.
+   - **`Effects/BasicFogOfWar.xnb`** — disassembly + a previous rewrite attempt already exist (see `project_phase3_3_effects_partial.md`). Open question is RT-state coupling on the LightsTarget RT (s1 binding, `saveState:true` on SafeBegin, sampler/RT-format compatibility). Lives naturally with the §3.7 post-process pass restoration; if §3.7 lands first, fold this in there and drop step 5's BasicFogOfWar bullet.
    - **`Effects/BeamFX.xnb`** — **RESOLVED 2026-05-05**. Apparent "garbled manifest" was a byte-order bug in `Tools/EffectXnbDump`'s LZX framing (`frameSize = (b3 << 8) | lo` was reversed; correct is `(lo << 8) | b3`). For the other 4 effects the wrong-endian frame_size happened to exceed `decompressedSize` and got clamped to the right value, masking the bug. BeamFX's bytes decoded backwards to a value below `decompressedSize` so the clamp didn't fire and the LZX produced shifted output. Fixed both `Program.cs` and `ExtractFxBlob.cs`; XNB then disassembled cleanly to a trivial vs_1_1 + ps_2_0 program (WVP + UV-scroll VS, single tex2D PS). Hand-rewrote as `BeamFX.fx` and shipped `BeamFX.mgfxo`; dropped from `Phase2BrokenEffectXnbs`; null-guards in `Beam.cs` removed. Disassembly preserved at `phase3-logs/beamfx-chunks/`.
    - When each lands: ship a `<Effect>.mgfxo` next to its `.xnb`, drop the entry from `GameContentManager.Phase2BrokenEffectXnbs`, move it from `StubbedEffects` to `RestoredEffects` in `EffectXnbCompatTests.cs`, remove the matching step-1 null guard.
 
@@ -343,86 +343,11 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
-## 3.6 — XNB Model Decode — Skinned/Animated Meshes (Ralyeh ship17 family)
-
-**Goal**: The 6 Ralyeh ship17 XNBs (`ship17a.xnb` confirmed skinned-sgmotion, `ship17b-f.xnb` likely-skinned siblings per §3.1 inventory) load with bone hierarchy + skin weights + animation clips, and the meshes render in-game with their bind-pose deformation visible. Clip playback at runtime is **§3.6.B (optional follow-up)** — the success-gate for §3.6.A is "skinned meshes visible with bones, even if clips don't play yet."
-
-**Why split into 3.6.A and 3.6.B**: per the developer note, the previous mesh-conversion attempt was specifically blocked on the C#-side skeletal extraction — bone walk + skin weight extraction + clip data into the SDNative bone APIs. Once that's done (§3.6.A), the meshes are visible. Runtime clip playback (custom skin shader + `BoneAnimationPlayer`) is well-trodden territory and decoupled from extraction; we can land it in §3.6.B if there's time.
-
-### §3.6.A — Skinned mesh extraction (the hard part)
-
-**Steps**:
-1. **SgMotion ContentTypeReader stubs** (`Ship_Game/Data/Mesh/SgMotionReaderStubs.cs`):
-   - Reader chain from §3.1's inventory of `ship17a.xnb` (verified):
-     ```
-     SgMotion.Pipeline.SkinnedModelReader, XNAnimation, Version=0.7.0.0
-     SgMotion.Pipeline.SkinnedModelBoneReader, XNAnimation, Version=0.7.0.0
-     SgMotion.Pipeline.AnimationClipReader, XNAnimation, Version=0.7.0.0
-     Microsoft.Xna.Framework.Content.TimeSpanReader  (built-in)
-     ```
-   - Plus the standard chain (`ModelReader`, `VertexDeclarationReader`, `VertexBufferReader`, `IndexBufferReader`) and SunBurn `LightingMaterialReader_Pro` (already stubbed in §3.4).
-   - Decode SgMotion's wire format empirically from `ship17a.xnb` bytes (`SkinnedModelReader` is likely a thin wrapper over the standard ModelReader plus a list of `SkinnedModelBone` and `AnimationClip` instances). XNAnimation's source is on GitHub if needed for ground truth (`XNAnimation/Pipeline/Skinned*Reader.cs` historical archives).
-   - Stubs surface portable C# structs: `SkinnedBoneData[]`, `AnimationClipData[]` (each with `keyFrames: BoneKeyframe[]`).
-2. **Extend `MeshExporter.Export`** (built in §3.4) with a skinned-mesh path:
-   - Detect skinned via `model.Tag` (or however the SkinnedModelReader stashes its data).
-   - Walk `SkinnedBoneData[]` → for each, call `SDMeshAddSkinnedBone(name, boneIndex, parentBone, bindPose, inverseBindPoseTransform)` (the API signature already exists in `SdAnimation.h`).
-   - Walk vertex buffer's skin weights — XNA's `VertexElementUsage.BlendIndices` + `BlendWeight` carry 4 indices + 4 weights per vertex. Pass through to NanoMesh via the existing vertex-attribute API.
-   - Walk `AnimationClipData[]` → `SDMeshCreateAnimationClip(name, duration)` per clip; per bone-track in clip, `SDMeshAddBoneAnimation(clip, skinnedBoneIndex)`; per keyframe, `SDMeshAddAnimationKeyFrame(clip, anim, keyFrame)`.
-   - Trigger `Mesh::SaveAsFBX` — NanoMesh's existing FBX writer serializes skin clusters + AnimStack via FBX SDK 2020 (re-enabled in §3.2; already supports skin/anim writes per FBX SDK).
-3. **Run extraction over the 6 Ralyeh ship17 XNBs**:
-   - Convert ship17a (the runtime-confirmed skinned). Verify the FBX round-trips through NanoMesh's FBX importer with bone count + clip count matching the inventory.
-   - Convert ship17b-f. These are in the inventory's "unreadable-by-tool" set but the runtime path will succeed (proven in §3.1).
-   - Commit FBX sidecars under `game/Content/Model/Ships/Ralyeh/ship17*.fbx` (separate commit from code changes).
-4. **End-to-end validation (§3.6.A success gate)**: load a save where a Ralyeh ship is on-screen; confirm the mesh renders with deformed bind-pose geometry (NOT a stub). The mesh appears correctly-shaped even though no animation clip is playing yet.
-
-**§3.6.A tests added**:
-- `UnitTests/Content/SgMotionReaderStubsTests.cs` — feed `ship17a.xnb` byte chunks to each stub; assert produced structs match expected bone count + clip count + clip names.
-- `UnitTests/Data/MeshExporterTests.cs` — extend with `Export_SkinnedModel_ProducesValidFbx` test for ship17a.xnb. Round-trip via NanoMesh FBX importer; assert bones + skin weights + clips survive.
-
-**§3.6.A verification**:
-- All 6 Ralyeh ship17 XNBs convert to FBX with bone hierarchy intact.
-- In-game Ralyeh ships render visibly (bind-pose, but visible).
-- Build matrix green.
-
-### §3.6.B — Runtime animation playback (optional follow-up)
-
-**Goal**: clips actually play in-engine. Skip if §3.6.A shipped on a tight schedule; the bind-pose-only path is acceptable for Phase 3 close.
-
-**Steps**:
-1. **Animation runtime** `SDGraphics/Mesh/BoneAnimationPlayer.cs`:
-   - Holds current clip, current time, blend state.
-   - `Update(GameTime)` — advance time; sample interpolated bone transforms per skinned bone; write to `Matrix[]` palette.
-   - Interpolation: linear for translation, slerp for rotation. Loop / hold / one-shot per clip.
-2. **Skin shader** `game/Content/Effects/SkinnedEffect.fx`:
-   - VS: read 4 bone weights + 4 bone indices per vertex; matrix-palette skin.
-   - PS: same forward-lit path as §2.8's `LightingEffect`.
-   - Compile via mgfxc (Phase 2.6.A toolchain) → `SkinnedEffect.mgfx`.
-3. **Forward renderer integration**:
-   - Add `SkinnedMesh` polymorphism over `Mesh`; bind `SkinnedEffect` + matrix palette per draw.
-4. **Animation triggers**:
-   - Survey what gameplay event triggers Ralyeh ship animations (likely turret traverse or capital-ship engine flares — gameplay code-driven, not clip-driven). If no clip-driven triggers exist in the original codebase, §3.6.B is a no-op for clip playback and only the runtime infrastructure ships.
-
-**§3.6.B tests added**:
-- `UnitTests/Graphics/BoneAnimationPlayerTests.cs` — `Sample_AtZero_ReturnsBindPose`, `Sample_AtClipDuration_LerpsToFinalKey`, `Sample_BeyondDuration_LoopsByDefault`.
-- `UnitTests/Graphics/SkinnedEffectTests.cs` — palette overflow guard + render-skinned-quad pixel match.
-
-**§3.6.B verification**:
-- Ralyeh ship animation clip plays visibly in-game (if a trigger exists).
-- Build matrix green.
-
-**Rollback**:
-- §3.6.A revert: drop SgMotion stubs + MeshExporter skinned extension + FBX sidecars in 2-3 commits. Ralyeh ships return to Phase 2 stub bounding boxes.
-- §3.6.B revert: drop `SkinnedEffect.mgfx` + `BoneAnimationPlayer` + forward-renderer skinned dispatch. Ralyeh ships fall back to bind-pose-only rendering (still a §3.6.A win).
-
-**Risk**: **Medium–High** (revised from "Very High"). The C++ infrastructure already exists; only the C#-side bridge is new. SgMotion's wire format is empirically decoded from ship17a.xnb's bytes — bounded R&D. §3.6.B is well-trodden territory once §3.6.A lands. Mitigation: **§3.6.B is explicitly optional** — Phase 3 close-out can ship with §3.6.A only (bind-pose Ralyeh hulls visible, clips not playing). Surface this trade-off to the user when entering §3.6.
-
----
-
-## 3.7 — MainMenu Mars 3D Sphere; Phase 2 Cosmetic Carryover Cleanup
+## 3.6 — MainMenu Mars 3D Sphere; Phase 2 Cosmetic Carryover Cleanup
 
 **Goal**: Restore the MainMenu Mars planet to a 3D sphere with overlay panels. Address the small set of cosmetic issues left over from Phase 2 close-out.
 
-**Why now**: §3.4 + §3.6 unblock the prerequisites — the planet sphere mesh loads, the planet shaders (`PlanetHalo` from §3.3) render, the overlay sprites already work post-§2.7.B PNG fix. This sub-phase wires it all up.
+**Why now**: §3.4 already unblocks the planet sphere mesh; the planet shaders (`PlanetHalo` from §3.3) render; the overlay sprites already work post-§2.7.B PNG fix. This sub-phase wires it all up. (Skinned-mesh §3.10 is unrelated — the Mars sphere is a static mesh.)
 
 **Steps**:
 1. Audit the MainMenu planet construction code — pre-migration it composed 5 child overlay panels (`shadow`, `Lights_edge`, `Dust`, `Lights_center`, `Aurora`) on top of a sphere mesh + base `MMenu/planet.png` texture. Confirm the panel composition still works (per Phase 2.7.B PNG fix).
@@ -445,7 +370,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
-## 3.8 — Renderer Feature Parity: Bloom, Distortion, Fog-of-War, Material Maps
+## 3.7 — Renderer Feature Parity: Bloom, Distortion, Fog-of-War, Material Maps
 
 **Goal**: Restore the post-process pass chain on top of the §2.8 forward renderer. Bloom from `BloomExtract.xnb` + `BloomCombine.xnb` (Phase 2-loadable; not in the broken set). Screen-space distortion from `Distort.xnb`. Fog-of-war overlay from `BasicFogOfWar` (loadable since §3.3). Plus per-mesh material maps (normal / specular / emissive) that the Phase 1.9 `LightingEffect` stub silently dropped.
 
@@ -486,7 +411,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
-## 3.9 — Shadow Maps (Basic)
+## 3.8 — Shadow Maps (Basic)
 
 **Goal**: Single directional-light shadow map (sun light) for ships in combat. Static-mesh shadow casting only; skinned-mesh shadows are a polish item.
 
@@ -509,7 +434,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
-## 3.10 — FBX TransparencyFactor Write Fix + Mesh Re-Export
+## 3.9 — FBX TransparencyFactor Write Fix + Mesh Re-Export
 
 **Goal**: Fix the legacy mesh-exporter's FBX `TransparencyFactor` write/read inversion at the source, then re-run the legacy export so the corpus round-trips correctly without the C# workaround. Pulled forward from the Phase 4 candidate list because the **Combined Arms mod** introduces many additional ships that will go through the same exporter; landing the fix before that re-export saves a re-export cycle.
 
@@ -543,8 +468,83 @@ The C# workaround landed in commit `76c9cdccb` ([SunBurnStubs.cs](Ship_Game/Data
 
 **Dependencies / cross-refs**:
 - `project_phase4_legacy_mesh_export_sync.md` — the legacy/migration branch split. This sub-phase deliberately keeps the split; it doesn't resurrect the exporter on migration. The cross-port question stays open for Phase 4.
-- `project_nanomesh_local_branch.md` — the submodule's local-only branch state. The §3.10 fix lands on the same `blackbox-migration` branch.
+- `project_nanomesh_local_branch.md` — the submodule's local-only branch state. The §3.9 fix lands on the same `blackbox-migration` branch.
 - `project_phase35_phaseC_textures.md` — Phase C texture migration. Folded into §3.5 step 4 (see above) since the particle/projectile rendering pipeline is what consumes those textures.
+
+---
+
+## 3.10 — XNB Model Decode — Skinned/Animated Meshes (Ralyeh ship17 family)
+
+**Goal**: The 6 Ralyeh ship17 XNBs (`ship17a.xnb` confirmed skinned-sgmotion, `ship17b-f.xnb` likely-skinned siblings per §3.1 inventory) load with bone hierarchy + skin weights + animation clips, and the meshes render in-game with their bind-pose deformation visible. Clip playback at runtime is **§3.10.B (optional follow-up)** — the success-gate for §3.10.A is "skinned meshes visible with bones, even if clips don't play yet."
+
+**Why split into 3.10.A and 3.10.B**: per the developer note, the previous mesh-conversion attempt was specifically blocked on the C#-side skeletal extraction — bone walk + skin weight extraction + clip data into the SDNative bone APIs. Once that's done (§3.10.A), the meshes are visible. Runtime clip playback (custom skin shader + `BoneAnimationPlayer`) is well-trodden territory and decoupled from extraction; we can land it in §3.10.B if there's time.
+
+### §3.10.A — Skinned mesh extraction (the hard part)
+
+**Steps**:
+1. **SgMotion ContentTypeReader stubs** (`Ship_Game/Data/Mesh/SgMotionReaderStubs.cs`):
+   - Reader chain from §3.1's inventory of `ship17a.xnb` (verified):
+     ```
+     SgMotion.Pipeline.SkinnedModelReader, XNAnimation, Version=0.7.0.0
+     SgMotion.Pipeline.SkinnedModelBoneReader, XNAnimation, Version=0.7.0.0
+     SgMotion.Pipeline.AnimationClipReader, XNAnimation, Version=0.7.0.0
+     Microsoft.Xna.Framework.Content.TimeSpanReader  (built-in)
+     ```
+   - Plus the standard chain (`ModelReader`, `VertexDeclarationReader`, `VertexBufferReader`, `IndexBufferReader`) and SunBurn `LightingMaterialReader_Pro` (already stubbed in §3.4).
+   - Decode SgMotion's wire format empirically from `ship17a.xnb` bytes (`SkinnedModelReader` is likely a thin wrapper over the standard ModelReader plus a list of `SkinnedModelBone` and `AnimationClip` instances). XNAnimation's source is on GitHub if needed for ground truth (`XNAnimation/Pipeline/Skinned*Reader.cs` historical archives).
+   - Stubs surface portable C# structs: `SkinnedBoneData[]`, `AnimationClipData[]` (each with `keyFrames: BoneKeyframe[]`).
+2. **Extend `MeshExporter.Export`** (built in §3.4) with a skinned-mesh path:
+   - Detect skinned via `model.Tag` (or however the SkinnedModelReader stashes its data).
+   - Walk `SkinnedBoneData[]` → for each, call `SDMeshAddSkinnedBone(name, boneIndex, parentBone, bindPose, inverseBindPoseTransform)` (the API signature already exists in `SdAnimation.h`).
+   - Walk vertex buffer's skin weights — XNA's `VertexElementUsage.BlendIndices` + `BlendWeight` carry 4 indices + 4 weights per vertex. Pass through to NanoMesh via the existing vertex-attribute API.
+   - Walk `AnimationClipData[]` → `SDMeshCreateAnimationClip(name, duration)` per clip; per bone-track in clip, `SDMeshAddBoneAnimation(clip, skinnedBoneIndex)`; per keyframe, `SDMeshAddAnimationKeyFrame(clip, anim, keyFrame)`.
+   - Trigger `Mesh::SaveAsFBX` — NanoMesh's existing FBX writer serializes skin clusters + AnimStack via FBX SDK 2020 (re-enabled in §3.2; already supports skin/anim writes per FBX SDK).
+3. **Run extraction over the 6 Ralyeh ship17 XNBs**:
+   - Convert ship17a (the runtime-confirmed skinned). Verify the FBX round-trips through NanoMesh's FBX importer with bone count + clip count matching the inventory.
+   - Convert ship17b-f. These are in the inventory's "unreadable-by-tool" set but the runtime path will succeed (proven in §3.1).
+   - Commit FBX sidecars under `game/Content/Model/Ships/Ralyeh/ship17*.fbx` (separate commit from code changes).
+4. **End-to-end validation (§3.10.A success gate)**: load a save where a Ralyeh ship is on-screen; confirm the mesh renders with deformed bind-pose geometry (NOT a stub). The mesh appears correctly-shaped even though no animation clip is playing yet.
+
+**§3.10.A tests added**:
+- `UnitTests/Content/SgMotionReaderStubsTests.cs` — feed `ship17a.xnb` byte chunks to each stub; assert produced structs match expected bone count + clip count + clip names.
+- `UnitTests/Data/MeshExporterTests.cs` — extend with `Export_SkinnedModel_ProducesValidFbx` test for ship17a.xnb. Round-trip via NanoMesh FBX importer; assert bones + skin weights + clips survive.
+
+**§3.10.A verification**:
+- All 6 Ralyeh ship17 XNBs convert to FBX with bone hierarchy intact.
+- In-game Ralyeh ships render visibly (bind-pose, but visible).
+- Build matrix green.
+
+### §3.10.B — Runtime animation playback (optional follow-up)
+
+**Goal**: clips actually play in-engine. Skip if §3.10.A shipped on a tight schedule; the bind-pose-only path is acceptable for Phase 3 close.
+
+**Steps**:
+1. **Animation runtime** `SDGraphics/Mesh/BoneAnimationPlayer.cs`:
+   - Holds current clip, current time, blend state.
+   - `Update(GameTime)` — advance time; sample interpolated bone transforms per skinned bone; write to `Matrix[]` palette.
+   - Interpolation: linear for translation, slerp for rotation. Loop / hold / one-shot per clip.
+2. **Skin shader** `game/Content/Effects/SkinnedEffect.fx`:
+   - VS: read 4 bone weights + 4 bone indices per vertex; matrix-palette skin.
+   - PS: same forward-lit path as §2.8's `LightingEffect`.
+   - Compile via mgfxc (Phase 2.6.A toolchain) → `SkinnedEffect.mgfx`.
+3. **Forward renderer integration**:
+   - Add `SkinnedMesh` polymorphism over `Mesh`; bind `SkinnedEffect` + matrix palette per draw.
+4. **Animation triggers**:
+   - Survey what gameplay event triggers Ralyeh ship animations (likely turret traverse or capital-ship engine flares — gameplay code-driven, not clip-driven). If no clip-driven triggers exist in the original codebase, §3.10.B is a no-op for clip playback and only the runtime infrastructure ships.
+
+**§3.10.B tests added**:
+- `UnitTests/Graphics/BoneAnimationPlayerTests.cs` — `Sample_AtZero_ReturnsBindPose`, `Sample_AtClipDuration_LerpsToFinalKey`, `Sample_BeyondDuration_LoopsByDefault`.
+- `UnitTests/Graphics/SkinnedEffectTests.cs` — palette overflow guard + render-skinned-quad pixel match.
+
+**§3.10.B verification**:
+- Ralyeh ship animation clip plays visibly in-game (if a trigger exists).
+- Build matrix green.
+
+**Rollback**:
+- §3.10.A revert: drop SgMotion stubs + MeshExporter skinned extension + FBX sidecars in 2-3 commits. Ralyeh ships return to Phase 2 stub bounding boxes.
+- §3.10.B revert: drop `SkinnedEffect.mgfx` + `BoneAnimationPlayer` + forward-renderer skinned dispatch. Ralyeh ships fall back to bind-pose-only rendering (still a §3.10.A win).
+
+**Risk**: **Medium–High** (revised from "Very High"). The C++ infrastructure already exists; only the C#-side bridge is new. SgMotion's wire format is empirically decoded from ship17a.xnb's bytes — bounded R&D. §3.10.B is well-trodden territory once §3.10.A lands. Mitigation: **§3.10.B is explicitly optional** — Phase 3 close-out can ship with §3.10.A only (bind-pose Ralyeh hulls visible, clips not playing). Surface this trade-off to the user when entering §3.10.
 
 ---
 
@@ -595,7 +595,7 @@ The C# workaround landed in commit `76c9cdccb` ([SunBurnStubs.cs](Ship_Game/Data
    - Carryover to Phase 4 (any remaining polish items).
    - Migration retrospective: total commits across Phase 1+2+3, total LOC delta, what went well / what would have been done differently.
 4. **Memory file updates**:
-   - `project_phase2_xnb_model_drift.md` → mark RESOLVED with §3.4/§3.6 commit refs.
+   - `project_phase2_xnb_model_drift.md` → mark RESOLVED with §3.4/§3.10 commit refs.
    - `project_phase2_effect_xnb_drift.md` → mark RESOLVED with §3.3 commit ref.
    - `project_phase2_backlog_fbx.md` → mark RESOLVED with §3.2 commit ref.
    - `project_phase2_backlog_runtime.md` → final status: all carryovers resolved or explicitly deferred to Phase 4.
@@ -622,7 +622,7 @@ Phase 2's `EffectXnbCompatTests` pinned the broken-effect list — that test get
 
 ### Performance budget
 
-Phase 2 baseline (post-2.8) was ~16ms/frame at 1080p in MainMenu (60fps achievable). Phase 3's renderer additions (skinning, shadow map, post-process) need to fit in that budget. Per §3.8/§3.9, soft cap: <10% regression vs Phase 2 baseline at MainMenu, <20% at peak combat. Capture frametime in §3.12 smoke logs.
+Phase 2 baseline (post-2.8) was ~16ms/frame at 1080p in MainMenu (60fps achievable). Phase 3's renderer additions (skinning, shadow map, post-process) need to fit in that budget. Per §3.7/§3.8, soft cap: <10% regression vs Phase 2 baseline at MainMenu, <20% at peak combat. Capture frametime in §3.12 smoke logs.
 
 ### Mod compatibility
 
@@ -647,20 +647,22 @@ After Phase 3 ships, ARCHITECTURE.md §9 "Suggested Migration Order" lists "Phas
 | 3.3 Effect XNB shim | Medium–High | Two-step decode (direct → disassemble); per-effect hand-rewrite as last resort |
 | **3.4 Static XNB Models** | **Medium–High** (revised down from High) | SunBurn stubs + restored `MeshExporter.Export` use the proven runtime path. The 8-XNB static-raw cluster has lookup-table fallback. The 122 SunBurn XNBs share one byte format — decode once, reuse for all. |
 | 3.5 Particle FX | Medium | Parameter name reconciliation per call-site. Includes the Phase C texture XNB→DDS migration sub-task. |
-| **3.6.A Skinned mesh extraction** | **Medium–High** (revised down from Very High) | Scope shrunk to 6 Ralyeh XNBs per §3.1 inventory. C++ side already finished (per developer note). SgMotion wire format is bounded R&D. |
-| 3.6.B Skinned runtime playback | Medium (optional follow-up) | Decoupled from §3.6.A. Bind-pose-only is acceptable for Phase 3 close. |
-| 3.7 MainMenu Mars | Low–Medium | Depends on §3.3/§3.4 |
-| 3.8 Post-process | Medium | Per-pass commits; revert independently |
-| 3.9 Shadow maps | Medium–High | Strictly additive; falls back cleanly |
-| 3.10 FBX export fix + re-export | Medium | One-line C++ fix; risk is in the re-export coverage (~150 ships) and whether new FBXes regress anything visible. Combined Arms mod ships are why this matters. |
+| 3.6 MainMenu Mars | Low–Medium | Depends on §3.3/§3.4 |
+| 3.7 Post-process + material maps | Medium | Per-pass commits; revert independently. Material-maps step pulled in from §3.5 carryover. |
+| 3.8 Shadow maps | Medium–High | Strictly additive; falls back cleanly |
+| 3.9 FBX export fix + re-export | Medium | One-line C++ fix; risk is in the re-export coverage (~150 ships) and whether new FBXes regress anything visible. Combined Arms mod ships are why this matters. |
+| **3.10.A Skinned mesh extraction** | **Medium–High** (revised down from Very High) | Scope shrunk to 6 Ralyeh XNBs per §3.1 inventory. C++ side already finished (per developer note). SgMotion wire format is bounded R&D. Moved to last so its R&D doesn't block visible quality wins. |
+| 3.10.B Skinned runtime playback | Medium (optional follow-up) | Decoupled from §3.10.A. Bind-pose-only is acceptable for Phase 3 close. |
 | 3.11 Steam SDK | Medium | Documented call-site surface; tiny scope |
 | 3.12 Sign-off | Low | Documentation only |
 
-**Risk delta from the 2026-05-02 architectural unlock**: §3.4 dropped from High to Medium–High, §3.6 split into 3.5.A (Medium–High) + optional 3.5.B (Medium). The previous developer's mesh-export work + the §3.1 inventory together collapsed the original "research-grade XNB decoder + skeletal runtime" surface into "ContentTypeReader stubs + restore `MeshExporter` + reuse SDNative bone APIs." The 8-XNB static-raw cluster (3.1 VertexDeclaration drift) is now the only research-grade item, and its scope is tightly bounded.
+**Risk delta from the 2026-05-02 architectural unlock**: §3.4 dropped from High to Medium–High, the skinned-mesh sub-phase split into §3.10.A (Medium–High) + optional §3.10.B (Medium). The previous developer's mesh-export work + the §3.1 inventory together collapsed the original "research-grade XNB decoder + skeletal runtime" surface into "ContentTypeReader stubs + restore `MeshExporter` + reuse SDNative bone APIs." The 8-XNB static-raw cluster (3.1 VertexDeclaration drift) is now the only research-grade item, and its scope is tightly bounded.
+
+**Order delta from 2026-05-05**: skinned-mesh sub-phase renumbered §3.6 → §3.10 and physically moved to the end of Phase 3 (just before Steam SDK). Reasoning: it affects only 6 Ralyeh ships and is the highest-R&D item, while §3.7 (post-process + material maps) and §3.8 (shadows) deliver visible quality wins across the entire ship/planet/station roster. Doing the broad-impact work first means a bad spiral on §3.10 doesn't block the rest of Phase 3's visual gains; if §3.10 has to slip into Phase 4, Ralyeh ships keep rendering as static FBX bind-pose meshes (their state today), which is acceptable per `project_phase2_xnb_model_drift.md`.
 
 Phase 3 still ships with explicit fallback levels at each step:
 - §3.4 fallback: hand-construct `VertexDeclaration` for the 8 static-raw XNBs as a lookup table if empirical decode is intractable.
-- §3.6.A fallback: ship FBX sidecars for ship17a only (the runtime-confirmed skinned XNB) if ship17b-f's wire format diverges.
-- §3.6.B is itself the fallback for §3.6 — bind-pose-only rendering is acceptable.
+- §3.10.A fallback: ship FBX sidecars for ship17a only (the runtime-confirmed skinned XNB) if ship17b-f's wire format diverges.
+- §3.10.B is itself the fallback for §3.10 — bind-pose-only rendering is acceptable.
 
 Negotiate fallbacks explicitly with the user when entering each sub-phase.
