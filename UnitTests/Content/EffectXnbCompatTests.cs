@@ -21,7 +21,6 @@ namespace UnitTests.Content
     {
         static readonly string[] StubbedEffects =
         {
-            "Effects/BeamFX",
             "Effects/BasicFogOfWar",
         };
 
@@ -35,6 +34,7 @@ namespace UnitTests.Content
             ("Effects/PlanetHalo", "Planet",           "P1"),
             ("Effects/scale",      "Technique1",       "Pass1"),
             ("Effects/Thrust",     "thrust_technique", "P1"),
+            ("Effects/BeamFX",     "Technique1",       "Pass1"),
         };
 
         [TestMethod]

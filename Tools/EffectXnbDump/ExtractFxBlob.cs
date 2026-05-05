@@ -105,8 +105,9 @@ namespace EffectXnbDump
                 int blockSize, frameSize;
                 if (hi == 0xFF)
                 {
+                    // See Program.LzxDecompress — frame_size byte order is (lo << 8) | b3.
                     int b3 = inStream.ReadByte();
-                    frameSize = (b3 << 8) | lo;
+                    frameSize = (lo << 8) | b3;
                     blockSize = (inStream.ReadByte() << 8) | inStream.ReadByte();
                     defaultFrameSize = frameSize;
                 }

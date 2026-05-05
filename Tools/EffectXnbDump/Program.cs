@@ -211,8 +211,14 @@ namespace EffectXnbDump
                 int blockSize, frameSize;
                 if (hi == 0xFF)
                 {
+                    // XNA LZX long-form frame header is 5 bytes: FF, lo, b3, b4, b5.
+                    // frame_size = (lo << 8) | b3 ; block_size = (b4 << 8) | b5.
+                    // (Earlier `(b3 << 8) | lo` was backwards — it landed below
+                    // decompressedSize for BeamFX and corrupted the decode; for
+                    // the other 4 effects the wrong-endian value happened to
+                    // exceed remaining and got clamped, masking the bug.)
                     int b3 = inStream.ReadByte();
-                    frameSize = (b3 << 8) | lo;
+                    frameSize = (lo << 8) | b3;
                     blockSize = (inStream.ReadByte() << 8) | inStream.ReadByte();
                     defaultFrameSize = frameSize;
                 }

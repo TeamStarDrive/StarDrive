@@ -52,9 +52,11 @@ namespace Ship_Game.Data
         //   gradient rewrite — UV-zoom VS, alpha-mask PS).
         // 2026-05-04: Effects/Thrust.xnb restored via Thrust.mgfxo (vs_3_0+ps_3_0 thruster
         //   cone rewrite — animated volume noise + cone falloff + silhouette term).
+        // 2026-05-05: Effects/BeamFX.xnb restored via BeamFX.mgfxo (vs_1_1+ps_2_0 beam
+        //   weapon rewrite — WVP + UV-scroll VS, single tex2D PS). Decode unblocked
+        //   by fixing the LZX framing byte-order bug in EffectXnbDump.
         static readonly HashSet<string> Phase2BrokenEffectXnbs = new(StringComparer.OrdinalIgnoreCase)
         {
-            "Effects/BeamFX.xnb",
             "Effects/BasicFogOfWar.xnb",
         };
         static readonly HashSet<string> Phase2WarnedEffects = new(StringComparer.OrdinalIgnoreCase);
