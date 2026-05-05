@@ -75,6 +75,10 @@ namespace Ship_Game
         public RenderTarget2D MainTarget;
         public RenderTarget2D BorderRT;
         RenderTarget2D LightsTarget;
+        // §3.7 step 1: bloom output RT. Allocated only when RenderBloom is on;
+        // bloomComponent processes MainTarget into this, and the fog-of-war
+        // composite then sources from here instead of MainTarget.
+        RenderTarget2D PostBloomTarget;
 
         #pragma warning disable CA2213 // managed by Content Manager
         public Effect basicFogOfWarEffect;
@@ -458,13 +462,15 @@ namespace Ship_Game
 
             if (GlobalStats.RenderBloom)
             {
-                bloomComponent = new BloomComponent(ScreenManager);
+                bloomComponent = new BloomComponent(device, TransientContent);
                 bloomComponent.LoadContent();
             }
 
             MainTarget   = RenderTargets.Create(device);
             LightsTarget = RenderTargets.Create(device);
             BorderRT     = RenderTargets.Create(device);
+            if (GlobalStats.RenderBloom)
+                PostBloomTarget = RenderTargets.Create(device);
 
             NotificationManager.ReSize();
 
@@ -640,6 +646,7 @@ namespace Ship_Game
             Mem.Dispose(ref MainTarget);
             Mem.Dispose(ref BorderRT);
             Mem.Dispose(ref LightsTarget);
+            Mem.Dispose(ref PostBloomTarget);
             Mem.Dispose(ref Particles);
             Mem.Dispose(ref Shields);
             Mem.Dispose(ref aw);

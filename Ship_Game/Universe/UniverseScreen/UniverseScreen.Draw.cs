@@ -276,12 +276,24 @@ namespace Ship_Game
                 if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
                     DrawColoredEmpireBorders(sr, graphics);
 
+                // §3.7 step 1: bloom processes MainTarget -> PostBloomTarget,
+                // which then becomes the input to the fog-of-war composite.
+                // Originally bloom ran on the post-fog back buffer (XNA's
+                // ResolveBackBuffer); MonoGame can't read the back buffer
+                // directly, so we run bloom on the pre-fog scene RT instead.
+                // Visually equivalent because fog-of-war is a darkening
+                // overlay that wouldn't generate extra bright pixels.
+                RenderTarget2D mainSource = MainTarget;
+                if (GlobalStats.RenderBloom && bloomComponent != null && PostBloomTarget != null)
+                {
+                    bloomComponent.Draw(batch, MainTarget, PostBloomTarget);
+                    mainSource = PostBloomTarget;
+                }
+
                 // this draws the MainTarget RT which has the entire background and 3D ships
-                DrawMainRTWithFogOfWarEffect(batch, graphics);
+                DrawMainRTWithFogOfWarEffect(batch, graphics, mainSource);
 
                 SetViewMatrix(cameraMatrix);
-                if (GlobalStats.RenderBloom)
-                    bloomComponent?.Draw(batch);
 
                 DrawColoredBordersRT(batch);
             }
@@ -361,17 +373,17 @@ namespace Ship_Game
             DrawUI.Stop();
         }
 
-        private void DrawMainRTWithFogOfWarEffect(SpriteBatch batch, GraphicsDevice graphics)
+        private void DrawMainRTWithFogOfWarEffect(SpriteBatch batch, GraphicsDevice graphics, RenderTarget2D source)
         {
             DrawFogOfWar.Start();
 
-            Texture2D texture1 = (MainTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
+            Texture2D texture1 = (source as Microsoft.Xna.Framework.Graphics.Texture2D);
             Texture2D texture2 = (LightsTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
             graphics.Clear(Color.Black);
 
             batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:true);
             // BasicFogOfWar null-stubbed pending §3.5 step 5 (RT/sampler-state anomaly,
-            // likely folded into §3.8 post-process). Until then the MainTarget renders
+            // likely folded into §3.7 post-process). Until then the source RT renders
             // without the LightsTarget mask — strategic-view fog overlay is currently flat.
             if (basicFogOfWarEffect != null)
             {
