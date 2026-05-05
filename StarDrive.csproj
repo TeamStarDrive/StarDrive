@@ -20,7 +20,7 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
-    <NoWarn>3270;CS8002</NoWarn>
+    <NoWarn>$(NoWarn);3270;CS8002</NoWarn>
     <!-- Phase 2.6.A: Phase 2.3 baked SpriteFonts manually via mgfxc; we don't
          need the MSBuild MGCB build pass (which in 3.8.1+ requires a dotnet
          tool manifest with dotnet-mgcb installed). Skipping is functionally
