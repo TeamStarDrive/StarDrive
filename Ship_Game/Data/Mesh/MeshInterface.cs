@@ -517,7 +517,13 @@ namespace Ship_Game.Data.Mesh
                 : fx.DiffuseMapTexture;
 
             fx.SetTransparencyModeAndMap(TransparencyMode.None, mat->Alpha, alphaMap);
-            fx.SpecularPower                 = 14.0f * mat->Specular;
+            // Phase 3.7 step 4 (Phase C contrast pass): 14*Specular caps at 14
+            // even at max material gloss — well below BasicEffect's default of
+            // 16, which produced soft/wide highlights instead of the tight
+            // metallic specular that pre-migration ship hulls had. Establish a
+            // floor of 16 (BasicEffect default) and a ceiling of 64 (typical
+            // hard-metal value), interpolated by the material's gloss factor.
+            fx.SpecularPower                 = 16.0f + 48.0f * mat->Specular;
             fx.SpecularAmount                = 6.0f * mat->Specular;
             fx.FresnelReflectBias            = 0.0f;
             fx.FresnelReflectOffset          = 0.0f;

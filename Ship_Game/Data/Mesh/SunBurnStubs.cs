@@ -272,7 +272,14 @@ namespace SynapseGaming.LightingSystem.Core
                         fx.DirectionalLight0.SpecularColor = so.PrimaryLightColor * 0.5f;
                         fx.DirectionalLight1.Enabled = false;
                         fx.DirectionalLight2.Enabled = false;
-                        fx.AmbientLightColor = so.PrimaryLightColor * 0.15f; // soft fill
+                        // Phase 3.7 step 4 (Phase C contrast pass): 0.15× sun
+                        // color was lifting shadow-side hulls into mid-gray
+                        // (~3× BasicEffect's typical ambient). Reduce to 0.06×
+                        // so the dark side of sun-lit ships keeps a deep look
+                        // closer to pre-migration. Universe sun colors are
+                        // ~white, so this gives ambient ≈ (0.06, 0.06, 0.06)
+                        // — close to BasicEffect's default magnitude.
+                        fx.AmbientLightColor = so.PrimaryLightColor * 0.06f; // (was 0.15f)
                     }
                     else
                     {
@@ -326,7 +333,7 @@ namespace SynapseGaming.LightingSystem.Core
                         fx.DirectionalLight0.SpecularColor = so.PrimaryLightColor * 0.5f;
                         fx.DirectionalLight1.Enabled = false;
                         fx.DirectionalLight2.Enabled = false;
-                        fx.AmbientLightColor = so.PrimaryLightColor * 0.15f;
+                        fx.AmbientLightColor = so.PrimaryLightColor * 0.06f; // (was 0.15f) — see DrawRenderables for rationale
                     }
                     else
                     {
