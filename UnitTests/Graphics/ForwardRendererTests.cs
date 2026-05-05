@@ -101,7 +101,7 @@ public class ForwardRendererTests : StarDriveTest
             "Forward-renderer pipeline appears broken (degenerate buffers, missing W/V/P, or effect-parameter binding).");
     }
 
-    static VertexPositionNormalTexture[] BuildCubeVertices()
+    internal static VertexPositionNormalTexture[] BuildCubeVertices()
     {
         // 6 faces × 4 corners = 24 verts. Per-face normal so default lighting works.
         var v = new VertexPositionNormalTexture[24];
@@ -139,7 +139,7 @@ public class ForwardRendererTests : StarDriveTest
         return v;
     }
 
-    static short[] BuildCubeIndices()
+    internal static short[] BuildCubeIndices()
     {
         // For each face's 4 verts laid out as { 00, 10, 01, 11 }, two triangles:
         // (00, 10, 01), (10, 11, 01) — counter-clockwise winding when viewed from

@@ -798,6 +798,16 @@ namespace Ship_Game
         {
             WhitePixel = new Texture2D(RootContent.Device, 1, 1, false, SurfaceFormat.Color);
             WhitePixel.SetData(new []{ Color.White });
+
+            // Phase 3.7 step 4 (Phase A): pre-load the MeshLighting MGFX bytes
+            // before the first LightingEffect ctor fires. Path resolution goes
+            // through RawContentLoader to honor the standard mods / vanilla
+            // search order.
+            string meshLightingPath = RawContentLoader.GetContentPath("Effects/MeshLighting.mgfxo");
+            if (!SynapseGaming.LightingSystem.Effects.Forward.LightingEffect.TryLoadShared(meshLightingPath))
+            {
+                Log.Warning($"LightingEffect: MeshLighting.mgfxo not found at '{meshLightingPath}'. Mesh rendering will fail until the .mgfxo ships.");
+            }
         }
 
         public static SubTexture ErrorTexture   => TextureOrNull("NewUI/x_red");

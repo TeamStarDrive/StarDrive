@@ -469,7 +469,10 @@ namespace Ship_Game.Gameplay
             // and come back as empty StaticMesh — no RawMeshes, no ModelMeshes, no effects. Skip
             // the draw rather than NRE on the missing effect; the projectile's particle trail
             // (ProjectileTrail / FireTrail) still spawns from Projectile.UpdateLogic.
-            BasicEffect effect = mesh.GetFirstEffect<BasicEffect>();
+            //
+            // Phase 3.7 step 4 (Phase A): LightingEffect now wraps MeshLighting.mgfxo
+            // (was BasicEffect-derived). Same property surface; switched the type.
+            var effect = mesh.GetFirstEffect<SynapseGaming.LightingSystem.Effects.Forward.LightingEffect>();
             if (effect == null) return;
 
             effect.World = Matrix.CreateScale(scale) * world;
