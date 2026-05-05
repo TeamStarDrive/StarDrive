@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Mesh;
+using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
 using SDUtils;
@@ -26,10 +27,14 @@ public class ForwardRendererTests : StarDriveTest
         GraphicsDevice device = Game.GraphicsDevice;
 
         // 24-vertex cube (4 per face) so each face has a clean normal for default lighting.
-        VertexPositionNormalTexture[] vertices = BuildCubeVertices();
+        // Phase 3.7 step 4 (Phase C): use the bump-bearing format so the new
+        // MeshLighting.fx VS gets its required Tangent + Binormal inputs even
+        // when the test doesn't actually use normal mapping (NormalMapEnabled
+        // stays false; the values are uninitialized zero — never read).
+        VertexPositionNormalTextureBump[] vertices = BuildCubeVertices();
         short[] indices = BuildCubeIndices();
 
-        using var vb = new VertexBuffer(device, VertexPositionNormalTexture.VertexDeclaration,
+        using var vb = new VertexBuffer(device, VertexPositionNormalTextureBump.VertexDeclaration,
                                         vertices.Length, BufferUsage.WriteOnly);
         vb.SetData(vertices);
 
@@ -42,9 +47,9 @@ public class ForwardRendererTests : StarDriveTest
             Name = "UnitCube",
             VertexBuffer = vb,
             IndexBuffer = ib,
-            VertexDeclaration = VertexPositionNormalTexture.VertexDeclaration,
+            VertexDeclaration = VertexPositionNormalTextureBump.VertexDeclaration,
             VertexCount = vertices.Length,
-            VertexStride = VertexPositionNormalTexture.VertexDeclaration.VertexStride,
+            VertexStride = VertexPositionNormalTextureBump.VertexDeclaration.VertexStride,
             PrimitiveCount = indices.Length / 3,
         };
 
@@ -101,10 +106,14 @@ public class ForwardRendererTests : StarDriveTest
             "Forward-renderer pipeline appears broken (degenerate buffers, missing W/V/P, or effect-parameter binding).");
     }
 
-    internal static VertexPositionNormalTexture[] BuildCubeVertices()
+    internal static VertexPositionNormalTextureBump[] BuildCubeVertices()
     {
-        // 6 faces × 4 corners = 24 verts. Per-face normal so default lighting works.
-        var v = new VertexPositionNormalTexture[24];
+        // 6 faces × 4 corners = 24 verts. Per-face normal so default lighting
+        // works. Tangent + Binormal stay zero — the test cube doesn't use
+        // normal mapping (NormalMapEnabled is false), so the shader never
+        // reads them, but D3D11 still requires the slots to exist in the
+        // declaration to match VS input semantics.
+        var v = new VertexPositionNormalTextureBump[24];
         Vector3 nUp = Vector3.Up, nDown = Vector3.Down;
         Vector3 nLeft = Vector3.Left, nRight = Vector3.Right;
         Vector3 nForward = Vector3.Forward, nBack = Vector3.Backward;
@@ -118,24 +127,31 @@ public class ForwardRendererTests : StarDriveTest
         Vector3 p011 = new(-0.5f,  0.5f,  0.5f);
         Vector3 p111 = new( 0.5f,  0.5f,  0.5f);
 
+        VertexPositionNormalTextureBump V(Vector3 pos, Vector3 normal, Vector2 uv) =>
+            new VertexPositionNormalTextureBump
+            {
+                Position = pos, Normal = normal, TextureCoordinate = uv,
+                Tangent = Vector3.Zero, Binormal = Vector3.Zero,
+            };
+
         // +Z (back, facing camera at +Z)
-        v[0]  = new(p001, nBack,    uv00); v[1]  = new(p101, nBack,    uv10);
-        v[2]  = new(p011, nBack,    uv01); v[3]  = new(p111, nBack,    uv11);
+        v[0]  = V(p001, nBack,    uv00); v[1]  = V(p101, nBack,    uv10);
+        v[2]  = V(p011, nBack,    uv01); v[3]  = V(p111, nBack,    uv11);
         // -Z (front, away from camera)
-        v[4]  = new(p100, nForward, uv00); v[5]  = new(p000, nForward, uv10);
-        v[6]  = new(p110, nForward, uv01); v[7]  = new(p010, nForward, uv11);
+        v[4]  = V(p100, nForward, uv00); v[5]  = V(p000, nForward, uv10);
+        v[6]  = V(p110, nForward, uv01); v[7]  = V(p010, nForward, uv11);
         // +X (right)
-        v[8]  = new(p101, nRight,   uv00); v[9]  = new(p100, nRight,   uv10);
-        v[10] = new(p111, nRight,   uv01); v[11] = new(p110, nRight,   uv11);
+        v[8]  = V(p101, nRight,   uv00); v[9]  = V(p100, nRight,   uv10);
+        v[10] = V(p111, nRight,   uv01); v[11] = V(p110, nRight,   uv11);
         // -X (left)
-        v[12] = new(p000, nLeft,    uv00); v[13] = new(p001, nLeft,    uv10);
-        v[14] = new(p010, nLeft,    uv01); v[15] = new(p011, nLeft,    uv11);
+        v[12] = V(p000, nLeft,    uv00); v[13] = V(p001, nLeft,    uv10);
+        v[14] = V(p010, nLeft,    uv01); v[15] = V(p011, nLeft,    uv11);
         // +Y (top)
-        v[16] = new(p011, nUp,      uv00); v[17] = new(p111, nUp,      uv10);
-        v[18] = new(p010, nUp,      uv01); v[19] = new(p110, nUp,      uv11);
+        v[16] = V(p011, nUp,      uv00); v[17] = V(p111, nUp,      uv10);
+        v[18] = V(p010, nUp,      uv01); v[19] = V(p110, nUp,      uv11);
         // -Y (bottom)
-        v[20] = new(p000, nDown,    uv00); v[21] = new(p100, nDown,    uv10);
-        v[22] = new(p001, nDown,    uv01); v[23] = new(p101, nDown,    uv11);
+        v[20] = V(p000, nDown,    uv00); v[21] = V(p100, nDown,    uv10);
+        v[22] = V(p001, nDown,    uv01); v[23] = V(p101, nDown,    uv11);
         return v;
     }
 

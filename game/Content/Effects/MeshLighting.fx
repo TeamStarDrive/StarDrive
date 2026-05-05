@@ -1,32 +1,42 @@
 //-----------------------------------------------------------------------------
 // MeshLighting.fx
 //
-// Phase 3.7 step 4 (Phase A + B emissive/specular maps) drop-in replacement
-// for BasicEffect's per-pixel lighting path, plus per-pixel emissive (`_g`
-// glow) and specular (`_s`) map sampling on top.
+// Phase 3.7 step 4 (Phase A + B + C: full per-mesh lighting) drop-in
+// replacement for BasicEffect's per-pixel lighting path, plus per-pixel
+// emissive (`_g` glow), specular (`_s`), and tangent-space normal (`_n`)
+// map sampling.
 //
-// Lighting model:
+// Lighting model (per-pixel):
 //   ambient = AmbientLightColor * DiffuseColor
 //   diffuse = sum_i(N·L_i_clamped * LightDiffuse_i) * DiffuseColor
 //   specul. = sum_i((N·H_i)^SpecularPower * LightSpecular_i) * SpecularColor
 //                                                            * SpecularMap.rgb
-//   emiss.  = (EmissiveMap.rgb if bound else 1) * EmissiveColor
+//   emiss.  = EmissiveMap.rgb (if bound) else EmissiveColor
 //   color   = (ambient + diffuse) * tex.rgb + specul. + emiss.
 //   alpha   = Alpha * tex.a
-// (with fog mixed in afterwards if FogEnabled)
+//
+// Where N (the surface normal) is, when NormalMapEnabled:
+//   sampled = tex2D(NormalSampler, uv).rgb * 2 - 1   // [0,1]→[-1,1]
+//   N       = normalize(sampled.x * T + sampled.y * B + sampled.z * VN)
+// And the vertex normal otherwise. T, B, VN are the world-space tangent,
+// binormal, and vertex normal (computed at mesh-load time by
+// SDNative/SdMesh/SdMeshGroup::ComputeTangentSpace, transformed into world
+// space here in the VS).
 //
 // The "ambient/emissive multiplied by texture, specular not" split is the
 // BasicEffect convention — keeps highlights reading as reflections rather
-// than tinted-diffuse. Phase B layers map sampling on top:
-//   - Emissive (`_g` glow): tex2D × EmissiveColor → cockpit windows, engine
-//     bell glows, panel lights. Source unlit; added on top of the lit base.
-//   - Specular (`_s`): tex2D modulates per-pixel specular intensity (chrome
-//     panels bright, hull paint dim).
-// Normal mapping is Phase B step 2 — vertex format already carries
-// Tangent + Binormal but the shader doesn't sample yet.
+// than tinted-diffuse. Phase B added emissive/specular map sampling;
+// Phase C adds normal-mapping for hull surface detail.
+//
+// Map fall-back semantics: each `*MapEnabled` flag gates the map sample.
+// When false, the shader uses the per-material constant (or vertex normal,
+// for normal mapping). This keeps the shader compatible with meshes that
+// lack tangents in their vertex declaration (test cubes, possible XNB
+// stragglers without `_n` content) — the flag stays false, the VS reads
+// zero for the missing tangent/binormal but they're never used.
 //
 // All parameters are named so callers can use Effect.Parameters[name].
-// LightingEffect (Ship_Game/Data/Mesh/SunBurnStubs.cs, rewritten) caches
+// LightingEffect (Ship_Game/Data/Mesh/SunBurnStubs.cs) caches
 // EffectParameter handles and exposes BasicEffect-shaped properties for
 // LightingEffectBinder, StaticMesh, etc.
 //-----------------------------------------------------------------------------
@@ -46,6 +56,7 @@ bool   LightingEnabled        = false;
 bool   TextureEnabled         = false;
 bool   EmissiveMapEnabled     = false;
 bool   SpecularMapEnabled     = false;
+bool   NormalMapEnabled       = false;
 bool   FogEnabled             = false;
 
 float3 AmbientLightColor = float3(0, 0, 0);
@@ -99,11 +110,28 @@ sampler2D SpecularSampler = sampler_state
     AddressV  = Wrap;
 };
 
+texture NormalMap;
+sampler2D NormalSampler = sampler_state
+{
+    Texture   = (NormalMap);
+    MinFilter = Linear;
+    MagFilter = Linear;
+    MipFilter = Linear;
+    AddressU  = Wrap;
+    AddressV  = Wrap;
+};
+
 struct VSInput
 {
     float4 Position : POSITION0;
     float3 Normal   : NORMAL0;
     float2 TexCoord : TEXCOORD0;
+    // SdMeshGroup writes Tangent+Binormal whenever the FBX has UVs, and
+    // MeshInterface.TranslateNativeUsage maps them to TANGENT0/BINORMAL0 in
+    // the VertexDeclaration. Meshes without these elements bind zero here —
+    // the NormalMapEnabled flag gates whether they're consumed.
+    float3 Tangent  : TANGENT0;
+    float3 Binormal : BINORMAL0;
 };
 
 struct VSOutput
@@ -112,7 +140,9 @@ struct VSOutput
     float2 TexCoord   : TEXCOORD0;
     float3 PositionWS : TEXCOORD1;
     float3 NormalWS   : TEXCOORD2;
-    float  FogFactor  : TEXCOORD3;
+    float3 TangentWS  : TEXCOORD3;
+    float3 BinormalWS : TEXCOORD4;
+    float  FogFactor  : TEXCOORD5;
 };
 
 float ComputeFogFactor(float dist)
@@ -152,10 +182,13 @@ VSOutput VSDefault(VSInput input)
     float4 viewPos  = mul(worldPos, View);
     output.PositionPS = mul(viewPos, Projection);
     output.PositionWS = worldPos.xyz;
-    // Cheap per-vertex normal-to-world transform; assumes uniform scale (which
-    // matches BasicEffect — Phase B will switch to inverse-transpose World3x3
-    // if normal-mapping calls for it).
-    output.NormalWS   = normalize(mul(input.Normal, (float3x3)World));
+    // World-space normal/tangent/binormal. We use World3x3 directly (not
+    // inverse-transpose) — this matches BasicEffect's behavior and is correct
+    // under uniform scale, which all StarDrive meshes use. Non-uniform scale
+    // would skew the basis, but no current content requires it.
+    output.NormalWS   = normalize(mul(input.Normal,   (float3x3)World));
+    output.TangentWS  = normalize(mul(input.Tangent,  (float3x3)World));
+    output.BinormalWS = normalize(mul(input.Binormal, (float3x3)World));
     output.TexCoord   = input.TexCoord;
     output.FogFactor  = ComputeFogFactor(length(viewPos.xyz));
     return output;
@@ -191,7 +224,24 @@ float4 PSDefault(VSOutput input) : SV_TARGET
     float3 rgb;
     if (LightingEnabled)
     {
-        float3 normalWS = normalize(input.NormalWS);
+        // Per-pixel surface normal: when a normal map is bound, decode the
+        // tangent-space sample (RGB encodes [-1,1] via *2-1) and rotate into
+        // world space using the TBN basis. Otherwise fall back to the
+        // interpolated vertex normal — same as Phase A behavior.
+        float3 normalWS;
+        if (NormalMapEnabled)
+        {
+            float3 tangentSpaceN = tex2D(NormalSampler, input.TexCoord).rgb * 2.0 - 1.0;
+            float3 T = normalize(input.TangentWS);
+            float3 B = normalize(input.BinormalWS);
+            float3 N = normalize(input.NormalWS);
+            // Mat-mul form: rotated = sampled.x*T + sampled.y*B + sampled.z*N
+            normalWS = normalize(tangentSpaceN.x * T + tangentSpaceN.y * B + tangentSpaceN.z * N);
+        }
+        else
+        {
+            normalWS = normalize(input.NormalWS);
+        }
         float3 viewDirWS = normalize(EyePosition - input.PositionWS);
 
         float3 ambient = AmbientLightColor * DiffuseColor;

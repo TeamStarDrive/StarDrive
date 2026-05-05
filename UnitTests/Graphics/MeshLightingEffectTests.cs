@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Mesh;
+using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -151,6 +152,39 @@ public class MeshLightingEffectTests : StarDriveTest
             "SpecularMapEnabled should be false after unbinding SpecularColorMapTexture");
     }
 
+    // Phase C tangent-space normal map binding probe. A visual test would
+    // require a mesh with tangent + binormal in its vertex declaration (our
+    // cube uses VertexPositionNormalTexture which has neither). The data
+    // path through SdMeshGroup → MeshInterface.TranslateNativeUsage is
+    // covered by the FBX import; here we just verify the C# → shader
+    // parameter binding is wired. Visual correctness is checked in-game
+    // via the engine-trail / specular reference shots.
+    [TestMethod]
+    public void NormalMap_BindsToShaderParameter()
+    {
+        // Standard "flat normal" — RGB(128,128,255) decodes to (0,0,1) in
+        // tangent space, which leaves the surface using the vertex normal
+        // (so this is the safest map to bind for a regression test).
+        using var flatNormal = MakeSolidColorTexture(Game.GraphicsDevice, new Color(128, 128, 255, 255));
+        using var fx = new LightingEffect(Game.GraphicsDevice);
+
+        Assert.IsNotNull(fx.Parameters["NormalMap"], "Shader missing NormalMap parameter");
+        Assert.IsNotNull(fx.Parameters["NormalMapEnabled"], "Shader missing NormalMapEnabled flag");
+
+        fx.NormalMapTexture = flatNormal;
+        fx.CurrentTechnique.Passes[0].Apply();
+
+        Assert.IsTrue(fx.Parameters["NormalMapEnabled"].GetValueBoolean(),
+            "NormalMapEnabled should be true after binding NormalMapTexture");
+        Assert.AreSame(flatNormal, fx.Parameters["NormalMap"].GetValueTexture2D(),
+            "NormalMap parameter should reference the bound texture");
+
+        fx.NormalMapTexture = null;
+        fx.CurrentTechnique.Passes[0].Apply();
+        Assert.IsFalse(fx.Parameters["NormalMapEnabled"].GetValueBoolean(),
+            "NormalMapEnabled should be false after unbinding NormalMapTexture");
+    }
+
     static Texture2D MakeSolidColorTexture(GraphicsDevice device, Color color)
     {
         var tex = new Texture2D(device, 1, 1);
@@ -165,10 +199,10 @@ public class MeshLightingEffectTests : StarDriveTest
     {
         GraphicsDevice device = Game.GraphicsDevice;
 
-        VertexPositionNormalTexture[] vertices = ForwardRendererTests.BuildCubeVertices();
+        VertexPositionNormalTextureBump[] vertices = ForwardRendererTests.BuildCubeVertices();
         short[] indices = ForwardRendererTests.BuildCubeIndices();
 
-        var vb = new VertexBuffer(device, VertexPositionNormalTexture.VertexDeclaration,
+        var vb = new VertexBuffer(device, VertexPositionNormalTextureBump.VertexDeclaration,
                                   vertices.Length, BufferUsage.WriteOnly);
         vb.SetData(vertices);
         var ib = new IndexBuffer(device, IndexElementSize.SixteenBits,
@@ -180,9 +214,9 @@ public class MeshLightingEffectTests : StarDriveTest
             Name = "UnitCube",
             VertexBuffer = vb,
             IndexBuffer = ib,
-            VertexDeclaration = VertexPositionNormalTexture.VertexDeclaration,
+            VertexDeclaration = VertexPositionNormalTextureBump.VertexDeclaration,
             VertexCount = vertices.Length,
-            VertexStride = VertexPositionNormalTexture.VertexDeclaration.VertexStride,
+            VertexStride = VertexPositionNormalTextureBump.VertexDeclaration.VertexStride,
             PrimitiveCount = indices.Length / 3,
         };
 

@@ -41,6 +41,22 @@ namespace SynapseGaming.LightingSystem.Core
         public Vector3 Tangent;
         public Vector3 Binormal;
         public static int SizeInBytes => 56;
+
+        // Phase 3.7 step 4 (Phase C): VertexDeclaration so this struct can
+        // back tangent-bearing VertexBuffers used by code that doesn't go
+        // through SDNative's SdMeshGroup layout builder (test scaffolding,
+        // procedurally-generated geometry, etc.). Layout matches the
+        // SD-emitted decoration in MeshInterface.TranslateNativeUsage:
+        // Position(0) → Normal(12) → TexCoord(24) → Tangent(32) → Binormal(44).
+        public static readonly VertexElement[] VertexElements =
+        {
+            new VertexElement(0,  VertexElementFormat.Vector3, VertexElementUsage.Position,          0),
+            new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal,            0),
+            new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
+            new VertexElement(32, VertexElementFormat.Vector3, VertexElementUsage.Tangent,           0),
+            new VertexElement(44, VertexElementFormat.Vector3, VertexElementUsage.Binormal,          0),
+        };
+        public static readonly VertexDeclaration VertexDeclaration = new VertexDeclaration(56, VertexElements);
     }
 
     public interface IManagerService { }
@@ -705,10 +721,10 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         readonly EffectParameter pDiffuseColor, pEmissiveColor, pSpecularColor;
         readonly EffectParameter pSpecularPower, pAlpha, pEyePosition;
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
-        readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled;
+        readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled;
         readonly EffectParameter pAmbientLightColor;
         readonly EffectParameter pFogColor, pFogStart, pFogEnd;
-        readonly EffectParameter pTexture, pEmissiveMap, pSpecularMap;
+        readonly EffectParameter pTexture, pEmissiveMap, pSpecularMap, pNormalMap;
 
         readonly EffectParameter pDl0Direction, pDl0Diffuse, pDl0Specular;
         readonly EffectParameter pDl1Direction, pDl1Diffuse, pDl1Specular;
@@ -766,6 +782,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pTextureEnabled     = Parameters["TextureEnabled"];
             pEmissiveMapEnabled = Parameters["EmissiveMapEnabled"];
             pSpecularMapEnabled = Parameters["SpecularMapEnabled"];
+            pNormalMapEnabled   = Parameters["NormalMapEnabled"];
             pFogEnabled         = Parameters["FogEnabled"];
             pAmbientLightColor  = Parameters["AmbientLightColor"];
             pFogColor           = Parameters["FogColor"];
@@ -774,6 +791,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pTexture            = Parameters["Texture"];
             pEmissiveMap        = Parameters["EmissiveMap"];
             pSpecularMap        = Parameters["SpecularMap"];
+            pNormalMap          = Parameters["NormalMap"];
 
             pDl0Direction = Parameters["DirLight0Direction"];
             pDl0Diffuse   = Parameters["DirLight0DiffuseColor"];
@@ -907,6 +925,15 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pSpecularMapEnabled?.SetValue(specularMapBound);
             if (specularMapBound)
                 pSpecularMap?.SetValue(SpecularColorMapTexture);
+
+            // Phase 3.7 step 4 (Phase C): tangent-space normal (`_n`) map.
+            // Enables per-pixel hull surface detail — recessed panels, rivets,
+            // weld seams. Vertex format must carry Tangent + Binormal for the
+            // TBN basis; SdMeshGroup writes these for any mesh with UVs.
+            bool normalMapBound = NormalMapTexture != null;
+            pNormalMapEnabled?.SetValue(normalMapBound);
+            if (normalMapBound)
+                pNormalMap?.SetValue(NormalMapTexture);
         }
 
         static void ApplyDirectional(DirectionalLight light, EffectParameter diffuseParam, EffectParameter specularParam)
