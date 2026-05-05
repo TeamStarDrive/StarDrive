@@ -77,7 +77,16 @@ namespace Ship_Game
         readonly System.Collections.Generic.List<DistortionComponent.DistortionSource> DistortionSources
             = new(DistortionComponent.MaxShields);
         public Texture2D FogMap;
-        RenderTarget2D FogMapTarget;
+        // Phase 3.7 step 3: ping-pong fog-of-war RTs. Pre-migration code did
+        // `FogMap = fogMapTarget.GetTexture()` which returned a SEPARATE
+        // snapshot texture (XNA 3.1 RenderTarget2D semantics). MonoGame removed
+        // that — RenderTarget2D *is* a Texture2D, so the migrated `FogMap = rt`
+        // made source and destination of UpdateFogMap the same memory. Reading
+        // a texture that's currently bound as the active RT is undefined under
+        // D3D11, breaking persistent exploration. Ping-pong restores the
+        // separate-source-and-destination invariant: render front→back, swap.
+        RenderTarget2D FogMapTargetA;
+        RenderTarget2D FogMapTargetB;
         public RenderTarget2D MainTarget;
         public RenderTarget2D BorderRT;
         RenderTarget2D LightsTarget;
@@ -567,26 +576,36 @@ namespace Ship_Game
 
         void CreateFogMap(Data.GameContentManager content, GraphicsDevice device)
         {
+            EnsureFogMapRenderTargets(device);
+
+            // Clear both ping-pong RTs to fully transparent (no exploration yet).
+            device.SetRenderTarget(FogMapTargetA);
+            device.Clear(Color.Transparent);
+            device.SetRenderTarget(FogMapTargetB);
+            device.Clear(Color.Transparent);
+            device.SetRenderTarget(null);
+            FogMap = FogMapTargetA;
+
             if (UState.FogMapBytes != null)
             {
-                FogMap = content.RawContent.TexImport.FromAlphaOnly(UState.FogMapBytes);
-                UState.FogMapBytes = null; // free the mem of course, even if load failed
+                // Load saved alpha mask into the front RT so the next UpdateFogMap
+                // call samples it. FromAlphaOnly returns a stand-alone Texture2D
+                // (rgb=alpha for premul correctness); blit it onto FogMapTargetA.
+                Texture2D loaded = content.RawContent.TexImport.FromAlphaOnly(UState.FogMapBytes);
+                UState.FogMapBytes = null;
+                if (loaded != null)
+                {
+                    using var sb = new Microsoft.Xna.Framework.Graphics.SpriteBatch(device);
+                    device.SetRenderTarget(FogMapTargetA);
+                    device.Clear(Color.Transparent);
+                    sb.Begin(blendState: Microsoft.Xna.Framework.Graphics.BlendState.Opaque);
+                    sb.Draw(loaded, new Rectangle(0, 0, 512, 512), Color.White);
+                    sb.End();
+                    device.SetRenderTarget(null);
+                    loaded.Dispose();
+                }
             }
 
-            if (FogMap == null)
-            {
-                var fogMapTarget = GetCachedFogMapRenderTarget(device, ref FogMapTarget);
-                device.SetRenderTarget(fogMapTarget);
-                device.Clear(new Color((byte)255, (byte)255, (byte)255, (byte)0));
-                Color defaultFogColor = new(0, 0, 0, 150);
-                ScreenManager.SpriteRenderer.Begin(OrthographicProjection);
-                ScreenManager.SpriteRenderer.FillRect(new(0, 0, ScreenArea), defaultFogColor);
-                ScreenManager.SpriteRenderer.End();
-                device.SetRenderTarget(null);
-                FogMap = (fogMapTarget as Microsoft.Xna.Framework.Graphics.Texture2D);
-            }
-
-            //FogMap ??= ResourceManager.Texture2D("UniverseFeather.dds");
             basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
         }
 
@@ -680,8 +699,9 @@ namespace Ship_Game
             Mem.Dispose(ref bloomComponent);
             Mem.Dispose(ref distortionComponent);
             Mem.Dispose(ref bg);
-            Mem.Dispose(ref FogMap);
-            Mem.Dispose(ref FogMapTarget);
+            FogMap = null; // alias of FogMapTargetA/B; the RTs own the lifetime
+            Mem.Dispose(ref FogMapTargetA);
+            Mem.Dispose(ref FogMapTargetB);
             Mem.Dispose(ref MainTarget);
             Mem.Dispose(ref BorderRT);
             Mem.Dispose(ref LightsTarget);

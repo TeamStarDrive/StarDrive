@@ -79,16 +79,22 @@ namespace Ship_Game.Data.Texture
                 int numPixels = width*width;
                 var pixels = new byte[numPixels*4];
 
-                // copy alphas
+                // Phase 3.7 step 3: write rgb = alpha (premultiplied storage)
+                // so the loaded FogMap composites correctly under the LightsTarget
+                // path's premul AlphaBlend. Pre-fix this stored rgb=255 always,
+                // which made every saved-FogMap pixel sample as fully-bright
+                // (the premul blend's dst*(1-srcA) term overshot and clamped),
+                // so loading any save lifted the entire fog overlay to 100%.
                 fixed (byte* pAlphas = alphas)
                 fixed (byte* pPixels = pixels)
                 {
                     for (int i = 0; i < numPixels; ++i)
                     {
-                        pPixels[i*4]     = 255;
-                        pPixels[i*4 + 1] = 255;
-                        pPixels[i*4 + 2] = 255;
-                        pPixels[i*4 + 3] = pAlphas[i];
+                        byte a = pAlphas[i];
+                        pPixels[i*4]     = a;
+                        pPixels[i*4 + 1] = a;
+                        pPixels[i*4 + 2] = a;
+                        pPixels[i*4 + 3] = a;
                     }
                 }
 

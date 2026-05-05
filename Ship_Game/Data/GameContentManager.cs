@@ -44,8 +44,11 @@ namespace Ship_Game.Data
         //
         // 2026-05-02: Effects/desaturate.xnb restored via desaturate.mgfxo (probe).
         // 2026-05-02: BasicFogOfWar attempted + reverted — 4-instruction PS rewrite did
-        //   not produce the right fog mask; revisit with a deeper RT-state audit
-        //   (LightsTarget content, sampler/RT-format coupling, alpha semantics).
+        //   not produce the right fog mask. Failure was the manual Pass.Apply()-
+        //   after-SpriteBatch-Begin pattern (silent black under MGFX 3.8.1.303 /
+        //   DX11), not the shader logic. Re-restored 2026-05-06 (§3.7 step 3) via
+        //   SpriteBatch.Begin(effect:) + parameter-driven LightsTexture sampler-
+        //   state, mirroring the BloomCombine pattern.
         // 2026-05-03: Effects/PlanetHalo.xnb restored via PlanetHalo.mgfxo (vs_2_0+ps_2_0
         //   atmospheric ring rewrite; no textures so no sampler-binding pitfalls).
         // 2026-05-04: Effects/scale.xnb restored via scale.mgfxo (vs_1_1+ps_2_0 shield
@@ -57,7 +60,6 @@ namespace Ship_Game.Data
         //   by fixing the LZX framing byte-order bug in EffectXnbDump.
         static readonly HashSet<string> Phase2BrokenEffectXnbs = new(StringComparer.OrdinalIgnoreCase)
         {
-            "Effects/BasicFogOfWar.xnb",
         };
         static readonly HashSet<string> Phase2WarnedEffects = new(StringComparer.OrdinalIgnoreCase);
         static void WarnPhase2BrokenEffectOnce(string assetName)

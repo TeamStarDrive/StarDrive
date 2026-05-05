@@ -21,7 +21,6 @@ namespace UnitTests.Content
     {
         static readonly string[] StubbedEffects =
         {
-            "Effects/BasicFogOfWar",
         };
 
         // Phase 3.3 restored — each entry is a hand-rewritten .fx compiled by mgfxc
@@ -30,11 +29,12 @@ namespace UnitTests.Content
         // legacy XNA 3.1 .xnb still present on disk for mod compatibility.
         static readonly (string asset, string technique, string firstPass)[] RestoredEffects =
         {
-            ("Effects/desaturate", "Desaturate",       "Pass1"),
-            ("Effects/PlanetHalo", "Planet",           "P1"),
-            ("Effects/scale",      "Technique1",       "Pass1"),
-            ("Effects/Thrust",     "thrust_technique", "P1"),
-            ("Effects/BeamFX",     "Technique1",       "Pass1"),
+            ("Effects/desaturate",     "Desaturate",       "Pass1"),
+            ("Effects/PlanetHalo",     "Planet",           "P1"),
+            ("Effects/scale",          "Technique1",       "Pass1"),
+            ("Effects/Thrust",         "thrust_technique", "P1"),
+            ("Effects/BeamFX",         "Technique1",       "Pass1"),
+            ("Effects/BasicFogOfWar",  "BasicFogOfWar",    "Pass1"),
         };
 
         [TestMethod]
