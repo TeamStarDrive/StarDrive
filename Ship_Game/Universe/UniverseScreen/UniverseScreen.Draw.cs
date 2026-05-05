@@ -290,6 +290,42 @@ namespace Ship_Game
                     mainSource = PostBloomTarget;
                 }
 
+                // §3.7 step 2: shield-hit distortion runs after bloom, before
+                // fog-of-war. The PS samples `mainSource` and writes a warped
+                // copy to PostDistortTarget. If no shield is currently being
+                // hit, BuildDistortionSources returns an empty list, the
+                // component skips the pass, and we keep using `mainSource`.
+                //
+                // Mirror DrawShields' zoom gate: only run when 3D ship meshes
+                // are actually rendered (viewState < SystemView). At higher
+                // zoom levels there's no ship mesh to be hit, so the ripple
+                // would distort backdrop / strategic-overlay pixels around
+                // an invisible point — visually wrong, and wasted GPU work.
+                // BuildDistortionSources also frustum-culls per shield, so
+                // off-screen hits are skipped even at close zoom.
+                if (GlobalStats.RenderShieldDistortion
+                    && distortionComponent != null
+                    && PostDistortTarget != null
+                    && Shields != null
+                    && viewState < UnivScreenState.SystemView)
+                {
+                    DistortionSources.Clear();
+                    Shields.BuildDistortionSources(PostDistortTarget.Width, PostDistortTarget.Height, DistortionSources);
+                    if (DistortionSources.Count > 0)
+                    {
+                        // Wall-clock seconds drive the ripple's animation
+                        // phase. DrawTimes.RealTime.Seconds is a per-frame
+                        // delta, not cumulative, so we read the host stopwatch
+                        // directly. Static accumulator avoids time-warp on
+                        // start (Environment.TickCount wraps every ~25 days
+                        // but the shader only consumes sin() of it).
+                        float time = (float)(System.Environment.TickCount * 0.001);
+                        distortionComponent.Draw(batch, mainSource, PostDistortTarget,
+                                                 DistortionSources, time);
+                        mainSource = PostDistortTarget;
+                    }
+                }
+
                 // this draws the MainTarget RT which has the entire background and 3D ships
                 DrawMainRTWithFogOfWarEffect(batch, graphics, mainSource);
 

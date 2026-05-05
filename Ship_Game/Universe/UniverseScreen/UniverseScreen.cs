@@ -70,6 +70,12 @@ namespace Ship_Game
         public bool returnToShip;
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
+        public DistortionComponent distortionComponent;
+        // §3.7 step 2: reusable scratch list for the per-frame distortion-source
+        // build. ShieldManager.BuildDistortionSources appends; capacity matches
+        // DistortionComponent.MaxShields so the typical case allocates nothing.
+        readonly System.Collections.Generic.List<DistortionComponent.DistortionSource> DistortionSources
+            = new(DistortionComponent.MaxShields);
         public Texture2D FogMap;
         RenderTarget2D FogMapTarget;
         public RenderTarget2D MainTarget;
@@ -79,6 +85,12 @@ namespace Ship_Game
         // bloomComponent processes MainTarget into this, and the fog-of-war
         // composite then sources from here instead of MainTarget.
         RenderTarget2D PostBloomTarget;
+        // §3.7 step 2: distortion output RT. Allocated when RenderShieldDistortion
+        // is on. We can't alias-safely write back to MainTarget/PostBloomTarget —
+        // the PS samples its source, so destination MUST be a separate RT. When
+        // no shield is actively hit, the pass is skipped and the composite reads
+        // from the prior stage instead.
+        RenderTarget2D PostDistortTarget;
 
         #pragma warning disable CA2213 // managed by Content Manager
         public Effect basicFogOfWarEffect;
@@ -484,12 +496,19 @@ namespace Ship_Game
                 bloomComponent = new BloomComponent(device, TransientContent);
                 bloomComponent.LoadContent();
             }
+            if (GlobalStats.RenderShieldDistortion)
+            {
+                distortionComponent = new DistortionComponent(device, TransientContent);
+                distortionComponent.LoadContent();
+            }
 
             MainTarget   = RenderTargets.Create(device);
             LightsTarget = RenderTargets.Create(device);
             BorderRT     = RenderTargets.Create(device);
             if (GlobalStats.RenderBloom)
                 PostBloomTarget = RenderTargets.Create(device);
+            if (GlobalStats.RenderShieldDistortion)
+                PostDistortTarget = RenderTargets.Create(device);
 
             NotificationManager.ReSize();
 
@@ -659,6 +678,7 @@ namespace Ship_Game
             if (!GlobalStats.IsUnitTest)
                 Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
             Mem.Dispose(ref bloomComponent);
+            Mem.Dispose(ref distortionComponent);
             Mem.Dispose(ref bg);
             Mem.Dispose(ref FogMap);
             Mem.Dispose(ref FogMapTarget);
@@ -666,6 +686,7 @@ namespace Ship_Game
             Mem.Dispose(ref BorderRT);
             Mem.Dispose(ref LightsTarget);
             Mem.Dispose(ref PostBloomTarget);
+            Mem.Dispose(ref PostDistortTarget);
             Mem.Dispose(ref Particles);
             Mem.Dispose(ref Shields);
             Mem.Dispose(ref aw);

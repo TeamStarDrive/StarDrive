@@ -68,6 +68,7 @@
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="Graphics\BloomFilterTests.cs" />
+    <Compile Include="Graphics\DistortionComponentTests.cs" />
     <Compile Include="Graphics\ForwardRendererTests.cs" />
     <Compile Include="Graphics\LightingEffectBinderTests.cs" />
     <Compile Include="Graphics\MeshLightingEffectTests.cs" />
