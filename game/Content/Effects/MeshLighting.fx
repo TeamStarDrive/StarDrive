@@ -1,21 +1,29 @@
 //-----------------------------------------------------------------------------
 // MeshLighting.fx
 //
-// Phase 3.7 step 4 (Phase A) drop-in replacement for BasicEffect's per-pixel
-// lighting path. Mirrors BasicEffect's lighting model 1:1:
-//   ambient = AmbientLightColor * DiffuseColor + EmissiveColor
+// Phase 3.7 step 4 (Phase A + B emissive/specular maps) drop-in replacement
+// for BasicEffect's per-pixel lighting path, plus per-pixel emissive (`_g`
+// glow) and specular (`_s`) map sampling on top.
+//
+// Lighting model:
+//   ambient = AmbientLightColor * DiffuseColor
 //   diffuse = sum_i(N·L_i_clamped * LightDiffuse_i) * DiffuseColor
 //   specul. = sum_i((N·H_i)^SpecularPower * LightSpecular_i) * SpecularColor
-//   color   = (ambient + diffuse) * tex.rgb + specul.   // tex unmultiplied
+//                                                            * SpecularMap.rgb
+//   emiss.  = (EmissiveMap.rgb if bound else 1) * EmissiveColor
+//   color   = (ambient + diffuse) * tex.rgb + specul. + emiss.
 //   alpha   = Alpha * tex.a
 // (with fog mixed in afterwards if FogEnabled)
 //
 // The "ambient/emissive multiplied by texture, specular not" split is the
 // BasicEffect convention — keeps highlights reading as reflections rather
-// than tinted-diffuse. Phase B will extend with normal/specular/emissive
-// map sampling; this Phase A version uses only DiffuseTexture so the swap
-// from BasicEffect → MeshLighting is visually a no-op for ships/planets/
-// stations and provides a stable platform for the map work.
+// than tinted-diffuse. Phase B layers map sampling on top:
+//   - Emissive (`_g` glow): tex2D × EmissiveColor → cockpit windows, engine
+//     bell glows, panel lights. Source unlit; added on top of the lit base.
+//   - Specular (`_s`): tex2D modulates per-pixel specular intensity (chrome
+//     panels bright, hull paint dim).
+// Normal mapping is Phase B step 2 — vertex format already carries
+// Tangent + Binormal but the shader doesn't sample yet.
 //
 // All parameters are named so callers can use Effect.Parameters[name].
 // LightingEffect (Ship_Game/Data/Mesh/SunBurnStubs.cs, rewritten) caches
@@ -34,9 +42,11 @@ float  SpecularPower   = 16.0;
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
-bool   LightingEnabled = false;
-bool   TextureEnabled  = false;
-bool   FogEnabled      = false;
+bool   LightingEnabled        = false;
+bool   TextureEnabled         = false;
+bool   EmissiveMapEnabled     = false;
+bool   SpecularMapEnabled     = false;
+bool   FogEnabled             = false;
 
 float3 AmbientLightColor = float3(0, 0, 0);
 
@@ -60,6 +70,28 @@ texture Texture;
 sampler2D TextureSampler = sampler_state
 {
     Texture   = (Texture);
+    MinFilter = Linear;
+    MagFilter = Linear;
+    MipFilter = Linear;
+    AddressU  = Wrap;
+    AddressV  = Wrap;
+};
+
+texture EmissiveMap;
+sampler2D EmissiveSampler = sampler_state
+{
+    Texture   = (EmissiveMap);
+    MinFilter = Linear;
+    MagFilter = Linear;
+    MipFilter = Linear;
+    AddressU  = Wrap;
+    AddressV  = Wrap;
+};
+
+texture SpecularMap;
+sampler2D SpecularSampler = sampler_state
+{
+    Texture   = (SpecularMap);
     MinFilter = Linear;
     MagFilter = Linear;
     MipFilter = Linear;
@@ -133,15 +165,35 @@ float4 PSDefault(VSOutput input) : SV_TARGET
 {
     float4 texColor = TextureEnabled ? tex2D(TextureSampler, input.TexCoord) : float4(1, 1, 1, 1);
 
+    // Per-pixel emissive: glow map (`_g`) is the source of truth when bound;
+    // it carries the full emissive color in its RGB channels (cockpit windows,
+    // engine bells, panel lights). When no map is bound, fall back to the
+    // per-material EmissiveColor constant.
+    //
+    // Why not multiply by EmissiveColor: FBX-imported ships go through
+    // MeshInterface.CreateMaterialEffect which doesn't currently set
+    // EmissiveColor (commented-out line, defaults to Vector3.Zero). The map
+    // would silently render black if multiplied. SunBurn's original behavior
+    // when an emissive map was present was effectively "the map IS the
+    // emissive" — multiplication added per-material tint that almost never
+    // diverged from white in practice.
+    float3 emissive = EmissiveMapEnabled
+        ? tex2D(EmissiveSampler, input.TexCoord).rgb
+        : EmissiveColor;
+
+    // Per-pixel specular mask: `_s` map controls specularity. Chrome panels
+    // → bright; matte hull paint → dim. Sampled into a single multiplier
+    // applied to the per-light specular accumulation.
+    float3 specularMask = SpecularMapEnabled
+        ? tex2D(SpecularSampler, input.TexCoord).rgb
+        : float3(1, 1, 1);
+
     float3 rgb;
     if (LightingEnabled)
     {
         float3 normalWS = normalize(input.NormalWS);
         float3 viewDirWS = normalize(EyePosition - input.PositionWS);
 
-        // BasicEffect splits ambient and emissive contributions: ambient is
-        // texture-modulated; emissive is added at the end after the
-        // texture/diffuse modulation. We follow the same split below.
         float3 ambient = AmbientLightColor * DiffuseColor;
 
         LightTerms l0 = ComputeDirectional(normalWS, viewDirWS,
@@ -152,16 +204,17 @@ float4 PSDefault(VSOutput input) : SV_TARGET
             DirLight2Direction, DirLight2DiffuseColor, DirLight2SpecularColor);
 
         float3 diffuseAcc  = (l0.Diffuse  + l1.Diffuse  + l2.Diffuse)  * DiffuseColor;
-        float3 specularAcc = (l0.Specular + l1.Specular + l2.Specular) * SpecularColor;
+        float3 specularAcc = (l0.Specular + l1.Specular + l2.Specular) * SpecularColor * specularMask;
 
         // Texture modulates ambient + diffuse but NOT specular (BasicEffect
-        // convention — keeps highlights reading like reflections).
-        rgb = (ambient + diffuseAcc) * texColor.rgb + specularAcc + EmissiveColor;
+        // convention — keeps highlights reading like reflections). Emissive
+        // is added on top, unmodulated by per-pixel lighting.
+        rgb = (ambient + diffuseAcc) * texColor.rgb + specularAcc + emissive;
     }
     else
     {
         // No lighting: just diffuse * texture + emissive.
-        rgb = DiffuseColor * texColor.rgb + EmissiveColor;
+        rgb = DiffuseColor * texColor.rgb + emissive;
     }
 
     if (FogEnabled)
@@ -174,7 +227,11 @@ technique Default
 {
     pass Pass1
     {
-        VertexShader = compile vs_4_0_level_9_1 VSDefault();
-        PixelShader  = compile ps_4_0_level_9_1 PSDefault();
+        // ps_4_0_level_9_3 (SM3.0 hardware) — needed because Phase B's per-pixel
+        // emissive + specular map sampling pushes the shader past the 64-slot
+        // ps_2_0 / level_9_1 limit. Level 9.3 = SM3.0 era (~2005+ hardware),
+        // universally available on any modern desktop GPU and integrated.
+        VertexShader = compile vs_4_0_level_9_3 VSDefault();
+        PixelShader  = compile ps_4_0_level_9_3 PSDefault();
     }
 }

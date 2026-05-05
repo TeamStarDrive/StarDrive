@@ -705,9 +705,10 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         readonly EffectParameter pDiffuseColor, pEmissiveColor, pSpecularColor;
         readonly EffectParameter pSpecularPower, pAlpha, pEyePosition;
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
+        readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled;
         readonly EffectParameter pAmbientLightColor;
         readonly EffectParameter pFogColor, pFogStart, pFogEnd;
-        readonly EffectParameter pTexture;
+        readonly EffectParameter pTexture, pEmissiveMap, pSpecularMap;
 
         readonly EffectParameter pDl0Direction, pDl0Diffuse, pDl0Specular;
         readonly EffectParameter pDl1Direction, pDl1Diffuse, pDl1Specular;
@@ -763,12 +764,16 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pEyePosition        = Parameters["EyePosition"];
             pLightingEnabled    = Parameters["LightingEnabled"];
             pTextureEnabled     = Parameters["TextureEnabled"];
+            pEmissiveMapEnabled = Parameters["EmissiveMapEnabled"];
+            pSpecularMapEnabled = Parameters["SpecularMapEnabled"];
             pFogEnabled         = Parameters["FogEnabled"];
             pAmbientLightColor  = Parameters["AmbientLightColor"];
             pFogColor           = Parameters["FogColor"];
             pFogStart           = Parameters["FogStart"];
             pFogEnd             = Parameters["FogEnd"];
             pTexture            = Parameters["Texture"];
+            pEmissiveMap        = Parameters["EmissiveMap"];
+            pSpecularMap        = Parameters["SpecularMap"];
 
             pDl0Direction = Parameters["DirLight0Direction"];
             pDl0Diffuse   = Parameters["DirLight0DiffuseColor"];
@@ -888,6 +893,20 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pTextureEnabled?.SetValue(TextureEnabled && Texture != null);
             if (Texture != null)
                 pTexture?.SetValue(Texture);
+
+            // Phase 3.7 step 4 (Phase B): emissive (`_g`) and specular (`_s`)
+            // map sampling. The flag tells the shader whether to sample at all
+            // — bound but null/disabled textures fall back to the per-material
+            // EmissiveColor / unit specular respectively.
+            bool emissiveMapBound = EmissiveMapTexture != null;
+            pEmissiveMapEnabled?.SetValue(emissiveMapBound);
+            if (emissiveMapBound)
+                pEmissiveMap?.SetValue(EmissiveMapTexture);
+
+            bool specularMapBound = SpecularColorMapTexture != null;
+            pSpecularMapEnabled?.SetValue(specularMapBound);
+            if (specularMapBound)
+                pSpecularMap?.SetValue(SpecularColorMapTexture);
         }
 
         static void ApplyDirectional(DirectionalLight light, EffectParameter diffuseParam, EffectParameter specularParam)
