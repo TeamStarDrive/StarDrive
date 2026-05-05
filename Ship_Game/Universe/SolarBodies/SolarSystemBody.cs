@@ -402,17 +402,6 @@ namespace Ship_Game
                 var baseScale = ScaleMatrix;
                 SO.World = baseScale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
                 SO.Visibility = ObjectVisibility.Rendered;
-
-                // Phase 2.8.C hotfix #6: hand the per-mesh LightingEffect the
-                // actual sun direction. Without this the planet body falls back
-                // to BasicEffect.EnableDefaultLighting's hardcoded angles and
-                // gets lit from the wrong side regardless of where the sun is.
-                Vector3 sunToPlanet = (Position - System.Position).ToVec3().Normalized();
-                SO.PrimaryLightDirection = sunToPlanet;
-                SO.PrimaryLightColor = (System.Lights != null && System.Lights.Count > 0)
-                    ? System.Lights[0].CompositeColorAndIntensity
-                    : Vector3.One;
-                SO.PrimaryLightEnabled = true;
             }
             else
             {

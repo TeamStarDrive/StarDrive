@@ -211,6 +211,32 @@ namespace Ship_Game
             AddLight("Global Fill Light", new Vector2(0, 0), 0.7f, globalLightRad, Color.White, -globalLightZPos, fillLight: false, shadowQuality: 0f);
             AddLight("Global Back Light", new Vector2(0, 0), 0.6f, globalLightRad, Color.White, +globalLightZPos, fillLight: false, shadowQuality: 0f);
 
+            // Phase B refactor: scene-wide DirectionalLight + AmbientLight feed
+            // SharedFx via LightingEffectBinder so every SO (ships, planets,
+            // asteroids, launching ships, debris) gets consistent forward-renderer
+            // lighting without per-object PrimaryLight* setup. Direction is
+            // (0.7, 0, 0.7) — the same oblique angle the deleted
+            // Ship.UpdatePrimaryLight used as a fallback for ships outside any
+            // system, and close to the average parallax angle inside a system.
+            // Pure +Z straight-down would land N·L = 1.0 on every camera-facing
+            // pixel and erase normal-map detail + lit/shadow contrast. Ambient
+            // at 0.06× white matches the pre-refactor per-SO PrimaryLightColor
+            // × 0.06 ambient floor.
+            AddLight(new SynapseGaming.LightingSystem.Lights.DirectionalLight
+            {
+                Name = "Universe Sun",
+                DiffuseColor = Color.White.ToVector3(),
+                Intensity = 1.0f,
+                Direction = new Vector3(0.7f, 0f, 0.7f).Normalized(),
+                Enabled = true,
+            }, dynamic: false);
+            AddLight(new AmbientLight
+            {
+                Name = "Universe Ambient",
+                DiffuseColor = Color.White.ToVector3(),
+                Intensity = 0.06f,
+            }, dynamic: false);
+
             foreach (SolarSystem system in UState.Systems)
                 ResetSolarSystemLights(system);
         }

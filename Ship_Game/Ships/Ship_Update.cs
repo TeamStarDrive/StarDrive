@@ -72,42 +72,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        // Mirrors SolarSystemBody.UpdateSO's lighting block. The universe-wide
-        // LightManager only carries PointLights, which BasicEffect can't consume,
-        // so without this ships fall back to BasicEffect.EnableDefaultLighting's
-        // hardcoded directions and read as "lit from the wrong side" regardless of
-        // where the sun actually is. SunBurnStubs.DrawRenderables (lines 198-208)
-        // honors PrimaryLightEnabled / PrimaryLightDirection / PrimaryLightColor on
-        // any non-shared per-mesh effect, so all this needs to do is publish them.
-        // Use the actual Key light position (z=-5500 in UniverseScreen.cs:220) so
-        // the camera-facing side of the hull picks up shading. With the previous
-        // pure-XY direction (matching PlanetRenderer's planet-only convention),
-        // ships' top normals (pointing toward camera) were perpendicular to the
-        // light vector and got no diffuse contribution — the hull rendered dark.
-        // Planets don't suffer from this because their geometry curves through
-        // every direction, so XY light hits some of the camera-facing hemisphere.
-        const float SunKeyLightZ = -5500f;
-
-        void UpdatePrimaryLight()
-        {
-            SolarSystem sys = System;
-            if (sys != null && Position.Distance(sys.Position) > 0.01f)
-            {
-                Vector3 sunPos  = new(sys.Position, SunKeyLightZ);
-                Vector3 shipPos = new(Position, 0f);
-                ShipSO.PrimaryLightDirection = (shipPos - sunPos).Normalized();
-                ShipSO.PrimaryLightColor = (sys.Lights != null && sys.Lights.Count > 0)
-                    ? sys.Lights[0].CompositeColorAndIntensity
-                    : Vector3.One;
-            }
-            else
-            {
-                ShipSO.PrimaryLightDirection = new Vector3(0.7f, 0f, 0.7f);
-                ShipSO.PrimaryLightColor = Vector3.One;
-            }
-            ShipSO.PrimaryLightEnabled = true;
-        }
-
         void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
             bool visibleToPlayer = forceVisible || IsVisibleToPlayer;
@@ -202,7 +166,6 @@ namespace Ship_Game.Ships
                                  * Matrix.CreateRotationZ(Rotation)
                                  * Matrix.CreateTranslation(new Vector3(Position, 0f));
 
-                    UpdatePrimaryLight();
                     ShipSO.UpdateAnimation(timeStep.FixedTime);
 
                     UpdateThrusters(timeStep);

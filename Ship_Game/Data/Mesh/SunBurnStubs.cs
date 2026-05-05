@@ -206,14 +206,13 @@ namespace SynapseGaming.LightingSystem.Core
             }
         }
 
-        // Phase 3.7: per-mesh LightingEffects are constructed with EnableDefaultLighting
-        // (BasicEffect's hardcoded 3-light setup), and LightingEffectBinder.Apply only
-        // touches SharedFx. Without copying SharedFx's resolved lights onto the per-mesh
-        // effect, MainMenu asteroids/freighters render with neutral white default lights
-        // and lose the scene's warm sun + violet ambient — looking flat-gray instead of
-        // sun-lit-with-violet-fill on the unlit side. This path skips when the SO
-        // declares its own per-object PrimaryLight (Universe ships/planets, which set
-        // their own sun direction relative to the parent star).
+        // Phase B refactor: per-mesh LightingEffects are constructed with
+        // EnableDefaultLighting (BasicEffect's hardcoded 3-light setup), and
+        // LightingEffectBinder.Apply only touches SharedFx. Copy SharedFx's
+        // resolved lights onto the per-mesh effect so all SOs (ships, planets,
+        // asteroids, launching ships, debris) get the same scene-wide lighting
+        // — replaces the per-SO PrimaryLight* hotfix that only fixed visible
+        // ships/planets and missed everything else.
         void CopySharedLighting(Effects.Forward.LightingEffect fx)
         {
             fx.LightingEnabled = SharedFx.LightingEnabled;
@@ -253,38 +252,11 @@ namespace SynapseGaming.LightingSystem.Core
                 // stale/default Identity matrices, putting the geometry far
                 // outside the camera frustum (planets disappeared this way
                 // even with textures bound and lighting enabled).
-                //
-                // Phase 2.8.C hotfix #6: also push the per-SO primary light
-                // (sun direction). Without this, per-mesh effects rely on
-                // BasicEffect.EnableDefaultLighting's hardcoded angles and
-                // light from a fixed wrong direction regardless of where the
-                // system's sun actually is.
                 if (fx != SharedFx)
                 {
                     fx.View = SharedFx.View;
                     fx.Projection = SharedFx.Projection;
-                    if (so.PrimaryLightEnabled)
-                    {
-                        fx.LightingEnabled = true;
-                        fx.DirectionalLight0.Enabled = true;
-                        fx.DirectionalLight0.Direction = so.PrimaryLightDirection;
-                        fx.DirectionalLight0.DiffuseColor = so.PrimaryLightColor;
-                        fx.DirectionalLight0.SpecularColor = so.PrimaryLightColor * 0.5f;
-                        fx.DirectionalLight1.Enabled = false;
-                        fx.DirectionalLight2.Enabled = false;
-                        // Phase 3.7 step 4 (Phase C contrast pass): 0.15× sun
-                        // color was lifting shadow-side hulls into mid-gray
-                        // (~3× BasicEffect's typical ambient). Reduce to 0.06×
-                        // so the dark side of sun-lit ships keeps a deep look
-                        // closer to pre-migration. Universe sun colors are
-                        // ~white, so this gives ambient ≈ (0.06, 0.06, 0.06)
-                        // — close to BasicEffect's default magnitude.
-                        fx.AmbientLightColor = so.PrimaryLightColor * 0.06f; // (was 0.15f)
-                    }
-                    else
-                    {
-                        CopySharedLighting(fx);
-                    }
+                    CopySharedLighting(fx);
                 }
 
                 // Phase 2.8.C hotfix #3: planet bodies (and other SO consumers
@@ -320,25 +292,11 @@ namespace SynapseGaming.LightingSystem.Core
                 // Submeshes inherit SceneObject.World only; bone-aware composite
                 // is a Phase 3 cleanup if/when skeletal hierarchies return.
                 fx.World = so.World;
-                if (fx != SharedFx) // see DrawRenderables for hotfixes #5 and #6
+                if (fx != SharedFx) // see DrawRenderables for hotfix #5
                 {
                     fx.View = SharedFx.View;
                     fx.Projection = SharedFx.Projection;
-                    if (so.PrimaryLightEnabled)
-                    {
-                        fx.LightingEnabled = true;
-                        fx.DirectionalLight0.Enabled = true;
-                        fx.DirectionalLight0.Direction = so.PrimaryLightDirection;
-                        fx.DirectionalLight0.DiffuseColor = so.PrimaryLightColor;
-                        fx.DirectionalLight0.SpecularColor = so.PrimaryLightColor * 0.5f;
-                        fx.DirectionalLight1.Enabled = false;
-                        fx.DirectionalLight2.Enabled = false;
-                        fx.AmbientLightColor = so.PrimaryLightColor * 0.06f; // (was 0.15f) — see DrawRenderables for rationale
-                    }
-                    else
-                    {
-                        CopySharedLighting(fx);
-                    }
+                    CopySharedLighting(fx);
                 }
                 fx.ApplyToBasicEffect(); // see DrawRenderables for the why
 
@@ -430,18 +388,6 @@ namespace SynapseGaming.LightingSystem.Rendering
         public Matrix World { get; set; } = Matrix.Identity;
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
-
-        // Phase 2.8.C hotfix #6: per-object primary light (the system's sun for
-        // planets/ships/asteroids). DrawRenderables binds this onto the per-mesh
-        // LightingEffect's DirectionalLight0 — without it, per-mesh effects fall
-        // back to BasicEffect.EnableDefaultLighting's hardcoded directions and
-        // light from the wrong angle (visible regression: Jupiter lit from below
-        // when the sun was upper-right). LightingEffectBinder.Apply only hits
-        // SharedFx in RenderScene, not per-mesh material effects, so this is
-        // the per-object hook for those.
-        public Vector3 PrimaryLightDirection { get; set; }
-        public Vector3 PrimaryLightColor { get; set; }
-        public bool PrimaryLightEnabled { get; set; }
 
         readonly List<RenderableMesh> Renderables = new();
         readonly List<(ModelMesh Mesh, Effect Effect)> ModelMeshes = new();
