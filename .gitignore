@@ -104,8 +104,8 @@ game/PatchTemp/
 Deploy/GeneratedFilesList.nsh
 Deploy/GeneratedFilesList.txt
 SDGraphics/bin/
-Tools/*/bin/
-Tools/*/obj/
+x64Migration/Tools/*/bin/
+x64Migration/Tools/*/obj/
 
 # Per-user Claude Code permission cache. The non-.local sibling
 # (.claude/settings.json) holds shared project config and stays tracked.
@@ -155,6 +155,12 @@ game/runtimes/
 game/Microsoft.CodeAnalysis.dll
 game/Microsoft.CodeAnalysis.CSharp.dll
 game/Microsoft.CodeAnalysis.VisualBasic.dll
+
+# Phase {1,2,3} session artifacts (build logs, ad-hoc dev screenshots, shader
+# disassembly chunks). All session-scoped — never tracked in the repo.
+x64Migration/phase1-logs/
+x64Migration/phase2-logs/
+x64Migration/phase3-logs/
 
 # MonoGame / SharpDX runtime DLLs copied alongside StarDrive.exe by the build.
 game/MonoGame.Framework.dll

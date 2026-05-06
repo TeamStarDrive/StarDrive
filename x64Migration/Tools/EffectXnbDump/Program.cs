@@ -15,7 +15,7 @@ namespace EffectXnbDump
     //   4. Primary-asset reader id (7-bit-encoded, 1-based index into the manifest)
     //   5. Hex dump of the remaining body bytes (the Effect payload itself)
     //
-    // Run: dotnet run --project Tools/EffectXnbDump -- <out.txt> <xnb1> <xnb2> ...
+    // Run: dotnet run --project x64Migration/Tools/EffectXnbDump -- <out.txt> <xnb1> <xnb2> ...
     // Default targets: the 6 broken effects per migration-plan-phase3.md §3.3.
     static class Program
     {
@@ -34,7 +34,7 @@ namespace EffectXnbDump
 
             string outPath = args.Length > 0
                 ? args[0]
-                : @"C:\Users\gkapu\.claude\plans\phase3-logs\effect-xnb-dump.txt";
+                : @"C:\Development\stardrive\BlackBoxPlus\x64Migration\phase3-logs\effect-xnb-dump.txt";
 
             string contentRoot = @"C:\Development\stardrive\BlackBoxPlus\game\Content\Effects";
             string[] targets = args.Length > 1

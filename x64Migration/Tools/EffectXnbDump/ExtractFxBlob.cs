@@ -9,7 +9,7 @@
 //     -> Int32 fxBlobLength
 //     -> byte[fxBlobLength] fxBlob   (starts with 01 09 FF FE FXLVM magic)
 //
-// Run: dotnet run --project Tools/EffectXnbDump --no-build -- extract <xnb> <out.fxb>
+// Run: dotnet run --project x64Migration/Tools/EffectXnbDump --no-build -- extract <xnb> <out.fxb>
 // (Sub-command 'extract' is the only difference from Program.Main; see Program.cs.)
 using System;
 using System.IO;

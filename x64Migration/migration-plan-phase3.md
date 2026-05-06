@@ -18,7 +18,7 @@
 - **122 confirmed static-sunburn Models** (+ ~12 likely-static in the tool's unreadable set, runtime-confirmed).
 - **8 confirmed static-raw Models** (the 3.1 VertexDeclaration drift cluster).
 - **1 confirmed skinned-sgmotion Model** (`Model/Ships/Ralyeh/ship17a.xnb`) + 5 likely-skinned siblings (`ship17b-f.xnb`). **Realistic §3.10 scope: 6 XNBs** (Ralyeh ship17 family), not the original "30-60" estimate.
-- The asset inventory tool at `Tools/Phase3AssetInventory/` is one-shot and feeds sub-phase scoping; the §3.4 extraction pipeline uses MonoGame's runtime `ContentManager` (proven path), not this tool.
+- The asset inventory tool at `x64Migration/Tools/Phase3AssetInventory/` is one-shot and feeds sub-phase scoping; the §3.4 extraction pipeline uses MonoGame's runtime `ContentManager` (proven path), not this tool.
 
 **2026-05-02 architectural unlock — developer note from the original mesh-export author**: the previous developer had finished the C++ side of mesh export (NanoMesh FBX writer + complete bone APIs in `SDNative/SdMesh/SdAnimation.h`: `SDMeshAddBone`, `SDMeshAddSkinnedBone`, `SDMeshCreateAnimationClip`, `SDMeshAddBoneAnimation`, `SDMeshAddAnimationKeyFrame`). The mesh-conversion work was never finished only because of skeletal-mesh import on the C# side — bones + skin weights weren't being walked from the runtime-loaded XNB into the SDNative DLL. The intended architecture: **load XNB at runtime via `ContentManager` → walk bones/weights/clips in C# → call SDNative bone APIs → emit FBX**. This consolidates §3.4 + §3.10 into one extraction pipeline reusing the existing C++ infrastructure rather than building a parallel system. The strategy below reflects this.
 
@@ -97,7 +97,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 3. `git tag phase3-start`.
 4. Build all 5 configs × x64. Confirm 0 errors and warning counts match Phase 2 close-out (4016 / 4016 / 4017 / 4016 / 4008).
 5. Launch `game/StarDrive.exe`. Capture `blackbox.log` showing the current set of "Phase 2 stub" warnings: `LoadStaticMesh ... XNB Model load failed`, `Phase 2 broken effect XNB: <name>`. Save as `phase3-baseline.log` in `phase3-logs/`.
-6. **Asset inventory tool** (`Tools/Phase3AssetInventory/`):
+6. **Asset inventory tool** (`x64Migration/Tools/Phase3AssetInventory/`):
    - Walk `game/Content/Model/**/*.xnb`. For each file: open as raw binary, decode the XNB header (compression flag, size), LZX-decompress (use the `Xna31Compat.DumpXnbTypeReaders` helper from Phase 2.2 — already reflects on MonoGame's internal `LzxDecoder`), parse the type-reader manifest.
    - Classify by reader chain:
      - Contains only `ModelReader` + `VertexDeclarationReader` + `VertexBufferReader` + `IndexBufferReader` + `BasicEffectReader` (or `LightingMaterialReader_Pro`) → **static**.
@@ -326,7 +326,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 4. **Phase C texture migration sub-task** (per `project_phase35_phaseC_textures.md`) — replace the 9 retained .xnb texture files (`shieldgradient.xnb` + 8 projectile texture XNBs in `Model/Projectiles/textures/`) with their .dds equivalents. **RESOLVED 2026-05-04** via Option 1 (memory note): copied the four FBX-material `.dds` files (`missile_d`, `missile_s`, `torpedo_d`, `torpedo_s`) into `Model/Projectiles/textures/` so `LoadProjectileTextures` finds them; archived the 9 `.xnb` to `game/LegacyMesh/`; pointed `ShieldManager.cs:60` at the existing `shieldgradient.png`; the four `_0` mip-suffix duplicates were exporter-side artifacts (stripped by the legacy exporter at [RawContentLoader.cs:207](Ship_Game/Data/RawContentLoader.cs#L207)) — never read from `ProjTextDict` so dropped without replacement. `game/Content/Model/` now contains zero `.xnb` files (the Phase C completion marker).
 5. **Deferred §3.3 carryover — restore the last 2 broken Effect XNBs** (moved here on 2026-05-04 after steps 1–4 closed §3.3 at "4 of 6 restored"). Order matters: tackle the easier one first to not block the rest of §3.5 on R&D.
    - **`Effects/BasicFogOfWar.xnb`** — disassembly + a previous rewrite attempt already exist (see `project_phase3_3_effects_partial.md`). Open question is RT-state coupling on the LightsTarget RT (s1 binding, `saveState:true` on SafeBegin, sampler/RT-format compatibility). Lives naturally with the §3.7 post-process pass restoration; if §3.7 lands first, fold this in there and drop step 5's BasicFogOfWar bullet.
-   - **`Effects/BeamFX.xnb`** — **RESOLVED 2026-05-05**. Apparent "garbled manifest" was a byte-order bug in `Tools/EffectXnbDump`'s LZX framing (`frameSize = (b3 << 8) | lo` was reversed; correct is `(lo << 8) | b3`). For the other 4 effects the wrong-endian frame_size happened to exceed `decompressedSize` and got clamped to the right value, masking the bug. BeamFX's bytes decoded backwards to a value below `decompressedSize` so the clamp didn't fire and the LZX produced shifted output. Fixed both `Program.cs` and `ExtractFxBlob.cs`; XNB then disassembled cleanly to a trivial vs_1_1 + ps_2_0 program (WVP + UV-scroll VS, single tex2D PS). Hand-rewrote as `BeamFX.fx` and shipped `BeamFX.mgfxo`; dropped from `Phase2BrokenEffectXnbs`; null-guards in `Beam.cs` removed. Disassembly preserved at `phase3-logs/beamfx-chunks/`.
+   - **`Effects/BeamFX.xnb`** — **RESOLVED 2026-05-05**. Apparent "garbled manifest" was a byte-order bug in `x64Migration/Tools/EffectXnbDump`'s LZX framing (`frameSize = (b3 << 8) | lo` was reversed; correct is `(lo << 8) | b3`). For the other 4 effects the wrong-endian frame_size happened to exceed `decompressedSize` and got clamped to the right value, masking the bug. BeamFX's bytes decoded backwards to a value below `decompressedSize` so the clamp didn't fire and the LZX produced shifted output. Fixed both `Program.cs` and `ExtractFxBlob.cs`; XNB then disassembled cleanly to a trivial vs_1_1 + ps_2_0 program (WVP + UV-scroll VS, single tex2D PS). Hand-rewrote as `BeamFX.fx` and shipped `BeamFX.mgfxo`; dropped from `Phase2BrokenEffectXnbs`; null-guards in `Beam.cs` removed. Disassembly preserved at `phase3-logs/beamfx-chunks/`.
    - When each lands: ship a `<Effect>.mgfxo` next to its `.xnb`, drop the entry from `GameContentManager.Phase2BrokenEffectXnbs`, move it from `StubbedEffects` to `RestoredEffects` in `EffectXnbCompatTests.cs`, remove the matching step-1 null guard.
 
 **Tests added**:
@@ -587,7 +587,7 @@ The C# workaround landed in commit `76c9cdccb` ([SunBurnStubs.cs](Ship_Game/Data
 **Steps**:
 1. **Runtime smoke**: launch `game/StarDrive.exe`. Walk through MainMenu → New Game → Universe → engage in combat → return to MainMenu → exit. Capture `phase3-runtime-smoke.log`.
 2. **Build matrix**: 5 configs × x64. Capture all 5 logs under `phase3-logs/wrap/`.
-3. Author **`PHASE3_RESULTS.md`** in repo root. Sections (mirroring PHASE2_RESULTS.md):
+3. Author **`PHASE3_RESULTS.md`** in `x64Migration/`. Sections (mirroring PHASE2_RESULTS.md):
    - Sub-phase completion table with commit refs.
    - Build matrix outcomes.
    - Success-gate verification (each item from "Phase 3 Goals" above, ✅ / ❌).

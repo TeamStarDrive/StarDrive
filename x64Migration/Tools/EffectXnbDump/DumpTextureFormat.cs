@@ -7,7 +7,7 @@
 // SurfaceFormat.Color (raw RGBA, premultiplyable in-place) or DXT-block
 // compressed (would need a decode-multiply-encode pass).
 //
-// Run: dotnet run --project Tools/EffectXnbDump --no-build -- dumptex <out.txt> <xnb1> <xnb2> ...
+// Run: dotnet run --project x64Migration/Tools/EffectXnbDump --no-build -- dumptex <out.txt> <xnb1> <xnb2> ...
 using System;
 using System.Collections.Generic;
 using System.IO;

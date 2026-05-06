@@ -33,7 +33,7 @@ All clean — 0 errors, no platform/processorArchitecture warnings.
 
 Warnings are exclusively `Color.TransparentBlack` deprecation hints (use `Color.Transparent`) plus one MSTest analyzer note (`MSTEST0036`).
 
-Logs: `C:/Users/gkapu/.claude/plans/phase1-logs/phase1-10-x64-*.log`.
+Logs: `phase1-logs/phase1-10-x64-*.log`.
 
 ## Runtime Smoke Test — Outcome
 

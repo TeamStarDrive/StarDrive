@@ -29,7 +29,7 @@
 
 ## Build Matrix (5 configs × x64)
 
-All clean — 0 errors. Captured at wrap-up; logs under `C:/Users/gkapu/.claude/plans/phase2-logs/wrap/`.
+All clean — 0 errors. Captured at wrap-up; logs under `phase2-logs/wrap/`.
 
 | Configuration | Time | Errors | Warnings |
 |---------------|------|--------|----------|
