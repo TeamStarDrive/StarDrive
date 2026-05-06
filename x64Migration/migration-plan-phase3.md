@@ -415,22 +415,36 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 **Goal**: Single directional-light shadow map (sun light) for ships in combat. Static-mesh shadow casting only; skinned-mesh shadows are a polish item.
 
-**Steps**:
-1. Add a `ShadowMap` render target (4096×4096 R32F or `Single`).
-2. **Shadow pass**: depth-only render of all scene geometry from the sun's POV (orthographic projection sized to the active scene bounds).
-3. **Lit pass**: forward renderer samples the shadow map for shadow factor; multiplies into BasicEffect's lit output via a custom `ShadowedBasicEffect.fx` (extends `BasicEffect`-equivalent with shadow sampling).
-4. PCF or VSM if time permits; basic shadow comparison filtering otherwise.
+**Approach**: Three sequential phases, each its own commit so any one can revert without losing the others. Strict-additive: failures fall back to the existing unshadowed forward path cleanly.
+
+### §3.8.A — Depth-pass infrastructure
+
+1. Decide the shadow caster's source. `LightingEffectBinder.Apply` (Ship_Game/Data/Mesh/LightingEffectBinder.cs) picks the closest PointLight as the scene's "sun"; the three DirLight0..2 slots also feed lighting. Pick whichever expresses the dominant directional contribution after binder resolution and surface its world-space direction as `ShadowLightDirection`.
+2. Add a `ShadowMapComponent` (Ship_Game/Graphics/) that owns a **1024×1024** RT (R32F / `SurfaceFormat.Single`). Start smaller than the original 4096² target; scale up only if §3.8.B's quality demands it. RT lives next to BloomComponent / DistortionComponent in the renderer's component list.
+3. **Shadow pass**: depth-only render of all `RenderableMeshes` + `AddedModelMeshes` from the sun's POV (orthographic projection sized to the active scene's AABB). Reuse the iteration order in `SunBurnStubs.SceneInterface.RenderScene` so the shadow caster set matches the lit-pass caster set exactly.
+4. **Test in isolation** before §3.8.B touches the lit shader. `UnitTests/Graphics/ShadowMapTests.cs` Phase A: render two boxes from a known sun direction, GetData() the shadow map, assert the front box's pixels read closer-to-camera depth than the back box's pixels at the corresponding texel.
+
+### §3.8.B — Lit-pass sampling
+
+1. Extend `MeshLighting.fx` (NOT BasicEffect — that path was replaced in §3.7 step 4 Phase A) with `ShadowMap` texture + `LightViewProjection` matrix uniforms. Both default-disabled so meshes/scenes that don't bind shadows fall through to the existing path.
+2. PS samples the shadow map at the surface's projected light-space UV; computes `shadowFactor = (sampledDepth + bias < surfaceLightDepth) ? 0 : 1`. Multiply `shadowFactor` into the diffuse + specular contributions (per-light if multiple lights cast; for §3.8 only the single sun-light caster).
+3. **Bias**: small constant offset (start `0.001`) to suppress acne. Tune against the `ShadowMapTests` two-box scene before extending to ships.
+4. Wire `ShadowMapComponent` into `SceneInterface.RenderScene` as a pre-pass before `LightingEffectBinder.Apply`; the binder pushes `ShadowMap` + `LightViewProjection` onto SharedFx alongside the existing lights so `CopySharedLighting` propagates them to per-mesh effects.
+
+### §3.8.C — PCF (only if §3.8.B's 1-tap output is unshippable)
+
+1. 3×3 PCF (or 4-tap rotated jitter) for soft edges. Skip entirely if the 1-tap result already looks acceptable in combat — additional taps cost real frametime.
 
 **Tests added**:
-- `UnitTests/Graphics/ShadowMapTests.cs` — render two boxes, sample shadow map, assert occluder casts onto receiver.
+- `UnitTests/Graphics/ShadowMapTests.cs` — Phase A: depth-only correctness on two boxes; Phase B: assert receiver pixels are darkened where the occluder's shadow falls.
 
 **Verification**:
 - Combat ships cast shadows on each other under the sun light.
 - Build matrix green; shadow render adds <2ms per frame at 1080p (perf budget).
 
-**Rollback**: `git revert HEAD`. Shadows disable; lighting is unshadowed forward.
+**Rollback**: `git revert <phase>`. Reverting Phase B leaves the depth pass running but unused (cheap waste); reverting Phase A removes the component entirely. Each phase is independently revertable.
 
-**Risk**: Medium–High. Shadow acne / Peter Panning are well-known issues; budget tuning time. Mitigation: shadow rendering is a strict additive feature — failures fall back to unshadowed cleanly.
+**Risk**: Medium–High. Shadow acne / Peter Panning are well-known issues; budget tuning time. Mitigation: phase split keeps the lit-shader change (the riskiest piece) in §3.8.B, separately revertable from the infra in §3.8.A. Shadow rendering is a strict additive feature — failures fall back to unshadowed cleanly.
 
 ---
 
