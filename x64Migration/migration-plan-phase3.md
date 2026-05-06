@@ -9,7 +9,7 @@
 | **276 XNB Model files** (ship/hull/projectile/station/effect meshes — some skinned/animated) | Stubbed at `GameContentManager.LoadStaticMesh`; returns minimum-viable `StaticMesh(name, unitBounds)` | §3.4 (static) + §3.10 (skinned/animated) |
 | **9 asteroid `.fbx` meshes** | `NANOMESH_NO_FBX=1` retained in x64; `Mesh::LoadFBX` returns `false` | §3.2 |
 | **6 broken Effect XNBs** (BeamFX, scale, Thrust, desaturate, BasicFogOfWar, PlanetHalo) | `Phase2BrokenEffectXnbs` set in `GameContentManager`; one-time warning, callers null-guard | §3.3 |
-| **Steam SDK x64** (parked at the very end of the migration) | `SteamManager.Initialize()` short-circuits to `false`; achievements/stats inactive | §3.11 (deferred final step, unchanged from Phase 2) |
+| **Steam SDK x64** (parked at the very end of the migration) | `SteamManager.Initialize()` short-circuits to `false`; achievements/stats inactive | **Deferred to Phase 4** (2026-05-07 re-prioritization) |
 | **Cosmetic** (MainMenu Mars sphere; VideoPlayer.IsLooped) | Mars renders as a flat strip; Loading 2 video plays once instead of looping | §3.6 / §3.12 polish pass |
 
 **The user's framing**: this is the **most important phase**. "Issues are expected with XNB Models. Some of them also contain animations." Skinned-model XNBs embed bone hierarchies + animation clip data that depended on the now-purged `XNAnimation` library at runtime, plus SunBurn `LightingMaterialReader_Pro` for material data. The 8 static-raw XNBs (`ThrustCylinderB`, `Window`, `muzzleEnergy`, `projBall/Long/Tear`, `Kulrathi/ship12b/c`) additionally need an XNA 3.1 VertexDeclaration binary decoder.
@@ -40,7 +40,7 @@ The user runs `game/StarDrive.exe`. The process:
 6. **MainMenu Mars renders as a 3D sphere** (composited overlays + sphere mesh visible — currently flat strip).
 7. **Beam/projectile particle effects work** end-to-end (now that BeamFX/Thrust XNBs load).
 8. **Build matrix still green** across 5 configs × x64. No regressions.
-9. **Steam SDK** restored (§3.11) — achievements unlock; stats sync; cloud saves round-trip.
+9. **Visual polish pass** (§3.11) lands a curated set of small finishes: projectile dynamic light, glow-map emissive contribution, muzzle effect verification, sun Z/depth ordering, specular intensity, and any residual MainMenu polish. Steam SDK (was §3.11) is deferred to Phase 4.
 
 **Anti-goals for Phase 3** (deferred to a Phase 4 or treated as won't-fix):
 - Pixel-exact match to 2013 SunBurn deferred-renderer output. Forward-renderer-equivalent is the bar.
@@ -61,7 +61,7 @@ The user runs `game/StarDrive.exe`. The process:
 | **Animation classification** | **§3.1 inventory CSV** (`phase3-logs/asset-survey.csv`) drives scheduling. | The 276-asset surface was hand-audited via the inventory tool; results show much smaller skinned scope than originally feared. |
 | **Effect XNB-3.1 → MGFX shim** | **Custom `ContentTypeReader<Effect>` registered via `ContentTypeReaderManager.AddTypeCreator`** (same pattern as the §2.2 `Xna31Texture2DReader`). Reads XNA 3.1's `Effect` XNB layout (header + D3D9 shader bytecode + param metadata) and synthesizes an MGFX byte stream in-memory before constructing the MonoGame `Effect`. | One fix covers all 6 broken effects + any Effect XNB the codebase doesn't currently route. Avoids needing source `.fx` recovery (`BeamFX.fx`, `scale.fx` etc. don't exist on disk). Disassembly via `fxc /dumpbin` is the fallback per `project_phase2_effect_xnb_drift.md`. |
 | **FBX SDK** | **Full header swap to FBX SDK 2020.3.7** (already installed on dev machine). No surgical 1-arg → 2-arg `FbxArray` patch. | Per `project_phase2_backlog_fbx.md`: `FbxArray` template ABI changed AND `FbxArray::tData` layout has different padding. Surgical patches risk silent memory layout drift. Full swap + per-call-site fixup is the safe path. |
-| **Steam SDK** | **Full Steamworks.NET migration** (Option A from `project_phase2_backlog_runtime.md`). Replace `GARSteamManager.dll` (no source available) with the maintained Steamworks.NET wrapper. | Public surface is tiny — only 6 SteamManager methods are referenced outside the class (`Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`). AppID 220680 already in `game/steam_appid.txt`. |
+| **Steam SDK** | **Deferred to Phase 4** (2026-05-07). Recipe preserved: full Steamworks.NET migration (Option A from `project_phase2_backlog_runtime.md`). Replace `GARSteamManager.dll` (no source available) with the maintained Steamworks.NET wrapper. | Public surface is tiny — only 6 SteamManager methods are referenced outside the class (`Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`). AppID 220680 already in `game/steam_appid.txt`. Reprioritization: Phase 3 should close on visible-quality wins, not Steam plumbing. |
 | **Order: low-risk first** | FBX (mechanical) → Effect shim (medium R&D) → XNB Models static (high) → XNB Models skinned (very high) → renderer features → Steam | Builds momentum and proves the test harness; pushes the open-ended R&D to the middle of the phase where bailout / replan is cheapest. |
 | **Sidecar storage** | Generated `.fbx`/`.obj` sidecars committed under `game/Content/Model/.../meshname.fbx` next to original `.xnb`. Mod-routing precedence in `GameContentManager.AssetName` already prefers `.fbx`/`.obj` over `.xnb` when both exist. | Free win — the routing is already there from Phase 2's `RawContentLoader` work. No code change needed for fallback. |
 
@@ -80,7 +80,7 @@ The user runs `game/StarDrive.exe`. The process:
 | 3.8 | Shadow maps (basic) | Medium–High |
 | 3.9 | FBX TransparencyFactor write fix + legacy mesh re-export (Combined Arms ships) | Medium |
 | 3.10 | XNB Model decode — skinned/animated meshes + animation runtime | **Very High** |
-| 3.11 | **Deferred Final Step**: Steam SDK x64 via Steamworks.NET | Medium |
+| 3.11 | Small finishes: projectile glow light, glow-map emissive, muzzle FX check, sun Z, specular intensity, MainMenu polish residue | Low–Medium |
 | 3.12 | Phase 3 close: PHASE3_RESULTS.md, runtime smoke, final memory cleanup | Low |
 
 Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or `git reset --hard <tag>`.
@@ -562,35 +562,33 @@ The C# workaround landed in commit `76c9cdccb` ([SunBurnStubs.cs](Ship_Game/Data
 
 ---
 
-## 3.11 — Deferred Final Step: Steam SDK x64 via Steamworks.NET
+## 3.11 — Small Finishes: Visual Polish Pass
 
-**Goal**: Replace the parked `SteamManager` stub with a working Steamworks.NET integration. Achievements unlock; stats sync; cloud saves round-trip.
+**Goal**: Land a curated set of small finishes that surfaced during §3.3–§3.10 implementation but didn't fit any single earlier sub-phase. Each item is independently scoped, individually revertible, and gated only by user visual sign-off — no automated test gate beyond "build matrix green between commits". Steam SDK (was §3.11) is deferred to Phase 4.
 
-**Reference**: full execution recipe in `migration-plan-phase2.md` "Deferred Final Step — Steam SDK x64 (Steamworks.NET)" appendix. The 6-method external surface (`Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`) is the migration scope.
+**Items** (commit one per item; land in any order):
+
+1. **MainMenu polish residue** — anything still off after §3.6's Mars sphere work (background composition, button layout, version-string placement, animation timing). Specifics captured at entry; before/after screenshots into `phase3-logs/`.
+2. **Projectile dynamic glow light** — projectiles cast a per-projectile point/dynamic light onto nearby ships and stations. Integrate with the forward renderer's existing point-light path (LightingEffect). Verify against pre-migration footage that beam/projectile travel illuminates flanking hulls visibly. No new shader if the LightingEffect point-light path covers it; otherwise extend.
+3. **Glow-map light points** *(optional / investigate)* — promote glow-map texture channels from a flat additive overlay to an actual emissive light contribution (per-pixel emissive in the lit pass, optionally seeding small dynamic point lights at high-intensity glow-map pixels for nearby-surface bounce). Only land if it improves perceived quality vs the simpler additive-overlay baseline.
+4. **Muzzle effects check** — verify muzzle-flash particle emitters fire on weapon discharge end-to-end. Cross-check against §3.5 particle FX restoration; this is a regression check, not new work. If broken, root-cause and fix in this commit.
+5. **Sun Z / depth ordering** — sun position relative to skybox and nearby planets reads wrong. Likely a depth-buffer-disabled-at-skybox issue, a sun-quad render-order tweak, or a near-plane / w-component issue with the sun's billboard. Diagnose, then fix.
+6. **Specular intensity** — current specular reads too weak. Diagnose first (could be: specular-map sample magnitude, sRGB vs linear sample of the spec map, global specular multiplier in `MeshLighting.fx`, or eye-vector / normal interpolation precision). Compare against pre-migration footage. Land minimally: prefer a uniform multiplier over shader rewrites if the diagnosis points to a magnitude issue.
 
 **Steps**:
-1. Add Steamworks.NET NuGet package (latest stable at Phase 3 date).
-2. Replace `SteamManager.cs` body — keep the public surface (the 6 methods + properties) unchanged so call sites don't churn. Internally route to Steamworks.NET API.
-3. Drop vendored `steam_api.dll` + `GARSteamManager.dll` (x86 PE format — incompatible with x64 process). Steamworks.NET ships its own `steam_api64.dll`.
-4. Verify with Steam client running:
-   - App launches via Steam (uses `steam_appid.txt` AppID 220680).
-   - `RequestStats` callback fires.
-   - `AchievementUnlocked("ACH_FIRST_KILL")` (or whatever the achievement IDs are — check Steam partner backend) actually unlocks.
-   - `ActivateWebOverlay("https://steamcommunity.com/...")` opens overlay.
-   - Cloud save round-trip (write file via Steam Remote Storage; uninstall + reinstall game; file restores).
+1. Capture pre-state visual reference (screenshot/video) per item before touching code.
+2. Implement, screenshot, commit. One item per commit; commit message references the item number above.
+3. After all items land, run a 5-minute MainMenu→Universe→Combat smoke to confirm no cross-item regression.
 
-**Tests added**:
-- `UnitTests/Steam/SteamManagerTests.cs` — `Initialize_WithoutSteamRunning_GracefullyFalse`. Other Steam tests need the client running and are integration-only.
+**Tests added**: None automated. These are art-side fidelity items — visual-diff captures into `phase3-logs/visual-diff/` per item.
 
-**Verification**:
-- Game launches via Steam.
-- One achievement unlocks end-to-end.
-- Cloud save round-trip verified.
-- Build matrix green; no x64 PE format errors.
+**Verification**: User visual sign-off per item against pre-migration reference footage. Build matrix green between commits.
 
-**Rollback**: `git revert HEAD`. SteamManager returns to stub state; achievements inactive but boot stays clean.
+**Rollback**: Per-item `git revert <sha>`. Items are independent.
 
-**Risk**: Medium. The Steamworks.NET migration is well-documented; the unknown is whether GARSteamManager had any extension behavior (SDK extensions like Inventory or Workshop) that the game depends on. Mitigation: §3.1 inventory should grep for any `GARSteamManager` symbol references beyond the 6 known ones.
+**Risk**: Low–Medium. Each item is bounded; no system-wide changes. Specular magnitude and projectile dynamic light could touch the lighting effect's parameter surface — keep changes additive and uniform-gated like §3.8's `ShadowParams` packing so a regression flips one number rather than restructuring the effect.
+
+**Note on Steam SDK deferral (2026-05-07)**: the §3.11 slot previously held Steam SDK x64 via Steamworks.NET. That work is now Phase 4 scope. Phase 3 closes on visible-quality wins, which is what the user actually sees and judges the migration on. The full Steam recipe is preserved in `migration-plan-phase2.md` "Deferred Final Step — Steam SDK x64 (Steamworks.NET)" appendix and the strategic-decisions table above; no information lost.
 
 ---
 
@@ -650,6 +648,9 @@ Each sub-phase commits to `migration/phase3-x64-monogame`. Open one PR per sub-p
 
 After Phase 3 ships, ARCHITECTURE.md §9 "Suggested Migration Order" lists "Phase 4: Polish" — this is where HDR, advanced lighting models, AI improvements, and any remaining Phase 3 carryovers land. Out of scope for this plan document; mention only.
 
+**Confirmed Phase 4 carryovers** (as of 2026-05-07):
+- **Steam SDK x64 via Steamworks.NET** — moved out of §3.11. Full recipe in `migration-plan-phase2.md` "Deferred Final Step" appendix. 6-method external surface (`Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`); AppID 220680 already in `game/steam_appid.txt`. Drop vendored x86 `GARSteamManager.dll` + `steam_api.dll`; rely on Steamworks.NET's `steam_api64.dll`.
+
 ---
 
 ## Risk Summary
@@ -667,7 +668,7 @@ After Phase 3 ships, ARCHITECTURE.md §9 "Suggested Migration Order" lists "Phas
 | 3.9 FBX export fix + re-export | Medium | One-line C++ fix; risk is in the re-export coverage (~150 ships) and whether new FBXes regress anything visible. Combined Arms mod ships are why this matters. |
 | **3.10.A Skinned mesh extraction** | **Medium–High** (revised down from Very High) | Scope shrunk to 6 Ralyeh XNBs per §3.1 inventory. C++ side already finished (per developer note). SgMotion wire format is bounded R&D. Moved to last so its R&D doesn't block visible quality wins. |
 | 3.10.B Skinned runtime playback | Medium (optional follow-up) | Decoupled from §3.10.A. Bind-pose-only is acceptable for Phase 3 close. |
-| 3.11 Steam SDK | Medium | Documented call-site surface; tiny scope |
+| 3.11 Small finishes | Low–Medium | Per-item commits; uniform-gated additions; visual sign-off per item. Steam SDK moved to Phase 4. |
 | 3.12 Sign-off | Low | Documentation only |
 
 **Risk delta from the 2026-05-02 architectural unlock**: §3.4 dropped from High to Medium–High, the skinned-mesh sub-phase split into §3.10.A (Medium–High) + optional §3.10.B (Medium). The previous developer's mesh-export work + the §3.1 inventory together collapsed the original "research-grade XNB decoder + skeletal runtime" surface into "ContentTypeReader stubs + restore `MeshExporter` + reuse SDNative bone APIs." The 8-XNB static-raw cluster (3.1 VertexDeclaration drift) is now the only research-grade item, and its scope is tightly bounded.
