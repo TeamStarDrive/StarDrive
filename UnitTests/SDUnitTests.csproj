@@ -69,6 +69,8 @@
     <Compile Include="Data\SkinnedMeshRoundtripTests.cs" />
     <Compile Include="Data\BoneAnimationPlayerTests.cs" />
     <Compile Include="Data\StaticMeshAutoPlayTests.cs" />
+    <Compile Include="Data\Ship17DiagnosticTest.cs" />
+    <Compile Include="Data\Ship17EndToEndTest.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />

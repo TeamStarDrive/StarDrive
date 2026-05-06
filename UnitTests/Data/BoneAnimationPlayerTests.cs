@@ -163,6 +163,60 @@ namespace UnitTests.Data
         }
 
         [TestMethod]
+        public void Player_OutOfOrderParents_TopologicallySorts()
+        {
+            // Phase 3.10.B.8 regression: ship17a's exporter writes bones in
+            // arbitrary order — bone[0] has parentIndex=6, etc. A naive forward
+            // sweep mis-roots them and produces garbage skin matrices, making
+            // the entire ship clip out of frustum (the "invisible ships" bug).
+            // This skeleton mimics the failure shape: bone 0 is a deep child
+            // and bone 1 is the root.
+            //
+            //  bone[0]  child of bone[2]    bind T = (10,0,0)  inverseBind = T(-10,0,0)
+            //  bone[1]  root                bind T = (0,0,0)
+            //  bone[2]  child of bone[1]    bind T = (5,0,0)   inverseBind = T(-5,0,0)
+            var bones = new[]
+            {
+                new SkinnedBoneData
+                {
+                    Name = "Tip", BoneIndex = 0, ParentIndex = 2,
+                    BindPoseTranslation = new Vector3(5f, 0f, 0f), // local offset from parent
+                    BindPoseRotation = Vector3.Zero,
+                    BindPoseScale = Vector3.One,
+                    // Bind world for tip = bone1.world * bone2.local * bone0.local = T(10,0,0)
+                    InverseBindPoseTransform = Matrix.CreateTranslation(-10f, 0f, 0f),
+                },
+                new SkinnedBoneData
+                {
+                    Name = "Root", BoneIndex = 1, ParentIndex = -1,
+                    BindPoseTranslation = Vector3.Zero,
+                    BindPoseRotation = Vector3.Zero,
+                    BindPoseScale = Vector3.One,
+                    InverseBindPoseTransform = Matrix.Identity,
+                },
+                new SkinnedBoneData
+                {
+                    Name = "Mid", BoneIndex = 2, ParentIndex = 1,
+                    BindPoseTranslation = new Vector3(5f, 0f, 0f),
+                    BindPoseRotation = Vector3.Zero,
+                    BindPoseScale = Vector3.One,
+                    InverseBindPoseTransform = Matrix.CreateTranslation(-5f, 0f, 0f),
+                },
+            };
+
+            var player = new BoneAnimationPlayer(bones, null);
+
+            // In bind pose every skin matrix must reduce to identity. Specifically
+            // for bone[0]: a vertex at bind position (10,0,0) must transform to (10,0,0).
+            Vector3 bindPos = new(10f, 0f, 0f);
+            Vector3 transformed = Vector3.Transform(bindPos, player.SkinningPalette[0]);
+            Assert.AreEqual(bindPos.X, transformed.X, 1e-3f,
+                "out-of-order bone must still produce identity skin in bind pose");
+            Assert.AreEqual(bindPos.Y, transformed.Y, 1e-3f);
+            Assert.AreEqual(bindPos.Z, transformed.Z, 1e-3f);
+        }
+
+        [TestMethod]
         public void Player_NoBones_ProducesEmptyPaletteSafely()
         {
             var player = new BoneAnimationPlayer(null, null);

@@ -12,12 +12,18 @@ namespace Ship_Game.Data.Mesh;
 //   skinMatrix[i] = inverseBindPose[i] * worldPoseCurrent[i]
 //   vertex_skinned = sum_j weight_j * (vertex * skinMatrix[boneIndex_j])
 //
-// Hierarchy: parent indices are guaranteed less than child indices by
-// FBX's depth-first writer, so a single forward sweep computes worldPose.
+// Hierarchy: B.4 originally assumed parent indices come before child indices
+// (FBX *typically* depth-first-writes), but real export pipelines (Maya/Max
+// DCC tools driving the legacy StarDrive XNB exporter) ship bones in
+// arbitrary order — ship17a has bone 0 with parentIndex=6 etc. A naive
+// forward sweep silently mis-roots out-of-order bones and produces garbage
+// skin matrices for the affected verts. We instead pre-compute a topological
+// traversal at ctor time so every parent is evaluated before its child.
 public sealed class BoneAnimationPlayer
 {
     readonly SkinnedBoneData[] Bones;
     readonly AnimationClipData[] Clips;
+    readonly int[] TraversalOrder; // parent-before-child indices into Bones
 
     public Matrix[] SkinningPalette { get; }
     readonly Matrix[] WorldPose;
@@ -36,7 +42,43 @@ public sealed class BoneAnimationPlayer
         Clips = clips ?? Array.Empty<AnimationClipData>();
         SkinningPalette = new Matrix[Bones.Length];
         WorldPose = new Matrix[Bones.Length];
+        TraversalOrder = ComputeTopologicalOrder(Bones);
         ResetToBindPose();
+    }
+
+    // Kahn-style topological sort: emit roots first, then any bone whose
+    // parent has already been emitted, until everyone's placed. A cycle
+    // (which shouldn't exist in a real skeleton) drops the survivors in
+    // input order to guarantee termination.
+    static int[] ComputeTopologicalOrder(SkinnedBoneData[] bones)
+    {
+        int n = bones.Length;
+        var order = new int[n];
+        if (n == 0) return order;
+        var emitted = new bool[n];
+        int head = 0;
+        while (head < n)
+        {
+            bool progress = false;
+            for (int i = 0; i < n; i++)
+            {
+                if (emitted[i]) continue;
+                int parent = bones[i].ParentIndex;
+                if (parent < 0 || (parent < n && emitted[parent]))
+                {
+                    order[head++] = i;
+                    emitted[i] = true;
+                    progress = true;
+                }
+            }
+            if (!progress)
+            {
+                for (int i = 0; i < n; i++)
+                    if (!emitted[i]) { order[head++] = i; emitted[i] = true; }
+                break;
+            }
+        }
+        return order;
     }
 
     public void StartClip(int index)
@@ -67,29 +109,50 @@ public sealed class BoneAnimationPlayer
 
     void Sample()
     {
-        for (int i = 0; i < Bones.Length; i++)
+        // Iterate in topological order so every bone's parent transform is
+        // already populated before we read it. Direct array-index iteration
+        // would mis-root any bone whose parent has a higher index.
+        for (int idx = 0; idx < TraversalOrder.Length; idx++)
         {
+            int i = TraversalOrder[idx];
             SkinnedBoneData bone = Bones[i];
             SamplePose(bone, CurrentTime, out Vector3 t, out Quaternion r, out Vector3 s);
             Matrix local = ComposeTRS(t, r, s);
-            WorldPose[i] = (bone.ParentIndex >= 0 && bone.ParentIndex < i)
+            WorldPose[i] = bone.ParentIndex >= 0
                 ? local * WorldPose[bone.ParentIndex]
                 : local;
-            SkinningPalette[i] = bone.InverseBindPoseTransform * WorldPose[i];
+            SkinningPalette[i] = SafeSkin(bone.InverseBindPoseTransform * WorldPose[i]);
         }
     }
 
     public void ResetToBindPose()
     {
-        for (int i = 0; i < Bones.Length; i++)
+        for (int idx = 0; idx < TraversalOrder.Length; idx++)
         {
+            int i = TraversalOrder[idx];
             SkinnedBoneData b = Bones[i];
             Matrix local = ComposeTRS(b.BindPoseTranslation, EulerToQuat(b.BindPoseRotation), b.BindPoseScale);
-            WorldPose[i] = (b.ParentIndex >= 0 && b.ParentIndex < i)
+            WorldPose[i] = b.ParentIndex >= 0
                 ? local * WorldPose[b.ParentIndex]
                 : local;
-            SkinningPalette[i] = b.InverseBindPoseTransform * WorldPose[i];
+            SkinningPalette[i] = SafeSkin(b.InverseBindPoseTransform * WorldPose[i]);
         }
+    }
+
+    // Phase 3.10.B.8: defensive guard. The Ralyeh ship17a-f FBX corpus came
+    // out of the legacy XNA exporter with degenerate bind-pose data — clusters
+    // have zero TransformLinkMatrix, bone nodes have near-zero LclScaling,
+    // and FBX SDK's own matrix evaluation returns NaN. Combining those with
+    // skinning produced NaN clip-space → invisible ships. This fallback turns
+    // any NaN-producing skin matrix into identity so the affected vertices
+    // render at their bind position. Animation is silently disabled for those
+    // bones; the ship is visible (static at bind pose) instead of gone.
+    static Matrix SafeSkin(Matrix m)
+    {
+        if (float.IsNaN(m.M11) || float.IsNaN(m.M22) || float.IsNaN(m.M33) || float.IsNaN(m.M44)
+         || float.IsInfinity(m.M11) || float.IsInfinity(m.M22) || float.IsInfinity(m.M33) || float.IsInfinity(m.M44))
+            return Matrix.Identity;
+        return m;
     }
 
     void SamplePose(SkinnedBoneData bone, float time,
