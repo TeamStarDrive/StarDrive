@@ -45,6 +45,43 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
+// Phase 3.8.B: receiver-side shadow sampling. ShadowParams packs the
+// per-frame state into a single float4: .x = enable flag (0/1), .y =
+// constant depth bias. Packed instead of using two scalars because solo
+// float uniforms appear to be at risk of being dropped or not pushed by
+// MGFX 3.8.1 under ps_4_0_level_9_3 in some shader-layout configurations
+// (observed in §3.8.B development; reproducible if a single-float uniform
+// with a 0.0 default sits at the cbuffer tail). A float4 sidesteps that
+// entirely. The matrix sits at the top of the cbuffer so neither uniform
+// is the trailing entry.
+//
+// When .x = 1, the receiver re-projects its world position through
+// LightViewProjection, looks up the occluder depth at the resulting NDC
+// UV, and modulates diffuse + specular by 0/1 based on whether the
+// comparison plus .y (bias) places the receiver behind the occluder.
+// Ambient + emissive are NOT shadow-masked (ambient stands in for
+// indirect light that fills shadows; emissive is the surface's own
+// emission).
+//
+// Bias starts at 0.001 (matches the §3.8.B plan); tune in §3.8.C if
+// acne / Peter-Panning surfaces. Single-caster scope: only the dominant
+// directional / sun-anchor light drives the shadow texture (see
+// LightingEffectBinder + ShadowMapComponent on the C# side).
+float4x4 LightViewProjection;
+float4   ShadowParams = float4(0.0, 0.001, 0.0, 0.0);
+
+texture ShadowMap;
+sampler2D ShadowSampler = sampler_state
+{
+    Texture   = (ShadowMap);
+    // 1-tap point sampling: §3.8.B's MVP. PCF / soft edges are §3.8.C.
+    MinFilter = Point;
+    MagFilter = Point;
+    MipFilter = None;
+    AddressU  = Clamp;
+    AddressV  = Clamp;
+};
+
 float3 DiffuseColor    = float3(1, 1, 1);
 float3 EmissiveColor   = float3(0, 0, 0);
 float3 SpecularColor   = float3(1, 1, 1);
@@ -170,6 +207,10 @@ struct VSOutput
     float3 TangentWS  : TEXCOORD3;
     float3 BinormalWS : TEXCOORD4;
     float  FogFactor  : TEXCOORD5;
+    // Phase 3.8.B: light-clip-space position for receiver-side shadow
+    // sampling. Computed in VS so we don't redo the matrix mul per pixel.
+    // Always emitted; PS gates on ShadowMapEnabled before sampling.
+    float4 PositionLS : TEXCOORD6;
 };
 
 float ComputeFogFactor(float dist)
@@ -252,7 +293,42 @@ VSOutput VSDefault(VSInput input)
     output.BinormalWS = normalize(mul(input.Binormal, (float3x3)World));
     output.TexCoord   = input.TexCoord;
     output.FogFactor  = ComputeFogFactor(length(viewPos.xyz));
+    // Phase 3.8.B: world-space → light-clip-space for the shadow lookup.
+    // Under the depth pass's orthographic projection w==1, but compute the
+    // full mul so a future move to a perspective light still works.
+    output.PositionLS = mul(worldPos, LightViewProjection);
     return output;
+}
+
+// Returns 1 if the surface is lit, 0 if shadowed. Falls through to 1 for
+// any of: the shader has no shadow map bound, the surface projects outside
+// the light frustum (UV clamp would otherwise sample the edge texel and
+// produce phantom shadows along scene edges), or the depth comparison
+// places the receiver in front of the occluder.
+float SampleShadowFactor(float4 positionLS)
+{
+    if (ShadowParams.x < 0.5) return 1.0;
+
+    // Perspective divide. Under the §3.8.A ortho projection w == 1, so
+    // this is a no-op today; spelled out for the eventual perspective case.
+    float invW = 1.0 / positionLS.w;
+    float2 ndcXY = positionLS.xy * invW;
+    float  receiverDepth = positionLS.z * invW;
+
+    // NDC [-1,1] → texture UV [0,1] with the standard Y flip (DirectX
+    // top-left origin vs NDC bottom-left).
+    float2 uv = float2(ndcXY.x * 0.5 + 0.5, -ndcXY.y * 0.5 + 0.5);
+
+    // Reject samples outside the light frustum so receivers behind the
+    // light camera, off to the side, or beyond the far plane stay lit.
+    // Without this, AddressU/V=Clamp would re-use the border occluder
+    // depth and shadow the entire off-frustum half-space.
+    if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0 ||
+        receiverDepth < 0.0 || receiverDepth > 1.0)
+        return 1.0;
+
+    float occluderDepth = tex2D(ShadowSampler, uv).r;
+    return (occluderDepth + ShadowParams.y < receiverDepth) ? 0.0 : 1.0;
 }
 
 float4 PSDefault(VSOutput input) : SV_TARGET
@@ -329,6 +405,16 @@ float4 PSDefault(VSOutput input) : SV_TARGET
 
         float3 diffuseAcc  = (l0.Diffuse  + l1.Diffuse  + l2.Diffuse  + p0.Diffuse  + p1.Diffuse  + p2.Diffuse)  * DiffuseColor;
         float3 specularAcc = (l0.Specular + l1.Specular + l2.Specular + p0.Specular + p1.Specular + p2.Specular) * SpecularColor * specularMask;
+
+        // Phase 3.8.B: receiver-side shadow gate. Multiplies wholesale into
+        // the direct-light accumulators; ambient + emissive remain to fill
+        // the shadowed region (same convention BasicEffect's would-be
+        // shadow extension used). Branch-free: SampleShadowFactor returns
+        // 1.0 when ShadowParams.x is 0, so meshes drawn in scenes without
+        // a shadow caster pay only the static-uniform cost.
+        float shadowFactor = SampleShadowFactor(input.PositionLS);
+        diffuseAcc  *= shadowFactor;
+        specularAcc *= shadowFactor;
 
         // Texture modulates ambient + diffuse but NOT specular (BasicEffect
         // convention — keeps highlights reading like reflections). Emissive

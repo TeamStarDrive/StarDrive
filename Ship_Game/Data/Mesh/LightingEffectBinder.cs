@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Forward;
@@ -25,7 +26,9 @@ public static class LightingEffectBinder
     public static void Apply(LightingEffect fx,
                              IReadOnlyList<SunBurnLights.ILight> lights,
                              SceneEnvironment env,
-                             Vector3 cameraPos)
+                             Vector3 cameraPos,
+                             Texture2D shadowMap = null,
+                             Matrix lightViewProjection = default)
     {
         if (fx == null) return;
 
@@ -176,6 +179,15 @@ public static class LightingEffectBinder
         {
             fx.FogEnabled = false;
         }
+
+        // Phase 3.8.B: shadow uniforms. The depth pre-pass in
+        // SceneInterface.RenderScene runs ahead of the binder and feeds
+        // its output here; we forward to SharedFx so CopySharedLighting
+        // propagates the same shadow texture / light-clip matrix to
+        // per-mesh LightingEffects (planet halos, ship Materials).
+        fx.ShadowMap           = shadowMap;
+        fx.ShadowMapEnabled    = shadowMap != null;
+        fx.LightViewProjection = lightViewProjection;
 
         // Push the BaseMaterialEffect-shadowed material props down to the BasicEffect.
         // (The renderer may have set DiffuseColor / Texture / etc. via the new properties.)

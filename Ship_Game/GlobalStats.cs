@@ -253,6 +253,7 @@ public static class GlobalStats
     public static int AntiAlias = 2;
     public static bool RenderBloom = true;
     public static bool RenderShieldDistortion = true;
+    public static bool RenderShadows = true;
     public static bool VSync = true;
     // Render quality & detail options
     public static int TextureQuality;      // 0=High, 1=Medium, 2=Low, 3=Off (DetailPreference enum)
@@ -323,6 +324,7 @@ public static class GlobalStats
         GetSetting(config, "AntiAliasSamples", ref AntiAlias);
         GetSetting(config, "PostProcessBloom", ref RenderBloom);
         GetSetting(config, "PostProcessShieldDistortion", ref RenderShieldDistortion);
+        GetSetting(config, "RenderShadows", ref RenderShadows);
         GetSetting(config, "VSync", ref VSync);
         GetSetting(config, "TextureQuality", ref TextureQuality);
         GetSetting(config, "TextureSampling", ref TextureSampling);
@@ -488,6 +490,7 @@ public static class GlobalStats
         WriteSetting(config, "AntiAliasSamples", AntiAlias);
         WriteSetting(config, "PostProcessBloom", RenderBloom);
         WriteSetting(config, "PostProcessShieldDistortion", RenderShieldDistortion);
+        WriteSetting(config, "RenderShadows", RenderShadows);
         WriteSetting(config, "VSync", VSync);
         WriteSetting(config, "TextureQuality", TextureQuality);
         WriteSetting(config, "TextureSampling", TextureSampling);

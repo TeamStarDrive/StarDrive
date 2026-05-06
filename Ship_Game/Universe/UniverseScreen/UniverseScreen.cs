@@ -71,6 +71,13 @@ namespace Ship_Game
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
         public DistortionComponent distortionComponent;
+        // §3.8.B: shadow-map depth pre-pass. Sits next to the post-process
+        // components since it has the same lifetime contract (LoadContent
+        // here, dispose on UnloadGraphics). Unlike Bloom/Distortion this
+        // is a PRE-pass — SceneInterface.RenderScene drives it before the
+        // lit pass, so the wiring here is just construction + handing the
+        // component off to ScreenManager's SceneInterface.
+        public Ship_Game.Graphics.ShadowMapComponent shadowMapComponent;
         // §3.7 step 2: reusable scratch list for the per-frame distortion-source
         // build. ShieldManager.BuildDistortionSources appends; capacity matches
         // DistortionComponent.MaxShields so the typical case allocates nothing.
@@ -510,6 +517,12 @@ namespace Ship_Game
                 distortionComponent = new DistortionComponent(device, TransientContent);
                 distortionComponent.LoadContent();
             }
+            if (GlobalStats.RenderShadows)
+            {
+                shadowMapComponent = new Ship_Game.Graphics.ShadowMapComponent(device, TransientContent);
+                shadowMapComponent.LoadContent();
+                ScreenManager.AttachShadowMap(shadowMapComponent);
+            }
 
             MainTarget   = RenderTargets.Create(device);
             LightsTarget = RenderTargets.Create(device);
@@ -698,6 +711,11 @@ namespace Ship_Game
                 Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
             Mem.Dispose(ref bloomComponent);
             Mem.Dispose(ref distortionComponent);
+            // Detach from ScreenManager BEFORE disposing so SceneInterface.
+            // RenderScene can't run a depth pass against a disposed RT
+            // during the teardown frame.
+            ScreenManager?.AttachShadowMap(null);
+            Mem.Dispose(ref shadowMapComponent);
             Mem.Dispose(ref bg);
             FogMap = null; // alias of FogMapTargetA/B; the RTs own the lifetime
             Mem.Dispose(ref FogMapTargetA);

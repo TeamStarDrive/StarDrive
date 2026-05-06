@@ -78,6 +78,17 @@ namespace Ship_Game
             SceneInter.AddManager(new GameLightManager(graphics));
         }
 
+        // Phase 3.8.B: forwards a ShadowMapComponent (constructed and owned
+        // by the active screen, e.g. UniverseScreen) to SceneInterface so
+        // RenderScene's depth pre-pass has a target. Pass null on screen
+        // unload to detach before disposing the component. SceneInter is
+        // private; the screen can't reach it directly, so the screen calls
+        // here when it loads/unloads its own renderer state.
+        public void AttachShadowMap(Ship_Game.Graphics.ShadowMapComponent component)
+        {
+            SceneInter.ShadowMap = component;
+        }
+
         void GraphicsDeviceService_DeviceReset(object sender, EventArgs e)
         {
             Log.Write(ConsoleColor.Green, "GraphicsDevice Reset");

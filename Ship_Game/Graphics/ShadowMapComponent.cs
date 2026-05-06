@@ -2,8 +2,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
-using XnaDirectionalLight = Microsoft.Xna.Framework.Graphics.DirectionalLight;
-using LightingEffect = SynapseGaming.LightingSystem.Effects.Forward.LightingEffect;
 
 namespace Ship_Game.Graphics
 {
@@ -88,47 +86,6 @@ namespace Ship_Game.Graphics
             // banding the receiver-side test in §3.8.B.
             ShadowMap = new RenderTarget2D(Device, Size, Size, mipMap: false,
                                            SurfaceFormat.Single, DepthFormat.Depth24);
-        }
-
-        // Pick the dominant directional light's world-space direction from
-        // a freshly-bound LightingEffect (post-LightingEffectBinder.Apply).
-        // Preference order:
-        //   1. DirectionalLight0 if enabled — the BasicEffect-shaped
-        //      explicit directional light, which MainMenu / ShipDesigner
-        //      submit directly.
-        //   2. PointLight0 if enabled — universe scenes route the system's
-        //      "Key" PointLight through this slot; the synthetic
-        //      directional direction points from the sun toward the scene
-        //      reference (typically scene origin / camera target).
-        //
-        // Falls back to (0, -1, 0) (sun directly overhead) when no light
-        // is bound, so the shadow map degrades gracefully to "all surfaces
-        // casting straight down" rather than NaN-ing the matrix build.
-        public static bool TryGetShadowLightDirection(LightingEffect fx, Vector3 sceneCenter, out Vector3 direction)
-        {
-            if (fx != null)
-            {
-                XnaDirectionalLight d0 = fx.DirectionalLight0;
-                if (d0 != null && d0.Enabled && d0.Direction.LengthSquared() > 1e-6f)
-                {
-                    direction = Vector3.Normalize(d0.Direction);
-                    return true;
-                }
-
-                LightingEffect.PointLightSlot p0 = fx.PointLight0;
-                if (p0.Enabled)
-                {
-                    Vector3 toCenter = sceneCenter - p0.Position;
-                    if (toCenter.LengthSquared() > 1e-6f)
-                    {
-                        direction = Vector3.Normalize(toCenter);
-                        return true;
-                    }
-                }
-            }
-
-            direction = -Vector3.UnitY;
-            return false;
         }
 
         // Build a view/projection that wraps `sceneBounds` from the sun's

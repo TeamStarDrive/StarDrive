@@ -127,6 +127,15 @@ namespace SynapseGaming.LightingSystem.Core
         SceneState LastFrameState;
         Effects.Forward.LightingEffect SharedFx;
 
+        // Phase 3.8.B: optional per-frame shadow map. Owner (UniverseScreen
+        // / future ShipDesigner) constructs the component, calls
+        // LoadContent, and assigns here. RenderScene runs the depth pre-
+        // pass against this component before binder.Apply, then leaves the
+        // shadow texture + light-clip matrix on SharedFx so per-mesh
+        // effects pick them up via CopySharedLighting. Null = unshadowed
+        // forward path (the existing Phase 2.8/3.7 behavior).
+        public Ship_Game.Graphics.ShadowMapComponent ShadowMap { get; set; }
+
         public SceneInterface(IGraphicsDeviceService gfx)
         {
             GraphicsDevice = gfx?.GraphicsDevice;
@@ -197,8 +206,21 @@ namespace SynapseGaming.LightingSystem.Core
             // pick a sun from a different system across the universe and
             // light the ship from the wrong direction).
             Vector3 cameraPos = Matrix.Invert(LastFrameState.View).Translation;
+
+            // Phase 3.8.B: shadow pre-pass. Runs BEFORE binder.Apply so the
+            // resulting RT + light-clip matrix flow through the binder onto
+            // SharedFx alongside the lights, and CopySharedLighting picks
+            // them up for per-mesh effects. The pre-pass dirties the
+            // device's render target + raster/blend/depth state, but the
+            // lit pass below re-sets all three explicitly so we don't need
+            // to restore here.
+            Texture2D shadowTex = null;
+            Matrix    shadowVP  = Matrix.Identity;
+            RunShadowPrePass(om, cameraPos, ref shadowTex, ref shadowVP);
+
             Ship_Game.Data.Mesh.LightingEffectBinder.Apply(
-                SharedFx, LightManager.ActiveLights, LastFrameState.Environment, cameraPos);
+                SharedFx, LightManager.ActiveLights, LastFrameState.Environment, cameraPos,
+                shadowTex, shadowVP);
             SharedFx.View = LastFrameState.View;
             SharedFx.Projection = LastFrameState.Projection;
 
@@ -210,6 +232,142 @@ namespace SynapseGaming.LightingSystem.Core
                 DrawRenderables(so);
                 DrawModelMeshes(so);
             }
+        }
+
+        // Phase 3.8.B: depth-only pass into ShadowMap.ShadowMap from the
+        // dominant directional / sun-anchor light's POV. Iterates the
+        // SAME caster set as the lit pass so shadows project from the
+        // exact geometry the receiver sees lit. No-op when:
+        //   - no ShadowMap component is wired up (most non-universe scenes),
+        //   - the ObjectManager has no meshed casters with non-zero bounds,
+        //   - no usable directional light could be derived from the
+        //     submitted light list.
+        void RunShadowPrePass(Rendering.ObjectManager om, Vector3 cameraPos,
+                              ref Texture2D shadowTex, ref Matrix shadowVP)
+        {
+            if (ShadowMap == null || ShadowMap.ShadowMap == null) return;
+
+            BoundingSphere bounds = ComputeCasterBounds(om);
+            if (bounds.Radius <= 0f) return;
+
+            if (!TryPickShadowDirection(LightManager.ActiveLights, cameraPos, bounds.Center, out Vector3 lightDir))
+                return;
+
+            ShadowMap.BeginShadowPass(lightDir, bounds);
+            try
+            {
+                foreach (Rendering.ISceneObject iso in om.ActiveObjects)
+                {
+                    if (iso is not Rendering.SceneObject so || !so.HasMeshes) continue;
+                    if (so.Visibility == ObjectVisibility.None) continue;
+
+                    foreach (Rendering.RenderableMesh rm in so.RenderableMeshes)
+                    {
+                        if (rm.PrimitiveCount == 0 || rm.VertexBuffer == null || rm.IndexBuffer == null)
+                            continue;
+                        ShadowMap.DrawCaster(so.World * rm.World, rm.VertexBuffer, rm.IndexBuffer,
+                            rm.PrimitiveType, rm.BaseVertex, rm.StartIndex, rm.PrimitiveCount);
+                    }
+
+                    foreach ((ModelMesh mesh, Effect _) in so.AddedModelMeshes)
+                    {
+                        foreach (ModelMeshPart part in mesh.MeshParts)
+                        {
+                            if (part.PrimitiveCount == 0 || part.VertexBuffer == null || part.IndexBuffer == null)
+                                continue;
+                            ShadowMap.DrawCaster(so.World, part.VertexBuffer, part.IndexBuffer,
+                                PrimitiveType.TriangleList,
+                                part.VertexOffset, part.StartIndex, part.PrimitiveCount);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                ShadowMap.EndShadowPass();
+            }
+
+            shadowTex = ShadowMap.ShadowMap;
+            shadowVP  = ShadowMap.LightView * ShadowMap.LightProjection;
+        }
+
+        // Merge the world-space bounding spheres of every meshed,
+        // non-hidden caster. Falls back to BoundingSphere(zero, 0) when no
+        // SO contributes — the caller's `bounds.Radius <= 0` early-out
+        // handles that case. Uses ObjectBoundingSphere over WorldBoundingBox
+        // because most StarDrive SOs (ships, planets, asteroids) populate
+        // the sphere via SceneObject.UpdateAnimation but not the box.
+        static BoundingSphere ComputeCasterBounds(Rendering.ObjectManager om)
+        {
+            BoundingSphere result = default;
+            bool any = false;
+            foreach (Rendering.ISceneObject iso in om.ActiveObjects)
+            {
+                if (iso is not Rendering.SceneObject so || !so.HasMeshes) continue;
+                if (so.Visibility == ObjectVisibility.None) continue;
+
+                BoundingSphere s = so.ObjectBoundingSphere;
+                if (s.Radius <= 0f) continue;
+                // Translate object-space sphere into world space. SceneObject
+                // doesn't currently apply scale to ObjectBoundingSphere, so
+                // we just translate by the world position.
+                s.Center += so.World.Translation;
+
+                if (!any) { result = s; any = true; }
+                else      { result = BoundingSphere.CreateMerged(result, s); }
+            }
+            return any ? result : default;
+        }
+
+        // Mirror LightingEffectBinder.Apply's dominant-light selection
+        // BEFORE the binder runs (the binder hasn't populated SharedFx yet
+        // when we need the light direction for the depth pass). Priority:
+        //   1. First enabled DirectionalLight.
+        //   2. Closest sun-anchor PointLight (XY-distance to camera, with
+        //      the same radius bounds the binder uses to filter scene
+        //      lights from global ambient proxies).
+        // Returns false when neither is available — caller skips the pass.
+        static bool TryPickShadowDirection(IReadOnlyList<Lights.ILight> lights, Vector3 cameraPos,
+                                           Vector3 sceneCenter, out Vector3 direction)
+        {
+            if (lights != null)
+            {
+                for (int i = 0; i < lights.Count; ++i)
+                {
+                    if (lights[i] is Lights.DirectionalLight d && d.Enabled
+                        && d.Direction.LengthSquared() > 1e-6f)
+                    {
+                        direction = Vector3.Normalize(d.Direction);
+                        return true;
+                    }
+                }
+
+                Lights.PointLight bestSun = null;
+                float bestSunDist2 = float.MaxValue;
+                for (int i = 0; i < lights.Count; ++i)
+                {
+                    if (lights[i] is Lights.PointLight p && p.Enabled
+                        && p.Radius >= 1000f && p.Radius < 1_000_000f)
+                    {
+                        float dx = p.Position.X - cameraPos.X;
+                        float dy = p.Position.Y - cameraPos.Y;
+                        float dist2 = dx * dx + dy * dy;
+                        if (dist2 < bestSunDist2) { bestSun = p; bestSunDist2 = dist2; }
+                    }
+                }
+                if (bestSun != null)
+                {
+                    Vector3 toCenter = sceneCenter - bestSun.Position;
+                    if (toCenter.LengthSquared() > 1e-6f)
+                    {
+                        direction = Vector3.Normalize(toCenter);
+                        return true;
+                    }
+                }
+            }
+
+            direction = -Vector3.UnitY;
+            return false;
         }
 
         // Phase B refactor: per-mesh LightingEffects are constructed with
@@ -229,6 +387,14 @@ namespace SynapseGaming.LightingSystem.Core
             fx.PointLight0 = SharedFx.PointLight0;
             fx.PointLight1 = SharedFx.PointLight1;
             fx.PointLight2 = SharedFx.PointLight2;
+            // Phase 3.8.B: propagate shadow state alongside the lights so
+            // per-mesh effects (planet halos, ship Materials, etc.) sample
+            // the same shadow RT the SharedFx is bound to. ShadowBias is
+            // also copied because §3.8.C may end up tuning it per-scene.
+            fx.ShadowMapEnabled    = SharedFx.ShadowMapEnabled;
+            fx.ShadowMap           = SharedFx.ShadowMap;
+            fx.LightViewProjection = SharedFx.LightViewProjection;
+            fx.ShadowBias          = SharedFx.ShadowBias;
         }
 
         static void CopyDirectional(Microsoft.Xna.Framework.Graphics.DirectionalLight dst,
@@ -702,6 +868,13 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         readonly EffectParameter pPl1Enabled, pPl1Position, pPl1Diffuse, pPl1Specular, pPl1Radius;
         readonly EffectParameter pPl2Enabled, pPl2Position, pPl2Diffuse, pPl2Specular, pPl2Radius;
 
+        // Phase 3.8.B: receiver-side shadow uniforms. Bound by
+        // LightingEffectBinder.Apply when the renderer drove a depth pre-
+        // pass; default-disabled (ShadowMapEnabled=false) so meshes drawn
+        // outside a shadow-aware scene fall through to the unshadowed
+        // path without paying any sampling cost.
+        readonly EffectParameter pShadowParams, pShadowMap, pLightViewProjection;
+
         // ── World/View/Projection ───────────────────────────────────────────
         public Matrix World      { get; set; } = Matrix.Identity;
         public Matrix Projection { get; set; } = Matrix.Identity;
@@ -741,6 +914,16 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         public PointLightSlot PointLight0;
         public PointLightSlot PointLight1;
         public PointLightSlot PointLight2;
+
+        // Phase 3.8.B: receiver-side shadow state. The renderer drives the
+        // depth pre-pass into ShadowMapComponent and then calls
+        // LightingEffectBinder.Apply, which pushes the resulting RT +
+        // light-clip matrix here; CopySharedLighting then propagates to
+        // per-mesh effects in lockstep with the existing light slots.
+        public bool      ShadowMapEnabled    { get; set; }
+        public Texture2D ShadowMap           { get; set; }
+        public Matrix    LightViewProjection { get; set; } = Matrix.Identity;
+        public float     ShadowBias          { get; set; } = 0.001f;
 
         // ── Fog state ───────────────────────────────────────────────────────
         public bool    FogEnabled { get; set; }
@@ -805,6 +988,11 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pPl2Diffuse  = Parameters["PointLight2DiffuseColor"];
             pPl2Specular = Parameters["PointLight2SpecularColor"];
             pPl2Radius   = Parameters["PointLight2Radius"];
+
+            // Phase 3.8.B shadow uniforms (see field declarations above).
+            pShadowParams        = Parameters["ShadowParams"];
+            pShadowMap           = Parameters["ShadowMap"];
+            pLightViewProjection = Parameters["LightViewProjection"];
 
             // DirectionalLight binds direction/diffuse/specular parameters and
             // auto-pushes on property assignment. Enabled is a C# bool that we
@@ -941,6 +1129,17 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pNormalMapEnabled?.SetValue(normalMapBound);
             if (normalMapBound)
                 pNormalMap?.SetValue(NormalMapTexture);
+
+            // Phase 3.8.B: shadow uniforms. ShadowParams.x is the
+            // enable flag (0/1); .y carries the depth bias. Packed into
+            // a float4 instead of two separate scalars to dodge an MGFX
+            // 3.8.1 constant-folding quirk that drops solo-float uniforms
+            // declared with a 0.0 default. See MeshLighting.fx header.
+            bool shadowBound = ShadowMapEnabled && ShadowMap != null;
+            pShadowParams?.SetValue(new Vector4(shadowBound ? 1f : 0f, ShadowBias, 0f, 0f));
+            if (shadowBound)
+                pShadowMap?.SetValue(ShadowMap);
+            pLightViewProjection?.SetValue(LightViewProjection);
         }
 
         static void ApplyDirectional(DirectionalLight light, EffectParameter diffuseParam, EffectParameter specularParam)
