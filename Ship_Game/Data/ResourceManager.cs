@@ -808,6 +808,16 @@ namespace Ship_Game
             {
                 Log.Warning($"LightingEffect: MeshLighting.mgfxo not found at '{meshLightingPath}'. Mesh rendering will fail until the .mgfxo ships.");
             }
+
+            // Phase 3.10.B.5: skinned variant. Optional — static-only scenes
+            // never construct SkinnedEffect, so a missing .mgfxo is logged but
+            // not fatal. Skinned ships will silently fall back to the static
+            // path (no animation) until the file ships.
+            string skinnedPath = RawContentLoader.GetContentPath("Effects/SkinnedEffect.mgfxo");
+            if (!SynapseGaming.LightingSystem.Effects.Forward.SkinnedLightingEffect.TryLoadShared(skinnedPath))
+            {
+                Log.Warning($"SkinnedEffect: SkinnedEffect.mgfxo not found at '{skinnedPath}'. Skinned mesh animation will be disabled.");
+            }
         }
 
         public static SubTexture ErrorTexture   => TextureOrNull("NewUI/x_red");

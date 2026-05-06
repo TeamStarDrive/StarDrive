@@ -931,7 +931,12 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         public float   FogStart   { get; set; }
         public float   FogEnd     { get; set; }
 
-        public LightingEffect(GraphicsDevice device) : base(device, GetEffectBytes())
+        public LightingEffect(GraphicsDevice device) : this(device, GetEffectBytes()) { }
+
+        // Phase 3.10.B.5: subclass hook so SkinnedEffect can hand its own
+        // .mgfxo bytes to the base Effect ctor while inheriting the full
+        // parameter-cache + lighting-state surface.
+        protected LightingEffect(GraphicsDevice device, byte[] effectBytes) : base(device, effectBytes)
         {
             // Cache parameter handles. .Parameters[] returns null for missing
             // parameters; we don't null-guard on every push because the FX

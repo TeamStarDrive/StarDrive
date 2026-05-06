@@ -425,6 +425,7 @@
     <Compile Include="Ship_Game\Data\Mesh\StaticMesh.cs" />
     <Compile Include="Ship_Game\Data\Mesh\SkinnedMeshData.cs" />
     <Compile Include="Ship_Game\Data\Mesh\BoneAnimationPlayer.cs" />
+    <Compile Include="Ship_Game\Data\Mesh\SkinnedLightingEffect.cs" />
     <Compile Include="Ship_Game\Data\Mesh\LightingEffectBinder.cs" />
     <Compile Include="Ship_Game\Data\Yaml\YamlParser.cs" />
     <Compile Include="Ship_Game\Data\StringView.cs" />

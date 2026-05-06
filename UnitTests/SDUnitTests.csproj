@@ -81,6 +81,7 @@
     <Compile Include="Graphics\ParticleManagerTests.cs" />
     <Compile Include="Graphics\PostProcessChainTests.cs" />
     <Compile Include="Graphics\ShadowMapTests.cs" />
+    <Compile Include="Graphics\SkinnedLightingEffectTests.cs" />
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\ArrayT_Tests.cs" />
     <Compile Include="Collections\TestCollectionExt.cs" />
