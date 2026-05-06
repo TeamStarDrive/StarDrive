@@ -63,6 +63,7 @@
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\MeshExporterStaticPathTests.cs" />
     <Compile Include="Data\MeshImporterTests.cs" />
+    <Compile Include="Data\SkinnedVertexDataRoundtripTests.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
