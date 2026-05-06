@@ -66,6 +66,7 @@
     <Compile Include="Data\SkinnedVertexDataRoundtripTests.cs" />
     <Compile Include="Data\SkinnedFbxExportTests.cs" />
     <Compile Include="Data\AnimationClipFbxExportTests.cs" />
+    <Compile Include="Data\SkinnedMeshRoundtripTests.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />

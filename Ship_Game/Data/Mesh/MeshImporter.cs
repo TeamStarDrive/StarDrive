@@ -41,7 +41,9 @@ namespace Ship_Game.Data.Mesh
 
                 Log.Info(ConsoleColor.Green,
                     $"StaticMesh {mesh->Name.AsString} | faces:{mesh->NumFaces} | groups:{mesh->NumGroups}");
-                return LoadMeshGroups(mesh, meshName);
+                StaticMesh sm = LoadMeshGroups(mesh, meshName);
+                LoadSkinnedAndAnimData(mesh, sm);
+                return sm;
             }
             catch (Exception e)
             {
@@ -110,6 +112,70 @@ namespace Ship_Game.Data.Mesh
             {
                 RawMeshes = rawMeshes
             };
+        }
+
+        // Phase 3.10.B.3: pulls SkinnedBones + AnimationClips out of the loaded
+        // SDMesh via the B.2 read-side getters and onto the StaticMesh. No-op
+        // for static meshes (NumSkinnedBones / NumAnimClips both 0).
+        unsafe void LoadSkinnedAndAnimData(SdMesh* mesh, StaticMesh staticMesh)
+        {
+            int numBones = mesh->NumSkinnedBones;
+            if (numBones > 0)
+            {
+                staticMesh.SkinnedBones = new SkinnedBoneData[numBones];
+                for (int i = 0; i < numBones; i++)
+                {
+                    SdSkinnedBoneInfo info = SDMeshGetSkinnedBone(mesh, i);
+                    staticMesh.SkinnedBones[i] = new SkinnedBoneData
+                    {
+                        Name                     = info.Name.AsString,
+                        BoneIndex                = info.BoneIndex,
+                        ParentIndex              = info.ParentBone,
+                        BindPoseTranslation      = info.BindPose.Translation,
+                        BindPoseRotation         = info.BindPose.Rotation,
+                        BindPoseScale            = info.BindPose.Scale,
+                        InverseBindPoseTransform = info.InverseBindPoseTransform,
+                    };
+                }
+            }
+
+            int numClips = mesh->NumAnimClips;
+            if (numClips > 0)
+            {
+                staticMesh.AnimationClips = new AnimationClipData[numClips];
+                for (int c = 0; c < numClips; c++)
+                {
+                    SdAnimationClipInfo ci = SDMeshGetAnimationClip(mesh, c);
+                    var clip = new AnimationClipData
+                    {
+                        Name       = ci.Name.AsString,
+                        Duration   = ci.Duration,
+                        Animations = new BoneAnimationData[ci.NumAnimations],
+                    };
+                    for (int a = 0; a < ci.NumAnimations; a++)
+                    {
+                        SdBoneAnimationInfo bai = SDMeshGetBoneAnimation(mesh, c, a);
+                        var ba = new BoneAnimationData
+                        {
+                            SkinnedBoneIndex = bai.SkinnedBoneIndex,
+                            Frames           = new KeyFrameData[bai.NumFrames],
+                        };
+                        for (int f = 0; f < bai.NumFrames; f++)
+                        {
+                            SdAnimationKeyFrameInfo kf = SDMeshGetAnimationKeyFrame(mesh, c, a, f);
+                            ba.Frames[f] = new KeyFrameData
+                            {
+                                Time        = kf.Time,
+                                Translation = kf.Pose.Translation,
+                                Rotation    = kf.Pose.Rotation,
+                                Scale       = kf.Pose.Scale,
+                            };
+                        }
+                        clip.Animations[a] = ba;
+                    }
+                    staticMesh.AnimationClips[c] = clip;
+                }
+            }
         }
 
         unsafe Map<long, LightingEffect> GetMaterials(SdMesh* mesh, string modelName)

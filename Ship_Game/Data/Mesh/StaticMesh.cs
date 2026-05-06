@@ -28,6 +28,13 @@ public sealed class StaticMesh : IDisposable
     public readonly BoundingBox Bounds;
     public readonly float Radius;
 
+    // Phase 3.10.B.3: optional skin + animation payload populated by
+    // MeshImporter when the loaded FBX has FbxSkin/FbxCluster + FbxAnimStack
+    // data. Both arrays are null on static meshes (the common case).
+    public SkinnedBoneData[] SkinnedBones;
+    public AnimationClipData[] AnimationClips;
+    public bool IsSkinned => SkinnedBones != null && SkinnedBones.Length > 0;
+
     public StaticMesh(string name, in BoundingBox bounds)
     {
         Name = name;

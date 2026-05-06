@@ -33,9 +33,17 @@ namespace SdMesh
 
     void SDMesh::SyncStats()
     {
-        Name      = TheMesh.Name;
-        NumGroups = TheMesh.NumGroups();
-        NumFaces  = TheMesh.TotalTris();
+        Name              = TheMesh.Name;
+        NumGroups         = TheMesh.NumGroups();
+        NumFaces          = TheMesh.TotalTris();
+        // Phase 3.10.B.3: bones + clips weren't mirrored on read because the
+        // write path updated these counts directly in SDMeshAddBone /
+        // SDMeshAddSkinnedBone / SDMeshCreateAnimationClip and SyncStats only
+        // ran on open (constructor). Adding them here so the C# side sees the
+        // right NumSkinnedBones / NumAnimClips after SDMeshOpen.
+        NumModelBones     = (int)TheMesh.Bones.size();
+        NumSkinnedBones   = (int)TheMesh.SkinnedBones.size();
+        NumAnimClips      = TheMesh.TotalAnimClips();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
