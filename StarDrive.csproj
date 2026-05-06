@@ -710,6 +710,7 @@
     <Compile Include="Ship_Game\Gameplay\DiplomacyDialog.cs" />
     <Compile Include="Ship_Game\Graphics\BloomComponent.cs" />
     <Compile Include="Ship_Game\Graphics\DistortionComponent.cs" />
+    <Compile Include="Ship_Game\Graphics\ShadowMapComponent.cs" />
     <Compile Include="Ship_Game\SelectedShipListItem.cs" />
     <Compile Include="Ship_Game\UI\UIElement.cs" />
     <Compile Include="Ship_Game\GameScreens\Universe\GamePlayMenuScreen.cs" />
