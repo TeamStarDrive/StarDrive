@@ -1051,12 +1051,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // (TransparencyMode + alpha + texture) onto our Alpha + Texture state.
         public void SetTransparencyModeAndMap(TransparencyMode mode, float alpha, Texture2D map)
         {
-            // TransparencyMode.None means the surface is opaque regardless of
-            // the supplied alpha. The legacy FBX writer in SDNative/NanoMesh
-            // stuffs opacity into TransparencyFactor on write while the reader
-            // applies (1 - factor) on load, so opaque materials round-trip as
-            // Alpha=0; honor mode=None as the source of truth.
-            Alpha = (mode == TransparencyMode.None) ? 1f : alpha;
+            Alpha = alpha;
             if (map != null)
             {
                 Texture = map;
