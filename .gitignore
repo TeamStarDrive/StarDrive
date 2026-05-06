@@ -99,6 +99,7 @@ game/StarDrive.pdb
 game/SDNativeTests.pdb
 game/Content/spellchecker.txt
 game/MeshExport/
+game/MeshExport_Old/
 game/Mods/
 game/PatchTemp/
 Deploy/GeneratedFilesList.nsh
