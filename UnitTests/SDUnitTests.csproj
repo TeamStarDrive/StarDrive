@@ -68,6 +68,7 @@
     <Compile Include="Data\AnimationClipFbxExportTests.cs" />
     <Compile Include="Data\SkinnedMeshRoundtripTests.cs" />
     <Compile Include="Data\BoneAnimationPlayerTests.cs" />
+    <Compile Include="Data\StaticMeshAutoPlayTests.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />

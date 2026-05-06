@@ -140,6 +140,19 @@ public sealed class StaticMesh : IDisposable
                         0, mesh.VertexStride));
                 }
             }
+
+            // Phase 3.10.B.7: auto-attach a per-instance animation player and
+            // auto-play the first clip looping. Each SO gets its own player so
+            // separately-spawned instances animate at independent phases. No
+            // gameplay code wires this — UpdateAnimation is already called
+            // per-frame from Ship_Update etc.
+            if (IsSkinned)
+            {
+                var player = new BoneAnimationPlayer(SkinnedBones, AnimationClips);
+                if (player.HasClips)
+                    player.StartClip(0);
+                so.AnimationPlayer = player;
+            }
             return so;
         }
         catch (Exception e)

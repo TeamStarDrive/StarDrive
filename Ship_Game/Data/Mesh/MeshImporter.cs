@@ -68,7 +68,12 @@ namespace Ship_Game.Data.Mesh
 
         unsafe StaticMesh LoadMeshGroups(SdMesh* mesh, string modelName)
         {
-            Map<long, LightingEffect> materials = GetMaterials(mesh, modelName);
+            // Phase 3.10.B.6: detect skinning at the mesh level so every group's
+            // material effect lands as SkinnedLightingEffect (skin VS) rather
+            // than the static LightingEffect. The renderer then pushes the
+            // bone palette per-frame via SceneObject.AnimationPlayer.
+            bool isSkinned = mesh->NumSkinnedBones > 0;
+            Map<long, LightingEffect> materials = GetMaterials(mesh, modelName, isSkinned);
 
             var rawMeshes = new Array<MeshData>();
             XnaBoundingBox bounds = default;
@@ -178,7 +183,7 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
-        unsafe Map<long, LightingEffect> GetMaterials(SdMesh* mesh, string modelName)
+        unsafe Map<long, LightingEffect> GetMaterials(SdMesh* mesh, string modelName, bool isSkinned)
         {
             var materials = new Map<long, LightingEffect>();
             for (int i = 0; i < mesh->NumGroups; ++i)
@@ -187,9 +192,16 @@ namespace Ship_Game.Data.Mesh
                 long ptr = (long)g->Mat;
                 if (!materials.ContainsKey(ptr))
                 {
-                    materials[ptr] = (ptr == 0)
-                        ? new LightingEffect(Device)
-                        : CreateMaterialEffect(g->Mat, Device, Content, modelName);
+                    if (ptr == 0)
+                    {
+                        materials[ptr] = isSkinned
+                            ? new SkinnedLightingEffect(Device)
+                            : new LightingEffect(Device);
+                    }
+                    else
+                    {
+                        materials[ptr] = CreateMaterialEffect(g->Mat, Device, Content, modelName, isSkinned);
+                    }
                 }
             }
             return materials;

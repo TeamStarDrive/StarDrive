@@ -447,6 +447,17 @@ namespace SynapseGaming.LightingSystem.Core
                     fx.DiffuseMapTexture = rm.DiffuseTexture;
                 fx.ApplyToBasicEffect();
 
+                // Phase 3.10.B.6: matrix-palette upload for skinned hulls.
+                // SkinnedLightingEffect : LightingEffect, so the per-mesh effect
+                // assignment in MeshImporter (when mesh->NumSkinnedBones > 0)
+                // already lands on the skin VS. The only remaining piece is
+                // pushing the BoneAnimationPlayer's palette per draw.
+                if (fx is Effects.Forward.SkinnedLightingEffect skinned
+                    && so.AnimationPlayer != null && so.AnimationPlayer.HasBones)
+                {
+                    skinned.SetBoneTransforms(so.AnimationPlayer.SkinningPalette);
+                }
+
                 GraphicsDevice.SetVertexBuffer(rm.VertexBuffer);
                 GraphicsDevice.Indices = rm.IndexBuffer;
                 foreach (EffectPass pass in fx.CurrentTechnique.Passes)
@@ -564,6 +575,14 @@ namespace SynapseGaming.LightingSystem.Rendering
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
 
+        // Phase 3.10.B.6/B.7: matrix-palette skinning state. Created by
+        // StaticMesh.CreateSceneObject when the source mesh has skin data.
+        // Static SOs leave this null and pay zero cost. UpdateAnimation
+        // ticks the active clip; the renderer downcasts the per-mesh effect
+        // to SkinnedLightingEffect and pushes the palette before each draw.
+        public Ship_Game.Data.Mesh.BoneAnimationPlayer AnimationPlayer { get; set; }
+        public bool IsSkinned => AnimationPlayer != null && AnimationPlayer.HasBones;
+
         readonly List<RenderableMesh> Renderables = new();
         readonly List<(ModelMesh Mesh, Effect Effect)> ModelMeshes = new();
 
@@ -573,7 +592,10 @@ namespace SynapseGaming.LightingSystem.Rendering
 
         public void Add(ModelMesh m, Effect e) { if (m != null) ModelMeshes.Add((m, e)); }
         public void Add(RenderableMesh m) { if (m != null) Renderables.Add(m); }
-        public void UpdateAnimation(float deltaTime) { }
+        public void UpdateAnimation(float deltaTime)
+        {
+            AnimationPlayer?.Update(deltaTime);
+        }
     }
 
     public class RenderableMesh

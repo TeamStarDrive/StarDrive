@@ -550,11 +550,17 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
-        // TODO: this is not very useful, consider removing
+        // Phase 3.10.B.6: optional `isSkinned` flag picks SkinnedLightingEffect
+        // (matrix-palette skinning VS) over the static LightingEffect. Both share
+        // the same property surface (DiffuseColor/SpecularPower/etc.) so the
+        // material assignment below stays unified.
         protected static unsafe LightingEffect CreateMaterialEffect(
-            SdMaterial* mat, GraphicsDevice device, GameContentManager content, string materialFile)
+            SdMaterial* mat, GraphicsDevice device, GameContentManager content, string materialFile,
+            bool isSkinned = false)
         {
-            var fx = new LightingEffect(device);
+            LightingEffect fx = isSkinned
+                ? new SkinnedLightingEffect(device)
+                : new LightingEffect(device);
             fx.MaterialName          = mat->Name.AsString;
             fx.MaterialFile          = materialFile;
             fx.ProjectFile           = "Ship_Game/Data/RawContentLoader.cs";
@@ -570,7 +576,7 @@ namespace Ship_Game.Data.Mesh
             fx.SpecularColorMapTexture = TryLoadTexture(content, fx.SpecularColorMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
-            fx.Skinned         = false;
+            fx.Skinned         = isSkinned;
             fx.DoubleSided     = false;
 
             Texture2D alphaMap = mat->AlphaPath.NotEmpty
