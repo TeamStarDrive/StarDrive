@@ -38,6 +38,33 @@ namespace SdMesh
     struct SDBoneAnimation { int Id; };
 
     ////////////////////////////////////////////////////////////////////////////////////
+    // Phase 3.10.B.2: read-side info structs returned by the new getters below.
+    // These describe data already loaded into Nano::Mesh by NanoMesh's LoadFBX
+    // (B.0/B.1) so the C# side can construct SkinnedMesh + animation runtime
+    // state without owning native memory. Names are returned as strview slices
+    // pointing into the std::string buffers held by Nano::Mesh; valid as long
+    // as the SDMesh wrapper is alive (don't access after SDMeshClose).
+
+    struct SDAnimationClipInfo
+    {
+        strview Name;
+        float Duration;
+        int NumAnimations;
+    };
+
+    struct SDBoneAnimationInfo
+    {
+        int SkinnedBoneIndex;
+        int NumFrames;
+    };
+
+    struct SDAnimationKeyFrameInfo
+    {
+        float Time;
+        Nano::BonePose Pose;
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////////
 
     DLLAPI(void) SDMeshAddBone(SDMesh* mesh, const wchar_t* name, int boneIndex, int parentBone,
                                const Matrix4& transform);
@@ -63,6 +90,15 @@ namespace SdMesh
      * Adds a bone transformation keyframe to the bone animation channel
      */
     DLLAPI(void) SDMeshAddAnimationKeyFrame(SDMesh* mesh, SDAnimationClip clip, SDBoneAnimation anim, const Nano::AnimationKeyFrame& keyFrame);
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Phase 3.10.B.2 read-side getters. Counts come from the SDMesh struct's
+    // NumSkinnedBones / NumAnimClips fields (already mirrored on the C# side).
+
+    DLLAPI(SDSkinnedBone) SDMeshGetSkinnedBone(SDMesh* mesh, int index);
+    DLLAPI(SDAnimationClipInfo) SDMeshGetAnimationClip(SDMesh* mesh, int clipIndex);
+    DLLAPI(SDBoneAnimationInfo) SDMeshGetBoneAnimation(SDMesh* mesh, int clipIndex, int animIndex);
+    DLLAPI(SDAnimationKeyFrameInfo) SDMeshGetAnimationKeyFrame(SDMesh* mesh, int clipIndex, int animIndex, int frameIndex);
 
     ////////////////////////////////////////////////////////////////////////////////////
 }

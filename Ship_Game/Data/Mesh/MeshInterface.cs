@@ -426,9 +426,70 @@ namespace Ship_Game.Data.Mesh
         protected static extern unsafe
             void SDMeshAddAnimationKeyFrame(SdMesh* mesh,
                 SdAnimationClip clip,
-                SdBoneAnimation anim, 
+                SdBoneAnimation anim,
                 in SdAnimationKeyFrame keyFrame
             );
+
+        /////////////////////////////////////////////////////////////////////////////
+        // Phase 3.10.B.2: read-side surface for skinned bones + animation clips.
+        // The legacy `SdBonePose` struct above uses XnaQuaternion (40 bytes); the
+        // C++ Nano::BonePose is 36 bytes (Vector3 Euler degrees). The legacy
+        // struct survives because the writer ignores SkinnedBone.Pose data after
+        // the call (it derives bind-pose from the FbxNode hierarchy directly), so
+        // the ABI mismatch is dormant on the write side. The read side has no
+        // such cover — these new types match the C++ layout exactly.
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdBonePoseInfo
+        {
+            public Vector3 Translation;
+            public Vector3 Rotation; // Euler XYZ DEGREES (matches Nano::BonePose)
+            public Vector3 Scale;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        protected struct SdSkinnedBoneInfo
+        {
+            public CStrView Name;
+            public int BoneIndex;
+            public int ParentBone;
+            public SdBonePoseInfo BindPose;
+            public Matrix InverseBindPoseTransform;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        protected struct SdAnimationClipInfo
+        {
+            public CStrView Name;
+            public float Duration;
+            public int NumAnimations;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdBoneAnimationInfo
+        {
+            public int SkinnedBoneIndex;
+            public int NumFrames;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdAnimationKeyFrameInfo
+        {
+            public float Time;
+            public SdBonePoseInfo Pose;
+        }
+
+        [DllImport("SDNative.dll")] protected static extern unsafe
+            SdSkinnedBoneInfo SDMeshGetSkinnedBone(SdMesh* mesh, int index);
+
+        [DllImport("SDNative.dll")] protected static extern unsafe
+            SdAnimationClipInfo SDMeshGetAnimationClip(SdMesh* mesh, int clipIndex);
+
+        [DllImport("SDNative.dll")] protected static extern unsafe
+            SdBoneAnimationInfo SDMeshGetBoneAnimation(SdMesh* mesh, int clipIndex, int animIndex);
+
+        [DllImport("SDNative.dll")] protected static extern unsafe
+            SdAnimationKeyFrameInfo SDMeshGetAnimationKeyFrame(SdMesh* mesh, int clipIndex, int animIndex, int frameIndex);
 
         /////////////////////////////////////////////////////////////////////////////
 

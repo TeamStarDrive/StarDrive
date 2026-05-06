@@ -66,4 +66,53 @@ namespace SdMesh
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
+    // Phase 3.10.B.2: read-side getters for SkinnedBones + AnimationClips that
+    // NanoMesh's LoadFBX (B.0/B.1) populated. Caller bounds-checks via the
+    // count fields exposed on the SDMesh struct (NumSkinnedBones / NumAnimClips).
+
+    DLLAPI(SDSkinnedBone) SDMeshGetSkinnedBone(SDMesh* mesh, int index)
+    {
+        assert(mesh != nullptr && "SDMeshGetSkinnedBone mesh cannot be null");
+        const Nano::SkinnedBone& sb = mesh->TheMesh.SkinnedBones[index];
+        return SDSkinnedBone {
+            strview { sb.Name.data(), (int)sb.Name.size() },
+            sb.BoneIndex,
+            sb.ParentIndex,
+            sb.Pose,
+            sb.InverseBindPoseTransform
+        };
+    }
+
+    DLLAPI(SDAnimationClipInfo) SDMeshGetAnimationClip(SDMesh* mesh, int clipIndex)
+    {
+        assert(mesh != nullptr && "SDMeshGetAnimationClip mesh cannot be null");
+        const Nano::AnimationClip& clip = mesh->TheMesh.AnimationClips[clipIndex];
+        return SDAnimationClipInfo {
+            strview { clip.Name.data(), (int)clip.Name.size() },
+            clip.Duration,
+            (int)clip.Animations.size()
+        };
+    }
+
+    DLLAPI(SDBoneAnimationInfo) SDMeshGetBoneAnimation(SDMesh* mesh, int clipIndex, int animIndex)
+    {
+        assert(mesh != nullptr && "SDMeshGetBoneAnimation mesh cannot be null");
+        const Nano::BoneAnimation& anim = mesh->TheMesh.AnimationClips[clipIndex].Animations[animIndex];
+        return SDBoneAnimationInfo {
+            anim.SkinnedBoneIndex,
+            (int)anim.Frames.size()
+        };
+    }
+
+    DLLAPI(SDAnimationKeyFrameInfo) SDMeshGetAnimationKeyFrame(SDMesh* mesh, int clipIndex, int animIndex, int frameIndex)
+    {
+        assert(mesh != nullptr && "SDMeshGetAnimationKeyFrame mesh cannot be null");
+        const Nano::AnimationKeyFrame& kf = mesh->TheMesh.AnimationClips[clipIndex].Animations[animIndex].Frames[frameIndex];
+        return SDAnimationKeyFrameInfo {
+            kf.Time,
+            kf.Pose
+        };
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
 }
