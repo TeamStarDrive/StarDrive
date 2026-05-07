@@ -674,6 +674,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.UpdateGame.cs" />
     <Compile Include="Ship_Game\Utils\DependencySorter.cs" />
     <Compile Include="Ship_Game\Utils\Deque.cs" />
+    <Compile Include="Ship_Game\Utils\FrameTimeLogger.cs" />
     <Compile Include="Ship_Game\Utils\GameObjectList.cs" />
     <Compile Include="Ship_Game\Utils\EnumFlatMap.cs" />
     <Compile Include="Ship_Game\Utils\ObjectPool.cs" />

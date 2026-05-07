@@ -157,11 +157,13 @@ game/Microsoft.CodeAnalysis.dll
 game/Microsoft.CodeAnalysis.CSharp.dll
 game/Microsoft.CodeAnalysis.VisualBasic.dll
 
-# Phase {1,2,3} session artifacts (build logs, ad-hoc dev screenshots, shader
-# disassembly chunks). All session-scoped — never tracked in the repo.
+# Phase {1,2,3,4} session artifacts (build logs, frame-time captures, ad-hoc
+# dev screenshots, shader disassembly chunks). All session-scoped — never
+# tracked in the repo.
 x64Migration/phase1-logs/
 x64Migration/phase2-logs/
 x64Migration/phase3-logs/
+x64Migration/phase4-logs/
 
 # MonoGame / SharpDX runtime DLLs copied alongside StarDrive.exe by the build.
 game/MonoGame.Framework.dll

@@ -76,6 +76,7 @@ namespace Ship_Game
         void GameExiting(object sender, EventArgs e)
         {
             IsExiting = true;
+            FrameTimeLogger.Stop();
             ScreenManager.ExitAll(clear3DObjects: true);
             ResourceManager.WaitForExit();
         }
@@ -112,6 +113,8 @@ namespace Ship_Game
             InitializeAudio();
             ApplyGraphics(GraphicsSettings.FromGlobalStats());
             ProbeVideoBackend();
+            // CWD at runtime is game/, so step up one to land alongside the rest of phase4-logs.
+            FrameTimeLogger.Init("../x64Migration/phase4-logs/perf-baseline/frames.csv");
 
             // run initialization handler which is able to cancel and exit the game
             if (OnInitialize != null && OnInitialize() == false)
@@ -163,8 +166,10 @@ namespace Ship_Game
 
         protected override void Update(GameTime gameTime)
         {
+            FrameTimeLogger.BeginUpdate();
             GameAudio.Update();
             UpdateGame(gameTime);
+            FrameTimeLogger.EndUpdate();
 
             if (IsLoaded && ScreenManager.NumScreens == 0)
             {
@@ -176,9 +181,14 @@ namespace Ship_Game
         {
             if (IsDeviceGood)
             {
+                FrameTimeLogger.BeginDraw();
                 ScreenManager.ClearScreen(Color.Black);
                 ScreenManager.Draw();
                 base.Draw(gameTime);
+                string topScreen = ScreenManager.NumScreens > 0
+                    ? ScreenManager.Current?.GetType().Name ?? ""
+                    : "";
+                FrameTimeLogger.EndFrame(topScreen);
             }
         }
 

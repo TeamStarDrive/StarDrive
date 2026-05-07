@@ -67,7 +67,7 @@
 
 | # | Title | Risk |
 |---|---|---|
-| 4.1 | Baseline checkpoint, Phase 4 branch, runtime + perf baseline | Low |
+| 4.1 | Baseline checkpoint, Phase 4 branch, runtime + perf baseline — **DONE 2026-05-07** (tag `phase4-start` at `781a00f18`; build matrix 100/100/99/99/91 warnings, 0 errors; perf baseline vsync-locked at 60 Hz across MainMenu/Universe/Combat) | Low |
 | 4.2 | Combined Arms regression sweep (mod compat — first) | Medium |
 | 4.3 | Build hygiene: zero warnings on `Release\|x64` | Low–Medium |
 | 4.4 | Performance baseline + targeted optimization | Medium |
