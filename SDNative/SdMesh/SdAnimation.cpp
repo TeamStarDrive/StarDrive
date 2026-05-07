@@ -6,17 +6,24 @@ namespace SdMesh
 {
     ////////////////////////////////////////////////////////////////////////////////////
 
-    DLLAPI(void) SDMeshAddBone(SDMesh* mesh, const wchar_t* name, int boneIndex, int parentBone, 
+    DLLAPI(void) SDMeshAddBone(SDMesh* mesh, const wchar_t* name, int boneIndex, int parentBone,
                                const Matrix4& transform)
     {
         assert(mesh != nullptr && "SDMeshAddBone mesh cannot be null");
 
+        // Phase 3.10.B.8: Nano::BonePose is { Translation, Rotation, Scale } — the
+        // original positional initializer had Scale/RotationAngles swapped, which
+        // turned every bone's stored "Rotation" into a unit-scale-shaped (1,1,1)
+        // and every "Scale" into the actual Euler angles. The bone-node LclTRS
+        // emitted by the FBX writer was therefore garbage — clusters had
+        // degenerate TransformLinkMatrix and migration-side runtimes had to
+        // bypass the bind data via frame-0 keyframe heuristics.
         mesh->TheMesh.Bones.emplace_back(Nano::MeshBone {
             boneIndex, parentBone, toString(name),
             Nano::BonePose {
                 transform.getTranslation(),
-                transform.getScale(),
-                transform.getRotationAngles()
+                transform.getRotationAngles(),
+                transform.getScale()
             }
         });
     }
