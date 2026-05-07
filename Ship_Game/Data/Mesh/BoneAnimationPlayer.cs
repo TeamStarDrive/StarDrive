@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Data.Mesh;
@@ -28,10 +29,11 @@ public sealed class BoneAnimationPlayer
     public Matrix[] SkinningPalette { get; }
     readonly Matrix[] WorldPose;
     // Phase 3.10.B.8: per-bone inverse-bind-world matrix used for skinning.
-    // Sourced from frame 0 of the bone's animation track in clip 0 when
-    // available (the legacy XNA exporter writes its bind pose into frame 0
-    // of the take, not into the cluster's TransformLinkMatrix). Falls back
-    // to the bone's stored InverseBindPoseTransform for non-animated bones.
+    // Computed from each bone's stored BindPose T/R/S walked through the
+    // hierarchy in topological order. Both bind and animation keyframe
+    // rotations come from the same Euler XYZ degrees convention thanks to
+    // SDMeshAddBoneTRS + the legacy exporter's QuatToEulerXYZDegrees pass —
+    // no fallback path is needed.
     readonly Matrix[] BindWorldInverse;
 
     public AnimationClipData CurrentClip { get; private set; }
@@ -54,20 +56,15 @@ public sealed class BoneAnimationPlayer
         ResetToBindPose();
     }
 
-    // Phase 3.10.B.8: derive each bone's inverse-bind-world matrix.
+    // Phase 3.10.B.8: derive each bone's inverse-bind-world matrix by
+    // walking the hierarchy through BindPose T/R/S in topological order.
+    // Skinning math is `skin = inverseBindWorld * currentWorld`, so this
+    // must reflect the SAME hierarchy chain Sample() walks at runtime,
+    // anchored at the bind pose the geometry was authored against.
     //
-    // Skinning math is `skin = inverseBindWorld * currentWorld`. The
-    // inverseBindWorld must reflect the SAME hierarchy chain that
-    // Sample() walks at runtime, but anchored at the bind pose the
-    // geometry was authored against — NOT frame 0 of the animation,
-    // which can be different. Using frame 0 as bind makes vertices look
-    // correct at t=0 but produces "broken limb" articulation through
-    // the rest of the animation when bind ≠ frame 0 (Ralyeh ship17b
-    // root bone: bind R = -90° around Z, frame 0 R = +90° around Z).
-    //
-    // Walks the bone hierarchy through BindPoseTranslation/Rotation/Scale
-    // (which the cleaned-up exporter now writes correctly). Bones without
-    // a usable inverse fall back to their stored InverseBindPoseTransform.
+    // Throws on NaN/non-invertible bind data with the offending bone's
+    // full context — corrupt FBX bind data must surface as a load-time
+    // failure rather than a silent-but-wrong skinning matrix.
     void ComputeBindWorldInverse()
     {
         var bindWorld = new Matrix[Bones.Length];
@@ -84,28 +81,21 @@ public sealed class BoneAnimationPlayer
                 ? local * bindWorld[bone.ParentIndex]
                 : local;
 
-            BindWorldInverse[i] = TryInvert(bindWorld[i], out Matrix inv)
-                ? inv
-                : bone.InverseBindPoseTransform; // last-resort fallback
-            if (HasNaN(BindWorldInverse[i]))
-                BindWorldInverse[i] = Matrix.Identity;
+            if (HasNaN(bindWorld[i]))
+                throw new InvalidDataException(
+                    $"BoneAnimationPlayer: bone[{i}] '{bone.Name}' bindWorld has NaN/Inf — "
+                    + $"BindPoseT={bone.BindPoseTranslation} R={bone.BindPoseRotation} S={bone.BindPoseScale}, "
+                    + $"ParentIndex={bone.ParentIndex}. Likely cause: corrupt FBX bind-pose data on this bone or one of its parents.");
+
+            Matrix inv = Matrix.Invert(bindWorld[i]);
+            if (HasNaN(inv))
+                throw new InvalidDataException(
+                    $"BoneAnimationPlayer: bone[{i}] '{bone.Name}' bindWorld is non-invertible — "
+                    + $"BindPoseT={bone.BindPoseTranslation} R={bone.BindPoseRotation} S={bone.BindPoseScale}, "
+                    + $"ParentIndex={bone.ParentIndex}. Likely cause: zero or degenerate scale on this bone or one of its parents.");
+
+            BindWorldInverse[i] = inv;
         }
-    }
-
-    static BoneAnimationData FindTrackInClip(AnimationClipData clip, int boneIndex)
-    {
-        BoneAnimationData[] tracks = clip?.Animations;
-        if (tracks == null) return null;
-        for (int i = 0; i < tracks.Length; i++)
-            if (tracks[i].SkinnedBoneIndex == boneIndex)
-                return tracks[i];
-        return null;
-    }
-
-    static bool TryInvert(Matrix m, out Matrix inv)
-    {
-        inv = Matrix.Invert(m);
-        return !HasNaN(inv);
     }
 
     static bool HasNaN(Matrix m)
@@ -187,7 +177,7 @@ public sealed class BoneAnimationPlayer
             WorldPose[i] = bone.ParentIndex >= 0
                 ? local * WorldPose[bone.ParentIndex]
                 : local;
-            SkinningPalette[i] = SafeSkin(BindWorldInverse[i] * WorldPose[i]);
+            SkinningPalette[i] = BindWorldInverse[i] * WorldPose[i];
         }
     }
 
@@ -209,24 +199,8 @@ public sealed class BoneAnimationPlayer
             WorldPose[i] = bone.ParentIndex >= 0
                 ? local * WorldPose[bone.ParentIndex]
                 : local;
-            SkinningPalette[i] = SafeSkin(BindWorldInverse[i] * WorldPose[i]);
+            SkinningPalette[i] = BindWorldInverse[i] * WorldPose[i];
         }
-    }
-
-    // Phase 3.10.B.8: defensive guard. The Ralyeh ship17a-f FBX corpus came
-    // out of the legacy XNA exporter with degenerate bind-pose data — clusters
-    // have zero TransformLinkMatrix, bone nodes have near-zero LclScaling,
-    // and FBX SDK's own matrix evaluation returns NaN. Combining those with
-    // skinning produced NaN clip-space → invisible ships. This fallback turns
-    // any NaN-producing skin matrix into identity so the affected vertices
-    // render at their bind position. Animation is silently disabled for those
-    // bones; the ship is visible (static at bind pose) instead of gone.
-    static Matrix SafeSkin(Matrix m)
-    {
-        if (float.IsNaN(m.M11) || float.IsNaN(m.M22) || float.IsNaN(m.M33) || float.IsNaN(m.M44)
-         || float.IsInfinity(m.M11) || float.IsInfinity(m.M22) || float.IsInfinity(m.M33) || float.IsInfinity(m.M44))
-            return Matrix.Identity;
-        return m;
     }
 
     void SamplePose(SkinnedBoneData bone, float time,
