@@ -255,6 +255,16 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 **Verification**: side-by-side video matches pre-migration, OR a documented WONTFIX with screenshots and traces in `phase4-logs/youlose-desaturate/`.
 
+**§4.5.A status: DONE 2026-05-07.** User-confirmed visual: zoomed-in close-up at fade-in start renders fully grayscale, slowly zooms out + colorizes over 30s, held state shows full-fit colored battle scene.
+
+Root cause was hypothesis #1 (SpriteBatch + custom-PS-only effect unreliable) PLUS a second, narrower trap that took live diagnostic to surface: the `position+origin+scale` form of `SpriteBatch.Draw(tex, pos, src, color, rot, origin, scale, ...)` produces **no rasterized fragments** under `SpriteBatch+custom-effect+Immediate` mode on MGFX 3.8.1.303 / DX11. A PS forced to return pure red turned the screen black with the position form, then red the moment we switched to the `Rectangle` form (`batch.Draw(tex, rect, color)`). That's why all four prior shader/formula iterations produced "navy / gray / black" symptoms whose actual cause was geometry never reaching the rasterizer — no shader rewrite could have helped.
+
+Fix shape:
+1. **`desaturate.fx`** — converted from PS-only to VS+PS. Adds `MatrixTransform` uniform + passthrough VS mirroring SpriteBatch's vertex format. PS body bytecode-faithful to the original ps_2_0 disassembly (`saturate(color.a * 4.0)` lerp from texture rgb to BT.601 luma). Recompiled to `desaturate.mgfxo` via `mgfxc /Profile:DirectX_11`.
+2. **`YouLoseScreen.Draw` / `YouWinScreen.Draw`** — dropped `Pass.Apply()`; switched to `batch.Begin(Immediate, Opaque, LinearClamp, None, CullNone, desaturateEffect)` so our pass IS the SpriteBatch pass. `MatrixTransform` set manually before each Begin (SpriteBatch only auto-populates on `SpriteEffect`-typed effects). Replaced the `position+origin+scale` Draw with a manually-computed `Rectangle` that preserves the original zoom-out animation (`scale = 1 + 2*TP`, recomputed as `int(W*scale) × int(H*scale)` centered on screen).
+
+Build matrix: `Release|x64` clean, 0/0. New memory entry `project_phase45_spritebatch_position_form_trap.md` captures the position-form trap so future contributors don't burn the same diagnostic cycle.
+
 ### §4.5.B — Light rig data rebake
 
 **Status going in**: `GameScreen.AssignLightRig` catches the load failure and assigns an empty `LightRig`. Light rig XNBs are baked against SunBurn type-readers that are gone post-1.9; `LightRig` itself is a stub with no data, so even on success there's nothing to extract.

@@ -50,16 +50,33 @@ namespace Ship_Game
         {
             ScreenManager.ClearScreen(Color.Black);
 
-            batch.SafeBegin(SpriteBlendMode.None, sortImmediate:true);
             if (desaturateEffect != null)
             {
-                desaturateEffect.CurrentTechnique.Passes[0].Apply();
-
-                batch.Draw(LoseTexture, ScreenCenter, null,
-                    new Color((byte)255, (byte)255, (byte)255, (byte)Saturation),
-                    0f, Origin, scale, SpriteEffects.None, 1f);
+                // §4.5.A: see YouLoseScreen.Draw for the full reasoning.
+                // SpriteBatch.Begin(effect:) + manual MatrixTransform +
+                // Rectangle-form Draw is the canonical pattern; the
+                // position+origin+scale form produces no rasterized
+                // fragments under SpriteBatch+custom-effect+Immediate.
+                EffectParameter mt = desaturateEffect.Parameters["MatrixTransform"];
+                if (mt != null)
+                {
+                    Microsoft.Xna.Framework.Matrix.CreateOrthographicOffCenter(
+                        0, ScreenWidth, ScreenHeight, 0, 0, 1,
+                        out Microsoft.Xna.Framework.Matrix proj);
+                    mt.SetValue(proj);
+                }
+                int rectW = (int)(LoseTexture.Width  * scale);
+                int rectH = (int)(LoseTexture.Height * scale);
+                var rect  = new Rectangle((int)(ScreenCenter.X - LoseTexture.Width  * 0.5f * scale),
+                                          (int)(ScreenCenter.Y - LoseTexture.Height * 0.5f * scale),
+                                          rectW, rectH);
+                batch.Begin(SpriteSortMode.Immediate, BlendState.Opaque,
+                            SamplerState.LinearClamp, DepthStencilState.None,
+                            RasterizerState.CullNone, desaturateEffect);
+                batch.Draw(LoseTexture, rect,
+                    new Color((byte)255, (byte)255, (byte)255, (byte)Saturation));
+                batch.End();
             }
-            batch.SafeEnd();
 
             batch.SafeBegin();
             {
