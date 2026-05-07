@@ -112,8 +112,14 @@ public sealed class Background : IDisposable
 
             RectF rect = new(0, 0, Universe.ScreenWidth, Universe.ScreenHeight);
 
-            // this allows us to tweak the cloud effect color tones
-            Color filterColor = new(0, 255, 255, 255);
+            // §4.6 #10: pre-migration SunBurn's deferred composite tone-curve
+            // attenuated this draw. Clouds.fx PS emits green from a macro
+            // noise layer in its G channel; the original full cyan tint
+            // (0,255,255,255) produces an oversaturated green wash dominating
+            // the universe screen post-migration. Dimming the tint replaces
+            // the missing tone-curve attenuation without restructuring the
+            // forward pipeline.
+            Color filterColor = new(0, 48, 48, 255);
             sr.Draw(CloudTex, new Quad3D(rect, 0), filterColor);
             sr.End();
         }
