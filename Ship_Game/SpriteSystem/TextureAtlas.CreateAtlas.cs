@@ -69,8 +69,11 @@ namespace Ship_Game.SpriteSystem
                 {
                     if (t.NoPack)
                     {
-                        t.UnpackedPath = $"{compressedCacheDir}{t.Name}.dds";
-                        t.SaveAsDds(t.UnpackedPath);
+                        // §4.6 #7: SaveAsDds may return a .png path for Color+alpha
+                        // textures (DXT5 alpha quantization is lossy on smooth
+                        // gradients — see TextureInfo.SaveAsDds). Use the actual
+                        // saved path so UnpackedPath matches the file on disk.
+                        t.UnpackedPath = t.SaveAsDds($"{compressedCacheDir}{t.Name}.dds");
                     }
                 }
             }
@@ -169,7 +172,20 @@ namespace Ship_Game.SpriteSystem
                     int.TryParse(entry[4], out t.Width);
                     int.TryParse(entry[5], out t.Height);
                     t.Name = entry[6];
-                    t.UnpackedPath = t.NoPack ? $"{compressedCacheDir}{t.Name}.dds" : null;
+                    // §4.6 #7: nopack path may be .dds OR .png on disk (Color+alpha
+                    // textures save as PNG to preserve smooth alpha gradients —
+                    // DXT5 quantization is lossy and read as visible banding/dark
+                    // fringes at the FOW sensor circle edge in the original cache).
+                    if (t.NoPack)
+                    {
+                        string ddsPath = $"{compressedCacheDir}{t.Name}.dds";
+                        string pngPath = $"{compressedCacheDir}{t.Name}.png";
+                        t.UnpackedPath = File.Exists(pngPath) ? pngPath : ddsPath;
+                    }
+                    else
+                    {
+                        t.UnpackedPath = null;
+                    }
                     t.SourcePath = Path.OriginalName + "/" + t.Name + "." + t.Type;
                     textures.Add(t);
                 }

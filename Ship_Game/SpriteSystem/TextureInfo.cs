@@ -96,38 +96,52 @@ namespace Ship_Game.SpriteSystem
 
         public string SaveAsDds(string filename)
         {
-            string path = Path.ChangeExtension(filename, "dds");
+            string ddsPath = Path.ChangeExtension(filename, "dds");
+            string pngPath = Path.ChangeExtension(filename, "png");
             SurfaceFormat format = Texture.Format;
             if (format == SurfaceFormat.Dxt5 || format == SurfaceFormat.Dxt1)
             {
                 // TODO Phase 4: MonoGame Texture2D has no DDS writer; PNG fallback
                 // keeps export usable. Add a custom DDS writer if/when DXT round-trip
                 // is needed (no consumer requires it today).
-                using FileStream fs = File.Create(Path.ChangeExtension(filename, "png"));
+                using FileStream fs = File.Create(pngPath);
                 Texture.SaveAsPng(fs, Texture.Width, Texture.Height);
+                return pngPath;
             }
-            else if (format == SurfaceFormat.Color)
+            if (format == SurfaceFormat.Color)
             {
                 var color = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(color);
 
                 bool alpha = ImageUtils.HasTransparentPixels(color, Width, Height);
-                
-                DDSFlags flags = alpha ? DDSFlags.Dxt5 : DDSFlags.Dxt1;
-                ImageUtils.ConvertToDDS(path, Width, Height, color, flags);
+
+                if (alpha)
+                {
+                    // §4.6 #7: avoid DXT5 alpha-quantization artifacts on smooth
+                    // alpha gradients (UI/node's circular alpha mask read as a
+                    // visible dark ring at the sensor-circle edge in the FOW
+                    // composite). DXT5 alpha is 8-level-per-4x4-block; for
+                    // gradient textures this produces banding that bilinear
+                    // sampling doesn't fully smooth. PNG keeps the gradient
+                    // lossless; cache size cost is acceptable for nopack UI
+                    // textures (the only Color+alpha route through this path).
+                    ImageUtils.SaveAsPng(pngPath, Width, Height, color);
+                    return pngPath;
+                }
+
+                ImageUtils.ConvertToDDS(ddsPath, Width, Height, color, DDSFlags.Dxt1);
+                return ddsPath;
             }
-            else if (format == SurfaceFormat.Bgr32)
+            if (format == SurfaceFormat.Bgr32)
             {
                 var color = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(color);
-                ImageUtils.ConvertToDDS(path, Width, Height, color, DDSFlags.Dxt1);
+                ImageUtils.ConvertToDDS(ddsPath, Width, Height, color, DDSFlags.Dxt1);
+                return ddsPath;
             }
-            else
-            {
-                Log.Error($"Unsupported format '{format}' from texture '{Name}.{Type}': "
-                          +"Ensure you are using BGRA32 or BGR32 textures.");
-            }
-            return path;
+            Log.Error($"Unsupported format '{format}' from texture '{Name}.{Type}': "
+                      +"Ensure you are using BGRA32 or BGR32 textures.");
+            return ddsPath;
         }
     }
 }
