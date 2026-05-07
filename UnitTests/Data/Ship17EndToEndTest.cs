@@ -57,17 +57,22 @@ namespace UnitTests.Data
             Assert.IsTrue(so.IsSkinned);
             Assert.IsNotNull(so.AnimationPlayer.CurrentClip, "CurrentClip not auto-started");
 
-            // Phase 3.10.B.8 follow-up: dump frame 0 of every bone's animation
-            // track so we can see whether the keyframe T/R/S values are sensible
-            // (and therefore usable as a synthetic bind pose) or just as broken
-            // as the cluster matrices were.
+            // Phase 3.10.B.8 follow-up: dump bind-pose vs frame-0 for every
+            // bone so we can see whether they actually agree (clean exporter
+            // should make them match — XNAnimation's BindPose is what the
+            // geometry is skinned against; frame 0 is just the start of the
+            // animation, which may or may not match).
             var clip0 = mesh.AnimationClips[0];
             System.Console.WriteLine($"  -- clip[0] '{clip0.Name}' duration={clip0.Duration:F2}s tracks={clip0.Animations.Length} --");
-            foreach (var track in clip0.Animations)
+            for (int b = 0; b < mesh.SkinnedBones.Length; b++)
             {
-                if (track.Frames == null || track.Frames.Length == 0) continue;
-                var f0 = track.Frames[0];
-                System.Console.WriteLine($"    track bone={track.SkinnedBoneIndex} frame0 T={f0.Translation} R={f0.Rotation} S={f0.Scale}");
+                SkinnedBoneData sb = mesh.SkinnedBones[b];
+                var track = clip0.Animations.FirstOrDefault(a => a.SkinnedBoneIndex == sb.BoneIndex);
+                var f0 = track?.Frames != null && track.Frames.Length > 0 ? track.Frames[0] : null;
+                System.Console.WriteLine($"  bone[{b}] '{sb.Name}'");
+                System.Console.WriteLine($"    bind  T={sb.BindPoseTranslation} R={sb.BindPoseRotation} S={sb.BindPoseScale}");
+                if (f0 != null)
+                    System.Console.WriteLine($"    frame0 T={f0.Translation} R={f0.Rotation} S={f0.Scale}");
             }
 
             // No skin matrix in the palette may contain NaN/Inf — vertices
@@ -82,19 +87,20 @@ namespace UnitTests.Data
                     $"Skin matrix [{i}] contains Inf");
             }
 
-            // Math invariant of the B.8 derivation: BindWorldInverse comes
-            // from frame 0, Sample() at t=0 reads frame 0 keyframes, so every
-            // bone's skin matrix at t=0 must reduce to identity (within
-            // numerical tolerance). If this fires, frame 0 ISN'T the bind
-            // pose for these meshes and we need a different bind source.
-            so.AnimationPlayer.StartClip(0); // explicit: t=0, sample frame 0
+            // Math invariant: BindWorldInverse is derived from the bone's
+            // stored BindPose T/R/S, so ResetToBindPose (which composes the
+            // SAME bind T/R/S into WorldPose) must produce identity skin
+            // matrices for every bone. If this fires, the bind data flow
+            // is desynchronized between ComputeBindWorldInverse and
+            // ResetToBindPose.
+            so.AnimationPlayer.ResetToBindPose();
             for (int i = 0; i < so.AnimationPlayer.SkinningPalette.Length; i++)
             {
                 Matrix m = so.AnimationPlayer.SkinningPalette[i];
                 Vector3 transformed = Vector3.Transform(new Vector3(1f, 2f, 3f), m);
-                Assert.AreEqual(1f, transformed.X, 0.01f, $"bone[{i}] frame-0 skin should be ~identity (X)");
-                Assert.AreEqual(2f, transformed.Y, 0.01f, $"bone[{i}] frame-0 skin should be ~identity (Y)");
-                Assert.AreEqual(3f, transformed.Z, 0.01f, $"bone[{i}] frame-0 skin should be ~identity (Z)");
+                Assert.AreEqual(1f, transformed.X, 0.01f, $"bone[{i}] bind-pose skin should be ~identity (X)");
+                Assert.AreEqual(2f, transformed.Y, 0.01f, $"bone[{i}] bind-pose skin should be ~identity (Y)");
+                Assert.AreEqual(3f, transformed.Z, 0.01f, $"bone[{i}] bind-pose skin should be ~identity (Z)");
             }
         }
     }
