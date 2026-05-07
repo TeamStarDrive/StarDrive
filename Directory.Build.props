@@ -20,4 +20,17 @@
     <NoWarn>$(NoWarn);CA1416</NoWarn>
   </PropertyGroup>
 
+  <!--
+    Suppress NETSDK1206 repo-wide.
+
+    Fires on net8 builds because a transitive package (Libuv via test infra)
+    advertises distro-specific RIDs (debian-x64, fedora-x64, opensuse-x64,
+    rhel-x64, win7-arm, win7-x64, win7-x86) that net8+ no longer auto-resolves.
+    We don't ship to those RIDs (Windows-only target), so the warning is noise
+    sourced from a dependency we don't control. Suppress at the repo root.
+  -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
+  </PropertyGroup>
+
 </Project>

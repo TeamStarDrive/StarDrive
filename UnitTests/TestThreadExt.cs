@@ -101,12 +101,12 @@ namespace UnitTests
             // AppVeyor CI quite often runs 1-core only, which makes Parallel tests most vexing
             if (Parallel.MaxParallelism == 1)
             {
-                var ex = Assert.ThrowsException<ArgumentException>((Action)Action);
+                var ex = Assert.ThrowsExactly<ArgumentException>((Action)Action);
                 AssertEqual("Test", ex.Message);
             }
             else
             {
-                var ex = Assert.ThrowsException<ParallelTaskException>((Action)Action);
+                var ex = Assert.ThrowsExactly<ParallelTaskException>((Action)Action);
                 AssertEqual(typeof(ArgumentException), ex.InnerException?.GetType());
                 AssertEqual("Test", ex.InnerException?.Message);
                 AssertEqual("Parallel.For task threw an exception", ex.Message);

@@ -45,14 +45,14 @@ namespace UnitTests.Ships
             ShipModule[] modules = design.Select(slot => ShipModule.Create(null, slot, dummy, false));
 
             // COVERAGE: test index out of bounds conditions
-            Assert.ThrowsException<IndexOutOfRangeException>(() => grid[modules, -1, 0]);
-            Assert.ThrowsException<IndexOutOfRangeException>(() => grid[modules,  0, 3]);
-            Assert.ThrowsException<IndexOutOfRangeException>(() => grid.Get(modules, -1, 0));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => grid.Get(modules,  0, 3));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => grid.Get(modules, new Point(-1, 0)));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => grid.Get(modules, new Point(0, 3)));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => grid.Get(modules, gridIndex:-1));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => grid.Get(modules, gridIndex:6));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => grid[modules, -1, 0]);
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => grid[modules,  0, 3]);
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => grid.Get(modules, -1, 0));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => grid.Get(modules,  0, 3));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => grid.Get(modules, new Point(-1, 0)));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => grid.Get(modules, new Point(0, 3)));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => grid.Get(modules, gridIndex:-1));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => grid.Get(modules, gridIndex:6));
 
             // COVERAGE: test all overloads for Get module
             AssertEqual(null,       grid[modules, 0, 0]);
@@ -90,14 +90,14 @@ namespace UnitTests.Ships
 
             // COVERAGE: test index out of bounds conditions
             var gs = new ModuleGridState(grid, modules);
-            Assert.ThrowsException<IndexOutOfRangeException>(() => gs[-1, 0]);
-            Assert.ThrowsException<IndexOutOfRangeException>(() => gs[ 0, 3]);
-            Assert.ThrowsException<IndexOutOfRangeException>(() => gs.Get(-1, 0));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => gs.Get( 0, 3));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => gs.Get(new Point(-1, 0)));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => gs.Get(new Point(0, 3)));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => gs.Get(gridIndex:-1));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => gs.Get(gridIndex:6));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => gs[-1, 0]);
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => gs[ 0, 3]);
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => gs.Get(-1, 0));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => gs.Get( 0, 3));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => gs.Get(new Point(-1, 0)));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => gs.Get(new Point(0, 3)));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => gs.Get(gridIndex:-1));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => gs.Get(gridIndex:6));
 
             // COVERAGE: test all overloads for Get module
             AssertEqual(null,       gs[0, 0]);

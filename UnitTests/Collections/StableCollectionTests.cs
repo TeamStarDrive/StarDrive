@@ -31,7 +31,7 @@ public class StableCollectionTests : StarDriveTest
         AssertEqual(2, c.Count);
         Assert.IsFalse(c.IsFreeSlot(1));
 
-        Assert.ThrowsException<NullReferenceException>(() => c.Insert(null));
+        Assert.ThrowsExactly<NullReferenceException>(() => c.Insert(null));
 
         AssertEqualCollections(new[]{"dog","cat"}, c.ToArr());
     }
@@ -59,7 +59,7 @@ public class StableCollectionTests : StarDriveTest
         AssertEqual(2, c.IndexOf("c"));
         AssertEqual(3, c.IndexOf("d"));
         AssertEqual(4, c.IndexOf("e"));
-        Assert.ThrowsException<NullReferenceException>(() => c.IndexOf(null));
+        Assert.ThrowsExactly<NullReferenceException>(() => c.IndexOf(null));
 
         Assert.IsFalse(c.IsFreeSlot(0));
         Assert.IsFalse(c.IsFreeSlot(1));
@@ -83,7 +83,7 @@ public class StableCollectionTests : StarDriveTest
         
         Assert.IsFalse(c.Contains(""));
         Assert.IsFalse(c.Contains("x"));
-        Assert.ThrowsException<NullReferenceException>(() => c.Contains(null));
+        Assert.ThrowsExactly<NullReferenceException>(() => c.Contains(null));
     }
 
     [TestMethod]

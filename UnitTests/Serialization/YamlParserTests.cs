@@ -299,14 +299,16 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidDataException))]
         public void HandleInvalidArraySyntax()
         {
             const string yaml = @"
                 InvalidArray1: [ OkSyntax, { InvalidMap: Syntax } ]
                 ";
-            using (var parser = new YamlParser(">HandleInvalidArraySyntax<", new StringReader(yaml)))
+            Assert.ThrowsExactly<InvalidDataException>(() =>
+            {
+                using var parser = new YamlParser(">HandleInvalidArraySyntax<", new StringReader(yaml));
                 ParserDump(parser);
+            });
         }
 
         [TestMethod]

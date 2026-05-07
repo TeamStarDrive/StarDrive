@@ -185,9 +185,9 @@ namespace UnitTests.Collections
             AssertEqual("C", queue.ElementAt(2));
             AssertEqual("D", queue.ElementAt(3));
             AssertEqual("E", queue.ElementAt(4));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(-1));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(5));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(10));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => queue.ElementAt(-1));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => queue.ElementAt(5));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => queue.ElementAt(10));
         }
 
         // This tests the ability of SafeQueue to concurrently modify

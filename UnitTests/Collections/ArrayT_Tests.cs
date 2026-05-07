@@ -15,7 +15,10 @@ namespace UnitTests.Collections
 
         public Array<T> NewArray<T>() => new Array<T>();
         public Array<T> NewArray<T>(params T[] args) => new Array<T>(args);
+        // Intentional: base returns IArray<string>; tests below use the concrete Array<string> API.
+#pragma warning disable MSTEST0036
         public new Array<string> MakeABCDE() => NewArray("a","b","c","d","e") ;
+#pragma warning restore MSTEST0036
                 
         [TestMethod]
         public void ContainsRef()
@@ -242,7 +245,7 @@ namespace UnitTests.Collections
             var arr1 = new Array<string>();
             arr1.AddRange(arr);
             AssertEqual(arr1, arr);
-            Assert.ThrowsException<InvalidOperationException>(() => arr1.ToArrayList());
+            Assert.ThrowsExactly<InvalidOperationException>(() => arr1.ToArrayList());
 
             var arr2 = ((ICollection<string>)arr1).ToArrayList();
             AssertEqual(arr, arr2);
@@ -322,9 +325,9 @@ namespace UnitTests.Collections
             AssertEqual(new[] { "a","b","c","d","e" }, arr, "Reorder [1] to [1]");
 
             // and catch index errors
-            Assert.ThrowsException<IndexOutOfRangeException>(() => arr.Reorder(-1, 0));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => arr.Reorder(0, arr.Count));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => arr.Reorder(-1, arr.Count));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => arr.Reorder(-1, 0));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => arr.Reorder(0, arr.Count));
+            Assert.ThrowsExactly<IndexOutOfRangeException>(() => arr.Reorder(-1, arr.Count));
         }
 
         [TestMethod]

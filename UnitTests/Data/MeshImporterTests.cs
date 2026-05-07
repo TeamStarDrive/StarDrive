@@ -66,7 +66,7 @@ public class MeshImporterTests : StarDriveTest
             "got an empty mesh, meaning the .xnb→.fbx fallback in LoadStaticMesh is broken.");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Model/Asteroids/asteroid1.fbx")]
     [DataRow("Model/Asteroids/asteroid2.fbx")]
     [DataRow("Model/Asteroids/asteroid3.fbx")]

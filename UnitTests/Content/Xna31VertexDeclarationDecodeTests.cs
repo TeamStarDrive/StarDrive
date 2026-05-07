@@ -104,7 +104,7 @@ namespace UnitTests.Content
             byte[] bogus = { 0xFF, 0xFF, 0xFF, 0xFF };
             using var ms = new MemoryStream(bogus);
             using var br = new BinaryReader(ms);
-            Assert.ThrowsException<InvalidDataException>(() => Xna31VertexDeclarationReader.DecodeXna31Bytes(br));
+            Assert.ThrowsExactly<InvalidDataException>(() => Xna31VertexDeclarationReader.DecodeXna31Bytes(br));
         }
     }
 }
