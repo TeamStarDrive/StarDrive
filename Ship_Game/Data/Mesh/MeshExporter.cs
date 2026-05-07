@@ -7,6 +7,7 @@ using Ship_Game.Data.Texture;
 using SynapseGaming.LightingSystem.Effects;
 using SDGraphics;
 using SDUtils;
+using XnaQuaternion = Microsoft.Xna.Framework.Quaternion;
 
 namespace Ship_Game.Data.Mesh
 {
@@ -61,6 +62,40 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
+        // Phase 3.10.B.8: convert XNA Quaternion to Euler XYZ DEGREES matching
+        // FBX's intrinsic XYZ rotation order (rotation matrix M = Rz * Ry * Rx,
+        // i.e., apply X first, then Y, then Z).
+        //
+        // Why: SdBonePose.Rotation is byte-for-byte ABI-aligned with NanoMesh's
+        // Nano::BonePose::Rotation (Vector3, Euler degrees). The previous shape
+        // had `XnaQuaternion Orientation` which silently dropped qw and treated
+        // (qx,qy,qz) as Euler degrees during P/Invoke marshaling — every
+        // exported skinned mesh ended up with garbage cluster matrices and
+        // bizarre keyframe rotations. Converting at the boundary keeps the
+        // in-memory model XNA-native (Quaternion) and the wire format FBX-
+        // standard (Euler degrees).
+        //
+        // Round-trip with Nano::BonePose's writer (GLToFbxDouble3 + LclRotation)
+        // and the migration-side reader (FbxToOpenGL on the same field) is
+        // lossless except at gimbal-lock poses, which character animation rigs
+        // don't normally hit.
+        static Vector3 QuatToEulerXYZDegrees(XnaQuaternion q)
+        {
+            // Standard inverse of intrinsic XYZ Euler → quaternion.
+            //   ry = asin(2*(qw*qy - qx*qz))
+            //   rx = atan2(2*(qw*qx + qy*qz), 1 - 2*(qx² + qy²))
+            //   rz = atan2(2*(qw*qz + qx*qy), 1 - 2*(qy² + qz²))
+            float qx = q.X, qy = q.Y, qz = q.Z, qw = q.W;
+            float pitchSin = 2f * (qw * qy - qx * qz);
+            if (pitchSin > 1f) pitchSin = 1f;
+            else if (pitchSin < -1f) pitchSin = -1f;
+            float ry = (float)Math.Asin(pitchSin);
+            float rx = (float)Math.Atan2(2f * (qw * qx + qy * qz), 1f - 2f * (qx * qx + qy * qy));
+            float rz = (float)Math.Atan2(2f * (qw * qz + qx * qy), 1f - 2f * (qy * qy + qz * qz));
+            const float radToDeg = (float)(180.0 / Math.PI);
+            return new Vector3(rx * radToDeg, ry * radToDeg, rz * radToDeg);
+        }
+
         static unsafe void CreateBones(SdMesh* mesh, Model model,
                                        SkinnedModelBoneCollection animBones,
                                        AnimationClipDictionary animClips)
@@ -80,7 +115,7 @@ namespace Ship_Game.Data.Mesh
                 var sdPose = new SdBonePose
                 {
                     Translation = new Vector3(pose.Translation),
-                    Orientation = pose.Orientation,
+                    Rotation = QuatToEulerXYZDegrees(pose.Orientation),
                     Scale = new Vector3(pose.Scale)
                 };
                 SDMeshAddSkinnedBone(mesh, bone.Name, bone.Index, bone.Parent?.Index ?? -1,
@@ -112,7 +147,7 @@ namespace Ship_Game.Data.Mesh
                             Pose = new SdBonePose
                             {
                                 Translation = new Vector3(pose.Translation),
-                                Orientation = pose.Orientation,
+                                Rotation = QuatToEulerXYZDegrees(pose.Orientation),
                                 Scale = new Vector3(pose.Scale)
                             }
                         };

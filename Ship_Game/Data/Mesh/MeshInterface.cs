@@ -178,11 +178,18 @@ namespace Ship_Game.Data.Mesh
 
         /////////////////////////////////////////////////////////////////////////////
             
+        // Phase 3.10.B.8: byte-for-byte ABI match with NanoMesh's Nano::BonePose
+        // (3 × Vector3 = 36 bytes). Previously had `XnaQuaternion Orientation`
+        // (40 bytes) which P/Invoke marshaled into the C++ side as a Vector3,
+        // silently dropping qw and treating the (qx,qy,qz) components as Euler
+        // degrees in LclRotation — producing FBX files where every bone read
+        // back as garbage rotation. Caller (MeshExporter) now converts the
+        // Quaternion to Euler XYZ degrees before populating this struct.
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         protected struct SdBonePose
         {
             public Vector3 Translation;
-            public XnaQuaternion Orientation;
+            public Vector3 Rotation; // Euler XYZ DEGREES (matches Nano::BonePose)
             public Vector3 Scale;
         }
 
