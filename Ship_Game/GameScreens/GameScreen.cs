@@ -190,25 +190,11 @@ namespace Ship_Game
         public void AddLight(ILight light, bool dynamic) => ScreenManager.AddLight(light, dynamic);
         public void RemoveLight(ILight light, bool dynamic) => ScreenManager.RemoveLight(light, dynamic);
 
-        public void AssignLightRig(LightRigIdentity identity, string rigContentPath)
-        {
-            // Phase 2: light rig XNBs are baked against SunBurn type-readers that
-            // are gone post-1.9 purge. LightRig itself is a stub with no data, so
-            // even on success there's nothing to extract. Catch the load failure
-            // and assign an empty rig — matches the no-op semantics of LightManager.Submit(LightRig).
-            // TODO Phase 4: rebake light rigs as plain data (YAML?) and remove this guard.
-            LightRig lightRig;
-            try
-            {
-                lightRig = TransientContent.Load<LightRig>(rigContentPath);
-            }
-            catch (Exception e)
-            {
-                Log.Warning($"Phase 2 stub: LightRig '{rigContentPath}' load failed ({e.GetType().Name}); using empty rig");
-                lightRig = new LightRig();
-            }
-            ScreenManager.AssignLightRig(identity, lightRig);
-        }
+        // Resets active+pending lights and stamps the screen identity. The original
+        // SunBurn pipeline loaded a LightRig XNB here; post-purge the rigs hold no
+        // data, so loading is a no-op — see §4.5.B in migration-plan-phase4.md.
+        public void AssignLightRig(LightRigIdentity identity)
+            => ScreenManager.AssignLightRig(identity);
 
         // ExitScreen will also call this.Dispose(true)
         public virtual void ExitScreen()

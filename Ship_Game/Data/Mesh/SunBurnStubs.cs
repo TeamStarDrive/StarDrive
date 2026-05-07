@@ -685,7 +685,6 @@ namespace SynapseGaming.LightingSystem.Lights
     public interface ILightManager : ISubmit<ILight>
     {
         IReadOnlyList<ILight> ActiveLights { get; }
-        void Submit(LightRig rig);
         void Clear();
     }
 
@@ -695,13 +694,10 @@ namespace SynapseGaming.LightingSystem.Lights
         public IReadOnlyList<ILight> ActiveLights => Lights;
         public LightManager() { }
         public LightManager(IGraphicsDeviceService _) { }
-        public void Submit(LightRig rig) { } // LightRig is a data-less stub; nothing to extract
         public void Submit(ILight light) { if (light != null) Lights.Add(light); }
         public bool Remove(ILight light) => light != null && Lights.Remove(light);
         public void Clear() => Lights.Clear();
     }
-
-    public class LightRig { }
 
     public class DirectionalLight : ILight
     {

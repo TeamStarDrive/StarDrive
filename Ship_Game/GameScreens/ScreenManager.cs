@@ -272,11 +272,9 @@ namespace Ship_Game
         }
 
         public void RemoveAllLights(LightRigIdentity identity = LightRigIdentity.Unknown)
-        {
-            AssignLightRig(identity, null);
-        }
+            => AssignLightRig(identity);
 
-        public void AssignLightRig(LightRigIdentity identity, LightRig rig)
+        public void AssignLightRig(LightRigIdentity identity)
         {
             lock (SceneInter)
             {
@@ -284,9 +282,6 @@ namespace Ship_Game
                 SceneInter.LightManager.Clear();
                 PendingLights.Clear();
                 ActiveDynamicLights = 0;
-
-                if (rig != null)
-                    SceneInter.LightManager.Submit(rig);
             }
         }
 

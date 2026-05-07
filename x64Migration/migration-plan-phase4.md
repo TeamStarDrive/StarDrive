@@ -270,6 +270,14 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 **Risk**: Medium. §4.5.A is genuinely diagnostic-heavy — reserve a budget and accept WONTFIX if the four hypotheses don't land. §4.5.B is small but depends on §4.5.A's outcome (both touch lighting/visual passes).
 
+**§4.5.B status: DONE 2026-05-07.** Resolution path was option (2) — confirmed `LightRig` stub has zero data (`public class LightRig { }`) and `LightManager.Submit(LightRig)` was a no-op, so the load+catch was always functionally equivalent to "do nothing". Single commit removes:
+- `GameScreen.AssignLightRig(identity, rigContentPath)` → `GameScreen.AssignLightRig(identity)` (drops the path arg + try/catch + `TransientContent.Load<LightRig>`).
+- `ScreenManager.AssignLightRig(identity, LightRig rig)` → `ScreenManager.AssignLightRig(identity)` (drops the now-permanently-null rig param + dead `Submit` branch).
+- `ILightManager.Submit(LightRig)` interface method + `LightManager.Submit(LightRig)` impl + the empty `LightRig` stub class itself (zero remaining callers in Ship_Game; SDSunBurn isn't referenced from `StarDrive.csproj`, no namespace collision risk).
+- 3 callsites updated: `ShipDesignScreen` / `FleetDesignScreen` / `UniverseScreen.ResetLighting`.
+
+Build matrix: `Release|x64` + `Debug|x64` both 0 warnings 0 errors. Test suite identical pre/post-refactor (63 passed, 1 skipped, host-finalizer NRE in `UniverseState.Dispose` is pre-existing baseline noise unrelated to this change).
+
 ---
 
 ## 4.6 — Visual Polish Pass (was §3.11)

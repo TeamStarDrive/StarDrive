@@ -427,7 +427,7 @@ namespace Ship_Game
             CreateGUI();
             InitializeCamera();
             ScreenManager.StartMusic("ShipyardTheme");
-            AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
+            AssignLightRig(LightRigIdentity.Shipyard);
 
             ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad(Player);
             if (lastWIP != null)

@@ -227,7 +227,7 @@ namespace Ship_Game
 
             if (!UseRealLights)
             {
-                AssignLightRig(LightRigIdentity.UniverseScreen, "example/NewGamelight_rig");
+                AssignLightRig(LightRigIdentity.UniverseScreen);
                 return;
             }
 
