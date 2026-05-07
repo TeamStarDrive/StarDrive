@@ -40,7 +40,7 @@ The user runs `game/StarDrive.exe`. The process:
 6. **MainMenu Mars renders as a 3D sphere** (composited overlays + sphere mesh visible — currently flat strip).
 7. **Beam/projectile particle effects work** end-to-end (now that BeamFX/Thrust XNBs load).
 8. **Build matrix still green** across 5 configs × x64. No regressions.
-9. **Visual polish pass** (§3.11) lands a curated set of small finishes: projectile dynamic light, glow-map emissive contribution, muzzle effect verification, sun Z/depth ordering, specular intensity, and any residual MainMenu polish. Steam SDK (was §3.11) is deferred to Phase 4.
+9. **Visual polish pass** (§3.11) lands a curated set of small finishes: projectile dynamic light, glow-map emissive contribution, muzzle effect verification, sun Z/depth ordering, specular intensity, fog-of-war map circle dimness, and any residual MainMenu polish. Steam SDK (was §3.11) is deferred to Phase 4.
 
 **Anti-goals for Phase 3** (deferred to a Phase 4 or treated as won't-fix):
 - Pixel-exact match to 2013 SunBurn deferred-renderer output. Forward-renderer-equivalent is the bar.
@@ -80,7 +80,7 @@ The user runs `game/StarDrive.exe`. The process:
 | 3.8 | Shadow maps (basic) | Medium–High |
 | 3.9 | FBX TransparencyFactor write fix + legacy mesh re-export (Combined Arms ships) | Medium |
 | 3.10 | XNB Model decode — skinned/animated meshes + animation runtime | **Very High** |
-| 3.11 | Small finishes: projectile glow light, glow-map emissive, muzzle FX check, sun Z, specular intensity, MainMenu polish residue | Low–Medium |
+| 3.11 | Small finishes: projectile glow light, glow-map emissive, muzzle FX check, sun Z, specular intensity, fog-of-war map dimness, MainMenu polish residue | Low–Medium |
 | 3.12 | Phase 3 close: PHASE3_RESULTS.md, runtime smoke, final memory cleanup | Low |
 
 Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or `git reset --hard <tag>`.
@@ -574,6 +574,7 @@ The C# workaround landed in commit `76c9cdccb` ([SunBurnStubs.cs](Ship_Game/Data
 4. **Muzzle effects check** — verify muzzle-flash particle emitters fire on weapon discharge end-to-end. Cross-check against §3.5 particle FX restoration; this is a regression check, not new work. If broken, root-cause and fix in this commit.
 5. **Sun Z / depth ordering** — sun position relative to skybox and nearby planets reads wrong. Likely a depth-buffer-disabled-at-skybox issue, a sun-quad render-order tweak, or a near-plane / w-component issue with the sun's billboard. Diagnose, then fix.
 6. **Specular intensity** — current specular reads too weak. Diagnose first (could be: specular-map sample magnitude, sRGB vs linear sample of the spec map, global specular multiplier in `MeshLighting.fx`, or eye-vector / normal interpolation precision). Compare against pre-migration footage. Land minimally: prefer a uniform multiplier over shader rewrites if the diagnosis points to a magnitude issue.
+7. **Fog-of-war map circle too dim** — the per-system "explored" fog circle on the Universe map reads dimmer than pre-migration. Likely candidates: `BasicFogOfWar` shader's per-pixel attenuation curve, the fog-mask RT format (R8 vs R16F precision floor), the alpha-blend mode used to composite the fog-circle pass, or a missing premultiply on the fog texture sample. Diagnose against pre-migration screenshots first; bias the fix toward a uniform multiplier if the cause is just magnitude.
 
 **Steps**:
 1. Capture pre-state visual reference (screenshot/video) per item before touching code.
