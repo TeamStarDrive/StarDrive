@@ -80,7 +80,7 @@ The user runs `game/StarDrive.exe`. The process:
 | 3.8 | Shadow maps (basic) | Medium–High |
 | 3.9 | FBX TransparencyFactor write fix + legacy mesh re-export (Combined Arms ships) | Medium |
 | 3.10 | XNB Model decode — skinned/animated meshes + animation runtime | **Very High** |
-| 3.11 | Small finishes: projectile glow light, glow-map emissive, muzzle FX check, sun Z, specular intensity, fog-of-war map dimness, MainMenu polish residue | Low–Medium |
+| ~~3.11~~ | ~~Small finishes: visual polish~~ **Moved to Phase 4 (2026-05-07)** — see `migration-plan-phase4.md` | — |
 | 3.12 | Phase 3 close: PHASE3_RESULTS.md, runtime smoke, final memory cleanup | Low |
 
 Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or `git reset --hard <tag>`.
@@ -562,34 +562,11 @@ The C# workaround landed in commit `76c9cdccb` ([SunBurnStubs.cs](Ship_Game/Data
 
 ---
 
-## 3.11 — Small Finishes: Visual Polish Pass
+## 3.11 — *Moved to Phase 4 (2026-05-07)*
 
-**Goal**: Land a curated set of small finishes that surfaced during §3.3–§3.10 implementation but didn't fit any single earlier sub-phase. Each item is independently scoped, individually revertible, and gated only by user visual sign-off — no automated test gate beyond "build matrix green between commits". Steam SDK (was §3.11) is deferred to Phase 4.
+The visual polish pass that previously lived here (projectile dynamic glow light, glow-map emissive, muzzle FX check, sun Z, specular intensity, fog-of-war map dimness, MainMenu polish residue) has been moved to Phase 4. Phase 3 closes on the renderer feature parity already landed in §3.5/§3.7/§3.8/§3.10 — visible quality wins shipped per sub-phase, sign-off is what's left.
 
-**Items** (commit one per item; land in any order):
-
-1. **MainMenu polish residue** — anything still off after §3.6's Mars sphere work (background composition, button layout, version-string placement, animation timing). Specifics captured at entry; before/after screenshots into `phase3-logs/`.
-2. **Projectile dynamic glow light** — projectiles cast a per-projectile point/dynamic light onto nearby ships and stations. Integrate with the forward renderer's existing point-light path (LightingEffect). Verify against pre-migration footage that beam/projectile travel illuminates flanking hulls visibly. No new shader if the LightingEffect point-light path covers it; otherwise extend.
-3. **Glow-map light points** *(optional / investigate)* — promote glow-map texture channels from a flat additive overlay to an actual emissive light contribution (per-pixel emissive in the lit pass, optionally seeding small dynamic point lights at high-intensity glow-map pixels for nearby-surface bounce). Only land if it improves perceived quality vs the simpler additive-overlay baseline.
-4. **Muzzle effects check** — verify muzzle-flash particle emitters fire on weapon discharge end-to-end. Cross-check against §3.5 particle FX restoration; this is a regression check, not new work. If broken, root-cause and fix in this commit.
-5. **Sun Z / depth ordering** — sun position relative to skybox and nearby planets reads wrong. Likely a depth-buffer-disabled-at-skybox issue, a sun-quad render-order tweak, or a near-plane / w-component issue with the sun's billboard. Diagnose, then fix.
-6. **Specular intensity** — current specular reads too weak. Diagnose first (could be: specular-map sample magnitude, sRGB vs linear sample of the spec map, global specular multiplier in `MeshLighting.fx`, or eye-vector / normal interpolation precision). Compare against pre-migration footage. Land minimally: prefer a uniform multiplier over shader rewrites if the diagnosis points to a magnitude issue.
-7. **Fog-of-war map circle too dim** — the per-system "explored" fog circle on the Universe map reads dimmer than pre-migration. Likely candidates: `BasicFogOfWar` shader's per-pixel attenuation curve, the fog-mask RT format (R8 vs R16F precision floor), the alpha-blend mode used to composite the fog-circle pass, or a missing premultiply on the fog texture sample. Diagnose against pre-migration screenshots first; bias the fix toward a uniform multiplier if the cause is just magnitude.
-
-**Steps**:
-1. Capture pre-state visual reference (screenshot/video) per item before touching code.
-2. Implement, screenshot, commit. One item per commit; commit message references the item number above.
-3. After all items land, run a 5-minute MainMenu→Universe→Combat smoke to confirm no cross-item regression.
-
-**Tests added**: None automated. These are art-side fidelity items — visual-diff captures into `phase3-logs/visual-diff/` per item.
-
-**Verification**: User visual sign-off per item against pre-migration reference footage. Build matrix green between commits.
-
-**Rollback**: Per-item `git revert <sha>`. Items are independent.
-
-**Risk**: Low–Medium. Each item is bounded; no system-wide changes. Specular magnitude and projectile dynamic light could touch the lighting effect's parameter surface — keep changes additive and uniform-gated like §3.8's `ShadowParams` packing so a regression flips one number rather than restructuring the effect.
-
-**Note on Steam SDK deferral (2026-05-07)**: the §3.11 slot previously held Steam SDK x64 via Steamworks.NET. That work is now Phase 4 scope. Phase 3 closes on visible-quality wins, which is what the user actually sees and judges the migration on. The full Steam recipe is preserved in `migration-plan-phase2.md` "Deferred Final Step — Steam SDK x64 (Steamworks.NET)" appendix and the strategic-decisions table above; no information lost.
+The full item list is preserved in `migration-plan-phase4.md`. No information lost.
 
 ---
 
@@ -649,8 +626,11 @@ Each sub-phase commits to `migration/phase3-x64-monogame`. Open one PR per sub-p
 
 After Phase 3 ships, ARCHITECTURE.md §9 "Suggested Migration Order" lists "Phase 4: Polish" — this is where HDR, advanced lighting models, AI improvements, and any remaining Phase 3 carryovers land. Out of scope for this plan document; mention only.
 
-**Confirmed Phase 4 carryovers** (as of 2026-05-07):
-- **Steam SDK x64 via Steamworks.NET** — moved out of §3.11. Full recipe in `migration-plan-phase2.md` "Deferred Final Step" appendix. 6-method external surface (`Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`); AppID 220680 already in `game/steam_appid.txt`. Drop vendored x86 `GARSteamManager.dll` + `steam_api.dll`; rely on Steamworks.NET's `steam_api64.dll`.
+**Confirmed Phase 4 carryovers** (as of 2026-05-07; full plan in `migration-plan-phase4.md`):
+- **Combined Arms mod regression sweep** — re-export every Combined Arms hull through the legacy/mesh_exporter_xna31 pipeline (§3.10.B.8 fixes apply uniformly across the mesh corpus, but only the Ralyeh ship17 family was visually verified) and run Combined Arms in-game to confirm no regressions vs pre-migration. Likely first Phase 4 item.
+- **Visual polish pass (was §3.11)** — 7 items: MainMenu polish residue, projectile dynamic glow light, glow-map emissive promotion, muzzle FX regression check, sun Z / depth ordering, specular intensity, fog-of-war map circle dimness.
+- **NanoMesh upstream PR** — push the local `blackbox-migration` branch (FbxSkin/FbxCluster read+write, FbxAnimStack/FbxAnimCurve read+write, TransparencyFactor write fix, robust cluster bind-matrix recovery, ClusterTransformLinkInverseGL Assert hardening) to NanoMesh upstream as a pull request so a fresh clone of the project doesn't depend on a local-only branch.
+- **Steam SDK x64 via Steamworks.NET** *(last Phase 4 item)* — moved out of §3.11. Full recipe in `migration-plan-phase2.md` "Deferred Final Step" appendix. 6-method external surface (`Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`); AppID 220680 already in `game/steam_appid.txt`. Drop vendored x86 `GARSteamManager.dll` + `steam_api.dll`; rely on Steamworks.NET's `steam_api64.dll`.
 
 ---
 
@@ -669,7 +649,7 @@ After Phase 3 ships, ARCHITECTURE.md §9 "Suggested Migration Order" lists "Phas
 | 3.9 FBX export fix + re-export | Medium | One-line C++ fix; risk is in the re-export coverage (~150 ships) and whether new FBXes regress anything visible. Combined Arms mod ships are why this matters. |
 | **3.10.A Skinned mesh extraction** | **Medium–High** (revised down from Very High) | Scope shrunk to 6 Ralyeh XNBs per §3.1 inventory. C++ side already finished (per developer note). SgMotion wire format is bounded R&D. Moved to last so its R&D doesn't block visible quality wins. |
 | 3.10.B Skinned runtime playback | Medium (optional follow-up) | Decoupled from §3.10.A. Bind-pose-only is acceptable for Phase 3 close. |
-| 3.11 Small finishes | Low–Medium | Per-item commits; uniform-gated additions; visual sign-off per item. Steam SDK moved to Phase 4. |
+| ~~3.11 Small finishes~~ | — | **Moved to Phase 4 (2026-05-07).** See `migration-plan-phase4.md`. |
 | 3.12 Sign-off | Low | Documentation only |
 
 **Risk delta from the 2026-05-02 architectural unlock**: §3.4 dropped from High to Medium–High, the skinned-mesh sub-phase split into §3.10.A (Medium–High) + optional §3.10.B (Medium). The previous developer's mesh-export work + the §3.1 inventory together collapsed the original "research-grade XNB decoder + skeletal runtime" surface into "ContentTypeReader stubs + restore `MeshExporter` + reuse SDNative bone APIs." The 8-XNB static-raw cluster (3.1 VertexDeclaration drift) is now the only research-grade item, and its scope is tightly bounded.

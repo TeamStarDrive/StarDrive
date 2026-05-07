@@ -130,13 +130,13 @@ public static class SteamManager
 
     public static bool Initialize()
     {
-        // TODO Phase 3.11: GARSteamManager.dll and steam_api.dll are vendored x86 binaries
+        // TODO Phase 4: GARSteamManager.dll and steam_api.dll are vendored x86 binaries
         // that fail to load in the x64 process (BadImageFormat 0x8007000B). The custom
         // GARSteamManager wrapper has no source in this repo, so we can't simply rebuild
         // it for x64. Disabled here so the boot log stays clean — every public method on
         // this class already gates on `IsInitialized`, so no P/Invoke fires while it is
-        // false. Restore by either: (a) sourcing/rebuilding GARSteamManager for x64, or
-        // (b) migrating the ~25 P/Invokes to Steamworks.NET. Plan §3.11 covers this.
+        // false. Restore by migrating the ~25 P/Invokes to Steamworks.NET (recipe in
+        // x64Migration/migration-plan-phase2.md "Deferred Final Step" appendix).
         IsInitialized = false;
         Log.Info("SteamManager disabled (x64 wrapper not yet available); achievements/stats/cloud-saves inactive");
         return false;

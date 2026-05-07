@@ -322,8 +322,9 @@ namespace Ship_Game.Data
                         StaticMesh.DisposeModel(model);
                     }
                     break;
-                // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted; TODO Phase 3.6
-                // (skinned-mesh extraction + runtime playback) restores it.
+                // Skinned meshes load as StaticMesh (with IsSkinned=true and a BoneAnimationPlayer)
+                // through the §3.10 FBX pipeline, so the historical XNA SkinnedModel switch arm
+                // is no longer needed.
                 case SpriteFont font:
                     var texture = GetSpriteFontTexture(font);
                     if (texture != null && !texture.IsDisposed)
@@ -355,8 +356,7 @@ namespace Ship_Game.Data
                 case TextureAtlas atlas: return atlas.IsDisposed;
                 case StaticMesh mesh: return mesh.IsDisposed;
                 case Model model: return StaticMesh.IsModelDisposed(model);
-                // SkinnedModel case removed in Phase 1.9 — XNAnimation deleted; TODO Phase 3.6
-                // (skinned-mesh extraction + runtime playback) restores it.
+                // Skinned meshes share the StaticMesh case above; no separate SkinnedModel arm.
                 case Video _: return false; // nothing to dispose
                 case SpriteFont font: { var t = GetSpriteFontTexture(font); return t == null || t.IsDisposed; }
                 // Effect/Shader cases removed — both inherit GraphicsResource (handled above).
@@ -789,11 +789,13 @@ namespace Ship_Game.Data
             }
             else
             {
-                // TODO Phase 3.6: animated path used XNAnimation SkinnedModel; both branches
-                // currently load a static Model. Phase 3.6 adds the SgMotion stubs +
-                // skinned-mesh extraction so this branch can return a real skinned mesh.
+                // No .fbx/.obj sidecar found. Skinned content normally arrives via the
+                // §3.10 FBX pipeline (offline export on legacy/mesh_exporter_xna31 →
+                // SkinnedMesh + BoneAnimationPlayer at load), so reaching this branch
+                // with `animated=true` means a mod shipped an XNB without a sibling
+                // .fbx/.obj — the static-Model fallback below loses the skin data.
                 if (animated)
-                    Log.Warning($"Phase 1: skinned model '{asset.RelPathWithExt}' loaded as static (XNAnimation removed)");
+                    Log.Warning($"Skinned model '{asset.RelPathWithExt}' has no .fbx sidecar; loading as static (skin data lost)");
 
                 // Defensive XNB Model fallback. Phase 3.4 pivoted from "decode 3.1 XNB
                 // Models at runtime" to an offline FBX/OBJ export pipeline (see
@@ -828,8 +830,8 @@ namespace Ship_Game.Data
             return Load<Model>(modelName);
         }
 
-        // TODO Phase 3.6: SkinnedModel/XNAnimation removed in Phase 1.9.
-        // Restore once skeletal animation is rebuilt on MonoGame (plan §3.6).
+        // Skinned-mesh playback now goes through StaticMesh + BoneAnimationPlayer
+        // (§3.10), so the XNA SkinnedModel surface stays retired.
 
         protected override Stream OpenStream(string assetNameWithExt)
         {

@@ -227,9 +227,10 @@ namespace Ship_Game.Data
                 return;
             }
 
-            // TODO Phase 3.6: AnimatedMesh export removed with XNAnimation; restore once
-            // skeletal animation is rebuilt on MonoGame (plan §3.6 — SgMotion stubs +
-            // skinned-mesh extraction path).
+            // Skinned/animated mesh export lives on the legacy/mesh_exporter_xna31
+            // branch, where the XNA 3.1 + XNAnimation stack is intact. Migration's
+            // RawContentLoader is static-mesh only; skinned content reaches the
+            // runtime as pre-exported .fbx via the §3.10 pipeline.
         }
 
         public void ExportAllXnbMeshes(string extension)

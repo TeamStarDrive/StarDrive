@@ -196,7 +196,7 @@ namespace Ship_Game
             // are gone post-1.9 purge. LightRig itself is a stub with no data, so
             // even on success there's nothing to extract. Catch the load failure
             // and assign an empty rig — matches the no-op semantics of LightManager.Submit(LightRig).
-            // TODO Phase 3: rebake light rigs as plain data (YAML?) and remove this guard.
+            // TODO Phase 4: rebake light rigs as plain data (YAML?) and remove this guard.
             LightRig lightRig;
             try
             {
