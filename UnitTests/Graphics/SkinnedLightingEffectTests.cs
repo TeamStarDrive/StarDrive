@@ -37,7 +37,8 @@ public class SkinnedLightingEffectTests : StarDriveTest
         Assert.IsNotNull(fx.Parameters["DiffuseColor"]);
         Assert.IsNotNull(fx.Parameters["AmbientLightColor"]);
         Assert.IsNotNull(fx.Parameters["DirLight0Direction"]);
-        Assert.IsNotNull(fx.Parameters["PointLight0Position"]);
+        Assert.IsNotNull(fx.Parameters["PointLight0PositionAndRadius"]);
+        Assert.IsNotNull(fx.Parameters["DynamicLight0PositionAndRadius"]);
         Assert.IsNotNull(fx.Parameters["ShadowParams"], "ShadowParams missing — receiver shadow path won't apply on skinned hulls");
         Assert.IsNotNull(fx.Parameters["ShadowMap"]);
         Assert.IsNotNull(fx.Parameters["LightViewProjection"]);

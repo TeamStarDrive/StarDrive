@@ -162,9 +162,62 @@ public static class LightingEffectBinder
         fx.PointLight1 = slot1;
         fx.PointLight2 = slot2;
 
+        // §4.6 #2: dynamic transient point lights (projectile <Light> color,
+        // explosion flashes, shield impacts). Pre-migration SunBurn ran
+        // these as deferred light volumes — every dynamic light contributed
+        // unconditionally. The migrated forward path runs 2 dedicated
+        // shader slots filled from the small-radius bucket
+        // (Radius < 1000f) sorted by XY distance to the camera. Off-screen
+        // and far-from-camera lights drop out (they wouldn't be visible
+        // anyway). XY-only because Z varies hugely with universe zoom; the
+        // play plane is at z=0 and projectiles hover near z=-25, so XY
+        // distance maps cleanly to "what the player is looking at".
+        var dyn0 = default(LightingEffect.PointLightSlot);
+        var dyn1 = default(LightingEffect.PointLightSlot);
+        if (lights != null)
+        {
+            float best0Dist2 = float.MaxValue;
+            float best1Dist2 = float.MaxValue;
+            for (int i = 0; i < lights.Count; ++i)
+            {
+                if (lights[i] is SunBurnLights.PointLight q && q.Enabled
+                    && q.Radius > 0f && q.Radius < 1000f)
+                {
+                    float dx = q.Position.X - cameraPos.X;
+                    float dy = q.Position.Y - cameraPos.Y;
+                    float dist2 = dx*dx + dy*dy;
+                    var slot = new LightingEffect.PointLightSlot
+                    {
+                        Enabled = true,
+                        Position = q.Position,
+                        DiffuseColor = q.DiffuseColor * q.Intensity,
+                        Radius = q.Radius,
+                    };
+                    // Insertion-sort into the 2-slot best-pair: dyn0 holds
+                    // the closest, dyn1 the second-closest. Bubble dyn0
+                    // down when a closer one shows up.
+                    if (dist2 < best0Dist2)
+                    {
+                        dyn1 = dyn0;
+                        best1Dist2 = best0Dist2;
+                        dyn0 = slot;
+                        best0Dist2 = dist2;
+                    }
+                    else if (dist2 < best1Dist2)
+                    {
+                        dyn1 = slot;
+                        best1Dist2 = dist2;
+                    }
+                }
+            }
+        }
+        fx.DynamicLight0 = dyn0;
+        fx.DynamicLight1 = dyn1;
+
         // LightingEnabled gates the per-pixel lighting math entirely. Enable
         // when at least one directional, point light, or non-trivial ambient is set.
-        fx.LightingEnabled = dirIndex > 0 || bestSun != null || ambient.LengthSquared() > 0.0001f;
+        fx.LightingEnabled = dirIndex > 0 || bestSun != null || ambient.LengthSquared() > 0.0001f
+                          || dyn0.Enabled || dyn1.Enabled;
         fx.AmbientLightColor = ambient;
 
         // Fog

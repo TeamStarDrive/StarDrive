@@ -91,27 +91,30 @@ float3 DirLight2Direction      = float3(0, -1, 0);
 float3 DirLight2DiffuseColor   = float3(0, 0, 0);
 float3 DirLight2SpecularColor  = float3(0, 0, 0);
 
-bool   PointLight0Enabled       = false;
-float3 PointLight0Position      = float3(0, 0, 0);
-float3 PointLight0DiffuseColor  = float3(0, 0, 0);
-float3 PointLight0SpecularColor = float3(0, 0, 0);
-float  PointLight0Radius        = 1.0;
+// §4.6 #2: packed PointLight layout — see MeshLighting.fx for the full
+// rationale. Skinned shaders share the same C# binder + parameter cache
+// (SkinnedLightingEffect inherits from LightingEffect), so uniform names
+// must match in lockstep. Specular dropped (sun PointLights are area-
+// light proxies, dynamic lights are transient glow).
+float4 PointLight0PositionAndRadius = float4(0, 0, 0, 1);
+float4 PointLight0DiffuseAndEnabled = float4(0, 0, 0, 0);
 
-bool   PointLight1Enabled       = false;
-float3 PointLight1Position      = float3(0, 0, 0);
-float3 PointLight1DiffuseColor  = float3(0, 0, 0);
-float3 PointLight1SpecularColor = float3(0, 0, 0);
-float  PointLight1Radius        = 1.0;
+float4 PointLight1PositionAndRadius = float4(0, 0, 0, 1);
+float4 PointLight1DiffuseAndEnabled = float4(0, 0, 0, 0);
 
-bool   PointLight2Enabled       = false;
-float3 PointLight2Position      = float3(0, 0, 0);
-float3 PointLight2DiffuseColor  = float3(0, 0, 0);
-float3 PointLight2SpecularColor = float3(0, 0, 0);
-float  PointLight2Radius        = 1.0;
+float4 PointLight2PositionAndRadius = float4(0, 0, 0, 1);
+float4 PointLight2DiffuseAndEnabled = float4(0, 0, 0, 0);
 
-float3 FogColor = float3(0, 0, 0);
-float  FogStart = 0.0;
-float  FogEnd   = 1.0;
+// §4.6 #2: dynamic transient point lights — projectile glow, explosion,
+// shield. Filled by LightingEffectBinder from Radius < 1000f enabled
+// lights nearest the camera.
+float4 DynamicLight0PositionAndRadius = float4(0, 0, 0, 1);
+float4 DynamicLight0DiffuseAndEnabled = float4(0, 0, 0, 0);
+float4 DynamicLight1PositionAndRadius = float4(0, 0, 0, 1);
+float4 DynamicLight1DiffuseAndEnabled = float4(0, 0, 0, 0);
+
+float3 FogColor    = float3(0, 0, 0);
+float2 FogStartEnd = float2(0.0, 1.0);
 
 texture Texture;
 sampler2D TextureSampler = sampler_state
@@ -182,7 +185,7 @@ struct VSOutput
 
 float ComputeFogFactor(float dist)
 {
-    return saturate((dist - FogStart) / (FogEnd - FogStart));
+    return saturate((dist - FogStartEnd.x) / (FogStartEnd.y - FogStartEnd.x));
 }
 
 // 4-bone weighted blend producing a single 4×3 skinning matrix per vertex.
@@ -220,32 +223,23 @@ LightTerms ComputeDirectional(
     return terms;
 }
 
-LightTerms ComputePoint(
-    float3 normalWS, float3 viewDirWS, float3 positionWS,
-    bool enabled, float3 lightPos, float3 lightDiffuse, float3 lightSpecular, float lightRadius)
+// §4.6 #2: packed-input, diffuse-only — see MeshLighting.fx for rationale.
+float3 ComputePoint(
+    float3 normalWS, float3 positionWS,
+    float4 positionAndRadius, float4 diffuseAndEnabled)
 {
-    LightTerms terms;
-    terms.Diffuse = float3(0, 0, 0);
-    terms.Specular = float3(0, 0, 0);
-    if (!enabled) return terms;
+    if (diffuseAndEnabled.w < 0.5) return float3(0, 0, 0);
 
-    float3 toLightVec = lightPos - positionWS;
+    float3 toLightVec = positionAndRadius.xyz - positionWS;
     float dist = length(toLightVec);
     float3 toLight = toLightVec / max(dist, 0.0001);
 
-    float ratio = saturate(dist / max(lightRadius, 0.0001));
+    float ratio = saturate(dist / max(positionAndRadius.w, 0.0001));
     float atten = saturate(1.0 - ratio * ratio);
-    if (atten <= 0.0) return terms;
+    if (atten <= 0.0) return float3(0, 0, 0);
 
     float ndl = saturate(dot(normalWS, toLight));
-    terms.Diffuse = lightDiffuse * ndl * atten;
-
-    float3 halfWay = normalize(toLight + viewDirWS);
-    float ndh = saturate(dot(normalWS, halfWay));
-    float specMask = ndl > 0 ? 1.0 : 0.0;
-    terms.Specular = lightSpecular * pow(ndh, SpecularPower) * specMask * atten;
-
-    return terms;
+    return diffuseAndEnabled.xyz * ndl * atten;
 }
 
 VSOutput VSSkinned(VSInputSkinned input)
@@ -333,18 +327,21 @@ float4 PSDefault(VSOutput input) : SV_TARGET
         LightTerms l2 = ComputeDirectional(normalWS, viewDirWS,
             DirLight2Direction, DirLight2DiffuseColor, DirLight2SpecularColor);
 
-        LightTerms p0 = ComputePoint(normalWS, viewDirWS, input.PositionWS,
-            PointLight0Enabled, PointLight0Position,
-            PointLight0DiffuseColor, PointLight0SpecularColor, PointLight0Radius);
-        LightTerms p1 = ComputePoint(normalWS, viewDirWS, input.PositionWS,
-            PointLight1Enabled, PointLight1Position,
-            PointLight1DiffuseColor, PointLight1SpecularColor, PointLight1Radius);
-        LightTerms p2 = ComputePoint(normalWS, viewDirWS, input.PositionWS,
-            PointLight2Enabled, PointLight2Position,
-            PointLight2DiffuseColor, PointLight2SpecularColor, PointLight2Radius);
+        float3 p0 = ComputePoint(normalWS, input.PositionWS,
+            PointLight0PositionAndRadius, PointLight0DiffuseAndEnabled);
+        float3 p1 = ComputePoint(normalWS, input.PositionWS,
+            PointLight1PositionAndRadius, PointLight1DiffuseAndEnabled);
+        float3 p2 = ComputePoint(normalWS, input.PositionWS,
+            PointLight2PositionAndRadius, PointLight2DiffuseAndEnabled);
+        float3 d0 = ComputePoint(normalWS, input.PositionWS,
+            DynamicLight0PositionAndRadius, DynamicLight0DiffuseAndEnabled);
+        float3 d1 = ComputePoint(normalWS, input.PositionWS,
+            DynamicLight1PositionAndRadius, DynamicLight1DiffuseAndEnabled);
 
-        float3 diffuseAcc  = (l0.Diffuse  + l1.Diffuse  + l2.Diffuse  + p0.Diffuse  + p1.Diffuse  + p2.Diffuse)  * DiffuseColor;
-        float3 specularAcc = (l0.Specular + l1.Specular + l2.Specular + p0.Specular + p1.Specular + p2.Specular) * SpecularColor * specularMask;
+        float3 diffuseAcc  = (l0.Diffuse  + l1.Diffuse  + l2.Diffuse
+                            + p0 + p1 + p2 + d0 + d1) * DiffuseColor;
+        float3 specularAcc = (l0.Specular + l1.Specular + l2.Specular)
+                            * SpecularColor * specularMask;
 
         float shadowFactor = SampleShadowFactor(input.PositionLS);
         diffuseAcc  *= shadowFactor;

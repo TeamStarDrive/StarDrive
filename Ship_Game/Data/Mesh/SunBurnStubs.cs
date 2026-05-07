@@ -387,6 +387,10 @@ namespace SynapseGaming.LightingSystem.Core
             fx.PointLight0 = SharedFx.PointLight0;
             fx.PointLight1 = SharedFx.PointLight1;
             fx.PointLight2 = SharedFx.PointLight2;
+            // §4.6 #2: propagate dynamic transient lights too — every per-mesh
+            // effect should see the same projectile/explosion glow as SharedFx.
+            fx.DynamicLight0 = SharedFx.DynamicLight0;
+            fx.DynamicLight1 = SharedFx.DynamicLight1;
             // Phase 3.8.B: propagate shadow state alongside the lights so
             // per-mesh effects (planet halos, ship Materials, etc.) sample
             // the same shadow RT the SharedFx is bound to. ShadowBias is
@@ -869,7 +873,11 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
         readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled;
         readonly EffectParameter pAmbientLightColor;
-        readonly EffectParameter pFogColor, pFogStart, pFogEnd;
+        // §4.6 #2: FogStart+FogEnd packed into a float2 (FogStartEnd) on the
+        // GPU — see MeshLighting.fx — to free a const register. C# surface
+        // keeps the BasicEffect-shaped FogStart/FogEnd properties; OnApply
+        // assembles them into the float2 push.
+        readonly EffectParameter pFogColor, pFogStartEnd;
         readonly EffectParameter pTexture, pEmissiveMap, pSpecularMap, pNormalMap;
 
         readonly EffectParameter pDl0Direction, pDl0Diffuse, pDl0Specular;
@@ -882,9 +890,21 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // LocalFill — each light keeps its native radius so the small-radius
         // OverSaturationKey only over-brightens hulls near the sun while
         // Key + LocalFill light the whole orbit.
-        readonly EffectParameter pPl0Enabled, pPl0Position, pPl0Diffuse, pPl0Specular, pPl0Radius;
-        readonly EffectParameter pPl1Enabled, pPl1Position, pPl1Diffuse, pPl1Specular, pPl1Radius;
-        readonly EffectParameter pPl2Enabled, pPl2Position, pPl2Diffuse, pPl2Specular, pPl2Radius;
+        // §4.6 #2: packed pixel-shader-side layout (PositionAndRadius +
+        // DiffuseAndEnabled, no specular). See MeshLighting.fx — the
+        // level_9_3 32-vec4 PS const cap doesn't fit the prior 5-uniform
+        // layout once dynamic lights joined the slot pool.
+        readonly EffectParameter pPl0PosRad, pPl0DiffEna;
+        readonly EffectParameter pPl1PosRad, pPl1DiffEna;
+        readonly EffectParameter pPl2PosRad, pPl2DiffEna;
+
+        // §4.6 #2: dynamic transient point lights (projectile <Light>
+        // glow, explosion flashes, shield impacts). Filled by
+        // LightingEffectBinder from Radius < 1000f enabled point lights
+        // sorted by XY distance to camera. Diffuse-only, packed layout
+        // identical to PointLightN.
+        readonly EffectParameter pDl0PosRad, pDl0DiffEna;
+        readonly EffectParameter pDl1PosRad, pDl1DiffEna;
 
         // Phase 3.8.B: receiver-side shadow uniforms. Bound by
         // LightingEffectBinder.Apply when the renderer drove a depth pre-
@@ -921,6 +941,12 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         public DirectionalLight DirectionalLight2 { get; }
 
         // PointLight slots — see field declaration above.
+        // §4.6 #2: SpecularColor still part of the struct surface so the
+        // C# PointLightSlot binder API stays unchanged, but the GPU-side
+        // shader no longer consumes it (sun PointLights are area-light
+        // proxies, dynamic lights are transient glow — neither needs a
+        // proper per-pixel specular highlight). Field is kept for the
+        // binder's existing population code; OnApply skips pushing it.
         public struct PointLightSlot
         {
             public bool    Enabled;
@@ -932,6 +958,14 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         public PointLightSlot PointLight0;
         public PointLightSlot PointLight1;
         public PointLightSlot PointLight2;
+
+        // §4.6 #2: dynamic-light slots — projectile <Light> color, explosion
+        // flashes, shield impacts. Filled by LightingEffectBinder from
+        // Radius < 1000f enabled point lights nearest the camera. Same
+        // struct shape as PointLightN; SpecularColor unused on the GPU
+        // side (skipped in OnApply / no shader uniform).
+        public PointLightSlot DynamicLight0;
+        public PointLightSlot DynamicLight1;
 
         // Phase 3.8.B: receiver-side shadow state. The renderer drives the
         // depth pre-pass into ShadowMapComponent and then calls
@@ -977,8 +1011,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pFogEnabled         = Parameters["FogEnabled"];
             pAmbientLightColor  = Parameters["AmbientLightColor"];
             pFogColor           = Parameters["FogColor"];
-            pFogStart           = Parameters["FogStart"];
-            pFogEnd             = Parameters["FogEnd"];
+            pFogStartEnd        = Parameters["FogStartEnd"];
             pTexture            = Parameters["Texture"];
             pEmissiveMap        = Parameters["EmissiveMap"];
             pSpecularMap        = Parameters["SpecularMap"];
@@ -994,23 +1027,20 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pDl2Diffuse   = Parameters["DirLight2DiffuseColor"];
             pDl2Specular  = Parameters["DirLight2SpecularColor"];
 
-            pPl0Enabled  = Parameters["PointLight0Enabled"];
-            pPl0Position = Parameters["PointLight0Position"];
-            pPl0Diffuse  = Parameters["PointLight0DiffuseColor"];
-            pPl0Specular = Parameters["PointLight0SpecularColor"];
-            pPl0Radius   = Parameters["PointLight0Radius"];
+            pPl0PosRad  = Parameters["PointLight0PositionAndRadius"];
+            pPl0DiffEna = Parameters["PointLight0DiffuseAndEnabled"];
 
-            pPl1Enabled  = Parameters["PointLight1Enabled"];
-            pPl1Position = Parameters["PointLight1Position"];
-            pPl1Diffuse  = Parameters["PointLight1DiffuseColor"];
-            pPl1Specular = Parameters["PointLight1SpecularColor"];
-            pPl1Radius   = Parameters["PointLight1Radius"];
+            pPl1PosRad  = Parameters["PointLight1PositionAndRadius"];
+            pPl1DiffEna = Parameters["PointLight1DiffuseAndEnabled"];
 
-            pPl2Enabled  = Parameters["PointLight2Enabled"];
-            pPl2Position = Parameters["PointLight2Position"];
-            pPl2Diffuse  = Parameters["PointLight2DiffuseColor"];
-            pPl2Specular = Parameters["PointLight2SpecularColor"];
-            pPl2Radius   = Parameters["PointLight2Radius"];
+            pPl2PosRad  = Parameters["PointLight2PositionAndRadius"];
+            pPl2DiffEna = Parameters["PointLight2DiffuseAndEnabled"];
+
+            pDl0PosRad  = Parameters["DynamicLight0PositionAndRadius"];
+            pDl0DiffEna = Parameters["DynamicLight0DiffuseAndEnabled"];
+
+            pDl1PosRad  = Parameters["DynamicLight1PositionAndRadius"];
+            pDl1DiffEna = Parameters["DynamicLight1DiffuseAndEnabled"];
 
             // Phase 3.8.B shadow uniforms (see field declarations above).
             pShadowParams        = Parameters["ShadowParams"];
@@ -1112,14 +1142,17 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             ApplyDirectional(DirectionalLight1, pDl1Diffuse, pDl1Specular);
             ApplyDirectional(DirectionalLight2, pDl2Diffuse, pDl2Specular);
 
-            ApplyPointLight(PointLight0, pPl0Enabled, pPl0Position, pPl0Diffuse, pPl0Specular, pPl0Radius);
-            ApplyPointLight(PointLight1, pPl1Enabled, pPl1Position, pPl1Diffuse, pPl1Specular, pPl1Radius);
-            ApplyPointLight(PointLight2, pPl2Enabled, pPl2Position, pPl2Diffuse, pPl2Specular, pPl2Radius);
+            ApplyPointLight(PointLight0, pPl0PosRad, pPl0DiffEna);
+            ApplyPointLight(PointLight1, pPl1PosRad, pPl1DiffEna);
+            ApplyPointLight(PointLight2, pPl2PosRad, pPl2DiffEna);
+
+            // §4.6 #2: dynamic transient lights (projectile glow / explosion).
+            ApplyPointLight(DynamicLight0, pDl0PosRad, pDl0DiffEna);
+            ApplyPointLight(DynamicLight1, pDl1PosRad, pDl1DiffEna);
 
             pFogEnabled?.SetValue(FogEnabled);
             pFogColor?.SetValue(FogColor);
-            pFogStart?.SetValue(FogStart);
-            pFogEnd?.SetValue(FogEnd);
+            pFogStartEnd?.SetValue(new Vector2(FogStart, FogEnd));
 
             pTextureEnabled?.SetValue(TextureEnabled && Texture != null);
             if (Texture != null)
@@ -1167,16 +1200,28 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             specularParam?.SetValue(Vector3.Zero);
         }
 
+        // §4.6 #2: packed-uniform push.
+        //   posRadParam  ← float4(slot.Position, slot.Radius)
+        //   diffEnaParam ← float4(slot.DiffuseColor, slot.Enabled ? 1 : 0)
+        // SpecularColor is not pushed — sun PointLights and dynamic lights
+        // both go through this path and neither contributes specular under
+        // the new shader layout. See PointLightSlot's struct comment.
         static void ApplyPointLight(PointLightSlot slot,
-            EffectParameter enabledParam, EffectParameter positionParam,
-            EffectParameter diffuseParam, EffectParameter specularParam, EffectParameter radiusParam)
+            EffectParameter posRadParam, EffectParameter diffEnaParam)
         {
-            enabledParam?.SetValue(slot.Enabled);
-            if (!slot.Enabled) return;
-            positionParam?.SetValue(slot.Position);
-            diffuseParam?.SetValue(slot.DiffuseColor);
-            specularParam?.SetValue(slot.SpecularColor);
-            radiusParam?.SetValue(slot.Radius);
+            if (slot.Enabled)
+            {
+                posRadParam?.SetValue(new Vector4(slot.Position, slot.Radius));
+                diffEnaParam?.SetValue(new Vector4(slot.DiffuseColor, 1f));
+            }
+            else
+            {
+                // The .w gate alone disables; positional values are inert
+                // when w<0.5 in the shader, so we only need to clear the
+                // enabled flag. Pushing zeros for both is also fine and
+                // keeps the GPU constants tidy across frames.
+                diffEnaParam?.SetValue(Vector4.Zero);
+            }
         }
     }
 }

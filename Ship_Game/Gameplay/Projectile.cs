@@ -746,13 +746,29 @@ namespace Ship_Game.Gameplay
         PointLight CreateLight()
         {
             var pos = new Vector3(Position.X, Position.Y, -25f);
+            // §4.6 #2: glow radius scales with projectile size. ProjectileRadius
+            // ranges from ~3 (rapid PD bolts) to ~48 (massive disruptors / lances)
+            // and the bolt sprite itself is drawn at 20 × ProjectileRadius × Scale,
+            // so a constant glow radius made small bolts read as overlit halos and
+            // big shells read as a tiny dot of light at the core. The 25× factor
+            // matches the legacy default (ProjectileRadius=4, Scale=1 → R=100,
+            // the historical SunBurn value) and the 500-unit cap keeps a massive
+            // shell from lighting up the whole formation.
+            //
+            // Intensity 3.5 compensates for the LDR forward path (no tone-mapped
+            // composite, so the same light reads dimmer than under SunBurn's
+            // deferred composite — see MIGRATION_LIMITATIONS.md item #5). Held
+            // constant across weapon sizes; bigger bolts already cover more
+            // pixels via the larger radius, so per-pixel brightness doesn't
+            // also need to scale up.
+            float glowRadius = (Weapon.ProjectileRadius * Weapon.Scale * 25f).Clamped(60f, 500f);
             var light = new PointLight
             {
                 Position = pos,
-                Radius = 100f,
+                Radius = glowRadius,
                 World = Matrix.CreateTranslation(pos),
                 ObjectType = ObjectType.Dynamic,
-                Intensity = 1.7f,
+                Intensity = 3.5f,
                 FillLight = true,
                 Enabled = true
             };

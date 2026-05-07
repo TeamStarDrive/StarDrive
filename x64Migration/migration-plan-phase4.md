@@ -324,6 +324,61 @@ Build matrix: `Release|x64` + `Debug|x64` both 0 warnings 0 errors. Test suite i
 
 ---
 
+## 4.6.B — Shader Profile Bump: FL9.3 → FL10.0
+
+**Goal**: Lift `vs_4_0_level_9_3` / `ps_4_0_level_9_3` to `vs_4_0` / `ps_4_0` across all `.fx` files. The FL9.3 target was inherited from the original 2013 game's Intel HD 3000 / GeForce 8-series minimum spec — pre-DX10 hardware that's now 18+ years old and effectively extinct on Steam. The FL9.3 PS const-pool cap (32 vec4 registers) is the binding constraint behind multiple §4.6 limitations (dynamic light cap of 2, point-light specular dropped, hard shadow edges, packed FogStartEnd, packed PointLight slots) and blocks several future features (HDR composite, environment cubemap, multi-caster shadows). Bumping to FL10.0 gets the full DX10 const buffer (~4096 registers) and unblocks the rest.
+
+**Surfaced from**: §4.6 #2 implementation review — user surfaced "why do we need to support pre-2008 GPU? it's 2026 and the game is from 2013".
+
+**Steps**:
+
+1. **Pre-flight: confirm minimum-spec promise.** Grep README, Steam-page metadata, in-repo docs (`*.md`), and any FAQ for "DX9", "DirectX 9", "Shader Model 3", "FL9.3", "Feature Level 9", or specific old-GPU promises (e.g. "Intel HD 3000"). If any exist, the bump becomes a user-facing minimum-spec change and needs a public note alongside the code change. If none exist (likely — the migration project's existing docs target modern dev environments only), the bump is purely internal.
+2. **Update release notes / minimum-spec documentation.** Regardless of whether step 1 found a pre-existing promise, the new build *does* drop pre-DX10 support and that's a user-visible compat change. Track this in two tiers — what gets updated **now**, vs what waits for **release**:
+   - **Now (in-repo, dev-facing)**: append the bump to `RELEASE_NOTES.md` / `CHANGELOG.md` (rolling release-prep doc, updated as work lands), in-repo migration docs (`MIGRATION_LIMITATIONS.md` — flag #4.6.B as resolving items #1, #2, #3, #4, #6 but introducing the DX10 floor), and the §4.6.B commit message itself so the bump is discoverable from `git log`.
+   - **At release (user-facing)**: top-level `README.md`, the Steam page (if applicable), the modding-community wiki / forum sticky if any. Defer until the project actually ships — no point telling users about a minimum-spec change while the migration is still in flight, and the wording is easier to finalize once the released-state spec is fully known. Track as a release-checklist item rather than a §4.6.B step.
+   - Standard wording (use in all locations): "Minimum GPU is now DirectX 10 / Feature Level 10.0 (any GeForce 8400+ / Radeon HD 2400+ / Intel HD 4000+ / 2008+). Pre-DX10 hardware is no longer supported."
+3. **Audit the shader corpus.** Grep `game/Content/Effects/*.fx` for `vs_4_0_level_9_3` / `ps_4_0_level_9_3` — record the full list. Expected hits: `MeshLighting.fx`, `SkinnedEffect.fx`, plus the post-process shaders (`BloomExtract`, `BloomCombine`, `GaussianBlur`, `desaturate`, `scale`, `Clouds`, `PlanetHalo`, `BeamFX`, `Distort`, `Thrust`, `BasicFogOfWar`, `Shadow`, `Simple`, `ParticleEffect`).
+4. **Bump technique passes.** Replace `_4_0_level_9_3` → `_4_0` in every `.fx` technique. Recompile each via `mgfxc` to confirm no shader hits a previously-unknown FL10.0-specific issue (none expected — FL10.0 is a strict superset of FL9.3 features).
+5. **Smoke-test the build.** `dotnet build StarDrive.csproj` clean. Run the Graphics-tag unit tests (`dotnet test --filter "FullyQualifiedName~Graphics"`) — should all pass unchanged because the tests check parameter existence, not register counts.
+6. **Walk the lit visuals.** Universe view, ship designer hangar, combat scene with weapons firing, planet halo at low N·L, FOW reveal at sensor-circle edge. Each should look identical to pre-bump — no FL10.0 path gives different output for the same constants. If anything diverges, root-cause before proceeding.
+7. **Decide on packing rollback.** The §4.6 #2 packing (PointLight slots packed to PositionAndRadius+DiffuseAndEnabled, sun PointLight specular dropped, FogStartEnd packed) was forced by the FL9.3 register cap. With FL10.0, the cap is gone. Two paths:
+   - **(a) Keep the packing**: zero downside beyond denser shader code. Status-quo behavior. Lowest risk.
+   - **(b) Restore separate uniforms**: unpacks the float4-packed slots and brings back PointLight specular. Cleaner shader code, restores the §4.6 #2 limitation entry to "no longer applies". Recommend (b) as a follow-up, separate commit, after any blow-out testing.
+
+**§4.6.B prerequisite tracker** — these limitations log entries in `MIGRATION_LIMITATIONS.md` are downstream of FL9.3 and become resolvable once §4.6.B lands:
+
+- #1 Dynamic projectile lights cap of 2 — FL10.0 unlocks 8+ slots cheaply.
+- #2 Point-light specular dropped — restore in the unpacking pass (path (b) above).
+- #3 Single shadow caster — multi-caster needs more shadow samplers, fits comfortably in FL10.0.
+- #4 Hard 1-tap shadow edges (no PCF) — PCF kernel adds shader instructions, FL9.3 was tight on instruction count too.
+- #6 3 fixed PointLights per system anchor — more sun slots become viable.
+
+**Tests added**: None automated. The Graphics-tag tests already cover parameter-surface regression.
+
+**Verification**:
+- All `.fx` files compile under FL10.0 via `mgfxc`.
+- `dotnet test --filter "FullyQualifiedName~Graphics"` passes (currently 22 tests).
+- Visual smoke (universe + combat + UI) — no perceptible regression vs the FL9.3 build.
+- Optional: capture before/after shader-disasm via `mgfxc /OutputDirectory:asm` for `MeshLighting.fx` to confirm the bumped profile generates equivalent code.
+
+**Rollback**: Single revert. Each `.fx` change is one line. The C# `LightingEffect` parameter handles still resolve under either FL9.3 or FL10.0 because the uniform names didn't change.
+
+**Risk**: Low. FL10.0 is a strict superset; no FL9.3 feature is dropped. The user-facing risk is narrow (someone with genuinely pre-DX10 hardware loses the ability to launch — the game would fail at shader load). Pre-flight step 1 is the gate that determines whether this risk is real.
+
+---
+
+### 4.6.B follow-up: keeping a soft cap on visible projectile glows
+
+After FL10.0 lifts the register cap, the question of "how many projectile glows simultaneously" becomes a perf/aesthetic decision rather than a hardware constraint. Three layers can enforce a cap independently:
+
+1. **Shader slot count (hard cap)**. Even with abundant register budget, the shader still iterates a fixed N slots per pixel. Pick N for predictable per-pixel cost (e.g. 8 — keeps shader fast on integrated GPUs, generous enough that 99% of scenes never saturate). N can be larger if HDR/composite work lands and PS perf is no longer the bottleneck.
+2. **C# binder selection (soft cap, perceptual)**. The binder (`LightingEffectBinder.Apply`) already iterates all submitted lights and picks the closest by XY distance. Whether 8 slots are filled or only 4 is decided here based on what's nearest the camera. Off-screen and far-from-camera lights drop out naturally.
+3. **Submission-time queue cap (existing)**. `GlobalStats.MaxDynamicLightSources` (currently 100, configurable via `app.config` and Options screen) already gates how many lights can exist in `LightManager.ActiveLights` at once. Acts as a global throttle independent of the binder.
+
+This three-layer setup means the cap on visible glows is intentional, not a hardware fallout. Useful for tuning busy-fleet perf without re-touching shader code: lower #2's "fill" count, or lower #3's queue cap for low-end machines via the existing Options slider.
+
+---
+
 ## 4.7 — Mesh-Export Toolchain Decision
 
 **Goal**: Pick one of the three options preserved in `project_phase4_legacy_mesh_export_sync.md` and execute it. Stop the situation where re-exports require a manual cross-branch toolchain switch.
