@@ -129,8 +129,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
    - Save → reload → re-render: state survives.
 7. If any hull regresses, capture the offending bone diagnostic via the `Ship17EndToEndTest` pattern (BindPose T/R/S vs frame-0 dump), root-cause, and apply the fix uniformly (likely a §3.10.B.8 follow-up, not a Combined-Arms-specific bug).
 
-**Tests added**:
-- `UnitTests/Data/CombinedArmsExportSweepTests.cs` *(if Combined Arms ships are stable enough to pin)* — for one or two representative skinned hulls, assert `LoadStaticMesh → CreateSceneObject` succeeds, `IsSkinned`, `SkinningPalette` is NaN-free at rest. Mirrors `Ship17EndToEndTest` shape.
+**Tests added**: none. Skipped per user call at §4.2 close (2026-05-07): Combined Arms hull XNBs are mod-owned and re-exported on demand, not pinned content; pinning a unit test against a representative hull would couple the test suite to mod-side asset stability. Smoke is the gate.
 
 **Verification**:
 - Combined Arms loads and renders end-to-end.
