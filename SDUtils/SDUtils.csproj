@@ -30,6 +30,8 @@
     <Optimize>true</Optimize>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <!-- §4.3 warning gate; matches StarDrive.csproj. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

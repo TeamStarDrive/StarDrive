@@ -14,6 +14,10 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <!-- Phase 2.6.A pattern (matches StarDrive.csproj): we don't run the MGCB
+         build pass here either — fonts are baked manually via mgfxc, and the
+         empty .mgcb run prints a "No Content References Found" warning. -->
+    <EnableMGCBItems>false</EnableMGCBItems>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -27,6 +31,8 @@
     <Optimize>true</Optimize>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <!-- §4.3 warning gate; matches StarDrive.csproj. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

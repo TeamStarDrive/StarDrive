@@ -173,6 +173,8 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <DisableSpecificWarnings>4251;26812;</DisableSpecificWarnings>
+      <!-- §4.3: warning gate. Matches SDNative.vcxproj. -->
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

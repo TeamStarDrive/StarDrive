@@ -46,6 +46,9 @@
     <Optimize>true</Optimize>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <!-- §4.3: warning gate. Release|x64 is the ship config; Debug / DebugAutoFast /
+         ReleaseAutoFast / Deploy stay warning-tolerant for active development. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

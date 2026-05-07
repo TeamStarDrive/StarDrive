@@ -33,6 +33,10 @@
     <Optimize>true</Optimize>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <!-- §4.3 warning gate; matches StarDrive.csproj.
+         If a future MSTest analyzer bump introduces new noise that's not actionable,
+         the right fix is a targeted NoWarn here, not lifting the gate. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <!-- Inherit Range alias from StarDrive (net8 System.Range collision). -->
