@@ -104,7 +104,25 @@ namespace Ship_Game.Data.Mesh
             for (int i = 0; i < allBones; ++i)
             {
                 ModelBone b = model.Bones[i];
-                SDMeshAddBone(mesh, b.Name, b.Index, b.Parent?.Index ?? -1, new Matrix(b.Transform));
+                // Phase 3.10.B.8: decompose ModelBone.Transform into T/R/S in C# and
+                // pass through SDMeshAddBoneTRS instead of letting C++ rpp::Matrix4
+                // do the extraction. rpp's getRotationAngles assumes a column-vector
+                // intrinsic-XYZ matrix; XNA's Matrix is row-vector with the same byte
+                // layout, so the bytes look like the transposed (= inverse) rotation
+                // and the extracted Eulers come back negated. The keyframe path below
+                // already converts via QuatToEulerXYZDegrees from XnaQuaternion, so
+                // routing the bind pose through the same helper aligns the two
+                // conventions and stops bind/keyframe Eulers from disagreeing.
+                b.Transform.Decompose(out Microsoft.Xna.Framework.Vector3 xnaScale,
+                                      out XnaQuaternion xnaQuat,
+                                      out Microsoft.Xna.Framework.Vector3 xnaTrans);
+                var bindPose = new SdBonePose
+                {
+                    Translation = new Vector3(xnaTrans),
+                    Rotation = QuatToEulerXYZDegrees(xnaQuat),
+                    Scale = new Vector3(xnaScale),
+                };
+                SDMeshAddBoneTRS(mesh, b.Name, b.Index, b.Parent?.Index ?? -1, bindPose);
             }
 
             int animatedBones = animBones.Count;
