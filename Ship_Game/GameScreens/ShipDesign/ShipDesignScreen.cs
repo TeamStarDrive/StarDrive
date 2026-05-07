@@ -14,6 +14,9 @@ using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 using Ship_Game.UI;
 using Ship_Game.Universe;
+using SynapseGaming.LightingSystem.Lights;
+// SunBurn + MonoGame both define DirectionalLight; we want SunBurn's here.
+using DirectionalLight = SynapseGaming.LightingSystem.Lights.DirectionalLight;
 using Point = SDGraphics.Point;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -428,12 +431,62 @@ namespace Ship_Game
             InitializeCamera();
             ScreenManager.StartMusic("ShipyardTheme");
             AssignLightRig(LightRigIdentity.Shipyard);
+            SetupShipyardLighting();
 
             ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad(Player);
             if (lastWIP != null)
                 ChangeHull(lastWIP);
             else
                 ChangeHull(AvailableHulls[0]);
+        }
+
+        // §4.6.B(b) follow-up: Pre-migration the shipyard scene was lit by a
+        // SunBurn `.lightRig` content file (now stub'd, MIGRATION_LIMITATIONS
+        // entry #7). Without it, AssignLightRig clears all lights and
+        // submits none — high-spec materials like Cordrazine read flat-black
+        // because there's no direction for the half-vector specular peak to
+        // align against. Mirrors BasicEffect's classic 3-directional Key /
+        // Fill / Back rig (matches the canonical SunBurn shipyard look:
+        // strong key from upper-front, warm fill from below-rear, cool rim
+        // from upper-side). All 3 lights contribute specular so the binder
+        // can give the shader 3 chances to fire `pow(N·H, SpecularPower)` on
+        // each visible hull pixel.
+        void SetupShipyardLighting()
+        {
+            AddLight(new DirectionalLight
+            {
+                Name         = "Shipyard Key",
+                Direction    = new Vector3(-0.5265408f, -0.5735765f, -0.6275069f),
+                DiffuseColor = new Vector3(1f, 0.9607844f, 0.8078432f),
+                Intensity    = 1.0f,
+                Enabled      = true,
+            }, dynamic: false);
+            AddLight(new DirectionalLight
+            {
+                Name         = "Shipyard Fill",
+                Direction    = new Vector3(0.7198464f, 0.3420201f, 0.6040227f),
+                DiffuseColor = new Vector3(0.9647059f, 0.7607844f, 0.4078432f),
+                Intensity    = 0.6f,
+                Enabled      = true,
+            }, dynamic: false);
+            AddLight(new DirectionalLight
+            {
+                Name         = "Shipyard Back",
+                Direction    = new Vector3(0.4545195f, -0.7660444f, 0.4545195f),
+                DiffuseColor = new Vector3(0.3231373f, 0.3607844f, 0.3937255f),
+                Intensity    = 0.5f,
+                Enabled      = true,
+            }, dynamic: false);
+            // Neutral white ambient at moderate strength — replaces the
+            // SceneInstance default `(40,60,110) × 0.75` violet that washes
+            // dark hulls into purple. The shipyard is a fixed-camera 3D view
+            // where the user expects the hull's *real* color to show.
+            AddLight(new AmbientLight
+            {
+                Name         = "Shipyard Ambient",
+                DiffuseColor = Color.White.ToVector3(),
+                Intensity    = 0.15f,
+            }, dynamic: false);
         }
 
         void OnReloadAfterTechChange()

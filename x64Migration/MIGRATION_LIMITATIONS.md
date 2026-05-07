@@ -15,9 +15,47 @@ Entries follow a consistent shape:
 
 ---
 
+## §4.6.B status note (2026-05-07)
+
+`MeshLighting.fx`, `SkinnedEffect.fx`, and `Distort.fx` were bumped from
+`vs_4_0_level_9_3` / `ps_4_0_level_9_3` to `vs_4_0` / `ps_4_0`. The
+`ps_4_0_level_9_3` 32-vec4 PS const-register cap that drove §4.6 #2's
+packing decisions is no longer the binding constraint — FL10.0's pool is
+~4096 registers. New minimum-spec is now DirectX 10 / Feature Level 10.0
+(any GeForce 8400+ / Radeon HD 2400+ / Intel HD 4000+ / 2008+).
+
+**Status of entries downstream of the FL9.3 cap**:
+
+- **#1 Dynamic projectile / explosion lights capped at 2** — ✅ **Resolved**
+  in the §4.6.B(b) follow-up (same commit as this status note). Slot
+  count expanded to 8 in `MeshLighting.fx` + `SkinnedEffect.fx`;
+  `LightingEffectBinder` now insertion-sorts the 8 closest by XY; entry
+  text below kept for historical context.
+- **#2 Point-light specular contribution dropped** — ✅ **Resolved** in
+  the same follow-up. `ComputePoint` returns `LightTerms` (diffuse +
+  specular) again; per-slot `SpecularColor` uniform pushed by `OnApply`;
+  `LightingEffectBinder` sets sun PointLight specular at 1.0× of
+  diffuse and dynamic at 0.6× (matching the directional path).
+- **#3 Single shadow caster** — register cap was a contributor. Multi-
+  caster still needs additional `ShadowMap` samplers + matrix uniforms
+  + a PS loop, which now fit comfortably. Outstanding.
+- **#4 Hard 1-tap shadow edges (no PCF)** — instruction-cap cousin of
+  the register cap. PCF kernel is now affordable; outstanding work is
+  the shader edit itself.
+- **#6 3 fixed PointLights per system anchor** — slot count is now a
+  code decision, not a hardware one. Outstanding (no current need has
+  surfaced — the 3-slot Key/LocalFill/OverSat layout matches SunBurn).
+
+Entry **#9 (Custom shaders constrained to FL9.3)** is rewritten below to
+describe the new FL10.0 floor.
+
+---
+
 ## Dynamic projectile / explosion lights capped at 2 simultaneous
 
-Phase 4.6 §2.
+Phase 4.6 §2 — **resolved** in §4.6.B(b) (2026-05-07): cap raised from 2
+to 8 after FL10.0 lifted the register-cap forcing function. Entry text
+preserved below for historical context.
 
 **Limit.** Only the 2 dynamic point lights closest to the camera (XY distance)
 tint nearby ship hulls at any moment. Pre-migration SunBurn ran an unbounded
@@ -61,7 +99,9 @@ the eye still reads "lots of glowing bolts."
 
 ## Point-light specular contribution dropped
 
-Phase 4.6 §2 — same register-budget fix as the dynamic-light cap above.
+Phase 4.6 §2 — **resolved** in §4.6.B(b) (2026-05-07): per-slot
+`SpecularColor` uniform restored on all 11 point-light slots (3 sun + 8
+dynamic). Entry text preserved below for historical context.
 
 **Limit.** Sun-anchor PointLights (Key / LocalFill / OverSaturationKey) and
 dynamic lights (projectile glow, explosion flash, shield impact) no longer
@@ -262,34 +302,43 @@ is the more pragmatic path and is already in place.
 
 ---
 
-## Custom shaders constrained to `ps_4_0_level_9_3`
+## Custom shaders constrained to `ps_4_0` (DX10 / FL10.0)
 
-Phase 2.6.A onward.
+Phase 2.6.A onward; profile bumped from FL9.3 to FL10.0 in §4.6.B
+(2026-05-07) for `MeshLighting.fx`, `SkinnedEffect.fx`, `Distort.fx`. The
+remaining 12 post-process / blend / blur shaders (`BloomCombine.fx`,
+`BloomExtract.fx`, `GaussianBlur.fx`, `BeamFX.fx`, `BasicFogOfWar.fx`,
+`Clouds.fx`, `desaturate.fx`, `PlanetHalo.fx`, `scale.fx`, `Simple.fx`,
+`Shadow.fx`, `Thrust.fx`) stay at `_4_0_level_9_1` because they had
+register / instruction headroom and don't benefit from the bump — but
+they run identically on DX10+ hardware (FL10 is a strict superset).
 
-**Limit.** All migration `.fx` shaders compile under MGFX 3.8.1 to
-`ps_4_0_level_9_3` / `vs_4_0_level_9_3`. PS const float pool capped at 32
-vec4 registers; no compute shaders; no Shader Model 5 features (UAVs,
-tessellation, structured buffers); 64-instruction loops max. SunBurn-era
-XNA `Effect` ran on whatever XNA shipped (typically SM3.0 with looser
-register limits and richer parameter binding).
+**Limit.** All migration `.fx` shaders compile under MGFX 3.8.1 against
+the standard DX10 feature set: no compute shaders; no Shader Model 5
+features (UAVs, tessellation, structured buffers); no geometry shaders.
+SunBurn-era XNA `Effect` ran whatever XNA shipped (SM3.0 with the SM3.0
+fixed-function blend pipeline and richer parameter binding).
 
-**Why.** FL9.3 is the lowest viable feature level for DX11 forward
-rendering, and the project chose it to retain pre-2008-class GPU
-compatibility (the StarDrive minimum spec). Bumping to `ps_4_0` gets the
-full DX10 const buffer (~4096 registers) and SM4 features but drops
-support for FL9.x hardware.
+**Why.** FL10.0 is a hard floor on all reasonable target hardware (any
+2008+ GPU). Going past FL10.0 to FL11.0 would buy compute shaders + UAVs
+but cut off ~2008–2010 hardware that's still in active use on Steam's
+long tail.
 
-**Impact.** Several migration features had to work around the register cap
-— this doc's first two entries (dynamic light cap, point-light specular
-drop) are direct consequences. `MeshLighting.fx`'s shadow path uses 1-tap
-sampling instead of PCF for the same reason. New visual features
-(volumetric fog, screen-space reflections, advanced post-processing) would
-need the bigger register / instruction budget.
+**Impact.** New visual features that genuinely need SM5 (volumetric fog
+via compute prefix-sum, screen-space reflections via UAV history buffer,
+GPU-driven culling) are out of reach without an additional profile bump.
+Forward shading + bloom + 1-tap shadow + IBL all sit comfortably in
+FL10.0's budget.
 
-**Path to remove.** Bump shader profile to `ps_4_0` (DX10 / FL10.0
-hardware). Likely fine on any system from ~2008 forward; loses
-compatibility with older integrated chipsets that still claimed FL9.3.
-Project decision rather than code work.
+**Hardware floor.** Minimum GPU is now DirectX 10 / Feature Level 10.0:
+any GeForce 8400+ (2007+), Radeon HD 2400+ (2007+), Intel HD 4000+
+(2012+; HD 2000/3000 were FL9.3-only). Pre-DX10 hardware is no longer
+supported.
+
+**Path to remove.** Bump shader profile to `ps_5_0` (DX11 / FL11.0)
+across all `.fx` files when SM5 features become a hard requirement. Loses
+compatibility with the 2008-era DX10-only chipsets but unlocks the full
+modern shader pipeline. Project decision rather than code work.
 
 ---
 

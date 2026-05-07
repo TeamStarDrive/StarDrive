@@ -268,7 +268,14 @@ namespace Ship_Game
             Color color     = system.Sun.LightColor;
             float intensity = system.Sun.LightIntensity;
             float radius    = system.Sun.Radius;
-            var light1 = AddLight("Key",               system, intensity,         radius,         color, -5500);
+            // §4.6.B(b) test: Key Z bumped from -5500 → -50000 to steepen the
+            // toLight vector at the play plane. With the sun close to ship z=0,
+            // the light direction was nearly grazing — half-vector specular
+            // peaks barely landed on top hull faces. Moving the sun far above
+            // gives a more uniform overhead-light direction across the active
+            // system. Sun radius is ~150k so the new distance still falls in
+            // the ~89% intensity band of the smooth-quadratic falloff.
+            var light1 = AddLight("Key",               system, intensity,         radius,         color, -50000);
             var light2 = AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
             var light3 = AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
             //AddLight("Back", system, intensity * 0.5f , radius, color, 2500, fallOff: 0, fillLight: true);

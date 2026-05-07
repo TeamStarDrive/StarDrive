@@ -102,11 +102,12 @@ technique Distort
 {
     pass Pass1
     {
-        // ps_4_0_level_9_3 (SM3.0 hardware): the 8-slot unrolled loop with
-        // sin() and length() per slot busts the 96-instruction ps_2_0 cap
-        // (level_9_1 fallback). 9_3 raises it to 512 and matches the profile
-        // already used by MeshLighting.fx, so no driver-class regression.
-        VertexShader = compile vs_4_0_level_9_3 VSPassthrough();
-        PixelShader  = compile ps_4_0_level_9_3 PSDistort();
+        // §4.6.B: bumped FL9.3 → FL10.0 in lockstep with MeshLighting /
+        // SkinnedEffect. Distort never hit FL9.3's instruction cap — the
+        // 8-slot unrolled loop fit comfortably — but matching the static
+        // mesh effect's profile keeps the project on a single hardware
+        // floor (DX10 / 2008+) rather than a fragmented per-shader spec.
+        VertexShader = compile vs_4_0 VSPassthrough();
+        PixelShader  = compile ps_4_0 PSDistort();
     }
 }

@@ -130,6 +130,15 @@ namespace Ship_Game.Universe.SolarBodies
             fx.SpecularColorMapTexture = SpecularTex;
             fx.SpecularPower = SpecularPower; // default: 4
             fx.SpecularAmount = 0.25f; // default: 0.25
+            // §4.6.B(b) follow-up: planets are matte spheres of rock + cloud,
+            // not chrome balls. The forward shader's restored point-light
+            // specular (1.0× sun.DiffuseColor) combined with this material's
+            // SpecularPower=4 (very wide N·H falloff — half the sphere
+            // reflects) lit the planet like a mirror. SunBurn pre-migration
+            // showed planets matte; opt this material out of the per-light
+            // specular path entirely. Subtle ocean-shine could come back
+            // later via the SpecularMap channel if the artist wants it.
+            fx.SpecularColor = Vector3.Zero;
             fx.FresnelReflectBias = 0.0f; // default: 0
             fx.FresnelReflectOffset = 1.0f; // default: 1
             fx.FresnelMicrofacetDistribution = 0.4f; // default: 0.4
