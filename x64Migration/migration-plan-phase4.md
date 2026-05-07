@@ -68,7 +68,7 @@
 | # | Title | Risk |
 |---|---|---|
 | 4.1 | Baseline checkpoint, Phase 4 branch, runtime + perf baseline — **DONE 2026-05-07** (tag `phase4-start` at `781a00f18`; build matrix 100/100/99/99/91 warnings, 0 errors; perf baseline vsync-locked at 60 Hz across MainMenu/Universe/Combat) | Low |
-| 4.2 | Combined Arms regression sweep (mod compat — first) | Medium |
+| 4.2 | Combined Arms regression sweep (mod compat — first) — **DONE 2026-05-07** (re-exported on legacy/mesh_exporter_xna31: 196/197 model FBX, 1 orphan `Vulfar/Alpha.xnb` benign-fail; copied corpus alongside CA xnbs; deleted 336 duplicate xnbs (56.4 MB) now superseded by FBX/.dds siblings; smoke clean — CA v8.7i loads, MainMenu+Universe render, 0 errors, 0 missing-texture warnings) | Medium |
 | 4.3 | Build hygiene: zero warnings on `Release\|x64` | Low–Medium |
 | 4.4 | Performance baseline + targeted optimization | Medium |
 | 4.5 | Backlog finishes: YouLose desaturate, light rig data rebake | Medium |

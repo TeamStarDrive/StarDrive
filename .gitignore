@@ -100,7 +100,8 @@ game/SDNativeTests.pdb
 game/Content/spellchecker.txt
 game/MeshExport/
 game/MeshExport_Old/
-game/Mods/
+game/Mods/*
+!game/Mods/ExampleMod/
 game/PatchTemp/
 Deploy/GeneratedFilesList.nsh
 Deploy/GeneratedFilesList.txt
