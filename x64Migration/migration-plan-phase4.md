@@ -77,6 +77,7 @@
 | 4.8 | NanoMesh upstream PR | Low |
 | 4.9 | Steam SDK x64 via Steamworks.NET | Medium |
 | 4.10 | Phase 4 close: PHASE4_RESULTS.md, ARCHITECTURE.md update, sign-off | Low |
+| 4.11 | Cut 1.6.0 release: signed installer + zip + Steam-folder install path | Medium |
 
 Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or `git reset --hard <tag>`.
 
@@ -422,6 +423,124 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ---
 
+## 4.11 — Cut 1.6.0 Release: Signed Installer + ZIP + Steam-folder Install Path
+
+**Goal**: Ship the first post-migration public release as **BlackBox 1.6.0**. Three new capabilities relative to the 1.51 release machinery: (a) signed binaries and installer so Windows Defender SmartScreen doesn't flag the download as a potential virus, (b) a Steam-folder install option that replaces the original StarDrive1 install when the user has it on Steam, (c) UAC elevation handling so writes into `Program Files (x86)\Steam\steamapps\...` actually succeed.
+
+**Context — what the 1.51 release looked like** (from `Deploy/`, `README.md`, GitHub releases page):
+- Version string lives in `Properties/AssemblyInfo.cs::AssemblyVersion`. Current value: `1.51.15100`. Pattern: `MAJOR.MINOR.BUILD` (mod version + monotonic build counter from AppVeyor's `APPVEYOR_BUILD_VERSION`).
+- Three installer artefacts produced by `Deploy/MakeInstaller.py`:
+  - **NSIS** (`BlackBox-Mars.nsi` full / `BlackBox-Mars-Patch.nsi` cumulative patch) → `Deploy/upload/BlackBox_Mars_<version>.exe`
+  - **ZIP** (7za, split into 25MB chunks for upload size limits) → `Deploy/upload/BlackBox_Mars_<version>.zip` or `001-...zip`, `002-...zip`, ...
+  - **MSI** (Wix, `Deploy/SDInstaller.wixproj` + `Deploy/Product.wxs`) — kept around but not the primary distribution channel
+- Default install path: `C:\Games\StarDrivePlus` (NSIS line 76 in `Deploy/BBInstaller.nsi`). Steam-detection code is commented out at lines 70–74 — the previous team had it in mind but disabled it, almost certainly because the installer doesn't request UAC elevation today.
+- Distribution: GitHub Releases at `https://github.com/TeamStarDrive/StarDrive/releases/tag/mars-release-1.51`. `notify-sentry-of-release.bash` posts a Sentry release record. README points users at the release page.
+- Auto-update: in-game logic checks for newer patch versions on launch and prompts to install; works for cumulative patches on top of a major release.
+- AppVeyor CI used to build the artefacts (`README.md` shows the badge); the current repo has no `appveyor.yml` checked in — the CI config either lives in AppVeyor's web UI or was on a branch we haven't visited.
+
+### Sub-steps
+
+**§4.11.A — Version bump + release notes**
+1. Bump `Properties/AssemblyInfo.cs::AssemblyVersion` from `1.51.15100` to `1.6.0.<build>`. The build counter convention (`15100`-style) is set by AppVeyor; pick the first build number for the post-migration cycle (e.g., `1.6.0.16000` to leave a clear gap from the 1.51 line).
+2. Update README.md "Current Major Release Link" to point at the to-be-created `mars-release-1.6.0` tag. Replace the "BlackBox - Hyperion" future-goals list (the migration is now done) with a "BlackBox 1.6.0 — 64-bit + MonoGame" achievements list.
+3. Author `RELEASE_NOTES_1.6.0.md` summarizing user-visible changes since 1.51:
+   - 64-bit engine (no more 4 GB limit; Combined Arms + huge galaxies stable).
+   - MonoGame 3.8 renderer (XNA + SunBurn replaced).
+   - All 6 broken effects restored (BeamFX, scale, Thrust, desaturate, BasicFogOfWar, PlanetHalo).
+   - Skinned/animated mesh playback (Ralyeh ship17 family articulates).
+   - Material maps (normal/specular/emissive) on all hulls.
+   - Bloom + screen-space distortion + fog-of-war post-process passes.
+   - Basic shadow maps.
+   - Steam SDK x64 via Steamworks.NET (achievements/stats/cloud saves work in 64-bit).
+   - Combined Arms compatible.
+
+**§4.11.B — Code signing**
+
+The blocker today: an unsigned EXE downloaded from the internet triggers SmartScreen "Windows protected your PC" dialog, which 9 out of 10 users dismiss as malware. We need an authenticode signature on `StarDrive.exe`, `SDNative.dll`, and the installer EXE itself.
+
+**Signing options** (pick one in §4.11 entry):
+
+| Option | Cost | Reputation | Notes |
+|---|---|---|---|
+| **Microsoft Trusted Signing** | ~$10/month | Inherits Microsoft's reputation immediately | New service (formerly Azure Code Signing). Requires Azure account + identity verification. **Recommended.** |
+| **EV code-signing certificate** (DigiCert / Sectigo) | ~$300–$500/year | Skips SmartScreen warning from day 1 | Hardware token shipping required; less convenient for community projects. |
+| **OV code-signing certificate** | ~$80–$200/year | Builds reputation over weeks/months of downloads | Cheapest paid option but doesn't immediately defeat SmartScreen — early users still see warnings until reputation builds. |
+| **Self-signed** | Free | None — SmartScreen always flags | Only useful for internal testing. Not for public release. |
+
+Steps:
+1. Pick the signing approach. **Default recommendation: Microsoft Trusted Signing** for the cost/reputation balance.
+2. Acquire the certificate / set up Trusted Signing identity validation.
+3. Sign the binaries via `signtool.exe` after the build, before the installer is packaged. Three things get signed:
+   - `game/StarDrive.exe`
+   - `game/SDNative.dll`
+   - The installer EXE itself (sign as the last step, after MakeInstaller produces it)
+4. Add a signing step to the build pipeline:
+   ```powershell
+   signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "$file"
+   ```
+   The `/tr` timestamp ensures the signature stays valid after the cert expires.
+5. Verify on a clean Windows install: download the installer through a browser, run it, confirm SmartScreen does NOT show "Windows protected your PC".
+
+**§4.11.C — Steam-folder install path**
+
+Steam typically installs StarDrive 1 to `C:\Program Files (x86)\Steam\steamapps\common\StarDrive\`. Writing there requires UAC elevation (the current installer doesn't request it, which is why the Steam-detection code in `Deploy/BBInstaller.nsi` lines 70–74 is commented out).
+
+Steps:
+1. Add UAC manifest to the NSIS installer:
+   ```nsis
+   RequestExecutionLevel admin
+   ```
+   This makes the installer prompt for elevation on launch. Without it, writes to `Program Files (x86)` silently fail or get redirected to `%LOCALAPPDATA%\VirtualStore`.
+2. Uncomment and finalize the `CheckSteam` block in `Deploy/BBInstaller.nsi`:
+   ```nsis
+   ReadRegStr $STEAMDIR HKLM "SOFTWARE\WOW6432Node\Valve\Steam" InstallPath
+   StrCmp $STEAMDIR "" SetDefaultPath 0
+   StrCpy $INSTDIR "$STEAMDIR\SteamApps\common\StarDrive"
+   ```
+3. **Make Steam install opt-in**, not default — present a radio-button page with two choices:
+   - **Replace original StarDrive 1 in Steam folder** (default if Steam install detected)
+   - **Install to standalone folder** (default `C:\Games\StarDrivePlus`)
+4. When the Steam path is chosen and an existing StarDrive 1 install is present:
+   - Back up the original `StarDrive.exe` + `Content/` to `<INSTDIR>\Original_StarDrive_Backup\` so the user can restore later.
+   - Show a confirmation dialog: "This will replace your original StarDrive 1 with BlackBox 1.6.0. The original files will be backed up to Original_StarDrive_Backup/. Continue?"
+   - Verify Steam isn't running; abort with a clear message if it is (Steam files lock under steamapps/common).
+5. After install completes, leave the Steam manifest alone — Steam's manifest still says "StarDrive 1.0", but the launcher binary is now BlackBox 1.6.0. Document this in the release notes (Steam will not auto-update over our install; user can right-click → Properties → Verify Integrity to roll back).
+
+**§4.11.D — Build pipeline + tag + GitHub release**
+1. Re-baseline the AppVeyor (or alternative CI) config if needed. The current README badge points at `ci.appveyor.com/project/RedFox20/stardrive` — confirm whether that pipeline is still the active one or whether we need to migrate to GitHub Actions.
+2. Tag `mars-release-1.6.0` on the merged Phase 4 branch.
+3. AppVeyor (or local) build produces:
+   - `BlackBox_Mars_1.6.0.<build>.exe` (signed NSIS installer)
+   - `BlackBox_Mars_1.6.0.<build>.zip` (split into 25 MB parts if >25 MB)
+   - Optional: `BlackBox_Mars_1.6.0.<build>.msi` (Wix)
+4. Upload to GitHub Releases under tag `mars-release-1.6.0`. Body = `RELEASE_NOTES_1.6.0.md` content.
+5. Run `Deploy/notify-sentry-of-release.bash` with `APPVEYOR_BUILD_VERSION=1.6.0.<build>`.
+6. Update README.md "Current Major Release Link" to point at the new release.
+
+**§4.11.E — Smoke test on three install scenarios**
+1. **Clean machine, standalone install** (`C:\Games\StarDrivePlus`): download installer via Edge or Chrome, run it, confirm no SmartScreen warning, complete install, launch game.
+2. **Clean machine, Steam install**: same as above but pick the Steam-folder option. Confirm Steam still launches StarDrive (now showing BlackBox 1.6.0). Confirm achievements/stats round-trip via §4.9.
+3. **Existing 1.51 install**: install over the top. Confirm registry path detection (`HKLM\Software\StarDrive\InstallPath`) drops the new files into the right place. Confirm save-game files aren't clobbered.
+
+### Tests added
+- `Deploy/SignedBinaryCheck.ps1` *(release-build CI helper)* — runs `signtool.exe verify /pa /v` against `StarDrive.exe`, `SDNative.dll`, and the installer EXE. Fails the build if any binary is unsigned or has an expired timestamp.
+
+### Verification
+- All three smoke scenarios pass with no SmartScreen warning.
+- `signtool verify` reports valid Authenticode signatures on the three target binaries.
+- GitHub Release `mars-release-1.6.0` is published with installer, ZIP (and parts), and release notes.
+- README updated; Sentry release record posted.
+- 1.51 → 1.6.0 in-place upgrade preserves saves.
+
+### Rollback
+- Pull the GitHub Release (un-publish; preserves URL but takes the artefacts down).
+- Revert version bump, README change, and signing-pipeline commits via `git revert`. The unsigned 1.51 binaries are unaffected — users on 1.51 stay on 1.51 until they choose to upgrade.
+
+### Risk
+**Medium.** Signing infrastructure is the unknown — Trusted Signing setup involves Microsoft identity verification with unpredictable timing (1–14 days). If signing isn't ready by §4.11 entry, ship 1.6.0 unsigned (acceptable for the existing 1.51 audience who already trust the source) and follow up with a 1.6.0.<build+1> signed patch. Steam-folder install is straightforward but the UAC elevation change introduces a UX shift — old users running the installer without admin rights now hit an elevation prompt; document this in release notes.
+
+---
+
 ## Cross-cutting Concerns
 
 ### Test infrastructure
@@ -461,5 +580,6 @@ The Phase 3 plan's "Phase 4 placeholder" section listed HDR, advanced lighting m
 | 4.8 NanoMesh PR | Low | Cross-team coordination; tag fallback if upstream stalls. |
 | 4.9 Steam SDK | Medium | External dependency on real Steam build for smoke. Implement + unit-test offline first; do Steam smoke at the end so failure doesn't block other Phase 4 work. |
 | 4.10 Sign-off | Low | Documentation only. |
+| 4.11 1.6.0 Release | Medium | Signing infra (Microsoft Trusted Signing identity verification has unpredictable lead time) is the largest unknown. Steam-folder install + UAC elevation are mechanical. Fallback: ship unsigned 1.6.0 to the existing 1.51 audience, follow up with a signed 1.6.0.<build+1> patch when signing infra is ready. |
 
-**Migration close**: §4.10 closes Phase 4 and the four-phase migration as a whole. After §4.10 merges, ARCHITECTURE.md §9's "Suggested Migration Order" gets a "Migration completed" marker, and all migration-related memory entries are settled. Future work falls under "post-migration" — gameplay features, mod support extensions, engine upgrades — and is out of scope for this plan series.
+**Migration close**: §4.10 closes Phase 4 as a development phase; §4.11 ships the artefact users actually download. After §4.11 publishes `mars-release-1.6.0`, ARCHITECTURE.md §9's "Suggested Migration Order" gets a "Migration completed" marker, and all migration-related memory entries are settled. Future work falls under "post-migration" — gameplay features, mod support extensions, engine upgrades — and is out of scope for this plan series.
