@@ -43,6 +43,26 @@ namespace SdMesh
                                const Matrix4& transform);
 
     /**
+     * Adds a model bone to the mesh by passing pre-decomposed T/R/S directly.
+     *
+     * Why this exists alongside SDMeshAddBone(Matrix4): SDMeshAddBone calls
+     * rpp::Matrix4::getRotationAngles(), which extracts Euler angles assuming
+     * an rpp-built (column-vector intrinsic-XYZ) rotation matrix. XNA's
+     * `Matrix` is row-vector with the same byte layout, so the bytes are
+     * interpreted as the transposed (= inverse) rotation, and the extracted
+     * Eulers come out NEGATED relative to the rotation the caller actually
+     * authored. Bind poses written via SDMeshAddBone therefore disagreed with
+     * keyframes (which the legacy MeshExporter converts via the standard
+     * intrinsic-XYZ formula directly from XnaQuaternion), causing skinned
+     * ships to articulate wrong (180° root flip + visibly broken limbs once
+     * the runtime bind walk uses LclR rather than the historical frame-0
+     * heuristic). This entry point lets the caller compute T/R/S in the same
+     * convention the keyframe path uses, eliminating the drift at the source.
+     */
+    DLLAPI(void) SDMeshAddBoneTRS(SDMesh* mesh, const wchar_t* name, int boneIndex, int parentBone,
+                                  const Nano::BonePose& bindPose);
+
+    /**
      * Adds a new skinned bone to the mesh' list of bones
      */
     DLLAPI(void) SDMeshAddSkinnedBone(SDMesh* mesh, const wchar_t* name, int boneIndex, int parentBone,

@@ -240,6 +240,14 @@ namespace Ship_Game.Data.Mesh
             );
 
         [DllImport("SDNative.dll")] protected static extern unsafe
+            void SDMeshAddBoneTRS(SdMesh* mesh,
+                [MarshalAs(UnmanagedType.LPWStr)] string name,
+                int boneIndex,
+                int parentBone,
+                in SdBonePose bindPose
+            );
+
+        [DllImport("SDNative.dll")] protected static extern unsafe
             void SDMeshAddSkinnedBone(SdMesh* mesh,
                 [MarshalAs(UnmanagedType.LPWStr)] string name,
                 int boneIndex,

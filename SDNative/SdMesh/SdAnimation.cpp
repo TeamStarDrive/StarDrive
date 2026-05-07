@@ -28,6 +28,20 @@ namespace SdMesh
         });
     }
 
+    // Phase 3.10.B.8 follow-up: T/R/S-direct model-bone entry point. See header
+    // comment above SDMeshAddBoneTRS for the convention-mismatch this fixes.
+    DLLAPI(void) SDMeshAddBoneTRS(SDMesh* mesh, const wchar_t* name, int boneIndex, int parentBone,
+                                  const Nano::BonePose& bindPose)
+    {
+        assert(mesh != nullptr && "SDMeshAddBoneTRS mesh cannot be null");
+        assert(name != nullptr && "SDMeshAddBoneTRS name cannot be null");
+
+        mesh->TheMesh.Bones.emplace_back(Nano::MeshBone {
+            boneIndex, parentBone, toString(name),
+            bindPose
+        });
+    }
+
     DLLAPI(void) SDMeshAddSkinnedBone(SDMesh* mesh, const wchar_t* name, int boneIndex, int parentBone,
                                       const Nano::BonePose& bindPose, const Matrix4& inverseBindPoseTransform)
     {
