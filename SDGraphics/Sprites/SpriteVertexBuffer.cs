@@ -104,9 +104,10 @@ internal sealed class SpriteVertexBuffer : IDisposable
         device.SetVertexBuffer(vbo);
 
         sr.ShaderBegin(texture, Color.White);
-        device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                     startIndex * 4, drawCount * 4, // 4 points
-                                     startIndex * 6, drawCount * 2); // 2 triangles
+        device.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                                     baseVertex: 0,
+                                     startIndex: startIndex * 6,
+                                     primitiveCount: drawCount * 2); // 2 triangles per quad
         sr.ShaderEnd();
     }
 }

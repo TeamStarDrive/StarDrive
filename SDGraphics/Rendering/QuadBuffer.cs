@@ -129,10 +129,10 @@ public class QuadBuffer : IDisposable
     public void Draw(GraphicsDevice device)
     {
         SetVertexSource(device);
-        // draw all indexed primitives
-        device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                     0, NumQuads * 4,
-                                     0, NumQuads * 2);
+        device.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                                     baseVertex: 0,
+                                     startIndex: 0,
+                                     primitiveCount: NumQuads * 2);
     }
 
     public void Draw(GraphicsDevice device, int startIndex, int numQuads)
@@ -145,9 +145,10 @@ public class QuadBuffer : IDisposable
             numQuads = NumQuads - startIndex;
 
         SetVertexSource(device);
-        device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                     startIndex * 4, numQuads * 4,
-                                     startIndex * 6, numQuads * 2);
+        device.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                                     baseVertex: 0,
+                                     startIndex: startIndex * 6,
+                                     primitiveCount: numQuads * 2);
     }
 
     ~QuadBuffer() { Destroy(); }

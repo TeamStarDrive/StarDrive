@@ -85,7 +85,12 @@ namespace UnitTests.Data
             var ib = new IndexBuffer(device, IndexElementSize.SixteenBits, indices.Length, BufferUsage.None);
             ib.SetData(indices);
 
+            // The parameterless ModelMeshPart ctor is [Obsolete] and slated to go internal in
+            // a future MonoGame release. The test reaches into private backing fields below
+            // anyway, so once it goes internal we'll switch to reflection-based construction.
+#pragma warning disable CS0618
             var part = new ModelMeshPart();
+#pragma warning restore CS0618
             SetBackingField(part, "VertexBuffer", vb);
             SetBackingField(part, "IndexBuffer", ib);
             SetBackingField(part, "VertexOffset", 0);

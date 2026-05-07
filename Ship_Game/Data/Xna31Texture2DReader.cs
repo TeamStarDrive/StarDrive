@@ -185,6 +185,10 @@ namespace Ship_Game.Data
             int by = (height + 3) >> 2;
             var rgba = new byte[width * height * 4];
 
+            // Hoisted out of the per-block loop (CA2014: stackalloc inside a loop
+            // can grow the stack frame across iterations on some CLRs).
+            Span<byte> palette = stackalloc byte[12];
+
             for (int blockY = 0; blockY < by; blockY++)
             {
                 for (int blockX = 0; blockX < bx; blockX++)
@@ -204,7 +208,6 @@ namespace Ship_Game.Data
                     int c1g = ((c1 >> 5)  & 0x3F) * 255 / 63;
                     int c1b = ( c1        & 0x1F) * 255 / 31;
 
-                    Span<byte> palette = stackalloc byte[12];
                     palette[0] = (byte)c0r; palette[1] = (byte)c0g; palette[2]  = (byte)c0b;
                     palette[3] = (byte)c1r; palette[4] = (byte)c1g; palette[5]  = (byte)c1b;
                     palette[6] = (byte)((2 * c0r + c1r) / 3);

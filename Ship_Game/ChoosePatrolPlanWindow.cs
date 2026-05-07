@@ -12,7 +12,9 @@ namespace Ship_Game
 {
     public sealed class ChoosePatrolPlan : GameScreen
     {
-        readonly ShipListScreen Screen;
+        // Always null — no caller passes a ShipListScreen. Read at ExitScreen as a no-op.
+        // Kept here as a slot for future "opened from ShipListScreen" callers.
+        readonly ShipListScreen Screen = null;
         public readonly Fleet Fleet;
         Empire Player => Fleet.Owner;
         SubmenuScrollList<ChoosePatrolListItem> SubAvailablePatrols;

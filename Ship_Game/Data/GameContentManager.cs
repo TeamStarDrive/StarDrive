@@ -25,7 +25,7 @@ namespace Ship_Game.Data
         // If non-null, a parent resource manager is checked first for existing resources
         // to avoid double loading resources into memory
         readonly GameContentManager Parent;
-        Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
+        new Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
         public string Name { get; }
 
         // Enables verbose logging for all asset loads and disposes

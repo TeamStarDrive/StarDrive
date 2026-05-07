@@ -72,9 +72,10 @@ public sealed class BatchedSprites : IDisposable
         foreach (ref SpriteBatchSpan batch in Batches.AsSpan())
         {
             sr.ShaderBegin(batch.Texture, color);
-            device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                         batch.StartIndex * 4, batch.Count * 4, // 4 points
-                                         batch.StartIndex * 6, batch.Count * 2); // 2 triangles
+            device.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                                         baseVertex: 0,
+                                         startIndex: batch.StartIndex * 6,
+                                         primitiveCount: batch.Count * 2); // 2 triangles per quad
             sr.ShaderEnd();
         }
     }

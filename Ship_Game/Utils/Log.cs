@@ -627,7 +627,11 @@ namespace Ship_Game
         struct TraceContext
         {
             public Thread Thread;
+            // populated by CollectSuspendedStackTraces; net8 path leaves it null
+            // until ClrMd / P/Invoke restores cross-thread StackTrace capture
+#pragma warning disable CS0649
             public StackTrace Trace;
+#pragma warning restore CS0649
         }
 
         static void CollectSuspendedStackTraces(Array<TraceContext> suspended)

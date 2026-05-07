@@ -1478,7 +1478,7 @@ namespace Ship_Game.Data.Texture
             public uint[] reserved;//[11];
 
             [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-            public struct pixelformatstruct
+            public struct PixelFormatStruct
             {
                 public uint size;	// equals size of struct (which is part of the data file!)
                 public uint flags;
@@ -1489,17 +1489,17 @@ namespace Ship_Game.Data.Texture
                 public uint bbitmask;
                 public uint alphabitmask;
             }
-            public pixelformatstruct pixelformat;
+            public PixelFormatStruct pixelformat;
 
             [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-            public struct ddscapsstruct
+            public struct DdsCapsStruct
             {
                 public uint caps1;
                 public uint caps2;
                 public uint caps3;
                 public uint caps4;
             }
-            public ddscapsstruct ddscaps;
+            public DdsCapsStruct ddscaps;
             public uint texturestage;
 
             //#ifndef __i386__

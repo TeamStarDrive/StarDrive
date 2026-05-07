@@ -226,6 +226,7 @@ namespace Ship_Game
                     Goods.Food       => HasImportingFoodPlanets,
                     Goods.Production => HasImportingProductionPlanets,
                     Goods.Colonists  => HasImportingColonistsPlanets,
+                    _                => false,
                 };
             }
 
@@ -236,6 +237,7 @@ namespace Ship_Game
                     Goods.Food       => HasExportingFoodPlanets,
                     Goods.Production => HasExportingProductionPlanets,
                     Goods.Colonists  => HasExportingColonistsPlanets,
+                    _                => false,
                 };
             }
 

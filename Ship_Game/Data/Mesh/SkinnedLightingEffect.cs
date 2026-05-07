@@ -23,7 +23,7 @@ public sealed class SkinnedLightingEffect : LightingEffect
 
     readonly EffectParameter pBones;
 
-    public static bool TryLoadShared(string contentPath)
+    public new static bool TryLoadShared(string contentPath)
     {
         lock (s_loadLock)
         {

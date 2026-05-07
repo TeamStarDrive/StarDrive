@@ -64,7 +64,7 @@ internal class NAudioPlaybackEngine : IDisposable
 
             if (category.MemoryCache)
             {
-                CachedSoundEffect cached;
+                CachedSoundEffect? cached;
                 lock (SfxCache)
                 {
                     SfxCache.TryGetValue(audioFile, out cached);

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Text.Json;
 using SDGraphics;
 using Ship_Game.UI;
 using Ship_Game.Audio;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SDUtils;
 
@@ -305,15 +306,18 @@ public class AutoUpdateChecker : UIElementContainer
     // Download utility which can be cancel itself via another `cancellableTask`
     public static string DownloadWithCancel(string url, TaskResult cancellableTask, TimeSpan timeout)
     {
-        using WebClient wc = CreateWebClient((sender, e) =>
+        using var cts = LinkCancellation(cancellableTask, timeout);
+        using HttpClient http = CreateHttpClient();
+        try
         {
-            if (cancellableTask is { IsCancelRequested: true } && sender is WebClient webClient)
-                webClient.CancelAsync();
-        });
-
-        var download = wc.DownloadStringTaskAsync(url);
-        WaitForTask(download, cancellableTask, timeout);
-        return download.Result;
+            return http.GetStringAsync(url, cts.Token).GetAwaiter().GetResult();
+        }
+        catch (OperationCanceledException)
+        {
+            if (cancellableTask is { IsCancelRequested: true })
+                throw new OperationCanceledException("Download Request cancelled");
+            throw new TimeoutException("Download Request timed out");
+        }
     }
 
     /// <summary>
@@ -321,63 +325,80 @@ public class AutoUpdateChecker : UIElementContainer
     /// Returns the path to the local file. Otherwise throws an exception on failure or cancellation.
     /// If there are several urls, they will be downloaded sequentially.
     /// </summary>
-    public static List<string> DownloadZip(List<string> urls, string localFolder, TaskResult cancellableTask, 
+    public static List<string> DownloadZip(List<string> urls, string localFolder, TaskResult cancellableTask,
                                      Action<int> onProgressPercent, TimeSpan timeout)
     {
-        int lastPercent = -1;
-        using WebClient wc = CreateWebClient((sender, e) =>
-        {
-            if (cancellableTask is { IsCancelRequested: true } && sender is WebClient webClient)
-                webClient.CancelAsync();
-            else if (onProgressPercent != null && e != null)
-            {
-                int newPercent = e.ProgressPercentage;
-                if (lastPercent != newPercent)
-                {
-                    lastPercent = newPercent;
-                    onProgressPercent(newPercent);
-                }
-            }
-        });
-
+        using var cts = LinkCancellation(cancellableTask, timeout);
+        using HttpClient http = CreateHttpClient();
         List<string> localFiles = new(urls.Count);
-        foreach (string url in urls)
+        try
         {
-            string localFile = Path.Combine(localFolder, Path.GetFileName(url));
-            var download = wc.DownloadFileTaskAsync(url, localFile);
-            WaitForTask(download, cancellableTask, timeout);
-            localFiles.Add(localFile);
+            foreach (string url in urls)
+            {
+                string localFile = Path.Combine(localFolder, Path.GetFileName(url));
+                DownloadFileWithProgress(http, url, localFile, onProgressPercent, cts.Token)
+                    .GetAwaiter().GetResult();
+                localFiles.Add(localFile);
+            }
         }
-
+        catch (OperationCanceledException)
+        {
+            if (cancellableTask is { IsCancelRequested: true })
+                throw new OperationCanceledException("Download Request cancelled");
+            throw new TimeoutException("Download Request timed out");
+        }
         return localFiles;
     }
 
-    static WebClient CreateWebClient(DownloadProgressChangedEventHandler e)
+    static HttpClient CreateHttpClient()
     {
-        WebClient wc = new();
-        wc.UseDefaultCredentials = false;
-        wc.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
-        wc.DownloadProgressChanged += e;
-        return wc;
+        var http = new HttpClient();
+        http.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
+        return http;
     }
 
-    static void WaitForTask(Task task, TaskResult cancellableTask, TimeSpan timeout)
+    // Bridges the legacy TaskResult-based cancellation onto a CancellationToken.
+    // Polls IsCancelRequested at 100ms granularity so the existing Cancel-button UX
+    // still works without changing its surface.
+    static CancellationTokenSource LinkCancellation(TaskResult cancellableTask, TimeSpan timeout)
     {
-        try
+        var cts = new CancellationTokenSource(timeout);
+        if (cancellableTask != null)
         {
-            for (int timeoutMs = (int)timeout.TotalMilliseconds; timeoutMs > 0; timeoutMs -= 100)
+            Task.Run(async () =>
             {
-                if (task.Wait(100)) return;
-                if (cancellableTask is { IsCancelRequested: true }) break;
+                while (!cts.IsCancellationRequested)
+                {
+                    if (cancellableTask.IsCancelRequested) { cts.Cancel(); return; }
+                    await Task.Delay(100, cts.Token).ContinueWith(_ => { });
+                }
+            });
+        }
+        return cts;
+    }
+
+    static async Task DownloadFileWithProgress(HttpClient http, string url, string localFile,
+                                               Action<int> onProgressPercent, CancellationToken ct)
+    {
+        using var response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+        response.EnsureSuccessStatusCode();
+        long? total = response.Content.Headers.ContentLength;
+        await using Stream src = await response.Content.ReadAsStreamAsync(ct);
+        await using FileStream dst = File.Create(localFile);
+        byte[] buffer = new byte[81920];
+        long received = 0;
+        int lastPercent = -1;
+        int read;
+        while ((read = await src.ReadAsync(buffer.AsMemory(0, buffer.Length), ct)) > 0)
+        {
+            await dst.WriteAsync(buffer.AsMemory(0, read), ct);
+            received += read;
+            if (onProgressPercent != null && total is > 0)
+            {
+                int pct = (int)(received * 100 / total.Value);
+                if (pct != lastPercent) { lastPercent = pct; onProgressPercent(pct); }
             }
         }
-        catch (AggregateException e)
-        {
-            throw e.InnerException ?? e;
-        }
-
-        if (cancellableTask is { IsCancelRequested: true })
-            throw new OperationCanceledException("Download Request cancelled");
-        throw new TimeoutException("Download Request timed out");
     }
 }
