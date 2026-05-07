@@ -57,11 +57,21 @@ namespace UnitTests.Data
             Assert.IsTrue(so.IsSkinned);
             Assert.IsNotNull(so.AnimationPlayer.CurrentClip, "CurrentClip not auto-started");
 
-            // No skin matrix in the palette may contain NaN/Inf — that's the
-            // hard requirement for the ship to render at all (NaN clip-space
-            // would clip the entire mesh out of frustum). The B.4 SafeSkin
-            // guard converts any NaN/Inf result to identity, so the ship
-            // renders at bind pose even if FBX-side bind data is degenerate.
+            // Phase 3.10.B.8 follow-up: dump frame 0 of every bone's animation
+            // track so we can see whether the keyframe T/R/S values are sensible
+            // (and therefore usable as a synthetic bind pose) or just as broken
+            // as the cluster matrices were.
+            var clip0 = mesh.AnimationClips[0];
+            System.Console.WriteLine($"  -- clip[0] '{clip0.Name}' duration={clip0.Duration:F2}s tracks={clip0.Animations.Length} --");
+            foreach (var track in clip0.Animations)
+            {
+                if (track.Frames == null || track.Frames.Length == 0) continue;
+                var f0 = track.Frames[0];
+                System.Console.WriteLine($"    track bone={track.SkinnedBoneIndex} frame0 T={f0.Translation} R={f0.Rotation} S={f0.Scale}");
+            }
+
+            // No skin matrix in the palette may contain NaN/Inf — vertices
+            // weighted to a NaN bone clip the entire triangle out of frustum.
             so.AnimationPlayer.ResetToBindPose();
             for (int i = 0; i < so.AnimationPlayer.SkinningPalette.Length; i++)
             {
@@ -70,6 +80,21 @@ namespace UnitTests.Data
                     $"Skin matrix [{i}] contains NaN — vertices weighted to this bone will clip out");
                 Assert.IsFalse(float.IsInfinity(m.M11) || float.IsInfinity(m.M22) || float.IsInfinity(m.M33) || float.IsInfinity(m.M44),
                     $"Skin matrix [{i}] contains Inf");
+            }
+
+            // Math invariant of the B.8 derivation: BindWorldInverse comes
+            // from frame 0, Sample() at t=0 reads frame 0 keyframes, so every
+            // bone's skin matrix at t=0 must reduce to identity (within
+            // numerical tolerance). If this fires, frame 0 ISN'T the bind
+            // pose for these meshes and we need a different bind source.
+            so.AnimationPlayer.StartClip(0); // explicit: t=0, sample frame 0
+            for (int i = 0; i < so.AnimationPlayer.SkinningPalette.Length; i++)
+            {
+                Matrix m = so.AnimationPlayer.SkinningPalette[i];
+                Vector3 transformed = Vector3.Transform(new Vector3(1f, 2f, 3f), m);
+                Assert.AreEqual(1f, transformed.X, 0.01f, $"bone[{i}] frame-0 skin should be ~identity (X)");
+                Assert.AreEqual(2f, transformed.Y, 0.01f, $"bone[{i}] frame-0 skin should be ~identity (Y)");
+                Assert.AreEqual(3f, transformed.Z, 0.01f, $"bone[{i}] frame-0 skin should be ~identity (Z)");
             }
         }
     }

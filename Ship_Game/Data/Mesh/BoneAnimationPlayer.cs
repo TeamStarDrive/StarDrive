@@ -27,6 +27,12 @@ public sealed class BoneAnimationPlayer
 
     public Matrix[] SkinningPalette { get; }
     readonly Matrix[] WorldPose;
+    // Phase 3.10.B.8: per-bone inverse-bind-world matrix used for skinning.
+    // Sourced from frame 0 of the bone's animation track in clip 0 when
+    // available (the legacy XNA exporter writes its bind pose into frame 0
+    // of the take, not into the cluster's TransformLinkMatrix). Falls back
+    // to the bone's stored InverseBindPoseTransform for non-animated bones.
+    readonly Matrix[] BindWorldInverse;
 
     public AnimationClipData CurrentClip { get; private set; }
     public float CurrentTime { get; private set; }
@@ -42,9 +48,84 @@ public sealed class BoneAnimationPlayer
         Clips = clips ?? Array.Empty<AnimationClipData>();
         SkinningPalette = new Matrix[Bones.Length];
         WorldPose = new Matrix[Bones.Length];
+        BindWorldInverse = new Matrix[Bones.Length];
         TraversalOrder = ComputeTopologicalOrder(Bones);
+        ComputeBindWorldInverse();
         ResetToBindPose();
     }
+
+    // Phase 3.10.B.8: derive each bone's inverse-bind-world matrix.
+    //
+    // Skinning math is `skin = inverseBindWorld * currentWorld`. The
+    // inverseBindWorld must reflect the SAME hierarchy chain that
+    // Sample() walks at runtime — otherwise frame 0 doesn't reduce to
+    // identity and the ship renders displaced.
+    //
+    // The legacy XNA exporter wrote its bind pose into frame 0 of the
+    // animation take, not into the FBX cluster's TransformLinkMatrix
+    // (those came back as zero/singular). So we walk the bone hierarchy
+    // using each bone's frame-0 keyframe T/R/S as its bind-pose local
+    // transform, and invert the resulting bind world. Bones without
+    // animation tracks fall back to their loaded InverseBindPoseTransform
+    // (NanoMesh's reader synthesizes identity for those when the cluster
+    // matrix is degenerate).
+    void ComputeBindWorldInverse()
+    {
+        AnimationClipData clip0 = Clips.Length > 0 ? Clips[0] : null;
+        var bindWorld = new Matrix[Bones.Length];
+        for (int idx = 0; idx < TraversalOrder.Length; idx++)
+        {
+            int i = TraversalOrder[idx];
+            SkinnedBoneData bone = Bones[i];
+
+            Vector3 t; Quaternion r; Vector3 s;
+            BoneAnimationData track = FindTrackInClip(clip0, bone.BoneIndex);
+            if (track != null && track.Frames != null && track.Frames.Length > 0)
+            {
+                KeyFrameData f0 = track.Frames[0];
+                t = f0.Translation;
+                r = EulerToQuat(f0.Rotation);
+                s = f0.Scale;
+            }
+            else
+            {
+                t = bone.BindPoseTranslation;
+                r = EulerToQuat(bone.BindPoseRotation);
+                s = bone.BindPoseScale;
+            }
+
+            Matrix local = ComposeTRS(t, r, s);
+            bindWorld[i] = bone.ParentIndex >= 0
+                ? local * bindWorld[bone.ParentIndex]
+                : local;
+
+            BindWorldInverse[i] = TryInvert(bindWorld[i], out Matrix inv)
+                ? inv
+                : bone.InverseBindPoseTransform; // last-resort fallback
+            if (HasNaN(BindWorldInverse[i]))
+                BindWorldInverse[i] = Matrix.Identity;
+        }
+    }
+
+    static BoneAnimationData FindTrackInClip(AnimationClipData clip, int boneIndex)
+    {
+        BoneAnimationData[] tracks = clip?.Animations;
+        if (tracks == null) return null;
+        for (int i = 0; i < tracks.Length; i++)
+            if (tracks[i].SkinnedBoneIndex == boneIndex)
+                return tracks[i];
+        return null;
+    }
+
+    static bool TryInvert(Matrix m, out Matrix inv)
+    {
+        inv = Matrix.Invert(m);
+        return !HasNaN(inv);
+    }
+
+    static bool HasNaN(Matrix m)
+        => float.IsNaN(m.M11) || float.IsNaN(m.M22) || float.IsNaN(m.M33) || float.IsNaN(m.M44)
+        || float.IsInfinity(m.M11) || float.IsInfinity(m.M22) || float.IsInfinity(m.M33) || float.IsInfinity(m.M44);
 
     // Kahn-style topological sort: emit roots first, then any bone whose
     // parent has already been emitted, until everyone's placed. A cycle
@@ -121,21 +202,49 @@ public sealed class BoneAnimationPlayer
             WorldPose[i] = bone.ParentIndex >= 0
                 ? local * WorldPose[bone.ParentIndex]
                 : local;
-            SkinningPalette[i] = SafeSkin(bone.InverseBindPoseTransform * WorldPose[i]);
+            SkinningPalette[i] = SafeSkin(BindWorldInverse[i] * WorldPose[i]);
         }
     }
 
     public void ResetToBindPose()
     {
-        for (int idx = 0; idx < TraversalOrder.Length; idx++)
+        // CurrentTime=0 + Sample() uses frame-0 keyframe values which by
+        // definition equal the bind world we computed in ComputeBindWorldInverse.
+        // Skin matrices reduce to identity → vertices stay at bind position.
+        CurrentTime = 0f;
+        if (CurrentClip != null)
         {
-            int i = TraversalOrder[idx];
-            SkinnedBoneData b = Bones[i];
-            Matrix local = ComposeTRS(b.BindPoseTranslation, EulerToQuat(b.BindPoseRotation), b.BindPoseScale);
-            WorldPose[i] = b.ParentIndex >= 0
-                ? local * WorldPose[b.ParentIndex]
-                : local;
-            SkinningPalette[i] = SafeSkin(b.InverseBindPoseTransform * WorldPose[i]);
+            Sample();
+        }
+        else
+        {
+            // No clip set yet (pre-StartClip). Re-derive from frame 0 directly.
+            AnimationClipData clip0 = Clips.Length > 0 ? Clips[0] : null;
+            for (int idx = 0; idx < TraversalOrder.Length; idx++)
+            {
+                int i = TraversalOrder[idx];
+                SkinnedBoneData bone = Bones[i];
+                Vector3 t; Quaternion r; Vector3 s;
+                BoneAnimationData track = FindTrackInClip(clip0, bone.BoneIndex);
+                if (track != null && track.Frames != null && track.Frames.Length > 0)
+                {
+                    KeyFrameData f0 = track.Frames[0];
+                    t = f0.Translation;
+                    r = EulerToQuat(f0.Rotation);
+                    s = f0.Scale;
+                }
+                else
+                {
+                    t = bone.BindPoseTranslation;
+                    r = EulerToQuat(bone.BindPoseRotation);
+                    s = bone.BindPoseScale;
+                }
+                Matrix local = ComposeTRS(t, r, s);
+                WorldPose[i] = bone.ParentIndex >= 0
+                    ? local * WorldPose[bone.ParentIndex]
+                    : local;
+                SkinningPalette[i] = SafeSkin(BindWorldInverse[i] * WorldPose[i]);
+            }
         }
     }
 
