@@ -13,7 +13,7 @@
 | **Performance vs Phase 2 baseline** | Soft cap from Phase 3 plan: <10% MainMenu, <20% peak combat. Not yet measured on Phase 3 close | §4.4 |
 | **YouLose desaturate visual** | Held-state visual still doesn't match pre-migration despite multiple attempts | §4.5 |
 | **Light rig data rebake** | Stub catch in `GameScreen.AssignLightRig`; LightRig has no data, SunBurn type-readers gone | §4.5 |
-| **Visual polish pass** (was §3.11) | 7 items: MainMenu polish residue, projectile dynamic glow light, glow-map emissive, muzzle FX check, sun Z, specular intensity, fog-of-war map circle dimness | §4.6 |
+| **Visual polish pass** (was §3.11) | 7 items: MainMenu polish residue, projectile dynamic glow light, glow-map emissive, muzzle FX check, sun Z, specular intensity, fog-of-war map circle dimness — plus a dedicated user-driven UI pass | §4.6 |
 | **Mesh-export toolchain decision** | Two export-side fixes live on `legacy/mesh_exporter_xna31` only (`f964b6df7`, `5c3a218be`); decide whether to cherry-pick, resurrect on migration, or keep legacy as the dedicated re-export branch | §4.7 |
 | **NanoMesh upstream PR** | Local `blackbox-migration` branch carries 7 commits not yet pushed upstream — fresh clone breakage today | §4.8 |
 | **Steam SDK x64 via Steamworks.NET** | `SteamManager.Initialize()` short-circuits to false; achievements/stats/cloud-saves inactive | §4.9 |
@@ -32,7 +32,7 @@
 2. **Combined Arms mod runs end-to-end** with no visible regressions vs pre-migration. All hulls render; ships designable; combat reachable.
 3. **Zero warnings** on `Release|x64` for both `StarDrive.csproj` and `SDNative.vcxproj`. Project warnings fixed at the source; vendored third-party warnings suppressed via `<DisableSpecificWarnings>` in the vcxproj. Warnings-as-errors gate enabled so future regressions can't sneak in.
 4. **Performance within budget**: <10% frame-time regression vs the Phase 2 baseline at MainMenu, <20% at peak combat. Both measured under identical scene loads on the same hardware.
-5. **Visual polish pass** lands the seven items from the (former) §3.11 list. Each item shipped with a pre/post screenshot pair.
+5. **Visual polish pass** lands the seven items from the (former) §3.11 list plus a dedicated user-driven UI pass. Each item shipped with a pre/post screenshot pair.
 6. **NanoMesh upstream** has a merged PR (or, if upstream rejects, a documented decision to keep the fork on a fixed tag).
 7. **Steam SDK x64** wired via Steamworks.NET. Achievements / stats / cloud saves work end-to-end on a real Steam build.
 8. **PHASE4_RESULTS.md** committed; ARCHITECTURE.md updated to reflect post-migration state; memory entries marked RESOLVED with commit refs.
@@ -72,7 +72,7 @@
 | 4.3 | Build hygiene: zero warnings on `Release\|x64` | Low–Medium |
 | 4.4 | Performance baseline + targeted optimization | Medium |
 | 4.5 | Backlog finishes: YouLose desaturate, light rig data rebake | Medium |
-| 4.6 | Visual polish pass (was §3.11) — 7 items | Low–Medium |
+| 4.6 | Visual polish pass (was §3.11) — 7 prepared items + user UI pass | Low–Medium |
 | 4.7 | Mesh-export toolchain decision (legacy-only vs port vs resurrect) | Low |
 | 4.8 | NanoMesh upstream PR | Low |
 | 4.9 | Steam SDK x64 via Steamworks.NET | Medium |
@@ -260,7 +260,7 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ## 4.6 — Visual Polish Pass (was §3.11)
 
-**Goal**: Land the seven small finishes that surfaced during §3.3–§3.10 implementation but didn't fit any single earlier sub-phase. Each item is independently scoped, individually revertible, and gated only by user visual sign-off — no automated test gate beyond "build matrix green between commits".
+**Goal**: Land a curated set of small finishes that surfaced during §3.3–§3.10 implementation but didn't fit any single earlier sub-phase, plus whatever the user surfaces during a dedicated UI pass. Each item is independently scoped, individually revertible, and gated only by user visual sign-off — no automated test gate beyond "build matrix green between commits".
 
 **Items** (commit one per item; land in any order):
 
@@ -271,11 +271,13 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 5. **Sun Z / depth ordering** — sun position relative to skybox and nearby planets reads wrong. Likely a depth-buffer-disabled-at-skybox issue, a sun-quad render-order tweak, or a near-plane / w-component issue with the sun's billboard. Diagnose, then fix.
 6. **Specular intensity** — current specular reads too weak. Diagnose first (could be: specular-map sample magnitude, sRGB vs linear sample of the spec map, global specular multiplier in `MeshLighting.fx`, or eye-vector / normal interpolation precision). Compare against pre-migration footage. Land minimally: prefer a uniform multiplier over shader rewrites if the diagnosis points to a magnitude issue.
 7. **Fog-of-war map circle too dim** — the per-system "explored" fog circle on the Universe map reads dimmer than pre-migration. Likely candidates: `BasicFogOfWar` shader's per-pixel attenuation curve, the fog-mask RT format (R8 vs R16F precision floor), the alpha-blend mode used to composite the fog-circle pass, or a missing premultiply on the fog texture sample. Diagnose against pre-migration screenshots first; bias the fix toward a uniform multiplier if the cause is just magnitude.
+8. **User UI pass** — dedicated UI walkthrough by the user across MainMenu, Empire, Ship Designer, Universe, Combat, ColonyScreen, Diplomacy, ResearchScreen, EmpirePatrolsScreen, save/load. The user captures any visual / layout / interaction issues that the seven items above missed (text alignment, button spacing, popup framing, tooltip behavior, mouse-cursor states, scroll-bar appearance, etc.). Each issue logged becomes a numbered sub-item (`8.a`, `8.b`, ...) with its own commit. This item's scope is intentionally open-ended — close it when the user signs off that the UI matches their bar.
 
 **Steps**:
 1. Capture pre-state visual reference (screenshot/video) per item before touching code.
-2. Implement, screenshot, commit. One item per commit; commit message references the item number above.
-3. After all items land, run a 5-minute MainMenu→Universe→Combat smoke to confirm no cross-item regression.
+2. Implement, screenshot, commit. One item per commit; commit message references the item number above (`§4.6 #8.b: tooltip vertical centering` etc.).
+3. **For item 8**: schedule the user's UI pass in a single dedicated session (1–2 hours). Capture the punch list as it surfaces; don't try to fix during the walkthrough. Triage and fix afterward, one issue per commit.
+4. After all items land, run a 5-minute MainMenu→Universe→Combat smoke to confirm no cross-item regression.
 
 **Tests added**: None automated. Visual-diff captures into `phase4-logs/visual-diff/` per item.
 
