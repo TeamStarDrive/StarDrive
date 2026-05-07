@@ -146,11 +146,11 @@ namespace SDNative
                 elem.parse("TechScore", TechScore);
             }
             Thrusters      = ThrusterList.data();
-            ThrustersLen   = ThrusterList.size();
+            ThrustersLen   = (int)ThrusterList.size();
             ModuleSlots    = ModuleSlotList.data();
-            ModuleSlotsLen = ModuleSlotList.size();
+            ModuleSlotsLen = (int)ModuleSlotList.size();
             Techs    = TechsNeeded.data();
-            TechsLen = TechsNeeded.size();
+            TechsLen = (int)TechsNeeded.size();
             return true;
         }
         catch (rapidxml::parse_error& e)

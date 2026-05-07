@@ -103,7 +103,7 @@ namespace spatial
         template<class T> T* allocArrayZeroed(int n) noexcept
         {
             size_t bytes = sizeof(T) * n;
-            void* ptr = alloc(bytes);
+            void* ptr = alloc((uint32_t)bytes);
             memset(ptr, 0, bytes);
             return (T*)ptr;
         }

@@ -17,9 +17,9 @@ namespace spatial
 
     uint32_t ObjectCollection::totalMemory() const
     {
-        uint32_t bytes = PendingInsert.size() * sizeof(SpatialObject);
-        bytes += Objects.size() * sizeof(SpatialObject);
-        bytes += FreeIds.size() * sizeof(int);
+        uint32_t bytes = (uint32_t)(PendingInsert.size() * sizeof(SpatialObject));
+        bytes += (uint32_t)(Objects.size() * sizeof(SpatialObject));
+        bytes += (uint32_t)(FreeIds.size() * sizeof(int));
         return bytes;
     }
 
@@ -31,7 +31,7 @@ namespace spatial
         }
         char err[128];
         snprintf(err, 128, "ObjectCollection::get objectId(%d) out of range(%d)",
-                           objectId, Objects.size());
+                           objectId, (int)Objects.size());
         throw std::out_of_range{err};
     }
 

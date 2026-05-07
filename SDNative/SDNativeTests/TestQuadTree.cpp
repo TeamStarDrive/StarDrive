@@ -16,7 +16,7 @@ TestImpl(QuadTree)
         spatial::SearchOptions opt;
         opt.SearchRect   = spatial::Rect::fromPointRadius((int)o.pos.x, (int)o.pos.y, sensorRange);
         opt.RadialFilter = spatial::Circle{(int)o.pos.x, (int)o.pos.y, sensorRange};
-        opt.MaxResults   = results.size();
+        opt.MaxResults   = (int)results.size();
         return opt;
     }
 
@@ -109,7 +109,7 @@ TestImpl(QuadTree)
         SimParams p {};
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::QuadTree, p);
 
-        measureIterations("Qtree::updateAll", 100, swo.objects.size(), [&]()
+        measureIterations("Qtree::updateAll", 100, (int)swo.objects.size(), [&]()
         {
             swo.spatial->rebuild();
         });
@@ -139,7 +139,7 @@ TestImpl(QuadTree)
         p.spawnProjectiles = true;
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::QuadTree, p);
 
-        measureIterations("Qtree::collideAll", 100, swo.objects.size(), [&]()
+        measureIterations("Qtree::collideAll", 100, (int)swo.objects.size(), [&]()
         {
             swo.spatial->collideAll(swo.root, {});
         });

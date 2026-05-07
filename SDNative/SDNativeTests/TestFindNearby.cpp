@@ -40,7 +40,7 @@ TestImpl(FindNearby)
             objects.clear();
             for (int id : objectIds)
                 objects.push_back( (SpatialObject*)&objlist.get(id) );
-            found.add(objects.data(), objects.size(), rect.center(), radius);
+            found.add(objects.data(), (int)objects.size(), rect.center(), radius);
         }
     };
 

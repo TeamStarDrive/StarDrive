@@ -26,7 +26,7 @@ namespace spatial
 
     SlabAllocator::SlabAllocator(size_t slabSizeBytes) noexcept : SlabSizeBytes{ slabSizeBytes }
     {
-        addSlab(SlabSizeBytes);
+        addSlab((uint32_t)SlabSizeBytes);
     }
 
     SlabAllocator::~SlabAllocator() noexcept
@@ -133,7 +133,7 @@ namespace spatial
         while (SlabSizeBytes < requiredSlabSize)
             SlabSizeBytes *= 2;
 
-        return addSlab(SlabSizeBytes);
+        return addSlab((uint32_t)SlabSizeBytes);
     }
 
     ////////////////////////////////////////////////////////////////////////////

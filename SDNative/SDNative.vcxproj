@@ -260,7 +260,11 @@
     <ClInclude Include="util\shared_image_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="3rdparty\lodepng\lodepng.cpp" />
+    <ClCompile Include="3rdparty\lodepng\lodepng.cpp">
+      <!-- Vendored upstream — silence the size_t→uint truncations and 32-bit shift
+           promotions that fire under x64 / /W3. Project code stays under the gate. -->
+      <DisableSpecificWarnings>4267;4334;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
     <ClCompile Include="3rdparty\soil2\image_DXT.cpp" />
     <ClCompile Include="3rdparty\soil2\image_helper.cpp" />
     <ClCompile Include="MemoryUtils.cpp" />

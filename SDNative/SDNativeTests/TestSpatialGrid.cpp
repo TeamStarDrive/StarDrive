@@ -13,7 +13,7 @@ TestImpl(TestGrid)
         SimParams p {};
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::Grid, p);
 
-        measureIterations("Grid::rebuild", 100, swo.objects.size(), [&]()
+        measureIterations("Grid::rebuild", 100, (int)swo.objects.size(), [&]()
         {
             swo.spatial->rebuild();
         });
@@ -45,7 +45,7 @@ TestImpl(TestGrid)
 
         std::vector<int> results(1024, 0);
 
-        measureIterations("Grid::collideAll", 10, swo.objects.size(), [&]()
+        measureIterations("Grid::collideAll", 10, (int)swo.objects.size(), [&]()
         {
             swo.spatial->collideAll(swo.root, {});
         });

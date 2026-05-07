@@ -124,7 +124,7 @@ template<class Func> static void measureEachObj(const char* what, int iterations
         for (const MyGameObject& o : objects) { func(o); }
     }
     double e = t.elapsed_ms();
-    int total_operations = objects.size() * iterations;
+    int total_operations = (int)(objects.size() * iterations);
     printf("%s(%zu) x%d total: %.2fms  avg: %.3fus\n",
         what, objects.size(), iterations, e, (e / total_operations)*1000);
 }
