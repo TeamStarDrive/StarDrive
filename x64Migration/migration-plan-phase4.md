@@ -9,7 +9,7 @@
 | Carryover | Phase 3 status | Phase 4 sub-phase |
 |---|---|---|
 | **Combined Arms mod regression sweep** | §3.10.B.8 fixes apply uniformly across the corpus, but only Ralyeh ship17 a-f was visually verified | §4.2 |
-| **Build hygiene: zero warnings on x64** | Baseline at Phase 3 close: 30 C# + 39 C++ warnings on Release\|x64 | §4.3 |
+| **Build hygiene: zero warnings on x64** | **DONE 2026-05-07** (re-baselined 16 unique C# warnings + 29 MSTest analyzer + 42 C++ warnings on Release\|x64; cleaned across StarDrive/SDGraphics/SDUtils/UnitTests + SDNative/SDNativeTests + NanoMesh submodule bump; WaE gate active on Release\|x64 only across all 6 projects; full matrix logs in `phase4-logs/wae/`) | §4.3 |
 | **Performance vs Phase 2 baseline** | Soft cap from Phase 3 plan: <10% MainMenu, <20% peak combat. Not yet measured on Phase 3 close | §4.4 |
 | **YouLose desaturate visual** | Held-state visual still doesn't match pre-migration despite multiple attempts | §4.5 |
 | **Light rig data rebake** | Stub catch in `GameScreen.AssignLightRig`; LightRig has no data, SunBurn type-readers gone | §4.5 |
@@ -188,6 +188,21 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 **Rollback**: per-pass `git revert` of each commit. Vendored suppressions are project-file-only and trivially undone.
 
 **Risk**: Low–Medium. The CS0618 swap is the largest blast surface (cross-file SpriteBatch / DrawIndexedPrimitives call sites); plan it as a single dedicated commit. The lowercase-rename CS8981 fixes risk cross-references — do those last after a wider grep audit.
+
+**Status: DONE 2026-05-07.** Five commits on `migration/phase4-x64-monogame`:
+- `293c86551` C# pass (16 unique warnings cleared: CS0108×2, CS0649×2, CS8600, CS8509×2, CA2014, CS8981×2 rename, CS0618×4 DrawIndexedPrimitives, CS0618 ModelMeshPart in tests, SYSLIB0014 WebClient → HttpClient with stream-chunk progress + CancellationToken bridge for the existing TaskResult cancel path).
+- `25b94f4a3` C++ pass + NanoMesh submodule bump to `5acc08b` (lodepng vendored suppression; 13 unique first-party C4267/C4334/C4477 sites cleared in SlabAllocator h+cpp / ObjectCollection / ShipDataSerializer / SDNativeTests; NanoMesh Mesh_Obj lambda widened to size_t, Mesh_Fbx LoadMaterial loop uses int counter).
+- `8bb2ad0c1` Test + SDK cleanup (29 MSTEST0039 mass-replaced `Assert.ThrowsException` → `Assert.ThrowsExactly`; MSTEST0006 ExpectedException → ThrowsExactly lambda; MSTEST0044 DataTestMethod → TestMethod; MSTEST0036 intentional-shadow #pragma; NETSDK1206 Libuv-RID NoWarn added to repo-wide `Directory.Build.props`).
+- `860a22db0` WaE gate enabled on `Release|x64` only across StarDrive + SDGraphics + SDUtils + SDNative + SDNativeTests + SDUnitTests; SDGraphics gets `EnableMGCBItems=false` to silence the empty-mgcb info warning. Probe: `readonly string Probe;` field promoted to `error CS0169` under the gate (reverted).
+
+**Final build matrix** (`x64Migration/phase4-logs/wae/`):
+- `Release|x64` → 0 warnings, 0 errors  *(gated)*
+- `Release - Auto Fast|x64` → 0 warnings, 0 errors *(no gate; coincidentally clean)*
+- `Deploy|x64` → 0 warnings, 0 errors *(no gate; coincidentally clean)*
+- `Debug|x64` → 2× LNK4098 (libpng/zlib MT vs SDNative MTd CRT mismatch — Phase 1 deferred)
+- `Debug - Auto Fast|x64` → 2× LNK4098 (same)
+
+**Tests added**: none, per the plan ("the build itself is the gate"). The probe trip on a deliberately-malformed field served as one-shot verification that the gate fires.
 
 ---
 
