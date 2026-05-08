@@ -89,7 +89,13 @@ namespace SdMesh
 
     void SDMeshGroup::SetVertexDataFor(Nano::MeshGroup& group, const SDVertexData& vd) const
     {
-        Matrix4 transform = Transform.inverse();
+        // Forward-multiply: bake the absolute bone transform into vertex positions
+        // so OBJ/FBX writers emit world-space verts. (Was Transform.inverse() — incorrect:
+        // XNA VBs store bone-local verts, so inverse-multiplying further de-scaled them.)
+        // Vertex/normal/UV data stays in XNA convention (right-handed Y-up = FBX eOpenGL,
+        // which is what SaveAsFBX advertises). The previous (x,-z,-y) swap and (u, 1-v)
+        // flip mismatched the FBX axis label and forced the runtime to un-swap on import.
+        Matrix4 transform = Transform;
         int numVertices = vd.VertexCount;
         int stride = vd.VertexStride;
 
@@ -97,16 +103,14 @@ namespace SdMesh
             group.Verts.resize(numVertices);
             auto* dst = group.Verts.data();
             for (int i = 0; i < numVertices; ++i) {
-                Vector3 pos = transform * (*src);
-                dst[i] = { pos.x, -pos.z, -pos.y };
+                dst[i] = transform * (*src);
                 src = Next(src, stride);
             }
         }
         if (const auto* src = vd.GetOffset<Vector2>(SDElementUsage::Coordinate)) {
             auto* dst = Resize(group.Coords, group.CoordsMapping, numVertices);
             for (int i = 0; i < numVertices; ++i) {
-                Vector2 uv = *src;
-                dst[i] = { uv.x, 1.0f - uv.y };
+                dst[i] = *src;
                 src = Next(src, stride);
             }
         }
@@ -114,8 +118,7 @@ namespace SdMesh
         {
             auto* dst = Resize(group.Normals, group.NormalsMapping, numVertices);
             for (int i = 0; i < numVertices; ++i) {
-                Vector3 normal = (transform * (*src)).normalized();
-                dst[i] = { normal.x, -normal.z, -normal.y };
+                dst[i] = (transform * (*src)).normalized();
                 src = Next(src, stride);
             }
         }

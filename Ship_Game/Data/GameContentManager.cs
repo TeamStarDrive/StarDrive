@@ -162,12 +162,12 @@ namespace Ship_Game.Data
                     asset = assetObj;
                     return true;
                 }
-                Log.Error($"Asset '{assetNameWithExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
+                Log.Warning($"Asset '{assetNameWithExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
             }
             asset = default;
             return false;
         }
-        
+
         // SUNBURN COMPATIBILITY
         public bool TryGetEffect<T>(string assetName, out T asset) where T : Effect
         {

@@ -88,8 +88,11 @@ namespace Ship_Game.Data.Mesh
         {
             foreach (ModelMesh modelMesh in meshes)
             {
-                XnaMatrix parentXform = modelMesh.ParentBone != null ? modelMesh.ParentBone.Transform : XnaMatrix.Identity;
-                Matrix transform = new Matrix(parentXform);
+                // Compose absolute world transform by walking up the parent-bone chain.
+                // ParentBone.Transform alone misses intermediate bones in deeper hierarchies.
+                Matrix transform = Matrix.Identity;
+                for (ModelBone b = modelMesh.ParentBone; b != null; b = b.Parent)
+                    transform = new Matrix(b.Transform) * transform;
                 int partCount = modelMesh.MeshParts.Count;
 
                 for (int i = 0; i < partCount; ++i)
@@ -229,7 +232,12 @@ namespace Ship_Game.Data.Mesh
             lock (texture)
             {
                 if (AlreadySavedTextures.TryGetValue(texture, out string already))
-                    return Path.GetFileName(already);
+                {
+                    // Texture was already saved (possibly in a different model's folder).
+                    // Return a relative path so the .mtl reference resolves cross-folder
+                    // (e.g. "../ship09_d.dds"). Same-folder case yields just the filename.
+                    return MakeRelativePath(exportDir, already);
+                }
 
                 AlreadySavedTextures[texture] = writeTo;
                 if (!File.Exists(writeTo))
@@ -239,6 +247,19 @@ namespace Ship_Game.Data.Mesh
                 }
                 return Path.GetFileName(writeTo);
             }
+        }
+
+        // Forward-slash relative path from `fromDir` to `toFile`. On net8 we could use
+        // Path.GetRelativePath, but URI logic produces forward slashes which is what
+        // .mtl/.fbx writers expect — same convention as the legacy exporter.
+        static string MakeRelativePath(string fromDir, string toFile)
+        {
+            string fromFull = Path.GetFullPath(fromDir);
+            if (!fromFull.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                fromFull += Path.DirectorySeparatorChar;
+            var fromUri = new Uri(fromFull);
+            var toUri = new Uri(Path.GetFullPath(toFile));
+            return Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
         }
     }
 }

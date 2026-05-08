@@ -204,20 +204,30 @@ namespace Ship_Game.Data
                         if (!MeshExport.IsAlreadySavedTexture(tex))
                         {
                             string texSavePath = TexExport.GetSaveAutoFormatPath(tex, savePath);
-                            texSavePath = texSavePath.Replace("_0.", ".");
-                            Log.Write(ConsoleColor.Green, $"  Export Lone Texture: {texSavePath}");
-                            GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
-                            TexExport.SaveAutoFormat(tex, texSavePath);
-                            MeshExport.AddAlreadySavedTexture(tex, texSavePath);
+                            if (texSavePath == null)
+                            {
+                                Log.Write(ConsoleColor.DarkYellow, $"  Ignored Lone Texture: {relativePath}");
+                            }
+                            else
+                            {
+                                texSavePath = texSavePath.Replace("_0.", ".");
+                                Log.Write(ConsoleColor.Green, $"  Export Lone Texture: {texSavePath}");
+                                GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
+                                TexExport.SaveAutoFormat(tex, texSavePath);
+                                MeshExport.AddAlreadySavedTexture(tex, texSavePath);
+                            }
                         }
                     }
                     else
                     {
                         var tex3d = Content.Load<Texture3D>(relativePath);
                         string texSavePath = Path.ChangeExtension(savePath, "dds");
-                        Log.Write(ConsoleColor.DarkYellow, $"  Export Lone Texture3D: {texSavePath}");
-                        GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
-                        TexExport.Save(tex3d, texSavePath);
+                        if (texSavePath != null)
+                        {
+                            Log.Write(ConsoleColor.DarkYellow, $"  Export Lone Texture3D: {texSavePath}");
+                            GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
+                            TexExport.Save(tex3d, texSavePath);
+                        }
                     }
                 }
                 catch (Exception e)
