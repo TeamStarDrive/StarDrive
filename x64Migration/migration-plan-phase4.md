@@ -389,9 +389,24 @@ This three-layer setup means the cap on visible glows is intentional, not a hard
 
 ---
 
-## 4.7 — Mesh-Export Toolchain Decision
+## 4.7 — Mesh-Export Toolchain Decision — DONE 2026-05-08
 
-**Goal**: Pick one of the three options preserved in `project_phase4_legacy_mesh_export_sync.md` and execute it. Stop the situation where re-exports require a manual cross-branch toolchain switch.
+**Decision**: Hybrid of options (1) + (2). `legacy/mesh_exporter_xna31` stays as the clean public re-export toolchain (no project-specific overrides); `legacy/mesh_exporter_ca_patch` is a local-only override stack for our blackbox/CA corpus; migration mirrors the general fixes only (hand-port, since `MeshExporter.cs` is structurally different from legacy after Phase 3.4 step 1).
+
+**Landed**:
+- ADR `x64Migration/adr-mesh-export-toolchain.md`
+- Runbook `x64Migration/re-export.md`
+- Migration commit `ab8184c48` — surgical port of `f964b6df7` + `5c3a218be` (parent-bone walk, cross-folder texture refs, axis-swap drop, lone-texture null-check, log-level demotion). Verified Release|x64: 0 warnings, 0 errors (WaE gate active).
+- `legacy/mesh_exporter_xna31` reset to origin tip (`7b5fef051`) — clean. `legacy/mesh_exporter_ca_patch` retained at `dfb730278` as local-only.
+- Memory: `project_phase4_legacy_mesh_export_sync.md` marked RESOLVED.
+
+**Why not pure (1)**: drift between legacy and migration source trees was already 5 commits at §4.2 close; future divergence would compound. Mirroring general fixes keeps them paired.
+
+**Why not pure (2) verbatim**: migration `MeshExporter.cs` dropped `SgMotion` / `SunBurn.LightingSystem.Effects` deps in §3.4 step 1; verbatim cherry-pick produced full-file conflicts and would have broken the WaE-gated build.
+
+**Why not (3)**: §3.4 step 5 (`Xna31VertexDeclarationReader`) is partial; the skinned-export bridge to NanoMesh is unbuilt; export cadence does not justify the investment. Reopen if the legacy branch ever stops building or external mod authors need a single-toolchain workflow.
+
+**Goal** (original): Pick one of the three options preserved in `project_phase4_legacy_mesh_export_sync.md` and execute it. Stop the situation where re-exports require a manual cross-branch toolchain switch.
 
 **Options** (preserved verbatim from the memory entry):
 1. **Status quo (legacy-only)** — re-export workflow always switches to `legacy/mesh_exporter_xna31`. Migration code is loader-only.
