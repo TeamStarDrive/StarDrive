@@ -445,6 +445,10 @@ This three-layer setup means the cap on visible glows is intentional, not a hard
 
 ## 4.8 — NanoMesh Upstream PR
 
+**Status**: Phase 4 deliverable (PR open) **DONE 2026-05-08** — [RedFox20/NanoMesh#1](https://github.com/RedFox20/NanoMesh/pull/1) opened with a single squashed commit (`8165536`, +687/-55) on `gkapulis/NanoMesh:upstream-pr/fbx-skin-anim`. Submodule pointer holds at `5acc08b` (`blackbox-migration` tip) so the parent repo's tree state matches the PR-pending world.
+
+**Post-merge follow-up tracked in Phase 5** (see [migration-plan-phase5.md §5.2](migration-plan-phase5.md#52--migration-close-optional-post-release)): bumping the `SDNative/NanoMesh` submodule onto upstream `master` after merge, and dropping the local-only-branch language from `project_nanomesh_local_branch.md`. That step is gated on RedFox20's review cadence — not a Phase 4 close blocker. If upstream stalls >30 days or rejects, the Phase 5 follow-up takes the tag-fallback path (pin submodule to `blackbox-migration` head with a `blackboxplus-2026-05-07` tag).
+
 **Goal**: Push the `blackbox-migration` branch's accumulated fixes to NanoMesh upstream as a pull request. Stop the fresh-clone breakage where a new contributor can't build SDNative without first checking out a local-only branch.
 
 **What's on `blackbox-migration` not yet upstream** (per `project_nanomesh_local_branch.md` + recent submodule bumps):

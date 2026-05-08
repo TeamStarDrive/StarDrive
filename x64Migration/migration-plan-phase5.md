@@ -277,14 +277,17 @@ Steam-folder install is straightforward but the UAC elevation change introduces 
    - §9 "Suggested Migration Order" — replace with a "Migration completed (2026-XX-XX)" marker pointing at PHASE4_RESULTS.md and the 1.6.0 itch.io page.
    - Update §6 "Native C++ Integration (SDNative)" if NanoMesh upstream PR landed (§4.8).
    - Update §7 "Third-Party Libraries" with Steamworks.NET (§4.9), FBX SDK 2020 (Phase 3 outcome).
-5. **Memory file updates**:
+5. **NanoMesh §4.8 follow-up** — close out whichever path the upstream PR took. This was deliberately deferred from Phase 4 because it depends on RedFox20's review cadence rather than our work cadence:
+   - **Merge path** (PR accepted): in `SDNative/NanoMesh`, fast-forward `master` to upstream tip, check out `master`, run `git submodule update`-friendly verification (`git -C SDNative/NanoMesh log --oneline origin/master -3` should include the squashed commit). On the parent repo, `git add SDNative/NanoMesh` + commit the new submodule pointer ("submodule: bump NanoMesh to upstream tip post §4.8 merge"). Then drop the `gkapulis` remote (`git remote remove gkapulis`) and delete the `upstream-pr/fbx-skin-anim` branch (kept for review-iteration; no longer needed). Mark `project_nanomesh_local_branch.md` RESOLVED with the PR URL.
+   - **Stall / reject path** (no merge by Phase 5 sign-off): tag `blackbox-migration` head as `blackboxplus-2026-05-07` on the fork (`gkapulis/NanoMesh`). Update `.gitmodules` URL in the parent repo to point at the fork (`https://github.com/gkapulis/NanoMesh.git`) so fresh clones succeed. Update `project_nanomesh_local_branch.md` to record the fork-pin decision and link the (still-open or rejected) PR for context.
+6. **Memory file updates**:
    - `project_phase4_legacy_mesh_export_sync.md` → already RESOLVED (§4.7 close); confirm.
    - `project_nanomesh_local_branch.md` → mark RESOLVED with PR link or fork-tag note.
    - `project_phase3_3_youlose_desaturate_unresolved.md` → already RESOLVED (Phase 4.5.A); confirm.
    - `MEMORY.md` → update one-line hooks. Audit for any other entries that became stale during Phase 4/5.
    - Author new `project_phase4_zero_warnings_gate.md` capturing the warning-suppression patterns chosen (vendored vs first-party) so future contributors don't blanket-disable warnings.
    - Author new `project_phase5_release_signing.md` capturing the signing approach + cert provider + renewal cadence.
-6. **Open Phase 5 close PR** and tag `phase5-end`. The Phase 5 PR closes the migration as a development effort.
+7. **Open Phase 5 close PR** and tag `phase5-end`. The Phase 5 PR closes the migration as a development effort.
 
 **Verification**:
 - All Phase 4 + Phase 5 success-gate items verified.
