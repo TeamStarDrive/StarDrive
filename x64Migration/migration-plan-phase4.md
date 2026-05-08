@@ -34,7 +34,7 @@
 4. **Performance within budget**: <10% frame-time regression vs the Phase 2 baseline at MainMenu, <20% at peak combat. Both measured under identical scene loads on the same hardware.
 5. **Visual polish pass** lands the seven items from the (former) §3.11 list plus a dedicated user-driven UI pass. Each item shipped with a pre/post screenshot pair.
 6. **NanoMesh upstream** has a merged PR (or, if upstream rejects, a documented decision to keep the fork on a fixed tag).
-7. **Steam SDK x64** wired via Steamworks.NET. Achievements / stats / cloud saves work end-to-end against StarDrive 1's existing schema (the maintainer has no partner-backend admin access — see §4.9 access constraint; verification is via dev-mode launch + Steam-client launch on a StarDrive-1-owning account, NOT via SteamPipe push).
+7. **Steam x86 baggage scrubbed**. Vendored `GARSteamManager.dll` + `steam_api.dll` + `steam_appid.txt` removed from `game/`; `SteamManager.cs` reduced to a clean stub with the 6-method external public surface preserved. Full Steamworks.NET wiring deferred — public-alpha distribution doesn't justify it (see §4.9 reopen condition).
 
 (**Release + sign-off** — cutting `mars-release-1.6.0`, signed installer, GitHub release, PHASE4_RESULTS.md, ARCHITECTURE.md update — moved to [Phase 5](migration-plan-phase5.md). §5.1 ships the artefact; §5.2 is the optional post-release migration close.)
 
@@ -46,7 +46,7 @@
 - God-class refactor of `Fleet.cs` / `Empire.cs` / `ResourceManager.cs` (ARCHITECTURE.md §8 — gameplay debt, not migration debt).
 - `Xna31ModelReader` runtime decoder (ARCHITECTURE.md §9 alternative path C). The offline FBX pipeline supersedes it; reach for this only if a mod ships an XNB Model that has neither an `.fbx` nor `.obj` sibling.
 - Sound / music engine changes (already working).
-- Pushing a build to the Steam store via SteamPipe, or modifying the StarDrive Steam app's achievement/stat/cloud-save schema. The maintainer has no partner-backend admin access; §4.9 operates against the existing AppID 220680 surface only (see §4.9 access constraint).
+- Wiring Steamworks.NET in Phase 4 at all. The full integration (achievements, stats, cloud saves, web overlay) is parked for public alpha — see §4.9 rescope and reopen conditions. Pushing a build to the Steam store via SteamPipe (or modifying the StarDrive Steam app's achievement/stat/cloud-save schema) is doubly out of scope: maintainer has no partner-backend admin access on AppID 220680.
 
 ---
 
@@ -60,7 +60,7 @@
 | **Performance baseline source** | Re-capture the Phase 2 frame-time baseline on the current hardware before measuring Phase 3 deltas. | Phase 2's "~16ms/frame at 1080p in MainMenu" was on a dev machine snapshot; comparing to today's Phase 3 timings without re-baselining mixes hardware with software. |
 | **Mesh-export toolchain** | **Decide in §4.7 between three options** preserved in `project_phase4_legacy_mesh_export_sync.md`: (1) keep legacy-only, (2) cherry-pick into migration as dead source, (3) resurrect on migration toolchain. Default to (1) if no concrete need surfaces during §4.2. | The split exists because legacy carries the XNA 3.1 + XNAnimation stack required to read original XNBs. Resurrecting on migration is large work; cherry-pick adds dead source; legacy-only keeps things working but risks rot. |
 | **NanoMesh PR path** | Push `blackbox-migration` head to NanoMesh upstream as a single PR (commits curated for review). If upstream rejects or stalls >30 days, pin the submodule to a tag in our fork. | A PR is the right thing to do and the fixes (skin/anim read+write, bind-matrix recovery, TransparencyFactor write fix) are general-purpose — likely accepted. Having a tag fallback means our build doesn't depend on PR merge timing. |
-| **Steam SDK approach** | Steamworks.NET (decision preserved from Phase 2.6, 2026-05-03). Drop vendored `GARSteamManager.dll` + `steam_api.dll` (both x86, no source). | 6-method external surface; Steamworks.NET is the maintained x64 wrapper. No realistic alternative now that GARSteamManager is unbuildable. |
+| **Steam SDK approach** | **Park + scrub** (rescoped 2026-05-08). Phase 4 deletes the x86 baggage and reduces `SteamManager.cs` to a clean stub; full Steamworks.NET wiring is deferred until BlackBoxPlus moves out of public alpha or the maintainer obtains partner-backend access. | Public-alpha distribution (itch.io, public repo, no Steam-store presence) gets nothing from Steam achievements/stats/cloud — every user reaches the binary outside the Steam launch path. Wiring it now is dead weight; scrubbing the x86 DLLs is still worthwhile for build hygiene. Steamworks.NET recipe preserved in `migration-plan-phase2.md` appendix for the future revive. |
 | **Sign-off shape** | PHASE4_RESULTS.md mirrors PHASE1/2/3_RESULTS.md. Final ARCHITECTURE.md update marks the migration roadmap §9 items DONE. | Pattern consistency. ARCHITECTURE.md is the artifact future maintainers read first. |
 
 ---
@@ -77,7 +77,7 @@
 | 4.6 | Visual polish pass (was §3.11) — 7 prepared items + user UI pass | Low–Medium |
 | 4.7 | Mesh-export toolchain decision (legacy-only vs port vs resurrect) | Low |
 | 4.8 | NanoMesh upstream PR | Low |
-| 4.9 | Steam SDK x64 via Steamworks.NET | Medium |
+| 4.9 | Steam SDK x64: park + scrub x86 baggage (Steamworks.NET wiring deferred — public-alpha rescope 2026-05-08) | Low |
 
 **Release + sign-off moved to [Phase 5](migration-plan-phase5.md)** (2026-05-08): §5.1 cuts the 1.6.0 release (was §4.11), §5.2 is the optional post-release migration close (was §4.10). Phase 5 has its own success gate, sub-phase index, and risk summary; reference it directly rather than tracking those items here.
 
@@ -464,46 +464,34 @@ This three-layer setup means the cap on visible glows is intentional, not a hard
 
 ---
 
-## 4.9 — Steam SDK x64 via Steamworks.NET
+## 4.9 — Steam SDK x64: Park + Scrub x86 Baggage
 
-**Goal**: Replace the vendored x86 `GARSteamManager.dll` + `steam_api.dll` with the maintained Steamworks.NET wrapper so achievements, stats, and cloud saves work on x64 against StarDrive 1's existing Steam app context.
+**Status**: Parked for public alpha (rescoped 2026-05-08). Full Steamworks.NET wiring deferred until the project's distribution scope changes (commercial release, closed beta gated by Steam ownership, or partner-backend access). For public alpha the binary launches standalone from its install folder — same shape as 1.51's default-folder launch — and Steam features are off.
 
-**Access constraint** (load-bearing for the smoke plan):
-- The maintainer is **not** the original developer and has **no admin access** to the StarDrive Steam app's partner backend.
-- We therefore **cannot**: add or modify achievement/stat schemas, push builds via SteamPipe, view partner-side telemetry, or change cloud-save config. The schema is whatever StarDrive 1 (AppID `220680`) shipped with — we operate against that fixed surface.
-- We **can**: ship code that calls `SteamAPI_Init` and the public Steamworks.NET surface against the existing app context. When a user has StarDrive 1 in their Steam library and launches our BlackBox 1.6.0 binary through Steam (the §5.1.C Steam-folder install path makes this the natural launch route), Steam injects the AppID 220680 context; achievements fire against StarDrive 1's schema, cloud saves persist to its cloud config. This is how 1.51 already works — the constraint isn't new, just unspelled.
-- For dev launches **outside** Steam, `game/steam_appid.txt` containing `220680` is the dev-mode handshake. It works in dev but should not be shipped to end users (Steam's docs explicitly mark it dev-only).
-
-**Recipe** (preserved in `migration-plan-phase2.md` "Deferred Final Step — Steam SDK x64 (Steamworks.NET)" appendix). Summary:
-- Public surface is tiny: 6 SteamManager methods are referenced outside the class — `Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`.
-- AppID `220680` is already in `game/steam_appid.txt` (dev-mode only).
-- Drop `GARSteamManager.dll` + `steam_api.dll` (both x86, no source).
-- Add Steamworks.NET NuGet package; `steam_api64.dll` ships with it.
-
-**Steps**:
-1. Add Steamworks.NET to `StarDrive.csproj` (NuGet). Confirm `steam_api64.dll` lands in `game/`.
-2. Rewrite `Ship_Game/Utils/SteamManager.cs` — keep the 6-method public surface unchanged; rewrite implementations to call `SteamAPI.*` / `SteamUserStats.*` / `SteamFriends.*`. Remove the `[DllImport("GARSteamManager")]` declarations + the x86 fallback comment block. Operate against the **existing** StarDrive 1 achievement/stat names (no schema changes possible without partner access).
-3. Delete the vendored `game/GARSteamManager.dll` and `game/steam_api.dll`. Update `.gitignore` if needed.
-4. Update the §SteamManager TODO comment to reflect post-migration state (or remove if it's gone).
-5. End-to-end smoke on a real Steam build (constrained — see access note above):
-   - **Path A (dev launch via `steam_appid.txt`)**: launch `game/StarDrive.exe` directly while the Steam client is running. Verify `IsInitialized` flips to true (Steamworks.NET picked up AppID 220680 from the file). Trigger an achievement (`AchievementUnlocked`) — it fires against StarDrive 1's existing schema; confirm in Steam overlay. Open Steam web overlay (`ActivateWebOverlay`); confirm the overlay opens to the right URL. Stats request roundtrip (`RequestStats`).
-   - **Path B (real Steam launch)**: requires a Steam account that owns StarDrive 1. Install BlackBox 1.6.0 over the StarDrive 1 install folder (the §5.1.C flow), launch via the Steam client, repeat the four checks above. Steam supplies the AppID context this time; `steam_appid.txt` should be **absent or ignored**. This is the closest we can get to "real Steam build" without partner access.
-   - **Path C (out of scope)**: pushing a real Steam-store build via SteamPipe. Requires partner access we do not have. Document as a §4.9 anti-goal so future maintainers don't expect it.
-6. Verify behavior when Steam is NOT running: `Initialize` returns false cleanly; the rest of the methods no-op via `IsInitialized` gating.
-
-**Tests added**:
-- `UnitTests/Utils/SteamManagerInitializationTests.cs` — `Initialize_WithoutSteamRunning_ReturnsFalse_AndPubMethodsNoOp`. (Real Steam interaction can't be unit-tested; gate in the smoke run.)
+**What this section delivers in Phase 4** (the scrub, not the wiring):
+1. Delete the vendored x86 DLLs `game/GARSteamManager.dll` + `game/steam_api.dll`. Both are 32-bit and unloadable in the x64 host process; sitting on disk they're pure noise (and a `BadImageFormat` if anything ever tries to `LoadLibrary` them).
+2. Delete `game/steam_appid.txt`. Without `SteamAPI_Init` ever being called the file isn't read by anything — and Steam's docs explicitly mark it dev-only, so it shouldn't ship anyway.
+3. Rewrite `Ship_Game/Utils/SteamManager.cs` as a clean stub: keep the 6-method external public surface (`Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`) so callers don't change; drop the ~25 dead `[DllImport("GARSteamManager")]` declarations and the unused remote-storage / stat-setter helpers; rewrite `ActivateWebOverlay` to use `Process.Start(new ProcessStartInfo(url) { UseShellExecute = true })` so URL launches work under .NET 8 (the .NET-Core change in `Process.Start` overload defaults).
+4. Drop the `GARSteamManager.dll` + `steam_api.dll` lines from `Deploy/Release/Release.txt` so the legacy MakeInstaller manifest matches reality.
 
 **Verification**:
-- All 6 public-surface methods work end-to-end via Path A (dev launch) and Path B (real Steam launch on a maintainer machine that owns StarDrive 1).
-- `IsInitialized` correctly reflects Steam availability.
-- No P/Invoke fires when `IsInitialized == false`.
-- Achievements/stats fire against StarDrive 1's existing schema (no new entries attempted; behavior matches 1.51's existing surface).
-- Build matrix green.
+- Release|x64 builds clean (WaE gate).
+- `game/` no longer contains `GARSteamManager.dll`, `steam_api.dll`, or `steam_appid.txt`.
+- Game launches; main-menu reachable; the boot-log line "SteamManager disabled..." is gone (replaced by simply not logging anything Steam-related — the class is now a transparent no-op rather than an opt-in disabled feature).
+- `Log.cs:819-821` and `StarDriveGame.cs:41-69, 203` (the only external SteamManager call sites) compile and behave as before (all paths gate on `IsInitialized == false`).
 
-**Rollback**: revert the SteamManager rewrite + restore vendored DLLs from git. The pre-Phase-4 state was "stub returning false" — fully recoverable.
+**Rollback**: `git revert` the scrub commit. The pre-§4.9 state was "DLLs on disk, ~25 dead `DllImport`s, `Initialize` short-circuits to false" — fully recoverable.
 
-**Risk**: Medium. Steamworks.NET integration is well-trodden territory; the access constraint narrows verifiable surface but doesn't block the integration itself (the existing schema is what users already see in 1.51). Smoke-Path-B requires a Steam account with StarDrive 1; if the maintainer doesn't own it, fall back to Path A only and document the gap. Mitigation: implement and unit-test in an offline branch first; do the Steam smoke at the end so failure doesn't block other Phase 4 work.
+**Risk**: Low. Nothing on the runtime hot path actually used Steam in the public-alpha shape; the scrub removes baggage without changing observable behavior.
+
+**Recipe preserved** (for when wiring is revived): full Steamworks.NET migration recipe lives in `migration-plan-phase2.md` "Deferred Final Step — Steam SDK x64 (Steamworks.NET)" appendix. The 6-method public surface there is the same surface we keep stubbed today, so the future revive is a pure internal rewrite — no caller changes.
+
+**Reopen condition**: revisit when any of these hold:
+- BlackBoxPlus moves out of public alpha into commercial / Steam-store distribution.
+- Maintainer obtains partner-backend access on AppID 220680 (or forks to a new AppID).
+- Closed beta needs Steam-ownership gating (achievements fire on StarDrive-1 owners specifically).
+
+Until then: stub stays stubbed.
 
 ---
 
@@ -521,7 +509,7 @@ Phase 2 baseline: ~16ms/frame at 1080p MainMenu. Phase 3's renderer additions ne
 Combined Arms is the canary (§4.2). If time permits, run a best-effort sweep of the other 14 mod directories surveyed in `phase3-logs/asset-survey-summary.md` — most reuse vanilla content and should "just work", but a 30-minute session to confirm is cheap insurance.
 
 ### Branch hygiene
-Each sub-phase commits to `migration/phase4-x64-monogame`. Open one PR per sub-phase against `migration/monogame_migration` (matches Phase 2/3's pattern). Final §4.10 PR closes Phase 4 and the migration as a whole.
+Each sub-phase commits to `migration/phase4-x64-monogame`. Open one PR per sub-phase against `migration/monogame_migration` (matches Phase 2/3's pattern). Final §4.9 PR closes Phase 4 development; the migration close (sign-off + release) lives in [Phase 5](migration-plan-phase5.md).
 
 ### What's NOT in Phase 4
 The Phase 3 plan's "Phase 4 placeholder" section listed HDR, advanced lighting models, and AI improvements as out-of-scope-for-this-doc. Same applies here. Specifically:
@@ -544,7 +532,7 @@ The Phase 3 plan's "Phase 4 placeholder" section listed HDR, advanced lighting m
 | 4.6 Visual polish | Low–Medium | Per-item commits; uniform-gated; visual sign-off per item. |
 | 4.7 Toolchain decision | Low | Decision-doc step. Default to (1) status-quo if no near-term need surfaces. |
 | 4.8 NanoMesh PR | Low | Cross-team coordination; tag fallback if upstream stalls. |
-| 4.9 Steam SDK | Medium | External dependency on real Steam build for smoke. Implement + unit-test offline first; do Steam smoke at the end so failure doesn't block other Phase 4 work. |
+| 4.9 Steam scrub | Low | No runtime behavior changes (call sites already gate on `IsInitialized == false`); pure source + asset cleanup. Build matrix verifies. |
 
 (Risk rows for §5.1 1.6.0 Release and §5.2 Migration close live in [Phase 5](migration-plan-phase5.md#risk-summary).)
 
