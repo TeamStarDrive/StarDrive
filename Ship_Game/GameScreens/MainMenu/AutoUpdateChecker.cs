@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -27,6 +28,7 @@ public class AutoUpdateChecker : UIElementContainer
     readonly GameScreen Screen;
     readonly UIList Popups;
     TaskResult AsyncTask;
+    bool MajorReleaseUpgradeNotified;
 
     public AutoUpdateChecker(GameScreen screen) : base(screen.RectF)
     {
@@ -40,6 +42,15 @@ public class AutoUpdateChecker : UIElementContainer
         {
             string vanillaUrl = GlobalStats.VanillaDefaults.DownloadSite;
             GetVersionAsync("BlackBox", vanillaUrl, isMod: false);
+
+            // If a major vanilla upgrade is pending, the mod popup is noise —
+            // user must upgrade vanilla first; mod compatibility with the new
+            // major isn't guaranteed and the mod patch may be moot.
+            if (MajorReleaseUpgradeNotified)
+            {
+                Log.Write("AutoUpdater: Major vanilla release upgrade pending, skipping mod version check");
+                return;
+            }
 
             string modUrl = GlobalStats.ActiveMod?.Settings.DownloadSite;
             if (modUrl != null && vanillaUrl != modUrl)
@@ -144,6 +155,80 @@ public class AutoUpdateChecker : UIElementContainer
         }
     }
 
+    // Fires only on cross-major-version mismatch (e.g., 1.51 → 1.60).
+    // Click opens upgrade-url.txt in browser and exits the game so the
+    // user can run the new installer. No in-game patcher path — major
+    // bumps can't be applied as a file-drop patch.
+    class MajorUpgradeAvailablePopup : UIPanel
+    {
+        readonly AutoUpdateChecker Updater;
+        readonly string LatestVersion;
+        readonly string Url;
+
+        public MajorUpgradeAvailablePopup(AutoUpdateChecker updater, string latestVersion, string url)
+            : base(updater.ContentManager.LoadTextureOrDefault("Textures/MMenu/popup_banner_small.png"))
+        {
+            Updater = updater;
+            LatestVersion = latestVersion;
+            Url = url;
+
+            UILabel headline = base.Add(new UILabel("Major Release Available!", Fonts.Pirulen16));
+            headline.TextAlign = TextAlign.HorizontalCenter;
+            headline.AxisAlign = Align.CenterLeft;
+            headline.SetLocalPos(20, -20);
+
+            UILabel version = base.Add(new UILabel($"BlackBox {latestVersion}", Fonts.Pirulen12));
+            version.TextAlign = TextAlign.HorizontalCenter;
+            version.AxisAlign = Align.CenterLeft;
+            version.SetLocalPos(20, 2);
+
+            UILabel hint = base.Add(new UILabel("(click to download. game will close)", Fonts.Pirulen12));
+            hint.TextAlign = TextAlign.HorizontalCenter;
+            hint.AxisAlign = Align.CenterLeft;
+            hint.SetLocalPos(20, 22);
+
+            // pulsate alpha (matches NewVersionPopup visual cue)
+            Anim().Time(0, 4, 1, 1).Alpha(new Range(0.5f, 1.0f)).Loop();
+        }
+
+        void OnUpgradeClicked()
+        {
+            Log.Write($"AutoUpdater: User clicked MajorUpgradeAvailablePopup → opening {Url} and exiting");
+            try
+            {
+                Process.Start(Url);
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"AutoUpdater: failed to launch browser for {Url}: {e.Message}");
+            }
+            StarDriveGame.Instance.Exit();
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            bool hovering = HitTest(input.CursorPosition);
+            GameCursors.SetCurrentCursor(hovering ? GameCursors.AggressiveNav : GameCursors.Regular);
+
+            if (hovering)
+            {
+                if (input.LeftMouseClick)
+                {
+                    GameAudio.AffirmativeClick();
+                    OnUpgradeClicked();
+                    return true;
+                }
+                if (input.RightMouseClick)
+                {
+                    GameAudio.ButtonMouseOver();
+                    RemoveFromParent();
+                    return true;
+                }
+            }
+            return base.HandleInput(input);
+        }
+    }
+
     void NotifyLatestVersion(ReleaseInfo info, bool isMod)
     {
         Log.Write($"Latest Version: {info.Name} at {info.ZipUrls}");
@@ -203,13 +288,16 @@ public class AutoUpdateChecker : UIElementContainer
         }
     }
 
-    static bool IsLatestVerNewer(string latestVersion, bool isMod)
+    bool IsLatestVerNewer(string latestVersion, bool isMod)
     {
         string currentVersion = !isMod ? GlobalStats.Version.Split(' ').First()
                                        : GlobalStats.ActiveMod.Mod.Version;
 
         if (!isMod && !IsSameMajorVer(latestVersion, currentVersion))
+        {
+            NotifyMajorUpgradeIfConfigured(latestVersion);
             return false;
+        }
 
         Log.Write($"AutoUpdater: latest  {latestVersion}");
         Log.Write($"AutoUpdater: current {currentVersion}");
@@ -230,6 +318,47 @@ public class AutoUpdateChecker : UIElementContainer
         string JoinVersionParts(string version)
         {
             return string.Join(".", version.Split('.').Take(2));
+        }
+    }
+
+    // Schedules a top-left MajorUpgradeAvailablePopup if game/upgrade-url.txt
+    // is present with a valid URL. Absence of the file is the "stay silent"
+    // signal — preserves the historical log-only behavior on major-mismatch.
+    void NotifyMajorUpgradeIfConfigured(string latestVersion)
+    {
+        string url = TryReadUpgradeUrl();
+        if (url == null)
+            return;
+
+        MajorReleaseUpgradeNotified = true;
+        Log.Write($"AutoUpdater: Major release {latestVersion} available at {url}");
+        Screen.RunOnNextFrame(() =>
+        {
+            var popup = Add(new MajorUpgradeAvailablePopup(this, latestVersion, url));
+            popup.SetLocalPos(10, 30);
+        });
+    }
+
+    static string TryReadUpgradeUrl()
+    {
+        const string path = "upgrade-url.txt";
+        try
+        {
+            if (!File.Exists(path))
+                return null;
+
+            foreach (string line in File.ReadAllLines(path))
+            {
+                string trimmed = line.Trim();
+                if (trimmed.Length > 0)
+                    return trimmed;
+            }
+            return null;
+        }
+        catch (Exception e)
+        {
+            Log.Warning($"AutoUpdater: failed to read {path}: {e.Message}");
+            return null;
         }
     }
 
