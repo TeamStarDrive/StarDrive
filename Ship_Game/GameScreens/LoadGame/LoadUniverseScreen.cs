@@ -67,6 +67,14 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            // Unconditional clear BEFORE any early-return guards — same recipe as
+            // GameLoadingScreen (Phase 2.5). The DXGI default backbuffer is white,
+            // so any frame that exits Draw without an explicit clear flashes
+            // white. The early-return paths below (IsDisposed, LoadingFailed,
+            // !IsDeviceGood) all hit at least transiently during load, and the
+            // throttling Sleep below extends the window enough to be visible.
+            ScreenManager.ClearScreen(Color.Black);
+
             if (!AsyncUniverse.IsComplete)
             {
                 // heavily throttle main thread, so the worker thread can turbo
@@ -84,7 +92,6 @@ namespace Ship_Game
             if (!GameBase.Base.IsDeviceGood)
                 return; // device is unavailable
 
-            ScreenManager.ClearScreen(Color.Black);
             if (!batch.SafeBegin())
                 return; // something failed bad
 
