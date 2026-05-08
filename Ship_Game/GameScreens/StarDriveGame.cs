@@ -114,7 +114,10 @@ namespace Ship_Game
             ApplyGraphics(GraphicsSettings.FromGlobalStats());
             ProbeVideoBackend();
             // CWD at runtime is game/, so step up one to land alongside the rest of phase4-logs.
-            FrameTimeLogger.Init("../x64Migration/phase4-logs/perf-baseline/frames.csv");
+            // Disabled — §4.1 baseline already captured. Re-enable for the next perf pass
+            // (e.g., §4.4 or anywhere we need fresh frame traces). All Begin/End/Stop calls
+            // are no-ops when Init wasn't called, so no other edits are needed.
+            // FrameTimeLogger.Init("../x64Migration/phase4-logs/perf-baseline/frames.csv");
 
             // run initialization handler which is able to cancel and exit the game
             if (OnInitialize != null && OnInitialize() == false)
