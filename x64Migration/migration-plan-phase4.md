@@ -10,13 +10,13 @@
 |---|---|---|
 | **Combined Arms mod regression sweep** | §3.10.B.8 fixes apply uniformly across the corpus, but only Ralyeh ship17 a-f was visually verified | §4.2 |
 | **Build hygiene: zero warnings on x64** | **DONE 2026-05-07** (re-baselined 16 unique C# warnings + 29 MSTest analyzer + 42 C++ warnings on Release\|x64; cleaned across StarDrive/SDGraphics/SDUtils/UnitTests + SDNative/SDNativeTests + NanoMesh submodule bump; WaE gate active on Release\|x64 only across all 6 projects; full matrix logs in `phase4-logs/wae/`) | §4.3 |
-| **Performance vs Phase 2 baseline** | Soft cap from Phase 3 plan: <10% MainMenu, <20% peak combat. Not yet measured on Phase 3 close | §4.4 |
-| **YouLose desaturate visual** | Held-state visual still doesn't match pre-migration despite multiple attempts | §4.5 |
-| **Light rig data rebake** | Stub catch in `GameScreen.AssignLightRig`; LightRig has no data, SunBurn type-readers gone | §4.5 |
+| **Performance vs Phase 2 baseline** | Soft cap from Phase 3 plan: <10% MainMenu, <20% peak combat. **DEFERRED to post-release** (rescoped 2026-05-08; §4.1 baseline at vsync-cap, no regression observed through §4.6 polish; not a Phase 4 close gate) | §4.4 |
+| **YouLose desaturate visual** | **DONE 2026-05-07** (commit `f4449df2d`; root cause was the SpriteBatch position-form Draw trap, not the shader math — see `project_phase45_spritebatch_position_form_trap.md`; user-confirmed visual: zoomed-in close-up at fade-in renders fully grayscale, slowly zooms out + colorizes over 30s) | §4.5.A |
+| **Light rig data rebake** | **DONE 2026-05-07** (commit `0e8b92900`; resolution path was option (2) — `LightRig` stub has zero data and `LightManager.Submit` was a no-op, so the load+catch was always functionally equivalent to "do nothing"; dropped the dead path) | §4.5.B |
 | **Visual polish pass** (was §3.11) | 7 items: MainMenu polish residue, projectile dynamic glow light, glow-map emissive, muzzle FX check, sun Z, specular intensity, fog-of-war map circle dimness — plus a dedicated user-driven UI pass | §4.6 |
 | **Mesh-export toolchain decision** | Two export-side fixes live on `legacy/mesh_exporter_xna31` only (`f964b6df7`, `5c3a218be`); decide whether to cherry-pick, resurrect on migration, or keep legacy as the dedicated re-export branch | §4.7 |
 | **NanoMesh upstream PR** | Local `blackbox-migration` branch carries 7 commits not yet pushed upstream — fresh clone breakage today | §4.8 |
-| **Steam SDK x64 via Steamworks.NET** | `SteamManager.Initialize()` short-circuits to false; achievements/stats/cloud-saves inactive | §4.9 |
+| **Steam SDK x64** | **DONE 2026-05-08 (rescoped)** — Steamworks.NET wiring deferred for public alpha; vendored x86 baggage scrubbed (commit `67514fc69`: dropped `GARSteamManager.dll` + `steam_api.dll` + `steam_appid.txt`, reduced `SteamManager.cs` 153→26 lines keeping the 6-method external public surface, scrubbed manifest entries). Recipe preserved in `migration-plan-phase2.md` "Deferred Final Step" appendix for the future revive | §4.9 |
 
 **Related memory** (read these before starting any sub-phase):
 - [project_phase4_legacy_mesh_export_sync.md](c:/Users/gkapu/.claude/projects/c--Development-stardrive-BlackBoxPlus/memory/project_phase4_legacy_mesh_export_sync.md) — three-option matrix for the toolchain decision
@@ -31,7 +31,7 @@
 1. **All Phase 3 success-gate criteria still hold** (boot, MainMenu, navigation, 3D hulls render, beam weapons fire, animations play, build matrix green).
 2. **Combined Arms mod runs end-to-end** with no visible regressions vs pre-migration. All hulls render; ships designable; combat reachable.
 3. **Zero warnings** on `Release|x64` for both `StarDrive.csproj` and `SDNative.vcxproj`. Project warnings fixed at the source; vendored third-party warnings suppressed via `<DisableSpecificWarnings>` in the vcxproj. Warnings-as-errors gate enabled so future regressions can't sneak in.
-4. **Performance within budget**: <10% frame-time regression vs the Phase 2 baseline at MainMenu, <20% at peak combat. Both measured under identical scene loads on the same hardware.
+4. ~~**Performance within budget**: <10% frame-time regression vs the Phase 2 baseline at MainMenu, <20% at peak combat. Both measured under identical scene loads on the same hardware.~~ **Deferred to post-release** (rescoped 2026-05-08). §4.1's baseline already showed vsync-locked 60 Hz across MainMenu/Universe/Combat; no perf regression has surfaced through §4.6 polish. A formal Phase-2-vs-post-§4.6 measurement pass is parked as post-release work — see §4.4. It is **not** a Phase 4 close gate.
 5. **Visual polish pass** lands the seven items from the (former) §3.11 list plus a dedicated user-driven UI pass. Each item shipped with a pre/post screenshot pair.
 6. **NanoMesh upstream** has a merged PR (or, if upstream rejects, a documented decision to keep the fork on a fixed tag).
 7. **Steam x86 baggage scrubbed**. Vendored `GARSteamManager.dll` + `steam_api.dll` + `steam_appid.txt` removed from `game/`; `SteamManager.cs` reduced to a clean stub with the 6-method external public surface preserved. Full Steamworks.NET wiring deferred — public-alpha distribution doesn't justify it (see §4.9 reopen condition).
@@ -71,13 +71,13 @@
 |---|---|---|
 | 4.1 | Baseline checkpoint, Phase 4 branch, runtime + perf baseline — **DONE 2026-05-07** (tag `phase4-start` at `781a00f18`; build matrix 100/100/99/99/91 warnings, 0 errors; perf baseline vsync-locked at 60 Hz across MainMenu/Universe/Combat) | Low |
 | 4.2 | Combined Arms regression sweep (mod compat — first) — **DONE 2026-05-07** (re-exported on legacy/mesh_exporter_xna31: 196/197 model FBX, 1 orphan `Vulfar/Alpha.xnb` benign-fail; copied corpus alongside CA xnbs; deleted 336 duplicate xnbs (56.4 MB) now superseded by FBX/.dds siblings; smoke clean — CA v8.7i loads, MainMenu+Universe render, 0 errors, 0 missing-texture warnings) | Medium |
-| 4.3 | Build hygiene: zero warnings on `Release\|x64` | Low–Medium |
-| 4.4 | Performance baseline + targeted optimization | Medium |
-| 4.5 | Backlog finishes: YouLose desaturate, light rig data rebake | Medium |
-| 4.6 | Visual polish pass (was §3.11) — 7 prepared items + user UI pass | Low–Medium |
-| 4.7 | Mesh-export toolchain decision (legacy-only vs port vs resurrect) | Low |
-| 4.8 | NanoMesh upstream PR | Low |
-| 4.9 | Steam SDK x64: park + scrub x86 baggage (Steamworks.NET wiring deferred — public-alpha rescope 2026-05-08) | Low |
+| 4.3 | Build hygiene: zero warnings on `Release\|x64` — **DONE 2026-05-07** (re-baselined 16 unique C# warnings + 29 MSTest analyzer + 42 C++ warnings on Release\|x64; cleaned across StarDrive/SDGraphics/SDUtils/UnitTests + SDNative/SDNativeTests + NanoMesh submodule bump; WaE gate active on Release\|x64 only across all 6 projects; full matrix logs in `phase4-logs/wae/`) | Low–Medium |
+| 4.4 | Performance baseline + targeted optimization — **DEFERRED to post-release** (rescoped 2026-05-08; §4.1 captured vsync-locked 60 Hz baseline; no regression surfaced through §4.6 polish; formal Phase-2-vs-post-§4.6 measurement pass is post-1.6.0 work, not a Phase 4 close gate) | Deferred |
+| 4.5 | Backlog finishes: YouLose desaturate, light rig data rebake — **DONE 2026-05-07** (§4.5.A YouLose desaturate at commit `f4449df2d`, user-confirmed visual; §4.5.B Light rig at commit `0e8b92900`, dropped dead load+stub path) | Medium |
+| 4.6 | Visual polish pass (was §3.11) — 7 prepared items + user UI pass — **DONE 2026-05-08** (10/11 items closed, 1 N/A: MainMenu polish residue, projectile dynamic glow lights, ~~glow-map emissive (N/A)~~, muzzle FX check, sun Z, specular intensity, FOW sensor dark ring, user UI pass, universe-screen ship lighting, universe-screen nebula brightness, atlas cache-version invalidation; pre/post screenshots committed; user visual sign-off) | Low–Medium |
+| 4.7 | Mesh-export toolchain decision (legacy-only vs port vs resurrect) — **DONE 2026-05-08** (hybrid: `legacy/mesh_exporter_xna31` is the clean public re-export branch, `legacy/mesh_exporter_ca_patch` is local-only override stack, migration mirrors general fixes via commit `ab8184c48`; ADR + runbook in `x64Migration/adr-mesh-export-toolchain.md` + `x64Migration/re-export.md`) | Low |
+| 4.8 | NanoMesh upstream PR — **PR open, awaiting review** ([RedFox20/NanoMesh#1](https://github.com/RedFox20/NanoMesh/pull/1) opened 2026-05-08; squash of 9 commits into single +687/-55 commit `8165536` on `gkapulis/NanoMesh:upstream-pr/fbx-skin-anim`; submodule pointer holds at `5acc08b` until merge) | Low |
+| 4.9 | Steam SDK x64: park + scrub x86 baggage (Steamworks.NET wiring deferred — public-alpha rescope 2026-05-08) — **DONE 2026-05-08** (commit `67514fc69`: dropped `GARSteamManager.dll` + `steam_api.dll` + `steam_appid.txt`, `SteamManager.cs` 153→26 lines, 2 manifest entries scrubbed; Release\|x64 clean) | Low |
 
 **Release + sign-off moved to [Phase 5](migration-plan-phase5.md)** (2026-05-08): §5.1 cuts the 1.6.0 release (was §4.11), §5.2 is the optional post-release migration close (was §4.10). Phase 5 has its own success gate, sub-phase index, and risk summary; reference it directly rather than tracking those items here.
 
@@ -210,7 +210,13 @@ Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or
 
 ## 4.4 — Performance Baseline + Targeted Optimization
 
-**Goal**: Validate that Phase 3's renderer additions (skinning, shadow map, post-process chain, material maps) fit within the Phase 2 perf budget. If a scene exceeds the soft cap (<10% MainMenu, <20% peak combat regression), apply targeted optimization. Maps to ARCHITECTURE.md §9 step 4c ("Performance profiling and optimization").
+**Status: DEFERRED to post-release** (rescoped 2026-05-08). Not a Phase 4 close gate.
+
+**Why deferred**: §4.1's baseline measurement (commit `9e32afd10`, captured 2026-05-07) showed the game holding vsync-locked 60 Hz across MainMenu, Universe, and Combat scenes — i.e. running at the framerate cap rather than below it, leaving headroom rather than burning it. No user-visible perf regression has surfaced through the §4.6 visual polish work that landed afterwards (FL10.0 shader bump, 8 dynamic light slots, projectile glow lights, lighting-effect-binder closest-light pick). The formal Phase-2-vs-post-§4.6 delta-table measurement is worth doing eventually but doesn't gate the 1.6.0 release.
+
+**When to revisit**: post-1.6.0 release, paired with the first round of post-release polish work, or earlier if a user reports a real regression. The plan + recipe below remain valid for that future pass — only the timing changed.
+
+**Goal** (preserved for the future pass): Validate that Phase 3's renderer additions (skinning, shadow map, post-process chain, material maps) fit within the Phase 2 perf budget. If a scene exceeds the soft cap (<10% MainMenu, <20% peak combat regression), apply targeted optimization. Maps to ARCHITECTURE.md §9 step 4c ("Performance profiling and optimization").
 
 **Steps**:
 1. Re-baseline Phase 2 timings on current hardware: check out `phase2-end` tag, run the §4.1 deterministic save through MainMenu / Universe / Combat scenes, capture p50/p95/p99 frame times. (Cheap to do because we want apples-to-apples.)
@@ -503,7 +509,7 @@ Phase 3's test suite (80+ tests in Data + Graphics) is the regression baseline. 
 - §4.9: `SteamManagerInitializationTests` (no-Steam-running path).
 
 ### Performance budget
-Phase 2 baseline: ~16ms/frame at 1080p MainMenu. Phase 3's renderer additions need to fit; §4.4 measures the actual delta. Soft cap: <10% MainMenu, <20% peak combat. If §4.4's measurement shows a regression outside budget, optimization work in §4.4 lands; otherwise re-baseline and document.
+Phase 2 baseline: ~16ms/frame at 1080p MainMenu. §4.1's baseline showed the migration sitting at vsync-locked 60 Hz across MainMenu/Universe/Combat; no user-visible regression surfaced through the §4.6 polish pass. **§4.4's formal Phase-2-vs-post-§4.6 delta measurement is deferred to post-release** — not a Phase 4 close gate. Soft cap (<10% MainMenu, <20% peak combat regression) and the optimization recipe live in §4.4 for that future pass.
 
 ### Mod compatibility
 Combined Arms is the canary (§4.2). If time permits, run a best-effort sweep of the other 14 mod directories surveyed in `phase3-logs/asset-survey-summary.md` — most reuse vanilla content and should "just work", but a 30-minute session to confirm is cheap insurance.
@@ -527,7 +533,7 @@ The Phase 3 plan's "Phase 4 placeholder" section listed HDR, advanced lighting m
 | 4.1 Baseline | Low | Pure setup + measurement. |
 | 4.2 Combined Arms sweep | Medium | §3.10.B.8 added thorough error-path diagnostics; any export regression should fail loudly. Re-using the `Ship17EndToEndTest` shape gives a known-good debug surface. |
 | 4.3 Warnings cleanup | Low–Medium | Project warnings are mostly mechanical fixes. The CS0618 SpriteBatch / DrawIndexedPrimitives swap is the largest blast surface — single dedicated commit. |
-| 4.4 Perf baseline + opt | Medium | Hard to predict bottleneck without measurement. §4.1 captures baseline first so §4.4 has data, not vibes. |
+| 4.4 Perf baseline + opt | Deferred | Deferred to post-release (rescoped 2026-05-08); §4.1 baseline at vsync-cap, no regression observed through §4.6. Future pass uses the §4.4 recipe unchanged. |
 | 4.5 Backlog finishes | Medium | §4.5.A (YouLose desaturate) is genuinely diagnostic-heavy; reserve a budget and accept WONTFIX if the four hypotheses don't land. §4.5.B is small. |
 | 4.6 Visual polish | Low–Medium | Per-item commits; uniform-gated; visual sign-off per item. |
 | 4.7 Toolchain decision | Low | Decision-doc step. Default to (1) status-quo if no near-term need surfaces. |
