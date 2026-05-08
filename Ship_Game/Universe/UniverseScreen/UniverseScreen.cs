@@ -524,12 +524,22 @@ namespace Ship_Game
                 distortionComponent = new DistortionComponent(device, TransientContent);
                 distortionComponent.LoadContent();
             }
-            if (GlobalStats.RenderShadows)
-            {
-                shadowMapComponent = new Ship_Game.Graphics.ShadowMapComponent(device, TransientContent);
-                shadowMapComponent.LoadContent();
-                ScreenManager.AttachShadowMap(shadowMapComponent);
-            }
+            // Shadow infrastructure (Phase 3.8.B — ShadowMapComponent +
+            // RunShadowPrePass + receiver shader path) is intentionally NOT
+            // attached on the universe screen. StarDrive's universe view is
+            // effectively coplanar — ships float at ~the same Z, the sun is far
+            // enough to act as a near-directional light from above, and there is
+            // no terrain receiver. The pre-pass produces no visible benefit but
+            // does produce real artifacts: ComputeCasterBounds includes the
+            // planet itself as a caster, so the ortho light frustum stretches
+            // huge, and the planet samples the shadow map at UVs that fall
+            // inside the frustum footprint — painting a hard rectangle of
+            // shadow on the planet surface where the cruiser geometry projects.
+            // The plumbing stays in place for any future scene (hangar floor,
+            // planet-surface combat, 3D fleet view) that genuinely benefits;
+            // attaching is a per-screen decision, not a global on/off.
+            // GlobalStats.RenderShadows is preserved as a setting for that
+            // future use.
 
             // §4.6 #1.b regression fix: MainTarget MUST PreserveContents because the
             // shadow pre-pass in SunBurnStubs.RenderScene swaps to ShadowMap and back
