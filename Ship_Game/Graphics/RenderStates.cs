@@ -81,12 +81,29 @@ namespace Ship_Game.Graphics
 
         public static void EnableMultiSampleAA(GraphicsDevice device) { }
 
+        // Cached rasterizer state mirroring SpriteBatch's default
+        // (CullCounterClockwise, FillSolid) but with ScissorTestEnable=true.
+        // SpriteBatch.Begin captures the RasterizerState at the call; setting
+        // GraphicsDevice.ScissorRectangle without enabling scissor on the
+        // bound rasterizer is a no-op under MonoGame (XNA used the live
+        // device.RenderState.ScissorTestEnable, which is gone in MG).
+        public static readonly RasterizerState ScissorEnabled = new()
+        {
+            Name = "ScissorEnabled",
+            CullMode = CullMode.CullCounterClockwiseFace,
+            ScissorTestEnable = true,
+        };
+
         public static void EnableScissorTest(GraphicsDevice device, in Rectangle rect)
         {
             device.ScissorRectangle = rect;
+            device.RasterizerState = ScissorEnabled;
         }
 
-        public static void DisableScissorTest(GraphicsDevice device) { }
+        public static void DisableScissorTest(GraphicsDevice device)
+        {
+            device.RasterizerState = RasterizerState.CullCounterClockwise;
+        }
 
         public static void BasicBlendMode(GraphicsDevice device, bool additive, bool depthWrite)
         {

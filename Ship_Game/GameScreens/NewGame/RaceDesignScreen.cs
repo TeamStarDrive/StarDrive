@@ -129,7 +129,7 @@ namespace Ship_Game
                                   (int)(ScreenHeight - TitleBar.Bottom - 0.25f*ScreenHeight));
 
             LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition, "Environment" };
-            Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20), traitNames));
+            Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20, -10), traitNames));
             Traits.OnTabChange = OnTraitsTabChanged;
 
             TraitsList = Traits.List;

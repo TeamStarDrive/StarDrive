@@ -457,16 +457,16 @@ namespace Ship_Game
             {
                 Name         = "Shipyard Key",
                 Direction    = new Vector3(-0.5265408f, -0.5735765f, -0.6275069f),
-                DiffuseColor = new Vector3(1f, 0.9607844f, 0.8078432f),
-                Intensity    = 1.0f,
+                DiffuseColor = new Vector3(1f, 1f, 1f),
+                Intensity    = 1.75f,
                 Enabled      = true,
             }, dynamic: false);
             AddLight(new DirectionalLight
             {
                 Name         = "Shipyard Fill",
                 Direction    = new Vector3(0.7198464f, 0.3420201f, 0.6040227f),
-                DiffuseColor = new Vector3(0.9647059f, 0.7607844f, 0.4078432f),
-                Intensity    = 0.6f,
+                DiffuseColor = new Vector3(0.85f, 0.88f, 0.92f),
+                Intensity    = 0.8f,
                 Enabled      = true,
             }, dynamic: false);
             AddLight(new DirectionalLight

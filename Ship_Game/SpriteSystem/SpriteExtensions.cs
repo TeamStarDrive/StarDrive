@@ -358,6 +358,34 @@ namespace Ship_Game
             }
         }
 
+        // Overload that lets the caller pin a custom RasterizerState (e.g. one with
+        // ScissorTestEnable=true). Needed for scroll-list scissor clipping under
+        // MonoGame: device.RasterizerState set externally before Begin is fine,
+        // but the safest path is to bind it to the SpriteBatch directly so End
+        // doesn't lose it after subsequent Begin calls.
+        public static bool SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, RasterizerState rasterizer)
+        {
+            BlendState bs = ToBlendState(blendMode);
+            try
+            {
+                batch.Begin(SpriteSortMode.Deferred, bs,
+                            samplerState: null, depthStencilState: null,
+                            rasterizerState: rasterizer);
+                return true;
+            }
+            catch
+            {
+                if (batch.SafeEnd())
+                {
+                    batch.Begin(SpriteSortMode.Deferred, bs,
+                                samplerState: null, depthStencilState: null,
+                                rasterizerState: rasterizer);
+                    return true;
+                }
+                return false;
+            }
+        }
+
         public static bool SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState, in XnaMatrix transform)
         {
             SpriteSortMode sortMode = sortImmediate ? SpriteSortMode.Immediate : SpriteSortMode.Deferred;

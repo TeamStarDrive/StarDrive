@@ -547,10 +547,18 @@ namespace Ship_Game
 
             if (ShouldDrawScrollBar)
                 DrawScrollBar(batch);
-            
-            // use a scissor to clip smooth scroll items
+
+            // Clip items + selection highlight to the list frame so partially-
+            // scrolled rows don't bleed past the bottom/top edge. Widen by 8px
+            // so the Selection highlight (Bevel(4,2)) doesn't get cropped at
+            // its outline. The scissor must be bound to the SpriteBatch via a
+            // RasterizerState with ScissorTestEnable=true; pre-MonoGame we
+            // could flip device.RenderState.ScissorTestEnable between Begin
+            // and End, but MonoGame captures the rasterizer at Begin().
+            RectF scissor = ItemsHousing.Bevel(1).Widen(8);
             batch.SafeEnd();
-            batch.SafeBegin(SpriteBlendMode.AlphaBlend);
+            RenderStates.EnableScissorTest(batch.GraphicsDevice, scissor);
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend, RenderStates.ScissorEnabled);
 
             for (int i = VisibleItemsBegin; i < VisibleItemsEnd; ++i)
             {
@@ -564,7 +572,7 @@ namespace Ship_Game
                     batch.DrawRectangle(e.Rect, i % 2 == 0 ? Color.Green.Alpha(0.5f) : Color.Blue.Alpha(0.5f));
                 }
             }
-            
+
             if (DebugDrawScrollList) // scissored debug
             {
                 batch.DrawRectangle(ScrollHousing, Color.Red);
@@ -574,12 +582,9 @@ namespace Ship_Game
             if (EnableItemHighlight)
                 Highlight?.Draw(batch, elapsed);
 
-            // widen the scissor for Item highlights to be visible
-            RectF scissor = ItemsHousing.Bevel(1).Widen(8);
-            RenderStates.EnableScissorTest(batch.GraphicsDevice, scissor);
             batch.SafeEnd();
-            batch.SafeBegin();
             RenderStates.DisableScissorTest(batch.GraphicsDevice);
+            batch.SafeBegin();
             
             if (DebugDrawScrollList) // non-scissored debug
             {
