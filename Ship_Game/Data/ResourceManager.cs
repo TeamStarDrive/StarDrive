@@ -225,6 +225,10 @@ namespace Ship_Game
             else
                 GlobalStats.ClearActiveMod();
 
+            // Must run after mod state is set (cache root depends on mod name)
+            // and before any atlas load reads from the cache folder.
+            TextureAtlas.PurgeCacheIfVersionChanged();
+
             Log.ConfigureStatsReporter();
             LoadContent();
 

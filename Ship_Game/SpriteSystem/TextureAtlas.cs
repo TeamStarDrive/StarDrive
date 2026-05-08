@@ -15,7 +15,60 @@ namespace Ship_Game.SpriteSystem
     /// </summary>
     public sealed partial class TextureAtlas : IDisposable
     {
-        const int Version = 27; // changing this will force all caches to regenerate
+        const int Version = 28; // changing this will force all caches to regenerate
+        const string CacheVersionFile = "version.txt";
+
+        // Run once per LoadAllResources, BEFORE any atlas loads. Compares the
+        // sentinel `version.txt` at the cache root against the in-code Version
+        // and wipes the whole cache folder on mismatch (or missing sentinel).
+        // Belt-and-braces over per-atlas LoadCacheAtlas hash invalidation:
+        // version bumps, removed atlases, renamed atlases, format flips
+        // (.dds <-> .png) all leave orphan files that the per-atlas check
+        // can't see. A clean rebuild is more expensive but only happens once
+        // per Version bump, and removes the entire class of stale-companion
+        // bugs.
+        public static void PurgeCacheIfVersionChanged()
+        {
+            string cacheDir = AtlasPath.GetCacheRoot();
+            if (!Directory.Exists(cacheDir))
+            {
+                Directory.CreateDirectory(cacheDir);
+                File.WriteAllText(System.IO.Path.Combine(cacheDir, CacheVersionFile), Version.ToString());
+                return;
+            }
+
+            string sentinelPath = System.IO.Path.Combine(cacheDir, CacheVersionFile);
+            int storedVersion = -1;
+            if (File.Exists(sentinelPath) &&
+                int.TryParse(File.ReadAllText(sentinelPath).Trim(), out int parsed))
+            {
+                storedVersion = parsed;
+            }
+
+            if (storedVersion == Version)
+                return;
+
+            Log.Write(ConsoleColor.Cyan,
+                $"[TextureAtlas] cache version {storedVersion} -> {Version}; purging {cacheDir}");
+
+            foreach (string entry in Directory.EnumerateFileSystemEntries(cacheDir))
+            {
+                try
+                {
+                    FileAttributes attr = File.GetAttributes(entry);
+                    if ((attr & FileAttributes.Directory) != 0)
+                        Directory.Delete(entry, recursive: true);
+                    else
+                        File.Delete(entry);
+                }
+                catch (IOException ex)
+                {
+                    Log.Warning($"[TextureAtlas] could not delete {entry}: {ex.Message}");
+                }
+            }
+
+            File.WriteAllText(sentinelPath, Version.ToString());
+        }
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png

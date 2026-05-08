@@ -21,9 +21,7 @@ namespace Ship_Game.SpriteSystem
             OriginalName = Path.GetFileName(name);
             AtlasName = name.Replace('/', '_');
 
-            // put mod atlases into a separate folder to reduce invalidations
-            string cache = GlobalStats.HasMod ? $"/TC-{GlobalStats.ModName}" : "/TextureCache";
-            CacheDir = Dir.StarDriveAppData + cache;
+            CacheDir = GetCacheRoot();
             Directory.CreateDirectory(CacheDir);
             CacheAtlasTex  = $"{CacheDir}/{AtlasName}.dds";
             CacheAtlasFile = $"{CacheDir}/{AtlasName}.atlas";
@@ -45,6 +43,16 @@ namespace Ship_Game.SpriteSystem
             string folder = $"{CacheDir}/{AtlasName}/";
             Directory.CreateDirectory(folder);
             return folder;
+        }
+
+        // Active TextureCache root for the current mod state. Mod atlases live
+        // in /TC-<ModName> so vanilla and mod caches don't fight over the same
+        // files. Caller is responsible for ensuring GlobalStats reflects the
+        // current load (mod active vs cleared) before invoking this.
+        public static string GetCacheRoot()
+        {
+            string cache = GlobalStats.HasMod ? $"/TC-{GlobalStats.ModName}" : "/TextureCache";
+            return Dir.StarDriveAppData + cache;
         }
     }
 }
