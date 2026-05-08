@@ -50,6 +50,14 @@ namespace Ship_Game
         float DesiredCamHeight = 1300f;
         Vector2 StartDragPos;
 
+        // Slow ambient orbit of the Key/Fill/Back rig around the world Y axis
+        // (~105s per revolution at 0.06 rad/s). Each frame Update recomputes
+        // each light's Direction by rotating its captured initial direction.
+        DirectionalLight ShipyardKey, ShipyardFill, ShipyardBack;
+        Microsoft.Xna.Framework.Vector3 ShipyardKeyDir0, ShipyardFillDir0, ShipyardBackDir0;
+        float ShipyardLightOrbitAngle;
+        const float ShipyardLightOrbitSpeed = 0.06f;
+
         readonly Array<ShipHull> AvailableHulls = new Array<ShipHull>();
         UIButton BtnSaveAs;
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
@@ -412,6 +420,8 @@ namespace Ship_Game
             CameraPos.Z = CameraPos.Z.SmoothStep(DesiredCamHeight, 0.2f);
             UpdateViewMatrix(CameraPos);
 
+            UpdateShipyardLightOrbit(fixedDeltaTime);
+
             var simTime = new FixedSimTime(fixedDeltaTime);
             DesignedShip.SubLightAccelerate(100);
             DesignedShip.Velocity = new Vector2(0, 100);
@@ -420,6 +430,16 @@ namespace Ship_Game
             ScreenManager.StartMusic("ShipyardTheme");
 
             base.Update(fixedDeltaTime);
+        }
+
+        void UpdateShipyardLightOrbit(float dt)
+        {
+            if (ShipyardKey == null) return;
+            ShipyardLightOrbitAngle += ShipyardLightOrbitSpeed * dt;
+            var yaw = Microsoft.Xna.Framework.Matrix.CreateRotationY(ShipyardLightOrbitAngle);
+            ShipyardKey.Direction  = Microsoft.Xna.Framework.Vector3.Normalize(Microsoft.Xna.Framework.Vector3.Transform(ShipyardKeyDir0,  yaw));
+            ShipyardFill.Direction = Microsoft.Xna.Framework.Vector3.Normalize(Microsoft.Xna.Framework.Vector3.Transform(ShipyardFillDir0, yaw));
+            ShipyardBack.Direction = Microsoft.Xna.Framework.Vector3.Normalize(Microsoft.Xna.Framework.Vector3.Transform(ShipyardBackDir0, yaw));
         }
 
         public override void LoadContent()
@@ -453,30 +473,38 @@ namespace Ship_Game
         // each visible hull pixel.
         void SetupShipyardLighting()
         {
-            AddLight(new DirectionalLight
+            ShipyardKey = new DirectionalLight
             {
                 Name         = "Shipyard Key",
                 Direction    = new Vector3(-0.5265408f, -0.5735765f, -0.6275069f),
                 DiffuseColor = new Vector3(1f, 1f, 1f),
                 Intensity    = 1.75f,
                 Enabled      = true,
-            }, dynamic: false);
-            AddLight(new DirectionalLight
+            };
+            ShipyardKeyDir0 = ShipyardKey.Direction;
+            AddLight(ShipyardKey, dynamic: false);
+
+            ShipyardFill = new DirectionalLight
             {
                 Name         = "Shipyard Fill",
                 Direction    = new Vector3(0.7198464f, 0.3420201f, 0.6040227f),
                 DiffuseColor = new Vector3(0.85f, 0.88f, 0.92f),
                 Intensity    = 0.8f,
                 Enabled      = true,
-            }, dynamic: false);
-            AddLight(new DirectionalLight
+            };
+            ShipyardFillDir0 = ShipyardFill.Direction;
+            AddLight(ShipyardFill, dynamic: false);
+
+            ShipyardBack = new DirectionalLight
             {
                 Name         = "Shipyard Back",
                 Direction    = new Vector3(0.4545195f, -0.7660444f, 0.4545195f),
                 DiffuseColor = new Vector3(0.3231373f, 0.3607844f, 0.3937255f),
                 Intensity    = 0.5f,
                 Enabled      = true,
-            }, dynamic: false);
+            };
+            ShipyardBackDir0 = ShipyardBack.Direction;
+            AddLight(ShipyardBack, dynamic: false);
             // Neutral white ambient at moderate strength — replaces the
             // SceneInstance default `(40,60,110) × 0.75` violet that washes
             // dark hulls into purple. The shipyard is a fixed-camera 3D view
