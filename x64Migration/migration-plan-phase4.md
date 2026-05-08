@@ -34,8 +34,9 @@
 4. **Performance within budget**: <10% frame-time regression vs the Phase 2 baseline at MainMenu, <20% at peak combat. Both measured under identical scene loads on the same hardware.
 5. **Visual polish pass** lands the seven items from the (former) §3.11 list plus a dedicated user-driven UI pass. Each item shipped with a pre/post screenshot pair.
 6. **NanoMesh upstream** has a merged PR (or, if upstream rejects, a documented decision to keep the fork on a fixed tag).
-7. **Steam SDK x64** wired via Steamworks.NET. Achievements / stats / cloud saves work end-to-end on a real Steam build.
-8. **PHASE4_RESULTS.md** committed; ARCHITECTURE.md updated to reflect post-migration state; memory entries marked RESOLVED with commit refs.
+7. **Steam SDK x64** wired via Steamworks.NET. Achievements / stats / cloud saves work end-to-end against StarDrive 1's existing schema (the maintainer has no partner-backend admin access — see §4.9 access constraint; verification is via dev-mode launch + Steam-client launch on a StarDrive-1-owning account, NOT via SteamPipe push).
+
+(**Release + sign-off** — cutting `mars-release-1.6.0`, signed installer, GitHub release, PHASE4_RESULTS.md, ARCHITECTURE.md update — moved to [Phase 5](migration-plan-phase5.md). §5.1 ships the artefact; §5.2 is the optional post-release migration close.)
 
 **Anti-goals for Phase 4** (out of scope; revisit only if explicitly raised):
 - Pixel-exact match to 2013 SunBurn deferred-renderer output. Forward-renderer-equivalent remains the bar.
@@ -45,6 +46,7 @@
 - God-class refactor of `Fleet.cs` / `Empire.cs` / `ResourceManager.cs` (ARCHITECTURE.md §8 — gameplay debt, not migration debt).
 - `Xna31ModelReader` runtime decoder (ARCHITECTURE.md §9 alternative path C). The offline FBX pipeline supersedes it; reach for this only if a mod ships an XNB Model that has neither an `.fbx` nor `.obj` sibling.
 - Sound / music engine changes (already working).
+- Pushing a build to the Steam store via SteamPipe, or modifying the StarDrive Steam app's achievement/stat/cloud-save schema. The maintainer has no partner-backend admin access; §4.9 operates against the existing AppID 220680 surface only (see §4.9 access constraint).
 
 ---
 
@@ -76,8 +78,8 @@
 | 4.7 | Mesh-export toolchain decision (legacy-only vs port vs resurrect) | Low |
 | 4.8 | NanoMesh upstream PR | Low |
 | 4.9 | Steam SDK x64 via Steamworks.NET | Medium |
-| 4.10 | Phase 4 close: PHASE4_RESULTS.md, ARCHITECTURE.md update, sign-off | Low |
-| 4.11 | Cut 1.6.0 release: signed installer + zip + Steam-folder install path | Medium |
+
+**Release + sign-off moved to [Phase 5](migration-plan-phase5.md)** (2026-05-08): §5.1 cuts the 1.6.0 release (was §4.11), §5.2 is the optional post-release migration close (was §4.10). Phase 5 has its own success gate, sub-phase index, and risk summary; reference it directly rather than tracking those items here.
 
 Each sub-phase ends with a commit and is rollback-able via `git revert <sha>` or `git reset --hard <tag>`.
 
@@ -464,197 +466,44 @@ This three-layer setup means the cap on visible glows is intentional, not a hard
 
 ## 4.9 — Steam SDK x64 via Steamworks.NET
 
-**Goal**: Replace the vendored x86 `GARSteamManager.dll` + `steam_api.dll` with the maintained Steamworks.NET wrapper. Restore achievements, stats, cloud saves on x64.
+**Goal**: Replace the vendored x86 `GARSteamManager.dll` + `steam_api.dll` with the maintained Steamworks.NET wrapper so achievements, stats, and cloud saves work on x64 against StarDrive 1's existing Steam app context.
+
+**Access constraint** (load-bearing for the smoke plan):
+- The maintainer is **not** the original developer and has **no admin access** to the StarDrive Steam app's partner backend.
+- We therefore **cannot**: add or modify achievement/stat schemas, push builds via SteamPipe, view partner-side telemetry, or change cloud-save config. The schema is whatever StarDrive 1 (AppID `220680`) shipped with — we operate against that fixed surface.
+- We **can**: ship code that calls `SteamAPI_Init` and the public Steamworks.NET surface against the existing app context. When a user has StarDrive 1 in their Steam library and launches our BlackBox 1.6.0 binary through Steam (the §5.1.C Steam-folder install path makes this the natural launch route), Steam injects the AppID 220680 context; achievements fire against StarDrive 1's schema, cloud saves persist to its cloud config. This is how 1.51 already works — the constraint isn't new, just unspelled.
+- For dev launches **outside** Steam, `game/steam_appid.txt` containing `220680` is the dev-mode handshake. It works in dev but should not be shipped to end users (Steam's docs explicitly mark it dev-only).
 
 **Recipe** (preserved in `migration-plan-phase2.md` "Deferred Final Step — Steam SDK x64 (Steamworks.NET)" appendix). Summary:
 - Public surface is tiny: 6 SteamManager methods are referenced outside the class — `Initialize`, `IsInitialized`, `RequestStats`, `AchievementUnlocked`, `ActivateWebOverlay`, `Shutdown`.
-- AppID `220680` is already in `game/steam_appid.txt`.
+- AppID `220680` is already in `game/steam_appid.txt` (dev-mode only).
 - Drop `GARSteamManager.dll` + `steam_api.dll` (both x86, no source).
 - Add Steamworks.NET NuGet package; `steam_api64.dll` ships with it.
 
 **Steps**:
 1. Add Steamworks.NET to `StarDrive.csproj` (NuGet). Confirm `steam_api64.dll` lands in `game/`.
-2. Rewrite `Ship_Game/Utils/SteamManager.cs` — keep the 6-method public surface unchanged; rewrite implementations to call `SteamAPI.*` / `SteamUserStats.*` / `SteamFriends.*`. Remove the `[DllImport("GARSteamManager")]` declarations + the x86 fallback comment block.
+2. Rewrite `Ship_Game/Utils/SteamManager.cs` — keep the 6-method public surface unchanged; rewrite implementations to call `SteamAPI.*` / `SteamUserStats.*` / `SteamFriends.*`. Remove the `[DllImport("GARSteamManager")]` declarations + the x86 fallback comment block. Operate against the **existing** StarDrive 1 achievement/stat names (no schema changes possible without partner access).
 3. Delete the vendored `game/GARSteamManager.dll` and `game/steam_api.dll`. Update `.gitignore` if needed.
 4. Update the §SteamManager TODO comment to reflect post-migration state (or remove if it's gone).
-5. End-to-end smoke on a real Steam build:
-   - Launch through Steam client (with `steam_appid.txt` for dev).
-   - Verify `IsInitialized` flips to true.
-   - Trigger an achievement (`AchievementUnlocked`); confirm in Steam overlay.
-   - Open the Steam web overlay (`ActivateWebOverlay`); confirm the overlay opens to the right URL.
-   - Stats request roundtrip (`RequestStats`).
+5. End-to-end smoke on a real Steam build (constrained — see access note above):
+   - **Path A (dev launch via `steam_appid.txt`)**: launch `game/StarDrive.exe` directly while the Steam client is running. Verify `IsInitialized` flips to true (Steamworks.NET picked up AppID 220680 from the file). Trigger an achievement (`AchievementUnlocked`) — it fires against StarDrive 1's existing schema; confirm in Steam overlay. Open Steam web overlay (`ActivateWebOverlay`); confirm the overlay opens to the right URL. Stats request roundtrip (`RequestStats`).
+   - **Path B (real Steam launch)**: requires a Steam account that owns StarDrive 1. Install BlackBox 1.6.0 over the StarDrive 1 install folder (the §5.1.C flow), launch via the Steam client, repeat the four checks above. Steam supplies the AppID context this time; `steam_appid.txt` should be **absent or ignored**. This is the closest we can get to "real Steam build" without partner access.
+   - **Path C (out of scope)**: pushing a real Steam-store build via SteamPipe. Requires partner access we do not have. Document as a §4.9 anti-goal so future maintainers don't expect it.
 6. Verify behavior when Steam is NOT running: `Initialize` returns false cleanly; the rest of the methods no-op via `IsInitialized` gating.
 
 **Tests added**:
 - `UnitTests/Utils/SteamManagerInitializationTests.cs` — `Initialize_WithoutSteamRunning_ReturnsFalse_AndPubMethodsNoOp`. (Real Steam interaction can't be unit-tested; gate in the smoke run.)
 
 **Verification**:
-- All 6 public-surface methods work end-to-end against a real Steam client.
+- All 6 public-surface methods work end-to-end via Path A (dev launch) and Path B (real Steam launch on a maintainer machine that owns StarDrive 1).
 - `IsInitialized` correctly reflects Steam availability.
 - No P/Invoke fires when `IsInitialized == false`.
+- Achievements/stats fire against StarDrive 1's existing schema (no new entries attempted; behavior matches 1.51's existing surface).
 - Build matrix green.
 
 **Rollback**: revert the SteamManager rewrite + restore vendored DLLs from git. The pre-Phase-4 state was "stub returning false" — fully recoverable.
 
-**Risk**: Medium. Steamworks.NET integration is well-trodden territory but the smoke-on-real-Steam-build step requires an actual Steam launch (external dependency). Mitigation: implement and unit-test in an offline branch first; do the Steam smoke at the end so failure doesn't block other Phase 4 work.
-
----
-
-## 4.10 — Phase 4 Close: PHASE4_RESULTS.md, ARCHITECTURE.md update, Sign-off
-
-**Goal**: Sign off Phase 4 and the overall migration. Produce the results document. Update ARCHITECTURE.md to reflect the post-migration state. Run the final runtime smoke. Update memory to reflect resolved status.
-
-**Steps**:
-1. **Runtime smoke**: launch `game/StarDrive.exe`. Walk MainMenu → New Game → Universe → engage in combat → reach mid-game → save → reload → exit. Capture `phase4-runtime-smoke.log`. Repeat with Combined Arms loaded.
-2. **Build matrix**: 5 configs × x64. Capture all 5 logs under `phase4-logs/wrap/`. Confirm 0 warnings, 0 errors on Release|x64 (warnings-as-errors gate from §4.3).
-3. Author **`PHASE4_RESULTS.md`** in `x64Migration/`. Sections (mirroring PHASE3_RESULTS.md):
-   - Sub-phase completion table with commit refs.
-   - Build matrix outcomes.
-   - Success-gate verification (each item from "Phase 4 Goals" above, ✅ / ❌).
-   - Combined Arms + vanilla regression summary.
-   - Performance summary table (vs Phase 2 baseline).
-   - Migration retrospective: total commits across Phase 1+2+3+4, total LOC delta, what went well / what would have been done differently across the entire migration.
-4. **ARCHITECTURE.md update**:
-   - §8 "32-Bit Assumptions" — strike through (now resolved).
-   - §9 "Migration Roadmap" — mark all sub-phases (1–4) DONE with commit refs.
-   - §9 "Suggested Migration Order" — replace with a "Migration completed (2026-XX-XX)" marker pointing at PHASE4_RESULTS.md.
-   - Update §6 "Native C++ Integration (SDNative)" if NanoMesh upstream PR landed (§4.8).
-   - Update §7 "Third-Party Libraries" with Steamworks.NET (§4.9), FBX SDK 2020 (Phase 3 outcome).
-5. **Memory file updates**:
-   - `project_phase4_legacy_mesh_export_sync.md` → mark RESOLVED with §4.7 decision + commit refs.
-   - `project_nanomesh_local_branch.md` → mark RESOLVED with PR link or fork-tag note.
-   - `project_phase3_3_youlose_desaturate_unresolved.md` → mark RESOLVED or WONTFIX with §4.5.A outcome.
-   - `MEMORY.md` → update one-line hooks for the three files above. Audit for any other entries that became stale during Phase 4.
-   - Author new `project_phase4_zero_warnings_gate.md` capturing the warning-suppression patterns chosen (vendored vs first-party) so future contributors don't blanket-disable warnings.
-6. **Open Phase 4 PR** and tag `phase4-end`. The Phase 4 PR closes the migration.
-
-**Verification**:
-- All Phase 4 success-gate items verified.
-- PHASE4_RESULTS.md committed; ARCHITECTURE.md updated; memory files updated.
-- Build matrix green; runtime smoke clean for both vanilla and Combined Arms.
-- `phase4-end` tag exists; PR open or merged.
-
-**Rollback**: N/A (sign-off step). If a regression is found post-merge, revert specific sub-phase commits — each is independently revertible by design.
-
-**Risk**: Low. Sign-off + documentation.
-
----
-
-## 4.11 — Cut 1.6.0 Release: Signed Installer + ZIP + Steam-folder Install Path
-
-**Goal**: Ship the first post-migration public release as **BlackBox 1.6.0**. Three new capabilities relative to the 1.51 release machinery: (a) signed binaries and installer so Windows Defender SmartScreen doesn't flag the download as a potential virus, (b) a Steam-folder install option that replaces the original StarDrive1 install when the user has it on Steam, (c) UAC elevation handling so writes into `Program Files (x86)\Steam\steamapps\...` actually succeed.
-
-**Context — what the 1.51 release looked like** (from `Deploy/`, `README.md`, GitHub releases page):
-- Version string lives in `Properties/AssemblyInfo.cs::AssemblyVersion`. Current value: `1.51.15100`. Pattern: `MAJOR.MINOR.BUILD` (mod version + monotonic build counter from AppVeyor's `APPVEYOR_BUILD_VERSION`).
-- Three installer artefacts produced by `Deploy/MakeInstaller.py`:
-  - **NSIS** (`BlackBox-Mars.nsi` full / `BlackBox-Mars-Patch.nsi` cumulative patch) → `Deploy/upload/BlackBox_Mars_<version>.exe`
-  - **ZIP** (7za, split into 25MB chunks for upload size limits) → `Deploy/upload/BlackBox_Mars_<version>.zip` or `001-...zip`, `002-...zip`, ...
-  - **MSI** (Wix, `Deploy/SDInstaller.wixproj` + `Deploy/Product.wxs`) — kept around but not the primary distribution channel
-- Default install path: `C:\Games\StarDrivePlus` (NSIS line 76 in `Deploy/BBInstaller.nsi`). Steam-detection code is commented out at lines 70–74 — the previous team had it in mind but disabled it, almost certainly because the installer doesn't request UAC elevation today.
-- Distribution: GitHub Releases at `https://github.com/TeamStarDrive/StarDrive/releases/tag/mars-release-1.51`. `notify-sentry-of-release.bash` posts a Sentry release record. README points users at the release page.
-- Auto-update: in-game logic checks for newer patch versions on launch and prompts to install; works for cumulative patches on top of a major release.
-- AppVeyor CI used to build the artefacts (`README.md` shows the badge); the current repo has no `appveyor.yml` checked in — the CI config either lives in AppVeyor's web UI or was on a branch we haven't visited.
-
-### Sub-steps
-
-**§4.11.A — Version bump + release notes**
-1. Bump `Properties/AssemblyInfo.cs::AssemblyVersion` from `1.51.15100` to `1.6.0.<build>`. The build counter convention (`15100`-style) is set by AppVeyor; pick the first build number for the post-migration cycle (e.g., `1.6.0.16000` to leave a clear gap from the 1.51 line).
-2. Update README.md "Current Major Release Link" to point at the to-be-created `mars-release-1.6.0` tag. Replace the "BlackBox - Hyperion" future-goals list (the migration is now done) with a "BlackBox 1.6.0 — 64-bit + MonoGame" achievements list.
-3. Author `RELEASE_NOTES_1.6.0.md` summarizing user-visible changes since 1.51:
-   - 64-bit engine (no more 4 GB limit; Combined Arms + huge galaxies stable).
-   - MonoGame 3.8 renderer (XNA + SunBurn replaced).
-   - All 6 broken effects restored (BeamFX, scale, Thrust, desaturate, BasicFogOfWar, PlanetHalo).
-   - Skinned/animated mesh playback (Ralyeh ship17 family articulates).
-   - Material maps (normal/specular/emissive) on all hulls.
-   - Bloom + screen-space distortion + fog-of-war post-process passes.
-   - Basic shadow maps.
-   - Steam SDK x64 via Steamworks.NET (achievements/stats/cloud saves work in 64-bit).
-   - Combined Arms compatible.
-
-**§4.11.B — Code signing**
-
-The blocker today: an unsigned EXE downloaded from the internet triggers SmartScreen "Windows protected your PC" dialog, which 9 out of 10 users dismiss as malware. We need an authenticode signature on `StarDrive.exe`, `SDNative.dll`, and the installer EXE itself.
-
-**Signing options** (pick one in §4.11 entry):
-
-| Option | Cost | Reputation | Notes |
-|---|---|---|---|
-| **Microsoft Trusted Signing** | ~$10/month | Inherits Microsoft's reputation immediately | New service (formerly Azure Code Signing). Requires Azure account + identity verification. **Recommended.** |
-| **EV code-signing certificate** (DigiCert / Sectigo) | ~$300–$500/year | Skips SmartScreen warning from day 1 | Hardware token shipping required; less convenient for community projects. |
-| **OV code-signing certificate** | ~$80–$200/year | Builds reputation over weeks/months of downloads | Cheapest paid option but doesn't immediately defeat SmartScreen — early users still see warnings until reputation builds. |
-| **Self-signed** | Free | None — SmartScreen always flags | Only useful for internal testing. Not for public release. |
-
-Steps:
-1. Pick the signing approach. **Default recommendation: Microsoft Trusted Signing** for the cost/reputation balance.
-2. Acquire the certificate / set up Trusted Signing identity validation.
-3. Sign the binaries via `signtool.exe` after the build, before the installer is packaged. Three things get signed:
-   - `game/StarDrive.exe`
-   - `game/SDNative.dll`
-   - The installer EXE itself (sign as the last step, after MakeInstaller produces it)
-4. Add a signing step to the build pipeline:
-   ```powershell
-   signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "$file"
-   ```
-   The `/tr` timestamp ensures the signature stays valid after the cert expires.
-5. Verify on a clean Windows install: download the installer through a browser, run it, confirm SmartScreen does NOT show "Windows protected your PC".
-
-**§4.11.C — Steam-folder install path**
-
-Steam typically installs StarDrive 1 to `C:\Program Files (x86)\Steam\steamapps\common\StarDrive\`. Writing there requires UAC elevation (the current installer doesn't request it, which is why the Steam-detection code in `Deploy/BBInstaller.nsi` lines 70–74 is commented out).
-
-Steps:
-1. Add UAC manifest to the NSIS installer:
-   ```nsis
-   RequestExecutionLevel admin
-   ```
-   This makes the installer prompt for elevation on launch. Without it, writes to `Program Files (x86)` silently fail or get redirected to `%LOCALAPPDATA%\VirtualStore`.
-2. Uncomment and finalize the `CheckSteam` block in `Deploy/BBInstaller.nsi`:
-   ```nsis
-   ReadRegStr $STEAMDIR HKLM "SOFTWARE\WOW6432Node\Valve\Steam" InstallPath
-   StrCmp $STEAMDIR "" SetDefaultPath 0
-   StrCpy $INSTDIR "$STEAMDIR\SteamApps\common\StarDrive"
-   ```
-3. **Make Steam install opt-in**, not default — present a radio-button page with two choices:
-   - **Replace original StarDrive 1 in Steam folder** (default if Steam install detected)
-   - **Install to standalone folder** (default `C:\Games\StarDrivePlus`)
-4. When the Steam path is chosen and an existing StarDrive 1 install is present:
-   - Back up the original `StarDrive.exe` + `Content/` to `<INSTDIR>\Original_StarDrive_Backup\` so the user can restore later.
-   - Show a confirmation dialog: "This will replace your original StarDrive 1 with BlackBox 1.6.0. The original files will be backed up to Original_StarDrive_Backup/. Continue?"
-   - Verify Steam isn't running; abort with a clear message if it is (Steam files lock under steamapps/common).
-5. After install completes, leave the Steam manifest alone — Steam's manifest still says "StarDrive 1.0", but the launcher binary is now BlackBox 1.6.0. Document this in the release notes (Steam will not auto-update over our install; user can right-click → Properties → Verify Integrity to roll back).
-
-**§4.11.D — Build pipeline + tag + GitHub release**
-1. Re-baseline the AppVeyor (or alternative CI) config if needed. The current README badge points at `ci.appveyor.com/project/RedFox20/stardrive` — confirm whether that pipeline is still the active one or whether we need to migrate to GitHub Actions.
-2. Tag `mars-release-1.6.0` on the merged Phase 4 branch.
-3. AppVeyor (or local) build produces:
-   - `BlackBox_Mars_1.6.0.<build>.exe` (signed NSIS installer)
-   - `BlackBox_Mars_1.6.0.<build>.zip` (split into 25 MB parts if >25 MB)
-   - Optional: `BlackBox_Mars_1.6.0.<build>.msi` (Wix)
-4. Upload to GitHub Releases under tag `mars-release-1.6.0`. Body = `RELEASE_NOTES_1.6.0.md` content.
-5. Run `Deploy/notify-sentry-of-release.bash` with `APPVEYOR_BUILD_VERSION=1.6.0.<build>`.
-6. Update README.md "Current Major Release Link" to point at the new release.
-
-**§4.11.E — Smoke test on three install scenarios**
-1. **Clean machine, standalone install** (`C:\Games\StarDrivePlus`): download installer via Edge or Chrome, run it, confirm no SmartScreen warning, complete install, launch game.
-2. **Clean machine, Steam install**: same as above but pick the Steam-folder option. Confirm Steam still launches StarDrive (now showing BlackBox 1.6.0). Confirm achievements/stats round-trip via §4.9.
-3. **Existing 1.51 install**: install over the top. Confirm registry path detection (`HKLM\Software\StarDrive\InstallPath`) drops the new files into the right place. Confirm save-game files aren't clobbered.
-
-### Tests added
-- `Deploy/SignedBinaryCheck.ps1` *(release-build CI helper)* — runs `signtool.exe verify /pa /v` against `StarDrive.exe`, `SDNative.dll`, and the installer EXE. Fails the build if any binary is unsigned or has an expired timestamp.
-
-### Verification
-- All three smoke scenarios pass with no SmartScreen warning.
-- `signtool verify` reports valid Authenticode signatures on the three target binaries.
-- GitHub Release `mars-release-1.6.0` is published with installer, ZIP (and parts), and release notes.
-- README updated; Sentry release record posted.
-- 1.51 → 1.6.0 in-place upgrade preserves saves.
-
-### Rollback
-- Pull the GitHub Release (un-publish; preserves URL but takes the artefacts down).
-- Revert version bump, README change, and signing-pipeline commits via `git revert`. The unsigned 1.51 binaries are unaffected — users on 1.51 stay on 1.51 until they choose to upgrade.
-
-### Risk
-**Medium.** Signing infrastructure is the unknown — Trusted Signing setup involves Microsoft identity verification with unpredictable timing (1–14 days). If signing isn't ready by §4.11 entry, ship 1.6.0 unsigned (acceptable for the existing 1.51 audience who already trust the source) and follow up with a 1.6.0.<build+1> signed patch. Steam-folder install is straightforward but the UAC elevation change introduces a UX shift — old users running the installer without admin rights now hit an elevation prompt; document this in release notes.
+**Risk**: Medium. Steamworks.NET integration is well-trodden territory; the access constraint narrows verifiable surface but doesn't block the integration itself (the existing schema is what users already see in 1.51). Smoke-Path-B requires a Steam account with StarDrive 1; if the maintainer doesn't own it, fall back to Path A only and document the gap. Mitigation: implement and unit-test in an offline branch first; do the Steam smoke at the end so failure doesn't block other Phase 4 work.
 
 ---
 
@@ -696,7 +545,7 @@ The Phase 3 plan's "Phase 4 placeholder" section listed HDR, advanced lighting m
 | 4.7 Toolchain decision | Low | Decision-doc step. Default to (1) status-quo if no near-term need surfaces. |
 | 4.8 NanoMesh PR | Low | Cross-team coordination; tag fallback if upstream stalls. |
 | 4.9 Steam SDK | Medium | External dependency on real Steam build for smoke. Implement + unit-test offline first; do Steam smoke at the end so failure doesn't block other Phase 4 work. |
-| 4.10 Sign-off | Low | Documentation only. |
-| 4.11 1.6.0 Release | Medium | Signing infra (Microsoft Trusted Signing identity verification has unpredictable lead time) is the largest unknown. Steam-folder install + UAC elevation are mechanical. Fallback: ship unsigned 1.6.0 to the existing 1.51 audience, follow up with a signed 1.6.0.<build+1> patch when signing infra is ready. |
 
-**Migration close**: §4.10 closes Phase 4 as a development phase; §4.11 ships the artefact users actually download. After §4.11 publishes `mars-release-1.6.0`, ARCHITECTURE.md §9's "Suggested Migration Order" gets a "Migration completed" marker, and all migration-related memory entries are settled. Future work falls under "post-migration" — gameplay features, mod support extensions, engine upgrades — and is out of scope for this plan series.
+(Risk rows for §5.1 1.6.0 Release and §5.2 Migration close live in [Phase 5](migration-plan-phase5.md#risk-summary).)
+
+**Phase 4 close**: §4.9 is the last development sub-phase. The dev-phase outcome is captured in commit history + memory; the user-facing sign-off — release artefact, signed installer, GitHub release, PHASE4_RESULTS.md, ARCHITECTURE.md update — happens in [Phase 5](migration-plan-phase5.md). After §5.1 publishes `mars-release-1.6.0`, ARCHITECTURE.md §9's "Suggested Migration Order" gets a "Migration completed" marker (in §5.2 if done, or directly when convenient otherwise), and all migration-related memory entries are settled. Future work falls under "post-migration" — gameplay features, mod support extensions, engine upgrades — and is out of scope for this plan series.
