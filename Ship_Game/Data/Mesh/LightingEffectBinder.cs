@@ -240,9 +240,27 @@ public static class LightingEffectBinder
         fx.DynamicLight6 = dynSlots[6];
         fx.DynamicLight7 = dynSlots[7];
 
+        // §4.6 #12 (post-shadow-disable): minimum ambient floor so hulls
+        // don't go fully black when no submitted light reaches them.
+        // Pre-migration SunBurn's deferred composite carried a baseline
+        // lift (default ambient + tone-curve) that kept unlit surfaces
+        // showing faint diffuse texture — the migrated forward path
+        // attenuates to zero, leaving only emissive/glow-map texels
+        // visible against pure black hull. Component-wise max preserves
+        // any stronger authored ambient (MainMenu's violet, etc.) and
+        // only lifts channels that fall below the floor. User-tuned to
+        // 0.20 against pre-migration footage; raise for more lift in
+        // shadow-side hull, lower if the floor visibly washes out the
+        // dark texture detail.
+        const float MinAmbient = 0.2f;
+        ambient = Vector3.Max(ambient, new Vector3(MinAmbient, MinAmbient, MinAmbient));
+
         // LightingEnabled gates the per-pixel lighting math entirely. Enable
         // when at least one directional, point light, or non-trivial ambient
         // is set. Any of the 8 dynamic slots being filled keeps lighting on.
+        // The MinAmbient floor above guarantees ambient is always non-trivial,
+        // so this check now mostly exists to skip the shader path on scenes
+        // that explicitly don't want lighting at all (none currently).
         bool anyDyn = false;
         for (int s = 0; s < DynamicSlotCount; ++s) anyDyn |= dynSlots[s].Enabled;
         fx.LightingEnabled = dirIndex > 0 || bestSun != null
