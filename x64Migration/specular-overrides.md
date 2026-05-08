@@ -1,12 +1,18 @@
 # Specular Override Table
 
-Corrected `SpecularFactor` values for ships whose original FBX export captured an under-spec'd value. Applied 2026-05-08 via the temp `MeshExporter.SpecularOverrides` table on the `legacy/mesh_exporter_ca_patch` branch (commit `c8c97f35e`).
+Corrected `SpecularFactor` values for ships whose original FBX export captured an under-spec'd value. Applied in two waves on 2026-05-08 via temp tables (`MeshExporter.VanillaOverrides` + `MeshExporter.CombinedArmsOverrides`) on the `legacy/mesh_exporter_ca_patch` branch.
 
 Inheritance rule: for each affected ship, take the **median Specular of vanilla blackbox ships sharing the same diffuse texture cluster**. Where the texture cluster has no vanilla equivalent (Yamamoto, TypeXIX), pin to the survey-wide median ~0.18.
 
-Surveyed by [`UnitTests/Graphics/FbxMaterialSurveyTests.cs`](../UnitTests/Graphics/FbxMaterialSurveyTests.cs) → output `c:\tmp\fbx-specular-survey.csv`.
+Surveys (migration branch) in [`UnitTests/Graphics/FbxMaterialSurveyTests.cs`](../UnitTests/Graphics/FbxMaterialSurveyTests.cs):
 
-## Applied corrections
+| Method | Output | Purpose |
+|---|---|---|
+| `DumpAllShipFbxMaterials`            | `c:\tmp\fbx-specular-survey.csv`        | Vanilla `game/Content/Model/Ships/**`            |
+| `DumpCombinedArmsFbxMaterials`       | `c:\tmp\fbx-specular-survey-ca.csv`     | CA `game/Mods/Combined Arms/**`                  |
+| `ProposeCombinedArmsSpecularOverrides` | `c:\tmp\fbx-ca-proposed-overrides.csv` | Joins CA → vanilla cluster medians + faction fallback |
+
+## Wave 1 — vanilla blackbox tree
 
 | Ship FBX | Texture cluster | Was → Now |
 |---|---|---|
@@ -49,8 +55,45 @@ The reference values these inherit from. From `c:\tmp\fbx-specular-survey.csv` f
 | ship18  | 0.0625 | uniform (9)                   |
 | ship19  | 0.0938 | uniform (8)                   |
 
+## Wave 2 — Combined Arms mod tree
+
+CA's OBJ→FBX exports went through the same broken `MeshExporter.cs:216` pipeline, plus most CA hulls reuse vanilla blackbox diffuse textures, so the cluster-median rule extends naturally. 101 entries in `MeshExporter.CombinedArmsOverrides`; 90 re-exported FBXs were copied into `game/Mods/Combined Arms/mod models/**` (committed on the CA branch's nested git, not in this repo's tree).
+
+**Path-conditional dispatch.** `LightCruiser.fbx` exists in both trees with different cluster medians (vanilla ship10 → 0.0938, CA Terran fallback → 0.2188), so the override selection must distinguish vanilla vs CA exports by output path. The first attempt used `IndexOf("\\mod models\\")` substring matching and missed CA ships at the mod-models root (`shipyard.fbx`, `Station_Small.fbx`); fixed by walking path segments split on `\` and `/` for an exact `mod models` segment match.
+
+**Exclusions** (CA but not overridden):
+- Dauntless faction folder — distinct hull aesthetic, mod-only diffuse maps, owner opted out.
+- `ts2_modi.fbx`, `ts3modE.fbx` — Dauntless-naming ships at mod-models root rather than under `Dauntless/`.
+
+**Faction fallback** — for CA ships whose diffuse texture doesn't match any vanilla cluster directly but live under a known faction folder, inherit from that faction's primary vanilla cluster:
+
+| Faction | Inherits from | Median |
+|---|---|---|
+| Cordrazine | ship16 | 0.0938 |
+| Draylok    | ship18 | 0.0625 |
+| Kulrathi   | ship12 | 0.1875 |
+| Opteris    | ship19 | 0.0938 |
+| Pollops    | ship15 | 0.2188 |
+| Ralyeh     | ship17 | 0.2188 |
+| Vulfar     | ship13 | 0.2188 |
+| Vulfen     | ship13 | 0.2188 |
+| Terran     | ship10 (cluster median, NOT outliers) | 0.2188 |
+
+**File-specific faction override** (FBX whose faction isn't inferable from path):
+- `shipyard.fbx`, `Station_Small.fbx` → Terran (0.2188)
+
+Distribution after copy: 72 ships at 0.2188, 35 at 0.0938, 24 at 0.1875, 18 at 0.0625, plus Dauntless-residue 14 at 15.625 / 11 at 0.0156 (intentionally untouched).
+
 ## Re-applying
 
-If these FBXs ever need to be re-generated from XNB sources, the override table on `legacy/mesh_exporter_ca_patch` (commit `c8c97f35e`) reproduces these values automatically — `StarDrive.exe --export-meshes=fbx` writes to `game/MeshExport/Model/Ships/` with each override logged in yellow `[SpecularOverride]`. Copy from `game/MeshExport/Model/Ships/...` over `game/Content/Model/Ships/...` on the migration branch.
+If these FBXs ever need to be re-generated from XNB sources, both override tables on `legacy/mesh_exporter_ca_patch` reproduce these values automatically. `StarDrive.exe --export-meshes=fbx` writes to:
+- `game/MeshExport/Model/Ships/...` — vanilla outputs (Wave 1)
+- `game/MeshExport/Mods/Combined Arms/mod models/...` — CA outputs (Wave 2)
+
+Each override logged in yellow `[SpecularOverride]`. Copy:
+- Wave 1 outputs → `game/Content/Model/Ships/...` (migration branch tree)
+- Wave 2 outputs → `game/Mods/Combined Arms/mod models/...` (CA branch with FBXs)
+
+The exporter's directory walk is scoped to `mod models` only on the legacy branch — `RawContentLoader.ExportAllXnbMeshes` has the other paths commented out — so a single export run covers CA without re-emitting vanilla.
 
 Note: the legacy x86 build clobbers `game/SDNative.dll` with a 32-bit binary; rebuild SDNative-x64 (`MSBuild SDNative/SDNative.vcxproj -p:Platform=x64`) before running migration tests / the game after each export cycle.
