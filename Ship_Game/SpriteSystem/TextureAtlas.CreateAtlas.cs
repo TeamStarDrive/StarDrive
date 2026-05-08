@@ -149,7 +149,14 @@ namespace Ship_Game.SpriteSystem
                 Width = width;
                 Height = height;
 
-                if (NumPacked > 0 && !File.Exists(atlasTex))
+                // §4.6 #7: AtlasNoCompress atlases write .png instead of the
+                // .dds path stored in CacheAtlasTex. GetAtlasTexture probes
+                // both extensions on load, so the existence check here must
+                // do the same — otherwise every AtlasNoCompress atlas
+                // invalidates on every launch (texture-missing) even though
+                // the real file is sitting next to it as .png.
+                if (NumPacked > 0 && !File.Exists(atlasTex)
+                                 && !File.Exists(System.IO.Path.ChangeExtension(atlasTex, "png")))
                 {
                     if (ResourceManager.Verbose)
                         Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (texture-missing)");
