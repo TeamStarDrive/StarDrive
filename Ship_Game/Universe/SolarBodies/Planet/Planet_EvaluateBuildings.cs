@@ -600,7 +600,6 @@ namespace Ship_Game
             float effectiveness = chooseBest ? CostEffectivenessMultiplier(b.Cost, totalProd) : 1;
             score *= effectiveness;
 
-
             if (RequiredInBlueprints(b))
                 score = score.LowerBound(BuildingScoreThreshold + 0.1f);
 
