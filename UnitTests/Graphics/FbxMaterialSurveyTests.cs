@@ -26,6 +26,50 @@ namespace UnitTests.Graphics;
 [TestClass]
 public class FbxMaterialSurveyTests : StarDriveTest
 {
+    // §4.6 #9 diagnostic: dumps colour-channel material values (Diffuse, Ambient,
+    // Emissive, Specular RGB) for the asteroid + cargo-ship FBXs that render
+    // black-with-spec on the Universe screen. Prints to test output so we can
+    // see whether DiffuseColor=(0,0,0) is the smoking gun without combing
+    // through the CSV.
+    [TestMethod]
+    public void DumpBlackHullMaterials_AsteroidsAndCargo()
+    {
+        var dumper = new FbxMaterialDumper(Content);
+        string contentRoot = Content.RootDirectory;
+        string[] subdirs =
+        {
+            Path.Combine(contentRoot, "Model", "Asteroids"),
+            Path.Combine(contentRoot, "Model", "Ships", "CargoShips"),
+        };
+        Console.WriteLine("FBX,GROUP,MAT,SPEC,DIF_RGB,AMB_RGB,EMI_RGB,SPC_RGB,ALPHA,DIFFUSE_PATH");
+        int total = 0, blackDiffuse = 0;
+        foreach (string dir in subdirs)
+        {
+            if (!Directory.Exists(dir)) continue;
+            foreach (string fbxPath in Directory.EnumerateFiles(dir, "*.fbx", SearchOption.AllDirectories))
+            {
+                string rel = Path.GetRelativePath(contentRoot, fbxPath);
+                foreach (var row in dumper.SurveyFbx(fbxPath))
+                {
+                    total++;
+                    bool isBlack = row.DiffuseColor.X < 0.001f
+                                   && row.DiffuseColor.Y < 0.001f
+                                   && row.DiffuseColor.Z < 0.001f;
+                    if (isBlack) blackDiffuse++;
+                    Console.WriteLine($"{rel},{row.GroupName},{row.MaterialName},{row.Specular:F3}," +
+                        $"({row.DiffuseColor.X:F2},{row.DiffuseColor.Y:F2},{row.DiffuseColor.Z:F2})," +
+                        $"({row.AmbientColor.X:F2},{row.AmbientColor.Y:F2},{row.AmbientColor.Z:F2})," +
+                        $"({row.EmissiveColor.X:F2},{row.EmissiveColor.Y:F2},{row.EmissiveColor.Z:F2})," +
+                        $"({row.SpecularColor.X:F2},{row.SpecularColor.Y:F2},{row.SpecularColor.Z:F2})," +
+                        $"{row.Alpha:F2}," +
+                        $"{Path.GetFileName(row.DiffusePath)}");
+                }
+            }
+        }
+        Console.WriteLine($"--- {total} material rows; {blackDiffuse} have DiffuseColor=(0,0,0) ---");
+        Assert.IsTrue(total > 0, "No FBX material rows surveyed");
+    }
+
     [TestMethod]
     public void DumpAllShipFbxMaterials()
     {
@@ -353,7 +397,7 @@ public class FbxMaterialSurveyTests : StarDriveTest
 
         var rows = new List<string>
         {
-            "fbxRelativePath,groupName,materialName,Specular,DiffusePath,SpecularPath,NormalPath,EmissivePath"
+            "fbxRelativePath,groupName,materialName,Specular,DiffusePath,SpecularPath,NormalPath,EmissivePath,AmbR,AmbG,AmbB,DifR,DifG,DifB,SpcR,SpcG,SpcB,EmiR,EmiG,EmiB,Alpha"
         };
 
         int fbxCount = 0;
@@ -398,7 +442,20 @@ public class FbxMaterialSurveyTests : StarDriveTest
         sb.Append(Csv(row.DiffusePath)).Append(',');
         sb.Append(Csv(row.SpecularPath)).Append(',');
         sb.Append(Csv(row.NormalPath)).Append(',');
-        sb.Append(Csv(row.EmissivePath));
+        sb.Append(Csv(row.EmissivePath)).Append(',');
+        sb.Append(row.AmbientColor.X.ToString("F3")).Append(',');
+        sb.Append(row.AmbientColor.Y.ToString("F3")).Append(',');
+        sb.Append(row.AmbientColor.Z.ToString("F3")).Append(',');
+        sb.Append(row.DiffuseColor.X.ToString("F3")).Append(',');
+        sb.Append(row.DiffuseColor.Y.ToString("F3")).Append(',');
+        sb.Append(row.DiffuseColor.Z.ToString("F3")).Append(',');
+        sb.Append(row.SpecularColor.X.ToString("F3")).Append(',');
+        sb.Append(row.SpecularColor.Y.ToString("F3")).Append(',');
+        sb.Append(row.SpecularColor.Z.ToString("F3")).Append(',');
+        sb.Append(row.EmissiveColor.X.ToString("F3")).Append(',');
+        sb.Append(row.EmissiveColor.Y.ToString("F3")).Append(',');
+        sb.Append(row.EmissiveColor.Z.ToString("F3")).Append(',');
+        sb.Append(row.Alpha.ToString("F3"));
         return sb.ToString();
     }
 
@@ -429,6 +486,11 @@ internal sealed class FbxMaterialDumper : MeshImporter
         public string SpecularPath;
         public string NormalPath;
         public string EmissivePath;
+        public SDGraphics.Vector3 AmbientColor;
+        public SDGraphics.Vector3 DiffuseColor;
+        public SDGraphics.Vector3 SpecularColor;
+        public SDGraphics.Vector3 EmissiveColor;
+        public float Alpha;
     }
 
     // C# state machines can't carry pointer locals across `yield return`, so this
@@ -462,13 +524,18 @@ internal sealed class FbxMaterialDumper : MeshImporter
                 SdMaterial* m = g->Mat;
                 rows.Add(new MaterialRow
                 {
-                    GroupName    = g->Name.AsString,
-                    MaterialName = m->Name.AsString,
-                    Specular     = m->Specular,
-                    DiffusePath  = m->DiffusePath.AsString,
-                    SpecularPath = m->SpecularPath.AsString,
-                    NormalPath   = m->NormalPath.AsString,
-                    EmissivePath = m->EmissivePath.AsString,
+                    GroupName     = g->Name.AsString,
+                    MaterialName  = m->Name.AsString,
+                    Specular      = m->Specular,
+                    DiffusePath   = m->DiffusePath.AsString,
+                    SpecularPath  = m->SpecularPath.AsString,
+                    NormalPath    = m->NormalPath.AsString,
+                    EmissivePath  = m->EmissivePath.AsString,
+                    AmbientColor  = m->AmbientColor,
+                    DiffuseColor  = m->DiffuseColor,
+                    SpecularColor = m->SpecularColor,
+                    EmissiveColor = m->EmissiveColor,
+                    Alpha         = m->Alpha,
                 });
             }
         }

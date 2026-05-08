@@ -605,7 +605,24 @@ namespace Ship_Game.Data.Mesh
             fx.FresnelMicrofacetDistribution = 0.0f;
             fx.ParallaxScale                 = 0.0f;
             fx.ParallaxOffset                = 0.0f;
-            fx.DiffuseColor  = mat->DiffuseColor;
+            // §4.6 #9: a few legacy FBX exports baked DiffuseColor≈(0,0,0) (the
+            // 3 CargoHaulers + all 9 asteroids — the source material's diffuse
+            // happened to be zero or near-zero in those XNB Effects). The shader
+            // multiplies (ambient + diffuseAcc) by DiffuseColor, so a near-zero
+            // value zeroes the entire diffuse path and the hull renders as
+            // emissive + specular only (chrome rocks / silhouette ships). The
+            // intent in those FBXs is "use the texture unmodulated", which is
+            // DiffuseColor=(1,1,1). Substitute when the source is below a
+            // generous black-guard threshold; a well-authored dark material
+            // (say (0.3, 0.05, 0.05)) clears 0.05 on at least one channel.
+            Vector3 diffuse = mat->DiffuseColor;
+            if (diffuse.X < 0.05f && diffuse.Y < 0.05f && diffuse.Z < 0.05f)
+            {
+                Log.Info($"MeshImporter: substituting DiffuseColor=(1,1,1) for '{materialFile}' " +
+                         $"material '{fx.MaterialName}' (FBX had near-zero {diffuse})");
+                diffuse = Vector3.One;
+            }
+            fx.DiffuseColor = diffuse;
             //fx.EmissiveColor = mat->EmissiveColor;
             fx.AddressModeU  = TextureAddressMode.Wrap;
             fx.AddressModeV  = TextureAddressMode.Wrap;
