@@ -118,6 +118,16 @@ public sealed class StaticMesh : IDisposable
         try
         {
             var so = new SceneObject(Name) { ObjectType = type };
+            // §4.6 #1.b: propagate mesh-space bounds onto the SceneObject so
+            // downstream consumers (SceneObj.HalfLength → FTL radius, hull
+            // size estimates, debug overlays) see real values instead of the
+            // default (0,0,0)–(0,0,0) box. Pre-fix this was always zero,
+            // collapsing FTL warp effects to a 0-scale sprite (invisible) on
+            // the MainMenu scene where ships warp on a cycle.
+            so.WorldBoundingBox = Bounds;
+            so.ObjectBoundingSphere = new Microsoft.Xna.Framework.BoundingSphere(
+                XnaVector3.Lerp(Bounds.Min, Bounds.Max, 0.5f),
+                Radius);
             if (ModelMeshes != null)
             {
                 foreach (ModelMesh mesh in ModelMeshes)

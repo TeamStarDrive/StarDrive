@@ -1,9 +1,9 @@
 ﻿# This file defines a 3D Scene with objects, lighting, movement and effects
 SunPos: [-50000, -50000, 13000]
 SunColor: [255,224,224]
-SunIntensity: 4.0
+SunIntensity: 3.0
 AmbientColor: [40,60,110] # dark violet
-AmbientIntensity: 0.75
+AmbientIntensity: 0.5625
 CameraPos: [0, 0, -1000] # Z:-1000 means out of the screen
 LookAt: [0, 0, 10000] # we're looking far into the screen
 
