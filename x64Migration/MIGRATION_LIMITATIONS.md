@@ -126,6 +126,61 @@ upgrade to `ps_4_0`) lets PointLight specular come back. In particular
 
 ---
 
+## Dynamic light slot count fixed at 8
+
+Phase 4.6.B(b) resolved the FL9.3-driven 2-slot cap by expanding to 8.
+Eight is now a chosen budget rather than a hardware floor; lifting it
+further is a tunable.
+
+**Limit.** Per-pixel lighting in `MeshLighting.fx` and `SkinnedEffect.fx`
+evaluates exactly 8 dynamic point lights (`DynamicLight0..7`). The binder
+([LightingEffectBinder.cs:234-241](Ship_Game/Data/Mesh/LightingEffectBinder.cs#L234-L241))
+fills these from a closest-N insertion sort over `LightManager.ActiveLights`
+(global queue cap `GlobalStats.MaxDynamicLightSources`, default 100).
+Pre-migration SunBurn's deferred renderer was effectively unbounded.
+
+**Why.** Eight was chosen to give predictable per-pixel cost on integrated
+GPUs while staying generous enough that 99% of scenes never saturate.
+Each slot adds one `ComputePoint` evaluation per lit pixel: distance,
+attenuation, N·L, half-vector specular with a `pow` (the expensive op),
+plus a mul-add into the running color. FL10.0's ~4096-register pool is
+nowhere near the binding constraint; ALU is.
+
+**Impact.** Busy fleet engagements with 9+ projectile / explosion glows
+near the camera will see the closest 8 tint hulls and the rest contribute
+only their bolt sprite + bloom. Same character as the pre-§4.6.B(b)
+2-slot behavior — visible only when scene density is high — just at a
+much higher saturation point.
+
+**Performance estimate.** Doubling to 16 roughly doubles the lighting-eval
+ALU per pixel — ≈0.2–0.5ms added at 1080p on a mid-range GPU when ship
+hulls dominate the frame. 32 slots starts mattering on already-GPU-bound
+scenes. Hull pixels are a small fraction of the universe screen
+(skybox/nebula dominates), so the headline FPS impact is muted.
+
+**Path to remove.** Three options in ascending scope:
+1. **Bump to 16 (or 32) statically.** Add `DynamicLight8..N` uniforms in
+   the two `.fx` files, extend `LightingEffectBinder.dynSlots` and the
+   handles in `LightingEffect.OnApply`, push them in the binder loop.
+   ~30 mechanical lines per +8. Easy to revert.
+2. **Make N runtime-tunable** via `GlobalStats.MaxDynamicLightSlots` (or
+   reuse `MaxDynamicLightSources` interpretation). Shader still has a
+   compile-time max; the Options screen exposes the soft cap so low-end
+   players can drop it. Same code surface as (1) plus ~10 lines of
+   plumbing.
+3. **Forward+ / clustered shading.** Bin lights into screen-space tiles,
+   dispatch per-tile light lists. Right answer if N ever needs to scale
+   into the hundreds; non-trivial scope (compute pre-pass or per-tile
+   structured buffer; adds SM5 dependency unless implemented as a CPU
+   tile-binner with a structured-buffer-equivalent texture). Out of
+   §4.6 scope.
+
+Recommend option 1 (bump to 16) only if visual saturation actually
+surfaces; option 2 if the project ever ships a "low/medium/high" graphics
+preset switch.
+
+---
+
 ## Single shadow caster
 
 Phase 3.8.B.
