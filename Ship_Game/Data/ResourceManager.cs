@@ -902,6 +902,18 @@ namespace Ship_Game
             "NewUI", "EmpireTopBar", "Popup", "ResearchMenu"
         });
 
+        // Atlases whose nopack Color+alpha textures need lossless alpha (PNG cache).
+        // DXT5 alpha is 8-level-per-4x4-block — fine for noisy game art (planet
+        // surfaces, suns, nebulas) but produces visible banding on smooth UI alpha
+        // gradients. UI/node (FOW sensor-circle outer ring) was the original §4.6 #7
+        // trigger. Other atlases default to DXT5 (much faster encoding, matches
+        // pre-migration cache size). Add new folders here only if alpha banding
+        // shows up elsewhere.
+        public static readonly HashSet<string> AtlasLosslessAlphaFolders = new HashSet<string>(new []
+        {
+            "UI"
+        });
+
         static TextureAtlas LoadAtlas(string folder)
         {
             var atlas = RootContent.LoadTextureAtlas(folder, useAssetCache: true);

@@ -12,6 +12,7 @@ namespace Ship_Game.SpriteSystem
             var textures = new TextureInfo[textureFiles.Length];
 
             bool noPackAll = ResourceManager.AtlasExcludeFolder.Contains(path.OriginalName);
+            bool losslessAlpha = ResourceManager.AtlasLosslessAlphaFolders.Contains(path.OriginalName);
             HashSet<string> ignore = ResourceManager.AtlasExcludeTextures; // HACK
 
             for (int i = 0; i < textureFiles.Length; ++i)
@@ -23,12 +24,13 @@ namespace Ship_Game.SpriteSystem
                 bool noPack = noPackAll || ignore.Contains(texName);
                 textures[i] = new TextureInfo
                 {
-                    Name    = texName,
-                    Type    = ext,
-                    Width   = tex.Width,
-                    Height  = tex.Height,
-                    Texture = tex,
-                    NoPack  = noPack,
+                    Name           = texName,
+                    Type           = ext,
+                    Width          = tex.Width,
+                    Height         = tex.Height,
+                    Texture        = tex,
+                    NoPack         = noPack,
+                    LosslessAlpha  = losslessAlpha,
                 };
             }
             return textures;

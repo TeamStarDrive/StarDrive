@@ -15,7 +15,7 @@ namespace Ship_Game.SpriteSystem
     /// </summary>
     public sealed partial class TextureAtlas : IDisposable
     {
-        const int Version = 28; // changing this will force all caches to regenerate
+        const int Version = 29; // changing this will force all caches to regenerate
         const string CacheVersionFile = "version.txt";
 
         // Run once per LoadAllResources, BEFORE any atlas loads. Compares the

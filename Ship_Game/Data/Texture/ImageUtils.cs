@@ -206,6 +206,78 @@ namespace Ship_Game.Data.Texture
             }
         }
 
+        // Write a DDS file containing already-compressed DXT1 or DXT5 blocks.
+        // Used to round-trip an in-memory compressed Texture2D back to disk
+        // without re-encoding. MonoGame removed XNA 3.1's
+        // Texture2D.Save(path, ImageFileFormat.Dds); without this writer the
+        // fallback was Texture2D.SaveAsPng (decode DXT -> RGBA -> PNG-encode),
+        // ~300ms per nopack texture. This path is sub-millisecond per file.
+        // DDS spec: https://learn.microsoft.com/en-us/windows/win32/direct3ddds/dds-header
+        public static void WriteCompressedDds(string filename, int width, int height,
+                                              byte[] blocks, bool isDxt5)
+        {
+            if (width == 0 || height == 0)
+                throw new ArgumentException($"DDS Width/Height cannot be zero: {width}x{height}");
+
+            int blockBytes = isDxt5 ? 16 : 8;
+            int blocksWide = Math.Max(1, (width + 3) / 4);
+            int blocksHigh = Math.Max(1, (height + 3) / 4);
+            int linearSize = blocksWide * blocksHigh * blockBytes;
+            if (blocks.Length < linearSize)
+                throw new ArgumentException(
+                    $"DDS block buffer too small for {width}x{height} {(isDxt5 ? "DXT5" : "DXT1")}: have {blocks.Length}, need {linearSize}");
+
+            const uint MAGIC            = 0x20534444; // 'DDS '
+            const uint DDSD_CAPS        = 0x1;
+            const uint DDSD_HEIGHT      = 0x2;
+            const uint DDSD_WIDTH       = 0x4;
+            const uint DDSD_PIXELFORMAT = 0x1000;
+            const uint DDSD_LINEARSIZE  = 0x80000;
+            const uint DDPF_FOURCC      = 0x4;
+            const uint DDSCAPS_TEXTURE  = 0x1000;
+            const uint FOURCC_DXT1      = 0x31545844;
+            const uint FOURCC_DXT5      = 0x35545844;
+
+            uint flags  = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT | DDSD_LINEARSIZE;
+            uint fourCC = isDxt5 ? FOURCC_DXT5 : FOURCC_DXT1;
+
+            using FileStream fs = File.Create(filename);
+            using BinaryWriter bw = new(fs);
+
+            bw.Write(MAGIC);
+
+            // DDS_HEADER (124 bytes)
+            bw.Write(124u);             // dwSize
+            bw.Write(flags);            // dwFlags
+            bw.Write((uint)height);     // dwHeight
+            bw.Write((uint)width);      // dwWidth
+            bw.Write((uint)linearSize); // dwPitchOrLinearSize
+            bw.Write(0u);               // dwDepth
+            bw.Write(0u);               // dwMipMapCount
+            for (int i = 0; i < 11; ++i)
+                bw.Write(0u);           // dwReserved1[11]
+
+            // DDS_PIXELFORMAT (32 bytes)
+            bw.Write(32u);              // dwSize
+            bw.Write(DDPF_FOURCC);      // dwFlags
+            bw.Write(fourCC);           // dwFourCC
+            bw.Write(0u);               // dwRGBBitCount
+            bw.Write(0u);               // dwRBitMask
+            bw.Write(0u);               // dwGBitMask
+            bw.Write(0u);               // dwBBitMask
+            bw.Write(0u);               // dwABitMask
+
+            // Caps + reserved
+            bw.Write(DDSCAPS_TEXTURE);  // dwCaps
+            bw.Write(0u);               // dwCaps2
+            bw.Write(0u);               // dwCaps3
+            bw.Write(0u);               // dwCaps4
+            bw.Write(0u);               // dwReserved2
+
+            // Compressed blocks
+            bw.Write(blocks, 0, linearSize);
+        }
+
 
         // Phase 2.3: managed replacement for SDNative's CopyPixelsPadded. The native
         // version takes Image-by-value structs (dst, src) which use the x86 stack-passing

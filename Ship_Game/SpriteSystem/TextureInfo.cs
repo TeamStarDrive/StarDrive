@@ -16,6 +16,10 @@ namespace Ship_Game.SpriteSystem
         public int Height;
         public Texture2D Texture;
         public bool NoPack; // This texture should not be packed
+        // §4.6 #7: when true and the texture is Color+alpha, SaveAsDds writes
+        // a PNG (lossless) instead of DXT5 (banded). Set per-folder via
+        // ResourceManager.AtlasLosslessAlphaFolders during CreateTextureInfos.
+        public bool LosslessAlpha;
 
         public string SourcePath;
 
@@ -101,12 +105,21 @@ namespace Ship_Game.SpriteSystem
             SurfaceFormat format = Texture.Format;
             if (format == SurfaceFormat.Dxt5 || format == SurfaceFormat.Dxt1)
             {
-                // TODO Phase 4: MonoGame Texture2D has no DDS writer; PNG fallback
-                // keeps export usable. Add a custom DDS writer if/when DXT round-trip
-                // is needed (no consumer requires it today).
-                using FileStream fs = File.Create(pngPath);
-                Texture.SaveAsPng(fs, Texture.Width, Texture.Height);
-                return pngPath;
+                // Round-trip already-compressed DXT bytes back to a real DDS file
+                // (header + raw blocks, no re-encoding). MonoGame removed XNA's
+                // Texture2D.Save(path, ImageFileFormat.Dds); without this writer
+                // the cache fallback was SaveAsPng — decode DXT to RGBA then PNG
+                // encode, ~300ms per nopack texture vs sub-ms here. The big
+                // nopack atlases (Suns 33 nopack, PlanetTiles 23 nopack, Nebulas
+                // 20 nopack) dominated full-rebuild time pre this fix.
+                bool isDxt5 = format == SurfaceFormat.Dxt5;
+                int blockBytes = isDxt5 ? 16 : 8;
+                int blocksWide = Math.Max(1, (Texture.Width + 3) / 4);
+                int blocksHigh = Math.Max(1, (Texture.Height + 3) / 4);
+                var blocks = new byte[blocksWide * blocksHigh * blockBytes];
+                Texture.GetData(blocks);
+                ImageUtils.WriteCompressedDds(ddsPath, Texture.Width, Texture.Height, blocks, isDxt5);
+                return ddsPath;
             }
             if (format == SurfaceFormat.Color)
             {
@@ -115,21 +128,25 @@ namespace Ship_Game.SpriteSystem
 
                 bool alpha = ImageUtils.HasTransparentPixels(color, Width, Height);
 
-                if (alpha)
+                if (alpha && LosslessAlpha)
                 {
                     // §4.6 #7: avoid DXT5 alpha-quantization artifacts on smooth
                     // alpha gradients (UI/node's circular alpha mask read as a
                     // visible dark ring at the sensor-circle edge in the FOW
                     // composite). DXT5 alpha is 8-level-per-4x4-block; for
                     // gradient textures this produces banding that bilinear
-                    // sampling doesn't fully smooth. PNG keeps the gradient
-                    // lossless; cache size cost is acceptable for nopack UI
-                    // textures (the only Color+alpha route through this path).
+                    // sampling doesn't fully smooth. Folder must be in
+                    // ResourceManager.AtlasLosslessAlphaFolders to opt in;
+                    // game-art atlases (Suns, Nebulas, PlanetTiles, etc.) take
+                    // the DXT5 fast path below — banding is invisible against
+                    // the noisy art content, and PNG encoding is ~20× slower
+                    // per nopack texture on full-rebuild.
                     ImageUtils.SaveAsPng(pngPath, Width, Height, color);
                     return pngPath;
                 }
 
-                ImageUtils.ConvertToDDS(ddsPath, Width, Height, color, DDSFlags.Dxt1);
+                DDSFlags flags = alpha ? DDSFlags.Dxt5 : DDSFlags.Dxt1;
+                ImageUtils.ConvertToDDS(ddsPath, Width, Height, color, flags);
                 return ddsPath;
             }
             if (format == SurfaceFormat.Bgr32)
