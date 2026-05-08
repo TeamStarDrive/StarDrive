@@ -92,28 +92,19 @@ namespace Ship_Game.UI
             batch.SafeEnd();
         }
 
-        // Phase 3.7: pass the additive BlendState directly to SpriteBatch.Begin so it
-        // survives Immediate-mode batch flushes. The legacy "Begin AlphaBlend, then
-        // override device.BlendState" pattern only worked under XNA 3.1 because the
-        // device.RenderState was a free-standing API; under MonoGame the SpriteBatch
-        // re-applies its own blend state per flush. Without this fix, the MainMenu
-        // BackAdditive overlays (Lights_edge / Dust / Lights_center / Aurora) draw
-        // with plain alpha-blend and the planet's limb / city-lights / aurora effects
-        // collapse into a narrow, unblended core.
-        static readonly BlendState SoftAdditive = new()
-        {
-            Name = "SoftAdditive",
-            ColorSourceBlend = Blend.InverseDestinationColor,
-            AlphaSourceBlend = Blend.InverseDestinationColor,
-            ColorDestinationBlend = Blend.One,
-            AlphaDestinationBlend = Blend.One,
-            ColorBlendFunction = BlendFunction.Add,
-            AlphaBlendFunction = BlendFunction.Add,
-        };
-
+        // Phase 3.7 / §4.6 #1.c: BackAdditive layer (planet limb, Dust, Aurora,
+        // city-lights) needs a true additive composite over the planet panel.
+        // Pre-Phase-3.7 used plain AlphaBlend, which collapsed the highlights
+        // into an unblended core. Phase 3.7 swapped to a custom SoftAdditive
+        // (`src*(1-dst) + dst`) — that preserved the planet but attenuated the
+        // puff contribution so far that Dust + Aurora became invisible against
+        // a bright Mars limb. Post-§4.6 #1.c we use canonical
+        // `BlendState.Additive` (`src*srcA + dst*1`): direct add over dark
+        // space, controlled lift over the planet (Color multipliers in
+        // MMenu.Mars.yaml dial back per-panel intensity if needed).
         static void BeginAdditive(SpriteBatch batch, bool saveState = false)
         {
-            batch.Begin(SpriteSortMode.Immediate, SoftAdditive);
+            batch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
         }
         
         static void BatchDrawAdditive(SpriteBatch batch, DrawTimes elapsed, Array<UIElementV2> elements)
