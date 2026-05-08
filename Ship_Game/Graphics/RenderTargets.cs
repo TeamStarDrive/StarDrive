@@ -12,7 +12,8 @@ namespace Ship_Game.Graphics
         /// <summary>
         /// Creates a BackBuffer-Compatible RenderTarget
         /// </summary>
-        public static RenderTarget2D Create(GraphicsDevice device, int width, int height)
+        public static RenderTarget2D Create(GraphicsDevice device, int width, int height,
+                                            RenderTargetUsage usage = RenderTargetUsage.DiscardContents)
         {
             PresentationParameters pp = device.PresentationParameters;
             CheckTextureSize(width, height, out width, out height);
@@ -24,16 +25,17 @@ namespace Ship_Game.Graphics
             // in DrawPlanets painted right over them.
             return new RenderTarget2D(device, width, height, mipMap: false,
                                       pp.BackBufferFormat, pp.DepthStencilFormat,
-                                      pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
+                                      pp.MultiSampleCount, usage);
         }
 
         /// <summary>
         /// Creates a BackBuffer-Compatible RenderTarget which matches BackBuffer size
         /// </summary>
-        public static RenderTarget2D Create(GraphicsDevice device)
+        public static RenderTarget2D Create(GraphicsDevice device,
+                                            RenderTargetUsage usage = RenderTargetUsage.DiscardContents)
         {
             PresentationParameters pp = device.PresentationParameters;
-            return Create(device, pp.BackBufferWidth, pp.BackBufferHeight);
+            return Create(device, pp.BackBufferWidth, pp.BackBufferHeight, usage);
         }
 
         public static bool CheckTextureSize(int width, int height, out int newWidth, out int newHeight)

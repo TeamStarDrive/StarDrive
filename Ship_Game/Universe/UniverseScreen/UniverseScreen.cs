@@ -531,7 +531,15 @@ namespace Ship_Game
                 ScreenManager.AttachShadowMap(shadowMapComponent);
             }
 
-            MainTarget   = RenderTargets.Create(device);
+            // §4.6 #1.b regression fix: MainTarget MUST PreserveContents because the
+            // shadow pre-pass in SunBurnStubs.RenderScene swaps to ShadowMap and back
+            // mid-frame. With DiscardContents, the rebind wipes the already-drawn
+            // RenderBackdrop output (nebula + stars + clouds), leaving a black scene
+            // under the ship meshes when zoomed in close enough that ships have
+            // non-zero bounds. Other RTs (Border, Lights, FogMap, PostBloom,
+            // PostDistort) are explicitly cleared at the start of their write passes,
+            // so DiscardContents is fine for them.
+            MainTarget   = RenderTargets.Create(device, RenderTargetUsage.PreserveContents);
             LightsTarget = RenderTargets.Create(device);
             BorderRT     = RenderTargets.Create(device);
             if (GlobalStats.RenderBloom)

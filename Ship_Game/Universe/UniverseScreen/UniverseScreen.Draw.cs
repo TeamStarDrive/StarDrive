@@ -298,6 +298,16 @@ namespace Ship_Game
 
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(MainTarget);
+            // §4.6 #1.b regression follow-up: MainTarget is now PreserveContents
+            // so the shadow pre-pass's RT swap in SunBurnStubs.RenderScene doesn't
+            // wipe the in-progress scene. PreserveContents preserves color *and*
+            // depth across rebinds, including across frames — so we have to
+            // explicitly clear depth/stencil at the start of every frame to keep
+            // stale prior-frame depth values from depth-failing this frame's
+            // draws. Color is also cleared (Background.Draw fills it anyway, so
+            // this is just belt-and-braces for any short-circuit path).
+            graphics.Clear(ClearOptions.Target | ClearOptions.DepthBuffer | ClearOptions.Stencil,
+                           Color.Black, 1f, 0);
             Render(sr, batch, elapsed);
             graphics.SetRenderTarget(null);
             
