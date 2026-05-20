@@ -151,6 +151,15 @@ namespace Ship_Game
         float CinematicModeTextTimer = 3f;
 
         /// <summary>
+        /// Auto-Cinematic Mode (Shift+F11): movie-style mode that hides everything
+        /// (UI, fog of war, empire borders, fleet icons, system labels) and locks
+        /// all input. Step 1: lockdown + hide only; camera director and tilted view
+        /// come in later steps.
+        /// </summary>
+        public bool IsAutoCinematicEnabled = false;
+        float AutoCinematicTextTimer = 3f;
+
+        /// <summary>
         /// Conditions to suppress diplomacy screen popups
         /// </summary>
         public bool CanShowDiplomacyScreen => UState.CanShowDiplomacyScreen && !IsCinematicModeEnabled;

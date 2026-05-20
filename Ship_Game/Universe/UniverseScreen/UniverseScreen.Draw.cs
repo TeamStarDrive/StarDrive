@@ -369,8 +369,9 @@ namespace Ship_Game
             
             OverlaysGroupTotalPerf.Start();
             {
-                UpdateFogOfWarInfluences(batch, graphics);
-                if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+                if (!IsAutoCinematicEnabled)
+                    UpdateFogOfWarInfluences(batch, graphics);
+                if (!IsAutoCinematicEnabled && viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
                     DrawColoredEmpireBorders(sr, graphics);
 
                 // §3.7 step 1: bloom processes MainTarget -> PostBloomTarget,
@@ -428,7 +429,8 @@ namespace Ship_Game
 
                 SetViewMatrix(cameraMatrix);
 
-                DrawColoredBordersRT(batch);
+                if (!IsAutoCinematicEnabled)
+                    DrawColoredBordersRT(batch);
             }
             OverlaysGroupTotalPerf.Stop();
 
@@ -437,9 +439,12 @@ namespace Ship_Game
             batch.SafeBegin();
             {
                 DrawShipsAndProjectiles(batch);
-                DrawShipAndPlanetIcons(batch);
-                DrawSolarSystems(batch);
-                DrawSystemThreatIndicators(batch);
+                if (!IsAutoCinematicEnabled)
+                {
+                    DrawShipAndPlanetIcons(batch);
+                    DrawSolarSystems(batch);
+                    DrawSystemThreatIndicators(batch);
+                }
                 DrawGeneralUI(batch, elapsed);
             }
             batch.SafeEnd();
@@ -523,7 +528,7 @@ namespace Ship_Game
             // the failure mode of the 2026-05-02 attempt. Set MatrixTransform
             // ourselves (SpriteBatch only auto-populates it on SpriteEffect-typed
             // effects; see BloomComponent.SetMatrixTransform).
-            if (basicFogOfWarEffect != null)
+            if (basicFogOfWarEffect != null && !IsAutoCinematicEnabled)
             {
                 basicFogOfWarEffect.Parameters["LightsTexture"]?.SetValue(lights);
                 EffectParameter mt = basicFogOfWarEffect.Parameters["MatrixTransform"];
@@ -617,10 +622,16 @@ namespace Ship_Game
                 batch.DrawString(font, "SIM  " + ActualSimFPS, new Vector2(ScreenWidth - 100f, 160f), color);
             }
 
-            if (IsCinematicModeEnabled && CinematicModeTextTimer > 0f)
+            if (IsCinematicModeEnabled && !IsAutoCinematicEnabled && CinematicModeTextTimer > 0f)
             {
                 CinematicModeTextTimer -= elapsed.RealTime.Seconds;
                 DrawTopCenterStatusText(batch, "Cinematic Mode - Press F11 to exit", Color.White, 3);
+            }
+
+            if (IsAutoCinematicEnabled && AutoCinematicTextTimer > 0f)
+            {
+                AutoCinematicTextTimer -= elapsed.RealTime.Seconds;
+                DrawTopCenterStatusText(batch, "Auto-Cinematic Mode - Press Shift+F11 to exit", Color.White, 3);
             }
 
             if (!Player.Research.NoResearchLeft && Player.Research.NoTopic && !Player.AutoResearch && !Debug)

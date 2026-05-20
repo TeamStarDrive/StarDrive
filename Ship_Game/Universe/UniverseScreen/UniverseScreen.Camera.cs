@@ -366,5 +366,23 @@ namespace Ship_Game
             }
             IsCinematicModeEnabled = !IsCinematicModeEnabled;
         }
+
+        void ToggleAutoCinematicMode()
+        {
+            IsAutoCinematicEnabled = !IsAutoCinematicEnabled;
+            if (IsAutoCinematicEnabled)
+            {
+                AutoCinematicTextTimer = 3;
+                // Auto-Cinematic is a superset of regular Cinematic; force-enable
+                // the UI-hide flag so all existing !IsCinematicModeEnabled gates
+                // also suppress UI. On exit we drop it; press F11 again to keep
+                // UI hidden after leaving auto.
+                IsCinematicModeEnabled = true;
+            }
+            else
+            {
+                IsCinematicModeEnabled = false;
+            }
+        }
     }
 }

@@ -162,7 +162,8 @@ namespace Ship_Game
         // Ingame controls
         public bool PreviousTarget  => BackMouseClick;
         public bool TacticalIcons   => IsKeyDown(Keys.LeftAlt);
-        public bool CinematicMode   => KeyPressed(Keys.F11);
+        public bool CinematicMode      => KeyPressed(Keys.F11) && !IsShiftKeyDown;
+        public bool AutoCinematicMode  => KeyPressed(Keys.F11) && IsShiftKeyDown;
 
         public bool IsAltKeyDown    => IsKeyDown(Keys.LeftAlt)     || IsKeyDown(Keys.RightAlt);
         public bool IsCtrlKeyDown   => IsKeyDown(Keys.LeftControl) || IsKeyDown(Keys.RightControl);

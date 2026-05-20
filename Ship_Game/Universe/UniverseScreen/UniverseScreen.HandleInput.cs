@@ -254,6 +254,14 @@ namespace Ship_Game
         {
             Input = input;
 
+            // Auto-Cinematic Mode (Shift+F11): the toggle is the only input we
+            // accept while active. Everything else -- pause, clicks, keys,
+            // selections, hotkeys -- is swallowed so the player sees a movie.
+            if (input.AutoCinematicMode)
+                ToggleAutoCinematicMode();
+            if (IsAutoCinematicEnabled)
+                return true;
+
             if (input.PauseGame && !GlobalStats.TakingInput)
                 UState.Paused = !UState.Paused;
 
