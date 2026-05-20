@@ -96,7 +96,12 @@ namespace Ship_Game.Ships
 
         void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
-            bool visibleToPlayer = forceVisible || IsVisibleToPlayer;
+            // Auto-Cinematic uses a tilted 3D camera; the 2D VisibleWorldRect that
+            // drives InFrustum no longer matches what's actually on screen, and
+            // fog-of-war is off anyway. Force-visible so ships outside the old
+            // top-down rect don't pop while the cinematic camera flies past them.
+            bool autoCinematic = Universe.Screen != null && Universe.Screen.IsAutoCinematicEnabled;
+            bool visibleToPlayer = forceVisible || autoCinematic || IsVisibleToPlayer;
             if (visibleToPlayer) NotVisibleToPlayerTimer = 0f;
             else                 NotVisibleToPlayerTimer += timeStep.FixedTime;
 

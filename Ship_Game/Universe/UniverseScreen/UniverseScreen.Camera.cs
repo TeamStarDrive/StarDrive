@@ -185,6 +185,22 @@ namespace Ship_Game
             SnapViewTo(new(f.AveragePosition(), GetZfromScreenState(zoomLevel)), 3f, 1f);
         }
 
+        // Camera matrix for the render path. In normal mode this is the top-down
+        // ortho-style LookAtDown. In Auto-Cinematic mode we build a real 3D LookAt
+        // from CamPos (eye) and CinematicLookAt (where to point) so the view can
+        // tilt, pitch, and yaw as the shot's camera trajectory moves around the
+        // subject. World up = -Z (negative Z is "above" the Z=0 ship plane).
+        Matrix BuildCameraMatrix()
+        {
+            if (!IsAutoCinematicEnabled)
+                return Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
+
+            var eye  = new Vector3((float)CamPos.X, (float)CamPos.Y, (float)-CamPos.Z);
+            var look = new Vector3((float)CinematicLookAt.X, (float)CinematicLookAt.Y, (float)-CinematicLookAt.Z);
+            var up   = new Vector3(0f, 0f, -1f);
+            return Matrix.CreateLookAt(eye, look, up);
+        }
+
         void AdjustCamera(float elapsedTime)
         {
             if (ShipToView == null)
@@ -196,6 +212,55 @@ namespace Ship_Game
                 float minCamHeight = Debug ? 1337.0f : 400.0f;
             #endif
 
+            if (IsAutoCinematicEnabled)
+            {
+                CinematicDirector.Update(elapsedTime);
+                if (UState.CamPos.Z < minCamHeight)
+                    UState.CamPos.Z = minCamHeight;
+            }
+            else
+            {
+                AdjustCameraNormal(elapsedTime, minCamHeight);
+            }
+
+            UState.CamPos.X = UState.CamPos.X.Clamped(-UState.Size, +UState.Size);
+            UState.CamPos.Y = UState.CamPos.Y.Clamped(-UState.Size, +UState.Size);
+            UState.CamPos.Z = UState.CamPos.Z.Clamped(minCamHeight, MaxCamHeight);
+
+            //Log.Write(ConsoleColor.Green, $"CamPos {CamPos.X:0.00} {CamPos.Y:0.00} {CamPos.Z:0.00}  Dest {CamDestination.X:0.00} {CamDestination.Y:0.00} {CamDestination.Z:0.00}");
+
+            var newViewState = UnivScreenState.DetailView;
+            foreach (UnivScreenState state in Enum.GetValues(typeof(UnivScreenState)))
+            {
+                if (CamPos.Z <= GetZfromScreenState(state))
+                {
+                    newViewState = state;
+                    break;
+                }
+            }
+
+            if (viewState != newViewState)
+            {
+                viewState = newViewState;
+
+                const double maxDetailNebulaDist = 15_000_000;
+                double maxDistance = maxDetailNebulaDist;
+                switch (newViewState)
+                {
+                    case UnivScreenState.DetailView: maxDistance += (int)UnivScreenState.ShipView; break;
+                    case UnivScreenState.ShipView:   maxDistance += (int)UnivScreenState.PlanetView; break;
+                    case UnivScreenState.PlanetView: maxDistance += (int)UnivScreenState.SystemView; break;
+                    case UnivScreenState.SystemView: maxDistance += (int)UnivScreenState.SectorView; break;
+                    case UnivScreenState.SectorView: maxDistance += (int)UnivScreenState.GalaxyView; break;
+                    case UnivScreenState.GalaxyView: maxDistance += maxDetailNebulaDist; break;
+                }
+
+                SetPerspectiveProjection(maxDistance: maxDistance);
+            }
+        }
+
+        void AdjustCameraNormal(float elapsedTime, float minCamHeight)
+        {
             AdjustCamTimer -= elapsedTime;
             if (ViewingShip && !snappingToShip && ShipToView != null)
             {
@@ -253,45 +318,6 @@ namespace Ship_Game
                 UState.CamPos = UState.CamPos.SmoothStep(CamDestination, 0.2);
                 if (UState.CamPos.Z < minCamHeight)
                     UState.CamPos.Z = minCamHeight;
-            }
-
-            UState.CamPos.X = UState.CamPos.X.Clamped(-UState.Size, +UState.Size);
-            UState.CamPos.Y = UState.CamPos.Y.Clamped(-UState.Size, +UState.Size);
-            UState.CamPos.Z = UState.CamPos.Z.Clamped(minCamHeight, MaxCamHeight);
-
-            //Log.Write(ConsoleColor.Green, $"CamPos {CamPos.X:0.00} {CamPos.Y:0.00} {CamPos.Z:0.00}  Dest {CamDestination.X:0.00} {CamDestination.Y:0.00} {CamDestination.Z:0.00}");
-
-            var newViewState = UnivScreenState.DetailView;
-            foreach (UnivScreenState state in Enum.GetValues(typeof(UnivScreenState)))
-            {
-                if (CamPos.Z <= GetZfromScreenState(state))
-                {
-                    newViewState = state;
-                    break;
-                }
-            }
-
-            // We reset the Perspective Matrix because at close zoom levels
-            // we need to reduce the MaxDistance of the Projection matrix
-            // Otherwise our screen projection is extremely inaccurate due to float errors
-            if (viewState != newViewState)
-            {
-                viewState = newViewState;
-
-                const double maxDetailNebulaDist = 15_000_000;
-                double maxDistance = maxDetailNebulaDist;
-                switch (newViewState)
-                {
-                    case UnivScreenState.DetailView: maxDistance += (int)UnivScreenState.ShipView; break;
-                    case UnivScreenState.ShipView:   maxDistance += (int)UnivScreenState.PlanetView; break;
-                    case UnivScreenState.PlanetView: maxDistance += (int)UnivScreenState.SystemView; break;
-                    case UnivScreenState.SystemView: maxDistance += (int)UnivScreenState.SectorView; break;
-                    case UnivScreenState.SectorView: maxDistance += (int)UnivScreenState.GalaxyView; break;
-                    case UnivScreenState.GalaxyView: maxDistance += maxDetailNebulaDist; break;
-                }
-
-                //Log.Info($"View: {newViewState} MaxDistance: {maxDistance}  CamHeight: {CamPos.Z}");
-                SetPerspectiveProjection(maxDistance: maxDistance);
             }
         }
 
@@ -378,10 +404,12 @@ namespace Ship_Game
                 // also suppress UI. On exit we drop it; press F11 again to keep
                 // UI hidden after leaving auto.
                 IsCinematicModeEnabled = true;
+                CinematicDirector?.Reset();
             }
             else
             {
                 IsCinematicModeEnabled = false;
+                CinematicDirector?.Reset();
             }
         }
     }

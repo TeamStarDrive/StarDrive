@@ -153,11 +153,17 @@ namespace Ship_Game
         /// <summary>
         /// Auto-Cinematic Mode (Shift+F11): movie-style mode that hides everything
         /// (UI, fog of war, empire borders, fleet icons, system labels) and locks
-        /// all input. Step 1: lockdown + hide only; camera director and tilted view
-        /// come in later steps.
+        /// all input. Camera is driven by CinematicDirector while active.
         /// </summary>
         public bool IsAutoCinematicEnabled = false;
         float AutoCinematicTextTimer = 3f;
+        public CinematicDirector CinematicDirector;
+
+        // Where the cinematic camera is looking in world space (Z=0 plane).
+        // When auto-cinematic is on, the render matrix uses CreateLookAt(eye=CamPos,
+        // target=CinematicLookAt, up=worldUp) instead of CreateLookAtDown, so pitch
+        // and yaw emerge naturally as the camera moves past the target.
+        public Vector3d CinematicLookAt;
 
         /// <summary>
         /// Conditions to suppress diplomacy screen popups
@@ -215,6 +221,7 @@ namespace Ship_Game
 
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
+            CinematicDirector = new CinematicDirector(this);
         }
 
         void Objects_OnShipRemoved(Ship ship)

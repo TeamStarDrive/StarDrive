@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -513,7 +515,22 @@ namespace Ship_Game
         {
             VisPerf.Start();
 
-            AABoundingBox2D visibleWorld = Universe.VisibleWorldRect;
+            // Auto-Cinematic uses a tilted 3D camera; the 2D VisibleWorldRect
+            // (computed by unprojecting the viewport onto Z=0) no longer matches
+            // what's actually on screen. Override with a generous box around the
+            // shot's lookAt point so projectiles/beams/ships near the action
+            // still get InFrustum=true (and therefore drawn / mesh-updated).
+            AABoundingBox2D visibleWorld;
+            bool autoCinematic = Universe != null && Universe.IsAutoCinematicEnabled;
+            if (autoCinematic)
+            {
+                var look = Universe.CinematicLookAt;
+                visibleWorld = new AABoundingBox2D(new Vector2((float)look.X, (float)look.Y), 30000f);
+            }
+            else
+            {
+                visibleWorld = Universe.VisibleWorldRect;
+            }
 
             Projectile[] projs = Empty<Projectile>.Array;
             Beam[] beams = Empty<Beam>.Array;
@@ -526,7 +543,7 @@ namespace Ship_Game
             // Visibility.None. Players saw ships intermittently disappear while
             // their projectiles kept firing. 8192 covers any realistic battle;
             // the qtree walk cost is bounded by rect size, not by this number.
-            if (UState.IsPlanetViewOrCloser)
+            if (UState.IsPlanetViewOrCloser || autoCinematic)
             {
                 projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 8192)
                                .FastCast<SpatialObjectBase, Projectile>();

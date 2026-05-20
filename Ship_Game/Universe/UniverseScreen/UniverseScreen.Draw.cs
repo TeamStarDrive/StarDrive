@@ -346,7 +346,7 @@ namespace Ship_Game
 
             AdjustCamera(elapsed.RealTime.Seconds);
 
-            Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
+            Matrix cameraMatrix = BuildCameraMatrix();
             SetViewMatrix(cameraMatrix);
 
             SpriteRenderer sr = ScreenManager.SpriteRenderer;
