@@ -189,44 +189,139 @@ namespace Ship_Game.Data.Mesh
                 for (int i = 0; i < modelMesh.MeshParts.Count; ++i)
                 {
                     ModelMeshPart part = modelMesh.MeshParts[i];
-
-                    string groupName = (modelMesh.MeshParts.Count > 1) ? modelMesh.Name + i : modelMesh.Name;
-                    SdMeshGroup* group = SDMeshNewGroup(mesh, groupName, &transform);
+                    string baseGroupName = (modelMesh.MeshParts.Count > 1) ? modelMesh.Name + i : modelMesh.Name;
                     VertexBuffer vb = modelMesh.VertexBuffer;
                     IndexBuffer  ib = modelMesh.IndexBuffer;
-
                     SdVertexElement[] layout = CreateVertexElements(part.VertexDeclaration);
 
-                    SdVertexData data;
-                    data.VertexStride = part.VertexStride;
-                    data.LayoutCount  = layout.Length;
-                    data.IndexCount   = part.PrimitiveCount * 3;
-                    data.VertexCount  = part.NumVertices;
-
-                    var indexData = new ushort[data.IndexCount];
-                    ib.GetData(part.StartIndex*sizeof(ushort), indexData, 0, data.IndexCount);
-
-                    var vertexData = new byte[data.VertexCount * data.VertexStride];
-                    vb.GetData(part.BaseVertex * part.VertexStride, vertexData, 0, vertexData.Length, 0);
-
-                    fixed(ushort* pIndexData = indexData)
-                    fixed(byte* pVertexData = vertexData)
-                    fixed(SdVertexElement* pLayout = layout)
+                    // Read indices honoring the source IndexElementSize. XNA models with
+                    // > 65535 vertices per part (Star Trek Excalibur 76890, Omaga 84802)
+                    // use 32-bit indices. The previous unconditional 16-bit read truncated
+                    // the high word → spike-fan deformation.
+                    bool is32Bit = ib.IndexElementSize == IndexElementSize.ThirtyTwoBits;
+                    int indexCount = part.PrimitiveCount * 3;
+                    int[] partIndices = new int[indexCount];
+                    if (is32Bit)
                     {
-                        data.IndexData = pIndexData;
-                        data.VertexData = pVertexData;
-                        data.Layout = pLayout;
-                        SDMeshGroupSetData(group, data);
+                        var raw = new uint[indexCount];
+                        ib.GetData(part.StartIndex * 4, raw, 0, indexCount);
+                        for (int k = 0; k < indexCount; ++k) partIndices[k] = (int)raw[k];
+                    }
+                    else
+                    {
+                        var raw = new ushort[indexCount];
+                        ib.GetData(part.StartIndex * 2, raw, 0, indexCount);
+                        for (int k = 0; k < indexCount; ++k) partIndices[k] = raw[k];
                     }
 
-                    if (modelMesh.Effects[0] != null)
+                    int vertexStride = part.VertexStride;
+                    var partVertexData = new byte[part.NumVertices * vertexStride];
+                    vb.GetData(part.BaseVertex * vertexStride, partVertexData, 0, partVertexData.Length, 0);
+
+                    Effect partEffect = part.Effect;
+                    long matAddr = (partEffect != null && materials.TryGetValue(partEffect, out long m) && m != 0) ? m : 0;
+
+                    // FBX writer (and NanoMesh's Triangle indices) can carry 32-bit values
+                    // internally, but the C++ SDVertexData ABI surface is `ushort* IndexData`.
+                    // Rather than churn the submodule, chunk parts > 65535 verts into
+                    // <= 65530-vert sub-groups (small headroom) and write each as its own
+                    // FBX group. Sub-groups share the same per-part material binding.
+                    const int VERT_CAP = 65530;
+
+                    if (part.NumVertices <= VERT_CAP)
                     {
-                        var material = (SdMaterial*)materials[modelMesh.Effects[0]];
-                        if (material != null)
-                            SDMeshGroupSetMaterial(group, material);
+                        var indexData = new ushort[indexCount];
+                        for (int k = 0; k < indexCount; ++k) indexData[k] = (ushort)partIndices[k];
+                        WriteChunk(mesh, transform, baseGroupName, layout, vertexStride, partVertexData, indexData, part.NumVertices, matAddr);
+                    }
+                    else
+                    {
+                        Log.Write(ConsoleColor.Cyan, $"  Splitting {baseGroupName}: {part.NumVertices} verts > {VERT_CAP}, chunking by triangle...");
+                        EmitChunkedPart(mesh, transform, baseGroupName, layout, vertexStride,
+                            partVertexData, partIndices, part.NumVertices, VERT_CAP, matAddr);
                     }
                 }
             }
+        }
+
+        static unsafe void EmitChunkedPart(SdMesh* mesh, Matrix transform, string baseGroupName,
+                                           SdVertexElement[] layout, int vertexStride,
+                                           byte[] partVertexData, int[] partIndices, int partVertexCount,
+                                           int vertCap, long matAddr)
+        {
+            var localOf = new int[partVertexCount];
+            for (int k = 0; k < localOf.Length; ++k) localOf[k] = -1;
+            var chunkIndices = new List<ushort>(vertCap);
+            var chunkVerts = new List<byte>(vertCap * vertexStride);
+            var dirty = new List<int>(vertCap);
+            int chunkVertCount = 0;
+            int chunkIndex = 0;
+            int triCount = partIndices.Length / 3;
+
+            for (int t = 0; t < triCount; ++t)
+            {
+                int a = partIndices[t * 3];
+                int b = partIndices[t * 3 + 1];
+                int c = partIndices[t * 3 + 2];
+                int newVerts = (localOf[a] < 0 ? 1 : 0) + (localOf[b] < 0 ? 1 : 0) + (localOf[c] < 0 ? 1 : 0);
+                if (chunkVertCount + newVerts > vertCap)
+                {
+                    WriteChunk(mesh, transform, baseGroupName + "_chunk" + chunkIndex++,
+                        layout, vertexStride, chunkVerts.ToArray(), chunkIndices.ToArray(), chunkVertCount, matAddr);
+                    for (int k = 0; k < dirty.Count; ++k) localOf[dirty[k]] = -1;
+                    dirty.Clear();
+                    chunkIndices.Clear();
+                    chunkVerts.Clear();
+                    chunkVertCount = 0;
+                }
+                chunkIndices.Add(MapIdx(a, localOf, chunkVerts, partVertexData, vertexStride, ref chunkVertCount, dirty));
+                chunkIndices.Add(MapIdx(b, localOf, chunkVerts, partVertexData, vertexStride, ref chunkVertCount, dirty));
+                chunkIndices.Add(MapIdx(c, localOf, chunkVerts, partVertexData, vertexStride, ref chunkVertCount, dirty));
+            }
+            if (chunkIndices.Count > 0)
+                WriteChunk(mesh, transform, baseGroupName + "_chunk" + chunkIndex,
+                    layout, vertexStride, chunkVerts.ToArray(), chunkIndices.ToArray(), chunkVertCount, matAddr);
+        }
+
+        static ushort MapIdx(int origIdx, int[] localOf, List<byte> chunkVerts,
+                             byte[] partVertexData, int vertexStride, ref int chunkVertCount,
+                             List<int> dirty)
+        {
+            int local = localOf[origIdx];
+            if (local < 0)
+            {
+                local = chunkVertCount++;
+                localOf[origIdx] = local;
+                dirty.Add(origIdx);
+                int off = origIdx * vertexStride;
+                for (int b = 0; b < vertexStride; ++b)
+                    chunkVerts.Add(partVertexData[off + b]);
+            }
+            return (ushort)local;
+        }
+
+        static unsafe void WriteChunk(SdMesh* mesh, Matrix transform, string groupName,
+                                      SdVertexElement[] layout, int vertexStride,
+                                      byte[] vertexBytes, ushort[] indexData, int vertexCount,
+                                      long matAddr)
+        {
+            SdMeshGroup* group = SDMeshNewGroup(mesh, groupName, &transform);
+            SdVertexData data;
+            data.VertexStride = vertexStride;
+            data.LayoutCount  = layout.Length;
+            data.IndexCount   = indexData.Length;
+            data.VertexCount  = vertexCount;
+            fixed (ushort* pIndexData = indexData)
+            fixed (byte* pVertexData = vertexBytes)
+            fixed (SdVertexElement* pLayout = layout)
+            {
+                data.IndexData = pIndexData;
+                data.VertexData = pVertexData;
+                data.Layout = pLayout;
+                SDMeshGroupSetData(group, data);
+            }
+            if (matAddr != 0)
+                SDMeshGroupSetMaterial(group, (SdMaterial*)matAddr);
         }
         
         unsafe Map<Effect, long> ExportMaterials(SdMesh* mesh, string exportDir, ModelMeshCollection meshes)
@@ -257,7 +352,10 @@ namespace Ship_Game.Data.Mesh
                         }
                         else
                         {
-                            Log.Warning($"No texture for mesh {exportDir}/{name} effect {i}");
+                            // Log the actual runtime type so the next re-export pass tells
+                            // us which Effect class needs a new branch above (likely a
+                            // SunBurn variant or a BasicEffect without Texture).
+                            Log.Warning($"No texture for mesh {exportDir}/{name} effect {i} (type: {effect?.GetType().FullName ?? "<null>"})");
                             exported[effect] = 0;
                         }
                     }
@@ -351,13 +449,20 @@ namespace Ship_Game.Data.Mesh
                 diffusePath = TrySaveTexture(modelExportDir, matName, matName+".png", fx.Texture);
             }
 
-            return SDMeshCreateMaterial(mesh, matName, 
-                diffusePath, alphaPath:"", specularPath, normalPath, emissivePath, 
+            // BasicEffect.SpecularPower is in the XNA range [16, ~128]. The C-API
+            // expects Specular in [0, 1] — the BaseMaterialEffect overload above
+            // already normalises (SpecularAmount/16). Mirror that here; without it,
+            // values like 50 round-tripped to the FBX and the runtime computed
+            // SpecularPower = 16 + 48*50 ≈ 2400 + SpecularAmount = 300, blowing the
+            // hull out to a silver-white highlight. Star Trek Excalibur hit this.
+            float specular = fx.SpecularPower / 64.0f;
+            return SDMeshCreateMaterial(mesh, matName,
+                diffusePath, alphaPath:"", specularPath, normalPath, emissivePath,
                 new Vector3(fx.AmbientLightColor),
                 new Vector3(fx.DiffuseColor),
                 new Vector3(fx.SpecularColor),
                 new Vector3(fx.EmissiveColor),
-                fx.SpecularPower, fx.Alpha);
+                specular, fx.Alpha);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -140,6 +141,22 @@ namespace Ship_Game.Data
             if (GlobalStats.HasMod)
                 files.AddRange(Dir.GetFiles($"{GlobalStats.ModPath}{folder}", "*.xnb", SearchOption.AllDirectories));
 
+            return FilterOutTextureXnbs(files);
+        }
+
+        // Scans an absolute folder for XNB models, no Content fallback. Useful for ad-hoc
+        // mod-only export runs that point at a specific mod path without activating the mod
+        // globally (Star Trek bulk re-export uses this in scratch ExportAllXnbMeshes overrides).
+        public Array<FileInfo> GetXnbModelFilesInAbsoluteFolder(string absoluteFolder)
+        {
+            var files = new Array<FileInfo>();
+            if (Directory.Exists(absoluteFolder))
+                files.AddRange(Dir.GetFiles(absoluteFolder, "*.xnb", SearchOption.AllDirectories));
+            return FilterOutTextureXnbs(files);
+        }
+
+        static Array<FileInfo> FilterOutTextureXnbs(Array<FileInfo> files)
+        {
             var modelFiles = new Array<FileInfo>();
             for (int i = 0; i < files.Count; ++i)
             {
@@ -164,6 +181,8 @@ namespace Ship_Game.Data
 
             if (relativePath.StartsWith("Content\\"))
                 relativePath = relativePath.Substring(8);
+            else if (relativePath.StartsWith("Mods\\", StringComparison.OrdinalIgnoreCase))
+                relativePath = relativePath.Replace('\\', '/'); // GetContentPath only matches "Mods/"
 
             string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, meshExtension);
             if (!alwaysOverwrite && File.Exists(savePath))
@@ -191,6 +210,8 @@ namespace Ship_Game.Data
                 else if (e.Message.Contains("File contains Microsoft.Xna.Framework.Graphics.") ||
                     e.Message.Contains("already loaded as 'Microsoft.Xna.Framework.Graphics."))
                     return; // ignore this one
+                else
+                    Log.Warning($"  LoadModel fell through for {relativePath}: [{e.GetType().Name}] {e.Message}{(e.InnerException != null ? $"  INNER: [{e.InnerException.GetType().Name}] {e.InnerException.Message}" : "")}");
             }
 
             if (isTexture2D || isTexture3D)
@@ -263,7 +284,22 @@ namespace Ship_Game.Data
             {
                 for (int i = start; i < end; ++i)
                 {
-                    ExportXnbMesh(files[i], extension);
+                    try
+                    {
+                        ExportXnbMesh(files[i], extension);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning($"  ExportXnbMesh crashed on {files[i].FullName}: [{ex.GetType().Name}] {ex.Message}");
+                    }
+                    // Periodically unload accumulated assets to avoid 32-bit
+                    // texture-slot/memory exhaustion on large mods (Star Trek had
+                    // 80+ ships; without this the export OOMed mid-corpus).
+                    if ((i + 1) % 50 == 0)
+                    {
+                        Content.Unload();
+                        MeshExport.Reset();
+                    }
                 }
             }
             //Parallel.For(files.Count, ExportMeshes, Parallel.NumPhysicalCores * 2);
