@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PortraitName>Opteris</PortraitName>
+  <MusicCue>Bug_02_loop</MusicCue>
+  <DiplomacyDialogPath>Opteris</DiplomacyDialogPath>
+  <StartingShip>Drone Interceptor</StartingShip>
+  <StartingScout>Drone Scout</StartingScout>
+  <PrototypeShip>Opteris-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Creeper Transport</DefaultSmallTransport>
+  <DefaultTroopShip>Opteris Troop</DefaultTroopShip>
+  <DefaultColonyShip>Opteris Hivepod</DefaultColonyShip>
+  <DefaultConstructor>Opteris Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Opteris Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Opteris-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Opteris/OpterisStation</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Opteris Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Opteris Basic Mining Station</DefaultMiningStation>  
+  
+  <RebelName>IA Libertada Opteris</RebelName>
+  <RebelSing>IA Libertada</RebelSing>
+  <RebelPlur>IAs Libertadas</RebelPlur>
+  <TroopNameIndex>2086</TroopNameIndex>
+  <TroopDescriptionIndex>2096</TroopDescriptionIndex>
+  <WarpStart>sd_warp_start_opteris_01</WarpStart>
+  <WarpEnd>sd_warp_stop_opteris_01</WarpEnd>
+  <ThrustColor0R>173</ThrustColor0R> <!-- LightBlue -->
+  <ThrustColor0G>216</ThrustColor0G>
+  <ThrustColor0B>230</ThrustColor0B>
+  <ThrustColor1R>0</ThrustColor1R> <!-- Blue -->
+  <ThrustColor1G>0</ThrustColor1G>
+  <ThrustColor1B>255</ThrustColor1B>    
+
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+    <string>Honorable</string>	
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>  
+
+  <EconomicTraitsWeights>
+    <string>Technologists</string>
+	<string>Technologists</string>
+	<string>Technologists</string>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Generalists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+  </EconomicTraitsWeights>
+  
+  <Traits>
+    <Name>Opteris</Name>
+    <Singular>Opteris</Singular>
+    <Plural>Opteris</Plural>
+    <VideoPath>Opteris</VideoPath>
+    <ShipType>Opteris</ShipType>
+    <Adj1>estranho</Adj1>
+    <Adj2>sobrenatural</Adj2>
+    <HomeSystemName>Opteris</HomeSystemName>
+    <HomeworldName>Zero</HomeworldName>
+    <FlagIndex>37</FlagIndex>
+    <R>90</R>
+    <G>87</G>
+    <B>51</B>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Efficient Metabolism</string>
+				<string>Fertile</string>
+				<string>Timid</string>
+				<string>Militaristic</string>
+				<string>Small Homeworld</string>
+				<string>Polluted Homeworld</string>
+				<string>Blind</string>
+				<string>Industrious</string>
+				<string>Corrupt</string>
+				<string>Industrialized Homeworld</string>
+				<string>Cybernetic</string>
+				<string>Prototype Flagship</string>
+				<string>Honest</string>
+			</TraitOptions>	
+		</TraitSet>
+	</TraitSets>	
+  </Traits>
+</EmpireData>

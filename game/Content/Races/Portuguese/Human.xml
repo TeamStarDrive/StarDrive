@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <PortraitName>Human</PortraitName>
+  <MusicCue>sd_races_Terran</MusicCue>
+  <DiplomacyDialogPath>Human</DiplomacyDialogPath>
+  <StartingShip>Vulcan Scout</StartingShip>
+  <StartingScout>Unarmed Scout</StartingScout>
+  <PrototypeShip>Terran-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
+  <DefaultTroopShip>Human Troop</DefaultTroopShip>
+  <DefaultColonyShip>Colony Ship</DefaultColonyShip>
+  <DefaultConstructor>Terran Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningStation>Basic Mining Station</DefaultMiningStation>
+  <DefaultMiningShip>Terran Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Basic Mining Station</DefaultMiningStation>  
+  
+  <ThrustColor0R>95</ThrustColor0R>
+  <ThrustColor0G>158</ThrustColor0G>
+  <ThrustColor0B>160</ThrustColor0B>
+  <ThrustColor1R>176</ThrustColor1R>
+  <ThrustColor1G>196</ThrustColor1G>
+  <ThrustColor1B>222</ThrustColor1B>
+  
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>	
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+    <string>Honorable</string>	
+	<string>Honorable</string>	
+	<string>Honorable</string>	
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>  
+  
+  <!-- Rebel Faction data.-->
+  <RebelName>Rebeldes Confederados</RebelName>
+  <RebelSing>Confederado</RebelSing>
+  <RebelPlur>Confederados</RebelPlur>
+  <TroopNameIndex>2083</TroopNameIndex>
+  <TroopDescriptionIndex>2092</TroopDescriptionIndex>
+
+  <Traits>
+    <Name>A Federação Unida</Name>
+    <Singular>Humano</Singular>
+    <Plural>Humanos</Plural>
+    <VideoPath>Human</VideoPath>
+    <ShipType>Terran</ShipType>
+    <Adj1>de pele lisa</Adj1>
+    <Adj2>simiesco</Adj2>
+    <HomeSystemName>Sol</HomeSystemName>
+    <HomeworldName>Terra</HomeworldName>
+    <FlagIndex>3</FlagIndex>
+    <R>68</R>
+    <G>140</G>
+    <B>203</B>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Prototype Flagship</string>
+				<string>Militaristic</string>
+				<string>Astronomers</string>
+				<string>Huge Homeworld</string>
+				<string>Polluted Homeworld</string>
+				<string>Corrupt</string>
+				<string>Industrious</string>
+			</TraitOptions>		
+		</TraitSet>
+	</TraitSets>	
+  </Traits>
+</EmpireData>

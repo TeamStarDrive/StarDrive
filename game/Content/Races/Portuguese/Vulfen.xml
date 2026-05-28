@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PortraitName>Vulfen</PortraitName>
+  <MusicCue>sd_races_Wulv_01</MusicCue>
+  <DiplomacyDialogPath>Vulfen</DiplomacyDialogPath>
+  <StartingShip>Type I Vulcan</StartingShip>
+  <StartingScout>Type I Scout</StartingScout>
+  <PrototypeShip>Vulfar-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Vulfar Transport S</DefaultSmallTransport>
+  <DefaultTroopShip>Vulfen Troop</DefaultTroopShip>
+  <DefaultColonyShip>Vulfen Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Vulfar Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Vulfar Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Vulfar-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Vulfen/Vulfar_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Vulfar Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Vulfar Basic Mining Station</DefaultMiningStation>  
+  
+  <RebelName>Tecnocratas Vulfar</RebelName>
+  <RebelSing>Tecnocrata</RebelSing>
+  <RebelPlur>Tecnocratas Rebeldes</RebelPlur>
+  <TroopNameIndex>2087</TroopNameIndex>
+  <TroopDescriptionIndex>2098</TroopDescriptionIndex>
+  <WarpStart>sd_warp_start_vulfen_01</WarpStart>
+  <WarpEnd>sd_warp_stop_vulfen_01</WarpEnd>
+  <ThrustColor0R>255</ThrustColor0R>
+  <ThrustColor0G>69</ThrustColor0G>
+  <ThrustColor0B>0</ThrustColor0B>
+  <ThrustColor1R>184</ThrustColor1R>
+  <ThrustColor1G>134</ThrustColor1G>
+  <ThrustColor1B>11</ThrustColor1B>
+
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+    <string>Honorable</string>	
+  </PersonalityTraitsWeights>
+  
+  <EconomicTraitsWeights>
+    <string>Technologists</string>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Generalists</string>
+	<string>Generalists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+  </EconomicTraitsWeights>  
+  
+  <Traits>
+    <Name>Império Vulfen</Name>
+    <Singular>Vulfar</Singular>
+    <Plural>Vulfen</Plural>
+    <VideoPath>Vulfen</VideoPath>
+    <ShipType>Vulfen</ShipType>
+    <Adj1>peludo</Adj1>
+    <Adj2>odioso</Adj2>
+    <HomeSystemName>Vater</HomeSystemName>
+    <HomeworldName>Vulfar</HomeworldName>
+    <FlagIndex>26</FlagIndex>
+    <R>255</R>
+    <G>0</G>
+    <B>0</B>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Pack</string>
+				<string>Prototype Flagship</string>
+				<string>Militaristic</string>
+				<string>Haphazard Engineers</string>
+				<string>Naval Tradition</string>
+				<string>Efficient</string>
+				<string>Dumb</string>
+				<string>Ponderous</string>
+				<string>Repulsive</string>
+				<string>Eagle Eyed</string>
+				<string>Industrious</string>		
+			</TraitOptions>	
+		</TraitSet>
+	</TraitSets>	
+  </Traits>
+</EmpireData>

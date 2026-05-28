@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PortraitName>Draylok</PortraitName>
+  <!--if true, it will look for the video file in Mods/Video-->
+  <MusicCue>DefeatMusic</MusicCue>
+  <DiplomacyDialogPath>Draylok</DiplomacyDialogPath>
+  <StartingShip>Wisp Fighter</StartingShip>
+  <StartingScout>Wisp Scout</StartingScout>
+  <PrototypeShip>Draylok-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Draylok Transporter S</DefaultSmallTransport>
+  <DefaultTroopShip>Draylok Troop</DefaultTroopShip>
+  <DefaultColonyShip>Draylok Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Draylok Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Draylok Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Draylok-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Draylok/Draylok_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Draylok Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Draylok Basic Mining Station</DefaultMiningStation>  
+  
+  <RebelName>Democratas Draylok</RebelName>
+  <RebelSing>Rebelde Democrático</RebelSing>
+  <RebelPlur>Rebeldes Democráticos</RebelPlur>
+  <TroopNameIndex>2084</TroopNameIndex>
+  <TroopDescriptionIndex>2094</TroopDescriptionIndex>
+  <WarpStart>sd_warp_start_draylok_01</WarpStart>
+  <WarpEnd>sd_warp_stop_draylok_01</WarpEnd>
+
+  <ThrustColor0R>150</ThrustColor0R>
+  <ThrustColor0G>0</ThrustColor0G>
+  <ThrustColor0B>0</ThrustColor0B>
+  <ThrustColor1R>245</ThrustColor1R>
+  <ThrustColor1G>245</ThrustColor1G>
+  <ThrustColor1B>245</ThrustColor1B>     
+  
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>  
+  
+  <Traits>
+    <Name>Conselho Draylok</Name>
+    <Singular>Draylok</Singular>
+    <Plural>Drayloks</Plural>
+    <VideoPath>Draylok</VideoPath>
+    <ShipType>Draylok</ShipType>
+    <Adj1>metamórfico</Adj1>
+    <Adj2>fangoso</Adj2>
+    <HomeSystemName>Drell</HomeSystemName>
+    <HomeworldName>Drellok</HomeworldName>
+    <FlagIndex>77</FlagIndex>
+    <R>146</R>
+    <G>39</G>
+    <B>143</B>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Smart</string>
+				<string>Corrupt</string>
+				<string>Mercantile</string>
+				<string>Alluring</string>
+				<string>Duplicitous</string>
+			</TraitOptions>			
+		</TraitSet>
+	</TraitSets>	
+  </Traits>
+</EmpireData>

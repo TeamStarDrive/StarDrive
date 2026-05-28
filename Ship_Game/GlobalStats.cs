@@ -16,6 +16,7 @@ public enum Language
     Spanish,
     Ukrainian,
     German,
+    Portuguese,
 }
 
 public enum WindowMode
@@ -276,6 +277,7 @@ public static class GlobalStats
     public static Language Language = Language.English;
     public static bool IsEnglish => Language == Language.English;
     public static bool IsRussian => Language == Language.Russian;
+    public static bool IsPortuguese => Language == Language.Portuguese;
 
     public static void SetShadowDetail(int shadowDetail)
     {

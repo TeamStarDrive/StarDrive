@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PortraitName>Ralyeh</PortraitName>
+  <MusicCue>Ralyeh_03_loop</MusicCue>
+  <DiplomacyDialogPath>Ralyeh</DiplomacyDialogPath>
+  <StartingShip>Ralyeh Interceptor</StartingShip>
+  <StartingScout>Inquisitor Scout</StartingScout>
+  <PrototypeShip>Ralyeh-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Ralyeh Transport S</DefaultSmallTransport>
+  <DefaultTroopShip>Ralyeh Troop</DefaultTroopShip>
+  <DefaultColonyShip>Ralyeh Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Ralyeh Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Ralyeh Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Ralyeh-Supply</DefaultSupplyShuttle>  
+  <SpacePortModel>Model/Ships/Ralyeh/Ralyeh_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Ralyeh Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Ralyeh Basic Mining Station</DefaultMiningStation>  
+  
+  <RebelName>Apóstatas Ralyeh</RebelName>
+  <RebelSing>Apóstata</RebelSing>
+  <RebelPlur>Apóstatas Rebeldes</RebelPlur>
+  <TroopNameIndex>2088</TroopNameIndex>
+  <TroopDescriptionIndex>2097</TroopDescriptionIndex>
+  <WarpStart>sd_warp_start_ralyeh_01</WarpStart>
+  <WarpEnd>sd_warp_stop_ralyeh_01</WarpEnd>
+  
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Ruthless</string>		
+	<string>Ruthless</string>	
+    <string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+    <string>Honorable</string>	
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>  
+  
+  <Traits>
+    <Name>Os Devotos de Ralyeh</Name>
+    <Singular>Ralyeh</Singular>
+    <Plural>Ralyeh</Plural>
+    <VideoPath>Ralyeh</VideoPath>
+    <ShipType>Ralyeh</ShipType>
+    <Adj1>estranho</Adj1>
+    <Adj2>sobrenatural</Adj2>
+    <HomeSystemName>Kothlar</HomeSystemName>
+    <HomeworldName>Tholar</HomeworldName>
+    <FlagIndex>53</FlagIndex>
+    <R>255</R>
+    <G>242</G>
+    <B>253</B>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Gluttonous</string>
+				<string>Fertile</string>
+				<string>Huge Homeworld</string>
+				<string>Lazy</string>
+				<string>Skilled Engineers</string>
+				<string>Spiritual</string>
+				<string>Manifest Destiny</string>
+				<string>Prototype Flagship</string>
+				<string>Astronomers</string>
+			</TraitOptions>
+		</TraitSet>
+	</TraitSets>	
+  </Traits>
+</EmpireData>

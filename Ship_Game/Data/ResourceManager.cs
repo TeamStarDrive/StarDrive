@@ -1189,7 +1189,12 @@ namespace Ship_Game
             bool modOnly = GlobalStats.HasMod
                 && (GlobalStats.Defaults.Mod.DisableDefaultRaces || !GlobalStats.Defaults.Mod.UseVanillaRaces);
 
-            Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires", modOnly: modOnly));
+            string langRaceDir = $"Races/{GlobalStats.Language}";
+            FileInfo[] raceFiles = GatherFilesUnified(langRaceDir, "xml", modOnly: modOnly);
+            if (raceFiles.Length == 0)
+                raceFiles = GatherFilesUnified("Races", "xml", modOnly: modOnly);
+
+            Empires.AddRange(LoadEntities<EmpireData>(raceFiles, "LoadEmpires"));
 
             // Humans should always be first,
             // The rest should be sorted by the first initial

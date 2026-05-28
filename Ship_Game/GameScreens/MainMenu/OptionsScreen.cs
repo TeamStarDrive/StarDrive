@@ -347,7 +347,12 @@ namespace Ship_Game
         {
             foreach (Language language in (Language[]) Enum.GetValues(typeof(Language)))
             {
-                CurrentLanguage.AddOption(language.ToString(), language);
+                string displayName = language switch
+                {
+                    Language.Portuguese => "Português (BR)",
+                    _ => language.ToString(),
+                };
+                CurrentLanguage.AddOption(displayName, language);
             }
             CurrentLanguage.ActiveValue = GlobalStats.Language;
             CurrentLanguage.OnValueChange = OnLanguageDropDownChange;

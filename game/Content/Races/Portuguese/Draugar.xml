@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Faction>1</Faction>
+  <IsPirateFaction>true</IsPirateFaction>
+  <PaymentPeriodTurns>350</PaymentPeriodTurns> <!-- Every turn is 5 seconds by default-->
+  <MinimumColoniesForStartPayment>7</MinimumColoniesForStartPayment>
+  <PortraitName>unknown</PortraitName>
+  <DiplomacyDialogPath>Human</DiplomacyDialogPath>
+  
+  <StartingShip>Draug-Fighter</StartingShip>
+  <PirateSlaverBasic>Draug-Slaver</PirateSlaverBasic>
+  <PirateSlaverImproved>Draug-Slaver-Mk2</PirateSlaverImproved>
+  <PirateSlaverAdvanced>Draug-Slaver-Mk3</PirateSlaverAdvanced>
+  <PirateFighterBasic>Draug-Fighter</PirateFighterBasic>
+  <PirateFighterImproved>Draug-Fighter-Mk2</PirateFighterImproved>
+  <PirateFighterAdvanced>Draug-Fighter-Mk3</PirateFighterAdvanced>
+  <PirateFrigateBasic>Draug</PirateFrigateBasic>
+  <PirateFrigateImproved>Draug-Mk2</PirateFrigateImproved>
+  <PirateFrigateAdvanced>Draug-Mk3</PirateFrigateAdvanced>
+  <PirateBaseBasic>Draug Asteroid Base</PirateBaseBasic>
+  <PirateBaseImproved>Draug Asteroid Base-Mk2</PirateBaseImproved>
+  <PirateBaseAdvanced>Draug Asteroid Base-Mk3</PirateBaseAdvanced>
+  <PirateStationBasic>Draug Station</PirateStationBasic>
+  <PirateStationImproved>Draug Station-Mk2</PirateStationImproved>
+  <PirateStationAdvanced>Draug Station-Mk3</PirateStationAdvanced>
+  <PirateFlagShip>Draug Flagship</PirateFlagShip>
+  <Traits>
+    <Name>Draugar</Name>
+    <Singular>Draug</Singular>
+    <Plural>Draugar</Plural>
+    <ShipType>Draug</ShipType>
+    <HomeSystemName>Sol</HomeSystemName>
+    <HomeworldName>Terra</HomeworldName>
+    <FlagIndex>63</FlagIndex>
+    <R>4</R>
+    <G>0</G>
+    <B>253</B>
+  </Traits>
+</EmpireData>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PortraitName>Kulrathi</PortraitName>
+  <MusicCue>sd_races_Kulrathi</MusicCue>
+  <DiplomacyDialogPath>Kulrathi</DiplomacyDialogPath>
+  <DiplomacyDialogPath>Kulrathi</DiplomacyDialogPath>
+  <StartingShip>Fang Strafer</StartingShip>
+  <StartingScout>Fang Scout</StartingScout>
+  <PrototypeShip>Kulrathi-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Kuma Small</DefaultSmallTransport>
+  <DefaultTroopShip>Kulrathi Troop</DefaultTroopShip>
+  <DefaultColonyShip>Kulrathi Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Kulrathi Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Kulrathi Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Kulrathi-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Kulrathi/Kulrathi_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Kulrathi Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Kulrathi Basic Mining Station</DefaultMiningStation>  
+
+  <TechTree>Kulrathi</TechTree>
+  <RebelName>Senhores da Guerra Kulrathi</RebelName>
+  <RebelSing>Senhor da Guerra Rebelde</RebelSing>
+  <RebelPlur>Senhores da Guerra Rebeldes</RebelPlur>
+  <TroopNameIndex>2085</TroopNameIndex>
+  <TroopDescriptionIndex>2095</TroopDescriptionIndex>
+  <WarpStart>sd_warp_start_kulrathi_01</WarpStart>
+  <WarpEnd>sd_warp_stop_kulrathi_01</WarpEnd>
+
+  <ThrustColor0R>173</ThrustColor0R> <!-- GreenYellow -->
+  <ThrustColor0G>255</ThrustColor0G>
+  <ThrustColor0B>47</ThrustColor0B>
+  <ThrustColor1R>128</ThrustColor1R> <!-- Purple -->
+  <ThrustColor1G>0</ThrustColor1G>
+  <ThrustColor1B>128</ThrustColor1B>      
+  
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+    <string>Honorable</string>	
+	<string>Honorable</string>	
+	<string>Honorable</string>	
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>    
+  
+  <Traits>
+    <Name>Xogunato Kulrathi</Name>
+    <Singular>Kulrathi</Singular>
+    <Plural>Kulrathi</Plural>
+    <VideoPath>Kulrathi</VideoPath>
+    <ShipType>Kulrathi</ShipType>
+    <Adj1>feroz</Adj1>
+    <Adj2>peludo</Adj2>
+    <HomeSystemName>Rathi</HomeSystemName>
+    <HomeworldName>Tor</HomeworldName>
+    <FlagIndex>41</FlagIndex>
+    <R>201</R>
+    <G>75</G>
+    <B>96</B>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Prototype Flagship</string>
+				<string>Honest</string>
+				<string>Meticulous</string>
+				<string>Militaristic</string>
+				<string>Skilled Engineers</string>
+				<string>Savage</string>
+				<string>Naval Tradition</string>
+			</TraitOptions>	
+			</TraitSet>
+	</TraitSets>
+  </Traits>
+</EmpireData>

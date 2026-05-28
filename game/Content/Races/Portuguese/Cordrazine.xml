@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PortraitName>Cordrazine</PortraitName>
+  <MusicCue>Colomn_03_loop</MusicCue>
+  <DiplomacyDialogPath>Cordrazine</DiplomacyDialogPath>
+  <StartingShip>Ving Defender</StartingShip>
+  <StartingScout>Vingscout</StartingScout>
+  <PrototypeShip>Cordrazine-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Owlwok Freighter S</DefaultSmallTransport>
+  <DefaultTroopShip>Cordrazine Troop</DefaultTroopShip>
+  <DefaultColonyShip>Cordrazine Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Owlwok Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Cordrazine Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Cordrazine-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Cordrazine/Cordrazine_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Owlwok Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Cordrazine Basic Mining Station</DefaultMiningStation>  
+  
+  <RebelName>Nação Livre Owlwok</RebelName>
+  <RebelSing>Owlwok Livre</RebelSing>
+  <RebelPlur>Owlwoks Livres</RebelPlur>
+  <TroopNameIndex>2089</TroopNameIndex>
+  <TroopDescriptionIndex>2091</TroopDescriptionIndex>
+  <WarpStart>sd_warp_start_cordrazine_01</WarpStart>
+  <WarpEnd>sd_warp_stop_cordrazine_01</WarpEnd>
+  <ThrustColor0R>255</ThrustColor0R>
+  <ThrustColor0G>215</ThrustColor0G>
+  <ThrustColor0B>0</ThrustColor0B>
+  <ThrustColor1R>34</ThrustColor1R>
+  <ThrustColor1G>139</ThrustColor1G>
+  <ThrustColor1B>34</ThrustColor1B>      
+  
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+    <string>Ruthless</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Honorable</string>	
+  </PersonalityTraitsWeights>    
+  <Traits>
+    <Name>Coletivo Cordrazine</Name>
+    <Singular>Cordrazine</Singular>
+    <Plural>Cordrazine</Plural>
+    <VideoPath>Cordrazine</VideoPath>
+    <ShipType>Cordrazine</ShipType>
+    <Adj1>estranho</Adj1>
+    <Adj2>sombrio</Adj2>
+    <HomeSystemName>Cordron</HomeSystemName>
+    <HomeworldName>Ot de Cordron</HomeworldName>
+    <FlagIndex>7</FlagIndex>
+    <R>255</R>
+    <G>242</G>
+    <B>0</B>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Huge Homeworld</string>
+				<string>Alluring</string>
+				<string>Less Fertile</string>
+				<string>Efficient Metabolism</string>
+				<string>Timid</string>
+				<string>Prototype Flagship</string>
+				<string>Skilled Engineers</string>		
+				<string>Ponderous</string>
+				<string>Efficient</string>
+			</TraitOptions>	
+		</TraitSet>
+	</TraitSets>			
+  </Traits>
+</EmpireData>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PortraitName>unknown</PortraitName>
+  <Faction>1</Faction>
+  <DiplomacyDialogPath>Human</DiplomacyDialogPath>
+  <Traits>
+    <Name>Revoranos</Name>
+    <Singular>Revorano</Singular>
+    <Plural>Revoranos</Plural>
+    <ShipType>Revoran</ShipType>
+    <HomeSystemName>Revoran</HomeSystemName>
+    <HomeworldName>Revoran</HomeworldName>
+    <FlagIndex>47</FlagIndex>
+    <R>255</R>
+    <G>242</G>
+    <B>0</B>
+  </Traits>
+</EmpireData>

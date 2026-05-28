@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Faction>1</Faction>
+  <PortraitName>unknown</PortraitName>
+  <DiplomacyDialogPath>Human</DiplomacyDialogPath>
+  <DefaultTroopShip>Human Troop</DefaultTroopShip>
+  <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>  
+  <StartingShip>Xeno Fighter</StartingShip>
+  <Traits>
+    <Name>Desconhecidos</Name>
+    <Singular>Desconhecido</Singular>
+    <Plural>Desconhecidos</Plural>
+    <ShipType>Unknown</ShipType>
+    <HomeSystemName>Sol</HomeSystemName>
+    <HomeworldName>Terra</HomeworldName>
+    <FlagIndex>64</FlagIndex>
+    <R>137</R>
+    <G>137</G>
+    <B>137</B>
+    <Cost>0</Cost>
+  </Traits>
+</EmpireData>
