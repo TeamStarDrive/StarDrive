@@ -587,6 +587,12 @@ namespace Ship_Game
             RaceSummary.Adj1           = SelectedData.Adj1;
             RaceSummary.Adj2           = SelectedData.Adj2;
 
+            RaceSummary.TraitSets.Clear();
+            RaceSummary.TraitSets.Add(new TraitSet
+            {
+                TraitOptions = AllTraits.FilterSelect(t => t.Selected, t => t.Trait.TraitName).ToArrayList()
+            });
+
             P.PlayerData = SelectedData.CreateInstance(copyTraits: false);
             P.PlayerData.SpyModifier = RaceSummary.SpyMultiplier;
             P.PlayerData.Traits      = RaceSummary;
