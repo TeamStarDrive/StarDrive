@@ -298,8 +298,10 @@ namespace Ship_Game
 
                         if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
                         {
+                            // Ludoal fork: FindClosestSystem is null in a system-less
+                            // universe (battle simulator arena) — NullRef froze the UI
                             SolarSystem system = ship.Universe.FindClosestSystem(ship.AI.MovePosition);
-                            if (system.IsExploredBy(ship.Universe.Player))
+                            if (system != null && system.IsExploredBy(ship.Universe.Player))
                                 return string.Concat(moveText, Localizer.Token(GameText.DeepSpaceNear), " ", system.Name);
                             return Localizer.Token(GameText.ExploringTheGalaxy);
                         }
@@ -313,7 +315,7 @@ namespace Ship_Game
                         else
                         {
                             SolarSystem system = ship.Universe.FindClosestSystem(ship.AI.MovePosition);
-                            if (system.IsExploredBy(ship.Universe.Player))
+                            if (system != null && system.IsExploredBy(ship.Universe.Player))
                                 return moveText + system.Name;
                             return Localizer.Token(GameText.ExploringTheGalaxy);
                         }
