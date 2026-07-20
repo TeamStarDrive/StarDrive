@@ -112,7 +112,7 @@ namespace Ship_Game
 
             if (AsyncUniverse.IsComplete)
             {
-                cursor.Y -= Fonts.Pirulen16.LineSpacing - 10f;
+                cursor.Y -= Fonts.Pirulen16.LineSpacing + 10f; // Ludoal fork: sign slip vs CreatingNewGameScreen — label overlapped the advice text
                 const string begin = "Click to Continue!";
                 cursor.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(begin).X / 2f;
                 batch.DrawString(Fonts.Pirulen16, begin, cursor, CurrentFlashColor);
