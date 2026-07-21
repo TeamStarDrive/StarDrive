@@ -1108,7 +1108,7 @@ namespace Ship_Game
             if (BaseFertility < totalFertility)
                 BaseFertility = (BaseFertility + 0.01f).Clamped(0, totalFertility); // FB - Slowly increase fertility to max fertility
             else if (BaseFertility > totalFertility)
-                BaseFertility = BaseFertility.Clamped(0, BaseFertility - 0.01f); // FB - Slowly decrease fertility to max fertility
+                BaseFertility = (BaseFertility - 0.01f).LowerBound(totalFertility.LowerBound(0)); // FB - Slowly decrease fertility to max fertility, never below 0
         }
 
         public void SetBaseFertility(float fertility, float maxFertility)
