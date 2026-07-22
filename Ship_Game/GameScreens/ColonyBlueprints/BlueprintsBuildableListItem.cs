@@ -60,7 +60,7 @@ namespace Ship_Game
             batch.Draw(ProdIcon, new Vector2(x, y), iconSize); // Production Icon
             batch.DrawString(font, prod.String(), x + iconSize.X + 2, y); // Build Production Cost
 
-            string maintString = (-maintenance).String(2) + " BC/Y";
+            string maintString = (-maintenance).String(2) + " bc/turn";
             float maintX = x + iconSize.X + 50;
 
             if (cost > 0)
