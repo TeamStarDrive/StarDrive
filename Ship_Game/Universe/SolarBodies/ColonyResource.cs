@@ -299,7 +299,12 @@ namespace Ship_Game.Universe.SolarBodies
             if (b.IsBiospheres)
                 newPopulation += Planet.PopPerBiosphere(Planet.Owner)*0.001f;
 
-            float grossIncome = newPopulation * IncomePerColonist * TaxRate;
+            // Judge infrastructure at a fixed NOMINAL tax rate: keying on the live empire
+            // tax rate made governors build biospheres at high tax and raze them at low
+            // tax - a structural build/scrap oscillation driven by fiscal policy, since
+            // the scrap side (BioSphereProfitable) uses this very value (issue 321)
+            const float NominalTaxRate = 0.25f;
+            float grossIncome = newPopulation * IncomePerColonist * NominalTaxRate;
             return grossIncome - b.ActualMaintenance(Planet);
         }
 
