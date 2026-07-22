@@ -161,12 +161,12 @@ namespace Ship_Game
 
             float ratio               = Storage.FoodRatio;
             bool belowImportThreshold = ratio < importThreshold 
-                                        && CType != ColonyType.Agricultural
+                                        && (CType != ColonyType.Agricultural || Food.NetMaxPotential < 0)
                                         && Food.NetFlatBonus < Consumption;
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
             if      (ShortOnFood() || belowImportThreshold)   FS = GoodState.IMPORT; 
-            else if (Food.NetMaxPotential < 0 && ratio > 0.9) FS = GoodState.STORE;  // We are negative on food production but have a lot of food
+            else if (Food.NetMaxPotential < 0)                FS = GoodState.STORE;  // Negative food production: keep the buffer, never export it away
             else if (ratio > exportThreshold)                 FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
             else                                              FS = GoodState.STORE;  // We are between our thresholds
         }

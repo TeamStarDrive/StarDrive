@@ -121,7 +121,8 @@ namespace Ship_Game
             if (ManualFoodExportSlots > 0 && Owner == Universe.Player)
                 return ManualFoodExportSlots;
 
-            int min = Storage.FoodRatio > 0.75f ? 2 : 1;
+            // a planet LOSING food guarantees no export slot - the last freighter no longer leaves no matter what
+            int min = Food.NetIncome < 0 ? 0 : Storage.FoodRatio > 0.75f ? 2 : 1;
             int maxSlots = CType is ColonyType.Agricultural or ColonyType.Colony or ColonyType.TradeHub? 14 : 7;
             int storageSlots = (int)(Storage.Food / Owner.AverageFreighterCargoCap);
             int outputSlots  = (int)(Food.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
