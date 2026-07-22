@@ -73,7 +73,7 @@ namespace Ship_Game
             ExoticBonuses      = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
             ColonyBlueprints   = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "NewUI/blueprints_minimap", ColonyBlueprints_OnClick));
             EmpirePatrols      = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "NewUI/icon_patrol_list", EmpirePatrols_OnClick));
-            ImportantEvents    = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "ResearchMenu/icon_event_science", ImportantEvents_OnClick));
+            ImportantEvents    = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "NewUI/icon_important_events", ImportantEvents_OnClick));
             Scale = ActualMap.Width / (Universe.UState.Size * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
         }
