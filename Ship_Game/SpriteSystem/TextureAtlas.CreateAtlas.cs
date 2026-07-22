@@ -35,8 +35,7 @@ namespace Ship_Game.SpriteSystem
                 // DXT1 size in mem is 8x smaller than RGBA32
                 DDSFlags format = (flags & AtlasFlags.Alpha) != 0 ? DDSFlags.Dxt5 : DDSFlags.Dxt1;
                 ImageUtils.ConvertToDDS(texturePath, Width, Height, color, format);
-                if (File.Exists(pngPath))
-                    File.Delete(pngPath);
+                DeleteStaleSibling(pngPath);
             }
             else
             {
@@ -48,8 +47,22 @@ namespace Ship_Game.SpriteSystem
                 // pixels in NewUI/EmpireTopBar/Popup atlases saturate to white at draw.
                 ImageUtils.PremultiplyAlpha(color, color.Length);
                 ImageUtils.SaveAsPng(pngPath, Width, Height, color);
-                if (File.Exists(texturePath))
-                    File.Delete(texturePath);
+                DeleteStaleSibling(texturePath);
+            }
+        }
+
+        // best-effort: a locked stale file (e.g. AV scan) must not turn
+        // atlas creation fatal; the shadowing bug only bites on format flips
+        static void DeleteStaleSibling(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"TextureAtlas: failed to delete stale cache file {path}: {e.Message}");
             }
         }
 
