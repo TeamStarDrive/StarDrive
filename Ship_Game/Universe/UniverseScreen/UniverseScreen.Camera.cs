@@ -155,6 +155,9 @@ namespace Ship_Game
 
             SnapViewTo(new(s.Position.X, s.Position.Y + 400, 2500), 5f, 2f);
             LookingAtPlanet = false;
+            // snappingToShip follows ShipToView - without this the camera snapped to
+            // whatever ship was viewed LAST (station-built notifications zoomed wrong)
+            ShipToView = s;
             snappingToShip = true;
             ViewingShip = true;
         }
