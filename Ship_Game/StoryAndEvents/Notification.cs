@@ -29,6 +29,12 @@ public sealed class Notification
     public bool ShowMessage;
     public bool Pause = true;
 
+    // Important notifications are also stored in UniverseState.ImportantEventsList
+    // (with Title and StarDate) for later viewing in the ImportantEventsScreen
+    public bool Important;
+    public string Title;
+    public string LogMessage; // optional log override when Message contains UI-only text
+
     /** @return TRUE if input was captured */
     public bool HandleInput(InputState input, NotificationManager m)
     {

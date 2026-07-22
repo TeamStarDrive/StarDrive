@@ -23,6 +23,7 @@ namespace Ship_Game
         readonly ToggleButton FreighterUtil;
         readonly ToggleButton ColonyBlueprints;
         readonly ToggleButton EmpirePatrols;
+        readonly ToggleButton ImportantEvents;
 
         readonly UniverseScreen Universe;
         readonly Rectangle Housing;
@@ -72,6 +73,7 @@ namespace Ship_Game
             ExoticBonuses      = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
             ColonyBlueprints   = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "NewUI/blueprints_minimap", ColonyBlueprints_OnClick));
             EmpirePatrols      = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "NewUI/icon_patrol_list", EmpirePatrols_OnClick));
+            ImportantEvents    = listR.Add(new ToggleButton(ToggleButtonStyle.Button,  "ResearchMenu/icon_event_science", ImportantEvents_OnClick));
             Scale = ActualMap.Width / (Universe.UState.Size * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
         }
@@ -386,6 +388,13 @@ namespace Ship_Game
             Universe.ScreenManager.AddScreen(new EmpirePatrolsScreen(Universe, Universe.Player));
         }
 
+        public void ImportantEvents_OnClick(ToggleButton toggleButton)
+        {
+            GameAudio.AcceptClick();
+            ImportantEvents.IsToggled = false;
+            Universe.ScreenManager.AddScreen(new ImportantEventsScreen(Universe));
+        }
+
         public void ExoticScreen_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
@@ -466,6 +475,9 @@ namespace Ship_Game
 
             if (EmpirePatrols.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.EmpirePatrolsScreenTip, "P");
+
+            if (ImportantEvents.Rect.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip("Opens the Important Events log");
 
             if (ExoticBonuses.Rect.HitTest(input.CursorPosition))
             {
