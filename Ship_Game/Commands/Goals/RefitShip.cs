@@ -45,7 +45,14 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 VanityName = oldShip.VanityName;
 
             if (OldShip.AI.State == AIState.Refit)
+            {
+                // A ship already refitting was detached from its fleet by the FIRST refit goal
+                // (the fleet link lives in that goal, not on the ship anymore). Inherit the
+                // affiliation before removing the old goal, or a double refit loses the fleet.
+                if (Fleet == null && Owner.AI.FindGoal(g => g.Type == GoalType.Refit && g.OldShip == OldShip) is FleetGoal prior)
+                    Fleet = prior.Fleet;
                 RemoveOldRefitGoal();
+            }
         }
 
         GoalStep FindShipAndPlanetToRefit()
