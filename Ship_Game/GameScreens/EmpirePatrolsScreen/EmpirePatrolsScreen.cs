@@ -163,7 +163,10 @@ namespace Ship_Game
             HandleButton(input, SbNumWaypoints, p => p.WayPoints.Count);
             HandleButton(input, SbNumFleetsAssigned, p => Player.AllFleets.Count(fleet => fleet.HasPatrolPlan && fleet.Patrol == p));
 
-            if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
+            // close with the same key that opens the screen (P) - the L here was a
+            // copy-paste from PlanetListScreen and never adapted, so pressing L over
+            // the Patrols screen closed it while P appeared to do nothing
+            if (input.EmpirePatrolsScreen && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
