@@ -79,6 +79,8 @@ namespace Ship_Game.GameScreens
             //Screen Title
             string title   = Localizer.Token(GameText.EconomicOverview);
             Label(Window.Menu.CenterTextX(title), Window.Menu.Y + 20, title);
+            string unitNote = "(all money values are per turn)";
+            Label(new Vector2(Window.Menu.CenterTextX(unitNote, Fonts.Arial12), Window.Menu.Y + 42), unitNote, Fonts.Arial12, Color.Gray);
 
             // background panels for TaxRate, incomes, cost, trade: 6138
             SummaryPanel tax = Add(new SummaryPanel("", taxRect, new Color(17, 21, 28)));

@@ -8492,7 +8492,7 @@ TreasuryGoal:
  PTB: "Meta do Tesouro"
 TreasuryGoalIsTheTarget:
  Id: 1918
- ENG: "Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 year projection. This can cause massive empire overspending. "
+ ENG: "Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 year (200 turns) projection. This can cause massive empire overspending. "
  RUS: "Цель казначейства - целевая сумма казны империи. Различные губернаторы используют это значение для определения своих бюджетов. Предупреждение: это процент от 20-летнего прогноза. Это может привести к огромным перерасходам империи."
  UKR: "Мета скарбниці - це цільова сума скарбниці для імперії. Різні губернатори використовують це значення для формування своїх бюджетів. Попередження: Це відсоток від 20-річного прогнозу. Це може призвести до значних перевитрат імперії."
  PTB: "A Meta do Tesouro é o valor-alvo do tesouro para o império. Os vários governadores usam esse valor para definir seus orçamentos. Aviso: isso é uma porcentagem de uma projeção de 20 anos. Isso pode causar gastos imperiais massivos. "
@@ -13764,9 +13764,9 @@ OverrideThisBudgetAndSet:
  PTB: "Substitua este orçamento e defina o seu próprio."
 CivilianBuildingsExpenditurebudgetInByc:
  Id: 4228
- ENG: "Civilian Buildings Expenditure/Budget in bc/y. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them."
+ ENG: "Civilian Buildings Expenditure/Budget in bc/turn. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them."
  RUS: "Расходы/бюджет на гражданские здания в МГ/K (Миллиард Кредитов/Год). Если вы наблюдаете превышение бюджета, возможно, есть здания, которые вы построили вручную, и губернатор не может их снести."
- UKR: "Витрати/бюджет на цивільні будівлі в bc/y. Якщо ви бачите перевиконання бюджету, можливо, у вас є будівлі, які ви побудували вручну, і губернатор не може їх здати на металобрухт."
+ UKR: "Витрати/бюджет на цивільні будівлі в bc/turn. Якщо ви бачите перевиконання бюджету, можливо, у вас є будівлі, які ви побудували вручну, і губернатор не може їх здати на металобрухт."
  PTB: "Gasto/Orçamento de Construções Civis em bc/ano. Se aparecer acima do orçamento, talvez haja construções feitas manualmente que o Governador não pode sucatear."
 GroundDefenseBuildingsExpenditurebudgetIn:
  Id: 4229
