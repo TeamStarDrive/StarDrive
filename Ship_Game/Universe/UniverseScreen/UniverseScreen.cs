@@ -701,6 +701,12 @@ namespace Ship_Game
             {
                 SystemInfoOverlay.Update(elapsed);
             }
+            // The clickable build goals froze while paused (their screen positions are
+            // camera-dependent and the sim loop owns the refresh): platforms ordered via
+            // the deep space building menu were invisible on the map until unpausing, and
+            // selecting a DSB under construction was impossible in pause. Refreshing here
+            // too is trivially cheap (player deployment goals only).
+            UpdateClickableItems();
             if (ShowPlanetInfo)
             {
                 pInfoUI.Update(elapsed);
