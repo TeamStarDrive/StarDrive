@@ -858,6 +858,7 @@ namespace Ship_Game
                 BudgetSum.Text      = $"{Localizer.Token(GameText.Total3)} {spent.String(1)}" +
                                       $" {Localizer.Token(GameText.Of)} {budget.TotalAlloc.String(1)} bc/turn";
                 BudgetPercent.Text  = $" ({percentSpent.String(1)}%)";
+                BudgetPercent.Pos   = new Vector2(BudgetSum.Pos.X + FontBig.TextWidth(BudgetSum.Text) + 4, BudgetSum.Pos.Y); // follow the total text (bc/turn is wider than the old label)
                 BudgetPercent.Color = GetColor();
             }
             else

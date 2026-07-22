@@ -105,8 +105,8 @@ namespace Ship_Game.GameScreens
                                     text:GameText.NetGain, Fonts.Arial20Bold);
             EmpireNetIncome.DropShadow  = true;
             string unitNote = "(all money values are per turn)";
-            Label(new Vector2(Window.Menu.Right - Fonts.Arial12.TextWidth(unitNote) - 22, Window.Menu.Y + 24),
-                  unitNote, Fonts.Arial12, Color.Gray); // added last so it draws over the panels
+            Label(new Vector2(Window.Menu.CenterTextX(unitNote, Fonts.Arial12), Window.Menu.Y + 38),
+                  unitNote, Fonts.Arial12, Color.Gray); // centered under the title, added last so it draws over the panels
             EmpireNetIncome.DynamicText = DynamicText(
                 ()   => Player.NetIncome-Player.MoneySpendOnProductionNow,
                 (f) => $"{( f >= 0f ? Localizer.Token(GameText.NetGain) : Localizer.Token(GameText.NetLoss) )} : {f.MoneyString()}");
