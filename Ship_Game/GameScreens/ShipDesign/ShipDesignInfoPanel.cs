@@ -97,7 +97,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             Val(() => S.ShieldMax, GT.ShieldPower, GT.TT_ShieldPower, Tint.Pos, protect, vis: Ds.HasRegularShields);
             Val(() => S.ShieldMax, GT.ShieldPower, GT.TT_ShieldPower, Tint.Pos, Color.Gold, vis: Ds.HasAmplifiedMains);
             ValNZ(() => (int)S.Stats.ShieldAmplifyPerShield, GT.ShieldAmplify, GT.TT_ShieldAmplify, Tint.Pos, protect);
-            ValNZ(() => S.BonusEMPProtection, GT.EmpProtection, GT.TT_EmpProtection, Tint.Pos, protect);
+            // the tooltip promises the TOTAL protection of the design, and the load-list
+            // overlay already shows EmpTolerance - show the same effective value here
+            Val(() => S.EmpTolerance, GT.EmpProtection, GT.TT_EmpProtection, Tint.Pos, protect);
             ValNZ(() => S.ECMValue, GT.Ecm3, GT.TT_Ecm3, Tint.Pos, protect);
             Line();
 
