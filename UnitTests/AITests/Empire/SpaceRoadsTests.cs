@@ -33,7 +33,7 @@ namespace UnitTests.AITests.Empire
 
         void CreateSystemsAndRoad() // 5 projectors
         {
-            CreateSystemsAndPlanets(800000);
+            CreateSystemsAndPlanets(660000); // exactly 5 projectors under the round-up contract (issue 301)
             int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
             string name = SpaceRoad.GetSpaceRoadName(System1, System2);
             Road = new(System1, System2, Player, numProjectors, name, 
@@ -67,7 +67,7 @@ namespace UnitTests.AITests.Empire
         {
             CreateSystemsAndPlanets(300000);
             int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
-            AssertEqual(2, numProjectors);
+            AssertEqual(3, numProjectors); // ceil since issue 300 fix: 300000 / (80000*1.7) = 2.21 rounds up
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace UnitTests.AITests.Empire
         {
             CreateSystemsAndPlanets(1000000);
             int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
-            AssertEqual(7, numProjectors);
+            AssertEqual(8, numProjectors); // ceil since issue 300 fix: 1000000 / 136000 = 7.35 rounds up
         }
 
         [TestMethod]
