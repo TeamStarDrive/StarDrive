@@ -132,7 +132,7 @@ namespace Ship_Game
 
         public int GetNumOfTheirMoles(Empire them)
         {
-            return NewEspionageEnabled ? GetEspionage(them).NumPlantedMoles 
+            return NewEspionageEnabled ? them.GetEspionage(this).NumPlantedMoles
                                        : them.data.MoleList.Count(m =>  Universe.GetPlanet(m.PlanetId).Owner == this);
         }
 

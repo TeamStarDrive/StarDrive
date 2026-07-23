@@ -389,7 +389,7 @@ namespace Ship_Game
                 }
             }
 
-            if (UsingNewEspioange && espionage?.CanViewTraitSet == true || IntelligenceLevel(SelectedEmpire) > 1)
+            if (SelectedEmpire.isPlayer || (UsingNewEspioange && espionage?.CanViewTraitSet == true) || IntelligenceLevel(SelectedEmpire) > 1)
             {
                 textCursor.Y += Font12.LineSpacing + 2;
                 string traitlist = Font12.ParseText($"Racial Traits: {SelectedEmpire.data.SelectedTraitSet}", IntelligenceRect.Width - 50);

@@ -233,6 +233,8 @@
     <Compile Include="Ship_Game\GameScreens\EmpirePatrolsScreen\EmpirePatrolsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\EmpirePatrolsScreen\EmpirePatrolsScreenListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\EmpirePatrolsScreen\RenamePatrolPlanScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\ImportantEvents\ImportantEventsScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\ImportantEvents\ImportantEventListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\EspionageLevelPanel.cs" />
     <Compile Include="Ship_Game\Espionage\InfiltrationOperation.cs" />
     <Compile Include="Ship_Game\GameScreens\Infiltration\InfiltrationOpsLevel1.cs" />
@@ -954,6 +956,7 @@
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DiplomacyScreen.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\NotificationManager.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Notification.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\ImportantNotification.cs" />
     <Compile Include="Ship_Game\PieMenuNode.cs" />
     <Compile Include="Ship_Game\FleetDesign.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleEmitter.cs" />

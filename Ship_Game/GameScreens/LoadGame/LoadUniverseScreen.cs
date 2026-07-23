@@ -112,8 +112,8 @@ namespace Ship_Game
 
             if (AsyncUniverse.IsComplete)
             {
-                cursor.Y -= Fonts.Pirulen16.LineSpacing - 10f;
-                const string begin = "Click to Continue!";
+                cursor.Y -= Fonts.Pirulen16.LineSpacing + 10f;
+                string begin = Localizer.Token(GameText.ClickToContinue);
                 cursor.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(begin).X / 2f;
                 batch.DrawString(Fonts.Pirulen16, begin, cursor, CurrentFlashColor);
             }

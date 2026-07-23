@@ -163,7 +163,7 @@ namespace Ship_Game
             HandleButton(input, SbNumWaypoints, p => p.WayPoints.Count);
             HandleButton(input, SbNumFleetsAssigned, p => Player.AllFleets.Count(fleet => fleet.HasPatrolPlan && fleet.Patrol == p));
 
-            if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
+            if (input.EmpirePatrolsScreen && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();

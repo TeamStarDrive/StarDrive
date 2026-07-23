@@ -104,16 +104,19 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             var theirDesigns = Them.AllFactionShipDesigns;
             
             Us.AI.TradableTechs(Them, out Array<TechEntry> tradeAbleTechs);
-            LocalizedText techsHeader = LocalizedText.Parse($"{{Technology}} ({tradeAbleTechs.Count})");
-
-            ItemToOffer techs = AddHeader(techsHeader);
+            var offerableTechs = new Array<TechEntry>();
             foreach (TechEntry entry in tradeAbleTechs)
             {
-                Technology tech = entry.Tech;
                 // FB - Do not trade ship tech that the AI cannot use due to lack of pre-made designs
-                if (!Them.isPlayer && !Them.WeCanUseThisTech(entry, theirDesigns))
-                    continue;
-                
+                if (Them.isPlayer || Them.WeCanUseThisTech(entry, theirDesigns))
+                    offerableTechs.Add(entry);
+            }
+
+            LocalizedText techsHeader = LocalizedText.Parse($"{{Technology}} ({offerableTechs.Count})");
+            ItemToOffer techs = AddHeader(techsHeader);
+            foreach (TechEntry entry in offerableTechs)
+            {
+                Technology tech = entry.Tech;
                 var text = LocalizedText.Parse($"{{{tech.NameIndex}}}: {(int)entry.TechCost}");
                 techs.AddSubItem(new ItemToOffer(text, "Tech") { SpecialInquiry = entry.UID });
             }

@@ -66,6 +66,9 @@ namespace Ship_Game
             notify.ClickRect = DefaultClickRect;
             notify.DestinationRect = DefaultNotificationRect;
 
+            if (notify.Important)
+                Screen.UState.AddImportantEvent(notify);
+
             foreach (string cue in soundCueStrings)
                 GameAudio.PlaySfxAsync(cue);
 
@@ -276,7 +279,9 @@ namespace Ship_Game
                 Message         = message,
                 IconPath        = "NewUI/icon_planet_terran_01_mid",
                 ClickRect       = DefaultClickRect,
-                DestinationRect = DefaultNotificationRect
+                DestinationRect = DefaultNotificationRect,
+                Important       = true,
+                Title           = "Empire Defeated"
             }, "sd_troop_march_01");
         }
 
@@ -286,6 +291,8 @@ namespace Ship_Game
             {
                 RelevantEmpire = empire,
                 Message = msg,
+                Important = true,
+                Title = "Empire Merged or Surrendered"
             }, "sd_troop_march_01");
         }
 
@@ -333,7 +340,9 @@ namespace Ship_Game
                 RelevantEmpire  = remnants,
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect,
-                Message         = Localizer.Token(GameText.OurScientistsReportThatThey2)
+                Message         = Localizer.Token(GameText.OurScientistsReportThatThey2),
+                Important       = true,
+                Title           = "Remnant Story"
             }, "sd_ui_notification_warning");
         }
 
@@ -344,7 +353,9 @@ namespace Ship_Game
                 RelevantEmpire  = remnants,
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect,
-                Message         = Localizer.Token(GameText.YourScientistsReportMassiveRadiation)
+                Message         = Localizer.Token(GameText.YourScientistsReportMassiveRadiation),
+                Important       = true,
+                Title           = "Remnant Story"
             }, "sd_ui_notification_encounter");
         }
 
@@ -463,8 +474,11 @@ namespace Ship_Game
                 RelevantEmpire  = remnants,
                 Pause           = false,
                 Message         = $"{expEvent.LocalizedName}\nClick for more info",
+                LogMessage      = expEvent.LocalizedName,
                 ReferencedItem1 = expEvent,
-                Action          = "LoadEvent"
+                Action          = "LoadEvent",
+                Important       = true,
+                Title           = "Remnant Story"
             }, "sd_ui_notification_encounter");
         }
         
@@ -617,7 +631,9 @@ namespace Ship_Game
             {
                 RelevantEmpire = absorber,
                 Message        = absorber.data.Traits.Name + " " + Localizer.Token(GameText.HasPeacefullyMergedIntoA) + target.data.Traits.Name,
-                IconPath       = "NewUI/icon_planet_terran_01_mid"
+                IconPath       = "NewUI/icon_planet_terran_01_mid",
+                Important      = true,
+                Title          = "Peaceful Merger"
             }, "sd_troop_march_01");
         }
 
@@ -627,7 +643,9 @@ namespace Ship_Game
             {
                 RelevantEmpire = target,
                 Message = $"{target.data.Traits.Name} {Localizer.Token(GameText.AcceptedIntoOurEmpire)}",
-                IconPath = "NewUI/icon_planet_terran_01_mid"
+                IconPath = "NewUI/icon_planet_terran_01_mid",
+                Important = true,
+                Title = "Empire Joined Us"
             }, "sd_troop_march_01");
         }
 
@@ -904,7 +922,9 @@ namespace Ship_Game
             {
                 RelevantEmpire = absorber,
                 Message        = target.data.Traits.Name + " " + Localizer.Token(GameText.HasSurrenderedTo) + absorber.data.Traits.Name,
-                IconPath       = "NewUI/icon_planet_terran_01_mid"
+                IconPath       = "NewUI/icon_planet_terran_01_mid",
+                Important      = true,
+                Title          = "Empire Surrendered"
             }, "sd_troop_march_01");
         }
 

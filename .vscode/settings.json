@@ -11,5 +11,6 @@
             "icon": "terminal-cmd"
         }
     },
-    "terminal.integrated.defaultProfile.windows": "Developer PowerShell for VS 2022"
+    "terminal.integrated.defaultProfile.windows": "Developer PowerShell for VS 2022",
+    "dotnet.defaultSolution": "StarDrive.sln"
 }

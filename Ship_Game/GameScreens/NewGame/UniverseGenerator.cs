@@ -80,6 +80,7 @@ namespace Ship_Game.GameScreens.NewGame
             Player.data.CurrentAutoFreighter = Player.data.FreighterShip;
             Player.data.CurrentConstructor = Player.data.ConstructorShip;
             Player.data.CurrentResearchStation = Player.data.ResearchStation;
+            Player.data.SelectedTraitSet = string.Join(", ", Player.data.Traits.PlayerTraitOptions);
         }
 
         public readonly ProgressCounter Progress = new ProgressCounter();

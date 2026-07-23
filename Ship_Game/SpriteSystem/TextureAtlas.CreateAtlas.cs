@@ -22,6 +22,12 @@ namespace Ship_Game.SpriteSystem
 
         void CreateAtlasTexture(Color[] color, AtlasFlags flags, string texturePath)
         {
+            // GetAtlasTexture probes the .dds path first and only falls back to .png,
+            // so a stale sibling from before an atlas flipped between Compress and
+            // NoCompress shadows the freshly written file. The mismatch is invisible
+            // while the packing layout stays identical, then corrupts every UV lookup
+            // the first time the folder contents change. Delete the sibling on write.
+            string pngPath = System.IO.Path.ChangeExtension(texturePath, "png");
             if ((flags & AtlasFlags.Compress) != 0)
             {
                 // We compress the DDS color into DXT5 and then reload it later through XNA
@@ -29,6 +35,7 @@ namespace Ship_Game.SpriteSystem
                 // DXT1 size in mem is 8x smaller than RGBA32
                 DDSFlags format = (flags & AtlasFlags.Alpha) != 0 ? DDSFlags.Dxt5 : DDSFlags.Dxt1;
                 ImageUtils.ConvertToDDS(texturePath, Width, Height, color, format);
+                DeleteStaleSibling(pngPath);
             }
             else
             {
@@ -39,7 +46,23 @@ namespace Ship_Game.SpriteSystem
                 // keep the same on-GPU contract. Without this, bright-and-transparent
                 // pixels in NewUI/EmpireTopBar/Popup atlases saturate to white at draw.
                 ImageUtils.PremultiplyAlpha(color, color.Length);
-                ImageUtils.SaveAsPng(System.IO.Path.ChangeExtension(texturePath, "png"), Width, Height, color);
+                ImageUtils.SaveAsPng(pngPath, Width, Height, color);
+                DeleteStaleSibling(texturePath);
+            }
+        }
+
+        // best-effort: a locked stale file (e.g. AV scan) must not turn
+        // atlas creation fatal; the shadowing bug only bites on format flips
+        static void DeleteStaleSibling(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"TextureAtlas: failed to delete stale cache file {path}: {e.Message}");
             }
         }
 

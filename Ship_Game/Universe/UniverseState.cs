@@ -140,6 +140,22 @@ namespace Ship_Game.Universe
         // TODO: remove PlanetsDict
         [StarData] readonly Map<int, Planet> PlanetsDict = new();
 
+        // permanent log of Important notifications, viewable in ImportantEventsScreen.
+        // added from the sim thread, read from the UI thread, so lock on access
+        [StarData] readonly Array<ImportantNotification> ImportantEventsList = new();
+
+        public void AddImportantEvent(Notification n)
+        {
+            lock (ImportantEventsList)
+                ImportantEventsList.Add(new ImportantNotification(StarDate, n));
+        }
+
+        public ImportantNotification[] GetImportantEvents()
+        {
+            lock (ImportantEventsList)
+                return ImportantEventsList.ToArr();
+        }
+
         // @return All SolarSystems in the Universe
         public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
 

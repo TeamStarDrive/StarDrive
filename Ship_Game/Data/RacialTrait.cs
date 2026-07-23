@@ -168,8 +168,7 @@ namespace Ship_Game
                 ? PlayerTraitOptions 
                 : random.Item(TraitSets).TraitOptions;
 
-            foreach (string trait in traitOptions)
-                selectedTraits += $"{trait}, ";
+            selectedTraits = string.Join(", ", traitOptions);
 
             if (Log.HasDebugger)
                 Log.Info($"Selected traits for {raceName}: {selectedTraits}");

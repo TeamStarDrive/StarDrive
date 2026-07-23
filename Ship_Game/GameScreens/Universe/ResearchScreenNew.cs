@@ -97,7 +97,7 @@ namespace Ship_Game
             // Create queue once all techs are populated
             var queue = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
             Queue = Add(new ResearchQueueUIComponent(this, queue));
-            Vector2 searchPos = new(main.X + main.Width - 360, main.Height - 55);
+            Vector2 searchPos = new(main.X + main.Width - 360, main.Bottom - 55);
             Search = Add(new UIButton(ButtonStyle.BigDip, searchPos, "Search"));
             Search.OnClick = OnSearchButtonClicked;
 
