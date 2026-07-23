@@ -45,7 +45,27 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 VanityName = oldShip.VanityName;
 
             if (OldShip.AI.State == AIState.Refit)
+            {
+                InheritFleetFromOldRefitGoal();
                 RemoveOldRefitGoal();
+            }
+        }
+
+        // a ship already refitting was detached from its fleet by the first refit goal,
+        // so take over that goal's fleet and its reserved fleet node before removing it
+        void InheritFleetFromOldRefitGoal()
+        {
+            if (Fleet == null
+                && Owner.AI.FindGoal(g => g != null && g.Type == GoalType.Refit && g.OldShip == OldShip) is FleetGoal prior
+                && prior.Fleet != null)
+            {
+                Fleet = prior.Fleet;
+                if (Fleet.FindNodeWithGoal(prior, out FleetDataNode node))
+                {
+                    Fleet.AssignGoal(node, this);
+                    Fleet.AssignShipName(node, Build.Template.Name);
+                }
+            }
         }
 
         GoalStep FindShipAndPlanetToRefit()
@@ -114,6 +134,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (PlanetBuildingAt.Owner == null || PlanetBuildingAt.Owner != Owner)
             {
                 OldShip.AI.OrderAwaitOrders();
+                RemoveGoalFromFleet(); // do not strand the fleet node on a dead goal
                 return GoalStep.GoalFailed;
             }
 
