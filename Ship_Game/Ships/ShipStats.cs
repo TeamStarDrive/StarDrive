@@ -162,12 +162,20 @@ namespace Ship_Game.Ships
         public float InitializeMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
         {
             int minMass = (int)(surfaceArea * 0.5f * (1 + surfaceArea * 0.002f));
-            float mass = minMass;
+            float positiveMass = minMass;
+            float negativeMass = 0f;
 
             for (int i = 0; i < modules.Length; i++)
-                mass += modules[i].GetActualMass(loyalty, ordnancePercent, useMassModifier: false);
+            {
+                float m = modules[i].GetActualMass(loyalty, ordnancePercent, useMassModifier: false);
+                if (m >= 0f) positiveMass += m;
+                else         negativeMass += m;
+            }
 
-            mass *= loyalty.data.MassModifier; // apply overall mass modifier once 
+            // lighter-materials research makes the HULL lighter - it must not also shrink the
+            // effect of mass-reduction devices (their negative mass previously scaled with the
+            // modifier, so researching lighter materials WEAKENED inertial dampers)
+            float mass = positiveMass * loyalty.data.MassModifier + negativeMass;
             return Math.Max(mass, minMass);
         }
 
