@@ -132,7 +132,9 @@ namespace Ship_Game
 
         public int GetNumOfTheirMoles(Empire them)
         {
-            return NewEspionageEnabled ? GetEspionage(them).NumPlantedMoles 
+            // upstream issue 311: this read OUR moles planted at THEM (constant 1, the auto
+            // sticky mole), while the intel panel and the legacy branch mean THEIR moles at US
+            return NewEspionageEnabled ? them.GetEspionage(this).NumPlantedMoles 
                                        : them.data.MoleList.Count(m =>  Universe.GetPlanet(m.PlanetId).Owner == this);
         }
 
