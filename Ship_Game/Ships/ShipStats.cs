@@ -172,9 +172,6 @@ namespace Ship_Game.Ships
                 else         negativeMass += m;
             }
 
-            // lighter-materials research makes the HULL lighter - it must not also shrink the
-            // effect of mass-reduction devices (their negative mass previously scaled with the
-            // modifier, so researching lighter materials WEAKENED inertial dampers)
             float mass = positiveMass * loyalty.data.MassModifier + negativeMass;
             return Math.Max(mass, minMass);
         }
