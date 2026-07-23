@@ -339,7 +339,10 @@ namespace Ship_Game
             if (BuildingsHereCanBeBuiltAnywhere || BuildingsCanBuild.Count == 0)
                 return;
 
-            // Replace works even if the governor is not scrapping buildings, unless they are player built
+            // a replace is a scrap with a gift behind it: the no-scrap setting covers it too (upstream issue 303)
+            if (GovernorShouldNotScrapBuilding)
+                return;
+
             float worstBuildingScore = ChooseWorstBuilding(overBudget, scrapZeroMaintenance: true, true, out Building worstBuilding);
             if (worstBuilding == null)
                 return;
@@ -483,6 +486,7 @@ namespace Ship_Game
             if (b.IsBiospheres
                 || b.IsMilitary
                 || !b.Scrappable
+                || b.IsPlayerAdded && OwnerIsPlayer // player-built is never the governor's to scrap — the guard below sat after the no-blueprint early return and was unreachable (upstream issue 303)
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || b.BuildOnlyOnce
                 || b.PlusTerraformPoints > 0) // using this instead of IsTerraformer since some event building might also terraform without the terraformer building ID
