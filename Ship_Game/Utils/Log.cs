@@ -90,6 +90,18 @@ namespace Ship_Game
         public static string LogFilePath { get; private set; }
         public static string OldLogFilePath { get; private set; }
 
+        // official releases version as exactly Major.Minor.Patch, e.g. "1.60.00046 jupiter-1.60"
+        public static bool IsOfficialVersionFormat(string version)
+        {
+            string[] parts = version.Split(' ')[0].Split('.');
+            if (parts.Length != 3)
+                return false;
+            for (int i = 0; i < parts.Length; ++i)
+                if (!uint.TryParse(parts[i], out _))
+                    return false;
+            return true;
+        }
+
         public static void Initialize(bool enableSentry, bool showHeader)
         {
             if (LogThread != null)
@@ -163,6 +175,14 @@ namespace Ship_Game
                 LogWriteAsync(init, ConsoleColor.Green);
             }
 
+            if (enableSentry && !IsOfficialVersionFormat(GlobalStats.Version))
+            {
+                // forked builds tag extra version parts (e.g. "1.60.00046.123") and
+                // must not report into the official Sentry project
+                enableSentry = false;
+                LogWriteAsync($"Sentry disabled: unofficial version format '{GlobalStats.Version}'", ConsoleColor.Yellow);
+            }
+
             if (enableSentry)
             {
                 try // init can fail due to some .NET issues, in this case just give up, because it's rare
@@ -175,7 +195,8 @@ namespace Ship_Game
                         o.Environment = environment;
                         var versionParts = GlobalStats.Version.Split(' '); // "1.30.13000 release/mars-1.41/f83ab4a"
                         o.Release = versionParts[0]; // 1.30.13000
-                        o.Distribution = versionParts[1].Replace('/', '-'); // release/mars-1.41/f83ab4a -> release-mars-1.41-f83ab4a
+                        if (versionParts.Length > 1)
+                            o.Distribution = versionParts[1].Replace('/', '-'); // release/mars-1.41/f83ab4a -> release-mars-1.41-f83ab4a
                         o.IsGlobalModeEnabled = true;
                         o.CacheDirectoryPath = Dir.StarDriveAppData;
 

@@ -492,11 +492,18 @@ namespace Ship_Game.Universe.SolarBodies
                     if (P.Owner.AutoBuildTerraformers && P.Owner.data.Traits.TerraformingLevel > 0 && !item.IsPlayerAdded)
                         DePrioritizeTerraformer();
 
-                    if (item.Rush && item.QType == QueueItemType.OrbitalUrgent
-                        || P.Universe.P.PrioitizeProjectors && item.QType == QueueItemType.RoadNode)
+                    if (item.Rush && item.QType == QueueItemType.OrbitalUrgent)
                     {
-                        // prioritize projector bridges for the player (or any projector if flag is set).
                         MoveTo(0, Count - 1);
+                    }
+                    else if (P.Universe.P.PrioitizeProjectors && item.QType == QueueItemType.RoadNode)
+                    {
+                        // prioritize projector bridges for the player, below the projectors
+                        // already leading the queue so a road completes segment by segment
+                        int insertAt = 0;
+                        while (insertAt < Count - 1 && ConstructionQueue[insertAt].QType == QueueItemType.RoadNode)
+                            ++insertAt;
+                        MoveTo(insertAt, Count - 1);
                     }
                 }
 

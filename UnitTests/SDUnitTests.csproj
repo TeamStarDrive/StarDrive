@@ -67,6 +67,7 @@
     <Compile Include="Data\TestAudioConfig.cs" />
     <Compile Include="Data\AdviceFallbackTests.cs" />
     <Compile Include="Data\LocalizationMergeTests.cs" />
+    <Compile Include="Data\VersionFormatTests.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\MeshExporterStaticPathTests.cs" />
     <Compile Include="Data\MeshImporterTests.cs" />

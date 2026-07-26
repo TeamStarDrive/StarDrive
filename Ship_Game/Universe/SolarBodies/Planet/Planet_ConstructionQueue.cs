@@ -457,7 +457,7 @@ public partial class Planet
             TerraformingHere = HasBuilding(bb => bb.IsTerraformer || bb.IsEventTerraformer);
         
         // FB - no terraformers present, terraform effort halted
-        if (b.IsTerraformer && !TerraformingHere)
+        if ((b.IsTerraformer || b.IsEventTerraformer) && !TerraformingHere)
             TerraformPoints = 0;
 
         if (b.IsCapital) HasCapital = false;

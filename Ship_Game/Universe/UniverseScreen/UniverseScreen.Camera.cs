@@ -155,6 +155,7 @@ namespace Ship_Game
 
             SnapViewTo(new(s.Position.X, s.Position.Y + 400, 2500), 5f, 2f);
             LookingAtPlanet = false;
+            ShipToView = s;
             snappingToShip = true;
             ViewingShip = true;
         }

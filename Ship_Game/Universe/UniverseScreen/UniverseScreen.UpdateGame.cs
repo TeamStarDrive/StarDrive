@@ -121,6 +121,10 @@ namespace Ship_Game
                 ++SimTurnId;
 
                 UState.Objects.Update(FixedSimTime.Zero/*paused*/);
+
+                // keep build-goal icons visible/selectable and tracking the camera while
+                // paused; must stay on this thread - GoalsList is owned by the sim thread
+                UpdateClickableItems();
             }
             else
             {

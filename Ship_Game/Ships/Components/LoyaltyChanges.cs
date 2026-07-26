@@ -66,6 +66,12 @@ namespace Ship_Game.Ships.Components
 
         static bool DoLoyaltyChange(Ship ship, Type type, Empire changeTo)
         {
+            // Spawned ships should not clear orders since some of them are given immediate orders
+            // like pirates and meteors. Must run BEFORE the transfer handlers: orders they
+            // issue for the new owner (e.g. pirate flee-home) must survive.
+            if (type != Type.Spawn)
+                ship.AI.ClearOrdersAndWayPoints();
+
             switch (type)
             {
                 default:
@@ -76,11 +82,6 @@ namespace Ship_Game.Ships.Components
                 case Type.Absorbed:       LoyaltyChangeDueToFederation(ship, changeTo, false); break;
                 case Type.AbsorbedNotify: LoyaltyChangeDueToFederation(ship, changeTo, true);  break;
             }
-
-            // Spawned ships should not clear orders since some of them are given immediate orders
-            // Like pirates and meteors
-            if (type != Type.Spawn)
-                ship.AI.ClearOrdersAndWayPoints();
 
             return true;
         }

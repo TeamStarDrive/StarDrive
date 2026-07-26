@@ -269,7 +269,20 @@ namespace Ship_Game
         void ApplyTerraforming(RandomBase random) // Added by Fat Bastard
         {
             if (!Terraformable)
+            {
+                // no doable job is left at the current terraform level, e.g. an event
+                // terraformer died mid-job above the empire's own tech level: clear the
+                // in-progress status and scrap the now-useless terraformers.
+                // A live event terraformer is exempt - RemoveTerraformers never scraps
+                // those, so scrapping+notifying would repeat every turn
+                if (TerraformPoints > 0 || TerraformingHere)
+                {
+                    TerraformPoints = 0;
+                    if (TerraformingHere && !ContainsEventTerraformers)
+                        RemoveTerraformers();
+                }
                 return;
+            }
 
             if (TerraformToAdd <= 0 || Owner == null)
             {
