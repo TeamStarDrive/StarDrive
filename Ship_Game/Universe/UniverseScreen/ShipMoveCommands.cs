@@ -94,7 +94,11 @@ namespace Ship_Game.Universe
 
             // if ALT key is down, always Orbit the planet
             if (Input.IsAltKeyDown)
+            {
                 ship.OrderToOrbit(planet, clearOrders, GetStanceType());
+                if (clearOrders)
+                    CancelAbandonedColonizationGoal(ship);
+            }
             else if (ship.ShipData.IsColonyShip)
                 PlanetRightClickColonyShip(ship, planet, clearOrders); // This ship can colonize planets
             else if (ship.Carrier.AnyAssaultOpsAvailable)
@@ -114,7 +118,26 @@ namespace Ship_Game.Universe
             else
             {
                 ship.OrderToOrbit(planet, clearOrders);
+                if (clearOrders)
+                    CancelAbandonedColonizationGoal(ship);
             }
+        }
+
+        // Issue 324: a direct player order that pulls a colony ship off a manual colonization
+        // is the player changing their mind - retire the empire goal too, so the automation
+        // stops feeding replacement colony ships to that planet. Triggered only by explicit
+        // player input (never by load or transient AI states - the lesson of the first fix),
+        // and the ship itself is not touched: it is already following the new order.
+        void CancelAbandonedColonizationGoal(Ship ship)
+        {
+            if (!ship.ShipData.IsColonyShip)
+                return;
+
+            var goal = Universe.Player.AI.FindGoal(g => g is MarkForColonization m
+                                                     && m.IsManualColonizationOrder
+                                                     && m.FinishedShip == ship);
+            if (goal != null)
+                Universe.Player.AI.RemoveGoal(goal);
         }
 
         void PlanetRightClickTroopShip(Ship ship, Planet planet, bool clearOrders, AI.MoveOrder order)
@@ -300,6 +323,8 @@ namespace Ship_Game.Universe
 
             Vector2 corrected = HelperFunctions.GetCorrectedMovePosWithAudio([ship], enemyShips, pos);
             ship.AI.OrderMoveTo(corrected, direction, GetMoveOrderType());
+            if (!Input.QueueAction) // a queued waypoint is not a change of mind
+                CancelAbandonedColonizationGoal(ship);
         }
     }
 }
