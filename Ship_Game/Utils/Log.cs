@@ -195,7 +195,8 @@ namespace Ship_Game
                         o.Environment = environment;
                         var versionParts = GlobalStats.Version.Split(' '); // "1.30.13000 release/mars-1.41/f83ab4a"
                         o.Release = versionParts[0]; // 1.30.13000
-                        o.Distribution = versionParts[1].Replace('/', '-'); // release/mars-1.41/f83ab4a -> release-mars-1.41-f83ab4a
+                        if (versionParts.Length > 1)
+                            o.Distribution = versionParts[1].Replace('/', '-'); // release/mars-1.41/f83ab4a -> release-mars-1.41-f83ab4a
                         o.IsGlobalModeEnabled = true;
                         o.CacheDirectoryPath = Dir.StarDriveAppData;
 
