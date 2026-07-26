@@ -67,9 +67,8 @@ namespace Ship_Game.Ships.Components
         static bool DoLoyaltyChange(Ship ship, Type type, Empire changeTo)
         {
             // Spawned ships should not clear orders since some of them are given immediate orders
-            // Like pirates and meteors.
-            // Clear BEFORE the transfer handlers run: they may issue orders for the new owner
-            // (pirate boarding orders the ship to flee to a pirate base) which must survive.
+            // like pirates and meteors. Must run BEFORE the transfer handlers: orders they
+            // issue for the new owner (e.g. pirate flee-home) must survive.
             if (type != Type.Spawn)
                 ship.AI.ClearOrdersAndWayPoints();
 
