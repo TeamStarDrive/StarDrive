@@ -123,11 +123,6 @@ namespace Ship_Game.Universe
             }
         }
 
-        // Issue 324: a direct player order that pulls a colony ship off a manual colonization
-        // is the player changing their mind - retire the empire goal too, so the automation
-        // stops feeding replacement colony ships to that planet. Triggered only by explicit
-        // player input (never by load or transient AI states - the lesson of the first fix),
-        // and the ship itself is not touched: it is already following the new order.
         void CancelAbandonedColonizationGoal(Ship ship)
         {
             if (!ship.ShipData.IsColonyShip)
