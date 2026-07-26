@@ -457,8 +457,6 @@ public partial class Planet
             TerraformingHere = HasBuilding(bb => bb.IsTerraformer || bb.IsEventTerraformer);
         
         // FB - no terraformers present, terraform effort halted
-        // (event terraformers too - a depleted World Tree left the points frozen and
-        // the planet stuck displaying 'Terraforming in Progress', issue 294)
         if ((b.IsTerraformer || b.IsEventTerraformer) && !TerraformingHere)
             TerraformPoints = 0;
 
