@@ -401,9 +401,6 @@ namespace Ship_Game
             foreach (RootNode node in RootNodes.Values)
                 node.nodeState = (node == root) ? NodeState.Press : NodeState.Normal;
 
-            SubNodes.Clear();
-            ClaimedSpots.Clear();
-
             int rows = 1;
             int cols = CalculateTreeDimensionsFromRoot(root.Entry, ref rows, 0, 0);
             if (rows < 9) GridHeight = (MainMenu.Menu.Height - 40) / rows;
@@ -411,6 +408,29 @@ namespace Ship_Game
 
             if (cols > 0 && cols < 9) GridWidth = (MainMenu.Menu.Width - 350) / cols;
             else                      GridWidth = 165;
+
+            BuildSubNodes(root);
+
+            // The row count above is an ESTIMATE, and it overcounts: a branch that merges
+            // back into the main line is counted as its own row. Tabs then squeeze toward
+            // the top of the frame with dead space below. Measure the rows actually laid
+            // out and, if they differ, rebuild once at the exact height.
+            // The +1 is the deepest node's own height below its anchor - the estimator's
+            // overcount used to absorb that by accident, so dividing by the exact count
+            // pushed the last row past the frame.
+            int actualRows = Math.Max(1, FindDeepestYSubNodes());
+            int wantRows = Math.Min(actualRows + 1, 9);
+            if (wantRows != Math.Min(rows, 9))
+            {
+                GridHeight = (MainMenu.Menu.Height - 40) / wantRows;
+                BuildSubNodes(root);
+            }
+        }
+
+        void BuildSubNodes(RootNode root)
+        {
+            SubNodes.Clear();
+            ClaimedSpots.Clear();
 
             var nodePos = new Vector2(1f, 1f);
             bool first = true;
@@ -421,7 +441,10 @@ namespace Ship_Game
                     continue;
 
                 nodePos.X = root.NodePosition.X + 1f;
-                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                // scan from the TAB top: the root's own Y is its slot in the left
+                // category list, not a row of this canvas
+                nodePos.Y = first ? FindDeepestYSubNodes()
+                                  : FindFreeRowFor(child, 0, (int)nodePos.X);
                 if (first) first = false;
 
                 if (!SubNodes.ContainsKey(child.UID)) // only ever add unique entries
@@ -441,7 +464,8 @@ namespace Ship_Game
             foreach (TechEntry child in node.Entry.Children)
             {
                 nodePos.X = node.NodePosition.X + 1f;
-                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                nodePos.Y = first ? FindDeepestYSubNodes()
+                                  : FindFreeRowFor(child, (int)node.NodePosition.Y, (int)nodePos.X);
                 if (first) first = false;
 
                 if (child.Discovered && !SubNodes.ContainsKey(child.UID))
@@ -473,6 +497,31 @@ namespace Ship_Game
         }
         
         bool PositionIsClaimed(Vector2 position) => ClaimedSpots.Any(p => p.AlmostEqual(position));
+
+        /// <summary>
+        /// The first row at or below <paramref name="parentY"/> where this branch's whole
+        /// rectangle - its own rows by its own columns - is unclaimed.
+        ///
+        /// Branches used to always open a fresh row below EVERYTHING laid out so far, so a
+        /// one-node dead end cost a full row of the canvas even when the level it sat on had
+        /// free space further right. On a dense tree that is the difference between fitting
+        /// the frame and overflowing it.
+        /// </summary>
+        int FindFreeRowFor(TechEntry branch, int parentY, int col)
+        {
+            int bRows = 1;
+            int bCols = CalculateTreeDimensionsFromRoot(branch, ref bRows, 0, 0);
+            for (int y = parentY; ; ++y)
+            {
+                bool freeRect = true;
+                for (int dy = 0; dy < bRows && freeRect; ++dy)
+                    for (int dx = 0; dx < bCols && freeRect; ++dx)
+                        if (PositionIsClaimed(new Vector2(col + dx, y + dy)))
+                            freeRect = false;
+                if (freeRect)
+                    return y;
+            }
+        }
 
         //Added by McShooterz: find size of tech tree before it is built
         int CalculateTreeDimensionsFromRoot(TechEntry techEntry, ref int rows, int cols, int colmax)
