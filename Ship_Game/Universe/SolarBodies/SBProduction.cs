@@ -498,9 +498,8 @@ namespace Ship_Game.Universe.SolarBodies
                     }
                     else if (P.Universe.P.PrioitizeProjectors && item.QType == QueueItemType.RoadNode)
                     {
-                        // prioritize projector bridges for the player — but BELOW the projectors
-                        // already leading the queue, so a road completes segment by segment
-                        // instead of three half-roads racing each other (upstream issue 300)
+                        // prioritize projector bridges for the player, below the projectors
+                        // already leading the queue so a road completes segment by segment
                         int insertAt = 0;
                         while (insertAt < Count - 1 && ConstructionQueue[insertAt].QType == QueueItemType.RoadNode)
                             ++insertAt;
