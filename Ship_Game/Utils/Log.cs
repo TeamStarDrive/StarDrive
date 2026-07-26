@@ -90,6 +90,18 @@ namespace Ship_Game
         public static string LogFilePath { get; private set; }
         public static string OldLogFilePath { get; private set; }
 
+        // official releases version as exactly Major.Minor.Patch, e.g. "1.60.00046 jupiter-1.60"
+        public static bool IsOfficialVersionFormat(string version)
+        {
+            string[] parts = version.Split(' ')[0].Split('.');
+            if (parts.Length != 3)
+                return false;
+            for (int i = 0; i < parts.Length; ++i)
+                if (!uint.TryParse(parts[i], out _))
+                    return false;
+            return true;
+        }
+
         public static void Initialize(bool enableSentry, bool showHeader)
         {
             if (LogThread != null)
@@ -161,6 +173,14 @@ namespace Ship_Game
                 init += $" ==== UTC: {DateTime.UtcNow,-39} ====\r\n";
                 init +=  " ======================================================\r\n";
                 LogWriteAsync(init, ConsoleColor.Green);
+            }
+
+            if (enableSentry && !IsOfficialVersionFormat(GlobalStats.Version))
+            {
+                // forked builds tag extra version parts (e.g. "1.60.00046.123") and
+                // must not report into the official Sentry project
+                enableSentry = false;
+                LogWriteAsync($"Sentry disabled: unofficial version format '{GlobalStats.Version}'", ConsoleColor.Yellow);
             }
 
             if (enableSentry)
