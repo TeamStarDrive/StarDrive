@@ -440,7 +440,22 @@ namespace Ship_Game
                 DrawShipAndPlanetIcons(batch);
                 DrawSolarSystems(batch);
                 DrawSystemThreatIndicators(batch);
-                DrawGeneralUI(batch, elapsed);
+                // Ludoal fork: a UI draw failure must never starve the sim thread —
+                // an exception here used to skip DrawCompletedEvt.Set() below, freezing
+                // the simulation for as long as the failing element kept drawing
+                // (battle sim arena: selecting a ship froze the game). Log and go on.
+                try
+                {
+                    DrawGeneralUI(batch, elapsed);
+                }
+                catch (System.Exception ex)
+                {
+                    if (!LoggedGeneralUIDrawError)
+                    {
+                        LoggedGeneralUIDrawError = true;
+                        Log.Error(ex, "DrawGeneralUI failed (UI suppressed, sim kept alive)");
+                    }
+                }
             }
             batch.SafeEnd();
             IconsGroupTotalPerf.Stop();
