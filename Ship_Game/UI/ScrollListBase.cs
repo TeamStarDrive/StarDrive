@@ -133,8 +133,18 @@ namespace Ship_Game
 
         #region ScrollList HandleInput
 
-        int ScrollButtonAmount(bool held) => !held ? EntryHeight / 2 : EntryHeight / 6;
-        int ScrollWheelAmount => EntryHeight / 3;
+        // Ludoal fork: wheel/buttons used to move the SCROLLBAR by EntryHeight-derived pixels,
+        // so the real content jump scaled with list length and resolution (a notch skipped
+        // rows at 1080p on the Empire screen). Content-space deltas, converted exactly.
+        float ScrollBarDeltaForEntries(float entries)
+        {
+            float scrollableEntries = FlatEntries.Count - ItemsHousing.H / (EntryHeight + ItemPadding.Y);
+            if (scrollableEntries <= 0f)
+                return 0f;
+            return (ScrollHousing.H - ScrollBar.H) * (entries / scrollableEntries);
+        }
+        float ScrollButtonAmount(bool held) => ScrollBarDeltaForEntries(!held ? 0.5f : 0.15f);
+        float ScrollWheelAmount => ScrollBarDeltaForEntries(1f);
 
         bool HandleInputScrollButtons(InputState input)
         {
@@ -182,7 +192,7 @@ namespace Ship_Game
         {
             if (Rect.HitTest(input.CursorPosition))
             {
-                int amount = 0;
+                float amount = 0;
                 if (input.ScrollIn) amount = -ScrollWheelAmount;
                 if (input.ScrollOut) amount = ScrollWheelAmount;
                 if (amount != 0)
@@ -499,7 +509,7 @@ namespace Ship_Game
         }
 
         // move the scrollbar by requested amount of pixels up (-) or down (+)
-        void ScrollByScrollBar(int deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
+        void ScrollByScrollBar(float deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
 
         public override void Update(float fixedDeltaTime)
         {
