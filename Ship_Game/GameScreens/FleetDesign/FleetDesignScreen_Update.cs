@@ -10,6 +10,11 @@ namespace Ship_Game
     {
         public override void Update(float fixedDeltaTime)
         {
+            // This screen hides the universe, which parks the sim thread and would leave
+            // requisition goals frozen in the pending queue (they showed "Need spaceport"
+            // until the screen was closed). Pump the queue so they resolve while we watch.
+            Universe.PumpPendingSimThreadActions();
+
             CamPos.X = CamPos.X.SmoothStep(DesiredCamPos.X, 0.2f);
             CamPos.Y = CamPos.Y.SmoothStep(DesiredCamPos.Y, 0.2f);
             CamPos.Z = CamPos.Z.SmoothStep(DesiredCamPos.Z, 0.2f);
