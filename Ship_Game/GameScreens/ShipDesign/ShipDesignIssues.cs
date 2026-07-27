@@ -508,9 +508,12 @@ namespace Ship_Game.GameScreens.ShipDesign
         }
 
         public void CheckDedicatedCarrier(bool hasFighterHangars, RoleName role, 
-                                          int maxWeaponRange, float sensorRange, bool shortRange)
+                                          int maxWeaponRange, float sensorRange, bool shortRange,
+                                          float hangarAreaPercent = 1f)
         {
-            if (role != RoleName.carrier  && !Stationary || !hasFighterHangars)
+            // stationary designs were flagged 'Dedicated Carrier' from a single hangar bay;
+            // hold them to the same 10% hangar-area threshold ships need for the carrier role
+            if (role != RoleName.carrier && !(Stationary && hangarAreaPercent > 0.1f) || !hasFighterHangars)
                 return;
 
             bool minCarrier  = false;
