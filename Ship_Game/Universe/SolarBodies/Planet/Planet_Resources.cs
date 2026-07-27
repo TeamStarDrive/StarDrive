@@ -85,7 +85,10 @@ namespace Ship_Game
             return GoodState.STORE;
         }
 
-        bool ShouldImportColonists(float popRatio) => popRatio < 0.8f || BiosphereInTheWorks && PopPerBiosphere(Owner) > 100 && popRatio < 0.99f;
+        // the biosphere-anticipation import rule is bounded at the EXPORT threshold (0.9):
+        // in the old ]0.9, 0.99[ window import and export were both defensible and every
+        // biosphere queued flipped the traffic direction - the population ping-pong (issue 293)
+        bool ShouldImportColonists(float popRatio) => popRatio < 0.8f || BiosphereInTheWorks && PopPerBiosphere(Owner) > 100 && popRatio < 0.9f;
 
         public bool ShortOnFood()
         {
