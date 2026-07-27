@@ -821,9 +821,14 @@ namespace Ship_Game
                 if (NumFreeBiospheres > 0)
                 {
                     // We do not need more than 1 free biospheres if not profitable.
-                    // We need only 1 free biosphere if we have anything to built at all
-                    shouldScrapBioSpheres = NumFreeBiospheres > 1 
-                        || numBuildingsWeCanBuild == 0 && (!HasBlueprints || Blueprints.IsAchievableCompleted);
+                    // We need only 1 free biosphere if we have anything to built at all.
+                    // But a colony budget that covers the upkeep of the free biospheres is an
+                    // explicit 'I am paying, keep them' - the scrap decision never consulted
+                    // the budget, so governors razed player-funded biospheres at budget 99 (issue 313)
+                    bool budgetCoversUpkeep = budget >= NumFreeBiospheres * bio.ActualMaintenance(this);
+                    shouldScrapBioSpheres = !budgetCoversUpkeep
+                        && (NumFreeBiospheres > 1 
+                            || numBuildingsWeCanBuild == 0 && (!HasBlueprints || Blueprints.IsAchievableCompleted));
                     return false;
                 }
                 else if (numBuildingsWeCanBuild == 0 || HabiableBuiltCoverage.Less(1))
