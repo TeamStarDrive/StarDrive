@@ -702,13 +702,32 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             OnOfferChanged();
         }
 
+        bool DemandAnswered; // upstream issue 307
+
+        // upstream issue 307: only the Reject button carried the refusal penalty — walking
+        // out, discussing or negotiating away an ultimatum had no consequence, though
+        // CanEscapeFromScreen=false shows the player was meant to answer. Scoped to
+        // Offer.IsDemand per review: ValueToModify is a generic per-dialog side-effect
+        // carrier (peace fires SetImperialistWar on ANY write; friendly dialogs would
+        // pre-flag HaveRejected_* on Negotiate), so only true ultimatums may mark here.
+        // Known residual: Negotiate marks up front (BeginNegotiations discards the Ref,
+        // so it is the only window) — a negotiation that ends up conceding the demand
+        // cannot unmark. Rare and accepted.
+        void MarkUnansweredDemandRejected()
+        {
+            if (!DemandAnswered && TheirOffer?.IsDemand == true && TheirOffer.ValueToModify != null)
+                TheirOffer.ValueToModify.Value = true;
+        }
+
         void OnNegotiateClicked(GenericButton b)
         {
+            MarkUnansweredDemandRejected();
             BeginNegotiations();
         }
 
         void OnAcceptClicked(GenericButton b)
         {
+            DemandAnswered = true; // upstream issue 307
             if (TheirOffer.ValueToModify != null) TheirOffer.ValueToModify.Value = false;
             if (OurOffer.ValueToModify != null)   OurOffer.ValueToModify.Value = true;
 
@@ -718,6 +737,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnRejectClicked(GenericButton b)
         {
+            DemandAnswered = true; // upstream issue 307
             if (TheirOffer.ValueToModify != null) TheirOffer.ValueToModify.Value = true;
             if (OurOffer.ValueToModify != null)   OurOffer.ValueToModify.Value = false;
             
@@ -740,6 +760,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnDiscussButtonClicked(GenericButton b)
         {
+            MarkUnansweredDemandRejected();
             Array<DialogOption> options = new();
             foreach (StatementSet set in ResourceManager.GetDiplomacyDialog("SharedDiplomacy").StatementSets)
             {
@@ -762,6 +783,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnExitClicked(GenericButton b)
         {
+            MarkUnansweredDemandRejected();
             Audio.GameAudio.SwitchBackToGenericMusic();
             ExitScreen();
         }
