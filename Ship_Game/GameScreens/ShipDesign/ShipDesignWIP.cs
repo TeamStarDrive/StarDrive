@@ -37,8 +37,11 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         static string GetWipFileNameToSave(string wipFileName)
         {
-            string defaultShipName = $"{wipFileName}_v1_WIP";
+            // Built from the prefix, not from the name as given: when saving a WIP a second time
+            // the caller passes a name that already carries a suffix, and appending to that
+            // produced "Design_ship3_v1_WIP_v1_WIP", with another one stacked on every save.
             string shipPrefix      = GetWipShipNameAndNum(wipFileName);
+            string defaultShipName = $"{shipPrefix}_v1_WIP";
             FileInfo[] wipFiles    = GetWipFiles().Filter(f => f.NameNoExt().StartsWith(shipPrefix));
 
             if (wipFiles.Length == 0) // first wip
