@@ -19,7 +19,10 @@ namespace Ship_Game
         Vector2 ClassifCursor;
         UICheckBox CarrierOnlyCheckBox;
         bool DisplayedBulkReplacementHint;
-        const float ClickThresholdSeconds = 0.1f;
+        // 0.15 matches InputState.LeftMouseHeld's own default. Picking a fitted module up runs
+        // only inside the "released and held for less than this" branch, so at 0.10 an ordinary,
+        // slightly deliberate click was already too long to count and did nothing at all.
+        const float ClickThresholdSeconds = 0.15f;
 
         void UpdateCarrierShip()
         {
