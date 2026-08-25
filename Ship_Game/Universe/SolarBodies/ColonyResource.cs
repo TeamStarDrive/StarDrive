@@ -273,6 +273,10 @@ namespace Ship_Game.Universe.SolarBodies
         // The current tax rate applied by empire tax rate and planet tax rate modifiers
         public float TaxRate { get; private set; }
 
+        // the STRUCTURAL part of the tax pipe: racial bonus/penalty plus building tax
+        // percentages - everything but the player's slider (PR 397 review)
+        public float TaxRateMultiplier { get; private set; } = 1f;
+
         // revenue before maintenance is deducted
         public float GrossRevenue { get; private set; }
 
@@ -324,6 +328,7 @@ namespace Ship_Game.Universe.SolarBodies
             TroopMaint = Planet.Troops.Count * ShipMaintenance.TroopMaint; // We count enemy troops as well
 
             // And finally we adjust local TaxRate by the bonus multiplier
+            TaxRateMultiplier = taxRateMultiplier;
             TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
 
