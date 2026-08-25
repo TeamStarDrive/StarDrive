@@ -28,6 +28,10 @@ namespace Ship_Game
         readonly UniverseScreen Universe;
         readonly Rectangle Housing;
         Rectangle ActualMap;
+        // one-shot calibration of the frustum geometry against the real projection -
+        // linear in camera height, so three constants say it all
+        bool FrustumCalibrated;
+        double FrustumWidthPerHeight, FrustumOffsetXPerHeight, FrustumOffsetYPerHeight;
         //to get rid of these I need to find a solution for hover and the setting of the active setting
         readonly ToggleButton ZoomOut;
         readonly ToggleButton ZoomToShip;
@@ -131,22 +135,31 @@ namespace Ship_Game
                 Log.Error(e, $"MiniMap Draw crashed {e.InnerException}");
             }
 
-            Vector2 upperLeftView = Universe.UnprojectToWorldPosition(new Vector2(0f, 0f));
-            upperLeftView = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 1), HelperFunctions.RoundTo(upperLeftView.Y, 1));
-            
-            var right = Universe.UnprojectToWorldPosition(new Vector2(Universe.ScreenWidth, 0f));
-
-            right = new Vector2(HelperFunctions.RoundTo(right.X, 1), 0f);
-            
-            float xdist = (right.X - upperLeftView.X) * Scale;
-            xdist = HelperFunctions.RoundTo(xdist, 1);
-
-            float ydist = xdist * Universe.ScreenHeight / Universe.ScreenWidth;
-            ydist = HelperFunctions.RoundTo(ydist, 1);
-            // draw and clamp minimap viewing area rectangle.
-            var lookingAt = new Rectangle((int)MiniMapZero.X + (int)(upperLeftView.X * Scale), 
-                                          (int)MiniMapZero.Y + (int)(upperLeftView.Y * Scale),
-                                          (int)xdist, (int)ydist);
+            // The viewport frame used to tremble, with an amplitude growing with the
+            // distance from the galaxy centre: rebuilding it from float Unproject round
+            // trips loses precision as world coordinates grow, and no display-side rounding
+            // can fix a noisy input. Frustum geometry is linear in camera height, so ONE
+            // calibration against the real projection (width per height, centre offset per
+            // height) makes every later frame pure arithmetic on CamPos, a smooth double.
+            double camH = Universe.CamPos.Z;
+            var frustum = Universe.VisibleWorldRect;
+            if (!FrustumCalibrated && camH > 0 && frustum.Width > 0)
+            {
+                FrustumWidthPerHeight   = frustum.Width / camH;
+                FrustumOffsetXPerHeight = (frustum.X1 + frustum.Width  / 2 - Universe.CamPos.X) / camH;
+                FrustumOffsetYPerHeight = (frustum.Y1 + frustum.Height / 2 - Universe.CamPos.Y) / camH;
+                FrustumCalibrated = true;
+            }
+            double vw = FrustumWidthPerHeight * camH;
+            double vh = vw * Universe.ScreenHeight / (double)Universe.ScreenWidth;
+            double cx = Universe.CamPos.X + FrustumOffsetXPerHeight * camH;
+            double cy = Universe.CamPos.Y + FrustumOffsetYPerHeight * camH;
+            double lookX = MiniMapZero.X + (cx - vw / 2) * Scale;
+            double lookY = MiniMapZero.Y + (cy - vh / 2) * Scale;
+            double lookW = vw * Scale;
+            double lookH = vh * Scale;
+            var lookingAt = new Rectangle((int)Math.Round(lookX), (int)Math.Round(lookY),
+                                          (int)Math.Round(lookW), (int)Math.Round(lookH));
             if (lookingAt.Width < 2)
             {
                 lookingAt.Width  = 2;
