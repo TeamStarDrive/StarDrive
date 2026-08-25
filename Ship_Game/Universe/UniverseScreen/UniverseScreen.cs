@@ -39,6 +39,7 @@ namespace Ship_Game
 
         public Array<Bomb> BombList  = new();
         readonly AutoResetEvent DrawCompletedEvt = new(false);
+        bool LoggedGeneralUIDrawError; // Ludoal fork: log the first UI-draw failure only
 
         public const double MinCamHeight = 450.0;
         protected double MaxCamHeight;
