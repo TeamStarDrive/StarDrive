@@ -321,8 +321,10 @@ namespace Ship_Game.AI
             {
                 totalTrustRequiredFromUs += dt.Trade;
             }
-            if (ourOffer.OpenBorders)
+            if (ourOffer.OpenBorders || theirOffer.OpenBorders)
             {
+                // upstream issue 306: the treaty is signed bilateral either way — accepting
+                // 'their' open borders opens OUR borders too, so it costs the same trust
                 totalTrustRequiredFromUs += (dt.NAPact + 7.5f);
             }
             if (ourOffer.NAPact)
@@ -366,6 +368,7 @@ namespace Ship_Game.AI
             }
 
             if (ourOffer.OpenBorders)   valueToThem += 5f;
+            if (theirOffer.OpenBorders) valueToThem += 5f; // issue 306: they receive the access either way
             if (theirOffer.OpenBorders) valueToUs   += them.isPlayer ? 2f : 5f;
             if (ourOffer.NAPact)        valueToThem += 10f;
             if (theirOffer.NAPact)      valueToUs   += 10f;
