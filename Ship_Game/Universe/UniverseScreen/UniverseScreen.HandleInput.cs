@@ -840,7 +840,8 @@ namespace Ship_Game
 
             // TODO: These are not documented to the players
             bool addToSelection = input.IsShiftKeyDown;
-            bool selectAll      = input.IsCtrlKeyDown || !hasCombatShips;
+            bool ctrlSelect     = input.IsCtrlKeyDown;
+            bool selectAll      = ctrlSelect || !hasCombatShips;
             bool nonPlayer      = input.IsAltKeyDown || !potentialShips.Any(s => s.Loyalty.isPlayer);
             bool onlyPlayer     = !nonPlayer && potentialShips.Any(s => s.Loyalty.isPlayer);
 
@@ -859,11 +860,14 @@ namespace Ship_Game
                 ships.RemoveAll(NonCombatShip);
             }
 
-            if (onlyPlayer && !hasCombatShips)
+            if (onlyPlayer && !ctrlSelect && !hasCombatShips)
             {
                 // if we selected a bunch of civilian ships, but some of them are troop transports
-                // then discard all ships that aren't troop transports
-                bool hasTroopTransports = potentialShips.Any(s => s.IsSingleTroopShip);
+                // then discard all ships that aren't troop transports.
+                // upstream issue 298: count only the player's own selected ships — an ENEMY
+                // transport in the box used to poison this and strip the whole selection.
+                // And Ctrl means 'everything of mine': the preference filter yields to it.
+                bool hasTroopTransports = ships.Any(s => s.IsSingleTroopShip);
                 if (hasTroopTransports)
                     ships.RemoveAll(s => !s.IsSingleTroopShip);
             }
