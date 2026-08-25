@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
@@ -132,7 +133,11 @@ namespace Ship_Game.Gameplay
         {
             float projectorRadius = owner.GetProjectorRadius() * ProjectorDensity;
             float distance = origin.Position.Distance(destination.Position);
-            return (int)(distance / projectorRadius);
+            if (distance <= projectorRadius)
+                return 0; // the hop is short enough for the systems own influence
+            // upstream issue 301: flooring left up to a whole projector-length of the road
+            // uncovered, drawing roads with open gaps between the circles. Round up.
+            return (int)Math.Ceiling(distance / projectorRadius);
         }
 
         // This ensures a road will be the same object, regardless of the order of sys1 and sys2
