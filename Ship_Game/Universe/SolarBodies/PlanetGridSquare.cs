@@ -324,7 +324,10 @@ namespace Ship_Game
             {
                 if (IsCrashSiteActive)
                 {
-                    if (!planet.SpaceCombatNearPlanet)
+                    // upstream issue 343: no recovery infrastructure on a planet someone else
+                    // still owns — an invader waits for the conquest to resolve. Safe to defer:
+                    // this check re-fires as long as a troop holds the tile.
+                    if (!planet.SpaceCombatNearPlanet && (planet.Owner == null || planet.Owner == empire))
                         CrashSite.ActivateSite(planet.Universe, planet, empire, this);
                 }
                 else
