@@ -261,6 +261,15 @@ namespace Ship_Game
                     if (!input.LeftMouseWasHeldDown || input.LeftMouseHoldDuration < ClickThresholdSeconds)
                         HighlightedModule = null;
                 }
+                // Moving the cursor off the hull clears the highlight too, so the orange
+                // rectangle and the Active Module panel follow the cursor out instead of
+                // staying on the last module hovered until something else is clicked.
+                // Not while the button is held: dragging a firing arc walks the cursor well
+                // off its own tile, and clearing here would drop the module mid-drag.
+                else if (!input.LeftMouseDown)
+                {
+                    HighlightedModule = null;
+                }
 
                 return false;
             }
