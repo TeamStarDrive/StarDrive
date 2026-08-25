@@ -110,6 +110,28 @@ namespace Ship_Game.Ships
             return None;
         }
 
+        // Ludoal fork, issue #338: loading a save calls InitializeStatus, which rebuilds
+        // Carrier from the module list — that has to happen, because the hangar arrays and the
+        // readonly Has* flags are derived from the modules and are not serialized. But the
+        // rebuild also discarded everything the save file had just restored, so the player's
+        // own choices came back at their defaults: "recall fighters before FTL" and "send
+        // troops to ship" both default to true, which is exactly what the reporter saw.
+        // The state below is carried over from the deserialized instance onto the fresh one.
+        public void CarryOverSavedState(CarrierBays saved)
+        {
+            // None is a shared static instance: writing to it would leak one ship's settings
+            // onto every other carrier-less ship in the game.
+            if (saved == null || saved == None || this == None)
+                return;
+
+            RecallFightersBeforeFTL = saved.RecallFightersBeforeFTL;
+            SendTroopsToShip        = saved.SendTroopsToShip;
+            AllowBoardShip          = saved.AllowBoardShip;
+            FightersLaunched        = saved.FightersLaunched;
+            TroopsLaunched          = saved.TroopsLaunched;
+            OrdnanceInSpace         = saved.OrdnanceInSpace;
+        }
+
         public void Dispose()
         {
             if (Owner == null)
