@@ -4096,17 +4096,17 @@ namespace Ship_Game
         Override = 4226,
         /// <summary>Override this budget and set your own.</summary>
         OverrideThisBudgetAndSet = 4227,
-        /// <summary>Civilian Buildings Expenditure/Budget in BY/C. If you see over-budget, you</summary>
+        /// <summary>Civilian Buildings Expenditure/Budget in bc/t. If you see over-budget, you</summary>
         CivilianBuildingsExpenditurebudgetInByc = 4228,
-        /// <summary>Ground Defense Buildings Expenditure/Budget in BY/C. If you see over-budget,</summary>
+        /// <summary>Ground Defense Buildings Expenditure/Budget in bc/t. If you see over-budget,</summary>
         GroundDefenseBuildingsExpenditurebudgetIn = 4229,
-        /// <summary>Orbitals Expenditure/Budget in BY/C</summary>
+        /// <summary>Orbitals Expenditure/Budget in bc/t</summary>
         OrbitalsExpenditurebudgetInByc = 4230,
-        /// <summary>Civilian Buildings Expenditure in BY/C</summary>
+        /// <summary>Civilian Buildings Expenditure in bc/t</summary>
         CivilianBuildingsExpenditureInByc = 4231,
-        /// <summary>Ground Defense Buildings Expenditure in BY/C</summary>
+        /// <summary>Ground Defense Buildings Expenditure in bc/t</summary>
         GroundDefenseBuildingsExpenditureIn = 4232,
-        /// <summary>Orbitals Expenditure in BY/C</summary>
+        /// <summary>Orbitals Expenditure in bc/t</summary>
         OrbitalsExpenditureInByc = 4233,
         /// <summary>Total:</summary>
         Total3 = 4234,
