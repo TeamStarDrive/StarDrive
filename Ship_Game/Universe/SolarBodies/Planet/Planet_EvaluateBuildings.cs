@@ -851,9 +851,12 @@ namespace Ship_Game
                 PlanetGridSquare preferred = null;
                 if (Owner.IsBuildingUnlocked(Building.TerraformerId))
                 {
-                    preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable && !t.BuildingOnTile);
-                    if (preferred == null)
-                        preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable);
+                    // upstream issue 312: the old fallback accepted tiles carrying a building or a
+                    // queued item; Enqueue rejected them every pass while perfectly valid terraformable
+                    // tiles stayed excluded, so the governor never built the biosphere (manual placement
+                    // worked, it validates the actual tile). A null preferred falls through to random
+                    // tile assignment, which accepts terraformables.
+                    preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable && !t.BuildingOnTile && t.NoQueuedBuildings);
                 }
                 else
                 {
