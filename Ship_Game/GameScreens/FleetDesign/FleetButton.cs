@@ -121,10 +121,12 @@ public class FleetButton : UIPanel
     void DrawFleetShipIcons30(SpriteBatch batch, Fleet fleet, float x, float y)
     {
         // Draw ship icons to right of button
+        // sort by role, big ships first, so the order is consistent between fleets
+        Ship[] ships = fleet.Ships.Sorted(s => (-(int)s.DesignRole, s.Name));
         Vector2 shipSpacingH = new(x, y);
-        for (int i = 0; i < fleet.Ships.Count; ++i)
+        for (int i = 0; i < ships.Length; ++i)
         {
-            Ship ship = fleet.Ships[i];
+            Ship ship = ships[i];
             RectF iconHousing = new(shipSpacingH.X, shipSpacingH.Y, 15, 15);
             shipSpacingH.X += 18f;
             if (shipSpacingH.X >= x + 180) // 10 Ships per row
@@ -151,9 +153,11 @@ public class FleetButton : UIPanel
     {
         Color color  = fleet.Owner.EmpireColor;
         Map<TacticalIcon, int> sums = new();
-        for (int i = 0; i < fleet.Ships.Count; ++i)
+        // sort by role, big ships first, so the icon groups are consistent between fleets
+        Ship[] ships = fleet.Ships.Sorted(s => (-(int)s.DesignRole, s.Name));
+        for (int i = 0; i < ships.Length; ++i)
         {
-            Ship ship = fleet.Ships[i];
+            Ship ship = ships[i];
 
             TacticalIcon icon = ship.TacticalIcon();
             if (sums.TryGetValue(icon, out int value))
