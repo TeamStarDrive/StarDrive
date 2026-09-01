@@ -218,10 +218,11 @@ public sealed partial class Empire
         planet = null;
         int travelMultiplier = travelBack ? 2 : 1;
 
-        if (isPlayer && PlayerPrioritizedPorts.Length > 0)
-            return FindPlanetToBuildShipAt(ports, newShip, out planet);
+        // Prioritized ports restrict the candidates, but they must not change the selector:
+        // an existing ship has to fly there (and back), so travel time stays part of the choice.
+        IReadOnlyList<Planet> actualPorts = isPlayer && PlayerPrioritizedPorts.Length > 0 ? PlayerPrioritizedPorts : ports;
 
-        if (ports.Count == 0 || !GetBestPorts(ports, out Planet[] bestPorts, 1))
+        if (actualPorts.Count == 0 || !GetBestPorts(actualPorts, out Planet[] bestPorts, 1))
             return false;
 
         planet = bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip)
