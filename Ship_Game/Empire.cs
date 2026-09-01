@@ -1005,6 +1005,10 @@ namespace Ship_Game
             for (int i = 0; i < OwnedPlanets.Count; i++)
             {
                 Planet p = OwnedPlanets[i];
+                // the whole pair: a technology changes what a colony can reach, and the figure
+                // beside it shares that denominator, so recomputing one alone leaves the two
+                // disagreeing until something else refreshes them.
+                p.Blueprints?.UpdateCompletion();
                 p.Blueprints?.UpdatePercentAchievable();
             }
         }
