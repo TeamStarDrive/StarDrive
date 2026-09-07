@@ -744,7 +744,13 @@ namespace Ship_Game
                     potentialTiles.Add(tile);
             }
 
-            return Random.Item(potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList());
+            // A terraformable tile first: biospheres already skip those once terraformers are
+            // unlocked, so this is the terraformer's own ground. The LAST of the others when there
+            // is none, which is the far end from where a biosphere starts looking. Deterministic
+            // either way, so reloading a save gives back the same build order.
+            Array<PlanetGridSquare> eligible = potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList();
+            PlanetGridSquare terraformable = eligible.Find(t => t.Terraformable);
+            return terraformable ?? eligible[eligible.Count - 1];
 
             bool NoVolcanosAround(PlanetGridSquare tile)
             {
