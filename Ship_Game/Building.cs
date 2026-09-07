@@ -416,8 +416,25 @@ namespace Ship_Game
                 return where.CanEnqueueBuildingHere(b);
 
             PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanEnqueueBuildingHere(b));
+
+            // A Biosphere leaves the terraformable tiles to the Terraformer, and takes the first
+            // free tile in list order instead of a random one, so the same colony is laid out the
+            // same way twice. Only when there is something else to take: a world made of nothing
+            // but terraformable tiles still gets its Biosphere.
+            if (b.IsBiospheres && planet.Owner?.IsBuildingUnlocked(TerraformerId) == true)
+            {
+                foreach (PlanetGridSquare t in freeSpots)
+                {
+                    if (!t.Terraformable)
+                    {
+                        where = t;
+                        return true;
+                    }
+                }
+            }
+
             if (freeSpots.Length > 0)
-                where = planet.Random.Item(freeSpots);
+                where = b.IsBiospheres ? freeSpots[0] : planet.Random.Item(freeSpots);
             return where != null;
         }
 
