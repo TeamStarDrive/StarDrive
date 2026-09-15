@@ -33,7 +33,7 @@ namespace UnitTests.AITests.Empire
 
         void CreateSystemsAndRoad() // 5 projectors
         {
-            CreateSystemsAndPlanets(800000);
+            CreateSystemsAndPlanets(860000);
             int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
             string name = SpaceRoad.GetSpaceRoadName(System1, System2);
             Road = new(System1, System2, Player, numProjectors, name, 
@@ -67,7 +67,7 @@ namespace UnitTests.AITests.Empire
         {
             CreateSystemsAndPlanets(300000);
             int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
-            AssertEqual(2, numProjectors);
+            AssertEqual(1, numProjectors);
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace UnitTests.AITests.Empire
         {
             CreateSystemsAndPlanets(1000000);
             int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
-            AssertEqual(7, numProjectors);
+            AssertEqual(6, numProjectors);
         }
 
         [TestMethod]
@@ -85,7 +85,38 @@ namespace UnitTests.AITests.Empire
             // in the middle of the road where neither influence circle reached
             CreateSystemsAndPlanets(400000);
             int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
-            AssertEqual(3, numProjectors);
+            AssertEqual(2, numProjectors);
+        }
+
+        [TestMethod]
+        public void TestNumProjectorsUnownedDestination()
+        {
+            // a system we hold no planet in projects nothing of ours, so the road has to run the
+            // whole way to it instead of stopping an influence radius short
+            CreateSystemsAndPlanets(250000);
+            AssertEqual(1, SpaceRoad.GetNeededNumProjectors(System1, System2, Player));
+
+            SolarSystem unowned = AddDummyPlanet(System2.Position).System;
+            AssertEqual(2, SpaceRoad.GetNeededNumProjectors(System1, unowned, Player));
+
+            // which end we hold does not matter, only how many of them we hold
+            AssertEqual(2, SpaceRoad.GetNeededNumProjectors(unowned, System1, Player));
+        }
+
+        [TestMethod]
+        public void TestRoadReachesUnownedDestination()
+        {
+            CreateSystemsAndPlanets(250000);
+            float radius = Player.GetProjectorRadius();
+            SolarSystem unowned = AddDummyPlanet(System2.Position).System;
+            int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, unowned, Player);
+            var road = new SpaceRoad(System1, unowned, Player, numProjectors,
+                SpaceRoad.GetSpaceRoadName(System1, unowned), Manager.GetNonDownEmpireRoadNodes());
+
+            // nothing of ours covers that end, so the last node itself has to reach the system
+            float toLast = unowned.Position.Distance(road.RoadNodesList[numProjectors-1].Position);
+            Assert.IsTrue(toLast <= radius + 1,
+                $"Road to an unowned system leaves its last node {toLast} away, outside the {radius} radius");
         }
 
         [TestMethod]
@@ -93,33 +124,30 @@ namespace UnitTests.AITests.Empire
         {
             CreateSystemsAndPlanets(300000);
             float radius = Player.GetProjectorRadius();
-            float maxSpacing = radius * 2;
             string name = SpaceRoad.GetSpaceRoadName(System1, System2);
             var noOtherNodes = Manager.GetNonDownEmpireRoadNodes();
 
-            for (float distance = 160000; distance <= 2000000; distance += 10000)
+            for (float distance = 100000; distance <= 2000000; distance += 10000)
             {
                 System2.Position = System1.Position + new Vector2(0, distance);
                 int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
-                if (numProjectors < 2)
-                    continue;
-
                 var road = new SpaceRoad(System1, System2, Player, numProjectors, name, noOtherNodes);
-                for (int i = 1; i < road.RoadNodesList.Count; i++)
-                {
-                    float spacing = road.RoadNodesList[i-1].Position.Distance(road.RoadNodesList[i].Position);
-                    Assert.IsTrue(spacing <= maxSpacing + 1,
-                        $"Road of {distance} with {numProjectors} projectors spaces nodes {i-1} and {i} " +
-                        $"{spacing} apart, leaving a {spacing-maxSpacing} opening between their influence circles");
-                }
 
-                // the end nodes must reach their own system unaided, since a road can end at a
-                // mining station system where we have no influence of our own
-                float toFirst = System1.Position.Distance(road.RoadNodesList[0].Position);
-                float toLast = System2.Position.Distance(road.RoadNodesList[numProjectors-1].Position);
-                Assert.IsTrue(toFirst <= radius + 1 && toLast <= radius + 1,
-                    $"Road of {distance} with {numProjectors} projectors leaves its end nodes " +
-                    $"{toFirst} and {toLast} from the systems, beyond the {radius} influence radius");
+                // everything covering the road, as offsets from System1 - both systems are ours
+                // here, so each contributes its own influence circle at its end. Distance doubles
+                // as the offset only because InitNodes lays the nodes out along the road itself
+                var covers = new Array<float> { 0 };
+                foreach (RoadNode node in road.RoadNodesList)
+                    covers.Add(System1.Position.Distance(node.Position));
+                covers.Add(distance);
+
+                for (int i = 1; i < covers.Count; i++)
+                {
+                    float apart = covers[i] - covers[i-1];
+                    Assert.IsTrue(apart <= radius*2 + 1,
+                        $"Road of {distance} with {numProjectors} projectors leaves {apart-radius*2} " +
+                        $"of it uncovered between {covers[i-1]} and {covers[i]}");
+                }
             }
         }
 
