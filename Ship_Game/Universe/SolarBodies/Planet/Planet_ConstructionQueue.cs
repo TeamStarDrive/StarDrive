@@ -229,7 +229,7 @@ public partial class Planet
 
     public float TotalProdNeededInQueue()
     {
-        return ConstructionQueue.Sum(qi => qi.ProductionNeeded);
+        return ConstructionQueue.Sum(qi => qi.ProductionNeeded).LowerBound(0);
     }
 
     public float MissingProdHereForScrap(Goal[] scrapGoals)
