@@ -157,6 +157,7 @@
     <Compile Include="Universe\CameraProjectionTests.cs" />
     <Compile Include="Universe\CommonVisualization.cs" />
     <Compile Include="Universe\GenericQtreeTests.cs" />
+    <Compile Include="Universe\ResearchStationCartoucheTests.cs" />
     <Compile Include="Universe\GenericQtreeVisualization.cs" />
     <Compile Include="Universe\ThreatMatrixTests.cs" />
     <Compile Include="Universe\SaveLoadUniverseScreenTests.cs" />

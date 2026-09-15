@@ -357,7 +357,13 @@ namespace Ship_Game
         void DrawResearchStation(SpriteBatch batch, Vector2 mousePos)
         {
             if (P.IsResearchStationDeployedBy(Player))
+            {
+                LocalizedText deployed = GameText.ResearchStationDeployed;
+                var pos = new Vector2(ExoticRect.CenterX() - Fonts.Arial10.MeasureString(deployed).X / 2,
+                                      ExoticRect.Y + (ExoticRect.Height - Fonts.Arial10.LineSpacing) / 2);
+                batch.DrawString(Fonts.Arial10, deployed, pos, Player.EmpireColor);
                 return;
+            }
 
             Vector2 textPos = new Vector2(ExoticRect.X + 13, ExoticRect.Y + 13 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture(Player.CanBuildResearchStations ? "NewUI/dan_button_blue_clear" 
@@ -519,7 +525,11 @@ namespace Ship_Game
                 }
             }
 
-            if (P.IsResearchable && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
+            // a deployed station keeps its ProcessResearchStation goal alive forever, so without
+            // this guard a click here cancels that goal: the station keeps orbiting and still
+            // reads as deployed, but silently stops contributing research with no way back
+            if (P.IsResearchable && !P.IsResearchStationDeployedBy(Player)
+                && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);
                 else if (Player.CanBuildResearchStations)                    Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, P));
