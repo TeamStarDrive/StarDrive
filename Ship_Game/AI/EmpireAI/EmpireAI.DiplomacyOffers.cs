@@ -304,12 +304,16 @@ namespace Ship_Game.AI
                 return ProcessPeace(theirOffer, ourOffer, them, attitude);
 
 
+            // Open borders is signed bilaterally whichever side offers it, so it is one treaty
+            // to gate, to trust and to value, not a gift from whoever happened to tick the box
+            bool openBorders = ourOffer.OpenBorders || theirOffer.OpenBorders;
+
             float treayThreshold = 100 * OwnerEmpire.Universe.P.Pace;
             if (them.isPlayer)
             {
                 if (theirOffer.NAPact && usToThem.TurnsKnown < treayThreshold
                     || theirOffer.TradeTreaty && usToThem.TurnsInNap < treayThreshold
-                    || theirOffer.OpenBorders && usToThem.Treaty_Trade_TurnsExisted < treayThreshold)
+                    || openBorders && usToThem.Treaty_Trade_TurnsExisted < treayThreshold)
                 {
                     return "TREATY_TOO_SOON_REJECT";
                 }
@@ -321,7 +325,7 @@ namespace Ship_Game.AI
             {
                 totalTrustRequiredFromUs += dt.Trade;
             }
-            if (ourOffer.OpenBorders)
+            if (openBorders)
             {
                 totalTrustRequiredFromUs += (dt.NAPact + 7.5f);
             }
@@ -365,8 +369,8 @@ namespace Ship_Game.AI
                 totalTrustRequiredFromUs -= ((valueToThem - valueToUs) / 2).UpperBound(0);
             }
 
-            if (ourOffer.OpenBorders)   valueToThem += 5f;
-            if (theirOffer.OpenBorders) valueToUs   += them.isPlayer ? 2f : 5f;
+            if (openBorders)            valueToThem += 5f;
+            if (openBorders)            valueToUs   += 5f;
             if (ourOffer.NAPact)        valueToThem += 10f;
             if (theirOffer.NAPact)      valueToUs   += 10f;
             if (ourOffer.TradeTreaty)   valueToThem += them.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
