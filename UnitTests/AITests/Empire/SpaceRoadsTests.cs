@@ -79,6 +79,51 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void TestNumProjectorsMidRangeGap()
+        {
+            // 400k used to get 2 projectors spaced 200k apart, leaving a 40k opening
+            // in the middle of the road where neither influence circle reached
+            CreateSystemsAndPlanets(400000);
+            int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
+            AssertEqual(3, numProjectors);
+        }
+
+        [TestMethod]
+        public void TestProjectorSpacingLeavesNoGaps()
+        {
+            CreateSystemsAndPlanets(300000);
+            float radius = Player.GetProjectorRadius();
+            float maxSpacing = radius * 2;
+            string name = SpaceRoad.GetSpaceRoadName(System1, System2);
+            var noOtherNodes = Manager.GetNonDownEmpireRoadNodes();
+
+            for (float distance = 160000; distance <= 2000000; distance += 10000)
+            {
+                System2.Position = System1.Position + new Vector2(0, distance);
+                int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
+                if (numProjectors < 2)
+                    continue;
+
+                var road = new SpaceRoad(System1, System2, Player, numProjectors, name, noOtherNodes);
+                for (int i = 1; i < road.RoadNodesList.Count; i++)
+                {
+                    float spacing = road.RoadNodesList[i-1].Position.Distance(road.RoadNodesList[i].Position);
+                    Assert.IsTrue(spacing <= maxSpacing + 1,
+                        $"Road of {distance} with {numProjectors} projectors spaces nodes {i-1} and {i} " +
+                        $"{spacing} apart, leaving a {spacing-maxSpacing} opening between their influence circles");
+                }
+
+                // the end nodes must reach their own system unaided, since a road can end at a
+                // mining station system where we have no influence of our own
+                float toFirst = System1.Position.Distance(road.RoadNodesList[0].Position);
+                float toLast = System2.Position.Distance(road.RoadNodesList[numProjectors-1].Position);
+                Assert.IsTrue(toFirst <= radius + 1 && toLast <= radius + 1,
+                    $"Road of {distance} with {numProjectors} projectors leaves its end nodes " +
+                    $"{toFirst} and {toLast} from the systems, beyond the {radius} influence radius");
+            }
+        }
+
+        [TestMethod]
         public void TestSpaceRoadUpdateMaintenance()
         {
             CreateSystemsAndRoad();

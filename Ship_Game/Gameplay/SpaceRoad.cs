@@ -130,9 +130,20 @@ namespace Ship_Game.Gameplay
 
         public static int GetNeededNumProjectors(SolarSystem origin, SolarSystem destination, Empire owner)
         {
-            float projectorRadius = owner.GetProjectorRadius() * ProjectorDensity;
+            float radius = owner.GetProjectorRadius();
             float distance = origin.Position.Distance(destination.Position);
-            return (int)(distance / projectorRadius);
+            int numProjectors = (int)(distance / (radius * ProjectorDensity));
+            if (numProjectors < 2)
+                return numProjectors;
+
+            // InitNodes spaces the nodes evenly, so their influence circles part and the road
+            // shows an opening once that spacing grows beyond 2 radii
+            float maxSpacing = radius * 2;
+            int gapFree = (int)(distance / maxSpacing);
+            if (gapFree * maxSpacing < distance)
+                gapFree += 1;
+
+            return numProjectors.LowerBound(gapFree);
         }
 
         // This ensures a road will be the same object, regardless of the order of sys1 and sys2
