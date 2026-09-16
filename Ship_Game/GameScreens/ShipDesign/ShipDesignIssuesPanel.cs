@@ -112,7 +112,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckConstructorCost(S.IsConstructor, S.GetCost(S.Universe.Player));
                 Issues.CheckDedicatedCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange, S.SensorRange,
                     S.ShipData.DefaultCombatState is CombatState.ShortRange or CombatState.AttackRuns,
-                    hangarAreaPercent: ds.TotalHangarArea / (float)S.SurfaceArea);
+                    S.Modules, S.SurfaceArea);
 
                 Issues.CheckTargetExclusions(ds.NumWeaponSlots > 0, ds.CanTargetFighters, ds.CanTargetCorvettes,
                     ds.CanTargetCapitals, Screen.HangarDesignation);
