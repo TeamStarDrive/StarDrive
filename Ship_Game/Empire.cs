@@ -2034,9 +2034,11 @@ namespace Ship_Game
 
                             if (planet.NumBuildings > 0 && Random.Roll3DiceAvg(chance * 50))
                             {
-                                var building = planet.FindBuilding(b => !b.IsBiospheres);
-                                if (building != null)
-                                    planet.ScrapBuilding(building);
+                                // an uprise is an uprise: same picking and same wrecking as the
+                                // espionage one, instead of the ScrapBuilding this used to call,
+                                // which refunded the credits and half the cost in production to
+                                // the very colony that was rebelling
+                                planet.DestroyBuildingInUprise(UpriseBuildingType.Random, out _);
                             }
 
                             troop.TryLandTroop(planet);
