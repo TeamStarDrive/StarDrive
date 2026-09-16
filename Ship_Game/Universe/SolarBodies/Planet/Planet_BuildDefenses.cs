@@ -437,12 +437,16 @@ namespace Ship_Game
                 return;
             }
 
+            // if the scrap was refused, the blueprints still need building, so fall through
+            // instead of leaving the plan stuck behind a scrap that will never happen
             if ((HasExclusiveBlueprints || HasBlueprints && !Blueprints.Exclusive && FreeHabitableTiles == 0 && !Blueprints.IsAchievableCompleted)
-                && BuildingList.Any(b => b.IsMilitary && !RequiredInBlueprints(b)))
+                && BuildingList.Any(b => b.IsMilitary && !RequiredInBlueprints(b))
+                && TryScrapMilitaryBuilding())
             {
-                TryScrapMilitaryBuilding();
+                return;
             }
-            else if (GovGroundDefense || !OwnerIsPlayer || HasBlueprints)
+
+            if (GovGroundDefense || !OwnerIsPlayer || HasBlueprints)
             {
                 TryBuildMilitaryBuilding(budget);
             }
@@ -471,21 +475,28 @@ namespace Ship_Game
                 Construction.Enqueue(best);
         }
         
-        void TryScrapMilitaryBuilding()
+        internal bool TryScrapMilitaryBuilding()
         {
+            if (GovernorShouldNotScrapBuilding)
+                return false; // military buildings are the only ones this setting never covered
+
             Building weakest = null;
             if (HasBlueprints)
             {
-                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !RequiredInBlueprints(b),
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable
+                                                            && !(b.IsPlayerAdded && OwnerIsPlayer) && !RequiredInBlueprints(b),
                                                        b => b.CostEffectiveness);
             }
 
             if (weakest == null)
-                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !b.IsPlayerAdded,
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !(b.IsPlayerAdded && OwnerIsPlayer),
                                                        b => b.CostEffectiveness);
 
-            if (weakest != null)
-                ScrapBuilding(weakest);
+            if (weakest == null)
+                return false;
+
+            ScrapBuilding(weakest);
+            return true;
         }
 
         public void AddTroop(Troop troop, PlanetGridSquare tile)

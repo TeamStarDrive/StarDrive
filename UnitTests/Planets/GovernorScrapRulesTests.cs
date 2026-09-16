@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
@@ -63,6 +64,62 @@ namespace UnitTests.Planets
             P.SetOwner(Enemy);
             Assert.IsTrue(Suitable(PlayerBuilt, overBudget: false, replacing: false),
                 "An AI that captured the planet is still refusing to scrap the old owner's buildings");
+        }
+
+        // Military buildings never reach SuitableForScrap - it excludes IsMilitary outright - so
+        // TryScrapMilitaryBuilding is the only path that scraps them, and both rules were missing
+        Building PlaceMilitary(bool playerAdded)
+        {
+            string name = ResourceManager.BuildingsDict.Values.First(b => b.IsMilitary && b.Scrappable).Name;
+            Building b = ResourceManager.CreateBuilding(P, name);
+            b.IsPlayerAdded = playerAdded;
+            P.TilesList.First(t => t.Habitable && t.NoBuildingOnTile).PlaceBuilding(b, P);
+            return b;
+        }
+
+        [TestMethod]
+        public void TheScrapSettingCoversMilitaryBuildingsToo()
+        {
+            Building governorBuilt = PlaceMilitary(playerAdded: false);
+            P.DontScrapBuildings = true;
+            P.TryScrapMilitaryBuilding();
+
+            Assert.IsTrue(P.HasBuilding(b => b == governorBuilt),
+                "A military building was scrapped while the governor was told not to scrap");
+        }
+
+        [TestMethod]
+        public void PlayerBuiltMilitarySurvivesUnderBlueprints()
+        {
+            Building playerMilitary = PlaceMilitary(playerAdded: true);
+            // a plan that does not name this building leaves it un-required, so the blueprints
+            // branch considers it - that branch was the one missing the player filter. An empty
+            // plan would do the same but drives PercentAchievable to its 0 sentinel, so name one
+            var planned = new HashSet<string> { ResourceManager.BuildingsDict.Values.First(b => !b.IsMilitary).Name };
+            P.AddBlueprints(new BlueprintsTemplate("test", false, null, planned, Planet.ColonyType.Colony), Player);
+            P.TryScrapMilitaryBuilding();
+
+            Assert.IsTrue(P.HasBuilding(b => b == playerMilitary),
+                "The blueprints branch scrapped a military building the player placed by hand");
+        }
+
+        // A queued building is still a building the player asked for, so the over budget sweep
+        // must leave it alone. SBProduction already checks IsPlayerAdded in its own queue paths
+        [TestMethod]
+        public void PlayerQueuedBuildingIsNotCancelledWhenOverBudget()
+        {
+            Building costly = ResourceManager.BuildingsDict.Values
+                .First(b => !b.IsMilitary && !b.IsTerraformer && !b.IsBiospheres && b.Maintenance > 0);
+
+            Assert.IsTrue(P.Construction.Enqueue(costly, null, playerAdded: true), "Could not queue the test building");
+            int queued = P.ConstructionQueue.Count;
+
+            P.TryCancelOverBudgetCivilianBuilding(budget: 0f);
+
+            AssertEqual(queued, P.ConstructionQueue.Count,
+                "The governor cancelled a building the player queued by hand");
+            Assert.IsTrue(P.ConstructionQueue.Any(q => q.Building == costly && q.IsPlayerAdded),
+                "The player's queued building is no longer in the queue");
         }
     }
 }
