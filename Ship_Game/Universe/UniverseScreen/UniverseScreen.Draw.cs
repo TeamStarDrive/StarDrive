@@ -440,15 +440,17 @@ namespace Ship_Game
                 DrawShipAndPlanetIcons(batch);
                 DrawSolarSystems(batch);
                 DrawSystemThreatIndicators(batch);
-                // Ludoal fork: a UI draw failure must never starve the sim thread —
-                // an exception here used to skip DrawCompletedEvt.Set() below, freezing
-                // the simulation for as long as the failing element kept drawing
-                // (battle sim arena: selecting a ship froze the game). Log and go on.
+                // A UI draw failure must not skip DrawCompletedEvt.Set() below —
+                // the sim thread waits on it and would starve behind the failing element.
                 try
                 {
                     DrawGeneralUI(batch, elapsed);
                 }
-                catch (System.Exception ex)
+                catch (ObjectDisposedException)
+                {
+                    throw; // device teardown during shutdown must keep its original path
+                }
+                catch (Exception ex)
                 {
                     if (!LoggedGeneralUIDrawError)
                     {
