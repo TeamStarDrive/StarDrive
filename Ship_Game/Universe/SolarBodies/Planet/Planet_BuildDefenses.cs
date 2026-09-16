@@ -58,6 +58,11 @@ namespace Ship_Game
 
         bool GovernorShouldNotScrapBuilding => OwnerIsPlayer && DontScrapBuildings;
 
+        // What the player placed by hand is off limits to the governor, whatever the scrap
+        // setting says - unless the blueprints are exclusive, which is the player asking for
+        // the plan and nothing but the plan
+        public bool PlayerBuiltIsProtected => OwnerIsPlayer && !HasExclusiveBlueprints;
+
         private Array<Ship> FilterOrbitals(RoleName role)
         {
             var orbitalList = new Array<Ship>();
@@ -484,12 +489,12 @@ namespace Ship_Game
             if (HasBlueprints)
             {
                 weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable
-                                                            && !(b.IsPlayerAdded && OwnerIsPlayer) && !RequiredInBlueprints(b),
+                                                            && !(b.IsPlayerAdded && PlayerBuiltIsProtected) && !RequiredInBlueprints(b),
                                                        b => b.CostEffectiveness);
             }
 
             if (weakest == null)
-                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !(b.IsPlayerAdded && OwnerIsPlayer),
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !(b.IsPlayerAdded && PlayerBuiltIsProtected),
                                                        b => b.CostEffectiveness);
 
             if (weakest == null)

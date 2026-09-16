@@ -121,5 +121,47 @@ namespace UnitTests.Planets
             Assert.IsTrue(P.ConstructionQueue.Any(q => q.Building == costly && q.IsPlayerAdded),
                 "The player's queued building is no longer in the queue");
         }
+
+        // Exclusive blueprints are the player saying "the plan and nothing but the plan", so
+        // they lift the protection from everything the player placed by hand
+        void AddExclusiveBlueprints()
+        {
+            var planned = new HashSet<string> { ResourceManager.BuildingsDict.Values.First(b => !b.IsMilitary).Name };
+            P.AddBlueprints(new BlueprintsTemplate("test", true, null, planned, Planet.ColonyType.Colony), Player);
+        }
+
+        [TestMethod]
+        public void ExclusiveBlueprintsMayScrapPlayerBuilt()
+        {
+            AddExclusiveBlueprints();
+            Assert.IsTrue(Suitable(PlayerBuilt, overBudget: false, replacing: false),
+                "Exclusive blueprints could not clear a building the player placed by hand");
+        }
+
+        [TestMethod]
+        public void ExclusiveBlueprintsMayScrapPlayerBuiltMilitary()
+        {
+            Building playerMilitary = PlaceMilitary(playerAdded: true);
+            AddExclusiveBlueprints();
+            P.TryScrapMilitaryBuilding();
+
+            Assert.IsFalse(P.HasBuilding(b => b == playerMilitary),
+                "Exclusive blueprints could not clear a military building the player placed by hand");
+        }
+
+        [TestMethod]
+        public void ExclusiveBlueprintsMayCancelPlayerQueued()
+        {
+            Building costly = ResourceManager.BuildingsDict.Values
+                .First(b => !b.IsMilitary && !b.IsTerraformer && !b.IsBiospheres && b.Maintenance > 0);
+
+            Assert.IsTrue(P.Construction.Enqueue(costly, null, playerAdded: true), "Could not queue the test building");
+            AddExclusiveBlueprints();
+
+            P.TryCancelOverBudgetCivilianBuilding(budget: 0f);
+
+            Assert.IsFalse(P.ConstructionQueue.Any(q => q.Building == costly),
+                "Exclusive blueprints could not cancel a building the player queued by hand");
+        }
     }
 }

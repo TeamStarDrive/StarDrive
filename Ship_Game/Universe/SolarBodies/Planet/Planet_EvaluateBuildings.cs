@@ -371,7 +371,7 @@ namespace Ship_Game
             for (int i = 0; i < ConstructionQueue.Count; i++)
             {
                 QueueItem qi = ConstructionQueue[i];
-                if (qi.IsPlayerAdded && OwnerIsPlayer)
+                if (qi.IsPlayerAdded && PlayerBuiltIsProtected)
                     continue; // a queued building is still a building the player asked for
 
                 if (Owner.AutoBuildTerraformers && qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
@@ -487,7 +487,7 @@ namespace Ship_Game
             if (b.IsBiospheres
                 || b.IsMilitary
                 || !b.Scrappable
-                || b.IsPlayerAdded && OwnerIsPlayer // the governor never scraps what the player built, whatever the scrap setting says
+                || b.IsPlayerAdded && PlayerBuiltIsProtected // never scrap what the player built by hand
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || b.BuildOnlyOnce
                 || b.PlusTerraformPoints > 0) // using this instead of IsTerraformer since some event building might also terraform without the terraformer building ID
