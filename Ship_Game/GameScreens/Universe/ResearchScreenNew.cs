@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Audio;
 using System;
+using System.Collections.Generic;
 using Ship_Game.GameScreens.Universe.Debug;
 using SDGraphics;
 using SDUtils;
@@ -32,7 +33,7 @@ namespace Ship_Game
         int GridWidth  = 175;
         int GridHeight = 100;
 
-        readonly Array<Vector2> ClaimedSpots = new();
+        readonly HashSet<(int X, int Y)> ClaimedSpots = new();
 
         ResearchDebugUnlocks DebugUnlocks;
 
@@ -411,15 +412,10 @@ namespace Ship_Game
 
             BuildSubNodes(root);
 
-            // The row count above is an ESTIMATE, and it overcounts: a branch that merges
-            // back into the main line is counted as its own row. Tabs then squeeze toward
-            // the top of the frame with dead space below. Measure the rows actually laid
-            // out and, if they differ, rebuild once at the exact height.
-            // The +1 is the deepest node's own height below its anchor - the estimator's
-            // overcount used to absorb that by accident, so dividing by the exact count
-            // pushed the last row past the frame.
-            int actualRows = Math.Max(1, FindDeepestYSubNodes());
-            int wantRows = Math.Min(actualRows + 1, 9);
+            // The estimate above overcounts (a merged-back branch is counted as its own
+            // row), squeezing tabs toward the top; measure the rows actually laid out and
+            // rebuild once at the exact height when they differ.
+            int wantRows = Math.Min(FindDeepestYSubNodes() + 1, 9);
             if (wantRows != Math.Min(rows, 9))
             {
                 GridHeight = (MainMenu.Menu.Height - 40) / wantRows;
@@ -493,25 +489,24 @@ namespace Ship_Game
             if (PositionIsClaimed(nodePos))
                 nodePos.Y += 1f;
             else if (addToClaimed)
-                ClaimedSpots.Add(nodePos);
+                ClaimedSpots.Add(((int)nodePos.X, (int)nodePos.Y));
         }
         
-        bool PositionIsClaimed(Vector2 position) => ClaimedSpots.Any(p => p.AlmostEqual(position));
+        bool PositionIsClaimed(Vector2 position) => ClaimedSpots.Contains(((int)position.X, (int)position.Y));
 
         /// <summary>
         /// The first row at or below <paramref name="parentY"/> where this branch's whole
-        /// rectangle - its own rows by its own columns - is unclaimed.
-        ///
-        /// Branches used to always open a fresh row below EVERYTHING laid out so far, so a
-        /// one-node dead end cost a full row of the canvas even when the level it sat on had
-        /// free space further right. On a dense tree that is the difference between fitting
-        /// the frame and overflowing it.
+        /// rectangle (its discovered rows by its columns) is unclaimed; the rectangle is a
+        /// placement heuristic only - real collisions are still prevented by ClaimedSpots.
         /// </summary>
         int FindFreeRowFor(TechEntry branch, int parentY, int col)
         {
             int bRows = 1;
-            int bCols = CalculateTreeDimensionsFromRoot(branch, ref bRows, 0, 0);
-            for (int y = parentY; ; ++y)
+            int bCols = MeasureDiscoveredBranch(branch, ref bRows, 0, 0);
+            int last = 0; // first row below everything claimed: always free
+            foreach ((int X, int Y) spot in ClaimedSpots)
+                last = Math.Max(last, spot.Y + 1);
+            for (int y = parentY; y < last; ++y)
             {
                 bool freeRect = true;
                 for (int dy = 0; dy < bRows && freeRect; ++dy)
@@ -521,6 +516,41 @@ namespace Ship_Game
                 if (freeRect)
                     return y;
             }
+            return Math.Max(parentY, last);
+        }
+
+        // Reservation measure for FindFreeRowFor: discovered techs only, because placement
+        // only ever places discovered ones - recursing through undiscovered branches
+        // reserves rows the branch will never occupy.
+        int MeasureDiscoveredBranch(TechEntry techEntry, ref int rows, int cols, int colmax)
+        {
+            cols++;
+            if (cols > colmax)
+                colmax = cols;
+
+            TechEntry[] children = techEntry.Children;
+            if (children.Length > 0)
+            {
+                int rowCount = 0;
+                for (int i = 1; i < children.Length; i++)
+                {
+                    if (children[i].FindNextDiscoveredTech(Player) != null)
+                        rowCount++;
+                }
+                rows += rowCount;
+            }
+
+            foreach (TechEntry child in children)
+            {
+                var discovered = child.FindNextDiscoveredTech(Player);
+                if (discovered != null)
+                {
+                    int max = MeasureDiscoveredBranch(discovered, ref rows, cols, colmax);
+                    if (max > colmax)
+                        colmax = max;
+                }
+            }
+            return colmax;
         }
 
         //Added by McShooterz: find size of tech tree before it is built
