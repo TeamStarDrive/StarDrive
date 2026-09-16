@@ -339,10 +339,8 @@ namespace Ship_Game
             if (BuildingsHereCanBeBuiltAnywhere || BuildingsCanBuild.Count == 0)
                 return;
 
-            // a replace is a scrap with a gift behind it: the no-scrap setting covers it too (upstream issue 303)
-            if (GovernorShouldNotScrapBuilding)
-                return;
-
+            // Replace works even if the governor is not scrapping buildings. Player-built ones are
+            // filtered out in SuitableForScrap, so no check for the scrap setting belongs here
             float worstBuildingScore = ChooseWorstBuilding(overBudget, scrapZeroMaintenance: true, true, out Building worstBuilding);
             if (worstBuilding == null)
                 return;
@@ -481,12 +479,12 @@ namespace Ship_Game
             return budget > 0 && b.ActualMaintenance(this) <= budget;
         }
 
-        bool SuitableForScrap(Building b, bool overBudget, float storageInUse, bool scrapZeroMaintenance, bool replacing)
+        internal bool SuitableForScrap(Building b, bool overBudget, float storageInUse, bool scrapZeroMaintenance, bool replacing)
         {
             if (b.IsBiospheres
                 || b.IsMilitary
                 || !b.Scrappable
-                || b.IsPlayerAdded && OwnerIsPlayer // player-built is never the governor's to scrap — the guard below sat after the no-blueprint early return and was unreachable (upstream issue 303)
+                || b.IsPlayerAdded && OwnerIsPlayer // the governor never scraps what the player built, whatever the scrap setting says
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || b.BuildOnlyOnce
                 || b.PlusTerraformPoints > 0) // using this instead of IsTerraformer since some event building might also terraform without the terraformer building ID
@@ -499,8 +497,7 @@ namespace Ship_Game
             else if (!overBudget)
                 return false;
 
-            if (b.IsPlayerAdded && OwnerIsPlayer
-                || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
+            if (b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
                 || !WillMaintainPositiveFoodOutput(b)
                 || !IsBuildingOnHabitableTile(b) && replacing  // Dont allow buildings on non habitable tiles to be scrapped when replacing
                 || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero()

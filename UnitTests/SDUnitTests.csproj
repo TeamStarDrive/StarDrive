@@ -105,6 +105,7 @@
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
     <Compile Include="Planets\CapitalTransfer.cs" />
     <Compile Include="Planets\ColonyExportReserveTests.cs" />
+    <Compile Include="Planets\GovernorScrapRulesTests.cs" />
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
     <Compile Include="Planets\TestOrbitalBuildLimit.cs" />
