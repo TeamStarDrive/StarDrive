@@ -394,26 +394,20 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Wakes up the parked simulation thread so queued RunOnSimThread actions still
-        /// execute while a fullscreen game screen hides the universe (normally Draw()
-        /// signals the sim loop, but a hidden universe never draws). The UState.Paused
-        /// guard means only the paused fast-path runs: pending actions are invoked,
-        /// simulation time never advances.
-        /// </summary>
-        public void PumpPendingSimThreadActions()
-        {
-            if (UState.Paused && !Visible)
-                DrawCompletedEvt.Set();
-        }
-
-        /// <summary>
         /// Queues action to run on the Simulation thread, aka ProcessTurns thread.
+        /// Normally Draw() signals the sim loop, but a fullscreen game screen hides the
+        /// universe and it never draws — the sim thread parks and queued actions freeze
+        /// until the screen closes. Signalling on enqueue wakes it exactly once per
+        /// action; the guard confines the wake to the parked case, because an extra pass
+        /// through the unpaused branch would perturb the auto game-speed ramp.
         /// </summary>
         public void RunOnSimThread(Action action)
         {
             if (action != null)
             {
                 PendingSimThreadActions.Enqueue(action);
+                if (!Visible && UState.Paused)
+                    DrawCompletedEvt.Set(); // a hidden universe never draws, so wake the sim to drain this
             }
             else
             {
