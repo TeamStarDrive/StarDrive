@@ -472,14 +472,14 @@ namespace Ship_Game.Ships
 
         void InitializeStatus(bool fromSave)
         {
-            // Ludoal fork, issue #338: keep what the save file restored. The rebuild itself is
-            // necessary (hangar arrays and the readonly Has* flags come from the modules, not
-            // from the save), but it used to throw away the player's per-ship carrier settings
-            // along with it, putting them back at their defaults on every load.
+            // Keep what the save file restored: the rebuilds below are required (their
+            // state derives from the modules), but they discard the deserialized values.
             CarrierBays savedCarrier = fromSave ? Carrier : null;
+            ShipResupply savedSupply = fromSave ? Supply : null;
             Carrier = CarrierBays.Create(this, ModuleSlotList);
             Carrier.CarryOverSavedState(savedCarrier);
             Supply = new(this);
+            Supply.CarryOverSavedState(savedSupply);
             ShipEngines = new();
             TroopUpdateTimer = Universe?.P.TurnTimer ?? 0; // null for Templates
 
