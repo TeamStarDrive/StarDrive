@@ -710,13 +710,18 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         // Offer.IsDemand per review: ValueToModify is a generic per-dialog side-effect
         // carrier (peace fires SetImperialistWar on ANY write; friendly dialogs would
         // pre-flag HaveRejected_* on Negotiate), so only true ultimatums may mark here.
-        // Known residual: Negotiate marks up front (BeginNegotiations discards the Ref,
-        // so it is the only window) — a negotiation that ends up conceding the demand
-        // cannot unmark. Rare and accepted.
+        // Known residual: Negotiate marks up front — BeginNegotiations replaces
+        // TheirOffer, so this is the only window; a negotiation that ends up conceding
+        // the demand cannot unmark. Rare and accepted.
+        // Latched via DemandAnswered: the HaveRejectedDemandTech setter re-applies the
+        // full Trust/anger penalty on every true write, and Discuss can re-enter here.
         void MarkUnansweredDemandRejected()
         {
-            if (!DemandAnswered && TheirOffer?.IsDemand == true && TheirOffer.ValueToModify != null)
-                TheirOffer.ValueToModify.Value = true;
+            if (DemandAnswered || TheirOffer?.IsDemand != true || TheirOffer.ValueToModify == null)
+                return;
+
+            DemandAnswered = true;
+            TheirOffer.ValueToModify.Value = true;
         }
 
         void OnNegotiateClicked(GenericButton b)
