@@ -14663,6 +14663,13 @@ Pathfinder:
 PathfinderTip:
  Id: 4537
  ENG: "When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ships travel in straight lines and drop out of warp as wells are encountered."
+PlayerBuiltProtectedFromScrap:
+ Id: 4538
+ ENG: "This building was built manually by you, so it is protected from scrapping by the governor."
+ RUS: "Это здание построено вами вручную, поэтому губернатор не будет его сносить."
+ SPA: "Construiste este edificio manualmente, por lo que está protegido contra la demolición por parte del gobernador."
+ UKR: "Цю будівлю збудовано вами власноруч, тому губернатор не розбиратиме її на металобрухт."
+ PTB: "Este edifício foi construído manualmente por você, por isso está protegido contra o sucateamento pelo governador."
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 
