@@ -2034,10 +2034,8 @@ namespace Ship_Game
 
                             if (planet.NumBuildings > 0 && Random.Roll3DiceAvg(chance * 50))
                             {
-                                // an uprise is an uprise: same picking and same wrecking as the
-                                // espionage one, instead of the ScrapBuilding this used to call,
-                                // which refunded the credits and half the cost in production to
-                                // the very colony that was rebelling
+                                // an uprise is an uprise: rebels wreck a building, they do not sell
+                                // it back to the colony they are rebelling against
                                 planet.DestroyBuildingInUprise(UpriseBuildingType.Random, out _);
                             }
 

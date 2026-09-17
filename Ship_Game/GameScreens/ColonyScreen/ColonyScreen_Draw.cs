@@ -92,10 +92,13 @@ namespace Ship_Game
             if (!P.PlayerBuiltIsProtected)
                 return false;
 
-            if (pgs.Building != null)
-                return pgs.Building.IsPlayerAdded && CanBeProtected(pgs.Building);
+            // copy first: the sim thread can clear either of these while we draw
+            Building building = pgs.Building;
+            if (building != null)
+                return building.IsPlayerAdded && CanBeProtected(building);
 
-            return pgs.QItem is { IsPlayerAdded: true } && CanBeProtected(pgs.QItem.Building);
+            QueueItem qi = pgs.QItem;
+            return qi is { IsPlayerAdded: true } && CanBeProtected(qi.Building);
         }
 
         static bool CanBeProtected(Building b) => b.Scrappable && !b.IsBiospheres && b.PlusTerraformPoints <= 0;

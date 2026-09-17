@@ -483,7 +483,7 @@ namespace Ship_Game
         internal bool TryScrapMilitaryBuilding()
         {
             if (GovernorShouldNotScrapBuilding)
-                return false; // military buildings are the only ones this setting never covered
+                return false; // this is the only path that scraps a military building, so the setting binds here
 
             Building weakest = null;
             if (HasBlueprints)

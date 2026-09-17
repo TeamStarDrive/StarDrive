@@ -93,8 +93,8 @@ namespace UnitTests.Planets
         {
             Building playerMilitary = PlaceMilitary(playerAdded: true);
             // a plan that does not name this building leaves it un-required, so the blueprints
-            // branch considers it - that branch was the one missing the player filter. An empty
-            // plan would do the same but drives PercentAchievable to its 0 sentinel, so name one
+            // branch of the scrap search considers it. An empty plan would do the same but drives
+            // PercentAchievable to its 0 sentinel, so name one
             var planned = new HashSet<string> { ResourceManager.BuildingsDict.Values.First(b => !b.IsMilitary).Name };
             P.AddBlueprints(new BlueprintsTemplate("test", false, null, planned, Planet.ColonyType.Colony), Player);
             P.TryScrapMilitaryBuilding();

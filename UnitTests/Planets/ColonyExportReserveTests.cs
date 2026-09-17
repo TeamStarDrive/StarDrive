@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Vector2 = SDGraphics.Vector2;
@@ -62,16 +63,58 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
-        public void ProdReserveCoversTheColonysOwnBuildQueue()
+        public void ABuildQueueDoesNotReserveProductionForNonCyberneticRaces()
         {
-            float before = Homeworld.ProdExportReserve;
+            Assert.IsFalse(Homeworld.IsCybernetic, "test needs a race that eats food, not production");
 
             Building nanoMine = ResourceManager.GetBuildingTemplate("Nano Mine");
             Assert.IsNotNull(nanoMine, "Nano Mine template missing from ResourceManager");
             Assert.IsTrue(Homeworld.Construction.Enqueue(nanoMine), "failed to enqueue the test building");
 
-            Assert.IsTrue(Homeworld.ProdExportReserve > before,
-                $"a queued building must reserve the production still owed on it: {before} -> {Homeworld.ProdExportReserve}");
+            // a slower build is not worth holding every shipyard's exports back
+            Assert.AreEqual(0f, Homeworld.ProdExportReserve, 0.001f,
+                "only cybernetic colonies, which eat production, keep a production reserve");
         }
+
+        [TestMethod]
+        public void SlotsAreNotOfferedWhenThePickupWouldFindNothingAboveTheReserve()
+        {
+            // a full homeworld farming flat out: real food income, but nowhere near its own
+            // reserve by the time a freighter could arrive
+            Homeworld.Storage.Max = 1000;
+            Homeworld.FoodHere = 0;
+            Homeworld.FS = Planet.GoodState.EXPORT;
+            Homeworld.Food.Percent = 1;
+            Homeworld.Prod.Percent = 0;
+            Homeworld.Res.Percent = 0;
+            Homeworld.UpdateIncomes();
+
+            float atPickup = Homeworld.FoodHere + Homeworld.Food.NetIncome * Homeworld.AverageFoodExportTurns;
+            Assert.IsTrue(Homeworld.Food.NetIncome > 0, "test needs real food income, or income grants no slots either way");
+            Assert.IsTrue(atPickup < Homeworld.FoodExportReserve,
+                $"test needs a colony still below its reserve at pickup: {atPickup} vs {Homeworld.FoodExportReserve}");
+
+            Homeworld.UpdateIncomingTradeGoods();
+
+            // income alone used to grant slots here, so freighters crossed the map to load nothing
+            Assert.AreEqual(0, Homeworld.FoodExportSlots,
+                "a slot promises a pickup, so it must not be offered when the load would be zero");
+        }
+
+        [TestMethod]
+        public void SlotsSetByHandIgnoreTheReserve()
+        {
+            float reserve = Colony.FoodExportReserve;
+            Assert.IsTrue(reserve > 0f, "test needs a colony with a real food reserve");
+
+            Colony.Storage.Max = 1000;
+            Colony.FoodHere = reserve * 0.5f;
+            Colony.ManualFoodExportSlots = 2;
+
+            // the player asked for this planet to be emptied; the governor's caution does not override that
+            Assert.IsTrue(Colony.ExportGoodsLimit(Goods.Food) > 0f,
+                "manual export slots must be able to load, otherwise freighters arrive and find nothing");
+        }
+
     }
 }
