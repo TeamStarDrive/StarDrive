@@ -55,28 +55,12 @@ namespace UnitTests.Planets
             Assert.IsTrue(Colony.Prod.NetMaxPotential < 0,
                 $"test needs a colony that cannot feed itself at full production: {Colony.Prod.NetMaxPotential}");
 
-            // comfortable by ratio - above the export threshold - but it cannot replace what it ships away
-            Colony.ProdHere = Colony.Storage.Max * 0.6f;
-            Colony.DoGoverning();
-
-            Assert.AreEqual(Planet.GoodState.STORE, Colony.PS,
-                "a cybernetic colony that cannot sustain itself must not export the food it is living on");
-        }
-
-        [TestMethod]
-        public void AColonyThatCannotSustainItselfStillExportsItsOverflow()
-        {
-            Colony.Population = Colony.MaxPopulation;
-            Colony.Prod.Percent = 1;
-            Colony.UpdateIncomes();
-            Assert.IsTrue(Colony.Prod.NetMaxPotential < 0, "test needs a colony that cannot feed itself at full production");
-
-            // brimming: what sits above 90% is genuinely spare, the same escape the food state has
+            // a full store says nothing when the colony cannot replace what it ships away
             Colony.ProdHere = Colony.Storage.Max;
             Colony.DoGoverning();
 
-            Assert.AreEqual(Planet.GoodState.EXPORT, Colony.PS,
-                "overflow on a full store must still reach the colonies waiting for it");
+            Assert.AreNotEqual(Planet.GoodState.EXPORT, Colony.PS,
+                "a cybernetic colony that cannot sustain itself must not export the food it is living on");
         }
     }
 }

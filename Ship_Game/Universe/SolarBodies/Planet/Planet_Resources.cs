@@ -155,10 +155,10 @@ namespace Ship_Game
                                         && Food.NetFlatBonus < Consumption;
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
-            if      (ShortOnFood() || belowImportThreshold)                                 FS = GoodState.IMPORT;
-            else if (Food.NetMaxPotential < 0 && ratio < 0.9 || YoungColonyWithTinyStorage) FS = GoodState.STORE;  // Cannot feed itself at max farming: hold what we have and export only the overflow
-            else if (ratio > exportThreshold)                                               FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
-            else                                                                            FS = GoodState.STORE;  // We are between our thresholds
+            if      (ShortOnFood() || belowImportThreshold)                  FS = GoodState.IMPORT;
+            else if (Food.NetMaxPotential < 0 || YoungColonyWithTinyStorage) FS = GoodState.STORE;  // Cannot feed itself even at max farming: hold the buffer rather than export it
+            else if (ratio > exportThreshold)                                FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
+            else                                                             FS = GoodState.STORE;  // We are between our thresholds
         }
 
         void DetermineProdState(float importThreshold, float exportThreshold)
@@ -190,10 +190,10 @@ namespace Ship_Game
             // Production is what a cybernetic colony eats, so it gets the two protections the food
             // state has and this one never ran for them: ask for more before the store runs dry,
             // and stop offering what it cannot replace
-            float ratio           = Storage.ProdRatio;
             bool starving         = IsCybernetic && ShortOnFood();
-            bool cannotFeedItself = IsCybernetic && Prod.NetMaxPotential < 0 && ratio < 0.9; // same overflow escape the food state has
+            bool cannotFeedItself = IsCybernetic && Prod.NetMaxPotential < 0;
 
+            float ratio = Storage.ProdRatio;
             if      (starving || ratio < importThreshold)             PS = GoodState.IMPORT;
             else if (cannotFeedItself || YoungColonyWithTinyStorage)  PS = GoodState.STORE;  // those first units are what starts its own buildings
             else if (ratio > exportThreshold)                         PS = GoodState.EXPORT;
