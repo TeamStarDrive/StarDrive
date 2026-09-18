@@ -587,12 +587,14 @@ namespace Ship_Game
                     bCursor.Y += Font20.LineSpacing + 5;
                     batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
                     DrawTilePopInfo(ref bCursor, batch, pgs);
+                    DrawPlayerBuiltProtection(batch, ref bCursor, pgs);
                     return;
                 case null when pgs.Habitable:
                     batch.DrawString(Font20, Localizer.Token(GameText.HabitableLand), bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
                     batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
                     DrawTilePopInfo(ref bCursor, batch, pgs);
+                    DrawPlayerBuiltProtection(batch, ref bCursor, pgs);
                     return;
             }
 
@@ -632,11 +634,20 @@ namespace Ship_Game
             bCursor.Y += TextFont.LineSpacing * 2;
             string scrapHint = MultiLineFormat(GameText.YouMayScrapThisBuilding);
             batch.DrawString(TextFont, scrapHint, bCursor, Color.White);
-            if (IsProtectedPlayerBuilt(pgs))
-            {
-                bCursor.Y += TextFont.MeasureString(scrapHint).Y;
-                batch.DrawString(TextFont, MultiLineFormat(GameText.PlayerBuiltProtectedFromScrap), bCursor, Color.Gold);
-            }
+            bCursor.Y += TextFont.MeasureString(scrapHint).Y;
+            DrawPlayerBuiltProtection(batch, ref bCursor, pgs);
+        }
+
+        // Whatever the tile shows - a finished building, or a queued one on land that still
+        // reads as empty - a lock badge on it must be explained here too
+        void DrawPlayerBuiltProtection(SpriteBatch batch, ref Vector2 bCursor, PlanetGridSquare pgs)
+        {
+            if (!IsProtectedPlayerBuilt(pgs))
+                return;
+
+            string protection = MultiLineFormat(GameText.PlayerBuiltProtectedFromScrap);
+            batch.DrawString(TextFont, protection, bCursor, Color.Gold);
+            bCursor.Y += TextFont.MeasureString(protection).Y;
         }
 
         // TODO: extracted method, needs refactor/clean
