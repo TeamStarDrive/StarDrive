@@ -45,37 +45,6 @@ namespace Ship_Game
         public int FreeProdImportSlots     => GetNumFreeSlots(ProdImportSlots, IncomingProdFreighters);
         public int FreeColonistImportSlots => GetNumFreeSlots(ColonistsImportSlots, IncomingColonistsFreighters);
 
-        // Consumption at the population the colony is growing into, not the one it has today.
-        // A young world's own consumption stays tiny right up until it fills out, which is how
-        // a 20/20 colony could ship away its whole buffer and then starve (issue #314).
-        // Colonists in transit need no separate term: ExportablePop already caps every load at
-        // the planet's remaining headroom, so Population + IncomingPop never exceeds MaxPopulation.
-        float ProjectedConsumption => ConsumptionPerColonist * MaxPopulationBillion + TotalTroopConsumption;
-
-        /// <summary>
-        /// Food the colony keeps for itself; only the stockpile above this is exported.
-        /// Covers projected consumption until an export freighter could come back for more.
-        /// </summary>
-        public float FoodExportReserve => IsCybernetic ? 0f : ProjectedConsumption * AverageFoodExportTurns;
-
-        /// <summary>
-        /// Production a cybernetic colony keeps for itself - production is their food, so this is
-        /// the same survival buffer as FoodExportReserve. Everyone else reserves nothing: a build
-        /// queue drained of production only builds slower, which is not worth withholding exports
-        /// from every shipyard in the empire.
-        /// </summary>
-        public float ProdExportReserve => IsCybernetic ? ProjectedConsumption * AverageProdExportTurns : 0f;
-
-        // What the stockpile can grow to by the time a freighter arrives to pick it up,
-        // bounded by what the colony can hold
-        float StockAtPickup(float stock, float netIncome, float exportTurns)
-            => (stock + netIncome.LowerBound(0) * exportTurns).UpperBound(Storage.Max);
-
-        // A reserve is the governor's caution, not a veto on the player: slots set by hand mean
-        // the player wants this planet emptied, so the load must not silently come back as zero
-        bool ManualExport(Goods goods) => Owner == Universe.Player
-            && (goods == Goods.Food ? ManualFoodExportSlots : ManualProdExportSlots) > 0;
-
         // # of free slots after deducting active freighter count
         static int GetNumFreeSlots(int totalSlots, int activeFreighters) => Math.Max(totalSlots - activeFreighters, 0);
 
@@ -152,17 +121,10 @@ namespace Ship_Game
             if (ManualFoodExportSlots > 0 && Owner == Universe.Player)
                 return ManualFoodExportSlots;
 
-            int maxSlots = CType is ColonyType.Agricultural or ColonyType.Colony or ColonyType.TradeHub? 14 : 7;
-            int storageSlots = (int)((Storage.Food - FoodExportReserve).LowerBound(0) / Owner.AverageFreighterCargoCap);
-            int outputSlots  = (int)(Food.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
-
-            // A freighter loads what is above the reserve when it lands, so offer slots only if the
-            // stockpile can be above it by then - otherwise we send ships across the map to load
-            // nothing. The minimum below would force one out even with an empty surplus
-            if (storageSlots + outputSlots <= 0 || StockAtPickup(Storage.Food, Food.NetIncome, AverageFoodExportTurns) <= FoodExportReserve)
-                return 0;
-
             int min = Storage.FoodRatio > 0.75f ? 2 : 1;
+            int maxSlots = CType is ColonyType.Agricultural or ColonyType.Colony or ColonyType.TradeHub? 14 : 7;
+            int storageSlots = (int)(Storage.Food / Owner.AverageFreighterCargoCap);
+            int outputSlots  = (int)(Food.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
             return (storageSlots + outputSlots).Clamped(min, maxSlots+outputSlots);
         }
 
@@ -174,6 +136,7 @@ namespace Ship_Game
             if (ManualProdExportSlots > 0 && Owner == Universe.Player)
                 return ManualProdExportSlots;
 
+            int min = Storage.ProdRatio > 0.5f ? 2 : 1;
             int maxSlots = 5;
             switch (CType)
             {
@@ -184,14 +147,9 @@ namespace Ship_Game
                 case ColonyType.Research:   maxSlots += 3;                    break;
             }
 
-            int storageSlots = (int)((Storage.Prod - ProdExportReserve).LowerBound(0) / Owner.AverageFreighterCargoCap);
+            int storageSlots = (int)(Storage.Prod / Owner.AverageFreighterCargoCap);
             int outputSlots  = (int)(Prod.NetIncome * AverageProdExportTurns / Owner.AverageFreighterCargoCap);
 
-            // see GetFoodExportSlots: do not promise a pickup the colony will have nothing to fill
-            if (storageSlots + outputSlots <= 0 || StockAtPickup(Storage.Prod, Prod.NetIncome, AverageProdExportTurns) <= ProdExportReserve)
-                return 0;
-
-            int min = Storage.ProdRatio > 0.5f ? 2 : 1;
             return (storageSlots + outputSlots).Clamped(min, maxSlots + outputSlots);
         }
 
@@ -449,17 +407,9 @@ namespace Ship_Game
             float limit = 0; // it is a multiplier
             switch (goods)
             {
-                case Goods.Food:
-                    limit = (Storage.Max / NumFreightersPickingUpFood.LowerBound(1))
-                        .UpperBound((FoodHere - (ManualExport(goods) ? 0 : FoodExportReserve)).LowerBound(0));
-                    break;
-                case Goods.Production:
-                    limit = (Storage.Max / NumFreightersPickingUpProd.LowerBound(1))
-                        .UpperBound((ProdHere - (ManualExport(goods) ? 0 : ProdExportReserve)).LowerBound(0));
-                    break;
-                case Goods.Colonists:  
-                    limit = Population * 0.2f;
-                    break;
+                case Goods.Food:       limit = (Storage.Max / NumFreightersPickingUpFood.LowerBound(1)).UpperBound(FoodHere); break;
+                case Goods.Production: limit = (Storage.Max / NumFreightersPickingUpProd.LowerBound(1)).UpperBound(ProdHere); break;
+                case Goods.Colonists:  limit = Population * 0.2f;                                                             break;
             }
 
             return limit;

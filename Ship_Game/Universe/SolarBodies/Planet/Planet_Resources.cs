@@ -113,25 +113,6 @@ namespace Ship_Game
             return storage / -output;
         }
 
-        public GoodState GetGoodState(Goods good)
-        {
-            switch (good)
-            {
-                case Goods.Food:       return FS;
-                case Goods.Production: return PS;
-                case Goods.Colonists:  return ColonistsTradeState();
-                default:               return 0;
-            }
-        }
-
-        public bool IsExporting()
-        {
-            foreach (Goods good in Enum.GetValues(typeof(Goods)))
-                if (GetGoodState(good) == GoodState.EXPORT)
-                    return true;
-            return false;
-        }
-
         private string ImportsDescr()
         {
             if (!ImportFood && !ImportProd) return "";
@@ -151,6 +132,13 @@ namespace Ship_Game
             }
         }
 
+        // A colony this young reads as full because its storage is tiny, not because it has a
+        // surplus: one freighter would lift the whole starting buffer, and those first units are
+        // what feeds the colonists landing on it and pays for its own first buildings (issue #314)
+        bool YoungColonyWithTinyStorage => MaxPopulation > 0 // a world that can hold nobody is not young, it is done growing
+                                        && PopulationRatio < 0.1f
+                                        && Storage.Max < Owner.AverageFreighterCargoCap * 2;
+
         void DetermineFoodState(float importThreshold, float exportThreshold)
         {
             if (IsCybernetic) return;
@@ -167,10 +155,10 @@ namespace Ship_Game
                                         && Food.NetFlatBonus < Consumption;
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
-            if      (ShortOnFood() || belowImportThreshold)   FS = GoodState.IMPORT;
-            else if (Food.NetMaxPotential < 0)                FS = GoodState.STORE;  // Cannot feed itself even at max farming: hold the buffer rather than export it
-            else if (ratio > exportThreshold)                 FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
-            else                                              FS = GoodState.STORE;  // We are between our thresholds
+            if      (ShortOnFood() || belowImportThreshold)                  FS = GoodState.IMPORT;
+            else if (Food.NetMaxPotential < 0 || YoungColonyWithTinyStorage) FS = GoodState.STORE;  // Cannot feed itself even at max farming: hold the buffer rather than export it
+            else if (ratio > exportThreshold)                                FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
+            else                                                             FS = GoodState.STORE;  // We are between our thresholds
         }
 
         void DetermineProdState(float importThreshold, float exportThreshold)
@@ -200,9 +188,10 @@ namespace Ship_Game
             }
 
             float ratio = Storage.ProdRatio;
-            if (ratio < importThreshold)      PS = GoodState.IMPORT;
-            else if (ratio > exportThreshold) PS = GoodState.EXPORT;
-            else                              PS = GoodState.STORE;
+            if (ratio < importThreshold)          PS = GoodState.IMPORT;
+            else if (YoungColonyWithTinyStorage)  PS = GoodState.STORE;  // those first units are what starts its own buildings
+            else if (ratio > exportThreshold)     PS = GoodState.EXPORT;
+            else                                  PS = GoodState.STORE;
         }
     }
 }
