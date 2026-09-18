@@ -187,11 +187,17 @@ namespace Ship_Game
                 exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
             }
 
+            // Production is what a cybernetic colony eats, so it gets the two protections the food
+            // state has and this one never ran for them: ask for more before the store runs dry,
+            // and stop offering what it cannot replace
+            bool starving         = IsCybernetic && ShortOnFood();
+            bool cannotFeedItself = IsCybernetic && Prod.NetMaxPotential < 0;
+
             float ratio = Storage.ProdRatio;
-            if (ratio < importThreshold)          PS = GoodState.IMPORT;
-            else if (YoungColonyWithTinyStorage)  PS = GoodState.STORE;  // those first units are what starts its own buildings
-            else if (ratio > exportThreshold)     PS = GoodState.EXPORT;
-            else                                  PS = GoodState.STORE;
+            if      (starving || ratio < importThreshold)             PS = GoodState.IMPORT;
+            else if (cannotFeedItself || YoungColonyWithTinyStorage)  PS = GoodState.STORE;  // those first units are what starts its own buildings
+            else if (ratio > exportThreshold)                         PS = GoodState.EXPORT;
+            else                                                      PS = GoodState.STORE;
         }
     }
 }
