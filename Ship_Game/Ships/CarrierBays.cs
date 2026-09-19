@@ -110,6 +110,27 @@ namespace Ship_Game.Ships
             return None;
         }
 
+        // Loading a save rebuilds Carrier from the module list (hangar arrays and the
+        // readonly Has* flags are derived, not serialized); this carry-over is what keeps
+        // the save's per-ship carrier state across that rebuild.
+        // Assign backing fields only, never the FightersOut property: its setter
+        // scrambles/recovers fighters, plays UI audio, and early-returns while spooling
+        // or at warp, any of which corrupts the restore mid-deserialization.
+        public void CarryOverSavedState(CarrierBays saved)
+        {
+            // None is a shared static instance: writing to it would leak one ship's
+            // settings onto every other carrier-less ship in the game.
+            if (saved == null || saved == None || this == None)
+                return;
+
+            RecallFightersBeforeFTL = saved.RecallFightersBeforeFTL;
+            SendTroopsToShip        = saved.SendTroopsToShip;
+            AllowBoardShip          = saved.AllowBoardShip;
+            FightersLaunched        = saved.FightersLaunched;
+            TroopsLaunched          = saved.TroopsLaunched;
+            OrdnanceInSpace         = saved.OrdnanceInSpace;
+        }
+
         public void Dispose()
         {
             if (Owner == null)
