@@ -9,6 +9,11 @@ namespace Ship_Game
         public Array<string> TechnologiesOffered = new();
         public Array<string> ArtifactsOffered = new();
         public Ref<bool> ValueToModify;
+        // upstream issue 307: marks a true ultimatum (currently only DemandTech).
+        // ValueToModify alone is NOT a demand marker - peace/trade/alliance dialogs
+        // use it too, with per-dialog semantics (the peace Ref fires SetImperialistWar
+        // on any write), so the dodge-a-demand penalty must key on this flag.
+        public bool IsDemand;
         public bool PeaceTreaty;
         public bool Alliance;
         public string AcceptDL;

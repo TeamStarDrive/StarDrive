@@ -1128,6 +1128,7 @@ namespace Ship_Game.Gameplay
             {
                 AcceptDL      = "Xeno Demand Tech Accepted",
                 RejectDL      = "Xeno Demand Tech Rejected",
+                IsDemand      = true, // upstream issue 307: a true ultimatum - dodging it counts as refusal
                 ValueToModify = new Ref<bool>(() => HaveRejectedDemandTech,
                                                x => HaveRejectedDemandTech = x)
             };
