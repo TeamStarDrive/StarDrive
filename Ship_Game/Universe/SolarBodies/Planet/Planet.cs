@@ -1521,19 +1521,36 @@ namespace Ship_Game
             else if (!RecentCombat)
             {
                 // population is increased
+                Population += EstimatedPopGrowthPerTurn;
+                Population  = Population.Clamped(0, MaxPopulation);
+            }
+
+            Population = Math.Max(10, Population); // over population will decrease in time, so this is not clamped to max pop
+        }
+
+        // The per-turn population gain, extracted from GrowPopulation so callers can ask
+        // whether (and how fast) a colony is actually growing. Same arithmetic the tick
+        // applies (rep rate with the trait clamps, flat bonus and reproduction mod, then the
+        // short-on-food factor), so the number matches what the colony grows by. Zero when
+        // the colony is not in the growing branch (starving, over-populated, recent combat).
+        public float EstimatedPopGrowthPerTurn
+        {
+            get
+            {
+                if (Owner == null || RecentCombat || !CanRepairOrHeal()
+                    || PopulationRatio.Greater(1) || IsStarving)
+                    return 0f;
+
                 float balanceGrowth = (1 - PopulationRatio).Clamped(0.25f, 1f);
                 float repRate       = Owner.data.BaseReproductiveRate * (Population/3) * balanceGrowth;
                 if (Owner.data.Traits.PopGrowthMax.NotZero())
                     repRate = repRate.UpperBound(Owner.data.Traits.PopGrowthMax * 1000f);
 
-                repRate     = repRate.LowerBound(Owner.data.Traits.PopGrowthMin * 1000f);
-                repRate    += PlusFlatPopulationPerTurn;
-                repRate    += repRate * Owner.data.Traits.ReproductionMod;
-                Population += ShortOnFood() ? repRate * 0.1f : repRate;
-                Population  = Population.Clamped(0, MaxPopulation);
+                repRate  = repRate.LowerBound(Owner.data.Traits.PopGrowthMin * 1000f);
+                repRate += PlusFlatPopulationPerTurn;
+                repRate += repRate * Owner.data.Traits.ReproductionMod;
+                return ShortOnFood() ? repRate * 0.1f : repRate;
             }
-
-            Population = Math.Max(10, Population); // over population will decrease in time, so this is not clamped to max pop
         }
 
         public void WipeOutColony(Empire attacker)
