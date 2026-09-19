@@ -391,6 +391,21 @@ namespace Ship_Game
             SelectedShip = null;
         }
 
+        // Set from the sim thread once a deferred scrap/mass-scrap goal has run; the
+        // UI thread does the actual walk in Update, because ShipSL's entries are a live
+        // list owned by the UI thread and must never be enumerated from the sim thread.
+        public bool StatusDirty;
+
+        public override void Update(float fixedDeltaTime)
+        {
+            if (StatusDirty)
+            {
+                StatusDirty = false;
+                ResetStatus();
+            }
+            base.Update(fixedDeltaTime);
+        }
+
         public void ResetStatus()
         {
             foreach (ShipListScreenItem sel in ShipSL.AllEntries)
