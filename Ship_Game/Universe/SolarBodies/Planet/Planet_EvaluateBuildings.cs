@@ -339,7 +339,8 @@ namespace Ship_Game
             if (BuildingsHereCanBeBuiltAnywhere || BuildingsCanBuild.Count == 0)
                 return;
 
-            // Replace works even if the governor is not scrapping buildings, unless they are player built
+            // Replace works even if the governor is not scrapping buildings. Player-built ones are
+            // filtered out in SuitableForScrap, so no check for the scrap setting belongs here
             float worstBuildingScore = ChooseWorstBuilding(overBudget, scrapZeroMaintenance: true, true, out Building worstBuilding);
             if (worstBuilding == null)
                 return;
@@ -370,6 +371,9 @@ namespace Ship_Game
             for (int i = 0; i < ConstructionQueue.Count; i++)
             {
                 QueueItem qi = ConstructionQueue[i];
+                if (qi.IsPlayerAdded && PlayerBuiltIsProtected)
+                    continue; // a queued building is still a building the player asked for
+
                 if (Owner.AutoBuildTerraformers && qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
                 {
                     Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} CANCELED Terrformer" +
@@ -478,11 +482,12 @@ namespace Ship_Game
             return budget > 0 && b.ActualMaintenance(this) <= budget;
         }
 
-        bool SuitableForScrap(Building b, bool overBudget, float storageInUse, bool scrapZeroMaintenance, bool replacing)
+        internal bool SuitableForScrap(Building b, bool overBudget, float storageInUse, bool scrapZeroMaintenance, bool replacing)
         {
             if (b.IsBiospheres
                 || b.IsMilitary
                 || !b.Scrappable
+                || b.IsPlayerAdded && PlayerBuiltIsProtected // never scrap what the player built by hand
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || b.BuildOnlyOnce
                 || b.PlusTerraformPoints > 0) // using this instead of IsTerraformer since some event building might also terraform without the terraformer building ID
@@ -495,8 +500,7 @@ namespace Ship_Game
             else if (!overBudget)
                 return false;
 
-            if (b.IsPlayerAdded && OwnerIsPlayer
-                || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
+            if (b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
                 || !WillMaintainPositiveFoodOutput(b)
                 || !IsBuildingOnHabitableTile(b) && replacing  // Dont allow buildings on non habitable tiles to be scrapped when replacing
                 || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero()

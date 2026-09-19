@@ -83,6 +83,26 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(font, troop.Level.ToString(), pos, Color.Gold);
         }
 
+        // Mirrors what the governor actually honors, so the badge never promises more than it does:
+        // PlayerBuiltIsProtected is false on AI colonies (a mole's view) and under exclusive blueprints,
+        // and terraformers are cleared on completion regardless of who built them. Unscrappable buildings
+        // need no protection, and a biosphere never becomes the tile building, so the badge would vanish
+        bool IsProtectedPlayerBuilt(PlanetGridSquare pgs)
+        {
+            if (!P.PlayerBuiltIsProtected)
+                return false;
+
+            // copy first: the sim thread can clear either of these while we draw
+            Building building = pgs.Building;
+            if (building != null)
+                return building.IsPlayerAdded && CanBeProtected(building);
+
+            QueueItem qi = pgs.QItem;
+            return qi is { IsPlayerAdded: true } && CanBeProtected(qi.Building);
+        }
+
+        static bool CanBeProtected(Building b) => b.Scrappable && !b.IsBiospheres && b.PlusTerraformPoints <= 0;
+
         void DrawTileIcons(SpriteBatch batch, PlanetGridSquare pgs)
         {
             if (pgs.Biosphere)
@@ -111,6 +131,17 @@ namespace Ship_Game
                 {
                     ToolTip.CreateTooltip(GameText.ThisTileCanBeTerraformed);
                 }
+            }
+
+            if (IsProtectedPlayerBuilt(pgs))
+            {
+                var playerBuilt = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 10, pgs.ClickRect.Y, 20, 20);
+                bool hoveringOverPlayerBuilt = playerBuilt.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive;
+                SubTexture lockIcon = ResourceManager.Texture("NewUI/icon_lock");
+                batch.Draw(lockIcon, new Rectangle(playerBuilt.X + 2, playerBuilt.Y + 2, playerBuilt.Width, playerBuilt.Height), Color.Black);
+                batch.Draw(lockIcon, playerBuilt, hoveringOverPlayerBuilt ? Color.White : Color.Yellow);
+                if (hoveringOverPlayerBuilt)
+                    ToolTip.CreateTooltip(GameText.PlayerBuiltProtectedFromScrap);
             }
 
             if (pgs.TroopsAreOnTile)
@@ -435,7 +466,7 @@ namespace Ship_Game
                     var buildingIcon = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
                         pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                     batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.Building.Icon + "_64x64"),
-                        buildingIcon, pgs.Building.IsPlayerAdded ? Color.WhiteSmoke : Color.White);
+                        buildingIcon, Color.White);
                 }
                 else if (pgs.QItem != null)
                 {
@@ -556,12 +587,14 @@ namespace Ship_Game
                     bCursor.Y += Font20.LineSpacing + 5;
                     batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
                     DrawTilePopInfo(ref bCursor, batch, pgs);
+                    DrawPlayerBuiltProtection(batch, ref bCursor, pgs);
                     return;
                 case null when pgs.Habitable:
                     batch.DrawString(Font20, Localizer.Token(GameText.HabitableLand), bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
                     batch.DrawString(TextFont, MultiLineFormat(GameText.DragAStructureFromThe), bCursor, color);
                     DrawTilePopInfo(ref bCursor, batch, pgs);
+                    DrawPlayerBuiltProtection(batch, ref bCursor, pgs);
                     return;
             }
 
@@ -599,7 +632,22 @@ namespace Ship_Game
                 return;
 
             bCursor.Y += TextFont.LineSpacing * 2;
-            batch.DrawString(TextFont, "You may scrap this building by right clicking it", bCursor, Color.White);
+            string scrapHint = MultiLineFormat(GameText.YouMayScrapThisBuilding);
+            batch.DrawString(TextFont, scrapHint, bCursor, Color.White);
+            bCursor.Y += TextFont.MeasureString(scrapHint).Y;
+            DrawPlayerBuiltProtection(batch, ref bCursor, pgs);
+        }
+
+        // Whatever the tile shows - a finished building, or a queued one on land that still
+        // reads as empty - a lock badge on it must be explained here too
+        void DrawPlayerBuiltProtection(SpriteBatch batch, ref Vector2 bCursor, PlanetGridSquare pgs)
+        {
+            if (!IsProtectedPlayerBuilt(pgs))
+                return;
+
+            string protection = MultiLineFormat(GameText.PlayerBuiltProtectedFromScrap);
+            batch.DrawString(TextFont, protection, bCursor, Color.Gold);
+            bCursor.Y += TextFont.MeasureString(protection).Y;
         }
 
         // TODO: extracted method, needs refactor/clean

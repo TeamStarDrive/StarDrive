@@ -58,6 +58,11 @@ namespace Ship_Game
 
         bool GovernorShouldNotScrapBuilding => OwnerIsPlayer && DontScrapBuildings;
 
+        // What the player placed by hand is off limits to the governor, whatever the scrap
+        // setting says - unless the blueprints are exclusive, which is the player asking for
+        // the plan and nothing but the plan
+        public bool PlayerBuiltIsProtected => OwnerIsPlayer && !HasExclusiveBlueprints;
+
         private Array<Ship> FilterOrbitals(RoleName role)
         {
             var orbitalList = new Array<Ship>();
@@ -437,12 +442,16 @@ namespace Ship_Game
                 return;
             }
 
+            // if the scrap was refused, the blueprints still need building, so fall through
+            // instead of leaving the plan stuck behind a scrap that will never happen
             if ((HasExclusiveBlueprints || HasBlueprints && !Blueprints.Exclusive && FreeHabitableTiles == 0 && !Blueprints.IsAchievableCompleted)
-                && BuildingList.Any(b => b.IsMilitary && !RequiredInBlueprints(b)))
+                && BuildingList.Any(b => b.IsMilitary && !RequiredInBlueprints(b))
+                && TryScrapMilitaryBuilding())
             {
-                TryScrapMilitaryBuilding();
+                return;
             }
-            else if (GovGroundDefense || !OwnerIsPlayer || HasBlueprints)
+
+            if (GovGroundDefense || !OwnerIsPlayer || HasBlueprints)
             {
                 TryBuildMilitaryBuilding(budget);
             }
@@ -471,21 +480,28 @@ namespace Ship_Game
                 Construction.Enqueue(best);
         }
         
-        void TryScrapMilitaryBuilding()
+        internal bool TryScrapMilitaryBuilding()
         {
+            if (GovernorShouldNotScrapBuilding)
+                return false; // this is the only path that scraps a military building, so the setting binds here
+
             Building weakest = null;
             if (HasBlueprints)
             {
-                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !RequiredInBlueprints(b),
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable
+                                                            && !(b.IsPlayerAdded && PlayerBuiltIsProtected) && !RequiredInBlueprints(b),
                                                        b => b.CostEffectiveness);
             }
 
             if (weakest == null)
-                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !b.IsPlayerAdded,
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !(b.IsPlayerAdded && PlayerBuiltIsProtected),
                                                        b => b.CostEffectiveness);
 
-            if (weakest != null)
-                ScrapBuilding(weakest);
+            if (weakest == null)
+                return false;
+
+            ScrapBuilding(weakest);
+            return true;
         }
 
         public void AddTroop(Troop troop, PlanetGridSquare tile)

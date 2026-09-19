@@ -14663,6 +14663,13 @@ Pathfinder:
 PathfinderTip:
  Id: 4537
  ENG: "When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ships travel in straight lines and drop out of warp as wells are encountered."
+PlayerBuiltProtectedFromScrap:
+ Id: 4538
+ ENG: "You placed this yourself, so the governor will never scrap it or cancel it."
+ RUS: "Вы разместили это сами, поэтому губернатор никогда не снесёт и не отменит его."
+ SPA: "Lo colocaste tú mismo, por lo que el gobernador nunca lo demolerá ni lo cancelará."
+ UKR: "Ви розмістили це власноруч, тому губернатор ніколи не розбере його на металобрухт і не скасує."
+ PTB: "Você mesmo colocou isto, por isso o Governador nunca o sucateará nem o cancelará."
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 

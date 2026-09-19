@@ -4699,6 +4699,8 @@ namespace Ship_Game
         Pathfinder = 4536,
         /// <summary>When ON, ships plot a course around hostile and unknown planetary gravity wells.</summary>
         PathfinderTip = 4537,
+        /// <summary>You placed this yourself, so the governor will never scrap it or cancel it.</summary>
+        PlayerBuiltProtectedFromScrap = 4538,
 
 
 
