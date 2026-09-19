@@ -399,6 +399,18 @@ public class BinarySerializerReader
                 cs.Deserialize(this, instance);
             }
         }
+        // an enum type that no longer exists: its values are still in the stream and each one
+        // is a single VLi32, so they can be read past without knowing the type. Every other
+        // deleted category still needs a skipping serializer (see the FIXMEs above).
+        else if (ser == null && type.Category is SerializerCategory.Enums)
+        {
+            if (Verbose) Log.Warning($"Skipping {count} values of deleted enum {type}");
+            for (int i = 0; i < count; ++i)
+            {
+                BR.ReadVLi32();
+                ObjectsList[baseId + i] = null;
+            }
+        }
         // fundamental types such as int, Vector2, String, Byte[], Point. @see TypeSerializerMap.cs
         // also RawArrays like Ship[]
         else
