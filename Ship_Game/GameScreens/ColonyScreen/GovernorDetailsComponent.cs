@@ -856,16 +856,17 @@ namespace Ship_Game
             {
                 float percentSpent  = spent / budget.TotalAlloc.LowerBound(0.01f) * 100;
                 BudgetSum.Text      = $"{Localizer.Token(GameText.Total3)} {spent.String(1)}" +
-                                      $" {Localizer.Token(GameText.Of)} {budget.TotalAlloc.String(1)} BC/Y";
+                                      $" {Localizer.Token(GameText.Of)} {budget.TotalAlloc.String(1)} bc/t";
                 BudgetPercent.Text  = $" ({percentSpent.String(1)}%)";
+                BudgetPercent.Pos   = new Vector2(BudgetSum.Pos.X + FontBig.TextWidth(BudgetSum.Text) + 4, BudgetSum.Pos.Y); // follow the total text (the unit label's width varies)
                 BudgetPercent.Color = GetColor();
             }
             else
             {
-                NoGovernorCivExpense.Text = $"{Planet.CivilianBuildingsMaintenance.String(2)} BC/Y";
-                NoGovernorGrdExpense.Text = $"{Planet.GroundDefMaintenance.String(2)} BC/Y";
-                NoGovernorSpcExpense.Text = $"{Planet.SpaceDefMaintenance.String(2)} BC/Y";
-                BudgetSum.Text            = $"{Localizer.Token(GameText.Total3)} {spent.String(2)} BC/Y";
+                NoGovernorCivExpense.Text = $"{Planet.CivilianBuildingsMaintenance.String(2)} bc/t";
+                NoGovernorGrdExpense.Text = $"{Planet.GroundDefMaintenance.String(2)} bc/t";
+                NoGovernorSpcExpense.Text = $"{Planet.SpaceDefMaintenance.String(2)} bc/t";
+                BudgetSum.Text            = $"{Localizer.Token(GameText.Total3)} {spent.String(2)} bc/t";
                 BudgetPercent.Text        = "";
             }
 
