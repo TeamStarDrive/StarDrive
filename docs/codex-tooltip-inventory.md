@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 247. Already hooked: 159.
+Tokens: 247. Already hooked: 165.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -193,13 +193,13 @@ Tokens: 247. Already hooked: 159.
 | 178 | `ShowOnlyShipsWhichAre` | Show only ships which are assigned to Fleets | Universe/ShipListScreen.cs |  |  |
 | 179 | `ShowOnlyShipsWhichAre2` | Show only ships which are not assigned to Fleets | Universe/ShipListScreen.cs |  |  |
 | 180 | `ShowPlayerDesignsOnly` | Show Player Designs Only | Universe/ShipListScreen.cs |  |  |
-| 181 | `RefitAllShipsOfThis` | Refit all ships of this design to the new ship design | RefitToWindow.cs |  |  |
-| 182 | `RefitInFleetTip` | All Ships of the same type in the selected ship's fleet will be refitted. | RefitToWindow.cs |  |  |
-| 183 | `RefitOnlyThisShipTo` | Refit only this ship to the new ship design | RefitToWindow.cs |  |  |
-| 184 | `BB_RushRefitTip` | Rush Refit will prioritize this refit and rush it. Use with caution if you are refitting a lot of ships since this spends money on rush.  | RefitToWindow.cs |  |  |
+| 181 | `RefitAllShipsOfThis` | Refit all ships of this design to the new ship design | RefitToWindow.cs |  | warfare_refit_and_scrap |
+| 182 | `RefitInFleetTip` | All Ships of the same type in the selected ship's fleet will be refitted. | RefitToWindow.cs |  | warfare_refit_and_scrap |
+| 183 | `RefitOnlyThisShipTo` | Refit only this ship to the new ship design | RefitToWindow.cs |  | warfare_refit_and_scrap |
+| 184 | `BB_RushRefitTip` | Rush Refit will prioritize this refit and rush it. Use with caution if you are refitting a lot of ships since this spends money on rush.  | RefitToWindow.cs |  | warfare_refit_and_scrap |
 | 185 | `ResearchDisruptedByInfiltrationTip` | Research output is being slowed by enemy infiltration this turn. The percentage shows how much research is getting through. Each successful disruption missio... | ResearchQueueUIComponent.cs |  | infiltration_seven_operations |
-| 186 | `OpensAMenuAllowingYou` | Opens a menu allowing you to choose from a list of available designs that can also fit this ship's hull. The refit cost is a minimum of 10 production plus th... | ShipListScreenItem.cs |  |  |
-| 187 | `OrdersTheShipToReturn` | Orders the ship to return to the nearest shipyard to be dismantled. The planet where the ship is dismantled will have a portion of the ship's original produc... | ShipListScreenItem.cs |  |  |
+| 186 | `OpensAMenuAllowingYou` | Opens a menu allowing you to choose from a list of available designs that can also fit this ship's hull. The refit cost is the new design's cost minus this s... | ShipListScreenItem.cs |  | warfare_refit_and_scrap |
+| 187 | `OrdersTheShipToReturn` | Orders the ship to return to the nearest shipyard to be dismantled. The planet where the ship is dismantled will have a portion of the ship's original produc... | ShipListScreenItem.cs |  | warfare_refit_and_scrap |
 | 188 | `OrdersThisShipToExplore` | Orders this ship to explore the galaxy | ShipListScreenItem.cs |  |  |
 | 189 | `ConstructionProgressTip` | Amount of completed construction. The constructor adds construction every turn, and if the structure sits in a system where you or an ally hold colonies, tho... | Ships/ShipInfoUIElement.cs |  | automation_construction |
 | 190 | `EmpOverloadShipIsDisabled` | EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload. | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |

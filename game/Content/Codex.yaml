@@ -135,6 +135,8 @@
     -
       UID: warfare_ship_design
     -
+      UID: warfare_refit_and_scrap
+    -
       UID: warfare_ship_experience
     -
       UID: warfare_capturing_ships
