@@ -183,6 +183,9 @@ namespace Ship_Game.AI
         }
 
         
+        public static IShipDesign StationDesignOrNull(string name)
+            => name.NotEmpty() && ResourceManager.Ships.GetDesign(name, out IShipDesign design) ? design : null;
+
         public static IShipDesign PickResearchStation(Empire empire)
         {
             if (empire.isPlayer && !empire.AutoPickBestResearchStation)

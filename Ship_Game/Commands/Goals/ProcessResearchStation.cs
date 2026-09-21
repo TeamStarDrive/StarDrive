@@ -89,9 +89,14 @@ namespace Ship_Game.Commands.Goals
 
             if (StationToBuild == null)
             {
-                StationToBuild = !Owner.isPlayer || Owner.AutoPickBestResearchStation 
-                    ? ShipBuilder.PickResearchStation(Owner) 
-                    : ResourceManager.Ships.GetDesign(Owner.data.ResearchStation, throwIfError: true);
+                StationToBuild = !Owner.isPlayer || Owner.AutoPickBestResearchStation
+                    ? ShipBuilder.PickResearchStation(Owner)
+                    : ShipBuilder.StationDesignOrNull(Owner.data.ResearchStation);
+                if (StationToBuild == null)
+                {
+                    Log.Warning($"{Owner.Name}: no research station design to build, the automation window names '{Owner.data.ResearchStation}'");
+                    return GoalStep.GoalFailed;
+                }
             }
 
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, StationToBuild, out Planet planetToBuildAt, portQuality: 1f))
@@ -252,14 +257,14 @@ namespace Ship_Game.Commands.Goals
                 return false;
 
             string bestRefit = Owner.isPlayer && !Owner.AutoPickBestResearchStation
-                ? Owner.data.CurrentResearchStation
+                ? Owner.data.ResearchStation
                 : Owner.BestResearchStationWeCanBuild?.Name;
 
-            if (bestRefit == null)
+            if (bestRefit.IsEmpty())
                 return false;
 
             if (ResearchStation.Name != bestRefit && !Owner.AI.HasGoal(g => g is RefitOrbital && g.OldShip == ResearchStation))
-                betterStation = ResourceManager.Ships.GetDesign(bestRefit);
+                betterStation = ShipBuilder.StationDesignOrNull(bestRefit);
 
             return betterStation != null;
         }
