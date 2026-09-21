@@ -37,8 +37,9 @@ namespace Ship_Game.Codex
         }
 
         // UIDs a tooltip may link to: listed by the screen (not under a hidden
-        // branch) and a topic rather than a header, since clicking a header only
-        // expands it and a link to one would open the Codex with nothing selected.
+        // branch) and either a topic or a category with a body of its own. A bare
+        // header only expands when clicked, so a link to one would open the Codex
+        // with nothing selected.
         public static HashSet<string> HookableUids(Array<CodexEntry> roots)
         {
             var uids = new HashSet<string>();
@@ -54,12 +55,15 @@ namespace Ship_Game.Codex
             {
                 if (e.Hidden)
                     continue;
+                if (!string.IsNullOrEmpty(e.UID) && (!e.HasVisibleChildren || e.HasBody))
+                    uids.Add(e.UID);
                 if (e.HasVisibleChildren)
                     CollectHookable(e.Children, uids);
-                else if (!string.IsNullOrEmpty(e.UID))
-                    uids.Add(e.UID);
             }
         }
+
+        // A category shows this when clicked, the same as a topic would
+        public bool HasBody => !string.IsNullOrEmpty(TextId) && Localizer.Token(TextId, out _);
 
         public bool HasVisibleChildren
         {

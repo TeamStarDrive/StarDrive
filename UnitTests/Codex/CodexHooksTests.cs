@@ -53,7 +53,8 @@ namespace UnitTests.Codex
             HashSet<string> uids = CodexEntry.HookableUids(CodexEntry.LoadAll());
 
             Assert.IsTrue(uids.Contains("warfare_ordnance"), "a topic nested two levels down is a target");
-            Assert.IsFalse(uids.Contains("warfare_weapons"), "a header only expands, so it is not a target");
+            Assert.IsFalse(uids.Contains("warfare_weapons"), "a bare header only expands, so it is not a target");
+            Assert.IsTrue(uids.Contains("economy_the_colony_screen"), "a category with its own body reads like a topic");
             Assert.IsFalse(uids.Contains("tutorials_overview"), "a topic under a hidden branch is not a target");
         }
 

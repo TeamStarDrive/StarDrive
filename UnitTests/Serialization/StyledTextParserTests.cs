@@ -256,5 +256,33 @@ namespace UnitTests.Serialization
             foreach (StyledRun r in runs) sb.Append(r.Text);
             AssertEqual("price < 100 credits", sb.ToString());
         }
+
+        [TestMethod]
+        public void ListItemsBecomeBulletRuns()
+        {
+            StyledRun[] runs = StyledTextParser.Parse("Lead\n<li>first item</li>\n<li>second");
+
+            // "Lead\n", bullet, "first item", "\n", bullet, "second"
+            AssertEqual(6, runs.Length);
+            AssertEqual("Lead\n", runs[0].Text);
+            Assert.IsTrue(runs[1].IsBullet);
+            Assert.IsFalse(runs[1].IsImage, "a bullet run is not an image run");
+            AssertEqual("first item", runs[2].Text);
+            Assert.IsTrue(runs[3].IsLineBreak);
+            Assert.IsTrue(runs[4].IsBullet);
+            AssertEqual("second", runs[5].Text);
+        }
+
+        [TestMethod]
+        public void ListItemsKeepTheirStyle()
+        {
+            StyledRun[] runs = StyledTextParser.Parse("<li><b>bold</b> plain</li>");
+
+            Assert.IsTrue(runs[0].IsBullet);
+            Assert.IsTrue(runs[1].Bold);
+            AssertEqual("bold", runs[1].Text);
+            Assert.IsFalse(runs[2].Bold);
+            AssertEqual(" plain", runs[2].Text);
+        }
     }
 }

@@ -10,6 +10,7 @@
 # the Codex screen opens, so rows can be added with the game running.
 
 # Economy
+AColonysPopulationIsA: colony_population
 IncomingOutGoingTip: economy_freighters_and_trade_routes
 TradeTreatiesCreateWealthFor: economy_trade_treaties
 

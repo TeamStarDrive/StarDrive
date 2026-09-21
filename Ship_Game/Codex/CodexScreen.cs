@@ -140,9 +140,10 @@ namespace Ship_Game.Codex
 
         void OnCategoryClicked(CodexCategoryListItem item)
         {
-            // A bare category header has children but no body of its own — clear video
-            // and leave the previous selection intact.
-            if (item.IsHeader)
+            // A category with a body of its own reads like a topic when clicked, so
+            // an overview lives on the category rather than in a filler child. A
+            // bare header only expands: clear the video and keep the selection.
+            if (item.IsHeader && !(item.Entry?.HasBody ?? false))
             {
                 Player?.Stop();
                 if (Player != null) Player.Visible = false;
@@ -151,6 +152,7 @@ namespace Ship_Game.Codex
 
             SelectEntry(item.Entry);
         }
+
 
         void SelectEntry(CodexEntry entry)
         {

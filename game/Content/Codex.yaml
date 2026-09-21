@@ -63,6 +63,9 @@
       UID: economy_planetary_qualities
     -
       UID: economy_the_colony_screen
+      Children:
+        -
+          UID: colony_population
     -
       UID: economy_automation
 -
