@@ -112,7 +112,7 @@ namespace Ship_Game
 
                 if (targetPlanet.Fertility > 0 && fertilityReduction.NotEqual(1f))
                 {
-                    float fertilityLost = targetPlanet.Fertility * fertilityReduction;
+                    float fertilityLost = targetPlanet.Fertility * (1 - fertilityReduction);
                     assetsLost += $"{(fertilityLost).String(2)} {Localizer.Token(GameText.Fertility)}. ";
                     targetPlanet.AddBaseFertility(-fertilityLost);
                 }
