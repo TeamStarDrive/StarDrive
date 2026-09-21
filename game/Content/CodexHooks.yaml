@@ -53,6 +53,9 @@ ExoticResourceStorageTip: expansion_exotic_resources
 ExoticResourceMaxRefineTip: expansion_exotic_resources
 ExoticResourceOpsTip: expansion_exotic_resources
 MiningStationsOpsOwned: expansion_exotic_resources
+ExoticResourceBonusTip: expansion_exotic_resources
+CannotBuildMiningStationTip: expansion_exotic_resources
+MineableRichnessTip: expansion_exotic_resources
 
 # Colony screen: population
 AColonysPopulationIsA: colony_population
@@ -60,10 +63,15 @@ AColonysPopulationIsA: colony_population
 # Colony screen: fertility and richness live with the planet qualities
 IndicatesHowMuchFoodThis: economy_planetary_qualities
 APlanetsMineralRichnessDirectly: economy_planetary_qualities
+PlanetTypeAndRichnessThe: economy_planetary_qualities
 
 # Colony screen: storage
 IndicatesTheAmountOfFood: colony_storage
 IndicatesTheAmountOfProduction: colony_storage
+
+# Colonies list: rush and cancel draw on the production store
+ClickToRushProductionFrom: colony_storage
+CancelProductionAndRemoveThis: colony_storage
 
 # Colony screen: labor sliders
 FoodIsEatenByYour: colony_labor_sliders
@@ -91,6 +99,15 @@ OrbitalsExpenditurebudgetInByc: colony_governor
 OverrideThisBudgetAndSet: colony_governor
 OverrideGovernorDecisionsRegardingOrbital: colony_governor
 PlayerBuiltProtectedFromScrap: colony_governor
+CivilianBuildingsExpenditureInByc: colony_governor
+GroundDefenseBuildingsExpenditureIn: colony_governor
+OrbitalsExpenditureInByc: colony_governor
+BuildAPlatformTheStrongest: colony_governor
+BuildAStationTheStrongest: colony_governor
+BuildAShipyardOrbitingThis: colony_governor
+ManuallyAdjustTheNumberOf: colony_governor
+ManuallyAdjustTheNumberOf2: colony_governor
+ManuallyAdjustTheNumberOf3: colony_governor
 
 # Colony screen: blueprints
 ExclusiveBlueprintsTip: colony_blueprints
@@ -106,6 +123,7 @@ OutpostsCannotBeRemoved: colony_blueprints
 # Colony screen: garrison and ports
 TheGovernorWillCreateA: colony_garrison_and_ports
 PrioritizedPortTip: colony_garrison_and_ports
+GarrisonSizeEnsuresANumber: colony_garrison_and_ports
 
 # Automation window
 YourEmpireWillAutomaticallyManage: automation_exploration
@@ -129,8 +147,13 @@ DisableVolcanoActivationOrDeactivation: automation_alerts
 DisableCrashSiteAlertsTip: automation_alerts
 EnableStarvationWarningTip: automation_alerts
 
+# Budget screen
+TaxesAreCollectedFromYour: automation_research_and_taxes
+TreasuryGoalIsTheTarget: automation_research_and_taxes
+
 # Expansion
 ResearchStationCanBePlaced: expansion_deep_space_building
+ResearchStationCanBePlacedSystem: expansion_deep_space_building
 MiningStationsCanBePlaced: expansion_exotic_resources
 BuildDysonSwarmTip: expansion_dyson_swarm
 DysonSwarmProgressTip: expansion_dyson_swarm
@@ -141,16 +164,30 @@ KillDysonSwarmTip: expansion_dyson_swarm
 ThisTileCanBeTerraformed: expansion_terraforming
 ThisTileCanBeTerraformedHarder: expansion_terraforming
 AutoBuildTerraformersTip: expansion_terraforming
+ConstructionProgressTip: automation_construction
+IndicatesThatYourEmpireHas: expansion_colony_ships
+
+# Gravity wells: the ship info panel and the pathfinder option
+ThisShipIsInhibitedAnd: overview_map_overlays
+PathfinderTip: overview_map_overlays
 
 # Warfare
 IndicatesAShipsExperienceLevel2: warfare_ship_experience
 ThisShowsTheHangarStatus: warfare_fighter_bays
+IndicatesThatSpaceCombatIs: warfare_combat_basics
+IndicatesThatGroundCombatIs: warfare_ground_combat
+IndicatesThisTroopsExperienceLevel: warfare_ground_combat
+LandAllTroopsListedIn: warfare_ground_combat
+OrdersAllBombequippedShipsIn: warfare_ground_combat
 
 # Diplomacy
 ANonaggressionPactIsA: diplomacy_diplomacy_overview
 AnOpenBordersTreatyWill: diplomacy_diplomacy_overview
 PeaceTreatiesLastForTurns: diplomacy_diplomacy_overview
 AlliancesAreSeriousCommitmentsBetween: diplomacy_diplomacy_overview
+ThisIndicatesHowMuchA: diplomacy_diplomacy_overview
+ThisIndicatesHowAngryA: diplomacy_diplomacy_overview
+ThisIndicatesHowMuchA2: diplomacy_diplomacy_overview
 
 # Espionage, infiltration system
 EspioangeBudgetMuliplierTip: infiltration_levels
@@ -176,3 +213,6 @@ ResearchDisruptedByInfiltrationTip: infiltration_seven_operations
 # Espionage, legacy agents
 RecruitANewAgentTo: espionage_agents_overview
 IndicatesTheCounterespionageStrengthOf: espionage_agents_overview
+
+# Espionage, both systems plant moles
+IndicatesThatAFriendlyAgent: diplomacy_espionage

@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 247. Already hooked: 127.
+Tokens: 247. Already hooked: 159.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -35,7 +35,7 @@ Tokens: 247. Already hooked: 127.
 | 20 | `YourEmpireWillAutomaticallyManage3` | Your Empire will automatically manage taxes and treasury. | AutomationWindow.cs |  | automation_research_and_taxes |
 | 21 | `YourEmpireWillAutomaticallySelect` | Your Empire will automatically select technologies to research. | AutomationWindow.cs |  | automation_research_and_taxes |
 | 22 | `LoadPatrolTip` | Load Patrol Plan to this fleet. It will repalce any existing patrol plan. | ChoosePatrolPlanWindow.cs |  |  |
-| 23 | `ExoticResourceBonusTip` | Current bonus your empire gets per exotic resource with color coding: Gold: The maximum bonus was reached. Green: The bonus rate increased from last turn. Re... | ExoticBonusesWindow.cs |  |  |
+| 23 | `ExoticResourceBonusTip` | Current bonus your empire gets per exotic resource with color coding: Gold: The maximum bonus was reached. Green: The bonus rate increased from last turn. Re... | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
 | 24 | `ExoticResourceMaxRefineTip` | Maximum refining rate of the Exotic resource per turn. When more Mining Stations are added, the maximum rate is increased. | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
 | 25 | `ExoticResourceOpsTip` | Active Mining stations vs. total Mining stations vs. Mining stations being under construction / enroute to deployement. Mining Stations become inactive if th... | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
 | 26 | `ExoticResourceOutputTip` | Usage of the Empire's current Mining Ops. Usually the output becomes lower when storages are full and your Mining Station can refine more resources than are ... | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
@@ -71,25 +71,25 @@ Tokens: 247. Already hooked: 127.
 | 56 | `LocksThisSliderPreventingThe` | Locks this slider, preventing the assigned labor percentage from being altered directly or indirectly. | ColonyScreen/ColonySlider.cs |  | colony_labor_sliders |
 | 57 | `AchievableTip` | Maximum completion percent of Blueprints for current technology level. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
 | 58 | `BlueprintsSnapshotTip` | Create Blueprints from the current applicable buildings on this planet. It wont work if non of the current buildings can be inserted into Blueprints. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
-| 59 | `BuildAPlatformTheStrongest` | Build a Platform (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Platforms this planet already has... | ColonyScreen/GovernorDetailsComponent.cs |  |  |
-| 60 | `BuildAShipyardOrbitingThis` | Build a Shipyard orbiting this planet. The number in parentheses is the number of Shipyards this planet already has in orbit. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
-| 61 | `BuildAStationTheStrongest` | Build a Station (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Stations this planet already has i... | ColonyScreen/GovernorDetailsComponent.cs |  |  |
+| 59 | `BuildAPlatformTheStrongest` | Build a Platform (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Platforms this planet already has... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
+| 60 | `BuildAShipyardOrbitingThis` | Build a Shipyard orbiting this planet. The number in parentheses is the number of Shipyards this planet already has in orbit. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
+| 61 | `BuildAStationTheStrongest` | Build a Station (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Stations this planet already has i... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 62 | `ButtonBuildCapitalTip` | You can build a new capital here, since you do not have any capitals within your empire. If we retake our origin Homeworld, the capital will be removed from ... | ColonyScreen/GovernorDetailsComponent.cs |  |  |
-| 63 | `CivilianBuildingsExpenditureInByc` | Civilian Buildings Expenditure in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  |  |
+| 63 | `CivilianBuildingsExpenditureInByc` | Civilian Buildings Expenditure in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 64 | `CivilianBuildingsExpenditurebudgetInByc` | Civilian Buildings Expenditure/Budget in bc/y. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 65 | `ClearBluprintsTip` | Delete the current uploaded Blueprints and let the governor do what it thinks is the best. Not that if you change the Colony Type to Tradehub or remove the G... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
 | 66 | `CompletionTip` | Percentage of the blueprints completed. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
 | 67 | `EditBluprintsTip` | Make changes to the current loaded Blueprints. If you save the Blueprints after editing, it will update all Colonies with the same Blueprints. If you save in... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
-| 68 | `GarrisonSizeEnsuresANumber` | Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troo... | ColonyScreen/GovernorDetailsComponent.cs |  |  |
-| 69 | `GroundDefenseBuildingsExpenditureIn` | Ground Defense Buildings Expenditure in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  |  |
+| 68 | `GarrisonSizeEnsuresANumber` | Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troo... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_garrison_and_ports |
+| 69 | `GroundDefenseBuildingsExpenditureIn` | Ground Defense Buildings Expenditure in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 70 | `GroundDefenseBuildingsExpenditurebudgetIn` | Ground Defense Buildings Expenditure/Budget in BY/C. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap t... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 71 | `LaunchASingleRandomTroop` | Launch a single random troop from this planet to space. Note than you can launch any troop you want by left clicking on the troop icon in the grid below. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
 | 72 | `LaunchToSpaceAllTroops` | Launch to space all troops which can currently move (total number in parentheses) | ColonyScreen/GovernorDetailsComponent.cs<br>CombatScreen/CombatScreen.cs |  |  |
-| 73 | `ManuallyAdjustTheNumberOf` | Manually adjust the number of wanted Platforms for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
-| 74 | `ManuallyAdjustTheNumberOf2` | Manually adjust the number of wanted Shipyards for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
-| 75 | `ManuallyAdjustTheNumberOf3` | Manually adjust the number of wanted Stations for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
+| 73 | `ManuallyAdjustTheNumberOf` | Manually adjust the number of wanted Platforms for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
+| 74 | `ManuallyAdjustTheNumberOf2` | Manually adjust the number of wanted Shipyards for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
+| 75 | `ManuallyAdjustTheNumberOf3` | Manually adjust the number of wanted Stations for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 76 | `NormallyGovernorsOperateWithinA` | Normally, Governors operate within a budget limit which it tied to your empire's money and will start scrapping buildings if money becomes tight. Checking th... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
-| 77 | `OrbitalsExpenditureInByc` | Orbitals Expenditure in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  |  |
+| 77 | `OrbitalsExpenditureInByc` | Orbitals Expenditure in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 78 | `OrbitalsExpenditurebudgetInByc` | Orbitals Expenditure/Budget in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 79 | `OverrideGovernorDecisionsRegardingOrbital` | Override Governor decisions regarding Orbital limits. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 80 | `OverrideThisBudgetAndSet` | Override this budget and set your own. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
@@ -102,11 +102,11 @@ Tokens: 247. Already hooked: 127.
 | 87 | `TheGovernorWillManageGround` | The Governor will manage ground defense building based on an Empire Budget which is derived from the empire's treasury and the colony rank. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 88 | `TheRankOfTheColony` | The rank of the colony in regards to how many orbitals the Governor will build. The higher the rank, the more defense orbitals the Governor will try to build. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 89 | `UploadBluprintsTip` | Upload Colony Blueprints for the Governor to follow. Note that some Blueprints are configured to change the Colony Type. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
-| 90 | `LandAllTroopsListedIn` | Land all troops listed in the orbital assets. The number in parentheses is the actual number which can currently land on this planet (free space) | CombatScreen/CombatScreen.cs |  |  |
-| 91 | `OrdersAllBombequippedShipsIn` | Orders all bomb-equipped ships in the vicinity of this planet (Range 15000) to begin bombarding the planet. Or, if they are already bombarding the planet, to... | CombatScreen/CombatScreen.cs |  |  |
-| 92 | `ThisIndicatesHowAngryA` | This indicates how angry a race is with you. They will become angry if you attack them or make unreasonable demands of them. They may also be angry for befri... | DiplomacyScreen/DiplomacyScreen.cs |  |  |
-| 93 | `ThisIndicatesHowMuchA` | This indicates how much a race trusts you. Trust determines how much business a race is willing to do with you. You can earn trust in a number of ways, inclu... | DiplomacyScreen/DiplomacyScreen.cs |  |  |
-| 94 | `ThisIndicatesHowMuchA2` | This indicates how much your military is stronger than them (in their opinion). High threat might convince races to give concessions in trade that they may n... | DiplomacyScreen/DiplomacyScreen.cs |  |  |
+| 90 | `LandAllTroopsListedIn` | Land all troops listed in the orbital assets. The number in parentheses is the actual number which can currently land on this planet (free space) | CombatScreen/CombatScreen.cs |  | warfare_ground_combat |
+| 91 | `OrdersAllBombequippedShipsIn` | Orders all bomb-equipped ships in the vicinity of this planet (Range 15000) to begin bombarding the planet. Or, if they are already bombarding the planet, to... | CombatScreen/CombatScreen.cs |  | warfare_ground_combat |
+| 92 | `ThisIndicatesHowAngryA` | This indicates how angry a race is with you. They will become angry if you attack them or make unreasonable demands of them. They may also be angry for befri... | DiplomacyScreen/DiplomacyScreen.cs |  | diplomacy_diplomacy_overview |
+| 93 | `ThisIndicatesHowMuchA` | This indicates how much a race trusts you. Trust determines how much business a race is willing to do with you. You can earn trust in a number of ways, inclu... | DiplomacyScreen/DiplomacyScreen.cs |  | diplomacy_diplomacy_overview |
+| 94 | `ThisIndicatesHowMuchA2` | This indicates how much your military is stronger than them (in their opinion). High threat might convince races to give concessions in trade that they may n... | DiplomacyScreen/DiplomacyScreen.cs |  | diplomacy_diplomacy_overview |
 | 95 | `YouCurrentlyHaveAPeace` | You currently have a peace treaty with this empire and cannot declare war until it expires | DiplomacyScreen/DiplomacyScreen.cs |  |  |
 | 96 | `ANonaggressionPactIsA` | A Non-Aggression Pact is a mutual pledge to not attack one another. Entering into this pact will steadily improve your relations with the target empire. Brea... | DiplomacyScreen/ItemToOffer.cs |  | diplomacy_diplomacy_overview |
 | 97 | `AlliancesAreSeriousCommitmentsBetween` | Alliances are serious commitments between two or more empires. Alliance members will expect you to war upon their enemies and will become angry if you refuse... | DiplomacyScreen/ItemToOffer.cs |  | diplomacy_diplomacy_overview |
@@ -125,25 +125,25 @@ Tokens: 247. Already hooked: 127.
 | 110 | `DeterminesWhetherAShipPrefers` | Determines whether a ship prefers targets smaller, similar, or larger than itself | FleetDesign/FleetDesignScreen.cs |  |  |
 | 111 | `BuildAllShipsNowPrioritize` | build all ships now, prioritize them to be first in queue and apply continuous rush.   WARNING: This might drain your Treasury in an alarming rate. | FleetDesign/RequisitionScreen.cs |  |  |
 | 112 | `IfCheckedEveryTimeA` | If checked, every time a ship in the fleet is destroyed, a new one will be created to fill the lines. The ship must be able to be built by your empire. | FleetDesign/RequisitionScreen.cs |  |  |
-| 113 | `EspionageOpsAllowScanShipsTip` | We can permenantly view ship internals of this Empire (Tab key). This Ability will never be lost, even if the entire spy network is lost. | Infiltration/InfiltrationOpsLevel1.cs |  | infiltration_level_rewards |
+| 113 | `EspionageOpsAllowScanShipsTip` | We can permanently view ship internals of this Empire through the module grid button on the ship info panel. This Ability will never be lost, even if the ent... | Infiltration/InfiltrationOpsLevel1.cs |  | infiltration_level_rewards |
 | 114 | `EspionageOpsProjectorsAlertTip` | Subspace Projectors are able to alert us if this Empire's fleets are heading to our colonies by calculating their attack vectors. | Infiltration/InfiltrationOpsLevel2.cs |  | infiltration_level_rewards |
 | 115 | `PlantAgentTip` | Plant an Agent in one of their colonies. We will be able to view their colony sensor range and have access to their colony screen. | Infiltration/InfiltrationOpsLevel2.cs |  | infiltration_seven_operations |
 | 116 | `ArrangeUpriseTip` | Send some Agents to arrange an uprise in one of their worlds, potentially destroying production, food and/or key buildings. | Infiltration/InfiltrationOpsLevel3.cs |  | infiltration_seven_operations |
 | 117 | `CounterEspioangeOpsTip` | The Counter-Espionage operation will use our spy network active resources in order to intercept their spy network and eliminate moles by bribing and using do... | Infiltration/InfiltrationOpsLevel3.cs |  | infiltration_seven_operations |
 | 118 | `EspioangeHomeworldMoleTip` | Planet a Mole at the target's homeworld, allowing us to see their colony details and sensors. This mole cannot be removed by their counter-espionage. | Infiltration/InfiltrationOpsLevel3.cs |  | infiltration_level_rewards |
 | 119 | `EspioangeOpsLeechTechTip` | When they research a new tech that we do not have, we get 10% of that tech. | Infiltration/InfiltrationOpsLevel4.cs |  | infiltration_level_rewards |
-| 120 | `EspioangeOpsSabotageTip` | Sabotage Operations will disrupt a colony production for a period of time, and can also destory Research Labs or Mining Stations if they exist. | Infiltration/InfiltrationOpsLevel4.cs |  | infiltration_seven_operations |
+| 120 | `EspioangeOpsSabotageTip` | Sabotage Operations will cripple one of their most productive colonies for a period of time, halting everything it builds. | Infiltration/InfiltrationOpsLevel4.cs |  | infiltration_seven_operations |
 | 121 | `EspioangeOpsSlowResearchTip` | Research Disruption Ops will slow their research by 10% per turn at start, but the chance to slow their research will be reduced per turn until we complete t... | Infiltration/InfiltrationOpsLevel4.cs |  | infiltration_seven_operations |
 | 122 | `EspioangeOpsDisruptProjectionTip` | Hack their Subspace Projection network and disatabilize it for a period of time where it will flicker until they manage to stabilize it. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_seven_operations |
 | 123 | `EspioangeOpsLeechIncomeTip` | We steal 2% of their income per turn. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_level_rewards |
-| 124 | `EspioangeOpsRebellionTip` | Try to incite rebellion in one of their more advanced colonies. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_seven_operations |
+| 124 | `EspioangeOpsRebellionTip` | Try to incite rebellion in one of their least populated colonies. Rebel troops land there and its orbital stations may defect. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_seven_operations |
 | 125 | `EspionageTotalMoneyLeechedTip` | Total credits leeched from this empire since infiltration reached Level 5. The per-turn amount is shown under 'Money Leeched' on the Budget screen. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_level_rewards |
 | 126 | `ThisWillLetYouEasily` | This will let you easily export specific save to help the developers investigate issues. You will see the export button in the save/load screen. | LoadSaveItems/GenericLoadSaveScreen.cs |  |  |
 | 127 | `AddNotificationsRegardingEnemiesIn` | Add Notifications regarding enemies in your systems after you load a game, to remind you which systems are under attack. | MainMenu/OptionsScreen.cs |  |  |
 | 128 | `ChangesTheSimulationFrequencyLower` |  Changes the simulation frequency. Lower values are faster, but inaccurate. Higher values are accurate, but slower. If your game is lagging due to high numbe... | MainMenu/OptionsScreen.cs |  |  |
 | 129 | `DisableScreenPanningOptionTip` | Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on... | MainMenu/OptionsScreen.cs |  |  |
 | 130 | `GameOptionsInfluenceAlphaTip` | Adjusts the empires' border color strength in the Universe Screen. You can change it if the border colors get too bright for you, especially late game. | MainMenu/OptionsScreen.cs |  |  |
-| 131 | `PathfinderTip` | When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ... | MainMenu/OptionsScreen.cs |  |  |
+| 131 | `PathfinderTip` | When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ... | MainMenu/OptionsScreen.cs |  | overview_map_overlays |
 | 132 | `PausesGameOnNotificationsClearing` | Pauses game on notifications. Clearing notifications unpauses the game. | MainMenu/OptionsScreen.cs |  |  |
 | 133 | `SendAutomaticErrorReportsTo` | Send automatic error reports to Blackbox developers. | MainMenu/OptionsScreen.cs |  |  |
 | 134 | `TT_EngineTrails` | This will enable engine trails for moving ships, disabling this will improve performance | MainMenu/OptionsScreen.cs |  |  |
@@ -185,10 +185,10 @@ Tokens: 247. Already hooked: 127.
 | 170 | `WhenToggledRedAnyModule` | When Toggled (Red), any module you mark as obsolete will not be shown in the module lists. When not toggled, obsolete modules names would be shown, but would... | ShipDesign/ShipDesignScreen.cs |  |  |
 | 171 | `YouCanSwitchFromNormal` | You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible... | ShipDesign/ShipDesignScreen.cs |  |  |
 | 172 | `TogglesTheWeaponFireArc` | Toggles the weapon fire arc and shield protection radius display on or off for this ship. Hotkey: TAB | ShipDesign/ShipDesignScreenInput.cs |  |  |
-| 173 | `TaxesAreCollectedFromYour` | Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For in... | Universe/BudgetScreen.cs |  |  |
-| 174 | `TreasuryGoalIsTheTarget` | Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 ... | Universe/BudgetScreen.cs |  |  |
-| 175 | `CancelProductionAndRemoveThis` | Cancel production and remove this item from the construction queue. 50% of the production spent will be returned to the colony's storage, however, there will... | Universe/ColoniesListItem.cs |  |  |
-| 176 | `ClickToRushProductionFrom` | Click to rush production from this colony's storage.   A single click will apply 10 production from storage to current production.   CTRL-Click to add as muc... | Universe/ColoniesListItem.cs |  |  |
+| 173 | `TaxesAreCollectedFromYour` | Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For in... | Universe/BudgetScreen.cs |  | automation_research_and_taxes |
+| 174 | `TreasuryGoalIsTheTarget` | Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 ... | Universe/BudgetScreen.cs |  | automation_research_and_taxes |
+| 175 | `CancelProductionAndRemoveThis` | Cancel production and remove this item from the construction queue. 50% of the production spent will be returned to the colony's storage, however, there will... | Universe/ColoniesListItem.cs |  | colony_storage |
+| 176 | `ClickToRushProductionFrom` | Click to rush production from this colony's storage.   A single click will apply 10 production from storage to current production.   CTRL-Click to add as muc... | Universe/ColoniesListItem.cs |  | colony_storage |
 | 177 | `YourPeopleAreCyberneticAnd` | Your people are cybernetic and have no use for organic food. | Universe/ColoniesListItem.cs |  | colony_labor_sliders |
 | 178 | `ShowOnlyShipsWhichAre` | Show only ships which are assigned to Fleets | Universe/ShipListScreen.cs |  |  |
 | 179 | `ShowOnlyShipsWhichAre2` | Show only ships which are not assigned to Fleets | Universe/ShipListScreen.cs |  |  |
@@ -201,16 +201,16 @@ Tokens: 247. Already hooked: 127.
 | 186 | `OpensAMenuAllowingYou` | Opens a menu allowing you to choose from a list of available designs that can also fit this ship's hull. The refit cost is a minimum of 10 production plus th... | ShipListScreenItem.cs |  |  |
 | 187 | `OrdersTheShipToReturn` | Orders the ship to return to the nearest shipyard to be dismantled. The planet where the ship is dismantled will have a portion of the ship's original produc... | ShipListScreenItem.cs |  |  |
 | 188 | `OrdersThisShipToExplore` | Orders this ship to explore the galaxy | ShipListScreenItem.cs |  |  |
-| 189 | `ConstructionProgressTip` | Amount of Completed Consturction. The contructor adds construction every turn and if the structure position in in a friendly system, the colonies will launch... | Ships/ShipInfoUIElement.cs |  |  |
+| 189 | `ConstructionProgressTip` | Amount of completed construction. The constructor adds construction every turn, and if the structure sits in a system where you or an ally hold colonies, tho... | Ships/ShipInfoUIElement.cs |  | automation_construction |
 | 190 | `EmpOverloadShipIsDisabled` | EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload. | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |
 | 191 | `IndicatesAShipsExperienceLevel2` | Indicates a ship's experience level. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage. | Ships/ShipInfoUIElement.cs |  | warfare_ship_experience |
 | 192 | `IndicatesThisShipsCurrentBonus` | Indicates this ship's current bonus or penalty to damage from the Pack Mentality trait | Ships/ShipInfoUIElement.cs |  |  |
 | 193 | `StructuralIntegrityOfTheShip` | Structural Integrity of the ship reflecting internal damage. If this reaches 0%, the ship will be immediately destroyed. | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |
-| 194 | `ThisShipIsInhibitedAnd` | This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automat... | Ships/ShipInfoUIElement.cs |  |  |
+| 194 | `ThisShipIsInhibitedAnd` | This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automat... | Ships/ShipInfoUIElement.cs |  | overview_map_overlays |
 | 195 | `ThisShowsTheHangarStatus` | This shows the hangar status of the ship. Green is the number of ships currently launched, White is the number of ships ready to launch and Red is the number... | Ships/ShipInfoUIElement.cs |  | warfare_fighter_bays |
 | 196 | `ToggleTheModuleGridOverlay` | Toggle the module grid overlay on or off | Ships/ShipInfoUIElement.cs |  |  |
 | 197 | `ResearchUnlocksMoreThanFourItems` | This Technology unlocks more than 4 items. Right Click on the title to Expand | TreeNode.cs |  |  |
-| 198 | `IndicatesThisTroopsExperienceLevel` | Indicates this troop's experience level. For each level of experience, a troop gains a 10% bonus to its base attack statistics and evade planetary bombardment. | Troops/TroopInfoUIElement.cs |  |  |
+| 198 | `IndicatesThisTroopsExperienceLevel` | Indicates this troop's experience level, from 0 to 10. Each level adds 5% to its base attack values and 1 to its maximum strength, and takes 4 points off a b... | Troops/TroopInfoUIElement.cs |  | warfare_ground_combat |
 | 199 | `LaunchThisTroopIntoOrbit` | Launch this troop into orbit | Troops/TroopInfoUIElement.cs |  |  |
 | 200 | `CurrentResearch` | Current Research | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
 | 201 | `EconomicOverview2` | Economic Overview | Universe/EmpireUIOverlay.cs |  |  |
@@ -236,9 +236,9 @@ Tokens: 247. Already hooked: 127.
 | 221 | `WeaponsRangeOverlayVisualisesShips` | Weapons Range Overlay: visualizes ships' maximum weapon range. When a ship is selected, you will see green circles with Yellow, Orange and Red borders (short... | Universe/MiniMap.cs |  | overview_map_overlays |
 | 222 | `ZoomOutToTheGalaxy` | Zoom out to the galaxy view | Universe/MiniMap.cs |  |  |
 | 223 | `ZoomsToYourCurrentlySelected` | Zooms to your currently selected ship | Universe/MiniMap.cs |  |  |
-| 224 | `CannotBuildMiningStationTip` | You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  |  |
+| 224 | `CannotBuildMiningStationTip` | You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | expansion_exotic_resources |
 | 225 | `IndicatesThatHostileForcesWere` | Indicates that hostile forces were recently spotted in this system | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
-| 226 | `PlanetTypeAndRichnessThe` | Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's su... | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 226 | `PlanetTypeAndRichnessThe` | Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's su... | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs |  | economy_planetary_qualities |
 | 227 | `ResearchPointsAreAddedInto` | Research points are added into an empire-wide pool where they are applied towards the top item in your research queue.   | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | colony_labor_sliders |
 | 228 | `LockedRightClickToRemove` | This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
 | 229 | `OutpostsCannotBeRemoved` | The Outpost cannot be removed from the Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
@@ -247,16 +247,16 @@ Tokens: 247. Already hooked: 127.
 | 232 | `OpensColonyOverviewScreen` | Opens colony overview screen | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
 | 233 | `ViewPlanetDetails` | View Planet Details | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
 | 234 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs |  |  |
-| 235 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 236 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 235 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | diplomacy_espionage |
+| 236 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | warfare_ground_combat |
 | 237 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
 | 238 | `SendAvailableTroopsToThis` | Send available troops to this planet. Any available troop transports in space can be sent. Troops from your your nearest colony will be sent to this planet p... | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
 | 239 | `IndicatesThatAnAnomalyWas` | Indicates that an anomaly was detected on the surface of this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  |  |
-| 240 | `IndicatesThatYourEmpireHas` | Indicates that your empire has a mission underway to colonize this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  |  |
+| 240 | `IndicatesThatYourEmpireHas` | Indicates that your empire has a mission underway to colonize this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_colony_ships |
 | 241 | `MiningStationsCanBePlaced` | Indicates that Mining Stations can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_exotic_resources |
 | 242 | `MiningStationsOpsOwned` | Mining Station operations here are owned by this empire | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_exotic_resources |
 | 243 | `ResearchStationCanBePlaced` | Indicates that a Research Station can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_deep_space_building |
-| 244 | `MineableRichnessTip` | Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace mig... | Universe/SolarBodies/UnownedPlanetScreen.cs |  |  |
+| 244 | `MineableRichnessTip` | Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace mig... | Universe/SolarBodies/UnownedPlanetScreen.cs |  | expansion_exotic_resources |
 | 245 | `IndicatesThatAnAnomalyHas` | Indicates that an anomaly has been detected on a planet within this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
-| 246 | `IndicatesThatSpaceCombatIs` | Indicates that space combat is occurring in this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
-| 247 | `ResearchStationCanBePlacedSystem` | Indicates that a Research Station can be deployed in this system to research it's Star. | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
+| 246 | `IndicatesThatSpaceCombatIs` | Indicates that space combat is occurring in this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  | warfare_combat_basics |
+| 247 | `ResearchStationCanBePlacedSystem` | Indicates that a Research Station can be deployed in this system to research it's Star. | Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_deep_space_building |

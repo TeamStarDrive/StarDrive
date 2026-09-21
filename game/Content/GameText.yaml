@@ -9890,11 +9890,7 @@ YouHaveUnsavedChangesSave:
  PTB: "Você tem alterações não salvas. Salvar este projeto antes de sair?"
 IndicatesThisTroopsExperienceLevel:
  Id: 2138
- ENG: "Indicates this troop's experience level. For each level of experience, a troop gains a 10% bonus to its base attack statistics and evade planetary bombardment."
- RUS: "Указывает уровень опыта этого отряда. За каждый уровень опыта отряд получает 10% бонус к базовым параметрам атаки."
- SPA: "Indica el nivel de experiencia de esta tropa. Por cada nivel de experiencia, una tropa suma una bonificación del 10% a sus estadísticas de ataque básico."
- UKR: "Показує рівень досвіду цього війська. За кожен рівень досвіду військо отримує 10% бонус до статистики атак та ухилення від планетарного бомбардування."
- PTB: "Indica o nível de experiência desta tropa. Para cada nível de experiência, uma tropa ganha um bônus de 10% em suas estatísticas básicas de ataque e em evasão a bombardeio planetário."
+ ENG: "Indicates this troop's experience level, from 0 to 10. Each level adds 5% to its base attack values and 1 to its maximum strength, and takes 4 points off a bomb's 50% chance to hit it. Every second level takes a second off its move and attack timers, and from level 5 its range grows by 1."
 Difficulty:
  Id: 2139
  ENG: "Difficulty"
@@ -14969,7 +14965,7 @@ DisableAlternateTraitsTip:
  PTB: "Desativa a capacidade de criar conjuntos alternativos de traços para impérios da IA. Os impérios da IA começarão com os traços que você vê ao alternar as raças na Tela de Criação de Raça. Usar conjuntos alternativos de traços da IA criará impérios ligeiramente diferentes a cada nova partida, aumentando a rejogabilidade."
 ConstructionProgressTip:
  Id: 4443
- ENG: "Amount of Completed Consturction. The contructor adds construction every turn and if the structure position in in a friendly system, the colonies will launch builder ships to aid the construction efforts. The builder ships do not require more production." 
+ ENG: "Amount of completed construction. The constructor adds construction every turn, and if the structure sits in a system where you or an ally hold colonies, those colonies launch builder ships to help. Builder ships cost no extra production."
  UKR: "Кількість завершеного будівництва. Будівельник додає будівництво кожного ходу, і якщо структура знаходиться в дружній системі, колонії запускають кораблі будівельників, щоб допомогти в будівництві. Кораблі-будівельники не потребують додаткового виробництва."
  PTB: "Quantidade de Construção Concluída. O construtor adiciona construção a cada turno e, se a posição da estrutura estiver em um sistema amigo, as colônias lançarão naves construtoras para ajudar nos esforços de construção. As naves construtoras não exigem mais produção."
 AutoPickConstructorsName:
@@ -22419,7 +22415,7 @@ CodexColonyStorageShort:
  ENG: "How much a colony can hold, and what the stores are used for"
 CodexColonyStorageText:
  Id: 100137
- ENG: "<color=Caption>Where capacity comes from</color>Every colony keeps a store of food and a store of production, and both share one capacity. That capacity is the sum of the storage each building adds, and never less than 10. A fresh colony with no storage buildings holds 10 of each, which is why its first few units matter so much and why the game keeps them at home until the colony has grown.\n\n<color=Caption>The food store</color>Whatever food is left after the colonists have eaten goes into the store. When the colony eats more than it grows, the store covers the difference, and nobody starves until it is empty. Cybernetic races keep the same arrangement with production instead of food.\n\n<color=Caption>The production store</color>The build queue draws on each turn's production and, depending on the trade state, on part of the store. Stored production can also be spent at once to rush an item in the queue.\n<li>Rushing costs credits as well: a fee on every unit of production rushed, whatever the item. Ships and military items also cost credits on ordinary production, rushed or not.</li>\n<li>A colony cannot rush while it is crippled or fighting on the ground.</li>\n\n<color=Caption>Why the fill level matters</color>The ratio of stored to capacity, shown by the bars on the colony screen, is what the governor reads when it decides whether the colony imports, exports or holds each good. Exports are lifted from the store, and imports fill it to the top."
+ ENG: "<color=Caption>Where capacity comes from</color>Every colony keeps a store of food and a store of production, and both share one capacity. That capacity is the sum of the storage each building adds, and never less than 10. A fresh colony with no storage buildings holds 10 of each, which is why its first few units matter so much and why the game keeps them at home until the colony has grown.\n\n<color=Caption>The food store</color>Whatever food is left after the colonists have eaten goes into the store. When the colony eats more than it grows, the store covers the difference, and nobody starves until it is empty. Cybernetic races keep the same arrangement with production instead of food.\n\n<color=Caption>The production store</color>The build queue draws on each turn's production and, depending on the trade state, on part of the store. Stored production can also be spent at once to rush an item in the queue.\n<li>Rushing costs credits as well: a fee on every unit of production rushed, whatever the item. Ships and military items also cost credits on ordinary production, rushed or not.</li>\n<li>A colony cannot rush while it is crippled or fighting on the ground.</li>\n<li>Cancelling an item returns half the production spent on it to the store. The credits it cost are not returned.</li>\n\n<color=Caption>Why the fill level matters</color>The ratio of stored to capacity, shown by the bars on the colony screen, is what the governor reads when it decides whether the colony imports, exports or holds each good. Exports are lifted from the store, and imports fill it to the top."
 CodexColonyLaborSliders:
  Id: 100138
  ENG: "Labor Sliders"
