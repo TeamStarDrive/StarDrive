@@ -223,28 +223,7 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
 
             if (IsHeader)
-            {
-                int width = Math.Min(HeaderMaxWidth, (int)Width);
-                var r = new Rectangle((int)X, (int)Y+4, width, (int)Height - 10);
-
-                if (HeaderText != null)
-                {
-                    Color bkgColor = !Enabled ? Color.Gray
-                                    : Hovered ? new Color(95, 82, 47)
-                                    : new Color(32, 30, 18);
-                    new Selector(r, bkgColor).Draw(batch, elapsed);
-
-                    var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
-                    batch.DrawString(Fonts.Pirulen12, HeaderText, textPos, Color.White);
-                }
-
-                if (SubEntries != null && SubEntries.NotEmpty)
-                {
-                    string open = Expanded ? "-" : "+";
-                    var textPos = new Vector2(r.Right - 26, r.CenterY() - Fonts.Arial20Bold.LineSpacing / 2 - 2);
-                    batch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
-                }
-            }
+                DrawHeader(batch, elapsed);
 
             if (DynamicElements != null)
             {
@@ -252,6 +231,36 @@ namespace Ship_Game
                 {
                     DynamicElements[i].Draw(batch);
                 }
+            }
+        }
+
+        protected virtual void DrawHeader(SpriteBatch batch, DrawTimes elapsed)
+        {
+            int width = Math.Min(HeaderMaxWidth, (int)Width);
+            var r = new Rectangle((int)X, (int)Y+4, width, (int)Height - 10);
+
+            if (HeaderText != null)
+            {
+                new Selector(r, HeaderBackground).Draw(batch, elapsed);
+
+                var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
+                batch.DrawString(Fonts.Pirulen12, HeaderText, textPos, Color.White);
+            }
+
+            DrawExpandMarker(batch, r);
+        }
+
+        protected Color HeaderBackground => !Enabled ? Color.Gray
+                                          : Hovered ? new Color(95, 82, 47)
+                                          : new Color(32, 30, 18);
+
+        protected void DrawExpandMarker(SpriteBatch batch, in Rectangle header)
+        {
+            if (SubEntries != null && SubEntries.NotEmpty)
+            {
+                string open = Expanded ? "-" : "+";
+                var textPos = new Vector2(header.Right - 26, header.CenterY() - Fonts.Arial20Bold.LineSpacing / 2 - 2);
+                batch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
             }
         }
     }

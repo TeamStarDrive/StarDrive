@@ -30,6 +30,7 @@ namespace Ship_Game
         public static float DefaultWidth => GameBase.ScreenManager.ScreenCenter.Y >= 720 ? 300 : 200;
 
         static readonly Array<TipItem> ActiveTips = new();
+        static TipItem LastHovered;
 
         public static void ShipYardArcTip()
             // Snap-modifier text differs by AltArcControl mode: in default
@@ -56,7 +57,7 @@ namespace Ship_Game
         /// <param name="position">Position hint, otherwise cursor will be used</param>
         /// <param name="minShowTime">Minimum time to show this Tooltip, regardless of being hovered</param>
         /// <param name="maxWidth">Maximum width for the tooltip</param>
-        /// <param name="codexUid">Optional Codex UID; if set, the tooltip shows a "Press F1 for details" hint and F1 deep-links to that entry.</param>
+        /// <param name="codexUid">Codex UID override; normally left null so the tip is looked up in CodexHooks.yaml by its token. When set, the tooltip shows a "Press F1 for details" hint and F1 deep-links to that entry.</param>
         public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position,
                                          float minShowTime = 0, float maxWidth = 0, string codexUid = null)
         {
@@ -67,6 +68,8 @@ namespace Ship_Game
                 return;
             }
 
+            codexUid ??= Codex.CodexHooks.Find(tip);
+
             TipItem tipItem = ActiveTips.Find(t => t.RawText == rawText);
             if (tipItem != null)
             {
@@ -74,6 +77,7 @@ namespace Ship_Game
                 // Update the codex hook on every hover frame — the hovered
                 // UI element decides the current target, not the cached tip.
                 tipItem.CodexUid = codexUid;
+                LastHovered = tipItem;
                 return;
             }
 
@@ -83,6 +87,7 @@ namespace Ship_Game
             var font = GetTipFont;
             tipItem = new(minShowTime);
             ActiveTips.Add(tipItem);
+            LastHovered = tipItem;
 
             tipItem.RawText = rawText;
             tipItem.Text = font.ParseText(rawText, maxWidth);
@@ -113,12 +118,13 @@ namespace Ship_Game
         public static void CreateTooltip(in LocalizedText tip, float maxWidth = 0, string codexUid = null)
             => CreateTooltip(tip, "", null, maxWidth: maxWidth, codexUid: codexUid);
 
-        // Returns the codex UID of the currently-hovered tooltip, if any has one.
-        // Used by the F1 hotkey handler to deep-link into CodexScreen.
         public static string GetActiveCodexUid()
         {
+            TipItem last = LastHovered;
+            if (last != null && (last.HoveredThisFrame || last.HoveredLastFrame) && last.CodexUid != null)
+                return last.CodexUid;
             foreach (TipItem t in ActiveTips)
-                if (t.HoveredThisFrame && t.CodexUid != null)
+                if ((t.HoveredThisFrame || t.HoveredLastFrame) && t.CodexUid != null)
                     return t.CodexUid;
             return null;
         }
@@ -127,6 +133,7 @@ namespace Ship_Game
         public static void Clear()
         {
             ActiveTips.Clear();
+            LastHovered = null;
         }
 
         class TipItem
@@ -137,6 +144,7 @@ namespace Ship_Game
             public string CodexUid;
             public Rectangle Rect;
             public bool HoveredThisFrame = true;
+            public bool HoveredLastFrame;
             float MinShowTime; // Let the tip show regardless of being hovered on
             readonly Font TipFont;
 
@@ -153,6 +161,7 @@ namespace Ship_Game
             public bool Update(float deltaTime)
             {
                 bool hovered = HoveredThisFrame;
+                HoveredLastFrame = hovered;
                 if (MinShowTime <= 0f) HoveredThisFrame = false;
                 MinShowTime -= deltaTime;
 
@@ -221,7 +230,7 @@ namespace Ship_Game
                     var hintPos = textPos;
                     hintPos.Y += textSize.Y + 2;
                     batch.DrawString(TipFont, Localizer.Token("CodexPressF1ForDetails"),
-                        hintPos, new Color(Color.Gold, (byte)alpha));
+                        hintPos, new Color(Color.Gold, (byte)alpha).Premultiplied());
                 }
             }
         }
@@ -242,6 +251,8 @@ namespace Ship_Game
                 else // tip died
                 {
                     ActiveTips.Remove(tipItem);
+                    if (LastHovered == tipItem)
+                        LastHovered = null;
                 }
             }
             batch.SafeEnd();

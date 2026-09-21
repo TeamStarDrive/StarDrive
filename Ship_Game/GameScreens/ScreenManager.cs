@@ -199,9 +199,12 @@ namespace Ship_Game
             }
             
             // @todo What is this hack doing here? It appears to prohibit new popups while DiplomacyScreen is visible
-            foreach (GameScreen gs in GameScreens)
-                if (gs is DiplomacyScreen)
-                    return;
+            if (screen is not Codex.CodexScreen)
+            {
+                foreach (GameScreen gs in GameScreens)
+                    if (gs is DiplomacyScreen)
+                        return;
+            }
 
             GameScreens.Add(screen);
 
@@ -751,6 +754,17 @@ namespace Ship_Game
             GameAudio.StopGenericMusic(fadeout: true);
             CurrentMusic = null;
         }
+        void OpenCodexAt(string uid)
+        {
+            if (uid == null)
+                return;
+
+            GameAudio.TacticalPause();
+            var codex = new Codex.CodexScreen(Current);
+            codex.OpenAt(uid);
+            AddScreen(codex);
+        }
+
         public void Update(UpdateTimes elapsed)
         {
             PerformHotLoadTasks(elapsed);
@@ -760,6 +774,12 @@ namespace Ship_Game
             bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
             bool coveredByOtherScreen = false;
             bool inputCaptured = false;
+
+            if (!otherScreenHasFocus && input.CodexHelp && GameScreens.NotEmpty
+                && Current is not Codex.CodexScreen)
+            {
+                OpenCodexAt(ToolTip.GetActiveCodexUid());
+            }
             
             Array<GameScreen> frontToBack = new(); // valid screens ordered from topmost to back
             Array<GameScreen> backToFront = new();

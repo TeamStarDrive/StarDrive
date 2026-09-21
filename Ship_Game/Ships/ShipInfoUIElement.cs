@@ -473,7 +473,7 @@ namespace Ship_Game.Ships
                 CarrierBays.HangarInfo currentHangarStatus = ship.Carrier.GrossHangarStatus;
                 var hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
                 if (hangarRect.HitTest(mousePos))
-                    ToolTip.CreateTooltip(Localizer.Token(GameText.ThisShowsTheHangarStatus));
+                    ToolTip.CreateTooltip(GameText.ThisShowsTheHangarStatus);
 
                 var hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);

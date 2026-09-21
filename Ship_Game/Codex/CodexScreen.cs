@@ -3,7 +3,6 @@ using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
-using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens;
 using Vector2 = SDGraphics.Vector2;
 
@@ -43,14 +42,8 @@ namespace Ship_Game.Codex
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
 
-            var file = ResourceManager.GetModOrVanillaFile("Codex.yaml");
-            Roots = file != null && file.Exists
-                ? YamlParser.DeserializeArray<CodexEntry>(file)
-                : new Array<CodexEntry>();
-            // YamlParser doesn't fire [StarDataDeserialized] hooks, so trigger
-            // the UID-driven NameId derivation here explicitly.
-            foreach (CodexEntry root in Roots)
-                root.ResolveDefaults();
+            Roots = CodexEntry.LoadAll();
+            CodexHooks.Reload(Roots);
 
             TitleText = Localizer.Token("CodexTitle");
         }
@@ -101,7 +94,7 @@ namespace Ship_Game.Codex
             // UID map alongside the ScrollList so stale references can't leak in.
             ItemByUid.Clear();
             foreach (CodexEntry root in Roots)
-                AddCategoryRecursive(parent: null, root);
+                AddCategoryRecursive(parent: null, root, depth: 0);
 
             CategoryList.OnClick = OnCategoryClicked;
 
@@ -116,9 +109,12 @@ namespace Ship_Game.Codex
         // Build the ScrollList tree from CodexEntry.Children. Arbitrary depth: each
         // entry with children becomes an expandable header; leaves render Title +
         // ShortDesc directly.
-        void AddCategoryRecursive(CodexCategoryListItem parent, CodexEntry entry)
+        void AddCategoryRecursive(CodexCategoryListItem parent, CodexEntry entry, int depth)
         {
-            var item = new CodexCategoryListItem(entry);
+            if (entry.Hidden)
+                return;
+
+            var item = new CodexCategoryListItem(entry, depth);
             if (parent == null)
                 CategoryList.AddItem(item);
             else
@@ -130,7 +126,7 @@ namespace Ship_Game.Codex
             if (entry.Children != null)
             {
                 foreach (CodexEntry child in entry.Children)
-                    AddCategoryRecursive(item, child);
+                    AddCategoryRecursive(item, child, depth + 1);
             }
         }
 
@@ -143,9 +139,7 @@ namespace Ship_Game.Codex
 
         void OnCategoryClicked(CodexCategoryListItem item)
         {
-            // A bare category header has children but no body of its own — clear video
-            // and leave the previous selection intact.
-            if (item.IsHeader)
+            if (item.IsHeader && !(item.Entry?.HasBody ?? false))
             {
                 Player?.Stop();
                 if (Player != null) Player.Visible = false;
@@ -154,6 +148,7 @@ namespace Ship_Game.Codex
 
             SelectEntry(item.Entry);
         }
+
 
         void SelectEntry(CodexEntry entry)
         {

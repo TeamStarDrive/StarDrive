@@ -80,7 +80,12 @@ namespace Ship_Game.Commands.Goals
             {
                 StationToBuild = !Owner.isPlayer || Owner.AutoPickBestMiningStation
                     ? ShipBuilder.PickMiningStation(Owner)
-                    : ResourceManager.Ships.GetDesign(Owner.data.MiningStation, throwIfError: true);
+                    : ShipBuilder.StationDesignOrNull(Owner.data.MiningStation);
+                if (StationToBuild == null)
+                {
+                    Log.Warning($"{Owner.Name}: no mining station design to build, the automation window names '{Owner.data.MiningStation}'");
+                    return GoalStep.GoalFailed;
+                }
             }
 
             Owner.AddInProgressMiningsStation(ExoticBonusType);
@@ -240,7 +245,7 @@ namespace Ship_Game.Commands.Goals
                 && Owner.NeedMoreMiningOpsOfThis(ExoticBonusType)
                 && !Owner.AI.HasGoal(g => g is RefitOrbital && g.ToBuild.IsMiningStation && g.OldShip == MiningStation))
             {
-                betterStation = ResourceManager.Ships.GetDesign(bestRefit);
+                betterStation = ShipBuilder.StationDesignOrNull(bestRefit);
             }
 
             return betterStation != null;

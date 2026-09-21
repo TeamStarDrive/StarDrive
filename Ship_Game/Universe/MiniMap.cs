@@ -462,7 +462,6 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(GameText.OpensExoticPlanetsPanel, "G");
 
             if (GravityWells.Rect.HitTest(input.CursorPosition))
-                // TODO: phase 5 — wire up a dedicated FTL-overlay codex entry, then re-add codexUid here.
                 ToolTip.CreateTooltip(GameText.FtlOverlayVisualisesSubspaceProjection, "F2");
 
             if (RangeOverley.Rect.HitTest(input.CursorPosition))
@@ -477,7 +476,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(GameText.EmpirePatrolsScreenTip, "P");
 
             if (ImportantEvents.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip("Opens the Important Events log");
+                ToolTip.CreateTooltip(GameText.OpensTheImportantEventsLog);
 
             if (ExoticBonuses.Rect.HitTest(input.CursorPosition))
             {

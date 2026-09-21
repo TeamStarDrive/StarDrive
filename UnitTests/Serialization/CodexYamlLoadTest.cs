@@ -27,6 +27,7 @@ namespace UnitTests.Serialization
       Link: ""https://example.com""
 -
   UID: tutorials
+  Hidden: true
   Children:
     -
       UID: tutorials_overview
@@ -43,7 +44,37 @@ namespace UnitTests.Serialization
             AssertEqual("blackbox_test_download_link", entries[0].Children[1].UID);
             AssertEqual("https://example.com", entries[0].Children[1].Link);
             AssertEqual("tutorials", entries[1].UID);
+            Assert.IsFalse(entries[0].Hidden);
+            Assert.IsTrue(entries[1].Hidden);
             AssertEqual("some video", entries[1].Children[0].VideoPath);
+        }
+
+        [TestMethod]
+        public void DashOnOwnLine_DeserializesGrandchildren()
+        {
+            const string yaml = @"-
+  UID: warfare
+  Children:
+    -
+      UID: warfare_weapons
+      Children:
+        -
+          UID: warfare_ordnance
+        -
+          UID: warfare_point_defense
+    -
+      UID: warfare_ship_design
+";
+            using var parser = new YamlParser("test", new StringReader(yaml));
+            Array<CodexEntry> entries = parser.DeserializeArray<CodexEntry>();
+
+            CodexEntry weapons = entries[0].Children[0];
+            AssertEqual("warfare_weapons", weapons.UID);
+            Assert.IsNotNull(weapons.Children, "second-level Children must survive parsing");
+            AssertEqual(2, weapons.Children.Count);
+            AssertEqual("warfare_ordnance", weapons.Children[0].UID);
+            AssertEqual("warfare_point_defense", weapons.Children[1].UID);
+            AssertEqual("warfare_ship_design", entries[0].Children[1].UID);
         }
 
         [TestMethod]

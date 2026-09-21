@@ -120,6 +120,7 @@
     <Compile Include="Ship_Game\ChoosePatrolPlanWindow.cs" />
     <Compile Include="Ship_Game\Codex\CodexCategoryListItem.cs" />
     <Compile Include="Ship_Game\Codex\CodexEntry.cs" />
+    <Compile Include="Ship_Game\Codex\CodexHooks.cs" />
     <Compile Include="Ship_Game\Codex\CodexScreen.cs" />
     <Compile Include="Ship_Game\Codex\CodexStyles.cs" />
     <Compile Include="Ship_Game\Codex\StyledText.cs" />

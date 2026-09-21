@@ -24,12 +24,14 @@
       UID: blackbox_support
 -
   UID: tutorials
+  Hidden: true
   Children:
     -
       UID: tutorials_overview
       VideoPath: "Tutorial overview"
 -
   UID: tutorial_videos
+  Hidden: true
   Children:
     -
       UID: tutorial_videos_your_first_game
@@ -44,6 +46,10 @@
       UID: overview_playing_stardrive
     -
       UID: overview_controls
+    -
+      UID: overview_map_overlays
+    -
+      UID: overview_rule_options
     -
       UID: overview_your_first_game
 -
@@ -61,8 +67,34 @@
       UID: economy_planetary_qualities
     -
       UID: economy_the_colony_screen
+      Children:
+        -
+          UID: colony_population
+        -
+          UID: colony_storage
+        -
+          UID: colony_labor_sliders
+        -
+          UID: colony_trade
+        -
+          UID: colony_governor
+        -
+          UID: colony_blueprints
+        -
+          UID: colony_garrison_and_ports
     -
       UID: economy_automation
+      Children:
+        -
+          UID: automation_exploration
+        -
+          UID: automation_freighters
+        -
+          UID: automation_construction
+        -
+          UID: automation_research_and_taxes
+        -
+          UID: automation_alerts
 -
   UID: expansion
   Children:
@@ -78,6 +110,12 @@
       UID: expansion_deep_space_building
     -
       UID: expansion_subspace_projectors
+    -
+      UID: expansion_terraforming
+    -
+      UID: expansion_dyson_swarm
+    -
+      UID: expansion_exotic_resources
 -
   UID: warfare
   Children:
@@ -88,9 +126,12 @@
     -
       UID: warfare_fighter_bays
     -
-      UID: warfare_point_defense_weapons
-    -
-      UID: warfare_ordnance
+      UID: warfare_weapons
+      Children:
+        -
+          UID: warfare_point_defense_weapons
+        -
+          UID: warfare_ordnance
     -
       UID: warfare_ship_design
     -
