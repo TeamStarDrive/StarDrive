@@ -27,21 +27,11 @@ namespace Ship_Game.Codex
             // Hidden children are never added, so a category with nothing visible
             // under it must not become a header, or it would draw an empty bar that
             // swallows clicks.
-            if (HasVisibleChildren(entry))
+            if (entry is { HasVisibleChildren: true })
             {
                 IsHeader = true;
                 HeaderText = Localizer.Token(entry.TitleId);
             }
-        }
-
-        static bool HasVisibleChildren(CodexEntry entry)
-        {
-            if (entry?.Children == null)
-                return false;
-            for (int i = 0; i < entry.Children.Count; ++i)
-                if (!entry.Children[i].Hidden)
-                    return true;
-            return false;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

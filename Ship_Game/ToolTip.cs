@@ -56,7 +56,7 @@ namespace Ship_Game
         /// <param name="position">Position hint, otherwise cursor will be used</param>
         /// <param name="minShowTime">Minimum time to show this Tooltip, regardless of being hovered</param>
         /// <param name="maxWidth">Maximum width for the tooltip</param>
-        /// <param name="codexUid">Optional Codex UID; if set, the tooltip shows a "Press F1 for details" hint and F1 deep-links to that entry.</param>
+        /// <param name="codexUid">Codex UID override; normally left null so the tip is looked up in CodexHooks.yaml by its token. When set, the tooltip shows a "Press F1 for details" hint and F1 deep-links to that entry.</param>
         public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position,
                                          float minShowTime = 0, float maxWidth = 0, string codexUid = null)
         {
@@ -66,6 +66,8 @@ namespace Ship_Game
                 Log.Error($"Invalid Tooltip: tip.Id={tip.Id} tip.Text={tip.Text}");
                 return;
             }
+
+            codexUid ??= Codex.CodexHooks.Find(tip);
 
             TipItem tipItem = ActiveTips.Find(t => t.RawText == rawText);
             if (tipItem != null)
@@ -113,12 +115,14 @@ namespace Ship_Game
         public static void CreateTooltip(in LocalizedText tip, float maxWidth = 0, string codexUid = null)
             => CreateTooltip(tip, "", null, maxWidth: maxWidth, codexUid: codexUid);
 
-        // Returns the codex UID of the currently-hovered tooltip, if any has one.
-        // Used by the F1 hotkey handler to deep-link into CodexScreen.
+        // The codex UID of the tooltip under the cursor, if it has one. Used by the
+        // F1 handler. Input runs before Draw, and many tips are created during Draw
+        // and have their hover flag cleared by ToolTip.Draw at the end of the same
+        // frame, so the previous frame's hover counts too.
         public static string GetActiveCodexUid()
         {
             foreach (TipItem t in ActiveTips)
-                if (t.HoveredThisFrame && t.CodexUid != null)
+                if ((t.HoveredThisFrame || t.HoveredLastFrame) && t.CodexUid != null)
                     return t.CodexUid;
             return null;
         }
@@ -137,6 +141,7 @@ namespace Ship_Game
             public string CodexUid;
             public Rectangle Rect;
             public bool HoveredThisFrame = true;
+            public bool HoveredLastFrame;
             float MinShowTime; // Let the tip show regardless of being hovered on
             readonly Font TipFont;
 
@@ -153,6 +158,7 @@ namespace Ship_Game
             public bool Update(float deltaTime)
             {
                 bool hovered = HoveredThisFrame;
+                HoveredLastFrame = hovered;
                 if (MinShowTime <= 0f) HoveredThisFrame = false;
                 MinShowTime -= deltaTime;
 
@@ -221,7 +227,7 @@ namespace Ship_Game
                     var hintPos = textPos;
                     hintPos.Y += textSize.Y + 2;
                     batch.DrawString(TipFont, Localizer.Token("CodexPressF1ForDetails"),
-                        hintPos, new Color(Color.Gold, (byte)alpha));
+                        hintPos, new Color(Color.Gold, (byte)alpha).Premultiplied());
                 }
             }
         }

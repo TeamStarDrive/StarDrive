@@ -362,6 +362,7 @@ namespace Ship_Game
         {
             WaitForExit();
 
+            Codex.CodexHooks.Invalidate();
             TroopsDict.Clear();
             TroopsList.Clear();
             TroopsDictKeys = Empty<string>.Array;

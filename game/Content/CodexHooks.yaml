@@ -1,0 +1,28 @@
+# Tooltip -> Codex entry links.
+#
+# One row per tooltip: the GameText NameId of the tooltip text, then the UID of
+# the Codex.yaml entry that explains it. Every tooltip showing that token, on
+# any screen, gains a "Press F1 for details" line and F1 opens the entry.
+#
+# The entry must be a topic, not a header: a header only expands on click. A
+# row naming a token or entry that does not exist, a header, or an entry inside
+# a Hidden branch is skipped with a warning in blackbox.log. Re-read every time
+# the Codex screen opens, so rows can be added with the game running.
+
+# Economy
+IncomingOutGoingTip: economy_freighters_and_trade_routes
+TradeTreatiesCreateWealthFor: economy_trade_treaties
+
+# Expansion
+ResearchStationCanBePlaced: expansion_deep_space_building
+MiningStationsCanBePlaced: expansion_deep_space_building
+
+# Warfare
+IndicatesAShipsExperienceLevel2: warfare_ship_experience
+ThisShowsTheHangarStatus: warfare_fighter_bays
+
+# Diplomacy
+ANonaggressionPactIsA: diplomacy_diplomacy_overview
+AnOpenBordersTreatyWill: diplomacy_diplomacy_overview
+PeaceTreatiesLastForTurns: diplomacy_diplomacy_overview
+AlliancesAreSeriousCommitmentsBetween: diplomacy_diplomacy_overview

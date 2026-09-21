@@ -751,6 +751,19 @@ namespace Ship_Game
             GameAudio.StopGenericMusic(fadeout: true);
             CurrentMusic = null;
         }
+        void OpenCodexAt(string uid)
+        {
+            if (uid == null)
+                return;
+
+            GameAudio.TacticalPause();
+            // OpenAt before AddScreen: the screen is queued for the next tick, so
+            // the UID is stashed and applied once LoadContent has built the tree.
+            var codex = new Codex.CodexScreen(Current);
+            codex.OpenAt(uid);
+            AddScreen(codex);
+        }
+
         public void Update(UpdateTimes elapsed)
         {
             PerformHotLoadTasks(elapsed);
@@ -760,6 +773,16 @@ namespace Ship_Game
             bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
             bool coveredByOtherScreen = false;
             bool inputCaptured = false;
+
+            // F1 over a tooltip that links into the Codex opens it at that entry.
+            // Handled here rather than in one screen's HandleInput so it works
+            // wherever tooltips show: the colony screen, a diplomacy popup, the
+            // shipyard. The Codex itself closes on F1, so it is skipped while on top.
+            if (!otherScreenHasFocus && input.CodexHelp && GameScreens.NotEmpty
+                && Current is not Codex.CodexScreen)
+            {
+                OpenCodexAt(ToolTip.GetActiveCodexUid());
+            }
             
             Array<GameScreen> frontToBack = new(); // valid screens ordered from topmost to back
             Array<GameScreen> backToFront = new();

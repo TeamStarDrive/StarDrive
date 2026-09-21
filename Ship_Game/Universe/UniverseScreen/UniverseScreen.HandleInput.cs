@@ -76,7 +76,6 @@ namespace Ship_Game
             if (input.DeepSpaceBuildWindow)       InputOpenDeepSpaceBuildWindow();
             if (input.FTLOverlay)                 ToggleUIComponent("sd_ui_accept_alt3", ref ShowingFTLOverlay);
             if (input.RangeOverlay)               ToggleUIComponent("sd_ui_accept_alt3", ref ShowingRangeOverlay);
-            if (input.CodexHelp)                  HandleCodexHelp();
             if (input.BlueprintsSceen)            ScreenManager.AddScreen(new BlueprintsScreen(this, Player));
             if (input.EmpirePatrolsScreen)        ScreenManager.AddScreen(new EmpirePatrolsScreen(this, Player));
             if (input.AutomationWindow && !Debug) aw.ToggleVisibility();
@@ -113,20 +112,6 @@ namespace Ship_Game
                 HandleDebugEvents(input);
 
             return false;
-        }
-
-        void HandleCodexHelp()
-        {
-            string uid = ToolTip.GetActiveCodexUid();
-            if (uid == null)
-                return;
-
-            GameAudio.TacticalPause();
-            // OpenAt before AddScreen: ScreenManager queues the screen for the
-            // next tick, so we stash PendingUid and LoadContent flushes it.
-            var codex = new Codex.CodexScreen(this);
-            codex.OpenAt(uid);
-            ScreenManager.AddScreen(codex);
         }
 
         void HandleDebugEvents(InputState input)

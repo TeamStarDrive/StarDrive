@@ -3,7 +3,6 @@ using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
-using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens;
 using Vector2 = SDGraphics.Vector2;
 
@@ -43,14 +42,9 @@ namespace Ship_Game.Codex
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
 
-            var file = ResourceManager.GetModOrVanillaFile("Codex.yaml");
-            Roots = file != null && file.Exists
-                ? YamlParser.DeserializeArray<CodexEntry>(file)
-                : new Array<CodexEntry>();
-            // YamlParser doesn't fire [StarDataDeserialized] hooks, so trigger
-            // the UID-driven NameId derivation here explicitly.
-            foreach (CodexEntry root in Roots)
-                root.ResolveDefaults();
+            Roots = CodexEntry.LoadAll();
+            // opening the screen is the author's hot-reload point for both files
+            CodexHooks.Reload();
 
             TitleText = Localizer.Token("CodexTitle");
         }
