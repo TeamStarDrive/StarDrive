@@ -46,7 +46,7 @@ namespace Ship_Game.Codex
             {
                 if (e.Hidden)
                     continue;
-                if (!string.IsNullOrEmpty(e.UID) && (!e.HasVisibleChildren || e.HasBody))
+                if (!string.IsNullOrEmpty(e.UID) && e.HasBody)
                     uids.Add(e.UID);
                 if (e.HasVisibleChildren)
                     CollectHookable(e.Children, uids);

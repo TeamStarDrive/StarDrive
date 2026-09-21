@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 247. Already hooked: 104.
+Tokens: 247. Already hooked: 106.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -22,11 +22,11 @@ Tokens: 247. Already hooked: 104.
 | 7 | `AutoPickResearchStationTip` | This will pick the best Research Station with most Research generated and will upgrade them whenever possible, if the auto build Research Stations checkbox i... | AutomationWindow.cs |  | automation_construction |
 | 8 | `DisableCrashSiteAlertsTip` | Disable all ship crash on planet alrets. Recovered ship crash site notifications will be sent only if an actual ship was recovered. | AutomationWindow.cs |  | automation_alerts |
 | 9 | `DisableVolcanoActivationOrDeactivation` | Disable Volcano Activation or Deactivation alerts. You will still be notified if a Volcano in one of your colonies erupts. | AutomationWindow.cs |  | automation_alerts |
-| 10 | `BB_EnableStarvationWarningTip` | When enabled, you will get a warning when a planet population start starving. | AutomationWindow.cs |  |  |
+| 10 | `BB_EnableStarvationWarningTip` | When enabled, you will get a warning when a planet population start starving. | AutomationWindow.cs |  | automation_alerts |
 | 11 | `IfAutoTradeIsChecked` | If Auto Trade is checked, the Best freighters available for your Empire will be built for import/export needs. | AutomationWindow.cs |  | automation_freighters |
 | 12 | `InhibitionAlertsAreDisplayedWhen` | Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default wh... | AutomationWindow.cs |  | automation_alerts |
 | 13 | `NormallyWhenYouManuallyAdd` |  Normally, when you manually add a building to the colony's build queue, you will be notified when it is completed. You can disable these notifications, if y... | AutomationWindow.cs |  | automation_alerts |
-| 14 | `rioritizeProjectorTip` | Whenever a Subspace Projector is placed in a planet's construction queue, manually or automatically, it would be placed at the top of the list. | AutomationWindow.cs |  |  |
+| 14 | `rioritizeProjectorTip` | Whenever a Subspace Projector is placed in a planet's construction queue, manually or automatically, it would be placed at the top of the list. | AutomationWindow.cs |  | automation_construction |
 | 15 | `RushAllConstructionTip` | Signals Continuous Construction rush of all items in your empire, including existing and future items.   WARNING: This will quickly spend your treasury and m... | AutomationWindow.cs |  | automation_construction |
 | 16 | `TheBestColonyShipWill` | The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons. | AutomationWindow.cs |  | automation_exploration |
 | 17 | `YourEmpireWillAutomaticallyCreate` | Your empire will automatically create and deploy colony ships to desirable planets. Colony ships will not be dispatched to planets with a known nearby enemy ... | AutomationWindow.cs |  | automation_exploration |

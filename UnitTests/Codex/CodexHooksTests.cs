@@ -56,6 +56,9 @@ namespace UnitTests.Codex
             Assert.IsFalse(uids.Contains("warfare_weapons"), "a bare header only expands, so it is not a target");
             Assert.IsTrue(uids.Contains("economy_the_colony_screen"), "a category with its own body reads like a topic");
             Assert.IsFalse(uids.Contains("tutorials_overview"), "a topic under a hidden branch is not a target");
+
+            var bodyless = new Array<CodexEntry> { new() { UID = "no_body", TitleId = "CodexTitle", TextId = "NoSuchTokenXyz" } };
+            Assert.IsFalse(CodexEntry.HookableUids(bodyless).Contains("no_body"), "a topic whose body token is missing has nothing to open");
         }
 
         [TestMethod]

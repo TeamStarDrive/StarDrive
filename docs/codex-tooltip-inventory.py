@@ -86,7 +86,7 @@ rows = []
 for tok in sorted(uses, key=lambda t: (sorted(uses[t])[0], t)):
     name = yaml_name(tok)
     text = eng.get(name, "(no ENG text)")
-    rows.append((name, text, sorted(uses[tok]), hooks.get(name, ""), sorted(raw[tok])))
+    rows.append((name, text, sorted(uses[tok]), hooks.get(name) or hooks.get(tok, ""), sorted(raw[tok])))
 
 # --- write -----------------------------------------------------------------
 out = os.path.join(root, "docs", "codex-tooltip-inventory.md")
