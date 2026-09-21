@@ -15358,9 +15358,9 @@ PLanetInfoNumberOfDefenseShips:
  PTB: "Número de naves de Defesa em Bases Aéreas neste planeta."
 ThisTileCanBeTerraformedHarder:
  Id: 4521
- ENG: "This tile can be terraformed as part of terraforming operations. The process will take more time due to Biosphere Terraforming complexity." 
- UKR: "Ця плитка може бути терраформована в рамках операцій терраформування. Процес займе більше часу через складність тераформування біосфери."
- PTB: "Este quadrante pode ser terraformado como parte das operações de terraformação. O processo levará mais tempo devido à complexidade da Terraformação de Biosfera."
+ ENG: "This tile can be terraformed as part of terraforming operations. Its biosphere will be removed once the tile becomes habitable."
+ UKR: "Ця плитка може бути терраформована в рамках операцій терраформування. Її біосферу буде прибрано, щойно плитка стане придатною для життя."
+ PTB: "Este quadrante pode ser terraformado como parte das operações de terraformação. Sua biosfera será removida assim que o quadrante se tornar habitável."
 BioshperesAreBuiltHere:
  Id: 4522
  ENG: "Biospheres are built here. Right Click if you wish to scrap these Bioshperes."
@@ -15368,7 +15368,7 @@ BioshperesAreBuiltHere:
  PTB: "Bioesferas são construídas aqui. Clique com o botão direito se quiser sucatear estas Bioesferas."
 ThisTileCanBeTerraformed:
  Id: 4523
- ENG: "This tile can be terraformed as part of terraforming operations.
+ ENG: "This tile can be terraformed as part of terraforming operations."
  UKR: "Ця плитка може бути терраформована в рамках операцій терраформування." 
  PTB: "Este quadrante pode ser terraformado como parte das operações de terraformação."
 DisableScreenPanningOption:
