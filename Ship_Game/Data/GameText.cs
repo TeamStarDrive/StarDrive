@@ -4701,6 +4701,8 @@ namespace Ship_Game
         PathfinderTip = 4537,
         /// <summary>You placed this yourself, so the governor will never scrap it or cancel it.</summary>
         PlayerBuiltProtectedFromScrap = 4538,
+        /// <summary>Opens the Important Events log</summary>
+        OpensTheImportantEventsLog = 18285,
 
 
 

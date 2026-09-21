@@ -47,6 +47,8 @@
     -
       UID: overview_controls
     -
+      UID: overview_map_overlays
+    -
       UID: overview_your_first_game
 -
   UID: economy
@@ -110,6 +112,8 @@
       UID: expansion_terraforming
     -
       UID: expansion_dyson_swarm
+    -
+      UID: expansion_exotic_resources
 -
   UID: warfare
   Children:

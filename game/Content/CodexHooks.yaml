@@ -10,6 +10,29 @@
 # warning in blackbox.log. Re-read every time the Codex screen opens, so rows
 # can be added with the game running.
 
+# Minimap
+FtlOverlayVisualisesSubspaceProjection: overview_map_overlays
+WeaponsRangeOverlayVisualisesShips: overview_map_overlays
+OpensTheAutomationPanelWhich: economy_automation
+BlueprintsScreenTip: colony_blueprints
+OpensTheDeepSpaceBuilding: expansion_deep_space_building
+OpenFreighterUtilWindow: economy_freighters_and_trade_routes
+OpensEmpireExoticBonuses: expansion_exotic_resources
+OpensEmpireExoticBonusesDisabled: expansion_exotic_resources
+
+# Freighter utilization window
+TotalUtilizationTip: economy_freighters_and_trade_routes
+CargoDistributionTip: economy_freighters_and_trade_routes
+NumberOfFreightersTip: economy_freighters_and_trade_routes
+
+# Exotic bonuses window and mining
+ExoticResourceOutputTip: expansion_exotic_resources
+ExoticResourceRefineConsumeTip: expansion_exotic_resources
+ExoticResourceStorageTip: expansion_exotic_resources
+ExoticResourceMaxRefineTip: expansion_exotic_resources
+ExoticResourceOpsTip: expansion_exotic_resources
+MiningStationsOpsOwned: expansion_exotic_resources
+
 # Colony screen: population
 AColonysPopulationIsA: colony_population
 
@@ -87,7 +110,7 @@ EnableStarvationWarningTip: automation_alerts
 
 # Expansion
 ResearchStationCanBePlaced: expansion_deep_space_building
-MiningStationsCanBePlaced: expansion_deep_space_building
+MiningStationsCanBePlaced: expansion_exotic_resources
 BuildDysonSwarmTip: expansion_dyson_swarm
 DysonSwarmProgressTip: expansion_dyson_swarm
 DysonSwarmControllerProgressTip: expansion_dyson_swarm

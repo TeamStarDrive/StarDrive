@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 225. Already hooked: 70.
+Tokens: 226. Already hooked: 86.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -36,14 +36,14 @@ Tokens: 225. Already hooked: 70.
 | 21 | `YourEmpireWillAutomaticallySelect` | Your Empire will automatically select technologies to research. | AutomationWindow.cs |  | automation_research_and_taxes |
 | 22 | `LoadPatrolTip` | Load Patrol Plan to this fleet. It will repalce any existing patrol plan. | ChoosePatrolPlanWindow.cs |  |  |
 | 23 | `ExoticResourceBonusTip` | Current bonus your empire gets per exotic resource with color coding: Gold: The maximum bonus was reached. Green: The bonus rate increased from last turn. Re... | ExoticBonusesWindow.cs |  |  |
-| 24 | `ExoticResourceMaxRefineTip` | Maximum refining rate of the Exotic resource per turn. When more Mining Stations are added, the maximum rate is increased. | ExoticBonusesWindow.cs |  |  |
-| 25 | `ExoticResourceOpsTip` | Active Mining stations vs. total Mining stations vs. Mining stations being under construction / enroute to deployement. Mining Stations become inactive if th... | ExoticBonusesWindow.cs |  |  |
-| 26 | `ExoticResourceOutputTip` | Usage of the Empire's current Mining Ops. Usually the output becomes lower when storages are full and your Mining Station can refine more resources than are ... | ExoticBonusesWindow.cs |  |  |
-| 27 | `ExoticResourceRefineConsumeTip` | Refining rate vs. Consumption rate of the Exotic resource. Excess Refining is transferred to storage and when the storage is full, output decreases until it ... | ExoticBonusesWindow.cs |  |  |
-| 28 | `ExoticResourceStorageTip` | This shows the storage usage for this resource type. Imperial Storage is based on the average storage capacity of your colonies. | ExoticBonusesWindow.cs |  |  |
-| 29 | `CargoDistributionTip` | Shows the cargo distribution of utilized freighters. | FreighterUtilizationWindow.cs |  |  |
-| 30 | `NumberOfFreightersTip` | How many frieghters are currently assigned to transfer goods. | FreighterUtilizationWindow.cs |  |  |
-| 31 | `TotalUtilizationTip` | Shows the perentage of freighters in your empire which are transferring goods. | FreighterUtilizationWindow.cs |  |  |
+| 24 | `ExoticResourceMaxRefineTip` | Maximum refining rate of the Exotic resource per turn. When more Mining Stations are added, the maximum rate is increased. | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
+| 25 | `ExoticResourceOpsTip` | Active Mining stations vs. total Mining stations vs. Mining stations being under construction / enroute to deployement. Mining Stations become inactive if th... | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
+| 26 | `ExoticResourceOutputTip` | Usage of the Empire's current Mining Ops. Usually the output becomes lower when storages are full and your Mining Station can refine more resources than are ... | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
+| 27 | `ExoticResourceRefineConsumeTip` | Refining rate vs. Consumption rate of the Exotic resource. Excess Refining is transferred to storage and when the storage is full, output decreases until it ... | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
+| 28 | `ExoticResourceStorageTip` | This shows the storage usage for this resource type. Imperial Storage is based on the average storage capacity of your colonies. | ExoticBonusesWindow.cs |  | expansion_exotic_resources |
+| 29 | `CargoDistributionTip` | Shows the cargo distribution of utilized freighters. | FreighterUtilizationWindow.cs |  | economy_freighters_and_trade_routes |
+| 30 | `NumberOfFreightersTip` | How many frieghters are currently assigned to transfer goods. | FreighterUtilizationWindow.cs |  | economy_freighters_and_trade_routes |
+| 31 | `TotalUtilizationTip` | Shows the perentage of freighters in your empire which are transferring goods. | FreighterUtilizationWindow.cs |  | economy_freighters_and_trade_routes |
 | 32 | `ExclusiveBlueprintsTip` | When Exclusive Blueprints are loaded, the Governor will only build the exact buildings of these Blueprints and will scrap all other buildings, including play... | ColonyBlueprints/BlueprintsScreen.cs |  | colony_blueprints |
 | 33 | `LinkBlueprintsTip` | When linking Blueprints to these Blueprints, the linked Blueprints will be uploaded after the Governor completes these Bluerpints. You can link Blueprints af... | ColonyBlueprints/BlueprintsScreen.cs |  | colony_blueprints |
 | 34 | `BuildDysonSwarmTip` | Start constrcution of A Dyson Swarm around the Star in this Solar System. This might take a long time to complete and your colonies in this system will parti... | ColonyScreen/ColonyScreen.cs |  | expansion_dyson_swarm |
@@ -202,39 +202,40 @@ Tokens: 225. Already hooked: 70.
 | 187 | `OpensTheShipRoster` | Opens the Ship Roster | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
 | 188 | `OpensTheShipyard` | Opens the Shipyard | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
 | 189 | `ResearchScreen` | Research Screen | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 190 | `BlueprintsScreenTip` | Opens the Blueprints Screen, which allows you to create, delete and edit Blueprints for colonies. | Universe/MiniMap.cs |  |  |
+| 190 | `BlueprintsScreenTip` | Opens the Blueprints Screen, which allows you to create, delete and edit Blueprints for colonies. | Universe/MiniMap.cs |  | colony_blueprints |
 | 191 | `EmpirePatrolsScreenTip` | Opens the Empire Patrols screen, which allows you to rename or delete stored patrol plans. | Universe/MiniMap.cs |  |  |
-| 192 | `FtlOverlayVisualisesSubspaceProjection` | FTL Overlay: visualizes subspace projection and FTL inhibiting gravity wells and fields. | Universe/MiniMap.cs |  |  |
-| 193 | `OpenFreighterUtilWindow` | Opens the Freighter Utilization Window. | Universe/MiniMap.cs |  |  |
-| 194 | `OpensEmpireExoticBonusesDisabled` | Mining Ops are disabled in this game. The Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status | Universe/MiniMap.cs |  |  |
+| 192 | `FtlOverlayVisualisesSubspaceProjection` | FTL Overlay: visualizes subspace projection and FTL inhibiting gravity wells and fields. | Universe/MiniMap.cs |  | overview_map_overlays |
+| 193 | `OpenFreighterUtilWindow` | Opens the Freighter Utilization Window. | Universe/MiniMap.cs |  | economy_freighters_and_trade_routes |
+| 194 | `OpensEmpireExoticBonusesDisabled` | Mining Ops are disabled in this game. The Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status | Universe/MiniMap.cs |  | expansion_exotic_resources |
 | 195 | `OpensExoticPlanetsPanel` | Opens Exotic Systems Array | Universe/MiniMap.cs |  |  |
 | 196 | `OpensPlanetReconnaissancePanel` | Opens Planet Array | Universe/MiniMap.cs |  |  |
-| 197 | `OpensTheAutomationPanelWhich` | Opens the automation panel which allows you to automate certain empire tasks | Universe/MiniMap.cs |  |  |
-| 198 | `OpensTheDeepSpaceBuilding` | Opens the deep space building window which will allow you to place an order for a platform or other deep space structure | Universe/MiniMap.cs |  |  |
-| 199 | `WeaponsRangeOverlayVisualisesShips` | Weapons Range Overlay: visualizes ships' maximum weapon range. When a ship is selected, you will see green circles with Yellow, Orange and Red borders (short... | Universe/MiniMap.cs |  |  |
-| 200 | `ZoomOutToTheGalaxy` | Zoom out to the galaxy view | Universe/MiniMap.cs |  |  |
-| 201 | `ZoomsToYourCurrentlySelected` | Zooms to your currently selected ship | Universe/MiniMap.cs |  |  |
-| 202 | `CannotBuildMiningStationTip` | You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  |  |
-| 203 | `IndicatesThatHostileForcesWere` | Indicates that hostile forces were recently spotted in this system | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
-| 204 | `PlanetTypeAndRichnessThe` | Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's su... | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 205 | `ResearchPointsAreAddedInto` | Research points are added into an empire-wide pool where they are applied towards the top item in your research queue.   | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | colony_labor_sliders |
-| 206 | `LockedRightClickToRemove` | This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
-| 207 | `OutpostsCannotBeRemoved` | The Outpost cannot be removed from the Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
-| 208 | `RightClickToRemove` | Right Click to remove this building from current Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  |  |
-| 209 | `OpenTheGroundAssaultView` | Open the Ground Assault View for this planet where you can land troops and order bombardments | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 210 | `OpensColonyOverviewScreen` | Opens colony overview screen | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 211 | `ViewPlanetDetails` | View Planet Details | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 212 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs (raw string at site: pass the enum) |  |  |
-| 213 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 214 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 215 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 216 | `SendAvailableTroopsToThis` | Send available troops to this planet. Any available troop transports in space can be sent. Troops from your your nearest colony will be sent to this planet p... | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 217 | `IndicatesThatAnAnomalyWas` | Indicates that an anomaly was detected on the surface of this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  |  |
-| 218 | `IndicatesThatYourEmpireHas` | Indicates that your empire has a mission underway to colonize this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  |  |
-| 219 | `MiningStationsCanBePlaced` | Indicates that Mining Stations can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_deep_space_building |
-| 220 | `MiningStationsOpsOwned` | Mining Station operations here are owned by this empire | Universe/SolarBodies/SolarsystemOverlay.cs |  |  |
-| 221 | `ResearchStationCanBePlaced` | Indicates that a Research Station can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_deep_space_building |
-| 222 | `MineableRichnessTip` | Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace mig... | Universe/SolarBodies/UnownedPlanetScreen.cs |  |  |
-| 223 | `IndicatesThatAnAnomalyHas` | Indicates that an anomaly has been detected on a planet within this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
-| 224 | `IndicatesThatSpaceCombatIs` | Indicates that space combat is occurring in this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
-| 225 | `ResearchStationCanBePlacedSystem` | Indicates that a Research Station can be deployed in this system to research it's Star. | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
+| 197 | `OpensTheAutomationPanelWhich` | Opens the automation panel which allows you to automate certain empire tasks | Universe/MiniMap.cs |  | economy_automation |
+| 198 | `OpensTheDeepSpaceBuilding` | Opens the deep space building window which will allow you to place an order for a platform or other deep space structure | Universe/MiniMap.cs |  | expansion_deep_space_building |
+| 199 | `OpensTheImportantEventsLog` | Opens the Important Events log | Universe/MiniMap.cs |  |  |
+| 200 | `WeaponsRangeOverlayVisualisesShips` | Weapons Range Overlay: visualizes ships' maximum weapon range. When a ship is selected, you will see green circles with Yellow, Orange and Red borders (short... | Universe/MiniMap.cs |  | overview_map_overlays |
+| 201 | `ZoomOutToTheGalaxy` | Zoom out to the galaxy view | Universe/MiniMap.cs |  |  |
+| 202 | `ZoomsToYourCurrentlySelected` | Zooms to your currently selected ship | Universe/MiniMap.cs |  |  |
+| 203 | `CannotBuildMiningStationTip` | You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  |  |
+| 204 | `IndicatesThatHostileForcesWere` | Indicates that hostile forces were recently spotted in this system | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
+| 205 | `PlanetTypeAndRichnessThe` | Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's su... | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 206 | `ResearchPointsAreAddedInto` | Research points are added into an empire-wide pool where they are applied towards the top item in your research queue.   | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | colony_labor_sliders |
+| 207 | `LockedRightClickToRemove` | This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
+| 208 | `OutpostsCannotBeRemoved` | The Outpost cannot be removed from the Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
+| 209 | `RightClickToRemove` | Right Click to remove this building from current Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  |  |
+| 210 | `OpenTheGroundAssaultView` | Open the Ground Assault View for this planet where you can land troops and order bombardments | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
+| 211 | `OpensColonyOverviewScreen` | Opens colony overview screen | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
+| 212 | `ViewPlanetDetails` | View Planet Details | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
+| 213 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs (raw string at site: pass the enum) |  |  |
+| 214 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 215 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 216 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 217 | `SendAvailableTroopsToThis` | Send available troops to this planet. Any available troop transports in space can be sent. Troops from your your nearest colony will be sent to this planet p... | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 218 | `IndicatesThatAnAnomalyWas` | Indicates that an anomaly was detected on the surface of this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  |  |
+| 219 | `IndicatesThatYourEmpireHas` | Indicates that your empire has a mission underway to colonize this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  |  |
+| 220 | `MiningStationsCanBePlaced` | Indicates that Mining Stations can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_exotic_resources |
+| 221 | `MiningStationsOpsOwned` | Mining Station operations here are owned by this empire | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_exotic_resources |
+| 222 | `ResearchStationCanBePlaced` | Indicates that a Research Station can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_deep_space_building |
+| 223 | `MineableRichnessTip` | Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace mig... | Universe/SolarBodies/UnownedPlanetScreen.cs |  |  |
+| 224 | `IndicatesThatAnAnomalyHas` | Indicates that an anomaly has been detected on a planet within this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
+| 225 | `IndicatesThatSpaceCombatIs` | Indicates that space combat is occurring in this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
+| 226 | `ResearchStationCanBePlacedSystem` | Indicates that a Research Station can be deployed in this system to research it's Star. | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
