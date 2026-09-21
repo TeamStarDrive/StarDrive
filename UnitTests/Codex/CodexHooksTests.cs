@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
@@ -32,6 +33,26 @@ namespace UnitTests.Codex
             AssertEqual("diplomacy_espionage", CodexHooks.Find(GameText.EspionageLimitLevelTip), "a row may use the enum name");
             AssertEqual(null, CodexHooks.Find(GameText.NewGame), "an unhooked token has no entry");
             AssertEqual(null, CodexHooks.Find("raw status text"), "raw strings are never hooked");
+        }
+
+        [TestMethod]
+        public void TooltipSitesPassTheEnumSoTheyStayHookable()
+        {
+            string root = Path.GetFullPath(Path.Combine(StarDriveTestContext.StarDriveAbsolutePath, "..", "Ship_Game"));
+            var wrapped = new Regex(@"(CreateTooltip\(|\.Tooltip\s*=)\s*Localizer\.Token\(\s*GameText\.(\w+)");
+            var composed = new HashSet<string> { "ResearchScreen" };
+            var offenders = new Array<string>();
+            foreach (string file in Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories))
+            {
+                string[] lines = File.ReadAllLines(file);
+                for (int i = 0; i < lines.Length; ++i)
+                {
+                    Match m = wrapped.Match(lines[i]);
+                    if (m.Success && !composed.Contains(m.Groups[2].Value))
+                        offenders.Add($"{Path.GetRelativePath(root, file)}:{i + 1} {m.Groups[2].Value}");
+                }
+            }
+            AssertEqual(0, offenders.Count, "these tooltips wrap the token in Localizer.Token, which drops the id a Codex hook matches on:\n" + string.Join("\n", offenders));
         }
 
         [TestMethod]

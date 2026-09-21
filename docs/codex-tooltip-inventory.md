@@ -115,13 +115,13 @@ Tokens: 247. Already hooked: 106.
 | 100 | `TradeTreatiesCreateWealthFor` | Trade treaties create wealth for both empires depending on how long the treaty has been in effect. At the beginning of a trade treaty, both empires will lose... | DiplomacyScreen/ItemToOffer.cs |  | economy_trade_treaties |
 | 101 | `ViewTradeTreatiesTip` | Enable or disable trade treaties view | DiplomacyScreen/RelationshipsDiagramScreen.cs |  |  |
 | 102 | `ViewWarsOrAlliancesTip` | Filters out non War or Alliances links | DiplomacyScreen/RelationshipsDiagramScreen.cs |  |  |
-| 103 | `RecruitANewAgentTo` | Recruit a new Agent to engage in Espionage activities | Espionage/AgentComponent.cs (raw string at site: pass the enum) |  |  |
+| 103 | `RecruitANewAgentTo` | Recruit a new Agent to engage in Espionage activities | Espionage/AgentComponent.cs |  |  |
 | 104 | `EspioangeBudgetMuliplierTip` | Normally, we get 1 Espionage Point per Billion colonists for free. These points go into our Spy defense and infiltration level increase per empire we know. W... | Espionage/EmpiresButton.cs |  |  |
 | 105 | `EspioangeDefenseWeightTip` | Sets the weight out of the total Espionage points you want to invest in your empire's spy defense. The higher the weight comparing to Infiltration Weight we ... | Espionage/EmpiresButton.cs |  |  |
 | 106 | `EspioangeInfiltrationWeightTip` | Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within this empire. The higher the weight, the more poi... | Espionage/EmpiresButton.cs |  |  |
 | 107 | `EspionageLevelLimitTip` | Left click to increase by 1 right click to decrease by 1 When limiting Infiltration Level, we progress up to the level limit specified. If our Infiltration L... | Espionage/EmpiresButton.cs |  |  |
-| 108 | `IndicatesTheCounterespionageStrengthOf` | Indicates the counter-espionage strength of this empire. The strength goes up when more spies are dedicated for defense missions, but goes down when the empi... | Espionage/EmpiresButton.cs (raw string at site: pass the enum) |  |  |
-| 109 | `InfiltrationDefesneTip` | Indicates budget weight invested in Infiltration Defense by this empire. The higher the percentage, the slower they can progress in setting up spy networks w... | Espionage/EmpiresButton.cs (raw string at site: pass the enum) |  |  |
+| 108 | `IndicatesTheCounterespionageStrengthOf` | Indicates the counter-espionage strength of this empire. The strength goes up when more spies are dedicated for defense missions, but goes down when the empi... | Espionage/EmpiresButton.cs |  |  |
+| 109 | `InfiltrationDefesneTip` | Indicates budget weight invested in Infiltration Defense by this empire. The higher the percentage, the slower they can progress in setting up spy networks w... | Espionage/EmpiresButton.cs |  |  |
 | 110 | `DeterminesWhetherAShipPrefers` | Determines whether a ship prefers targets smaller, similar, or larger than itself | FleetDesign/FleetDesignScreen.cs |  |  |
 | 111 | `BuildAllShipsNowPrioritize` | build all ships now, prioritize them to be first in queue and apply continuous rush.   WARNING: This might drain your Treasury in an alarming rate. | FleetDesign/RequisitionScreen.cs |  |  |
 | 112 | `IfCheckedEveryTimeA` | If checked, every time a ship in the fleet is destroyed, a new one will be created to fill the lines. The ship must be able to be built by your empire. | FleetDesign/RequisitionScreen.cs |  |  |
@@ -180,10 +180,10 @@ Tokens: 247. Already hooked: 106.
 | 165 | `InOrderToCompleteYour` | In order to complete your design and build it, you must fill all the ship's slots | ShipDesign/ShipDesignIssuesPanel.cs |  |  |
 | 166 | `StatesAnyDesignIssuesThe` | States any design issues the current ship has. It is displayed after you completed 75% of the design. The color of the issue indicates it's severity (Green f... | ShipDesign/ShipDesignIssuesPanel.cs |  |  |
 | 167 | `ShowEmpireLockedDesignsTip` | Show designs which are still locked due to lack of technology, for our available hulls | ShipDesign/ShipDesignLoadScreen.cs |  |  |
-| 168 | `SaveShipDesignDesc` | Saves the ship design. If the ship is not complete, it will be saved as Work in progress. | ShipDesign/ShipDesignScreen.cs (raw string at site: pass the enum) |  |  |
-| 169 | `StripsTheShipOfAny` | Strips the ship of any module but armor (or anything with deflection), shields, engines, and Command modules. Useful when using a template ship for a new des... | ShipDesign/ShipDesignScreen.cs (raw string at site: pass the enum) |  |  |
+| 168 | `SaveShipDesignDesc` | Saves the ship design. If the ship is not complete, it will be saved as Work in progress. | ShipDesign/ShipDesignScreen.cs |  |  |
+| 169 | `StripsTheShipOfAny` | Strips the ship of any module but armor (or anything with deflection), shields, engines, and Command modules. Useful when using a template ship for a new des... | ShipDesign/ShipDesignScreen.cs |  |  |
 | 170 | `WhenToggledRedAnyModule` | When Toggled (Red), any module you mark as obsolete will not be shown in the module lists. When not toggled, obsolete modules names would be shown, but would... | ShipDesign/ShipDesignScreen.cs |  |  |
-| 171 | `YouCanSwitchFromNormal` | You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible... | ShipDesign/ShipDesignScreen.cs (raw string at site: pass the enum) |  |  |
+| 171 | `YouCanSwitchFromNormal` | You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible... | ShipDesign/ShipDesignScreen.cs |  |  |
 | 172 | `TogglesTheWeaponFireArc` | Toggles the weapon fire arc and shield protection radius display on or off for this ship. Hotkey: TAB | ShipDesign/ShipDesignScreenInput.cs |  |  |
 | 173 | `TaxesAreCollectedFromYour` | Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For in... | Universe/BudgetScreen.cs |  |  |
 | 174 | `TreasuryGoalIsTheTarget` | Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 ... | Universe/BudgetScreen.cs |  |  |
@@ -204,24 +204,24 @@ Tokens: 247. Already hooked: 106.
 | 189 | `ConstructionProgressTip` | Amount of Completed Consturction. The contructor adds construction every turn and if the structure position in in a friendly system, the colonies will launch... | Ships/ShipInfoUIElement.cs |  |  |
 | 190 | `EmpOverloadShipIsDisabled` | EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload. | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |
 | 191 | `IndicatesAShipsExperienceLevel2` | Indicates a ship's experience level. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage. | Ships/ShipInfoUIElement.cs |  | warfare_ship_experience |
-| 192 | `IndicatesThisShipsCurrentBonus` | Indicates this ship's current bonus or penalty to damage from the Pack Mentality trait | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |
+| 192 | `IndicatesThisShipsCurrentBonus` | Indicates this ship's current bonus or penalty to damage from the Pack Mentality trait | Ships/ShipInfoUIElement.cs |  |  |
 | 193 | `StructuralIntegrityOfTheShip` | Structural Integrity of the ship reflecting internal damage. If this reaches 0%, the ship will be immediately destroyed. | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |
 | 194 | `ThisShipIsInhibitedAnd` | This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automat... | Ships/ShipInfoUIElement.cs |  |  |
 | 195 | `ThisShowsTheHangarStatus` | This shows the hangar status of the ship. Green is the number of ships currently launched, White is the number of ships ready to launch and Red is the number... | Ships/ShipInfoUIElement.cs |  | warfare_fighter_bays |
-| 196 | `ToggleTheModuleGridOverlay` | Toggle the module grid overlay on or off | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |
+| 196 | `ToggleTheModuleGridOverlay` | Toggle the module grid overlay on or off | Ships/ShipInfoUIElement.cs |  |  |
 | 197 | `ResearchUnlocksMoreThanFourItems` | This Technology unlocks more than 4 items. Right Click on the title to Expand | TreeNode.cs |  |  |
 | 198 | `IndicatesThisTroopsExperienceLevel` | Indicates this troop's experience level. For each level of experience, a troop gains a 10% bonus to its base attack statistics and evade planetary bombardment. | Troops/TroopInfoUIElement.cs |  |  |
 | 199 | `LaunchThisTroopIntoOrbit` | Launch this troop into orbit | Troops/TroopInfoUIElement.cs |  |  |
 | 200 | `CurrentResearch` | Current Research | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 201 | `EconomicOverview2` | Economic Overview | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 202 | `OpensTheDiplomacyOverviewScreen` | Opens the Diplomacy Overview Screen | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 203 | `OpensTheEmpireOverviewScreen` | Opens the Empire Overview Screen | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 204 | `OpensTheEspionageManagementScreen` | Opens the Espionage Management Screen | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 205 | `OpensTheFleetManager` | Opens the Fleet Manager | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 206 | `OpensTheHelpMenu` | Opens the Help Menu | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 207 | `OpensTheMainMenu` | Opens the Main Menu | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 208 | `OpensTheShipRoster` | Opens the Ship Roster | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 209 | `OpensTheShipyard` | Opens the Shipyard | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
+| 201 | `EconomicOverview2` | Economic Overview | Universe/EmpireUIOverlay.cs |  |  |
+| 202 | `OpensTheDiplomacyOverviewScreen` | Opens the Diplomacy Overview Screen | Universe/EmpireUIOverlay.cs |  |  |
+| 203 | `OpensTheEmpireOverviewScreen` | Opens the Empire Overview Screen | Universe/EmpireUIOverlay.cs |  |  |
+| 204 | `OpensTheEspionageManagementScreen` | Opens the Espionage Management Screen | Universe/EmpireUIOverlay.cs |  |  |
+| 205 | `OpensTheFleetManager` | Opens the Fleet Manager | Universe/EmpireUIOverlay.cs |  |  |
+| 206 | `OpensTheHelpMenu` | Opens the Help Menu | Universe/EmpireUIOverlay.cs |  |  |
+| 207 | `OpensTheMainMenu` | Opens the Main Menu | Universe/EmpireUIOverlay.cs |  |  |
+| 208 | `OpensTheShipRoster` | Opens the Ship Roster | Universe/EmpireUIOverlay.cs |  |  |
+| 209 | `OpensTheShipyard` | Opens the Shipyard | Universe/EmpireUIOverlay.cs |  |  |
 | 210 | `ResearchScreen` | Research Screen | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
 | 211 | `BlueprintsScreenTip` | Opens the Blueprints Screen, which allows you to create, delete and edit Blueprints for colonies. | Universe/MiniMap.cs |  | colony_blueprints |
 | 212 | `EmpirePatrolsScreenTip` | Opens the Empire Patrols screen, which allows you to rename or delete stored patrol plans. | Universe/MiniMap.cs |  |  |
@@ -246,7 +246,7 @@ Tokens: 247. Already hooked: 106.
 | 231 | `OpenTheGroundAssaultView` | Open the Ground Assault View for this planet where you can land troops and order bombardments | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
 | 232 | `OpensColonyOverviewScreen` | Opens colony overview screen | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
 | 233 | `ViewPlanetDetails` | View Planet Details | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 234 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs (raw string at site: pass the enum) |  |  |
+| 234 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs |  |  |
 | 235 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
 | 236 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
 | 237 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |

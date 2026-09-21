@@ -225,7 +225,7 @@ namespace Ship_Game.Ships
             float damageModifier = ship.PackDamageModifier * 100f;
             batch.DrawString(Fonts.Arial12, damageModifier.ToString("0")+"%", textPos, Color.White);
             if (packRect.HitTest(mousePos))
-                ToolTip.CreateTooltip(Localizer.Token(GameText.IndicatesThisShipsCurrentBonus));
+                ToolTip.CreateTooltip(GameText.IndicatesThisShipsCurrentBonus);
 
             numStatus++;
         }
@@ -515,7 +515,7 @@ namespace Ship_Game.Ships
                 return true;
 
             if (GridButton.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(Localizer.Token(GameText.ToggleTheModuleGridOverlay));
+                ToolTip.CreateTooltip(GameText.ToggleTheModuleGridOverlay);
 
             if (GridButton.HandleInput(input))
             {

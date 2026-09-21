@@ -395,47 +395,47 @@ namespace Ship_Game
                                 }
                             case "Budget":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.EconomicOverview2), "T");
+                                    ToolTip.CreateTooltip(GameText.EconomicOverview2, "T");
                                     break;
                                 }
                             case "Main Menu":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheMainMenu), "O");
+                                    ToolTip.CreateTooltip(GameText.OpensTheMainMenu, "O");
                                     break;
                                 }
                             case "Shipyard":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheShipyard), "Y");
+                                    ToolTip.CreateTooltip(GameText.OpensTheShipyard, "Y");
                                     break;
                                 }
                             case "Empire":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheEmpireOverviewScreen), "U");
+                                    ToolTip.CreateTooltip(GameText.OpensTheEmpireOverviewScreen, "U");
                                     break;
                                 }
                             case "Diplomacy":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheDiplomacyOverviewScreen), "I");
+                                    ToolTip.CreateTooltip(GameText.OpensTheDiplomacyOverviewScreen, "I");
                                     break;
                                 }
                             case "Espionage":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheEspionageManagementScreen), "E");
+                                    ToolTip.CreateTooltip(GameText.OpensTheEspionageManagementScreen, "E");
                                     break;
                                 }
                             case "ShipList":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheShipRoster), "K");
+                                    ToolTip.CreateTooltip(GameText.OpensTheShipRoster, "K");
                                     break;
                                 }
                             case "Fleets":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheFleetManager), "J");
+                                    ToolTip.CreateTooltip(GameText.OpensTheFleetManager, "J");
                                     break;
                                 }
                             case "?":
                                 {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheHelpMenu), "P");
+                                    ToolTip.CreateTooltip(GameText.OpensTheHelpMenu, "P");
                                     break;
                                 }
                         }

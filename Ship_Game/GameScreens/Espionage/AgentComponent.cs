@@ -173,7 +173,7 @@ namespace Ship_Game.GameScreens.Espionage
 
             if (RecruitButton.r.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(Localizer.Token(GameText.RecruitANewAgentTo));
+                ToolTip.CreateTooltip(GameText.RecruitANewAgentTo);
             }
 
             if (RecruitButton.HandleInput(input))
