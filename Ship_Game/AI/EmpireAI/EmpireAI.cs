@@ -436,19 +436,6 @@ namespace Ship_Game.AI
             }
         }
 
-        public void AddDeployResearchStationGoal(Planet p)
-        {
-            string researchStationName = OwnerEmpire.data.CurrentResearchStation;
-            if (!OwnerEmpire.isPlayer || OwnerEmpire.AutoPickBestResearchStation)
-            {
-                IShipDesign bestResearchStation = ShipBuilder.PickResearchStation(OwnerEmpire);
-                if (bestResearchStation != null)
-                    researchStationName = bestResearchStation.Name;
-            }
-
-            AddGoal(new BuildOrbital(p, researchStationName, OwnerEmpire));
-        }
-
         public void CancelResearchStation(Planet p)
         {
             Goal stationGoal = FindGoal(g => g.IsResearchStationGoal(p));
