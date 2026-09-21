@@ -69,6 +69,17 @@ namespace UnitTests.ExoticSystems
         }
 
         [TestMethod]
+        public void TheAutoPickerFallsBackToNullWhenTheNamedDesignIsGone()
+        {
+            Assert.IsFalse(Enemy.CanBuildResearchStations || Enemy.CanBuildMiningStations, "the AI empire must have nothing to pick from");
+            Enemy.data.CurrentResearchStation = "No Such Station Design";
+            Enemy.data.CurrentMiningStation = "No Such Station Design";
+
+            Assert.IsNull(ShipBuilder.PickResearchStation(Enemy));
+            Assert.IsNull(ShipBuilder.PickMiningStation(Enemy));
+        }
+
+        [TestMethod]
         public void ARealNameResolvesToItsDesign()
         {
             string name = Player.data.MiningStation;

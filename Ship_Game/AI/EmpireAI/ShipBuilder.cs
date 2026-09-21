@@ -221,7 +221,7 @@ namespace Ship_Game.AI
             if (empire.Universe?.Debug == true)
                 Log.Info(ConsoleColor.Cyan, $"----- Picked {bestResearchStation?.Name ?? empire.data.ResearchStation}");
 
-            return bestResearchStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
+            return bestResearchStation ?? StationDesignOrNull(empire.data.ResearchStation);
         }
 
         public static IShipDesign PickMiningStation(Empire empire)
@@ -264,7 +264,7 @@ namespace Ship_Game.AI
             if (empire.Universe?.Debug == true)
                 Log.Info(ConsoleColor.Cyan, $"----- Picked {bestMiningStation?.Name ?? empire.data.MiningStation}");
 
-            return bestMiningStation ?? ResourceManager.Ships.GetDesign(empire.data.MiningStation, throwIfError: true);
+            return bestMiningStation ?? StationDesignOrNull(empire.data.MiningStation);
 
             float GetRefiningScore(IShipDesign design)
             {
