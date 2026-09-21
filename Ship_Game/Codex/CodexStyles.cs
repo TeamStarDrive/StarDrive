@@ -15,6 +15,12 @@ namespace Ship_Game.Codex
         public static Color Lore      = new(180, 180, 200);
         public static Color Url       = new(120, 180, 255);
 
+        // Category list, not markup: a header nested inside another header, and the
+        // title of a topic that sits under one. Top-level headers and their direct
+        // topics keep the plain white the list has always used.
+        public static Color NestedHeader = new(225, 205, 140);
+        public static Color NestedTitle  = new(170, 215, 235);
+
         // Caption/title bump from 14 → 20 once the screen is wide enough to
         // absorb the extra size; body stays at 12 (no plain Arial14 exists).
         static bool LargeScreen => GameBase.ScreenWidth >= 1920;

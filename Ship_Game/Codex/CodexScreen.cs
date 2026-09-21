@@ -101,7 +101,7 @@ namespace Ship_Game.Codex
             // UID map alongside the ScrollList so stale references can't leak in.
             ItemByUid.Clear();
             foreach (CodexEntry root in Roots)
-                AddCategoryRecursive(parent: null, root);
+                AddCategoryRecursive(parent: null, root, depth: 0);
 
             CategoryList.OnClick = OnCategoryClicked;
 
@@ -116,9 +116,12 @@ namespace Ship_Game.Codex
         // Build the ScrollList tree from CodexEntry.Children. Arbitrary depth: each
         // entry with children becomes an expandable header; leaves render Title +
         // ShortDesc directly.
-        void AddCategoryRecursive(CodexCategoryListItem parent, CodexEntry entry)
+        void AddCategoryRecursive(CodexCategoryListItem parent, CodexEntry entry, int depth)
         {
-            var item = new CodexCategoryListItem(entry);
+            if (entry.Hidden)
+                return;
+
+            var item = new CodexCategoryListItem(entry, depth);
             if (parent == null)
                 CategoryList.AddItem(item);
             else
@@ -130,7 +133,7 @@ namespace Ship_Game.Codex
             if (entry.Children != null)
             {
                 foreach (CodexEntry child in entry.Children)
-                    AddCategoryRecursive(item, child);
+                    AddCategoryRecursive(item, child, depth + 1);
             }
         }
 

@@ -24,12 +24,14 @@
       UID: blackbox_support
 -
   UID: tutorials
+  Hidden: true
   Children:
     -
       UID: tutorials_overview
       VideoPath: "Tutorial overview"
 -
   UID: tutorial_videos
+  Hidden: true
   Children:
     -
       UID: tutorial_videos_your_first_game
@@ -88,9 +90,12 @@
     -
       UID: warfare_fighter_bays
     -
-      UID: warfare_point_defense_weapons
-    -
-      UID: warfare_ordnance
+      UID: warfare_weapons
+      Children:
+        -
+          UID: warfare_point_defense_weapons
+        -
+          UID: warfare_ordnance
     -
       UID: warfare_ship_design
     -

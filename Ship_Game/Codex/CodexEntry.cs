@@ -13,6 +13,9 @@ namespace Ship_Game.Codex
         [StarData] public string TextId;
         [StarData] public string Link;
         [StarData] public string VideoPath;
+        // Authored but not shown: the branch stays in the yaml so it can be turned
+        // back on with one line, and OpenAt() treats it as missing meanwhile.
+        [StarData] public bool Hidden;
         [StarData] public Array<CodexEntry> Children;
 
         // Derive GameText NameIds from UID by convention when they aren't set
