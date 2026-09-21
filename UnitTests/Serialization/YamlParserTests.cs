@@ -41,6 +41,15 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
+        public void ALineLongerThanTheInitialBufferStillParses()
+        {
+            string value = new string('x', 10000);
+            using var parser = new YamlParser(">LongLine<", new StringReader("Key: " + value));
+            ParserDump(parser);
+            AssertEqual(value, parser.Root.Nodes[0].Value);
+        }
+
+        [TestMethod]
         public void ValidateNumberParse()
         {
             const string yaml = @"
