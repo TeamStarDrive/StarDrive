@@ -145,9 +145,26 @@
       UID: diplomacy_diplomacy_overview
     -
       UID: diplomacy_espionage
-    -
-      UID: diplomacy_espionage_calculations
-    -
-      UID: diplomacy_agent_missions
+      Children:
+        -
+          UID: espionage_infiltration
+          Children:
+            -
+              UID: infiltration_levels
+            -
+              UID: infiltration_level_rewards
+            -
+              UID: infiltration_operations
+            -
+              UID: infiltration_seven_operations
+        -
+          UID: espionage_legacy_agents
+          Children:
+            -
+              UID: espionage_agents_overview
+            -
+              UID: diplomacy_espionage_calculations
+            -
+              UID: diplomacy_agent_missions
     -
       UID: diplomacy_federations

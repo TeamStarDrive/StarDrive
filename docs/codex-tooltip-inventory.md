@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 247. Already hooked: 106.
+Tokens: 247. Already hooked: 127.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -115,29 +115,29 @@ Tokens: 247. Already hooked: 106.
 | 100 | `TradeTreatiesCreateWealthFor` | Trade treaties create wealth for both empires depending on how long the treaty has been in effect. At the beginning of a trade treaty, both empires will lose... | DiplomacyScreen/ItemToOffer.cs |  | economy_trade_treaties |
 | 101 | `ViewTradeTreatiesTip` | Enable or disable trade treaties view | DiplomacyScreen/RelationshipsDiagramScreen.cs |  |  |
 | 102 | `ViewWarsOrAlliancesTip` | Filters out non War or Alliances links | DiplomacyScreen/RelationshipsDiagramScreen.cs |  |  |
-| 103 | `RecruitANewAgentTo` | Recruit a new Agent to engage in Espionage activities | Espionage/AgentComponent.cs |  |  |
-| 104 | `EspioangeBudgetMuliplierTip` | Normally, we get 1 Espionage Point per Billion colonists for free. These points go into our Spy defense and infiltration level increase per empire we know. W... | Espionage/EmpiresButton.cs |  |  |
-| 105 | `EspioangeDefenseWeightTip` | Sets the weight out of the total Espionage points you want to invest in your empire's spy defense. The higher the weight comparing to Infiltration Weight we ... | Espionage/EmpiresButton.cs |  |  |
-| 106 | `EspioangeInfiltrationWeightTip` | Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within this empire. The higher the weight, the more poi... | Espionage/EmpiresButton.cs |  |  |
-| 107 | `EspionageLevelLimitTip` | Left click to increase by 1 right click to decrease by 1 When limiting Infiltration Level, we progress up to the level limit specified. If our Infiltration L... | Espionage/EmpiresButton.cs |  |  |
-| 108 | `IndicatesTheCounterespionageStrengthOf` | Indicates the counter-espionage strength of this empire. The strength goes up when more spies are dedicated for defense missions, but goes down when the empi... | Espionage/EmpiresButton.cs |  |  |
-| 109 | `InfiltrationDefesneTip` | Indicates budget weight invested in Infiltration Defense by this empire. The higher the percentage, the slower they can progress in setting up spy networks w... | Espionage/EmpiresButton.cs |  |  |
+| 103 | `RecruitANewAgentTo` | Recruit a new Agent to engage in Espionage activities | Espionage/AgentComponent.cs |  | espionage_agents_overview |
+| 104 | `EspioangeBudgetMuliplierTip` | Normally, we get 1 Espionage Point per Billion colonists for free. These points go into our Spy defense and infiltration level increase per empire we know. W... | Espionage/EmpiresButton.cs |  | infiltration_levels |
+| 105 | `EspioangeDefenseWeightTip` | Sets the weight out of the total Espionage points you want to invest in your empire's spy defense. The higher the weight comparing to Infiltration Weight we ... | Espionage/EmpiresButton.cs |  | infiltration_levels |
+| 106 | `EspioangeInfiltrationWeightTip` | Set the weight out of the total Espionage points you want to invest in setting up Infiltration levels within this empire. The higher the weight, the more poi... | Espionage/EmpiresButton.cs |  | infiltration_levels |
+| 107 | `EspionageLevelLimitTip` | Left click to increase by 1 right click to decrease by 1 When limiting Infiltration Level, we progress up to the level limit specified. If our Infiltration L... | Espionage/EmpiresButton.cs |  | infiltration_levels |
+| 108 | `IndicatesTheCounterespionageStrengthOf` | Indicates the counter-espionage strength of this empire. The strength goes up when more spies are dedicated for defense missions, but goes down when the empi... | Espionage/EmpiresButton.cs |  | espionage_agents_overview |
+| 109 | `InfiltrationDefesneTip` | Indicates budget weight invested in Infiltration Defense by this empire. The higher the percentage, the slower they can progress in setting up spy networks w... | Espionage/EmpiresButton.cs |  | infiltration_levels |
 | 110 | `DeterminesWhetherAShipPrefers` | Determines whether a ship prefers targets smaller, similar, or larger than itself | FleetDesign/FleetDesignScreen.cs |  |  |
 | 111 | `BuildAllShipsNowPrioritize` | build all ships now, prioritize them to be first in queue and apply continuous rush.   WARNING: This might drain your Treasury in an alarming rate. | FleetDesign/RequisitionScreen.cs |  |  |
 | 112 | `IfCheckedEveryTimeA` | If checked, every time a ship in the fleet is destroyed, a new one will be created to fill the lines. The ship must be able to be built by your empire. | FleetDesign/RequisitionScreen.cs |  |  |
-| 113 | `EspionageOpsAllowScanShipsTip` | We can permenantly view ship internals of this Empire (Tab key). This Ability will never be lost, even if the entire spy network is lost. | Infiltration/InfiltrationOpsLevel1.cs |  |  |
-| 114 | `EspionageOpsProjectorsAlertTip` | Subspace Projectors are able to alert us if this Empire's fleets are heading to our colonies by calculating their attack vectors. | Infiltration/InfiltrationOpsLevel2.cs |  |  |
-| 115 | `PlantAgentTip` | Plant an Agent in one of their colonies. We will be able to view their colony sensor range and have access to their colony screen. | Infiltration/InfiltrationOpsLevel2.cs |  |  |
-| 116 | `ArrangeUpriseTip` | Send some Agents to arrange an uprise in one of their worlds, potentially destroying production, food and/or key buildings. | Infiltration/InfiltrationOpsLevel3.cs |  |  |
-| 117 | `CounterEspioangeOpsTip` | The Counter-Espionage operation will use our spy network active resources in order to intercept their spy network and eliminate moles by bribing and using do... | Infiltration/InfiltrationOpsLevel3.cs |  |  |
-| 118 | `EspioangeHomeworldMoleTip` | Planet a Mole at the target's homeworld, allowing us to see their colony details and sensors. This mole cannot be removed by their counter-espionage. | Infiltration/InfiltrationOpsLevel3.cs |  |  |
-| 119 | `EspioangeOpsLeechTechTip` | When they research a new tech that we do not have, we get 10% of that tech. | Infiltration/InfiltrationOpsLevel4.cs |  |  |
-| 120 | `EspioangeOpsSabotageTip` | Sabotage Operations will disrupt a colony production for a period of time, and can also destory Research Labs or Mining Stations if they exist. | Infiltration/InfiltrationOpsLevel4.cs |  |  |
-| 121 | `EspioangeOpsSlowResearchTip` | Research Disruption Ops will slow their research by 10% per turn at start, but the chance to slow their research will be reduced per turn until we complete t... | Infiltration/InfiltrationOpsLevel4.cs |  |  |
-| 122 | `EspioangeOpsDisruptProjectionTip` | Hack their Subspace Projection network and disatabilize it for a period of time where it will flicker until they manage to stabilize it. | Infiltration/InfiltrationOpsLevel5.cs |  |  |
-| 123 | `EspioangeOpsLeechIncomeTip` | We steal 2% of their income per turn. | Infiltration/InfiltrationOpsLevel5.cs |  |  |
-| 124 | `EspioangeOpsRebellionTip` | Try to incite rebellion in one of their more advanced colonies. | Infiltration/InfiltrationOpsLevel5.cs |  |  |
-| 125 | `EspionageTotalMoneyLeechedTip` | Total credits leeched from this empire since infiltration reached Level 5. The per-turn amount is shown under 'Money Leeched' on the Budget screen. | Infiltration/InfiltrationOpsLevel5.cs |  |  |
+| 113 | `EspionageOpsAllowScanShipsTip` | We can permenantly view ship internals of this Empire (Tab key). This Ability will never be lost, even if the entire spy network is lost. | Infiltration/InfiltrationOpsLevel1.cs |  | infiltration_level_rewards |
+| 114 | `EspionageOpsProjectorsAlertTip` | Subspace Projectors are able to alert us if this Empire's fleets are heading to our colonies by calculating their attack vectors. | Infiltration/InfiltrationOpsLevel2.cs |  | infiltration_level_rewards |
+| 115 | `PlantAgentTip` | Plant an Agent in one of their colonies. We will be able to view their colony sensor range and have access to their colony screen. | Infiltration/InfiltrationOpsLevel2.cs |  | infiltration_seven_operations |
+| 116 | `ArrangeUpriseTip` | Send some Agents to arrange an uprise in one of their worlds, potentially destroying production, food and/or key buildings. | Infiltration/InfiltrationOpsLevel3.cs |  | infiltration_seven_operations |
+| 117 | `CounterEspioangeOpsTip` | The Counter-Espionage operation will use our spy network active resources in order to intercept their spy network and eliminate moles by bribing and using do... | Infiltration/InfiltrationOpsLevel3.cs |  | infiltration_seven_operations |
+| 118 | `EspioangeHomeworldMoleTip` | Planet a Mole at the target's homeworld, allowing us to see their colony details and sensors. This mole cannot be removed by their counter-espionage. | Infiltration/InfiltrationOpsLevel3.cs |  | infiltration_level_rewards |
+| 119 | `EspioangeOpsLeechTechTip` | When they research a new tech that we do not have, we get 10% of that tech. | Infiltration/InfiltrationOpsLevel4.cs |  | infiltration_level_rewards |
+| 120 | `EspioangeOpsSabotageTip` | Sabotage Operations will disrupt a colony production for a period of time, and can also destory Research Labs or Mining Stations if they exist. | Infiltration/InfiltrationOpsLevel4.cs |  | infiltration_seven_operations |
+| 121 | `EspioangeOpsSlowResearchTip` | Research Disruption Ops will slow their research by 10% per turn at start, but the chance to slow their research will be reduced per turn until we complete t... | Infiltration/InfiltrationOpsLevel4.cs |  | infiltration_seven_operations |
+| 122 | `EspioangeOpsDisruptProjectionTip` | Hack their Subspace Projection network and disatabilize it for a period of time where it will flicker until they manage to stabilize it. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_seven_operations |
+| 123 | `EspioangeOpsLeechIncomeTip` | We steal 2% of their income per turn. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_level_rewards |
+| 124 | `EspioangeOpsRebellionTip` | Try to incite rebellion in one of their more advanced colonies. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_seven_operations |
+| 125 | `EspionageTotalMoneyLeechedTip` | Total credits leeched from this empire since infiltration reached Level 5. The per-turn amount is shown under 'Money Leeched' on the Budget screen. | Infiltration/InfiltrationOpsLevel5.cs |  | infiltration_level_rewards |
 | 126 | `ThisWillLetYouEasily` | This will let you easily export specific save to help the developers investigate issues. You will see the export button in the save/load screen. | LoadSaveItems/GenericLoadSaveScreen.cs |  |  |
 | 127 | `AddNotificationsRegardingEnemiesIn` | Add Notifications regarding enemies in your systems after you load a game, to remind you which systems are under attack. | MainMenu/OptionsScreen.cs |  |  |
 | 128 | `ChangesTheSimulationFrequencyLower` |  Changes the simulation frequency. Lower values are faster, but inaccurate. Higher values are accurate, but slower. If your game is lagging due to high numbe... | MainMenu/OptionsScreen.cs |  |  |
@@ -197,7 +197,7 @@ Tokens: 247. Already hooked: 106.
 | 182 | `RefitInFleetTip` | All Ships of the same type in the selected ship's fleet will be refitted. | RefitToWindow.cs |  |  |
 | 183 | `RefitOnlyThisShipTo` | Refit only this ship to the new ship design | RefitToWindow.cs |  |  |
 | 184 | `BB_RushRefitTip` | Rush Refit will prioritize this refit and rush it. Use with caution if you are refitting a lot of ships since this spends money on rush.  | RefitToWindow.cs |  |  |
-| 185 | `ResearchDisruptedByInfiltrationTip` | Research output is being slowed by enemy infiltration this turn. The percentage shows how much research is getting through. Each successful disruption missio... | ResearchQueueUIComponent.cs |  |  |
+| 185 | `ResearchDisruptedByInfiltrationTip` | Research output is being slowed by enemy infiltration this turn. The percentage shows how much research is getting through. Each successful disruption missio... | ResearchQueueUIComponent.cs |  | infiltration_seven_operations |
 | 186 | `OpensAMenuAllowingYou` | Opens a menu allowing you to choose from a list of available designs that can also fit this ship's hull. The refit cost is a minimum of 10 production plus th... | ShipListScreenItem.cs |  |  |
 | 187 | `OrdersTheShipToReturn` | Orders the ship to return to the nearest shipyard to be dismantled. The planet where the ship is dismantled will have a portion of the ship's original produc... | ShipListScreenItem.cs |  |  |
 | 188 | `OrdersThisShipToExplore` | Orders this ship to explore the galaxy | ShipListScreenItem.cs |  |  |
