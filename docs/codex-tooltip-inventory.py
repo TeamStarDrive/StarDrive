@@ -46,7 +46,7 @@ with open(os.path.join(root, "game", "Content", "CodexHooks.yaml"), encoding="ut
 # --- tooltip sites ---------------------------------------------------------
 # A line counts as a tooltip site when it creates or assigns a tooltip, or when
 # the token itself is named *Tip (the naming convention for tooltip text).
-site_re  = re.compile(r"CreateTooltip\(|Tooltip\s*=|[Tt]ooltip:\s*|\.Tooltip\b|Tooltip\(|, GameText\.\w+Tip\b")
+site_re  = re.compile(r"CreateTooltip\(|Tooltip\s*=|[Tt]ooltip:\s*|\.Tooltip\b|Tooltip\(|\.Tip\s*=|, GameText\.\w+Tip\b")
 token_re = re.compile(r"GameText\.(\w+)")
 
 uses = defaultdict(set)   # token -> {file}
@@ -63,10 +63,10 @@ for dirpath, _, files in os.walk(src):
                     continue
                 # a line like `title: GameText.A, tooltip: GameText.B` names two
                 # tokens; only the one after the tooltip keyword is the tip
-                m = re.search(r"[Tt]ooltip\s*[:=]", line)
+                m = re.search(r"[Tt]ooltip\s*[:=]|\.Tip\s*=", line)
                 scan = line[m.end():] if m else line
                 for tok in token_re.findall(scan):
-                    if tok.endswith("Tip") or "ooltip" in line:
+                    if tok.endswith("Tip") or "ooltip" in line or ".Tip" in line:
                         uses[tok].add(rel)
                         if re.search(r"Localizer\.Token\(\s*GameText\." + tok + r"\b", line):
                             raw[tok].add(rel)

@@ -10,6 +10,27 @@
 # warning in blackbox.log. Re-read every time the Codex screen opens, so rows
 # can be added with the game running.
 
+# Rule options screen
+InThisPanelYouMay: overview_rule_options
+TimeInSecondsPerTurn: overview_rule_options
+UsingThisSliderYouCan: overview_rule_options
+UsingThisSliderYouCan2: overview_rule_options
+DefinesTheRadiusOfPlanetary: overview_rule_options
+PreventsAiEmpiresFromMerging: overview_rule_options
+KeepFixedCreditCostOf: overview_rule_options
+UsePlayerDesignsTip: overview_rule_options
+DisableAlternateTraitsTip: overview_rule_options
+UseLegacyEspionageTip: overview_rule_options
+DisablesAllPirateFactionsFor: overview_rule_options
+IfCheckedRemnantForcesIn: overview_rule_options
+DisableResearchStationsTip: overview_rule_options
+DisableMiningOpsTip: overview_rule_options
+AddToAllStartingEmpire: overview_rule_options
+HigherMineralDecayIncreasesThe: overview_rule_options
+ThisWillControlTheChances: overview_rule_options
+MultiplyGlobalMaintenanceCostBy: overview_rule_options
+RuleOptionsUseHullUpkeepTip: overview_rule_options
+
 # Minimap
 FtlOverlayVisualisesSubspaceProjection: overview_map_overlays
 WeaponsRangeOverlayVisualisesShips: overview_map_overlays

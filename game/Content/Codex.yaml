@@ -49,6 +49,8 @@
     -
       UID: overview_map_overlays
     -
+      UID: overview_rule_options
+    -
       UID: overview_your_first_game
 -
   UID: economy
