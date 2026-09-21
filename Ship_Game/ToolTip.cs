@@ -30,6 +30,7 @@ namespace Ship_Game
         public static float DefaultWidth => GameBase.ScreenManager.ScreenCenter.Y >= 720 ? 300 : 200;
 
         static readonly Array<TipItem> ActiveTips = new();
+        static TipItem LastHovered;
 
         public static void ShipYardArcTip()
             // Snap-modifier text differs by AltArcControl mode: in default
@@ -76,6 +77,7 @@ namespace Ship_Game
                 // Update the codex hook on every hover frame — the hovered
                 // UI element decides the current target, not the cached tip.
                 tipItem.CodexUid = codexUid;
+                LastHovered = tipItem;
                 return;
             }
 
@@ -85,6 +87,7 @@ namespace Ship_Game
             var font = GetTipFont;
             tipItem = new(minShowTime);
             ActiveTips.Add(tipItem);
+            LastHovered = tipItem;
 
             tipItem.RawText = rawText;
             tipItem.Text = font.ParseText(rawText, maxWidth);
@@ -117,6 +120,9 @@ namespace Ship_Game
 
         public static string GetActiveCodexUid()
         {
+            TipItem last = LastHovered;
+            if (last != null && (last.HoveredThisFrame || last.HoveredLastFrame) && last.CodexUid != null)
+                return last.CodexUid;
             foreach (TipItem t in ActiveTips)
                 if ((t.HoveredThisFrame || t.HoveredLastFrame) && t.CodexUid != null)
                     return t.CodexUid;
@@ -127,6 +133,7 @@ namespace Ship_Game
         public static void Clear()
         {
             ActiveTips.Clear();
+            LastHovered = null;
         }
 
         class TipItem
@@ -244,6 +251,8 @@ namespace Ship_Game
                 else // tip died
                 {
                     ActiveTips.Remove(tipItem);
+                    if (LastHovered == tipItem)
+                        LastHovered = null;
                 }
             }
             batch.SafeEnd();
