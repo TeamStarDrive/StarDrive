@@ -199,9 +199,12 @@ namespace Ship_Game
             }
             
             // @todo What is this hack doing here? It appears to prohibit new popups while DiplomacyScreen is visible
-            foreach (GameScreen gs in GameScreens)
-                if (gs is DiplomacyScreen)
-                    return;
+            if (screen is not Codex.CodexScreen)
+            {
+                foreach (GameScreen gs in GameScreens)
+                    if (gs is DiplomacyScreen)
+                        return;
+            }
 
             GameScreens.Add(screen);
 
