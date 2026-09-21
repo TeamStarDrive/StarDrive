@@ -362,7 +362,6 @@ namespace Ship_Game
         {
             WaitForExit();
 
-            Codex.CodexHooks.Invalidate();
             TroopsDict.Clear();
             TroopsList.Clear();
             TroopsDictKeys = Empty<string>.Array;
@@ -1414,6 +1413,7 @@ namespace Ship_Game
             var gameText = new FileInfo(ContentDirectory + "GameText.yaml");
             var modText = new FileInfo(ModContentDirectory + "GameText.yaml");
             Localizer.LoadFromYaml(gameText, modText, language);
+            Codex.CodexHooks.Invalidate();
         }
 
         public static TextureAtlas SmallStars, MediumStars, LargeStars;

@@ -9,13 +9,8 @@ namespace Ship_Game.Codex
     public class CodexCategoryListItem : ScrollListItem<CodexCategoryListItem>
     {
         public CodexEntry Entry;
-        // 0 for a top-level category, +1 per level of Children below it. Drives the
-        // indent and color so a header inside a header reads as one.
         public readonly int Depth;
         const int IndentPerLevel = 20;
-        // where the title text starts, shared by topics and nested headers so a
-        // header sits flush with the topics beside it; topics under a top-level
-        // category (depth 1) keep the list's original 15px inset
         float TextInset => 15f + Math.Max(0, Depth - 1) * IndentPerLevel;
 
         public CodexCategoryListItem(CodexEntry entry, int depth)
@@ -24,9 +19,6 @@ namespace Ship_Game.Codex
             Depth = depth;
             // Categories (entries with children) act as expandable headers; the base
             // class requires IsHeader=true before AddSubItem will accept children.
-            // Hidden children are never added, so a category with nothing visible
-            // under it must not become a header, or it would draw an empty bar that
-            // swallows clicks.
             if (entry is { HasVisibleChildren: true })
             {
                 IsHeader = true;
@@ -55,8 +47,6 @@ namespace Ship_Game.Codex
             }
         }
 
-        // A nested header is indented under its parent and drawn smaller and in its
-        // own color, so it cannot be mistaken for the top-level category above it.
         protected override void DrawHeader(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Depth == 0)
@@ -65,8 +55,6 @@ namespace Ship_Game.Codex
                 return;
             }
 
-            // the bar leads the text by a few pixels; the text itself lands on the
-            // same inset as the sibling topics
             const int barLead = 5;
             int indent = (int)TextInset - barLead;
             int width  = Math.Min(HeaderMaxWidth, (int)Width) - indent;

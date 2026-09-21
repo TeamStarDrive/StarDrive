@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 #pragma warning disable CA2213
@@ -41,6 +42,30 @@ namespace UnitTests.ExoticSystems
             Player.data.CurrentResearchStation = "No Such Station Design";
             AssertEqual("No Such Station Design", Player.data.ResearchStation, "the property passes a set name through unchanged");
             Assert.IsNull(ShipBuilder.StationDesignOrNull(Player.data.ResearchStation), "so the goal sees nothing to build, and no exception");
+        }
+
+        [TestMethod]
+        public void AResearchStationGoalWithAStaleNameFailsInsteadOfThrowing()
+        {
+            Planet planet = AddDummyPlanet(new SDGraphics.Vector2(10), 0, 0, 0);
+            Player.data.CurrentResearchStation = "No Such Station Design";
+
+            Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, planet));
+
+            Assert.IsFalse(Player.AI.HasGoal(g => g is ProcessResearchStation), "the goal must remove itself");
+            Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(planet)), "and queue nothing");
+        }
+
+        [TestMethod]
+        public void AMiningGoalWithAStaleNameFailsInsteadOfThrowing()
+        {
+            Planet planet = AddDummyPlanet(new SDGraphics.Vector2(10), 0, 0, 0);
+            Player.data.CurrentMiningStation = "No Such Station Design";
+
+            Player.AI.AddGoalAndEvaluate(new MiningOps(Player, planet));
+
+            Assert.IsFalse(Player.AI.HasGoal(g => g is MiningOps), "the goal must remove itself");
+            Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(planet)), "and queue nothing");
         }
 
         [TestMethod]

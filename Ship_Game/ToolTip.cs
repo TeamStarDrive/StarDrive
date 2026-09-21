@@ -115,10 +115,6 @@ namespace Ship_Game
         public static void CreateTooltip(in LocalizedText tip, float maxWidth = 0, string codexUid = null)
             => CreateTooltip(tip, "", null, maxWidth: maxWidth, codexUid: codexUid);
 
-        // The codex UID of the tooltip under the cursor, if it has one. Used by the
-        // F1 handler. Input runs before Draw, and many tips are created during Draw
-        // and have their hover flag cleared by ToolTip.Draw at the end of the same
-        // frame, so the previous frame's hover counts too.
         public static string GetActiveCodexUid()
         {
             foreach (TipItem t in ActiveTips)

@@ -43,12 +43,8 @@ namespace Ship_Game.Codex
         const float ScrollBarWidth = 12f;
         float WrapRight => Bounds.Right - ScrollBarWidth;
 
-        // A list item's text, and every line it wraps onto, starts this far in
-        // from the margin; the dash sits in the gap.
         const float BulletIndent = 14f;
         const string BulletGlyph = "-";
-        // Where the current line starts: the margin, or the bullet indent while
-        // inside a list item. Reset by a forced line break.
         float LineStartX;
 
         public StyledTextRenderer(RectF bounds)
@@ -100,7 +96,6 @@ namespace Ship_Game.Codex
                 lineStart = Tokens.Count;
             }
 
-            // a forced break also ends any list item, so the next line is flush
             void BreakLine()
             {
                 CommitLine();

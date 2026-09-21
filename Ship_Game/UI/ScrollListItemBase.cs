@@ -234,9 +234,6 @@ namespace Ship_Game
             }
         }
 
-        // Customization Point: the header bar, its title and the +/- expand marker.
-        // Lists that nest headers inside headers override this to indent or restyle
-        // the inner levels; the default draws every header the same way.
         protected virtual void DrawHeader(SpriteBatch batch, DrawTimes elapsed)
         {
             int width = Math.Min(HeaderMaxWidth, (int)Width);

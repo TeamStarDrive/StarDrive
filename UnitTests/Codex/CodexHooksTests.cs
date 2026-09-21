@@ -58,9 +58,29 @@ namespace UnitTests.Codex
             Assert.IsFalse(uids.Contains("tutorials_overview"), "a topic under a hidden branch is not a target");
         }
 
-        // The shipped table must be fully valid against the shipped tree, and the
-        // tree itself must parse: this is the only test that reads Codex.yaml as
-        // shipped, so a formatting slip in either file fails here, not in game.
+        [TestMethod]
+        public void EveryVisibleEntryHasItsTokens()
+        {
+            var missing = new Array<string>();
+            void Walk(Array<CodexEntry> entries)
+            {
+                if (entries == null)
+                    return;
+                foreach (CodexEntry e in entries)
+                {
+                    if (e.Hidden)
+                        continue;
+                    if (!Localizer.Token(e.TitleId, out _))
+                        missing.Add($"{e.UID}: {e.TitleId}");
+                    if (!e.HasVisibleChildren && !e.HasBody)
+                        missing.Add($"{e.UID}: {e.TextId}");
+                    Walk(e.Children);
+                }
+            }
+            Walk(CodexEntry.LoadAll());
+            AssertEqual(0, missing.Count, $"Codex.yaml entries whose tokens are not in GameText.yaml: {string.Join(", ", missing)}");
+        }
+
         [TestMethod]
         public void ShippedHooksAllResolveAgainstShippedCodex()
         {
@@ -73,14 +93,13 @@ namespace UnitTests.Codex
             var file = ResourceManager.GetModOrVanillaFile("CodexHooks.yaml");
             Assert.IsTrue(file.Exists, "CodexHooks.yaml is missing");
             using var parser = new YamlParser(file);
+            AssertEqual(0, parser.Errors.Count, $"CodexHooks.yaml did not parse cleanly: {string.Join("; ", parser.Errors)}");
             int rows = parser.Root.Nodes.Count;
             Assert.IsTrue(rows > 0, "CodexHooks.yaml has no rows");
 
             foreach (YamlNode row in parser.Root.Nodes)
                 Assert.IsTrue(uids.Contains(row.ValueText), $"'{row.Name}' points at '{row.ValueText}', which the Codex does not list");
 
-            // a row the loader drops (unknown token, or a typo) shows up as a short count;
-            // blackbox.log names it
             CodexHooks.Load(parser.Root, uids);
             AssertEqual(rows, CodexHooks.Count, "every shipped row must load");
         }

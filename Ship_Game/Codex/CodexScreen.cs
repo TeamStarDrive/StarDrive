@@ -43,8 +43,7 @@ namespace Ship_Game.Codex
             TransitionOffTime = 0.25f;
 
             Roots = CodexEntry.LoadAll();
-            // opening the screen is the author's hot-reload point for both files
-            CodexHooks.Reload();
+            CodexHooks.Reload(Roots);
 
             TitleText = Localizer.Token("CodexTitle");
         }
@@ -140,9 +139,6 @@ namespace Ship_Game.Codex
 
         void OnCategoryClicked(CodexCategoryListItem item)
         {
-            // A category with a body of its own reads like a topic when clicked, so
-            // an overview lives on the category rather than in a filler child. A
-            // bare header only expands: clear the video and keep the selection.
             if (item.IsHeader && !(item.Entry?.HasBody ?? false))
             {
                 Player?.Stop();

@@ -15,14 +15,9 @@ namespace Ship_Game.Codex
         [StarData] public string TextId;
         [StarData] public string Link;
         [StarData] public string VideoPath;
-        // Authored but not shown: the branch stays in the yaml so it can be turned
-        // back on with one line, and OpenAt() treats it as missing meanwhile.
         [StarData] public bool Hidden;
         [StarData] public Array<CodexEntry> Children;
 
-        // The shipped (or mod) tree with NameIds resolved. Read fresh on every call,
-        // so an author editing Codex.yaml sees the change the next time the screen
-        // or the hook table loads.
         public static Array<CodexEntry> LoadAll()
         {
             var file = ResourceManager.GetModOrVanillaFile("Codex.yaml");
@@ -36,10 +31,6 @@ namespace Ship_Game.Codex
             return roots;
         }
 
-        // UIDs a tooltip may link to: listed by the screen (not under a hidden
-        // branch) and either a topic or a category with a body of its own. A bare
-        // header only expands when clicked, so a link to one would open the Codex
-        // with nothing selected.
         public static HashSet<string> HookableUids(Array<CodexEntry> roots)
         {
             var uids = new HashSet<string>();
@@ -62,7 +53,6 @@ namespace Ship_Game.Codex
             }
         }
 
-        // A category shows this when clicked, the same as a topic would
         public bool HasBody => !string.IsNullOrEmpty(TextId) && Localizer.Token(TextId, out _);
 
         public bool HasVisibleChildren
@@ -78,9 +68,6 @@ namespace Ship_Game.Codex
             }
         }
 
-        // UIDs that appear more than once anywhere in the tree, hidden or not.
-        // The deep-link map and the hooks key on UID, so a repeat would make the
-        // later entry win silently.
         public static Array<string> DuplicateUids(Array<CodexEntry> roots)
         {
             var seen = new HashSet<string>();
