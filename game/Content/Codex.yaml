@@ -66,6 +66,18 @@
       Children:
         -
           UID: colony_population
+        -
+          UID: colony_storage
+        -
+          UID: colony_labor_sliders
+        -
+          UID: colony_trade
+        -
+          UID: colony_governor
+        -
+          UID: colony_blueprints
+        -
+          UID: colony_garrison_and_ports
     -
       UID: economy_automation
 -
@@ -83,6 +95,10 @@
       UID: expansion_deep_space_building
     -
       UID: expansion_subspace_projectors
+    -
+      UID: expansion_terraforming
+    -
+      UID: expansion_dyson_swarm
 -
   UID: warfare
   Children:

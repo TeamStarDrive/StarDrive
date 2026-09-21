@@ -4,19 +4,77 @@
 # the Codex.yaml entry that explains it. Every tooltip showing that token, on
 # any screen, gains a "Press F1 for details" line and F1 opens the entry.
 #
-# The entry must be a topic, not a header: a header only expands on click. A
-# row naming a token or entry that does not exist, a header, or an entry inside
-# a Hidden branch is skipped with a warning in blackbox.log. Re-read every time
-# the Codex screen opens, so rows can be added with the game running.
+# The entry must be a topic, or a category with a body of its own: a bare
+# header only expands on click. A row naming a token or entry that does not
+# exist, a bare header, or an entry inside a Hidden branch is skipped with a
+# warning in blackbox.log. Re-read every time the Codex screen opens, so rows
+# can be added with the game running.
 
-# Economy
+# Colony screen: population
 AColonysPopulationIsA: colony_population
-IncomingOutGoingTip: economy_freighters_and_trade_routes
+
+# Colony screen: fertility and richness live with the planet qualities
+IndicatesHowMuchFoodThis: economy_planetary_qualities
+APlanetsMineralRichnessDirectly: economy_planetary_qualities
+
+# Colony screen: storage
+IndicatesTheAmountOfFood: colony_storage
+IndicatesTheAmountOfProduction: colony_storage
+
+# Colony screen: labor sliders
+FoodIsEatenByYour: colony_labor_sliders
+ProductionIsRequiredForThe: colony_labor_sliders
+ResearchPointsAreAddedInto: colony_labor_sliders
+YourPeopleAreCyberneticAnd: colony_labor_sliders
+LocksThisSliderPreventingThe: colony_labor_sliders
+
+# Colony screen: trade
+IncomingOutGoingTip: colony_trade
+ManualTradeSlotTip: colony_trade
+IndicatesThatThisPlanetIs: colony_trade
+PreventGoodsTransportationInAnd: colony_trade
+SpecializedTradeHubTip: colony_trade
 TradeTreatiesCreateWealthFor: economy_trade_treaties
+
+# Colony screen: governor and budgets
+NormallyGovernorsOperateWithinA: colony_governor
+TheGovernorWillBuildStations: colony_governor
+TheGovernorWillManageGround: colony_governor
+TheRankOfTheColony: colony_governor
+CivilianBuildingsExpenditurebudgetInByc: colony_governor
+GroundDefenseBuildingsExpenditurebudgetIn: colony_governor
+OrbitalsExpenditurebudgetInByc: colony_governor
+OverrideThisBudgetAndSet: colony_governor
+OverrideGovernorDecisionsRegardingOrbital: colony_governor
+PlayerBuiltProtectedFromScrap: colony_governor
+
+# Colony screen: blueprints
+ExclusiveBlueprintsTip: colony_blueprints
+LinkBlueprintsTip: colony_blueprints
+UploadBluprintsTip: colony_blueprints
+ClearBluprintsTip: colony_blueprints
+EditBluprintsTip: colony_blueprints
+AchievableTip: colony_blueprints
+CompletionTip: colony_blueprints
+LockedRightClickToRemove: colony_blueprints
+OutpostsCannotBeRemoved: colony_blueprints
+
+# Colony screen: garrison and ports
+TheGovernorWillCreateA: colony_garrison_and_ports
+PrioritizedPortTip: colony_garrison_and_ports
 
 # Expansion
 ResearchStationCanBePlaced: expansion_deep_space_building
 MiningStationsCanBePlaced: expansion_deep_space_building
+BuildDysonSwarmTip: expansion_dyson_swarm
+DysonSwarmProgressTip: expansion_dyson_swarm
+DysonSwarmControllerProgressTip: expansion_dyson_swarm
+DysonSwarmProductionBoostTip: expansion_dyson_swarm
+DysonSwarmOverClockSwarmTip: expansion_dyson_swarm
+KillDysonSwarmTip: expansion_dyson_swarm
+ThisTileCanBeTerraformed: expansion_terraforming
+ThisTileCanBeTerraformedHarder: expansion_terraforming
+AutoBuildTerraformersTip: expansion_terraforming
 
 # Warfare
 IndicatesAShipsExperienceLevel2: warfare_ship_experience
