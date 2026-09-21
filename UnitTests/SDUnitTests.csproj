@@ -83,6 +83,7 @@
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
+    <Compile Include="Espionage\LegacyAgentTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />

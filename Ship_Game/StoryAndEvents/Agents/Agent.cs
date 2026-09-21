@@ -47,14 +47,12 @@ namespace Ship_Game
             if (cost > 0 && cost > owner.Money)
                 return; // Do not go into negative money, cost > 0 check is for 0 mission cost which can be done in negative
 
-            if (mission == AgentMission.Undercover)
+            if (Mission == AgentMission.Undercover && mission != AgentMission.Undercover)
             {
                 Mole mole = owner.data.MoleList.Find(m => m.PlanetId == TargetPlanetId);
                 if (mole != null)
-                {
-                    Planet targetPlanet = owner.Universe.GetPlanet(TargetPlanetId);
-                    owner.RemoveMole(mole, targetPlanet.Owner);
-                }
+                    owner.RemoveMole(mole, owner.Universe.GetPlanet(TargetPlanetId)?.Owner);
+                TargetPlanetId = 0;
             }
 
             owner.AddMoney(-cost);
