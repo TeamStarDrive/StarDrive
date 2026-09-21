@@ -7942,7 +7942,7 @@ RushAllConstructionTip:
  PTB: "Sinaliza a aceleração contínua da construção de todos os itens do seu império, incluindo itens existentes e futuros.\n \nAVISO: Isso gastará rapidamente seu tesouro e pode causar altas taxas de imposto se Impostos Automáticos estiverem ativados."
 BuildAllShipsNowPrioritize:
  Id: 1826
- ENG: "build all ships now, prioritize them to be first in queue and apply continuous rush.\n \nWARNING: This might drain your Treasury in an alarming rate."
+ ENG: "Build all ships now, prioritize them to be first in queue and apply continuous rush.\n \nWARNING: This might drain your Treasury at an alarming rate."
  RUS: "Постройте все корабли сейчас, расставьте приоритеты, чтобы они были первыми в очереди, и применяйте ускоренное производство.\n \nПРЕДУПРЕЖДЕНИЕ: Это может истощить вашу казну с угрожающей скоростью."
  UKR: "побудуйте всі кораблі зараз, розставте їх за пріоритетом, щоб вони були першими в черзі, і застосуйте безперервний поспіх.\n \nПОПЕРЕДЖЕННЯ: Це може виснажити вашу скарбницю з загрозливою швидкістю."
  PTB: "construir todas as naves agora, priorizá-las para ficarem no início da fila e aplicar aceleração contínua.\n \nAVISO: Isso pode drenar seu Tesouro em uma velocidade alarmante."
@@ -8385,7 +8385,7 @@ PlanetTypeAndRichnessThe:
  PTB: "Tipo do planeta e Riqueza. O número entre parênteses, se disponível, indica os modificadores de Fertilidade e População deste planeta, com base nos ambientes adequados ao seu império."
 SendAvailableTroopsToThis:
  Id: 1900
- ENG: "Send available troops to this planet. Any available troop transports in space can be sent. Troops from your your nearest colony will be sent to this planet providing that the number of troops on that colony exceeds the Garrison Threshold."
+ ENG: "Send available troops to this planet. Any available troop transports in space can be sent. Otherwise the nearest colony with troops to spare above its garrison size sends one."
  RUS: "Отправьте доступные войска на эту планету. Могут быть отправлены любые доступные транспортные войска в космосе. Войска из ближайшей к вам колонии будут отправлены на эту планету при условии, что количество войск в этой колонии превышает порог гарнизона."
  UKR: "Відправте на цю планету наявні війська. На цю планету можна відправити будь-який доступний транспортний засіб у космосі. Війська з вашої найближчої колонії будуть відправлені на цю планету за умови, що кількість військ на цій колонії перевищує поріг гарнізону."
  PTB: "Enviar tropas disponíveis para este planeta. Qualquer transporte de tropas disponível no espaço pode ser enviado. Tropas da sua colônia mais próxima serão enviadas para este planeta, desde que o número de tropas nessa colônia exceda o Limite de Guarnição."
@@ -8624,7 +8624,7 @@ RebaseASingleTroopFrom:
  PTB: "Realoca uma única tropa de outro planeta ou de outra nave de tropas livre para este planeta. Você pode enviar várias tropas, se disponíveis, dessa forma."
 LaunchASingleRandomTroop:
  Id: 1950
- ENG: "Launch a single random troop from this planet to space. Note than you can launch any troop you want by left clicking on the troop icon in the grid below."
+ ENG: "Launch a single random troop from this planet to space. Note that you can launch any troop you want by left clicking on the troop icon in the grid below."
  RUS: "Отправьте один случайный отряд с этой планеты в космос. Обратите внимание, что вы можете запустить любой отряд, который хотите, щелкнув правой кнопкой мыши на значок отряда в окне колонии справа."
  UKR: "Запустіть одне випадкове військо з цієї планети в космос. Зверніть увагу, що ви можете запустити будь-яке військо, клацнувши лівою кнопкою миші на іконці війська в сітці нижче."
  PTB: "Lança uma única tropa aleatória deste planeta para o espaço. Observe que você pode lançar qualquer tropa desejada clicando com o botão esquerdo no ícone da tropa na grade abaixo."
@@ -8780,10 +8780,7 @@ EmpOverloadShipIsDisabled:
  PTB: "Sobrecarga EMP. A nave está desativada. Quando o número ficar abaixo de 1, a nave terá se recuperado da sobrecarga EMP."
 StructuralIntegrityOfTheShip:
  Id: 1976
- ENG: "Structural Integrity of the ship reflecting internal damage. If this reaches 0%, the ship will be immediately destroyed."
- RUS: "Структурная целостность корабля, отражающая внутренние повреждения. Если она достигнет 0%, корабль будет немедленно уничтожен."
- UKR: "Структурна цілісність корабля, що відображає внутрішні пошкодження. Якщо вона досягає 0%, корабель буде негайно знищено."
- PTB: "Integridade Estrutural da nave, refletindo dano interno. Se chegar a 0%, a nave será destruída imediatamente."
+ ENG: "Structural integrity of the ship: the share of its internal module slots still intact. The ship is destroyed when this drops below 50%."
 DodgeModifier:
  Id: 1977
  ENG: "Dodge Modifier"
@@ -11262,7 +11259,7 @@ AddEnergyStorageToIncrease:
  PTB: "Adicione Armazenamento de Energia para aumentar o tempo das armas de Energia. Não é obrigatório que o tempo de armas seja infinito, pois muitas vezes a nave não dispara todas as suas armas, especialmente se tiver múltiplos arcos de disparo"
 StatesAnyDesignIssuesThe:
  Id: 2546
- ENG: "States any design issues the current ship has. It is displayed after you completed 75% of the design. The color of the issue indicates it's severity (Green for Informative up to Red for Critical). Click on the text to view them."
+ ENG: "States any design issues the current ship has. It is displayed after you completed 75% of the design. The color of the issue indicates its severity (Green for Informative up to Red for Critical). Click on the text to view them."
  RUS: "Указывает на любые конструктивные проблемы текущего корабля. Он отображается после того, как вы выполнили 75% корпуса. Цвет проблемы указывает на ее серьезность (от зеленого информативного до красного критического).Нажмите на текст, чтобы просмотреть их."
  UKR: "Вказує на будь-які проблеми з дизайном, які має поточний корабель. З'являється після того, як ви завершили 75% проектування. Колір проблеми вказує на її серйозність (від зеленого для інформативних до червоного для критичних). Натисніть на текст, щоб переглянути їх."
  PTB: "Informa quaisquer problemas de projeto que a nave atual tenha. É exibido depois que você completa 75% do projeto. A cor do problema indica sua gravidade (verde para informativo até vermelho para crítico). Clique no texto para visualizá-los."
@@ -13564,13 +13561,13 @@ Fleet:
  PTB: "Frota"
 IndicatesThisModuleHasA:
  Id: 4196
- ENG: "Indicates this module has a Turreted weapon installed and it's fire arc can be rotated. Click and hold this module while installed on the ship and move the mouse to rotate the arc by 15 degrees intervals. You can also hold Shift to rotate in 1 degree intervals."
+ ENG: "Indicates this module has a turreted weapon installed and its fire arc can be rotated. Click and hold this module while installed on the ship and move the mouse to rotate the arc by 15 degrees intervals. You can also hold Shift to rotate in 1 degree intervals."
  RUS: "Указывает на то, что в этом модуле установлено оружие на поворотной платформе, и его дуга огня может вращаться. Нажмите ЛКМ и удерживайте мишь на этом модуле, когда он установлен на корабле, и перемещайте мышь, чтобы повернуть дугу с интервалом 15 градусов. Вы также можете удерживать Shift для поворота с интервалом в 1 градус."
  UKR: "Вказує на те, що на цьому модулі встановлено баштову зброю, і його дуга вогню може бути повернута. Натисніть і утримуйте цей модуль, коли він встановлений на кораблі, і рухайте мишею, щоб повернути дугу на 15 градусів з інтервалом у 15 градусів. Ви також можете утримувати клавішу Shift для повороту з інтервалом в 1 градус."
  PTB: "Indica que este módulo tem uma arma em torre instalada e que seu arco de disparo pode ser rotacionado. Clique e segure este módulo enquanto estiver instalado na nave e mova o mouse para girar o arco em intervalos de 15 graus. Você também pode segurar Shift para girar em intervalos de 1 grau."
 ThisModuleCanBeRotated:
  Id: 4197
- ENG: "This module can be rotated and it's weapon fire arc can be changed as a turret."
+ ENG: "This module can be rotated and its weapon fire arc can be changed as a turret."
  RUS: "Модуль турельного типа.Сектор поражения этого оружия можно вращать."
  UKR: "Цей модуль можна повертати, а дугу вогню зброї можна змінювати, як у башті."
  PTB: "Este módulo pode ser rotacionado e seu arco de disparo pode ser alterado como uma torre."
@@ -14996,7 +14993,7 @@ RefinningPerTurnStat:
  PTB: "Refino Por Turno"
 RefiningPerTurnStatTip:
  Id: 4450
- ENG: "Inticates how much Refining this station can handle per turn. Some Exotic resources are easier or harder to refine. You will see this Refine Ration in the Planet Info Screen of Mineable planets."       
+ ENG: "Indicates how much refining this station can handle per turn. Some exotic resources are easier or harder to refine; the refine ratio is shown in the planet info screen of mineable planets."       
  UKR: "Показує, скільки переробки може здійснити ця станція за один хід. Деякі екзотичні ресурси легше або важче переробляти. Ви побачите цю норму переробки на інформаційному екрані планети, яку можна видобувати."
  PTB: "Indica quanto Refino esta estação pode processar por turno. Alguns recursos Exóticos são mais fáceis ou mais difíceis de refinar. Você verá essa proporção de refino na Tela de Informações do Planeta dos planetas mineráveis."
 MiningStationRefiningTimeStat:
@@ -15355,7 +15352,7 @@ ThisTileCanBeTerraformedHarder:
  PTB: "Este quadrante pode ser terraformado como parte das operações de terraformação. Sua biosfera será removida assim que o quadrante se tornar habitável."
 BioshperesAreBuiltHere:
  Id: 4522
- ENG: "Biospheres are built here. Right Click if you wish to scrap these Bioshperes."
+ ENG: "Biospheres are built here. Right click if you wish to scrap these Biospheres."
  UKR: "Тут побудовані біосфери. Клацніть правою кнопкою миші, якщо ви бажаєте скасувати ці Bioshperes." 
  PTB: "Bioesferas são construídas aqui. Clique com o botão direito se quiser sucatear estas Bioesferas."
 ThisTileCanBeTerraformed:
@@ -15369,7 +15366,7 @@ DisableScreenPanningOption:
  PTB: "Desativar movimentação da tela pelo mouse"
 DisableScreenPanningOptionTip:
  Id: 4525
- ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their maps keeps moving when they focus on another screen."   
+ ENG: "Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their map keeps moving when they focus on another screen."   
  PTB: "O ponteiro do mouse não pode ser usado para mover a tela pelas bordas, apenas as teclas WASD. Útil para jogadores com múltiplas telas se o mapa continuar se movendo quando eles focam em outra tela."
 BB_Tech_DysonSwarm1_Name: 
  Id: 4909
@@ -17861,7 +17858,7 @@ BlueprintsSnapshot:
  PTB: "Instantâneo"
 BlueprintsSnapshotTip:
  Id: 6216
- ENG: "Create Blueprints from the current applicable buildings on this planet. It wont work if non of the current buildings can be inserted into Blueprints."                  
+ ENG: "Create Blueprints from the current applicable buildings on this planet. It will not work if none of the current buildings can be inserted into Blueprints."                  
  PTB: "Cria Projetos a partir dos edifícios aplicáveis atuais neste planeta. Não funcionará se nenhum dos edifícios atuais puder ser inserido em Projetos."
 BluePrintsOverView:
  Id: 6217
@@ -18454,7 +18451,7 @@ LoadPatrol:
  PTB: "Carregar Patrulha"
 LoadPatrolTip: 
  Id: 6367
- ENG: "Load Patrol Plan to this fleet. It will repalce any existing patrol plan."    
+ ENG: "Load Patrol Plan to this fleet. It will replace any existing patrol plan."    
  PTB: "Carrega o Plano de Patrulha nesta frota. Ele substituirá qualquer plano de patrulha existente."
 EmpirePatrolsScreenTip: 
  Id: 6368
@@ -22207,9 +22204,7 @@ CodexWarfareCombatBasicsShort:
  PTB: "Conceitos gerais relacionados a combate"
 CodexWarfareCombatBasicsText:
  Id: 100093
- ENG: "A ship is destroyed when its internal hull is reduced to 30%. The internal hull is the collection of ship module slots with the \"I\" restriction. Therefore, it is possible to severely damage a ship by taking out its engines and weapons and armor, but the ship will not explode until you destroy the inner hull. \n \n Every ship is capable of six basic combat behaviors, such as the Artillery behaviors or the Attack Runs behaviors. You can set a combat behavior in several different ways. First, you can designate a default combat behavior for a ship in the Shipyard when designing a ship. Second, you can override a ship's default orders by selecting it and then clicking one of the six behavior buttons in the ship selection window. Finally, you can create a custom combat behavior for a ship in the fleet editor, which is accessible in the shipyard.  \n \n Ships will automatically attack any hostile ships unless given the evade order, in which case they will avoid combat. Otherwise, simply moving friendly forces near enemy forces will begin combat. You can give ships specific targets by selecting your ship and right clicking the enemy ship that you want to target. The ship will not choose a new target until either it or its target dies. "
- RUS: "Корабль уничтожается, когда запас прочности внутреннего корпуса падает ниже 30%. Внутренний корпус – это совокупность модулей корабля с меткой \"I\". Тем самым, можно нанести кораблю. значительный урон, выведя из строя его двигатели, оружие и броню, но корабль не взорвется, пока не будет уничтожен внутренний корпус. \n \n Каждому кораблю можно задать один из шести возможных алгоритмов поведения в бою, например, отвести кораблю роль артиллерийской поддержки или приказать ему осуществлять налеты и отходы. Задать алгоритм поведения корабля в бою можно несколькими способами. Во-первых, его можно указать на верфи при разработке дизайна корабля. Во-вторых, можно отменить поведение корабля по умолчанию и назначить ему новое при помощи кнопок поведения в окне выбора корабля. И, наконец, можно создать свой вариант поведения для корабля в редакторе флота, который доступен на верфи.  \n \n Корабли будут автоматически атаковать все вражеские корабли, если только им не отдан приказ уклоняться от боя – во всех остальных случаях бой начнется сразу, когда дружественный флот войдет в контакт с вражеским. Вы можете указать для своего корабля конкретные цели, выделив свой корабль и щелкнув ПКМ по вражескому кораблю, который должен быть атакован вашим кораблем. Ваш корабль переключится на эту цель и не сменит ее, пока не уничтожит ее или погибнет сам. "
- PTB: "Uma nave é destruída quando seu casco interno é reduzido a 30%. O casco interno é o conjunto de espaços de módulos da nave com a restrição \"I\". Portanto, é possível causar danos graves a uma nave destruindo seus motores e armas sem necessariamente destruir seu casco interno. \n \n Armas diferentes causam tipos diferentes de dano e têm comportamentos diferentes. Alguns sistemas são melhores contra escudos, outros contra blindagem ou módulos específicos. Posicionamento, alcance, arcos de disparo e composição da frota têm grande impacto no resultado das batalhas."
+ ENG: "A ship is destroyed when its internal hull drops below 50%. The internal hull is the collection of ship module slots with the \"I\" restriction. Therefore, it is possible to severely damage a ship by taking out its engines and weapons and armor, but the ship will not explode until you destroy the inner hull. \n \n Every ship is capable of six basic combat behaviors, such as the Artillery behaviors or the Attack Runs behaviors. You can set a combat behavior in several different ways. First, you can designate a default combat behavior for a ship in the Shipyard when designing a ship. Second, you can override a ship's default orders by selecting it and then clicking one of the six behavior buttons in the ship selection window. Finally, you can create a custom combat behavior for a ship in the fleet editor, which is accessible in the shipyard.  \n \n Ships will automatically attack any hostile ships unless given the evade order, in which case they will avoid combat. Otherwise, simply moving friendly forces near enemy forces will begin combat. You can give ships specific targets by selecting your ship and right clicking the enemy ship that you want to target. The ship will not choose a new target until either it or its target dies. "
 CodexWarfareGroundCombat:
  Id: 100094
  ENG: "Ground Combat"
