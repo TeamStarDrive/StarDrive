@@ -39,6 +39,7 @@ namespace UnitTests.Codex
         {
             CodexHooks.Load(Parse("NoSuchTokenXyz: economy_economic_basics\n"
                                 + "IncomingOutGoingTip: no_such_entry\n"
+                                + "999999: economy_economic_basics\n"
                                 + "TradeTreatiesCreateWealthFor: economy_trade_treaties\n"),
                             new HashSet<string> { "economy_economic_basics", "economy_trade_treaties" });
 

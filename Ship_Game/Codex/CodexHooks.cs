@@ -92,7 +92,7 @@ namespace Ship_Game.Codex
         {
             if (Localizer.TryGetTokenId(nameId, out id))
                 return true;
-            if (Enum.TryParse(nameId, out GameText token) && (int)token > 0)
+            if (Enum.TryParse(nameId, out GameText token) && Enum.IsDefined(typeof(GameText), token) && (int)token > 0)
             {
                 id = (int)token;
                 return true;
