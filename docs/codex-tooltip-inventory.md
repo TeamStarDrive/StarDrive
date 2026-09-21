@@ -9,31 +9,31 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 225. Already hooked: 52.
+Tokens: 225. Already hooked: 70.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
-| 1 | `AllowPlayerInterTradeTip` | Allows your idle freighters to transfer goods to empires you have trade treaties with them if internal demand is satisfied. You can still disable this for sp... | AutomationWindow.cs |  |  |
-| 2 | `AutoBuildMiningStationTip` | This will auto build Mining stations for you around relevant planets. It will use whatever Mining Station you pick in the dropdown list below (visible if you... | AutomationWindow.cs |  |  |
-| 3 | `AutoBuildResearchStationTip` | This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the dropdown list below (v... | AutomationWindow.cs |  |  |
+| 1 | `AllowPlayerInterTradeTip` | Allows your idle freighters to transfer goods to empires you have trade treaties with them if internal demand is satisfied. You can still disable this for sp... | AutomationWindow.cs |  | automation_freighters |
+| 2 | `AutoBuildMiningStationTip` | This will auto build Mining stations for you around relevant planets. It will use whatever Mining Station you pick in the dropdown list below (visible if you... | AutomationWindow.cs |  | automation_construction |
+| 3 | `AutoBuildResearchStationTip` | This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the dropdown list below (v... | AutomationWindow.cs |  | automation_construction |
 | 4 | `AutoBuildTerraformersTip` | Your empire will manage terraforming efforts automatically, building terraformers on the best potential valued planets first, based on a budget. Note that it... | AutomationWindow.cs |  | expansion_terraforming |
-| 5 | `AutoPickConstructorsTip` | Best constructors for the job will be selected automatically. Generally, if a build job localtion is in a system with friendly colonies, cheaper constructors... | AutomationWindow.cs |  |  |
-| 6 | `AutoPickMiningStationTip` | This will pick the best Mining Station with most Refining generated and will upgrade them whenever possible, if the auto build Mining Stations checkbox is ch... | AutomationWindow.cs |  |  |
-| 7 | `AutoPickResearchStationTip` | This will pick the best Research Station with most Research generated and will upgrade them whenever possible, if the auto build Research Stations checkbox i... | AutomationWindow.cs |  |  |
-| 8 | `DisableCrashSiteAlertsTip` | Disable all ship crash on planet alrets. Recovered ship crash site notifications will be sent only if an actual ship was recovered. | AutomationWindow.cs |  |  |
-| 9 | `DisableVolcanoActivationOrDeactivation` | Disable Volcano Activation or Deactivation alerts. You will still be notified if a Volcano in one of your colonies erupts. | AutomationWindow.cs |  |  |
+| 5 | `AutoPickConstructorsTip` | Best constructors for the job will be selected automatically. Generally, if a build job localtion is in a system with friendly colonies, cheaper constructors... | AutomationWindow.cs |  | automation_construction |
+| 6 | `AutoPickMiningStationTip` | This will pick the best Mining Station with most Refining generated and will upgrade them whenever possible, if the auto build Mining Stations checkbox is ch... | AutomationWindow.cs |  | automation_construction |
+| 7 | `AutoPickResearchStationTip` | This will pick the best Research Station with most Research generated and will upgrade them whenever possible, if the auto build Research Stations checkbox i... | AutomationWindow.cs |  | automation_construction |
+| 8 | `DisableCrashSiteAlertsTip` | Disable all ship crash on planet alrets. Recovered ship crash site notifications will be sent only if an actual ship was recovered. | AutomationWindow.cs |  | automation_alerts |
+| 9 | `DisableVolcanoActivationOrDeactivation` | Disable Volcano Activation or Deactivation alerts. You will still be notified if a Volcano in one of your colonies erupts. | AutomationWindow.cs |  | automation_alerts |
 | 10 | `BB_EnableStarvationWarningTip` | When enabled, you will get a warning when a planet population start starving. | AutomationWindow.cs |  |  |
-| 11 | `IfAutoTradeIsChecked` | If Auto Trade is checked, the Best freighters available for your Empire will be built for import/export needs. | AutomationWindow.cs |  |  |
-| 12 | `InhibitionAlertsAreDisplayedWhen` | Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default wh... | AutomationWindow.cs |  |  |
-| 13 | `NormallyWhenYouManuallyAdd` |  Normally, when you manually add a building to the colony's build queue, you will be notified when it is completed. You can disable these notifications, if y... | AutomationWindow.cs |  |  |
+| 11 | `IfAutoTradeIsChecked` | If Auto Trade is checked, the Best freighters available for your Empire will be built for import/export needs. | AutomationWindow.cs |  | automation_freighters |
+| 12 | `InhibitionAlertsAreDisplayedWhen` | Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default wh... | AutomationWindow.cs |  | automation_alerts |
+| 13 | `NormallyWhenYouManuallyAdd` |  Normally, when you manually add a building to the colony's build queue, you will be notified when it is completed. You can disable these notifications, if y... | AutomationWindow.cs |  | automation_alerts |
 | 14 | `rioritizeProjectorTip` | Whenever a Subspace Projector is placed in a planet's construction queue, manually or automatically, it would be placed at the top of the list. | AutomationWindow.cs |  |  |
-| 15 | `RushAllConstructionTip` | Signals Continuous Construction rush of all items in your empire, including existing and future items.   WARNING: This will quickly spend your treasury and m... | AutomationWindow.cs |  |  |
-| 16 | `TheBestColonyShipWill` | The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons. | AutomationWindow.cs |  |  |
-| 17 | `YourEmpireWillAutomaticallyCreate` | Your empire will automatically create and deploy colony ships to desirable planets. Colony ships will not be dispatched to planets with a known nearby enemy ... | AutomationWindow.cs |  |  |
-| 18 | `YourEmpireWillAutomaticallyManage` | Your empire will automatically manage ANY scouts ships that you own. If you do not own enough, it will create more scout ships (matching the name selected be... | AutomationWindow.cs |  |  |
-| 19 | `YourEmpireWillAutomaticallyManage2` | Your empire will automatically manage your freighter needs, creating freighters to transport food and passengers where needed. You will still need to designa... | AutomationWindow.cs |  |  |
-| 20 | `YourEmpireWillAutomaticallyManage3` | Your Empire will automatically manage taxes and treasury. | AutomationWindow.cs |  |  |
-| 21 | `YourEmpireWillAutomaticallySelect` | Your Empire will automatically select technologies to research. | AutomationWindow.cs |  |  |
+| 15 | `RushAllConstructionTip` | Signals Continuous Construction rush of all items in your empire, including existing and future items.   WARNING: This will quickly spend your treasury and m... | AutomationWindow.cs |  | automation_construction |
+| 16 | `TheBestColonyShipWill` | The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons. | AutomationWindow.cs |  | automation_exploration |
+| 17 | `YourEmpireWillAutomaticallyCreate` | Your empire will automatically create and deploy colony ships to desirable planets. Colony ships will not be dispatched to planets with a known nearby enemy ... | AutomationWindow.cs |  | automation_exploration |
+| 18 | `YourEmpireWillAutomaticallyManage` | Your empire will automatically manage ANY scouts ships that you own. If you do not own enough, it will create more scout ships (matching the name selected be... | AutomationWindow.cs |  | automation_exploration |
+| 19 | `YourEmpireWillAutomaticallyManage2` | Your empire will automatically manage your freighter needs, creating freighters to transport food and passengers where needed. You will still need to designa... | AutomationWindow.cs |  | automation_freighters |
+| 20 | `YourEmpireWillAutomaticallyManage3` | Your Empire will automatically manage taxes and treasury. | AutomationWindow.cs |  | automation_research_and_taxes |
+| 21 | `YourEmpireWillAutomaticallySelect` | Your Empire will automatically select technologies to research. | AutomationWindow.cs |  | automation_research_and_taxes |
 | 22 | `LoadPatrolTip` | Load Patrol Plan to this fleet. It will repalce any existing patrol plan. | ChoosePatrolPlanWindow.cs |  |  |
 | 23 | `ExoticResourceBonusTip` | Current bonus your empire gets per exotic resource with color coding: Gold: The maximum bonus was reached. Green: The bonus rate increased from last turn. Re... | ExoticBonusesWindow.cs |  |  |
 | 24 | `ExoticResourceMaxRefineTip` | Maximum refining rate of the Exotic resource per turn. When more Mining Stations are added, the maximum rate is increased. | ExoticBonusesWindow.cs |  |  |
@@ -67,7 +67,7 @@ Tokens: 225. Already hooked: 52.
 | 52 | `IndicatesTheAmountOfProduction` | Indicates the amount of Production stored at this planet. Stored Production may be used to rush the production of any items in your build queue by clicking t... | ColonyScreen/ColonyScreen_Draw.cs<br>Universe/ColoniesListItem.cs |  | colony_storage |
 | 53 | `PlayerBuiltProtectedFromScrap` | You placed this yourself, so the governor will never scrap it or cancel it. | ColonyScreen/ColonyScreen_Draw.cs |  | colony_governor |
 | 54 | `ThisTileCanBeTerraformed` | This tile can be terraformed as part of terraforming operations. | ColonyScreen/ColonyScreen_Draw.cs |  | expansion_terraforming |
-| 55 | `ThisTileCanBeTerraformedHarder` | This tile can be terraformed as part of terraforming operations. The process will take more time due to Biosphere Terraforming complexity. | ColonyScreen/ColonyScreen_Draw.cs |  | expansion_terraforming |
+| 55 | `ThisTileCanBeTerraformedHarder` | This tile can be terraformed as part of terraforming operations. Its biosphere will be removed once the tile becomes habitable. | ColonyScreen/ColonyScreen_Draw.cs |  | expansion_terraforming |
 | 56 | `LocksThisSliderPreventingThe` | Locks this slider, preventing the assigned labor percentage from being altered directly or indirectly. | ColonyScreen/ColonySlider.cs |  | colony_labor_sliders |
 | 57 | `AchievableTip` | Maximum completion percent of Blueprints for current technology level. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
 | 58 | `BlueprintsSnapshotTip` | Create Blueprints from the current applicable buildings on this planet. It wont work if non of the current buildings can be inserted into Blueprints. | ColonyScreen/GovernorDetailsComponent.cs |  |  |

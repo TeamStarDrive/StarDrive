@@ -80,6 +80,17 @@
           UID: colony_garrison_and_ports
     -
       UID: economy_automation
+      Children:
+        -
+          UID: automation_exploration
+        -
+          UID: automation_freighters
+        -
+          UID: automation_construction
+        -
+          UID: automation_research_and_taxes
+        -
+          UID: automation_alerts
 -
   UID: expansion
   Children:
