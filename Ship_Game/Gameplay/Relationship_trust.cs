@@ -65,9 +65,10 @@ namespace Ship_Game.Gameplay
             if (!them.isPlayer && them.data.EconomicPersonality.EconomicPersonality() == eType)
                 trust += baseGain*2;
 
-            float trustDifficulty = them.isPlayer ? (-baseGain) * ((int)us.Universe.P.Difficulty) : 0;
+            if (them.isPlayer && trust > 0)
+                trust /= (int)us.Universe.P.Difficulty + 1;
 
-            return trust - trustDifficulty;
+            return trust;
         }
 
         float BaseEtraitTrustGain(float baseGain, Empire us, Empire them, EconomicPersonalityType eType)
