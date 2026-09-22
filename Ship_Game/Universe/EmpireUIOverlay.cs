@@ -435,7 +435,7 @@ namespace Ship_Game
                                 }
                             case "?":
                                 {
-                                    ToolTip.CreateTooltip(GameText.OpensTheHelpMenu, "P");
+                                    ToolTip.CreateTooltip(GameText.OpensTheHelpMenu, "F1");
                                     break;
                                 }
                         }

@@ -760,14 +760,12 @@ namespace Ship_Game
             GameAudio.StopGenericMusic(fadeout: true);
             CurrentMusic = null;
         }
-        void OpenCodexAt(string uid)
+        void OpenCodex(string uid)
         {
-            if (uid == null)
-                return;
-
             GameAudio.TacticalPause();
             var codex = new Codex.CodexScreen(Current);
-            codex.OpenAt(uid);
+            if (uid != null)
+                codex.OpenAt(uid);
             AddScreen(codex);
         }
 
@@ -784,7 +782,9 @@ namespace Ship_Game
             if (!otherScreenHasFocus && input.CodexHelp && GameScreens.NotEmpty
                 && Current is not Codex.CodexScreen)
             {
-                OpenCodexAt(ToolTip.GetActiveCodexUid());
+                string codexUid = ToolTip.GetActiveCodexUid();
+                if (codexUid != null || Current.HelpKeyOpensCodex)
+                    OpenCodex(codexUid);
             }
             
             Array<GameScreen> frontToBack = new(); // valid screens ordered from topmost to back

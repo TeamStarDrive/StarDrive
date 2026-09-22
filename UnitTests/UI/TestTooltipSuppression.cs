@@ -1,5 +1,6 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics.Input;
 using Ship_Game;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -30,8 +31,53 @@ namespace UnitTests.UI
             }
         }
 
+        class HelpScreen : TipScreen
+        {
+            public HelpScreen() : base(popup: false, GameText.Total2, null) {}
+            public override bool HelpKeyOpensCodex => true;
+        }
+
+        [TestInitialize]
+        public void ClearScreens() => RemoveAllScreens();
+
         [TestCleanup]
-        public void ClearTips() => ToolTip.Clear();
+        public void ClearScreensAndTips()
+        {
+            RemoveAllScreens();
+            ToolTip.Clear();
+        }
+
+        static void RemoveAllScreens()
+        {
+            var screens = Game.Manager.Screens;
+            for (int i = screens.Count - 1; i >= 0; --i)
+                Game.Manager.RemoveScreen(screens[i]);
+        }
+
+        static void PressHelpKey()
+        {
+            Game.Tick();
+            MockInput.KeysDown.Add(Keys.F1);
+            Game.Tick();
+            MockInput.KeysDown.Remove(Keys.F1);
+            Game.Tick();
+        }
+
+        [TestMethod]
+        public void HelpKeyOpensTheCodexOnScreensThatAskForIt()
+        {
+            Game.Manager.AddScreenAndLoadContent(new HelpScreen());
+            PressHelpKey();
+            AssertTrue(Game.Manager.IsShowing<Ship_Game.Codex.CodexScreen>());
+        }
+
+        [TestMethod]
+        public void HelpKeyDoesNothingOnOtherScreens()
+        {
+            Game.Manager.AddScreenAndLoadContent(new TipScreen(popup: false, GameText.Total2, null));
+            PressHelpKey();
+            AssertFalse(Game.Manager.IsShowing<Ship_Game.Codex.CodexScreen>());
+        }
 
         [TestMethod]
         public void ScreenReceivingInputCreatesTooltips()
