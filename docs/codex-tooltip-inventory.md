@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 391. Already hooked: 319.
+Tokens: 391. Already hooked: 339.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -71,7 +71,7 @@ Tokens: 391. Already hooked: 319.
 | 56 | `ViewPreviousColony` | View previous colony | ColonyScreen/ColonyScreen.cs |  |  |
 | 57 | `AColonysPopulationIsA` | A colony's population is a primary indicator of its economic strength. The higher a colony's population, the more colonists are available to divide between t... | ColonyScreen/ColonyScreen_Draw.cs<br>Universe/EmpireManagementScreen.cs<br>Universe/SolarBodies/UnownedPlanetScreen.cs |  | colony_population |
 | 58 | `APlanetsMineralRichnessDirectly` | A planet's Mineral Richness directly affects the speed at which a colony creates Production. Mineral Richness slowly decays. The decay rate is affected by pr... | ColonyScreen/ColonyScreen_Draw.cs<br>Universe/EmpireManagementScreen.cs<br>Universe/SolarBodies/UnexploredPlanetScreen.cs<br>Universe/SolarBodies/UnownedPlanetScreen.cs |  | economy_planetary_qualities |
-| 59 | `BioshperesAreBuiltHere` | Biospheres are built here. Right click if you wish to scrap these Biospheres. | ColonyScreen/ColonyScreen_Draw.cs |  |  |
+| 59 | `BioshperesAreBuiltHere` | Biospheres are built here. Click if you wish to scrap these Biospheres. | ColonyScreen/ColonyScreen_Draw.cs |  | colony_population |
 | 60 | `IndicatesHowMuchFoodThis` | Indicates how much food this planet will produce per assigned colonist per turn (a turn is 0.1 StarDate). Some buildings or environmental effects might incre... | ColonyScreen/ColonyScreen_Draw.cs<br>Universe/EmpireManagementScreen.cs<br>Universe/SolarBodies/UnownedPlanetScreen.cs |  | economy_planetary_qualities |
 | 61 | `IndicatesTheAmountOfFood` | Indicates the amount of Food stored at this planet. Stored food can be eaten by your colonists here in times of need. Stored food may also be exported from t... | ColonyScreen/ColonyScreen_Draw.cs |  | colony_storage |
 | 62 | `IndicatesTheAmountOfProduction` | Indicates the amount of Production stored at this planet. Stored Production may be used to rush the production of any items in your build queue by clicking t... | ColonyScreen/ColonyScreen_Draw.cs<br>Universe/ColoniesListItem.cs |  | colony_storage |
@@ -80,7 +80,7 @@ Tokens: 391. Already hooked: 319.
 | 65 | `ThisTileCanBeTerraformedHarder` | This tile can be terraformed as part of terraforming operations. Its biosphere will be removed once the tile becomes habitable. | ColonyScreen/ColonyScreen_Draw.cs |  | expansion_terraforming |
 | 66 | `LocksThisSliderPreventingThe` | Locks this slider, preventing the assigned labor percentage from being altered directly or indirectly. | ColonyScreen/ColonySlider.cs |  | colony_labor_sliders |
 | 67 | `AchievableTip` | Maximum completion percent of Blueprints for current technology level. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
-| 68 | `BlueprintsSnapshotTip` | Create Blueprints from the current applicable buildings on this planet. It will not work if none of the current buildings can be inserted into Blueprints. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
+| 68 | `BlueprintsSnapshotTip` | Create Blueprints from the current applicable buildings on this planet. It will not work if none of the current buildings can be inserted into Blueprints. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
 | 69 | `BuildAPlatformTheStrongest` | Build a Platform (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Platforms this planet already has... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 70 | `BuildAShipyardOrbitingThis` | Build a Shipyard orbiting this planet. The number in parentheses is the number of Shipyards this planet already has in orbit. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 71 | `BuildAStationTheStrongest` | Build a Station (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Stations this planet already has i... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
@@ -93,8 +93,8 @@ Tokens: 391. Already hooked: 319.
 | 78 | `GarrisonSizeEnsuresANumber` | Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troo... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_garrison_and_ports |
 | 79 | `GroundDefenseBuildingsExpenditureIn` | Ground Defense Buildings Expenditure in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 80 | `GroundDefenseBuildingsExpenditurebudgetIn` | Ground Defense Buildings Expenditure/Budget in BY/C. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap t... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
-| 81 | `LaunchASingleRandomTroop` | Launch a single random troop from this planet to space. Note that you can launch any troop you want by left clicking on the troop icon in the grid below. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
-| 82 | `LaunchToSpaceAllTroops` | Launch to space all troops which can currently move (total number in parentheses) | ColonyScreen/GovernorDetailsComponent.cs<br>CombatScreen/CombatScreen.cs |  |  |
+| 81 | `LaunchASingleRandomTroop` | Launch a single random troop from this planet to space. Note that you can launch any troop you want by right clicking on the troop icon in the grid below. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_garrison_and_ports |
+| 82 | `LaunchToSpaceAllTroops` | Launch to space all troops which can currently move (total number in parentheses) | ColonyScreen/GovernorDetailsComponent.cs<br>CombatScreen/CombatScreen.cs |  | colony_garrison_and_ports |
 | 83 | `ManuallyAdjustTheNumberOf` | Manually adjust the number of wanted Platforms for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 84 | `ManuallyAdjustTheNumberOf2` | Manually adjust the number of wanted Shipyards for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 85 | `ManuallyAdjustTheNumberOf3` | Manually adjust the number of wanted Stations for this colony. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
@@ -105,7 +105,7 @@ Tokens: 391. Already hooked: 319.
 | 90 | `OverrideThisBudgetAndSet` | Override this budget and set your own. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 91 | `PreventGoodsTransportationInAnd` | Prevent goods transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage. This overrides the Governor's Import/E... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_trade |
 | 92 | `PrioritizedPortTip` | When set, all ship construction will be queued on this planet, providing that it has a Space Port. If several planets are set as Prioritzed Ports, the suitab... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_garrison_and_ports |
-| 93 | `RebaseASingleTroopFrom` | Rebase a single troop from another planet or another free troop ship to this planet. You can send multiple troops, if available, that way. | ColonyScreen/GovernorDetailsComponent.cs |  |  |
+| 93 | `RebaseASingleTroopFrom` | Rebase a single troop from another planet or another free troop ship to this planet. You can send multiple troops, if available, that way. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_garrison_and_ports |
 | 94 | `SpecializedTradeHubTip` | Specialized Trade-hub will enable the Governor management for Import/Export preferences based on the Governor Type and for the automation of Labor sliders, a... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_trade |
 | 95 | `TheGovernorWillBuildStations` | The Governor will build Stations, Shipyards, Platforms and Military Buildings based on the colony rank and a budget which is derived from the Empire Treasury... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 96 | `TheGovernorWillCreateA` | Create a Garrison force for the planet, based on the Garrison size you set. It will allow troops to be off-loaded below the Garrison size, and will train new... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_garrison_and_ports |
@@ -151,7 +151,7 @@ Tokens: 391. Already hooked: 319.
 | 136 | `ThisWillLetYouEasily` | This will let you easily export specific save to help the developers investigate issues. You will see the export button in the save/load screen. | LoadSaveItems/GenericLoadSaveScreen.cs |  |  |
 | 137 | `AddNotificationsRegardingEnemiesIn` | Add Notifications regarding enemies in your systems after you load a game, to remind you which systems are under attack. | MainMenu/OptionsScreen.cs |  |  |
 | 138 | `ChangesTheSimulationFrequencyLower` |  Changes the simulation frequency. Lower values are faster, but inaccurate. Higher values are accurate, but slower. If your game is lagging due to high numbe... | MainMenu/OptionsScreen.cs |  |  |
-| 139 | `DisableScreenPanningOptionTip` | Mouse pointer cannot be used for edge screen movement, only WASD keys. Useful for players with multiple screens if their map keeps moving when they focus on ... | MainMenu/OptionsScreen.cs |  |  |
+| 139 | `DisableScreenPanningOptionTip` | Mouse pointer cannot be used for edge screen movement; the keyboard and a middle-mouse drag still pan. Useful for players with multiple monitors. | MainMenu/OptionsScreen.cs |  | overview_controls |
 | 140 | `GameOptionsInfluenceAlphaTip` | Adjusts the empires' border color strength in the Universe Screen. You can change it if the border colors get too bright for you, especially late game. | MainMenu/OptionsScreen.cs |  |  |
 | 141 | `PathfinderTip` | When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ... | MainMenu/OptionsScreen.cs |  | overview_map_overlays |
 | 142 | `PausesGameOnNotificationsClearing` | Pauses game on notifications. Clearing notifications unpauses the game. | MainMenu/OptionsScreen.cs |  |  |
@@ -160,8 +160,8 @@ Tokens: 391. Already hooked: 319.
 | 145 | `TT_MaxDynamicLightSources` | This will set an upper bound limit for dynamic 3D Light Sources for projectile hits or explosions. Setting this lower will greatly improve performance during... | MainMenu/OptionsScreen.cs |  |  |
 | 146 | `TheDelayBetweenAutoSaves` | The delay between auto saves. This is measured in unpaused, game relative seconds. --Common Durations-- 60 = 1 Minute 300 = 5 Minutes (Default) 600 = 10 Minutes | MainMenu/OptionsScreen.cs |  |  |
 | 147 | `ThisWillPreventAsteroidsFrom` | This will prevent asteroids from being generated in new games, offering performance improvements in mid to late game. This will not affect current games or e... | MainMenu/OptionsScreen.cs |  |  |
-| 148 | `WhenActiveArcsInThe` | When active, arcs in the shipyard can only be moved by ALT-clicking them, preventing accidental rotation while providing immediate control of arcs when using... | MainMenu/OptionsScreen.cs |  |  |
-| 149 | `ZoomWillCenterOnSelected` | Zoom will center on selected object. | MainMenu/OptionsScreen.cs |  |  |
+| 148 | `WhenActiveArcsInThe` | When active, arcs in the shipyard can only be moved by ALT-clicking them, preventing accidental rotation while providing immediate control of arcs when using... | MainMenu/OptionsScreen.cs |  | warfare_ship_design |
+| 149 | `ZoomWillCenterOnSelected` | Zoom will center on selected object. | MainMenu/OptionsScreen.cs |  | overview_controls |
 | 150 | `RingGalaxyGameTip` | Each empire starts at a random place in a Ring Galaxy | NewGame/RaceDesignScreen.cs |  |  |
 | 151 | `SpiralBarredGalaxyGameTip` | Each empire starts at a random place along the arms of a barred spiral galaxy, where a central elongated bar of stars feeds two trailing arms. | NewGame/RaceDesignScreen.cs |  |  |
 | 152 | `SpiralFourArmGalaxyGameTip` | Each empire starts at a random place along the arms of a 4-arm spiral galaxy. | NewGame/RaceDesignScreen.cs |  |  |
@@ -302,7 +302,7 @@ Tokens: 391. Already hooked: 319.
 | 287 | `TT_ShieldAmplify` | Each of the ship shield's maximum power will be amplified by this number. | ShipDesign/ShipDesignInfoPanel.cs |  | design_armor_and_shields |
 | 288 | `TT_ShieldPower` | Indicates the total hitpoints of all of the ship's shield modules combined, including all Shield Amplifiers. The Color of the title will be Gold if any Shiel... | ShipDesign/ShipDesignInfoPanel.cs |  | design_armor_and_shields |
 | 289 | `TT_SublightSpeed` | Indicates the distance this ship can travel in one second while using its sublight engines | ShipDesign/ShipDesignInfoPanel.cs |  | expansion_warp_travel |
-| 290 | `TT_TotalModuleSlots` | The total number of module slots available on the selected ship. | ShipDesign/ShipDesignInfoPanel.cs |  |  |
+| 290 | `TT_TotalModuleSlots` | The total number of module slots available on the selected ship. | ShipDesign/ShipDesignInfoPanel.cs |  | warfare_ship_design |
 | 291 | `TT_TroopCapacity` | Indicates the total complement of troops this ship can carry | ShipDesign/ShipDesignInfoPanel.cs |  | warfare_ground_combat |
 | 292 | `TT_TurnRate` | Indicates the number of degrees this ship may rotate in one second | ShipDesign/ShipDesignInfoPanel.cs |  | expansion_warp_travel |
 | 293 | `TT_UpkeepCost` | Indicates the credits per turn this design would cost in upkeep | ShipDesign/ShipDesignInfoPanel.cs |  | economy_economic_basics |
@@ -350,7 +350,7 @@ Tokens: 391. Already hooked: 319.
 | 335 | `ArcDragTipAltControl` | Shift for fine tune Ctrl to match an existing turret | ToolTip.cs |  | warfare_ship_design |
 | 336 | `ResearchUnlocksMoreThanFourItems` | This Technology unlocks more than 4 items. Right Click on the title to Expand | TreeNode.cs |  |  |
 | 337 | `IndicatesThisTroopsExperienceLevel` | Indicates this troop's experience level, from 0 to 10. Each level adds 5% to its base attack values and 1 to its maximum strength, and takes 4 points off a b... | Troops/TroopInfoUIElement.cs |  | warfare_ground_combat |
-| 338 | `LaunchThisTroopIntoOrbit` | Launch this troop into orbit | Troops/TroopInfoUIElement.cs |  |  |
+| 338 | `LaunchThisTroopIntoOrbit` | Launch this troop into orbit | Troops/TroopInfoUIElement.cs |  | colony_garrison_and_ports |
 | 339 | `CurrentResearch` | Current Research | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
 | 340 | `EconomicOverview2` | Economic Overview | Universe/EmpireUIOverlay.cs |  |  |
 | 341 | `OpensTheDiplomacyOverviewScreen` | Opens the Diplomacy Overview Screen | Universe/EmpireUIOverlay.cs |  |  |
@@ -373,20 +373,20 @@ Tokens: 391. Already hooked: 319.
 | 358 | `OpensTheDeepSpaceBuilding` | Opens the deep space building window which will allow you to place an order for a platform or other deep space structure | Universe/MiniMap.cs |  | expansion_deep_space_building |
 | 359 | `OpensTheImportantEventsLog` | Opens the Important Events log | Universe/MiniMap.cs |  |  |
 | 360 | `WeaponsRangeOverlayVisualisesShips` | Weapons Range Overlay: visualizes ships' maximum weapon range. When a ship is selected, you will see green circles with Yellow, Orange and Red borders (short... | Universe/MiniMap.cs |  | overview_map_overlays |
-| 361 | `ZoomOutToTheGalaxy` | Zoom out to the galaxy view | Universe/MiniMap.cs |  |  |
-| 362 | `ZoomsToYourCurrentlySelected` | Zooms to your currently selected ship | Universe/MiniMap.cs |  |  |
+| 361 | `ZoomOutToTheGalaxy` | Zoom out to the galaxy view | Universe/MiniMap.cs |  | overview_controls |
+| 362 | `ZoomsToYourCurrentlySelected` | Zooms to your current selection: ship, planet, system or fleet. | Universe/MiniMap.cs |  | overview_controls |
 | 363 | `CannotBuildMiningStationTip` | You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
 | 364 | `IndicatesThatHostileForcesWere` | Indicates that hostile forces were recently spotted in this system | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_scouting |
 | 365 | `PlanetTypeAndRichnessThe` | Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's su... | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs |  | economy_planetary_qualities |
 | 366 | `ResearchPointsAreAddedInto` | Research points are added into an empire-wide pool where they are applied towards the top item in your research queue.   | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | colony_labor_sliders |
 | 367 | `LockedRightClickToRemove` | This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
 | 368 | `OutpostsCannotBeRemoved` | The Outpost cannot be removed from the Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
-| 369 | `RightClickToRemove` | Right Click to remove this building from current Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  |  |
-| 370 | `CancelDeployResearchStationTip` | Cancel ongoing deployment mission of research station to this planet's orbit. | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 371 | `CannotBuildResearchStationTip` | You do not have the required technology to build a Research Station, research relevant tech to gain Research Station schematics. | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 372 | `CannotDeployMiningStationNotOwnerTip` | You Cannot start Mining Operations here since there is already an owner for these ops. | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 373 | `DeployMiningStationTip` | Deploy Mining Station in this planet's orbit. Up to 4 Mining Stations can be deployed And there can be only one owner of the Mining Ops per planet. | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 374 | `DeployResearchStationTip` | Deploy Research Station in this planet's orbit. Only one Research Station can be deployed per empire. | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
+| 369 | `RightClickToRemove` | Right Click to remove this building from current Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
+| 370 | `CancelDeployResearchStationTip` | Cancel ongoing deployment mission of research station to this planet's orbit. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
+| 371 | `CannotBuildResearchStationTip` | You do not have the required technology to build a Research Station, research relevant tech to gain Research Station schematics. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
+| 372 | `CannotDeployMiningStationNotOwnerTip` | You Cannot start Mining Operations here since there is already an owner for these ops. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
+| 373 | `DeployMiningStationTip` | Deploy Mining Station in this planet's orbit. You can deploy up to 4 Mining Stations here, and only one empire can own a planet's Mining Operations. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
+| 374 | `DeployResearchStationTip` | Deploy a Research Station in this planet's orbit. Each empire can have only one Research Station here. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
 | 375 | `MineableRichnessTip` | Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace mig... | Universe/SolarBodies/PlanetInfoUIElement.cs<br>Universe/SolarBodies/UnownedPlanetScreen.cs |  | expansion_exotic_resources |
 | 376 | `OpenTheGroundAssaultView` | Open the Ground Assault View for this planet where you can land troops and order bombardments | Universe/SolarBodies/PlanetInfoUIElement.cs |  | warfare_ground_combat |
 | 377 | `OpensColonyOverviewScreen` | Opens colony overview screen | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
@@ -394,8 +394,8 @@ Tokens: 391. Already hooked: 319.
 | 379 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs |  |  |
 | 380 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | diplomacy_espionage |
 | 381 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | warfare_ground_combat |
-| 382 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 383 | `SendAvailableTroopsToThis` | Send available troops to this planet. Any available troop transports in space can be sent. Otherwise the nearest colony with troops to spare above its garris... | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 382 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  | colony_garrison_and_ports |
+| 383 | `SendAvailableTroopsToThis` | Send available troops to this planet. One idle transport of your default troop ship design is sent per click. Otherwise a troop launches from your nearest co... | Universe/SolarBodies/PlanetListScreenItem.cs |  | colony_garrison_and_ports |
 | 384 | `IndicatesThatAnAnomalyWas` | Indicates that an anomaly was detected on the surface of this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_scouting |
 | 385 | `IndicatesThatYourEmpireHas` | Indicates that your empire has a mission underway to colonize this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_colony_ships |
 | 386 | `MiningStationsCanBePlaced` | Indicates that Mining Stations can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_exotic_resources |
