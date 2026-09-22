@@ -8184,10 +8184,7 @@ HangarSize:
  PTB: "Tamanho do Hangar"
 ThisIsTheMaximumNumber:
  Id: 1865
- ENG: "This is the maximum number of ship slot size this hanger can store."
- RUS: "Это максимальное количество ячеек корабля, которое может вмещать этот ангар."
- UKR: "Це максимальна кількість слотів для кораблів, яку може зберігати цей ангар."
- PTB: "Este é o tamanho máximo em espaços de nave que este hangar pode armazenar."
+ ENG: "This is the largest ship size this hangar can store, compared against the size of the design you pick for it."
 MineralRichnessHasGoneDown:
  Id: 1866
  ENG: " Mineral Richness has gone down below 1."
@@ -8501,10 +8498,7 @@ WasTerraformedToANew:
  PTB: "Foi terraformado em um novo paraíso. \nSeus Terraformadores agora removerão todas as Biosferas  \ndo planeta e serão sucateados quando o  \nprocesso estiver concluído."
 ProsperInTerranWorldsAnd:
  Id: 1921
- ENG: "The number of Colonists (in Millions) which can be loaded. Usually relevant for a Colony Ship module."
- RUS: "Количество колонистов (в миллионах), которые могут быть загружены. Обычно актуально для модуля колониального корабля."
- UKR: "Кількість колоністів (у мільйонах), яку можна завантажити. Зазвичай актуально для корабельного модуля колонізації."
- PTB: "O número de Colonos, em Milhões, que pode ser carregado. Geralmente relevante para um módulo de Nave Colonial."
+ ENG: "The number of Colonists (in Millions) this module adds to the new colony when the ship settles a planet. Usually relevant for a Colony Ship module."
 PopulationInBillionsVsMax:
  Id: 1929
  ENG: "Population (in Billions) vs. Max Population available for your Empire. Percentage indicates how full the colony is. Lower Max Population than the current population means that the current Race occupying this planet is better suited to the environment than your Empire."
@@ -9256,11 +9250,7 @@ ThisShipDesignIsInvalid:
  PTB: "Este projeto de nave é inválido. Toda nave exige um módulo de comando, como cockpit, ponte ou centro de informações de combate. Além disso, todos os espaços disponíveis da nave devem estar preenchidos."
 TT_Mass:
  Id: 2050
- ENG: "A ship's total mass determines its maneuverability and maximum velocity both at warp and at sublight speeds. Mass cannot be reduced below the ship's size value (the number of module slots)."
- RUS: "Общая масса корабля определяется его маневренностью и максимальной скоростью как в варпе, так и на субсветовых скоростях. Масса не может быть уменьшена ниже значения размера корабля (кол-во ячеек модулей)."
- SPA: "La masa total de una nave es la que determina su maniobrabilidad y máximas velocidades tanto por encima como por debajo de la luz. La masa no puede reducirse más del valor del tamaño de la nave (el número de ranuras modulares)."
- UKR: "Загальна маса корабля визначає його маневреність і максимальну швидкість як у викривленні, так і на досвітлових швидкостях. Маса не може бути зменшена нижче значення розміру корабля (кількості модульних слотів)."
- PTB: "A massa total de uma nave determina sua manobrabilidade e velocidade máxima tanto em dobra quanto em velocidades subluz. A massa não pode ser reduzida abaixo do valor de tamanho da nave (o número de espaços de módulo)."
+ ENG: "A ship's total mass determines its maneuverability and maximum velocity both at warp and at sublight speeds. Mass has a floor that rises with hull size, so a large hull can never be made light."
 AModulesHealthRepresentsHow:
  Id: 2051
  ENG: "A module's health represents how much damage it can take before being destroyed"
@@ -9380,11 +9370,7 @@ IndicatesTheBonusToOutofcombat:
  ENG: "Adds this many hitpoints per second to the ship's repair rate, spread over its damaged modules. Bonuses from several modules add up, and a module that is unpowered or destroyed gives a tenth."
 HangarsAreCapableOfSustaning:
  Id: 2070
- ENG: "Hangars are capable of sustaning a single ship per hangar at a time. If that ship is destroyed, then the hangar goes on cooldown for the amount of time indicated here. When the hangar is off of cooldown, a new ship will be generated and can launch from the hangar."
- RUS: "Ангары могут вмещать единовременно по одному кораблю. Если корабль будет уничтожен, для ангара запустится таймер простоя, указанный здесь. Когда таймер простоя истечет, будет создан новый корабль, который можно будет выпустить из ангара."
- SPA: "Los hangares pueden albergar a una sola nave a la vez. Si esa nave es destruida, el hangar pasa a un estado de recuperación que dura el tiempo indicado aquí. Pasado ese tiempo, el hangar genera una nueva nave lista para volar."
- UKR: "Ангари здатні підтримувати один корабель в ангарі одночасно. Якщо цей корабель знищено, ангар переходить в режим очікування на вказаний тут час. Коли ангар вийде з режиму очікування, буде згенеровано новий корабель, який зможе стартувати з ангару."
- PTB: "Hangares são capazes de sustentar uma única nave por hangar de cada vez. Se essa nave for destruída, o hangar entra em recarga pelo tempo indicado aqui. Quando o hangar sair da recarga, uma nova nave será gerada e poderá ser lançada a partir do hangar."
+ ENG: "Hangars are capable of sustaining a single ship per hangar at a time. The timer starts when the hangar launches, and a returning ship sets it to the time needed to repair and rearm it. Launching costs ordnance."
 TT_ProductionCost:
  Id: 2071
  ENG: "Indicates the total production value of this ship design"
@@ -9447,11 +9433,7 @@ TT_TurnRate:
  PTB: "Indica o número de graus que esta nave pode girar em um segundo"
 TT_OrdnanceCap:
  Id: 2080
- ENG: "Indicates the maximum amount of multi-purpose ordnance this ship can carry. "
- RUS: "Указывает максимальное количество многоцелевых боеприпасов, которые может вместить этот корабль. "
- SPA: "Indica la cantidad máxima de munición polivalente que puede llevar esta nave. "
- UKR: "Вказує на максимальну кількість багатоцільових боєприпасів, які може нести цей корабель."
- PTB: "Indica a quantidade máxima de munição multiuso que esta nave pode carregar."
+ ENG: "Indicates the maximum amount of multi-purpose ordnance this ship can carry."
 TT_CargoSpace:
  Id: 2081
  ENG: "Indicates the total cargo space available on this ship. Each point of cargo space allows this ship to carry a single unit of food or production, or a small amount of colonists."
@@ -10062,11 +10044,7 @@ TogglesTheWeaponFireArc:
  PTB: "Ativa ou desativa a exibição do arco de disparo da arma e do raio de proteção do escudo para esta nave. Tecla de atalho: TAB"
 TT_FtlSpeed:
  Id: 2169
- ENG: "Indicates the distance this ship can travel in one second at warp speed (FTL), measured in thousands of units"
- RUS: "Указывает расстояние, которое этот корабль может преодолеть за секунду при варпировании. Измеряется в тыс. ед."
- SPA: "Indica la distancia que puede recorrer esta nave por segundo a velocidad estelar supraluminal (superior a la de la luz) medida en miles de unidades"
- UKR: "Показує відстань, яку цей корабель може подолати за одну секунду на надсвітловій швидкості (FTL), вимірюється в тисячах одиниць"
- PTB: "Indica a distância que esta nave pode viajar em um segundo em velocidade de dobra (FTL), medida em milhares de unidades"
+ ENG: "Indicates the distance this ship can travel in one second at warp speed (FTL)"
 FtlSpeed:
  Id: 2170
  ENG: "FTL Speed"
@@ -10499,11 +10477,7 @@ Defense:
  PTB: "Defesa"
 IndicatesTheCombatStrengthAdded:
  Id: 2232
- ENG: "Indicates the combat strength added to this ship versus boarding actions; does include the bonus provided by any troops this module may provide"
- RUS: "Указывает дополнительную боевую мощь корабля при обороне от абордажа; также включает бонус от войск, предоставляемых этим модулем"
- SPA: "Indica la fortaleza de combate añadida a esta nave frente a intentos de abordaje; incluye la bonificación que aporten las tropas destacadas en el módulo"
- UKR: "Показує бойову силу, додану до цього корабля, порівняно з абордажними діями; включає бонус, наданий будь-якими військам, які може надати цей модуль"
- PTB: "Indica a força de combate adicionada a esta nave contra ações de abordagem; inclui o bônus fornecido por quaisquer tropas que este módulo possa oferecer"
+ ENG: "Indicates the combat strength added to this ship versus boarding actions; it does not include the bonus provided by any troops aboard."
 Inhibition:
  Id: 2233
  ENG: "Inhibition"
@@ -10513,11 +10487,7 @@ Inhibition:
  PTB: "Inibição"
 IndicatesTheWarpInhibitionRange:
  Id: 2234
- ENG: "Indicates the warp inhibition range of this module. This bonus stacks"
- RUS: "Указывает дистанцию варп-ингибирования этого модуля. Этот бонус складывается"
- SPA: "Indica el alcance de la inhibición de velocidad supraluminal del módulo. Esta bonificación se acumula"
- UKR: "Вказує на радіус зупинки викривленняі цим модулем. Цей бонус додається"
- PTB: "Indica o alcance de inibição de dobra deste módulo. Este bônus acumula"
+ ENG: "Indicates the warp inhibition range of this module. Only the largest inhibitor aboard counts."
 PowerStore:
  Id: 2235
  ENG: "Power Store"
@@ -14993,9 +14963,7 @@ MiningStationRefiningTimeStat:
  PTB: "Turnos de Processamento"
 MiningStationRefiningTimeStatTip:
  Id: 4452
- ENG: "Number of turns this Station can refine raw exotic resources until Food stocks are depleted."   
- UKR: "Кількість ходів, за які ця станція може переробляти сирі екзотичні ресурси, поки не вичерпаються запаси їжі."
- PTB: "Número de turnos que esta Estação pode refinar recursos exóticos brutos até que os estoques de Comida se esgotem."
+ ENG: "Number of turns this Station can refine raw exotic resources until its consumables run out: Food, or Production for a cybernetic race."
 RefiningModule:
  Id: 4453
  ENG: "Refining"    
@@ -18556,22 +18524,14 @@ AmmoTime:
  PTB: "Tempo de munição"
 TT_AmmoTime:
  Id: 7013
- ENG: "Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting ordnance supplies"
- RUS: "Указывает максимальное время в секундах, в течение которого этот корабль может вести непрерывный огонь из всех орудий до того, как исчерпает запас боеприпасов."
- SPA: "Indica el tiempo máximo en segundos en la cual una nave disparar todas sus armas antes de gastar sus municiones"
- UKR: "Вказує максимальний час у секундах, протягом якого корабель може безперервно вести вогонь з усіх видів озброєння до вичерпання боєприпасів"
- PTB: "Indica o tempo máximo, em segundos, que esta nave pode disparar continuamente todas as armas antes de esgotar os suprimentos de munição."
+ ENG: "Indicates how long this ship can keep firing at its average rate before its ordnance runs out, counting what its fabricators add and what its hangar bays spend on launches."
 OrdnanceCreated:
  ENG: "Ordnance Created / s"
  UKR: "Створено боєпр. / с"
  PTB: "Munição criada / s"
 TT_OrdnanceCreated:
  Id: 7014
- ENG: "Indicates the amount of ordnance this ship is capable of fabricating per second"
- RUS: "Указывает количество боеприпасов, которое этот корабль способен произвести за секунду."
- SPA: "Indica la cantidad de munición esta nave puede fabricar por segundo"
- UKR: "Показує кількість боєприпасів, яку цей корабель здатен виготовити за секунду"
- PTB: "Indica a quantidade de munição que esta nave é capaz de fabricar por segundo."
+ ENG: "Indicates the amount of ordnance fabricated per second, counted only while the module is powered"
 InTheCapitalEliminationGame:
  Id: 7015
  ENG: "In the Capital Elimination game mode, empires are defeated when they lose their homeworld."
@@ -18633,18 +18593,10 @@ IndicatesTheNumberOfTroops3:
  PTB: "Indica o número de tropas que este módulo pode comportar."
 IndicatesTheAmountTroopsAre:
  Id: 7024
- ENG: "Indicates the amount troops are healed per second"
- RUS: "Указывает количество лечения войск в секунду."
- SPA: "Indica el numero de tropas que pueden ser sanadas por segundo."
- UKR: "Показує кількість військ, що зцілюються за секунду"
- PTB: "Indica quanto as tropas são curadas por segundo."
+ ENG: "Troop health this module restores each turn while the ship is out of combat. Each point heals one wounded troop by 1, and a ship whose total is below 1 heals nothing."
 TT_UpkeepCost:
  Id: 7025
- ENG: "Indicates the credits per tick this design would cost in upkeep"
- RUS: "Указывает количество кредитов за тик, которое будет стоить содержание этого дизайна"
- SPA: "Indicate los creditos por tick este diseño costaria mantener."
- UKR: "Вказує, скільки кредитів за тик коштуватиме підтримка цього дизайну"
- PTB: "Indica os créditos por ciclo que este projeto custaria em manutenção."
+ ENG: "Indicates the credits per turn this design would cost in upkeep"
 TT_FtlTime:
  Id: 7026
  ENG: "Indicates how many seconds this ship can stay at warp before its power store is empty. INF means the store does not run down at warp, or lasts more than ten minutes."
@@ -21991,7 +21943,7 @@ CodexExpansionWarpTravelShort:
  ENG: "How ships travel between systems"
 CodexExpansionWarpTravelText:
  Id: 100074
- ENG: "<color=Caption>Speeds</color>A ship's sublight speed is its thrust divided by its mass, times your race's sublight modifier, and never above 1500. Its warp speed is its warp thrust divided by its mass times your empire's FTL modifier, which starts at 35 and grows with FTL speed technologies, and never below 3000. On top of that:\n<li>Inside a star system the game's in-system FTL setting applies, 100% by default.</li>\n<li>Inside your own subspace projector influence, or that of an ally or trade partner, warp is 50% faster by default, and technology can raise the bonus.</li>\n<li>Inside the influence of an empire at war with you, warp is halved by default. Both figures are rule options.</li>\n<li>Exotic resource bonuses can raise warp speed further.</li>\n\n<color=Caption>Entering and leaving warp</color>A ship ordered on a move longer than 7500 units spools its drive, for the longest spool time among its modules times your empire's spool modifier, or 3 seconds if none, then jumps. It cannot spool while inhibited. A carrier set to recall its fighters slows down and waits for them first. At warp, a ship that has to turn more than a degree slows to a quarter speed until it is lined up again, and a ship pushed off its heading drops out of warp and re-enters.\n\n<color=Caption>Power at warp</color>At warp the ship's modules draw their normal power times your empire's FTL drain modifier, 2 by default and lowered by FTL efficiency technologies, plus each module's own warp adjustment times half the drain modifier; in the stock game every adjustment is a reduction, on engines, maneuvering thrusters, shield amplifiers, ordnance fabricators and the warp inhibitor. Reactors keep refilling the store, so a ship whose warp draw exceeds its generation drains its stored power and drops out of warp when it reaches zero. Fuel cells and larger reactors extend the range; the design screen shows a design's warp time. Projector influence does not change the drain.\n\n<color=Caption>Inhibition</color>A ship is pulled out of warp, and cannot jump, while any of these holds:\n<li>It is inside a planet's gravity well, unless it is inside friendly projector influence and the planet's owner is not at war with it. Well size is a rule option and grows with planet size; see Map Overlays.</li>\n<li>It is within the field of an FTL inhibitor carried by a ship of an empire at war with it.</li>\n<li>A Hyperspace Flux event is running.</li>"
+ ENG: "<color=Caption>Speeds</color>A ship's sublight speed is its thrust divided by its mass, times your race's sublight modifier, and never above 1500. Its warp speed is its warp thrust divided by its mass times your empire's FTL modifier, which starts at 35 and grows with FTL speed technologies, and never below 3000. Its turn rate is its turn thrust divided by its mass and by 700, 5% faster for every crew level, slowed by any tractor pull and capped. On top of that:\n<li>Inside a star system the game's in-system FTL setting applies, 100% by default.</li>\n<li>Inside your own subspace projector influence, or that of an ally or trade partner, warp is 50% faster by default, and technology can raise the bonus.</li>\n<li>Inside the influence of an empire at war with you, warp is halved by default. Both figures are rule options.</li>\n<li>Exotic resource bonuses can raise warp speed further.</li>\n\n<color=Caption>Entering and leaving warp</color>A ship ordered on a move longer than 7500 units spools its drive, for the longest spool time among its modules times your empire's spool modifier, or 3 seconds if none, then jumps. It cannot spool while inhibited. A carrier set to recall its fighters slows down and waits for them first. At warp, a ship that has to turn more than a degree slows to a quarter speed until it is lined up again, and a ship pushed off its heading drops out of warp and re-enters.\n\n<color=Caption>Power at warp</color>At warp the ship's modules draw their normal power times your empire's FTL drain modifier, 2 by default and lowered by FTL efficiency technologies, plus each module's own warp adjustment times half the drain modifier; in the stock game every adjustment is a reduction, on engines, maneuvering thrusters, shield amplifiers, ordnance fabricators and the warp inhibitor. Reactors keep refilling the store, so a ship whose warp draw exceeds its generation drains its stored power and drops out of warp when it reaches zero. Fuel cells and larger reactors extend the range; the design screen shows a design's warp time. Projector influence does not change the drain.\n\n<color=Caption>Inhibition</color>A ship is pulled out of warp, and cannot jump, while any of these holds:\n<li>It is inside a planet's gravity well, unless it is inside friendly projector influence and the planet's owner is not at war with it. Well size is a rule option and grows with planet size; see Map Overlays.</li>\n<li>It is within the field of an FTL inhibitor carried by a ship of an empire at war with it.</li>\n<li>A Hyperspace Flux event is running.</li>"
 CodexExpansionScouting:
  Id: 100075
  ENG: "Scouting"
@@ -22035,7 +21987,7 @@ CodexExpansionDeepSpaceBuildingShort:
  ENG: "Placing stations, platforms and projectors"
 CodexExpansionDeepSpaceBuildingText:
  Id: 100086
- ENG: "<color=Caption>The build window</color>Press B or click the build button on the minimap. The list holds every platform, station, shipyard and the subspace projector you can build, projector first; the Dyson swarm controller has its own place, see Dyson Swarm. Click an item, move the cursor to the spot and left-click to place it; right-click or Escape cancels placement. The icon under the cursor is green where the structure may go and red where it may not.\n\n<color=Caption>Where things may go</color>\n<li>Near a planet, within 2500 units scaled by the planet's size, the structure tethers to it and orbits with it, and the window says Will Orbit. Shipyards tether only to your own colonies. Platforms and stations tether to your colonies or to unowned planets, never to another empire's. Research stations go only to bodies you can research, and mining stations only to mineable planets with room for another.</li>\n<li>A planet takes at most 27 orbitals, shipyards included and counting those on the way, and at most 3 shipyards.</li>\n<li>Away from a planet, shipyards and mining stations cannot be placed at all, and a research station must sit within 30% of the system radius of a star you can research.</li>\n<li>Nothing may be placed within 20000 units of a star or inside a star's radiation zone.</li>\n\n<color=Caption>Who builds it</color>Every structure starts as a constructor ship queued at one of your ports; see Best Constructor under Construction for which. The constructor flies to the spot and deploys, and only the first 100 of its cost is written off against the structure. If the spot lies in a system where you or an ally hold colonies, those colonies launch builder ships that add construction each turn at no cost. Until the constructor deploys, the job shows as a green marker on the map: select the marker and press Delete or Backspace to cancel it, which scraps the constructor if one is already on its way. See Refitting and Scrapping for changing a finished orbital."
+ ENG: "<color=Caption>The build window</color>Press B or click the build button on the minimap. The list holds every platform, station, shipyard and the subspace projector you can build, projector first; the Dyson swarm controller has its own place, see Dyson Swarm. Click an item, move the cursor to the spot and left-click to place it; right-click or Escape cancels placement. The icon under the cursor is green where the structure may go and red where it may not.\n\n<color=Caption>Where things may go</color>\n<li>Near a planet, within 2500 units scaled by the planet's size, the structure tethers to it and orbits with it, and the window says Will Orbit. Shipyards tether only to your own colonies. Platforms and stations tether to your colonies or to unowned planets, never to another empire's. Research stations go only to bodies you can research, and mining stations only to mineable planets with room for another.</li>\n<li>A planet takes at most 27 orbitals, shipyards included and counting those on the way, and at most 3 shipyards.</li>\n<li>Away from a planet, shipyards and mining stations cannot be placed at all, and a research station must sit within 30% of the system radius of a star you can research.</li>\n<li>Nothing may be placed within 20000 units of a star or inside a star's radiation zone.</li>\n\n<color=Caption>Research stations</color>A research station adds its research per turn to your empire and burns 2 production for each research point, so freighters must keep its hold filled; with too little production it researches only what the hold pays for. Mining stations work the same way on food, or production for a cybernetic race; see Exotic Resources.\n\n<color=Caption>Who builds it</color>Every structure starts as a constructor ship queued at one of your ports; see Best Constructor under Construction for which. The constructor flies to the spot and deploys, and only the first 100 of its cost is written off against the structure. If the spot lies in a system where you or an ally hold colonies, those colonies launch builder ships that add construction each turn at no cost. Until the constructor deploys, the job shows as a green marker on the map: select the marker and press Delete or Backspace to cancel it, which scraps the constructor if one is already on its way. See Refitting and Scrapping for changing a finished orbital."
 CodexExpansionSubspaceProjectors:
  Id: 100087
  ENG: "Subspace Projectors"
@@ -22073,7 +22025,7 @@ CodexWarfareGroundCombatShort:
  ENG: "Invading and defending planets"
 CodexWarfareGroundCombatText:
  Id: 100096
- ENG: "<color=Caption>Landing</color>Troops reach a planet in troop transports, or in assault shuttles launched by ships with troop bays: select the ship and right-click the planet, or use Land All in the planet's tactical view. Each troop needs a free tile to land on. Planetary shields do not stop a landing, but buildings with anti-troop defenses injure enemy troops as they land, by their combined value shown on the planet info panel; a troop dropped onto a tile you picked is spared.\n\n<color=Caption>The tactical view</color>Open it from the planet's command wheel (Q) or the Invade button under the planet's icon on its info panel to watch the fight on the 7 by 5 grid, launch troops, and order every bomber in orbit to bombard.\n\n<color=Caption>Attack rolls</color>Each troop and combat building has Strength, a Hard Attack and a Soft Attack, and is a hard or soft target: buildings are always hard, troops are whatever their type says. An attack rolls once per point of the attacker's Strength, and every roll under its attack value for the target's type does 1 damage. Damage comes off Strength, so a wounded unit hits less often too. A troop that kills an enemy troop may gain a level: certain at level 0, then one chance in ten less per level, up to level 10. Each level adds 5% to both attack values and 1 to maximum Strength, takes 4 points off a bomb's chance to hit the troop, takes a second off its move and attack timers every second level (never below 5), and from level 5 adds 1 to its range.\n\n<color=Caption>Timers and movement</color>A troop has a move timer and an attack timer, 10 seconds for most types, shortened by level. When a timer runs out the troop gains an action, and moving or attacking spends one. Troops spot enemies up to ten tiles away and walk toward the nearest; a troop with range 1 moves into the target's tile to fight, longer-ranged troops fire from where they stand. A building that can attack fires every 10 seconds at enemies on the adjacent tiles.\n\n<color=Caption>Winning</color>The invaders win when no defending troop and no armed building is left: the planet changes hands and its build queue is cleared, and an Assimilator race takes some of the former owner's traits from a world of level 3 or more. Allied troops on the ground count as defenders, and when several empires invade at once the one whose troop stands first in the list takes the planet. The defenders win when no invader is left.\n\n<color=Caption>Bombardment</color>Select a bomber and right-click an enemy planet, or use the bombard button in the tactical view; bombing an empire's planet starts a war with it, unless the world changed hands within the last ten turns. Bombs first wear down planetary shields by their maximum hard damage. Once the shields are gone each bomb picks a tile: it hits every troop there with a 50% chance each, less 4 points per troop level and a quarter of that against your own troops; it hits a building with 50% plus 5 per level of the bomber's crew minus the building's Defense, between 10% and 95%; it kills population and lowers fertility, less on an uninhabitable tile; and it can wreck a habitable tile, half the hard damage in percent or a quarter with a building on it, break a Biosphere with 20 times the damage in percent, or raise a volcano. A colony bombed to zero population is wiped out and must be recolonized."
+ ENG: "<color=Caption>Landing</color>Troops reach a planet in troop transports, or in assault shuttles launched by ships with troop bays: select the ship and right-click the planet, or use Land All in the planet's tactical view. Each troop needs a free tile to land on. Planetary shields do not stop a landing, but buildings with anti-troop defenses injure enemy troops as they land, by their combined value shown on the planet info panel; a troop dropped onto a tile you picked is spared.\n\nA ship with troop transporters can beam troops down instead, as many at once as its transporters allow. A ship holds troops in modules with troop capacity, chiefly barracks, and its troop capacity is their total; troops aboard heal each turn while the ship is out of combat, if it carries a sickbay.\n\n<color=Caption>The tactical view</color>Open it from the planet's command wheel (Q) or the Invade button under the planet's icon on its info panel to watch the fight on the 7 by 5 grid, launch troops, and order every bomber in orbit to bombard.\n\n<color=Caption>Attack rolls</color>Each troop and combat building has Strength, a Hard Attack and a Soft Attack, and is a hard or soft target: buildings are always hard, troops are whatever their type says. An attack rolls once per point of the attacker's Strength, and every roll under its attack value for the target's type does 1 damage. Damage comes off Strength, so a wounded unit hits less often too. A troop that kills an enemy troop may gain a level: certain at level 0, then one chance in ten less per level, up to level 10. Each level adds 5% to both attack values and 1 to maximum Strength, takes 4 points off a bomb's chance to hit the troop, takes a second off its move and attack timers every second level (never below 5), and from level 5 adds 1 to its range.\n\n<color=Caption>Timers and movement</color>A troop has a move timer and an attack timer, 10 seconds for most types, shortened by level. When a timer runs out the troop gains an action, and moving or attacking spends one. Troops spot enemies up to ten tiles away and walk toward the nearest; a troop with range 1 moves into the target's tile to fight, longer-ranged troops fire from where they stand. A building that can attack fires every 10 seconds at enemies on the adjacent tiles.\n\n<color=Caption>Winning</color>The invaders win when no defending troop and no armed building is left: the planet changes hands and its build queue is cleared, and an Assimilator race takes some of the former owner's traits from a world of level 3 or more. Allied troops on the ground count as defenders, and when several empires invade at once the one whose troop stands first in the list takes the planet. The defenders win when no invader is left.\n\n<color=Caption>Bombardment</color>Select a bomber and right-click an enemy planet, or use the bombard button in the tactical view; bombing an empire's planet starts a war with it, unless the world changed hands within the last ten turns. Bombs first wear down planetary shields by their maximum hard damage. Once the shields are gone each bomb picks a tile: it hits every troop there with a 50% chance each, less 4 points per troop level and a quarter of that against your own troops; it hits a building with 50% plus 5 per level of the bomber's crew minus the building's Defense, between 10% and 95%; it kills population and lowers fertility, less on an uninhabitable tile; and it can wreck a habitable tile, half the hard damage in percent or a quarter with a building on it, break a Biosphere with 20 times the damage in percent, or raise a volcano. A colony bombed to zero population is wiped out and must be recolonized."
 CodexWarfareFighterBays:
  Id: 100097
  ENG: "Fighter Bays"
@@ -22106,7 +22058,7 @@ CodexWarfareOrdnanceShort:
  ENG: "Ammunition, resupply and supply ships"
 CodexWarfareOrdnanceText:
  Id: 100105
- ENG: "<color=Caption>Capacity</color>Kinetic and explosive weapons spend ordnance per shot; energy weapons spend power. A ship's ordnance capacity is the sum of its modules' ordnance capacity, and it starts full. Modules that add ordnance per second refill it slowly. Launching a fighter or shuttle also costs ordnance; see Fighter Bays. The design screen warns about designs with little or no ordnance and about designs whose weapons would empty the store in one burst.\n\n<color=Caption>When a ship asks for resupply</color>Below 10% ordnance in combat, when kinetic weapons make up over three quarters of its weapon area and it cannot make ordnance fast enough; below 35% out of combat, or 85% for a platform or station; also when its internal hull is badly damaged, or when it has troop capacity and is missing troops, with Send Troops off only once it is empty and has no priority target. Then:\n<li>A nearby friendly ship with supply bays sends supply shuttles, or the ship falls in beside it until it is filled.</li>\n<li>Otherwise it flies to the nearest colony of yours with a space port, preferring a safe one (not quarantined, no recent ground or space combat at the planet, no foreign troops), failing that the nearest colony, and orbits there until done.</li>\n<li>A platform or station asks the nearest colony that can launch a supply shuttle to send one.</li>\n<li>A fighter returns to its carrier, and a drone with no carrier scuttles.</li>\n\n<color=Caption>At a colony</color>Every turn a colony supplies your ships and your allies' ships in orbit, tethered to it, or within 7000 units. Each gets ordnance equal to the planet's level, times 5 with a space port or 2 without, times 10 in peace or a tenth while there is fighting in orbit, ten times as much power, and its troops heal by the planet level. Platforms are always kept full. A colony also launches supply shuttles to your ships elsewhere in its system that need ordnance, up to its infrastructure count at a time, as long as no dangerous forces are in the system. Ships in orbit repair too; see Combat Basics.\n\n<color=Caption>Transporters</color>A ship with an ordnance transporter beams ordnance to the friendly ship with the least ordnance within its range, at a cost in power."
+ ENG: "<color=Caption>Capacity</color>Kinetic and explosive weapons spend ordnance per shot; energy weapons spend power. A ship's ordnance capacity is the sum of its modules' ordnance capacity, and it starts full. Modules that add ordnance per second refill it slowly. Launching a fighter or shuttle also costs ordnance; see Fighter Bays. The design screen warns about designs with little or no ordnance and about designs whose weapons would empty the store in one burst.\n\n<color=Caption>When a ship asks for resupply</color>Below 10% ordnance in combat, when kinetic weapons make up over three quarters of its weapon area and it cannot make ordnance fast enough; below 35% out of combat, or 85% for a platform or station; also when its internal hull is badly damaged, or when it has troop capacity and is missing troops, with Send Troops off only once it is empty and has no priority target. Then:\n<li>A nearby friendly ship with supply bays sends supply shuttles, or the ship falls in beside it until it is filled.</li>\n<li>Otherwise it flies to the nearest colony of yours with a space port, preferring a safe one (not quarantined, no recent ground or space combat at the planet, no foreign troops), failing that the nearest colony, and orbits there until done.</li>\n<li>A platform or station asks the nearest colony that can launch a supply shuttle to send one.</li>\n<li>A fighter returns to its carrier, and a drone with no carrier scuttles.</li>\n\n<color=Caption>At a colony</color>Every turn a colony supplies your ships and your allies' ships in orbit, tethered to it, or within 7000 units. Each gets ordnance equal to the planet's level, times 5 with a space port or 2 without, times 10 in peace or a tenth while there is fighting in orbit, ten times as much power, and its troops heal by the planet level if it carries a sickbay. Platforms are always kept full. A colony also launches supply shuttles to your ships elsewhere in its system that need ordnance, up to its infrastructure count at a time, as long as no dangerous forces are in the system. Ships in orbit repair too; see Combat Basics.\n\n<color=Caption>Transporters</color>A ship with an ordnance transporter beams ordnance to the friendly ship with the least ordnance within its range, at a cost in power. Every transporter waits out its delay between uses; the assault kind, which beams troops onto enemy ships, is covered under Capturing Ships."
 CodexWarfareShipDesign:
  Id: 100106
  ENG: "Ship Design"
