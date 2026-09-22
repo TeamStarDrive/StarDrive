@@ -143,6 +143,8 @@
           UID: design_power_budget
         -
           UID: design_armor_and_shields
+        -
+          UID: design_sensors_and_targeting
     -
       UID: warfare_refit_and_scrap
     -
