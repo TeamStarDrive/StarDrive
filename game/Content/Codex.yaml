@@ -141,6 +141,8 @@
           UID: design_categories
         -
           UID: design_power_budget
+        -
+          UID: design_armor_and_shields
     -
       UID: warfare_refit_and_scrap
     -
