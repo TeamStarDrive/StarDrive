@@ -66,6 +66,8 @@
     -
       UID: economy_planetary_qualities
     -
+      UID: economy_budget_screen
+    -
       UID: economy_the_colony_screen
       Children:
         -

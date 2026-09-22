@@ -148,8 +148,8 @@ DisableCrashSiteAlertsTip: automation_alerts
 EnableStarvationWarningTip: automation_alerts
 
 # Budget screen
-TaxesAreCollectedFromYour: automation_research_and_taxes
-TreasuryGoalIsTheTarget: automation_research_and_taxes
+TaxesAreCollectedFromYour: economy_budget_screen
+TreasuryGoalIsTheTarget: economy_budget_screen
 
 # Expansion
 ResearchStationCanBePlaced: expansion_deep_space_building
@@ -405,3 +405,25 @@ ZoomOutToTheGalaxy: overview_controls
 ZoomsToYourCurrentlySelected: overview_controls
 WhenActiveArcsInThe: warfare_ship_design
 TT_TotalModuleSlots: warfare_ship_design
+
+# Bucket 6: the budget screen rows
+BudgetPlanetaryTaxesTip: economy_budget_screen
+BudgetTradeCargoTip: economy_budget_screen
+BudgetExcessGoodsTip: economy_budget_screen
+BudgetMoneyLeechedTip: economy_budget_screen
+BudgetOtherIncomeTip: economy_budget_screen
+BudgetIncomeTotalTip: economy_budget_screen
+BudgetBuildingMaintTip: economy_budget_screen
+BudgetShipMaintTip: economy_budget_screen
+BudgetTroopMaintTip: economy_budget_screen
+BudgetProductionFeesTip: economy_budget_screen
+BudgetEspionageCostTip: economy_budget_screen
+BudgetExpenditureTotalTip: economy_budget_screen
+BudgetMercantilismAvgTip: economy_budget_screen
+BudgetTradeTreatiesTip: economy_budget_screen
+BudgetTradeTotalTip: economy_budget_screen
+BudgetColonyBudgetTip: economy_budget_screen
+BudgetSpaceRoadBudgetTip: economy_budget_screen
+BudgetDefenseBudgetTip: economy_budget_screen
+BudgetGovernorTotalTip: economy_budget_screen
+BudgetNetGainTip: economy_budget_screen

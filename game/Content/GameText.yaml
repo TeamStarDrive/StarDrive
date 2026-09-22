@@ -1817,11 +1817,7 @@ ShipWillAttemptToHold:
  PTB: "A nave tentará manter posição e não se moverá para atacar inimigos"
 TaxesAreCollectedFromYour:
  Id: 264
- ENG: "Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets."
- RUS: "Налоги с планет собираются в виде доли ее промышленного и исследовательского потенциала. Например, налог в 25% означает, что промышленное производство и исследования на всех планетах сократятся на 25%. За счет налогов ваша империя будет получать эти потерянные ресурсы в виде кредитов."
- SPA: "Los impuestos se recaudan en los planetas como una parte de su rendimiento de producción e investigación. Por ejemplo, un tipo impositivo del 25% reducirá la capacidad industrial e investigadora en ese mismo 25% en todos los planetas. Tu imperio transformará en créditos la producción e investigación perdidas."
- UKR: "Податки збираються з ваших планет як частина доходу їхнього населення. Негативною стороною податків є те, що вони знижують мораль і продуктивність. Наприклад, податкова ставка 25% означає, що наукові дослідження і промислове виробництво скоротяться на 25% на всіх планетах."
- PTB: "Impostos são coletados de seus planetas como uma parte da renda de suas populações. O lado negativo dos impostos é que eles reduzem o moral e a produtividade. Por exemplo, uma taxa de imposto de 25% significa que a pesquisa e a produção industrial serão reduzidas em 25% em todos os planetas."
+ ENG: "Taxes are collected from your colonies: the empire takes this share of every colony's credit revenue, raised by your racial tax modifier and by any tax buildings, the same share of its production and of its research, and the same share of the food and production a full store could not hold. The food yield itself is never taxed."
 LaunchThisTroopIntoOrbit:
  Id: 265
  ENG: "Launch this troop into orbit"
@@ -8473,10 +8469,7 @@ TreasuryGoal:
  PTB: "Meta do Tesouro"
 TreasuryGoalIsTheTarget:
  Id: 1918
- ENG: "Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 year projection. This can cause massive empire overspending. "
- RUS: "Цель казначейства - целевая сумма казны империи. Различные губернаторы используют это значение для определения своих бюджетов. Предупреждение: это процент от 20-летнего прогноза. Это может привести к огромным перерасходам империи."
- UKR: "Мета скарбниці - це цільова сума скарбниці для імперії. Різні губернатори використовують це значення для формування своїх бюджетів. Попередження: Це відсоток від 20-річного прогнозу. Це може призвести до значних перевитрат імперії."
- PTB: "A Meta do Tesouro é o valor-alvo do tesouro para o império. Os vários governadores usam esse valor para definir seus orçamentos. Aviso: isso é uma porcentagem de uma projeção de 20 anos. Isso pode causar gastos imperiais massivos. "
+ ENG: "The treasury your empire saves towards: this fraction of a two hundred turn projection of your stable income, shown in credits beside the slider. The governor budgets are slices of it and Auto Taxes raises the tax rate to reach it, so a high setting means high taxes and heavy governor spending."
 RemovingBiospheres:
  Id: 1919
  ENG: "Removing Biospheres"
@@ -14610,6 +14603,81 @@ ArcDragTip:
 ArcDragTipAltControl:
  Id: 4550
  ENG: "Shift for fine tune\nCtrl to match an existing turret"
+SpaceRoads:
+ Id: 4551
+ ENG: "Space Roads"
+TradeCargo:
+ Id: 4552
+ ENG: "Trade Cargo"
+ExcessGoods:
+ Id: 4553
+ ENG: "Excess Goods"
+MoneyLeeched:
+ Id: 4554
+ ENG: "Money Leeched"
+ColonyLabel:
+ Id: 4575
+ ENG: "Colony"
+BudgetPlanetaryTaxesTip:
+ Id: 4555
+ ENG: "The tax collected from all your colonies this turn, before their buildings are paid for: each colony's population times its credits per colonist, plus any flat building income, times your tax rate, your racial and building tax modifiers, and any exotic credits bonus."
+BudgetTradeCargoTip:
+ Id: 4556
+ ENG: "What your freighters earned this turn, plus this turn's trade treaty income. Freighters earn the tax on the goods they deliver once you have the Tax Goods bonus, the Mercantile trait's bonus per unit, and 2 credits per unit delivered to another empire."
+BudgetExcessGoodsTip:
+ Id: 4557
+ ENG: "Your tax rate applied to the food and production a colony made but could not store. Cybernetic colonies pay only on production."
+BudgetMoneyLeechedTip:
+ Id: 4558
+ ENG: "Credits your spies siphoned out of other empires last turn. What enemy spies take from you is not listed here: it is removed from your gain before it reaches the treasury."
+BudgetOtherIncomeTip:
+ Id: 4559
+ ENG: "Flat credits per turn from bonuses. For the player these come from artifacts."
+BudgetIncomeTotalTip:
+ Id: 4560
+ ENG: "The five income rows added up. This is your gross income, before anything is spent."
+BudgetBuildingMaintTip:
+ Id: 4561
+ ENG: "Your colonies' building upkeep, less the upkeep of every troop standing on your planets, enemy troops included. The Troop Maint. row below counts only your own."
+BudgetShipMaintTip:
+ Id: 4562
+ ENG: "The upkeep of every active ship, orbital and subspace projector you own, including the troops aboard them. A ship ordered scrapped stops costing you."
+BudgetTroopMaintTip:
+ Id: 4563
+ ENG: "The upkeep of the troops garrisoned on your planets. Troops aboard ships are paid for as part of ship maintenance."
+BudgetProductionFeesTip:
+ Id: 4564
+ ENG: "Credits charged while ships and military items are built: a fifth of the production spent on Normal difficulty, rising to half on Insane unless the fixed player credit charge rule option is on. Rushing replaces that fee with 1 credit for every point of production it rushes, on any item in the queue, paid at once when you click Rush."
+BudgetEspionageCostTip:
+ Id: 4565
+ ENG: "Last turn's espionage cost: your population in billions times the part of your espionage budget multiplier above 1. It is nothing at all while your whole espionage weight sits on defense."
+BudgetExpenditureTotalTip:
+ Id: 4566
+ ENG: "Everything you spend this turn: building upkeep, ship upkeep, production fees including the credits already taken from the treasury this turn, and espionage. The rows above stop adding up to it while enemy troops stand on your planets."
+BudgetMercantilismAvgTip:
+ Id: 4567
+ ENG: "The lifetime average of your freighters' trade earnings: everything they have ever earned divided by the turns played. Treaty income is not counted in it."
+BudgetTradeTreatiesTip:
+ Id: 4568
+ ENG: "Trade treaty income this turn, one row per partner in the partner's color. A treaty starts at minus 3 credits per turn and gains a tenth of a credit each turn up to its ceiling. This income is already counted in the Trade Cargo row."
+BudgetTradeTotalTip:
+ Id: 4569
+ ENG: "The lifetime freighter average plus this turn's treaty income. It mixes an average with a current figure, so it is not what trade pays you this turn."
+BudgetColonyBudgetTip:
+ Id: 4570
+ ENG: "What your governors may spend on colony buildings. Each colony gets a share of it according to its potential value, and a manual budget on the colony's Governor tab replaces that share."
+BudgetSpaceRoadBudgetTip:
+ Id: 4571
+ ENG: "What the empire may spend on space roads, the subspace projector chains between your systems, while Autobuild Projectors is on. The roads' upkeep comes out of it, and roads are scrapped when it runs short."
+BudgetDefenseBudgetTip:
+ Id: 4572
+ ENG: "What your governors may spend on orbitals and ground defenses. Each colony gets a share according to its value, split between military buildings and orbitals, and manual budgets on the Governor tab replace it."
+BudgetGovernorTotalTip:
+ Id: 4573
+ ENG: "The three governor budgets added up. Each is a slice of your treasury goal, or of your cash when that is larger, and eases towards its new value instead of jumping. They guide the governors rather than cap them."
+BudgetNetGainTip:
+ Id: 4574
+ ENG: "Your gross income less everything you spend, including the credits already taken from your treasury this turn. It is the same figure shown in brackets beside your treasury on the top bar."
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 
@@ -22416,3 +22484,12 @@ CodexWeaponsWeaponStatsShort:
 CodexWeaponsWeaponStatsText:
  Id: 100222
  ENG: "<color=Caption>Damage</color><li>Damage: what each projectile deals, or a whole beam burst. The screen shows it for an untrained crew: in combat every crew level adds 5%. The screen counts your ordnance effectiveness bonus only for explosive weapons that use ordnance, while in combat every weapon that uses ordnance gets it. Weapon technologies raise it by weapon type. Explosive weapons deal it in a blast of Blast Rad slots, which technology can enlarge in combat.</li><li>DPS: damage per second at full rate of fire, counting salvos, projectiles per shot and warheads.</li><li>Delay: seconds from one shot to the next, salvo or beam time included.</li><li>Salvo: shots fired one after another each time the weapon fires. Projectiles: projectiles in each shot, fanned across the weapon's dispersion arc when it has one. Imprecision: a random spread in degrees on every projectile.</li><li>VS Armor and VS Shield: the damage multiplier against armor modules and against shields, shown when it is not 100%.</li><li>Armor Pen and Shield Pen: armor piercing, and the chance a shot passes through shields altogether; see Armor and Shields. Gold means a bonus raised it.</li>\n\n<color=Caption>Reach and aim</color><li>Range: how far the weapon reaches; a weapon with range variance reaches up to 10% more or less on each shot; beams never vary. Speed: how far a projectile flies each second.</li><li>Fire Arc: the weapon fires only at targets inside this arc; see Ship Design.</li><li>Accuracy: the aim error in slots; see Sensors and Targeting. Guided weapons home in instead and show no Accuracy.</li><li>Ignition: a missile drifts this many seconds before its engine lights, so it takes longer to reach its target. T.Range and T.Speed: a missile with a terminal phase speeds up to T.Speed once it is within T.Range of its target. MIRV: the missile splits into this many warheads near its target; Damage, Blast Rad, the terminal, VS and penetration rows and Cannot Target are per warhead, and DPS counts every warhead.</li>\n\n<color=Caption>Costs and special effects</color><li>Ord / Shot and Pwr / Shot: the ordnance and power every shot costs; Pwr/s: a beam's power per second while it fires. See Ordnance and Power Budget.</li><li>Duration: how long a beam fires.</li><li>EMP: EMP damage per projectile; see Armor and Shields.</li><li>Tractor: a beam's pull, a fifth of it through shields. The target moves and turns slower by its total pull divided by its mass; once the pull exceeds its mass it stops and drops out of warp. The pull clears once no tractor beam holds it, and platforms and stations tethered to a planet are immune.</li><li>Siphon and Pwr Dmg: see Power Budget; only beams apply them.</li><li>Cannot Target: ship sizes the weapon never fires at, Capitals meaning frigates and larger; true point defense fires only at projectiles that can be intercepted.</li>"
+CodexEconomyBudgetScreen:
+ Id: 100223
+ ENG: "The Budget Screen"
+CodexEconomyBudgetScreenShort:
+ Id: 100224
+ ENG: "What every row of the Economic Overview means, and how the tax and treasury sliders drive your governors' budgets"
+CodexEconomyBudgetScreenText:
+ Id: 100225
+ ENG: "<color=Caption>The screen</color>Press T, or click your treasury on the top bar, to open the Economic Overview. Every money figure in the Income, Expenditure and Trade panels is credits per turn.\n\n<color=Caption>Tax rate</color>The slider sets the share your empire takes of each colony: all of its credit revenue, raised by your racial tax modifier and by any tax buildings, the same share of its production and of its research, and the same share of the food and production a full store could not hold. Food yield itself is never taxed, but a cybernetic race eats production, so tax bites into its growth. With Auto Taxes ticked the slider is locked and the rate is set for you every turn; see Research and Taxes under Automation.\n\n<color=Caption>Treasury goal</color>The slider is a fraction of a two hundred turn projection of your stable income, and the number beside it is the goal in credits this works out to. Stable income here is what your colonies would earn at full tax, plus your average trade income and flat bonuses, less the upkeep of your civilian ships, your planet troops and your troop ships. The governor budgets are slices of this goal and Auto Taxes chases it, so this slider drives both your taxes and your governors' spending.\n\n<color=Caption>Income</color><li>Planetary Taxes: the tax collected from every colony this turn, before their buildings are paid for.</li><li>Trade Cargo: what your freighters earned this turn, plus this turn's trade treaty income.</li><li>Excess Goods: the tax on food and production a full store could not hold.</li><li>Money Leeched: what your spies siphoned out of other empires last turn.</li><li>Other: flat credit bonuses, which for you come from artifacts.</li>The total of these five is your gross income.\n\n<color=Caption>Expenditure</color><li>Building Maint.: your colonies' building upkeep, less the upkeep of every troop standing on your planets, enemy troops included.</li><li>Ship Maint.: every active ship, orbital and projector you own, the troops aboard them included; a ship ordered scrapped stops costing you.</li><li>Troop Maint.: the troops garrisoned on your planets.</li><li>Production Fees: ships and military items cost credits as their production is spent, a fifth of it on Normal and up to half on Insane. Rushing replaces that fee with 1 credit for every point of production it rushes, on any item in the queue.</li><li>Espionage: last turn's espionage cost, shown only under the new espionage system.</li>\n\n<color=Caption>Trade</color>Mercantilism (Avg) is the lifetime average of your freighters' earnings, everything they have ever earned divided by the turns played. Trade Treaties is this turn's treaty income, broken down by partner beneath it, and is already counted inside Trade Cargo above. Its total mixes the two, so it is not what trade pays you this turn; see Trade Treaties.\n\n<color=Caption>Governor Budget</color>What your governors may spend on colony buildings, on space roads, which are only built while Autobuild Projectors is on, and on defenses. Each is a slice of the treasury goal, or of your cash when that is larger: roughly a fortieth of it for colonies, half that for defense and a little less for space roads. Each eases towards its new value, and they guide the governors rather than cap them. Colonies share the colony and defense budgets by their value, and a manual budget on a colony's Governor tab replaces its share.\n\n<color=Caption>Net Gain</color>The two totals added together: your gross income less everything you spend, including the credits already taken from your treasury this turn. It is the same figure shown in brackets beside your treasury on the top bar. Less may reach the treasury: every empire that has infiltrated you to level 5 leeches 2% of a positive gain before it is added, and that loss appears nowhere here."
