@@ -187,7 +187,7 @@ namespace Ship_Game
             return LeftMouseHeld();
         }
 
-        public bool Undo => IsCtrlKeyDown && KeyPressed(Keys.Z); // Ctrl+Z
+        public bool Undo => IsCtrlKeyDown && !IsShiftKeyDown && KeyPressed(Keys.Z); // Ctrl+Z
         public bool Redo => IsCtrlKeyDown && (KeyPressed(Keys.Y) || (IsShiftKeyDown && KeyPressed(Keys.Z))); // Ctrl+Y or Ctrl+Shift+Z
         public bool LeftCtrlShift => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
 

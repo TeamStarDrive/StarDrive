@@ -46,8 +46,31 @@ with open(os.path.join(root, "game", "Content", "CodexHooks.yaml"), encoding="ut
 # --- tooltip sites ---------------------------------------------------------
 # A line counts as a tooltip site when it creates or assigns a tooltip, or when
 # the token itself is named *Tip (the naming convention for tooltip text).
-site_re  = re.compile(r"CreateTooltip\(|Tooltip\s*=|[Tt]ooltip:\s*|\.Tooltip\b|Tooltip\(|\.Tip\s*=|, GameText\.\w+Tip\b")
-token_re = re.compile(r"GameText\.(\w+)")
+# Stat rows (DrawStat*, Val, ValNZ) carry the tip as a positional argument.
+site_re  = re.compile(r"CreateTooltip\(|Tooltip\s*=|[Tt]ool[Tt]ip:\s*|\.Tooltip\b|Tooltip\(|\.Tip\s*=|GameText\.\w+Tip\b|DrawStat\w*\(|\bVal(?:NZ)?\(")
+token_re = re.compile(r"\b(?:GameText|GT)\.(\w+)")
+stat_re  = re.compile(r"(DrawStat\w*|\bVal(?:NZ)?)\(")
+tip_kw   = re.compile(r"[Tt]ool[Tt]ip\s*[:=(]")
+
+def stat_tip_args(line):
+    """The text after the argument that precedes the tip in a stat row call:
+    DrawStat*(ref cursor, title, value, tip, ...) or Val(value, title, tip, ...)."""
+    m = stat_re.search(line)
+    if not m:
+        return None
+    skip = 2 if m.group(1).startswith("Val") else 3
+    depth, args, start = 0, [], m.end()
+    for i in range(m.end(), len(line)):
+        c = line[i]
+        if c in "([": depth += 1
+        elif c in ")]":
+            if depth == 0:
+                break
+            depth -= 1
+        elif c == "," and depth == 0:
+            args.append(line[start:i]); start = i + 1
+    args.append(line[start:])
+    return ",".join(args[skip:])
 
 uses = defaultdict(set)   # token -> {file}
 raw  = defaultdict(set)   # token -> {file} where the site passes Localizer.Token(...) (a raw string: never hooked)
@@ -63,10 +86,13 @@ for dirpath, _, files in os.walk(src):
                     continue
                 # a line like `title: GameText.A, tooltip: GameText.B` names two
                 # tokens; only the one after the tooltip keyword is the tip
-                m = re.search(r"[Tt]ooltip\s*[:=]|\.Tip\s*=", line)
+                m = re.search(r"[Tt]ool[Tt]ip\s*[:=]|\.Tip\s*=", line)
                 scan = line[m.end():] if m else line
+                stat = stat_tip_args(line)
+                if stat is not None:
+                    scan = stat
                 for tok in token_re.findall(scan):
-                    if tok.endswith("Tip") or "ooltip" in line or ".Tip" in line:
+                    if stat is not None or tok.endswith("Tip") or tip_kw.search(line) or ".Tip" in line:
                         uses[tok].add(rel)
                         if re.search(r"Localizer\.Token\(\s*GameText\." + tok + r"\b", line):
                             raw[tok].add(rel)

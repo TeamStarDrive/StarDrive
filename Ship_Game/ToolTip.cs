@@ -32,13 +32,10 @@ namespace Ship_Game
         static readonly Array<TipItem> ActiveTips = new();
         static TipItem LastHovered;
 
+        internal static bool SuppressNewTips { get; set; }
+
         public static void ShipYardArcTip()
-            // Snap-modifier text differs by AltArcControl mode: in default
-            // mode Alt is the snap modifier; in AltArcControl mode Alt is the
-            // activation, so Ctrl is the snap modifier instead.
-            => CreateTooltip(GlobalStats.AltArcControl
-                ? "Shift for fine tune\nCtrl to match an existing turret"
-                : "Shift for fine tune\nAlt to match an existing turret");
+            => CreateTooltip(GlobalStats.AltArcControl ? GameText.ArcDragTipAltControl : GameText.ArcDragTip);
 
         public static void PlanetLandingSpotsTip(string locationText, int spots)
             => CreateTooltip($"{locationText}\n{spots} Landing Spots");
@@ -61,6 +58,9 @@ namespace Ship_Game
         public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position,
                                          float minShowTime = 0, float maxWidth = 0, string codexUid = null)
         {
+            if (SuppressNewTips)
+                return;
+
             string rawText = tip.Text;
             if (rawText.IsEmpty())
             {
@@ -129,6 +129,8 @@ namespace Ship_Game
             return null;
         }
         
+        public static int ActiveTipCount => ActiveTips.Count;
+
         // Clears the current tooltip (if any)
         public static void Clear()
         {

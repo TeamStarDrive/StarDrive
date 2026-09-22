@@ -18,6 +18,8 @@ namespace Ship_Game
 {
     public sealed class MainDiplomacyScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         UniverseScreen Universe;
         public DanButton Contact;
 

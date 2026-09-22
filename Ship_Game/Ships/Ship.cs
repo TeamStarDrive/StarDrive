@@ -1271,13 +1271,7 @@ namespace Ship_Game.Ships
             if (ShipStatusChanged)
                 ShipStatusChange();
 
-            //Power draw based on warp
-            if (!IsInFriendlyProjectorRange && engineState == MoveState.Warp)
-                PowerDraw = NetPower.NetWarpPowerDraw;
-            else if (engineState != MoveState.Warp)
-                PowerDraw = NetPower.NetSubLightPowerDraw;
-            else
-                PowerDraw = NetPower.NetWarpPowerDraw;
+            PowerDraw = engineState == MoveState.Warp ? NetPower.NetWarpPowerDraw : NetPower.NetSubLightPowerDraw;
 
             if (InCombat
                 || ShieldPower < ShieldMax

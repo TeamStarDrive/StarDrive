@@ -15,6 +15,8 @@ namespace Ship_Game
 {
     public sealed class PlanetListScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly Menu2 TitleBar;
         readonly Vector2 TitlePos;
         readonly Menu2 EMenu;
@@ -122,7 +124,7 @@ namespace Ship_Game
 
             ExoticSystemsButton = Add(new UIButton(ButtonStyle.Military, exoticPos, GameText.ExoticSystemsArray));
             ExoticSystemsButton.OnClick = (b) => OnExoticSystemsScreenClick();
-            ExoticSystemsButton.Tooltip = Localizer.Token(GameText.ExoticSystemsArrayTip);
+            ExoticSystemsButton.Tooltip = GameText.ExoticSystemsArrayTip;
 
             Vector2 troopPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width + 17, TitleBar.Menu.Y + 65);
             AvailableTroops  = Add(new UILabel(troopPos, $"Available Troops: ", Fonts.Arial20Bold, Color.LightGreen));

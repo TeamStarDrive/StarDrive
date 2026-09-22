@@ -14,27 +14,18 @@ namespace Ship_Game
             }
             public override bool HandleInput(InputState input)
             {
-                if (Rect.HitTest(input.CursorPosition)) //fbedard: add tooltip for CategoryList
+                if (Rect.HitTest(input.CursorPosition))
                 {
-                    string tooltip = new[]{
-                        "Repair when structural integrity is 70% or less",
-
-                        "Can be used as Freighter. Evade when enemies are near. " +
-                        "Repair when structural integrity is 95% or less" ,
-
-                        "Can be used as Scout +" +
-                        "Repair when structural integrity is 85% or less" ,
-
-                        "Repair when structural integrity is 80% or less" ,
-
-                        "Repair when structural integrity is 75% or less. " ,
-
-                        "Repair when structural integrity is 50% or less." ,
-
-                        "Never Repair! Never Rearm!\n(unless ordered)"
-
-                    }[(int)ActiveValue];
-
+                    GameText tooltip = ActiveValue switch
+                    {
+                        ShipCategory.Civilian     => GameText.ShipCategoryCivilianTip,
+                        ShipCategory.Recon        => GameText.ShipCategoryReconTip,
+                        ShipCategory.Conservative => GameText.ShipCategoryConservativeTip,
+                        ShipCategory.Neutral      => GameText.ShipCategoryNeutralTip,
+                        ShipCategory.Reckless     => GameText.ShipCategoryRecklessTip,
+                        ShipCategory.Kamikaze     => GameText.ShipCategoryKamikazeTip,
+                        _                         => GameText.ShipCategoryUnclassifiedTip,
+                    };
                     ToolTip.CreateTooltip(tooltip);
                 }
                 return base.HandleInput(input);

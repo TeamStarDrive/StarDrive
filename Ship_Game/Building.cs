@@ -148,14 +148,15 @@ namespace Ship_Game
         public void OnDeserialized()
         {
             Building template = ResourceManager.GetBuildingTemplate(Name);
-            if (template == null)
-                return;
 
             BID = template.BID;
 
             // Patching: because of some game data changes, these values need to be patched
             //           from latest building templates
             ShipRepair = template.ShipRepair;
+            NameTranslationIndex = template.NameTranslationIndex;
+            DescriptionIndex = template.DescriptionIndex;
+            ShortDescriptionIndex = template.ShortDescriptionIndex;
         }
 
         public Building Clone()

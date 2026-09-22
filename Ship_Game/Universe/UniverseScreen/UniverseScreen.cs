@@ -135,6 +135,8 @@ namespace Ship_Game
         public Ship ShipToView;
         public float AdjustCamTimer;
         public AutomationWindow aw;
+
+        public override bool HelpKeyOpensCodex => true;
         public ExoticBonusesWindow ExoticBonusesWindow;
         public FreighterUtilizationWindow FreighterUtilizationWindow;
         public bool DefiningAO; // are we defining a new AO?

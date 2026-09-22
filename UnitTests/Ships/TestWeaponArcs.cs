@@ -99,5 +99,46 @@ namespace UnitTests.Ships
             Assert.IsTrue(error > 112 & error < 114);
             // I am embarrassed by this unit test.
         }
+
+        static Weapon InaccurateWeapon(Ship ship)
+        {
+            ship.Level = 0;
+            Weapon weapon = ship.Weapons.Find(w => !w.Tag_Guided && w.BaseTargetError(-1) > 0f);
+            Assert.IsNotNull(weapon, "Test ship needs an unguided weapon with aim error");
+            return weapon;
+        }
+
+        [TestMethod]
+        public void CrewLevelReducesAimError()
+        {
+            Ship ship = SpawnShip("Soldier mk2-c", Player, Vector2.Zero);
+            Weapon weapon = InaccurateWeapon(ship);
+            float untrained = weapon.BaseTargetError(-1);
+
+            ship.Level = 3;
+            float veteran = weapon.BaseTargetError(-1);
+            Assert.IsTrue(veteran < untrained, $"Crew level 3 must aim better: untrained={untrained} veteran={veteran}");
+        }
+
+        [TestMethod]
+        public void MilitaristicTraitReducesAimError()
+        {
+            Ship ship = SpawnShip("Soldier mk2-c", Player, Vector2.Zero);
+            Weapon weapon = InaccurateWeapon(ship);
+            int militaristic = Player.data.Traits.Militaristic;
+            try
+            {
+                Player.data.Traits.Militaristic = 0;
+                float plain = weapon.BaseTargetError(-1);
+
+                Player.data.Traits.Militaristic = 2;
+                float militaristicError = weapon.BaseTargetError(-1);
+                Assert.IsTrue(militaristicError < plain, $"Militaristic must aim better: plain={plain} militaristic={militaristicError}");
+            }
+            finally
+            {
+                Player.data.Traits.Militaristic = militaristic;
+            }
+        }
     }
 }

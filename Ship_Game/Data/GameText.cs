@@ -4701,6 +4701,80 @@ namespace Ship_Game
         PathfinderTip = 4537,
         /// <summary>You placed this yourself, so the governor will never scrap it or cancel it.</summary>
         PlayerBuiltProtectedFromScrap = 4538,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryUnclassifiedTip = 4539,
+        /// <summary>Can serve as a freighter. Evades when enemies are</summary>
+        ShipCategoryCivilianTip = 4540,
+        /// <summary>Offered as a scout by the exploration automation. Leaves</summary>
+        ShipCategoryReconTip = 4541,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryConservativeTip = 4542,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryNeutralTip = 4543,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryRecklessTip = 4544,
+        /// <summary>Never leaves to repair, rearm or take on troops</summary>
+        ShipCategoryKamikazeTip = 4545,
+        /// <summary>A general purpose design. A Dynamic Anti Ship or</summary>
+        HangarDesignationGeneralTip = 4546,
+        /// <summary>Designated Anti Ship: it prefers targets larger than itself,</summary>
+        HangarDesignationAntiShipTip = 4547,
+        /// <summary>Designated Interceptor: it prefers targets smaller than itself, and</summary>
+        HangarDesignationInterceptorTip = 4548,
+        /// <summary>Shift for fine tune Alt to match an existing</summary>
+        ArcDragTip = 4549,
+        /// <summary>Shift for fine tune Ctrl to match an existing</summary>
+        ArcDragTipAltControl = 4550,
+        /// <summary>Space Roads</summary>
+        SpaceRoads = 4551,
+        /// <summary>Trade Cargo</summary>
+        TradeCargo = 4552,
+        /// <summary>Excess Goods</summary>
+        ExcessGoods = 4553,
+        /// <summary>Money Leeched</summary>
+        MoneyLeeched = 4554,
+        /// <summary>Colony</summary>
+        ColonyLabel = 4575,
+        /// <summary>The tax collected from all your colonies this turn, before t</summary>
+        BudgetPlanetaryTaxesTip = 4555,
+        /// <summary>What your freighters earned this turn, plus this turn's trad</summary>
+        BudgetTradeCargoTip = 4556,
+        /// <summary>Your tax rate applied to the food and production a colony ma</summary>
+        BudgetExcessGoodsTip = 4557,
+        /// <summary>Credits your spies siphoned out of other empires last turn.</summary>
+        BudgetMoneyLeechedTip = 4558,
+        /// <summary>Flat credits per turn from bonuses. For the player these com</summary>
+        BudgetOtherIncomeTip = 4559,
+        /// <summary>The five income rows added up. This is your gross income, be</summary>
+        BudgetIncomeTotalTip = 4560,
+        /// <summary>Your colonies' building upkeep, less the troop upkeep shown</summary>
+        BudgetBuildingMaintTip = 4561,
+        /// <summary>The upkeep of every ship, orbital and subspace projector you</summary>
+        BudgetShipMaintTip = 4562,
+        /// <summary>The upkeep of the troops garrisoned on your planets. Troops</summary>
+        BudgetTroopMaintTip = 4563,
+        /// <summary>Credits charged while ships and military items are built: a</summary>
+        BudgetProductionFeesTip = 4564,
+        /// <summary>Last turn's espionage cost: your population in billions time</summary>
+        BudgetEspionageCostTip = 4565,
+        /// <summary>Everything you spend this turn: building, ship and troop upk</summary>
+        BudgetExpenditureTotalTip = 4566,
+        /// <summary>The lifetime average of your freighters' trade earnings: eve</summary>
+        BudgetMercantilismAvgTip = 4567,
+        /// <summary>Trade treaty income this turn, broken down by partner below</summary>
+        BudgetTradeTreatiesTip = 4568,
+        /// <summary>The lifetime freighter average plus this turn's treaty incom</summary>
+        BudgetTradeTotalTip = 4569,
+        /// <summary>What your governors may spend on colony buildings. Each colo</summary>
+        BudgetColonyBudgetTip = 4570,
+        /// <summary>What the empire may spend on space roads, the subspace proje</summary>
+        BudgetSpaceRoadBudgetTip = 4571,
+        /// <summary>What your governors may spend on orbitals and ground defense</summary>
+        BudgetDefenseBudgetTip = 4572,
+        /// <summary>The three governor budgets added up. Each is a slice of your</summary>
+        BudgetGovernorTotalTip = 4573,
+        /// <summary>Your gross income less everything you spend, including the c</summary>
+        BudgetNetGainTip = 4574,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

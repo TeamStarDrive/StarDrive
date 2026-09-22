@@ -12,6 +12,8 @@ namespace Ship_Game
 {
     public sealed class SearchTechScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly ResearchScreenNew Screen;
         Menu2 Window;
         ScrollList<SearchTechItem> TechList;

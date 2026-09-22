@@ -15,12 +15,13 @@ namespace Ship_Game
         const int SuccessTargetNumber  = 40; // need to get 40 and above in a roll of d100)
         const float BaseRelationDamage = 5;
         public const int BaseRampUpTurns = 40;
+        public override InfiltrationOpsType Type => InfiltrationOpsType.Uprise;
 
         [StarDataConstructor]
         public InfiltrationOpsUprise() { }
 
         public InfiltrationOpsUprise(Empire owner, Empire them, int levelCost) :
-            base((int)(levelCost * PercentOfLevelCost), InfiltrationOpsType.Uprise, BaseRampUpTurns, owner)
+            base((int)(levelCost * PercentOfLevelCost), BaseRampUpTurns, owner)
         {
             Owner = owner;
             Them = them;
@@ -111,7 +112,7 @@ namespace Ship_Game
 
                 if (targetPlanet.Fertility > 0 && fertilityReduction.NotEqual(1f))
                 {
-                    float fertilityLost = targetPlanet.Fertility * fertilityReduction;
+                    float fertilityLost = targetPlanet.Fertility * (1 - fertilityReduction);
                     assetsLost += $"{(fertilityLost).String(2)} {Localizer.Token(GameText.Fertility)}. ";
                     targetPlanet.AddBaseFertility(-fertilityLost);
                 }

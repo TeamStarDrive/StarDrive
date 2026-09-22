@@ -82,6 +82,8 @@
     <Compile Include="Data\Ship17EndToEndTest.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
+    <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
+    <Compile Include="Espionage\LegacyAgentTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />
@@ -184,6 +186,7 @@
     <Compile Include="UI\MockGameScreen.cs" />
     <Compile Include="UI\MockInputProvider.cs" />
     <Compile Include="UI\TestScrollList.cs" />
+    <Compile Include="UI\TestTooltipSuppression.cs" />
     <Compile Include="UI\TestUIElement.cs" />
     <Compile Include="TestGameDummy.cs" />
     <Compile Include="Universe\TestNativeSpatial.cs" />

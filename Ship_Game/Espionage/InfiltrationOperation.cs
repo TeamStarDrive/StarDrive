@@ -1,6 +1,5 @@
 ﻿using SDGraphics;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Ships;
 using Ship_Game.Universe;
 using System;
 
@@ -10,8 +9,6 @@ namespace Ship_Game
     public abstract class InfiltrationOperation
     {
         [StarData] public readonly int Cost;
-        [StarData] public readonly byte Level;
-        [StarData] public readonly InfiltrationOpsType Type;
         [StarData] public float Progress { get; private set; }
         [StarData] readonly int RampUpTurns;
         [StarData] int RampUpTimer;
@@ -19,13 +16,14 @@ namespace Ship_Game
         [StarDataConstructor]
         public InfiltrationOperation() {}
 
-        public InfiltrationOperation(int cost, InfiltrationOpsType type, int baseRampUpTurns, Empire owner)
+        public InfiltrationOperation(int cost, int baseRampUpTurns, Empire owner)
         {
             Cost = cost;
-            Type = type;
-            Level = Espionage.GetOpsLevel(type);
             RampUpTimer = RampUpTurns = (int)(baseRampUpTurns * owner.Universe.SettingsResearchModifier * owner.Universe.ProductionPace);
         }
+
+        public abstract InfiltrationOpsType Type { get; }
+        public byte Level => Espionage.GetOpsLevel(Type);
 
         public void SetProgress(float value)
         {

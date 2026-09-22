@@ -45,27 +45,56 @@ namespace UnitTests.ExoticSystems
         }
 
         [TestMethod]
-        public void AResearchStationGoalWithAStaleNameFailsInsteadOfThrowing()
+        public void AResearchStationGoalWithAStaleNameClearsItAndRetries()
         {
+            AddHomeWorldToEmpire(new SDGraphics.Vector2(400000), Player);
+            Player.UpdateRallyPoints();
             Planet planet = AddDummyPlanet(new SDGraphics.Vector2(10), 0, 0, 0);
             Player.data.CurrentResearchStation = "No Such Station Design";
 
-            Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, planet));
+            var goal = new ProcessResearchStation(Player, planet);
+            Player.AI.AddGoalAndEvaluate(goal);
 
-            Assert.IsFalse(Player.AI.HasGoal(g => g is ProcessResearchStation), "the goal must remove itself");
-            Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(planet)), "and queue nothing");
+            AssertEqual("", Player.data.CurrentResearchStation, "the stale choice is cleared so the default takes over");
+            Assert.IsTrue(Player.AI.HasGoal(g => g is ProcessResearchStation), "the goal waits for the next evaluation");
+            Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(planet)), "and has queued nothing yet");
+
+            goal.Evaluate();
+
+            Assert.IsTrue(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(planet)), "the next evaluation builds the default station");
         }
 
         [TestMethod]
-        public void AMiningGoalWithAStaleNameFailsInsteadOfThrowing()
+        public void AMiningGoalWithAStaleNameClearsItAndRetries()
         {
+            AddHomeWorldToEmpire(new SDGraphics.Vector2(400000), Player);
+            Player.UpdateRallyPoints();
             Planet planet = AddDummyPlanet(new SDGraphics.Vector2(10), 0, 0, 0);
+            planet.Mining = new Mineable(planet);
             Player.data.CurrentMiningStation = "No Such Station Design";
 
-            Player.AI.AddGoalAndEvaluate(new MiningOps(Player, planet));
+            var goal = new MiningOps(Player, planet);
+            Player.AI.AddGoalAndEvaluate(goal);
 
-            Assert.IsFalse(Player.AI.HasGoal(g => g is MiningOps), "the goal must remove itself");
-            Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(planet)), "and queue nothing");
+            AssertEqual("", Player.data.CurrentMiningStation, "the stale choice is cleared so the default takes over");
+            Assert.IsTrue(Player.AI.HasGoal(g => g is MiningOps), "the goal waits for the next evaluation");
+            Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(planet)), "and has queued nothing yet");
+
+            goal.Evaluate();
+
+            Assert.IsTrue(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(planet)), "the next evaluation builds the default station");
+        }
+
+        [TestMethod]
+        public void AGoalWithNoDefaultToFallBackOnFails()
+        {
+            Planet planet = AddDummyPlanet(new SDGraphics.Vector2(10), 0, 0, 0);
+            Player.data.CurrentResearchStation = "";
+            Player.data.DefaultResearchStation = "No Such Station Design";
+
+            Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, planet));
+
+            Assert.IsFalse(Player.AI.HasGoal(g => g is ProcessResearchStation), "nothing to build, the goal removes itself");
         }
 
         [TestMethod]

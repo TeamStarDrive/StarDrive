@@ -10,6 +10,8 @@ namespace Ship_Game;
 
 public sealed class ResearchPopup : PopupWindow
 {
+    public override bool HelpKeyOpensCodex => true;
+
     UniverseScreen Universe;
     public bool fade;
     public bool FromGame;

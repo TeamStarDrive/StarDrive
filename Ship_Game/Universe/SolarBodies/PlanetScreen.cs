@@ -5,6 +5,8 @@ namespace Ship_Game;
 
 public abstract class PlanetScreen : GameScreen
 {
+    public override bool HelpKeyOpensCodex => true;
+
     public readonly Planet P;
     public readonly UniverseState Universe;
     public readonly Empire Player;

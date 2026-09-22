@@ -94,7 +94,14 @@ namespace Ship_Game.Commands.Goals
                     : ShipBuilder.StationDesignOrNull(Owner.data.ResearchStation);
                 if (StationToBuild == null)
                 {
-                    Log.Warning($"{Owner.Name}: no research station design to build, the automation window names '{Owner.data.ResearchStation}'");
+                    if (Owner.data.CurrentResearchStation.NotEmpty())
+                    {
+                        string stale = Owner.data.CurrentResearchStation;
+                        Owner.data.CurrentResearchStation = "";
+                        Log.Warning($"{Owner.Name}: research station design '{stale}' no longer exists, the automation window falls back to '{Owner.data.ResearchStation}'");
+                        return GoalStep.TryAgain;
+                    }
+                    Log.Warning($"{Owner.Name}: no research station design to build, the default '{Owner.data.ResearchStation}' does not exist either");
                     return GoalStep.GoalFailed;
                 }
             }
@@ -257,7 +264,7 @@ namespace Ship_Game.Commands.Goals
                 return false;
 
             string bestRefit = Owner.isPlayer && !Owner.AutoPickBestResearchStation
-                ? Owner.data.ResearchStation
+                ? Owner.data.CurrentResearchStation
                 : Owner.BestResearchStationWeCanBuild?.Name;
 
             if (bestRefit.IsEmpty())

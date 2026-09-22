@@ -63,6 +63,12 @@ namespace Ship_Game
         // TRUE if Update() has been run at least once on this GameScreen
         public bool DidRunUpdate { get; private set; }
 
+        // TRUE if this screen received HandleInput during the current frame
+        public bool DidHandleInput { get; internal set; }
+
+        // TRUE if the help key opens the Codex when no tooltip points at an entry
+        public virtual bool HelpKeyOpensCodex => false;
+
         public Viewport Viewport { get; private set; }
         public ScreenManager ScreenManager { get; internal set; }
         public GraphicsDevice Device => ScreenManager.GraphicsDevice;

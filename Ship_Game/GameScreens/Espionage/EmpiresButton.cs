@@ -213,7 +213,7 @@ namespace Ship_Game.GameScreens
                 batch.DrawString(Fonts.Arial12Bold, espionageDefense.String(1), defPos, Color.White);
 
                 if (defenseIcon.HitTest(Screen.Input.CursorPosition))
-                    ToolTip.CreateTooltip(Localizer.Token(GameText.IndicatesTheCounterespionageStrengthOf));
+                    ToolTip.CreateTooltip(GameText.IndicatesTheCounterespionageStrengthOf);
             }
 
             void DrawDefenseRatio()
@@ -228,7 +228,7 @@ namespace Ship_Game.GameScreens
                 var defPos = new Vector2(defenseIcon.Right + 2, defenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 batch.DrawString(Fonts.Arial12Bold, espionageDefense, defPos, Color.White);
                 if (defenseIcon.HitTest(InfiltrationScreen.Input.CursorPosition))
-                    ToolTip.CreateTooltip(Localizer.Token(GameText.InfiltrationDefesneTip));
+                    ToolTip.CreateTooltip(GameText.InfiltrationDefesneTip);
             }
 
             void DrawInfiltration()

@@ -66,6 +66,8 @@
     -
       UID: economy_planetary_qualities
     -
+      UID: economy_budget_screen
+    -
       UID: economy_the_colony_screen
       Children:
         -
@@ -129,11 +131,26 @@
       UID: warfare_weapons
       Children:
         -
+          UID: weapons_weapon_stats
+        -
           UID: warfare_point_defense_weapons
         -
           UID: warfare_ordnance
     -
       UID: warfare_ship_design
+      Children:
+        -
+          UID: design_screen_tools
+        -
+          UID: design_categories
+        -
+          UID: design_power_budget
+        -
+          UID: design_armor_and_shields
+        -
+          UID: design_sensors_and_targeting
+    -
+      UID: warfare_refit_and_scrap
     -
       UID: warfare_ship_experience
     -
@@ -145,9 +162,26 @@
       UID: diplomacy_diplomacy_overview
     -
       UID: diplomacy_espionage
-    -
-      UID: diplomacy_espionage_calculations
-    -
-      UID: diplomacy_agent_missions
+      Children:
+        -
+          UID: espionage_infiltration
+          Children:
+            -
+              UID: infiltration_levels
+            -
+              UID: infiltration_level_rewards
+            -
+              UID: infiltration_operations
+            -
+              UID: infiltration_seven_operations
+        -
+          UID: espionage_legacy_agents
+          Children:
+            -
+              UID: espionage_agents_overview
+            -
+              UID: diplomacy_espionage_calculations
+            -
+              UID: diplomacy_agent_missions
     -
       UID: diplomacy_federations
