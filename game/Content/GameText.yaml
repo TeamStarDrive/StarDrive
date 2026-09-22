@@ -9364,6 +9364,7 @@ TT_ProductionCost:
 TT_PowerCapacity:
  Id: 2072
  ENG: "Indicates the maximum amount of power that can be stored in this ship's reserves. A pink value is an indication that the ship's energy consumption when firing is overwhelming the power reserve, and you need to add more reserves or more reactors."
+ RUS: "Указывает максимальное количество энергии, которое может запасти этот корабль"
  SPA: "Indica la cantidad máxima de energía que puede almacenarse en las reservas de esta nave"
 TT_PowerRecharge:
  Id: 2073
@@ -9417,6 +9418,10 @@ TT_TurnRate:
 TT_OrdnanceCap:
  Id: 2080
  ENG: "Indicates the maximum amount of multi-purpose ordnance this ship can carry."
+ RUS: "Указывает максимальное количество многоцелевых боеприпасов, которые может вместить этот корабль."
+ SPA: "Indica la cantidad máxima de munición polivalente que puede llevar esta nave."
+ UKR: "Вказує на максимальну кількість багатоцільових боєприпасів, які може нести цей корабель."
+ PTB: "Indica a quantidade máxima de munição multiuso que esta nave pode carregar."
 TT_CargoSpace:
  Id: 2081
  ENG: "Indicates the total cargo space available on this ship. Each point of cargo space allows this ship to carry a single unit of food or production, or a small amount of colonists."

@@ -147,8 +147,7 @@ namespace Ship_Game
         [StarDataDeserialized]
         public void OnDeserialized()
         {
-            Building template = ResourceManager.GetBuildingTemplate(Name);
-            if (template == null)
+            if (!ResourceManager.GetBuilding(Name, out Building template))
                 return;
 
             BID = template.BID;
