@@ -129,6 +129,8 @@
       UID: warfare_weapons
       Children:
         -
+          UID: weapons_weapon_stats
+        -
           UID: warfare_point_defense_weapons
         -
           UID: warfare_ordnance

@@ -7966,10 +7966,7 @@ ArmorPen:
  PTB: "Pen. Blindagem"
 ArmorPenetrationEnablesThisWeapon:
  Id: 1830
- ENG: "Armor Penetration enables this weapon to \"bypass\" armor on impact. The number indicates the size of the armor which can be penetrated (or combination of smaller sized armor). Some armor modules might have resistance to Armor Penetration. Golden color means that this value is modified from the original number."
- RUS: "Пробитие брони позволяет этому оружию \"обходить\" броню при попадании. Число это размер брони, которую можно пробить (или комбинацию брони меньшего размера). Некоторые модули брони могут иметь сопротивление к пробитию брони. Золотой цвет означает, что это значение изменено по сравнению с исходным числом."
- UKR: "Бронепробивність дозволяє цій зброї \"обходити\" броню при ударі. Число вказує на розмір броні, яку можна пробити (або комбінацію броні меншого розміру). Деякі модулі броні можуть мати опір до пробиття броні. Золотий колір означає, що це значення було змінено в порівнянні з початковим числом."
- PTB: "A Penetração de Blindagem permite que esta arma \"ignore\" a blindagem no impacto. O número indica o tamanho da blindagem que pode ser penetrada, ou a combinação de blindagens menores. Alguns módulos de blindagem podem ter resistência à Penetração de Blindagem. A cor dourada significa que este valor foi modificado em relação ao número original."
+ ENG: "Armor piercing lets this weapon's projectiles pass through armor without harming it. Every module a shot touches uses up its width in slots plus its AP resistance; while the rest has not gone below zero, the shot passes through armor modules. Golden color means your technology raised it."
 BlastSize:
  Id: 1831
  ENG: "Blast Size"
@@ -9287,11 +9284,7 @@ IndicatesTheMaximumRangeOf:
  PTB: "Indica o alcance máximo desta arma"
 IndicatesTheMaximumAmountOf:
  Id: 2054
- ENG: "Indicates the maximum amount of damage inflicted by a projectile fired from this weapon. Explosive weapons inflict this damage in a radius. "
- RUS: "Указывает максимальный урон, наносимый снарядом, выпущенным из этого оружия. Взрывчатое оружие наносит этот урон в определенном радиусе."
- SPA: "Indica la cantidad máxima de daño que inflige un proyectil disparado con esta arma. Las armas explosivas causan ese mismo daño en un radio. "
- UKR: "Показує максимальну кількість шкоди, що наноситься снарядом, випущеним з цієї зброї. Вибухова зброя наносить цю шкоду в радіусі."
- PTB: "Indica a quantidade máxima de dano causada por um projétil disparado por esta arma. Armas explosivas causam esse dano em um raio."
+ ENG: "Damage of each projectile, or of a whole beam burst, for an untrained crew; every crew level adds 5% in combat. Explosive weapons inflict it across their blast radius."
 IndicatesTheProductionCostOf:
  Id: 2055
  ENG: "Indicates the production cost of this module"
@@ -9587,11 +9580,7 @@ TheIntellectualClassHasRisen:
  PTB: "A classe intelectual se levantou e luta para promover a educação e os direitos individuais."
 IndicatesTheAmountOfEmp:
  Id: 2099
- ENG: "Indicates the amount of EMP damage inflicted per shot. All ships have a natural EMP resistance equal to their size. When EMP damage exceeds a ship's EMP resistance, then the ship will temporarily be disabled. Ships shed EMP damage naturally at a fixed rate regardless of size. "
- RUS: "Указывает количество ЭМИ-урона, наносимого с каждым выстрелом. Все корабли обладают естественной ЭМИ-защитой в зависимости от размера. Если ЭМИ-урон превосходит сопротивляемость корабля, последний на короткое время выходит из строя. Корабли естественным образом восстанавливают часть полученного ЭМИ-урона с фиксированной скоростью вне зависимости от размера."
- SPA: "Indica la cantidad de daño PEM infligido por disparo. Todas las naves tienen una resistencia natural contra PEM igual a su tamaño. Cuando el daño PEM supera la resistencia PEM de una nave, esta queda temporalmente incapacitada. Las naves se recuperan del daño PEM a un ritmo fijo, con independencia del tamaño. "
- UKR: "Показує кількість електромагнітної шкоди, що наноситься за один постріл. Всі кораблі мають природну стійкість до ЕМІ, що дорівнює їхньому розміру. Коли шкода від ЕМІ перевищує опір корабля до ЕМІ, корабель буде тимчасово виведено з ладу. Кораблі відновлюють пошкодження від ЕМІ природним чином з фіксованою швидкістю, незалежно від розміру."
- PTB: "Indica a quantidade de dano EMP infligido por disparo. Todas as naves têm uma resistência natural a EMP igual ao seu tamanho. Quando o dano EMP excede a resistência EMP de uma nave, ela será temporariamente desativada. Naves dissipam dano EMP naturalmente a uma taxa fixa, independentemente do tamanho."
+ ENG: "EMP damage a projectile inflicts on each module outside shields that it touches, when it is higher than the module's deflection. A ship is disabled while its EMP damage exceeds its tolerance, its slot count plus its EMP protection. EMP damage bleeds off over time."
 RepairDroneLauncher:
  Id: 2100
  ENG: "Repair Drone Launcher"
@@ -10643,11 +10632,7 @@ BB_Tech_ImprovedMRMPlatforms_Name:
  PTB: "Contra Blindagem"
 IndicatesAnyBonusOrPenalty:
  Id: 2252
- ENG: "Indicates any bonus or penalty applied to this weapon's damage when attacking armor modules"
- RUS: "Указывает бонус или штраф данного оружия к урону при атаке бронемодулей"
- SPA: "Indica la bonificación o penalización aplicada al daño del arma al atacar módulos blindados"
- UKR: "Вказує на будь-які бонуси або штрафи, що застосовуються до пошкоджень цієї зброї при атаці броньових модулів"
- PTB: "Indica qualquer bônus ou penalidade aplicado ao dano desta arma ao atacar módulos de blindagem"
+ ENG: "Indicates the multiplier applied to this weapon's damage against armor modules (VS Armor) or against shields (VS Shield). 100% is normal damage."
 BB_Tech_PointDefense_Name:
  Id: 2253
  ENG: "Point Defense"
@@ -18536,7 +18521,7 @@ OrderShipRefit:
  PTB: "Ordenar reequipamento da nave"
 IndicatesAShipsExperienceLevel2:
  Id: 7007
- ENG: "Indicates a ship's experience level, from 0 to 10. Each level adds 5% to turn speed and 20% to repair rate, tightens weapon accuracy, lets every weapon track one more target, and improves bombing and dodging explosions. Levels do not raise weapon damage."
+ ENG: "Indicates a ship's experience level, from 0 to 10. Each level adds 5% to turn speed and 20% to repair rate, adds 5% to weapon damage, tightens weapon accuracy, lets every weapon track one more target, and improves bombing and dodging explosions."
 ShipWillMoveWithinMaximum:
  Id: 7009
  ENG: "Ship will move within maximum weapons range and present her Port broadside to the enemy for maximum coverage"
@@ -18596,11 +18581,7 @@ InTheCapitalEliminationGame:
  PTB: "No modo de jogo Eliminação da Capital, os impérios são derrotados quando perdem seu mundo natal."
 IndicatesTheMaximumAmountOf4:
  Id: 7016
- ENG: "Indicates the maximum amount of damage repaired by beams from this system. "
- RUS: "Указывает максимальное количество повреждений, устраняемых лучами этой системы."
- SPA: "Indica la cantidad máxima de daño reparado por los haces de este sistema. "
- UKR: "Вказує на максимальну кількість пошкоджень, які можна усунути променями з цієї системи."
- PTB: "Indica a quantidade máxima de dano reparado por feixes deste sistema."
+ ENG: "Indicates the amount of damage repaired by one burst of this repair beam."
 IndicatesSensorBonusAddedBy:
  Id: 7017
  ENG: "Indicates sensor bonus added by this module. Sensor bonuses add onto sensor range - only the highest bonus will apply."
@@ -18707,18 +18688,10 @@ RandomChanceThisWeaponWill:
  PTB: "Chance aleatória de esta arma disparar através dos escudos inimigos. Cor dourada significa que este valor foi modificado em relação ao número original."
 ThisWeaponsFireASalvo:
  Id: 7033
- ENG: "This weapons fire a salvo of projectiles"
- RUS: "Это оружие стреляет залпом снарядов"
- SPA: "Esta arma dispara un salvo de proyectiles"
- UKR: "Ця зброя стріляє залпом снарядів"
- PTB: "Esta arma dispara uma salva de projéteis."
+ ENG: "Number of shots this weapon fires one after another each time it fires."
 TimeBetweenShots:
  Id: 7034
- ENG: "Time between shots"
- RUS: "Время между выстрелами"
- SPA: "Tiempo entre disparos"
- UKR: "Час між пострілами"
- PTB: "Tempo entre disparos"
+ ENG: "Seconds from one shot to the next, including the time a salvo or a beam takes to fire."
 IndicatesTheAmountOfShields:
  Id: 7035
  ENG: "Indicates the amount of shields that are drain from the target and is added to this ships power store."
@@ -18728,11 +18701,7 @@ IndicatesTheAmountOfShields:
  PTB: "Indica a quantidade de escudos drenada do alvo e adicionada à reserva de energia desta nave."
 IndicatesTheAmountOfDrag:
  Id: 7036
- ENG: "Indicates the amount of drag added to target ship to slow it down."
- RUS: "Указывает величину сопротивления к замедлению, добавленного к целевому кораблю."
- SPA: "Indica la cantidad de roce agregada a la nave objetiva para relentizarla."
- UKR: "Показує величину опору, що додається до цільового корабля для його сповільнення."
- PTB: "Indica a quantidade de arrasto adicionada à nave-alvo para desacelerá-la."
+ ENG: "Tractor pull this beam adds to its target, a fifth of it through shields. The target moves and turns slower by its total pull divided by its mass, and stops and drops out of warp once the pull exceeds its mass."
 IndicatesTheAmountOfPower3:
  Id: 7037
  ENG: "Indicates the amount of power that a target ship loses."
@@ -22159,7 +22128,7 @@ CodexWarfareShipExperienceShort:
  ENG: "What crew levels do and how they are earned"
 CodexWarfareShipExperienceText:
  Id: 100111
- ENG: "<color=Caption>Earning levels</color>A ship gains experience for every ship it destroys: the victim's hull role value times one plus the victim's level, raised by your race's experience modifier. A level costs the ship's own hull role value times one plus its current level, so each level costs more than the last. The value depends on the hull role: 14 for capital ships and battleships, 8 for cruisers, 4.5 for frigates, 2 for corvettes, 5 for stations, half a point for fighters and civilian hulls, a quarter for platforms. A hull role with a value of 0 never levels. Levels run from 0 to 10 and show as the number on the ship's selection panel.\n\nNew ships start at the level your technologies and traits give: a base level for every ship, bonus levels for fighters, corvettes and drones, and bonuses by role. Computer empires add a difficulty bonus.\n\n<color=Caption>What a level gives</color>\n<li>Turn speed: 5% more per level.</li>\n<li>Repair rate: 20% more per level.</li>\n<li>Accuracy: the weapon error shrinks with the square of the level, together with the Militaristic trait and targeting modules. From level 5 the crew uses advanced target prediction on every weapon.</li>\n<li>Tracking: every weapon considers one more candidate target per level, ships and projectiles alike.</li>\n<li>Explosions: 1% more chance per level to dodge the blast of a dying ship.</li>\n<li>Bombing: 5% more chance per level to hit a building.</li>\n<li>Carriers: fighters returning to a carrier repair 10 faster and rearm 1 faster per carrier level.</li>\n<li>Weapon damage does not change with level.</li>"
+ ENG: "<color=Caption>Earning levels</color>A ship gains experience for every ship it destroys: the victim's hull role value times one plus the victim's level, raised by your race's experience modifier. A level costs the ship's own hull role value times one plus its current level, so each level costs more than the last. The value depends on the hull role: 14 for capital ships and battleships, 8 for cruisers, 4.5 for frigates, 2 for corvettes, 5 for stations, half a point for fighters and civilian hulls, a quarter for platforms. A hull role with a value of 0 never levels. Levels run from 0 to 10 and show as the number on the ship's selection panel.\n\nNew ships start at the level your technologies and traits give: a base level for every ship, bonus levels for fighters, corvettes and drones, and bonuses by role. Computer empires add a difficulty bonus.\n\n<color=Caption>What a level gives</color>\n<li>Turn speed: 5% more per level.</li>\n<li>Repair rate: 20% more per level.</li>\n<li>Accuracy: the weapon error shrinks with the square of the level, together with the Militaristic trait and targeting modules. From level 5 the crew uses advanced target prediction on every weapon.</li>\n<li>Tracking: every weapon considers one more candidate target per level, ships and projectiles alike.</li>\n<li>Explosions: 1% more chance per level to dodge the blast of a dying ship.</li>\n<li>Bombing: 5% more chance per level to hit a building.</li>\n<li>Carriers: fighters returning to a carrier repair 10 faster and rearm 1 faster per carrier level.</li>\n<li>Weapon damage: 5% more per level, for every projectile and beam.</li>"
 CodexWarfareCapturingShips:
  Id: 100112
  ENG: "Capturing Ships"
@@ -22503,3 +22472,12 @@ CodexDesignSensorsAndTargetingShort:
 CodexDesignSensorsAndTargetingText:
  Id: 100219
  ENG: "<color=Caption>Sensor range</color>Your empire sees everything within the sensor range of its ships and planets, and an armed ship in an attack stance enters combat when a hostile comes within its sensor range; see Combat Basics. A ship's range is the longest sensor range among its working modules, never under 1000, plus the largest sensor bonus among them; ranges and bonuses do not add up. Your empire's sensor bonuses multiply the result, and platforms see at least 10000 before that. Command modules carry a basic sensor, 24000 for a cockpit, 48000 for a bridge and 70000 for a combat information center, and sensor modules reach up to 90000. While looking for targets inside friendly projector influence a ship scans 10000 further, and a fighter whose own sensor range lies inside its carrier's uses the carrier's.\n\n<color=Caption>Fire control</color><li>FCS Accuracy is the highest rating among the ship's working modules. Command modules carry it and it does not add up.</li><li>FCS Tracking is the sum over its working modules: command modules and sensors add to it. A weapon looking for a new target considers only the first 1 + tracking + crew level ships on the ship's target list, and point defense as many incoming missiles; the ship's chosen target is always allowed. A ship with no tracking never targets missiles, unless it is a fighter taking its carrier's targets.</li>\n\n<color=Caption>Aim error</color>An unguided weapon aims at a point scattered around its target. The scatter starts from the weapon's base error, set by its module size or its accuracy rating, divided by 5 plus FCS Accuracy plus the square of the crew level, where militaristic races count extra levels, less 16, so a well supported weapon hits dead on. Turrets halve what is left, point defense weapons halve it again and true point defense a third time; kinetic weapons shrink it with ordnance effectiveness bonuses, racial targeting traits change it and a target race's dodge trait enlarges it, or shrinks it for a clumsy race. The scatter grows slowly with distance, shrinks against targets slower than 150 and vanishes against a still one. The Accuracy row of a weapon shows its scatter in slots for this design at 1800 units with an untrained crew.\n\n<color=Caption>ECM</color>No module in the base game or the bundled mods has ECM; it works whenever a mod gives a module an ECM value. A ship's ECM is the highest among its working modules, at most 100%. Each guided missile that closes to 4000 units of it rolls once and is jammed when the ship's ECM beats the missile's ECM resistance plus a random 0 to 100%; a jammed missile flies to a point 1300 to 2000 units off and self-destructs near it. ECM also scatters the aim of every weapon firing at the ship, unless it is EMP-disabled, dying or has no command module."
+CodexWeaponsWeaponStats:
+ Id: 100220
+ ENG: "Weapon Stats"
+CodexWeaponsWeaponStatsShort:
+ Id: 100221
+ ENG: "What each row of a weapon's stats in the design screen means, and what changes it in combat"
+CodexWeaponsWeaponStatsText:
+ Id: 100222
+ ENG: "<color=Caption>Damage</color><li>Damage: what each projectile deals, or a whole beam burst. The screen shows it for an untrained crew: in combat every crew level adds 5%. The screen counts your ordnance effectiveness bonus only for explosive weapons that use ordnance, while in combat every weapon that uses ordnance gets it. Weapon technologies raise it by weapon type. Explosive weapons deal it in a blast of Blast Rad slots, which technology can enlarge in combat.</li><li>DPS: damage per second at full rate of fire, counting salvos, projectiles per shot and warheads.</li><li>Delay: seconds from one shot to the next, salvo or beam time included.</li><li>Salvo: shots fired one after another each time the weapon fires. Projectiles: projectiles in each shot, fanned across the weapon's dispersion arc when it has one. Imprecision: a random spread in degrees on every projectile.</li><li>VS Armor and VS Shield: the damage multiplier against armor modules and against shields, shown when it is not 100%.</li><li>Armor Pen and Shield Pen: armor piercing, and the chance a shot passes through shields altogether; see Armor and Shields. Gold means a bonus raised it.</li>\n\n<color=Caption>Reach and aim</color><li>Range: how far the weapon reaches; a weapon with range variance reaches up to 10% more or less on each shot; beams never vary. Speed: how far a projectile flies each second.</li><li>Fire Arc: the weapon fires only at targets inside this arc; see Ship Design.</li><li>Accuracy: the aim error in slots; see Sensors and Targeting. Guided weapons home in instead and show no Accuracy.</li><li>Ignition: a missile drifts this many seconds before its engine lights, so it takes longer to reach its target. T.Range and T.Speed: a missile with a terminal phase speeds up to T.Speed once it is within T.Range of its target. MIRV: the missile splits into this many warheads near its target; Damage, Blast Rad, the terminal, VS and penetration rows and Cannot Target are per warhead, and DPS counts every warhead.</li>\n\n<color=Caption>Costs and special effects</color><li>Ord / Shot and Pwr / Shot: the ordnance and power every shot costs; Pwr/s: a beam's power per second while it fires. See Ordnance and Power Budget.</li><li>Duration: how long a beam fires.</li><li>EMP: EMP damage per projectile; see Armor and Shields.</li><li>Tractor: a beam's pull, a fifth of it through shields. The target moves and turns slower by its total pull divided by its mass; once the pull exceeds its mass it stops and drops out of warp. The pull clears once no tractor beam holds it, and platforms and stations tethered to a planet are immune.</li><li>Siphon and Pwr Dmg: see Power Budget; only beams apply them.</li><li>Cannot Target: ship sizes the weapon never fires at, Capitals meaning frigates and larger; true point defense fires only at projectiles that can be intercepted.</li>"
