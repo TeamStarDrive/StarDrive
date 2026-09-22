@@ -20015,18 +20015,6 @@ UsingAdvancedComputersAndA:
  RUS: "Используя современные компьютеры и сеть специализированных спутников, это здание отслеживает глобальную погоду и направляет меры по управлению ею для улучшения роста растений.  Это увеличивает среднюю плодородность планеты."
  UKR: "Використовуючи сучасні комп'ютери та мережу спеціалізованих супутників, ця будівля відстежує глобальну погоду і спрямовує заходи з маніпулювання нею для покращення росту рослин. Це підвищує середню родючість планети."
  PTB: "Usando computadores avançados e uma rede de satélites especializados, este edifício monitora o clima global e direciona medidas para manipulá-lo a fim de melhorar o crescimento das plantas. Isso aumenta a fertilidade média do planeta."
-Tech_SubspaceArtillery_II_Name:
- Id: 17567
- ENG: "Subspace Artillery"
- RUS: "Космическая артиллерия"
- UKR: "Підпросторова артилерія"
- PTB: "Artilharia Subespacial"
-Tech_SubspaceArtillery_II_Desc:
- Id: 17568
- ENG: "Using conventional physics, extremely large cannons proved too unwieldy for applications in space. However, advancements in subspace field theory have allowed for the creation of a second set of larger, extremely powerful cannons, along with a tactical one for our more cramped vessels. These weapons will shred through enemy armor, and offer a small to decent chance of penetrating shields."
- RUS: "Используя традиционную физику, чрезвычайно большие пушки оказались слишком громоздкими для применения в космосе.  Однако достижения в теории поля подпространства позволили создать второй набор более крупных и чрезвычайно мощных пушек, для наших кораблей. Это оружие пробивает броню врага и дает небольшой или приличный шанс пробить щиты."
- UKR: "З точки зору звичайної фізики, надзвичайно великі гармати виявилися занадто громіздкими для застосування в космосі. Однак досягнення в теорії підпросторового поля дозволили створити другий набір більших, надзвичайно потужних гармат, а також тактичну гармату для наших більш тісних кораблів. Ця зброя буде пробивати ворожу броню і матиме від невеликого до пристойного шансу пробити щити."
- PTB: "Usando a física convencional, canhões extremamente grandes se mostraram desajeitados demais para aplicações no espaço. Porém, avanços na teoria de campos subespaciais permitiram a criação de um segundo conjunto de canhões maiores e extremamente poderosos, além de uma versão tática para nossas embarcações mais apertadas. Essas armas rasgarão a blindagem inimiga e oferecem uma pequena a razoável chance de penetrar escudos."
 Kineticweapons:
  Id: 952
  ENG: "Kinetic Turret"
