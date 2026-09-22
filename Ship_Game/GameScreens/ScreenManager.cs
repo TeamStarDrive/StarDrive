@@ -443,6 +443,7 @@ namespace Ship_Game
                 GameScreen screen = screens[i];
                 if (screen.Visible && !screen.IsDisposed && screen.DidRunUpdate)
                 {
+                    ToolTip.SuppressNewTips = !screen.DidHandleInput;
                     try
                     {
                         screen.Draw(batch, DrawLoopTime);
@@ -466,6 +467,10 @@ namespace Ship_Game
                             screen.Dispose();
                             GameScreens.Remove(screen);
                         }
+                    }
+                    finally
+                    {
+                        ToolTip.SuppressNewTips = false;
                     }
                 }
             }
@@ -584,6 +589,7 @@ namespace Ship_Game
 
         public void RemoveScreen(GameScreen screen)
         {
+            screen.DidHandleInput = false;
             if (GraphicsDeviceService?.GraphicsDevice != null)
             {
                 screen.UnloadContent();
@@ -794,7 +800,8 @@ namespace Ship_Game
                     continue; // this screen was removed while we were processing HandleInput events
 
                 // 1. Handle Input
-                if (!otherScreenHasFocus && !screen.IsExiting && !inputCaptured)
+                screen.DidHandleInput = !otherScreenHasFocus && !screen.IsExiting && !inputCaptured;
+                if (screen.DidHandleInput)
                 {
                     inputCaptured = screen.HandleInput(input);
                     if (screen.IsDisposed)

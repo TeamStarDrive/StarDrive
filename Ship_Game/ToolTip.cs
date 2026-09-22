@@ -32,6 +32,8 @@ namespace Ship_Game
         static readonly Array<TipItem> ActiveTips = new();
         static TipItem LastHovered;
 
+        internal static bool SuppressNewTips { get; set; }
+
         public static void ShipYardArcTip()
             => CreateTooltip(GlobalStats.AltArcControl ? GameText.ArcDragTipAltControl : GameText.ArcDragTip);
 
@@ -56,6 +58,9 @@ namespace Ship_Game
         public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position,
                                          float minShowTime = 0, float maxWidth = 0, string codexUid = null)
         {
+            if (SuppressNewTips)
+                return;
+
             string rawText = tip.Text;
             if (rawText.IsEmpty())
             {

@@ -186,6 +186,7 @@
     <Compile Include="UI\MockGameScreen.cs" />
     <Compile Include="UI\MockInputProvider.cs" />
     <Compile Include="UI\TestScrollList.cs" />
+    <Compile Include="UI\TestTooltipSuppression.cs" />
     <Compile Include="UI\TestUIElement.cs" />
     <Compile Include="TestGameDummy.cs" />
     <Compile Include="Universe\TestNativeSpatial.cs" />
