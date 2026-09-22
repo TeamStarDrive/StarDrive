@@ -222,3 +222,30 @@ IndicatesTheCounterespionageStrengthOf: espionage_agents_overview
 
 # Espionage, both systems plant moles
 IndicatesThatAFriendlyAgent: diplomacy_espionage
+
+# Bucket 5: the vanilla entries rewritten from the code
+EmpOverloadShipIsDisabled: warfare_combat_basics
+StructuralIntegrityOfTheShip: warfare_combat_basics
+IndicatesThisShipsCurrentBonus: warfare_combat_basics
+ShipWillMakeHeadonAttack: warfare_combat_basics
+ShipWillRotateSoThat2: warfare_combat_basics
+ShipWillRotateSoThat: warfare_combat_basics
+ShipWillAttemptToHold: warfare_combat_basics
+ShipWillManeuverToKeep: warfare_combat_basics
+ShipWillManeuverToKeep2: warfare_combat_basics
+ShipWillAvoidEngagingIn: warfare_combat_basics
+ShipWillMoveWithinMaximum: warfare_combat_basics
+ShipWillMoveWithinMaximum2: warfare_combat_basics
+TT_GuardMode: warfare_combat_basics
+IndicatesThatThisModuleCan: warfare_ship_design
+IndicatesThisModuleHasA: warfare_ship_design
+ThisModuleCanBeRotated: warfare_ship_design
+TogglesTheWeaponFireArc: warfare_ship_design
+StatesAnyDesignIssuesThe: warfare_ship_design
+InOrderToCompleteYour: warfare_ship_design
+OrdersThisShipToExplore: expansion_scouting
+IndicatesThatHostileForcesWere: expansion_scouting
+IndicatesThatAnAnomalyWas: expansion_scouting
+IndicatesThatAnAnomalyHas: expansion_scouting
+OpenTheGroundAssaultView: warfare_ground_combat
+ButtonBuildCapitalTip: economy_the_colony_screen

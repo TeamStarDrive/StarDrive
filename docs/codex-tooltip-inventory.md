@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 247. Already hooked: 165.
+Tokens: 247. Already hooked: 180.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -74,7 +74,7 @@ Tokens: 247. Already hooked: 165.
 | 59 | `BuildAPlatformTheStrongest` | Build a Platform (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Platforms this planet already has... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 60 | `BuildAShipyardOrbitingThis` | Build a Shipyard orbiting this planet. The number in parentheses is the number of Shipyards this planet already has in orbit. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 61 | `BuildAStationTheStrongest` | Build a Station (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Stations this planet already has i... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
-| 62 | `ButtonBuildCapitalTip` | You can build a new capital here, since you do not have any capitals within your empire. If we retake our origin Homeworld, the capital will be removed from ... | ColonyScreen/GovernorDetailsComponent.cs |  |  |
+| 62 | `ButtonBuildCapitalTip` | You can build a new capital here, since you do not have any capitals within your empire. If we retake our origin Homeworld, the capital will be removed from ... | ColonyScreen/GovernorDetailsComponent.cs |  | economy_the_colony_screen |
 | 63 | `CivilianBuildingsExpenditureInByc` | Civilian Buildings Expenditure in BY/C | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 64 | `CivilianBuildingsExpenditurebudgetInByc` | Civilian Buildings Expenditure/Budget in bc/y. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them. | ColonyScreen/GovernorDetailsComponent.cs |  | colony_governor |
 | 65 | `ClearBluprintsTip` | Delete the current uploaded Blueprints and let the governor do what it thinks is the best. Not that if you change the Colony Type to Tradehub or remove the G... | ColonyScreen/GovernorDetailsComponent.cs |  | colony_blueprints |
@@ -170,21 +170,21 @@ Tokens: 247. Already hooked: 165.
 | 155 | `UsePlayerDesignsTip` | The AI will use player designed ships in the database. This could slow down AI tech progression | NewGame/RuleOptionsScreen.cs |  | overview_rule_options |
 | 156 | `UsingThisSliderYouCan` | Using this slider, you can lower the FTL speeds of ships that are within the gravity wells of Solar Systems. A value of 100% provides no penalty, whereas a v... | NewGame/RuleOptionsScreen.cs |  | overview_rule_options |
 | 157 | `UsingThisSliderYouCan2` | Using this slider, you can lower the FTL speeds of ships that are within hostile projector influence. A value of 100% provides no penalty, whereas a value of... | NewGame/RuleOptionsScreen.cs |  | overview_rule_options |
-| 158 | `IndicatesThatThisModuleCan` | Indicates that this module can be rotated using the arrow keys | ShipDesign/ModuleSelectListItem.cs |  |  |
-| 159 | `IndicatesThisModuleHasA` | Indicates this module has a turreted weapon installed and its fire arc can be rotated. Click and hold this module while installed on the ship and move the mo... | ShipDesign/ModuleSelectListItem.cs |  |  |
-| 160 | `ThisModuleCanBeRotated` | This module can be rotated and its weapon fire arc can be changed as a turret. | ShipDesign/ModuleSelectListItem.cs |  |  |
+| 158 | `IndicatesThatThisModuleCan` | Indicates that this module can be rotated using the arrow keys | ShipDesign/ModuleSelectListItem.cs |  | warfare_ship_design |
+| 159 | `IndicatesThisModuleHasA` | Indicates this module has a turreted weapon installed and its fire arc can be rotated. Click and hold this module while installed on the ship and move the mo... | ShipDesign/ModuleSelectListItem.cs |  | warfare_ship_design |
+| 160 | `ThisModuleCanBeRotated` | This module can be rotated and its weapon fire arc can be changed as a turret. | ShipDesign/ModuleSelectListItem.cs |  | warfare_ship_design |
 | 161 | `ThisModuleWasMarkedAs` | This module was marked as obsolete. You can reinstate it in the Active Module tab. | ShipDesign/ModuleSelectListItem.cs |  |  |
 | 162 | `MarkThisModuleAsObsolete` | Mark this module as obsolete. You will not see it next time you browse the module categories. Selecting an obsolete module on existing design is possible. Cl... | ShipDesign/ModuleSelection.cs |  |  |
 | 163 | `RefiningPerTurnStatTip` | Indicates how much refining this station can handle per turn. Some exotic resources are easier or harder to refine; the refine ratio is shown in the planet i... | ShipDesign/ModuleSelection.cs |  |  |
 | 164 | `ResearchPerTurnStatTip` | Amount of Research Points generated per turn. | ShipDesign/ModuleSelection.cs |  |  |
-| 165 | `InOrderToCompleteYour` | In order to complete your design and build it, you must fill all the ship's slots | ShipDesign/ShipDesignIssuesPanel.cs |  |  |
-| 166 | `StatesAnyDesignIssuesThe` | States any design issues the current ship has. It is displayed after you completed 75% of the design. The color of the issue indicates its severity (Green fo... | ShipDesign/ShipDesignIssuesPanel.cs |  |  |
+| 165 | `InOrderToCompleteYour` | In order to complete your design and build it, you must fill all the ship's slots | ShipDesign/ShipDesignIssuesPanel.cs |  | warfare_ship_design |
+| 166 | `StatesAnyDesignIssuesThe` | States any design issues the current ship has. It is displayed after you completed 75% of the design. The color of the issue indicates its severity (Green fo... | ShipDesign/ShipDesignIssuesPanel.cs |  | warfare_ship_design |
 | 167 | `ShowEmpireLockedDesignsTip` | Show designs which are still locked due to lack of technology, for our available hulls | ShipDesign/ShipDesignLoadScreen.cs |  |  |
 | 168 | `SaveShipDesignDesc` | Saves the ship design. If the ship is not complete, it will be saved as Work in progress. | ShipDesign/ShipDesignScreen.cs |  |  |
 | 169 | `StripsTheShipOfAny` | Strips the ship of any module but armor (or anything with deflection), shields, engines, and Command modules. Useful when using a template ship for a new des... | ShipDesign/ShipDesignScreen.cs |  |  |
 | 170 | `WhenToggledRedAnyModule` | When Toggled (Red), any module you mark as obsolete will not be shown in the module lists. When not toggled, obsolete modules names would be shown, but would... | ShipDesign/ShipDesignScreen.cs |  |  |
 | 171 | `YouCanSwitchFromNormal` | You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible... | ShipDesign/ShipDesignScreen.cs |  |  |
-| 172 | `TogglesTheWeaponFireArc` | Toggles the weapon fire arc and shield protection radius display on or off for this ship. Hotkey: TAB | ShipDesign/ShipDesignScreenInput.cs |  |  |
+| 172 | `TogglesTheWeaponFireArc` | Toggles the weapon fire arc and shield protection radius display on or off for this ship. Hotkey: TAB | ShipDesign/ShipDesignScreenInput.cs |  | warfare_ship_design |
 | 173 | `TaxesAreCollectedFromYour` | Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For in... | Universe/BudgetScreen.cs |  | automation_research_and_taxes |
 | 174 | `TreasuryGoalIsTheTarget` | Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 ... | Universe/BudgetScreen.cs |  | automation_research_and_taxes |
 | 175 | `CancelProductionAndRemoveThis` | Cancel production and remove this item from the construction queue. 50% of the production spent will be returned to the colony's storage, however, there will... | Universe/ColoniesListItem.cs |  | colony_storage |
@@ -200,12 +200,12 @@ Tokens: 247. Already hooked: 165.
 | 185 | `ResearchDisruptedByInfiltrationTip` | Research output is being slowed by enemy infiltration this turn. The percentage shows how much research is getting through. Each successful disruption missio... | ResearchQueueUIComponent.cs |  | infiltration_seven_operations |
 | 186 | `OpensAMenuAllowingYou` | Opens a menu allowing you to choose from a list of available designs that can also fit this ship's hull. The refit cost is the new design's cost minus this s... | ShipListScreenItem.cs |  | warfare_refit_and_scrap |
 | 187 | `OrdersTheShipToReturn` | Orders the ship to return to the nearest shipyard to be dismantled. The planet where the ship is dismantled will have a portion of the ship's original produc... | ShipListScreenItem.cs |  | warfare_refit_and_scrap |
-| 188 | `OrdersThisShipToExplore` | Orders this ship to explore the galaxy | ShipListScreenItem.cs |  |  |
+| 188 | `OrdersThisShipToExplore` | Orders this ship to explore the galaxy | ShipListScreenItem.cs |  | expansion_scouting |
 | 189 | `ConstructionProgressTip` | Amount of completed construction. The constructor adds construction every turn, and if the structure sits in a system where you or an ally hold colonies, tho... | Ships/ShipInfoUIElement.cs |  | automation_construction |
-| 190 | `EmpOverloadShipIsDisabled` | EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload. | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |
-| 191 | `IndicatesAShipsExperienceLevel2` | Indicates a ship's experience level. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage. | Ships/ShipInfoUIElement.cs |  | warfare_ship_experience |
-| 192 | `IndicatesThisShipsCurrentBonus` | Indicates this ship's current bonus or penalty to damage from the Pack Mentality trait | Ships/ShipInfoUIElement.cs |  |  |
-| 193 | `StructuralIntegrityOfTheShip` | Structural integrity of the ship: the share of its internal module slots still intact. The ship is destroyed when this drops below 50%. | Ships/ShipInfoUIElement.cs (raw string at site: pass the enum) |  |  |
+| 190 | `EmpOverloadShipIsDisabled` | EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload. | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
+| 191 | `IndicatesAShipsExperienceLevel2` | Indicates a ship's experience level, from 0 to 10. Each level adds 5% to turn speed and 20% to repair rate, tightens weapon accuracy, lets every weapon track... | Ships/ShipInfoUIElement.cs |  | warfare_ship_experience |
+| 192 | `IndicatesThisShipsCurrentBonus` | Indicates this ship's current bonus or penalty to damage from the Pack Mentality trait | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
+| 193 | `StructuralIntegrityOfTheShip` | Structural integrity of the ship: the share of its internal module slots still intact. The ship is destroyed when this drops below 50%. | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
 | 194 | `ThisShipIsInhibitedAnd` | This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automat... | Ships/ShipInfoUIElement.cs |  | overview_map_overlays |
 | 195 | `ThisShowsTheHangarStatus` | This shows the hangar status of the ship. Green is the number of ships currently launched, White is the number of ships ready to launch and Red is the number... | Ships/ShipInfoUIElement.cs |  | warfare_fighter_bays |
 | 196 | `ToggleTheModuleGridOverlay` | Toggle the module grid overlay on or off | Ships/ShipInfoUIElement.cs |  |  |
@@ -237,26 +237,26 @@ Tokens: 247. Already hooked: 165.
 | 222 | `ZoomOutToTheGalaxy` | Zoom out to the galaxy view | Universe/MiniMap.cs |  |  |
 | 223 | `ZoomsToYourCurrentlySelected` | Zooms to your currently selected ship | Universe/MiniMap.cs |  |  |
 | 224 | `CannotBuildMiningStationTip` | You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | expansion_exotic_resources |
-| 225 | `IndicatesThatHostileForcesWere` | Indicates that hostile forces were recently spotted in this system | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
+| 225 | `IndicatesThatHostileForcesWere` | Indicates that hostile forces were recently spotted in this system | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_scouting |
 | 226 | `PlanetTypeAndRichnessThe` | Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's su... | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs |  | economy_planetary_qualities |
 | 227 | `ResearchPointsAreAddedInto` | Research points are added into an empire-wide pool where they are applied towards the top item in your research queue.   | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | colony_labor_sliders |
 | 228 | `LockedRightClickToRemove` | This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
 | 229 | `OutpostsCannotBeRemoved` | The Outpost cannot be removed from the Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
 | 230 | `RightClickToRemove` | Right Click to remove this building from current Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  |  |
-| 231 | `OpenTheGroundAssaultView` | Open the Ground Assault View for this planet where you can land troops and order bombardments | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
+| 231 | `OpenTheGroundAssaultView` | Open the Ground Assault View for this planet where you can land troops and order bombardments | Universe/SolarBodies/PlanetInfoUIElement.cs |  | warfare_ground_combat |
 | 232 | `OpensColonyOverviewScreen` | Opens colony overview screen | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
 | 233 | `ViewPlanetDetails` | View Planet Details | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
 | 234 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs |  |  |
 | 235 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | diplomacy_espionage |
 | 236 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | warfare_ground_combat |
 | 237 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 238 | `SendAvailableTroopsToThis` | Send available troops to this planet. Any available troop transports in space can be sent. Troops from your nearest colony will be sent to this planet, provi... | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
-| 239 | `IndicatesThatAnAnomalyWas` | Indicates that an anomaly was detected on the surface of this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  |  |
+| 238 | `SendAvailableTroopsToThis` | Send available troops to this planet. Any available troop transports in space can be sent. Otherwise the nearest colony with troops to spare above its garris... | Universe/SolarBodies/PlanetListScreenItem.cs |  |  |
+| 239 | `IndicatesThatAnAnomalyWas` | Indicates that an anomaly was detected on the surface of this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_scouting |
 | 240 | `IndicatesThatYourEmpireHas` | Indicates that your empire has a mission underway to colonize this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_colony_ships |
 | 241 | `MiningStationsCanBePlaced` | Indicates that Mining Stations can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_exotic_resources |
 | 242 | `MiningStationsOpsOwned` | Mining Station operations here are owned by this empire | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_exotic_resources |
 | 243 | `ResearchStationCanBePlaced` | Indicates that a Research Station can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_deep_space_building |
 | 244 | `MineableRichnessTip` | Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace mig... | Universe/SolarBodies/UnownedPlanetScreen.cs |  | expansion_exotic_resources |
-| 245 | `IndicatesThatAnAnomalyHas` | Indicates that an anomaly has been detected on a planet within this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  |  |
+| 245 | `IndicatesThatAnAnomalyHas` | Indicates that an anomaly has been detected on a planet within this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_scouting |
 | 246 | `IndicatesThatSpaceCombatIs` | Indicates that space combat is occurring in this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  | warfare_combat_basics |
 | 247 | `ResearchStationCanBePlacedSystem` | Indicates that a Research Station can be deployed in this system to research it's Star. | Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_deep_space_building |

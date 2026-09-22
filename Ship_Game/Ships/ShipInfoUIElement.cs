@@ -212,6 +212,13 @@ namespace Ship_Game.Ships
             if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
         }
 
+        void DrawIconWithTooltip(SpriteBatch batch, SubTexture icon, in LocalizedText tooltip, Vector2 mousePos, Color color, int numStatus)
+        {
+            var rect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+            batch.Draw(icon, rect, color);
+            if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip);
+        }
+
         void DrawPack(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
             SubTexture iconPack = ResourceManager.Texture("StatusIcons/icon_pack");
@@ -255,7 +262,7 @@ namespace Ship_Game.Ships
                 return;
 
             SubTexture iconDisabled = ResourceManager.Texture("StatusIcons/icon_disabled");
-            DrawIconWithTooltip(batch, iconDisabled, () => Localizer.Token(GameText.EmpOverloadShipIsDisabled), mousePos,
+            DrawIconWithTooltip(batch, iconDisabled, GameText.EmpOverloadShipIsDisabled, mousePos,
                 Color.White, numStatus);
 
             var textPos    = new Vector2((int)StatusArea.X + 25 + numStatus * 53, (int)StatusArea.Y);
@@ -270,7 +277,7 @@ namespace Ship_Game.Ships
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
-            DrawIconWithTooltip(batch, iconStructure, () => Localizer.Token(GameText.StructuralIntegrityOfTheShip), mousePos,
+            DrawIconWithTooltip(batch, iconStructure, GameText.StructuralIntegrityOfTheShip, mousePos,
                 Color.White, numStatus);
 
             var textPos = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
@@ -316,7 +323,7 @@ namespace Ship_Game.Ships
                     return;
             }
 
-            DrawIconWithTooltip(batch, icon, () => Localizer.Token(text), mousePos, Color.White, numStatus);
+            DrawIconWithTooltip(batch, icon, text, mousePos, Color.White, numStatus);
             numStatus++;
         }
 
