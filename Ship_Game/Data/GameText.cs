@@ -4701,6 +4701,30 @@ namespace Ship_Game
         PathfinderTip = 4537,
         /// <summary>You placed this yourself, so the governor will never scrap it or cancel it.</summary>
         PlayerBuiltProtectedFromScrap = 4538,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryUnclassifiedTip = 4539,
+        /// <summary>Can serve as a freighter. Evades when enemies are</summary>
+        ShipCategoryCivilianTip = 4540,
+        /// <summary>Offered as a scout by the exploration automation. Leaves</summary>
+        ShipCategoryReconTip = 4541,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryConservativeTip = 4542,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryNeutralTip = 4543,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryRecklessTip = 4544,
+        /// <summary>Never leaves to repair, rearm or take on troops</summary>
+        ShipCategoryKamikazeTip = 4545,
+        /// <summary>A general purpose design. A Dynamic Anti Ship or</summary>
+        HangarDesignationGeneralTip = 4546,
+        /// <summary>Designated Anti Ship: it prefers targets larger than itself,</summary>
+        HangarDesignationAntiShipTip = 4547,
+        /// <summary>Designated Interceptor: it prefers targets smaller than itself, and</summary>
+        HangarDesignationInterceptorTip = 4548,
+        /// <summary>Shift for fine tune Alt to match an existing</summary>
+        ArcDragTip = 4549,
+        /// <summary>Shift for fine tune Ctrl to match an existing</summary>
+        ArcDragTipAltControl = 4550,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

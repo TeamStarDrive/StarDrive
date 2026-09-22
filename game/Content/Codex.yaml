@@ -134,6 +134,11 @@
           UID: warfare_ordnance
     -
       UID: warfare_ship_design
+      Children:
+        -
+          UID: design_screen_tools
+        -
+          UID: design_categories
     -
       UID: warfare_refit_and_scrap
     -
