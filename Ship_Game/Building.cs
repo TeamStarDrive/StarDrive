@@ -156,6 +156,9 @@ namespace Ship_Game
             // Patching: because of some game data changes, these values need to be patched
             //           from latest building templates
             ShipRepair = template.ShipRepair;
+            NameTranslationIndex = template.NameTranslationIndex;
+            DescriptionIndex = template.DescriptionIndex;
+            ShortDescriptionIndex = template.ShortDescriptionIndex;
         }
 
         public Building Clone()
