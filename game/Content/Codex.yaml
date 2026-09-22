@@ -139,6 +139,8 @@
           UID: design_screen_tools
         -
           UID: design_categories
+        -
+          UID: design_power_budget
     -
       UID: warfare_refit_and_scrap
     -
