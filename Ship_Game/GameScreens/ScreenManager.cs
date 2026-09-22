@@ -49,6 +49,7 @@ namespace Ship_Game
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => GameScreens.Count + PendingScreens.Count;
         public GameScreen Current => GameScreens[GameScreens.Count-1];
+        GameScreen LastTopScreen;
         public IReadOnlyList<GameScreen> Screens => GameScreens;
 
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
@@ -774,6 +775,13 @@ namespace Ship_Game
             PerformHotLoadTasks(elapsed);
             input.Update(elapsed); // analyze input state for this frame
             AddPendingScreens();
+
+            GameScreen topScreen = GameScreens.NotEmpty ? Current : null;
+            if (LastTopScreen != topScreen)
+            {
+                LastTopScreen = topScreen;
+                ToolTip.Clear();
+            }
 
             bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
             bool coveredByOtherScreen = false;

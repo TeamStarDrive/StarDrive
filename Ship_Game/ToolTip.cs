@@ -129,6 +129,8 @@ namespace Ship_Game
             return null;
         }
         
+        public static int ActiveTipCount => ActiveTips.Count;
+
         // Clears the current tooltip (if any)
         public static void Clear()
         {

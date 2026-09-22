@@ -100,7 +100,6 @@ namespace UnitTests.UI
 
             var popup = new TipScreen(popup: true, GameText.Income, null);
             Game.Manager.AddScreenAndLoadContent(popup);
-            ToolTip.Clear();
 
             int drawsBefore = covered.Draws;
             Game.Tick();
@@ -108,7 +107,8 @@ namespace UnitTests.UI
             AssertTrue(popup.DidHandleInput);
             AssertFalse(covered.DidHandleInput);
             AssertTrue(covered.Draws > drawsBefore, "the covered screen must still draw, which is why its tips used to stick");
-            Assert.IsNull(ToolTip.GetActiveCodexUid(), "a covered screen must not create tooltips over the screen above it");
+            AssertEqual(0, ToolTip.ActiveTipCount, "a tooltip must not survive over a screen opened on top of the one that made it");
+            Assert.IsNull(ToolTip.GetActiveCodexUid());
         }
     }
 }

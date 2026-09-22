@@ -41,7 +41,6 @@ namespace Ship_Game.Codex
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
-            ToolTip.Clear();
 
             Roots = CodexEntry.LoadAll();
             CodexHooks.Reload(Roots);
