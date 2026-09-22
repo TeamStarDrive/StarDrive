@@ -780,7 +780,7 @@ namespace Ship_Game
             bool inputCaptured = false;
 
             if (!otherScreenHasFocus && input.CodexHelp && GameScreens.NotEmpty
-                && Current is not Codex.CodexScreen)
+                && Current is not Codex.CodexScreen && !Current.IsExiting)
             {
                 string codexUid = ToolTip.GetActiveCodexUid();
                 if (codexUid != null || Current.HelpKeyOpensCodex)

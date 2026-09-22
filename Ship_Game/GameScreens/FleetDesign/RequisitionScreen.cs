@@ -12,6 +12,8 @@ namespace Ship_Game
 {
     public sealed class RequisitionScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly Fleet F;
         readonly FleetDesignScreen Fds;
 

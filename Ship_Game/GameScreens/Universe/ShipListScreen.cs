@@ -15,6 +15,8 @@ namespace Ship_Game
 {
     public sealed class ShipListScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public readonly UniverseScreen Universe;
         public UniverseState UState => Universe.UState;
         private readonly Menu2 TitleBar;

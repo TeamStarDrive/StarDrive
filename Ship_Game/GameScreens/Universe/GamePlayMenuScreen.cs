@@ -15,6 +15,8 @@ namespace Ship_Game;
 /// </summary>
 public sealed class GamePlayMenuScreen : GameScreen
 {
+    public override bool HelpKeyOpensCodex => true;
+
     readonly UniverseScreen Universe;
     UILabel SavingText;
     UIButton SaveButton;

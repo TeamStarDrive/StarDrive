@@ -14,6 +14,8 @@ namespace Ship_Game.GameScreens
 {
     public sealed class BudgetScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly Empire Player;
         Menu2 Window;
 

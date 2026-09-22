@@ -14,6 +14,8 @@ namespace Ship_Game.GameScreens
 {
     public sealed class InfiltrationScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public readonly UniverseScreen Universe;
         public Empire SelectedEmpire;
         readonly Empire Player;

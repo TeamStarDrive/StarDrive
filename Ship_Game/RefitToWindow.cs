@@ -15,6 +15,8 @@ namespace Ship_Game
 {
     public sealed class RefitToWindow : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly ShipListScreen Screen;
         readonly Ship ShipToRefit;
         Empire Player => ShipToRefit.Universe.Player;

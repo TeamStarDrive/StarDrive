@@ -15,6 +15,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 {
     public sealed class DiplomacyScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         Rectangle Portrait;
         DialogState DState;
 

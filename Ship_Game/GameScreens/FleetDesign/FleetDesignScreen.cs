@@ -25,6 +25,8 @@ namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public readonly UniverseScreen Universe;
         public readonly EmpireUIOverlay EmpireUI;
         public readonly Empire Player;

@@ -14,6 +14,8 @@ namespace Ship_Game
 {
     public sealed class EmpireManagementScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public readonly UniverseScreen Universe;
         EmpireUIOverlay eui;
         private readonly ScrollList<ColoniesListItem> ColoniesList;

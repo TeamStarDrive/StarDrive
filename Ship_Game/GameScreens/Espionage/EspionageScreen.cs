@@ -11,6 +11,8 @@ namespace Ship_Game.GameScreens.Espionage
 {
     public sealed class EspionageScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public UniverseScreen Universe;
         public Empire SelectedEmpire;
         public AgentComponent Agents { get; private set; }

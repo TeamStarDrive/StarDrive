@@ -13,6 +13,8 @@ namespace Ship_Game
 {
     public sealed class ResearchScreenNew : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public readonly UniverseScreen Universe;
         public readonly Empire Player;
         public Camera2D camera = new();

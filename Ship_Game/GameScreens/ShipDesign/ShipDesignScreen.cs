@@ -33,6 +33,8 @@ namespace Ship_Game
 
     public sealed partial class ShipDesignScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public UniverseScreen ParentUniverse;
         public Empire Player => ParentUniverse.Player;
         public DesignStanceButtons OrdersButton;
