@@ -296,16 +296,6 @@ namespace Ship_Game.Universe.SolarBodies
 
         public ColonyMoney(Planet planet) { Planet = planet; }
 
-        public float NetRevenueGain(Building b)
-        {
-            float newPopulation = b.MaxPopIncrease*0.001f;
-            if (b.IsBiospheres)
-                newPopulation += Planet.PopPerBiosphere(Planet.Owner)*0.001f;
-
-            float grossIncome = newPopulation * IncomePerColonist * TaxRate;
-            return grossIncome - b.ActualMaintenance(Planet);
-        }
-
         public void Update()
         {
             // Base tax rate comes from current empire tax %

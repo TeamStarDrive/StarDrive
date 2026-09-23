@@ -7,7 +7,6 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-        public bool IsMeagerOrBarren => Level <= (int)DevelopmentLevel.Meager;
         public bool IsVibrant        => Level >= (int)DevelopmentLevel.Vibrant;
         public bool IsCoreWorld      => Level >= (int)DevelopmentLevel.CoreWorld;
         public bool IsMegaWorld      => Level >= (int)DevelopmentLevel.MegaWorld;
@@ -96,12 +95,6 @@ namespace Ship_Game
                 if (!a.MakingMoney || IsCybernetic || BuildingBuiltOrQueued(b))
                     return false;
             }
-            if (!a.MakingMoney || IsMeagerOrBarren)
-            {
-                if (b.IsBiospheres)
-                    return false;
-            }
-
 
             switch (governor)
             {
@@ -112,19 +105,9 @@ namespace Ship_Game
                 case ColonyType.Research:     return CanAffordForResearch(a, b);
             }
             // Player controlled colony type:
-            return CanAffordManualControlled(a, b);
-        }
-
-        bool CanAffordManualControlled(in Afford a, Building b)
-        {
-            if (b.IsBiospheres)
-            {
-                if (Money.NetRevenueGain(b) > 0f)
-                    return true;
-            }
             return false;
         }
-        
+
         bool CanAffordAgricultural(in Afford a, Building b)
         {
             if (b.AllowShipBuilding && Prod.NetMaxPotential > 20)
@@ -146,13 +129,13 @@ namespace Ship_Game
 
             if (a.MedPri && IsVibrant && a.MakingMoney)
             {
-                if (b.IsBiospheres || (b.PlusTerraformPoints > 0 && Fertility < 3)
-                                   || b.MaxPopIncrease > 0
-                                   || b.PlusFlatPopulation > 0
-                                   || IsCoreWorld
-                                   || b.PlusFlatResearchAmount > 0
-                                   || (b.PlusResearchPerColonist > 0 && MaxPopulation > 999)
-                                   || a.NeedDefense)
+                if ((b.PlusTerraformPoints > 0 && Fertility < 3)
+                    || b.MaxPopIncrease > 0
+                    || b.PlusFlatPopulation > 0
+                    || IsCoreWorld
+                    || b.PlusFlatResearchAmount > 0
+                    || (b.PlusResearchPerColonist > 0 && MaxPopulation > 999)
+                    || a.NeedDefense)
                     return true;
             }
 
