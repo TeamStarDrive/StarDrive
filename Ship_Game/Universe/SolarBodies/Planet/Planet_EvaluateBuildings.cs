@@ -840,7 +840,7 @@ namespace Ship_Game
             if (!needGroundToBuildOn && !BiosphereCarriesItsPopulation(bio))
             {
                 if (NumFreeBiospheres > 0)
-                    shouldScrapBioSpheres = ShouldScrapFreeBiosphere(bioUpkeep, budget, wanted.Length > 0);
+                    shouldScrapBioSpheres = ShouldScrapFreeBiosphere(budget, wanted.Length > 0);
 
                 return false;
             }
@@ -883,19 +883,21 @@ namespace Ship_Game
             return bio.ActualMaintenance(this) <= BiospherePaybackShare * incomeAtFullRate;
         }
 
-        internal bool ShouldScrapFreeBiosphere(float bioUpkeep, float budget, bool haveSomethingToBuild)
+        internal bool ShouldScrapFreeBiosphere(float budget, bool haveSomethingToBuild)
         {
             float capWithoutOne = MaxPopulation - PopPerBiosphere(Owner);
             if (capWithoutOne <= 0 || (Population / capWithoutOne) >= BiosphereExcessCapacity)
                 return false;
 
+            // the budget already has their upkeep deducted, so still being in the black means
+            // the colony is paying for them
+            if (budget >= 0)
+                return false;
+
             if (NumFreeBiospheres > 1)
                 return true;
 
-            if (haveSomethingToBuild)
-                return false;
-
-            return budget < bioUpkeep;
+            return !haveSomethingToBuild;
         }
 
         void TryBuildDysonSwarm()

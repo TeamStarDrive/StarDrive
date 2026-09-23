@@ -362,10 +362,14 @@ public partial class Planet
     {
         tile.Biosphere = false;
 
-        var biosphere = FindBuilding(b => b.IsBiospheres);
-        if (biosphere != null)
-            BuildingList.Remove(biosphere);
+        // Biospheres are a planet wide pool with no tile of their own, so the one removed for
+        // this tile is whichever we pick: never spend a player's while a governor's is there
+        var biosphere = FindBuilding(b => b.IsBiospheres && !b.IsPlayerAdded)
+                        ?? FindBuilding(b => b.IsBiospheres);
+        if (biosphere == null)
+            return;
 
+        BuildingList.Remove(biosphere);
         UpdatePlanetStatsFromRemovedBuilding(biosphere);
     }
 
