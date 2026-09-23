@@ -273,6 +273,9 @@ namespace Ship_Game.Universe.SolarBodies
         // The current tax rate applied by empire tax rate and planet tax rate modifiers
         public float TaxRate { get; private set; }
 
+        // Racial tax modifier and this planet's tax buildings, without the empire tax rate
+        public float TaxRateMultiplier { get; private set; } = 1f;
+
         // revenue before maintenance is deducted
         public float GrossRevenue { get; private set; }
 
@@ -324,6 +327,7 @@ namespace Ship_Game.Universe.SolarBodies
             TroopMaint = Planet.Troops.Count * ShipMaintenance.TroopMaint; // We count enemy troops as well
 
             // And finally we adjust local TaxRate by the bonus multiplier
+            TaxRateMultiplier = taxRateMultiplier;
             TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
 

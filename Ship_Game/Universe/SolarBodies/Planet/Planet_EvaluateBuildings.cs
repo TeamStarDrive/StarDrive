@@ -12,6 +12,14 @@ namespace Ship_Game
     public partial class Planet
     {
         static float BuildingScoreThreshold = 1;
+
+        // Population share of the cap that makes a colony want more roof
+        const float BiospherePopPressure = 0.85f;
+        // Population share of the cap below which a free biosphere is dead weight
+        const float BiosphereExcessCapacity = 0.6f;
+        // Share of the added population's full rate income that may go to the biosphere upkeep
+        const float BiospherePaybackShare = 0.6f;
+
         bool LowProdPotential => Prod.GrossMaxPotential < 1;
         bool LowFoodPotential => NonCybernetic && Food.GrossMaxPotential < 1;
 
@@ -816,34 +824,29 @@ namespace Ship_Game
             }
 
             Building bio = ResourceManager.GetBuildingTemplate(Building.BiospheresId);
-            if (bio == null || bio.ActualMaintenance(this) > budget)
-                return false; // not within budget or not profitable and more than 5
+            if (bio == null)
+                return false;
 
-            if (!BioSphereProfitable(bio))
+            float bioUpkeep = bio.ActualMaintenance(this);
+            // Biospheres are in BuildingsCanBuild until the planet is fully habitable, and a
+            // biosphere is never the building we are clearing ground for
+            Building[] wanted = GetBuildingsListToChooseFrom(BuildingsCanBuild)
+                                    .Filter(b => !b.IsBiospheres);
+
+            bool needGroundToBuildOn = wanted.Length > 0
+                                       && FreeHabitableTiles == 0
+                                       && budget >= bioUpkeep + wanted.Min(b => b.ActualMaintenance(this));
+
+            if (!needGroundToBuildOn && !BiosphereCarriesItsPopulation(bio))
             {
-                int numBuildingsWeCanBuild = GetBuildingsListToChooseFrom(BuildingsCanBuild).Count;
                 if (NumFreeBiospheres > 0)
-                {
-                    // We do not need more than 1 free biospheres if not profitable.
-                    // We need only 1 free biosphere if we have anything to built at all
-                    shouldScrapBioSpheres = NumFreeBiospheres > 1 
-                        || numBuildingsWeCanBuild == 0 && (!HasBlueprints || Blueprints.IsAchievableCompleted);
-                    return false;
-                }
-                else if (numBuildingsWeCanBuild == 0 || HabiableBuiltCoverage.Less(1))
-                {
-                    // no need to build unprofitable biospheres if we have nothing to build here
-                    return false;
-                }
-            }
-            else if (PopulationRatio < 0.95f 
-                     && (NumFreeBiospheres > 0 || HabiableBuiltCoverage.Less(1)))
-            {
-                // dont build even if profitable, if pop is not big enough.
-                // but ensure there is at least 1 free biospheres if there are no free tiles
+                    shouldScrapBioSpheres = ShouldScrapFreeBiosphere(bioUpkeep, budget, wanted.Length > 0);
+
                 return false;
             }
 
+            if (bioUpkeep > budget)
+                return false;
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
@@ -870,9 +873,29 @@ namespace Ship_Game
             }
         }
 
-        bool BioSphereProfitable(Building bio)
+        internal bool BiosphereCarriesItsPopulation(Building bio)
         {
-            return Money.NetRevenueGain(bio) >= 0;
+            if (PopulationRatio < BiospherePopPressure)
+                return false;
+
+            float addedPopBillion = PopPerBiosphere(Owner) * 0.001f;
+            float incomeAtFullRate = addedPopBillion * Money.IncomePerColonist * Money.TaxRateMultiplier;
+            return bio.ActualMaintenance(this) <= BiospherePaybackShare * incomeAtFullRate;
+        }
+
+        internal bool ShouldScrapFreeBiosphere(float bioUpkeep, float budget, bool haveSomethingToBuild)
+        {
+            float capWithoutOne = MaxPopulation - PopPerBiosphere(Owner);
+            if (capWithoutOne <= 0 || (Population / capWithoutOne) >= BiosphereExcessCapacity)
+                return false;
+
+            if (NumFreeBiospheres > 1)
+                return true;
+
+            if (haveSomethingToBuild)
+                return false;
+
+            return budget < bioUpkeep;
         }
 
         void TryBuildDysonSwarm()

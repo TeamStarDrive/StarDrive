@@ -490,7 +490,6 @@ public partial class Planet
 
         FreeHabitableTiles = TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         TotalHabitableTiles = TilesList.Count(tile => tile.Habitable);
-        HabiableBuiltCoverage = 1 - (float)FreeHabitableTiles / TotalHabitableTiles;
         NumFreeBiospheres = TilesList.Count(t => t.Biosphere && !t.BuildingOnTile);
 
         TotalMoneyBuildings = TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
