@@ -204,8 +204,8 @@ fixing any of these needs a Codex impact pass.
    multiplied by it, so recovery follows update rate rather than game time. The Codex dodges this
    by saying only that EMP wears off "quick", with no number.
 2. `[content]` **`UniqueInEmpire` is a dead building tag.** No C# reads it, yet six vanilla xml
-   files set it (Imperial Bank, The Underhive and its three event buildings, Remnant Detection
-   Array) and mods copy the pattern including Combined Arms' Capital City. Harmless because `Building.Unique` defaults true,
+   files set it (Imperial Bank, The Underhive and its three event buildings) and mods copy the
+   pattern including Combined Arms' Capital City. Harmless because `Building.Unique` defaults true,
    but it reads as a working rule. Honour it in the loader or strip it.
 3. **`Weapon.BaseTargetError` carries two dead parameters** — no caller passes `loyalty`, and
    `range` is passed but never read.
@@ -275,6 +275,30 @@ planet orbits. Suggested shape: have `FindNewOrbitalLocation` reject candidates 
 `SolarSystem.InSafeDistanceFromRadiation` — it already loops rings and angles, so it becomes a
 condition on the existing search and places orbitals on the far side rather than denying them. A
 planet deep inside the zone needs a check in `AddOrbital` itself.
+
+**The save-overwrite check reads the visible list, not the filesystem — and that blocks an
+otherwise obvious fix.** `GenericLoadSaveScreen.IsSaveOk()` walks `SavesSL.AllEntries` and returns
+"safe to save" when no *listed* item matches the typed name. Today the damage is narrow, because
+`SaveGameScreen.InitSaveList` lists every save whose header parses, so almost nothing is hidden —
+only a save whose header will not parse at all can be silently clobbered.
+
+It becomes serious the moment anyone filters that list. The obvious tidy-up is to make the save
+screen filter like `LoadSaveScreen` does, on `Version == SaveGameVersion && ModName ==
+GlobalStats.ModName`. Do that alone and a hidden save is no longer a listed item, so `IsSaveOk`
+returns true, `DoSave()` runs with **no overwrite prompt**, and the file is destroyed. The likely
+victim is not an old-version save but a same-name save from another mod: play vanilla, hide every
+Combined Arms save, type a name you used there, and it is gone.
+
+**So `IsSaveOk` must become filesystem-based (`File.Exists` on the target path) before the save
+screen filters anything.** They are one change, not two. The better fix for the underlying
+confusion is probably not to filter at all but to show each row's version and mod — the header is
+already parsed and sitting in `FileData.Data` — the way `LoadRaceScreen` labels entries "Mod: X" /
+"Vanilla" instead of hiding them. That keeps every possible collision visible, which is exactly
+what an overwrite check needs.
+
+Sibling defect, now fixed: the export archive was named from the running build and mod rather than
+the save's own header, so exporting an old save produced a zip that misreported its contents.
+Export now refuses a save whose header version or mod does not match the running build.
 
 **"Billion Credits" may be as wrong as the "/Y" was.** `51a12578d` fixed `BC/Y` → `BC/T` because
 money is charged per turn. But `MoneyString()` (`SDUtils/NumberExt.cs:117`) is a plain two-decimal

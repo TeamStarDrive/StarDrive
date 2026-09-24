@@ -220,11 +220,51 @@ namespace Ship_Game
                 return;
             }
 
+            if (!CanExportSave(SelectedFile, out string refusal))
+            {
+                GameAudio.NegativeClick();
+                // no explicit width: MessageBoxScreen wraps its text at a fixed 250px,
+                // so a wider box would only pad the frame around a narrow column
+                ScreenManager.AddScreen(new MessageBoxScreen(this, refusal, MessageBoxButtons.Ok));
+                return;
+            }
+
             string savedFileName = ExportSave(SelectedFile);
 
             string message = $"The selected save was exported to your desktop as {savedFileName}";
             int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
             ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
+        }
+
+        static bool CanExportSave(FileData save, out string refusal)
+        {
+            refusal = null;
+            if (save.Data is not HeaderData header)
+                return true;
+
+            if (header.Version != SavedGame.SaveGameVersion)
+            {
+                refusal = $"This save is save format version {header.Version}, and you are running "
+                        + $"version {SavedGame.SaveGameVersion}.\n\n"
+                        + "It cannot be exported. The exported archive is named after the build and mod "
+                        + "you are running now, so it would claim to be something it is not, and the logs "
+                        + "packed with it would come from a build that never loaded this save.\n\n"
+                        + "Export it from the build that wrote it.";
+                return false;
+            }
+
+            if (header.ModName != GlobalStats.ModName)
+            {
+                string saveMod = header.ModName.NotEmpty() ? header.ModName : "no mod";
+                string runningMod = GlobalStats.ModName.NotEmpty() ? GlobalStats.ModName : "no mod";
+                refusal = $"This save was made with {saveMod}, and you are running {runningMod}.\n\n"
+                        + "It cannot be exported, for the same reason: the archive is named after the mod "
+                        + "you are running now and would misreport what is inside it.\n\n"
+                        + "Activate that mod and export it from there.";
+                return false;
+            }
+
+            return true;
         }
         
         string ExportSave(FileData save)
