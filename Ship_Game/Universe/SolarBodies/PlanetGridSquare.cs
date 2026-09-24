@@ -231,7 +231,7 @@ namespace Ship_Game
             // useless to potentially recover damaged ships right into battle.
             if (CombatBuildingOnTile && planetOwner != null && planetOwner != us
                 || EventOnTile && !spaceCombat && !us.IsFaction // factions wont explore events
-                   && (planetOwner == null || planetOwner == us))
+                   && (!IsCrashSiteActive || planetOwner == null || planetOwner == us))
             {
                 return true;
             }

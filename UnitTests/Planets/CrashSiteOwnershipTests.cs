@@ -90,4 +90,19 @@ public class CrashSiteOwnershipTests : StarDriveTest
         Assert.IsTrue(tile.HostilesTargetsOnTile(Player, P.Owner, spaceCombat: false),
             "once the planet is ours the site is worth walking to again");
     }
+
+    // Only a crash site waits for ownership. A ruin event on the tile is triggerable by whoever
+    // walks onto it, on anyone's planet, so gating every EventOnTile would strand it out of reach.
+    [TestMethod]
+    public void ARuinEventOnAnEnemyWorldIsStillWorthWalkingTo()
+    {
+        PlanetGridSquare tile = P.TilesList.Find(t => t.Habitable && !t.BuildingOnTile);
+        Assert.IsNotNull(tile, "test needs an empty habitable tile");
+        tile.PlaceBuilding(ResourceManager.CreateBuilding(P, "Ancient Pillar"), P);
+        Assert.IsTrue(tile.EventOnTile, "test setup failed to place the event building");
+        Assert.IsFalse(tile.IsCrashSiteActive, "an Ancient Pillar is not a crash site");
+
+        Assert.IsTrue(tile.HostilesTargetsOnTile(Player, P.Owner, spaceCombat: false),
+            "an invader can trigger a ruin event, so its tile must stay a target");
+    }
 }
