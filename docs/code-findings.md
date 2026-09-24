@@ -24,6 +24,123 @@ null-deref class · `[thread]` cross-thread access · `[content]` data/xml clean
 
 ---
 
+## Priority 1 — planet ambience: six sounds shipped since the XACT port, never once played
+
+**This is the one item here we have decided to build.** Everything below it is a backlog; this is
+work. Found 2026-09-25 while reviewing the Combined Arms sound rework, which does not touch
+PlanetAmbient at all — its six files are byte-identical to vanilla's and its config block was a
+verbatim copy, so this gap is ours and always has been.
+
+`[latent]` `[content]` **`game/Content/Audio/AudioConfig.yaml:84` defines a `PlanetAmbient`
+category with six sound effects that nothing plays.** `sd_planet_barren_01`,
+`_colonized_01`, `_forest_01`, `_gasgiant_01`, `_volcanic_01`, `_water_01` appear only in that
+yaml and as the `.m4a` files themselves. They are in no `.cs` file, and `git log -S"sd_planet_"
+-- "*.cs"` and `git log -S"PlanetAmbient" -- "*.cs"` both return **nothing across the whole
+history** — this was transcribed from the 2013 XACT sound bank when the NAudio engine was written
+and never wired up. `GameAudio` fetches only two categories by name, `Music` and `RacialMusic`
+(`GameAudio.cs:86-87`).
+
+**The vanilla tuning points at positional ambience**, not a colony-screen loop: the category sets
+`MaxConcurrentSounds: 4`, `MaxConcurrentSoundsPerEffect: 1`, `MaxSoundsPerFrame: 1` and
+`FadeOutTime: 0.1`, and the six files run roughly 22-28 s each — ambience beds, not stings.
+
+But read the per-effect cap carefully, because it fights the mapping below. It is one instance
+per **`SoundEffect` id**, not per planet (`AudioCategory.CanPlayEffect` tests
+`effect.NumActiveInstances`). Under the mapping below, Barren/Desert/Tundra/Ice all share
+`sd_planet_barren_01`, so only **one** of those four can ever be audible at a time, and reaching
+the category's 4 requires four *distinct* terrain types on screen. Resolve that before building:
+either give each `PlanetCategory` its own id, or raise the per-effect cap.
+
+**Some of the plumbing exists.** `AudioEmitter(maxDistance)` does linear falloff
+(`Audio/AudioEmitter.cs`), `GameAudio.PlayEffect` takes an emitter and hands it to the engine
+(`GameAudio.cs:323`), and the listener already tracks the camera every frame —
+`UniverseScreen.cs:693` calls `GameAudio.Update3DSound(CamPos)`. Missing: an emitter per planet,
+start/stop by camera distance, and **looping — there is none anywhere in `Ship_Game/Audio/`**. A
+22-28 s bed that must persist needs either a real loop flag on `NAudioSampleInstance` or the
+restart-on-stopped poll, and that poll is exactly the mechanism indicted in the `InFlightCue`
+entry below. Do not reach for it without reading that first.
+
+**The cue-to-category mapping is nearly free**, because the six cues line up with
+`PlanetCategory` (`Universe/SolarBodies/SolarSystemBody.cs:31`, ten values):
+
+| Cue | `PlanetCategory` |
+| --- | --- |
+| `sd_planet_barren_01` | Barren, Desert, Tundra, Ice |
+| `sd_planet_forest_01` | Terran, Swamp, Steppe |
+| `sd_planet_water_01` | Oceanic |
+| `sd_planet_volcanic_01` | Volcanic |
+| `sd_planet_gasgiant_01` | GasGiant |
+| `sd_planet_colonized_01` | any planet the viewer owns — overrides the row above |
+
+Ten categories to five terrain cues plus an owned-planet override, so no new audio is needed to
+ship a first version.
+
+**Open decisions before starting:**
+
+- `PlanetType` (`Universe/SolarBodies/PlanetType.cs:20-46`) has no sound field. Either add
+  `[StarData] public readonly string AmbientCue` so `PlanetTypes.yaml` can override per type —
+  which is what a modder would want, and is the reason the idea came up — or hard-code the
+  category switch and add the field later. The yaml field is the better first move; it is cheap
+  and it is the extension point.
+- Start/stop policy: camera distance threshold, and whether ambience plays in the system view
+  only or also on the colony screen (`ColonyScreen_HandleInput.cs:200`,
+  `UniverseScreen.Camera.cs:123` are the two construction sites).
+- `MaxConcurrentSounds: 4` means the nearest four win. Needs a deliberate pick of which four when
+  a system has more, otherwise it will be whichever planet updated first.
+- Loudness: the six effects carry `Volume: 1.76` and `1.04`, values inherited from XACT and never
+  heard in this engine. Expect to retune once it is audible.
+- `AudioConfig.SetVolume` treats a category as music only when its name contains "Music", so
+  `PlanetAmbient` rides the **effects** slider. Decide whether that is wanted before shipping.
+
+---
+
+## Priority 2 — `InFlightCue` is dead, and turning it on naively is a regression
+
+`[latent]` Found 2026-09-25 alongside the entry above. **`Projectile.cs:299` tests the destination
+instead of the source:**
+
+```csharp
+if (cueName.NotEmpty())     DieCueName  = cueName;   // correct: tests the source
+if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;   // wrong: always ""
+```
+
+`InFlightCue` is a field initialized to `""` at `Projectile.cs:83` and assigned nowhere else in the
+codebase, so the guard is never true and the assignment has **never run**. There is no projectile
+pooling, `Beam` never reaches this path, and `OnDeserialized` passes `playSound: false`. So every
+`<InFlightCue>` in content is inert: **23 vanilla weapon xml and 66 in Combined Arms**.
+
+**Do not just fix the typo.** It was tried and reverted on 2026-09-25 after review. Four problems,
+all verified:
+
+1. **It loops, and the engine has no looping.** `Projectile.cs:595` re-triggers whenever the handle
+   stops, and it sits *above* the `if (InFrustum)` guard, so it runs for every projectile on the
+   map every frame. `sd_weapon_rocket_flight_01` is ~1.3 s against a 24 s missile — a stuttering
+   restart, not a whoosh.
+2. **It starves the `Weapons` category.** That category is `MaxConcurrentSounds: 64`,
+   `MaxConcurrentSoundsPerEffect: 32` over 65 effects that include every fire *and impact* cue.
+   Flight cues are the first long-lived members. A few Hellstorm volleys (15 rockets, ~24 s each)
+   exhaust the budget and lasers, cannons and shield impacts go silent — the opposite of the goal.
+3. **Per-frame enqueue storm in a parallel loop.** When the sound cannot start it is not tracked,
+   so it re-enqueues every frame, taking the global `SfxQueueLock` from inside
+   `UniverseObjectManager`'s `Parallel.For`. It often cannot start: `ProjectileSfxDistance` is
+   35,000 but `InFrustum` allows SystemView out to `CamPos.Z` 250,000, so there is a wide zoom
+   band — where players actually watch battles — that sets the cue and can never play it.
+4. **The hook is semantically wrong.** `playSound` means "play the FIRE cue once for this volley",
+   not "this projectile is audible": `Weapon.SpawnSalvo` does `playSound = false; // only play
+   sound once per fire cone`, and MIRV uses `i == 0`. So one warhead in a cluster would whoosh and
+   the rest stay silent, and after a savegame load every in-flight missile is permanently silent
+   while newly fired ones sound.
+
+A real fix sets the cue unconditionally (including in `OnDeserialized`), gates *playback* on
+`InFrustum`, passes the `replayTimeout` that `AudioHandle.PlaySfxAsync` already accepts and that
+nothing here uses, and gives flight cues **their own audio category** so they cannot starve
+`Weapons`. That is a feature with its own review, not a one-line change.
+
+Related, and why this entry sits next to the one above: planet ambience needs the same missing
+looping primitive. Solve it once, for both.
+
+---
+
 ## Do not "fix" these
 
 Settled behaviour that reads like a bug to fresh eyes. Each was decided deliberately and the
