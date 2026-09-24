@@ -43,6 +43,10 @@ namespace Ship_Game.AI
         [StarData] Vector2 LastMoveFinalDir;
         [StarData] AIState LastMoveWantedState;
         [StarData] MoveOrder LastMoveOrder;
+        [StarData] float BorderRouteCheckTimer;
+        [StarData] bool EvacuatingClosedBorder;
+
+        const float BorderRouteCheckInterval = 1f;
 
         // Called by Ship_Update.ExploreCurrentSystem the frame a system is first
         // discovered by this ship. If the ship has an active move order, re-issue it
@@ -54,6 +58,32 @@ namespace Ship_Game.AI
             if (WayPoints.Count == 0 || LastMoveFinalPos == Vector2.Zero) return;
             // Re-issue from current position; AddWayPoint will rebuild detours.
             AddWayPoint(LastMoveFinalPos, LastMoveFinalDir, LastMoveWantedState, LastMoveOrder, 0f, null);
+        }
+
+        void RevalidateBorderRoute(FixedSimTime timeStep)
+        {
+            if (timeStep.FixedTime <= 0f)
+                return;
+
+            BorderRouteCheckTimer -= timeStep.FixedTime;
+            if (BorderRouteCheckTimer > 0f)
+                return;
+            BorderRouteCheckTimer = BorderRouteCheckInterval;
+
+            if (GravityWellRouter.IsInsideClosedBorder(Owner))
+            {
+                if (!EvacuatingClosedBorder)
+                    BeginClosedBorderEvacuation();
+                return;
+            }
+            EvacuatingClosedBorder = false;
+
+            if (WayPoints.Count == 0 || LastMoveFinalPos == Vector2.Zero)
+                return;
+
+            Vector2 nextWayPoint = WayPoints.ElementAt(0).Position;
+            if (GravityWellRouter.CrossesClosedBorder(Owner, Owner.Position, nextWayPoint))
+                AddWayPoint(LastMoveFinalPos, LastMoveFinalDir, LastMoveWantedState, LastMoveOrder, 0f, null);
         }
 
         [StarData] WayPoint[] WayPointsSave
@@ -71,6 +101,27 @@ namespace Ship_Game.AI
         public void ClearWayPoints()
         {
             WayPoints.Clear();
+        }
+
+        /// <summary>Called by the final physics guard when an AI ship actually
+        /// reaches a closed frontier. Continuing the current plan would make it
+        /// apply thrust and run border sampling every frame without making progress.</summary>
+        public void OnClosedBorderBlocked()
+        {
+            BeginClosedBorderEvacuation();
+        }
+
+        void BeginClosedBorderEvacuation()
+        {
+            MovePosition = Owner.Position;
+            LastMoveFinalPos = Vector2.Zero;
+            ExploreDetourTarget = null;
+            ExploreDetours = null;
+            ExploreDetourIndex = 0;
+            ClearOrdersAndWayPoints();
+            EvacuatingClosedBorder = GravityWellRouter.TryGetNearestClosedBorderExit(Owner, out Vector2 exit);
+            if (EvacuatingClosedBorder)
+                OrderMoveTo(exit, Owner.Position.DirectionToTarget(exit), AIState.MoveTo, MoveOrder.Regular);
         }
 
         public void SetOrbitTarget(Planet target)

@@ -300,6 +300,8 @@ namespace Ship_Game.AI
 
         public void Update(FixedSimTime timeStep)
         {
+            RevalidateBorderRoute(timeStep);
+
             if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate)
                 ChangeAIState(AIState.Exterminate);
 

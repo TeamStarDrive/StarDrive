@@ -1,6 +1,7 @@
 ﻿using SDGraphics;
 using SDUtils;
 using Ship_Game.Universe;
+using Ship_Game.AI;
 using System;
 using Vector2 = SDGraphics.Vector2;
 
@@ -294,6 +295,7 @@ namespace Ship_Game.Ships
         // @warning PERF This is called every simulation frame for every ship in the universe
         void UpdateEnginesAndVelocity(FixedSimTime timeStep)
         {
+            Vector2 previousPosition = Position;
             float maxFTLSpeed = SetMaxFTLSpeed();
             float maxSTLSpeed = MaxSTLSpeed;
             bool isWarpCapable = maxFTLSpeed > maxSTLSpeed;
@@ -321,6 +323,18 @@ namespace Ship_Game.Ships
 
             UpdateShipRotation(timeStep);
             UpdateVelocityAndPosition(timeStep);
+
+            if (GravityWellRouter.ClampBorderCrossing(this, previousPosition, Position,
+                                                       out Vector2 legalPosition))
+            {
+                if (engineState == MoveState.Warp || IsSpooling)
+                    HyperspaceReturn();
+                Position = legalPosition;
+                Velocity = Vector2.Zero;
+                Acceleration = Vector2.Zero;
+                AllStop();
+                AI.OnClosedBorderBlocked();
+            }
 
             if (isWarpCapable && IsSpooling)
             {
