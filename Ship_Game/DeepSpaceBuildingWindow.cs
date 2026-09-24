@@ -184,7 +184,7 @@ namespace Ship_Game
             if (ShipToBuild == null)
                 return false;
 
-            if (targetSystem != null && (Screen.CursorWorldPosition2D.InRadius(targetSystem.Position, MinimumBuildDistanceFromSun) 
+            if (targetSystem != null && (targetPlanet == null && Screen.CursorWorldPosition2D.InRadius(targetSystem.Position, MinimumBuildDistanceFromSun)
                                          || !targetSystem.InSafeDistanceFromRadiation(Screen.CursorWorldPosition2D)))
             {
                 return false;
