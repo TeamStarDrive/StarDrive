@@ -349,29 +349,6 @@ namespace Ship_Game
 
         public bool GoodFlatFood() => PlusFlatFoodAmount > 0;
 
-        static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
-        {
-            return flatBonus + perColonistBonus * planet.PopulationBillion * adjust;
-        }
-
-        public float CreditsProduced(Planet planet)
-        {
-            return Production(planet, 0, CreditsPerColonist);            
-        }
-
-        public float FoodProduced(Planet planet)
-        {
-            if (planet.NonCybernetic)
-                return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility);
-
-            return ProductionProduced(planet);
-        }
-
-        public float ProductionProduced(Planet planet)
-        {
-            return Production(planet, PlusFlatProductionAmount, PlusProdPerColonist, planet.MineralRichness);
-        }
-
         public bool AssignBuildingToTilePlanetCreation(Planet p, out PlanetGridSquare tile)
         {
             tile = AssignBuildingToRandomTile(p);

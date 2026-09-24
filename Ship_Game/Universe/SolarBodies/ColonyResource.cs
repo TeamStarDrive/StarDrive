@@ -296,6 +296,14 @@ namespace Ship_Game.Universe.SolarBodies
 
         public ColonyMoney(Planet planet) { Planet = planet; }
 
+        // Credits per turn this building would cost the colony, its own revenue already deducted
+        public float NetCostOf(Building b)
+        {
+            float taxed = (Planet.PopulationBillion * b.CreditsPerColonist + b.Income) * TaxRate;
+            float fromTaxBonus = TaxRateMultiplier > 0 ? GrossRevenue * b.PlusTaxPercentage / TaxRateMultiplier : 0;
+            return b.ActualMaintenance(Planet) - (taxed * Planet.Owner.ExoticCreditsBonus + fromTaxBonus);
+        }
+
         public void Update()
         {
             // Base tax rate comes from current empire tax %

@@ -129,7 +129,8 @@ namespace Ship_Game
         void DrawBuilding(SpriteBatch batch, Building b)
         {
             Planet p = Screen.P;
-            bool unprofitable = !b.IsBiospheres && !p.WeCanAffordThis(b, p.CType) && b.Maintenance > 0f;
+            float netCost = p.Money.NetCostOf(b);
+            bool unprofitable = !b.IsBiospheres && netCost > 0f && netCost > p.Money.NetRevenue;
             Color buildColor  = Hovered ? Color.White  : unprofitable ? new Color(255,200,200) : Color.White;
             Color profitColor = Hovered ? Color.Orange : unprofitable ? Color.Chocolate : Color.Green;
 
