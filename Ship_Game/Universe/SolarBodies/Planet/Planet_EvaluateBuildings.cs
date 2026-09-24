@@ -747,7 +747,7 @@ namespace Ship_Game
             }
         }
 
-        PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] tileList)
+        internal PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] tileList)
         {
             var potentialTiles = new Array<PlanetGridSquare>();
             for (int i = 0; i < tileList.Length; ++i)
@@ -757,7 +757,8 @@ namespace Ship_Game
                     potentialTiles.Add(tile);
             }
 
-            return Random.Item(potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList());
+            Array<PlanetGridSquare> eligible = potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList();
+            return eligible.Find(t => t.Terraformable) ?? eligible[eligible.Count - 1];
 
             bool NoVolcanosAround(PlanetGridSquare tile)
             {
@@ -852,26 +853,16 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
 
-            return Construction.Enqueue(bio, GetPreferredTile()); // Preferred is null safe in this call
+            return Construction.Enqueue(bio, PreferredBiosphereTile(bio)); // Preferred is null safe in this call
+        }
 
-            PlanetGridSquare GetPreferredTile()
-            {
-                PlanetGridSquare preferred = null;
-                if (Owner.IsBuildingUnlocked(Building.TerraformerId))
-                {
-                    preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable && !t.BuildingOnTile);
-                    if (preferred == null)
-                        preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable);
-                }
-                else
-                {
-                    preferred = TilesList.Find(t => !t.Habitable && !t.BuildingOnTile);
-                    if (preferred == null)
-                        preferred = TilesList.Find(t => !t.Habitable);
-                }
-
-                return preferred;
-            }
+        internal PlanetGridSquare PreferredBiosphereTile(Building bio)
+        {
+            bool saveGroundForTerraformer = Owner.CanTerraformPlanetTiles;
+            return TilesList.Find(t => t.NoBuildingOnTile && t.CanEnqueueBuildingHere(bio)
+                                       && (!saveGroundForTerraformer || !t.Terraformable))
+                ?? TilesList.Find(t => t.NoBuildingOnTile && t.CanEnqueueBuildingHere(bio))
+                ?? TilesList.Find(t => t.CanEnqueueBuildingHere(bio));
         }
 
         internal bool BiosphereCarriesItsPopulation(Building bio)
