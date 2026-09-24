@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
@@ -217,9 +217,10 @@ public sealed partial class Empire
     {
         planet = null;
         int travelMultiplier = travelBack ? 2 : 1;
-        IReadOnlyList<Planet> actualPorts = isPlayer && PlayerPrioritizedPorts.Length > 0 ? PlayerPrioritizedPorts : ports;
+        bool prioritized = isPlayer && PlayerPrioritizedPorts.Length > 0;
+        IReadOnlyList<Planet> actualPorts = prioritized ? PlayerPrioritizedPorts : ports;
 
-        if (actualPorts.Count == 0 || !GetBestPorts(actualPorts, out Planet[] bestPorts, 1))
+        if (actualPorts.Count == 0 || !GetBestPorts(actualPorts, out Planet[] bestPorts, prioritized ? 0.5f : 1))
             return false;
 
         planet = bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip)
@@ -230,9 +231,10 @@ public sealed partial class Empire
     public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, IShipDesign newShip, out Planet planet)
     {
         planet = null;
-        IReadOnlyList<Planet> actualPorts = isPlayer && PlayerPrioritizedPorts.Length > 0 ? PlayerPrioritizedPorts : ports;
+        bool prioritized = isPlayer && PlayerPrioritizedPorts.Length > 0;
+        IReadOnlyList<Planet> actualPorts = prioritized ? PlayerPrioritizedPorts : ports;
 
-        if (actualPorts.Count == 0 || !GetBestPorts(actualPorts, out Planet[] bestPorts, 1))
+        if (actualPorts.Count == 0 || !GetBestPorts(actualPorts, out Planet[] bestPorts, prioritized ? 0.5f : 1))
             return false;
 
         planet = bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip));

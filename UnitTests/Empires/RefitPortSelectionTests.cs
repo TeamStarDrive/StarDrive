@@ -132,4 +132,24 @@ public class RefitPortSelectionTests : StarDriveTest
         Assert.AreSame(Far, ChooseWithoutTravel(Empty<Planet>.Array),
             "a named port should still be usable when the caller's own port list came up empty");
     }
+
+    // GetBestPorts measures each port against the average of the set it is handed, so when that
+    // set is the player's own list, the weaker of any two unequal ports is the one on trial. At
+    // quality 1 it never survives, and the queue and travel ranking below never sees it.
+    [TestMethod]
+    public void TheWeakerOfTwoPrioritizedPortsIsStillACandidate()
+    {
+        Far.Population = Far.MaxPopulation;
+        Near.Population = Near.MaxPopulation * 0.5f;
+        Near.UpdateIncomes();
+        Far.UpdateIncomes();
+        Assert.IsTrue(Far.Prod.NetMaxPotential > Near.Prod.NetMaxPotential * 1.3f,
+            $"test needs clearly unequal ports: near={Near.Prod.NetMaxPotential} far={Far.Prod.NetMaxPotential}");
+
+        Prioritize(Near, Far);
+        LoadQueue(Far, cost: 5_000_000); // the stronger yard is booked for years
+
+        Assert.AreSame(Near, ChooseWithTravel(Ports),
+            "naming a port should put it in the running, whatever the other named ports produce");
+    }
 }
