@@ -131,22 +131,13 @@ namespace Ship_Game
                 Log.Error(e, $"MiniMap Draw crashed {e.InnerException}");
             }
 
-            Vector2 upperLeftView = Universe.UnprojectToWorldPosition(new Vector2(0f, 0f));
-            upperLeftView = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 1), HelperFunctions.RoundTo(upperLeftView.Y, 1));
-            
-            var right = Universe.UnprojectToWorldPosition(new Vector2(Universe.ScreenWidth, 0f));
-
-            right = new Vector2(HelperFunctions.RoundTo(right.X, 1), 0f);
-            
-            float xdist = (right.X - upperLeftView.X) * Scale;
-            xdist = HelperFunctions.RoundTo(xdist, 1);
-
-            float ydist = xdist * Universe.ScreenHeight / Universe.ScreenWidth;
-            ydist = HelperFunctions.RoundTo(ydist, 1);
             // draw and clamp minimap viewing area rectangle.
-            var lookingAt = new Rectangle((int)MiniMapZero.X + (int)(upperLeftView.X * Scale), 
-                                          (int)MiniMapZero.Y + (int)(upperLeftView.Y * Scale),
-                                          (int)xdist, (int)ydist);
+            AABoundingBox2Dd view = Universe.ExactVisibleWorldRect;
+            var lookingAt = new Rectangle(
+                (int)Math.Round(MiniMapZero.X + view.X1 * Scale),
+                (int)Math.Round(MiniMapZero.Y + view.Y1 * Scale),
+                (int)Math.Round(view.Width * Scale),
+                (int)Math.Round(view.Height * Scale));
             if (lookingAt.Width < 2)
             {
                 lookingAt.Width  = 2;
