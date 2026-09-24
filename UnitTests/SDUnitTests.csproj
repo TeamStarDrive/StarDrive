@@ -82,6 +82,7 @@
     <Compile Include="Data\Ship17EndToEndTest.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
+    <Compile Include="Empires\RefitPortSelectionTests.cs" />
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
     <Compile Include="Espionage\LegacyAgentTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
