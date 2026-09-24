@@ -15690,9 +15690,7 @@ PrioritizedPort:
  PTB: "Porto Prioritário"
 PrioritizedPortTip:
  Id: 4919
- ENG: "When set, all ship construction will be queued on this planet, providing that it has a Space Port. If several planets are set as Prioritized Ports, the suitable planet for construction will be decided based on their production capacity. If no port in your Empire is prioritized, production capacity logic selection will be applied to all planets.    "    
- RUS: "Если включено, вся постройка кораблей будет ставиться в очередь на этой планете при условии наличия Космопорта. Если несколько планет помечены как приоритетные, подходящая планета выбирается по производственной мощности. Если в Империи нет приоритетных портов, логика выбора по мощности применяется ко всем планетам."
- PTB: "Quando ativado, toda construção de naves será enfileirada neste planeta, desde que ele tenha um Porto Espacial. Se vários planetas forem definidos como Portos Prioritários, o planeta adequado para construção será decidido com base em sua capacidade de produção. Se nenhum porto do seu Império estiver priorizado, a lógica de seleção por capacidade de produção será aplicada a todos os planetas.    "
+ ENG: "When set, the ships your empire queues on its own and every refit go to this planet, provided it has a Space Port; what you queue by hand on a colony screen is unaffected. With several Prioritized Ports, the one that would finish the ship soonest is chosen, and a ship being refitted also counts the flight there. A crippled colony drops out until it recovers. With none prioritized, every safe Space Port competes on production capacity."
 SpecializedTradeHub:
  Id: 4920
  ENG: "Specialized Trade-Hub"  
