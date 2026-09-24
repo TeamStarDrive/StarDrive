@@ -82,6 +82,7 @@
     <Compile Include="Data\Ship17EndToEndTest.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
+    <Compile Include="Empires\RefitPortSelectionTests.cs" />
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
     <Compile Include="Espionage\LegacyAgentTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
@@ -106,7 +107,11 @@
     <Compile Include="Collections\TestCollectionExt.cs" />
     <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
+    <Compile Include="Planets\BiosphereDecisionTests.cs" />
+    <Compile Include="Planets\BlueprintTerraformerGateTests.cs" />
     <Compile Include="Planets\CapitalTransfer.cs" />
+    <Compile Include="Planets\ColonyTilePickingTests.cs" />
+    <Compile Include="Planets\CrashSiteOwnershipTests.cs" />
     <Compile Include="Planets\CyberneticProdStateTests.cs" />
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
     <Compile Include="Planets\YoungColonyTradeStateTests.cs" />
@@ -161,6 +166,7 @@
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
+    <Compile Include="Universe\BoxSelectionTests.cs" />
     <Compile Include="Universe\CameraProjectionTests.cs" />
     <Compile Include="Universe\CommonVisualization.cs" />
     <Compile Include="Universe\GenericQtreeTests.cs" />

@@ -816,22 +816,28 @@ namespace Ship_Game
 
         Array<Ship> GetAllShipsInArea(in RectF screenArea, InputState input, out Fleet fleet)
         {
-            fleet = null;
             Ship[] potentialShips = GetVisibleShipsInScreenRect(screenArea);
+            return FilterBoxSelection(potentialShips, SelectedShipList, input.IsShiftKeyDown,
+                                      input.IsCtrlKeyDown, input.IsAltKeyDown, out fleet);
+        }
+
+        internal static Array<Ship> FilterBoxSelection(Ship[] potentialShips, IReadOnlyList<Ship> currentSelection,
+                                                       bool addToSelection, bool ctrlSelect, bool altSelect,
+                                                       out Fleet fleet)
+        {
+            fleet = null;
             if (potentialShips.Length == 0)
                 return new();
 
-            bool hasCombatShips = potentialShips.Any(IsCombatShip);
+            bool hasCombatShips = potentialShips.Any(s => s.Loyalty.isPlayer && IsCombatShip(s));
 
-            // TODO: These are not documented to the players
-            bool addToSelection = input.IsShiftKeyDown;
-            bool selectAll      = input.IsCtrlKeyDown || !hasCombatShips;
-            bool nonPlayer      = input.IsAltKeyDown || !potentialShips.Any(s => s.Loyalty.isPlayer);
+            bool selectAll      = ctrlSelect || !hasCombatShips;
+            bool nonPlayer      = altSelect || !potentialShips.Any(s => s.Loyalty.isPlayer);
             bool onlyPlayer     = !nonPlayer && potentialShips.Any(s => s.Loyalty.isPlayer);
 
             var ships = new Array<Ship>();
             if (addToSelection)
-                ships.AddRange(SelectedShipList);
+                ships.AddRange(currentSelection);
 
             foreach (Ship ship in potentialShips)
             {
@@ -844,11 +850,11 @@ namespace Ship_Game
                 ships.RemoveAll(NonCombatShip);
             }
 
-            if (onlyPlayer && !hasCombatShips)
+            if (onlyPlayer && !ctrlSelect && !hasCombatShips)
             {
                 // if we selected a bunch of civilian ships, but some of them are troop transports
                 // then discard all ships that aren't troop transports
-                bool hasTroopTransports = potentialShips.Any(s => s.IsSingleTroopShip);
+                bool hasTroopTransports = potentialShips.Any(s => s.Loyalty.isPlayer && s.IsSingleTroopShip);
                 if (hasTroopTransports)
                     ships.RemoveAll(s => !s.IsSingleTroopShip);
             }
@@ -1034,7 +1040,6 @@ namespace Ship_Game
                 bool sameRole   = ship.DesignRole == clicked.DesignRole;
                 bool sameDesign = ship.Name == clicked.Name;
 
-                // TODO: These are not documented to the players
                 if (input.SelectSameDesign) // Ctrl+Alt+DoubleClick
                 {
                     if (sameDesign)

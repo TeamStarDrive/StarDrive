@@ -9,8 +9,8 @@ namespace Ship_Game.AI
     // Per-system tracker of troop counts and planet values.
     // Once held an inert ship-defense roster; that responsibility migrated to
     // Fleets + MilitaryTask. What remains is the troop/value bookkeeping read
-    // by DefensiveCoordinator.ManageForcePool, MilitaryTask_Requistions,
-    // RunDiplomaticPlanner, and Planet_WeCanAffordThis.
+    // by DefensiveCoordinator.ManageForcePool, MilitaryTask_Requistions and
+    // RunDiplomaticPlanner.
     public sealed class SystemCommander
     {
         public readonly DefensiveCoordinator Owner;

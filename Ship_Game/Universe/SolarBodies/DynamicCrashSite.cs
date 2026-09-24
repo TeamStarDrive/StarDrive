@@ -121,7 +121,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             Active = false;
             Empire owner = p.Owner ?? activatingEmpire;
-            Ship ship = SpawnShip(u, p, activatingEmpire, owner, out string message);
+            Ship ship = SpawnShip(u, p, activatingEmpire, out string message);
             string troopMessage = "";
 
             if (ship != null)
@@ -142,7 +142,7 @@ namespace Ship_Game.Universe.SolarBodies
             p.DestroyBuildingOn(tile);
         }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-        Ship SpawnShip(UniverseState u, Planet p, Empire activatingEmpire, Empire owner, out string message)
+        Ship SpawnShip(UniverseState u, Planet p, Empire activatingEmpire, out string message)
         {
             message = $"Recover efforts of a crashed ship on {p.Name} were futile.\n" +
                       "It was completely wrecked.";
@@ -165,7 +165,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             float recoverAmount = template.ShipData.BaseCost / 10;
-            if (owner == activatingEmpire)
+            if (p.Owner == activatingEmpire)
             {
                 p.ProdHere  = (p.ProdHere + recoverAmount).UpperBound(p.Storage.Max);
                 message     = $"We were able to recover {recoverAmount.String(0)} production\n" +

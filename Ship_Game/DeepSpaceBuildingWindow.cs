@@ -92,7 +92,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial8Bold, Template.GetRole(), X+iconSize+2, Y+18, Color.Orange);
 
                 float prodX = Right - 120;
-                batch.DrawString(Fonts.Arial8Bold, Template.GetMaintenanceCost(Universe.Player).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost
+                batch.DrawString(Fonts.Arial8Bold, Template.GetMaintenanceCost(Universe.Player).String(2)+" BC/T", prodX, Y+4, Color.Salmon); // Maintenance Cost
                 batch.Draw(iconProd, new Vector2(prodX+50, Y+4), iconProd.SizeF); // Production Icon
                 batch.DrawString(Fonts.Arial12Bold, Template.GetCost(Universe.Player).String(1), prodX+50+iconProd.Width+2, Y+4); // Build Production Cost
             }
@@ -184,7 +184,7 @@ namespace Ship_Game
             if (ShipToBuild == null)
                 return false;
 
-            if (targetSystem != null && (Screen.CursorWorldPosition2D.InRadius(targetSystem.Position, MinimumBuildDistanceFromSun) 
+            if (targetSystem != null && (targetPlanet == null && Screen.CursorWorldPosition2D.InRadius(targetSystem.Position, MinimumBuildDistanceFromSun)
                                          || !targetSystem.InSafeDistanceFromRadiation(Screen.CursorWorldPosition2D)))
             {
                 return false;

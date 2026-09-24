@@ -1586,7 +1586,6 @@ namespace Ship_Game
         public float HabitablePercentage { get; private set; }
         public int NumFreeBiospheres { get; private set; }
 
-        public float HabiableBuiltCoverage { get; private set; }
         public int TotalInvadeInjure { get; private set; }
         public float BuildingGeodeticOffense { get; private set; }
 

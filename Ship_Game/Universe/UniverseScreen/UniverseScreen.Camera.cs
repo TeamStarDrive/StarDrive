@@ -44,6 +44,25 @@ namespace Ship_Game
             return new(newX, newY, desiredCamZ);
         }
 
+        /// <summary>
+        /// The world rect visible at the z=0 plane, derived from the camera rather than
+        /// unprojected: the universe camera looks straight down, so the rect is centred on
+        /// CamPos, with half-width camZ/M11 and half-height camZ/M22. Exact at any distance
+        /// from the origin, unlike VisibleWorldRect.
+        /// </summary>
+        public AABoundingBox2Dd ExactVisibleWorldRect
+        {
+            get
+            {
+                double camH = CamPos.Z;
+                float m11 = Projection.M11, m22 = Projection.M22;
+                double halfW = camH > 0 && m11 > 0 ? camH / m11 : 0.0;
+                double halfH = camH > 0 && m22 > 0 ? camH / m22 : 0.0;
+                return new(CamPos.X - halfW, CamPos.Y - halfH,
+                           CamPos.X + halfW, CamPos.Y + halfH);
+            }
+        }
+
         public void ViewToShip(Ship ship)
         {
             if (ship == null)

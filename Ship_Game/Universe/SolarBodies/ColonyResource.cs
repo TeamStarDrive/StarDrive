@@ -271,7 +271,10 @@ namespace Ship_Game.Universe.SolarBodies
         public float IncomePerColonist { get; private set; }
 
         // The current tax rate applied by empire tax rate and planet tax rate modifiers
-        public float TaxRate { get; private set; }
+        float TaxRate;
+
+        // Racial tax modifier and this planet's tax buildings, without the empire tax rate
+        public float TaxRateMultiplier { get; private set; } = 1f;
 
         // revenue before maintenance is deducted
         public float GrossRevenue { get; private set; }
@@ -293,14 +296,17 @@ namespace Ship_Game.Universe.SolarBodies
 
         public ColonyMoney(Planet planet) { Planet = planet; }
 
-        public float NetRevenueGain(Building b)
+        // Credits per turn this building would cost the colony, its own revenue already deducted
+        public float NetCostOf(Building b)
         {
-            float newPopulation = b.MaxPopIncrease*0.001f;
-            if (b.IsBiospheres)
-                newPopulation += Planet.PopPerBiosphere(Planet.Owner)*0.001f;
+            float taxable = Planet.PopulationBillion * IncomePerColonist + IncomeFromBuildings;
+            float added = Planet.PopulationBillion * b.CreditsPerColonist + b.Income;
+            float rateWithIt = TaxRateMultiplier > 0
+                             ? TaxRate * (TaxRateMultiplier + b.PlusTaxPercentage) / TaxRateMultiplier
+                             : TaxRate;
 
-            float grossIncome = newPopulation * IncomePerColonist * TaxRate;
-            return grossIncome - b.ActualMaintenance(Planet);
+            float revenue = ((taxable + added) * rateWithIt - taxable * TaxRate) * Planet.Owner.ExoticCreditsBonus;
+            return b.ActualMaintenance(Planet) - revenue;
         }
 
         public void Update()
@@ -324,6 +330,7 @@ namespace Ship_Game.Universe.SolarBodies
             TroopMaint = Planet.Troops.Count * ShipMaintenance.TroopMaint; // We count enemy troops as well
 
             // And finally we adjust local TaxRate by the bonus multiplier
+            TaxRateMultiplier = taxRateMultiplier;
             TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
 

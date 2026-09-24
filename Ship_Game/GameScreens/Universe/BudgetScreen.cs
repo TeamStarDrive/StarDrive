@@ -82,7 +82,7 @@ namespace Ship_Game.GameScreens
 
             //Screen Title
             string title   = Localizer.Token(GameText.EconomicOverview);
-            Label(Window.Menu.CenterTextX(title), Window.Menu.Y + 20, title);
+            Label(Window.Menu.CenterTextX(title), Window.Menu.Y + 20, title).Tooltip = GameText.BudgetPerTurnNote;
 
             // background panels for TaxRate, incomes, cost, trade: 6138
             SummaryPanel tax = Add(new SummaryPanel("", taxRect, new Color(17, 21, 28)));

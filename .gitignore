@@ -188,3 +188,9 @@ game/SharpDX.XInput.dll
 # See Deploy/prereq/README.md for fetch instructions.
 Deploy/prereq/*.exe
 TestResults/
+
+# macOS finder droppings
+.DS_Store
+
+# Local PR triage scratch pad, not part of the project docs
+docs/community-pr-triage.md
