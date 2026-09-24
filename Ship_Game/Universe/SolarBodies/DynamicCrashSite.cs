@@ -165,7 +165,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             float recoverAmount = template.ShipData.BaseCost / 10;
-            if (owner == activatingEmpire)
+            if (p.Owner == activatingEmpire)
             {
                 p.ProdHere  = (p.ProdHere + recoverAmount).UpperBound(p.Storage.Max);
                 message     = $"We were able to recover {recoverAmount.String(0)} production\n" +

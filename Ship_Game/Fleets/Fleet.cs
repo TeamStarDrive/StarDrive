@@ -680,7 +680,7 @@ namespace Ship_Game.Fleets
             task.TargetEmpire ??= Owner.AI.ThreatMatrix.GetStrongestHostileAt(targetPlanet.System);
 
             if (EndInvalidTask(!eventBuildingFound
-                               || targetPlanet.Owner != null && !Owner.IsAtWarWith(targetPlanet.Owner)
+                               || targetPlanet.Owner != null
                                || !MajorityTroopShipsAreInWell(targetPlanet) && (!StillInvasionEffective(task) 
                                || !StillCombatEffective(task, inCombat: TaskStep >= 4))))
             {

@@ -111,6 +111,7 @@
     <Compile Include="Planets\BlueprintTerraformerGateTests.cs" />
     <Compile Include="Planets\CapitalTransfer.cs" />
     <Compile Include="Planets\ColonyTilePickingTests.cs" />
+    <Compile Include="Planets\CrashSiteOwnershipTests.cs" />
     <Compile Include="Planets\CyberneticProdStateTests.cs" />
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
     <Compile Include="Planets\YoungColonyTradeStateTests.cs" />
