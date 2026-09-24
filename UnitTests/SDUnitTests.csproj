@@ -107,6 +107,7 @@
     <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
     <Compile Include="Planets\BiosphereDecisionTests.cs" />
+    <Compile Include="Planets\BlueprintTerraformerGateTests.cs" />
     <Compile Include="Planets\CapitalTransfer.cs" />
     <Compile Include="Planets\CyberneticProdStateTests.cs" />
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
