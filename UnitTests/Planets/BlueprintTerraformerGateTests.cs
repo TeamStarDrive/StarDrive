@@ -29,7 +29,7 @@ namespace UnitTests.Planets
 
         // Everything in the plan is unlocked, so PercentAchievable is 100 and the gate turns
         // purely on how much of it is standing.
-        void PlanBuildings(int count)
+        void PlanBuildings(int count, bool exclusive = false)
         {
             Plannable = ResourceManager.BuildingsDict.Values
                 .Where(b => b.IsSuitableForBlueprints && !b.IsMilitary && b.EventOnBuild == null)
@@ -41,7 +41,7 @@ namespace UnitTests.Planets
             var planned = new HashSet<string>(Plannable.Select(b => b.Name));
             AssertEqual(count, planned.Count, "planned building names must be distinct");
 
-            P.AddBlueprints(new BlueprintsTemplate("test", false, null, planned, Planet.ColonyType.Colony), Player);
+            P.AddBlueprints(new BlueprintsTemplate("test", exclusive, null, planned, Planet.ColonyType.Colony), Player);
             AssertEqual(100, P.Blueprints.PercentAchievable, "the whole plan should be reachable");
         }
 
@@ -81,6 +81,30 @@ namespace UnitTests.Planets
             Assert.IsTrue(P.Blueprints.PercentCompleted >= 50, "test needs a plan past the halfway mark");
             Assert.IsTrue(P.Blueprints.OkToBuildTerraformers,
                 "once half the reachable plan is up, terraformers are allowed again");
+        }
+
+        // Exclusive blueprints mean "the plan and nothing but the plan", which lifts the
+        // protection from what the player placed by hand - but a terraformer is not competing
+        // with the plan, it is what makes the planet able to hold it. Standing terraformers are
+        // already exempt on both scrap paths; a queued one has to be too, or a large exclusive
+        // plan would close the gate, zero the budget, and cancel every terraformer the player
+        // queued, leaving no way to terraform the colony at all.
+        [TestMethod]
+        public void AnExclusivePlanKeepsATerraformerThePlayerQueued()
+        {
+            PlanBuildings(BigPlanSize, exclusive: true);
+            Player.AutoBuildTerraformers = true;
+            AssertEqual(0f, P.TerraformBudget, "test needs the terraform budget closed");
+            Assert.IsFalse(P.Blueprints.OkToBuildTerraformers, "test needs the blueprint gate shut");
+
+            Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+            Assert.IsTrue(P.Construction.Enqueue(terraformer, null, playerAdded: true),
+                "could not queue the test terraformer");
+
+            P.TryCancelOverBudgetCivilianBuilding(budget: 0f);
+
+            Assert.IsTrue(P.ConstructionQueue.Any(q => q.isBuilding && q.Building.IsTerraformer),
+                "an exclusive plan cancelled the terraformer the player queued to improve the planet");
         }
 
         [TestMethod]

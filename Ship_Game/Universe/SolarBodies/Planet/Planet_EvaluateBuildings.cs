@@ -382,7 +382,8 @@ namespace Ship_Game
                 if (qi.IsPlayerAdded && PlayerBuiltIsProtected)
                     continue; // a queued building is still a building the player asked for
 
-                if (Owner.AutoBuildTerraformers && qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
+                if (Owner.AutoBuildTerraformers && !qi.IsPlayerAdded
+                    && qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
                 {
                     Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} CANCELED Terrformer" +
                         $" on planet {Name} since Terraformer Budget was 0.");
