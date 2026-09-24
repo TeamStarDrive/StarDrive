@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Vector2 = SDGraphics.Vector2;
@@ -105,6 +106,30 @@ namespace UnitTests.Planets
             Assert.IsFalse(Player.CanTerraformPlanetTiles, "test needs tile terraforming out of reach");
             Assert.AreSame(free[0], PickBiosphereTile(),
                 "with no tile terraforming yet the biosphere should just take the first free tile");
+        }
+
+        // Queuing a building from the colony build list passes no tile, and biospheres are in that
+        // list, so the player's biosphere used to land on a random tile while the governor's
+        // followed a rule. Same rule now, whoever asked for it. Queued through the real path, and
+        // with one acceptable tile among many, so a random pick could not pass by luck.
+        [TestMethod]
+        public void APlayerQueuedBiosphereFollowsTheSameTileRule()
+        {
+            MakeUninhabitable(12, terraformable: true);
+            PlanetGridSquare[] free = Uninhabitable;
+            Assert.IsTrue(free.Length >= 8, "test needs plenty of wrong answers to pick from");
+            PlanetGridSquare deadGround = free[free.Length - 1];
+            deadGround.Terraformable = false;
+            Player.UnlockEmpireBuilding(Terraformer.Name);
+            Player.data.Traits.TerraformingLevel = 2;
+
+            Assert.IsTrue(P.Construction.Enqueue(Bio, null, playerAdded: true),
+                "the colony build list could not queue a biosphere at all");
+
+            QueueItem queued = P.ConstructionQueue.FirstOrDefault(q => q.isBuilding && q.Building.IsBiospheres);
+            Assert.IsNotNull(queued, "the queued biosphere went missing");
+            Assert.AreSame(deadGround, queued.pgs,
+                "a biosphere queued without a tile should land where the governor would put one");
         }
 
         [TestMethod]

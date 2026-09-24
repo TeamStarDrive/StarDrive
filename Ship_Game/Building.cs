@@ -416,6 +416,12 @@ namespace Ship_Game
             if (where != null)
                 return where.CanEnqueueBuildingHere(b);
 
+            if (b.IsBiospheres)
+            {
+                where = planet.PreferredBiosphereTile(b);
+                return where != null;
+            }
+
             PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanEnqueueBuildingHere(b));
             if (freeSpots.Length > 0)
                 where = planet.Random.Item(freeSpots);
