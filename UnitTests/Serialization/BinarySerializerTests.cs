@@ -784,6 +784,46 @@ namespace UnitTests.Serialization
             AssertEqual("Contains deleted types", result.Name);
         }
 
+        // DELETED FROM HERE
+        // The ordinals are deliberate: 4242 needs two VLi32 bytes and -7 sets the sign bit, so a
+        // fixed-width skip desyncs the stream instead of passing on single-byte values.
+        //enum DeletedEnum { Zero, One, Two = 4242, Three = -7 }
+
+        [StarDataType]
+        class ContainsDeletedEnum
+        {
+            [StarData] public Vector3 Pos;
+            //[StarData] public DeletedEnum DE;  // these two deleted because of the deleted enum
+            //[StarData] public DeletedEnum DE2;
+            [StarData] public string Name;
+            [StarData] public int Number;
+        }
+
+        // Handles an enum type deleted from the game: the header records it with a null serializer,
+        // and the object pass used to call Deserialize on that null. A mis-sized skip leaves the
+        // reader inside the next TypeGroup, whose typeId and count checks then throw.
+        [TestMethod]
+        public void ContainsDeletedEnums()
+        {
+            string containsDeletedEnum = "Ly8vLwEAAgAhBQYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhNDb250YWluc0RlbGV0ZWRFbnVtC0RlbGV0ZWRFbnVtBQJERQNERTIETmFtZQZOdW1iZXIDUG9zIQAAAQYAIAAAAAQFDQQhACEBFQIGAwYBAQ0BAhUBAyECBCABBgYBkkINAQAg+kQAQPpEAGD6RBUBF0NvbnRhaW5zIGEgZGVsZXRlZCBlbnVtIQKSQkcgAQACBAUDAQ==";
+
+            //containsDeletedEnum = CreateByteStreamForDeletedTypeTest(new ContainsDeletedEnum
+            //{
+            //    Pos = new Vector3(2001, 2002, 2003),
+            //    DE = DeletedEnum.Two,
+            //    DE2 = DeletedEnum.Three,
+            //    Name = "Contains a deleted enum",
+            //    Number = 4242,
+            //});
+            //Log.Write("\"" + containsDeletedEnum + "\";");
+
+            var ser = new BinarySerializer(typeof(ContainsDeletedEnum));
+            var result = Deserialize<ContainsDeletedEnum>(ser, Convert.FromBase64String(containsDeletedEnum));
+            AssertEqual(new Vector3(2001, 2002, 2003), result.Pos);
+            AssertEqual("Contains a deleted enum", result.Name);
+            AssertEqual(4242, result.Number);
+        }
+
         [StarDataType]
         class ContainsRemovedFieldType
         {
