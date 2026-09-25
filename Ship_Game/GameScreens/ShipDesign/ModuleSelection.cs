@@ -72,6 +72,12 @@ namespace Ship_Game
 
         float ActiveModStatSpacing => ActiveModSubMenu.Width * 0.27f;
 
+        // The design screen keeps HighlightedModule alive while the cursor is over this
+        // panel or the Active Module submenu below it: their contents (and the Obsolete
+        // button) read HighlightedModule, so clearing here would close the panel the
+        // player is moving toward.
+        public bool HitTestPanels(Vector2 pos) => HitTest(pos) || ActiveModSubMenu.HitTest(pos);
+
         public bool HitTest(InputState input)
         {
             return base.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);

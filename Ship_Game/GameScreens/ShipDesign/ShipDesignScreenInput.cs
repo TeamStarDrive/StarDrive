@@ -261,6 +261,13 @@ namespace Ship_Game
                     if (!input.LeftMouseWasHeldDown || input.LeftMouseHoldDuration < ClickThresholdSeconds)
                         HighlightedModule = null;
                 }
+                // Clear when the cursor leaves the hull, but not while the button is held
+                // (an arc drag walks the cursor off its tile) and not over the module-
+                // selection panels, whose Active Module contents read HighlightedModule.
+                else if (!input.LeftMouseDown && !ModuleSelectComponent.HitTestPanels(input.CursorPosition))
+                {
+                    HighlightedModule = null;
+                }
 
                 return false;
             }
