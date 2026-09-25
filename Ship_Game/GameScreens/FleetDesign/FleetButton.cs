@@ -121,10 +121,13 @@ public class FleetButton : UIPanel
     void DrawFleetShipIcons30(SpriteBatch batch, Fleet fleet, float x, float y)
     {
         // Draw ship icons to right of button
+        // big-to-small by hull surface (name as tie-breaker) so the order is
+        // consistent between fleets; DesignRole is not a size ordering
+        Ship[] ships = fleet.Ships.Sorted(s => (-s.SurfaceArea, s.Name));
         Vector2 shipSpacingH = new(x, y);
-        for (int i = 0; i < fleet.Ships.Count; ++i)
+        for (int i = 0; i < ships.Length; ++i)
         {
-            Ship ship = fleet.Ships[i];
+            Ship ship = ships[i];
             RectF iconHousing = new(shipSpacingH.X, shipSpacingH.Y, 15, 15);
             shipSpacingH.X += 18f;
             if (shipSpacingH.X >= x + 180) // 10 Ships per row
@@ -165,13 +168,28 @@ public class FleetButton : UIPanel
         Vector2 shipSpacingH = new(x, y);
         int roleCounter = 1;
         Color sumColor = Color.Goldenrod;
-        if (sums.Count > 12) // Switch to default sum views if too many icon sums
+        bool primaryOnly = sums.Count > 12; // Switch to default sum views if too many icon sums
+        if (primaryOnly)
         {
             sums = ConvertToPrimaryIconSums(sums);
             sumColor = Color.Gold;
         }
 
-        foreach (TacticalIcon iconPair in sums.Keys.ToArr())
+        // order the icon groups big-to-small by the largest hull carrying each icon --
+        // explicit ordering of the <= 12 groups instead of sorting the whole fleet or
+        // relying on dictionary enumeration order
+        Map<TacticalIcon, int> groupSize = new();
+        for (int i = 0; i < fleet.Ships.Count; ++i)
+        {
+            Ship ship = fleet.Ships[i];
+            TacticalIcon icon = ship.TacticalIcon();
+            if (primaryOnly)
+                icon = new(icon.Primary, null);
+            if (!groupSize.TryGetValue(icon, out int area) || ship.SurfaceArea > area)
+                groupSize[icon] = ship.SurfaceArea;
+        }
+
+        foreach (TacticalIcon iconPair in sums.Keys.ToArr().Sorted(k => (-groupSize[k], k.Primary.Name)))
         {
             Rectangle iconHousing = new((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
             string space = sums[iconPair] < 9 ? "  " : "";
