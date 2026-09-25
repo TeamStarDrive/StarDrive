@@ -194,3 +194,7 @@ TestResults/
 
 # Local PR triage scratch pad, not part of the project docs
 docs/community-pr-triage.md
+
+# Draft review of PR #411, kept local until it is posted or dropped
+docs/pr411-review-draft.md
+docs/pr411-decision-draft.md

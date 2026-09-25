@@ -697,7 +697,7 @@
     - SoundEffect:
       Id: sd_weapon_laser_small_alt5_01 # note - this is a copy of another sd_weapon_weak_laser_01 until we get a different sound
       Volume: 1.0
-      Sound: "Weapons/sd_weapon_weak_laser_01.m4a
+      Sound: "Weapons/sd_weapon_weak_laser_01.m4a"
     - SoundEffect:
       Id: sd_weapon_pulse_alt3_01
       Volume: 3.0
@@ -710,6 +710,7 @@
       Id: sd_weapon_photon_flight_01
       Volume: 1.0
       Sound: "Weapons/sd_weapon_photon_flight_01.m4a"
+      MaxConcurrent: 8
     - SoundEffect:
       Id: sd_impact_shield_01
       Volume: 1.0
@@ -767,6 +768,7 @@
       Id: sd_weapon_rocket_flight_01
       Volume: 0.35
       Sound: "Weapons/sd_weapon_rocket_flight_01.m4a"
+      MaxConcurrent: 8
     - SoundEffect:
       Id: sd_weapon_rocket_explode_01
       Volume: 1.1
@@ -789,6 +791,7 @@
       Id: sd_weapon_missile_heavy_flight
       Volume: 0.5
       Sound: "Weapons/sd_weapon_missile_heavy_flight.m4a"
+      MaxConcurrent: 8
 
     - SoundEffect:
       Id: sd_weapon_Turretgun_001

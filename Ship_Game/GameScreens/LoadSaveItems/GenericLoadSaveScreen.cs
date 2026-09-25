@@ -220,20 +220,98 @@ namespace Ship_Game
                 return;
             }
 
-            string savedFileName = ExportSave(SelectedFile);
+            if (!CanExportSave(SelectedFile, out string refusal))
+            {
+                GameAudio.NegativeClick();
+                ScreenManager.AddScreen(new MessageBoxScreen(this, refusal, MessageBoxButtons.Ok));
+                return;
+            }
+
+            string savedFileName;
+            try
+            {
+                savedFileName = ExportSave(SelectedFile);
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"Save export failed: {e.Message}");
+                GameAudio.NegativeClick();
+                ScreenManager.AddScreen(new MessageBoxScreen(this,
+                    $"The save could not be exported.\n\n{e.Message}", MessageBoxButtons.Ok));
+                return;
+            }
 
             string message = $"The selected save was exported to your desktop as {savedFileName}";
             int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
             ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
+        }
+
+        static bool IsPlainFileName(string name)
+        {
+            return name.NotEmpty()
+                && name == System.IO.Path.GetFileName(name)
+                && name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) < 0;
+        }
+
+        static bool CanExportSave(FileData save, out string refusal)
+        {
+            refusal = null;
+
+            if (!IsPlainFileName(save.FileName))
+            {
+                refusal = "This save carries a name its own header cannot be trusted with, "
+                        + "so it cannot be exported.\n\n"
+                        + "Send the .sav file itself instead, and mention where it came from.";
+                return false;
+            }
+
+            if (save.Data is not HeaderData header)
+                return true;
+
+            if (header.Version != SavedGame.SaveGameVersion)
+            {
+                refusal = $"This save is save format version {header.Version}, and you are running "
+                        + $"version {SavedGame.SaveGameVersion}.\n\n"
+                        + "It cannot be exported. The exported archive is named after the build and mod "
+                        + "you are running now, so it would claim to be something it is not, and the logs "
+                        + "packed with it would come from a build that never loaded this save.\n\n"
+                        + "Export it from the build that wrote it.";
+                return false;
+            }
+
+            if (header.ModName != GlobalStats.ModName)
+            {
+                string saveMod = header.ModName.NotEmpty() ? header.ModName : "no mod";
+                string runningMod = GlobalStats.ModName.NotEmpty() ? GlobalStats.ModName : "no mod";
+                refusal = $"This save was made with {saveMod}, and you are running {runningMod}.\n\n"
+                        + "It cannot be exported, for the same reason: the archive is named after the mod "
+                        + "you are running now and would misreport what is inside it.\n\n"
+                        + "Activate that mod and export it from there.";
+                return false;
+            }
+
+            return true;
         }
         
         string ExportSave(FileData save)
         {
             Log.FlushAllLogs();
 
-            string fileName = save.FileName;
-            var dirInfo = new DirectoryInfo(Path + "/" + fileName);
-            dirInfo.Create();
+            var staging = new DirectoryInfo($"{System.IO.Path.GetTempPath()}StarDriveExport_{Guid.NewGuid():N}");
+            staging.Create();
+            try
+            {
+                return CompressSaveTo(save, staging.CreateSubdirectory(save.FileName));
+            }
+            finally
+            {
+                try { staging.Delete(true); }
+                catch (Exception e) { Log.Warning($"Could not remove export staging dir: {e.Message}"); }
+            }
+        }
+
+        static string CompressSaveTo(FileData save, DirectoryInfo dirInfo)
+        {
             string tmpDir = dirInfo.FullName;
 
             save.FileLink.CopyTo($"{tmpDir}/{save.FileName}{save.FileLink.Extension}", overwrite:true);
@@ -256,24 +334,19 @@ namespace Ship_Game
             }
 
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string outZip = $"{GetDebugVersionString()}_{fileName}.zip";
+            string outZip = $"{GetDebugVersionString()}_{save.FileName}.zip";
             HelperFunctions.CompressDir(dirInfo, $"{desktop}/{outZip}");
-            dirInfo.Delete(true);
-
             return outZip;
         }
 
         static string GetDebugVersionString()
         {
             string blackBox = GlobalStats.ExtendedVersionNoHash.Replace(":", "").Replace(" ", "_").Replace("/", "_");
-            string modTitle = "";
             if (GlobalStats.HasMod)
             {
                 string title = GlobalStats.ModName;
                 string version = GlobalStats.Defaults.Mod.Version;
-                if (version.NotEmpty() && !title.Contains(version))
-                    modTitle = title + "-" + version;
-
+                string modTitle = version.NotEmpty() && !title.Contains(version) ? title + "-" + version : title;
                 modTitle = modTitle.Replace(":", "").Replace(" ", "_");
                 return $"{blackBox}_{modTitle}";
             }

@@ -105,6 +105,12 @@ namespace Ship_Game
         /// </summary>
         static string ModContentDirectory;
 
+        /// <summary>
+        /// Mod content directory currently in effect. Set by InitContentDir, so it lags
+        /// GlobalStats.ModPath until the newly selected mod's content has been loaded.
+        /// </summary>
+        public static string ModContentDir => ModContentDirectory;
+
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => GameBase.Base.Content;
 

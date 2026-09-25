@@ -360,7 +360,7 @@ namespace Ship_Game
             newDevice ??= GameAudio.Devices.DefaultDevice;
 
             GameAudio.Devices.SetUserPreference(newDevice);
-            GameAudio.ReloadAfterDeviceChange(newDevice);
+            GameAudio.Reload(newDevice);
 
             GameAudio.SmallServo();
             GameAudio.TacticalPause();
