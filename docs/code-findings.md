@@ -94,50 +94,86 @@ ship a first version.
 
 ---
 
-## Priority 2 — `InFlightCue` is dead, and turning it on naively is a regression
+## Priority 2 — `InFlightCue` — FIXED 2026-09-25, and the shape of the fix is load-bearing
 
-`[latent]` Found 2026-09-25 alongside the entry above. **`Projectile.cs:299` tests the destination
-instead of the source:**
+`[settled]` Found and fixed 2026-09-25 while reviewing the Combined Arms sound rework. Kept here
+because the four problems below are why it was not the one-line change it looks like, and because
+every guard the fix added is easy to mistake for noise and delete.
+
+**What was wrong.** `Projectile.Initialize` tested the destination instead of the source:
 
 ```csharp
-if (cueName.NotEmpty())     DieCueName  = cueName;   // correct: tests the source
-if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;   // wrong: always ""
+if (cueName.NotEmpty())     DieCueName  = cueName;             // tests the source, correctly
+if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;  // tests the destination: always ""
 ```
 
-`InFlightCue` is a field initialized to `""` at `Projectile.cs:83` and assigned nowhere else in the
-codebase, so the guard is never true and the assignment has **never run**. There is no projectile
-pooling, `Beam` never reaches this path, and `OnDeserialized` passes `playSound: false`. So every
-`<InFlightCue>` in content is inert: **23 vanilla weapon xml and 66 in Combined Arms**.
+`InFlightCue` is a field initialized to `""` and assigned nowhere else, so the guard was never
+true and the assignment had **never run**. Every `<InFlightCue>` in content was inert: 23 vanilla
+weapon xml and 66 in Combined Arms. This was proved in the running game rather than argued from
+the code — a temporary probe, firing a vanilla RocketLauncher on screen, logged
+`playSound=True inFrustum=True` with `guardPasses=False`, which ruled out the camera as the
+explanation and showed `PlaySfxAsync` being handed `""` on every frame of the flight.
+(The `DieCueName` line above it reads the source correctly but is still confined to the
+`playSound && inFrustum` block — see item 4 and entry 15 under "Everything else".)
 
-**Do not just fix the typo.** It was tried and reverted on 2026-09-25 after review. Four problems,
-all verified:
+**Why the one-liner was written, reverted, and then rewritten.** Four problems, all verified, and
+what the shipped fix does about each:
 
-1. **It loops, and the engine has no looping.** `Projectile.cs:595` re-triggers whenever the handle
-   stops, and it sits *above* the `if (InFrustum)` guard, so it runs for every projectile on the
-   map every frame. `sd_weapon_rocket_flight_01` is ~1.3 s against a 24 s missile — a stuttering
-   restart, not a whoosh.
-2. **It starves the `Weapons` category.** That category is `MaxConcurrentSounds: 64`,
-   `MaxConcurrentSoundsPerEffect: 32` over 65 effects that include every fire *and impact* cue.
-   Flight cues are the first long-lived members. A few Hellstorm volleys (15 rockets, ~24 s each)
-   exhaust the budget and lasers, cannons and shield impacts go silent — the opposite of the goal.
-3. **Per-frame enqueue storm in a parallel loop.** When the sound cannot start it is not tracked,
-   so it re-enqueues every frame, taking the global `SfxQueueLock` from inside
-   `UniverseObjectManager`'s `Parallel.For`. It often cannot start: `ProjectileSfxDistance` is
-   35,000 but `InFrustum` allows SystemView out to `CamPos.Z` 250,000, so there is a wide zoom
-   band — where players actually watch battles — that sets the cue and can never play it.
-4. **The hook is semantically wrong.** `playSound` means "play the FIRE cue once for this volley",
-   not "this projectile is audible": `Weapon.SpawnSalvo` does `playSound = false; // only play
-   sound once per fire cone`, and MIRV uses `i == 0`. So one warhead in a cluster would whoosh and
-   the rest stay silent, and after a savegame load every in-flight missile is permanently silent
-   while newly fired ones sound.
+1. **It restarts, and the engine has no looping.** The poll re-triggers whenever the audio handle
+   stops, and it sat *above* the `if (InFrustum)` guard, so it ran for every projectile on the map
+   every frame. `sd_weapon_rocket_flight_01` is about a second against a 24 s missile.
+   → **Fixed by** moving the poll inside the existing `if (InFrustum)` block — which also puts it
+   after the `Duration` expiry and `Die()` return, so a projectile that dies this frame no longer
+   starts a sound it will never own — and by passing `InFlightSfxReplayTimeout` (0.5 s) to the
+   `replayTimeout` parameter `AudioHandle.PlaySfxAsync` already takes (`Ship_Warp.cs:189` is the
+   house precedent, with 4 s). The restart is still a restart, not a loop; see below.
+2. **The poll must test `IsDisposed`, not `IsStopped`.** This is the subtle one and it defeats
+   the cap in item 3 if you get it wrong. `AudioCategory.TrackInstance` adds a tracked entry and
+   increments `NumActiveInstances` per *play*, but the entry stores the **handle**, and
+   `AudioCategory.Update` collects it only when the handle's *current* instance reports
+   `IsDisposed || CanBeDisposed`. Replay on `IsStopped` and there is a window — instance 1 ends
+   on the mixer thread, the sim worker polls, the enqueue thread loads instance 2 into the same
+   handle — in which entry 1 is still in the list but now asks instance 2 and answers "still
+   playing". Every replay that wins that race leaks a phantom entry against both the per-effect
+   cap and the category's 64. `IsDisposed` is `Audio == null`, which is only true before the first
+   play and after `RemoveTrackedInstance` has disposed the handle, so at most one entry per handle
+   can exist. `AsyncPlayStarted` already covers the enqueue window. Cost: about one frame of extra
+   silence between repeats.
+3. **It starves the `Weapons` category.** That category is `MaxConcurrentSounds: 64`,
+   `MaxConcurrentSoundsPerEffect: 32` and `MaxSoundsPerFrame: 2` over 59 live effects that include
+   every fire *and impact* cue. Flight cues are its first long-lived members, so a few Hellstorm
+   volleys would exhaust the budget and silence lasers, cannons and shield impacts.
+   → **Fixed by** a new per-effect `SoundEffect.MaxConcurrent`, set to 8 on the three flight cues.
+   **Not** by giving flight cues their own category, which is the obvious move and is unsafe:
+   **the Star Trek mod redefines those same ids inside its own `Weapons` block**, so moving an id
+   to a new category in vanilla leaves the same id in two categories after the merge, and the
+   `AudioConfig` constructor throws — killing all audio for that mod. Adding a category is safe;
+   moving an existing id into one is not. A per-effect field merges cleanly, and the mod inherits
+   the cap because `MergeNodes` merges field-by-field on `Id`. Note `MaxSoundsPerFrame: 2` is
+   checked first and is the tightest limit of the three: at 20 fps in a barrage the whole category
+   gets 40 starts per second, and flight restarts take a real share of them.
+4. **`playSound` means "play the FIRE cue once for this volley"**, not "this projectile is
+   audible" — `Weapon.SpawnSalvo` sets `playSound = false` after the first and MIRV uses `i == 0`.
+   Assigning the cue inside that block would have left one warhead in a cluster whooshing and the
+   rest silent, and every missile in a loaded savegame permanently silent. → **Fixed by** moving
+   the assignment out of the `playSound && inFrustum` block entirely, next to `ModelPath`, so it
+   also runs for `OnDeserialized`, which passes `playSound: false`.
 
-A real fix sets the cue unconditionally (including in `OnDeserialized`), gates *playback* on
-`InFrustum`, passes the `replayTimeout` that `AudioHandle.PlaySfxAsync` already accepts and that
-nothing here uses, and gives flight cues **their own audio category** so they cannot starve
-`Weapons`. That is a feature with its own review, not a one-line change.
+**Still open: there is no real looping.** The restart-on-stopped poll is what ships, so a short
+cue under a long flight is audibly a restart. Planet ambience (Priority 1) needs the same missing
+primitive; solve it once, for both.
 
-Related, and why this entry sits next to the one above: planet ambience needs the same missing
-looping primitive. Solve it once, for both.
+**Two zoom thresholds, and they are not the same one.** `GameObject.IsInFrustum(screen)` — the
+local `inFrustum` in `Initialize`, which gates the *fire* cue — is `IsSystemViewOrCloser`, true
+out to `CamPos.Z` 250,000. The `InFrustum` **flag** that the flight poll reads is set only in
+`UniverseObjectManager.UpdateVisibleObjects` under `if (UState.IsPlanetViewOrCloser)`, i.e.
+`CamPos.Z` <= 35,000. That happens to be exactly `ProjectileSfxDistance`, so the flag and
+audibility line up and the flight poll has no dead band; the `replayTimeout` throttles retries
+*within* that range, for projectiles far to the side or near the Z ceiling. Fire and impact cues
+do have the dead band: they are attempted out to 250,000 and are silent past 35,000. So when a
+report says **"I hear no weapon sounds", check the zoom first** — the listener is `CamPos`
+including Z and falloff is linear over `MaxDistance`, so at 17,500 everything is already at half
+volume, and flight cues cut out earlier than anything else.
 
 ---
 
@@ -313,7 +349,7 @@ fixing any of these needs a Codex impact pass.
     design, `BiospherePaybackShare = 0.6` was tuned against it, the bonus is 1 for most empires, and
     the error is conservative. Retune the share and the term together or not at all.
 
-## Everything else (14, two resolved)
+## Everything else (16, two resolved)
 
 1. `[balance]` **EMP recovery is a per-frame constant, unscaled by the time step.**
    `Ship.EmpRecovery` (`Ship.cs:385-392`) is applied once per update as
@@ -367,6 +403,19 @@ fixing any of these needs a Codex impact pass.
     `441802ecb` the governor and the colony build list share `Planet.PreferredBiosphereTile`; this
     one does not. It runs only at colonization and galaxy generation so it cannot contradict the
     others at runtime, but it is the third place the same idea is written.
+15. `[latent]` **`DieCueName` is set only for the first projectile of a volley.** Same block as the
+    `InFlightCue` bug above, one line up: it reads the source correctly but sits inside
+    `if (playSound && inFrustum)` in `Projectile.Initialize`. `Weapon.SpawnSalvo` clears
+    `playSound` after the first shot and `OnDeserialized` passes false, so warheads 2..N of every
+    salvo and every projectile in a loaded savegame have no death cue. Deliberately left out of
+    the `InFlightCue` fix: unlike the in-flight cue this one does play today for some projectiles,
+    so turning it on for the rest is an audible balance change that wants its own listen.
+16. `[latent]` **A loaded projectile's speed is squared.** `Projectile.OnDeserialized` calls
+    `Initialize(Position, Velocity, ...)`, passing the restored `Velocity` where the parameter is
+    `direction`, and `Initialize` does `SetInitialVelocity(Speed * direction)`. `Velocity` is
+    `[StarData]` on `GameObject` and its magnitude is already about `Speed`, so the result is
+    roughly `Speed` squared. `Duration` is saved and restored around the call, but velocity is
+    not. Found while checking what else `Initialize` clobbers on the deserialization path.
 
 ## Larger items with their own notes
 

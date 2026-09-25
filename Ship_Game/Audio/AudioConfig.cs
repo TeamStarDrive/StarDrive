@@ -175,7 +175,8 @@ public class AudioCategory : IDisposable
             return false;
         if (MaxConcurrentSounds != 0 && TrackedInstances.Count >= MaxConcurrentSounds)
             return false;
-        if (MaxConcurrentSoundsPerEffect != 0 && effect.NumActiveInstances >= MaxConcurrentSoundsPerEffect)
+        int maxPerEffect = effect.MaxConcurrent != 0 ? effect.MaxConcurrent : MaxConcurrentSoundsPerEffect;
+        if (maxPerEffect != 0 && effect.NumActiveInstances >= maxPerEffect)
             return false;
         return true;
     }
@@ -343,6 +344,12 @@ public class SoundEffect
     /// The effect to play is chosen randomly.
     /// </summary>
     [StarData] public readonly string[] Sounds;
+
+    /// <summary>
+    /// Maximum instances of THIS effect that can play at once,
+    /// 0 to use the category's MaxConcurrentSoundsPerEffect instead
+    /// </summary>
+    [StarData] public readonly int MaxConcurrent;
 
     public AudioCategory Category;
     public int NumActiveInstances;

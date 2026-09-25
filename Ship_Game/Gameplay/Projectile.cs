@@ -106,6 +106,9 @@ namespace Ship_Game.Gameplay
         // Only Guided Missiles can slow down, but lower the acceleration
         const float DecelThrustPower = 0.1f;
 
+        // Minimum seconds between in-flight SFX start attempts
+        const float InFlightSfxReplayTimeout = 0.5f;
+
         public override IDamageModifier DamageMod => Weapon;
 
         [StarDataConstructor]
@@ -279,6 +282,7 @@ namespace Ship_Game.Gameplay
             }
 
             ModelPath = Weapon.ModelPath;
+            InFlightCue = Weapon.InFlightCue;
             UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType is "Missile" or "Drone" or "Rocket";
 
             if (Owner != null)
@@ -296,7 +300,6 @@ namespace Ship_Game.Gameplay
                 Weapon.PlayToggleAndFireSfx(Emitter);
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID)?.DieCue;
                 if (cueName.NotEmpty())     DieCueName  = cueName;
-                if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;
             }
 
             if (inFrustum && Module?.InstalledWeapon?.MuzzleFlash != null)
@@ -592,9 +595,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            if (InFlightSfx.IsStopped)
-                InFlightSfx.PlaySfxAsync(InFlightCue, Emitter);
-
             ParticleDelay -= timeStep.FixedTime;
             if (Duration > 0f)
             {
@@ -614,6 +614,9 @@ namespace Ship_Game.Gameplay
 
             if (InFrustum)
             {
+                if (InFlightSfx.IsDisposed)
+                    InFlightSfx.PlaySfxAsync(InFlightCue, Emitter, InFlightSfxReplayTimeout);
+
                 // always put missiles below ships, +25 means away from camera into background
                 if (ZPos > 25f)
                     ZPos -= VelocityMax * timeStep.FixedTime; // come closer to camera

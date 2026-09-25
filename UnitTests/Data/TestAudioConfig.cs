@@ -82,6 +82,32 @@ namespace UnitTests.Data
         }
 
         [TestMethod]
+        public void PerEffectMaxConcurrentOverridesCategoryLimit()
+        {
+            AudioConfig config = new();
+            AudioCategory weapons = config.GetCategory("Weapons");
+
+            SoundEffect capped = config.GetSoundEffect("sd_weapon_rocket_flight_01");
+            AssertGreaterThan(capped.MaxConcurrent, 0, "Expected a per-effect cap on the flight cue");
+            AssertGreaterThan(weapons.MaxConcurrentSoundsPerEffect, capped.MaxConcurrent,
+                "This test only means something while the per-effect cap is the lower of the two");
+
+            capped.NumActiveInstances = capped.MaxConcurrent - 1;
+            AssertTrue(weapons.CanPlayEffect(capped), "Expected to play below the effect cap");
+            capped.NumActiveInstances = capped.MaxConcurrent;
+            AssertFalse(weapons.CanPlayEffect(capped), "Expected the effect cap to block, not the category cap");
+            capped.NumActiveInstances = 0;
+
+            SoundEffect uncapped = config.GetSoundEffect("sd_weapon_rocket_explode_01");
+            AssertEqual(0, uncapped.MaxConcurrent);
+            uncapped.NumActiveInstances = weapons.MaxConcurrentSoundsPerEffect - 1;
+            AssertTrue(weapons.CanPlayEffect(uncapped), "Expected the category cap to still apply");
+            uncapped.NumActiveInstances = weapons.MaxConcurrentSoundsPerEffect;
+            AssertFalse(weapons.CanPlayEffect(uncapped), "Expected the category cap to block");
+            uncapped.NumActiveInstances = 0;
+        }
+
+        [TestMethod]
         public void CanCacheAudioData()
         {
             FileInfo fullPath = GetAudioPath("UI/sd_ui_notification_research_01.m4a");
