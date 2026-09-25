@@ -37,6 +37,18 @@ namespace Ship_Game.Ships
             IncomingOrdnance = 0;
         }
 
+        // Loading a save rebuilds Supply the same way Carrier is rebuilt; without this
+        // carry-over the incoming-ordnance ledger is zeroed while the in-flight rearm
+        // goals survive serialization, so the empire dispatches redundant supply runs.
+        public void CarryOverSavedState(ShipResupply saved)
+        {
+            if (saved == null)
+                return;
+
+            IncomingOrdnance = saved.IncomingOrdnance;
+            InCombat         = saved.InCombat;
+        }
+
         public bool InTradeBlockade => (Ship.IsResearchStation || Ship.IsMiningStation) && Ship.HealthPercent < DamageThreshold(ShipCategory.Civilian);
         public static bool HasGoodTotalSupplyForResearch(IShipDesign ship)
         {
