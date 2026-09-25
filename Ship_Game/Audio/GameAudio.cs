@@ -62,10 +62,10 @@ public static class GameAudio
     static string ConfigModPath;
 
     /// <summary>
-    /// True when AudioConfig was built for a different mod than the one now active.
-    /// Only meaningful after ResourceManager.InitContentDir has run for that mod.
+    /// True when AudioConfig was built against a different mod content root than the one
+    /// now in effect, which happens after a mod is loaded or unloaded at runtime
     /// </summary>
-    public static bool ConfigIsStale => AudioEngineGood && ConfigModPath != GlobalStats.ModPath;
+    public static bool ConfigIsStale => AudioEngineGood && ConfigModPath != ResourceManager.ModContentDir;
 
     /// <summary>
     /// Rebuilds the whole audio stack: the device, the engine and the AudioConfig,

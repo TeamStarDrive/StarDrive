@@ -281,16 +281,15 @@ namespace Ship_Game
         {
             Log.FlushAllLogs();
 
-            string fileName = save.FileName;
-            var dirInfo = new DirectoryInfo(Path + "/" + fileName);
-            dirInfo.Create();
+            var staging = new DirectoryInfo($"{System.IO.Path.GetTempPath()}StarDriveExport_{Guid.NewGuid():N}");
+            staging.Create();
             try
             {
-                return CompressSaveTo(save, dirInfo);
+                return CompressSaveTo(save, staging.CreateSubdirectory(save.FileName));
             }
             finally
             {
-                try { dirInfo.Delete(true); }
+                try { staging.Delete(true); }
                 catch (Exception e) { Log.Warning($"Could not remove export staging dir: {e.Message}"); }
             }
         }
