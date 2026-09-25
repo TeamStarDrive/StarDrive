@@ -66,7 +66,7 @@ namespace Ship_Game.Ships
                 if (SurfaceAreaPercentOf(ShipModuleType.Bomb) > 0.05f)
                     return RoleName.bomber;
 
-                if (SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Hangar && !m.IsSupplyBay && !m.IsTroopBay) > 0.1f)
+                if (HasCarrierHangarArea(Modules, SurfaceArea))
                     return RoleName.carrier;
 
                 if (SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Hangar && (m.IsSupplyBay || m.IsTroopBay)) > 0.1f)
@@ -135,6 +135,17 @@ namespace Ship_Game.Ships
                         : RoleName.scout;
             }
             return HullRole;
+        }
+
+        // Shared with ShipDesignIssues.CheckDedicatedCarrier: the Dedicated Carrier
+        // design note and the carrier role classification agree by construction.
+        public const float CarrierHangarAreaThreshold = 0.1f;
+
+        public static bool HasCarrierHangarArea(ShipModule[] modules, int surfaceArea)
+        {
+            int hangarArea = modules.SurfaceArea(m => m.ModuleType == ShipModuleType.Hangar
+                                                   && !m.IsSupplyBay && !m.IsTroopBay);
+            return hangarArea / (float)surfaceArea > CarrierHangarAreaThreshold;
         }
 
         float SurfaceAreaPercentOf(Func<ShipModule, bool> predicate)
