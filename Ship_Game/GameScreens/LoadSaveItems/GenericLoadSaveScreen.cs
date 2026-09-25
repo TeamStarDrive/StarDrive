@@ -246,9 +246,25 @@ namespace Ship_Game
             ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
         }
 
+        static bool IsPlainFileName(string name)
+        {
+            return name.NotEmpty()
+                && name == System.IO.Path.GetFileName(name)
+                && name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) < 0;
+        }
+
         static bool CanExportSave(FileData save, out string refusal)
         {
             refusal = null;
+
+            if (!IsPlainFileName(save.FileName))
+            {
+                refusal = "This save carries a name its own header cannot be trusted with, "
+                        + "so it cannot be exported.\n\n"
+                        + "Send the .sav file itself instead, and mention where it came from.";
+                return false;
+            }
+
             if (save.Data is not HeaderData header)
                 return true;
 
