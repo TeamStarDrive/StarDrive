@@ -427,6 +427,15 @@ fixing any of these needs a Codex impact pass.
     shape is a cancelled flag on `AudioHandle` that `TrackInstance` honours, which touches shared
     audio plumbing and wants its own listen.
 
+    Same root cause, second trigger, found on the branch review: `AsyncPlayStarted` is set before
+    the enqueue and cleared only by `OnAsyncPlayComplete`, so any path that drops a queued item
+    without draining it wedges the flag **true forever** - `Destroy()`'s queue clear, the
+    null-safe `AsyncSfxQueue?.Add`, and the enqueue thread's `config == null` batch drop. Unplug a
+    headset mid-battle and every projectile with a play in flight at that instant loses its cue
+    for the rest of its life, and `IsPlaying` reports true forever so `Die()`'s `Stop()` is a
+    no-op. Projectiles live seconds, so it is cosmetic and self-limiting - but a fix for the entry
+    above should clear the flag on every drop path, not just on `Stop()`.
+
 ## Larger items with their own notes
 
 **`GetBestPorts` lets a crippled Colony-type port through** — `Empire_RallyPlanets.cs:264-267`.
