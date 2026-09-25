@@ -53,12 +53,28 @@ public static class GameAudio
         if (disabled)
             Destroy();
         else
-            ReloadAfterDeviceChange(null);
+            Reload();
     }
 
-    public static void ReloadAfterDeviceChange(MMDevice newDevice)
+    /// <summary>
+    /// Mod path the current AudioConfig was built from
+    /// </summary>
+    static string ConfigModPath;
+
+    /// <summary>
+    /// True when AudioConfig was built for a different mod than the one now active.
+    /// Only meaningful after ResourceManager.InitContentDir has run for that mod.
+    /// </summary>
+    public static bool ConfigIsStale => AudioEngineGood && ConfigModPath != GlobalStats.ModPath;
+
+    /// <summary>
+    /// Rebuilds the whole audio stack: the device, the engine and the AudioConfig,
+    /// which is re-read from the currently active mod.
+    /// Pass null for the device to re-pick the one the user configured.
+    /// </summary>
+    public static void Reload(MMDevice device = null)
     {
-        Initialize(newDevice, ConfigFile);
+        Initialize(device, ConfigFile);
     }
 
     public static void Initialize(MMDevice device, string configFile)
@@ -67,6 +83,7 @@ public static class GameAudio
         {
             Destroy(); // just in case
             AudioEngineGood = false; // reset; only flip true once Music/RacialMusic/AudioEngine are all set
+            ConfigFile = configFile;
 
             Devices = new();
 
@@ -81,8 +98,8 @@ public static class GameAudio
             Log.Info($"GameAudio Initialize Device: {device.FriendlyName}");
             Devices.CurrentDevice = device; // make sure it's always properly in sync
 
-            ConfigFile = configFile;
             Config = new(configFile);
+            ConfigModPath = ResourceManager.ModContentDir;
             Music = Config.GetCategory("Music");
             RacialMusic = Config.GetCategory("RacialMusic");
 
@@ -154,7 +171,7 @@ public static class GameAudio
 
         if (Devices.ShouldReloadAudioDevice)
         {
-            ReloadAfterDeviceChange(null);
+            Reload();
             return;
         }
 
