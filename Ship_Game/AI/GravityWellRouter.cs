@@ -35,6 +35,11 @@ public static class GravityWellRouter
     // value is appropriate (system radii are huge).
     const float Margin = 500f;
 
+    // Keep ships visibly outside the authoritative influence radius. This also
+    // absorbs small movement overshoots while a ship transitions between orders.
+    const float BorderMargin = 2_000f;
+    const float BorderStopBuffer = 100f;
+
     // For per-planet routing we use a percentage instead — small wells (~8K) get a
     // small margin, large wells get proportionally more. 1.05 = 5% safety.
     const float PlanetWellSafetyMul = 1.05f;
@@ -92,34 +97,32 @@ public static class GravityWellRouter
     public static Vector2[] BuildDetours(Ship ship, Vector2 from, Vector2 to, MoveOrder order)
     {
         UniverseState u = ship?.Universe;
-        if (u == null || !GlobalStats.RouteAroundGravityWells || u.P.GravityWellRange == 0f)
+        if (u == null)
+            return Empty;
+
+        bool routeGravityWells = GlobalStats.RouteAroundGravityWells
+                              && u.P.GravityWellRange != 0f
+                              && !ship.Loyalty.WeAreRemnants
+                              && !order.IsSet(MoveOrder.Aggressive)
+                              && !order.IsSet(MoveOrder.Pursue);
+        bool routeClosedBorders = HasClosedForeignBorders(ship);
+        if (!routeGravityWells && !routeClosedBorders)
         {
             if (LogVerbose && ship != null)
-                Log.Info($"[GWRouter] SKIP ({ship.Name}): routing disabled (flag={GlobalStats.RouteAroundGravityWells} wellRange={u?.P.GravityWellRange})");
-            return Empty;
-        }
-        if (ship.Loyalty.WeAreRemnants)
-        {
-            if (LogVerbose) Log.Info($"[GWRouter] SKIP ({ship.Name}): remnant");
-            return Empty;
-        }
-
-        // Combat moves want to engage inside the well, not skirt it
-        if (order.IsSet(MoveOrder.Aggressive) || order.IsSet(MoveOrder.Pursue))
-        {
-            if (LogVerbose) Log.Info($"[GWRouter] SKIP ({ship.Name}): order={order} from={from} to={to}");
+                Log.Info($"[GWRouter] SKIP ({ship.Name}): no gravity-well or closed-border obstacles");
             return Empty;
         }
 
         var detours = new Array<Vector2>();
-        Recurse(ship, origin: from, finalDest: to, a: from, b: to, detours, depth: 0);
+        Recurse(ship, origin: from, finalDest: to, a: from, b: to, detours, depth: 0,
+                routeGravityWells: routeGravityWells, routeClosedBorders: routeClosedBorders);
 
         int beforeSmoothing = detours.Count;
         // Single-obstacle detours are always 2 brackets that can't collapse (chord
         // through them re-clips the disc by construction). Only run smoother when
         // multiple obstacles have produced potentially-redundant waypoints.
         if (detours.Count > 2)
-            SmoothChain(ship, from, to, detours);
+            SmoothChain(ship, from, to, detours, routeGravityWells, routeClosedBorders);
 
         if (LogVerbose)
         {
@@ -132,6 +135,225 @@ public static class GravityWellRouter
         return detours.Count == 0 ? Empty : detours.ToArray();
     }
 
+    static bool HasClosedForeignBorders(Ship ship)
+    {
+        foreach (Empire empire in ship.Universe.Empires)
+            if (!ship.HasBorderAccessTo(empire) && empire.BorderNodes.Length > 0)
+                return true;
+        return false;
+    }
+
+    static int GetBorderBridgeSteps(Empire owner, in Empire.InfluenceNode a, in Empire.InfluenceNode b,
+                                    out float radius)
+    {
+        radius = owner.GetBorderConnectionRadius(new InfluenceConnection(a, b)) + BorderMargin;
+        float distance = a.Position.Distance(b.Position);
+        return Math.Max(2, (int)Math.Ceiling(distance / (radius * 1.5f)));
+    }
+
+    static float GetBorderNodeObstacleRadius(in Empire.InfluenceNode node)
+        => node.Radius * (1f + Empire.BorderShapeMaxVariation) + BorderMargin;
+
+    /// <summary>Cheap runtime check used to invalidate an in-flight route when
+    /// projected borders or diplomatic access change.</summary>
+    public static bool CrossesClosedBorder(Ship ship, Vector2 from, Vector2 to)
+    {
+        return TryFindClosedBorderEntry(ship, from, to, out _);
+    }
+
+    static Empire ClosedBorderOwnerAt(Ship ship, Vector2 point)
+    {
+        foreach (Empire empire in ship.Universe.Empires)
+            if (!ship.HasBorderAccessTo(empire) && empire.IsInBorderTerritory(point))
+                return empire;
+        return null;
+    }
+
+    /// <summary>Used by strategic AI before selecting a destination. This keeps
+    /// ships from accepting jobs whose endpoint is inside territory they cannot
+    /// legally enter, instead of relying on the per-frame physics guard.</summary>
+    public static bool IsDestinationAccessible(Ship ship, Vector2 destination)
+        => ship?.Universe == null || ClosedBorderOwnerAt(ship, destination) == null;
+
+    public static bool IsDestinationAccessible(Empire traveler, Vector2 destination)
+    {
+        if (traveler?.Universe == null)
+            return true;
+        foreach (Empire owner in traveler.Universe.Empires)
+            if (!traveler.HasBorderAccessTo(owner) && owner.IsInBorderTerritory(destination))
+                return false;
+        return true;
+    }
+
+    /// <summary>Stricter strategic check for peaceful expansion. A planet covered
+    /// by any known closed empire's raw claim is not a valid automatic colony
+    /// target, even where winner-resolved or contested rendering assigns the exact
+    /// point to another field.</summary>
+    public static bool IsInsideClosedBorderClaim(Empire traveler, Vector2 point)
+    {
+        if (traveler?.Universe == null)
+            return false;
+        foreach (Empire owner in traveler.Universe.Empires)
+        {
+            if (traveler.HasBorderAccessTo(owner))
+                continue;
+            if (owner.GetBorderClaimStrength(point) >= 0f)
+                return true;
+        }
+        return false;
+    }
+
+    public static bool IsValidAutoColonizationTarget(Empire traveler, Planet planet)
+    {
+        return planet != null
+            && !IsInsideClosedBorderClaim(traveler, planet.Position)
+            && !IsInsideClosedBorderClaim(traveler, planet.System.Position);
+    }
+
+    public static bool IsInsideClosedBorder(Ship ship)
+        => ship?.Universe != null && ClosedBorderOwnerAt(ship, ship.Position) != null;
+
+    /// <summary>Finds the closest approximately straight, monotonically outward
+    /// route from a ship trapped by border growth, a treaty change, or an event
+    /// spawn. Sampling is intentionally done only when evacuation begins.</summary>
+    public static bool TryGetNearestClosedBorderExit(Ship ship, out Vector2 exit)
+    {
+        exit = ship?.Position ?? Vector2.Zero;
+        if (ship?.Universe == null)
+            return false;
+        Empire owner = ClosedBorderOwnerAt(ship, ship.Position);
+        if (owner == null)
+            return false;
+
+        float step = Math.Max(owner.GetProjectorRadius() * 0.12f, BorderStopBuffer * 4f);
+        float maxDistance = step * 4f;
+        foreach (Empire.InfluenceNode node in owner.BorderNodes)
+            maxDistance = Math.Max(maxDistance, ship.Position.Distance(node.Position) + node.Radius * 1.5f);
+
+        float startStrength = owner.GetBorderClaimStrength(ship.Position);
+        float bestDistance = float.MaxValue;
+        const int directions = 48;
+        float phase = ship.Id * 0.618033989f;
+        for (int d = 0; d < directions; ++d)
+        {
+            float angle = phase + d * ((float)Math.PI * 2f) / directions;
+            Vector2 direction = new((float)Math.Cos(angle), (float)Math.Sin(angle));
+            float previousStrength = startStrength;
+            for (float distance = step; distance <= maxDistance; distance += step)
+            {
+                Vector2 candidate = ship.Position + direction * distance;
+                float strength = owner.GetBorderClaimStrength(candidate);
+                if (strength > previousStrength + 0.00001f)
+                    break; // this ray first travels deeper into the territory
+                previousStrength = strength;
+                if (ClosedBorderOwnerAt(ship, candidate) == null)
+                {
+                    if (distance < bestDistance)
+                    {
+                        bestDistance = distance;
+                        exit = candidate + direction * BorderMargin;
+                    }
+                    break;
+                }
+            }
+        }
+        return bestDistance < float.MaxValue;
+    }
+
+    static bool TryFindClosedBorderEntry(Ship ship, Vector2 from, Vector2 to, out float entry)
+    {
+        entry = 1f;
+        Vector2 move = to - from;
+        float distance = move.Length();
+        if (ship?.Universe == null || distance < 0.01f)
+            return false;
+
+        float sampleLength = ship.Loyalty.GetProjectorRadius() * 0.5f;
+        int steps = distance <= sampleLength ? 1 : (int)Math.Ceiling(distance / sampleLength);
+        steps = Math.Max(1, Math.Min(steps, 512));
+        Empire startingOwner = ClosedBorderOwnerAt(ship, from);
+        float startingStrength = startingOwner?.GetBorderClaimStrength(from) ?? 0f;
+        float previousT = 0f;
+
+        for (int step = 1; step <= steps; ++step)
+        {
+            float t = step / (float)steps;
+            Vector2 point = from + move * t;
+            Empire owner = ClosedBorderOwnerAt(ship, point);
+
+            if (startingOwner != null && owner == startingOwner)
+            {
+                // Treaty changes must not trap ships, but only genuine progress
+                // toward the frontier is allowed—not movement deeper inside.
+                // Do not use a per-frame epsilon here. A slow ship can move less
+                // than that epsilon each frame and cumulatively creep inward.
+                if (owner.GetBorderClaimStrength(point) > startingStrength)
+                {
+                    entry = 0f;
+                    return true;
+                }
+                previousT = t;
+                continue;
+            }
+
+            if (owner != null)
+            {
+                float low = previousT;
+                float high = t;
+                for (int iteration = 0; iteration < 12; ++iteration)
+                {
+                    float mid = (low + high) * 0.5f;
+                    if (ClosedBorderOwnerAt(ship, from + move * mid) != null) high = mid;
+                    else low = mid;
+                }
+                entry = high;
+                return true;
+            }
+
+            startingOwner = null; // the ship successfully exited old closed territory
+            previousT = t;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Last-line physics guard for movement plans which thrust directly instead of
+    /// using waypoints (combat, orbit, escort, trade and formation behaviours).
+    /// Returns the last legal point before a closed foreign frontier.
+    /// </summary>
+    public static bool ClampBorderCrossing(Ship ship, Vector2 from, Vector2 to, out Vector2 legalPosition)
+    {
+        legalPosition = to;
+        Vector2 move = to - from;
+        float moveLen2 = move.SqLen();
+        if (!TryFindClosedBorderEntry(ship, from, to, out float earliestEntry))
+            return false;
+
+        // Stay just outside rather than landing exactly on a numerically unstable edge.
+        float safeEntry = Math.Max(0f, earliestEntry - BorderStopBuffer / (float)Math.Sqrt(moveLen2));
+        legalPosition = from + move * safeEntry;
+        return true;
+    }
+
+    /// <summary>
+    /// Stops a move whose destination is inside a closed foreign border at the
+    /// first border edge. A ship caught inside by a treaty change may move outward,
+    /// but cannot exploit repeated orders at the boundary to push farther inward.
+    /// </summary>
+    public static Vector2 ClampToAccessibleBorders(Ship ship, Vector2 from, Vector2 destination)
+    {
+        // A legal destination on the far side must remain intact so BuildDetours
+        // can route around the border. Clamp only an endpoint that is itself illegal.
+        if (IsDestinationAccessible(ship, destination))
+            return destination;
+        Vector2 move = destination - from;
+        float moveLen2 = move.SqLen();
+        if (!TryFindClosedBorderEntry(ship, from, destination, out float earliestEntry))
+            return destination;
+        float safeEntry = Math.Max(0f, earliestEntry - BorderStopBuffer / (float)Math.Sqrt(moveLen2));
+        return from + move * safeEntry;
+    }
+
     // String-pulling pass: walk the chain and drop any waypoint whose neighbours
     // can see each other directly (no blocker on the shortcut segment). Iterates
     // until a full pass makes no changes. Cheap because chains are tiny (≤8 nodes).
@@ -140,7 +362,8 @@ public static class GravityWellRouter
     // anchor the smoothing — but only mutates the interior `detours` list.
     // Uses the original `from` as the routing origin so near/far system classification
     // stays consistent with how the chain was built.
-    static void SmoothChain(Ship ship, Vector2 from, Vector2 to, Array<Vector2> detours)
+    static void SmoothChain(Ship ship, Vector2 from, Vector2 to, Array<Vector2> detours,
+                            bool routeGravityWells, bool routeClosedBorders)
     {
         // Build the working polyline including endpoints
         var nodes = new Array<Vector2>(detours.Count + 2);
@@ -155,7 +378,8 @@ public static class GravityWellRouter
             int i = 0;
             while (i + 2 < nodes.Count)
             {
-                if (IsSegmentClear(ship, from, to, nodes[i], nodes[i + 2]))
+                if (IsSegmentClear(ship, from, to, nodes[i], nodes[i + 2],
+                                   routeGravityWells, routeClosedBorders))
                 {
                     if (LogVerbose)
                         Log.Info($"[GWRouter]   smoother dropping detour at idx {i + 1} ({nodes[i + 1]})");
@@ -176,15 +400,17 @@ public static class GravityWellRouter
             detours.Add(nodes[i]);
     }
 
-    static bool IsSegmentClear(Ship ship, Vector2 origin, Vector2 finalDest, Vector2 a, Vector2 b)
+    static bool IsSegmentClear(Ship ship, Vector2 origin, Vector2 finalDest, Vector2 a, Vector2 b,
+                               bool routeGravityWells, bool routeClosedBorders)
     {
         return !FindFirstBlocker(ship, origin, finalDest, a, b,
                                  out Vector2 _, out float _, out string _,
-                                 logNoBlock: false);
+                                 routeGravityWells, routeClosedBorders, logNoBlock: false);
     }
 
     static void Recurse(Ship ship, Vector2 origin, Vector2 finalDest,
-        Vector2 a, Vector2 b, Array<Vector2> detours, int depth)
+        Vector2 a, Vector2 b, Array<Vector2> detours, int depth,
+        bool routeGravityWells, bool routeClosedBorders)
     {
         if (depth >= MaxDetourDepth)
         {
@@ -199,7 +425,7 @@ public static class GravityWellRouter
 
         if (!FindFirstBlocker(ship, origin, finalDest, a, b,
                               out Vector2 obstacleCenter, out float obstacleRadius,
-                              out string obstacleName))
+                              out string obstacleName, routeGravityWells, routeClosedBorders))
             return;
 
         // Two-waypoint bracket around the disc, with a verify-and-merge pass:
@@ -219,7 +445,7 @@ public static class GravityWellRouter
         {
             if (!FindFirstBlocker(ship, origin, finalDest, wp1, wp2,
                                   out Vector2 otherC, out float otherR, out string otherN,
-                                  logNoBlock: false))
+                                  routeGravityWells, routeClosedBorders, logNoBlock: false))
                 break; // safe-leg actually clear
 
             float d = (otherC - obstacleCenter).Length();
@@ -236,11 +462,14 @@ public static class GravityWellRouter
 
         // Recurse on the three sub-segments (the middle leg is safe from THIS obstacle
         // but could still hit a different one along its parallel path).
-        Recurse(ship, origin, finalDest, a, wp1, detours, depth + 1);
+        Recurse(ship, origin, finalDest, a, wp1, detours, depth + 1,
+                routeGravityWells, routeClosedBorders);
         detours.Add(wp1);
-        Recurse(ship, origin, finalDest, wp1, wp2, detours, depth + 1);
+        Recurse(ship, origin, finalDest, wp1, wp2, detours, depth + 1,
+                routeGravityWells, routeClosedBorders);
         detours.Add(wp2);
-        Recurse(ship, origin, finalDest, wp2, b, detours, depth + 1);
+        Recurse(ship, origin, finalDest, wp2, b, detours, depth + 1,
+                routeGravityWells, routeClosedBorders);
     }
 
     static void ComputeBrackets(Vector2 obstacleCenter, float obstacleRadius,
@@ -285,7 +514,7 @@ public static class GravityWellRouter
     static bool FindFirstBlocker(Ship ship, Vector2 origin, Vector2 finalDest,
         Vector2 a, Vector2 b,
         out Vector2 obstacleCenter, out float obstacleRadius, out string obstacleName,
-        bool logNoBlock = true)
+        bool routeGravityWells, bool routeClosedBorders, bool logNoBlock = true)
     {
         obstacleCenter = default;
         obstacleRadius = 0f;
@@ -301,7 +530,7 @@ public static class GravityWellRouter
         var systems = ship.Universe.Systems;
         int sysCandidates = 0, sysObstacles = 0, planetsBlocking = 0;
         int skipFriendly = 0, skipKnownEmpty = 0, skipNearUnknown = 0;
-        for (int s = 0; s < systems.Count; s++)
+        for (int s = 0; routeGravityWells && s < systems.Count; s++)
         {
             SolarSystem sys = systems[s];
             float bandR = sys.Radius + Margin;
@@ -364,10 +593,51 @@ public static class GravityWellRouter
             }
         }
 
+        int closedBorderNodes = 0;
+        if (routeClosedBorders)
+        {
+            foreach (Empire empire in ship.Universe.Empires)
+            {
+                if (ship.HasBorderAccessTo(empire))
+                    continue;
+
+                Empire.InfluenceNode[] nodes = empire.BorderNodes;
+                for (int i = 0; i < nodes.Length; ++i)
+                {
+                    ref Empire.InfluenceNode node = ref nodes[i];
+                    float radius = GetBorderNodeObstacleRadius(node);
+                    if (TryCollect(origin, finalDest, a, ab, abLen2, node.Position, radius,
+                                   ref candidates, $"closed border {empire.Name}"))
+                        ++closedBorderNodes;
+                }
+
+
+                // The map presents nearby colonies and projector stations as one
+                // continuous territory. Model the connecting corridor as a short
+                // chain of overlapping discs so navigation obeys that same border.
+                foreach (InfluenceConnection connection in empire.BorderConnections)
+                {
+                    Empire.InfluenceNode n1 = connection.Node1;
+                    Empire.InfluenceNode n2 = connection.Node2;
+                    int steps = GetBorderBridgeSteps(empire, n1, n2, out _);
+                    Vector2 bridge = n2.Position - n1.Position;
+                    for (int step = 1; step < steps; ++step)
+                    {
+                        float amount = step / (float)steps;
+                        float radius = empire.GetBorderConnectionRadiusAt(connection, amount) + BorderMargin;
+                        Vector2 center = n1.Position + bridge * amount;
+                        if (TryCollect(origin, finalDest, a, ab, abLen2, center, radius,
+                                       ref candidates, $"closed border corridor {empire.Name}"))
+                            ++closedBorderNodes;
+                    }
+                }
+            }
+        }
+
         if (candidates.Count == 0)
         {
             if (LogVerbose && logNoBlock)
-                Log.Info($"[GWRouter]   no block: {sysCandidates}/{systems.Count} systems ({sysObstacles} far-unfriendly, {planetsBlocking} near-blocking planets; skipped {skipFriendly} friendly, {skipKnownEmpty} known-empty, {skipNearUnknown} near-unknown)");
+                Log.Info($"[GWRouter]   no block: {sysCandidates}/{systems.Count} systems ({sysObstacles} far-unfriendly, {planetsBlocking} near-blocking planets, {closedBorderNodes} closed-border nodes; skipped {skipFriendly} friendly, {skipKnownEmpty} known-empty, {skipNearUnknown} near-unknown)");
             return false;
         }
 

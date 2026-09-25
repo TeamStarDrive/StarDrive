@@ -2,6 +2,7 @@
 using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
 using System;
+using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.ExpansionAI;
@@ -289,6 +290,11 @@ namespace Ship_Game.Commands.Goals
         bool PlanetCanBeColonized()
         {
             if (TargetPlanet.Owner == Owner)
+                return false;
+
+            if (AIControlsColonization
+                && (TargetPlanet.System.OwnerList.Any(o => o != Owner && !o.IsFaction)
+                    || !GravityWellRouter.IsValidAutoColonizationTarget(Owner, TargetPlanet)))
                 return false;
 
             if (!Owner.isPlayer && (PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.System, Owner)

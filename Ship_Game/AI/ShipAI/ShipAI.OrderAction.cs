@@ -301,6 +301,13 @@ namespace Ship_Game.AI
             else
                 ClearOrders(wantedState, priority: !offensiveMove);
 
+            // A queued leg starts at its previous waypoint; a normal move starts at
+            // the ship. Closed-border destination clamping must use that same origin
+            // or shift-click routes could be clamped against the wrong segment.
+            Vector2 routeFrom = (queueNewWayPoint && WayPoints.Count > 0)
+                ? WayPoints.ElementAt(WayPoints.Count - 1).Position
+                : Owner.Position;
+            position = GravityWellRouter.ClampToAccessibleBorders(Owner, routeFrom, position);
             MovePosition = position;
 
             // Snapshot original params so OnSystemNewlyExplored can re-issue this
@@ -327,9 +334,6 @@ namespace Ship_Game.AI
                 // For a queued waypoint (shift-click), the leg the ship will actually fly
                 // starts at the previously queued waypoint, not the ship's current position.
                 // Route from there so the detours match the real segment.
-                Vector2 routeFrom = (queueNewWayPoint && WayPoints.Count > 0)
-                    ? WayPoints.ElementAt(WayPoints.Count - 1).Position
-                    : Owner.Position;
                 detours = GravityWellRouter.BuildDetours(Owner, routeFrom, position, order);
             }
 

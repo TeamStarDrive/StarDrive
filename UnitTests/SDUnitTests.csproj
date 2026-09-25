@@ -168,6 +168,7 @@
     <Compile Include="Collections\TestSafeQueueT.cs" />
     <Compile Include="Universe\BoxSelectionTests.cs" />
     <Compile Include="Universe\CameraProjectionTests.cs" />
+    <Compile Include="Universe\BorderFieldTests.cs" />
     <Compile Include="Universe\CommonVisualization.cs" />
     <Compile Include="Universe\GenericQtreeTests.cs" />
     <Compile Include="Universe\ResearchStationCartoucheTests.cs" />

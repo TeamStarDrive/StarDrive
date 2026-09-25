@@ -106,20 +106,20 @@ namespace Ship_Game
         void DrawColoredBordersRT(SpriteBatch batch)
         {
             DrawOverFog.Start();
-            if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+            if (viewState >= UnivScreenState.PlanetView) // visible from the initial strategic view
             {
                 batch.SafeBegin(SpriteBlendMode.AlphaBlend);
                 // set the alpha value depending on camera height
-                int maxAlpha = 70;
+                int maxAlpha = 100;
                 double relHeight = CamPos.Z / 1800000.0;
                 int alpha = (int)(maxAlpha * relHeight);
                 if (alpha > maxAlpha) alpha = maxAlpha;
-                else if (alpha < 10) alpha = 0;
+                else if (alpha < 70) alpha = 70;
 
-                // Apply the user's "border color strength" slider as the FINAL multiplier.
-                // Done after the < 10 cutoff so the camera-zoom fade kicks in at the same
+                // Apply the user's "border color strength" slider as the final multiplier.
+                // Keep the perimeter readable at the initial strategic camera height;
                 // distance regardless of slider value — the slider only scales the result,
-                // it doesn't shift the cutoff zoom.
+                // zooming out gradually strengthens it.
                 alpha = (int)(alpha * GlobalStats.InfluenceNodeAlpha);
 
                 // Phase 3.3 alpha fix: pre-multiply the tint so the (already-premul'd)
