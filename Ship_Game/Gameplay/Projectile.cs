@@ -609,6 +609,9 @@ namespace Ship_Game.Gameplay
 
             MissileAI?.Think(timeStep);
             DroneAI?.Think(timeStep);
+            if (!Active)
+                return;
+
             UpdateVelocityAndPos(timeStep.FixedTime);
             Emitter.Position = pos3d;
 
