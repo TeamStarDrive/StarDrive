@@ -66,6 +66,7 @@
     <Compile Include="Content\SunBurnReaderStubTests.cs" />
     <Compile Include="Content\Xna31VertexDeclarationDecodeTests.cs" />
     <Compile Include="Data\TestAudioConfig.cs" />
+    <Compile Include="Data\TestPlanetAmbience.cs" />
     <Compile Include="Data\AdviceFallbackTests.cs" />
     <Compile Include="Data\LocalizationMergeTests.cs" />
     <Compile Include="Data\VersionFormatTests.cs" />

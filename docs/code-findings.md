@@ -24,73 +24,81 @@ null-deref class · `[thread]` cross-thread access · `[content]` data/xml clean
 
 ---
 
-## Priority 1 — planet ambience: six sounds shipped since the XACT port, never once played
+## Priority 1 — planet ambience — SHIPPED 2026-09-25, five of six dead cues now play
 
-**This is the one item here we have decided to build.** Everything below it is a backlog; this is
-work. Found 2026-09-25 while reviewing the Combined Arms sound rework, which does not touch
-PlanetAmbient at all — its six files are byte-identical to vanilla's and its config block was a
-verbatim copy, so this gap is ours and always has been.
+`[settled]` The `PlanetAmbient` category at `game/Content/Audio/AudioConfig.yaml:84` shipped six
+sound effects when the NAudio engine was written, transcribed from the 2013 XACT bank and never
+wired to anything: `git log -S"sd_planet_" -- "*.cs"` and `git log -S"PlanetAmbient" -- "*.cs"`
+both returned nothing across the whole history. Five of the six now play.
 
-`[latent]` `[content]` **`game/Content/Audio/AudioConfig.yaml:84` defines a `PlanetAmbient`
-category with six sound effects that nothing plays.** `sd_planet_barren_01`,
-`_colonized_01`, `_forest_01`, `_gasgiant_01`, `_volcanic_01`, `_water_01` appear only in that
-yaml and as the `.m4a` files themselves. They are in no `.cs` file, and `git log -S"sd_planet_"
--- "*.cs"` and `git log -S"PlanetAmbient" -- "*.cs"` both return **nothing across the whole
-history** — this was transcribed from the 2013 XACT sound bank when the NAudio engine was written
-and never wired up. `GameAudio` fetches only two categories by name, `Music` and `RacialMusic`
-(`GameAudio.cs:86-87`).
+**What it does.** While a colony screen is open, the viewed planet's ambience plays **once**,
+layered over the music. `PlanetType.AmbientCues` is a `[StarData] string[]` read from
+`PlanetTypes.yaml`; an empty or missing entry means silence. `GameAudio.SetPlanetAmbience` is
+driven once per frame from `UniverseScreen.Update`, next to `ScreenManager.StartMusic`, and
+cleared in `UnloadContent`.
 
-**The vanilla tuning points at positional ambience**, not a colony-screen loop: the category sets
-`MaxConcurrentSounds: 4`, `MaxConcurrentSoundsPerEffect: 1`, `MaxSoundsPerFrame: 1` and
-`FadeOutTime: 0.1`, and the six files run roughly 22-28 s each — ambience beds, not stings.
+**The rules, and why each is shaped that way:**
 
-But read the per-effect cap carefully, because it fights the mapping below. It is one instance
-per **`SoundEffect` id**, not per planet (`AudioCategory.CanPlayEffect` tests
-`effect.NumActiveInstances`). Under the mapping below, Barren/Desert/Tundra/Ice all share
-`sd_planet_barren_01`, so only **one** of those four can ever be audible at a time, and reaching
-the category's 4 requires four *distinct* terrain types on screen. Resolve that before building:
-either give each `PlanetCategory` its own id, or raise the per-effect cap.
+- **The selected cue is kept while it still appears in the new planet's list.** This is not a
+  nicety, it is what makes the per-frame call safe: without that early-out the driver would stop
+  and restart the sound every frame, and arrowing between two colonies that share a cue would cut
+  it. The guarding test asserts stability across repeated calls with a **multi-entry** list — a
+  single-entry list re-picks the same string and proves nothing.
+- **The handle lives in `GameAudio`, not in `ColonyScreen`.** `UniverseScreen.workersPanel` is
+  reassigned without disposing the previous screen (`UniverseScreen.Camera.cs:123`,
+  `ColonyScreen_HandleInput.cs:200`), so a screen-owned handle would orphan a playing sound on
+  every left/right colony cycle.
+- **`PlayAmbience` is synchronous**, a near-copy of `PlayMusic`. With `PlaySfxAsync`, a `Stop()`
+  that beats the queued play is a no-op — `Audio` is still null — and the worker then calls
+  `OnInstanceLoaded` on a handle nobody holds, leaving a 25 s bed with no way to stop it. That is
+  the hazard in the wedged-handle entry below.
+- **It is an effect, not music**: gated on `CantPlaySfx`, and `AudioConfig.SetVolume` already gave
+  the category the effects volume because its name has no "Music" in it. Both halves now agree, so
+  the master FX slider is the single control. Birds and waves are not a score.
+- **Not looped.** The beds run 22–28 s and are not authored to loop seamlessly. Restart-on-stopped
+  is the idiom `ScreenManager.StartMusic` uses, but it is also the mechanism indicted below, so it
+  was left out rather than added blind. A real loop flag on `NAudioSampleInstance` is the correct
+  follow-up if the silence after one play is felt.
 
-**Some of the plumbing exists.** `AudioEmitter(maxDistance)` does linear falloff
-(`Audio/AudioEmitter.cs`), `GameAudio.PlayEffect` takes an emitter and hands it to the engine
-(`GameAudio.cs:323`), and the listener already tracks the camera every frame —
-`UniverseScreen.cs:693` calls `GameAudio.Update3DSound(CamPos)`. Missing: an emitter per planet,
-start/stop by camera distance, and **looping — there is none anywhere in `Ship_Game/Audio/`**. A
-22-28 s bed that must persist needs either a real loop flag on `NAudioSampleInstance` or the
-restart-on-stopped poll, and that poll is exactly the mechanism indicted in the `InFlightCue`
-entry below. Do not reach for it without reading that first.
+**Mapping shipped in `PlanetTypes.yaml`** — 36 of 43 vanilla types, and 37 of 44 in Combined Arms,
+whose own `PlanetTypes.yaml` fully replaces vanilla's and so must ship with it:
 
-**The cue-to-category mapping is nearly free**, because the six cues line up with
-`PlanetCategory` (`Universe/SolarBodies/SolarSystemBody.cs:31`, ten values):
-
-| Cue | `PlanetCategory` |
+| `PlanetCategory` | Cues |
 | --- | --- |
-| `sd_planet_barren_01` | Barren, Desert, Tundra, Ice |
-| `sd_planet_forest_01` | Terran, Swamp, Steppe |
-| `sd_planet_water_01` | Oceanic |
-| `sd_planet_volcanic_01` | Volcanic |
-| `sd_planet_gasgiant_01` | GasGiant |
-| `sd_planet_colonized_01` | any planet the viewer owns — overrides the row above |
+| Barren | `sd_planet_barren_01`, `sd_planet_gasgiant_01` |
+| Desert, Tundra, Ice | `sd_planet_barren_01` |
+| Terran, Swamp, Steppe | `sd_planet_forest_01` |
+| Oceanic | `sd_planet_water_01` |
+| Volcanic | `sd_planet_volcanic_01` |
+| GasGiant | none - silent by design |
 
-Ten categories to five terrain cues plus an owned-planet override, so no new audio is needed to
-ship a first version.
+**Barren is the one type with two cues**, picked between at random, which is what the array
+shape is for. It is also the case that gives the keep-rule teeth: a Barren colony playing the
+gas giant bed keeps it when you arrow to another Barren, but must swap when you arrow to a
+Desert, because Desert lists only `sd_planet_barren_01` - even though the two share that cue.
+`MovingColoniesChecksThePlayingCueAgainstTheNewList` is exactly that move.
 
-**Open decisions before starting:**
+**`sd_planet_colonized_01` is the one cue still unused** (Gilad's call). It has no natural
+trigger here: a `ColonyScreen` is only ever built for a planet you own
+(`UniverseScreen.Camera.cs:123`), so an "owned planet overrides terrain" rule would fire on
+every single planet and make the terrain mapping dead. If it is ever wanted, it can be appended
+to a type's array the same way the gas giant bed was.
 
-- `PlanetType` (`Universe/SolarBodies/PlanetType.cs:20-46`) has no sound field. Either add
-  `[StarData] public readonly string AmbientCue` so `PlanetTypes.yaml` can override per type —
-  which is what a modder would want, and is the reason the idea came up — or hard-code the
-  category switch and add the field later. The yaml field is the better first move; it is cheap
-  and it is the extension point.
-- Start/stop policy: camera distance threshold, and whether ambience plays in the system view
-  only or also on the colony screen (`ColonyScreen_HandleInput.cs:200`,
-  `UniverseScreen.Camera.cs:123` are the two construction sites).
-- `MaxConcurrentSounds: 4` means the nearest four win. Needs a deliberate pick of which four when
-  a system has more, otherwise it will be whichever planet updated first.
-- Loudness: the six effects carry `Volume: 1.76` and `1.04`, values inherited from XACT and never
-  heard in this engine. Expect to retune once it is audible.
-- `AudioConfig.SetVolume` treats a category as music only when its name contains "Music", so
-  `PlanetAmbient` rides the **effects** slider. Decide whether that is wanted before shipping.
+**Known behaviour, decided rather than overlooked:**
+
+- A cue that fails to start still latches. `SetPlanetAmbience` records the cue before playing, so
+  if `PlayAmbience` returns `DoNotPlay` — effects at zero, engine down, missing file — that colony
+  stays silent until the player moves to one with a *different* cue. Latching only on success
+  would instead retry a genuinely broken cue every frame, which is worse.
+- Opening the ground-combat screen for the same planet stops the bed, because the trigger is
+  `workersPanel is ColonyScreen`. Widening it to `PlanetScreen` with an owner check would cover
+  both screens if that is preferred.
+- `PlayAmbience` duplicates `PlayMusic` apart from the gate. Left as-is on purpose: collapsing them
+  would edit a working music path to satisfy a style point, and in this repo the code written to
+  satisfy a review is reliably where the next regression comes from.
+
+**Still XACT-era and never heard in this engine:** the six effects carry `Volume: 1.76` and `1.04`.
+Retune when the mix is judged.
 
 ---
 
