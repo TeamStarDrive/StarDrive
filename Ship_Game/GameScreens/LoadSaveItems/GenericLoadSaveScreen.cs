@@ -223,13 +223,23 @@ namespace Ship_Game
             if (!CanExportSave(SelectedFile, out string refusal))
             {
                 GameAudio.NegativeClick();
-                // no explicit width: MessageBoxScreen wraps its text at a fixed 250px,
-                // so a wider box would only pad the frame around a narrow column
                 ScreenManager.AddScreen(new MessageBoxScreen(this, refusal, MessageBoxButtons.Ok));
                 return;
             }
 
-            string savedFileName = ExportSave(SelectedFile);
+            string savedFileName;
+            try
+            {
+                savedFileName = ExportSave(SelectedFile);
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"Save export failed: {e.Message}");
+                GameAudio.NegativeClick();
+                ScreenManager.AddScreen(new MessageBoxScreen(this,
+                    $"The save could not be exported.\n\n{e.Message}", MessageBoxButtons.Ok));
+                return;
+            }
 
             string message = $"The selected save was exported to your desktop as {savedFileName}";
             int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
@@ -274,6 +284,19 @@ namespace Ship_Game
             string fileName = save.FileName;
             var dirInfo = new DirectoryInfo(Path + "/" + fileName);
             dirInfo.Create();
+            try
+            {
+                return CompressSaveTo(save, dirInfo);
+            }
+            finally
+            {
+                try { dirInfo.Delete(true); }
+                catch (Exception e) { Log.Warning($"Could not remove export staging dir: {e.Message}"); }
+            }
+        }
+
+        static string CompressSaveTo(FileData save, DirectoryInfo dirInfo)
+        {
             string tmpDir = dirInfo.FullName;
 
             save.FileLink.CopyTo($"{tmpDir}/{save.FileName}{save.FileLink.Extension}", overwrite:true);
@@ -296,24 +319,19 @@ namespace Ship_Game
             }
 
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string outZip = $"{GetDebugVersionString()}_{fileName}.zip";
+            string outZip = $"{GetDebugVersionString()}_{save.FileName}.zip";
             HelperFunctions.CompressDir(dirInfo, $"{desktop}/{outZip}");
-            dirInfo.Delete(true);
-
             return outZip;
         }
 
         static string GetDebugVersionString()
         {
             string blackBox = GlobalStats.ExtendedVersionNoHash.Replace(":", "").Replace(" ", "_").Replace("/", "_");
-            string modTitle = "";
             if (GlobalStats.HasMod)
             {
                 string title = GlobalStats.ModName;
                 string version = GlobalStats.Defaults.Mod.Version;
-                if (version.NotEmpty() && !title.Contains(version))
-                    modTitle = title + "-" + version;
-
+                string modTitle = version.NotEmpty() && !title.Contains(version) ? title + "-" + version : title;
                 modTitle = modTitle.Replace(":", "").Replace(" ", "_");
                 return $"{blackBox}_{modTitle}";
             }

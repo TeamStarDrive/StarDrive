@@ -349,7 +349,7 @@ fixing any of these needs a Codex impact pass.
     design, `BiospherePaybackShare = 0.6` was tuned against it, the bonus is 1 for most empires, and
     the error is conservative. Retune the share and the term together or not at all.
 
-## Everything else (16, two resolved)
+## Everything else (17, two resolved)
 
 1. `[balance]` **EMP recovery is a per-frame constant, unscaled by the time step.**
    `Ship.EmpRecovery` (`Ship.cs:385-392`) is applied once per update as
@@ -416,6 +416,16 @@ fixing any of these needs a Codex impact pass.
     `[StarData]` on `GameObject` and its magnitude is already about `Speed`, so the result is
     roughly `Speed` squared. `Duration` is saved and restored around the call, but velocity is
     not. Found while checking what else `Initialize` clobbers on the deserialization path.
+17. `[latent]` `[thread]` **A flight cue can start after its projectile is gone.** `Projectile.Die`
+    does `if (InFlightSfx.IsPlaying) InFlightSfx.Stop()`, but in the 1-15 ms between
+    `PlaySfxAsync` queueing and `SfxEnqueueThread` draining, `IsPlaying` is true only through
+    `AsyncPlayStarted` while `Audio` is still null - so `Stop()` nulls nothing and does not clear
+    `AsyncPlayStarted`. The enqueue thread then calls `OnInstanceLoaded` anyway and the whoosh
+    plays to completion from the dead projectile's frozen emitter, holding one of the cue's 8
+    `MaxConcurrent` slots. Dead code until in-flight cues were switched on, live now. Audible
+    impact is small - an explosion usually covers it - so it is logged rather than fixed; the fix
+    shape is a cancelled flag on `AudioHandle` that `TrackInstance` honours, which touches shared
+    audio plumbing and wants its own listen.
 
 ## Larger items with their own notes
 
