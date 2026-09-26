@@ -147,6 +147,32 @@ public sealed partial class ThreatMatrix
         return GetStrengthNoResearchStations(FindHostileClusters(pos, radius));
     }
 
+    /// <summary>
+    /// What we know of the hostiles somewhere: how many of their ships we have seen,
+    /// the strength of those ships, and the empires they belong to
+    /// </summary>
+    public readonly record struct HostilePresence(int NumShips, float Strength, Empire[] Empires)
+    {
+        public bool Any => Strength > 0f;
+    }
+
+    /// <summary> Get the number of hostile ships, their strength and their empires in a system </summary>
+    public HostilePresence GetHostilePresenceAt(Vector2 pos, float radius)
+    {
+        ThreatCluster[] clusters = FindHostileClusters(pos, radius);
+        Array<Empire> empires = new();
+        int numShips = 0;
+        float strength = 0f;
+        for (int i = 0; i < clusters.Length; ++i) // PERF: using for loop instead of lambdas
+        {
+            ThreatCluster c = clusters[i];
+            numShips += c.Ships.Length;
+            strength += c.Strength;
+            empires.AddUnique(c.Loyalty);
+        }
+        return new(numShips, strength, empires.ToArr());
+    }
+
     record struct ThreatAggregate(Empire Loyalty, float Strength);
 
     public Empire GetStrongestHostileAt(SolarSystem s)

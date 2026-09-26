@@ -384,6 +384,7 @@ namespace Ship_Game
 
         public float KnownEnemyStrengthIn(SolarSystem s, Empire e) => AI.ThreatMatrix.GetHostileStrengthAt(e, s.Position, s.Radius);
         public float KnownEnemyStrengthIn(SolarSystem s) => AI.ThreatMatrix.GetHostileStrengthAt(s.Position, s.Radius);
+        public ThreatMatrix.HostilePresence KnownEnemyPresenceIn(SolarSystem s) => AI.ThreatMatrix.GetHostilePresenceAt(s.Position, s.Radius);
         public float KnownEnemyStrengthNoResearchStationsIn(Vector2 pos, float radius) 
             => AI.ThreatMatrix.GetHostileStrengthNoResearchStationsAt(pos, radius);
 

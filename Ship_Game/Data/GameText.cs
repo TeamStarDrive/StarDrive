@@ -4777,6 +4777,10 @@ namespace Ship_Game
         BudgetNetGainTip = 4574,
         /// <summary>All money values on this screen are per turn.</summary>
         BudgetPerTurnNote = 4576,
+        /// <summary>Hostiles</summary>
+        Hostiles = 4577,
+        /// <summary>str</summary>
+        Str = 4578,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

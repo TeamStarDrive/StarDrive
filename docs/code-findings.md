@@ -272,20 +272,74 @@ radius = 28,644 against 17-module freighters, and that reads as correct rather t
   synchronously from `ShipModule.Die`. One `AntiMatterReactor` dying takes 34 modules of a Heavy
   Carrier with it.
 
-### 2. Show enemy strength per system in the planet list, from the threat matrix
+### 2. Show enemy strength per system in the planet list, from the threat matrix — SHIPPED
 
-`[open]` Not investigated. Logged with anchors so the next pass starts from code.
+`[done]` The player had no compact answer to "where is the enemy strong". The threat matrix
+already held both halves of the answer and nothing read them out.
 
-The player has no compact answer to "where is the enemy strong". The data already exists:
-`ThreatMatrix.GetHostileStrengthAt(Vector2 pos, float radius)` (`ThreatMatrix.cs:139`), with
-per-empire and research-station-excluding variants beside it at `:131` and `:145`.
+**What the player sees now.** The System column of the planet list **and** the exotic systems list
+was rebuilt to match the Planet column beside it — the star's own icon on the left, text
+left-aligned after it — and a system holding known hostiles prints a second line under its name:
 
-The natural surface is the planet list screen - `PlanetListScreen.cs` and its row type
-`PlanetListScreenItem.cs` - adding a strength column fed by `GetHostileStrengthAt` at the system
-position. Points to settle: which radius counts as "in this system"; whether to show raw strength
-or a banded icon, since raw numbers mean little without a fleet to compare against; and above all
-that it must show only what the player **knows**, so it has to come from the threat matrix rather
-than from live empire data, or it leaks scouting the player has not done.
+```
+(*)  Vega
+     Hostiles: 4 Ships, 12.4k str ([flag][flag])
+```
+
+one flag per empire among them, tinted in that empire's colour. The star is `Sun.Icon`, the same
+texture the galaxy map draws, at the Planet column's icon size (`rect.Height - 10`). All of this is
+Gilad's call, arrived at over several passes; the column header above it stays centred, as every
+other header on those screens is.
+
+Both screens share `HelperFunctions.AddSystemNameAndHostiles`, which draws the whole System cell,
+so they cannot drift apart. The usable width after the star is `rect.Width - 45`, which is 180px at
+1920 and 102px at 1280, so the full line fits at 1920 and the `Hostiles:` label is dropped at 1280.
+Below that the line can still overflow; the star icon size is the dial if it ever needs tightening.
+
+**The `EnemyHere` flash icon keeps its original tooltip on all three screens, and the galaxy map
+is untouched.** Gilad's call, twice: the numbers belong on the row rather than behind a hover, and
+the map keeps the plain warning it has always had. Do not "enrich" those tooltips back.
+
+**The data.** `ThreatMatrix.GetHostilePresenceAt(pos, radius)` returns a
+`HostilePresence(int NumShips, float Strength, Empire[] Empires)` from **one** qtree query, summing
+`ThreatCluster.Ships.Length` and collecting the loyalties beside the `Strength` that
+`GetHostileStrengthAt` already summed. It resolves the empires eagerly rather than keeping the
+cluster array: a row holds its presence for as long as the screen is open, and a `ThreatCluster`
+holds `Ship` references the matrix itself has already let go of.
+`Empire.KnownEnemyPresenceIn(SolarSystem)` is the per-system wrapper, beside
+`KnownEnemyStrengthIn`. No existing caller changed - the AI's twenty-odd `KnownEnemyStrengthIn`
+sites are untouched.
+
+Both screens pause the universe while they are open (`GameScreen`'s `toPause`), so the numbers
+cannot go stale under the player, and the count and strength cannot come from different ticks.
+
+Two new text tokens: `Hostiles` (4577) and `Str` (4578), ENG only, in the free 4000-8000 run.
+
+The three points the original entry said needed settling:
+
+- **Which radius counts as "in this system"** — the system's own, via the same
+  `FindHostileClusters(s.Position, s.Radius)` call the icon has always used. Reusing the query
+  rather than writing a new one means the icon and the numbers beside it can never disagree, which
+  `KnownEnemyPresenceIn_AgreesWithKnownEnemyStrengthIn` pins.
+- **Raw strength or a banded icon** — raw, through `GetNumberString` (`12.4k`, `1.25M`). Gilad's
+  call: the same figure the AI reasons about, so what the player reads is what the game uses.
+- **Only what the player knows** — satisfied by construction. Rival clusters are built solely from
+  the `Seen` set in `ThreatMatrix.CreateAndUpdateRivalClusters`, so nothing here can report a ship
+  the player never scanned.
+
+**One quirk worth knowing.** An unobserved cluster keeps its remembered `Strength` but filters
+dead ships out of `Ships` (`ClusterUpdate.Update`, the `ObservedShips.IsEmpty` branch), so a
+remembered sighting can end up with a ship count of zero while its strength stands. The line drops
+the ship count in that case and shows strength alone, rather than printing `0 Ships`. The same
+filter means the count shrinks when ships the player saw die out of sight — a small leak, inherent
+to the existing data structure, not introduced here, but now player-visible for the first time.
+
+Covered by four tests in `UnitTests/Universe/ThreatMatrixTests.cs`, each revert-checked against a
+mutant. `CodexExpansionScoutingText` describes this icon and now describes the line too.
+
+**Left open, by choice:** the threat is not a sortable column, so the player cannot rank systems by
+danger; the flags are in cluster order rather than strongest empire first; and the galaxy map shows
+only the icon, with no numbers anywhere on it.
 
 ---
 

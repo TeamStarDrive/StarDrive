@@ -332,7 +332,77 @@ public class ThreatMatrixTests : StarDriveTest
         AssertEqual(str2, Player.Threats.GetHostileStrengthAt(pos, 5000));
         AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(pos, 5000));
     }
-    
+
+    [TestMethod]
+    public void GetHostilePresenceAt_CountsShipsAndStrength()
+    {
+        Vector2 pos = PlayerPlanet.Position;
+        float str1 = CreateShipsAt(pos, 5000, Player, 40);
+        float str2 = CreateShipsAt(pos, 6000, Enemy, 20);
+        CreateShipsAt(pos, 7000, ThirdMajor, 10);
+        ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
+
+        ThreatMatrix.HostilePresence forPlayer = Player.Threats.GetHostilePresenceAt(pos, 5000);
+        AssertTrue(forPlayer.Any, "hostiles were seen, so presence must report Any");
+        AssertEqual(20, forPlayer.NumShips, "presence must count the hostile ships we saw, and no neutrals");
+        AssertEqual(0.01f, str2, forPlayer.Strength, "presence strength must match GetHostileStrengthAt");
+
+        ThreatMatrix.HostilePresence forEnemy = Enemy.Threats.GetHostilePresenceAt(pos, 5000);
+        AssertEqual(40, forEnemy.NumShips);
+        AssertEqual(0.01f, str1, forEnemy.Strength);
+    }
+
+    // The list screens draw one flag per empire in the presence, so the empires must be
+    // the hostile ones only, each listed once however many clusters they have
+    [TestMethod]
+    public void GetHostilePresenceAt_NamesTheHostileEmpires()
+    {
+        Vector2 pos = PlayerPlanet.Position;
+        CreateShipsAt(pos, 5000, Player, 10);
+        CreateShipsAt(pos, 6000, Enemy, 20);
+        CreateShipsAt(pos, 7000, ThirdMajor, 10);
+        ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
+
+        Empire[] empires = Player.Threats.GetHostilePresenceAt(pos, 5000).Empires;
+        AssertEqualCollections(new[] { Enemy }, empires);
+
+        Empire[] none = Player.Threats.GetHostilePresenceAt(new Vector2(0, 0), 5000).Empires;
+        AssertEqual(0, none.Length, "empty space has no hostile empires");
+    }
+
+    [TestMethod]
+    public void GetHostilePresenceAt_IsEmptyWithoutHostiles()
+    {
+        Vector2 pos = PlayerPlanet.Position;
+        CreateShipsAt(pos, 5000, Player, 10);
+        CreateShipsAt(pos, 6000, ThirdMajor, 10);
+        ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
+
+        ThreatMatrix.HostilePresence ours = Player.Threats.GetHostilePresenceAt(pos, 5000);
+        AssertFalse(ours.Any, "our own ships and neutrals are never a hostile presence");
+        AssertEqual(0, ours.NumShips);
+        AssertEqual(0, ours.Strength);
+    }
+
+    // The galaxy map still draws its EnemyHere icon from KnownEnemyStrengthIn, while the list
+    // screens print their numbers from KnownEnemyPresenceIn. The two must never disagree.
+    [TestMethod]
+    public void KnownEnemyPresenceIn_AgreesWithKnownEnemyStrengthIn()
+    {
+        CreateShipsAt(PlayerPlanet.Position, 5000, Player, 3); // our eyes on the system
+        CreateShipsAt(PlayerPlanet.Position, 5000, Enemy, 7);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        SolarSystem system = PlayerPlanet.System;
+        ThreatMatrix.HostilePresence hostiles = Player.KnownEnemyPresenceIn(system);
+        float strength = Player.KnownEnemyStrengthIn(system);
+
+        AssertTrue(hostiles.Any, "the enemy ships are in the system, so both must see them");
+        AssertEqual(hostiles.Any, strength > 0f, "the icon and the numbers must agree");
+        AssertEqual(0.01f, strength, hostiles.Strength);
+        AssertEqual(7, hostiles.NumShips);
+    }
+
     [TestMethod]
     public void GetStrongestHostileAt_System()
     {
