@@ -278,6 +278,7 @@ namespace Ship_Game.Gameplay
             {
                 off += t.DamageAmount * t.SalvoCount * t.ProjectileCount * shotsPerSec;
                 off += t.EMPDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.5f;
+                off += t.PowerDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.75f;
             }
 
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit

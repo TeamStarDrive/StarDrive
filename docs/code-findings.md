@@ -210,29 +210,75 @@ misc #1. Everything else is better done by us or not at all.
 
 ---
 
-## Power (5)
+## Power (7)
 
 From the `design_power_budget` Codex entry. Items 1, 2, 4, 5 confirmed by two fact-check passes;
-item 3 is one reading, untested.
+item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`.
 
 1. `[balance]` `[display]` **Reactor tech bonus applied twice.** `ShipModule.ActualPowerFlowMax`
-   already multiplies by `EmpireHullBonuses.PowerFlowMod`; `Ship.UpdatePower` (`Ship.cs` ~1114)
-   adds `PowerFlowMax * data.PowerFlowMod` again. Live recharge is (1+mod)², the design screen
-   shows (1+mod). Tech "Power Flow Bonus", `TechEntry.cs` ~1006.
-2. `[latent]` **Pwr Dmg and Siphon only work on beams.** `BeamPowerDamage` / `CauseSiphonDamage`
-   (`ShipModule.cs` ~986-1018) are reached only from beam hits, so projectile weapons carrying
-   PowerDamage (IonCannon1x2, IonDefenseCannon, DarkMatterCannons) or SiphonDamage (EmpCannon,
-   DualEmpCannon, EmpDischarger1x2, REAegis) show a stat that does nothing. The Codex says so —
-   fixing the code means editing that sentence.
+   already multiplies by `EmpireHullBonuses.PowerFlowMod`, and `Power.Calculate` sums that into
+   `Ship.PowerFlowMax`; `Ship.UpdatePower` (`Ship.cs` ~1114) then adds
+   `PowerFlowMax * data.PowerFlowMod` again. Live recharge is (1+mod)², the design screen shows
+   (1+mod), and the design screen is the correct one. Tech "Power Flow Bonus",
+   `TechEntry.cs` ~1006. Vanilla ships 10 of those techs totalling **0.81**, so a fully researched
+   empire recharges at 3.28x base where its own design screen says 1.81x - **81% more than
+   displayed**. Fixing it is a nerf to every empire with reactor tech.
+2. ~~Pwr Dmg and Siphon only work on beams.~~ Half resolved `3037ebbf7`: **power damage now applies
+   to projectiles too**, via `CausePowerDamage(Projectile)` in the projectile branch of
+   `TryDamageModule`. It is applied *before* the deflection return and with no threshold test, so a
+   shot too weak to hurt the module still drains the ship - deliberate, and deliberately unlike EMP,
+   which must beat the module deflection. It also drains once per module the shot touches along the
+   armour-piercing walk, which the Codex now states.
+   **Siphon stays beam-only by design - do not "fix" it.** The Siphon row is no longer drawn for
+   non-beam weapons (`ModuleSelection.cs`), so REAegis, EmpCannon, EmpDischarger1x2 and
+   DualEmpCannon stop advertising a value that does nothing.
 3. `[balance]` **Destroyed reactors and conduits keep powering the grid.** `PowerGrid.Recalculate`
    (`Ship_PowerCalc.cs`) distributes from every module with a PowerRadius and floods every conduit
-   without checking `Active`. `OnModuleDeath` sets `ShouldRecalculatePower`, which then changes
-   nothing. Verify in game first; the fix changes combat balance.
+   without checking `Active`, while `Power.Calculate` *does* check it - so a dead reactor stops
+   adding flow but its neighbours stay `Powered`. `OnModuleDeath` sets `ShouldRecalculatePower`,
+   which then recomputes the same wrong answer. Verify in game first; the fix changes combat
+   balance.
 4. `[display]` **Design screen over-counts multi-projectile weapon power.**
    `WeaponTemplate.PowerFireUsagePerSecond` (~177) multiplies by `ProjectileCount`;
-   `PrepareToFire` / `PrepareToFireSalvo` charge once per shot.
-5. `[balance]` **Siphon gives full value regardless** — `CauseSiphonDamage` credits the whole
-   amount even when the shield held less.
+   `PrepareToFire` / `PrepareToFireSalvo` charge once per shot. `SalvoCount` is legitimate - salvo
+   really does fire N times - so only the `ProjectileCount` factor is wrong.
+   `TotalOrdnanceUsagePerFire` (~171) has the identical bug for ordnance, so fix both or neither.
+5. ~~Siphon gives full value regardless.~~ Resolved `3037ebbf7`. It now transfers only what it
+   drained. Note `AddPower` still clamps at `PowerStoreMax`, so the attacker can gain less than it
+   drained; the Codex says "adds what it drained", which slightly overstates that edge.
+6. ~~`beamModifier` was accepted and then dropped.~~ Resolved `3037ebbf7`, and the shape matters.
+   `Beam.Touch` computes it as `timeStep.FixedTime * 60` to hold a continuous beam's damage per
+   second constant, and pre-multiplies the raw damage with it - but `ShipModule.Damage` forwarded
+   the damage and not the modifier, so every beam special effect ran at a hardcoded 1. It is
+   invisible at the default 60 sim FPS and 1x speed, where the modifier IS 1; it bites because the
+   sim **throttles its own rate down to a floor of 10** when turns run long, which is exactly the
+   big battle where beams matter, and the rate is user-settable 10-120.
+   **Repulsion is the exception and must NOT be scaled.** `CauseRepulsionDamage` calls `ApplyForce`,
+   and force is already integrated against the step (`a = F/m`, then `v += a*dt`), so scaling it
+   again made repulsion beams 6x stronger at 10 sim FPS and half strength at 120. Siphon, power
+   damage, troop and tractor are per-tick accumulators and do need it.
+7. ~~`CalculateOffense` ignored projectile power damage.~~ Resolved: the AI rated every projectile
+   weapon carrying the stat as if it did nothing. Weighted at **0.75**, derived from the beam
+   branch, which prices `PowerDamage` at 45 where it prices `DamageAmount` at 60; the `EMPDamage`
+   line beside it uses 0.5. `SalvoCount * ProjectileCount` is correct here - each projectile that
+   lands drains separately - and is *not* the inverse of item 4, where the cost is charged once per
+   shot.
+
+**Open, and it is content, not code.** Mod weapons carry power damage values authored while the
+stat was dead, so nobody balanced them. `game/Mods/Combined Arms/Weapons/Planet/IonDefenseCannon.xml`
+is **100000**, enough to clamp any ship's store to zero on every hit and lock out energy weapons and
+warp for anything in range of a defended planet; `Magnetrom.xml` is 4000 **on an explosive
+projectile**, so it applies per module in the blast. The AI blast radius is larger than the gameplay
+one: through `Building.Offense` that Ion Cannon rates ~38x higher, which swamps every fleet-strength
+comparison the invasion planner makes, so the AI would simply stop invading Combined Arms planets.
+Vanilla is tame by comparison - the four affected weapons move 1.4x to 2.7x. **The mod values must
+be revisited before any release that carries `3037ebbf7`.**
+
+Two sibling inconsistencies left alone on purpose: `Building.Offense` is `[StarData]` and only
+recomputed when it is exactly 0 or the planet levels up, so a save made before this change keeps the
+old rating for weapon buildings until then; and `WeaponTemplate.GetDamagePerSecond` (~224) treats
+`PowerDamage` as a *fallback* for a zero `DamageAmount` rather than an addition, so the DPS views
+still read pre-fix while the offense rating reads post-fix.
 
 ## Damage, shields and weapons (18)
 

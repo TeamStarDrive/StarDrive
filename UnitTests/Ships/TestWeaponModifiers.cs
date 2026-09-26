@@ -92,5 +92,30 @@ namespace UnitTests.Ships
             AssertEqual(true, p2.IgnoresShields);
             AssertEqual(0.96f, p2.Duration);
         }
+
+        // PowerDamage used to be counted only in the IsBeam branch of CalculateOffense, so a
+        // projectile weapon carrying it was rated as if the stat did nothing - which it did,
+        // until projectiles started applying it.
+        [TestMethod]
+        public void ProjectilePowerDamageRaisesTheOffenseRating()
+        {
+            var t = (WeaponTemplate)ResourceManager.GetWeaponTemplate("DarkMatterCannon_1x2");
+            Assert.IsFalse(t.IsBeam, "this test needs a projectile weapon");
+            AssertGreaterThan(t.PowerDamage, 0f, "DarkMatterCannon_1x2 should carry power damage");
+
+            float original = t.PowerDamage;
+            try
+            {
+                float withStat = WeaponTemplate.CalculateOffense(null, t);
+                t.PowerDamage = 0f;
+                float withoutStat = WeaponTemplate.CalculateOffense(null, t);
+                AssertGreaterThan(withStat, withoutStat,
+                    "power damage must raise a projectile weapon's offense rating");
+            }
+            finally
+            {
+                t.PowerDamage = original;
+            }
+        }
     }
 }
