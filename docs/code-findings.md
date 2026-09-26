@@ -185,6 +185,45 @@ volume, and flight cues cut out earlier than anything else.
 
 ---
 
+## Priority 3 — two reviews Gilad asked for, 2026-09-26
+
+`[open]` Neither is investigated. Logged with anchors so the next pass starts from code rather
+than from scratch.
+
+### 1. Explosion proximity, and whether adjacent ships take any of it
+
+Review what an explosion should do to ships *near* the one it hit, and whether the falloff with
+distance is right.
+
+What a first look suggests, to be confirmed rather than trusted: the blast appears to stay inside
+the ship it struck. `Projectile` hands its damage to the victim, and `Ship.DamageExplosive` /
+`DamageExplosiveDirectional` (`Ship_ModuleGrid.cs:499` and `:573`) walk **that ship's** module grid
+only. The single place the radius reaches past the hull is `ShowExplosionEffect`
+(`Projectile.cs:823`), which is the visual, not damage - so a fighter parked beside a dying
+dreadnought may be taking nothing at all while the screen shows it engulfed.
+
+Questions worth answering in order: is there any cross-ship blast path at all; if not, was that
+deliberate or lost in the migration; does `DamageRadius * ExplosionRadiusMod` (`Projectile.cs:826`)
+mean the *visual* radius is already larger than the damage radius, which would explain the
+mismatch; and what should a ship dying next to another actually do. Note the related settled
+entries below - a module-death blast already runs through the *killer's* weapon, and radial blasts
+hit big modules once per covered cell - so any change here lands on top of two known quirks.
+
+### 2. Show enemy strength per system in the planet list, from the threat matrix
+
+The player has no compact answer to "where is the enemy strong". The data already exists:
+`ThreatMatrix.GetHostileStrengthAt(Vector2 pos, float radius)` (`ThreatMatrix.cs:139`), with
+per-empire and research-station-excluding variants beside it at `:131` and `:145`.
+
+The natural surface is the planet list screen - `PlanetListScreen.cs` and its row type
+`PlanetListScreenItem.cs` - adding a strength column fed by `GetHostileStrengthAt` at the system
+position. Points to settle: which radius counts as "in this system"; whether to show raw strength
+or a banded icon, since raw numbers mean little without a fleet to compare against; and above all
+that it must show only what the player **knows**, so it has to come from the threat matrix rather
+than from live empire data, or it leaks scouting the player has not done.
+
+---
+
 ## Do not "fix" these
 
 Settled behaviour that reads like a bug to fresh eyes. Each was decided deliberately and the
@@ -214,7 +253,7 @@ misc #1. Everything else is better done by us or not at all.
 
 From the `design_power_budget` Codex entry. Items 1, 2, 4, 5 confirmed by two fact-check passes;
 item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`; 1 and 4 followed.
-**Only item 3 is still open.**
+**Every item in this list is now resolved.**
 
 **When judging items 1 and 4, ask which side was lying.** In both the design screen was
 correct and the running ship was generous - recharging faster in 1, firing cheaper in 4 - so
@@ -246,12 +285,23 @@ these was that.
    **Siphon stays beam-only by design - do not "fix" it.** The Siphon row is no longer drawn for
    non-beam weapons (`ModuleSelection.cs`), so REAegis, EmpCannon, EmpDischarger1x2 and
    DualEmpCannon stop advertising a value that does nothing.
-3. `[balance]` **Destroyed reactors and conduits keep powering the grid.** `PowerGrid.Recalculate`
-   (`Ship_PowerCalc.cs`) distributes from every module with a PowerRadius and floods every conduit
-   without checking `Active`, while `Power.Calculate` *does* check it - so a dead reactor stops
-   adding flow but its neighbours stay `Powered`. `OnModuleDeath` sets `ShouldRecalculatePower`,
-   which then recomputes the same wrong answer. Verify in game first; the fix changes combat
-   balance.
+3. ~~Destroyed reactors and conduits keep powering the grid.~~ Resolved. `PowerGrid.Recalculate`
+   distributed from every module with a PowerRadius and flooded every conduit without checking
+   `Active`, while `Power.Calculate` *did* check it - so a dead reactor stopped adding flow while
+   its neighbours stayed `Powered`, and the `ShouldRecalculatePower` that `OnModuleDeath` sets
+   recomputed the same wrong answer. Two guards now: the distribution loop, and
+   `GetNeighbouringConduits` so a dead conduit stops relaying down the chain.
+   **Losing power is not only "unpowered"**, which is the weight behind the `[balance]` tag:
+   `ShipModule.GetActualMass` returns the absolute value for negative-mass modules when not
+   `Powered`, and `ShipStats.InitializeMass` sums every module without filtering on `Active`, so a
+   ship that loses its reactors also gets **heavier and slower**; self regeneration drops to a
+   tenth as well. Wants in-game time before release.
+   The design screen runs the same `Recalculate` through `DesignShip`
+   (`ShipInfoOverlayComponent.ShowShip`) and is unaffected, because design modules come from
+   `CreateNoParent`, which sets `Active`. The `designModule: true` bypass in `Power.Calculate` is
+   a different path - it is handed raw `ResourceManager` templates, which are not `Active`.
+   Save loading is safe too: `ShipModule.Create` assigns `Active` from slot health in the
+   `OnDeserialized` module loop, before `InitializeStatus` reaches any `RecalculatePower`.
 4. ~~Multi-projectile weapons fired without paying for every projectile.~~ Resolved, **and the
    first attempt fixed the wrong side.** The intended rule is that a shot costs
    `cost x ProjectileCount x SalvoCount`: a 100 power gun firing 2 projectiles costs 200, and 600
