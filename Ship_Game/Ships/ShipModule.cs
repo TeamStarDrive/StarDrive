@@ -141,11 +141,11 @@ namespace Ship_Game.Ships
         public float ShieldRechargeCombatRate    => Flyweight.ShieldRechargeCombatRate;
         public float ShieldRechargeDelay         => Flyweight.ShieldRechargeDelay;
         public float ShieldDeflection            => Flyweight.ShieldDeflection;
-        public float ShieldKineticResist         => Flyweight.ShieldKineticResist;
-        public float ShieldEnergyResist          => Flyweight.ShieldEnergyResist;
-        public float ShieldExplosiveResist       => Flyweight.ShieldExplosiveResist;
-        public float ShieldPlasmaResist          => Flyweight.ShieldPlasmaResist;
-        public float ShieldBeamResist            => Flyweight.ShieldBeamResist;
+        public float ShieldKineticResist         => Flyweight.ShieldKineticResist.UpperBound(1f);
+        public float ShieldEnergyResist          => Flyweight.ShieldEnergyResist.UpperBound(1f);
+        public float ShieldExplosiveResist       => Flyweight.ShieldExplosiveResist.UpperBound(1f);
+        public float ShieldPlasmaResist          => Flyweight.ShieldPlasmaResist.UpperBound(1f);
+        public float ShieldBeamResist            => Flyweight.ShieldBeamResist.UpperBound(1f);
         public float NumberOfColonists           => Flyweight.NumberOfColonists; // In Millions!
         public float NumberOfEquipment           => Flyweight.NumberOfEquipment;
         public float NumberOfFood                => Flyweight.NumberOfFood;
@@ -173,11 +173,11 @@ namespace Ship_Game.Ships
         public float TransporterOrdnance         => Flyweight.TransporterOrdnance;
         public int TransporterTroopLanding       => Flyweight.TransporterTroopLanding;
         public int TransporterTroopAssault       => Flyweight.TransporterTroopAssault;
-        public float KineticResist               => Flyweight.KineticResist;
-        public float EnergyResist                => Flyweight.EnergyResist;
-        public float PlasmaResist                => Flyweight.PlasmaResist;
-        public float BeamResist                  => Flyweight.BeamResist;
-        public float ExplosiveResist             => Flyweight.ExplosiveResist;
+        public float KineticResist               => Flyweight.KineticResist.UpperBound(1f);
+        public float EnergyResist                => Flyweight.EnergyResist.UpperBound(1f);
+        public float PlasmaResist                => Flyweight.PlasmaResist.UpperBound(1f);
+        public float BeamResist                  => Flyweight.BeamResist.UpperBound(1f);
+        public float ExplosiveResist             => Flyweight.ExplosiveResist.UpperBound(1f);
         public float Deflection                  => Flyweight.Deflection;
         public int APResist                      => Flyweight.APResist;
         public bool AlwaysPowered                => Flyweight.IndirectPower;
@@ -766,7 +766,7 @@ namespace Ship_Game.Ships
             if (!Active)
                 return 0f;
 
-            float resist = ExplosiveResist > 0f ? Health / (1f - ExplosiveResist) : 0f;
+            float resist = ExplosiveResist > 0f && ExplosiveResist < 1f ? Health / (1f - ExplosiveResist) : 0f;
             float dmg = Explodes ? ExplosionDamage : 0f;
             return dmg - resist; // Allow negative damage (damage reducer)
         }
@@ -827,9 +827,17 @@ namespace Ship_Game.Ships
 
             DebugDamageCircle();
 
-            float absorbedDamage = modifiedDamage - grossRemainder.LowerBound(0);
-            if (damageModifier <= 1) // below 1, resistance. above 1, vulnerability.
-                absorbedDamage /= damageModifier; // module absorbed more damage because of good resistance
+            float absorbedDamage;
+            if (damageModifier <= 0f) // full resistance: nothing gets past this module
+            {
+                absorbedDamage = damageAmount;
+            }
+            else
+            {
+                absorbedDamage = modifiedDamage - grossRemainder.LowerBound(0);
+                if (damageModifier < 1) // below 1, resistance. above 1, vulnerability.
+                    absorbedDamage /= damageModifier; // module absorbed more damage because of good resistance
+            }
 
             if (source != null)
                 EvtDamageInflicted(source, absorbedDamage);
