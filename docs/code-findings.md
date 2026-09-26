@@ -485,7 +485,7 @@ still read pre-fix while the offense rating reads post-fix.
 ## Damage, shields and weapons (18)
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
-Item 1 is resolved. Items 2, 9, 10 and 16 were re-checked against the code on 2026-09-27, and
+Items 1 and 9 are resolved. Items 2, 10 and 16 were re-checked against the code on 2026-09-27, and
 item 2's finding was wrong as written - see it for what actually happens.
 
 1. ~~Weapon-tag armor/shield damage bonuses never applied.~~ Resolved - **deleted, not wired up**.
@@ -547,8 +547,22 @@ item 2's finding was wrong as written - see it for what actually happens.
    fractional carry-on damage.
 8. **Planet repair without an owner check (unconfirmed)** — `Ship_Repair.cs` ~59 repairs from any
    orbited or tethered planet. Check whether orbiting an enemy or neutral planet repairs.
-9. `[balance]` **`IsCoveredByShield` picks the last shield, not the strongest** —
-   `Ship_ModuleGrid.cs` ~115, `maxPower` is never updated inside the loop.
+9. ~~`IsCoveredByShield` picks the last shield, not the strongest.~~ Resolved - `maxPower` is now
+   raised when a shield wins, so the method does what its own comment says. **Narrower than it
+   first reads**: the method has exactly one caller, `Ship.CauseRadiationDamage`, reached only
+   from `SolarSystem.ApplySolarRadiationDamage`, so this is solar radiation and nothing else. Only
+   three sun types carry `RadiationDamage` at all - `star_neutron` and `star_pulsar` at 10,
+   `gargantua_black_hole` at 20. Within that, the bug had two effects: a nearly drained bubble
+   could soak the radiation while a full one beside it stood untouched, and because the caller
+   dedupes by shield, scattering the picks across more bubbles damaged more of them per tick than
+   concentrating on the strongest. Covered by `ShieldCoverPicksTheStrongestShield` in
+   `UnitTests/Ships/ExplosionShieldTests.cs`, which fails on the old behaviour by picking the
+   shield at grid 3,2 over the stronger one at 0,2. The method is now `internal` so the test can
+   call it; `InternalsVisibleTo("UnitTests")` was already in `Properties/AssemblyInfo.cs`. No Codex
+   entry describes how radiation picks a shield. **Left as it stands:** "strongest" means most
+   current charge, while the damage the winner takes scales by `ShieldHitRadius`, so a wide bubble
+   with slightly less charge is passed over for a small full one. The comment asks for charge and
+   that is now what it does; whether radius should weigh in is a separate balance question.
 10. `[latent]` **Hull bonuses are off everywhere.** `UseHullBonuses` is false in vanilla and every
     shipped mod, so hull `ArmoredBonus` and `ShieldModifier` are dead. The Codex omits them.
 11. `[latent]` **Missile and `MaxWeaponError` aim use the raw crew level.** `MissileAI.cs` ~258

@@ -111,7 +111,7 @@ namespace Ship_Game.Ships
         }
 
         // Gets the strongest shield currently covering internalModule
-        bool IsCoveredByShield(ShipModule internalModule, out ShipModule shield)
+        internal bool IsCoveredByShield(ShipModule internalModule, out ShipModule shield)
         {
             float maxPower = 0f;
             shield = null;
@@ -119,7 +119,10 @@ namespace Ship_Game.Ships
             {
                 float power = m.ShieldPower;
                 if (power > maxPower && m.HitTestShield(internalModule.Position, internalModule.Radius))
+                {
+                    maxPower = power;
                     shield = m;
+                }
             }
             return shield != null;
         }
