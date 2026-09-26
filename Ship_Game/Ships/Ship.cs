@@ -481,13 +481,17 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseRepulsionDamage(Beam beam, float beamModifier)
+        /// <summary>
+        /// Repulsion is a force, and ApplyForce is already integrated against the sim step,
+        /// so it must NOT be scaled by the beam time step modifier the way per-tick effects are.
+        /// </summary>
+        public void CauseRepulsionDamage(Beam beam)
         {
             if (IsTethered || EnginesKnockedOut)
                 return;
             if (beam.Owner == null || beam.Weapon == null)
                 return;
-            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage * beamModifier;
+            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage;
             ApplyForce(repulsion);
         }
 

@@ -562,11 +562,14 @@ namespace Ship_Game
             DrawStat(ref cursor, "Delay", delay, GameText.TimeBetweenShots);
             DrawStat(ref cursor, "EMP", w.EMPDamage, GameText.IndicatesTheAmountOfEmp);
 
-            float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
-            DrawStat(ref cursor, "Siphon", siphon, GameText.IndicatesTheAmountOfShields);
+            if (isBeam)
+            {
+                float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
+                DrawStat(ref cursor, "Siphon", siphon, GameText.IndicatesTheAmountOfShields);
 
-            float tractor = w.TractorDamage + w.TractorDamage * beamMultiplier;
-            DrawStat(ref cursor, "Tractor", tractor, GameText.IndicatesTheAmountOfDrag);
+                float tractor = w.TractorDamage + w.TractorDamage * beamMultiplier;
+                DrawStat(ref cursor, "Tractor", tractor, GameText.IndicatesTheAmountOfDrag);
+            }
 
             float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
             DrawStat(ref cursor, "Pwr Dmg", powerDamage, GameText.IndicatesTheAmountOfPower3);
