@@ -117,5 +117,63 @@ namespace UnitTests.Ships
                 t.PowerDamage = original;
             }
         }
+
+        // Every projectile in a shot is paid for: a cannon that spawns 3 per trigger pull costs
+        // 3x its listed price. The runtime used to charge once per shot however many it spawned,
+        // so multi-projectile weapons fired far cheaper than the design screen said.
+        [TestMethod]
+        public void EveryProjectileInAShotIsPaidFor()
+        {
+            Weapon.TestProjectileCount = 3;
+            Weapon.TestSalvoCount = 1;
+            Weapon.TestPowerRequiredToFire = 5;
+            Weapon.TestOrdinanceRequiredToFire = 5;
+            Weapon.CooldownTimer = 0;
+
+            Ship.PowerCurrent = Ship.PowerStoreMax;
+            Ship.ChangeOrdnance(Ship.OrdinanceMax);
+            float powerBefore = Ship.PowerCurrent;
+            float ordnanceBefore = Ship.Ordinance;
+            AssertGreaterThan(powerBefore, 15f, "test ship needs a store that covers all 3 projectiles");
+
+            Assert.IsTrue(Weapon.ManualFireTowardsPos(new Vector2(0, -2000)), "weapon should have fired");
+
+            AssertEqual(0.01f, 15f, powerBefore - Ship.PowerCurrent, "3 projectiles must cost 3x the power");
+            AssertEqual(0.01f, 15f, ordnanceBefore - Ship.Ordinance, "3 projectiles must cost 3x the ordnance");
+        }
+
+        // The design screen reads the same rule: cost x projectiles x salvo.
+        [TestMethod]
+        public void TheDesignScreenChargesPerProjectileAndSalvo()
+        {
+            IWeaponTemplate flak = ResourceManager.GetWeaponTemplate("DualFlak");
+            AssertGreaterThan(flak.ProjectileCount, 1, "DualFlak should fire several projectiles per shot");
+            AssertGreaterThan(flak.OrdinanceRequiredToFire, 0f, "DualFlak should cost ordnance");
+            AssertEqual(0.001f, flak.OrdinanceRequiredToFire * flak.ProjectileCount * flak.SalvoCount,
+                flak.TotalOrdnanceUsagePerFire, "burst ordnance is per projectile, per salvo shot");
+
+            IWeaponTemplate aegis = ResourceManager.GetWeaponTemplate("REAegis");
+            AssertGreaterThan(aegis.ProjectileCount, 1, "REAegis should fire several projectiles per shot");
+            AssertGreaterThan(aegis.PowerRequiredToFire, 0f, "REAegis should cost power");
+            AssertEqual(0.001f,
+                aegis.PowerRequiredToFire * aegis.ProjectileCount * aegis.SalvoCount / aegis.NetFireDelay,
+                aegis.PowerFireUsagePerSecond, "weapon power drain is per projectile, per salvo shot");
+        }
+
+        // A shot it cannot pay for in full must not fire at all, or the store goes negative.
+        [TestMethod]
+        public void AShotIsRefusedWhenOnlyOneProjectileCanBePaidFor()
+        {
+            Weapon.TestProjectileCount = 3;
+            Weapon.TestSalvoCount = 1;
+            Weapon.TestPowerRequiredToFire = 5;
+            Weapon.TestOrdinanceRequiredToFire = 0;
+            Weapon.CooldownTimer = 0;
+
+            Ship.PowerCurrent = 10; // covers one projectile at 5, not three at 15
+            Assert.IsFalse(Weapon.ManualFireTowardsPos(new Vector2(0, -2000)),
+                "the weapon cannot afford all 3 projectiles and must not fire");
+            AssertEqual(0.01f, 10f, Ship.PowerCurrent, "a refused shot must not spend power");
+        }
     }
 }

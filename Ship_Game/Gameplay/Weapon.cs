@@ -138,12 +138,21 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        /// <summary>
+        /// Cost of one shot. Every projectile in the shot is paid for, so a cannon that
+        /// spawns several per trigger pull costs that many times its listed price.
+        /// </summary>
+        float PowerPerShot => PowerRequiredToFire * ProjectileCount;
+
+        /// <inheritdoc cref="PowerPerShot"/>
+        float OrdnancePerShot => OrdinanceRequiredToFire * ProjectileCount;
+
         bool CanFireWeapon()
         {
             return Module.Active && Module.Powered
                 && Owner.engineState  != Ship.MoveState.Warp
-                && Owner.PowerCurrent >= PowerRequiredToFire
-                && Owner.Ordinance    >= OrdinanceRequiredToFire;
+                && Owner.PowerCurrent >= PowerPerShot
+                && Owner.Ordinance    >= OrdnancePerShot;
         }
 
         bool CanFireWeaponCooldown()
@@ -157,8 +166,8 @@ namespace Ship_Game.Gameplay
             // increase the cooldown by SalvoTimer
             CooldownTimer = NetFireDelay + Random.Float(-10f, +10f) * 0.008f;
 
-            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
-            Owner.PowerCurrent -= PowerRequiredToFire;
+            Owner.ChangeOrdnance(-OrdnancePerShot);
+            Owner.PowerCurrent -= PowerPerShot;
         }
 
         bool PrepareToFireSalvo()
@@ -179,8 +188,8 @@ namespace Ship_Game.Gameplay
             SalvoFireTimer -= timeBetweenShots;
             --SalvosToFire;
 
-            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
-            Owner.PowerCurrent -= PowerRequiredToFire;
+            Owner.ChangeOrdnance(-OrdnancePerShot);
+            Owner.PowerCurrent -= PowerPerShot;
             return true;
         }
 

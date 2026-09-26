@@ -213,7 +213,8 @@ misc #1. Everything else is better done by us or not at all.
 ## Power (7)
 
 From the `design_power_budget` Codex entry. Items 1, 2, 4, 5 confirmed by two fact-check passes;
-item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`; item 1 followed.
+item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`; 1 and 4 followed.
+**Only item 3 is still open.**
 
 1. ~~Reactor tech bonus applied twice.~~ Resolved. `ShipModule.ActualPowerFlowMax` already
    multiplies by `EmpireHullBonuses.PowerFlowMod` and `Power.Calculate` sums that into
@@ -242,11 +243,29 @@ item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`; ite
    adding flow but its neighbours stay `Powered`. `OnModuleDeath` sets `ShouldRecalculatePower`,
    which then recomputes the same wrong answer. Verify in game first; the fix changes combat
    balance.
-4. `[display]` **Design screen over-counts multi-projectile weapon power.**
-   `WeaponTemplate.PowerFireUsagePerSecond` (~177) multiplies by `ProjectileCount`;
-   `PrepareToFire` / `PrepareToFireSalvo` charge once per shot. `SalvoCount` is legitimate - salvo
-   really does fire N times - so only the `ProjectileCount` factor is wrong.
-   `TotalOrdnanceUsagePerFire` (~171) has the identical bug for ordnance, so fix both or neither.
+4. ~~Multi-projectile weapons fired without paying for every projectile.~~ Resolved, **and the
+   first attempt fixed the wrong side.** The intended rule is that a shot costs
+   `cost x ProjectileCount x SalvoCount`: a 100 power gun firing 2 projectiles costs 200, and 600
+   over 3 salvos. The design screen already did that. The **runtime** did not - `PrepareToFire` and
+   `PrepareToFireSalvo` each charged the listed price once however many projectiles the shot
+   spawned, so multi-projectile weapons fired far cheaper than their own spec sheet said.
+   It was first "fixed" by stripping `ProjectileCount` out of the three display properties, on the
+   assumption that the runtime was the truth. It is not: **the display was right and the game was
+   wrong**, which is the direction that misleads. `Weapon` now has `PowerPerShot` and
+   `OrdnancePerShot`, used by the two charge sites *and* by `CanFireWeapon` - without the last one
+   a weapon would fire a volley it could only half afford and drive the store negative.
+   `SalvoCount` was never the problem: `FireAtTarget` charges once and queues `SalvoCount - 1` more,
+   each charging again, so a trigger pull costs exactly `SalvoCount` shots.
+   **This is a real balance change**, roughly 29 weapons across vanilla and the two shipped mods.
+   Vanilla: REAegis 800 -> 2400 power per shot, DualFlak 2.25 -> 6.75 ordnance, PlanetFlak
+   0.5 -> 2.0. Combined Arms is hit hardest because shotgun-style weapons are a signature of it -
+   REEmpProjector 75 -> 750 power at 10 projectiles, AMProjector 175 -> 525, and the whole
+   Shot/Fletchette/Gatling family 2x to 5x on ordnance.
+   **MIRV warheads are not affected and must not be counted** when judging the impact: the eleven
+   `*Mirv` weapons are spawned by `Projectile` through `SpawnMirvSalvo`, which never calls
+   `PrepareToFire`, so their cost has never been charged and still is not. A first reading of the
+   numbers made this look far worse than it is - ClusterMirv appears to jump 0.57 -> 25.65 ordnance
+   and never pays either figure.
 5. ~~Siphon gives full value regardless.~~ Resolved `3037ebbf7`. It now transfers only what it
    drained. Note `AddPower` still clamps at `PowerStoreMax`, so the attacker can gain less than it
    drained; the Codex says "adds what it drained", which slightly overstates that edge.
