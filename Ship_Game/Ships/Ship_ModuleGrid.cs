@@ -484,6 +484,20 @@ namespace Ship_Game.Ships
             return closest;
         }
 
+        /// <summary>
+        /// The hull module an external blast enters through: the first one a ray from the blast
+        /// towards this ship's center crosses. When the blast sits exactly on the center there is
+        /// no direction to trace, so the ship's own facing is used instead.
+        /// </summary>
+        public ShipModule FindBlastEntryModule(Vector2 explosionCenter)
+        {
+            Vector2 rayFrom = explosionCenter;
+            if (rayFrom.InRadius(Position, 1f))
+                rayFrom = Position - Direction * (Radius + 16f);
+
+            return RayHitTestSingle(rayFrom, Position, ignoreShields: true);
+        }
+
         // find the first module that falls under the hit radius at given position
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {

@@ -1459,7 +1459,7 @@ namespace Ship_Game.Ships
 
         // Base chance to evade and exploding ship
         // FB: Ships will be lucky to not get caught in the explosion, based on their level as well.
-        // Point-blank (closest module inside the exploding ship's hull radius) drops evade to 10% of normal.
+        // Point-blank (closest module inside the exploding ship's hull radius) drops evade to a quarter of normal.
         public float ExplosionEvadeBaseChance(bool pointBlank)
         {
             float explosionEvadeBaseChance = 0;
@@ -1467,11 +1467,11 @@ namespace Ship_Game.Ships
             {
                 default:
                 case RoleName.drone:     
-                case RoleName.scout:      explosionEvadeBaseChance = 80; break;
-                case RoleName.fighter:    explosionEvadeBaseChance = 70; break;
-                case RoleName.corvette:   explosionEvadeBaseChance = 60; break;
-                case RoleName.frigate:    explosionEvadeBaseChance = 40; break;
-                case RoleName.cruiser:    explosionEvadeBaseChance = 20; break;
+                case RoleName.scout:      explosionEvadeBaseChance = 90; break;
+                case RoleName.fighter:    explosionEvadeBaseChance = 75; break;
+                case RoleName.corvette:   explosionEvadeBaseChance = 65; break;
+                case RoleName.frigate:    explosionEvadeBaseChance = 50; break;
+                case RoleName.cruiser:    explosionEvadeBaseChance = 25; break;
                 case RoleName.battleship: explosionEvadeBaseChance = 10; break;
                 case RoleName.capital: 
                 case RoleName.station:    explosionEvadeBaseChance = 0; break;
@@ -1484,11 +1484,36 @@ namespace Ship_Game.Ships
                     case RoleName.drone:
                     case RoleName.scout:   
                     case RoleName.fighter: return explosionEvadeBaseChance;
-                    default:               return explosionEvadeBaseChance * 0.1f;
+                    default:               return explosionEvadeBaseChance * 0.25f;
 
                 }
 
             return explosionEvadeBaseChance;
+        }
+
+        /// <summary>
+        /// Upper bound on this ship's death blast, as a multiple of its hull radius.
+        /// Small hulls carry reactors and ordnance out of all proportion to what they can
+        /// survive, so their blast is held tighter than a capital's.
+        /// </summary>
+        public float ExplosionDamageCap()
+        {
+            float perRadius;
+            switch (ShipData.HullRole)
+            {
+                default:
+                case RoleName.drone:
+                case RoleName.scout:
+                case RoleName.fighter:    perRadius = 15; break;
+                case RoleName.corvette:   perRadius = 25; break;
+                case RoleName.frigate:    perRadius = 40; break;
+                case RoleName.cruiser:    perRadius = 60; break;
+                case RoleName.battleship: perRadius = 80; break;
+                case RoleName.capital:
+                case RoleName.station:    perRadius = 100; break;
+            }
+
+            return Radius * perRadius;
         }
 
         void AddExplosionEffect(bool addWarpExplode)
@@ -1532,7 +1557,7 @@ namespace Ship_Game.Ships
             }
 
             damage += PowerCurrent + Ordinance + Health*0.05f;
-            return damage.LowerBound(Radius * 10);
+            return damage.Clamped(Radius * 10, ExplosionDamageCap());
         }
 
         public void InstantKill()

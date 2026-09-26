@@ -730,6 +730,22 @@ namespace Ship_Game.Ships
             return distanceFromStart > 0f;
         }
 
+        /// <summary>Distance at which a ship's death blast delivers half of its damage</summary>
+        public const float ExplosionHalfDamageDistance = 100f;
+
+        /// <summary>Closest distance a blast is measured from, so the falloff cannot spike</summary>
+        public const float ExplosionMinDistance = 10f;
+
+        /// <summary>
+        /// Fraction of a ship's death blast that reaches a hull at the given distance.
+        /// Full damage at the blast center, half at <see cref="ExplosionHalfDamageDistance"/>.
+        /// </summary>
+        public static float ExplosionFalloff(float distance)
+        {
+            float d = distance.LowerBound(ExplosionMinDistance);
+            return ExplosionHalfDamageDistance / (ExplosionHalfDamageDistance + d);
+        }
+
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius)
         {
             float explodeDist = Math.Max(0f, explosionCenter.Distance(affectedPoint) - moduleRadius);

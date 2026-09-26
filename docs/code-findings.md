@@ -187,29 +187,94 @@ volume, and flight cues cut out earlier than anything else.
 
 ## Priority 3 — two reviews Gilad asked for, 2026-09-26
 
-`[open]` Neither is investigated. Logged with anchors so the next pass starts from code rather
-than from scratch.
+### 1. Explosion proximity, and whether adjacent ships take any of it — SHIPPED
 
-### 1. Explosion proximity, and whether adjacent ships take any of it
+`[done]` Gilad reported that ships touching each other all exploded at once, titans included.
+Reproduced, measured and fixed. `UnitTests/Ships/AdjacentShipExplosionTests.cs` pins each part.
 
-Review what an explosion should do to ships *near* the one it hit, and whether the falloff with
-distance is right.
+**The one cross-hull path is ship death**, for vanilla and Combined Arms.
+`SpatialManager.ShipExplode` is it. A projectile can splash other ships only through the
+`radius >= 256f` branch in `SpatialManager.cs`, and nothing in either of those two reaches it: the
+highest damage radius any weapon can hit fully teched is 203 in vanilla and 203 in Combined Arms,
+out of 35 and 125 explosive weapons. **The bundled Star Trek mod does reach it** -
+`Fed_HeavyPhotonTorpedo_Mk1.xml` has `ExplosionRadius` 950 - so that branch is live content, not
+dead code, and must not be deleted. RedFox's `62a4b333a` (2022-05-18) replaced "every exploding
+projectile splashes everything nearby" with that gate and called it "very rare". Not a migration loss.
 
-What a first look suggests, to be confirmed rather than trusted: the blast appears to stay inside
-the ship it struck. `Projectile` hands its damage to the victim, and `Ship.DamageExplosive` /
-`DamageExplosiveDirectional` (`Ship_ModuleGrid.cs:499` and `:573`) walk **that ship's** module grid
-only. The single place the radius reaches past the hull is `ShowExplosionEffect`
-(`Projectile.cs:823`), which is the visual, not damage - so a fighter parked beside a dying
-dreadnought may be taking nothing at all while the screen shows it engulfed.
+**Three things made one death wipe a formation, all now fixed:**
 
-Questions worth answering in order: is there any cross-ship blast path at all; if not, was that
-deliberate or lost in the migration; does `DamageRadius * ExplosionRadiusMod` (`Projectile.cs:826`)
-mean the *visual* radius is already larger than the damage radius, which would explain the
-mismatch; and what should a ship dying next to another actually do. Note the related settled
-entries below - a module-death blast already runs through the *killer's* weapon, and radial blasts
-hit big modules once per covered cell - so any change here lands on top of two known quirks.
+- The blast **entered on whichever module was geometrically nearest**, which is an *internal* one
+  as soon as the hulls overlap — at dead centre it detonated inside a `LargeOrdStorage`, killing
+  183 internals while the armour absorbed nothing. `Ship.FindBlastEntryModule` now traces a ray
+  from the blast towards the victim's centre and enters through the plate facing it, falling back
+  to the ship's own facing when the two positions coincide exactly.
+- The falloff was `(1-d/R)²` against a radius that **grew with the damage**, so a bigger blast
+  never actually fell off more — it still delivered two thirds at contact. Now
+  `ShipModule.ExplosionFalloff`: `100/(100+d)` with `d` floored at 10, so 0.91 at the centre,
+  half at 100 units, and a longer tail (at 1100u it delivers 5033 of a 60k blast where the old
+  curve gave 483).
+- The blast had a floor and **no ceiling**. `Ship.ExplosionDamageCap` adds one per hull role,
+  mirroring `ExplosionEvadeBaseChance`: 15x radius for drone/scout/fighter up to 100x for
+  capital/station. Small hulls carry reactors and ordnance out of all proportion to what they can
+  survive, and it is those, not warships, that actually chain.
+
+**The population that chains is not warships.** A ship shot to death dies when its *internal*
+slots drop below `ShipDestroyThreshold`, and resist armour is external, so combat never strips it —
+a Dreadnought dies with 144 of its 191 plates still alive and blasts at exactly the `Radius*10`
+floor. The ships that produce a large blast are the **135 vanilla designs carrying no
+`ExplosiveResist` module at all**: nothing subtracts, so they emit 15x to 34x their own floor at
+full health. Freighters (24), corvettes (21), supply (18), troop (17), fighters (16), stations (9),
+scouts, construction, colony, platforms. Exactly the ships that pile up at a planet or a shipyard.
+
+Measured, 8 stacked at 8 units with shields down, averaged over 20 trials:
+
+| stack | before | after |
+| --- | --- | --- |
+| Dreadnought, armour-stripped victim | 7 of 7 destroyed | **0 of 7** |
+| Seeder Transport (freighter) | 7 of 7 | **0 of 7** |
+| Supply Shuttle | 5.0 of 7 | **0 of 7** |
+| Corsair | 7 of 7 | **0 of 7** |
+| Shipyard among 6 freighters | 6 of 6 | 3.7 of 6 |
+
+**Still open, deliberately:** a station taking its docked craft with it. A Shipyard's cap is 100x
+radius = 28,644 against 17-module freighters, and that reads as correct rather than broken.
+
+**Do not "fix" these back:**
+
+- **Evade compounds against you in a chain.** Raising a hull's evade barely moves a stacked
+  outcome, because every explosion in the cascade rolls fresh: a 75% shuttle survives one blast
+  80% of the time and seven of them ~21%. Gilad's 2026-09-26 pass raised the tiers and took
+  point-blank from `*0.1` to `*0.25`; that is aimed at the single-blast case, not at stacks.
+- `ExplosionEvadeBaseChance` has its `default:` label grouped with `drone`/`scout`, so every hull
+  role the switch does not name inherits the **scout** value — `destroyer`, `gunboat`, `carrier`,
+  `bomber`, `troopShip`, `freighter`, `platform`, `construction` and the rest.
+  `ExplosionDamageCap` keeps the same `default:` placement on purpose so the two tables read
+  alike, though it is not a row-for-row copy: `fighter` has its own evade tier (75) but shares the
+  drone/scout cap multiplier. Whether a destroyer should really dodge better than a cruiser is a
+  separate question, as is a Level 10 freighter reaching 100 evade outside point-blank, which
+  `RollDice` treats as total immunity.
+- The **visual** is not the damage. `ExplosionRadiusVisual` defaults to 4.5 and **no weapon in
+  vanilla or Combined Arms overrides it**, and the sprite is drawn with that as its diameter, so a
+  projectile's fireball is 2.25x its damage radius. A ship's is `2 * Radius * roleMult`. Ships will
+  always look engulfed by more than actually hurts them.
+
+**Two genuinely wrong things left, both out of scope for this pass:**
+
+- `ShipModule.GetExplosionDamageOnShipExplode` subtracts `Health / (1 - ExplosiveResist)` — a
+  *health* figure — from a damage total. Health dominates, so `SteelArmorLarge` at **4%** resist
+  cancels 26,042 while `Reinforced Bulkhead` at **75%** cancels 14,400. Over a Dreadnought it
+  totals 3,834,300 against 320,603 of positive terms, which is why the blast is a 29x cliff rather
+  than a slope. Nothing guards `resist >= 1`: Star Trek's `AncientArmor_3x3` ships **1.39**, so the
+  term flips sign and *adds* 255,769 per plate, and on the receiving side
+  `InternalDamageModifier` returns `-0.39`, which **repairs** the plate instead of damaging it.
+- Reactors are supercritical against each other. `Extreme Fusion Reactor` is 1,550 health and
+  detonates for 6,000 over 72 units, roughly 4x the health of the reactor beside it, fired
+  synchronously from `ShipModule.Die`. One `AntiMatterReactor` dying takes 34 modules of a Heavy
+  Carrier with it.
 
 ### 2. Show enemy strength per system in the planet list, from the threat matrix
+
+`[open]` Not investigated. Logged with anchors so the next pass starts from code.
 
 The player has no compact answer to "where is the enemy strong". The data already exists:
 `ThreatMatrix.GetHostileStrengthAt(Vector2 pos, float radius)` (`ThreatMatrix.cs:139`), with

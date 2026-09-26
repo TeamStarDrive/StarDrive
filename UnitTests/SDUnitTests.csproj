@@ -129,6 +129,7 @@
     <Compile Include="Serialization\TypeSerializerTests.cs" />
     <Compile Include="Serialization\YamlSerializerTests.cs" />
     <Compile Include="Ships\ExternalSlotGridTests.cs" />
+    <Compile Include="Ships\AdjacentShipExplosionTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
     <Compile Include="Ships\ModuleGridFlyweightTests.cs" />
     <Compile Include="Ships\ShipDesignWriterTests.cs" />
