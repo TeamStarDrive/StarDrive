@@ -669,7 +669,7 @@ namespace Ship_Game
 
         void DrawResistancePercent(ref Vector2 cursor, IWeaponTemplate weapon, string description, WeaponStat stat)
         {
-            float effect = ModifiedWeaponStat(weapon, stat);
+            float effect = GetStatForWeapon(stat, weapon);
             if (effect.NotEqual(1))
                 Screen.DrawStatBadPercentLower1(ref cursor, description, effect, Color.White, GameText.IndicatesAnyBonusOrPenalty, ActiveModStatSpacing);
         }

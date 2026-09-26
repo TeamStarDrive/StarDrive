@@ -903,8 +903,6 @@ namespace Ship_Game
                 case "Weapon_TurnSpeed"        : mod.Turn              += unlocked.Bonus; break;
                 case "Weapon_Rate"             : mod.Rate              += unlocked.Bonus; break;
                 case "Weapon_Range"            : mod.Range             += unlocked.Bonus; break;
-                case "Weapon_ShieldDamage"     : mod.ShieldDamage      += unlocked.Bonus; break;
-                case "Weapon_ArmorDamage"      : mod.ArmorDamage       += unlocked.Bonus; break;
                 case "Weapon_HP"               : mod.HitPoints         += unlocked.Bonus; break;
                 case "Weapon_ShieldPenetration": mod.ShieldPenetration += unlocked.Bonus; break;
                 case "Weapon_ArmourPenetration": mod.ArmourPenetration += unlocked.Bonus; break;

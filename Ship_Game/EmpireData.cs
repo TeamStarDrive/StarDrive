@@ -19,8 +19,6 @@ namespace Ship_Game
         [StarData] public float Turn;            // % bonus
         [StarData] public float Damage;          // % bonus
         [StarData] public float ExplosionRadius; // % bonus
-        [StarData] public float ShieldDamage;    // % bonus
-        [StarData] public float ArmorDamage;        // FLAT bonus
         [StarData] public float ShieldPenetration;  // FLAT bonus
         [StarData] public float HitPoints;          // % bonus
         [StarData] public float ArmourPenetration; // FLAT bonus
@@ -438,8 +436,6 @@ namespace Ship_Game
                 case WeaponStat.Range:     return tag.Range;
                 case WeaponStat.Speed:     return tag.Speed;
                 case WeaponStat.FireDelay: return tag.Rate;
-                case WeaponStat.Armor:     return tag.ArmorDamage;
-                case WeaponStat.Shield:    return tag.ShieldDamage;
                 default: return 0f;
             }
         }

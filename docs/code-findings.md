@@ -485,13 +485,53 @@ still read pre-fix while the offense rating reads post-fix.
 ## Damage, shields and weapons (18)
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
+Item 1 is resolved. Items 2, 9, 10 and 16 were re-checked against the code on 2026-09-27, and
+item 2's finding was wrong as written - see it for what actually happens.
 
-1. `[latent]` **Weapon-tag armor/shield damage bonuses never applied.** `Weapon.AddModifiers`
-   (`Weapon.cs` ~613) accumulates `ArmorDamageBonus` / `ShieldDamageBonus` and nothing reads them.
-   No stock or mod tech uses those bonus types today.
-2. `[crash]` **100% resistance divides by zero.** `ShipModule.Damage` (~812) does
-   `absorbedDamage /= damageModifier` when the modifier is ≤ 1; a modifier of 0 yields NaN, then
-   `(int)NaN` for the remainder.
+1. ~~Weapon-tag armor/shield damage bonuses never applied.~~ Resolved - **deleted, not wired up**.
+   A tech's `Weapon_ArmorDamage` / `Weapon_ShieldDamage` reached `WeaponTagModifier`, was copied
+   onto every projectile by `Weapon.AddModifiers`, and died there. It was structural rather than a
+   missed call site: `Projectile.DamageMod` hands the damage path the *weapon template*, so a
+   per-projectile bonus is unreachable from `ShipModule.Damage`. Meanwhile `ModuleSelection`
+   already scaled the screen's "VS Armor" and "VS Shield" by it, so the screen promised what
+   combat never delivered - and the two sides disagreed on units, `EmpireData` commenting
+   `ArmorDamage` as FLAT and `ShieldDamage` as a percentage while the screen treated both as
+   percentages and `AddModifiers` treated both as flat. **No tech in vanilla or any of the three
+   mods grants either bonus type**, so nothing in play changed and there was no balance risk in
+   either direction; Gilad chose deletion over wiring it up. Removed: two `Projectile` fields, two
+   `AddModifiers` lines, two `WeaponTagModifier` fields, two `TechEntry` switch cases, two
+   `GetStatBonusForWeaponTag` cases, and four test assertions plus their two setup assignments,
+   which pinned the *assignment* rather than any effect. `DrawResistancePercent` now reads the weapon's own value. The commented-out
+   tech-typing block in `Technology.cs` still names both bonus types; it is inert.
+2. `[bug]` **100% resistance makes a NaN that goes nowhere - and resistance above 100% repairs the
+   module it hits.** Corrected 2026-09-27; logged as `[crash]`, and it is not one.
+   `ShipModule.Damage` (~832) does `absorbedDamage /= damageModifier` when the modifier is at or
+   below 1, and `damageModifier` is `1 - resist`.
+
+   **At exactly 1.0 the division does run and yields NaN, and nothing consumes it.** Combined Arms'
+   `Dark Energy Reactor` ships `BeamResist 1` and `EnergyResist 1`, and the deflection early-out
+   does not save it: beams skip that block entirely, and a projectile compares `0 < 0` against a
+   default Deflection of 0. But `EvtDamageInflicted` calls `GameObject.OnDamageInflicted`, an empty
+   virtual with **no overrides anywhere in the repo**, and .NET's saturating conversion makes
+   `(int)NaN` zero. The module takes nothing and nothing carries on, which is what 100% resistance
+   should do.
+
+   **Above 1.0 the modifier goes negative and `SetHealth(Health - modifiedDamage)` heals.** Three
+   things gate that, and in Star Trek all three are open:
+   - Hull path only. With shields up, `DamageShield` returns at `damageAmount < 0.01f`
+     (`ShipModule.cs` ~776), so the two `ShieldKineticResist 1.6` modules can never heal.
+   - The deflection guard is `modifiedDamage < damageThreshold && proj?.WeaponType != "Plasma"`
+     (~915). Beams skip the whole block, and **a projectile whose `WeaponType` is "Plasma" is
+     explicitly exempt** - so "projectiles just get deflected" is not true.
+   - `PlasmaThrower` is exactly that projectile, not a beam: `Tag_Plasma true`, `Tag_Beam false`,
+     `Tag_Cannon true`, `ProjectileSpeed 1700`, `FireDelay 0.025`. It ships in **vanilla** and in
+     four variants each in Combined Arms and Star Trek.
+
+   So a Star Trek PlasmaThrower firing on `Organic_cristal_Armor_Med` (`PlasmaResist 5`) applies a
+   -4 modifier: 33 damage becomes -132 health, and at 40 shots a second the plate is repaired to
+   full almost at once. The remaining hull-path resists above 1 are `PlasmaResist 1.03` on three
+   modules and the `ExplosiveResist 1.39` already noted under the ship death blast work. Nothing
+   guards `resist >= 1` anywhere.
 3. `[balance]` **Module-death blasts run through the killer's weapon.** `ShipModule.Die` passes the
    killing projectile as the source, so every module in the blast takes that weapon's
    EffectVsArmor, resistances, deflection roll and EMP — `CauseEmpDamage` once per module.

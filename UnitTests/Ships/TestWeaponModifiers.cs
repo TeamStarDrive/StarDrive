@@ -61,8 +61,6 @@ namespace UnitTests.Ships
             AssertEqual(100, p1.Health);
             AssertEqual(10, p1.DamageRadius);
             AssertEqual(0, p1.ArmorPiercing);
-            AssertEqual(0, p1.ArmorDamageBonus);
-            AssertEqual(0, p1.ShieldDamageBonus);
             AssertEqual(false, p1.IgnoresShields);
             AssertEqual(0.96f, p1.Duration);
 
@@ -75,8 +73,6 @@ namespace UnitTests.Ships
             m.HitPoints         = 1; // p.Health
             m.ExplosionRadius   = 1; // p.ExplosionRadius
             m.ArmourPenetration = 10; // p.ArmorPiercing
-            m.ArmorDamage       = 10; // p.ArmorDamageBonus
-            m.ShieldDamage      = 10; // p.ShieldDamageBonus
             m.ShieldPenetration = 1; // p.IgnoresShields
 
             Projectile p2 = Projectile.Create(Weapon, Ship, new Vector2(), Vectors.Up, null, false);
@@ -87,8 +83,6 @@ namespace UnitTests.Ships
             AssertEqual(200, p2.Health);
             AssertEqual(20, p2.DamageRadius);
             AssertEqual(10, p2.ArmorPiercing);
-            AssertEqual(10, p2.ArmorDamageBonus);
-            AssertEqual(10, p2.ShieldDamageBonus);
             AssertEqual(true, p2.IgnoresShields);
             AssertEqual(0.96f, p2.Duration);
         }

@@ -26,8 +26,6 @@ namespace Ship_Game.Gameplay
     [StarDataType]
     public class Projectile : PhysicsObject, IDisposable
     {
-        public float ShieldDamageBonus;
-        public float ArmorDamageBonus;
         public int ArmorPiercing;
         public bool IgnoresShields;
         public string WeaponType;

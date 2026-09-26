@@ -619,9 +619,7 @@ namespace Ship_Game.Gameplay
             p.Health                += weaponTag.HitPoints * HitPoints;
             p.DamageRadius          += weaponTag.ExplosionRadius * ExplosionRadius;
             p.ArmorPiercing         += (int)weaponTag.ArmourPenetration;
-            p.ArmorDamageBonus      += weaponTag.ArmorDamage;
-            p.ShieldDamageBonus     += weaponTag.ShieldDamage;
-            
+
             float shieldPenChance  = weaponTag.ShieldPenetration * 100 + ShieldPenChance;
             actualShieldPenChance  = shieldPenChance.LowerBound(actualShieldPenChance);
         }
