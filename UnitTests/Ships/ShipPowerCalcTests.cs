@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
 using SDUtils;
 using Ship_Game;
 using Ship_Game.Ships;
@@ -52,6 +53,30 @@ namespace UnitTests.Ships
             TestShip[] ships = CreateShips("Heavy Carrier mk5-b", "Fang Strafer");
             RunObjectsSim(TestSimStep);
             AssertAllModulesPowered(ships);
+        }
+
+        // ShipModule.ActualPowerFlowMax already multiplies by EmpireHullBonuses.PowerFlowMod, and
+        // Power.Calculate sums that into Ship.PowerFlowMax, which is what the design screen shows.
+        // UpdatePower used to apply data.PowerFlowMod a SECOND time, so a ship recharged at
+        // (1+mod)^2 while its own design screen said (1+mod).
+        [TestMethod]
+        public void ReactorTechBonusIsAppliedOnlyOnce()
+        {
+            Player.data.PowerFlowMod = 0.5f;
+            EmpireHullBonuses.RefreshBonuses(Player);
+
+            TestShip ship = SpawnShip("Heavy Carrier mk5-b", Player, new Vector2(7000, 7000));
+            ship.UpdateModulePositions(TestSimStep, forceUpdate: true);
+
+            float flow = ship.PowerFlowMax;
+            AssertGreaterThan(flow, 0f, "test needs a ship with reactors");
+
+            ship.PowerCurrent = 0f;
+            ship.Update(TestSimStep);
+
+            float expected = (flow - ship.PowerDraw) * TestSimStep.FixedTime;
+            AssertEqual(0.01f, expected.LowerBound(0), ship.PowerCurrent,
+                "recharge must use the already-boosted PowerFlowMax exactly once");
         }
 
         [TestMethod]

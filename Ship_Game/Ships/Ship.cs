@@ -1115,7 +1115,7 @@ namespace Ship_Game.Ships
         {
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
             if (PowerCurrent < PowerStoreMax)
-                PowerCurrent += (PowerFlowMax + PowerFlowMax * (Loyalty?.data.PowerFlowMod ?? 0)) * timeStep.FixedTime;
+                PowerCurrent += PowerFlowMax * timeStep.FixedTime;
 
             if (PowerCurrent <= 0.0f)
             {

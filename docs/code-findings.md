@@ -213,16 +213,20 @@ misc #1. Everything else is better done by us or not at all.
 ## Power (7)
 
 From the `design_power_budget` Codex entry. Items 1, 2, 4, 5 confirmed by two fact-check passes;
-item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`.
+item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`; item 1 followed.
 
-1. `[balance]` `[display]` **Reactor tech bonus applied twice.** `ShipModule.ActualPowerFlowMax`
-   already multiplies by `EmpireHullBonuses.PowerFlowMod`, and `Power.Calculate` sums that into
-   `Ship.PowerFlowMax`; `Ship.UpdatePower` (`Ship.cs` ~1114) then adds
-   `PowerFlowMax * data.PowerFlowMod` again. Live recharge is (1+mod)², the design screen shows
-   (1+mod), and the design screen is the correct one. Tech "Power Flow Bonus",
-   `TechEntry.cs` ~1006. Vanilla ships 10 of those techs totalling **0.81**, so a fully researched
-   empire recharges at 3.28x base where its own design screen says 1.81x - **81% more than
-   displayed**. Fixing it is a nerf to every empire with reactor tech.
+1. ~~Reactor tech bonus applied twice.~~ Resolved. `ShipModule.ActualPowerFlowMax` already
+   multiplies by `EmpireHullBonuses.PowerFlowMod` and `Power.Calculate` sums that into
+   `Ship.PowerFlowMax`, so `UpdatePower` adding `PowerFlowMax * data.PowerFlowMod` a second time
+   made live recharge (1+mod)² while the design screen showed (1+mod). The design screen was the
+   correct one, so `UpdatePower` now just uses `PowerFlowMax`.
+   **This is a nerf, and a large one late game**: vanilla ships 10 "Power Flow Bonus" techs
+   totalling **0.81**, so a fully researched empire was recharging at 3.28x base where its own
+   design screen said 1.81x - 81% more than displayed. Early on it hides well, since one 0.07
+   tech is only a 7% gap.
+   Safe because module `Bonuses` is a shared `EmpireHullBonuses` instance that
+   `RefreshBonuses` mutates **in place** on every tech unlock, so `ActualPowerFlowMax` is always
+   current - the second application was not quietly keeping anything up to date.
 2. ~~Pwr Dmg and Siphon only work on beams.~~ Half resolved `3037ebbf7`: **power damage now applies
    to projectiles too**, via `CausePowerDamage(Projectile)` in the projectile branch of
    `TryDamageModule`. It is applied *before* the deflection return and with no threshold test, so a
