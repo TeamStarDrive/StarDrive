@@ -216,15 +216,24 @@ From the `design_power_budget` Codex entry. Items 1, 2, 4, 5 confirmed by two fa
 item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`; 1 and 4 followed.
 **Only item 3 is still open.**
 
+**When judging items 1 and 4, ask which side was lying.** In both the design screen was
+correct and the running ship was generous - recharging faster in 1, firing cheaper in 4 - so
+the fix makes the ship honour the spec sheet the player already designed against. Nothing anyone
+built to the readout becomes wrong. The only exposure is a design tuned by in-game feel rather
+than by the numbers, which will now behave as its own screen always described. A display that
+*understates* cost or *overstates* capability is the case that deserves alarm, and neither of
+these was that.
+
 1. ~~Reactor tech bonus applied twice.~~ Resolved. `ShipModule.ActualPowerFlowMax` already
    multiplies by `EmpireHullBonuses.PowerFlowMod` and `Power.Calculate` sums that into
    `Ship.PowerFlowMax`, so `UpdatePower` adding `PowerFlowMax * data.PowerFlowMod` a second time
    made live recharge (1+mod)² while the design screen showed (1+mod). The design screen was the
    correct one, so `UpdatePower` now just uses `PowerFlowMax`.
-   **This is a nerf, and a large one late game**: vanilla ships 10 "Power Flow Bonus" techs
-   totalling **0.81**, so a fully researched empire was recharging at 3.28x base where its own
-   design screen said 1.81x - 81% more than displayed. Early on it hides well, since one 0.07
-   tech is only a 7% gap.
+   The magnitude is large late game - vanilla ships 10 "Power Flow Bonus" techs totalling
+   **0.81**, so a fully researched empire was recharging at 3.28x base where its own design
+   screen said 1.81x, 81% more than displayed - but see the note above the list: the screen was
+   the number everyone designed against, so ships now do what their spec sheet promised. Early
+   on it hides well, since one 0.07 tech is only a 7% gap.
    Safe because module `Bonuses` is a shared `EmpireHullBonuses` instance that
    `RefreshBonuses` mutates **in place** on every tech unlock, so `ActualPowerFlowMax` is always
    current - the second application was not quietly keeping anything up to date.
@@ -256,7 +265,8 @@ item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`; 1 a
    a weapon would fire a volley it could only half afford and drive the store negative.
    `SalvoCount` was never the problem: `FireAtTarget` charges once and queues `SalvoCount - 1` more,
    each charging again, so a trigger pull costs exactly `SalvoCount` shots.
-   **This is a real balance change**, roughly 29 weapons across vanilla and the two shipped mods.
+   The magnitude is real - roughly 29 weapons across vanilla and the two shipped mods - though
+   again the screen already charged this, so budgeted designs are unaffected.
    Vanilla: REAegis 800 -> 2400 power per shot, DualFlak 2.25 -> 6.75 ordnance, PlanetFlak
    0.5 -> 2.0. Combined Arms is hit hardest because shotgun-style weapons are a signature of it -
    REEmpProjector 75 -> 750 power at 10 projectiles, AMProjector 175 -> 525, and the whole
