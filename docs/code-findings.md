@@ -343,6 +343,57 @@ only the icon, with no numbers anywhere on it.
 
 ---
 
+## Priority 4 - biosphere placement, from Roland's follow-up on #321
+
+### 1. A biosphere built to make room must land on an EMPTY tile
+
+`[open]` Not investigated beyond reading the code. Logged 2026-09-27 from Roland-Johansen's
+comment of 2026-09-25 on issue #321 (`issuecomment-5837186261`), which followed the biosphere
+capacity work shipped in `933196b4f`.
+
+**What he saw.** On Xammar I, whose blueprint was unfinished, the governor built biospheres on
+the tiles of an **outpost** and a **terraformer** - two buildings that do not need a biosphere to
+exist. The planet had no free tile a biosphere could occupy; the remaining ground was volcanoes,
+marsh and tornadoes, which must be terraformed first. He agreed the population maths we gave him
+was right, so a biosphere there was not worth building for population; the only remaining
+justification was making room for the blueprint, and **a biosphere under an existing building
+makes no room**.
+
+**Why the code does it.** `Planet_EvaluateBuildings.TryBuildBiospheres` (~817) builds for either
+of two reasons and then hands the tile choice to one common helper:
+
+- `needGroundToBuildOn` - something is wanted, `FreeHabitableTiles == 0`, and the budget covers
+  the biosphere plus the cheapest wanted building.
+- `BiosphereCarriesItsPopulation(bio)` - the added population pays the upkeep back.
+
+`PreferredBiosphereTile` (~858) then tries, in order: an empty tile that is not terraformable, any
+empty tile, and finally **any tile that can take it at all** - which is where a tile already
+holding a building gets picked. That third fallback is correct for the population reason and wrong
+for the room reason, and the helper cannot tell them apart because the caller does not tell it.
+
+**The refinement Roland asks for**, in his own terms: a biosphere placed to create a building spot
+must go on an empty tile, and if there is none the colony should terraform first rather than build
+the biosphere; a biosphere placed for population may go on an occupied tile, though an empty one
+is still better because it gives both.
+
+**Points to settle.** Whether `TryBuildBiospheres` passes its reason down to
+`PreferredBiosphereTile` or the caller simply refuses to enqueue when the room reason finds no
+empty tile; whether "empty" should mean `NoBuildingOnTile` or also exclude tiles reserved for a
+terraformer, which the first preference already avoids; and whether refusing to build leaves the
+colony stuck when terraforming is unavailable, since `needGroundToBuildOn` is what currently
+breaks that deadlock.
+
+**Do not re-derive the shipped rules while doing this.** The build and scrap rules from
+`933196b4f` - `BiosphereCarriesItsPopulation`, `ShouldScrapFreeBiosphere`, and the deliberate
+omission of `ExoticCreditsBonus` from the payback - are settled and listed below. So is the tile
+rule itself (`54e182a1f`, `441802ecb`): steps 1 and 2 stay, and **every candidate must still pass
+`CanEnqueueBuildingHere`**, because `Building.AssignBuildingToTile` validates the tile it is handed
+and returns false rather than picking another - naming an unusable tile fails the enqueue on every
+governor pass, forever, which was issue #312. The refinement is only that step 3 must not fire
+under the facilitation reason. This is a placement question only.
+
+---
+
 ## Do not "fix" these
 
 Settled behaviour that reads like a bug to fresh eyes. Each was decided deliberately and the
@@ -357,6 +408,12 @@ reasoning is in the linked notes or the commit that set it.
 - **Station dropdown healing**, **box-selection modifiers**, **crash-site ownership gating** (only
   when `IsCrashSiteActive`), **refit port quality** (0.5 prioritized, 1 fallback).
 - **Budget #14 below** — the biosphere payback heuristic omits `ExoticCreditsBonus` deliberately.
+- **Damage #3, #4, #5 and #7 below** — Gilad's call, 2026-09-27. A module-death blast carrying the
+  killer's weapon, a radial blast hitting a big module once per covered cell while the directional
+  one dedupes, that blast wasting its root slot, and carry-on damage truncated to int, are all as
+  designed. #4 in particular: **do not add a dedupe to match the directional path.** #10 too:
+  hull bonuses staying off (`UseHullBonuses` false everywhere) is fine as it stands. And #11:
+  missiles keep their raw-level aim error; **do not route them through the gun formula**.
 - The AI gets half production tax on cybernetic colonies and the player does not
   (`ColonyResource.cs:222`); `ResearchTaxMultiplier` is difficulty-only and always 1 for the player
   (`UniverseGenerator.cs:232`). Both intended.
@@ -485,8 +542,8 @@ still read pre-fix while the offense rating reads post-fix.
 ## Damage, shields and weapons (18)
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
-Items 1 and 9 are resolved. Items 2, 10 and 16 were re-checked against the code on 2026-09-27, and
-item 2's finding was wrong as written - see it for what actually happens.
+Items 1, 2, 8 and 9 are resolved; items 3, 4, 5, 7, 10 and 11 are as designed and must not be
+"fixed". Items 10 and 16 were re-checked against the code on 2026-09-27, and item 12 verified.
 
 1. ~~Weapon-tag armor/shield damage bonuses never applied.~~ Resolved - **deleted, not wired up**.
    A tech's `Weapon_ArmorDamage` / `Weapon_ShieldDamage` reached `WeaponTagModifier`, was copied
@@ -503,50 +560,102 @@ item 2's finding was wrong as written - see it for what actually happens.
    `GetStatBonusForWeaponTag` cases, and four test assertions plus their two setup assignments,
    which pinned the *assignment* rather than any effect. `DrawResistancePercent` now reads the weapon's own value. The commented-out
    tech-typing block in `Technology.cs` still names both bonus types; it is inert.
-2. `[bug]` **100% resistance makes a NaN that goes nowhere - and resistance above 100% repairs the
-   module it hits.** Corrected 2026-09-27; logged as `[crash]`, and it is not one.
-   `ShipModule.Damage` (~832) does `absorbedDamage /= damageModifier` when the modifier is at or
-   below 1, and `damageModifier` is `1 - resist`.
+2. ~~100% resistance makes a NaN, and resistance above 100% repairs the module it hits.~~
+   Resolved. A resistance is a *fraction* of incoming damage, so anything at or above 1 took
+   `ShipModule.Damage` somewhere it was never meant to go. Two changes:
+   - **Every resistance now reads back clamped to 1**, on the ten `ShipModule` properties rather
+     than in the flyweight constructor - the flyweight's fields are `[StarData] readonly`, so a
+     savegame can populate them directly and a constructor clamp would leak. Nothing outside
+     `ShipModule` reads `Flyweight.*Resist`, so the properties are the whole choke point.
+     **Four consumers move with it**, all in the right direction and all only for content that was
+     out of range: the design screen now prints the figure the sim uses;
+     `InternalDamageModifier` (`1 - ExplosiveResist`) goes from -0.39 to 0, so an internal blast is
+     absorbed at that plate instead of repairing it; `CauseRadiationDamage`'s
+     `1 - EnergyResist` likewise; and `CalculateModuleDefense`'s `def *= 1 + resist*0.2` drops a
+     `PlasmaResist 5` module from a 2.0 multiplier to 1.2. `Ship.BaseStrength` is `[StarData]`,
+     so an old save keeps its pre-clamp strength until something recalculates it.
+   - **A damage modifier of zero absorbs the shot** instead of being divided by. `absorbedDamage`
+     is set to the full incoming damage, so `damageRemainder` comes out 0 and nothing carries on.
+   - **The death blast formula now skips a plate it cannot describe.**
+     `GetExplosionDamageOnShipExplode` divides by `1 - ExplosiveResist`, which is only defined
+     below full resistance, so the term is taken only when the resist is **above 0 and below 1**.
+     Flooring the denominator instead - the first attempt, at 0.01 - was caught in review and is
+     **much worse**: Star Trek's `AncientArmor_3x3` has `Health 99750` and `ExplosiveResist 1.39`,
+     the only module in any shipped content at or above 1, and it would have gone from
+     contributing **+255,769** to the ship's blast to cancelling **9,975,000** of it, pinning any
+     ship carrying that plate at the `Radius*10` floor. The domain guard makes its contribution 0
+     instead. That is still a change for those ships - they lose a quarter million of blast that
+     the broken formula was handing them - but it is bounded and explainable, and the formula
+     itself stays on the list below as wrong.
 
-   **At exactly 1.0 the division does run and yields NaN, and nothing consumes it.** Combined Arms'
-   `Dark Energy Reactor` ships `BeamResist 1` and `EnergyResist 1`, and the deflection early-out
-   does not save it: beams skip that block entirely, and a projectile compares `0 < 0` against a
-   default Deflection of 0. But `EvtDamageInflicted` calls `GameObject.OnDamageInflicted`, an empty
-   virtual with **no overrides anywhere in the repo**, and .NET's saturating conversion makes
-   `(int)NaN` zero. The module takes nothing and nothing carries on, which is what 100% resistance
-   should do.
+   **What it actually did, corrected twice.** It was logged as `[crash]`; it is not one, but it is
+   worse than the first correction said. Mutation testing showed the NaN does **not** quietly
+   become 0: on this runtime `(int)NaN` yields **int.MinValue**, and `damageRemainder` is written
+   straight back into the caller's own damage figure - `Projectile.TryDamageModule` does
+   `victim.Damage(this, DamageAmount, out DamageAmount)` and `ShipModule.DamageExplosive` does the
+   same with `ref damageInOut`. Both then test `<= 0f` and stop, so the *outcome* was accidentally
+   right, but a projectile's `DamageAmount` was passing through -2,147,483,648 to get there.
+   A previous commit message repeated the `(int)NaN` is zero reading; this is the correct one.
 
-   **Above 1.0 the modifier goes negative and `SetHealth(Health - modifiedDamage)` heals.** Three
-   things gate that, and in Star Trek all three are open:
-   - Hull path only. With shields up, `DamageShield` returns at `damageAmount < 0.01f`
-     (`ShipModule.cs` ~776), so the two `ShieldKineticResist 1.6` modules can never heal.
-   - The deflection guard is `modifiedDamage < damageThreshold && proj?.WeaponType != "Plasma"`
-     (~915). Beams skip the whole block, and **a projectile whose `WeaponType` is "Plasma" is
-     explicitly exempt** - so "projectiles just get deflected" is not true.
-   - `PlasmaThrower` is exactly that projectile, not a beam: `Tag_Plasma true`, `Tag_Beam false`,
-     `Tag_Cannon true`, `ProjectileSpeed 1700`, `FireDelay 0.025`. It ships in **vanilla** and in
-     four variants each in Combined Arms and Star Trek.
+   **Reachable in shipped content.** Combined Arms' `Dark Energy Reactor` has `BeamResist 1` and
+   `EnergyResist 1`, and the deflection early-out does not save it: beams skip that block
+   entirely, and a projectile compares `0 < 0` against a default Deflection of 0. Above 1, the
+   modifier went negative and `SetHealth(Health - modifiedDamage)` **healed** the module. Star
+   Trek's hull-path resists above 1 are `PlasmaResist` 5 and 1.03 on three more modules, plus the
+   `ExplosiveResist` 1.39 noted under the ship death blast work; its two `ShieldKineticResist 1.6`
+   modules could never heal, because `DamageShield` returns at `damageAmount < 0.01f`.
+   The heal was **not** beam-only: the guard is
+   `modifiedDamage < damageThreshold && proj?.WeaponType != "Plasma"`, and `PlasmaThrower` is a
+   plasma *projectile* - `Tag_Beam false`, `Tag_Cannon true`, `ProjectileSpeed 1700`,
+   `FireDelay 0.025` - shipped in vanilla and in four variants each in Combined Arms and Star
+   Trek. At 40 shots a second it repaired a plate to full almost at once.
 
-   So a Star Trek PlasmaThrower firing on `Organic_cristal_Armor_Med` (`PlasmaResist 5`) applies a
-   -4 modifier: 33 damage becomes -132 health, and at 40 shots a second the plate is repaired to
-   full almost at once. The remaining hull-path resists above 1 are `PlasmaResist 1.03` on three
-   modules and the `ExplosiveResist 1.39` already noted under the ship death blast work. Nothing
-   guards `resist >= 1` anywhere.
-3. `[balance]` **Module-death blasts run through the killer's weapon.** `ShipModule.Die` passes the
-   killing projectile as the source, so every module in the blast takes that weapon's
-   EffectVsArmor, resistances, deflection roll and EMP — `CauseEmpDamage` once per module.
-4. `[balance]` **Radial blasts hit big modules repeatedly.** `Ship.DamageExplosive`
-   (`Ship_ModuleGrid.cs` ~525) hits a multi-cell module once per covered cell with no dedupe; the
-   directional version already dedupes via `SplashHitScratch`.
-5. **Module-death blast root is wasted** — the blast centres on the dying, already-inactive module,
-   so the full-damage root slot yields nothing and every direction starts at 25%. Decide whether
-   that is intended.
+   Covered by `UnitTests/Ships/ModuleResistTests.cs` against new `TEST_ModuleResist`
+   (`KineticResist 2`, `BeamResist 1`) and `TEST_ShipResist`. Each half was mutation-checked
+   separately. One of the three tests as first written passed with and without the clamp, because
+   a ballistic projectile *is* caught by the deflection guard - it was rewritten to assert the
+   damage modifier never goes negative, which is the root cause rather than one weapon's path.
+3. `[settled]` **Module-death blasts run through the killer's weapon.** As designed, Gilad
+   2026-09-27. `ShipModule.Die` passes the killing projectile as the source, so every module in
+   the blast takes that weapon's EffectVsArmor, resistances, deflection roll and EMP, and
+   `CauseEmpDamage` fires once per module.
+4. `[settled]` **Radial blasts hit big modules once per covered cell.** As designed, Gilad
+   2026-09-27. `Ship.DamageExplosive` (`Ship_ModuleGrid.cs` ~525) has no dedupe, while the
+   directional version dedupes via `SplashHitScratch`. The asymmetry stays: **do not add a dedupe
+   here to match.**
+5. `[settled]` **A module-death blast wastes its root slot.** As designed, Gilad 2026-09-27. The
+   blast centres on the dying, already-inactive module, so the full-damage root yields nothing and
+   every direction starts at 25%.
 6. `[balance]` **Shield bubble spends armor piercing.** `Projectile.TryPhaseThroughModule` subtracts
    the shield module's width + APResist when the shot hits the bubble.
-7. **Remainder truncated to int** — `damageRemainder = (int)(...)` in `ShipModule.Damage` drops
-   fractional carry-on damage.
-8. **Planet repair without an owner check (unconfirmed)** — `Ship_Repair.cs` ~59 repairs from any
-   orbited or tethered planet. Check whether orbiting an enemy or neutral planet repairs.
+7. `[settled]` **Carry-on damage is truncated to int.** As designed, Gilad 2026-09-27.
+   `damageRemainder = (int)(...)` in `ShipModule.Damage` drops the fraction.
+8. ~~Planets repair any ship in orbit, whoever owns them.~~ Resolved - `Ship.Repair` now takes
+   planet repair only from a planet owned by the ship's empire or an ally, the pair supply already
+   used, Gilad's pick 2026-09-27. Covered by `UnitTests/Ships/PlanetRepairTests.cs`: own and allied
+   worlds add their rate, and enemy, at-peace and ownerless worlds add nothing; with the gate
+   removed the last three fail, and with an owner-only gate the ally test fails. The three Codex
+   repair sentences now say "your own or an ally's colony". What it was: a player Vulcan Scout
+   orbiting an enemy homeworld repaired at **440/s against 40/s** in deep space, and the same at the
+   homeworld of an empire it was at peace with; its own homeworld, the control, adds exactly the
+   planet's rate. The test turns
+   `UseCombatRepair` on because the harness never advances `GameBase.TotalElapsed`, so every ship
+   there reads as recently damaged; that the states below are out of combat comes from reading the
+   code. `Ship.Repair` (`Ship_Repair.cs` ~59) takes the tether or the orbit target with no owner
+   check, and the planet also clears EMP and lifts the repair level to `p.Level + p.NumShipyards`.
+   Supply does check: `GeodeticManager.AffectNearbyShips` serves only the owner and its allies, and
+   `IsSuitableForPlanetaryRearm` reads the same pair.
+   **Reachable out of combat**, the only time repair runs (`UseCombatRepair` is false in vanilla and
+   every shipped mod): the default right-click on any planet is `OrderToOrbit` with no owner check,
+   so any foreign world at peace and any enemy colony with nothing firing; a bomber whose target
+   stops being attackable is parked in orbit on purpose (`DoBombard`, "Stay in Orbit"); a troop ship
+   that has launched all its troops orbits the planet it is invading; and a boarded orbital keeps
+   its tether to the old owner's planet, because boarding never untethers. A planet that loses its
+   owner also keeps its last `RepairRatePerSecond`, since only `AffectNearbyShips` sets it and that
+   returns early without an owner, so it repaired at the dead colony's rate until the next load;
+   the owner gate closes that case as well, and the stale rate itself is harmless now. The EMP
+   sentence in `CodexWarfareCombatBasicsText` already said "orbiting a friendly colony", so the
+   EMP clearing that rides on the same block now matches it.
 9. ~~`IsCoveredByShield` picks the last shield, not the strongest.~~ Resolved - `maxPower` is now
    raised when a shield wins, so the method does what its own comment says. **Narrower than it
    first reads**: the method has exactly one caller, `Ship.CauseRadiationDamage`, reached only
@@ -563,14 +672,31 @@ item 2's finding was wrong as written - see it for what actually happens.
    current charge, while the damage the winner takes scales by `ShieldHitRadius`, so a wide bubble
    with slightly less charge is passed over for a small full one. The comment asks for charge and
    that is now what it does; whether radius should weigh in is a separate balance question.
-10. `[latent]` **Hull bonuses are off everywhere.** `UseHullBonuses` is false in vanilla and every
-    shipped mod, so hull `ArmoredBonus` and `ShieldModifier` are dead. The Codex omits them.
-11. `[latent]` **Missile and `MaxWeaponError` aim use the raw crew level.** `MissileAI.cs` ~258
-    passes the missile's Level with no square, FCS or trait; `Ship.cs` ~1019 `MaxWeaponError` does
-    the same and is never read.
-12. `[balance]` **Jammed missiles re-target every frame.** `MissileAI.MoveTowardsTargetJammed` sets
-    `Target = null` each call, so the missile re-picks roughly every 0.15 s and carries its
-    Jammed/FixedError state across.
+10. `[settled]` **Hull bonuses are off everywhere.** As designed, Gilad 2026-09-27. `UseHullBonuses`
+    is false in vanilla and every shipped mod, so hull `ArmoredBonus` and `ShieldModifier` are dead.
+    The Codex omits them.
+11. `[settled]` **Missile aim uses the raw crew level.** As designed, Gilad 2026-09-27: missiles keep
+    it, and the dead `Ship.MaxWeaponError` was deleted. `MissileAI` (~258)
+    passes the launching ship's `Level`, or the planet's, into `Weapon.GetTargetError`, which then
+    skips the branch guns take: a gun adds the Militaristic trait to its level, squares it, and adds
+    FCS `TargetingAccuracy`; a missile gets the level as is. The split dates from `af2c19d26`
+    (October 2020), which squared the level only inside the `level < 0` branch and left the missile
+    call site on the old formula. For a 1x1 launcher (base error ~494), before the turret and trait
+    multipliers: at level 0 both errors are ~83, at level 5 a gun's is ~0 and a missile's ~33. A
+    missile re-rolls that error every 0.1-0.8 s and keeps homing, so it shows as weave more than as
+    misses, except against small targets. **The Codex already describes the current rule**: FCS
+    "shrinks the aim error of unguided weapons", and guided weapons "home in instead and show no
+    Accuracy", so aligning missiles with guns would need that text changed as well.
+    `Ship.MaxWeaponError` was computed in `UpdateWeaponRanges` and read nowhere.
+12. `[latent]` **Jammed missiles re-target every 0.15 s.** Verified 2026-09-27, and **unreachable in
+    shipped content**: a missile is jammed only when the target ship's `ECMValue` beats the
+    missile's `ECMResist` plus a roll of 0 to 1, and `ECMValue` comes only from module `ECM`, which
+    no module in vanilla or any bundled mod sets. The ECM techs raise `MissileDodgeChance` instead
+    (`TechEntry.cs` ~942), a different mechanic. If a mod adds ECM, the code does what this item
+    says: `MoveTowardsTargetJammed` clears `Target` on every call, so the missile steers toward its
+    decoy point for one frame, flies straight until `TargetUpdateTimer` picks a target again 0.15 s
+    later, and keeps `Jammed` and `FixedError` from the first target, since neither is ever reset.
+    It only checks for arrival within 300 units on the frames it steers.
 13. `[display]` **Shield penetration, screen versus combat.** The screen sums empire bonus + base +
     every tag (`ModuleSelection.cs` ~589); combat takes the max of (tag + base) with the empire
     bonus as a floor (`Weapon.cs` ~593, ~616). The screen overstates, and a weapon with no tags
