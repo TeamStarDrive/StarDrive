@@ -58,7 +58,7 @@ public partial class Ship
             float planetRepair = 0f;
             Planet p = GetTether()
                        ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
-            if (p != null)
+            if (p != null && (p.Owner == Loyalty || Loyalty.IsAlliedWith(p.Owner)))
             {
                 planetRepair = p.GeodeticManager.RepairRatePerSecond;
                 repairLevel = Math.Max(repairLevel, p.Level + p.NumShipyards);
