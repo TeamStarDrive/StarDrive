@@ -864,15 +864,34 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (14)
+## Budget, money and espionage (14, one resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
-fixing any of these needs a Codex impact pass.
+fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
+were still present; item 1 has since been resolved.
 
-1. `[balance]` **Leeched money looks double-credited.** `Espionage.AddLeechedMoney` calls
-   `Owner.AddMoney` immediately (`Espionage.cs:262`) and the same amount lands in
-   `TotalMoneyLeechedLastTurn` (`Empire_Espionage.cs:36`), a term of `GrossIncome`
-   (`Empire.cs:195`), added again by `AddMoney(MoneyAfterLeech(NetIncome))` (`Empire.cs:1365`).
+1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
+   money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
+   was collected at the end of the turn into `TotalMoneyLeechedLastTurn`, a term of `GrossIncome`,
+   which the leecher's next `DoMoney` added again. Every empire with a level 5 network collected
+   4% of its victim's positive gain rather than 2%. The immediate `AddMoney` is gone, so the
+   money arrives once, through the Money Leeched income line - which is what the budget screen,
+   its tooltip, the Leech Income tooltip ("2% of their income per turn"), the espionage Codex
+   entry (100196, level 5) and the Budget Screen entry (100225) already said, so no text changed;
+   100225's Net Gain paragraph, false for a leecher until now, is now true. `TotalMoneyLeeched`
+   (the level 5 panel's running total) and the victim's 2% loss are unchanged.
+   **The collection moved too, and that part is load-bearing.** It used to run in
+   `EndOfTurnUpdate`, which loading a save also runs, for every empire, before any `DoMoney`. That
+   overwrote the saved, still-unpaid `TotalMoneyLeechedLastTurn` with the empty pending counter;
+   harmless while the immediate credit had already paid it, but with the credit gone every load
+   would have dropped a turn of leech. `UpdateMoneyLeechedLastTurn` is now private and runs at the
+   start of the leecher's own `DoMoney`, so nothing touches it at load, the income row shows
+   what was just paid, and it left the `Parallel.For`. It also walks `MajorEmpires` rather than
+   `ActiveMajorEmpires`, so the leech from a victim defeated after paying it is still collected.
+   Pinned by three tests in `InfiltrationOperationsTests`: `LeechedMoneyIsPaidOnce` (the old code
+   puts 40 credits in the treasury where the income line shows 20),
+   `LeechedMoneySurvivesSaveAndLoad` (collecting at end of turn loses the 20 at load) and
+   `LeechFromAnEmpireDefeatedThatTurnIsStillPaid` (the active-only walk loses it).
 2. `[balance]` **Planet troop upkeep cancels out and is never charged.**
    `TotalBuildingMaintenance` subtracts `TroopCostOnPlanets` (`Empire.cs:197`) and `AllSpending`
    adds it back (`:199`). Garrisoned troops cost nothing.

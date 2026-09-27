@@ -1360,6 +1360,7 @@ namespace Ship_Game
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             UpdatePlanetStorageStats();
+            UpdateMoneyLeechedLastTurn();
             EspionageCostLastTurn = LegacyEspionageEnabled ? 0 : GetEspionageCost();
             // AllSpending already includes EspionageCostLastTurn, so NetIncome
             // has it subtracted. Don't subtract again here.
