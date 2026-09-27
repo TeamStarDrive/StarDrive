@@ -337,7 +337,7 @@ public static class GameAudio
         }
     }
 
-    static IAudioInstance PlayEffect(SoundEffect effect, AudioEmitter emitter)
+    static IAudioInstance PlayEffect(SoundEffect effect, AudioEmitter emitter, string selectedFile = null)
     {
         if (effect == null || !effect.Category.CanPlayEffect(effect))
             return null;
@@ -346,7 +346,7 @@ public static class GameAudio
         if (volume <= 0.0001f)
             return null; // this effect is muted
 
-        string sfxFile = effect.GetNextSfxFile(Random);
+        string sfxFile = selectedFile ?? effect.GetNextSfxFile(Random);
         FileInfo file = ResourceManager.GetModOrVanillaFile("Audio/" + sfxFile);
         if (file == null)
         {
@@ -415,13 +415,29 @@ public static class GameAudio
     /// <summary>
     /// Play music from an effect id
     /// </summary>
-    public static AudioHandle PlayMusic(string effectId)
+    public static string[] GetMusicTracks(string effectId)
+    {
+        SoundEffect effect = Config?.GetSoundEffect(effectId);
+        return effect == null ? System.Array.Empty<string>() : effect.Sound != null
+            ? new[] { effect.Sound } : effect.Sounds != null ? (string[])effect.Sounds.Clone() : System.Array.Empty<string>();
+    }
+
+    public static string GetMusicTrackTitle(string effectId, int trackIndex)
+    {
+        SoundEffect effect = Config?.GetSoundEffect(effectId);
+        string[] tracks = GetMusicTracks(effectId);
+        return tracks.Length == 0 ? "Music unavailable" : effect.GetTrackTitle(tracks[trackIndex % tracks.Length]);
+    }
+
+    public static AudioHandle PlayMusic(string effectId, int trackIndex = -1)
     {
         if (CantPlayMusic(effectId))
             return AudioHandle.DoNotPlay;
         
         SoundEffect effect = Config.GetSoundEffect(effectId);
-        IAudioInstance instance = PlayEffect(effect, emitter: null);
+        string[] tracks = trackIndex >= 0 ? GetMusicTracks(effectId) : null;
+        string selected = tracks != null && tracks.Length > 0 ? tracks[trackIndex % tracks.Length] : null;
+        IAudioInstance instance = PlayEffect(effect, emitter: null, selectedFile: selected);
         if (instance == null)
             return AudioHandle.DoNotPlay;
 

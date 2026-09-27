@@ -598,8 +598,8 @@ namespace Ship_Game
             PlanetsInCombat.OnClick = CyclePlanetsInCombat;
             PlanetsInCombat.Tooltip = "Cycle through planets that are in combat";
 
-            RectF leftRect = new(20, 60, 200, 500);
-            Add(new FleetButtonsList(leftRect, this, this,
+            RectF leftRect = new(0, 110, Math.Min(320, width * 0.25f) - 22, height - 389);
+            Add(new EmpireAssetsPanel(leftRect, this,
                 onClick: OnFleetButtonClicked,
                 onHotKey: OnFleetHotKeyPressed,
                 isSelected: (b) => SelectedFleet?.Key == b.FleetKey

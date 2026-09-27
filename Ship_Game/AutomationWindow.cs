@@ -12,7 +12,7 @@ using Ship_Game.Universe;
 
 namespace Ship_Game
 {
-    public sealed class AutomationWindow : GameScreen
+    public sealed partial class AutomationWindow : GameScreen
     {
         public bool IsOpen { get; private set; }
         readonly UniverseScreen Screen;
@@ -130,6 +130,11 @@ namespace Ship_Game
 
         public void ToggleVisibility()
         {
+            if (Sidebar != null)
+            {
+                Sidebar.ToggleAutomation();
+                return;
+            }
             GameAudio.AcceptClick();
             IsOpen = !IsOpen;
             if (IsOpen)
@@ -138,6 +143,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            if (Sidebar != null) return; // The sidebar owns drawing and input for the embedded view.
             if (!Visible)
                 return;
 
@@ -184,6 +190,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (Sidebar != null) return false;
             if (!IsOpen)
                 return false;
 
@@ -245,6 +252,7 @@ namespace Ship_Game
 
         public void UpdateDropDowns()
         {
+            CloseSidebarChoices(); // Never keep a stale choice list across design/technology changes.
             EmpireData playerData = Screen.Player.data;
             if (MiningOpsEnabled && Screen.Player.CanBuildMiningStations)
             {

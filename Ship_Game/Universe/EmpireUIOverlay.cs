@@ -11,7 +11,7 @@ using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
-    public sealed class EmpireUIOverlay
+    public sealed partial class EmpireUIOverlay
     {
         public Empire Player;
         Rectangle res1;
@@ -198,14 +198,23 @@ namespace Ship_Game
             Buttons.Add(Help);
         }
 
-        public void Draw(SpriteBatch batch)
+        public void Draw(SpriteBatch batch, bool sidebarNavigation = false)
         {
             if (Universe.IsExiting || Universe.IsDisposed)
                 return;
 
+            if (sidebarNavigation)
+            {
+                DrawDashboard(batch);
+                return;
+            }
+
             Vector2 textCursor = new Vector2();
             foreach (Button b in Buttons)
             {
+                // Galaxy navigation lives in the sidebar; retain the resource readouts.
+                // Designers still draw their own top-bar navigation until exited.
+                if (sidebarNavigation && !string.IsNullOrEmpty(b.Text)) continue;
                 if (!string.IsNullOrEmpty(b.Text))
                 {
                     textCursor.X = b.Rect.X + b.Rect.Width / 2 - Fonts.Arial12Bold.MeasureString(b.Text).X / 2f;
@@ -376,145 +385,31 @@ namespace Ship_Game
                 }
             }
 
-            foreach (Button b in Buttons)
-            {
-                if (!b.Rect.HitTest(input.CursorPosition))
-                {
-                    b.State = PressState.Normal;
-                }
-                else
-                {
-                    if (b.launches != null)
-                    {
-                        switch (b.launches)
-                        {
-                            case "Research":
-                                {
-                                    ToolTip.CreateTooltip(Localizer.Token(GameText.ResearchScreen) + "\n\n" + Localizer.Token(GameText.CurrentResearch) + ": " + Player.Research.TopicLocText.Text, "R");
-                                    break;
-                                }
-                            case "Budget":
-                                {
-                                    ToolTip.CreateTooltip(GameText.EconomicOverview2, "T");
-                                    break;
-                                }
-                            case "Main Menu":
-                                {
-                                    ToolTip.CreateTooltip(GameText.OpensTheMainMenu, "O");
-                                    break;
-                                }
-                            case "Shipyard":
-                                {
-                                    ToolTip.CreateTooltip(GameText.OpensTheShipyard, "Y");
-                                    break;
-                                }
-                            case "Empire":
-                                {
-                                    ToolTip.CreateTooltip(GameText.OpensTheEmpireOverviewScreen, "U");
-                                    break;
-                                }
-                            case "Diplomacy":
-                                {
-                                    ToolTip.CreateTooltip(GameText.OpensTheDiplomacyOverviewScreen, "I");
-                                    break;
-                                }
-                            case "Espionage":
-                                {
-                                    ToolTip.CreateTooltip(GameText.OpensTheEspionageManagementScreen, "E");
-                                    break;
-                                }
-                            case "ShipList":
-                                {
-                                    ToolTip.CreateTooltip(GameText.OpensTheShipRoster, "K");
-                                    break;
-                                }
-                            case "Fleets":
-                                {
-                                    ToolTip.CreateTooltip(GameText.OpensTheFleetManager, "J");
-                                    break;
-                                }
-                            case "?":
-                                {
-                                    ToolTip.CreateTooltip(GameText.OpensTheHelpMenu, "F1");
-                                    break;
-                                }
-                        }
-                    }
-                    if (b.State != PressState.Hover && b.State != PressState.Pressed)
-                    {
-                        GameAudio.MouseOver();
-                    }
-                    b.State = PressState.Hover;
-                    if (input.LeftMouseHeldDown)
-                    {
-                        b.State = PressState.Pressed;
-                    }
-                    if (input.InGameSelect)
-                    {
-                        if (b.launches == null)
-                        {
-                            continue;
-                        }
-                        if (b.launches == "Research")
-                        {
-                            GameAudio.EchoAffirmative();
-                            Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this));
-                        }
-                        else if (b.launches == "Budget")
-                        {
-                            GameAudio.EchoAffirmative();
-                            Universe.ScreenManager.AddScreen(new BudgetScreen(Universe));
-                        }
-
-                        if (b.launches == "Main Menu")
-                        {
-                            GameAudio.EchoAffirmative();
-                            Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe));
-                        }
-                        else if (b.launches == "Shipyard")
-                        {
-                            GameAudio.EchoAffirmative();
-                            Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this));
-                        }
-                        else if (b.launches == "Fleets")
-                        {
-                            GameAudio.EchoAffirmative();
-                            Universe.ScreenManager.AddScreen(new FleetDesignScreen(Universe, this));
-                        }
-                        else if (b.launches == "ShipList")
-                        {
-                            GameAudio.EchoAffirmative();
-                            Universe.ScreenManager.AddScreen(new ShipListScreen(Universe, this));
-                        }
-                        else if (b.launches == "Empire")
-                        {
-                            Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this));
-                            GameAudio.EchoAffirmative();
-                        }
-                        else if (b.launches == "Diplomacy")
-                        {
-                            Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe));
-                            GameAudio.EchoAffirmative();
-                        }
-                        else if (b.launches == "Espionage")
-                        {
-                            if (Universe.Player.LegacyEspionageEnabled)
-                                Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
-                            else
-                                Universe.ScreenManager.AddScreen(new InfiltrationScreen(Universe));
-
-                            GameAudio.EchoAffirmative();
-                        }
-                        else if (b.launches == "?")
-                        {
-                            GameAudio.TacticalPause();
-                            Universe.ScreenManager.AddScreen(new Codex.CodexScreen(Universe));
-                        }
-                        return true;
-                    }
-                }
-            }
+            // Galaxy mouse navigation is handled by EmpireAssetsPanel. This overload
+            // still handles the established keyboard shortcuts above.
             return false;
+        }
+
+        public void OpenNavigation(string target)
+        {
+            switch (target)
+            {
+                case "Research": Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this)); break;
+                case "Budget": Universe.ScreenManager.AddScreen(new BudgetScreen(Universe)); break;
+                case "Shipyard": Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this)); break;
+                case "Empire": Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this)); break;
+                case "Diplomacy": Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe)); break;
+                case "Fleets": Universe.ScreenManager.AddScreen(new FleetDesignScreen(Universe, this)); break;
+                case "ShipList": Universe.ScreenManager.AddScreen(new ShipListScreen(Universe, this)); break;
+                case "Espionage":
+                    if (Universe.Player.LegacyEspionageEnabled) Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
+                    else Universe.ScreenManager.AddScreen(new InfiltrationScreen(Universe));
+                    break;
+                case "Main Menu": Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe)); break;
+                case "?": Universe.ScreenManager.AddScreen(new Codex.CodexScreen(Universe)); break;
+                default: return;
+            }
+            GameAudio.EchoAffirmative();
         }
 
         // TODO: This is utterly retarded, needs a complete rewrite

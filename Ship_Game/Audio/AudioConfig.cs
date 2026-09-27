@@ -345,6 +345,16 @@ public class SoundEffect
     /// </summary>
     [StarData] public readonly string[] Sounds;
 
+    // Filename keys keep titles attached to the correct track when mods reorder a playlist.
+    [StarData] public readonly Map<string, string> TrackTitles = new();
+
+    public string GetTrackTitle(string file)
+    {
+        if (TrackTitles.TryGetValue(file, out string title) && !string.IsNullOrWhiteSpace(title))
+            return title;
+        return System.IO.Path.GetFileNameWithoutExtension(file).Replace('_', ' ');
+    }
+
     /// <summary>
     /// Maximum instances of THIS effect that can play at once,
     /// 0 to use the category's MaxConcurrentSoundsPerEffect instead

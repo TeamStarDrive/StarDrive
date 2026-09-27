@@ -107,6 +107,9 @@
 
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Ship_Game\Universe\EmpireAssetsPanel.cs" />
+    <Compile Include="Ship_Game\Universe\EmpireAssetsPanel.Draw.cs" />
+    <Compile Include="Ship_Game\Universe\EmpireAssetsPanel.Navigation.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Components\BudgetPriorities.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EspionageManager.cs" />
     <Compile Include="Ship_Game\AI\ExpansionAI\MiningOpsPlanner.cs" />
@@ -827,6 +830,8 @@
     <Compile Include="Ship_Game\ShipListScreenItem.cs" />
     <Compile Include="Ship_Game\SortButton.cs" />
     <Compile Include="Ship_Game\Universe\EmpireUIOverlay.cs" />
+    <Compile Include="Ship_Game\Universe\EmpireUIOverlay.Dashboard.cs" />
+    <Compile Include="Ship_Game\Universe\EmpireUIOverlay.Popovers.cs" />
     <Compile Include="Ship_Game\Beam.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\History.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreen.cs" />
@@ -947,6 +952,7 @@
     <Compile Include="Ship_Game\ResearchQItem.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetInfoUIElement.cs" />
     <Compile Include="Ship_Game\AutomationWindow.cs" />
+    <Compile Include="Ship_Game\AutomationWindow.Sidebar.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Artifact.cs" />
     <Compile Include="Ship_Game\ExplorationEvent.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Outcome.cs" />

@@ -221,6 +221,77 @@ namespace Ship_Game
             }
         }
 
+        int LastPlanetKeyPressed = -1;
+        int LastPlanetKeyPressTickMs;
+
+        // Return true when the planet shortcut consumed the key. Otherwise the normal
+        // fleet handler runs, including Ctrl+number and Ctrl+Shift+number ship assignment.
+        internal bool HandlePlanetHotkey(int key, InputState input)
+        {
+            if (GlobalStats.TakingInput || key < Empire.FirstFleetKey || key > Empire.LastFleetKey)
+                return false;
+            if (input.ReplaceFleet)
+            {
+                LastPlanetKeyPressed = LastFleetKeyPressed = -1;
+                if (SelectedPlanet != null)
+                {
+                    if (SelectedPlanet.Owner == Player)
+                    {
+                        SetPlanetHotkey(key, SelectedPlanet.Id);
+                        GameAudio.AcceptClick();
+                    }
+                    else GameAudio.NegativeClick();
+                    return true; // Never clear or replace a fleet when a planet is selected.
+                }
+                SetPlanetHotkey(key, 0);
+                return false;
+            }
+            if (input.AddToFleet)
+            {
+                if (SelectedShipList.NotEmpty) SetPlanetHotkey(key, 0);
+                LastPlanetKeyPressed = -1;
+                return false;
+            }
+
+            int[] bindings = UState.PlanetHotkeyIds;
+            int planetId = bindings != null && key <= bindings.Length ? bindings[key - 1] : 0;
+            if (planetId == 0) return false;
+            Planet planet = Player.GetPlanets().Find(p => p.Id == planetId);
+            if (planet == null || planet.Owner != Player)
+            {
+                SetPlanetHotkey(key, 0);
+                LastPlanetKeyPressed = -1;
+                return false; // Lost colonies release the key back to the fleet.
+            }
+            int now = Environment.TickCount;
+            bool doubleTap = LastPlanetKeyPressed == key && SelectedPlanet == planet
+                          && unchecked((uint)(now - LastPlanetKeyPressTickMs)) < FleetKeyDoubleTapWindowMs;
+            SetSelectedPlanet(planet);
+            GameAudio.AcceptClick();
+            LastFleetKeyPressed = -1;
+            if (doubleTap)
+            {
+                SnapViewColony(planet, combatView: false);
+                LastPlanetKeyPressed = -1;
+            }
+            else
+            {
+                LastPlanetKeyPressed = key;
+                LastPlanetKeyPressTickMs = now;
+            }
+            return true;
+        }
+
+        void SetPlanetHotkey(int key, int planetId)
+        {
+            // Publish a new array so the save thread cannot observe a partially edited table.
+            int[] previous = UState.PlanetHotkeyIds;
+            var updated = new int[Empire.LastFleetKey];
+            if (previous != null) System.Array.Copy(previous, updated, Math.Min(previous.Length, updated.Length));
+            updated[key - 1] = planetId;
+            UState.PlanetHotkeyIds = updated;
+        }
+
         public void ToggleDebugWindow() // toggle Debug Window overlay
         {
             if (DebugWin == null)
@@ -280,9 +351,11 @@ namespace Ship_Game
 
             // ensure universe has the correct light rig
             ResetLighting(forceReset: false);
-
-            HandleEdgeDetection(input);
             UpdateVisibleShields();
+            HandleGameSpeedChange(input);
+            HandleEdgeDetection(input);
+            if (IsActive && !IsCinematicModeEnabled && EmpireUI.HandleDashboardInput(input))
+                return true;
 
             if (HandleDragAORect(input))
                 return true;
@@ -327,8 +400,6 @@ namespace Ship_Game
                 UState.Paused = true;
                 Log.OpenURL(GlobalStats.VanillaDefaults.URL);
             }
-
-            HandleGameSpeedChange(input);
 
             if (!LookingAtPlanet)
             {
@@ -1220,7 +1291,8 @@ namespace Ship_Game
                 StartDragPos = input.CursorPosition;
             }
 
-            if (input.MiddleMouseHeld())
+            bool overDashboard = !IsCinematicModeEnabled && input.CursorY < EmpireUIOverlay.DashboardHeight;
+            if (input.MiddleMouseHeld() && !overDashboard)
             {
                 float dx = input.CursorPosition.X - StartDragPos.X;
                 float dy = input.CursorPosition.Y - StartDragPos.Y;
@@ -1235,7 +1307,8 @@ namespace Ship_Game
                 if (ShipInfoUIElement.IsHandlingNameInput)
                     return; // don't pan the camera if the ship name area is being edited
 
-                bool enableMousePanning = !GlobalStats.DisableScreenPanning;
+                // Keep the thin screen-edge pan zone active above the navbar.
+                bool enableMousePanning = !GlobalStats.DisableScreenPanning && (!overDashboard || InRange(y, minTop, maxTop));
                 if (enableMousePanning && InRange(x, minLeft, maxLeft) || (enableKeys && input.KeysLeftHeld(arrowKeys)))
                 {
                     CamDestination.X -= 0.008f * worldWidthOnScreen;

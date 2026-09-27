@@ -18,6 +18,18 @@
     - SoundEffect:
       Id: AmbientMusic
       Volume: 0.5
+      TrackTitles:
+        # Descriptive in-game titles for tracks whose embedded names are placeholders.
+        "Music/AmbientMusic.0.m4a": "Beyond the Frontier"
+        "Music/AmbientMusic.1.m4a": "Silent Orbits"
+        "Music/AmbientMusic.2.m4a": "Distant Suns"
+        "Music/AmbientMusic.3.m4a": "Between the Stars"
+        "Music/AmbientMusic.4.m4a": "Echoes of the Void"
+        "Music/AmbientMusic.5.m4a": "The Long Voyage"
+        # Original titles from the files' embedded metadata.
+        "Music/sd2-1.m4a": "Humble Beginnings"
+        "Music/sd2-2.m4a": "Mystery"
+        "Music/sd2-3.m4a": "Neptune, the Mystic"
       Sounds: # array of `Sounds` to randomly select from
         - "Music/AmbientMusic.0.m4a" 
         - "Music/AmbientMusic.1.m4a"
