@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Fleets;
@@ -255,6 +256,73 @@ namespace Ship_Game
             if (absM < 100f && !compact) return m.ToString("0.##", invariant) + "M";
             if (absM < 1000f)            return m.ToString("0.#",  invariant) + "M";
             return m.ToString("#", invariant) + "M";
+        }
+
+        static string HostilesText(in ThreatMatrix.HostilePresence hostiles, bool withLabel)
+        {
+            string text = hostiles.NumShips > 0
+                        ? $"{hostiles.NumShips} {Localizer.Token(hostiles.NumShips == 1 ? GameText.Ship : GameText.Ships)}, "
+                        : "";
+
+            text += $"{hostiles.Strength.GetNumberString()} {Localizer.Token(GameText.Str)}";
+            return withLabel ? $"{Localizer.Token(GameText.Hostiles)}: {text}" : text;
+        }
+
+        /// <summary>
+        /// Draws the System column of the planet and exotic systems lists: the star, its name, and
+        /// under the name what our threat map knows of the hostiles there, with a flag per empire.
+        /// </summary>
+        public static void AddSystemNameAndHostiles(this UIElementContainer item, in Rectangle rect,
+                                                    SolarSystem system, in ThreatMatrix.HostilePresence hostiles)
+        {
+            const int pad = 5;
+            int iconSize = rect.Height - 10;
+            var starRect = new Rectangle(rect.X + pad, rect.Y + 5, iconSize, iconSize);
+            item.Panel(starRect, system.Sun.Icon);
+
+            int left = starRect.Right + pad;
+            int usable = rect.Right - pad - left;
+            string systemName = system.Name;
+            Graphics.Font nameFont = Fonts.Arial20Bold.MeasureString(systemName).X <= usable
+                                   ? Fonts.Arial20Bold : Fonts.Arial12Bold;
+            Graphics.Font tinyFont = Fonts.Arial8Bold;
+
+            int textHeight = nameFont.LineSpacing + (hostiles.Any ? tinyFont.LineSpacing : 0);
+            float nameY = 2 + rect.Y + rect.Height / 2 - textHeight / 2;
+            item.Label(new Vector2(left, nameY), systemName, nameFont, Colors.Cream);
+
+            if (!hostiles.Any)
+                return;
+
+            Empire[] empires = hostiles.Empires ?? Empty<Empire>.Array;
+            int flagSize     = tinyFont.LineSpacing;
+            float openW      = tinyFont.MeasureString(" (").X;
+            float flagsW     = empires.Length > 0 ? openW + empires.Length*(flagSize + 1) + tinyFont.MeasureString(")").X : 0;
+
+            string text = HostilesText(hostiles, withLabel: true);
+            if (tinyFont.MeasureString(text).X + flagsW > usable) // no room for the label in this column
+                text = HostilesText(hostiles, withLabel: false);
+
+            float x = left;
+            float y = (nameY + nameFont.LineSpacing).UpperBound(rect.Bottom - tinyFont.LineSpacing);
+            Color color = Color.IndianRed;
+            item.Label(new Vector2(x, y), text, tinyFont, color);
+            x += tinyFont.MeasureString(text).X;
+
+            if (empires.Length > 0)
+            {
+                item.Label(new Vector2(x, y), " (", tinyFont, color);
+                x += openW;
+                foreach (Empire e in empires)
+                {
+                    var box = new Rectangle((int)x, (int)y, flagSize, flagSize);
+                    var flag = ResourceManager.Flag(e);
+                    if (flag != null) item.Panel(box, e.EmpireColor, flag);
+                    else              item.Panel(box, e.EmpireColor);
+                    x += flagSize + 1;
+                }
+                item.Label(new Vector2(x, y), ")", tinyFont, color);
+            }
         }
 
         public static bool DataVisibleToPlayer(Empire empire)

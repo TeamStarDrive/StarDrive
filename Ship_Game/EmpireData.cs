@@ -15,21 +15,19 @@ namespace Ship_Game
     {
         [StarData] public float Speed;           // % bonus
         [StarData] public float Range;           // % bonus
-        [StarData] public float Rate;            // % bonus
         [StarData] public float Turn;            // % bonus
         [StarData] public float Damage;          // % bonus
         [StarData] public float ExplosionRadius; // % bonus
-        [StarData] public float ShieldDamage;    // % bonus
-        [StarData] public float ArmorDamage;        // FLAT bonus
         [StarData] public float ShieldPenetration;  // FLAT bonus
         [StarData] public float HitPoints;          // % bonus
-        [StarData] public float ArmourPenetration; // FLAT bonus
+
+        public WeaponTagModifier GetClone() => (WeaponTagModifier)MemberwiseClone();
     }
 
     // @todo Find a better place for this enum
     public enum WeaponStat
     {
-        Damage, Range, Speed, FireDelay, Armor, Shield
+        Damage, Range, Speed, Armor, Shield
     }
 
     [StarDataType]
@@ -395,11 +393,6 @@ namespace Ship_Game
                 WeaponTags.Add(WeaponTemplate.TagValues[i], new WeaponTagModifier());
         }
 
-        public EmpireData GetClone()
-        {
-            return (EmpireData)MemberwiseClone();
-        }
-
         EmpireData IEmpireData.CreateInstance(bool copyTraits)
         {
             var data = (EmpireData)MemberwiseClone();
@@ -413,6 +406,8 @@ namespace Ship_Game
             data.ResearchQueue = new();
             data.AgentList = new();
             data.MoleList = new();
+            data.ShipModulesInResearchQueues = new();
+            data.OwnTechBonuses();
 
             data.FlatMoneyBonus = 0.0f;
             data.TurnsBelowZero = 0;
@@ -423,6 +418,22 @@ namespace Ship_Game
                 data.DefaultTroopShip = data.PortraitName + " Troop";
             }
             return data;
+        }
+
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            ShipModulesInResearchQueues = new(ShipModulesInResearchQueues);
+            OwnTechBonuses();
+        }
+
+        void OwnTechBonuses()
+        {
+            RoleLevels = (int[])RoleLevels.Clone();
+            Map<WeaponTag, WeaponTagModifier> weaponTags = new();
+            foreach (KeyValuePair<WeaponTag, WeaponTagModifier> tag in WeaponTags)
+                weaponTags.Add(tag.Key, tag.Value.GetClone());
+            WeaponTags = weaponTags;
         }
 
         public float GetStatBonusForWeaponTag(WeaponStat stat, WeaponTag weaponTag)
@@ -437,9 +448,6 @@ namespace Ship_Game
                 case WeaponStat.Damage:    return tag.Damage;
                 case WeaponStat.Range:     return tag.Range;
                 case WeaponStat.Speed:     return tag.Speed;
-                case WeaponStat.FireDelay: return tag.Rate;
-                case WeaponStat.Armor:     return tag.ArmorDamage;
-                case WeaponStat.Shield:    return tag.ShieldDamage;
                 default: return 0f;
             }
         }
@@ -491,7 +499,7 @@ namespace Ship_Game
             foreach (WeaponTag tag in WeaponTags.Keys.ToArr())
                 WeaponTags[tag] = new WeaponTagModifier();
 
-            // refresh all cached hull bonuses
+            // refresh the cached empire ship bonuses
             EmpireHullBonuses.RefreshBonuses(empire);
         }
     }

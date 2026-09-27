@@ -479,15 +479,14 @@ namespace Ship_Game
             // NOT extend the launcher's cooldown (Weapon.cs sets CooldownTimer =
             // NetFireDelay). Adding it here would inflate "Delay" and deflate
             // DPS — and it's already shown separately below as "Ignition".
-            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
+            float delay = w.NetFireDelay;
             float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
             
-            bool repair = w.IsRepairBeam;
-            bool isBeam = repair || w.IsBeam;
+            bool isBeam = w.IsBeam;
             bool isBallistic = wOrMirv.Explodes && wOrMirv.OrdinanceRequiredToFire > 0f;
-            float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -60f : +60f) : 0f;
+            float beamMultiplier = isBeam ? w.BeamDuration * 60f : 0f;
 
-            float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage) * GetHullDamageBonus();
+            float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage);
             float beamDamage      = rawDamage * beamMultiplier;
             float ballisticDamage = rawDamage + rawDamage * Player.data.OrdnanceEffectivenessBonus;
             float energyDamage    = rawDamage;
@@ -508,8 +507,7 @@ namespace Ship_Game
             }
             if (isBeam)
             {
-                GameText beamText = repair ? GameText.Repair : GameText.Damage;
-                DrawStat(ref cursor, beamText, beamDamage, repair ? GameText.IndicatesTheMaximumAmountOf4 : GameText.IndicatesTheMaximumAmountOf);
+                DrawStat(ref cursor, GameText.Damage, beamDamage, GameText.IndicatesTheMaximumAmountOf);
                 DrawStat(ref cursor, "Duration", w.BeamDuration, GameText.TheDurationABeamWill);
             }
             else
@@ -519,7 +517,7 @@ namespace Ship_Game
 
             if (wOrMirv.Explodes)
             {
-                DrawStat(ref cursor, "Blast Rad", wOrMirv.ExplosionRadius / 16, GameText.TheRadiusOfTheProjectiles);
+                DrawStat(ref cursor, "Blast Rad", BlastRadius(wOrMirv, Player.data) / 16, GameText.TheRadiusOfTheProjectiles);
             }
 
             if (wOrMirv.TerminalPhaseAttack)
@@ -562,17 +560,20 @@ namespace Ship_Game
             DrawStat(ref cursor, "Delay", delay, GameText.TimeBetweenShots);
             DrawStat(ref cursor, "EMP", w.EMPDamage, GameText.IndicatesTheAmountOfEmp);
 
-            float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
-            DrawStat(ref cursor, "Siphon", siphon, GameText.IndicatesTheAmountOfShields);
+            if (isBeam)
+            {
+                float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
+                DrawStat(ref cursor, "Siphon", siphon, GameText.IndicatesTheAmountOfShields);
 
-            float tractor = w.TractorDamage + w.TractorDamage * beamMultiplier;
-            DrawStat(ref cursor, "Tractor", tractor, GameText.IndicatesTheAmountOfDrag);
+                float tractor = w.TractorDamage + w.TractorDamage * beamMultiplier;
+                DrawStat(ref cursor, "Tractor", tractor, GameText.IndicatesTheAmountOfDrag);
+            }
 
             float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
             DrawStat(ref cursor, "Pwr Dmg", powerDamage, GameText.IndicatesTheAmountOfPower3);
             DrawStat(ref cursor, GameText.FireArc, m.FieldOfFire.ToDegrees(), GameText.AWeaponMayOnlyFire);
-            DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, GameText.IndicatesTheAmountOfOrdnance);
-            DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, GameText.IndicatesTheAmountOfPower);
+            DrawStat(ref cursor, "Ord / Shot", WeaponTemplate.OrdnancePerShot(w), GameText.IndicatesTheAmountOfOrdnance);
+            DrawStat(ref cursor, "Pwr / Shot", WeaponTemplate.PowerPerShot(w), GameText.IndicatesTheAmountOfPower);
 
             if (w.Tag_Guided && GlobalStats.Defaults.EnableECM)
                 DrawStatPercentLine(ref cursor, GameText.EcmResist, w.ECMResist, GameText.IndicatesTheResistanceOfThis);
@@ -587,16 +588,11 @@ namespace Ship_Game
                 else
                     DrawStat(ref cursor, "Armor Pen", actualArmorPen, GameText.ArmorPenetrationEnablesThisWeapon);
 
-                float actualShieldPenChance = Player.data.ShieldPenBonusChance + wOrMirv.ShieldPenChance / 100;
-                for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
-                {
-                    CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
-                }
-
+                float actualShieldPenChance = WeaponTemplate.ActualShieldPenChance(wOrMirv, Player.data) / 100;
                 if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
                     DrawStatCustomColor(ref cursor, GameText.ShieldPen, actualShieldPenChance.UpperBound(1), GameText.RandomChanceThisWeaponWill, Color.Gold);
                 else
-                    DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), GameText.RandomChanceThisWeaponWill, isPercent: true);
+                    DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(1), GameText.RandomChanceThisWeaponWill, isPercent: true);
             }
             DrawStat(ref cursor, GameText.Ordnance, m.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
             DrawStat(ref cursor, GameText.Deflection, m.Deflection, GameText.WeaponsWhichDoLessDamage);
@@ -617,12 +613,6 @@ namespace Ship_Game
                 if (wOrMirv.ExcludesCapitals)  WriteLine(batch, ref cursor, "Capitals");
                 if (wOrMirv.ExcludesStations)  WriteLine(batch, ref cursor, "Stations");
             }
-        }
-
-        void CheckShieldPenModifier(WeaponTag tag, ref float actualShieldPenChance)
-        {
-            WeaponTagModifier weaponTag = Player.data.WeaponTags[tag];
-            actualShieldPenChance += weaponTag.ShieldPenetration;
         }
 
         void DrawStatPercentLine(ref Vector2 cursor, GameText text, float stat, LocalizedText tooltipId)
@@ -649,7 +639,6 @@ namespace Ship_Game
                 case WeaponStat.Damage:    return weapon.DamageAmount;
                 case WeaponStat.Range:     return weapon.BaseRange;
                 case WeaponStat.Speed:     return weapon.ProjectileSpeed;
-                case WeaponStat.FireDelay: return weapon.NetFireDelay;
                 case WeaponStat.Armor:     return weapon.EffectVsArmor;
                 case WeaponStat.Shield:    return weapon.EffectVsShields;
                 default: return 0f;
@@ -664,25 +653,21 @@ namespace Ship_Game
             return value;
         }
 
+        internal static float BlastRadius(IWeaponTemplate weapon, EmpireData data)
+        {
+            float radius = weapon.ExplosionRadius;
+            foreach (WeaponTag tag in weapon.ActiveWeaponTags)
+                radius += data.WeaponTags[tag].ExplosionRadius * weapon.ExplosionRadius;
+            if (weapon.OrdinanceRequiredToFire > 0f)
+                radius += data.OrdnanceEffectivenessBonus * radius;
+            return radius;
+        }
+
         void DrawResistancePercent(ref Vector2 cursor, IWeaponTemplate weapon, string description, WeaponStat stat)
         {
-            float effect = ModifiedWeaponStat(weapon, stat);
+            float effect = GetStatForWeapon(stat, weapon);
             if (effect.NotEqual(1))
                 Screen.DrawStatBadPercentLower1(ref cursor, description, effect, Color.White, GameText.IndicatesAnyBonusOrPenalty, ActiveModStatSpacing);
-        }
-
-        float GetHullDamageBonus()
-        {
-            if (GlobalStats.Defaults.UseHullBonuses)
-                return 1f + Screen.CurrentHull.Bonuses.DamageBonus;
-            return 1f;
-        }
-
-        float GetHullFireRateBonus()
-        {
-            if (GlobalStats.Defaults.UseHullBonuses)
-                return 1f - Screen.CurrentHull.Bonuses.FireRateBonus;
-            return 1f;
         }
     }
 }

@@ -28,13 +28,13 @@ namespace Ship_Game
             CanBeScannedByPlayer = value;
         }
 
-        public void UpdateMoneyLeechedLastTurn()
+        void UpdateMoneyLeechedLastTurn()
         {
             if (LegacyEspionageEnabled || IsFaction || data.IsRebelFaction)
                 return;
 
             TotalMoneyLeechedLastTurn = 0;
-            foreach (Empire e in Universe.ActiveMajorEmpires.Filter(e => e != this))
+            foreach (Empire e in Universe.MajorEmpires.Filter(e => e != this))
                 TotalMoneyLeechedLastTurn += GetEspionage(e).ExtractMoneyLeechedThisTurn();
         }
 

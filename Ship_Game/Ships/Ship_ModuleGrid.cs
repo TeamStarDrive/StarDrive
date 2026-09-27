@@ -111,7 +111,7 @@ namespace Ship_Game.Ships
         }
 
         // Gets the strongest shield currently covering internalModule
-        bool IsCoveredByShield(ShipModule internalModule, out ShipModule shield)
+        internal bool IsCoveredByShield(ShipModule internalModule, out ShipModule shield)
         {
             float maxPower = 0f;
             shield = null;
@@ -119,7 +119,10 @@ namespace Ship_Game.Ships
             {
                 float power = m.ShieldPower;
                 if (power > maxPower && m.HitTestShield(internalModule.Position, internalModule.Radius))
+                {
+                    maxPower = power;
                     shield = m;
+                }
             }
             return shield != null;
         }
@@ -482,6 +485,20 @@ namespace Ship_Game.Ships
                 }
             }
             return closest;
+        }
+
+        /// <summary>
+        /// The hull module an external blast enters through: the first one a ray from the blast
+        /// towards this ship's center crosses. When the blast sits exactly on the center there is
+        /// no direction to trace, so the ship's own facing is used instead.
+        /// </summary>
+        public ShipModule FindBlastEntryModule(Vector2 explosionCenter)
+        {
+            Vector2 rayFrom = explosionCenter;
+            if (rayFrom.InRadius(Position, 1f))
+                rayFrom = Position - Direction * (Radius + 16f);
+
+            return RayHitTestSingle(rayFrom, Position, ignoreShields: true);
         }
 
         // find the first module that falls under the hit radius at given position

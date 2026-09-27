@@ -66,6 +66,7 @@
     <Compile Include="Content\SunBurnReaderStubTests.cs" />
     <Compile Include="Content\Xna31VertexDeclarationDecodeTests.cs" />
     <Compile Include="Data\TestAudioConfig.cs" />
+    <Compile Include="Data\TestPlanetAmbience.cs" />
     <Compile Include="Data\AdviceFallbackTests.cs" />
     <Compile Include="Data\LocalizationMergeTests.cs" />
     <Compile Include="Data\VersionFormatTests.cs" />
@@ -128,9 +129,15 @@
     <Compile Include="Serialization\TypeSerializerTests.cs" />
     <Compile Include="Serialization\YamlSerializerTests.cs" />
     <Compile Include="Ships\ExternalSlotGridTests.cs" />
+    <Compile Include="Ships\AdjacentShipExplosionTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
+    <Compile Include="Ships\ModuleResistTests.cs" />
+    <Compile Include="Ships\MissileJamTests.cs" />
+    <Compile Include="Ships\BlastRadiusDisplayTests.cs" />
+    <Compile Include="Ships\PlanetRepairTests.cs" />
     <Compile Include="Ships\ModuleGridFlyweightTests.cs" />
     <Compile Include="Ships\ShipDesignWriterTests.cs" />
+    <Compile Include="Ships\SiphonDamageTests.cs" />
     <Compile Include="Ships\TestResupplyLogic.cs" />
     <Compile Include="Ships\ShipBuilderTests.cs" />
     <Compile Include="Ships\CarrierTests.cs" />
@@ -159,6 +166,7 @@
     <Compile Include="TestEnvironment.cs" />
     <Compile Include="Ships\TestWeaponMunition.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
+    <Compile Include="Technologies\TechBonusIsolationTests.cs" />
     <Compile Include="Technologies\TestResearchPriorities.cs" />
     <Compile Include="Technologies\TestShipCostMods.cs" />
     <Compile Include="Technologies\TestTechnologyUnlock.cs" />

@@ -90,7 +90,7 @@ namespace Ship_Game.AI
         public void RunEconomicPlanner(bool fromSave = false)
         {
             float money = OwnerEmpire.Money;
-            float treasuryGoal = TreasuryGoal(money);
+            float treasuryGoal = TreasuryGoal();
             ProjectedMoney = treasuryGoal;
             AutoSetTaxes(ProjectedMoney, money);
 
@@ -202,7 +202,7 @@ namespace Ship_Game.AI
         /// <summary>
         /// set a target budget of 20 years of growth.
         /// </summary>
-        public float TreasuryGoal(float normalizedMoney)
+        float TreasuryGoal()
         {
             // calculate income using income at a 100% tax rate - untracked expenditures.
             float gross = OwnerEmpire.MaximumStableIncome - OwnerEmpire.TotalCivShipMaintenance -

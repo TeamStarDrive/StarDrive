@@ -248,11 +248,11 @@ namespace Ship_Game.Gameplay
                 if (reducedRadius < 0f || thisShip.Loyalty.Random.RollDice(evadeChance))
                     continue;
 
-                // Per-target damage: each ship gets the full damage scaled by its own falloff.
-                float falloff = ShipModule.DamageFalloff(explosionCenter, nearest.Position, damageRadius, nearest.Radius);
-                float localDamage = damageAmount * falloff;
-                if (localDamage <= 0f)
-                    continue;
+                ShipModule entry = otherShip.FindBlastEntryModule(explosionCenter) ?? nearest;
+
+                float distToEntry = explosionCenter.Distance(entry.Position);
+                float spreadRadius = (damageRadius - distToEntry).LowerBound(0f);
+                float localDamage = damageAmount * ShipModule.ExplosionFalloff(distToEntry);
 
                 // First damage all shields covering the explosion center
                 while (true)
@@ -267,9 +267,8 @@ namespace Ship_Game.Gameplay
                 if (localDamage <= 0f)
                     continue; // shields absorbed everything for this ship
 
-                // Then explode at the module if any excess damage left
                 // Ignoring shields because we already checked shields above
-                otherShip.DamageExplosive(thisShip, localDamage, nearest.Position, reducedRadius, true);
+                otherShip.DamageExplosive(thisShip, localDamage, entry.Position, spreadRadius, true);
 
                 if (!otherShip.Dying)
                 {

@@ -117,7 +117,6 @@ namespace Ship_Game.Gameplay
         public bool ExcludesCorvettes => T.ExcludesCorvettes;
         public bool ExcludesCapitals => T.ExcludesCapitals;
         public bool ExcludesStations => T.ExcludesStations;
-        public bool IsRepairBeam => T.IsRepairBeam;
         public bool TerminalPhaseAttack => T.TerminalPhaseAttack;
         public float TerminalPhaseDistance => T.TerminalPhaseDistance;
         public float TerminalPhaseSpeedMod => T.TerminalPhaseSpeedMod;

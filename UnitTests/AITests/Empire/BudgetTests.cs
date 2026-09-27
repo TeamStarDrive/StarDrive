@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
 using Ship_Game.AI.Components;
+using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
@@ -173,6 +174,27 @@ namespace UnitTests.AITests.Empire
 
             // The budget the planet should now be the maint of 2 terraformers
             AssertEqual(homeworld.TerraformBudget, terraformerMaint*2);
+        }
+
+        [TestMethod]
+        public void GarrisonUpkeepIsChargedForYourOwnTroopsOnly()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+            Player.UpdateNetPlanetIncomes();
+            float netBefore = Player.NetIncome;
+            int garrisonBefore = homeworld.Troops.NumTroopsHere(Player);
+
+            for (int i = 0; i < 5; ++i)
+                Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Player).TryLandTroop(homeworld));
+            for (int i = 0; i < 3; ++i)
+                Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Enemy).TryLandTroop(homeworld));
+            Player.UpdateNetPlanetIncomes();
+
+            float garrison = (garrisonBefore + 5) * ShipMaintenance.TroopMaint;
+            AssertEqual(0.001f, garrison, Player.TroopCostOnPlanets, "the Troop Maint. row counts our troops, not the invaders");
+            AssertEqual(0.001f, homeworld.Money.Maintenance, Player.TotalBuildingMaintenance, "the Building Maint. row is buildings only");
+            AssertEqual(0.001f, netBefore - 5 * ShipMaintenance.TroopMaint, Player.NetIncome, "our five new troops cost upkeep");
         }
     }
 }

@@ -335,7 +335,6 @@ IndicatesTheAmountOfEmp: weapons_weapon_stats
 IndicatesTheAmountOfOrdnance: weapons_weapon_stats
 IndicatesTheDistanceAProjectile: weapons_weapon_stats
 IndicatesTheMaximumAmountOf: weapons_weapon_stats
-IndicatesTheMaximumAmountOf4: weapons_weapon_stats
 IndicatesTheMaximumDamagePer: weapons_weapon_stats
 IndicatesTheMaximumRangeOf: weapons_weapon_stats
 IndicatesTheAmountOfDrag: weapons_weapon_stats

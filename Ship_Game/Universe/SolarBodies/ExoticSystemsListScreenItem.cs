@@ -56,6 +56,7 @@ namespace Ship_Game
         public bool IsForMining => !IsStar && Planet.IsMineable;
         public bool IsForDysonSwarm => IsStar && System.DysonSwarmType > 0;
         ExplorableGameObject SolarBody;
+        ThreatMatrix.HostilePresence Hostiles;
 
         public ExoticSystemsListScreenItem(ExplorableGameObject solarBody, float distance)
         {
@@ -152,6 +153,7 @@ namespace Ship_Game
             var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
             DeployButton.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
 
+            Hostiles = Player.KnownEnemyPresenceIn(System);
             AddSystemName();
             AddHostileWarning();
             SetResearchVisibility();
@@ -264,12 +266,7 @@ namespace Ship_Game
 
         void AddSystemName()
         {
-            string systemName = System.Name;
-            Graphics.Font systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
-            var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
-                                        2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
-
-            Label(sysNameCursor, systemName, systemFont, Cream);
+            this.AddSystemNameAndHostiles(SysNameRect, System, Hostiles);
         }
 
         void AddPlanetName()
@@ -344,7 +341,7 @@ namespace Ship_Game
 
         void AddHostileWarning()
         {
-            if (Player.KnownEnemyStrengthIn(System) > 0)
+            if (Hostiles.Any)
             {
                 SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
                 UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);

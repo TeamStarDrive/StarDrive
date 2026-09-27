@@ -29,6 +29,13 @@ public static class GameAudio
     static AudioCategory Music;
     static AudioCategory RacialMusic;
 
+    static AudioHandle PlanetAmbience;
+
+    /// <summary>
+    /// Ambient cue currently selected for the viewed colony, null when silent
+    /// </summary>
+    internal static string PlanetAmbienceCue { get; private set; }
+
     static readonly RandomBase Random = new ThreadSafeRandom();
     
     static readonly object SfxQueueLock = new();
@@ -150,6 +157,8 @@ public static class GameAudio
         Mem.Dispose(ref Config);
         Music = null;
         RacialMusic = null;
+        PlanetAmbience = null;
+        PlanetAmbienceCue = null;
 
         Mem.Dispose(ref AudioEngine);
         Mem.Dispose(ref Devices);
@@ -233,6 +242,53 @@ public static class GameAudio
     }
     public static void MuteRacialMusic()    { if(!IsMusicDisabled) RacialMusic.Volume = 0f;}
     public static void UnMuteRacialMusic()  { if (!IsMusicDisabled) RacialMusic.Volume = GlobalStats.MusicVolume; }
+
+    /// <summary>
+    /// Keeps the planet ambience in step with the colony the player is viewing.
+    /// The cue already selected is left alone while it still appears in <paramref name="cues"/>,
+    /// so moving between colonies that share a cue neither restarts nor cuts it.
+    /// Pass null or an empty array for silence. The cue plays once and is not looped.
+    /// </summary>
+    public static void SetPlanetAmbience(string[] cues)
+    {
+        if (PlanetAmbienceCue != null && cues != null)
+        {
+            for (int i = 0; i < cues.Length; ++i)
+                if (cues[i] == PlanetAmbienceCue)
+                    return;
+        }
+
+        PlanetAmbience?.Stop();
+        PlanetAmbience = null;
+        PlanetAmbienceCue = null;
+
+        if (cues == null || cues.Length == 0)
+            return;
+
+        string cue = cues.Length == 1 ? cues[0] : Random.Item(cues);
+        PlanetAmbienceCue = cue;
+        PlanetAmbience = PlayAmbience(cue);
+    }
+
+    /// <summary>
+    /// Plays an ambience cue once through its own category, gated and scaled by the
+    /// effects volume. Synchronous, so the returned handle already owns the instance
+    /// and a later Stop cannot be outrun by a queued play.
+    /// </summary>
+    static AudioHandle PlayAmbience(string effectId)
+    {
+        if (CantPlaySfx(effectId))
+            return AudioHandle.DoNotPlay;
+
+        SoundEffect effect = Config.GetSoundEffect(effectId);
+        IAudioInstance instance = PlayEffect(effect, emitter: null);
+        if (instance == null)
+            return AudioHandle.DoNotPlay;
+
+        AudioHandle handle = new();
+        effect.Category.TrackInstance(effect, instance, handle);
+        return handle;
+    }
 
     /// <summary>
     /// Audio distance for projectile sound effects. This uses linear falloff.

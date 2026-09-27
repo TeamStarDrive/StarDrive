@@ -203,9 +203,7 @@ public partial class ShipDesign
             return FixedCost * pace;
 
         float cost = BaseCost * pace;
-        cost += Bonuses.StartingCost;
         cost += cost * e.data.Traits.ShipCostMod;
-        cost *= 1f - Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
         if (IsPlatformOrStation)
             cost *= 0.7f;
 

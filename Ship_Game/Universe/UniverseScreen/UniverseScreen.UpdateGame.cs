@@ -336,7 +336,6 @@ namespace Ship_Game
                     {
                         Empire empire = wereUpdated[i];
                         empire.UpdateMilitaryStrengths();
-                        empire.UpdateMoneyLeechedLastTurn();
                         if (empire.isPlayer) // update this once per turn
                             UpdateDysonSwarms();
                     }

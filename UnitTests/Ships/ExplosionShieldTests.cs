@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -181,6 +182,40 @@ namespace UnitTests.Ships
 
             Assert.IsTrue(reactor.Health < reactorBefore,
                 "Shield-piercing explosion must still damage the hull module it struck");
+        }
+
+        // Solar radiation picks one shield per covered module and damages it once. The pick is
+        // meant to be the strongest shield covering that module; while maxPower was never raised
+        // inside the loop it was whichever one came last in slot order, so a nearly drained
+        // bubble could soak the radiation while a full one beside it stood untouched.
+        [TestMethod]
+        public void ShieldCoverPicksTheStrongestShield()
+        {
+            Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+
+            ShipModule[] shields = ship.GetActiveShields().ToArr();
+            AssertEqual(2, shields.Length, "setup: TEST_ShipShield should have two active shields");
+
+            ShipModule covered = null;
+            foreach (ShipModule m in ship.Modules)
+            {
+                if (shields[0].HitTestShield(m.Position, m.Radius)
+                    && shields[1].HitTestShield(m.Position, m.Radius))
+                {
+                    covered = m;
+                    break;
+                }
+            }
+            Assert.IsNotNull(covered, "setup: needs a module both shields cover");
+
+            // drain the LAST shield in slot order, so 'last one wins' would pick the weaker
+            shields[1].DamageShield(shields[1].ShieldPower * 0.5f, null, out _);
+            Assert.IsTrue(shields[0].ShieldPower > shields[1].ShieldPower,
+                "setup: the first shield in slot order must be the stronger one");
+
+            Assert.IsTrue(ship.IsCoveredByShield(covered, out ShipModule picked));
+            AssertEqual(shields[0], picked,
+                "the strongest covering shield must absorb, not whichever came last");
         }
     }
 }

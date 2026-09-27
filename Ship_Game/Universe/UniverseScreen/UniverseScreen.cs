@@ -669,6 +669,7 @@ namespace Ship_Game
             if (StarDriveGame.Instance != null) // don't show in tests
                 Log.Write(ConsoleColor.Cyan, "UniverseScreen.UnloadContent");
 
+            GameAudio.SetPlanetAmbience(null);
             ScreenManager.UnloadSceneObjects();
             // destroy SceneObjects for everything
             UState.RemoveSceneObjects();
@@ -688,6 +689,8 @@ namespace Ship_Game
                 SelectorFrame = 0;
 
             ScreenManager.StartMusic("AmbientMusic");
+            GameAudio.SetPlanetAmbience(LookingAtPlanet && workersPanel is ColonyScreen colony
+                                        ? colony.P.PType?.AmbientCues : null);
             NotificationManager.Update(fixedDeltaTime);
 
             GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, (float)CamPos.Z));

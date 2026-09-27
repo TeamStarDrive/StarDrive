@@ -32,6 +32,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float SpecularPower = 0.0f; // 0.0 == no specural effects at all
 
         [StarData] public readonly string PlanetTile;
+        [StarData] public readonly string[] AmbientCues = Empty<string>.Array;
         [StarData] public readonly string[] AtmosphereType = Empty<string>.Array;
         [StarData] public readonly bool Habitable;
         [StarData] public readonly Range HabitableTileChance = new Range(minMax:20);

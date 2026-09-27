@@ -61,7 +61,6 @@ public interface IShipDesign
 
     // BaseHull is the template layout of the ship hull design
     ShipHull BaseHull { get; }
-    HullBonus Bonuses { get; }
     FileInfo Source { get; }
 
     bool IsPlayerDesign { get; }

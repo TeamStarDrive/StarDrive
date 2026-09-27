@@ -261,7 +261,6 @@ namespace Ship_Game
 
         public void AddLeechedMoney(float money)
         {
-            Owner.AddMoney(money);
             TotalMoneyLeeched += money;
             MoneyLeechedThisTurn += money;
         }

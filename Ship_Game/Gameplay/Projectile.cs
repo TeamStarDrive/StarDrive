@@ -26,12 +26,10 @@ namespace Ship_Game.Gameplay
     [StarDataType]
     public class Projectile : PhysicsObject, IDisposable
     {
-        public float ShieldDamageBonus;
-        public float ArmorDamageBonus;
         public int ArmorPiercing;
         public bool IgnoresShields;
         public string WeaponType;
-        MissileAI MissileAI;
+        internal MissileAI MissileAI;
         public float VelocityMax;
         public float Speed;
         public float Range;
@@ -219,7 +217,7 @@ namespace Ship_Game.Gameplay
                 // in which case we abandon this projectile
                 if (ResourceManager.GetWeaponTemplate(weaponUID, out IWeaponTemplate t))
                 {
-                    weapon = new(us, t, ship, null, null);
+                    weapon = new(us, t, ship, null);
                 }
             }
 
@@ -374,7 +372,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 // this is the spawned warhead weapon stats
-                Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module, null);
+                Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module);
                 if (warhead.Tag_Guided)
                 {
                     for (int i = 0; i < warhead.ProjectileCount; i++)
@@ -417,7 +415,7 @@ namespace Ship_Game.Gameplay
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
-            if (MissileAI?.Target.GetLoyalty() == attacker)
+            if (MissileAI?.Target?.GetLoyalty() == attacker)
                 return true;
 
             if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade && Owner.IsInBordersOf(attacker))

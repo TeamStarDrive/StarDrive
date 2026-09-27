@@ -165,7 +165,7 @@ namespace Ship_Game.GameScreens
 
             costs.AddItem(GameText.BuildingMaint, () => -Player.TotalBuildingMaintenance, GameText.BudgetBuildingMaintTip);
             costs.AddItem(GameText.ShipMaint, () => -Player.TotalShipMaintenance, GameText.BudgetShipMaintTip);
-            costs.AddItem(GameText.TroopMaint, () => -Player.GetTroopMaintThisTurn(), GameText.BudgetTroopMaintTip);
+            costs.AddItem(GameText.TroopMaint, () => -Player.TroopCostOnPlanets, GameText.BudgetTroopMaintTip);
             costs.AddItem(GameText.ProductionFees, () => -(Player.MoneySpendOnProductionThisTurn+Player.MoneySpendOnProductionNow), GameText.BudgetProductionFeesTip);
             if (Player.NewEspionageEnabled)
                 costs.AddItem(GameText.Espionage, () => -Player.EspionageCostLastTurn, GameText.BudgetEspionageCostTip);
@@ -194,10 +194,6 @@ namespace Ship_Game.GameScreens
         private void TreasurySliderOnChange(FloatSlider s)
         {
             Player.data.treasuryGoal = s.RelativeValue;
-            Player.data.treasuryGoal = s.AbsoluteValue;
-            
-            int goal = (int)Player.AI.TreasuryGoal(Player.Money) / 2;
-            s.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {goal}";
             Player.AI.RunEconomicPlanner();
 
             if (Player.AutoTaxes)

@@ -188,7 +188,7 @@ namespace Ship_Game.Ships
                     Point pt = m.Pos;
                     if (!IsChecked(pt.X, pt.Y))
                     {
-                        if (m.PowerRadius > 0 && m.ModuleType != ShipModuleType.PowerConduit)
+                        if (m.Active && m.PowerRadius > 0 && m.ModuleType != ShipModuleType.PowerConduit)
                         {
                             DistributePowerFrom(m, pt.X, pt.Y);
 
@@ -257,7 +257,7 @@ namespace Ship_Game.Ships
                     ShipModule m = Ship.GetModuleAt(x, y);
                     if (m != null) // if there is a module at this point
                     {
-                        if (!IsChecked(x, y) && m.ModuleType == ShipModuleType.PowerConduit)
+                        if (!IsChecked(x, y) && m.Active && m.ModuleType == ShipModuleType.PowerConduit)
                             open.Add(new Point(x, y));
                     }
                 }

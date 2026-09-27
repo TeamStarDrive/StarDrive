@@ -680,18 +680,9 @@ namespace Ship_Game.AI
             w.FireDrone(target);
         }
 
-        void DoRepairBeamLogic(Weapon w)
+        bool ShipNeedsRepair(Ship target, float maxDistance)
         {
-            Ship repairMe = FriendliesNearby.FindMinFiltered(
-                    filter: ship => ShipNeedsRepair(ship, w.BaseRange + 500f, Owner),
-                    selector: ship => ship.InternalSlotsHealthPercent);
-
-            if (repairMe != null) w.FireTargetedBeam(repairMe);
-        }
-
-        bool ShipNeedsRepair(Ship target, float maxDistance, Ship doNotHealSelf = null)
-        {
-            return target.Active && target != doNotHealSelf
+            return target.Active
                     && target.HealthPercent < ShipResupply.RepairDroneThreshold
                     && Owner.Position.Distance(target.Position) <= maxDistance;
         }
