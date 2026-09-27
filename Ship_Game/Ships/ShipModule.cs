@@ -738,7 +738,8 @@ namespace Ship_Game.Ships
 
         /// <summary>
         /// Fraction of a ship's death blast that reaches a hull at the given distance.
-        /// Full damage at the blast center, half at <see cref="ExplosionHalfDamageDistance"/>.
+        /// Its maximum, just under full damage, applies at any distance up to
+        /// <see cref="ExplosionMinDistance"/>; half at <see cref="ExplosionHalfDamageDistance"/>.
         /// </summary>
         public static float ExplosionFalloff(float distance)
         {

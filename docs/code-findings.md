@@ -219,6 +219,12 @@ projectile splashes everything nearby" with that gate and called it "very rare".
   183 internals while the armour absorbed nothing. `Ship.FindBlastEntryModule` now traces a ray
   from the blast towards the victim's centre and enters through the plate facing it, falling back
   to the ship's own facing when the two positions coincide exactly.
+  **The reach test still measures to the nearest module, on purpose** (Copilot flagged it on PR
+  #416). It answers "does the blast reach this hull at all", and a blast whose centre lies inside an
+  overlapping hull does. Gating on the entry plate instead would make any blast inside a larger
+  hull harmless whenever its facing plate is farther than the blast radius - a small ship dying
+  over a capital's centre, with plates up to ~520 units out. When the plate is beyond the radius
+  the spread radius is 0, so only that plate is hit, at the falloff for its own distance.
 - The falloff was `(1-d/R)²` against a radius that **grew with the damage**, so a bigger blast
   never actually fell off more — it still delivered two thirds at contact. Now
   `ShipModule.ExplosionFalloff`: `100/(100+d)` with `d` floored at 10, so 0.91 at the centre,
