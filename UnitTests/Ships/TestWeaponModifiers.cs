@@ -85,6 +85,29 @@ namespace UnitTests.Ships
             AssertEqual(0.96f, p2.Duration);
         }
 
+        [TestMethod]
+        public void ShieldPenetrationBonusesAddUp()
+        {
+            Assert.IsTrue(Weapon.Tag_Kinetic, "setup: the test weapon must be kinetic");
+            Empire.data.ShieldPenBonusChance = 0.6f;
+            Empire.WeaponBonuses(WeaponTag.Kinetic).ShieldPenetration = 0.6f;
+
+            float chance = WeaponTemplate.ActualShieldPenChance(Weapon, Empire.data);
+            AssertEqual(0.001f, Weapon.ShieldPenChance + 120f, chance, "the design screen adds the empire bonus, the weapon's own chance and every tag bonus");
+
+            for (int i = 0; i < 50; ++i)
+            {
+                Projectile p = Projectile.Create(Weapon, Ship, new Vector2(), Vectors.Up, null, false);
+                Assert.IsTrue(p.IgnoresShields, "combat must add the bonuses as the screen does; 120% always passes shields");
+            }
+
+            IWeaponTemplate darkMatter = ResourceManager.GetWeaponTemplate("DarkMatterCannon_1x2");
+            Assert.IsFalse(darkMatter.Tag_Kinetic, "setup: the second weapon must not carry the kinetic bonus");
+            Empire.data.ShieldPenBonusChance = 0.1f;
+            AssertEqual(0.001f, darkMatter.ShieldPenChance + 10f, WeaponTemplate.ActualShieldPenChance(darkMatter, Empire.data),
+                        "the empire bonus adds to a weapon's own chance instead of acting as a minimum");
+        }
+
         // PowerDamage used to be counted only in the IsBeam branch of CalculateOffense, so a
         // projectile weapon carrying it was rated as if the stat did nothing - which it did,
         // until projectiles started applying it.

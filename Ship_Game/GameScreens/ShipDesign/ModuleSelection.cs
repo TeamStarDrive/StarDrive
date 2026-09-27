@@ -588,12 +588,7 @@ namespace Ship_Game
                 else
                     DrawStat(ref cursor, "Armor Pen", actualArmorPen, GameText.ArmorPenetrationEnablesThisWeapon);
 
-                float actualShieldPenChance = Player.data.ShieldPenBonusChance + wOrMirv.ShieldPenChance / 100;
-                for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
-                {
-                    CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
-                }
-
+                float actualShieldPenChance = WeaponTemplate.ActualShieldPenChance(wOrMirv, Player.data) / 100;
                 if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
                     DrawStatCustomColor(ref cursor, GameText.ShieldPen, actualShieldPenChance.UpperBound(1), GameText.RandomChanceThisWeaponWill, Color.Gold);
                 else
@@ -618,12 +613,6 @@ namespace Ship_Game
                 if (wOrMirv.ExcludesCapitals)  WriteLine(batch, ref cursor, "Capitals");
                 if (wOrMirv.ExcludesStations)  WriteLine(batch, ref cursor, "Stations");
             }
-        }
-
-        void CheckShieldPenModifier(WeaponTag tag, ref float actualShieldPenChance)
-        {
-            WeaponTagModifier weaponTag = Player.data.WeaponTags[tag];
-            actualShieldPenChance += weaponTag.ShieldPenetration;
         }
 
         void DrawStatPercentLine(ref Vector2 cursor, GameText text, float stat, LocalizedText tooltipId)

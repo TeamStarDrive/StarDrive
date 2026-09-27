@@ -470,11 +470,12 @@ reasoning is in the linked notes or the commit that set it.
 - **Station dropdown healing**, **box-selection modifiers**, **crash-site ownership gating** (only
   when `IsCrashSiteActive`), **refit port quality** (0.5 prioritized, 1 fallback).
 - **Budget #14 below** — the biosphere payback heuristic omits `ExoticCreditsBonus` deliberately.
-- **Damage #3, #4, #5 and #7 below** — Gilad's call, 2026-09-27. A module-death blast carrying the
+- **Damage #3, #4, #5, #6, #7 and #11 below** — Gilad's call, 2026-09-27. A module-death blast carrying the
   killer's weapon, a radial blast hitting a big module once per covered cell while the directional
   one dedupes, that blast wasting its root slot, and carry-on damage truncated to int, are all as
   designed. #4 in particular: **do not add a dedupe to match the directional path.** And #11:
   missiles keep their raw-level aim error; **do not route them through the gun formula**.
+  And #6: a shield bubble hit spends armor piercing; **do not stop charging it**.
 - The AI gets half production tax on cybernetic colonies and the player does not
   (`ColonyResource.cs:222`); `ResearchTaxMultiplier` is difficulty-only and always 1 for the player
   (`UniverseGenerator.cs:232`). Both intended.
@@ -603,10 +604,10 @@ still read pre-fix while the offense rating reads post-fix.
 ## Damage, shields and weapons (18)
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
-Items 1, 2, 8, 9, 12 and 18 are resolved, items 10 and 14 went with the hull bonus feature itself,
-item 15 went with the two weapon tag bonuses it describes, item 16 went with ship-mounted repair
-beams, and item 17 was not a bug; items 3, 4, 5, 7 and 11 are as designed and must not be
-"fixed".
+All 18 are closed. Items 1, 2, 8, 9, 12, 13 and 18 are resolved, items 10 and 14 went with the
+hull bonus feature itself, item 15 went with the two weapon tag bonuses it describes, item 16
+went with ship-mounted repair beams, and item 17 was not a bug; items 3, 4, 5, 6, 7 and 11 are
+as designed and must not be "fixed".
 
 1. ~~Weapon-tag armor/shield damage bonuses never applied.~~ Resolved - **deleted, not wired up**.
    A tech's `Weapon_ArmorDamage` / `Weapon_ShieldDamage` reached `WeaponTagModifier`, was copied
@@ -689,8 +690,16 @@ beams, and item 17 was not a bug; items 3, 4, 5, 7 and 11 are as designed and mu
 5. `[settled]` **A module-death blast wastes its root slot.** As designed, Gilad 2026-09-27. The
    blast centres on the dying, already-inactive module, so the full-damage root yields nothing and
    every direction starts at 25%.
-6. `[balance]` **Shield bubble spends armor piercing.** `Projectile.TryPhaseThroughModule` subtracts
-   the shield module's width + APResist when the shot hits the bubble.
+6. `[settled]` **Shield bubble spends armor piercing.** As designed, Gilad 2026-09-27. A shot that
+   hits a bubble counts as touching the shield module, so `Projectile.TryPhaseThroughModule` takes
+   the module's width in slots plus its APResist off the shot's armor piercing, although the shot
+   never crosses that module. It matters only for a non-explosive armor-piercing shot that breaks
+   the shield and carries on into the hull, and since piercing values (weapons' own 1 to 5, mostly
+   1-2 and mostly in Combined Arms, plus kinetic technology bonuses of +1 to +3) are about the size
+   of shield widths (1-4 slots, up to 6 in both mods), breaking a bubble usually uses it all up. Shields
+   blunting armor piercing is the intended counter, and the Armor and Shields entry and the Armor
+   Pen tooltip already say every module a shot touches uses up its width plus its AP resistance.
+   **Do not stop charging the bubble hit.**
 7. `[settled]` **Carry-on damage is truncated to int.** As designed, Gilad 2026-09-27.
    `damageRemainder = (int)(...)` in `ShipModule.Damage` drops the fraction.
 8. ~~Planets repair any ship in orbit, whoever owns them.~~ Resolved - `Ship.Repair` now takes
@@ -779,10 +788,23 @@ beams, and item 17 was not a bug; items 3, 4, 5, 7 and 11 are as designed and mu
     decoy point for one frame, flies straight until `TargetUpdateTimer` picks a target again 0.15 s
     later, and keeps `Jammed` and `FixedError` from the first target, since neither is ever reset.
     It only checks for arrival within 300 units on the frames it steers.
-13. `[display]` **Shield penetration, screen versus combat.** The screen sums empire bonus + base +
-    every tag (`ModuleSelection.cs` ~589); combat takes the max of (tag + base) with the empire
-    bonus as a floor (`Weapon.cs` ~593, ~616). The screen overstates, and a weapon with no tags
-    gets no base chance in combat.
+13. ~~Shield penetration, screen versus combat.~~ Resolved 2026-09-27 - **combat changed to match
+    the screen**, Gilad's pick. The screen added the empire bonus, the weapon's own chance and
+    every tag's bonus; combat took the best of (tag bonus + own chance) and used the empire bonus
+    only as a minimum. Now both call `WeaponTemplate.ActualShieldPenChance`, which adds all of them,
+    so they cannot drift apart again. **In play only the empire bonus changed anything**: its one
+    source in content is the Polaron Codex artifact (+10%, more with the Spiritual trait; the unused
+    tech bonus type `Kinetic Shield Penetration Chance Bonus` feeds it too, for every weapon despite
+    its name), whose text promises a
+    chance for "your weapons (all types!)", and it used to do nothing for a weapon whose own chance
+    was already 10% or more - a Dark Matter Cannon stayed at 35% - where it now adds its 10%. The
+    other two differences were unreachable: Phased Ordnance on Kinetic is the only tag bonus in
+    content, so no weapon has two, and every weapon with its own chance has tags. The chance is still
+    rolled once per shot; above 100% it always passes. Covered by
+    `TestWeaponModifiers.ShieldPenetrationBonusesAddUp`, which fails on the old rule and checks a Dark
+    Matter Cannon's 35% becoming 45% with a 10% empire bonus. No Codex text
+    described how the chance is built. Left alone at Gilad's call: Phased Ordnance's text says
+    "Ballistic Cannons" while the bonus covers every Kinetic weapon.
 14. ~~Hull fire-rate bonus never applies in combat.~~ **Removed** with item 10. It was the one hull
     bonus that never reached combat: `Weapon.FireDelay` was a `new` property carrying it, but
     cooldowns used `NetFireDelay` from the template (`WeaponTemplateWrapper.cs` ~147). A fix was

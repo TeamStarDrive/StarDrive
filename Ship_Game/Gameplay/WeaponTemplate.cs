@@ -235,6 +235,14 @@ namespace Ship_Game.Gameplay
             return dps;
         }
 
+        public static float ActualShieldPenChance(IWeaponTemplate weapon, EmpireData empire)
+        {
+            float chance = weapon.ShieldPenChance + empire.ShieldPenBonusChance * 100f;
+            foreach (WeaponTag tag in weapon.ActiveWeaponTags)
+                chance += empire.WeaponTags[tag].ShieldPenetration * 100f;
+            return chance;
+        }
+
         public static float GetWeaponInaccuracyBase(float moduleArea, float overridePercent)
         {
             float powerMod;

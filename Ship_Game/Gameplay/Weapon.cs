@@ -582,16 +582,15 @@ namespace Ship_Game.Gameplay
             if (Owner.Loyalty.HavePackMentality)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
-            float actualShieldPenChance = Module?.GetParent().Loyalty.data.ShieldPenBonusChance * 100 ?? 0;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {
-                AddModifiers(ActiveWeaponTags[i], projectile, ref actualShieldPenChance);
+                AddModifiers(ActiveWeaponTags[i], projectile);
             }
 
-            projectile.IgnoresShields = Random.RollDice(actualShieldPenChance);
+            projectile.IgnoresShields = Random.RollDice(WeaponTemplate.ActualShieldPenChance(this, Owner.Loyalty.data));
         }
 
-        void AddModifiers(WeaponTag tag, Projectile p, ref float actualShieldPenChance)
+        void AddModifiers(WeaponTag tag, Projectile p)
         {
             WeaponTagModifier weaponTag = Owner.Loyalty.data.WeaponTags[tag];
 
@@ -601,9 +600,6 @@ namespace Ship_Game.Gameplay
             p.Speed                 += weaponTag.Speed * ProjectileSpeed;
             p.Health                += weaponTag.HitPoints * HitPoints;
             p.DamageRadius          += weaponTag.ExplosionRadius * ExplosionRadius;
-
-            float shieldPenChance  = weaponTag.ShieldPenetration * 100 + ShieldPenChance;
-            actualShieldPenChance  = shieldPenChance.LowerBound(actualShieldPenChance);
         }
 
         public void ResetToggleSound()
