@@ -541,7 +541,7 @@ still read pre-fix while the offense rating reads post-fix.
 ## Damage, shields and weapons (18)
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
-Items 1, 2, 8, 9 and 12 are resolved, items 10 and 14 went with the hull bonus feature itself,
+Items 1, 2, 8, 9, 12 and 18 are resolved, items 10 and 14 went with the hull bonus feature itself,
 item 16 went with ship-mounted repair beams, and item 17 was not a bug; items 3, 4, 5, 7 and 11
 are as designed and must not be "fixed".
 
@@ -749,8 +749,24 @@ are as designed and must not be "fixed".
     exactly `ProjectileCount` projectiles with no clamp, so a projectile weapon with a count of 0
     would fire nothing and show no DPS line (`DrawStat` skips a zero), and the two agree. No weapon in vanilla or any bundled mod has a count below 1
     (unset means 1; the highest is vanilla's 45).
-18. `[display]` **Blast radius on screen is the base value** — the `ExplosionRadius` tag bonus
-    (Plasma Ordnance) and the ordnance bonus enlarge it in combat.
+18. ~~Blast radius on screen is the base value.~~ Resolved 2026-09-27 - the screen now shows the
+    radius the projectile explodes with, Gilad's pick (the screen was the side that was wrong: the
+    techs promise a bigger blast and combat delivers it). `ModuleSelection.BlastRadius` follows
+    combat exactly: every tag's `ExplosionRadius` bonus is added against the **base** radius, as
+    `Weapon.AddModifiers` does at launch, so a weapon carrying two bonused tags gets the bonus
+    twice; then, for a weapon that uses ordnance, `OrdnanceEffectivenessBonus` multiplies the
+    total, as `Projectile.ExplodeProjectile` does on detonation. For a MIRV it is the warhead's
+    tags and ordnance cost, as in combat. The bonuses in shipped content are all tag bonuses, on
+    Kinetic, Missile and Torpedo: Plasma Ordnance +25% and Remnant Assembly +20% in vanilla and
+    Star Trek; Remnant Assembly +10% and GuidedMulti +3% (Missile and Torpedo only) in Combined
+    Arms, which has no Plasma Ordnance. No content grants `OrdnanceEffectivenessBonus`. Covered by
+    `BlastRadiusDisplayTests`, which fires a Rocket with both kinds of bonus and compares the
+    screen's figure with the missile's `DamageRadius`; it fails against the base radius and
+    against compounding the tag bonuses. The weapon stats Codex entry said Blast Rad was a radius
+    "which technology can enlarge in combat"; it now says Blast Rad already counts it. **Left as
+    it is:** for a MIRV the screen shows the warhead's blast, so a cluster missile launcher that
+    hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
+    which the screen has never shown.
 
 ## Budget, money and espionage (14)
 
