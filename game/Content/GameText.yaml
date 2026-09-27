@@ -8892,10 +8892,11 @@ ExpDmg:
  PTB: "Dano Exp."
 BB_Tech_PlasmaOrdnance_Weapon_ExplosionRadius_Bonus:
  Id: 1999
- ENG: "Plasma Ordnance provides a 25% damage bonus to all of our Ordnance-based weapons."
- RUS: "Плазменные боеприпасы обеспечивают 25% бонус к урону всему нашему оружию, основанному на боеприпасах."
- UKR: "Плазмовий боєприпас дає 25% бонус до всіх видів зброї, що базується на боєприпасах."
- PTB: "Munição de Plasma fornece um bônus de 25% de dano para todas as nossas armas baseadas em Munição."
+ ENG: "Plasma Ordnance provides a 25% greater explosive radius to all of our Ordnance-based weapons."
+ RUS: "Плазменные боеприпасы увеличивают на 25% радиус взрыва всего нашего оружия, использующего боеприпасы."
+ SPA: "La munición de plasma aumenta en un 25% el radio de explosión de todas nuestras armas que usen munición."
+ UKR: "Плазмові боєприпаси збільшують на 25% радіус вибуху всієї нашої зброї, що використовує боєприпаси."
+ PTB: "A Munição de Plasma fornece um raio de explosão 25% maior para todas as nossas armas baseadas em munição."
 WasDestroyedByUnknownForces:
  Id: 2000
  ENG: "was destroyed by unknown forces"
@@ -8919,11 +8920,11 @@ BB_Tech_PlasmaOrdnance_Desc:
  PTB: "Ao mudar nossa munição para um padrão baseado em plasma, podemos entregar uma carga útil mais densa e de maior energia em nossas armas, causando mais dano e efeito."
 BB_Tech_PlasmaOrdnance_Weapon_Damage_Bonus:
  Id: 2003
- ENG: "Plasma Ordnance provides a 25% greater explosive radius to all of our Ordnance-based weapons."
- RUS: "Плазменные боеприпасы позволяют увеличить радиус взрыва на 25% ,всему оружию использующему боеприпасы."
- SPA: "La munición de plasma aumenta el radio explosivo en un 25% y concede una bonificación de daño del 25% a todas nuestras armas que usen munición."
- UKR: "Плазмовий боєприпас збільшує радіус вибуху на 25% для всіх наших боєприпасів на основі боєприпасів."
- PTB: "A Munição de Plasma fornece um raio explosivo 25% maior para todas as nossas armas baseadas em munição."
+ ENG: "Plasma Ordnance provides a 25% damage bonus to all of our Ordnance-based weapons."
+ RUS: "Плазменные боеприпасы дают бонус 25% к урону всему нашему оружию, использующему боеприпасы."
+ SPA: "La munición de plasma concede una bonificación de daño del 25% a todas nuestras armas que usen munición."
+ UKR: "Плазмові боєприпаси дають бонус 25% до шкоди всієї нашої зброї, що використовує боєприпаси."
+ PTB: "A Munição de Plasma fornece um bônus de 25% de dano para todas as nossas armas baseadas em munição."
 BB_Tech_ReactiveArmor_Name:
  Id: 2004
  ENG: "Reinforced Components"
@@ -21189,10 +21190,10 @@ Tech_RemnantAssembly_Weapon_Damage_Bonus:
  PTB: "Danos de todos os tipos de armas aumentados em 20%."
 Tech_RemnantAssembly_Weapon_ExplosionRadius_Bonus:
  Id: 18263
- ENG: "All weapon explosion radius increased by 20%"
- RUS: "Радиус взрыва всего оружия увеличен на 20%"
- UKR: "Радіус вибуху всієї зброї збільшено на 20%"
- PTB: "Raio de explosão de todas as armas aumentado em 20%."
+ ENG: "Kinetic, missile and torpedo explosion radius increased by 20%"
+ RUS: "Радиус взрыва кинетического оружия, ракет и торпед увеличен на 20%"
+ UKR: "Радіус вибуху кінетичної зброї, ракет і торпед збільшено на 20%"
+ PTB: "Raio de explosão de armas cinéticas, mísseis e torpedos aumentado em 20%."
 Tech_RemnantMetallurgy_Name:
  Id: 18264
  ENG: "Remnant Metallurgy"

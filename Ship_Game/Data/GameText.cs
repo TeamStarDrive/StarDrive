@@ -2644,7 +2644,7 @@ namespace Ship_Game
         ExpRad = 1997,
         /// <summary>Exp Dmg</summary>
         ExpDmg = 1998,
-        /// <summary>Plasma Ordnance provides a 25% damage bonus to all of</summary>
+        /// <summary>Plasma Ordnance provides a 25% greater explosive radius to all</summary>
         BB_Tech_PlasmaOrdnance_Weapon_ExplosionRadius_Bonus = 1999,
         /// <summary>was destroyed by unknown forces</summary>
         WasDestroyedByUnknownForces = 2000,
@@ -2652,7 +2652,7 @@ namespace Ship_Game
         BB_Tech_PlasmaOrdnance_Name = 2001,
         /// <summary>By switching our Ordnance to a plasma-based standard, we can</summary>
         BB_Tech_PlasmaOrdnance_Desc = 2002,
-        /// <summary>Plasma Ordnance provides a 25% greater explosive radius to all</summary>
+        /// <summary>Plasma Ordnance provides a 25% damage bonus to all of</summary>
         BB_Tech_PlasmaOrdnance_Weapon_Damage_Bonus = 2003,
         /// <summary>Reinforced Components</summary>
         BB_Tech_ReactiveArmor_Name = 2004,
