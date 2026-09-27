@@ -194,7 +194,7 @@ namespace Ship_Game
         // Income this turn before deducting ship maintenance
         public float GrossIncome                 => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus + TotalMoneyLeechedLastTurn;
         public float NetIncome                   => GrossIncome - AllSpending;
-        public float TotalBuildingMaintenance    =>  GrossPlanetIncome - (NetPlanetIncomes + TroopCostOnPlanets);
+        public float TotalBuildingMaintenance    => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint        => TotalBuildingMaintenance + TotalShipMaintenance;
         public float AllSpending                 => BuildingAndShipMaint + MoneySpendOnProductionThisTurn + TroopCostOnPlanets + EspionageCostLastTurn;
         public bool IsExpansionists              => data.EconomicPersonality?.Name == "Expansionists";
@@ -1279,14 +1279,6 @@ namespace Ship_Game
                 Ship ship = ships[i];
                 ship.ApplyModuleHealthTechBonus(bonus);
             }
-        }
-
-        public float GetTroopMaintThisTurn()
-        {
-            // Troops maintenance on ships are calculated as part of ship maintenance
-            // TODO: are troops on unowned planets for free? 
-            int troopsOnPlanets = OwnedPlanets.Sum(p => p.Troops.NumTroopsHere(this));
-            return troopsOnPlanets * ShipMaintenance.TroopMaint;
         }
 
         public DebugTextBlock DebugEmpireTradeInfo()

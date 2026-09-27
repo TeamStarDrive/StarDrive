@@ -864,11 +864,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (14, one resolved)
+## Budget, money and espionage (14, three resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; item 1 has since been resolved.
+were still present; items 1, 2 and 3 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -892,13 +892,32 @@ were still present; item 1 has since been resolved.
    puts 40 credits in the treasury where the income line shows 20),
    `LeechedMoneySurvivesSaveAndLoad` (collecting at end of turn loses the 20 at load) and
    `LeechFromAnEmpireDefeatedThatTurnIsStillPaid` (the active-only walk loses it).
-2. `[balance]` **Planet troop upkeep cancels out and is never charged.**
-   `TotalBuildingMaintenance` subtracts `TroopCostOnPlanets` (`Empire.cs:197`) and `AllSpending`
-   adds it back (`:199`). Garrisoned troops cost nothing.
-3. `[display]` **Troop upkeep computed two ways.** `GetTroopMaintThisTurn()` counts only our troops
-   (`Empire.cs:1283`); `TroopCostOnPlanets` counts every troop on the planet including enemies
-   (`ColonyResource.cs:324`), so Expenditure rows stop summing to their own total during an
-   invasion.
+2. ~~Planet troop upkeep cancelled out and was never charged.~~ Resolved 2026-09-28, together
+   with 3. Garrisons were meant to cost: `af9f1cea3` (2021-04) added `TroopMaint` into each
+   planet's `Maintenance`, so `TotalBuildingMaintenance`, gross minus net minus troops, came out
+   as buildings only and `AllSpending` charged the troops on top. `66702a5dc` (2021-06) took
+   the troops back out of planet `Maintenance` so colony budgets would not pay for them, but left
+   the `- TroopCostOnPlanets` in `TotalBuildingMaintenance`: the two terms cancelled, and every
+   garrison has been free since. `TotalBuildingMaintenance` is now gross minus net, so troops are
+   charged at the empire level and colony budgets still do not pay them. The colony build list has
+   shown each troop's 0.1 upkeep since `af9f1cea3`. Sized on 33 real Combined Arms saves (157 empires): the player
+   pays a median 1.6% of gross income, at most 4.3% (about 25 credits a turn for a 69-planet late
+   empire); AIs up to 16.8% where taxes sit near zero, which `AutoSetTaxes` covers since it
+   chases `AllSpending`, and `TreasuryGoal` already subtracted the troops. Vanilla saves were all
+   turn 1000-1001 with no troops, so they say nothing.
+3. ~~Troop upkeep computed two ways.~~ Resolved 2026-09-28. The Troop Maint. row counted our
+   troops on our planets, `ColonyMoney.TroopMaint` every troop on the planet, invaders included
+   (commented "We count enemy troops as well", 2021). Now `TroopMaint` counts the owner's troops
+   only, `GetTroopMaintThisTurn` is gone and the row reads `TroopCostOnPlanets`, so the rows add up
+   to their total. Paying for the invader's soldiers, which the invader does not pay for either,
+   read as a slip; foreign troops stood on a planet in only 4 of the 157 sampled empires, at
+   most 10. Our troops standing on someone else's planet still cost nothing (the removed
+   method's own TODO asked about it); they are there only during an invasion. Texts changed:
+   Building Maint., Troop Maint. and Expenditure total tooltips (4561, 4563, 4566) and the Budget
+   Screen Codex entry (100225); Economic Basics (100052) already said troops cost upkeep and is
+   now true, and the level 3 dossier's Maintenance Costs line on the diplomacy screen adds the
+   garrisons to `BuildingAndShipMaint`. Allied troops landed to help defend are free as well.
+   `BudgetTests.GarrisonUpkeepIsChargedForYourOwnTroopsOnly` fails on each half of the old code.
 4. **Dead treasury label.** `TreasurySliderOnChange` writes `TreasuryGoal(Money)/2` into the slider
    text (`BudgetScreen.cs:197`); `Update()` overwrites it with the undivided `ProjectedMoney` next
    frame (`:244`). The same method assigns `data.treasuryGoal` twice.
