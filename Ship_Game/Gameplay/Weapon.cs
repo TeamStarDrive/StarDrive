@@ -436,7 +436,6 @@ namespace Ship_Game.Gameplay
             // Reasons for this weapon not to choose a new target
             return TargetChangeTimer <= 0f // ready to change targets
                 && !IsRepairDrone // TODO: is this correct?
-                && !IsRepairBeam // TODO: repair beams are managed by repair drone ai?
                 && !IsTargetAliveAndInRange(FireTarget); // Target is dead or out of range
         }
 
@@ -511,9 +510,6 @@ namespace Ship_Game.Gameplay
             if (target != null && !Owner.Loyalty.IsEmpireAttackable(target.GetLoyalty()))
                 return destination;
 
-            if (IsRepairBeam)
-                return destination;
-
             Vector2 error = GetTargetError(Random, target);
             Vector2 beamDestination = AdjustedImpactPoint(source, destination, error);
             return beamDestination;
@@ -535,11 +531,6 @@ namespace Ship_Game.Gameplay
         public DroneBeam FireDroneBeam(DroneAI droneAI)
         {
             return new DroneBeam(Owner.Universe.CreateId(), droneAI);
-        }
-
-        public void FireTargetedBeam(GameObject target)
-        {
-            FireBeam(Module.Position, target.Position, target);
         }
 
         public bool ManualFireTowardsPos(Vector2 targetPos)

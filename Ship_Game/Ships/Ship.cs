@@ -1736,7 +1736,6 @@ namespace Ship_Game.Ships
             BombBays.Clear();
             OurTroops.Clear();
             HostileTroops.Clear();
-            RepairBeams = null;
             PlanetCrash = null;
 
             ((IEmpireShipLists)Loyalty).RemoveShipAtEndOfTurn(this);

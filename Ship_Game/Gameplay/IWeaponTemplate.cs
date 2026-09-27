@@ -106,7 +106,6 @@ namespace Ship_Game.Gameplay
         bool ExcludesCorvettes { get; }
         bool ExcludesCapitals { get; }
         bool ExcludesStations { get; }
-        bool IsRepairBeam { get; }
         bool TerminalPhaseAttack { get; }
         float TerminalPhaseDistance { get; }
         float TerminalPhaseSpeedMod { get; }

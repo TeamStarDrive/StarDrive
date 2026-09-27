@@ -5802,8 +5802,6 @@ namespace Ship_Game
         TT_OrdnanceCreated = 7014,
         /// <summary>In the Capital Elimination game mode, empires are defeated when</summary>
         InTheCapitalEliminationGame = 7015,
-        /// <summary>Indicates the maximum amount of damage repaired by beams from</summary>
-        IndicatesTheMaximumAmountOf4 = 7016,
         /// <summary>Indicates sensor bonus added by this module. Sensor bonuses add</summary>
         IndicatesSensorBonusAddedBy = 7017,
         /// <summary>Indicates the range of this transporter.</summary>

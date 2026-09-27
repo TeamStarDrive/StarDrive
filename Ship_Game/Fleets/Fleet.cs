@@ -141,7 +141,7 @@ namespace Ship_Game.Fleets
 
         void UpdateOurFleetShip(Ship ship)
         {
-            HasRepair = HasRepair || ship.HasRepairBeam || ship.HasRepairModule && ship.Ordinance > 0;
+            HasRepair = HasRepair || ship.HasRepairModule && ship.Ordinance > 0;
 
             HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles ||
                                         ship.Carrier.HasSupplyBays && ship.Ordinance >= 100;

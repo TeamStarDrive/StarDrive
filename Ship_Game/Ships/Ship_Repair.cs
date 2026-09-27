@@ -1,6 +1,5 @@
 using System;
 using SDGraphics;
-using SDUtils;
 using Ship_Game.AI;
 
 namespace Ship_Game.Ships;
@@ -12,9 +11,6 @@ public partial class Ship
     public bool HasRepairModule; // module.IsRepairModule
 
     public float HealPerTurn; // Troops Healing
-
-    public Array<ShipModule> RepairBeams;
-    public bool HasRepairBeam => RepairBeams != null && RepairBeams.NotEmpty;
 
     public GameObject LastDamagedBy { get; private set; }
     float LastDamagedTime;

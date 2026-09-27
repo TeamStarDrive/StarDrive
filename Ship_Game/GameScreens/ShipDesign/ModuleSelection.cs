@@ -482,10 +482,9 @@ namespace Ship_Game
             float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay);
             float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
             
-            bool repair = w.IsRepairBeam;
-            bool isBeam = repair || w.IsBeam;
+            bool isBeam = w.IsBeam;
             bool isBallistic = wOrMirv.Explodes && wOrMirv.OrdinanceRequiredToFire > 0f;
-            float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -60f : +60f) : 0f;
+            float beamMultiplier = isBeam ? w.BeamDuration * 60f : 0f;
 
             float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage);
             float beamDamage      = rawDamage * beamMultiplier;
@@ -508,8 +507,7 @@ namespace Ship_Game
             }
             if (isBeam)
             {
-                GameText beamText = repair ? GameText.Repair : GameText.Damage;
-                DrawStat(ref cursor, beamText, beamDamage, repair ? GameText.IndicatesTheMaximumAmountOf4 : GameText.IndicatesTheMaximumAmountOf);
+                DrawStat(ref cursor, GameText.Damage, beamDamage, GameText.IndicatesTheMaximumAmountOf);
                 DrawStat(ref cursor, "Duration", w.BeamDuration, GameText.TheDurationABeamWill);
             }
             else

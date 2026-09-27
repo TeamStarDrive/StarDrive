@@ -348,7 +348,7 @@ namespace Ship_Game.AI
             supply => supply.Position.SqDist(Owner.Position));
 
         public Ship NearByRepairShip => FriendliesNearby.FindMinFiltered(
-            supply => supply.HasRepairBeam || supply.HasRepairModule,
+            supply => supply.HasRepairModule,
             supply => supply.Position.SqDist(Owner.Position));
 
         public void ProcessResupply(ResupplyReason resupplyReason)
@@ -717,23 +717,6 @@ namespace Ship_Game.AI
                 //Do repair check if friendly ships around
                 if (FriendliesNearby.Length == 0)
                     return;
-
-                //Added by McShooterz: logic for repair beams
-                var repairBeams = Owner.RepairBeams;
-                if (repairBeams != null)
-                {
-                    for (int i = 0; i < repairBeams.Count; i++)
-                    {
-                        ShipModule m = repairBeams[i];
-                        if (m.InstalledWeapon.CooldownTimer <= 0f &&
-                            m.InstalledWeapon.Module.Powered &&
-                            Owner.Ordinance >= m.InstalledWeapon.OrdinanceRequiredToFire &&
-                            Owner.PowerCurrent >= m.InstalledWeapon.PowerRequiredToFire)
-                        {
-                            DoRepairBeamLogic(m.InstalledWeapon);
-                        }
-                    }
-                }
 
                 if (!Owner.HasRepairModule)
                     return;

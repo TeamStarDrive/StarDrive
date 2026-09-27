@@ -132,7 +132,6 @@ namespace Ship_Game.Gameplay
         public bool ExcludesCorvettes { get; set; }
         public bool ExcludesCapitals { get; set; }
         public bool ExcludesStations { get; set; }
-        public bool IsRepairBeam { get; set; }
         public bool TerminalPhaseAttack { get; set; }
         public float TerminalPhaseDistance { get; set; }
         public float TerminalPhaseSpeedMod { get; set; } = 2f;
@@ -220,7 +219,7 @@ namespace Ship_Game.Gameplay
             float dps;
             if (IsBeam)
             {
-                float beamMultiplier = !IsRepairBeam ? BeamDuration * 60f : 0f;
+                float beamMultiplier = BeamDuration * 60f;
                 float damage = DamageAmount != 0 ? DamageAmount : PowerDamage;
                 dps = (damage * beamMultiplier) / NetFireDelay;
             }

@@ -19122,9 +19122,6 @@ InTheCapitalEliminationGame:
  SPA: "En el modo de elminicación capital, los imperios son derrotados cuando pierden su planteta natal."
  UKR: "У режимі Знищення столиці імперії зазнають поразки, коли втрачають свою рідну планету."
  PTB: "No modo de jogo Eliminação da Capital, os impérios são derrotados quando perdem seu mundo natal."
-IndicatesTheMaximumAmountOf4:
- Id: 7016
- ENG: "Indicates the amount of damage repaired by one burst of this repair beam."
 IndicatesSensorBonusAddedBy:
  Id: 7017
  ENG: "Indicates sensor bonus added by this module. Sensor bonuses add onto sensor range - only the highest bonus will apply."
