@@ -541,9 +541,9 @@ still read pre-fix while the offense rating reads post-fix.
 ## Damage, shields and weapons (18)
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
-Items 1, 2, 8, 9 and 12 are resolved, and items 10 and 14 went with the hull bonus feature itself;
-items 3, 4, 5, 7 and 11 are as designed and must not be "fixed". Item 16 was re-checked against the
-code on 2026-09-27.
+Items 1, 2, 8, 9 and 12 are resolved, items 10 and 14 went with the hull bonus feature itself, and
+item 16 went with ship-mounted repair beams; items 3, 4, 5, 7 and 11 are as designed and must not
+be "fixed".
 
 1. ~~Weapon-tag armor/shield damage bonuses never applied.~~ Resolved - **deleted, not wired up**.
    A tech's `Weapon_ArmorDamage` / `Weapon_ShieldDamage` reached `WeaponTagModifier`, was copied
@@ -728,8 +728,20 @@ code on 2026-09-27.
 15. `[display]` **Screen-only weapon tag bonuses.** `tag.Rate` lengthens the screen's Delay (a rate
     bonus reading as slower) and combat never reads it; tag `ArmourPenetration` applies in combat
     but not on the screen.
-16. `[latent]` **Ship-mounted repair beams repair nothing.** Only DroneBeam repairs (`Beam.cs` ~443)
-    and ship beams with negative damage skip collisions (~136). No content sets `IsRepairBeam`.
+16. ~~Ship-mounted repair beams repair nothing.~~ **Removed**, Gilad 2026-09-27. No weapon in vanilla
+    or any bundled mod set `IsRepairBeam`, and no module mounted a repair beam, so everything hanging
+    off the tag was dead: `Ship.RepairBeams` and `HasRepairBeam`, the AI's `DoRepairBeamLogic` and
+    `Weapon.FireTargetedBeam`, the aim-error and retarget exemptions, the support-role count, the
+    fleet and resupply "has repair" checks, the DPS and design-screen branches, and the screen's
+    Repair tooltip `IndicatesTheMaximumAmountOf4` (id 7016). It could not have worked either: only
+    `DroneBeam.Update` repairs (`Beam.cs` ~443), and a plain `Beam` with negative damage switches off
+    its own collisions (~136), so a mod that set the tag would have fired beams that did nothing.
+    The weapon **named** `RepairBeam` is unrelated and unchanged - it is the repair drone's own beam,
+    which `DroneAI` creates by UID and which heals through its negative damage, not the tag. A mod
+    weapon that still sets `<IsRepairBeam>` loads, since `XmlSerializer` skips unknown elements, and
+    then acts as an ordinary beam: it picks enemy targets and fires to no effect, where before it
+    fired at friendlies to no effect.
+    Star Trek ships an orphan `orbital_RepairBeam` with damage **+1000** that nothing references.
 17. `[display]` **DPS uses the unclamped `ProjectileCount`** — `ModuleSelection.cs` ~533.
 18. `[display]` **Blast radius on screen is the base value** — the `ExplosionRadius` tag bonus
     (Plasma Ordnance) and the ordnance bonus enlarge it in combat.
