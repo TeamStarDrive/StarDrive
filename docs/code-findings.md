@@ -411,8 +411,7 @@ reasoning is in the linked notes or the commit that set it.
 - **Damage #3, #4, #5 and #7 below** — Gilad's call, 2026-09-27. A module-death blast carrying the
   killer's weapon, a radial blast hitting a big module once per covered cell while the directional
   one dedupes, that blast wasting its root slot, and carry-on damage truncated to int, are all as
-  designed. #4 in particular: **do not add a dedupe to match the directional path.** #10 too:
-  hull bonuses staying off (`UseHullBonuses` false everywhere) is fine as it stands. And #11:
+  designed. #4 in particular: **do not add a dedupe to match the directional path.** And #11:
   missiles keep their raw-level aim error; **do not route them through the gun formula**.
 - The AI gets half production tax on cybernetic colonies and the player does not
   (`ColonyResource.cs:222`); `ResearchTaxMultiplier` is difficulty-only and always 1 for the player
@@ -542,8 +541,9 @@ still read pre-fix while the offense rating reads post-fix.
 ## Damage, shields and weapons (18)
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
-Items 1, 2, 8 and 9 are resolved; items 3, 4, 5, 7, 10 and 11 are as designed and must not be
-"fixed". Items 10 and 16 were re-checked against the code on 2026-09-27, and item 12 verified.
+Items 1, 2, 8, 9 and 12 are resolved, and items 10 and 14 went with the hull bonus feature itself;
+items 3, 4, 5, 7 and 11 are as designed and must not be "fixed". Item 16 was re-checked against the
+code on 2026-09-27.
 
 1. ~~Weapon-tag armor/shield damage bonuses never applied.~~ Resolved - **deleted, not wired up**.
    A tech's `Weapon_ArmorDamage` / `Weapon_ShieldDamage` reached `WeaponTagModifier`, was copied
@@ -672,9 +672,18 @@ Items 1, 2, 8 and 9 are resolved; items 3, 4, 5, 7, 10 and 11 are as designed an
    current charge, while the damage the winner takes scales by `ShieldHitRadius`, so a wide bubble
    with slightly less charge is passed over for a small full one. The comment asks for charge and
    that is now what it does; whether radius should weigh in is a separate balance question.
-10. `[settled]` **Hull bonuses are off everywhere.** As designed, Gilad 2026-09-27. `UseHullBonuses`
-    is false in vanilla and every shipped mod, so hull `ArmoredBonus` and `ShieldModifier` are dead.
-    The Codex omits them.
+10. ~~Hull bonuses are off everywhere.~~ **Removed**, Gilad 2026-09-27. `UseHullBonuses` was false
+    in vanilla and every bundled mod, and no content anywhere shipped a `HullBonuses` folder, so the
+    loader would have switched the flag back off even if a mod set it. Gone: `HullBonus`,
+    `ResourceManager.HullBonuses` and its loader, the `UseHullBonuses` global, `Bonuses` on
+    `ShipHull` / `IShipDesign` / `ShipDesign`, and every place a bonus applied - weapon damage,
+    armour, sensor range, speed, cargo, starting cost and cost, and the repair and shield factors in
+    `EmpireHullBonuses`. `EmpireHullBonuses` itself stays: it is the empire's tech bonuses to
+    modules, and it now keeps one entry per empire instead of one per `HullBonus`, which it already
+    was in practice, since every hull shared the empty default. The design screen's hull bonus
+    panel (`DrawHullBonuses`) was already dead code with an inverted condition. A third-party mod
+    that ships `HullBonuses` loses them silently, and its `UseHullBonuses` line now logs a yaml
+    warning instead of loading. The Codex never mentioned them.
 11. `[settled]` **Missile aim uses the raw crew level.** As designed, Gilad 2026-09-27: missiles keep
     it, and the dead `Ship.MaxWeaponError` was deleted. `MissileAI` (~258)
     passes the launching ship's `Level`, or the planet's, into `Weapon.GetTargetError`, which then
@@ -688,8 +697,18 @@ Items 1, 2, 8 and 9 are resolved; items 3, 4, 5, 7, 10 and 11 are as designed an
     "shrinks the aim error of unguided weapons", and guided weapons "home in instead and show no
     Accuracy", so aligning missiles with guns would need that text changed as well.
     `Ship.MaxWeaponError` was computed in `UpdateWeaponRanges` and read nowhere.
-12. `[latent]` **Jammed missiles re-target every 0.15 s.** Verified 2026-09-27, and **unreachable in
-    shipped content**: a missile is jammed only when the target ship's `ECMValue` beats the
+12. ~~Jammed missiles re-target every 0.15 s.~~ Resolved 2026-09-27 - the stray `Target = null` is
+    gone, so a jammed missile keeps its lock, steers for its decoy point every frame and
+    self-destructs there, as the Codex already said. The line began as the `catch` of the 2014 ECM
+    code (`431cee43a`) and the 2017 refactor `16968eb2f` left it running on every call. Covered by
+    `MissileJamTests`, which fails on the old line. The same commit makes
+    `Projectile.IsAttackable` read `MissileAI?.Target?.GetLoyalty()`, which would throw for a
+    missile with no target; no caller passes a projectile today, so it never did. One more change
+    rides on it: the jammed branch returns before the retarget timer, so a jammed missile no longer
+    calls `ChooseTarget`. Before, an empire without smart missiles lost a jammed missile within
+    0.15 s and a jammed torpedo flew straight; now both fly to the decoy, as the Codex describes.
+    What it was, and still
+    **unreachable in shipped content**: a missile is jammed only when the target ship's `ECMValue` beats the
     missile's `ECMResist` plus a roll of 0 to 1, and `ECMValue` comes only from module `ECM`, which
     no module in vanilla or any bundled mod sets. The ECM techs raise `MissileDodgeChance` instead
     (`TechEntry.cs` ~942), a different mechanic. If a mod adds ECM, the code does what this item
@@ -701,9 +720,11 @@ Items 1, 2, 8 and 9 are resolved; items 3, 4, 5, 7, 10 and 11 are as designed an
     every tag (`ModuleSelection.cs` ~589); combat takes the max of (tag + base) with the empire
     bonus as a floor (`Weapon.cs` ~593, ~616). The screen overstates, and a weapon with no tags
     gets no base chance in combat.
-14. `[latent]` **Hull fire-rate bonus never applies in combat.** `Weapon.FireDelay` is a `new`
-    property carrying the hull bonus, but cooldowns use `NetFireDelay` from the template
-    (`WeaponTemplateWrapper.cs` ~147). Moot while item 10 holds.
+14. ~~Hull fire-rate bonus never applies in combat.~~ **Removed** with item 10. It was the one hull
+    bonus that never reached combat: `Weapon.FireDelay` was a `new` property carrying it, but
+    cooldowns used `NetFireDelay` from the template (`WeaponTemplateWrapper.cs` ~147). A fix was
+    written and tested first, then dropped when the feature went; the `new FireDelay` went too, and
+    the `hull` parameter of the `Weapon` constructor and `ResourceManager.CreateWeapon` with it.
 15. `[display]` **Screen-only weapon tag bonuses.** `tag.Rate` lengthens the screen's Delay (a rate
     bonus reading as slower) and combat never reads it; tag `ArmourPenetration` applies in combat
     but not on the screen.
