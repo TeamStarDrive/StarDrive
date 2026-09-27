@@ -541,9 +541,9 @@ still read pre-fix while the offense rating reads post-fix.
 ## Damage, shields and weapons (18)
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
-Items 1, 2, 8, 9 and 12 are resolved, items 10 and 14 went with the hull bonus feature itself, and
-item 16 went with ship-mounted repair beams; items 3, 4, 5, 7 and 11 are as designed and must not
-be "fixed".
+Items 1, 2, 8, 9 and 12 are resolved, items 10 and 14 went with the hull bonus feature itself,
+item 16 went with ship-mounted repair beams, and item 17 was not a bug; items 3, 4, 5, 7 and 11
+are as designed and must not be "fixed".
 
 1. ~~Weapon-tag armor/shield damage bonuses never applied.~~ Resolved - **deleted, not wired up**.
    A tech's `Weapon_ArmorDamage` / `Weapon_ShieldDamage` reached `WeaponTagModifier`, was copied
@@ -742,7 +742,13 @@ be "fixed".
     then acts as an ordinary beam: it picks enemy targets and fires to no effect, where before it
     fired at friendlies to no effect.
     Star Trek ships an orphan `orbital_RepairBeam` with damage **+1000** that nothing references.
-17. `[display]` **DPS uses the unclamped `ProjectileCount`** — `ModuleSelection.cs` ~533.
+17. ~~DPS uses the unclamped `ProjectileCount`.~~ **Not a bug**, closed 2026-09-27 with no code change.
+    The clamp is the screen's own `projectiles = ProjectileCount > 0 ? ProjectileCount : 1`
+    (`ModuleSelection.cs` ~543), a floor of 1 that only feeds the "Projectiles" line, which shows
+    above 1. The DPS line uses the raw count, and so does combat: `Weapon.EnumFireSources` fires
+    exactly `ProjectileCount` projectiles with no clamp, so a projectile weapon with a count of 0
+    would fire nothing and show no DPS line (`DrawStat` skips a zero), and the two agree. No weapon in vanilla or any bundled mod has a count below 1
+    (unset means 1; the highest is vanilla's 45).
 18. `[display]` **Blast radius on screen is the base value** — the `ExplosionRadius` tag bonus
     (Plasma Ordnance) and the ordnance bonus enlarge it in combat.
 
