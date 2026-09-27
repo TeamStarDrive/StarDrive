@@ -194,10 +194,6 @@ namespace Ship_Game.GameScreens
         private void TreasurySliderOnChange(FloatSlider s)
         {
             Player.data.treasuryGoal = s.RelativeValue;
-            Player.data.treasuryGoal = s.AbsoluteValue;
-            
-            int goal = (int)Player.AI.TreasuryGoal(Player.Money) / 2;
-            s.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {goal}";
             Player.AI.RunEconomicPlanner();
 
             if (Player.AutoTaxes)

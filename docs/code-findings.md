@@ -864,11 +864,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (14, three resolved)
+## Budget, money and espionage (15, five resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; items 1, 2 and 3 have since been resolved.
+were still present; items 1 to 5 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -918,11 +918,15 @@ were still present; items 1, 2 and 3 have since been resolved.
    now true, and the level 3 dossier's Maintenance Costs line on the diplomacy screen adds the
    garrisons to `BuildingAndShipMaint`. Allied troops landed to help defend are free as well.
    `BudgetTests.GarrisonUpkeepIsChargedForYourOwnTroopsOnly` fails on each half of the old code.
-4. **Dead treasury label.** `TreasurySliderOnChange` writes `TreasuryGoal(Money)/2` into the slider
-   text (`BudgetScreen.cs:197`); `Update()` overwrites it with the undivided `ProjectedMoney` next
-   frame (`:244`). The same method assigns `data.treasuryGoal` twice.
-5. **`TreasuryGoal(float normalizedMoney)` never uses its parameter** —
-   `EmpireAI.RunEconomicPlanner.cs:205`.
+4. ~~Dead treasury label.~~ Resolved 2026-09-28. `TreasurySliderOnChange` wrote half the goal into
+   the slider text, which `Update()` replaced with the full `ProjectedMoney` before it was ever
+   drawn; the halved write is gone, leaving the full goal the Codex and the slider tooltip
+   describe. Both said the credits figure sits "beside" the slider, where the percentage is; they
+   now say it is in the slider's title. The
+   duplicate `treasuryGoal` assignment went too: the slider runs 0 to 1, so its relative and
+   absolute values were the same number.
+5. ~~`TreasuryGoal(float normalizedMoney)` never used its parameter.~~ Resolved 2026-09-28: the
+   parameter is gone, and the method is private now that the planner is its only caller.
 6. `[balance]` **Credits multiplier applied twice.** `ChargeCreditsHomeDefense` pre-multiplies by
    `CreditsMultiplier` and `ChargeCredits` multiplies again inside `ProductionCreditCost`
    (`Empire.cs:2593`, `2620`, `2643`). `RefundCreditsPostRemoval(Building)` has the same shape
@@ -973,6 +977,15 @@ were still present; items 1, 2 and 3 have since been resolved.
     already uses `TaxRateMultiplier` rather than `TaxRate` so it is a "full rate" heuristic by
     design, `BiospherePaybackShare = 0.6` was tuned against it, the bonus is 1 for most empires, and
     the error is conservative. Retune the share and the term together or not at all.
+15. `[thread]` `[balance]` **The budget screen runs the economic planner on the UI thread.**
+    Opening the screen (the "trigger updates" `TreasuryGoal.RelativeValue` assignment), ticking
+    Auto Taxes and every step of a treasury slider drag call `EmpireAI.RunEconomicPlanner` from
+    the UI thread, while the sim thread may be running it too (`EmpireAI.cs:156`). A percent
+    slider fires `OnChange` twice per step (`FloatSlider.cs:251-252`). Each call moves the
+    governor budgets' moving averages (old weight 0.9) one step, so a drag fast-forwards budgets
+    the Codex says ease towards their new value, and every opening of the screen nudges them. The
+    tax slider's handler likewise runs `UpdateNetPlanetIncomes` on the UI thread. Found by the
+    review of items 4 and 5, 2026-09-28.
 
 ## Everything else (17, two resolved)
 
