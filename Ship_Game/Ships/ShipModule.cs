@@ -915,11 +915,11 @@ namespace Ship_Game.Ships
             bool damagingShields = ShieldsAreActive;
             if (beam == null) // only for projectiles
             {
-                if (!damagingShields && proj?.Weapon.PowerDamage > 0)
+                if (!damagingShields && proj?.PowerDamage > 0)
                     CausePowerDamage(proj);
 
                 float damageThreshold = damagingShields ? ShieldDeflection : Deflection;
-                if (proj?.Weapon.EMPDamage > damageThreshold && !damagingShields)
+                if (proj?.EmpDamage > damageThreshold && !damagingShields)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
                 if (modifiedDamage < damageThreshold && proj?.WeaponType != "Plasma")
@@ -977,13 +977,19 @@ namespace Ship_Game.Ships
 
         void CauseEmpDamage(Projectile proj)
         {
-            if (proj.Weapon.EMPDamage > 0f)
-                Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
+            if (proj.EmpDamage > 0f)
+            {
+                Parent.CauseEmpDamage(proj.EmpDamage);
+                if (proj.Explodes)
+                    proj.EmpDamage = 0f;
+            }
         }
 
         void CausePowerDamage(Projectile proj)
         {
-            Parent.CausePowerDamage(proj.Weapon.PowerDamage);
+            Parent.CausePowerDamage(proj.PowerDamage);
+            if (proj.Explodes)
+                proj.PowerDamage = 0f;
         }
 
         void CauseSpecialBeamDamageToShield(Beam beam, float beamModifier)

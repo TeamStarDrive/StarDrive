@@ -133,6 +133,37 @@ namespace UnitTests.Ships
             }
         }
 
+        [TestMethod]
+        public void TheBlastRadiusDoesNotScaleTheEmpRating()
+        {
+            var t = (WeaponTemplate)ResourceManager.GetWeaponTemplate("RemnantNuker");
+            AssertGreaterThan(t.EMPDamage, 0f, "setup: RemnantNuker should carry EMP damage");
+            AssertGreaterThan(t.ExplosionRadius, 16f, "setup: RemnantNuker should have a blast radius");
+
+            float emp = t.EMPDamage;
+            float radius = t.ExplosionRadius;
+            float EmpRating(float blastRadius)
+            {
+                t.ExplosionRadius = blastRadius;
+                t.EMPDamage = emp;
+                float withEmp = WeaponTemplate.CalculateOffense(null, t);
+                t.EMPDamage = 0f;
+                return withEmp - WeaponTemplate.CalculateOffense(null, t);
+            }
+            try
+            {
+                float atRadius = EmpRating(radius);
+                AssertGreaterThan(atRadius, 0f, "EMP damage must raise the offense rating");
+                AssertEqual(atRadius * 0.001f, atRadius, EmpRating(radius * 2f),
+                    "a blast applies its EMP once per ship, so a bigger blast must not rate it higher");
+            }
+            finally
+            {
+                t.EMPDamage = emp;
+                t.ExplosionRadius = radius;
+            }
+        }
+
         // Every projectile in a shot is paid for: a cannon that spawns 3 per trigger pull costs
         // 3x its listed price. The runtime used to charge once per shot however many it spawned,
         // so multi-projectile weapons fired far cheaper than the design screen said.

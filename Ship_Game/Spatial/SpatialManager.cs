@@ -213,7 +213,10 @@ namespace Ship_Game.Gameplay
                 {
                     var ship = (Ship)go;
                     if (ship.Active && !ship.Dying)
+                    {
+                        source.RechargeEmpAndPowerDamage();
                         ship.DamageExplosive(source, damage, center, radius, source.IgnoresShields);
+                    }
                 }
             }
             else

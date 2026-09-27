@@ -537,7 +537,14 @@ these was that.
    `TryDamageModule`. It is applied *before* the deflection return and with no threshold test, so a
    shot too weak to hurt the module still drains the ship - deliberate, and deliberately unlike EMP,
    which must beat the module deflection. It also drains once per module the shot touches along the
-   armour-piercing walk, which the Codex now states.
+   armour-piercing walk, which the Codex now states. **An explosive projectile's blast drains once
+   per ship, however many modules it catches** (Gilad 2026-09-28, fixes_36), and applies its EMP the
+   same way: the projectile carries `EmpDamage` and `PowerDamage` copied from its weapon, and an
+   exploding one spends each on the first module that takes it; the space nuke branch
+   (`DamageRadius >= 256`) recharges them before every ship. Before, a `RemnantNuker` blast on a
+   Dreadnought caught 21 modules and applied 2100 EMP instead of 100. `CalculateOffense` no longer
+   scales the EMP and power part of an explosive weapon's rating by its blast radius. Covered by
+   `BlastEmpAndPowerDamageTests` and `TestWeaponModifiers.TheBlastRadiusDoesNotScaleTheEmpRating`.
    **Siphon stays beam-only by design - do not "fix" it.** The Siphon row is no longer drawn for
    non-beam weapons (`ModuleSelection.cs`), so REAegis, EmpCannon, EmpDischarger1x2 and
    DualEmpCannon stop advertising a value that does nothing.
@@ -607,7 +614,8 @@ these was that.
 stat was dead, so nobody balanced them. `game/Mods/Combined Arms/Weapons/Planet/IonDefenseCannon.xml`
 is **100000**, enough to clamp any ship's store to zero on every hit and lock out energy weapons and
 warp for anything in range of a defended planet; `Magnetrom.xml` is 4000 **on an explosive
-projectile**, so it applies per module in the blast. The AI blast radius is larger than the gameplay
+projectile**, which applied per module in the blast until a blast became one drain per ship
+(item 2). The AI blast radius is larger than the gameplay
 one: through `Building.Offense` that Ion Cannon rates ~38x higher, which swamps every fleet-strength
 comparison the invasion planner makes, so the AI would simply stop invading Combined Arms planets.
 Vanilla is tame by comparison - the four affected weapons move 1.4x to 2.7x. **The mod values must
@@ -700,7 +708,9 @@ as designed and must not be "fixed".
 3. `[settled]` **Module-death blasts run through the killer's weapon.** As designed, Gilad
    2026-09-27. `ShipModule.Die` passes the killing projectile as the source, so every module in
    the blast takes that weapon's EffectVsArmor, resistances, deflection roll and EMP, and
-   `CauseEmpDamage` fires once per module.
+   `CauseEmpDamage` and `CausePowerDamage` fire once per module. The exception, since fixes_36:
+   when the killer is an exploding projectile, the module blast happens inside that projectile's
+   own blast, so its EMP and power damage still reach the ship only once (Power item 2).
 4. `[settled]` **Radial blasts hit big modules once per covered cell.** As designed, Gilad
    2026-09-27. `Ship.DamageExplosive` (`Ship_ModuleGrid.cs` ~525) has no dedupe, while the
    directional version dedupes via `SplashHitScratch`. The asymmetry stays: **do not add a dedupe

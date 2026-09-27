@@ -36,6 +36,8 @@ namespace Ship_Game.Gameplay
         public float DamageAmount;
         public float DamageRadius;
         public float ExplosionRadiusMod;
+        public float EmpDamage;
+        public float PowerDamage;
 
         public UniverseState Universe;
         [StarData] public Ship Owner { get; protected set; }
@@ -237,6 +239,7 @@ namespace Ship_Game.Gameplay
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
             DamageRadius          = Weapon.ExplosionRadius;
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
+            RechargeEmpAndPowerDamage();
             Health                = Weapon.HitPoints * GlobalStats.Defaults.ProjectileHitpointsMultiplier;
             Speed                 = Weapon.ProjectileSpeed;
             TrailOffset           = Weapon.TrailOffset;
@@ -816,6 +819,12 @@ namespace Ship_Game.Gameplay
                     ShowExplosionEffect(flashFx, victim);
                 }
             }
+        }
+
+        public void RechargeEmpAndPowerDamage()
+        {
+            EmpDamage = Weapon.EMPDamage;
+            PowerDamage = Weapon.PowerDamage;
         }
 
         void ShowExplosionEffect(bool flashFx, ShipModule module)

@@ -132,6 +132,7 @@
     <Compile Include="Ships\AdjacentShipExplosionTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
     <Compile Include="Ships\ModuleResistTests.cs" />
+    <Compile Include="Ships\BlastEmpAndPowerDamageTests.cs" />
     <Compile Include="Ships\MissileJamTests.cs" />
     <Compile Include="Ships\ShipPositionPrecisionTests.cs" />
     <Compile Include="Ships\BlastRadiusDisplayTests.cs" />
