@@ -188,22 +188,19 @@ namespace Ship_Game
         // @param dt Delta Time for the Simulation
         public void IntegratePosVelocityVerlet(float dt, Vector2 newAcc)
         {
-            Vector2 pos = Position;
             Vector2 vel = Velocity;
             Vector2 oldAcc = Acceleration;
             
             // integrate position using Velocity Verlet method:
             // x' = x + v*dt + (a*dt^2)/2
             float dt2 = dt*dt*0.5f;
-            pos.X += (vel.X*dt + oldAcc.X*dt2);
-            pos.Y += (vel.Y*dt + oldAcc.Y*dt2);
+            MovePosition(vel.X*dt + oldAcc.X*dt2, vel.Y*dt + oldAcc.Y*dt2);
 
             // integrate velocity using Velocity Verlet method:
             // v' = v + (a0+a1)*0.5*dt
             vel.X += (oldAcc.X+newAcc.X)*0.5f*dt;
             vel.Y += (oldAcc.Y+newAcc.Y)*0.5f*dt;
 
-            Position = pos;
             Velocity = vel;
             Acceleration = newAcc;
         }
@@ -214,57 +211,25 @@ namespace Ship_Game
         public void IntegrateExplicitEulerConstantVelocity(float dt)
         {
             // new position: x' = x + v'*dt
-            Vector2 pos = Position;
             Vector2 vel = Velocity;
-            pos.X += vel.X*dt;
-            pos.Y += vel.Y*dt;
-            Position = pos;
+            MovePosition(vel.X*dt, vel.Y*dt);
+        }
+
+        Vector2 PositionRoundingCarry;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void MovePosition(float dx, float dy)
+        {
+            Vector2 pos = Position;
+            dx += PositionRoundingCarry.X;
+            dy += PositionRoundingCarry.Y;
+            float x = pos.X + dx;
+            float y = pos.Y + dy;
+            PositionRoundingCarry.X = dx - (x - pos.X);
+            PositionRoundingCarry.Y = dy - (y - pos.Y);
+            Position = new(x, y);
         }
         
-        // Implicit Euler Method (aka Backward Euler Method)
-        // is a more accurate form of the classic pos' = pos + vel*dt
-        // https://www.gafferongames.com/post/integration_basics/
-        // but not as good as Velocity Verlet
-        public void IntegratePosImplicitEuler(float dt, Vector2 newAcc)
-        {
-            Vector2 pos = Position;
-            Vector2 vel = Velocity;
-
-            // new velocity: v' = v + a*dt
-            vel.X += newAcc.X*dt; // vel updated first with `New Acceleration`
-            vel.Y += newAcc.Y*dt;
-
-            // new position: x' = x + v'*dt
-            pos.X += vel.X*dt; // and use new vel
-            pos.Y += vel.Y*dt;
-            
-            Position = pos;
-            Velocity = vel;
-            Acceleration = newAcc;
-        }
-
-        // Classic Explicit Euler Method (aka Forward Euler Method)
-        // https://www.gafferongames.com/post/integration_basics/
-        // Explicit Euler suffers from precision issues if object has Acceleration
-        // however it's perfectly alright with constant Velocity
-        public void IntegrateExplicitEuler(float dt)
-        {
-            Vector2 pos = Position;
-            Vector2 vel = Velocity;
-            Vector2 oldAcc = Acceleration;
-
-            // new position: x' = x + v'*dt
-            pos.X += vel.X*dt; // pos is 1 step behind, use old Velocity
-            pos.Y += vel.Y*dt;
-
-            // new velocity: v' = v + a*dt
-            vel.X += oldAcc.X*dt;
-            vel.Y += oldAcc.Y*dt;
-
-            Position = pos;
-            Velocity = vel;
-        }
-
         // apply thrust limit, so we don't cause oscillating SAS thrust
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static void PrecisionAccelerate(ref Vector2 acc, in Vector2 thrustDir,
