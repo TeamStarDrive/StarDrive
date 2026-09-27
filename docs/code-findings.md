@@ -604,8 +604,9 @@ still read pre-fix while the offense rating reads post-fix.
 
 From the `design_armor_and_shields` entry. Code reading plus one fact-check pass, untested.
 Items 1, 2, 8, 9, 12 and 18 are resolved, items 10 and 14 went with the hull bonus feature itself,
-item 16 went with ship-mounted repair beams, and item 17 was not a bug; items 3, 4, 5, 7 and 11
-are as designed and must not be "fixed".
+item 15 went with the two weapon tag bonuses it describes, item 16 went with ship-mounted repair
+beams, and item 17 was not a bug; items 3, 4, 5, 7 and 11 are as designed and must not be
+"fixed".
 
 1. ~~Weapon-tag armor/shield damage bonuses never applied.~~ Resolved - **deleted, not wired up**.
    A tech's `Weapon_ArmorDamage` / `Weapon_ShieldDamage` reached `WeaponTagModifier`, was copied
@@ -787,9 +788,20 @@ are as designed and must not be "fixed".
     cooldowns used `NetFireDelay` from the template (`WeaponTemplateWrapper.cs` ~147). A fix was
     written and tested first, then dropped when the feature went; the `new FireDelay` went too, and
     the `hull` parameter of the `Weapon` constructor and `ResourceManager.CreateWeapon` with it.
-15. `[display]` **Screen-only weapon tag bonuses.** `tag.Rate` lengthens the screen's Delay (a rate
-    bonus reading as slower) and combat never reads it; tag `ArmourPenetration` applies in combat
-    but not on the screen.
+15. ~~Screen-only weapon tag bonuses.~~ **Removed**, Gilad 2026-09-27 - both bonuses were deleted
+    rather than fixed. The fire rate bonus (`Weapon_Rate`, `WeaponTagModifier.Rate`) made the
+    screen's Delay longer, so a rate bonus read as a slower weapon with lower DPS, and combat never
+    read it. The armour penetration bonus (`Weapon_ArmourPenetration`) reached combat as
+    `(int)ArmourPenetration`, dropping any fraction, and never reached the screen. **No tech, race
+    or trait in vanilla or any bundled mod granted either**: the weapon tag bonuses content uses
+    are Damage, HP, ExplosionRadius and ShieldPenetration. Gone: both `WeaponTagModifier` fields,
+    their two `TechEntry` cases, the combat line in `Weapon.AddModifiers`, and `WeaponStat.FireDelay`,
+    so the screen's Delay is the weapon's own `NetFireDelay`; `ApplyModsToProjectile` lost the two
+    setup lines and the assertion that pinned the armour penetration bonus. The fields were saved
+    with each empire and the reader skips them in old saves. The commented-out tech-typing block
+    in `Technology.cs` still names both bonus types; it is inert. **Left alone, on purpose:** the
+    screen compounds `Range` and `Speed` tag bonuses across tags while combat adds each against
+    the base, which differs only for a weapon with two bonused tags; no content grants either.
 16. ~~Ship-mounted repair beams repair nothing.~~ **Removed**, Gilad 2026-09-27. No weapon in vanilla
     or any bundled mod set `IsRepairBeam`, and no module mounted a repair beam, so everything hanging
     off the tag was dead: `Ship.RepairBeams` and `HasRepairBeam`, the AI's `DoRepairBeamLogic` and

@@ -479,7 +479,7 @@ namespace Ship_Game
             // NOT extend the launcher's cooldown (Weapon.cs sets CooldownTimer =
             // NetFireDelay). Adding it here would inflate "Delay" and deflate
             // DPS — and it's already shown separately below as "Ignition".
-            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay);
+            float delay = w.NetFireDelay;
             float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
             
             bool isBeam = w.IsBeam;
@@ -650,7 +650,6 @@ namespace Ship_Game
                 case WeaponStat.Damage:    return weapon.DamageAmount;
                 case WeaponStat.Range:     return weapon.BaseRange;
                 case WeaponStat.Speed:     return weapon.ProjectileSpeed;
-                case WeaponStat.FireDelay: return weapon.NetFireDelay;
                 case WeaponStat.Armor:     return weapon.EffectVsArmor;
                 case WeaponStat.Shield:    return weapon.EffectVsShields;
                 default: return 0f;

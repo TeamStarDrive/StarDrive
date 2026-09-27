@@ -15,13 +15,11 @@ namespace Ship_Game
     {
         [StarData] public float Speed;           // % bonus
         [StarData] public float Range;           // % bonus
-        [StarData] public float Rate;            // % bonus
         [StarData] public float Turn;            // % bonus
         [StarData] public float Damage;          // % bonus
         [StarData] public float ExplosionRadius; // % bonus
         [StarData] public float ShieldPenetration;  // FLAT bonus
         [StarData] public float HitPoints;          // % bonus
-        [StarData] public float ArmourPenetration; // FLAT bonus
 
         public WeaponTagModifier GetClone() => (WeaponTagModifier)MemberwiseClone();
     }
@@ -29,7 +27,7 @@ namespace Ship_Game
     // @todo Find a better place for this enum
     public enum WeaponStat
     {
-        Damage, Range, Speed, FireDelay, Armor, Shield
+        Damage, Range, Speed, Armor, Shield
     }
 
     [StarDataType]
@@ -450,7 +448,6 @@ namespace Ship_Game
                 case WeaponStat.Damage:    return tag.Damage;
                 case WeaponStat.Range:     return tag.Range;
                 case WeaponStat.Speed:     return tag.Speed;
-                case WeaponStat.FireDelay: return tag.Rate;
                 default: return 0f;
             }
         }

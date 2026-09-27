@@ -601,7 +601,6 @@ namespace Ship_Game.Gameplay
             p.Speed                 += weaponTag.Speed * ProjectileSpeed;
             p.Health                += weaponTag.HitPoints * HitPoints;
             p.DamageRadius          += weaponTag.ExplosionRadius * ExplosionRadius;
-            p.ArmorPiercing         += (int)weaponTag.ArmourPenetration;
 
             float shieldPenChance  = weaponTag.ShieldPenetration * 100 + ShieldPenChance;
             actualShieldPenChance  = shieldPenChance.LowerBound(actualShieldPenChance);
