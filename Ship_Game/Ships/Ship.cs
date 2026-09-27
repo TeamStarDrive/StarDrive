@@ -481,8 +481,7 @@ namespace Ship_Game.Ships
         }
 
         /// <summary>
-        /// Repulsion is a force, and ApplyForce is already integrated against the sim step,
-        /// so it must NOT be scaled by the beam time step modifier the way per-tick effects are.
+        /// Not scaled by the beam time step modifier, unlike the per-tick beam effects.
         /// </summary>
         public void CauseRepulsionDamage(Beam beam)
         {
@@ -945,7 +944,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
                 {
                     Weapon w = Weapons[i];
-                    if (w.Module?.Active == true && w.DamageAmount > 0.1f && !w.TruePD && Ordinance >= w.OrdinanceRequiredToFire)
+                    if (w.Module?.Active == true && w.DamageAmount > 0.1f && !w.TruePD && Ordinance >= w.OrdnancePerShot)
                     {
                         weapons.Add(w);
                     }
@@ -1491,8 +1490,6 @@ namespace Ship_Game.Ships
 
         /// <summary>
         /// Upper bound on this ship's death blast, as a multiple of its hull radius.
-        /// Small hulls carry reactors and ordnance out of all proportion to what they can
-        /// survive, so their blast is held tighter than a capital's.
         /// </summary>
         public float ExplosionDamageCap()
         {

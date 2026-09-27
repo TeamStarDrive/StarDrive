@@ -562,7 +562,7 @@ namespace Ship_Game.Ships
                 if (module.InstalledWeapon != null)
                 {
                     if (!module.InstalledWeapon.TruePD && !module.InstalledWeapon.Tag_PD)
-                        OrdnanceMin = Math.Max(module.InstalledWeapon.OrdinanceRequiredToFire,OrdnanceMin);
+                        OrdnanceMin = Math.Max(module.InstalledWeapon.OrdnancePerShot, OrdnanceMin);
                 }
 
                 HasRepairModule |= module.IsRepairModule;

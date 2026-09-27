@@ -134,10 +134,10 @@ namespace Ship_Game.Gameplay
         /// Cost of one shot. Every projectile in the shot is paid for, so a cannon that
         /// spawns several per trigger pull costs that many times its listed price.
         /// </summary>
-        float PowerPerShot => PowerRequiredToFire * ProjectileCount;
+        public float PowerPerShot => WeaponTemplate.PowerPerShot(this);
 
         /// <inheritdoc cref="PowerPerShot"/>
-        float OrdnancePerShot => OrdinanceRequiredToFire * ProjectileCount;
+        public float OrdnancePerShot => WeaponTemplate.OrdnancePerShot(this);
 
         bool CanFireWeapon()
         {

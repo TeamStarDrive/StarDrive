@@ -29,8 +29,6 @@ namespace UnitTests.Ships
 
         static float BlastDamage(Ship s) => (float)GetExplosionDamageMethod.Invoke(s, null);
 
-        static int AliveModules(Ship s) => s.Modules.Count(m => m.Active);
-
         /// <summary>
         /// Destroys every module carrying ExplosiveResist. Those modules subtract from the ship's
         /// own death blast, so killing them is the state that produces the largest possible one.

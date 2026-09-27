@@ -97,6 +97,17 @@ to a type's array the same way the gas giant bed was.
   would edit a working music path to satisfy a style point, and in this repo the code written to
   satisfy a review is reliably where the next regression comes from.
 
+**Also observed in the PR review of 2026-09-28, not yet decided:**
+
+- The latch above also fires in normal play. `PlanetAmbient` has `MaxConcurrentSoundsPerEffect: 1`
+  and `FadeOutTime: 0.1`, and a stopped instance counts until its fade ends, so stepping
+  Barren -> Terran -> Barren with the arrow keys inside that tenth of a second finds
+  `CanPlayEffect` false and leaves the colony silent. Raising the effects volume from zero after
+  opening the colony does the same.
+- The bed plays on over full screens opened from the colony (research, ship design) for the rest
+  of one 22-28 s bed, because a hidden `UniverseScreen` is not updated, and over the racial
+  music popups; coming back does not replay it, since the cue is latched.
+
 **Still XACT-era and never heard in this engine:** the six effects carry `Volume: 1.76` and `1.04`.
 Retune when the mix is judged.
 
@@ -264,9 +275,9 @@ radius = 28,644 against 17-module freighters, and that reads as correct rather t
   *health* figure — from a damage total. Health dominates, so `SteelArmorLarge` at **4%** resist
   cancels 26,042 while `Reinforced Bulkhead` at **75%** cancels 14,400. Over a Dreadnought it
   totals 3,834,300 against 320,603 of positive terms, which is why the blast is a 29x cliff rather
-  than a slope. Nothing guards `resist >= 1`: Star Trek's `AncientArmor_3x3` ships **1.39**, so the
-  term flips sign and *adds* 255,769 per plate, and on the receiving side
-  `InternalDamageModifier` returns `-0.39`, which **repairs** the plate instead of damaging it.
+  than a slope. The `resist >= 1` half of this (Star Trek's `AncientArmor_3x3` ships **1.39**, so
+  the term flipped sign and *added* 255,769 per plate, and `InternalDamageModifier` returned
+  `-0.39`, which **repaired** the plate) has since been fixed by damage #2; the health term stays.
 - Reactors are supercritical against each other. `Extreme Fusion Reactor` is 1,550 health and
   detonates for 6,000 over 72 units, roughly 4x the health of the reactor beside it, fired
   synchronously from `ShipModule.Die`. One `AntiMatterReactor` dying takes 34 modules of a Heavy
@@ -482,15 +493,16 @@ reasoning is in the linked notes or the commit that set it.
 
 ## Worth a GitHub issue if we ever file any
 
-Player-visible, self-contained, and safe to hand to someone else: power #1, damage #2, misc #6,
-misc #1. Everything else is better done by us or not at all.
+Player-visible, self-contained, and safe to hand to someone else: misc #6, misc #1 (power #1 and
+damage #2 were on this list and are resolved). Everything else is better done by us or not at all.
 
 ---
 
 ## Power (7)
 
-From the `design_power_budget` Codex entry. Items 1, 2, 4, 5 confirmed by two fact-check passes;
-item 3 is one reading, untested. Items 2, 5, 6 and 7 shipped in `3037ebbf7`; 1 and 4 followed.
+From the `design_power_budget` Codex entry. Items 1, 2, 4, 5 confirmed by two fact-check passes.
+Items 2, 5 and 6 shipped in `3037ebbf7` and 7 in `6c9f0fdda`; 1, 4 and 3 (`68fa66b1a`, with tests)
+followed.
 **Every item in this list is now resolved.**
 
 **When judging items 1 and 4, ask which side was lying.** In both the design screen was
@@ -645,7 +657,7 @@ as designed and must not be "fixed".
      below full resistance, so the term is taken only when the resist is **above 0 and below 1**.
      Flooring the denominator instead - the first attempt, at 0.01 - was caught in review and is
      **much worse**: Star Trek's `AncientArmor_3x3` has `Health 99750` and `ExplosiveResist 1.39`,
-     the only module in any shipped content at or above 1, and it would have gone from
+     the only module in any shipped content with an explosive resist at or above 1, and it would have gone from
      contributing **+255,769** to the ship's blast to cancelling **9,975,000** of it, pinning any
      ship carrying that plate at the `Radius*10` floor. The domain guard makes its contribution 0
      instead. That is still a change for those ships - they lose a quarter million of blast that
@@ -675,7 +687,7 @@ as designed and must not be "fixed".
    Trek. At 40 shots a second it repaired a plate to full almost at once.
 
    Covered by `UnitTests/Ships/ModuleResistTests.cs` against new `TEST_ModuleResist`
-   (`KineticResist 2`, `BeamResist 1`) and `TEST_ShipResist`. Each half was mutation-checked
+   (`KineticResist 2`, `BeamResist 3`, `ExplosiveResist 2`) and `TEST_ShipResist`. Each half was mutation-checked
    separately. One of the three tests as first written passed with and without the clamp, because
    a ballistic projectile *is* caught by the deflection guard - it was rewritten to assert the
    damage modifier never goes negative, which is the root cause rather than one weapon's path.
@@ -726,8 +738,9 @@ as designed and must not be "fixed".
    owner also keeps its last `RepairRatePerSecond`, since only `AffectNearbyShips` sets it and that
    returns early without an owner, so it repaired at the dead colony's rate until the next load;
    the owner gate closes that case as well, and the stale rate itself is harmless now. The EMP
-   sentence in `CodexWarfareCombatBasicsText` already said "orbiting a friendly colony", so the
-   EMP clearing that rides on the same block now matches it.
+   sentence in `CodexWarfareCombatBasicsText` said "orbiting a friendly colony", so the EMP
+   clearing that rides on the same block matches it; `15e9fc81f` reworded it to "orbiting your own
+   or an ally's colony".
 9. ~~`IsCoveredByShield` picks the last shield, not the strongest.~~ Resolved - `maxPower` is now
    raised when a shield wins, so the method does what its own comment says. **Narrower than it
    first reads**: the method has exactly one caller, `Ship.CauseRadiationDamage`, reached only
@@ -912,7 +925,8 @@ were still present; items 1 to 5 have since been resolved.
    to their total. Paying for the invader's soldiers, which the invader does not pay for either,
    read as a slip; foreign troops stood on a planet in only 4 of the 157 sampled empires, at
    most 10. Our troops standing on someone else's planet still cost nothing (the removed
-   method's own TODO asked about it); they are there only during an invasion. Texts changed:
+   method's own TODO asked about it): during an invasion, or when they land to help an ally defend.
+   Texts changed:
    Building Maint., Troop Maint. and Expenditure total tooltips (4561, 4563, 4566) and the Budget
    Screen Codex entry (100225); Economic Basics (100052) already said troops cost upkeep and is
    now true, and the level 3 dossier's Maintenance Costs line on the diplomacy screen adds the

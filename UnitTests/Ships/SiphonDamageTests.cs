@@ -130,8 +130,8 @@ namespace UnitTests.Ships
 
             float healthBefore = hull.Health;
             target.PowerCurrent = target.PowerStoreMax;
-            // zero damage is always below the module deflection, so the shot is deflected
-            hull.Damage(proj, 0f);
+            // no vanilla module has any deflection, so only a negative hit falls below it
+            hull.Damage(proj, -1f);
 
             AssertEqual(0.01f, healthBefore, hull.Health, "a deflected shot must not damage the module");
             AssertEqual(0.01f, (target.PowerStoreMax - gun.PowerDamage).LowerBound(0), target.PowerCurrent,

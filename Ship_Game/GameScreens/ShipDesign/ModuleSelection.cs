@@ -572,8 +572,8 @@ namespace Ship_Game
             float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
             DrawStat(ref cursor, "Pwr Dmg", powerDamage, GameText.IndicatesTheAmountOfPower3);
             DrawStat(ref cursor, GameText.FireArc, m.FieldOfFire.ToDegrees(), GameText.AWeaponMayOnlyFire);
-            DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, GameText.IndicatesTheAmountOfOrdnance);
-            DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, GameText.IndicatesTheAmountOfPower);
+            DrawStat(ref cursor, "Ord / Shot", WeaponTemplate.OrdnancePerShot(w), GameText.IndicatesTheAmountOfOrdnance);
+            DrawStat(ref cursor, "Pwr / Shot", WeaponTemplate.PowerPerShot(w), GameText.IndicatesTheAmountOfPower);
 
             if (w.Tag_Guided && GlobalStats.Defaults.EnableECM)
                 DrawStatPercentLine(ref cursor, GameText.EcmResist, w.ECMResist, GameText.IndicatesTheResistanceOfThis);
@@ -592,7 +592,7 @@ namespace Ship_Game
                 if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
                     DrawStatCustomColor(ref cursor, GameText.ShieldPen, actualShieldPenChance.UpperBound(1), GameText.RandomChanceThisWeaponWill, Color.Gold);
                 else
-                    DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), GameText.RandomChanceThisWeaponWill, isPercent: true);
+                    DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(1), GameText.RandomChanceThisWeaponWill, isPercent: true);
             }
             DrawStat(ref cursor, GameText.Ordnance, m.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
             DrawStat(ref cursor, GameText.Deflection, m.Deflection, GameText.WeaponsWhichDoLessDamage);

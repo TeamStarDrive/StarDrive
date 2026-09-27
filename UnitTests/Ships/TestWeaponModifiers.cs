@@ -190,5 +190,23 @@ namespace UnitTests.Ships
                 "the weapon cannot afford all 3 projectiles and must not fire");
             AssertEqual(0.01f, 10f, Ship.PowerCurrent, "a refused shot must not spend power");
         }
+
+        // Resupply triggers below the ordnance of the costliest full shot, not of one projectile.
+        [TestMethod]
+        public void OrdnanceMinIsTheCostOfAFullShot()
+        {
+            LoadStarterShips("Alliance-Class Mk Ia Hvy Assault");
+            Ship ship = SpawnShip("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
+
+            float perShot = 0f, perProjectile = 0f;
+            foreach (Weapon w in ship.Weapons)
+            {
+                if (w.TruePD || w.Tag_PD) continue;
+                perShot = Math.Max(perShot, w.OrdnancePerShot);
+                perProjectile = Math.Max(perProjectile, w.OrdinanceRequiredToFire);
+            }
+            AssertGreaterThan(perShot, perProjectile, "precondition: the design's costliest shot is a multi-projectile one");
+            AssertEqual(0.001f, perShot, ship.OrdnanceMin);
+        }
     }
 }

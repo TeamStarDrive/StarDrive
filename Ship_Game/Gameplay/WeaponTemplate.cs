@@ -243,6 +243,9 @@ namespace Ship_Game.Gameplay
             return chance;
         }
 
+        public static float PowerPerShot(IWeaponTemplate weapon) => weapon.PowerRequiredToFire * weapon.ProjectileCount;
+        public static float OrdnancePerShot(IWeaponTemplate weapon) => weapon.OrdinanceRequiredToFire * weapon.ProjectileCount;
+
         public static float GetWeaponInaccuracyBase(float moduleArea, float overridePercent)
         {
             float powerMod;
