@@ -29,7 +29,7 @@ namespace Ship_Game.Gameplay
         public int ArmorPiercing;
         public bool IgnoresShields;
         public string WeaponType;
-        MissileAI MissileAI;
+        internal MissileAI MissileAI;
         public float VelocityMax;
         public float Speed;
         public float Range;
@@ -415,7 +415,7 @@ namespace Ship_Game.Gameplay
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
-            if (MissileAI?.Target.GetLoyalty() == attacker)
+            if (MissileAI?.Target?.GetLoyalty() == attacker)
                 return true;
 
             if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade && Owner.IsInBordersOf(attacker))
