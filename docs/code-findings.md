@@ -394,6 +394,68 @@ under the facilitation reason. This is a placement question only.
 
 ---
 
+## Priority 5 - empires shared their tech bonuses with their race template - FIXED 2026-09-27
+
+`[balance]` Found while reviewing the damage #18 test, which leaked a weapon bonus into every later
+test. Reproduced in unit tests and in Gilad's own saves; fixed on `fixes_35`.
+
+**What was wrong.** `EmpireData.CreateInstance` is a `MemberwiseClone`. It gave the new empire
+fresh research, agent and artifact lists, but **not** its `WeaponTags` map, its `RoleLevels`
+array or its `ShipModulesInResearchQueues` set, so every empire made from a race held the race
+template's own objects. Tech unlocks write straight into them:
+`TechEntry.ApplyWeaponTagBonusToEmpire` raises the shared `WeaponTagModifier`, and the
+`Bonus Fighter Levels` and `ShipRoleLevels` bonuses add to the shared `RoleLevels`. The templates
+(`ResourceManager.MajorRaces`) load at boot and reload only on a mod switch or when leaving a game
+for the main menu under memory pressure (`GameLoadingScreen(resetResources: true)`), so normally
+they live for the whole session. The only reset, `EmpireData.ResetAllBonusModifiers`, is
+reachable only from the debug Reset All Techs button, and even that clears `WeaponTags` but not
+`RoleLevels`.
+
+**What it did in play.**
+- **A second new game in one session started with the first game's research.** Every weapon
+  tag bonus (damage, HP, blast radius, shield penetration) and every ship level added to
+  `RoleLevels` (the corvette and drone levels of `Bonus Fighter Levels`, and `ShipRoleLevels`)
+  that any empire of a race had researched was already in place for that race in the next new
+  game - the player's race and every AI race alike - and kept adding up over a third and fourth
+  game. Restarting the game or a resource reload cleared it; loading a save did not reintroduce it,
+  because a save carries its own copies. A save made during an affected game keeps the inflated
+  values it started with; they cannot be told apart from real research and are not repaired.
+- **Rebels stayed wired to their parent.** Rebels are made by `CreateRebelsFromEmpireData(data,
+  this)` with the parent's **live** data - on a bankruptcy rebellion (`Empire.cs` ~2013), from
+  espionage (`Empire_Espionage.cs` ~105), and for a defeated empire whose remaining ships defect
+  to its rebels (`SetAsDefeated`, ~477) - so the rebels shared the parent's objects directly and
+  their weapon bonuses and ship levels kept rising with the parent's research while it lived. Rebels
+  never research (`Empire.cs` ~1929), so normally the parent was not affected in return, and nothing was
+  applied twice: the rebel constructor clones the parent's tech entries and `InitEmpireUnlocks`
+  marks techs researched without re-applying bonuses. **The link survived saving**, because the
+  binary serializer tracks objects by reference: 12 of Gilad's 33 Combined Arms saves have rebels,
+  and loading them without the fix leaves 68 pairs of empires sharing these objects.
+- The unit tests leaked into each other the same way, since `CreateUniverseAndPlayerEmpire` makes
+  each test's player from a shared template.
+
+**The fix.** `CreateInstance` now gives each new empire its own copy of `WeaponTags` (a clone of
+every `WeaponTagModifier`) and `RoleLevels`, and a fresh `ShipModulesInResearchQueues` beside the
+research queue it already reset. Rebels therefore start with their parent's bonuses as they stand
+at the rebellion and keep them. A `[StarDataDeserialized]` hook on `EmpireData` makes the same
+copies on every load, which splits the shared objects in existing saves while keeping each
+empire's values. The unused `EmpireData.GetClone()`, the same shallow copy, is deleted.
+`RacialTrait` needed nothing: `CreateInstance` already clones the traits, and the race design
+screen builds its own. **Not repaired:** the hook copies the research-queue module set rather
+than rebuilding it, so an affected save keeps stale entries, whose only reader picks the outline
+colour of a locked module (`Ship_Rendering.cs` ~440); and the list screens' sort buttons
+(`PLSort`, `ESSort`, `SLSort`, not saved) are still shared, so a sort choice carries into the next
+game in the session. Both are cosmetic.
+
+**Evidence.** `UnitTests/Technologies/TechBonusIsolationTests.cs`: a second universe made after
+the player unlocks Plasma Ordnance and Ace Training starts at the template's values; rebels made
+from the player's data do not gain the player's later unlocks; and a parent and rebels that
+share the objects come back from a binary round trip with their own copies and the same values.
+The first two fail on the old `CreateInstance` and the third fails with the hook removed. All 41
+of Gilad's current saves (8 vanilla, 33 Combined Arms) load and run 60 ticks with the fix, with
+no two empires left sharing; the full suite passes.
+
+---
+
 ## Do not "fix" these
 
 Settled behaviour that reads like a bug to fresh eyes. Each was decided deliberately and the

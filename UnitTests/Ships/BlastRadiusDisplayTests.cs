@@ -32,28 +32,16 @@ public class BlastRadiusDisplayTests : StarDriveTest
         Assert.IsNotNull(rocket, "setup: Rocket Scout must carry an explosive weapon that uses ordnance");
         Assert.IsTrue(rocket.Tag_Missile && rocket.Tag_Guided, "setup: the rocket must carry both tags given a bonus");
 
-        WeaponTagModifier missileTag = Player.data.WeaponTags[WeaponTag.Missile];
-        WeaponTagModifier guidedTag = Player.data.WeaponTags[WeaponTag.Guided];
-        float missileRadius = missileTag.ExplosionRadius;
-        float guidedRadius = guidedTag.ExplosionRadius;
-        try
-        {
-            missileTag.ExplosionRadius = 0.25f;
-            guidedTag.ExplosionRadius = 0.1f;
-            Player.data.OrdnanceEffectivenessBonus = 0.5f;
+        Player.data.WeaponTags[WeaponTag.Missile].ExplosionRadius = 0.25f;
+        Player.data.WeaponTags[WeaponTag.Guided].ExplosionRadius = 0.1f;
+        Player.data.OrdnanceEffectivenessBonus = 0.5f;
 
-            Projectile missile = Projectile.Create(rocket, launcher, launcher.Position, Vectors.Up, null, playSound: false);
-            missile.Die(null, cleanupOnly: true);
+        Projectile missile = Projectile.Create(rocket, launcher, launcher.Position, Vectors.Up, null, playSound: false);
+        missile.Die(null, cleanupOnly: true);
 
-            float expected = rocket.ExplosionRadius * (1f + 0.25f + 0.1f) * 1.5f;
-            AssertEqual(0.001f, expected, missile.DamageRadius, "combat adds each tag's bonus against the base radius, then the ordnance bonus");
-            AssertEqual(0.001f, missile.DamageRadius, ModuleSelection.BlastRadius(rocket, Player.data),
-                        "the design screen must show the blast radius the missile explodes with");
-        }
-        finally
-        {
-            missileTag.ExplosionRadius = missileRadius;
-            guidedTag.ExplosionRadius = guidedRadius;
-        }
+        float expected = rocket.ExplosionRadius * (1f + 0.25f + 0.1f) * 1.5f;
+        AssertEqual(0.001f, expected, missile.DamageRadius, "combat adds each tag's bonus against the base radius, then the ordnance bonus");
+        AssertEqual(0.001f, missile.DamageRadius, ModuleSelection.BlastRadius(rocket, Player.data),
+                    "the design screen must show the blast radius the missile explodes with");
     }
 }
