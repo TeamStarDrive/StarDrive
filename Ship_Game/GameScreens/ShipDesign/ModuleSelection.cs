@@ -517,7 +517,7 @@ namespace Ship_Game
 
             if (wOrMirv.Explodes)
             {
-                DrawStat(ref cursor, "Blast Rad", wOrMirv.ExplosionRadius / 16, GameText.TheRadiusOfTheProjectiles);
+                DrawStat(ref cursor, "Blast Rad", BlastRadius(wOrMirv, Player.data) / 16, GameText.TheRadiusOfTheProjectiles);
             }
 
             if (wOrMirv.TerminalPhaseAttack)
@@ -663,6 +663,16 @@ namespace Ship_Game
             foreach (WeaponTag tag in weapon.ActiveWeaponTags)
                 value += value * Player.data.GetStatBonusForWeaponTag(stat, tag);
             return value;
+        }
+
+        internal static float BlastRadius(IWeaponTemplate weapon, EmpireData data)
+        {
+            float radius = weapon.ExplosionRadius;
+            foreach (WeaponTag tag in weapon.ActiveWeaponTags)
+                radius += data.WeaponTags[tag].ExplosionRadius * weapon.ExplosionRadius;
+            if (weapon.OrdinanceRequiredToFire > 0f)
+                radius += data.OrdnanceEffectivenessBonus * radius;
+            return radius;
         }
 
         void DrawResistancePercent(ref Vector2 cursor, IWeaponTemplate weapon, string description, WeaponStat stat)
