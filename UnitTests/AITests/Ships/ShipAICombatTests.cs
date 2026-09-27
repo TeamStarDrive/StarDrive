@@ -225,7 +225,6 @@ namespace UnitTests.AITests.Ships
                 w.TestProjectileCount = 5;
                 w.TestProjectileRadius = 50; // to make it easier to hit with
                 w.TestOrdinanceRequiredToFire = 0f;
-                w.FireDelay = 0.25f;
             }
             s.AI.SetCombatTriggerDelay(0f);
             s.AI.CombatState = CombatState.ShortRange;

@@ -75,7 +75,6 @@ public class GamePlayGlobals
     [StarData] public float ExoticRatioStorage = 0.1f;
 
     // feature flags
-    [StarData] public bool UseHullBonuses;
     [StarData] public bool UseCombatRepair;
     [StarData] public bool EnableECM;
     [StarData] public bool UseDestroyers;

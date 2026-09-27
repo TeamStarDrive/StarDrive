@@ -681,7 +681,7 @@ namespace Ship_Game
             if (loadWeapon)
             {
                 ResourceManager.GetWeaponTemplate(DysonSwarm.DysonSwarmLauncherTemplate, out IWeaponTemplate t);
-                DysonSwarmLauncher = new(Universe, t, null, null, null);
+                DysonSwarmLauncher = new(Universe, t, null, null);
             }
         }
 

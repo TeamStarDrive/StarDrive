@@ -367,13 +367,6 @@ namespace Ship_Game.Gameplay
             if (owner?.Level > 0)
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
-            // Hull bonus damage increase
-            if (GlobalStats.Defaults.UseHullBonuses && owner != null &&
-                ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
-            {
-                damageAmount += damageAmount * mod.DamageBonus;
-            }
-
             return damageAmount;
         }
 

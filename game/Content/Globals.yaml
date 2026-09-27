@@ -46,7 +46,6 @@ Globals:
   DisableShipPicker: true
   ChangeResearchCostBasedOnSize: true
   EnableShipTechLineFocusing: true
-  UseHullBonuses: false
   UseDestroyers: false
   EnableECM: false
   UseCombatRepair: false

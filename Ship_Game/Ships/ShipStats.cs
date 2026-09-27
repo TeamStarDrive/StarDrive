@@ -125,11 +125,9 @@ namespace Ship_Game.Ships
                 S.RepairRate = S.RepairRate.LowerBound(10);
 
             S.SensorRange *= e.data.SensorModifier;
-            S.SensorRange *= Hull.Bonuses.SensorModifier;
 
             // +percent based on level
             S.RepairRate += S.RepairRate * S.Level * GlobalStats.Defaults.BonusRepairPerCrewLevel;
-            S.CargoSpaceMax = GetCargoSpace(S.CargoSpaceMax, Hull);
 
             S.SetActiveInternalSlotCount(activeInternalSlots);
         }
@@ -206,8 +204,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            float modifier = Hull.Bonuses.SpeedModifier;
-            return (STL: stl * modifier, Warp: warp * modifier, Turn: turn * modifier);
+            return (STL: stl, Warp: warp, Turn: turn);
         }
 
         public float GetTurnRadsPerSec(int level)
@@ -267,11 +264,6 @@ namespace Ship_Game.Ships
             return spoolTime;
         }
 
-        public static float GetCargoSpace(float cargoMax, IShipDesign s)
-        {
-            return cargoMax * s.Bonuses.CargoModifier;
-        }
-        
         /// @return TRUE if ship can effectively warp the given distance in 1 jump
         public static bool IsWarpRangeGood(float neededRange, float powerDuration, float maxFTLSpeed)
         {

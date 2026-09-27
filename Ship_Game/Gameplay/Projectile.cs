@@ -217,7 +217,7 @@ namespace Ship_Game.Gameplay
                 // in which case we abandon this projectile
                 if (ResourceManager.GetWeaponTemplate(weaponUID, out IWeaponTemplate t))
                 {
-                    weapon = new(us, t, ship, null, null);
+                    weapon = new(us, t, ship, null);
                 }
             }
 
@@ -372,7 +372,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 // this is the spawned warhead weapon stats
-                Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module, null);
+                Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module);
                 if (warhead.Tag_Guided)
                 {
                     for (int i = 0; i < warhead.ProjectileCount; i++)

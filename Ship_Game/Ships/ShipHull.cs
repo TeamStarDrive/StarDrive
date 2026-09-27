@@ -64,7 +64,6 @@ namespace Ship_Game.Ships
         public SubTexture Icon => ResourceManager.Texture(IconPath);
         public Vector3 Volume { get; private set; }
         public float ModelZ { get; private set; }
-        public HullBonus Bonuses { get; private set; }
         public bool IsValidForCurrentMod => GlobalStats.IsValidForCurrentMod(ModName);
 
         // Per-grid-cell most-negative mesh Z (the hull surface facing the
@@ -246,7 +245,6 @@ namespace Ship_Game.Ships
             Array.Sort(HullSlots, HullSlot.Sorter);
 
             GridCenter = sd.GridInfo.GridCenter;
-            InitializeCommon();
         }
 
         public ShipHull(string filePath) : this(new FileInfo(filePath))
@@ -357,8 +355,6 @@ namespace Ship_Game.Ships
 
             HullSlots = slots.ToArray();
             SurfaceArea = HullSlots.Length;
-
-            InitializeCommon();
         }
 
         public void AddThruster(Vector3 pos, float scale)
@@ -384,11 +380,6 @@ namespace Ship_Game.Ships
             hull.TechsNeeded = new HashSet<string>(TechsNeeded);
             hull.Thrusters = Thrusters.CloneArray();
             return hull;
-        }
-
-        void InitializeCommon()
-        {
-            Bonuses = ResourceManager.HullBonuses.TryGetValue(HullName, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
 
         // Sets hull slots of this design and recalculates grid size

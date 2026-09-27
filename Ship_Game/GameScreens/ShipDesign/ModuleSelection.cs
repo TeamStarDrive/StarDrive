@@ -479,7 +479,7 @@ namespace Ship_Game
             // NOT extend the launcher's cooldown (Weapon.cs sets CooldownTimer =
             // NetFireDelay). Adding it here would inflate "Delay" and deflate
             // DPS — and it's already shown separately below as "Ignition".
-            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
+            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay);
             float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
             
             bool repair = w.IsRepairBeam;
@@ -487,7 +487,7 @@ namespace Ship_Game
             bool isBallistic = wOrMirv.Explodes && wOrMirv.OrdinanceRequiredToFire > 0f;
             float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -60f : +60f) : 0f;
 
-            float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage) * GetHullDamageBonus();
+            float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage);
             float beamDamage      = rawDamage * beamMultiplier;
             float ballisticDamage = rawDamage + rawDamage * Player.data.OrdnanceEffectivenessBonus;
             float energyDamage    = rawDamage;
@@ -672,20 +672,6 @@ namespace Ship_Game
             float effect = GetStatForWeapon(stat, weapon);
             if (effect.NotEqual(1))
                 Screen.DrawStatBadPercentLower1(ref cursor, description, effect, Color.White, GameText.IndicatesAnyBonusOrPenalty, ActiveModStatSpacing);
-        }
-
-        float GetHullDamageBonus()
-        {
-            if (GlobalStats.Defaults.UseHullBonuses)
-                return 1f + Screen.CurrentHull.Bonuses.DamageBonus;
-            return 1f;
-        }
-
-        float GetHullFireRateBonus()
-        {
-            if (GlobalStats.Defaults.UseHullBonuses)
-                return 1f - Screen.CurrentHull.Bonuses.FireRateBonus;
-            return 1f;
         }
     }
 }

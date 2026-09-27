@@ -32,7 +32,7 @@ namespace UnitTests.Ships
 
         Beam FireSiphonAt(Ship attacker, Ship target, ShipModule shield, out Weapon siphon)
         {
-            siphon = ResourceManager.CreateWeapon(UState, "SiphonBeam", attacker, null, null);
+            siphon = ResourceManager.CreateWeapon(UState, "SiphonBeam", attacker, null);
             AssertGreaterThan(siphon.SiphonDamage, 0f, "SiphonBeam should carry a siphon value");
             return new Beam(UState.CreateId(), siphon, attacker.Position, target.Position, shield);
         }
@@ -87,7 +87,7 @@ namespace UnitTests.Ships
 
         Projectile FireProjectileAt(Ship attacker, Ship target, string weaponUid, out Weapon w)
         {
-            w = ResourceManager.CreateWeapon(UState, weaponUid, attacker, null, null);
+            w = ResourceManager.CreateWeapon(UState, weaponUid, attacker, null);
             AssertGreaterThan(w.PowerDamage, 0f, $"{weaponUid} should carry power damage");
             Assert.IsFalse(w.IsBeam, $"{weaponUid} must be a projectile weapon for this test");
             return Projectile.Create(w, attacker, attacker.Position,
@@ -144,7 +144,7 @@ namespace UnitTests.Ships
             ShipModule shield = SpawnTargetShield(out Ship target);
             Ship attacker = SpawnShip("TEST_ShipShield", Enemy, new Vector2(500, 0));
 
-            Weapon emp = ResourceManager.CreateWeapon(UState, "EmpCannon", attacker, null, null);
+            Weapon emp = ResourceManager.CreateWeapon(UState, "EmpCannon", attacker, null);
             AssertGreaterThan(emp.SiphonDamage, 0f, "EmpCannon should carry a siphon value");
             Assert.IsFalse(emp.IsBeam, "EmpCannon must be a projectile weapon for this test");
 

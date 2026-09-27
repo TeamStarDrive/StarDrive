@@ -43,7 +43,7 @@ namespace Ship_Game
             Ship repulsor = Ship.CreateShipAtPoint(us, PlatformName, us.Unknown, repulsorPos);
 
             IWeaponTemplate t = ResourceManager.GetWeaponTemplate("AncientRepulsor");
-            Weapon weapon = new(us, t, null, null, null);
+            Weapon weapon = new(us, t, null, null);
             Beam beam = new(us.CreateId(), weapon, repulsor, PlaformCenter, 75);
             beam.Infinite = true;
             beam.Range = 2500f;

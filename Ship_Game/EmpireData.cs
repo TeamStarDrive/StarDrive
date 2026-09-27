@@ -487,7 +487,7 @@ namespace Ship_Game
             foreach (WeaponTag tag in WeaponTags.Keys.ToArr())
                 WeaponTags[tag] = new WeaponTagModifier();
 
-            // refresh all cached hull bonuses
+            // refresh the cached empire ship bonuses
             EmpireHullBonuses.RefreshBonuses(empire);
         }
     }

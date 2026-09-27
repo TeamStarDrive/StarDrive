@@ -411,9 +411,9 @@ namespace Ship_Game.Ships
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
         // LOYALTY can be null
-        public static ShipModule CreateNoParent(UniverseState us, ShipModule template, Empire loyalty, ShipHull hull)
+        public static ShipModule CreateNoParent(UniverseState us, ShipModule template, Empire loyalty)
         {
-            var bonuses = EmpireHullBonuses.Get(loyalty, hull);
+            var bonuses = EmpireHullBonuses.Get(loyalty);
             var module = new ShipModule(us?.CreateId() ?? -1) // null during template creation
             {
                 Active = true,
@@ -449,7 +449,7 @@ namespace Ship_Game.Ships
         public static ShipModule Create(UniverseState us, DesignSlot slot, Ship parent, bool isTemplate)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
-            ShipModule m = CreateNoParent(us, template, parent.Loyalty, parent.BaseHull);
+            ShipModule m = CreateNoParent(us, template, parent.Loyalty);
 
             if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay && !m.IsMiningBay)
                 m.HangarShipUID = slot.HangarShipUID;
@@ -480,7 +480,7 @@ namespace Ship_Game.Ships
                                                     int turretAngle, string hangarShipUID, ShipHull hull)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
-            ShipModule m = CreateNoParent(us, template, us.Player, hull);
+            ShipModule m = CreateNoParent(us, template, us.Player);
 
             // Don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
             // Also, supply bays get the default supply shuttle
@@ -523,7 +523,7 @@ namespace Ship_Game.Ships
                 if (InstalledWeapon == null || InstalledWeapon.UID != type)
                 {
                     UninstallWeapon();
-                    InstalledWeapon = ResourceManager.CreateWeapon(us, type, Parent, this, hull);
+                    InstalledWeapon = ResourceManager.CreateWeapon(us, type, Parent, this);
                 }
 
                 if (bomb)
@@ -810,7 +810,7 @@ namespace Ship_Game.Ships
             {
                 damageModifier = ShieldsAreActive
                     ? source.DamageMod.GetShieldDamageMod(this)
-                    : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
+                    : source.DamageMod.GetArmorDamageMod(this);
             }
 
             float modifiedDamage = damageAmount * damageModifier;
@@ -972,16 +972,6 @@ namespace Ship_Game.Ships
                     SpawnDebris(velocity, 1, ignite: false);
                 }
             }
-        }
-
-        // TODO: this should be part of `Bonuses`
-        float GetGlobalArmourBonus()
-        {
-            if (GlobalStats.Defaults.UseHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(Parent.ShipData.Hull, out HullBonus mod))
-                return (1f - mod.ArmoredBonus);
-
-            return 1f;
         }
 
         void CauseEmpDamage(Projectile proj)

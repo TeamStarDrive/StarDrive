@@ -170,7 +170,7 @@ namespace Ship_Game
         {
             if (IsWeapon && ResourceManager.GetWeaponTemplate(Weapon, out IWeaponTemplate t))
             {
-                TheWeapon = new(us, t, null, null, null);
+                TheWeapon = new(us, t, null, null);
                 SpaceRange = TheWeapon.BaseRange;
                 UpdateOffense(planetLevel, us);
             }

@@ -38,11 +38,9 @@ namespace Ship_Game.Gameplay
         float SalvoFireTimer; // while SalvosToFire > 0, use this timer to count when to fire next shot
         GameObject SalvoTarget;
 
-        public new float FireDelay { get; set; }
-
         public RandomBase Random => Owner?.Loyalty.Random ?? Universe?.Random;
 
-        public Weapon(UniverseState us, IWeaponTemplate t, Ship owner, ShipModule m, ShipHull hull) : base(t)
+        public Weapon(UniverseState us, IWeaponTemplate t, Ship owner, ShipModule m) : base(t)
         {
             Universe = us;
             Owner = owner;
@@ -51,12 +49,6 @@ namespace Ship_Game.Gameplay
             {
                 IsTurret  = m.ModuleType == ShipModuleType.Turret;
                 IsMainGun = m.ModuleType == ShipModuleType.MainGun;
-            }
-            FireDelay = base.FireDelay;
-
-            if (hull != null)
-            {
-                FireDelay = (base.FireDelay * (1f - hull.Bonuses.FireRateBonus));
             }
         }
 

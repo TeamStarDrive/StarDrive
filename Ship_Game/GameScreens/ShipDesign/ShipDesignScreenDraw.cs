@@ -440,41 +440,6 @@ namespace Ship_Game
             }
         }
 
-        // TODO: Is this used anywhere?
-        void DrawHullBonuses(ref Vector2 cursor, float cost)
-        {
-            HullBonus bonus = CurrentDesign.Bonuses;
-            if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
-            {
-                if (bonus.ArmoredBonus != 0 || bonus.ShieldBonus != 0
-                    || bonus.SensorBonus != 0 || bonus.SpeedBonus != 0
-                    || bonus.CargoBonus != 0 || bonus.DamageBonus != 0
-                    || bonus.FireRateBonus != 0 || bonus.RepairBonus != 0
-                    || bonus.CostBonus != 0)
-                {
-                    DrawString(cursor, Color.Orange, Localizer.Token(GameText.HullBonus), Fonts.Verdana14Bold);
-                    cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
-                }
-
-                void HullBonus(ref Vector2 bCursor, float stat, in LocalizedText text)
-                {
-                    if (stat > 0 || stat < 0)
-                        return;
-                    DrawString(bCursor, Color.Orange, $"{stat * 100f}%  {text.Text}", Fonts.Verdana12);
-                    bCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
-                }
-                HullBonus(ref cursor, bonus.ArmoredBonus, GameText.ArmorProtection);
-                HullBonus(ref cursor, bonus.ShieldBonus, "Shield Strength");
-                HullBonus(ref cursor, bonus.SensorBonus, GameText.ArmorProtection);
-                HullBonus(ref cursor, bonus.SpeedBonus, GameText.MaxSpeed);
-                HullBonus(ref cursor, bonus.CargoBonus, GameText.CargoSpace2);
-                HullBonus(ref cursor, bonus.DamageBonus, "Weapon Damage");
-                HullBonus(ref cursor, bonus.FireRateBonus, GameText.FireRate);
-                HullBonus(ref cursor, bonus.RepairBonus, GameText.RepairRate);
-                HullBonus(ref cursor, bonus.CostBonus, GameText.CostReduction);
-            }
-        }
-
         static void DrawTitle(SpriteBatch batch, float x, string title)
         {
             int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;

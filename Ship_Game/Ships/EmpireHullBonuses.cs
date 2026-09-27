@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Ships
 {
-    // Bonuses for each ship hull type for each empire
+    // Each empire's tech and trait bonuses to its ships' modules
     public class EmpireHullBonuses
     {
         /// <summary>
@@ -17,7 +16,7 @@ namespace Ship_Game.Ships
         public float ShieldMod     { get; private set; } = 1.0f;
         public float HealthMod     { get; private set; } = 1.0f;
 
-        public void Update(Empire empire, HullBonus hullBonus)
+        public void Update(Empire empire)
         {
             static float EmpireDataMod(float mod)
             {
@@ -26,8 +25,8 @@ namespace Ship_Game.Ships
 
             FuelCellMod   = EmpireDataMod(empire.data.FuelCellModifier);
             PowerFlowMod  = EmpireDataMod(empire.data.PowerFlowMod);
-            RepairRateMod = EmpireDataMod(empire.data.Traits.RepairMod) * hullBonus.RepairModifier * GlobalStats.Defaults.SelfRepairMultiplier;
-            ShieldMod     = EmpireDataMod(empire.data.ShieldPowerMod) * hullBonus.ShieldModifier * GlobalStats.Defaults.ShieldPowerMultiplier;
+            RepairRateMod = EmpireDataMod(empire.data.Traits.RepairMod) * GlobalStats.Defaults.SelfRepairMultiplier;
+            ShieldMod     = EmpireDataMod(empire.data.ShieldPowerMod) * GlobalStats.Defaults.ShieldPowerMultiplier;
             HealthMod     = EmpireDataMod(empire.data.Traits.ModHpModifier);
         }
 
@@ -39,29 +38,27 @@ namespace Ship_Game.Ships
         {
             static int NextRevisionId; // to make each revision globally unique
             public int RevisionId { get; private set; } = ++NextRevisionId;
-            readonly Map<HullBonus, EmpireHullBonuses> HullBonuses = new();
+            readonly object Sync = new();
+            EmpireHullBonuses Bonuses;
 
             public void Update(Empire empire)
             {
-                lock (HullBonuses)
+                lock (Sync)
                 {
-                    foreach (KeyValuePair<HullBonus, EmpireHullBonuses> kv in HullBonuses)
-                        kv.Value.Update(empire, kv.Key);
+                    Bonuses?.Update(empire);
                 }
                 RevisionId = ++NextRevisionId;
             }
-            public EmpireHullBonuses GetOrCreateShipBonus(Empire empire, ShipHull hull)
+            public EmpireHullBonuses GetOrCreateShipBonus(Empire empire)
             {
-                lock (HullBonuses)
+                lock (Sync)
                 {
-                    HullBonus hullBonus = hull.Bonuses;
-                    if (!HullBonuses.TryGetValue(hullBonus, out EmpireHullBonuses shipBonuses))
+                    if (Bonuses == null)
                     {
-                        shipBonuses = new EmpireHullBonuses();
-                        HullBonuses[hullBonus] = shipBonuses;
-                        shipBonuses.Update(empire, hullBonus);
+                        Bonuses = new EmpireHullBonuses();
+                        Bonuses.Update(empire);
                     }
-                    return shipBonuses;
+                    return Bonuses;
                 }
             }
         }
@@ -86,18 +83,17 @@ namespace Ship_Game.Ships
         }
 
         /// <summary>
-        /// Gets bonuses for a specific empire and a specific ship hull type
+        /// Gets the ship bonuses for a specific empire
         /// </summary>
-        public static EmpireHullBonuses Get(Empire empire, ShipHull hull)
+        public static EmpireHullBonuses Get(Empire empire)
         {
             if (empire == null) throw new InvalidOperationException("Empire must not be null");
-            if (hull == null) throw new InvalidOperationException("ShipHull must not be null");
 
-            return GetOrCreateBonusData(empire).GetOrCreateShipBonus(empire, hull);
+            return GetOrCreateBonusData(empire).GetOrCreateShipBonus(empire);
         }
 
         /// <summary>
-        /// Clears all cached Ship hull bonuses
+        /// Clears all cached empire ship bonuses
         /// </summary>
         public static void Clear()
         {
