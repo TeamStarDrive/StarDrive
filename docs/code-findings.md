@@ -1183,20 +1183,19 @@ queue is frozen, so a ship ordered there sat unbuilt. The CType branch is now pa
 also stops the AI military planner counting a crippled Colony-type port among its build ports,
 as it already did not count any other crippled one. `CrippledPortTests`.
 
-**The governor builds orbitals into a star's radiation zone** — `Planet.AddOrbital`
-(`Planet_BuildDefenses.cs:176`) creates the `BuildOrbital` goal with no radiation or sun-distance
-check; the only gate is `IsOutOfOrbitalsLimit` in its callers. `SolarSystem.ApplySolarRadiationDamage`
-(`SolarSystem.cs:326`) then damages every ship in the system inside the radius, exempting only
-`IsGuardian` — and orbitals are ships in that list. Reachable on ordinary maps: the danger radius is
-`RadiationRadius + 2000` (neutron 17000, pulsar 22000, gargantua 27000) while the first planet ring
-sits at `starRadius * 30` = 7500–15000. Two things make it worse than the planet's own orbit
-suggests: `FindNewOrbitalLocation` picks a **random** angle up to ~6000 units out, so even a planet
-outside the zone can have an orbital dropped inside it on the star side; and `TetherOffset` is fixed
-in world space, so the structure's distance to the star swings by up to twice the offset as the
-planet orbits. Suggested shape: have `FindNewOrbitalLocation` reject candidates failing
-`SolarSystem.InSafeDistanceFromRadiation` — it already loops rings and angles, so it becomes a
-condition on the existing search and places orbitals on the far side rather than denying them. A
-planet deep inside the zone needs a check in `AddOrbital` itself.
+**~~The governor builds orbitals into a star's radiation zone~~** — resolved 2026-09-28. The fix
+first suggested here (reject star-side placements) would not have worked: `TetherOffset` is fixed
+in world space while the planet circles the star, so an orbital's closest pass is the planet's
+orbit minus its ring radius whatever angle it is placed at, and "the far side" becomes the near
+side half an orbit later. `FindNewOrbitalLocation`
+already tries the nearest ring first, which is always the safest, so the damage came from the
+governor ordering more orbitals than the clear rings hold (they spill into outer rings) or ordering
+them at a colony where no ring is clear. The governor now builds platforms, stations and shipyards
+only while the planet's orbitals and planned orbitals number fewer than nine per ring that stays
+outside `SunDangerRadius` all the way round; a colony with none clear gets none. Upgrades of what is
+there still run. Orbitals the player orders by hand are not limited. The ring radius is now one
+formula, `Planet.OrbitalRingRadius`, shared with the placement search.
+`GovernorOrbitalRadiationTests`; Codex entry Governor and Budgets updated.
 
 **The save-overwrite check reads the visible list, not the filesystem — and that blocks an
 otherwise obvious fix.** `GenericLoadSaveScreen.IsSaveOk()` walks `SavesSL.AllEntries` and returns

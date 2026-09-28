@@ -122,6 +122,7 @@
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
     <Compile Include="Planets\TestOrbitalBuildLimit.cs" />
+    <Compile Include="Planets\GovernorOrbitalRadiationTests.cs" />
     <Compile Include="Planets\TestRefitQueuePlacement.cs" />
     <Compile Include="Planets\TestSabotageWorkDistribution.cs" />
     <Compile Include="Serialization\BinaryReadWriteTests.cs" />

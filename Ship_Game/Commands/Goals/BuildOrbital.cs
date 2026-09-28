@@ -85,17 +85,16 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         Vector2 FindNewOrbitalLocation()
         {
-            const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
-            for (int ring = 0; ring < ringLimit; ring++)
+            for (int ring = 0; ring < Planet.OrbitalRings; ring++)
             {
                 int degrees = (int)Owner.Random.Float(0f, 9f);
-                float distance = 2000 + (1000 * ring * TetherPlanet.Scale);
+                float distance = TetherPlanet.OrbitalRingRadius(ring);
                 TetherOffset = MathExt.PointOnCircle(degrees * 40, distance);
                 Vector2 pos = TetherPlanet.Position + TetherOffset;
                 if (BuildPositionFree(pos))
                     return pos;
 
-                for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
+                for (int i = 0; i < Planet.OrbitalsPerRing; i++)
                 {
                     TetherOffset = MathExt.PointOnCircle(i * 40, distance);
                     pos = TetherPlanet.Position + TetherOffset;
