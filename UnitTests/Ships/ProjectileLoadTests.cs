@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
@@ -65,10 +66,29 @@ public class ProjectileLoadTests : StarDriveTest
         AssertGreaterThan(inFlight.Length(), 100f, "setup: the missile must be under way; its launcher is at rest");
         AssertGreaterThan(Vectors.AngleDifference(heading.RadiansToDirection(), missile.Owner.Rotation.RadiansToDirection()),
                           0.1f, "setup: the missile must have turned off its launcher's heading");
+        AssertGreaterThan(Vectors.AngleDifference(heading.RadiansToDirection(), inFlight.Normalized()),
+                          0.01f, "setup: the missile must point away from its flight direction");
 
         missile.OnDeserialized(UState);
 
         AssertEqual(0.01f, inFlight, missile.Velocity, "a loaded missile must not drop back to its launcher's speed");
         AssertEqual(0.01f, heading, missile.Rotation, "a loaded missile must not snap back to its launcher's heading");
+    }
+
+    [TestMethod]
+    public void AGuidedMissileIsDrawnAlongItsHeadingWhenLoaded()
+    {
+        Projectile missile = Fire("Missile");
+        for (int i = 0; i < 20; ++i)
+            missile.Update(TestSimStep);
+        float heading = missile.Rotation;
+        AssertGreaterThan(Vectors.AngleDifference(heading.RadiansToDirection(), missile.Velocity.Normalized()),
+                          0.01f, "setup: the missile must point away from its flight direction, which loading drew");
+
+        missile.OnDeserialized(UState);
+
+        var drawnAxis = new Vector2(missile.WorldMatrix.M11, missile.WorldMatrix.M12).Normalized();
+        AssertEqual(0.001f, new Vector2(MathF.Cos(heading), MathF.Sin(heading)), drawnAxis,
+                    "a loaded missile must be drawn along its own heading, not its launcher's");
     }
 }

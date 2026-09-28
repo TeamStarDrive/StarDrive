@@ -193,6 +193,7 @@ namespace Ship_Game.Gameplay
             Duration = savedDuration; // apply flight state from save data
             Velocity = savedVelocity;
             Rotation = savedRotation;
+            UpdateWorldMatrix();
         }
 
         protected static bool GetWeapon(UniverseState us, Ship ship, Planet planet, 

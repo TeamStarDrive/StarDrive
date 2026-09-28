@@ -365,7 +365,7 @@ and the galaxy map shows only the icon, with no numbers anywhere on it.
 
 ---
 
-## Priority 4 - biosphere placement, from Roland's follow-up on #321
+## Priority 4 - biosphere placement, from Roland's follow-up on #321 - FIXED 2026-09-28
 
 ### 1. A biosphere built to make room must land on an EMPTY tile — FIXED 2026-09-28
 
@@ -634,7 +634,7 @@ these was that.
    lands drains separately - and is *not* the inverse of item 4, where the cost is charged once per
    shot.
 
-**Open, and it is content, not code.** Mod weapons carry power damage values authored while the
+**Settled; it was content, not code.** Mod weapons carry power damage values authored while the
 stat was dead, so nobody balanced them. `game/Mods/Combined Arms/Weapons/Planet/IonDefenseCannon.xml`
 is **100000**, enough to clamp any ship's store to zero on every hit and lock out energy weapons and
 warp for anything in range of a defended planet; `Magnetrom.xml` is 4000 **on an explosive
@@ -1156,7 +1156,9 @@ were still present; items 1 to 13 and 15 have since been resolved.
    deleted from the vanilla template (Combined Arms never had it). `UpdateMaxPopulation` excludes
    biospheres from `PopulationBonus`, so it raised no cap, yet the colony screen's building panel
    showed it as "+0.10 Max Pop" and it had misled a contributor into double-counting. The
-   Biospheres tech stays a Colonization tech through `IsBiospheres`.
+   Biospheres tech stays a Colonization tech through `IsBiospheres`. Biospheres already built in a
+   save keep the 100 they were saved with, so their panel still shows the +0.10 until they are
+   rebuilt; display only.
 10. **`CanRepairOrHeal()` is a dice roll, not a predicate** — `Planet.cs:909`,
     `BombingIntensity == 0 || Random.RollDice(100 - BombingIntensity)`. It reads like a query, so
     calling it twice in a turn squares the probability. Caught while reviewing a proposed

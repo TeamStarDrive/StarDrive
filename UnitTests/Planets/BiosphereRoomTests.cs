@@ -6,11 +6,6 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Planets
 {
-    /// <summary>
-    /// Issue #321, Roland's follow-up: a biosphere built to make room for a wanted building has to
-    /// go on bare ground, because roofing a tile that already holds a building frees no spot. A
-    /// biosphere built for the population it adds may still go over a building.
-    /// </summary>
     [TestClass]
     public class BiosphereRoomTests : StarDriveTest
     {

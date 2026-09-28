@@ -163,7 +163,7 @@ namespace Ship_Game
         // /////////////////////////////////////// //
         
         // Automatically handles Velocity and Position integration for accurate results
-        // Uses either Velocity Verlet integrator or Implicit Euler integrator if acceleration is Zero
+        // Uses either Velocity Verlet integrator or Explicit Euler integrator if acceleration is Zero
         public void UpdateVelocityAndPosition(float dt, Vector2 newAcc, bool isZeroAcc)
         {
             // if there's any kind of newAcc or oldAcc, use Verlet:
@@ -173,7 +173,7 @@ namespace Ship_Game
             }
             else
             {
-                // no acceleration, we can use implicit euler
+                // no acceleration, we can use explicit euler
                 IntegrateExplicitEulerConstantVelocity(dt);
             }
         }
@@ -227,9 +227,11 @@ namespace Ship_Game
             float y = pos.Y + dy;
             PositionRoundingCarry.X = dx - (x - pos.X);
             PositionRoundingCarry.Y = dy - (y - pos.Y);
+            if (!float.IsFinite(PositionRoundingCarry.X + PositionRoundingCarry.Y))
+                PositionRoundingCarry = default;
             Position = new(x, y);
         }
-        
+
         // apply thrust limit, so we don't cause oscillating SAS thrust
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static void PrecisionAccelerate(ref Vector2 acc, in Vector2 thrustDir,
