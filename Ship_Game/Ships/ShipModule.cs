@@ -194,7 +194,7 @@ namespace Ship_Game.Ships
         public float Refining                    => Flyweight.Refining;
 
         /// <summary>
-        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
+        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(float)"/>
         /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
         /// an accuracy percent of 1 removes all target error.
         /// the default of -1 means ignore this value

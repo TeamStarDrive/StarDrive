@@ -1071,21 +1071,23 @@ were still present; items 1 to 13 and 15 have since been resolved.
     drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
     `AbsoluteValue`, which already fires it. `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread`.
 
-## Everything else (17, four resolved)
+## Everything else (17, six resolved)
 
-1. `[balance]` **EMP recovery is a per-frame constant, unscaled by the time step.**
-   `Ship.EmpRecovery` (`Ship.cs:385-392`) is applied once per update as
-   `CauseEmpDamage(-EmpRecovery)` (`:1085`), guarded by `timeStep.FixedTime > 0` but never
-   multiplied by it, so recovery follows update rate rather than game time. The Codex dodges this
-   by saying only that EMP wears off "quick", with no number.
+1. ~~EMP recovery is a per-frame constant, unscaled by the time step.~~ Resolved 2026-09-28.
+   `Ship.EmpRecovery` was drained once per simulation step, and the step is
+   `1 / SimulationFramesPerSecond * min(GameSpeed, 1)`: EMP wore off twice as fast per game second
+   at 0.5x speed, and slower whenever the simulation rate dropped - including the automatic drop
+   the game makes when it falls behind, which is to say in big battles. It is now
+   `EmpRecoveryPerSecond`, 60 times the old per-step figures, times the step, so the default 60
+   steps a second at 1x or faster play exactly as before. `ShipEmpRecoveryTests`.
 2. ~~`UniqueInEmpire` is a dead building tag.~~ Resolved 2026-09-28 - stripped. No C# has ever
    read it; it arrived with the 2021 building content (`d5d2435cd`). The per-empire flag is
    `BuildOnlyOnce`, which five of the six vanilla files already set alongside it. The sixth, the
    Imperial Bank, set only the dead tag and so has always been one per planet; kept that way, since
    `BuildOnlyOnce` would also stop governors building it. Combined Arms' Capital City had it too
    (moot there: a command building is only offered to a planet without one).
-3. **`Weapon.BaseTargetError` carries two dead parameters** — no caller passes `loyalty`, and
-   `range` is passed but never read.
+3. ~~`Weapon.BaseTargetError` carries two dead parameters.~~ Resolved 2026-09-28 - `range` and
+   `loyalty` are gone, and the `ShipModule` doc comment that pointed at an `int` overload is fixed.
 4. `[display]` **The design screen's Accuracy row ignores the Militaristic trait** —
    `ShipDesignStats.cs:70` and `ModuleSelection.cs:505` pass `TargetingAccuracy` as `level`,
    skipping the level-squared branch. A Militaristic empire's level-0 ships aim better than shown.

@@ -136,6 +136,7 @@
     <Compile Include="Ships\BlastEmpAndPowerDamageTests.cs" />
     <Compile Include="UI\TestFloatSlider.cs" />
     <Compile Include="Ships\MissileJamTests.cs" />
+    <Compile Include="Ships\ShipEmpRecoveryTests.cs" />
     <Compile Include="Ships\ShipPositionPrecisionTests.cs" />
     <Compile Include="Ships\BlastRadiusDisplayTests.cs" />
     <Compile Include="Ships\PlanetRepairTests.cs" />
