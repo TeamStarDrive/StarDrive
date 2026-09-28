@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="AITests\Empire\BudgetTests.cs" />
     <Compile Include="AITests\Empire\OpenBordersOfferTests.cs" />
+    <Compile Include="AITests\Empire\TrustGainTests.cs" />
     <Compile Include="AITests\Empire\SpaceRoadsTests.cs" />
     <Compile Include="AITests\Empire\ShipsWeCanBuildTests.cs" />
     <Compile Include="AITests\Empire\TestEmpireAI.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Empires\CrippledPortTests.cs" />
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
     <Compile Include="Espionage\LegacyAgentTests.cs" />
+    <Compile Include="Espionage\UpriseTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Serialization\BinaryReadWriteTests.cs" />
     <Compile Include="Serialization\ObjectScannerTests.cs" />
     <Compile Include="Serialization\SerializationRegressionTests.cs" />
+    <Compile Include="Serialization\SavedBuildingTextIdTests.cs" />
     <Compile Include="Serialization\StringViewTests.cs" />
     <Compile Include="Serialization\TypeSerializerTests.cs" />
     <Compile Include="Serialization\YamlSerializerTests.cs" />
@@ -137,6 +140,7 @@
     <Compile Include="Ships\ModuleResistTests.cs" />
     <Compile Include="Ships\BlastEmpAndPowerDamageTests.cs" />
     <Compile Include="UI\TestFloatSlider.cs" />
+    <Compile Include="UI\UndoRedoKeyTests.cs" />
     <Compile Include="Ships\MissileJamTests.cs" />
     <Compile Include="Ships\ShipEmpRecoveryTests.cs" />
     <Compile Include="Ships\ProjectileLoadTests.cs" />

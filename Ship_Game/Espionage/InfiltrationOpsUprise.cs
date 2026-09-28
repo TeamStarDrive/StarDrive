@@ -114,7 +114,7 @@ namespace Ship_Game
                 {
                     float fertilityLost = targetPlanet.Fertility * (1 - fertilityReduction);
                     assetsLost += $"{(fertilityLost).String(2)} {Localizer.Token(GameText.Fertility)}. ";
-                    targetPlanet.AddBaseFertility(-fertilityLost);
+                    targetPlanet.AddBaseFertility(-targetPlanet.BaseFertility * (1 - fertilityReduction));
                 }
 
                 aftermath.MessageToVictim = $"{targetPlanet.Name}: {Localizer.Token(GameText.IncitedUpriseOn)} {assetsLost}";

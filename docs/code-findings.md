@@ -97,7 +97,7 @@ to a type's array the same way the gas giant bed was.
   would edit a working music path to satisfy a style point, and in this repo the code written to
   satisfy a review is reliably where the next regression comes from.
 
-**Also observed in the PR review of 2026-09-28, not yet decided:**
+**Also observed in the PR review of 2026-09-28, deferred the same day (Gilad):**
 
 - The latch above also fires in normal play. `PlanetAmbient` has `MaxConcurrentSoundsPerEffect: 1`
   and `FadeOutTime: 0.1`, and a stopped instance counts until its fade ends, so stepping
@@ -109,7 +109,7 @@ to a type's array the same way the gas giant bed was.
   music popups; coming back does not replay it, since the cue is latched.
 
 **Still XACT-era and never heard in this engine:** the six effects carry `Volume: 1.76` and `1.04`.
-Retune when the mix is judged.
+Retune when the mix is judged. Deferred with the rest of this section, 2026-09-28.
 
 ---
 
@@ -178,9 +178,9 @@ what the shipped fix does about each:
    the assignment out of the `playSound && inFrustum` block entirely, next to `ModelPath`, so it
    also runs for `OnDeserialized`, which passes `playSound: false`.
 
-**Still open: there is no real looping.** The restart-on-stopped poll is what ships, so a short
-cue under a long flight is audibly a restart. Planet ambience (Priority 1) needs the same missing
-primitive; solve it once, for both.
+**Deferred 2026-09-28 (Gilad): there is no real looping.** The restart-on-stopped poll is what
+ships, so a short cue under a long flight is audibly a restart. Planet ambience (Priority 1) needs
+the same missing primitive; solve it once, for both.
 
 **Two zoom thresholds, and they are not the same one.** `GameObject.IsInFrustum(screen)` — the
 local `inFrustum` in `Initialize`, which gates the *fire* cue — is `IsSystemViewOrCloser`, true
@@ -275,19 +275,24 @@ radius = 28,644 against 17-module freighters, and that reads as correct rather t
   projectile's fireball is 2.25x its damage radius. A ship's is `2 * Radius * roleMult`. Ships will
   always look engulfed by more than actually hurts them.
 
-**Two genuinely wrong things left, both out of scope for this pass:**
+**Two things left over from this pass, both decided 2026-09-28 (Gilad):**
 
-- `ShipModule.GetExplosionDamageOnShipExplode` subtracts `Health / (1 - ExplosiveResist)` — a
-  *health* figure — from a damage total. Health dominates, so `SteelArmorLarge` at **4%** resist
+- **Deferred.** `ShipModule.GetExplosionDamageOnShipExplode` subtracts
+  `Health / (1 - ExplosiveResist)` — a *health* figure — from a damage total. Health dominates, so `SteelArmorLarge` at **4%** resist
   cancels 26,042 while `Reinforced Bulkhead` at **75%** cancels 14,400. Over a Dreadnought it
   totals 3,834,300 against 320,603 of positive terms, which is why the blast is a 29x cliff rather
   than a slope. The `resist >= 1` half of this (Star Trek's `AncientArmor_3x3` ships **1.39**, so
   the term flipped sign and *added* 255,769 per plate, and `InternalDamageModifier` returned
   `-0.39`, which **repaired** the plate) has since been fixed by damage #2; the health term stays.
-- Reactors are supercritical against each other. `Extreme Fusion Reactor` is 1,550 health and
-  detonates for 6,000 over 72 units, roughly 4x the health of the reactor beside it, fired
-  synchronously from `ShipModule.Die`. One `AntiMatterReactor` dying takes 34 modules of a Heavy
-  Carrier with it.
+  Measured 2026-09-28: subtracting only what resist adds (`Health * r / (1 - r)`) leaves capitals
+  and carriers at the floor but lifts a Corsair from 2,086 to its 8,345 cap and a Terran-Prototype
+  from 2,753 to 16,244 - more chains among mid-size warships, which is what the pass above calmed.
+- **As designed.** Reactors set each other off. `Extreme Fusion Reactor` is 1,550 health and
+  detonates for 6,000 over 72 units, a quarter of it along each of four directions, fired
+  synchronously from `ShipModule.Die`; small and medium nuclear reactors kill a neighbour of their
+  kind outright, the larger ones once it is damaged. One `AntiMatterReactor` dying takes 34 modules
+  of a Heavy Carrier with it. Internal bulkheads are what absorb a reactor blast in a design that
+  places them; see "Do not fix these".
 
 ### 2. Show enemy strength per system in the planet list, from the threat matrix — SHIPPED
 
@@ -354,9 +359,9 @@ to the existing data structure, not introduced here, but now player-visible for 
 Covered by four tests in `UnitTests/Universe/ThreatMatrixTests.cs`, each revert-checked against a
 mutant. `CodexExpansionScoutingText` describes this icon and now describes the line too.
 
-**Left open, by choice:** the threat is not a sortable column, so the player cannot rank systems by
-danger; the flags are in cluster order rather than strongest empire first; and the galaxy map shows
-only the icon, with no numbers anywhere on it.
+**Closed 2026-09-28 (Gilad), as it stands:** the threat is not a sortable column, so the player
+cannot rank systems by danger; the flags are in cluster order rather than strongest empire first;
+and the galaxy map shows only the icon, with no numbers anywhere on it.
 
 ---
 
@@ -493,6 +498,9 @@ reasoning is in the linked notes or the commit that set it.
   designed. #4 in particular: **do not add a dedupe to match the directional path.** And #11:
   missiles keep their raw-level aim error; **do not route them through the gun formula**.
   And #6: a shield bubble hit spends armor piercing; **do not stop charging it**.
+- **Reactors setting off the reactors beside them** — Gilad's call, 2026-09-28: a ship designed
+  with internal bulkheads around its reactors absorbs the blast, and one without pays for it. Do
+  not damp the chain or retune reactor explosion damage to stop it; Priority 3.1 has the numbers.
 - **An absorbed empire's agents are not taken over** — Gilad's call, 2026-09-28. `SetAsMerged`
   has cleared them before `AbsorbEmpire`'s transfer loop could run since `ffeb19b6b` (2014), so
   merges have always dismissed them; the dead loop was deleted rather than revived, and the
@@ -623,8 +631,9 @@ projectile**, which applied per module in the blast until a blast became one dra
 (item 2). The AI blast radius is larger than the gameplay
 one: through `Building.Offense` that Ion Cannon rates ~38x higher, which swamps every fleet-strength
 comparison the invasion planner makes, so the AI would simply stop invading Combined Arms planets.
-Vanilla is tame by comparison - the four affected weapons move 1.4x to 2.7x. **The mod values must
-be revisited before any release that carries `3037ebbf7`.**
+Vanilla is tame by comparison - the four affected weapons move 1.4x to 2.7x. **Settled
+2026-09-28 (Gilad): the mod values stay as they are.** Magnetrom's per-module drain went with
+item 2; the Ion Cannon's 100000 was left alone by decision, not by oversight.
 
 Two sibling inconsistencies left alone on purpose: `Building.Offense` is `[StarData]` and only
 recomputed when it is exactly 0 or the planet levels up, so a save made before this change keeps the
@@ -1234,6 +1243,14 @@ and would touch all 12 display sites plus six tooltips again. Recorded so it is 
 
 ## Test debt
 
-No test covers `Relationship_trust.GetTrustGain` (a live balance change), `Building.OnDeserialized`
-text ids (a serialization change — a round-trip test is the one most worth writing),
-`InfiltrationOpsUprise` fertility, or `InputState.Undo`.
+Paid 2026-09-28. `TrustGainTests` (difficulty divides an AI's trust gain toward the player and
+leaves a loss alone), `SavedBuildingTextIdTests` (a real save and load: a building with stale text
+ids takes the template's), `UpriseTests` and `UndoRedoKeyTests` (Ctrl+Shift+Z redoes and does not
+undo). Each fails with its fix reverted.
+
+Writing `UpriseTests` found the uprise still took the wrong share on most colonies: it worked out
+the loss from `Fertility`, which carries the owner's racial environment modifier, and subtracted it
+from `BaseFertility`, which does not. On a planet type the race rates at 0.5, a roll of 4 kept 87.5%
+instead of 75%; a race rating a type above 1 lost more than the roll said. The loss is now taken
+from `BaseFertility`, so every race keeps the share the table and the Codex name. The notification
+still reports the loss in the fertility the victim sees.
