@@ -54,12 +54,17 @@ namespace Ship_Game.AI.Components
                 bool isUs = budget.PortraitName.Equals(empire?.Name, StringComparison.InvariantCultureIgnoreCase);
                 if (isAll || isUs)
                 {
-                    // When using new espionage system, normal game difficuly will not have spy budget.
+                    // AI empires: when using new espionage system, normal game difficuly will not have spy budget.
                     // They will use only the "free" budget
                     // Also - "Spy" area budget is used for both systems
                     foreach (var area in budget.Budgets)
                     {
-                        if (area.Key == BudgetAreas.Spy && empire.LegacyEspionageEnabled)
+                        if (empire.isPlayer)
+                        {
+                            if (area.Key != BudgetAreas.Espionage)
+                                budgets[area.Key] = area.Value;
+                        }
+                        else if (area.Key == BudgetAreas.Spy && empire.LegacyEspionageEnabled)
                             budgets[area.Key] = area.Value;
                         else if (area.Key == BudgetAreas.Espionage && empire.NewEspionageEnabled)
                             budgets[BudgetAreas.Spy] = empire.Universe.P.Difficulty == GameDifficulty.Normal ? 0 : area.Value;
@@ -67,7 +72,7 @@ namespace Ship_Game.AI.Components
                             budgets[area.Key] = area.Value;
                     }
 
-                    if (!budgets.TryGetValue(BudgetAreas.Espionage, out _) && empire.NewEspionageEnabled)
+                    if (!empire.isPlayer && !budgets.TryGetValue(BudgetAreas.Espionage, out _) && empire.NewEspionageEnabled)
                         budgets[BudgetAreas.Spy] = empire.Universe.P.Difficulty == GameDifficulty.Normal ? 0 : 1;
                 }
             }

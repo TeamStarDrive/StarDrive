@@ -109,7 +109,6 @@ namespace Ship_Game.AI
             float savings   = BudgetSettings.GetBudgetFor(BudgetAreas.Savings);
 
             // for the player they don't use some budgets. so distribute them to areas they do
-            // spy budget is a special case currently and is not distributed.
             if (OwnerEmpire.isPlayer)
             {
                 float budgetBalance = (build + spy) * 0.5f;

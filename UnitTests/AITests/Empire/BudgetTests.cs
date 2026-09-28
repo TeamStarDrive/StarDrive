@@ -202,6 +202,26 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void PlayerBudgetWeightsDoNotDependOnTheEspionageSystem()
+        {
+            CreateEmpireAndHomeWorld();
+            UState.P.Difficulty = GameDifficulty.Normal;
+            UState.P.UseLegacyEspionage = true;
+            var legacy = new BudgetPriorities(Player);
+            UState.P.UseLegacyEspionage = false;
+            var modern = new BudgetPriorities(Player);
+
+            AssertGreaterThan(legacy.GetBudgetFor(BudgetPriorities.BudgetAreas.Spy), 0f, "setup: the yaml gives Spy a weight");
+            AssertEqual(0f, modern.GetBudgetFor(BudgetPriorities.BudgetAreas.Espionage), "the Espionage key is not a player weight");
+            foreach (BudgetPriorities.BudgetAreas area in Enum.GetValues(typeof(BudgetPriorities.BudgetAreas)))
+                AssertEqual(0.000001f, legacy.GetBudgetFor(area), modern.GetBudgetFor(area),
+                    $"the player's {area} share must be the same under both espionage systems");
+
+            AssertEqual(0f, new BudgetPriorities(Enemy).GetBudgetFor(BudgetPriorities.BudgetAreas.Spy),
+                "an AI on Normal under the new espionage system still has no spy weight");
+        }
+
+        [TestMethod]
         public void TradeUnderACreditCountsTowardTheTradeAverage()
         {
             Planet homeworld = CreateEmpireAndHomeWorld();

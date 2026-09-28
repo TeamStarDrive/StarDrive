@@ -893,11 +893,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (15, eight resolved)
+## Budget, money and espionage (15, nine resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; items 1 to 6, 10 and 11 have since been resolved.
+were still present; items 1 to 6 and 9 to 11 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -971,14 +971,27 @@ were still present; items 1 to 6, 10 and 11 have since been resolved.
    tooltip's "a fifth of the production spent on Normal" now also holds for home defense
    launches, which land in that row. `BudgetTests.AHomeDefenseLaunchChargesTheCreditFeeOnce` and
    `ScrappingAMilitaryBuildingRefundsHalfItsCreditFee`.
-7. **Player `SpyBudget` is not money under the new espionage system** — it stores the raw weight
-   fraction (~0.0024) rather than credits (`RunEconomicPlanner.cs:123`).
+7. **The AI's `SpyBudget` is not money under the new espionage system** — it stores the raw weight
+   fraction (1/420 on Hard and above, 0 on Normal) rather than credits (`RunEconomicPlanner.cs:125`),
+   so `EspionageManager.DetermineBudget` → `SetAiEspionageBudgetMultiplier` always lands at about
+   1.0 and the AI never pays for extra espionage points. The player's value is never read.
 8. **Budget weights depend on yaml key order.** `Spy` writes `budgets[Spy] = 25` and a later
    `Espionage` key overwrites it with 0 or 1 (`BudgetPriorities.cs:57`). If `Espionage` were listed
    first, every budget fraction in the game would change.
-9. `[balance]` **Legacy espionage silently doubles the governor budgets** — with that rule option
-   on, the Spy weight of 25 is real and half of Build+Spy is redistributed, moving the player's
-   colony share from about 1/38 to 1/19 of the treasury goal (`RunEconomicPlanner.cs:109`).
+9. ~~Legacy espionage silently doubles the governor budgets.~~ Resolved 2026-09-28 the other way
+   round (Gilad's call, option B): it was the new espionage system that halved them. The player's
+   planner hands half of Build + Spy to each of colony, defense and space roads; Gilad tuned the
+   weights (`d58fdc20e`) and raised that hand-out from `/3` to `/2` (`cfb897b3b`) in November
+   2022 with the Spy weight at 25, for a colony share of about 1/19 of the treasury goal. The new
+   espionage system (Mars 1.50) forces the Spy weight to 0 on Normal and 1 above, and the player
+   slices fell to 1/38, 1/84 and 1/105 on Normal (1/37, 1/76 and 1/93 above it).
+   `BudgetPriorities` now gives the player the yaml weights
+   whatever the espionage system - Spy at its yaml value, the Espionage key ignored - so the player
+   is back on the 2022 tuning: colony 1/19, defense 1/25, space roads 1/27, about 2x, 3.3x and
+   3.9x today's default. The player's Build and Terraform slices shrink 6% with the larger total.
+   AI weights are unchanged. The planner's comment claiming the spy budget "is not distributed"
+   is gone; it always was. Budget Screen entry (100225) updated.
+   `BudgetTests.PlayerBudgetWeightsDoNotDependOnTheEspionageSystem`.
 10. ~~Trade panel rows and total read different lists.~~ Resolved 2026-09-28. The per-partner
     rows came from `TradeRelations`, the freighters' treaty cache, refreshed once a turn and never
     saved, while the Trade Treaties row and the total read the relations live. A treaty signed or
