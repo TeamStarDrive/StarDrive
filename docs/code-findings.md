@@ -893,11 +893,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (15, seven resolved)
+## Budget, money and espionage (15, eight resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; items 1 to 5, 10 and 11 have since been resolved.
+were still present; items 1 to 6, 10 and 11 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -957,10 +957,20 @@ were still present; items 1 to 5, 10 and 11 have since been resolved.
    absolute values were the same number.
 5. ~~`TreasuryGoal(float normalizedMoney)` never used its parameter.~~ Resolved 2026-09-28: the
    parameter is gone, and the method is private now that the planner is its only caller.
-6. `[balance]` **Credits multiplier applied twice.** `ChargeCreditsHomeDefense` pre-multiplies by
-   `CreditsMultiplier` and `ChargeCredits` multiplies again inside `ProductionCreditCost`
-   (`Empire.cs:2593`, `2620`, `2643`). `RefundCreditsPostRemoval(Building)` has the same shape
-   while the ship overload passes the raw cost, so buildings and ships refund on different scales.
+6. ~~Credits multiplier applied twice.~~ Resolved 2026-09-28. `ChargeCreditsHomeDefense`
+   pre-multiplied by `CreditsMultiplier` and `ChargeCredits` multiplied again inside
+   `ProductionCreditCost`, so a home defense launch paid the multiplier squared: 4% of the ship's
+   cost on Normal instead of 20%, and 25% instead of 50% for a player on Insane. A defender that
+   lands again is refunded its cost times its health times the multiplier (`LandDefenseShip`), so
+   every undamaged sortie used to pay the player 16% of the ship's cost on Normal; now it nets
+   zero, and a damaged one costs the fee on the health it lost. Scrapping a
+   military building refunded through `EstimateCreditCost`, already multiplied, and
+   `RefundCredits` multiplied again: 2% of its cost on Normal where a ship refunds 10%. Both now
+   apply the multiplier once, like every other credit charge and refund, and the unused
+   `HomeDefenseShipCostMultiplier` is gone. No text named either amount; the Production Fees
+   tooltip's "a fifth of the production spent on Normal" now also holds for home defense
+   launches, which land in that row. `BudgetTests.AHomeDefenseLaunchChargesTheCreditFeeOnce` and
+   `ScrappingAMilitaryBuildingRefundsHalfItsCreditFee`.
 7. **Player `SpyBudget` is not money under the new espionage system** — it stores the raw weight
    fraction (~0.0024) rather than credits (`RunEconomicPlanner.cs:123`).
 8. **Budget weights depend on yaml key order.** `Spy` writes `budgets[Spy] = 25` and a later

@@ -202,7 +202,6 @@ namespace Ship_Game
         public bool IsGeneralists                => data.EconomicPersonality?.Name == "Generalists";
         public bool IsMilitarists                => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists              => data.EconomicPersonality?.Name == "Technologists";
-        public float HomeDefenseShipCostMultiplier => DifficultyModifiers.CreditsMultiplier;
         public bool Rebels => data.IsRebelFaction;
 
         [StarData] public Empire ParentEmpire { get; private set; }
@@ -2584,7 +2583,7 @@ namespace Ship_Game
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
-        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this) * DifficultyModifiers.CreditsMultiplier, spendNow: true);
+        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this), spendNow: true);
 
         public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
         {
@@ -2601,7 +2600,7 @@ namespace Ship_Game
         public void RefundCreditsPostRemoval(Building b)
         {
             if (b.IsMilitary)
-                RefundCredits(EstimateCreditCost(b.ActualCost(this)), 0.5f);
+                RefundCredits(b.ActualCost(this), 0.5f);
         }
 
         public void ChargeRushFees(float productionCost, bool immediate)

@@ -256,6 +256,36 @@ namespace UnitTests.AITests.Empire
             }
         }
 
+        [TestMethod]
+        public void AHomeDefenseLaunchChargesTheCreditFeeOnce()
+        {
+            CreateEmpireAndHomeWorld();
+            Ship defender = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            float fee = defender.GetCost(Player) * Player.DifficultyModifiers.CreditsMultiplier;
+            AssertGreaterThan(fee, 0f, "setup: the ship must cost something");
+
+            float moneyBefore = Player.Money;
+            Player.ChargeCreditsHomeDefense(defender);
+
+            AssertEqual(0.01f, fee, moneyBefore - Player.Money, "a launch pays the difficulty's credit fee on the ship's cost, once");
+        }
+
+        [TestMethod]
+        public void ScrappingAMilitaryBuildingRefundsHalfItsCreditFee()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            string name = ResourceManager.BuildingsDict.Values.First(b => b.IsMilitary && b.Scrappable).Name;
+            Building military = ResourceManager.CreateBuilding(homeworld, name);
+            homeworld.TilesList.First(t => t.Habitable && t.NoBuildingOnTile).PlaceBuilding(military, homeworld);
+            float refund = military.ActualCost(Player) * Player.DifficultyModifiers.CreditsMultiplier * 0.5f;
+            AssertGreaterThan(refund, 0f, "setup: the building must cost something");
+
+            float moneyBefore = Player.Money;
+            homeworld.ScrapBuilding(military);
+
+            AssertEqual(0.01f, refund, Player.Money - moneyBefore, "half the credit fee comes back, on the same scale as a ship");
+        }
+
         static bool HasLabel(UIElementContainer container, string text)
         {
             foreach (UIElementV2 e in container.GetElements())
