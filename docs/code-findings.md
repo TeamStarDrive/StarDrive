@@ -1071,17 +1071,19 @@ were still present; items 1 to 13 and 15 have since been resolved.
     drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
     `AbsoluteValue`, which already fires it. `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread`.
 
-## Everything else (17, two resolved)
+## Everything else (17, four resolved)
 
 1. `[balance]` **EMP recovery is a per-frame constant, unscaled by the time step.**
    `Ship.EmpRecovery` (`Ship.cs:385-392`) is applied once per update as
    `CauseEmpDamage(-EmpRecovery)` (`:1085`), guarded by `timeStep.FixedTime > 0` but never
    multiplied by it, so recovery follows update rate rather than game time. The Codex dodges this
    by saying only that EMP wears off "quick", with no number.
-2. `[content]` **`UniqueInEmpire` is a dead building tag.** No C# reads it, yet six vanilla xml
-   files set it (Imperial Bank, The Underhive and its three event buildings) and mods copy the
-   pattern including Combined Arms' Capital City. Harmless because `Building.Unique` defaults true,
-   but it reads as a working rule. Honour it in the loader or strip it.
+2. ~~`UniqueInEmpire` is a dead building tag.~~ Resolved 2026-09-28 - stripped. No C# has ever
+   read it; it arrived with the 2021 building content (`d5d2435cd`). The per-empire flag is
+   `BuildOnlyOnce`, which five of the six vanilla files already set alongside it. The sixth, the
+   Imperial Bank, set only the dead tag and so has always been one per planet; kept that way, since
+   `BuildOnlyOnce` would also stop governors building it. Combined Arms' Capital City had it too
+   (moot there: a command building is only offered to a planet without one).
 3. **`Weapon.BaseTargetError` carries two dead parameters** — no caller passes `loyalty`, and
    `range` is passed but never read.
 4. `[display]` **The design screen's Accuracy row ignores the Militaristic trait** —
@@ -1098,11 +1100,11 @@ were still present; items 1 to 13 and 15 have since been resolved.
    which clears and refills `DropOptions` and writes `EmpireData` strings while the UI thread may
    be drawing them. Pre-existing.
 8. ~~The colony screen tints biospheres by the old tax rule.~~ Resolved `a5c45f34b`.
-9. `[content]` **`Biospheres.xml` carries a dead `MaxPopIncrease` of 100.** `UpdateMaxPopulation`
-   excludes biospheres from `PopulationBonus`, so it raises no cap. It survives only because the
-   template overrides `ShortDescriptionIndex`, suppressing the auto-generated "+0.1 Max Pop" line —
-   any mod dropping that override shows a false claim, and it already misled a contributor into
-   double-counting. Delete the field.
+9. ~~`Biospheres.xml` carries a dead `MaxPopIncrease` of 100.~~ Resolved 2026-09-28 - the line is
+   deleted from the vanilla template (Combined Arms never had it). `UpdateMaxPopulation` excludes
+   biospheres from `PopulationBonus`, so it raised no cap, yet the colony screen's building panel
+   showed it as "+0.10 Max Pop" and it had misled a contributor into double-counting. The
+   Biospheres tech stays a Colonization tech through `IsBiospheres`.
 10. **`CanRepairOrHeal()` is a dice roll, not a predicate** — `Planet.cs:909`,
     `BombingIntensity == 0 || Random.RollDice(100 - BombingIntensity)`. It reads like a query, so
     calling it twice in a turn squares the probability. Caught while reviewing a proposed
