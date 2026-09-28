@@ -77,8 +77,7 @@ namespace UnitTests.Planets
             SetPopulationRatio(0.9f);
 
             // The upkeep equals the whole full rate income, so only 0.6 of it may be spent and
-            // the roof costs more than the people under it can carry. Counting the template's
-            // dead MaxPopIncrease would inflate the income term and wrongly pass this.
+            // the roof costs more than the people under it can carry.
             Assert.IsFalse(Colony.BiosphereCarriesItsPopulation(Bio),
                 "a biosphere whose population cannot pay its upkeep must not be built for population");
         }

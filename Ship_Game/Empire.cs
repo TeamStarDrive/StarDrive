@@ -60,7 +60,7 @@ namespace Ship_Game
         [StarData] public IncomingThreatDetector ThreatDetector;
         public IncomingThreat[] SystemsWithThreat => ThreatDetector.SystemsWithThreat;
 
-        int TurnCount = 1;
+        [StarData] int TurnCount = 1;
 
         [StarData] public EmpireData data;
         public DiplomacyDialog dd;
@@ -107,7 +107,7 @@ namespace Ship_Game
         public float PotentialIncome { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
         public float MoneyLastTurn;
-        public int AllTimeTradeIncome;
+        [StarData] public float AllTimeTradeIncome;
         [StarData] public bool AutoBuildSpaceRoads;
         [StarData] public bool AutoExplore;
         [StarData] public bool AutoColonize;
@@ -202,7 +202,6 @@ namespace Ship_Game
         public bool IsGeneralists                => data.EconomicPersonality?.Name == "Generalists";
         public bool IsMilitarists                => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists              => data.EconomicPersonality?.Name == "Technologists";
-        public float HomeDefenseShipCostMultiplier => DifficultyModifiers.CreditsMultiplier;
         public bool Rebels => data.IsRebelFaction;
 
         [StarData] public Empire ParentEmpire { get; private set; }
@@ -2316,12 +2315,6 @@ namespace Ship_Game
                 AI.DefensiveCoordinator.DefenseDict.Clear();
             }
 
-            foreach (Agent agent in target.data.AgentList)
-            {
-                data.AgentList.Add(agent);
-                agent.Mission = AgentMission.Defending;
-                agent.TargetEmpire = null;
-            }
             AI.DefensiveCoordinator.ManageForcePool();
             target.data.AgentList.Clear();
             target.data.AbsorbedBy = data.Traits.Name;
@@ -2584,7 +2577,7 @@ namespace Ship_Game
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
-        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this) * DifficultyModifiers.CreditsMultiplier, spendNow: true);
+        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this), spendNow: true);
 
         public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
         {
@@ -2601,7 +2594,7 @@ namespace Ship_Game
         public void RefundCreditsPostRemoval(Building b)
         {
             if (b.IsMilitary)
-                RefundCredits(EstimateCreditCost(b.ActualCost(this)), 0.5f);
+                RefundCredits(b.ActualCost(this), 0.5f);
         }
 
         public void ChargeRushFees(float productionCost, bool immediate)
@@ -2716,7 +2709,7 @@ namespace Ship_Game
                     if (LegacyEspionageEnabled)
                     {
                         Agent agent = data.AgentList.Find(a => a.TargetPlanetId == planetId);
-                        agent.AssignMission(AgentMission.Defending, this, "");
+                        agent?.AssignMission(AgentMission.Defending, this, "");
                     }
                 }
             }

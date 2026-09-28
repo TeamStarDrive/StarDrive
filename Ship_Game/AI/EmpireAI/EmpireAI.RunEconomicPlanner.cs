@@ -89,10 +89,9 @@ namespace Ship_Game.AI
 
         public void RunEconomicPlanner(bool fromSave = false)
         {
+            UpdateTreasuryGoalAndTaxes();
             float money = OwnerEmpire.Money;
-            float treasuryGoal = TreasuryGoal();
-            ProjectedMoney = treasuryGoal;
-            AutoSetTaxes(ProjectedMoney, money);
+            float treasuryGoal = ProjectedMoney;
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.
             // its primarily geared at ship building.
@@ -109,7 +108,6 @@ namespace Ship_Game.AI
             float savings   = BudgetSettings.GetBudgetFor(BudgetAreas.Savings);
 
             // for the player they don't use some budgets. so distribute them to areas they do
-            // spy budget is a special case currently and is not distributed.
             if (OwnerEmpire.isPlayer)
             {
                 float budgetBalance = (build + spy) * 0.5f;
@@ -123,7 +121,7 @@ namespace Ship_Game.AI
             DefenseBudget   = ExponentialMovingAverage(DefenseBudget, DetermineDefenseBudget(moneyStrategy, defense, ThreatLevel));
             SSPBudget       = ExponentialMovingAverage(SSPBudget, DetermineSSPBudget(moneyStrategy, SSP));
             BuildCapacity   = ExponentialMovingAverage(BuildCapacity, DetermineBuildCapacity(moneyStrategy, ThreatLevel, build));
-            SpyBudget       = ExponentialMovingAverage(SpyBudget, OwnerEmpire.LegacyEspionageEnabled ? DetermineSpyBudget(moneyStrategy, spy) : spy);
+            SpyBudget       = ExponentialMovingAverage(SpyBudget, DetermineSpyBudget(moneyStrategy, spy));
             ColonyBudget    = ExponentialMovingAverage(ColonyBudget, DetermineColonyBudget(moneyStrategy, colony));
             TerraformBudget = ExponentialMovingAverage(TerraformBudget, DetermineColonyBudget(moneyStrategy, terraform));
 
@@ -131,6 +129,12 @@ namespace Ship_Game.AI
             float allianceBudget = 0;
             foreach (var ally in OwnerEmpire.Universe.GetAllies(OwnerEmpire)) allianceBudget += ally.AI.BuildCapacity;
             AllianceBuildCapacity = BuildCapacity + allianceBudget;
+        }
+
+        public void UpdateTreasuryGoalAndTaxes()
+        {
+            ProjectedMoney = TreasuryGoal();
+            AutoSetTaxes(ProjectedMoney, OwnerEmpire.Money);
         }
 
         float DetermineDefenseBudget(float treasuryGoal, float percentOfMoney, float risk)
@@ -162,6 +166,9 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer)
                 return 0;
+
+            if (OwnerEmpire.NewEspionageEnabled)
+                return treasuryGoal * percentOfMoney;
 
             bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Known && !r.Them.IsFaction);
             if (notKnown) return 0;

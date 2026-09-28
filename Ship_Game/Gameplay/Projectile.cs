@@ -36,6 +36,8 @@ namespace Ship_Game.Gameplay
         public float DamageAmount;
         public float DamageRadius;
         public float ExplosionRadiusMod;
+        public float EmpDamage;
+        public float PowerDamage;
 
         public UniverseState Universe;
         [StarData] public Ship Owner { get; protected set; }
@@ -185,8 +187,13 @@ namespace Ship_Game.Gameplay
             }
 
             float savedDuration = Duration;
-            Initialize(Position, Velocity, null, playSound: false, Vector2.Zero);
-            Duration = savedDuration; // apply duration from save data
+            Vector2 savedVelocity = Velocity;
+            float savedRotation = Rotation;
+            Initialize(Position, savedVelocity.Normalized(), null, playSound: false, Vector2.Zero);
+            Duration = savedDuration; // apply flight state from save data
+            Velocity = savedVelocity;
+            Rotation = savedRotation;
+            UpdateWorldMatrix();
         }
 
         protected static bool GetWeapon(UniverseState us, Ship ship, Planet planet, 
@@ -237,6 +244,7 @@ namespace Ship_Game.Gameplay
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
             DamageRadius          = Weapon.ExplosionRadius;
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
+            RechargeEmpAndPowerDamage();
             Health                = Weapon.HitPoints * GlobalStats.Defaults.ProjectileHitpointsMultiplier;
             Speed                 = Weapon.ProjectileSpeed;
             TrailOffset           = Weapon.TrailOffset;
@@ -816,6 +824,12 @@ namespace Ship_Game.Gameplay
                     ShowExplosionEffect(flashFx, victim);
                 }
             }
+        }
+
+        public void RechargeEmpAndPowerDamage()
+        {
+            EmpDamage = Weapon.EMPDamage;
+            PowerDamage = Weapon.PowerDamage;
         }
 
         void ShowExplosionEffect(bool flashFx, ShipModule module)

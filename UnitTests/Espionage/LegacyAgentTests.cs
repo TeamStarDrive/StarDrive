@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
@@ -40,6 +41,31 @@ namespace UnitTests.EspionageTests
 
             Assert.IsFalse(Player.data.MoleList.Contains(OurMole), "reassigning an undercover agent withdraws its mole");
             AssertEqual(0, agent.TargetPlanetId, "and forgets the planet, so a later loss of that colony cannot recall it");
+        }
+
+        [TestMethod]
+        public void AnUndercoverAgentComesHomeWhenItsColonyChangesHands()
+        {
+            PlantAMoleOnTheirColony();
+            var agent = new Agent { Mission = AgentMission.Undercover, TargetPlanetId = TheirColony.Id };
+            Player.data.AgentList.Add(agent);
+
+            TheirColony.SetOwner(Player);
+
+            Assert.IsFalse(Player.data.MoleList.Contains(OurMole), "the mole goes with the colony");
+            Assert.AreEqual(AgentMission.Defending, agent.Mission, "the agent behind it comes home to defend");
+        }
+
+        [TestMethod]
+        public void AMoleWhoseAgentRetiredGoesQuietlyWhenItsColonyChangesHands()
+        {
+            PlantAMoleOnTheirColony();
+            Assert.IsFalse(Player.data.AgentList.Any(a => a.TargetPlanetId == TheirColony.Id),
+                "setup: the agent that planted the mole has retired, so no agent is behind it");
+
+            TheirColony.SetOwner(Player);
+
+            Assert.IsFalse(Player.data.MoleList.Contains(OurMole), "the mole goes with the colony");
         }
     }
 }

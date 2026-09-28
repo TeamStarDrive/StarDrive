@@ -366,6 +366,18 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void AnAbsorbedEmpiresAgentsAreNotTakenOver()
+        {
+            var agent = new Agent { Mission = AgentMission.Defending };
+            Enemy.data.AgentList.Add(agent);
+
+            Player.AbsorbEmpire(Enemy);
+
+            Assert.IsFalse(Player.data.AgentList.Contains(agent), "a merger hands over planets, ships and technology, not agents");
+            AssertEqual(0, Enemy.data.AgentList.Count, "the absorbed empire's agents are dismissed");
+        }
+
+        [TestMethod]
         public void TestMergedEmpireShipRemoval()
         {
             AssertEqual(0, Player.OwnedShips.Count);

@@ -181,6 +181,10 @@ namespace Ship_Game
                         }
                     }
                 }
+                else
+                {
+                    InvokePendingSimThreadActions();
+                }
             }
         }
 

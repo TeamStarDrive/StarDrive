@@ -97,7 +97,7 @@ to a type's array the same way the gas giant bed was.
   would edit a working music path to satisfy a style point, and in this repo the code written to
   satisfy a review is reliably where the next regression comes from.
 
-**Also observed in the PR review of 2026-09-28, not yet decided:**
+**Also observed in the PR review of 2026-09-28, deferred the same day (Gilad):**
 
 - The latch above also fires in normal play. `PlanetAmbient` has `MaxConcurrentSoundsPerEffect: 1`
   and `FadeOutTime: 0.1`, and a stopped instance counts until its fade ends, so stepping
@@ -109,7 +109,7 @@ to a type's array the same way the gas giant bed was.
   music popups; coming back does not replay it, since the cue is latched.
 
 **Still XACT-era and never heard in this engine:** the six effects carry `Volume: 1.76` and `1.04`.
-Retune when the mix is judged.
+Retune when the mix is judged. Deferred with the rest of this section, 2026-09-28.
 
 ---
 
@@ -178,9 +178,9 @@ what the shipped fix does about each:
    the assignment out of the `playSound && inFrustum` block entirely, next to `ModelPath`, so it
    also runs for `OnDeserialized`, which passes `playSound: false`.
 
-**Still open: there is no real looping.** The restart-on-stopped poll is what ships, so a short
-cue under a long flight is audibly a restart. Planet ambience (Priority 1) needs the same missing
-primitive; solve it once, for both.
+**Deferred 2026-09-28 (Gilad): there is no real looping.** The restart-on-stopped poll is what
+ships, so a short cue under a long flight is audibly a restart. Planet ambience (Priority 1) needs
+the same missing primitive; solve it once, for both.
 
 **Two zoom thresholds, and they are not the same one.** `GameObject.IsInFrustum(screen)` — the
 local `inFrustum` in `Initialize`, which gates the *fire* cue — is `IsSystemViewOrCloser`, true
@@ -275,19 +275,24 @@ radius = 28,644 against 17-module freighters, and that reads as correct rather t
   projectile's fireball is 2.25x its damage radius. A ship's is `2 * Radius * roleMult`. Ships will
   always look engulfed by more than actually hurts them.
 
-**Two genuinely wrong things left, both out of scope for this pass:**
+**Two things left over from this pass, both decided 2026-09-28 (Gilad):**
 
-- `ShipModule.GetExplosionDamageOnShipExplode` subtracts `Health / (1 - ExplosiveResist)` — a
-  *health* figure — from a damage total. Health dominates, so `SteelArmorLarge` at **4%** resist
+- **Deferred.** `ShipModule.GetExplosionDamageOnShipExplode` subtracts
+  `Health / (1 - ExplosiveResist)` — a *health* figure — from a damage total. Health dominates, so `SteelArmorLarge` at **4%** resist
   cancels 26,042 while `Reinforced Bulkhead` at **75%** cancels 14,400. Over a Dreadnought it
   totals 3,834,300 against 320,603 of positive terms, which is why the blast is a 29x cliff rather
   than a slope. The `resist >= 1` half of this (Star Trek's `AncientArmor_3x3` ships **1.39**, so
   the term flipped sign and *added* 255,769 per plate, and `InternalDamageModifier` returned
   `-0.39`, which **repaired** the plate) has since been fixed by damage #2; the health term stays.
-- Reactors are supercritical against each other. `Extreme Fusion Reactor` is 1,550 health and
-  detonates for 6,000 over 72 units, roughly 4x the health of the reactor beside it, fired
-  synchronously from `ShipModule.Die`. One `AntiMatterReactor` dying takes 34 modules of a Heavy
-  Carrier with it.
+  Measured 2026-09-28: subtracting only what resist adds (`Health * r / (1 - r)`) leaves capitals
+  and carriers at the floor but lifts a Corsair from 2,086 to its 8,345 cap and a Terran-Prototype
+  from 2,753 to 16,244 - more chains among mid-size warships, which is what the pass above calmed.
+- **As designed.** Reactors set each other off. `Extreme Fusion Reactor` is 1,550 health and
+  detonates for 6,000 over 72 units, a quarter of it along each of four directions, fired
+  synchronously from `ShipModule.Die`; small and medium nuclear reactors kill a neighbour of their
+  kind outright, the larger ones once it is damaged. One `AntiMatterReactor` dying takes 34 modules
+  of a Heavy Carrier with it. Internal bulkheads are what absorb a reactor blast in a design that
+  places them; see "Do not fix these".
 
 ### 2. Show enemy strength per system in the planet list, from the threat matrix — SHIPPED
 
@@ -354,19 +359,27 @@ to the existing data structure, not introduced here, but now player-visible for 
 Covered by four tests in `UnitTests/Universe/ThreatMatrixTests.cs`, each revert-checked against a
 mutant. `CodexExpansionScoutingText` describes this icon and now describes the line too.
 
-**Left open, by choice:** the threat is not a sortable column, so the player cannot rank systems by
-danger; the flags are in cluster order rather than strongest empire first; and the galaxy map shows
-only the icon, with no numbers anywhere on it.
+**Closed 2026-09-28 (Gilad), as it stands:** the threat is not a sortable column, so the player
+cannot rank systems by danger; the flags are in cluster order rather than strongest empire first;
+and the galaxy map shows only the icon, with no numbers anywhere on it.
 
 ---
 
-## Priority 4 - biosphere placement, from Roland's follow-up on #321
+## Priority 4 - biosphere placement, from Roland's follow-up on #321 - FIXED 2026-09-28
 
-### 1. A biosphere built to make room must land on an EMPTY tile
+### 1. A biosphere built to make room must land on an EMPTY tile — FIXED 2026-09-28
 
-`[open]` Not investigated beyond reading the code. Logged 2026-09-27 from Roland-Johansen's
-comment of 2026-09-25 on issue #321 (`issuecomment-5837186261`), which followed the biosphere
-capacity work shipped in `933196b4f`.
+`[done]` `TryBuildBiospheres` now passes its reason to `PreferredBiosphereTile`: a biosphere built
+only to make room takes steps 1 and 2 (bare ground) and is not built at all when there is none; one
+built for its population, alone or with the room reason, keeps step 3. The "points to settle" below
+came out simply: a roof over a building never made room, so refusing it cannot strand a colony -
+it only stops the one-per-turn roofing of every occupied tile, whose biospheres were never
+scrapped because `ShouldScrapFreeBiosphere` only counts bare ones. The player's colony build list
+keeps the full pick. Biospheres already over buildings in a save stay. `BiosphereRoomTests`, through
+`DoGoverning`. Roland answered on the issue.
+
+Logged 2026-09-27 from Roland-Johansen's comment of 2026-09-25 on issue #321
+(`issuecomment-5837186261`), which followed the biosphere capacity work shipped in `933196b4f`.
 
 **What he saw.** On Xammar I, whose blueprint was unfinished, the governor built biospheres on
 the tiles of an **outpost** and a **terraformer** - two buildings that do not need a biosphere to
@@ -488,19 +501,27 @@ reasoning is in the linked notes or the commit that set it.
   when `IsCrashSiteActive`), **refit port quality** (0.5 prioritized, 1 fallback).
 - **Budget #14 below** — the biosphere payback heuristic omits `ExoticCreditsBonus` deliberately.
 - **Damage #3, #4, #5, #6, #7 and #11 below** — Gilad's call, 2026-09-27. A module-death blast carrying the
-  killer's weapon, a radial blast hitting a big module once per covered cell while the directional
+  killer's weapon (but not its EMP, power damage or ricochet, since 2026-09-28), a radial blast hitting a big module once per covered cell while the directional
   one dedupes, that blast wasting its root slot, and carry-on damage truncated to int, are all as
   designed. #4 in particular: **do not add a dedupe to match the directional path.** And #11:
   missiles keep their raw-level aim error; **do not route them through the gun formula**.
   And #6: a shield bubble hit spends armor piercing; **do not stop charging it**.
+- **Reactors setting off the reactors beside them** — Gilad's call, 2026-09-28: a ship designed
+  with internal bulkheads around its reactors absorbs the blast, and one without pays for it. Do
+  not damp the chain or retune reactor explosion damage to stop it; Priority 3.1 has the numbers.
+- **An absorbed empire's agents are not taken over** — Gilad's call, 2026-09-28. `SetAsMerged`
+  has cleared them before `AbsorbEmpire`'s transfer loop could run since `ffeb19b6b` (2014), so
+  merges have always dismissed them; the dead loop was deleted rather than revived, and the
+  Federations Codex entry lists what does change hands.
+  `TestEmpireAI.AnAbsorbedEmpiresAgentsAreNotTakenOver`.
 - The AI gets half production tax on cybernetic colonies and the player does not
   (`ColonyResource.cs:222`); `ResearchTaxMultiplier` is difficulty-only and always 1 for the player
   (`UniverseGenerator.cs:232`). Both intended.
 
 ## Worth a GitHub issue if we ever file any
 
-Player-visible, self-contained, and safe to hand to someone else: misc #6, misc #1 (power #1 and
-damage #2 were on this list and are resolved). Everything else is better done by us or not at all.
+Nothing left: misc #1 and #6, power #1 and damage #2 were on this list and are all resolved.
+Everything else is better done by us or not at all.
 
 ---
 
@@ -537,7 +558,17 @@ these was that.
    `TryDamageModule`. It is applied *before* the deflection return and with no threshold test, so a
    shot too weak to hurt the module still drains the ship - deliberate, and deliberately unlike EMP,
    which must beat the module deflection. It also drains once per module the shot touches along the
-   armour-piercing walk, which the Codex now states.
+   armour-piercing walk, which the Codex now states. **An explosive projectile's blast drains once
+   per ship, however many modules it catches** (Gilad 2026-09-28, fixes_36), and applies its EMP the
+   same way: the projectile carries `EmpDamage` and `PowerDamage` copied from its weapon, and an
+   exploding one spends each on the first module that takes it; the space nuke branch
+   (`DamageRadius >= 256`) recharges them before every ship. Before, a `RemnantNuker` blast on a
+   Dreadnought caught 21 modules and applied 2100 EMP instead of 100. A module that a shot or a beam
+   destroys explodes without its EMP or power damage: the module's blast has the shot as its source,
+   so a shot that does not explode passed both to every module that blast caught, once per grid
+   square (found on the fixes_36 branch review; `moduleExplosion` in `ShipModule.TryDamageModule`). `CalculateOffense` no longer
+   scales the EMP and power part of an explosive weapon's rating by its blast radius. Covered by
+   `BlastEmpAndPowerDamageTests` and `TestWeaponModifiers.TheBlastRadiusDoesNotScaleTheEmpRating`.
    **Siphon stays beam-only by design - do not "fix" it.** The Siphon row is no longer drawn for
    non-beam weapons (`ModuleSelection.cs`), so REAegis, EmpCannon, EmpDischarger1x2 and
    DualEmpCannon stop advertising a value that does nothing.
@@ -603,15 +634,17 @@ these was that.
    lands drains separately - and is *not* the inverse of item 4, where the cost is charged once per
    shot.
 
-**Open, and it is content, not code.** Mod weapons carry power damage values authored while the
+**Settled; it was content, not code.** Mod weapons carry power damage values authored while the
 stat was dead, so nobody balanced them. `game/Mods/Combined Arms/Weapons/Planet/IonDefenseCannon.xml`
 is **100000**, enough to clamp any ship's store to zero on every hit and lock out energy weapons and
 warp for anything in range of a defended planet; `Magnetrom.xml` is 4000 **on an explosive
-projectile**, so it applies per module in the blast. The AI blast radius is larger than the gameplay
+projectile**, which applied per module in the blast until a blast became one drain per ship
+(item 2). The AI blast radius is larger than the gameplay
 one: through `Building.Offense` that Ion Cannon rates ~38x higher, which swamps every fleet-strength
 comparison the invasion planner makes, so the AI would simply stop invading Combined Arms planets.
-Vanilla is tame by comparison - the four affected weapons move 1.4x to 2.7x. **The mod values must
-be revisited before any release that carries `3037ebbf7`.**
+Vanilla is tame by comparison - the four affected weapons move 1.4x to 2.7x. **Settled
+2026-09-28 (Gilad): the mod values stay as they are.** Magnetrom's per-module drain went with
+item 2; the Ion Cannon's 100000 was left alone by decision, not by oversight.
 
 Two sibling inconsistencies left alone on purpose: `Building.Offense` is `[StarData]` and only
 recomputed when it is exactly 0 or the planet levels up, so a save made before this change keeps the
@@ -698,9 +731,18 @@ as designed and must not be "fixed".
    a ballistic projectile *is* caught by the deflection guard - it was rewritten to assert the
    damage modifier never goes negative, which is the root cause rather than one weapon's path.
 3. `[settled]` **Module-death blasts run through the killer's weapon.** As designed, Gilad
-   2026-09-27. `ShipModule.Die` passes the killing projectile as the source, so every module in
-   the blast takes that weapon's EffectVsArmor, resistances, deflection roll and EMP, and
-   `CauseEmpDamage` fires once per module.
+   2026-09-27. `ShipModule.Die` passes the killing projectile or beam as the source, so every
+   module in the blast takes that weapon's EffectVsArmor, resistances and deflection roll, and a
+   beam's troop, tractor, repulsion and siphon effects. **Narrowed 2026-09-28 (Gilad, fixes_36
+   branch review): the blast carries none of the killer's EMP or power damage**, a beam's power
+   damage included, whatever the killer - `moduleExplosion` in `ShipModule.TryDamageModule`, see
+   Power item 2. Before, `CauseEmpDamage` and `CausePowerDamage` fired once per module the blast
+   caught, once per grid square of a big one. **Nor does a neighbour that deflects part of the
+   blast bounce the shot that set it off** (same review): the deflection roll reached
+   `ShipModule.Deflect`, and a shot that does not explode ricocheted off in a random direction on
+   the victim's side, carrying on with what damage, EMP and power it had left. It needed a module
+   with deflection, which only mods have (86 in Combined Arms, none in vanilla), and the victim on
+   screen at ship zoom, where ricochets are drawn.
 4. `[settled]` **Radial blasts hit big modules once per covered cell.** As designed, Gilad
    2026-09-27. `Ship.DamageExplosive` (`Ship_ModuleGrid.cs` ~525) has no dedupe, while the
    directional version dedupes via `SplashHitScratch`. The asymmetry stays: **do not add a dedupe
@@ -883,11 +925,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (15, five resolved)
+## Budget, money and espionage (16, fourteen resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; items 1 to 5 have since been resolved.
+were still present; items 1 to 13 and 15 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -947,98 +989,183 @@ were still present; items 1 to 5 have since been resolved.
    absolute values were the same number.
 5. ~~`TreasuryGoal(float normalizedMoney)` never used its parameter.~~ Resolved 2026-09-28: the
    parameter is gone, and the method is private now that the planner is its only caller.
-6. `[balance]` **Credits multiplier applied twice.** `ChargeCreditsHomeDefense` pre-multiplies by
-   `CreditsMultiplier` and `ChargeCredits` multiplies again inside `ProductionCreditCost`
-   (`Empire.cs:2593`, `2620`, `2643`). `RefundCreditsPostRemoval(Building)` has the same shape
-   while the ship overload passes the raw cost, so buildings and ships refund on different scales.
-7. **Player `SpyBudget` is not money under the new espionage system** — it stores the raw weight
-   fraction (~0.0024) rather than credits (`RunEconomicPlanner.cs:123`).
-8. **Budget weights depend on yaml key order.** `Spy` writes `budgets[Spy] = 25` and a later
-   `Espionage` key overwrites it with 0 or 1 (`BudgetPriorities.cs:57`). If `Espionage` were listed
-   first, every budget fraction in the game would change.
-9. `[balance]` **Legacy espionage silently doubles the governor budgets** — with that rule option
-   on, the Spy weight of 25 is real and half of Build+Spy is redistributed, moving the player's
-   colony share from about 1/38 to 1/19 of the treasury goal (`RunEconomicPlanner.cs:109`).
-10. `[display]` **Trade panel rows and total read different lists** — rows iterate cached
-    `TradeRelations`, the footer iterates `ActiveRelations` live (`Empire_Trade.cs:41`, `460`).
-11. `[display]` **Lifetime trade average truncates twice** — `AllTimeTradeIncome += (int)taxedGoods`
-    per delivery and `AverageTradeIncome` is integer division (`Empire_Trade.cs:77`, `33`), so
-    sub-credit deliveries never reach the Mercantilism (Avg) figure.
-12. `[latent]` **`Building.MoneyBuildingAndProfitable` never runs on any AI colony.** Its only
-    caller is `SuitableForScrap` (`Planet_EvaluateBuildings.cs:512`), four lines below
-    `if (!RequiredInBlueprints(b)) return true; else if (!overBudget) return false;`.
-    `RequiredInBlueprints` is `Blueprints?.IsRequired(b) == true` and the only production caller of
-    `AddBlueprints` is a player-only button (`GovernorDetailsComponent.cs:409`), so no AI colony
-    has blueprints and every building returns at that first line. **Four guards are stranded**
-    there: `MoneyBuildingAndProfitable`, `WillMaintainPositiveFoodOutput` (`:524`),
-    `IsBuildingOnHabitableTile`, and the `scrapZeroMaintenance` / `IsStorageWasted` pair. The
-    early-out arrived in `de8f49ab4` (2024-05-31); the same commit stranded
-    `b.IsPlayerAdded && OwnerIsPlayer`, which is exactly issue #303 — already paid for once.
-    Mitigation: `CalcBuildingScore` (`:586`) weights the money terms, so `ChooseWorstBuilding`
-    rarely picks a good money building anyway. **The starvation guard is the one with no substitute
-    in the scoring.**
-13. `[latent]` **And its arithmetic is wrong where it does run** (`Building.cs:460`):
-    `grossProfit = PlusTaxPercentage * pop + CreditsPerColonist * pop`. `Income` is ignored though
-    `IsMoneyBuilding` counts it; `PlusTaxPercentage * pop` is not the marginal revenue (tax
-    percentage multiplies the colony's whole rate); it prices at a 100% tax rate, overstating
-    profit by roughly 1/TaxRate, typically 2–4×; `ExoticCreditsBonus` is missing.
-    **`ColonyMoney.NetCostOf(Building)` already has the correct arithmetic** — a before/after gross
-    revenue delta, which is the only form that catches the cross term when a building has both
-    `CreditsPerColonist` and `PlusTaxPercentage` (Capital City does). Call it rather than write the
-    model a third time.
-    **Order matters:** fixing 13 alone changes nothing while 12 keeps it unreachable; fixing 12
-    alone hands the governor a rule computed at a fictitious 100% tax rate. Math first. A test must
-    build a planet that is over budget **and** carries blueprints requiring the building, or the
-    guard stays invisible.
-    Also dormant in the same dead block: `WillMaintainPositiveFoodOutput` has a precedence bug —
-    `x - y/x` where both branches read as though the intent was `(Fertility - delta) / Fertility`.
+6. ~~Credits multiplier applied twice.~~ Resolved 2026-09-28. `ChargeCreditsHomeDefense`
+   pre-multiplied by `CreditsMultiplier` and `ChargeCredits` multiplied again inside
+   `ProductionCreditCost`, so a home defense launch paid the multiplier squared: 4% of the ship's
+   cost on Normal instead of 20%, and 25% instead of 50% for a player on Insane. A defender that
+   lands again is refunded its cost times its health times the multiplier (`LandDefenseShip`), so
+   every undamaged sortie used to pay the player 16% of the ship's cost on Normal; now it nets
+   zero, and a damaged one costs the fee on the health it lost. Scrapping a
+   military building refunded through `EstimateCreditCost`, already multiplied, and
+   `RefundCredits` multiplied again: 2% of its cost on Normal where a ship refunds 10%. Both now
+   apply the multiplier once, like every other credit charge and refund, and the unused
+   `HomeDefenseShipCostMultiplier` is gone. No text named either amount; the Production Fees
+   tooltip's "a fifth of the production spent on Normal" now also holds for home defense
+   launches, which land in that row. `BudgetTests.AHomeDefenseLaunchChargesTheCreditFeeOnce` and
+   `ScrappingAMilitaryBuildingRefundsHalfItsCreditFee`.
+7. ~~The AI's `SpyBudget` is not money under the new espionage system.~~ Resolved 2026-09-28
+   (Gilad: fix as designed). It stored the raw weight fraction (1/420 above Normal, 0 on Normal)
+   rather than credits, so `EspionageManager.DetermineBudget` → `SetAiEspionageBudgetMultiplier`
+   landed at about 1.0001 and no AI ever paid for extra espionage points since Mars 1.50. The spy
+   area is now credits like every other area - the treasury goal (or cash, when larger) times the
+   weight - spent as before only while the AI's credit rating is above 0.6. The AI multiplier is
+   capped at `Empire.MaxEspionageBudgetMultiplier` (5), the player slider's range, which it had no
+   cap against: uncapped, a rich test AI reached 45. Normal stays free points only. An AI with a
+   20,000 treasury goal can spend about 48 credits a turn, about 2x the points at 50 billion
+   colonists. The multiplier also scales an AI's spy defence ratio, so infiltrating AIs above Normal
+   gets slower too. The Infiltration Levels Codex entry now says what AIs do.
+   `BudgetTests.AnAiAboveNormalBuysEspionagePointsFromItsTreasury`.
+8. ~~Budget weights depend on yaml key order.~~ Resolved 2026-09-28, and the claim was wrong: a
+   post-loop override set the AI's Spy weight to 0 or 1 under the new system whatever the order.
+   What was real: that override made the yaml `Espionage:` value dead; under legacy the Espionage
+   key counted as a useless area of its own; and race blocks could never work, since the loader
+   sorted the All block last (overwriting them, the opposite of its comment) and matched a block's
+   `PortraitName` against `empire.Name`, the full empire name. No shipped file has a race block.
+   Now only the All block is read (anything else logs a warning), Espionage is never a weight of
+   its own, and above Normal an AI's spy weight is the yaml Espionage value (1 if absent). The
+   Budgets.yaml comment says what each key does. `BudgetTests.TheEspionageWeightIsTheAiSpyWeightAboveNormal`
+   and `OnlyTheAllBudgetBlockIsRead`.
+9. ~~Legacy espionage silently doubles the governor budgets.~~ Resolved 2026-09-28 the other way
+   round (Gilad's call, option B): it was the new espionage system that halved them. The player's
+   planner hands half of Build + Spy to each of colony, defense and space roads; Gilad tuned the
+   weights (`d58fdc20e`) and raised that hand-out from `/3` to `/2` (`cfb897b3b`) in November
+   2022 with the Spy weight at 25, for a colony share of about 1/19 of the treasury goal. The new
+   espionage system (Mars 1.50) forces the Spy weight to 0 on Normal and 1 above, and the player
+   slices fell to 1/38, 1/84 and 1/105 on Normal (1/37, 1/76 and 1/93 above it).
+   `BudgetPriorities` now gives the player the yaml weights
+   whatever the espionage system - Spy at its yaml value, the Espionage key ignored - so the player
+   is back on the 2022 tuning: colony 1/19, defense 1/25, space roads 1/27, about 2x, 3.3x and
+   3.9x today's default. The player's Build and Terraform slices shrink 6% with the larger total.
+   AI weights are unchanged. The planner's comment claiming the spy budget "is not distributed"
+   is gone; it always was. Budget Screen entry (100225) updated.
+   `BudgetTests.PlayerBudgetWeightsDoNotDependOnTheEspionageSystem`.
+10. ~~Trade panel rows and total read different lists.~~ Resolved 2026-09-28. The per-partner
+    rows came from `TradeRelations`, the freighters' treaty cache, refreshed once a turn and never
+    saved, while the Trade Treaties row and the total read the relations live. A treaty signed or
+    broken this turn was in one and not the other, and after a load the rows were empty until the
+    next turn. The rows now read the same live relations; the screen pauses the game, so nothing
+    changes under them while it is open. The unused `TradeRelations` property is gone; the cache
+    itself stays for the freighters. `BudgetTests.TheTradePanelListsATreatySignedThisTurn`.
+11. ~~Lifetime trade average truncates twice, and is not lifetime.~~ Resolved 2026-09-28.
+    `AllTimeTradeIncome` was an `int` that dropped the fraction of every delivery, the average was
+    integer division, and neither it nor `TurnCount` was saved, so Mercantilism (Avg) was the
+    average since the last load and every load reset it to 0 - which also dipped the treasury goal,
+    since `MaximumStableIncome` reads it. Both are now saved and the sum is a float, which makes the
+    tooltip and the Budget Screen entry (100225), "everything they have ever earned divided by the
+    turns played", true. `BudgetTests.TradeUnderACreditCountsTowardTheTradeAverage` and
+    `TheTradeAverageSurvivesSaveAndLoad`.
+12. ~~The scrap guards never ran on a colony without blueprints.~~ Resolved 2026-09-28.
+    `SuitableForScrap` returned early with `if (!RequiredInBlueprints(b)) return true;`, meant for a
+    building outside a blueprint plan, but `RequiredInBlueprints` is false on a colony with no
+    blueprints too. Every AI colony, and every player colony governed without blueprints, skipped the
+    guards below it: a building that pays for itself, a food building the colony needs, a
+    build-anywhere building on uninhabitable ground when replacing, a building with no upkeep when
+    over budget, and storage whose goods would not fit without it. The early-out arrived with the
+    blueprints UI in `de8f49ab4` (2024-05-31); before it the guards covered every building. Measured
+    on 44 saves, over budget is rare (19 of 4128 governed colonies) and replacing is where it bit: in
+    395 of 1052 full colonies the building the governor would give up next was one a guard
+    protects, mostly storage. The early-out now tests `Blueprints?.IsNotRequired(b)`, so blueprint
+    routing is unchanged (a planned building over budget meets the corrected money and food guards)
+    and every other colony is guarded again, the auto-terraformer's room-making included. The food
+    guard came back to life with it and had a precedence slip, `x - y/x` for `(x - y)/x`; fixed, it
+    would still have priced a building with no fertility effect at zero on a barren world through
+    the 0.01 floor, so it scales by the share of fertility or richness left only when the building
+    changes it.
+    `GovernorScrapGuardsTests`.
+13. ~~The money guard's arithmetic was wrong.~~ Resolved 2026-09-28. `MoneyBuildingAndProfitable`
+    set `PlusTaxPercentage * pop + CreditsPerColonist * pop` against upkeep: it ignored `Income`,
+    applied the tax percentage to the population instead of the colony's tax base, and left out the
+    tax rate and `ExoticCreditsBonus`. The errors partly cancel - on 44 saves the old figure was 1.08
+    times the real revenue at the median, not the 2-4 times first estimated - but it gave the wrong
+    answer for one money building in six, both ways: Combined Arms' Luxury Resort (flat income only)
+    was never protected, and its Space Port (+50% tax) was protected above a billion colonists though
+    it rarely pays. It is deleted. The guard calls `ColonyMoney.NetCostOf(b, standing: true)`, the
+    model the build list colours with; `standing` takes a building's share out of the colony's
+    figures instead of adding it. A player's colony with a manual tax rate is judged at that rate.
+    An AI colony, and a player's colony under Auto Taxes, is judged at no less than the 25% every
+    empire starts with (`EmpireData.StartingTaxRate`), because the planner drops taxes to 0%
+    whenever cash passes the goal - 29 of 256 empires in those saves were at 0% - and the colony
+    would give up its banks on those turns only to build them again (Gilad's call on the fixes_36
+    branch review). Choosing what to build still follows the live rate, so a 0% turn queues no tax
+    building; that stays, also by his call.
+    `GovernorScrapGuardsTests.TheNetCostOfABuildingIsTheRevenueItAddsOrTakesAway`,
+    `AnAiColonyJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate` and
+    `APlayerOnAutoTaxesJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate`.
 14. `[settled]` **The biosphere payback heuristic omits `ExoticCreditsBonus`**
     (`Planet_EvaluateBuildings.cs`, `BiosphereCarriesItsPopulation`). Left deliberately: the formula
     already uses `TaxRateMultiplier` rather than `TaxRate` so it is a "full rate" heuristic by
     design, `BiospherePaybackShare = 0.6` was tuned against it, the bonus is 1 for most empires, and
     the error is conservative. Retune the share and the term together or not at all.
-15. `[thread]` `[balance]` **The budget screen runs the economic planner on the UI thread.**
-    Opening the screen (the "trigger updates" `TreasuryGoal.RelativeValue` assignment), ticking
-    Auto Taxes and every step of a treasury slider drag call `EmpireAI.RunEconomicPlanner` from
-    the UI thread, while the sim thread may be running it too (`EmpireAI.cs:156`). A percent
-    slider fires `OnChange` twice per step (`FloatSlider.cs:251-252`). Each call moves the
-    governor budgets' moving averages (old weight 0.9) one step, so a drag fast-forwards budgets
-    the Codex says ease towards their new value, and every opening of the screen nudges them. The
-    tax slider's handler likewise runs `UpdateNetPlanetIncomes` on the UI thread. Found by the
-    review of items 4 and 5, 2026-09-28.
+15. ~~The budget screen runs the economic planner on the UI thread.~~ Resolved 2026-09-28.
+    Opening the screen, ticking Auto Taxes and every step of a treasury slider drag called
+    `EmpireAI.RunEconomicPlanner` from the UI thread, and a stepped slider fired `OnChange` twice
+    per step. Each call moved the governor budgets' moving averages one step, so a drag
+    fast-forwarded budgets the Codex says ease towards their new value, and every opening of the
+    screen nudged them. The planner's goal-and-taxes part is now its own
+    `UpdateTreasuryGoalAndTaxes`, and the screen queues it - and the tax slider's rate and
+    `UpdateNetPlanetIncomes` - with `RunOnSimThread`, so the slider title and the auto tax rate
+    still follow the slider and the budgets only move on the turn's planner run. The sim thread
+    drained that queue only while paused or active; the budget screen opened from the Research,
+    Diplomacy or Empire top bar, or from the Shipyard, leaves the universe neither, so the queue now
+    drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
+    `AbsoluteValue`, which already fires it. With Auto Taxes on, the queued work also recomputes the
+    planet incomes, since the tax slider's own refresh no longer runs then and the paused screen
+    showed the old rate's income (found by the Codex review of fixes_36).
+    `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread` and
+    `AutoTaxesSetFromTheBudgetScreenShowTheirIncomeWhilePaused`.
+16. `[balance]` **An AI's credit refund skips the tax factor its charge carries** (`Empire.RefundCredits`).
+    `ProductionCreditCost` scales an AI's fee by `1 - TaxRate` and the refund does not, so an AI
+    comes out ahead on an undamaged home defense sortie - 30 credits for a 300-production ship at
+    50% tax on Normal - and above 50% tax it makes a little on scrapping a military building. The
+    player's fee has no tax factor, so the player's figures are exact. Left as is for now (Gilad
+    2026-09-28, fixes_36 branch review); the fix would refund through `ProductionCreditCost`.
 
-## Everything else (17, two resolved)
+## Everything else (18, eleven resolved)
 
-1. `[balance]` **EMP recovery is a per-frame constant, unscaled by the time step.**
-   `Ship.EmpRecovery` (`Ship.cs:385-392`) is applied once per update as
-   `CauseEmpDamage(-EmpRecovery)` (`:1085`), guarded by `timeStep.FixedTime > 0` but never
-   multiplied by it, so recovery follows update rate rather than game time. The Codex dodges this
-   by saying only that EMP wears off "quick", with no number.
-2. `[content]` **`UniqueInEmpire` is a dead building tag.** No C# reads it, yet six vanilla xml
-   files set it (Imperial Bank, The Underhive and its three event buildings) and mods copy the
-   pattern including Combined Arms' Capital City. Harmless because `Building.Unique` defaults true,
-   but it reads as a working rule. Honour it in the loader or strip it.
-3. **`Weapon.BaseTargetError` carries two dead parameters** — no caller passes `loyalty`, and
-   `range` is passed but never read.
-4. `[display]` **The design screen's Accuracy row ignores the Militaristic trait** —
-   `ShipDesignStats.cs:70` and `ModuleSelection.cs:505` pass `TargetingAccuracy` as `level`,
-   skipping the level-squared branch. A Militaristic empire's level-0 ships aim better than shown.
+1. ~~EMP recovery is a per-frame constant, unscaled by the time step.~~ Resolved 2026-09-28.
+   `Ship.EmpRecovery` was drained once per simulation step, and the step is
+   `1 / SimulationFramesPerSecond * min(GameSpeed, 1)`: EMP wore off twice as fast per game second
+   at 0.5x speed, and slower whenever the simulation rate dropped - including the automatic drop
+   the game makes when it falls behind, which is to say in big battles. It is now
+   `EmpRecoveryPerSecond`, 60 times the old per-step figures, times the step, so the default 60
+   steps a second at 1x or faster play exactly as before. `ShipEmpRecoveryTests`.
+2. ~~`UniqueInEmpire` is a dead building tag.~~ Resolved 2026-09-28 - stripped. No C# has ever
+   read it; it arrived with the 2021 building content (`d5d2435cd`). The per-empire flag is
+   `BuildOnlyOnce`, which five of the six vanilla files already set alongside it. The sixth, the
+   Imperial Bank, set only the dead tag and so has always been one per planet; kept that way, since
+   `BuildOnlyOnce` would also stop governors building it. Combined Arms' Capital City had it too
+   (moot there: a command building is only offered to a planet without one).
+3. ~~`Weapon.BaseTargetError` carries two dead parameters.~~ Resolved 2026-09-28 - `range` and
+   `loyalty` are gone, and the `ShipModule` doc comment that pointed at an `int` overload is fixed.
+4. ~~The design screen's Accuracy row ignores the Militaristic trait.~~ Resolved 2026-09-28.
+   `ShipDesignStats` and `ModuleSelection` passed `TargetingAccuracy` alone as the level, so a
+   Militaristic empire's new ships aimed better than the row showed. Combat and both screens now
+   take the level from `Weapon.AimLevel` - crew level plus the trait, squared, plus fire control -
+   with crew level 0 on the design screen, the untrained crew the Codex says the row shows.
+   `TestWeaponArcs.TheDesignScreenShowsTheAimOfANewCrew`.
 5. `[content]` **Ship category tooltips bake in a threshold a mod can change.**
    `ShipCategoryUnclassifiedTip` onward state 85 / 97.5 / 92.5 / 90 / 87.5 / 75 percent, which is
    `threshold * 0.5 + 0.5` for the shipped `ShipDestroyThreshold: 0.5`. Star Trek's `Globals.yaml`
    sets 0.4, so all seven are wrong there. The Codex names the setting instead of the numbers.
-6. `[crash]` **`Empire.cs:2725` dereferences a `Find` result without a null check** —
-   `data.AgentList.Find(a => a.TargetPlanetId == planetId)`. One `?.` next time the file is touched.
-7. `[thread]` **The sim thread repopulates UI dropdowns.** `UniverseScreen.Events.cs:14`
-   `OnPlayerBuildableShipsUpdated` reaches `AutomationWindow.UpdateDropDowns` → `InitDropOptions`,
-   which clears and refills `DropOptions` and writes `EmpireData` strings while the UI thread may
-   be drawing them. Pre-existing.
+6. ~~`RemoveMoles` dereferences a `Find` result without a null check.~~ Resolved 2026-09-28 -
+   `agent?.`. Reachable under legacy espionage: an infiltration that succeeds sets the agent
+   undercover and then awards its experience, and a level 10 agent retires there, leaving its mole
+   behind with no agent. The next time that colony changed hands, the sim thread threw.
+   `LegacyAgentTests.AMoleWhoseAgentRetiredGoesQuietlyWhenItsColonyChangesHands`.
+7. ~~The sim thread repopulates UI dropdowns.~~ Resolved 2026-09-28. `OnPlayerBuildableShipsUpdated`
+   ran `AutomationWindow.UpdateDropDowns` on whichever thread added a buildable ship, clearing and
+   refilling the dropdowns while the UI thread could be drawing them or reading `ActiveName`. It now
+   queues one refresh with `RunOnNextFrame`, which the UI thread runs before its next draw; ships
+   added before that frame share the queued refresh.
+   `ShipsWeCanBuildTests.TheAutomationWindowRefreshesOnTheNextUiFrame`.
 8. ~~The colony screen tints biospheres by the old tax rule.~~ Resolved `a5c45f34b`.
-9. `[content]` **`Biospheres.xml` carries a dead `MaxPopIncrease` of 100.** `UpdateMaxPopulation`
-   excludes biospheres from `PopulationBonus`, so it raises no cap. It survives only because the
-   template overrides `ShortDescriptionIndex`, suppressing the auto-generated "+0.1 Max Pop" line —
-   any mod dropping that override shows a false claim, and it already misled a contributor into
-   double-counting. Delete the field.
+9. ~~`Biospheres.xml` carries a dead `MaxPopIncrease` of 100.~~ Resolved 2026-09-28 - the line is
+   deleted from the vanilla template (Combined Arms never had it). `UpdateMaxPopulation` excludes
+   biospheres from `PopulationBonus`, so it raised no cap, yet the colony screen's building panel
+   showed it as "+0.10 Max Pop" and it had misled a contributor into double-counting. The
+   Biospheres tech stays a Colonization tech through `IsBiospheres`. Biospheres already built in a
+   save keep the 100 they were saved with, so their panel still shows the +0.10 until they are
+   rebuilt; display only.
 10. **`CanRepairOrHeal()` is a dice roll, not a predicate** — `Planet.cs:909`,
     `BombingIntensity == 0 || Random.RollDice(100 - BombingIntensity)`. It reads like a query, so
     calling it twice in a turn squares the probability. Caught while reviewing a proposed
@@ -1050,11 +1177,12 @@ were still present; items 1 to 5 have since been resolved.
     non-unique building. `UpdateCompletion` counts instances against a HashSet of names, so several
     of one pushes `PercentCompleted` past 100 and `Completed => PercentCompleted == 100` never
     fires, silently breaking the linked-blueprint chain. Not reachable through the UI.
-13. `[display]` **The colony-tile terraform icon uses the wrong unlock test.**
-    `EmpireManagementScreen.cs:277` guards on `IsBuildingUnlocked(TerraformerId)` while the governor
-    asks `Empire.CanTerraformPlanetTiles` (unlocked **and** terraforming level ≥ 2). Between the two
-    the screen marks tiles the empire cannot turn and the governor roofs with a biosphere instead.
-    One-line fix whenever that screen is next touched.
+13. ~~The colony-tile terraform icon uses the wrong unlock test.~~ Resolved 2026-09-28. The empire
+    screen guarded on `IsBuildingUnlocked(TerraformerId)` while the governor asks
+    `Empire.CanTerraformPlanetTiles` (unlocked **and** terraforming level ≥ 2), so between the two it
+    marked tiles the empire could not turn yet and the governor roofed with a biosphere instead. It
+    now asks `CanTerraformPlanetTiles`. Display only, no test. One case neither counts: a planet with
+    an event terraformer works at level 3 whatever the empire's tech.
 14. **A third copy of the biosphere tile rule.** `AssignBuildingToTileOnColonize` and
     `AssignBuildingToTilePlanetCreation` both reach `AssignBuildingToRandomTile`
     (`Building.cs:397`), which special-cases biospheres but ignores `Terraformable`. Since
@@ -1068,12 +1196,15 @@ were still present; items 1 to 5 have since been resolved.
     salvo and every projectile in a loaded savegame have no death cue. Deliberately left out of
     the `InFlightCue` fix: unlike the in-flight cue this one does play today for some projectiles,
     so turning it on for the rest is an audible balance change that wants its own listen.
-16. `[latent]` **A loaded projectile's speed is squared.** `Projectile.OnDeserialized` calls
-    `Initialize(Position, Velocity, ...)`, passing the restored `Velocity` where the parameter is
-    `direction`, and `Initialize` does `SetInitialVelocity(Speed * direction)`. `Velocity` is
-    `[StarData]` on `GameObject` and its magnitude is already about `Speed`, so the result is
-    roughly `Speed` squared. `Duration` is saved and restored around the call, but velocity is
-    not. Found while checking what else `Initialize` clobbers on the deserialization path.
+16. ~~A loaded projectile's speed is squared.~~ Resolved 2026-09-28. `Projectile.OnDeserialized`
+    passed the saved `Velocity` to `Initialize` as its `direction`, so an unguided shot in flight
+    at save time flew on at about `Speed` squared. It now passes the direction and puts the saved
+    velocity and rotation back afterwards, as it already did for `Duration`; the direction alone
+    would still have reset a deflected shot's lost momentum and a MIRV warhead's inherited
+    velocity. Guided missiles, which `MissileAI` restarted from their launcher's velocity and
+    heading on load, now fly on as saved too. `ProjectileLoadTests`. Still reset on load: `Health`,
+    so a missile point defence had damaged comes back whole, and a delayed-ignition missile's
+    timer, so it coasts for the delay again.
 17. `[latent]` `[thread]` **A flight cue can start after its projectile is gone.** `Projectile.Die`
     does `if (InFlightSfx.IsPlaying) InFlightSfx.Stop()`, but in the 1-15 ms between
     `PlaySfxAsync` queueing and `SfxEnqueueThread` draining, `IsPlaying` is true only through
@@ -1093,31 +1224,35 @@ were still present; items 1 to 5 have since been resolved.
     for the rest of its life, and `IsPlaying` reports true forever so `Die()`'s `Stop()` is a
     no-op. Projectiles live seconds, so it is cosmetic and self-limiting - but a fix for the entry
     above should clear the flag on every drop path, not just on `Stop()`.
+18. `[latent]` **`TryScrapBiospheres` can take the roof from under a queued building.** It picks
+    among biosphere tiles with `NoBuildingOnTile`, which is still true while a building is only
+    queued there, so with two or more free biospheres and a colony over budget it can scrap the one
+    a building is about to go on. Narrow - `ShouldScrapFreeBiosphere` must say yes first. Found on
+    the review of the #321 room fix, 2026-09-28; filtering on `CanEnqueueBuildingHere`-style
+    `NoQueuedBuildings` would close it.
 
 ## Larger items with their own notes
 
-**`GetBestPorts` lets a crippled Colony-type port through** — `Empire_RallyPlanets.cs:264-267`.
-The filter parses as `(A && B && C) || D` because `&&` binds tighter, so a port whose CType is
-Colony is admitted on D alone and escapes the `!IsCrippled` guard the line opens with. Narrow in
-practice: prioritized ports are pre-filtered for `!IsCrippled`, so only the ordinary
-`SafeSpacePorts` path can pick a crippled Colony as a build or refit target. Wants parentheses
-around the whole CType branch. Not fixed because it changes which planets every build goal
-considers — its own commit and its own test.
+**~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter
+parsed as `(A && B && C) || D` because `&&` binds tighter, so a port whose CType is Colony was
+admitted on D alone and escaped the `!IsCrippled` guard the line opens with; a sabotaged port's
+queue is frozen, so a ship ordered there sat unbuilt. The CType branch is now parenthesised. It
+also stops the AI military planner counting a crippled Colony-type port among its build ports,
+as it already did not count any other crippled one. `CrippledPortTests`.
 
-**The governor builds orbitals into a star's radiation zone** — `Planet.AddOrbital`
-(`Planet_BuildDefenses.cs:176`) creates the `BuildOrbital` goal with no radiation or sun-distance
-check; the only gate is `IsOutOfOrbitalsLimit` in its callers. `SolarSystem.ApplySolarRadiationDamage`
-(`SolarSystem.cs:326`) then damages every ship in the system inside the radius, exempting only
-`IsGuardian` — and orbitals are ships in that list. Reachable on ordinary maps: the danger radius is
-`RadiationRadius + 2000` (neutron 17000, pulsar 22000, gargantua 27000) while the first planet ring
-sits at `starRadius * 30` = 7500–15000. Two things make it worse than the planet's own orbit
-suggests: `FindNewOrbitalLocation` picks a **random** angle up to ~6000 units out, so even a planet
-outside the zone can have an orbital dropped inside it on the star side; and `TetherOffset` is fixed
-in world space, so the structure's distance to the star swings by up to twice the offset as the
-planet orbits. Suggested shape: have `FindNewOrbitalLocation` reject candidates failing
-`SolarSystem.InSafeDistanceFromRadiation` — it already loops rings and angles, so it becomes a
-condition on the existing search and places orbitals on the far side rather than denying them. A
-planet deep inside the zone needs a check in `AddOrbital` itself.
+**~~The governor builds orbitals into a star's radiation zone~~** — resolved 2026-09-28. The fix
+first suggested here (reject star-side placements) would not have worked: `TetherOffset` is fixed
+in world space while the planet circles the star, so an orbital's closest pass is the planet's
+orbit minus its ring radius whatever angle it is placed at, and "the far side" becomes the near
+side half an orbit later. `FindNewOrbitalLocation`
+already tries the nearest ring first, which is always the safest, so the damage came from the
+governor ordering more orbitals than the clear rings hold (they spill into outer rings) or ordering
+them at a colony where no ring is clear. The governor now builds platforms, stations and shipyards
+only while the planet's orbitals and planned orbitals number fewer than nine per ring that stays
+outside `SunDangerRadius` all the way round; a colony with none clear gets none. Upgrades of what is
+there still run. Orbitals the player orders by hand are not limited. The ring radius is now one
+formula, `Planet.OrbitalRingRadius`, shared with the placement search.
+`GovernorOrbitalRadiationTests`; Codex entry Governor and Budgets updated.
 
 **The save-overwrite check reads the visible list, not the filesystem — and that blocks an
 otherwise obvious fix.** `GenericLoadSaveScreen.IsSaveOk()` walks `SavesSL.AllEntries` and returns
@@ -1151,6 +1286,14 @@ and would touch all 12 display sites plus six tooltips again. Recorded so it is 
 
 ## Test debt
 
-No test covers `Relationship_trust.GetTrustGain` (a live balance change), `Building.OnDeserialized`
-text ids (a serialization change — a round-trip test is the one most worth writing),
-`InfiltrationOpsUprise` fertility, or `InputState.Undo`.
+Paid 2026-09-28. `TrustGainTests` (difficulty divides an AI's trust gain toward the player and
+leaves a loss alone), `SavedBuildingTextIdTests` (a real save and load: a building with stale text
+ids takes the template's), `UpriseTests` and `UndoRedoKeyTests` (Ctrl+Shift+Z redoes and does not
+undo). Each fails with its fix reverted.
+
+Writing `UpriseTests` found the uprise still took the wrong share on most colonies: it worked out
+the loss from `Fertility`, which carries the owner's racial environment modifier, and subtracted it
+from `BaseFertility`, which does not. On a planet type the race rates at 0.5, a roll of 4 kept 87.5%
+instead of 75%; a race rating a type above 1 lost more than the roll said. The loss is now taken
+from `BaseFertility`, so every race keeps the share the table and the Codex name. The notification
+still reports the loss in the fertility the victim sees.

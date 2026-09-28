@@ -264,7 +264,13 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public float BaseTargetError(float level, float range = 0, Empire loyalty = null)
+        public static float AimLevel(int crewLevel, Empire loyalty, int fireControl)
+        {
+            float level = crewLevel + (loyalty?.data.Traits.Militaristic ?? 0);
+            return level * level + fireControl;
+        }
+
+        public float BaseTargetError(float level)
         {
             if (Module == null || Tag_Bomb)
                 return 0;
@@ -281,13 +287,8 @@ namespace Ship_Game.Gameplay
                 return 0;
 
             if (level < 0)
-            {
-                // calculate at ship update
-                level = (Owner?.Level ?? 0) + ((loyalty ?? Owner?.Loyalty)?.data.Traits.Militaristic ?? 0);
-                level = (float)Math.Pow(level, 2f);
-                level += (Owner?.TargetingAccuracy ?? 0);
-            }
-            
+                level = AimLevel(Owner?.Level ?? 0, Owner?.Loyalty, Owner?.TargetingAccuracy ?? 0);
+
             level += 5;
 
             // reduce the error by level

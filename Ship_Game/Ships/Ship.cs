@@ -381,16 +381,9 @@ namespace Ship_Game.Ships
         public float EmpTolerance  => SurfaceArea + BonusEMPProtection;
         public float HealthPercent => HealthMax > 0f ? Health / HealthMax : 0f;
 
-        public float EmpRecovery
-        {
-            get
-            {
-                if (Loyalty.WeAreRemnants)
-                    return 20 + BonusEMPProtection / 20;
-
-                return OnHighAlert ? 1 + BonusEMPProtection / 1000 : 20 + BonusEMPProtection / 20;
-            }
-        }
+        public float EmpRecoveryPerSecond => OnHighAlert && !Loyalty.WeAreRemnants
+            ? 60 + BonusEMPProtection * 0.06f
+            : 1200 + BonusEMPProtection * 3;
 
         public void DebugDamage(float percent)
         {
@@ -1083,7 +1076,7 @@ namespace Ship_Game.Ships
             }
 
             if (timeStep.FixedTime > 0 && (EMPDamage > 0 || EMPDisabled))
-                CauseEmpDamage(-EmpRecovery);
+                CauseEmpDamage(-EmpRecoveryPerSecond * timeStep.FixedTime);
 
             Rotation = Rotation.AsNormalizedRadians();
 

@@ -274,7 +274,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.FillRectangle(rect, Universe.Player.EmpireColor.Alpha(0.4f));
             }
 
-            if (Universe.Player.IsBuildingUnlocked(Building.TerraformerId) && (pgs.CanTerraform || pgs.BioCanTerraform))
+            if (Universe.Player.CanTerraformPlanetTiles && (pgs.CanTerraform || pgs.BioCanTerraform))
             {
                 var terraform = new Rectangle(rect.X + rect.Width - 10, rect.Y, 10, 10);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);

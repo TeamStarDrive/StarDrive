@@ -457,16 +457,6 @@ namespace Ship_Game
             return baseRepairRate * levelBonus;
         }
 
-        public bool MoneyBuildingAndProfitable(float maintenance, float populationBillion)
-        {
-            if (!IsMoneyBuilding)
-                return false;
-
-            // we use gross profit since we dont want tax rate change to affect this often
-            float grossProfit = PlusTaxPercentage * populationBillion + CreditsPerColonist * populationBillion;
-            return maintenance < grossProfit;
-        }
-
         public string GetShortDescrText(Planet p = null)
         {
             if (ShortDescriptionIndex > 0)

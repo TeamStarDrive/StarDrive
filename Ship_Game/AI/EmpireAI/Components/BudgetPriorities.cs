@@ -35,40 +35,39 @@ namespace Ship_Game.AI.Components
         }
 
         public BudgetPriorities(Empire empire)
+            : this(empire, YamlParser.DeserializeArray<BudgetSettings>("Budgets.yaml"))
         {
-            Budgets = LoadBudgetSettings(empire);
+        }
+
+        internal BudgetPriorities(Empire empire, Array<BudgetSettings> budgetSettings)
+        {
+            Budgets = LoadBudgetSettings(empire, budgetSettings);
             Total = Budgets.Values.Sum();
         }
 
         public float GetBudgetFor(BudgetAreas area) => Budgets.TryGetValue(area, out float budget) ? budget / Total : 0;
 
-        Map<BudgetAreas, float> LoadBudgetSettings(Empire empire)
+        static Map<BudgetAreas, float> LoadBudgetSettings(Empire empire, Array<BudgetSettings> budgetSettings)
         {
             Map<BudgetAreas, float> budgets = new();
-            Array<BudgetSettings> budgetSettings = YamlParser.DeserializeArray<BudgetSettings>("Budgets.yaml");
-            // Apply setting to "ALL" first. Apply specific empire settings next
-            budgetSettings.Sort(i => i.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase));
-            foreach (var budget in budgetSettings)
+            foreach (BudgetSettings settings in budgetSettings)
             {
-                bool isAll = budget.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase);
-                bool isUs = budget.PortraitName.Equals(empire?.Name, StringComparison.InvariantCultureIgnoreCase);
-                if (isAll || isUs)
+                if (!settings.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    // When using new espionage system, normal game difficuly will not have spy budget.
-                    // They will use only the "free" budget
-                    // Also - "Spy" area budget is used for both systems
-                    foreach (var area in budget.Budgets)
-                    {
-                        if (area.Key == BudgetAreas.Spy && empire.LegacyEspionageEnabled)
-                            budgets[area.Key] = area.Value;
-                        else if (area.Key == BudgetAreas.Espionage && empire.NewEspionageEnabled)
-                            budgets[BudgetAreas.Spy] = empire.Universe.P.Difficulty == GameDifficulty.Normal ? 0 : area.Value;
-                        else
-                            budgets[area.Key] = area.Value;
-                    }
+                    Log.Warning($"Budgets.yaml: only the All block is read, '{settings.PortraitName}' is ignored");
+                    continue;
+                }
 
-                    if (!budgets.TryGetValue(BudgetAreas.Espionage, out _) && empire.NewEspionageEnabled)
-                        budgets[BudgetAreas.Spy] = empire.Universe.P.Difficulty == GameDifficulty.Normal ? 0 : 1;
+                foreach (var area in settings.Budgets)
+                {
+                    if (area.Key != BudgetAreas.Espionage)
+                        budgets[area.Key] = area.Value;
+                }
+
+                if (!empire.isPlayer && empire.NewEspionageEnabled)
+                {
+                    float espionage = settings.Budgets.TryGetValue(BudgetAreas.Espionage, out float weight) ? weight : 1;
+                    budgets[BudgetAreas.Spy] = empire.Universe.P.Difficulty == GameDifficulty.Normal ? 0 : espionage;
                 }
             }
 
@@ -80,6 +79,16 @@ namespace Ship_Game.AI.Components
         {
             [StarData] public readonly string PortraitName;
             [StarData] public readonly Map<BudgetAreas, float> Budgets;
+
+            public BudgetSettings()
+            {
+            }
+
+            public BudgetSettings(string portraitName, Map<BudgetAreas, float> budgets)
+            {
+                PortraitName = portraitName;
+                Budgets = budgets;
+            }
         }
     }
 }

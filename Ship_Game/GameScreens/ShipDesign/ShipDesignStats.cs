@@ -67,7 +67,7 @@ public class ShipDesignStats
 
         WeaponAccuracies = new Map<ShipModule, float>();
         foreach (var w in weapons)
-            WeaponAccuracies[w.Module] = w.Tag_Guided ? 0f : w.BaseTargetError(S.TargetingAccuracy).LowerBound(1) / 16;
+            WeaponAccuracies[w.Module] = w.Tag_Guided ? 0f : w.BaseTargetError(Weapon.AimLevel(0, player, S.TargetingAccuracy)).LowerBound(1) / 16;
 
         int nSlots = S.Modules.Sum(m => m.Area);
         NumSlots       = nSlots;

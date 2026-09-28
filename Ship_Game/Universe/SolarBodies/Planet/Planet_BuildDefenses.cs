@@ -131,7 +131,7 @@ namespace Ship_Game
 
             if (budget > 0)
             {
-                if (orbitalsWeHave < orbitalsWeWant) // lets build an orbital
+                if (orbitalsWeHave < orbitalsWeWant && HasRoomForOrbitalClearOfRadiation) // lets build an orbital
                     BuildOrbital(role, budget);
                 else if (orbitalList.Count > 0)
                     ReplaceOrbital(orbitalList, role, budget);  // check if we can replace an orbital with a better one
@@ -171,6 +171,26 @@ namespace Ship_Game
         }
 
         private int TimeVsCostThreshold => (int)(40 + EstimatedAverageProduction*Level + Owner.Money/250);
+
+        public const int OrbitalsPerRing = 9;
+        public const int OrbitalRings = ShipBuilder.OrbitalsLimit / OrbitalsPerRing + 1; // FB - limit on rings, based on Orbitals Limit
+
+        public float OrbitalRingRadius(int ring) => 2000 + 1000 * ring * Scale;
+
+        public int OrbitalRingsClearOfRadiation
+        {
+            get
+            {
+                int rings = 0;
+                while (rings < OrbitalRings && System.InSafeDistanceFromRadiation(OrbitalRadius - OrbitalRingRadius(rings)))
+                    ++rings;
+                return rings;
+            }
+        }
+
+        bool HasRoomForOrbitalClearOfRadiation => !System.IsSunDangerous
+            || OrbitalStations.Count + Owner.AI.CountGoals(g => g is DeepSpaceBuildGoal b && b.IsBuildingOrbitalFor(this))
+               < OrbitalsPerRing * OrbitalRingsClearOfRadiation;
 
         // Adds an Orbital to ConstructionQueue
         public void AddOrbital(IShipDesign orbital)
@@ -313,7 +333,7 @@ namespace Ship_Game
             }
 
             int totalShipyards = NumShipyards + ShipyardsBeingBuilt();
-            if (totalShipyards < numWantedShipyards)
+            if (totalShipyards < numWantedShipyards && HasRoomForOrbitalClearOfRadiation)
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.Ships.GetDesign(shipyardName, out IShipDesign shipyard)

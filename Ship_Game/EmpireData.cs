@@ -160,13 +160,14 @@ namespace Ship_Game
         [StarData] public DTrait DiplomaticPersonality;
         [StarData] public ETrait EconomicPersonality;
         [StarData] float TaxRateValue;
+        public const float StartingTaxRate = 0.25f;
 
         // player modified tax rate
         [StarData]
         public float TaxRate
         {
             get => TaxRateValue;
-            set => TaxRateValue = value.NaNChecked(0.25f, "EmpireData.TaxRate");
+            set => TaxRateValue = value.NaNChecked(StartingTaxRate, "EmpireData.TaxRate");
         }
 
         [StarData] public Array<string> PersonalityTraitsWeights = new();
@@ -411,7 +412,7 @@ namespace Ship_Game
 
             data.FlatMoneyBonus = 0.0f;
             data.TurnsBelowZero = 0;
-            data.TaxRate = 0.25f;
+            data.TaxRate = StartingTaxRate;
 
             if (data.DefaultTroopShip.IsEmpty())
             {

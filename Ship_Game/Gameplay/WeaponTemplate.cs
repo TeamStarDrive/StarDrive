@@ -273,6 +273,7 @@ namespace Ship_Game.Gameplay
         public static float CalculateOffense(ShipModule m, IWeaponTemplate t)
         {
             float off = 0f;
+            float empAndPowerShare = 0f;
             float shotsPerSec = (1.0f / t.NetFireDelay);
 
             if (t.IsBeam)
@@ -286,9 +287,12 @@ namespace Ship_Game.Gameplay
             }
             else
             {
+                float empAndPower = t.EMPDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.5f
+                                  + t.PowerDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.75f;
                 off += t.DamageAmount * t.SalvoCount * t.ProjectileCount * shotsPerSec;
-                off += t.EMPDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.5f;
-                off += t.PowerDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.75f;
+                off += empAndPower;
+                if (off > 0f)
+                    empAndPowerShare = empAndPower / off;
             }
 
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
@@ -309,7 +313,8 @@ namespace Ship_Game.Gameplay
             off *= t.Tag_Intercept && t.RotationRadsPerSecond > 1 ? 1 + t.HitPoints * 0.02f / t.ProjectileRadius.LowerBound(2) : 1;
 
             // FB: offense calcs for damage radius
-            off *= t.ExplosionRadius > 16 && !t.TruePD ? t.ExplosionRadius * 0.0625f : 1f;
+            if (t.ExplosionRadius > 16 && !t.TruePD)
+                off *= empAndPowerShare + (1f - empAndPowerShare) * t.ExplosionRadius * 0.0625f;
 
             // FB: Added shield pen chance
             off *= 1 + t.ShieldPenChance * 0.01f;

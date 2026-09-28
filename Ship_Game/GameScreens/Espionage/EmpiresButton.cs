@@ -75,7 +75,7 @@ namespace Ship_Game.GameScreens
                 if (Player.Universe.MajorEmpires.Any(e => !e.isPlayer && Player.IsKnown(e)))
                 {
                     var budgetRect = new Rectangle(Rect.Left, Rect.Y + 180, 140, 40);
-                    EspionageBudgetMultiplier = new FloatSlider(SliderStyle.Decimal1, budgetRect, GameText.EspioangeBudgetMuliplier, 1f, 5f, value: Player.EspionageBudgetMultiplier);
+                    EspionageBudgetMultiplier = new FloatSlider(SliderStyle.Decimal1, budgetRect, GameText.EspioangeBudgetMuliplier, 1f, Empire.MaxEspionageBudgetMultiplier, value: Player.EspionageBudgetMultiplier);
                     EspionageBudgetMultiplier.Tip = GameText.EspioangeBudgetMuliplierTip;
                     EspionageBudgetMultiplier.OnChange = (s) =>
                     {

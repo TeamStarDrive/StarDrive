@@ -504,14 +504,15 @@ namespace Ship_Game
                 return false;
             }
 
-            if (!RequiredInBlueprints(b))
+            if (Blueprints?.IsNotRequired(b) == true)
                 return true;
-            else if (!overBudget)
+            if (RequiredInBlueprints(b) && !overBudget)
                 return false;
 
-            if (b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
+            float minTaxRate = Owner.isPlayer && !Owner.AutoTaxes ? 0f : EmpireData.StartingTaxRate;
+            if (b.IsMoneyBuilding && Money.NetCostOf(b, standing: true, minTaxRate) < 0
                 || !WillMaintainPositiveFoodOutput(b)
-                || !IsBuildingOnHabitableTile(b) && replacing  // Dont allow buildings on non habitable tiles to be scrapped when replacing
+                || replacing && !IsBuildingOnHabitableTile(b)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
                 || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero()
                 || IsStorageWasted(storageInUse, b.StorageAdded))
             {
@@ -534,8 +535,8 @@ namespace Ship_Game
 
             // checking at 80% of max potential considering building fertility or richness changes
             float potential      = 0.8f * (NonCybernetic 
-                ? Food.NetMaxPotential * (Fertility - b.MaxFertilityOnBuildFor(Owner, Category) / Fertility.LowerBound(0.01f)) 
-                : Prod.NetMaxPotential * MineralRichness - b.IncreaseRichness / MineralRichness.LowerBound(0.01f));
+                ? Food.NetMaxPotential * ShareLeftWithout(Fertility, b.MaxFertilityOnBuildFor(Owner, Category))
+                : Prod.NetMaxPotential * ShareLeftWithout(MineralRichness, b.IncreaseRichness));
 
             float pop80          = PopulationBillion * 0.8f;
             float buildingOutput = NonCybernetic 
@@ -544,6 +545,9 @@ namespace Ship_Game
 
             return potential - buildingOutput > 0;
         }
+
+        static float ShareLeftWithout(float value, float buildingPart)
+            => value > 0 && buildingPart.NotZero() ? ((value - buildingPart) / value).LowerBound(0) : 1;
 
         bool IsBuildingOnHabitableTile(Building b)
         {
@@ -839,7 +843,8 @@ namespace Ship_Game
                                        && FreeHabitableTiles == 0
                                        && budget >= bioUpkeep + wanted.Min(b => b.ActualMaintenance(this));
 
-            if (!needGroundToBuildOn && !BiosphereCarriesItsPopulation(bio))
+            bool carriesItsPopulation = BiosphereCarriesItsPopulation(bio);
+            if (!needGroundToBuildOn && !carriesItsPopulation)
             {
                 if (NumFreeBiospheres > 0)
                     shouldScrapBioSpheres = ShouldScrapFreeBiosphere(budget, wanted.Length > 0);
@@ -850,19 +855,23 @@ namespace Ship_Game
             if (bioUpkeep > budget)
                 return false;
 
+            PlanetGridSquare tile = PreferredBiosphereTile(bio, emptyTileOnly: !carriesItsPopulation);
+            if (tile == null)
+                return false;
+
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
 
-            return Construction.Enqueue(bio, PreferredBiosphereTile(bio)); // Preferred is null safe in this call
+            return Construction.Enqueue(bio, tile);
         }
 
-        internal PlanetGridSquare PreferredBiosphereTile(Building bio)
+        internal PlanetGridSquare PreferredBiosphereTile(Building bio, bool emptyTileOnly = false)
         {
             bool saveGroundForTerraformer = Owner.CanTerraformPlanetTiles;
             return TilesList.Find(t => t.NoBuildingOnTile && t.CanEnqueueBuildingHere(bio)
                                        && (!saveGroundForTerraformer || !t.Terraformable))
                 ?? TilesList.Find(t => t.NoBuildingOnTile && t.CanEnqueueBuildingHere(bio))
-                ?? TilesList.Find(t => t.CanEnqueueBuildingHere(bio));
+                ?? (emptyTileOnly ? null : TilesList.Find(t => t.CanEnqueueBuildingHere(bio)));
         }
 
         internal bool BiosphereCarriesItsPopulation(Building bio)

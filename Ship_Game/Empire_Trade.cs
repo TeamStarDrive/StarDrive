@@ -30,14 +30,13 @@ namespace Ship_Game
         public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue  => (int)Math.Ceiling((OwnedPlanets.Count / 5f)).Clamped(2, 5);
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
-        public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
+        public float AverageTradeIncome  => AllTimeTradeIncome / TurnCount;
         public bool ManualTrade          => isPlayer && !AutoFreighters;
         public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
         public bool EconomicSafeToBuildFreighter => AI.CreditRating >= 0.4;
         public int TotalLevelsOfPirateFactionsAtWar => Universe.PirateFactions.Sum(e => IsAtWarWith(e) ? e.Pirates.Level : 0);
 
         Array<Relationship> TradeTreaties = new();
-        public IReadOnlyList<Relationship> TradeRelations => TradeTreaties;
 
         void UpdateTradeTreaties()
         {
@@ -74,7 +73,7 @@ namespace Ship_Game
                 taxedGoods += goods * 2f;
 
             TradeMoneyAddedThisTurn += taxedGoods;
-            AllTimeTradeIncome      += (int)taxedGoods;
+            AllTimeTradeIncome      += taxedGoods;
         }
 
         // once per turn with 3 passes if possible

@@ -13,7 +13,6 @@
   <MaxPopIncrease>200</MaxPopIncrease>
   <CreditsPerColonist>.25</CreditsPerColonist>
   <Scrappable>false</Scrappable>
-  <UniqueInEmpire>true</UniqueInEmpire>
   <BuildOnlyOnce>true</BuildOnlyOnce>
   <!-- Tells the Solar System Generator that this is not to be placed randomly-->
   <NoRandomSpawn>true</NoRandomSpawn>

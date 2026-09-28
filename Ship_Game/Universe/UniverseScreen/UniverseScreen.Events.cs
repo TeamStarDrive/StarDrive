@@ -8,10 +8,19 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
+        volatile bool DropDownsRefreshQueued;
+
         /// EVT: triggered when Player's buildable ships are updated
         public void OnPlayerBuildableShipsUpdated()
         {
-            aw?.UpdateDropDowns();
+            if (DropDownsRefreshQueued)
+                return;
+            DropDownsRefreshQueued = true;
+            RunOnNextFrame(() =>
+            {
+                DropDownsRefreshQueued = false;
+                aw?.UpdateDropDowns();
+            });
         }
     }
 }

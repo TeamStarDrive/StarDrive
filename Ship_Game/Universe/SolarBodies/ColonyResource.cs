@@ -296,16 +296,19 @@ namespace Ship_Game.Universe.SolarBodies
 
         public ColonyMoney(Planet planet) { Planet = planet; }
 
-        // Credits per turn this building would cost the colony, its own revenue already deducted
-        public float NetCostOf(Building b)
+        // Credits per turn this building costs the colony net of its own revenue; a standing one is already in the figures
+        public float NetCostOf(Building b, bool standing = false, float minEmpireTaxRate = 0f)
         {
+            float direction = standing ? -1f : 1f;
+            float taxRate = TaxRate.LowerBound(minEmpireTaxRate * TaxRateMultiplier);
             float taxable = Planet.PopulationBillion * IncomePerColonist + IncomeFromBuildings;
-            float added = Planet.PopulationBillion * b.CreditsPerColonist + b.Income;
-            float rateWithIt = TaxRateMultiplier > 0
-                             ? TaxRate * (TaxRateMultiplier + b.PlusTaxPercentage) / TaxRateMultiplier
-                             : TaxRate;
+            float share = Planet.PopulationBillion * b.CreditsPerColonist + b.Income;
+            float otherRate = TaxRateMultiplier > 0
+                            ? taxRate * (TaxRateMultiplier + direction * b.PlusTaxPercentage) / TaxRateMultiplier
+                            : taxRate;
 
-            float revenue = ((taxable + added) * rateWithIt - taxable * TaxRate) * Planet.Owner.ExoticCreditsBonus;
+            float change = (taxable + direction * share) * otherRate - taxable * taxRate;
+            float revenue = direction * change * Planet.Owner.ExoticCreditsBonus;
             return b.ActualMaintenance(Planet) - revenue;
         }
 

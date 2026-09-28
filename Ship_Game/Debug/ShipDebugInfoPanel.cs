@@ -129,7 +129,7 @@ public class ShipDebugInfoPanel : Submenu
             Text.String($"Strength: {currentStr.String(0)} / {baseStr.String(0)}  ({(currentStr/baseStr).PercentString()})");
             Text.String($"HP: {s.Health.String(0)} / {s.HealthMax.String(0)}  ({s.HealthPercent.PercentString()})");
             Text.String($"Mass: {s.Mass.String(0)}");
-            Text.String($"EMP Damage: {s.EMPDamage} / {s.EmpTolerance} :Recovery: {s.EmpRecovery}");
+            Text.String($"EMP Damage: {s.EMPDamage} / {s.EmpTolerance} :Recovery/s: {s.EmpRecoveryPerSecond}");
             Text.String($"IntSlots: {s.ActiveInternalModuleSlots}/{s.NumInternalSlots}  ({s.InternalSlotsHealthPercent.PercentString()})");
             Text.String($"DPS: {s.TotalDps}");
             Text.String($"Sensor: {s.AI.GetSensorRadius().GetNumberString()} "+

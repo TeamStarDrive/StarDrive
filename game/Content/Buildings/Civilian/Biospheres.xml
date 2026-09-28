@@ -5,7 +5,6 @@
   <Cost>180</Cost>
   <Maintenance>.1</Maintenance>
   
-  <MaxPopIncrease>100</MaxPopIncrease>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Unique>false</Unique>
   

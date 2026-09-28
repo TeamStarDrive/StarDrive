@@ -1,4 +1,8 @@
-# Note that Espionage and Spy are alternated based on the espionage system - it will pick one of these
+# Only the All block is read. The values are weights: each area gets its share of their sum, and
+# Espionage is never an area of its own. Savings is never spent; it only sets how much the others get.
+# Spy: an AI's agent budget under legacy espionage. Espionage: under the new system, an AI's weight for
+# buying extra espionage points above Normal difficulty, in place of Spy (1 if absent, none on Normal).
+# The player's planner hands the player's Build and Spy weights to its governor budgets.
 - BudgetSettings:
   PortraitName: All
   Budgets:
