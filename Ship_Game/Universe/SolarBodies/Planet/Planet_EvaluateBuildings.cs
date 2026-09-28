@@ -504,14 +504,14 @@ namespace Ship_Game
                 return false;
             }
 
-            if (!RequiredInBlueprints(b))
+            if (Blueprints?.IsNotRequired(b) == true)
                 return true;
-            else if (!overBudget)
+            if (RequiredInBlueprints(b) && !overBudget)
                 return false;
 
-            if (b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
+            if (b.IsMoneyBuilding && Money.NetCostOf(b, standing: true) < 0
                 || !WillMaintainPositiveFoodOutput(b)
-                || !IsBuildingOnHabitableTile(b) && replacing  // Dont allow buildings on non habitable tiles to be scrapped when replacing
+                || replacing && !IsBuildingOnHabitableTile(b)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
                 || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero()
                 || IsStorageWasted(storageInUse, b.StorageAdded))
             {
@@ -534,8 +534,8 @@ namespace Ship_Game
 
             // checking at 80% of max potential considering building fertility or richness changes
             float potential      = 0.8f * (NonCybernetic 
-                ? Food.NetMaxPotential * (Fertility - b.MaxFertilityOnBuildFor(Owner, Category) / Fertility.LowerBound(0.01f)) 
-                : Prod.NetMaxPotential * MineralRichness - b.IncreaseRichness / MineralRichness.LowerBound(0.01f));
+                ? Food.NetMaxPotential * ShareLeftWithout(Fertility, b.MaxFertilityOnBuildFor(Owner, Category))
+                : Prod.NetMaxPotential * ShareLeftWithout(MineralRichness, b.IncreaseRichness));
 
             float pop80          = PopulationBillion * 0.8f;
             float buildingOutput = NonCybernetic 
@@ -544,6 +544,9 @@ namespace Ship_Game
 
             return potential - buildingOutput > 0;
         }
+
+        static float ShareLeftWithout(float value, float buildingPart)
+            => value > 0 && buildingPart.NotZero() ? ((value - buildingPart) / value).LowerBound(0) : 1;
 
         bool IsBuildingOnHabitableTile(Building b)
         {

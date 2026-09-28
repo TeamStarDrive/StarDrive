@@ -893,11 +893,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (15, twelve resolved)
+## Budget, money and espionage (15, fourteen resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; items 1 to 11 and 15 have since been resolved.
+were still present; items 1 to 13 and 15 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -1022,34 +1022,36 @@ were still present; items 1 to 11 and 15 have since been resolved.
     tooltip and the Budget Screen entry (100225), "everything they have ever earned divided by the
     turns played", true. `BudgetTests.TradeUnderACreditCountsTowardTheTradeAverage` and
     `TheTradeAverageSurvivesSaveAndLoad`.
-12. `[latent]` **`Building.MoneyBuildingAndProfitable` never runs on any AI colony.** Its only
-    caller is `SuitableForScrap` (`Planet_EvaluateBuildings.cs:512`), four lines below
-    `if (!RequiredInBlueprints(b)) return true; else if (!overBudget) return false;`.
-    `RequiredInBlueprints` is `Blueprints?.IsRequired(b) == true` and the only production caller of
-    `AddBlueprints` is a player-only button (`GovernorDetailsComponent.cs:409`), so no AI colony
-    has blueprints and every building returns at that first line. **Four guards are stranded**
-    there: `MoneyBuildingAndProfitable`, `WillMaintainPositiveFoodOutput` (`:524`),
-    `IsBuildingOnHabitableTile`, and the `scrapZeroMaintenance` / `IsStorageWasted` pair. The
-    early-out arrived in `de8f49ab4` (2024-05-31); the same commit stranded
-    `b.IsPlayerAdded && OwnerIsPlayer`, which is exactly issue #303 — already paid for once.
-    Mitigation: `CalcBuildingScore` (`:586`) weights the money terms, so `ChooseWorstBuilding`
-    rarely picks a good money building anyway. **The starvation guard is the one with no substitute
-    in the scoring.**
-13. `[latent]` **And its arithmetic is wrong where it does run** (`Building.cs:460`):
-    `grossProfit = PlusTaxPercentage * pop + CreditsPerColonist * pop`. `Income` is ignored though
-    `IsMoneyBuilding` counts it; `PlusTaxPercentage * pop` is not the marginal revenue (tax
-    percentage multiplies the colony's whole rate); it prices at a 100% tax rate, overstating
-    profit by roughly 1/TaxRate, typically 2–4×; `ExoticCreditsBonus` is missing.
-    **`ColonyMoney.NetCostOf(Building)` already has the correct arithmetic** — a before/after gross
-    revenue delta, which is the only form that catches the cross term when a building has both
-    `CreditsPerColonist` and `PlusTaxPercentage` (Capital City does). Call it rather than write the
-    model a third time.
-    **Order matters:** fixing 13 alone changes nothing while 12 keeps it unreachable; fixing 12
-    alone hands the governor a rule computed at a fictitious 100% tax rate. Math first. A test must
-    build a planet that is over budget **and** carries blueprints requiring the building, or the
-    guard stays invisible.
-    Also dormant in the same dead block: `WillMaintainPositiveFoodOutput` has a precedence bug —
-    `x - y/x` where both branches read as though the intent was `(Fertility - delta) / Fertility`.
+12. ~~The scrap guards never ran on a colony without blueprints.~~ Resolved 2026-09-28.
+    `SuitableForScrap` returned early with `if (!RequiredInBlueprints(b)) return true;`, meant for a
+    building outside a blueprint plan, but `RequiredInBlueprints` is false on a colony with no
+    blueprints too. Every AI colony, and every player colony governed without blueprints, skipped the
+    guards below it: a building that pays for itself, a food building the colony needs, a
+    build-anywhere building on uninhabitable ground when replacing, a building with no upkeep when
+    over budget, and storage whose goods would not fit without it. The early-out arrived with the
+    blueprints UI in `de8f49ab4` (2024-05-31); before it the guards covered every building. Measured
+    on 44 saves, over budget is rare (19 of 4128 governed colonies) and replacing is where it bit: in
+    395 of 1052 full colonies the building the governor would give up next was one a guard
+    protects, mostly storage. The early-out now tests `Blueprints?.IsNotRequired(b)`, so blueprint
+    routing is unchanged (a planned building over budget meets the corrected money and food guards)
+    and every other colony is guarded again, the auto-terraformer's room-making included. The food
+    guard came back to life with it and had a precedence slip, `x - y/x` for `(x - y)/x`; fixed, it
+    would still have priced a building with no fertility effect at zero on a barren world through
+    the 0.01 floor, so it scales by the share of fertility or richness left only when the building
+    changes it.
+    `GovernorScrapGuardsTests`.
+13. ~~The money guard's arithmetic was wrong.~~ Resolved 2026-09-28. `MoneyBuildingAndProfitable`
+    set `PlusTaxPercentage * pop + CreditsPerColonist * pop` against upkeep: it ignored `Income`,
+    applied the tax percentage to the population instead of the colony's tax base, and left out the
+    tax rate and `ExoticCreditsBonus`. The errors partly cancel - on 44 saves the old figure was 1.08
+    times the real revenue at the median, not the 2-4 times first estimated - but it gave the wrong
+    answer for one money building in six, both ways: Combined Arms' Luxury Resort (flat income only)
+    was never protected, and its Space Port (+50% tax) was protected above a billion colonists though
+    it rarely pays. It is deleted. The guard calls `ColonyMoney.NetCostOf(b, standing: true)`, the
+    model the build list colours with, at the current tax rate; `standing` takes a building's share
+    out of the colony's figures instead of adding it. At 0% tax nothing is protected, which 29 of 256
+    empires in those saves were at.
+    `GovernorScrapGuardsTests.TheNetCostOfABuildingIsTheRevenueItAddsOrTakesAway`.
 14. `[settled]` **The biosphere payback heuristic omits `ExoticCreditsBonus`**
     (`Planet_EvaluateBuildings.cs`, `BiosphereCarriesItsPopulation`). Left deliberately: the formula
     already uses `TaxRateMultiplier` rather than `TaxRate` so it is a "full rate" heuristic by
