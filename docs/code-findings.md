@@ -893,11 +893,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (15, five resolved)
+## Budget, money and espionage (15, seven resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; items 1 to 5 have since been resolved.
+were still present; items 1 to 5, 10 and 11 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -969,11 +969,21 @@ were still present; items 1 to 5 have since been resolved.
 9. `[balance]` **Legacy espionage silently doubles the governor budgets** — with that rule option
    on, the Spy weight of 25 is real and half of Build+Spy is redistributed, moving the player's
    colony share from about 1/38 to 1/19 of the treasury goal (`RunEconomicPlanner.cs:109`).
-10. `[display]` **Trade panel rows and total read different lists** — rows iterate cached
-    `TradeRelations`, the footer iterates `ActiveRelations` live (`Empire_Trade.cs:41`, `460`).
-11. `[display]` **Lifetime trade average truncates twice** — `AllTimeTradeIncome += (int)taxedGoods`
-    per delivery and `AverageTradeIncome` is integer division (`Empire_Trade.cs:77`, `33`), so
-    sub-credit deliveries never reach the Mercantilism (Avg) figure.
+10. ~~Trade panel rows and total read different lists.~~ Resolved 2026-09-28. The per-partner
+    rows came from `TradeRelations`, the freighters' treaty cache, refreshed once a turn and never
+    saved, while the Trade Treaties row and the total read the relations live. A treaty signed or
+    broken this turn was in one and not the other, and after a load the rows were empty until the
+    next turn. The rows now read the same live relations; the screen pauses the game, so nothing
+    changes under them while it is open. The unused `TradeRelations` property is gone; the cache
+    itself stays for the freighters. `BudgetTests.TheTradePanelListsATreatySignedThisTurn`.
+11. ~~Lifetime trade average truncates twice, and is not lifetime.~~ Resolved 2026-09-28.
+    `AllTimeTradeIncome` was an `int` that dropped the fraction of every delivery, the average was
+    integer division, and neither it nor `TurnCount` was saved, so Mercantilism (Avg) was the
+    average since the last load and every load reset it to 0 - which also dipped the treasury goal,
+    since `MaximumStableIncome` reads it. Both are now saved and the sum is a float, which makes the
+    tooltip and the Budget Screen entry (100225), "everything they have ever earned divided by the
+    turns played", true. `BudgetTests.TradeUnderACreditCountsTowardTheTradeAverage` and
+    `TheTradeAverageSurvivesSaveAndLoad`.
 12. `[latent]` **`Building.MoneyBuildingAndProfitable` never runs on any AI colony.** Its only
     caller is `SuitableForScrap` (`Planet_EvaluateBuildings.cs:512`), four lines below
     `if (!RequiredInBlueprints(b)) return true; else if (!overBudget) return false;`.

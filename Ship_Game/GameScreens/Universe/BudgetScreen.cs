@@ -152,9 +152,10 @@ namespace Ship_Game.GameScreens
             trade.AddItem(GameText.MercantilismAvg, () => Player.AverageTradeIncome, GameText.BudgetMercantilismAvgTip);
             trade.AddItem(GameText.TradeTreaties, () => Player.TotalTradeTreatiesIncome(), GameText.BudgetTradeTreatiesTip);
 
-            foreach (Relationship r in Player.TradeRelations)
-                trade.AddItem($"   {r.Them.data.Traits.Plural}", () => r.TradeIncome(Player), r.Them.EmpireColor,
-                              GameText.BudgetTradeTreatiesTip);
+            foreach (Relationship r in Player.AllRelations)
+                if (r.Treaty_Trade)
+                    trade.AddItem($"   {r.Them.data.Traits.Plural}", () => r.TradeIncome(Player), r.Them.EmpireColor,
+                                  GameText.BudgetTradeTreatiesTip);
 
             trade.SetTotalFooter(() => Player.TotalAvgTradeIncome, GameText.BudgetTradeTotalTip);
         }

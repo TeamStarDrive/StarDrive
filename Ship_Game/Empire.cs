@@ -60,7 +60,7 @@ namespace Ship_Game
         [StarData] public IncomingThreatDetector ThreatDetector;
         public IncomingThreat[] SystemsWithThreat => ThreatDetector.SystemsWithThreat;
 
-        int TurnCount = 1;
+        [StarData] int TurnCount = 1;
 
         [StarData] public EmpireData data;
         public DiplomacyDialog dd;
@@ -107,7 +107,7 @@ namespace Ship_Game
         public float PotentialIncome { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
         public float MoneyLastTurn;
-        public int AllTimeTradeIncome;
+        [StarData] public float AllTimeTradeIncome;
         [StarData] public bool AutoBuildSpaceRoads;
         [StarData] public bool AutoExplore;
         [StarData] public bool AutoColonize;

@@ -4,7 +4,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
 using Ship_Game.AI.Components;
+using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.LoadGame;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
@@ -196,5 +200,74 @@ namespace UnitTests.AITests.Empire
             AssertEqual(0.001f, homeworld.Money.Maintenance, Player.TotalBuildingMaintenance, "the Building Maint. row is buildings only");
             AssertEqual(0.001f, netBefore - 5 * ShipMaintenance.TroopMaint, Player.NetIncome, "our five new troops cost upkeep");
         }
+
+        [TestMethod]
+        public void TradeUnderACreditCountsTowardTheTradeAverage()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            Player.data.Traits.TaxGoods = true;
+            Player.data.Traits.Mercantile = 0f;
+            Player.data.TaxRate = 0.25f;
+
+            for (int i = 0; i < 8; ++i)
+                Player.TaxGoods(1f, homeworld);
+
+            AssertEqual(0.001f, 2f, Player.AllTimeTradeIncome, "eight deliveries earning a quarter credit each");
+        }
+
+        [TestMethod]
+        public void TheTradeAverageSurvivesSaveAndLoad()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            UState.StarDate = 1042.5f;
+            Player.data.Traits.TaxGoods = true;
+            Player.data.TaxRate = 0.5f;
+            for (int turn = 0; turn < 4; ++turn)
+            {
+                Player.TaxGoods(10f, homeworld);
+                Player.DoMoney();
+            }
+            float average = Player.AverageTradeIncome;
+            AssertGreaterThan(average, 0f, "setup: the freighters must have earned something");
+
+            SavedGame save = Universe.Save("UnitTest.TradeAverage", throwOnError: true);
+            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+
+            AssertEqual(0.001f, average, loaded.UState.Player.AverageTradeIncome,
+                "the lifetime average must not restart when a game is loaded");
+        }
+
+        [TestMethod]
+        public void TheTradePanelListsATreatySignedThisTurn()
+        {
+            CreateUniverseAndPlayerEmpire();
+            Player.SignTreatyWith(Enemy, TreatyType.Trade);
+
+            var screen = new BudgetScreen(Universe);
+            Game.Manager.AddScreenAndLoadContent(screen);
+            try
+            {
+                Assert.IsTrue(HasLabel(screen, $"   {Enemy.data.Traits.Plural}:"),
+                    "the trade panel must list every partner its total counts");
+            }
+            finally
+            {
+                Game.Manager.RemoveScreen(screen);
+            }
+        }
+
+        static bool HasLabel(UIElementContainer container, string text)
+        {
+            foreach (UIElementV2 e in container.GetElements())
+            {
+                if (e is SplitElement split && (IsLabel(split.First, text) || IsLabel(split.Second, text)))
+                    return true;
+                if (IsLabel(e, text) || e is UIElementContainer child && HasLabel(child, text))
+                    return true;
+            }
+            return false;
+        }
+
+        static bool IsLabel(UIElementV2 e, string text) => e is UILabel label && label.Text.Text == text;
     }
 }
