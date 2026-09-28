@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
@@ -117,5 +118,102 @@ public class BlastEmpAndPowerDamageTests : StarDriveTest
 
         AssertEqual(0.01f, nuker.EMPDamage, target.EMPDamage, "the struck ship takes the blast's EMP once");
         AssertEqual(0.01f, nuker.EMPDamage, neighbour.EMPDamage, "every other ship the blast catches takes it once too");
+    }
+
+    static ShipModule ExplodingModule(Ship ship)
+    {
+        foreach (ShipModule m in ship.Modules)
+            if (m.Explodes && m.ExplosionDamage > 0f)
+                return m;
+        Assert.Fail("setup: the target must carry a module that explodes");
+        return null;
+    }
+
+    static void Destroy(Ship target, GameObject shot)
+    {
+        ShipModule module = ExplodingModule(target);
+        Dictionary<ShipModule, float> healthBefore = HealthOf(target);
+        module.Damage(shot, module.Health * 100f + 100f);
+        Assert.IsFalse(module.Active, "setup: the shot must destroy the module");
+        AssertSeveralModulesDamaged(target, healthBefore);
+    }
+
+    [TestMethod]
+    public void AModuleAShotDestroysExplodesWithoutTheShotsEmp()
+    {
+        Ship target = SpawnTarget();
+        Projectile shot = Fire("EmpCannon", target, out Weapon gun);
+        Assert.IsFalse(shot.Explodes, "setup: EmpCannon must not explode");
+        AssertGreaterThan(gun.EMPDamage, 0f, "setup: EmpCannon must carry EMP damage");
+
+        Destroy(target, shot);
+
+        AssertEqual(0.01f, gun.EMPDamage, target.EMPDamage, "only the module the shot struck takes its EMP");
+    }
+
+    [TestMethod]
+    public void AModuleAShotDestroysExplodesWithoutTheShotsPowerDamage()
+    {
+        Ship target = SpawnTarget();
+        Projectile shot = Fire("DarkMatterCannon_1x2", target, out Weapon gun);
+        Assert.IsFalse(shot.Explodes, "setup: DarkMatterCannon_1x2 must not explode");
+        AssertLessThan(gun.PowerDamage * 2f, target.PowerStoreMax, "setup: the store must hold more than two drains");
+        target.PowerCurrent = target.PowerStoreMax;
+
+        Destroy(target, shot);
+
+        AssertEqual(0.01f, target.PowerStoreMax - gun.PowerDamage, target.PowerCurrent,
+            "only the module the shot struck drains power");
+    }
+
+    [TestMethod]
+    public void AModuleABeamDestroysExplodesWithoutTheBeamsPowerDamage()
+    {
+        Ship target = SpawnTarget();
+        Ship attacker = SpawnShip("Corsair", Enemy, new Vector2(0, -3000));
+        Weapon ionBeam = ResourceManager.CreateWeapon(UState, "IonBeam", attacker, null);
+        AssertGreaterThan(ionBeam.PowerDamage, 0f, "setup: IonBeam must carry power damage");
+        var beam = new Beam(UState.CreateId(), ionBeam, attacker.Position, target.Position, ExplodingModule(target));
+        AssertLessThan(ionBeam.PowerDamage * 2f, target.PowerStoreMax, "setup: the store must hold more than two drains");
+        target.PowerCurrent = target.PowerStoreMax;
+
+        Destroy(target, beam);
+
+        AssertEqual(0.01f, target.PowerStoreMax - ionBeam.PowerDamage, target.PowerCurrent,
+            "only the module the beam struck drains power");
+    }
+
+    [TestMethod]
+    public void AModuleAShotDestroysDoesNotBounceTheShotWithItsExplosion()
+    {
+        Ship target = SpawnTarget();
+        Projectile shot = Fire("EmpCannon", target, out Weapon _);
+        Assert.IsFalse(shot.Explodes, "setup: EmpCannon must not explode");
+        ShipModule module = ExplodingModule(target);
+        target.InFrustum = true;
+        UState.ViewState = UniverseScreen.UnivScreenState.ShipView;
+        Vector2 flight = shot.Velocity;
+
+        FieldInfo deflection = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.Deflection));
+        var saved = new Dictionary<ShipModuleFlyweight, float>();
+        try
+        {
+            foreach (ShipModule m in target.Modules)
+            {
+                if (m.Flyweight != module.Flyweight && saved.TryAdd(m.Flyweight, m.Deflection))
+                    deflection.SetValue(m.Flyweight, 1_000_000f);
+            }
+
+            module.Damage(shot, module.Health * 100f + 100f);
+            Assert.IsFalse(module.Active, "setup: the shot must destroy the module");
+        }
+        finally
+        {
+            foreach (KeyValuePair<ShipModuleFlyweight, float> fw in saved)
+                deflection.SetValue(fw.Key, fw.Value);
+        }
+
+        Assert.AreEqual(Enemy, shot.Loyalty, "the module's explosion turned the shot that set it off to the victim's side");
+        AssertEqual(0.01f, flight, shot.Velocity, "the module's explosion bounced the shot that set it off");
     }
 }

@@ -514,7 +514,8 @@ namespace Ship_Game.Ships
         // 2. A ShipModule like Reactor 2x2 has exploded
         // 3. A Ship has exploded and this is the closest affected module
         public void DamageExplosive(GameObject damageSource, float damageAmount,
-                                    Vector2 worldHitPos, float hitRadius, bool ignoreShields)
+                                    Vector2 worldHitPos, float hitRadius, bool ignoreShields,
+                                    bool moduleExplosion = false)
         {
             if (!Active) return;
             // Reduces the effective explosion radius on ships with ExplosiveRadiusReduction bonus
@@ -555,12 +556,12 @@ namespace Ship_Game.Ships
 
                 if (mq.Type == DamageTransfer.Root)
                 {
-                    if (mq.Module.DamageExplosive(damageSource, ref rootDamage))
+                    if (mq.Module.DamageExplosive(damageSource, ref rootDamage, moduleExplosion))
                         return; // Root module absorbed all the explosion
                 }
                 else
                 {
-                    mq.Module.DamageExplosive(damageSource, ref remainingDamage);
+                    mq.Module.DamageExplosive(damageSource, ref remainingDamage, moduleExplosion);
                 }
 
                 if (mq.Type is DamageTransfer.Diagonal or DamageTransfer.Root)

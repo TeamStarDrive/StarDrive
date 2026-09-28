@@ -501,7 +501,7 @@ reasoning is in the linked notes or the commit that set it.
   when `IsCrashSiteActive`), **refit port quality** (0.5 prioritized, 1 fallback).
 - **Budget #14 below** — the biosphere payback heuristic omits `ExoticCreditsBonus` deliberately.
 - **Damage #3, #4, #5, #6, #7 and #11 below** — Gilad's call, 2026-09-27. A module-death blast carrying the
-  killer's weapon, a radial blast hitting a big module once per covered cell while the directional
+  killer's weapon (but not its EMP, power damage or ricochet, since 2026-09-28), a radial blast hitting a big module once per covered cell while the directional
   one dedupes, that blast wasting its root slot, and carry-on damage truncated to int, are all as
   designed. #4 in particular: **do not add a dedupe to match the directional path.** And #11:
   missiles keep their raw-level aim error; **do not route them through the gun formula**.
@@ -563,7 +563,10 @@ these was that.
    same way: the projectile carries `EmpDamage` and `PowerDamage` copied from its weapon, and an
    exploding one spends each on the first module that takes it; the space nuke branch
    (`DamageRadius >= 256`) recharges them before every ship. Before, a `RemnantNuker` blast on a
-   Dreadnought caught 21 modules and applied 2100 EMP instead of 100. `CalculateOffense` no longer
+   Dreadnought caught 21 modules and applied 2100 EMP instead of 100. A module that a shot or a beam
+   destroys explodes without its EMP or power damage: the module's blast has the shot as its source,
+   so a shot that does not explode passed both to every module that blast caught, once per grid
+   square (found on the fixes_36 branch review; `moduleExplosion` in `ShipModule.TryDamageModule`). `CalculateOffense` no longer
    scales the EMP and power part of an explosive weapon's rating by its blast radius. Covered by
    `BlastEmpAndPowerDamageTests` and `TestWeaponModifiers.TheBlastRadiusDoesNotScaleTheEmpRating`.
    **Siphon stays beam-only by design - do not "fix" it.** The Siphon row is no longer drawn for
@@ -728,11 +731,18 @@ as designed and must not be "fixed".
    a ballistic projectile *is* caught by the deflection guard - it was rewritten to assert the
    damage modifier never goes negative, which is the root cause rather than one weapon's path.
 3. `[settled]` **Module-death blasts run through the killer's weapon.** As designed, Gilad
-   2026-09-27. `ShipModule.Die` passes the killing projectile as the source, so every module in
-   the blast takes that weapon's EffectVsArmor, resistances, deflection roll and EMP, and
-   `CauseEmpDamage` and `CausePowerDamage` fire once per module. The exception, since fixes_36:
-   when the killer is an exploding projectile, the module blast happens inside that projectile's
-   own blast, so its EMP and power damage still reach the ship only once (Power item 2).
+   2026-09-27. `ShipModule.Die` passes the killing projectile or beam as the source, so every
+   module in the blast takes that weapon's EffectVsArmor, resistances and deflection roll, and a
+   beam's troop, tractor, repulsion and siphon effects. **Narrowed 2026-09-28 (Gilad, fixes_36
+   branch review): the blast carries none of the killer's EMP or power damage**, a beam's power
+   damage included, whatever the killer - `moduleExplosion` in `ShipModule.TryDamageModule`, see
+   Power item 2. Before, `CauseEmpDamage` and `CausePowerDamage` fired once per module the blast
+   caught, once per grid square of a big one. **Nor does a neighbour that deflects part of the
+   blast bounce the shot that set it off** (same review): the deflection roll reached
+   `ShipModule.Deflect`, and a shot that does not explode ricocheted off in a random direction on
+   the victim's side, carrying on with what damage, EMP and power it had left. It needed a module
+   with deflection, which only mods have (86 in Combined Arms, none in vanilla), and the victim on
+   screen at ship zoom, where ricochets are drawn.
 4. `[settled]` **Radial blasts hit big modules once per covered cell.** As designed, Gilad
    2026-09-27. `Ship.DamageExplosive` (`Ship_ModuleGrid.cs` ~525) has no dedupe, while the
    directional version dedupes via `SplashHitScratch`. The asymmetry stays: **do not add a dedupe

@@ -788,12 +788,12 @@ namespace Ship_Game.Ships
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool DamageExplosive(GameObject source, ref float damageInOut)
+        public bool DamageExplosive(GameObject source, ref float damageInOut, bool moduleExplosion = false)
         {
             if (damageInOut <= 0f)
                 return true;
             //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
-            Damage(source, damageInOut, out damageInOut);
+            Damage(source, damageInOut, out damageInOut, moduleExplosion: moduleExplosion);
             return damageInOut <= 0f;
         }
 
@@ -804,7 +804,8 @@ namespace Ship_Game.Ships
             source?.OnDamageInflicted(this, amount);
         }
 
-        public void Damage(GameObject source, float damageAmount, out float damageRemainder, float beamModifier = 1f)
+        public void Damage(GameObject source, float damageAmount, out float damageRemainder, float beamModifier = 1f,
+                           bool moduleExplosion = false)
         {
             float damageModifier = 1f;
             if (source != null)
@@ -815,14 +816,15 @@ namespace Ship_Game.Ships
             }
 
             float modifiedDamage = damageAmount * damageModifier;
-            if (!TryDamageModule(source, modifiedDamage, out float grossRemainder, beamModifier))
+            if (!TryDamageModule(source, modifiedDamage, out float grossRemainder, beamModifier, moduleExplosion))
             {
                 damageRemainder = 0f;
                 if (source != null)
                 {
                     EvtDamageInflicted(source, 0f);
                 }
-                Deflect(source); // FB: the projectile was deflected
+                if (!moduleExplosion)
+                    Deflect(source); // FB: the projectile was deflected
                 return; 
             }
 
@@ -901,7 +903,8 @@ namespace Ship_Game.Ships
         }
 
         // Note - this assumes that projectile effect of ignore shield was taken into account. 
-        bool TryDamageModule(GameObject source, float modifiedDamage, out float remainder, float beamModifier = 1f)
+        bool TryDamageModule(GameObject source, float modifiedDamage, out float remainder, float beamModifier,
+                             bool moduleExplosion)
         {
             remainder = modifiedDamage;
             if (source != null)
@@ -915,11 +918,11 @@ namespace Ship_Game.Ships
             bool damagingShields = ShieldsAreActive;
             if (beam == null) // only for projectiles
             {
-                if (!damagingShields && proj?.PowerDamage > 0)
+                if (!damagingShields && !moduleExplosion && proj?.PowerDamage > 0)
                     CausePowerDamage(proj);
 
                 float damageThreshold = damagingShields ? ShieldDeflection : Deflection;
-                if (proj?.EmpDamage > damageThreshold && !damagingShields)
+                if (proj?.EmpDamage > damageThreshold && !damagingShields && !moduleExplosion)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
                 if (modifiedDamage < damageThreshold && proj?.WeaponType != "Plasma")
@@ -940,7 +943,7 @@ namespace Ship_Game.Ships
             }
             else
             {
-                CauseSpecialBeamDamageNoShield(beam, beamModifier);
+                CauseSpecialBeamDamageNoShield(beam, beamModifier, moduleExplosion);
                 float healthBefore = Health;
                 float exoticDamageReduction = 2 - Parent.Loyalty.GetStaticExoticBonusMuliplier(ExoticBonusType.DamageReduction);
                 modifiedDamage *= exoticDamageReduction;
@@ -1001,11 +1004,12 @@ namespace Ship_Game.Ships
             }
         }
 
-        void CauseSpecialBeamDamageNoShield(Beam beam, float beamModifier)
+        void CauseSpecialBeamDamageNoShield(Beam beam, float beamModifier, bool moduleExplosion)
         {
             if (beam != null)
             {
-                BeamPowerDamage(beam, beamModifier);
+                if (!moduleExplosion)
+                    BeamPowerDamage(beam, beamModifier);
                 BeamTroopDamage(beam, beamModifier);
                 BeamTractorDamage(beam, beamModifier, hittingShields: false);
                 BeamRepulsionDamage(beam);
@@ -1086,7 +1090,8 @@ namespace Ship_Game.Ships
                 {
                     // ShipModule has died and will now explode internally
                     // the 1,1 vector substruction ensures the Northwest quadrant is hit (floating point issues)
-                    Parent.DamageExplosive(source, ExplosionDamage, Position - new Vector2(1,1), ExplosionRadius, true);
+                    Parent.DamageExplosive(source, ExplosionDamage, Position - new Vector2(1,1), ExplosionRadius, true,
+                                           moduleExplosion: true);
                 }
             }
         }
