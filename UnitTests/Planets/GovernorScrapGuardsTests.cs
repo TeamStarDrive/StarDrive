@@ -19,11 +19,12 @@ namespace UnitTests.Planets
         }
 
         Building Make(float maintenance, float income = 0, float creditsPerColonist = 0, float taxPercentage = 0,
-                      float flatFood = 0, float flatProd = 0, float fertility = 0, int storage = 0, bool anywhere = false)
+                      float flatFood = 0, float flatProd = 0, float fertility = 0, int storage = 0, bool anywhere = false,
+                      Planet on = null)
         {
             string name = ResourceManager.BuildingsDict.Values.First(t => !t.IsBiospheres && !t.IsMilitary && t.Scrappable
                 && !t.IsSpacePort && !t.BuildOnlyOnce && t.PlusTerraformPoints <= 0 && !t.IsCapitalOrOutpost).Name;
-            Building b = ResourceManager.CreateBuilding(P, name);
+            Building b = ResourceManager.CreateBuilding(on ?? P, name);
             b.Maintenance = maintenance;
             b.Income = income;
             b.CreditsPerColonist = creditsPerColonist;
@@ -40,20 +41,24 @@ namespace UnitTests.Planets
             return b;
         }
 
-        Building Place(Building b)
+        Building Place(Building b, Planet on = null)
         {
-            PlanetGridSquare tile = P.TilesList.First(t => t.NoBuildingOnTile && !t.VolcanoHere);
+            on ??= P;
+            PlanetGridSquare tile = on.TilesList.First(t => t.NoBuildingOnTile && !t.VolcanoHere);
             tile.SetHabitable(!b.CanBuildAnywhere);
-            tile.PlaceBuilding(b, P);
-            P.UpdateIncomes();
+            tile.PlaceBuilding(b, on);
+            on.UpdateIncomes();
             return b;
         }
 
         Building Place(float maintenance, float income = 0, float flatFood = 0, float flatProd = 0, int storage = 0, bool anywhere = false)
             => Place(Make(maintenance, income, flatFood: flatFood, flatProd: flatProd, storage: storage, anywhere: anywhere));
 
-        bool ReplaceMayTake(Building b)
-            => P.SuitableForScrap(b, overBudget: false, P.Storage.MostGoodsInStorage, scrapZeroMaintenance: true, replacing: true);
+        bool ReplaceMayTake(Building b, Planet on = null)
+        {
+            on ??= P;
+            return on.SuitableForScrap(b, overBudget: false, on.Storage.MostGoodsInStorage, scrapZeroMaintenance: true, replacing: true);
+        }
 
         bool OverBudgetMayScrap(Building b)
             => P.SuitableForScrap(b, overBudget: true, P.Storage.MostGoodsInStorage, scrapZeroMaintenance: false, replacing: false);
@@ -92,13 +97,35 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
-        public void ABuildingThatDoesNotPayAtTheCurrentTaxRateCanBeReplaced()
+        public void APlayerColonyJudgesAMoneyBuildingAtTheCurrentTaxRate()
         {
-            Enemy.data.TaxRate = 0.01f;
-            Building resort = Place(maintenance: 0.5f, income: 5f);
-            Assert.IsTrue(P.Money.NetCostOf(resort, standing: true) > 0, "setup: at 1% tax the building must not pay for itself");
+            Planet home = AddHomeWorldToEmpire(new Vector2(5000), Player);
+            Player.data.TaxRate = 0.01f;
+            Building resort = Place(Make(maintenance: 0.5f, income: 5f, on: home), home);
+            Assert.IsTrue(home.Money.NetCostOf(resort, standing: true) > 0, "setup: at 1% tax the building must not pay for itself");
 
-            Assert.IsTrue(ReplaceMayTake(resort), "a building was judged at a tax rate the empire is not charging");
+            Assert.IsTrue(ReplaceMayTake(resort, home), "a building was judged at a tax rate the player is not charging");
+        }
+
+        [TestMethod]
+        public void AnAiColonyJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate()
+        {
+            Enemy.data.TaxRate = 0f;
+            Building resort = Place(maintenance: 0.5f, income: 5f);
+            Assert.IsTrue(P.Money.NetCostOf(resort, standing: true) > 0, "setup: at 0% tax the building earns nothing");
+
+            Assert.IsFalse(ReplaceMayTake(resort), "an AI colony offered a building that pays at normal taxes for replacement");
+        }
+
+        [TestMethod]
+        public void AnAiMoneyBuildingThatDoesNotPayAtTheStartingTaxRateCanBeReplaced()
+        {
+            Enemy.data.TaxRate = 0f;
+            Building b = Place(maintenance: 5f, income: 5f);
+            Assert.IsTrue(P.Money.NetCostOf(b, standing: true, EmpireData.StartingTaxRate) > 0,
+                          "setup: at the starting tax rate the building must not pay for itself");
+
+            Assert.IsTrue(ReplaceMayTake(b), "an AI colony locked in a building that does not pay even at normal taxes");
         }
 
         [TestMethod]

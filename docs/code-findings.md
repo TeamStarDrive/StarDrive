@@ -925,7 +925,7 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (15, fourteen resolved)
+## Budget, money and espionage (16, fourteen resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
@@ -1080,10 +1080,14 @@ were still present; items 1 to 13 and 15 have since been resolved.
     answer for one money building in six, both ways: Combined Arms' Luxury Resort (flat income only)
     was never protected, and its Space Port (+50% tax) was protected above a billion colonists though
     it rarely pays. It is deleted. The guard calls `ColonyMoney.NetCostOf(b, standing: true)`, the
-    model the build list colours with, at the current tax rate; `standing` takes a building's share
-    out of the colony's figures instead of adding it. At 0% tax nothing is protected, which 29 of 256
-    empires in those saves were at.
-    `GovernorScrapGuardsTests.TheNetCostOfABuildingIsTheRevenueItAddsOrTakesAway`.
+    model the build list colours with; `standing` takes a building's share out of the colony's
+    figures instead of adding it. A player's colony is judged at the current tax rate. An AI colony
+    is judged at no less than the 25% every empire starts with (`EmpireData.StartingTaxRate`),
+    because its planner drops taxes to 0% whenever its cash passes its goal - 29 of 256 empires in
+    those saves were at 0% - and it would give up its banks on those turns only to build them again
+    (Gilad's call on the fixes_36 branch review).
+    `GovernorScrapGuardsTests.TheNetCostOfABuildingIsTheRevenueItAddsOrTakesAway` and
+    `AnAiColonyJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate`.
 14. `[settled]` **The biosphere payback heuristic omits `ExoticCreditsBonus`**
     (`Planet_EvaluateBuildings.cs`, `BiosphereCarriesItsPopulation`). Left deliberately: the formula
     already uses `TaxRateMultiplier` rather than `TaxRate` so it is a "full rate" heuristic by
@@ -1102,6 +1106,12 @@ were still present; items 1 to 13 and 15 have since been resolved.
     Diplomacy or Empire top bar, or from the Shipyard, leaves the universe neither, so the queue now
     drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
     `AbsoluteValue`, which already fires it. `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread`.
+16. `[balance]` **An AI's credit refund skips the tax factor its charge carries** (`Empire.RefundCredits`).
+    `ProductionCreditCost` scales an AI's fee by `1 - TaxRate` and the refund does not, so an AI
+    comes out ahead on an undamaged home defense sortie - 30 credits for a 300-production ship at
+    50% tax on Normal - and above 50% tax it makes a little on scrapping a military building. The
+    player's fee has no tax factor, so the player's figures are exact. Left as is for now (Gilad
+    2026-09-28, fixes_36 branch review); the fix would refund through `ProductionCreditCost`.
 
 ## Everything else (18, eleven resolved)
 

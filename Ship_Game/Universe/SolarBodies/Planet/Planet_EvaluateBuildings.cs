@@ -509,7 +509,8 @@ namespace Ship_Game
             if (RequiredInBlueprints(b) && !overBudget)
                 return false;
 
-            if (b.IsMoneyBuilding && Money.NetCostOf(b, standing: true) < 0
+            float minTaxRate = Owner.isPlayer ? 0f : EmpireData.StartingTaxRate;
+            if (b.IsMoneyBuilding && Money.NetCostOf(b, standing: true, minTaxRate) < 0
                 || !WillMaintainPositiveFoodOutput(b)
                 || replacing && !IsBuildingOnHabitableTile(b)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
                 || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero()
