@@ -2315,12 +2315,6 @@ namespace Ship_Game
                 AI.DefensiveCoordinator.DefenseDict.Clear();
             }
 
-            foreach (Agent agent in target.data.AgentList)
-            {
-                data.AgentList.Add(agent);
-                agent.Mission = AgentMission.Defending;
-                agent.TargetEmpire = null;
-            }
             AI.DefensiveCoordinator.ManageForcePool();
             target.data.AgentList.Clear();
             target.data.AbsorbedBy = data.Traits.Name;

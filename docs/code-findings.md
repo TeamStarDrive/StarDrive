@@ -493,6 +493,11 @@ reasoning is in the linked notes or the commit that set it.
   designed. #4 in particular: **do not add a dedupe to match the directional path.** And #11:
   missiles keep their raw-level aim error; **do not route them through the gun formula**.
   And #6: a shield bubble hit spends armor piercing; **do not stop charging it**.
+- **An absorbed empire's agents are not taken over** — Gilad's call, 2026-09-28. `SetAsMerged`
+  has cleared them before `AbsorbEmpire`'s transfer loop could run since `ffeb19b6b` (2014), so
+  merges have always dismissed them; the dead loop was deleted rather than revived, and the
+  Federations Codex entry lists what does change hands.
+  `TestEmpireAI.AnAbsorbedEmpiresAgentsAreNotTakenOver`.
 - The AI gets half production tax on cybernetic colonies and the player does not
   (`ColonyResource.cs:222`); `ResearchTaxMultiplier` is difficulty-only and always 1 for the player
   (`UniverseGenerator.cs:232`). Both intended.
