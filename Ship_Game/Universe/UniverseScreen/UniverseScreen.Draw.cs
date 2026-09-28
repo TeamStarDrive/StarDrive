@@ -58,8 +58,33 @@ namespace Ship_Game
             for (int i = 0; i < sensorNodes.Length; ++i)
             {
                 ref Empire.InfluenceNode node = ref sensorNodes[i];
+                DrawVisionCircle(node.Position, node.Radius);
+            }
 
-                ProjectToScreenCoords(node.Position, node.Radius * 2f, out Vector2d nodePos, out double nodeRadius);
+            // Everything inside the player's political border is under full
+            // surveillance, including the broad links joining colony clusters.
+            Empire.InfluenceNode[] borderNodes = Player.BorderNodes;
+            for (int i = 0; i < borderNodes.Length; ++i)
+                DrawVisionCircle(borderNodes[i].Position,
+                    borderNodes[i].Radius * (1f + Empire.BorderShapeMaxVariation));
+
+            foreach (InfluenceConnection connection in Player.BorderConnections)
+            {
+                float minRadius = Player.GetBorderConnectionRadius(connection);
+                Vector2 a = connection.Node1.Position;
+                Vector2 bridge = connection.Node2.Position - a;
+                int steps = Math.Max(2, (int)Math.Ceiling(bridge.Length() / minRadius));
+                for (int step = 1; step < steps; ++step)
+                {
+                    float amount = step / (float)steps;
+                    float radius = Player.GetBorderConnectionRadiusAt(connection, amount);
+                    DrawVisionCircle(a + bridge * amount, radius);
+                }
+            }
+
+            void DrawVisionCircle(Vector2 position, float radius)
+            {
+                ProjectToScreenCoords(position, radius * 2f, out Vector2d nodePos, out double nodeRadius);
                 RectF worldRect = RectF.FromPointRadius(nodePos, nodeRadius);
                 batch.Draw(uiNode, worldRect, sensorTint, 0f, Vector2.Zero, SpriteEffects.None, 1f);
             }
@@ -73,6 +98,8 @@ namespace Ship_Game
         void DrawColoredEmpireBorders(SpriteRenderer draw3d, GraphicsDevice graphics)
         {
             DrawBorders.Start();
+            try
+            {
 
             graphics.SetRenderTarget(BorderRT);
             graphics.Clear(Color.Transparent);
@@ -82,12 +109,7 @@ namespace Ship_Game
             // user-visible alpha scaling happens at composite time in DrawColoredBordersRT.
             if (GlobalStats.InfluenceNodeAlpha > 0.01f)
             {
-                // the node texture has a smooth fade, so we need to scale it by a lot to match the actual SSP radius
-                float nodeScale = 1.8f;
-                float connectorScale = 1.2f;
                 float currentZ = 0;
-                var nodeTex = ResourceManager.Texture("UI/node");
-                var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
                 var frustum = VisibleWorldRect;
 
@@ -125,35 +147,59 @@ namespace Ship_Game
                     RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
 
                     Color empireColor = empire.EmpireColor.Alpha(GlobalStats.InfluenceNodeAlpha);
-                    for (int x = 0; x < nodes.Length; x++)
+                    float fillAlpha = GlobalStats.InfluenceNodeAlpha * 0.58f;
+                    // One linearly-filtered field texture produces a smooth inward
+                    // fade without the square alpha bands of the old strip mesh.
+                    Texture2D fillTexture = empire.BorderNodeCache.GetFillTexture(graphics);
+                    if (fillTexture != null)
                     {
-                        ref Empire.InfluenceNode inf = ref nodes[x];
-                        if (inf.KnownToPlayer && frustum.Overlaps(inf.Position, inf.Radius))
-                        {
-                            Quad3D nodeQuad = new(inf.Position, inf.Radius * nodeScale, zValue: currentZ);
-                            currentZ += 10f;
-                            draw3d.Draw(nodeTex, nodeQuad, empireColor);
-                        }
+                        Quad3D fillQuad = new(empire.BorderNodeCache.FillBounds, currentZ);
+                        draw3d.Draw(fillTexture, fillQuad, SpriteRenderer.DefaultCoords,
+                                    empire.EmpireColor.Alpha(fillAlpha));
+
+                        Texture2D occupation = empire.BorderNodeCache.GetOccupationTexture(graphics);
+                        if (occupation != null)
+                            draw3d.Draw(occupation, fillQuad, SpriteRenderer.DefaultCoords,
+                                        Color.Black.Alpha(GlobalStats.InfluenceNodeAlpha * 0.95f));
                     }
 
-                    // draw connection bridges
-                    // NOTE: all BorderNodeCache.Connections are those which are `KnownToPlayer`
-                    foreach (InfluenceConnection c in empire.BorderNodeCache.Connections)
+                    // Draw one clear perimeter around the UNION of all nearby
+                    // planets and projector stations. Marching-squares output has
+                    // no internal circle/bridge edges, so it reads as one territory.
+                    Vector2[] outline = empire.BorderNodeCache.OutlineSegments;
+                    float lineThickness = Math.Max(960f, (float)CamPos.Z / 65f);
+                    float influenceRadius = empire.GetProjectorRadius();
+                    float frequency = 1f / Math.Max(influenceRadius * 0.45f, 1f);
+                    float waveAmplitude = influenceRadius * 0.007f;
+                    float waveSeed = empire.Id * 1.731f;
+                    Empire[] rivals = empire.BorderNodeCache.OutlineRivals;
+                    for (int i = 0; i + 1 < outline.Length; i += 2)
                     {
-                        Empire.InfluenceNode a = c.Node1;
-                        Empire.InfluenceNode b = c.Node2;
-                        if (frustum.Overlaps(a.Position, a.Radius) || frustum.Overlaps(b.Position, b.Radius))
-                        {
-                            // always use the smaller radius to prevent artifacts when
-                            // a really big system connects to a tiny projector
-                            float radius = Math.Min(a.Radius, b.Radius);
-                            float width = 2.0f * radius * connectorScale;
+                        Vector2 a = WavePoint(outline[i]);
+                        Vector2 b = WavePoint(outline[i + 1]);
+                        Empire rival = rivals.Length > i / 2 ? rivals[i / 2] : null;
+                        Vector2 midpoint = (outline[i] + outline[i + 1]) * 0.5f;
+                        bool ordinarySharedFrontier = rival != null
+                            && !empire.BordersOverlapAt(rival, midpoint);
+                        // Both independently generated contours describe the same
+                        // peaceful frontier. Draw it once to avoid doubled/woven lines.
+                        if (ordinarySharedFrontier && empire.Id > rival.Id)
+                            continue;
+                        Color lineColor = rival == null
+                            ? empireColor
+                            : Color.Lerp(empire.EmpireColor, rival.EmpireColor, 0.5f)
+                                   .Alpha(GlobalStats.InfluenceNodeAlpha);
+                        // Solid core only: the field texture handles the inward
+                        // gradient, and no glow is allowed to bleed outside.
+                        draw3d.DrawLine(new Vector3(a, currentZ + 1f), new Vector3(b, currentZ + 1f),
+                                        lineColor, lineThickness);
+                    }
 
-                            // make a quad by reusing the Quad3D line constructor
-                            Quad3D connectLine = new(a.Position, b.Position, width, zValue: currentZ);
-                            currentZ += 10f;
-                            draw3d.Draw(connectTex, connectLine, empireColor);
-                        }
+                    Vector2 WavePoint(Vector2 point)
+                    {
+                        float xWave = (float)Math.Sin(point.Y * frequency + waveSeed);
+                        float yWave = (float)Math.Sin(point.X * frequency * 1.13f + waveSeed * 0.67f);
+                        return point + new Vector2(xWave, yWave) * waveAmplitude;
                     }
 
                     draw3d.End();
@@ -161,9 +207,15 @@ namespace Ship_Game
                 }
             }
 
-            graphics.SetRenderTarget(null);
-
-            DrawBorders.Stop();
+            }
+            finally
+            {
+                // Present() is illegal while an off-screen target remains bound.
+                // Always restore the back buffer even if border contour generation
+                // or drawing aborts midway through this pass.
+                graphics.SetRenderTarget(null);
+                DrawBorders.Stop();
+            }
         }
 
         void DrawExplosions(SpriteBatch batch)
@@ -270,6 +322,8 @@ namespace Ship_Game
             Texture2D       front = FogMap;
 
             device.SetRenderTarget(back);
+            try
+            {
             device.Clear(Color.Transparent);
 
             // Step 1: blit front→back with Opaque so alpha values copy 1:1.
@@ -301,13 +355,19 @@ namespace Ship_Game
                 }
             }
             batch.SafeEnd();
-            device.SetRenderTarget(null);
             FogMap = back;
+            }
+            finally
+            {
+                device.SetRenderTarget(null);
+            }
         }
 
         void UpdateFogOfWarInfluences(SpriteBatch batch, GraphicsDevice device)
         {
             DrawFogInfluence.Start();
+            try
+            {
 
             UpdateFogMap(batch, device);
 
@@ -333,9 +393,12 @@ namespace Ship_Game
             DrawSensorNodesHighlights(batch);
 
             batch.SafeEnd();
-            device.SetRenderTarget(null);
-
-            DrawFogInfluence.Stop();
+            }
+            finally
+            {
+                device.SetRenderTarget(null);
+                DrawFogInfluence.Stop();
+            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -370,7 +433,7 @@ namespace Ship_Game
             OverlaysGroupTotalPerf.Start();
             {
                 UpdateFogOfWarInfluences(batch, graphics);
-                if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+                if (viewState >= UnivScreenState.PlanetView) // strategic borders are visible from the starting view
                     DrawColoredEmpireBorders(sr, graphics);
 
                 // §3.7 step 1: bloom processes MainTarget -> PostBloomTarget,

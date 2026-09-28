@@ -201,6 +201,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             return s.IsExploredBy(Owner)
                 && !s.HasPlanetsOwnedBy(Owner)
+                && !s.OwnerList.Any(o => o != Owner && !o.IsFaction)
                 && s.PlanetList.Any(p => p.Habitable)
                 && !s.OwnerList.Any(o => !o.IsFaction && Owner.IsAtWarWith(o))
                 && StrongEnoughToClaim(s);
@@ -210,6 +211,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             return p.IsExploredBy(Owner) 
                    && p.Habitable 
+                   && GravityWellRouter.IsValidAutoColonizationTarget(Owner, p)
                    && (p.Owner == null 
                        || p.Owner.IsFaction && (p.Owner.ParentEmpire == null
                                                 || p.Owner.ParentEmpire == Owner
@@ -234,6 +236,8 @@ namespace Ship_Game.AI.ExpansionAI
             var potentialPlanets = new Array<Planet>();
             foreach (SolarSystem system in ownedSystems)
             {
+                if (system.OwnerList.Any(o => o != Owner && !o.IsFaction))
+                    continue;
                 foreach (Planet p in system.PlanetList)
                     if (CanBeColonized(p) && StrongEnoughToClaim(p.System))
                         potentialPlanets.Add(p);
@@ -302,6 +306,7 @@ namespace Ship_Game.AI.ExpansionAI
             targetSystem = Owner.Random.ItemFilter(
                 ship.Universe.Systems,
                 sys => ship.System != sys && sys.IsFullyExploredBy(Owner)
+                    && GravityWellRouter.IsDestinationAccessible(ship, sys.Position)
                     && Owner.KnownEnemyStrengthIn(sys) > 10 && sys.ShipList.Any(s => s.IsGuardian || s.Loyalty.WeArePirates));
 
             return targetSystem != null;
@@ -316,7 +321,8 @@ namespace Ship_Game.AI.ExpansionAI
             for (int i = 0; i < ship.Universe.Systems.Count; i++)
             {
                 SolarSystem s = ship.Universe.Systems[i];
-                if (!s.IsFullyExploredBy(Owner) && !MarkedForExploration.Contains(s))
+                if (!s.IsFullyExploredBy(Owner) && !MarkedForExploration.Contains(s)
+                    && GravityWellRouter.IsDestinationAccessible(ship, s.Position))
                 {
                     if (Owner.KnownEnemyStrengthIn(s) < 10)
                         potentials.Add(s);

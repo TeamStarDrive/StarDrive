@@ -59,8 +59,8 @@ namespace Ship_Game.Universe
         {
             if (source is Ship projector)
             {
-                float radius = projector.Loyalty.GetProjectorRadius();
-                return (source.Position, radius, radius);
+                float radius = projector.Loyalty.GetStaticBorderInfluenceRadius();
+                return (source.Position, radius, radius * (1f + Empire.BorderShapeMaxVariation));
             }
 
             if (source is SolarSystem system)
@@ -68,8 +68,11 @@ namespace Ship_Game.Universe
                 if (system.Position == Vector2.Zero)
                     Log.Error("InfluenceTree: System position is Zero!");
 
-                float radius = owner.GetProjectorRadius();
-                float maxRadius = radius * 1.05f;
+                float radius = owner.GetSystemInfluenceRadius(system);
+                // Population and deterministic boundary lobes can grow without reinsertion.
+                float maxRadius = owner.GetProjectorRadius()
+                                * Empire.MatureBorderRadiusMultiplier
+                                * (1f + Empire.BorderShapeMaxVariation);
                 return (system.Position, radius, maxRadius);
             }
 
@@ -205,6 +208,15 @@ namespace Ship_Game.Universe
             return InfluenceStatus.Neutral;
         }
 
+        static bool InRadius(in InfluenceObj influence, Empire owner, in Vector2 worldPos)
+        {
+            float radius = influence.Source is SolarSystem system
+                ? owner.GetSystemInfluenceRadius(system)
+                : influence.Radius;
+            var node = new Empire.InfluenceNode(influence.Source, radius, knowToPlayer: true);
+            return owner.GetBorderNodeField(node, worldPos) >= 0f;
+        }
+
         AABoundingBox2Di GetCellBounds(Vector2 pos, float radius)
         {
             float cellSize = CellSize;
@@ -334,7 +346,7 @@ namespace Ship_Game.Universe
 
             public bool InRadius(in Vector2 worldPos)
             {
-                return worldPos.InRadius(Obj.Source.Position, Obj.Radius);
+                return InfluenceTree.InRadius(Obj, Owner, worldPos);
             }
 
             public bool IsInInfluenceOf(Empire of, in Vector2 worldPos)
@@ -412,7 +424,7 @@ namespace Ship_Game.Universe
                 for (int i = 0; i < count; ++i)
                 {
                     ref InfluenceObj obj = ref objects[i];
-                    if (worldPos.InRadius(obj.Source.Position, obj.Radius))
+                    if (InfluenceTree.InRadius(obj, Owner, worldPos))
                         return true;
                 }
                 return false;

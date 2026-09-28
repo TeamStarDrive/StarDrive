@@ -17,6 +17,7 @@ namespace Ship_Game
         public UniverseScreen Universe;
         readonly UniverseState UState;
         readonly SpatialManager Spatial;
+        BorderScene CachedBorderScene;
 
         /// <summary>
         /// Should be TRUE by default. Can be used to detect threading issues.
@@ -483,6 +484,13 @@ namespace Ship_Game
                 Parallel.For(allEmpires.Length, UpdateContactsAndBorders, MaxTaskCores);
             else
                 UpdateContactsAndBorders(0, allEmpires.Length);
+
+            // Capture ownership/diplomacy only after the parallel simulation work
+            // has joined. Rendering consumes this immutable scene asynchronously.
+            BorderScene borderScene = BorderScene.Capture(CachedBorderScene, allEmpires);
+            CachedBorderScene = borderScene;
+            for (int i = 0; i < allEmpires.Length; ++i)
+                allEmpires[i].BorderNodeCache.SetScene(borderScene, i);
 
             Universe.EmpireInfluPerf.Stop();
         }
