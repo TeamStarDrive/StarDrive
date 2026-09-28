@@ -499,8 +499,8 @@ reasoning is in the linked notes or the commit that set it.
 
 ## Worth a GitHub issue if we ever file any
 
-Player-visible, self-contained, and safe to hand to someone else: misc #6, misc #1 (power #1 and
-damage #2 were on this list and are resolved). Everything else is better done by us or not at all.
+Nothing left: misc #1 and #6, power #1 and damage #2 were on this list and are all resolved.
+Everything else is better done by us or not at all.
 
 ---
 
@@ -1176,13 +1176,12 @@ were still present; items 1 to 13 and 15 have since been resolved.
 
 ## Larger items with their own notes
 
-**`GetBestPorts` lets a crippled Colony-type port through** — `Empire_RallyPlanets.cs:264-267`.
-The filter parses as `(A && B && C) || D` because `&&` binds tighter, so a port whose CType is
-Colony is admitted on D alone and escapes the `!IsCrippled` guard the line opens with. Narrow in
-practice: prioritized ports are pre-filtered for `!IsCrippled`, so only the ordinary
-`SafeSpacePorts` path can pick a crippled Colony as a build or refit target. Wants parentheses
-around the whole CType branch. Not fixed because it changes which planets every build goal
-considers — its own commit and its own test.
+**~~`GetBestPorts` lets a crippled Colony-type port through~~** — resolved 2026-09-28. The filter
+parsed as `(A && B && C) || D` because `&&` binds tighter, so a port whose CType is Colony was
+admitted on D alone and escaped the `!IsCrippled` guard the line opens with; a sabotaged port's
+queue is frozen, so a ship ordered there sat unbuilt. The CType branch is now parenthesised. It
+also stops the AI military planner counting a crippled Colony-type port among its build ports,
+as it already did not count any other crippled one. `CrippledPortTests`.
 
 **The governor builds orbitals into a star's radiation zone** — `Planet.AddOrbital`
 (`Planet_BuildDefenses.cs:176`) creates the `BuildOrbital` goal with no radiation or sun-distance

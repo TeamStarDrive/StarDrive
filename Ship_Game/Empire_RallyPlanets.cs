@@ -265,8 +265,8 @@ public sealed partial class Empire
             float averageMaxProd = ports.Average(ModifiedNetMaxProductionPotential);
             bestPorts = ports.Filter(p => !p.IsCrippled
                                      && (p.CType != ColonyType.Research || !filterResearchPorts || p.PrioritizedPort)
-                                     && (p.CType != ColonyType.Colony && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality))
-                                         || p.CType == ColonyType.Colony && p.Prod.NetIncome.GreaterOrEqual(averageMaxProd * portQuality));
+                                     && (p.CType != ColonyType.Colony && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality)
+                                         || p.CType == ColonyType.Colony && p.Prod.NetIncome.GreaterOrEqual(averageMaxProd * portQuality)));
         }
 
 
