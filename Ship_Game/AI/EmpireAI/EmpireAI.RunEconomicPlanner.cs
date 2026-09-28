@@ -122,7 +122,7 @@ namespace Ship_Game.AI
             DefenseBudget   = ExponentialMovingAverage(DefenseBudget, DetermineDefenseBudget(moneyStrategy, defense, ThreatLevel));
             SSPBudget       = ExponentialMovingAverage(SSPBudget, DetermineSSPBudget(moneyStrategy, SSP));
             BuildCapacity   = ExponentialMovingAverage(BuildCapacity, DetermineBuildCapacity(moneyStrategy, ThreatLevel, build));
-            SpyBudget       = ExponentialMovingAverage(SpyBudget, OwnerEmpire.LegacyEspionageEnabled ? DetermineSpyBudget(moneyStrategy, spy) : spy);
+            SpyBudget       = ExponentialMovingAverage(SpyBudget, DetermineSpyBudget(moneyStrategy, spy));
             ColonyBudget    = ExponentialMovingAverage(ColonyBudget, DetermineColonyBudget(moneyStrategy, colony));
             TerraformBudget = ExponentialMovingAverage(TerraformBudget, DetermineColonyBudget(moneyStrategy, terraform));
 
@@ -161,6 +161,9 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer)
                 return 0;
+
+            if (OwnerEmpire.NewEspionageEnabled)
+                return treasuryGoal * percentOfMoney;
 
             bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Known && !r.Them.IsFaction);
             if (notKnown) return 0;

@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI.Components;
 using Ship_Game.GameScreens;
@@ -9,6 +10,7 @@ using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.UI;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
@@ -80,7 +82,7 @@ namespace UnitTests.AITests.Empire
             Enemy.Universe.P.UseLegacyEspionage = true;
             var budget = new BudgetPriorities(Enemy);
             int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
-            Assert.IsTrue(budget.Count() == budgetAreas);
+            Assert.IsTrue(budget.Count() == budgetAreas - 1, "every area but Espionage, which only supplies an AI's spy weight");
 
             var eAI = Enemy.AI;
 
@@ -219,6 +221,77 @@ namespace UnitTests.AITests.Empire
 
             AssertEqual(0f, new BudgetPriorities(Enemy).GetBudgetFor(BudgetPriorities.BudgetAreas.Spy),
                 "an AI on Normal under the new espionage system still has no spy weight");
+        }
+
+        static BudgetPriorities.BudgetSettings AllBlock(params (BudgetPriorities.BudgetAreas Area, float Weight)[] weights)
+        {
+            var map = new Map<BudgetPriorities.BudgetAreas, float>();
+            foreach ((BudgetPriorities.BudgetAreas area, float weight) in weights)
+                map[area] = weight;
+            return new BudgetPriorities.BudgetSettings("All", map);
+        }
+
+        [TestMethod]
+        public void TheEspionageWeightIsTheAiSpyWeightAboveNormal()
+        {
+            CreateEmpireAndHomeWorld();
+            var settings = new Array<BudgetPriorities.BudgetSettings>
+            {
+                AllBlock((BudgetPriorities.BudgetAreas.Espionage, 7), (BudgetPriorities.BudgetAreas.Spy, 25),
+                         (BudgetPriorities.BudgetAreas.Colony, 8))
+            };
+            var spy = BudgetPriorities.BudgetAreas.Spy;
+
+            UState.P.UseLegacyEspionage = false;
+            UState.P.Difficulty = GameDifficulty.Hard;
+            AssertEqual(0.0001f, 7f / 15f, new BudgetPriorities(Enemy, settings).GetBudgetFor(spy),
+                "above Normal an AI's spy weight is the Espionage value, even when it is listed first");
+            UState.P.Difficulty = GameDifficulty.Normal;
+            AssertEqual(0f, new BudgetPriorities(Enemy, settings).GetBudgetFor(spy), "on Normal an AI has no spy weight");
+            UState.P.UseLegacyEspionage = true;
+            AssertEqual(0.0001f, 25f / 33f, new BudgetPriorities(Enemy, settings).GetBudgetFor(spy),
+                "under legacy espionage Spy is the agent budget and Espionage is no weight at all");
+            UState.P.UseLegacyEspionage = false;
+            AssertEqual(0.0001f, 25f / 33f, new BudgetPriorities(Player, settings).GetBudgetFor(spy),
+                "the player keeps the Spy weight its governors share");
+        }
+
+        [TestMethod]
+        public void OnlyTheAllBudgetBlockIsRead()
+        {
+            CreateEmpireAndHomeWorld();
+            var raceBlock = new Map<BudgetPriorities.BudgetAreas, float> { [BudgetPriorities.BudgetAreas.Terraform] = 1 };
+            var settings = new Array<BudgetPriorities.BudgetSettings>
+            {
+                AllBlock((BudgetPriorities.BudgetAreas.Colony, 1)),
+                new BudgetPriorities.BudgetSettings(Enemy.Name, raceBlock)
+            };
+            var budget = new BudgetPriorities(Enemy, settings);
+
+            AssertEqual(0.0001f, 1f, budget.GetBudgetFor(BudgetPriorities.BudgetAreas.Colony), "the All block alone sets the weights");
+            AssertEqual(0f, budget.GetBudgetFor(BudgetPriorities.BudgetAreas.Terraform), "a block named after an empire is ignored");
+        }
+
+        [TestMethod]
+        public void AnAiAboveNormalBuysEspionagePointsFromItsTreasury()
+        {
+            CreateUniverseAndPlayerEmpire("Cordrazine", settings: new UniverseParams { Difficulty = GameDifficulty.Hard });
+            AddHomeWorldToEmpire(new Vector2(1000), Player);
+            AddHomeWorldToEmpire(new Vector2(2000), Enemy, new Vector2(3000));
+            UState.Objects.UpdateLists();
+            AddHomeWorldToEmpire(new Vector2(1000), Enemy);
+            Enemy.UpdatePopulation();
+            AssertGreaterThan(Enemy.TotalPopBillion, 10f, "setup: an AI under ten billion colonists buys no points");
+
+            Enemy.Money = 1_000_000;
+            for (int i = 0; i < 10; ++i)
+                Enemy.AI.RunEconomicPlanner();
+            AssertGreaterThan(Enemy.AI.SpyBudget, 1f, "an AI's spy budget is credits");
+
+            Enemy.AI.EspionageManager.Update(forceRun: true);
+            Enemy.AI.EspionageManager.Update(forceRun: true);
+            AssertEqual(0.001f, Ship_Game.Empire.MaxEspionageBudgetMultiplier, Enemy.EspionageBudgetMultiplier,
+                "a rich AI buys extra points up to the cap on the player's slider");
         }
 
         [TestMethod]

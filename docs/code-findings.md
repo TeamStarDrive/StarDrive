@@ -893,11 +893,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (15, nine resolved)
+## Budget, money and espionage (15, eleven resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; items 1 to 6 and 9 to 11 have since been resolved.
+were still present; items 1 to 11 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -971,13 +971,28 @@ were still present; items 1 to 6 and 9 to 11 have since been resolved.
    tooltip's "a fifth of the production spent on Normal" now also holds for home defense
    launches, which land in that row. `BudgetTests.AHomeDefenseLaunchChargesTheCreditFeeOnce` and
    `ScrappingAMilitaryBuildingRefundsHalfItsCreditFee`.
-7. **The AI's `SpyBudget` is not money under the new espionage system** — it stores the raw weight
-   fraction (1/420 on Hard and above, 0 on Normal) rather than credits (`RunEconomicPlanner.cs:125`),
-   so `EspionageManager.DetermineBudget` → `SetAiEspionageBudgetMultiplier` always lands at about
-   1.0 and the AI never pays for extra espionage points. The player's value is never read.
-8. **Budget weights depend on yaml key order.** `Spy` writes `budgets[Spy] = 25` and a later
-   `Espionage` key overwrites it with 0 or 1 (`BudgetPriorities.cs:57`). If `Espionage` were listed
-   first, every budget fraction in the game would change.
+7. ~~The AI's `SpyBudget` is not money under the new espionage system.~~ Resolved 2026-09-28
+   (Gilad: fix as designed). It stored the raw weight fraction (1/420 above Normal, 0 on Normal)
+   rather than credits, so `EspionageManager.DetermineBudget` → `SetAiEspionageBudgetMultiplier`
+   landed at about 1.0001 and no AI ever paid for extra espionage points since Mars 1.50. The spy
+   area is now credits like every other area - the treasury goal (or cash, when larger) times the
+   weight - spent as before only while the AI's credit rating is above 0.6. The AI multiplier is
+   capped at `Empire.MaxEspionageBudgetMultiplier` (5), the player slider's range, which it had no
+   cap against: uncapped, a rich test AI reached 45. Normal stays free points only. An AI with a
+   20,000 treasury goal can spend about 48 credits a turn, about 2x the points at 50 billion
+   colonists. The multiplier also scales an AI's spy defence ratio, so infiltrating AIs above Normal
+   gets slower too. The Infiltration Levels Codex entry now says what AIs do.
+   `BudgetTests.AnAiAboveNormalBuysEspionagePointsFromItsTreasury`.
+8. ~~Budget weights depend on yaml key order.~~ Resolved 2026-09-28, and the claim was wrong: a
+   post-loop override set the AI's Spy weight to 0 or 1 under the new system whatever the order.
+   What was real: that override made the yaml `Espionage:` value dead; under legacy the Espionage
+   key counted as a useless area of its own; and race blocks could never work, since the loader
+   sorted the All block last (overwriting them, the opposite of its comment) and matched a block's
+   `PortraitName` against `empire.Name`, the full empire name. No shipped file has a race block.
+   Now only the All block is read (anything else logs a warning), Espionage is never a weight of
+   its own, and above Normal an AI's spy weight is the yaml Espionage value (1 if absent). The
+   Budgets.yaml comment says what each key does. `BudgetTests.TheEspionageWeightIsTheAiSpyWeightAboveNormal`
+   and `OnlyTheAllBudgetBlockIsRead`.
 9. ~~Legacy espionage silently doubles the governor budgets.~~ Resolved 2026-09-28 the other way
    round (Gilad's call, option B): it was the new espionage system that halved them. The player's
    planner hands half of Build + Spy to each of colony, defense and space roads; Gilad tuned the

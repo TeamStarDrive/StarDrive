@@ -1,4 +1,6 @@
-# Note that Espionage and Spy are alternated based on the espionage system - it will pick one of these
+# Only the All block is read. Spy: an AI's agent budget under legacy espionage. Espionage: an AI's budget
+# for extra espionage points under the new system, above Normal difficulty. The player spends neither;
+# its planner hands the player's Build and Spy weights to its governor budgets.
 - BudgetSettings:
   PortraitName: All
   Budgets:
