@@ -2715,7 +2715,7 @@ namespace Ship_Game
                     if (LegacyEspionageEnabled)
                     {
                         Agent agent = data.AgentList.Find(a => a.TargetPlanetId == planetId);
-                        agent.AssignMission(AgentMission.Defending, this, "");
+                        agent?.AssignMission(AgentMission.Defending, this, "");
                     }
                 }
             }

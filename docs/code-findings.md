@@ -1071,7 +1071,7 @@ were still present; items 1 to 13 and 15 have since been resolved.
     drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
     `AbsoluteValue`, which already fires it. `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread`.
 
-## Everything else (17, six resolved)
+## Everything else (17, eight resolved)
 
 1. ~~EMP recovery is a per-frame constant, unscaled by the time step.~~ Resolved 2026-09-28.
    `Ship.EmpRecovery` was drained once per simulation step, and the step is
@@ -1088,15 +1088,21 @@ were still present; items 1 to 13 and 15 have since been resolved.
    (moot there: a command building is only offered to a planet without one).
 3. ~~`Weapon.BaseTargetError` carries two dead parameters.~~ Resolved 2026-09-28 - `range` and
    `loyalty` are gone, and the `ShipModule` doc comment that pointed at an `int` overload is fixed.
-4. `[display]` **The design screen's Accuracy row ignores the Militaristic trait** —
-   `ShipDesignStats.cs:70` and `ModuleSelection.cs:505` pass `TargetingAccuracy` as `level`,
-   skipping the level-squared branch. A Militaristic empire's level-0 ships aim better than shown.
+4. ~~The design screen's Accuracy row ignores the Militaristic trait.~~ Resolved 2026-09-28.
+   `ShipDesignStats` and `ModuleSelection` passed `TargetingAccuracy` alone as the level, so a
+   Militaristic empire's new ships aimed better than the row showed. Combat and both screens now
+   take the level from `Weapon.AimLevel` - crew level plus the trait, squared, plus fire control -
+   with crew level 0 on the design screen, the untrained crew the Codex says the row shows.
+   `TestWeaponArcs.TheDesignScreenShowsTheAimOfANewCrew`.
 5. `[content]` **Ship category tooltips bake in a threshold a mod can change.**
    `ShipCategoryUnclassifiedTip` onward state 85 / 97.5 / 92.5 / 90 / 87.5 / 75 percent, which is
    `threshold * 0.5 + 0.5` for the shipped `ShipDestroyThreshold: 0.5`. Star Trek's `Globals.yaml`
    sets 0.4, so all seven are wrong there. The Codex names the setting instead of the numbers.
-6. `[crash]` **`Empire.cs:2725` dereferences a `Find` result without a null check** —
-   `data.AgentList.Find(a => a.TargetPlanetId == planetId)`. One `?.` next time the file is touched.
+6. ~~`RemoveMoles` dereferences a `Find` result without a null check.~~ Resolved 2026-09-28 -
+   `agent?.`. Reachable under legacy espionage: an infiltration that succeeds sets the agent
+   undercover and then awards its experience, and a level 10 agent retires there, leaving its mole
+   behind with no agent. The next time that colony changed hands, the sim thread threw.
+   `LegacyAgentTests.AMoleWhoseAgentRetiredGoesQuietlyWhenItsColonyChangesHands`.
 7. `[thread]` **The sim thread repopulates UI dropdowns.** `UniverseScreen.Events.cs:14`
    `OnPlayerBuildableShipsUpdated` reaches `AutomationWindow.UpdateDropDowns` → `InitDropOptions`,
    which clears and refills `DropOptions` and writes `EmpireData` strings while the UI thread may
