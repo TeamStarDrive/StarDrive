@@ -893,11 +893,11 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (15, eleven resolved)
+## Budget, money and espionage (15, twelve resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
-were still present; items 1 to 11 have since been resolved.
+were still present; items 1 to 11 and 15 have since been resolved.
 
 1. ~~Leeched money was paid twice.~~ Resolved 2026-09-28. `Espionage.AddLeechedMoney` put the
    money into the leecher's treasury the moment the victim's `DoMoney` ran, and the same amount
@@ -1055,15 +1055,19 @@ were still present; items 1 to 11 have since been resolved.
     already uses `TaxRateMultiplier` rather than `TaxRate` so it is a "full rate" heuristic by
     design, `BiospherePaybackShare = 0.6` was tuned against it, the bonus is 1 for most empires, and
     the error is conservative. Retune the share and the term together or not at all.
-15. `[thread]` `[balance]` **The budget screen runs the economic planner on the UI thread.**
-    Opening the screen (the "trigger updates" `TreasuryGoal.RelativeValue` assignment), ticking
-    Auto Taxes and every step of a treasury slider drag call `EmpireAI.RunEconomicPlanner` from
-    the UI thread, while the sim thread may be running it too (`EmpireAI.cs:156`). A percent
-    slider fires `OnChange` twice per step (`FloatSlider.cs:251-252`). Each call moves the
-    governor budgets' moving averages (old weight 0.9) one step, so a drag fast-forwards budgets
-    the Codex says ease towards their new value, and every opening of the screen nudges them. The
-    tax slider's handler likewise runs `UpdateNetPlanetIncomes` on the UI thread. Found by the
-    review of items 4 and 5, 2026-09-28.
+15. ~~The budget screen runs the economic planner on the UI thread.~~ Resolved 2026-09-28.
+    Opening the screen, ticking Auto Taxes and every step of a treasury slider drag called
+    `EmpireAI.RunEconomicPlanner` from the UI thread, and a stepped slider fired `OnChange` twice
+    per step. Each call moved the governor budgets' moving averages one step, so a drag
+    fast-forwarded budgets the Codex says ease towards their new value, and every opening of the
+    screen nudged them. The planner's goal-and-taxes part is now its own
+    `UpdateTreasuryGoalAndTaxes`, and the screen queues it - and the tax slider's rate and
+    `UpdateNetPlanetIncomes` - with `RunOnSimThread`, so the slider title and the auto tax rate
+    still follow the slider and the budgets only move on the turn's planner run. The sim thread
+    drained that queue only while paused or active; the budget screen opened from the Research,
+    Diplomacy or Empire top bar, or from the Shipyard, leaves the universe neither, so the queue now
+    drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
+    `AbsoluteValue`, which already fires it. `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread`.
 
 ## Everything else (17, two resolved)
 

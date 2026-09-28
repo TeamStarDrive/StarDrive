@@ -89,10 +89,9 @@ namespace Ship_Game.AI
 
         public void RunEconomicPlanner(bool fromSave = false)
         {
+            UpdateTreasuryGoalAndTaxes();
             float money = OwnerEmpire.Money;
-            float treasuryGoal = TreasuryGoal();
-            ProjectedMoney = treasuryGoal;
-            AutoSetTaxes(ProjectedMoney, money);
+            float treasuryGoal = ProjectedMoney;
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.
             // its primarily geared at ship building.
@@ -130,6 +129,12 @@ namespace Ship_Game.AI
             float allianceBudget = 0;
             foreach (var ally in OwnerEmpire.Universe.GetAllies(OwnerEmpire)) allianceBudget += ally.AI.BuildCapacity;
             AllianceBuildCapacity = BuildCapacity + allianceBudget;
+        }
+
+        public void UpdateTreasuryGoalAndTaxes()
+        {
+            ProjectedMoney = TreasuryGoal();
+            AutoSetTaxes(ProjectedMoney, OwnerEmpire.Money);
         }
 
         float DetermineDefenseBudget(float treasuryGoal, float percentOfMoney, float risk)

@@ -249,7 +249,6 @@ namespace Ship_Game
                     if (steps != 0)
                     {
                         AbsoluteValue = (float)Math.Round((oldAbsVal + steps*Step)*100) / 100;
-                        OnChange?.Invoke(this);
                     }
                 }
                 else

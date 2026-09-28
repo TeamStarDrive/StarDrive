@@ -379,6 +379,60 @@ namespace UnitTests.AITests.Empire
             AssertEqual(0.01f, refund, Player.Money - moneyBefore, "half the credit fee comes back, on the same scale as a ship");
         }
 
+        [TestMethod]
+        public void TheBudgetScreenLeavesThePlannerToTheSimThread()
+        {
+            CreateEmpireAndHomeWorld();
+            Player.UpdateNetPlanetIncomes();
+            Player.AI.RunEconomicPlanner();
+            Player.data.treasuryGoal = 0.2f;
+            Player.data.TaxRate = 0.3f;
+            float colonyBudget = Player.AI.ColonyBudget;
+            float projectedMoney = Player.AI.ProjectedMoney;
+
+            var screen = new BudgetScreen(Universe);
+            Game.Manager.AddScreenAndLoadContent(screen);
+            try
+            {
+                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var treasury = (FloatSlider)typeof(BudgetScreen).GetField("TreasuryGoal", flags).GetValue(screen);
+                var tax = (FloatSlider)typeof(BudgetScreen).GetField("TaxSlider", flags).GetValue(screen);
+                for (int i = 1; i <= 10; ++i)
+                    treasury.RelativeValue = 0.2f + i * 0.03f;
+                tax.RelativeValue = 0.6f;
+
+                AssertEqual(0.0001f, 0.2f, Player.data.treasuryGoal, "the UI thread must not change the goal itself");
+                AssertEqual(0.0001f, 0.3f, Player.data.TaxRate, "the UI thread must not change the tax rate itself");
+
+                Universe.InvokePendingSimThreadActions();
+
+                AssertEqual(0.0001f, 0.5f, Player.data.treasuryGoal, "the last slider position reaches the empire on the sim thread");
+                AssertEqual(0.0001f, 0.6f, Player.data.TaxRate, "the tax rate reaches the empire on the sim thread");
+                AssertGreaterThan(Player.AI.ProjectedMoney, projectedMoney, "the goal in the slider's title follows the slider");
+                AssertEqual(0.0001f, colonyBudget, Player.AI.ColonyBudget, "moving the slider must not step the governor budgets");
+            }
+            finally
+            {
+                Game.Manager.RemoveScreen(screen);
+            }
+        }
+
+        [TestMethod]
+        public void QueuedSimThreadWorkRunsWhileTheUniverseIsNeitherPausedNorActive()
+        {
+            CreateUniverseAndPlayerEmpire();
+            UState.Paused = false;
+            Universe.Enabled = false;
+            Assert.IsFalse(Universe.IsActive, "setup: another screen holds the universe aside without pausing it");
+
+            bool ran = false;
+            Universe.RunOnSimThread(() => ran = true);
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            typeof(UniverseScreen).GetMethod("ProcessSimulationTurns", flags).Invoke(Universe, null);
+
+            Assert.IsTrue(ran, "work queued from a screen that did not pause the game must still run");
+        }
+
         static bool HasLabel(UIElementContainer container, string text)
         {
             foreach (UIElementV2 e in container.GetElements())

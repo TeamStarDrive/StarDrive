@@ -16,6 +16,7 @@ namespace Ship_Game.GameScreens
     {
         public override bool HelpKeyOpensCodex => true;
 
+        readonly UniverseScreen Universe;
         readonly Empire Player;
         Menu2 Window;
 
@@ -25,6 +26,7 @@ namespace Ship_Game.GameScreens
 
         public BudgetScreen(UniverseScreen screen) : base(screen, toPause: screen)
         {
+            Universe          = screen;
             Player            = screen.Player;
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
@@ -124,10 +126,7 @@ namespace Ship_Game.GameScreens
             autoTax.OnChange = cb =>
             {
                 if (cb.Checked)
-                {
-                    Player.AI.RunEconomicPlanner();
-                    TaxSlider.RelativeValue = Player.data.TaxRate;
-                }
+                    Universe.RunOnSimThread(Player.AI.UpdateTreasuryGoalAndTaxes);
                 TaxSlider.Enabled = !cb.Checked;
                 TaxSlider.Text = Player.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
             };
@@ -188,17 +187,25 @@ namespace Ship_Game.GameScreens
 
         private void TaxSliderOnChange(FloatSlider s)
         {
-            Player.data.TaxRate = s.RelativeValue;
-            Player.UpdateNetPlanetIncomes();
+            if (Player.AutoTaxes)
+                return;
+
+            float taxRate = s.RelativeValue;
+            Universe.RunOnSimThread(() =>
+            {
+                Player.data.TaxRate = taxRate;
+                Player.UpdateNetPlanetIncomes();
+            });
         }
 
         private void TreasurySliderOnChange(FloatSlider s)
         {
-            Player.data.treasuryGoal = s.RelativeValue;
-            Player.AI.RunEconomicPlanner();
-
-            if (Player.AutoTaxes)
-                TaxSlider.RelativeValue = Player.data.TaxRate;
+            float treasuryGoal = s.RelativeValue;
+            Universe.RunOnSimThread(() =>
+            {
+                Player.data.treasuryGoal = treasuryGoal;
+                Player.AI.UpdateTreasuryGoalAndTaxes();
+            });
         }
 
         // Dynamic Text label; this is invoked every time MoneyLabels are drawn
@@ -241,6 +248,8 @@ namespace Ship_Game.GameScreens
         public override void Update(float fixedDeltaTime)
         {
             TreasuryGoal.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {Player.AI.ProjectedMoney:0.00}";
+            if (Player.AutoTaxes && TaxSlider.RelativeValue != Player.data.TaxRate)
+                TaxSlider.RelativeValue = Player.data.TaxRate;
             base.Update(fixedDeltaTime);
         }
     }
