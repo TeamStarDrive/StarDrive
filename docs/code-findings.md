@@ -1081,13 +1081,16 @@ were still present; items 1 to 13 and 15 have since been resolved.
     was never protected, and its Space Port (+50% tax) was protected above a billion colonists though
     it rarely pays. It is deleted. The guard calls `ColonyMoney.NetCostOf(b, standing: true)`, the
     model the build list colours with; `standing` takes a building's share out of the colony's
-    figures instead of adding it. A player's colony is judged at the current tax rate. An AI colony
-    is judged at no less than the 25% every empire starts with (`EmpireData.StartingTaxRate`),
-    because its planner drops taxes to 0% whenever its cash passes its goal - 29 of 256 empires in
-    those saves were at 0% - and it would give up its banks on those turns only to build them again
-    (Gilad's call on the fixes_36 branch review).
-    `GovernorScrapGuardsTests.TheNetCostOfABuildingIsTheRevenueItAddsOrTakesAway` and
-    `AnAiColonyJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate`.
+    figures instead of adding it. A player's colony with a manual tax rate is judged at that rate.
+    An AI colony, and a player's colony under Auto Taxes, is judged at no less than the 25% every
+    empire starts with (`EmpireData.StartingTaxRate`), because the planner drops taxes to 0%
+    whenever cash passes the goal - 29 of 256 empires in those saves were at 0% - and the colony
+    would give up its banks on those turns only to build them again (Gilad's call on the fixes_36
+    branch review). Choosing what to build still follows the live rate, so a 0% turn queues no tax
+    building; that stays, also by his call.
+    `GovernorScrapGuardsTests.TheNetCostOfABuildingIsTheRevenueItAddsOrTakesAway`,
+    `AnAiColonyJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate` and
+    `APlayerOnAutoTaxesJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate`.
 14. `[settled]` **The biosphere payback heuristic omits `ExoticCreditsBonus`**
     (`Planet_EvaluateBuildings.cs`, `BiosphereCarriesItsPopulation`). Left deliberately: the formula
     already uses `TaxRateMultiplier` rather than `TaxRate` so it is a "full rate" heuristic by

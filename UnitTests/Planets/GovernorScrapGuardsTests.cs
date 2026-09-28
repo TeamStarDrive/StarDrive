@@ -108,6 +108,18 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
+        public void APlayerOnAutoTaxesJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate()
+        {
+            Planet home = AddHomeWorldToEmpire(new Vector2(5000), Player);
+            Player.AutoTaxes = true;
+            Player.data.TaxRate = 0f;
+            Building resort = Place(Make(maintenance: 0.5f, income: 5f, on: home), home);
+            Assert.IsTrue(home.Money.NetCostOf(resort, standing: true) > 0, "setup: at 0% tax the building earns nothing");
+
+            Assert.IsFalse(ReplaceMayTake(resort, home), "auto taxes at 0% exposed a building that pays at normal taxes");
+        }
+
+        [TestMethod]
         public void AnAiColonyJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate()
         {
             Enemy.data.TaxRate = 0f;
