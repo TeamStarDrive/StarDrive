@@ -842,7 +842,8 @@ namespace Ship_Game
                                        && FreeHabitableTiles == 0
                                        && budget >= bioUpkeep + wanted.Min(b => b.ActualMaintenance(this));
 
-            if (!needGroundToBuildOn && !BiosphereCarriesItsPopulation(bio))
+            bool carriesItsPopulation = BiosphereCarriesItsPopulation(bio);
+            if (!needGroundToBuildOn && !carriesItsPopulation)
             {
                 if (NumFreeBiospheres > 0)
                     shouldScrapBioSpheres = ShouldScrapFreeBiosphere(budget, wanted.Length > 0);
@@ -853,19 +854,23 @@ namespace Ship_Game
             if (bioUpkeep > budget)
                 return false;
 
+            PlanetGridSquare tile = PreferredBiosphereTile(bio, emptyTileOnly: !carriesItsPopulation);
+            if (tile == null)
+                return false;
+
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
 
-            return Construction.Enqueue(bio, PreferredBiosphereTile(bio)); // Preferred is null safe in this call
+            return Construction.Enqueue(bio, tile);
         }
 
-        internal PlanetGridSquare PreferredBiosphereTile(Building bio)
+        internal PlanetGridSquare PreferredBiosphereTile(Building bio, bool emptyTileOnly = false)
         {
             bool saveGroundForTerraformer = Owner.CanTerraformPlanetTiles;
             return TilesList.Find(t => t.NoBuildingOnTile && t.CanEnqueueBuildingHere(bio)
                                        && (!saveGroundForTerraformer || !t.Terraformable))
                 ?? TilesList.Find(t => t.NoBuildingOnTile && t.CanEnqueueBuildingHere(bio))
-                ?? TilesList.Find(t => t.CanEnqueueBuildingHere(bio));
+                ?? (emptyTileOnly ? null : TilesList.Find(t => t.CanEnqueueBuildingHere(bio)));
         }
 
         internal bool BiosphereCarriesItsPopulation(Building bio)

@@ -367,11 +367,19 @@ and the galaxy map shows only the icon, with no numbers anywhere on it.
 
 ## Priority 4 - biosphere placement, from Roland's follow-up on #321
 
-### 1. A biosphere built to make room must land on an EMPTY tile
+### 1. A biosphere built to make room must land on an EMPTY tile — FIXED 2026-09-28
 
-`[open]` Not investigated beyond reading the code. Logged 2026-09-27 from Roland-Johansen's
-comment of 2026-09-25 on issue #321 (`issuecomment-5837186261`), which followed the biosphere
-capacity work shipped in `933196b4f`.
+`[done]` `TryBuildBiospheres` now passes its reason to `PreferredBiosphereTile`: a biosphere built
+only to make room takes steps 1 and 2 (bare ground) and is not built at all when there is none; one
+built for its population, alone or with the room reason, keeps step 3. The "points to settle" below
+came out simply: a roof over a building never made room, so refusing it cannot strand a colony -
+it only stops the one-per-turn roofing of every occupied tile, whose biospheres were never
+scrapped because `ShouldScrapFreeBiosphere` only counts bare ones. The player's colony build list
+keeps the full pick. Biospheres already over buildings in a save stay. `BiosphereRoomTests`, through
+`DoGoverning`. Roland answered on the issue.
+
+Logged 2026-09-27 from Roland-Johansen's comment of 2026-09-25 on issue #321
+(`issuecomment-5837186261`), which followed the biosphere capacity work shipped in `933196b4f`.
 
 **What he saw.** On Xammar I, whose blueprint was unfinished, the governor built biospheres on
 the tiles of an **outpost** and a **terraformer** - two buildings that do not need a biosphere to
@@ -1085,7 +1093,7 @@ were still present; items 1 to 13 and 15 have since been resolved.
     drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
     `AbsoluteValue`, which already fires it. `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread`.
 
-## Everything else (17, eleven resolved)
+## Everything else (18, eleven resolved)
 
 1. ~~EMP recovery is a per-frame constant, unscaled by the time step.~~ Resolved 2026-09-28.
    `Ship.EmpRecovery` was drained once per simulation step, and the step is
@@ -1187,6 +1195,12 @@ were still present; items 1 to 13 and 15 have since been resolved.
     for the rest of its life, and `IsPlaying` reports true forever so `Die()`'s `Stop()` is a
     no-op. Projectiles live seconds, so it is cosmetic and self-limiting - but a fix for the entry
     above should clear the flag on every drop path, not just on `Stop()`.
+18. `[latent]` **`TryScrapBiospheres` can take the roof from under a queued building.** It picks
+    among biosphere tiles with `NoBuildingOnTile`, which is still true while a building is only
+    queued there, so with two or more free biospheres and a colony over budget it can scrap the one
+    a building is about to go on. Narrow - `ShouldScrapFreeBiosphere` must say yes first. Found on
+    the review of the #321 room fix, 2026-09-28; filtering on `CanEnqueueBuildingHere`-style
+    `NoQueuedBuildings` would close it.
 
 ## Larger items with their own notes
 
