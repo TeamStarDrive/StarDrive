@@ -1071,7 +1071,7 @@ were still present; items 1 to 13 and 15 have since been resolved.
     drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
     `AbsoluteValue`, which already fires it. `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread`.
 
-## Everything else (17, eight resolved)
+## Everything else (17, eleven resolved)
 
 1. ~~EMP recovery is a per-frame constant, unscaled by the time step.~~ Resolved 2026-09-28.
    `Ship.EmpRecovery` was drained once per simulation step, and the step is
@@ -1103,10 +1103,12 @@ were still present; items 1 to 13 and 15 have since been resolved.
    undercover and then awards its experience, and a level 10 agent retires there, leaving its mole
    behind with no agent. The next time that colony changed hands, the sim thread threw.
    `LegacyAgentTests.AMoleWhoseAgentRetiredGoesQuietlyWhenItsColonyChangesHands`.
-7. `[thread]` **The sim thread repopulates UI dropdowns.** `UniverseScreen.Events.cs:14`
-   `OnPlayerBuildableShipsUpdated` reaches `AutomationWindow.UpdateDropDowns` → `InitDropOptions`,
-   which clears and refills `DropOptions` and writes `EmpireData` strings while the UI thread may
-   be drawing them. Pre-existing.
+7. ~~The sim thread repopulates UI dropdowns.~~ Resolved 2026-09-28. `OnPlayerBuildableShipsUpdated`
+   ran `AutomationWindow.UpdateDropDowns` on whichever thread added a buildable ship, clearing and
+   refilling the dropdowns while the UI thread could be drawing them or reading `ActiveName`. It now
+   queues one refresh with `RunOnNextFrame`, which the UI thread runs before its next draw; ships
+   added before that frame share the queued refresh.
+   `ShipsWeCanBuildTests.TheAutomationWindowRefreshesOnTheNextUiFrame`.
 8. ~~The colony screen tints biospheres by the old tax rule.~~ Resolved `a5c45f34b`.
 9. ~~`Biospheres.xml` carries a dead `MaxPopIncrease` of 100.~~ Resolved 2026-09-28 - the line is
    deleted from the vanilla template (Combined Arms never had it). `UpdateMaxPopulation` excludes
@@ -1124,11 +1126,12 @@ were still present; items 1 to 13 and 15 have since been resolved.
     non-unique building. `UpdateCompletion` counts instances against a HashSet of names, so several
     of one pushes `PercentCompleted` past 100 and `Completed => PercentCompleted == 100` never
     fires, silently breaking the linked-blueprint chain. Not reachable through the UI.
-13. `[display]` **The colony-tile terraform icon uses the wrong unlock test.**
-    `EmpireManagementScreen.cs:277` guards on `IsBuildingUnlocked(TerraformerId)` while the governor
-    asks `Empire.CanTerraformPlanetTiles` (unlocked **and** terraforming level ≥ 2). Between the two
-    the screen marks tiles the empire cannot turn and the governor roofs with a biosphere instead.
-    One-line fix whenever that screen is next touched.
+13. ~~The colony-tile terraform icon uses the wrong unlock test.~~ Resolved 2026-09-28. The empire
+    screen guarded on `IsBuildingUnlocked(TerraformerId)` while the governor asks
+    `Empire.CanTerraformPlanetTiles` (unlocked **and** terraforming level ≥ 2), so between the two it
+    marked tiles the empire could not turn yet and the governor roofed with a biosphere instead. It
+    now asks `CanTerraformPlanetTiles`. Display only, no test. One case neither counts: a planet with
+    an event terraformer works at level 3 whatever the empire's tech.
 14. **A third copy of the biosphere tile rule.** `AssignBuildingToTileOnColonize` and
     `AssignBuildingToTilePlanetCreation` both reach `AssignBuildingToRandomTile`
     (`Building.cs:397`), which special-cases biospheres but ignores `Terraformable`. Since
@@ -1142,12 +1145,15 @@ were still present; items 1 to 13 and 15 have since been resolved.
     salvo and every projectile in a loaded savegame have no death cue. Deliberately left out of
     the `InFlightCue` fix: unlike the in-flight cue this one does play today for some projectiles,
     so turning it on for the rest is an audible balance change that wants its own listen.
-16. `[latent]` **A loaded projectile's speed is squared.** `Projectile.OnDeserialized` calls
-    `Initialize(Position, Velocity, ...)`, passing the restored `Velocity` where the parameter is
-    `direction`, and `Initialize` does `SetInitialVelocity(Speed * direction)`. `Velocity` is
-    `[StarData]` on `GameObject` and its magnitude is already about `Speed`, so the result is
-    roughly `Speed` squared. `Duration` is saved and restored around the call, but velocity is
-    not. Found while checking what else `Initialize` clobbers on the deserialization path.
+16. ~~A loaded projectile's speed is squared.~~ Resolved 2026-09-28. `Projectile.OnDeserialized`
+    passed the saved `Velocity` to `Initialize` as its `direction`, so an unguided shot in flight
+    at save time flew on at about `Speed` squared. It now passes the direction and puts the saved
+    velocity and rotation back afterwards, as it already did for `Duration`; the direction alone
+    would still have reset a deflected shot's lost momentum and a MIRV warhead's inherited
+    velocity. Guided missiles, which `MissileAI` restarted from their launcher's velocity and
+    heading on load, now fly on as saved too. `ProjectileLoadTests`. Still reset on load: `Health`,
+    so a missile point defence had damaged comes back whole, and a delayed-ignition missile's
+    timer, so it coasts for the delay again.
 17. `[latent]` `[thread]` **A flight cue can start after its projectile is gone.** `Projectile.Die`
     does `if (InFlightSfx.IsPlaying) InFlightSfx.Stop()`, but in the 1-15 ms between
     `PlaySfxAsync` queueing and `SfxEnqueueThread` draining, `IsPlaying` is true only through

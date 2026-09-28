@@ -187,8 +187,12 @@ namespace Ship_Game.Gameplay
             }
 
             float savedDuration = Duration;
-            Initialize(Position, Velocity, null, playSound: false, Vector2.Zero);
-            Duration = savedDuration; // apply duration from save data
+            Vector2 savedVelocity = Velocity;
+            float savedRotation = Rotation;
+            Initialize(Position, savedVelocity.Normalized(), null, playSound: false, Vector2.Zero);
+            Duration = savedDuration; // apply flight state from save data
+            Velocity = savedVelocity;
+            Rotation = savedRotation;
         }
 
         protected static bool GetWeapon(UniverseState us, Ship ship, Planet planet, 
