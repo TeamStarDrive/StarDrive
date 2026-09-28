@@ -126,7 +126,7 @@ namespace Ship_Game.GameScreens
             autoTax.OnChange = cb =>
             {
                 if (cb.Checked)
-                    Universe.RunOnSimThread(Player.AI.UpdateTreasuryGoalAndTaxes);
+                    Universe.RunOnSimThread(UpdateTaxesAndIncomes);
                 TaxSlider.Enabled = !cb.Checked;
                 TaxSlider.Text = Player.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
             };
@@ -204,8 +204,15 @@ namespace Ship_Game.GameScreens
             Universe.RunOnSimThread(() =>
             {
                 Player.data.treasuryGoal = treasuryGoal;
-                Player.AI.UpdateTreasuryGoalAndTaxes();
+                UpdateTaxesAndIncomes();
             });
+        }
+
+        void UpdateTaxesAndIncomes()
+        {
+            Player.AI.UpdateTreasuryGoalAndTaxes();
+            if (Player.AutoTaxes)
+                Player.UpdateNetPlanetIncomes();
         }
 
         // Dynamic Text label; this is invoked every time MoneyLabels are drawn

@@ -203,9 +203,17 @@ public class BlastEmpAndPowerDamageTests : StarDriveTest
                 if (m.Flyweight != module.Flyweight && saved.TryAdd(m.Flyweight, m.Deflection))
                     deflection.SetValue(m.Flyweight, 1_000_000f);
             }
+            ShipModule deflector = null;
+            foreach (ShipModule m in target.Modules)
+                if (m != module && saved.ContainsKey(m.Flyweight)
+                    && m.Position.Distance(module.Position) <= module.ExplosionRadius)
+                    deflector = m;
+            Assert.IsNotNull(deflector, "setup: a module that deflects must stand inside the explosion");
+            float deflectorHealth = deflector.Health;
 
             module.Damage(shot, module.Health * 100f + 100f);
             Assert.IsFalse(module.Active, "setup: the shot must destroy the module");
+            AssertEqual(0.01f, deflectorHealth, deflector.Health, "setup: the module inside the explosion must deflect it");
         }
         finally
         {

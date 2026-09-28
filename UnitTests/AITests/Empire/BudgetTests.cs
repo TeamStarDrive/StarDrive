@@ -418,6 +418,34 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void AutoTaxesSetFromTheBudgetScreenShowTheirIncomeWhilePaused()
+        {
+            CreateEmpireAndHomeWorld();
+            Player.data.TaxRate = 0.3f;
+            Player.UpdateNetPlanetIncomes();
+            AssertGreaterThan(Player.GrossPlanetIncome, 0f, "setup: taxes must bring in something at 30%");
+            Player.AutoTaxes = true;
+            Player.Money = 1_000_000_000f;
+
+            var screen = new BudgetScreen(Universe);
+            Game.Manager.AddScreenAndLoadContent(screen);
+            try
+            {
+                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var treasury = (FloatSlider)typeof(BudgetScreen).GetField("TreasuryGoal", flags).GetValue(screen);
+                treasury.RelativeValue = 0.4f;
+                Universe.InvokePendingSimThreadActions();
+
+                AssertEqual(0.0001f, 0f, Player.data.TaxRate, "setup: with cash far above the goal, auto taxes drop to 0%");
+                AssertEqual(0.0001f, 0f, Player.GrossPlanetIncome, "the budget screen's income must follow the new tax rate");
+            }
+            finally
+            {
+                Game.Manager.RemoveScreen(screen);
+            }
+        }
+
+        [TestMethod]
         public void QueuedSimThreadWorkRunsWhileTheUniverseIsNeitherPausedNorActive()
         {
             CreateUniverseAndPlayerEmpire();

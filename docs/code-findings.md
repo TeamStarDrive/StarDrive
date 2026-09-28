@@ -1105,7 +1105,11 @@ were still present; items 1 to 13 and 15 have since been resolved.
     drained that queue only while paused or active; the budget screen opened from the Research,
     Diplomacy or Empire top bar, or from the Shipyard, leaves the universe neither, so the queue now
     drains in that state too. `FloatSlider` no longer fires `OnChange` a second time after setting
-    `AbsoluteValue`, which already fires it. `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread`.
+    `AbsoluteValue`, which already fires it. With Auto Taxes on, the queued work also recomputes the
+    planet incomes, since the tax slider's own refresh no longer runs then and the paused screen
+    showed the old rate's income (found by the Codex review of fixes_36).
+    `BudgetTests.TheBudgetScreenLeavesThePlannerToTheSimThread` and
+    `AutoTaxesSetFromTheBudgetScreenShowTheirIncomeWhilePaused`.
 16. `[balance]` **An AI's credit refund skips the tax factor its charge carries** (`Empire.RefundCredits`).
     `ProductionCreditCost` scales an AI's fee by `1 - TaxRate` and the refund does not, so an AI
     comes out ahead on an undamaged home defense sortie - 30 credits for a 300-production ship at
