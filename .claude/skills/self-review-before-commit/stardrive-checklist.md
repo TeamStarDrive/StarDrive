@@ -85,6 +85,9 @@ time.
 
 ## Tests
 
+- The change builds and the unit tests pass: `dotnet build UnitTests/SDUnitTests.csproj`, then
+  `dotnet test UnitTests/SDUnitTests.csproj --no-build`. Build the branch as it will merge, on
+  top of the current fixes branch, not only on the tree you forked from.
 - A new test must fail without the fix: revert the fix, watch the test fail, restore it. A test
   that passes both ways is not coverage.
 - The float `AssertEqual` overload takes the tolerance first:
