@@ -381,14 +381,6 @@ namespace Ship_Game
 
             if (ScrapButton.HandleInput(input))
             {
-                if (!IsScuttle)
-                {
-                    StatusText = GetStatusText(Ship);
-                }
-                else
-                {
-                    StatusText = GetStatusText(Ship);
-                }
                 GameAudio.EchoAffirmative();
                 if (!IsScuttle)
                 {
@@ -401,11 +393,15 @@ namespace Ship_Game
                         if (input.IsShiftKeyDown)
                         {
                             Screen.Universe.RunOnSimThread(() => Ship.Loyalty.MassScrap(Ship));
-                            Screen.Universe.RunOnSimThread(() => Screen.ResetStatus());
+                            Screen.Universe.RunOnSimThread(() => Screen.StatusDirty = true);
                         }
                         else
                         {
+                            // OrderScrapShip defers the ScrapShip goal to the sim thread;
+                            // the flag makes the UI thread refresh only after it has run,
+                            // without the sim thread ever walking the live UI list
                             Ship.AI.OrderScrapShip();
+                            Screen.Universe.RunOnSimThread(() => Screen.StatusDirty = true);
                         }
                     }
                     StatusText = GetStatusText(Ship);
