@@ -153,7 +153,8 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            Screen?.ResetStatus();
+            if (Screen != null)
+                Screen.Universe.RunOnSimThread(() => Screen.StatusDirty = true);
             base.ExitScreen();
         }
 

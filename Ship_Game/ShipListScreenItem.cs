@@ -397,9 +397,6 @@ namespace Ship_Game
                         }
                         else
                         {
-                            // OrderScrapShip defers the ScrapShip goal to the sim thread;
-                            // the flag makes the UI thread refresh only after it has run,
-                            // without the sim thread ever walking the live UI list
                             Ship.AI.OrderScrapShip();
                             Screen.Universe.RunOnSimThread(() => Screen.StatusDirty = true);
                         }
