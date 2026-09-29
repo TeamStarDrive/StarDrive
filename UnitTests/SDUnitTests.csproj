@@ -115,6 +115,7 @@
     <Compile Include="Planets\BiosphereRoomTests.cs" />
     <Compile Include="Planets\BlueprintTerraformerGateTests.cs" />
     <Compile Include="Planets\CapitalTransfer.cs" />
+    <Compile Include="Planets\ColonyGraceTests.cs" />
     <Compile Include="Planets\ColonyTilePickingTests.cs" />
     <Compile Include="Planets\CrashSiteOwnershipTests.cs" />
     <Compile Include="Planets\CyberneticProdStateTests.cs" />

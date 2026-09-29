@@ -5952,6 +5952,8 @@ namespace Ship_Game
         TT_SensorRange3 = 7090,
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         TT_RepairRate = 7091,
+        /// <summary>Grace period: {0} lost its colony here and may return. You can</summary>
+        ColonizeGracePeriodTip = 7092,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

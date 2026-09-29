@@ -1,5 +1,7 @@
 ﻿using System;
+using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 
@@ -7,10 +9,73 @@ namespace Ship_Game
 {
     public partial class Planet // Fat Bastard - Centralized all New Colony related logic here
     {
+        // The empire whose colony here was wiped out, kept while it may return and after it returned in time
+        [StarData] public Empire LostBy { get; private set; }
+        [StarData] float LostStarDate;
+        [StarData] float ReturnStarDate;
+
+        int FullColonyGraceTurns => (int)(50 * Universe.ProductionPace);
+
+        int TurnsSinceLost(float starDate) => (int)Math.Round((starDate - LostStarDate) * 10);
+
+        // How many turns after the loss this empire keeps off the planet, 0 if it does not respect lostBy's grace
+        int ColonyGraceTurns(Empire lostBy, Empire other)
+        {
+            if (lostBy == null
+                || lostBy == other
+                || lostBy.IsDefeated
+                || other.IsFaction
+                || other.IsAtWarWith(lostBy)
+                || !other.isPlayer && other.PersonalityModifiers.IgnoresColonyGrace)
+            {
+                return 0;
+            }
+
+            for (int i = 0; i < System.PlanetList.Count; i++)
+            {
+                if (System.PlanetList[i].Owner == other)
+                    return FullColonyGraceTurns / 2;
+            }
+
+            return FullColonyGraceTurns;
+        }
+
+        public int ColonyGraceTurnsLeft(Empire settler) => ColonyGraceTurnsLeft(settler, out _);
+
+        public int ColonyGraceTurnsLeft(Empire settler, out Empire lostBy)
+        {
+            lostBy = LostBy;
+            if (Owner != null)
+                return 0;
+
+            return (ColonyGraceTurns(lostBy, settler) - TurnsSinceLost(Universe.StarDate)).LowerBound(0);
+        }
+
+        // The empire which lost this colony came back to it before other's grace ran out
+        public bool IsColonyGraceReturn(Empire returning, Empire other)
+        {
+            return Owner == returning
+                && LostBy == returning
+                && TurnsSinceLost(ReturnStarDate) < ColonyGraceTurns(returning, other);
+        }
+
+        public static string ColonyGraceTip(Empire lostBy, int turnsLeft)
+        {
+            return string.Format(Localizer.Token(GameText.ColonizeGracePeriodTip), lostBy.Name, turnsLeft);
+        }
+
         public void SetOwner(Empire newOwner, Empire attacker = null)
         {
             Empire oldOwner = Owner;
             Owner = newOwner;
+            if (newOwner != null && LostBy != null)
+            {
+                if (newOwner == LostBy && TurnsSinceLost(Universe.StarDate) < FullColonyGraceTurns)
+                    ReturnStarDate = Universe.StarDate;
+                else
+                    LostBy = null;
+            }
+
             Food.ResetAveragePercentage();
             System.UpdateOwnerList();
 
@@ -92,7 +157,7 @@ namespace Ship_Game
 
             foreach (Planet p in System.PlanetList)
             {
-                if (p.Owner == null || p.Owner == Owner)
+                if (p.Owner == null || p.Owner == Owner || IsColonyGraceReturn(Owner, p.Owner))
                     continue;
 
                 if (!p.Owner.IsOpenBordersTreaty(Owner))

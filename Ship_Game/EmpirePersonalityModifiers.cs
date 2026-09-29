@@ -30,6 +30,7 @@ namespace Ship_Game
         public readonly float PopRatioBeforeMerge; // If enemy has pop bigger then this ratio, consider merge with other empires or surrender
         public readonly float CloserToUsClaimWarn; // Multiplier for distance of new system colonized from empire center, for warning
         public readonly bool ClearNeutralExoticSystems; // Will try to clear neutral exotic systems and deploy research stations and the likes
+        public readonly bool IgnoresColonyGrace; // Will colonize planets whose colony was just wiped out, without waiting for the grace period
         public readonly float PlayerWarContributionRatioThreshold; // How much player sub-contribution ratio the AI can tolerate for allied wars
         public readonly int PlayerWarContributionMaxWarnings; // How many warning of lesser player requested war is needed by AI to do something about it
         public readonly bool CanWeSurrenderToPlayerAfterBetrayal; // Will the AI be able to surrender to player after s/he betrayed them in allied war
@@ -160,6 +161,7 @@ namespace Ship_Game
                     WantedAgentMissionMultiplier = 0.115f;
                     WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
                     ClearNeutralExoticSystems    = true;
+                    IgnoresColonyGrace           = true;
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
                     PiratePayChanceModifier      = 0.5f;

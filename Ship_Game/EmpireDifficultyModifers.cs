@@ -27,6 +27,7 @@
         public readonly int RemnantPortalCreationMod; // Determines portal creation on a new remnant level
         public readonly int StandByColonyShips;
         public readonly int TrustLostStoleColony; // Vs players
+        public readonly bool ClaimTheftWithoutWarning; // Vs players: settling a claimed system closer to us is theft even if we did not warn them
         public readonly float FleetStrModifier; // AI increase/decrease str of fleets needs, when they win or lose vs another empire
         public readonly int NumSystemsToSniff; // Number of system the AI will try to re-scout until it is fully explored
         public readonly int PlayerWarPriorityLimit; // Priority of wars vs player (war priority is 0 to 10 where 0 means more priority)
@@ -234,6 +235,7 @@
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 5;
                     TrustLostStoleColony = 60;
+                    ClaimTheftWithoutWarning = true;
                     FleetStrModifier     = 0.5f;
                     NumSystemsToSniff    = 5;
                     NumWarTasksPerWar    = 4;

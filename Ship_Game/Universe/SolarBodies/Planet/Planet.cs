@@ -1549,6 +1549,8 @@ namespace Ship_Game
             if (IsExploredBy(Universe.Player) && (OwnerIsPlayer || attacker.isPlayer))
                 Universe.Notifications.AddPlanetDiedNotification(this);
 
+            LostBy = Owner.IsFaction ? null : Owner;
+            LostStarDate = Universe.StarDate;
             SetOwner(null, attacker);
         }
 

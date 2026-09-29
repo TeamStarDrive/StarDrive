@@ -693,6 +693,12 @@ namespace Ship_Game
             //InitPersonalityModifiers(); // TODO: crashes in tests
         }
 
+        public void TestSetPersonality(string personality) // For UnitTests only
+        {
+            data.DiplomaticPersonality = new DTrait { Name = personality };
+            InitPersonalityModifiers();
+        }
+
         void CommonInitialize()
         {
             CreateEmpireTechTree(); // update or init the tech tree

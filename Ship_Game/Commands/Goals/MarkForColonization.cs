@@ -288,7 +288,7 @@ namespace Ship_Game.Commands.Goals
 
         bool PlanetCanBeColonized()
         {
-            if (TargetPlanet.Owner == Owner)
+            if (TargetPlanet.Owner == Owner || TargetPlanet.ColonyGraceTurnsLeft(Owner) > 0)
                 return false;
 
             if (!Owner.isPlayer && (PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.System, Owner)

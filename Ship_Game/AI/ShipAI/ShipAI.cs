@@ -255,7 +255,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (targetPlanet.Owner != null || !targetPlanet.Habitable || targetPlanet.RecentCombat)
+            if (targetPlanet.Owner != null
+                || !targetPlanet.Habitable
+                || targetPlanet.RecentCombat
+                || targetPlanet.ColonyGraceTurnsLeft(Owner.Loyalty) > 0)
             {
                 shipGoal.Goal?.NotifyMainGoalCompleted();
                 ClearOrders();

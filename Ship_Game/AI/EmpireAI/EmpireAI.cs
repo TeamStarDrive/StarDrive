@@ -302,6 +302,9 @@ namespace Ship_Game.AI
                     if (theirColonizeP.System != system)
                         continue;
 
+                    if (theirColonizeP.LostBy == them && theirColonizeP.ColonyGraceTurnsLeft(OwnerEmpire) > 0)
+                        continue; // They are returning to a colony they just lost
+
                     if (DetectAndWarn(theirGoal, warnExclusive))
                     {
                         if (system.HasPlanetsOwnedBy(them)

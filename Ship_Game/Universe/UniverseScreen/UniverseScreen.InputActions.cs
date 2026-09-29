@@ -1,5 +1,6 @@
 using System;
 using Ship_Game.AI;
+using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Ships;
@@ -39,6 +40,14 @@ namespace Ship_Game
 
         void MarkForColonization(Planet p)
         {
+            int graceTurns = p.ColonyGraceTurnsLeft(Player, out Empire lostBy);
+            if (graceTurns > 0)
+            {
+                GameAudio.NegativeClick();
+                ToolTip.CreateFloatingText(Planet.ColonyGraceTip(lostBy, graceTurns), "", Input.CursorPosition, 5);
+                return;
+            }
+
             Player.AI.AddGoalAndEvaluate(new MarkForColonization(p, Player, isManual:true));
         }
     }
