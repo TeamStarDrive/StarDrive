@@ -410,9 +410,7 @@ namespace Ship_Game
 
             BuildSubNodes(root);
 
-            // The estimate above overcounts (a merged-back branch is counted as its own
-            // row), squeezing tabs toward the top; measure the rows actually laid out and
-            // rebuild once at the exact height when they differ.
+            // the estimate counts merged-back branches and reused rows as new rows: rebuild at the rows laid out
             int wantRows = Math.Min(FindDeepestYSubNodes() + 1, 9);
             if (wantRows != Math.Min(rows, 9))
             {
@@ -435,10 +433,8 @@ namespace Ship_Game
                     continue;
 
                 nodePos.X = root.NodePosition.X + 1f;
-                // scan from the TAB top: the root's own Y is its slot in the left
-                // category list, not a row of this canvas
-                nodePos.Y = first ? FindDeepestYSubNodes()
-                                  : FindFreeRowFor(child, 0, (int)nodePos.X);
+                // row 0, not the root's Y: that is its slot in the category list
+                nodePos.Y = first ? 0 : FindFreeRowFor(child, 0, (int)nodePos.X);
                 if (first) first = false;
 
                 if (!SubNodes.ContainsKey(child.UID)) // only ever add unique entries
@@ -458,7 +454,7 @@ namespace Ship_Game
             foreach (TechEntry child in node.Entry.Children)
             {
                 nodePos.X = node.NodePosition.X + 1f;
-                nodePos.Y = first ? FindDeepestYSubNodes()
+                nodePos.Y = first ? node.NodePosition.Y
                                   : FindFreeRowFor(child, (int)node.NodePosition.Y, (int)nodePos.X);
                 if (first) first = false;
 
@@ -492,11 +488,6 @@ namespace Ship_Game
         
         bool PositionIsClaimed(Vector2 position) => ClaimedSpots.Contains(((int)position.X, (int)position.Y));
 
-        /// <summary>
-        /// The first row at or below <paramref name="parentY"/> where this branch's whole
-        /// rectangle (its discovered rows by its columns) is unclaimed; the rectangle is a
-        /// placement heuristic only - real collisions are still prevented by ClaimedSpots.
-        /// </summary>
         int FindFreeRowFor(TechEntry branch, int parentY, int col)
         {
             int bRows = 1;
@@ -517,9 +508,7 @@ namespace Ship_Game
             return Math.Max(parentY, last);
         }
 
-        // Reservation measure for FindFreeRowFor: discovered techs only, because placement
-        // only ever places discovered ones - recursing through undiscovered branches
-        // reserves rows the branch will never occupy.
+        // discovered techs only, since placement never places undiscovered ones
         int MeasureDiscoveredBranch(TechEntry techEntry, ref int rows, int cols, int colmax)
         {
             cols++;
