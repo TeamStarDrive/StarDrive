@@ -5954,6 +5954,10 @@ namespace Ship_Game
         TT_RepairRate = 7091,
         /// <summary>Grace period: {0} lost its colony here and may return. You can</summary>
         ColonizeGracePeriodTip = 7092,
+        /// <summary>Click to remove this protection.</summary>
+        ClickToRemovePlayerBuiltProtection = 7093,
+        /// <summary>Remove the protection from {0}? The governor will then treat it</summary>
+        RemovePlayerBuiltProtectionConfirm = 7094,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

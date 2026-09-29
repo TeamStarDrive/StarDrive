@@ -54,6 +54,7 @@ namespace Ship_Game
         object DetailInfo;
         Building ToScrap;
         PlanetGridSquare BioToScrap;
+        PlanetGridSquare ToUnprotect;
 
         public bool ClickedTroop;
 
@@ -616,6 +617,15 @@ namespace Ship_Game
                 P.DestroyBioSpheres(BioToScrap, !BioToScrap.Building?.CanBuildAnywhere == true);
                 P.RefreshBuildingsWeCanBuildHere();
                 BioToScrap = null;
+            }
+        }
+
+        void RemovePlayerBuiltProtectionAccepted()
+        {
+            if (ToUnprotect != null)
+            {
+                P.Universe.Screen.RunOnSimThread(ToUnprotect.RemovePlayerBuiltProtection);
+                ToUnprotect = null;
             }
         }
     }

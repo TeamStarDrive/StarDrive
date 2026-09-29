@@ -122,6 +122,35 @@ namespace UnitTests.Planets
                 "The player's queued building is no longer in the queue");
         }
 
+        // Clicking the lock badge on the colony screen hands the building to the governor for good
+        [TestMethod]
+        public void RemovingTheProtectionLetsTheGovernorScrapIt()
+        {
+            PlanetGridSquare tile = P.TilesList.First(t => t.Habitable && t.NoBuildingOnTile);
+            tile.PlaceBuilding(PlayerBuilt, P);
+            Assert.IsFalse(Suitable(PlayerBuilt, overBudget: false, replacing: false), "The placed building should start protected");
+
+            tile.RemovePlayerBuiltProtection();
+
+            Assert.IsTrue(Suitable(PlayerBuilt, overBudget: false, replacing: false),
+                "The governor still refuses a building whose protection was removed");
+        }
+
+        [TestMethod]
+        public void RemovingTheProtectionLetsTheGovernorCancelAQueuedBuilding()
+        {
+            Building costly = ResourceManager.BuildingsDict.Values
+                .First(b => !b.IsMilitary && !b.IsTerraformer && !b.IsBiospheres && b.Maintenance > 0);
+
+            Assert.IsTrue(P.Construction.Enqueue(costly, null, playerAdded: true), "Could not queue the test building");
+            P.ConstructionQueue.First(q => q.Building == costly).pgs.RemovePlayerBuiltProtection();
+
+            P.TryCancelOverBudgetCivilianBuilding(budget: 0f);
+
+            Assert.IsFalse(P.ConstructionQueue.Any(q => q.Building == costly),
+                "The governor still refuses to cancel a queued building whose protection was removed");
+        }
+
         // Exclusive blueprints are the player saying "the plan and nothing but the plan", so
         // they lift the protection from everything the player placed by hand
         void AddExclusiveBlueprints()

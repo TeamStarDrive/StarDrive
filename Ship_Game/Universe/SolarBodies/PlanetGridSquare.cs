@@ -111,6 +111,15 @@ namespace Ship_Game
             QItem = qItem;
         }
 
+        // The building here, or the one queued here, is no longer protected as player built
+        public void RemovePlayerBuiltProtection()
+        {
+            if (Building != null)
+                Building.IsPlayerAdded = false;
+            else if (QItem != null)
+                QItem.IsPlayerAdded = false;
+        }
+
         // Get a troop that is not ours
         public bool LockOnEnemyTroop(Empire us, out Troop troop)
         {

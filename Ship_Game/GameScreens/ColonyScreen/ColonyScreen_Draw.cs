@@ -103,6 +103,9 @@ namespace Ship_Game
 
         static bool CanBeProtected(Building b) => b.Scrappable && !b.IsBiospheres && b.PlusTerraformPoints <= 0;
 
+        static Rectangle PlayerBuiltRect(PlanetGridSquare pgs)
+            => new(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 10, pgs.ClickRect.Y, 20, 20);
+
         void DrawTileIcons(SpriteBatch batch, PlanetGridSquare pgs)
         {
             if (pgs.Biosphere)
@@ -135,13 +138,16 @@ namespace Ship_Game
 
             if (IsProtectedPlayerBuilt(pgs))
             {
-                var playerBuilt = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 10, pgs.ClickRect.Y, 20, 20);
+                Rectangle playerBuilt = PlayerBuiltRect(pgs);
                 bool hoveringOverPlayerBuilt = playerBuilt.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive;
                 SubTexture lockIcon = ResourceManager.Texture("NewUI/icon_lock");
                 batch.Draw(lockIcon, new Rectangle(playerBuilt.X + 2, playerBuilt.Y + 2, playerBuilt.Width, playerBuilt.Height), Color.Black);
-                batch.Draw(lockIcon, playerBuilt, hoveringOverPlayerBuilt ? Color.White : Color.Yellow);
+                batch.Draw(lockIcon, playerBuilt, hoveringOverPlayerBuilt ? Color.Gold : Color.Red);
                 if (hoveringOverPlayerBuilt)
-                    ToolTip.CreateTooltip(GameText.PlayerBuiltProtectedFromScrap);
+                {
+                    string tip = $"{Localizer.Token(GameText.PlayerBuiltProtectedFromScrap)}\n\n{Localizer.Token(GameText.ClickToRemovePlayerBuiltProtection)}";
+                    ToolTip.CreateTooltip(tip, codexUid: Codex.CodexHooks.Find(GameText.PlayerBuiltProtectedFromScrap));
+                }
             }
 
             if (pgs.TroopsAreOnTile)
