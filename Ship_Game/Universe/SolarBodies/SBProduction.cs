@@ -528,16 +528,6 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public bool Cancel(Building b)
-        {
-            lock (ConstructionQueue)
-            {
-                QueueItem item = ConstructionQueue.Find(q => q.Building == b);
-                item?.SetCanceled();
-                return item != null;
-            }
-        }
-
         public bool Cancel(Goal g)
         {
             lock (ConstructionQueue)
@@ -626,7 +616,7 @@ namespace Ship_Game.Universe.SolarBodies
                     && q.ProductionSpent < q.ProductionNeeded * 0.9f
                     && P.BestCivilianBuildingToBuildDifferentThen(P.GetBuildingsCanBuild(), q.Building))
                 {
-                    Cancel(q.Building);
+                    q.SetCanceled();
                 }
             }
         }

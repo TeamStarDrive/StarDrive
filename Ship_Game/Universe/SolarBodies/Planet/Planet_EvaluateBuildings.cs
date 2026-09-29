@@ -940,8 +940,12 @@ namespace Ship_Game
         public bool RemoveCapital()
         {
             SetHomeworld(false);
-            if (Construction.Cancel(ResourceManager.CreateBuilding(this, Building.CapitalId)))
+            QueueItem queuedCapital = ConstructionQueue.Find(q => q.isBuilding && q.Building.IsCapital);
+            if (queuedCapital != null)
+            {
+                queuedCapital.SetCanceled();
                 return true;
+            }
 
             Building capital = FindBuilding(b => b.IsCapital);
             if (capital != null)
