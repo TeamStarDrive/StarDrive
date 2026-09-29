@@ -440,15 +440,14 @@ namespace Ship_Game
                 DrawShipAndPlanetIcons(batch);
                 DrawSolarSystems(batch);
                 DrawSystemThreatIndicators(batch);
-                // A UI draw failure must not skip DrawCompletedEvt.Set() below —
-                // the sim thread waits on it and would starve behind the failing element.
+                // a failing UI element must not skip DrawCompletedEvt.Set(), the sim thread waits on it
                 try
                 {
                     DrawGeneralUI(batch, elapsed);
                 }
                 catch (ObjectDisposedException)
                 {
-                    throw; // device teardown during shutdown must keep its original path
+                    throw; // ScreenManager handles device loss
                 }
                 catch (Exception ex)
                 {
