@@ -704,19 +704,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             OnOfferChanged();
         }
 
-        bool DemandAnswered; // upstream issue 307
+        bool DemandAnswered;
 
-        // upstream issue 307: only the Reject button carried the refusal penalty — walking
-        // out, discussing or negotiating away an ultimatum had no consequence, though
-        // CanEscapeFromScreen=false shows the player was meant to answer. Scoped to
-        // Offer.IsDemand per review: ValueToModify is a generic per-dialog side-effect
-        // carrier (peace fires SetImperialistWar on ANY write; friendly dialogs would
-        // pre-flag HaveRejected_* on Negotiate), so only true ultimatums may mark here.
-        // Known residual: Negotiate marks up front — BeginNegotiations replaces
-        // TheirOffer, so this is the only window; a negotiation that ends up conceding
-        // the demand cannot unmark. Rare and accepted.
-        // Latched via DemandAnswered: the HaveRejectedDemandTech setter re-applies the
-        // full Trust/anger penalty on every true write, and Discuss can re-enter here.
         void MarkUnansweredDemandRejected()
         {
             if (DemandAnswered || TheirOffer?.IsDemand != true || TheirOffer.ValueToModify == null)
@@ -728,13 +717,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnNegotiateClicked(GenericButton b)
         {
+            // BeginNegotiations replaces TheirOffer, so an unanswered demand is refused here
             MarkUnansweredDemandRejected();
             BeginNegotiations();
         }
 
         void OnAcceptClicked(GenericButton b)
         {
-            DemandAnswered = true; // upstream issue 307
+            DemandAnswered = true;
             if (TheirOffer.ValueToModify != null) TheirOffer.ValueToModify.Value = false;
             if (OurOffer.ValueToModify != null)   OurOffer.ValueToModify.Value = true;
 
@@ -744,7 +734,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnRejectClicked(GenericButton b)
         {
-            DemandAnswered = true; // upstream issue 307
+            DemandAnswered = true;
             if (TheirOffer.ValueToModify != null) TheirOffer.ValueToModify.Value = true;
             if (OurOffer.ValueToModify != null)   OurOffer.ValueToModify.Value = false;
             
