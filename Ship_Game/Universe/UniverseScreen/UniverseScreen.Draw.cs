@@ -440,7 +440,24 @@ namespace Ship_Game
                 DrawShipAndPlanetIcons(batch);
                 DrawSolarSystems(batch);
                 DrawSystemThreatIndicators(batch);
-                DrawGeneralUI(batch, elapsed);
+                // A UI draw failure must not skip DrawCompletedEvt.Set() below —
+                // the sim thread waits on it and would starve behind the failing element.
+                try
+                {
+                    DrawGeneralUI(batch, elapsed);
+                }
+                catch (ObjectDisposedException)
+                {
+                    throw; // device teardown during shutdown must keep its original path
+                }
+                catch (Exception ex)
+                {
+                    if (!LoggedGeneralUIDrawError)
+                    {
+                        LoggedGeneralUIDrawError = true;
+                        Log.Error(ex, "DrawGeneralUI failed (UI suppressed, sim kept alive)");
+                    }
+                }
             }
             batch.SafeEnd();
             IconsGroupTotalPerf.Stop();
