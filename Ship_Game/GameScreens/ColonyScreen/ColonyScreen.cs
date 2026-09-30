@@ -152,14 +152,16 @@ namespace Ship_Game
                                     (int)(0.4f * LeftMenu.Width),
                                     (int)(0.23f * (LeftMenu.Height - 80)));
             PlanetInfo = new(planetInfoR, GameText.PlanetInfo);
-            Submenu pDescription = new(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            float panelHeight    = 0.25f * (LeftMenu.Height - 80);
+            float governorHeight = Math.Max(panelHeight, GovernorDetailsComponent.MinHeight);
+            Submenu pDescription = new(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, governorHeight);
 
             var labor = new RectF(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 40,
-                                  0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+                                  0.4f * LeftMenu.Width, panelHeight);
 
             AssignLabor = Add(new AssignLaborComponent(P, labor, useTitleFrame: true));
 
-            RectF pStorageR = new(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 60, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            RectF pStorageR = new(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 60, 0.4f * LeftMenu.Width, 2 * panelHeight - governorHeight);
             PStorage = new(pStorageR, GameText.Storage);
 
             Vector2 blockadePos = new Vector2(PStorage.X + 20, PStorage.Y + 35);

@@ -3,6 +3,7 @@ using Color = Microsoft.Xna.Framework.Color;
 using System;
 using System.Linq.Expressions;
 using SDGraphics;
+using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -20,6 +21,10 @@ namespace Ship_Game
         public Action<UICheckBox> OnChange;
         public Color TextColor = Color.White;
         public Color CheckedTextColor = Color.White;
+        public bool Locked; // drawn dim and keeps its tooltip, but clicks do not change it
+        static readonly Color LockedColor = new(80, 80, 80);
+        static readonly Color BoxColor = new(96, 81, 49);
+        static readonly Color LockedBoxColor = new(56, 48, 30);
 
         int TextPadding = 4;
         int CheckBoxSize = 12;
@@ -68,20 +73,20 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             var checkBox = new Rectangle((int)Pos.X, (int)CenterY - CheckBoxSize/2, CheckBoxSize, CheckBoxSize);
-            batch.DrawRectangle(checkBox, new Color(96, 81, 49));
+            batch.DrawRectangle(checkBox, Locked ? LockedBoxColor : BoxColor);
             //batch.DrawRectangle(Rect, Color.Red); // DEBUG
 
             if (Text.NotEmpty)
             {
                 var textPos = new Vector2(checkBox.X + CheckBoxSize + TextPadding, (int)CenterY - Font.LineSpacing / 2);
-                batch.DrawString(Font, Text, textPos, Binding.Value ? CheckedTextColor : TextColor);
+                batch.DrawString(Font, Text, textPos, Locked ? LockedColor : Binding.Value ? CheckedTextColor : TextColor);
             }
 
             if (Binding.Value)
             {
                 var check = ResourceManager.Texture("NewUI/Checkmark10x");
                 var checkMark = checkBox.Bevel(-1);
-                batch.Draw(check, checkMark, Color.White);
+                batch.Draw(check, checkMark, Locked ? LockedColor : Color.White);
             }
         }
 
@@ -92,8 +97,15 @@ namespace Ship_Game
 
             if (input.LeftMouseClick)
             {
-                Binding.Value = !Binding.Value;
-                OnChange?.Invoke(this);
+                if (Locked)
+                {
+                    GameAudio.NegativeClick();
+                }
+                else
+                {
+                    Binding.Value = !Binding.Value;
+                    OnChange?.Invoke(this);
+                }
             }
             else if (Tooltip.IsValid)
             {

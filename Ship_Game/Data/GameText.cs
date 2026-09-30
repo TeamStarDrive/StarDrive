@@ -5958,6 +5958,18 @@ namespace Ship_Game
         ClickToRemovePlayerBuiltProtection = 7093,
         /// <summary>Remove the protection from {0}? The governor will then treat it</summary>
         RemovePlayerBuiltProtectionConfirm = 7094,
+        /// <summary>Apply to All Colonies</summary>
+        ApplyToAllColonies = 7095,
+        /// <summary>Copy this colony's Garrison Size and Auto Build Garrison setting to</summary>
+        ApplyGarrisonToAllColoniesTip = 7096,
+        /// <summary>Copy this colony's Governor Manages Ground Defense and Governor Manages</summary>
+        ApplyDefenseToAllColoniesTip = 7097,
+        /// <summary>Apply these settings to all {0} of your colonies? {1} {2} This</summary>
+        ApplyToAllColoniesConfirm = 7098,
+        /// <summary>On</summary>
+        SettingOn = 7099,
+        /// <summary>Off</summary>
+        SettingOff = 7100,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

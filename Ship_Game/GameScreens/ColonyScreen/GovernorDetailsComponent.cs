@@ -17,6 +17,7 @@ namespace Ship_Game
 {
     public class GovernorDetailsComponent : UIElementContainer
     {
+        public const int MinHeight = 210; // fits the defense tab's garrison controls above its troop buttons
         private readonly GameScreen Screen;
         private readonly UniverseScreen Universe;
         private readonly SubTexture PortraitShine = ResourceManager.Texture("Portraits/portrait_shine");
@@ -39,6 +40,9 @@ namespace Ship_Game
         UIButton LaunchAllTroops;
         UIButton LaunchSingleTroop;
         UIButton CallTroops;
+        UIButton ApplyGarrisonToAll;
+        UIButton ApplyDefenseToAll;
+        float PlatformsRowY, ShipyardsRowY; // orbital rows while the governor manages orbitals
         UIButton BuildPlatform;
         UIButton BuildStation;
         UIButton BuildShipyard;
@@ -146,10 +150,11 @@ namespace Ship_Game
             SpecializedTradeHub.OnChange = cb => { Planet.SetSpecializedTradeHub(cb.Checked); };
             SpecializedTradeHub.TextColor = Quarantine.TextColor = Prioritized.TextColor = Color.Gray;
             Quarantine.CheckedTextColor = Color.Red;
+            AutoTroops.CheckedTextColor = Color.Red;
             Prioritized.CheckedTextColor = Color.Purple;
 
             Garrison        = Slider(200, 200, 160, 40, GameText.GarrisonSize, 0, 25,Planet.GarrisonSize);
-            ManualPlatforms = Slider(200, 200, 120, 40, GameText.ManualLimit, 0, 15, Planet.WantedPlatforms);
+            ManualPlatforms = Slider(200, 200, 120, 40, "", 0, 15, Planet.WantedPlatforms);
             ManualShipyards = Slider(200, 200, 120, 40, "", 0, 3, Planet.WantedShipyards);
             ManualStations  = Slider(200, 200, 120, 40, "", 0, 10, Planet.WantedStations);
 
@@ -190,6 +195,11 @@ namespace Ship_Game
             LaunchAllTroops.Tooltip   = GameText.LaunchToSpaceAllTroops;
             LaunchSingleTroop.Tooltip = GameText.LaunchASingleRandomTroop;
             CallTroops.Tooltip        = GameText.RebaseASingleTroopFrom;
+
+            ApplyGarrisonToAll         = Button(ButtonStyle.Military, GameText.ApplyToAllColonies, OnApplyGarrisonToAllClicked);
+            ApplyGarrisonToAll.Tooltip = GameText.ApplyGarrisonToAllColoniesTip;
+            ApplyDefenseToAll          = Button(ButtonStyle.Military, GameText.ApplyToAllColonies, OnApplyDefenseToAllClicked);
+            ApplyDefenseToAll.Tooltip  = GameText.ApplyDefenseToAllColoniesTip;
 
             BuildShipyard = Button(ButtonStyle.Medium, GameText.BuildShipyard, OnBuildShipyardClick);
             BuildStation  = Button(ButtonStyle.Medium, GameText.BuildStation, OnBuildStationClick);
@@ -305,20 +315,24 @@ namespace Ship_Game
 
             AutoTroops.Pos        = new Vector2(TopLeft.X + 10, Y + 30);
             Garrison.Pos          = new Vector2(TopLeft.X + 20, Y + 50);
+            ApplyGarrisonToAll.Pos = new Vector2(TopLeft.X + 10, Y + 95);
             CallTroops.Pos        = new Vector2(TopLeft.X + 10, Bottom - 30);
-            LaunchSingleTroop.Pos = new Vector2(TopLeft.X + 10, Bottom - 60);
-            LaunchAllTroops.Pos   = new Vector2(TopLeft.X + 10, Bottom - 90);
+            LaunchSingleTroop.Pos = new Vector2(TopLeft.X + 10, Bottom - 58);
+            LaunchAllTroops.Pos   = new Vector2(TopLeft.X + 10, Bottom - 86);
             ColonyRank.Pos        = new Vector2(TopLeft.X + 200, Y + 30);
             NoGovernor.Pos        = ColonyRank.Pos;
             GovGround.Pos         = new Vector2(TopLeft.X + 200, Y + 50);
             GovOrbitals.Pos       = new Vector2(TopLeft.X + 200, Y + 70);
-            ManualOrbitals.Pos    = new Vector2(TopLeft.X + 200, Y + 90);
-            BuildPlatform.Pos     = new Vector2(TopLeft.X + 200, Bottom - 90);
-            BuildShipyard.Pos     = new Vector2(TopLeft.X + 200, Bottom - 60);
+            ApplyDefenseToAll.Pos = new Vector2(TopLeft.X + 200, Y + 95);
+            BuildPlatform.Pos     = new Vector2(TopLeft.X + 200, Bottom - 86);
+            BuildShipyard.Pos     = new Vector2(TopLeft.X + 200, Bottom - 58);
             BuildStation.Pos      = new Vector2(TopLeft.X + 200, Bottom - 30);
+            ManualOrbitals.Pos    = new Vector2(TopLeft.X + 200, Math.Max(BuildPlatform.Y - 15, ApplyDefenseToAll.Bottom + 2));
+            PlatformsRowY         = Math.Max(BuildPlatform.Y, ManualOrbitals.Bottom + 2);
+            ShipyardsRowY         = (PlatformsRowY + BuildStation.Y) / 2;
             Vector2 manualOffset  = new Vector2(125, -15);
-            ManualPlatforms.Pos   = BuildPlatform.Pos + manualOffset;
-            ManualShipyards.Pos   = BuildShipyard.Pos + manualOffset;
+            ManualPlatforms.Pos   = new Vector2(BuildPlatform.X, PlatformsRowY) + manualOffset;
+            ManualShipyards.Pos   = new Vector2(BuildShipyard.X, ShipyardsRowY) + manualOffset;
             ManualStations.Pos    = BuildStation.Pos + manualOffset;
 
             BudgetSum.Pos         = new Vector2(TopLeft.X + 8, Y + 130);
@@ -456,13 +470,18 @@ namespace Ship_Game
 
                 int numTroopsCanLaunch    = DefenseTabView ? Planet.NumTroopsCanLaunchFor(Planet.Universe.Player) : 0;
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
+                if (Planet.GarrisonSize == 0)
+                    Planet.AutoBuildTroops = false;
+
                 CallTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
                 LaunchSingleTroop.Visible = CallTroops.Visible && numTroopsCanLaunch > 0;
                 LaunchAllTroops.Visible   = CallTroops.Visible && numTroopsCanLaunch > 1;
                 Garrison.Visible          = DefenseTabView && Planet.OwnerIsPlayer;
                 AutoTroops.Visible        = Garrison.Visible;
+                ApplyGarrisonToAll.Visible = Garrison.Visible && Player.NumPlanets > 1;
                 GovOrbitals.Visible       = Garrison.Visible && GovernorOn;
                 GovGround.Visible         = GovOrbitals.Visible;
+                ApplyDefenseToAll.Visible = GovOrbitals.Visible && Player.NumPlanets > 1;
                 BuildPlatform.Visible     = DefenseTabView && Planet.OwnerIsPlayer && (!Planet.GovOrbitals || GovernorOff);
                 BuildShipyard.Visible     = BuildPlatform.Visible;
                 BuildStation.Visible      = BuildPlatform.Visible;
@@ -478,7 +497,7 @@ namespace Ship_Game
                 GovOrbitals.TextColor     = Planet.GovOrbitals        ? Color.White : Color.Gray;
                 GovGround.TextColor       = Planet.GovGroundDefense   ? Color.White : Color.Gray;
                 ManualOrbitals.TextColor  = Planet.ManualOrbitals     ? Color.White : Color.Gray;
-                AutoTroops.TextColor      = Planet.AutoBuildTroops    ? Color.White : Color.Gray;
+                AutoTroops.Locked         = Planet.GarrisonSize == 0;
                 GovNoScrap.TextColor      = Planet.DontScrapBuildings ? Color.White : Color.Gray;
                 OverrideCiv.TextColor     = OverrideCivBudget ? Color.White : Color.Gray;
                 OverrideGrd.TextColor     = OverrideGrdBudget ? Color.White : Color.Gray;
@@ -578,8 +597,8 @@ namespace Ship_Game
         {
             if ((Planet.GovOrbitals || !Planet.OwnerIsPlayer) && GovernorOn)
             {
-                PlatformsText.Pos = new Vector2(BuildPlatform.X, BuildPlatform.Y + 3);
-                ShipyardsText.Pos = new Vector2(BuildShipyard.X, BuildShipyard.Y + 3);
+                PlatformsText.Pos = new Vector2(BuildPlatform.X, PlatformsRowY + 3);
+                ShipyardsText.Pos = new Vector2(BuildShipyard.X, ShipyardsRowY + 3);
                 StationsText.Pos  = new Vector2(BuildStation.X, BuildStation.Y + 3);
             }
             else
@@ -703,6 +722,43 @@ namespace Ship_Game
             }
 
             GameAudio.NegativeClick();
+        }
+
+        void OnApplyGarrisonToAllClicked(UIButton b)
+        {
+            int garrisonSize = Planet.GarrisonSize;
+            bool autoBuild   = Planet.AutoBuildTroops;
+            ConfirmApplyToAll(SettingLine(GameText.GarrisonSize, garrisonSize.ToString()),
+                              SettingLine(GameText.GovernorBuildsMilitia, autoBuild),
+                              p => { p.GarrisonSize = garrisonSize; p.AutoBuildTroops = autoBuild; });
+        }
+
+        void OnApplyDefenseToAllClicked(UIButton b)
+        {
+            bool govGround   = Planet.GovGroundDefense;
+            bool govOrbitals = Planet.GovOrbitals;
+            ConfirmApplyToAll(SettingLine(GameText.GovernorManagesGroundDefense, govGround),
+                              SettingLine(GameText.GovernorManagesOrbitals, govOrbitals),
+                              p => { p.GovGroundDefense = govGround; p.GovOrbitals = govOrbitals; });
+        }
+
+        static string SettingLine(GameText setting, bool on)
+            => SettingLine(setting, Localizer.Token(on ? GameText.SettingOn : GameText.SettingOff));
+
+        static string SettingLine(GameText setting, string value) => $"{Localizer.Token(setting)}: {value}";
+
+        void ConfirmApplyToAll(string setting1, string setting2, Action<Planet> apply)
+        {
+            Empire player  = Player;
+            string message = string.Format(Localizer.Token(GameText.ApplyToAllColoniesConfirm), player.NumPlanets, setting1, setting2);
+            var messageBox = new MessageBoxScreen(Universe, message, width: 370);
+            messageBox.Accepted = () => Universe.RunOnSimThread(() =>
+            {
+                var planets = player.GetPlanets();
+                for (int i = 0; i < planets.Count; i++)
+                    apply(planets[i]);
+            });
+            Screen.ScreenManager.AddScreen(messageBox);
         }
 
         void UpdateButtons()
