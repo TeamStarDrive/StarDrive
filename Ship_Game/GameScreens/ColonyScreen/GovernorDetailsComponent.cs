@@ -156,7 +156,7 @@ namespace Ship_Game
             Garrison        = Slider(200, 200, 160, 40, GameText.GarrisonSize, 0, 25,Planet.GarrisonSize);
             ManualPlatforms = Slider(200, 200, 120, 40, "", 0, 15, Planet.WantedPlatforms);
             ManualShipyards = Slider(200, 200, 120, 40, "", 0, 3, Planet.WantedShipyards);
-            ManualStations  = Slider(200, 200, 120, 40, "", 0, 10, Planet.WantedStations);
+            ManualStations  = Slider(200, 200, 120, 40, "", 0, 9, Planet.WantedStations);
 
             Garrison.Tip        = GameText.GarrisonSizeEnsuresANumber;
             ManualPlatforms.Tip = GameText.ManuallyAdjustTheNumberOf;

@@ -101,6 +101,13 @@ namespace Ship_Game
             return numOrbitals;
         }
 
+        // every new orbital on its way here, whatever its role, shipyards included. A refit
+        // replaces an orbital that is already counted
+        int AllOrbitalsBeingBuilt(Empire owner)
+            => owner?.AI.CountGoals(g => g is DeepSpaceBuildGoal b && b.OldShip == null && b.IsBuildingOrbitalFor(this)) ?? 0;
+
+        bool OrbitalsCapReached => OrbitalStations.Count + AllOrbitalsBeingBuilt(Owner) >= ShipBuilder.OrbitalsLimit;
+
         public int ShipyardsBeingBuilt() => ShipyardsBeingBuilt(Owner);
 
         private int ShipyardsBeingBuilt(Empire owner)
@@ -131,7 +138,7 @@ namespace Ship_Game
 
             if (budget > 0)
             {
-                if (orbitalsWeHave < orbitalsWeWant && HasRoomForOrbitalClearOfRadiation) // lets build an orbital
+                if (orbitalsWeHave < orbitalsWeWant && HasRoomForOrbitalClearOfRadiation && !OrbitalsCapReached) // lets build an orbital
                     BuildOrbital(role, budget);
                 else if (orbitalList.Count > 0)
                     ReplaceOrbital(orbitalList, role, budget);  // check if we can replace an orbital with a better one
@@ -337,6 +344,7 @@ namespace Ship_Game
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.Ships.GetDesign(shipyardName, out IShipDesign shipyard)
+                    && !IsOutOfOrbitalsLimit(shipyard)
                     && shipyard.GetMaintenanceCost(Owner) < budget
                     && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), TimeVsCostThreshold))
                 {
@@ -360,8 +368,8 @@ namespace Ship_Game
         public int NumStations  => FilterOrbitals(RoleName.station).Count;
 
         // extraPending: orbitals already queued in the same batch that the marshalled goal-add
-        // (RunOnSimThread) hasn't applied to the empire goals list yet, so OrbitalsBeingBuilt/
-        // ShipyardsBeingBuilt still under-counts them. Callers that enqueue in a tight loop pass it.
+        // (RunOnSimThread) hasn't applied to the empire goals list yet, so the pending build goals
+        // still under-count them. Callers that enqueue in a tight loop pass it.
         // Assumes a homogeneous batch (one design repeated): extraPending is added to both the orbital
         // and shipyard counts, which is only safe because the unused count's gate can't fire for that
         // design (a platform never trips the shipyard branch). Mixed-design batches would miscount.
@@ -370,7 +378,7 @@ namespace Ship_Game
 
         bool IsOutOfOrbitalsLimit(IShipDesign ship, Empire owner, int overLimit, int extraPending)
         {
-            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.Role, owner) + extraPending;
+            int numOrbitals  = OrbitalStations.Count + AllOrbitalsBeingBuilt(owner) + extraPending;
             int numShipyards = OrbitalStations.Count(s => s.ShipData.IsShipyard) + ShipyardsBeingBuilt(owner) + extraPending;
             if (numOrbitals >= ShipBuilder.OrbitalsLimit + overLimit && ship.IsPlatformOrStation)
                 return true;
