@@ -130,7 +130,6 @@ public class RefitLandingTests : StarDriveTest
         QueueItem refit = RunUntilQueued();
 
         AddShipyard(new Vector2(0, Homeworld.Radius + 1000f));
-        Homeworld.NumShipyards = 1_000_000; // so the usual launch would all but surely pick the shipyard
         Ship newShip = FinishBuild(Homeworld, refit, Refit);
         Assert.IsTrue(newShip.IsLaunching, "the new ship takes off");
         AssertEqual(101f, Homeworld.Radius, newShip.Position.Distance(Homeworld.Position),
@@ -332,7 +331,6 @@ public class RefitLandingTests : StarDriveTest
 
         Ship otherShipyard = SpawnShip("Shipyard", Player, otherPort.Position + new Vector2(0, 2500));
         otherShipyard.TetherToPlanet(otherPort);
-        otherPort.NumShipyards = 1_000_000; // so the usual launch would all but surely pick the shipyard
         Ship newShip = FinishBuild(otherPort, refit, Refit);
         AssertLessThan(newShip.Position.Distance(otherShipyard.Position), 51f,
                        "the new ship takes off as usual at the new port, not from a planet only the old port had");

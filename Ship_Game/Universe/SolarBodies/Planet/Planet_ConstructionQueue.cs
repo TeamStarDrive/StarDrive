@@ -179,7 +179,7 @@ public partial class Planet
                 isShip  = !forTroop,
                 ShipData = sData,
                 isTroop = forTroop,
-                Cost    = forTroop ? cost : cost * ShipCostModifier,
+                Cost    = cost,
             };
 
             return qi;
@@ -210,12 +210,13 @@ public partial class Planet
                 Goal goal = refitGoals[i];
                 if (goal.ToBuild != null)
                 {
-                    if (goal.OldShip != null && goal.ToBuild != null)
+                    if (goal.OldShip != null && goal.ToBuild != null && goal.FinishedShip == null
+                        && !ConstructionQueue.Any(q => q.Goal == goal))
                     {
                         var qi = new QueueItem(this)
                         {
                             isShip = true,
-                            Cost   = goal.OldShip.RefitCost(goal.ToBuild) * ShipCostModifier,
+                            Cost   = goal.OldShip.RefitCost(goal.ToBuild),
                             ShipData = goal.ToBuild
                         };
                         refitQueue.Add(qi);

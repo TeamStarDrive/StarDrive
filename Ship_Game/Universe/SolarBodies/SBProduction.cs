@@ -646,11 +646,10 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 if (q.isShip && q.ShipData.Name == oldShip.Name)
                 {
-                    float percentCompleted = q.ProductionSpent / q.ActualCost;
                     q.ShipData = newShip;
-                    q.Cost = q.ProductionSpent <= 10
-                           ? newShip.GetCost(Owner) 
-                           : q.Cost + refitCost*P.ShipCostModifier;
+                    q.Cost = q.ProductionSpent <= 10 && q.Goal is not RefitShip
+                           ? newShip.GetCost(Owner)
+                           : q.Cost + refitCost;
                 }
             }
         }

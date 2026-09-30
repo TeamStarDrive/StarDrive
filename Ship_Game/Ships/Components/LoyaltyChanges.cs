@@ -145,6 +145,9 @@ namespace Ship_Game.Ships.Components
 
             (oldLoyalty as IEmpireShipLists).RemoveShipAtEndOfTurn(ship);
             (newLoyalty as IEmpireShipLists).AddNewShipAtEndOfTurn(ship);
+
+            if (ship.IsShipyard)
+                ship.GetTether()?.UpdateShipyards();
         }
     }
 }

@@ -97,6 +97,8 @@ namespace Ship_Game
                 if (attacker != null && attacker.isPlayer && oldOwner == newOwner.Universe.Cordrazine)
                     attacker.IncrementCordrazineCapture();
             }
+
+            UpdateShipyards();
         }
 
         public void Colonize(Ship colonyShip)

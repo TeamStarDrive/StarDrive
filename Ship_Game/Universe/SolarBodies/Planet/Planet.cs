@@ -881,19 +881,31 @@ namespace Ship_Game
 
         public Vector2 GetBuilderShipTargetVector(bool launch, out bool fromShipyard)
         {
-            fromShipyard = false;
-            if (Owner.Random.RollDie(1+NumShipyards) > 1)
+            Ship shipyard = PickRandomShipyard();
+            fromShipyard = shipyard != null;
+            if (shipyard == null)
+                return Position;
+
+            return launch ? shipyard.Position.GenerateRandomPointInsideCircle(50, Owner.Random) : shipyard.Position;
+        }
+
+        Ship PickRandomShipyard()
+        {
+            Ship[] orbitals = OrbitalStations.GetInternalArrayItems();
+            int count = Math.Min(OrbitalStations.Count, orbitals.Length);
+            Ship picked = null;
+            int numShipyards = 0;
+            for (int i = 0; i < count; ++i)
             {
-                var potentialShipyards = OrbitalStations.Filter(s => s.IsShipyard);
-                if (potentialShipyards.Length > 0)
+                Ship orbital = orbitals[i];
+                if (orbital is { IsShipyard: true, Active: true, Dying: false }
+                    && orbital.Loyalty == Owner
+                    && Random.InRange(++numShipyards) == 0)
                 {
-                    fromShipyard = true;
-                    Vector2 pos = Random.Item(potentialShipyards).Position;
-                    return launch ? pos.GenerateRandomPointInsideCircle(50, Owner.Random) : pos;
+                    picked = orbital;
                 }
             }
-
-            return Position;
+            return picked;
         }
 
         public Ship FindShipyardToLandOn(Ship ship)
