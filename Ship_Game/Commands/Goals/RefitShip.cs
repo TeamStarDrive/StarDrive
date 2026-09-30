@@ -16,6 +16,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         [StarData] public sealed override BuildableShip Build { get; set; }
         [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
         [StarData] public sealed override Ship OldShip { get; set; }
+        [StarData] QueueItem RefitItem;
 
         public override IShipDesign ToBuild => Build.Template;
         public override bool IsRefitGoalAtPlanet(Planet planet) => PlanetBuildingAt == planet;
@@ -28,7 +29,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 FindShipAndPlanetToRefit,
                 WaitForOldShipAtPlanet,
                 BuildNewShip,
-                WaitForShipBuilt,
+                WaitForRefitBuilt,
                 AddShipDataAndFleet
             };
         }
@@ -44,7 +45,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
 
-            if (OldShip.AI.State == AIState.Refit)
+            if (OldShip.AI.State == AIState.Refit && !OldShip.IsLanding)
             {
                 InheritFleetFromOldRefitGoal();
                 RemoveOldRefitGoal();
@@ -71,17 +72,18 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         GoalStep FindShipAndPlanetToRefit()
         {
             if (OldShip.IsLanding)
+            {
+                RemoveGoalFromFleet();
                 return GoalStep.GoalFailed;
+            }
 
-            if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, OldShip.RefitCost(Build.Template), 
-                OldShip, Build.Template, OldShip.Fleet != null, out Planet refitPlanet))
+            if (!FindPortToRefitAt(travelBack: OldShip.Fleet != null))
             {
                 OldShip.AI.ClearOrders();
+                RemoveGoalFromFleet();
                 return GoalStep.GoalFailed;  // No planet to refit
             }
 
-            PlanetBuildingAt = refitPlanet;
-            
             if (Fleet != null)
             {
                 if (Fleet.FindShipNode(OldShip, out FleetDataNode node))
@@ -96,6 +98,35 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             return GoalStep.GoToNextStep;
         }
 
+        bool FindPortToRefitAt(bool travelBack)
+        {
+            if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, OldShip.RefitCost(Build.Template),
+                OldShip, Build.Template, travelBack, out Planet refitPlanet))
+            {
+                return false;
+            }
+
+            PlanetBuildingAt = refitPlanet;
+            return true;
+        }
+
+        GoalStep SendToAnotherPort()
+        {
+            if (OldShip.IsLanding)
+                OldShip.TakeOffAfterLanding();
+
+            if (!FindPortToRefitAt(travelBack: Fleet != null))
+            {
+                OldShip.AI.ClearOrders();
+                RemoveGoalFromFleet();
+                return GoalStep.GoalFailed;
+            }
+
+            OldShip.AI.OrderRefitTo(PlanetBuildingAt, this);
+            ChangeToStep(WaitForOldShipAtPlanet);
+            return GoalStep.TryAgain;
+        }
+
         GoalStep WaitForOldShipAtPlanet()
         {
             if (!OldShipOnPlan)
@@ -104,8 +135,21 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
             }
 
-            if (OldShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 300f))
+            if (OldShip.IsPlatformOrStation)
+            {
+                return OldShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 300f)
+                    ? GoalStep.GoToNextStep
+                    : GoalStep.TryAgain;
+            }
+
+            if (PlanetBuildingAt.Owner != Owner && !OldShip.IsLanding)
+                return SendToAnotherPort();
+
+            if (OldShip.IsLanding || OldShip.AI.TryLand(LandPlan.Refit, PlanetBuildingAt, PlanetBuildingAt.FindShipyardToLandOn(OldShip)))
                 return GoalStep.GoToNextStep;
+
+            if (!OldShip.AI.FindGoal(ShipAI.Plan.Refit, out _))
+                OldShip.AI.OrderRefitTo(PlanetBuildingAt, this);
 
             return GoalStep.TryAgain;
         }
@@ -115,6 +159,19 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipWaitingForRefit)
             {
                 RemoveGoalFromFleet();
+                return GoalStep.GoalFailed;
+            }
+
+            if (OldShip.LandShip is { Done: false })
+                return GoalStep.TryAgain;
+
+            if (PlanetBuildingAt.Owner != Owner)
+            {
+                if (!OldShip.IsPlatformOrStation)
+                    return SendToAnotherPort();
+
+                OldShip.AI.OrderAwaitOrders();
+                RemoveGoalFromFleet(); // do not strand the fleet node on a dead goal
                 return GoalStep.GoalFailed;
             }
 
@@ -131,20 +188,41 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 TransportingColonists  = OldShip.TransportingColonists,
                 TransportingFood       = OldShip.TransportingFood,
                 TransportingProduction = OldShip.TransportingProduction,
-                AllowInterEmpireTrade  = OldShip.AllowInterEmpireTrade
+                AllowInterEmpireTrade  = OldShip.AllowInterEmpireTrade,
+                LaunchShipyard         = OldShip.LandShip?.Shipyard,
+                LaunchFromPlanet       = OldShip.LandShip is { Shipyard: null }
             };
-
-            if (PlanetBuildingAt.Owner == null || PlanetBuildingAt.Owner != Owner)
-            {
-                OldShip.AI.OrderAwaitOrders();
-                RemoveGoalFromFleet(); // do not strand the fleet node on a dead goal
-                return GoalStep.GoalFailed;
-            }
 
             OldShip.QueueTotalRemoval();
             OldShip = null; // clean up dangling reference to avoid serializing it
+            RefitItem = qi;
             PlanetBuildingAt.Construction.EnqueueRefitShip(qi);
             return GoalStep.GoToNextStep;
+        }
+
+        GoalStep WaitForRefitBuilt()
+        {
+            if (FinishedShip == null && PlanetBuildingAt.Owner != Owner)
+                return QueueAtAnotherPort();
+
+            return WaitForShipBuilt();
+        }
+
+        GoalStep QueueAtAnotherPort()
+        {
+            if (RefitItem == null || !Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, RefitItem.Cost, Build.Template, out Planet port))
+            {
+                RemoveGoalFromFleet();
+                return GoalStep.GoalFailed;
+            }
+
+            PlanetBuildingAt = port;
+            RefitItem.Planet = port;
+            RefitItem.ProductionSpent = 0;
+            RefitItem.LaunchShipyard = null;
+            RefitItem.LaunchFromPlanet = false;
+            port.Construction.EnqueueRefitShip(RefitItem);
+            return GoalStep.TryAgain;
         }
 
         GoalStep AddShipDataAndFleet()

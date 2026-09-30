@@ -141,6 +141,7 @@
     <Compile Include="Ships\AdjacentShipExplosionTests.cs" />
     <Compile Include="Ships\ColonyShipLandingTests.cs" />
     <Compile Include="Ships\ScrapLandingTests.cs" />
+    <Compile Include="Ships\RefitLandingTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
     <Compile Include="Ships\ModuleResistTests.cs" />
     <Compile Include="Ships\BlastEmpAndPowerDamageTests.cs" />

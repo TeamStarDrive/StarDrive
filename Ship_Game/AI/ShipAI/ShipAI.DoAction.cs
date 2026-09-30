@@ -654,19 +654,28 @@ namespace Ship_Game.AI
             return pos;
         }
 
-        void DoRefit(ShipGoal goal)
+        void DoRefit(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (goal.Goal == null) // empire goal was removed or planet was compromised
-                ClearOrders();
-
-            // stick around until the empire goal picks the ship for refit
-            if (!Owner.IsPlatformOrStation)
+            if (Owner.IsPlatformOrStation)
             {
-                ClearOrders(AIState.HoldPosition);
-                SetPriorityOrder(true); // Especially for freighters manually refitted by the player, so they wont be taken to trade again
+                ClearOrders(AIState.Refit); // orbitals wait in place for the empire goal
+                return;
             }
 
-            ClearOrders(AIState.Refit);  // For orbitals
+            if (!Owner.Loyalty.AI.HasGoal(GoalType.Refit, Owner))
+            {
+                ClearOrders(); // Could not find empire refit goal
+                return;
+            }
+
+            if (goal.TargetPlanet != null && goal.TargetPlanet.Owner != Owner.Loyalty)
+            {
+                ReverseThrustUntilStopped(timeStep); // the empire goal picks another port
+                return;
+            }
+
+            IgnoreCombat = true;
+            FlyInToLand(timeStep, goal, LandPlan.Refit);
         }
 
         void DoRepairDroneLogic(Weapon w)

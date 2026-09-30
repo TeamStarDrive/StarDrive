@@ -76,7 +76,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                     OldShip.AI.OrderMoveAndScrap(buildAt);
                 }
             }
-            else if (OldShip.AI.TryLandForScrap(PlanetBuildingAt, PlanetBuildingAt.FindShipyardToLandOn(OldShip)))
+            else if (OldShip.AI.TryLand(LandPlan.Scrap, PlanetBuildingAt, PlanetBuildingAt.FindShipyardToLandOn(OldShip)))
             {
                 return GoalStep.GoToNextStep;
             }

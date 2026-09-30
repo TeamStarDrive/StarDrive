@@ -417,12 +417,30 @@ namespace Ship_Game.Ships
             }
         }
 
-        // Note - a landing ship cannot be hit or targeted and takes no orders, it is removed once landed
+        // Note - a landing ship cannot be hit or targeted and takes no orders
         public void InitLanding(LandPlan landPlan, Planet planet, Ship shipyard = null)
         {
-            AI.ClearOrdersAndWayPoints(landPlan == LandPlan.Scrap ? AIState.Scrap : AIState.AwaitingOrders);
+            AIState state = landPlan switch
+            {
+                LandPlan.Scrap => AIState.Scrap,
+                LandPlan.Refit => AIState.Refit,
+                _ => AIState.AwaitingOrders
+            };
+            AI.ClearOrdersAndWayPoints(state, priority: true);
             AI.IgnoreCombat = true;
             LandShip = new(this, landPlan, planet, shipyard);
+        }
+
+        public void TakeOffAfterLanding()
+        {
+            Ship shipyard = LandShip.Shipyard;
+            Planet planet = LandShip.Planet;
+            LandShip = null;
+            AI.ClearOrders();
+            if (shipyard != null)
+                InitLaunch(LaunchPlan.Shipyard);
+            else
+                InitLaunch(LaunchPlan.Planet, planet);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////

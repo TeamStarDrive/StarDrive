@@ -284,15 +284,26 @@ namespace Ship_Game.AI
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (!Owner.Loyalty.AI.HasScrapGoal(Owner))
+            if (!Owner.Loyalty.AI.HasGoal(GoalType.ScrapShip, Owner))
             {
                 ClearOrders(); // Could not find empire scrap goal
                 return;
             }
 
+            FlyInToLand(timeStep, goal, LandPlan.Scrap);
+        }
+
+        void FlyInToLand(FixedSimTime timeStep, ShipGoal goal, LandPlan landPlan)
+        {
             Planet planet = goal.TargetPlanet;
+            if (planet == null)
+            {
+                ClearOrders();
+                return;
+            }
+
             Ship shipyard = planet.FindShipyardToLandOn(Owner);
-            if (TryLandForScrap(planet, shipyard))
+            if (TryLand(landPlan, planet, shipyard))
                 return;
 
             Vector2 landAt = shipyard?.Position ?? planet.Position;
@@ -303,7 +314,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            float range = ScrapLandingRange(planet, shipyard);
+            float range = LandingRange(planet, shipyard);
             float speedLimit = 0f;
             if (!Owner.IsInWarp && Owner.Position.InRadius(landAt, range + Owner.GetMinDecelerationDistance(Owner.MaxSTLSpeed) + 500f))
                 speedLimit = shipyard != null ? LaunchShip.ShipyardSpeed(Owner) : 200f;
@@ -311,19 +322,19 @@ namespace Ship_Game.AI
             ThrustOrWarpToPos(landAt, timeStep, speedLimit, warpExitDistance: Math.Min(range + Owner.WarpOutDistance, 7000f));
         }
 
-        float ScrapLandingRange(Planet planet, Ship shipyard)
+        float LandingRange(Planet planet, Ship shipyard)
             => shipyard != null ? LandShip.ShipyardLandingRange(Owner) : planet.Radius + 300f;
 
-        public bool TryLandForScrap(Planet planet, Ship shipyard)
+        public bool TryLand(LandPlan landPlan, Planet planet, Ship shipyard)
         {
             Vector2 landAt = shipyard?.Position ?? planet.Position;
-            if (Owner.Position.OutsideRadius(landAt, ScrapLandingRange(planet, shipyard))
+            if (Owner.Position.OutsideRadius(landAt, LandingRange(planet, shipyard))
                 || Owner.IsLaunching || Owner.IsSpoolingOrInWarp || Owner.Dying || Owner.EMPDisabled)
             {
                 return false;
             }
 
-            Owner.InitLanding(LandPlan.Scrap, planet, shipyard);
+            Owner.InitLanding(landPlan, planet, shipyard);
             return true;
         }
 
@@ -567,7 +578,7 @@ namespace Ship_Game.AI
                 case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
                 case Plan.RearmShipFromPlanet:      DoRearmShip(timeStep);                    break;
                 case Plan.BuildOrbital:             DoBuildOrbital(timeStep, goal);           break;
-                case Plan.Refit:                    DoRefit(goal);                            break;
+                case Plan.Refit:                    DoRefit(timeStep, goal);                  break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
                 case Plan.ReturnHome:               DoReturnHome(timeStep);                   break;

@@ -1,5 +1,6 @@
 ﻿using SDGraphics;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 
@@ -12,7 +13,8 @@ namespace Ship_Game.Ships
         [StarData] readonly Ship Owner;
         [StarData] float PosZ;
         [StarData] readonly LandPlan LandPlan;
-        [StarData] readonly bool OnShipyard;
+        [StarData] public readonly Planet Planet;
+        [StarData] public readonly Ship Shipyard;
         [StarData] LandOnPlanet PlanetLanding;
         [StarData] LandOnShipyard ShipyardLanding;
 
@@ -20,14 +22,14 @@ namespace Ship_Game.Ships
         {
             Owner = owner;
             LandPlan = landPlan;
+            Planet = planet;
             switch (LandPlan)
             {
-                case LandPlan.Colonize: PlanetLanding = new(owner, planet); break;
-                case LandPlan.Scrap when shipyard != null:
-                    OnShipyard = true;
+                case LandPlan.Scrap or LandPlan.Refit when shipyard != null:
+                    Shipyard = shipyard;
                     ShipyardLanding = new(owner, planet, shipyard);
                     break;
-                case LandPlan.Scrap: PlanetLanding = new(owner, planet); break;
+                default: PlanetLanding = new(owner, planet); break;
             }
         }
 
@@ -35,7 +37,14 @@ namespace Ship_Game.Ships
         {
         }
 
-        public bool WaitsForScrap => LandPlan == LandPlan.Scrap && Owner.Loyalty.AI.HasScrapGoal(Owner);
+        public bool WaitsForGoal => LandPlan switch
+        {
+            LandPlan.Scrap => Owner.Loyalty.AI.HasGoal(GoalType.ScrapShip, Owner),
+            LandPlan.Refit => Owner.Loyalty.AI.HasGoal(GoalType.Refit, Owner),
+            _ => false
+        };
+
+        public bool TakesOffIfAbandoned => LandPlan == LandPlan.Refit;
 
         public static float ShipyardLandingRange(Ship ship)
             => (LaunchShip.ShipyardSpeed(ship) * LaunchShip.ShipyardDuration(ship, LaunchShip.ShipyardRotationDegX(ship))).LowerBound(300);
@@ -46,7 +55,7 @@ namespace Ship_Game.Ships
                 return;
 
             float scale;
-            if (OnShipyard)
+            if (Shipyard != null)
             {
                 ShipyardLanding.Update(timeStep, visibleToPlayer, ref PosZ, out scale);
                 Done = ShipyardLanding.Done;
@@ -176,6 +185,7 @@ namespace Ship_Game.Ships
     public enum LandPlan
     {
         Colonize,
-        Scrap
+        Scrap,
+        Refit
     }
 }

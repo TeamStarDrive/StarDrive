@@ -8,6 +8,7 @@ using Vector2 = SDGraphics.Vector2;
 using SDUtils;
 using System.Linq;
 using Ship_Game.Data.Serialization;
+using Ship_Game.ExtensionMethods;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -225,7 +226,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (!ResourceManager.ShipTemplateExists(q.ShipData.Name))
                 return false;
 
-            Vector2 launchPos = P.GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
+            Vector2 launchPos = GetLaunchPos(q, out bool fromShipyard);
 
             Ship shipAt = fromShipyard ? Ship.CreateShipAtShipyard(P.Universe, q.ShipData.Name, Owner, launchPos)
                                        : Ship.CreateShipNearPlanet(P.Universe, q.ShipData.Name, Owner, P, true);
@@ -258,6 +259,23 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             return true;
+        }
+
+        Vector2 GetLaunchPos(QueueItem q, out bool fromShipyard)
+        {
+            if (q.LaunchShipyard is { Active: true, Dying: false } shipyard && shipyard.Loyalty == Owner && shipyard.GetTether() == P)
+            {
+                fromShipyard = true;
+                return shipyard.Position.GenerateRandomPointInsideCircle(50, Owner.Random);
+            }
+
+            if (q.LaunchFromPlanet)
+            {
+                fromShipyard = false;
+                return P.Position;
+            }
+
+            return P.GetBuilderShipTargetVector(launch: true, out fromShipyard);
         }
 
         // Applies available production to production queue

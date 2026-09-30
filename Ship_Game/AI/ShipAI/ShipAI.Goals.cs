@@ -285,7 +285,7 @@ namespace Ship_Game.AI
         {
             if (!Owner.IsPlatformOrStation)
             {
-                OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Refit);
+                ClearOrdersAndWayPoints(AIState.Refit);
                 IgnoreCombat = true;
                 ResetPriorityOrder(clearOrders: false);
             }

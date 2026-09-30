@@ -44,6 +44,8 @@ namespace Ship_Game
         [StarData] public bool TransportingFood       = true;
         [StarData] public bool TransportingProduction = true;
         [StarData] public bool AllowInterEmpireTrade  = true;
+        [StarData] public Ship LaunchShipyard;
+        [StarData] public bool LaunchFromPlanet;
 
         public bool IsCivilianBuilding => isBuilding && !IsMilitary;
         public Rectangle rect;
