@@ -355,6 +355,7 @@ namespace Ship_Game
             {
                 if (ship.IsHangarShip
                     || ship.IsHomeDefense
+                    || ship.IsLanding
                     || (PlayerDesignsOnly && !ship.ShipData.IsPlayerDesign)
                     || (InFleetsOnly && ship.Fleet == null)
                     || (NotInFleets && ship.Fleet != null))

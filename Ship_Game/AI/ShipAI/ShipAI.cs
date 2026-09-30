@@ -284,21 +284,19 @@ namespace Ship_Game.AI
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.Radius * 3)
+            Planet planet = goal.TargetPlanet;
+            Ship shipyard = planet.FindShipyardToLandOn(Owner);
+            Vector2 landAt = shipyard?.Position ?? planet.Position;
+            if (Owner.Position.OutsideRadius(landAt, 200f))
             {
-                Orbit.Orbit(goal.TargetPlanet, timeStep);
+                ThrustOrWarpToPos(landAt, timeStep, 200f);
                 return;
             }
 
-            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.Radius)
-            {
-                ThrustOrWarpToPos(goal.TargetPlanet.Position, timeStep, 200f);
-                return;
-            }
-
-            // Waiting to be scrapped by Empire goal
-            if (!Owner.Loyalty.AI.HasGoal(g => g.Type == GoalType.ScrapShip && g.OldShip == Owner))
+            if (!Owner.Loyalty.AI.HasScrapGoal(Owner))
                 ClearOrders(); // Could not find empire scrap goal
+            else if (!Owner.IsLaunching)
+                Owner.InitLanding(LandPlan.Scrap, planet, shipyard);
         }
 
         public void Update(FixedSimTime timeStep)

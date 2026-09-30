@@ -896,6 +896,28 @@ namespace Ship_Game
             return Position;
         }
 
+        public Ship FindShipyardToLandOn(Ship ship)
+        {
+            Ship[] orbitals = OrbitalStations.GetInternalArrayItems();
+            int count = Math.Min(OrbitalStations.Count, orbitals.Length);
+            Ship nearest = null;
+            float nearestDist = float.MaxValue;
+            for (int i = 0; i < count; ++i)
+            {
+                Ship orbital = orbitals[i];
+                if (orbital is { IsShipyard: true, Active: true, Dying: false } && orbital.Loyalty == ship.Loyalty)
+                {
+                    float dist = orbital.Position.SqDist(ship.Position);
+                    if (dist < nearestDist)
+                    {
+                        nearest = orbital;
+                        nearestDist = dist;
+                    }
+                }
+            }
+            return nearest;
+        }
+
         void UpdatePlanetShields()
         {
             if (ShieldStrengthCurrent != 0 && Shield == null)

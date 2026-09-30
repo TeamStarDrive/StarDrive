@@ -501,6 +501,13 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public bool HasScrapGoal(Ship ship)
+        {
+            for (int i = 0; i < GoalsList.Count; ++i)
+                if (GoalsList[i] is { Type: GoalType.ScrapShip } g && g.OldShip == ship) return true;
+            return false;
+        }
+
         public bool HasGoal(Predicate<Goal> predicate)
         {
             return GoalsList.Any(predicate);

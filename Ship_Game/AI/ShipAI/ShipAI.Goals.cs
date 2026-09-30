@@ -300,7 +300,8 @@ namespace Ship_Game.AI
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
             SetOrbitTarget(p);
-            OrderMoveTo(GetPositionOnPlanet(p), direction, AIState.Scrap);
+            Vector2 landAt = p.FindShipyardToLandOn(Owner)?.Position ?? p.Position;
+            OrderMoveTo(landAt, direction, AIState.Scrap, MoveOrder.Regular|MoveOrder.KeepFacing);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 

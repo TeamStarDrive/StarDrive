@@ -181,7 +181,7 @@ namespace Ship_Game.Ships
             else if (IsLanding)
             {
                 LandShip.Update(visibleToPlayer, timeStep);
-                if (LandShip.Done)
+                if (LandShip.Done && !LandShip.WaitsForScrap)
                     QueueTotalRemoval();
             }
             else if (visibleToPlayer)

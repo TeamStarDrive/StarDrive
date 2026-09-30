@@ -49,6 +49,22 @@ namespace Ship_Game.Ships
         public static Vector2 StartingVelocity(Ship ship, float rotationDegZ, float randomModifier) 
             => rotationDegZ.AngleToDirection() * (ship.MaxSTLSpeed * randomModifier).UpperBound(300);
 
+        public static int ShipyardRotationDegX(Ship ship)
+        {
+            switch (ship.ShipData.HullRole)
+            {
+                case RoleName.fighter:
+                case RoleName.corvette:
+                case RoleName.frigate: return 90;
+                case RoleName.cruiser: return 80;
+                case RoleName.capital: return 60;
+                default:               return 75;
+            }
+        }
+
+        public static float ShipyardDuration(Ship ship, int rotationDegX)
+            => (rotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
+
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
@@ -219,17 +235,8 @@ namespace Ship_Game.Ships
                 RotationDegZ = rotation;
                 Progress = InitialProgress;
                 Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.5f, 0.8f));
-                switch (ship.ShipData.HullRole)
-                {
-                    case RoleName.fighter:
-                    case RoleName.corvette:
-                    case RoleName.frigate: MaxRotationDegX = 90; break;
-                    case RoleName.cruiser: MaxRotationDegX = 80; break;
-                    case RoleName.capital: MaxRotationDegX = 60; break;
-                    default: MaxRotationDegX = 75; break;
-                }
-
-                TotalDuration = (MaxRotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
+                MaxRotationDegX = ShipyardRotationDegX(ship);
+                TotalDuration = ShipyardDuration(ship, MaxRotationDegX);
             }
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)

@@ -59,6 +59,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipOnPlan)
                 return GoalStep.GoalFailed;
 
+            if (OldShip.IsLanding)
+                return GoalStep.GoToNextStep;
+
             if (!PlanetBuildingAt.Safe)
             {
                 OldShip.AI.ClearOrders();
@@ -74,10 +77,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 }
             }
 
-
-            if (OldShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 300f))
-                return GoalStep.GoToNextStep;
-
             return GoalStep.TryAgain;
         }
 
@@ -86,8 +85,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipOnPlan)
                 return GoalStep.GoalFailed;
 
+            if (OldShip.LandShip is { Done: false })
+                return GoalStep.TryAgain;
+
             Owner.RefundCreditsPostRemoval(OldShip);
-            PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
+            if (PlanetBuildingAt.Owner == Owner)
+                PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
             Owner.TryUnlockByScrap(OldShip);
             OldShip.QueueTotalRemoval();
             return GoalStep.GoalComplete;

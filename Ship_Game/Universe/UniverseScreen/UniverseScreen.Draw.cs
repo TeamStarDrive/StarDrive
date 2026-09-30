@@ -946,7 +946,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (ship.InFrustum && ship.InPlayerSensorRange)
+                if (ship.InFrustum && ship.InPlayerSensorRange && ship.LandShip is not { Done: true })
                 {
                         if (!IsCinematicModeEnabled)
                             DrawTacticalIcon(ship);
