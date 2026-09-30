@@ -55,8 +55,11 @@ public partial class UniverseScreen
 
     public void UpdateSelectedShips()
     {
+        if (SelectedShip is { IsLanding: true })
+            SelectedShip = null;
+
         int num = SelectedShipList.Count();
-        SelectedShipList.RemoveInActiveObjects();
+        SelectedShipList.RemoveAll(s => !s.Active || s.IsLanding);
         if (SelectedShip != null)
             SetSelectedShip(SelectedShip, SelectedFleet, clearFlags: false); // same ship, UI refresh only
         else if (num != SelectedShipList.Count())
@@ -77,7 +80,7 @@ public partial class UniverseScreen
         // CG: previous target code.
         if (PrevSelectedShip != null && input.PreviousTarget)
         {
-            if (PrevSelectedShip.Active)
+            if (PrevSelectedShip is { Active: true, IsLanding: false })
                 SetSelectedShip(PrevSelectedShip);
             else
                 PrevSelectedShip = null;  //fbedard: remove inactive ship

@@ -320,7 +320,7 @@ namespace Ship_Game.Commands.Goals
 
         void ReleaseShipFromGoal()
         {
-            if (FinishedShip != null)
+            if (FinishedShip is { IsLanding: false })
             {
                 FinishedShip.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders);
                 var nearestRallyPoint = Owner.FindNearestRallyPoint(FinishedShip.Position);
@@ -352,7 +352,7 @@ namespace Ship_Game.Commands.Goals
         {
             foreach (Ship ship in Owner.OwnedShips)
             {
-                if (ship.ShipData.IsColonyShip && !ship.DoingRefit
+                if (ship.ShipData.IsColonyShip && !ship.DoingRefit && !ship.IsLanding
                     && ship.AI != null && ship.Active && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
                     && NotAssignedToColonizationGoal(ship))
                 {

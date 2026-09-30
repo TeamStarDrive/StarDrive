@@ -496,7 +496,7 @@ namespace Ship_Game
                 for (int i = start; i < end; ++i)
                 {
                     Ship ship = allShips[i];
-                    if (ship.Active && !ship.Dying && !ship.EMPDisabled)
+                    if (ship.Active && !ship.Dying && !ship.EMPDisabled && !ship.IsLanding)
                         ship.AI.Update(timeStep);
                 }
             }

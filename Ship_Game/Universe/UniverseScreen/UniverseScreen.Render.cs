@@ -368,7 +368,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (ship.InPlayerSensorRange)
+                if (ship.InPlayerSensorRange && !ship.IsLanding)
                 {
                     ship.RenderThrusters(ref View, ref Projection);
                 }

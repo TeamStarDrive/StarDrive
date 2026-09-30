@@ -1006,7 +1006,7 @@ namespace Ship_Game
             {
                 // if we check for a missing model here we can show the ship modules instead. 
                 // that will solve invisible ships when the ship model load hits an OOM.
-                if (!ship.IsLaunching && (ShowShipNames || ship.GetSO()?.HasMeshes == false))
+                if (!ship.IsLaunching && !ship.IsLanding && (ShowShipNames || ship.GetSO()?.HasMeshes == false))
                 {
                     ship.DrawModulesOverlay(this, CamPos.Z,
                         showDebugSelect:Debug && ship == SelectedShip,

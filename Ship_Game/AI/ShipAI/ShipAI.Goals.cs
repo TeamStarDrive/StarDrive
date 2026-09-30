@@ -252,7 +252,7 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
-            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Colonize);
+            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Colonize, MoveOrder.Regular|MoveOrder.KeepFacing);
             AddShipGoal(Plan.Colonize, planet.Position, Vectors.Up, planet, g, AIState.Colonize);
         }
 

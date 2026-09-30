@@ -417,6 +417,14 @@ namespace Ship_Game.Ships
             }
         }
 
+        // Note - a landing ship cannot be hit or targeted and takes no orders, it is removed once landed
+        public void InitLanding(LandPlan landPlan, Planet planet)
+        {
+            AI.ClearOrdersAndWayPoints();
+            AI.IgnoreCombat = true;
+            LandShip = new(this, landPlan, planet);
+        }
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         void InitializeAI()

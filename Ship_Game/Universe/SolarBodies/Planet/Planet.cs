@@ -761,6 +761,7 @@ namespace Ship_Game
             {
                 var ship = (Ship)enemyShips[i];
                 if (ship.Dying
+                    || ship.IsLanding
                     || ship.IsInWarp
                     || ship.EMPDisabled && w?.EMPDamage > 0 && enemyShips.Length > 1
                     || w != null && !w.TargetValid(ship) && !canLaunchShips

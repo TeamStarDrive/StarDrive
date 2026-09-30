@@ -756,7 +756,7 @@ namespace Ship_Game.AI
 
         public float GetSensorRadius(out Ship sensorShip)
         {
-            if (Owner.IsLaunching)
+            if (Owner.IsLaunching || Owner.IsLanding)
             {
                 sensorShip = Owner;
                 return 0;

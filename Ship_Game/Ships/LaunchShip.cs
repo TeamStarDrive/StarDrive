@@ -79,23 +79,26 @@ namespace Ship_Game.Ships
                     Owner.AI.IgnoreCombat = false;
             }
 
-            if (!visibleToPlayer)
-                return;
+            if (visibleToPlayer)
+                UpdateSceneObject(Owner, scale, PosZ, timeStep);
+        }
 
-            var SO = Owner.GetSO();
-            if (Owner.GetSO() != null)
+        public static void UpdateSceneObject(Ship ship, float scale, float posZ, FixedSimTime timeStep)
+        {
+            var SO = ship.GetSO();
+            if (SO != null)
             {
-                SO.World = Matrix.CreateTranslation(new Vector3(Owner.ShipData.BaseHull.MeshOffset, 0f))
-                             * Matrix.CreateRotationY(Owner.YRotation)
-                             * Matrix.CreateRotationX(Owner.XRotation)
-                             * Matrix.CreateRotationZ(Owner.Rotation)
+                SO.World = Matrix.CreateTranslation(new Vector3(ship.ShipData.BaseHull.MeshOffset, 0f))
+                             * Matrix.CreateRotationY(ship.YRotation)
+                             * Matrix.CreateRotationX(ship.XRotation)
+                             * Matrix.CreateRotationZ(ship.Rotation)
                              * Matrix.CreateScale(scale)
-                             * Matrix.CreateTranslation(new Vector3(Owner.Position, PosZ));
+                             * Matrix.CreateTranslation(new Vector3(ship.Position, posZ));
                 SO.UpdateAnimation(timeStep.FixedTime);
             }
             else // auto-create scene objects if possible
             {
-                Owner.Universe.Screen?.QueueSceneObjectCreation(Owner);
+                ship.Universe.Screen?.QueueSceneObjectCreation(ship);
             }
         }
 

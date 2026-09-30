@@ -46,7 +46,8 @@ namespace Ship_Game.AI
             HasPriorityTarget = true;
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
-            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.Loyalty == Owner.Loyalty)
+            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLanding
+                || escortTarget.Loyalty == Owner.Loyalty)
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -845,7 +846,7 @@ namespace Ship_Game.AI
 
         void DoRebaseToShip(FixedSimTime timeStep)
         {
-            if (EscortTarget == null || !EscortTarget.Active
+            if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding
                                      || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit)
             {
@@ -971,7 +972,7 @@ namespace Ship_Game.AI
 
         void DoTroopToShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (EscortTarget == null || !EscortTarget.Active)
+            if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding)
             {
                 ClearOrders();
                 return;

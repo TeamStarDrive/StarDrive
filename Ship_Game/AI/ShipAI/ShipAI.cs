@@ -266,7 +266,7 @@ namespace Ship_Game.AI
             }
 
             targetPlanet.Colonize(Owner);
-            Owner.QueueTotalRemoval();
+            Owner.InitLanding(LandPlan.Colonize, targetPlanet);
         }
 
         bool TryGetClosestUnexploredPlanet(SolarSystem system, out Planet planet)

@@ -70,6 +70,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindShipAndPlanetToRefit()
         {
+            if (OldShip.IsLanding)
+                return GoalStep.GoalFailed;
+
             if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, OldShip.RefitCost(Build.Template), 
                 OldShip, Build.Template, OldShip.Fleet != null, out Planet refitPlanet))
             {

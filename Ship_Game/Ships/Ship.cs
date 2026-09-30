@@ -155,6 +155,7 @@ namespace Ship_Game.Ships
 
         [StarData] public PlanetCrash PlanetCrash;
         [StarData] public LaunchShip LaunchShip;
+        [StarData] public LandShip LandShip;
         private bool ReallyDie;
         private bool HasExploded;
         public float TotalDps { get; private set; }
@@ -176,6 +177,7 @@ namespace Ship_Game.Ships
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
         public bool IsLaunching => LaunchShip != null;
+        public bool IsLanding => LandShip != null;
         public bool IsMiningShip            => Loyalty.data.DefaultMiningShip == Name || Empire.DefaultMiningShipName == Name;
         public bool IsDefaultAssaultShuttle => Loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (Loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);
@@ -544,7 +546,7 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunching)
+            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunching || IsLanding)
                 return false; 
 
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
@@ -605,7 +607,7 @@ namespace Ship_Game.Ships
         public bool IsHangarShip   => Mothership != null;
         public bool IsHomeDefense  => HomePlanet != null;
         public bool CanBeRefitted  => CanBeScrapped;
-        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense;
+        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && !IsLanding;
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays 

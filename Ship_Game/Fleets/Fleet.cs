@@ -2714,7 +2714,7 @@ namespace Ship_Game.Fleets
                 if (ship == null)
                     continue;
 
-                if (!ship.Active)
+                if (!ship.Active || ship.IsLanding)
                 {
                     RemoveShip(ship, clearOrders: false);
                     continue;
