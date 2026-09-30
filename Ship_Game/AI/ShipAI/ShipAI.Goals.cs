@@ -298,10 +298,7 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndScrap(Planet p)
         {
-            Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
-            SetOrbitTarget(p);
-            Vector2 landAt = p.FindShipyardToLandOn(Owner)?.Position ?? p.Position;
-            OrderMoveTo(landAt, direction, AIState.Scrap, MoveOrder.Regular|MoveOrder.KeepFacing);
+            ClearOrdersAndWayPoints(AIState.Scrap, priority: true);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 

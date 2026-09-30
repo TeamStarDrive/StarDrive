@@ -65,6 +65,8 @@ namespace Ship_Game.Ships
         public static float ShipyardDuration(Ship ship, int rotationDegX)
             => (rotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
 
+        public static float ShipyardSpeed(Ship ship) => (ship.MaxSTLSpeed * 0.65f).UpperBound(300);
+
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {

@@ -11,13 +11,13 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// A ship sent to be scrapped lands once it is within 200 of its target: the nearest of the empire's
-/// shipyards at its planet, or the planet itself when it has none. It is scrapped once it has landed.
+/// A ship sent to be scrapped lands once it is in range: of the nearest of the empire's shipyards at its
+/// planet (the shipyard launch played backwards, so it starts as far out as a launch ends), or of the
+/// planet itself when it has none (its radius + 300). It is scrapped once it has landed.
 /// </summary>
 [TestClass]
 public class ScrapLandingTests : StarDriveTest
 {
-    const float LandingRange = 200f;
     readonly Planet Homeworld;
     TestShip Scrapped;
     Goal Scrap;
@@ -30,6 +30,9 @@ public class ScrapLandingTests : StarDriveTest
         Homeworld = AddHomeWorldToEmpire(new Vector2(200_000), Player, new Vector2(205_000), explored: true);
         Player.UpdateRallyPoints();
     }
+
+    float PlanetRange => Homeworld.Radius + 300f;
+    float ShipyardRange => LandShip.ShipyardLandingRange(Scrapped);
 
     Ship AddShipyard(Vector2 offset)
     {
@@ -82,7 +85,9 @@ public class ScrapLandingTests : StarDriveTest
         OrderScrap(Homeworld.Position + new Vector2(5000, 0));
         RunUntilLanding();
 
-        Assert.IsTrue(Scrapped.Position.InRadius(Homeworld.Position, LandingRange), "the ship lands on the planet");
+        Assert.IsTrue(Scrapped.Position.InRadius(Homeworld.Position, PlanetRange), "the ship lands on the planet");
+        AssertGreaterThan(Scrapped.Position.Distance(Homeworld.Position), PlanetRange - 50f,
+                          "the landing starts as the ship comes within the planet's radius + 300");
         float scrapCost = Scrapped.GetScrapCost();
         float money = Player.Money;
 
@@ -137,6 +142,91 @@ public class ScrapLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void TheGoalStartsTheLandingOfAShipAlreadyInRange()
+    {
+        Ship shipyard = AddShipyard(new Vector2(0, 2500));
+        OrderScrap(shipyard.Position + new Vector2(500, 0));
+        Assert.IsFalse(Scrapped.IsLanding, "setup: the scrap order alone must not land the ship");
+
+        Scrap.Evaluate();
+        Assert.IsTrue(Scrapped.IsLanding, "the goal must start the landing of a ship it finds in range");
+
+        Vector2 before = Scrapped.Position;
+        RunObjectsSim(TestSimStep);
+        AssertLessThan(Scrapped.Position.Distance(before), 0.1f, "a ship starting down from a standstill must ease into its glide");
+    }
+
+    [TestMethod]
+    public void AShipInWarpDisabledOrDyingDoesNotStartItsLanding()
+    {
+        Ship shipyard = AddShipyard(new Vector2(0, 2500));
+        void AssertDoesNotLand(Action<TestShip> setUp, string reason)
+        {
+            OrderScrap(shipyard.Position + new Vector2(500, 0));
+            setUp(Scrapped);
+            Scrap.Evaluate();
+            Assert.IsFalse(Scrapped.IsLanding, reason);
+        }
+
+        AssertDoesNotLand(s => s.engineState = Ship.MoveState.Warp, "a ship still in warp must drop out of it before it starts down");
+        AssertDoesNotLand(s => s.EMPDisabled = true, "an EMP-disabled ship must not escape the EMP by landing");
+        AssertDoesNotLand(s => s.Dying = true, "a dying ship must not start a landing");
+    }
+
+    [TestMethod]
+    public void TheGoalDoesNotRestartALandingTheShipStarted()
+    {
+        OrderScrap(Homeworld.Position + new Vector2(3000, 0));
+        RunSimWhile((simTimeout: 60, fatal: true), () => !Scrapped.IsLanding);
+        LandShip landing = Scrapped.LandShip;
+
+        Scrap.Evaluate();
+        Assert.AreSame(landing, Scrapped.LandShip, "the goal must carry on with the landing the ship started, not restart it");
+    }
+
+    [TestMethod]
+    public void AScrappedShipWarpsInAndFliesStraightIntoItsShipyardLanding()
+    {
+        AssertFliesStraightIntoTheShipyard(new Vector2(8000, 2500));
+    }
+
+    [TestMethod]
+    public void AScrappedShipAtSublightFliesStraightIntoItsShipyardLanding()
+    {
+        AssertFliesStraightIntoTheShipyard(new Vector2(5000, 2500));
+    }
+
+    void AssertFliesStraightIntoTheShipyard(Vector2 from)
+    {
+        Ship shipyard = AddShipyard(new Vector2(0, 2500));
+        OrderScrap(Homeworld.Position + from);
+
+        bool moving = false, stopped = false;
+        float speedBefore = 0f;
+        RunSimWhile((simTimeout: 120, fatal: true), () => !Scrapped.IsLanding, () =>
+        {
+            speedBefore = Scrapped.CurrentVelocity;
+            if (speedBefore > 100f) moving = true;
+            if (moving && speedBefore < 10f) stopped = true;
+        });
+
+        Assert.IsTrue(moving, "setup: the ship must fly to the shipyard");
+        Assert.IsFalse(stopped, "the ship must fly into its landing, not stop at the shipyard first");
+
+        float launchSpeed = LaunchShip.ShipyardSpeed(Scrapped);
+        float launchDistance = launchSpeed * LaunchShip.ShipyardDuration(Scrapped, LaunchShip.ShipyardRotationDegX(Scrapped));
+        float startDistance = Scrapped.Position.Distance(shipyard.Position);
+        AssertGreaterThan(startDistance, launchDistance - 60f, "the landing must start where a shipyard launch would end");
+        AssertLessThan(startDistance, launchDistance + 1f, "the landing must start where a shipyard launch would end");
+        AssertEqual(5f, launchSpeed, speedBefore, "setup: the ship must come in at launch speed");
+
+        Vector2 before = Scrapped.Position;
+        float glideTime = RunObjectsSim(10 * TestSimStep.FixedTime);
+        float glideSpeed = Scrapped.Position.Distance(before) / glideTime;
+        AssertEqual(launchSpeed * 0.1f, speedBefore, glideSpeed, "the glide must carry on at the speed the ship came in with");
+    }
+
+    [TestMethod]
     public void AScrappedShipLandsOnTheNearestShipyardAndFollowsIt()
     {
         AddShipyard(new Vector2(-2500, 0));
@@ -144,7 +234,7 @@ public class ScrapLandingTests : StarDriveTest
         OrderScrap(Homeworld.Position + new Vector2(6000, 2500));
         float closestToPlanet = float.MaxValue;
         RunUntilLanding(() => closestToPlanet = Math.Min(closestToPlanet, Scrapped.Position.Distance(Homeworld.Position)));
-        Assert.IsTrue(Scrapped.Position.InRadius(shipyard.Position, LandingRange),
+        Assert.IsTrue(Scrapped.Position.InRadius(shipyard.Position, ShipyardRange),
                       "the ship must land on the shipyard nearest to it, not on the planet");
         AssertGreaterThan(closestToPlanet, Homeworld.Radius, "the ship must fly straight to the shipyard, not over the planet first");
 
@@ -155,18 +245,23 @@ public class ScrapLandingTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AScrappedShipGoesOnToAShipyardThatMovedWhileItFlew()
+    public void AScrappedShipFollowsAShipyardThatMovesWhileItFlies()
     {
         Ship shipyard = AddShipyard(new Vector2(0, 2500));
-        OrderScrap(Homeworld.Position + new Vector2(6000, 2500));
+        OrderScrap(Homeworld.Position + new Vector2(8000, 2500));
         Vector2 orderedTo = shipyard.Position;
-        MoveHomeworldAlongItsOrbit(10f);
-        AssertGreaterThan(orderedTo.Distance(Homeworld.Position + shipyard.TetherOffset), LandingRange,
+        MoveHomeworldAlongItsOrbit(30f);
+        RunObjectsSim(TestSimStep);
+        AssertGreaterThan(orderedTo.Distance(shipyard.Position), ShipyardRange + 1000f,
                           "setup: the shipyard must move out of range of where the ship was sent");
 
         RunUntilLanding();
-        Assert.IsTrue(Scrapped.Position.InRadius(shipyard.Position, LandingRange),
-                      "the ship must go on to where the shipyard is now");
+        AssertGreaterThan(Scrapped.Position.Distance(shipyard.Position), ShipyardRange - 60f,
+                          "the ship must fly to where the shipyard is now and start down at its landing range");
+        AssertLessThan(Scrapped.Position.Distance(shipyard.Position), ShipyardRange + 1f,
+                       "the ship must fly to where the shipyard is now and start down at its landing range");
+        RunWithScrapGoal(() => !Scrapped.LandShip.Done);
+        AssertLessThan(Scrapped.Position.Distance(shipyard.Position), 5f, "the ship must land on the shipyard");
     }
 
     [TestMethod]
@@ -177,30 +272,8 @@ public class ScrapLandingTests : StarDriveTest
         shipyard.QueueTotalRemoval();
 
         RunUntilLanding();
-        Assert.IsTrue(Scrapped.Position.InRadius(Homeworld.Position, LandingRange),
+        Assert.IsTrue(Scrapped.Position.InRadius(Homeworld.Position, PlanetRange),
                       "with its shipyard gone, the ship must land on the planet");
-    }
-
-    [TestMethod]
-    public void AScrappedShipDoesNotTurnInPlaceAtTheShipyard()
-    {
-        Ship shipyard = AddShipyard(new Vector2(0, 2500));
-        OrderScrap(Homeworld.Position + new Vector2(6000, 2500));
-
-        Vector2 slowFacing = Vector2.Zero;
-        float turnWhileSlow = 0f;
-        RunUntilLanding(() =>
-        {
-            bool slowAtShipyard = Scrapped.CurrentVelocity < 20f
-                               && Scrapped.Position.InRadius(shipyard.Position, 300f);
-            if (slowAtShipyard && slowFacing == Vector2.Zero)
-                slowFacing = Scrapped.Direction;
-            if (slowFacing != Vector2.Zero)
-                turnWhileSlow = Math.Max(turnWhileSlow, Scrapped.Direction.Distance(slowFacing));
-        });
-
-        Assert.AreNotEqual(Vector2.Zero, slowFacing, "setup: the ship must slow down at the shipyard");
-        AssertLessThan(turnWhileSlow, 0.05f, "the ship must land facing the way it flew in, not turn in place first");
     }
 
     [TestMethod]

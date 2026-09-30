@@ -284,19 +284,47 @@ namespace Ship_Game.AI
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            Planet planet = goal.TargetPlanet;
-            Ship shipyard = planet.FindShipyardToLandOn(Owner);
-            Vector2 landAt = shipyard?.Position ?? planet.Position;
-            if (Owner.Position.OutsideRadius(landAt, 200f))
+            if (!Owner.Loyalty.AI.HasScrapGoal(Owner))
             {
-                ThrustOrWarpToPos(landAt, timeStep, 200f);
+                ClearOrders(); // Could not find empire scrap goal
                 return;
             }
 
-            if (!Owner.Loyalty.AI.HasScrapGoal(Owner))
-                ClearOrders(); // Could not find empire scrap goal
-            else if (!Owner.IsLaunching)
-                Owner.InitLanding(LandPlan.Scrap, planet, shipyard);
+            Planet planet = goal.TargetPlanet;
+            Ship shipyard = planet.FindShipyardToLandOn(Owner);
+            if (TryLandForScrap(planet, shipyard))
+                return;
+
+            Vector2 landAt = shipyard?.Position ?? planet.Position;
+            Vector2 thrustTarget = goal.GetThrustTarget(landAt, Owner.Position);
+            if (thrustTarget != landAt)
+            {
+                ThrustOrWarpToPos(thrustTarget, timeStep);
+                return;
+            }
+
+            float range = ScrapLandingRange(planet, shipyard);
+            float speedLimit = 0f;
+            if (!Owner.IsInWarp && Owner.Position.InRadius(landAt, range + Owner.GetMinDecelerationDistance(Owner.MaxSTLSpeed) + 500f))
+                speedLimit = shipyard != null ? LaunchShip.ShipyardSpeed(Owner) : 200f;
+
+            ThrustOrWarpToPos(landAt, timeStep, speedLimit, warpExitDistance: Math.Min(range + Owner.WarpOutDistance, 7000f));
+        }
+
+        float ScrapLandingRange(Planet planet, Ship shipyard)
+            => shipyard != null ? LandShip.ShipyardLandingRange(Owner) : planet.Radius + 300f;
+
+        public bool TryLandForScrap(Planet planet, Ship shipyard)
+        {
+            Vector2 landAt = shipyard?.Position ?? planet.Position;
+            if (Owner.Position.OutsideRadius(landAt, ScrapLandingRange(planet, shipyard))
+                || Owner.IsLaunching || Owner.IsSpoolingOrInWarp || Owner.Dying || Owner.EMPDisabled)
+            {
+                return false;
+            }
+
+            Owner.InitLanding(LandPlan.Scrap, planet, shipyard);
+            return true;
         }
 
         public void Update(FixedSimTime timeStep)

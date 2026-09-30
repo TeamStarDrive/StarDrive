@@ -37,6 +37,9 @@ namespace Ship_Game.Ships
 
         public bool WaitsForScrap => LandPlan == LandPlan.Scrap && Owner.Loyalty.AI.HasScrapGoal(Owner);
 
+        public static float ShipyardLandingRange(Ship ship)
+            => (LaunchShip.ShipyardSpeed(ship) * LaunchShip.ShipyardDuration(ship, LaunchShip.ShipyardRotationDegX(ship))).LowerBound(300);
+
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
             if (Done)
@@ -113,10 +116,14 @@ namespace Ship_Game.Ships
             [StarData] readonly Planet Planet;
             [StarData] readonly Vector2 ShipyardOffset;
             [StarData] readonly Vector2 StartOffset;
+            [StarData] readonly float PathShape;
             [StarData] readonly float TotalDuration;
+            [StarData] readonly float StartRotationDegZ;
+            [StarData] readonly float TurnDegZ;
             [StarData] readonly float StartRotationY;
             [StarData] readonly int MaxRotationDegX;
             const int EndPosZ = 400;
+            const float TurnPart = 0.2f;
 
             public LandOnShipyard(Ship ship, Planet planet, Ship shipyard)
             {
@@ -125,22 +132,38 @@ namespace Ship_Game.Ships
                 Planet = planet;
                 ShipyardOffset = shipyard.TetherOffset;
                 StartOffset = ship.Position - shipyard.Position;
-                StartRotationY = ship.YRotation;
                 MaxRotationDegX = LaunchShip.ShipyardRotationDegX(ship);
                 TotalDuration = LaunchShip.ShipyardDuration(ship, MaxRotationDegX);
+                StartRotationDegZ = ship.RotationDegrees;
+                StartRotationY = ship.YRotation;
+                float distance = StartOffset.Length();
+                if (distance > 1f)
+                {
+                    float speedIn = ship.Velocity.Dot(-StartOffset / distance).LowerBound(0);
+                    PathShape = (speedIn * TotalDuration / distance).Clamped(0, 2);
+                    TurnDegZ = (ship.Position.AngleToTarget(shipyard.Position) - StartRotationDegZ + 540f) % 360f - 180f;
+                }
+                else
+                {
+                    PathShape = 1f;
+                    TurnDegZ = 0f;
+                }
             }
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
             {
                 Progress = (Progress + timeStep.FixedTime / TotalDuration).UpperBound(1);
                 float remaining = 1 - Progress;
+                float travelled = PathShape * Progress + (1 - PathShape) * Progress * Progress;
+                float turn = (Progress / TurnPart).UpperBound(1);
                 Owner.Velocity = Vector2.Zero;
-                Owner.Position = Planet.Position + ShipyardOffset + StartOffset * (remaining * remaining);
+                Owner.Position = Planet.Position + ShipyardOffset + StartOffset * (1 - travelled);
+                Owner.Rotation = (StartRotationDegZ + TurnDegZ * turn).ToRadians().AsNormalizedRadians();
+                Owner.YRotation = StartRotationY * (1 - turn);
                 scale = remaining;
                 posZ = EndPosZ * Progress;
                 float pitch = Progress <= 0.5f ? Progress * 2 : remaining * 2;
                 Owner.XRotation = -(MaxRotationDegX * pitch).ToRadians();
-                Owner.YRotation = StartRotationY * (1 - (Progress / 0.5f).UpperBound(1));
 
                 if (visible && (Progress < 0.05f || Progress.InRange(0.49f, 0.51f) || Progress.InRange(0.75f, 0.9f)))
                     Owner.Universe.Screen.Particles.Flash.AddParticle(LaunchShip.FlashPos(Owner, scale, posZ), scale);
