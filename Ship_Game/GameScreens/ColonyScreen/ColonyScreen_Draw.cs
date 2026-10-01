@@ -539,7 +539,9 @@ namespace Ship_Game
 
             if (IsStatTabSelected)
             {
-                DrawMoney(ref bCursor, batch);
+                Vector2 shipsOutCursor = bCursor;
+                float moneyWidth = DrawMoney(ref bCursor, batch);
+                DrawShipsOut(shipsOutCursor, batch, moneyWidth);
                 DrawPlanetStat(ref bCursor, batch, TextFont);
                 return;
             }
@@ -726,7 +728,7 @@ namespace Ship_Game
                 DrawMultiLine(ref bCursor, Localizer.Token(GameText.ThisPlanetsPopulationIsShrinking), Color.LightPink);
         }
 
-        void DrawMoney(ref Vector2 cursor, SpriteBatch batch)
+        float DrawMoney(ref Vector2 cursor, SpriteBatch batch)
         {
             string gIncome = Localizer.Token(GameText.GrossIncome);
             string gUpkeep = Localizer.Token(GameText.Expenditure2);
@@ -738,18 +740,49 @@ namespace Ship_Game
             float netIncome   = P.Money.NetRevenue;
 
             Font font = LowRes ? Font8 : Font14;
+            string grossIncomeText = $"{grossIncome.String(2)} BC/T";
+            string grossUpkeepText = $"{grossUpkeep.String(2)} BC/T";
+            string netIncomeText   = $"{netIncome.String(2)} BC/T";
 
             batch.DrawString(font, $"{gIncome}: ", cursor, Color.LightGray);
-            batch.DrawString(font, $"{grossIncome.String(2)} BC/T", new Vector2(cursor.X + 150, cursor.Y), Color.LightGreen);
+            batch.DrawString(font, grossIncomeText, new Vector2(cursor.X + 150, cursor.Y), Color.LightGreen);
             cursor.Y += font.LineSpacing +  1;
 
             batch.DrawString(font, $"{gUpkeep}: ", cursor, Color.LightGray);
-            batch.DrawString(font, $"{grossUpkeep.String(2)} BC/T", new Vector2(cursor.X + 150, cursor.Y), Color.Pink);
+            batch.DrawString(font, grossUpkeepText, new Vector2(cursor.X + 150, cursor.Y), Color.Pink);
             cursor.Y += font.LineSpacing + 1;
 
             batch.DrawString(font, $"{(netIncome > 0 ? nIncome : nLosses)}: ", cursor, Color.LightGray);
-            batch.DrawString(font, $"{netIncome.String(2)} BC/T", new Vector2(cursor.X + 150, cursor.Y), netIncome > 0.0 ? Color.Green : Color.Red);
+            batch.DrawString(font, netIncomeText, new Vector2(cursor.X + 150, cursor.Y), netIncome > 0.0 ? Color.Green : Color.Red);
             cursor.Y += font.LineSpacing*2 + 1;
+
+            float widestValue = Math.Max(font.MeasureString(grossIncomeText).X,
+                                Math.Max(font.MeasureString(grossUpkeepText).X, font.MeasureString(netIncomeText).X));
+            return 150 + widestValue;
+        }
+
+        void DrawShipsOut(Vector2 cursor, SpriteBatch batch, float moneyWidth)
+        {
+            Font font = LowRes ? Font8 : Font14;
+            cursor.X += Math.Max(PFacilities.Rect.Width * 0.5f, moneyWidth + 20);
+            string builders = $"{Localizer.Token(GameText.BuilderShipsLabel)}: ";
+            string shuttles = $"{Localizer.Token(GameText.SupplyShuttlesLabel)}: ";
+            float valueX = Math.Max(font.MeasureString(builders).X, font.MeasureString(shuttles).X) + 5;
+
+            DrawShipsOutLine(ref cursor, batch, font, builders, valueX, P.BuilderShipsOut, P.BuilderShipsLimit, GameText.BuilderShipsOutTip);
+            DrawShipsOutLine(ref cursor, batch, font, shuttles, valueX, P.SupplyShuttlesOut, P.SupplyShuttlesLimit, GameText.SupplyShuttlesOutTip);
+        }
+
+        void DrawShipsOutLine(ref Vector2 cursor, SpriteBatch batch, Font font, string label, float valueX,
+                              int shipsOut, int limit, GameText tip)
+        {
+            string value = $"{shipsOut} / {limit}";
+            batch.DrawString(font, label, cursor, Color.LightGray);
+            batch.DrawString(font, value, new Vector2(cursor.X + valueX, cursor.Y), Colors.Cream);
+            var hover = new Rectangle((int)cursor.X, (int)cursor.Y, (int)(valueX + font.MeasureString(value).X), font.LineSpacing);
+            if (hover.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
+                ToolTip.CreateTooltip(tip);
+            cursor.Y += font.LineSpacing + 1;
         }
 
         void DrawTilePopInfo(ref Vector2 cursor, SpriteBatch batch, PlanetGridSquare tile, int spacing = 5)

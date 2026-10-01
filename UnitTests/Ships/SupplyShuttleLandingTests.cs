@@ -125,6 +125,23 @@ public class SupplyShuttleLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void TheColonyTurnCountsTheSupplyShuttlesOutForTheColonyScreen()
+    {
+        SendShuttleToRearm(new Vector2(6000, 0), out _, out _);
+        AssertEqual(0, Homeworld.SupplyShuttlesOut, "setup: the count shown is refreshed by the colony's turn");
+
+        Player.UpdateEmpirePlanets();
+        int shuttlesOut = Player.AI.CountGoals(g => g.Type == GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == Homeworld);
+        AssertGreaterThan(shuttlesOut, 0, "setup: the colony must have a shuttle out");
+        AssertEqual(shuttlesOut, Homeworld.SupplyShuttlesOut, "the colony's turn counts the supply shuttles it has out");
+        AssertEqual((int)Homeworld.InfraStructure, Homeworld.SupplyShuttlesLimit, "the colony can have as many out as its infrastructure");
+        AssertEqual(Homeworld.SupplyShuttlesLimit - shuttlesOut, Homeworld.NumSupplyShuttlesCanLaunch(), "the free slots are the limit less the shuttles out");
+
+        Homeworld.SetOwner(Enemy);
+        AssertEqual(0, Homeworld.SupplyShuttlesOut, "a captured colony shows none of its old owner's shuttles");
+    }
+
+    [TestMethod]
     public void AShuttleWhoseColonyIsLostIsScuttledAndDoesNotLand()
     {
         Vector2 inRange = Homeworld.Position + new Vector2(300f, 0);

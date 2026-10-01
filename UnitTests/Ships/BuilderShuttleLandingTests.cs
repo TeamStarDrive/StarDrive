@@ -18,9 +18,7 @@ namespace UnitTests.Ships;
 [TestClass]
 public class BuilderShuttleLandingTests : StarDriveTest
 {
-    const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
-    static readonly FieldInfo BuildersOut = typeof(Planet).GetField("NumBuildShipsLaunched", Private);
-    static readonly FieldInfo BuildersAllowed = typeof(Planet).GetField("NumBuildShipsCanLaunch", Private);
+    static readonly FieldInfo BuildersAllowed = typeof(Planet).GetField("NumBuildShipsCanLaunch", BindingFlags.Instance | BindingFlags.NonPublic);
 
     readonly Planet Homeworld;
 
@@ -32,9 +30,10 @@ public class BuilderShuttleLandingTests : StarDriveTest
         Homeworld = AddHomeWorldToEmpire(new Vector2(200_000), Player, new Vector2(205_000), explored: true);
         Player.UpdateRallyPoints();
         BuildersAllowed.SetValue(Homeworld, 5);
+        AssertEqual(5, Homeworld.BuilderShipsLimit, "setup: the colony may have 5 builder ships out");
     }
 
-    static int BuilderShipsOut(Planet planet) => (int)BuildersOut.GetValue(planet);
+    static int BuilderShipsOut(Planet planet) => planet.BuilderShipsOut;
 
     float PlanetRange => Homeworld.Radius + 300f;
 

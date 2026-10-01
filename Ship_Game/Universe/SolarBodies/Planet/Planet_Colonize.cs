@@ -99,7 +99,10 @@ namespace Ship_Game
             }
 
             if (newOwner != oldOwner)
+            {
                 NumBuildShipsLaunched = 0;
+                SupplyShuttlesOut = 0;
+            }
 
             UpdateShipyards();
         }

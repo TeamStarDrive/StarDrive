@@ -69,6 +69,10 @@ PlanetTypeAndRichnessThe: economy_planetary_qualities
 IndicatesTheAmountOfFood: colony_storage
 IndicatesTheAmountOfProduction: colony_storage
 
+# Colony screen: statistics tab
+BuilderShipsOutTip: economy_shipyards
+SupplyShuttlesOutTip: warfare_ordnance
+
 # Colonies list: rush and cancel draw on the production store
 ClickToRushProductionFrom: colony_storage
 CancelProductionAndRemoveThis: colony_storage

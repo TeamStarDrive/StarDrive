@@ -126,6 +126,10 @@ namespace Ship_Game
         public bool IsSabotaged => CrippledTurns > 0;
         public bool CanLaunchBuilderShips => !SpaceCombatNearPlanet && NumBuildShipsLaunched < NumBuildShipsCanLaunch;
         public int NumBuildShipsCanLaunchperTurn => NumBuildShipsCanLaunch / 4;
+        public int BuilderShipsOut => NumBuildShipsLaunched;
+        public int BuilderShipsLimit => NumBuildShipsCanLaunch;
+        public int SupplyShuttlesOut { get; private set; }
+        public int SupplyShuttlesLimit => (int)InfraStructure;
         public bool IsMineable => Mining != null;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
@@ -848,6 +852,7 @@ namespace Ship_Game
             UpdatePlanetShields();
             TotalTroopConsumption = GetTotalTroopConsumption();
             UpdateNumBuilderShipsCanLaunch();
+            SupplyShuttlesOut = CountSupplyShuttlesOut();
         }
 
         void UpdateNumBuilderShipsCanLaunch()
@@ -1223,11 +1228,10 @@ namespace Ship_Game
 
         public int NumSupplyShuttlesCanLaunch() // Net, after subtracting already launched shuttles
         {
-            var planetSupplyGoals = Owner.AI
-                .FindGoals(g => g is RearmShipFromPlanet && g.PlanetBuildingAt == this);
-
-            return (int)InfraStructure - planetSupplyGoals.Length;
+            return SupplyShuttlesLimit - CountSupplyShuttlesOut();
         }
+
+        int CountSupplyShuttlesOut() => Owner.AI.CountGoals(g => g is RearmShipFromPlanet && g.PlanetBuildingAt == this);
 
         private void UpdateHomeDefenseHangars(Building b)
         {
