@@ -675,7 +675,7 @@ namespace Ship_Game.AI
             }
 
             IgnoreCombat = true;
-            FlyInToLand(timeStep, goal, LandPlan.Refit);
+            FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Refit);
         }
 
         void DoRepairDroneLogic(Weapon w)
@@ -806,7 +806,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoReturnHome(FixedSimTime timeStep)
+        void DoReturnHome(FixedSimTime timeStep, ShipGoal goal)
         {
             if (Owner.HomePlanet?.Owner != Owner.Loyalty)
             {
@@ -825,14 +825,10 @@ namespace Ship_Game.AI
             if (Owner.InCombat)
                 ClearOrders();
 
-            ThrustOrWarpToPos(Owner.HomePlanet.Position, timeStep);
-            if (Owner.SecondsAlive > 5
-                && !Owner.OnHighAlert
-                && Owner.Position.InRadius(Owner.HomePlanet.Position, Owner.HomePlanet.Radius + 150f))
-            {
-                Owner.HomePlanet.LandDefenseShip(Owner);
-                Owner.QueueTotalRemoval();
-            }
+            if (Owner.SecondsAlive <= 5 || Owner.OnHighAlert)
+                ThrustOrWarpToPos(Owner.HomePlanet.Position, timeStep);
+            else
+                FlyInToLand(timeStep, goal, Owner.HomePlanet, LandPlan.HomeDefense);
         }
 
         void DoBuilderReturnHome(FixedSimTime timeStep, ShipGoal goal)
@@ -845,7 +841,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            FlyInToLand(timeStep, goal, LandPlan.Builder);
+            FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Builder);
         }
 
         void DoRebaseToShip(FixedSimTime timeStep)

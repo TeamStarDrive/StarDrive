@@ -290,19 +290,18 @@ namespace Ship_Game.AI
                 return;
             }
 
-            FlyInToLand(timeStep, goal, LandPlan.Scrap);
+            FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Scrap);
         }
 
-        void FlyInToLand(FixedSimTime timeStep, ShipGoal goal, LandPlan landPlan)
+        void FlyInToLand(FixedSimTime timeStep, ShipGoal goal, Planet planet, LandPlan landPlan)
         {
-            Planet planet = goal.TargetPlanet;
             if (planet == null)
             {
                 ClearOrders();
                 return;
             }
 
-            Ship shipyard = planet.FindShipyardToLandOn(Owner);
+            Ship shipyard = landPlan == LandPlan.HomeDefense ? null : planet.FindShipyardToLandOn(Owner);
             if (TryLand(landPlan, planet, shipyard))
                 return;
 
@@ -581,7 +580,7 @@ namespace Ship_Game.AI
                 case Plan.Refit:                    DoRefit(timeStep, goal);                  break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
-                case Plan.ReturnHome:               DoReturnHome(timeStep);                   break;
+                case Plan.ReturnHome:               DoReturnHome(timeStep, goal);             break;
                 case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
                 case Plan.HoldPosition:             DoHoldPositionPlan(goal);                 break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;

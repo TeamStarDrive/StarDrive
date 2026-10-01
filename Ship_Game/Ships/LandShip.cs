@@ -47,7 +47,16 @@ namespace Ship_Game.Ships
 
         public bool TakesOffIfAbandoned => LandPlan == LandPlan.Refit;
 
-        public bool FreesBuilderSlot => LandPlan == LandPlan.Builder && Planet.Owner == Owner.Loyalty;
+        public void HandOverToPlanet()
+        {
+            bool stillOurs = Planet.Owner == Owner.Loyalty;
+            switch (LandPlan)
+            {
+                case LandPlan.Builder when stillOurs:     Planet.LandBuilderShip();       break;
+                case LandPlan.HomeDefense when stillOurs: Planet.LandDefenseShip(Owner);  break;
+                case LandPlan.HomeDefense:                Owner.Loyalty.RefundCreditsPostRemoval(Owner, percentOfAmount: 1f); break;
+            }
+        }
 
         public static float ShipyardLandingRange(Ship ship)
             => (LaunchShip.ShipyardSpeed(ship) * LaunchShip.ShipyardDuration(ship, LaunchShip.ShipyardRotationDegX(ship))).LowerBound(300);
@@ -190,6 +199,7 @@ namespace Ship_Game.Ships
         Colonize,
         Scrap,
         Refit,
-        Builder
+        Builder,
+        HomeDefense
     }
 }

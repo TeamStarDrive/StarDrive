@@ -189,8 +189,7 @@ namespace Ship_Game.Ships
                     }
                     else
                     {
-                        if (LandShip.FreesBuilderSlot)
-                            LandShip.Planet.LandBuilderShip();
+                        LandShip.HandOverToPlanet();
                         QueueTotalRemoval();
                     }
                 }

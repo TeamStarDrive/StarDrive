@@ -424,6 +424,7 @@ namespace Ship_Game.Ships
             {
                 LandPlan.Scrap => AIState.Scrap,
                 LandPlan.Refit => AIState.Refit,
+                LandPlan.HomeDefense => AIState.ReturnHome,
                 _ => AIState.AwaitingOrders
             };
             AI.ClearOrdersAndWayPoints(state, priority: true);
