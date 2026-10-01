@@ -301,7 +301,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Ship shipyard = landPlan == LandPlan.HomeDefense ? null : planet.FindShipyardToLandOn(Owner);
+            Ship shipyard = LandShip.UsesShipyards(landPlan) ? planet.FindShipyardToLandOn(Owner) : null;
             if (TryLand(landPlan, planet, shipyard))
                 return;
 
@@ -313,21 +313,24 @@ namespace Ship_Game.AI
                 return;
             }
 
-            float range = LandingRange(planet, shipyard);
+            float range = LandingRange(landPlan, planet, shipyard);
             float speedLimit = 0f;
             if (!Owner.IsInWarp && Owner.Position.InRadius(landAt, range + Owner.GetMinDecelerationDistance(Owner.MaxSTLSpeed) + 500f))
-                speedLimit = shipyard != null ? LaunchShip.ShipyardSpeed(Owner) : 200f;
+                speedLimit = GlidesIn(landPlan, planet, shipyard) ? LaunchShip.ShipyardSpeed(Owner) : 200f;
 
             ThrustOrWarpToPos(landAt, timeStep, speedLimit, warpExitDistance: Math.Min(range + Owner.WarpOutDistance, 7000f));
         }
 
-        float LandingRange(Planet planet, Ship shipyard)
-            => shipyard != null ? LandShip.ShipyardLandingRange(Owner) : planet.Radius + 300f;
+        static bool GlidesIn(LandPlan landPlan, Planet planet, Ship shipyard)
+            => shipyard != null || LandShip.LandsOnSpacePort(landPlan, planet);
+
+        float LandingRange(LandPlan landPlan, Planet planet, Ship shipyard)
+            => GlidesIn(landPlan, planet, shipyard) ? LandShip.ShipyardLandingRange(Owner) : planet.Radius + 300f;
 
         public bool TryLand(LandPlan landPlan, Planet planet, Ship shipyard)
         {
             Vector2 landAt = shipyard?.Position ?? planet.Position;
-            if (Owner.Position.OutsideRadius(landAt, LandingRange(planet, shipyard))
+            if (Owner.Position.OutsideRadius(landAt, LandingRange(landPlan, planet, shipyard))
                 || Owner.IsLaunching || Owner.IsSpoolingOrInWarp || Owner.Dying || Owner.EMPDisabled)
             {
                 return false;
@@ -586,6 +589,7 @@ namespace Ship_Game.AI
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
                 case Plan.Meteor:                   DoMeteor(goal);                           break;
                 case Plan.BuilderReturnHome:        DoBuilderReturnHome(timeStep, goal);      break;
+                case Plan.SupplyReturnHome:         DoSupplyReturnHome(timeStep, goal);       break;
                 case Plan.MinePlanet:               DoMinePlanet(timeStep, goal);             break;
                 case Plan.Orbit:                    DoOrbit(timeStep, goal);                  break;
             }

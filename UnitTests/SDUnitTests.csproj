@@ -145,6 +145,7 @@
     <Compile Include="Ships\RefitLandingTests.cs" />
     <Compile Include="Ships\BuilderShuttleLandingTests.cs" />
     <Compile Include="Ships\HomeDefenseLandingTests.cs" />
+    <Compile Include="Ships\SupplyShuttleLandingTests.cs" />
     <Compile Include="Ships\ShipLaunchPlaceTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
     <Compile Include="Ships\ModuleResistTests.cs" />

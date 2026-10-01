@@ -43,7 +43,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (SupplyShip == null) 
             {
                 string supplyShipName = Owner.GetSupplyShuttleName();
-                SupplyShip = Ship.CreateShipNearPlanet(TargetShip.Universe, supplyShipName, Owner, PlanetBuildingAt, doOrbit: false);
+                SupplyShip = PlanetBuildingAt.HasSpacePort
+                    ? Ship.CreateShipAtShipyard(TargetShip.Universe, supplyShipName, Owner,
+                                                PlanetBuildingAt.Position.GenerateRandomPointInsideCircle(50, Owner.Random))
+                    : Ship.CreateShipNearPlanet(TargetShip.Universe, supplyShipName, Owner, PlanetBuildingAt, doOrbit: false);
 
                 if (SupplyShip == null)
                     return GoalStep.GoalFailed;
@@ -96,8 +99,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!SupplyAlive)
                 return GoalStep.GoalFailed;
 
-            if (SupplyShip.AI.State != AIState.SupplyReturnHome)
-                SupplyShip.AI.OrderSupplyShipLand(PlanetBuildingAt); // Avoid  player control
+            if (SupplyShip.IsLanding)
+                return GoalStep.TryAgain;
 
             if (PlanetNotOurs)
             {
@@ -105,11 +108,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalComplete;
             }
 
-            if (SupplyShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 500f))
-            {
-                SupplyShip.QueueTotalRemoval();
-                return GoalStep.GoalComplete;
-            }
+            if (!SupplyShip.AI.FindGoal(ShipAI.Plan.SupplyReturnHome, out _))
+                SupplyShip.AI.OrderSupplyShipLand(PlanetBuildingAt); // Avoid  player control
 
             return GoalStep.TryAgain;
         }

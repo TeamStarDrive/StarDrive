@@ -844,6 +844,18 @@ namespace Ship_Game.AI
             FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Builder);
         }
 
+        void DoSupplyReturnHome(FixedSimTime timeStep, ShipGoal goal)
+        {
+            if (goal.TargetPlanet.Owner != Owner.Loyalty)
+            {
+                ClearOrders(AIState.Scuttle);
+                Owner.ScuttleTimer = 1;
+                return;
+            }
+
+            FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Supply);
+        }
+
         void DoRebaseToShip(FixedSimTime timeStep)
         {
             if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding

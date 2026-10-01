@@ -274,11 +274,9 @@ namespace Ship_Game.AI
 
         public void OrderSupplyShipLand(Planet p)
         {
-            Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
-            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.SupplyReturnHome, MoveOrder.AddWayPoint);
+            ClearOrders(AIState.SupplyReturnHome, priority: true);
             IgnoreCombat = true;
-            EscortTarget = null;
-            SetPriorityOrder(true);
+            AddShipGoal(Plan.SupplyReturnHome, p, null, AIState.SupplyReturnHome, pushToFront: true);
         }
 
         public void OrderMoveAndRefit(Planet planet, Goal g)
@@ -601,7 +599,8 @@ namespace Ship_Game.AI
             MiningStationRefining = 45, // for shipUIinfo display only
             MinePlanet = 46,
             MiningShipReturn = 47,
-            MiningStationNotOpsOwner = 48
+            MiningStationNotOpsOwner = 48,
+            SupplyReturnHome = 49
         }
     }
 }

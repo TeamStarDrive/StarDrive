@@ -15,6 +15,7 @@ namespace Ship_Game.Ships
         [StarData] readonly LandPlan LandPlan;
         [StarData] public readonly Planet Planet;
         [StarData] public readonly Ship Shipyard;
+        [StarData] readonly bool OnSpacePort;
         [StarData] LandOnPlanet PlanetLanding;
         [StarData] LandOnShipyard ShipyardLanding;
 
@@ -26,7 +27,12 @@ namespace Ship_Game.Ships
             if (shipyard != null)
             {
                 Shipyard = shipyard;
-                ShipyardLanding = new(owner, planet, shipyard);
+                ShipyardLanding = new(owner, planet, shipyard.TetherOffset, shipyard.Position);
+            }
+            else if (LandsOnSpacePort(landPlan, planet))
+            {
+                OnSpacePort = true;
+                ShipyardLanding = new(owner, planet, Vector2.Zero, planet.Position);
             }
             else
             {
@@ -58,6 +64,10 @@ namespace Ship_Game.Ships
             }
         }
 
+        public static bool UsesShipyards(LandPlan landPlan) => landPlan is not (LandPlan.HomeDefense or LandPlan.Supply);
+
+        public static bool LandsOnSpacePort(LandPlan landPlan, Planet planet) => landPlan == LandPlan.Supply && planet.HasSpacePort;
+
         public static float ShipyardLandingRange(Ship ship)
             => (LaunchShip.ShipyardSpeed(ship) * LaunchShip.ShipyardDuration(ship, LaunchShip.ShipyardRotationDegX(ship))).LowerBound(300);
 
@@ -67,7 +77,7 @@ namespace Ship_Game.Ships
                 return;
 
             float scale;
-            if (Shipyard != null)
+            if (Shipyard != null || OnSpacePort)
             {
                 ShipyardLanding.Update(timeStep, visibleToPlayer, ref PosZ, out scale);
                 Done = ShipyardLanding.Done;
@@ -146,13 +156,13 @@ namespace Ship_Game.Ships
             const int EndPosZ = 400;
             const float TurnPart = 0.2f;
 
-            public LandOnShipyard(Ship ship, Planet planet, Ship shipyard)
+            public LandOnShipyard(Ship ship, Planet planet, Vector2 offsetFromPlanet, Vector2 landAt)
             {
                 Owner = ship;
                 Progress = 0;
                 Planet = planet;
-                ShipyardOffset = shipyard.TetherOffset;
-                StartOffset = ship.Position - shipyard.Position;
+                ShipyardOffset = offsetFromPlanet;
+                StartOffset = ship.Position - landAt;
                 MaxRotationDegX = LaunchShip.ShipyardRotationDegX(ship);
                 TotalDuration = LaunchShip.ShipyardDuration(ship, MaxRotationDegX);
                 StartRotationDegZ = ship.RotationDegrees;
@@ -162,7 +172,7 @@ namespace Ship_Game.Ships
                 {
                     float speedIn = ship.Velocity.Dot(-StartOffset / distance).LowerBound(0);
                     PathShape = (speedIn * TotalDuration / distance).Clamped(0, 2);
-                    TurnDegZ = (ship.Position.AngleToTarget(shipyard.Position) - StartRotationDegZ + 540f) % 360f - 180f;
+                    TurnDegZ = (ship.Position.AngleToTarget(landAt) - StartRotationDegZ + 540f) % 360f - 180f;
                 }
                 else
                 {
@@ -200,6 +210,7 @@ namespace Ship_Game.Ships
         Scrap,
         Refit,
         Builder,
-        HomeDefense
+        HomeDefense,
+        Supply
     }
 }
