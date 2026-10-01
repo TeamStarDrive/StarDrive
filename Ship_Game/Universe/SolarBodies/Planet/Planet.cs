@@ -865,7 +865,7 @@ namespace Ship_Game
         public void LaunchBuilderShip(Ship targetConstructor)
         {
             string builderShipName = Owner.GetSupplyShuttleName();
-            Vector2 launchFrom = GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
+            Vector2 launchFrom = GetLaunchPosition(out bool fromShipyard);
             Ship builderShip;
             if (fromShipyard)
                 builderShip = Ship.CreateShipAtShipyard(Universe, builderShipName, Owner, launchFrom);
@@ -879,14 +879,11 @@ namespace Ship_Game
             }
         }
 
-        public Vector2 GetBuilderShipTargetVector(bool launch, out bool fromShipyard)
+        public Vector2 GetLaunchPosition(out bool fromShipyard)
         {
             Ship shipyard = PickRandomShipyard();
             fromShipyard = shipyard != null;
-            if (shipyard == null)
-                return Position;
-
-            return launch ? shipyard.Position.GenerateRandomPointInsideCircle(50, Owner.Random) : shipyard.Position;
+            return shipyard?.Position.GenerateRandomPointInsideCircle(50, Owner.Random) ?? Position;
         }
 
         Ship PickRandomShipyard()

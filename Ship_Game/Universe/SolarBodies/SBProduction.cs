@@ -275,7 +275,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return P.Position;
             }
 
-            return P.GetBuilderShipTargetVector(launch: true, out fromShipyard);
+            return P.GetLaunchPosition(out fromShipyard);
         }
 
         // Applies available production to production queue

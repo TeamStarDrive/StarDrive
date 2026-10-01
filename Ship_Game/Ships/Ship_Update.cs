@@ -184,9 +184,15 @@ namespace Ship_Game.Ships
                 if (LandShip.Done && !LandShip.WaitsForGoal)
                 {
                     if (LandShip.TakesOffIfAbandoned)
+                    {
                         TakeOffAfterLanding();
+                    }
                     else
+                    {
+                        if (LandShip.FreesBuilderSlot)
+                            LandShip.Planet.LandBuilderShip();
                         QueueTotalRemoval();
+                    }
                 }
             }
             else if (visibleToPlayer)

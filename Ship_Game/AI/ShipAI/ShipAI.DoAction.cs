@@ -842,15 +842,10 @@ namespace Ship_Game.AI
                 // Nowhere to land, bye bye.
                 ClearOrders(AIState.Scuttle);
                 Owner.ScuttleTimer = 1;
-                // find another friendly planet to land at
+                return;
             }
 
-            ThrustOrWarpToPos(goal.GetThrustTarget(goal.MovePosition, Owner.Position), timeStep);
-            if (Owner.Position.InRadius(goal.MovePosition, 200f))
-            {
-                goal.TargetPlanet.LandBuilderShip();
-                Owner.QueueTotalRemoval();
-            }
+            FlyInToLand(timeStep, goal, LandPlan.Builder);
         }
 
         void DoRebaseToShip(FixedSimTime timeStep)

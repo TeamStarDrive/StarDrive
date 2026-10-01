@@ -23,13 +23,14 @@ namespace Ship_Game.Ships
             Owner = owner;
             LandPlan = landPlan;
             Planet = planet;
-            switch (LandPlan)
+            if (shipyard != null)
             {
-                case LandPlan.Scrap or LandPlan.Refit when shipyard != null:
-                    Shipyard = shipyard;
-                    ShipyardLanding = new(owner, planet, shipyard);
-                    break;
-                default: PlanetLanding = new(owner, planet); break;
+                Shipyard = shipyard;
+                ShipyardLanding = new(owner, planet, shipyard);
+            }
+            else
+            {
+                PlanetLanding = new(owner, planet);
             }
         }
 
@@ -45,6 +46,8 @@ namespace Ship_Game.Ships
         };
 
         public bool TakesOffIfAbandoned => LandPlan == LandPlan.Refit;
+
+        public bool FreesBuilderSlot => LandPlan == LandPlan.Builder && Planet.Owner == Owner.Loyalty;
 
         public static float ShipyardLandingRange(Ship ship)
             => (LaunchShip.ShipyardSpeed(ship) * LaunchShip.ShipyardDuration(ship, LaunchShip.ShipyardRotationDegX(ship))).LowerBound(300);
@@ -186,6 +189,7 @@ namespace Ship_Game.Ships
     {
         Colonize,
         Scrap,
-        Refit
+        Refit,
+        Builder
     }
 }

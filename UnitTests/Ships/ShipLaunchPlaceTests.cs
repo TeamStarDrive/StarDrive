@@ -39,22 +39,19 @@ public class ShipLaunchPlaceTests : StarDriveTest
         bool usedNorth = false, usedSouth = false;
         for (int i = 0; i < 200; ++i)
         {
-            Vector2 at = Homeworld.GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
+            Vector2 at = Homeworld.GetLaunchPosition(out bool fromShipyard);
             Assert.IsTrue(fromShipyard, "a planet with shipyards must never launch from the planet");
             if (at.InRadius(north.Position, 51f)) usedNorth = true;
             else if (at.InRadius(south.Position, 51f)) usedSouth = true;
             else Assert.Fail("a launch must start at one of the planet's shipyards");
         }
         Assert.IsTrue(usedNorth && usedSouth, "every shipyard must get its share of the launches");
-
-        Vector2 returnTo = Homeworld.GetBuilderShipTargetVector(launch: false, out _);
-        Assert.IsTrue(returnTo == north.Position || returnTo == south.Position, "a builder shuttle returns to a shipyard");
     }
 
     [TestMethod]
     public void APlanetWithoutShipyardsLaunchesFromThePlanet()
     {
-        Vector2 at = Homeworld.GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
+        Vector2 at = Homeworld.GetLaunchPosition(out bool fromShipyard);
         Assert.IsFalse(fromShipyard, "a planet without shipyards launches from the planet");
         AssertEqual(0.01f, Homeworld.Position, at, "a planet without shipyards launches from the planet");
     }
@@ -68,7 +65,7 @@ public class ShipLaunchPlaceTests : StarDriveTest
 
         for (int i = 0; i < 50; ++i)
         {
-            Homeworld.GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
+            Homeworld.GetLaunchPosition(out bool fromShipyard);
             Assert.IsFalse(fromShipyard, "a dying shipyard or one that is not ours must not launch our ships");
         }
     }

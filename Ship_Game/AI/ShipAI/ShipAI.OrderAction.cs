@@ -669,14 +669,9 @@ namespace Ship_Game.AI
         {
             ClearOrders(priority: true);
             if (planet.Owner != null)
-            {
-                AddShipGoal(Plan.BuilderReturnHome, AIState.SupplyReturnHome,
-                    planet.GetBuilderShipTargetVector(launch: false, out _), planet, true);
-            }
+                AddShipGoal(Plan.BuilderReturnHome, planet, null, AIState.SupplyReturnHome, pushToFront: true);
             else
-            {
                 OrderScuttleShip();
-            }
         }
 
         // Move to closest colony and get back some resources

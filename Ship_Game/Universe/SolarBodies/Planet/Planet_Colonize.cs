@@ -98,6 +98,9 @@ namespace Ship_Game
                     attacker.IncrementCordrazineCapture();
             }
 
+            if (newOwner != oldOwner)
+                NumBuildShipsLaunched = 0;
+
             UpdateShipyards();
         }
 
