@@ -146,7 +146,7 @@ public class RefitLandingTests : StarDriveTest
         RunUntilLanding();
         Assert.IsTrue(Refitted.Position.InRadius(landedOn.Position, ShipyardRange), "setup: the ship must land on the nearest shipyard");
         RunWithRefitGoal(() => !Refitted.LandShip.Done);
-        AssertLessThan(Refitted.Position.Distance(landedOn.Position), 5f, "the ship lands on the shipyard");
+        AssertLessThan(Refitted.Position.Distance(landedOn.Position), LandShip.TouchdownRadius + 5f, "the ship lands on the shipyard");
 
         QueueItem refit = RunUntilQueued();
         AssertEqual(landedOn, refit.LaunchShipyard, "the refit must remember the shipyard the old ship landed on");

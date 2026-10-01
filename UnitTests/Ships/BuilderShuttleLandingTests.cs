@@ -80,7 +80,7 @@ public class BuilderShuttleLandingTests : StarDriveTest
 
         RunSimWhile((simTimeout: 60, fatal: true), () => shuttle.Active);
         Assert.IsFalse(shuttle.Dying, "a landed shuttle is removed, not destroyed");
-        AssertLessThan(shuttle.Position.Distance(shipyard.Position), 5f, "the shuttle must touch down on the shipyard");
+        AssertLessThan(shuttle.Position.Distance(shipyard.Position), LandShip.TouchdownRadius + 5f, "the shuttle must touch down on the shipyard");
         AssertEqual(0, BuilderShipsOut(Homeworld), "the slot is free once the shuttle has landed");
     }
 
@@ -168,7 +168,7 @@ public class BuilderShuttleLandingTests : StarDriveTest
             loaded.UState.Objects.Update(TestSimStep);
         }
         Assert.IsFalse(landing.Dying, "a landed shuttle is removed, not destroyed");
-        AssertLessThan(landing.Position.Distance(loadedShipyard.Position), 5f, "the loaded landing must still end on the shipyard");
+        AssertLessThan(landing.Position.Distance(loadedShipyard.Position), LandShip.TouchdownRadius + 5f, "the loaded landing must still end on the shipyard");
         AssertEqual(0, BuilderShipsOut(loadedHomeworld), "the loaded landing still frees the colony's slot");
     }
 }

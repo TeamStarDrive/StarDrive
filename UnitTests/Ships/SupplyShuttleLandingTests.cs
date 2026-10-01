@@ -99,7 +99,7 @@ public class SupplyShuttleLandingTests : StarDriveTest
         rearm.Evaluate();
         Assert.IsFalse(HasGoal(rearm), "the rearm is done once the shuttle has landed");
         AssertEqual(slotsWhileOut + 1, Homeworld.NumSupplyShuttlesCanLaunch(), "the colony gets the slot back once the shuttle has landed");
-        AssertLessThan(shuttle.Position.Distance(Homeworld.Position), 5f, "the shuttle must glide into the space port, not the shipyard");
+        AssertLessThan(shuttle.Position.Distance(Homeworld.Position), LandShip.TouchdownRadius + 5f, "the shuttle must glide into the space port, not the shipyard");
         AssertGreaterThan(shuttle.Position.Distance(shipyard.Position), 2000f, "the shuttle must not land on the shipyard");
     }
 
@@ -194,6 +194,6 @@ public class SupplyShuttleLandingTests : StarDriveTest
             loaded.UState.Objects.Update(TestSimStep);
         }
         Assert.IsFalse(landing.Dying, "a landed shuttle is removed, not destroyed");
-        AssertLessThan(landing.Position.Distance(loadedHomeworld.Position), 5f, "the loaded landing must still glide into the space port");
+        AssertLessThan(landing.Position.Distance(loadedHomeworld.Position), LandShip.TouchdownRadius + 5f, "the loaded landing must still glide into the space port");
     }
 }

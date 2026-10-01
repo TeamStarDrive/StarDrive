@@ -420,26 +420,50 @@ namespace Ship_Game.Ships
         // Note - a landing ship cannot be hit or targeted and takes no orders
         public void InitLanding(LandPlan landPlan, Planet planet, Ship shipyard = null)
         {
-            AIState state = landPlan switch
+            if (landPlan != LandPlan.Trade)
             {
-                LandPlan.Scrap => AIState.Scrap,
-                LandPlan.Refit => AIState.Refit,
-                LandPlan.HomeDefense => AIState.ReturnHome,
-                LandPlan.Supply => AIState.SupplyReturnHome,
-                _ => AIState.AwaitingOrders
-            };
-            AI.ClearOrdersAndWayPoints(state, priority: true);
-            AI.IgnoreCombat = true;
+                AIState state = landPlan switch
+                {
+                    LandPlan.Scrap => AIState.Scrap,
+                    LandPlan.Refit => AIState.Refit,
+                    LandPlan.HomeDefense => AIState.ReturnHome,
+                    LandPlan.Supply => AIState.SupplyReturnHome,
+                    _ => AIState.AwaitingOrders
+                };
+                AI.ClearOrdersAndWayPoints(state, priority: true);
+                AI.IgnoreCombat = true;
+            }
+
             LandShip = new(this, landPlan, planet, shipyard);
+        }
+
+        public void InitLandingOnStation(Ship station)
+        {
+            LandShip = new(this, station);
         }
 
         public void TakeOffAfterLanding()
         {
-            Ship shipyard = LandShip.Shipyard;
             Planet planet = LandShip.Planet;
+            bool fromDock = LandShip.OnDock;
             LandShip = null;
             AI.ClearOrders();
-            if (shipyard != null)
+            TakeOff(planet, fromDock);
+        }
+
+        void TakeOffAfterTrading()
+        {
+            Planet planet = LandShip.Planet;
+            Ship station = LandShip.Station;
+            bool fromDock = LandShip.OnDock;
+            LandShip = null;
+            TakeOff(planet, fromDock);
+            AI.TradeAfterLanding(planet, station);
+        }
+
+        void TakeOff(Planet planet, bool fromDock)
+        {
+            if (fromDock)
                 InitLaunch(LaunchPlan.Shipyard);
             else
                 InitLaunch(LaunchPlan.Planet, planet);

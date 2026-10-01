@@ -37,6 +37,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindPlanetToScrapAndOrderScrap()
         {
+            if (OldShip?.LandShip is { Trades: true })
+                return GoalStep.TryAgain;
+
             if (OldShip == null || !OldShip.CanBeScrapped) 
                 return GoalStep.GoalFailed;
 

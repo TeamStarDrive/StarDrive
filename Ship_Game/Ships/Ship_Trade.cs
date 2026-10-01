@@ -69,7 +69,8 @@ namespace Ship_Game.Ships
             for (int i = 0; i < exportPlanets.Length; i++)
             {
                 Planet exportPlanet = exportPlanets[i];
-                int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetAstrogateTimeBetween(exportPlanet, targetStation));
+                int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetTradeStopTime(exportPlanet)
+                                + GetAstrogateTimeBetween(exportPlanet, targetStation) + GetStationLandingTime());
                 if (InTradingZones(exportPlanet) && !potentialRoutes.ContainsKey(eta))
                     potentialRoutes.Add(eta, exportPlanet);
             }
@@ -92,7 +93,7 @@ namespace Ship_Game.Ships
             var potentialRoutes = new Map<int, Planet>();
             if (GetCargo(goods) >= CargoSpaceMax * 0.25f)
             {
-                int eta = (int)GetAstrogateTimeTo(importPlanet);
+                int eta = (int)(GetAstrogateTimeTo(importPlanet) + GetTradeLandingTime(importPlanet));
                 if (TradeDistanceOk(importPlanet, eta))
                     potentialRoutes.Add(eta, importPlanet); // import planet since there is not export planet.
             }
@@ -102,7 +103,8 @@ namespace Ship_Game.Ships
                 Planet exportPlanet = exportPlanets[i];
                 if (InTradingZones(exportPlanet))
                 {
-                    int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetAstrogateTimeBetween(exportPlanet, importPlanet));
+                    int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetTradeStopTime(exportPlanet)
+                                    + GetAstrogateTimeBetween(exportPlanet, importPlanet) + GetTradeLandingTime(importPlanet));
                     if (!potentialRoutes.ContainsKey(eta) && TradeDistanceOk(importPlanet, eta))
                         potentialRoutes.Add(eta, exportPlanet);
                 }
@@ -130,7 +132,16 @@ namespace Ship_Game.Ships
         }
 
         // limit eta for Inter Empire trade
-        bool TradeDistanceOk(Planet importPlanet, int eta) =>  importPlanet.Owner == Loyalty || eta <= 30;
+        bool TradeDistanceOk(Planet importPlanet, int eta) =>  importPlanet.Owner == Loyalty || eta <= 35;
+
+        public float GetTradeLandingTime(Planet planet) => LandShip.TradeLandingSeconds(this, planet) / Universe.P.TurnTimer;
+
+        public float GetStationLandingTime() => LandShip.DockLandingSeconds(this) / Universe.P.TurnTimer;
+
+        public float GetTradeTakeOffTime(Planet planet)
+            => LaunchShip.TakeOffSeconds(this, LandShip.LandsOnSpacePort(LandPlan.Trade, planet)) / Universe.P.TurnTimer;
+
+        float GetTradeStopTime(Planet planet) => GetTradeLandingTime(planet) + GetTradeTakeOffTime(planet);
 
         public void RemoveTradeRoute(Planet planet)
         {

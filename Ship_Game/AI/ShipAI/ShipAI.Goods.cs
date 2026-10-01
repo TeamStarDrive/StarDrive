@@ -1,6 +1,5 @@
 ﻿using SDGraphics;
 using Ship_Game.Ships;
-using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {
@@ -14,11 +13,7 @@ namespace Ship_Game.AI
         {
             Planet exportPlanet = g.Trade.ExportFrom;
             Planet importPlanet = g.Trade.ImportTo;
-            if (exportPlanet.Owner == null 
-                || exportPlanet.Quarantine
-                || importPlanet.Quarantine
-                || importPlanet.Owner == null // colony was wiped out
-                || importPlanet.Owner != Owner.Loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.Loyalty)) 
+            if (!CanTrade(exportPlanet, importPlanet))
             {
                 AI.CancelTradePlan();
                 return;
@@ -27,27 +22,49 @@ namespace Ship_Game.AI
             if (AI.WaitForBlockadeRemoval(g, exportPlanet, timeStep))
                 return;
 
-            // Follow the pre-computed detour chain around hostile/unknown gravity wells,
-            // then thrust to the export planet once the chain is exhausted.
-            Vector2 thrustTarget = g.Trade.GetThrustTarget(exportPlanet.Position, Owner.Position);
-            AI.ThrustOrWarpToPos(thrustTarget, timeStep);
-            if (!Owner.Position.InRadius(exportPlanet.Position, exportPlanet.Radius + 300f))
-                return;
-
-            if (exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1) // other freighter took the goods, damn!
+            if (AI.InTradeLandingRange(exportPlanet) && NothingToLoad(g, exportPlanet, importPlanet))
             {
                 AI.CancelTradePlan(exportPlanet);
                 return;
             }
 
-            if (importPlanet.TradeBlocked) // We can't transport now to the importing planet
+            AI.FlyInToTrade(timeStep, g, exportPlanet);
+        }
+
+        bool CanTrade(Planet exportPlanet, Planet importPlanet)
+        {
+            return exportPlanet.Owner == Owner.Loyalty
+                   && !exportPlanet.Quarantine
+                   && !importPlanet.Quarantine
+                   && importPlanet.Owner != null // colony was wiped out
+                   && (importPlanet.Owner == Owner.Loyalty || importPlanet.Owner.IsTradeTreaty(Owner.Loyalty));
+        }
+
+        static bool NothingToLoad(ShipAI.ShipGoal g, Planet exportPlanet, Planet importPlanet)
+        {
+            return exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1 // other freighter took the goods, damn!
+                   || importPlanet.TradeBlocked; // We can't transport now to the importing planet
+        }
+
+        public void LoadGoods(ShipAI.ShipGoal g)
+        {
+            Planet exportPlanet = g.Trade.ExportFrom;
+            Planet importPlanet = g.Trade.ImportTo;
+            if (!CanTrade(exportPlanet, importPlanet))
+            {
+                AI.CancelTradePlan();
+                return;
+            }
+
+            if (NothingToLoad(g, exportPlanet, importPlanet))
             {
                 AI.CancelTradePlan(exportPlanet);
                 return;
             }
 
             bool freighterTooSmall = false;
-            float eta              = Owner.GetAstrogateTimeTo(importPlanet);
+            float eta              = Owner.GetTradeTakeOffTime(exportPlanet) + Owner.GetAstrogateTimeTo(importPlanet)
+                                     + Owner.GetTradeLandingTime(importPlanet);
             exportPlanet.UpdateAverageFreightTurns(importPlanet, exportPlanet, g.Trade.Goods, g.Trade.StardateAdded);
             switch (g.Trade.Goods)
             {
@@ -114,23 +131,34 @@ namespace Ship_Game.AI
         public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
         {
             Planet importPlanet = g.Trade.ImportTo;
-            Planet exportPlanet = g.Trade.ExportFrom;
-
-            if (importPlanet.Owner == null  // colony was wiped out
-                || importPlanet.Quarantine
-                || importPlanet.Owner != Owner.Loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.Loyalty)) 
+            if (!CanDeliver(importPlanet))
             {
-                AI.CancelTradePlan(exportPlanet);
+                AI.CancelTradePlan(g.Trade.ExportFrom);
                 return;
             }
 
             if (AI.WaitForBlockadeRemoval(g, importPlanet, timeStep))
                 return;
 
-            Vector2 thrustTarget = g.Trade.GetThrustTarget(importPlanet.Position, Owner.Position);
-            AI.ThrustOrWarpToPos(thrustTarget, timeStep);
-            if (!Owner.Position.InRadius(importPlanet.Position, importPlanet.Radius + 300f))
+            AI.FlyInToTrade(timeStep, g, importPlanet);
+        }
+
+        bool CanDeliver(Planet importPlanet)
+        {
+            return importPlanet.Owner != null // colony was wiped out
+                   && !importPlanet.Quarantine
+                   && (importPlanet.Owner == Owner.Loyalty || importPlanet.Owner.IsTradeTreaty(Owner.Loyalty));
+        }
+
+        public void UnloadGoods(ShipAI.ShipGoal g)
+        {
+            Planet importPlanet = g.Trade.ImportTo;
+            Planet exportPlanet = g.Trade.ExportFrom;
+            if (!CanDeliver(importPlanet))
+            {
+                AI.CancelTradePlan(exportPlanet);
                 return;
+            }
 
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
             if (Owner.GetCargo(Goods.Colonists).AlmostZero())
@@ -162,13 +190,34 @@ namespace Ship_Game.AI
 
     partial class ShipAI
     {
+        public void TradeAfterLanding(Planet planet, Ship station)
+        {
+            if (!OrderQueue.TryPeekFirst(out ShipGoal g) || g.Trade == null)
+                return;
+
+            if (station != null)
+            {
+                if (g.Plan == Plan.DropOffGoodsForStation && station == g.Trade.TargetStation)
+                    UnloadGoodsForStation(g);
+                return;
+            }
+
+            switch (g.Plan)
+            {
+                case Plan.PickupGoods when planet == g.Trade.ExportFrom:           PickupGoods.LoadGoods(g);   break;
+                case Plan.DropOffGoods when planet == g.Trade.ImportTo:            DropOffGoods.UnloadGoods(g); break;
+                case Plan.PickupGoodsForStation when planet == g.Trade.ExportFrom: LoadGoodsForStation(g);     break;
+            }
+        }
+
         public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
         {
             Plan plan = Plan.PickupGoods;
             if (importPlanet == exportPlanet)
             {
                 plan = Plan.DropOffGoods;  // fast track since needed cargo was already on board
-                Owner.Loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
+                float eta = Owner.GetAstrogateTimeTo(importPlanet) + Owner.GetTradeLandingTime(importPlanet);
+                Owner.Loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, eta);
             }
             else if (Owner.Loyalty == importPlanet.Owner || Owner.Loyalty.IsAlliedWith(importPlanet.Owner))
             {

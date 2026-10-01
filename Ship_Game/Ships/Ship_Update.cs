@@ -183,7 +183,11 @@ namespace Ship_Game.Ships
                 LandShip.Update(visibleToPlayer, timeStep);
                 if (LandShip.Done && !LandShip.WaitsForGoal)
                 {
-                    if (LandShip.TakesOffIfAbandoned)
+                    if (LandShip.Trades)
+                    {
+                        TakeOffAfterTrading();
+                    }
+                    else if (LandShip.TakesOffIfAbandoned)
                     {
                         TakeOffAfterLanding();
                     }

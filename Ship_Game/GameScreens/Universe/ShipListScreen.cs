@@ -353,9 +353,7 @@ namespace Ship_Game
 
             bool ShouldAddForCategory(Ship ship, int forCategory)
             {
-                if (ship.IsHangarShip
-                    || ship.IsHomeDefense
-                    || ship.IsLanding
+                if (IsLeftOffTheList(ship)
                     || (PlayerDesignsOnly && !ship.ShipData.IsPlayerDesign)
                     || (InFleetsOnly && ship.Fleet == null)
                     || (NotInFleets && ship.Fleet != null))
@@ -393,6 +391,9 @@ namespace Ship_Game
 
             SelectedShip = null;
         }
+
+        internal static bool IsLeftOffTheList(Ship ship)
+            => ship.IsHangarShip || ship.IsHomeDefense || ship.LandShip is { Trades: false };
 
         public bool StatusDirty; // set from the sim thread, which must not walk ShipSL
 

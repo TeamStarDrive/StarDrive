@@ -607,7 +607,7 @@ namespace Ship_Game.Ships
         public bool IsHangarShip   => Mothership != null;
         public bool IsHomeDefense  => HomePlanet != null;
         public bool CanBeRefitted  => CanBeScrapped;
-        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && !IsLanding;
+        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false };
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays 

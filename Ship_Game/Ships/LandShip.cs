@@ -16,6 +16,7 @@ namespace Ship_Game.Ships
         [StarData] public readonly Planet Planet;
         [StarData] public readonly Ship Shipyard;
         [StarData] readonly bool OnSpacePort;
+        [StarData] public readonly Ship Station;
         [StarData] LandOnPlanet PlanetLanding;
         [StarData] LandOnShipyard ShipyardLanding;
 
@@ -40,6 +41,16 @@ namespace Ship_Game.Ships
             }
         }
 
+        public LandShip(Ship owner, Ship station)
+        {
+            Owner = owner;
+            LandPlan = LandPlan.Trade;
+            Station = station;
+            Planet = station.GetTether();
+            Vector2 offset = Planet != null ? station.TetherOffset : station.Position;
+            ShipyardLanding = new(owner, Planet, offset, station.Position);
+        }
+
         public LandShip()
         {
         }
@@ -53,6 +64,10 @@ namespace Ship_Game.Ships
 
         public bool TakesOffIfAbandoned => LandPlan == LandPlan.Refit;
 
+        public bool Trades => LandPlan == LandPlan.Trade;
+
+        public bool OnDock => Shipyard != null || OnSpacePort || Station != null;
+
         public void HandOverToPlanet()
         {
             bool stillOurs = Planet.Owner == Owner.Loyalty;
@@ -64,12 +79,20 @@ namespace Ship_Game.Ships
             }
         }
 
-        public static bool UsesShipyards(LandPlan landPlan) => landPlan is not (LandPlan.HomeDefense or LandPlan.Supply);
+        public static bool UsesShipyards(LandPlan landPlan) => landPlan is not (LandPlan.HomeDefense or LandPlan.Supply or LandPlan.Trade);
 
-        public static bool LandsOnSpacePort(LandPlan landPlan, Planet planet) => landPlan == LandPlan.Supply && planet.HasSpacePort;
+        public static bool LandsOnSpacePort(LandPlan landPlan, Planet planet)
+            => landPlan is (LandPlan.Supply or LandPlan.Trade) && planet.HasSpacePort;
+
+        public const float TouchdownRadius = 100f;
 
         public static float ShipyardLandingRange(Ship ship)
-            => (LaunchShip.ShipyardSpeed(ship) * LaunchShip.ShipyardDuration(ship, LaunchShip.ShipyardRotationDegX(ship))).LowerBound(300);
+            => (LaunchShip.ShipyardSpeed(ship) * DockLandingSeconds(ship)).LowerBound(300);
+
+        public static float DockLandingSeconds(Ship ship) => LaunchShip.ShipyardDuration(ship, LaunchShip.ShipyardRotationDegX(ship));
+
+        public static float TradeLandingSeconds(Ship ship, Planet planet)
+            => LandsOnSpacePort(LandPlan.Trade, planet) ? DockLandingSeconds(ship) : LaunchShip.PlanetDuration(ship);
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
@@ -77,7 +100,7 @@ namespace Ship_Game.Ships
                 return;
 
             float scale;
-            if (Shipyard != null || OnSpacePort)
+            if (OnDock)
             {
                 ShipyardLanding.Update(timeStep, visibleToPlayer, ref PosZ, out scale);
                 Done = ShipyardLanding.Done;
@@ -97,11 +120,13 @@ namespace Ship_Game.Ships
         {
             [StarData] float Progress; // between 0 to 1
             [StarData] readonly Ship Owner;
+            [StarData] readonly Planet Planet;
             [StarData] readonly float TotalDuration;
             [StarData] readonly float StartRotationDegZ;
             [StarData] readonly float TurnDegZ;
             [StarData] readonly float StartRotationY;
-            [StarData] readonly Vector2 Velocity;
+            [StarData] readonly Vector2 TouchdownOffset;
+            [StarData] readonly Vector2 StartOffset;
             const int EndPosZ = 2000;
             const float MaxRotationDegX = 75;
 
@@ -109,24 +134,27 @@ namespace Ship_Game.Ships
             {
                 Owner = ship;
                 Progress = 0;
-                float secondsToHalfPosZ = (EndPosZ / ship.MaxSTLSpeed.LowerBound(100)).Clamped(5, 20);
-                float secondsToMaxX = MaxRotationDegX / ship.RotationRadsPerSecond.ToDegrees().LowerBound(5);
-                TotalDuration = secondsToHalfPosZ + secondsToMaxX;
+                Planet = planet;
+                TotalDuration = LaunchShip.PlanetDuration(ship);
                 StartRotationDegZ = ship.RotationDegrees;
                 StartRotationY = ship.YRotation;
-                Vector2 toCenter = planet.Position - ship.Position;
-                TurnDegZ = toCenter.Length() > 1f
-                    ? (ship.Position.AngleToTarget(planet.Position) - StartRotationDegZ + 540f) % 360f - 180f
+                TouchdownOffset = Vector2.Zero.GenerateRandomPointInsideCircle(TouchdownRadius, planet.Random);
+                Vector2 touchdown = planet.Position + TouchdownOffset;
+                StartOffset = ship.Position - touchdown;
+                TurnDegZ = StartOffset.Length() > 1f
+                    ? (ship.Position.AngleToTarget(touchdown) - StartRotationDegZ + 540f) % 360f - 180f
                     : 0f;
-                Velocity = toCenter * (0.5f / TotalDuration);
             }
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
             {
                 Progress = (Progress + timeStep.FixedTime / TotalDuration).UpperBound(1);
+                float remaining = 1 - Progress;
                 float turn = (Progress / 0.5f).UpperBound(1);
-                Owner.Velocity = Velocity * (2 * (1 - Progress));
-                scale = 1 - Progress;
+                Owner.Velocity = Vector2.Zero;
+                if (Planet != null)
+                    Owner.Position = Planet.Position + TouchdownOffset + StartOffset * (remaining * remaining);
+                scale = remaining;
                 posZ = EndPosZ * Progress;
                 Owner.Rotation = (StartRotationDegZ + TurnDegZ * turn).ToRadians().AsNormalizedRadians();
                 Owner.YRotation = StartRotationY * (1 - turn);
@@ -158,10 +186,12 @@ namespace Ship_Game.Ships
 
             public LandOnShipyard(Ship ship, Planet planet, Vector2 offsetFromPlanet, Vector2 landAt)
             {
+                Vector2 touchdownSpread = Vector2.Zero.GenerateRandomPointInsideCircle(TouchdownRadius, ship.Universe.Random);
+                landAt += touchdownSpread;
                 Owner = ship;
                 Progress = 0;
                 Planet = planet;
-                ShipyardOffset = offsetFromPlanet;
+                ShipyardOffset = offsetFromPlanet + touchdownSpread;
                 StartOffset = ship.Position - landAt;
                 MaxRotationDegX = LaunchShip.ShipyardRotationDegX(ship);
                 TotalDuration = LaunchShip.ShipyardDuration(ship, MaxRotationDegX);
@@ -188,7 +218,8 @@ namespace Ship_Game.Ships
                 float travelled = PathShape * Progress + (1 - PathShape) * Progress * Progress;
                 float turn = (Progress / TurnPart).UpperBound(1);
                 Owner.Velocity = Vector2.Zero;
-                Owner.Position = Planet.Position + ShipyardOffset + StartOffset * (1 - travelled);
+                Vector2 dockAt = Planet != null ? Planet.Position + ShipyardOffset : ShipyardOffset;
+                Owner.Position = dockAt + StartOffset * (1 - travelled);
                 Owner.Rotation = (StartRotationDegZ + TurnDegZ * turn).ToRadians().AsNormalizedRadians();
                 Owner.YRotation = StartRotationY * (1 - turn);
                 scale = remaining;
@@ -211,6 +242,7 @@ namespace Ship_Game.Ships
         Refit,
         Builder,
         HomeDefense,
-        Supply
+        Supply,
+        Trade
     }
 }

@@ -67,6 +67,10 @@ namespace Ship_Game.Ships
 
         public static float ShipyardSpeed(Ship ship) => (ship.MaxSTLSpeed * 0.65f).UpperBound(300);
 
+        public static float PlanetDuration(Ship ship) => LaunchFromPlanet.Duration(ship);
+
+        public static float TakeOffSeconds(Ship ship, bool fromDock)
+            => fromDock ? LaunchFromShipyard.Duration(ship) : LaunchFromPlanet.Duration(ship);
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
@@ -125,8 +129,6 @@ namespace Ship_Game.Ships
         {
             [StarData] float Progress; // between 0 to 1
             [StarData] readonly Ship Owner;
-            [StarData] readonly float SecondsHalfPosZ;
-            [StarData] readonly float SecondsToZeroX;
             [StarData] readonly float TotalDuration;
             [StarData] readonly float RotationDegZ;
             [StarData] readonly Vector2 Velocity;
@@ -140,10 +142,15 @@ namespace Ship_Game.Ships
                 Owner = ship;
                 Progress = 0;
                 RotationDegZ = rotation;
-                SecondsHalfPosZ = (StartingPosZ / ship.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
-                SecondsToZeroX = PlanetPlanRotationDegX / ship.RotationRadsPerSecond.ToDegrees().LowerBound(5);
-                TotalDuration = SecondsHalfPosZ + SecondsToZeroX;
+                TotalDuration = Duration(ship);
                 Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.2f, 0.5f));
+            }
+
+            public static float Duration(Ship ship)
+            {
+                float secondsHalfPosZ = (StartingPosZ / ship.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
+                float secondsToZeroX = PlanetPlanRotationDegX / ship.RotationRadsPerSecond.ToDegrees().LowerBound(5);
+                return secondsHalfPosZ + secondsToZeroX;
             }
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
@@ -240,6 +247,8 @@ namespace Ship_Game.Ships
                 MaxRotationDegX = ShipyardRotationDegX(ship);
                 TotalDuration = ShipyardDuration(ship, MaxRotationDegX);
             }
+
+            public static float Duration(Ship ship) => ShipyardDuration(ship, ShipyardRotationDegX(ship)) * (1 - InitialProgress);
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
             {

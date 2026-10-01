@@ -240,7 +240,7 @@ public class ScrapLandingTests : StarDriveTest
 
         MoveHomeworldAlongItsOrbit(3f);
         RunWithScrapGoal(() => !Scrapped.LandShip.Done);
-        AssertLessThan(Scrapped.Position.Distance(shipyard.Position), 5f, "the ship must follow the shipyard as the planet moves and sink into it");
+        AssertLessThan(Scrapped.Position.Distance(shipyard.Position), LandShip.TouchdownRadius + 5f, "the ship must follow the shipyard as the planet moves and sink into it");
         RunUntilLanded();
     }
 
@@ -261,7 +261,7 @@ public class ScrapLandingTests : StarDriveTest
         AssertLessThan(Scrapped.Position.Distance(shipyard.Position), ShipyardRange + 1f,
                        "the ship must fly to where the shipyard is now and start down at its landing range");
         RunWithScrapGoal(() => !Scrapped.LandShip.Done);
-        AssertLessThan(Scrapped.Position.Distance(shipyard.Position), 5f, "the ship must land on the shipyard");
+        AssertLessThan(Scrapped.Position.Distance(shipyard.Position), LandShip.TouchdownRadius + 5f, "the ship must land on the shipyard");
     }
 
     [TestMethod]
@@ -315,7 +315,7 @@ public class ScrapLandingTests : StarDriveTest
             if (!touchedDown && landing.LandShip.Done)
             {
                 touchedDown = true;
-                AssertLessThan(landing.Position.Distance(loadedShipyard.Position), 5f, "the loaded landing must still end on the shipyard");
+                AssertLessThan(landing.Position.Distance(loadedShipyard.Position), LandShip.TouchdownRadius + 5f, "the loaded landing must still end on the shipyard");
             }
             if (++frame % 60 == 0)
                 loadedScrap.Evaluate();
