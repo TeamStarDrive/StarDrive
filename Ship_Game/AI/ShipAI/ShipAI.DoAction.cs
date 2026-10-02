@@ -761,48 +761,59 @@ namespace Ship_Game.AI
                 return;
             }
 
+            if (Owner.IsMiningShip)
+            {
+                FlyInToHangar(timeStep, Owner.Mothership);
+                return;
+            }
+
             ThrustOrWarpToPos(Owner.Mothership.Position, timeStep);
 
             // recover the ship
             if (Owner.Position.InRadius(Owner.Mothership.Position, Owner.Mothership.Radius))
             {
-                if (Owner.IsDefaultTroopTransport)
-                    Owner.LandTroopsOnShip(Owner.Mothership);
-
-                if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
-                    Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
-
-                if (Owner.IsMiningShip)
-                {
-                    string cargoId = Owner.Mothership.GetTether()?.Mining.CargoId ?? "";
-                    if (cargoId.NotEmpty())
-                    {
-                        float maxToload = (Owner.Mothership.MiningStationCargoSpaceMax - Owner.Mothership.GetOtherCargo(cargoId)).LowerBound(0);
-                        Owner.Mothership.LoadCargo(cargoId, Owner.GetOtherCargo(cargoId).UpperBound(maxToload));
-                    }
-                }
-                Owner.Carrier.ScuttleHangarShips();
-                Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
+                ReturnToMothership(Owner.Mothership);
                 Owner.QueueTotalRemoval();
-                
-                // find which hangar is the owner of this ship
-                ShipModule owningHangar = Owner.Mothership.Carrier.AllHangars.Find(
-                                        h => h.TryGetHangarShip(out Ship hs) && hs == Owner);
-                if (owningHangar != null)
+            }
+        }
+
+        public void ReturnToMothership(Ship mothership)
+        {
+            if (Owner.IsDefaultTroopTransport)
+                Owner.LandTroopsOnShip(mothership);
+
+            if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
+                mothership.ChangeOrdnance(Owner.Ordinance);
+
+            if (Owner.IsMiningShip)
+            {
+                string cargoId = mothership.GetTether()?.Mining.CargoId ?? "";
+                if (cargoId.NotEmpty())
                 {
-                    owningHangar.SetHangarShip(null);
-
-                    // Set up repair and rearm times
-                    float missingHealth   = Owner.HealthMax - Owner.Health;
-                    float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
-                    float repairTime      = missingHealth / (Owner.Mothership.RepairRate + Owner.RepairRate + Owner.Mothership.Level * 10);
-                    float rearmTime       = missingOrdnance / (2 + Owner.Mothership.Level);
-                    float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
-                    // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
-                    owningHangar.HangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, owningHangar.HangarTimerConstant);
-
-                    Owner.Mothership.OnShipReturned(Owner); // EVT: returned to base
+                    float maxToload = (mothership.MiningStationCargoSpaceMax - mothership.GetOtherCargo(cargoId)).LowerBound(0);
+                    mothership.LoadCargo(cargoId, Owner.GetOtherCargo(cargoId).UpperBound(maxToload));
                 }
+            }
+            Owner.Carrier.ScuttleHangarShips();
+            mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
+
+            // find which hangar is the owner of this ship
+            ShipModule owningHangar = mothership.Carrier.AllHangars.Find(
+                                    h => h.TryGetHangarShip(out Ship hs) && hs == Owner);
+            if (owningHangar != null)
+            {
+                owningHangar.SetHangarShip(null);
+
+                // Set up repair and rearm times
+                float missingHealth   = Owner.HealthMax - Owner.Health;
+                float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
+                float repairTime      = missingHealth / (mothership.RepairRate + Owner.RepairRate + mothership.Level * 10);
+                float rearmTime       = missingOrdnance / (2 + mothership.Level);
+                float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
+                // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
+                owningHangar.HangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, owningHangar.HangarTimerConstant);
+
+                mothership.OnShipReturned(Owner); // EVT: returned to base
             }
         }
 

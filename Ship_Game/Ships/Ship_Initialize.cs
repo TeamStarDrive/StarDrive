@@ -442,6 +442,13 @@ namespace Ship_Game.Ships
             LandShip = new(this, station);
         }
 
+        public void InitLandingInHangar(Ship mothership)
+        {
+            AI.ClearOrdersAndWayPoints(AIState.ReturnToHangar, priority: true);
+            AI.IgnoreCombat = true;
+            LandShip = new(this, LandPlan.Hangar, mothership);
+        }
+
         public void TakeOffAfterLanding()
         {
             Planet planet = LandShip.Planet;

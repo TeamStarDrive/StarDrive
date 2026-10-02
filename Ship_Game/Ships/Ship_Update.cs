@@ -174,7 +174,7 @@ namespace Ship_Game.Ships
                 if (LaunchShip.Done)
                 {
                     LaunchShip = null;
-                    if (IsHangarShip && !Mothership.InCombat && AI.State != AIState.AssaultPlanet && !IsSupplyShuttle)
+                    if (IsHangarShip && !Mothership.InCombat && AI.State != AIState.AssaultPlanet && !IsSupplyShuttle && !IsMiningShip)
                         AI.BackToCarrier();
                 }
             }
@@ -193,7 +193,7 @@ namespace Ship_Game.Ships
                     }
                     else
                     {
-                        LandShip.HandOverToPlanet();
+                        LandShip.HandOver();
                         QueueTotalRemoval();
                     }
                 }

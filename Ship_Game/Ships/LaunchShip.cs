@@ -45,6 +45,8 @@ namespace Ship_Game.Ships
         {
         }
 
+        public bool MinesPlanet => LaunchPlan == LaunchPlan.Mining;
+
         public static Vector3 FlashPos(Ship ship, float scale, float posZ)
             => new Vector2(-ship.Direction * ship.Radius * scale * 0.5f + ship.Position).ToVec3(posZ + 20);
 
@@ -68,6 +70,10 @@ namespace Ship_Game.Ships
             => (rotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
 
         public static float ShipyardSpeed(Ship ship) => (ship.MaxSTLSpeed * 0.65f).UpperBound(300);
+
+        public static float HangarSpeed(Ship ship) => ship.MaxSTLSpeed.UpperBound(300);
+
+        public static float HangarDuration(Ship ship) => LaunchFromHangar.Duration(ship);
 
         public static float PlanetDuration(Ship ship) => LaunchFromPlanet.Duration(ship);
 
@@ -200,10 +206,14 @@ namespace Ship_Game.Ships
                 RotationDegZ = rotation;
                 DoBarrelRoll = ShouldBarrelRoll();
                 Progress = InitialProgress;
-                TotalDuration = (InitialRotationDegX / ship.RotationRadsPerSecond.ToDegrees()).Clamped(2, 5);
+                TotalDuration = FullDuration(ship);
                 RelativeDegForBarrel = 3.6f / (1 - Progress);
                 Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(1f, 1.2f));
             }
+
+            static float FullDuration(Ship ship) => (InitialRotationDegX / ship.RotationRadsPerSecond.ToDegrees()).Clamped(2, 5);
+
+            public static float Duration(Ship ship) => FullDuration(ship) * (1 - InitialProgress);
 
             bool ShouldBarrelRoll()
             {
