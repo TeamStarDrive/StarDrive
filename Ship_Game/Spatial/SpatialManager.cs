@@ -212,7 +212,7 @@ namespace Ship_Game.Gameplay
                 foreach (SpatialObjectBase go in ships)
                 {
                     var ship = (Ship)go;
-                    if (ship.Active && !ship.Dying)
+                    if (ship.Active && !ship.Dying && !ship.IsLanding)
                     {
                         source.RechargeEmpAndPowerDamage();
                         ship.DamageExplosive(source, damage, center, radius, source.IgnoresShields);
@@ -240,6 +240,8 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < nearby.Length; ++i)
             {
                 var otherShip = (Ship)nearby[i];
+                if (otherShip.IsLanding)
+                    continue;
 
                 ShipModule nearest = otherShip.FindClosestModule(explosionCenter);
                 if (nearest == null)

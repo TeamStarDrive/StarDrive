@@ -14,9 +14,6 @@ namespace Ship_Game
     {
         public override bool HelpKeyOpensCodex => true;
 
-        // Always null — no caller passes a ShipListScreen. Read at ExitScreen as a no-op.
-        // Kept here as a slot for future "opened from ShipListScreen" callers.
-        readonly ShipListScreen Screen = null;
         public readonly Fleet Fleet;
         Empire Player => Fleet.Owner;
         SubmenuScrollList<ChoosePatrolListItem> SubAvailablePatrols;
@@ -132,12 +129,6 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial14Bold, text, cursor, Color.White);
             }
             batch.SafeEnd();
-        }
-
-        public override void ExitScreen()
-        {
-            Screen?.ResetStatus();
-            base.ExitScreen();
         }
 
         void OnLoadPatrolClicked(UIButton b)

@@ -1,6 +1,5 @@
 ﻿using Ship_Game.Ships;
 using SDGraphics;
-using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {
@@ -9,11 +8,7 @@ namespace Ship_Game.AI
         public void DoPickupGoodsForStation(FixedSimTime timeStep, ShipGoal g)
         {
             Planet exportPlanet = g.Trade.ExportFrom;
-            Ship targetStation = g.Trade.TargetStation;
-            if (exportPlanet.Owner == null 
-                || exportPlanet.Quarantine 
-                || targetStation == null 
-                || targetStation.Loyalty != Owner.Loyalty)
+            if (!CanSupplyStation(exportPlanet, g.Trade.TargetStation))
             {
                 CancelTradePlan();
                 return;
@@ -22,19 +17,50 @@ namespace Ship_Game.AI
             if (WaitForBlockadeRemoval(g, exportPlanet, timeStep))
                 return;
 
-            // Pre-computed detour chain to skirt hostile/unknown gravity wells along the route.
-            Vector2 thrustTarget = g.Trade.GetThrustTarget(exportPlanet.Position, Owner.Position);
-            ThrustOrWarpToPos(thrustTarget, timeStep);
-            if (!Owner.Position.InRadius(exportPlanet.Position, exportPlanet.Radius + 300f))
+            if (Owner.TakingOffFrom == exportPlanet)
+            {
+                LoadGoodsForStation(g);
                 return;
+            }
 
-            if (exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1) // other freighter took the goods, damn!
+            if (InTradeLandingRange(exportPlanet) && NothingToLoadForStation(g, exportPlanet))
             {
                 CancelTradePlan(exportPlanet);
                 return;
             }
 
-            float eta = Owner.GetAstrogateTimeBetween(exportPlanet, targetStation);
+            FlyInToTrade(timeStep, g, exportPlanet);
+        }
+
+        bool CanSupplyStation(Planet exportPlanet, Ship targetStation)
+        {
+            return exportPlanet.Owner == Owner.Loyalty
+                   && !exportPlanet.Quarantine
+                   && targetStation != null
+                   && targetStation.Loyalty == Owner.Loyalty;
+        }
+
+        static bool NothingToLoadForStation(ShipGoal g, Planet exportPlanet)
+            => exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1; // other freighter took the goods, damn!
+
+        void LoadGoodsForStation(ShipGoal g)
+        {
+            Planet exportPlanet = g.Trade.ExportFrom;
+            Ship targetStation = g.Trade.TargetStation;
+            if (!CanSupplyStation(exportPlanet, targetStation))
+            {
+                CancelTradePlan();
+                return;
+            }
+
+            if (NothingToLoadForStation(g, exportPlanet))
+            {
+                CancelTradePlan(exportPlanet);
+                return;
+            }
+
+            float eta = Owner.GetTradeTakeOffTime(exportPlanet) + Owner.GetAstrogateTimeBetween(exportPlanet, targetStation)
+                        + Owner.GetStationLandingTime();
             switch (g.Trade.Goods)
             {
                 case Goods.Food:
@@ -61,22 +87,32 @@ namespace Ship_Game.AI
 
         public void DoDropOffGoodsForStation(FixedSimTime timeStep, ShipGoal g)
         {
-            Planet exportPlanet = g.Trade.ExportFrom;
-            Ship targetStation  = g.Trade.TargetStation;
-
-            if (targetStation == null 
-                || !targetStation.Active
-                || targetStation.Loyalty != Owner.Loyalty
-                || targetStation.Supply.InTradeBlockade)
+            Ship targetStation = g.Trade.TargetStation;
+            if (!CanDeliverToStation(targetStation))
             {
-                CancelTradePlan(exportPlanet);
+                CancelTradePlan(g.Trade.ExportFrom);
                 return;
             }
 
-            Vector2 thrustTarget = g.Trade.GetThrustTarget(targetStation.Position, Owner.Position);
-            ThrustOrWarpToPos(thrustTarget, timeStep);
-            if (!Owner.Position.InRadius(targetStation.Position, targetStation.Radius))
+            FlyInToStation(timeStep, g, targetStation);
+        }
+
+        bool CanDeliverToStation(Ship targetStation)
+        {
+            return targetStation != null
+                   && targetStation.Active
+                   && targetStation.Loyalty == Owner.Loyalty
+                   && !targetStation.Supply.InTradeBlockade;
+        }
+
+        void UnloadGoodsForStation(ShipGoal g)
+        {
+            Ship targetStation = g.Trade.TargetStation;
+            if (!CanDeliverToStation(targetStation))
+            {
+                CancelTradePlan(g.Trade.ExportFrom);
                 return;
+            }
 
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
             float maxUnload = targetStation.IsMiningStation ? targetStation.MaxSupplyForMiningStation : targetStation.CargoSpaceFree;

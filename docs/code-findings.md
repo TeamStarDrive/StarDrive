@@ -925,7 +925,7 @@ as designed and must not be "fixed".
     hits a hull before it splits deals its own, larger blast (radius 80 on `ClusterMissiles`),
     which the screen has never shown.
 
-## Budget, money and espionage (16, fourteen resolved)
+## Budget, money and espionage (17, fourteen resolved)
 
 From the budget screen entry (bucket 6). The Codex text describes what the code actually does, so
 fixing any of these needs a Codex impact pass. Re-checked against the code on 2026-09-28: all 14
@@ -1081,16 +1081,19 @@ were still present; items 1 to 13 and 15 have since been resolved.
     was never protected, and its Space Port (+50% tax) was protected above a billion colonists though
     it rarely pays. It is deleted. The guard calls `ColonyMoney.NetCostOf(b, standing: true)`, the
     model the build list colours with; `standing` takes a building's share out of the colony's
-    figures instead of adding it. A player's colony with a manual tax rate is judged at that rate.
-    An AI colony, and a player's colony under Auto Taxes, is judged at no less than the 25% every
-    empire starts with (`EmpireData.StartingTaxRate`), because the planner drops taxes to 0%
-    whenever cash passes the goal - 29 of 256 empires in those saves were at 0% - and the colony
-    would give up its banks on those turns only to build them again (Gilad's call on the fixes_36
-    branch review). Choosing what to build still follows the live rate, so a 0% turn queues no tax
-    building; that stays, also by his call.
+    figures instead of adding it. Every colony judges it at the current tax rate or the 25% every
+    empire starts with (`EmpireData.StartingTaxRate`), whichever is higher. The planner drops taxes
+    to 0% whenever cash passes the goal - 29 of 256 empires in those saves were at 0% - and a player
+    may run a low manual rate for a while, and either way a full colony would give up its banks on
+    those turns only to build them again. It began as AI-only on the fixes_36 branch review, then
+    Auto Taxes, then every colony after Roland's comment on `01bf1fdab` (Gilad's calls). Choosing
+    what to build still follows the live rate, so a very low rate queues no tax building; that
+    stays, also by his call. A lowered rate never puts a colony over budget: its development budget
+    comes from the treasury goal, which is priced at a 100% tax rate.
     `GovernorScrapGuardsTests.TheNetCostOfABuildingIsTheRevenueItAddsOrTakesAway`,
-    `AnAiColonyJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate` and
-    `APlayerOnAutoTaxesJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate`.
+    `AnAiColonyJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate`,
+    `APlayerOnAManualTaxRateJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate` and
+    `ABuildingThatPaysOnlyAboveTheStartingTaxRateIsKeptWhileTaxesAreThatHigh`.
 14. `[settled]` **The biosphere payback heuristic omits `ExoticCreditsBonus`**
     (`Planet_EvaluateBuildings.cs`, `BiosphereCarriesItsPopulation`). Left deliberately: the formula
     already uses `TaxRateMultiplier` rather than `TaxRate` so it is a "full rate" heuristic by
@@ -1119,6 +1122,12 @@ were still present; items 1 to 13 and 15 have since been resolved.
     50% tax on Normal - and above 50% tax it makes a little on scrapping a military building. The
     player's fee has no tax factor, so the player's figures are exact. Left as is for now (Gilad
     2026-09-28, fixes_36 branch review); the fix would refund through `ProductionCreditCost`.
+17. `[balance]` **A player setting for the tax rate governors plan with** (idea, Roland on
+    `01bf1fdab`, logged 2026-09-29). The one tax rate serves both the treasury and what counts as a
+    profitable money building; a player may want 10% for a while and still colonies built to pay
+    at 30%. The small form is to make item 13's 25% floor a budget-screen setting ("governors plan
+    for at least X% tax") used by the keep check and the build scoring. Needs a saved field, UI and
+    Codex text; not started.
 
 ## Everything else (18, eleven resolved)
 

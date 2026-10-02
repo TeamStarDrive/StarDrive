@@ -370,12 +370,14 @@
       Sound: "Ground/sd_troop_attack_hit.m4a"
     - SoundEffect:
       Id: sd_troop_land
-      Volume: 1.0
+      Volume: 0.4
       Sound: "Ground/sd_troop_land.m4a"
+      MaxConcurrent: 2
     - SoundEffect:
       Id: sd_troop_takeoff
-      Volume: 1.0
+      Volume: 0.4
       Sound: "Ground/sd_troop_takeoff.m4a"
+      MaxConcurrent: 2
     - SoundEffect:
       Id: sd_troop_attack_01
       Volume: 0.3

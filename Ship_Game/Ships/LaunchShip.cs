@@ -13,16 +13,18 @@ namespace Ship_Game.Ships
         [StarData] readonly Ship Owner;
         [StarData] float PosZ;
         [StarData] readonly LaunchPlan LaunchPlan;
+        [StarData] public readonly Planet From;
         [StarData] LaunchFromPlanet PlanetLaunch;
         [StarData] LaunchFromHangar HangarLaunch;
         [StarData] LaunchFromShipyard ShipyardLaunch;
         [StarData] MinePlanet Mining;
         [StarData] MinerReturnToHangar ReturnMiner;
 
-        public LaunchShip(Ship owner, LaunchPlan launchPlan, float startingRotationDegrees = -1f)
+        public LaunchShip(Ship owner, LaunchPlan launchPlan, float startingRotationDegrees = -1f, Planet from = null)
         {
             Owner = owner;
             LaunchPlan = launchPlan;
+            From = from;
             float rotationDegZ = startingRotationDegrees.Equals(-1f)
                 ? owner.Universe.Random.RollDie(360)
                 : launchPlan != LaunchPlan.MinerReturn 
@@ -49,6 +51,28 @@ namespace Ship_Game.Ships
         public static Vector2 StartingVelocity(Ship ship, float rotationDegZ, float randomModifier) 
             => rotationDegZ.AngleToDirection() * (ship.MaxSTLSpeed * randomModifier).UpperBound(300);
 
+        public static int ShipyardRotationDegX(Ship ship)
+        {
+            switch (ship.ShipData.HullRole)
+            {
+                case RoleName.fighter:
+                case RoleName.corvette:
+                case RoleName.frigate: return 90;
+                case RoleName.cruiser: return 80;
+                case RoleName.capital: return 60;
+                default:               return 75;
+            }
+        }
+
+        public static float ShipyardDuration(Ship ship, int rotationDegX)
+            => (rotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
+
+        public static float ShipyardSpeed(Ship ship) => (ship.MaxSTLSpeed * 0.65f).UpperBound(300);
+
+        public static float PlanetDuration(Ship ship) => LaunchFromPlanet.Duration(ship);
+
+        public static float TakeOffSeconds(Ship ship, bool fromDock)
+            => fromDock ? LaunchFromShipyard.Duration(ship) : LaunchFromPlanet.Duration(ship);
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
@@ -79,23 +103,26 @@ namespace Ship_Game.Ships
                     Owner.AI.IgnoreCombat = false;
             }
 
-            if (!visibleToPlayer)
-                return;
+            if (visibleToPlayer)
+                UpdateSceneObject(Owner, scale, PosZ, timeStep);
+        }
 
-            var SO = Owner.GetSO();
-            if (Owner.GetSO() != null)
+        public static void UpdateSceneObject(Ship ship, float scale, float posZ, FixedSimTime timeStep)
+        {
+            var SO = ship.GetSO();
+            if (SO != null)
             {
-                SO.World = Matrix.CreateTranslation(new Vector3(Owner.ShipData.BaseHull.MeshOffset, 0f))
-                             * Matrix.CreateRotationY(Owner.YRotation)
-                             * Matrix.CreateRotationX(Owner.XRotation)
-                             * Matrix.CreateRotationZ(Owner.Rotation)
+                SO.World = Matrix.CreateTranslation(new Vector3(ship.ShipData.BaseHull.MeshOffset, 0f))
+                             * Matrix.CreateRotationY(ship.YRotation)
+                             * Matrix.CreateRotationX(ship.XRotation)
+                             * Matrix.CreateRotationZ(ship.Rotation)
                              * Matrix.CreateScale(scale)
-                             * Matrix.CreateTranslation(new Vector3(Owner.Position, PosZ));
+                             * Matrix.CreateTranslation(new Vector3(ship.Position, posZ));
                 SO.UpdateAnimation(timeStep.FixedTime);
             }
             else // auto-create scene objects if possible
             {
-                Owner.Universe.Screen?.QueueSceneObjectCreation(Owner);
+                ship.Universe.Screen?.QueueSceneObjectCreation(ship);
             }
         }
 
@@ -104,8 +131,6 @@ namespace Ship_Game.Ships
         {
             [StarData] float Progress; // between 0 to 1
             [StarData] readonly Ship Owner;
-            [StarData] readonly float SecondsHalfPosZ;
-            [StarData] readonly float SecondsToZeroX;
             [StarData] readonly float TotalDuration;
             [StarData] readonly float RotationDegZ;
             [StarData] readonly Vector2 Velocity;
@@ -119,10 +144,15 @@ namespace Ship_Game.Ships
                 Owner = ship;
                 Progress = 0;
                 RotationDegZ = rotation;
-                SecondsHalfPosZ = (StartingPosZ / ship.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
-                SecondsToZeroX = PlanetPlanRotationDegX / ship.RotationRadsPerSecond.ToDegrees().LowerBound(5);
-                TotalDuration = SecondsHalfPosZ + SecondsToZeroX;
+                TotalDuration = Duration(ship);
                 Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.2f, 0.5f));
+            }
+
+            public static float Duration(Ship ship)
+            {
+                float secondsHalfPosZ = (StartingPosZ / ship.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
+                float secondsToZeroX = PlanetPlanRotationDegX / ship.RotationRadsPerSecond.ToDegrees().LowerBound(5);
+                return secondsHalfPosZ + secondsToZeroX;
             }
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
@@ -216,18 +246,11 @@ namespace Ship_Game.Ships
                 RotationDegZ = rotation;
                 Progress = InitialProgress;
                 Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.5f, 0.8f));
-                switch (ship.ShipData.HullRole)
-                {
-                    case RoleName.fighter:
-                    case RoleName.corvette:
-                    case RoleName.frigate: MaxRotationDegX = 90; break;
-                    case RoleName.cruiser: MaxRotationDegX = 80; break;
-                    case RoleName.capital: MaxRotationDegX = 60; break;
-                    default: MaxRotationDegX = 75; break;
-                }
-
-                TotalDuration = (MaxRotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
+                MaxRotationDegX = ShipyardRotationDegX(ship);
+                TotalDuration = ShipyardDuration(ship, MaxRotationDegX);
             }
+
+            public static float Duration(Ship ship) => ShipyardDuration(ship, ShipyardRotationDegX(ship)) * (1 - InitialProgress);
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
             {

@@ -37,7 +37,20 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindPlanetToScrapAndOrderScrap()
         {
-            if (OldShip == null || !OldShip.CanBeScrapped) 
+            if (OldShip == null || OldShip.Loyalty != Owner)
+                return GoalStep.GoalFailed;
+
+            if (OldShip.LandShip is { Trades: true } trading)
+            {
+                if (!trading.Docked)
+                {
+                    OldShip.AI.CancelPickup(AIState.Scrap);
+                    return GoalStep.TryAgain;
+                }
+                OldShip.TakeOffAfterTrading();
+            }
+
+            if (!OldShip.CanBeScrapped)
                 return GoalStep.GoalFailed;
 
             OldShip.RemoveFromPoolAndFleet(clearOrders: false);
@@ -59,6 +72,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipOnPlan)
                 return GoalStep.GoalFailed;
 
+            if (OldShip.IsLanding)
+                return GoalStep.GoToNextStep;
+
             if (!PlanetBuildingAt.Safe)
             {
                 OldShip.AI.ClearOrders();
@@ -73,10 +89,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                     OldShip.AI.OrderMoveAndScrap(buildAt);
                 }
             }
-
-
-            if (OldShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 300f))
+            else if (OldShip.AI.TryLand(LandPlan.Scrap, PlanetBuildingAt, PlanetBuildingAt.FindShipyardToLandOn(OldShip)))
+            {
                 return GoalStep.GoToNextStep;
+            }
 
             return GoalStep.TryAgain;
         }
@@ -86,8 +102,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipOnPlan)
                 return GoalStep.GoalFailed;
 
+            if (OldShip.LandShip is { Done: false })
+                return GoalStep.TryAgain;
+
             Owner.RefundCreditsPostRemoval(OldShip);
-            PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
+            if (PlanetBuildingAt.Owner == Owner)
+                PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
             Owner.TryUnlockByScrap(OldShip);
             OldShip.QueueTotalRemoval();
             return GoalStep.GoalComplete;
@@ -100,7 +120,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (OldShip == null || !OldShip.Active)
                     return false; // Ship was removed from game, probably destroyed
 
-                return OldShip.AI.State == AIState.Scrap;
+                return OldShip.Loyalty == Owner && OldShip.AI.State == AIState.Scrap;
             }
         }
 

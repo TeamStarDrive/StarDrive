@@ -178,12 +178,19 @@ namespace Ship_Game
                     snappingToShip = true;
                     CamDestination.Z = transitionStartPosition.Z;
                 }
+                else if (StayOnViewedPlanet)
+                {
+                    Planet viewed = workersPanel.P;
+                    CamDestination = new(viewed.Position.X, viewed.Position.Y + 400f, HeightBeforePlanetView);
+                    SetSelectedPlanet(viewed);
+                }
                 else
                 {
                     CamDestination = transitionStartPosition;
                     SetSelectedPlanet(workersPanel.P);
                 }
                 transitionElapsedTime = 0f;
+                StayOnViewedPlanet = false;
                 LookingAtPlanet = false;
             }
         }
@@ -482,7 +489,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (ship.Active && ship.ShieldMax > 0f && ship.IsVisibleToPlayerInMap && !ship.IsLaunching)
+                if (ship.Active && ship.ShieldMax > 0f && ship.IsVisibleToPlayerInMap && !ship.IsLaunching && !ship.IsLanding)
                 {
                     shields.AddRange(ship.GetActiveShields().Select(s => s.Shield));
                 }
@@ -508,7 +515,7 @@ namespace Ship_Game
 
         bool CanClickOnShip(SpatialObjectBase go)
         {
-            return go is Ship { InPlayerSensorRange: true } ship
+            return go is Ship { InPlayerSensorRange: true, IsLanding: false } ship
                 // feature: if we're zoomed OUT a lot, ignore subspace projector clicks
                 && (!ship.IsSubspaceProjector || CamPos.Z <= 1_200_000.0);
         }
@@ -564,7 +571,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (!ship.Active || !ship.InPlayerSensorRange)
+                if (!ship.Active || ship.IsLanding || !ship.InPlayerSensorRange)
                     continue;
                 if (ship.IsSubspaceProjector && CamPos.Z > 1_200_000.0)
                     continue;

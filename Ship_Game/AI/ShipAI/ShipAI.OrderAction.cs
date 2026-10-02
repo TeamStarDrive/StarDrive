@@ -45,7 +45,10 @@ namespace Ship_Game.AI
         HoldPosition = (1 << 9),
 
         // Try to overtake target
-        Pursue = (1 << 10)
+        Pursue = (1 << 10),
+
+        // Ships stop at the final WayPoint facing the way they arrived, without turning to its direction
+        KeepFacing = (1 << 11)
     }
 
     public sealed partial class ShipAI
@@ -386,7 +389,8 @@ namespace Ship_Game.AI
             if (!order.IsSet(MoveOrder.NoStop))
             {
                 AddMoveOrder(Plan.MakeFinalApproach, wp, wantedState, speedLimit, o, goal);
-                AddMoveOrder(Plan.RotateToDesiredFacing, wp, wantedState, 0, o, goal);
+                if (!order.IsSet(MoveOrder.KeepFacing))
+                    AddMoveOrder(Plan.RotateToDesiredFacing, wp, wantedState, 0, o, goal);
                 OrderHoldPosition(position, finalDir, o);
             }
 
@@ -665,14 +669,9 @@ namespace Ship_Game.AI
         {
             ClearOrders(priority: true);
             if (planet.Owner != null)
-            {
-                AddShipGoal(Plan.BuilderReturnHome, AIState.SupplyReturnHome,
-                    planet.GetBuilderShipTargetVector(launch: false, out _), planet, true);
-            }
+                AddShipGoal(Plan.BuilderReturnHome, planet, null, AIState.SupplyReturnHome, pushToFront: true);
             else
-            {
                 OrderScuttleShip();
-            }
         }
 
         // Move to closest colony and get back some resources

@@ -3076,7 +3076,7 @@ namespace Ship_Game
         TheirBonuses = 2212,
         /// <summary>Opens a menu allowing you to choose from a list</summary>
         OpensAMenuAllowingYou = 2213,
-        /// <summary>Orders the ship to return to the nearest shipyard to</summary>
+        /// <summary>Orders the ship to fly to one of your safe planets,</summary>
         OrdersTheShipToReturn = 2214,
         /// <summary>Cancel this ship's order to scrap</summary>
         CancelThisShipsOrderTo = 2215,
@@ -4064,8 +4064,6 @@ namespace Ship_Game
         Defense2 = 4210,
         /// <summary>Garrison Size</summary>
         GarrisonSize = 4211,
-        /// <summary>Manual Limit</summary>
-        ManualLimit = 4212,
         /// <summary>Launch All Troops</summary>
         LaunchAllTroops = 4213,
         /// <summary>Launch One Troop</summary>
@@ -4781,6 +4779,16 @@ namespace Ship_Game
         Hostiles = 4577,
         /// <summary>str</summary>
         Str = 4578,
+        /// <summary>Builder Ships</summary>
+        BuilderShipsLabel = 4579,
+        /// <summary>Supply Shuttles</summary>
+        SupplyShuttlesLabel = 4580,
+        /// <summary>Builder ships this colony has out, and how many it can have</summary>
+        BuilderShipsOutTip = 4581,
+        /// <summary>Supply shuttles this colony has out, and how many it can have</summary>
+        SupplyShuttlesOutTip = 4582,
+        /// <summary>(docked)</summary>
+        ShipListDocked = 4583,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 
@@ -5952,6 +5960,24 @@ namespace Ship_Game
         TT_SensorRange3 = 7090,
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         TT_RepairRate = 7091,
+        /// <summary>Grace period: {0} lost its colony here and may return. You can</summary>
+        ColonizeGracePeriodTip = 7092,
+        /// <summary>Click to remove this protection.</summary>
+        ClickToRemovePlayerBuiltProtection = 7093,
+        /// <summary>Remove the protection from {0}? The governor will then treat it</summary>
+        RemovePlayerBuiltProtectionConfirm = 7094,
+        /// <summary>Apply to All Colonies</summary>
+        ApplyToAllColonies = 7095,
+        /// <summary>Copy this colony's Garrison Size and Auto Build Garrison setting to</summary>
+        ApplyGarrisonToAllColoniesTip = 7096,
+        /// <summary>Copy this colony's Governor Manages Ground Defense and Governor Manages</summary>
+        ApplyDefenseToAllColoniesTip = 7097,
+        /// <summary>Apply these settings to all {0} of your colonies? {1} {2} This</summary>
+        ApplyToAllColoniesConfirm = 7098,
+        /// <summary>On</summary>
+        SettingOn = 7099,
+        /// <summary>Off</summary>
+        SettingOff = 7100,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

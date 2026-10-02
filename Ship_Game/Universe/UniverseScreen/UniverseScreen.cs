@@ -39,6 +39,7 @@ namespace Ship_Game
 
         public Array<Bomb> BombList  = new();
         readonly AutoResetEvent DrawCompletedEvt = new(false);
+        bool LoggedGeneralUIDrawError;
 
         public const double MinCamHeight = 450.0;
         protected double MaxCamHeight;
@@ -59,6 +60,7 @@ namespace Ship_Game
         PieMenuNode shipMenu;
 
         public ParticleManager Particles;
+        public readonly CargoShuttles CargoShuttles = new();
 
         public Background3D bg3d;
         public Empire Player => UState.Player;
@@ -68,6 +70,8 @@ namespace Ship_Game
         public bool LookingAtPlanet;
         public bool snappingToShip;
         public bool returnToShip;
+        bool StayOnViewedPlanet;
+        double HeightBeforePlanetView;
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
         public DistortionComponent distortionComponent;

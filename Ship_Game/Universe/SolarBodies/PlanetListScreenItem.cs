@@ -69,9 +69,18 @@ namespace Ship_Game
             int h = (int)Height;
             RemoveAll();
 
-            ButtonStyle colonizeStyle  = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
+            Empire lostBy = null;
+            int graceTurns = MarkedForColonization ? 0 : Planet.ColonyGraceTurnsLeft(Player, out lostBy);
+            ButtonStyle colonizeStyle  = MarkedForColonization || graceTurns > 0 ? ButtonStyle.Default : ButtonStyle.BigDip;
             LocalizedText colonizeText = !MarkedForColonization ? GameText.Colonize : GameText.CancelColonize;
             Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
+            if (graceTurns > 0)
+            {
+                Colonize.DefaultTextColor = Colonize.HoverTextColor = Colonize.PressTextColor = Color.Gray;
+                Colonize.Tooltip  = Planet.ColonyGraceTip(lostBy, graceTurns);
+                Colonize.ClickSfx = null;
+            }
+
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
             SendTroops.Tooltip = GameText.SendAvailableTroopsToThis;
             RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.NumTroopsCanLaunchFor(Player)})", OnRecallTroopsClicked);
@@ -410,6 +419,12 @@ namespace Ship_Game
 
         void OnColonizeClicked(UIButton b)
         {
+            if (!MarkedForColonization && Planet.ColonyGraceTurnsLeft(Player) > 0)
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
             GameAudio.EchoAffirmative();
             if (!MarkedForColonization)
             {

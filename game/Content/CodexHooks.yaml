@@ -69,6 +69,10 @@ PlanetTypeAndRichnessThe: economy_planetary_qualities
 IndicatesTheAmountOfFood: colony_storage
 IndicatesTheAmountOfProduction: colony_storage
 
+# Colony screen: statistics tab
+BuilderShipsOutTip: economy_shipyards
+SupplyShuttlesOutTip: warfare_ordnance
+
 # Colonies list: rush and cancel draw on the production store
 ClickToRushProductionFrom: colony_storage
 CancelProductionAndRemoveThis: colony_storage
@@ -92,6 +96,7 @@ TradeTreatiesCreateWealthFor: economy_trade_treaties
 NormallyGovernorsOperateWithinA: colony_governor
 TheGovernorWillBuildStations: colony_governor
 TheGovernorWillManageGround: colony_governor
+ApplyDefenseToAllColoniesTip: colony_governor
 TheRankOfTheColony: colony_governor
 CivilianBuildingsExpenditurebudgetInByc: colony_governor
 GroundDefenseBuildingsExpenditurebudgetIn: colony_governor
@@ -104,7 +109,7 @@ GroundDefenseBuildingsExpenditureIn: colony_governor
 OrbitalsExpenditureInByc: colony_governor
 BuildAPlatformTheStrongest: colony_governor
 BuildAStationTheStrongest: colony_governor
-BuildAShipyardOrbitingThis: colony_governor
+BuildAShipyardOrbitingThis: economy_shipyards
 ManuallyAdjustTheNumberOf: colony_governor
 ManuallyAdjustTheNumberOf2: colony_governor
 ManuallyAdjustTheNumberOf3: colony_governor
@@ -124,6 +129,7 @@ OutpostsCannotBeRemoved: colony_blueprints
 TheGovernorWillCreateA: colony_garrison_and_ports
 PrioritizedPortTip: colony_garrison_and_ports
 GarrisonSizeEnsuresANumber: colony_garrison_and_ports
+ApplyGarrisonToAllColoniesTip: colony_garrison_and_ports
 
 # Automation window
 YourEmpireWillAutomaticallyManage: automation_exploration

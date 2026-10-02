@@ -41,6 +41,8 @@ public sealed class ParticleManager : IDisposable
     public IParticle IonRing;
     public IParticle IonRingReversed;
     public IParticle Bubble;
+    public IParticle CargoShuttle;
+    public IParticle CargoShuttleTrail;
     #pragma warning restore CA2213
 
     readonly GameContentManager Content;
@@ -146,6 +148,8 @@ public sealed class ParticleManager : IDisposable
         IonRing           = Get("IonRing");
         IonRingReversed   = Get("IonRingReversed");
         Bubble            = Get("Bubble");
+        CargoShuttle      = GetParticleOrNull("CargoShuttle") ?? ThrustEffect;
+        CargoShuttleTrail = GetParticleOrNull("CargoShuttleTrail") ?? EngineTrail;
 
         FileInfo pEffects = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/ParticleEffects.yaml", f => Reload());
         LoadParticleEffects(pEffects);

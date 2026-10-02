@@ -46,7 +46,8 @@ namespace Ship_Game.AI
             HasPriorityTarget = true;
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
-            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.Loyalty == Owner.Loyalty)
+            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLanding
+                || escortTarget.Loyalty == Owner.Loyalty)
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -653,19 +654,28 @@ namespace Ship_Game.AI
             return pos;
         }
 
-        void DoRefit(ShipGoal goal)
+        void DoRefit(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (goal.Goal == null) // empire goal was removed or planet was compromised
-                ClearOrders();
-
-            // stick around until the empire goal picks the ship for refit
-            if (!Owner.IsPlatformOrStation)
+            if (Owner.IsPlatformOrStation)
             {
-                ClearOrders(AIState.HoldPosition);
-                SetPriorityOrder(true); // Especially for freighters manually refitted by the player, so they wont be taken to trade again
+                ClearOrders(AIState.Refit); // orbitals wait in place for the empire goal
+                return;
             }
 
-            ClearOrders(AIState.Refit);  // For orbitals
+            if (!Owner.Loyalty.AI.HasGoal(GoalType.Refit, Owner))
+            {
+                ClearOrders(); // Could not find empire refit goal
+                return;
+            }
+
+            if (goal.TargetPlanet != null && goal.TargetPlanet.Owner != Owner.Loyalty)
+            {
+                ReverseThrustUntilStopped(timeStep); // the empire goal picks another port
+                return;
+            }
+
+            IgnoreCombat = true;
+            FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Refit);
         }
 
         void DoRepairDroneLogic(Weapon w)
@@ -796,7 +806,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoReturnHome(FixedSimTime timeStep)
+        void DoReturnHome(FixedSimTime timeStep, ShipGoal goal)
         {
             if (Owner.HomePlanet?.Owner != Owner.Loyalty)
             {
@@ -815,14 +825,10 @@ namespace Ship_Game.AI
             if (Owner.InCombat)
                 ClearOrders();
 
-            ThrustOrWarpToPos(Owner.HomePlanet.Position, timeStep);
-            if (Owner.SecondsAlive > 5
-                && !Owner.OnHighAlert
-                && Owner.Position.InRadius(Owner.HomePlanet.Position, Owner.HomePlanet.Radius + 150f))
-            {
-                Owner.HomePlanet.LandDefenseShip(Owner);
-                Owner.QueueTotalRemoval();
-            }
+            if (Owner.SecondsAlive <= 5 || Owner.OnHighAlert)
+                ThrustOrWarpToPos(Owner.HomePlanet.Position, timeStep);
+            else
+                FlyInToLand(timeStep, goal, Owner.HomePlanet, LandPlan.HomeDefense);
         }
 
         void DoBuilderReturnHome(FixedSimTime timeStep, ShipGoal goal)
@@ -832,20 +838,27 @@ namespace Ship_Game.AI
                 // Nowhere to land, bye bye.
                 ClearOrders(AIState.Scuttle);
                 Owner.ScuttleTimer = 1;
-                // find another friendly planet to land at
+                return;
             }
 
-            ThrustOrWarpToPos(goal.GetThrustTarget(goal.MovePosition, Owner.Position), timeStep);
-            if (Owner.Position.InRadius(goal.MovePosition, 200f))
+            FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Builder);
+        }
+
+        void DoSupplyReturnHome(FixedSimTime timeStep, ShipGoal goal)
+        {
+            if (goal.TargetPlanet.Owner != Owner.Loyalty)
             {
-                goal.TargetPlanet.LandBuilderShip();
-                Owner.QueueTotalRemoval();
+                ClearOrders(AIState.Scuttle);
+                Owner.ScuttleTimer = 1;
+                return;
             }
+
+            FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Supply);
         }
 
         void DoRebaseToShip(FixedSimTime timeStep)
         {
-            if (EscortTarget == null || !EscortTarget.Active
+            if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding
                                      || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit)
             {
@@ -971,7 +984,7 @@ namespace Ship_Game.AI
 
         void DoTroopToShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (EscortTarget == null || !EscortTarget.Active)
+            if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding)
             {
                 ClearOrders();
                 return;

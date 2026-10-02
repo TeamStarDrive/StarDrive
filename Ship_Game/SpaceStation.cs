@@ -16,6 +16,7 @@ public sealed class SpaceStation
 
     float ZRotation;
     const float RadiansPerSecond = RadMath.Deg1AsRads * 2;
+    public const float PosZ = 600f;
 
     public SpaceStation()
     {
@@ -33,7 +34,7 @@ public sealed class SpaceStation
                            * Matrix.CreateRotationX(20f.ToRadians())
                            * Matrix.CreateRotationY(65f.ToRadians())
                            * Matrix.CreateRotationZ(90f.ToRadians())
-                           * Matrix.CreateTranslation(position.X, position.Y, 600f);
+                           * Matrix.CreateTranslation(position.X, position.Y, PosZ);
         if (InnerSO != null)
             InnerSO.World = transform;
         if (OuterSO != null)

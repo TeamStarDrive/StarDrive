@@ -56,7 +56,9 @@ namespace Ship_Game
             Add(new Menu2(mainBkg));
             Add(new CloseButton(mainBkg.Right - 40, mainBkg.Y + 20));
 
-            ERect = new(mainBkg.X + 20, titleRect.Bottom + 30, ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40));
+            float eRectY = titleRect.Bottom + 30;
+            float maxListHeight = ScreenHeight - eRectY - 22 - GovernorDetailsComponent.MinHeight;
+            ERect = new(mainBkg.X + 20, eRectY, ScreenWidth - 40, Math.Min((0.7f * mainBkg.Height).RoundUpTo(40), maxListHeight));
             RectF colonies = new(ERect.X, ERect.Y + 15, ERect.W, ERect.H - 15);
             ColoniesList = Add(new ScrollList<ColoniesListItem>(colonies, 80));
             ColoniesList.OnClick       = OnColonyListItemClicked;

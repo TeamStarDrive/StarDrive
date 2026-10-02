@@ -101,6 +101,9 @@ namespace Ship_Game
         bool HandleTroopSelect(InputState input)
         {
             ClickedTroop = false;
+            if (HandlePlayerBuiltClick(input))
+                return true;
+
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
                 if (!pgs.ClickRect.HitTest(MousePos))
@@ -182,6 +185,33 @@ namespace Ship_Game
                         }
                     }
                 }
+            }
+
+            return false;
+        }
+
+        // Checked before the troops, whose icons can cover part of the lock
+        bool HandlePlayerBuiltClick(InputState input)
+        {
+            if (!input.LeftMouseClick)
+                return false;
+
+            foreach (PlanetGridSquare pgs in P.TilesList)
+            {
+                if (!PlayerBuiltRect(pgs).HitTest(input.CursorPosition) || !IsProtectedPlayerBuilt(pgs))
+                    continue;
+
+                Building protectedBuilding = pgs.Building ?? pgs.QItem?.Building;
+                if (protectedBuilding == null)
+                    return false;
+
+                ToUnprotect = pgs;
+                string message = string.Format(Localizer.Token(GameText.RemovePlayerBuiltProtectionConfirm),
+                                               protectedBuilding.TranslatedName.Text);
+                var messageBox = new MessageBoxScreen(P.Universe.Screen, message);
+                messageBox.Accepted = RemovePlayerBuiltProtectionAccepted;
+                ScreenManager.AddScreen(messageBox);
+                return true;
             }
 
             return false;

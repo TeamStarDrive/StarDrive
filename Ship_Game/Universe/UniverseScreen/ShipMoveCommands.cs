@@ -111,12 +111,16 @@ namespace Ship_Game.Universe
 
         void PlanetRightClickColonyShip(Ship ship, Planet planet, bool clearOrders)
         {
-            if (planet.Owner == null && planet.Habitable)
+            int graceTurns = planet.ColonyGraceTurnsLeft(Universe.Player, out Empire lostBy);
+            if (planet.Owner == null && planet.Habitable && graceTurns == 0)
             {
                 Universe.Player.AI.AddGoalAndEvaluate(new MarkForColonization(ship, planet, Universe.Player));
             }
             else
             {
+                if (graceTurns > 0)
+                    ToolTip.CreateFloatingText(Planet.ColonyGraceTip(lostBy, graceTurns), "", Input.CursorPosition, 5);
+
                 ship.OrderToOrbit(planet, clearOrders);
                 if (clearOrders)
                     CancelAbandonedColonizationGoal(ship);

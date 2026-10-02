@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
@@ -35,6 +36,19 @@ namespace UnitTests.Planets
             Assert.IsTrue(Player.Capital == Homeworld, "The Player's capital is the created homeworld");
             Assert.IsTrue(Homeworld.HasSpacePort, "New Homeworld does not have a spaceport");
             Assert.IsTrue(EnemyHome.HasCapital, "Enemy Homeworld does not have a capital");
+        }
+
+        [TestMethod]
+        public void RemoveCapitalCancelsACapitalStillInTheQueue()
+        {
+            Ship colonyShip = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
+            NewPlanet.Colonize(colonyShip);
+            NewPlanet.BuildCapitalHere();
+            QueueItem queued = NewPlanet.ConstructionQueue.FirstOrDefault(q => q.isBuilding && q.Building.IsCapital);
+            Assert.IsNotNull(queued, "A capital should be queued");
+
+            Assert.IsTrue(NewPlanet.RemoveCapital(), "RemoveCapital did not find the queued capital");
+            Assert.IsTrue(queued.IsCancelled, "The queued capital would still be built");
         }
 
         [TestMethod]

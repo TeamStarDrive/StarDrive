@@ -108,6 +108,24 @@ namespace UnitTests.Data
         }
 
         [TestMethod]
+        public void TroopTakeOffAndLandingSoundsAreTurnedDownAndDoNotStack()
+        {
+            AudioConfig config = new();
+            AudioCategory ground = config.GetCategory("Ground");
+            foreach (string id in new[] { "sd_troop_takeoff", "sd_troop_land" })
+            {
+                SoundEffect effect = config.GetSoundEffect(id);
+                AssertEqual(0.001f, 0.4f, effect.Volume, $"{id} plays with no distance falloff, so it is turned down");
+
+                effect.NumActiveInstances = 1;
+                AssertTrue(ground.CanPlayEffect(effect), $"{id}: a second quick launch still plays");
+                effect.NumActiveInstances = 2;
+                AssertFalse(ground.CanPlayEffect(effect), $"{id}: quick launches stop stacking at two");
+                effect.NumActiveInstances = 0;
+            }
+        }
+
+        [TestMethod]
         public void CanCacheAudioData()
         {
             FileInfo fullPath = GetAudioPath("UI/sd_ui_notification_research_01.m4a");

@@ -97,26 +97,32 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
-        public void APlayerColonyJudgesAMoneyBuildingAtTheCurrentTaxRate()
+        public void APlayerOnAManualTaxRateJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate()
         {
             Planet home = AddHomeWorldToEmpire(new Vector2(5000), Player);
+            Assert.IsFalse(Player.AutoTaxes, "setup: the player sets the tax rate by hand");
             Player.data.TaxRate = 0.01f;
             Building resort = Place(Make(maintenance: 0.5f, income: 5f, on: home), home);
             Assert.IsTrue(home.Money.NetCostOf(resort, standing: true) > 0, "setup: at 1% tax the building must not pay for itself");
 
-            Assert.IsTrue(ReplaceMayTake(resort, home), "a building was judged at a tax rate the player is not charging");
+            Assert.IsFalse(ReplaceMayTake(resort, home), "a low manual tax rate exposed a building that pays at normal taxes");
         }
 
         [TestMethod]
-        public void APlayerOnAutoTaxesJudgesAMoneyBuildingAtNoLessThanTheStartingTaxRate()
+        public void ABuildingThatPaysOnlyAboveTheStartingTaxRateIsKeptWhileTaxesAreThatHigh()
         {
-            Planet home = AddHomeWorldToEmpire(new Vector2(5000), Player);
-            Player.AutoTaxes = true;
-            Player.data.TaxRate = 0f;
-            Building resort = Place(Make(maintenance: 0.5f, income: 5f, on: home), home);
-            Assert.IsTrue(home.Money.NetCostOf(resort, standing: true) > 0, "setup: at 0% tax the building earns nothing");
+            Building b = Place(maintenance: 1f, income: 5f);
+            float upkeepPerPoint = b.ActualMaintenance(P);
+            float revenueAtStart = upkeepPerPoint - P.Money.NetCostOf(b, standing: true);
+            Enemy.data.TaxRate = 0.6f;
+            P.UpdateIncomes();
+            float revenueAt60 = upkeepPerPoint - P.Money.NetCostOf(b, standing: true);
+            b.Maintenance = (revenueAtStart + revenueAt60) * 0.5f / upkeepPerPoint;
 
-            Assert.IsFalse(ReplaceMayTake(resort, home), "auto taxes at 0% exposed a building that pays at normal taxes");
+            Assert.IsTrue(b.ActualMaintenance(P) > revenueAtStart, "setup: at the starting tax rate the building must not pay for itself");
+            Assert.IsTrue(P.Money.NetCostOf(b, standing: true) < 0, "setup: at 60% tax the building must pay for itself");
+
+            Assert.IsFalse(ReplaceMayTake(b), "the starting tax rate is a floor, not the rate a building is judged at");
         }
 
         [TestMethod]

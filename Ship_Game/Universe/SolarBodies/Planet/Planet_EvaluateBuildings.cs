@@ -269,13 +269,11 @@ namespace Ship_Game
 
         void CalcMoneyPriorities()
         {
-            if (PopulationBillion < 1)
-                return;
-             
-            float ratio     = 1 - MoneyBuildingRatio;
-            float tax       = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
-            float credits   = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
-            float buildings = TotalHabitableTiles * ratio;
+            float ratio      = 1 - MoneyBuildingRatio;
+            float tax        = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
+            float creditsPop = PopulationBillion < 1 ? PopulationBillion * 2 : PopulationBillion.LowerBound(2);
+            float credits    = creditsPop * PopulationRatio * ratio;
+            float buildings  = PopulationBillion < 1 ? 0 : TotalHabitableTiles * ratio;
 
             tax       = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
             credits   = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
@@ -509,8 +507,7 @@ namespace Ship_Game
             if (RequiredInBlueprints(b) && !overBudget)
                 return false;
 
-            float minTaxRate = Owner.isPlayer && !Owner.AutoTaxes ? 0f : EmpireData.StartingTaxRate;
-            if (b.IsMoneyBuilding && Money.NetCostOf(b, standing: true, minTaxRate) < 0
+            if (b.IsMoneyBuilding && Money.NetCostOf(b, standing: true, EmpireData.StartingTaxRate) < 0
                 || !WillMaintainPositiveFoodOutput(b)
                 || replacing && !IsBuildingOnHabitableTile(b)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
                 || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero()
@@ -925,6 +922,13 @@ namespace Ship_Game
         }
 
         // FB - For unit tests only!
+        internal (float Tax, float Credits, float BuildingIncome) TestMoneyPriorities()
+        {
+            Priorities.Clear();
+            CalcMoneyPriorities();
+            return (Priorities[ColonyPriority.TaxPercent], Priorities[ColonyPriority.CreditsPerCol], Priorities[ColonyPriority.BuildingIncome]);
+        }
+
         public bool TestIsCapitalInQueue() => ConstructionQueue.Any(q => q.isBuilding && q.Building.IsCapital);
         public bool TestIsOutpostInQueue() => ConstructionQueue.Any(q => q.isBuilding && q.Building.IsOutpost);
         
@@ -941,8 +945,12 @@ namespace Ship_Game
         public bool RemoveCapital()
         {
             SetHomeworld(false);
-            if (Construction.Cancel(ResourceManager.CreateBuilding(this, Building.CapitalId)))
+            QueueItem queuedCapital = ConstructionQueue.Find(q => q.isBuilding && q.Building.IsCapital);
+            if (queuedCapital != null)
+            {
+                queuedCapital.SetCanceled();
                 return true;
+            }
 
             Building capital = FindBuilding(b => b.IsCapital);
             if (capital != null)

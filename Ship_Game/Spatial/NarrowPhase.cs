@@ -169,7 +169,7 @@ namespace Ship_Game.Spatial
             if (victim.Type == GameObjectType.Ship) // beam-ship is special collision
             {
                 var ship = (Ship)victim;
-                hitModule = ship.RayHitTestSingle(beamStart, beamEnd, beam.IgnoresShields);
+                hitModule = ship.IsLanding ? null : ship.RayHitTestSingle(beamStart, beamEnd, beam.IgnoresShields);
                 if (hitModule != null)
                     return hitModule.RayHitTest(beamStart, beamEnd, 8f, out distanceToHit);
                 distanceToHit = float.NaN;
