@@ -4785,7 +4785,7 @@ namespace Ship_Game
         SupplyShuttlesLabel = 4580,
         /// <summary>Builder ships this colony has out, and how many it can have</summary>
         BuilderShipsOutTip = 4581,
-        /// <summary>Supply shuttles this colony has out, and how many it can hav</summary>
+        /// <summary>Supply shuttles this colony has out, and how many it can have</summary>
         SupplyShuttlesOutTip = 4582,
         /// <summary>(docked)</summary>
         ShipListDocked = 4583,

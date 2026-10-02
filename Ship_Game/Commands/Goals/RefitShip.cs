@@ -226,6 +226,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep QueueAtAnotherPort()
         {
+            if (RefitItem != null)
+                PlanetBuildingAt.Construction.RemoveMovedItem(RefitItem);
+
             if (RefitItem == null || !Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, RefitItem.Cost, Build.Template, out Planet port))
             {
                 RemoveGoalFromFleet();

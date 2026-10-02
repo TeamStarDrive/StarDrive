@@ -372,6 +372,33 @@ public class RefitLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ARefitLeavesTheQueueOfAPortThatChangedHandsWithItsQueue()
+    {
+        Planet otherPort = AddSecondPort();
+        OrderRefit(Homeworld.Position + new Vector2(3000, 0));
+        RunUntilLanding();
+        QueueItem refit = RunUntilQueued();
+        Homeworld.SetOwner(Enemy); // an owner change that leaves the queue in place
+
+        Refit.Evaluate();
+        Assert.IsNull(QueuedRefit(Homeworld, Refit), "the refit must leave the queue of the port it lost");
+        Assert.AreSame(refit, QueuedRefit(otherPort, Refit), "and be queued at the other port only");
+    }
+
+    [TestMethod]
+    public void ADroppedRefitLeavesTheQueueOfAPortThatChangedHandsWithItsQueue()
+    {
+        OrderRefit(Homeworld.Position + new Vector2(3000, 0));
+        RunUntilLanding();
+        RunUntilQueued();
+        Homeworld.SetOwner(Enemy);
+
+        Refit.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(g => g == Refit), "setup: with no port left, the refit is dropped");
+        Assert.IsNull(QueuedRefit(Homeworld, Refit), "a dropped refit must not stay in the queue of the port it lost");
+    }
+
+    [TestMethod]
     public void ARefitOrderThatFailsDoesNotStrandTheFleetSlot()
     {
         Fleet fleet = Player.CreateFleet(1, null);

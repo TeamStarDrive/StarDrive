@@ -547,6 +547,8 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
+        public void RemoveMovedItem(QueueItem q) => Finish(q);
+
         public bool Cancel(Goal g)
         {
             lock (ConstructionQueue)
