@@ -285,6 +285,7 @@ namespace Ship_Game
 
                 Shields?.Update(timeStep);
                 FTLManager.Update(this, timeStep);
+                CargoShuttles.Update(this, timeStep);
 
                 // update in reverse, to allow Update() to remove the junk
                 for (int i = UState.JunkList.Count - 1; i >= 0; --i)

@@ -856,6 +856,7 @@
     <Compile Include="Ship_Game\GameScreens\Universe\ResearchScreenNew.cs" />
     <Compile Include="Ship_Game\VariableUIElement.cs" />
     <Compile Include="Ship_Game\SpaceStation.cs" />
+    <Compile Include="Ship_Game\CargoShuttles.cs" />
     <Compile Include="Ship_Game\Universe\SolarSystem.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen.cs" />
     <Compile Include="Ship_Game\Ships\Ship.cs" />

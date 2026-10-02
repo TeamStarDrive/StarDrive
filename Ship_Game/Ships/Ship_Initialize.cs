@@ -457,7 +457,9 @@ namespace Ship_Game.Ships
             Ship station = LandShip.Station;
             if (!LandShip.Docked)
             {
-                AI.TradeAfterLanding(planet, station);
+                float unloaded = AI.TradeAfterLanding(planet, station);
+                if (unloaded > 0f && LandShip.OnSpacePort)
+                    LandShip.ReturningShuttles = CargoShuttles.ShuttlesFor(unloaded);
                 if (station == null && planet.Owner == Loyalty && !AI.HasTradePlan)
                     LandShip.Dock(Universe.P.TurnTimer);
                 else
@@ -474,8 +476,11 @@ namespace Ship_Game.Ships
             Planet planet = LandShip.Planet;
             bool fromStation = LandShip.Station != null;
             bool fromDock = LandShip.OnDock;
+            int returningShuttles = LandShip.ReturningShuttles;
             LandShip = null;
             TakeOff(planet, fromDock, fromStation);
+            if (returningShuttles > 0)
+                ReturnShuttlesToPlanet(planet, returningShuttles);
         }
 
         void TakeOff(Planet planet, bool fromDock, bool fromStation = false)

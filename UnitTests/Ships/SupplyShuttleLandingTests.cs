@@ -86,16 +86,17 @@ public class SupplyShuttleLandingTests : StarDriveTest
         AssertGreaterThan(target.Ordinance, ordnanceBefore, "setup: the shuttle must rearm the ship before it comes home");
         AssertLessThan(speedBefore, LaunchShip.ShipyardSpeed(shuttle) + 10f, "the shuttle comes in no faster than launch speed to glide on into the space port");
         AssertGreaterThan(speedBefore, LaunchShip.ShipyardSpeed(shuttle) * 0.5f, "the shuttle flies in to land on the space port");
-        float portRange = LandShip.ShipyardLandingRange(shuttle);
+        float portRange = LandShip.SpacePortLandingRange(shuttle);
         float startDistance = shuttle.Position.Distance(Homeworld.Position);
-        AssertGreaterThan(startDistance, portRange - 60f, "the landing on the space port starts where a launch from it would end");
-        AssertLessThan(startDistance, portRange + 1f, "the landing on the space port starts where a launch from it would end");
+        AssertGreaterThan(startDistance, portRange - 60f, "the landing on the space port starts where its shorter glide in begins");
+        AssertLessThan(startDistance, portRange + 1f, "the landing on the space port starts where its shorter glide in begins");
         AssertEqual(AIState.SupplyReturnHome, shuttle.AI.State, "a landing shuttle is still on its way home");
 
         rearm.Evaluate();
         AssertEqual(slotsWhileOut, Homeworld.NumSupplyShuttlesCanLaunch(), "the shuttle holds its slot at the colony while it is on its way down");
 
-        RunSimWhile((simTimeout: 60, fatal: true), () => shuttle.Active);
+        double landing = RunSimWhile((simTimeout: 60, fatal: true), () => shuttle.Active);
+        AssertEqual(0.1f, LandShip.DockLandingSeconds(shuttle) * 0.7f, (float)landing, "a landing on a space port takes 30% less than on a shipyard");
         Assert.IsFalse(shuttle.Dying, "a landed shuttle is removed, not destroyed");
         rearm.Evaluate();
         Assert.IsFalse(HasGoal(rearm), "the rearm is done once the shuttle has landed");

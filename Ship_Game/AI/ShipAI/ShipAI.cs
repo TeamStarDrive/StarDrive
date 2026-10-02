@@ -312,7 +312,9 @@ namespace Ship_Game.AI
 
         public void FlyInToTrade(FixedSimTime timeStep, ShipGoal goal, Planet planet)
         {
-            if (!TryLand(LandPlan.Trade, planet, shipyard: null))
+            if (TryLand(LandPlan.Trade, planet, shipyard: null))
+                Owner.SendShuttlesToPort(planet);
+            else
                 ApproachToLand(timeStep, goal.Trade.GetThrustTarget(planet.Position, Owner.Position), planet.Position,
                                LandingRange(LandPlan.Trade, planet, shipyard: null), GlidesIn(LandPlan.Trade, planet, shipyard: null));
         }
@@ -348,7 +350,11 @@ namespace Ship_Game.AI
             => shipyard != null || LandShip.LandsOnSpacePort(landPlan, planet);
 
         float LandingRange(LandPlan landPlan, Planet planet, Ship shipyard)
-            => GlidesIn(landPlan, planet, shipyard) ? LandShip.ShipyardLandingRange(Owner) : planet.Radius + 300f;
+        {
+            if (shipyard != null)
+                return LandShip.ShipyardLandingRange(Owner);
+            return LandShip.LandsOnSpacePort(landPlan, planet) ? LandShip.SpacePortLandingRange(Owner) : planet.Radius + 300f;
+        }
 
         public bool TryLand(LandPlan landPlan, Planet planet, Ship shipyard)
         {

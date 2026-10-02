@@ -150,6 +150,25 @@ namespace Ship_Game.Ships
 
         public Planet DockedOrTakingOffFrom => LandShip is { Docked: true } docked ? docked.Planet : TakingOffFrom;
 
+        public void SendShuttlesToPort(Planet planet)
+        {
+            if (!LandShip.OnSpacePort)
+                return;
+
+            int shuttles = CargoShuttles.ShuttlesFor(CargoSpaceMax);
+            LandShip.ReturningShuttles = shuttles;
+            SendCargoShuttles(planet, shuttles, LandShip.SpacePortLandingSeconds(this), toPort: true);
+        }
+
+        void ReturnShuttlesToPlanet(Planet planet, int shuttles)
+            => SendCargoShuttles(planet, shuttles, LaunchShip.TakeOffSeconds(this, fromDock: true), toPort: false);
+
+        void SendCargoShuttles(Planet planet, int shuttles, float seconds, bool toPort)
+        {
+            if (planet.HasSpacePort && planet.InFrustum && Universe.IsPlanetViewOrCloser && InPlayerSensorRange)
+                Universe.Screen.CargoShuttles.Send(planet, (planet.Owner ?? Loyalty).EmpireColor, shuttles, seconds, toPort);
+        }
+
         public void RemoveTradeRoute(Planet planet)
         {
             TradeRoutes.Remove(planet.Id);

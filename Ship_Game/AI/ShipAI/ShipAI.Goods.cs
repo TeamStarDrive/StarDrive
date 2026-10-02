@@ -156,16 +156,17 @@ namespace Ship_Game.AI
                    && (importPlanet.Owner == Owner.Loyalty || importPlanet.Owner.IsTradeTreaty(Owner.Loyalty));
         }
 
-        public void UnloadGoods(ShipAI.ShipGoal g)
+        public float UnloadGoods(ShipAI.ShipGoal g)
         {
             Planet importPlanet = g.Trade.ImportTo;
             Planet exportPlanet = g.Trade.ExportFrom;
             if (!CanDeliver(importPlanet))
             {
                 AI.CancelTradePlan(exportPlanet);
-                return;
+                return 0f;
             }
 
+            float cargoBefore = Owner.CargoSpaceUsed;
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
             if (Owner.GetCargo(Goods.Colonists).AlmostZero())
                 Owner.Loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
@@ -173,6 +174,7 @@ namespace Ship_Game.AI
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
+            float unloaded = cargoBefore - Owner.CargoSpaceUsed;
 
             importPlanet.UpdateAverageFreightTurns(importPlanet, exportPlanet, g.Trade.Goods, g.Trade.StardateAdded);
             Owner.Loyalty.UpdateAverageFreightFTL(Owner.MaxFTLSpeed);
@@ -191,6 +193,7 @@ namespace Ship_Game.AI
 
             AI.CancelTradePlan(toOrbit);
             Owner.Loyalty.CheckForRefitFreighter(Owner, 10);
+            return unloaded;
         }
     }
 
@@ -198,24 +201,25 @@ namespace Ship_Game.AI
     {
         public bool HasTradePlan => OrderQueue.TryPeekFirst(out ShipGoal g) && g.Trade != null;
 
-        public void TradeAfterLanding(Planet planet, Ship station)
+        public float TradeAfterLanding(Planet planet, Ship station)
         {
             if (!OrderQueue.TryPeekFirst(out ShipGoal g) || g.Trade == null)
-                return;
+                return 0f;
 
             if (station != null)
             {
                 if (g.Plan == Plan.DropOffGoodsForStation && station == g.Trade.TargetStation)
                     UnloadGoodsForStation(g);
-                return;
+                return 0f;
             }
 
             switch (g.Plan)
             {
-                case Plan.PickupGoods when planet == g.Trade.ExportFrom:           PickupGoods.LoadGoods(g);   break;
-                case Plan.DropOffGoods when planet == g.Trade.ImportTo:            DropOffGoods.UnloadGoods(g); break;
-                case Plan.PickupGoodsForStation when planet == g.Trade.ExportFrom: LoadGoodsForStation(g);     break;
+                case Plan.PickupGoods when planet == g.Trade.ExportFrom:           PickupGoods.LoadGoods(g);          break;
+                case Plan.DropOffGoods when planet == g.Trade.ImportTo:            return DropOffGoods.UnloadGoods(g);
+                case Plan.PickupGoodsForStation when planet == g.Trade.ExportFrom: LoadGoodsForStation(g);            break;
             }
+            return 0f;
         }
 
         public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)

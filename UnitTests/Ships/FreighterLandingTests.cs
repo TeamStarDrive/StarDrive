@@ -120,16 +120,18 @@ public class FreighterLandingTests : StarDriveTest
         AssertLessThan(speedBefore, LaunchShip.ShipyardSpeed(freighter) + 10f, "the freighter comes in no faster than launch speed to glide on into the space port");
         AssertGreaterThan(speedBefore, LaunchShip.ShipyardSpeed(freighter) * 0.5f, "the freighter flies in to land on the space port");
         float startDistance = freighter.Position.Distance(Exporter.Position);
-        float portRange = LandShip.ShipyardLandingRange(freighter);
-        AssertGreaterThan(startDistance, portRange - 60f, "the landing on the space port starts where a launch from it would end");
-        AssertLessThan(startDistance, portRange + 1f, "the landing on the space port starts where a launch from it would end");
+        float portRange = LandShip.SpacePortLandingRange(freighter);
+        AssertGreaterThan(startDistance, portRange - 60f, "the landing on the space port starts where its shorter glide in begins");
+        AssertLessThan(startDistance, portRange + 1f, "the landing on the space port starts where its shorter glide in begins");
+        AssertEqual(1f, LandShip.ShipyardLandingRange(freighter) * 0.7f, portRange, "the glide into a space port is 30% shorter than into a shipyard");
         Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.PickupGoods, out _), "a landing freighter keeps its trade orders");
 
-        RunSimWhile((simTimeout: 60, fatal: true), () => freighter.LandShip is { Done: false }, () =>
+        double landing = RunSimWhile((simTimeout: 60, fatal: true), () => freighter.LandShip is { Done: false }, () =>
         {
             AssertEqual(0f, freighter.GetCargo(Goods.Food), "nothing is loaded before the freighter has landed");
             AssertEqual(foodBefore, Exporter.FoodHere, "nothing is loaded before the freighter has landed");
         });
+        AssertEqual(0.1f, LandShip.DockLandingSeconds(freighter) * 0.7f, (float)landing, "a landing on a space port takes 30% less than on a shipyard");
 
         Assert.IsFalse(freighter.IsLanding, "a freighter takes off again at touchdown");
         Assert.IsTrue(freighter.IsLaunching, "a freighter takes off again at touchdown");
@@ -573,9 +575,9 @@ public class FreighterLandingTests : StarDriveTest
     {
         Ship freighter = SpawnFreighter(Exporter, new Vector2(30_000, 0));
         float turn = UState.P.TurnTimer;
-        float portLanding = LaunchShip.ShipyardDuration(freighter, LaunchShip.ShipyardRotationDegX(freighter));
-        AssertEqual(0.001f, portLanding / turn, freighter.GetTradeLandingTime(Exporter), "a space port landing takes a shipyard glide");
-        AssertEqual(0.001f, portLanding * 0.9f / turn, freighter.GetTradeTakeOffTime(Exporter), "a space port take-off is a shipyard launch");
+        float shipyardGlide = LaunchShip.ShipyardDuration(freighter, LaunchShip.ShipyardRotationDegX(freighter));
+        AssertEqual(0.001f, shipyardGlide * 0.7f / turn, freighter.GetTradeLandingTime(Exporter), "a space port landing is 30% quicker than a shipyard glide");
+        AssertEqual(0.001f, shipyardGlide * 0.9f / turn, freighter.GetTradeTakeOffTime(Exporter), "a space port take-off is a shipyard launch");
         AssertEqual(0.001f, LaunchShip.PlanetDuration(freighter) / turn, freighter.GetTradeLandingTime(Importer), "without a space port it lands on the planet");
         AssertEqual(0.001f, LaunchShip.PlanetDuration(freighter) / turn, freighter.GetTradeTakeOffTime(Importer), "without a space port it takes off from the planet");
 

@@ -60,6 +60,7 @@ namespace Ship_Game
         PieMenuNode shipMenu;
 
         public ParticleManager Particles;
+        public readonly CargoShuttles CargoShuttles = new();
 
         public Background3D bg3d;
         public Empire Player => UState.Player;
