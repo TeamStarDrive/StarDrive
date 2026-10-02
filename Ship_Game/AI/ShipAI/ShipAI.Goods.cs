@@ -22,6 +22,12 @@ namespace Ship_Game.AI
             if (AI.WaitForBlockadeRemoval(g, exportPlanet, timeStep))
                 return;
 
+            if (Owner.TakingOffFrom == exportPlanet)
+            {
+                LoadGoods(g);
+                return;
+            }
+
             if (AI.InTradeLandingRange(exportPlanet) && NothingToLoad(g, exportPlanet, importPlanet))
             {
                 AI.CancelTradePlan(exportPlanet);
@@ -190,6 +196,8 @@ namespace Ship_Game.AI
 
     partial class ShipAI
     {
+        public bool HasTradePlan => OrderQueue.TryPeekFirst(out ShipGoal g) && g.Trade != null;
+
         public void TradeAfterLanding(Planet planet, Ship station)
         {
             if (!OrderQueue.TryPeekFirst(out ShipGoal g) || g.Trade == null)

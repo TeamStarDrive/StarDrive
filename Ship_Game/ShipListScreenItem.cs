@@ -178,6 +178,12 @@ namespace Ship_Game
 
         public static string GetStatusText(Ship ship)
         {
+            string orders = GetOrdersText(ship);
+            return ship.LandShip is { Docked: true } ? $"{orders} {Localizer.Token(GameText.ShipListDocked)}" : orders;
+        }
+
+        static string GetOrdersText(Ship ship)
+        {
             if (ship.AI == null)  //fbedard: prevent crash ?
                 return "";
             switch (ship.AI.State)

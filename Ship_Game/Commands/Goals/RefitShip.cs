@@ -71,8 +71,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindShipAndPlanetToRefit()
         {
-            if (OldShip.LandShip is { Trades: true })
-                return GoalStep.TryAgain;
+            if (OldShip.LandShip is { Trades: true } trading)
+            {
+                if (!trading.Docked)
+                    return GoalStep.TryAgain;
+                OldShip.TakeOffAfterTrading();
+            }
 
             if (OldShip.IsLanding)
             {

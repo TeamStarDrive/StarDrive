@@ -96,6 +96,7 @@ public class FreighterLandingTests : StarDriveTest
         });
 
         Assert.IsTrue(freighter.IsLaunching, "a freighter takes off again once it has unloaded");
+        Assert.IsNull(freighter.TakingOffFrom, "a freighter taking off from a station is not leaving a colony, so it cannot load there");
         AssertLessThan(freighter.Position.Distance(station.Position), LandShip.TouchdownRadius + 5f, "the freighter lands on and takes off from the station");
         AssertEqual(1f, prodBefore + cargo, station.GetProduction(), "the freighter unloads at touchdown");
         AssertEqual(0f, freighter.CargoSpaceUsed, "the freighter unloads at touchdown");
@@ -116,7 +117,8 @@ public class FreighterLandingTests : StarDriveTest
 
         float speedBefore = 0f;
         RunSimWhile((simTimeout: 120, fatal: true), () => !freighter.IsLanding, () => speedBefore = freighter.CurrentVelocity);
-        AssertEqual(10f, LaunchShip.ShipyardSpeed(freighter), speedBefore, "the freighter comes in at launch speed to glide on into the space port");
+        AssertLessThan(speedBefore, LaunchShip.ShipyardSpeed(freighter) + 10f, "the freighter comes in no faster than launch speed to glide on into the space port");
+        AssertGreaterThan(speedBefore, LaunchShip.ShipyardSpeed(freighter) * 0.5f, "the freighter flies in to land on the space port");
         float startDistance = freighter.Position.Distance(Exporter.Position);
         float portRange = LandShip.ShipyardLandingRange(freighter);
         AssertGreaterThan(startDistance, portRange - 60f, "the landing on the space port starts where a launch from it would end");
@@ -168,7 +170,7 @@ public class FreighterLandingTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AFreighterUnloadsAtTouchdownAndTakesOffAgain()
+    public void AFreighterUnloadsAtTouchdownThenWaitsDockedForUpToATurn()
     {
         Assert.IsFalse(Importer.HasSpacePort, "setup: the importing colony must have no space port");
         AssertGreaterThan(Importer.Storage.Max, 5f, "setup: the importing colony must have room for the goods");
@@ -184,10 +186,327 @@ public class FreighterLandingTests : StarDriveTest
             AssertEqual(0f, Importer.FoodHere, "nothing is unloaded before the freighter has landed");
         });
 
-        Assert.IsTrue(freighter.IsLaunching, "a freighter takes off again once it has unloaded");
         AssertEqual(1f, 5f, Importer.FoodHere, "the freighter unloads at touchdown");
         AssertEqual(0f, freighter.CargoSpaceUsed, "the freighter unloads at touchdown");
-        Assert.IsFalse(freighter.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g) && g.Trade != null, "the delivery is done");
+        Assert.IsFalse(freighter.AI.HasTradePlan, "the delivery is done");
+        Assert.IsTrue(freighter.LandShip is { Docked: true } && freighter.IsIdleFreighter,
+                      "with no next job the freighter waits docked at its colony, free for the next job");
+        AssertEqual(Importer, freighter.DockedOrTakingOffFrom, "the freighter is docked at the colony it unloaded at");
+
+        double docked = RunSimWhile((simTimeout: 60, fatal: true), () => freighter.IsLanding);
+        AssertEqual(0.1f, UState.P.TurnTimer, (float)docked, "with no job the freighter takes off after a turn");
+        Assert.IsTrue(freighter.IsLaunching, "with no job the freighter takes off after a turn");
+    }
+
+    Ship DockAfterUnloadingAtImporter()
+    {
+        Ship freighter = SpawnFreighter(Importer, new Vector2(8000, 0));
+        freighter.LoadFood(5f);
+        freighter.AI.SetupFreighterPlan(Importer, Importer, Goods.Food);
+        RunSimWhile((simTimeout: 120, fatal: true), () => freighter.LandShip is not { Docked: true });
+        return freighter;
+    }
+
+    void LetImporterExportProductionToExporter()
+    {
+        Importer.PS = Planet.GoodState.EXPORT;
+        Importer.ProdHere = Importer.Storage.Max;
+        Importer.ManualProdExportSlots = 1;
+        Exporter.PS = Planet.GoodState.IMPORT;
+        Exporter.ProdHere = 0;
+        Exporter.ManualProdImportSlots = 1;
+        Importer.UpdateIncomingTradeGoods();
+        Exporter.UpdateIncomingTradeGoods();
+    }
+
+    void AssertLoadsAtImporterWithoutLanding(Ship freighter, string message)
+    {
+        AssertGreaterThan(freighter.GetCargo(Goods.Production), 0f, message);
+        Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.DropOffGoods, out ShipAI.ShipGoal goal) && goal.Trade.ImportTo == Exporter,
+                      "the freighter takes off bound for the importing colony");
+        Assert.IsTrue(freighter.IsLaunching, "the freighter is taking off");
+        RunSimWhile((simTimeout: 60, fatal: true), () => freighter.IsLaunching,
+                    () => Assert.IsFalse(freighter.IsLanding, "the freighter does not land again to load"));
+    }
+
+    [TestMethod]
+    public void ADockedFreighterLoadsAtItsColonyWithoutLandingAgain()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        LetImporterExportProductionToExporter();
+        freighter.AI.SetupFreighterPlan(Importer, Exporter, Goods.Production);
+        RunObjectsSim(TestSimStep);
+        AssertLoadsAtImporterWithoutLanding(freighter, "a docked freighter given its colony's job loads on the spot");
+    }
+
+    [TestMethod]
+    public void AFreighterTakingOffFromItsColonyLoadsThereWithoutLanding()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        RunSimWhile((simTimeout: 60, fatal: true), () => !freighter.IsLaunching);
+        AssertEqual(Importer, freighter.TakingOffFrom, "setup: the freighter must be taking off from its colony");
+
+        LetImporterExportProductionToExporter();
+        freighter.AI.SetupFreighterPlan(Importer, Exporter, Goods.Production);
+        RunObjectsSim(TestSimStep);
+        AssertLoadsAtImporterWithoutLanding(freighter, "a job at the colony a freighter is taking off from is loaded at once");
+    }
+
+    [TestMethod]
+    public void ANewFreighterTakingOffFromItsColonyLoadsThere()
+    {
+        Ship fromPlanet = Ship.CreateShipNearPlanet(UState, "Owlwok Freighter S", Player, Exporter, doOrbit: false);
+        Ship fromShipyard = Ship.CreateShipAtShipyard(UState, "Owlwok Freighter S", Player, Exporter.Position, Exporter);
+        foreach (Ship freighter in new[] { fromPlanet, fromShipyard })
+        {
+            freighter.TransportingFood = true;
+            AssertEqual(Exporter, freighter.TakingOffFrom, "setup: a new freighter takes off from its colony");
+            freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
+        }
+
+        RunObjectsSim(TestSimStep);
+        foreach (Ship freighter in new[] { fromPlanet, fromShipyard })
+        {
+            AssertGreaterThan(freighter.GetCargo(Goods.Food), 0f, "a new freighter given its colony's job loads there without landing");
+            Assert.IsTrue(freighter.IsLaunching, "the new freighter carries on with its take-off");
+        }
+    }
+
+    [TestMethod]
+    public void ADockedFreighterIsOfferedItsColonysExportsFirst()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        Player.LoadFreightersAtTheirColony();
+        Assert.IsFalse(freighter.AI.HasTradePlan, "with nothing to export from its colony, the freighter stays free for other jobs");
+
+        LetImporterExportProductionToExporter();
+        Player.LoadFreightersAtTheirColony();
+        Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal)
+                      && goal.Trade.ExportFrom == Importer && goal.Trade.ImportTo == Exporter,
+                      "a docked freighter is given its colony's exports first");
+    }
+
+    [TestMethod]
+    public void TheShipListShowsADockedFreighterAsDocked()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        string docked = Localizer.Token(GameText.ShipListDocked);
+        Assert.IsFalse(string.IsNullOrEmpty(docked), "setup: the docked text must exist");
+        StringAssert.EndsWith(ShipListScreenItem.GetStatusText(freighter), docked, "a docked freighter's orders say it is docked");
+
+        RunSimWhile((simTimeout: 60, fatal: true), () => !freighter.IsLaunching);
+        Assert.IsFalse(ShipListScreenItem.GetStatusText(freighter).Contains(docked), "a freighter taking off is no longer docked");
+    }
+
+    void FollowFromTheShipList(Ship freighter)
+    {
+        Universe.SelectedShip = freighter; // what clicking its row in the ship list does
+        Universe.ShipToView = freighter;
+        Universe.ViewingShip = true;
+        Universe.UpdateSelectedShips();
+        Assert.IsNull(Universe.SelectedShip, "a docked freighter cannot stay selected");
+    }
+
+    [TestMethod]
+    public void AFollowedFreighterIsSelectedAgainWhenItTakesOff()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        FollowFromTheShipList(freighter);
+        Assert.IsNull(Universe.TakeFollowedShipThatTookOff(), "it is not selected again while it is docked");
+
+        RunSimWhile((simTimeout: 60, fatal: true), () => !freighter.IsLaunching);
+        AssertEqual(freighter, Universe.TakeFollowedShipThatTookOff(), "the freighter the camera follows is selected again once it takes off");
+        Assert.IsNull(Universe.TakeFollowedShipThatTookOff(), "it is selected again only once");
+    }
+
+    [TestMethod]
+    public void AFreighterNoLongerFollowedIsNotSelectedAgain()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        FollowFromTheShipList(freighter);
+        Universe.ViewingShip = false; // the player panned away
+        RunSimWhile((simTimeout: 60, fatal: true), () => !freighter.IsLaunching);
+        Assert.IsNull(Universe.TakeFollowedShipThatTookOff(), "a freighter the camera stopped following is not selected again");
+    }
+
+    [TestMethod]
+    public void ARefitOrderMakesADockedFreighterTakeOffAtOnce()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        Player.AI.AddGoalAndEvaluate(new RefitShip(freighter, ResourceManager.Ships.GetDesign("Owlwok Freighter M"), Player));
+        Assert.IsTrue(freighter.IsLaunching, "a docked freighter takes off at once to be refitted");
+        AssertEqual(AIState.Refit, freighter.AI.State, "a docked freighter goes straight to its refit");
+        Assert.IsFalse(freighter.IsIdleFreighter, "so it cannot be handed a trade job and lose the cargo at the refit");
+    }
+
+    [TestMethod]
+    public void AScrapOrderMakesADockedFreighterTakeOffAtOnce()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        freighter.AI.OrderScrapShip();
+        Assert.IsTrue(freighter.IsLaunching, "a docked freighter takes off at once to be scrapped");
+        AssertEqual(AIState.Scrap, freighter.AI.State, "a docked freighter goes straight to be scrapped");
+        Assert.IsFalse(freighter.IsIdleFreighter, "so it cannot be handed a trade job and lose the cargo when scrapped");
+    }
+
+    [TestMethod]
+    public void AFreighterBuiltAtAColonyIsGivenItsColonysJobAsItTakesOff()
+    {
+        Ship shipyard = SpawnShip("Shipyard", Player, Exporter.Position + new Vector2(2500, 0));
+        shipyard.TetherToPlanet(Exporter);
+        Exporter.ManualFoodExportSlots = 1;
+        Importer.ManualFoodImportSlots = 1;
+        Exporter.UpdateIncomingTradeGoods();
+        Importer.UpdateIncomingTradeGoods();
+
+        UState.Debug = true;
+        Exporter.Construction.Enqueue(ResourceManager.Ships.GetDesign("Owlwok Freighter S"), QueueItemType.Freighter);
+        AssertEqual(1, Exporter.ConstructionQueue.Count, "setup: the colony must queue the freighter");
+        Exporter.Construction.RushProduction(0, 10000, rushButton: true);
+        RunObjectsSim(TestSimStep);
+
+        Ship built = null;
+        foreach (Ship ship in Player.OwnedShips)
+            if (ship.IsFreighter)
+                built = ship;
+        Assert.IsNotNull(built, "setup: the colony must build the freighter");
+        AssertEqual(Exporter, built.TakingOffFrom, "a freighter built at a shipyard takes off from its colony");
+        AssertGreaterThan(built.GetCargo(Goods.Food), 0f, "a new freighter is given its colony's job when it is built and loads as it takes off");
+        Assert.IsTrue(HasTradeGoal(built, ShipAI.Plan.DropOffGoods, out ShipAI.ShipGoal goal) && goal.Trade.ImportTo == Importer,
+                      "the new freighter takes off bound for the importing colony");
+    }
+
+    static void MoveAlongOrbit(Planet planet, float degrees)
+    {
+        planet.OrbitalAngle += degrees;
+        planet.Position = planet.System.Position.PointFromAngle(planet.OrbitalAngle, planet.OrbitalRadius);
+    }
+
+    [TestMethod]
+    public void ADockedFreighterStaysWithItsColonyAsItMoves()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        MoveAlongOrbit(Importer, 3f);
+        RunObjectsSim(TestSimStep);
+        AssertLessThan(freighter.Position.Distance(Importer.Position), LandShip.TouchdownRadius + 5f,
+                       "a docked freighter moves with its colony along the orbit");
+    }
+
+    Ship DockOnExportersSpacePort()
+    {
+        Exporter.PS = Planet.GoodState.IMPORT;
+        Exporter.ProdHere = 0;
+        Ship freighter = SpawnFreighter(Exporter, new Vector2(8000, 0));
+        freighter.LoadProduction(5f);
+        freighter.AI.SetupFreighterPlan(Exporter, Exporter, Goods.Production);
+        RunSimWhile((simTimeout: 120, fatal: true), () => freighter.LandShip is not { Docked: true });
+        Assert.IsTrue(freighter.LandShip.OnDock, "setup: the freighter must be docked on the space port");
+        return freighter;
+    }
+
+    [TestMethod]
+    public void AFreighterDockedOnASpacePortLoadsThereWithoutLandingAgain()
+    {
+        Ship freighter = DockOnExportersSpacePort();
+        freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
+        RunObjectsSim(TestSimStep);
+
+        AssertEqual(Exporter, freighter.TakingOffFrom, "a freighter leaving a space port is leaving its colony");
+        AssertGreaterThan(freighter.GetCargo(Goods.Food), 0f, "it loads its colony's goods as it takes off from the space port");
+        RunSimWhile((simTimeout: 60, fatal: true), () => freighter.IsLaunching,
+                    () => Assert.IsFalse(freighter.IsLanding, "the freighter does not land again to load"));
+    }
+
+    [TestMethod]
+    public void ADockedFreighterStaysWithItsSpacePortAsTheColonyMoves()
+    {
+        Ship freighter = DockOnExportersSpacePort();
+        MoveAlongOrbit(Exporter, 3f);
+        RunObjectsSim(TestSimStep);
+        AssertLessThan(freighter.Position.Distance(Exporter.Position), LandShip.TouchdownRadius + 5f,
+                       "a freighter docked on a space port moves with its colony along the orbit");
+    }
+
+    [TestMethod]
+    public void TheTurnsJobHandOutOffersADockedFreighterItsColonysJobFirst()
+    {
+        Assert.IsTrue(Player.NonCybernetic, "setup: food must be handed out before production");
+        Ship freighter = DockAfterUnloadingAtImporter();
+        LetImporterExportProductionToExporter();
+        Exporter.ManualFoodExportSlots = 1;
+        Importer.ManualFoodImportSlots = 1;
+        Exporter.UpdateIncomingTradeGoods();
+        Importer.UpdateIncomingTradeGoods();
+
+        Player.DispatchBuildAndScrapFreighters();
+        Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal) && goal.Trade.ExportFrom == Importer,
+                      "the turn's hand-out gives a docked freighter its own colony's job before food from elsewhere");
+    }
+
+    [TestMethod]
+    public void ADockedFreighterTakesOffWhenItsColonyIsLost()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        Importer.SetOwner(Enemy);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(freighter.IsLaunching, "a freighter does not stay docked at a colony its empire has lost");
+    }
+
+    [TestMethod]
+    public void TripEstimatesOfADockedFreighterStartWithItsTakeOff()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        LetImporterExportProductionToExporter();
+        float takeOff = freighter.GetTradeTakeOffTime(Importer);
+
+        float toColony = freighter.GetAstrogateTimeTo(Importer);
+        float colonyToExporter = freighter.GetAstrogateTimeBetween(Importer, Exporter);
+        Assert.IsTrue(freighter.TryGetBestTradeRoute(Goods.Production, new[] { Importer }, Exporter, out Ship.ExportPlanetAndEta route),
+                      "setup: the docked freighter must find the route from its colony");
+        AssertEqual((int)(takeOff + toColony + 0f + colonyToExporter + freighter.GetTradeLandingTime(Exporter)), route.Eta,
+                    "a job at the colony it is docked at costs the take-off, the flight and the landing, but no landing to load");
+
+        float toExporter = freighter.GetAstrogateTimeTo(Exporter);
+        float stopAtExporter = freighter.GetTradeLandingTime(Exporter) + freighter.GetTradeTakeOffTime(Exporter);
+        float exporterToColony = freighter.GetAstrogateTimeBetween(Exporter, Importer);
+        Assert.IsTrue(freighter.TryGetBestTradeRoute(Goods.Food, new[] { Exporter }, Importer, out route),
+                      "setup: the docked freighter must find a route from another colony");
+        AssertEqual((int)(takeOff + toExporter + stopAtExporter + exporterToColony + freighter.GetTradeLandingTime(Importer)), route.Eta,
+                    "a job elsewhere starts with taking off from the colony it is docked at");
+    }
+
+    [TestMethod]
+    public void ADockedFreighterIsStillDockedAfterALoad()
+    {
+        UState.StarDate = 1042.5f;
+        Ship freighter = DockAfterUnloadingAtImporter();
+        RunObjectsSim(UState.P.TurnTimer * 0.5f);
+        Assert.IsTrue(freighter.LandShip is { Docked: true }, "setup: the freighter must still be docked halfway through its wait");
+        SavedGame save = Universe.Save("UnitTest.FreighterDocked", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Ship docked = loaded.UState.Objects.FindShip(freighter.Id);
+        Assert.IsTrue(docked is { Active: true, LandShip.Docked: true }, "a docked freighter is still docked after a load");
+
+        double waited = 0;
+        for (; docked.IsLanding; waited += TestSimStepD)
+        {
+            AssertLessThan(waited, loaded.UState.P.TurnTimer + 1.0, "the loaded freighter takes off when its wait is up");
+            loaded.UState.Objects.Update(TestSimStep);
+        }
+        Assert.IsTrue(docked.IsLaunching, "the loaded freighter takes off when its wait is up");
+        AssertEqual(0.2f, loaded.UState.P.TurnTimer * 0.5f, (float)waited, "the loaded freighter waits out the rest of its turn");
+    }
+
+    [TestMethod]
+    public void AFreighterTakingOffFromItsColonyLoadsForAStationThere()
+    {
+        Ship station = SpawnResearchStation(Exporter.Position + new Vector2(30_000, 0));
+        Ship freighter = Ship.CreateShipNearPlanet(UState, "Owlwok Freighter S", Player, Exporter, doOrbit: false);
+        freighter.TransportingProduction = true;
+        freighter.AI.SetupFreighterPlan(Exporter, station, Goods.Production);
+        RunObjectsSim(TestSimStep);
+        AssertGreaterThan(freighter.GetCargo(Goods.Production), 0f, "a station's supplies are loaded at the colony the freighter is taking off from");
+        Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.DropOffGoodsForStation, out _), "the freighter takes off bound for the station");
     }
 
     [TestMethod]

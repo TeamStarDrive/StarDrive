@@ -17,6 +17,12 @@ namespace Ship_Game.AI
             if (WaitForBlockadeRemoval(g, exportPlanet, timeStep))
                 return;
 
+            if (Owner.TakingOffFrom == exportPlanet)
+            {
+                LoadGoodsForStation(g);
+                return;
+            }
+
             if (InTradeLandingRange(exportPlanet) && NothingToLoadForStation(g, exportPlanet))
             {
                 CancelTradePlan(exportPlanet);

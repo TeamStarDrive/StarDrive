@@ -228,7 +228,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             Vector2 launchPos = GetLaunchPos(q, out bool fromShipyard);
 
-            Ship shipAt = fromShipyard ? Ship.CreateShipAtShipyard(P.Universe, q.ShipData.Name, Owner, launchPos)
+            Ship shipAt = fromShipyard ? Ship.CreateShipAtShipyard(P.Universe, q.ShipData.Name, Owner, launchPos, P)
                                        : Ship.CreateShipNearPlanet(P.Universe, q.ShipData.Name, Owner, P, true);
 
             q.Goal?.ReportShipComplete(shipAt);
@@ -250,6 +250,7 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.TransportingFood       &= q.TransportingFood;
                 shipAt.TransportingProduction &= q.TransportingProduction;
                 shipAt.AllowInterEmpireTrade  &= q.AllowInterEmpireTrade;
+                Owner.LoadFreighterAtColony(shipAt, P);
             }
 
             if (shipAt.ShipData.IsColonyShip)

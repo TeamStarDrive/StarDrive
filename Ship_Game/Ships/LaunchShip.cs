@@ -13,16 +13,18 @@ namespace Ship_Game.Ships
         [StarData] readonly Ship Owner;
         [StarData] float PosZ;
         [StarData] readonly LaunchPlan LaunchPlan;
+        [StarData] public readonly Planet From;
         [StarData] LaunchFromPlanet PlanetLaunch;
         [StarData] LaunchFromHangar HangarLaunch;
         [StarData] LaunchFromShipyard ShipyardLaunch;
         [StarData] MinePlanet Mining;
         [StarData] MinerReturnToHangar ReturnMiner;
 
-        public LaunchShip(Ship owner, LaunchPlan launchPlan, float startingRotationDegrees = -1f)
+        public LaunchShip(Ship owner, LaunchPlan launchPlan, float startingRotationDegrees = -1f, Planet from = null)
         {
             Owner = owner;
             LaunchPlan = launchPlan;
+            From = from;
             float rotationDegZ = startingRotationDegrees.Equals(-1f)
                 ? owner.Universe.Random.RollDie(360)
                 : launchPlan != LaunchPlan.MinerReturn 

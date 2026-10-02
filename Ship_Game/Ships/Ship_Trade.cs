@@ -69,7 +69,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < exportPlanets.Length; i++)
             {
                 Planet exportPlanet = exportPlanets[i];
-                int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetTradeStopTime(exportPlanet)
+                int eta = (int)(GetTradeDepartureTime() + GetAstrogateTimeTo(exportPlanet) + GetTradeStopTime(exportPlanet)
                                 + GetAstrogateTimeBetween(exportPlanet, targetStation) + GetStationLandingTime());
                 if (InTradingZones(exportPlanet) && !potentialRoutes.ContainsKey(eta))
                     potentialRoutes.Add(eta, exportPlanet);
@@ -93,7 +93,7 @@ namespace Ship_Game.Ships
             var potentialRoutes = new Map<int, Planet>();
             if (GetCargo(goods) >= CargoSpaceMax * 0.25f)
             {
-                int eta = (int)(GetAstrogateTimeTo(importPlanet) + GetTradeLandingTime(importPlanet));
+                int eta = (int)(GetTradeDepartureTime() + GetAstrogateTimeTo(importPlanet) + GetTradeLandingTime(importPlanet));
                 if (TradeDistanceOk(importPlanet, eta))
                     potentialRoutes.Add(eta, importPlanet); // import planet since there is not export planet.
             }
@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
                 Planet exportPlanet = exportPlanets[i];
                 if (InTradingZones(exportPlanet))
                 {
-                    int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetTradeStopTime(exportPlanet)
+                    int eta = (int)(GetTradeDepartureTime() + GetAstrogateTimeTo(exportPlanet) + GetTradeStopTime(exportPlanet)
                                     + GetAstrogateTimeBetween(exportPlanet, importPlanet) + GetTradeLandingTime(importPlanet));
                     if (!potentialRoutes.ContainsKey(eta) && TradeDistanceOk(importPlanet, eta))
                         potentialRoutes.Add(eta, exportPlanet);
@@ -141,7 +141,14 @@ namespace Ship_Game.Ships
         public float GetTradeTakeOffTime(Planet planet)
             => LaunchShip.TakeOffSeconds(this, LandShip.LandsOnSpacePort(LandPlan.Trade, planet)) / Universe.P.TurnTimer;
 
-        float GetTradeStopTime(Planet planet) => GetTradeLandingTime(planet) + GetTradeTakeOffTime(planet);
+        float GetTradeStopTime(Planet planet)
+            => DockedOrTakingOffFrom == planet ? 0f : GetTradeLandingTime(planet) + GetTradeTakeOffTime(planet);
+
+        float GetTradeDepartureTime() => LandShip is { Docked: true } docked ? GetTradeTakeOffTime(docked.Planet) : 0f;
+
+        public Planet TakingOffFrom => LaunchShip?.From;
+
+        public Planet DockedOrTakingOffFrom => LandShip is { Docked: true } docked ? docked.Planet : TakingOffFrom;
 
         public void RemoveTradeRoute(Planet planet)
         {

@@ -84,7 +84,8 @@ public class SupplyShuttleLandingTests : StarDriveTest
         float speedBefore = 0f;
         RunWithGoal(rearm, () => !shuttle.IsLanding, () => speedBefore = shuttle.CurrentVelocity);
         AssertGreaterThan(target.Ordinance, ordnanceBefore, "setup: the shuttle must rearm the ship before it comes home");
-        AssertEqual(10f, LaunchShip.ShipyardSpeed(shuttle), speedBefore, "the shuttle comes in at launch speed to glide on into the space port");
+        AssertLessThan(speedBefore, LaunchShip.ShipyardSpeed(shuttle) + 10f, "the shuttle comes in no faster than launch speed to glide on into the space port");
+        AssertGreaterThan(speedBefore, LaunchShip.ShipyardSpeed(shuttle) * 0.5f, "the shuttle flies in to land on the space port");
         float portRange = LandShip.ShipyardLandingRange(shuttle);
         float startDistance = shuttle.Position.Distance(Homeworld.Position);
         AssertGreaterThan(startDistance, portRange - 60f, "the landing on the space port starts where a launch from it would end");

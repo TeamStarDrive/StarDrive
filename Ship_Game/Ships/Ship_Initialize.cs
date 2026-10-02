@@ -273,13 +273,13 @@ namespace Ship_Game.Ships
             SetOrdnance(Ordinance);
         }
 
-        public static Ship CreateShipAtShipyard(UniverseState us, string shipName, Empire owner, Vector2 position)
+        public static Ship CreateShipAtShipyard(UniverseState us, string shipName, Empire owner, Vector2 position, Planet colony = null)
         {
             Ship ship = CreateShipAtPoint(us, shipName, owner, position);
             if (ship != null)
             {
                 float facing = owner.Random.RollDice(50) ? 135 : 315;
-                ship.InitLaunch(LaunchPlan.Shipyard, facing);
+                ship.InitLaunch(LaunchPlan.Shipyard, facing, colony);
             }
             return ship;
         }
@@ -402,10 +402,10 @@ namespace Ship_Game.Ships
 
         // Note - ship with launch plan cannot enter combat until plan is finished.
         // For testing we have Universe.P.DebugDisableShipLaunch
-        public void InitLaunch(LaunchPlan launchPlan, float startingRotationDegrees = -1f)
+        public void InitLaunch(LaunchPlan launchPlan, float startingRotationDegrees = -1f, Planet from = null)
         {
             if (!Universe.P.DebugDisableShipLaunch)
-                LaunchShip = new(this, launchPlan, startingRotationDegrees);
+                LaunchShip = new(this, launchPlan, startingRotationDegrees, from);
         }
 
         void InitLaunch(LaunchPlan launchPlan, Planet planet)
@@ -413,7 +413,7 @@ namespace Ship_Game.Ships
             if (!Universe.P.DebugDisableShipLaunch)
             {
                 float startingRotationZ = (Position.DirectionToTarget(planet.Position) * -1).ToDegrees();
-                LaunchShip = new(this, launchPlan, startingRotationZ);
+                LaunchShip = new(this, launchPlan, startingRotationZ, planet);
             }
         }
 
@@ -451,22 +451,39 @@ namespace Ship_Game.Ships
             TakeOff(planet, fromDock);
         }
 
-        void TakeOffAfterTrading()
+        void UpdateTradeTouchdown(FixedSimTime timeStep)
         {
             Planet planet = LandShip.Planet;
             Ship station = LandShip.Station;
-            bool fromDock = LandShip.OnDock;
-            LandShip = null;
-            TakeOff(planet, fromDock);
-            AI.TradeAfterLanding(planet, station);
+            if (!LandShip.Docked)
+            {
+                AI.TradeAfterLanding(planet, station);
+                if (station == null && planet.Owner == Loyalty && !AI.HasTradePlan)
+                    LandShip.Dock(Universe.P.TurnTimer);
+                else
+                    TakeOffAfterTrading();
+            }
+            else if (AI.HasTradePlan || LandShip.DockTimeIsUp(timeStep) || planet.Owner != Loyalty)
+            {
+                TakeOffAfterTrading();
+            }
         }
 
-        void TakeOff(Planet planet, bool fromDock)
+        public void TakeOffAfterTrading()
         {
-            if (fromDock)
-                InitLaunch(LaunchPlan.Shipyard);
-            else
+            Planet planet = LandShip.Planet;
+            bool fromStation = LandShip.Station != null;
+            bool fromDock = LandShip.OnDock;
+            LandShip = null;
+            TakeOff(planet, fromDock, fromStation);
+        }
+
+        void TakeOff(Planet planet, bool fromDock, bool fromStation = false)
+        {
+            if (!fromDock)
                 InitLaunch(LaunchPlan.Planet, planet);
+            else
+                InitLaunch(LaunchPlan.Shipyard, from: fromStation ? null : planet);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////

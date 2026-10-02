@@ -53,10 +53,19 @@ public partial class UniverseScreen
         }
     }
 
+    Ship FollowedShipToSelect;
+
     public void UpdateSelectedShips()
     {
         if (SelectedShip is { IsLanding: true })
+        {
+            if (ViewingShip && ShipToView == SelectedShip)
+                FollowedShipToSelect = SelectedShip;
             SelectedShip = null;
+        }
+
+        if (TakeFollowedShipThatTookOff() is Ship tookOff)
+            SetSelectedShip(tookOff, clearFlags: false);
 
         int num = SelectedShipList.Count();
         SelectedShipList.RemoveAll(s => !s.Active || s.IsLanding);
@@ -64,6 +73,25 @@ public partial class UniverseScreen
             SetSelectedShip(SelectedShip, SelectedFleet, clearFlags: false); // same ship, UI refresh only
         else if (num != SelectedShipList.Count())
             SetSelectedShipList(SelectedShipList, SelectedFleet);
+    }
+
+    internal Ship TakeFollowedShipThatTookOff()
+    {
+        Ship ship = FollowedShipToSelect;
+        if (ship == null)
+            return null;
+
+        if (!ship.Active || !ViewingShip || ShipToView != ship)
+        {
+            FollowedShipToSelect = null;
+            return null;
+        }
+
+        if (ship.IsLanding)
+            return null;
+
+        FollowedShipToSelect = null;
+        return ship;
     }
 
     void UpdatePrevSelectedShip(Ship newShip)

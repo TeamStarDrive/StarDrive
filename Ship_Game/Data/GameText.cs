@@ -4789,6 +4789,8 @@ namespace Ship_Game
         BuilderShipsOutTip = 4581,
         /// <summary>Supply shuttles this colony has out, and how many it can hav</summary>
         SupplyShuttlesOutTip = 4582,
+        /// <summary>(docked)</summary>
+        ShipListDocked = 4583,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

@@ -185,7 +185,7 @@ namespace Ship_Game.Ships
                 {
                     if (LandShip.Trades)
                     {
-                        TakeOffAfterTrading();
+                        UpdateTradeTouchdown(timeStep);
                     }
                     else if (LandShip.TakesOffIfAbandoned)
                     {

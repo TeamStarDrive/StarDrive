@@ -17,6 +17,8 @@ namespace Ship_Game.Ships
         [StarData] public readonly Ship Shipyard;
         [StarData] readonly bool OnSpacePort;
         [StarData] public readonly Ship Station;
+        [StarData] public bool Docked { get; private set; }
+        [StarData] float DockSeconds;
         [StarData] LandOnPlanet PlanetLanding;
         [StarData] LandOnShipyard ShipyardLanding;
 
@@ -68,6 +70,18 @@ namespace Ship_Game.Ships
 
         public bool OnDock => Shipyard != null || OnSpacePort || Station != null;
 
+        public void Dock(float seconds)
+        {
+            Docked = true;
+            DockSeconds = seconds;
+        }
+
+        public bool DockTimeIsUp(FixedSimTime timeStep)
+        {
+            DockSeconds -= timeStep.FixedTime;
+            return DockSeconds <= 0f;
+        }
+
         public void HandOverToPlanet()
         {
             bool stillOurs = Planet.Owner == Owner.Loyalty;
@@ -97,7 +111,13 @@ namespace Ship_Game.Ships
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
             if (Done)
+            {
+                if (OnDock)
+                    ShipyardLanding.StayDown();
+                else
+                    PlanetLanding.StayDown();
                 return;
+            }
 
             float scale;
             if (OnDock)
@@ -164,6 +184,12 @@ namespace Ship_Game.Ships
                     Owner.Universe.Screen.Particles.Flash.AddParticle(LaunchShip.FlashPos(Owner, scale, posZ), scale);
             }
 
+            public void StayDown()
+            {
+                if (Planet != null)
+                    Owner.Position = Planet.Position + TouchdownOffset;
+            }
+
             public bool Done => Progress >= 1f;
         }
 
@@ -218,8 +244,7 @@ namespace Ship_Game.Ships
                 float travelled = PathShape * Progress + (1 - PathShape) * Progress * Progress;
                 float turn = (Progress / TurnPart).UpperBound(1);
                 Owner.Velocity = Vector2.Zero;
-                Vector2 dockAt = Planet != null ? Planet.Position + ShipyardOffset : ShipyardOffset;
-                Owner.Position = dockAt + StartOffset * (1 - travelled);
+                Owner.Position = DockAt + StartOffset * (1 - travelled);
                 Owner.Rotation = (StartRotationDegZ + TurnDegZ * turn).ToRadians().AsNormalizedRadians();
                 Owner.YRotation = StartRotationY * (1 - turn);
                 scale = remaining;
@@ -230,6 +255,10 @@ namespace Ship_Game.Ships
                 if (visible && (Progress < 0.05f || Progress.InRange(0.49f, 0.51f) || Progress.InRange(0.75f, 0.9f)))
                     Owner.Universe.Screen.Particles.Flash.AddParticle(LaunchShip.FlashPos(Owner, scale, posZ), scale);
             }
+
+            Vector2 DockAt => Planet != null ? Planet.Position + ShipyardOffset : ShipyardOffset;
+
+            public void StayDown() => Owner.Position = DockAt;
 
             public bool Done => Progress >= 1f;
         }
