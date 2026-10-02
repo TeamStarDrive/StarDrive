@@ -124,6 +124,23 @@ public class MiningShipLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AMinerIsUntouchableWhileItMines()
+    {
+        Ship miner = LaunchMiner();
+        miner.UnloadCargo(Ore, miner.GetOtherCargo(Ore));
+        RunSimWhile((simTimeout: 60, fatal: true), () => miner.GetOtherCargo(Ore) <= 0f);
+        Assert.IsTrue(miner.LaunchShip is { MinesPlanet: true }, "a mining ship is still in its mining dive while it mines");
+
+        float health = miner.Health;
+        Ship dying = SpawnShip("Vulcan Scout", Enemy, miner.Position + new Vector2(0, 300));
+        RunObjectsSim(TestSimStep);
+        miner.UpdateModulePositions(TestSimStep, forceUpdate: true);
+        for (int i = 0; i < 20; ++i)
+            UState.Spatial.ShipExplode(dying, 10_000f, miner.Position, 500f);
+        AssertEqual(health, miner.Health, "nothing hurts a miner at the planet, as nothing hurts a launching ship");
+    }
+
+    [TestMethod]
     public void AFreighterRoleMinerComesHomeWhileItsStationHasFightersOut()
     {
         Player.data.DefaultMiningShip = "Small Transport";

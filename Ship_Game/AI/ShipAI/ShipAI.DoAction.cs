@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             HasPriorityTarget = true;
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
-            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLanding
+            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLaunchingOrLanding
                 || escortTarget.Loyalty == Owner.Loyalty)
             {
                 ClearOrders(State);

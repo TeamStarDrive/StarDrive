@@ -178,6 +178,7 @@ namespace Ship_Game.Ships
 
         public bool IsLaunching => LaunchShip != null;
         public bool IsLanding => LandShip != null;
+        public bool IsLaunchingOrLanding => LaunchShip != null || LandShip != null;
         public bool IsMiningShip            => Loyalty.data.DefaultMiningShip == Name || Empire.DefaultMiningShipName == Name;
         public bool IsDefaultAssaultShuttle => Loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (Loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);
@@ -546,7 +547,7 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunching || IsLanding)
+            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunchingOrLanding)
                 return false; 
 
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
