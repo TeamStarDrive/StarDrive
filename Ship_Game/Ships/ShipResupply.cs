@@ -40,11 +40,8 @@ namespace Ship_Game.Ships
         // Loading a save rebuilds Supply the same way Carrier is rebuilt; without this
         // carry-over the incoming-ordnance ledger is zeroed while the in-flight rearm
         // goals survive serialization, so the empire dispatches redundant supply runs.
-        public void CarryOverSavedState(ShipResupply saved)
+        public void CarryOverSavedState(in ShipResupply saved)
         {
-            if (saved == null)
-                return;
-
             IncomingOrdnance = saved.IncomingOrdnance;
             InCombat         = saved.InCombat;
         }
