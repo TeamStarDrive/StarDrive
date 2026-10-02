@@ -747,6 +747,19 @@ namespace Ship_Game
 
         public void StartMusic(string musicName)
         {
+            if (musicName == "AmbientMusic")
+            {
+                bool changed = CurrentMusic != musicName;
+                if (changed) { StopMusic(); CurrentMusic = musicName; }
+                if (AmbientMusicPaused) { Music.Pause(); return; }
+                if (GameAudio.IsMusicDisabled) return;
+                if (changed || Music.IsStopped)
+                {
+                    if (!changed) AdvanceAmbientTrack(1);
+                    Music = GameAudio.PlayMusic(musicName, AmbientTrackIndex);
+                }
+                return;
+            }
             if (CurrentMusic != musicName || Music.IsStopped)
             {
                 GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
@@ -760,6 +773,38 @@ namespace Ship_Game
         {           
             GameAudio.StopGenericMusic(fadeout: true);
             CurrentMusic = null;
+        }
+
+        public bool AmbientMusicPaused { get; private set; }
+        int AmbientTrackIndex;
+        public string AmbientTrackTitle
+        {
+            get
+            {
+                return GameAudio.GetMusicTrackTitle("AmbientMusic", AmbientTrackIndex);
+            }
+        }
+
+        void AdvanceAmbientTrack(int direction)
+        {
+            int count = GameAudio.GetMusicTracks("AmbientMusic").Length;
+            if (count > 0) AmbientTrackIndex = (AmbientTrackIndex + direction + count) % count;
+        }
+
+        public void SkipAmbientMusic(int direction)
+        {
+            AdvanceAmbientTrack(direction);
+            Music.Stop(fadeout: false);
+            CurrentMusic = "AmbientMusic";
+            if (!AmbientMusicPaused) Music = GameAudio.PlayMusic(CurrentMusic, AmbientTrackIndex);
+        }
+
+        public void ToggleAmbientMusic()
+        {
+            AmbientMusicPaused = !AmbientMusicPaused;
+            if (AmbientMusicPaused) Music.Pause();
+            else if (Music.IsPaused) Music.Resume();
+            else Music = GameAudio.PlayMusic("AmbientMusic", AmbientTrackIndex);
         }
         void OpenCodex(string uid)
         {

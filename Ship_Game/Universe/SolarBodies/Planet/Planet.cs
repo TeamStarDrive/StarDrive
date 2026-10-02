@@ -1542,10 +1542,16 @@ namespace Ship_Game
                 s => s.Position.InRadius(Position, s.SensorRange));
         }
 
+        // Observed natural growth excludes migration, colonization and conquest.
+        public float LastPopulationGrowthBillion { get; private set; }
+
         private void GrowPopulation()
         {
+            LastPopulationGrowthBillion = 0;
             if (Owner == null || RecentCombat || !CanRepairOrHeal())
                 return;
+
+            float previousPopulation = Population;
 
             if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
             {
@@ -1570,6 +1576,7 @@ namespace Ship_Game
             }
 
             Population = Math.Max(10, Population); // over population will decrease in time, so this is not clamped to max pop
+            LastPopulationGrowthBillion = (Population - previousPopulation) / 1000f;
         }
 
         public void WipeOutColony(Empire attacker)
