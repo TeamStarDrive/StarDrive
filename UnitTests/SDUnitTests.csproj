@@ -119,6 +119,7 @@
     <Compile Include="Planets\ColonyTilePickingTests.cs" />
     <Compile Include="Planets\CrashSiteOwnershipTests.cs" />
     <Compile Include="Planets\CyberneticProdStateTests.cs" />
+    <Compile Include="Planets\GovernorMoneyPriorityTests.cs" />
     <Compile Include="Planets\GovernorScrapGuardsTests.cs" />
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
     <Compile Include="Planets\YoungColonyTradeStateTests.cs" />
