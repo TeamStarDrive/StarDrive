@@ -446,8 +446,10 @@ namespace Ship_Game.Ships
         {
             Planet planet = LandShip.Planet;
             bool fromDock = LandShip.OnDock;
+            bool newOwnersOrders = LandShip.OwnerChanged;
             LandShip = null;
-            AI.ClearOrders();
+            if (!newOwnersOrders)
+                AI.ClearOrders();
             TakeOff(planet, fromDock);
         }
 

@@ -37,14 +37,20 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindPlanetToScrapAndOrderScrap()
         {
-            if (OldShip?.LandShip is { Trades: true } trading)
+            if (OldShip == null || OldShip.Loyalty != Owner)
+                return GoalStep.GoalFailed;
+
+            if (OldShip.LandShip is { Trades: true } trading)
             {
                 if (!trading.Docked)
+                {
+                    OldShip.AI.CancelPickup(AIState.Scrap);
                     return GoalStep.TryAgain;
+                }
                 OldShip.TakeOffAfterTrading();
             }
 
-            if (OldShip == null || !OldShip.CanBeScrapped) 
+            if (!OldShip.CanBeScrapped)
                 return GoalStep.GoalFailed;
 
             OldShip.RemoveFromPoolAndFleet(clearOrders: false);
@@ -114,7 +120,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (OldShip == null || !OldShip.Active)
                     return false; // Ship was removed from game, probably destroyed
 
-                return OldShip.AI.State == AIState.Scrap;
+                return OldShip.Loyalty == Owner && OldShip.AI.State == AIState.Scrap;
             }
         }
 

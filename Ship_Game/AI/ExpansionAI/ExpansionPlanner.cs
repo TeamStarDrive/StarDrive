@@ -305,7 +305,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             foreach (Planet p in system.PlanetList)
             {
-                if (p.Owner == empire && !p.IsColonyGraceReturn(empire, Owner))
+                if (p.Owner == empire && !p.ReturnedWithinFullColonyGrace(empire, Owner))
                     return false;
             }
 

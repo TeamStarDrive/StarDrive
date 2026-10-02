@@ -20,6 +20,7 @@ namespace Ship_Game.Ships
         [StarData] public bool Docked { get; private set; }
         [StarData] float DockSeconds;
         [StarData] public int ReturningShuttles { get; set; }
+        [StarData] public bool OwnerChanged { get; private set; }
         [StarData] LandOnPlanet PlanetLanding;
         [StarData] LandOnShipyard ShipyardLanding;
 
@@ -58,14 +59,20 @@ namespace Ship_Game.Ships
         {
         }
 
-        public bool WaitsForGoal => LandPlan switch
+        public bool WaitsForGoal => !OwnerChanged && LandPlan switch
         {
             LandPlan.Scrap => Owner.Loyalty.AI.HasGoal(GoalType.ScrapShip, Owner),
             LandPlan.Refit => Owner.Loyalty.AI.HasGoal(GoalType.Refit, Owner),
             _ => false
         };
 
-        public bool TakesOffIfAbandoned => LandPlan == LandPlan.Refit;
+        public bool TakesOffIfAbandoned => LandPlan == LandPlan.Refit || OwnerChanged;
+
+        public void OnOwnerChanged()
+        {
+            if (LandPlan is LandPlan.Scrap or LandPlan.Refit)
+                OwnerChanged = true;
+        }
 
         public bool Trades => LandPlan == LandPlan.Trade;
 

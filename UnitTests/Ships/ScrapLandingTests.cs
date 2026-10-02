@@ -130,6 +130,24 @@ public class ScrapLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AShipCapturedWhileLandingForScrapTakesOffForItsNewOwner()
+    {
+        Homeworld.ProdHere = 0;
+        OrderScrap(Homeworld.Position + new Vector2(3000, 0));
+        RunUntilLanding();
+
+        Scrapped.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        AssertEqual(Enemy, Scrapped.Loyalty, "setup: the ship must have changed hands");
+        Scrapped.AI.OrderOrbitPlanet(Homeworld, clearOrders: true); // as pirates order a ship they capture to flee home
+
+        RunWithScrapGoal(() => Scrapped.Active && !Scrapped.IsLaunching);
+        Assert.IsTrue(Scrapped.Active, "a ship captured on its way down is kept by its new owner, not scrapped");
+        AssertEqual(0.01f, 0f, Homeworld.ProdHere, "nothing is paid for a ship that was not scrapped");
+        AssertEqual(AIState.Orbit, Scrapped.AI.State, "it takes off with the orders its new owner gave it");
+    }
+
+    [TestMethod]
     public void AShipStillLaunchingWaitsForTheLaunchBeforeItLands()
     {
         TestShip launching = SpawnShip("Vulcan Scout", Player, Homeworld.Position);

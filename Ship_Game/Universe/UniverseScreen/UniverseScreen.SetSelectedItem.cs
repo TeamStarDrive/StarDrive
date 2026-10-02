@@ -61,7 +61,7 @@ public partial class UniverseScreen
         {
             if (ViewingShip && ShipToView == SelectedShip)
                 FollowedShipToSelect = SelectedShip;
-            SelectedShip = null;
+            ClearSelectedItems(clearFlags: false, updatePrevSelectedShip: false, fleet: SelectedFleet);
         }
 
         if (TakeFollowedShipThatTookOff() is Ship tookOff)

@@ -123,7 +123,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         }
 
         bool PlanetNotOurs => PlanetBuildingAt.Owner != Owner;
-        bool SupplyAlive   => SupplyShip != null && SupplyShip.Active; // todo also returning home
+        bool SupplyAlive   => SupplyShip != null && SupplyShip.Active && SupplyShip.Loyalty == Owner; // todo also returning home
         bool TargetValid   => TargetShip != null
                               && (TargetShip.Loyalty == Owner || TargetShip.Loyalty.IsAlliedWith(Owner))
                               && TargetShip.IsSuitableForPlanetaryRearm()

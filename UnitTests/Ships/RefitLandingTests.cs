@@ -104,6 +104,25 @@ public class RefitLandingTests : StarDriveTest
     static Vector2 AroundPlanet(float degrees, float distance) => Vector2.Zero.PointFromAngle(degrees, distance);
 
     [TestMethod]
+    public void TheOldOwnersRefitGoalLeavesACapturedShipAlone()
+    {
+        OrderRefit(Homeworld.Position + new Vector2(3000, 0));
+        RunUntilLanding();
+        Refit.Evaluate(); // the goal moves on to waiting for the landing to finish
+
+        Refitted.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        AssertEqual(Enemy, Refitted.Loyalty, "setup: the ship must have changed hands");
+        Refitted.AI.ChangeAIState(AIState.HoldPosition); // a state the refit goal also takes as waiting for the refit
+
+        RunWithRefitGoal(() => Refitted.Active && !Refitted.IsLaunching);
+        for (int i = 0; i < 3; ++i)
+            Refit.Evaluate();
+        Assert.IsTrue(Refitted.Active, "a ship captured on its way down takes off for its new owner");
+        Assert.IsNull(QueuedRefit(Homeworld, Refit), "the old owner refits nothing for a ship it lost");
+    }
+
+    [TestMethod]
     public void ARefittingShipLandsOnThePlanetAndIsQueuedOnceItHasLanded()
     {
         OrderRefit(Homeworld.Position + new Vector2(5000, 0));

@@ -243,4 +243,17 @@ public class ColonyGraceTests : StarDriveTest
 
         AssertEqual(0, StolenSystemsAfterCheckClaim());
     }
+
+    [TestMethod]
+    public void OnInsaneATimelyReturnIsNotTheftAfterTheOtherEmpireMovesIn()
+    {
+        Setup(GameDifficulty.Insane);
+        MakePeace();
+        WipeOut(Lost, Player);
+        PassTurns(30);
+        Lost.SetOwner(Player); // in time: Enemy holds nothing in the system, so its hold is 50 turns
+        AddPlanet(Lost.System, new Vector2(112_000)).SetOwner(Enemy); // which halves its hold to 25
+
+        AssertEqual(0, StolenSystemsAfterCheckClaim());
+    }
 }

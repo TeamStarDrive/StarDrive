@@ -302,11 +302,12 @@ public class FreighterLandingTests : StarDriveTest
 
     void FollowFromTheShipList(Ship freighter)
     {
-        Universe.SelectedShip = freighter; // what clicking its row in the ship list does
-        Universe.ShipToView = freighter;
-        Universe.ViewingShip = true;
+        Universe.ShipInfoUIElement ??= new(new Rectangle(0, 0, 407, 242), Universe.ScreenManager, Universe);
+        Universe.ViewToShip(freighter); // what clicking its row in the ship list does
         Universe.UpdateSelectedShips();
         Assert.IsNull(Universe.SelectedShip, "a docked freighter cannot stay selected");
+        AssertEqual(0, Universe.SelectedShips.Count, "nor stay in the selection");
+        Assert.IsTrue(Universe.ViewingShip, "the camera keeps following it");
     }
 
     [TestMethod]
@@ -314,10 +315,13 @@ public class FreighterLandingTests : StarDriveTest
     {
         Ship freighter = DockAfterUnloadingAtImporter();
         FollowFromTheShipList(freighter);
-        Assert.IsNull(Universe.TakeFollowedShipThatTookOff(), "it is not selected again while it is docked");
+        Universe.UpdateSelectedShips();
+        Assert.IsNull(Universe.SelectedShip, "it is not selected again while it is docked");
 
         RunSimWhile((simTimeout: 60, fatal: true), () => !freighter.IsLaunching);
-        AssertEqual(freighter, Universe.TakeFollowedShipThatTookOff(), "the freighter the camera follows is selected again once it takes off");
+        Universe.UpdateSelectedShips();
+        AssertEqual(freighter, Universe.SelectedShip, "the freighter the camera follows is selected again once it takes off");
+        Assert.IsTrue(Universe.ViewingShip, "and the camera still follows it");
         Assert.IsNull(Universe.TakeFollowedShipThatTookOff(), "it is selected again only once");
     }
 
@@ -328,7 +332,8 @@ public class FreighterLandingTests : StarDriveTest
         FollowFromTheShipList(freighter);
         Universe.ViewingShip = false; // the player panned away
         RunSimWhile((simTimeout: 60, fatal: true), () => !freighter.IsLaunching);
-        Assert.IsNull(Universe.TakeFollowedShipThatTookOff(), "a freighter the camera stopped following is not selected again");
+        Universe.UpdateSelectedShips();
+        Assert.IsNull(Universe.SelectedShip, "a freighter the camera stopped following is not selected again");
     }
 
     [TestMethod]
@@ -716,15 +721,19 @@ public class FreighterLandingTests : StarDriveTest
         Ship freighter = SpawnFreighter(Exporter, new Vector2(8000, 0));
         freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
         RunUntilLanding(freighter);
+        float foodBefore = Exporter.FoodHere;
 
         var refit = new RefitShip(freighter, ResourceManager.Ships.GetDesign("Owlwok Freighter M"), Player);
         Player.AI.AddGoalAndEvaluate(refit);
         Assert.IsTrue(Player.AI.HasGoal(g => g == refit), "a refit ordered while the freighter is down waits for it");
-        Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.PickupGoods, out _), "the freighter carries on with its landing");
+        Assert.IsTrue(freighter.IsLanding, "the freighter carries on with its landing");
+        Assert.IsFalse(freighter.AI.HasTradePlan, "but it no longer goes down to load goods the refit would lose");
 
         RunUntilLanded(freighter);
         refit.Evaluate();
         AssertEqual(AIState.Refit, freighter.AI.State, "once the freighter is up, it goes to be refitted");
+        AssertEqual(0f, freighter.GetCargo(Goods.Food), "it takes no cargo to the refit");
+        AssertEqual(foodBefore, Exporter.FoodHere, "and the colony keeps its food");
     }
 
     [TestMethod]
@@ -733,15 +742,36 @@ public class FreighterLandingTests : StarDriveTest
         Ship freighter = SpawnFreighter(Exporter, new Vector2(8000, 0));
         freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
         RunUntilLanding(freighter);
+        float foodBefore = Exporter.FoodHere;
 
         freighter.AI.OrderScrapShip();
         Goal scrap = Player.AI.FindGoal(g => g.Type == GoalType.ScrapShip && g.OldShip == freighter);
         Assert.IsNotNull(scrap, "a scrap ordered while the freighter is down waits for it");
-        Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.PickupGoods, out _), "the freighter carries on with its landing");
+        Assert.IsTrue(freighter.IsLanding, "the freighter carries on with its landing");
+        Assert.IsFalse(freighter.AI.HasTradePlan, "but it no longer goes down to load goods the scrap would lose");
 
         RunUntilLanded(freighter);
         scrap.Evaluate();
         AssertEqual(AIState.Scrap, freighter.AI.State, "once the freighter is up, it goes to be scrapped");
+        AssertEqual(0f, freighter.GetCargo(Goods.Food), "it takes no cargo to the scrap");
+        AssertEqual(foodBefore, Exporter.FoodHere, "and the colony keeps its food");
+    }
+
+    [TestMethod]
+    public void ARefitOrderedWhileAFreighterIsDownToUnloadLetsItUnload()
+    {
+        Ship freighter = SpawnFreighter(Importer, new Vector2(8000, 0));
+        freighter.LoadFood(5f);
+        freighter.AI.SetupFreighterPlan(Importer, Importer, Goods.Food);
+        RunUntilLanding(freighter);
+        float foodBefore = Importer.FoodHere;
+
+        var refit = new RefitShip(freighter, ResourceManager.Ships.GetDesign("Owlwok Freighter M"), Player);
+        Player.AI.AddGoalAndEvaluate(refit);
+        Assert.IsTrue(freighter.AI.HasTradePlan, "a freighter going down to unload keeps its delivery");
+
+        RunUntilLanded(freighter);
+        AssertEqual(1f, foodBefore + 5f, Importer.FoodHere, "the delivery is unloaded before the refit");
     }
 
     [TestMethod]

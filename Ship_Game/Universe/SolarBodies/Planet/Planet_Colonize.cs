@@ -12,7 +12,6 @@ namespace Ship_Game
         // The empire whose colony here was wiped out, kept while it may return and after it returned in time
         [StarData] public Empire LostBy { get; private set; }
         [StarData] float LostStarDate;
-        [StarData] float ReturnStarDate;
 
         int FullColonyGraceTurns => (int)(50 * Universe.ProductionPace);
 
@@ -51,12 +50,20 @@ namespace Ship_Game
             return (ColonyGraceTurns(lostBy, settler) - TurnsSinceLost(Universe.StarDate)).LowerBound(0);
         }
 
-        // The empire which lost this colony came back to it before other's grace ran out
+        // The empire which lost this colony is coming back to it before other's grace runs out
         public bool IsColonyGraceReturn(Empire returning, Empire other)
         {
             return Owner == returning
                 && LostBy == returning
-                && TurnsSinceLost(ReturnStarDate) < ColonyGraceTurns(returning, other);
+                && TurnsSinceLost(Universe.StarDate) < ColonyGraceTurns(returning, other);
+        }
+
+        // The empire which lost this colony came back to it within the full hold, however long other's hold is now
+        public bool ReturnedWithinFullColonyGrace(Empire returning, Empire other)
+        {
+            return Owner == returning
+                && LostBy == returning
+                && ColonyGraceTurns(returning, other) > 0;
         }
 
         public static string ColonyGraceTip(Empire lostBy, int turnsLeft)
@@ -68,12 +75,10 @@ namespace Ship_Game
         {
             Empire oldOwner = Owner;
             Owner = newOwner;
-            if (newOwner != null && LostBy != null)
+            if (newOwner != null && LostBy != null
+                && (newOwner != LostBy || TurnsSinceLost(Universe.StarDate) >= FullColonyGraceTurns))
             {
-                if (newOwner == LostBy && TurnsSinceLost(Universe.StarDate) < FullColonyGraceTurns)
-                    ReturnStarDate = Universe.StarDate;
-                else
-                    LostBy = null;
+                LostBy = null;
             }
 
             Food.ResetAveragePercentage();

@@ -91,6 +91,25 @@ public class HomeDefenseLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ADefenseShipCapturedDuringTheLandingRefundsItsNewOwner()
+    {
+        Ship ship = LaunchDefenseShip(new Vector2(4000, 0));
+        RunUntilLanding(ship);
+
+        ship.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        AssertEqual(Enemy, ship.Loyalty, "setup: the ship must have changed hands");
+        float money = Player.Money;
+        float enemyMoney = Enemy.Money;
+
+        RunSimWhile((simTimeout: 60, fatal: true), () => ship.Active);
+        Assert.IsFalse(ship.Dying, "the captured ship lands and is removed, not destroyed");
+        AssertGreaterThan(Enemy.Money, enemyMoney, "the ship's owner, now its captor, gets the refund");
+        AssertEqual(0.01f, money, Player.Money, "the empire that lost it gets nothing");
+        AssertEqual(0, Capital.CurrentNumDefenseShips, "another empire's ship does not fill the old hangar");
+    }
+
+    [TestMethod]
     public void ADefenseShipOnHighAlertWaitsBeforeItLands()
     {
         Ship ship = LaunchDefenseShip(new Vector2(Homeworld.Radius + 100f, 0), s => s.SetHighAlertStatus());

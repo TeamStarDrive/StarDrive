@@ -201,6 +201,12 @@ namespace Ship_Game.AI
     {
         public bool HasTradePlan => OrderQueue.TryPeekFirst(out ShipGoal g) && g.Trade != null;
 
+        public void CancelPickup(AIState newState)
+        {
+            if (OrderQueue.TryPeekFirst(out ShipGoal g) && g.Plan is Plan.PickupGoods or Plan.PickupGoodsForStation)
+                ClearOrders(newState);
+        }
+
         public float TradeAfterLanding(Planet planet, Ship station)
         {
             if (!OrderQueue.TryPeekFirst(out ShipGoal g) || g.Trade == null)

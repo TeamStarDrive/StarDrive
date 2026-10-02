@@ -80,8 +80,8 @@ time.
 ## Mods
 
 - Content changes and "nothing uses this" claims cover the mods too: every folder under
-  `game/Mods`. Only `ExampleMod` is in this repo; Combined Arms has its own repository, so check it
-  if you have it installed and say so in the PR if you don't.
+  `game/Mods`. Only `ExampleMod` is in this repo; Combined Arms and Star Trek each have their own
+  repository, so check them if you have them installed and say so in the PR if you don't.
 
 ## Tests
 

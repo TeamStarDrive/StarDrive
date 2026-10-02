@@ -470,8 +470,11 @@ namespace Ship_Game
 
                 int numTroopsCanLaunch    = DefenseTabView ? Planet.NumTroopsCanLaunchFor(Planet.Universe.Player) : 0;
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
-                if (Planet.GarrisonSize == 0)
-                    Planet.AutoBuildTroops = false;
+                if (Planet.GarrisonSize == 0 && Planet.AutoBuildTroops)
+                {
+                    Planet planet = Planet;
+                    Universe.RunOnSimThread(() => planet.AutoBuildTroops = false);
+                }
 
                 CallTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
                 LaunchSingleTroop.Visible = CallTroops.Visible && numTroopsCanLaunch > 0;

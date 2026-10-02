@@ -71,10 +71,19 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindShipAndPlanetToRefit()
         {
+            if (OldShip.Loyalty != Owner)
+            {
+                RemoveGoalFromFleet();
+                return GoalStep.GoalFailed;
+            }
+
             if (OldShip.LandShip is { Trades: true } trading)
             {
                 if (!trading.Docked)
+                {
+                    OldShip.AI.CancelPickup(AIState.Refit);
                     return GoalStep.TryAgain;
+                }
                 OldShip.TakeOffAfterTrading();
             }
 
@@ -271,7 +280,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (OldShip == null)
                     return false; // Ship was removed from game, probably destroyed
 
-                return OldShip.DoingRefit;
+                return OldShip.Loyalty == Owner && OldShip.DoingRefit;
             }
         }
 
@@ -282,7 +291,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (OldShip == null)
                     return false; // Ship was removed from game, probably destroyed
 
-                return OldShip.AI.State == AIState.HoldPosition || OldShip.DoingRefit;
+                return OldShip.Loyalty == Owner && (OldShip.AI.State == AIState.HoldPosition || OldShip.DoingRefit);
             }
         }
 

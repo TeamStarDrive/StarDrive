@@ -140,6 +140,7 @@ namespace Ship_Game.Ships.Components
             ship.SwitchTroopLoyalty(oldLoyalty, newLoyalty);
             ship.ReCalculateTroopsAfterBoard();
             ship.ScuttleTimer = -1f; // Cancel any active self destruct
+            ship.LandShip?.OnOwnerChanged();
             ship.PiratePostChangeLoyalty();
             ship.IsGuardian = newLoyalty.WeAreRemnants;
 

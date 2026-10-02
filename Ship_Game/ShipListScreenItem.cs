@@ -393,6 +393,8 @@ namespace Ship_Game
                     if (Ship.AI.State == AIState.Scrap)
                     {
                         Ship.AI.ClearOrders();
+                        Ship ship = Ship;
+                        Screen.Universe.RunOnSimThread(() => ship.Loyalty.AI.FindAndRemoveGoal(GoalType.ScrapShip, g => g.OldShip == ship));
                     }
                     else
                     {

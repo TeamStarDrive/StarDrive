@@ -3076,7 +3076,7 @@ namespace Ship_Game
         TheirBonuses = 2212,
         /// <summary>Opens a menu allowing you to choose from a list</summary>
         OpensAMenuAllowingYou = 2213,
-        /// <summary>Orders the ship to return to the nearest shipyard to</summary>
+        /// <summary>Orders the ship to fly to one of your safe planets,</summary>
         OrdersTheShipToReturn = 2214,
         /// <summary>Cancel this ship's order to scrap</summary>
         CancelThisShipsOrderTo = 2215,
@@ -4064,8 +4064,6 @@ namespace Ship_Game
         Defense2 = 4210,
         /// <summary>Garrison Size</summary>
         GarrisonSize = 4211,
-        /// <summary>Manual Limit</summary>
-        ManualLimit = 4212,
         /// <summary>Launch All Troops</summary>
         LaunchAllTroops = 4213,
         /// <summary>Launch One Troop</summary>
