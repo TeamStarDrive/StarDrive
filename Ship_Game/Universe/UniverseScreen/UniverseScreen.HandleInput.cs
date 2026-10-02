@@ -178,12 +178,19 @@ namespace Ship_Game
                     snappingToShip = true;
                     CamDestination.Z = transitionStartPosition.Z;
                 }
+                else if (StayOnViewedPlanet)
+                {
+                    Planet viewed = workersPanel.P;
+                    CamDestination = new(viewed.Position.X, viewed.Position.Y + 400f, HeightBeforePlanetView);
+                    SetSelectedPlanet(viewed);
+                }
                 else
                 {
                     CamDestination = transitionStartPosition;
                     SetSelectedPlanet(workersPanel.P);
                 }
                 transitionElapsedTime = 0f;
+                StayOnViewedPlanet = false;
                 LookingAtPlanet = false;
             }
         }

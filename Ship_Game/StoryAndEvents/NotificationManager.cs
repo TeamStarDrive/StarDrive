@@ -1059,13 +1059,13 @@ namespace Ship_Game
         public void SnapToCombat(Planet p)
         {
             GameAudio.SubBassWhoosh();
-            Screen.SnapViewColony(p, p.Owner != Screen.Player);
+            Screen.SnapViewColony(p, p.Owner != Screen.Player, stayOnPlanet: true);
         }
 
         public void SnapToPlanet(Planet p)
         {
             GameAudio.SubBassWhoosh();
-            Screen.SnapViewColony(p, combatView: false);
+            Screen.SnapViewColony(p, combatView: false, stayOnPlanet: true);
         }
 
         public void SnapToShip(Ship s)

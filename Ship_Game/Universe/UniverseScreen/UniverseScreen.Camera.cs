@@ -78,17 +78,18 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        public void SnapViewColony(Planet p, bool combatView)
+        public void SnapViewColony(Planet p, bool combatView, bool stayOnPlanet = false)
         {
             ShowShipNames = false;
             bool doReturnToShip = ViewingShip;
+            double heightBefore = CamDestination.Z;
             SetSelectedPlanet(p);
             if (p == null)
                 return;
 
             if (combatView && Debug)
             {
-                OpenCombatMenu(p);
+                OpenCombatMenu(p, stayOnPlanet);
                 return;
             }
 
@@ -102,7 +103,7 @@ namespace Ship_Game
                 if (p.Owner == Player && combatView ||
                     p.Owner != Player && Player.data.MoleList.Any(m => m.PlanetId == p.Id) && combatView)
                 {
-                    OpenCombatMenu(p);
+                    OpenCombatMenu(p, stayOnPlanet);
                     return;
                 }
 
@@ -130,7 +131,7 @@ namespace Ship_Game
                                                                     || p.System.OwnerList.Contains(Player)
                                                                     || p.OurShipsCanScanSurface(Player)))
                 {
-                    OpenCombatMenu(p);
+                    OpenCombatMenu(p, stayOnPlanet);
                 }
                 else
                 {
@@ -139,10 +140,17 @@ namespace Ship_Game
 
                 ClearSelectedItems();
                 returnToShip = doReturnToShip;
+                RememberViewBeforePlanet(stayOnPlanet, heightBefore);
                 LookingAtPlanet = true;
 
                 SnapViewTo(new(p.Position.X, p.Position.Y + 400f, 2500f), 5f, 2f);
             }
+        }
+
+        void RememberViewBeforePlanet(bool stayOnPlanet, double heightBefore)
+        {
+            StayOnViewedPlanet = stayOnPlanet;
+            HeightBeforePlanetView = heightBefore;
         }
 
         public void SnapViewTo(Vector3d worldPos, float duration, float adjustCamTimer = 2f)
