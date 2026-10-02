@@ -717,7 +717,7 @@ namespace Ship_Game
                 {
                     GameAudio.TroopTakeOff();
                     UpdateButtons();
-                    break;
+                    return;
                 }
             }
 
