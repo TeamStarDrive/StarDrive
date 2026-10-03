@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
             From = from;
             float rotationDegZ = startingRotationDegrees.Equals(-1f)
                 ? owner.Universe.Random.RollDie(360)
-                : launchPlan is not (LaunchPlan.MinerReturn or LaunchPlan.AssaultClimb)
+                : launchPlan is not (LaunchPlan.MinerReturn or LaunchPlan.AssaultClimb) && !owner.IsMiningShip
                     ? (startingRotationDegrees + Owner.Universe.Random.Float(-10, 10))
                     : startingRotationDegrees;
 
@@ -47,6 +47,7 @@ namespace Ship_Game.Ships
         }
 
         public bool MinesPlanet => LaunchPlan == LaunchPlan.Mining;
+        public bool LeavesHangar => LaunchPlan == LaunchPlan.Hangar;
 
         public static Vector3 FlashPos(Ship ship, float scale, float posZ)
             => new Vector2(-ship.Direction * ship.Radius * scale * 0.5f + ship.Position).ToVec3(posZ + 20);
@@ -216,7 +217,7 @@ namespace Ship_Game.Ships
             {
                 Owner = ship;
                 RotationDegZ = rotation;
-                DoBarrelRoll = ShouldBarrelRoll(ship);
+                DoBarrelRoll = !ship.IsMiningShip && ShouldBarrelRoll(ship);
                 Progress = InitialProgress;
                 TotalDuration = FullDuration(ship);
                 RelativeDegForBarrel = 3.6f / (1 - Progress);
@@ -300,7 +301,8 @@ namespace Ship_Game.Ships
             [StarData] readonly float RotationDegZ;
             [StarData] readonly Vector2 Velocity;
             ParticleEmitter FlameTrail;
-            const int InitialRotationDegX = -60;
+            const int MaxRotationDegX = 60;
+            const float PitchPart = 0.2f;
             const int EndPosZ = 200;
             const float MaxSpeedMultiplier = 0.8f;
 
@@ -320,7 +322,8 @@ namespace Ship_Game.Ships
                 Progress = (Progress + timeStep.FixedTime/TotalDuration).UpperBound(1);
                 scale = (1 - (Progress * TotalDuration / TotalDuration) * 0.7f).LowerBound(0.3f);
                 posZ = EndPosZ * Progress;
-                Owner.XRotation = (InitialRotationDegX - (Progress * InitialRotationDegX)).ToRadians();
+                float pitch = Progress < PitchPart ? Progress / PitchPart : (1 - Progress) / (1 - PitchPart);
+                Owner.XRotation = -(MaxRotationDegX * pitch).ToRadians();
                 float speedLimitFactor = ((1 - Progress) * 2).Clamped(0.5f, MaxSpeedMultiplier);
                 Owner.SetSTLSpeedLimit(Owner.MaxSTLSpeed * speedLimitFactor);
                 if (Progress <= 0.2)

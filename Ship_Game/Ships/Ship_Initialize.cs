@@ -356,10 +356,9 @@ namespace Ship_Game.Ships
             }
             
             ship.Mothership = parent;
-            if (ship.IsMiningShip)
-                ship.InitLaunch(LaunchPlan.Mining);
-            else
-                ship.InitLaunch(LaunchPlan.Hangar, hangar.ActualRotationDegrees);
+            Planet minedPlanet = ship.IsMiningShip ? parent.GetTether() : null;
+            ship.InitLaunch(LaunchPlan.Hangar, minedPlanet != null ? ship.Position.AngleToTarget(minedPlanet.Position)
+                                                                   : hangar.ActualRotationDegrees);
 
             if (hangar.IsSupplyBay)
             {

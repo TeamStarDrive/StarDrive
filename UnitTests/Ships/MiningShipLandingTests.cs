@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
@@ -13,8 +14,9 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// A mining ship back from the planet lands on its mining station the way a hangar ship launches, played
-/// backwards: a short glide in at launch speed down into the station's centre. It unloads its ore and frees
+/// A mining ship leaves its mining station the way a fighter leaves its carrier, without the barrel roll, aimed at
+/// the planet, and dives toward the planet from there. Back from the planet it lands on the station the same way,
+/// played backwards: a short glide in at launch speed down into the station's centre. It unloads its ore and frees
 /// its bay only once it has touched down.
 /// </summary>
 [TestClass]
@@ -57,6 +59,92 @@ public class MiningShipLandingTests : StarDriveTest
     }
 
     void RunUntilLanding(Ship miner) => RunSimWhile((simTimeout: 120, fatal: true), () => !miner.IsLanding);
+
+    void RunUntilDiving(Ship miner) => RunSimWhile((simTimeout: 5, fatal: true), () => miner.LaunchShip is not { MinesPlanet: true });
+
+    [TestMethod]
+    public void AMinerLeavesItsStationAsAFighterLaunchesThenDivesTowardThePlanet()
+    {
+        Ship miner = LaunchMiner();
+        Assert.IsTrue(miner.LaunchShip is { LeavesHangar: true, MinesPlanet: false }, "a miner first launches out of its station");
+        float toPlanet = Station.Position.AngleToTarget(GasGiant.Position);
+        float startDistance = miner.Position.Distance(GasGiant.Position);
+
+        float rise = 0f, lastPitch = 0f, maxPitchStep = 0f, deepestPitch = 0f, maxTurn = 0f;
+        float diveSeconds = 0f;
+        for (float time = TestSimStep.FixedTime; diveSeconds < 1.5f; time += TestSimStep.FixedTime)
+        {
+            AssertLessThan(time, 5f, "the miner must start its dive");
+            bool rising = miner.LaunchShip is { LeavesHangar: true };
+            float heading = miner.RotationDegrees;
+            RunObjectsSim(TestSimStep);
+            float pitch = miner.XRotation.ToDegrees();
+            if (rising)
+            {
+                AssertEqual(0.01f, toPlanet, miner.RotationDegrees, "the miner launches straight at the planet");
+                AssertLessThan(pitch, 31.6f, "it climbs out nose up from 31.5 degrees, as a fighter does");
+                if (miner.LaunchShip is { MinesPlanet: true })
+                {
+                    rise = time;
+                    AssertGreaterThan(startDistance - miner.Position.Distance(GasGiant.Position), 400f,
+                                      "the launch carries it 420 toward the planet, at 300 for 1.4 seconds");
+                }
+            }
+            else
+            {
+                diveSeconds += TestSimStep.FixedTime;
+                deepestPitch = Math.Min(deepestPitch, pitch);
+            }
+            if (time > TestSimStep.FixedTime)
+            {
+                maxPitchStep = Math.Max(maxPitchStep, Math.Abs(pitch - lastPitch));
+                maxTurn = Math.Max(maxTurn, Math.Abs(miner.RotationDegrees - heading));
+            }
+            lastPitch = pitch;
+        }
+
+        AssertEqual(TestSimStep.FixedTime * 2, LaunchShip.HangarDuration(miner), rise, "the launch takes as long as a fighter's, 1.4 seconds");
+        AssertLessThan(maxPitchStep, 1f, "the dive noses down from the level end of the launch, with no jump");
+        AssertLessThan(maxTurn, 0.5f, "and keeps heading for the planet");
+        AssertEqual(1f, -60f, deepestPitch, "the dive is steepest a fifth of the way down, at 60 degrees");
+    }
+
+    [TestMethod]
+    public void AMinerCalledBackWhileLeavingItsStationLandsWithoutDiving()
+    {
+        Ship miner = LaunchMiner();
+        RunSimWhile((simTimeout: 0.5, fatal: false));
+        Assert.IsTrue(miner.LaunchShip is { LeavesHangar: true }, "setup: the miner must still be leaving its station");
+
+        miner.AI.OrderReturnToHangar();
+        bool dived = false;
+        // the launch ends at the edge of the landing range, so now and then the miner turns back first (11 s)
+        RunSimWhile((simTimeout: 30, fatal: true), () => !miner.IsLanding, () => dived |= miner.LaunchShip is { LeavesHangar: false });
+        Assert.IsFalse(dived, "a miner called back before its dive never starts it");
+        RunSimWhile((simTimeout: 10, fatal: true), () => miner.Active);
+        Assert.IsFalse(miner.Dying, "the recalled miner lands and is taken in");
+        AssertEqual(miner.CargoSpaceMax - 1, Station.GetOtherCargo(Ore), "it unloads what it had");
+    }
+
+    [TestMethod]
+    public void AMinerLeavingItsStationDivesAfterALoad()
+    {
+        UState.StarDate = 1042.5f;
+        Ship miner = LaunchMiner();
+        RunSimWhile((simTimeout: 0.5, fatal: false));
+
+        SavedGame save = Universe.Save("UnitTest.MiningShipLaunch", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Ship leaving = loaded.UState.Objects.FindShip(miner.Id);
+        Assert.IsTrue(leaving is { Active: true, LaunchShip.LeavesHangar: true, AI.State: AIState.Mining },
+                      "a miner leaving its station must still be leaving it after a load");
+
+        for (double time = 0; leaving.LaunchShip is not { MinesPlanet: true }; time += TestSimStepD)
+        {
+            AssertLessThan(time, 3.0, "the loaded miner must go on to its dive");
+            loaded.UState.Objects.Update(TestSimStep);
+        }
+    }
 
     [TestMethod]
     public void AFullMinerLandsOnItsStationAndUnloadsAtTouchdown()
@@ -113,6 +201,7 @@ public class MiningShipLandingTests : StarDriveTest
     public void AMinerCalledBackDuringItsDiveTakesOffBeforeItLands()
     {
         Ship miner = LaunchMiner();
+        RunUntilDiving(miner);
         RunSimWhile((simTimeout: 1, fatal: false));
         Assert.IsTrue(miner.LaunchShip is { MinesPlanet: true }, "setup: the miner must still be diving toward the planet");
 

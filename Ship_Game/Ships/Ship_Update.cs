@@ -173,8 +173,11 @@ namespace Ship_Game.Ships
                 LaunchShip.Update(visibleToPlayer, timeStep);
                 if (LaunchShip.Done)
                 {
+                    bool divesToMine = IsMiningShip && LaunchShip.LeavesHangar && AI.State == AIState.Mining;
                     LaunchShip = null;
-                    if (IsHangarShip && !Mothership.InCombat && AI.State is not (AIState.AssaultPlanet or AIState.ReturnToHangar)
+                    if (divesToMine)
+                        InitLaunch(LaunchPlan.Mining, RotationDegrees);
+                    else if (IsHangarShip && !Mothership.InCombat && AI.State is not (AIState.AssaultPlanet or AIState.ReturnToHangar)
                         && !IsSupplyShuttle && !IsMiningShip)
                         AI.BackToCarrier();
                 }

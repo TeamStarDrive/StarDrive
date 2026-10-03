@@ -93,6 +93,30 @@ public class HangarLandingTests : StarDriveTest
         AssertEqual(0, CountRollingLandings(miner, landings: 100), "mining ships never roll out at launch, so they never roll in");
     }
 
+    [TestMethod]
+    public void AMiningShipNeverRollsOut()
+    {
+        Ship fighter = FighterOut();
+        AssertGreaterThan(CountRollingLaunches(fighter, launches: 100), 20, "setup: a fighter rolls out on about half its launches");
+
+        Player.data.DefaultMiningShip = "Fang Strafer";
+        Assert.IsTrue(fighter.IsMiningShip, "setup: the same design as the empire's mining ship, as a mod may have");
+        AssertEqual(0, CountRollingLaunches(fighter, launches: 100), "a mining ship leaves its station like a fighter, but never rolls out");
+    }
+
+    int CountRollingLaunches(Ship ship, int launches)
+    {
+        int rolls = 0;
+        for (int i = 0; i < launches; ++i)
+        {
+            ship.InitLaunch(LaunchPlan.Hangar, 0f);
+            ship.LaunchShip.Update(visibleToPlayer: false, new FixedSimTime(LaunchShip.HangarDuration(ship) * 0.25f));
+            if (!ship.YRotation.AlmostEqual(0f, 0.001f))
+                ++rolls;
+        }
+        return rolls;
+    }
+
     // a quarter of the way in, a rolling ship has three quarters of its turn left: the launch's roll, reversed
     int CountRollingLandings(Ship fighter, int landings)
     {
