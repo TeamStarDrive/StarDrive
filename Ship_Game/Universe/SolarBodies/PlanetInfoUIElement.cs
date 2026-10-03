@@ -572,7 +572,7 @@ namespace Ship_Game
                 var shipList = Player.OwnedShips;
                 foreach (Ship ship in shipList)
                 {
-                    if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))
+                    if (ship.AI.State == AIState.AssaultPlanet && !ship.IsLanding && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))
                     {
                         if (ship.DesignRole == RoleName.troopShip)
                             ship.AI.OrderOrbitNearest(true);

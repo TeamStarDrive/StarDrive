@@ -139,7 +139,7 @@ namespace Ship_Game.Ships
         public float GetStationLandingTime() => LandShip.DockLandingSeconds(this) / Universe.P.TurnTimer;
 
         public float GetTradeTakeOffTime(Planet planet)
-            => LaunchShip.TakeOffSeconds(this, LandShip.LandsOnSpacePort(LandPlan.Trade, planet)) / Universe.P.TurnTimer;
+            => LaunchShip.TakeOffSeconds(this, LandShip.LandsOnSpacePort(LandPlan.Trade, planet, Loyalty)) / Universe.P.TurnTimer;
 
         float GetTradeStopTime(Planet planet)
             => DockedOrTakingOffFrom == planet ? 0f : GetTradeLandingTime(planet) + GetTradeTakeOffTime(planet);
@@ -165,9 +165,11 @@ namespace Ship_Game.Ships
 
         void SendCargoShuttles(Planet planet, int shuttles, float seconds, bool toPort)
         {
-            if (planet.HasSpacePort && planet.InFrustum && Universe.IsPlanetViewOrCloser && InPlayerSensorRange)
+            if (planet.HasSpacePort && CargoShuttlesShown(planet))
                 Universe.Screen.CargoShuttles.Send(planet, (planet.Owner ?? Loyalty).EmpireColor, shuttles, seconds, toPort);
         }
+
+        bool CargoShuttlesShown(Planet planet) => planet.InFrustum && Universe.IsPlanetViewOrCloser && InPlayerSensorRange;
 
         public void RemoveTradeRoute(Planet planet)
         {

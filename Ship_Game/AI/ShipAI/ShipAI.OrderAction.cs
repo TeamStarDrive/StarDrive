@@ -241,6 +241,7 @@ namespace Ship_Game.AI
             if (clearOrders)
                 ResetPriorityOrderWithClear();
 
+            LandingOffset = Vector2.Zero;
             // anyassaultops is broken and doesnt work with troop shuttles. 
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle ||  Owner.Carrier.AnyAssaultOpsAvailable)
             {

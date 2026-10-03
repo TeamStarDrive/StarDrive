@@ -371,13 +371,13 @@ namespace Ship_Game.AI
         }
 
         float GlideSpeed(LandPlan landPlan, Planet planet, Ship shipyard)
-            => shipyard != null || LandShip.LandsOnSpacePort(landPlan, planet) ? LaunchShip.ShipyardSpeed(Owner) : 0f;
+            => shipyard != null || LandShip.LandsOnSpacePort(landPlan, planet, Owner.Loyalty) ? LaunchShip.ShipyardSpeed(Owner) : 0f;
 
         float LandingRange(LandPlan landPlan, Planet planet, Ship shipyard)
         {
             if (shipyard != null)
                 return LandShip.ShipyardLandingRange(Owner);
-            return LandShip.LandsOnSpacePort(landPlan, planet) ? LandShip.SpacePortLandingRange(Owner) : planet.Radius + 300f;
+            return LandShip.LandsOnSpacePort(landPlan, planet, Owner.Loyalty) ? LandShip.SpacePortLandingRange(Owner) : planet.Radius + 300f;
         }
 
         public bool TryLand(LandPlan landPlan, Planet planet, Ship shipyard)

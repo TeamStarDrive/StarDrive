@@ -158,6 +158,33 @@ namespace Ship_Game.Ships
             return landed;
         }
 
+        public bool LandTroopsAfterTouchdown(Planet planet)
+        {
+            Empire owner = planet.Owner;
+            if (owner != null && owner != Loyalty && !Loyalty.IsAtWarWith(owner))
+                return false;
+
+            return LandTroopsOnPlanet(planet) > 0;
+        }
+
+        public void SendTroopShuttlesToShip(Planet planet)
+        {
+            if (CargoShuttlesShown(planet))
+                Universe.Screen.CargoShuttles.SendToShip(planet, this, Loyalty.EmpireColor, CargoShuttles.TroopShuttles, CargoShuttles.TroopShuttleSeconds);
+        }
+
+        public void SendTroopShuttlesFromPort(Planet planet)
+        {
+            if (planet.HasSpacePort && CargoShuttlesShown(planet))
+                Universe.Screen.CargoShuttles.Send(planet, Loyalty.EmpireColor, CargoShuttles.TroopShuttles, CargoShuttles.TroopShuttleSeconds, toPort: false);
+        }
+
+        public void SendTroopShuttlesDown(Planet planet, float posZ)
+        {
+            if (CargoShuttlesShown(planet))
+                Universe.Screen.CargoShuttles.SendDown(planet, Position.ToVec3(posZ), Loyalty.EmpireColor, CargoShuttles.TroopShuttles, CargoShuttles.TroopShuttleSeconds);
+        }
+
         // This will launch troops without having issues with modifying it's own TroopsHere
         public int LandTroopsOnPlanet(Planet planet, int maxTroopsToLand = 0)
         {

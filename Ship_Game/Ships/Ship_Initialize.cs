@@ -420,7 +420,7 @@ namespace Ship_Game.Ships
         // Note - a landing ship cannot be hit or targeted and takes no orders
         public void InitLanding(LandPlan landPlan, Planet planet, Ship shipyard = null)
         {
-            if (landPlan != LandPlan.Trade)
+            if (landPlan is not (LandPlan.Trade or LandPlan.Troops or LandPlan.AssaultDive))
             {
                 AIState state = landPlan switch
                 {
@@ -465,6 +465,8 @@ namespace Ship_Game.Ships
 
             if (LandShip.Boards)
                 TakeOffFromShip(LandShip.Target);
+            else if (LandShip.DropsTroops && (HasOurTroops || IsHangarShip && Mothership.Active))
+                TakeOffAfterTroopLanding();
             else
                 QueueTotalRemoval();
         }
@@ -473,6 +475,25 @@ namespace Ship_Game.Ships
         {
             LandShip = null;
             InitLaunch(LaunchPlan.Hangar, ship.Position.DirectionToTarget(Position).ToDegrees());
+        }
+
+        void TakeOffAfterTroopLanding()
+        {
+            Planet planet = LandShip.Planet;
+            bool dived = LandShip.Dives;
+            bool fromDock = LandShip.OnDock;
+            LandShip = null;
+            if (dived)
+            {
+                Velocity = Direction * LandShip.DiveRunSpeed(this);
+                InitLaunch(LaunchPlan.AssaultClimb, RotationDegrees);
+            }
+            else
+            {
+                TakeOff(planet, fromDock);
+            }
+
+            AI.FlyOnAfterTroopLanding(planet);
         }
 
         public void TakeOffAfterLanding()

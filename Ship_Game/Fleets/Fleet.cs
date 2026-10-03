@@ -2382,7 +2382,7 @@ namespace Ship_Game.Fleets
         /// </summary>
         bool OrderShipsToInvade(IEnumerable<Ship> ships, MilitaryTask task, bool targetBeingBombed)
         {
-            int shipsInvading = 0;
+            int shipsInvading = task.TargetPlanet.ShipsLandingTroopsHere(Owner);
             float planetAssaultStrength = 0f;
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength = FleetTask.TargetPlanet.GetGroundStrength(Owner);

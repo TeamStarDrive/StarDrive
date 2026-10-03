@@ -26,6 +26,7 @@ namespace Ship_Game.Ships
         [StarData] LandOnPlanet PlanetLanding;
         [StarData] LandOnShipyard ShipyardLanding;
         [StarData] LandInHangar HangarLanding;
+        [StarData] DiveToPlanet PlanetDive;
 
         public LandShip(Ship owner, LandPlan landPlan, Planet planet, Ship shipyard)
         {
@@ -37,10 +38,14 @@ namespace Ship_Game.Ships
                 Shipyard = shipyard;
                 ShipyardLanding = new(owner, planet, shipyard.TetherOffset, shipyard.Position, DockLandingSeconds(owner));
             }
-            else if (LandsOnSpacePort(landPlan, planet))
+            else if (LandsOnSpacePort(landPlan, planet, owner.Loyalty))
             {
                 OnSpacePort = true;
                 ShipyardLanding = new(owner, planet, Vector2.Zero, planet.Position, SpacePortLandingSeconds(owner));
+            }
+            else if (landPlan == LandPlan.AssaultDive)
+            {
+                PlanetDive = new(owner, planet);
             }
             else
             {
@@ -99,6 +104,10 @@ namespace Ship_Game.Ships
 
         public bool Boards => LandPlan == LandPlan.Board;
 
+        public bool DropsTroops => LandPlan is LandPlan.Troops or LandPlan.AssaultDive;
+
+        public bool Dives => LandPlan == LandPlan.AssaultDive;
+
         bool OnShip => InHangar || Boards;
 
         public bool OnDock => Shipyard != null || OnSpacePort || Station != null;
@@ -121,18 +130,32 @@ namespace Ship_Game.Ships
             {
                 case LandPlan.Hangar when Mothership.Active: Owner.AI.ReturnToMothership(Mothership); break;
                 case LandPlan.Board:                         Owner.AI.LandTroopsAfterTouchdown(Target); break;
+                case LandPlan.Troops:
+                case LandPlan.AssaultDive:                   HandOverTroops();                        break;
                 case LandPlan.Builder when PlanetIsOurs:     Planet.LandBuilderShip();                break;
                 case LandPlan.HomeDefense when PlanetIsOurs: Planet.LandDefenseShip(Owner);           break;
                 case LandPlan.HomeDefense:                   Owner.Loyalty.RefundCreditsPostRemoval(Owner, percentOfAmount: 1f); break;
             }
         }
 
+        void HandOverTroops()
+        {
+            if (!Owner.LandTroopsAfterTouchdown(Planet))
+                return;
+
+            if (Dives)
+                Owner.SendTroopShuttlesDown(Planet, PosZ);
+            else if (OnSpacePort)
+                Owner.SendTroopShuttlesFromPort(Planet);
+        }
+
         bool PlanetIsOurs => Planet.Owner == Owner.Loyalty;
 
-        public static bool UsesShipyards(LandPlan landPlan) => landPlan is not (LandPlan.HomeDefense or LandPlan.Supply or LandPlan.Trade);
+        public static bool UsesShipyards(LandPlan landPlan)
+            => landPlan is not (LandPlan.HomeDefense or LandPlan.Supply or LandPlan.Trade or LandPlan.Troops or LandPlan.AssaultDive);
 
-        public static bool LandsOnSpacePort(LandPlan landPlan, Planet planet)
-            => landPlan is (LandPlan.Supply or LandPlan.Trade) && planet.HasSpacePort;
+        public static bool LandsOnSpacePort(LandPlan landPlan, Planet planet, Empire empire)
+            => planet.HasSpacePort && (landPlan is LandPlan.Supply or LandPlan.Trade || landPlan == LandPlan.Troops && planet.Owner == empire);
 
         public const float TouchdownRadius = 100f;
         public const float SpacePortLandingPart = 0.7f;
@@ -148,11 +171,24 @@ namespace Ship_Game.Ships
         public static float SpacePortLandingSeconds(Ship ship) => DockLandingSeconds(ship) * SpacePortLandingPart;
 
         public static float TradeLandingSeconds(Ship ship, Planet planet)
-            => LandsOnSpacePort(LandPlan.Trade, planet) ? SpacePortLandingSeconds(ship) : LaunchShip.PlanetDuration(ship);
+            => LandsOnSpacePort(LandPlan.Trade, planet, ship.Loyalty) ? SpacePortLandingSeconds(ship) : LaunchShip.PlanetDuration(ship);
 
         public static float HangarLandingRange(Ship ship) => LaunchShip.HangarSpeed(ship) * LaunchShip.HangarDuration(ship);
 
         public static float BoardingRange(Ship target) => target.Radius + 300f;
+
+        public const float DiveSeconds = 2f;
+        public const float RunSeconds = 1f;
+
+        public static float DiveRunSpeed(Ship ship) => LaunchShip.HangarSpeed(ship) * 0.5f;
+
+        static float DiveSpeedIn(Ship ship) => ship.Velocity.Dot(ship.Direction).Clamped(0, ship.MaxSTLSpeed);
+
+        public static float DiveDistance(Ship ship)
+        {
+            float runSpeed = DiveRunSpeed(ship);
+            return (DiveSpeedIn(ship) + runSpeed) * 0.5f * DiveSeconds + runSpeed * RunSeconds;
+        }
 
         static Vector2 HullTouchdown(Ship ship, Vector2 from)
         {
@@ -188,6 +224,8 @@ namespace Ship_Game.Ships
                     HangarLanding.StayDown();
                 else if (OnDock)
                     ShipyardLanding.StayDown();
+                else if (Dives)
+                    PlanetDive.StayDown();
                 else
                     PlanetLanding.StayDown();
                 return;
@@ -204,6 +242,11 @@ namespace Ship_Game.Ships
             {
                 ShipyardLanding.Update(timeStep, visibleToPlayer, ref PosZ, out scale);
                 Done = ShipyardLanding.Done;
+            }
+            else if (Dives)
+            {
+                PlanetDive.Update(timeStep, visibleToPlayer, ref PosZ, out scale);
+                Done = PlanetDive.Done;
             }
             else
             {
@@ -410,6 +453,62 @@ namespace Ship_Game.Ships
 
             public bool Done => Progress >= 1f;
         }
+
+        [StarDataType]
+        struct DiveToPlanet
+        {
+            [StarData] float Progress; // between 0 to 1
+            [StarData] float Travelled;
+            [StarData] readonly Ship Owner;
+            [StarData] readonly Planet Planet;
+            [StarData] readonly Vector2 StartOffset;
+            [StarData] readonly float RotationDegZ;
+            [StarData] readonly float StartRotationY;
+            [StarData] readonly float StartSpeed;
+            const float TotalDuration = DiveSeconds + RunSeconds;
+            const float DivePart = DiveSeconds / TotalDuration;
+            const float EndPosZ = 200;
+            const float EndScale = 0.3f;
+            const float MaxRotationDegX = 60;
+            const float PitchPart = 0.2f;
+            const float FlashPart = 0.2f;
+
+            public DiveToPlanet(Ship ship, Planet planet)
+            {
+                Owner = ship;
+                Planet = planet;
+                Progress = 0;
+                Travelled = 0;
+                StartOffset = ship.Position - planet.Position;
+                RotationDegZ = ship.RotationDegrees;
+                StartRotationY = ship.YRotation;
+                StartSpeed = DiveSpeedIn(ship);
+            }
+
+            public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
+            {
+                Progress = (Progress + timeStep.FixedTime / TotalDuration).UpperBound(1);
+                float dive = (Progress / DivePart).UpperBound(1);
+                Travelled += StartSpeed.LerpTo(DiveRunSpeed(Owner), dive) * timeStep.FixedTime;
+                Owner.Velocity = Vector2.Zero;
+                Owner.Position = DivedTo;
+                Owner.RotationDegrees = RotationDegZ;
+                Owner.YRotation = StartRotationY * (1 - dive);
+                float pitch = dive < PitchPart ? dive / PitchPart : (1 - dive) / (1 - PitchPart);
+                Owner.XRotation = -(MaxRotationDegX * pitch).ToRadians();
+                posZ = EndPosZ * dive;
+                scale = 1 - (1 - EndScale) * dive;
+
+                if (visible && dive < FlashPart)
+                    Owner.Universe.Screen.Particles.Flash.AddParticle(LaunchShip.FlashPos(Owner, scale, posZ), scale);
+            }
+
+            Vector2 DivedTo => Planet.Position + StartOffset + RotationDegZ.AngleToDirection() * Travelled;
+
+            public void StayDown() => Owner.Position = DivedTo;
+
+            public bool Done => Progress >= 1f;
+        }
     }
 
     public enum LandPlan
@@ -422,6 +521,8 @@ namespace Ship_Game.Ships
         Supply,
         Trade,
         Hangar,
-        Board
+        Board,
+        Troops,
+        AssaultDive
     }
 }
