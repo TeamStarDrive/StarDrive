@@ -50,20 +50,29 @@ public class FleetButton : UIPanel
         // UniverseScreen: fleet cannot be null
         if (FleetDesigner || f != null) 
         {
+            Ship[] ships = f?.Ships.ToArray().Filter(s => s != null) ?? Empty<Ship>.Array;
             RectF r = RectF;
             bool isSelected = IsSelected(this);
-            DrawBackground(batch, f, isSelected, r);
+            DrawBackground(batch, ships, isSelected, r);
             DrawIcon(batch, f, r);
             DrawRequisitionIcon(batch, f, r);
             DrawPatrolIcon(batch, f, r);
             DrawFleetKey(batch, isSelected, r);
-            DrawFleetShipIcons(batch, f, r);
+            DrawFleetShipIcons(batch, f, ships, r);
         }
     }
 
-    void DrawBackground(SpriteBatch batch, Fleet f, bool isSelected, in RectF r)
+    static bool IsAnyShipInCombat(Ship[] ships)
     {
-        bool inCombat = f?.IsAnyShipInCombat() == true;
+        for (int i = 0; i < ships.Length; ++i)
+            if (!ships[i].OnLowAlert)
+                return true;
+        return false;
+    }
+
+    void DrawBackground(SpriteBatch batch, Ship[] ships, bool isSelected, in RectF r)
+    {
+        bool inCombat = IsAnyShipInCombat(ships);
         Color background = isSelected ? new(50,50,100,160) : new(Color.Black, 80);
         if (inCombat) background = Screen.ApplyCurrentAlphaToColor(Color.Red);
         batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, background);
@@ -109,22 +118,23 @@ public class FleetButton : UIPanel
         else            batch.DrawString(font, key, keyPos, color);
     }
 
-    void DrawFleetShipIcons(SpriteBatch batch, Fleet f, RectF r)
+    void DrawFleetShipIcons(SpriteBatch batch, Fleet f, Ship[] ships, RectF r)
     {
         if (f != null)
         {
-            if (f.Ships.Count <= 30) DrawFleetShipIcons30(batch, f, r.X + 55, r.Y);
-            else                     DrawFleetShipIconsSums(batch, f, r.X + 55, r.Y);
+            if (ships.Length <= 30) DrawFleetShipIcons30(batch, f, ships, r.X + 55, r.Y);
+            else                    DrawFleetShipIconsSums(batch, f, ships, r.X + 55, r.Y);
         }
     }
 
-    void DrawFleetShipIcons30(SpriteBatch batch, Fleet fleet, float x, float y)
+    void DrawFleetShipIcons30(SpriteBatch batch, Fleet fleet, Ship[] ships, float x, float y)
     {
         // Draw ship icons to right of button
+        ships.Sort(s => (-s.SurfaceArea, s.Name));
         Vector2 shipSpacingH = new(x, y);
-        for (int i = 0; i < fleet.Ships.Count; ++i)
+        for (int i = 0; i < ships.Length; ++i)
         {
-            Ship ship = fleet.Ships[i];
+            Ship ship = ships[i];
             RectF iconHousing = new(shipSpacingH.X, shipSpacingH.Y, 15, 15);
             shipSpacingH.X += 18f;
             if (shipSpacingH.X >= x + 180) // 10 Ships per row
@@ -147,19 +157,23 @@ public class FleetButton : UIPanel
         }
     }
 
-    void DrawFleetShipIconsSums(SpriteBatch batch, Fleet fleet, float x, float y)
+    void DrawFleetShipIconsSums(SpriteBatch batch, Fleet fleet, Ship[] ships, float x, float y)
     {
         Color color  = fleet.Owner.EmpireColor;
         Map<TacticalIcon, int> sums = new();
-        for (int i = 0; i < fleet.Ships.Count; ++i)
+        Map<TacticalIcon, int> largestHull = new();
+        for (int i = 0; i < ships.Length; ++i)
         {
-            Ship ship = fleet.Ships[i];
+            Ship ship = ships[i];
 
             TacticalIcon icon = ship.TacticalIcon();
             if (sums.TryGetValue(icon, out int value))
                 sums[icon] = value + 1;
             else
                 sums.Add(icon, 1);
+
+            if (!largestHull.TryGetValue(icon, out int area) || ship.SurfaceArea > area)
+                largestHull[icon] = ship.SurfaceArea;
         }
 
         Vector2 shipSpacingH = new(x, y);
@@ -168,10 +182,13 @@ public class FleetButton : UIPanel
         if (sums.Count > 12) // Switch to default sum views if too many icon sums
         {
             sums = ConvertToPrimaryIconSums(sums);
+            largestHull = ConvertToPrimaryIconLargestHull(largestHull);
             sumColor = Color.Gold;
         }
 
-        foreach (TacticalIcon iconPair in sums.Keys.ToArr())
+        TacticalIcon[] groups = sums.Keys.ToArr();
+        groups.Sort(k => (-LargestHull(k), k.Primary.Name, k.Secondary?.Name));
+        foreach (TacticalIcon iconPair in groups)
         {
             Rectangle iconHousing = new((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
             string space = sums[iconPair] < 9 ? "  " : "";
@@ -211,5 +228,21 @@ public class FleetButton : UIPanel
             }
             return recalculated;
         }
+
+        // Keeps the largest hull of the icons folded into each primary icon
+        Map<TacticalIcon, int> ConvertToPrimaryIconLargestHull(Map<TacticalIcon, int> largest)
+        {
+            Map<TacticalIcon, int> recalculated = new();
+            foreach (TacticalIcon iconPair in largest.Keys.ToArr())
+            {
+                int area = largest[iconPair];
+                TacticalIcon primaryIcon = new(iconPair.Primary, null);
+                if (!recalculated.TryGetValue(primaryIcon, out int current) || area > current)
+                    recalculated[primaryIcon] = area;
+            }
+            return recalculated;
+        }
+
+        int LargestHull(TacticalIcon icon) => largestHull.TryGetValue(icon, out int area) ? area : 0;
     }
 }

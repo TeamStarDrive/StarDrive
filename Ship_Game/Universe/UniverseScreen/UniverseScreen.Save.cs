@@ -7,7 +7,7 @@ public partial class UniverseScreen
     /// <summary>
     /// Saves forcefully Pause the game, until the auto-save is complete
     /// </summary>
-    public bool IsSaving { get; private set; }
+    public bool IsSaving { get; internal set; }
     string PendingSaveName;
     int Auto = 1;
 

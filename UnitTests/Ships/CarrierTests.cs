@@ -5,6 +5,7 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Empires;
 using Ship_Game.Fleets;
+using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 #pragma warning disable CA2213
@@ -234,6 +235,39 @@ namespace UnitTests.Ships
             Carrier.ChangeOrdnance(ordCombatThreshold - 40); 
             resupplyReason = Carrier.Supply.Resupply();
             AssertEqual(resupplyReason, ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
+        }
+
+        [TestMethod]
+        public void CarrierAndSupplyStateSurviveSaveAndLoad()
+        {
+            UState.StarDate = 1042.5f;
+            Carrier.Carrier.SetRecallFightersBeforeFTL(false);
+            Carrier.Carrier.SetSendTroopsToShip(false);
+            Carrier.Carrier.AllowBoardShip = false;
+            SpawnEnemyShipAndEnsureFightersLaunch();
+            Carrier.Carrier.FightersOut = true;
+            Carrier.Carrier.TroopsOut = true;
+            Assert.IsTrue(Carrier.Carrier.FightersLaunched, "setup: the fighters must be launched");
+            Assert.IsTrue(Carrier.Carrier.TroopsLaunched, "setup: the troops must be launched");
+            float ordnanceInSpace = Carrier.Carrier.OrdnanceInSpace;
+            AssertGreaterThan(ordnanceInSpace, 0, "setup: launched fighters carry ordnance into space");
+
+            Carrier.ChangeOrdnance(-Carrier.OrdinanceMax * 0.5f);
+            Carrier.Supply.ChangeIncomingOrdnance(50);
+            float missingWithIncoming = Carrier.Supply.MissingOrdnanceWithIncoming;
+
+            SavedGame save = Universe.Save("UnitTest.CarrierState", throwOnError: true);
+            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            Ship ship = loaded.UState.Objects.FindShip(Carrier.Id);
+
+            Assert.IsFalse(ship.Carrier.RecallFightersBeforeFTL, "recall fighters before FTL must survive a load");
+            Assert.IsFalse(ship.Carrier.SendTroopsToShip, "send troops to ship must survive a load");
+            Assert.IsFalse(ship.Carrier.AllowBoardShip, "allow boarding must survive a load");
+            Assert.IsTrue(ship.Carrier.FightersLaunched, "launched fighters must stay launched after a load");
+            Assert.IsTrue(ship.Carrier.TroopsLaunched, "launched troops must stay launched after a load");
+            AssertEqual(0.01f, ordnanceInSpace, ship.Carrier.OrdnanceInSpace, "the ordnance in space must survive a load");
+            AssertEqual(0.01f, missingWithIncoming, ship.Supply.MissingOrdnanceWithIncoming,
+                        "the ordnance already on its way must survive a load");
         }
     }
 }

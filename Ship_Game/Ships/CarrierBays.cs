@@ -110,6 +110,21 @@ namespace Ship_Game.Ships
             return None;
         }
 
+        // assign backing fields, not FightersOut/TroopsOut: their setters scramble or recover
+        public void CarryOverSavedState(CarrierBays saved)
+        {
+            // None is shared
+            if (saved == null || saved == None || this == None)
+                return;
+
+            RecallFightersBeforeFTL = saved.RecallFightersBeforeFTL;
+            SendTroopsToShip        = saved.SendTroopsToShip;
+            AllowBoardShip          = saved.AllowBoardShip;
+            FightersLaunched        = saved.FightersLaunched;
+            TroopsLaunched          = saved.TroopsLaunched;
+            OrdnanceInSpace         = saved.OrdnanceInSpace;
+        }
+
         public void Dispose()
         {
             if (Owner == null)

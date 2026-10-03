@@ -86,7 +86,7 @@ namespace Ship_Game
                     hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Richness) + ":").X, Fonts.Arial12Bold.LineSpacing);
                     if (hoverRect.HitTest(Input.CursorPosition))
                     {
-                        ToolTip.CreateTooltip(P.Mining.ResourceDescription.Text);
+                        ToolTip.CreateTooltip(P.Mining.ResourceDescription);
                     }
                 }
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;

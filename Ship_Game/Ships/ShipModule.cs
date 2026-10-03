@@ -1164,7 +1164,8 @@ namespace Ship_Game.Ships
             var carrier = Parent;
             if (fighter != null && fighter.Active)
             {
-                if (fighter.AI.HasPriorityTarget
+                if (fighter.IsLanding
+                    || fighter.AI.HasPriorityTarget
                     || fighter.AI.IgnoreCombat
                     || fighter.AI.Target != null
                     || (fighter.Position.InRadius(carrier.Position, Parent.SensorRange) && fighter.AI.State != AIState.ReturnToHangar))

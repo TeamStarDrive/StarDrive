@@ -45,7 +45,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (numTroopsWanted == 0)
                 return GoalStep.GoalFailed;
 
-            var potentialTargets = PlanetBuildingAt.System.ShipList.Filter(s => s.Loyalty == TargetEmpire);
+            var potentialTargets = PlanetBuildingAt.System.ShipList.Filter(s => s.Loyalty == TargetEmpire && !s.IsLaunchingOrLanding);
             potentialTargets     = potentialTargets.Sorted(s => s.Position.Distance(PlanetBuildingAt.Position));
             bool launchedTroops  = false;
             foreach (Ship ship in potentialTargets)

@@ -60,6 +60,7 @@ namespace Ship_Game
         PieMenuNode shipMenu;
 
         public ParticleManager Particles;
+        LightPillarRenderer LightPillars;
         public readonly CargoShuttles CargoShuttles = new();
 
         public Background3D bg3d;
@@ -505,6 +506,7 @@ namespace Ship_Game
             int height  = GameBase.ScreenHeight;
 
             Particles = new ParticleManager(TransientContent);
+            LightPillars = new LightPillarRenderer(device);
 
             if (GlobalStats.DrawStarfield)
             {
@@ -773,6 +775,7 @@ namespace Ship_Game
             Mem.Dispose(ref PostBloomTarget);
             Mem.Dispose(ref PostDistortTarget);
             Mem.Dispose(ref Particles);
+            Mem.Dispose(ref LightPillars);
             Mem.Dispose(ref Shields);
             Mem.Dispose(ref aw);
             Mem.Dispose(ref ExoticBonusesWindow);

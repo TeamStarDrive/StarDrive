@@ -544,6 +544,37 @@ namespace Ship_Game
 
         public void ProcessShip(Ship ship, Ship pirateBase)
         {
+            if (StaysAtBase(ship))
+            {
+                if (ship.AI.State != AIState.Orbit
+                    && ship.AI.State != AIState.Escort
+                    && ship.AI.State != AIState.Resupply)
+                {
+                    // We might use this ship for defense or future attacks
+                    ship.AI.AddEscortGoal(pirateBase);
+                }
+            }
+            else if (!ship.IsLanding && !ship.AI.FindGoal(ShipAI.Plan.LandOnPirateBase, out _))
+            {
+                ship.AI.OrderLandOnPirateBase(pirateBase);
+            }
+        }
+
+        bool StaysAtBase(Ship ship)
+        {
+            if (ship.Name == Owner.data.PirateFlagShip)
+                return true;
+
+            return !ship.IsDefaultAssaultShuttle
+                   && !SpawnedShips.Contains(ship.Id)
+                   && !ship.IsFreighter
+                   && !ship.ShipData.IsColonyShip
+                   && !ShouldSalvageCombatShip(ship)
+                   && !ShipsWeCanSpawn.Contains(ship.Name);
+        }
+
+        public void TakeInLandedShip(Ship ship)
+        {
             if (ship.IsDefaultAssaultShuttle || SpawnedShips.Contains(ship.Id))
             {
                 // We cannot salvage ships that we spawned
@@ -554,7 +585,7 @@ namespace Ship_Game
             }
             else
             {
-                SalvageShip(ship, pirateBase);
+                SalvageShip(ship);
             }
         }
 
@@ -672,7 +703,7 @@ namespace Ship_Game
             for (int i = 0; i < victimShips.Count; i++)
             {
                 Ship ship = victimShips[i];
-                if (RaidingThisShip(ship))
+                if (RaidingThisShip(ship) || ship.IsLaunchingOrLanding)
                     continue;
 
                 switch (type)
@@ -813,12 +844,12 @@ namespace Ship_Game
             return shipName.NotEmpty() && pirateShip != null;
         }
 
-        void SalvageShip(Ship ship, Ship pirateBase)
+        void SalvageShip(Ship ship)
         {
             if (ship.IsFreighter || ship.ShipData.IsColonyShip)
                 SalvageFreighter(ship);
             else 
-                SalvageCombatShip(ship, pirateBase);
+                SalvageCombatShip(ship);
         }
 
         void SalvageFreighter(Ship freighter)
@@ -827,7 +858,7 @@ namespace Ship_Game
             freighter.QueueTotalRemoval();
         }
 
-        void SalvageCombatShip(Ship ship, Ship pirateBase)
+        void SalvageCombatShip(Ship ship)
         {
             if (ShouldSalvageCombatShip(ship)) 
             {
@@ -835,21 +866,10 @@ namespace Ship_Game
                 if (ship.BaseStrength.Greater(0))
                     ShipsWeCanSpawn.AddUnique(ship.Name);
 
-                ship.QueueTotalRemoval();
                 TryLevelUp(ship.Universe);
             }
-            else
-            {
-                if (ShipsWeCanSpawn.Contains(ship.Name))
-                    ship.QueueTotalRemoval();
-                else if (ship.AI.State != AIState.Orbit
-                         && ship.AI.State != AIState.Escort
-                         && ship.AI.State != AIState.Resupply)
-                {
-                    // We might use this ship for defense or future attacks
-                    ship.AI.AddEscortGoal(pirateBase);
-                }
-            }
+
+            ship.QueueTotalRemoval();
         }
 
         bool ShouldSalvageCombatShip(Ship ship)

@@ -27,23 +27,27 @@ namespace Ship_Game.Ships
             From = from;
             float rotationDegZ = startingRotationDegrees.Equals(-1f)
                 ? owner.Universe.Random.RollDie(360)
-                : launchPlan != LaunchPlan.MinerReturn 
+                : launchPlan is not (LaunchPlan.MinerReturn or LaunchPlan.AssaultClimb) && !owner.IsMiningShip
                     ? (startingRotationDegrees + Owner.Universe.Random.Float(-10, 10))
                     : startingRotationDegrees;
 
             switch (LaunchPlan)
             {
-                case LaunchPlan.Planet:      PlanetLaunch   = new(owner, rotationDegZ); break;
-                case LaunchPlan.Hangar:      HangarLaunch   = new(owner, rotationDegZ); break;
-                case LaunchPlan.Mining:      Mining         = new(owner, rotationDegZ); break;
-                case LaunchPlan.Shipyard:    ShipyardLaunch = new(owner, rotationDegZ); break;
-                case LaunchPlan.MinerReturn: ReturnMiner    = new(owner, rotationDegZ); break;
+                case LaunchPlan.Planet:       PlanetLaunch   = new(owner, rotationDegZ); break;
+                case LaunchPlan.Hangar:       HangarLaunch   = new(owner, rotationDegZ); break;
+                case LaunchPlan.Mining:       Mining         = new(owner, rotationDegZ); break;
+                case LaunchPlan.Shipyard:     ShipyardLaunch = new(owner, rotationDegZ); break;
+                case LaunchPlan.MinerReturn:  ReturnMiner    = new(owner, rotationDegZ, MinerReturnToHangar.Duration(owner)); break;
+                case LaunchPlan.AssaultClimb: ReturnMiner    = new(owner, rotationDegZ, AssaultClimbSeconds); break;
             }
         }
 
         public LaunchShip()
         {
         }
+
+        public bool MinesPlanet => LaunchPlan == LaunchPlan.Mining;
+        public bool LeavesHangar => LaunchPlan == LaunchPlan.Hangar;
 
         public static Vector3 FlashPos(Ship ship, float scale, float posZ)
             => new Vector2(-ship.Direction * ship.Radius * scale * 0.5f + ship.Position).ToVec3(posZ + 20);
@@ -69,6 +73,19 @@ namespace Ship_Game.Ships
 
         public static float ShipyardSpeed(Ship ship) => (ship.MaxSTLSpeed * 0.65f).UpperBound(300);
 
+        public static float HangarSpeed(Ship ship) => ship.MaxSTLSpeed.UpperBound(300);
+
+        public static float HangarDuration(Ship ship) => LaunchFromHangar.Duration(ship);
+
+        public static bool ShouldBarrelRoll(Ship ship)
+        {
+            return ship.DesignRole == RoleName.drone && ship.Universe.Random.RollDice(75)
+                || ship.DesignRole == RoleName.fighter && ship.Universe.Random.RollDice(50)
+                || ship.DesignRole == RoleName.corvette && ship.Universe.Random.RollDice(25);
+        }
+
+        public const float AssaultClimbSeconds = 2f;
+
         public static float PlanetDuration(Ship ship) => LaunchFromPlanet.Duration(ship);
 
         public static float TakeOffSeconds(Ship ship, bool fromDock)
@@ -80,20 +97,22 @@ namespace Ship_Game.Ships
             float scale = 1;
             switch (LaunchPlan)
             {
-                case LaunchPlan.Shipyard:    ShipyardLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale); break;
-                case LaunchPlan.Planet:      PlanetLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale);   break;
-                case LaunchPlan.MinerReturn: ReturnMiner.Update(timeStep, visibleToPlayer, ref PosZ, out scale);    break;
-                case LaunchPlan.Mining:      Mining.Update(timeStep, visibleToPlayer, ref PosZ, out scale);         break;
-                case LaunchPlan.Hangar:      HangarLaunch.Update(timeStep, visibleToPlayer, ref PosZ);              break;
+                case LaunchPlan.Shipyard:     ShipyardLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale); break;
+                case LaunchPlan.Planet:       PlanetLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale);   break;
+                case LaunchPlan.MinerReturn:
+                case LaunchPlan.AssaultClimb: ReturnMiner.Update(timeStep, visibleToPlayer, ref PosZ, out scale);    break;
+                case LaunchPlan.Mining:       Mining.Update(timeStep, visibleToPlayer, ref PosZ, out scale);         break;
+                case LaunchPlan.Hangar:       HangarLaunch.Update(timeStep, visibleToPlayer, ref PosZ);              break;
             }
 
             switch (LaunchPlan)
             {
-                case LaunchPlan.Shipyard:    Done = ShipyardLaunch.Done; break;
-                case LaunchPlan.Planet:      Done = PlanetLaunch.Done;   break;
-                case LaunchPlan.Hangar:      Done = HangarLaunch.Done;   break;
-                case LaunchPlan.Mining:      Done = Mining.Done;         break;
-                case LaunchPlan.MinerReturn: Done = ReturnMiner.Done;    break;
+                case LaunchPlan.Shipyard:     Done = ShipyardLaunch.Done; break;
+                case LaunchPlan.Planet:       Done = PlanetLaunch.Done;   break;
+                case LaunchPlan.Hangar:       Done = HangarLaunch.Done;   break;
+                case LaunchPlan.Mining:       Done = Mining.Done;         break;
+                case LaunchPlan.MinerReturn:
+                case LaunchPlan.AssaultClimb: Done = ReturnMiner.Done;    break;
             }
 
             if (Done)
@@ -198,19 +217,16 @@ namespace Ship_Game.Ships
             {
                 Owner = ship;
                 RotationDegZ = rotation;
-                DoBarrelRoll = ShouldBarrelRoll();
+                DoBarrelRoll = !ship.IsMiningShip && ShouldBarrelRoll(ship);
                 Progress = InitialProgress;
-                TotalDuration = (InitialRotationDegX / ship.RotationRadsPerSecond.ToDegrees()).Clamped(2, 5);
+                TotalDuration = FullDuration(ship);
                 RelativeDegForBarrel = 3.6f / (1 - Progress);
                 Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(1f, 1.2f));
             }
 
-            bool ShouldBarrelRoll()
-            {
-                return Owner.DesignRole == RoleName.drone && Owner.Universe.Random.RollDice(75)
-                    || Owner.DesignRole == RoleName.fighter && Owner.Universe.Random.RollDice(50)
-                    || Owner.DesignRole == RoleName.corvette && Owner.Universe.Random.RollDice(25);
-            }
+            static float FullDuration(Ship ship) => (InitialRotationDegX / ship.RotationRadsPerSecond.ToDegrees()).Clamped(2, 5);
+
+            public static float Duration(Ship ship) => FullDuration(ship) * (1 - InitialProgress);
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ)
             {
@@ -285,7 +301,8 @@ namespace Ship_Game.Ships
             [StarData] readonly float RotationDegZ;
             [StarData] readonly Vector2 Velocity;
             ParticleEmitter FlameTrail;
-            const int InitialRotationDegX = -60;
+            const int MaxRotationDegX = 60;
+            const float PitchPart = 0.2f;
             const int EndPosZ = 200;
             const float MaxSpeedMultiplier = 0.8f;
 
@@ -305,7 +322,8 @@ namespace Ship_Game.Ships
                 Progress = (Progress + timeStep.FixedTime/TotalDuration).UpperBound(1);
                 scale = (1 - (Progress * TotalDuration / TotalDuration) * 0.7f).LowerBound(0.3f);
                 posZ = EndPosZ * Progress;
-                Owner.XRotation = (InitialRotationDegX - (Progress * InitialRotationDegX)).ToRadians();
+                float pitch = Progress < PitchPart ? Progress / PitchPart : (1 - Progress) / (1 - PitchPart);
+                Owner.XRotation = -(MaxRotationDegX * pitch).ToRadians();
                 float speedLimitFactor = ((1 - Progress) * 2).Clamped(0.5f, MaxSpeedMultiplier);
                 Owner.SetSTLSpeedLimit(Owner.MaxSTLSpeed * speedLimitFactor);
                 if (Progress <= 0.2)
@@ -348,12 +366,14 @@ namespace Ship_Game.Ships
             const int StartingPosZ = 200;
             const float MaxSpeedMultiplier = 0.8f;
 
-            public MinerReturnToHangar(Ship ship, float rotation)
+            public MinerReturnToHangar(Ship ship, float rotation, float seconds)
             {
                 Owner = ship;
                 RotationDegZ = rotation;
-                TotalDuration = (MaxRotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
+                TotalDuration = seconds;
             }
+
+            public static float Duration(Ship ship) => (MaxRotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
             {
@@ -388,7 +408,8 @@ namespace Ship_Game.Ships
         Hangar,
         Shipyard,
         Mining,
-        MinerReturn
+        MinerReturn,
+        AssaultClimb
     }
 
 }

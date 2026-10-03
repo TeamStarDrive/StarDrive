@@ -302,10 +302,11 @@ namespace Ship_Game
                                                 : mineable ? Planet.Mining.ResourceDescription
                                                            : "";
 
-            Panel(ResourceIconRect, IsForDysonSwarm ? Color.Yellow : Color.White, researchable 
+            UIPanel icon = Panel(ResourceIconRect, IsForDysonSwarm ? Color.Yellow : Color.White, researchable 
                 ? ResourceManager.Texture("NewUI/icon_science") 
                 : mineable ? Planet.Mining.ExoticResourceIcon
                            : ResourceManager.Texture("NewUI/icon_projection"));
+            icon.Tooltip = resourceName.Tooltip;
         }
 
         string GetResourceLabel()

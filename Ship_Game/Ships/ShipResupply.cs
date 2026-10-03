@@ -37,6 +37,12 @@ namespace Ship_Game.Ships
             IncomingOrdnance = 0;
         }
 
+        public void CarryOverSavedState(in ShipResupply saved)
+        {
+            IncomingOrdnance = saved.IncomingOrdnance;
+            InCombat         = saved.InCombat;
+        }
+
         public bool InTradeBlockade => (Ship.IsResearchStation || Ship.IsMiningStation) && Ship.HealthPercent < DamageThreshold(ShipCategory.Civilian);
         public static bool HasGoodTotalSupplyForResearch(IShipDesign ship)
         {

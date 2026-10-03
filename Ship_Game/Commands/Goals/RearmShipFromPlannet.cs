@@ -83,6 +83,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 float leftOverOrdnance  = TargetShip.ChangeOrdnance(FinishedShip.Ordinance);
                 float ordnanceDelivered = SupplyShip.Ordinance - leftOverOrdnance;
                 SupplyShip.ChangeOrdnance(-ordnanceDelivered);
+                SupplyShip.SendOrdnanceShuttles(TargetShip, ordnanceDelivered);
 
                 if (DivertSupplyShip())
                     return GoalStep.GoalComplete;

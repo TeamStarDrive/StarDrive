@@ -267,6 +267,7 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndRebase(Planet p)
         {
+            LandingOffset = Vector2.Zero;
             Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
             OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.Rebase, MoveOrder.AddWayPoint);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
@@ -600,7 +601,8 @@ namespace Ship_Game.AI
             MinePlanet = 46,
             MiningShipReturn = 47,
             MiningStationNotOpsOwner = 48,
-            SupplyReturnHome = 49
+            SupplyReturnHome = 49,
+            LandOnPirateBase = 50
         }
     }
 }

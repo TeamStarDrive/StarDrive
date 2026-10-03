@@ -23,7 +23,8 @@ namespace Ship_Game
         public LocalizedText TranslatedResourceName => new(ResourceType.NameIndex);
         public LocalizedText ResourceDescription => new(ResourceType.DescriptionIndex);
         public SubTexture ExoticResourceIcon => ResourceManager.Texture($"Goods/{CargoId}");
-        public float RefiningRatio => ResourceType.RefiningRatio; // How much of the resource is processed per turn
+        public float RefiningRatio => ResourceType.RefiningRatio; // Refined resource gained per raw point refined
+        public float RefineRatioFor(Empire empire) => (RefiningRatio * empire.data.RefiningRatioMultiplier).UpperBound(1);
         public ExoticBonusType ExoticBonusType => ResourceType.ExoticBonusType;
         float MinMiningRadius => P.Radius * 0.4f;
         public float MaxMiningRadius => P.Radius * 0.6f;

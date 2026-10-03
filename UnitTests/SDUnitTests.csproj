@@ -150,6 +150,14 @@
     <Compile Include="Ships\FreighterLandingTests.cs" />
     <Compile Include="Ships\TouchdownSpotTests.cs" />
     <Compile Include="Ships\CargoShuttleTests.cs" />
+    <Compile Include="Ships\MiningShipLandingTests.cs" />
+    <Compile Include="Ships\MiningStationVisualsTests.cs" />
+    <Compile Include="Ships\LaunchingShipProtectionTests.cs" />
+    <Compile Include="Ships\HangarLandingTests.cs" />
+    <Compile Include="Ships\BoardingLandingTests.cs" />
+    <Compile Include="Ships\TroopLandingTests.cs" />
+    <Compile Include="Ships\OrdnanceShuttleTests.cs" />
+    <Compile Include="Ships\PirateBaseLandingTests.cs" />
     <Compile Include="Ships\ShipLaunchPlaceTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
     <Compile Include="Ships\ModuleResistTests.cs" />
@@ -193,6 +201,7 @@
     <Compile Include="TestEnvironment.cs" />
     <Compile Include="Ships\TestWeaponMunition.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
+    <Compile Include="Technologies\RefiningEfficiencyTests.cs" />
     <Compile Include="Technologies\TechBonusIsolationTests.cs" />
     <Compile Include="Technologies\TestResearchPriorities.cs" />
     <Compile Include="Technologies\TestShipCostMods.cs" />

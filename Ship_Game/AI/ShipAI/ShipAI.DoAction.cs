@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             HasPriorityTarget = true;
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
-            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLanding
+            if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLaunchingOrLanding
                 || escortTarget.Loyalty == Owner.Loyalty)
             {
                 ClearOrders(State);
@@ -62,11 +62,9 @@ namespace Ship_Game.AI
 
             ThrustOrWarpToPos(escortTarget.Position, timeStep);
             float distance = Owner.Position.Distance(escortTarget.Position);
-            if (distance < escortTarget.Radius + 300f)
+            if (distance < LandShip.BoardingRange(escortTarget))
             {
-                Owner.TryLandSingleTroopOnShip(escortTarget);
-                Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(escortTarget);
-                OrderReturnToHangar();
+                TryLandOnShip(escortTarget);
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)
             {
@@ -575,7 +573,7 @@ namespace Ship_Game.AI
             DoLandTroop(timeStep, goal);
         }
 
-        Vector2 LandingOffset;
+        internal Vector2 LandingOffset;
 
         void DoLandTroop(FixedSimTime timeStep, ShipGoal goal)
         {
@@ -594,10 +592,16 @@ namespace Ship_Game.AI
             Vector2 landingSpot = planet.Position + LandingOffset;
             if (Owner.IsDefaultAssaultShuttle || Owner.IsDefaultTroopShip)
             {
+                if (!Owner.IsHangarShip && LandShip.LandsOnSpacePort(LandPlan.Troops, planet, Owner.Loyalty))
+                {
+                    FlyInToLand(timeStep, goal, planet, LandPlan.Troops);
+                    return;
+                }
+
                 // force the ship out of warp if we get too close
                 // this is a balance feature
                 ThrustOrWarpToPos(goal.GetThrustTarget(landingSpot, Owner.Position), timeStep, warpExitDistance: Owner.WarpOutDistance);
-                LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
+                LandTroopsViaSingleTransport(planet, landingSpot);
             }
             else
             {
@@ -605,20 +609,37 @@ namespace Ship_Game.AI
             }
         }
 
-        // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
-        // Single Troop Ships can land from a longer distance, but the ship vanishes after landing its troop
-        void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot, FixedSimTime timeStep)
+        // Assault Shuttles dive to drop their troop and climb back, a carrier's shuttle then flies back to its hangar
+        // Single Troop Ships land on the planet, and the ship is spent once its troop lands
+        void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot)
         {
-            if (landingSpot.InRadius(Owner.Position, Owner.Radius + 40f))
+            bool dives = Owner.IsDefaultAssaultShuttle || Owner.IsHangarShip;
+            float range = Owner.Radius + 40f;
+            if (dives && Owner.Direction.Dot(Owner.Position.DirectionToTarget(landingSpot)) > 0.98f)
+                range += LandShip.DiveDistance(Owner);
+
+            if (CanStartLanding(landingSpot, range))
+                Owner.InitLanding(dives ? LandPlan.AssaultDive : LandPlan.Troops, planet);
+        }
+
+        public void FlyOnAfterTroopLanding(Planet planet)
+        {
+            if (Owner.IsHangarShip && Owner.Mothership.Active)
             {
-                // This will vanish default single Troop Ship or order Assault shuttle to return to hangar
-                Owner.LandTroopsOnPlanet(planet); 
-                DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
-                if (Owner.IsHangarShip && Owner.Mothership.Active)
-                    OrderReturnToHangar();
-                else
-                    Owner.QueueTotalRemoval();
+                OrderReturnToHangar();
+                return;
             }
+
+            if (OrderQueue.TryPeekFirst(out ShipGoal goal) && goal.Plan is Plan.LandTroop or Plan.Rebase && goal.TargetPlanet == planet)
+                DequeueCurrentOrder();
+
+            if (OrderQueue.NotEmpty)
+                return;
+
+            if (planet.Owner != null && planet.Owner != Owner.Loyalty && !Owner.Loyalty.IsAtWarWith(planet.Owner))
+                AbortLandNoFleet(planet);
+            else
+                OrderRebaseToNearest();
         }
 
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
@@ -632,9 +653,15 @@ namespace Ship_Game.AI
             if (Orbit.InOrbit)
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.Loyalty))
-                    Owner.LandTroopsOnPlanet(planet); // We can land all our troops without assault bays since its our planet with space port
+                {
+                    // We can land all our troops without assault bays since its our planet with space port
+                    if (Owner.LandTroopsOnPlanet(planet) > 0)
+                        Owner.SendTroopShuttlesToShip(planet);
+                }
                 else
+                {
                     Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
+                }
 
                 if (!Owner.HasOurTroops)
                 {
@@ -647,7 +674,7 @@ namespace Ship_Game.AI
         {
             Vector2 pos;
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle)
-                pos = planet.Random.Vector2D(planet.Radius);
+                pos = Vector2.Zero.GenerateRandomPointInsideCircle(planet.Radius, planet.Random);
             else
                 pos = planet.Position - planet.Position.GenerateRandomPointOnCircle(planet.Radius * 1.5f, planet.Random);
 
@@ -761,48 +788,67 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPos(Owner.Mothership.Position, timeStep);
+            FlyInToHangar(timeStep, Owner.Mothership);
+        }
 
-            // recover the ship
-            if (Owner.Position.InRadius(Owner.Mothership.Position, Owner.Mothership.Radius))
+        public void LandTroopsAfterTouchdown(Ship target)
+        {
+            if (target.IsDeadOrDying || target.IsLaunchingOrLanding)
+                return;
+
+            if (target.Loyalty != Owner.Loyalty)
             {
-                if (Owner.IsDefaultTroopTransport)
-                    Owner.LandTroopsOnShip(Owner.Mothership);
+                Owner.TryLandSingleTroopOnShip(target);
+                Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(target);
+                if (Owner.Active)
+                    OrderReturnToHangar();
+                return;
+            }
 
-                if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
-                    Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
+            int freeRoom = target.TroopCapacity - target.TroopCount;
+            for (int i = 0; i < freeRoom && Owner.GetOurFirstTroop(out Troop troop); ++i)
+                troop.LandOnShip(target);
 
-                if (Owner.IsMiningShip)
+            if (Owner.Active && !Owner.HasOurTroops)
+                OrderReturnToHangar();
+        }
+
+        public void ReturnToMothership(Ship mothership)
+        {
+            if (Owner.IsDefaultTroopTransport)
+                Owner.LandTroopsOnShip(mothership);
+
+            if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
+                mothership.ChangeOrdnance(Owner.Ordinance);
+
+            if (Owner.IsMiningShip)
+            {
+                string cargoId = mothership.GetTether()?.Mining.CargoId ?? "";
+                if (cargoId.NotEmpty())
                 {
-                    string cargoId = Owner.Mothership.GetTether()?.Mining.CargoId ?? "";
-                    if (cargoId.NotEmpty())
-                    {
-                        float maxToload = (Owner.Mothership.MiningStationCargoSpaceMax - Owner.Mothership.GetOtherCargo(cargoId)).LowerBound(0);
-                        Owner.Mothership.LoadCargo(cargoId, Owner.GetOtherCargo(cargoId).UpperBound(maxToload));
-                    }
+                    float maxToload = (mothership.MiningStationCargoSpaceMax - mothership.GetOtherCargo(cargoId)).LowerBound(0);
+                    mothership.LoadCargo(cargoId, Owner.GetOtherCargo(cargoId).UpperBound(maxToload));
                 }
-                Owner.Carrier.ScuttleHangarShips();
-                Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
-                Owner.QueueTotalRemoval();
-                
-                // find which hangar is the owner of this ship
-                ShipModule owningHangar = Owner.Mothership.Carrier.AllHangars.Find(
-                                        h => h.TryGetHangarShip(out Ship hs) && hs == Owner);
-                if (owningHangar != null)
-                {
-                    owningHangar.SetHangarShip(null);
+            }
+            Owner.Carrier.ScuttleHangarShips();
+            mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
 
-                    // Set up repair and rearm times
-                    float missingHealth   = Owner.HealthMax - Owner.Health;
-                    float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
-                    float repairTime      = missingHealth / (Owner.Mothership.RepairRate + Owner.RepairRate + Owner.Mothership.Level * 10);
-                    float rearmTime       = missingOrdnance / (2 + Owner.Mothership.Level);
-                    float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
-                    // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
-                    owningHangar.HangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, owningHangar.HangarTimerConstant);
+            // find which hangar is the owner of this ship
+            ShipModule owningHangar = mothership.Carrier.AllHangars.Find(
+                                    h => h.TryGetHangarShip(out Ship hs) && hs == Owner);
+            if (owningHangar != null)
+            {
+                // Set up repair and rearm times
+                float missingHealth   = Owner.HealthMax - Owner.Health;
+                float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
+                float repairTime      = missingHealth / (mothership.RepairRate + Owner.RepairRate + mothership.Level * 10);
+                float rearmTime       = missingOrdnance / (2 + mothership.Level);
+                float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
+                // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
+                owningHangar.HangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, owningHangar.HangarTimerConstant);
+                owningHangar.SetHangarShip(null);
 
-                    Owner.Mothership.OnShipReturned(Owner); // EVT: returned to base
-                }
+                mothership.OnShipReturned(Owner); // EVT: returned to base
             }
         }
 
@@ -856,6 +902,22 @@ namespace Ship_Game.AI
             FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Supply);
         }
 
+        void DoLandOnPirateBase(FixedSimTime timeStep, ShipGoal goal)
+        {
+            Ship pirateBase = goal.TargetShip;
+            if (pirateBase is not { Active: true } || pirateBase.Loyalty != Owner.Loyalty)
+            {
+                OrderPirateFleeHome();
+                return;
+            }
+
+            float range = LandShip.SpacePortLandingRange(Owner);
+            if (CanStartLanding(pirateBase.Position, range))
+                Owner.InitLandingOnPirateBase(pirateBase);
+            else
+                ApproachToLand(timeStep, pirateBase.Position, pirateBase.Position, range, LaunchShip.ShipyardSpeed(Owner));
+        }
+
         void DoRebaseToShip(FixedSimTime timeStep)
         {
             if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding
@@ -867,15 +929,15 @@ namespace Ship_Game.AI
             }
 
             ThrustOrWarpToPos(EscortTarget.Position, timeStep);
-            if (Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + 300f))
+            if (Owner.Position.InRadius(EscortTarget.Position, LandShip.BoardingRange(EscortTarget)))
             {
-                if (EscortTarget.TroopCapacity == EscortTarget.TroopCount)
+                if (EscortTarget.TroopCount >= EscortTarget.TroopCapacity)
                 {
                     OrderRebaseToNearest();
                     return;
                 }
 
-                Owner.TryLandSingleTroopOnShip(EscortTarget);
+                TryLandOnShip(EscortTarget);
             }
         }
 
@@ -938,6 +1000,7 @@ namespace Ship_Game.AI
                 // how much the target did take.
                 float ordnanceDelivered = Owner.Ordinance - leftOverOrdnance;
                 Owner.ChangeOrdnance(-ordnanceDelivered);
+                Owner.SendOrdnanceShuttles(EscortTarget, ordnanceDelivered);
                 EscortTarget.AI.TerminateResupplyIfDone(SupplyType.Rearm, terminateIfEnemiesNear: true);
                 DequeueCurrentOrder();
                 if (Owner.Ordinance < 1)
@@ -990,11 +1053,11 @@ namespace Ship_Game.AI
                 return;
             }
             SubLightMoveTowardsPosition(EscortTarget.Position, timeStep);
-            if (Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + 300f))
+            if (Owner.Position.InRadius(EscortTarget.Position, LandShip.BoardingRange(EscortTarget)))
             {
                 if (EscortTarget.TroopCapacity > EscortTarget.TroopCount)
                 {
-                    Owner.TryLandSingleTroopOnShip(EscortTarget);
+                    TryLandOnShip(EscortTarget);
                     return;
                 }
                 Orbit.Orbit(EscortTarget, timeStep);

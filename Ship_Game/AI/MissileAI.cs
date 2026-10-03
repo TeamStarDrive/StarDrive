@@ -68,8 +68,17 @@ namespace Ship_Game.AI
             return ship.Active
                    && !ship.Dying
                    && !ship.IsInWarp
+                   && !ship.IsLaunchingOrLanding
                    && Missile.Weapon.ShipTargetValid(ship)
                    && Missile.Loyalty.IsEmpireAttackable(ship.Loyalty);
+        }
+
+        static Ship TargetShip(GameObject target) => target as Ship ?? (target as ShipModule)?.GetParent();
+
+        void Retarget()
+        {
+            Target = ChooseTarget();
+            ErrorAdjustTimer = 0f; // readjust error
         }
 
         Ship[] GetTargetList()
@@ -190,6 +199,9 @@ namespace Ship_Game.AI
         // added by gremlin Deveksmod Missilethink.
         public void Think(FixedSimTime timeStep)
         {
+            if (TargetShip(Target) is { IsLaunchingOrLanding: true })
+                Retarget();
+
             Vector2 targetIntercept = Vector2.Zero;
             if (Target != null)
             {                
@@ -240,11 +252,8 @@ namespace Ship_Game.AI
             if (TargetUpdateTimer <= 0f)
             {
                 TargetUpdateTimer = 0.15f;
-                if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().Dying)
-                {
-                    Target = ChooseTarget();
-                    ErrorAdjustTimer = 0f; // readjust error
-                }
+                if (Target == null || !Target.Active || TargetShip(Target) is { Dying: true })
+                    Retarget();
             }
 
             if (ErrorAdjustTimer <= 0f)

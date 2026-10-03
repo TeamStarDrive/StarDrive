@@ -307,7 +307,7 @@ namespace Ship_Game.AI
 
             Vector2 landAt = shipyard?.Position ?? planet.Position;
             ApproachToLand(timeStep, goal.GetThrustTarget(landAt, Owner.Position), landAt,
-                           LandingRange(landPlan, planet, shipyard), GlidesIn(landPlan, planet, shipyard));
+                           LandingRange(landPlan, planet, shipyard), GlideSpeed(landPlan, planet, shipyard));
         }
 
         public void FlyInToTrade(FixedSimTime timeStep, ShipGoal goal, Planet planet)
@@ -316,7 +316,7 @@ namespace Ship_Game.AI
                 Owner.SendShuttlesToPort(planet);
             else
                 ApproachToLand(timeStep, goal.Trade.GetThrustTarget(planet.Position, Owner.Position), planet.Position,
-                               LandingRange(LandPlan.Trade, planet, shipyard: null), GlidesIn(LandPlan.Trade, planet, shipyard: null));
+                               LandingRange(LandPlan.Trade, planet, shipyard: null), GlideSpeed(LandPlan.Trade, planet, shipyard: null));
         }
 
         public void FlyInToStation(FixedSimTime timeStep, ShipGoal goal, Ship station)
@@ -325,13 +325,37 @@ namespace Ship_Game.AI
             if (CanStartLanding(station.Position, range))
                 Owner.InitLandingOnStation(station);
             else
-                ApproachToLand(timeStep, goal.Trade.GetThrustTarget(station.Position, Owner.Position), station.Position, range, glidesIn: true);
+                ApproachToLand(timeStep, goal.Trade.GetThrustTarget(station.Position, Owner.Position), station.Position, range, LaunchShip.ShipyardSpeed(Owner));
+        }
+
+        void FlyInToHangar(FixedSimTime timeStep, Ship mothership)
+        {
+            if (Owner.LaunchShip is { MinesPlanet: true })
+                Owner.InitLaunch(LaunchPlan.MinerReturn, Owner.RotationDegrees);
+
+            float range = LandShip.HangarLandingRange(Owner);
+            if (CanStartLanding(mothership.Position, range))
+            {
+                Owner.InitLandingInHangar(mothership);
+            }
+            else
+            {
+                float mothershipPullingAway = Math.Max(0f, mothership.Velocity.Dot(Owner.Position.DirectionToTarget(mothership.Position)));
+                ApproachToLand(timeStep, mothership.Position, mothership.Position, range, LaunchShip.HangarSpeed(Owner) + mothershipPullingAway);
+            }
+        }
+
+        void TryLandOnShip(Ship target)
+        {
+            if (!target.IsDeadOrDying && !target.IsLaunchingOrLanding && !target.IsSpoolingOrInWarp
+                && CanStartLanding(target.Position, LandShip.BoardingRange(target)))
+                Owner.InitLandingOnShip(target);
         }
 
         public bool InTradeLandingRange(Planet planet)
             => Owner.Position.InRadius(planet.Position, LandingRange(LandPlan.Trade, planet, shipyard: null));
 
-        void ApproachToLand(FixedSimTime timeStep, Vector2 thrustTarget, Vector2 landAt, float range, bool glidesIn)
+        void ApproachToLand(FixedSimTime timeStep, Vector2 thrustTarget, Vector2 landAt, float range, float glideSpeed)
         {
             if (thrustTarget != landAt)
             {
@@ -340,20 +364,20 @@ namespace Ship_Game.AI
             }
 
             float speedLimit = 0f;
-            if (glidesIn && !Owner.IsInWarp && Owner.Position.InRadius(landAt, range + Owner.GetMinDecelerationDistance(Owner.MaxSTLSpeed) + 500f))
-                speedLimit = LaunchShip.ShipyardSpeed(Owner);
+            if (glideSpeed > 0f && !Owner.IsInWarp && Owner.Position.InRadius(landAt, range + Owner.GetMinDecelerationDistance(Owner.MaxSTLSpeed) + 500f))
+                speedLimit = glideSpeed;
 
             ThrustOrWarpToPos(landAt, timeStep, speedLimit, warpExitDistance: Math.Min(range + Owner.WarpOutDistance, 7000f));
         }
 
-        static bool GlidesIn(LandPlan landPlan, Planet planet, Ship shipyard)
-            => shipyard != null || LandShip.LandsOnSpacePort(landPlan, planet);
+        float GlideSpeed(LandPlan landPlan, Planet planet, Ship shipyard)
+            => shipyard != null || LandShip.LandsOnSpacePort(landPlan, planet, Owner.Loyalty) ? LaunchShip.ShipyardSpeed(Owner) : 0f;
 
         float LandingRange(LandPlan landPlan, Planet planet, Ship shipyard)
         {
             if (shipyard != null)
                 return LandShip.ShipyardLandingRange(Owner);
-            return LandShip.LandsOnSpacePort(landPlan, planet) ? LandShip.SpacePortLandingRange(Owner) : planet.Radius + 300f;
+            return LandShip.LandsOnSpacePort(landPlan, planet, Owner.Loyalty) ? LandShip.SpacePortLandingRange(Owner) : planet.Radius + 300f;
         }
 
         public bool TryLand(LandPlan landPlan, Planet planet, Ship shipyard)
@@ -622,6 +646,7 @@ namespace Ship_Game.AI
                 case Plan.Meteor:                   DoMeteor(goal);                           break;
                 case Plan.BuilderReturnHome:        DoBuilderReturnHome(timeStep, goal);      break;
                 case Plan.SupplyReturnHome:         DoSupplyReturnHome(timeStep, goal);       break;
+                case Plan.LandOnPirateBase:         DoLandOnPirateBase(timeStep, goal);       break;
                 case Plan.MinePlanet:               DoMinePlanet(timeStep, goal);             break;
                 case Plan.Orbit:                    DoOrbit(timeStep, goal);                  break;
             }

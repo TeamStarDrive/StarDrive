@@ -6,10 +6,12 @@ namespace Ship_Game
     {
         public Rectangle Rect;
         public LocalizedText Tooltip;
-        public TippedItem(in Rectangle rect, in LocalizedText tooltip)
+        public string CodexUid;
+        public TippedItem(in Rectangle rect, in LocalizedText tooltip, string codexUid = null)
         {
             Rect = rect;
             Tooltip = tooltip;
+            CodexUid = codexUid;
         }
     }
 }

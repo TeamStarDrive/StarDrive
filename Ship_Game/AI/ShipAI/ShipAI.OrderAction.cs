@@ -241,6 +241,7 @@ namespace Ship_Game.AI
             if (clearOrders)
                 ResetPriorityOrderWithClear();
 
+            LandingOffset = Vector2.Zero;
             // anyassaultops is broken and doesnt work with troop shuttles. 
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle ||  Owner.Carrier.AnyAssaultOpsAvailable)
             {
@@ -517,6 +518,14 @@ namespace Ship_Game.AI
         {
             OrderMoveToNoStop(pirateBase.Position.GenerateRandomPointOnCircle(5000, pirates.Random), Owner.Direction, AIState.MoveTo);
             AddEscortGoal(pirateBase, clearOrders: false); // Orders are cleared in OrderMoveTo
+        }
+
+        public void OrderLandOnPirateBase(Ship pirateBase)
+        {
+            ClearOrdersAndWayPoints(AIState.MoveTo, priority: true);
+            IgnoreCombat = true;
+            Owner.RemoveFromPoolAndFleet(clearOrders: false);
+            AddShipGoal(Plan.LandOnPirateBase, pirateBase, AIState.MoveTo);
         }
 
         public void OrderQueueSpecificTarget(Ship toAttack)

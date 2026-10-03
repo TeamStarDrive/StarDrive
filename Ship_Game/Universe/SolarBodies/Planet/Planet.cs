@@ -255,6 +255,19 @@ namespace Ship_Game
             return (GetFreeTiles(empire) - rebasingTroops).Clamped(0, TileArea);
         }
 
+        public int ShipsLandingTroopsHere(Empire empire)
+        {
+            int landing = 0;
+            IReadOnlyList<Ship> ships = empire.OwnedShips;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship s = ships[i];
+                if (s.Active && s.LandShip is { DropsTroops: true } landShip && landShip.Planet == this)
+                    landing++;
+            }
+            return landing;
+        }
+
         void CreateManagers()
         {
             Troops = new TroopManager(this);
@@ -765,7 +778,7 @@ namespace Ship_Game
             {
                 var ship = (Ship)enemyShips[i];
                 if (ship.Dying
-                    || ship.IsLanding
+                    || ship.IsLaunchingOrLanding
                     || ship.IsInWarp
                     || ship.EMPDisabled && w?.EMPDamage > 0 && enemyShips.Length > 1
                     || w != null && !w.TargetValid(ship) && !canLaunchShips

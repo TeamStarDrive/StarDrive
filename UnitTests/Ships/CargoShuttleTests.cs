@@ -71,8 +71,8 @@ public class CargoShuttleTests : StarDriveTest
         return freighter;
     }
 
-    int ShuttlesUp(Planet planet) => Universe.CargoShuttles.InFlight(planet, toPort: true);
-    int ShuttlesDown(Planet planet) => Universe.CargoShuttles.InFlight(planet, toPort: false);
+    int ShuttlesUp(Planet planet) => Universe.CargoShuttles.InFlight(planet, rising: true);
+    int ShuttlesDown(Planet planet) => Universe.CargoShuttles.InFlight(planet, rising: false);
 
     Ship LandToLoadAtExporter()
     {
@@ -157,7 +157,7 @@ public class CargoShuttleTests : StarDriveTest
         Assert.IsTrue(docked is { Active: true, LandShip.Docked: true }, "setup: the freighter must still be docked after the load");
 
         StepWhile(loaded, () => docked.IsLanding);
-        AssertEqual(CargoShuttles.ShuttlesFor(25f), loaded.CargoShuttles.InFlight(colony, toPort: false),
+        AssertEqual(CargoShuttles.ShuttlesFor(25f), loaded.CargoShuttles.InFlight(colony, rising: false),
                     "a freighter docked when the game was saved still sends its unloaded goods down");
     }
 

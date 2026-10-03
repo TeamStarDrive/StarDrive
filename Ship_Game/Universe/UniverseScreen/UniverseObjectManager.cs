@@ -43,6 +43,8 @@ namespace Ship_Game
         /// </summary>
         readonly GameObjectList<Projectile> Projectiles = new();
 
+        readonly Array<Ship> Touchdowns = new();
+
         public readonly AggregatePerfTimer TotalTime = new();
         public readonly AggregatePerfTimer ListTime = new();
         public readonly AggregatePerfTimer SysShipsPerf = new();
@@ -163,6 +165,8 @@ namespace Ship_Game
             Ships.ClearAndApplyChanges();
             Projectiles.ClearAndApplyChanges();
             Objects.ClearAndApplyChanges();
+            lock (Touchdowns)
+                Touchdowns.Clear();
 
             Spatial.Clear();
         }
@@ -187,10 +191,11 @@ namespace Ship_Game
 
             bool isRunning = timeStep.FixedTime > 0f;
 
-            // only remove and kill objects if game is not paused
-            UpdateLists(removeInactiveObjects: isRunning);
+            // only remove and kill objects if game is not paused; while saving, the save applies loyalty changes itself
+            UpdateLists(removeInactiveObjects: isRunning, applyLoyaltyChanges: !Universe.IsSaving);
             UpdateAllSystems(timeStep);
             UpdateAllShips(timeStep);
+            HandOverTouchdowns();
             UpdateAllProjectiles(timeStep);
 
             if (isRunning)
@@ -250,7 +255,7 @@ namespace Ship_Game
         /// This can be called multiple times without serious side effects.
         /// It makes sure cached lists are synced to current universe state
         /// </summary>
-        public void UpdateLists(bool removeInactiveObjects = true)
+        public void UpdateLists(bool removeInactiveObjects = true, bool applyLoyaltyChanges = true)
         {
             ListTime.Start();
 
@@ -258,26 +263,29 @@ namespace Ship_Game
             Projectiles.ApplyChanges();
             Objects.ApplyChanges();
 
-            if (removeInactiveObjects)
+            var ships = Ships.GetItems();
+            for (int i = 0; i < ships.Length; ++i)
             {
-                var ships = Ships.GetItems();
-                for (int i = 0; i < ships.Length; ++i)
+                Ship ship = ships[i];
+                if (!ship.Active)
                 {
-                    Ship ship = ships[i];
-                    if (!ship.Active)
+                    if (removeInactiveObjects)
                     {
                         UState.OnShipRemoved(ship);
                         ship.RemoveFromUniverseUnsafe();
                     }
-                    else
-                    {
-                        // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
-                        bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
-                        if (loyaltyChanged)
-                            ship.ReinsertSpatial = true;
-                    }
                 }
+                else if (applyLoyaltyChanges)
+                {
+                    // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
+                    bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
+                    if (loyaltyChanged)
+                        ship.ReinsertSpatial = true;
+                }
+            }
 
+            if (removeInactiveObjects)
+            {
                 Ships.RemoveInActiveAndApplyChanges();
 
                 var projectiles = Projectiles.GetItems();
@@ -403,6 +411,27 @@ namespace Ship_Game
                 UpdateShips(0, allShips.Length);
 
             ShipsPerf.Stop();
+        }
+
+        public void QueueTouchdown(Ship ship)
+        {
+            lock (Touchdowns)
+                Touchdowns.Add(ship);
+        }
+
+        void HandOverTouchdowns()
+        {
+            Ship[] touchdowns;
+            lock (Touchdowns)
+            {
+                if (Touchdowns.IsEmpty)
+                    return;
+                touchdowns = Touchdowns.ToArray();
+                Touchdowns.Clear();
+            }
+
+            foreach (Ship ship in touchdowns)
+                ship.HandOverAfterTouchdown();
         }
 
         void UpdateAllProjectiles(FixedSimTime timeStep)

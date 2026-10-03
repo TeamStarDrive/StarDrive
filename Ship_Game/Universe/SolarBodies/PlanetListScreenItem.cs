@@ -388,8 +388,14 @@ namespace Ship_Game
             if (!TryGetIncomingTroops(out _, out Array<Ship> incomingTroopShips))
                 return;
 
-            Ship ship = incomingTroopShips.Last();
-            ship.AI.OrderRebaseToNearest();
+            for (int i = incomingTroopShips.Count - 1; i >= 0; --i)
+            {
+                if (!incomingTroopShips[i].IsLanding)
+                {
+                    incomingTroopShips[i].AI.OrderRebaseToNearest();
+                    break;
+                }
+            }
             UpdateButtonSendTroops();
         }
 

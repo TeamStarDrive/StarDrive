@@ -937,6 +937,7 @@ namespace Ship_Game
                     beam.Draw(this);
                 }
 
+                LightPillars?.Draw(Device, ships, CurrentSimTime, new((float)CamPos.X, (float)CamPos.Y), View, Projection);
                 DrawProj.Stop();
             }
 
