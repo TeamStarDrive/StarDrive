@@ -246,7 +246,9 @@ namespace UnitTests.Ships
             Carrier.Carrier.AllowBoardShip = false;
             SpawnEnemyShipAndEnsureFightersLaunch();
             Carrier.Carrier.FightersOut = true;
+            Carrier.Carrier.TroopsOut = true;
             Assert.IsTrue(Carrier.Carrier.FightersLaunched, "setup: the fighters must be launched");
+            Assert.IsTrue(Carrier.Carrier.TroopsLaunched, "setup: the troops must be launched");
             float ordnanceInSpace = Carrier.Carrier.OrdnanceInSpace;
             AssertGreaterThan(ordnanceInSpace, 0, "setup: launched fighters carry ordnance into space");
 
@@ -262,6 +264,7 @@ namespace UnitTests.Ships
             Assert.IsFalse(ship.Carrier.SendTroopsToShip, "send troops to ship must survive a load");
             Assert.IsFalse(ship.Carrier.AllowBoardShip, "allow boarding must survive a load");
             Assert.IsTrue(ship.Carrier.FightersLaunched, "launched fighters must stay launched after a load");
+            Assert.IsTrue(ship.Carrier.TroopsLaunched, "launched troops must stay launched after a load");
             AssertEqual(0.01f, ordnanceInSpace, ship.Carrier.OrdnanceInSpace, "the ordnance in space must survive a load");
             AssertEqual(0.01f, missingWithIncoming, ship.Supply.MissingOrdnanceWithIncoming,
                         "the ordnance already on its way must survive a load");
