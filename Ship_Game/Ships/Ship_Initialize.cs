@@ -555,10 +555,8 @@ namespace Ship_Game.Ships
 
         void InitializeStatus(bool fromSave)
         {
-            // Keep what the save file restored: the rebuilds below are required (their
-            // state derives from the modules), but they discard the deserialized values.
             CarrierBays savedCarrier = fromSave ? Carrier : null;
-            ShipResupply savedSupply = Supply; // a struct: this copy is what the save restored
+            ShipResupply savedSupply = Supply;
             Carrier = CarrierBays.Create(this, ModuleSlotList);
             Carrier.CarryOverSavedState(savedCarrier);
             Supply = new(this);
