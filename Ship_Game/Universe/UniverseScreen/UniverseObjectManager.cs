@@ -263,26 +263,29 @@ namespace Ship_Game
             Projectiles.ApplyChanges();
             Objects.ApplyChanges();
 
-            if (removeInactiveObjects)
+            var ships = Ships.GetItems();
+            for (int i = 0; i < ships.Length; ++i)
             {
-                var ships = Ships.GetItems();
-                for (int i = 0; i < ships.Length; ++i)
+                Ship ship = ships[i];
+                if (!ship.Active)
                 {
-                    Ship ship = ships[i];
-                    if (!ship.Active)
+                    if (removeInactiveObjects)
                     {
                         UState.OnShipRemoved(ship);
                         ship.RemoveFromUniverseUnsafe();
                     }
-                    else
-                    {
-                        // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
-                        bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
-                        if (loyaltyChanged)
-                            ship.ReinsertSpatial = true;
-                    }
                 }
+                else
+                {
+                    // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
+                    bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
+                    if (loyaltyChanged)
+                        ship.ReinsertSpatial = true;
+                }
+            }
 
+            if (removeInactiveObjects)
+            {
                 Ships.RemoveInActiveAndApplyChanges();
 
                 var projectiles = Projectiles.GetItems();

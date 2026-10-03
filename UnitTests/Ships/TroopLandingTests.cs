@@ -164,6 +164,18 @@ public class TroopLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AShipMadeWhilePausedJoinsOurShipsOnTheNextPausedFrame()
+    {
+        Ship troopShip = TroopShip(Colony);
+        UState.Objects.Update(FixedSimTime.Zero);
+
+        bool owned = false;
+        foreach (Ship ship in Player.OwnedShips)
+            owned |= ship == troopShip;
+        Assert.IsTrue(owned, "a ship made while the game is paused is in our ship list on the next paused frame, so Call Troops counts it");
+    }
+
+    [TestMethod]
     public void EachLandingOrderPicksAFreshDropSpot()
     {
         Ship shuttle = ShuttleWithoutCarrier(EnemyPlanet);

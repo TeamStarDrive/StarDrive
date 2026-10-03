@@ -1,4 +1,5 @@
-﻿using Ship_Game.Empires;
+﻿using System.Threading;
+using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
 
 namespace Ship_Game.Ships.Components
@@ -13,14 +14,23 @@ namespace Ship_Game.Ships.Components
             Absorbed, AbsorbedNotify
         }
 
-        Empire ChangeTo;
-        public Type ChangeType { get; private set; }
+        sealed class Pending
+        {
+            public readonly Empire To;
+            public readonly Type Type;
+
+            public Pending(Empire to, Type type)
+            {
+                To = to;
+                Type = type;
+            }
+        }
+
+        Pending Change;
 
         public LoyaltyChanges(Ship ship, Empire loyalty)
         {
             ship.Loyalty = loyalty;
-            ChangeTo = null;
-            ChangeType = Type.None;
         }
 
         // Need to use this as a proxy because of
@@ -35,33 +45,27 @@ namespace Ship_Game.Ships.Components
         // Loyalty change is ignored if loyalty == CurrentLoyalty
         public void SetLoyaltyForNewShip(Empire loyalty)
         {
-            ChangeTo = loyalty;
-            ChangeType = Type.Spawn;
+            Change = new(loyalty, Type.Spawn);
         }
 
         public void SetBoardingLoyalty(Empire loyalty, bool addNotification = true)
         {
-            ChangeTo = loyalty;
-            ChangeType = addNotification ? Type.BoardedNotify : Type.Boarded;
+            Change = new(loyalty, addNotification ? Type.BoardedNotify : Type.Boarded);
         }
 
         public void SetLoyaltyForAbsorbedShip(Empire loyalty, bool addNotification = true)
         {
-            ChangeTo = loyalty;
-            ChangeType = addNotification ? Type.AbsorbedNotify : Type.Absorbed;
+            Change = new(loyalty, addNotification ? Type.AbsorbedNotify : Type.Absorbed);
         }
 
         /// <returns>TRUE if loyalty changed</returns>
         public bool Update(Ship ship)
         {
-            Empire changeTo = ChangeTo;
-            if (ChangeType != Type.Spawn && (changeTo == null || changeTo == ship.Loyalty))
+            Pending change = Interlocked.Exchange(ref Change, null);
+            if (change == null || change.Type != Type.Spawn && (change.To == null || change.To == ship.Loyalty))
                 return false;
 
-            Type type  = ChangeType;
-            ChangeTo   = null;
-            ChangeType = Type.None;
-            return DoLoyaltyChange(ship, type, changeTo);
+            return DoLoyaltyChange(ship, change.Type, change.To);
         }
 
         static bool DoLoyaltyChange(Ship ship, Type type, Empire changeTo)

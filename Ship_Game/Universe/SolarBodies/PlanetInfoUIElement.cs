@@ -526,8 +526,6 @@ namespace Ship_Game
                     else
                     {
                         GameAudio.EchoAffirmative();
-                        if (Player.Universe.Paused)
-                            Player.Universe.Objects.UpdateLists();
                     }
                 }
                 else

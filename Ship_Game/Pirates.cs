@@ -672,7 +672,7 @@ namespace Ship_Game
             for (int i = 0; i < victimShips.Count; i++)
             {
                 Ship ship = victimShips[i];
-                if (RaidingThisShip(ship))
+                if (RaidingThisShip(ship) || ship.IsLaunchingOrLanding)
                     continue;
 
                 switch (type)

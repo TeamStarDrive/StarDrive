@@ -166,6 +166,96 @@ public class LaunchingShipProtectionTests : StarDriveTest
     }
 
     [TestMethod]
+    public void PiratesPickNoShipTakingOffOrLandingForARaid()
+    {
+        CreateAMinorFaction("Corsairs");
+        Assert.IsTrue(Faction.WeArePirates, "setup: the Corsairs are pirates");
+        Ship colonyShip = SpawnShip("Colony Ship", Player, new Vector2(300_000, 0));
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(Faction.Pirates.GetTarget(Player, Pirates.TargetType.FreighterAtWarp, out Ship target) && target == colonyShip,
+                      "setup: pirates raid a colony ship far from our colonies");
+
+        colonyShip.InitLaunch(LaunchPlan.Planet, 0f);
+        Assert.IsFalse(Faction.Pirates.GetTarget(Player, Pirates.TargetType.FreighterAtWarp, out _),
+                       "pirates do not pick a ship taking off or landing, which they could not board");
+    }
+
+    Projectile MissileAt(Ship launcher, Ship target)
+    {
+        Weapon rocket = launcher.Weapons.First(w => w.Tag_Guided);
+        Projectile missile = Projectile.Create(rocket, launcher, launcher.Position, Vectors.Up, target.Modules[0], playSound: false);
+        Assert.IsNotNull(missile.MissileAI, "setup: a guided weapon launches a missile");
+        return missile;
+    }
+
+    [TestMethod]
+    public void AMissileDropsItsLockOnAShipThatStartsTakingOff()
+    {
+        LoadStarterShips("Rocket Scout");
+        Player.data.Traits.SmartMissiles = true;
+        Ship launcher = SpawnShip("Rocket Scout", Player, new Vector2(300_000, 0));
+        Ship target = SpawnShip("Vulcan Scout", Enemy, launcher.Position + new Vector2(0, -2500));
+        Ship inPlay = SpawnShip("Vulcan Scout", Enemy, launcher.Position + new Vector2(0, 2500));
+        RunObjectsSim(1f);
+        Projectile missile = MissileAt(launcher, target);
+
+        RunObjectsSim(0.3f);
+        Assert.AreSame(target, (missile.MissileAI.Target as ShipModule)?.GetParent(), "setup: the missile keeps its lock on a ship in play");
+
+        target.InitLaunch(LaunchPlan.Planet, 0f);
+        RunObjectsSim(0.3f);
+        Assert.AreSame(inPlay, (missile.MissileAI.Target as ShipModule)?.GetParent(),
+                       "a missile drops a ship that starts taking off and homes in on one in play instead");
+    }
+
+    [TestMethod]
+    public void APlanetMissileLookingForANewTargetPicksNoShipTakingOff()
+    {
+        LoadStarterShips("Rocket Scout");
+        Player.data.Traits.SmartMissiles = true;
+        Planet homeworld = AddHomeWorldToEmpire(new Vector2(200_000), Player, new Vector2(205_000), explored: true);
+        typeof(SolarSystemBody).GetProperty(nameof(SolarSystemBody.GravityWellRadius))!.SetValue(homeworld, 10_000f);
+        Ship launcher = SpawnShip("Rocket Scout", Player, new Vector2(300_000, 0));
+        Weapon rocket = ResourceManager.CreateWeapon(UState, launcher.Weapons.First(w => w.Tag_Guided).UID, null, null);
+        rocket.PlanetOrigin = homeworld.Position;
+        Ship target = SpawnShip("Vulcan Scout", Enemy, homeworld.Position + new Vector2(0, homeworld.Radius + 2000));
+        Ship other = SpawnShip("Vulcan Scout", Enemy, homeworld.Position + new Vector2(0, -homeworld.Radius - 2000));
+        RunObjectsSim(1f);
+
+        Projectile missile = Projectile.Create(rocket, homeworld, Player, Vectors.Up, target.Modules[0]);
+        target.Dying = true;
+        RunObjectsSim(0.3f);
+        Assert.AreSame(other, (missile.MissileAI.Target as ShipModule)?.GetParent(), "setup: a planet's missile finds a new target when it loses one");
+
+        missile = Projectile.Create(rocket, homeworld, Player, Vectors.Up, other.Modules[0]);
+        Ship launching = Launching(Enemy, homeworld.Position + new Vector2(homeworld.Radius + 2000, 0));
+        RunObjectsSim(TestSimStep);
+        other.Dying = true;
+        RunObjectsSim(0.3f);
+        Assert.IsTrue(launching.IsLaunching, "setup: the only other ship is still taking off");
+        Assert.IsNull(missile.MissileAI.Target, "a missile that lost its target does not home in on a ship taking off");
+    }
+
+    [TestMethod]
+    public void EvenAMissileThatSkipsItsRegularTargetCheckDropsAShipThatStartsTakingOff()
+    {
+        LoadStarterShips("Rocket Scout");
+        Player.data.Traits.SmartMissiles = true;
+        Ship launcher = SpawnShip("Rocket Scout", Player, new Vector2(300_000, 0));
+        Ship target = SpawnShip("Vulcan Scout", Enemy, launcher.Position + new Vector2(0, -2500));
+        RunObjectsSim(1f);
+        target.ECMValue = 2f;
+        Projectile missile = MissileAt(launcher, target);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(missile.MissileAI.Jammed, "setup: a jammed missile returns before its regular target check");
+
+        target.InitLaunch(LaunchPlan.Planet, 0f);
+        RunObjectsSim(TestSimStep);
+        Assert.AreNotSame(target, (missile.MissileAI.Target as ShipModule)?.GetParent(),
+                          "a missile drops a ship that starts taking off at once, whatever it is doing");
+    }
+
+    [TestMethod]
     public void PlanetDefensesTargetAShipInPlayOverALaunchingOneThatIsCloser()
     {
         Planet homeworld = AddHomeWorldToEmpire(new Vector2(200_000), Player, new Vector2(205_000), explored: true);
