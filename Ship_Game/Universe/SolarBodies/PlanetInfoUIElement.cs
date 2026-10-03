@@ -402,7 +402,7 @@ namespace Ship_Game
             Vector2 resourceStatDeployed = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y + 19);
             Vector2 resourceStatInProgress = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y + 34);
             string stats = $"{P.Mining.TranslatedResourceName.Text}: Richness " +
-                $"{P.Mining.Richness}, Refine Ratio: {(P.Mining.RefiningRatio * Player.data.RefiningRatioMultiplier).UpperBound(1)}";
+                $"{P.Mining.Richness}, Refine Ratio: {P.Mining.RefineRatioFor(Player).String(2)}";
             batch.DrawString(Font12, stats, resourceStatPos, Color.White);
 
             int numDeployed = P.OrbitalStations.Filter(s => s.IsMiningStation && s.Loyalty == Player).Length;
@@ -414,7 +414,8 @@ namespace Ship_Game
                 string statsInProgress = $"{numInProgress} In Progress";
                 batch.DrawString(Font12, statsInProgress, resourceStatInProgress, Color.Gold);
             }
-            ToolTipItems.Add(new TippedItem(ExoticResourceIconRect, $"{P.Mining.ResourceDescription.Text}\n{new LocalizedText(GameText.MineableRichnessTip).Text}"));
+            ToolTipItems.Add(new TippedItem(ExoticResourceIconRect, $"{P.Mining.ResourceDescription.Text}\n{new LocalizedText(GameText.MineableRichnessTip).Text}",
+                                            Codex.CodexHooks.Find(P.Mining.ResourceDescription)));
             if (P.Mining.Owner != null && P.Mining.Owner != Player)
                 return;
 
@@ -496,7 +497,7 @@ namespace Ship_Game
             foreach (TippedItem ti in ToolTipItems)
             {
                 if (ti.Rect.HitTest(input.CursorPosition))
-                    ToolTip.CreateTooltip(ti.Tooltip);
+                    ToolTip.CreateTooltip(ti.Tooltip, codexUid: ti.CodexUid);
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {

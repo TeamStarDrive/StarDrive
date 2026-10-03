@@ -291,6 +291,16 @@ namespace Ship_Game
         {
             dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
             CommonInitialize();
+            if (!data.IsRebelFaction)
+                RecomputeRefiningRatioMultiplier();
+        }
+
+        void RecomputeRefiningRatioMultiplier()
+        {
+            float multiplier = 1f;
+            foreach (TechEntry entry in TechEntries)
+                multiplier += entry.ResearchedRefiningRatioBonus(this);
+            data.RefiningRatioMultiplier = multiplier;
         }
 
         public float GetProjectorRadius()

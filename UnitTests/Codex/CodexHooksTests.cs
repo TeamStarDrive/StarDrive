@@ -107,6 +107,22 @@ namespace UnitTests.Codex
         }
 
         [TestMethod]
+        public void EveryExoticResourceTipOpensRichnessRefiningAndCosts()
+        {
+            CodexHooks.Reload();
+            int exotics = 0;
+            foreach (Good good in ResourceManager.TransportableGoods)
+            {
+                if (!good.IsGasGiantMineable)
+                    continue;
+                ++exotics;
+                Assert.AreEqual("expansion_exotic_refining", CodexHooks.Find(new LocalizedText(good.DescriptionIndex)), $"{good.UID} description tip");
+                Assert.AreEqual("expansion_exotic_refining", CodexHooks.Find(new LocalizedText(good.NameIndex)), $"{good.UID} name tip");
+            }
+            AssertEqual(6, exotics, "setup: the base game has six exotic resources");
+        }
+
+        [TestMethod]
         public void ShippedHooksAllResolveAgainstShippedCodex()
         {
             Array<CodexEntry> roots = CodexEntry.LoadAll();

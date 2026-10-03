@@ -22,7 +22,7 @@ namespace Ship_Game.Commands.Goals
         public override IShipDesign ToBuild => StationToBuild;
         string ResourceCargoName => TargetPlanet.Mining.CargoId;
         float RemainingConsumables => Owner.NonCybernetic ? MiningStation.GetFood() : MiningStation.GetProduction();
-        float ActualRefiningRatio => (TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier).UpperBound(1);
+        float ActualRefiningRatio => TargetPlanet.Mining.RefineRatioFor(Owner);
         ExoticBonusType ExoticBonusType => TargetPlanet.Mining.ExoticBonusType;
 
         public override bool IsMiningOpsGoal(Planet planet) => planet != null && TargetPlanet == planet;

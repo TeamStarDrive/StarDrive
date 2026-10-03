@@ -856,6 +856,24 @@ namespace Ship_Game
             return false;
         }
 
+        public float ResearchedRefiningRatioBonus(Empire empire)
+        {
+            int levels = IsMultiLevel ? Level : Unlocked ? 1 : 0;
+            float bonus = 0f;
+            if (levels > 0)
+            {
+                foreach (Technology.UnlockedBonus unlockedBonus in Tech.BonusUnlocked)
+                {
+                    if ((unlockedBonus.BonusType ?? unlockedBonus.Name) == "Refining Ratio Bonus"
+                        && unlockedBonus.Tags.Count <= 0 && CanWeUnlockBonus(unlockedBonus.Type, empire))
+                    {
+                        bonus += unlockedBonus.Bonus * levels;
+                    }
+                }
+            }
+            return bonus;
+        }
+
         public void UnlockBonus(Empire empire)
         {
             bool bonusWasUnlocked = false;

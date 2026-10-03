@@ -363,7 +363,8 @@ namespace Ship_Game.Ships
                 {
                     Good good = ResourceManager.TransportableGoods.Find(g => g.UID == cargo.CargoId);
                     if (good != null) 
-                        ToolTip.CreateTooltip($"{new LocalizedText(good.NameIndex).Text}\n\n{new LocalizedText(good.DescriptionIndex).Text}");
+                        ToolTip.CreateTooltip($"{new LocalizedText(good.NameIndex).Text}\n\n{new LocalizedText(good.DescriptionIndex).Text}",
+                                              codexUid: Codex.CodexHooks.Find(new LocalizedText(good.DescriptionIndex)));
                 }
                 numStatus++;
             }
