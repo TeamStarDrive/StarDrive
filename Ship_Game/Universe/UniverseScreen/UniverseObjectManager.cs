@@ -191,8 +191,8 @@ namespace Ship_Game
 
             bool isRunning = timeStep.FixedTime > 0f;
 
-            // only remove and kill objects if game is not paused
-            UpdateLists(removeInactiveObjects: isRunning);
+            // only remove and kill objects if game is not paused; while saving, the save applies loyalty changes itself
+            UpdateLists(removeInactiveObjects: isRunning, applyLoyaltyChanges: !Universe.IsSaving);
             UpdateAllSystems(timeStep);
             UpdateAllShips(timeStep);
             HandOverTouchdowns();
@@ -255,7 +255,7 @@ namespace Ship_Game
         /// This can be called multiple times without serious side effects.
         /// It makes sure cached lists are synced to current universe state
         /// </summary>
-        public void UpdateLists(bool removeInactiveObjects = true)
+        public void UpdateLists(bool removeInactiveObjects = true, bool applyLoyaltyChanges = true)
         {
             ListTime.Start();
 
@@ -275,7 +275,7 @@ namespace Ship_Game
                         ship.RemoveFromUniverseUnsafe();
                     }
                 }
-                else
+                else if (applyLoyaltyChanges)
                 {
                     // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
                     bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);

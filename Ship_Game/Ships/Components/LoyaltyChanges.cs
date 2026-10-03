@@ -61,6 +61,9 @@ namespace Ship_Game.Ships.Components
         /// <returns>TRUE if loyalty changed</returns>
         public bool Update(Ship ship)
         {
+            if (Volatile.Read(ref Change) == null)
+                return false;
+
             Pending change = Interlocked.Exchange(ref Change, null);
             if (change == null || change.Type != Type.Spawn && (change.To == null || change.To == ship.Loyalty))
                 return false;

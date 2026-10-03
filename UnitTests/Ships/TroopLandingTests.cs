@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
@@ -173,6 +174,26 @@ public class TroopLandingTests : StarDriveTest
         foreach (Ship ship in Player.OwnedShips)
             owned |= ship == troopShip;
         Assert.IsTrue(owned, "a ship made while the game is paused is in our ship list on the next paused frame, so Call Troops counts it");
+    }
+
+    [TestMethod]
+    public void AShipMadeDuringASaveJoinsOurShipsOnceTheSaveIsDone()
+    {
+        Universe.IsSaving = true;
+        Ship troopShip;
+        try
+        {
+            troopShip = TroopShip(Colony);
+            UState.Objects.Update(FixedSimTime.Zero);
+            Assert.IsFalse(Player.OwnedShips.Contains(troopShip), "the sim thread leaves loyalty changes alone while a save is being written");
+        }
+        finally
+        {
+            Universe.IsSaving = false;
+        }
+
+        UState.Objects.Update(FixedSimTime.Zero);
+        Assert.IsTrue(Player.OwnedShips.Contains(troopShip), "the next paused frame after the save adds the ship to our list");
     }
 
     [TestMethod]
