@@ -143,6 +143,8 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanet.Mining.Owner != Owner) // We are not the owners of this mining Ops yet
             {
                 AddMiningStationPlan(Plan.MiningStationNotOpsOwner);
+                MiningStation.Carrier.MiningBays.DestroyEmmiters();
+                MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
                 return GoalStep.TryAgain;
             }
 
@@ -153,6 +155,11 @@ namespace Ship_Game.Commands.Goals
                 CreateSupplyGoalIfNeeded();
                 RefitifNeeded();
                 AiCallForHelpIfNeeded();
+            }
+            else
+            {
+                MiningStation.Carrier.MiningBays.DestroyEmmiters();
+                MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
             }
 
             return GoalStep.TryAgain;
@@ -176,12 +183,12 @@ namespace Ship_Game.Commands.Goals
             float numRawResources = MiningStation.GetOtherCargo(ResourceCargoName);
             float numRefiningNeeded = Owner.GetRefiningNeeded(ExoticBonusType);
             MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources, TargetPlanet);
-            MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
 
             if (numRefiningNeeded <= 0 || numRawResources <= 0 || MiningStation.Loyalty != TargetPlanet.Mining.Owner)
             {
                 AddMiningStationPlan(Plan.MiningStationIdle);
                 MiningStation.Carrier.MiningBays.DestroyEmmiters();
+                MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
                 return;
             }
 
