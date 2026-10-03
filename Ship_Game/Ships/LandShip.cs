@@ -313,6 +313,7 @@ namespace Ship_Game.Ships
             [StarData] readonly float StartRotationDegZ;
             [StarData] readonly float TurnDegZ;
             [StarData] readonly float StartRotationY;
+            [StarData] readonly bool DoBarrelRoll;
             const float EndPosZ = 140;
             const float MaxRotationDegX = 31.5f;
             const float TurnPart = 0.2f;
@@ -327,10 +328,11 @@ namespace Ship_Game.Ships
                 StartOffset = ship.Position - mothership.Position;
                 StartRotationDegZ = ship.RotationDegrees;
                 StartRotationY = ship.YRotation;
+                DoBarrelRoll = !ship.IsMiningShip && ship.HealthPercent >= 1f && LaunchShip.ShouldBarrelRoll(ship);
                 float distance = StartOffset.Length();
                 if (distance > 1f)
                 {
-                    float speedIn = ship.Velocity.Dot(-StartOffset / distance).LowerBound(0);
+                    float speedIn = (ship.Velocity - mothership.Velocity).Dot(-StartOffset / distance).LowerBound(0);
                     PathShape = (speedIn * TotalDuration / distance).Clamped(0, 2);
                     TurnDegZ = (ship.Position.AngleToTarget(mothership.Position) - StartRotationDegZ + 540f) % 360f - 180f;
                 }
@@ -349,7 +351,7 @@ namespace Ship_Game.Ships
                 Owner.Velocity = Vector2.Zero;
                 Owner.Position = Mothership.Position + StartOffset * (1 - travelled);
                 Owner.Rotation = (StartRotationDegZ + TurnDegZ * turn).ToRadians().AsNormalizedRadians();
-                Owner.YRotation = StartRotationY * (1 - turn);
+                Owner.YRotation = StartRotationY * (1 - turn) + (DoBarrelRoll ? (360 * (1 - Progress)).ToRadians() : 0);
                 posZ = EndPosZ * Progress;
                 Owner.XRotation = -(MaxRotationDegX * Progress).ToRadians();
 

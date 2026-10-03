@@ -75,6 +75,13 @@ namespace Ship_Game.Ships
 
         public static float HangarDuration(Ship ship) => LaunchFromHangar.Duration(ship);
 
+        public static bool ShouldBarrelRoll(Ship ship)
+        {
+            return ship.DesignRole == RoleName.drone && ship.Universe.Random.RollDice(75)
+                || ship.DesignRole == RoleName.fighter && ship.Universe.Random.RollDice(50)
+                || ship.DesignRole == RoleName.corvette && ship.Universe.Random.RollDice(25);
+        }
+
         public static float PlanetDuration(Ship ship) => LaunchFromPlanet.Duration(ship);
 
         public static float TakeOffSeconds(Ship ship, bool fromDock)
@@ -204,7 +211,7 @@ namespace Ship_Game.Ships
             {
                 Owner = ship;
                 RotationDegZ = rotation;
-                DoBarrelRoll = ShouldBarrelRoll();
+                DoBarrelRoll = ShouldBarrelRoll(ship);
                 Progress = InitialProgress;
                 TotalDuration = FullDuration(ship);
                 RelativeDegForBarrel = 3.6f / (1 - Progress);
@@ -214,13 +221,6 @@ namespace Ship_Game.Ships
             static float FullDuration(Ship ship) => (InitialRotationDegX / ship.RotationRadsPerSecond.ToDegrees()).Clamped(2, 5);
 
             public static float Duration(Ship ship) => FullDuration(ship) * (1 - InitialProgress);
-
-            bool ShouldBarrelRoll()
-            {
-                return Owner.DesignRole == RoleName.drone && Owner.Universe.Random.RollDice(75)
-                    || Owner.DesignRole == RoleName.fighter && Owner.Universe.Random.RollDice(50)
-                    || Owner.DesignRole == RoleName.corvette && Owner.Universe.Random.RollDice(25);
-            }
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ)
             {

@@ -761,7 +761,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (Owner.IsMiningShip)
+            if (!Owner.IsDefaultTroopTransport)
             {
                 FlyInToHangar(timeStep, Owner.Mothership);
                 return;
@@ -802,8 +802,6 @@ namespace Ship_Game.AI
                                     h => h.TryGetHangarShip(out Ship hs) && hs == Owner);
             if (owningHangar != null)
             {
-                owningHangar.SetHangarShip(null);
-
                 // Set up repair and rearm times
                 float missingHealth   = Owner.HealthMax - Owner.Health;
                 float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
@@ -812,6 +810,7 @@ namespace Ship_Game.AI
                 float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
                 // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
                 owningHangar.HangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, owningHangar.HangarTimerConstant);
+                owningHangar.SetHangarShip(null);
 
                 mothership.OnShipReturned(Owner); // EVT: returned to base
             }

@@ -335,9 +335,14 @@ namespace Ship_Game.AI
 
             float range = LandShip.HangarLandingRange(Owner);
             if (CanStartLanding(mothership.Position, range))
+            {
                 Owner.InitLandingInHangar(mothership);
+            }
             else
-                ApproachToLand(timeStep, mothership.Position, mothership.Position, range, LaunchShip.HangarSpeed(Owner));
+            {
+                float mothershipPullingAway = Math.Max(0f, mothership.Velocity.Dot(Owner.Position.DirectionToTarget(mothership.Position)));
+                ApproachToLand(timeStep, mothership.Position, mothership.Position, range, LaunchShip.HangarSpeed(Owner) + mothershipPullingAway);
+            }
         }
 
         public bool InTradeLandingRange(Planet planet)
