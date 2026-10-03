@@ -172,8 +172,9 @@ public class HangarLandingTests : StarDriveTest
         Assert.AreSame(shuttle, bay.HangarShip, "the bay still holds its shuttle while it lands");
 
         float before = carrier.Ordinance, broughtBack = 0f;
-        while (shuttle.Active)
+        for (double time = 0; shuttle.Active; time += TestSimStepD)
         {
+            AssertLessThan(time, 10.0, "the landing must finish");
             before = carrier.Ordinance;
             broughtBack = shuttle.Ordinance + shuttle.ShipRetrievalOrd;
             RunObjectsSim(TestSimStep);
@@ -219,7 +220,7 @@ public class HangarLandingTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AnAssaultShuttleIsStillTakenAboardAsSoonAsItReachesItsCarrier()
+    public void AnAssaultShuttleLandsOnItsCarrierAndItsTroopGoesBackAboardAtTouchdown()
     {
         Ship carrier = SpawnShip("TEST_Excalibur-Class Supercarrier", Player, new Vector2(300_000, 290_000));
         int troops = carrier.TroopCount;
@@ -230,12 +231,11 @@ public class HangarLandingTests : StarDriveTest
 
         shuttle.Position = carrier.Position + new Vector2(0, 2500);
         shuttle.AI.OrderReturnToHangar();
-        for (double time = 0; shuttle.Active; time += TestSimStepD)
-        {
-            AssertLessThan(time, 30.0, "the shuttle must come back");
-            Assert.IsFalse(shuttle.IsLanding, "assault shuttles do not land yet: their troops go aboard on arrival");
-            RunObjectsSim(TestSimStep);
-        }
-        AssertEqual(troops, carrier.TroopCount, "its troop is back on the carrier");
+        RunUntilLanding(shuttle);
+        AssertEqual(troops - 1, carrier.TroopCount, "the troop stays in the shuttle while it lands");
+
+        RunSimWhile((simTimeout: 10, fatal: true), () => shuttle.Active);
+        Assert.IsFalse(shuttle.Dying, "a landed shuttle is taken in, not destroyed");
+        AssertEqual(troops, carrier.TroopCount, "its troop is back on the carrier at touchdown");
     }
 }

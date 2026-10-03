@@ -449,6 +449,32 @@ namespace Ship_Game.Ships
             LandShip = new(this, LandPlan.Hangar, mothership);
         }
 
+        public void InitLandingOnShip(Ship target)
+        {
+            LandShip = new(this, LandPlan.Board, target);
+        }
+
+        public void HandOverAfterTouchdown()
+        {
+            if (!Active || LandShip is not { Done: true })
+                return;
+
+            LandShip.HandOver();
+            if (!Active)
+                return;
+
+            if (LandShip.Boards)
+                TakeOffFromShip(LandShip.Target);
+            else
+                QueueTotalRemoval();
+        }
+
+        void TakeOffFromShip(Ship ship)
+        {
+            LandShip = null;
+            InitLaunch(LaunchPlan.Hangar, ship.Position.DirectionToTarget(Position).ToDegrees());
+        }
+
         public void TakeOffAfterLanding()
         {
             Planet planet = LandShip.Planet;

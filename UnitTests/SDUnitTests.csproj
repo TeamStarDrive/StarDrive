@@ -153,6 +153,7 @@
     <Compile Include="Ships\MiningShipLandingTests.cs" />
     <Compile Include="Ships\LaunchingShipProtectionTests.cs" />
     <Compile Include="Ships\HangarLandingTests.cs" />
+    <Compile Include="Ships\BoardingLandingTests.cs" />
     <Compile Include="Ships\ShipLaunchPlaceTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
     <Compile Include="Ships\ModuleResistTests.cs" />

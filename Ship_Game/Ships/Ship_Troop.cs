@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
         public bool IsIdleSingleTroopship => Name == Loyalty.data.DefaultTroopShip
                                              && HasOurTroops
                                              && AI.State is AIState.AwaitingOrders or AIState.Orbit or AIState.HoldPosition
-                                             && Fleet == null && !InCombat;
+                                             && Fleet == null && !InCombat && !IsLanding;
 
         // NOTE: could be an enemy troop or a friendly one
         public void AddTroop(Troop troop)

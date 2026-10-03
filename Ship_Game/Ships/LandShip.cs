@@ -22,6 +22,7 @@ namespace Ship_Game.Ships
         [StarData] public int ReturningShuttles { get; set; }
         [StarData] public bool OwnerChanged { get; private set; }
         [StarData] public readonly Ship Mothership;
+        [StarData] public readonly Ship Target;
         [StarData] LandOnPlanet PlanetLanding;
         [StarData] LandOnShipyard ShipyardLanding;
         [StarData] LandInHangar HangarLanding;
@@ -57,12 +58,20 @@ namespace Ship_Game.Ships
             ShipyardLanding = new(owner, Planet, offset, station.Position, DockLandingSeconds(owner));
         }
 
-        public LandShip(Ship owner, LandPlan landPlan, Ship mothership)
+        public LandShip(Ship owner, LandPlan landPlan, Ship ship)
         {
             Owner = owner;
             LandPlan = landPlan;
-            Mothership = mothership;
-            HangarLanding = new(owner, mothership);
+            if (landPlan == LandPlan.Board)
+            {
+                Target = ship;
+                HangarLanding = new(owner, ship, HullTouchdown(ship, owner.Position));
+            }
+            else
+            {
+                Mothership = ship;
+                HangarLanding = new(owner, ship, Vector2.Zero);
+            }
         }
 
         public LandShip()
@@ -88,6 +97,10 @@ namespace Ship_Game.Ships
 
         public bool InHangar => LandPlan == LandPlan.Hangar;
 
+        public bool Boards => LandPlan == LandPlan.Board;
+
+        bool OnShip => InHangar || Boards;
+
         public bool OnDock => Shipyard != null || OnSpacePort || Station != null;
 
         public void Dock(float seconds)
@@ -107,6 +120,7 @@ namespace Ship_Game.Ships
             switch (LandPlan)
             {
                 case LandPlan.Hangar when Mothership.Active: Owner.AI.ReturnToMothership(Mothership); break;
+                case LandPlan.Board:                         Owner.AI.LandTroopsAfterTouchdown(Target); break;
                 case LandPlan.Builder when PlanetIsOurs:     Planet.LandBuilderShip();                break;
                 case LandPlan.HomeDefense when PlanetIsOurs: Planet.LandDefenseShip(Owner);           break;
                 case LandPlan.HomeDefense:                   Owner.Loyalty.RefundCreditsPostRemoval(Owner, percentOfAmount: 1f); break;
@@ -138,11 +152,39 @@ namespace Ship_Game.Ships
 
         public static float HangarLandingRange(Ship ship) => LaunchShip.HangarSpeed(ship) * LaunchShip.HangarDuration(ship);
 
+        public static float BoardingRange(Ship target) => target.Radius + 300f;
+
+        static Vector2 HullTouchdown(Ship ship, Vector2 from)
+        {
+            Vector2 touchdown = Vector2.Zero;
+            float nearest = float.MaxValue;
+            foreach (ShipModule module in ship.Modules)
+            {
+                if (!module.Active || !module.IsExternal)
+                    continue;
+
+                float distance = (ship.Position + OnHull(module.LocalCenter, ship.Rotation)).SqDist(from);
+                if (distance < nearest)
+                {
+                    nearest = distance;
+                    touchdown = module.LocalCenter;
+                }
+            }
+            return touchdown;
+        }
+
+        static Vector2 OnHull(Vector2 local, float rotation)
+        {
+            float cos = RadMath.Cos(rotation);
+            float sin = RadMath.Sin(rotation);
+            return new Vector2(local.X * cos - local.Y * sin, local.X * sin + local.Y * cos);
+        }
+
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
             if (Done)
             {
-                if (InHangar)
+                if (OnShip)
                     HangarLanding.StayDown();
                 else if (OnDock)
                     ShipyardLanding.StayDown();
@@ -152,7 +194,7 @@ namespace Ship_Game.Ships
             }
 
             float scale;
-            if (InHangar)
+            if (OnShip)
             {
                 HangarLanding.Update(timeStep, visibleToPlayer, ref PosZ);
                 Done = HangarLanding.Done;
@@ -307,6 +349,7 @@ namespace Ship_Game.Ships
             [StarData] float Progress; // between 0 to 1
             [StarData] readonly Ship Owner;
             [StarData] readonly Ship Mothership;
+            [StarData] readonly Vector2 TouchdownOffset;
             [StarData] readonly Vector2 StartOffset;
             [StarData] readonly float PathShape;
             [StarData] readonly float TotalDuration;
@@ -319,13 +362,15 @@ namespace Ship_Game.Ships
             const float TurnPart = 0.2f;
             const float FlashPart = 0.85f;
 
-            public LandInHangar(Ship ship, Ship mothership)
+            public LandInHangar(Ship ship, Ship mothership, Vector2 touchdownOffset)
             {
                 Owner = ship;
                 Mothership = mothership;
+                TouchdownOffset = touchdownOffset;
                 Progress = 0;
                 TotalDuration = LaunchShip.HangarDuration(ship);
-                StartOffset = ship.Position - mothership.Position;
+                Vector2 touchdown = mothership.Position + OnHull(touchdownOffset, mothership.Rotation);
+                StartOffset = ship.Position - touchdown;
                 StartRotationDegZ = ship.RotationDegrees;
                 StartRotationY = ship.YRotation;
                 DoBarrelRoll = !ship.IsMiningShip && ship.HealthPercent >= 1f && LaunchShip.ShouldBarrelRoll(ship);
@@ -334,7 +379,7 @@ namespace Ship_Game.Ships
                 {
                     float speedIn = (ship.Velocity - mothership.Velocity).Dot(-StartOffset / distance).LowerBound(0);
                     PathShape = (speedIn * TotalDuration / distance).Clamped(0, 2);
-                    TurnDegZ = (ship.Position.AngleToTarget(mothership.Position) - StartRotationDegZ + 540f) % 360f - 180f;
+                    TurnDegZ = (ship.Position.AngleToTarget(touchdown) - StartRotationDegZ + 540f) % 360f - 180f;
                 }
                 else
                 {
@@ -349,7 +394,7 @@ namespace Ship_Game.Ships
                 float travelled = PathShape * Progress + (1 - PathShape) * Progress * Progress;
                 float turn = (Progress / TurnPart).UpperBound(1);
                 Owner.Velocity = Vector2.Zero;
-                Owner.Position = Mothership.Position + StartOffset * (1 - travelled);
+                Owner.Position = TouchdownAt + StartOffset * (1 - travelled);
                 Owner.Rotation = (StartRotationDegZ + TurnDegZ * turn).ToRadians().AsNormalizedRadians();
                 Owner.YRotation = StartRotationY * (1 - turn) + (DoBarrelRoll ? (360 * (1 - Progress)).ToRadians() : 0);
                 posZ = EndPosZ * Progress;
@@ -359,7 +404,9 @@ namespace Ship_Game.Ships
                     Owner.Universe.Screen.Particles.Flash.AddParticle(LaunchShip.FlashPos(Owner, 1, posZ), 1 - Progress * 0.7f);
             }
 
-            public void StayDown() => Owner.Position = Mothership.Position;
+            Vector2 TouchdownAt => Mothership.Position + OnHull(TouchdownOffset, Mothership.Rotation);
+
+            public void StayDown() => Owner.Position = TouchdownAt;
 
             public bool Done => Progress >= 1f;
         }
@@ -374,6 +421,7 @@ namespace Ship_Game.Ships
         HomeDefense,
         Supply,
         Trade,
-        Hangar
+        Hangar,
+        Board
     }
 }

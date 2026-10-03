@@ -62,11 +62,9 @@ namespace Ship_Game.AI
 
             ThrustOrWarpToPos(escortTarget.Position, timeStep);
             float distance = Owner.Position.Distance(escortTarget.Position);
-            if (distance < escortTarget.Radius + 300f)
+            if (distance < LandShip.BoardingRange(escortTarget))
             {
-                Owner.TryLandSingleTroopOnShip(escortTarget);
-                Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(escortTarget);
-                OrderReturnToHangar();
+                TryLandOnShip(escortTarget);
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)
             {
@@ -761,20 +759,29 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (!Owner.IsDefaultTroopTransport)
+            FlyInToHangar(timeStep, Owner.Mothership);
+        }
+
+        public void LandTroopsAfterTouchdown(Ship target)
+        {
+            if (target.IsDeadOrDying || target.IsLaunchingOrLanding)
+                return;
+
+            if (target.Loyalty != Owner.Loyalty)
             {
-                FlyInToHangar(timeStep, Owner.Mothership);
+                Owner.TryLandSingleTroopOnShip(target);
+                Owner.Loyalty.ResetTargetsForShipsTargetingAfterBoarding(target);
+                if (Owner.Active)
+                    OrderReturnToHangar();
                 return;
             }
 
-            ThrustOrWarpToPos(Owner.Mothership.Position, timeStep);
+            int freeRoom = target.TroopCapacity - target.TroopCount;
+            for (int i = 0; i < freeRoom && Owner.GetOurFirstTroop(out Troop troop); ++i)
+                troop.LandOnShip(target);
 
-            // recover the ship
-            if (Owner.Position.InRadius(Owner.Mothership.Position, Owner.Mothership.Radius))
-            {
-                ReturnToMothership(Owner.Mothership);
-                Owner.QueueTotalRemoval();
-            }
+            if (Owner.Active && !Owner.HasOurTroops)
+                OrderReturnToHangar();
         }
 
         public void ReturnToMothership(Ship mothership)
@@ -877,15 +884,15 @@ namespace Ship_Game.AI
             }
 
             ThrustOrWarpToPos(EscortTarget.Position, timeStep);
-            if (Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + 300f))
+            if (Owner.Position.InRadius(EscortTarget.Position, LandShip.BoardingRange(EscortTarget)))
             {
-                if (EscortTarget.TroopCapacity == EscortTarget.TroopCount)
+                if (EscortTarget.TroopCount >= EscortTarget.TroopCapacity)
                 {
                     OrderRebaseToNearest();
                     return;
                 }
 
-                Owner.TryLandSingleTroopOnShip(EscortTarget);
+                TryLandOnShip(EscortTarget);
             }
         }
 
@@ -1000,11 +1007,11 @@ namespace Ship_Game.AI
                 return;
             }
             SubLightMoveTowardsPosition(EscortTarget.Position, timeStep);
-            if (Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + 300f))
+            if (Owner.Position.InRadius(EscortTarget.Position, LandShip.BoardingRange(EscortTarget)))
             {
                 if (EscortTarget.TroopCapacity > EscortTarget.TroopCount)
                 {
-                    Owner.TryLandSingleTroopOnShip(EscortTarget);
+                    TryLandOnShip(EscortTarget);
                     return;
                 }
                 Orbit.Orbit(EscortTarget, timeStep);

@@ -43,6 +43,8 @@ namespace Ship_Game
         /// </summary>
         readonly GameObjectList<Projectile> Projectiles = new();
 
+        readonly Array<Ship> Touchdowns = new();
+
         public readonly AggregatePerfTimer TotalTime = new();
         public readonly AggregatePerfTimer ListTime = new();
         public readonly AggregatePerfTimer SysShipsPerf = new();
@@ -163,6 +165,8 @@ namespace Ship_Game
             Ships.ClearAndApplyChanges();
             Projectiles.ClearAndApplyChanges();
             Objects.ClearAndApplyChanges();
+            lock (Touchdowns)
+                Touchdowns.Clear();
 
             Spatial.Clear();
         }
@@ -191,6 +195,7 @@ namespace Ship_Game
             UpdateLists(removeInactiveObjects: isRunning);
             UpdateAllSystems(timeStep);
             UpdateAllShips(timeStep);
+            HandOverTouchdowns();
             UpdateAllProjectiles(timeStep);
 
             if (isRunning)
@@ -403,6 +408,27 @@ namespace Ship_Game
                 UpdateShips(0, allShips.Length);
 
             ShipsPerf.Stop();
+        }
+
+        public void QueueTouchdown(Ship ship)
+        {
+            lock (Touchdowns)
+                Touchdowns.Add(ship);
+        }
+
+        void HandOverTouchdowns()
+        {
+            Ship[] touchdowns;
+            lock (Touchdowns)
+            {
+                if (Touchdowns.IsEmpty)
+                    return;
+                touchdowns = Touchdowns.ToArray();
+                Touchdowns.Clear();
+            }
+
+            foreach (Ship ship in touchdowns)
+                ship.HandOverAfterTouchdown();
         }
 
         void UpdateAllProjectiles(FixedSimTime timeStep)

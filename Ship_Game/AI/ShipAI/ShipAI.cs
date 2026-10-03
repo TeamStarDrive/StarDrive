@@ -345,6 +345,13 @@ namespace Ship_Game.AI
             }
         }
 
+        void TryLandOnShip(Ship target)
+        {
+            if (!target.IsDeadOrDying && !target.IsLaunchingOrLanding && !target.IsSpoolingOrInWarp
+                && CanStartLanding(target.Position, LandShip.BoardingRange(target)))
+                Owner.InitLandingOnShip(target);
+        }
+
         public bool InTradeLandingRange(Planet planet)
             => Owner.Position.InRadius(planet.Position, LandingRange(LandPlan.Trade, planet, shipyard: null));
 
