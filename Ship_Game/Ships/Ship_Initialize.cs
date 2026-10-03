@@ -606,8 +606,13 @@ namespace Ship_Game.Ships
 
         void InitializeStatus(bool fromSave)
         {
+            CarrierBays savedCarrier = fromSave ? Carrier : null;
+            ShipResupply savedSupply = Supply;
             Carrier = CarrierBays.Create(this, ModuleSlotList);
+            Carrier.CarryOverSavedState(savedCarrier);
             Supply = new(this);
+            if (fromSave)
+                Supply.CarryOverSavedState(savedSupply);
             ShipEngines = new();
             TroopUpdateTimer = Universe?.P.TurnTimer ?? 0; // null for Templates
 
