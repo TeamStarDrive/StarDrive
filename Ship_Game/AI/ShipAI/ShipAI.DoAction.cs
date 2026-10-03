@@ -984,6 +984,7 @@ namespace Ship_Game.AI
                 // how much the target did take.
                 float ordnanceDelivered = Owner.Ordinance - leftOverOrdnance;
                 Owner.ChangeOrdnance(-ordnanceDelivered);
+                Owner.SendOrdnanceShuttles(EscortTarget, ordnanceDelivered);
                 EscortTarget.AI.TerminateResupplyIfDone(SupplyType.Rearm, terminateIfEnemiesNear: true);
                 DequeueCurrentOrder();
                 if (Owner.Ordinance < 1)

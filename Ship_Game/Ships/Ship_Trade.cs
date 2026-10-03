@@ -171,6 +171,13 @@ namespace Ship_Game.Ships
 
         bool CargoShuttlesShown(Planet planet) => planet.InFrustum && Universe.IsPlanetViewOrCloser && InPlayerSensorRange;
 
+        public void SendOrdnanceShuttles(Ship target, float ordnance)
+        {
+            if (ordnance > 0f && target.InFrustum && Universe.IsPlanetViewOrCloser && InPlayerSensorRange)
+                Universe.Screen.CargoShuttles.SendShipToShip(this, target, Loyalty.EmpireColor,
+                    CargoShuttles.OrdnanceShuttlesFor(ordnance), CargoShuttles.OrdnanceShuttleSeconds);
+        }
+
         public void RemoveTradeRoute(Planet planet)
         {
             TradeRoutes.Remove(planet.Id);
