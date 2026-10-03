@@ -902,6 +902,22 @@ namespace Ship_Game.AI
             FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Supply);
         }
 
+        void DoLandOnPirateBase(FixedSimTime timeStep, ShipGoal goal)
+        {
+            Ship pirateBase = goal.TargetShip;
+            if (pirateBase is not { Active: true } || pirateBase.Loyalty != Owner.Loyalty)
+            {
+                OrderPirateFleeHome();
+                return;
+            }
+
+            float range = LandShip.SpacePortLandingRange(Owner);
+            if (CanStartLanding(pirateBase.Position, range))
+                Owner.InitLandingOnPirateBase(pirateBase);
+            else
+                ApproachToLand(timeStep, pirateBase.Position, pirateBase.Position, range, LaunchShip.ShipyardSpeed(Owner));
+        }
+
         void DoRebaseToShip(FixedSimTime timeStep)
         {
             if (EscortTarget == null || !EscortTarget.Active || EscortTarget.IsLanding

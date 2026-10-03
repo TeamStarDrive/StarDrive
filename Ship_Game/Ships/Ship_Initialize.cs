@@ -441,6 +441,11 @@ namespace Ship_Game.Ships
             LandShip = new(this, station);
         }
 
+        public void InitLandingOnPirateBase(Ship pirateBase)
+        {
+            LandShip = LandShip.OnPirateBase(this, pirateBase);
+        }
+
         public void InitLandingInHangar(Ship mothership)
         {
             AI.ClearOrdersAndWayPoints(AIState.ReturnToHangar, priority: true);

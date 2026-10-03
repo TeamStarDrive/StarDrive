@@ -520,6 +520,14 @@ namespace Ship_Game.AI
             AddEscortGoal(pirateBase, clearOrders: false); // Orders are cleared in OrderMoveTo
         }
 
+        public void OrderLandOnPirateBase(Ship pirateBase)
+        {
+            ClearOrdersAndWayPoints(AIState.MoveTo, priority: true);
+            IgnoreCombat = true;
+            Owner.RemoveFromPoolAndFleet(clearOrders: false);
+            AddShipGoal(Plan.LandOnPirateBase, pirateBase, AIState.MoveTo);
+        }
+
         public void OrderQueueSpecificTarget(Ship toAttack)
         {
             if (TargetQueue.Count == 0 && Target != null && Target.Active && Target != toAttack)

@@ -601,7 +601,8 @@ namespace Ship_Game.AI
             MinePlanet = 46,
             MiningShipReturn = 47,
             MiningStationNotOpsOwner = 48,
-            SupplyReturnHome = 49
+            SupplyReturnHome = 49,
+            LandOnPirateBase = 50
         }
     }
 }

@@ -53,15 +53,22 @@ namespace Ship_Game.Ships
             }
         }
 
-        public LandShip(Ship owner, Ship station)
+        public LandShip(Ship owner, Ship station) : this(owner, station, LandPlan.Trade, DockLandingSeconds(owner))
+        {
+        }
+
+        LandShip(Ship owner, Ship station, LandPlan landPlan, float seconds)
         {
             Owner = owner;
-            LandPlan = LandPlan.Trade;
+            LandPlan = landPlan;
             Station = station;
             Planet = station.GetTether();
             Vector2 offset = Planet != null ? station.TetherOffset : station.Position;
-            ShipyardLanding = new(owner, Planet, offset, station.Position, DockLandingSeconds(owner));
+            ShipyardLanding = new(owner, Planet, offset, station.Position, seconds);
         }
+
+        public static LandShip OnPirateBase(Ship owner, Ship pirateBase)
+            => new(owner, pirateBase, LandPlan.PirateBase, SpacePortLandingSeconds(owner));
 
         public LandShip(Ship owner, LandPlan landPlan, Ship ship)
         {
@@ -135,6 +142,9 @@ namespace Ship_Game.Ships
                 case LandPlan.Builder when PlanetIsOurs:     Planet.LandBuilderShip();                break;
                 case LandPlan.HomeDefense when PlanetIsOurs: Planet.LandDefenseShip(Owner);           break;
                 case LandPlan.HomeDefense:                   Owner.Loyalty.RefundCreditsPostRemoval(Owner, percentOfAmount: 1f); break;
+                case LandPlan.PirateBase when Station is { Active: true, Dying: false } && Station.Loyalty == Owner.Loyalty:
+                    Owner.Loyalty.Pirates.TakeInLandedShip(Owner);
+                    break;
             }
         }
 
@@ -523,6 +533,7 @@ namespace Ship_Game.Ships
         Hangar,
         Board,
         Troops,
-        AssaultDive
+        AssaultDive,
+        PirateBase
     }
 }

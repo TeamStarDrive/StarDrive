@@ -646,6 +646,7 @@ namespace Ship_Game.AI
                 case Plan.Meteor:                   DoMeteor(goal);                           break;
                 case Plan.BuilderReturnHome:        DoBuilderReturnHome(timeStep, goal);      break;
                 case Plan.SupplyReturnHome:         DoSupplyReturnHome(timeStep, goal);       break;
+                case Plan.LandOnPirateBase:         DoLandOnPirateBase(timeStep, goal);       break;
                 case Plan.MinePlanet:               DoMinePlanet(timeStep, goal);             break;
                 case Plan.Orbit:                    DoOrbit(timeStep, goal);                  break;
             }
