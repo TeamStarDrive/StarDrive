@@ -120,6 +120,7 @@
     <Compile Include="Ship_Game\ChoosePatrolPlanWindow.cs" />
     <Compile Include="Ship_Game\Codex\CodexCategoryListItem.cs" />
     <Compile Include="Ship_Game\Codex\CodexEntry.cs" />
+    <Compile Include="Ship_Game\Codex\CodexHooks.cs" />
     <Compile Include="Ship_Game\Codex\CodexScreen.cs" />
     <Compile Include="Ship_Game\Codex\CodexStyles.cs" />
     <Compile Include="Ship_Game\Codex\StyledText.cs" />
@@ -341,6 +342,7 @@
     <Compile Include="Ship_Game\Graphics\MemoryPressure.cs" />
     <Compile Include="Ship_Game\Graphics\RenderTargets.cs" />
     <Compile Include="Ship_Game\Ships\LaunchShip.cs" />
+    <Compile Include="Ship_Game\Ships\LandShip.cs" />
     <Compile Include="Ship_Game\Ships\ConstructionShip.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\EngineTrail.cs" />
@@ -673,7 +675,6 @@
     <Compile Include="Ship_Game\SpriteSystem\TexturePacker.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMissionData.cs" />
     <Compile Include="Ship_Game\GameScreens\Espionage\EspionageScreen.cs" />
-    <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
@@ -711,7 +712,6 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Govern.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Resources.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Serialization.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WeCanAffordThis.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WorkDistribution.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SunType.cs" />
@@ -856,6 +856,7 @@
     <Compile Include="Ship_Game\GameScreens\Universe\ResearchScreenNew.cs" />
     <Compile Include="Ship_Game\VariableUIElement.cs" />
     <Compile Include="Ship_Game\SpaceStation.cs" />
+    <Compile Include="Ship_Game\CargoShuttles.cs" />
     <Compile Include="Ship_Game\Universe\SolarSystem.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen.cs" />
     <Compile Include="Ship_Game\Ships\Ship.cs" />

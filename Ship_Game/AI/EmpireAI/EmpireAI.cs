@@ -302,6 +302,9 @@ namespace Ship_Game.AI
                     if (theirColonizeP.System != system)
                         continue;
 
+                    if (theirColonizeP.LostBy == them && theirColonizeP.ColonyGraceTurnsLeft(OwnerEmpire) > 0)
+                        continue; // They are returning to a colony they just lost
+
                     if (DetectAndWarn(theirGoal, warnExclusive))
                     {
                         if (system.HasPlanetsOwnedBy(them)
@@ -436,19 +439,6 @@ namespace Ship_Game.AI
             }
         }
 
-        public void AddDeployResearchStationGoal(Planet p)
-        {
-            string researchStationName = OwnerEmpire.data.CurrentResearchStation;
-            if (!OwnerEmpire.isPlayer || OwnerEmpire.AutoPickBestResearchStation)
-            {
-                IShipDesign bestResearchStation = ShipBuilder.PickResearchStation(OwnerEmpire);
-                if (bestResearchStation != null)
-                    researchStationName = bestResearchStation.Name;
-            }
-
-            AddGoal(new BuildOrbital(p, researchStationName, OwnerEmpire));
-        }
-
         public void CancelResearchStation(Planet p)
         {
             Goal stationGoal = FindGoal(g => g.IsResearchStationGoal(p));
@@ -508,6 +498,13 @@ namespace Ship_Game.AI
         {
             for (int i = 0; i < GoalsList.Count; ++i)
                 if (GoalsList[i] == goal) return true;
+            return false;
+        }
+
+        public bool HasGoal(GoalType type, Ship oldShip)
+        {
+            for (int i = 0; i < GoalsList.Count; ++i)
+                if (GoalsList[i] is { } g && g.Type == type && g.OldShip == oldShip) return true;
             return false;
         }
 

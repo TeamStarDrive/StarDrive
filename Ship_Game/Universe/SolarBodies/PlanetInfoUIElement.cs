@@ -339,25 +339,38 @@ namespace Ship_Game
                 return;
 
             Vector2 textPos = new Vector2(RightRect.X + 18, MarkedRect.Y + 12 - Font12.LineSpacing / 2 - 2);
-            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), MarkedRect, Color.White);
-
             LocalizedText tip = GameText.MarkThisPlanetForColonization;
             LocalizedText tipText = GameText.Colonize;
+            int graceTurns = 0;
             if (Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
             {
                 tip = GameText.CancelTheColonizationMissionThat;
                 tipText = GameText.CancelColonize;
             }
+            else
+            {
+                graceTurns = P.ColonyGraceTurnsLeft(Player, out Empire lostBy);
+                if (graceTurns > 0)
+                    tip = Planet.ColonyGraceTip(lostBy, graceTurns);
+            }
 
+            batch.Draw(ResourceManager.Texture(graceTurns > 0 ? "NewUI/dan_button_disabled" : "UI/dan_button_blue"), MarkedRect, Color.White);
             ToolTipItems.Add(new TippedItem(MarkedRect, tip));
-            batch.DrawString(Font12, tipText, textPos, MarkedRect.HitTest(mousePos) ? ButtonTextColor 
+            batch.DrawString(Font12, tipText, textPos, graceTurns > 0 ? Color.Gray
+                                                     : MarkedRect.HitTest(mousePos) ? ButtonTextColor
                                                                                     : ButtonHoverColor);
         }
 
         void DrawResearchStation(SpriteBatch batch, Vector2 mousePos)
         {
             if (P.IsResearchStationDeployedBy(Player))
+            {
+                LocalizedText deployed = GameText.ResearchStationDeployed;
+                var pos = new Vector2(ExoticRect.CenterX() - Fonts.Arial10.MeasureString(deployed).X / 2,
+                                      ExoticRect.Y + (ExoticRect.Height - Fonts.Arial10.LineSpacing) / 2);
+                batch.DrawString(Fonts.Arial10, deployed, pos, Player.EmpireColor);
                 return;
+            }
 
             Vector2 textPos = new Vector2(ExoticRect.X + 13, ExoticRect.Y + 13 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture(Player.CanBuildResearchStations ? "NewUI/dan_button_blue_clear" 
@@ -492,6 +505,10 @@ namespace Ship_Game
                     Player.AI.CancelColonization(P);
                     GameAudio.EchoAffirmative();
                 }
+                else if (P.ColonyGraceTurnsLeft(Player) > 0)
+                {
+                    GameAudio.NegativeClick();
+                }
                 else
                 {
                     GameAudio.EchoAffirmative();
@@ -519,7 +536,11 @@ namespace Ship_Game
                 }
             }
 
-            if (P.IsResearchable && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
+            // a deployed station keeps its ProcessResearchStation goal alive forever, so without
+            // this guard a click here cancels that goal: the station keeps orbiting and still
+            // reads as deployed, but silently stops contributing research with no way back
+            if (P.IsResearchable && !P.IsResearchStationDeployedBy(Player)
+                && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);
                 else if (Player.CanBuildResearchStations)                    Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, P));

@@ -80,7 +80,19 @@ namespace Ship_Game.Commands.Goals
             {
                 StationToBuild = !Owner.isPlayer || Owner.AutoPickBestMiningStation
                     ? ShipBuilder.PickMiningStation(Owner)
-                    : ResourceManager.Ships.GetDesign(Owner.data.MiningStation, throwIfError: true);
+                    : ShipBuilder.StationDesignOrNull(Owner.data.MiningStation);
+                if (StationToBuild == null)
+                {
+                    if (Owner.data.CurrentMiningStation.NotEmpty())
+                    {
+                        string stale = Owner.data.CurrentMiningStation;
+                        Owner.data.CurrentMiningStation = "";
+                        Log.Warning($"{Owner.Name}: mining station design '{stale}' no longer exists, the automation window falls back to '{Owner.data.MiningStation}'");
+                        return GoalStep.TryAgain;
+                    }
+                    Log.Warning($"{Owner.Name}: no mining station design to build, the default '{Owner.data.MiningStation}' does not exist either");
+                    return GoalStep.GoalFailed;
+                }
             }
 
             Owner.AddInProgressMiningsStation(ExoticBonusType);
@@ -230,7 +242,7 @@ namespace Ship_Game.Commands.Goals
             // can also stay null if the mod's data.MiningStation no longer resolves (Combined Arms
             // renames designs). No candidate -> nothing to refit toward.
             string bestRefit = Owner.isPlayer && !Owner.AutoPickBestMiningStation
-                ? Owner.data.MiningStation
+                ? Owner.data.CurrentMiningStation
                 : Owner.BestMiningStationWeCanBuild?.Name;
             if (bestRefit.IsEmpty())
                 return false;
@@ -240,7 +252,7 @@ namespace Ship_Game.Commands.Goals
                 && Owner.NeedMoreMiningOpsOfThis(ExoticBonusType)
                 && !Owner.AI.HasGoal(g => g is RefitOrbital && g.ToBuild.IsMiningStation && g.OldShip == MiningStation))
             {
-                betterStation = ResourceManager.Ships.GetDesign(bestRefit);
+                betterStation = ShipBuilder.StationDesignOrNull(bestRefit);
             }
 
             return betterStation != null;

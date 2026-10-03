@@ -212,8 +212,11 @@ namespace Ship_Game.Gameplay
                 foreach (SpatialObjectBase go in ships)
                 {
                     var ship = (Ship)go;
-                    if (ship.Active && !ship.Dying)
+                    if (ship.Active && !ship.Dying && !ship.IsLaunchingOrLanding)
+                    {
+                        source.RechargeEmpAndPowerDamage();
                         ship.DamageExplosive(source, damage, center, radius, source.IgnoresShields);
+                    }
                 }
             }
             else
@@ -237,6 +240,8 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < nearby.Length; ++i)
             {
                 var otherShip = (Ship)nearby[i];
+                if (otherShip.IsLaunchingOrLanding)
+                    continue;
 
                 ShipModule nearest = otherShip.FindClosestModule(explosionCenter);
                 if (nearest == null)
@@ -248,11 +253,11 @@ namespace Ship_Game.Gameplay
                 if (reducedRadius < 0f || thisShip.Loyalty.Random.RollDice(evadeChance))
                     continue;
 
-                // Per-target damage: each ship gets the full damage scaled by its own falloff.
-                float falloff = ShipModule.DamageFalloff(explosionCenter, nearest.Position, damageRadius, nearest.Radius);
-                float localDamage = damageAmount * falloff;
-                if (localDamage <= 0f)
-                    continue;
+                ShipModule entry = otherShip.FindBlastEntryModule(explosionCenter) ?? nearest;
+
+                float distToEntry = explosionCenter.Distance(entry.Position);
+                float spreadRadius = (damageRadius - distToEntry).LowerBound(0f);
+                float localDamage = damageAmount * ShipModule.ExplosionFalloff(distToEntry);
 
                 // First damage all shields covering the explosion center
                 while (true)
@@ -267,9 +272,8 @@ namespace Ship_Game.Gameplay
                 if (localDamage <= 0f)
                     continue; // shields absorbed everything for this ship
 
-                // Then explode at the module if any excess damage left
                 // Ignoring shields because we already checked shields above
-                otherShip.DamageExplosive(thisShip, localDamage, nearest.Position, reducedRadius, true);
+                otherShip.DamageExplosive(thisShip, localDamage, entry.Position, spreadRadius, true);
 
                 if (!otherShip.Dying)
                 {

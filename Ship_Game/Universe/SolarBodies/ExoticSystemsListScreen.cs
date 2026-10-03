@@ -15,6 +15,8 @@ namespace Ship_Game
 {
     public sealed class ExoticSystemsListScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly Menu2 TitleBar;
         readonly Vector2 TitlePos;
         readonly Menu2 EMenu;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ship_Game.Ships;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Gameplay
@@ -11,8 +10,8 @@ namespace Ship_Game.Gameplay
     // FOR UNIT TESTS
     public class WeaponTestWrapper : Weapon, IWeaponTemplate
     {
-        public WeaponTestWrapper(UniverseState us, Weapon w, ShipHull hull)
-            : base(us, w.T, w.Owner, w.Module, hull)
+        public WeaponTestWrapper(UniverseState us, Weapon w)
+            : base(us, w.T, w.Owner, w.Module)
         {
             TestHitPoints = base.HitPoints;
             TestBaseRange = base.BaseRange;

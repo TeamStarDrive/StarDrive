@@ -2644,7 +2644,7 @@ namespace Ship_Game
         ExpRad = 1997,
         /// <summary>Exp Dmg</summary>
         ExpDmg = 1998,
-        /// <summary>Plasma Ordnance provides a 25% damage bonus to all of</summary>
+        /// <summary>Plasma Ordnance provides a 25% greater explosive radius to all</summary>
         BB_Tech_PlasmaOrdnance_Weapon_ExplosionRadius_Bonus = 1999,
         /// <summary>was destroyed by unknown forces</summary>
         WasDestroyedByUnknownForces = 2000,
@@ -2652,7 +2652,7 @@ namespace Ship_Game
         BB_Tech_PlasmaOrdnance_Name = 2001,
         /// <summary>By switching our Ordnance to a plasma-based standard, we can</summary>
         BB_Tech_PlasmaOrdnance_Desc = 2002,
-        /// <summary>Plasma Ordnance provides a 25% greater explosive radius to all</summary>
+        /// <summary>Plasma Ordnance provides a 25% damage bonus to all of</summary>
         BB_Tech_PlasmaOrdnance_Weapon_Damage_Bonus = 2003,
         /// <summary>Reinforced Components</summary>
         BB_Tech_ReactiveArmor_Name = 2004,
@@ -3076,7 +3076,7 @@ namespace Ship_Game
         TheirBonuses = 2212,
         /// <summary>Opens a menu allowing you to choose from a list</summary>
         OpensAMenuAllowingYou = 2213,
-        /// <summary>Orders the ship to return to the nearest shipyard to</summary>
+        /// <summary>Orders the ship to fly to one of your safe planets,</summary>
         OrdersTheShipToReturn = 2214,
         /// <summary>Cancel this ship's order to scrap</summary>
         CancelThisShipsOrderTo = 2215,
@@ -4064,8 +4064,6 @@ namespace Ship_Game
         Defense2 = 4210,
         /// <summary>Garrison Size</summary>
         GarrisonSize = 4211,
-        /// <summary>Manual Limit</summary>
-        ManualLimit = 4212,
         /// <summary>Launch All Troops</summary>
         LaunchAllTroops = 4213,
         /// <summary>Launch One Troop</summary>
@@ -4096,17 +4094,17 @@ namespace Ship_Game
         Override = 4226,
         /// <summary>Override this budget and set your own.</summary>
         OverrideThisBudgetAndSet = 4227,
-        /// <summary>Civilian Buildings Expenditure/Budget in BY/C. If you see over-budget, you</summary>
+        /// <summary>Civilian Buildings Expenditure/Budget in BC/T. If you see over-budget, you</summary>
         CivilianBuildingsExpenditurebudgetInByc = 4228,
-        /// <summary>Ground Defense Buildings Expenditure/Budget in BY/C. If you see over-budget,</summary>
+        /// <summary>Ground Defense Buildings Expenditure/Budget in BC/T. If you see over-budget,</summary>
         GroundDefenseBuildingsExpenditurebudgetIn = 4229,
-        /// <summary>Orbitals Expenditure/Budget in BY/C</summary>
+        /// <summary>Orbitals Expenditure/Budget in BC/T</summary>
         OrbitalsExpenditurebudgetInByc = 4230,
-        /// <summary>Civilian Buildings Expenditure in BY/C</summary>
+        /// <summary>Civilian Buildings Expenditure in BC/T</summary>
         CivilianBuildingsExpenditureInByc = 4231,
-        /// <summary>Ground Defense Buildings Expenditure in BY/C</summary>
+        /// <summary>Ground Defense Buildings Expenditure in BC/T</summary>
         GroundDefenseBuildingsExpenditureIn = 4232,
-        /// <summary>Orbitals Expenditure in BY/C</summary>
+        /// <summary>Orbitals Expenditure in BC/T</summary>
         OrbitalsExpenditureInByc = 4233,
         /// <summary>Total:</summary>
         Total3 = 4234,
@@ -4699,6 +4697,100 @@ namespace Ship_Game
         Pathfinder = 4536,
         /// <summary>When ON, ships plot a course around hostile and unknown planetary gravity wells.</summary>
         PathfinderTip = 4537,
+        /// <summary>You placed this yourself, so the governor will never scrap it or cancel it.</summary>
+        PlayerBuiltProtectedFromScrap = 4538,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryUnclassifiedTip = 4539,
+        /// <summary>Can serve as a freighter. Evades when enemies are</summary>
+        ShipCategoryCivilianTip = 4540,
+        /// <summary>Offered as a scout by the exploration automation. Leaves</summary>
+        ShipCategoryReconTip = 4541,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryConservativeTip = 4542,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryNeutralTip = 4543,
+        /// <summary>Leaves to repair when its internal slots fall below</summary>
+        ShipCategoryRecklessTip = 4544,
+        /// <summary>Never leaves to repair, rearm or take on troops</summary>
+        ShipCategoryKamikazeTip = 4545,
+        /// <summary>A general purpose design. A Dynamic Anti Ship or</summary>
+        HangarDesignationGeneralTip = 4546,
+        /// <summary>Designated Anti Ship: it prefers targets larger than itself,</summary>
+        HangarDesignationAntiShipTip = 4547,
+        /// <summary>Designated Interceptor: it prefers targets smaller than itself, and</summary>
+        HangarDesignationInterceptorTip = 4548,
+        /// <summary>Shift for fine tune Alt to match an existing</summary>
+        ArcDragTip = 4549,
+        /// <summary>Shift for fine tune Ctrl to match an existing</summary>
+        ArcDragTipAltControl = 4550,
+        /// <summary>Space Roads</summary>
+        SpaceRoads = 4551,
+        /// <summary>Trade Cargo</summary>
+        TradeCargo = 4552,
+        /// <summary>Excess Goods</summary>
+        ExcessGoods = 4553,
+        /// <summary>Money Leeched</summary>
+        MoneyLeeched = 4554,
+        /// <summary>Colony</summary>
+        ColonyLabel = 4575,
+        /// <summary>The tax collected from all your colonies this turn, before t</summary>
+        BudgetPlanetaryTaxesTip = 4555,
+        /// <summary>What your freighters earned this turn, plus this turn's trad</summary>
+        BudgetTradeCargoTip = 4556,
+        /// <summary>Your tax rate applied to the food and production a colony ma</summary>
+        BudgetExcessGoodsTip = 4557,
+        /// <summary>Credits your spies siphoned out of other empires last turn.</summary>
+        BudgetMoneyLeechedTip = 4558,
+        /// <summary>Flat credits per turn from bonuses. For the player these com</summary>
+        BudgetOtherIncomeTip = 4559,
+        /// <summary>The five income rows added up. This is your gross income, be</summary>
+        BudgetIncomeTotalTip = 4560,
+        /// <summary>Your colonies' building upkeep, less the troop upkeep shown</summary>
+        BudgetBuildingMaintTip = 4561,
+        /// <summary>The upkeep of every ship, orbital and subspace projector you</summary>
+        BudgetShipMaintTip = 4562,
+        /// <summary>The upkeep of the troops garrisoned on your planets. Troops</summary>
+        BudgetTroopMaintTip = 4563,
+        /// <summary>Credits charged while ships and military items are built: a</summary>
+        BudgetProductionFeesTip = 4564,
+        /// <summary>Last turn's espionage cost: your population in billions time</summary>
+        BudgetEspionageCostTip = 4565,
+        /// <summary>Everything you spend this turn: building, ship and troop upk</summary>
+        BudgetExpenditureTotalTip = 4566,
+        /// <summary>The lifetime average of your freighters' trade earnings: eve</summary>
+        BudgetMercantilismAvgTip = 4567,
+        /// <summary>Trade treaty income this turn, broken down by partner below</summary>
+        BudgetTradeTreatiesTip = 4568,
+        /// <summary>The lifetime freighter average plus this turn's treaty incom</summary>
+        BudgetTradeTotalTip = 4569,
+        /// <summary>What your governors may spend on colony buildings. Each colo</summary>
+        BudgetColonyBudgetTip = 4570,
+        /// <summary>What the empire may spend on space roads, the subspace proje</summary>
+        BudgetSpaceRoadBudgetTip = 4571,
+        /// <summary>What your governors may spend on orbitals and ground defense</summary>
+        BudgetDefenseBudgetTip = 4572,
+        /// <summary>The three governor budgets added up. Each is a slice of your</summary>
+        BudgetGovernorTotalTip = 4573,
+        /// <summary>Your gross income less everything you spend, including the c</summary>
+        BudgetNetGainTip = 4574,
+        /// <summary>All money values on this screen are per turn.</summary>
+        BudgetPerTurnNote = 4576,
+        /// <summary>Hostiles</summary>
+        Hostiles = 4577,
+        /// <summary>str</summary>
+        Str = 4578,
+        /// <summary>Builder Ships</summary>
+        BuilderShipsLabel = 4579,
+        /// <summary>Supply Shuttles</summary>
+        SupplyShuttlesLabel = 4580,
+        /// <summary>Builder ships this colony has out, and how many it can have</summary>
+        BuilderShipsOutTip = 4581,
+        /// <summary>Supply shuttles this colony has out, and how many it can have</summary>
+        SupplyShuttlesOutTip = 4582,
+        /// <summary>(docked)</summary>
+        ShipListDocked = 4583,
+        /// <summary>Opens the Important Events log</summary>
+        OpensTheImportantEventsLog = 18285,
 
 
 
@@ -5718,8 +5810,6 @@ namespace Ship_Game
         TT_OrdnanceCreated = 7014,
         /// <summary>In the Capital Elimination game mode, empires are defeated when</summary>
         InTheCapitalEliminationGame = 7015,
-        /// <summary>Indicates the maximum amount of damage repaired by beams from</summary>
-        IndicatesTheMaximumAmountOf4 = 7016,
         /// <summary>Indicates sensor bonus added by this module. Sensor bonuses add</summary>
         IndicatesSensorBonusAddedBy = 7017,
         /// <summary>Indicates the range of this transporter.</summary>
@@ -5870,6 +5960,24 @@ namespace Ship_Game
         TT_SensorRange3 = 7090,
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         TT_RepairRate = 7091,
+        /// <summary>Grace period: {0} lost its colony here and may return. You can</summary>
+        ColonizeGracePeriodTip = 7092,
+        /// <summary>Click to remove this protection.</summary>
+        ClickToRemovePlayerBuiltProtection = 7093,
+        /// <summary>Remove the protection from {0}? The governor will then treat it</summary>
+        RemovePlayerBuiltProtectionConfirm = 7094,
+        /// <summary>Apply to All Colonies</summary>
+        ApplyToAllColonies = 7095,
+        /// <summary>Copy this colony's Garrison Size and Auto Build Garrison setting to</summary>
+        ApplyGarrisonToAllColoniesTip = 7096,
+        /// <summary>Copy this colony's Governor Manages Ground Defense and Governor Manages</summary>
+        ApplyDefenseToAllColoniesTip = 7097,
+        /// <summary>Apply these settings to all {0} of your colonies? {1} {2} This</summary>
+        ApplyToAllColoniesConfirm = 7098,
+        /// <summary>On</summary>
+        SettingOn = 7099,
+        /// <summary>Off</summary>
+        SettingOff = 7100,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

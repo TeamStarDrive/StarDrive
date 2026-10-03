@@ -75,7 +75,7 @@ public class EmpireInfoDebug : DebugPage
         Text.String("Civ Maint:  " +
                     $"({(int)e.AI.CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
                     $"#{ships.Count(freighter => freighter?.DesignRoleType == RoleType.Civilian)} " +
-                    $"Inc({e.AverageTradeIncome})");
+                    $"Inc({e.AverageTradeIncome.String(1)})");
         Text.String($"Other Ship Maint:  Orb:{(int)e.TotalOrbitalMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}" +
                     $" #{ships.Count(warship => warship?.DesignRole == RoleName.platform || warship?.DesignRole == RoleName.station)}");
         Text.String($"Scrap:  {(int)e.TotalMaintenanceInScrap}");

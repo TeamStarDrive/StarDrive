@@ -64,7 +64,7 @@ namespace Ship_Game.Ships
                 HullSurfaceZRefreshed = true;
             }
 
-            if (!IsLaunching) // launch update will create the SO to avoid flickering
+            if (!IsLaunching && !IsLanding) // launch and land updates will create the SO to avoid flickering
                 ShipSO.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
@@ -174,11 +174,30 @@ namespace Ship_Game.Ships
                 if (LaunchShip.Done)
                 {
                     LaunchShip = null;
-                    if (IsHangarShip && !Mothership.InCombat && AI.State != AIState.AssaultPlanet && !IsSupplyShuttle)
+                    if (IsHangarShip && !Mothership.InCombat && AI.State != AIState.AssaultPlanet && !IsSupplyShuttle && !IsMiningShip)
                         AI.BackToCarrier();
                 }
             }
-
+            else if (IsLanding)
+            {
+                LandShip.Update(visibleToPlayer, timeStep);
+                if (LandShip.Done && !LandShip.WaitsForGoal)
+                {
+                    if (LandShip.Trades)
+                    {
+                        UpdateTradeTouchdown(timeStep);
+                    }
+                    else if (LandShip.TakesOffIfAbandoned)
+                    {
+                        TakeOffAfterLanding();
+                    }
+                    else
+                    {
+                        LandShip.HandOver();
+                        QueueTotalRemoval();
+                    }
+                }
+            }
             else if (visibleToPlayer)
             {
                 if (ShipSO != null)

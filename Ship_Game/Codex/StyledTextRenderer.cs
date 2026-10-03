@@ -43,6 +43,10 @@ namespace Ship_Game.Codex
         const float ScrollBarWidth = 12f;
         float WrapRight => Bounds.Right - ScrollBarWidth;
 
+        const float BulletIndent = 14f;
+        const string BulletGlyph = "-";
+        float LineStartX;
+
         public StyledTextRenderer(RectF bounds)
         {
             Bounds = bounds;
@@ -64,6 +68,7 @@ namespace Ship_Game.Codex
             if (runs == null || runs.Length == 0)
                 return;
 
+            LineStartX = Bounds.X;
             float x = Bounds.X;
             float y = Bounds.Y;
             float lineHeight = CodexStyles.DefaultFont.LineSpacing;
@@ -86,9 +91,16 @@ namespace Ship_Game.Codex
                 }
 
                 y += maxH;
-                x = Bounds.X;
+                x = LineStartX;
                 lineHeight = CodexStyles.DefaultFont.LineSpacing;
                 lineStart = Tokens.Count;
+            }
+
+            void BreakLine()
+            {
+                CommitLine();
+                LineStartX = Bounds.X;
+                x = LineStartX;
             }
 
             foreach (StyledRun run in runs)
@@ -107,7 +119,7 @@ namespace Ship_Game.Codex
 
                     float w = tex.Width;
                     float h = tex.Height;
-                    if (x + w > WrapRight && x > Bounds.X)
+                    if (x + w > WrapRight && x > LineStartX)
                         CommitLine();
 
                     Tokens.Add(new Token
@@ -125,7 +137,26 @@ namespace Ship_Game.Codex
 
                 if (run.IsLineBreak)
                 {
-                    CommitLine();
+                    BreakLine();
+                    continue;
+                }
+
+                if (run.IsBullet)
+                {
+                    if (x > LineStartX)
+                        CommitLine();
+                    Font dashFont = CodexStyles.BoldFont;
+                    Tokens.Add(new Token
+                    {
+                        Text = BulletGlyph,
+                        Font = dashFont,
+                        Color = CodexStyles.Default,
+                        Pos = new Vector2(Bounds.X, y),
+                        Width = dashFont.TextWidth(BulletGlyph),
+                        Height = dashFont.LineSpacing,
+                    });
+                    LineStartX = Bounds.X + BulletIndent;
+                    x = LineStartX;
                     continue;
                 }
 
@@ -138,7 +169,7 @@ namespace Ship_Game.Codex
                 {
                     if (token == "\n")
                     {
-                        CommitLine();
+                        BreakLine();
                         continue;
                     }
                     EmitText(token, font, run.Color, run.Url, ref x, ref y, ref lineHeight, CommitLine);
@@ -156,7 +187,7 @@ namespace Ship_Game.Codex
             // Wrap only when this token genuinely overflows AND there's already
             // something on the line — otherwise a single overflowing word would
             // loop forever on empty lines.
-            if (x + w > WrapRight && x > Bounds.X)
+            if (x + w > WrapRight && x > LineStartX)
             {
                 // Suppress leading whitespace on a wrapped line so we don't show
                 // an awkward leading gap where the wrap occurred.

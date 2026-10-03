@@ -95,9 +95,12 @@ namespace Ship_Game.Gameplay
         // a projector is not needed at this node currently
         void InitNodes(IReadOnlyCollection<RoadNode> allEmpireActiveNodes)
         {
-            float distance = System1.Position.Distance(System2.Position);
-            float projectorSpacing = distance / NumProjectors;
-            float baseOffset = projectorSpacing * SpacingOffset;
+            if (NumProjectors <= 0)
+                return; // the systems own influence already spans the road
+
+            (float start, float span) = GetRoadSpan(System1, System2, Owner);
+            float projectorSpacing = span / NumProjectors;
+            float baseOffset = start + projectorSpacing * SpacingOffset;
 
             for (int i = 0; i < NumProjectors; i++)
             {
@@ -128,11 +131,35 @@ namespace Ship_Game.Gameplay
             OperationalMaintenance = maint * RoadNodesList.Count(r => !r.Overlapping);
         }
 
+        // A system we have colonized projects the same influence radius as a projector does, so
+        // the road only has to cover what is left between those circles. Systems we hold nothing
+        // in - a mining or research station is not a border node - project nothing and get no
+        // offset, otherwise the road would stop short of them.
+        static (float Start, float Span) GetRoadSpan(SolarSystem origin, SolarSystem destination, Empire owner)
+        {
+            float radius = owner.GetProjectorRadius();
+            float start = origin.HasPlanetsOwnedBy(owner) ? radius : 0;
+            float end = destination.HasPlanetsOwnedBy(owner) ? radius : 0;
+            float distance = origin.Position.Distance(destination.Position);
+            return (start, (distance - start - end).LowerBound(0));
+        }
+
         public static int GetNeededNumProjectors(SolarSystem origin, SolarSystem destination, Empire owner)
         {
-            float projectorRadius = owner.GetProjectorRadius() * ProjectorDensity;
-            float distance = origin.Position.Distance(destination.Position);
-            return (int)(distance / projectorRadius);
+            (_, float span) = GetRoadSpan(origin, destination, owner);
+            if (span <= 0)
+                return 0;
+
+            // InitNodes spaces the nodes evenly over the span, so their influence circles part
+            // and the road shows an opening once that spacing grows beyond 2 radii
+            float radius = owner.GetProjectorRadius();
+            float maxSpacing = radius * 2;
+            int gapFree = (int)(span / maxSpacing);
+            if (gapFree * maxSpacing < span)
+                gapFree += 1;
+
+            int numProjectors = (int)(span / (radius * ProjectorDensity));
+            return numProjectors.LowerBound(gapFree);
         }
 
         // This ensures a road will be the same object, regardless of the order of sys1 and sys2

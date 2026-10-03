@@ -273,13 +273,13 @@ namespace Ship_Game.Ships
             SetOrdnance(Ordinance);
         }
 
-        public static Ship CreateShipAtShipyard(UniverseState us, string shipName, Empire owner, Vector2 position)
+        public static Ship CreateShipAtShipyard(UniverseState us, string shipName, Empire owner, Vector2 position, Planet colony = null)
         {
             Ship ship = CreateShipAtPoint(us, shipName, owner, position);
             if (ship != null)
             {
                 float facing = owner.Random.RollDice(50) ? 135 : 315;
-                ship.InitLaunch(LaunchPlan.Shipyard, facing);
+                ship.InitLaunch(LaunchPlan.Shipyard, facing, colony);
             }
             return ship;
         }
@@ -402,10 +402,10 @@ namespace Ship_Game.Ships
 
         // Note - ship with launch plan cannot enter combat until plan is finished.
         // For testing we have Universe.P.DebugDisableShipLaunch
-        public void InitLaunch(LaunchPlan launchPlan, float startingRotationDegrees = -1f)
+        public void InitLaunch(LaunchPlan launchPlan, float startingRotationDegrees = -1f, Planet from = null)
         {
             if (!Universe.P.DebugDisableShipLaunch)
-                LaunchShip = new(this, launchPlan, startingRotationDegrees);
+                LaunchShip = new(this, launchPlan, startingRotationDegrees, from);
         }
 
         void InitLaunch(LaunchPlan launchPlan, Planet planet)
@@ -413,8 +413,91 @@ namespace Ship_Game.Ships
             if (!Universe.P.DebugDisableShipLaunch)
             {
                 float startingRotationZ = (Position.DirectionToTarget(planet.Position) * -1).ToDegrees();
-                LaunchShip = new(this, launchPlan, startingRotationZ);
+                LaunchShip = new(this, launchPlan, startingRotationZ, planet);
             }
+        }
+
+        // Note - a landing ship cannot be hit or targeted and takes no orders
+        public void InitLanding(LandPlan landPlan, Planet planet, Ship shipyard = null)
+        {
+            if (landPlan != LandPlan.Trade)
+            {
+                AIState state = landPlan switch
+                {
+                    LandPlan.Scrap => AIState.Scrap,
+                    LandPlan.Refit => AIState.Refit,
+                    LandPlan.HomeDefense => AIState.ReturnHome,
+                    LandPlan.Supply => AIState.SupplyReturnHome,
+                    _ => AIState.AwaitingOrders
+                };
+                AI.ClearOrdersAndWayPoints(state, priority: true);
+                AI.IgnoreCombat = true;
+            }
+
+            LandShip = new(this, landPlan, planet, shipyard);
+        }
+
+        public void InitLandingOnStation(Ship station)
+        {
+            LandShip = new(this, station);
+        }
+
+        public void InitLandingInHangar(Ship mothership)
+        {
+            AI.ClearOrdersAndWayPoints(AIState.ReturnToHangar, priority: true);
+            AI.IgnoreCombat = true;
+            LandShip = new(this, LandPlan.Hangar, mothership);
+        }
+
+        public void TakeOffAfterLanding()
+        {
+            Planet planet = LandShip.Planet;
+            bool fromDock = LandShip.OnDock;
+            bool newOwnersOrders = LandShip.OwnerChanged;
+            LandShip = null;
+            if (!newOwnersOrders)
+                AI.ClearOrders();
+            TakeOff(planet, fromDock);
+        }
+
+        void UpdateTradeTouchdown(FixedSimTime timeStep)
+        {
+            Planet planet = LandShip.Planet;
+            Ship station = LandShip.Station;
+            if (!LandShip.Docked)
+            {
+                float unloaded = AI.TradeAfterLanding(planet, station);
+                if (unloaded > 0f && LandShip.OnSpacePort)
+                    LandShip.ReturningShuttles = CargoShuttles.ShuttlesFor(unloaded);
+                if (station == null && planet.Owner == Loyalty && !AI.HasTradePlan)
+                    LandShip.Dock(Universe.P.TurnTimer);
+                else
+                    TakeOffAfterTrading();
+            }
+            else if (AI.HasTradePlan || LandShip.DockTimeIsUp(timeStep) || planet.Owner != Loyalty)
+            {
+                TakeOffAfterTrading();
+            }
+        }
+
+        public void TakeOffAfterTrading()
+        {
+            Planet planet = LandShip.Planet;
+            bool fromStation = LandShip.Station != null;
+            bool fromDock = LandShip.OnDock;
+            int returningShuttles = LandShip.ReturningShuttles;
+            LandShip = null;
+            TakeOff(planet, fromDock, fromStation);
+            if (returningShuttles > 0)
+                ReturnShuttlesToPlanet(planet, returningShuttles);
+        }
+
+        void TakeOff(Planet planet, bool fromDock, bool fromStation = false)
+        {
+            if (!fromDock)
+                InitLaunch(LaunchPlan.Planet, planet);
+            else
+                InitLaunch(LaunchPlan.Shipyard, from: fromStation ? null : planet);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -541,7 +624,6 @@ namespace Ship_Game.Ships
             ArmorMax = 0f;
             Health = 0f;
             TroopCapacity = 0;
-            RepairBeams?.Clear();
             MaxBank = GetMaxBank();
             if (!fromSave)
                 KillAllTroops();
@@ -569,14 +651,8 @@ namespace Ship_Game.Ships
 
                 if (module.InstalledWeapon != null)
                 {
-                    if (module.InstalledWeapon.IsRepairBeam)
-                    {
-                        RepairBeams ??= new();
-                        RepairBeams.Add(module);
-                    }
-
                     if (!module.InstalledWeapon.TruePD && !module.InstalledWeapon.Tag_PD)
-                        OrdnanceMin = Math.Max(module.InstalledWeapon.OrdinanceRequiredToFire,OrdnanceMin);
+                        OrdnanceMin = Math.Max(module.InstalledWeapon.OrdnancePerShot, OrdnanceMin);
                 }
 
                 HasRepairModule |= module.IsRepairModule;

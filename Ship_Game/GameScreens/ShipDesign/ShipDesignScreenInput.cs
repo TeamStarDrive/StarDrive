@@ -19,7 +19,7 @@ namespace Ship_Game
         Vector2 ClassifCursor;
         UICheckBox CarrierOnlyCheckBox;
         bool DisplayedBulkReplacementHint;
-        const float ClickThresholdSeconds = 0.1f;
+        const float ClickThresholdSeconds = 0.15f;
 
         void UpdateCarrierShip()
         {

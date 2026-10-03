@@ -16,6 +16,8 @@ namespace Ship_Game
 {
     public sealed class EmpirePatrolsScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly Menu2 TitleBar;
         readonly Vector2 TitlePos;
         readonly Menu2 EMenu;

@@ -80,11 +80,12 @@ namespace Ship_Game
             return ScreenManager.ScreenCenter;
         }
 
-        public void OpenCombatMenu(Planet planet)
+        public void OpenCombatMenu(Planet planet, bool stayOnPlanet = false)
         {
             bool doReturnToShip = ViewingShip;
             SetSelectedPlanet(planet);
             returnToShip = doReturnToShip;
+            RememberViewBeforePlanet(stayOnPlanet, CamDestination.Z);
 
             workersPanel = new CombatScreen(this, planet);
 

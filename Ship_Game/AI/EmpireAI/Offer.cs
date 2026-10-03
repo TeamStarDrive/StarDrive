@@ -9,6 +9,7 @@ namespace Ship_Game
         public Array<string> TechnologiesOffered = new();
         public Array<string> ArtifactsOffered = new();
         public Ref<bool> ValueToModify;
+        public bool IsDemand;
         public bool PeaceTreaty;
         public bool Alliance;
         public string AcceptDL;

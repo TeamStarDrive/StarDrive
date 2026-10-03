@@ -33,6 +33,8 @@ namespace Ship_Game
 
     public sealed partial class ShipDesignScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public UniverseScreen ParentUniverse;
         public Empire Player => ParentUniverse.Player;
         public DesignStanceButtons OrdersButton;
@@ -566,7 +568,7 @@ namespace Ship_Game
 
                 ScreenManager.AddScreen(new ShipDesignSaveScreen(this, DesignOrHullName, hullDesigner:HullEditMode));
             });
-            BtnSaveAs.Tooltip = Localizer.Token(GameText.SaveShipDesignDesc);
+            BtnSaveAs.Tooltip = GameText.SaveShipDesignDesc;
             BtnSaveAs.Hotkey = InputBindings.FromString("Ctrl+S");
             bottomListRight.Add(ButtonStyle.Medium, GameText.Load, click: b =>
             {
@@ -584,7 +586,7 @@ namespace Ship_Game
                 OnSymmetricDesignToggle();
             });
             BtnSymmetricDesign.ClickSfx = "blip_click";
-            BtnSymmetricDesign.Tooltip = Localizer.Token(GameText.YouCanSwitchFromNormal);
+            BtnSymmetricDesign.Tooltip = GameText.YouCanSwitchFromNormal;
             BtnSymmetricDesign.Hotkey  = InputBindings.FromString("M");
             BtnSymmetricDesign.Style   = SymmetricDesignBtnStyle;
 
@@ -599,7 +601,7 @@ namespace Ship_Game
                 OnStripShipToggle();
             });
             BtnStripShip.ClickSfx = "blip_click";
-            BtnStripShip.Tooltip = Localizer.Token(GameText.StripsTheShipOfAny);
+            BtnStripShip.Tooltip = GameText.StripsTheShipOfAny;
 
             BtnFilterModules = bottomListLeft.Add(ButtonStyle.Medium, Localizer.Token(GameText.OmitOldModules), click: b =>
             {

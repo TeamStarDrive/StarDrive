@@ -16,16 +16,12 @@ namespace Ship_Game
             {
                 if (Rect.HitTest(input.CursorPosition))
                 {
-                    string tooltip = new[]{
-                        "This ship is designed for general purpose tasks.",
-
-                        "This ship is designated as Anti Ship. It is designed to engage capital ships. " +
-                        "Carrier Dynamic Anti Ship hangars will pick the best from Anti Ship designated ships when launching ships.",
-
-                        "This ship is designated as Interceptor. It is designed to engage small craft. " +
-                        "Carrier Dynamic Interceptor hangars will pick the best from interceptor designated ships when launching ships.",
-                    }[(int)ActiveValue];
-
+                    GameText tooltip = ActiveValue switch
+                    {
+                        HangarOptions.AntiShip    => GameText.HangarDesignationAntiShipTip,
+                        HangarOptions.Interceptor => GameText.HangarDesignationInterceptorTip,
+                        _                         => GameText.HangarDesignationGeneralTip,
+                    };
                     ToolTip.CreateTooltip(tooltip);
                 }
                 return base.HandleInput(input);

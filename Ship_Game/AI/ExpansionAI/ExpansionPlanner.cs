@@ -210,6 +210,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             return p.IsExploredBy(Owner) 
                    && p.Habitable 
+                   && p.ColonyGraceTurnsLeft(Owner) == 0
                    && (p.Owner == null 
                        || p.Owner.IsFaction && (p.Owner.ParentEmpire == null
                                                 || p.Owner.ParentEmpire == Owner
@@ -280,14 +281,17 @@ namespace Ship_Game.AI.ExpansionAI
                 && thievingEmpire != Owner
                 && thiefRelationship.Known
                 && !thiefRelationship.AtWar
-                && system.HasPlanetsOwnedBy(thievingEmpire))
+                && system.HasPlanetsOwnedBy(thievingEmpire)
+                && !OnlyReturnedToLostColonies(thievingEmpire, system))
             {
                 bool warnedThem = thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.System);
                 float distanceToUs   = system.Position.SqDist(Owner.WeightedCenter);
                 float distanceToThem = system.Position.SqDist(thievingEmpire.WeightedCenter) 
                                        * Owner.PersonalityModifiers.CloserToUsClaimWarn;
 
-                bool closerToUs = thievingEmpire.isPlayer && distanceToUs < distanceToThem;
+                bool closerToUs = thievingEmpire.isPlayer
+                                  && Owner.DifficultyModifiers.ClaimTheftWithoutWarning
+                                  && distanceToUs < distanceToThem;
                 if (warnedThem || closerToUs)
                 {
                     thiefRelationship.StoleOurColonyClaim(Owner, claimedPlanet, out bool newTheft);
@@ -295,6 +299,17 @@ namespace Ship_Game.AI.ExpansionAI
                         thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);
                 }
             }
+        }
+
+        bool OnlyReturnedToLostColonies(Empire empire, SolarSystem system)
+        {
+            foreach (Planet p in system.PlanetList)
+            {
+                if (p.Owner == empire && !p.ReturnedWithinFullColonyGrace(empire, Owner))
+                    return false;
+            }
+
+            return true;
         }
 
         public bool AssignScoutSystemTarget(Ship ship, out SolarSystem targetSystem)

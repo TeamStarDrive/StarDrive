@@ -111,6 +111,15 @@ namespace Ship_Game
             QItem = qItem;
         }
 
+        // The building here, or the one queued here, is no longer protected as player built
+        public void RemovePlayerBuiltProtection()
+        {
+            if (Building != null)
+                Building.IsPlayerAdded = false;
+            else if (QItem != null)
+                QItem.IsPlayerAdded = false;
+        }
+
         // Get a troop that is not ours
         public bool LockOnEnemyTroop(Empire us, out Troop troop)
         {
@@ -230,7 +239,8 @@ namespace Ship_Game
             // Events will not be targeted if there is a space battle near the planet, since its
             // useless to potentially recover damaged ships right into battle.
             if (CombatBuildingOnTile && planetOwner != null && planetOwner != us
-                || EventOnTile && !spaceCombat && !us.IsFaction) // factions wont explore events
+                || EventOnTile && !spaceCombat && !us.IsFaction // factions wont explore events
+                   && (!IsCrashSiteActive || planetOwner == null || planetOwner == us))
             {
                 return true;
             }
@@ -324,8 +334,11 @@ namespace Ship_Game
             {
                 if (IsCrashSiteActive)
                 {
-                    if (!planet.SpaceCombatNearPlanet)
+                    if (!planet.SpaceCombatNearPlanet
+                        && (planet.Owner == null || planet.Owner == empire))
+                    {
                         CrashSite.ActivateSite(planet.Universe, planet, empire, this);
+                    }
                 }
                 else
                 {

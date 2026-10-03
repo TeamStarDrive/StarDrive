@@ -18,6 +18,7 @@ namespace Ship_Game
         [StarData] public float EspionageCostLastTurn { get; private set; }
         [StarData] public float EspionageBudgetMultiplier { get; private set; } = 1; // 1-5
         public const int MaxEspionageDefenseWeight = 50;
+        public const float MaxEspionageBudgetMultiplier = 5;
 
         public bool LegacyEspionageEnabled => Universe.P.UseLegacyEspionage;
         public bool NewEspionageEnabled => !Universe.P.UseLegacyEspionage;
@@ -28,13 +29,13 @@ namespace Ship_Game
             CanBeScannedByPlayer = value;
         }
 
-        public void UpdateMoneyLeechedLastTurn()
+        void UpdateMoneyLeechedLastTurn()
         {
             if (LegacyEspionageEnabled || IsFaction || data.IsRebelFaction)
                 return;
 
             TotalMoneyLeechedLastTurn = 0;
-            foreach (Empire e in Universe.ActiveMajorEmpires.Filter(e => e != this))
+            foreach (Empire e in Universe.MajorEmpires.Filter(e => e != this))
                 TotalMoneyLeechedLastTurn += GetEspionage(e).ExtractMoneyLeechedThisTurn();
         }
 
@@ -53,7 +54,7 @@ namespace Ship_Game
             if (totalPopBillion < 10 || EspionageDefenseWeight == CalcTotalEspionageWeight())
                 EspionageBudgetMultiplier = 1;
             else
-                EspionageBudgetMultiplier = (budget / totalPopBillion) + 1;
+                EspionageBudgetMultiplier = ((budget / totalPopBillion) + 1).UpperBound(MaxEspionageBudgetMultiplier);
         }
 
         public int CalcTotalEspionageWeight(bool grossWeight = false)

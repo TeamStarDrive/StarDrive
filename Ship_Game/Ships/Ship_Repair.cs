@@ -1,6 +1,5 @@
 using System;
 using SDGraphics;
-using SDUtils;
 using Ship_Game.AI;
 
 namespace Ship_Game.Ships;
@@ -12,9 +11,6 @@ public partial class Ship
     public bool HasRepairModule; // module.IsRepairModule
 
     public float HealPerTurn; // Troops Healing
-
-    public Array<ShipModule> RepairBeams;
-    public bool HasRepairBeam => RepairBeams != null && RepairBeams.NotEmpty;
 
     public GameObject LastDamagedBy { get; private set; }
     float LastDamagedTime;
@@ -58,7 +54,7 @@ public partial class Ship
             float planetRepair = 0f;
             Planet p = GetTether()
                        ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
-            if (p != null)
+            if (p != null && (p.Owner == Loyalty || Loyalty.IsAlliedWith(p.Owner)))
             {
                 planetRepair = p.GeodeticManager.RepairRatePerSecond;
                 repairLevel = Math.Max(repairLevel, p.Level + p.NumShipyards);

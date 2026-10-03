@@ -38,11 +38,9 @@ namespace Ship_Game.Gameplay
         float SalvoFireTimer; // while SalvosToFire > 0, use this timer to count when to fire next shot
         GameObject SalvoTarget;
 
-        public new float FireDelay { get; set; }
-
         public RandomBase Random => Owner?.Loyalty.Random ?? Universe?.Random;
 
-        public Weapon(UniverseState us, IWeaponTemplate t, Ship owner, ShipModule m, ShipHull hull) : base(t)
+        public Weapon(UniverseState us, IWeaponTemplate t, Ship owner, ShipModule m) : base(t)
         {
             Universe = us;
             Owner = owner;
@@ -51,12 +49,6 @@ namespace Ship_Game.Gameplay
             {
                 IsTurret  = m.ModuleType == ShipModuleType.Turret;
                 IsMainGun = m.ModuleType == ShipModuleType.MainGun;
-            }
-            FireDelay = base.FireDelay;
-
-            if (hull != null)
-            {
-                FireDelay = (base.FireDelay * (1f - hull.Bonuses.FireRateBonus));
             }
         }
 
@@ -138,12 +130,21 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        /// <summary>
+        /// Cost of one shot. Every projectile in the shot is paid for, so a cannon that
+        /// spawns several per trigger pull costs that many times its listed price.
+        /// </summary>
+        public float PowerPerShot => WeaponTemplate.PowerPerShot(this);
+
+        /// <inheritdoc cref="PowerPerShot"/>
+        public float OrdnancePerShot => WeaponTemplate.OrdnancePerShot(this);
+
         bool CanFireWeapon()
         {
             return Module.Active && Module.Powered
                 && Owner.engineState  != Ship.MoveState.Warp
-                && Owner.PowerCurrent >= PowerRequiredToFire
-                && Owner.Ordinance    >= OrdinanceRequiredToFire;
+                && Owner.PowerCurrent >= PowerPerShot
+                && Owner.Ordinance    >= OrdnancePerShot;
         }
 
         bool CanFireWeaponCooldown()
@@ -157,8 +158,8 @@ namespace Ship_Game.Gameplay
             // increase the cooldown by SalvoTimer
             CooldownTimer = NetFireDelay + Random.Float(-10f, +10f) * 0.008f;
 
-            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
-            Owner.PowerCurrent -= PowerRequiredToFire;
+            Owner.ChangeOrdnance(-OrdnancePerShot);
+            Owner.PowerCurrent -= PowerPerShot;
         }
 
         bool PrepareToFireSalvo()
@@ -179,8 +180,8 @@ namespace Ship_Game.Gameplay
             SalvoFireTimer -= timeBetweenShots;
             --SalvosToFire;
 
-            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
-            Owner.PowerCurrent -= PowerRequiredToFire;
+            Owner.ChangeOrdnance(-OrdnancePerShot);
+            Owner.PowerCurrent -= PowerPerShot;
             return true;
         }
 
@@ -263,7 +264,13 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public float BaseTargetError(float level, float range = 0, Empire loyalty = null)
+        public static float AimLevel(int crewLevel, Empire loyalty, int fireControl)
+        {
+            float level = crewLevel + (loyalty?.data.Traits.Militaristic ?? 0);
+            return level * level + fireControl;
+        }
+
+        public float BaseTargetError(float level)
         {
             if (Module == null || Tag_Bomb)
                 return 0;
@@ -280,13 +287,8 @@ namespace Ship_Game.Gameplay
                 return 0;
 
             if (level < 0)
-            {
-                // calculate at ship update
-                level = (Owner?.Level ?? 0) + loyalty?.data.Traits.Militaristic ?? 0;
-                level = (float)Math.Pow(level, 2f);
-                level += (Owner?.TargetingAccuracy ?? 0);
-            }
-            
+                level = AimLevel(Owner?.Level ?? 0, Owner?.Loyalty, Owner?.TargetingAccuracy ?? 0);
+
             level += 5;
 
             // reduce the error by level
@@ -435,7 +437,6 @@ namespace Ship_Game.Gameplay
             // Reasons for this weapon not to choose a new target
             return TargetChangeTimer <= 0f // ready to change targets
                 && !IsRepairDrone // TODO: is this correct?
-                && !IsRepairBeam // TODO: repair beams are managed by repair drone ai?
                 && !IsTargetAliveAndInRange(FireTarget); // Target is dead or out of range
         }
 
@@ -510,9 +511,6 @@ namespace Ship_Game.Gameplay
             if (target != null && !Owner.Loyalty.IsEmpireAttackable(target.GetLoyalty()))
                 return destination;
 
-            if (IsRepairBeam)
-                return destination;
-
             Vector2 error = GetTargetError(Random, target);
             Vector2 beamDestination = AdjustedImpactPoint(source, destination, error);
             return beamDestination;
@@ -534,11 +532,6 @@ namespace Ship_Game.Gameplay
         public DroneBeam FireDroneBeam(DroneAI droneAI)
         {
             return new DroneBeam(Owner.Universe.CreateId(), droneAI);
-        }
-
-        public void FireTargetedBeam(GameObject target)
-        {
-            FireBeam(Module.Position, target.Position, target);
         }
 
         public bool ManualFireTowardsPos(Vector2 targetPos)
@@ -590,16 +583,15 @@ namespace Ship_Game.Gameplay
             if (Owner.Loyalty.HavePackMentality)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
-            float actualShieldPenChance = Module?.GetParent().Loyalty.data.ShieldPenBonusChance * 100 ?? 0;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {
-                AddModifiers(ActiveWeaponTags[i], projectile, ref actualShieldPenChance);
+                AddModifiers(ActiveWeaponTags[i], projectile);
             }
 
-            projectile.IgnoresShields = Random.RollDice(actualShieldPenChance);
+            projectile.IgnoresShields = Random.RollDice(WeaponTemplate.ActualShieldPenChance(this, Owner.Loyalty.data));
         }
 
-        void AddModifiers(WeaponTag tag, Projectile p, ref float actualShieldPenChance)
+        void AddModifiers(WeaponTag tag, Projectile p)
         {
             WeaponTagModifier weaponTag = Owner.Loyalty.data.WeaponTags[tag];
 
@@ -609,12 +601,6 @@ namespace Ship_Game.Gameplay
             p.Speed                 += weaponTag.Speed * ProjectileSpeed;
             p.Health                += weaponTag.HitPoints * HitPoints;
             p.DamageRadius          += weaponTag.ExplosionRadius * ExplosionRadius;
-            p.ArmorPiercing         += (int)weaponTag.ArmourPenetration;
-            p.ArmorDamageBonus      += weaponTag.ArmorDamage;
-            p.ShieldDamageBonus     += weaponTag.ShieldDamage;
-            
-            float shieldPenChance  = weaponTag.ShieldPenetration * 100 + ShieldPenChance;
-            actualShieldPenChance  = shieldPenChance.LowerBound(actualShieldPenChance);
         }
 
         public void ResetToggleSound()

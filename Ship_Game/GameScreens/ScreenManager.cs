@@ -49,6 +49,7 @@ namespace Ship_Game
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => GameScreens.Count + PendingScreens.Count;
         public GameScreen Current => GameScreens[GameScreens.Count-1];
+        GameScreen LastTopScreen;
         public IReadOnlyList<GameScreen> Screens => GameScreens;
 
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
@@ -199,9 +200,12 @@ namespace Ship_Game
             }
             
             // @todo What is this hack doing here? It appears to prohibit new popups while DiplomacyScreen is visible
-            foreach (GameScreen gs in GameScreens)
-                if (gs is DiplomacyScreen)
-                    return;
+            if (screen is not Codex.CodexScreen)
+            {
+                foreach (GameScreen gs in GameScreens)
+                    if (gs is DiplomacyScreen)
+                        return;
+            }
 
             GameScreens.Add(screen);
 
@@ -440,6 +444,7 @@ namespace Ship_Game
                 GameScreen screen = screens[i];
                 if (screen.Visible && !screen.IsDisposed && screen.DidRunUpdate)
                 {
+                    ToolTip.SuppressNewTips = !screen.DidHandleInput;
                     try
                     {
                         screen.Draw(batch, DrawLoopTime);
@@ -463,6 +468,10 @@ namespace Ship_Game
                             screen.Dispose();
                             GameScreens.Remove(screen);
                         }
+                    }
+                    finally
+                    {
+                        ToolTip.SuppressNewTips = false;
                     }
                 }
             }
@@ -581,6 +590,7 @@ namespace Ship_Game
 
         public void RemoveScreen(GameScreen screen)
         {
+            screen.DidHandleInput = false;
             if (GraphicsDeviceService?.GraphicsDevice != null)
             {
                 screen.UnloadContent();
@@ -751,15 +761,39 @@ namespace Ship_Game
             GameAudio.StopGenericMusic(fadeout: true);
             CurrentMusic = null;
         }
+        void OpenCodex(string uid)
+        {
+            GameAudio.TacticalPause();
+            var codex = new Codex.CodexScreen(Current);
+            if (uid != null)
+                codex.OpenAt(uid);
+            AddScreen(codex);
+        }
+
         public void Update(UpdateTimes elapsed)
         {
             PerformHotLoadTasks(elapsed);
             input.Update(elapsed); // analyze input state for this frame
             AddPendingScreens();
 
+            GameScreen topScreen = GameScreens.NotEmpty ? Current : null;
+            if (LastTopScreen != topScreen)
+            {
+                LastTopScreen = topScreen;
+                ToolTip.Clear();
+            }
+
             bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
             bool coveredByOtherScreen = false;
             bool inputCaptured = false;
+
+            if (!otherScreenHasFocus && input.CodexHelp && GameScreens.NotEmpty
+                && Current is not Codex.CodexScreen && !Current.IsExiting)
+            {
+                string codexUid = ToolTip.GetActiveCodexUid();
+                if (codexUid != null || Current.HelpKeyOpensCodex)
+                    OpenCodex(codexUid);
+            }
             
             Array<GameScreen> frontToBack = new(); // valid screens ordered from topmost to back
             Array<GameScreen> backToFront = new();
@@ -774,7 +808,8 @@ namespace Ship_Game
                     continue; // this screen was removed while we were processing HandleInput events
 
                 // 1. Handle Input
-                if (!otherScreenHasFocus && !screen.IsExiting && !inputCaptured)
+                screen.DidHandleInput = !otherScreenHasFocus && !screen.IsExiting && !inputCaptured;
+                if (screen.DidHandleInput)
                 {
                     inputCaptured = screen.HandleInput(input);
                     if (screen.IsDisposed)

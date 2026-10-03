@@ -12,6 +12,8 @@ namespace Ship_Game.GameScreens.ShipDesign
 {
     public sealed class ShipDesignIssuesScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         private readonly Menu2 Window;
         private readonly Color Cream = Colors.Cream;
         private readonly Array<DesignIssueDetails> DesignIssues;

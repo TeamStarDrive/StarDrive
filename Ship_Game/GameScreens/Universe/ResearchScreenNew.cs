@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Audio;
 using System;
+using System.Collections.Generic;
 using Ship_Game.GameScreens.Universe.Debug;
 using SDGraphics;
 using SDUtils;
@@ -13,6 +14,8 @@ namespace Ship_Game
 {
     public sealed class ResearchScreenNew : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public readonly UniverseScreen Universe;
         public readonly Empire Player;
         public Camera2D camera = new();
@@ -32,15 +35,11 @@ namespace Ship_Game
         int GridWidth  = 175;
         int GridHeight = 100;
 
-        readonly Array<Vector2> ClaimedSpots = new();
+        readonly HashSet<(int X, int Y)> ClaimedSpots = new();
 
         ResearchDebugUnlocks DebugUnlocks;
 
-        public Color ApplyCurrentAlphaColor(Color color)
-        {
-            color = ApplyCurrentAlphaToColor(color);
-            return new Color(color, color.A.LowerBound(100));
-        }
+        public Color ApplyCurrentAlphaColor(Color color) => ApplyCurrentAlphaToColor(color, 100 / 255f);
 
         public ResearchScreenNew(GameScreen parent, UniverseScreen u, EmpireUIOverlay empireUi)
             : base(parent, toPause: u)
@@ -401,9 +400,6 @@ namespace Ship_Game
             foreach (RootNode node in RootNodes.Values)
                 node.nodeState = (node == root) ? NodeState.Press : NodeState.Normal;
 
-            SubNodes.Clear();
-            ClaimedSpots.Clear();
-
             int rows = 1;
             int cols = CalculateTreeDimensionsFromRoot(root.Entry, ref rows, 0, 0);
             if (rows < 9) GridHeight = (MainMenu.Menu.Height - 40) / rows;
@@ -411,6 +407,22 @@ namespace Ship_Game
 
             if (cols > 0 && cols < 9) GridWidth = (MainMenu.Menu.Width - 350) / cols;
             else                      GridWidth = 165;
+
+            BuildSubNodes(root);
+
+            // the estimate counts merged-back branches and reused rows as new rows: rebuild at the rows laid out
+            int wantRows = Math.Min(FindDeepestYSubNodes() + 1, 9);
+            if (wantRows != Math.Min(rows, 9))
+            {
+                GridHeight = (MainMenu.Menu.Height - 40) / wantRows;
+                BuildSubNodes(root);
+            }
+        }
+
+        void BuildSubNodes(RootNode root)
+        {
+            SubNodes.Clear();
+            ClaimedSpots.Clear();
 
             var nodePos = new Vector2(1f, 1f);
             bool first = true;
@@ -421,7 +433,8 @@ namespace Ship_Game
                     continue;
 
                 nodePos.X = root.NodePosition.X + 1f;
-                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                // row 0, not the root's Y: that is its slot in the category list
+                nodePos.Y = first ? 0 : FindFreeRowFor(child, 0, (int)nodePos.X);
                 if (first) first = false;
 
                 if (!SubNodes.ContainsKey(child.UID)) // only ever add unique entries
@@ -441,7 +454,8 @@ namespace Ship_Game
             foreach (TechEntry child in node.Entry.Children)
             {
                 nodePos.X = node.NodePosition.X + 1f;
-                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                nodePos.Y = first ? node.NodePosition.Y
+                                  : FindFreeRowFor(child, (int)node.NodePosition.Y, (int)nodePos.X);
                 if (first) first = false;
 
                 if (child.Discovered && !SubNodes.ContainsKey(child.UID))
@@ -469,10 +483,62 @@ namespace Ship_Game
             if (PositionIsClaimed(nodePos))
                 nodePos.Y += 1f;
             else if (addToClaimed)
-                ClaimedSpots.Add(nodePos);
+                ClaimedSpots.Add(((int)nodePos.X, (int)nodePos.Y));
         }
         
-        bool PositionIsClaimed(Vector2 position) => ClaimedSpots.Any(p => p.AlmostEqual(position));
+        bool PositionIsClaimed(Vector2 position) => ClaimedSpots.Contains(((int)position.X, (int)position.Y));
+
+        int FindFreeRowFor(TechEntry branch, int parentY, int col)
+        {
+            int bRows = 1;
+            int bCols = MeasureDiscoveredBranch(branch, ref bRows, 0, 0);
+            int last = 0; // first row below everything claimed: always free
+            foreach ((int X, int Y) spot in ClaimedSpots)
+                last = Math.Max(last, spot.Y + 1);
+            for (int y = parentY; y < last; ++y)
+            {
+                bool freeRect = true;
+                for (int dy = 0; dy < bRows && freeRect; ++dy)
+                    for (int dx = 0; dx < bCols && freeRect; ++dx)
+                        if (PositionIsClaimed(new Vector2(col + dx, y + dy)))
+                            freeRect = false;
+                if (freeRect)
+                    return y;
+            }
+            return Math.Max(parentY, last);
+        }
+
+        // discovered techs only, since placement never places undiscovered ones
+        int MeasureDiscoveredBranch(TechEntry techEntry, ref int rows, int cols, int colmax)
+        {
+            cols++;
+            if (cols > colmax)
+                colmax = cols;
+
+            TechEntry[] children = techEntry.Children;
+            if (children.Length > 0)
+            {
+                int rowCount = 0;
+                for (int i = 1; i < children.Length; i++)
+                {
+                    if (children[i].FindNextDiscoveredTech(Player) != null)
+                        rowCount++;
+                }
+                rows += rowCount;
+            }
+
+            foreach (TechEntry child in children)
+            {
+                var discovered = child.FindNextDiscoveredTech(Player);
+                if (discovered != null)
+                {
+                    int max = MeasureDiscoveredBranch(discovered, ref rows, cols, colmax);
+                    if (max > colmax)
+                        colmax = max;
+                }
+            }
+            return colmax;
+        }
 
         //Added by McShooterz: find size of tech tree before it is built
         int CalculateTreeDimensionsFromRoot(TechEntry techEntry, ref int rows, int cols, int colmax)

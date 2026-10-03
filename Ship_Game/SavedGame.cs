@@ -5,6 +5,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using SDUtils;
 using Ship_Game.Data.Binary;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Ship_Game
 {
@@ -18,6 +19,18 @@ namespace Ship_Game
         [StarData] public string RealDate;
         [StarData] public string ModName = "";
         [StarData] public DateTime Time;
+        // the player's flag, so the save list can show it without a race-name lookup
+        // (a renamed or custom race matches nothing and fell back to the default icon).
+        // -1 = header written before the field existed; the reader falls back to the lookup.
+        // DefaultValue states the sentinel explicitly. Without it the writer's skip value
+        // would be 0 - a real, pickable flag. Today that still round-trips, because
+        // HeaderData never has enough default fields to leave full layout and the reader
+        // re-derives 0 from the serializer's own default. Under partial layout a skipped
+        // field is never written at all and would surface as the -1 sentinel instead.
+        [StarData(DefaultValue = -1)] public int FlagIndex = -1;
+        // initializers only survive for fields absent from the stream, i.e. old headers;
+        // White keeps those from tinting an icon fully transparent if ever read unguarded
+        [StarData] public Color EmpireColor = Color.White;
     }
 
     public sealed class SavedGame
@@ -84,6 +97,8 @@ namespace Ship_Game
                 RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
                 ModName    = GlobalStats.ModName,
                 Time       = now,
+                FlagIndex  = state.Player.data.Traits.FlagIndex,
+                EmpireColor = state.Player.EmpireColor,
             };
 
             // an annoying edge case, someone has created a folder with the same name

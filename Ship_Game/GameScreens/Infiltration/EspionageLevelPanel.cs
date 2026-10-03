@@ -85,10 +85,12 @@ namespace Ship_Game.GameScreens.EspionageNew
             int line2Y = Rect.Bottom - Font.LineSpacing*6 - 8;
             batch.DrawLine(new Vector2(Rect.X, line1Y), new Vector2(Rect.X + Rect.Width, line1Y), Color.Black, 3);
             batch.DrawLine(new Vector2(Rect.X, line2Y), new Vector2(Rect.X + Rect.Width, line2Y), Color.Black, 3);
+            // pulse from a base colour, never from Status.Color: Alpha() premultiplies,
+            // so feeding the drawn colour back in compounds the fade every frame
             if (Status.Text == GameText.TerraformersInProgress)
-                Status.Color = Screen.ApplyCurrentAlphaToColor(Status.Color);
-            else
-                Status.Color = Status.Color.Alpha(1);
+                Status.Color = Screen.ApplyCurrentAlphaToColor(Color.Yellow);
+            else if (Status.Text == GameText.InfiltrationStatusHalted)
+                Status.Color = Screen.ApplyCurrentAlphaToColor(Color.Red);
         }
 
         public void RefreshEmpire()
@@ -146,7 +148,7 @@ namespace Ship_Game.GameScreens.EspionageNew
             else
             {
                 Status.Text = GameText.InfiltrationStatusHalted;
-                Status.Color = Screen.ApplyCurrentAlphaToColor(Color.Red);
+                Status.Color = Color.Red; // pulsed per-frame in Draw
             }
 
             float startPos = Rect.Right - Font.MeasureString(Status.Text.Text).X - 10;

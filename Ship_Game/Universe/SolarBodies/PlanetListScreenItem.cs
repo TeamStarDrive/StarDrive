@@ -27,7 +27,6 @@ namespace Ship_Game
         public Rectangle DistanceRect;
 
         Empire Player => Planet.Universe.Player;
-        private readonly Color Cream = Colors.Cream;
         private readonly Graphics.Font NormalFont = Fonts.Arial20Bold;
         private readonly Graphics.Font SmallFont  = Fonts.Arial12Bold;
         private readonly Graphics.Font TinyFont   = Fonts.Arial8Bold;
@@ -43,6 +42,7 @@ namespace Ship_Game
         private readonly float Distance;
         private bool MarkedForColonization;
         public bool CanSendTroops;
+        ThreatMatrix.HostilePresence Hostiles;
 
         public PlanetListScreenItem(PlanetListScreen screen, Planet planet, float distance, bool canSendTroops)
         {
@@ -69,9 +69,18 @@ namespace Ship_Game
             int h = (int)Height;
             RemoveAll();
 
-            ButtonStyle colonizeStyle  = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
+            Empire lostBy = null;
+            int graceTurns = MarkedForColonization ? 0 : Planet.ColonyGraceTurnsLeft(Player, out lostBy);
+            ButtonStyle colonizeStyle  = MarkedForColonization || graceTurns > 0 ? ButtonStyle.Default : ButtonStyle.BigDip;
             LocalizedText colonizeText = !MarkedForColonization ? GameText.Colonize : GameText.CancelColonize;
             Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
+            if (graceTurns > 0)
+            {
+                Colonize.DefaultTextColor = Colonize.HoverTextColor = Colonize.PressTextColor = Color.Gray;
+                Colonize.Tooltip  = Planet.ColonyGraceTip(lostBy, graceTurns);
+                Colonize.ClickSfx = null;
+            }
+
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
             SendTroops.Tooltip = GameText.SendAvailableTroopsToThis;
             RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.NumTroopsCanLaunchFor(Player)})", OnRecallTroopsClicked);
@@ -107,6 +116,7 @@ namespace Ship_Game
             RecallTroops.Visible = Planet.Owner != Player && Planet.NumTroopsCanLaunchFor(Player) > 0;
             
             UpdateButtonSendTroops();
+            Hostiles = Player.KnownEnemyPresenceIn(Planet.System);
             AddSystemName();
             AddPlanetName();
             AddPlanetTextureAndStatus();
@@ -128,12 +138,7 @@ namespace Ship_Game
 
         void AddSystemName()
         {
-            string systemName     = Planet.System.Name;
-            Graphics.Font systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
-            var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
-                                        2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
-            
-            Label(sysNameCursor, systemName, systemFont, Cream);
+            this.AddSystemNameAndHostiles(SysNameRect, Planet.System, Hostiles);
         }
 
         void AddPlanetName()
@@ -178,7 +183,7 @@ namespace Ship_Game
 
         void AddHostileWarning()
         {
-            if (Player.KnownEnemyStrengthIn(Planet.System) > 0)
+            if (Hostiles.Any)
             {
                 SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
                 UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);
@@ -414,6 +419,12 @@ namespace Ship_Game
 
         void OnColonizeClicked(UIButton b)
         {
+            if (!MarkedForColonization && Planet.ColonyGraceTurnsLeft(Player) > 0)
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
             GameAudio.EchoAffirmative();
             if (!MarkedForColonization)
             {

@@ -271,7 +271,10 @@ namespace Ship_Game.Universe.SolarBodies
         public float IncomePerColonist { get; private set; }
 
         // The current tax rate applied by empire tax rate and planet tax rate modifiers
-        public float TaxRate { get; private set; }
+        float TaxRate;
+
+        // Racial tax modifier and this planet's tax buildings, without the empire tax rate
+        public float TaxRateMultiplier { get; private set; } = 1f;
 
         // revenue before maintenance is deducted
         public float GrossRevenue { get; private set; }
@@ -293,14 +296,20 @@ namespace Ship_Game.Universe.SolarBodies
 
         public ColonyMoney(Planet planet) { Planet = planet; }
 
-        public float NetRevenueGain(Building b)
+        // Credits per turn this building costs the colony net of its own revenue; a standing one is already in the figures
+        public float NetCostOf(Building b, bool standing = false, float minEmpireTaxRate = 0f)
         {
-            float newPopulation = b.MaxPopIncrease*0.001f;
-            if (b.IsBiospheres)
-                newPopulation += Planet.PopPerBiosphere(Planet.Owner)*0.001f;
+            float direction = standing ? -1f : 1f;
+            float taxRate = TaxRate.LowerBound(minEmpireTaxRate * TaxRateMultiplier);
+            float taxable = Planet.PopulationBillion * IncomePerColonist + IncomeFromBuildings;
+            float share = Planet.PopulationBillion * b.CreditsPerColonist + b.Income;
+            float otherRate = TaxRateMultiplier > 0
+                            ? taxRate * (TaxRateMultiplier + direction * b.PlusTaxPercentage) / TaxRateMultiplier
+                            : taxRate;
 
-            float grossIncome = newPopulation * IncomePerColonist * TaxRate;
-            return grossIncome - b.ActualMaintenance(Planet);
+            float change = (taxable + direction * share) * otherRate - taxable * taxRate;
+            float revenue = direction * change * Planet.Owner.ExoticCreditsBonus;
+            return b.ActualMaintenance(Planet) - revenue;
         }
 
         public void Update()
@@ -321,9 +330,10 @@ namespace Ship_Game.Universe.SolarBodies
                 IncomeFromBuildings += b.Income;
             }
 
-            TroopMaint = Planet.Troops.Count * ShipMaintenance.TroopMaint; // We count enemy troops as well
+            TroopMaint = Planet.Troops.NumTroopsHere(Planet.Owner) * ShipMaintenance.TroopMaint;
 
             // And finally we adjust local TaxRate by the bonus multiplier
+            TaxRateMultiplier = taxRateMultiplier;
             TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
 

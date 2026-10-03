@@ -172,7 +172,7 @@ namespace Ship_Game.Data.Yaml
             YamlNode root = mainRoot;
             YamlNode prev = mainRoot;
 
-            while (ReadLineWithDepth(reader, buffer, out StringView line, out int newDepth))
+            while (ReadLineWithDepth(reader, ref buffer, out StringView line, out int newDepth))
             {
                 ++parser.Line;
 
@@ -482,7 +482,7 @@ namespace Ship_Game.Data.Yaml
 
         // @note The most efficient way to read .NET TextReader
         //       Also combines YAML specific whitespace skipping logic
-        static bool ReadLineWithDepth(TextReader reader, char[] buffer, out StringView line, out int outDepth)
+        static bool ReadLineWithDepth(TextReader reader, ref char[] buffer, out StringView line, out int outDepth)
         {
             int depth = 0;
             int length = 0;
@@ -500,6 +500,8 @@ namespace Ship_Game.Data.Yaml
                             if (ch == ' ') { depth += 1; continue; }
                             if (ch == '\t') { depth += 2; continue; }
                         }
+                        if (length == buffer.Length)
+                            Array.Resize(ref buffer, buffer.Length * 2);
                         buffer[length++] = (char)ch;
                         continue;
                 }

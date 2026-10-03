@@ -141,11 +141,11 @@ namespace Ship_Game.Ships
         public float ShieldRechargeCombatRate    => Flyweight.ShieldRechargeCombatRate;
         public float ShieldRechargeDelay         => Flyweight.ShieldRechargeDelay;
         public float ShieldDeflection            => Flyweight.ShieldDeflection;
-        public float ShieldKineticResist         => Flyweight.ShieldKineticResist;
-        public float ShieldEnergyResist          => Flyweight.ShieldEnergyResist;
-        public float ShieldExplosiveResist       => Flyweight.ShieldExplosiveResist;
-        public float ShieldPlasmaResist          => Flyweight.ShieldPlasmaResist;
-        public float ShieldBeamResist            => Flyweight.ShieldBeamResist;
+        public float ShieldKineticResist         => Flyweight.ShieldKineticResist.UpperBound(1f);
+        public float ShieldEnergyResist          => Flyweight.ShieldEnergyResist.UpperBound(1f);
+        public float ShieldExplosiveResist       => Flyweight.ShieldExplosiveResist.UpperBound(1f);
+        public float ShieldPlasmaResist          => Flyweight.ShieldPlasmaResist.UpperBound(1f);
+        public float ShieldBeamResist            => Flyweight.ShieldBeamResist.UpperBound(1f);
         public float NumberOfColonists           => Flyweight.NumberOfColonists; // In Millions!
         public float NumberOfEquipment           => Flyweight.NumberOfEquipment;
         public float NumberOfFood                => Flyweight.NumberOfFood;
@@ -173,11 +173,11 @@ namespace Ship_Game.Ships
         public float TransporterOrdnance         => Flyweight.TransporterOrdnance;
         public int TransporterTroopLanding       => Flyweight.TransporterTroopLanding;
         public int TransporterTroopAssault       => Flyweight.TransporterTroopAssault;
-        public float KineticResist               => Flyweight.KineticResist;
-        public float EnergyResist                => Flyweight.EnergyResist;
-        public float PlasmaResist                => Flyweight.PlasmaResist;
-        public float BeamResist                  => Flyweight.BeamResist;
-        public float ExplosiveResist             => Flyweight.ExplosiveResist;
+        public float KineticResist               => Flyweight.KineticResist.UpperBound(1f);
+        public float EnergyResist                => Flyweight.EnergyResist.UpperBound(1f);
+        public float PlasmaResist                => Flyweight.PlasmaResist.UpperBound(1f);
+        public float BeamResist                  => Flyweight.BeamResist.UpperBound(1f);
+        public float ExplosiveResist             => Flyweight.ExplosiveResist.UpperBound(1f);
         public float Deflection                  => Flyweight.Deflection;
         public int APResist                      => Flyweight.APResist;
         public bool AlwaysPowered                => Flyweight.IndirectPower;
@@ -194,7 +194,7 @@ namespace Ship_Game.Ships
         public float Refining                    => Flyweight.Refining;
 
         /// <summary>
-        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
+        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(float)"/>
         /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
         /// an accuracy percent of 1 removes all target error.
         /// the default of -1 means ignore this value
@@ -411,9 +411,9 @@ namespace Ship_Game.Ships
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
         // LOYALTY can be null
-        public static ShipModule CreateNoParent(UniverseState us, ShipModule template, Empire loyalty, ShipHull hull)
+        public static ShipModule CreateNoParent(UniverseState us, ShipModule template, Empire loyalty)
         {
-            var bonuses = EmpireHullBonuses.Get(loyalty, hull);
+            var bonuses = EmpireHullBonuses.Get(loyalty);
             var module = new ShipModule(us?.CreateId() ?? -1) // null during template creation
             {
                 Active = true,
@@ -449,7 +449,7 @@ namespace Ship_Game.Ships
         public static ShipModule Create(UniverseState us, DesignSlot slot, Ship parent, bool isTemplate)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
-            ShipModule m = CreateNoParent(us, template, parent.Loyalty, parent.BaseHull);
+            ShipModule m = CreateNoParent(us, template, parent.Loyalty);
 
             if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay && !m.IsMiningBay)
                 m.HangarShipUID = slot.HangarShipUID;
@@ -480,7 +480,7 @@ namespace Ship_Game.Ships
                                                     int turretAngle, string hangarShipUID, ShipHull hull)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
-            ShipModule m = CreateNoParent(us, template, us.Player, hull);
+            ShipModule m = CreateNoParent(us, template, us.Player);
 
             // Don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
             // Also, supply bays get the default supply shuttle
@@ -523,7 +523,7 @@ namespace Ship_Game.Ships
                 if (InstalledWeapon == null || InstalledWeapon.UID != type)
                 {
                     UninstallWeapon();
-                    InstalledWeapon = ResourceManager.CreateWeapon(us, type, Parent, this, hull);
+                    InstalledWeapon = ResourceManager.CreateWeapon(us, type, Parent, this);
                 }
 
                 if (bomb)
@@ -730,6 +730,23 @@ namespace Ship_Game.Ships
             return distanceFromStart > 0f;
         }
 
+        /// <summary>Distance at which a ship's death blast delivers half of its damage</summary>
+        public const float ExplosionHalfDamageDistance = 100f;
+
+        /// <summary>Closest distance a blast is measured from, so the falloff cannot spike</summary>
+        public const float ExplosionMinDistance = 10f;
+
+        /// <summary>
+        /// Fraction of a ship's death blast that reaches a hull at the given distance.
+        /// Its maximum, just under full damage, applies at any distance up to
+        /// <see cref="ExplosionMinDistance"/>; half at <see cref="ExplosionHalfDamageDistance"/>.
+        /// </summary>
+        public static float ExplosionFalloff(float distance)
+        {
+            float d = distance.LowerBound(ExplosionMinDistance);
+            return ExplosionHalfDamageDistance / (ExplosionHalfDamageDistance + d);
+        }
+
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius)
         {
             float explodeDist = Math.Max(0f, explosionCenter.Distance(affectedPoint) - moduleRadius);
@@ -750,7 +767,7 @@ namespace Ship_Game.Ships
             if (!Active)
                 return 0f;
 
-            float resist = ExplosiveResist > 0f ? Health / (1f - ExplosiveResist) : 0f;
+            float resist = ExplosiveResist > 0f && ExplosiveResist < 1f ? Health / (1f - ExplosiveResist) : 0f;
             float dmg = Explodes ? ExplosionDamage : 0f;
             return dmg - resist; // Allow negative damage (damage reducer)
         }
@@ -771,12 +788,12 @@ namespace Ship_Game.Ships
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool DamageExplosive(GameObject source, ref float damageInOut)
+        public bool DamageExplosive(GameObject source, ref float damageInOut, bool moduleExplosion = false)
         {
             if (damageInOut <= 0f)
                 return true;
             //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
-            Damage(source, damageInOut, out damageInOut);
+            Damage(source, damageInOut, out damageInOut, moduleExplosion: moduleExplosion);
             return damageInOut <= 0f;
         }
 
@@ -787,33 +804,43 @@ namespace Ship_Game.Ships
             source?.OnDamageInflicted(this, amount);
         }
 
-        public void Damage(GameObject source, float damageAmount, out float damageRemainder)
+        public void Damage(GameObject source, float damageAmount, out float damageRemainder, float beamModifier = 1f,
+                           bool moduleExplosion = false)
         {
             float damageModifier = 1f;
             if (source != null)
             {
                 damageModifier = ShieldsAreActive
                     ? source.DamageMod.GetShieldDamageMod(this)
-                    : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
+                    : source.DamageMod.GetArmorDamageMod(this);
             }
 
             float modifiedDamage = damageAmount * damageModifier;
-            if (!TryDamageModule(source, modifiedDamage, out float grossRemainder))
+            if (!TryDamageModule(source, modifiedDamage, out float grossRemainder, beamModifier, moduleExplosion))
             {
                 damageRemainder = 0f;
                 if (source != null)
                 {
                     EvtDamageInflicted(source, 0f);
                 }
-                Deflect(source); // FB: the projectile was deflected
+                if (!moduleExplosion)
+                    Deflect(source); // FB: the projectile was deflected
                 return; 
             }
 
             DebugDamageCircle();
 
-            float absorbedDamage = modifiedDamage - grossRemainder.LowerBound(0);
-            if (damageModifier <= 1) // below 1, resistance. above 1, vulnerability.
-                absorbedDamage /= damageModifier; // module absorbed more damage because of good resistance
+            float absorbedDamage;
+            if (damageModifier <= 0f) // full resistance: nothing gets past this module
+            {
+                absorbedDamage = damageAmount;
+            }
+            else
+            {
+                absorbedDamage = modifiedDamage - grossRemainder.LowerBound(0);
+                if (damageModifier < 1) // below 1, resistance. above 1, vulnerability.
+                    absorbedDamage /= damageModifier; // module absorbed more damage because of good resistance
+            }
 
             if (source != null)
                 EvtDamageInflicted(source, absorbedDamage);
@@ -872,11 +899,12 @@ namespace Ship_Game.Ships
 
         public override void Damage(GameObject source, float damageAmount, float beamModifier = 1f)
         {
-            Damage(source, damageAmount, out float _);
+            Damage(source, damageAmount, out float _, beamModifier);
         }
 
         // Note - this assumes that projectile effect of ignore shield was taken into account. 
-        bool TryDamageModule(GameObject source, float modifiedDamage, out float remainder, float beamModifier = 1f)
+        bool TryDamageModule(GameObject source, float modifiedDamage, out float remainder, float beamModifier,
+                             bool moduleExplosion)
         {
             remainder = modifiedDamage;
             if (source != null)
@@ -890,8 +918,11 @@ namespace Ship_Game.Ships
             bool damagingShields = ShieldsAreActive;
             if (beam == null) // only for projectiles
             {
+                if (!damagingShields && !moduleExplosion && proj?.PowerDamage > 0)
+                    CausePowerDamage(proj);
+
                 float damageThreshold = damagingShields ? ShieldDeflection : Deflection;
-                if (proj?.Weapon.EMPDamage > damageThreshold && !damagingShields)
+                if (proj?.EmpDamage > damageThreshold && !damagingShields && !moduleExplosion)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
                 if (modifiedDamage < damageThreshold && proj?.WeaponType != "Plasma")
@@ -912,7 +943,7 @@ namespace Ship_Game.Ships
             }
             else
             {
-                CauseSpecialBeamDamageNoShield(beam, beamModifier);
+                CauseSpecialBeamDamageNoShield(beam, beamModifier, moduleExplosion);
                 float healthBefore = Health;
                 float exoticDamageReduction = 2 - Parent.Loyalty.GetStaticExoticBonusMuliplier(ExoticBonusType.DamageReduction);
                 modifiedDamage *= exoticDamageReduction;
@@ -947,20 +978,21 @@ namespace Ship_Game.Ships
             }
         }
 
-        // TODO: this should be part of `Bonuses`
-        float GetGlobalArmourBonus()
-        {
-            if (GlobalStats.Defaults.UseHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(Parent.ShipData.Hull, out HullBonus mod))
-                return (1f - mod.ArmoredBonus);
-
-            return 1f;
-        }
-
         void CauseEmpDamage(Projectile proj)
         {
-            if (proj.Weapon.EMPDamage > 0f)
-                Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
+            if (proj.EmpDamage > 0f)
+            {
+                Parent.CauseEmpDamage(proj.EmpDamage);
+                if (proj.Explodes)
+                    proj.EmpDamage = 0f;
+            }
+        }
+
+        void CausePowerDamage(Projectile proj)
+        {
+            Parent.CausePowerDamage(proj.PowerDamage);
+            if (proj.Explodes)
+                proj.PowerDamage = 0f;
         }
 
         void CauseSpecialBeamDamageToShield(Beam beam, float beamModifier)
@@ -972,14 +1004,15 @@ namespace Ship_Game.Ships
             }
         }
 
-        void CauseSpecialBeamDamageNoShield(Beam beam, float beamModifier)
+        void CauseSpecialBeamDamageNoShield(Beam beam, float beamModifier, bool moduleExplosion)
         {
             if (beam != null)
             {
-                BeamPowerDamage(beam, beamModifier);
+                if (!moduleExplosion)
+                    BeamPowerDamage(beam, beamModifier);
                 BeamTroopDamage(beam, beamModifier);
                 BeamTractorDamage(beam, beamModifier, hittingShields: false);
-                BeamRepulsionDamage(beam, beamModifier);
+                BeamRepulsionDamage(beam);
             }
         }
 
@@ -1001,10 +1034,10 @@ namespace Ship_Game.Ships
                 Parent.CauseTractorDamage(beam.Weapon.TractorDamage * beamModifier, hittingShields);
         }
 
-        void BeamRepulsionDamage(Beam beam, float beamModifier)
+        void BeamRepulsionDamage(Beam beam)
         {
             if (beam.Weapon.RepulsionDamage > 0)
-                Parent.CauseRepulsionDamage(beam, beamModifier);
+                Parent.CauseRepulsionDamage(beam);
         }
 
         void CauseSiphonDamage(Beam beam, float beamModifier)
@@ -1012,8 +1045,9 @@ namespace Ship_Game.Ships
             if (beam.Weapon.SiphonDamage > 0f)
             {
                 float damage = beam.Weapon.SiphonDamage * beamModifier;
-                ShieldPower = (ShieldPower - damage).LowerBound(0);
-                beam.Owner?.AddPower(damage);
+                float drained = damage.UpperBound(ShieldPower).LowerBound(0);
+                ShieldPower -= drained;
+                beam.Owner?.AddPower(drained);
                 Parent.UpdateShields();
             }
         }
@@ -1056,7 +1090,8 @@ namespace Ship_Game.Ships
                 {
                     // ShipModule has died and will now explode internally
                     // the 1,1 vector substruction ensures the Northwest quadrant is hit (floating point issues)
-                    Parent.DamageExplosive(source, ExplosionDamage, Position - new Vector2(1,1), ExplosionRadius, true);
+                    Parent.DamageExplosive(source, ExplosionDamage, Position - new Vector2(1,1), ExplosionRadius, true,
+                                           moduleExplosion: true);
                 }
             }
         }

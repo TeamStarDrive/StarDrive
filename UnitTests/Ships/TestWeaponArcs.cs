@@ -5,6 +5,7 @@ using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -98,6 +99,70 @@ namespace UnitTests.Ships
             float error = weapon.BaseTargetError(-1);
             Assert.IsTrue(error > 112 & error < 114);
             // I am embarrassed by this unit test.
+        }
+
+        static Weapon InaccurateWeapon(Ship ship)
+        {
+            ship.Level = 0;
+            Weapon weapon = ship.Weapons.Find(w => !w.Tag_Guided && w.BaseTargetError(-1) > 0f);
+            Assert.IsNotNull(weapon, "Test ship needs an unguided weapon with aim error");
+            return weapon;
+        }
+
+        [TestMethod]
+        public void CrewLevelReducesAimError()
+        {
+            Ship ship = SpawnShip("Soldier mk2-c", Player, Vector2.Zero);
+            Weapon weapon = InaccurateWeapon(ship);
+            float untrained = weapon.BaseTargetError(-1);
+
+            ship.Level = 3;
+            float veteran = weapon.BaseTargetError(-1);
+            Assert.IsTrue(veteran < untrained, $"Crew level 3 must aim better: untrained={untrained} veteran={veteran}");
+        }
+
+        [TestMethod]
+        public void MilitaristicTraitReducesAimError()
+        {
+            Ship ship = SpawnShip("Soldier mk2-c", Player, Vector2.Zero);
+            Weapon weapon = InaccurateWeapon(ship);
+            int militaristic = Player.data.Traits.Militaristic;
+            try
+            {
+                Player.data.Traits.Militaristic = 0;
+                float plain = weapon.BaseTargetError(-1);
+
+                Player.data.Traits.Militaristic = 2;
+                float militaristicError = weapon.BaseTargetError(-1);
+                Assert.IsTrue(militaristicError < plain, $"Militaristic must aim better: plain={plain} militaristic={militaristicError}");
+            }
+            finally
+            {
+                Player.data.Traits.Militaristic = militaristic;
+            }
+        }
+
+        [TestMethod]
+        public void TheDesignScreenShowsTheAimOfANewCrew()
+        {
+            Ship ship = SpawnShip("Soldier mk2-c", Player, Vector2.Zero);
+            Weapon weapon = InaccurateWeapon(ship);
+            int militaristic = Player.data.Traits.Militaristic;
+            try
+            {
+                Player.data.Traits.Militaristic = 2;
+                float inCombat = weapon.BaseTargetError(-1).LowerBound(1) / 16;
+                AssertGreaterThan(weapon.BaseTargetError(ship.TargetingAccuracy).LowerBound(1) / 16, inCombat,
+                    "setup: the trait must change the shown accuracy");
+
+                var stats = new ShipDesignStats(ship, Player);
+                AssertEqual(0.0001f, inCombat, stats.WeaponAccuracies[weapon.Module],
+                    "the design screen must show the error a new crew of this empire aims with");
+            }
+            finally
+            {
+                Player.data.Traits.Militaristic = militaristic;
+            }
         }
     }
 }

@@ -26,18 +26,18 @@ namespace Ship_Game.Gameplay
     [StarDataType]
     public class Projectile : PhysicsObject, IDisposable
     {
-        public float ShieldDamageBonus;
-        public float ArmorDamageBonus;
         public int ArmorPiercing;
         public bool IgnoresShields;
         public string WeaponType;
-        MissileAI MissileAI;
+        internal MissileAI MissileAI;
         public float VelocityMax;
         public float Speed;
         public float Range;
         public float DamageAmount;
         public float DamageRadius;
         public float ExplosionRadiusMod;
+        public float EmpDamage;
+        public float PowerDamage;
 
         public UniverseState Universe;
         [StarData] public Ship Owner { get; protected set; }
@@ -105,6 +105,9 @@ namespace Ship_Game.Gameplay
 
         // Only Guided Missiles can slow down, but lower the acceleration
         const float DecelThrustPower = 0.1f;
+
+        // Minimum seconds between in-flight SFX start attempts
+        const float InFlightSfxReplayTimeout = 0.5f;
 
         public override IDamageModifier DamageMod => Weapon;
 
@@ -184,8 +187,13 @@ namespace Ship_Game.Gameplay
             }
 
             float savedDuration = Duration;
-            Initialize(Position, Velocity, null, playSound: false, Vector2.Zero);
-            Duration = savedDuration; // apply duration from save data
+            Vector2 savedVelocity = Velocity;
+            float savedRotation = Rotation;
+            Initialize(Position, savedVelocity.Normalized(), null, playSound: false, Vector2.Zero);
+            Duration = savedDuration; // apply flight state from save data
+            Velocity = savedVelocity;
+            Rotation = savedRotation;
+            UpdateWorldMatrix();
         }
 
         protected static bool GetWeapon(UniverseState us, Ship ship, Planet planet, 
@@ -216,7 +224,7 @@ namespace Ship_Game.Gameplay
                 // in which case we abandon this projectile
                 if (ResourceManager.GetWeaponTemplate(weaponUID, out IWeaponTemplate t))
                 {
-                    weapon = new(us, t, ship, null, null);
+                    weapon = new(us, t, ship, null);
                 }
             }
 
@@ -236,6 +244,7 @@ namespace Ship_Game.Gameplay
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
             DamageRadius          = Weapon.ExplosionRadius;
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
+            RechargeEmpAndPowerDamage();
             Health                = Weapon.HitPoints * GlobalStats.Defaults.ProjectileHitpointsMultiplier;
             Speed                 = Weapon.ProjectileSpeed;
             TrailOffset           = Weapon.TrailOffset;
@@ -279,6 +288,7 @@ namespace Ship_Game.Gameplay
             }
 
             ModelPath = Weapon.ModelPath;
+            InFlightCue = Weapon.InFlightCue;
             UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType is "Missile" or "Drone" or "Rocket";
 
             if (Owner != null)
@@ -296,7 +306,6 @@ namespace Ship_Game.Gameplay
                 Weapon.PlayToggleAndFireSfx(Emitter);
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID)?.DieCue;
                 if (cueName.NotEmpty())     DieCueName  = cueName;
-                if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;
             }
 
             if (inFrustum && Module?.InstalledWeapon?.MuzzleFlash != null)
@@ -371,7 +380,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 // this is the spawned warhead weapon stats
-                Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module, null);
+                Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module);
                 if (warhead.Tag_Guided)
                 {
                     for (int i = 0; i < warhead.ProjectileCount; i++)
@@ -414,7 +423,7 @@ namespace Ship_Game.Gameplay
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
-            if (MissileAI?.Target.GetLoyalty() == attacker)
+            if (MissileAI?.Target?.GetLoyalty() == attacker)
                 return true;
 
             if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade && Owner.IsInBordersOf(attacker))
@@ -592,9 +601,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            if (InFlightSfx.IsStopped)
-                InFlightSfx.PlaySfxAsync(InFlightCue, Emitter);
-
             ParticleDelay -= timeStep.FixedTime;
             if (Duration > 0f)
             {
@@ -609,11 +615,17 @@ namespace Ship_Game.Gameplay
 
             MissileAI?.Think(timeStep);
             DroneAI?.Think(timeStep);
+            if (!Active)
+                return;
+
             UpdateVelocityAndPos(timeStep.FixedTime);
             Emitter.Position = pos3d;
 
             if (InFrustum)
             {
+                if (InFlightSfx.IsDisposed)
+                    InFlightSfx.PlaySfxAsync(InFlightCue, Emitter, InFlightSfxReplayTimeout);
+
                 // always put missiles below ships, +25 means away from camera into background
                 if (ZPos > 25f)
                     ZPos -= VelocityMax * timeStep.FixedTime; // come closer to camera
@@ -812,6 +824,12 @@ namespace Ship_Game.Gameplay
                     ShowExplosionEffect(flashFx, victim);
                 }
             }
+        }
+
+        public void RechargeEmpAndPowerDamage()
+        {
+            EmpDamage = Weapon.EMPDamage;
+            PowerDamage = Weapon.PowerDamage;
         }
 
         void ShowExplosionEffect(bool flashFx, ShipModule module)

@@ -75,7 +75,7 @@ namespace Ship_Game.GameScreens
                 if (Player.Universe.MajorEmpires.Any(e => !e.isPlayer && Player.IsKnown(e)))
                 {
                     var budgetRect = new Rectangle(Rect.Left, Rect.Y + 180, 140, 40);
-                    EspionageBudgetMultiplier = new FloatSlider(SliderStyle.Decimal1, budgetRect, GameText.EspioangeBudgetMuliplier, 1f, 5f, value: Player.EspionageBudgetMultiplier);
+                    EspionageBudgetMultiplier = new FloatSlider(SliderStyle.Decimal1, budgetRect, GameText.EspioangeBudgetMuliplier, 1f, Empire.MaxEspionageBudgetMultiplier, value: Player.EspionageBudgetMultiplier);
                     EspionageBudgetMultiplier.Tip = GameText.EspioangeBudgetMuliplierTip;
                     EspionageBudgetMultiplier.OnChange = (s) =>
                     {
@@ -213,7 +213,7 @@ namespace Ship_Game.GameScreens
                 batch.DrawString(Fonts.Arial12Bold, espionageDefense.String(1), defPos, Color.White);
 
                 if (defenseIcon.HitTest(Screen.Input.CursorPosition))
-                    ToolTip.CreateTooltip(Localizer.Token(GameText.IndicatesTheCounterespionageStrengthOf));
+                    ToolTip.CreateTooltip(GameText.IndicatesTheCounterespionageStrengthOf);
             }
 
             void DrawDefenseRatio()
@@ -228,7 +228,7 @@ namespace Ship_Game.GameScreens
                 var defPos = new Vector2(defenseIcon.Right + 2, defenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 batch.DrawString(Fonts.Arial12Bold, espionageDefense, defPos, Color.White);
                 if (defenseIcon.HitTest(InfiltrationScreen.Input.CursorPosition))
-                    ToolTip.CreateTooltip(Localizer.Token(GameText.InfiltrationDefesneTip));
+                    ToolTip.CreateTooltip(GameText.InfiltrationDefesneTip);
             }
 
             void DrawInfiltration()
@@ -274,7 +274,7 @@ namespace Ship_Game.GameScreens
         void UpdateCostPerTurn()
         {
             float espionageCost = Player.GetEspionageCost();
-            CostPerTurn.Text = $"{(espionageCost > 0 ? -espionageCost : espionageCost).String(1)} bc/y";
+            CostPerTurn.Text = $"{(espionageCost > 0 ? -espionageCost : espionageCost).String(1)} bc/t";
             CostPerTurn.Color = espionageCost > 0 ? Color.Pink : Color.LightGreen;
         }
 

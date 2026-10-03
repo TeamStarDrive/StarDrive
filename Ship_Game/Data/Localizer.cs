@@ -129,6 +129,18 @@ namespace Ship_Game
             throw new InvalidDataException($"GetTokenId({gameText}) failed!");
         }
 
+        // Id of a loaded token by its NameId; false when no such token exists
+        public static bool TryGetTokenId(string nameId, out int id)
+        {
+            if (nameId.NotEmpty() && NameIdToToken.TryGetValue(nameId, out var token))
+            {
+                id = token.Index;
+                return true;
+            }
+            id = 0;
+            return false;
+        }
+
         public static void LoadFromYaml(FileInfo gameText, FileInfo modText, Language language)
         {
             Language = language;

@@ -6,7 +6,6 @@
   <Maintenance>0</Maintenance>
   
   <PlusTaxPercentage>.6</PlusTaxPercentage>
-  <UniqueInEmpire>true</UniqueInEmpire>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>427</NameTranslationIndex>

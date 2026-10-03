@@ -257,11 +257,6 @@ Elements:
           Title: "{1}" # "New Game"
           ClickSfx: sd_ui_tactical_pause
       - Button:
-          Name: tutorials
-          Title: "{3}" # "Tutorials"
-          AbsSize: [200, 0] # aspect fill width
-          ClickSfx: sd_ui_tactical_pause
-      - Button:
           Name: load_game
           Title: "{2}" # "Load Game"
           AbsSize: [200, 0] # aspect fill width

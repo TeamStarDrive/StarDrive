@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
+using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.MainMenu;
 using Rectangle = SDGraphics.Rectangle;
@@ -119,6 +120,9 @@ namespace Ship_Game
             bool playerSelect = Input.InGameSelect || Input.IsEnterOrEscape;
             if (loadingDone && (playerSelect || SplashPlayer?.IsPlaying != true))
             {
+                if (GameAudio.ConfigIsStale)
+                    GameAudio.Reload();
+
                 ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
                 return true;
             }

@@ -255,7 +255,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (targetPlanet.Owner != null || !targetPlanet.Habitable || targetPlanet.RecentCombat)
+            if (targetPlanet.Owner != null
+                || !targetPlanet.Habitable
+                || targetPlanet.RecentCombat
+                || targetPlanet.ColonyGraceTurnsLeft(Owner.Loyalty) > 0)
             {
                 shipGoal.Goal?.NotifyMainGoalCompleted();
                 ClearOrders();
@@ -263,7 +266,7 @@ namespace Ship_Game.AI
             }
 
             targetPlanet.Colonize(Owner);
-            Owner.QueueTotalRemoval();
+            Owner.InitLanding(LandPlan.Colonize, targetPlanet);
         }
 
         bool TryGetClosestUnexploredPlanet(SolarSystem system, out Planet planet)
@@ -281,21 +284,104 @@ namespace Ship_Game.AI
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.Radius * 3)
+            if (!Owner.Loyalty.AI.HasGoal(GoalType.ScrapShip, Owner))
             {
-                Orbit.Orbit(goal.TargetPlanet, timeStep);
-                return;
-            }
-
-            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.Radius)
-            {
-                ThrustOrWarpToPos(goal.TargetPlanet.Position, timeStep, 200f);
-                return;
-            }
-
-            // Waiting to be scrapped by Empire goal
-            if (!Owner.Loyalty.AI.HasGoal(g => g.Type == GoalType.ScrapShip && g.OldShip == Owner))
                 ClearOrders(); // Could not find empire scrap goal
+                return;
+            }
+
+            FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Scrap);
+        }
+
+        void FlyInToLand(FixedSimTime timeStep, ShipGoal goal, Planet planet, LandPlan landPlan)
+        {
+            if (planet == null)
+            {
+                ClearOrders();
+                return;
+            }
+
+            Ship shipyard = LandShip.UsesShipyards(landPlan) ? planet.FindShipyardToLandOn(Owner) : null;
+            if (TryLand(landPlan, planet, shipyard))
+                return;
+
+            Vector2 landAt = shipyard?.Position ?? planet.Position;
+            ApproachToLand(timeStep, goal.GetThrustTarget(landAt, Owner.Position), landAt,
+                           LandingRange(landPlan, planet, shipyard), GlideSpeed(landPlan, planet, shipyard));
+        }
+
+        public void FlyInToTrade(FixedSimTime timeStep, ShipGoal goal, Planet planet)
+        {
+            if (TryLand(LandPlan.Trade, planet, shipyard: null))
+                Owner.SendShuttlesToPort(planet);
+            else
+                ApproachToLand(timeStep, goal.Trade.GetThrustTarget(planet.Position, Owner.Position), planet.Position,
+                               LandingRange(LandPlan.Trade, planet, shipyard: null), GlideSpeed(LandPlan.Trade, planet, shipyard: null));
+        }
+
+        public void FlyInToStation(FixedSimTime timeStep, ShipGoal goal, Ship station)
+        {
+            float range = LandShip.ShipyardLandingRange(Owner);
+            if (CanStartLanding(station.Position, range))
+                Owner.InitLandingOnStation(station);
+            else
+                ApproachToLand(timeStep, goal.Trade.GetThrustTarget(station.Position, Owner.Position), station.Position, range, LaunchShip.ShipyardSpeed(Owner));
+        }
+
+        void FlyInToHangar(FixedSimTime timeStep, Ship mothership)
+        {
+            if (Owner.LaunchShip is { MinesPlanet: true })
+                Owner.InitLaunch(LaunchPlan.MinerReturn, Owner.RotationDegrees);
+
+            float range = LandShip.HangarLandingRange(Owner);
+            if (CanStartLanding(mothership.Position, range))
+                Owner.InitLandingInHangar(mothership);
+            else
+                ApproachToLand(timeStep, mothership.Position, mothership.Position, range, LaunchShip.HangarSpeed(Owner));
+        }
+
+        public bool InTradeLandingRange(Planet planet)
+            => Owner.Position.InRadius(planet.Position, LandingRange(LandPlan.Trade, planet, shipyard: null));
+
+        void ApproachToLand(FixedSimTime timeStep, Vector2 thrustTarget, Vector2 landAt, float range, float glideSpeed)
+        {
+            if (thrustTarget != landAt)
+            {
+                ThrustOrWarpToPos(thrustTarget, timeStep);
+                return;
+            }
+
+            float speedLimit = 0f;
+            if (glideSpeed > 0f && !Owner.IsInWarp && Owner.Position.InRadius(landAt, range + Owner.GetMinDecelerationDistance(Owner.MaxSTLSpeed) + 500f))
+                speedLimit = glideSpeed;
+
+            ThrustOrWarpToPos(landAt, timeStep, speedLimit, warpExitDistance: Math.Min(range + Owner.WarpOutDistance, 7000f));
+        }
+
+        float GlideSpeed(LandPlan landPlan, Planet planet, Ship shipyard)
+            => shipyard != null || LandShip.LandsOnSpacePort(landPlan, planet) ? LaunchShip.ShipyardSpeed(Owner) : 0f;
+
+        float LandingRange(LandPlan landPlan, Planet planet, Ship shipyard)
+        {
+            if (shipyard != null)
+                return LandShip.ShipyardLandingRange(Owner);
+            return LandShip.LandsOnSpacePort(landPlan, planet) ? LandShip.SpacePortLandingRange(Owner) : planet.Radius + 300f;
+        }
+
+        public bool TryLand(LandPlan landPlan, Planet planet, Ship shipyard)
+        {
+            Vector2 landAt = shipyard?.Position ?? planet.Position;
+            if (!CanStartLanding(landAt, LandingRange(landPlan, planet, shipyard)))
+                return false;
+
+            Owner.InitLanding(landPlan, planet, shipyard);
+            return true;
+        }
+
+        bool CanStartLanding(Vector2 landAt, float range)
+        {
+            return !Owner.Position.OutsideRadius(landAt, range)
+                   && !Owner.IsLaunching && !Owner.IsSpoolingOrInWarp && !Owner.Dying && !Owner.EMPDisabled;
         }
 
         public void Update(FixedSimTime timeStep)
@@ -348,7 +434,7 @@ namespace Ship_Game.AI
             supply => supply.Position.SqDist(Owner.Position));
 
         public Ship NearByRepairShip => FriendliesNearby.FindMinFiltered(
-            supply => supply.HasRepairBeam || supply.HasRepairModule,
+            supply => supply.HasRepairModule,
             supply => supply.Position.SqDist(Owner.Position));
 
         public void ProcessResupply(ResupplyReason resupplyReason)
@@ -538,15 +624,16 @@ namespace Ship_Game.AI
                 case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
                 case Plan.RearmShipFromPlanet:      DoRearmShip(timeStep);                    break;
                 case Plan.BuildOrbital:             DoBuildOrbital(timeStep, goal);           break;
-                case Plan.Refit:                    DoRefit(goal);                            break;
+                case Plan.Refit:                    DoRefit(timeStep, goal);                  break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
-                case Plan.ReturnHome:               DoReturnHome(timeStep);                   break;
+                case Plan.ReturnHome:               DoReturnHome(timeStep, goal);             break;
                 case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
                 case Plan.HoldPosition:             DoHoldPositionPlan(goal);                 break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
                 case Plan.Meteor:                   DoMeteor(goal);                           break;
                 case Plan.BuilderReturnHome:        DoBuilderReturnHome(timeStep, goal);      break;
+                case Plan.SupplyReturnHome:         DoSupplyReturnHome(timeStep, goal);       break;
                 case Plan.MinePlanet:               DoMinePlanet(timeStep, goal);             break;
                 case Plan.Orbit:                    DoOrbit(timeStep, goal);                  break;
             }
@@ -717,23 +804,6 @@ namespace Ship_Game.AI
                 //Do repair check if friendly ships around
                 if (FriendliesNearby.Length == 0)
                     return;
-
-                //Added by McShooterz: logic for repair beams
-                var repairBeams = Owner.RepairBeams;
-                if (repairBeams != null)
-                {
-                    for (int i = 0; i < repairBeams.Count; i++)
-                    {
-                        ShipModule m = repairBeams[i];
-                        if (m.InstalledWeapon.CooldownTimer <= 0f &&
-                            m.InstalledWeapon.Module.Powered &&
-                            Owner.Ordinance >= m.InstalledWeapon.OrdinanceRequiredToFire &&
-                            Owner.PowerCurrent >= m.InstalledWeapon.PowerRequiredToFire)
-                        {
-                            DoRepairBeamLogic(m.InstalledWeapon);
-                        }
-                    }
-                }
 
                 if (!Owner.HasRepairModule)
                     return;

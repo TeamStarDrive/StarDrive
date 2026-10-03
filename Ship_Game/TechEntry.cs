@@ -901,13 +901,9 @@ namespace Ship_Game
                 case "Weapon_Damage"           : mod.Damage            += unlocked.Bonus; break;
                 case "Weapon_ExplosionRadius"  : mod.ExplosionRadius   += unlocked.Bonus; break;
                 case "Weapon_TurnSpeed"        : mod.Turn              += unlocked.Bonus; break;
-                case "Weapon_Rate"             : mod.Rate              += unlocked.Bonus; break;
                 case "Weapon_Range"            : mod.Range             += unlocked.Bonus; break;
-                case "Weapon_ShieldDamage"     : mod.ShieldDamage      += unlocked.Bonus; break;
-                case "Weapon_ArmorDamage"      : mod.ArmorDamage       += unlocked.Bonus; break;
                 case "Weapon_HP"               : mod.HitPoints         += unlocked.Bonus; break;
                 case "Weapon_ShieldPenetration": mod.ShieldPenetration += unlocked.Bonus; break;
-                case "Weapon_ArmourPenetration": mod.ArmourPenetration += unlocked.Bonus; break;
             }
         }
 
@@ -959,6 +955,7 @@ namespace Ship_Game
                 case "Reactive Armor":
                 case "Armor Explosion Reduction": data.ExplosiveRadiusReduction += unlockedBonus.Bonus; break;
                 case "Slipstreams":
+                case "Subspace Tunneling": // Slip Streams secret tech flavor name; its text promises an in-borders bonus
                 case "In Borders FTL Bonus": data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus; break;
                 case "StarDrive Enhancement":
                 case "FTL Speed Bonus": data.FTLModifier += unlockedBonus.Bonus * data.FTLModifier; break;

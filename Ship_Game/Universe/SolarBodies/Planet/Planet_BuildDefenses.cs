@@ -58,6 +58,11 @@ namespace Ship_Game
 
         bool GovernorShouldNotScrapBuilding => OwnerIsPlayer && DontScrapBuildings;
 
+        // What the player placed by hand is off limits to the governor, whatever the scrap
+        // setting says - unless the blueprints are exclusive, which is the player asking for
+        // the plan and nothing but the plan
+        public bool PlayerBuiltIsProtected => OwnerIsPlayer && !HasExclusiveBlueprints;
+
         private Array<Ship> FilterOrbitals(RoleName role)
         {
             var orbitalList = new Array<Ship>();
@@ -96,6 +101,13 @@ namespace Ship_Game
             return numOrbitals;
         }
 
+        // every new orbital on its way here, whatever its role, shipyards included. A refit
+        // replaces an orbital that is already counted
+        int AllOrbitalsBeingBuilt(Empire owner)
+            => owner?.AI.CountGoals(g => g is DeepSpaceBuildGoal b && b.OldShip == null && b.IsBuildingOrbitalFor(this)) ?? 0;
+
+        bool OrbitalsCapReached => OrbitalStations.Count + AllOrbitalsBeingBuilt(Owner) >= ShipBuilder.OrbitalsLimit;
+
         public int ShipyardsBeingBuilt() => ShipyardsBeingBuilt(Owner);
 
         private int ShipyardsBeingBuilt(Empire owner)
@@ -126,7 +138,7 @@ namespace Ship_Game
 
             if (budget > 0)
             {
-                if (orbitalsWeHave < orbitalsWeWant) // lets build an orbital
+                if (orbitalsWeHave < orbitalsWeWant && HasRoomForOrbitalClearOfRadiation && !OrbitalsCapReached) // lets build an orbital
                     BuildOrbital(role, budget);
                 else if (orbitalList.Count > 0)
                     ReplaceOrbital(orbitalList, role, budget);  // check if we can replace an orbital with a better one
@@ -166,6 +178,26 @@ namespace Ship_Game
         }
 
         private int TimeVsCostThreshold => (int)(40 + EstimatedAverageProduction*Level + Owner.Money/250);
+
+        public const int OrbitalsPerRing = 9;
+        public const int OrbitalRings = ShipBuilder.OrbitalsLimit / OrbitalsPerRing + 1; // FB - limit on rings, based on Orbitals Limit
+
+        public float OrbitalRingRadius(int ring) => 2000 + 1000 * ring * Scale;
+
+        public int OrbitalRingsClearOfRadiation
+        {
+            get
+            {
+                int rings = 0;
+                while (rings < OrbitalRings && System.InSafeDistanceFromRadiation(OrbitalRadius - OrbitalRingRadius(rings)))
+                    ++rings;
+                return rings;
+            }
+        }
+
+        bool HasRoomForOrbitalClearOfRadiation => !System.IsSunDangerous
+            || OrbitalStations.Count + Owner.AI.CountGoals(g => g is DeepSpaceBuildGoal b && b.IsBuildingOrbitalFor(this))
+               < OrbitalsPerRing * OrbitalRingsClearOfRadiation;
 
         // Adds an Orbital to ConstructionQueue
         public void AddOrbital(IShipDesign orbital)
@@ -308,10 +340,11 @@ namespace Ship_Game
             }
 
             int totalShipyards = NumShipyards + ShipyardsBeingBuilt();
-            if (totalShipyards < numWantedShipyards)
+            if (totalShipyards < numWantedShipyards && HasRoomForOrbitalClearOfRadiation)
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.Ships.GetDesign(shipyardName, out IShipDesign shipyard)
+                    && !IsOutOfOrbitalsLimit(shipyard)
                     && shipyard.GetMaintenanceCost(Owner) < budget
                     && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), TimeVsCostThreshold))
                 {
@@ -335,8 +368,8 @@ namespace Ship_Game
         public int NumStations  => FilterOrbitals(RoleName.station).Count;
 
         // extraPending: orbitals already queued in the same batch that the marshalled goal-add
-        // (RunOnSimThread) hasn't applied to the empire goals list yet, so OrbitalsBeingBuilt/
-        // ShipyardsBeingBuilt still under-counts them. Callers that enqueue in a tight loop pass it.
+        // (RunOnSimThread) hasn't applied to the empire goals list yet, so the pending build goals
+        // still under-count them. Callers that enqueue in a tight loop pass it.
         // Assumes a homogeneous batch (one design repeated): extraPending is added to both the orbital
         // and shipyard counts, which is only safe because the unused count's gate can't fire for that
         // design (a platform never trips the shipyard branch). Mixed-design batches would miscount.
@@ -345,7 +378,7 @@ namespace Ship_Game
 
         bool IsOutOfOrbitalsLimit(IShipDesign ship, Empire owner, int overLimit, int extraPending)
         {
-            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.Role, owner) + extraPending;
+            int numOrbitals  = OrbitalStations.Count + AllOrbitalsBeingBuilt(owner) + extraPending;
             int numShipyards = OrbitalStations.Count(s => s.ShipData.IsShipyard) + ShipyardsBeingBuilt(owner) + extraPending;
             if (numOrbitals >= ShipBuilder.OrbitalsLimit + overLimit && ship.IsPlatformOrStation)
                 return true;
@@ -437,12 +470,16 @@ namespace Ship_Game
                 return;
             }
 
+            // if the scrap was refused, the blueprints still need building, so fall through
+            // instead of leaving the plan stuck behind a scrap that will never happen
             if ((HasExclusiveBlueprints || HasBlueprints && !Blueprints.Exclusive && FreeHabitableTiles == 0 && !Blueprints.IsAchievableCompleted)
-                && BuildingList.Any(b => b.IsMilitary && !RequiredInBlueprints(b)))
+                && BuildingList.Any(b => b.IsMilitary && !RequiredInBlueprints(b))
+                && TryScrapMilitaryBuilding())
             {
-                TryScrapMilitaryBuilding();
+                return;
             }
-            else if (GovGroundDefense || !OwnerIsPlayer || HasBlueprints)
+
+            if (GovGroundDefense || !OwnerIsPlayer || HasBlueprints)
             {
                 TryBuildMilitaryBuilding(budget);
             }
@@ -471,21 +508,28 @@ namespace Ship_Game
                 Construction.Enqueue(best);
         }
         
-        void TryScrapMilitaryBuilding()
+        internal bool TryScrapMilitaryBuilding()
         {
+            if (GovernorShouldNotScrapBuilding)
+                return false; // this is the only path that scraps a military building, so the setting binds here
+
             Building weakest = null;
             if (HasBlueprints)
             {
-                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !RequiredInBlueprints(b),
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable
+                                                            && !(b.IsPlayerAdded && PlayerBuiltIsProtected) && !RequiredInBlueprints(b),
                                                        b => b.CostEffectiveness);
             }
 
             if (weakest == null)
-                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !b.IsPlayerAdded,
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !(b.IsPlayerAdded && PlayerBuiltIsProtected),
                                                        b => b.CostEffectiveness);
 
-            if (weakest != null)
-                ScrapBuilding(weakest);
+            if (weakest == null)
+                return false;
+
+            ScrapBuilding(weakest);
+            return true;
         }
 
         public void AddTroop(Troop troop, PlanetGridSquare tile)

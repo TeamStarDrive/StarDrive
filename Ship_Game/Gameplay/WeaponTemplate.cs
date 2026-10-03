@@ -132,7 +132,6 @@ namespace Ship_Game.Gameplay
         public bool ExcludesCorvettes { get; set; }
         public bool ExcludesCapitals { get; set; }
         public bool ExcludesStations { get; set; }
-        public bool IsRepairBeam { get; set; }
         public bool TerminalPhaseAttack { get; set; }
         public float TerminalPhaseDistance { get; set; }
         public float TerminalPhaseSpeedMod { get; set; } = 2f;
@@ -220,7 +219,7 @@ namespace Ship_Game.Gameplay
             float dps;
             if (IsBeam)
             {
-                float beamMultiplier = !IsRepairBeam ? BeamDuration * 60f : 0f;
+                float beamMultiplier = BeamDuration * 60f;
                 float damage = DamageAmount != 0 ? DamageAmount : PowerDamage;
                 dps = (damage * beamMultiplier) / NetFireDelay;
             }
@@ -235,6 +234,17 @@ namespace Ship_Game.Gameplay
             }
             return dps;
         }
+
+        public static float ActualShieldPenChance(IWeaponTemplate weapon, EmpireData empire)
+        {
+            float chance = weapon.ShieldPenChance + empire.ShieldPenBonusChance * 100f;
+            foreach (WeaponTag tag in weapon.ActiveWeaponTags)
+                chance += empire.WeaponTags[tag].ShieldPenetration * 100f;
+            return chance;
+        }
+
+        public static float PowerPerShot(IWeaponTemplate weapon) => weapon.PowerRequiredToFire * weapon.ProjectileCount;
+        public static float OrdnancePerShot(IWeaponTemplate weapon) => weapon.OrdinanceRequiredToFire * weapon.ProjectileCount;
 
         public static float GetWeaponInaccuracyBase(float moduleArea, float overridePercent)
         {
@@ -263,6 +273,7 @@ namespace Ship_Game.Gameplay
         public static float CalculateOffense(ShipModule m, IWeaponTemplate t)
         {
             float off = 0f;
+            float empAndPowerShare = 0f;
             float shotsPerSec = (1.0f / t.NetFireDelay);
 
             if (t.IsBeam)
@@ -276,8 +287,12 @@ namespace Ship_Game.Gameplay
             }
             else
             {
+                float empAndPower = t.EMPDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.5f
+                                  + t.PowerDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.75f;
                 off += t.DamageAmount * t.SalvoCount * t.ProjectileCount * shotsPerSec;
-                off += t.EMPDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.5f;
+                off += empAndPower;
+                if (off > 0f)
+                    empAndPowerShare = empAndPower / off;
             }
 
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
@@ -298,7 +313,8 @@ namespace Ship_Game.Gameplay
             off *= t.Tag_Intercept && t.RotationRadsPerSecond > 1 ? 1 + t.HitPoints * 0.02f / t.ProjectileRadius.LowerBound(2) : 1;
 
             // FB: offense calcs for damage radius
-            off *= t.ExplosionRadius > 16 && !t.TruePD ? t.ExplosionRadius * 0.0625f : 1f;
+            if (t.ExplosionRadius > 16 && !t.TruePD)
+                off *= empAndPowerShare + (1f - empAndPowerShare) * t.ExplosionRadius * 0.0625f;
 
             // FB: Added shield pen chance
             off *= 1 + t.ShieldPenChance * 0.01f;
@@ -365,13 +381,6 @@ namespace Ship_Game.Gameplay
 
             if (owner?.Level > 0)
                 damageAmount += damageAmount * owner.Level * 0.05f;
-
-            // Hull bonus damage increase
-            if (GlobalStats.Defaults.UseHullBonuses && owner != null &&
-                ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
-            {
-                damageAmount += damageAmount * mod.DamageBonus;
-            }
 
             return damageAmount;
         }

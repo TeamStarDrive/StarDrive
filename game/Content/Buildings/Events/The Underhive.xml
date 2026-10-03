@@ -12,7 +12,6 @@
   <HardAttack>20</HardAttack>
   <MaxPopIncrease>1200</MaxPopIncrease>
   <Scrappable>false</Scrappable>
-  <UniqueInEmpire>true</UniqueInEmpire>
   <BuildOnlyOnce>true</BuildOnlyOnce>
   
   <!-- For localization in GameText.yaml -->

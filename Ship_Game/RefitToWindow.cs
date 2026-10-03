@@ -15,6 +15,8 @@ namespace Ship_Game
 {
     public sealed class RefitToWindow : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly ShipListScreen Screen;
         readonly Ship ShipToRefit;
         Empire Player => ShipToRefit.Universe.Player;
@@ -151,7 +153,8 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            Screen?.ResetStatus();
+            if (Screen != null)
+                Screen.Universe.RunOnSimThread(() => Screen.StatusDirty = true);
             base.ExitScreen();
         }
 

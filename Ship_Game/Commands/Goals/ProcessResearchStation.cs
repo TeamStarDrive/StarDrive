@@ -89,9 +89,21 @@ namespace Ship_Game.Commands.Goals
 
             if (StationToBuild == null)
             {
-                StationToBuild = !Owner.isPlayer || Owner.AutoPickBestResearchStation 
-                    ? ShipBuilder.PickResearchStation(Owner) 
-                    : ResourceManager.Ships.GetDesign(Owner.data.ResearchStation, throwIfError: true);
+                StationToBuild = !Owner.isPlayer || Owner.AutoPickBestResearchStation
+                    ? ShipBuilder.PickResearchStation(Owner)
+                    : ShipBuilder.StationDesignOrNull(Owner.data.ResearchStation);
+                if (StationToBuild == null)
+                {
+                    if (Owner.data.CurrentResearchStation.NotEmpty())
+                    {
+                        string stale = Owner.data.CurrentResearchStation;
+                        Owner.data.CurrentResearchStation = "";
+                        Log.Warning($"{Owner.Name}: research station design '{stale}' no longer exists, the automation window falls back to '{Owner.data.ResearchStation}'");
+                        return GoalStep.TryAgain;
+                    }
+                    Log.Warning($"{Owner.Name}: no research station design to build, the default '{Owner.data.ResearchStation}' does not exist either");
+                    return GoalStep.GoalFailed;
+                }
             }
 
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, StationToBuild, out Planet planetToBuildAt, portQuality: 1f))
@@ -255,11 +267,11 @@ namespace Ship_Game.Commands.Goals
                 ? Owner.data.CurrentResearchStation
                 : Owner.BestResearchStationWeCanBuild?.Name;
 
-            if (bestRefit == null)
+            if (bestRefit.IsEmpty())
                 return false;
 
             if (ResearchStation.Name != bestRefit && !Owner.AI.HasGoal(g => g is RefitOrbital && g.OldShip == ResearchStation))
-                betterStation = ResourceManager.Ships.GetDesign(bestRefit);
+                betterStation = ShipBuilder.StationDesignOrNull(bestRefit);
 
             return betterStation != null;
         }

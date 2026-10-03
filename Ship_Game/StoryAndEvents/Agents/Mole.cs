@@ -16,11 +16,10 @@ namespace Ship_Game
             if (target.IsDefeated) 
                 return null;
 
-            var potentials = target.GetPlanets().Filter(p => p.IsExploredBy(owner) 
+            var potentials = target.GetPlanets().Filter(p => p.IsExploredBy(owner)
                                                              && !owner.data.MoleList.Any(m => m.PlanetId == p.Id));
-
             if (potentials.Length == 0)
-                potentials = target.GetPlanets().ToArray();
+                return null;
 
             targetPlanet = target.Random.Item(potentials);
             Mole mole = new()
@@ -38,10 +37,13 @@ namespace Ship_Game
         public static Mole PlantStickyMoleAtHomeworld(Empire owner, Empire target, out Planet targetPlanet)
         {
             targetPlanet = null;
-            var planets = target.GetPlanets().Filter(p => p.IsHomeworld || p.HasCapital);
+            // falls back to their biggest explored colony; with nothing explored the
+            // level perk simply retries on the next espionage tick
+            Planet[] explored = target.GetPlanets().Filter(p => p.IsExploredBy(owner));
+            Planet[] seats = explored.Filter(p => p.IsHomeworld || p.HasCapital);
 
-            targetPlanet = planets.Length == 0 ? target.GetPlanets().FindMax(p => p.PopulationBillion)
-                                                : target.Random.Item(planets);
+            targetPlanet = seats.Length == 0 ? explored.FindMax(p => p.PopulationBillion)
+                                             : target.Random.Item(seats);
 
             if (targetPlanet == null)
                 return null;

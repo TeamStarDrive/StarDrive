@@ -185,7 +185,6 @@ namespace Ship_Game.AI
             float distanceToEnd = Missile.Position.Distance(targetPos);
             if (distanceToEnd <= 300f)
                 Missile.Die(Missile, false);
-            Target = null;
         }
 
         // added by gremlin Deveksmod Missilethink.

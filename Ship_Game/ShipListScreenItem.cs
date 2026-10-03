@@ -178,6 +178,12 @@ namespace Ship_Game
 
         public static string GetStatusText(Ship ship)
         {
+            string orders = GetOrdersText(ship);
+            return ship.LandShip is { Docked: true } ? $"{orders} {Localizer.Token(GameText.ShipListDocked)}" : orders;
+        }
+
+        static string GetOrdersText(Ship ship)
+        {
             if (ship.AI == null)  //fbedard: prevent crash ?
                 return "";
             switch (ship.AI.State)
@@ -381,31 +387,26 @@ namespace Ship_Game
 
             if (ScrapButton.HandleInput(input))
             {
-                if (!IsScuttle)
-                {
-                    StatusText = GetStatusText(Ship);
-                }
-                else
-                {
-                    StatusText = GetStatusText(Ship);
-                }
                 GameAudio.EchoAffirmative();
                 if (!IsScuttle)
                 {
                     if (Ship.AI.State == AIState.Scrap)
                     {
                         Ship.AI.ClearOrders();
+                        Ship ship = Ship;
+                        Screen.Universe.RunOnSimThread(() => ship.Loyalty.AI.FindAndRemoveGoal(GoalType.ScrapShip, g => g.OldShip == ship));
                     }
                     else
                     {
                         if (input.IsShiftKeyDown)
                         {
                             Screen.Universe.RunOnSimThread(() => Ship.Loyalty.MassScrap(Ship));
-                            Screen.Universe.RunOnSimThread(() => Screen.ResetStatus());
+                            Screen.Universe.RunOnSimThread(() => Screen.StatusDirty = true);
                         }
                         else
                         {
                             Ship.AI.OrderScrapShip();
+                            Screen.Universe.RunOnSimThread(() => Screen.StatusDirty = true);
                         }
                     }
                     StatusText = GetStatusText(Ship);

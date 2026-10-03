@@ -179,7 +179,7 @@ public partial class Planet
                 isShip  = !forTroop,
                 ShipData = sData,
                 isTroop = forTroop,
-                Cost    = forTroop ? cost : cost * ShipCostModifier,
+                Cost    = cost,
             };
 
             return qi;
@@ -210,12 +210,13 @@ public partial class Planet
                 Goal goal = refitGoals[i];
                 if (goal.ToBuild != null)
                 {
-                    if (goal.OldShip != null && goal.ToBuild != null)
+                    if (goal.OldShip != null && goal.ToBuild != null && goal.FinishedShip == null
+                        && !ConstructionQueue.Any(q => q.Goal == goal))
                     {
                         var qi = new QueueItem(this)
                         {
                             isShip = true,
-                            Cost   = goal.OldShip.RefitCost(goal.ToBuild) * ShipCostModifier,
+                            Cost   = goal.OldShip.RefitCost(goal.ToBuild),
                             ShipData = goal.ToBuild
                         };
                         refitQueue.Add(qi);
@@ -362,10 +363,14 @@ public partial class Planet
     {
         tile.Biosphere = false;
 
-        var biosphere = FindBuilding(b => b.IsBiospheres);
-        if (biosphere != null)
-            BuildingList.Remove(biosphere);
+        // Biospheres are a planet wide pool with no tile of their own, so the one removed for
+        // this tile is whichever we pick: never spend a player's while a governor's is there
+        var biosphere = FindBuilding(b => b.IsBiospheres && !b.IsPlayerAdded)
+                        ?? FindBuilding(b => b.IsBiospheres);
+        if (biosphere == null)
+            return;
 
+        BuildingList.Remove(biosphere);
         UpdatePlanetStatsFromRemovedBuilding(biosphere);
     }
 
@@ -457,7 +462,7 @@ public partial class Planet
             TerraformingHere = HasBuilding(bb => bb.IsTerraformer || bb.IsEventTerraformer);
         
         // FB - no terraformers present, terraform effort halted
-        if (b.IsTerraformer && !TerraformingHere)
+        if ((b.IsTerraformer || b.IsEventTerraformer) && !TerraformingHere)
             TerraformPoints = 0;
 
         if (b.IsCapital) HasCapital = false;
@@ -490,7 +495,6 @@ public partial class Planet
 
         FreeHabitableTiles = TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         TotalHabitableTiles = TilesList.Count(tile => tile.Habitable);
-        HabiableBuiltCoverage = 1 - (float)FreeHabitableTiles / TotalHabitableTiles;
         NumFreeBiospheres = TilesList.Count(t => t.Biosphere && !t.BuildingOnTile);
 
         TotalMoneyBuildings = TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);

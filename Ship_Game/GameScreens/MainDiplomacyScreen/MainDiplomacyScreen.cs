@@ -18,6 +18,8 @@ namespace Ship_Game
 {
     public sealed class MainDiplomacyScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         UniverseScreen Universe;
         public DanButton Contact;
 
@@ -331,7 +333,7 @@ namespace Ship_Game
                 if (alwaysShow || espionage.CanViewMoneyAndMaint)
                 {
                     DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.Treasury)} {SelectedEmpire.Money.String(2)}", Color.Wheat, ref textCursor);
-                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.MaintenanceCosts)} {SelectedEmpire.BuildingAndShipMaint.String(2)}", Color.Wheat, ref textCursor);
+                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.MaintenanceCosts)} {(SelectedEmpire.BuildingAndShipMaint + SelectedEmpire.TroopCostOnPlanets).String(2)}", Color.Wheat, ref textCursor);
                 }
 
                 if (SelectedEmpire.Research.HasTopic)

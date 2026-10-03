@@ -2,8 +2,15 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI.Components;
+using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.LoadGame;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
+using Ship_Game.UI;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
@@ -75,7 +82,7 @@ namespace UnitTests.AITests.Empire
             Enemy.Universe.P.UseLegacyEspionage = true;
             var budget = new BudgetPriorities(Enemy);
             int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
-            Assert.IsTrue(budget.Count() == budgetAreas);
+            Assert.IsTrue(budget.Count() == budgetAreas - 1, "every area but Espionage, which only supplies an AI's spy weight");
 
             var eAI = Enemy.AI;
 
@@ -174,5 +181,298 @@ namespace UnitTests.AITests.Empire
             // The budget the planet should now be the maint of 2 terraformers
             AssertEqual(homeworld.TerraformBudget, terraformerMaint*2);
         }
+
+        [TestMethod]
+        public void GarrisonUpkeepIsChargedForYourOwnTroopsOnly()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+            Player.UpdateNetPlanetIncomes();
+            float netBefore = Player.NetIncome;
+            int garrisonBefore = homeworld.Troops.NumTroopsHere(Player);
+
+            for (int i = 0; i < 5; ++i)
+                Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Player).TryLandTroop(homeworld));
+            for (int i = 0; i < 3; ++i)
+                Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Enemy).TryLandTroop(homeworld));
+            Player.UpdateNetPlanetIncomes();
+
+            float garrison = (garrisonBefore + 5) * ShipMaintenance.TroopMaint;
+            AssertEqual(0.001f, garrison, Player.TroopCostOnPlanets, "the Troop Maint. row counts our troops, not the invaders");
+            AssertEqual(0.001f, homeworld.Money.Maintenance, Player.TotalBuildingMaintenance, "the Building Maint. row is buildings only");
+            AssertEqual(0.001f, netBefore - 5 * ShipMaintenance.TroopMaint, Player.NetIncome, "our five new troops cost upkeep");
+        }
+
+        [TestMethod]
+        public void PlayerBudgetWeightsDoNotDependOnTheEspionageSystem()
+        {
+            CreateEmpireAndHomeWorld();
+            UState.P.Difficulty = GameDifficulty.Normal;
+            UState.P.UseLegacyEspionage = true;
+            var legacy = new BudgetPriorities(Player);
+            UState.P.UseLegacyEspionage = false;
+            var modern = new BudgetPriorities(Player);
+
+            AssertGreaterThan(legacy.GetBudgetFor(BudgetPriorities.BudgetAreas.Spy), 0f, "setup: the yaml gives Spy a weight");
+            AssertEqual(0f, modern.GetBudgetFor(BudgetPriorities.BudgetAreas.Espionage), "the Espionage key is not a player weight");
+            foreach (BudgetPriorities.BudgetAreas area in Enum.GetValues(typeof(BudgetPriorities.BudgetAreas)))
+                AssertEqual(0.000001f, legacy.GetBudgetFor(area), modern.GetBudgetFor(area),
+                    $"the player's {area} share must be the same under both espionage systems");
+
+            AssertEqual(0f, new BudgetPriorities(Enemy).GetBudgetFor(BudgetPriorities.BudgetAreas.Spy),
+                "an AI on Normal under the new espionage system still has no spy weight");
+        }
+
+        static BudgetPriorities.BudgetSettings AllBlock(params (BudgetPriorities.BudgetAreas Area, float Weight)[] weights)
+        {
+            var map = new Map<BudgetPriorities.BudgetAreas, float>();
+            foreach ((BudgetPriorities.BudgetAreas area, float weight) in weights)
+                map[area] = weight;
+            return new BudgetPriorities.BudgetSettings("All", map);
+        }
+
+        [TestMethod]
+        public void TheEspionageWeightIsTheAiSpyWeightAboveNormal()
+        {
+            CreateEmpireAndHomeWorld();
+            var settings = new Array<BudgetPriorities.BudgetSettings>
+            {
+                AllBlock((BudgetPriorities.BudgetAreas.Espionage, 7), (BudgetPriorities.BudgetAreas.Spy, 25),
+                         (BudgetPriorities.BudgetAreas.Colony, 8))
+            };
+            var spy = BudgetPriorities.BudgetAreas.Spy;
+
+            UState.P.UseLegacyEspionage = false;
+            UState.P.Difficulty = GameDifficulty.Hard;
+            AssertEqual(0.0001f, 7f / 15f, new BudgetPriorities(Enemy, settings).GetBudgetFor(spy),
+                "above Normal an AI's spy weight is the Espionage value, even when it is listed first");
+            UState.P.Difficulty = GameDifficulty.Normal;
+            AssertEqual(0f, new BudgetPriorities(Enemy, settings).GetBudgetFor(spy), "on Normal an AI has no spy weight");
+            UState.P.UseLegacyEspionage = true;
+            AssertEqual(0.0001f, 25f / 33f, new BudgetPriorities(Enemy, settings).GetBudgetFor(spy),
+                "under legacy espionage Spy is the agent budget and Espionage is no weight at all");
+            UState.P.UseLegacyEspionage = false;
+            AssertEqual(0.0001f, 25f / 33f, new BudgetPriorities(Player, settings).GetBudgetFor(spy),
+                "the player keeps the Spy weight its governors share");
+        }
+
+        [TestMethod]
+        public void OnlyTheAllBudgetBlockIsRead()
+        {
+            CreateEmpireAndHomeWorld();
+            var raceBlock = new Map<BudgetPriorities.BudgetAreas, float> { [BudgetPriorities.BudgetAreas.Terraform] = 1 };
+            var settings = new Array<BudgetPriorities.BudgetSettings>
+            {
+                AllBlock((BudgetPriorities.BudgetAreas.Colony, 1)),
+                new BudgetPriorities.BudgetSettings(Enemy.Name, raceBlock)
+            };
+            var budget = new BudgetPriorities(Enemy, settings);
+
+            AssertEqual(0.0001f, 1f, budget.GetBudgetFor(BudgetPriorities.BudgetAreas.Colony), "the All block alone sets the weights");
+            AssertEqual(0f, budget.GetBudgetFor(BudgetPriorities.BudgetAreas.Terraform), "a block named after an empire is ignored");
+        }
+
+        [TestMethod]
+        public void AnAiAboveNormalBuysEspionagePointsFromItsTreasury()
+        {
+            CreateUniverseAndPlayerEmpire("Cordrazine", settings: new UniverseParams { Difficulty = GameDifficulty.Hard });
+            AddHomeWorldToEmpire(new Vector2(1000), Player);
+            AddHomeWorldToEmpire(new Vector2(2000), Enemy, new Vector2(3000));
+            UState.Objects.UpdateLists();
+            AddHomeWorldToEmpire(new Vector2(1000), Enemy);
+            Enemy.UpdatePopulation();
+            AssertGreaterThan(Enemy.TotalPopBillion, 10f, "setup: an AI under ten billion colonists buys no points");
+
+            Enemy.Money = 1_000_000;
+            for (int i = 0; i < 10; ++i)
+                Enemy.AI.RunEconomicPlanner();
+            AssertGreaterThan(Enemy.AI.SpyBudget, 1f, "an AI's spy budget is credits");
+
+            Enemy.AI.EspionageManager.Update(forceRun: true);
+            Enemy.AI.EspionageManager.Update(forceRun: true);
+            AssertEqual(0.001f, Ship_Game.Empire.MaxEspionageBudgetMultiplier, Enemy.EspionageBudgetMultiplier,
+                "a rich AI buys extra points up to the cap on the player's slider");
+        }
+
+        [TestMethod]
+        public void TradeUnderACreditCountsTowardTheTradeAverage()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            Player.data.Traits.TaxGoods = true;
+            Player.data.Traits.Mercantile = 0f;
+            Player.data.TaxRate = 0.25f;
+
+            for (int i = 0; i < 8; ++i)
+                Player.TaxGoods(1f, homeworld);
+
+            AssertEqual(0.001f, 2f, Player.AllTimeTradeIncome, "eight deliveries earning a quarter credit each");
+        }
+
+        [TestMethod]
+        public void TheTradeAverageSurvivesSaveAndLoad()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            UState.StarDate = 1042.5f;
+            Player.data.Traits.TaxGoods = true;
+            Player.data.TaxRate = 0.5f;
+            for (int turn = 0; turn < 4; ++turn)
+            {
+                Player.TaxGoods(10f, homeworld);
+                Player.DoMoney();
+            }
+            float average = Player.AverageTradeIncome;
+            AssertGreaterThan(average, 0f, "setup: the freighters must have earned something");
+
+            SavedGame save = Universe.Save("UnitTest.TradeAverage", throwOnError: true);
+            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+
+            AssertEqual(0.001f, average, loaded.UState.Player.AverageTradeIncome,
+                "the lifetime average must not restart when a game is loaded");
+        }
+
+        [TestMethod]
+        public void TheTradePanelListsATreatySignedThisTurn()
+        {
+            CreateUniverseAndPlayerEmpire();
+            Player.SignTreatyWith(Enemy, TreatyType.Trade);
+
+            var screen = new BudgetScreen(Universe);
+            Game.Manager.AddScreenAndLoadContent(screen);
+            try
+            {
+                Assert.IsTrue(HasLabel(screen, $"   {Enemy.data.Traits.Plural}:"),
+                    "the trade panel must list every partner its total counts");
+            }
+            finally
+            {
+                Game.Manager.RemoveScreen(screen);
+            }
+        }
+
+        [TestMethod]
+        public void AHomeDefenseLaunchChargesTheCreditFeeOnce()
+        {
+            CreateEmpireAndHomeWorld();
+            Ship defender = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            float fee = defender.GetCost(Player) * Player.DifficultyModifiers.CreditsMultiplier;
+            AssertGreaterThan(fee, 0f, "setup: the ship must cost something");
+
+            float moneyBefore = Player.Money;
+            Player.ChargeCreditsHomeDefense(defender);
+
+            AssertEqual(0.01f, fee, moneyBefore - Player.Money, "a launch pays the difficulty's credit fee on the ship's cost, once");
+        }
+
+        [TestMethod]
+        public void ScrappingAMilitaryBuildingRefundsHalfItsCreditFee()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            string name = ResourceManager.BuildingsDict.Values.First(b => b.IsMilitary && b.Scrappable).Name;
+            Building military = ResourceManager.CreateBuilding(homeworld, name);
+            homeworld.TilesList.First(t => t.Habitable && t.NoBuildingOnTile).PlaceBuilding(military, homeworld);
+            float refund = military.ActualCost(Player) * Player.DifficultyModifiers.CreditsMultiplier * 0.5f;
+            AssertGreaterThan(refund, 0f, "setup: the building must cost something");
+
+            float moneyBefore = Player.Money;
+            homeworld.ScrapBuilding(military);
+
+            AssertEqual(0.01f, refund, Player.Money - moneyBefore, "half the credit fee comes back, on the same scale as a ship");
+        }
+
+        [TestMethod]
+        public void TheBudgetScreenLeavesThePlannerToTheSimThread()
+        {
+            CreateEmpireAndHomeWorld();
+            Player.UpdateNetPlanetIncomes();
+            Player.AI.RunEconomicPlanner();
+            Player.data.treasuryGoal = 0.2f;
+            Player.data.TaxRate = 0.3f;
+            float colonyBudget = Player.AI.ColonyBudget;
+            float projectedMoney = Player.AI.ProjectedMoney;
+
+            var screen = new BudgetScreen(Universe);
+            Game.Manager.AddScreenAndLoadContent(screen);
+            try
+            {
+                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var treasury = (FloatSlider)typeof(BudgetScreen).GetField("TreasuryGoal", flags).GetValue(screen);
+                var tax = (FloatSlider)typeof(BudgetScreen).GetField("TaxSlider", flags).GetValue(screen);
+                for (int i = 1; i <= 10; ++i)
+                    treasury.RelativeValue = 0.2f + i * 0.03f;
+                tax.RelativeValue = 0.6f;
+
+                AssertEqual(0.0001f, 0.2f, Player.data.treasuryGoal, "the UI thread must not change the goal itself");
+                AssertEqual(0.0001f, 0.3f, Player.data.TaxRate, "the UI thread must not change the tax rate itself");
+
+                Universe.InvokePendingSimThreadActions();
+
+                AssertEqual(0.0001f, 0.5f, Player.data.treasuryGoal, "the last slider position reaches the empire on the sim thread");
+                AssertEqual(0.0001f, 0.6f, Player.data.TaxRate, "the tax rate reaches the empire on the sim thread");
+                AssertGreaterThan(Player.AI.ProjectedMoney, projectedMoney, "the goal in the slider's title follows the slider");
+                AssertEqual(0.0001f, colonyBudget, Player.AI.ColonyBudget, "moving the slider must not step the governor budgets");
+            }
+            finally
+            {
+                Game.Manager.RemoveScreen(screen);
+            }
+        }
+
+        [TestMethod]
+        public void AutoTaxesSetFromTheBudgetScreenShowTheirIncomeWhilePaused()
+        {
+            CreateEmpireAndHomeWorld();
+            Player.data.TaxRate = 0.3f;
+            Player.UpdateNetPlanetIncomes();
+            AssertGreaterThan(Player.GrossPlanetIncome, 0f, "setup: taxes must bring in something at 30%");
+            Player.AutoTaxes = true;
+            Player.Money = 1_000_000_000f;
+
+            var screen = new BudgetScreen(Universe);
+            Game.Manager.AddScreenAndLoadContent(screen);
+            try
+            {
+                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var treasury = (FloatSlider)typeof(BudgetScreen).GetField("TreasuryGoal", flags).GetValue(screen);
+                treasury.RelativeValue = 0.4f;
+                Universe.InvokePendingSimThreadActions();
+
+                AssertEqual(0.0001f, 0f, Player.data.TaxRate, "setup: with cash far above the goal, auto taxes drop to 0%");
+                AssertEqual(0.0001f, 0f, Player.GrossPlanetIncome, "the budget screen's income must follow the new tax rate");
+            }
+            finally
+            {
+                Game.Manager.RemoveScreen(screen);
+            }
+        }
+
+        [TestMethod]
+        public void QueuedSimThreadWorkRunsWhileTheUniverseIsNeitherPausedNorActive()
+        {
+            CreateUniverseAndPlayerEmpire();
+            UState.Paused = false;
+            Universe.Enabled = false;
+            Assert.IsFalse(Universe.IsActive, "setup: another screen holds the universe aside without pausing it");
+
+            bool ran = false;
+            Universe.RunOnSimThread(() => ran = true);
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            typeof(UniverseScreen).GetMethod("ProcessSimulationTurns", flags).Invoke(Universe, null);
+
+            Assert.IsTrue(ran, "work queued from a screen that did not pause the game must still run");
+        }
+
+        static bool HasLabel(UIElementContainer container, string text)
+        {
+            foreach (UIElementV2 e in container.GetElements())
+            {
+                if (e is SplitElement split && (IsLabel(split.First, text) || IsLabel(split.Second, text)))
+                    return true;
+                if (IsLabel(e, text) || e is UIElementContainer child && HasLabel(child, text))
+                    return true;
+            }
+            return false;
+        }
+
+        static bool IsLabel(UIElementV2 e, string text) => e is UILabel label && label.Text.Text == text;
     }
 }

@@ -111,7 +111,7 @@ namespace Ship_Game.Ships
         }
 
         // Gets the strongest shield currently covering internalModule
-        bool IsCoveredByShield(ShipModule internalModule, out ShipModule shield)
+        internal bool IsCoveredByShield(ShipModule internalModule, out ShipModule shield)
         {
             float maxPower = 0f;
             shield = null;
@@ -119,7 +119,10 @@ namespace Ship_Game.Ships
             {
                 float power = m.ShieldPower;
                 if (power > maxPower && m.HitTestShield(internalModule.Position, internalModule.Radius))
+                {
+                    maxPower = power;
                     shield = m;
+                }
             }
             return shield != null;
         }
@@ -484,6 +487,20 @@ namespace Ship_Game.Ships
             return closest;
         }
 
+        /// <summary>
+        /// The hull module an external blast enters through: the first one a ray from the blast
+        /// towards this ship's center crosses. When the blast sits exactly on the center there is
+        /// no direction to trace, so the ship's own facing is used instead.
+        /// </summary>
+        public ShipModule FindBlastEntryModule(Vector2 explosionCenter)
+        {
+            Vector2 rayFrom = explosionCenter;
+            if (rayFrom.InRadius(Position, 1f))
+                rayFrom = Position - Direction * (Radius + 16f);
+
+            return RayHitTestSingle(rayFrom, Position, ignoreShields: true);
+        }
+
         // find the first module that falls under the hit radius at given position
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {
@@ -497,7 +514,8 @@ namespace Ship_Game.Ships
         // 2. A ShipModule like Reactor 2x2 has exploded
         // 3. A Ship has exploded and this is the closest affected module
         public void DamageExplosive(GameObject damageSource, float damageAmount,
-                                    Vector2 worldHitPos, float hitRadius, bool ignoreShields)
+                                    Vector2 worldHitPos, float hitRadius, bool ignoreShields,
+                                    bool moduleExplosion = false)
         {
             if (!Active) return;
             // Reduces the effective explosion radius on ships with ExplosiveRadiusReduction bonus
@@ -538,12 +556,12 @@ namespace Ship_Game.Ships
 
                 if (mq.Type == DamageTransfer.Root)
                 {
-                    if (mq.Module.DamageExplosive(damageSource, ref rootDamage))
+                    if (mq.Module.DamageExplosive(damageSource, ref rootDamage, moduleExplosion))
                         return; // Root module absorbed all the explosion
                 }
                 else
                 {
-                    mq.Module.DamageExplosive(damageSource, ref remainingDamage);
+                    mq.Module.DamageExplosive(damageSource, ref remainingDamage, moduleExplosion);
                 }
 
                 if (mq.Type is DamageTransfer.Diagonal or DamageTransfer.Root)

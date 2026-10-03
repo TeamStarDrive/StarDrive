@@ -39,6 +39,7 @@ namespace Ship_Game
 
         public Array<Bomb> BombList  = new();
         readonly AutoResetEvent DrawCompletedEvt = new(false);
+        bool LoggedGeneralUIDrawError;
 
         public const double MinCamHeight = 450.0;
         protected double MaxCamHeight;
@@ -59,6 +60,7 @@ namespace Ship_Game
         PieMenuNode shipMenu;
 
         public ParticleManager Particles;
+        public readonly CargoShuttles CargoShuttles = new();
 
         public Background3D bg3d;
         public Empire Player => UState.Player;
@@ -68,6 +70,8 @@ namespace Ship_Game
         public bool LookingAtPlanet;
         public bool snappingToShip;
         public bool returnToShip;
+        bool StayOnViewedPlanet;
+        double HeightBeforePlanetView;
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
         public DistortionComponent distortionComponent;
@@ -135,6 +139,8 @@ namespace Ship_Game
         public Ship ShipToView;
         public float AdjustCamTimer;
         public AutomationWindow aw;
+
+        public override bool HelpKeyOpensCodex => true;
         public ExoticBonusesWindow ExoticBonusesWindow;
         public FreighterUtilizationWindow FreighterUtilizationWindow;
         public bool DefiningAO; // are we defining a new AO?
@@ -214,6 +220,8 @@ namespace Ship_Game
             {
                 if (SelectedShip == ship)
                     SelectedShip = null;
+                if (ShipToView == ship)
+                    ShipToView = null; // AdjustCamera drops ViewingShip, so the camera is free again
                 SelectedShipList.RemoveRef(ship);
             }
             RunOnNextFrame(RemoveShip);
@@ -665,6 +673,7 @@ namespace Ship_Game
             if (StarDriveGame.Instance != null) // don't show in tests
                 Log.Write(ConsoleColor.Cyan, "UniverseScreen.UnloadContent");
 
+            GameAudio.SetPlanetAmbience(null);
             ScreenManager.UnloadSceneObjects();
             // destroy SceneObjects for everything
             UState.RemoveSceneObjects();
@@ -684,6 +693,8 @@ namespace Ship_Game
                 SelectorFrame = 0;
 
             ScreenManager.StartMusic("AmbientMusic");
+            GameAudio.SetPlanetAmbience(LookingAtPlanet && workersPanel is ColonyScreen colony
+                                        ? colony.P.PType?.AmbientCues : null);
             NotificationManager.Update(fixedDeltaTime);
 
             GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, (float)CamPos.Z));

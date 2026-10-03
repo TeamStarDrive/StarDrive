@@ -14,6 +14,8 @@ namespace Ship_Game
 {
     public sealed class EmpireManagementScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public readonly UniverseScreen Universe;
         EmpireUIOverlay eui;
         private readonly ScrollList<ColoniesListItem> ColoniesList;
@@ -54,7 +56,9 @@ namespace Ship_Game
             Add(new Menu2(mainBkg));
             Add(new CloseButton(mainBkg.Right - 40, mainBkg.Y + 20));
 
-            ERect = new(mainBkg.X + 20, titleRect.Bottom + 30, ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40));
+            float eRectY = titleRect.Bottom + 30;
+            float maxListHeight = ScreenHeight - eRectY - 22 - GovernorDetailsComponent.MinHeight;
+            ERect = new(mainBkg.X + 20, eRectY, ScreenWidth - 40, Math.Min((0.7f * mainBkg.Height).RoundUpTo(40), maxListHeight));
             RectF colonies = new(ERect.X, ERect.Y + 15, ERect.W, ERect.H - 15);
             ColoniesList = Add(new ScrollList<ColoniesListItem>(colonies, 80));
             ColoniesList.OnClick       = OnColonyListItemClicked;
@@ -272,7 +276,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.FillRectangle(rect, Universe.Player.EmpireColor.Alpha(0.4f));
             }
 
-            if (Universe.Player.IsBuildingUnlocked(Building.TerraformerId) && (pgs.CanTerraform || pgs.BioCanTerraform))
+            if (Universe.Player.CanTerraformPlanetTiles && (pgs.CanTerraform || pgs.BioCanTerraform))
             {
                 var terraform = new Rectangle(rect.X + rect.Width - 10, rect.Y, 10, 10);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);

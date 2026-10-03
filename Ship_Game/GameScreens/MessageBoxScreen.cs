@@ -69,7 +69,7 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 
-            Message = Fonts.Arial12Bold.ParseText(Original + ToAppend, 250f);
+            Message = Fonts.Arial12Bold.ParseText(Original + ToAppend, BoxWidth - 20);
             Vector2 msgSize = Fonts.Arial12Bold.MeasureString(Message);
             var r = new Rectangle(ScreenWidth / 2 - BoxWidth/2, ScreenHeight / 2 - (int)(msgSize.Y + 40f) / 2,
                                   BoxWidth, (int)(msgSize.Y + 40f) + 15);

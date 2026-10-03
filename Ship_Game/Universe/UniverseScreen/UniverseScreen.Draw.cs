@@ -440,7 +440,23 @@ namespace Ship_Game
                 DrawShipAndPlanetIcons(batch);
                 DrawSolarSystems(batch);
                 DrawSystemThreatIndicators(batch);
-                DrawGeneralUI(batch, elapsed);
+                // a failing UI element must not skip DrawCompletedEvt.Set(), the sim thread waits on it
+                try
+                {
+                    DrawGeneralUI(batch, elapsed);
+                }
+                catch (ObjectDisposedException)
+                {
+                    throw; // ScreenManager handles device loss
+                }
+                catch (Exception ex)
+                {
+                    if (!LoggedGeneralUIDrawError)
+                    {
+                        LoggedGeneralUIDrawError = true;
+                        Log.Error(ex, "DrawGeneralUI failed (UI suppressed, sim kept alive)");
+                    }
+                }
             }
             batch.SafeEnd();
             IconsGroupTotalPerf.Stop();
@@ -930,7 +946,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (ship.InFrustum && ship.InPlayerSensorRange)
+                if (ship.InFrustum && ship.InPlayerSensorRange && ship.LandShip is not { Done: true })
                 {
                         if (!IsCinematicModeEnabled)
                             DrawTacticalIcon(ship);
@@ -990,7 +1006,7 @@ namespace Ship_Game
             {
                 // if we check for a missing model here we can show the ship modules instead. 
                 // that will solve invisible ships when the ship model load hits an OOM.
-                if (!ship.IsLaunching && (ShowShipNames || ship.GetSO()?.HasMeshes == false))
+                if (!ship.IsLaunching && !ship.IsLanding && (ShowShipNames || ship.GetSO()?.HasMeshes == false))
                 {
                     ship.DrawModulesOverlay(this, CamPos.Z,
                         showDebugSelect:Debug && ship == SelectedShip,

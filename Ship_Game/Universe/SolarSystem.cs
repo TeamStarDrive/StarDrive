@@ -325,7 +325,7 @@ namespace Ship_Game
 
         void ApplySolarRadiationDamage(Ship ship)
         {
-            if (!ship.IsGuardian && ShipWithinRadiationRadius(ship, out float distance))
+            if (!ship.IsGuardian && !ship.IsLaunchingOrLanding && ShipWithinRadiationRadius(ship, out float distance))
             {
                 float damage = SunLayers[0].Intensity * Sun.DamageMultiplier(distance)
                                                       * Sun.RadiationDamage;

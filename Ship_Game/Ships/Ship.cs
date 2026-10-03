@@ -155,6 +155,7 @@ namespace Ship_Game.Ships
 
         [StarData] public PlanetCrash PlanetCrash;
         [StarData] public LaunchShip LaunchShip;
+        [StarData] public LandShip LandShip;
         private bool ReallyDie;
         private bool HasExploded;
         public float TotalDps { get; private set; }
@@ -174,9 +175,10 @@ namespace Ship_Game.Ships
         [StarData] public Planet HomePlanet { get; private set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
-        public float MaxWeaponError = 0;
 
         public bool IsLaunching => LaunchShip != null;
+        public bool IsLanding => LandShip != null;
+        public bool IsLaunchingOrLanding => LaunchShip != null || LandShip != null;
         public bool IsMiningShip            => Loyalty.data.DefaultMiningShip == Name || Empire.DefaultMiningShipName == Name;
         public bool IsDefaultAssaultShuttle => Loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (Loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);
@@ -382,16 +384,9 @@ namespace Ship_Game.Ships
         public float EmpTolerance  => SurfaceArea + BonusEMPProtection;
         public float HealthPercent => HealthMax > 0f ? Health / HealthMax : 0f;
 
-        public float EmpRecovery
-        {
-            get
-            {
-                if (Loyalty.WeAreRemnants)
-                    return 20 + BonusEMPProtection / 20;
-
-                return OnHighAlert ? 1 + BonusEMPProtection / 1000 : 20 + BonusEMPProtection / 20;
-            }
-        }
+        public float EmpRecoveryPerSecond => OnHighAlert && !Loyalty.WeAreRemnants
+            ? 60 + BonusEMPProtection * 0.06f
+            : 1200 + BonusEMPProtection * 3;
 
         public void DebugDamage(float percent)
         {
@@ -481,13 +476,16 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseRepulsionDamage(Beam beam, float beamModifier)
+        /// <summary>
+        /// Not scaled by the beam time step modifier, unlike the per-tick beam effects.
+        /// </summary>
+        public void CauseRepulsionDamage(Beam beam)
         {
             if (IsTethered || EnginesKnockedOut)
                 return;
             if (beam.Owner == null || beam.Weapon == null)
                 return;
-            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage * beamModifier;
+            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage;
             ApplyForce(repulsion);
         }
 
@@ -549,7 +547,7 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunching)
+            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunchingOrLanding)
                 return false; 
 
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
@@ -610,7 +608,7 @@ namespace Ship_Game.Ships
         public bool IsHangarShip   => Mothership != null;
         public bool IsHomeDefense  => HomePlanet != null;
         public bool CanBeRefitted  => CanBeScrapped;
-        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense;
+        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false };
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays 
@@ -942,7 +940,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
                 {
                     Weapon w = Weapons[i];
-                    if (w.Module?.Active == true && w.DamageAmount > 0.1f && !w.TruePD && Ordinance >= w.OrdinanceRequiredToFire)
+                    if (w.Module?.Active == true && w.DamageAmount > 0.1f && !w.TruePD && Ordinance >= w.OrdnancePerShot)
                     {
                         weapons.Add(w);
                     }
@@ -1016,7 +1014,6 @@ namespace Ship_Game.Ships
 
             DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges, AI?.CombatState ?? CombatState.AttackRuns);
             InterceptSpeed     = CalcInterceptSpeed(weapons);
-            MaxWeaponError     = Weapons.FindMax(w => w.BaseTargetError(Level, TargetErrorFocalPoint))?.BaseTargetError(Level, TargetErrorFocalPoint) ?? 0;
         }
 
         // This is used for previewing range during CombatState change
@@ -1082,7 +1079,7 @@ namespace Ship_Game.Ships
             }
 
             if (timeStep.FixedTime > 0 && (EMPDamage > 0 || EMPDisabled))
-                CauseEmpDamage(-EmpRecovery);
+                CauseEmpDamage(-EmpRecoveryPerSecond * timeStep.FixedTime);
 
             Rotation = Rotation.AsNormalizedRadians();
 
@@ -1111,7 +1108,7 @@ namespace Ship_Game.Ships
         {
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
             if (PowerCurrent < PowerStoreMax)
-                PowerCurrent += (PowerFlowMax + PowerFlowMax * (Loyalty?.data.PowerFlowMod ?? 0)) * timeStep.FixedTime;
+                PowerCurrent += PowerFlowMax * timeStep.FixedTime;
 
             if (PowerCurrent <= 0.0f)
             {
@@ -1271,13 +1268,7 @@ namespace Ship_Game.Ships
             if (ShipStatusChanged)
                 ShipStatusChange();
 
-            //Power draw based on warp
-            if (!IsInFriendlyProjectorRange && engineState == MoveState.Warp)
-                PowerDraw = NetPower.NetWarpPowerDraw;
-            else if (engineState != MoveState.Warp)
-                PowerDraw = NetPower.NetSubLightPowerDraw;
-            else
-                PowerDraw = NetPower.NetWarpPowerDraw;
+            PowerDraw = engineState == MoveState.Warp ? NetPower.NetWarpPowerDraw : NetPower.NetSubLightPowerDraw;
 
             if (InCombat
                 || ShieldPower < ShieldMax
@@ -1461,7 +1452,7 @@ namespace Ship_Game.Ships
 
         // Base chance to evade and exploding ship
         // FB: Ships will be lucky to not get caught in the explosion, based on their level as well.
-        // Point-blank (closest module inside the exploding ship's hull radius) drops evade to 10% of normal.
+        // Point-blank (closest module inside the exploding ship's hull radius) drops evade to a quarter of normal.
         public float ExplosionEvadeBaseChance(bool pointBlank)
         {
             float explosionEvadeBaseChance = 0;
@@ -1469,11 +1460,11 @@ namespace Ship_Game.Ships
             {
                 default:
                 case RoleName.drone:     
-                case RoleName.scout:      explosionEvadeBaseChance = 80; break;
-                case RoleName.fighter:    explosionEvadeBaseChance = 70; break;
-                case RoleName.corvette:   explosionEvadeBaseChance = 60; break;
-                case RoleName.frigate:    explosionEvadeBaseChance = 40; break;
-                case RoleName.cruiser:    explosionEvadeBaseChance = 20; break;
+                case RoleName.scout:      explosionEvadeBaseChance = 90; break;
+                case RoleName.fighter:    explosionEvadeBaseChance = 75; break;
+                case RoleName.corvette:   explosionEvadeBaseChance = 65; break;
+                case RoleName.frigate:    explosionEvadeBaseChance = 50; break;
+                case RoleName.cruiser:    explosionEvadeBaseChance = 25; break;
                 case RoleName.battleship: explosionEvadeBaseChance = 10; break;
                 case RoleName.capital: 
                 case RoleName.station:    explosionEvadeBaseChance = 0; break;
@@ -1486,11 +1477,34 @@ namespace Ship_Game.Ships
                     case RoleName.drone:
                     case RoleName.scout:   
                     case RoleName.fighter: return explosionEvadeBaseChance;
-                    default:               return explosionEvadeBaseChance * 0.1f;
+                    default:               return explosionEvadeBaseChance * 0.25f;
 
                 }
 
             return explosionEvadeBaseChance;
+        }
+
+        /// <summary>
+        /// Upper bound on this ship's death blast, as a multiple of its hull radius.
+        /// </summary>
+        public float ExplosionDamageCap()
+        {
+            float perRadius;
+            switch (ShipData.HullRole)
+            {
+                default:
+                case RoleName.drone:
+                case RoleName.scout:
+                case RoleName.fighter:    perRadius = 15; break;
+                case RoleName.corvette:   perRadius = 25; break;
+                case RoleName.frigate:    perRadius = 40; break;
+                case RoleName.cruiser:    perRadius = 60; break;
+                case RoleName.battleship: perRadius = 80; break;
+                case RoleName.capital:
+                case RoleName.station:    perRadius = 100; break;
+            }
+
+            return Radius * perRadius;
         }
 
         void AddExplosionEffect(bool addWarpExplode)
@@ -1534,7 +1548,7 @@ namespace Ship_Game.Ships
             }
 
             damage += PowerCurrent + Ordinance + Health*0.05f;
-            return damage.LowerBound(Radius * 10);
+            return damage.Clamped(Radius * 10, ExplosionDamageCap());
         }
 
         public void InstantKill()
@@ -1715,7 +1729,6 @@ namespace Ship_Game.Ships
             BombBays.Clear();
             OurTroops.Clear();
             HostileTroops.Clear();
-            RepairBeams = null;
             PlanetCrash = null;
 
             ((IEmpireShipLists)Loyalty).RemoveShipAtEndOfTurn(this);

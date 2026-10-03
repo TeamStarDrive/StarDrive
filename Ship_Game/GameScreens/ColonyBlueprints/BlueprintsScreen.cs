@@ -14,6 +14,8 @@ namespace Ship_Game
 {
     public partial class BlueprintsScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         public bool PlanAreaHovered { get; private set; }
         readonly Array<BlueprintsTile> TilesList = new(35);
         readonly Menu1 LeftMenu;

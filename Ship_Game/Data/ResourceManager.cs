@@ -72,7 +72,6 @@ namespace Ship_Game
         public static ShipNames ShipNames = new();
         public static AgentMissionData AgentMissionData = new();
         public static Map<RoleName, ShipRole> ShipRoles = new();
-        public static Map<string, HullBonus> HullBonuses = new();
 
         static RacialTraits RacialTraits;
         static DiplomaticTraits DiplomacyTraits;
@@ -104,6 +103,12 @@ namespace Ship_Game
         /// (mods don't have a /Content/ dir, they _are_ the content dir)
         /// </summary>
         static string ModContentDirectory;
+
+        /// <summary>
+        /// Mod content directory currently in effect. Set by InitContentDir, so it lags
+        /// GlobalStats.ModPath until the newly selected mod's content has been loaded.
+        /// </summary>
+        public static string ModContentDir => ModContentDirectory;
 
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => GameBase.Base.Content;
@@ -251,7 +256,6 @@ namespace Ship_Game
 
             BeginPerfProfile();
             Profiled("LoadLanguage", () => LoadLanguage(GlobalStats.Language)); // must be before LoadFonts
-            Profiled(LoadHullBonuses);
             Profiled(LoadHulls); // we need Hull Data for main menu ship
             Profiled(LoadEmpires); // Hotspot #2 187.4ms  8.48%
 
@@ -377,7 +381,6 @@ namespace Ship_Game
                 m.Value.Dispose();
             ModuleTemplates.Clear();
 
-            HullBonuses.Clear();
             HullsDict.Clear();
             HullsList.Clear();
 
@@ -1413,6 +1416,7 @@ namespace Ship_Game
             var gameText = new FileInfo(ContentDirectory + "GameText.yaml");
             var modText = new FileInfo(ModContentDirectory + "GameText.yaml");
             Localizer.LoadFromYaml(gameText, modText, language);
+            Codex.CodexHooks.Invalidate();
         }
 
         public static TextureAtlas SmallStars, MediumStars, LargeStars;
@@ -1601,19 +1605,6 @@ namespace Ship_Game
 
         public static bool Hull(string shipHull, out ShipHull hull) => HullsDict.Get(shipHull, out hull);
         public static IReadOnlyList<ShipHull> Hulls => HullsList;
-
-        static void LoadHullBonuses()
-        {
-            HullBonuses.Clear();
-            if (GlobalStats.Defaults.UseHullBonuses)
-            {
-                foreach (HullBonus hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
-                    HullBonuses[hullBonus.Hull] = hullBonus;
-
-                // if there are no bonuses, then disable the flag
-                GlobalStats.Defaults.UseHullBonuses = HullBonuses.Count != 0;
-            }
-        }
 
         public static ShipHull AddHull(ShipHull hull)
         {
@@ -2029,11 +2020,10 @@ namespace Ship_Game
 
         // Creates a weapon used by a Ship
         // `module` can be null if the weapon does not belong to a specific module
-        // `hull` can be null if hull based bonuses don't matter
-        public static Weapon CreateWeapon(UniverseState us, string uid, Ship owner, ShipModule module, ShipHull hull)
+        public static Weapon CreateWeapon(UniverseState us, string uid, Ship owner, ShipModule module)
         {
             IWeaponTemplate template = WeaponsDict[uid];
-            return new Weapon(us, template, owner, module, hull);
+            return new Weapon(us, template, owner, module);
         }
 
         // Gets an immutable IWeaponTemplate

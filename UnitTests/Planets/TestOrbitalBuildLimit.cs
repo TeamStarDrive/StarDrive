@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.AI;
@@ -81,5 +82,32 @@ public class TestOrbitalBuildLimit : StarDriveTest
             "With existing stations, the batch can still fill the remaining slots");
         Assert.IsTrue(Homeworld.IsOutOfOrbitalsLimit(Platform, headroom),
             "Existing stations plus the in-batch count must not exceed the orbitals limit");
+    }
+
+    [TestMethod]
+    public void PendingOrbitalsOfAnyRoleCount()
+    {
+        for (int i = 0; i < ShipBuilder.OrbitalsLimit - 1; i++)
+            Homeworld.OrbitalStations.Add(SpawnShip("Platform Base mk1-a", Player, new Vector2(3000 + i*50)));
+        Assert.IsFalse(Homeworld.IsOutOfOrbitalsLimit(Platform), "setup: one orbital slot must be left");
+
+        Homeworld.AddOrbital(Shipyard);
+        Assert.IsTrue(Homeworld.IsOutOfOrbitalsLimit(Platform),
+            "A shipyard on its way must take the last orbital slot, as a platform would");
+    }
+
+    [TestMethod]
+    public void ARefitDoesNotTakeASecondSlot()
+    {
+        for (int i = 0; i < ShipBuilder.OrbitalsLimit - 1; i++)
+            SpawnShip("Platform Base mk1-a", Player, new Vector2(3000 + i*50)).TetherToPlanet(Homeworld);
+
+        // RefitOrbital is internal to the game assembly
+        Type refitOrbital = typeof(Planet).Assembly.GetType("Ship_Game.Commands.Goals.RefitOrbital");
+        Player.AI.AddGoal((Goal)Activator.CreateInstance(refitOrbital, Homeworld.OrbitalStations[0], Platform, Player, false));
+        AssertEqual(1, Homeworld.OrbitalsBeingBuilt(Platform.Role), "setup: the refit must be on its way to this planet");
+
+        Assert.IsFalse(Homeworld.IsOutOfOrbitalsLimit(Shipyard),
+            "A refit replaces an orbital that is already counted, so it must not take the last slot");
     }
 }

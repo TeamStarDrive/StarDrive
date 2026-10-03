@@ -15,6 +15,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 {
     public sealed class DiplomacyScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         Rectangle Portrait;
         DialogState DState;
 
@@ -577,7 +579,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             }
 
             batch.DrawDropShadowText1(Them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20, Them.EmpireColor);
-            batch.FillRectangle(new Rectangle(0, R.Y, 1920, R.Height), new Color(0, 0, 0, 150));
+            batch.FillRectangle(new Rectangle(0, R.Y, ScreenWidth, R.Height), new Color(0, 0, 0, 150));
             batch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
         }
 
@@ -702,13 +704,27 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             OnOfferChanged();
         }
 
+        bool DemandAnswered;
+
+        void MarkUnansweredDemandRejected()
+        {
+            if (DemandAnswered || TheirOffer?.IsDemand != true || TheirOffer.ValueToModify == null)
+                return;
+
+            DemandAnswered = true;
+            TheirOffer.ValueToModify.Value = true;
+        }
+
         void OnNegotiateClicked(GenericButton b)
         {
+            // BeginNegotiations replaces TheirOffer, so an unanswered demand is refused here
+            MarkUnansweredDemandRejected();
             BeginNegotiations();
         }
 
         void OnAcceptClicked(GenericButton b)
         {
+            DemandAnswered = true;
             if (TheirOffer.ValueToModify != null) TheirOffer.ValueToModify.Value = false;
             if (OurOffer.ValueToModify != null)   OurOffer.ValueToModify.Value = true;
 
@@ -718,6 +734,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnRejectClicked(GenericButton b)
         {
+            DemandAnswered = true;
             if (TheirOffer.ValueToModify != null) TheirOffer.ValueToModify.Value = true;
             if (OurOffer.ValueToModify != null)   OurOffer.ValueToModify.Value = false;
             
@@ -740,6 +757,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnDiscussButtonClicked(GenericButton b)
         {
+            MarkUnansweredDemandRejected();
             Array<DialogOption> options = new();
             foreach (StatementSet set in ResourceManager.GetDiplomacyDialog("SharedDiplomacy").StatementSets)
             {
@@ -762,6 +780,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnExitClicked(GenericButton b)
         {
+            MarkUnansweredDemandRejected();
             Audio.GameAudio.SwitchBackToGenericMusic();
             ExitScreen();
         }

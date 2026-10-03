@@ -252,7 +252,7 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
-            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Colonize);
+            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Colonize, MoveOrder.Regular|MoveOrder.KeepFacing);
             AddShipGoal(Plan.Colonize, planet.Position, Vectors.Up, planet, g, AIState.Colonize);
         }
 
@@ -274,18 +274,16 @@ namespace Ship_Game.AI
 
         public void OrderSupplyShipLand(Planet p)
         {
-            Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
-            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.SupplyReturnHome, MoveOrder.AddWayPoint);
+            ClearOrders(AIState.SupplyReturnHome, priority: true);
             IgnoreCombat = true;
-            EscortTarget = null;
-            SetPriorityOrder(true);
+            AddShipGoal(Plan.SupplyReturnHome, p, null, AIState.SupplyReturnHome, pushToFront: true);
         }
 
         public void OrderMoveAndRefit(Planet planet, Goal g)
         {
             if (!Owner.IsPlatformOrStation)
             {
-                OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Refit);
+                ClearOrdersAndWayPoints(AIState.Refit);
                 IgnoreCombat = true;
                 ResetPriorityOrder(clearOrders: false);
             }
@@ -298,9 +296,7 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndScrap(Planet p)
         {
-            Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
-            SetOrbitTarget(p);
-            OrderMoveTo(GetPositionOnPlanet(p), direction, AIState.Scrap);
+            ClearOrdersAndWayPoints(AIState.Scrap, priority: true);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 
@@ -347,7 +343,7 @@ namespace Ship_Game.AI
 
                     // for Orbit plans we don't use Planet.Position
                     // TODO: There is a mismatch here after save load
-                    if (TargetPlanet != null && Plan is not Plan.Orbit and not Plan.BuilderReturnHome and not Plan.MinePlanet)
+                    if (TargetPlanet != null && Plan is not Plan.Orbit and not Plan.MinePlanet)
                         return TargetPlanet.Position;
 
                     return StaticMovePosition;
@@ -603,7 +599,8 @@ namespace Ship_Game.AI
             MiningStationRefining = 45, // for shipUIinfo display only
             MinePlanet = 46,
             MiningShipReturn = 47,
-            MiningStationNotOpsOwner = 48
+            MiningStationNotOpsOwner = 48,
+            SupplyReturnHome = 49
         }
     }
 }

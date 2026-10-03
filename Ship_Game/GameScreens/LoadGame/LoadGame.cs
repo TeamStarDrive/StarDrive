@@ -141,6 +141,8 @@ namespace Ship_Game.GameScreens.LoadGame
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep());
             us.Objects.UpdateLists(removeInactiveObjects: false);
             AllSystemsLoaded(us, step.NextStep());
+            for (int i = 0; i < us.Planets.Count; ++i)
+                us.Planets[i].UpdateShipyards();
 
             step.NextStep().Start(1); // This last step is a mess, using arbitrary count
 

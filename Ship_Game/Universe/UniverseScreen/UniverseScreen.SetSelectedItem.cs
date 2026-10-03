@@ -53,14 +53,45 @@ public partial class UniverseScreen
         }
     }
 
+    Ship FollowedShipToSelect;
+
     public void UpdateSelectedShips()
     {
+        if (SelectedShip is { IsLanding: true })
+        {
+            if (ViewingShip && ShipToView == SelectedShip)
+                FollowedShipToSelect = SelectedShip;
+            ClearSelectedItems(clearFlags: false, updatePrevSelectedShip: false, fleet: SelectedFleet);
+        }
+
+        if (TakeFollowedShipThatTookOff() is Ship tookOff)
+            SetSelectedShip(tookOff, clearFlags: false);
+
         int num = SelectedShipList.Count();
-        SelectedShipList.RemoveInActiveObjects();
+        SelectedShipList.RemoveAll(s => !s.Active || s.IsLanding);
         if (SelectedShip != null)
-            SetSelectedShip(SelectedShip, SelectedFleet);
+            SetSelectedShip(SelectedShip, SelectedFleet, clearFlags: false); // same ship, UI refresh only
         else if (num != SelectedShipList.Count())
             SetSelectedShipList(SelectedShipList, SelectedFleet);
+    }
+
+    internal Ship TakeFollowedShipThatTookOff()
+    {
+        Ship ship = FollowedShipToSelect;
+        if (ship == null)
+            return null;
+
+        if (!ship.Active || !ViewingShip || ShipToView != ship)
+        {
+            FollowedShipToSelect = null;
+            return null;
+        }
+
+        if (ship.IsLanding)
+            return null;
+
+        FollowedShipToSelect = null;
+        return ship;
     }
 
     void UpdatePrevSelectedShip(Ship newShip)
@@ -77,7 +108,7 @@ public partial class UniverseScreen
         // CG: previous target code.
         if (PrevSelectedShip != null && input.PreviousTarget)
         {
-            if (PrevSelectedShip.Active)
+            if (PrevSelectedShip is { Active: true, IsLanding: false })
                 SetSelectedShip(PrevSelectedShip);
             else
                 PrevSelectedShip = null;  //fbedard: remove inactive ship
@@ -89,13 +120,14 @@ public partial class UniverseScreen
     /// <summary>
     /// Sets the currently selected ship and clears selected ships list
     /// </summary>
-    public void SetSelectedShip(Ship selectedShip, Fleet fleet = null)
+    /// <param name="clearFlags">FALSE keeps the camera chase flags, for refreshing the same ship</param>
+    public void SetSelectedShip(Ship selectedShip, Fleet fleet = null, bool clearFlags = true)
     {
         SelectedSomethingTimer = 3f;
 
         // manually update prev selected ship
         UpdatePrevSelectedShip(selectedShip);
-        ClearSelectedItems(updatePrevSelectedShip: false, fleet: fleet);
+        ClearSelectedItems(clearFlags: clearFlags, updatePrevSelectedShip: false, fleet: fleet);
 
         SelectedShip = selectedShip;
 

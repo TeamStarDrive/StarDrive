@@ -44,6 +44,25 @@ namespace Ship_Game
             return new(newX, newY, desiredCamZ);
         }
 
+        /// <summary>
+        /// The world rect visible at the z=0 plane, derived from the camera rather than
+        /// unprojected: the universe camera looks straight down, so the rect is centred on
+        /// CamPos, with half-width camZ/M11 and half-height camZ/M22. Exact at any distance
+        /// from the origin, unlike VisibleWorldRect.
+        /// </summary>
+        public AABoundingBox2Dd ExactVisibleWorldRect
+        {
+            get
+            {
+                double camH = CamPos.Z;
+                float m11 = Projection.M11, m22 = Projection.M22;
+                double halfW = camH > 0 && m11 > 0 ? camH / m11 : 0.0;
+                double halfH = camH > 0 && m22 > 0 ? camH / m22 : 0.0;
+                return new(CamPos.X - halfW, CamPos.Y - halfH,
+                           CamPos.X + halfW, CamPos.Y + halfH);
+            }
+        }
+
         public void ViewToShip(Ship ship)
         {
             if (ship == null)
@@ -59,17 +78,18 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        public void SnapViewColony(Planet p, bool combatView)
+        public void SnapViewColony(Planet p, bool combatView, bool stayOnPlanet = false)
         {
             ShowShipNames = false;
             bool doReturnToShip = ViewingShip;
+            double heightBefore = CamDestination.Z;
             SetSelectedPlanet(p);
             if (p == null)
                 return;
 
             if (combatView && Debug)
             {
-                OpenCombatMenu(p);
+                OpenCombatMenu(p, stayOnPlanet);
                 return;
             }
 
@@ -83,7 +103,7 @@ namespace Ship_Game
                 if (p.Owner == Player && combatView ||
                     p.Owner != Player && Player.data.MoleList.Any(m => m.PlanetId == p.Id) && combatView)
                 {
-                    OpenCombatMenu(p);
+                    OpenCombatMenu(p, stayOnPlanet);
                     return;
                 }
 
@@ -111,7 +131,7 @@ namespace Ship_Game
                                                                     || p.System.OwnerList.Contains(Player)
                                                                     || p.OurShipsCanScanSurface(Player)))
                 {
-                    OpenCombatMenu(p);
+                    OpenCombatMenu(p, stayOnPlanet);
                 }
                 else
                 {
@@ -120,10 +140,17 @@ namespace Ship_Game
 
                 ClearSelectedItems();
                 returnToShip = doReturnToShip;
+                RememberViewBeforePlanet(stayOnPlanet, heightBefore);
                 LookingAtPlanet = true;
 
                 SnapViewTo(new(p.Position.X, p.Position.Y + 400f, 2500f), 5f, 2f);
             }
+        }
+
+        void RememberViewBeforePlanet(bool stayOnPlanet, double heightBefore)
+        {
+            StayOnViewedPlanet = stayOnPlanet;
+            HeightBeforePlanetView = heightBefore;
         }
 
         public void SnapViewTo(Vector3d worldPos, float duration, float adjustCamTimer = 2f)
@@ -155,6 +182,7 @@ namespace Ship_Game
 
             SnapViewTo(new(s.Position.X, s.Position.Y + 400, 2500), 5f, 2f);
             LookingAtPlanet = false;
+            ShipToView = s;
             snappingToShip = true;
             ViewingShip = true;
         }
@@ -204,6 +232,11 @@ namespace Ship_Game
                 UState.CamPos.Z = UState.CamPos.Z.SmoothStep(CamDestination.Z, 0.2);
                 if (UState.CamPos.Z < minCamHeight)
                     UState.CamPos.Z = minCamHeight;
+
+                // track the chase, so ending it (ship died, toggled off, panned away)
+                // continues from here instead of gliding back to where it started
+                CamDestination.X = UState.CamPos.X;
+                CamDestination.Y = UState.CamPos.Y;
             }
 
             if (AdjustCamTimer > 0.0)

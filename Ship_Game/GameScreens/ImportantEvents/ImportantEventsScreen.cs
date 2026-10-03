@@ -12,6 +12,8 @@ namespace Ship_Game
     // remnant story progression), opened from the minimap. Styled after ShipDesignIssuesScreen.
     public sealed class ImportantEventsScreen : GameScreen
     {
+        public override bool HelpKeyOpensCodex => true;
+
         readonly Menu2 Window;
         readonly Color Cream = Colors.Cream;
         readonly ImportantNotification[] Events;

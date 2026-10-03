@@ -121,6 +121,10 @@ namespace Ship_Game
                 ++SimTurnId;
 
                 UState.Objects.Update(FixedSimTime.Zero/*paused*/);
+
+                // keep build-goal icons visible/selectable and tracking the camera while
+                // paused; must stay on this thread - GoalsList is owned by the sim thread
+                UpdateClickableItems();
             }
             else
             {
@@ -176,6 +180,10 @@ namespace Ship_Game
                             UState.GameSpeed = 1.0f;
                         }
                     }
+                }
+                else
+                {
+                    InvokePendingSimThreadActions();
                 }
             }
         }
@@ -277,6 +285,7 @@ namespace Ship_Game
 
                 Shields?.Update(timeStep);
                 FTLManager.Update(this, timeStep);
+                CargoShuttles.Update(this, timeStep);
 
                 // update in reverse, to allow Update() to remove the junk
                 for (int i = UState.JunkList.Count - 1; i >= 0; --i)
@@ -332,7 +341,6 @@ namespace Ship_Game
                     {
                         Empire empire = wereUpdated[i];
                         empire.UpdateMilitaryStrengths();
-                        empire.UpdateMoneyLeechedLastTurn();
                         if (empire.isPlayer) // update this once per turn
                             UpdateDysonSwarms();
                     }
@@ -401,6 +409,8 @@ namespace Ship_Game
             if (action != null)
             {
                 PendingSimThreadActions.Enqueue(action);
+                if (!Visible && UState.Paused)
+                    DrawCompletedEvt.Set(); // a hidden universe never draws, so wake the sim to drain this
             }
             else
             {

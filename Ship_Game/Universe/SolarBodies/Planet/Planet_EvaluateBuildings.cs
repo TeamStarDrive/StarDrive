@@ -12,6 +12,14 @@ namespace Ship_Game
     public partial class Planet
     {
         static float BuildingScoreThreshold = 1;
+
+        // Population share of the cap that makes a colony want more roof
+        const float BiospherePopPressure = 0.85f;
+        // Population share of the cap below which a free biosphere is dead weight
+        const float BiosphereExcessCapacity = 0.6f;
+        // Share of the added population's full rate income that may go to the biosphere upkeep
+        const float BiospherePaybackShare = 0.6f;
+
         bool LowProdPotential => Prod.GrossMaxPotential < 1;
         bool LowFoodPotential => NonCybernetic && Food.GrossMaxPotential < 1;
 
@@ -261,13 +269,11 @@ namespace Ship_Game
 
         void CalcMoneyPriorities()
         {
-            if (PopulationBillion < 1)
-                return;
-             
-            float ratio     = 1 - MoneyBuildingRatio;
-            float tax       = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
-            float credits   = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
-            float buildings = TotalHabitableTiles * ratio;
+            float ratio      = 1 - MoneyBuildingRatio;
+            float tax        = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
+            float creditsPop = PopulationBillion < 1 ? PopulationBillion * 2 : PopulationBillion.LowerBound(2);
+            float credits    = creditsPop * PopulationRatio * ratio;
+            float buildings  = PopulationBillion < 1 ? 0 : TotalHabitableTiles * ratio;
 
             tax       = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
             credits   = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
@@ -339,7 +345,8 @@ namespace Ship_Game
             if (BuildingsHereCanBeBuiltAnywhere || BuildingsCanBuild.Count == 0)
                 return;
 
-            // Replace works even if the governor is not scrapping buildings, unless they are player built
+            // Replace works even if the governor is not scrapping buildings. Player-built ones are
+            // filtered out in SuitableForScrap, so no check for the scrap setting belongs here
             float worstBuildingScore = ChooseWorstBuilding(overBudget, scrapZeroMaintenance: true, true, out Building worstBuilding);
             if (worstBuilding == null)
                 return;
@@ -370,7 +377,11 @@ namespace Ship_Game
             for (int i = 0; i < ConstructionQueue.Count; i++)
             {
                 QueueItem qi = ConstructionQueue[i];
-                if (Owner.AutoBuildTerraformers && qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
+                if (qi.IsPlayerAdded && PlayerBuiltIsProtected)
+                    continue; // a queued building is still a building the player asked for
+
+                if (Owner.AutoBuildTerraformers && !qi.IsPlayerAdded
+                    && qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
                 {
                     Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} CANCELED Terrformer" +
                         $" on planet {Name} since Terraformer Budget was 0.");
@@ -478,11 +489,12 @@ namespace Ship_Game
             return budget > 0 && b.ActualMaintenance(this) <= budget;
         }
 
-        bool SuitableForScrap(Building b, bool overBudget, float storageInUse, bool scrapZeroMaintenance, bool replacing)
+        internal bool SuitableForScrap(Building b, bool overBudget, float storageInUse, bool scrapZeroMaintenance, bool replacing)
         {
             if (b.IsBiospheres
                 || b.IsMilitary
                 || !b.Scrappable
+                || b.IsPlayerAdded && PlayerBuiltIsProtected // never scrap what the player built by hand
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || b.BuildOnlyOnce
                 || b.PlusTerraformPoints > 0) // using this instead of IsTerraformer since some event building might also terraform without the terraformer building ID
@@ -490,15 +502,14 @@ namespace Ship_Game
                 return false;
             }
 
-            if (!RequiredInBlueprints(b))
+            if (Blueprints?.IsNotRequired(b) == true)
                 return true;
-            else if (!overBudget)
+            if (RequiredInBlueprints(b) && !overBudget)
                 return false;
 
-            if (b.IsPlayerAdded && OwnerIsPlayer
-                || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
+            if (b.IsMoneyBuilding && Money.NetCostOf(b, standing: true, EmpireData.StartingTaxRate) < 0
                 || !WillMaintainPositiveFoodOutput(b)
-                || !IsBuildingOnHabitableTile(b) && replacing  // Dont allow buildings on non habitable tiles to be scrapped when replacing
+                || replacing && !IsBuildingOnHabitableTile(b)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
                 || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero()
                 || IsStorageWasted(storageInUse, b.StorageAdded))
             {
@@ -521,8 +532,8 @@ namespace Ship_Game
 
             // checking at 80% of max potential considering building fertility or richness changes
             float potential      = 0.8f * (NonCybernetic 
-                ? Food.NetMaxPotential * (Fertility - b.MaxFertilityOnBuildFor(Owner, Category) / Fertility.LowerBound(0.01f)) 
-                : Prod.NetMaxPotential * MineralRichness - b.IncreaseRichness / MineralRichness.LowerBound(0.01f));
+                ? Food.NetMaxPotential * ShareLeftWithout(Fertility, b.MaxFertilityOnBuildFor(Owner, Category))
+                : Prod.NetMaxPotential * ShareLeftWithout(MineralRichness, b.IncreaseRichness));
 
             float pop80          = PopulationBillion * 0.8f;
             float buildingOutput = NonCybernetic 
@@ -531,6 +542,9 @@ namespace Ship_Game
 
             return potential - buildingOutput > 0;
         }
+
+        static float ShareLeftWithout(float value, float buildingPart)
+            => value > 0 && buildingPart.NotZero() ? ((value - buildingPart) / value).LowerBound(0) : 1;
 
         bool IsBuildingOnHabitableTile(Building b)
         {
@@ -734,7 +748,7 @@ namespace Ship_Game
             }
         }
 
-        PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] tileList)
+        internal PlanetGridSquare PickTileForTerraformer(PlanetGridSquare[] tileList)
         {
             var potentialTiles = new Array<PlanetGridSquare>();
             for (int i = 0; i < tileList.Length; ++i)
@@ -744,7 +758,8 @@ namespace Ship_Game
                     potentialTiles.Add(tile);
             }
 
-            return Random.Item(potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList());
+            Array<PlanetGridSquare> eligible = potentialTiles.Count > 0 ? potentialTiles : tileList.ToArrayList();
+            return eligible.Find(t => t.Terraformable) ?? eligible[eligible.Count - 1];
 
             bool NoVolcanosAround(PlanetGridSquare tile)
             {
@@ -812,63 +827,75 @@ namespace Ship_Game
             }
 
             Building bio = ResourceManager.GetBuildingTemplate(Building.BiospheresId);
-            if (bio == null || bio.ActualMaintenance(this) > budget)
-                return false; // not within budget or not profitable and more than 5
+            if (bio == null)
+                return false;
 
-            if (!BioSphereProfitable(bio))
+            float bioUpkeep = bio.ActualMaintenance(this);
+            // Biospheres are in BuildingsCanBuild until the planet is fully habitable, and a
+            // biosphere is never the building we are clearing ground for
+            Building[] wanted = GetBuildingsListToChooseFrom(BuildingsCanBuild)
+                                    .Filter(b => !b.IsBiospheres);
+
+            bool needGroundToBuildOn = wanted.Length > 0
+                                       && FreeHabitableTiles == 0
+                                       && budget >= bioUpkeep + wanted.Min(b => b.ActualMaintenance(this));
+
+            bool carriesItsPopulation = BiosphereCarriesItsPopulation(bio);
+            if (!needGroundToBuildOn && !carriesItsPopulation)
             {
-                int numBuildingsWeCanBuild = GetBuildingsListToChooseFrom(BuildingsCanBuild).Count;
                 if (NumFreeBiospheres > 0)
-                {
-                    // We do not need more than 1 free biospheres if not profitable.
-                    // We need only 1 free biosphere if we have anything to built at all
-                    shouldScrapBioSpheres = NumFreeBiospheres > 1 
-                        || numBuildingsWeCanBuild == 0 && (!HasBlueprints || Blueprints.IsAchievableCompleted);
-                    return false;
-                }
-                else if (numBuildingsWeCanBuild == 0 || HabiableBuiltCoverage.Less(1))
-                {
-                    // no need to build unprofitable biospheres if we have nothing to build here
-                    return false;
-                }
-            }
-            else if (PopulationRatio < 0.95f 
-                     && (NumFreeBiospheres > 0 || HabiableBuiltCoverage.Less(1)))
-            {
-                // dont build even if profitable, if pop is not big enough.
-                // but ensure there is at least 1 free biospheres if there are no free tiles
+                    shouldScrapBioSpheres = ShouldScrapFreeBiosphere(budget, wanted.Length > 0);
+
                 return false;
             }
 
+            if (bioUpkeep > budget)
+                return false;
+
+            PlanetGridSquare tile = PreferredBiosphereTile(bio, emptyTileOnly: !carriesItsPopulation);
+            if (tile == null)
+                return false;
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
 
-            return Construction.Enqueue(bio, GetPreferredTile()); // Preferred is null safe in this call
-
-            PlanetGridSquare GetPreferredTile()
-            {
-                PlanetGridSquare preferred = null;
-                if (Owner.IsBuildingUnlocked(Building.TerraformerId))
-                {
-                    preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable && !t.BuildingOnTile);
-                    if (preferred == null)
-                        preferred = TilesList.Find(t => !t.Habitable && !t.Terraformable);
-                }
-                else
-                {
-                    preferred = TilesList.Find(t => !t.Habitable && !t.BuildingOnTile);
-                    if (preferred == null)
-                        preferred = TilesList.Find(t => !t.Habitable);
-                }
-
-                return preferred;
-            }
+            return Construction.Enqueue(bio, tile);
         }
 
-        bool BioSphereProfitable(Building bio)
+        internal PlanetGridSquare PreferredBiosphereTile(Building bio, bool emptyTileOnly = false)
         {
-            return Money.NetRevenueGain(bio) >= 0;
+            bool saveGroundForTerraformer = Owner.CanTerraformPlanetTiles;
+            return TilesList.Find(t => t.NoBuildingOnTile && t.CanEnqueueBuildingHere(bio)
+                                       && (!saveGroundForTerraformer || !t.Terraformable))
+                ?? TilesList.Find(t => t.NoBuildingOnTile && t.CanEnqueueBuildingHere(bio))
+                ?? (emptyTileOnly ? null : TilesList.Find(t => t.CanEnqueueBuildingHere(bio)));
+        }
+
+        internal bool BiosphereCarriesItsPopulation(Building bio)
+        {
+            if (PopulationRatio < BiospherePopPressure)
+                return false;
+
+            float addedPopBillion = PopPerBiosphere(Owner) * 0.001f;
+            float incomeAtFullRate = addedPopBillion * Money.IncomePerColonist * Money.TaxRateMultiplier;
+            return bio.ActualMaintenance(this) <= BiospherePaybackShare * incomeAtFullRate;
+        }
+
+        internal bool ShouldScrapFreeBiosphere(float budget, bool haveSomethingToBuild)
+        {
+            float capWithoutOne = MaxPopulation - PopPerBiosphere(Owner);
+            if (capWithoutOne <= 0 || (Population / capWithoutOne) >= BiosphereExcessCapacity)
+                return false;
+
+            // the budget already has their upkeep deducted, so still being in the black means
+            // the colony is paying for them
+            if (budget >= 0)
+                return false;
+
+            if (NumFreeBiospheres > 1)
+                return true;
+
+            return !haveSomethingToBuild;
         }
 
         void TryBuildDysonSwarm()
@@ -895,6 +922,13 @@ namespace Ship_Game
         }
 
         // FB - For unit tests only!
+        internal (float Tax, float Credits, float BuildingIncome) TestMoneyPriorities()
+        {
+            Priorities.Clear();
+            CalcMoneyPriorities();
+            return (Priorities[ColonyPriority.TaxPercent], Priorities[ColonyPriority.CreditsPerCol], Priorities[ColonyPriority.BuildingIncome]);
+        }
+
         public bool TestIsCapitalInQueue() => ConstructionQueue.Any(q => q.isBuilding && q.Building.IsCapital);
         public bool TestIsOutpostInQueue() => ConstructionQueue.Any(q => q.isBuilding && q.Building.IsOutpost);
         
@@ -911,8 +945,12 @@ namespace Ship_Game
         public bool RemoveCapital()
         {
             SetHomeworld(false);
-            if (Construction.Cancel(ResourceManager.CreateBuilding(this, Building.CapitalId)))
+            QueueItem queuedCapital = ConstructionQueue.Find(q => q.isBuilding && q.Building.IsCapital);
+            if (queuedCapital != null)
+            {
+                queuedCapital.SetCanceled();
                 return true;
+            }
 
             Building capital = FindBuilding(b => b.IsCapital);
             if (capital != null)

@@ -172,6 +172,36 @@
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
+  Name: CargoShuttle   # cargo shuttle between a planet and its space port: the white dot
+  TextureName: "Glow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 3000
+  Duration: 0.12
+  DurationRandomness: 0
+  InheritOwnerVelocity: 0
+  EndVelocity: 0
+  StartColorRange: [[255,255,255,128],[255,255,255,128]]
+  RotateSpeed: [0]
+  StartEndSize: [ 36 ] # constant size dot
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: CargoShuttleTrail   # cargo shuttle trail, tinted with the empire color like the engine glow
+  TextureName: "Glow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 8000
+  Duration: 0.6
+  DurationRandomness: 0
+  InheritOwnerVelocity: 0
+  EndVelocity: 0
+  StartColorRange: [[255,255,255,160],[255,255,255,160]]
+  RotateSpeed: [0]
+  StartEndSize: [ 24, 4 ] # shrinking trail
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
   Name: Explosion
   TextureName: "explosion.png"
   Effect: ParticleEffect.fx

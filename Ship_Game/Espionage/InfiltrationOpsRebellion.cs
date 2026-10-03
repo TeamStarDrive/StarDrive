@@ -16,12 +16,13 @@ namespace Ship_Game
         const int SuccessTargetNumber = 50; // need to get 40 and above in a roll of d100)
         const float BaseRelationDamage = 15;
         public const int BaseRampUpTurns = 40;
+        public override InfiltrationOpsType Type => InfiltrationOpsType.Rebellion;
 
         [StarDataConstructor]
         public InfiltrationOpsRebellion() { }
 
         public InfiltrationOpsRebellion(Empire owner, Empire them, int levelCost) :
-            base((int)(levelCost * PercentOfLevelCost), InfiltrationOpsType.Rebellion, BaseRampUpTurns, owner)
+            base((int)(levelCost * PercentOfLevelCost), BaseRampUpTurns, owner)
         {
             Owner = owner;
             Them = them;

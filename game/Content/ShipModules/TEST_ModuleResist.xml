@@ -1,0 +1,41 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+  <!-- Special module for unit tests: its resistances are deliberately OUT OF RANGE.
+       All three are above full and must read back as 1, so that no damage modifier can
+       go negative or divide by zero, and so that the death blast formula, which is only
+       defined below full resistance, leaves an out of range plate out of its sum. -->
+  <Cost>8</Cost>
+  <!-- common traits shared by all ship modules -->
+  <TechLevel>1</TechLevel>
+  <ModuleType>Armor</ModuleType>
+  <XSize>1</XSize>
+  <YSize>1</YSize>
+  <Name>Test Resist Armor</Name>
+  <Restrictions>IO</Restrictions>
+  <UID>TEST_ModuleResist</UID>
+  <IconTexturePath>Modules/Fighter Shield</IconTexturePath>
+  <Mass>2</Mass>
+  <Health>100</Health>
+  <HealthMax>100</HealthMax>
+  <energyreq>0</energyreq>
+
+  <Description>Unit test armor with out of range resistances.</Description>
+
+  <NameIndex>948</NameIndex>
+  <DescriptionIndex>949</DescriptionIndex>
+
+  <KineticResist>2</KineticResist>
+  <BeamResist>3</BeamResist>
+  <ExplosiveResist>2</ExplosiveResist>
+
+  <!-- for PowerPlant Items -->
+
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+
+  <!-- for Engines -->
+  <Thrust>0</Thrust>
+
+</ShipModule>

@@ -83,7 +83,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     OurOffer.Alliance = TheirOffer.Alliance = selected;
                     SelectTheirItem(ourItem.Response, selected);
                     break;
-                case "OpenBorders": OurOffer.OpenBorders = selected; break;
+                case "OpenBorders":
+                    OurOffer.OpenBorders = TheirOffer.OpenBorders = selected;
+                    SelectTheirItem(ourItem.Response, selected);
+                    break;
                 case "Declare War": ourItem.ChangeSpecialInquiry(OurOffer.EmpiresToWarOn);      break;
                 case "Tech":        ourItem.ChangeSpecialInquiry(OurOffer.TechnologiesOffered); break;
                 case "Artifacts":   ourItem.ChangeSpecialInquiry(OurOffer.ArtifactsOffered);    break;

@@ -169,7 +169,7 @@ namespace Ship_Game.Spatial
             if (victim.Type == GameObjectType.Ship) // beam-ship is special collision
             {
                 var ship = (Ship)victim;
-                hitModule = ship.RayHitTestSingle(beamStart, beamEnd, beam.IgnoresShields);
+                hitModule = ship.IsLaunchingOrLanding ? null : ship.RayHitTestSingle(beamStart, beamEnd, beam.IgnoresShields);
                 if (hitModule != null)
                     return hitModule.RayHitTest(beamStart, beamEnd, 8f, out distanceToHit);
                 distanceToHit = float.NaN;
@@ -204,6 +204,12 @@ namespace Ship_Game.Spatial
 
             // ship collision, target modules instead
             var ship = (Ship)victim;
+            if (ship.IsLaunchingOrLanding)
+            {
+                hitModule = null;
+                return false;
+            }
+
             float velocity = proj.Velocity.Length();
             float maxDistPerFrame = velocity * simTimeStep;
             Vector2 center = proj.Position;

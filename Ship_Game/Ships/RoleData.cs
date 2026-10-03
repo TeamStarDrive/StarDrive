@@ -112,7 +112,6 @@ namespace Ship_Game.Ships
                  || m.InstalledWeapon.RepulsionDamage > 0
                  || m.InstalledWeapon.SiphonDamage > 0
                  || m.InstalledWeapon.TroopDamageChance > 0
-                 || m.InstalledWeapon.IsRepairBeam 
                  || m.InstalledWeapon.IsRepairDrone)
             );
 

@@ -30,6 +30,24 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void TheAutomationWindowRefreshesOnTheNextUiFrame()
+        {
+            Universe.aw = new AutomationWindow(Universe);
+            Universe.aw.LoadContent();
+            Player.ClearShipsWeCanBuild();
+            Player.data.CurrentAutoColony = "No Such Colony Ship";
+
+            UnlockAllTechsForShip(Player, "Heavy Carrier mk5-b");
+            Assert.IsTrue(Player.CanBuildShip("Heavy Carrier mk5-b"), "setup: the unlock must add a buildable ship");
+            AssertEqual("No Such Colony Ship", Player.data.CurrentAutoColony,
+                        "the thread that adds a buildable ship must leave the automation window alone");
+
+            Universe.PreUpdate(new UpdateTimes(TestSimStep.FixedTime, 0f), otherScreenHasFocus: false, coveredByOtherScreen: false);
+            AssertEqual(Player.data.DefaultColonyShip, Player.data.CurrentAutoColony,
+                        "the next UI frame refreshes the dropdowns and falls back to the default colony ship");
+        }
+
+        [TestMethod]
         public void ShipsCannotBeUnlockedIfWeLackTech()
         {
             var ship = SpawnShip("Heavy Carrier mk5-b", Player, Vector2.Zero);

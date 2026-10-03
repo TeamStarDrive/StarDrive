@@ -133,8 +133,16 @@ namespace Ship_Game
 
         #region ScrollList HandleInput
 
-        int ScrollButtonAmount(bool held) => !held ? EntryHeight / 2 : EntryHeight / 6;
-        int ScrollWheelAmount => EntryHeight / 3;
+        // scrollbar delta which moves the content by the requested amount of entries
+        float ScrollBarDeltaForEntries(float entries)
+        {
+            float scrollableEntries = FlatEntries.Count - ItemsHousing.H / (EntryHeight + ItemPadding.Y);
+            if (scrollableEntries <= 0f)
+                return 0f;
+            return (ScrollHousing.H - ScrollBar.H) * (entries / scrollableEntries);
+        }
+        float ScrollButtonAmount(bool held) => ScrollBarDeltaForEntries(!held ? 0.5f : 0.15f);
+        float ScrollWheelAmount => ScrollBarDeltaForEntries(1f);
 
         bool HandleInputScrollButtons(InputState input)
         {
@@ -180,16 +188,13 @@ namespace Ship_Game
 
         bool HandleInputMouseWheel(InputState input)
         {
-            if (Rect.HitTest(input.CursorPosition))
+            if ((input.ScrollIn || input.ScrollOut) && Rect.HitTest(input.CursorPosition))
             {
-                int amount = 0;
-                if (input.ScrollIn) amount = -ScrollWheelAmount;
-                if (input.ScrollOut) amount = ScrollWheelAmount;
-                if (amount != 0)
-                {
-                    ScrollByScrollBar(amount);
-                    return true;
-                }
+                float amount = input.ScrollOut ? ScrollWheelAmount : -ScrollWheelAmount;
+                ScrollByScrollBar(amount); // no-ops when the bar is already at the target
+                // capture the wheel even when the list is too short to scroll,
+                // otherwise it falls through to the universe camera zoom
+                return true;
             }
             return false;
         }
@@ -499,7 +504,7 @@ namespace Ship_Game
         }
 
         // move the scrollbar by requested amount of pixels up (-) or down (+)
-        void ScrollByScrollBar(int deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
+        void ScrollByScrollBar(float deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
 
         public override void Update(float fixedDeltaTime)
         {

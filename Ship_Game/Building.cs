@@ -148,14 +148,15 @@ namespace Ship_Game
         public void OnDeserialized()
         {
             Building template = ResourceManager.GetBuildingTemplate(Name);
-            if (template == null)
-                return;
 
             BID = template.BID;
 
             // Patching: because of some game data changes, these values need to be patched
             //           from latest building templates
             ShipRepair = template.ShipRepair;
+            NameTranslationIndex = template.NameTranslationIndex;
+            DescriptionIndex = template.DescriptionIndex;
+            ShortDescriptionIndex = template.ShortDescriptionIndex;
         }
 
         public Building Clone()
@@ -169,7 +170,7 @@ namespace Ship_Game
         {
             if (IsWeapon && ResourceManager.GetWeaponTemplate(Weapon, out IWeaponTemplate t))
             {
-                TheWeapon = new(us, t, null, null, null);
+                TheWeapon = new(us, t, null, null);
                 SpaceRange = TheWeapon.BaseRange;
                 UpdateOffense(planetLevel, us);
             }
@@ -348,29 +349,6 @@ namespace Ship_Game
 
         public bool GoodFlatFood() => PlusFlatFoodAmount > 0;
 
-        static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
-        {
-            return flatBonus + perColonistBonus * planet.PopulationBillion * adjust;
-        }
-
-        public float CreditsProduced(Planet planet)
-        {
-            return Production(planet, 0, CreditsPerColonist);            
-        }
-
-        public float FoodProduced(Planet planet)
-        {
-            if (planet.NonCybernetic)
-                return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility);
-
-            return ProductionProduced(planet);
-        }
-
-        public float ProductionProduced(Planet planet)
-        {
-            return Production(planet, PlusFlatProductionAmount, PlusProdPerColonist, planet.MineralRichness);
-        }
-
         public bool AssignBuildingToTilePlanetCreation(Planet p, out PlanetGridSquare tile)
         {
             tile = AssignBuildingToRandomTile(p);
@@ -414,6 +392,12 @@ namespace Ship_Game
             // only validate the location
             if (where != null)
                 return where.CanEnqueueBuildingHere(b);
+
+            if (b.IsBiospheres)
+            {
+                where = planet.PreferredBiosphereTile(b);
+                return where != null;
+            }
 
             PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanEnqueueBuildingHere(b));
             if (freeSpots.Length > 0)
@@ -471,16 +455,6 @@ namespace Ship_Game
             float baseRepairRate = ShipRepair * GlobalStats.Defaults.BaseShipyardRepair;
             float levelBonus = planetLevel * GlobalStats.Defaults.BonusRepairPerColonyLevel;
             return baseRepairRate * levelBonus;
-        }
-
-        public bool MoneyBuildingAndProfitable(float maintenance, float populationBillion)
-        {
-            if (!IsMoneyBuilding)
-                return false;
-
-            // we use gross profit since we dont want tax rate change to affect this often
-            float grossProfit = PlusTaxPercentage * populationBillion + CreditsPerColonist * populationBillion;
-            return maintenance < grossProfit;
         }
 
         public string GetShortDescrText(Planet p = null)

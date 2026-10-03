@@ -4,10 +4,11 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Codex
 {
-    // A single styled fragment of body text or an inline image. Text and image
-    // runs are mutually exclusive: ImagePath != null marks an image run, in
-    // which case Text/Color/Bold/Url are ignored. A text run with Text == "\n"
-    // is a forced line break.
+    // A single styled fragment of body text, an inline image, or a bullet
+    // marker. Text and image runs are mutually exclusive: ImagePath != null
+    // marks an image run, in which case Text/Color/Bold/Url are ignored. A text
+    // run with Text == "\n" is a forced line break. A bullet run carries no text:
+    // it starts a list item, which the renderer indents until the next line break.
     public readonly struct StyledRun
     {
         public readonly string Text;
@@ -16,6 +17,7 @@ namespace Ship_Game.Codex
         public readonly bool IsCaption; // bigger heading font + auto double-break after span
         public readonly string Url;
         public readonly string ImagePath;
+        public readonly bool IsBullet;
 
         public StyledRun(string text, Color color, bool bold, string url, bool caption = false)
         {
@@ -25,10 +27,12 @@ namespace Ship_Game.Codex
             IsCaption = caption;
             Url = url;
             ImagePath = null;
+            IsBullet = false;
         }
 
-        public static StyledRun Image(string path) => new(image: path);
-        StyledRun(string image)
+        public static StyledRun Image(string path) => new(image: path, bullet: false);
+        public static StyledRun Bullet() => new(image: null, bullet: true);
+        StyledRun(string image, bool bullet)
         {
             Text = null;
             Color = default;
@@ -36,6 +40,7 @@ namespace Ship_Game.Codex
             IsCaption = false;
             Url = null;
             ImagePath = image;
+            IsBullet = bullet;
         }
 
         public bool IsImage => ImagePath != null;
@@ -49,6 +54,10 @@ namespace Ship_Game.Codex
     //   <b>...</b>                  bold span
     //   <url=https://...>text</url> clickable hyperlink
     //   <img>path/to/texture</img>  inline atomic image
+    //   <li>item text</li>          list item: a dash at the margin, and every
+    //                               wrapped line of the item indented past it;
+    //                               the item ends at the next line break, so
+    //                               </li> is optional
     //
     // Tags of different classes (color + bold + url) may combine. Same-class
     // nesting is refused — the inner open tag is emitted as literal text.
@@ -186,6 +195,13 @@ namespace Ship_Game.Codex
                             color = CodexStyles.Url;
                             consumed = true;
                         }
+                        break;
+
+                    case "li":
+                        Flush();
+                        if (!isClose)
+                            runs.Add(StyledRun.Bullet());
+                        consumed = true;
                         break;
 
                     case "img":

@@ -443,6 +443,8 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool ThrustersShown => !IsLaunching && !IsLanding;
+
         public void RenderThrusters(ref Matrix view, ref Matrix projection)
         {
             for (int i = 0; i < ThrusterList.Length; ++i)

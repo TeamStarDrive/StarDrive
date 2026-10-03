@@ -6,7 +6,6 @@
   <Maintenance>2</Maintenance>
   
   <EventOnBuild>BuiltRDA</EventOnBuild>
-  <UniqueInEmpire>true</UniqueInEmpire>
   <BuildOnlyOnce>true</BuildOnlyOnce>
   <NoRandomSpawn>true</NoRandomSpawn>
   

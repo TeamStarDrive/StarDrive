@@ -37,8 +37,9 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         static string GetWipFileNameToSave(string wipFileName)
         {
-            string defaultShipName = $"{wipFileName}_v1_WIP";
+            // from the prefix, since the name we get already carries a _v#_WIP suffix
             string shipPrefix      = GetWipShipNameAndNum(wipFileName);
+            string defaultShipName = $"{shipPrefix}_v1_WIP";
             FileInfo[] wipFiles    = GetWipFiles().Filter(f => f.NameNoExt().StartsWith(shipPrefix));
 
             if (wipFiles.Length == 0) // first wip
@@ -46,7 +47,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             FileInfo lastModified = wipFiles.FindMax(f => f.LastWriteTime);
             int version = GetWipSubVersion(lastModified.NameNoExt());
-            return $"{GetWipShipNameAndNum(shipPrefix)}_v{version + 1}_WIP";
+            return $"{shipPrefix}_v{version + 1}_WIP";
         }
 
         // Will return the Ship sub version number
