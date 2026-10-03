@@ -262,4 +262,28 @@ public class HangarLandingTests : StarDriveTest
         Assert.IsFalse(shuttle.Dying, "a landed shuttle is taken in, not destroyed");
         AssertEqual(troops, carrier.TroopCount, "its troop is back on the carrier at touchdown");
     }
+
+    [TestMethod]
+    public void AShuttleThatLandsOnItsCarrierAfterTheCarrierWasCapturedIsLostWithItsTroop()
+    {
+        CreateThirdMajorEmpire();
+        Ship carrier = SpawnShip("TEST_Excalibur-Class Supercarrier", Player, new Vector2(300_000, 290_000));
+        Assert.IsTrue(carrier.GetOurFirstTroop(out Troop troop), "setup: the carrier must carry troops");
+        Assert.IsTrue(carrier.Carrier.TryScrambleSingleAssaultShuttle(troop, out Ship shuttle), "setup: the carrier must launch an assault shuttle");
+        RunSimWhile((simTimeout: 10, fatal: true), () => shuttle.IsLaunching);
+
+        shuttle.Position = carrier.Position + new Vector2(0, 2500);
+        shuttle.AI.OrderReturnToHangar();
+        RunUntilLanding(shuttle);
+        carrier.LoyaltyTracker.SetBoardingLoyalty(ThirdMajor, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        Assert.AreSame(ThirdMajor, carrier.Loyalty, "setup: the carrier is captured while the shuttle lands");
+        float inSpace = carrier.Carrier.OrdnanceInSpace;
+        AssertGreaterThan(inSpace, shuttle.ShipOrdLaunchCost - 0.01f, "setup: the carrier counts the shuttle's launch cost as ordnance in space");
+
+        RunSimWhile((simTimeout: 10, fatal: true), () => shuttle.Active);
+        Assert.IsFalse(shuttle.Dying, "the shuttle finishes its landing and is removed");
+        AssertEqual(0, carrier.NumPlayerTroopsOnShip, "its troop is lost, not put aboard the captured carrier");
+        AssertEqual(0.01f, inSpace - shuttle.ShipOrdLaunchCost, carrier.Carrier.OrdnanceInSpace, "the carrier stops counting the lost shuttle's ordnance");
+    }
 }

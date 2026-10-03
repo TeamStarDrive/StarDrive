@@ -135,7 +135,10 @@ namespace Ship_Game.Ships
         {
             switch (LandPlan)
             {
-                case LandPlan.Hangar when Mothership.Active: Owner.AI.ReturnToMothership(Mothership); break;
+                case LandPlan.Hangar when Mothership.Active:
+                    if (Mothership.Loyalty == Owner.Loyalty) Owner.AI.ReturnToMothership(Mothership);
+                    else                                     Mothership.OnLaunchedShipDie(Owner);
+                    break;
                 case LandPlan.Board:                         Owner.AI.LandTroopsAfterTouchdown(Target); break;
                 case LandPlan.Troops:
                 case LandPlan.AssaultDive:                   HandOverTroops();                        break;

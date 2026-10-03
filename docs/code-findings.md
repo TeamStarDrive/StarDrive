@@ -1129,7 +1129,7 @@ were still present; items 1 to 13 and 15 have since been resolved.
     for at least X% tax") used by the keep check and the build scoring. Needs a saved field, UI and
     Codex text; not started.
 
-## Everything else (18, eleven resolved)
+## Everything else (26, eleven resolved)
 
 1. ~~EMP recovery is a per-frame constant, unscaled by the time step.~~ Resolved 2026-09-28.
    `Ship.EmpRecovery` was drained once per simulation step, and the step is
@@ -1239,6 +1239,54 @@ were still present; items 1 to 13 and 15 have since been resolved.
     a building is about to go on. Narrow - `ShouldScrapFreeBiosphere` must say yes first. Found on
     the review of the #321 room fix, 2026-09-28; filtering on `CanEnqueueBuildingHere`-style
     `NoQueuedBuildings` would close it.
+
+Items 19-26 come from the branch review of `fixes_38` (the landing work), 2026-10-03.
+
+19. **The hangar ships of a captured carrier stay linked to it.** Capture (`LoyaltyChanges`
+    `SafelyTransferShip`) moves the carrier to its new owner but leaves its launched fighters,
+    shuttles and miners with the old owner and their `Mothership` link intact. Since the fixes_38
+    review they no longer hand anything over when they land on it (a fighter that lands on its
+    carrier after the carrier has changed hands is lost, as one landing when its carrier is
+    destroyed), but they still fly home to the enemy carrier to be lost there, their bays on the
+    captured carrier stay taken until they die, and the new owner's recall and resupply loops in
+    `CarrierBays` still order them about. Fix shape: on capture, treat the launched hangar ships
+    as a carrier death does, or clear the link both ways. `CarrierBays.ScuttleHangarShips` (60 s)
+    only walks the fighter hangars, so shuttles and miners would need their own handling.
+20. **A boarding shuttle rides along when its target jumps.** `TryLandOnShip` refuses a target
+    that is spooling or in warp, but a target that starts spooling during the 1.4-3.5 s glide takes
+    the shuttle with it (the glide follows the target's live position), and
+    `LandTroopsAfterTouchdown` boards it wherever it arrives. The same rule as a fighter landing on
+    a carrier that jumps, which Gilad chose to keep; boarding may want its own: check
+    `IsSpoolingOrInWarp` at touchdown and take off with the troop.
+21. **Supply shuttles rearm ships that are taking off or landing.** Neither
+    `SupplyShuttles.TryGetShipsInNeedOfSupplyByPriority` nor `RearmShipFromPlanet.TargetValid`
+    excludes `IsLaunchingOrLanding`. Hangar ships are never picked (`FriendliesNearby` and
+    `IsSuitableForPlanetaryRearm` drop them), but a ship taking off from a shipyard, or landing
+    for refit or scrap, can be; ordnance handed to a ship landing for scrap goes with it. Low value.
+22. `[thread]` **The Planets list updates the ship lists from the UI thread.**
+    `PlanetListScreenItem.cs` (~377, after Send Troops) calls `Objects.UpdateLists()`, which
+    applies loyalty changes and removes inactive ships off the sim thread. Pre-existing on main;
+    since paused frames also apply loyalty changes, the atomic claim in `LoyaltyChanges` is what
+    keeps one change from applying twice. Fix: `RunOnSimThread`, or drop the call.
+23. `[latent]` **Assault transporters never fire, and evasion never sees a ship.**
+    `DoAssaultTransporterLogic` (`ShipAI.DoAction.cs` ~750) and `Evade` read
+    `ShipAI.NearByShips`, which nothing fills; it is only cleared. The Codex entry Capturing Ships
+    (100114) says a transporter beams troops onto the nearest hostile ship whose shields are down.
+24. **Test debt: the `!IsMiningShip` clause at the end of a launch has no test that reaches it.**
+    In `Ship_Update` (~181), a mining ship's launch normally ends in the mining dive (state Mining,
+    the branch above it) or in state `ReturnToHangar`, which the line's state clause already
+    excludes, so `MiningShipLandingTests.AFreighterRoleMinerComesHomeWhileItsStationHasFightersOut`
+    passes with or without it. The clause is still live: a miner whose orders are cleared
+    mid-launch (a federation absorb runs `ClearOrdersAndWayPoints`) ends the launch awaiting
+    orders, and without the clause a freighter-role miner would be sent to escort its station.
+    The test wants a setup that clears the orders mid-launch.
+25. `[thread]` **The touchdown queue uses a lock.** `UniverseObjectManager.QueueTouchdown` /
+    `HandOverTouchdowns` guard a list with `lock (Touchdowns)`, which the review checklist asks
+    maintainers to approve. A lock-free shape: a per-ship pending flag set in `Ship_Update` and a
+    scan of the ship list in `HandOverTouchdowns`, which already runs single-threaded right after
+    the ship update.
+26. `[display]` **The planet info panel's exotic resource line is hard-coded English.**
+    `PlanetInfoUIElement.cs` (~404) builds "Richness" and "Refine Ratio:" as literals.
 
 ## Larger items with their own notes
 
