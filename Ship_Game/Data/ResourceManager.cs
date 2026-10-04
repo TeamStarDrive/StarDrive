@@ -1170,14 +1170,21 @@ namespace Ship_Game
             return DiplomacyDialogs[dialogName];
         }
 
-        static void LoadDialogs() // Refactored by RedFox
+        internal static void LoadDialogs() // Refactored by RedFox
         {
             DiplomacyDialogs.Clear();
-            string dir = "DiplomacyDialogs/" + GlobalStats.Language + "/";
-            foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
+            LoadDialogsFor(Language.English);
+            if (!GlobalStats.IsEnglish)
+                LoadDialogsFor(GlobalStats.Language);
+
+            static void LoadDialogsFor(Language language)
             {
-                string nameNoExt = pair.Info.NameNoExt();
-                DiplomacyDialogs[nameNoExt] = pair.Entity;
+                string dir = "DiplomacyDialogs/" + language + "/";
+                foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
+                {
+                    string nameNoExt = pair.Info.NameNoExt();
+                    DiplomacyDialogs[nameNoExt] = pair.Entity;
+                }
             }
         }
 
