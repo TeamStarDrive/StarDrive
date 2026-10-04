@@ -692,11 +692,35 @@ namespace Ship_Game
         public ShipHull SaveHullDesign(string hullName, FileInfo overwriteProtected)
         {
             ShipHull toSave = CloneCurrentHull(hullName);
-            SaveHull(toSave, overwriteProtected ?? new FileInfo($"Content/Hulls/{toSave.HullName}.hull"));
+            toSave.HullName = HullSaveName(CurrentHull, hullName);
+            SaveHull(toSave, overwriteProtected ?? HullSaveFile(toSave.HullName));
 
             ShipHull newHull = ResourceManager.AddHull(toSave);
             ChangeHull(newHull);
             return newHull;
+        }
+
+        internal static ShipHull ExistingHull(ShipHull edited, string visibleName)
+        {
+            if (edited.VisibleName == visibleName && ResourceManager.Hull(edited.HullName, out ShipHull original))
+                return original;
+
+            foreach (ShipHull hull in ResourceManager.Hulls)
+                if (hull.Style == edited.Style && hull.VisibleName == visibleName)
+                    return hull;
+            return null;
+        }
+
+        internal static string HullSaveName(ShipHull edited, string visibleName)
+            => ExistingHull(edited, visibleName)?.HullName ?? $"{edited.Style}/{visibleName}";
+
+        internal static FileInfo HullSaveFile(string hullName)
+        {
+            if (ResourceManager.Hull(hullName, out ShipHull existing) && existing.Source != null)
+                return existing.Source;
+
+            string root = GlobalStats.HasMod ? GlobalStats.ModPath : "Content/";
+            return new FileInfo($"{root}Hulls/{hullName}.hull");
         }
 
         void SaveWIP()

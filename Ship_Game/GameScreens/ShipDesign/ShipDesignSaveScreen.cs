@@ -34,7 +34,7 @@ namespace Ship_Game
             Screen = screen;
             Rect = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
             BaseWIPName = shipName.Contains("_WIP") ? shipName : "";
-            ShipName = shipName.Replace("/", "-").Replace("_", "-");
+            ShipName = hullDesigner ? shipName : shipName.Replace("/", "-").Replace("_", "-");
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
@@ -116,7 +116,7 @@ namespace Ship_Game
             if (Hulls)
             {
                 ShipHull[] hulls = ResourceManager.Hulls
-                    .Filter(h => h.VisibleName.ToLower().Contains(filter));
+                    .Filter(h => h.Style == Screen.CurrentHull.Style && h.VisibleName.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(hulls.Select(h => new ShipDesignListItem(h)));
             }
@@ -221,7 +221,7 @@ namespace Ship_Game
 
             if (Hulls)
             {
-                ShipHull hull = ResourceManager.Hulls.FirstOrDefault(h => h.VisibleName == shipOrHullName);
+                ShipHull hull = ShipDesignScreen.ExistingHull(Screen.CurrentHull, shipOrHullName);
                 exists = hull != null;
                 source = hull?.Source;
             }

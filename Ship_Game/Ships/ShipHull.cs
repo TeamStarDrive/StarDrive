@@ -493,6 +493,7 @@ namespace Ship_Game.Ships
                 sb.Clear();
             }
 
+            file.Directory?.Create();
             sw.FlushToFile(file);
             Log.Info($"Saved '{HullName}' to {file.FullName}");
 

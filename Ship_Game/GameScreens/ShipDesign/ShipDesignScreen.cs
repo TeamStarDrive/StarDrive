@@ -566,7 +566,7 @@ namespace Ship_Game
                     //return;*/
                 }
 
-                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, DesignOrHullName, hullDesigner:HullEditMode));
+                ScreenManager.AddScreen(new ShipDesignSaveScreen(this, HullEditMode ? CurrentHull.VisibleName : DesignOrHullName, hullDesigner:HullEditMode));
             });
             BtnSaveAs.Tooltip = GameText.SaveShipDesignDesc;
             BtnSaveAs.Hotkey = InputBindings.FromString("Ctrl+S");
