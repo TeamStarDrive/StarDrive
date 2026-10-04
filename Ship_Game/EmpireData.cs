@@ -320,6 +320,7 @@ namespace Ship_Game
         [StarData] public string RemnantBehemoth;
 
         [StarData] public string SpacePortModel;
+        [StarData(DefaultValue = 1f)] public float SpacePortScale = 1;
         [StarData] public float BombEnvironmentDamageMultiplier = 1;
         [StarData] public float OngoingDiplomaticModifier;
         [StarData] public int[] RoleLevels = new int[Enum.GetNames(typeof(RoleName)).Length];

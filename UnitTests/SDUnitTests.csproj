@@ -88,6 +88,7 @@
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="Empires\RefitPortSelectionTests.cs" />
     <Compile Include="Empires\CrippledPortTests.cs" />
+    <Compile Include="Empires\SpacePortScaleTests.cs" />
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
     <Compile Include="Espionage\LegacyAgentTests.cs" />
     <Compile Include="Espionage\UpriseTests.cs" />
