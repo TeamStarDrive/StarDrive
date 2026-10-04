@@ -1183,9 +1183,25 @@ namespace Ship_Game
                 foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
                 {
                     string nameNoExt = pair.Info.NameNoExt();
+                    if (DiplomacyDialogs.TryGetValue(nameNoExt, out DiplomacyDialog english))
+                        AddMissingDialogLines(pair.Entity, english);
                     DiplomacyDialogs[nameNoExt] = pair.Entity;
                 }
             }
+        }
+
+        static void AddMissingDialogLines(DiplomacyDialog dialog, DiplomacyDialog fallback)
+        {
+            if (fallback.Dialogs == null)
+                return;
+
+            dialog.Dialogs ??= new();
+            var present = new HashSet<string>();
+            foreach (DialogLine line in dialog.Dialogs)
+                present.Add(line.DialogType);
+            foreach (DialogLine line in fallback.Dialogs)
+                if (!present.Contains(line.DialogType))
+                    dialog.Dialogs.Add(line);
         }
 
         static readonly Array<IEmpireData> Empires      = new Array<IEmpireData>();

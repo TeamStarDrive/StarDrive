@@ -25,6 +25,47 @@ public class DiplomacyDialogFallbackTests : StarDriveTest
                     .First(l => (string)l.Element("DialogType") == "Greeting")
                     .Element("Friendly")!.Value;
 
+    static string[] TypesInFile(string path)
+        => XDocument.Load(path).Descendants("DialogLine").Select(l => (string)l.Element("DialogType")).ToArray();
+
+    static XElement LineInFile(string path, string type)
+        => XDocument.Load(path).Descendants("DialogLine").First(l => (string)l.Element("DialogType") == type);
+
+    [TestMethod]
+    public void LinesMissingFromATranslatedDialogComeFromEnglish()
+    {
+        string[] english = TypesInFile(EnglishKulrathi);
+        string[] german = TypesInFile(GermanKulrathi);
+        string[] missing = english.Except(german).ToArray();
+        Assert.AreNotEqual(0, missing.Length, "setup: the German Kulrathi file lacks some English dialog types");
+        string withDefault = missing.First(t => LineInFile(EnglishKulrathi, t).Element("Default") != null);
+
+        Language saved = GlobalStats.Language;
+        try
+        {
+            GlobalStats.Language = Language.German;
+            ResourceManager.LoadDialogs();
+            DialogLine[] loaded = ResourceManager.GetDiplomacyDialog("Kulrathi").Dialogs.ToArray();
+
+            foreach (string type in english.Union(german))
+            {
+                string[] source = german.Contains(type) ? german : english;
+                Assert.AreEqual(source.Count(t => t == type), loaded.Count(l => l.DialogType == type),
+                                $"{type}: a German line stays alone, a missing one comes once from English");
+            }
+            Assert.AreEqual(LineInFile(EnglishKulrathi, withDefault).Element("Default")!.Value,
+                            loaded.First(l => l.DialogType == withDefault).Default,
+                            "a line the German file lacks reads the English text");
+            Assert.AreEqual(FriendlyGreetingInFile(GermanKulrathi), FriendlyGreeting(loaded),
+                            "a line the German file has stays German");
+        }
+        finally
+        {
+            GlobalStats.Language = saved;
+            ResourceManager.LoadDialogs();
+        }
+    }
+
     [TestMethod]
     public void ADialogMissingInTheActiveLanguageFallsBackToEnglish()
     {
