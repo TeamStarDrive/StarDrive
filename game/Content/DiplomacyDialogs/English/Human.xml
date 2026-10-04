@@ -671,27 +671,26 @@
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>This is unfortunate. We will try to come up with something else.</Default>
     </DialogLine>
-  </Dialogs>
   
   <!-- Player war contribution -->
     <DialogLine>
       <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
       <DL_Agg>Contribute more to our joint war, PLURAL, or die!</DL_Agg>
-      <DL_Ruth>We expect you to help more in our joiny effort. This is the final warning.</DL_Ruth>
+      <DL_Ruth>We expect you to help more in our joint effort. This is the final warning.</DL_Ruth>
       <DL_Xeno>Why are you not contributing to our joint war?</DL_Xeno>
-      <DL_Cunn>Ah, SING, are you trying to use us as cannon fodders in our allied war? Please contribute more.</DL_Cunn>
-      <DL_Pac>Dear PLURAL, we are fighting a war together and is seems you are not into this war. Maybe we could end this war?</DL_Pac>
+      <DL_Cunn>Ah, SING, are you trying to use us as cannon fodder in our allied war? Please contribute more.</DL_Cunn>
+      <DL_Pac>Dear PLURAL, we are fighting a war together and it seems you are not into this war. Maybe we could end this war?</DL_Pac>
       <DL_Hon>You are not honoring our allied war. We are deeply disappointed.</DL_Hon>
     </DialogLine>  
 	
     <DialogLine>
       <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
       <DL_Agg>This is not acceptable. You are doing nothing in our mutual war!</DL_Agg>
-      <DL_Ruth>Your contribusion to our war is too low. We are not interested anymore.</DL_Ruth>
-      <DL_Xeno>You betrayed us! We will not fight with a trator!</DL_Xeno>
-      <DL_Cunn>Interesting, you have requested us to help you in your war, but you are keeping your end of the bargain.</DL_Cunn>
+      <DL_Ruth>Your contribution to our war is too low. We are not interested anymore.</DL_Ruth>
+      <DL_Xeno>You betrayed us! We will not fight with a traitor!</DL_Xeno>
+      <DL_Cunn>Interesting, you have requested us to help you in your war, but you are not keeping your end of the bargain.</DL_Cunn>
       <DL_Pac>PLURAL, you dragged us into this war although you know we dislike fighting. Since you are doing nothing, perhaps we should end our war with them and our friendship with you.</DL_Pac>
-      <DL_Hon>We did not know PLURAL are honorless. You failed to help with a war you requested our aid.</DL_Hon>
+      <DL_Hon>We did not know PLURAL are honorless. You failed to help in a war you asked us to join.</DL_Hon>
     </DialogLine>  	
 	
 	<!-- Treaties With Low Trust -->
@@ -701,7 +700,8 @@
     </DialogLine>  			
     <DialogLine>
       <DialogType>TRUST_LOW_OPEN_BORDERS</DialogType>
-	  <Default>Perhaps we make a mistake, signing an Open Border treaty with you. We respecfully revoke it.</Default>
+	  <Default>Perhaps we made a mistake signing an Open Borders treaty with you. We respectfully revoke it.</Default>
     </DialogLine> 	
   
+  </Dialogs>
 </DiplomacyDialog>
