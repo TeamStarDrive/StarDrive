@@ -437,7 +437,7 @@
   Radius: 150000
   LightColor: [225,235,255] # Blueish tint
   Habitable: false # this star is dangerous and leaves all planets barren
-  RadiationDamage: 10 # per second, falls off depending on RadiationRadius
+  RadiationDamage: 10 # applied every 0.5 seconds, falls off depending on RadiationRadius
   RadiationRadius: 15000
   ResearchableChance: 60
   Layers: # huge radiation layer
@@ -496,7 +496,7 @@
   Radius: 150000
   LightColor: [225,235,255] # Blueish tint
   Habitable: false # this star is dangerous and leaves all planets barren
-  RadiationDamage: 10 # per second, falls off depending on RadiationRadius
+  RadiationDamage: 10 # applied every 0.5 seconds, falls off depending on RadiationRadius
   RadiationRadius: 20000
   ResearchableChance: 50
   Layers: # huge radiation layer
@@ -580,7 +580,7 @@
   Radius: 150000
   LightColor: [255,245,235] # Beige
   Habitable: false # this star is dangerous and leaves all planets barren
-  RadiationDamage: 20 # per second, falls off depending on RadiationRadius
+  RadiationDamage: 20 # applied every 0.5 seconds, falls off depending on RadiationRadius
   RadiationRadius: 25000
   ResearchableChance: 50
   Layers: # big outer disk
