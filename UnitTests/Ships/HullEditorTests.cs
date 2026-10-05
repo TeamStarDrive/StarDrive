@@ -108,4 +108,77 @@ public class HullEditorTests : StarDriveTest
         Assert.IsNotNull(hull.FindSlot(new Point(0, 0)));
         Assert.IsNotNull(hull.FindSlot(new Point(5, 0)));
     }
+
+    [TestMethod]
+    public void DragEditPaintsTheRestrictionOnEveryCellItCrosses()
+    {
+        ShipHull hull = RowHull(width: 6, centerX: 3);
+        Point lastCell = new Point(0, 0).Sub(hull.GridCenter);
+
+        hull = HullEditorControls.PaintRestriction(hull, ref lastCell, new Point(5, 0), Restrictions.E, mirror: false);
+
+        Assert.IsNotNull(hull);
+        AssertFullRow(hull, width: 6);
+        AssertEqual(Restrictions.I, hull.FindSlot(new Point(0, 0)).R);
+        for (int x = 1; x < 6; ++x)
+            AssertEqual(Restrictions.E, hull.FindSlot(new Point(x, 0)).R);
+    }
+
+    [TestMethod]
+    public void DragEditPaintsTheMirrorCells()
+    {
+        ShipHull hull = RowHull(width: 6, centerX: 3);
+        Point lastCell = new Point(3, 0).Sub(hull.GridCenter);
+
+        hull = HullEditorControls.PaintRestriction(hull, ref lastCell, new Point(5, 0), Restrictions.O, mirror: true);
+
+        Assert.IsNotNull(hull);
+        AssertSymmetric(hull);
+        AssertEqual(Restrictions.O, hull.FindSlot(new Point(0, 0)).R);
+        AssertEqual(Restrictions.O, hull.FindSlot(new Point(1, 0)).R);
+        AssertEqual(Restrictions.I, hull.FindSlot(new Point(2, 0)).R);
+    }
+
+    [TestMethod]
+    public void DragEditFixesAMirrorCellEvenWhenTheCellItselfIsAlreadyPainted()
+    {
+        var hull = new ShipHull { GridCenter = new Point(3, 0) };
+        var slots = new Array<HullSlot>();
+        for (int x = 0; x < 6; ++x)
+            slots.Add(new HullSlot(x, 0, x == 5 ? Restrictions.E : Restrictions.I));
+        hull.SetHullSlots(slots);
+        Point lastCell = new Point(4, 0).Sub(hull.GridCenter);
+
+        hull = HullEditorControls.PaintRestriction(hull, ref lastCell, new Point(5, 0), Restrictions.E, mirror: true);
+
+        Assert.IsNotNull(hull);
+        AssertEqual(Restrictions.E, hull.FindSlot(new Point(0, 0)).R);
+    }
+
+    [TestMethod]
+    public void DragEditSkipsEmptyCellsAndAddsNoSlots()
+    {
+        var hull = new ShipHull { GridCenter = new Point(2, 0) };
+        hull.SetHullSlots(new Array<HullSlot>
+        {
+            new HullSlot(0, 0, Restrictions.I), new HullSlot(1, 0, Restrictions.I), new HullSlot(3, 0, Restrictions.I),
+        });
+        Point lastCell = new Point(0, 0).Sub(hull.GridCenter);
+
+        hull = HullEditorControls.PaintRestriction(hull, ref lastCell, new Point(3, 0), Restrictions.E, mirror: false);
+
+        Assert.IsNotNull(hull);
+        AssertEqual(3, hull.HullSlots.Length);
+        Assert.IsNull(hull.FindSlot(new Point(2, 0)));
+        AssertEqual(Restrictions.E, hull.FindSlot(new Point(3, 0)).R);
+    }
+
+    [TestMethod]
+    public void DragEditOverTheSameRestrictionChangesNothing()
+    {
+        ShipHull hull = RowHull(width: 4, centerX: 2);
+        Point lastCell = new Point(0, 0).Sub(hull.GridCenter);
+
+        Assert.IsNull(HullEditorControls.PaintRestriction(hull, ref lastCell, new Point(3, 0), Restrictions.I, mirror: true));
+    }
 }
