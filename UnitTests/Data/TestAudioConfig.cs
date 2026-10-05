@@ -25,6 +25,12 @@ namespace UnitTests.Data
         {
             AudioConfig config = new();
             AssertEqual(8, config.Categories.Length);
+            SoundEffect ambient = config.GetSoundEffect("AmbientMusic");
+            AssertEqual("Beyond the Frontier", ambient.GetTrackTitle("Music/AmbientMusic.0.m4a"));
+            AssertEqual("Humble Beginnings", ambient.GetTrackTitle("Music/sd2-1.m4a"));
+            AssertEqual("My Mod Track", ambient.GetTrackTitle("Music/My_Mod_Track.m4a"));
+            foreach (string track in ambient.Sounds)
+                AssertTrue(ambient.TrackTitles.ContainsKey(track), $"Missing display title for {track}");
             foreach (AudioCategory category in config.Categories)
             {
                 AssertTrue(category.Name.NotEmpty(), "Category name cannot be empty");

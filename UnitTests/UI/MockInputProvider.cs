@@ -11,12 +11,13 @@ namespace UnitTests.UI
         public Vector2 MousePos = new(512, 512);
         public ButtonState LeftMouse = ButtonState.Released;
         public ButtonState RightMouse = ButtonState.Released;
+        public int ScrollWheel;
 
         public Array<Keys> KeysDown = new();
 
         public XnaInput.MouseState GetMouse()
         {
-            return new XnaInput.MouseState((int)MousePos.X, (int)MousePos.Y, 0,
+            return new XnaInput.MouseState((int)MousePos.X, (int)MousePos.Y, ScrollWheel,
                 (XnaInput.ButtonState)LeftMouse, XnaInput.ButtonState.Released, 
                 (XnaInput.ButtonState)RightMouse, XnaInput.ButtonState.Released, XnaInput.ButtonState.Released);
         }

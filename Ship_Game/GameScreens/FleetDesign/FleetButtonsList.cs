@@ -97,17 +97,27 @@ public class FleetButtonsList : UIList
         if (ShouldHide || IsInputDisabled)
             return false;
 
+        return HandleFleetHotkeys(input) || base.HandleInput(input);
+    }
+
+    public bool HandleFleetHotkeys(InputState input)
+    {
+        if (ShouldHide || IsInputDisabled || GlobalStats.TakingInput)
+            return false;
+
         foreach (FleetButton b in Buttons)
         {
             // always handle hotkeys, since they can be used to create new fleets
             if (InputFleetSelection(input, Us.ScreenHeight) == b.FleetKey)
             {
+                if (IsUniverse && Us.HandlePlanetHotkey(b.FleetKey, input))
+                    return true;
                 b.OnHotKey?.Invoke(b);
                 return true;
             }
         }
 
-        return base.HandleInput(input);
+        return false;
     }
 
     public override void Update(float fixedDeltaTime)

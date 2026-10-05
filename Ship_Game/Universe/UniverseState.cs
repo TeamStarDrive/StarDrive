@@ -68,6 +68,10 @@ namespace Ship_Game.Universe
 
         [StarData] public Vector3d CamPos;
 
+        // Player navigation slots share number keys with fleets. IDs keep these optional
+        // bindings compatible with old saves and avoid retaining conquered planets.
+        [StarData] public int[] PlanetHotkeyIds = new int[Empire.LastFleetKey];
+
         // generated once during universe generation
         // allows us to define consistent backgrounds between savegames
         [StarData] public int BackgroundSeed;
