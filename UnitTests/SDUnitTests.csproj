@@ -71,6 +71,7 @@
     <Compile Include="Data\AdviceFallbackTests.cs" />
     <Compile Include="Data\DiplomacyDialogFallbackTests.cs" />
     <Compile Include="Data\DiplomacyDialogContentTests.cs" />
+    <Compile Include="Data\RaceOrderTests.cs" />
     <Compile Include="Data\LocalizationMergeTests.cs" />
     <Compile Include="Data\VersionFormatTests.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />

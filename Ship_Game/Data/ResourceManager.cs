@@ -1218,6 +1218,22 @@ namespace Ship_Game
                                   || e.Name.Contains(nameOrArchetype));
         }
 
+        // Humans first, factions last, the rest alphabetically; ties keep the load order
+        internal static void SortRaces(Array<IEmpireData> races)
+        {
+            static int Group(IEmpireData e) => e.ArchetypeName == "Human" ? 0 : e.IsFactionOrMinorRace ? 2 : 1;
+
+            IEmpireData[] loadOrder = races.ToArray();
+            races.Sort((a, b) =>
+            {
+                int byGroup = Group(a).CompareTo(Group(b));
+                if (byGroup != 0)
+                    return byGroup;
+                int byArchetype = string.Compare(a.ArchetypeName, b.ArchetypeName, StringComparison.OrdinalIgnoreCase);
+                return byArchetype != 0 ? byArchetype : System.Array.IndexOf(loadOrder, a).CompareTo(System.Array.IndexOf(loadOrder, b));
+            });
+        }
+
         static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
@@ -1228,18 +1244,7 @@ namespace Ship_Game
                 && (GlobalStats.Defaults.Mod.DisableDefaultRaces || !GlobalStats.Defaults.Mod.UseVanillaRaces);
 
             Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires", modOnly: modOnly));
-
-            // Humans should always be first,
-            // The rest should be sorted by the first initial
-            Empires.Sort(data =>
-            {
-                if (data.ArchetypeName == "Human") return 0; // always the first
-                if (data.ArchetypeName == "Dauntless") return 1; // Combined Arms: new expansion race
-                int initial = (int)data.ArchetypeName[0]; // by initial
-                if (data.IsFactionOrMinorRace) // factions are always last
-                    initial += 1000;
-                return initial;
-            });
+            SortRaces(Empires);
 
             foreach (IEmpireData e in Empires)
             {
