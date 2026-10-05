@@ -174,6 +174,24 @@ public class HullEditorTests : StarDriveTest
     }
 
     [TestMethod]
+    public void EditCyclesOnlyTheHullRestrictions()
+    {
+        var hullRestrictions = new[] { Restrictions.I, Restrictions.IO, Restrictions.O,
+                                       Restrictions.E, Restrictions.IE, Restrictions.OE };
+        for (int i = 0; i < hullRestrictions.Length; ++i)
+        {
+            Restrictions r = hullRestrictions[i];
+            AssertEqual(hullRestrictions[(i + 1) % hullRestrictions.Length], HullEditorControls.NextHullRestriction(r, +1));
+            AssertEqual(hullRestrictions[(i + hullRestrictions.Length - 1) % hullRestrictions.Length], HullEditorControls.NextHullRestriction(r, -1));
+        }
+        foreach (Restrictions other in new[] { Restrictions.IOE, Restrictions.xI, Restrictions.xIO, Restrictions.xO })
+        {
+            AssertEqual(Restrictions.I, HullEditorControls.NextHullRestriction(other, +1));
+            AssertEqual(Restrictions.OE, HullEditorControls.NextHullRestriction(other, -1));
+        }
+    }
+
+    [TestMethod]
     public void DragEditOverTheSameRestrictionChangesNothing()
     {
         ShipHull hull = RowHull(width: 4, centerX: 2);

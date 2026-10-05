@@ -368,6 +368,17 @@ namespace Ship_Game.GameScreens.ShipDesign
             return true;
         }
 
+        // hull slots cycle I..OE: IOE and x slots reject most modules
+        internal static Restrictions NextHullRestriction(Restrictions r, int step)
+        {
+            if (r > Restrictions.OE)
+                return step > 0 ? Restrictions.I : Restrictions.OE;
+            int next = (int)r + step;
+            if (next < (int)Restrictions.I) return Restrictions.OE;
+            if (next > (int)Restrictions.OE) return Restrictions.I;
+            return (Restrictions)next;
+        }
+
         static bool SetRestriction(ShipHull hull, Array<HullSlot> slots, Point pos, Restrictions r, bool mirror)
         {
             bool changed = SetRestrictionAt(slots, pos, r);
@@ -413,7 +424,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                     if (slot != null)
                     {
                         if (LastEditedPos == pos)
-                            LastRestriction = slot.R.IncrementWithWrap(input.LeftMouseClick ? +1 : -1);
+                            LastRestriction = NextHullRestriction(slot.R, input.LeftMouseClick ? +1 : -1);
                         LastEditedPos = pos;
 
                         slots.Remove(slot);
@@ -428,7 +439,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                     else
                     {
                         // when Left/Right clicking on an empty pos, change LastRestriction
-                        LastRestriction = LastRestriction.IncrementWithWrap(input.LeftMouseClick ? +1 : -1);
+                        LastRestriction = NextHullRestriction(LastRestriction, input.LeftMouseClick ? +1 : -1);
                         return true;
                     }
                     break;
