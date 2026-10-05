@@ -21,8 +21,8 @@ namespace UnitTests.Graphics;
 ///      DiffuseColor parameter is reaching the shader and modulating output).
 ///   2. EmissiveColor adds light without requiring directional lights
 ///      (proves the emissive path runs even when LightingEnabled=false).
-///   3. Disabling all lights gives DiffuseColor*texture (proves the
-///      LightingEnabled flag reaches the shader).
+///   3. Disabling all lights gives DiffuseColor, or the texture alone when one
+///      is bound (proves the LightingEnabled flag reaches the shader).
 /// </summary>
 [TestClass]
 public class MeshLightingEffectTests : StarDriveTest
@@ -82,6 +82,24 @@ public class MeshLightingEffectTests : StarDriveTest
             $"Expected DiffuseColor=green to render green, got G-sum={greenContribution}.");
         Assert.IsTrue(redContribution < 100,
             $"Expected near-zero red from a green-only diffuse, got R-sum={redContribution}.");
+    }
+
+    [TestMethod]
+    public void NoLighting_Textured_IgnoresDiffuseColor()
+    {
+        using var whiteMap = MakeSolidColorTexture(Game.GraphicsDevice, Color.White);
+        using var rt = RenderUnitCubeWith(fx =>
+        {
+            fx.LightingEnabled = false;
+            fx.DiffuseColor = new Vector3(0.494f, 0.722f, 0.529f);
+            fx.EmissiveColor = Vector3.Zero;
+            fx.Texture = whiteMap;
+            fx.TextureEnabled = true;
+        });
+
+        long whitePixels = CountPixels(rt, Color.White);
+        Assert.IsTrue(whitePixels > 100,
+            $"Expected a white texture to render white whatever the DiffuseColor, got {whitePixels} white pixels.");
     }
 
     // Phase B emissive (`_g` glow map) sampling: when an EmissiveMapTexture
@@ -271,6 +289,16 @@ public class MeshLightingEffectTests : StarDriveTest
                 sum += px.R + px.G + px.B;
         }
         return sum;
+    }
+
+    static long CountPixels(RenderTarget2D rt, Color color)
+    {
+        var pixels = new Color[rt.Width * rt.Height];
+        rt.GetData(pixels);
+        long count = 0;
+        foreach (Color px in pixels)
+            if (px == color) ++count;
+        return count;
     }
 
     static long SumChannel(RenderTarget2D rt, int channel, bool excludeMagenta)

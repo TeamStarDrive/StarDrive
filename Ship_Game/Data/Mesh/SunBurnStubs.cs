@@ -1179,7 +1179,8 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pView?.SetValue(View);
             pProjection?.SetValue(Projection);
 
-            pDiffuseColor?.SetValue(DiffuseColor);
+            // SunBurn applies the material DiffuseColor only when no diffuse map is bound
+            pDiffuseColor?.SetValue(TextureEnabled && Texture != null ? Vector3.One : DiffuseColor);
             pEmissiveColor?.SetValue(EmissiveColor);
             pSpecularColor?.SetValue(SpecularColor);
             pSpecularPower?.SetValue(SpecularPower);
