@@ -1,7 +1,7 @@
 ﻿<DiplomacyDialog>
   <StatementSets>
     <StatementSet>
-      <Name>Conversación normal</Name>
+      <Name>Ordinary Discussion</Name>
       <DialogOptions>
         <DialogOption>
           <words>¿Tenéis alguna queja de nosotros?</words>
@@ -40,7 +40,7 @@
       </DialogOptions>
     </StatementSet>
     <StatementSet>
-      <Name>Amenazar</Name>
+      <Name>Threaten</Name>
       <DialogOptions>
         <DialogOption>
           <words>Nos enfadaríamos mucho si fundáis colonias nuevas en sistemas que hayamos reclamado como nuestros.</words>

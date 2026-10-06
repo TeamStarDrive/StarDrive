@@ -69,6 +69,9 @@
     <Compile Include="Data\TestAudioConfig.cs" />
     <Compile Include="Data\TestPlanetAmbience.cs" />
     <Compile Include="Data\AdviceFallbackTests.cs" />
+    <Compile Include="Data\DiplomacyDialogFallbackTests.cs" />
+    <Compile Include="Data\DiplomacyDialogContentTests.cs" />
+    <Compile Include="Data\RaceOrderTests.cs" />
     <Compile Include="Data\LocalizationMergeTests.cs" />
     <Compile Include="Data\VersionFormatTests.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
@@ -86,6 +89,7 @@
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="Empires\RefitPortSelectionTests.cs" />
     <Compile Include="Empires\CrippledPortTests.cs" />
+    <Compile Include="Empires\SpacePortScaleTests.cs" />
     <Compile Include="Espionage\InfiltrationOperationsTests.cs" />
     <Compile Include="Espionage\LegacyAgentTests.cs" />
     <Compile Include="Espionage\UpriseTests.cs" />
@@ -140,6 +144,8 @@
     <Compile Include="Serialization\TypeSerializerTests.cs" />
     <Compile Include="Serialization\YamlSerializerTests.cs" />
     <Compile Include="Ships\ExternalSlotGridTests.cs" />
+    <Compile Include="Ships\HullEditorTests.cs" />
+    <Compile Include="Ships\HullSaveTests.cs" />
     <Compile Include="Ships\AdjacentShipExplosionTests.cs" />
     <Compile Include="Ships\ColonyShipLandingTests.cs" />
     <Compile Include="Ships\ScrapLandingTests.cs" />

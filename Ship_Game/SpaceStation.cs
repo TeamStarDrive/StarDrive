@@ -15,6 +15,7 @@ public sealed class SpaceStation
     bool DisableLoading;
 
     float ZRotation;
+    float Scale;
     const float RadiansPerSecond = RadMath.Deg1AsRads * 2;
     public const float PosZ = 600f;
 
@@ -22,14 +23,20 @@ public sealed class SpaceStation
     {
     }
 
+    static bool HasRaceModel(Empire owner) => owner != null && owner.data.SpacePortModel.NotEmpty();
+
+    internal static float StationScale(Empire owner)
+    {
+        float scale = GlobalStats.Defaults.SpaceportScale;
+        return HasRaceModel(owner) ? scale * owner.data.SpacePortScale : scale;
+    }
+
     void UpdateTransforms(Vector2 position)
     {
         if (InnerSO == null && OuterSO == null)
             return;
 
-        float scale = GlobalStats.Defaults.SpaceportScale;
-
-        Matrix transform = Matrix.CreateScale(scale)
+        Matrix transform = Matrix.CreateScale(Scale)
                            * Matrix.CreateRotationZ(90f.ToRadians() + ZRotation)
                            * Matrix.CreateRotationX(20f.ToRadians())
                            * Matrix.CreateRotationY(65f.ToRadians())
@@ -48,7 +55,7 @@ public sealed class SpaceStation
         // use the root content manager, because there is not much point to clear this resource
         var content = ResourceManager.RootContent;
 
-        if (owner == null || owner.data.SpacePortModel.IsEmpty())
+        if (!HasRaceModel(owner))
         {
             innerModel = StaticMesh.LoadMesh(content, "Model/Stations/spacestation01_inner");
             outerModel = StaticMesh.LoadMesh(content, "Model/Stations/spacestation01_outer");
@@ -57,6 +64,7 @@ public sealed class SpaceStation
         {
             outerModel = StaticMesh.LoadMesh(content, owner.data.SpacePortModel);
         }
+        Scale = StationScale(owner);
 
         if (innerModel != null)
         {

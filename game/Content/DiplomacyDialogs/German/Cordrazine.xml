@@ -37,7 +37,7 @@
       <Hostile>Hab Acht! Ich rieche wunderbar, nicht wahr? Warte, warum haben wir euch noch kontaktiert? OWLWOKS!! Wacht auf!  Ach ja. Ihr PLURAL seid so widerlich, nicht wahr? Und ihr habt im TARSYS-System kolonisiert, das uns gehört! Wir sind sehr unglücklich darüber. </Hostile>
     </DialogLine>
     <DialogLine>
-      <DialogType>Declare war</DialogType>
+      <DialogType>Declare War</DialogType>
       <misc1>Sei gegrüßt, widerlicher SING. Wir bedauern, dir mitteilen zu müssen, dass euer Gestank nicht auszuhalten ist und wir eure stinkende Rasse daher aus der Galaxie entfernen werden. Adieu! </misc1>
       <misc2>... UHHHHHH!! KRIEG KRIEG KRIEG KRIEG KRIEG Krieg Krieg Krieg Krieg ...</misc2>&gt;
     </DialogLine>

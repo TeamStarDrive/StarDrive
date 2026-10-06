@@ -1170,15 +1170,38 @@ namespace Ship_Game
             return DiplomacyDialogs[dialogName];
         }
 
-        static void LoadDialogs() // Refactored by RedFox
+        internal static void LoadDialogs() // Refactored by RedFox
         {
             DiplomacyDialogs.Clear();
-            string dir = "DiplomacyDialogs/" + GlobalStats.Language + "/";
-            foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
+            LoadDialogsFor(Language.English);
+            if (!GlobalStats.IsEnglish)
+                LoadDialogsFor(GlobalStats.Language);
+
+            static void LoadDialogsFor(Language language)
             {
-                string nameNoExt = pair.Info.NameNoExt();
-                DiplomacyDialogs[nameNoExt] = pair.Entity;
+                string dir = "DiplomacyDialogs/" + language + "/";
+                foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
+                {
+                    string nameNoExt = pair.Info.NameNoExt();
+                    if (DiplomacyDialogs.TryGetValue(nameNoExt, out DiplomacyDialog english))
+                        AddMissingDialogLines(pair.Entity, english);
+                    DiplomacyDialogs[nameNoExt] = pair.Entity;
+                }
             }
+        }
+
+        static void AddMissingDialogLines(DiplomacyDialog dialog, DiplomacyDialog fallback)
+        {
+            if (fallback.Dialogs == null)
+                return;
+
+            dialog.Dialogs ??= new();
+            var present = new HashSet<string>();
+            foreach (DialogLine line in dialog.Dialogs)
+                present.Add(line.DialogType);
+            foreach (DialogLine line in fallback.Dialogs)
+                if (!present.Contains(line.DialogType))
+                    dialog.Dialogs.Add(line);
         }
 
         static readonly Array<IEmpireData> Empires      = new Array<IEmpireData>();
@@ -1195,6 +1218,22 @@ namespace Ship_Game
                                   || e.Name.Contains(nameOrArchetype));
         }
 
+        // Humans first, factions last, the rest alphabetically; ties keep the load order
+        internal static void SortRaces(Array<IEmpireData> races)
+        {
+            static int Group(IEmpireData e) => e.ArchetypeName == "Human" ? 0 : e.IsFactionOrMinorRace ? 2 : 1;
+
+            IEmpireData[] loadOrder = races.ToArray();
+            races.Sort((a, b) =>
+            {
+                int byGroup = Group(a).CompareTo(Group(b));
+                if (byGroup != 0)
+                    return byGroup;
+                int byArchetype = string.Compare(a.ArchetypeName, b.ArchetypeName, StringComparison.OrdinalIgnoreCase);
+                return byArchetype != 0 ? byArchetype : System.Array.IndexOf(loadOrder, a).CompareTo(System.Array.IndexOf(loadOrder, b));
+            });
+        }
+
         static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
@@ -1205,18 +1244,7 @@ namespace Ship_Game
                 && (GlobalStats.Defaults.Mod.DisableDefaultRaces || !GlobalStats.Defaults.Mod.UseVanillaRaces);
 
             Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires", modOnly: modOnly));
-
-            // Humans should always be first,
-            // The rest should be sorted by the first initial
-            Empires.Sort(data =>
-            {
-                if (data.ArchetypeName == "Human") return 0; // always the first
-                if (data.ArchetypeName == "Dauntless") return 1; // Combined Arms: new expansion race
-                int initial = (int)data.ArchetypeName[0]; // by initial
-                if (data.IsFactionOrMinorRace) // factions are always last
-                    initial += 1000;
-                return initial;
-            });
+            SortRaces(Empires);
 
             foreach (IEmpireData e in Empires)
             {

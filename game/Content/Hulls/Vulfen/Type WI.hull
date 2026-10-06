@@ -14,7 +14,7 @@ IsOrbitalDefense=false
 #Starkit Scale 70
 #Model Author Vanilla modified by Fat Bastard
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=0,44,-10,50
+Thruster=0,44,-2,50
 Slots
 ___|___|O  |O  |___|___
 ___|___|I  |I  |___|___

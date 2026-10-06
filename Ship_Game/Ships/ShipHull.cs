@@ -382,6 +382,9 @@ namespace Ship_Game.Ships
             return hull;
         }
 
+        // the ship's center line runs along the left edge of the GridCenter column
+        public Point MirroredSlotPos(Point pos) => new(2 * GridCenter.X - 1 - pos.X, pos.Y);
+
         // Sets hull slots of this design and recalculates grid size
         public void SetHullSlots(Array<HullSlot> slots)
         {
@@ -493,6 +496,7 @@ namespace Ship_Game.Ships
                 sb.Clear();
             }
 
+            file.Directory?.Create();
             sw.FlushToFile(file);
             Log.Info($"Saved '{HullName}' to {file.FullName}");
 

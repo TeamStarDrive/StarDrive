@@ -27,6 +27,11 @@ namespace Ship_Game.GameScreens.ShipDesign
         Restrictions LastRestriction = Restrictions.IO;
         Point LastEditedPos;
 
+        bool IsPainting;
+        bool PaintLeftButton;
+        int LastInputFrame;
+        Point LastPaintedCell; // relative to GridCenter, which shifts when the grid grows
+
         enum SlotOp { Edit, AddDelete }
         SlotOp Op = SlotOp.Edit;
 
@@ -75,8 +80,10 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Title.Text = "ADDING/DELETING SLOTS";
             });
 
-            btnEdit.Tooltip = "Left Click on a slot to EDIT Restriction forward, Right Click to EDIT Restriction backward";
-            btnAdd.Tooltip = "Left Click on empty space to ADD a new slot, Right Click on existing slot to DELETE it";
+            btnEdit.Tooltip = "Left Click on a slot to EDIT Restriction forward, Right Click to EDIT Restriction backward. " +
+                              "Hold and drag to paint the current Restriction";
+            btnAdd.Tooltip = "Left Click on empty space to ADD a new slot, Right Click on existing slot to DELETE it. " +
+                             "Hold and drag to keep adding or deleting";
 
             ThrusterList = Add(new UIList(ListLayoutStyle.ResizeList));
             ThrusterList.SetLocalPos(0, 300);
@@ -142,6 +149,11 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public override bool HandleInput(InputState input)
         {
+            int frame = GameBase.Base.FrameId;
+            if (frame > LastInputFrame + 1 || !input.LeftMouseDown && !input.RightMouseDown)
+                IsPainting = false; // a skipped frame means another panel took the input
+            LastInputFrame = frame;
+
             if (base.HandleInput(input))
                 return true; // make sure button captures are done first
 
@@ -164,8 +176,11 @@ namespace Ship_Game.GameScreens.ShipDesign
 
                 if (input.LeftMouseClick || input.RightMouseClick)
                 {
-                    (SlotStruct slot, Point pos) = S.GetSlotUnderCursor();
-                    if (ModifyHull(input, slot, pos))
+                    (SlotStruct clicked, Point pos) = S.GetSlotUnderCursor();
+                    IsPainting = Op == SlotOp.AddDelete || clicked != null;
+                    PaintLeftButton = input.LeftMouseClick;
+                    LastPaintedCell = pos.Sub(S.CurrentHull.GridCenter);
+                    if (ModifyHull(input, pos))
                     {
                         GameAudio.DesignSoftBeep();
                         return true;
@@ -174,6 +189,23 @@ namespace Ship_Game.GameScreens.ShipDesign
                     {
                         GameAudio.NegativeClick();
                     }
+                }
+                else if (IsPainting && (PaintLeftButton ? input.LeftMouseDown : input.RightMouseDown))
+                {
+                    (_, Point pos) = S.GetSlotUnderCursor();
+                    ShipHull painted = Op == SlotOp.AddDelete
+                        ? PaintSlots(S.CurrentHull, ref LastPaintedCell, pos, PaintLeftButton, S.IsSymmetricDesignMode)
+                        : PaintRestriction(S.CurrentHull, ref LastPaintedCell, pos, LastRestriction, S.IsSymmetricDesignMode);
+                    if (painted != null)
+                    {
+                        S.ChangeHull(painted, zoomToHull:false);
+                        GameAudio.DesignSoftBeep();
+                    }
+                    return true;
+                }
+                else
+                {
+                    IsPainting = false;
                 }
             }
             return false;
@@ -186,13 +218,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (!IsEditingThruster)
                 {
                     (SlotStruct slot, Point pos) = S.GetSlotUnderCursor();
-                    bool hasSlot = slot == null;
-                    Color c = hasSlot ? Color.Green : Color.Red;
-                    if (Op == SlotOp.Edit)
-                        c = !hasSlot ? Color.Green : Color.Red;
-
-                    Vector2 worldPos = S.ModuleGrid.GridPosToWorld(pos);
-                    S.DrawRectangleProjected(new RectF(worldPos, new Vector2(16)), c);
+                    DrawSlotCursor(slot, pos);
+                    if (S.IsSymmetricDesignMode)
+                    {
+                        Point mirrorPos = S.CurrentHull.MirroredSlotPos(pos);
+                        DrawSlotCursor(S.ModuleGrid.Get(mirrorPos), mirrorPos);
+                    }
                 }
 
                 for (int i = 0; i < S.CurrentHull.Thrusters.Length; ++i)
@@ -207,6 +238,17 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
 
             base.Draw(batch, elapsed);
+        }
+
+        void DrawSlotCursor(SlotStruct slot, Point pos)
+        {
+            bool hasSlot = slot == null;
+            Color c = hasSlot ? Color.Green : Color.Red;
+            if (Op == SlotOp.Edit)
+                c = !hasSlot ? Color.Green : Color.Red;
+
+            Vector2 worldPos = S.ModuleGrid.GridPosToWorld(pos);
+            S.DrawRectangleProjected(new RectF(worldPos, new Vector2(16)), c);
         }
 
         ref ShipHull.ThrusterZone GetThruster(int index)
@@ -273,30 +315,113 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
         }
 
-        bool ModifyHull(InputState input, SlotStruct ss, Point pos)
+        internal static ShipHull PaintSlots(ShipHull hull, ref Point lastPaintedCell, Point pos, bool add, bool mirror)
+            => PaintLine(hull, ref lastPaintedCell, pos, (h, slots, cell) => AddOrDelete(h, slots, cell, add, mirror));
+
+        internal static ShipHull PaintRestriction(ShipHull hull, ref Point lastPaintedCell, Point pos, Restrictions r, bool mirror)
+            => PaintLine(hull, ref lastPaintedCell, pos, (h, slots, cell) => SetRestriction(h, slots, cell, r, mirror));
+
+        static ShipHull PaintLine(ShipHull hull, ref Point lastPaintedCell, Point pos,
+                                  Func<ShipHull, Array<HullSlot>, Point, bool> paintCell)
+        {
+            Point from = lastPaintedCell.Add(hull.GridCenter);
+            if (pos == from)
+                return null;
+
+            ShipHull newHull = hull.GetClone();
+            var slots = new Array<HullSlot>(newHull.HullSlots);
+            int steps = Math.Max(Math.Abs(pos.X - from.X), Math.Abs(pos.Y - from.Y));
+            bool changed = false;
+            for (int i = 1; i <= steps; ++i)
+            {
+                var cell = new Point(from.X + (pos.X - from.X) * i / steps, from.Y + (pos.Y - from.Y) * i / steps);
+                changed |= paintCell(newHull, slots, cell);
+            }
+
+            lastPaintedCell = pos.Sub(hull.GridCenter);
+            if (!changed)
+                return null;
+
+            newHull.SetHullSlots(slots);
+            return newHull;
+        }
+
+        static bool AddOrDelete(ShipHull hull, Array<HullSlot> slots, Point pos, bool add, bool mirror)
+        {
+            bool changed = AddOrDeleteAt(slots, pos, add);
+            if (mirror)
+                changed |= AddOrDeleteAt(slots, hull.MirroredSlotPos(pos), add);
+            return changed;
+        }
+
+        static bool AddOrDeleteAt(Array<HullSlot> slots, Point pos, bool add)
+        {
+            for (int i = 0; i < slots.Count; ++i)
+            {
+                if (slots[i].Pos == pos)
+                {
+                    if (add)
+                        return false;
+                    slots.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            if (!add)
+                return false;
+            slots.Add(new HullSlot(pos.X, pos.Y, Restrictions.IO));
+            return true;
+        }
+
+        // hull slots cycle I..OE: IOE and x slots reject most modules
+        internal static Restrictions NextHullRestriction(Restrictions r, int step)
+        {
+            if (r > Restrictions.OE)
+                return step > 0 ? Restrictions.I : Restrictions.OE;
+            int next = (int)r + step;
+            if (next < (int)Restrictions.I) return Restrictions.OE;
+            if (next > (int)Restrictions.OE) return Restrictions.I;
+            return (Restrictions)next;
+        }
+
+        static bool SetRestriction(ShipHull hull, Array<HullSlot> slots, Point pos, Restrictions r, bool mirror)
+        {
+            bool changed = SetRestrictionAt(slots, pos, r);
+            if (mirror)
+                changed |= SetRestrictionAt(slots, hull.MirroredSlotPos(pos), r);
+            return changed;
+        }
+
+        static bool SetRestrictionAt(Array<HullSlot> slots, Point pos, Restrictions r)
+        {
+            for (int i = 0; i < slots.Count; ++i)
+            {
+                if (slots[i].Pos == pos)
+                {
+                    if (slots[i].R == r)
+                        return false;
+                    slots[i] = new HullSlot(pos.X, pos.Y, r);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool ModifyHull(InputState input, Point pos)
         {
             ShipHull newHull = S.CurrentHull.GetClone();
             HullSlot slot = newHull.FindSlot(pos);
             var slots = new Array<HullSlot>(newHull.HullSlots);
+            Point mirrorPos = newHull.MirroredSlotPos(pos);
+            HullSlot mirrorSlot = S.IsSymmetricDesignMode ? newHull.FindSlot(mirrorPos) : null;
 
             switch (Op)
             {
                 case SlotOp.AddDelete:
                 {
-                    if (ss == null && input.LeftMouseClick)
-                    {
-                        slots.Add(new HullSlot(pos.X, pos.Y, Restrictions.IO));
-                        newHull.SetHullSlots(slots);
-                    }
-                    else if (ss != null && input.RightMouseClick)
-                    {
-                        slots.Remove(slot);
-                        newHull.SetHullSlots(slots);
-                    }
-                    else
-                    {
+                    if (!AddOrDelete(newHull, slots, pos, add: input.LeftMouseClick, S.IsSymmetricDesignMode))
                         return false;
-                    }
+                    newHull.SetHullSlots(slots);
                     break;
                 }
                 case SlotOp.Edit:
@@ -304,17 +429,22 @@ namespace Ship_Game.GameScreens.ShipDesign
                     if (slot != null)
                     {
                         if (LastEditedPos == pos)
-                            LastRestriction = slot.R.IncrementWithWrap(input.LeftMouseClick ? +1 : -1);
+                            LastRestriction = NextHullRestriction(slot.R, input.LeftMouseClick ? +1 : -1);
                         LastEditedPos = pos;
 
                         slots.Remove(slot);
                         slots.Add(new HullSlot(slot.Pos.X, slot.Pos.Y, LastRestriction));
+                        if (mirrorSlot != null)
+                        {
+                            slots.Remove(mirrorSlot);
+                            slots.Add(new HullSlot(mirrorPos.X, mirrorPos.Y, LastRestriction));
+                        }
                         newHull.SetHullSlots(slots);
                     }
                     else
                     {
                         // when Left/Right clicking on an empty pos, change LastRestriction
-                        LastRestriction = LastRestriction.IncrementWithWrap(input.LeftMouseClick ? +1 : -1);
+                        LastRestriction = NextHullRestriction(LastRestriction, input.LeftMouseClick ? +1 : -1);
                         return true;
                     }
                     break;

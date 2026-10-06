@@ -208,7 +208,7 @@
       <Default>Relacje neutralne. </Default>
     </DialogLine>
     <DialogLine>
-      <DialogType>Opinion_Odpowiedź negatywna_Kulrathi</DialogType>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
       <Default>Relacje negatywne.</Default>
     </DialogLine>
     <DialogLine>
@@ -220,7 +220,7 @@
       <Default>Relacje neutralne.</Default>
     </DialogLine>
     <DialogLine>
-      <DialogType>Opinion_Odpowiedź negatywna_Pollops</DialogType>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
       <Default>Relacje negatywne.</Default>
     </DialogLine>
     <DialogLine>
@@ -232,7 +232,7 @@
       <Default>Relacje neutralne.</Default>
     </DialogLine>
     <DialogLine>
-      <DialogType>Opinion_Odpowiedź negatywna_Vulfen</DialogType>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
       <Default>Relacje negatywne.</Default>
     </DialogLine>
     <DialogLine>
@@ -244,7 +244,7 @@
       <Default>Relacje neutralne.</Default>
     </DialogLine>
     <DialogLine>
-      <DialogType>Opinion_Odpowiedź negatywna_Terran</DialogType>
+      <DialogType>Opinion_Negative_Terran</DialogType>
       <Default>Relacje negatywne. </Default>
     </DialogLine>
     <DialogLine>
@@ -256,7 +256,7 @@
       <Default>Relacje neutralne.</Default>
     </DialogLine>
     <DialogLine>
-      <DialogType>Opinion_Odpowiedź negatywna_Ralyeh</DialogType>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
       <Default>Relacje negatywne.</Default>
     </DialogLine>
     <DialogLine>
@@ -374,7 +374,7 @@
       <Default>Relacje neutralne.</Default>
     </DialogLine>
     <DialogLine>
-      <DialogType>Opinion_Odpowiedź negatywna_Draylok</DialogType>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
       <Default>Relacje negatywne.</Default>
     </DialogLine>
 
@@ -487,7 +487,7 @@
       <Default>Zaobserwowano neutralne interakcje z Cordrazine.</Default>
     </DialogLine>
     <DialogLine>
-      <DialogType>Opinion_Odpowiedź negatywna_Cordrazine</DialogType>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
       <Default>Zniewalające mięczaki przeznaczono do usunięcia. </Default>
     </DialogLine>
     <DialogLine>
