@@ -137,10 +137,46 @@ namespace Ship_Game.AI
             return pickedShip;
         }
 
+        // a better colony ship may take this many more turns (times production pace) to build than the quickest one
+        public const int ColonyShipExtraBuildTurns = 5;
+
+        internal static float ColonyShipMaxExtraTurns(Empire empire) => ColonyShipExtraBuildTurns * empire.Universe.ProductionPace;
+
         static float GetColonyShipScore(IShipDesign s, Empire empire)
         {
             float maxFTL = ShipStats.GetFTLSpeed(s, empire);
             return s.StartingColonyGoods + s.NumBuildingsDeployed * 20 + maxFTL / 1000;
+        }
+
+        internal static IShipDesign PickBestColonyShip(Array<IShipDesign> ships, Func<IShipDesign, int> turnsToBuild,
+                                                       Func<IShipDesign, float> score, float maxExtraTurns)
+        {
+            if (ships.Count <= 1)
+                return ships.Count == 1 ? ships[0] : null;
+
+            var turns = new int[ships.Count];
+            int quickest = int.MaxValue;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                turns[i] = turnsToBuild(ships[i]);
+                quickest = Math.Min(quickest, turns[i]);
+            }
+
+            IShipDesign best = null;
+            float bestScore = float.MinValue;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                if (turns[i] - quickest > maxExtraTurns)
+                    continue;
+
+                float s = score(ships[i]);
+                if (s > bestScore)
+                {
+                    bestScore = s;
+                    best = ships[i];
+                }
+            }
+            return best;
         }
 
         public static bool PickColonyShip(Empire empire, out IShipDesign colonyShip)
@@ -151,7 +187,10 @@ namespace Ship_Game.AI
             }
             else
             {
-                colonyShip = ShipsWeCanBuild(empire, s => s.IsColonyShip).FindMax(s => GetColonyShipScore(s, empire));
+                Planet[] ports = null;
+                colonyShip = PickBestColonyShip(ShipsWeCanBuild(empire, s => s.IsColonyShip),
+                                                s => empire.TurnsToBuildShipAt(ports ??= empire.BestPortsToBuildShips(), s),
+                                                s => GetColonyShipScore(s, empire), ColonyShipMaxExtraTurns(empire));
             }
 
             if (colonyShip == null)
