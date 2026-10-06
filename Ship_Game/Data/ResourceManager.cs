@@ -1163,7 +1163,7 @@ namespace Ship_Game
             return newB;
         }
 
-        static readonly Map<string, DiplomacyDialog> DiplomacyDialogs = new();
+        static readonly Map<string, DiplomacyDialog> DiplomacyDialogs = new(StringComparer.OrdinalIgnoreCase);
 
         public static DiplomacyDialog GetDiplomacyDialog(string dialogName)
         {
