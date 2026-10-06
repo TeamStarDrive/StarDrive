@@ -4,6 +4,8 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace UnitTests.Ships;
 
@@ -129,6 +131,30 @@ public class HullSaveTests : StarDriveTest
         finally
         {
             GlobalStats.SetActiveModNoSave(null);
+        }
+    }
+
+    [TestMethod]
+    public void APositionRoundedToNegativeZeroIsSavedAsZero()
+    {
+        var thruster = new ShipHull.ThrusterZone { Position = new Vector3(0, 0, 2), Scale = 32 };
+        thruster.SetWorldPos2D(new Vector2(-0.3f, -0.4f));
+        Assert.IsTrue(float.IsNegative(thruster.Position.X), "setup: the editor rounds a small negative position to -0");
+
+        ShipHull hull = ResourceManager.Hulls[0].GetClone();
+        hull.MeshOffset = new Vector2(-0f, 3);
+        hull.Thrusters = new[] { thruster };
+        var file = new FileInfo(Path.Combine(Path.GetTempPath(), $"HullSaveTests_{Guid.NewGuid():N}.hull"));
+        try
+        {
+            hull.Save(file);
+            string text = File.ReadAllText(file.FullName);
+            StringAssert.Contains(text, "MeshOffset=0,3");
+            StringAssert.Contains(text, "Thruster=0,0,2,32");
+        }
+        finally
+        {
+            file.Delete();
         }
     }
 
