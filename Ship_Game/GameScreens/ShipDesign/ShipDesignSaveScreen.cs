@@ -289,11 +289,7 @@ namespace Ship_Game
             if (exists)
             {
                 GameAudio.NegativeClick();
-                string alreadyExists = Hulls ? $"Hull named '{shipOrHullName}' already exists ({existingHullName}). Overwrite?"
-                                             : $"Design named '{shipOrHullName}' already exists. Overwrite?";
-                if (reserved)
-                    alreadyExists = $"Reserved Design named '{shipOrHullName}' already exists. Overwrite at '{source.RelPath()}'?";
-
+                string alreadyExists = OverwriteQuestion(shipOrHullName, Hulls, existingHullName, reserved, source);
                 ScreenManager.AddScreen(new MessageBoxScreen(this, alreadyExists)
                 {
                     Accepted = () => OverWriteAccepted(shipOrHullName, reserved ? source : null)
@@ -303,6 +299,18 @@ namespace Ship_Game
             {
                 OverWriteAccepted(shipOrHullName, null);
             }
+        }
+
+        // a design registered from a save (ShipDesign.OnDeserialized) is read-only and has no Source
+        internal static string OverwriteQuestion(string name, bool hull, string existingHullName, bool reserved, FileInfo source)
+        {
+            if (hull)
+                return $"Hull named '{name}' already exists ({existingHullName}). Overwrite?";
+            if (reserved && source != null)
+                return $"Reserved Design named '{name}' already exists. Overwrite at '{source.RelPath()}'?";
+            if (reserved)
+                return $"Reserved Design named '{name}' was loaded from this save. Overwrite it with a copy in your Saved Designs?";
+            return $"Design named '{name}' already exists. Overwrite?";
         }
 
         public override bool HandleInput(InputState input)
