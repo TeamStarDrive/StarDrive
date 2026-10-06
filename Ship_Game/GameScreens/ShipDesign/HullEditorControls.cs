@@ -29,6 +29,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         bool IsPainting;
         bool PaintLeftButton;
+        int LastInputFrame;
         Point LastPaintedCell; // relative to GridCenter, which shifts when the grid grows
 
         enum SlotOp { Edit, AddDelete }
@@ -148,6 +149,11 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public override bool HandleInput(InputState input)
         {
+            int frame = GameBase.Base.FrameId;
+            if (frame > LastInputFrame + 1 || !input.LeftMouseDown && !input.RightMouseDown)
+                IsPainting = false; // a skipped frame means another panel took the input
+            LastInputFrame = frame;
+
             if (base.HandleInput(input))
                 return true; // make sure button captures are done first
 
@@ -342,11 +348,10 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         static bool AddOrDelete(ShipHull hull, Array<HullSlot> slots, Point pos, bool add, bool mirror)
         {
-            if (!AddOrDeleteAt(slots, pos, add))
-                return false;
+            bool changed = AddOrDeleteAt(slots, pos, add);
             if (mirror)
-                AddOrDeleteAt(slots, hull.MirroredSlotPos(pos), add);
-            return true;
+                changed |= AddOrDeleteAt(slots, hull.MirroredSlotPos(pos), add);
+            return changed;
         }
 
         static bool AddOrDeleteAt(Array<HullSlot> slots, Point pos, bool add)

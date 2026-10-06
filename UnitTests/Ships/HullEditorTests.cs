@@ -110,6 +110,31 @@ public class HullEditorTests : StarDriveTest
     }
 
     [TestMethod]
+    public void DragAddFillsAMissingMirrorSlotEvenWhenTheCellExists()
+    {
+        ShipHull hull = RowHull(width: 3, centerX: 2);
+        Point lastCell = new Point(1, 0).Sub(hull.GridCenter);
+
+        hull = HullEditorControls.PaintSlots(hull, ref lastCell, new Point(0, 0), add: true, mirror: true);
+
+        Assert.IsNotNull(hull, "column 0 exists, its mirror column 3 must still be added");
+        AssertFullRow(hull, width: 4);
+    }
+
+    [TestMethod]
+    public void DragDeleteRemovesAnExistingMirrorSlotEvenWhenTheCellIsEmpty()
+    {
+        ShipHull hull = RowHull(width: 3, centerX: 2);
+        Point lastCell = new Point(2, 0).Sub(hull.GridCenter);
+
+        hull = HullEditorControls.PaintSlots(hull, ref lastCell, new Point(3, 0), add: false, mirror: true);
+
+        Assert.IsNotNull(hull, "column 3 was empty, its mirror column 0 must still be deleted");
+        AssertEqual(2, hull.HullSlots.Length);
+        AssertEqual(new Point(1, 0), hull.GridCenter, "column 0 went, so the grid shifted left by one");
+    }
+
+    [TestMethod]
     public void DragEditPaintsTheRestrictionOnEveryCellItCrosses()
     {
         ShipHull hull = RowHull(width: 6, centerX: 3);
