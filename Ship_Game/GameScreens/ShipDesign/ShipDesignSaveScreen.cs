@@ -261,7 +261,7 @@ namespace Ship_Game
                 if (Universe.Ships.Any(s => s.Name == shipOrHullName))
                 {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} currently exist the universe." +
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} currently exists in the universe." +
                                                                        " You cannot overwrite a design with this name.",
                                                                        MessageBoxButtons.Ok, MessageBoxWidth));
                     return;
@@ -273,14 +273,14 @@ namespace Ship_Game
                     if (playerPlanets.NotEmpty())
                     {
                         ScreenManager.AddScreen(new MessageBoxScreen
-                            (this, $"{shipOrHullName} currently exist the your planets' build queue." +
-                                   $" You cannot overwrite this design name.\n Related planets: {playerPlanets}.",
+                            (this, $"{shipOrHullName} is currently in your planets' build queues." +
+                                   $" You cannot overwrite this design name.\nRelated planets: {playerPlanets}.",
                                    MessageBoxButtons.Ok, MessageBoxWidth));
                     }
                     else
                     {
                         ScreenManager.AddScreen(new MessageBoxScreen
-                            (this, $"{shipOrHullName} currently exist the universe (maybe by another empire). " +
+                            (this, $"{shipOrHullName} is in another empire's build queue. " +
                                    "You cannot overwrite this design name.", MessageBoxButtons.Ok, MessageBoxWidth));
                     }
 

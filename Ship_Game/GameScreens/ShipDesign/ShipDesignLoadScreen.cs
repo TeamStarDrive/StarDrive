@@ -132,7 +132,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (Screen.Universe.Ships.Any(s => s.Name == shipId))
                 {
                     GameAudio.NegativeClick();
-                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, $"{shipId} currently exists the universe." +
+                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, $"{shipId} currently exists in the universe." +
                                                                        " You cannot delete a design with this name.",
                                                                        MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
                     return;
@@ -144,14 +144,14 @@ namespace Ship_Game.GameScreens.ShipDesign
                     if (playerPlanets.NotEmpty())
                     {
                         Screen.ScreenManager.AddScreen(new MessageBoxScreen
-                            (Screen, $"{shipId} currently exists the your planets' build queue." +
-                                     $" You cannot delete this design name.\n Related planets: {playerPlanets}.",
+                            (Screen, $"{shipId} is currently in your planets' build queues." +
+                                     $" You cannot delete this design name.\nRelated planets: {playerPlanets}.",
                                      MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
                     }
                     else
                     {
                         Screen.ScreenManager.AddScreen(new MessageBoxScreen
-                            (Screen, $"{shipId} currently exists the universe (maybe by another empire). " +
+                            (Screen, $"{shipId} is in another empire's build queue. " +
                                     "You cannot delete this design name.", MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
                     }
 
