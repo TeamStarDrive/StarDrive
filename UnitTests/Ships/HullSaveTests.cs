@@ -68,6 +68,53 @@ public class HullSaveTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ANameThatIsAnotherHullsKeyIsThatHull()
+    {
+        ShipHull hull = ResourceManager.Hulls.FirstOrDefault(h => h.HullName.StartsWith(h.Style + "/")
+                            && h.HullName != $"{h.Style}/{h.VisibleName}"
+                            && !h.HullName.Substring(h.Style.Length + 1).Contains('/')
+                            && !ResourceManager.Hulls.Any(o => o.Style == h.Style && o.VisibleName == h.HullName.Substring(h.Style.Length + 1)));
+        Assert.IsNotNull(hull, "setup: a hull whose key is no hull's display name (vanilla has several, e.g. Remnant/Mothership)");
+        string typed = hull.HullName.Substring(hull.Style.Length + 1);
+        ShipHull edited = hull.GetClone();
+        edited.HullName = $"{hull.Style}/ZzEdited";
+        edited.VisibleName = "ZzEdited";
+
+        Assert.AreSame(hull, ShipDesignScreen.ExistingHull(edited, typed), "the save must ask before it overwrites this hull");
+        Assert.IsNull(ShipDesignScreen.HullNameProblem(edited, typed));
+    }
+
+    [TestMethod]
+    public void ANewHullCannotTakeAnotherHullsFileName()
+    {
+        ShipHull hull = ResourceManager.Hulls.First(h => h.Source != null);
+        ShipHull edited = hull.GetClone();
+        edited.Style = "ZzStyle";
+        edited.HullName = "ZzStyle/ZzEdited";
+        edited.VisibleName = "ZzEdited";
+        string typed = Path.GetFileNameWithoutExtension(hull.Source.Name);
+
+        Assert.IsNull(ShipDesignScreen.ExistingHull(edited, typed), "setup: no ZzStyle hull has that name");
+        Assert.IsNotNull(ShipDesignScreen.HullNameProblem(edited, typed), "hulls load by file name, so the new file would hide the old hull");
+    }
+
+    [TestMethod]
+    public void AHullNameMustBeAValidFileName()
+    {
+        ShipHull edited = ResourceManager.Hulls[0].GetClone();
+        Assert.IsNotNull(ShipDesignScreen.HullNameProblem(edited, "Zz?"));
+        Assert.IsNull(ShipDesignScreen.HullNameProblem(edited, "ZzUnusedName"));
+    }
+
+    [TestMethod]
+    public void AnExistingHullIsSavedInPlaceEvenIfItsNameIsNoFileName()
+    {
+        ShipHull edited = ResourceManager.Hulls[0].GetClone();
+        edited.VisibleName = "Zz Style/Zz Name"; // Star Trek's Torotha is shown as "Orion Syndicate/Torotha"
+        Assert.IsNull(ShipDesignScreen.HullNameProblem(edited, edited.VisibleName));
+    }
+
+    [TestMethod]
     public void ANewHullIsSavedToTheActiveModsHullsFolder()
     {
         Assert.AreEqual(new FileInfo("Content/Hulls/ZzStyle/ZzNew.hull").FullName,

@@ -652,11 +652,13 @@ namespace Ship_Game
             }
         }
 
-        void SaveHull(ShipHull hull, FileInfo hullFile)
+        bool SaveHull(ShipHull hull, FileInfo hullFile)
         {
+            bool written = false;
             try
             {
                 hull.Save(hullFile);
+                written = true;
                 ShipSaved = true;
                 UpdateAvailableHulls();
             }
@@ -664,6 +666,7 @@ namespace Ship_Game
             {
                 Log.Error(e, $"Failed to Save: '{hull.HullName}'");
             }
+            return written;
         }
 
         public void SaveShipDesign(string name, FileInfo overwriteProtected)
@@ -693,7 +696,8 @@ namespace Ship_Game
         {
             ShipHull toSave = CloneCurrentHull(hullName);
             toSave.HullName = HullSaveName(CurrentHull, hullName);
-            SaveHull(toSave, overwriteProtected ?? HullSaveFile(toSave.HullName));
+            if (!SaveHull(toSave, overwriteProtected ?? HullSaveFile(toSave.HullName)))
+                return null;
 
             ShipHull newHull = ResourceManager.AddHull(toSave);
             ChangeHull(newHull);
@@ -708,6 +712,21 @@ namespace Ship_Game
             foreach (ShipHull hull in ResourceManager.Hulls)
                 if (hull.Style == edited.Style && hull.VisibleName == visibleName)
                     return hull;
+            return ResourceManager.Hull($"{edited.Style}/{visibleName}", out ShipHull sameName) ? sameName : null;
+        }
+
+        // null if the name can be saved; hulls load by file name alone, so a new hull's file name must be unused
+        internal static string HullNameProblem(ShipHull edited, string visibleName)
+        {
+            if (ExistingHull(edited, visibleName) != null)
+                return null;
+            if (visibleName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                return $"'{visibleName}' cannot be used as a file name";
+
+            string fileName = visibleName + ".hull";
+            foreach (ShipHull hull in ResourceManager.Hulls)
+                if (string.Equals(hull.Source?.Name, fileName, StringComparison.OrdinalIgnoreCase))
+                    return $"Hull '{hull.HullName}' already uses the file name {fileName}. Choose another name.";
             return null;
         }
 

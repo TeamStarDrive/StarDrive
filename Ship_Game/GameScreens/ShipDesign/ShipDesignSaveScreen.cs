@@ -156,6 +156,12 @@ namespace Ship_Game
             if (Hulls)
             {
                 ShipHull saved = Screen.SaveHullDesign(shipOrHullName, overwriteProtected);
+                if (saved == null)
+                {
+                    GameAudio.NegativeClick();
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"Failed to save hull '{shipOrHullName}', see the log", MessageBoxButtons.Ok));
+                    return;
+                }
 
                 if (!ResourceManager.Hull(saved.HullName, out ShipHull _))
                 {
@@ -218,12 +224,22 @@ namespace Ship_Game
             bool exists = false;
             bool reserved = false;
             FileInfo source = null;
+            string existingHullName = null;
 
             if (Hulls)
             {
+                string problem = ShipDesignScreen.HullNameProblem(Screen.CurrentHull, shipOrHullName);
+                if (problem != null)
+                {
+                    GameAudio.NegativeClick();
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, problem, MessageBoxButtons.Ok));
+                    return;
+                }
+
                 ShipHull hull = ShipDesignScreen.ExistingHull(Screen.CurrentHull, shipOrHullName);
                 exists = hull != null;
                 source = hull?.Source;
+                existingHullName = hull?.HullName;
             }
             else
             {
@@ -273,7 +289,7 @@ namespace Ship_Game
             if (exists)
             {
                 GameAudio.NegativeClick();
-                string alreadyExists = Hulls ? $"Hull named '{shipOrHullName}' already exists. Overwrite?"
+                string alreadyExists = Hulls ? $"Hull named '{shipOrHullName}' already exists ({existingHullName}). Overwrite?"
                                              : $"Design named '{shipOrHullName}' already exists. Overwrite?";
                 if (reserved)
                     alreadyExists = $"Reserved Design named '{shipOrHullName}' already exists. Overwrite at '{source.RelPath()}'?";
