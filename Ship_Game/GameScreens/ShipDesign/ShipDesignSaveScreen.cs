@@ -28,6 +28,8 @@ namespace Ship_Game
 
         readonly bool Hulls;
 
+        internal const int MessageBoxWidth = 540;
+
         public ShipDesignSaveScreen(ShipDesignScreen screen, string shipName, bool hullDesigner = false)
             : base(screen, toPause: null)
         {
@@ -159,7 +161,7 @@ namespace Ship_Game
                 if (saved == null)
                 {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"Failed to save hull '{shipOrHullName}', see the log", MessageBoxButtons.Ok));
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"Failed to save hull '{shipOrHullName}', see the log", MessageBoxButtons.Ok, MessageBoxWidth));
                     return;
                 }
 
@@ -216,7 +218,7 @@ namespace Ship_Game
             if (shipOrHullName.IsEmpty())
             {
                 string what = Hulls ? "hull" : "design";
-                ScreenManager.AddScreen(new MessageBoxScreen(this, $"Please enter a name for your {what}", MessageBoxButtons.Ok));
+                ScreenManager.AddScreen(new MessageBoxScreen(this, $"Please enter a name for your {what}", MessageBoxButtons.Ok, MessageBoxWidth));
                 GameAudio.NegativeClick();
                 return;
             }
@@ -232,7 +234,7 @@ namespace Ship_Game
                 if (problem != null)
                 {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, problem, MessageBoxButtons.Ok));
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, problem, MessageBoxButtons.Ok, MessageBoxWidth));
                     return;
                 }
 
@@ -251,7 +253,7 @@ namespace Ship_Game
                 if (reserved && !Screen.EnableDebugFeatures)
                 {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} is a reserved ship name and you cannot overwrite this design"));
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} is a reserved ship name and you cannot overwrite this design", width: MessageBoxWidth));
                     return;
                 }
 
@@ -261,7 +263,7 @@ namespace Ship_Game
                     GameAudio.NegativeClick();
                     ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} currently exist the universe." +
                                                                        " You cannot overwrite a design with this name.",
-                                                                       MessageBoxButtons.Ok));
+                                                                       MessageBoxButtons.Ok, MessageBoxWidth));
                     return;
                 }
 
@@ -273,13 +275,13 @@ namespace Ship_Game
                         ScreenManager.AddScreen(new MessageBoxScreen
                             (this, $"{shipOrHullName} currently exist the your planets' build queue." +
                                    $" You cannot overwrite this design name.\n Related planets: {playerPlanets}.",
-                                   MessageBoxButtons.Ok));
+                                   MessageBoxButtons.Ok, MessageBoxWidth));
                     }
                     else
                     {
                         ScreenManager.AddScreen(new MessageBoxScreen
                             (this, $"{shipOrHullName} currently exist the universe (maybe by another empire). " +
-                                   "You cannot overwrite this design name.", MessageBoxButtons.Ok));
+                                   "You cannot overwrite this design name.", MessageBoxButtons.Ok, MessageBoxWidth));
                     }
 
                     return;
@@ -290,7 +292,7 @@ namespace Ship_Game
             {
                 GameAudio.NegativeClick();
                 string alreadyExists = OverwriteQuestion(shipOrHullName, Hulls, existingHullName, reserved, source);
-                ScreenManager.AddScreen(new MessageBoxScreen(this, alreadyExists)
+                ScreenManager.AddScreen(new MessageBoxScreen(this, alreadyExists, width: MessageBoxWidth)
                 {
                     Accepted = () => OverWriteAccepted(shipOrHullName, reserved ? source : null)
                 });;
