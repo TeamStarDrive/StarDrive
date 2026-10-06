@@ -1260,7 +1260,16 @@ namespace Ship_Game
                     t.ShipType = e.Singular;
                     Log.Warning($"Empire '{e.Name}' invalid ShipType ''. Using '{e.Singular}' instead.");
                 }
+                FixSpacePortScale((EmpireData)e);
             }
+        }
+
+        internal static void FixSpacePortScale(EmpireData data)
+        {
+            if (float.IsFinite(data.SpacePortScale) && data.SpacePortScale > 0f)
+                return;
+            Log.Warning($"Empire '{data.Name}' invalid SpacePortScale '{data.SpacePortScale}'. Using 1 instead.");
+            data.SpacePortScale = 1f;
         }
 
         public static void LoadEncounters()
