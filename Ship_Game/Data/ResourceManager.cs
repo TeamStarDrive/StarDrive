@@ -1234,7 +1234,7 @@ namespace Ship_Game
             });
         }
 
-        static void LoadEmpires() // Refactored by RedFox
+        internal static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
             MajorEmpires.Clear();

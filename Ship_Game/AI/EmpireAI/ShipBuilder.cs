@@ -142,7 +142,7 @@ namespace Ship_Game.AI
 
         internal static float ColonyShipMaxExtraTurns(Empire empire) => ColonyShipExtraBuildTurns * empire.Universe.ProductionPace;
 
-        static float GetColonyShipScore(IShipDesign s, Empire empire)
+        internal static float GetColonyShipScore(IShipDesign s, Empire empire)
         {
             float maxFTL = ShipStats.GetFTLSpeed(s, empire);
             return s.StartingColonyGoods + s.NumBuildingsDeployed * 20 + maxFTL / 1000;

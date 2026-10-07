@@ -90,6 +90,52 @@ namespace UnitTests.Ships
             Assert.AreEqual(9999, Player.TurnsToBuildShipAt(ports, ResourceManager.Ships.Designs.First()));
         }
 
+        // Vulfen Colonizer costs 14 less than Cordrazine Colonizer, which scores higher
+        IShipDesign SetUpColonyShipPick(float shipCostMod, out IShipDesign better)
+        {
+            LoadStarterShips("Vulfen Colonizer", "Cordrazine Colonizer");
+            Planet home = AddHomeWorldToEmpire(new Vector2(1000), Player);
+            home.HasSpacePort = true;
+            Player.UpdateRallyPoints();
+            Player.AutoPickBestColonizer = true;
+            Player.data.Traits.ShipCostMod = shipCostMod;
+
+            ResourceManager.Ships.GetDesign("Vulfen Colonizer", out IShipDesign cheap);
+            ResourceManager.Ships.GetDesign("Cordrazine Colonizer", out better);
+            Player.ClearShipsWeCanBuild();
+            Player.AddBuildableShip(cheap);
+            Player.AddBuildableShip(better);
+            Assert.IsTrue(ShipBuilder.GetColonyShipScore(better, Player) > ShipBuilder.GetColonyShipScore(cheap, Player),
+                          "the dearer colony ship must score higher");
+            return cheap;
+        }
+
+        int ExtraTurns(IShipDesign cheap, IShipDesign better)
+        {
+            Planet[] ports = Player.BestPortsToBuildShips();
+            return Player.TurnsToBuildShipAt(ports, better) - Player.TurnsToBuildShipAt(ports, cheap);
+        }
+
+        [TestMethod]
+        public void PickColonyShipSkipsTheBestScoringDesignWhenItTakesTooLong()
+        {
+            IShipDesign cheap = SetUpColonyShipPick(shipCostMod: 9f, out IShipDesign better);
+            Assert.IsTrue(ExtraTurns(cheap, better) > ShipBuilder.ColonyShipMaxExtraTurns(Player), "ten times the cost puts them many turns apart");
+
+            Assert.IsTrue(ShipBuilder.PickColonyShip(Player, out IShipDesign picked));
+            Assert.AreEqual(cheap.Name, picked.Name);
+        }
+
+        [TestMethod]
+        public void PickColonyShipTakesTheBestScoringDesignWhenItIsReadySoonEnough()
+        {
+            IShipDesign cheap = SetUpColonyShipPick(shipCostMod: 0f, out IShipDesign better);
+            Assert.IsTrue(ExtraTurns(cheap, better) <= ShipBuilder.ColonyShipMaxExtraTurns(Player));
+
+            Assert.IsTrue(ShipBuilder.PickColonyShip(Player, out IShipDesign picked));
+            Assert.AreEqual(better.Name, picked.Name);
+        }
+
         [TestMethod]
         public void ColonyShipExtraTurnsScaleWithProductionPace()
         {
