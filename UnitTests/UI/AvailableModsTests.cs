@@ -68,8 +68,8 @@ namespace UnitTests.UI
 
         static string[] AcceptedStaleFiles(string mod, string package)
         {
-            Assert.IsTrue(AutoPatcher.TryGetStaleModFiles(mod, package, out var stale), "the package should be accepted as a complete mod");
-            string[] files = stale.ToArray();
+            Assert.IsTrue(AutoPatcher.TryReadModPackage(mod, package, out var read), "the package should be accepted as a complete mod");
+            string[] files = read.StaleFiles.ToArray();
             Array.Sort(files, StringComparer.OrdinalIgnoreCase);
             return files;
         }
@@ -119,8 +119,8 @@ namespace UnitTests.UI
                 WriteFile(package, @"ShipDesigns\B.design");
                 WriteFile(package, @"ShipDesigns\C.design");
                 WriteFile(package, @"ShipDesigns\D.design");
-                Assert.IsFalse(AutoPatcher.TryGetStaleModFiles(mod, package, out _), "installed mod");
-                Assert.IsFalse(AutoPatcher.TryGetStaleModFiles(Path.Combine(root, "Mods", "New Mod"), package, out _), "fresh install");
+                Assert.IsFalse(AutoPatcher.TryReadModPackage(mod, package, out _), "installed mod");
+                Assert.IsFalse(AutoPatcher.TryReadModPackage(Path.Combine(root, "Mods", "New Mod"), package, out _), "fresh install");
             }
             finally
             {
@@ -146,8 +146,8 @@ namespace UnitTests.UI
                 WriteFile(nested, @"Some Mod\ShipDesigns\A.design");
                 WriteFile(nested, @"Some Mod\ShipDesigns\B.design");
                 WriteFile(nested, @"Some Mod\ShipDesigns\C.design");
-                Assert.IsFalse(AutoPatcher.TryGetStaleModFiles(mod, nested, out var stale));
-                Assert.AreEqual(0, stale.Count);
+                Assert.IsFalse(AutoPatcher.TryReadModPackage(mod, nested, out var read));
+                Assert.AreEqual(0, read.StaleFiles.Count);
             }
             finally
             {
@@ -206,7 +206,7 @@ namespace UnitTests.UI
                 string mod = Path.Combine(root, "Mods", "Some Mod");
                 WriteFile(mod, "Globals.yaml");
                 Assert.ThrowsException<DirectoryNotFoundException>(
-                    () => AutoPatcher.TryGetStaleModFiles(mod, Path.Combine(root, "Missing"), out _));
+                    () => AutoPatcher.TryReadModPackage(mod, Path.Combine(root, "Missing"), out _));
             }
             finally
             {
@@ -348,9 +348,9 @@ namespace UnitTests.UI
             try
             {
                 string tempDir = NewModUpdate(root, out string mod, out string package);
-                Assert.IsTrue(AutoPatcher.TryGetStaleModFiles(mod, package, out var stale));
+                Assert.IsTrue(AutoPatcher.TryReadModPackage(mod, package, out var read));
 
-                var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, stale, null);
+                var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, read, null);
                 Assert.AreEqual(0, skipped.Count);
                 Assert.AreEqual("v2", ReadFile(mod, "Globals.yaml"));
                 Assert.AreEqual("v2", ReadFile(mod, "Races.xml"));
@@ -369,11 +369,11 @@ namespace UnitTests.UI
             try
             {
                 string tempDir = NewModUpdate(root, out string mod, out string package);
-                Assert.IsTrue(AutoPatcher.TryGetStaleModFiles(mod, package, out var stale));
+                Assert.IsTrue(AutoPatcher.TryReadModPackage(mod, package, out var read));
 
                 using (new FileStream(Path.Combine(mod, "Races.xml"), FileMode.Open, FileAccess.Read, FileShare.None))
                 {
-                    var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, stale, null);
+                    var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, read, null);
                     CollectionAssert.AreEquivalent(new[] { "Races.xml", "Globals.yaml" }, skipped.ToArray());
                 }
                 Assert.AreEqual("v1", ReadFile(mod, "Globals.yaml"), "the mod must keep showing its old version");
@@ -387,18 +387,114 @@ namespace UnitTests.UI
         }
 
         [TestMethod]
-        public void CopyFiles_NothingCopiedRemovesNothing()
+        [DataRow("Races.xml")]
+        [DataRow("Globals.yaml")]
+        public void CopyFiles_AFileThatLeftThePackageAfterTheCheckLeavesTheOldVersion(string removed)
         {
             string root = NewTempDir();
             try
             {
                 string tempDir = NewModUpdate(root, out string mod, out string package);
-                Assert.IsTrue(AutoPatcher.TryGetStaleModFiles(mod, package, out var stale));
-                Directory.Delete(package, recursive: true);
+                Assert.IsTrue(AutoPatcher.TryReadModPackage(mod, package, out var read));
+                File.Delete(Path.Combine(package, removed)); // antivirus took it
 
-                Assert.AreEqual(0, AutoPatcher.CopyFiles(package, mod, tempDir, stale, null).Count);
+                var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, read, null);
+                CollectionAssert.AreEquivalent(new[] { removed, "Globals.yaml" }.Distinct().ToArray(), skipped.ToArray());
                 Assert.AreEqual("v1", ReadFile(mod, "Globals.yaml"));
                 Assert.IsTrue(File.Exists(Path.Combine(mod, "Dropped.txt")), "the old version still needs its files");
+            }
+            finally
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        [TestMethod]
+        public void CopyFiles_AStaleFileThatCannotBeRemovedLeavesTheOldVersionShowing()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string tempDir = NewModUpdate(root, out string mod, out string package);
+                Assert.IsTrue(AutoPatcher.TryReadModPackage(mod, package, out var read));
+
+                using (new FileStream(Path.Combine(mod, "Dropped.txt"), FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, read, null);
+                    CollectionAssert.AreEquivalent(new[] { "Dropped.txt", "Globals.yaml" }, skipped.ToArray());
+                }
+                Assert.AreEqual("v1", ReadFile(mod, "Globals.yaml"), "Update must stay offered");
+                Assert.AreEqual("v2", ReadFile(mod, "Races.xml"));
+            }
+            finally
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        [TestMethod]
+        public void CopyFiles_NothingIsWrittenThroughALinkInTheMod()
+        {
+            string root = NewTempDir();
+            string link = Path.Combine(root, "Mods", "Some Mod", "Textures");
+            try
+            {
+                string tempDir = NewModUpdate(root, out string mod, out string package);
+                string outside = Path.Combine(root, "Outside");
+                File.WriteAllText(Path.Combine(Directory.CreateDirectory(outside).FullName, "Ship.png"), "outside");
+                File.WriteAllText(Path.Combine(Directory.CreateDirectory(Path.Combine(package, "Textures")).FullName, "Ship.png"), "v2");
+                MakeJunction(link, outside);
+                Assert.IsTrue(AutoPatcher.TryReadModPackage(mod, package, out var read));
+
+                var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, read, null);
+                CollectionAssert.AreEquivalent(new[] { @"Textures\Ship.png", "Globals.yaml" }, skipped.ToArray());
+                Assert.AreEqual("outside", ReadFile(outside, "Ship.png"));
+                Assert.AreEqual("v1", ReadFile(mod, "Globals.yaml"));
+            }
+            finally
+            {
+                DeleteWithJunction(root, link);
+            }
+        }
+
+        [TestMethod]
+        public void CopyFiles_NewFoldersInThePackageAreCopied()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string tempDir = NewModUpdate(root, out string mod, out string package);
+                WriteFile(package, @"Textures\Chukk\Ship.png");
+                WriteFile(package, @"Audio\Theme.wav");
+                Assert.IsTrue(AutoPatcher.TryReadModPackage(mod, package, out var read));
+
+                Assert.AreEqual(0, AutoPatcher.CopyFiles(package, mod, tempDir, read, null).Count);
+                Assert.IsTrue(File.Exists(Path.Combine(mod, @"Textures\Chukk\Ship.png")));
+                Assert.IsTrue(File.Exists(Path.Combine(mod, @"Audio\Theme.wav")));
+                Assert.AreEqual("v2", ReadFile(mod, "Globals.yaml"));
+            }
+            finally
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        [TestMethod]
+        public void CopyFiles_AModPackageDeleteListIsNeitherUsedNorCopied()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string tempDir = NewModUpdate(root, out string mod, out string package);
+                File.WriteAllText(Path.Combine(package, "Release.DeleteFiles.txt"), "1a91;60B4;Races.xml");
+                Assert.IsTrue(AutoPatcher.TryReadModPackage(mod, package, out var read));
+                CollectionAssert.AreEquivalent(new[] { "Globals.yaml", "Races.xml" }, read.Files.ToArray());
+
+                AutoPatcher.RemoveReleaseDeleteFiles(package, mod, tempDir, isMod: true, null);
+                Assert.AreEqual("v1", ReadFile(mod, "Races.xml"), "a mod's delete list must not run before the copy");
+                Assert.AreEqual(0, AutoPatcher.CopyFiles(package, mod, tempDir, read, null).Count);
+                Assert.IsFalse(File.Exists(Path.Combine(mod, "Release.DeleteFiles.txt")));
+                Assert.AreEqual("v2", ReadFile(mod, "Races.xml"));
             }
             finally
             {

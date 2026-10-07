@@ -67,7 +67,7 @@ internal class AutoPatcher : PopupWindow
     readonly string ModPath; // "Mods/Combined Arms/", null when patching BlackBox itself
     readonly bool ResumeMode; // true = elevated resume; skip download/unzip
     TaskResult CurrentTask;
-    Array<string> StaleModFiles = new();
+    ModPackage ModUpdate;
 
     UIList ProgressSteps;
 
@@ -382,7 +382,9 @@ internal class AutoPatcher : PopupWindow
     static bool IsReparsePoint(string dir)
     {
         string path = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dir));
-        return (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
+        try { return (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0; }
+        catch (FileNotFoundException) { return false; }
+        catch (DirectoryNotFoundException) { return false; }
     }
 
     internal static bool IsInsideFolder(string path, string folder)
@@ -584,21 +586,13 @@ internal class AutoPatcher : PopupWindow
             string gameDir = GetGameDirectory();
             string tempDir = GetPatchTempFolder();
 
-            if (IsMod && !TryGetStaleModFiles(gameDir, patchFilesFolder, out StaleModFiles))
+            if (IsMod && !TryReadModPackage(gameDir, patchFilesFolder, out ModUpdate))
             {
                 AddErrorMessageAndAllowExit(Localizer.Token(GameText.ModPackageIncomplete), Localizer.Token(GameText.ModPackageIncompleteTip));
                 return;
             }
 
-            Array<string> filesToDelete = GetFilesToRemove(Path.Combine(patchFilesFolder, "Release.DeleteFiles.txt"), gameDir);
-            int currentAction = 0;
-            foreach (string toRemoveRelPath in filesToDelete)
-            {
-                string fullPath = Path.Combine(gameDir, toRemoveRelPath);
-                Log.Write($"RemoveFile: {toRemoveRelPath}");
-                SafeDelete(fullPath, toRemoveRelPath, tempDir);
-                p.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToDelete.Count));
-            }
+            RemoveReleaseDeleteFiles(patchFilesFolder, gameDir, tempDir, IsMod, p);
             p.SetProgress(100);
 
             AddProgressAndRunTaskOnNextFrame("Copying New Files", nextP => CopyNewFiles(patchFilesFolder, nextP));
@@ -610,6 +604,22 @@ internal class AutoPatcher : PopupWindow
         }
     }
     
+    // a mod's dropped files are removed by CopyFiles once every new file is in, so a mod's list is not used
+    internal static void RemoveReleaseDeleteFiles(string patchFilesFolder, string gameDir, string tempDir, bool isMod, ProgressBarElement p)
+    {
+        if (isMod)
+            return;
+        Array<string> filesToDelete = GetFilesToRemove(Path.Combine(patchFilesFolder, ReleaseDeleteFiles), gameDir);
+        int currentAction = 0;
+        foreach (string toRemoveRelPath in filesToDelete)
+        {
+            string fullPath = Path.Combine(gameDir, toRemoveRelPath);
+            Log.Write($"RemoveFile: {toRemoveRelPath}");
+            SafeDelete(fullPath, toRemoveRelPath, tempDir);
+            p?.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToDelete.Count));
+        }
+    }
+
     internal static Array<string> GetFilesToRemove(string filesToDeleteTxt, string gameDir)
     {
         Array<string> toRemove = new();
@@ -635,14 +645,30 @@ internal class AutoPatcher : PopupWindow
         return toRemove;
     }
 
-    // A mod package must be the whole mod: false when it has no Globals.yaml, or when it would delete more than
-    // half of an installed mod. Otherwise `stale` lists the mod's files the package does not have, relative to the mod folder.
-    public static bool TryGetStaleModFiles(string modDir, string packageDir, out Array<string> stale)
+    const string ReleaseDeleteFiles = "Release.DeleteFiles.txt";
+
+    // a mod package's files, and the installed mod's files it no longer has, relative to their folders
+    internal sealed class ModPackage
     {
-        stale = new();
+        public readonly Array<string> Files = new();
+        public readonly Array<string> StaleFiles = new();
+    }
+
+    // A mod package must be the whole mod: false when it has no Globals.yaml, or when it would delete more than
+    // half of an installed mod. Its Release.DeleteFiles.txt is not used: the mod folder is made to match the package.
+    public static bool TryReadModPackage(string modDir, string packageDir, out ModPackage package)
+    {
+        package = new();
         var packageFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (FileInfo file in ListFiles(packageDir))
-            packageFiles.Add(Path.GetRelativePath(packageDir, file.FullName));
+        {
+            string relPath = Path.GetRelativePath(packageDir, file.FullName);
+            if (relPath.Equals(ReleaseDeleteFiles, StringComparison.OrdinalIgnoreCase))
+                continue;
+            packageFiles.Add(relPath);
+            package.Files.Add(relPath);
+        }
+        Array<string> stale = package.StaleFiles;
         if (!packageFiles.Contains("Globals.yaml"))
         {
             Log.Warning($"AutoPatcher: {packageDir} has no Globals.yaml, not a complete mod");
@@ -706,7 +732,7 @@ internal class AutoPatcher : PopupWindow
         {
             string gameDir = GetGameDirectory();
             string tempDir = GetPatchTempFolder();
-            Array<string> skipped = CopyFiles(patchFilesFolder, gameDir, tempDir, IsMod ? StaleModFiles : null, ap);
+            Array<string> skipped = CopyFiles(patchFilesFolder, gameDir, tempDir, IsMod ? ModUpdate : null, ap);
 
             // Apply succeeded — now safe to drop the staging cache. Crucially this only
             // runs on the SUCCESS path: if the loop above threw, the staging dir is
@@ -735,16 +761,16 @@ internal class AutoPatcher : PopupWindow
         }
     }
 
-    // a mod (modStaleFiles != null) gets its Globals.yaml only when every other file was copied, and loses its stale files only then
+    // a mod: its checked files (none through a link in it), then its stale files go, then Globals.yaml, each only if all before worked
     internal static Array<string> CopyFiles(string patchFilesFolder, string gameDir, string tempDir,
-                                            Array<string> modStaleFiles, ProgressBarElement ap)
+                                            ModPackage mod, ProgressBarElement ap)
     {
-        bool isMod = modStaleFiles != null;
-        FileInfo[] filesToAdd = Dir.GetFiles(patchFilesFolder);
-        if (isMod)
-            filesToAdd = filesToAdd.OrderBy(f => IsModGlobals(Path.GetRelativePath(patchFilesFolder, f.FullName))).ToArray();
+        bool isMod = mod != null;
+        string[] filesToAdd = isMod
+            ? mod.Files.OrderBy(IsModGlobals).ToArray()
+            : Dir.GetFiles(patchFilesFolder).Select(f => f.FullName.Replace(patchFilesFolder, "").TrimStart('\\', '/')).ToArray();
         var skipped = new Array<string>();
-        bool modGlobalsCopied = false;
+        var plainDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int currentAction = 0;
         int lockedFiles = 0;
         // Per-file retry budget for stash-aside in MoveAndCreateDirs. Starts at 3 attempts
@@ -755,21 +781,32 @@ internal class AutoPatcher : PopupWindow
         // version and the user re-runs the patcher to pick them up next round.
         int maxRetries = 3;
         const int systemicLockThreshold = 5;
-        foreach (FileInfo toAdd in filesToAdd)
+        foreach (string relPath in filesToAdd)
         {
-            string srcFile = toAdd.FullName;
-            string relPath = srcFile.Replace(patchFilesFolder, "").TrimStart('\\', '/');
+            string srcFile = Path.Combine(patchFilesFolder, relPath);
             string dstFile = Path.Combine(gameDir, relPath);
 
-            if (isMod && skipped.Count > 0 && IsModGlobals(relPath))
+            if (isMod && IsModGlobals(relPath))
             {
-                Log.Warning($"CopyFile skipped: {relPath}, the mod keeps its old version after {skipped.Count} skipped file(s)");
+                if (skipped.Count == 0 && File.Exists(srcFile))
+                    RemoveStaleModFiles(gameDir, tempDir, mod.StaleFiles, skipped);
+                if (skipped.Count > 0)
+                {
+                    Log.Warning($"CopyFile skipped: {relPath}, the mod keeps its old version after {skipped.Count} skipped file(s)");
+                    skipped.Add(relPath);
+                    ap?.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
+                    continue;
+                }
+            }
+            else if (isMod && IsLinkedBelow(gameDir, relPath, plainDirs))
+            {
+                Log.Warning($"CopyFile skipped (a folder on its path is a link or cannot be read): {relPath}");
                 skipped.Add(relPath);
                 ap?.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
                 continue;
             }
 
-            // Source can vanish between Dir.GetFiles enumeration and now — typically
+            // Source can vanish between the package listing and now — typically
             // AV/Defender quarantining a freshly-extracted asset (esp. .png/.exe) or
             // OneDrive/Dropbox re-syncing the AppData folder. Skip and continue rather
             // than aborting the entire patch over one cosmetic icon. The user can
@@ -787,7 +824,6 @@ internal class AutoPatcher : PopupWindow
             try
             {
                 SafeCopy(srcFile, dstFile, relPath, tempDir, maxRetries);
-                modGlobalsCopied |= isMod && IsModGlobals(relPath);
             }
             catch (IOException e)
             {
@@ -810,16 +846,33 @@ internal class AutoPatcher : PopupWindow
             ap?.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
         }
 
-        if (modGlobalsCopied)
-            RemoveStaleModFiles(gameDir, tempDir, modStaleFiles);
-        else if (isMod && modStaleFiles.Count > 0)
-            Log.Warning($"AutoPatcher: Globals.yaml was not copied ({skipped.Count} file(s) skipped), so the {modStaleFiles.Count} file(s) the new version dropped are kept");
         return skipped;
     }
 
     static bool IsModGlobals(string relPath) => relPath.Equals("Globals.yaml", StringComparison.OrdinalIgnoreCase);
 
-    static void RemoveStaleModFiles(string modDir, string tempDir, Array<string> staleModFiles)
+    // true when a folder between the mod folder and the file is a junction or symlink
+    static bool IsLinkedBelow(string modDir, string relPath, HashSet<string> plainDirs)
+    {
+        for (string dir = Path.GetDirectoryName(relPath); !string.IsNullOrEmpty(dir); dir = Path.GetDirectoryName(dir))
+        {
+            if (plainDirs.Contains(dir))
+                continue;
+            try
+            {
+                if (IsReparsePoint(Path.Combine(modDir, dir)))
+                    return true;
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return true; // cannot tell, so the file is skipped
+            }
+            plainDirs.Add(dir);
+        }
+        return false;
+    }
+
+    static void RemoveStaleModFiles(string modDir, string tempDir, Array<string> staleModFiles, Array<string> skipped)
     {
         foreach (string staleRelPath in staleModFiles)
         {
@@ -831,6 +884,7 @@ internal class AutoPatcher : PopupWindow
             catch (IOException e)
             {
                 Log.Warning($"RemoveFile skipped (in use?): {staleRelPath}: {e.InnerException?.Message ?? e.Message}");
+                skipped.Add(staleRelPath);
             }
         }
     }
