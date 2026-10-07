@@ -216,6 +216,14 @@ namespace UnitTests.UI
         }
 
         [TestMethod]
+        public void IsModLatestNewer_AMissingRevisionCountsAsZero()
+        {
+            Assert.IsFalse(AutoUpdateChecker.IsModLatestNewer("1.60.9.0", "v1.60.0009"), "the same version with a fourth number");
+            Assert.IsFalse(AutoUpdateChecker.IsModLatestNewer("v1.60.0009", "1.60.9.0"));
+            Assert.IsTrue(AutoUpdateChecker.IsModLatestNewer("1.60.9.1", "v1.60.0009"));
+        }
+
+        [TestMethod]
         public void IsModLatestNewer_Fallback_LegacyUnparseableCurrent()
         {
             // Installed mod version is the legacy free-form string (e.g. "0.5b"

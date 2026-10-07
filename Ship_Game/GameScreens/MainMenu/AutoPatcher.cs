@@ -150,11 +150,44 @@ internal class AutoPatcher : PopupWindow
     // Persisted between the non-elevated download/unzip pass and the elevated
     // apply pass. Stores enough Info for the elevated instance to construct an
     // AutoPatcher in resume mode without re-querying GitHub.
-    class PendingPatchMarker
+    internal class PendingPatchMarker
     {
         public string Version { get; set; }
         public string Name    { get; set; }
         public string ModPath { get; set; }
+    }
+
+    // the elevated pass trusts this user-writable file, so a mod path must name a folder directly under the game's Mods
+    internal static PendingPatchMarker ParseMarker(string json, string requestedVer, string gameDir)
+    {
+        PendingPatchMarker marker;
+        try
+        {
+            marker = JsonSerializer.Deserialize<PendingPatchMarker>(json);
+        }
+        catch (JsonException e)
+        {
+            Log.Warning($"AutoPatcher: failed to read marker: {e.Message}; ignoring");
+            return null;
+        }
+        if (marker == null || marker.Version != requestedVer)
+        {
+            Log.Warning($"AutoPatcher: marker version '{marker?.Version}' != arg '{requestedVer}'; ignoring");
+            return null;
+        }
+        if (marker.ModPath != null && !IsModFolderPath(marker.ModPath, gameDir))
+        {
+            Log.Warning($"AutoPatcher: marker mod path '{marker.ModPath}' is not a folder in Mods; ignoring");
+            return null;
+        }
+        return marker;
+    }
+
+    internal static bool IsModFolderPath(string modPath, string gameDir)
+    {
+        string mods = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Path.Combine(gameDir, "Mods")));
+        string folder = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Path.Combine(gameDir, modPath)));
+        return string.Equals(Path.GetDirectoryName(folder), mods, StringComparison.OrdinalIgnoreCase);
     }
 
     static string PendingPatchMarkerPath
@@ -216,21 +249,18 @@ internal class AutoPatcher : PopupWindow
             return;
         }
 
-        PendingPatchMarker marker = null;
+        PendingPatchMarker marker;
         try
         {
-            marker = JsonSerializer.Deserialize<PendingPatchMarker>(File.ReadAllText(PendingPatchMarkerPath));
+            marker = ParseMarker(File.ReadAllText(PendingPatchMarkerPath), requestedVer, Directory.GetCurrentDirectory());
         }
         catch (Exception e)
         {
             Log.Warning($"AutoPatcher: failed to read marker: {e.Message}; ignoring");
-            DeletePendingPatchMarker();
-            return;
+            marker = null;
         }
-
-        if (marker == null || marker.Version != requestedVer)
+        if (marker == null)
         {
-            Log.Warning($"AutoPatcher: marker version '{marker?.Version}' != arg '{requestedVer}'; ignoring");
             DeletePendingPatchMarker();
             return;
         }

@@ -444,12 +444,15 @@ public class AutoUpdateChecker : UIElementContainer
         if (Version.TryParse(current, out var curV)
             && curV.Major == newV.Major && curV.Minor == newV.Minor)
         {
-            return newV > curV;
+            return WithZeros(newV) > WithZeros(curV);
         }
 
         Log.Write($"AutoUpdater: mod fallback — current '{currentVersion}' doesn't align with latest '{latestVersion}', promoting");
         return true;
     }
+
+    // System.Version orders a missing build or revision below 0, so 1.60.9 would be older than 1.60.9.0
+    static Version WithZeros(Version v) => new(v.Major, v.Minor, Math.Max(v.Build, 0), Math.Max(v.Revision, 0));
 
     public enum UpdateAvailability
     {

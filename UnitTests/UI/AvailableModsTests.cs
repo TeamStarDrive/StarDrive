@@ -23,6 +23,7 @@ namespace UnitTests.UI
         [DataRow(false, "",           "v1.60.0009", false, UpdateAvailable)]
         [DataRow(false, "v1.60.0009", "v1.60.0009", false, UpToDate)]
         [DataRow(false, "v1.60.0010", "v1.60.0009", false, UpToDate)]
+        [DataRow(false, "v1.60.0009", "1.60.9.0",   false, UpToDate)]
         public void GetState_Cases(bool devCopy, string installed, string latest, bool checkFailed,
                                    AvailableModsScreen.ModState expected)
         {
@@ -623,6 +624,35 @@ namespace UnitTests.UI
             {
                 Directory.Delete(root, recursive: true);
             }
+        }
+
+        const string GameDir = @"C:\Games\StarDrive";
+
+        static string Marker(string version, string modPath)
+            => JsonSerializer.Serialize(new { Version = version, Name = "Combined Arms v1.60.0010", ModPath = modPath });
+
+        [TestMethod]
+        [DataRow(null, true)]
+        [DataRow("Mods/Combined Arms/", true)]
+        [DataRow(@"Mods\Star Trek", true)]
+        [DataRow("", false)]
+        [DataRow("Mods/", false)]
+        [DataRow("Mods/../", false)]
+        [DataRow("Mods/../../Windows/System32/", false)]
+        [DataRow("Mods/Combined Arms/Races/", false)]
+        [DataRow(@"C:\Windows\System32\", false)]
+        public void ResumeMarker_OnlyAFolderDirectlyUnderMods(string modPath, bool accepted)
+        {
+            var marker = AutoPatcher.ParseMarker(Marker("v1.60.0010", modPath), "v1.60.0010", GameDir);
+            Assert.AreEqual(accepted, marker != null, modPath);
+        }
+
+        [TestMethod]
+        public void ResumeMarker_ForAnotherVersionOrUnreadableIsIgnored()
+        {
+            Assert.IsNull(AutoPatcher.ParseMarker(Marker("v1.60.0009", "Mods/Combined Arms/"), "v1.60.0010", GameDir));
+            Assert.IsNull(AutoPatcher.ParseMarker("{ not json", "v1.60.0010", GameDir));
+            Assert.IsNull(AutoPatcher.ParseMarker("null", "v1.60.0010", GameDir));
         }
 
         [TestMethod]
