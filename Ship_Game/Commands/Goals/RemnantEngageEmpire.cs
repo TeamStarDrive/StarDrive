@@ -30,7 +30,8 @@ namespace Ship_Game.Commands.Goals
                 SelectFirstTargetPlanet,
                 DetermineNumBombers,
                 GatherFleet,
-                WaitForCompletion
+                WaitForCompletion,
+                DefendPortal
             };
         }
 
@@ -50,11 +51,12 @@ namespace Ship_Game.Commands.Goals
 
         bool SelectTargetPlanet()
         {
-            // Target owned planet in the portal system first, target empire is not relevant
-            if (Portal.System != null && Portal.System.PlanetList.Any(p => p.Owner != null))
+            // Target the colony closest to the portal in its own system first, target empire is not relevant
+            Planet portalSystemColony = Portal.System?.PlanetList.FindMinFiltered(IsColonyInPortalSystem, p => p.Position.SqDist(Portal.Position));
+            if (portalSystemColony != null)
             {
-                TargetPlanet = Portal.System.PlanetList.FindMin(p => p.Position.Distance(Portal.Position));
-                return TargetPlanet != null;
+                TargetPlanet = portalSystemColony;
+                return true;
             }
 
             // Find closest planet in the map to Portal and target a planet from the victim's planet list
@@ -66,6 +68,11 @@ namespace Ship_Game.Commands.Goals
             TargetPlanet = targetPlanet; // Using TargetPlanet for better readability
             return TargetPlanet != null;
         }
+
+        bool IsColonyInPortalSystem(Planet p) => p?.Owner != null && p.System == Portal.System && Owner.IsEmpireAttackable(p.Owner);
+
+        // a raid on a colony in a portal system does not change the Remnants' strength estimate of the target empire
+        bool CountsForFleetStr => TargetPlanet == null || !UState.HasRemnantPortal(TargetPlanet.System);
 
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
 
@@ -194,17 +201,18 @@ namespace Ship_Game.Commands.Goals
         {
             if (Fleet == null || Fleet.Ships.Count == 0)
             {
-                Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
+                if (CountsForFleetStr)
+                    Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return GoalStep.GoalFailed; // fleet is dead
             }
 
             if (!IsPortalValidOrRerouted())
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalFailed);
 
-            if (Portal.InCombat && Remnants.GetHostileStrInPortalSystem(Portal) > Portal.BaseStrength * 0.75f)
+            if (PortalUnderAttack)
             {
                 ReturnToPortal(); // Order fleet to return to portal for defense
-                return GoalStep.GoalFailed;
+                return GoalStep.GoToNextStep;
             }
 
             if (Fleet.TaskStep == 10) // Arrived back to portal
@@ -219,10 +227,11 @@ namespace Ship_Game.Commands.Goals
 
             if (numBombers / 3 >= Fleet.Ships.Count - numBombers) // only bombers and some combat ships left
             {
-                Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
+                if (Fleet.TaskStep < 8 && CountsForFleetStr) // counted once, not on every turn of the way back
+                    Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return ReturnToClosestPortalAndReroute();
             }
-            if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Not cleared enemy at target planet yet
+            if (Fleet.TaskStep != 7 && (TargetPlanet?.Owner == TargetEmpire || IsColonyInPortalSystem(TargetPlanet))) // Not cleared enemy at target planet yet
                 return GoalStep.TryAgain;
 
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, 
@@ -259,6 +268,23 @@ namespace Ship_Game.Commands.Goals
             Fleet.Name       = $"Ancient Fleet - {TargetPlanet.Name}";
             Fleet.TaskStep   = changeToStep;
             Task.ChangeTargetPlanet(TargetPlanet);
+            return GoalStep.TryAgain;
+        }
+
+        bool PortalUnderAttack => Portal.InCombat && Remnants.GetHostileStrInPortalSystem(Portal) > Portal.BaseStrength * 0.75f;
+
+        // the raid is called off: its fleet holds at the portal until the fight is over, then it is released
+        GoalStep DefendPortal()
+        {
+            if (Fleet == null || Fleet.Ships.Count == 0)
+                return GoalStep.GoalFailed; // lost defending the portal, not a failed raid
+
+            if (!IsPortalValidOrRerouted())
+                return Remnants.ReleaseFleet(Fleet, GoalStep.GoalFailed);
+
+            if (Fleet.TaskStep == 10 && !PortalUnderAttack)
+                return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
+
             return GoalStep.TryAgain;
         }
     }
