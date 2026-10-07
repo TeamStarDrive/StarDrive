@@ -35,11 +35,19 @@ namespace Ship_Game.Commands.Goals
         public RemnantPortal(Empire owner, Ship portal, string systemName) : this(owner)
         {
             TargetShip = portal;
-            PortalSystem = portal.System;
-            if (PortalSystem != null)
-                UState.RegisterRemnantPortal(PortalSystem);
+            RegisterPortalSystem();
             if (Remnants.Verbose)
                 Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Portal in {systemName} ----");
+        }
+
+        // a new portal ship gets its system on the next object update, and saves made before this registered none
+        void RegisterPortalSystem()
+        {
+            if (PortalSystem == null && Portal.System != null)
+            {
+                PortalSystem = Portal.System;
+                UState.RegisterRemnantPortal(PortalSystem);
+            }
         }
 
         public override void OnRemoved()
@@ -125,6 +133,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CallGuardians()
         {
+            RegisterPortalSystem();
             Remnants.CallGuardians(Portal);
             TetherOffset = Portal.System.Position.DirectionToTarget(Portal.Position).Normalized()
                            * Portal.System.Position.Distance(Portal.Position);
@@ -140,6 +149,7 @@ namespace Ship_Game.Commands.Goals
             if (Portal.Loyalty != Owner)
                 Portal.AI.OrderScuttleShip();
 
+            RegisterPortalSystem();
             Remnants.OrderEscortPortal(Portal);
             UpdatePosition();
             ScrambleDefense();

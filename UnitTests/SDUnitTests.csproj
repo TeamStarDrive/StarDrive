@@ -46,6 +46,7 @@
 
   <ItemGroup>
     <Compile Include="AITests\Empire\BudgetTests.cs" />
+    <Compile Include="AITests\Empire\RemnantRaidTargetTests.cs" />
     <Compile Include="AITests\Empire\OpenBordersOfferTests.cs" />
     <Compile Include="AITests\Empire\TrustGainTests.cs" />
     <Compile Include="AITests\Empire\SpaceRoadsTests.cs" />
