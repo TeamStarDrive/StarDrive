@@ -1,6 +1,8 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -17,8 +19,10 @@ namespace Ship_Game
         readonly Menu2 Window;
         readonly Color Cream = Colors.Cream;
         readonly ImportantNotification[] Events;
-        readonly ScrollList<ImportantEventListItem> EventList;
+        internal readonly ScrollList<ImportantEventListItem> EventList;
         readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
+        internal readonly UITextBox Details;
+        ImportantEventListItem Selected;
 
         public ImportantEventsScreen(UniverseScreen screen) : base(screen, toPause: null)
         {
@@ -27,14 +31,18 @@ namespace Ship_Game
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
 
-            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 600, ScreenHeight / 2 - 300, 1200, 540)));
+            const int detailsHeight = 230;
+            int windowHeight = Math.Min(ScreenHeight - 150, 860);
+            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 600, ScreenHeight / 2 - windowHeight / 2 - 30, 1200, windowHeight)));
             int x  = (int)Window.X + 20;
             int y  = (int)Window.Y + 70;
             int w  = (int)Window.Width - 30;
-            int h  = (int)Window.Height - 80;
+            int h  = (int)Window.Height - 80 - detailsHeight - 20;
 
-            EventList = Add(new ScrollList<ImportantEventListItem>(new RectF(x, y, w, h), 80));
+            EventList = Add(new ScrollList<ImportantEventListItem>(new RectF(x, y, w, h), ImportantEventListItem.RowHeight));
             EventList.EnableItemHighlight = true;
+            EventList.OnClick = Select;
+            Details = Add(new UITextBox(new RectF(x, y + h + 10, w - 10, detailsHeight)));
 
             UILabel starDateLabel    = Add(new UILabel("Star Date", LargeFont, Cream));
             UILabel titleLabel       = Add(new UILabel("Title", LargeFont, Cream));
@@ -55,6 +63,22 @@ namespace Ship_Game
             // newest first
             for (int i = Events.Length - 1; i >= 0; --i)
                 EventList.AddItem(new ImportantEventListItem(Events[i]));
+
+            if (EventList.NumEntries > 0)
+                Select(EventList.AllEntries[0]);
+        }
+
+        internal void Select(ImportantEventListItem item)
+        {
+            if (Selected != null)
+                Selected.Selected = false;
+            Selected = item;
+            item.Selected = true;
+
+            ImportantNotification e = item.Event;
+            Details.Clear();
+            Details.AddLine($"{e.StarDate.StarDateString()}   {e.Title}", Fonts.Arial14Bold, e.RelevantEmpire?.EmpireColor ?? Cream);
+            Details.AddLines(e.Message.Replace('\n', ' '), Fonts.Arial12Bold, Color.LightGray);
         }
 
         public override void LoadContent()

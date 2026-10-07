@@ -1747,6 +1747,10 @@ namespace Ship_Game.Ships
 
         protected virtual void Dispose(bool disposing)
         {
+            // the finalizer thread must not walk other objects: they may be finalized already, and the removal edits shared lists
+            if (!disposing)
+                return;
+
             if (ModuleSlotList != null && ModuleSlotList.Length != 0)
             {
                 RemoveFromUniverseUnsafe();

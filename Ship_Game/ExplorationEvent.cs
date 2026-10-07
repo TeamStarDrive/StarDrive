@@ -125,6 +125,19 @@ namespace Ship_Game
         }
 
 
+        // applies the outcome when the event is raised, so a reload before the player opens the window cannot lose it
+        public Outcome TriggerNow(Empire triggeredBy)
+        {
+            Outcome outcome = GetRandomOutcome(triggeredBy);
+            TriggerOutcome(triggeredBy, outcome);
+            return outcome;
+        }
+
+        public void ShowOutcome(UniverseScreen screen, Outcome outcome)
+        {
+            screen.ScreenManager.AddScreen(new EventPopup(screen, screen.Player, this, outcome, triggerNow: false));
+        }
+
         public void TriggerExplorationEvent(UniverseScreen screen)
         {
             Empire player = screen.Player;

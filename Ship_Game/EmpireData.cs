@@ -251,7 +251,7 @@ namespace Ship_Game
         [StarData] public short TechDelayTime    = 0;
         [StarData] public bool  SpyMute          = false;
         [StarData] public bool  SpyMissionRepeat = false;
-        [StarData] public float treasuryGoal     = 0.2f;
+        [StarData(NoDefaults = true)] public float treasuryGoal = 0.2f;
         [StarData] public float BorderTolerance  = 40f;
         [StarData] public int   BaseShipLevel    = 0;
 

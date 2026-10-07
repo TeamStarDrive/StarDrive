@@ -77,7 +77,7 @@ namespace Ship_Game
                 {
                     PlayerStepTriggerXp = 0;
                     if (GetStoryEvent(out ExplorationEvent expEvent))
-                        Universe.Notifications.AddRemnantUpdateNotify(expEvent, Owner);
+                        Universe.Notifications.AddRemnantUpdateNotify(expEvent, expEvent.TriggerNow(empire), Owner);
 
                     if (StoryStep == 1 && Owner.NewEspionageEnabled) // enable view overlay (scan)
                     {
@@ -292,7 +292,7 @@ namespace Ship_Game
 
             if (GetStoryEvent(out ExplorationEvent expEvent, true))
             {
-                Universe.Notifications.AddRemnantUpdateNotify(expEvent, Owner);
+                Universe.Notifications.AddRemnantUpdateNotify(expEvent, expEvent.TriggerNow(Universe.Player), Owner);
                 OnlyRemnantLeft = true;
                 TriggerVsPlayerEndGame();
             }

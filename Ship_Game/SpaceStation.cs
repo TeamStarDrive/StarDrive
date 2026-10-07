@@ -15,7 +15,7 @@ public sealed class SpaceStation
     bool DisableLoading;
 
     float ZRotation;
-    float Scale;
+    internal float Scale { get; private set; }
     const float RadiansPerSecond = RadMath.Deg1AsRads * 2;
     public const float PosZ = 600f;
 
@@ -48,7 +48,7 @@ public sealed class SpaceStation
             OuterSO.World = transform;
     }
 
-    void CreateSceneObject(Planet planet, Empire owner)
+    internal void CreateSceneObject(Planet planet, Empire owner)
     {
         StaticMesh outerModel, innerModel = null;
 

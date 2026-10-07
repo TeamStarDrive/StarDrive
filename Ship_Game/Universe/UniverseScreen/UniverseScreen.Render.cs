@@ -458,6 +458,8 @@ namespace Ship_Game
                 else if (ship.IsVisibleToPlayer)
                 {
                     ship.CreateSceneObject();
+                    if (!ship.Active) // removed by the sim thread while its scene object was being made; ShipSO is the sim's to clear
+                        RemoveObject(ship.GetSO());
                     SceneObjBackQueue.RemoveAtSwapLast(i);
                 }
                 // else: we keep it in the back queue until it dies or comes into frustum

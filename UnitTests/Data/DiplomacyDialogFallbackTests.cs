@@ -16,6 +16,9 @@ public class DiplomacyDialogFallbackTests : StarDriveTest
     const string EnglishOnlyPath = "Content/DiplomacyDialogs/English/" + EnglishOnlyName + ".xml";
     const string EnglishKulrathi = "Content/DiplomacyDialogs/English/Kulrathi.xml";
     const string GermanKulrathi = "Content/DiplomacyDialogs/German/Kulrathi.xml";
+    const string CaseTestName = "ZzDialogCaseTest";
+    const string CaseTestEnglishPath = "Content/DiplomacyDialogs/English/" + CaseTestName + ".xml";
+    const string CaseTestGermanPath = "Content/DiplomacyDialogs/German/zzdialogcasetest.xml";
 
     static string FriendlyGreeting(IEnumerable<DialogLine> lines)
         => lines.First(l => l.DialogType == "Greeting").Friendly;
@@ -89,6 +92,37 @@ public class DiplomacyDialogFallbackTests : StarDriveTest
         finally
         {
             File.Delete(EnglishOnlyPath);
+            GlobalStats.Language = saved;
+            ResourceManager.LoadDialogs();
+        }
+    }
+
+    [TestMethod]
+    public void ARaceFileCanNameItsDialogInAnyCase()
+    {
+        Assert.AreSame(ResourceManager.GetDiplomacyDialog("Kulrathi"), ResourceManager.GetDiplomacyDialog("kulrathi"),
+                       "file names ignore case on Windows, so the dialog name in a race file must too");
+    }
+
+    [TestMethod]
+    public void ATranslatedDialogNamedInAnotherCaseStillReplacesTheEnglishOne()
+    {
+        Language saved = GlobalStats.Language;
+        try
+        {
+            File.Copy(EnglishKulrathi, CaseTestEnglishPath, overwrite: true);
+            File.Copy(GermanKulrathi, CaseTestGermanPath, overwrite: true);
+            GlobalStats.Language = Language.German;
+            ResourceManager.LoadDialogs();
+
+            Assert.AreEqual(FriendlyGreetingInFile(GermanKulrathi),
+                            FriendlyGreeting(ResourceManager.GetDiplomacyDialog(CaseTestName).Dialogs),
+                            "the German file is used although its name differs in case from the English one");
+        }
+        finally
+        {
+            File.Delete(CaseTestEnglishPath);
+            File.Delete(CaseTestGermanPath);
             GlobalStats.Language = saved;
             ResourceManager.LoadDialogs();
         }

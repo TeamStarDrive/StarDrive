@@ -1163,7 +1163,7 @@ namespace Ship_Game
             return newB;
         }
 
-        static readonly Map<string, DiplomacyDialog> DiplomacyDialogs = new();
+        static readonly Map<string, DiplomacyDialog> DiplomacyDialogs = new(StringComparer.OrdinalIgnoreCase);
 
         public static DiplomacyDialog GetDiplomacyDialog(string dialogName)
         {
@@ -1234,7 +1234,7 @@ namespace Ship_Game
             });
         }
 
-        static void LoadEmpires() // Refactored by RedFox
+        internal static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
             MajorEmpires.Clear();
@@ -1260,7 +1260,16 @@ namespace Ship_Game
                     t.ShipType = e.Singular;
                     Log.Warning($"Empire '{e.Name}' invalid ShipType ''. Using '{e.Singular}' instead.");
                 }
+                FixSpacePortScale((EmpireData)e);
             }
+        }
+
+        internal static void FixSpacePortScale(EmpireData data)
+        {
+            if (float.IsFinite(data.SpacePortScale) && data.SpacePortScale > 0f)
+                return;
+            Log.Warning($"Empire '{data.Name}' invalid SpacePortScale '{data.SpacePortScale}'. Using 1 instead.");
+            data.SpacePortScale = 1f;
         }
 
         public static void LoadEncounters()

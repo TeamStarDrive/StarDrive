@@ -28,6 +28,8 @@ namespace Ship_Game
 
         readonly bool Hulls;
 
+        internal const int MessageBoxWidth = 540;
+
         public ShipDesignSaveScreen(ShipDesignScreen screen, string shipName, bool hullDesigner = false)
             : base(screen, toPause: null)
         {
@@ -159,7 +161,7 @@ namespace Ship_Game
                 if (saved == null)
                 {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"Failed to save hull '{shipOrHullName}', see the log", MessageBoxButtons.Ok));
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"Failed to save hull '{shipOrHullName}', see the log", MessageBoxButtons.Ok, MessageBoxWidth));
                     return;
                 }
 
@@ -216,7 +218,7 @@ namespace Ship_Game
             if (shipOrHullName.IsEmpty())
             {
                 string what = Hulls ? "hull" : "design";
-                ScreenManager.AddScreen(new MessageBoxScreen(this, $"Please enter a name for your {what}", MessageBoxButtons.Ok));
+                ScreenManager.AddScreen(new MessageBoxScreen(this, $"Please enter a name for your {what}", MessageBoxButtons.Ok, MessageBoxWidth));
                 GameAudio.NegativeClick();
                 return;
             }
@@ -232,7 +234,7 @@ namespace Ship_Game
                 if (problem != null)
                 {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, problem, MessageBoxButtons.Ok));
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, problem, MessageBoxButtons.Ok, MessageBoxWidth));
                     return;
                 }
 
@@ -251,7 +253,7 @@ namespace Ship_Game
                 if (reserved && !Screen.EnableDebugFeatures)
                 {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} is a reserved ship name and you cannot overwrite this design"));
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} is a reserved ship name and you cannot overwrite this design", width: MessageBoxWidth));
                     return;
                 }
 
@@ -259,9 +261,9 @@ namespace Ship_Game
                 if (Universe.Ships.Any(s => s.Name == shipOrHullName))
                 {
                     GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} currently exist the universe." +
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} currently exists in the universe." +
                                                                        " You cannot overwrite a design with this name.",
-                                                                       MessageBoxButtons.Ok));
+                                                                       MessageBoxButtons.Ok, MessageBoxWidth));
                     return;
                 }
 
@@ -271,15 +273,15 @@ namespace Ship_Game
                     if (playerPlanets.NotEmpty())
                     {
                         ScreenManager.AddScreen(new MessageBoxScreen
-                            (this, $"{shipOrHullName} currently exist the your planets' build queue." +
-                                   $" You cannot overwrite this design name.\n Related planets: {playerPlanets}.",
-                                   MessageBoxButtons.Ok));
+                            (this, $"{shipOrHullName} is currently in your planets' build queues." +
+                                   $" You cannot overwrite this design name.\nRelated planets: {playerPlanets}.",
+                                   MessageBoxButtons.Ok, MessageBoxWidth));
                     }
                     else
                     {
                         ScreenManager.AddScreen(new MessageBoxScreen
-                            (this, $"{shipOrHullName} currently exist the universe (maybe by another empire). " +
-                                   "You cannot overwrite this design name.", MessageBoxButtons.Ok));
+                            (this, $"{shipOrHullName} is in another empire's build queue. " +
+                                   "You cannot overwrite this design name.", MessageBoxButtons.Ok, MessageBoxWidth));
                     }
 
                     return;
@@ -289,12 +291,8 @@ namespace Ship_Game
             if (exists)
             {
                 GameAudio.NegativeClick();
-                string alreadyExists = Hulls ? $"Hull named '{shipOrHullName}' already exists ({existingHullName}). Overwrite?"
-                                             : $"Design named '{shipOrHullName}' already exists. Overwrite?";
-                if (reserved)
-                    alreadyExists = $"Reserved Design named '{shipOrHullName}' already exists. Overwrite at '{source.RelPath()}'?";
-
-                ScreenManager.AddScreen(new MessageBoxScreen(this, alreadyExists)
+                string alreadyExists = OverwriteQuestion(shipOrHullName, Hulls, existingHullName, reserved, source);
+                ScreenManager.AddScreen(new MessageBoxScreen(this, alreadyExists, width: MessageBoxWidth)
                 {
                     Accepted = () => OverWriteAccepted(shipOrHullName, reserved ? source : null)
                 });;
@@ -303,6 +301,18 @@ namespace Ship_Game
             {
                 OverWriteAccepted(shipOrHullName, null);
             }
+        }
+
+        // a design registered from a save (ShipDesign.OnDeserialized) is read-only and has no Source
+        internal static string OverwriteQuestion(string name, bool hull, string existingHullName, bool reserved, FileInfo source)
+        {
+            if (hull)
+                return $"Hull named '{name}' already exists ({existingHullName}). Overwrite?";
+            if (reserved && source != null)
+                return $"Reserved Design named '{name}' already exists. Overwrite at '{source.RelPath()}'?";
+            if (reserved)
+                return $"Reserved Design named '{name}' was loaded from this save. Overwrite it with a copy in your Saved Designs?";
+            return $"Design named '{name}' already exists. Overwrite?";
         }
 
         public override bool HandleInput(InputState input)

@@ -189,6 +189,23 @@ public sealed partial class Empire
         return false;
     }
 
+    // the ports FindPlanetToBuildShipAt picks from (player prioritized ports, else safe ports) at port quality 1
+    public Planet[] BestPortsToBuildShips()
+    {
+        IReadOnlyList<Planet> actualPorts = isPlayer && PlayerPrioritizedPorts.Length > 0 ? PlayerPrioritizedPorts : SafeSpacePorts;
+        return actualPorts.Count > 0 && GetBestPorts(actualPorts, out Planet[] bestPorts, portQuality: 1f) ? bestPorts : Empty<Planet>.Array;
+    }
+
+    // turns until the quickest of these ports would finish the ship, 9999 when there is no port
+    public int TurnsToBuildShipAt(Planet[] ports, IShipDesign ship)
+    {
+        float cost = ship.GetCost(this);
+        int turns = 9999;
+        foreach (Planet port in ports)
+            turns = Math.Min(turns, port.TurnsUntilQueueComplete(cost, 1f, ship));
+        return turns;
+    }
+
     public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, float priority, out Planet chosen)
     {
         if (ports.Count != 0)

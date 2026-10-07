@@ -52,6 +52,9 @@ time.
 - A new `[StarData]` field whose "unset" value is not the type's zero needs
   `[StarData(DefaultValue = X)]` as well as the initializer. The writer skips values equal to the
   declared default, never the initializer.
+- An existing field that loses a 0 needs `[StarData(NoDefaults = true)]`, not `DefaultValue`. The
+  reader fills a skipped field from the current `DefaultValue`, so adding one changes how old
+  saves load.
 - Anything rebuilt on load (`OnDeserialized`, `Ship.InitializeStatus` with `fromSave`) must carry
   over the state the save just loaded into the object it replaces.
 - Adding or removing a `[StarData]` field does not need a `SaveGameVersion` bump. Ask before

@@ -417,6 +417,9 @@ namespace Ship_Game.Ships
             Array.Sort(HullSlots, HullSlot.Sorter);
         }
 
+        // rounding a small negative editor position gives -0, which would be written as "-0"
+        static float NoNegativeZero(float value) => value == 0f ? 0f : value;
+
         public void Save(string filePath)
         {
             Save(new FileInfo(filePath));
@@ -434,7 +437,7 @@ namespace Ship_Game.Ships
             sw.Write("Description", Description);
             sw.Write("Size", Size.X+","+Size.Y);
             // GridCenter is saved as IOC / IC slot
-            sw.Write("MeshOffset", MeshOffset.X+","+MeshOffset.Y);
+            sw.Write("MeshOffset", $"{NoNegativeZero(MeshOffset.X)},{NoNegativeZero(MeshOffset.Y)}");
             sw.Write("IconPath", IconPath);
             sw.Write("ModelPath", ModelPath);
             sw.Write("SelectIcon", SelectIcon);
@@ -445,7 +448,7 @@ namespace Ship_Game.Ships
 
             sw.WriteLine("#Thruster PosX,PosY,PosZ,Scale");
             foreach (ThrusterZone t in Thrusters)
-                sw.Write("Thruster", $"{t.Position.X},{t.Position.Y},{t.Position.Z},{t.Scale}");
+                sw.Write("Thruster", $"{NoNegativeZero(t.Position.X)},{NoNegativeZero(t.Position.Y)},{NoNegativeZero(t.Position.Z)},{t.Scale}");
 
             sw.WriteLine("Slots");
             var gridInfo = new ShipGridInfo { Size = Size };

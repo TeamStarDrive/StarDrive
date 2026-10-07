@@ -11,6 +11,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.UI;
 using Ship_Game.Universe;
+using UnitTests.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
@@ -443,6 +444,14 @@ namespace UnitTests.AITests.Empire
             {
                 Game.Manager.RemoveScreen(screen);
             }
+        }
+
+        [TestMethod]
+        public void ATreasuryGoalOfZeroIsKeptWhenMostEmpireFieldsAreDefault()
+        {
+            AssertEqual(0f, BinarySerializerTests.SerDes(new EmpireData { treasuryGoal = 0f }).treasuryGoal,
+                        "the slider's far left is 0, and a save that skips it reloads the 20% initializer");
+            AssertEqual(0.2f, BinarySerializerTests.SerDes(new EmpireData { treasuryGoal = 0.2f }).treasuryGoal, "the default goal");
         }
 
         [TestMethod]

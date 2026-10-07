@@ -466,16 +466,16 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddRemnantUpdateNotify(ExplorationEvent expEvent, Empire remnants)
+        public void AddRemnantUpdateNotify(ExplorationEvent expEvent, Outcome outcome, Empire remnants)
         {
-
             AddNotification(new Notification
             {
                 RelevantEmpire  = remnants,
                 Pause           = false,
                 Message         = $"{expEvent.LocalizedName}\nClick for more info",
-                LogMessage      = expEvent.LocalizedName,
+                LogMessage      = $"{expEvent.LocalizedName}: {outcome.LocalizedDescr}",
                 ReferencedItem1 = expEvent,
+                EventOutcome    = outcome,
                 Action          = "LoadEvent",
                 Important       = true,
                 Title           = "Remnant Story"
@@ -488,8 +488,10 @@ namespace Ship_Game
             {
                 RelevantEmpire = remnants,
                 Pause = false,
-                Message = Localizer.Token(gameText)
-            }, "sd_ui_notification_encounter"); ;
+                Message = Localizer.Token(gameText),
+                Important = true,
+                Title = "Remnant Story"
+            }, "sd_ui_notification_encounter");
         }
 
         public void AddPiratesAbleToScan(Empire pirates)

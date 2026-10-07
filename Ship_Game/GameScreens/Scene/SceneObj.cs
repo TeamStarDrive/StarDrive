@@ -228,7 +228,8 @@ namespace Ship_Game.GameScreens.Scene
             return random.Item(empireShips); // whatever!
         }
 
-        readonly AudioEmitter SoundEmitter = new(maxDistance: GameAudio.ShipSfxDistance);
+        public const float MenuSfxVolume = 0.5f;
+        internal readonly AudioEmitter SoundEmitter = new(maxDistance: GameAudio.ShipSfxDistance, volumeScale: MenuSfxVolume);
 
         public void PlaySfx(string sfx)
         {

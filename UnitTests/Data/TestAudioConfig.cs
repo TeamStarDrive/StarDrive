@@ -5,6 +5,7 @@ using NAudio.Wave;
 using Ship_Game.Audio;
 using Ship_Game;
 using Ship_Game.Audio.NAudio;
+using Ship_Game.GameScreens.Scene;
 
 namespace UnitTests.Data
 {
@@ -123,6 +124,27 @@ namespace UnitTests.Data
                 AssertFalse(ground.CanPlayEffect(effect), $"{id}: quick launches stop stacking at two");
                 effect.NumActiveInstances = 0;
             }
+        }
+
+        [TestMethod]
+        public void EmitterVolumeScaleMultipliesTheEffectiveVolume()
+        {
+            AudioConfig config = new();
+            AudioCategory warp = config.GetCategory("Warp");
+            config.SetListenerPos(SDGraphics.Vector3.Zero);
+            var full  = new AudioEmitter(maxDistance: 1000f) { Position = new SDGraphics.Vector3(500, 0, 0) };
+            var quiet = new AudioEmitter(maxDistance: 1000f, volumeScale: 0.65f) { Position = new SDGraphics.Vector3(500, 0, 0) };
+
+            AssertEqual(0.0001f, 0.4f, full.GetEffectiveVolume(warp, 0.8f), "half the distance gives half the volume");
+            AssertEqual(0.0001f, 0.26f, quiet.GetEffectiveVolume(warp, 0.8f), "the scale applies on top of the falloff");
+        }
+
+        [TestMethod]
+        public void MainMenuShipsPlayTheirWarpSoundsAtHalfVolume()
+        {
+            var spawn = new ObjectSpawnInfo { Empire = (EmpireData)ResourceManager.MajorRaces[0], AI = new SceneShipAI() };
+            var menuShip = new SceneObj(null, spawn);
+            AssertEqual(0.0001f, 0.5f, menuShip.SoundEmitter.VolumeScale);
         }
 
         [TestMethod]

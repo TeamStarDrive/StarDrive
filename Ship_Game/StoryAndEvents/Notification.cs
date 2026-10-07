@@ -10,6 +10,7 @@ public sealed class Notification
 {
     public object ReferencedItem1;
     public GameObject ReferencedItem2;
+    public Outcome EventOutcome; // already applied: a LoadEvent click only shows it
 
     public Empire RelevantEmpire;
     public Rectangle ClickRect;
@@ -60,7 +61,10 @@ public sealed class Notification
                     m.SnapToCombat(ReferencedItem1 as Planet);
                     break;
                 case "LoadEvent":
-                    ((ExplorationEvent)ReferencedItem1)?.TriggerExplorationEvent(m.Screen);
+                    if (EventOutcome != null)
+                        ((ExplorationEvent)ReferencedItem1)?.ShowOutcome(m.Screen, EventOutcome);
+                    else
+                        ((ExplorationEvent)ReferencedItem1)?.TriggerExplorationEvent(m.Screen);
                     break;
                 case "ResearchScreen":
                     m.ScreenManager.AddScreen(new ResearchPopup(m.Screen, ReferencedItem1 as string));

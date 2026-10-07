@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDUtils;
@@ -8,7 +9,11 @@ namespace Ship_Game
 {
     public sealed class ImportantEventListItem : ScrollListItem<ImportantEventListItem>
     {
+        public const int RowHeight = 80;
+        const float DescriptionWidth = 700;
+
         public readonly ImportantNotification Event;
+        public bool Selected;
         readonly Graphics.Font NormalFont = Fonts.Arial12Bold;
         readonly UIPanel EventIcon;
         readonly Color RowColor;
@@ -31,25 +36,49 @@ namespace Ship_Game
             if (EventIcon != null)
                 EventIcon.Size = new Vector2(40, 40);
 
-            AddEventLabel(Event.StarDate.StarDateString(), 120, 60, Colors.Cream);
-            AddEventLabel(Event.Title, 230, 190, RowColor);
-            AddEventLabel(Event.Message.Replace('\n', ' '), 700, 430, Color.LightGray);
+            AddEventLabel(NormalFont.ParseText(Event.StarDate.StarDateString(), 90), 120, 60, Colors.Cream);
+            AddEventLabel(NormalFont.ParseText(Event.Title, 200), 230, 190, RowColor);
+            AddEventLabel(FitDescription(Event.Message), DescriptionWidth, 430, Color.LightGray);
         }
 
-        void AddEventLabel(string text, float sizeX, float relativeX, Color color)
+        // the full text is in the details box below the list
+        internal string FitDescription(string text)
         {
-            string parsedText = NormalFont.ParseText(text, sizeX - 30);
-            UILabel label     = Add(new UILabel(parsedText, NormalFont, color));
-            label.Size        = new Vector2(sizeX, 80);
-            label.TextAlign   = TextAlign.VerticalCenter;
+            text = text.Replace('\n', ' ').Replace("\\n", " "); // event texts write paragraph breaks as a literal \n
+            string[] lines = NormalFont.ParseTextToLines(text, DescriptionWidth - 30);
+            int maxLines = (RowHeight - 8) / NormalFont.LineSpacing;
+            if (lines.Length > maxLines)
+            {
+                Array.Resize(ref lines, maxLines);
+                lines[maxLines - 1] = WithEllipsis(lines[maxLines - 1]);
+            }
+            return string.Join("\n", lines);
+        }
+
+        internal string WithEllipsis(string line)
+        {
+            const string ellipsis = "...";
+            while (line.Length > 0 && NormalFont.MeasureString(line + ellipsis).X > DescriptionWidth - 30)
+            {
+                int space = line.LastIndexOf(' ');
+                line = space > 0 ? line.Substring(0, space) : "";
+            }
+            return line.TrimEnd(' ', ',', '.', ';', ':') + ellipsis;
+        }
+
+        void AddEventLabel(string parsedText, float sizeX, float relativeX, Color color)
+        {
+            UILabel label   = Add(new UILabel(parsedText, NormalFont, color));
+            label.Size      = new Vector2(sizeX, RowHeight);
+            label.TextAlign = TextAlign.VerticalCenter;
             label.SetLocalPos(relativeX, 0);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Color borderColor = DimColor(RowColor, 3);
-            batch.FillRectangle(Rect, DimColor(RowColor, 10));
-            batch.DrawRectangle(Rect, borderColor);
+            batch.FillRectangle(Rect, DimColor(RowColor, Selected ? 5 : 10));
+            batch.DrawRectangle(Rect, Selected ? RowColor : borderColor);
 
             int top = Rect.Y;
             int bot = Rect.Y + Rect.Height;

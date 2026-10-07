@@ -18,7 +18,10 @@ namespace Ship_Game.GameScreens.MainMenu;
 /// <summary>
 /// All the necessary information needed for updating to a new release
 /// </summary>
-public record struct ReleaseInfo(string Name, string Version, string Changelog, List<string> ZipUrls, string InstallerUrl);
+public record struct ReleaseInfo(string Name, string Version, string Changelog, List<string> ZipUrls, string InstallerUrl)
+{
+    public long DownloadBytes { get; init; }
+}
 
 /// <summary>
 /// Automatic update checker that will show a popup panel
@@ -141,7 +144,7 @@ public class AutoUpdateChecker : UIElementContainer
             //Log.LogEventStats(Log.GameEvent.AutoUpdateClicked);
             Remove();
             var mb = new MessageBoxScreen(Screen, "This will automatically update to the latest version. Continue?", 10f);
-            mb.Accepted = () => Screen.ScreenManager.AddScreen(new AutoPatcher(Screen, Info, IsMod));
+            mb.Accepted = () => Screen.ScreenManager.AddScreen(new AutoPatcher(Screen, Info, IsMod ? GlobalStats.ModPath : null));
             Screen.ScreenManager.AddScreen(mb);
         }
 
@@ -260,7 +263,68 @@ public class AutoUpdateChecker : UIElementContainer
         });
     }
     
-    string RegexExtractTeamAndRepo(string url, string pattern) => Regex.Match(url, pattern).Groups[1].Value.Trim('/');
+    static string RegexExtractTeamAndRepo(string url, string pattern) => Regex.Match(url, pattern).Groups[1].Value.Trim('/');
+
+    // "https://github.com/TeamStarDrive/StarDrive/releases" --> "https://api.github.com/repos/TeamStarDrive/StarDrive/releases"
+    public static string GitHubReleasesApi(string downloadUrl)
+    {
+        string teamAndRepo = RegexExtractTeamAndRepo(downloadUrl, "\\/([\\w-]+\\/[\\w-]+)\\/releases");
+        return $"https://api.github.com/repos/{teamAndRepo}/releases";
+    }
+
+    /// <summary>
+    /// The newest release of a mod for this BlackBox line, whatever version is installed.
+    /// Null if the repo has no release for this line. Throws on network errors.
+    /// </summary>
+    public static ReleaseInfo? GetLatestModRelease(string downloadUrl, TaskResult cancellableTask)
+    {
+        string apiBase = GitHubReleasesApi(downloadUrl);
+        Version currentLine = TryParseCurrentVanillaLine();
+        string url = currentLine != null ? apiBase : apiBase + "/latest";
+        string jsonText = DownloadWithCancel(url, cancellableTask, timeout: TimeSpan.FromSeconds(30));
+
+        using JsonDocument doc = JsonDocument.Parse(jsonText);
+        JsonElement release = doc.RootElement;
+        if (release.ValueKind == JsonValueKind.Array)
+        {
+            bool ModLinePredicate(Version v) => v.Major == currentLine.Major && v.Minor == currentLine.Minor;
+            if (!TrySelectMaxVersionRelease(doc.RootElement, ModLinePredicate, out release, out _))
+                return null;
+        }
+
+        ReleaseInfo info = ToReleaseInfo(release);
+        if (info.ZipUrls.Count == 0)
+        {
+            Log.Warning($"AutoUpdater: {downloadUrl} release {info.Version} has no zip to download");
+            return null;
+        }
+        return info;
+    }
+
+    internal static ReleaseInfo ToReleaseInfo(JsonElement release)
+    {
+        string tagName = release.GetProperty("tag_name").GetString();
+        var zipUrls = new List<string>();
+        long downloadBytes = 0;
+        // Sort by asset name. Chunked patches use a `001-`, `002-` numeric prefix
+        // (MakeInstaller.py); GitHub's API returns assets in upload order, which
+        // currently happens to be alphabetical because patch-build.yml uses
+        // Get-ChildItem (alpha default) — but that's incidental. Sort here so a
+        // future workflow change or manual re-upload via the UI can't reorder
+        // chunks and corrupt the concatenated archive.
+        var zipAssets = release.GetProperty("assets").EnumerateArray()
+            .Where(a => a.GetProperty("name").GetString().EndsWith(".zip"))
+            .OrderBy(a => a.GetProperty("name").GetString(), StringComparer.OrdinalIgnoreCase);
+        foreach (JsonElement asset in zipAssets)
+        {
+            zipUrls.Add(asset.GetProperty("browser_download_url").GetString());
+            if (asset.TryGetProperty("size", out JsonElement size) && size.ValueKind == JsonValueKind.Number)
+                downloadBytes += size.GetInt64();
+        }
+
+        return new(release.GetProperty("name").GetString(), ExtractVersionPartFromTag(tagName),
+                   release.GetProperty("body").GetString(), zipUrls, null) { DownloadBytes = downloadBytes };
+    }
 
     void GetVersionAsync(string modName, string downloadUrl, bool isMod)
     {
@@ -271,9 +335,7 @@ public class AutoUpdateChecker : UIElementContainer
             ReleaseInfo? info = null;
             if (downloadUrl.Contains("github.com"))
             {
-                // "https://github.com/TeamStarDrive/StarDrive/releases" --> "TeamStarDrive/StarDrive"
-                string teamAndRepo = RegexExtractTeamAndRepo(downloadUrl, "\\/([\\w-]+\\/[\\w-]+)\\/releases");
-                string apiBase = $"https://api.github.com/repos/{teamAndRepo}/releases";
+                string apiBase = GitHubReleasesApi(downloadUrl);
 
                 // Both vanilla and mods now hit /releases (array of all
                 // published) and filter by vanilla's current major.minor line.
@@ -382,12 +444,15 @@ public class AutoUpdateChecker : UIElementContainer
         if (Version.TryParse(current, out var curV)
             && curV.Major == newV.Major && curV.Minor == newV.Minor)
         {
-            return newV > curV;
+            return WithZeros(newV) > WithZeros(curV);
         }
 
         Log.Write($"AutoUpdater: mod fallback — current '{currentVersion}' doesn't align with latest '{latestVersion}', promoting");
         return true;
     }
+
+    // System.Version orders a missing build or revision below 0, so 1.60.9 would be older than 1.60.9.0
+    static Version WithZeros(Version v) => new(v.Major, v.Minor, Math.Max(v.Build, 0), Math.Max(v.Revision, 0));
 
     public enum UpdateAvailability
     {
@@ -573,30 +638,12 @@ public class AutoUpdateChecker : UIElementContainer
             latestRelease = doc.RootElement;
         }
 
-        string name = latestRelease.GetProperty("name").GetString();
         string tagName = latestRelease.GetProperty("tag_name").GetString();
-        string changelog = latestRelease.GetProperty("body").GetString();
         string latestVersion = ExtractVersionPartFromTag(tagName);
         string codename = ExtractCodenameFromTag(tagName);
 
         if (IsLatestVerNewer(latestVersion, isMod, codename))
-        {
-            ReleaseInfo info = new(name, latestVersion, changelog, null, null);
-            info.ZipUrls = new List<string>();
-            // Sort by asset name. Chunked patches use a `001-`, `002-` numeric prefix
-            // (MakeInstaller.py); GitHub's API returns assets in upload order, which
-            // currently happens to be alphabetical because patch-build.yml uses
-            // Get-ChildItem (alpha default) — but that's incidental. Sort here so a
-            // future workflow change or manual re-upload via the UI can't reorder
-            // chunks and corrupt the concatenated archive.
-            var zipAssets = latestRelease.GetProperty("assets").EnumerateArray()
-                .Where(a => a.GetProperty("name").GetString().EndsWith(".zip"))
-                .OrderBy(a => a.GetProperty("name").GetString(), StringComparer.OrdinalIgnoreCase);
-            foreach (JsonElement asset in zipAssets)
-                info.ZipUrls.Add(asset.GetProperty("browser_download_url").GetString());
-
-            return info;
-        }
+            return ToReleaseInfo(latestRelease);
         return null;
     }
 
