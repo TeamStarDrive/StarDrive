@@ -242,6 +242,7 @@
     <Compile Include="Serialization\BinarySerializerTests.cs" />
     <Compile Include="UI\AutoUpdateCheckerTests.cs" />
     <Compile Include="UI\AvailableModsTests.cs" />
+    <Compile Include="UI\ImportantEventsScreenTests.cs" />
     <Compile Include="UI\MockGameScreen.cs" />
     <Compile Include="UI\MockInputProvider.cs" />
     <Compile Include="UI\TestScrollList.cs" />
