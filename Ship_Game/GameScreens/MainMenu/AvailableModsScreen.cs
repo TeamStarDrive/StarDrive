@@ -67,6 +67,15 @@ public sealed class AvailableModsScreen : GameScreen
         return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
     }
 
+    public static (Color Latest, Color Installed) VersionColors(string installedVersion, string latestVersion)
+    {
+        if (installedVersion == null)
+            return (Color.White, Color.Gray);
+        if (latestVersion == null)
+            return (Color.White, Color.White);
+        return IsSameVersion(installedVersion, latestVersion) ? (Color.LightGreen, Color.LightGreen) : (Color.White, Color.Pink);
+    }
+
     const int RowHeight = 48;
 
     readonly AvailableMod[] Mods = CreateKnownMods();
@@ -258,9 +267,10 @@ public sealed class AvailableModsScreen : GameScreen
             PageLink.Highlight = Color.Transparent;
             PageLink.Tooltip = new LocalizedText(Mod.PageUrl, LocalizationMethod.RawText);
 
+            var colors = VersionColors(Mod.InstalledVersion, Mod.Latest?.Version);
             if (Mod.Latest != null)
             {
-                AddCentered(columns[1], Mod.Latest.Value.Version, Fonts.Arial12Bold, Color.White);
+                AddCentered(columns[1], Mod.Latest.Value.Version, Fonts.Arial12Bold, colors.Latest);
             }
             else if (!Mod.CheckFailed)
             {
@@ -272,10 +282,7 @@ public sealed class AvailableModsScreen : GameScreen
                 unavailable.Tooltip = GameText.ModUnavailableTip;
             }
 
-            Color installedColor = Mod.InstalledVersion == null ? Color.Gray
-                                 : Mod.Latest != null && !IsSameVersion(Mod.InstalledVersion, Mod.Latest.Value.Version) ? Color.Pink
-                                 : Color.White;
-            AddCentered(columns[2], InstalledText(Mod), Fonts.Arial12Bold, installedColor);
+            AddCentered(columns[2], InstalledText(Mod), Fonts.Arial12Bold, colors.Installed);
 
             AddActionButton(columns[3], state);
             base.PerformLayout();
