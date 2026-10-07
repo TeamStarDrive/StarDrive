@@ -23,7 +23,6 @@ namespace Ship_Game
         SubmenuScrollList<ModsListItem> AllSaves;
         Vector2 TitlePosition;
         UITextEntry EnterNameArea;
-        UIButton Visit;
         UIButton UnloadMod;
         UIButton CurrentButton;
 
@@ -67,8 +66,9 @@ namespace Ship_Game
             EnterNameArea.SetColors(Color.Orange, Color.White);
 
             ButtonSmall(sub.X + sub.W - 88, EnterNameArea.Y - 2, text:GameText.Load, click: OnLoadClicked);
-            Visit = Button(Window.X + 3, Window.Y + Window.Height + 20, text:GameText.LoadModsWeb, click: OnVisitClicked);
-            UnloadMod = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Unload Mod", click:OnUnloadModClicked);
+            UIButton availableMods = Button(Window.X + 3, Window.Y + Window.Height + 20, text:GameText.AvailableMods, click: OnAvailableModsClicked);
+            availableMods.Tooltip = GameText.AvailableModsTip;
+            UnloadMod = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, text:GameText.UnloadMod, click:OnUnloadModClicked);
             UnloadMod.Enabled = GlobalStats.HasMod;
 
             base.LoadContent();
@@ -110,7 +110,6 @@ namespace Ship_Game
         {
             SelectedMod = item.Mod;
             EnterNameArea.Text = SelectedMod.Mod.Name;
-            Visit.Text = SelectedMod.Settings.URL.IsEmpty() ? Localizer.Token(GameText.LoadModsWeb) : "Goto Mod URL";
         }
 
         public override bool HandleInput(InputState input)
@@ -145,12 +144,9 @@ namespace Ship_Game
             LoadModTask();
         }
 
-        void OnVisitClicked(UIButton b)
+        void OnAvailableModsClicked(UIButton b)
         {
-            if (!string.IsNullOrEmpty(SelectedMod?.Settings.URL))
-            {
-                Log.OpenURL(SelectedMod.Settings.URL);
-            }
+            ScreenManager.AddScreen(new AvailableModsScreen(this));
         }
 
         void OnUnloadModClicked(UIButton b)

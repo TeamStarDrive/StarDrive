@@ -5978,6 +5978,48 @@ namespace Ship_Game
         SettingOn = 7099,
         /// <summary>Off</summary>
         SettingOff = 7100,
+        /// <summary>Available Mods</summary>
+        AvailableMods = 7101,
+        /// <summary>See which mods you can download, and install or update them.</summary>
+        AvailableModsTip = 7102,
+        /// <summary>Unload Mod</summary>
+        UnloadMod = 7103,
+        /// <summary>Mod</summary>
+        ModColumnName = 7104,
+        /// <summary>Latest Version</summary>
+        ModColumnLatest = 7105,
+        /// <summary>Installed Version</summary>
+        ModColumnInstalled = 7106,
+        /// <summary>Install</summary>
+        ModInstall = 7107,
+        /// <summary>Update</summary>
+        ModUpdate = 7108,
+        /// <summary>Up to Date</summary>
+        ModUpToDate = 7109,
+        /// <summary>Dev Copy</summary>
+        ModDevCopy = 7110,
+        /// <summary>This mod folder is a git repository. Update it with git.</summary>
+        ModDevCopyTip = 7111,
+        /// <summary>Not installed</summary>
+        ModNotInstalled = 7112,
+        /// <summary>Unknown</summary>
+        ModUnknownVersion = 7113,
+        /// <summary>Checking...</summary>
+        ModChecking = 7114,
+        /// <summary>Unavailable</summary>
+        ModUnavailable = 7115,
+        /// <summary>No downloadable release of this mod for this game version was found on GitHub.</summary>
+        ModUnavailableTip = 7116,
+        /// <summary>Download {0} {1} ({2} MB) and install it in {3}?</summary>
+        ModInstallConfirm = 7117,
+        /// <summary>Update {0} from {1} to {2}? This downloads {3} MB and replaces</summary>
+        ModUpdateConfirm = 7118,
+        /// <summary>StarDrive restarts when this is done.</summary>
+        ModInstallRestart = 7119,
+        /// <summary>Not a complete mod</summary>
+        ModPackageIncomplete = 7120,
+        /// <summary>The download is not a complete copy of the mod. Nothing was changed.</summary>
+        ModPackageIncompleteTip = 7121,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

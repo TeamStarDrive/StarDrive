@@ -1006,7 +1006,14 @@ namespace Ship_Game
             }
             else
             {
-                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                try
+                {
+                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                }
+                catch (Exception e)
+                {
+                    Warning($"OpenURL {url} failed: {e.Message}");
+                }
             }
         }
 

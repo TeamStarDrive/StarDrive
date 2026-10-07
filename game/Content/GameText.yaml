@@ -19625,6 +19625,69 @@ SettingOn:
 SettingOff:
  Id: 7100
  ENG: "Off"
+AvailableMods:
+ Id: 7101
+ ENG: "Available Mods"
+AvailableModsTip:
+ Id: 7102
+ ENG: "See which mods you can download, and install or update them."
+UnloadMod:
+ Id: 7103
+ ENG: "Unload Mod"
+ModColumnName:
+ Id: 7104
+ ENG: "Mod"
+ModColumnLatest:
+ Id: 7105
+ ENG: "Latest Version"
+ModColumnInstalled:
+ Id: 7106
+ ENG: "Installed Version"
+ModInstall:
+ Id: 7107
+ ENG: "Install"
+ModUpdate:
+ Id: 7108
+ ENG: "Update"
+ModUpToDate:
+ Id: 7109
+ ENG: "Up to Date"
+ModDevCopy:
+ Id: 7110
+ ENG: "Dev Copy"
+ModDevCopyTip:
+ Id: 7111
+ ENG: "This mod folder is a git repository. Update it with git."
+ModNotInstalled:
+ Id: 7112
+ ENG: "Not installed"
+ModUnknownVersion:
+ Id: 7113
+ ENG: "Unknown"
+ModChecking:
+ Id: 7114
+ ENG: "Checking..."
+ModUnavailable:
+ Id: 7115
+ ENG: "Unavailable"
+ModUnavailableTip:
+ Id: 7116
+ ENG: "No downloadable release of this mod for this game version was found on GitHub. If you are offline, check your internet connection and open this screen again."
+ModInstallConfirm:
+ Id: 7117
+ ENG: "Download {0} {1} ({2} MB) and install it in {3}?"
+ModUpdateConfirm:
+ Id: 7118
+ ENG: "Update {0} from {1} to {2}?\n\nThis downloads {3} MB and replaces everything in {4}. Files the new version no longer has are deleted."
+ModInstallRestart:
+ Id: 7119
+ ENG: "StarDrive restarts when this is done."
+ModPackageIncomplete:
+ Id: 7120
+ ENG: "Not a complete mod"
+ModPackageIncompleteTip:
+ Id: 7121
+ ENG: "The download is not a complete copy of the mod. Nothing was changed."
 EncCorsairs000_Msg0:
  ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
  RUS: "Дорогие друзья SING,\n\nМы рады видеть прогресс вашей империи. Разве это не захватывающе - колонизировать новые миры и бороться с неизвестной средой? Однако все эти маленькие транспорты, курсирующие от планеты к планете, как послушные пчёлки, слишком уязвимы в глубоком космосе.\n\nПоэтому у нас есть предложение. Вы прямо сейчас заплатите нам MONEY кредитов. Если согласитесь, мы можем пообещать определённый уровень «защиты» для кораблей SING. Если нет - увы, мы ничего обещать не можем.\n\nС уважением,\n    Капитан Марток, независимый торговец и джентльмен"
