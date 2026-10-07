@@ -9,6 +9,7 @@ public class AudioEmitter
 {
     public Vector3 Position;
     public readonly float MaxDistance;
+    public readonly float VolumeScale;
 
     /// <summary>
     /// Initializes a new AudioEmitter associated with any number of Audio instances
@@ -17,9 +18,11 @@ public class AudioEmitter
     /// Maximum distance from the listener that this emitter can be heard.
     /// At maxDistance or beyond, the emitter will be silent and will be stopped.
     /// </param>
-    public AudioEmitter(float maxDistance)
+    /// <param name="volumeScale">Multiplies the volume of every sound played through this emitter</param>
+    public AudioEmitter(float maxDistance, float volumeScale = 1f)
     {
         MaxDistance = maxDistance;
+        VolumeScale = volumeScale;
     }
 
     /// <summary>
@@ -34,6 +37,6 @@ public class AudioEmitter
             return 0f;
 
         float falloff = 1f - (distance / MaxDistance);
-        return volume * falloff;
+        return volume * falloff * VolumeScale;
     }
 }

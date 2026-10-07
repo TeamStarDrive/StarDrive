@@ -72,7 +72,11 @@ whose own `PlanetTypes.yaml` fully replaces vanilla's and so must ship with it:
 | Volcanic | `sd_planet_volcanic_01` |
 | GasGiant | none - silent by design |
 
-**Barren is the one type with two cues**, picked between at random, which is what the array
+Combined Arms no longer uses this mapping (CA `613700cf`, 2026-10-07): no type borrows another's bed.
+Each plays the sound designer's new beds for it, plus the vanilla `_01` bed for Barren, Volcanic and
+Oceanic and `sd_planet_forest_01` for Terran; see CA's `PlanetTypes.yaml`.
+
+**In vanilla, Barren is the one type with two cues**, picked between at random, which is what the array
 shape is for. It is also the case that gives the keep-rule teeth: a Barren colony playing the
 gas giant bed keeps it when you arrow to another Barren, but must swap when you arrow to a
 Desert, because Desert lists only `sd_planet_barren_01` - even though the two share that cue.
