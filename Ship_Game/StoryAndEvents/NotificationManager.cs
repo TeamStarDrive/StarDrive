@@ -454,6 +454,20 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        public void AddNotify(ExplorationEvent expEvent, Outcome outcome, Planet planet)
+        {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = Localizer.Token(GameText.AnEventRequiresYourAttention),
+                ReferencedItem1 = expEvent,
+                ReferencedItem2 = planet,
+                EventOutcome    = outcome,
+                IconPath        = "ResearchMenu/icon_event_science",
+                Action          = "LoadEvent"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddNotify(ExplorationEvent expEvent, string cMessage)
         {
             AddNotification(new Notification

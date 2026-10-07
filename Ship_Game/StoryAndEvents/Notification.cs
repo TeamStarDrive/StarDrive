@@ -62,7 +62,7 @@ public sealed class Notification
                     break;
                 case "LoadEvent":
                     if (EventOutcome != null)
-                        ((ExplorationEvent)ReferencedItem1)?.ShowOutcome(m.Screen, EventOutcome);
+                        ((ExplorationEvent)ReferencedItem1)?.ShowOutcome(m.Screen, EventOutcome, ReferencedItem2 as Planet);
                     else
                         ((ExplorationEvent)ReferencedItem1)?.TriggerExplorationEvent(m.Screen);
                     break;

@@ -120,6 +120,14 @@ namespace UnitTests.Data
         }
 
         [TestMethod]
+        public void ParseTextSplitsOnAWrittenNewLineRightAfterAWord()
+        {
+            string text = @"with an offer\nWe have \nconquered";
+            AssertEqual(new string[]{"with an offer", "We have", "conquered"},
+                              Fonts.Arial12.ParseTextToLines(text, 300));
+        }
+
+        [TestMethod]
         public void ParseTextSplitsCorrectlyOnNewLinesThatNeverFit()
         {
             string text = "Terraforming Planet";

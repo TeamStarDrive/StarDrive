@@ -133,9 +133,9 @@ namespace Ship_Game
             return outcome;
         }
 
-        public void ShowOutcome(UniverseScreen screen, Outcome outcome)
+        public void ShowOutcome(UniverseScreen screen, Outcome outcome, Planet planet = null)
         {
-            screen.ScreenManager.AddScreen(new EventPopup(screen, screen.Player, this, outcome, triggerNow: false));
+            screen.ScreenManager.AddScreen(new EventPopup(screen, screen.Player, this, outcome, triggerNow: false, planet) { ViewOnly = true });
         }
 
         public void TriggerExplorationEvent(UniverseScreen screen)

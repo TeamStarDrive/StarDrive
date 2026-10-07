@@ -2584,10 +2584,13 @@ namespace Ship_Game
 
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
 
-        public void IncrementCordrazineCapture()
+        public void IncrementCordrazineCapture(Planet captured)
         {
             if (!Universe.P.CordrazinePlanetCaptured)
-                Universe.Notifications.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
+            {
+                ExplorationEvent owlwokFreedom = ResourceManager.EventsDict["OwlwokFreedom"];
+                Universe.Notifications.AddNotify(owlwokFreedom, owlwokFreedom.TriggerNow(this), captured);
+            }
 
             Universe.P.CordrazinePlanetCaptured = true;
         }

@@ -203,6 +203,7 @@
     <Compile Include="Ships\ShipDesignUtilsTests.cs" />
     <Compile Include="StarDriveTest.Assert.cs" />
     <Compile Include="StarDriveTestContext.cs" />
+    <Compile Include="StoryAndEvents\OwlwokFreedomEventTests.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />

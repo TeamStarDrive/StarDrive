@@ -146,6 +146,8 @@ namespace Ship_Game.Graphics
                         //       CAN BE REMOVED WHEN ALL LOC IS CONVERTED TO YAML
                         if ((current+1) < eos && 'n' == chars[current+1])
                         {
+                            if (start != current)
+                                goto get_word;
                             view.Skip(2);
                             return new(NewLineString);
                         }
