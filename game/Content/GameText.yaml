@@ -12328,13 +12328,6 @@ AvailableModifications:
  SPA: "Modificaciones disponibles"
  UKR: "Доступні модифікації"
  PTB: "Modificações Disponíveis"
-LoadModsWeb:
- Id: 4015
- ENG: "Load Mods (Web)"
- RUS: "Загрузить мод (Веб)"
- SPA: "Cargar modificadores (web)"
- UKR: "Завантажити модифікації (веб)"
- PTB: "Carregar Mods (Web)"
 ClearActive:
  Id: 4016
  ENG: "Clear Active"
@@ -19688,6 +19681,9 @@ ModPackageIncomplete:
 ModPackageIncompleteTip:
  Id: 7121
  ENG: "The download is not a complete copy of the mod. Nothing was changed."
+ModInstallUnfinished:
+ Id: 7122
+ ENG: "The install did not finish: some files could not be replaced (see blackbox.log). After the restart, open Available Mods and try again."
 EncCorsairs000_Msg0:
  ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
  RUS: "Дорогие друзья SING,\n\nМы рады видеть прогресс вашей империи. Разве это не захватывающе - колонизировать новые миры и бороться с неизвестной средой? Однако все эти маленькие транспорты, курсирующие от планеты к планете, как послушные пчёлки, слишком уязвимы в глубоком космосе.\n\nПоэтому у нас есть предложение. Вы прямо сейчас заплатите нам MONEY кредитов. Если согласитесь, мы можем пообещать определённый уровень «защиты» для кораблей SING. Если нет - увы, мы ничего обещать не можем.\n\nС уважением,\n    Капитан Марток, независимый торговец и джентльмен"

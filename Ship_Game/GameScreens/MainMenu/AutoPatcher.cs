@@ -54,7 +54,8 @@ namespace Ship_Game.GameScreens.MainMenu;
 // Mods: NeedsElevation also fires when the mod folder lands inside
 // "Program Files". Mod patches go through the same UAC dance.
 // A mod package must be the whole mod: the mod folder is made to match it,
-// so files the new version no longer has are deleted.
+// so files the new version no longer has are deleted once every new file is in.
+// Its Globals.yaml is copied last, so a failed copy keeps the old version.
 /// <summary>
 /// This will automatically apply the latest patch,
 /// while showing progress
@@ -66,6 +67,7 @@ internal class AutoPatcher : PopupWindow
     readonly string ModPath; // "Mods/Combined Arms/", null when patching BlackBox itself
     readonly bool ResumeMode; // true = elevated resume; skip download/unzip
     TaskResult CurrentTask;
+    Array<string> StaleModFiles = new();
 
     UIList ProgressSteps;
 
@@ -315,7 +317,8 @@ internal class AutoPatcher : PopupWindow
 
     protected override void Dispose(bool disposing)
     {
-        CurrentTask?.Dispose();
+        if (disposing)
+            CurrentTask?.Dispose();
         base.Dispose(disposing);
     }
 
@@ -356,21 +359,38 @@ internal class AutoPatcher : PopupWindow
         TryDeleteFolder(tempDir);
     }
 
-    // file by file, so the files this process still has open do not stop the rest from being deleted
-    static void TryDeletePatchTempFiles()
+    static void TryDeletePatchTempFiles() => TryDeleteFilesAndFolder(GetPatchTempFolder());
+
+    // file by file, so the files this process still has open do not stop the rest; never through a junction or symlink
+    internal static void TryDeleteFilesAndFolder(string dir)
     {
-        string tempDir = GetPatchTempFolder();
         try
         {
-            if (!Directory.Exists(tempDir))
-                return;
-            foreach (string file in Directory.EnumerateFiles(tempDir, "*", SearchOption.AllDirectories))
+            if (Directory.Exists(dir) && !IsReparsePoint(dir))
             {
-                try { File.Delete(file); } catch {}
+                var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+                foreach (FileInfo file in new DirectoryInfo(dir).EnumerateFiles("*", options))
+                {
+                    try { file.Delete(); } catch {}
+                }
             }
         }
         catch {}
-        TryDeleteFolder(tempDir);
+        TryDeleteFolder(dir);
+    }
+
+    static bool IsReparsePoint(string dir)
+    {
+        string path = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dir));
+        return (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
+    }
+
+    internal static bool IsInsideFolder(string path, string folder)
+    {
+        string root = Path.GetFullPath(folder);
+        if (!Path.EndsInDirectorySeparator(root))
+            root += Path.DirectorySeparatorChar;
+        return Path.GetFullPath(path).StartsWith(root, StringComparison.OrdinalIgnoreCase);
     }
 
     // delete any legacy files which could accidentally be left in the game Content dir
@@ -503,19 +523,19 @@ internal class AutoPatcher : PopupWindow
         }
     }
 
-    void UnzipWithProgress(string zipArchive, string outputFolder, 
-                           TaskResult cancellableTask, ProgressBarElement p)
+    internal static void UnzipWithProgress(string zipArchive, string outputFolder,
+                                           TaskResult cancellableTask, ProgressBarElement p)
     {
         using ZipArchive source = ZipFile.Open(zipArchive, ZipArchiveMode.Read);
         int currentEntry = 0;
         int totalEntries = source.Entries.Count;
         foreach (ZipArchiveEntry entry in source.Entries)
         {
-            if (cancellableTask.IsCancelRequested)
+            if (cancellableTask?.IsCancelRequested == true)
                 throw new OperationCanceledException();
 
             string fullPath = Path.GetFullPath(Path.Combine(outputFolder, entry.FullName));
-            if (!fullPath.StartsWith(outputFolder, StringComparison.OrdinalIgnoreCase))
+            if (!IsInsideFolder(fullPath, outputFolder))
                 throw new IOException("ZipExtract: Relative paths not supported");
 
             if (Path.GetFileName(fullPath).Length == 0)
@@ -530,7 +550,7 @@ internal class AutoPatcher : PopupWindow
                 entry.ExtractToFile(fullPath, overwrite:true);
             }
 
-            p.SetProgress(ProgressBarElement.GetPercent(++currentEntry, totalEntries));
+            p?.SetProgress(ProgressBarElement.GetPercent(++currentEntry, totalEntries));
         }
     }
 
@@ -564,37 +584,22 @@ internal class AutoPatcher : PopupWindow
             string gameDir = GetGameDirectory();
             string tempDir = GetPatchTempFolder();
 
-            Array<string> staleModFiles = new();
-            if (IsMod && !TryGetStaleModFiles(gameDir, patchFilesFolder, out staleModFiles))
+            if (IsMod && !TryGetStaleModFiles(gameDir, patchFilesFolder, out StaleModFiles))
             {
                 AddErrorMessageAndAllowExit(Localizer.Token(GameText.ModPackageIncomplete), Localizer.Token(GameText.ModPackageIncompleteTip));
                 return;
             }
 
-            Array<string> filesToDelete = GetFilesToRemove(Path.Combine(patchFilesFolder, "Release.DeleteFiles.txt"));
-            int totalActions = filesToDelete.Count + staleModFiles.Count;
+            Array<string> filesToDelete = GetFilesToRemove(Path.Combine(patchFilesFolder, "Release.DeleteFiles.txt"), gameDir);
             int currentAction = 0;
             foreach (string toRemoveRelPath in filesToDelete)
             {
                 string fullPath = Path.Combine(gameDir, toRemoveRelPath);
                 Log.Write($"RemoveFile: {toRemoveRelPath}");
                 SafeDelete(fullPath, toRemoveRelPath, tempDir);
-                p.SetProgress(ProgressBarElement.GetPercent(++currentAction, totalActions));
+                p.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToDelete.Count));
             }
-
-            foreach (string staleRelPath in staleModFiles)
-            {
-                Log.Write($"RemoveFile: {staleRelPath}");
-                try
-                {
-                    SafeDelete(Path.Combine(gameDir, staleRelPath), staleRelPath, tempDir);
-                }
-                catch (IOException e)
-                {
-                    Log.Warning($"RemoveFile skipped (in use?): {staleRelPath}: {e.InnerException?.Message ?? e.Message}");
-                }
-                p.SetProgress(ProgressBarElement.GetPercent(++currentAction, totalActions));
-            }
+            p.SetProgress(100);
 
             AddProgressAndRunTaskOnNextFrame("Copying New Files", nextP => CopyNewFiles(patchFilesFolder, nextP));
         }
@@ -605,7 +610,7 @@ internal class AutoPatcher : PopupWindow
         }
     }
     
-    static Array<string> GetFilesToRemove(string filesToDeleteTxt)
+    internal static Array<string> GetFilesToRemove(string filesToDeleteTxt, string gameDir)
     {
         Array<string> toRemove = new();
         if (!File.Exists(filesToDeleteTxt))
@@ -616,8 +621,14 @@ internal class AutoPatcher : PopupWindow
             // the RelPath of the file is always the last element
             // 1a91bdf1146eb32bf634cc11440ac23c196ae3ac;60B4088F-64EC-4983-A095-7E16577FCCD8;StarDrive.exe.Config
             string[] parts = line.Split(';');
-            if (parts.Length > 0)
-                toRemove.Add(parts[parts.Length - 1].Trim().TrimStart('\\', '/'));
+            string relPath = parts[parts.Length - 1].Trim().TrimStart('\\', '/');
+            if (relPath.Length == 0)
+                continue;
+            string fullPath = Path.GetFullPath(Path.Combine(gameDir, relPath));
+            if (IsInsideFolder(fullPath, gameDir))
+                toRemove.Add(Path.GetRelativePath(gameDir, fullPath));
+            else
+                Log.Warning($"RemoveFile skipped (outside {gameDir}): {relPath}");
         }
         
         File.Delete(filesToDeleteTxt); // remove this file to avoid copying it to game dir
@@ -640,6 +651,11 @@ internal class AutoPatcher : PopupWindow
 
         if (!Directory.Exists(modDir) || !IsFolderInMods(modDir))
             return true;
+        if (IsReparsePoint(modDir))
+        {
+            Log.Warning($"AutoPatcher: {modDir} is a link, the files the new version dropped are kept");
+            return true;
+        }
 
         int modFiles = 0;
         foreach (FileInfo file in ListFiles(modDir))
@@ -690,64 +706,7 @@ internal class AutoPatcher : PopupWindow
         {
             string gameDir = GetGameDirectory();
             string tempDir = GetPatchTempFolder();
-
-            FileInfo[] filesToAdd = Dir.GetFiles(patchFilesFolder);
-            var skipped = new Array<string>();
-            int currentAction = 0;
-            int lockedFiles = 0;
-            // Per-file retry budget for stash-aside in MoveAndCreateDirs. Starts at 3 attempts
-            // (100/200/300 ms escalating waits) — handles isolated AV scans. After 5 files have
-            // exhausted retries we conclude the lock is systemic (AV scanning the whole patch
-            // dir, OneDrive batch-syncing, etc.) and drop to a single attempt so we don't burn
-            // minutes waiting on locks that won't clear this run. Skipped files survive in the
-            // staging cache and the user re-runs the patcher to pick them up next round.
-            int maxRetries = 3;
-            const int systemicLockThreshold = 5;
-            foreach (FileInfo toAdd in filesToAdd)
-            {
-                string srcFile = toAdd.FullName;
-                string relPath = srcFile.Replace(patchFilesFolder, "").TrimStart('\\', '/');
-                string dstFile = Path.Combine(gameDir, relPath);
-
-                // Source can vanish between Dir.GetFiles enumeration and now — typically
-                // AV/Defender quarantining a freshly-extracted asset (esp. .png/.exe) or
-                // OneDrive/Dropbox re-syncing the AppData folder. Skip and continue rather
-                // than aborting the entire patch over one cosmetic icon. The user can
-                // re-run the patcher to retry; missing textures fall back to x_red so the
-                // game stays usable in the meantime.
-                if (!File.Exists(srcFile))
-                {
-                    Log.Warning($"CopyFile skipped (source missing — AV or sync interference?): {relPath}");
-                    skipped.Add(relPath);
-                    ap.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
-                    continue;
-                }
-
-                Log.Write($"CopyFile: {relPath}");
-                try
-                {
-                    SafeCopy(srcFile, dstFile, relPath, tempDir, maxRetries);
-                }
-                catch (IOException e)
-                {
-                    // Dst file is locked (AV scan, OneDrive sync, game holding the texture, etc.).
-                    // SafeCopy already restored the previous dst on failure, so the install is
-                    // intact for this file. Skip rather than aborting — staging cache survives,
-                    // user can re-run the patcher to pick up whatever was locked this round.
-                    // SafeCopy wraps as `new IOException(relPath, e)`, so e.Message is just the
-                    // relPath we already log. Walk to the inner exception for the actual cause
-                    // (sharing violation, ACL denied, disk full, etc.).
-                    string cause = e.InnerException?.Message ?? e.Message;
-                    Log.Warning($"CopyFile skipped (destination locked — AV or in-use?): {relPath}: {cause}");
-                    skipped.Add(relPath);
-                    if (++lockedFiles == systemicLockThreshold && maxRetries > 1)
-                    {
-                        Log.Warning($"AutoPatcher: {systemicLockThreshold} locked files — dropping retries to 1 for remaining files");
-                        maxRetries = 1;
-                    }
-                }
-                ap.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
-            }
+            Array<string> skipped = CopyFiles(patchFilesFolder, gameDir, tempDir, IsMod ? StaleModFiles : null, ap);
 
             // Apply succeeded — now safe to drop the staging cache. Crucially this only
             // runs on the SUCCESS path: if the loop above threw, the staging dir is
@@ -756,21 +715,17 @@ internal class AutoPatcher : PopupWindow
             // as it went, leaving a half-gutted staging dir on any mid-apply failure.
             TryDeleteFolder(GetPatchOutputFolder());
 
-            if (skipped.Count > 0)
-            {
-                RunOnNextFrame(() =>
-                {
-                    var label = ProgressSteps.AddLabel(
-                        $"Patch applied ({skipped.Count} file(s) skipped — see blackbox.log; usually antivirus interference)");
-                    label.Color = Color.Yellow;
-                });
-            }
+            bool modUnfinished = IsMod && skipped.Count > 0;
+            if (modUnfinished)
+                RunOnNextFrame(() => AddWarningLabel(Localizer.Token(GameText.ModInstallUnfinished)));
+            else if (skipped.Count > 0)
+                RunOnNextFrame(() => AddWarningLabel($"Patch applied ({skipped.Count} file(s) skipped — see blackbox.log; usually antivirus interference)"));
 
             RunOnNextFrame(() =>
             {
                 ProgressSteps.AddLabel("Restarting StarDrive ...")
                     .Anim().Alpha(new(0.5f,1.0f)).Loop();
-                CurrentTask = Parallel.Run(RestartAsync);
+                CurrentTask = Parallel.Run(() => RestartAsync(waitMs: modUnfinished ? 10_000 : 2900));
             });
         }
         catch (Exception e)
@@ -778,6 +733,113 @@ internal class AutoPatcher : PopupWindow
             Log.Error(e, "CopyNewFiles failed");
             AddErrorMessageAndAllowExit("Copy New Files failed!", e.Message);
         }
+    }
+
+    // a mod (modStaleFiles != null) gets its Globals.yaml only when every other file was copied, and loses its stale files only then
+    internal static Array<string> CopyFiles(string patchFilesFolder, string gameDir, string tempDir,
+                                            Array<string> modStaleFiles, ProgressBarElement ap)
+    {
+        bool isMod = modStaleFiles != null;
+        FileInfo[] filesToAdd = Dir.GetFiles(patchFilesFolder);
+        if (isMod)
+            filesToAdd = filesToAdd.OrderBy(f => IsModGlobals(Path.GetRelativePath(patchFilesFolder, f.FullName))).ToArray();
+        var skipped = new Array<string>();
+        bool modGlobalsCopied = false;
+        int currentAction = 0;
+        int lockedFiles = 0;
+        // Per-file retry budget for stash-aside in MoveAndCreateDirs. Starts at 3 attempts
+        // (100/200/300 ms escalating waits) — handles isolated AV scans. After 5 files have
+        // exhausted retries we conclude the lock is systemic (AV scanning the whole patch
+        // dir, OneDrive batch-syncing, etc.) and drop to a single attempt so we don't burn
+        // minutes waiting on locks that won't clear this run. Skipped files keep their old
+        // version and the user re-runs the patcher to pick them up next round.
+        int maxRetries = 3;
+        const int systemicLockThreshold = 5;
+        foreach (FileInfo toAdd in filesToAdd)
+        {
+            string srcFile = toAdd.FullName;
+            string relPath = srcFile.Replace(patchFilesFolder, "").TrimStart('\\', '/');
+            string dstFile = Path.Combine(gameDir, relPath);
+
+            if (isMod && skipped.Count > 0 && IsModGlobals(relPath))
+            {
+                Log.Warning($"CopyFile skipped: {relPath}, the mod keeps its old version after {skipped.Count} skipped file(s)");
+                skipped.Add(relPath);
+                ap?.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
+                continue;
+            }
+
+            // Source can vanish between Dir.GetFiles enumeration and now — typically
+            // AV/Defender quarantining a freshly-extracted asset (esp. .png/.exe) or
+            // OneDrive/Dropbox re-syncing the AppData folder. Skip and continue rather
+            // than aborting the entire patch over one cosmetic icon. The user can
+            // re-run the patcher to retry; missing textures fall back to x_red so the
+            // game stays usable in the meantime.
+            if (!File.Exists(srcFile))
+            {
+                Log.Warning($"CopyFile skipped (source missing — AV or sync interference?): {relPath}");
+                skipped.Add(relPath);
+                ap?.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
+                continue;
+            }
+
+            Log.Write($"CopyFile: {relPath}");
+            try
+            {
+                SafeCopy(srcFile, dstFile, relPath, tempDir, maxRetries);
+                modGlobalsCopied |= isMod && IsModGlobals(relPath);
+            }
+            catch (IOException e)
+            {
+                // Dst file is locked (AV scan, OneDrive sync, game holding the texture, etc.).
+                // SafeCopy already restored the previous dst on failure, so the install is
+                // intact for this file. Skip rather than aborting — staging cache survives,
+                // user can re-run the patcher to pick up whatever was locked this round.
+                // SafeCopy wraps as `new IOException(relPath, e)`, so e.Message is just the
+                // relPath we already log. Walk to the inner exception for the actual cause
+                // (sharing violation, ACL denied, disk full, etc.).
+                string cause = e.InnerException?.Message ?? e.Message;
+                Log.Warning($"CopyFile skipped (destination locked — AV or in-use?): {relPath}: {cause}");
+                skipped.Add(relPath);
+                if (++lockedFiles == systemicLockThreshold && maxRetries > 1)
+                {
+                    Log.Warning($"AutoPatcher: {systemicLockThreshold} locked files — dropping retries to 1 for remaining files");
+                    maxRetries = 1;
+                }
+            }
+            ap?.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
+        }
+
+        if (modGlobalsCopied)
+            RemoveStaleModFiles(gameDir, tempDir, modStaleFiles);
+        else if (isMod && modStaleFiles.Count > 0)
+            Log.Warning($"AutoPatcher: Globals.yaml was not copied ({skipped.Count} file(s) skipped), so the {modStaleFiles.Count} file(s) the new version dropped are kept");
+        return skipped;
+    }
+
+    static bool IsModGlobals(string relPath) => relPath.Equals("Globals.yaml", StringComparison.OrdinalIgnoreCase);
+
+    static void RemoveStaleModFiles(string modDir, string tempDir, Array<string> staleModFiles)
+    {
+        foreach (string staleRelPath in staleModFiles)
+        {
+            Log.Write($"RemoveFile: {staleRelPath}");
+            try
+            {
+                SafeDelete(Path.Combine(modDir, staleRelPath), staleRelPath, tempDir);
+            }
+            catch (IOException e)
+            {
+                Log.Warning($"RemoveFile skipped (in use?): {staleRelPath}: {e.InnerException?.Message ?? e.Message}");
+            }
+        }
+    }
+
+    void AddWarningLabel(string text)
+    {
+        UILabel label = ProgressSteps.AddLabel("");
+        label.MultilineText = new(label.Font.ParseTextToLines(text, ProgressSteps.Width));
+        label.Color = Color.Yellow;
     }
 
     void AddErrorMessageAndAllowExit(string title, string details)
@@ -908,7 +970,7 @@ internal class AutoPatcher : PopupWindow
 
         // Retry on transient sharing violations: AV/Defender often holds a handle on a
         // freshly-touched file for ~100ms after scan start. Linear backoff (100/200/300 ms)
-        // covers the common single-file case. CopyNewFiles drops maxAttempts to 1 once it
+        // covers the common single-file case. CopyFiles drops maxAttempts to 1 once it
         // detects a systemic lock pattern (>5 files failed), to avoid burning minutes on a
         // patch where AV is scanning the whole batch.
         for (int attempt = 1; ; attempt++)
@@ -949,9 +1011,9 @@ internal class AutoPatcher : PopupWindow
         }
     }
 
-    void RestartAsync()
+    void RestartAsync(int waitMs)
     {
-        Log.Write("AutoUpdate finished. Restarting in 3 seconds...");
+        Log.Write($"AutoUpdate finished. Restarting in {waitMs / 1000f:0} seconds...");
         bool elevated = IsInRole(WindowsBuiltInRole.Administrator);
         if (elevated)
         {
@@ -965,7 +1027,7 @@ internal class AutoPatcher : PopupWindow
         // resume against an already-applied patch.
         DeletePendingPatchMarker();
 
-        Thread.Sleep(2900);
+        Thread.Sleep(waitMs);
         // RunCleanup releases blackbox.log via Log.Close before we spawn the
         // replacement process — same race as RelaunchAsAdminWithMarker.
         // Application.Exit() is async (just queues a quit message), so

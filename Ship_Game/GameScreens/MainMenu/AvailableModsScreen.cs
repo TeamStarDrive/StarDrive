@@ -160,7 +160,8 @@ public sealed class AvailableModsScreen : GameScreen
 
     protected override void Dispose(bool disposing)
     {
-        CheckTask?.Dispose();
+        if (disposing)
+            CheckTask?.Dispose();
         base.Dispose(disposing);
     }
 

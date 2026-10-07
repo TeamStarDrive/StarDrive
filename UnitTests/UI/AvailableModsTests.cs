@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -213,6 +214,25 @@ namespace UnitTests.UI
             }
         }
 
+        static void MakeJunction(string link, string target)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(link)!);
+            var mklink = Process.Start(new ProcessStartInfo("cmd.exe", $"/c mklink /J \"{link}\" \"{target}\"")
+            {
+                CreateNoWindow = true, UseShellExecute = false
+            });
+            mklink!.WaitForExit();
+            if (!Directory.Exists(link) || (File.GetAttributes(link) & FileAttributes.ReparsePoint) == 0)
+                Assert.Inconclusive("could not create a directory junction");
+        }
+
+        static void DeleteWithJunction(string root, string link)
+        {
+            if (Directory.Exists(link))
+                Directory.Delete(link);
+            Directory.Delete(root, recursive: true);
+        }
+
         [TestMethod]
         public void StaleModFiles_DoNotFollowAJunctionOutOfTheMod()
         {
@@ -228,21 +248,243 @@ namespace UnitTests.UI
                 WriteFile(outside, "Secret.txt");
                 WriteFile(package, "Globals.yaml");
                 WriteFile(package, "Races.xml");
-
-                var mklink = Process.Start(new ProcessStartInfo("cmd.exe", $"/c mklink /J \"{link}\" \"{outside}\"")
-                {
-                    CreateNoWindow = true, UseShellExecute = false
-                });
-                mklink!.WaitForExit();
-                if (!File.Exists(Path.Combine(link, "Secret.txt")))
-                    Assert.Inconclusive("could not create a directory junction");
+                MakeJunction(link, outside);
 
                 Assert.AreEqual(0, AcceptedStaleFiles(mod, package).Length);
             }
             finally
             {
-                if (Directory.Exists(link))
-                    Directory.Delete(link);
+                DeleteWithJunction(root, link);
+            }
+        }
+
+        [TestMethod]
+        public void StaleModFiles_NoneWhenTheModFolderIsALink()
+        {
+            string root = NewTempDir();
+            string mod = Path.Combine(root, "Mods", "Some Mod");
+            try
+            {
+                string export = Path.Combine(root, "Export");
+                string package = Path.Combine(root, "Patch");
+                WriteFile(export, "Globals.yaml");
+                WriteFile(export, "Races.xml");
+                WriteFile(export, "Extra.txt");
+                WriteFile(package, "Globals.yaml");
+                WriteFile(package, "Races.xml");
+                MakeJunction(mod, export);
+
+                Assert.AreEqual(0, AcceptedStaleFiles(mod, package).Length);
+                Assert.AreEqual(0, AcceptedStaleFiles(mod + "\\", package).Length, "the mod path ends with a separator in game");
+            }
+            finally
+            {
+                DeleteWithJunction(root, mod);
+            }
+        }
+
+        [TestMethod]
+        public void PatchTempCleanup_DoesNotFollowAJunction()
+        {
+            string root = NewTempDir();
+            string tempDir = Path.Combine(root, "PatchTemp");
+            string link = Path.Combine(tempDir, "Link");
+            try
+            {
+                string outside = Path.Combine(root, "Outside");
+                WriteFile(tempDir, @"Old\StarDrive.dll");
+                WriteFile(outside, "Secret.txt");
+                MakeJunction(link, outside);
+
+                AutoPatcher.TryDeleteFilesAndFolder(tempDir);
+                Assert.IsTrue(File.Exists(Path.Combine(outside, "Secret.txt")), "a file behind the junction was deleted");
+                Assert.IsFalse(File.Exists(Path.Combine(tempDir, @"Old\StarDrive.dll")));
+            }
+            finally
+            {
+                DeleteWithJunction(root, link);
+            }
+        }
+
+        [TestMethod]
+        public void PatchTempCleanup_ALinkedFolderIsOnlyUnlinked()
+        {
+            string root = NewTempDir();
+            string tempDir = Path.Combine(root, "PatchTemp");
+            try
+            {
+                string outside = Path.Combine(root, "Outside");
+                WriteFile(outside, "Secret.txt");
+                MakeJunction(tempDir, outside);
+
+                AutoPatcher.TryDeleteFilesAndFolder(tempDir);
+                Assert.IsTrue(File.Exists(Path.Combine(outside, "Secret.txt")), "a file behind the junction was deleted");
+                Assert.IsFalse(Directory.Exists(tempDir));
+            }
+            finally
+            {
+                DeleteWithJunction(root, tempDir);
+            }
+        }
+
+        static string ReadFile(string dir, string relPath) => File.ReadAllText(Path.Combine(dir, relPath));
+
+        static string NewModUpdate(string root, out string mod, out string package)
+        {
+            mod = Path.Combine(root, "Mods", "Some Mod");
+            package = Path.Combine(root, "Patch");
+            File.WriteAllText(Path.Combine(Directory.CreateDirectory(mod).FullName, "Globals.yaml"), "v1");
+            File.WriteAllText(Path.Combine(mod, "Races.xml"), "v1");
+            WriteFile(mod, "Dropped.txt");
+            File.WriteAllText(Path.Combine(Directory.CreateDirectory(package).FullName, "Globals.yaml"), "v2");
+            File.WriteAllText(Path.Combine(package, "Races.xml"), "v2");
+            return Path.Combine(root, "PatchTemp");
+        }
+
+        [TestMethod]
+        public void CopyFiles_AModGetsItsNewVersionAndLosesTheDroppedFiles()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string tempDir = NewModUpdate(root, out string mod, out string package);
+                Assert.IsTrue(AutoPatcher.TryGetStaleModFiles(mod, package, out var stale));
+
+                var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, stale, null);
+                Assert.AreEqual(0, skipped.Count);
+                Assert.AreEqual("v2", ReadFile(mod, "Globals.yaml"));
+                Assert.AreEqual("v2", ReadFile(mod, "Races.xml"));
+                Assert.IsFalse(File.Exists(Path.Combine(mod, "Dropped.txt")));
+            }
+            finally
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        [TestMethod]
+        public void CopyFiles_AfterASkippedFileTheModKeepsItsVersionAndItsFiles()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string tempDir = NewModUpdate(root, out string mod, out string package);
+                Assert.IsTrue(AutoPatcher.TryGetStaleModFiles(mod, package, out var stale));
+
+                using (new FileStream(Path.Combine(mod, "Races.xml"), FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    var skipped = AutoPatcher.CopyFiles(package, mod, tempDir, stale, null);
+                    CollectionAssert.AreEquivalent(new[] { "Races.xml", "Globals.yaml" }, skipped.ToArray());
+                }
+                Assert.AreEqual("v1", ReadFile(mod, "Globals.yaml"), "the mod must keep showing its old version");
+                Assert.AreEqual("v1", ReadFile(mod, "Races.xml"));
+                Assert.IsTrue(File.Exists(Path.Combine(mod, "Dropped.txt")), "the old version still needs its files");
+            }
+            finally
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        [TestMethod]
+        public void CopyFiles_NothingCopiedRemovesNothing()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string tempDir = NewModUpdate(root, out string mod, out string package);
+                Assert.IsTrue(AutoPatcher.TryGetStaleModFiles(mod, package, out var stale));
+                Directory.Delete(package, recursive: true);
+
+                Assert.AreEqual(0, AutoPatcher.CopyFiles(package, mod, tempDir, stale, null).Count);
+                Assert.AreEqual("v1", ReadFile(mod, "Globals.yaml"));
+                Assert.IsTrue(File.Exists(Path.Combine(mod, "Dropped.txt")), "the old version still needs its files");
+            }
+            finally
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        [TestMethod]
+        public void CopyFiles_ABlackBoxPatchCopiesEveryFileItCan()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string tempDir = NewModUpdate(root, out string game, out string package);
+                WriteFile(game, "Audio.xml");
+                WriteFile(package, "Audio.xml");
+                using (new FileStream(Path.Combine(game, "Audio.xml"), FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    var skipped = AutoPatcher.CopyFiles(package, game, tempDir, null, null);
+                    CollectionAssert.AreEqual(new[] { "Audio.xml" }, skipped.ToArray());
+                }
+                Assert.AreEqual("v2", ReadFile(game, "Globals.yaml"), "a file listed after a skipped one is still copied");
+                Assert.AreEqual("v2", ReadFile(game, "Races.xml"));
+                Assert.IsTrue(File.Exists(Path.Combine(game, "Dropped.txt")));
+            }
+            finally
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        [TestMethod]
+        [DataRow(@"C:\Game\Content\a.png", @"C:\Game",  true)]
+        [DataRow(@"C:\Game\Content\a.png", @"C:\Game\", true)]
+        [DataRow(@"D:\Content\a.png",      @"D:\",      true)]
+        [DataRow(@"C:\Game 2\a.png",       @"C:\Game",  false)]
+        [DataRow(@"C:\Game\..\a.png",      @"C:\Game",  false)]
+        [DataRow(@"C:\Game",               @"C:\Game",  false)]
+        public void IsInsideFolder_Cases(string path, string folder, bool expected)
+        {
+            Assert.AreEqual(expected, AutoPatcher.IsInsideFolder(path, folder));
+        }
+
+        [TestMethod]
+        public void FilesToRemove_OnlyInsideTheGameFolder()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string game = Path.Combine(root, "Game");
+                string list = Path.Combine(root, "Release.DeleteFiles.txt");
+                File.WriteAllLines(list, new[]
+                {
+                    @"1a91;60B4;Content\Old.png",
+                    @"1a91;60B4;\..\Outside.txt",
+                    @"1a91;60B4;C:\Windows\win.ini",
+                    @"1a91;60B4;Content\..\Content\Kept.png",
+                    "",
+                });
+                CollectionAssert.AreEqual(new[] { @"Content\Old.png", @"Content\Kept.png" },
+                                          AutoPatcher.GetFilesToRemove(list, game).ToArray());
+            }
+            finally
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+
+        [TestMethod]
+        public void Unzip_RejectsAnEntryNextToTheFolder()
+        {
+            string root = NewTempDir();
+            try
+            {
+                string zip = Path.Combine(root, "patch.zip");
+                using (ZipArchive archive = ZipFile.Open(zip, ZipArchiveMode.Create))
+                {
+                    using var writer = new StreamWriter(archive.CreateEntry("../Patch 1x/Evil.txt").Open());
+                    writer.Write("evil");
+                }
+                string output = Path.Combine(root, "Patch 1");
+                Assert.ThrowsExactly<IOException>(() => AutoPatcher.UnzipWithProgress(zip, output, null, null));
+                Assert.IsFalse(File.Exists(Path.Combine(root, "Patch 1x", "Evil.txt")));
+            }
+            finally
+            {
                 Directory.Delete(root, recursive: true);
             }
         }

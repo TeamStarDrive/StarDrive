@@ -3674,8 +3674,6 @@ namespace Ship_Game
         LoadModification = 4013,
         /// <summary>Available Modifications</summary>
         AvailableModifications = 4014,
-        /// <summary>Load Mods (Web)</summary>
-        LoadModsWeb = 4015,
         /// <summary>Clear Active</summary>
         ClearActive = 4016,
         /// <summary>Population Growth Modifier</summary>
@@ -6020,6 +6018,8 @@ namespace Ship_Game
         ModPackageIncomplete = 7120,
         /// <summary>The download is not a complete copy of the mod. Nothing was changed.</summary>
         ModPackageIncompleteTip = 7121,
+        /// <summary>The install did not finish: some files could not be replaced</summary>
+        ModInstallUnfinished = 7122,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
