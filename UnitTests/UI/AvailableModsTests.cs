@@ -206,7 +206,7 @@ namespace UnitTests.UI
             {
                 string mod = Path.Combine(root, "Mods", "Some Mod");
                 WriteFile(mod, "Globals.yaml");
-                Assert.ThrowsException<DirectoryNotFoundException>(
+                Assert.ThrowsExactly<DirectoryNotFoundException>(
                     () => AutoPatcher.TryReadModPackage(mod, Path.Combine(root, "Missing"), out _));
             }
             finally
