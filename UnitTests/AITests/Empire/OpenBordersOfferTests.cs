@@ -22,7 +22,6 @@ namespace UnitTests.AITests.Empire
             AiToPlayer.Treaty_Trade_TurnsExisted = playerToAi.Treaty_Trade_TurnsExisted = 500;
             AiToPlayer.Trust = trust;
             AiToPlayer.TrustUsed = 0;
-            Player.data.Traits.DiplomacyMod = 0; // pin, so the racial trait cannot tip the quality
         }
 
         static Offer OpenBorders() => new Offer { OpenBorders = true };

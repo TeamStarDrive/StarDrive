@@ -372,13 +372,6 @@ namespace Ship_Game.AI
                 totalTrustRequiredFromUs -= ((valueToThem - valueToUs) / 2).UpperBound(0);
             }
 
-            if (openBorders)            valueToThem += 5f;
-            if (openBorders)            valueToUs   += 5f;
-            if (ourOffer.NAPact)        valueToThem += 10f;
-            if (theirOffer.NAPact)      valueToUs   += 10f;
-            if (ourOffer.TradeTreaty)   valueToThem += them.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
-            if (theirOffer.TradeTreaty) valueToUs   += OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
-
             valueToThem += ourOffer.ArtifactsOffered.Count * ArtifactValue;
             valueToUs   += theirOffer.ArtifactsOffered.Count * ArtifactValue;
 
@@ -410,8 +403,14 @@ namespace Ship_Game.AI
                     valueToUs += worth;
                 }
             }
-            if (!theirOffer.TradeTreaty && !theirOffer.NAPact || them.isPlayer)
-                valueToUs += them.data.Traits.DiplomacyMod * valueToUs;
+            valueToUs += them.data.Traits.DiplomacyMod * valueToUs; // the racial trait weighs the goods they offer, not the treaties
+
+            if (openBorders)            valueToThem += 5f;
+            if (openBorders)            valueToUs   += 5f;
+            if (ourOffer.NAPact)        valueToThem += 10f;
+            if (theirOffer.NAPact)      valueToUs   += 10f;
+            if (ourOffer.TradeTreaty)   valueToThem += them.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
+            if (theirOffer.TradeTreaty) valueToUs   += OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
 
             if (valueToThem.AlmostZero() && valueToUs > 0f)
             {
@@ -605,8 +604,9 @@ namespace Ship_Game.AI
             WarState state;
             Empire us             = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
-            float valueToUs       = 10 + theirOffer.ArtifactsOffered.Count * ArtifactValue; // default value is 10
-            float valueToThem     = 10 + ourOffer.ArtifactsOffered.Count * ArtifactValue; // default value is 10
+            const float peaceValue = 10;
+            float valueToUs       = theirOffer.ArtifactsOffered.Count * ArtifactValue;
+            float valueToThem     = peaceValue + ourOffer.ArtifactsOffered.Count * ArtifactValue;
 
             if (usToThem.ActiveWar != null)
             {
@@ -642,7 +642,8 @@ namespace Ship_Game.AI
                 }
             }
 
-            valueToUs += valueToUs * them.data.Traits.DiplomacyMod; // TODO FB - need to be smarter here
+            valueToUs += valueToUs * them.data.Traits.DiplomacyMod; // the racial trait weighs the goods they offer, not the peace
+            valueToUs += peaceValue;
             valueToUs *= us.AlliancesValueMultiplierThirdParty(them, out bool reject);
 
             float ourWarsGrade      = us.GetAverageWarGrade();

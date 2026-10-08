@@ -315,11 +315,11 @@ Alluring:
  PTB: "Atraentes"
 AlluringRacesGainAOut:
  Id: 45
- ENG: "Alluring races gain a +20 (out of 100) starting relationship with other races due to their majestic and charismatic natures"
- RUS: "Привлекательные расы получают +20 (из 100) к стартовым отношениям с другими расами за счет привлекательности и обаяния."
- SPA: "Las razas seductoras empiezan con +20 (de 100) de relaciones con otras razas gracias a su carácter augusto y carismático"
- UKR: "Привабливі раси отримують +20 (зі 100) початкових стосунків з іншими расами завдяки своїй величній і харизматичній природі"
- PTB: "Raças atraentes recebem +20 (de 100) de relacionamento inicial com outras raças devido à sua natureza majestosa e carismática"
+ ENG: "Alluring races gain a +20 (out of 100) starting relationship with other races due to their majestic and charismatic natures, and the technologies, artifacts and colonies they offer in negotiations are worth 20% more to other races"
+ RUS: "Привлекательные расы получают +20 (из 100) к стартовым отношениям с другими расами за счет привлекательности и обаяния, а технологии, артефакты и колонии, которые они предлагают на переговорах, ценятся другими расами на 20% выше."
+ SPA: "Las razas seductoras empiezan con +20 (de 100) de relaciones con otras razas gracias a su carácter augusto y carismático, y las tecnologías, artefactos y colonias que ofrecen en las negociaciones valen un 20% más para otras razas"
+ UKR: "Привабливі раси отримують +20 (зі 100) початкових стосунків з іншими расами завдяки своїй величній і харизматичній природі, а технології, артефакти та колонії, які вони пропонують на переговорах, інші раси цінують на 20% вище"
+ PTB: "Raças atraentes recebem +20 (de 100) de relacionamento inicial com outras raças devido à sua natureza majestosa e carismática, e as tecnologias, artefatos e colônias que oferecem em negociações valem 20% a mais para outras raças"
 Repulsive:
  Id: 46
  ENG: "Repulsive"
@@ -329,11 +329,11 @@ Repulsive:
  PTB: "Repulsivos"
 OffensiveSmellsAndRevoltingCountenances:
  Id: 47
- ENG: "Offensive smells and revolting countenances earn repulsive races a -20 penalty (out of 100) to initial relationships with other races"
- RUS: "Отталкивающие расы получают -20 (из 100) к стартовым отношениям с другими расами вследствие неприятного запаха и отвратительного внешнего вида."
- SPA: "Por sus olores ofensivos y rostros repugnantes, las razas repulsivas sufren una penalización de -20 (de 100) al entablar relaciones por primera vez con otras razas"
- UKR: "Через неприємні запахи та відразливі обличчя раси отримують штраф -20 (зі 100) до початкових стосунків з іншими расами"
- PTB: "Cheiros ofensivos e aparências revoltantes dão às raças repulsivas uma penalidade de -20 (de 100) nos relacionamentos iniciais com outras raças"
+ ENG: "Offensive smells and revolting countenances earn repulsive races a -20 penalty (out of 100) to initial relationships with other races, and the technologies, artifacts and colonies they offer in negotiations are worth 20% less to other races"
+ RUS: "Отталкивающие расы получают -20 (из 100) к стартовым отношениям с другими расами вследствие неприятного запаха и отвратительного внешнего вида, а технологии, артефакты и колонии, которые они предлагают на переговорах, ценятся другими расами на 20% ниже."
+ SPA: "Por sus olores ofensivos y rostros repugnantes, las razas repulsivas sufren una penalización de -20 (de 100) al entablar relaciones por primera vez con otras razas, y las tecnologías, artefactos y colonias que ofrecen en las negociaciones valen un 20% menos para otras razas"
+ UKR: "Через неприємні запахи та відразливі обличчя раси отримують штраф -20 (зі 100) до початкових стосунків з іншими расами, а технології, артефакти та колонії, які вони пропонують на переговорах, інші раси цінують на 20% нижче"
+ PTB: "Cheiros ofensivos e aparências revoltantes dão às raças repulsivas uma penalidade de -20 (de 100) nos relacionamentos iniciais com outras raças, e as tecnologias, artefatos e colônias que oferecem em negociações valem 20% a menos para outras raças"
 Smart:
  Id: 48
  ENG: "Smart"
