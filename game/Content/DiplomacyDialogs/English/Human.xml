@@ -91,6 +91,26 @@
       <Default>Why would we ever agree to give so much for so little?  Sweeten the deal and perhaps this can work, but definitely not as is.</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>OfferResponse_Reject_NearRival</DialogType>
+      <Default>Another people lives in that system or near it, SING, and we have no open borders treaty with them. Taking that world would drag us into a war with them, so we must decline.</Default>
+      <DL_Agg>We pick our own wars. Do not try to pick them for us.</DL_Agg>
+      <DL_Xeno>Aliens meddling at our borders. We knew you could not be trusted.</DL_Xeno>
+      <DL_Hon>Trying to set neighbors against each other is dishonorable. We expected better.</DL_Hon>
+      <DL_Pac>You would start a war between us and our neighbors? That angers us.</DL_Pac>
+      <DL_Ruth>A clever scheme, but we are the ones who set others against each other. Remember that.</DL_Ruth>
+      <DL_Cunn>We see the trap you laid. We will trust you far less from now on.</DL_Cunn>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_NearEnemy</DialogType>
+      <Default>We are at war with those who live in that system or near it, SING. A world there would be the first one they attack, so we must decline.</Default>
+      <DL_Agg>When we want worlds there, we will take them from our enemies ourselves.</DL_Agg>
+      <DL_Xeno>We need no alien worlds to fight our war.</DL_Xeno>
+      <DL_Hon>We will not put your settlers in the middle of our war, but we thank you for the thought.</DL_Hon>
+      <DL_Pac>We hope to end that war, not to spread it. Thank you all the same.</DL_Pac>
+      <DL_Ruth>Their worlds will be ours soon enough, by our own hand.</DL_Ruth>
+      <DL_Cunn>A world on the front line is a burden, not a prize. Perhaps another time.</DL_Cunn>
+    </DialogLine>
+    <DialogLine>
       <DialogType>OfferResponse_Reject_Insulting</DialogType>
       <Default>Your lack of respect for us is apparent in this horrendous offer.</Default>
     </DialogLine>

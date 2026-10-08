@@ -303,6 +303,9 @@ namespace Ship_Game.AI
             if (theirOffer.PeaceTreaty)
                 return ProcessPeace(theirOffer, ourOffer, them, attitude);
 
+            string coloniesNearOthers = RejectColoniesNearRivalsOrEnemies(theirOffer, them, usToThem);
+            if (coloniesNearOthers != null)
+                return coloniesNearOthers;
 
             // Open borders is signed bilaterally whichever side offers it, so it is one treaty
             // to gate, to trust and to value, not a gift from whoever happened to tick the box
@@ -550,6 +553,49 @@ namespace Ship_Game.AI
                 {
                     if (ally != them && !ally.isPlayer)
                         ally.DamageRelationship(them, "Insulted", (valueToThem - valueToUs)*0.5f, null);
+                }
+            }
+        }
+
+        string RejectColoniesNearRivalsOrEnemies(Offer theirOffer, Empire them, Relationship usToThem)
+        {
+            float rivalWeight = 0;
+            bool nearEnemy = false;
+            foreach (string planetName in theirOffer.ColoniesOffered)
+            {
+                Planet p = them.FindPlanet(planetName);
+                if (p == null)
+                    continue;
+
+                CheckOwners(p.System, weight: 1f);
+                foreach (SolarSystem closeSystem in p.System.FiveClosestSystems)
+                    CheckOwners(closeSystem, weight: 0.2f);
+            }
+
+            if (rivalWeight > 0)
+            {
+                float penalty = rivalWeight * OwnerEmpire.DifficultyModifiers.WarBaitPenaltyMultiplier;
+                usToThem.WorsenRelations(OwnerEmpire.PersonalityModifiers.WarBaitTrustLoss * penalty,
+                                         OwnerEmpire.PersonalityModifiers.WarBaitAnger * penalty);
+                return "OfferResponse_Reject_NearRival";
+            }
+
+            return nearEnemy ? "OfferResponse_Reject_NearEnemy" : null;
+
+            void CheckOwners(SolarSystem system, float weight)
+            {
+                foreach (Empire owner in system.OwnerList)
+                {
+                    if (owner == OwnerEmpire || owner == them || owner.IsFaction
+                        || !OwnerEmpire.IsKnown(owner) || OwnerEmpire.IsOpenBordersTreaty(owner))
+                    {
+                        continue;
+                    }
+
+                    if (OwnerEmpire.IsAtWarWith(owner))
+                        nearEnemy = true;
+                    else
+                        rivalWeight = rivalWeight.LowerBound(weight);
                 }
             }
         }
