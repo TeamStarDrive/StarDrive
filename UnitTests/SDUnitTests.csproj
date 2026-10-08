@@ -129,6 +129,7 @@
     <Compile Include="Planets\GovernorMoneyPriorityTests.cs" />
     <Compile Include="Planets\GovernorScrapGuardsTests.cs" />
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
+    <Compile Include="Planets\PlanetWeaponFireDelayTests.cs" />
     <Compile Include="Planets\YoungColonyTradeStateTests.cs" />
     <Compile Include="Planets\RebellionDamageTests.cs" />
     <Compile Include="Planets\LandOnTiles.cs" />

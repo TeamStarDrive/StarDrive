@@ -193,7 +193,7 @@ namespace Ship_Game
 
         public float ActualFireDelay(int planetLevel)
         {
-            if (TheWeapon == null || Strength == 0 || planetLevel <= 1)
+            if (TheWeapon == null || Strength == 0)
                 return 1;
 
             float fireDelay = (TheWeapon.FireDelay / planetLevel / CurrentStrPercentage).UpperBound(TheWeapon.FireDelay);
