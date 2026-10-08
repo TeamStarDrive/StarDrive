@@ -464,7 +464,10 @@ namespace Ship_Game
                 ReferencedItem2 = planet,
                 EventOutcome    = outcome,
                 IconPath        = "ResearchMenu/icon_event_science",
-                Action          = "LoadEvent"
+                Action          = "LoadEvent",
+                Important       = true,
+                Title           = $"{outcome.LocalizedTitle} ({planet.Name})",
+                LogMessage      = outcome.LocalizedDescr
             }, "sd_ui_notification_encounter");
         }
 

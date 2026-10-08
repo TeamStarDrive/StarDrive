@@ -27,6 +27,11 @@ namespace UnitTests.NotificationTests
 
                 Assert.IsTrue(owlwokFreedom.Discovered, "the research path opens on the capture, so a reload before the click cannot lose it");
                 AssertEqual(1, notifications.NumberOfNotifications, "setup: only the event notification");
+                ImportantNotification[] logged = UState.GetImportantEvents();
+                AssertEqual(1, logged.Length, "the story is kept in Important Events, which a save keeps and notifications are not");
+                AssertEqual($"Owlwok Freedom ({planet.Name})", logged[0].Title);
+                AssertEqual(ResourceManager.EventsDict["OwlwokFreedom"].PotentialOutcomes[0].LocalizedDescr, logged[0].Message,
+                            "the Important Events entry keeps the story text");
 
                 var mouse = new MockInputProvider { MousePos = new Vector2(GameBase.ScreenWidth - 40, 100) };
                 var input = new InputState { Provider = mouse };
