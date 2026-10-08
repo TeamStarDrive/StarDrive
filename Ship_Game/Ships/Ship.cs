@@ -1838,10 +1838,16 @@ namespace Ship_Game.Ships
         }
 
         // set when a module dies or comes back, or the ship changes owner
-        public bool StrengthOutdated = true;
+        int StrengthOutdatedFlag = 1;
+        public bool StrengthOutdated { get => StrengthOutdatedFlag != 0; set => StrengthOutdatedFlag = value ? 1 : 0; }
 
-        // the strength of this ship's design as its owner builds it
-        protected virtual float GetDesignStrength() => IsMeteor ? 0f : ShipData.GetStrength(Loyalty);
+        // the strength of this ship's design as its owner builds it; a deleted design has no slots left, so the ship keeps its own
+        protected virtual float GetDesignStrength()
+        {
+            if (IsMeteor)
+                return 0f;
+            return ShipData.Deleted || ShipData.NumDesignSlots == 0 ? BaseStrength : ShipData.GetStrength(Loyalty);
+        }
 
         void UpdateStrength()
         {
@@ -1850,6 +1856,8 @@ namespace Ship_Game.Ships
                 BaseStrength = CurrentStrength = 0f;
                 return;
             }
+
+            bool outdated = Interlocked.Exchange(ref StrengthOutdatedFlag, 0) != 0; // before the modules are read, so a module dying meanwhile is not missed
 
             TotalDps = 0;
             bool allWorking = true;
@@ -1865,11 +1873,10 @@ namespace Ship_Game.Ships
             float designStrength = GetDesignStrength();
             if (allWorking)
                 CurrentStrength = designStrength;
-            else if (StrengthOutdated || designStrength != BaseStrength)
+            else if (outdated || designStrength != BaseStrength)
                 CurrentStrength = ShipStrength.OfModules(ShipData, ModuleSlotList, Loyalty, workingOnly: true);
 
             BaseStrength = designStrength;
-            StrengthOutdated = false;
         }
 
         // UI statistics, show average repair per second

@@ -68,12 +68,13 @@ public sealed partial class Empire
     public int SpaceStationsWeCanBuildCount => SpaceStationsWeCanBuildSnapshot.Length;
 
     // changes whenever ShipsWeCanBuild does
-    public int ShipsWeCanBuildRevision { get; private set; }
+    volatile int ShipsRevision;
+    public int ShipsWeCanBuildRevision => ShipsRevision;
 
     void ShipsWeCanBuildChanged()
     {
-        ++ShipsWeCanBuildRevision;
-        CachedShipsWeCanBuildSnapshot = null;
+        CachedShipsWeCanBuildSnapshot = null; // first, so a reader of the new revision never gets the old ships
+        ++ShipsRevision;
     }
 
     // the strength of a new ship of each design built by this empire
@@ -85,6 +86,10 @@ public sealed partial class Empire
     // kept until this empire's bonuses or, for carriers, the ships it can build change
     public float GetDesignStrength(IShipDesign design)
     {
+        DesignSlot[] slots = design.GetOrLoadDesignSlots();
+        if (slots == null || slots.Length == 0) // a deleted design has no slots, its ships keep its last strength
+            return DesignStrengths.TryGetValue(design, out var kept) ? kept.Strength : design.BaseStrength;
+
         int bonusRevision = EmpireHullBonuses.GetBonusRevisionId(this);
         if (bonusRevision == 0) // the revision exists once the bonuses do
         {
@@ -99,7 +104,7 @@ public sealed partial class Empire
             return cached.Strength;
         }
 
-        float strength = ShipStrength.OfDesign(design, design.GetOrLoadDesignSlots() ?? Empty<DesignSlot>.Array, this);
+        float strength = ShipStrength.OfDesign(design, slots, this);
         DesignStrengths[design] = (strength, bonusRevision, shipsRevision);
         return strength;
     }

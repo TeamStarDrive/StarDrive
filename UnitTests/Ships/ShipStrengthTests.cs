@@ -160,14 +160,52 @@ namespace UnitTests.Ships
             try
             {
                 Player.AddBuildableShip(twin);
-                Player.data.Traits.ModHpModifier += 0.5f;
+                float builtStrength = oldShip.BaseStrength;
+                Player.data.Traits.ModHpModifier += 10f;
                 EmpireHullBonuses.RefreshBonuses(Player);
+                Assert.IsTrue(twin.GetStrength(Player) > builtStrength * 1.1f,
+                    $"setup: the bonus does not raise the design past the refit threshold: {builtStrength} -> {twin.GetStrength(Player)}");
                 Assert.IsNull(ShipBuilder.PickShipToRefit(oldShip, Player), "A design equal to the ship's own became a refit after a bonus tech");
             }
             finally
             {
                 ResourceManager.Ships.Delete(twin.Name);
             }
+        }
+
+        [TestMethod]
+        public void ShipsOfADeletedDesignKeepTheirStrength()
+        {
+            Player.data.Traits.ModHpModifier += 10f;
+            EmpireHullBonuses.RefreshBonuses(Player);
+            ShipDesign copy = ((ShipDesign)Design(Shielded)).GetClone("Strength Test Deleted Design");
+            ResourceManager.AddShipTemplate(copy, playerDesign: false);
+            TestShip ship;
+            float strength;
+            try
+            {
+                ship = SpawnShip(copy.Name, Player, FarAway);
+                Assert.AreSame(copy, ship.ShipData, "setup: the ship is not of the copied design");
+                strength = copy.GetStrength(Player);
+                Assert.AreNotEqual(copy.BaseStrength, strength, "setup: the player's bonuses do not change the design's strength");
+            }
+            finally
+            {
+                // the shipyard refuses this while ships of the design exist, loading a save that holds two copies of a design does not
+                ResourceManager.Ships.Delete(copy.Name);
+            }
+            Assert.IsTrue(copy.Deleted, "setup: the design was not deleted");
+
+            Player.data.ShieldPowerMod += 0.5f;
+            EmpireHullBonuses.RefreshBonuses(Player);
+            RunObjectsSim(1.5f);
+            AssertShipStrength(strength, strength, ship, "A ship of a deleted design after a bonus tech");
+
+            ship.LoyaltyTracker.SetBoardingLoyalty(Enemy, addNotification: false); // an owner that never valued the design, as after a load
+            RunObjectsSim(1.5f);
+            Assert.AreEqual(Enemy, ship.Loyalty, "setup: the ship was not captured");
+            AssertShipStrength(strength, strength, ship, "A ship of a deleted design whose owner never valued it");
+            AssertEqual(copy.BaseStrength, copy.GetStrength(Enemy), "A deleted design is worth its strength without bonuses to an empire that never valued it");
         }
 
         [TestMethod]
