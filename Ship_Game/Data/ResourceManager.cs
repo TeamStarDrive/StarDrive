@@ -1174,6 +1174,8 @@ namespace Ship_Game
         {
             DiplomacyDialogs.Clear();
             LoadDialogsFor(Language.English);
+            if (GlobalStats.HasMod)
+                AddVanillaLinesToModDialogs();
             if (!GlobalStats.IsEnglish)
                 LoadDialogsFor(GlobalStats.Language);
 
@@ -1190,18 +1192,43 @@ namespace Ship_Game
             }
         }
 
-        static void AddMissingDialogLines(DiplomacyDialog dialog, DiplomacyDialog fallback)
+        // a mod's English race dialog takes the lines it lacks from the vanilla file of the same name
+        static void AddVanillaLinesToModDialogs()
         {
+            const string dir = "DiplomacyDialogs/English/";
+            var s = new XmlSerializer(typeof(DiplomacyDialog));
+            foreach (FileInfo modFile in Dir.GetFiles(ModContentDirectory + dir, "xml"))
+            {
+                var vanillaFile = new FileInfo("Content/" + dir + modFile.Name);
+                if (!vanillaFile.Exists || !DiplomacyDialogs.TryGetValue(modFile.NameNoExt(), out DiplomacyDialog modDialog))
+                    continue;
+
+                Array<string> added = AddMissingDialogLines(modDialog, LoadEntity<DiplomacyDialog>(s, vanillaFile, "LoadDialogs"));
+                if (added.NotEmpty)
+                    Log.Warning($"{modFile.RelPath()} lacks {added.Count} dialog lines that vanilla has, so they show the vanilla English text: {string.Join(", ", added)}");
+            }
+        }
+
+        // returns the dialog types added
+        static Array<string> AddMissingDialogLines(DiplomacyDialog dialog, DiplomacyDialog fallback)
+        {
+            var added = new Array<string>();
             if (fallback.Dialogs == null)
-                return;
+                return added;
 
             dialog.Dialogs ??= new();
             var present = new HashSet<string>();
             foreach (DialogLine line in dialog.Dialogs)
                 present.Add(line.DialogType);
             foreach (DialogLine line in fallback.Dialogs)
+            {
                 if (!present.Contains(line.DialogType))
+                {
                     dialog.Dialogs.Add(line);
+                    added.AddUnique(line.DialogType);
+                }
+            }
+            return added;
         }
 
         static readonly Array<IEmpireData> Empires      = new Array<IEmpireData>();

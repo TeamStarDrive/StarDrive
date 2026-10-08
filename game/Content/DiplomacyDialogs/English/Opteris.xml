@@ -80,6 +80,26 @@
       <Default>Trust data points: sufficient. Unacceptable loss of profit. Offer rejected. </Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>OfferResponse_Reject_NearRival</DialogType>
+      <Default>Analysis: offered world lies in or near a system held by a third party. Open borders with that party: none. Projected outcome: territorial war. Offer declined.</Default>
+      <DL_Agg>Conflict initiation is our function. Not yours.</DL_Agg>
+      <DL_Xeno>Alien interference detected. Hostility increased.</DL_Xeno>
+      <DL_Hon>Deception detected. Honor subroutine: displeased.</DL_Hon>
+      <DL_Pac>Attempted war initiation detected. Anger increased.</DL_Pac>
+      <DL_Ruth>Manipulation detected. Countermeasures logged.</DL_Ruth>
+      <DL_Cunn>Trap detected. Trust decreased.</DL_Cunn>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_NearEnemy</DialogType>
+      <Default>Analysis: offered world lies in or near a system held by our enemies. Projected outcome: immediate loss. Offer declined.</Default>
+      <DL_Agg>Enemy worlds will be acquired by force.</DL_Agg>
+      <DL_Xeno>Alien assistance: not required.</DL_Xeno>
+      <DL_Hon>Civilian placement in combat zone: rejected. Gratitude logged.</DL_Hon>
+      <DL_Pac>Objective: end the war, not extend it. Gratitude logged.</DL_Pac>
+      <DL_Ruth>Enemy worlds scheduled for acquisition by our fleets.</DL_Ruth>
+      <DL_Cunn>Front-line asset value: negative.</DL_Cunn>
+    </DialogLine>
+    <DialogLine>
       <DialogType>OfferResponse_Reject_Insulting</DialogType>
       <Default>Unacceptable input-output ratio. Flag diplomatic routines to increase hostility with PLURAL.</Default>
     </DialogLine>

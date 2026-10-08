@@ -79,6 +79,9 @@ time.
   tooltips are ordinary tokens there too (`game/Content/CodexHooks.yaml` only maps tooltips to
   entries). An entry or tooltip that now describes the old rule is a blocker and is fixed in the
   same change.
+- The Codex describes what the player's own buttons and actions do. It does not reveal the AI's
+  decision rules, such as which offers it turns down and what a refused offer costs you: that
+  spoils the game, so a change like that needs no Codex text.
 
 ## Mods
 

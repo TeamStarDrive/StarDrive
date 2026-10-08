@@ -87,7 +87,6 @@ namespace Ship_Game.Ships
         [StarData] public float HangarTimer;
         public bool IsWeapon;
         public Weapon InstalledWeapon;
-        int Strength = -1;
         public DynamicHangarOptions DynamicHangar { get; private set; }
 
         public ShipModuleType ModuleType;
@@ -572,19 +571,26 @@ namespace Ship_Game.Ships
             if (Parent == null || IsSupplyBay || IsTroopBay)
                 return;
 
+            SetHangarLaunch(Parent.Loyalty);
+        }
+
+        // how this hangar launches on a ship of the empire
+        public void SetHangarLaunch(Empire loyalty)
+        {
             DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
             if (DynamicHangar == DynamicHangarOptions.Static)
             {
-                if (!Parent.Loyalty.isPlayer)
+                if (!loyalty.isPlayer)
                 {
                     // AI will always get dynamic launch. Override static launch
-                    DynamicHangar = DynamicHangarOptions.DynamicLaunch; 
+                    DynamicHangar = DynamicHangarOptions.DynamicLaunch;
                 }
-                else if (!Parent.Loyalty.CanBuildShip(HangarShipUID))
+                else if (!loyalty.CanBuildShip(HangarShipUID))
                 {
                     // If Player has deleted a Fighter Ship Design, this design would not have a
                     // valid fighter so we check if we can build it, otherwise we set DynamicLaunch
-                    Log.Warning($"InitHangar: Ship={Parent} CanBuildShip('{HangarShipUID}') == False, reverting to DynamicLaunch");
+                    if (Parent != null)
+                        Log.Warning($"InitHangar: Ship={Parent} CanBuildShip('{HangarShipUID}') == False, reverting to DynamicLaunch");
                     DynamicHangar = DynamicHangarOptions.DynamicLaunch;
                     HangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
                 }
@@ -1186,7 +1192,6 @@ namespace Ship_Game.Ships
                 Ship hangarShip = Ship.CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier);
                 if (hangarShip != null)
                 {
-                    CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
                     carrier.OnShipLaunched(hangarShip, this);
                     hangarShip.DoEscort(carrier);
                 }
@@ -1442,24 +1447,23 @@ namespace Ship_Game.Ships
             return Color.Black;
         }
 
-        public float CalculateModuleOffenseDefense(int slotCount, bool forceRecalculate = false)
+        public float CalculateModuleOffenseDefense(int slotCount)
         {
-            if (Strength == -1 || forceRecalculate)
-                Strength = (int)(CalculateModuleDefense(slotCount) + CalculateModuleOffense());
-            return Strength;
+            return CalculateModuleOffense() + CalculateModuleDefense(slotCount);
         }
 
-        public float CalculateModuleDefense(int slotCount)
+        public float CalculateModuleDefense(int slotCount) => CalculateModuleDefense(slotCount, Bonuses, ActualShieldPowerMax);
+
+        public float CalculateModuleDefense(int slotCount, EmpireHullBonuses bonuses, float shieldsMax)
         {
             if (slotCount <= 0)
                 return 0f;
 
             float def = 0f;
 
-            def += ActualMaxHealth * 0.005f; // Div 200
+            def += TemplateMaxHealth * bonuses.HealthMod * 0.005f; // Div 200
 
             // FB: Added Shield related calcs
-            float shieldsMax = ActualShieldPowerMax;
             if (shieldsMax > 0)
             {
                 float shieldDef      = shieldsMax * 0.02f; // div 50
@@ -1496,17 +1500,20 @@ namespace Ship_Game.Ships
             // Engines
             def += (TurnThrust + WarpThrust + Thrust) / 15000f;
 
-            def += ActualPowerFlowMax * 0.02f; // div 50
+            def += PowerFlowMax * bonuses.PowerFlowMod * 0.02f; // div 50
             def += PowerStoreMax * 0.002f; // div 500
             def += TroopCapacity * 50;
-            def += ActualBonusRepairRate * 0.5f;
+            def += BonusRepairRate * bonuses.RepairRateMod * 0.5f;
             def += AmplifyShields * 0.05f; // div 20
             def += Regenerate / (10 * RepairDifficulty).LowerBound(0.1f);
 
             return def;
         }
 
-        public float CalculateModuleOffense()
+        public float CalculateModuleOffense() => CalculateModuleOffense(Parent?.Loyalty);
+
+        // hangarOwner picks the ships a dynamic hangar launches, without one the hangar is valued by its size
+        public float CalculateModuleOffense(Empire hangarOwner)
         {
             float off = InstalledWeapon?.CalculateOffense(this) ?? 0f;
 
@@ -1517,14 +1524,10 @@ namespace Ship_Game.Ships
                                                     || IsTroopBay)
                 return off;
 
-
-            if (TryGetHangarShip(out Ship hangarShip))
-                return off + hangarShip.GetStrength()*0.5f;
-
             if (DynamicHangar != DynamicHangarOptions.Static)
             {
-                if (Parent != null && Parent.Carrier.PrepHangarShip(Parent.Loyalty, this, out string shipName)
-                    && ResourceManager.GetShipTemplate(shipName, out Ship hShip))
+                string shipName = hangarOwner != null && hangarOwner.Id != -1 ? hangarOwner.GetDynamicHangarShip(this) : null;
+                if (shipName.NotEmpty() && ResourceManager.GetShipTemplate(shipName, out Ship hShip))
                 {
                     off += hShip.GetStrength();
                 }

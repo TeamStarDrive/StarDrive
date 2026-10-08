@@ -62,6 +62,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             readonly string[] MissingTechs;
             readonly string[] MissingTechsAlreadyIQueue;
             readonly Empire Player;
+            readonly float Strength;
 
             public DesignListItem(ShipDesignLoadScreen screen, string headerText) : base(headerText)
             {
@@ -80,6 +81,8 @@ namespace Ship_Game.GameScreens.ShipDesign
                 CanBeBuilt = Player.WeCanBuildThis(design);
                 MissingTechs = Design.TechsNeeded.Filter(t => !Player.UnlockedTechs.Any(te => te.UID == t));
                 MissingTechsAlreadyIQueue = MissingTechs.Filter(Player.Research.IsQueued);
+                // a WIP is read again each time the screen opens, so it stays out of the empire's cache
+                Strength = isWIP ? ShipStrength.OfDesign(design, design.GetOrLoadDesignSlots(), Player) : design.GetStrength(Player);
 
                 if (!isWIP)
                 {
@@ -197,7 +200,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                         p.X += Fonts.Arial8Bold.TextWidth(roleName) + 8;
                     }
 
-                    batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {Design.BaseStrength.String(0)}", p, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, $"{Localizer.Token(GameText.Strength)}: {Strength.GetNumberString()}", p, Color.Orange);
                 }
             }
         }
@@ -353,7 +356,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 .OrderBy(s => !s.ShipData.IsPlayerDesign)
                 .ThenBy(s => s.BaseHull.Style != Screen.Player.data.Traits.ShipType)
                 .ThenBy(s => s.BaseHull.Style)
-                .ThenByDescending(s => s.BaseStrength)
+                .ThenByDescending(s => s.ShipData.GetStrength(Screen.Player))
                 .ThenBy(s => s.Name).ToArr();
 
             AvailableDesignsList.Reset();

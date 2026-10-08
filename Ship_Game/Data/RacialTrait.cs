@@ -53,7 +53,7 @@ namespace Ship_Game
         [StarData] public float ReproductionMod;
         [StarData] public float PopGrowthMax;
         [StarData] public float PopGrowthMin;
-        [StarData] public float DiplomacyMod; // Initial Trust only
+        [StarData] public float DiplomacyMod; // Initial relationship and the value of the goods this race offers
         [StarData] public int Blind;
         [StarData] public int BonusExplored;
         [StarData] public int Militaristic;

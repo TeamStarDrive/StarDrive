@@ -125,7 +125,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             Val(Ds.RefiningTime, GT.MiningStationRefiningTimeStat, GT.MiningStationRefiningTimeStatTip,
                 Tint.No, Color.White, vis: Ds.RefinesResources, col: ColGreater(ShipResupply.NumTurnsForGoodRefiningSupply-0.01f));
 
-            ValNZ(() => Ds.Strength, GT.ShipOffense, GT.TT_ShipOffense);
+            ValNZ(() => Ds.Strength, GT.Strength, GT.TT_ShipOffense);
             ValNZ(() => Ds.RelativeStrength, GT.RelativeStrength, GT.TT_RelativeStrength);
         }
 

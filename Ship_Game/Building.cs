@@ -193,7 +193,7 @@ namespace Ship_Game
 
         public float ActualFireDelay(int planetLevel)
         {
-            if (TheWeapon == null || Strength == 0 || planetLevel <= 1)
+            if (TheWeapon == null || Strength == 0)
                 return 1;
 
             float fireDelay = (TheWeapon.FireDelay / planetLevel / CurrentStrPercentage).UpperBound(TheWeapon.FireDelay);
@@ -252,8 +252,8 @@ namespace Ship_Game
             UpdateOffense(p);
             IShipDesign pickedShip = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
 
-            if (pickedShip != null && ResourceManager.GetShipTemplate(pickedShip.Name, out Ship ship))
-                DefenseShipStrength = ship.CalculateShipStrength() * DefenseShipsCapacity;
+            if (pickedShip != null)
+                DefenseShipStrength = pickedShip.GetStrength(empire) * DefenseShipsCapacity;
 
             Offense += DefenseShipStrength;
         }

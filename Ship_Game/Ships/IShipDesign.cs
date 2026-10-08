@@ -107,6 +107,7 @@ public interface IShipDesign
     // base stats like cost and mass
     float BaseCost       { get; }
     float BaseStrength   { get; }
+    float GetStrength(Empire empire);
     float BaseThrust     { get; }
     float BaseTurnThrust { get; }
     float BaseWarpThrust { get; }

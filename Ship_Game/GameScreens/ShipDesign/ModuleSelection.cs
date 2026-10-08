@@ -291,8 +291,8 @@ namespace Ship_Game
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
 
-            float strength = mod.CalculateModuleOffenseDefense(Screen.CurrentHull.SurfaceArea, forceRecalculate: mod.IsFighterHangar);
-            DrawStat(ref modTitlePos, "Offense", strength, GameText.TT_ShipOffense);
+            float strength = mod.CalculateModuleOffenseDefense(Screen.CurrentHull.SurfaceArea);
+            DrawStat(ref modTitlePos, GameText.Strength, strength, GameText.TT_ShipOffense);
 
             if (mod.BombType == null && !mod.IsWeapon || mod.InstalledWeapon == null)
             {
@@ -476,8 +476,8 @@ namespace Ship_Game
 
             float range = ModifiedWeaponStat(w, WeaponStat.Range);
             // DelayedIgnition is the missile's float-then-ignite phase; it does
-            // NOT extend the launcher's cooldown (Weapon.cs sets CooldownTimer =
-            // NetFireDelay). Adding it here would inflate "Delay" and deflate
+            // NOT extend the launcher's cooldown (Weapon.cs adds NetFireDelay to
+            // CooldownTimer). Adding it here would inflate "Delay" and deflate
             // DPS — and it's already shown separately below as "Ignition".
             float delay = w.NetFireDelay;
             float speed = ModifiedWeaponStat(w, WeaponStat.Speed);

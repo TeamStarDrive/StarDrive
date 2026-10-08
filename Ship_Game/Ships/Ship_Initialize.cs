@@ -620,8 +620,6 @@ namespace Ship_Game.Ships
             // otherwise stats update below will fail
             RecalculatePower();
             UpdateStatus(initConstants:true, fromSave);
-
-            BaseStrength = CurrentStrength; // save base strength for later
             UpdateOrdnancePercentage();
         }
 
@@ -647,7 +645,7 @@ namespace Ship_Game.Ships
             }
 
             UpdateWeaponRanges();
-            CurrentStrength = CalculateShipStrength();
+            UpdateStrength();
 
             if (TetheredTo != null)
             {

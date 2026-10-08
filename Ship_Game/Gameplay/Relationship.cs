@@ -531,6 +531,13 @@ namespace Ship_Game.Gameplay
             CalcTotalAnger();
         }
 
+        public void WorsenRelations(float trustLost, float angerAdded)
+        {
+            AddAngerDiplomaticConflict(angerAdded);
+            Trust -= trustLost;
+            CalcTotalAnger();
+        }
+
         public void SetImperialistWar() //TODO what about AtWar?
         {
             if (ActiveWar != null)

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.GameScreens.MainMenu;
+using Color = Microsoft.Xna.Framework.Color;
 using static Ship_Game.GameScreens.MainMenu.AvailableModsScreen.ModState;
 
 namespace UnitTests.UI
@@ -42,6 +43,16 @@ namespace UnitTests.UI
         public void IsSameVersion_Cases(string installed, string latest, bool expected)
         {
             Assert.AreEqual(expected, AvailableModsScreen.IsSameVersion(installed, latest));
+        }
+
+        [TestMethod]
+        public void VersionColors_BothGreenWhenTheInstalledVersionIsTheLatest()
+        {
+            Assert.AreEqual((Color.LightGreen, Color.LightGreen), AvailableModsScreen.VersionColors("v1.60.0009", "1.60.9.0"));
+            Assert.AreEqual((Color.White, Color.Pink), AvailableModsScreen.VersionColors("v1.60.0008", "v1.60.0009"));
+            Assert.AreEqual((Color.White, Color.Pink), AvailableModsScreen.VersionColors("", "v1.60.0009"));
+            Assert.AreEqual((Color.White, Color.Gray), AvailableModsScreen.VersionColors(null, "v1.60.0009"));
+            Assert.AreEqual((Color.White, Color.White), AvailableModsScreen.VersionColors("v1.60.0009", null));
         }
 
         [TestMethod]

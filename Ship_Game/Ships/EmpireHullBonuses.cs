@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SDUtils;
 using Ship_Game.Universe;
 
@@ -37,7 +38,7 @@ namespace Ship_Game.Ships
         class EmpireBonusData
         {
             static int NextRevisionId; // to make each revision globally unique
-            public int RevisionId { get; private set; } = ++NextRevisionId;
+            public int RevisionId { get; private set; } = Interlocked.Increment(ref NextRevisionId);
             readonly object Sync = new();
             EmpireHullBonuses Bonuses;
 
@@ -47,7 +48,7 @@ namespace Ship_Game.Ships
                 {
                     Bonuses?.Update(empire);
                 }
-                RevisionId = ++NextRevisionId;
+                RevisionId = Interlocked.Increment(ref NextRevisionId);
             }
             public EmpireHullBonuses GetOrCreateShipBonus(Empire empire)
             {

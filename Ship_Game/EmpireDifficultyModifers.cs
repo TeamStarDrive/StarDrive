@@ -38,6 +38,7 @@
         public readonly int CombatShipGoalsPerPlanet;
         public readonly int MiningOpsTurnsPerRun; // Mining Ops planner turn timer
         public readonly int MinimumThreatStr; // This is the minimum str empires begin to assess threat (number is in 1K)
+        public readonly float WarBaitPenaltyMultiplier; // Multiplier to the anger and trust loss of a colony offer that would set us against a neighbour
 
         // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier
         public readonly float RemnantStrModifier; 
@@ -265,6 +266,7 @@
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
             DiploWeightVsPlayer = (int)difficulty + 1;
             AngerMultiplierVsPlayer = 1 + ((int)difficulty) * 0.25f;
+            WarBaitPenaltyMultiplier = ((int)difficulty + 1) * 0.5f;
 
             if (empire.isPlayer)
             {

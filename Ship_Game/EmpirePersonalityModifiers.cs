@@ -43,6 +43,8 @@ namespace Ship_Game
         public readonly float TrustChangeThreshold; // used to change some trust when this threshold is passed, depending on E personality as well and scores.
         public readonly float AngerMultiplierRelDamage;
         public readonly float CanWeTakeThisFightMultiplier; // Multiplier for AI to decide if it can take the fight against enemy fleets
+        public readonly float WarBaitAnger; // Anger when offered a colony beside a race we have no open borders with, which would set us against it
+        public readonly float WarBaitTrustLoss; // Trust lost for the same offer
 
         // Espionage AI Operation activation thresholds
         public readonly float EspionageTechScoreOpsMultiplier;
@@ -94,6 +96,8 @@ namespace Ship_Game
                     WarTasksLifeTime      = 1;
                     TrustCostNaPact       = 0;
                     WarSneakiness         = 0;
+                    WarBaitAnger          = 10;
+                    WarBaitTrustLoss      = 10;
 
                     EspionageTechScoreOpsMultiplier      = 2;
                     EspionageExpansionScoreOpsMultiplier = 2;
@@ -139,6 +143,8 @@ namespace Ship_Game
                     WarTasksLifeTime      = 3;
                     GoToWarTolerance      = 1.1f;
                     WarSneakiness         = 5;
+                    WarBaitAnger          = 15;
+                    WarBaitTrustLoss      = 5;
 
                     EspionageTechScoreOpsMultiplier      = 1.2f;
                     EspionageExpansionScoreOpsMultiplier = 1.3f;
@@ -185,6 +191,8 @@ namespace Ship_Game
                     WarTasksLifeTime      = 2.5f;
                     GoToWarTolerance      = 1.15f;
                     WarSneakiness         = 0;
+                    WarBaitAnger          = 5;
+                    WarBaitTrustLoss      = 10;
 
                     EspionageTechScoreOpsMultiplier      = 1.25f;
                     EspionageExpansionScoreOpsMultiplier = 1.5f;
@@ -230,6 +238,8 @@ namespace Ship_Game
                     WarTasksLifeTime      = 2.5f;
                     GoToWarTolerance      = 1.5f;
                     WarSneakiness         = 0;
+                    WarBaitAnger          = 20;
+                    WarBaitTrustLoss      = 10;
 
                     EspionageTechScoreOpsMultiplier      = 1.2f;
                     EspionageExpansionScoreOpsMultiplier = 1.2f;
@@ -277,6 +287,8 @@ namespace Ship_Game
                     WarTasksLifeTime      = 2;
                     GoToWarTolerance      = 1.5f;
                     WarSneakiness         = 10;
+                    WarBaitAnger          = 5;
+                    WarBaitTrustLoss      = 20;
 
                     EspionageTechScoreOpsMultiplier      = 1.1f;
                     EspionageExpansionScoreOpsMultiplier = 1.1f;
@@ -322,6 +334,8 @@ namespace Ship_Game
                     WarTasksLifeTime      = 3;
                     GoToWarTolerance      = 1.1f;
                     WarSneakiness         = -10;
+                    WarBaitAnger          = 10;
+                    WarBaitTrustLoss      = 15;
 
                     EspionageTechScoreOpsMultiplier      = 2.6f;
                     EspionageExpansionScoreOpsMultiplier = 2.5f;
@@ -367,6 +381,8 @@ namespace Ship_Game
                     WarTasksLifeTime      = 1.5f;
                     GoToWarTolerance      = 2f;
                     WarSneakiness         = -5;
+                    WarBaitAnger          = 20;
+                    WarBaitTrustLoss      = 5;
 
                     EspionageTechScoreOpsMultiplier      = 2f;
                     EspionageExpansionScoreOpsMultiplier = 2.5f;

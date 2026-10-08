@@ -86,6 +86,26 @@
       <Default>Grrrrr. We are not so dumb as you think. Make a better offer!</Default>
     </DialogLine>
     <DialogLine>
+      <DialogType>OfferResponse_Reject_NearRival</DialogType>
+      <Default>Hrrr. Another pack lives in that system or near it, and we have no open borders with them. Take that world and we must fight them. No, SING.</Default>
+      <DL_Agg>We pick our own fights! Not you!</DL_Agg>
+      <DL_Xeno>Alien tricks! We knew it! Grrr.</DL_Xeno>
+      <DL_Hon>No honor in this trick. Bad pack.</DL_Hon>
+      <DL_Pac>You want us to fight our neighbors? This makes us angry, grrr.</DL_Pac>
+      <DL_Ruth>Sneaky trick. We see it. We remember it.</DL_Ruth>
+      <DL_Cunn>We smell the trap. We trust you much less now.</DL_Cunn>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_NearEnemy</DialogType>
+      <Default>Hrrr. Our enemies live in that system or near it. A world there gets bitten first. No, SING.</Default>
+      <DL_Agg>We take enemy worlds ourselves, with teeth!</DL_Agg>
+      <DL_Xeno>We need no alien help in our war.</DL_Xeno>
+      <DL_Hon>Your pups should not live in our war. Thank you anyway.</DL_Hon>
+      <DL_Pac>We want the war to end, not grow. Thank you anyway.</DL_Pac>
+      <DL_Ruth>Enemy worlds will be ours anyway. Hurr.</DL_Ruth>
+      <DL_Cunn>A world on the front line is a bone with no meat.</DL_Cunn>
+    </DialogLine>
+    <DialogLine>
       <DialogType>OfferResponse_Reject_Insulting</DialogType>
       <Default>Grrrrrrrrrrrr! No! </Default>
     </DialogLine>

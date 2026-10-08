@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -94,6 +95,47 @@ public class DiplomacyDialogFallbackTests : StarDriveTest
             File.Delete(EnglishOnlyPath);
             GlobalStats.Language = saved;
             ResourceManager.LoadDialogs();
+        }
+    }
+
+    [TestMethod]
+    public void LinesMissingFromAModDialogComeFromTheVanillaFile()
+    {
+        const string newLine = "OfferResponse_Reject_NearRival";
+        const string modGreeting = "A greeting only the mod has";
+        string modDir = $"Mods/__DialogFallbackTest{Environment.ProcessId}";
+        Language saved = GlobalStats.Language;
+        try
+        {
+            foreach (string leftover in Directory.GetDirectories("Mods", "__DialogFallbackTest*"))
+                if (Directory.GetCreationTimeUtc(leftover) < DateTime.UtcNow.AddMinutes(-10)) // from a run that was stopped
+                    Directory.Delete(leftover, recursive: true);
+            Directory.CreateDirectory(modDir + "/DiplomacyDialogs/English");
+            File.Copy("Mods/ExampleMod/Globals.yaml", modDir + "/Globals.yaml");
+            XDocument kulrathi = XDocument.Load(EnglishKulrathi);
+            kulrathi.Descendants("DialogLine").Where(l => (string)l.Element("DialogType") == newLine).Remove();
+            kulrathi.Descendants("DialogLine").First(l => (string)l.Element("DialogType") == "Greeting").Element("Friendly")!.Value = modGreeting;
+            kulrathi.Save(modDir + "/DiplomacyDialogs/English/Kulrathi.xml");
+
+            GlobalStats.Language = Language.English;
+            GlobalStats.SetActiveModNoSave(new ModEntry(GamePlayGlobals.Deserialize(new FileInfo(modDir + "/Globals.yaml"))));
+            ResourceManager.InitContentDir();
+            ResourceManager.LoadDialogs();
+            DialogLine[] loaded = ResourceManager.GetDiplomacyDialog("Kulrathi").Dialogs.ToArray();
+
+            Assert.AreEqual(modGreeting, FriendlyGreeting(loaded), "a line the mod file has stays the mod's");
+            Assert.AreEqual(LineInFile(EnglishKulrathi, newLine).Element("Default")!.Value,
+                            loaded.Single(l => l.DialogType == newLine).Default,
+                            "a line the mod file lacks comes once from the vanilla file of the same name");
+        }
+        finally
+        {
+            GlobalStats.Language = saved;
+            GlobalStats.SetActiveModNoSave(null);
+            ResourceManager.InitContentDir();
+            ResourceManager.LoadDialogs();
+            if (Directory.Exists(modDir))
+                Directory.Delete(modDir, recursive: true);
         }
     }
 

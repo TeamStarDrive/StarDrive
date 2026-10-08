@@ -628,31 +628,13 @@ namespace Ship_Game.Ships
         public bool PrepHangarShip(Empire empire, ShipModule hangar, out string shipName)
         {
             shipName = "";
-            string defaultShip = empire.data.StartingShip;
             if (Owner == null || empire.Id == -1)
                 return false;
 
             if (hangar.TryGetHangarShipActive(out _))
                 return false;
 
-            if (hangar.IsSupplyBay)
-                shipName = empire.GetSupplyShuttleName();
-            else if (hangar.IsTroopBay)
-                shipName = empire.GetAssaultShuttleName();
-            else if  (hangar.IsMiningBay)
-                shipName = empire.GetMiningShipName();
-            else if (hangar.DynamicHangar == DynamicHangarOptions.Static && empire.CanBuildShip(hangar.HangarShipUID))
-                shipName = hangar.HangarShipUID;
-
-            if (shipName.NotEmpty())
-                return true;
-            
-            // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
-            shipName = GetDynamicShipName(hangar, empire);
-            if (shipName.NotEmpty())
-                return true;
-
-            shipName = defaultShip;
+            shipName = HangarShipName(empire, hangar);
             if (shipName.NotEmpty())
                 return true;
 
@@ -665,7 +647,31 @@ namespace Ship_Game.Ships
 
             Log.Warning($"No startingShip defined and no roles=[{roles}] designs available for {Owner} ({Owner.Loyalty.Name})");
             return false; ;
-        } 
+        }
+
+        // the ship this empire's hangar would launch now, or empty if none
+        public static string HangarShipName(Empire empire, ShipModule hangar)
+        {
+            string shipName = "";
+            if (hangar.IsSupplyBay)
+                shipName = empire.GetSupplyShuttleName();
+            else if (hangar.IsTroopBay)
+                shipName = empire.GetAssaultShuttleName();
+            else if  (hangar.IsMiningBay)
+                shipName = empire.GetMiningShipName();
+            else if (hangar.DynamicHangar == DynamicHangarOptions.Static && empire.CanBuildShip(hangar.HangarShipUID))
+                shipName = hangar.HangarShipUID;
+
+            if (shipName.NotEmpty())
+                return shipName;
+
+            // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
+            shipName = GetDynamicShipName(hangar, empire);
+            if (shipName.NotEmpty())
+                return shipName;
+
+            return empire.data.StartingShip;
+        }
 
         private static HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
         {
@@ -686,11 +692,11 @@ namespace Ship_Game.Ships
             {
                 IShipDesign selectedShip = ShipBuilder.PickFromCandidates(
                     role, empire, maxSize: hangar.MaximumHangarShipSize,
-                    designation: desiredShipCategory);
+                    designation: desiredShipCategory, forHangar: true);
 
                 // If no desired category is available in the empire, try to get the best ship we have regardless of category for this role
                 if (selectedShip == null && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
-                    selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize);
+                    selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize, forHangar: true);
 
                 if (selectedShip != null && selectedShip.BaseStrength >= strongest)
                 {

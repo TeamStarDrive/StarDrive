@@ -25,6 +25,7 @@ namespace Ship_Game.Gameplay
         public Vector2 PlanetOrigin;
         public ShipModule Module;
         public float CooldownTimer;
+        int CombinedShots = 1;
         public GameObject FireTarget { get; private set; }
         float TargetChangeTimer;
 
@@ -156,11 +157,30 @@ namespace Ship_Game.Gameplay
         {
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
-            CooldownTimer = NetFireDelay + Random.Float(-10f, +10f) * 0.008f;
+            CombinedShots = ShotsOwed();
+            CooldownTimer += NetFireDelay * CombinedShots;
 
-            Owner.ChangeOrdnance(-OrdnancePerShot);
-            Owner.PowerCurrent -= PowerPerShot;
+            Owner.ChangeOrdnance(-OrdnancePerShot * CombinedShots);
+            Owner.PowerCurrent -= PowerPerShot * CombinedShots;
         }
+
+        // shots that fell due since the last fire attempt, fired together as one projectile
+        int ShotsOwed()
+        {
+            if (IsBeam || SalvoCount > 1 || CooldownTimer >= 0f || !DealsOnlyPlainDamage)
+                return 1;
+
+            int owed = 1 + (int)(-CooldownTimer / NetFireDelay);
+            if (OrdnancePerShot > 0f)
+                owed = Math.Min(owed, (int)(Owner.Ordinance / OrdnancePerShot));
+            if (PowerPerShot > 0f)
+                owed = Math.Min(owed, (int)(Owner.PowerCurrent / PowerPerShot));
+            return Math.Max(owed, 1);
+        }
+
+        bool DealsOnlyPlainDamage => !Tag_PD && !TruePD && !IsMirv && !IsRepairDrone
+                                     && EMPDamage <= 0f && PowerDamage <= 0f && TroopDamageChance <= 0f
+                                     && SiphonDamage <= 0f && TractorDamage <= 0f && RepulsionDamage <= 0f;
 
         bool PrepareToFireSalvo()
         {
@@ -580,6 +600,7 @@ namespace Ship_Game.Gameplay
             if (Owner == null)
                 return;
 
+            projectile.DamageAmount *= CombinedShots;
             if (Owner.Loyalty.HavePackMentality)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
@@ -611,11 +632,10 @@ namespace Ship_Game.Gameplay
 
         public void Update(FixedSimTime timeStep)
         {
-            if (CooldownTimer > 0f)
-            {
-                if (WeaponType != "Drone")
-                    CooldownTimer = Math.Max(CooldownTimer - timeStep.FixedTime, 0f);
-            }
+            // time past the cooldown carries over, up to one fire attempt
+            float maxCarry = timeStep.FixedTime * ShipAI.StepsBetweenFireAttempts;
+            if (CooldownTimer > -maxCarry && WeaponType != "Drone")
+                CooldownTimer = Math.Max(CooldownTimer - timeStep.FixedTime, -maxCarry);
 
             if (SalvosToFire > 0)
             {

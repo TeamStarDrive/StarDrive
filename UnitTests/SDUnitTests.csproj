@@ -46,7 +46,10 @@
 
   <ItemGroup>
     <Compile Include="AITests\Empire\BudgetTests.cs" />
+    <Compile Include="AITests\Empire\DiplomacyTraitOfferTests.cs" />
+    <Compile Include="AITests\Empire\RemnantRaidTargetTests.cs" />
     <Compile Include="AITests\Empire\OpenBordersOfferTests.cs" />
+    <Compile Include="AITests\Empire\SharedSystemColonyGiftTests.cs" />
     <Compile Include="AITests\Empire\TrustGainTests.cs" />
     <Compile Include="AITests\Empire\SpaceRoadsTests.cs" />
     <Compile Include="AITests\Empire\ShipsWeCanBuildTests.cs" />
@@ -126,6 +129,7 @@
     <Compile Include="Planets\GovernorMoneyPriorityTests.cs" />
     <Compile Include="Planets\GovernorScrapGuardsTests.cs" />
     <Compile Include="Planets\GovernorScrapRulesTests.cs" />
+    <Compile Include="Planets\PlanetWeaponFireDelayTests.cs" />
     <Compile Include="Planets\YoungColonyTradeStateTests.cs" />
     <Compile Include="Planets\RebellionDamageTests.cs" />
     <Compile Include="Planets\LandOnTiles.cs" />
@@ -186,6 +190,7 @@
     <Compile Include="Ships\ShipFinalizerTests.cs" />
     <Compile Include="Ships\LegacyShipDesignUtils.cs" />
     <Compile Include="Ships\ShipPowerCalcTests.cs" />
+    <Compile Include="Ships\ShipStrengthTests.cs" />
     <Compile Include="Ships\TestShip.cs" />
     <Compile Include="Ships\ModuleGridTests.cs" />
     <Compile Include="Ships\ShipDataTests.cs" />
@@ -203,11 +208,13 @@
     <Compile Include="Ships\ShipDesignUtilsTests.cs" />
     <Compile Include="StarDriveTest.Assert.cs" />
     <Compile Include="StarDriveTestContext.cs" />
+    <Compile Include="StoryAndEvents\OwlwokFreedomEventTests.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />
     <Compile Include="TestEnvironment.cs" />
     <Compile Include="Ships\TestWeaponMunition.cs" />
+    <Compile Include="Ships\WeaponFireRateTests.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
     <Compile Include="Technologies\RefiningEfficiencyTests.cs" />
     <Compile Include="Technologies\TechBonusIsolationTests.cs" />

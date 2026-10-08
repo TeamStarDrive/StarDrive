@@ -1288,7 +1288,7 @@ namespace Ship_Game.Fleets
                         break;
 
                     GatherAtAO(task, target.System.Radius*2);
-                    if (TryCalcEtaToPlanet(task, target.Owner, out float eta))
+                    if (TryCalcEtaToPlanet(task, out float eta))
                         Owner.Remnants.InitTargetEmpireDefenseActions(target, eta, GetStrength());
 
                     TaskStep = 2;
@@ -1322,7 +1322,8 @@ namespace Ship_Game.Fleets
                         if (target.Owner == null)
                         {
                             TaskStep = 7;
-                            Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
+                            if (!Owner.Universe.HasRemnantPortal(target.System))
+                                Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
                         }
 
                         break;
@@ -1335,7 +1336,7 @@ namespace Ship_Game.Fleets
                     if (StartBombing(FleetTask.TargetPlanet))
                         break;
 
-                    if (target.Owner == null)
+                    if (target.Owner == null && !Owner.Universe.HasRemnantPortal(target.System))
                         Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
 
                     TaskStep = 7;
@@ -1513,7 +1514,7 @@ namespace Ship_Game.Fleets
             }
         }
 
-        bool TryCalcEtaToPlanet(MilitaryTask task, Empire targetEmpire, out float starDateEta)
+        bool TryCalcEtaToPlanet(MilitaryTask task, out float starDateEta)
         {
             starDateEta = 0;
             if (task.TargetPlanet == null)
@@ -1521,11 +1522,8 @@ namespace Ship_Game.Fleets
 
             if (AveragePosition().InRadius(task.TargetPlanet.System.Position, task.TargetPlanet.System.Radius))
             {
-                if (targetEmpire?.isPlayer == true)
-                    return false; // The Fleet is already there
-
                 starDateEta = Owner.Universe.StarDate;
-                return true; // AI might retaliate even if its the same system
+                return true; // already in the system: the AI might retaliate and the player is warned
             }
 
             float distanceToPlanet = AveragePosition().Distance(task.TargetPlanet.Position);

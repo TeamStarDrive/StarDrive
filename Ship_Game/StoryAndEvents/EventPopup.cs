@@ -15,6 +15,7 @@ namespace Ship_Game
     {
         UniverseScreen Universe;
         public ExplorationEvent ExpEvent;
+        public bool ViewOnly; // shows an outcome applied earlier, so it does not report an anomaly
         readonly Outcome Outcome;
         readonly Planet Planet;
         UITextBox TextBox;
@@ -51,7 +52,7 @@ namespace Ship_Game
 
             base.LoadContent();
 
-            if (Planet != null)
+            if (Planet != null && !ViewOnly)
             {
                 Universe.NotificationManager.AddAnomalyInvestigated(Planet, TitleText);
             }

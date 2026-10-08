@@ -27,7 +27,7 @@ namespace Ship_Game.Data
         public float ReproductionMod;
         public float PopGrowthMax;
         public float PopGrowthMin;
-        public float DiplomacyMod; // Initial Trust only
+        public float DiplomacyMod; // Initial relationship and the value of the goods this race offers
         public int Blind;
         public int BonusExplored;
         public int Militaristic;

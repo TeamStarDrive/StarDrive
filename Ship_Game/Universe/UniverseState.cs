@@ -105,24 +105,28 @@ namespace Ship_Game.Universe
         /// case correctly when goals are removed in arbitrary order (e.g. ClearGoals). Maintained
         /// by the RemnantPortal goal lifecycle; query via HasRemnantPortal.
         /// </summary>
-        [StarData] readonly Map<SolarSystem, int> RemnantPortalCounts = new();
+        [StarData] Map<SolarSystem, int> RemnantPortalCounts = new(); // replaced, never changed, as the UI thread reads it
 
         public bool HasRemnantPortal(SolarSystem sys) => RemnantPortalCounts.ContainsKey(sys);
 
         public void RegisterRemnantPortal(SolarSystem sys)
         {
-            RemnantPortalCounts.TryGetValue(sys, out int n);
-            RemnantPortalCounts[sys] = n + 1;
+            var counts = new Map<SolarSystem, int>(RemnantPortalCounts);
+            counts.TryGetValue(sys, out int n);
+            counts[sys] = n + 1;
+            RemnantPortalCounts = counts;
         }
 
         public void DeregisterRemnantPortal(SolarSystem sys)
         {
             if (!RemnantPortalCounts.TryGetValue(sys, out int n))
                 return;
+            var counts = new Map<SolarSystem, int>(RemnantPortalCounts);
             if (n <= 1)
-                RemnantPortalCounts.Remove(sys);
+                counts.Remove(sys);
             else
-                RemnantPortalCounts[sys] = n - 1;
+                counts[sys] = n - 1;
+            RemnantPortalCounts = counts;
         }
 
         /// <summary>
