@@ -144,6 +144,18 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void AtASlowSimIdleTimeBanksExactlyOneFireAttempt()
+        {
+            Thrower.CooldownTimer = 0f;
+            var step = new FixedSimTime(1f / 10f);
+            for (int i = 0; i < 100; ++i)
+                Thrower.Update(step); // ten seconds without a target at 10 sim steps per second
+
+            AssertEqual(0.0001f, -ShipAI.StepsBetweenFireAttempts * step.FixedTime, Thrower.CooldownTimer,
+                "idle time banks one fire attempt, no more and no less");
+        }
+
+        [TestMethod]
         public void ACombinedShotIsLimitedByTheOrdnanceLeft()
         {
             float single = SingleShotDamage();
