@@ -122,6 +122,18 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void ARaidStartedWhileThePortalChasesAnEnemyTargetsTheColonyInItsSystem()
+        {
+            Portal.Position = PortalSystem.Position + new Vector2(150_000, 0);
+            Portal.SetSystem(null); // as the ship's once a second update does outside a system
+
+            var raid = new RemnantEngageEmpire(Faction, Portal, Enemy);
+            raid.Evaluate();
+
+            Assert.AreSame(Colony, raid.TargetPlanet, "the colony in the portal's system comes first while the portal is away");
+        }
+
+        [TestMethod]
         public void ARaidSkipsAColonyItMayNotAttack()
         {
             try
@@ -148,6 +160,36 @@ namespace UnitTests.AITests.Empire
             Assert.AreEqual(GoalStep.TryAgain, result, "the raid goes on instead of ending");
             Assert.AreSame(Colony, raid.TargetPlanet, "the raid keeps its target while the colony stands");
             AssertEqual(5, raid.Fleet.TaskStep, "the fleet is not sent elsewhere or home");
+        }
+
+        [TestMethod]
+        public void TheRaidStaysOnTheColonyWhileThePortalChasesAnEnemyOutOfItsSystem()
+        {
+            FocusRemnantsOnEnemy();
+            RemnantEngageEmpire raid = RaidUnderWay();
+            Portal.Position = PortalSystem.Position + new Vector2(150_000, 0);
+            Portal.SetSystem(null); // as the ship's once a second update does outside a system
+
+            Assert.AreEqual(GoalStep.TryAgain, raid.Evaluate(), "the raid goes on instead of ending");
+            Assert.AreSame(Colony, raid.TargetPlanet, "the raid keeps the colony in the portal's system");
+            AssertEqual(5, raid.Fleet.TaskStep, "the fleet is not sent elsewhere or home");
+        }
+
+        [TestMethod]
+        public void ARaidHoldsOnlyTheColonyInItsOwnPortalsSystem()
+        {
+            FocusRemnantsOnEnemy();
+            var otherPortalSystem = new SolarSystem(UState, new Vector2(0, -300_000)) { Sun = SunType.RandomHabitableSun(UState.Random) };
+            Planet otherColony = AddPlanet(otherPortalSystem, otherPortalSystem.Position + new Vector2(20_000, 0));
+            UState.AddSolarSystem(otherPortalSystem);
+            otherColony.SetOwner(Player);
+            OpenPortal(otherPortalSystem);
+            RemnantEngageEmpire raid = RaidUnderWay();
+            raid.TargetPlanet = otherColony; // a colony of the raid's target empire that another empire took meanwhile
+
+            raid.Evaluate();
+
+            Assert.AreSame(EnemyHome, raid.TargetPlanet, "another portal's system does not hold the raid");
         }
 
         [TestMethod]

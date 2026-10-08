@@ -52,7 +52,7 @@ namespace Ship_Game.Commands.Goals
         bool SelectTargetPlanet()
         {
             // Target the colony closest to the portal in its own system first, target empire is not relevant
-            Planet portalSystemColony = Portal.System?.PlanetList.FindMinFiltered(IsColonyInPortalSystem, p => p.Position.SqDist(Portal.Position));
+            Planet portalSystemColony = PortalSystem?.PlanetList.FindMinFiltered(IsAttackableColony, p => p.Position.SqDist(Portal.Position));
             if (portalSystemColony != null)
             {
                 TargetPlanet = portalSystemColony;
@@ -69,7 +69,12 @@ namespace Ship_Game.Commands.Goals
             return TargetPlanet != null;
         }
 
-        bool IsColonyInPortalSystem(Planet p) => p?.Owner != null && p.System == Portal.System && Owner.IsEmpireAttackable(p.Owner);
+        // the portal leaves its system for a moment to chase enemies, so its system is the one its goal recorded
+        SolarSystem PortalSystem => (Owner.AI.FindGoal(g => g is RemnantPortal p && p.TargetShip == Portal) as RemnantPortal)?.PortalSystem ?? Portal.System;
+
+        bool IsAttackableColony(Planet p) => p?.Owner != null && Owner.IsEmpireAttackable(p.Owner);
+
+        bool IsColonyInPortalSystem(Planet p) => IsAttackableColony(p) && p.System == PortalSystem;
 
         // a raid on a colony in a portal system does not change the Remnants' strength estimate of the target empire
         bool CountsForFleetStr => TargetPlanet == null || !UState.HasRemnantPortal(TargetPlanet.System);
