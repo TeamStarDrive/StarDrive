@@ -148,7 +148,7 @@ namespace Ship_Game.AI.CombatTactics
             if (distanceToDesiredCombatRangeRatio < 0.25f) 
                 return true;
 
-            float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Average(w => w.CooldownTimer);
+            float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Average(w => w.CooldownTimer.LowerBound(0));
             if (cooldownTime <= 0f)
                 return false;
 
@@ -166,7 +166,7 @@ namespace Ship_Game.AI.CombatTactics
                 ? (random.RollDice(50) ? RadMath.RadiansLeft : RadMath.RadiansRight)
                 : random.Float(-1.57f, 1.57f); // from -90 to +90 degrees
 
-            float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Max(w => w.CooldownTimer);
+            float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Max(w => w.CooldownTimer.LowerBound(0));
 
             //disengageDistance = disengageDistance.UpperBound(cooldownTime * disengageDistance);
 

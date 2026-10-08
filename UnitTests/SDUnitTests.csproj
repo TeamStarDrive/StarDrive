@@ -212,6 +212,7 @@
     <Compile Include="StarDriveTest.cs" />
     <Compile Include="TestEnvironment.cs" />
     <Compile Include="Ships\TestWeaponMunition.cs" />
+    <Compile Include="Ships\WeaponFireRateTests.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
     <Compile Include="Technologies\RefiningEfficiencyTests.cs" />
     <Compile Include="Technologies\TechBonusIsolationTests.cs" />

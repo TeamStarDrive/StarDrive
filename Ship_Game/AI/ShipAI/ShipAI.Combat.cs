@@ -34,6 +34,7 @@ namespace Ship_Game.AI
         #pragma warning restore CA2213
 
         public Array<Ship> TargetQueue = new();
+        public const int StepsBetweenFireAttempts = 2;
         float TriggerDelay;
         Array<Ship> ScannedTargets = new();
         Array<Ship> ScannedFriendlies = new();

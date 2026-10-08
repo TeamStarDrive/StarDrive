@@ -597,7 +597,7 @@ namespace Ship_Game.AI
             TriggerDelay -= timeStep.FixedTime;
             if (TriggerDelay <= 0f)
             {
-                TriggerDelay = timeStep.FixedTime * 2;
+                TriggerDelay = timeStep.FixedTime * StepsBetweenFireAttempts;
                 return FireOnTarget();
             }
             return false;
