@@ -184,7 +184,7 @@ namespace Ship_Game.AI
                     foreach (IShipDesign design in OwnerEmpire.ShipsWeCanBuildSnapshot)
                     {
                         Log.Write(ConsoleColor.Green ,$"{design.BaseHull.Role}, {design.Role}, '{design}'");
-                        int strength   = (int)design.BaseStrength;
+                        int strength   = (int)design.GetStrength(OwnerEmpire);
                         techScore     += design.TechsNeeded.Count;
                         totalStrength += strength;
                         maxStrength    = Math.Max(maxStrength, strength);

@@ -135,6 +135,10 @@ namespace Ship_Game
                                     && !ship.IsDysonSwarmController);
             }
 
+            var strengths = new Map<IShipDesign, float>(buildableShips.Length);
+            foreach (IShipDesign ship in buildableShips)
+                strengths[ship] = ship.GetStrength(P.Owner);
+
             string filter = FilterBuildableItems.Text.ToLower();
             if (filter.IsEmpty() && FilterItemsText.NotEmpty())
             {
@@ -146,7 +150,7 @@ namespace Ship_Game
             {
                 FilterItemsText = filter;
                 var shipList = buildableShips.Filter(s => s.Name.ToLower().Contains(filter));
-                shipList = shipList.SortedDescending(s => s.BaseStrength);
+                shipList = shipList.SortedDescending(s => strengths[s]);
                 BuildableList.SetItems(shipList.Select(s => new BuildableListItem(this, s)));
                 return;
             }
@@ -170,9 +174,8 @@ namespace Ship_Game
             {
                 category.Ships.Sort((a, b) => // rank better ships as first:
                 {
-                    float diff = b.BaseStrength - a.BaseStrength;
-                    if (diff.NotEqual(0)) return (int)diff;
-                    return string.CompareOrdinal(b.Name, a.Name);
+                    int byStrength = strengths[b].CompareTo(strengths[a]);
+                    return byStrength != 0 ? byStrength : string.CompareOrdinal(b.Name, a.Name);
                 });
             }
 

@@ -190,6 +190,7 @@
     <Compile Include="Ships\ShipFinalizerTests.cs" />
     <Compile Include="Ships\LegacyShipDesignUtils.cs" />
     <Compile Include="Ships\ShipPowerCalcTests.cs" />
+    <Compile Include="Ships\ShipStrengthTests.cs" />
     <Compile Include="Ships\TestShip.cs" />
     <Compile Include="Ships\ModuleGridTests.cs" />
     <Compile Include="Ships\ShipDataTests.cs" />

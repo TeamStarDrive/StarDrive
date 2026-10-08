@@ -76,10 +76,7 @@ public partial class ShipDesign
         float baseTurnThrust = 0f;
         float baseWarp = 0f;
         float baseMass = 0f;
-        float baseOffense = 0f;
-        float baseDefense = 0f;
         float baseCargoSpace = 0f;
-        int offensiveSlots = 0;
         float startingColonyGoods = 0f;
         int numBuildingsDeployed = 0;
         float baseResearchPerTurn = 0;
@@ -119,21 +116,14 @@ public partial class ShipDesign
             else if (m.Is(ShipModuleType.Colony))
                 IsColonyShip = true;
             else if (m.InstalledWeapon != null)
-            {
-                offensiveSlots += m.Area;
                 weapons.Add(m.InstalledWeapon);
-            }
 
             if (m.IsSupplyBay)
                 IsSupplyCarrier = true;
-            if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
-                offensiveSlots += m.Area;
             if (m.DeployBuildingOnColonize.NotEmpty())
                 ++numBuildingsDeployed;
 
             startingColonyGoods += m.NumberOfEquipment + m.NumberOfFood;
-            baseDefense += m.CalculateModuleDefense(info.SurfaceArea);
-            baseOffense += m.CalculateModuleOffense();
         }
 
         if (invalidModules != null)
@@ -143,7 +133,7 @@ public partial class ShipDesign
         }
 
         BaseCost = baseCost;
-        BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, baseOffense, baseDefense);
+        BaseStrength = ShipStrength.OfDesign(this, designSlots, null);
         BaseThrust = baseThrust;
         BaseTurnThrust = baseTurnThrust;
         BaseWarpThrust = baseWarp;
@@ -213,6 +203,14 @@ public partial class ShipDesign
     public float GetMaintenanceCost(Empire empire)
     {
         return ShipMaintenance.GetBaseMaintenance(this, empire, 0);
+    }
+
+    // the strength of a new ship of this design built by the empire
+    public float GetStrength(Empire empire)
+    {
+        if (empire == null || empire.Id <= 0) // an empire still being set up has no Id yet
+            return BaseStrength;
+        return empire.GetDesignStrength(this);
     }
 
     public string GetRole()

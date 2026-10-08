@@ -1265,6 +1265,9 @@ namespace Ship_Game.Ships
                 ShipStatusChanged = true;
             }
 
+            if (GetDesignStrength() != BaseStrength) // the empire's bonuses or the ships it can build changed
+                ShipStatusChanged = true;
+
             if (ShipStatusChanged)
                 ShipStatusChange();
 
@@ -1834,52 +1837,39 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        public float CalculateShipStrength()
+        // set when a module dies or comes back, or the ship changes owner
+        public bool StrengthOutdated = true;
+
+        // the strength of this ship's design as its owner builds it
+        protected virtual float GetDesignStrength() => IsMeteor ? 0f : ShipData.GetStrength(Loyalty);
+
+        void UpdateStrength()
         {
             if (IsMeteor)
-                return 0;
+            {
+                BaseStrength = CurrentStrength = 0f;
+                return;
+            }
 
-            float offense   = 0;
-            float defense   = 0;
-            int weaponArea  = 0;
-            int hangarArea  = 0;
-            bool hasWeapons = false;
             TotalDps = 0;
-
-            for (int i = 0; i < ModuleSlotList.Length; i++ )
+            bool allWorking = true;
+            for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule m = ModuleSlotList[i];
-                if (m.Active)
-                {
-                    if (m.InstalledWeapon != null)
-                    {
-                        weaponArea += m.Area;
-                        TotalDps   += m.InstalledWeapon.DamagePerSecond;
-                        hasWeapons = true;
-                    }
-
-                    if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
-                        hangarArea += m.Area;
-
-                    defense += m.CalculateModuleOffenseDefense(SurfaceArea);
-                }
+                if (!m.Active)
+                    allWorking = false;
+                else if (m.InstalledWeapon != null)
+                    TotalDps += m.InstalledWeapon.DamagePerSecond;
             }
 
-            int offensiveArea = weaponArea + hangarArea;
-            if (offensiveArea == 0
-                && (IsDefaultTroopShip || IsSupplyShuttle || DesignRole == RoleName.scout
-                    || IsSubspaceProjector || IsFreighter || IsConstructor || IsMiningShip))
-            {
-                return 0;
-            }
+            float designStrength = GetDesignStrength();
+            if (allWorking)
+                CurrentStrength = designStrength;
+            else if (StrengthOutdated || designStrength != BaseStrength)
+                CurrentStrength = ShipStrength.OfModules(ShipData, ModuleSlotList, Loyalty, workingOnly: true);
 
-            if (IsPlatformOrStation) 
-                offense /= 2;
-
-            if (!Carrier.HasFighterBays && !hasWeapons) 
-                offense = 0f;
-
-            return ShipBuilder.GetModifiedStrength(SurfaceArea, offensiveArea, offense, defense);
+            BaseStrength = designStrength;
+            StrengthOutdated = false;
         }
 
         // UI statistics, show average repair per second

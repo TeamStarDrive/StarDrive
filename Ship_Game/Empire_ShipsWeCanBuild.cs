@@ -1,7 +1,10 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game;
@@ -64,6 +67,56 @@ public sealed partial class Empire
     public int ShipsWeCanBuildCount         => ShipsWeCanBuildSnapshot.Length;
     public int SpaceStationsWeCanBuildCount => SpaceStationsWeCanBuildSnapshot.Length;
 
+    // changes whenever ShipsWeCanBuild does
+    public int ShipsWeCanBuildRevision { get; private set; }
+
+    void ShipsWeCanBuildChanged()
+    {
+        ++ShipsWeCanBuildRevision;
+        CachedShipsWeCanBuildSnapshot = null;
+    }
+
+    // the strength of a new ship of each design built by this empire
+    readonly ConcurrentDictionary<IShipDesign, (float Strength, int BonusRevision, int ShipsRevision)> DesignStrengths = new();
+
+    // the ship each kind of dynamic hangar is valued by; real launches pick again
+    readonly ConcurrentDictionary<(string Module, DynamicHangarOptions Launch), (string ShipName, int ShipsRevision)> DynamicHangarShips = new();
+
+    // kept until this empire's bonuses or, for carriers, the ships it can build change
+    public float GetDesignStrength(IShipDesign design)
+    {
+        int bonusRevision = EmpireHullBonuses.GetBonusRevisionId(this);
+        if (bonusRevision == 0) // the revision exists once the bonuses do
+        {
+            EmpireHullBonuses.Get(this);
+            bonusRevision = EmpireHullBonuses.GetBonusRevisionId(this);
+        }
+        int shipsRevision = design.Hangars.Length > 0 ? ShipsWeCanBuildRevision : 0;
+
+        if (DesignStrengths.TryGetValue(design, out var cached)
+            && cached.BonusRevision == bonusRevision && cached.ShipsRevision == shipsRevision)
+        {
+            return cached.Strength;
+        }
+
+        float strength = ShipStrength.OfDesign(design, design.GetOrLoadDesignSlots() ?? Empty<DesignSlot>.Array, this);
+        DesignStrengths[design] = (strength, bonusRevision, shipsRevision);
+        return strength;
+    }
+
+    // picked once for each change to the ships this empire can build
+    public string GetDynamicHangarShip(ShipModule hangar)
+    {
+        int shipsRevision = ShipsWeCanBuildRevision;
+        var key = (hangar.UID, hangar.DynamicHangar);
+        if (DynamicHangarShips.TryGetValue(key, out var cached) && cached.ShipsRevision == shipsRevision)
+            return cached.ShipName;
+
+        string shipName = CarrierBays.HangarShipName(this, hangar);
+        DynamicHangarShips[key] = (shipName, shipsRevision);
+        return shipName;
+    }
+
     /// <summary>
     /// TRUE if this Empire can build this ship
     /// </summary>
@@ -96,7 +149,7 @@ public sealed partial class Empire
             bool added = ShipsWeCanBuild.Add(ship);
             if (added)
             {
-                CachedShipsWeCanBuildSnapshot = null;
+                ShipsWeCanBuildChanged();
                 if (ship.Role <= RoleName.station && SpaceStationsWeCanBuild.Add(ship))
                     CachedSpaceStationsWeCanBuildSnapshot = null;
             }
@@ -110,7 +163,7 @@ public sealed partial class Empire
         {
             bool removed = ShipsWeCanBuild.Remove(ship);
             if (removed)
-                CachedShipsWeCanBuildSnapshot = null;
+                ShipsWeCanBuildChanged();
             if (SpaceStationsWeCanBuild.Remove(ship))
                 CachedSpaceStationsWeCanBuildSnapshot = null;
             return removed;
@@ -123,7 +176,7 @@ public sealed partial class Empire
         {
             ShipsWeCanBuild.Clear();
             SpaceStationsWeCanBuild.Clear();
-            CachedShipsWeCanBuildSnapshot = null;
+            ShipsWeCanBuildChanged();
             CachedSpaceStationsWeCanBuildSnapshot = null;
         }
     }
@@ -215,7 +268,7 @@ public sealed partial class Empire
         lock (ShipsWeCanBuildLock)
         {
             if (RemoveDuplicateShipDesigns(ShipsWeCanBuild))
-                CachedShipsWeCanBuildSnapshot = null;
+                ShipsWeCanBuildChanged();
             if (RemoveDuplicateShipDesigns(SpaceStationsWeCanBuild))
                 CachedSpaceStationsWeCanBuildSnapshot = null;
         }

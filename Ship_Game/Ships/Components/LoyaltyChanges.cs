@@ -144,6 +144,7 @@ namespace Ship_Game.Ships.Components
             ship.Universe.UpdateShipInfluence(ship, oldLoyalty, newLoyalty);
 
             ship.ShipStatusChanged = true;
+            ship.StrengthOutdated = true;
             ship.SwitchTroopLoyalty(oldLoyalty, newLoyalty);
             ship.ReCalculateTroopsAfterBoard();
             ship.ScuttleTimer = -1f; // Cancel any active self destruct

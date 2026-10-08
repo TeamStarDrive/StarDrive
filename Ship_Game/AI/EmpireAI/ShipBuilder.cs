@@ -12,14 +12,15 @@ namespace Ship_Game.AI
         public const int OrbitalsLimit  = 27; // FB - Maximum of 27 stations or platforms (or shipyards)
         public const int ShipYardsLimit = 3; // FB - Maximum of 3 shipyards
 
+        // forHangar ranks by the strength without empire bonuses
         public static IShipDesign PickFromCandidates(
             RoleName role, Empire empire, int maxSize = 0,
-            HangarOptions designation = HangarOptions.General)
+            HangarOptions designation = HangarOptions.General, bool forHangar = false)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level.
             // This allows it to choose the toughest ships to build. This is normalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
-            return PickFromCandidatesByStrength(role, empire, maxSize, designation);
+            return PickFromCandidatesByStrength(role, empire, maxSize, designation, forHangar);
         }
 
         private struct MinMaxStrength
@@ -78,7 +79,7 @@ namespace Ship_Game.AI
                 return null;
             }
 
-            return potentialShips.FindMax(s => s.BaseStrength);
+            return potentialShips.FindMax(s => s.GetStrength(empire));
         }
 
         // Try to get a pre-defined default drone for event buildings which can launch drones
@@ -92,8 +93,10 @@ namespace Ship_Game.AI
         }
         
         static IShipDesign PickFromCandidatesByStrength(RoleName role, Empire empire,
-            int maxSize, HangarOptions designation)
+            int maxSize, HangarOptions designation, bool forHangar)
         {
+            float Strength(IShipDesign s) => forHangar ? s.BaseStrength : s.GetStrength(empire);
+
             Array<IShipDesign> potentialShips = ShipsWeCanBuild(empire, design => design.Role == role
                 && (maxSize == 0 || design.SurfaceArea <= maxSize)
                 && (designation == HangarOptions.General || designation == design.HangarDesignation)
@@ -105,9 +108,9 @@ namespace Ship_Game.AI
             if (potentialShips.Count == 1)
                 return potentialShips.First;
 
-            float maxStrength = potentialShips.FindMax(ship => ship.BaseStrength).BaseStrength;
+            float maxStrength = Strength(potentialShips.FindMax(Strength));
             var levelAdjust   = new MinMaxStrength(maxStrength, empire);
-            var bestShips     = potentialShips.Filter(ship => levelAdjust.InRange(ship.BaseStrength));
+            var bestShips     = potentialShips.Filter(ship => levelAdjust.InRange(Strength(ship)));
 
             if (bestShips.Length == 0)
             {
@@ -128,10 +131,10 @@ namespace Ship_Game.AI
                 Debug($"    Sorted Ship List ({bestShips.Length})");
                 foreach (IShipDesign loggedShip in bestShips)
                 {
-                    Debug($"    -- Name: {loggedShip.Name}, Strength: {loggedShip.BaseStrength}");
+                    Debug($"    -- Name: {loggedShip.Name}, Strength: {Strength(loggedShip)}");
                 }
                 Debug($"    Chosen Role: {pickedShip.Role}  Chosen Hull: {pickedShip.Hull}\n" +
-                      $"    Strength: {pickedShip.BaseStrength}\n" +
+                      $"    Strength: {Strength(pickedShip)}\n" +
                       $"    Name: {pickedShip.Name}. Range: {levelAdjust}");
             }
             return pickedShip;
@@ -210,14 +213,14 @@ namespace Ship_Game.AI
         {
             Array<IShipDesign> ships = ShipsWeCanBuild(empire, s => s.Hull == oldShip.ShipData.Hull
                                                             && s.Role == oldShip.DesignRole
-                                                            && s.BaseStrength.Greater(oldShip.BaseStrength * 1.1f)
+                                                            && s.GetStrength(empire).Greater(oldShip.ShipData.GetStrength(empire) * 1.1f)
                                                             && s.Name != oldShip.Name);
             if (ships.Count == 0)
                 return null;
 
             IShipDesign picked = empire.Random.Item(ships);
-            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.BaseStrength}" +
-                                            $" refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
+            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.ShipData.GetStrength(empire)}" +
+                                            $" refit to --> {picked.Name}, Strength: {picked.GetStrength(empire)}");
             return picked;
         }
 
@@ -254,7 +257,7 @@ namespace Ship_Game.AI
                 var researchStations = potentialResearchStations.
                     Filter(s  => s.BaseResearchPerTurn.InRange(maxResearchPerTurn * 0.8f, maxResearchPerTurn));
 
-                bestResearchStation = researchStations.FindMax(s => s.BaseStrength / s.SurfaceArea);
+                bestResearchStation = researchStations.FindMax(s => s.GetStrength(empire) / s.SurfaceArea);
             }
 
             if (empire.Universe?.Debug == true)

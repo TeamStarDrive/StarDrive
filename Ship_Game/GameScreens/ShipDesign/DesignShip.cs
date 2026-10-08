@@ -32,6 +32,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             DesignStats.Update(Universe.Player);
         }
 
+        // the design changes while it is edited, so it is valued from the placed modules
+        protected override float GetDesignStrength() => ShipStrength.OfModules(ShipData, Modules, Loyalty, workingOnly: false);
+
         static bool AreEqual(Array<ShipModule> a, Array<ShipModule> b)
         {
             if (a.Count != b.Count)

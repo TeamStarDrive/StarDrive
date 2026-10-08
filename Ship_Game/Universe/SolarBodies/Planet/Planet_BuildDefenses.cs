@@ -130,7 +130,7 @@ namespace Ship_Game
 
             if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || budget < tolerance))
             {
-                Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
+                Ship weakest = orbitalList.FindMin(s => s.ShipData.GetStrength(Owner));
                 if (weakest != null)
                     ScrapOrbital(weakest);
                 return;
@@ -204,7 +204,7 @@ namespace Ship_Game
         {
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green,$"{Name}, {Owner.Name} - ADDED Orbital ----- {orbital.Name}, " +
-                         $"cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
+                         $"cost: {orbital.GetCost(Owner)}, STR: {orbital.GetStrength(Owner)}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
             Owner.AI.AddGoal(buildOrbital);
@@ -215,7 +215,7 @@ namespace Ship_Game
             if (orbitalList.IsEmpty || OrbitalsInTheWorks)
                 return;
 
-            Ship weakestWeHave = orbitalList.FindMin(s => s.BaseStrength);
+            Ship weakestWeHave = orbitalList.FindMin(s => s.ShipData.GetStrength(Owner));
             if (weakestWeHave.AI.State == AIState.Refit)
                 return; // refit one orbital at a time
 
@@ -225,7 +225,7 @@ namespace Ship_Game
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength * 1.1f))
+            if (bestWeCanBuild.GetStrength(Owner).Less(weakestWeHave.ShipData.GetStrength(Owner) * 1.1f))
                 return; // replace only if str is 10% more than the current weakest orbital
 
             string debugReplaceOrRefit;
@@ -244,7 +244,7 @@ namespace Ship_Game
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Cyan, $"{Name}, {Owner.Name} - {debugReplaceOrRefit} Orbital ----- {weakestWeHave.Name}" +
-                         $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
+                         $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.ShipData.GetStrength(Owner)} to {bestWeCanBuild.GetStrength(Owner)}");
         }
 
         private IShipDesign PickOrbitalToBuild(RoleName role, float budget)
