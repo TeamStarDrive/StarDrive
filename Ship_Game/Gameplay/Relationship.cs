@@ -538,6 +538,17 @@ namespace Ship_Game.Gameplay
             CalcTotalAnger();
         }
 
+        // the diplomatic anger left if ImproveRelations eased it by angerRelief
+        public float DiplomaticAngerEasedBy(float angerRelief) => (Anger_DiplomaticConflict - angerRelief).LowerBound(0);
+
+        // the total anger left if ImproveRelations eased its diplomatic part by angerRelief
+        public float TotalAngerEasedBy(float angerRelief)
+        {
+            float sum = Anger_DiplomaticConflict + Anger_FromShipsInOurBorders + Anger_MilitaryConflict + Anger_TerritorialConflict;
+            float easedSum = sum - (Anger_DiplomaticConflict - DiplomaticAngerEasedBy(angerRelief));
+            return (TotalAnger - (sum.UpperBound(100) - easedSum.UpperBound(100))).LowerBound(0);
+        }
+
         public void SetImperialistWar() //TODO what about AtWar?
         {
             if (ActiveWar != null)

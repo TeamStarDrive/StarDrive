@@ -79,7 +79,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_InsufficientTrust</DialogType>
-      <Default>Negativo, ser de la raza SING. Tu oferta requiere más de nuestra parte de lo que estamos dispuestos a aportar en este momento.</Default>
+      <Default>Negativo, ser de la raza SING. Aún no confiamos lo suficiente en ti para un acuerdo así.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>

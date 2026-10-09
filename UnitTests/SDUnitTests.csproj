@@ -50,6 +50,7 @@
     <Compile Include="AITests\Empire\RemnantRaidTargetTests.cs" />
     <Compile Include="AITests\Empire\OpenBordersOfferTests.cs" />
     <Compile Include="AITests\Empire\SharedSystemColonyGiftTests.cs" />
+    <Compile Include="AITests\Empire\TreatyTrustOfferTests.cs" />
     <Compile Include="AITests\Empire\TrustGainTests.cs" />
     <Compile Include="AITests\Empire\SpaceRoadsTests.cs" />
     <Compile Include="AITests\Empire\ShipsWeCanBuildTests.cs" />

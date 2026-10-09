@@ -75,7 +75,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_InsufficientTrust</DialogType>
-      <Default>Negativo, SING. Sua oferta exige mais de nós do que estamos dispostos a entregar neste momento.</Default>
+      <Default>Negativo, SING. Ainda não confiamos em vocês o suficiente para um acordo como este.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>

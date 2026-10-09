@@ -79,7 +79,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_InsufficientTrust</DialogType>
-      <Default>Nie zgadzamy się. Wasza oferta zakłada, że damy więcej, niż dostaniemy od was.</Default>
+      <Default>Nie zgadzamy się. Nie ufamy wam jeszcze na tyle, by zawrzeć taką umowę.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>

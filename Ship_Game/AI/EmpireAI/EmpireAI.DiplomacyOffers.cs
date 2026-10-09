@@ -354,26 +354,29 @@ namespace Ship_Game.AI
             float valueToThem = 0f;
             float valueToUs   = 0f;
 
+            var goodsTheyGive = new Array<float>(); // each good's value, since a gift's trust is capped per good
             foreach (string tech in theirOffer.TechnologiesOffered)
             {
-                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, them);
+                float value = ResourceManager.Tech(tech).DiplomaticValueTo(us, them);
+                valueToUs += value;
+                goodsTheyGive.Add(value);
             }
 
-            if (ourOffer.TechnologiesOffered.Count > 0)
+            foreach (string tech in ourOffer.TechnologiesOffered)
             {
-                foreach (string tech in ourOffer.TechnologiesOffered)
-                {
-                    float value = ResourceManager.Tech(tech).DiplomaticValueTo(them, us);
-                    valueToThem += value;
-                    totalTrustRequiredFromUs += value;
-                }
-
-                // if value for them is higher, reduce a little trust needed
-                totalTrustRequiredFromUs -= ((valueToThem - valueToUs) / 2).UpperBound(0);
+                float value = ResourceManager.Tech(tech).DiplomaticValueTo(them, us);
+                valueToThem += value;
+                totalTrustRequiredFromUs += value;
             }
+
+            // AI tech swaps keep their old rule: half of the techs they give beyond ours raises the trust needed
+            if (!them.isPlayer && ourOffer.TechnologiesOffered.Count > 0)
+                totalTrustRequiredFromUs -= ((valueToThem - valueToUs) / 2).UpperBound(0);
 
             valueToThem += ourOffer.ArtifactsOffered.Count * ArtifactValue;
             valueToUs   += theirOffer.ArtifactsOffered.Count * ArtifactValue;
+            for (int i = 0; i < theirOffer.ArtifactsOffered.Count; ++i)
+                goodsTheyGive.Add(ArtifactValue);
 
             foreach (string planetName in ourOffer.ColoniesOffered)
             {
@@ -401,9 +404,26 @@ namespace Ship_Game.AI
                     float multiplier = 1 + (p.System.PlanetList.Count(other => other.Owner == them)*0.2f);
                     worth *= multiplier;
                     valueToUs += worth;
+                    goodsTheyGive.Add(worth);
                 }
             }
             valueToUs += them.data.Traits.DiplomacyMod * valueToUs; // the racial trait weighs the goods they offer, not the treaties
+
+            // the goods they give with a treaty, beyond what they ask back, are a gift
+            bool withTreaty = openBorders || theirOffer.NAPact || ourOffer.NAPact || theirOffer.TradeTreaty || ourOffer.TradeTreaty;
+            float giftValue = withTreaty ? (valueToUs - valueToThem).LowerBound(0) : 0;
+            (float giftTrust, float giftAngerRelief) = GiftRelations(giftValue);
+
+            // deciding, each good counts up to the cap; accepting earns the cap once
+            float trustToDecide = 0, angerReliefToDecide = 0;
+            foreach (float good in goodsTheyGive)
+            {
+                (float trust, float angerRelief) = GiftRelations(good * (1 + them.data.Traits.DiplomacyMod));
+                trustToDecide += trust;
+                angerReliefToDecide += angerRelief;
+            }
+            trustToDecide = trustToDecide.UpperBound(giftValue);
+            angerReliefToDecide = angerReliefToDecide.UpperBound(giftValue);
 
             if (openBorders)            valueToThem += 5f;
             if (openBorders)            valueToUs   += 5f;
@@ -414,14 +434,15 @@ namespace Ship_Game.AI
 
             if (valueToThem.AlmostZero() && valueToUs > 0f)
             {
-                float modifier = 1 / ((int)us.Universe.P.Difficulty).LowerBound(1);
-                usToThem.ImproveRelations(valueToUs.UpperBound(25/ modifier), valueToUs.UpperBound(50 / modifier));
+                (float trust, float angerRelief) = GiftRelations(valueToUs);
+                usToThem.ImproveRelations(trust, angerRelief);
                 AcceptOffer(ourOffer, theirOffer, us, them, attitude, 0.2f);
                 ourOffer.AcceptDL = "OfferResponse_Accept_Gift";
                 return "OfferResponse_Accept_Gift";
             }
 
-            float angerMultiplier = them.isPlayer ? usToThem.TotalAnger / 200 : usToThem.Anger_DiplomaticConflict / 200;
+            float angerMultiplier = them.isPlayer ? usToThem.TotalAngerEasedBy(angerReliefToDecide) / 200
+                                                  : usToThem.DiplomaticAngerEasedBy(angerReliefToDecide) / 200;
             valueToUs -= valueToUs * angerMultiplier;
             valueToUs += 1 * them.data.OngoingDiplomaticModifier;
             OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out float offerDifferential);
@@ -433,14 +454,14 @@ namespace Ship_Game.AI
             switch (attitude)
             {
                 case Attitude.Pleading:
-                    if (totalTrustRequiredFromUs > usToThem.Trust)
+                    if (totalTrustRequiredFromUs > usToThem.Trust + trustToDecide)
                     {
                         if (offerQuality is OfferQuality.Great)
                         {
                             if (canImproveRelations)
                                 usToThem.ImproveRelations(4f.UpperBound(valueToUs), 8);
 
-                            AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                            Accept();
                             return "OfferResponse_AcceptGreatOffer_LowTrust";
                         }
                         else
@@ -461,26 +482,26 @@ namespace Ship_Game.AI
                             if (canImproveRelations)
                                 usToThem.ImproveRelations(improveRalationsRate, improveRalationsRate);
 
-                            AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                            Accept();
                             return "OfferResponse_Accept_Fair_Pleading";
                         case OfferQuality.Good:
                             if (canImproveRelations)
                                 usToThem.ImproveRelations(improveRalationsRate, improveRalationsRate);
 
-                            AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                            Accept();
                             return "OfferResponse_Accept_Good";
                         case OfferQuality.Great:
                             if (!canImproveRelations)
                                 improveRalationsRate *= 0.25f;
 
                             usToThem.ImproveRelations(improveRalationsRate, improveRalationsRate);
-                            AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                            Accept();
                             return "OfferResponse_Accept_Great";
                     }
 
                     break;
                 case Attitude.Respectful:
-                    if (totalTrustRequiredFromUs + usToThem.TrustUsed <= usToThem.Trust)
+                    if (totalTrustRequiredFromUs + usToThem.TrustUsed <= usToThem.Trust + trustToDecide)
                     {
                         switch (offerQuality)
                         {
@@ -494,24 +515,24 @@ namespace Ship_Game.AI
                                 if (canImproveRelations)
                                     usToThem.ImproveRelations(2f.UpperBound(valueToUs), 4f);
 
-                                AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                                Accept();
                                 return "OfferResponse_Accept_Fair";
                             case OfferQuality.Good:
                                 if (canImproveRelations)
                                     usToThem.ImproveRelations(3f.UpperBound(valueToUs), 6f);
 
-                                AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                                Accept();
                                 return "OfferResponse_Accept_Good";
                             case OfferQuality.Great:
                                 if (canImproveRelations)
                                     usToThem.ImproveRelations(4f.UpperBound(valueToUs), 8f);
 
-                                AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                                Accept();
                                 return "OfferResponse_Accept_Great";
                         }
                     }
 
-                    return "OfferResponse_Reject_PoorOffer_EnoughTrust";
+                    return "OfferResponse_InsufficientTrust";
                 case Attitude.Threaten:
                     DamageRelationsAllied();
                     if (us.IsRuthless || usToThem.TurnsSinceLastThreathened < usToThem.ThreatenedTurnsThreshold)
@@ -520,7 +541,7 @@ namespace Ship_Game.AI
                     usToThem.TurnsSinceLastThreathened = 0;
                     if (offerQuality == OfferQuality.Great)
                     {
-                        AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                        Accept();
                         return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
 
@@ -533,10 +554,10 @@ namespace Ship_Game.AI
                     switch (offerQuality)
                     {
                         case OfferQuality.Poor:
-                            AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                            Accept();
                             return "OfferResponse_Accept_Bad_Threatening";
                         case OfferQuality.Fair:
-                            AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+                            Accept();
                             return "OfferResponse_Accept_Fair_Threatening";
                     }
 
@@ -544,6 +565,12 @@ namespace Ship_Game.AI
             }
 
             return "";
+
+            void Accept()
+            {
+                usToThem.ImproveRelations(giftTrust, giftAngerRelief);
+                AcceptOffer(ourOffer, theirOffer, us, them, attitude, valuetoThemRatio);
+            }
 
             void DamageRelationsAllied()
             {
@@ -554,6 +581,13 @@ namespace Ship_Game.AI
                         ally.DamageRelationship(them, "Insulted", (valueToThem - valueToUs)*0.5f, null);
                 }
             }
+        }
+
+        // a gift earns trust and eases diplomatic anger, both capped lower the harder the game
+        (float Trust, float AngerRelief) GiftRelations(float giftValue)
+        {
+            float divisor = (int)OwnerEmpire.Universe.P.Difficulty + 1;
+            return (giftValue.UpperBound(25 / divisor), giftValue.UpperBound(50 / divisor));
         }
 
         string RejectColoniesNearRivalsOrEnemies(Offer theirOffer, Empire them, Relationship usToThem)
