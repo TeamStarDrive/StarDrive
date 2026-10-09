@@ -45,6 +45,14 @@ namespace UnitTests.Ships
             AssertShipStrength(design, design, SpawnShip(name, Player, FarAway), $"{name}: a new ship");
         }
 
+        // nothing left for the carrier's hangars to launch, whichever starter ships other tests loaded
+        void RemoveBuildableShipsButTheCarrier()
+        {
+            foreach (IShipDesign design in Player.ShipsWeCanBuildSnapshot)
+                if (design.Name != Carrier)
+                    Player.RemoveBuildableShip(design);
+        }
+
         static void AssertShipStrength(float expectedBase, float expectedCurrent, Ship ship, string what)
         {
             AssertEqual(expectedBase * Precision, expectedBase, ship.BaseStrength, $"{what} has the wrong strength in full working order");
@@ -139,9 +147,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void CarrierStrengthFollowsTheFightersTheEmpireCanBuild()
         {
-            foreach (IShipDesign design in Player.ShipsWeCanBuildSnapshot)
-                if (design.Role == RoleName.fighter)
-                    Player.RemoveBuildableShip(design);
+            RemoveBuildableShipsButTheCarrier();
             float withoutFighter = Design(Carrier).GetStrength(Player);
             AssertSameStrength(Carrier);
 
@@ -302,9 +308,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void CarriersTakeTheStrengthOfFightersTheEmpireCanNowBuild()
         {
-            foreach (IShipDesign design in Player.ShipsWeCanBuildSnapshot)
-                if (design.Role == RoleName.fighter)
-                    Player.RemoveBuildableShip(design);
+            RemoveBuildableShipsButTheCarrier();
             TestShip carrier = SpawnShip(Carrier, Player, FarAway);
             RunObjectsSim(1.5f);
             float before = carrier.GetStrength();
