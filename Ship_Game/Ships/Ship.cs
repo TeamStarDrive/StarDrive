@@ -111,6 +111,11 @@ namespace Ship_Game.Ships
         public float PowerFlowMax;
         public float PowerStoreMax;
         public float PowerDraw;
+        // no reactor works, or something emptied its store: its lights go out
+        public bool OutOfPower { get; private set; }
+        // the least power any of its working energy weapons needs to fire, 0 without any
+        public float CheapestEnergyShot { get; private set; }
+        public bool ReactorsWork => PowerFlowMax > 0f;
         public Power NetPower;
         readonly AudioHandle JumpSfx = new();
 
@@ -1106,6 +1111,9 @@ namespace Ship_Game.Ships
 
         void UpdatePower(FixedSimTime timeStep)
         {
+            // read before the refill below hides it: beams, shots or draw emptied the store, or left too little for a shot
+            bool emptied = PowerCurrent <= 0f;
+            bool tooLowToShoot = PowerCurrent < CheapestEnergyShot.UpperBound(PowerStoreMax);
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
             if (PowerCurrent < PowerStoreMax)
                 PowerCurrent += PowerFlowMax * timeStep.FixedTime;
@@ -1117,6 +1125,23 @@ namespace Ship_Game.Ships
             }
 
             PowerCurrent = Math.Min(PowerCurrent, PowerStoreMax);
+            // without reactors no module is powered, whatever is stored; reactors without batteries store nothing
+            OutOfPower = !ReactorsWork || emptied && PowerStoreMax > 0f;
+            if (InFrustum)
+                UpdateLights(timeStep, hasPower: !OutOfPower && !tooLowToShoot);
+        }
+
+        void UpdateCheapestEnergyShot()
+        {
+            float cheapest = float.MaxValue;
+            for (int i = 0; i < Weapons.Count; ++i)
+            {
+                Weapon w = Weapons[i];
+                float cost = w.PowerPerShot;
+                if (cost > 0f && cost < cheapest && w.Module is { Active: true, Powered: true })
+                    cheapest = cost;
+            }
+            CheapestEnergyShot = cheapest < float.MaxValue ? cheapest : 0f;
         }
 
         void UpdateStatusOncePerSecond(FixedSimTime timeStep)

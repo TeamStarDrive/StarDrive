@@ -1,5 +1,6 @@
 ﻿using SDGraphics;
 using SDUtils;
+using Ship_Game.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace Ship_Game.Ships
@@ -20,16 +21,6 @@ namespace Ship_Game.Ships
         public const float DimmestPillar = 0.35f;
         public const float FlickerOnSeconds = 2f;
         public const float FlickerOffSeconds = 2f;
-        static readonly (float At, float Level)[] FlickerOn =
-        {
-            (0f, 0f), (0.07f, 1f), (0.11f, 0f), (0.28f, 0.6f), (0.31f, 0f), (0.47f, 1f), (0.51f, 0f),
-            (0.62f, 0.4f), (0.66f, 0f), (0.77f, 1f), (0.81f, 0.3f), (0.87f, 1f), (0.91f, 0.5f), (1f, 1f)
-        };
-        static readonly (float At, float Level)[] FlickerOff =
-        {
-            (0f, 1f), (0.15f, 0.2f), (0.2f, 1f), (0.35f, 0f), (0.4f, 0.8f), (0.52f, 0f),
-            (0.65f, 0.5f), (0.7f, 0f), (0.9f, 0.25f), (1f, 0f)
-        };
 
         Ship Owner;
         readonly ShipModule[] AllMiningBays;
@@ -171,17 +162,9 @@ namespace Ship_Game.Ships
         public float PillarBrightness(float simTime)
         {
             float since = simTime - RefiningChangedAt;
-            float level = RefiningOutput > 0 ? Flicker(FlickerOn, since / FlickerOnSeconds)
-                                             : Flicker(FlickerOff, since / FlickerOffSeconds);
+            float level = RefiningOutput > 0 ? FluorescentLight.Level(FluorescentLight.TurnOn, since / FlickerOnSeconds)
+                                             : FluorescentLight.Level(FluorescentLight.TurnOff, since / FlickerOffSeconds);
             return level * (DimmestPillar + (1f - DimmestPillar) * LitOutput);
-        }
-
-        static float Flicker((float At, float Level)[] steps, float since)
-        {
-            float level = steps[0].Level;
-            for (int i = 1; i < steps.Length && since >= steps[i].At; ++i)
-                level = steps[i].Level;
-            return level;
         }
 
         public void AddLightPillars(float simTime, Array<LightPillar> pillars)
