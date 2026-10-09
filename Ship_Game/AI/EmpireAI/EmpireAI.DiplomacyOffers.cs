@@ -558,30 +558,26 @@ namespace Ship_Game.AI
 
         string RejectColoniesNearRivalsOrEnemies(Offer theirOffer, Empire them, Relationship usToThem)
         {
-            float rivalWeight = 0;
+            bool nearRival = false;
             bool nearEnemy = false;
             foreach (string planetName in theirOffer.ColoniesOffered)
             {
                 Planet p = them.FindPlanet(planetName);
-                if (p == null)
-                    continue;
-
-                CheckOwners(p.System, weight: 1f);
-                foreach (SolarSystem closeSystem in p.System.FiveClosestSystems)
-                    CheckOwners(closeSystem, weight: 0.2f);
+                if (p != null)
+                    CheckOwners(p.System);
             }
 
-            if (rivalWeight > 0)
+            if (nearRival)
             {
-                float penalty = rivalWeight * OwnerEmpire.DifficultyModifiers.WarBaitPenaltyMultiplier;
-                usToThem.WorsenRelations(OwnerEmpire.PersonalityModifiers.WarBaitTrustLoss * penalty,
-                                         OwnerEmpire.PersonalityModifiers.WarBaitAnger * penalty);
+                float multiplier = OwnerEmpire.DifficultyModifiers.WarBaitPenaltyMultiplier;
+                usToThem.WorsenRelations(OwnerEmpire.PersonalityModifiers.WarBaitTrustLoss * multiplier,
+                                         OwnerEmpire.PersonalityModifiers.WarBaitAnger * multiplier);
                 return "OfferResponse_Reject_NearRival";
             }
 
             return nearEnemy ? "OfferResponse_Reject_NearEnemy" : null;
 
-            void CheckOwners(SolarSystem system, float weight)
+            void CheckOwners(SolarSystem system)
             {
                 foreach (Empire owner in system.OwnerList)
                 {
@@ -594,7 +590,7 @@ namespace Ship_Game.AI
                     if (OwnerEmpire.IsAtWarWith(owner))
                         nearEnemy = true;
                     else
-                        rivalWeight = rivalWeight.LowerBound(weight);
+                        nearRival = true;
                 }
             }
         }

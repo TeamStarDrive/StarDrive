@@ -78,7 +78,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearRival</DialogType>
-      <Default>Nice try, SING. Another race holds worlds in that system or near it, and our borders are shut to them. Taking that planet is a bet that ends in war. The Draylok Council folds.</Default>
+      <Default>Nice try, SING. Another race holds worlds in that system, and our borders are shut to them. Taking that planet is a bet that ends in war. The Draylok Council folds.</Default>
       <DL_Agg>We pick our own wars. Do not try to pick them for us.</DL_Agg>
       <DL_Xeno>Aliens meddling at our borders. We knew you could not be trusted.</DL_Xeno>
       <DL_Hon>Trying to set neighbors against each other is dishonorable. We expected better.</DL_Hon>
@@ -88,7 +88,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearEnemy</DialogType>
-      <Default>Our enemies hold worlds in that system or near it, SING. That planet is a losing hand. The Draylok Council folds.</Default>
+      <Default>Our enemies hold worlds in that system, SING. That planet is a losing hand. The Draylok Council folds.</Default>
       <DL_Agg>When we want worlds there, we will take them from our enemies ourselves.</DL_Agg>
       <DL_Xeno>We need no alien worlds to fight our war.</DL_Xeno>
       <DL_Hon>We will not put your settlers in the middle of our war, but we thank you for the thought.</DL_Hon>
