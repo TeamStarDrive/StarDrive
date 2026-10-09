@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
@@ -303,6 +304,28 @@ namespace UnitTests.Ships
             Assert.IsNotNull(loadedShip, "setup: the ship was not in the save");
             float design = Design(Shielded).GetStrength(loaded.UState.Player);
             AssertShipStrength(design, expected, loadedShip, "A damaged ship after loading");
+        }
+
+        [TestMethod]
+        public void EmpProtectionCountsPerSlotWhateverTheModuleSize()
+        {
+            FieldInfo emp = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.EMPProtection));
+            foreach (string uid in new[] { "Ceramic Armor Small", "Ceramic Armor Large" })
+            {
+                ShipModule armor = ResourceManager.GetModuleTemplate(uid);
+                Assert.AreEqual(0f, armor.EMPProtection, $"setup: {uid} already has EMP protection");
+                float without = armor.CalculateModuleDefense(100, EmpireHullBonuses.Default, 0f);
+                try
+                {
+                    emp.SetValue(armor.Flyweight, armor.Area * 500f);
+                    AssertEqual(without * Precision, 2f * without, armor.CalculateModuleDefense(100, EmpireHullBonuses.Default, 0f),
+                        $"{uid} ({armor.XSize}x{armor.YSize}): 500 EMP protection per slot does not double its defense");
+                }
+                finally
+                {
+                    emp.SetValue(armor.Flyweight, 0f);
+                }
+            }
         }
 
         [TestMethod]

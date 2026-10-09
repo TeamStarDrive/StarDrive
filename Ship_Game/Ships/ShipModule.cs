@@ -1495,7 +1495,7 @@ namespace Ship_Game.Ships
             def *= ModuleType == ShipModuleType.Armor ? 1 + APResist * 0.5f : 1f;
 
             def += ECM;
-            def *= 1 + EMPProtection * 0.002f; // div 500
+            def *= 1 + EMPProtection / Area * 0.002f; // per slot, div 500
 
             // Engines
             def += (TurnThrust + WarpThrust + Thrust) / 15000f;
