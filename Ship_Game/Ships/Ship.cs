@@ -111,7 +111,7 @@ namespace Ship_Game.Ships
         public float PowerFlowMax;
         public float PowerStoreMax;
         public float PowerDraw;
-        // no reactor works, or something emptied its store: its lights go out
+        // no reactor works, or something emptied its store: its beams stop and cannot start, and its lights go out
         public bool OutOfPower { get; private set; }
         // the least power any of its working energy weapons needs to fire, 0 without any
         public float CheapestEnergyShot { get; private set; }
