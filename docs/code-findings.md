@@ -257,6 +257,17 @@ Measured, 8 stacked at 8 units with shields down, averaged over 20 trials:
 | Corsair | 7 of 7 | **0 of 7** |
 | Shipyard among 6 freighters | 6 of 6 | 3.7 of 6 |
 
+**Stacked big hulls take the blast inside, 2026-10-09 (Gilad).** When a station, frigate or bigger
+dies with a cruiser or bigger sitting on it - that ship's centre within a tenth of its *own* radius
+of the blast - the blast is not raycast: it enters at the nearest module, inside the hull, and that
+ship's evade is halved on top of the point-blank quarter (`Ship.IsStackedOnExplosion`). Hull role
+decides. Stations, frigates and destroyers count only as the dying ship; everything below frigate,
+and any station, frigate or destroyer caught in the blast, keeps the raycast. The Dreadnought row above is
+exactly this case (a tenth of 604 is 60, so all 7 neighbours at 8-56 units are stacked): the
+armour-stripped victim now takes 21 of 35 neighbours over 5 trials, 4.2 of 7, where it took 0;
+an intact one still takes 0. Terran-Prototype cruisers stacked the same way lose 0 either way.
+`OverlappingCapitalsSurviveOneOfThemExploding` now spaces its capitals 0.15 radius apart.
+
 **Still open, deliberately:** a station taking its docked craft with it. A Shipyard's cap is 100x
 radius = 28,644 against 17-module freighters, and that reads as correct rather than broken.
 

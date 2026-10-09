@@ -1456,7 +1456,8 @@ namespace Ship_Game.Ships
         // Base chance to evade and exploding ship
         // FB: Ships will be lucky to not get caught in the explosion, based on their level as well.
         // Point-blank (closest module inside the exploding ship's hull radius) drops evade to a quarter of normal.
-        public float ExplosionEvadeBaseChance(bool pointBlank)
+        // Stacked on the exploding ship (IsStackedOnExplosion) halves it.
+        public float ExplosionEvadeBaseChance(bool pointBlank, bool stacked)
         {
             float explosionEvadeBaseChance = 0;
             switch (ShipData.HullRole)
@@ -1474,6 +1475,9 @@ namespace Ship_Game.Ships
             }
 
             explosionEvadeBaseChance += Level;
+            if (stacked)
+                explosionEvadeBaseChance *= 0.5f;
+
             if (pointBlank)
                 switch (ShipData.HullRole)
                 {
@@ -1485,6 +1489,14 @@ namespace Ship_Game.Ships
                 }
 
             return explosionEvadeBaseChance;
+        }
+
+        // a station, frigate or bigger exploding within a tenth of this cruiser-or-bigger's radius from its center
+        public bool IsStackedOnExplosion(Ship exploding, Vector2 explosionCenter)
+        {
+            return exploding.ShipData.HullRole is RoleName.station or (>= RoleName.frigate and <= RoleName.capital)
+                && ShipData.HullRole is >= RoleName.cruiser and <= RoleName.capital
+                && Position.InRadius(explosionCenter, Radius * 0.1f);
         }
 
         /// <summary>

@@ -249,11 +249,13 @@ namespace Ship_Game.Gameplay
 
                 float distToNearest = explosionCenter.Distance(nearest.Position);
                 float reducedRadius = damageRadius - distToNearest;
-                float evadeChance = otherShip.ExplosionEvadeBaseChance(distToNearest < thisShip.Radius);
+                bool stacked = otherShip.IsStackedOnExplosion(thisShip, explosionCenter);
+                float evadeChance = otherShip.ExplosionEvadeBaseChance(distToNearest < thisShip.Radius, stacked);
                 if (reducedRadius < 0f || thisShip.Loyalty.Random.RollDice(evadeChance))
                     continue;
 
-                ShipModule entry = otherShip.FindBlastEntryModule(explosionCenter) ?? nearest;
+                // a stacked hull takes the blast inside, at its nearest module
+                ShipModule entry = stacked ? nearest : otherShip.FindBlastEntryModule(explosionCenter) ?? nearest;
 
                 float distToEntry = explosionCenter.Distance(entry.Position);
                 float spreadRadius = (damageRadius - distToEntry).LowerBound(0f);
