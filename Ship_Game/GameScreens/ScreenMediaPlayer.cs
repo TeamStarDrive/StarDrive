@@ -215,7 +215,8 @@ namespace Ship_Game.GameScreens
             if (empire.data.MusicCue != null && Player.State != MediaState.Playing)
             {
                 GameAudio.SwitchToRacialMusic(); // before PlayMusic: a muted RacialMusic category refuses to start the theme
-                ExtraMusic = GameAudio.PlayMusic(warMusic ? "CombatMusic" : empire.data.MusicCue);
+                if (ExtraMusic.IsStopped)
+                    ExtraMusic = GameAudio.PlayMusic(warMusic ? "CombatMusic" : empire.data.MusicCue);
             }
         }
 
