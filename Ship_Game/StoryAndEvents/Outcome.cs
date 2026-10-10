@@ -269,7 +269,7 @@ namespace Ship_Game
                     triggeredBy.data.OwnedArtifacts.Add(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
                     SetArtifact(chosenArtifact);
-                    chosenArtifact.CheckGrantArtifact(triggeredBy, this, popup);
+                    chosenArtifact.GrantBonuses(triggeredBy, popup);
                 }
             }
 

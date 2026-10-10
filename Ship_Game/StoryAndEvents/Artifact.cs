@@ -20,7 +20,7 @@ namespace Ship_Game
         [StarData] public float GroundCombatMod;
         [StarData] public float ResearchMod;
         [StarData] public float PlusFlatMoney;
-        [StarData] public float DiplomacyMod; // OnGoing effect which is tied to OngoingDiplomacyMod in empire data.
+        [StarData] public float DiplomacyMod; // added to the holder's racial diplomacy trait
         [StarData] public float SensorMod;
         [StarData] public float ModuleHPMod;
 
@@ -37,74 +37,58 @@ namespace Ship_Game
             return true;
         }
 
-        public void CheckGrantArtifact(Empire triggerer, Outcome triggeredOutcome, EventPopup popup)
+        public void GrantBonuses(Empire triggerer, EventPopup popup)
         {
-            Array<Artifact> potentials = new Array<Artifact>();
-            foreach (var kv in ResourceManager.ArtifactsDict)
+            // apply artifact bonus.
+            // FB - todo, move text to GameText.cs for translation as well.
+            float bonus = 0;
+            if (TrySetArtifactEffect(ref bonus, FertilityMod,
+                triggerer.data.Traits, "Fertility Bonus to all Owned Colonies: ",popup))
             {
-                if (kv.Value.Discovered)
+                triggerer.data.EmpireFertilityBonus += bonus;
+                foreach (Planet planet in triggerer.GetPlanets())
                 {
-                    continue;
+                    planet.AddMaxBaseFertility(bonus);
                 }
-                potentials.Add(kv.Value);
             }
-            if (potentials.Count <= 0)
-            {
-                triggeredOutcome.MoneyGranted = 500;
-            }
-            else
-            {
-                // apply artifact bonus.
-                // FB - todo, move text to GameText.cs for translation as well.
-                float bonus = 0;
-                if (TrySetArtifactEffect(ref bonus, FertilityMod,
-                    triggerer.data.Traits, "Fertility Bonus to all Owned Colonies: ",popup))
-                {
-                    triggerer.data.EmpireFertilityBonus += bonus;
-                    foreach (Planet planet in triggerer.GetPlanets())
-                    {
-                        planet.AddMaxBaseFertility(bonus);
-                    }
-                }
-                TrySetArtifactEffect(ref triggerer.data.Traits.DiplomacyMod,
-                    DiplomacyMod,
-                    triggerer.data.Traits, "Diplomacy Bonus: ", popup);
+            TrySetArtifactEffect(ref triggerer.data.Traits.DiplomacyMod,
+                DiplomacyMod,
+                triggerer.data.Traits, "Diplomacy Bonus: ", popup);
 
-                TrySetArtifactEffect(ref triggerer.data.Traits.GroundCombatModifier,
-                    GroundCombatMod,
-                    triggerer.data.Traits, "Empire-wide Ground Combat Bonus: ", popup);
+            TrySetArtifactEffect(ref triggerer.data.Traits.GroundCombatModifier,
+                GroundCombatMod,
+                triggerer.data.Traits, "Empire-wide Ground Combat Bonus: ", popup);
 
-                TrySetArtifactEffect(ref triggerer.data.Traits.ModHpModifier,
-                    ModuleHPMod,
-                    triggerer.data.Traits, "Empire-wide Ship Module Hitpoint Bonus: ", popup);
+            TrySetArtifactEffect(ref triggerer.data.Traits.ModHpModifier,
+                ModuleHPMod,
+                triggerer.data.Traits, "Empire-wide Ship Module Hitpoint Bonus: ", popup);
 
-                TrySetArtifactEffect(ref triggerer.data.FlatMoneyBonus,
-                    PlusFlatMoney,
-                    triggerer.data.Traits, "Credits per Turn Bonus: ", popup, percent: false);
+            TrySetArtifactEffect(ref triggerer.data.FlatMoneyBonus,
+                PlusFlatMoney,
+                triggerer.data.Traits, "Credits per Turn Bonus: ", popup, percent: false);
 
-                TrySetArtifactEffect(ref triggerer.data.Traits.ProductionMod,
-                    ProductionMod,
-                    triggerer.data.Traits, "Empire-wide Production Bonus: ", popup);
+            TrySetArtifactEffect(ref triggerer.data.Traits.ProductionMod,
+                ProductionMod,
+                triggerer.data.Traits, "Empire-wide Production Bonus: ", popup);
 
-                TrySetArtifactEffect(ref triggerer.data.Traits.ReproductionMod,
-                    ReproductionMod,
-                    triggerer.data.Traits, "Empire-wide Popoulation Growth Bonus: ", popup);
+            TrySetArtifactEffect(ref triggerer.data.Traits.ReproductionMod,
+                ReproductionMod,
+                triggerer.data.Traits, "Empire-wide Popoulation Growth Bonus: ", popup);
 
-                TrySetArtifactEffect(ref triggerer.data.Traits.ResearchMod,
-                    ResearchMod,
-                    triggerer.data.Traits, "Empire-wide Research Bonus: ", popup);
+            TrySetArtifactEffect(ref triggerer.data.Traits.ResearchMod,
+                ResearchMod,
+                triggerer.data.Traits, "Empire-wide Research Bonus: ", popup);
 
-                TrySetArtifactEffect(ref triggerer.data.SensorModifier,
-                    SensorMod,
-                    triggerer.data.Traits, "Empire-wide Sensor Range Bonus: ", popup);
+            TrySetArtifactEffect(ref triggerer.data.SensorModifier,
+                SensorMod,
+                triggerer.data.Traits, "Empire-wide Sensor Range Bonus: ", popup);
 
-                TrySetArtifactEffect(ref triggerer.data.ShieldPenBonusChance,
-                    ShieldPenBonus,
-                    triggerer.data.Traits, "Empire-wide Bonus Shield Penetration Chance: ", popup);
+            TrySetArtifactEffect(ref triggerer.data.ShieldPenBonusChance,
+                ShieldPenBonus,
+                triggerer.data.Traits, "Empire-wide Bonus Shield Penetration Chance: ", popup);
 
-                // refresh all bonuses so modules would know their health etc. increased
-                EmpireHullBonuses.RefreshBonuses(triggerer);
-            }
+            // refresh all bonuses so modules would know their health etc. increased
+            EmpireHullBonuses.RefreshBonuses(triggerer);
         }
         public float GetGroundCombatBonus(EmpireData data) => ArtifactBonusForEmpire(GroundCombatMod, data.Traits.Spiritual);
         public float GetDiplomacyBonus(EmpireData data)    => ArtifactBonusForEmpire(DiplomacyMod   , data.Traits.Spiritual);
