@@ -115,6 +115,22 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
+        public void TheRestOfASalvoIsNotFiredAtADyingTarget()
+        {
+            SetLevel(1);
+            Building gun = SalvoGun(out IWeaponTemplate salvo);
+            Ship enemy = EnemyNextToPlanet();
+
+            (int _, int firstShot) = FireFor(gun, 1f / 60f, 60);
+            Assert.AreEqual(salvo.ProjectileCount, firstShot, "setup: the first shot of the salvo was not fired");
+            enemy.Dying = true; // tumbling for a few seconds before it explodes, still active
+            Assert.IsTrue(enemy.Active, "setup: a dying ship is still active");
+
+            (int _, int rest) = FireFor(gun, 1f, 60, weaponTimer: gun.WeaponTimer);
+            Assert.AreEqual(0, rest, $"{gun.Name} kept firing its salvo at a dying ship");
+        }
+
+        [TestMethod]
         public void AtASlowSimTheGunKeepsItsFireRate()
         {
             const int stepsPerSecond = 10;

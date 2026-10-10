@@ -318,7 +318,7 @@ namespace Ship_Game
             if (SalvoShotsLeft <= 0)
                 return;
 
-            if (SalvoTarget is not { Active: true } || !p.Owner.IsEmpireAttackable(SalvoTarget.Loyalty)
+            if (SalvoTarget is not { Active: true, Dying: false } || !p.Owner.IsEmpireAttackable(SalvoTarget.Loyalty)
                 || !SalvoTarget.Position.InRadius(p.Position, SpaceRange))
             {
                 SalvoShotsLeft = 0;
