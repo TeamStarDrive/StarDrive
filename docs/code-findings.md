@@ -266,7 +266,8 @@ and any station, frigate or destroyer caught in the blast, keeps the raycast. Th
 exactly this case (a tenth of 604 is 60, so all 7 neighbours at 8-56 units are stacked): the
 armour-stripped victim now takes 21 of 35 neighbours over 5 trials, 4.2 of 7, where it took 0;
 an intact one still takes 0. Terran-Prototype cruisers stacked the same way lose 0 either way.
-`OverlappingCapitalsSurviveOneOfThemExploding` now spaces its capitals 0.15 radius apart.
+`OverlappingCapitalsSurviveOneOfThemExploding` now spaces its capitals 0.15 radius apart. The Codex does
+not describe this rule (Gilad, 2026-10-10).
 
 **Still open, deliberately:** a station taking its docked craft with it. A Shipyard's cap is 100x
 radius = 28,644 against 17-module freighters, and that reads as correct rather than broken.
