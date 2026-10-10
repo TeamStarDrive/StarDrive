@@ -1125,7 +1125,7 @@ namespace Ship_Game.Ships
             }
 
             PowerCurrent = Math.Min(PowerCurrent, PowerStoreMax);
-            // without reactors no module is powered, whatever is stored; reactors without batteries store nothing
+            // without a working reactor a ship is out of power whatever is stored; a ship that stores nothing never runs empty
             OutOfPower = !ReactorsWork || emptied && PowerStoreMax > 0f;
             if (InFrustum)
                 UpdateLights(timeStep, hasPower: !OutOfPower && !tooLowToShoot);

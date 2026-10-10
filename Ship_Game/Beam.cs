@@ -330,7 +330,7 @@ namespace Ship_Game
         public override void Update(FixedSimTime timeStep)
         {
             // a beam goes out at once when its emitter is destroyed or unpowered, or its ship dies or runs out of power
-            if (Module == null || !Module.Active || !Module.Powered || Owner?.Active != true || Owner.OutOfPower)
+            if (Module == null || !Module.Active || !Module.Powered || Owner?.Active != true || Owner.Dying || Owner.OutOfPower)
             {
                 Die(null, false);
                 Duration = 0f;

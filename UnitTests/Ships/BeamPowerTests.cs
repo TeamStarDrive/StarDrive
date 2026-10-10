@@ -125,6 +125,22 @@ public class BeamPowerTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ABeamWeaponDoesNotStartOnAStoreAnotherBeamEmptiedThisTick()
+    {
+        TestShip ship = NewReactorFedShip();
+        Run(ship, 0.1f);
+        Beam beam = FireBeam(ship);
+        ship.PowerCurrent = beam.PowerCost * TestSimStep.FixedTime * 0.5f;
+        beam.Update(TestSimStep); // in the game beams update after their ships and before the ships fire
+        AssertEqual(0.001f, 0f, ship.PowerCurrent, "setup: the beam emptied the store");
+        Assert.IsFalse(ship.OutOfPower, "setup: the ship read its store before the beam emptied it");
+
+        ShipModule emitter = ship.Modules.First(m => m.InstalledWeapon != null);
+        Weapon laser = ResourceManager.CreateWeapon(UState, "LaserBeam", ship, emitter);
+        Assert.IsFalse(laser.ManualFireTowardsPos(emitter.Position + ship.Direction * 500f), "a beam started on an empty store");
+    }
+
+    [TestMethod]
     public void ABeamGoesOutWhenItsEmitterIsDestroyed()
     {
         TestShip ship = NewShip();
@@ -157,5 +173,17 @@ public class BeamPowerTests : StarDriveTest
         Assert.IsTrue(beam.Active, "setup: its beam outlives it until the beam's next update");
         beam.Update(TestSimStep);
         Assert.IsFalse(beam.Active, "a dead ship's beam goes out");
+    }
+
+    [TestMethod]
+    public void ABeamGoesOutWhenItsShipStartsDying()
+    {
+        TestShip ship = NewShip();
+        Run(ship, 0.1f);
+        Beam beam = FireBeam(ship);
+        ship.Dying = true; // tumbling for a few seconds before it explodes
+        Assert.IsTrue(ship.Active, "setup: a dying ship is still active");
+        beam.Update(TestSimStep);
+        Assert.IsFalse(beam.Active, "a dying ship's beam goes out");
     }
 }
