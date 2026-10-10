@@ -145,7 +145,8 @@ namespace Ship_Game.Gameplay
             return Module.Active && Module.Powered
                 && Owner.engineState  != Ship.MoveState.Warp
                 && Owner.PowerCurrent >= PowerPerShot
-                && Owner.Ordinance    >= OrdnancePerShot;
+                && Owner.Ordinance    >= OrdnancePerShot
+                && !(IsBeam && (Owner.OutOfPower || Owner.PowerCurrent <= 0f)); // beams cost nothing to start but would go out at once
         }
 
         bool CanFireWeaponCooldown()

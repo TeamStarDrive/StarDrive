@@ -64,12 +64,12 @@ namespace UnitTests.AITests.Empire
             return (response, trust - AiToPlayer.Trust, AiToPlayer.Anger_DiplomaticConflict - anger);
         }
 
-        void AssertPenalty((string Response, float TrustLost, float AngerAdded) result, float weight)
+        void AssertPenalty((string Response, float TrustLost, float AngerAdded) result)
         {
             float multiplier = Enemy.DifficultyModifiers.WarBaitPenaltyMultiplier;
             AssertEqual("OfferResponse_Reject_NearRival", result.Response, "the AI did not refuse a colony that would set it against a rival");
-            AssertEqual(0.001f, Enemy.PersonalityModifiers.WarBaitTrustLoss * multiplier * weight, result.TrustLost, "trust lost");
-            AssertEqual(0.001f, Enemy.PersonalityModifiers.WarBaitAnger * multiplier * weight, result.AngerAdded, "anger added");
+            AssertEqual(0.001f, Enemy.PersonalityModifiers.WarBaitTrustLoss * multiplier, result.TrustLost, "trust lost");
+            AssertEqual(0.001f, Enemy.PersonalityModifiers.WarBaitAnger * multiplier, result.AngerAdded, "anger added");
             Assert.AreEqual(Player, Gift.Owner, "the refused colony changed hands");
         }
 
@@ -81,23 +81,28 @@ namespace UnitTests.AITests.Empire
 
         void DeclareWarOnThirdMajor() => Enemy.GetRelations(ThirdMajor).AtWar = ThirdMajor.GetRelations(Enemy).AtWar = true;
 
-        [TestMethod]
-        public void ARivalInTheSameSystemCostsTheFullPenalty()
+        void AssertNearbyIsOneOfTheFiveClosest()
         {
-            Setup();
-            Neighbour.SetOwner(ThirdMajor);
-            Nearby.SetOwner(ThirdMajor);
-
-            AssertPenalty(GiftToEnemyWithCost(), weight: 1f);
+            AssertTrue(Gift.System.FiveClosestSystems.Contains(Nearby.System), "setup: the nearby system is one of the five closest");
         }
 
         [TestMethod]
-        public void ARivalInANearbySystemCostsAFifth()
+        public void ARivalInTheSameSystemCostsThePenalty()
         {
             Setup();
+            Neighbour.SetOwner(ThirdMajor);
+
+            AssertPenalty(GiftToEnemyWithCost());
+        }
+
+        [TestMethod]
+        public void ARivalInANearbySystemDoesNotCount()
+        {
+            Setup();
+            AssertNearbyIsOneOfTheFiveClosest();
             Nearby.SetOwner(ThirdMajor);
 
-            AssertPenalty(GiftToEnemyWithCost(), weight: 0.2f);
+            AssertAccepted(GiftToEnemy(), "a rival in a nearby system blocked the gift");
         }
 
         [TestMethod]
@@ -115,26 +120,26 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        public void AnEnemyInANearbySystemIsRefusedToo()
+        public void AnEnemyInANearbySystemDoesNotCount()
         {
             Setup();
+            AssertNearbyIsOneOfTheFiveClosest();
             DeclareWarOnThirdMajor();
             Nearby.SetOwner(ThirdMajor);
 
-            AssertEqual("OfferResponse_Reject_NearEnemy", GiftToEnemy(), "the AI took a colony near its enemy");
-            Assert.AreEqual(Player, Gift.Owner, "the refused colony changed hands");
+            AssertAccepted(GiftToEnemy(), "an enemy in a nearby system blocked the gift");
         }
 
         [TestMethod]
-        public void ARivalNearbyOutweighsAnEnemyInTheSystem()
+        public void ARivalOutweighsAnEnemyInTheSameSystem()
         {
             Setup();
             DeclareWarOnThirdMajor();
             Neighbour.SetOwner(ThirdMajor);
             CreateThirdMajorEmpire(); // a second race, at peace with the AI
-            Nearby.SetOwner(ThirdMajor);
+            AddPlanet(Gift.System, new Vector2(113_000), "Gift Test Second Neighbour").SetOwner(ThirdMajor);
 
-            AssertPenalty(GiftToEnemyWithCost(), weight: 0.2f);
+            AssertPenalty(GiftToEnemyWithCost());
         }
 
         [TestMethod]

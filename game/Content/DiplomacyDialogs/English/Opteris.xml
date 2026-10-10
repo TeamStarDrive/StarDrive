@@ -81,7 +81,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearRival</DialogType>
-      <Default>Analysis: offered world lies in or near a system held by a third party. Open borders with that party: none. Projected outcome: territorial war. Offer declined.</Default>
+      <Default>Analysis: offered world lies in a system held by a third party. Open borders with that party: none. Projected outcome: territorial war. Offer declined.</Default>
       <DL_Agg>Conflict initiation is our function. Not yours.</DL_Agg>
       <DL_Xeno>Alien interference detected. Hostility increased.</DL_Xeno>
       <DL_Hon>Deception detected. Honor subroutine: displeased.</DL_Hon>
@@ -91,7 +91,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearEnemy</DialogType>
-      <Default>Analysis: offered world lies in or near a system held by our enemies. Projected outcome: immediate loss. Offer declined.</Default>
+      <Default>Analysis: offered world lies in a system held by our enemies. Projected outcome: immediate loss. Offer declined.</Default>
       <DL_Agg>Enemy worlds will be acquired by force.</DL_Agg>
       <DL_Xeno>Alien assistance: not required.</DL_Xeno>
       <DL_Hon>Civilian placement in combat zone: rejected. Gratitude logged.</DL_Hon>

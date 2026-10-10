@@ -46,9 +46,9 @@ namespace Ship_Game
         public override void LoadContent()
         {
             if (Planet != null)
-                TitleText = $"{Outcome.LocalizedTitle} at {Planet.Name}";
+                TitleText = string.Format(Localizer.Token(GameText.EventTitleAtPlanet), Outcome.LocalizedTitle, Planet.Name);
             else
-                TitleText = $"{Outcome.LocalizedTitle} in Deep Space";
+                TitleText = string.Format(Localizer.Token(GameText.EventTitleInDeepSpace), Outcome.LocalizedTitle);
 
             base.LoadContent();
 
@@ -73,7 +73,7 @@ namespace Ship_Game
 
             Close.Visible = false; // the X just confuses people, a big OK button is better
 
-            string confirm = Outcome.ConfirmText.NotEmpty() ? Outcome.ConfirmText : "Great!";
+            string confirm = Outcome.ConfirmText.NotEmpty() ? Outcome.ConfirmText : Localizer.Token(GameText.EventConfirmDefault);
             var btn = Button(ButtonStyle.EventConfirm, Vector2.Zero, confirm, OnDismissClicked);
             btn.SetPosToCenterOf(this).SetDistanceFromBottomOf(this, 24);
             
@@ -89,24 +89,24 @@ namespace Ship_Game
 
             if (Outcome.SelectRandomPlanet && Outcome.GetPlanet() != null)
             {
-                textBox.AddLine($"Relevant Planet: {Outcome.GetPlanet().Name}", Fonts.Arial12Bold, Color.LightGreen);
+                textBox.AddLine(string.Format(Localizer.Token(GameText.EventRelevantPlanet), Outcome.GetPlanet().Name), Fonts.Arial12Bold, Color.LightGreen);
             }
 
             if (Outcome.MoneyGranted > 0)
             {
-                textBox.AddLine($"Money Granted: {Outcome.MoneyGranted}", Fonts.Arial12Bold, Color.Green);
+                textBox.AddLine(string.Format(Localizer.Token(GameText.EventMoneyGranted), Outcome.MoneyGranted), Fonts.Arial12Bold, Color.Green);
             }
 
             if (Outcome.ScienceBonus > 0f)
             {
                 int scienceBonus = (int)(Outcome.ScienceBonus * 100f);
-                textBox.AddLine($"Research Bonus Granted: {scienceBonus}%", Fonts.Arial12Bold, Color.Blue);
+                textBox.AddLine(string.Format(Localizer.Token(GameText.EventResearchBonusGranted), scienceBonus), Fonts.Arial12Bold, Color.Blue);
             }
 
             if (Outcome.IndustryBonus > 0f)
             {
                 int industryBonus = (int)(Outcome.IndustryBonus * 100f);
-                textBox.AddLine($"Research Bonus Granted: {industryBonus}%", Fonts.Arial12Bold, Color.SandyBrown);
+                textBox.AddLine(string.Format(Localizer.Token(GameText.EventProductionBonusGranted), industryBonus), Fonts.Arial12Bold, Color.SandyBrown);
             }
 
             if (Outcome.UnlockTech != null)
@@ -183,11 +183,11 @@ namespace Ship_Game
                 SubTexture artTex = content.LoadSubTexture("Textures/Artifact Icons/" + art.Name);
 
                 float y = 0;
-                LabelRel($"Artifact Granted: {art.Name}", Fonts.Arial12Bold, Color.LightGreen, 0, y);
+                LabelRel(string.Format(Localizer.Token(GameText.EventArtifactGranted), art.NameText.Text), Fonts.Arial12Bold, Color.LightGreen, 0, y);
                 y += Fonts.Arial12Bold.LineSpacing;
                 PanelRel(new RectF(0, y, 64, 64), artTex);
                 y += 64;
-                foreach (string line in Fonts.Arial12.ParseTextToLines(art.Description, width))
+                foreach (string line in Fonts.Arial12.ParseTextToLines(art.DescriptionText.Text, width))
                 {
                     LabelRel(line, Fonts.Arial12, 0, y);
                     y += Fonts.Arial12.LineSpacing;
@@ -204,18 +204,18 @@ namespace Ship_Game
         {
             if (!ResourceManager.TryGetTech(unlockTech, out Technology tech))
             {
-                textBox.AddLine($"Missing Technology: {unlockTech}", Fonts.Arial12Bold, Color.Red);
+                textBox.AddLine(string.Format(Localizer.Token(GameText.EventMissingTechnology), unlockTech), Fonts.Arial12Bold, Color.Red);
                 return;
             }
 
             if (Outcome.WeHadIt)
             {
-                textBox.AddLine($"We found some {tech.Name.Text}, but we already possessed this knowledge.",
+                textBox.AddLine(string.Format(Localizer.Token(GameText.EventTechAlreadyKnown), tech.Name.Text),
                                 Fonts.Arial12Bold, Color.LightYellow);
                 return;
             }
 
-            textBox.AddLine($"New Technology Acquired: {tech.Name.Text}", Fonts.Arial12Bold, Color.AliceBlue);
+            textBox.AddLine(string.Format(Localizer.Token(GameText.EventTechAcquired), tech.Name.Text), Fonts.Arial12Bold, Color.AliceBlue);
 
             if (tech.ModulesUnlocked.Count > 0)
             {
@@ -238,7 +238,7 @@ namespace Ship_Game
             public ArtifactEffect(string text, float value, bool percent)
             {
                 Value = percent ? (int)(value * 100f) : (int)value;
-                Text  = text + Value + (percent ? "%" : "");
+                Text  = $"{text}: {Value}{(percent ? "%" : "")}";
             }
         }
     }

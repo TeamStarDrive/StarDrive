@@ -71,6 +71,8 @@ float  SpecularPower   = 16.0;
 // per-material spec multiplier so animated hulls (Cordrazine, etc) honor
 // their FBX-declared gloss instead of reading flat.
 float  SpecularAmount  = 1.0;
+// see MeshLighting.fx
+float  EmissiveScale   = 1.0;
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
@@ -329,7 +331,7 @@ float4 PSDefault(VSOutput input) : SV_TARGET
     float4 texColor = TextureEnabled ? tex2D(TextureSampler, input.TexCoord) : float4(1, 1, 1, 1);
 
     float3 emissive = EmissiveMapEnabled
-        ? tex2D(EmissiveSampler, input.TexCoord).rgb
+        ? tex2D(EmissiveSampler, input.TexCoord).rgb * EmissiveScale
         : EmissiveColor;
 
     float3 specularMask = SpecularMapEnabled

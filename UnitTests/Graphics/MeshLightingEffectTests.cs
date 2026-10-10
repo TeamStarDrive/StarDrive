@@ -131,6 +131,113 @@ public class MeshLightingEffectTests : StarDriveTest
             $"Unexpected green contribution from blue emissive map: G-sum={greenContribution}.");
     }
 
+    // A ship's lights go dark or stutter with its power: EmissiveScale scales the glow map.
+    [TestMethod]
+    public void EmissiveScale_ScalesTheGlowMap()
+    {
+        using var glowMap = MakeSolidColorTexture(Game.GraphicsDevice, new Color(0, 0, 255, 255));
+        long BlueWith(float scale)
+        {
+            using var rt = RenderUnitCubeWith(fx =>
+            {
+                fx.LightingEnabled = false;
+                fx.TextureEnabled = false;
+                fx.DiffuseColor = Vector3.Zero;
+                fx.EmissiveMapTexture = glowMap;
+                fx.EmissiveScale = scale;
+            });
+            return SumChannel(rt, channel: 2, excludeMagenta: true);
+        }
+
+        long full = BlueWith(1f);
+        Assert.IsTrue(full > 1000, $"setup: the glow map renders the cube blue, got B-sum={full}");
+        AssertEqual(0.05f, 0.5f, BlueWith(0.5f) / (float)full, "half the glow at half the scale");
+        Assert.IsTrue(BlueWith(0f) < 100, "no glow at zero scale");
+    }
+
+    // Only the glow map counts as a ship's lights; a model without one is never darkened.
+    [TestMethod]
+    public void EmissiveScale_LeavesTheMaterialEmissiveColorAlone()
+    {
+        using var rt = RenderUnitCubeWith(fx =>
+        {
+            fx.LightingEnabled = false;
+            fx.DiffuseColor = Vector3.Zero;
+            fx.EmissiveColor = new Vector3(0.5f, 0f, 0f);
+            fx.EmissiveScale = 0f;
+        });
+
+        long redContribution = SumChannel(rt, channel: 0, excludeMagenta: true);
+        Assert.IsTrue(redContribution > 1000, $"Expected the red EmissiveColor to stay lit, got R-sum={redContribution}.");
+    }
+
+    // Every ship of a model shares the model's effect, so each SceneObject's own level must reach the draw.
+    [TestMethod]
+    public void SceneObjectsSharingAnEffectEachDrawWithTheirOwnEmissiveScale()
+    {
+        GraphicsDevice device = Game.GraphicsDevice;
+        using var glowMap = MakeSolidColorTexture(device, new Color(0, 0, 255, 255));
+        (StaticMesh mesh, VertexBuffer vb, IndexBuffer ib) = BuildUnitCube(device);
+        using var fx = new LightingEffect(device)
+        {
+            TextureEnabled = false,
+            DiffuseColor = Vector3.Zero,
+            EmissiveMapTexture = glowMap,
+        };
+        SceneObject dark = mesh.CreateSceneObject(effect: fx);
+        dark.World = Matrix.CreateTranslation(-0.8f, 0f, 0f);
+        dark.Visibility = ObjectVisibility.Rendered;
+        dark.EmissiveScale = 0f;
+        SceneObject lit = mesh.CreateSceneObject(effect: fx);
+        lit.World = Matrix.CreateTranslation(0.8f, 0f, 0f);
+        lit.Visibility = ObjectVisibility.Rendered;
+
+        using var scene = new SceneInterface(Game.Graphics);
+        var state = new SceneState();
+        Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 4), Vector3.Zero, Vector3.Up);
+        Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1.0f, 0.1f, 100f);
+        state.BeginFrameRendering(ref view, ref projection, 0f, null, false);
+        scene.BeginFrameRendering(state);
+        scene.ObjectManager.Submit(lit);
+        scene.ObjectManager.Submit(dark);
+
+        using var rt = new RenderTarget2D(device, 64, 64, mipMap: false, SurfaceFormat.Color, DepthFormat.Depth24);
+        RenderTargetBinding[] previousTargets = device.GetRenderTargets();
+        try
+        {
+            device.SetRenderTarget(rt);
+            device.Clear(Color.Magenta);
+            scene.RenderScene();
+        }
+        finally
+        {
+            device.SetRenderTargets(previousTargets);
+            vb.Dispose();
+            ib.Dispose();
+        }
+
+        // the scene's grey light lands on both cubes alike, so only blue above red is glow
+        long darkGlow = GlowInHalf(rt, rightHalf: false);
+        long litGlow = GlowInHalf(rt, rightHalf: true);
+        Assert.IsTrue(litGlow > 1000, $"setup: the lit cube glows, got {litGlow}");
+        Assert.IsTrue(darkGlow < litGlow / 20, $"the dark cube drew with the lit cube's glow: {darkGlow} vs {litGlow}");
+    }
+
+    static long GlowInHalf(RenderTarget2D rt, bool rightHalf)
+    {
+        var pixels = new Color[rt.Width * rt.Height];
+        rt.GetData(pixels);
+        long sum = 0;
+        for (int i = 0; i < pixels.Length; ++i)
+        {
+            Color px = pixels[i];
+            bool right = i % rt.Width >= rt.Width / 2;
+            if (right == rightHalf && px != Color.Magenta)
+                sum += System.Math.Max(0, px.B - px.R);
+        }
+        return sum;
+    }
+
     // Phase B specular (`_s`) sampling: a tilted-camera + directional-light
     // setup that actually generates a specular highlight, then verify a black
     // SpecularColorMapTexture dims it. (An axis-aligned cube facing the camera
@@ -213,10 +320,8 @@ public class MeshLightingEffectTests : StarDriveTest
     static RenderTarget2D RenderUnitCubeWith(System.Action<LightingEffect> configure)
         => RenderUnitCubeWith(configure, new Vector3(0, 0, 3));
 
-    static RenderTarget2D RenderUnitCubeWith(System.Action<LightingEffect> configure, Vector3 cameraPos)
+    static (StaticMesh Mesh, VertexBuffer Vertices, IndexBuffer Indices) BuildUnitCube(GraphicsDevice device)
     {
-        GraphicsDevice device = Game.GraphicsDevice;
-
         VertexPositionNormalTextureBump[] vertices = ForwardRendererTests.BuildCubeVertices();
         short[] indices = ForwardRendererTests.BuildCubeIndices();
 
@@ -241,6 +346,13 @@ public class MeshLightingEffectTests : StarDriveTest
         var mesh = new StaticMesh("UnitCube",
             new BoundingBox(new Vector3(-0.5f), new Vector3(0.5f)));
         mesh.RawMeshes.Add(meshData);
+        return (mesh, vb, ib);
+    }
+
+    static RenderTarget2D RenderUnitCubeWith(System.Action<LightingEffect> configure, Vector3 cameraPos)
+    {
+        GraphicsDevice device = Game.GraphicsDevice;
+        (StaticMesh mesh, VertexBuffer vb, IndexBuffer ib) = BuildUnitCube(device);
 
         var rt = new RenderTarget2D(device, 64, 64, mipMap: false,
             SurfaceFormat.Color, DepthFormat.Depth24);

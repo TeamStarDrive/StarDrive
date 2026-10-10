@@ -77,7 +77,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearRival</DialogType>
-      <Default>Another people basks in the light of that system or a sun near it, SING, and our borders are closed to them. Sharing their sky without trust brings only storms. We must say no.</Default>
+      <Default>Another people basks in the light of that system's sun, SING, and our borders are closed to them. Sharing their sky without trust brings only storms. We must say no.</Default>
       <DL_Agg>We pick our own wars. Do not try to pick them for us.</DL_Agg>
       <DL_Xeno>Aliens meddling at our borders. We knew you could not be trusted.</DL_Xeno>
       <DL_Hon>Trying to set neighbors against each other is dishonorable. We expected better.</DL_Hon>
@@ -87,7 +87,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearEnemy</DialogType>
-      <Default>Our enemies bask in the light of that system or a sun near it, SING. A world there would be the first to burn. We must say no.</Default>
+      <Default>Our enemies bask in the light of that system's sun, SING. A world there would be the first to burn. We must say no.</Default>
       <DL_Agg>When we want worlds there, we will take them from our enemies ourselves.</DL_Agg>
       <DL_Xeno>We need no alien worlds to fight our war.</DL_Xeno>
       <DL_Hon>We will not put your settlers in the middle of our war, but we thank you for the thought.</DL_Hon>

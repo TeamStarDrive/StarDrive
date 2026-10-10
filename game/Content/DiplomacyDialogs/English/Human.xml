@@ -76,7 +76,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_InsufficientTrust</DialogType>
-      <Default>Negative, SING. Your offer requires more from us than we're willing to part with at this time.</Default>
+      <Default>Negative, SING. We do not trust you enough yet for a deal like this.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
@@ -92,7 +92,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearRival</DialogType>
-      <Default>Another people lives in that system or near it, SING, and we have no open borders treaty with them. Taking that world would drag us into a war with them, so we must decline.</Default>
+      <Default>Another people lives in that system, SING, and we have no open borders treaty with them. Taking that world would drag us into a war with them, so we must decline.</Default>
       <DL_Agg>We pick our own wars. Do not try to pick them for us.</DL_Agg>
       <DL_Xeno>Aliens meddling at our borders. We knew you could not be trusted.</DL_Xeno>
       <DL_Hon>Trying to set neighbors against each other is dishonorable. We expected better.</DL_Hon>
@@ -102,7 +102,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearEnemy</DialogType>
-      <Default>We are at war with those who live in that system or near it, SING. A world there would be the first one they attack, so we must decline.</Default>
+      <Default>We are at war with those who live in that system, SING. A world there would be the first one they attack, so we must decline.</Default>
       <DL_Agg>When we want worlds there, we will take them from our enemies ourselves.</DL_Agg>
       <DL_Xeno>We need no alien worlds to fight our war.</DL_Xeno>
       <DL_Hon>We will not put your settlers in the middle of our war, but we thank you for the thought.</DL_Hon>

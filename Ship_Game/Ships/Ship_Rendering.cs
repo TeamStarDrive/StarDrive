@@ -5,6 +5,7 @@ using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
+using Ship_Game.Graphics;
 using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
@@ -443,7 +444,38 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool ThrustersShown => !IsLaunching && !IsLanding;
+        // engines run off the reactors, not the store: thrusters go out only when no reactor works
+        public bool ThrustersShown => !IsLaunching && !IsLanding && ReactorsWork;
+
+        // seconds of power before lights that went out come back, so they don't blink at the edge of running dry
+        public const float RelightSeconds = 1f;
+        public const float StutterSeconds = 2f;
+        public bool LightsOut { get; private set; }
+        float PoweredSeconds;
+
+        void UpdateLights(FixedSimTime timeStep, bool hasPower)
+        {
+            if (!hasPower)
+            {
+                LightsOut = true;
+                PoweredSeconds = 0f;
+            }
+            else if (LightsOut && (PoweredSeconds += timeStep.FixedTime) >= RelightSeconds)
+            {
+                LightsOut = false;
+            }
+        }
+
+        // brightness of the ship's glow map: dark without power, a fluorescent stutter while EMP-disabled or dying
+        public float LightLevel(float simTime)
+        {
+            if (LightsOut)
+                return 0f;
+            if (!EMPDisabled && !Dying)
+                return 1f;
+            float offset = Id % 1024 * 0.618f % StutterSeconds; // ships don't stutter in step
+            return FluorescentLight.Stutter(simTime + offset, StutterSeconds);
+        }
 
         public void RenderThrusters(ref Matrix view, ref Matrix projection)
         {

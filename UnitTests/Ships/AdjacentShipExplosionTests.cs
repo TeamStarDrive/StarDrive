@@ -20,7 +20,8 @@ namespace UnitTests.Ships
     {
         public AdjacentShipExplosionTests()
         {
-            LoadStarterShips("Dreadnought mk1-a", "Corsair", "Seeder Transport");
+            LoadStarterShips("Dreadnought mk1-a", "Corsair", "Seeder Transport", "Terran-Prototype", "Vulcan Scout",
+                             "Hunter mk1-a", "Shipyard");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -153,13 +154,21 @@ namespace UnitTests.Ships
                     $"{s.Name}: blast cap must stay above the Radius*10 floor");
         }
 
-        [TestMethod]
-        public void StackedCapitalsSurviveOneOfThemExploding()
+        static float RadiusOf(string shipName)
         {
+            ResourceManager.GetShipTemplate(shipName, out Ship template);
+            return template.Radius;
+        }
+
+        [TestMethod]
+        public void OverlappingCapitalsSurviveOneOfThemExploding()
+        {
+            // overlapping, but each one more than a tenth of a radius from the next, so none is stacked
             const int count = 8;
+            float spacing = RadiusOf("Dreadnought mk1-a") * 0.15f;
             for (int trial = 0; trial < 5; ++trial)
             {
-                TestShip[] stack = SpawnStack("Dreadnought mk1-a", count, spacing: 8f);
+                TestShip[] stack = SpawnStack("Dreadnought mk1-a", count, spacing);
                 StripResistArmor(stack[0]);
                 for (int i = 1; i < count; ++i)
                     DrainShields(stack[i]);
@@ -168,8 +177,88 @@ namespace UnitTests.Ships
 
                 int dead = stack.Skip(1).Count(s => !s.Active);
                 AssertEqual(0, dead, $"trial {trial}: a capital's death blast destroyed {dead} " +
-                                     $"of {count - 1} stacked neighbours");
+                                     $"of {count - 1} overlapping neighbours");
             }
+        }
+
+        [TestMethod]
+        public void AStationFrigateOrBiggerStacksOnACruiserOrBigger()
+        {
+            Vector2 site = NextSite();
+            TestShip capital = SpawnShip("Dreadnought mk1-a", Player, site);
+            TestShip cruiser = SpawnShip("Terran-Prototype", Player, site);
+            TestShip frigate = SpawnShip("Corsair", Player, site);
+            TestShip corvette = SpawnShip("Hunter mk1-a", Player, site);
+            TestShip fighter = SpawnShip("Vulcan Scout", Player, site);
+            TestShip freighter = SpawnShip("Seeder Transport", Player, site);
+            TestShip station = SpawnShip("Shipyard", Player, site);
+            var hullRoles = new[] { capital, cruiser, frigate, corvette, fighter, freighter, station }
+                .Select(s => s.ShipData.HullRole).ToArray();
+            CollectionAssert.AreEqual(new[] { RoleName.capital, RoleName.cruiser, RoleName.frigate, RoleName.corvette,
+                                              RoleName.fighter, RoleName.freighter, RoleName.station }, hullRoles,
+                                      "setup: the hull role of each test ship");
+
+            AssertTrue(capital.IsStackedOnExplosion(cruiser, site), "a cruiser exploding on a capital");
+            AssertTrue(cruiser.IsStackedOnExplosion(capital, site), "a capital exploding on a cruiser");
+            AssertTrue(capital.IsStackedOnExplosion(frigate, site), "a frigate exploding on a capital");
+            AssertTrue(capital.IsStackedOnExplosion(station, site), "a station exploding on a capital");
+            AssertFalse(capital.IsStackedOnExplosion(corvette, site), "a corvette's blast is always raycast");
+            AssertFalse(capital.IsStackedOnExplosion(fighter, site), "a fighter's blast is always raycast");
+            AssertFalse(capital.IsStackedOnExplosion(freighter, site), "a freighter's blast is always raycast");
+            AssertFalse(frigate.IsStackedOnExplosion(capital, site), "a frigate is always raycast");
+            AssertFalse(fighter.IsStackedOnExplosion(capital, site), "a fighter is always raycast");
+            AssertFalse(freighter.IsStackedOnExplosion(capital, site), "a freighter is always raycast");
+            AssertFalse(station.IsStackedOnExplosion(capital, site), "a station is always raycast");
+        }
+
+        [TestMethod]
+        public void AShipIsStackedOnlyWithinATenthOfItsOwnRadius()
+        {
+            Vector2 site = NextSite();
+            TestShip exploding = SpawnShip("Dreadnought mk1-a", Player, site);
+            float cruiserRadius = RadiusOf("Terran-Prototype");
+            TestShip inside = SpawnShip("Terran-Prototype", Player, site + new Vector2(cruiserRadius * 0.09f, 0));
+            TestShip outside = SpawnShip("Terran-Prototype", Player, site + new Vector2(cruiserRadius * 0.11f, 0));
+            AssertTrue(inside.IsStackedOnExplosion(exploding, site), "9% of the cruiser's radius away");
+            AssertFalse(outside.IsStackedOnExplosion(exploding, site), "11% of the cruiser's radius away");
+
+            float smallerOffset = cruiserRadius * 0.2f;
+            AssertGreaterThan(exploding.Radius * 0.1f, smallerOffset, "setup: within a tenth of the capital's radius");
+            TestShip smaller = SpawnShip("Terran-Prototype", Player, site + new Vector2(smallerOffset, 0));
+            AssertFalse(smaller.IsStackedOnExplosion(exploding, site), "the checked ship's radius sets the range");
+        }
+
+        [TestMethod]
+        public void AStackedShipDodgesHalfAsOften()
+        {
+            TestShip cruiser = SpawnShip("Terran-Prototype", Player, NextSite());
+            foreach (bool pointBlank in new[] { false, true })
+            {
+                float normal = cruiser.ExplosionEvadeBaseChance(pointBlank, stacked: false);
+                AssertGreaterThan(normal, 0f, "setup: a cruiser can dodge");
+                AssertEqual(0.001f, normal * 0.5f, cruiser.ExplosionEvadeBaseChance(pointBlank, stacked: true),
+                            $"pointBlank={pointBlank}");
+            }
+        }
+
+        [TestMethod]
+        public void ABlastOnTopOfAStackedShipGoesOffInsideIt()
+        {
+            Vector2 site = NextSite();
+            TestShip dying = SpawnShip("Dreadnought mk1-a", Player, site);
+            TestShip stacked = SpawnShip("Dreadnought mk1-a", Player, site + new Vector2(8f, 0));
+            UState.Objects.Update(TestSimStep);
+            DrainShields(stacked);
+
+            ShipModule core = stacked.FindClosestModule(site);
+            ShipModule plate = stacked.FindBlastEntryModule(site);
+            AssertTrue(stacked.IsStackedOnExplosion(dying, site), "setup: the two hulls are stacked");
+            AssertFalse(core.IsExternal, "setup: the module nearest the blast is internal");
+            AssertTrue(plate.IsExternal, "setup: the raycast would enter through an armour plate");
+
+            dying.Die(null, cleanupOnly: false);
+            AssertGreaterThan(core.ActualMaxHealth, core.Health, $"the blast goes off at {core.UID}, nearest to it");
+            AssertEqual(0.001f, plate.ActualMaxHealth, plate.Health, $"the blast does not enter through {plate.UID}");
         }
 
         [TestMethod]
@@ -192,7 +281,7 @@ namespace UnitTests.Ships
                     ++killed;
             }
 
-            // A capital's armour shrugs off its own class's blast, which is why the stacked-capital
+            // A capital's armour shrugs off its own class's blast, which is why the overlapping-capital
             // test above expects no losses. A frigate has nothing to absorb it with.
             AssertGreaterThan(killed, 0,
                 "a capital dying beside a frigate must still destroy it - the blast has been " +

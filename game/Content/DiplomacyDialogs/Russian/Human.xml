@@ -73,7 +73,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_InsufficientTrust</DialogType>
-      <Default>Не пойдет, SING. Ваше предложение требует от нас больших жертв, чем те, на которые мы готовы пойти.</Default>
+      <Default>Не пойдет, SING. Мы пока недостаточно доверяем вам для такой сделки.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>

@@ -220,6 +220,9 @@ namespace Ship_Game.Ships
                 }
             }
 
+            if (ShipSO != null)
+                ShipSO.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
+
             SoundEmitter.Position = new Vector3(Position, 0);
 
             ResetFrameThrustState();
@@ -334,7 +337,7 @@ namespace Ship_Game.Ships
                     thruster.Update(direction3d, 0.1f, 1.0f / 500.0f, thrust0, thrust1);
                 }
 
-                if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused)
+                if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused && ReactorsWork)
                 {
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
                     float thrustScale = thruster.Scale * shipScale / 32f;
@@ -389,6 +392,7 @@ namespace Ship_Game.Ships
                              * Matrix.CreateTranslation(new Vector3(Position, 0f));
 
                 ShipSO.UpdateAnimation(timeStep.FixedTime);
+                ShipSO.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
             }
 
             if (visibleAndNotPaused && !IsMeteor)

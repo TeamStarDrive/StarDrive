@@ -825,17 +825,18 @@ namespace Ship_Game.AI
                 for (int i = 0; i < weapons.Count; i++)
                 {
                     Weapon w = weapons[i];
-                    if (w.CooldownTimer > 0f || !w.Module.Powered ||
-                        Owner.Ordinance < w.OrdinanceRequiredToFire ||
-                        Owner.PowerCurrent < w.PowerRequiredToFire || !w.IsRepairDrone)
+                    if (!w.IsRepairDrone)
+                        continue;
+
+                    // Weapon.Update skips drone weapons, this second is their only cooldown
+                    if (w.CooldownTimer > 0f)
                     {
-                        //Gretman -- Added this so repair drones would cooldown outside combat (+15s)
-                        if (w.CooldownTimer > 0f)
-                            w.CooldownTimer = Math.Max(w.CooldownTimer - 1, 0f);
+                        w.CooldownTimer = Math.Max(w.CooldownTimer - 1, 0f);
                         continue;
                     }
 
-                    DoRepairDroneLogic(w);
+                    if (w.Module.Powered && Owner.Ordinance >= w.OrdinanceRequiredToFire && Owner.PowerCurrent >= w.PowerRequiredToFire)
+                        DoRepairDroneLogic(w);
                 }
             }
         }

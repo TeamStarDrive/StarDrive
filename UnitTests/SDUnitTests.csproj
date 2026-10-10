@@ -45,11 +45,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="AITests\Empire\ArtifactTradeTests.cs" />
     <Compile Include="AITests\Empire\BudgetTests.cs" />
     <Compile Include="AITests\Empire\DiplomacyTraitOfferTests.cs" />
     <Compile Include="AITests\Empire\RemnantRaidTargetTests.cs" />
     <Compile Include="AITests\Empire\OpenBordersOfferTests.cs" />
     <Compile Include="AITests\Empire\SharedSystemColonyGiftTests.cs" />
+    <Compile Include="AITests\Empire\TreatyTrustOfferTests.cs" />
     <Compile Include="AITests\Empire\TrustGainTests.cs" />
     <Compile Include="AITests\Empire\SpaceRoadsTests.cs" />
     <Compile Include="AITests\Empire\ShipsWeCanBuildTests.cs" />
@@ -152,9 +154,12 @@
     <Compile Include="Ships\HullSaveTests.cs" />
     <Compile Include="Ships\ShipDesignSaveTests.cs" />
     <Compile Include="Ships\AdjacentShipExplosionTests.cs" />
+    <Compile Include="Ships\ShipLightsTests.cs" />
+    <Compile Include="Ships\BeamPowerTests.cs" />
     <Compile Include="Ships\ColonyShipLandingTests.cs" />
     <Compile Include="Ships\ScrapLandingTests.cs" />
     <Compile Include="Ships\RefitLandingTests.cs" />
+    <Compile Include="Ships\RepairDroneCooldownTests.cs" />
     <Compile Include="Ships\BuilderShuttleLandingTests.cs" />
     <Compile Include="Ships\HomeDefenseLandingTests.cs" />
     <Compile Include="Ships\SupplyShuttleLandingTests.cs" />

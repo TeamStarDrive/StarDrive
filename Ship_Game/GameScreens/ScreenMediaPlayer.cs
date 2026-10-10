@@ -213,9 +213,10 @@ namespace Ship_Game.GameScreens
             PlayVideo(empire.data.Traits.VideoPath);
 
             if (empire.data.MusicCue != null && Player.State != MediaState.Playing)
-            {                
-                ExtraMusic = GameAudio.PlayMusic(warMusic ? "CombatMusic" : empire.data.MusicCue);
-                GameAudio.SwitchToRacialMusic();
+            {
+                GameAudio.SwitchToRacialMusic(); // before PlayMusic: a muted RacialMusic category refuses to start the theme
+                if (ExtraMusic.IsStopped)
+                    ExtraMusic = GameAudio.PlayMusic(warMusic ? "CombatMusic" : empire.data.MusicCue);
             }
         }
 

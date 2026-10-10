@@ -435,6 +435,7 @@ namespace SynapseGaming.LightingSystem.Core
                 // matrices (stays the legacy contract).
                 var fx = (rm.Effect as Effects.Forward.LightingEffect) ?? SharedFx;
                 fx.World = so.World * rm.World;
+                fx.EmissiveScale = so.EmissiveScale; // effects are shared by every ship of a model
 
                 // Phase 2.8.C hotfix #5: per-mesh effects (PlanetType.Material,
                 // ship Materials, etc.) need View/Projection from the current
@@ -494,6 +495,7 @@ namespace SynapseGaming.LightingSystem.Core
                 // Submeshes inherit SceneObject.World only; bone-aware composite
                 // is a Phase 3 cleanup if/when skeletal hierarchies return.
                 fx.World = so.World;
+                fx.EmissiveScale = so.EmissiveScale;
                 if (fx != SharedFx) // see DrawRenderables for hotfix #5
                 {
                     fx.View = SharedFx.View;
@@ -588,6 +590,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         public BoundingBox WorldBoundingBox { get; set; }
         public BoundingSphere ObjectBoundingSphere { get; set; }
         public Matrix World { get; set; } = Matrix.Identity;
+        // brightness of the model's glow map, e.g. 0 for a ship without power
+        public float EmissiveScale { get; set; } = 1f;
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
 
@@ -881,7 +885,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // ── EffectParameter handles (cached at ctor) ────────────────────────
         readonly EffectParameter pWorld, pView, pProjection;
         readonly EffectParameter pDiffuseColor, pEmissiveColor, pSpecularColor;
-        readonly EffectParameter pSpecularPower, pSpecularAmount, pAlpha, pEyePosition;
+        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pAlpha, pEyePosition;
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
         readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled;
         readonly EffectParameter pAmbientLightColor;
@@ -934,6 +938,9 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // ── World/View/Projection ───────────────────────────────────────────
         public Matrix World      { get; set; } = Matrix.Identity;
         public Matrix Projection { get; set; } = Matrix.Identity;
+
+        // scales the glow map for the next draw; the renderer sets it from each SceneObject
+        public float EmissiveScale { get; set; } = 1f;
 
         // View setter caches the inverse-view eye position so OnApply doesn't
         // re-invert per drawn mesh. View typically changes once per frame
@@ -1021,6 +1028,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pSpecularColor      = Parameters["SpecularColor"];
             pSpecularPower      = Parameters["SpecularPower"];
             pSpecularAmount     = Parameters["SpecularAmount"];
+            pEmissiveScale      = Parameters["EmissiveScale"];
             pAlpha              = Parameters["Alpha"];
             pEyePosition        = Parameters["EyePosition"];
             pLightingEnabled    = Parameters["LightingEnabled"];
@@ -1190,6 +1198,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             // multiplier on every material. Default 1.0 in the shader keeps
             // legacy XNB materials (which never wrote Specular) unchanged.
             pSpecularAmount?.SetValue(SpecularAmount > 0 ? SpecularAmount : 1.0f);
+            pEmissiveScale?.SetValue(EmissiveScale);
             pAlpha?.SetValue(Alpha);
 
             // EyePosition is cached on the View setter — see _view/_eyePosition

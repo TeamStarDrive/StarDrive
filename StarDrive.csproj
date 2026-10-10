@@ -342,6 +342,7 @@
     <Compile Include="Ship_Game\Graphics\Particles\ParticleVertexBufferShared.cs" />
     <Compile Include="Ship_Game\Graphics\RenderStates.cs" />
     <Compile Include="Ship_Game\Graphics\LightPillarRenderer.cs" />
+    <Compile Include="Ship_Game\Graphics\FluorescentLight.cs" />
     <Compile Include="Ship_Game\Graphics\MemoryPressure.cs" />
     <Compile Include="Ship_Game\Graphics\RenderTargets.cs" />
     <Compile Include="Ship_Game\Ships\LaunchShip.cs" />

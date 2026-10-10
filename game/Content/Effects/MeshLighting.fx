@@ -95,6 +95,8 @@ float  SpecularPower   = 16.0;
 // being multiplied by 0. Default 1.0 keeps existing materials unchanged
 // when Specular wasn't set in the source FBX.
 float  SpecularAmount  = 1.0;
+// Per-draw scale of the glow map: a ship's lights go dark without power and stutter under EMP or while dying.
+float  EmissiveScale   = 1.0;
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
@@ -411,7 +413,7 @@ float4 PSDefault(VSOutput input) : SV_TARGET
     // emissive" — multiplication added per-material tint that almost never
     // diverged from white in practice.
     float3 emissive = EmissiveMapEnabled
-        ? tex2D(EmissiveSampler, input.TexCoord).rgb
+        ? tex2D(EmissiveSampler, input.TexCoord).rgb * EmissiveScale
         : EmissiveColor;
 
     // Per-pixel specular mask: `_s` map controls specularity. Chrome panels

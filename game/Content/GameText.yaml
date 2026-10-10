@@ -14810,6 +14810,72 @@ SupplyShuttlesOutTip:
 ShipListDocked:
  Id: 4583
  ENG: "(docked)"
+EventTitleAtPlanet:
+ Id: 4584
+ ENG: "{0} at {1}"
+EventTitleInDeepSpace:
+ Id: 4585
+ ENG: "{0} in Deep Space"
+EventConfirmDefault:
+ Id: 4586
+ ENG: "Great!"
+EventRelevantPlanet:
+ Id: 4587
+ ENG: "Relevant Planet: {0}"
+EventMoneyGranted:
+ Id: 4588
+ ENG: "Money Granted: {0}"
+EventResearchBonusGranted:
+ Id: 4589
+ ENG: "Research Bonus Granted: {0}%"
+EventProductionBonusGranted:
+ Id: 4590
+ ENG: "Production Bonus Granted: {0}%"
+EventMissingTechnology:
+ Id: 4591
+ ENG: "Missing Technology: {0}"
+EventTechAlreadyKnown:
+ Id: 4592
+ ENG: "We found some {0}, but we already possessed this knowledge."
+EventTechAcquired:
+ Id: 4593
+ ENG: "New Technology Acquired: {0}"
+EventArtifactGranted:
+ Id: 4594
+ ENG: "Artifact Granted: {0}"
+ArtifactFertilityBonus:
+ Id: 4595
+ ENG: "Fertility Bonus to all Owned Colonies"
+ArtifactDiplomacyBonus:
+ Id: 4596
+ ENG: "Diplomacy Bonus"
+ArtifactGroundCombatBonus:
+ Id: 4597
+ ENG: "Empire-wide Ground Combat Bonus"
+ArtifactModuleHitpointBonus:
+ Id: 4598
+ ENG: "Empire-wide Ship Module Hitpoint Bonus"
+ArtifactCreditsPerTurnBonus:
+ Id: 4599
+ ENG: "Credits per Turn Bonus"
+ArtifactProductionBonus:
+ Id: 4600
+ ENG: "Empire-wide Production Bonus"
+ArtifactPopulationGrowthBonus:
+ Id: 4601
+ ENG: "Empire-wide Population Growth Bonus"
+ArtifactResearchBonus:
+ Id: 4602
+ ENG: "Empire-wide Research Bonus"
+ArtifactSensorRangeBonus:
+ Id: 4603
+ ENG: "Empire-wide Sensor Range Bonus"
+ArtifactShieldPenetrationBonus:
+ Id: 4604
+ ENG: "Empire-wide Bonus Shield Penetration Chance"
+DamageShotsPerSalvo:
+ Id: 4605
+ ENG: "Damage, {0} shots per salvo"
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 
@@ -23356,7 +23422,7 @@ CodexDesignPowerBudgetShort:
  ENG: "Power store, flow and draw, and what the design screen's power rows mean"
 CodexDesignPowerBudgetText:
  Id: 100213
- ENG: "<color=Caption>Store and flow</color>A ship holds power in a store and refills it from its reactors. Power Capacity is the storage of its working modules added up: power cells above all, with some in reactors, bridges and a few other modules; fuel cell technologies raise what power cells hold. The flow is the generation of its working modules added up, raised by reactor output technologies. Every moment the store loses the draw of every powered module and gains the flow, and it never fills past capacity. A destroyed module neither stores, generates nor draws, and an unpowered module draws nothing; see Ship Design for how modules get power.\n\n<color=Caption>What takes power</color><li>Powered modules draw all the time, shields included, in combat or not.</li><li>An energy weapon pays its power per shot for every shot, salvo shots included, and cannot fire while the store holds less.</li><li>A beam drains its power per second while it fires and is cut off when the store is empty.</li><li>At warp most modules draw their normal power times your FTL drain modifier, 2 by default; see Warp Travel. A ship whose store reaches zero drops out of warp.</li><li>Any weapon with power damage that gets past the shields drains the store directly, beams and projectiles alike. A projectile drains it once for every module it strikes, even a module whose armor deflects the shot; modules its armor piercing passes through do not count. An explosive projectile's blast drains it once per ship, however many modules it catches. A siphon beam hitting shields drains them and adds what it drained to its own ship's store, never more than the shields still held; only beams siphon, so the Siphon value of any other weapon has no effect.</li>An empty store switches nothing off: shields keep recharging, engines keep pushing and sensors keep working as long as their modules are powered. Only shots, beams and warp need stored power, and no weapon fires at warp.\n\n<color=Caption>Power rows of the design</color><li>Power Capacity: the store. Green when it is larger than one second of Excess Wpn Pwr Drain, pink otherwise.</li><li>Power Recharge: flow minus the draw of all powered modules at sublight. Keep it positive, or the store runs down even at rest.</li><li>Recharge at Warp: flow minus the draw at warp, for ships that can warp. Below zero the store runs down at warp.</li><li>Excess Wpn Pwr Drain: what all powered weapons firing without pause cost per second, averaged over their firing cycles and beams included, minus Power Recharge, shown as a negative number and only when the weapons outrun the recharge.</li><li>Wpn Fire Power Time: how many seconds the store lasts at that drain, green above 2; INF when the recharge covers the weapons.</li><li>Burst Wpn Pwr Drain and Burst Wpn Pwr Time: the same with every beam at its full cost per second, as while beams are firing, shown only for ships with beams that outrun the recharge. The time shows INF when the store lasts at least the average beam duration, and is pink below it.</li><li>FTL Time: seconds at warp before the store is empty; INF when the store does not run down at warp or lasts over ten minutes. Stations and platforms do not show it.</li>\n\n<color=Caption>Power rows of a module</color><li>Power: what the module adds to the flow minus what it draws, per second; negative for consumers. For a weapon it is only its draw.</li><li>Power Store: the storage it adds.</li><li>Power Warp: its draw at warp after your FTL drain modifier and its own warp adjustment, shown as a negative number; weapons do not show it.</li><li>Pwr / Shot and Pwr/s: a weapon's cost per shot, and a beam's cost per second while it fires.</li>Once 75% of the slots are filled, unpowered modules and a short warp or weapon power time are also listed by the design issues button; see The Design Screen."
+ ENG: "<color=Caption>Store and flow</color>A ship holds power in a store and refills it from its reactors. Power Capacity is the storage of its working modules added up: power cells above all, with some in reactors, bridges and a few other modules; fuel cell technologies raise what power cells hold. The flow is the generation of its working modules added up, raised by reactor output technologies. Every moment the store loses the draw of every powered module and gains the flow, and it never fills past capacity. A destroyed module neither stores, generates nor draws, and an unpowered module draws nothing; see Ship Design for how modules get power.\n\n<color=Caption>What takes power</color><li>Powered modules draw all the time, shields included, in combat or not.</li><li>An energy weapon pays its power per shot for every shot, salvo shots included, and cannot fire while the store holds less.</li><li>A beam drains its power per second while it fires. It goes out at once, and cannot start, while the store is empty or no reactor works; it also goes out when its weapon is destroyed or loses power.</li><li>At warp most modules draw their normal power times your FTL drain modifier, 2 by default; see Warp Travel. A ship whose store reaches zero drops out of warp.</li><li>Any weapon with power damage that gets past the shields drains the store directly, beams and projectiles alike. A projectile drains it once for every module it strikes, even a module whose armor deflects the shot; modules its armor piercing passes through do not count. An explosive projectile's blast drains it once per ship, however many modules it catches. A siphon beam hitting shields drains them and adds what it drained to its own ship's store, never more than the shields still held; only beams siphon, so the Siphon value of any other weapon has no effect.</li>An empty store switches nothing off: shields keep recharging, engines keep pushing and sensors keep working as long as their modules are powered. Only shots, beams and warp need stored power, and no weapon fires at warp.\n\n<color=Caption>Power rows of the design</color><li>Power Capacity: the store. Green when it is larger than one second of Excess Wpn Pwr Drain, pink otherwise.</li><li>Power Recharge: flow minus the draw of all powered modules at sublight. Keep it positive, or the store runs down even at rest.</li><li>Recharge at Warp: flow minus the draw at warp, for ships that can warp. Below zero the store runs down at warp.</li><li>Excess Wpn Pwr Drain: what all powered weapons firing without pause cost per second, averaged over their firing cycles and beams included, minus Power Recharge, shown as a negative number and only when the weapons outrun the recharge.</li><li>Wpn Fire Power Time: how many seconds the store lasts at that drain, green above 2; INF when the recharge covers the weapons.</li><li>Burst Wpn Pwr Drain and Burst Wpn Pwr Time: the same with every beam at its full cost per second, as while beams are firing, shown only for ships with beams that outrun the recharge. The time shows INF when the store lasts at least the average beam duration, and is pink below it.</li><li>FTL Time: seconds at warp before the store is empty; INF when the store does not run down at warp or lasts over ten minutes. Stations and platforms do not show it.</li>\n\n<color=Caption>Power rows of a module</color><li>Power: what the module adds to the flow minus what it draws, per second; negative for consumers. For a weapon it is only its draw.</li><li>Power Store: the storage it adds.</li><li>Power Warp: its draw at warp after your FTL drain modifier and its own warp adjustment, shown as a negative number; weapons do not show it.</li><li>Pwr / Shot and Pwr/s: a weapon's cost per shot, and a beam's cost per second while it fires.</li>Once 75% of the slots are filled, unpowered modules and a short warp or weapon power time are also listed by the design issues button; see The Design Screen."
 CodexDesignArmorAndShields:
  Id: 100214
  ENG: "Armor and Shields"
@@ -23383,7 +23449,7 @@ CodexWeaponsWeaponStatsShort:
  ENG: "What each row of a weapon's stats in the design screen means, and what changes it in combat"
 CodexWeaponsWeaponStatsText:
  Id: 100222
- ENG: "<color=Caption>Damage</color><li>Damage: what each projectile deals, or a whole beam burst. The screen shows it for an untrained crew: in combat every crew level adds 5%. The screen counts your ordnance effectiveness bonus only for explosive weapons that use ordnance, while in combat every weapon that uses ordnance gets it. Weapon technologies raise it by weapon type. Explosive weapons deal it in a blast of Blast Rad slots, which already counts the technology that enlarges it.</li><li>DPS: damage per second at full rate of fire, counting salvos, projectiles per shot and warheads.</li><li>Delay: seconds from one shot to the next, salvo or beam time included.</li><li>Salvo: shots fired one after another each time the weapon fires. Projectiles: projectiles in each shot, fanned across the weapon's dispersion arc when it has one. Imprecision: a random spread in degrees on every projectile.</li><li>VS Armor and VS Shield: the damage multiplier against armor modules and against shields, shown when it is not 100%.</li><li>Armor Pen and Shield Pen: armor piercing, and the chance a shot passes through shields altogether; see Armor and Shields. Gold means a bonus raised it.</li>\n\n<color=Caption>Reach and aim</color><li>Range: how far the weapon reaches; a weapon with range variance reaches up to 10% more or less on each shot; beams never vary. Speed: how far a projectile flies each second.</li><li>Fire Arc: the weapon fires only at targets inside this arc; see Ship Design.</li><li>Accuracy: the aim error in slots; see Sensors and Targeting. Guided weapons home in instead and show no Accuracy.</li><li>Ignition: a missile drifts this many seconds before its engine lights, so it takes longer to reach its target. T.Range and T.Speed: a missile with a terminal phase speeds up to T.Speed once it is within T.Range of its target. MIRV: the missile splits into this many warheads near its target; Damage, Blast Rad, the terminal, VS and penetration rows and Cannot Target are per warhead, and DPS counts every warhead.</li>\n\n<color=Caption>Costs and special effects</color><li>Ord / Shot and Pwr / Shot: the ordnance and power every shot costs; Pwr/s: a beam's power per second while it fires. See Ordnance and Power Budget.</li><li>Duration: how long a beam fires.</li><li>EMP: EMP damage per projectile; see Armor and Shields.</li><li>Tractor: a beam's pull, a fifth of it through shields. The target moves and turns slower by its total pull divided by its mass; once the pull exceeds its mass it stops and drops out of warp. The pull clears once no tractor beam holds it, and platforms and stations tethered to a planet are immune.</li><li>Siphon and Pwr Dmg: see Power Budget. Pwr Dmg drains the target's power store from any weapon, but only beams siphon.</li><li>Cannot Target: ship sizes the weapon never fires at, Capitals meaning frigates and larger; true point defense fires only at projectiles that can be intercepted.</li>"
+ ENG: "<color=Caption>Damage</color><li>Damage: what each projectile deals, or a whole beam burst. The screen shows it for an untrained crew: in combat every crew level adds 5%. The screen counts your ordnance effectiveness bonus only for explosive weapons that use ordnance, while in combat every weapon that uses ordnance gets it. Weapon technologies raise it by weapon type. Explosive weapons deal it in a blast of Blast Rad slots, which already counts the technology that enlarges it.</li><li>DPS: damage per second at full rate of fire, counting salvos, projectiles per shot and warheads.</li><li>Delay: seconds from one shot to the next, salvo or beam time included.</li><li>Salvo: shots fired one after another each time the weapon fires. Projectiles: projectiles in each shot, fanned across the weapon's dispersion arc when it has one. Imprecision: a random spread in degrees on every projectile.</li><li>VS Armor and VS Shield: the damage multiplier against armor modules and against shields, shown when it is not 100%.</li><li>Armor Pen and Shield Pen: armor piercing, and the chance a shot passes through shields altogether; see Armor and Shields. Gold means a bonus raised it.</li>\n\n<color=Caption>Reach and aim</color><li>Range: how far the weapon reaches; a weapon with range variance reaches up to 10% more or less on each shot; beams never vary. Speed: how far a projectile flies each second.</li><li>Fire Arc: the weapon fires only at targets inside this arc; see Ship Design.</li><li>Accuracy: the aim error in slots; see Sensors and Targeting. Guided weapons home in instead and show no Accuracy.</li><li>Ignition: a missile drifts this many seconds before its engine lights, so it takes longer to reach its target. T.Range and T.Speed: a missile with a terminal phase speeds up to T.Speed once it is within T.Range of its target. MIRV: the missile splits into this many warheads near its target; Damage, Blast Rad, the terminal, VS and penetration rows and Cannot Target are per warhead, and DPS counts every warhead.</li>\n\n<color=Caption>Costs and special effects</color><li>Ord / Shot and Pwr / Shot: the ordnance and power every shot costs; Pwr/s: a beam's power per second while it fires. See Ordnance and Power Budget.</li><li>Duration: how long a beam fires at most; see Power Budget.</li><li>EMP: EMP damage per projectile; see Armor and Shields.</li><li>Tractor: a beam's pull, a fifth of it through shields. The target moves and turns slower by its total pull divided by its mass; once the pull exceeds its mass it stops and drops out of warp. The pull clears once no tractor beam holds it, and platforms and stations tethered to a planet are immune.</li><li>Siphon and Pwr Dmg: see Power Budget. Pwr Dmg drains the target's power store from any weapon, but only beams siphon.</li><li>Cannot Target: ship sizes the weapon never fires at, Capitals meaning frigates and larger; true point defense fires only at projectiles that can be intercepted.</li>"
 CodexEconomyBudgetScreen:
  Id: 100223
  ENG: "The Budget Screen"

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
@@ -43,6 +44,14 @@ namespace UnitTests.Ships
             float design = Design(name).GetStrength(Player);
             AssertEqual(design * Precision, design, ShipyardStrength(name), $"{name}: the load screen and the shipyard show different strengths");
             AssertShipStrength(design, design, SpawnShip(name, Player, FarAway), $"{name}: a new ship");
+        }
+
+        // nothing left for the carrier's hangars to launch, whichever starter ships other tests loaded
+        void RemoveBuildableShipsButTheCarrier()
+        {
+            foreach (IShipDesign design in Player.ShipsWeCanBuildSnapshot)
+                if (design.Name != Carrier)
+                    Player.RemoveBuildableShip(design);
         }
 
         static void AssertShipStrength(float expectedBase, float expectedCurrent, Ship ship, string what)
@@ -139,9 +148,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void CarrierStrengthFollowsTheFightersTheEmpireCanBuild()
         {
-            foreach (IShipDesign design in Player.ShipsWeCanBuildSnapshot)
-                if (design.Role == RoleName.fighter)
-                    Player.RemoveBuildableShip(design);
+            RemoveBuildableShipsButTheCarrier();
             float withoutFighter = Design(Carrier).GetStrength(Player);
             AssertSameStrength(Carrier);
 
@@ -300,11 +307,31 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void EmpProtectionCountsPerSlotWhateverTheModuleSize()
+        {
+            FieldInfo emp = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.EMPProtection));
+            foreach (string uid in new[] { "Ceramic Armor Small", "Ceramic Armor Large" })
+            {
+                ShipModule armor = ResourceManager.GetModuleTemplate(uid);
+                Assert.AreEqual(0f, armor.EMPProtection, $"setup: {uid} already has EMP protection");
+                float without = armor.CalculateModuleDefense(100, EmpireHullBonuses.Default, 0f);
+                try
+                {
+                    emp.SetValue(armor.Flyweight, armor.Area * 500f);
+                    AssertEqual(without * Precision, 2f * without, armor.CalculateModuleDefense(100, EmpireHullBonuses.Default, 0f),
+                        $"{uid} ({armor.XSize}x{armor.YSize}): 500 EMP protection per slot does not double its defense");
+                }
+                finally
+                {
+                    emp.SetValue(armor.Flyweight, 0f);
+                }
+            }
+        }
+
+        [TestMethod]
         public void CarriersTakeTheStrengthOfFightersTheEmpireCanNowBuild()
         {
-            foreach (IShipDesign design in Player.ShipsWeCanBuildSnapshot)
-                if (design.Role == RoleName.fighter)
-                    Player.RemoveBuildableShip(design);
+            RemoveBuildableShipsButTheCarrier();
             TestShip carrier = SpawnShip(Carrier, Player, FarAway);
             RunObjectsSim(1.5f);
             float before = carrier.GetStrength();

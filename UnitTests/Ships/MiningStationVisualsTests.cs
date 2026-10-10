@@ -193,7 +193,7 @@ public class MiningStationVisualsTests : StarDriveTest
         AssertGreaterThan(BrightnessAt(20.12f), 0.3f, "another refining turn keeps the pillar lit instead of flickering it again");
     }
 
-    sealed class CountingParticle : IParticle
+    internal sealed class CountingParticle : IParticle
     {
         public int Added;
 

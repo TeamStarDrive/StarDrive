@@ -645,6 +645,7 @@ namespace Ship_Game.Ships
             }
 
             UpdateWeaponRanges();
+            UpdateCheapestEnergyShot();
             UpdateStrength();
 
             if (TetheredTo != null)

@@ -90,7 +90,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearRival</DialogType>
-      <Default>The omens are clear, SING. Another race dwells in that system or near it, and no open borders bind us to them. To take that world would summon war. We refuse.</Default>
+      <Default>The omens are clear, SING. Another race dwells in that system, and no open borders bind us to them. To take that world would summon war. We refuse.</Default>
       <DL_Agg>We pick our own wars. Do not try to pick them for us.</DL_Agg>
       <DL_Xeno>Aliens meddling at our borders. We knew you could not be trusted.</DL_Xeno>
       <DL_Hon>Trying to set neighbors against each other is dishonorable. We expected better.</DL_Hon>
@@ -100,7 +100,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_Reject_NearEnemy</DialogType>
-      <Default>Our enemies dwell in that system or near it, SING. The omens say a world there would be the first to fall. We refuse.</Default>
+      <Default>Our enemies dwell in that system, SING. The omens say a world there would be the first to fall. We refuse.</Default>
       <DL_Agg>When we want worlds there, we will take them from our enemies ourselves.</DL_Agg>
       <DL_Xeno>We need no alien worlds to fight our war.</DL_Xeno>
       <DL_Hon>We will not put your settlers in the middle of our war, but we thank you for the thought.</DL_Hon>
