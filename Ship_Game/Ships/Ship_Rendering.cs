@@ -473,7 +473,7 @@ namespace Ship_Game.Ships
                 return 0f;
             if (!EMPDisabled && !Dying)
                 return 1f;
-            float offset = Id * 0.618f % StutterSeconds; // ships don't stutter in step
+            float offset = Id % 1024 * 0.618f % StutterSeconds; // ships don't stutter in step
             return FluorescentLight.Stutter(simTime + offset, StutterSeconds);
         }
 
