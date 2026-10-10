@@ -191,11 +191,13 @@ public class CargoShuttleTests : StarDriveTest
     {
         AddDummyPlanet(new Vector2(500_000), 1f, 1f, 1f, new Vector2(505_000), explored: true).SetOwner(Enemy);
         UState.Paused = false;
+        // zoomed out the game sends no shuttles of its own, and these still fly; nothing may pause the simulation meanwhile
+        UState.ViewState = UniverseScreen.UnivScreenState.SystemView;
         Universe.CargoShuttles.Send(Exporter, Color.White, 3, seconds: 5f, toPort: true);
         Universe.SingleSimulationStep(TestSimStep);
         AssertEqual(3, ShuttlesUp(Exporter), "a simulation step launches the shuttles sent since the last one");
 
-        RunFullSimWhile((simTimeout: 5, fatal: false));
+        RunFullSimWhile((simTimeout: 5, fatal: false), body: () => UState.Paused = false);
         AssertEqual(0, ShuttlesUp(Exporter), "the simulation flies them until they dock");
     }
 
