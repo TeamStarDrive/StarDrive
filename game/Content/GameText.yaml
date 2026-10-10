@@ -14873,6 +14873,9 @@ ArtifactSensorRangeBonus:
 ArtifactShieldPenetrationBonus:
  Id: 4604
  ENG: "Empire-wide Bonus Shield Penetration Chance"
+DamageShotsPerSalvo:
+ Id: 4605
+ ENG: "Damage, {0} shots per salvo"
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 

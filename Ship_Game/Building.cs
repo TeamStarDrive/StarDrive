@@ -129,6 +129,11 @@ namespace Ship_Game
         [XmlIgnore] private float DefenseShipStrength;
         [XmlIgnore] public float SpaceRange = 20000f;
 
+        // the rest of a salvo weapon's shots, fired SalvoTimer / SalvoCount apart as ships do
+        int SalvoShotsLeft;
+        float SalvoShotTimer;
+        Ship SalvoTarget;
+
         [XmlIgnore] public bool IsSuitableForBlueprints => !IsCapitalOrOutpost
             && !IsBiospheres
             && !IsDynamicUpdate 
@@ -273,7 +278,8 @@ namespace Ship_Game
             if (TheWeapon != null)
             {
                 WeaponTimer -= timeStep.FixedTime;
-                canFireWeapon = WeaponTimer < 0f;
+                canFireWeapon = WeaponTimer <= 0f;
+                ContinueSalvo(timeStep, p);
             }
 
             bool canLaunchShips = CanLaunchDefenseShips(p.Owner);
@@ -288,7 +294,14 @@ namespace Ship_Game
                     if (canFireWeapon)
                     {
                         TheWeapon.FireFromPlanet(p, target);
-                        WeaponTimer = ActualFireDelay(p.Level);
+                        // time past the delay carries over, up to one step, so a slow sim keeps the rate
+                        WeaponTimer = ActualFireDelay(p.Level) + WeaponTimer.LowerBound(-timeStep.FixedTime);
+                        if (TheWeapon.SalvoCount > 1 && !TheWeapon.IsBeam)
+                        {
+                            SalvoShotsLeft = TheWeapon.SalvoCount - 1;
+                            SalvoShotTimer = 0f;
+                            SalvoTarget = target;
+                        }
                     }
                     if (canLaunchShips)
                     {
@@ -298,6 +311,30 @@ namespace Ship_Game
                 }
             }
             return false;
+        }
+
+        void ContinueSalvo(FixedSimTime timeStep, Planet p)
+        {
+            if (SalvoShotsLeft <= 0)
+                return;
+
+            if (SalvoTarget is not { Active: true } || !p.Owner.IsEmpireAttackable(SalvoTarget.Loyalty)
+                || !SalvoTarget.Position.InRadius(p.Position, SpaceRange))
+            {
+                SalvoShotsLeft = 0;
+                SalvoTarget = null;
+                return;
+            }
+
+            SalvoShotTimer += timeStep.FixedTime;
+            float timeBetweenShots = TheWeapon.SalvoDuration / TheWeapon.SalvoCount;
+            if (SalvoShotTimer < timeBetweenShots)
+                return;
+
+            SalvoShotTimer -= timeBetweenShots;
+            TheWeapon.FireFromPlanet(p, SalvoTarget);
+            if (--SalvoShotsLeft == 0)
+                SalvoTarget = null;
         }
 
         public bool TryLandOnBuilding(Ship ship)

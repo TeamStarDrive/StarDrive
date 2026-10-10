@@ -4829,6 +4829,8 @@ namespace Ship_Game
         ArtifactSensorRangeBonus = 4603,
         /// <summary>Empire-wide Bonus Shield Penetration Chance</summary>
         ArtifactShieldPenetrationBonus = 4604,
+        /// <summary>Damage, {0} shots per salvo</summary>
+        DamageShotsPerSalvo = 4605,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

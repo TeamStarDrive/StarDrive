@@ -939,7 +939,10 @@ namespace Ship_Game
                 return;
 
             DrawBuildingInfo(ref cursor, batch, font,b.TheWeapon.BaseRange, "UI/icon_offense", "Range", signs: false);
-            DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
+            string damage = b.TheWeapon.SalvoCount > 1 && !b.TheWeapon.IsBeam
+                ? string.Format(Localizer.Token(GameText.DamageShotsPerSalvo), b.TheWeapon.SalvoCount)
+                : "Damage";
+            DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.DamageAmount, "UI/icon_offense", damage, signs: false);
             DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
             DrawBuildingInfo(ref cursor, batch, font, b.ActualFireDelay(planetLevel), "UI/icon_offense", "Fire Delay", signs: false);
         }
