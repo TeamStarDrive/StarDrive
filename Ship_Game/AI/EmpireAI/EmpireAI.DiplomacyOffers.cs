@@ -574,11 +574,12 @@ namespace Ship_Game.AI
 
             void DamageRelationsAllied()
             {
-                usToThem.DamageRelationship(us, them, "Insulted", valueToThem - valueToUs, null);
+                float insult = (valueToThem - valueToUs).LowerBound(0);
+                usToThem.DamageRelationship(us, them, "Insulted", insult, null);
                 foreach (Empire ally in us.Universe.GetAllies(us))
                 {
                     if (ally != them && !ally.isPlayer)
-                        ally.DamageRelationship(them, "Insulted", (valueToThem - valueToUs)*0.5f, null);
+                        ally.DamageRelationship(them, "Insulted", insult*0.5f, null);
                 }
             }
         }

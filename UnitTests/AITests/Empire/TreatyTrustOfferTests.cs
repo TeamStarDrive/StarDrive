@@ -190,6 +190,19 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void ARefusedThreatWithAGiftEarnsNoTrust()
+        {
+            Setup();
+            AiToPlayer.Trust = 10;
+            AiToPlayer.AddAngerDiplomaticConflict(30);
+            AiToPlayer.TurnsSinceLastThreathened = 0; // threatened just now, so this threat is refused
+
+            AssertEqual("OfferResponse_InsufficientFear", OfferPact(playerGives: 2, aiGives: 0, Offer.Attitude.Threaten), "setup: the threat was not refused");
+            AssertEqual(0.001f, 10f, AiToPlayer.Trust, "a refused threat that gave more than it asked earned trust");
+            AssertEqual(0.001f, 30f, AiToPlayer.Anger_DiplomaticConflict, "a refused threat that gave more than it asked eased anger");
+        }
+
+        [TestMethod]
         public void AnEvenTradeIsNoGift()
         {
             Setup();
