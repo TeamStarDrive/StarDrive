@@ -4787,6 +4787,48 @@ namespace Ship_Game
         SupplyShuttlesOutTip = 4582,
         /// <summary>(docked)</summary>
         ShipListDocked = 4583,
+        /// <summary>{0} at {1}</summary>
+        EventTitleAtPlanet = 4584,
+        /// <summary>{0} in Deep Space</summary>
+        EventTitleInDeepSpace = 4585,
+        /// <summary>Great!</summary>
+        EventConfirmDefault = 4586,
+        /// <summary>Relevant Planet: {0}</summary>
+        EventRelevantPlanet = 4587,
+        /// <summary>Money Granted: {0}</summary>
+        EventMoneyGranted = 4588,
+        /// <summary>Research Bonus Granted: {0}%</summary>
+        EventResearchBonusGranted = 4589,
+        /// <summary>Production Bonus Granted: {0}%</summary>
+        EventProductionBonusGranted = 4590,
+        /// <summary>Missing Technology: {0}</summary>
+        EventMissingTechnology = 4591,
+        /// <summary>We found some {0}, but we already possessed this knowledge.</summary>
+        EventTechAlreadyKnown = 4592,
+        /// <summary>New Technology Acquired: {0}</summary>
+        EventTechAcquired = 4593,
+        /// <summary>Artifact Granted: {0}</summary>
+        EventArtifactGranted = 4594,
+        /// <summary>Fertility Bonus to all Owned Colonies</summary>
+        ArtifactFertilityBonus = 4595,
+        /// <summary>Diplomacy Bonus</summary>
+        ArtifactDiplomacyBonus = 4596,
+        /// <summary>Empire-wide Ground Combat Bonus</summary>
+        ArtifactGroundCombatBonus = 4597,
+        /// <summary>Empire-wide Ship Module Hitpoint Bonus</summary>
+        ArtifactModuleHitpointBonus = 4598,
+        /// <summary>Credits per Turn Bonus</summary>
+        ArtifactCreditsPerTurnBonus = 4599,
+        /// <summary>Empire-wide Production Bonus</summary>
+        ArtifactProductionBonus = 4600,
+        /// <summary>Empire-wide Population Growth Bonus</summary>
+        ArtifactPopulationGrowthBonus = 4601,
+        /// <summary>Empire-wide Research Bonus</summary>
+        ArtifactResearchBonus = 4602,
+        /// <summary>Empire-wide Sensor Range Bonus</summary>
+        ArtifactSensorRangeBonus = 4603,
+        /// <summary>Empire-wide Bonus Shield Penetration Chance</summary>
+        ArtifactShieldPenetrationBonus = 4604,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

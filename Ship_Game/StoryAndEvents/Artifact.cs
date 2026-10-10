@@ -25,25 +25,25 @@ namespace Ship_Game
         [StarData] public float ModuleHPMod;
 
         [XmlIgnore] public LocalizedText NameText => new(NameIndex);
+        [XmlIgnore] public LocalizedText DescriptionText => new(DescriptionIndex);
 
         bool TrySetArtifactEffect(ref float outModifier, float inModifier, RacialTrait traits,
-                                  string text, EventPopup popup, bool percent = true)
+                                  GameText text, EventPopup popup, bool percent = true)
         {
             if (inModifier <= 0f)
                 return false;
 
             outModifier += inModifier + inModifier * traits.Spiritual;
-            popup?.AddArtifactEffect(new(text, inModifier, percent));
+            popup?.AddArtifactEffect(new(Localizer.Token(text), inModifier, percent));
             return true;
         }
 
         public void GrantBonuses(Empire triggerer, EventPopup popup)
         {
             // apply artifact bonus.
-            // FB - todo, move text to GameText.cs for translation as well.
             float bonus = 0;
             if (TrySetArtifactEffect(ref bonus, FertilityMod,
-                triggerer.data.Traits, "Fertility Bonus to all Owned Colonies: ",popup))
+                triggerer.data.Traits, GameText.ArtifactFertilityBonus, popup))
             {
                 triggerer.data.EmpireFertilityBonus += bonus;
                 foreach (Planet planet in triggerer.GetPlanets())
@@ -53,39 +53,39 @@ namespace Ship_Game
             }
             TrySetArtifactEffect(ref triggerer.data.Traits.DiplomacyMod,
                 DiplomacyMod,
-                triggerer.data.Traits, "Diplomacy Bonus: ", popup);
+                triggerer.data.Traits, GameText.ArtifactDiplomacyBonus, popup);
 
             TrySetArtifactEffect(ref triggerer.data.Traits.GroundCombatModifier,
                 GroundCombatMod,
-                triggerer.data.Traits, "Empire-wide Ground Combat Bonus: ", popup);
+                triggerer.data.Traits, GameText.ArtifactGroundCombatBonus, popup);
 
             TrySetArtifactEffect(ref triggerer.data.Traits.ModHpModifier,
                 ModuleHPMod,
-                triggerer.data.Traits, "Empire-wide Ship Module Hitpoint Bonus: ", popup);
+                triggerer.data.Traits, GameText.ArtifactModuleHitpointBonus, popup);
 
             TrySetArtifactEffect(ref triggerer.data.FlatMoneyBonus,
                 PlusFlatMoney,
-                triggerer.data.Traits, "Credits per Turn Bonus: ", popup, percent: false);
+                triggerer.data.Traits, GameText.ArtifactCreditsPerTurnBonus, popup, percent: false);
 
             TrySetArtifactEffect(ref triggerer.data.Traits.ProductionMod,
                 ProductionMod,
-                triggerer.data.Traits, "Empire-wide Production Bonus: ", popup);
+                triggerer.data.Traits, GameText.ArtifactProductionBonus, popup);
 
             TrySetArtifactEffect(ref triggerer.data.Traits.ReproductionMod,
                 ReproductionMod,
-                triggerer.data.Traits, "Empire-wide Popoulation Growth Bonus: ", popup);
+                triggerer.data.Traits, GameText.ArtifactPopulationGrowthBonus, popup);
 
             TrySetArtifactEffect(ref triggerer.data.Traits.ResearchMod,
                 ResearchMod,
-                triggerer.data.Traits, "Empire-wide Research Bonus: ", popup);
+                triggerer.data.Traits, GameText.ArtifactResearchBonus, popup);
 
             TrySetArtifactEffect(ref triggerer.data.SensorModifier,
                 SensorMod,
-                triggerer.data.Traits, "Empire-wide Sensor Range Bonus: ", popup);
+                triggerer.data.Traits, GameText.ArtifactSensorRangeBonus, popup);
 
             TrySetArtifactEffect(ref triggerer.data.ShieldPenBonusChance,
                 ShieldPenBonus,
-                triggerer.data.Traits, "Empire-wide Bonus Shield Penetration Chance: ", popup);
+                triggerer.data.Traits, GameText.ArtifactShieldPenetrationBonus, popup);
 
             // refresh all bonuses so modules would know their health etc. increased
             EmpireHullBonuses.RefreshBonuses(triggerer);

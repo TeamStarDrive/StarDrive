@@ -14810,6 +14810,69 @@ SupplyShuttlesOutTip:
 ShipListDocked:
  Id: 4583
  ENG: "(docked)"
+EventTitleAtPlanet:
+ Id: 4584
+ ENG: "{0} at {1}"
+EventTitleInDeepSpace:
+ Id: 4585
+ ENG: "{0} in Deep Space"
+EventConfirmDefault:
+ Id: 4586
+ ENG: "Great!"
+EventRelevantPlanet:
+ Id: 4587
+ ENG: "Relevant Planet: {0}"
+EventMoneyGranted:
+ Id: 4588
+ ENG: "Money Granted: {0}"
+EventResearchBonusGranted:
+ Id: 4589
+ ENG: "Research Bonus Granted: {0}%"
+EventProductionBonusGranted:
+ Id: 4590
+ ENG: "Production Bonus Granted: {0}%"
+EventMissingTechnology:
+ Id: 4591
+ ENG: "Missing Technology: {0}"
+EventTechAlreadyKnown:
+ Id: 4592
+ ENG: "We found some {0}, but we already possessed this knowledge."
+EventTechAcquired:
+ Id: 4593
+ ENG: "New Technology Acquired: {0}"
+EventArtifactGranted:
+ Id: 4594
+ ENG: "Artifact Granted: {0}"
+ArtifactFertilityBonus:
+ Id: 4595
+ ENG: "Fertility Bonus to all Owned Colonies"
+ArtifactDiplomacyBonus:
+ Id: 4596
+ ENG: "Diplomacy Bonus"
+ArtifactGroundCombatBonus:
+ Id: 4597
+ ENG: "Empire-wide Ground Combat Bonus"
+ArtifactModuleHitpointBonus:
+ Id: 4598
+ ENG: "Empire-wide Ship Module Hitpoint Bonus"
+ArtifactCreditsPerTurnBonus:
+ Id: 4599
+ ENG: "Credits per Turn Bonus"
+ArtifactProductionBonus:
+ Id: 4600
+ ENG: "Empire-wide Production Bonus"
+ArtifactPopulationGrowthBonus:
+ Id: 4601
+ ENG: "Empire-wide Population Growth Bonus"
+ArtifactResearchBonus:
+ Id: 4602
+ ENG: "Empire-wide Research Bonus"
+ArtifactSensorRangeBonus:
+ Id: 4603
+ ENG: "Empire-wide Sensor Range Bonus"
+ArtifactShieldPenetrationBonus:
+ Id: 4604
+ ENG: "Empire-wide Bonus Shield Penetration Chance"
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 
