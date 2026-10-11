@@ -917,7 +917,7 @@ namespace Ship_Game.Fleets
             else
             {
                 task.TargetEmpire = task.TargetPlanet.Owner;
-                float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 100_000);
+                float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
                 if (EndInvalidTask(TaskStep < 5 && !CanTakeThisFight(enemyStr, task, inCombat: TaskStep >= 5)))
                     return;
             }
@@ -2188,12 +2188,18 @@ namespace Ship_Game.Fleets
         void DebugInfo(MilitaryTask task, string text)
             => Owner.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
+        public const float AssaultEnemyScanRadius = 100_000;
+
+        public static bool CanTakeThisFight(Empire owner, float ourStrength, float enemyStrength, Empire enemy)
+        {
+            return enemyStrength * owner.GetFleetStrEmpireMultiplier(enemy)
+                   < ourStrength * owner.PersonalityModifiers.CanWeTakeThisFightMultiplier;
+        }
+
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool inCombat)
         {
-            float ourStrengthThreshold = GetStrength() * Owner.PersonalityModifiers.CanWeTakeThisFightMultiplier;
-            float multiplier = Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire);
-            if (enemyFleetStrength * multiplier < ourStrengthThreshold)
+            if (CanTakeThisFight(Owner, GetStrength(), enemyFleetStrength, task.TargetEmpire))
                 return true;
 
             // We fighting and cannot win, update fleet multipliers for next time
