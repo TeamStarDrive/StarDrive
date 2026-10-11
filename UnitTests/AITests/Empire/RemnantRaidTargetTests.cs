@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
@@ -76,8 +77,16 @@ namespace UnitTests.AITests.Empire
             raid.Evaluate();
             raid.Task = MilitaryTask.CreateRemnantEngagement(raid.TargetPlanet, Faction);
             raid.Task.TargetEmpire = Enemy;
-            raid.Fleet = new Fleet(UState, Faction) { FleetTask = raid.Task };
-            for (int i = 0; i < fleetShips; ++i)
+            if (fleetShips > 0) // as the raid's CreateFleet does, so the task knows its fleet
+            {
+                raid.Task.CreateRemnantFleet(Faction, SpawnShip(shipName, Faction, Portal.Position), "Ancient Fleet", out Fleet fleet);
+                raid.Fleet = fleet;
+            }
+            else
+            {
+                raid.Fleet = new Fleet(UState, Faction) { FleetTask = raid.Task };
+            }
+            for (int i = 1; i < fleetShips; ++i)
                 raid.Fleet.AddShip(SpawnShip(shipName, Faction, Portal.Position));
             raid.Fleet.TaskStep = taskStep;
             raid.AdvanceToNextStep();
@@ -272,6 +281,38 @@ namespace UnitTests.AITests.Empire
 
             Portal.InCombat = false;
             Assert.AreEqual(GoalStep.GoalComplete, raid.Evaluate(), "the fleet is released once the fight is over");
+        }
+
+        [TestMethod]
+        public void TheRemnantsKeepOnlyTheTasksOfRaidsUnderWay()
+        {
+            RemnantEngageEmpire released = RaidUnderWay(taskStep: 10); // back at the portal
+            RemnantEngageEmpire underWay = RaidUnderWay();
+            Faction.AI.AddPendingTask(released.Task); // as each raid's CreateFleet does
+            Faction.AI.AddPendingTask(underWay.Task);
+            MilitaryTask releasedTask = released.Task;
+
+            Assert.AreEqual(GoalStep.GoalComplete, released.Evaluate(), "setup: the fleet back at the portal is released");
+            Faction.AI.Update();
+
+            CollectionAssert.AreEqual(new[] { underWay.Task }, Faction.AI.GetTasks().ToArray(),
+                $"the Remnants' task list must hold the raid under way and not the released one ({releasedTask})");
+        }
+
+        [TestMethod]
+        public void AReleasedRaidFleetGoesBackToEscortThePortal()
+        {
+            RemnantEngageEmpire raid = RaidUnderWay(fleetShips: 2, taskStep: 10);
+            Ship[] ships = raid.Fleet.Ships.ToArray();
+
+            Assert.AreEqual(GoalStep.GoalComplete, raid.Evaluate(), "setup: the fleet back at the portal is released");
+
+            foreach (Ship ship in ships)
+            {
+                Assert.IsNull(ship.Fleet, "setup: the released ship left its fleet");
+                Assert.IsTrue(ship.AI.FindGoal(ShipAI.Plan.Escort, out ShipAI.ShipGoal escort) && escort.TargetShip == Portal,
+                              "a released ship must escort its portal, where the next raid gathers its fleet, instead of fleeing elsewhere");
+            }
         }
 
         [TestMethod]

@@ -60,14 +60,15 @@ namespace Ship_Game.AI
             ApplyPendingChanges();
         }
 
+        // adds first, so a task ended before it was ever added is not kept
         void ApplyPendingChanges()
         {
+            TaskList.AddRange(TasksToAdd);
+            TasksToAdd.Clear();
+
             foreach (MilitaryTask remove in TasksToRemove)
                 TaskList.RemoveRef(remove);
             TasksToRemove.Clear();
-
-            TaskList.AddRange(TasksToAdd);
-            TasksToAdd.Clear();
         }
 
         void PrioritizeTasks()

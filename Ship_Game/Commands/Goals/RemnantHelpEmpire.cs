@@ -195,7 +195,7 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.TaskStep == 3) // Ready for loyalty Change
             {
                 var ships = Fleet.Ships.Clone();
-                Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
+                Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete, returnToPortal: false);
                 for (int i = ships.Count - 1; i >= 0; i--)
                 {
                     Ship s = ships[i];

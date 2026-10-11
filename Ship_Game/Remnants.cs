@@ -516,15 +516,28 @@ namespace Ship_Game
            return fleet?.Ships.Count(s => s.DesignRole == RoleName.bomber) ?? 0;
         }
 
-        public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep)
+        public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep, bool returnToPortal = true)
         {
-            if (fleet != null)
+            MilitaryTask task = fleet?.FleetTask;
+            if (task != null)
             {
-                fleet.FleetTask?.DisbandTaskForce();
-                fleet.FleetTask?.EndTask();
+                Ship[] ships = fleet.Ships.ToArray();
+                task.DisbandTaskForce(); // this clears the fleet's task, so it is ended through the saved reference
+                task.EndTask();
+                if (returnToPortal)
+                    EscortClosestPortal(ships);
             }
 
             return goalStep;
+        }
+
+        void EscortClosestPortal(Ship[] ships)
+        {
+            foreach (Ship ship in ships)
+            {
+                if (ship.Active && !ship.Dying && GetClosestPortal(ship.Position, out Ship portal))
+                    ship.AI.AddEscortGoal(portal);
+            }
         }
 
         public bool GetClosestPortal(Vector2 position, out Ship portal)
