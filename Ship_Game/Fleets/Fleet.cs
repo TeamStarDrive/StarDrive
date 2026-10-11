@@ -2089,6 +2089,7 @@ namespace Ship_Game.Fleets
             float attackStr = 0;
             ThreatCluster currentCluster = clusters[0];
             float clusterStr = currentCluster.Strength * Owner.GetFleetStrEmpireMultiplier(currentCluster.Loyalty);
+            Vector2 facing = AveragePosition().DirectionToTarget(currentCluster.Position);
             int shipIndex = 0;
             for (int i = 0; i < ships.Count; i++)
             {
@@ -2102,7 +2103,7 @@ namespace Ship_Game.Fleets
                     continue;
                 }
 
-                ship.AI.OrderAttackMoveTo(currentCluster.Position);
+                ship.AI.OrderAttackMoveTo(currentCluster.Position + GetPositionFromDirection(ship, facing));
                 attackStr += ship.GetStrength();
                 if (attackStr >= clusterStr)
                 {
@@ -2110,6 +2111,7 @@ namespace Ship_Game.Fleets
                     {
                         currentCluster = clusters[clusterIndex];
                         clusterStr = currentCluster.Strength * Owner.GetFleetStrEmpireMultiplier(currentCluster.Loyalty);
+                        facing = AveragePosition().DirectionToTarget(currentCluster.Position);
                         attackStr = 0;
                     }
                     else

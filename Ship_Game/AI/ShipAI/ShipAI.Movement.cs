@@ -21,6 +21,9 @@ namespace Ship_Game.AI
         [StarData] public Vector2 MovePosition;
         [StarData] public Planet OrbitTarget { get; private set; }
 
+        // this ship's left-right place in a ship group (not a fleet), set by the group's order
+        public float GroupLateralOffset;
+
         WayPoints WayPoints = new();
 
         // Optional one-shot detour chain set by Fleet/ShipGroup so a clustered fleet

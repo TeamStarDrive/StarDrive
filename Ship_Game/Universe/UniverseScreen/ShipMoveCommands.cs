@@ -73,6 +73,22 @@ namespace Ship_Game.Universe
             return true;
         }
 
+        public static void SpreadGroupAttack(Array<Ship> ships, Ship target)
+        {
+            Ship[] attackers = ships.Filter(s => s.AI.Target == target);
+            if (attackers.Length == 0)
+                return;
+
+            Vector2 center = Vector2.Zero;
+            foreach (Ship ship in attackers)
+                center += ship.Position;
+            center /= attackers.Length;
+
+            Vector2 right = center.DirectionToTarget(target.Position).RightVector();
+            foreach (Ship ship in attackers)
+                ship.AI.GroupLateralOffset = (ship.Position - center).Dot(right);
+        }
+
         public void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
         {
             Log.Assert(planet != null, "RightClickOnPlanet: planet cannot be null!");

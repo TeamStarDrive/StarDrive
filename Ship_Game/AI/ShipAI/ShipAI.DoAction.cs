@@ -219,11 +219,11 @@ namespace Ship_Game.AI
                         prediction = fastestWeapon.ProjectedImpactPointNoError(target);
                 }
 
-                ThrustOrWarpToPos(prediction, timeStep);
+                ThrustOrWarpToPos(SpreadByGroupPlace(prediction), timeStep);
             }
             else
             {
-                ThrustOrWarpToPos(Target.Position, timeStep);
+                ThrustOrWarpToPos(SpreadByGroupPlace(Target.Position), timeStep);
             }
 
             bool ShouldTryOvertakeTarget()
@@ -238,6 +238,24 @@ namespace Ship_Game.AI
                 float distance = Owner.Position.Distance(target.Position);
                 return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && Owner.MaxSTLSpeed < target.CurrentVelocity;
             }
+        }
+
+        const float MaxGroupSpread = 3750f;
+
+        // the point where a straight line from this ship passes the target at its place in its fleet or group
+        Vector2 SpreadByGroupPlace(Vector2 targetPos)
+        {
+            float lateral = Owner.Fleet != null ? Owner.RelativeFleetOffset.X : GroupLateralOffset;
+            if (lateral == 0f)
+                return targetPos;
+
+            (Vector2 direction, float distance) = Owner.Position.GetDirectionAndLength(targetPos);
+            if (distance <= 7500f)
+                return targetPos;
+
+            lateral = lateral.Clamped(-MaxGroupSpread, MaxGroupSpread);
+            float along = (float)Math.Sqrt(distance*distance - lateral*lateral);
+            return Owner.Position + (direction*along + direction.RightVector()*lateral) * (along / distance);
         }
 
         void DoMinePlanet(FixedSimTime timeStep, ShipGoal g)

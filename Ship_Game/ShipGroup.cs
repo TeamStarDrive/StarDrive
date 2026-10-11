@@ -436,6 +436,8 @@ namespace Ship_Game
 
                     Vector2 finalShipPos = FinalPosition + ship.FleetOffset;
                     ship.AI.OrderMoveTo(finalShipPos, finalDir, AIState.FormationMoveTo, shipOrder);
+                    if (this is not Fleet)
+                        ship.AI.GroupLateralOffset = ship.RelativeFleetOffset.X;
                 }
             }
         }
