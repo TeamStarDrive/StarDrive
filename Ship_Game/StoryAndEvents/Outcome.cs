@@ -266,10 +266,10 @@ namespace Ship_Game
                 {
                     //choose a random available artifact and process it.
                     Artifact chosenArtifact = triggeredBy.Random.Item(potentials);
-                    triggeredBy.data.OwnedArtifacts.Add(chosenArtifact);
+                    triggeredBy.AddArtifact(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
                     SetArtifact(chosenArtifact);
-                    chosenArtifact.GrantBonuses(triggeredBy, popup);
+                    chosenArtifact.ShowEffects(popup);
                 }
             }
 

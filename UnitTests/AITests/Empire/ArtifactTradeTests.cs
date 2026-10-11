@@ -30,8 +30,7 @@ namespace UnitTests.AITests.Empire
             float playerTrait = Player.data.Traits.DiplomacyMod;
             float playerOngoing = Player.data.OngoingDiplomaticModifier;
 
-            Enemy.data.OwnedArtifacts.Add(art); // found by an event, as Outcome does
-            art.GrantBonuses(Enemy, popup: null);
+            Enemy.AddArtifact(art); // found by an event, as Outcome does
             float enemyBonus = art.GetDiplomacyBonus(Enemy.data);
             AssertEqual(0.0001f, enemyTrait + enemyBonus, Enemy.data.Traits.DiplomacyMod, "setup: the event did not give the AI the artifact's diplomacy bonus");
 

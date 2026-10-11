@@ -364,6 +364,18 @@ namespace Ship_Game.Universe
             PlanetsTree.UpdateAll(AllPlanetsList.ToArr());
 
             InitializeEmpiresFromSave();
+            MarkFoundArtifacts();
+        }
+
+        void MarkFoundArtifacts()
+        {
+            foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
+                art.Discovered = false;
+
+            foreach (Empire empire in EmpireList)
+                foreach (Artifact owned in empire.data.OwnedArtifacts)
+                    if (ResourceManager.ArtifactsDict.TryGetValue(owned.Name, out Artifact art))
+                        art.Discovered = true;
         }
 
         public void GeneratePotentialDysonSwarms()
