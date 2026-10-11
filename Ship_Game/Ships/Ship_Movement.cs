@@ -57,6 +57,11 @@ namespace Ship_Game.Ships
         /// </summary>
         public float VelocityMax;
 
+        /// <summary>
+        /// the velocity a projectile fired from this ship carries, never above the ship's top sublight speed
+        /// </summary>
+        public Vector2 LaunchVelocity => Velocity.Length() > MaxSTLSpeed ? Velocity.Normalized() * MaxSTLSpeed : Velocity;
+
         public float RotationRadsPerSecond;
         public ShipEngines ShipEngines;
 

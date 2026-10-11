@@ -66,7 +66,7 @@ namespace Ship_Game.AI.CombatTactics
 
                 if (distToStandoff <= brakingDistance)
                 {
-                    AI.RotateTowardsPosition(Owner.PredictImpact(target), timeStep, 0.05f);
+                    AI.RotateTowardsPosition(Owner.PredictAim(target), timeStep, 0.05f);
                     Owner.SubLightAccelerate(stlSpeedLimit: 0f, Thrust.Reverse);
                     return CombatMoveState.Approach;
                 }
@@ -85,7 +85,7 @@ namespace Ship_Game.AI.CombatTactics
             }
 
             // adjust to keep facing in intended firing direction.
-            AI.RotateTowardsPosition(Owner.PredictImpact(target), timeStep, 0.05f);
+            AI.RotateTowardsPosition(Owner.PredictAim(target), timeStep, 0.05f);
 
             if (DistanceToTarget > minDistance)
             {

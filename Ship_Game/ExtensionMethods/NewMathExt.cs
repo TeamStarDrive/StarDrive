@@ -60,6 +60,13 @@ namespace Ship_Game.ExtensionMethods
                 .Predict(ourShip.CanUseAdvancedTargeting);
         }
 
+        // where to face so that guns firing shots that carry our velocity hit the target
+        public static Vector2 PredictAim(this Ship ourShip, GameObject target)
+        {
+            return new ImpactPredictor(ourShip, target)
+                .PredictAim(ourShip.CanUseAdvancedTargeting);
+        }
+
         public static Vector2 PredictImpact(this Projectile proj, GameObject target)
         {
             return new ImpactPredictor(proj, target)

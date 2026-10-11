@@ -577,7 +577,7 @@ namespace Ship_Game.AI
             if (Owner.CurrentVelocity > 0f)
             {
                 ReverseThrustUntilStopped(timeStep);
-                Vector2 interceptPoint = Owner.PredictImpact(Target);
+                Vector2 interceptPoint = Owner.PredictAim(Target);
                 RotateTowardsPosition(interceptPoint, timeStep, 0.2f);
             }
             else

@@ -117,16 +117,16 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void SpawnMirvSalvo(Vector2 direction, GameObject target, Vector2 origin)
+        public void SpawnMirvSalvo(Vector2 direction, GameObject target, Vector2 origin, Vector2 inheritedVelocity)
         {
-            SpawnSalvo(direction, target, origin, playSound: true);
+            SpawnSalvo(direction, target, origin, playSound: true, inheritedVelocity);
         }
 
-        void SpawnSalvo(Vector2 direction, GameObject target, Vector2 origin, bool playSound)
+        void SpawnSalvo(Vector2 direction, GameObject target, Vector2 origin, bool playSound, Vector2? inheritedVelocity = null)
         {
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
             {
-                Projectile.Create(this, Owner, fireSource.Origin, fireSource.Direction, target, playSound);
+                Projectile.Create(this, Owner, fireSource.Origin, fireSource.Direction, target, playSound, inheritedVelocity);
                 playSound = false; // only play sound once per fire cone
             }
         }
@@ -373,12 +373,13 @@ namespace Ship_Game.Gameplay
         }
 
         public Vector2 Origin => Module?.Position ?? PlanetOrigin;
-        public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
+        public Vector2 OwnerVelocity => Owner?.LaunchVelocity ?? Module?.GetParent()?.LaunchVelocity ?? Vector2.Zero;
 
-        Vector2 Predict(Vector2 origin, GameObject target, bool advancedTargeting)
+        Vector2 Predict(Vector2 origin, GameObject target, bool advancedTargeting, bool aim)
         {
-            Vector2 pip = new ImpactPredictor(origin, OwnerVelocity, ProjectileSpeed, target)
-                .Predict(advancedTargeting);
+            var predictor = new ImpactPredictor(origin, OwnerVelocity, ProjectileSpeed, target);
+            Vector2 pip = aim && !Tag_Guided ? predictor.PredictAim(advancedTargeting)
+                                             : predictor.Predict(advancedTargeting);
 
             float distance = origin.Distance(pip);
             float maxPredictionRange = BaseRange*2;
@@ -393,13 +394,18 @@ namespace Ship_Game.Gameplay
 
         public Vector2 ProjectedImpactPointNoError(GameObject target)
         {
-            return Predict(Origin, target, advancedTargeting: true);
+            return Predict(Origin, target, advancedTargeting: true, aim: false);
+        }
+
+        public Vector2 AimPointNoError(GameObject target)
+        {
+            return Predict(Origin, target, advancedTargeting: true, aim: true);
         }
 
         bool ProjectedImpactPoint(GameObject target, out Vector2 pip)
         {
             Vector2 origin = Origin;
-            pip = Predict(origin, target, CanUseAdvancedTargeting);
+            pip = Predict(origin, target, CanUseAdvancedTargeting, aim: true);
             if (pip == Vector2.Zero)
                 return false;
 

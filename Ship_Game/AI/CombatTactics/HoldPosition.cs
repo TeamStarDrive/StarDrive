@@ -13,7 +13,7 @@ namespace Ship_Game.AI.CombatTactics
         {
             Target = AI.Target;
             AI.ReverseThrustUntilStopped(timeStep);
-            Vector2 interceptPoint = Owner.PredictImpact(Target);
+            Vector2 interceptPoint = Owner.PredictAim(Target);
             AI.RotateTowardsPosition(interceptPoint, timeStep, 0.2f);
         }
     }
