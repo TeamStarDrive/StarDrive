@@ -71,10 +71,12 @@ namespace UnitTests.AITests.Empire
         }
 
         // a raid on the colony, waiting for its fleet (WaitForCompletion)
-        RemnantEngageEmpire RaidUnderWay(int fleetShips = 1, int taskStep = 5, string shipName = "Vulcan Scout")
+        RemnantEngageEmpire RaidUnderWay(int fleetShips = 1, int taskStep = 5, string shipName = "Vulcan Scout", Planet target = null)
         {
             var raid = new RemnantEngageEmpire(Faction, Portal, Enemy);
             raid.Evaluate();
+            if (target != null)
+                raid.TargetPlanet = target;
             raid.Task = MilitaryTask.CreateRemnantEngagement(raid.TargetPlanet, Faction);
             raid.Task.TargetEmpire = Enemy;
             if (fleetShips > 0) // as the raid's CreateFleet does, so the task knows its fleet
@@ -313,6 +315,27 @@ namespace UnitTests.AITests.Empire
                 Assert.IsTrue(ship.AI.FindGoal(ShipAI.Plan.Escort, out ShipAI.ShipGoal escort) && escort.TargetShip == Portal,
                               "a released ship must escort its portal, where the next raid gathers its fleet, instead of fleeing elsewhere");
             }
+        }
+
+        [TestMethod]
+        public void ASeenRaidFleetSettingOffFlashesItsTargetSystem()
+        {
+            Planet farColony = AddPlanet(PortalSystem, PortalSystem.Position + new Vector2(60_000, 0));
+            farColony.SetOwner(Player);
+            RemnantEngageEmpire raid = RaidUnderWay(taskStep: 1, target: farColony);
+            foreach (Ship ship in raid.Fleet.Ships)
+            {
+                ship.Position = PortalSystem.Position + new Vector2(800_000, 0);
+                ship.KnownByEmpires.SetSeen(Player);
+            }
+            raid.Fleet.AveragePosition(force: true);
+
+            RunFleetTask(raid.Fleet);
+            Player.AssessSystemsInDanger(TestSimStep);
+
+            AssertEqual(2, raid.Fleet.TaskStep, "setup: the fleet set off for its gathering point");
+            Assert.IsTrue(Player.SystemsWithThreat.Any(t => t.TargetSystem == PortalSystem),
+                          "the target system flashes while a seen raid fleet heads for it, wherever the planet sits in the system");
         }
 
         [TestMethod]

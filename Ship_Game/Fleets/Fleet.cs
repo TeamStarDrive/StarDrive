@@ -1287,7 +1287,7 @@ namespace Ship_Game.Fleets
                     if (FleetInAreaInCombat(AveragePos, 50000) == CombatStatus.InCombat)
                         break;
 
-                    GatherAtAO(task, target.System.Radius*2);
+                    FleetMoveToPosition(target.System.Position, target.System.Radius*2, MoveOrder.Regular);
                     if (TryCalcEtaToPlanet(task, out float eta))
                         Owner.Remnants.InitTargetEmpireDefenseActions(target, eta, GetStrength());
 
