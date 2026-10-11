@@ -131,6 +131,27 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
+        public void AGunDoesNotFinishASalvoStartedBeforeItsPlanetChangedHands()
+        {
+            SetLevel(1);
+            Building gun = SalvoGun(out IWeaponTemplate salvo);
+            EnemyNextToPlanet();
+
+            int projectilesBefore = UState.Objects.GetProjectiles(null).Length;
+            gun.WeaponTimer = 0f;
+            P.UpdateSpaceCombatBuildings(new FixedSimTime(1f / 60f)); // the planet fires the gun, as in a fight
+            Assert.AreEqual(salvo.ProjectileCount, UState.Objects.GetProjectiles(null).Length - projectilesBefore,
+                            "setup: the planet did not fire the first shot of the salvo");
+
+            P.SetOwner(null);
+            P.UpdateSpaceCombatBuildings(new FixedSimTime(1f / 60f)); // the planet's guns stop with its owner
+            P.SetOwner(Player);
+
+            (int _, int rest) = FireFor(gun, 1f, 60, weaponTimer: 1000f);
+            Assert.AreEqual(0, rest, $"{gun.Name} finished a salvo its planet started before it changed hands");
+        }
+
+        [TestMethod]
         public void AtASlowSimTheGunKeepsItsFireRate()
         {
             const int stepsPerSecond = 10;

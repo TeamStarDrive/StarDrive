@@ -87,6 +87,7 @@ namespace Ship_Game
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
         float NoSpaceCombatTargetsFoundDelay = 0;
+        bool SpaceCombatBuildingsActive;
 
         public bool RecentCombat => Troops.RecentCombat;
         public float ConsumptionPerColonist => 1 + (Owner?.data.Traits.ConsumptionModifier ?? 0);
@@ -678,7 +679,8 @@ namespace Ship_Game
                 SetDysonSwarmWeapon(true);
 
             DysonSwarmLauncherTimer += timeStep.FixedTime;
-            if (DysonSwarmLauncherTimer >= DysonSwarmLauncher.FireDelay / (Level*2))
+            float launchDelay = DysonSwarmLauncher.FireDelay / (Level*2);
+            if (DysonSwarmLauncherTimer >= launchDelay)
             {
                 float productionCost = dysonSwarm.SwarmSatProductionCost;
                 if (ProdHere >= productionCost && (NonCybernetic || Storage.ProdRatio > 0.1f))
@@ -688,7 +690,8 @@ namespace Ship_Game
                     dysonSwarm.DeploySwarmSat();
                 }
 
-                DysonSwarmLauncherTimer = 0;
+                // time past the delay carries over, up to one step, so a slow sim keeps the rate
+                DysonSwarmLauncherTimer = (DysonSwarmLauncherTimer - launchDelay).UpperBound(timeStep.FixedTime);
             }
         }
 
@@ -707,6 +710,7 @@ namespace Ship_Game
             if (Owner == null)
             {
                 SpaceCombatNearPlanet = false;
+                StopSpaceCombatBuildings();
                 return;
             }
 
@@ -716,6 +720,7 @@ namespace Ship_Game
 
             if (NoSpaceCombatTargetsFoundDelay < 2f || enemyInRange)
             {
+                SpaceCombatBuildingsActive = true;
                 bool targetNear = false;
                 NoSpaceCombatTargetsFoundDelay -= timeStep.FixedTime;
 
@@ -732,6 +737,20 @@ namespace Ship_Game
                     NoSpaceCombatTargetsFoundDelay = 2f;
                 }
             }
+            else
+            {
+                StopSpaceCombatBuildings();
+            }
+        }
+
+        void StopSpaceCombatBuildings()
+        {
+            if (!SpaceCombatBuildingsActive)
+                return;
+
+            SpaceCombatBuildingsActive = false;
+            foreach (Building b in Buildings)
+                b.EndSalvo();
         }
 
         bool ThreatsNearPlanet(bool enemyInRange)
