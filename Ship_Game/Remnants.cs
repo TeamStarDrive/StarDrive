@@ -578,7 +578,7 @@ namespace Ship_Game
                 if (system.PlanetList.Any(p => p.Owner == Universe.Player
                                                && p.HasBuilding(b => b.DetectsRemnantFleet)))
                 {
-                    string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
+                    string message = string.Format(Localizer.Token(GameText.RemnantFleetTargetingPlanet), planet.Name, starDateEta.String(1));
                     Universe.Notifications.AddIncomingRemnants(planet, message);
                 }
             }

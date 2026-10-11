@@ -721,12 +721,12 @@ namespace Ship_Game
             if (ExistingHull(edited, visibleName) != null)
                 return null;
             if (visibleName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
-                return $"'{visibleName}' cannot be used as a file name";
+                return string.Format(Localizer.Token(GameText.HullNameNotAFileName), visibleName);
 
             string fileName = visibleName + ".hull";
             foreach (ShipHull hull in ResourceManager.Hulls)
                 if (string.Equals(hull.Source?.Name, fileName, StringComparison.OrdinalIgnoreCase))
-                    return $"Hull '{hull.HullName}' already uses the file name {fileName}. Choose another name.";
+                    return string.Format(Localizer.Token(GameText.HullFileNameTaken), hull.HullName, fileName);
             return null;
         }
 

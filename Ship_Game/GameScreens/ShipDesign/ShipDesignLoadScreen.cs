@@ -87,21 +87,22 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (!isWIP)
                 {
                     if (!design.IsReadonlyDesign && !design.IsFromSave)
-                        AddCancel(new(-30, 0), "Delete this Ship Design", 
+                        AddCancel(new(-30, 0), Localizer.Token(GameText.DeleteShipDesignTip),
                             () => PromptDeleteShip(design.Name));
 
                     if (!CanBeBuilt && MissingTechs.Length > 0 && MissingTechsAlreadyIQueue.Length < MissingTechs.Length)
                     {
-                        AddResearch(new(-50, 0), "Research This Ship", () => PromptResearchShip(design.Name, MissingTechs, MissingTechsAlreadyIQueue));
+                        AddResearch(new(-50, 0), Localizer.Token(GameText.ResearchShipDesignTip),
+                            () => PromptResearchShip(design.Name, MissingTechs, MissingTechsAlreadyIQueue));
                     }
 
                 }
                 else
                 {
-                    AddCancel(new(-30, -45), "Delete this WIP Design", 
+                    AddCancel(new(-30, -45), Localizer.Token(GameText.DeleteWipDesignTip),
                         () => PromptDeleteShip(design.Name));
-                    
-                    AddDelete(new(-30, 15), "Delete all related versions of this WIP Design",
+
+                    AddDelete(new(-30, 15), Localizer.Token(GameText.DeleteAllWipVersionsTip),
                         () => PromptDeleteWIPVersions(design.Name));
                 }
             }
@@ -110,9 +111,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             {
                 string techList = string.Join("\n", EnrichTechListWithTranslatedNames(missingTechs.Filter(t => !techsInQueue.Contains(t))));
                 string inQueue = string.Join("\n", EnrichTechListWithTranslatedNames(techsInQueue));
-                string alreadyInQueue = inQueue.IsEmpty() ? string.Empty : $"Already in Queue:\n{inQueue}\n\n";
-                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, $"Confirm Research Missing Techs ({missingTechs.Length}) for {shipId}:\n\n" +
-                    $"{alreadyInQueue} Will be added to Queue:\n{techList}", width: ShipDesignSaveScreen.MessageBoxWidth)
+                string alreadyInQueue = inQueue.IsEmpty() ? string.Empty : string.Format(Localizer.Token(GameText.ResearchTechsAlreadyQueued), inQueue);
+                string confirm = string.Format(Localizer.Token(GameText.ConfirmResearchMissingTechs), missingTechs.Length, shipId, alreadyInQueue, techList);
+                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, confirm, width: ShipDesignSaveScreen.MessageBoxWidth)
                 {
                     Accepted = () => Screen.ResearchShipTech(missingTechs)
                 });
@@ -135,9 +136,8 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (Screen.Universe.Ships.Any(s => s.Name == shipId))
                 {
                     GameAudio.NegativeClick();
-                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, $"{shipId} currently exists in the universe." +
-                                                                       " You cannot delete a design with this name.",
-                                                                       MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
+                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, string.Format(Localizer.Token(GameText.DesignInUniverseNoDelete), shipId),
+                                                                        MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
                     return;
                 }
 
@@ -147,21 +147,21 @@ namespace Ship_Game.GameScreens.ShipDesign
                     if (playerPlanets.NotEmpty())
                     {
                         Screen.ScreenManager.AddScreen(new MessageBoxScreen
-                            (Screen, $"{shipId} is currently in your planets' build queues." +
-                                     $" You cannot delete this design name.\nRelated planets: {playerPlanets}.",
+                            (Screen, string.Format(Localizer.Token(GameText.DesignInOurQueuesNoDelete), shipId, playerPlanets),
                                      MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
                     }
                     else
                     {
                         Screen.ScreenManager.AddScreen(new MessageBoxScreen
-                            (Screen, $"{shipId} is in another empire's build queue. " +
-                                    "You cannot delete this design name.", MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
+                            (Screen, string.Format(Localizer.Token(GameText.DesignInOtherQueueNoDelete), shipId),
+                                     MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
                     }
 
                     return;
                 }
 
-                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, $"Confirm Delete: {shipId}", width: ShipDesignSaveScreen.MessageBoxWidth)
+                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, string.Format(Localizer.Token(GameText.ConfirmDeleteDesign), shipId),
+                                                                    width: ShipDesignSaveScreen.MessageBoxWidth)
                 {
                     Accepted = () => Screen.DeleteAccepted(shipId)
                 });
@@ -170,7 +170,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             void PromptDeleteWIPVersions(string shipId)
             {
                 string shipPrefix = ShipDesignWIP.GetWipShipNameAndNum(shipId);
-                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, $"Confirm Delete All WIP Versions: {shipPrefix}", width: ShipDesignSaveScreen.MessageBoxWidth)
+                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, string.Format(Localizer.Token(GameText.ConfirmDeleteAllWipVersions), shipPrefix),
+                                                                    width: ShipDesignSaveScreen.MessageBoxWidth)
                 {
                     Accepted = () => Screen.DeleteWIPVersionAccepted(shipId)
                 });
@@ -388,7 +389,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
                 if (WIPs.Count > 0)
                 {
-                    DesignListItem wip = AvailableDesignsList.AddItem(new DesignListItem(this, "WIP"));
+                    DesignListItem wip = AvailableDesignsList.AddItem(new DesignListItem(this, Localizer.Token(GameText.WipDesignsHeader)));
                     foreach (Ships.ShipDesign wipHull in WIPs)
                         wip.AddSubItem(new DesignListItem(this, wipHull, isWIP:true));
                 }

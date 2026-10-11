@@ -14876,6 +14876,141 @@ ArtifactShieldPenetrationBonus:
 DamageShotsPerSalvo:
  Id: 4605
  ENG: "Damage, {0} shots per salvo"
+ReservedDesignNameLabel:
+ Id: 4606
+ ENG: "(Reserved Name)"
+HullSaveFailed:
+ Id: 4607
+ ENG: "Failed to save hull '{0}', see the log"
+EnterDesignName:
+ Id: 4608
+ ENG: "Please enter a name for your design"
+EnterHullName:
+ Id: 4609
+ ENG: "Please enter a name for your hull"
+ReservedDesignNoOverwrite:
+ Id: 4610
+ ENG: "{0} is a reserved ship name and you cannot overwrite this design"
+DesignInUniverseNoOverwrite:
+ Id: 4611
+ ENG: "{0} currently exists in the universe. You cannot overwrite a design with this name."
+DesignInOurQueuesNoOverwrite:
+ Id: 4612
+ ENG: "{0} is currently in your planets' build queues. You cannot overwrite this design name.\nRelated planets: {1}."
+DesignInOtherQueueNoOverwrite:
+ Id: 4613
+ ENG: "{0} is in another empire's build queue. You cannot overwrite this design name."
+OverwriteHullQuestion:
+ Id: 4614
+ ENG: "Hull named '{0}' already exists ({1}). Overwrite?"
+OverwriteReservedDesignFileQuestion:
+ Id: 4615
+ ENG: "Reserved Design named '{0}' already exists. Overwrite at '{1}'?"
+OverwriteReservedDesignFromSaveQuestion:
+ Id: 4616
+ ENG: "Reserved Design named '{0}' was loaded from this save. Overwrite it with a copy in your Saved Designs?"
+OverwriteDesignQuestion:
+ Id: 4617
+ ENG: "Design named '{0}' already exists. Overwrite?"
+HullNameNotAFileName:
+ Id: 4618
+ ENG: "'{0}' cannot be used as a file name"
+HullFileNameTaken:
+ Id: 4619
+ ENG: "Hull '{0}' already uses the file name {1}. Choose another name."
+DeleteShipDesignTip:
+ Id: 4620
+ ENG: "Delete this Ship Design"
+ResearchShipDesignTip:
+ Id: 4621
+ ENG: "Research This Ship"
+DeleteWipDesignTip:
+ Id: 4622
+ ENG: "Delete this WIP Design"
+DeleteAllWipVersionsTip:
+ Id: 4623
+ ENG: "Delete all related versions of this WIP Design"
+ResearchTechsAlreadyQueued:
+ Id: 4624
+ ENG: "Already in Queue:\n{0}\n\n"
+ConfirmResearchMissingTechs:
+ Id: 4625
+ ENG: "Confirm Research Missing Techs ({0}) for {1}:\n\n{2}Will be added to Queue:\n{3}"
+DesignInUniverseNoDelete:
+ Id: 4626
+ ENG: "{0} currently exists in the universe. You cannot delete a design with this name."
+DesignInOurQueuesNoDelete:
+ Id: 4627
+ ENG: "{0} is currently in your planets' build queues. You cannot delete this design name.\nRelated planets: {1}."
+DesignInOtherQueueNoDelete:
+ Id: 4628
+ ENG: "{0} is in another empire's build queue. You cannot delete this design name."
+ConfirmDeleteDesign:
+ Id: 4629
+ ENG: "Confirm Delete: {0}"
+ConfirmDeleteAllWipVersions:
+ Id: 4630
+ ENG: "Confirm Delete All WIP Versions: {0}"
+WipDesignsHeader:
+ Id: 4631
+ ENG: "WIP"
+AutoPatcherTitle:
+ Id: 4632
+ ENG: "AutoPatcher {0}"
+PatchCacheMissing:
+ Id: 4633
+ ENG: "Cached patch missing"
+PatchCacheMissingTip:
+ Id: 4634
+ ENG: "Expected pre-downloaded patch at {0} but the folder is gone. Try the update again from the main menu."
+PatchDownloading:
+ Id: 4635
+ ENG: "Downloading"
+PatchUnzipping:
+ Id: 4636
+ ENG: "Unzipping {0}"
+PatchDeletingStaleFiles:
+ Id: 4637
+ ENG: "Deleting Stale Files"
+PatchCopyingNewFiles:
+ Id: 4638
+ ENG: "Copying New Files"
+PatchNeedsAdminRights:
+ Id: 4639
+ ENG: "Admin rights required"
+PatchNeedsAdminRightsTip:
+ Id: 4640
+ ENG: "The patch is downloaded but needs admin rights to write to your install folder.\nClick the update notification again and accept the UAC prompt, or right-click 'StarDrive.exe' and choose 'Run as administrator'."
+PatchUacPromptSoon:
+ Id: 4641
+ ENG: "Patch downloaded — UAC prompt to apply patch in 3 seconds..."
+PatchDownloadFailed:
+ Id: 4642
+ ENG: "Download failed!"
+PatchUnzipFailed:
+ Id: 4643
+ ENG: "Unzip failed!"
+PatchDeleteStaleFilesFailed:
+ Id: 4644
+ ENG: "Delete Stale Files failed!"
+PatchCopyNewFilesFailed:
+ Id: 4645
+ ENG: "Copy New Files failed!"
+PatchAppliedWithSkippedFiles:
+ Id: 4646
+ ENG: "Patch applied ({0} file(s) skipped — see blackbox.log; usually antivirus interference)"
+PatchRestarting:
+ Id: 4647
+ ENG: "Restarting StarDrive ..."
+PatchRestartFailed:
+ Id: 4648
+ ENG: "Patch was installed, but restarting the game failed:\n{0}\n\nPlease relaunch StarDrive manually."
+PatchRestartFailedTitle:
+ Id: 4649
+ ENG: "StarDrive — Restart failed"
+RemnantFleetTargetingPlanet:
+ Id: 4650
+ ENG: "Remnant Fleet is targeting {0}\nETA - Stardate {1}"
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 
