@@ -243,7 +243,7 @@ namespace Ship_Game.AI
             float maxResearchPerTurn = 0;
             foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
             {
-                if (design.IsResearchStation)
+                if (design.IsResearchStation && ShipResupply.HasGoodTotalSupplyForResearch(design))
                 {
                     potentialResearchStations.Add(design);
                     if (design.BaseResearchPerTurn > maxResearchPerTurn)
@@ -282,7 +282,7 @@ namespace Ship_Game.AI
             float minimumRefiningTurns = ShipResupply.NumTurnsForGoodRefiningSupply;
             foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
             {
-                if (design.IsMiningStation)
+                if (design.IsMiningStation && ShipResupply.HasGoodTotalSupplyForRefining(design))
                 {
                     float score = GetRefiningScore(design);
                     if (score >= highestScore)
@@ -300,7 +300,7 @@ namespace Ship_Game.AI
                 var miningStations = potentialMiningStations.
                     Filter(s => GetRefiningScore(s).InRange(highestScore * 0.98f, highestScore));
 
-                bestMiningStation = miningStations.FindMax(s => s.BaseCargoSpace / s.BaseRefiningPerTurn);
+                bestMiningStation = miningStations.FindMax(s => s.GetStrength(empire) / s.SurfaceArea);
             }
 
             if (empire.Universe?.Debug == true)
