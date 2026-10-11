@@ -1687,7 +1687,7 @@ namespace Ship_Game
 
         void CallForHelp()
         {
-            if (!SpaceCombatNearPlanet)
+            if (!SpaceCombatNearPlanet || OwnerIsPlayer)
                 return;
 
             for (int i = 0; i < System.ShipList.Count; i++)
