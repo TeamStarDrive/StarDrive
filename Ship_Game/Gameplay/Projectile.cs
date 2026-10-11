@@ -99,7 +99,6 @@ namespace Ship_Game.Gameplay
         bool UsesVisibleMesh;
         public Vector2 FixedError;
         public bool ErrorSet = false;
-        public bool FlashExplode;
         bool Deflected;
         public bool TrailTurnedOn { get; protected set; } = true;
 
@@ -803,7 +802,6 @@ namespace Ship_Game.Gameplay
             {
                 bool visibleToPlayer = InFrustum && Module?.GetParent().InPlayerSensorRange == true;
                 bool showFx = !cleanupOnly && visibleToPlayer && Universe.IsSectorViewOrCloser;
-                bool flashFx = showFx && FlashExplode && Universe.IsSystemViewOrCloser;
 
                 if (explodes)
                 {
@@ -813,7 +811,7 @@ namespace Ship_Game.Gameplay
                     }
 
                     if (showFx)
-                        ShowExplosionEffect(flashFx, victim);
+                        ShowExplosionEffect(victim);
 
                     // the most typical case: projectile has hit a victim module and will now explode
                     if (victim != null)
@@ -821,7 +819,7 @@ namespace Ship_Game.Gameplay
                 }
                 else if (showFx) // FakeExplode
                 {
-                    ShowExplosionEffect(flashFx, victim);
+                    ShowExplosionEffect(victim);
                 }
             }
         }
@@ -832,17 +830,14 @@ namespace Ship_Game.Gameplay
             PowerDamage = Weapon.PowerDamage;
         }
 
-        void ShowExplosionEffect(bool flashFx, ShipModule module)
+        void ShowExplosionEffect(ShipModule module)
         {
             var origin = new Vector3(Position, -50f);
             float radius = DamageRadius * ExplosionRadiusMod;
             Vector2 explostionVelocity = module?.GetParent()?.Velocity * 1.1f ?? Velocity * 0.1f;
             ExplosionManager.AddExplosion(Universe.Screen, origin, explostionVelocity, radius, 2.5f, Weapon.ExplosionType);
-            if (flashFx)
-            {
+            if (Universe.IsSystemViewOrCloser)
                 GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                Universe.Screen.Particles.Flash.AddParticle(origin, Vector3.Zero);
-            }
         }
 
         public void GuidedMoveTowards(FixedSimTime timeStep, Vector2 targetPos, float thrustNozzleRotation)

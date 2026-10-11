@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NAudio.Wave;
 using Ship_Game.Audio;
@@ -99,13 +100,53 @@ namespace UnitTests.Data
             AssertFalse(weapons.CanPlayEffect(capped), "Expected the effect cap to block, not the category cap");
             capped.NumActiveInstances = 0;
 
-            SoundEffect uncapped = config.GetSoundEffect("sd_weapon_rocket_explode_01");
+            SoundEffect uncapped = config.GetSoundEffect("sd_weapon_flakcannon_01");
             AssertEqual(0, uncapped.MaxConcurrent);
             uncapped.NumActiveInstances = weapons.MaxConcurrentSoundsPerEffect - 1;
             AssertTrue(weapons.CanPlayEffect(uncapped), "Expected the category cap to still apply");
             uncapped.NumActiveInstances = weapons.MaxConcurrentSoundsPerEffect;
             AssertFalse(weapons.CanPlayEffect(uncapped), "Expected the category cap to block");
             uncapped.NumActiveInstances = 0;
+        }
+
+        [TestMethod]
+        public void WeaponExplosionSoundsAreCappedSoTheyCannotCrowdOutFireSounds()
+        {
+            AudioConfig config = new();
+            foreach ((string id, string categoryName) in new[] { ("Explo1", "Explosions"),
+                         ("sd_weapon_rocket_explode_01", "Weapons"), ("sd_weapon_flakcannon_explode_01", "Weapons") })
+            {
+                AudioCategory category = config.GetCategory(categoryName);
+                SoundEffect effect = config.GetSoundEffect(id);
+                AssertEqual(8, effect.MaxConcurrent, $"{id} is capped per effect");
+
+                effect.NumActiveInstances = 7;
+                AssertTrue(category.CanPlayEffect(effect), $"{id}: below the cap it still plays");
+                effect.NumActiveInstances = 8;
+                AssertFalse(category.CanPlayEffect(effect), $"{id}: at the cap it is turned away");
+                effect.NumActiveInstances = 0;
+            }
+        }
+
+        [TestMethod]
+        public void EveryWeaponSoundIsDefined()
+        {
+            AudioConfig config = new();
+            var cue = new Regex(@"<(FireCueName|DieCue|InFlightCue|ToggleSoundName)>\s*([^<]*?)\s*</\1>");
+            int checkedCues = 0;
+            foreach (FileInfo file in new DirectoryInfo("Content/Weapons").GetFiles("*.xml", SearchOption.AllDirectories))
+            {
+                string xml = Regex.Replace(File.ReadAllText(file.FullName), "<!--.*?-->", "", RegexOptions.Singleline);
+                foreach (Match m in cue.Matches(xml))
+                {
+                    string id = m.Groups[2].Value;
+                    if (id.IsEmpty())
+                        continue;
+                    ++checkedCues;
+                    AssertTrue(config.GetSoundEffect(id) != null, $"{file.Name} <{m.Groups[1].Value}> names an undefined sound: {id}");
+                }
+            }
+            AssertGreaterThan(checkedCues, 100, "setup: the weapon files were not found");
         }
 
         [TestMethod]

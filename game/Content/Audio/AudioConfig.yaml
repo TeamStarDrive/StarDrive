@@ -509,6 +509,7 @@
         - "Explosions/Explo1.1.m4a"
         - "Explosions/Explo1.2.m4a"
         - "Explosions/Explo1.3.m4a"
+      MaxConcurrent: 8
 
     - SoundEffect:
       Id: sd_explosion_ship_det_small
@@ -664,6 +665,7 @@
       Id: sd_weapon_flakcannon_explode_01
       Volume: 1.3
       Sound: "Weapons/sd_weapon_flakcannon_explode_01.m4a"
+      MaxConcurrent: 8
 
     - SoundEffect:
       Id: sd_impact_bullet_small_01
@@ -775,6 +777,7 @@
       Id: sd_weapon_rocket_explode_01
       Volume: 1.1
       Sound: "Weapons/sd_weapon_rocket_explode_01.m4a"
+      MaxConcurrent: 8
 
     - SoundEffect:
       Id: missile01
