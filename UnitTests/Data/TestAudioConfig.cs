@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -110,22 +111,32 @@ namespace UnitTests.Data
         }
 
         [TestMethod]
-        public void WeaponExplosionSoundsAreCappedSoTheyCannotCrowdOutFireSounds()
+        public void EveryWeaponHitSoundIsCappedSoItCannotCrowdOutOtherSounds()
         {
             AudioConfig config = new();
-            foreach ((string id, string categoryName) in new[] { ("Explo1", "Explosions"),
-                         ("sd_weapon_rocket_explode_01", "Weapons"), ("sd_weapon_flakcannon_explode_01", "Weapons") })
+            var dieCue = new Regex(@"<DieCue>\s*([^<]*?)\s*</DieCue>");
+            var checkedIds = new HashSet<string>();
+            foreach (FileInfo file in new DirectoryInfo("Content/Weapons").GetFiles("*.xml", SearchOption.AllDirectories))
             {
-                AudioCategory category = config.GetCategory(categoryName);
-                SoundEffect effect = config.GetSoundEffect(id);
-                AssertEqual(8, effect.MaxConcurrent, $"{id} is capped per effect");
+                string xml = Regex.Replace(File.ReadAllText(file.FullName), "<!--.*?-->", "", RegexOptions.Singleline);
+                foreach (Match m in dieCue.Matches(xml))
+                {
+                    string id = m.Groups[1].Value;
+                    if (id.IsEmpty() || !checkedIds.Add(id))
+                        continue;
+                    AssertFalse(id.StartsWith("sd_explosion_ship_det"), $"{file.Name}: {id} is a ship death sound, a cap on it would silence ship deaths");
+                    SoundEffect effect = config.GetSoundEffect(id);
+                    AssertTrue(effect != null, $"{file.Name}: the hit sound {id} is not defined");
+                    AssertEqual(8, effect.MaxConcurrent, $"{file.Name}: the hit sound {id} is capped per effect");
 
-                effect.NumActiveInstances = 7;
-                AssertTrue(category.CanPlayEffect(effect), $"{id}: below the cap it still plays");
-                effect.NumActiveInstances = 8;
-                AssertFalse(category.CanPlayEffect(effect), $"{id}: at the cap it is turned away");
-                effect.NumActiveInstances = 0;
+                    effect.NumActiveInstances = 7;
+                    AssertTrue(effect.Category.CanPlayEffect(effect), $"{id}: below the cap it still plays");
+                    effect.NumActiveInstances = 8;
+                    AssertFalse(effect.Category.CanPlayEffect(effect), $"{id}: at the cap it is turned away");
+                    effect.NumActiveInstances = 0;
+                }
             }
+            AssertGreaterThan(checkedIds.Count, 3, "setup: the weapons' hit sounds were not found");
         }
 
         [TestMethod]
