@@ -251,7 +251,7 @@ namespace Ship_Game.Ships
             bool isZeroAcc = true;
 
             // turns any applied external force into acceleration
-            if (AppliedExternalForce.X is not (0f and 0f))
+            if (AppliedExternalForce.X != 0f || AppliedExternalForce.Y != 0f)
             {
                 finalAcc.X = AppliedExternalForce.X / Mass; // a = Force/mass
                 finalAcc.Y = AppliedExternalForce.Y / Mass;
