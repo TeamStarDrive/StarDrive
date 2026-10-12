@@ -19,7 +19,7 @@ namespace Ship_Game
         [StarData] public float AverageFoodExportTurns { get; private set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up food
         [StarData] public float AverageProdExportTurns { get; private set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up prod
 
-        // these are updated once per empire turn
+        // recounted every empire turn, and changed as freighters load and unload
         // TODO: this needs to be refactored into a TradeStatus class where each commodity has its own status
         //       since right now we have 3 sets of variables [Food, Prod, Pop], all doing the same thing
         [StarData] public float IncomingFood { get; private set; }
@@ -107,13 +107,23 @@ namespace Ship_Game
             ProdBeingFetched = CargoSpaceOnTheWayToLoad(incomingFreighters, Goods.Production);
         }
 
-        void IncreaseOutgoingFreighters(Goods goods)
+        void ChangeIncomingFreighters(Goods goods, int change)
         {
-            switch (goods) 
+            switch (goods)
             {
-                case Goods.Food:       OutgoingFoodFreighters++;      break;
-                case Goods.Production: OutgoingProdFreighters++;      break;
-                case Goods.Colonists:  OutGoingColonistsFreighters++; break;
+                case Goods.Food:       IncomingFoodFreighters      = Math.Max(IncomingFoodFreighters + change, 0);      break;
+                case Goods.Production: IncomingProdFreighters      = Math.Max(IncomingProdFreighters + change, 0);      break;
+                case Goods.Colonists:  IncomingColonistsFreighters = Math.Max(IncomingColonistsFreighters + change, 0); break;
+            }
+        }
+
+        void ChangeOutgoingFreighters(Goods goods, int change)
+        {
+            switch (goods)
+            {
+                case Goods.Food:       OutgoingFoodFreighters      = Math.Max(OutgoingFoodFreighters + change, 0);      break;
+                case Goods.Production: OutgoingProdFreighters      = Math.Max(OutgoingProdFreighters + change, 0);      break;
+                case Goods.Colonists:  OutGoingColonistsFreighters = Math.Max(OutGoingColonistsFreighters + change, 0); break;
             }
         }
 
@@ -296,17 +306,22 @@ namespace Ship_Game
             }
         }
 
-        public void AddToIncomingFreighterList(Ship ship)
+        public void AddToIncomingFreighterList(Ship ship, Goods goods)
         {
             lock (IncomingFreighters)
-                IncomingFreighters.AddUniqueRef(ship);
+            {
+                if (IncomingFreighters.AddUniqueRef(ship))
+                    ChangeIncomingFreighters(goods, +1);
+            }
         }
 
         public void AddToOutgoingFreighterList(Ship ship, Goods goods)
         {
-            IncreaseOutgoingFreighters(goods);
             lock (OutgoingFreighters)
-                OutgoingFreighters.AddUniqueRef(ship);
+            {
+                if (OutgoingFreighters.AddUniqueRef(ship))
+                    ChangeOutgoingFreighters(goods, +1);
+            }
         }
 
         public void ChangeIncomingCargo(Goods goods, float amount)
@@ -322,16 +337,22 @@ namespace Ship_Game
             }
         }
 
-        public void RemoveFromIncomingFreighterList(Ship ship)
+        public void RemoveFromIncomingFreighterList(Ship ship, Goods goods)
         {
             lock (IncomingFreighters)
-                IncomingFreighters.RemoveRef(ship);
+            {
+                if (IncomingFreighters.RemoveRef(ship))
+                    ChangeIncomingFreighters(goods, -1);
+            }
         }
 
-        public void RemoveFromOutgoingFreighterList(Ship ship)
+        public void RemoveFromOutgoingFreighterList(Ship ship, Goods goods)
         {
             lock (OutgoingFreighters)
-                OutgoingFreighters.RemoveRef(ship);
+            {
+                if (OutgoingFreighters.RemoveRef(ship))
+                    ChangeOutgoingFreighters(goods, -1);
+            }
         }
 
         public float ExportableFood(Planet exportPlanet, Planet importPlanet, float eta)

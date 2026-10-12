@@ -93,4 +93,40 @@ public class FreighterCountTests : StarDriveTest
         RunSimWhile((simTimeout: 120, fatal: true), () => CarriesFoodIn(freighter));
         AssertEqual(0f, Importer.IncomingFood, "and stops counting once delivered");
     }
+
+    Ship FreighterSentForFoodWithoutARecount()
+    {
+        Ship freighter = SpawnShip("Owlwok Freighter S", Player, Exporter.Position + new Vector2(3000f, 0f));
+        freighter.TransportingFood = true;
+        freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
+        return freighter;
+    }
+
+    [TestMethod]
+    public void AFreighterCountsOnceFromTheMomentItIsSentUntilItDelivers()
+    {
+        Ship freighter = FreighterSentForFoodWithoutARecount();
+        AssertEqual(1, Importer.IncomingFoodFreighters, "the colony counts the freighter as soon as it is sent");
+        AssertEqual(1, Exporter.OutgoingFoodFreighters, "and so does the colony it loads at");
+
+        RunSimWhile((simTimeout: 120, fatal: true), () => !CarriesFoodIn(freighter));
+        AssertEqual(1, Importer.IncomingFoodFreighters, "a loaded freighter is still one freighter coming in");
+        AssertEqual(1, Exporter.OutgoingFoodFreighters, "and one going out, not two");
+
+        RunSimWhile((simTimeout: 120, fatal: true), () => CarriesFoodIn(freighter));
+        AssertEqual(0, Importer.IncomingFoodFreighters, "once it has delivered it no longer counts as coming in");
+        AssertEqual(0, Exporter.OutgoingFoodFreighters, "or as going out");
+    }
+
+    [TestMethod]
+    public void AFreighterThatGivesUpNoLongerCounts()
+    {
+        Ship freighter = FreighterSentForFoodWithoutARecount();
+        AssertEqual(1, Exporter.OutgoingFoodFreighters, "setup: the freighter is counted");
+
+        freighter.AI.CancelTradePlan();
+
+        AssertEqual(0, Importer.IncomingFoodFreighters, "a freighter that gives up no longer counts as coming in");
+        AssertEqual(0, Exporter.OutgoingFoodFreighters, "or as going out");
+    }
 }
