@@ -277,6 +277,7 @@
     <Compile Include="Universe\ThreatMatrixVisualization.cs" />
     <Compile Include="Universe\UniverseObjectManagerTests.cs" />
     <Compile Include="Universe\LoneSystemTests.cs" />
+    <Compile Include="AITests\Empire\SurrenderTests.cs" />
     <Compile Include="Utils\BitArrayTests.cs" />
     <Compile Include="Utils\PerfTimerTests.cs" />
     <Compile Include="Utils\SmallBitSetTests.cs" />

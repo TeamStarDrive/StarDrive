@@ -1992,7 +1992,7 @@ namespace Ship_Game
             var leaders = new Array<Empire>();
             foreach (Empire e in aiEmpires)
             {
-                if (e != biggestAI && e.IsKnown(biggestAI) && biggestAIScore * 0.6f > e.TotalScore)
+                if (e != biggestAI && e.IsKnown(biggestAI) && biggestAIScore * 0.6f > e.TotalScore && !e.MeetsDefeatConditions)
                     leaders.Add(e);
             }
 
@@ -2058,14 +2058,15 @@ namespace Ship_Game
             }
         }
 
+        public bool MeetsDefeatConditions => OwnedPlanets.Count == 0
+                                             || Universe.P.EliminationMode && Capital != null && Capital.Owner != this;
+
         /// <summary>Returns TRUE if empire is defeated</summary>
         public bool UpdateIsEmpireDefeated()
         {
             if (IsFaction) return false;
             if (IsDefeated) return true;
-            if (!Universe.P.EliminationMode && OwnedPlanets.Count != 0)
-                return false;
-            if (Universe.P.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
+            if (!MeetsDefeatConditions)
                 return false;
 
             SetAsDefeated();
