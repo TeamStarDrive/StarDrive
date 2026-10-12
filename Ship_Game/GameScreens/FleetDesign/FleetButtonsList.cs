@@ -39,6 +39,7 @@ public class FleetButtonsList : UIList
                 OnHotKey = onHotKey,
                 IsSelected = isSelected
             };
+            b.Visible = ShowsFleet(b);
             Buttons.Add(b);
             base.Add(b);
         }
@@ -117,17 +118,22 @@ public class FleetButtonsList : UIList
 
         foreach (FleetButton b in Buttons)
         {
-            Fleet f = Player.GetFleetOrNull(b.FleetKey);
-            bool visible = f != null;
-            if (IsUniverse)
-                visible = visible && f.CountShips > 0;
-
-            // make sure to do layout if any visibility changes
-            RequiresLayout |= (visible != b.Visible);
-            b.Visible = visible;
+            bool visible = ShowsFleet(b);
+            if (visible != b.Visible)
+            {
+                b.ClearEffects();
+                b.Visible = visible;
+                RequiresLayout = true;
+            }
         }
 
         base.Update(fixedDeltaTime);
+    }
+
+    bool ShowsFleet(FleetButton b)
+    {
+        Fleet f = Player.GetFleetOrNull(b.FleetKey);
+        return f != null && (IsFleetDesigner || f.CountShips > 0);
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
