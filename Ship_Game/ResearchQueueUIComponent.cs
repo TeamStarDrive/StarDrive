@@ -130,17 +130,17 @@ namespace Ship_Game
 
                 float remaining = CurrentResearch.Tech.TechCost - CurrentResearch.Tech.Progress;
                 float numTurns = (float)Math.Ceiling(remaining / (0.01f + Screen.Player.Research.NetResearch));
-                TimeLeftLabel.Text = (numTurns > 999f) ? ">999 turns" : numTurns.String(0)+" turns";
+                TimeLeftLabel.Text = numTurns > 999f
+                    ? $">999 {Localizer.Token(GameText.Turns2)}"
+                    : $"{numTurns.String(0)} {Localizer.Token(TurnsText((int)numTurns))}";
 
+                int turnsLeft = Screen.Player.Research.DisruptionTurnsLeft;
                 float multiplier = Screen.Player.Research.DisruptionMultiplier;
-                bool disrupted = multiplier < 1f;
+                bool disrupted = multiplier < 1f && turnsLeft > 0;
                 SpyDisruption.Visible = disrupted;
                 SpyDisruptionLabel.Visible = disrupted;
                 if (disrupted)
-                {
-                    int turnsLeft = Screen.Player.Research.DisruptionTurnsLeft;
                     SpyDisruptionLabel.Text = $"({(int)Math.Round(multiplier * 100f)}%, {turnsLeft} {Localizer.Token(TurnsText(turnsLeft))})";
-                }
             }
         }
 
