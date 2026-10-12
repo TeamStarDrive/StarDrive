@@ -233,11 +233,11 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueCurrentOrder(goal.MoveOrder);
+                    DequeueMoveLeg(goal);
             }
             else if (distance <= 1000f)
             {
-                DequeueCurrentOrder(goal.MoveOrder);
+                DequeueMoveLeg(goal);
             }
 
             // does current ship stance require us to enter combat?
@@ -249,6 +249,18 @@ namespace Ship_Game.AI
                 {
                     EnterCombatState(AIState.Combat);
                 }
+            }
+        }
+
+        // an overtake that ends with an order behind it goes back to fighting before that order resumes
+        void DequeueMoveLeg(ShipGoal goal)
+        {
+            DequeueCurrentOrder(goal.MoveOrder);
+            if (goal.WantedState == AIState.Pursue && State != AIState.Pursue && !OrderQueue.IsEmpty)
+            {
+                SetPriorityOrder(false);
+                if (BadGuysNear)
+                    EnterCombatState(AIState.Combat);
             }
         }
 

@@ -96,6 +96,30 @@ public class OrbitCombatTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AGuardianThatOvertakesAFasterShipFightsOnBeforeGoingBackToItsOrbit()
+    {
+        CreateAMinorFaction("Remnant");
+        Planet guarded = AddDummyPlanet(new Vector2(400_000));
+        TestShip guardian = SpawnShip("Terran-Prototype", Faction, guarded.Position + new Vector2(guarded.Radius + 500, 0));
+        guardian.OrderToOrbit(guarded, clearOrders: true, MoveOrder.Aggressive);
+        RunSimWhile((60, fatal: true), () => !guardian.IsOrbiting(guarded));
+
+        TestShip runner = SpawnShipNoCombatHoldPos("Vulcan Scout", Player, guardian.Position);
+        runner.Position = guardian.Position + runner.Direction * 10_000f;
+        runner.Velocity = runner.Direction * guardian.MaxSTLSpeed * 2f;
+        guardian.Level = 95;
+        guardian.AI.MoveToEngageTarget(runner, TestSimStep);
+        guardian.Level = 0;
+        AssertEqual(AIState.Pursue, guardian.AI.State, "setup: the guardian must give chase");
+
+        RunSimWhile((60, fatal: true), () => guardian.AI.State == AIState.Pursue);
+        AssertFalse(guardian.AI.HasPriorityOrder, "once the overtake is done the guardian must be free to fight");
+        AssertTrue(guardian.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.DoCombat,
+                   $"after the overtake the guardian fights the ship it caught up with (first order: {goal?.Plan})");
+        AssertTrue(guardian.AI.FindGoal(ShipAI.Plan.Orbit, out _), "its orbit order waits behind the fight");
+    }
+
+    [TestMethod]
     public void AnEscortThatChasesAFasterShipGoesBackToItsEscortAfterwards()
     {
         CreateAMinorFaction("Remnant");
