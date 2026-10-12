@@ -1,12 +1,14 @@
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 #pragma warning disable CA2213
 
@@ -44,9 +46,9 @@ public class StarRadiationTests : StarDriveTest
 
     static float Integrity(Ship ship) => ship.Health + ship.ShieldPower;
 
-    Planet AddPlanetAt(float distanceFromStar)
+    Planet AddPlanetAt(float distanceFromStar, SolarSystem system = null)
     {
-        SolarSystem system = Colony.System;
+        system ??= Colony.System;
         var p = new Planet(UState.CreateId(), system, system.Position + new Vector2(0f, distanceFromStar), fertility: 1f, minerals: 1f, maxPop: 4f);
         p.OrbitalAngle = p.Position.AngleToTarget(system.Position);
         p.TestSetOrbitalRadius(distanceFromStar);
@@ -116,6 +118,54 @@ public class StarRadiationTests : StarDriveTest
                         "an order to colonize a planet inside the radiation is refused");
         Assert.AreNotEqual(GoalStep.GoalFailed, new MarkForColonization(outside, Player, isManual: true).Evaluate(),
                            "setup: the same order for a planet outside it stands");
+    }
+
+    SolarSystem SystemBesideAHarmlessStar(float x)
+        => new(UState, new Vector2(x, -1_000_000f)) { Sun = SunType.FindSun("star_yellow") };
+
+    Planet AddGasGiantAt(float distanceFromStar, SolarSystem system)
+    {
+        Planet p = AddPlanetAt(distanceFromStar, system);
+        p.GenerateNewFromPlanetType(new SeededRandom(), ResourceManager.Planets.RandomPlanet(PlanetCategory.GasGiant), scale: 1.5f, preDefinedPop: 0);
+        Assert.IsFalse(p.Habitable, "setup: a gas giant is not habitable");
+        return p;
+    }
+
+    [TestMethod]
+    public void ANewSystemWithAHabitablePlanetInsideTheRadiationIsNotGivenAHazardousStar()
+    {
+        SunType neutron = SunType.FindSun("star_neutron");
+        SolarSystem near = SystemBesideAHarmlessStar(0f);
+        Assert.IsTrue(AddPlanetAt(10_000f, near).Habitable, "setup: the planet is habitable");
+
+        Assert.IsFalse(near.TrySetHazardousSun(neutron), "a habitable planet inside the radiation keeps the hazardous star away");
+        Assert.AreEqual("star_yellow", near.Sun.Id, "the system keeps its star");
+
+        SolarSystem far = SystemBesideAHarmlessStar(1_000_000f);
+        AddPlanetAt(neutron.DangerRadius + 10_000f, far);
+        Assert.IsTrue(far.TrySetHazardousSun(neutron), "setup: a habitable planet outside the radiation does not");
+    }
+
+    [TestMethod]
+    public void ANewHazardousStarLeavesNoExoticPlanetInsideItsRadiation()
+    {
+        SunType neutron = SunType.FindSun("star_neutron");
+        SolarSystem system = SystemBesideAHarmlessStar(0f);
+        Planet inside = AddGasGiantAt(10_000f, system);
+        Planet outside = AddGasGiantAt(neutron.DangerRadius + 10_000f, system);
+        foreach (Planet p in new[] { inside, outside })
+        {
+            p.SetResearchable(true, UState);
+            p.Mining = new(p);
+            p.MineralRichness = p.Mining.Richness;
+        }
+
+        Assert.IsTrue(system.TrySetHazardousSun(neutron), "setup: no habitable planet keeps the hazardous star away");
+        Assert.IsFalse(inside.IsResearchable || inside.IsMineable, "a planet inside the radiation is neither researchable nor mineable");
+        Assert.IsFalse(UState.MineablePlanets.ContainsRef(inside) || UState.ResearchableSolarBodies.ContainsKey(inside),
+                       "and the universe no longer lists it as exotic");
+        AssertEqual(0f, 0f, inside.MineralRichness, "nor does it show the richness of a resource it no longer has");
+        Assert.IsTrue(outside.IsResearchable && outside.IsMineable, "a planet outside the radiation keeps its exotic resources");
     }
 
     [TestMethod]

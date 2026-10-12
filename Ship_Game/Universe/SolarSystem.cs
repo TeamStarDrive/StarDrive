@@ -349,7 +349,7 @@ namespace Ship_Game
             return Sun.RadiationDamage.AlmostZero() || distance > Sun.RadiationRadius + 2000;
         }
 
-        public float SunDangerRadius => Sun.RadiationDamage.AlmostZero() ? 0 : Sun.RadiationRadius + 2000; 
+        public float SunDangerRadius => Sun.DangerRadius;
         public bool IsSunDangerous => SunDangerRadius > 0;
 
         // overload for ship info UI or AI maybe
@@ -551,9 +551,9 @@ namespace Ship_Game
             // then 20% chance to have neutron star:
             if (PlanetList.Count <= 2 + us.P.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic) 
                 && (PlanetList.Count == 0 || !PlanetList[0].Habitable) // avoid habitable planets near radiation zones
-                && random.RollDice(percent:20))
+                && random.RollDice(percent:20)
+                && TrySetHazardousSun(SunType.RandomBarrenSun(random)))
             {
-                Sun = SunType.RandomBarrenSun(random);
                 researchableChance = Sun.ResearchableChance;
             }
             else if (PlanetList.Count == us.P.ExtraPlanets)
@@ -570,6 +570,20 @@ namespace Ship_Game
             }
 
             FinalizeGeneratedSystem();
+        }
+
+        internal bool TrySetHazardousSun(SunType hazardousSun)
+        {
+            if (PlanetList.Any(p => p.Habitable && p.OrbitalRadius <= hazardousSun.DangerRadius))
+                return false;
+
+            Sun = hazardousSun;
+            foreach (Planet p in PlanetList)
+            {
+                if (!InSafeDistanceFromRadiation(p.OrbitalRadius))
+                    p.ClearExoticPlanet();
+            }
+            return true;
         }
 
         public void GenerateFromData(UniverseState us, RandomBase random, SolarSystemData data, 

@@ -54,6 +54,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public bool Disposed; // if true, this SunType was Disposed because of Hotloading
         public SubTexture Icon { get; private set; } // lo-res icon used in background star fields
+        public float DangerRadius => RadiationDamage.AlmostZero() ? 0 : RadiationRadius + 2000;
 
         public override string ToString() => $"SunType {Id}  {IconPath}  Light:{LightColor}  Habit:{Habitable}";
 

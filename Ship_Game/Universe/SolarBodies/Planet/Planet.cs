@@ -395,6 +395,19 @@ namespace Ship_Game
             }
         }
 
+        public void ClearExoticPlanet()
+        {
+            if (IsResearchable)
+                SetResearchable(false, Universe);
+
+            if (Mining != null)
+            {
+                Universe.MineablePlanets.Remove(this);
+                Mining = null;
+                MineralRichness = 0;
+            }
+        }
+
         public string GetDefaultPlanetName(SolarSystemData.Ring data = null)
         {
             if (data != null)
