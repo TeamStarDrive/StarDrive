@@ -85,7 +85,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         Vector2 FindNewOrbitalLocation()
         {
-            for (int ring = 0; ring < Planet.OrbitalRings; ring++)
+            int ringsToUse = TetherPlanet.OrbitalRingsClearOfRadiation.LowerBound(1);
+            for (int ring = 0; ring < ringsToUse; ring++)
             {
                 int degrees = (int)Owner.Random.Float(0f, 9f);
                 float distance = TetherPlanet.OrbitalRingRadius(ring);

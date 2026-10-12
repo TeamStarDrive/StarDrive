@@ -138,7 +138,7 @@ namespace Ship_Game
 
             if (budget > 0)
             {
-                if (orbitalsWeHave < orbitalsWeWant && HasRoomForOrbitalClearOfRadiation && !OrbitalsCapReached) // lets build an orbital
+                if (orbitalsWeHave < orbitalsWeWant && HasRoomForOrbitalClearOfRadiation() && !OrbitalsCapReached) // lets build an orbital
                     BuildOrbital(role, budget);
                 else if (orbitalList.Count > 0)
                     ReplaceOrbital(orbitalList, role, budget);  // check if we can replace an orbital with a better one
@@ -184,20 +184,24 @@ namespace Ship_Game
 
         public float OrbitalRingRadius(int ring) => 2000 + 1000 * ring * Scale;
 
+        /// <summary>
+        /// An orbital tethered this far from the planet stays clear of the star's radiation all along the planet's orbit
+        /// </summary>
+        public bool TetherClearOfRadiation(float tetherDistance) => System.InSafeDistanceFromRadiation(OrbitalRadius - tetherDistance);
+
         public int OrbitalRingsClearOfRadiation
         {
             get
             {
                 int rings = 0;
-                while (rings < OrbitalRings && System.InSafeDistanceFromRadiation(OrbitalRadius - OrbitalRingRadius(rings)))
+                while (rings < OrbitalRings && TetherClearOfRadiation(OrbitalRingRadius(rings)))
                     ++rings;
                 return rings;
             }
         }
 
-        bool HasRoomForOrbitalClearOfRadiation => !System.IsSunDangerous
-            || OrbitalStations.Count + Owner.AI.CountGoals(g => g is DeepSpaceBuildGoal b && b.IsBuildingOrbitalFor(this))
-               < OrbitalsPerRing * OrbitalRingsClearOfRadiation;
+        public bool HasRoomForOrbitalClearOfRadiation(int extraPending = 0) => !System.IsSunDangerous
+            || OrbitalStations.Count + extraPending + AllOrbitalsBeingBuilt(Owner) < OrbitalsPerRing * OrbitalRingsClearOfRadiation;
 
         // Adds an Orbital to ConstructionQueue
         public void AddOrbital(IShipDesign orbital)
@@ -340,7 +344,7 @@ namespace Ship_Game
             }
 
             int totalShipyards = NumShipyards + ShipyardsBeingBuilt();
-            if (totalShipyards < numWantedShipyards && HasRoomForOrbitalClearOfRadiation)
+            if (totalShipyards < numWantedShipyards && HasRoomForOrbitalClearOfRadiation())
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.Ships.GetDesign(shipyardName, out IShipDesign shipyard)

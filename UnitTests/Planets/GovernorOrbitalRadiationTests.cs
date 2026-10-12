@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
 using Ship_Game;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
@@ -88,5 +89,52 @@ public class GovernorOrbitalRadiationTests : StarDriveTest
         Colony.OrbitalStations.RemoveAt(Colony.OrbitalStations.Count - 1);
         Colony.DoGoverning();
         AssertEqual(1, PlatformsOrdered, "a free place in the clear ring is filled");
+    }
+
+    [TestMethod]
+    public void ThePlayersOrbitalsMustFitTheRingsClearOfRadiation()
+    {
+        Colony.TestSetOrbitalRadius(Colony.System.SunDangerRadius + (Colony.OrbitalRingRadius(0) + Colony.OrbitalRingRadius(1)) / 2);
+        Assert.IsTrue(Colony.TetherClearOfRadiation(Colony.OrbitalRingRadius(0)), "an orbital on the nearest ring stays clear all the way round");
+        Assert.IsFalse(Colony.TetherClearOfRadiation(Colony.OrbitalRingRadius(1)), "one on the next ring passes through the radiation");
+
+        AddPlatforms(Planet.OrbitalsPerRing - 1);
+        Assert.IsTrue(Colony.HasRoomForOrbitalClearOfRadiation(), "the last place in the clear ring can be ordered");
+        Assert.IsFalse(Colony.HasRoomForOrbitalClearOfRadiation(extraPending: 1),
+                       "the colony screen refuses an orbital once the clear ring is spoken for");
+    }
+
+    [TestMethod]
+    public void AnOrbitalBeingRefittedTakesOnlyItsOwnPlace()
+    {
+        Colony.TestSetOrbitalRadius(Colony.System.SunDangerRadius + (Colony.OrbitalRingRadius(0) + Colony.OrbitalRingRadius(1)) / 2);
+        AddPlatforms(Planet.OrbitalsPerRing - 2);
+        Ship refitted = SpawnShip(Platform, Player, Colony.Position + new Vector2(2_000f, 0f));
+        refitted.TetherToPlanet(Colony);
+        Player.AI.AddGoal(new Ship_Game.Commands.Goals.RefitOrbital(refitted, refitted.ShipData, Player));
+
+        Assert.IsTrue(Colony.HasRoomForOrbitalClearOfRadiation(), "the refit replaces its orbital, so the last place in the clear ring is still free");
+    }
+
+    [TestMethod]
+    public void AnOrderedOrbitalIsPlacedOnlyOnTheRingsClearOfRadiation()
+    {
+        Colony.TestSetOrbitalRadius(Colony.System.SunDangerRadius + (Colony.OrbitalRingRadius(0) + Colony.OrbitalRingRadius(1)) / 2);
+        for (int i = 0; i < Planet.OrbitalsPerRing; ++i)
+        {
+            Ship platform = SpawnShip(Platform, Player, Colony.Position + MathExt.PointOnCircle(i * 40, Colony.OrbitalRingRadius(0)));
+            Colony.OrbitalStations.Add(platform);
+        }
+
+        var goal = new Ship_Game.Commands.Goals.BuildOrbital(Colony, Platform, Player);
+        var findLocation = typeof(Ship_Game.Commands.Goals.BuildOrbital).GetMethod("FindNewOrbitalLocation",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        findLocation.Invoke(goal, null);
+        Assert.IsTrue(goal.BuildPosition.Distance(Colony.Position) < Colony.OrbitalRingRadius(1) - 1f,
+                      $"with the clear ring full the orbital must not go out to the next ring ({goal.BuildPosition.Distance(Colony.Position):0} from the planet)");
+
+        Colony.OrbitalStations.RemoveAt(0);
+        findLocation.Invoke(goal, null);
+        AssertEqual(1f, Colony.OrbitalRingRadius(0), goal.BuildPosition.Distance(Colony.Position), "setup: a free place on the clear ring is used");
     }
 }

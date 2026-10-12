@@ -179,7 +179,7 @@ namespace Ship_Game
             }
         }
 
-        bool OkToBuild(Planet targetPlanet, SolarSystem targetSystem)
+        bool OkToBuild(Planet targetPlanet, SolarSystem targetSystem, bool atCursor = true)
         {
             if (ShipToBuild == null)
                 return false;
@@ -196,6 +196,10 @@ namespace Ship_Game
             if (targetPlanet != null)
             {
                 if (targetPlanet.IsOutOfOrbitalsLimit(ShipToBuild))
+                    return false;
+
+                if (atCursor ? !targetPlanet.TetherClearOfRadiation(Screen.CursorWorldPosition2D.Distance(targetPlanet.Position))
+                             : targetPlanet.OrbitalRingsClearOfRadiation == 0)
                     return false;
 
                 if (ShipToBuild.IsResearchStation && !targetPlanet.CanBeResearchedBy(Player))
@@ -249,7 +253,7 @@ namespace Ship_Game
 
             foreach (Planet planet in planets)
             {
-                if (OkToBuild(planet, null))
+                if (OkToBuild(planet, null, atCursor: false))
                 {
                     float radius = 2500f * planet.Scale;
                     Screen.DrawCircleProjected(planet.Position, radius, new Color(255, 165, 0, 100).Premultiplied(), 2f,
