@@ -291,6 +291,19 @@ namespace Ship_Game
                 OutgoingFreighters.AddUniqueRef(ship);
         }
 
+        public void ChangeIncomingCargo(Goods goods, float amount)
+        {
+            lock (IncomingFreighters)
+            {
+                switch (goods)
+                {
+                    case Goods.Food:       IncomingFood = (IncomingFood + amount).LowerBound(0); break;
+                    case Goods.Production: IncomingProd = (IncomingProd + amount).LowerBound(0); break;
+                    case Goods.Colonists:  IncomingPop  = (IncomingPop  + amount).LowerBound(0); break;
+                }
+            }
+        }
+
         public void RemoveFromIncomingFreighterList(Ship ship)
         {
             lock (IncomingFreighters)

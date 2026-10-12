@@ -118,6 +118,8 @@ namespace Ship_Game.AI
                     break;
             }
 
+            importPlanet.ChangeIncomingCargo(g.Trade.Goods, Owner.GetCargo(g.Trade.Goods));
+
             FreighterPriority freighterPriority = freighterTooSmall 
                                                   ? FreighterPriority.TooSmall 
                                                   : FreighterPriority.TooBig;
@@ -166,6 +168,7 @@ namespace Ship_Game.AI
                 return 0f;
             }
 
+            importPlanet.ChangeIncomingCargo(g.Trade.Goods, -Owner.GetCargo(g.Trade.Goods));
             float cargoBefore = Owner.CargoSpaceUsed;
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
             if (Owner.GetCargo(Goods.Colonists).AlmostZero())
@@ -244,6 +247,8 @@ namespace Ship_Game.AI
             }
 
             SetTradePlan(plan, exportPlanet, importPlanet, goods);
+            if (plan == Plan.DropOffGoods)
+                importPlanet.ChangeIncomingCargo(goods, Owner.GetCargo(goods));
         }
 
         public void SetupFreighterPlan(Planet exportPlanet, Ship targetStation, Goods goods)

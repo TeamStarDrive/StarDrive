@@ -1184,6 +1184,9 @@ namespace Ship_Game
             Research.UpdateNetResearch();
 
             UpdateNetPlanetIncomes();
+            for (int i = 0; i < OwnedPlanets.Count; ++i)
+                OwnedPlanets[i].UpdateIncomingTradeGoods();
+
             UpdateMilitaryStrengths();
             CalculateScore(fromSave: true);
             UpdateRelationships(takeTurn: false);

@@ -257,6 +257,7 @@ public class FreighterLandingTests : StarDriveTest
     [TestMethod]
     public void ANewFreighterTakingOffFromItsColonyLoadsThere()
     {
+        Importer.Storage.Max = 1000;
         Ship fromPlanet = Ship.CreateShipNearPlanet(UState, "Owlwok Freighter S", Player, Exporter, doOrbit: false);
         Ship fromShipyard = Ship.CreateShipAtShipyard(UState, "Owlwok Freighter S", Player, Exporter.Position, Exporter);
         foreach (Ship freighter in new[] { fromPlanet, fromShipyard })
