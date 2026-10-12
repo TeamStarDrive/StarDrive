@@ -109,6 +109,16 @@ namespace UnitTests.AITests.Empire
             Faction.Remnants.SetFocusOnEmpire(Enemy);
         }
 
+        void LevelUpWithBombersAffordable(int level)
+        {
+            Remnants remnants = Faction.Remnants;
+            typeof(Remnants).GetProperty(nameof(Remnants.Level))!.SetValue(remnants, level);
+            typeof(Remnants).GetProperty(nameof(Remnants.Production))!.SetValue(remnants, 1_000_000f);
+            Faction.data.RemnantBomberLight = "Neutron Bomber Mk1";
+            remnants.ShipCosts[RemnantShipType.BomberLight] = 1f;
+            AssertGreaterThan(remnants.GetNumBombersNeeded(Colony), 0, "setup: the new level needs bombers");
+        }
+
         [TestMethod]
         public void APortalRegistersItsSystemOnceItsShipIsPlaced()
         {
@@ -263,6 +273,42 @@ namespace UnitTests.AITests.Empire
 
             Assert.IsTrue(afterBailing > before, "setup: a failed raid raises the estimate");
             AssertEqual(0.0001f, afterBailing, Faction.GetFleetStrEmpireMultiplier(Enemy), "not again on the way home");
+        }
+
+        [TestMethod]
+        public void ARaidGatheringWhenTheRemnantsLevelUpGathersTheBombersTheNewLevelNeeds()
+        {
+            FocusRemnantsOnEnemy();
+            var raid = new RemnantEngageEmpire(Faction, Portal, Enemy);
+            raid.Evaluate();
+            raid.Evaluate();
+            AssertEqual(0, Faction.Remnants.GetNumBombersNeeded(Colony), "setup: the raid begins at a level that needs no bombers");
+
+            LevelUpWithBombersAffordable(6);
+            raid.Evaluate();
+
+            AssertGreaterThan(Faction.Remnants.NumBombersInFleet(raid.Fleet), 0, "the raid gathers bombers for the new level");
+        }
+
+        [TestMethod]
+        public void ARaidUnderWayWhenTheRemnantsLevelUpSendsForBombers()
+        {
+            RemnantEngageEmpire raid = RaidUnderWay(fleetShips: 3);
+            foreach (Ship ship in raid.Fleet.Ships)
+                ship.Position = EnemyHome.Position;
+            AssertEqual(0, Faction.Remnants.NumBombersInFleet(raid.Fleet), "setup: the raid set off with no bombers");
+
+            LevelUpWithBombersAffordable(6);
+            AssertGreaterThan(Faction.Remnants.GetNumBombersNeeded(Colony), 3, "setup: the new level needs more bombers than the raid has escorts");
+            raid.Evaluate();
+            raid.Evaluate();
+
+            Ship[] bombers = raid.Fleet.Ships.Filter(s => s.DesignRole == RoleName.bomber);
+            AssertGreaterThan(bombers.Length, 0, "the raid sends for the bombers the new level needs");
+            AssertEqual(3, bombers.Length, "but no more than the ships escorting them");
+            AssertEqual(5, raid.Fleet.TaskStep, "so the raid does not turn home as a bomber-only fleet");
+            foreach (Ship bomber in bombers)
+                Assert.IsTrue(bomber.CatchingUpToFleet, "a bomber sent from the portal catches up without holding the raid back");
         }
 
         [TestMethod]
