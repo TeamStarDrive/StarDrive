@@ -195,8 +195,8 @@ namespace Ship_Game.Fleets
             base.AddShip(ship);
             ship.Fleet = this;
             ship.AI.FleetNode = node;
-            ship.FleetOffset = node.RelativeFleetOffset;
             ship.RelativeFleetOffset = node.RelativeFleetOffset;
+            AssignPositionTo(ship);
             // A reinforcement that spawns away from the fleet body is "catching up":
             // exclude it from the fleet's assembly throttling until it reaches formation,
             // so it doesn't slow the established fleet down (see UpdateSpeedLimit/Update).
@@ -464,7 +464,7 @@ namespace Ship_Game.Fleets
             RightFlankToCenterOffset();
 
             FinalPosition = AveragePosition(true);
-            SetAllSquadsShipPositions(0.0f);
+            SetAllSquadsShipPositions(FinalDirection.ToRadians());
             SetAIDefaultTactics();
             for (int i = 0; i < Ships.Count; i++)
             {
