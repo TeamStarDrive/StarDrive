@@ -310,14 +310,19 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool CanBeAddedToFleets()
+        public bool CanBeAddedToFleets() => CanBeAddedToFleets(ShipData, Loyalty);
+
+        /// <summary>
+        /// Stations and platforms, subspace projectors, supply and builder shuttles, mining ships, constructors and drones never join a fleet
+        /// </summary>
+        public static bool CanBeAddedToFleets(IShipDesign design, Empire owner)
         {
-            return !IsPlatformOrStation
-                   && !IsSubspaceProjector
-                   && !IsSupplyShuttle 
-                   && !IsMiningShip 
-                   && !IsConstructor 
-                   && DesignRole != RoleName.drone;
+            return !design.IsPlatformOrStation
+                   && !design.IsSubspaceProjector
+                   && !design.IsSupplyShuttle
+                   && design.Name != owner.data.DefaultMiningShip && design.Name != Empire.DefaultMiningShipName
+                   && !design.IsConstructor
+                   && design.Role != RoleName.drone;
         }
 
         public bool InsideAreaOfOperation(Vector2 pos)
