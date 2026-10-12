@@ -155,6 +155,28 @@ public class TestGravityWellRouter : StarDriveTest
         Assert.AreNotSame(before, Scout.AI.OrderQueue.PeekFirst, "a plain move is issued again so the router sees the explored system");
     }
 
+    [TestMethod]
+    public void ExploringASystemOnTheWayKeepsTheSystemAScoutWasSentToExplore()
+    {
+        SolarSystem target = AddDummyPlanet(new Vector2(600_000f, 0f)).System;
+        Scout.AI.OrderScout(target, null);
+
+        Scout.AI.OnSystemNewlyExplored(null);
+
+        Assert.AreSame(target, Scout.AI.ExplorationTarget, "the scout keeps the system it was sent to explore");
+    }
+
+    [TestMethod]
+    public void ExploringASystemOnTheWayKeepsAGroupShipsPlaceAcrossItsGroup()
+    {
+        Scout.AI.OrderMoveTo(new Vector2(600_000f, 0f), Vectors.Up);
+        Scout.AI.GroupLateralOffset = 2_000f;
+
+        Scout.AI.OnSystemNewlyExplored(null);
+
+        AssertEqual(1f, 2_000f, Scout.AI.GroupLateralOffset, "a move issued again keeps the ship's place across its group");
+    }
+
     void AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(bool explored)
     {
         CreateAMinorFaction("Remnant");
