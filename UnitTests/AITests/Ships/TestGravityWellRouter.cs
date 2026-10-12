@@ -119,6 +119,42 @@ public class TestGravityWellRouter : StarDriveTest
         AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(explored: false);
     }
 
+    [TestMethod]
+    public void ExploringASystemOnTheWayKeepsTheOrdersQueuedAfterTheMove()
+    {
+        Planet far = AddDummyPlanet(new Vector2(600_000f, 0f));
+        Scout.AI.OrderToOrbit(far, clearOrders: true);
+        Assert.IsTrue(Scout.AI.FindGoal(ShipAI.Plan.Orbit, out _), "setup: the scout flies there to orbit");
+
+        Scout.AI.OnSystemNewlyExplored(far.System);
+
+        Assert.IsTrue(Scout.AI.FindGoal(ShipAI.Plan.Orbit, out ShipAI.ShipGoal orbit) && orbit.TargetPlanet == far,
+                      "the orbit order waiting behind the move survives the system being explored");
+    }
+
+    [TestMethod]
+    public void ExploringASystemOnTheWayKeepsTheQueuedWayPoints()
+    {
+        Scout.AI.OrderMoveTo(new Vector2(300_000f, 0f), Vectors.Up);
+        Scout.AI.OrderMoveTo(new Vector2(600_000f, 0f), Vectors.Up, AIState.MoveTo, MoveOrder.Regular | MoveOrder.AddWayPoint);
+        AssertEqual(2, Scout.AI.CopyWayPoints().Length, "setup: the scout has two waypoints");
+
+        Scout.AI.OnSystemNewlyExplored(null);
+
+        AssertEqual(2, Scout.AI.CopyWayPoints().Length, "the first waypoint is not skipped when a system on the way is explored");
+    }
+
+    [TestMethod]
+    public void ExploringASystemOnTheWayStillReroutesAPlainMove()
+    {
+        Scout.AI.OrderMoveTo(new Vector2(600_000f, 0f), Vectors.Up);
+        ShipAI.ShipGoal before = Scout.AI.OrderQueue.PeekFirst;
+
+        Scout.AI.OnSystemNewlyExplored(null);
+
+        Assert.AreNotSame(before, Scout.AI.OrderQueue.PeekFirst, "a plain move is issued again so the router sees the explored system");
+    }
+
     void AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(bool explored)
     {
         CreateAMinorFaction("Remnant");

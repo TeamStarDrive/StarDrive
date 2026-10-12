@@ -50,13 +50,29 @@ namespace Ship_Game.AI
         // Called by Ship_Update.ExploreCurrentSystem the frame a system is first
         // discovered by this ship. If the ship has an active move order, re-issue it
         // so the router can now see the system's planet wells. No-op when the ship
-        // has no queued waypoints (idle / arrived) or when the snapshot is missing
-        // (legacy save predating snapshot serialization).
+        // has no queued waypoints (idle / arrived), when the snapshot is missing
+        // (legacy save predating snapshot serialization), or when other orders wait behind the move.
         public void OnSystemNewlyExplored(SolarSystem _)
         {
-            if (WayPoints.Count == 0 || LastMoveFinalPos == Vector2.Zero) return;
+            if (WayPoints.Count == 0 || LastMoveFinalPos == Vector2.Zero || !HasOnlyOneMoveQueued()) return;
             // Re-issue from current position; AddWayPoint will rebuild detours.
             AddWayPoint(LastMoveFinalPos, LastMoveFinalDir, LastMoveWantedState, LastMoveOrder, 0f, null);
+        }
+
+        bool HasOnlyOneMoveQueued()
+        {
+            WayPoint[] wayPoints = WayPoints.ToArray();
+            for (int i = 0; i < wayPoints.Length - 1; ++i)
+                if (!wayPoints[i].IsDetour)
+                    return false;
+
+            foreach (ShipGoal goal in OrderQueue)
+            {
+                if (goal != null && (goal.Goal != null || goal.Plan is not (Plan.RotateToFaceMovePosition or Plan.MoveToWithin1000
+                                                                            or Plan.MakeFinalApproach or Plan.RotateToDesiredFacing or Plan.HoldPosition)))
+                    return false;
+            }
+            return true;
         }
 
         [StarData] WayPoint[] WayPointsSave
