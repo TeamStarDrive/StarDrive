@@ -20,7 +20,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetForFleetRequisition,
-                DummyStepTryAgain,
+                WaitForTheBuild,
                 AddShipToFleetAndMoveToPosition
             };
         }
@@ -47,6 +47,20 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
+        GoalStep WaitForTheBuild()
+        {
+            if (PlanetBuildingAt.Owner == Owner)
+            {
+                var queue = PlanetBuildingAt.ConstructionQueue;
+                for (int i = 0; i < queue.Count; ++i)
+                    if (queue[i].Goal == this)
+                        return GoalStep.TryAgain;
+            }
+
+            Fleet?.RemoveGoal(this);
+            return GoalStep.GoalFailed;
+        }
+
         GoalStep AddShipToFleetAndMoveToPosition()
         {
             if (Fleet == null)
@@ -63,15 +77,21 @@ namespace Ship_Game.Commands.Goals
                     continue;
 
                 Ship ship = FinishedShip;
-                node.Ship = ship;
                 node.Goal = null;
+                if (ship.Fleet != null)
+                    return GoalStep.GoalComplete;
+
+                FleetDataNode slot = node.Ship == null ? node
+                    : Fleet.DataNodes.Find(n => n.Ship == null && n.Goal == null && n.ShipName == ship.Name);
+                if (slot == null)
+                    return GoalStep.GoalComplete;
 
                 if (Fleet.Ships.Count == 0)
                     Fleet.FinalPosition = ship.Position + Owner.Random.Vector2D(3000f);
                 if (Fleet.FinalPosition == Vector2.Zero)
                     Fleet.FinalPosition = Owner.FindNearestRallyPoint(ship.Position).Position;
 
-                Fleet.AddExistingShip(ship,node);
+                Fleet.AddExistingShip(ship, slot);
                 ship.AI.ResetPriorityOrder(false);
                 ship.AI.OrderMoveTo(Fleet.GetFinalPos(ship), ship.Fleet.FinalDirection);
 

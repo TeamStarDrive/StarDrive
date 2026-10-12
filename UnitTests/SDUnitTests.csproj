@@ -279,6 +279,7 @@
     <Compile Include="Universe\LoneSystemTests.cs" />
     <Compile Include="AITests\Empire\SurrenderTests.cs" />
     <Compile Include="Fleets\FleetFacingTests.cs" />
+    <Compile Include="Fleets\FleetNodeAssignmentTests.cs" />
     <Compile Include="Utils\BitArrayTests.cs" />
     <Compile Include="Utils\PerfTimerTests.cs" />
     <Compile Include="Utils\SmallBitSetTests.cs" />

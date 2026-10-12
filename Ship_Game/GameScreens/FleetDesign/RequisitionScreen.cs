@@ -131,32 +131,7 @@ namespace Ship_Game
 
         void AssignAvailableShips()
         {
-            Ship[] available = GetAvailableShips();
-
-            foreach (Ship ship in available)
-            {
-                foreach (FleetDataNode node in F.DataNodes)
-                {
-                    if (node.ShipName != ship.Name || node.Ship != null)
-                        continue;
-
-                    F.AddExistingShip(ship, node);
-
-                    foreach (Array<Fleet.Squad> flank in F.AllFlanks)
-                    {
-                        foreach (Fleet.Squad squad in flank)
-                        {
-                            foreach (FleetDataNode sqNode in squad.DataNodes)
-                            {
-                                if (sqNode.Ship != null || sqNode.ShipName != ship.Name)
-                                    continue;
-                                sqNode.Ship = ship;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
+            F.AssignShipsToEmptyNodes(GetAvailableShips());
 
             foreach (Ship ship in F.Ships)
             {
@@ -200,23 +175,7 @@ namespace Ship_Game
 
         Ship[] GetAvailableShips() => F.Owner.OwnedShips.Filter(s => s.Fleet == null);
 
-        int GetNumThatFit(Ship[] available)
-        {
-            int numThatFit = 0;
-            foreach (Ship ship in available)
-            {
-                foreach (FleetDataNode node in F.DataNodes)
-                {
-                    if (node.ShipName == ship.Name && node.Ship == null &&
-                        !ship.IsHomeDefense && !ship.IsHangarShip)
-                    {
-                        ++numThatFit;
-                        break;
-                    }
-                }
-            }
-            return numThatFit;
-        }
+        int GetNumThatFit(Ship[] available) => F.CountShipsThatFit(available);
 
         float GetTotalProductionCost()
         {

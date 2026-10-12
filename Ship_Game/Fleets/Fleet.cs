@@ -224,6 +224,52 @@ namespace Ship_Game.Fleets
             }
         }
 
+        public static bool CanBeRequisitioned(Ship ship)
+        {
+            return ship.Fleet == null
+                && ship.CanBeAddedToFleets()
+                && !ship.IsHangarShip
+                && !ship.IsHomeDefense
+                && ship.AI.State is not (AIState.Refit or AIState.Scrap or AIState.Scuttle);
+        }
+
+        public int CountShipsThatFit(Ship[] ships) => FillEmptyNodes(ships, assign: false);
+
+        public int AssignShipsToEmptyNodes(Ship[] ships) => FillEmptyNodes(ships, assign: true);
+
+        int FillEmptyNodes(Ship[] ships, bool assign)
+        {
+            var taken = new bool[DataNodes.Count];
+            int filled = 0;
+            for (int s = 0; s < ships.Length; ++s)
+            {
+                Ship ship = ships[s];
+                if (!CanBeRequisitioned(ship))
+                    continue;
+
+                for (int i = 0; i < DataNodes.Count; ++i)
+                {
+                    FleetDataNode node = DataNodes[i];
+                    if (taken[i] || node.Ship != null || node.Goal != null || node.ShipName != ship.Name)
+                        continue;
+
+                    taken[i] = true;
+                    ++filled;
+                    if (assign)
+                    {
+                        if (Ships.Count == 0)
+                            FinalPosition = ship.Position;
+
+                        AddExistingShip(ship, node);
+                        ship.AI.ResetPriorityOrder(false);
+                        ship.AI.OrderMoveTo(GetFinalPos(ship), FinalDirection);
+                    }
+                    break;
+                }
+            }
+            return filled;
+        }
+
         bool AddShipToNodes(Ship shipToAdd)
         {
             shipToAdd.Fleet = this;
