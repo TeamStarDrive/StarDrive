@@ -103,6 +103,14 @@ namespace Ship_Game.Universe
                 return;
             }
 
+            if (ship.ShipData.IsColonyShip && !Input.IsAltKeyDown && planet.Owner == null && !planet.InSafeDistanceFromRadiation())
+            {
+                if (audio)
+                    GameAudio.NegativeClick();
+
+                return;
+            }
+
             if (audio)
                 GameAudio.AffirmativeClick();
 

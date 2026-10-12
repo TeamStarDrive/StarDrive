@@ -515,6 +515,8 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool IsImmuneToStarRadiation => IsGuardian || IsTethered || IsConstructor || IsSupplyShuttle;
+
         public void CauseRadiationDamage(float damage, GameObject source)
         {
             if (IsInWarp)

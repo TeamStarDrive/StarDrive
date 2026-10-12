@@ -415,7 +415,7 @@ namespace Ship_Game.Ships
 
         void DrawRadiationDamageWarning(Ship ship)
         {
-            if (ship.System == null || !ship.System.ShipWithinRadiationRadius(ship) || ship.IsGuardian)
+            if (ship.System == null || !ship.System.ShipWithinRadiationRadius(ship) || ship.IsImmuneToStarRadiation)
                 return;
 
             var radiationTextPos = new Vector2(Housing.X + 50, Housing.Y - Fonts.Arial12.LineSpacing);

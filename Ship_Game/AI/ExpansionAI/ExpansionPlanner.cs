@@ -201,7 +201,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             return s.IsExploredBy(Owner)
                 && !s.HasPlanetsOwnedBy(Owner)
-                && s.PlanetList.Any(p => p.Habitable)
+                && s.PlanetList.Any(p => p.Habitable && p.InSafeDistanceFromRadiation())
                 && !s.OwnerList.Any(o => !o.IsFaction && Owner.IsAtWarWith(o))
                 && StrongEnoughToClaim(s);
         }
@@ -210,6 +210,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             return p.IsExploredBy(Owner) 
                    && p.Habitable 
+                   && p.InSafeDistanceFromRadiation()
                    && p.ColonyGraceTurnsLeft(Owner) == 0
                    && (p.Owner == null 
                        || p.Owner.IsFaction && (p.Owner.ParentEmpire == null

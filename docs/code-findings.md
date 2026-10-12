@@ -1326,6 +1326,10 @@ outside `SunDangerRadius` all the way round; a colony with none clear gets none.
 there still run. Orbitals the player orders by hand are not limited. The ring radius is now one
 formula, `Planet.OrbitalRingRadius`, shared with the placement search.
 `GovernorOrbitalRadiationTests`; Codex entry Governor and Budgets updated.
+**Superseded 2026-10-12:** orbitals tethered to a planet, constructors and builder ships now withstand
+radiation (`Ship.IsImmuneToStarRadiation`), so the governor's ring limit and every other placement rule
+for radiation are gone; a planet whose center lies inside the radiation zone cannot be colonized
+instead. `StarRadiationTests` replaces `GovernorOrbitalRadiationTests`.
 
 **The save-overwrite check reads the visible list, not the filesystem — and that blocks an
 otherwise obvious fix.** `GenericLoadSaveScreen.IsSaveOk()` walks `SavesSL.AllEntries` and returns

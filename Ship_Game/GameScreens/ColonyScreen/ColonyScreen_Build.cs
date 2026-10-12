@@ -270,14 +270,13 @@ namespace Ship_Game
             int orbitalsQueued = 0;
             for (int i = 0; i < repeat; i++)
             {
-                bool isOrbital = ship.IsPlatformOrStation || ship.IsShipyard;
-                if (P.IsOutOfOrbitalsLimit(ship, orbitalsQueued) || isOrbital && !P.HasRoomForOrbitalClearOfRadiation(orbitalsQueued))
+                if (P.IsOutOfOrbitalsLimit(ship, orbitalsQueued))
                 {
                     GameAudio.NegativeClick();
                     return;
                 }
 
-                if (isOrbital)
+                if (ship.IsPlatformOrStation || ship.IsShipyard)
                 {
                     P.AddOrbital(ship);
                     orbitalsQueued++;

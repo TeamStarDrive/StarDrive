@@ -977,7 +977,7 @@ namespace Ship_Game
 
         bool BuildOrbital(IShipDesign orbital)
         {
-            if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital) || !Planet.HasRoomForOrbitalClearOfRadiation())
+            if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital))
                 return false;
 
             Planet.AddOrbital(orbital);

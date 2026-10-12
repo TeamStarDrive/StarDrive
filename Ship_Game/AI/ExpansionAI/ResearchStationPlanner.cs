@@ -49,9 +49,6 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             Planet planet = solarBody as Planet;
-            if (planet != null && !planet.System.InSafeDistanceFromRadiation(planet.Position))
-                return;
-
             float str = Owner.KnownEnemyStrengthNoResearchStationsIn(system);
             if (str > 0)
             {

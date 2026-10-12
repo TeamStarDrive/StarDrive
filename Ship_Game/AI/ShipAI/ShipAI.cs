@@ -258,7 +258,8 @@ namespace Ship_Game.AI
             if (targetPlanet.Owner != null
                 || !targetPlanet.Habitable
                 || targetPlanet.RecentCombat
-                || targetPlanet.ColonyGraceTurnsLeft(Owner.Loyalty) > 0)
+                || targetPlanet.ColonyGraceTurnsLeft(Owner.Loyalty) > 0
+                || !targetPlanet.InSafeDistanceFromRadiation())
             {
                 shipGoal.Goal?.NotifyMainGoalCompleted();
                 ClearOrders();

@@ -143,7 +143,7 @@
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
     <Compile Include="Planets\TestOrbitalBuildLimit.cs" />
-    <Compile Include="Planets\GovernorOrbitalRadiationTests.cs" />
+    <Compile Include="Planets\StarRadiationTests.cs" />
     <Compile Include="Planets\GovernorOrbitalCapTests.cs" />
     <Compile Include="Planets\TestRefitQueuePlacement.cs" />
     <Compile Include="Planets\ShipyardBonusTests.cs" />

@@ -425,7 +425,7 @@ namespace Ship_Game
 
         void OnColonizeClicked(UIButton b)
         {
-            if (!MarkedForColonization && Planet.ColonyGraceTurnsLeft(Player) > 0)
+            if (!MarkedForColonization && (Planet.ColonyGraceTurnsLeft(Player) > 0 || !Planet.InSafeDistanceFromRadiation()))
             {
                 GameAudio.NegativeClick();
                 return;
