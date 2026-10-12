@@ -230,7 +230,7 @@ namespace Ship_Game.Ships
         }
 
         // Colonists get special treatment due to Cryogenic Freezing and Manifest Destiny passenger modifiers
-        public float UnloadColonists(float maxAmount = 9999999f)  => Cargo?.UnloadCargoRef(ref Cargo.Colonists, maxAmount) * PassengerModifier ?? 0f;
+        public float UnloadColonists(float maxAmount = 9999999f)  => Cargo?.UnloadCargoRef(ref Cargo.Colonists, maxAmount / PassengerModifier) * PassengerModifier ?? 0f;
         public float UnloadProduction(float maxAmount = 9999999f) => Cargo?.UnloadCargoRef(ref Cargo.Production, maxAmount) ?? 0f;
         public float UnloadFood(float maxAmount = 9999999f)       => Cargo?.UnloadCargoRef(ref Cargo.Food, maxAmount)       ?? 0f;
 

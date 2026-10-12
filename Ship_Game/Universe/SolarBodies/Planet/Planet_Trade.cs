@@ -161,8 +161,14 @@ namespace Ship_Game
             if (ManualColoExportSlots > 0 && Owner == Universe.Player)
                 return ManualColoExportSlots;
 
-            return (int)PopulationBillion;
+            if (ShortOnFood())
+                return (int)PopulationBillion;
+
+            int surplusSlots = (int)Math.Ceiling(ColonistsAboveImportLine / ColonistsPerFreighter);
+            return surplusSlots.Clamped(1, (int)PopulationBillion);
         }
+
+        float ColonistsPerFreighter => (Owner.AverageFreighterCargoCap * Owner.data.Traits.PassengerModifier).LowerBound(1);
 
         int GetFoodImportSlots()
         {
@@ -230,7 +236,9 @@ namespace Ship_Game
 
             float popRatio = PopulationRatio.LowerBound(0.2f);
             float slots = popRatio > 0.95 ? 1 : 2 / popRatio;
-            return (int)slots.Clamped(1, 5);
+            int roomSlots = (int)Math.Ceiling((MaxPopulation - Population) / ColonistsPerFreighter);
+            int sizeCap = (int)MaxPopulationBillion.UpperBound(20);
+            return Math.Max((int)slots.Clamped(1, 5), Math.Min(roomSlots, sizeCap));
         }
 
         // # of Freighters on the way to pick up from us
@@ -361,6 +369,9 @@ namespace Ship_Game
                 return 0;
 
             float maxPopLoad = importPlanet.MaxPopulation - importPlanet.Population - importPlanet.IncomingPop;
+            if (!exportPlanet.ShortOnFood())
+                maxPopLoad = maxPopLoad.UpperBound(exportPlanet.ColonistsAboveImportLine);
+
             return maxPopLoad.Clamped(0, exportPlanet.MaxPopulation * 0.2f);
         }
 

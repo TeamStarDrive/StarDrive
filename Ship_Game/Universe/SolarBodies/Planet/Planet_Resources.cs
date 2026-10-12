@@ -87,7 +87,11 @@ namespace Ship_Game
 
         // bounded at the export ratio: any higher and a queued biosphere alone would
         // decide the traffic direction, flipping it as the build queue changes
-        bool ShouldImportColonists(float popRatio) => popRatio < 0.8f || BiosphereInTheWorks && PopPerBiosphere(Owner) > 100 && popRatio < 0.9f;
+        float ColonistImportRatio => BiosphereInTheWorks && PopPerBiosphere(Owner) > 100 ? 0.9f : 0.8f;
+
+        bool ShouldImportColonists(float popRatio) => popRatio < ColonistImportRatio;
+
+        float ColonistsAboveImportLine => (Population - ColonistImportRatio * MaxPopulation).LowerBound(0);
 
         public bool ShortOnFood()
         {
