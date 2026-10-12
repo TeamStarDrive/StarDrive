@@ -1169,7 +1169,7 @@ namespace Ship_Game
             if (ships.Count != 0)
             {
                 ClearShipFleetsWithDataNodes(ships);
-                fleet.AddShips(ships);
+                fleet.AddShipsJoiningFleet(ships);
 
                 fleet.SetCommandShip(null);
                 fleet.AutoArrange(); // arrange new ships into formation

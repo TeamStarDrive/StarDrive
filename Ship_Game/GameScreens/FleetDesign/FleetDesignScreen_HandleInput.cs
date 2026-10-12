@@ -167,7 +167,7 @@ namespace Ship_Game
                 node.Ship = shipOrTemplate;
                 node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
                 ActiveShips.RemoveRef(shipOrTemplate);
-                SelectedFleet.AddShip(node.Ship);
+                SelectedFleet.AddShipsJoiningFleet(new[] { node.Ship });
                 ShipSL.RemoveFirstIf(item => item.Ship == shipOrTemplate);
 
                 // always clear active design for alive ships

@@ -95,6 +95,7 @@ namespace Ship_Game.Fleets
         void OnDeserialized()
         {
             AssignPositions(FinalDirection);
+            MarkStragglersOnNextUpdate = Owner.isPlayer;
             UpdateSpeedLimit();
         }
 
@@ -103,6 +104,47 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < ships.Count; i++)
                 if (ships[i].CanBeAddedToFleets())
                     AddShip(ships[i]);
+        }
+
+        /// <summary>
+        /// The player adds ships to this fleet: the ships away from its main group catch up on their own
+        /// </summary>
+        public void AddShipsJoiningFleet(IReadOnlyList<Ship> ships)
+        {
+            AddShips(ships);
+            MarkShipsAwayFromTheBody();
+        }
+
+        bool MarkStragglersOnNextUpdate;
+
+        void MarkShipsAwayFromTheBody()
+        {
+            Ship[] ships = Ships.ToArray();
+            Vector2 body = Vector2.Zero;
+            int bodySurface = 0;
+            foreach (Ship ship in ships)
+            {
+                if (ship is not { Active: true })
+                    continue;
+
+                Vector2 centre = ship.Position - ship.FleetOffset;
+                int surface = 0;
+                foreach (Ship other in ships)
+                    if (other is { Active: true } && (other.Position - other.FleetOffset).InRadius(centre, 30_000))
+                        surface += other.SurfaceArea;
+
+                if (surface > bodySurface)
+                {
+                    bodySurface = surface;
+                    body = centre;
+                }
+            }
+
+            foreach (Ship ship in ships)
+                if (ship is { Active: true })
+                    ship.CatchingUpToFleet = (ship.Position - ship.FleetOffset).OutsideRadius(body, 30_000);
+
+            AveragePosition(force: true);
         }
 
         /// @return TRUE if ship was added to the Fleet,
@@ -2695,6 +2737,13 @@ namespace Ship_Game.Fleets
             HasRepair = false;
             if (Ships.Count == 0)
                 return;
+
+            if (MarkStragglersOnNextUpdate)
+            {
+                MarkStragglersOnNextUpdate = false;
+                MarkShipsAwayFromTheBody();
+                UpdateSpeedLimit();
+            }
 
             // Surface-weighted warp readiness: the fleet warps once nearly all of the
             // established body is ready, instead of waiting for every last ship. This

@@ -103,6 +103,7 @@
     <Compile Include="Espionage\UpriseTests.cs" />
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
+    <Compile Include="Fleets\FleetCatchUpTests.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="Graphics\BloomFilterTests.cs" />
