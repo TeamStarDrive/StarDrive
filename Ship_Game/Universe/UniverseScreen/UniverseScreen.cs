@@ -419,6 +419,8 @@ namespace Ship_Game
                 Array<Empire> updated = UpdateEmpires(FixedSimTime.Zero);
                 EndOfTurnUpdate(updated, FixedSimTime.Zero);
             }
+
+            UState.Remnants?.Remnants?.SendIdleShipsToGuardPlanets();
             CreateUniverseSimThread();
         }
 

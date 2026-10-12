@@ -6,6 +6,7 @@ using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Fleets;
+using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
@@ -315,6 +316,77 @@ namespace UnitTests.AITests.Empire
                 Assert.IsTrue(ship.AI.FindGoal(ShipAI.Plan.Escort, out ShipAI.ShipGoal escort) && escort.TargetShip == Portal,
                               "a released ship must escort its portal, where the next raid gathers its fleet, instead of fleeing elsewhere");
             }
+        }
+
+        [TestMethod]
+        public void WhenAPortalDiesItsEscortsGuardTheNearestPlanetInItsSystem()
+        {
+            Ship escort = SpawnShip("Vulcan Scout", Faction, Portal.Position + new Vector2(-800, 0));
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in the portal's system
+            escort.AI.AddEscortGoal(Portal);
+            Goal portalGoal = Faction.AI.FindGoal(g => g is RemnantPortal && g.TargetShip == Portal);
+
+            Portal.Die(null, cleanupOnly: true);
+            Assert.AreEqual(GoalStep.GoalFailed, portalGoal.Evaluate(), "setup: the portal's goal ends with the portal");
+
+            Assert.IsTrue(escort.AI.FindGoal(ShipAI.Plan.Orbit, out ShipAI.ShipGoal orbit) && orbit.TargetPlanet == EmptyPlanet,
+                          "an escort left without its portal guards the nearest planet in its system");
+        }
+
+        [TestMethod]
+        public void AnIdleShipInALivePortalsSystemIsLeftToThePortal()
+        {
+            Ship idle = SpawnShip("Vulcan Scout", Faction, Portal.Position + new Vector2(-800, 0));
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in the portal's system
+            idle.AI.ClearOrders();
+            Portal.SetSystem(null);
+
+            Faction.Remnants.SendIdleShipsToGuardPlanets();
+
+            Assert.IsFalse(idle.AI.FindGoal(ShipAI.Plan.Orbit, out _),
+                           "a portal gives the idle ships in its system an escort order instead, also while it is out chasing an enemy");
+        }
+
+        [TestMethod]
+        public void AShipSpawnedToExterminateIsNotSentToGuardAPlanet()
+        {
+            SolarSystem system = EmptySystem(new Vector2(0, 300_000));
+            Planet planet = AddPlanet(system, system.Position + new Vector2(8_000, 0));
+            Ship exterminator = SpawnShip("Vulcan Scout", Faction, planet.Position + new Vector2(3_000, 0));
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in its system
+            exterminator.AI.DefaultAIState = AIState.Exterminate;
+            exterminator.AI.ClearOrders();
+
+            Faction.Remnants.SendIdleShipsToGuardPlanets();
+
+            Assert.IsFalse(exterminator.AI.FindGoal(ShipAI.Plan.Orbit, out _), "a ship an event spawned to exterminate keeps hunting");
+        }
+
+        [TestMethod]
+        public void AGuardianThatLostItsOrbitInASaveGuardsTheNearestPlanetAgainAfterALoad()
+        {
+            UState.StarDate = 1042.5f;
+            UState.Remnants = Faction;
+            SolarSystem system = EmptySystem(new Vector2(0, 300_000));
+            Planet guarded = AddPlanet(system, system.Position + new Vector2(8_000, 0));
+            AddPlanet(system, system.Position + new Vector2(-20_000, 0));
+            Ship guardian = SpawnShip("Vulcan Scout", Faction, guarded.Position + new Vector2(3_000, 0));
+            guardian.OrderToOrbit(guarded, clearOrders: true, MoveOrder.Aggressive);
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in its system
+            guardian.AI.ClearOrders();
+            Assert.AreEqual(AIState.AwaitingOrders, guardian.AI.State, "setup: the guardian sits idle, as the chase left it");
+
+            SavedGame save = Universe.Save("UnitTest.IdleGuardian", throwOnError: true);
+            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            Ship loadedGuardian = loaded.UState.Objects.FindShip(guardian.Id);
+            Planet nearest = loadedGuardian.System.PlanetList.FindMin(p => p.Position.SqDist(loadedGuardian.Position));
+
+            Assert.IsTrue(loadedGuardian.AI.FindGoal(ShipAI.Plan.Orbit, out ShipAI.ShipGoal orbit) && orbit.TargetPlanet == nearest,
+                          "after the load the guardian guards the nearest planet in its system again");
         }
 
         [TestMethod]

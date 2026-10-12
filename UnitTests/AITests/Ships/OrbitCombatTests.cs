@@ -74,6 +74,49 @@ public class OrbitCombatTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AGuardianThatChasesAFasterShipGoesBackToItsOrbitAfterwards()
+    {
+        CreateAMinorFaction("Remnant");
+        Planet guarded = AddDummyPlanet(new Vector2(400_000));
+        TestShip guardian = SpawnShip("Terran-Prototype", Faction, guarded.Position + new Vector2(guarded.Radius + 500, 0));
+        guardian.OrderToOrbit(guarded, clearOrders: true, MoveOrder.Aggressive);
+        RunSimWhile((60, fatal: true), () => !guardian.IsOrbiting(guarded));
+
+        TestShip runner = SpawnShipNoCombatHoldPos("Vulcan Scout", Player, guardian.Position);
+        runner.Position = guardian.Position + runner.Direction * 10_000f;
+        runner.Velocity = runner.Direction * guardian.MaxSTLSpeed * 2f;
+        guardian.Level = 95;
+        guardian.AI.MoveToEngageTarget(runner, TestSimStep);
+        guardian.Level = 0;
+        AssertEqual(AIState.Pursue, guardian.AI.State, "setup: the guardian must give chase");
+
+        runner.Die(null, cleanupOnly: true);
+        RunSimWhile((120, fatal: true), () => !guardian.IsOrbiting(guarded));
+        AssertEqual(AIState.Orbit, guardian.AI.State, "after the chase the guardian is back on its orbit order");
+    }
+
+    [TestMethod]
+    public void AnEscortThatChasesAFasterShipGoesBackToItsEscortAfterwards()
+    {
+        CreateAMinorFaction("Remnant");
+        TestShip escorted = SpawnShip("Terran-Prototype", Faction, new Vector2(400_000));
+        TestShip escort = SpawnShip("Terran-Prototype", Faction, escorted.Position + new Vector2(1_000, 0));
+        escort.AI.AddEscortGoal(escorted);
+
+        TestShip runner = SpawnShipNoCombatHoldPos("Vulcan Scout", Player, escort.Position);
+        runner.Position = escort.Position + runner.Direction * 10_000f;
+        runner.Velocity = runner.Direction * escort.MaxSTLSpeed * 2f;
+        escort.Level = 95;
+        escort.AI.MoveToEngageTarget(runner, TestSimStep);
+        escort.Level = 0;
+        AssertEqual(AIState.Pursue, escort.AI.State, "setup: the escort must give chase");
+
+        runner.Die(null, cleanupOnly: true);
+        RunSimWhile((120, fatal: true), () => escort.AI.State != AIState.Escort);
+        Assert.AreSame(escorted, escort.AI.EscortTarget, "after the chase the escort goes back to the ship it escorts");
+    }
+
+    [TestMethod]
     public void ShipsSentToOrbitTogetherDoNotStackOnOneOrbitPoint()
     {
         Universe.Frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(0, 1_000_000, 1_000_000, 0, -10_000, 10_000));

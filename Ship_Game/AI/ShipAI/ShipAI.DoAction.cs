@@ -194,7 +194,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
+        internal void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
             if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget() && !Owner.IsInhibitedByUnfriendlyGravityWell)
             {
@@ -202,7 +202,18 @@ namespace Ship_Game.AI
                     + (target.Direction * (target.CurrentVelocity * 4 + 7500 + Owner.Radius*5));
 
                 if (Owner.Position.Distance(prediction) > 15_000)
-                    Owner.AI.OrderMoveToNoStop(prediction, target.Direction, AIState.Pursue, MoveOrder.Pursue);
+                {
+                    Planet orbiting = FindGoal(Plan.Orbit, out ShipGoal orbit) ? orbit.TargetPlanet : null;
+                    AIState orbitState = orbit?.WantedState ?? AIState.Orbit;
+                    Ship escorting = FindGoal(Plan.Escort, out ShipGoal escort) ? escort.TargetShip : null;
+                    OrderMoveToNoStop(prediction, target.Direction, AIState.Pursue, MoveOrder.Pursue);
+                    if (orbiting != null)
+                        AddOrbitPlanetGoal(orbiting, orbitState);
+                    else if (escorting is { Active: true })
+                        AddEscortGoal(escorting, clearOrders: false);
+
+                    ChangeAIState(AIState.Pursue);
+                }
 
                 return;
             }

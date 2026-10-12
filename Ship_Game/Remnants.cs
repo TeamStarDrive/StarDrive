@@ -540,6 +540,47 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Remnant ships left with nothing to do, such as guardians that lost their orbit or the escorts of a portal
+        /// that died, guard the nearest planet in their system unless a portal there takes them
+        /// </summary>
+        public void SendIdleShipsToGuardPlanets()
+        {
+            var portals = new Array<Ship>();
+            var portalSystems = new Array<SolarSystem>();
+            var goals = Owner.AI.Goals;
+            for (int i = 0; i < goals.Count; i++)
+            {
+                if (goals[i] is RemnantPortal { TargetShip: { Active: true } portal } portalGoal && portal.Loyalty == Owner)
+                {
+                    portals.Add(portal);
+                    portalSystems.AddUniqueRef(portalGoal.PortalSystem ?? portal.System);
+                }
+            }
+
+            var ships = Owner.OwnedShips;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                if (ship is { Active: true, IsPlatformOrStation: false, IsHangarShip: false, Fleet: null, System: not null }
+                    && IsIdle(ship) && !portals.ContainsRef(ship) && !portalSystems.ContainsRef(ship.System))
+                {
+                    GuardNearestPlanet(ship);
+                }
+            }
+        }
+
+        static bool IsIdle(Ship ship) => ship.AI.DefaultAIState == AIState.AwaitingOrders
+                                         && (ship.AI.EscortTarget is { Active: false }
+                                             || ship.AI.EscortTarget == null && ship.AI.State == AIState.AwaitingOrders);
+
+        static void GuardNearestPlanet(Ship ship)
+        {
+            Planet planet = ship.System.PlanetList.FindMin(p => p.Position.SqDist(ship.Position));
+            if (planet != null)
+                ship.OrderToOrbit(planet, clearOrders: true, MoveOrder.Aggressive);
+        }
+
         public bool GetClosestPortal(Vector2 position, out Ship portal)
         {
             portal = null;
