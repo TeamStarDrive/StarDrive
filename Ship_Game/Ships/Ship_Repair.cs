@@ -36,6 +36,18 @@ public partial class Ship
     /// </summary>
     public bool IsInRecentCombat => InCombat || TimeSinceLastDamage < RecentlyDamagedSeconds;
 
+    /// <summary>
+    /// Our or an ally's planet this ship is tethered to or orbiting, which adds its repair to the ship's own
+    /// </summary>
+    public Planet RepairPlanet
+    {
+        get
+        {
+            Planet p = GetTether() ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
+            return p != null && (p.Owner == Loyalty || Loyalty.IsAlliedWith(p.Owner)) ? p : null;
+        }
+    }
+
     void Repair(FixedSimTime timeSinceLastUpdate)
     {
         if (CanRepair)
@@ -52,9 +64,8 @@ public partial class Ship
             }
 
             float planetRepair = 0f;
-            Planet p = GetTether()
-                       ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
-            if (p != null && (p.Owner == Loyalty || Loyalty.IsAlliedWith(p.Owner)))
+            Planet p = RepairPlanet;
+            if (p != null)
             {
                 planetRepair = p.GeodeticManager.RepairRatePerSecond;
                 repairLevel = Math.Max(repairLevel, p.Level + p.NumShipyards);

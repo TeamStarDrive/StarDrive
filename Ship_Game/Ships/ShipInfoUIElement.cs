@@ -386,7 +386,10 @@ namespace Ship_Game.Ships
                         }
                         else if (ship.CanRepair && ship.HealthPercent < 1f)
                         {
-                            text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
+                            Planet repairPlanet = ship.RepairPlanet;
+                            text = repairPlanet != null
+                                ? $"Repairing at {repairPlanet.Name} ({(int)(ship.HealthPercent * 100)}%)"
+                                : $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
                             color = Color.Yellow;
                         }
                         else
