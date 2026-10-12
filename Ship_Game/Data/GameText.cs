@@ -4921,6 +4921,10 @@ namespace Ship_Game
         PatchRestartFailedTitle = 4649,
         /// <summary>Remnant Fleet is targeting {0}\nETA - Stardate {1}</summary>
         RemnantFleetTargetingPlanet = 4650,
+        /// <summary>turn</summary>
+        Turn2 = 4651,
+        /// <summary>turns</summary>
+        TurnsFew = 4652,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

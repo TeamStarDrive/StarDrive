@@ -124,29 +124,33 @@ namespace Ship_Game
 
 
 
-        // 1f when this turn took no disruption hits, else the product of
-        // (1 - SlowResearchBy) for each enemy whose roll landed. Surfaces to
-        // the universe top-bar as a spy icon + percentage so the player can
-        // see when their research is being slowed.
+        // the share of research getting through every empire's research disruption, 1 when none
         public float DisruptionMultiplier { get; private set; } = 1f;
+
+        // turns until the longest research disruption against us has worn off
+        public int DisruptionTurnsLeft { get; private set; }
 
         void UpdateNetResearchDisruption()
         {
-            DisruptionMultiplier = 1f;
-            if (Empire.LegacyEspionageEnabled)
-                return;
-
-            Empire[] empires = Empire.Universe.ActiveMajorEmpires.Filter(e => e != Empire);
-            for (int i = 0; i < empires.Length; i++)
+            float multiplier = 1f;
+            int turnsLeft = 0;
+            if (!Empire.LegacyEspionageEnabled)
             {
-                Empire empire = empires[i];
-                Espionage espionage = empire.GetEspionage(Empire);
-                if (espionage.CanSlowResearch && empire.Random.RollDice(espionage.SlowResearchChance))
+                Empire[] empires = Empire.Universe.ActiveMajorEmpires.Filter(e => e != Empire);
+                for (int i = 0; i < empires.Length; i++)
                 {
-                    NetResearch *= 1 - Espionage.SlowResearchBy;
-                    DisruptionMultiplier *= 1 - Espionage.SlowResearchBy;
+                    Espionage espionage = empires[i].GetEspionage(Empire);
+                    if (espionage.CanSlowResearch)
+                    {
+                        multiplier *= 1 - espionage.ResearchDisruption / 100f;
+                        turnsLeft = turnsLeft.LowerBound(espionage.ResearchDisruptionTurnsLeft);
+                    }
                 }
             }
+
+            NetResearch *= multiplier;
+            DisruptionTurnsLeft = turnsLeft;
+            DisruptionMultiplier = multiplier;
         }
 
         public void AddResearchStationResearchPerTurn(float value)

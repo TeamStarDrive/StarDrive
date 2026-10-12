@@ -11,7 +11,8 @@ namespace Ship_Game
     {
         public const byte MaxLevel = 5;
         public const float PercentMoneyLeech = 0.02f;
-        public const float SlowResearchBy = 0.1f;
+        public const float ResearchDisruptionWearOffPerTurn = 0.1f;
+        const float WearOffRoundingSlack = 0.1f; // share of a wear-off that float rounding may leave over
         [StarData] public byte Level;
         [StarData] readonly Empire Owner;
         [StarData] public readonly Empire Them;
@@ -20,7 +21,8 @@ namespace Ship_Game
         [StarData] int Weight;
         [StarData] Array<InfiltrationOperation> Operations = new();
         [StarData] Mole StickyMole;
-        [StarData] public int SlowResearchChance { get; private set; }
+        [StarData] int SlowResearchChance { get; set; }
+        [StarData] public float ResearchDisruption { get; private set; }
         [StarData] public float TotalMoneyLeeched { get; private set; }
         [StarData] float MoneyLeechedThisTurn;
         [StarData] public int NumPlantedMoles { get; private set; }
@@ -28,10 +30,20 @@ namespace Ship_Game
         [StarDataConstructor]
         public Espionage() { }
 
-        public Espionage(Empire us, Empire them) 
+        public Espionage(Empire us, Empire them)
         {
             Owner = us;
             Them  = them;
+        }
+
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            if (SlowResearchChance > 0)
+            {
+                ResearchDisruption = SlowResearchChance / 10f;
+                SlowResearchChance = 0;
+            }
         }
 
 
@@ -97,6 +109,8 @@ namespace Ship_Game
 
         public void Update(int totalWeight)
         {
+            float disruption = ResearchDisruption - ResearchDisruptionWearOff;
+            ResearchDisruption = disruption < ResearchDisruptionWearOff * WearOffRoundingSlack ? 0 : disruption;
             if (GlobalStats.RestrictAIPlayerInteraction && Them.isPlayer)
                 return;
 
@@ -174,8 +188,8 @@ namespace Ship_Game
                 StickyMole = null;
             }
 
-            if (!CanSlowResearch && SlowResearchChance > 0) 
-                SlowResearchChance = 0;
+            if (EffectiveLevel < 4)
+                ResearchDisruption = 0;
         }
 
         void UpdateOperations(float progress)
@@ -188,14 +202,13 @@ namespace Ship_Game
             }
         }
 
-        public void DecreaseSlowResearchChance()
-        {
-            SlowResearchChance -= 1;
-        }
+        float ResearchDisruptionWearOff => ResearchDisruptionWearOffPerTurn / Owner.Universe.P.Pace;
 
-        public void SetSlowResearchChance(int value)
+        public int ResearchDisruptionTurnsLeft => (int)Math.Ceiling(ResearchDisruption / ResearchDisruptionWearOff - WearOffRoundingSlack);
+
+        public void DisruptResearch(float percent)
         {
-            SlowResearchChance = value;
+            ResearchDisruption = Math.Max(ResearchDisruption, percent);
         }
 
         public void SetDisruptProjectionChance(int value)
@@ -294,7 +307,7 @@ namespace Ship_Game
         bool CanPlantStickyMole           => EffectiveLevel>= 3;
 
         public bool CanLeechTech    => EffectiveLevel >= 4;
-        public bool CanSlowResearch => EffectiveLevel >= 4 && SlowResearchChance > 0;
+        public bool CanSlowResearch => EffectiveLevel >= 4 && ResearchDisruption > 0;
         public bool CanViewTraitSet => Level >= 4;
 
         public bool CanLeechMoney     => EffectiveLevel >= 5;

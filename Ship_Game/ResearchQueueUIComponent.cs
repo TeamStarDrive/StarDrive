@@ -137,8 +137,24 @@ namespace Ship_Game
                 SpyDisruption.Visible = disrupted;
                 SpyDisruptionLabel.Visible = disrupted;
                 if (disrupted)
-                    SpyDisruptionLabel.Text = $"({(int)Math.Round(multiplier * 100f)}%)";
+                {
+                    int turnsLeft = Screen.Player.Research.DisruptionTurnsLeft;
+                    SpyDisruptionLabel.Text = $"({(int)Math.Round(multiplier * 100f)}%, {turnsLeft} {Localizer.Token(TurnsText(turnsLeft))})";
+                }
             }
+        }
+
+        static GameText TurnsText(int turns)
+        {
+            if (Localizer.Language is not (Language.Russian or Language.Ukrainian))
+                return turns == 1 ? GameText.Turn2 : GameText.Turns2;
+
+            int lastDigit = turns % 10, lastTwoDigits = turns % 100;
+            if (lastDigit == 1 && lastTwoDigits != 11)
+                return GameText.Turn2;
+            if (lastDigit is >= 2 and <= 4 && lastTwoDigits is < 12 or > 14)
+                return GameText.TurnsFew;
+            return GameText.Turns2;
         }
 
         ResearchQItem CreateQueueItem(TechEntry tech)

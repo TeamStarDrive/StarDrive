@@ -24,12 +24,6 @@ namespace Ship_Game
             Them = them;
         }
 
-        public override void Update(float progressToUdpate)
-        {
-            base.Update(progressToUdpate);
-            Owner.GetEspionage(Them).DecreaseSlowResearchChance();
-        }
-
         public override void CompleteOperation()
         {
             var result = RollMissionResult(Owner, Them, Owner.IsAlliedWith(Them) ? (int)(SuccessTargetNumber * 0.75f) : SuccessTargetNumber);
@@ -38,15 +32,15 @@ namespace Ship_Game
             switch (result)
             {
                 case InfiltrationOpsResult.Phenomenal:
-                    espionage.SetSlowResearchChance(125);
+                    espionage.DisruptResearch(12.5f);
                     aftermath.Message = GameText.InfiltrationDisruptPhenomenalSuccess;
                     break;
                 case InfiltrationOpsResult.GreatSuccess:
-                    espionage.SetSlowResearchChance(100);
+                    espionage.DisruptResearch(10f);
                     aftermath.Message = GameText.InfiltrationDisruptGreatSuccess;
                     break;
                 case InfiltrationOpsResult.Success:
-                    espionage.SetSlowResearchChance(80);
+                    espionage.DisruptResearch(8f);
                     aftermath.Message = GameText.InfiltrationDisruptSuccess;
                     break;
                 case InfiltrationOpsResult.Fail:
