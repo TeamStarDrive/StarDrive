@@ -318,6 +318,23 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void ThePortalLeavesItsHangarShipsFlyingHome()
+        {
+            Ship hangarShip = SpawnShip("Vulcan Scout", Faction, Portal.Position + new Vector2(800, 0));
+            Ship guardian = SpawnShip("Vulcan Scout", Faction, Portal.Position + new Vector2(-800, 0));
+            hangarShip.IsGuardian = guardian.IsGuardian = true;
+            hangarShip.Mothership = Portal;
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in the portal's system
+            hangarShip.AI.OrderReturnToHangar();
+
+            Faction.Remnants.OrderEscortPortal(Portal);
+
+            Assert.IsTrue(guardian.AI.FindGoal(ShipAI.Plan.Escort, out _), "setup: an idle guardian in the portal's system is sent to escort it");
+            Assert.AreEqual(AIState.ReturnToHangar, hangarShip.AI.State, "a hangar ship flying home must not be turned around to escort the portal");
+        }
+
+        [TestMethod]
         public void ASeenRaidFleetSettingOffFlashesItsTargetSystem()
         {
             Planet farColony = AddPlanet(PortalSystem, PortalSystem.Position + new Vector2(60_000, 0));

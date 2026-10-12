@@ -558,7 +558,8 @@ namespace Ship_Game
             for (int i = 0; i < portal.System.ShipList.Count; i++)
             {
                 Ship ship = portal.System.ShipList[i];
-                if (!ship.IsPlatformOrStation && ship.IsGuardian && !ship.InCombat && ship.AI.EscortTarget == null && ship.Fleet == null)
+                if (!ship.IsPlatformOrStation && !ship.IsHangarShip && ship.IsGuardian && !ship.InCombat
+                    && ship.AI.EscortTarget == null && ship.Fleet == null)
                 {
                     ship.AI.AddEscortGoal(portal);
                     if (ship.OrdnancePercent < 1)
@@ -668,7 +669,7 @@ namespace Ship_Game
             foreach (SolarSystem system in portal.Universe.Systems)
             {
                 Ship chosenGuardian = Owner.Random.ItemFilter(system.ShipList,
-                    s => s is { IsGuardian: true, InCombat: false, BaseStrength: < 1000, BombBays.Count: 0 }
+                    s => s is { IsGuardian: true, IsHangarShip: false, InCombat: false, BaseStrength: < 1000, BombBays.Count: 0 }
                 );
                 chosenGuardian?.AI.AddEscortGoal(portal);
             }
