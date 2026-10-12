@@ -31,7 +31,7 @@ namespace Ship_Game.AI.Tasks
 
         private int GetTargetPlanetGroundStrength(int minimumStrength)
         {
-            return (int)TargetPlanet.GetGroundStrengthOther(Owner).LowerBound(minimumStrength);
+            return (int)(TargetPlanet.GetGroundStrengthOther(Owner) * TargetPlanet.InvasionResistance).LowerBound(minimumStrength);
         }
 
         Array<Troop> GetTroopsOnPlanets(Vector2 rallyPoint, float strengthNeeded, out float totalStrength,
@@ -177,7 +177,7 @@ namespace Ship_Game.AI.Tasks
             if (TargetPlanet != null)
             {
                 AO = TargetPlanet.Position;
-                requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
+                requiredTroopStrength = (int)(TargetPlanet.GetGroundStrengthOther(Owner) * TargetPlanet.InvasionResistance) - (int)TargetPlanet.GetGroundStrength(Owner);
                 EnemyStrength = (Owner.KnownEnemyStrengthIn(TargetPlanet.System) + TargetPlanet.BuildingGeodeticOffense).LowerBound(100);
                 UpdateMinimumTaskForceStrength();
             }
@@ -269,7 +269,7 @@ namespace Ship_Game.AI.Tasks
             float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
             EnemyStrength = GetHostileStrengthAtAO().LowerBound(100);
 
-            float minTroopStr = TargetPlanet.Owner == null ? 10 : TargetPlanet.GetGroundStrengthOther(Owner).LowerBound(40);
+            float minTroopStr = TargetPlanet.Owner == null ? 10 : (TargetPlanet.GetGroundStrengthOther(Owner) * TargetPlanet.InvasionResistance).LowerBound(40);
             UpdateMinimumTaskForceStrength(buildingGeodeticOffense);
             InitFleetRequirements(MinimumTaskForceStrength, (int)minTroopStr, minBombMinutes: 0);
             float battleFleetSize = MinimumTaskForceStrength < 100 ? 0.1f : 1f;

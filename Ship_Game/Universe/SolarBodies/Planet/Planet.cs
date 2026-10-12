@@ -135,6 +135,8 @@ namespace Ship_Game
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
             => Troops.GroundStrengthOther(allButThisEmpire);
+
+        public float InvasionResistance => HasCapital ? 1.5f : 1f;
         public IEnumerable<Troop> GetEmpireTroops(Empire empire, int maxToTake = int.MaxValue) 
             => Troops.GetLaunchableTroops(empire, maxToTake);
 

@@ -1223,7 +1223,7 @@ namespace Ship_Game.Fleets
                 return false;
 
             float troopStr  = troopShips.Sum(s => s.GetOurTroopStrength(s.TroopCount));
-            float groundStr = p.GetGroundStrength(task.TargetEmpire) * Owner.DifficultyModifiers.EnemyTroopStrength;
+            float groundStr = p.GetGroundStrength(task.TargetEmpire) * p.InvasionResistance * Owner.DifficultyModifiers.EnemyTroopStrength;
             return troopStr > groundStr;
         }
 
@@ -1245,7 +1245,9 @@ namespace Ship_Game.Fleets
             }
 
             var currentSystem    = currentTarget.System;
-            newTarget            = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
+            newTarget            = task.Type == MilitaryTask.TaskType.ReclaimPlanet
+                ? currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner))
+                : Owner.SafestToInvade(currentSystem.PlanetList, p => Owner.IsAtWarWith(p.Owner) && !Owner.LeavesToBombers(p));
 
             if (newTarget != null)
                 return true;
@@ -1262,18 +1264,31 @@ namespace Ship_Game.Fleets
 
         Planet TryGetNewTargetPlanetInvasion(SolarSystem system)
         {
-            var potentialSystems = system.FiveClosestSystems.Filter(s => s.PlanetList.Any(p => p.Owner?.IsAtWarWith(Owner) == true));
+            var potentialSystems = system.FiveClosestSystems.Filter(s => s.PlanetList.Any(p => p.Owner?.IsAtWarWith(Owner) == true
+                                                                                             && !Owner.LeavesToBombers(p)));
             if (potentialSystems.Length == 0)
                 return null;
 
             SolarSystem potentialSystem = potentialSystems.FindMin(s => Owner.KnownEnemyStrengthIn(s));
-            return potentialSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
+            return Owner.SafestToInvade(potentialSystem.PlanetList, p => Owner.IsAtWarWith(p.Owner) && !Owner.LeavesToBombers(p));
         }
 
         Planet TryGetNewTargetPlanetStrike(SolarSystem system, Empire enemy)
         {
             var planets = enemy?.GetPlanets() ?? new Array<Planet>();
-            return planets.Count == 0 ? null : planets.FindMin(p => p.Position.Distance(system.Position));
+            Planet closest = null;
+            float closestDistance = float.MaxValue;
+            for (int i = 0; i < planets.Count; ++i)
+            {
+                Planet p = planets[i];
+                float distance = p.Position.Distance(system.Position);
+                if (distance < closestDistance && !Owner.LeavesToBombers(p))
+                {
+                    closest = p;
+                    closestDistance = distance;
+                }
+            }
+            return closest;
         }
 
         void DoClaimDefense(MilitaryTask task)
@@ -2250,6 +2265,36 @@ namespace Ship_Game.Fleets
             return Ships.Any(ship => ship.Position.InRadius(task.TargetPlanet.Position, invasionSafeZone));
         }
 
+        bool TroopsHoldBack(MilitaryTask task, bool bombing)
+            => bombing && BombersStillLead(task) || PlanetDefensesStand(task.TargetPlanet);
+
+        const float BombingLeadTurns = 5;
+
+        bool BombersStillLead(MilitaryTask task)
+        {
+            float starDate = Owner.Universe.StarDate;
+            if (task.TroopsFollowBombersAt == 0)
+                task.TroopsFollowBombersAt = starDate + BombingLeadTurns * 0.1f;
+            return starDate + 0.05f < task.TroopsFollowBombersAt;
+        }
+
+        bool PlanetDefensesStand(Planet target)
+        {
+            for (int i = 0; i < target.OrbitalStations.Count; ++i)
+                if (IsLiveDefender(target.OrbitalStations[i], target))
+                    return true;
+
+            var ships = target.System.ShipList;
+            for (int i = 0; i < ships.Count; ++i)
+                if (ships[i]?.HomePlanet == target && IsLiveDefender(ships[i], target))
+                    return true;
+
+            return false;
+        }
+
+        bool IsLiveDefender(Ship ship, Planet target)
+            => ship is { Active: true, Dying: false } && ship.Loyalty == target.Owner && Owner.IsEmpireAttackable(ship.Loyalty);
+
         /// <summary>
         /// Status of planetary assault.
         /// <para>NotApplicable if waiting for invasion to start</para>
@@ -2264,6 +2309,9 @@ namespace Ship_Game.Fleets
 
             if (readyToInvade)
             {
+                if (TroopsHoldBack(task, bombing))
+                    return Status.Good;
+
                 bool invading = OrderShipsToInvade(RearShips, task, bombing);
 
                 if (bombing || invading)
@@ -2523,7 +2571,7 @@ namespace Ship_Game.Fleets
             return shipsInvading > 0;
         }
 
-        float GetGroundStrOfPlanet(Planet p) => p.GetGroundStrengthOther(Owner);
+        float GetGroundStrOfPlanet(Planet p) => p.GetGroundStrengthOther(Owner) * p.InvasionResistance;
 
         void SetPostInvasionFleetCombat()
         {

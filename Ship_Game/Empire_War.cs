@@ -1,4 +1,6 @@
-﻿using Ship_Game.AI;
+﻿using System;
+using System.Collections.Generic;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using System.Linq;
 using SDGraphics;
@@ -26,7 +28,63 @@ namespace Ship_Game
                 case WarType.DefensiveWar:   targetPlanets = PotentialPlanetTargetsDefensiveWar(enemy);   break;
             }
 
+            if (targetPlanets?.Length > 0)
+                targetPlanets = targetPlanets.Filter(p => !LeavesToBombers(p));
+
             return targetPlanets?.Length > 0;
+        }
+
+        public int TroopShipRisk(Planet p)
+        {
+            if (CanBuildBombers)
+                return 0;
+            if (p.HasCapital)
+                return 2;
+            return p.BuildingGeodeticOffense > 0 ? 1 : 0;
+        }
+
+        public bool LeavesToBombers(Planet p)
+        {
+            if (CanBuildBombers || !p.HasCapital || p.Owner == null)
+                return false;
+
+            IReadOnlyList<Planet> theirPlanets = p.Owner.GetPlanets();
+            for (int i = 0; i < theirPlanets.Count; ++i)
+                if (!theirPlanets[i].HasCapital)
+                    return true;
+
+            return false;
+        }
+
+        public Planet SafestToInvade(IReadOnlyList<Planet> planets, Predicate<Planet> isTarget)
+        {
+            Planet safest = null;
+            int lowestRisk = int.MaxValue;
+            for (int i = 0; i < planets.Count; ++i)
+            {
+                Planet p = planets[i];
+                if (!isTarget(p))
+                    continue;
+
+                int risk = TroopShipRisk(p);
+                if (risk < lowestRisk)
+                {
+                    safest = p;
+                    lowestRisk = risk;
+                }
+            }
+            return safest;
+        }
+
+        Planet[] SafestFirst(Planet[] sorted)
+        {
+            var result = new Planet[sorted.Length];
+            int n = 0;
+            for (int risk = 0; risk <= 2; ++risk)
+                for (int i = 0; i < sorted.Length; ++i)
+                    if (TroopShipRisk(sorted[i]) == risk)
+                        result[n++] = sorted[i];
+            return result;
         }
 
         Planet[] PotentialPlanetTargetsImperialistWar(Empire enemy)
@@ -84,14 +142,17 @@ namespace Ship_Game
 
         public Planet[] SortPlanetTargets(Planet[] targets, WarType warType, Empire enemy)
         {
+            Planet[] sorted;
             switch (warType)
             {
                 default:
-                case WarType.BorderConflict: return targets.SortedDescending(p => p.ColonyPotentialValue(this));
-                case WarType.DefensiveWar:   return targets.Sorted(p => p.Position.SqDist(WeightedCenter));
-                case WarType.ImperialistWar: return targets.SortedDescending(p => p.ColonyPotentialValue(this) / p.Position.Distance(WeightedCenter));
-                case WarType.GenocidalWar:   return targets.SortedDescending(p => p.ColonyPotentialValue(enemy) / p.Position.Distance(WeightedCenter));
+                case WarType.BorderConflict: sorted = targets.SortedDescending(p => p.ColonyPotentialValue(this)); break;
+                case WarType.DefensiveWar:   sorted = targets.Sorted(p => p.Position.SqDist(WeightedCenter)); break;
+                case WarType.ImperialistWar: sorted = targets.SortedDescending(p => p.ColonyPotentialValue(this) / p.Position.Distance(WeightedCenter)); break;
+                case WarType.GenocidalWar:   sorted = targets.SortedDescending(p => p.ColonyPotentialValue(enemy) / p.Position.Distance(WeightedCenter)); break;
             }
+
+            return CanBuildBombers ? sorted : SafestFirst(sorted);
         }
 
         public bool TryConfirmPrepareForWarType(Empire enemy, WarType warType, out WarType finalWarType)
