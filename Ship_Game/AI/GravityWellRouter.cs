@@ -344,6 +344,15 @@ public static class GravityWellRouter
             }
             else
             {
+                float sysR = sys.Radius + Margin;
+                if (origin.SqDist(sys.Position) > sysR * sysR && finalDest.SqDist(sys.Position) > sysR * sysR
+                    && HasKnownRemnantsOutsideOurInfluence(ship, sys))
+                {
+                    if (TryCollect(origin, finalDest, a, ab, abLen2, sys.Position, sysR, ref candidates, $"system {sys.Name} (known Remnants)"))
+                        sysObstacles++;
+                    continue;
+                }
+
                 if (!isKnown)
                 {
                     skipNearUnknown++;
@@ -478,6 +487,14 @@ public static class GravityWellRouter
         if (!ship.Universe.Influence.IsInInfluenceOf(ship.Loyalty, p.ParentSystem.Position))
             return true;
         return !ship.Universe.Influence.IsInInfluenceOf(ship.Loyalty, p.Position);
+    }
+
+    static bool HasKnownRemnantsOutsideOurInfluence(Ship ship, SolarSystem sys)
+    {
+        Empire remnants = ship.Universe.Remnants;
+        return remnants != null
+            && !ship.Universe.Influence.IsInInfluenceOf(ship.Loyalty, sys.Position)
+            && ship.Loyalty.Threats.GetHostileStrengthAt(remnants, sys.Position, sys.Radius) > 0f;
     }
 
     static float ShipInhibitionScale(Ship s)

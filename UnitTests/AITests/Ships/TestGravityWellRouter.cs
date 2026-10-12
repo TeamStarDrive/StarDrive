@@ -107,6 +107,55 @@ public class TestGravityWellRouter : StarDriveTest
         }
     }
 
+    [TestMethod]
+    public void ASystemAtTheEndOfTheTripWithKnownRemnantsIsPassedAroundWhole()
+    {
+        AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(explored: true);
+    }
+
+    [TestMethod]
+    public void AnUnexploredSystemAtTheEndOfTheTripWithKnownRemnantsIsPassedAroundWhole()
+    {
+        AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(explored: false);
+    }
+
+    void AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(bool explored)
+    {
+        CreateAMinorFaction("Remnant");
+        UState.Remnants = Faction;
+        Vector2 sysPos = new(300_000f, 0f);
+        SolarSystem system = AddDummyPlanet(sysPos, 1f, 1f, 4f, sysPos + new Vector2(0f, 2_000f), explored).System;
+        Vector2 dest = sysPos + new Vector2(system.Radius + 10_000f, 0f);
+
+        bool wasOn = GlobalStats.RouteAroundGravityWells;
+        try
+        {
+            GlobalStats.RouteAroundGravityWells = true;
+            AssertEqual(0, GravityWellRouter.BuildDetours(Scout, Scout.Position, dest, MoveOrder.Regular).Length,
+                        "setup: with no known Remnants the route crosses the system between its wells");
+
+            SpawnShip("Vulcan Scout", Faction, sysPos + new Vector2(0f, 2_000f - system.Radius));
+            Ship observer = SpawnShip("Vulcan Scout", Player, sysPos + new Vector2(0f, -2_000f - system.Radius));
+            UState.Objects.Update(new(time: 2f));
+            UState.Objects.Update(new(time: 2f));
+            Player.Threats.Update(new(time: 2f));
+            observer.QueueTotalRemoval();
+            UState.Objects.Update(new(time: 2f));
+            Assert.IsTrue(Player.Threats.GetHostileStrengthAt(Faction, sysPos, system.Radius) > 0f, "setup: the player knows of Remnant ships there");
+            AssertEqual(explored, system.IsExploredBy(Player), "setup: whether the player explored the system");
+
+            Vector2[] detours = GravityWellRouter.BuildDetours(Scout, Scout.Position, dest, MoveOrder.Regular);
+            Assert.IsTrue(detours.Length > 0, "the route must turn off the straight line through the Remnants' system");
+            foreach (Vector2 detour in detours)
+                Assert.IsTrue(detour.OutsideRadius(sysPos, system.Radius),
+                              $"every turn of the route stays outside the system (detour {detour.Distance(sysPos):0} from its centre, radius {system.Radius:0})");
+        }
+        finally
+        {
+            GlobalStats.RouteAroundGravityWells = wasOn;
+        }
+    }
+
     // Covers the explore-leg wrapper (ShipAI.ExploreThrustTarget): it must feed the order-time
     // router with the right ship/origin/destination/order and walk the chain via GetThrustTarget,
     // and it must reuse the cached chain while the leg target is unchanged. The detour GEOMETRY
