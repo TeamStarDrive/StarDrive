@@ -69,6 +69,9 @@ namespace Ship_Game
         public int NumFreightersPickingUpFood { get; private set; }
         public int NumFreightersPickingUpProd { get; private set; }
 
+        // cargo space of the freighters on their way to load production for us
+        public float ProdBeingFetched { get; private set; }
+
         public void UpdateIncomingTradeGoods()
         {
             // synchronization point
@@ -101,6 +104,7 @@ namespace Ship_Game
 
             NumFreightersPickingUpFood = NumOutgoingFreightersPickUp(outgoingFreighters, Goods.Food);
             NumFreightersPickingUpProd = NumOutgoingFreightersPickUp(outgoingFreighters, Goods.Production);
+            ProdBeingFetched = CargoSpaceOnTheWayToLoad(incomingFreighters, Goods.Production);
         }
 
         void IncreaseOutgoingFreighters(Goods goods)
@@ -256,6 +260,20 @@ namespace Ship_Game
             return numFreighters;
         }
 
+        static float CargoSpaceOnTheWayToLoad(Ship[] incoming, Goods goods)
+        {
+            float cargoSpace = 0;
+            for (int i = 0; i < incoming.Length; i++)
+            {
+                Ship freighter = incoming[i];
+                if (freighter.Active &&
+                    freighter.AI.FindGoal(ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal) &&
+                    goal.Trade.Goods == goods)
+                    cargoSpace += freighter.CargoSpaceMax;
+            }
+            return cargoSpace;
+        }
+
         public int FreeGoodsImportSlots(Goods goods)
         {
             switch (goods)
@@ -399,18 +417,27 @@ namespace Ship_Game
             return numActiveFreighters;
         }
 
-        // total (cached) amount of cargo of specified type incoming via freighters for prioritize importing planets
+        // importing planets are served lowest first
         public float GetCachedIncomingCargoPriority(Goods goods)
         {
             switch (goods)
             { 
-                case Goods.Production when IsCybernetic && IsStarving: return Prod.NetIncome*10 + IncomingProd;
-                case Goods.Production:           return IncomingProd;
+                case Goods.Production when IsCybernetic && IsStarving: return Prod.NetIncome*10 + IncomingProd - FirstOrLast;
+                case Goods.Production:           return TurnsOfProdSupply();
                 case Goods.Food when IsStarving: return Food.NetIncome*10 + IncomingFood; // food net income is negative when starting
                 case Goods.Food:                 return IncomingFood;
                 case Goods.Colonists:            return IncomingPop;
                 default:                         return 0;
             }
+        }
+
+        const float FirstOrLast = 1_000_000;
+
+        float TurnsOfProdSupply()
+        {
+            float supply = ProdHere + IncomingProd + ProdBeingFetched;
+            float drawnPerTurn = (ConstructionQueue.Count > 0 ? InfraStructure.LowerBound(1) : 0) + (-Prod.NetIncome).LowerBound(0);
+            return drawnPerTurn > 0 ? supply / drawnPerTurn : FirstOrLast + supply;
         }
 
         float GetTotalCargo(Ship[] freighterList, Goods goods)
