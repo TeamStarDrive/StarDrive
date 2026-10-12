@@ -506,7 +506,7 @@ namespace Ship_Game
                     Player.AI.CancelColonization(P);
                     GameAudio.EchoAffirmative();
                 }
-                else if (P.ColonyGraceTurnsLeft(Player) > 0)
+                else if (P.ColonyGraceTurnsLeft(Player) > 0 || !P.InSafeDistanceFromRadiation())
                 {
                     GameAudio.NegativeClick();
                 }

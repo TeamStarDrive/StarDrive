@@ -46,7 +46,6 @@ namespace Ship_Game.AI.ExpansionAI
         bool ProcessMinables(Planet planet, InfluenceStatus influense, Goal[] miningGoals)
         {
             if (influense == InfluenceStatus.Enemy
-                || !planet.System.InSafeDistanceFromRadiation(planet.Position)
                 || planet.Mining.OpsOwnedBySomeoneElseThan(Owner))
             {
                 return false;

@@ -142,7 +142,10 @@ namespace Ship_Game.Commands.Goals
         GoalStep GenerateProduction()
         {
             if (Portal == null || !Portal.Active)
+            {
+                Remnants.SendIdleShipsToGuardPlanets();
                 return GoalStep.GoalFailed;
+            }
 
             if (Portal.Loyalty != Owner)
                 Portal.AI.OrderScuttleShip();

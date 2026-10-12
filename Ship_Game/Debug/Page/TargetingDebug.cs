@@ -35,7 +35,7 @@ public class TargetingDebug : DebugPage
                 Screen.DrawCircleProjected(module.Position, 8f, 6, Color.MediumVioletRed);
                 if (weapon.DebugLastImpactPredict.NotZero())
                 {
-                    Vector2 impactNoError = weapon.ProjectedImpactPointNoError(module);
+                    Vector2 impactNoError = weapon.AimPointNoError(module);
                     Screen.DrawLineProjected(weapon.Origin, weapon.DebugLastImpactPredict, Color.Yellow);
 
                     Screen.DrawCircleProjected(impactNoError, 22f, 10, Color.BlueViolet, 2f);

@@ -351,6 +351,23 @@ namespace Ship_Game.AI.Tasks
             return initialStr.LowerBound(enemyStrNearby).LowerBound(Owner.OffensiveStrength/10) * multiplier;
         }
 
+        public bool FleetWouldCallItselfOff(float fleetStrength)
+        {
+            if (Type is not (TaskType.StrikeForce or TaskType.AssaultPlanet))
+                return false;
+
+            Empire enemy = TargetPlanet?.Owner;
+            if (!Owner.IsEmpireAttackable(enemy))
+                return false;
+
+            float enemyNear = GetHostileStrengthAt(AO, Ship_Game.Fleets.Fleet.AssaultEnemyScanRadius);
+            if (Ship_Game.Fleets.Fleet.CanTakeThisFight(Owner, fleetStrength, enemyNear, enemy))
+                return false;
+
+            Log.Info($"{Owner.Name} TaskForce {GetFleetName()} not formed, outmatched Strength={fleetStrength} EnemyNear={enemyNear} Target={TargetPlanet.Name}");
+            return true;
+        }
+
         void UpdateMinimumTaskForceStrength(float lowerBound = 0)
         {
             if (EnemyStrength.AlmostEqual(100) && TargetShip != null)
@@ -467,7 +484,15 @@ namespace Ship_Game.AI.Tasks
 
             int wantedNumberOfFleets = WantedNumberOfFleets();
             // All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, this, out int fleetSetsGot);
+            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, this,
+                                                  out int fleetSetsGot, out bool outmatched);
+            if (outmatched)
+            {
+                EndTask();
+                ReqStatus = RequisitionStatus.NotEnoughShipStrength;
+                return ReqStatus;
+            }
+
             if (TaskForce.IsEmpty)
             {
                 ReqStatus = RequisitionStatus.FailedToCreateAFleet;

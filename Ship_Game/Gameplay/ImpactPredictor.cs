@@ -62,7 +62,7 @@ namespace Ship_Game.Gameplay
         public ImpactPredictor(Ship ourShip, GameObject target)
         {
             Pos = ourShip.Position;
-            Vel = ourShip.Velocity;
+            Vel = ourShip.LaunchVelocity;
             InterceptSpeed = ourShip.InterceptSpeed;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
@@ -128,31 +128,28 @@ namespace Ship_Game.Gameplay
         //    Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"{text}: {t.String(2)}", color, 0f);
         //}
 
-        Vector2 PredictProjectileImpact(Vector2 targetAcc)
+        Vector2 PredictProjectileImpact(Vector2 targetVel, Vector2 targetAcc)
         {
             float interceptSpeed = InterceptSpeed.NotZero() ? InterceptSpeed : Vel.Length();
 
-            // due to how StarDrive handles projectile speed limit, we don't use deltaV,
-            // just TargetVel. In fully newtonian model we would require deltaV.
-            //Vector2 deltaV = Vel - TargetVel;
-            float time = PredictImpactTime(Pos, TargetPos, -TargetVel, interceptSpeed);
+            float time = PredictImpactTime(Pos, TargetPos, -targetVel, interceptSpeed);
 
             Vector2 predicted;
             if (time > 0f)
             {
-                predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
+                predicted = ProjectPosition(TargetPos, targetVel, targetAcc, time);
                 //DebugPip("PERFECT", predicted, interceptSpeed, time, Color.Green);
             }
             // intercept is behind us in time, which means we should have fired the projectile X seconds ago
-            else if (time < 0f) 
+            else if (time < 0f)
             {
-                predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, -time);
+                predicted = ProjectPosition(TargetPos, targetVel, targetAcc, -time);
                 //DebugPip("BEHIND", predicted, interceptSpeed, time, Color.Orange);
             }
             else // no solution, fall back to default time estimate
             {
                 time = TimeToTarget(Pos, TargetPos, interceptSpeed);
-                predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
+                predicted = ProjectPosition(TargetPos, targetVel, targetAcc, time);
 
                 // edge case: Pos == TargetPos, they will collide with us head on
                 if (Pos.Distance(predicted) <= 8f)
@@ -178,12 +175,18 @@ namespace Ship_Game.Gameplay
 
             // quite accurate even when accelerating
             if (!advancedTargeting)
-                return PredictProjectileImpact(Vector2.Zero);
+                return PredictProjectileImpact(TargetVel, Vector2.Zero);
 
             // by using Target acceleration, we get superhuman target prediction
             // even when ships are accelerating. There is almost no overshooting, even small
             // fighters get shot out of the sky by PD/Flak
-            return PredictProjectileImpact(TargetAcc);
+            return PredictProjectileImpact(TargetVel, TargetAcc);
+        }
+
+        // Where to point a gun whose shot leaves at InterceptSpeed on top of our own velocity
+        public Vector2 PredictAim(bool advancedTargeting)
+        {
+            return PredictProjectileImpact(TargetVel - Vel, advancedTargeting ? TargetAcc : Vector2.Zero);
         }
 
         // @note This is different than weapon prediction

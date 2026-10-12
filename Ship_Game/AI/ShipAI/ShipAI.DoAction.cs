@@ -194,7 +194,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
+        internal void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
             if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget() && !Owner.IsInhibitedByUnfriendlyGravityWell)
             {
@@ -202,7 +202,18 @@ namespace Ship_Game.AI
                     + (target.Direction * (target.CurrentVelocity * 4 + 7500 + Owner.Radius*5));
 
                 if (Owner.Position.Distance(prediction) > 15_000)
-                    Owner.AI.OrderMoveToNoStop(prediction, target.Direction, AIState.Pursue, MoveOrder.Pursue);
+                {
+                    Planet orbiting = FindGoal(Plan.Orbit, out ShipGoal orbit) ? orbit.TargetPlanet : null;
+                    AIState orbitState = orbit?.WantedState ?? AIState.Orbit;
+                    Ship escorting = FindGoal(Plan.Escort, out ShipGoal escort) ? escort.TargetShip : null;
+                    OrderMoveToNoStop(prediction, target.Direction, AIState.Pursue, MoveOrder.Pursue);
+                    if (orbiting != null)
+                        AddOrbitPlanetGoal(orbiting, orbitState);
+                    else if (escorting is { Active: true })
+                        AddEscortGoal(escorting, clearOrders: false);
+
+                    ChangeAIState(AIState.Pursue);
+                }
 
                 return;
             }
@@ -219,11 +230,11 @@ namespace Ship_Game.AI
                         prediction = fastestWeapon.ProjectedImpactPointNoError(target);
                 }
 
-                ThrustOrWarpToPos(prediction, timeStep);
+                ThrustOrWarpToPos(SpreadByGroupPlace(prediction), timeStep);
             }
             else
             {
-                ThrustOrWarpToPos(Target.Position, timeStep);
+                ThrustOrWarpToPos(SpreadByGroupPlace(Target.Position), timeStep);
             }
 
             bool ShouldTryOvertakeTarget()
@@ -238,6 +249,24 @@ namespace Ship_Game.AI
                 float distance = Owner.Position.Distance(target.Position);
                 return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && Owner.MaxSTLSpeed < target.CurrentVelocity;
             }
+        }
+
+        const float MaxGroupSpread = 3750f;
+
+        // the point where a straight line from this ship passes the target at its place in its fleet or group
+        Vector2 SpreadByGroupPlace(Vector2 targetPos)
+        {
+            float lateral = Owner.Fleet != null ? Owner.RelativeFleetOffset.X : GroupLateralOffset;
+            if (lateral == 0f)
+                return targetPos;
+
+            (Vector2 direction, float distance) = Owner.Position.GetDirectionAndLength(targetPos);
+            if (distance <= 7500f)
+                return targetPos;
+
+            lateral = lateral.Clamped(-MaxGroupSpread, MaxGroupSpread);
+            float along = (float)Math.Sqrt(distance*distance - lateral*lateral);
+            return Owner.Position + (direction*along + direction.RightVector()*lateral) * (along / distance);
         }
 
         void DoMinePlanet(FixedSimTime timeStep, ShipGoal g)
@@ -559,7 +588,7 @@ namespace Ship_Game.AI
             if (Owner.CurrentVelocity > 0f)
             {
                 ReverseThrustUntilStopped(timeStep);
-                Vector2 interceptPoint = Owner.PredictImpact(Target);
+                Vector2 interceptPoint = Owner.PredictAim(Target);
                 RotateTowardsPosition(interceptPoint, timeStep, 0.2f);
             }
             else

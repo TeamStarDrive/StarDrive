@@ -292,11 +292,13 @@ namespace Ship_Game.AI
         /// <param name="minStrength">Combat strength of fleet ships</param>
         /// <param name="planetTroops">Troops still on planets</param>
         /// <param name="wantedFleetCount">Attempt to get this many fleets</param>
+        /// <param name="outmatched">The set would call off its task at once against the enemy near the target</param>
         /// <returns></returns>
         public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int wantedFleetCount,
-            MilitaryTask task, out int fleetCount)
+            MilitaryTask task, out int fleetCount, out bool outmatched)
         {
             fleetCount = 0;
+            outmatched = false;
             if (BombSecsAvailable < task.TaskBombTimeNeeded)
                 return new Array<Ship>();
 
@@ -306,15 +308,24 @@ namespace Ship_Game.AI
             fleetCount = GetFleetShipsUpToStrength(ships, minStrength, wantedFleetCount);
             if (fleetCount == 0 || ships.Count == 0)
                 return new Array<Ship>();
-            
+
+            GetBombers(ships, task.TaskBombTimeNeeded, fleetCount);
             if (task.NeededTroopStrength > 0)
+                GetTroops(ships, task.NeededTroopStrength);
+
+            if (task.FleetWouldCallItselfOff(ships.Sum(s => s.GetStrength())))
             {
-                if (InvasionTroopStrength < task.NeededTroopStrength)
-                    LaunchTroopsAndAddToShipList(planetTroops);
+                fleetCount = 0;
+                outmatched = true;
+                return new Array<Ship>();
+            }
+
+            if (task.NeededTroopStrength > 0 && InvasionTroopStrength < task.NeededTroopStrength)
+            {
+                LaunchTroopsAndAddToShipList(planetTroops);
                 GetTroops(ships, task.NeededTroopStrength);
             }
 
-            GetBombers(ships, task.TaskBombTimeNeeded, fleetCount);
             return ExtractShips(ships);
         }
 

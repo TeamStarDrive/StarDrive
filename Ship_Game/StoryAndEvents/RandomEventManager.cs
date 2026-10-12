@@ -69,7 +69,7 @@ namespace Ship_Game
                 return p.Category is PlanetCategory.Volcanic
                     && !p.IsResearchable
                     && !p.IsMineable
-                    && (!p.System.IsSunDangerous || p.System.PlanetList[0] != p);
+                    && p.InSafeDistanceFromRadiation();
             }
         }
 

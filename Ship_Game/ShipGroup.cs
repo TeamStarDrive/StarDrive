@@ -316,14 +316,31 @@ namespace Ship_Game
                 return Vector2.Zero;
 
             Ship[] items = ships.GetInternalArrayItems();
-            Ship biggestShip = items[0];
+            int catchingUp = 0;
+            for (int i = 0; i < count; ++i)
+                if (items[i] is { CatchingUpToFleet: true })
+                    ++catchingUp;
+
+            bool skipCatchingUp = catchingUp > 0 && catchingUp < count;
+            int first = 0;
+            while (skipCatchingUp && first < count && items[first] is not { CatchingUpToFleet: false })
+                ++first;
+
+            if (first == count)
+            {
+                skipCatchingUp = false;
+                first = 0;
+            }
+
+            Ship biggestShip = items[first];
             float biggestSize = biggestShip.SurfaceArea;
-            for (int i = 1; i < count; ++i)
+            for (int i = first + 1; i < count; ++i)
             {
                 Ship ship = items[i];
                 // TODO: this IsAlive (with null) check is a concurrency issue,
                 // TODO: the `ships` array is being modified while we calculate the avg pos
-                if (ship is { IsAlive: true } && biggestSize < ship.SurfaceArea && ship.CanTakeFleetMoveOrders())
+                if (ship is { IsAlive: true } && !(skipCatchingUp && ship.CatchingUpToFleet)
+                    && biggestSize < ship.SurfaceArea && ship.CanTakeFleetMoveOrders())
                 {
                     biggestShip = ship;
                     biggestSize = ship.SurfaceArea;
@@ -333,10 +350,10 @@ namespace Ship_Game
             float totalRatioSum = 1f;
             Vector2 avg = biggestShip.Position - biggestShip.FleetOffset;
 
-            for (int i = 1; i < count; ++i)
+            for (int i = first + 1; i < count; ++i)
             {
                 Ship ship = items[i];
-                if (ship is { IsAlive: true } && ship.CanTakeFleetMoveOrders())
+                if (ship is { IsAlive: true } && !(skipCatchingUp && ship.CatchingUpToFleet) && ship.CanTakeFleetMoveOrders())
                 {
                     float ratio = ship.SurfaceArea / biggestSize;
                     totalRatioSum += ratio;
@@ -436,6 +453,8 @@ namespace Ship_Game
 
                     Vector2 finalShipPos = FinalPosition + ship.FleetOffset;
                     ship.AI.OrderMoveTo(finalShipPos, finalDir, AIState.FormationMoveTo, shipOrder);
+                    if (this is not Fleet)
+                        ship.AI.GroupLateralOffset = ship.RelativeFleetOffset.X;
                 }
             }
         }

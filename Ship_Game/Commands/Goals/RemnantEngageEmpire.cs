@@ -113,13 +113,16 @@ namespace Ship_Game.Commands.Goals
             if (Fleet == null)
                 return;
 
-            for (int i = 1; i <= BombersLevel - currentBombers; i++)
+            int bombersWanted = BombersLevel.UpperBound(Fleet.Ships.Count - currentBombers);
+            Vector2 fleetCentre = Fleet.AveragePosition(force: true);
+            for (int i = 1; i <= bombersWanted - currentBombers; i++)
             {
                 if (Remnants.CreateShip(Portal, true, 0, out Ship ship))
                 {
                     ship.Position = Portal.Position.GenerateRandomPointInsideCircle(3000, Owner.Random);
                     ship.EmergeFromPortal();
                     Fleet.AddShip(ship);
+                    ship.CatchingUpToFleet = ship.Position.OutsideRadius(fleetCentre + ship.FleetOffset, 30_000);
                 }
             }
         }
@@ -160,8 +163,14 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep DetermineNumBombers()
         {
-            BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
+            RecountBombersNeeded();
             return GoalStep.GoToNextStep;
+        }
+
+        void RecountBombersNeeded()
+        {
+            if (TargetPlanet != null)
+                BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
         }
 
         GoalStep GatherFleet()
@@ -175,6 +184,7 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.TargetEmpireStillValid(TargetEmpire))
                 return Remnants.Hibernating ? GoalStep.TryAgain : Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
+            RecountBombersNeeded();
             int numBombersInFleet = Remnants.NumBombersInFleet(Fleet);
             int missingBombers    = BombersLevel > 0 ? BombersLevel - numBombersInFleet : 0;
             int numShipsNoBombers = Remnants.NumShipsInFleet(Fleet) - numBombersInFleet;
@@ -227,8 +237,12 @@ namespace Ship_Game.Commands.Goals
                 return ReturnToClosestPortalAndReroute();
 
             int numBombers = Remnants.NumBombersInFleet(Fleet);
-            if (BombersLevel > 0 && numBombers < BombersLevel / 2)
-                RequestBombers(numBombers);
+            if (Fleet.TaskStep < 8) // not on the way back
+            {
+                RecountBombersNeeded();
+                if (BombersLevel > 0 && numBombers < BombersLevel / 2)
+                    RequestBombers(numBombers);
+            }
 
             if (numBombers / 3 >= Fleet.Ships.Count - numBombers) // only bombers and some combat ships left
             {

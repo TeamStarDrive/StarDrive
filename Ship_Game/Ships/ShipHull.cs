@@ -56,6 +56,10 @@ namespace Ship_Game.Ships
         public bool Unlockable = true;
         public HashSet<string> TechsNeeded = new();
 
+        // header comment lines such as "#Model Author ...", written back on save
+        public string[] Comments = Empty<string>.Array;
+        const string ThrusterHeader = "#Thruster PosX,PosY,PosZ,Scale";
+
         // original source of this ShipHull
         public FileInfo Source;
         // last modification time of the Source file, if this has changed, the hull should be reloaded
@@ -269,13 +273,20 @@ namespace Ship_Game.Ships
             string[] lines = File.ReadAllLines(file.FullName);
             bool parsingSlots = false;
             var slots = new Array<HullSlot>();
+            var comments = new Array<string>();
             int height = 0;
 
             for (int i = 0; i < lines.Length; ++i)
             {
                 string line = lines[i];
-                if (line.Length == 0 || line.StartsWith("#"))
+                if (line.Length == 0)
                     continue;
+                if (line.StartsWith("#"))
+                {
+                    if (!parsingSlots && line != ThrusterHeader)
+                        comments.Add(line);
+                    continue;
+                }
 
                 if (!parsingSlots)
                 {
@@ -355,6 +366,7 @@ namespace Ship_Game.Ships
 
             HullSlots = slots.ToArray();
             SurfaceArea = HullSlots.Length;
+            Comments = comments.ToArray();
         }
 
         public void AddThruster(Vector3 pos, float scale)
@@ -446,7 +458,10 @@ namespace Ship_Game.Ships
             sw.Write("IsShipyard", IsShipyard);
             sw.Write("IsOrbitalDefense", IsOrbitalDefense);
 
-            sw.WriteLine("#Thruster PosX,PosY,PosZ,Scale");
+            foreach (string comment in Comments)
+                sw.WriteLine(comment);
+
+            sw.WriteLine(ThrusterHeader);
             foreach (ThrusterZone t in Thrusters)
                 sw.Write("Thruster", $"{NoNegativeZero(t.Position.X)},{NoNegativeZero(t.Position.Y)},{NoNegativeZero(t.Position.Z)},{t.Scale}");
 

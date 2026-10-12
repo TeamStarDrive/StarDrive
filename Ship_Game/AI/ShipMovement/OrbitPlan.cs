@@ -12,6 +12,7 @@ namespace Ship_Game.AI.ShipMovement
         protected readonly OrbitDirection Direction;
 
         Vector2 OrbitOffset = Vectors.Up * 1000f;
+        Planet LastOrbitTarget;
         public Vector2 OrbitPos { get; private set; }
         public bool InOrbit { get; private set; }
 
@@ -40,6 +41,19 @@ namespace Ship_Game.AI.ShipMovement
         public void ForceOrbitOffSet(Vector2 position)
         {
             OrbitOffset = position;
+        }
+
+        public void SuspendOrbit()
+        {
+            InOrbit = false;
+        }
+
+        void StartOrbitAt(Planet orbitTarget)
+        {
+            LastOrbitTarget = orbitTarget;
+            float angle = (float)(Owner.Id * 0.6180339887 % 1.0) * RadMath.TwoPI;
+            OrbitOffset = angle.RadiansToDirection() * 1000f;
+            OrbitUpdateTimer = 0f;
         }
 
         protected void UpdateOrbitPos(Vector2 orbitAround, float orbitRadius, FixedSimTime timeStep)
@@ -78,7 +92,10 @@ namespace Ship_Game.AI.ShipMovement
                 AI.OrderHoldPosition();
                 return;
             }
-          
+
+            if (orbitTarget != LastOrbitTarget)
+                StartOrbitAt(orbitTarget);
+
             float radius = (orbitTarget.Radius*2 + Owner.Radius).UpperBound(12000);
             float distance = orbitTarget.Position.Distance(Owner.Position);
 

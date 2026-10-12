@@ -372,12 +372,12 @@ namespace Ship_Game
         {
             ActiveShipDesign = null; // this must be reset if tabs change
 
-            // only valid and complete designs allowed, ignore platforms/stations/freighters
-            static bool CanShowDesign(IShipDesign s) => s.IsValidDesign && s.GetCompletionPercent() == 100
-                                                     && !s.IsPlatformOrStation;
+            // only valid and complete designs allowed, ignore the ones that never join a fleet
+            bool CanShowDesign(IShipDesign s) => s.IsValidDesign && s.GetCompletionPercent() == 100
+                                              && Ship.CanBeAddedToFleets(s, Player);
 
             // allow player to add ships which already exist in the universe and don't have a fleet
-            static bool CanShowShip(Ship s) => s.Fleet == null && s.IsAlive && CanShowDesign(s.ShipData);
+            bool CanShowShip(Ship s) => s.Fleet == null && s.IsAlive && CanShowDesign(s.ShipData);
 
             if (SubShips.SelectedIndex == 0) // ShipsWeCanBuild
             {
@@ -407,7 +407,7 @@ namespace Ship_Game
             {
                 FleetDesignShipListItem header = new(this, role);
                 ShipSL.AddItem(header);
-                foreach (IShipDesign d in Player.ShipsWeCanBuildSnapshot)
+                foreach (IShipDesign d in designs)
                     if (IsCandidateShip(d) && d.GetRole() == header.HeaderText)
                         header.AddSubItem(new FleetDesignShipListItem(this, d));
             }

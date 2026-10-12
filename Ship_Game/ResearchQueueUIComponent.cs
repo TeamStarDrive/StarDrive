@@ -130,15 +130,31 @@ namespace Ship_Game
 
                 float remaining = CurrentResearch.Tech.TechCost - CurrentResearch.Tech.Progress;
                 float numTurns = (float)Math.Ceiling(remaining / (0.01f + Screen.Player.Research.NetResearch));
-                TimeLeftLabel.Text = (numTurns > 999f) ? ">999 turns" : numTurns.String(0)+" turns";
+                TimeLeftLabel.Text = numTurns > 999f
+                    ? $">999 {Localizer.Token(GameText.Turns2)}"
+                    : $"{numTurns.String(0)} {Localizer.Token(TurnsText((int)numTurns))}";
 
+                int turnsLeft = Screen.Player.Research.DisruptionTurnsLeft;
                 float multiplier = Screen.Player.Research.DisruptionMultiplier;
-                bool disrupted = multiplier < 1f;
+                bool disrupted = multiplier < 1f && turnsLeft > 0;
                 SpyDisruption.Visible = disrupted;
                 SpyDisruptionLabel.Visible = disrupted;
                 if (disrupted)
-                    SpyDisruptionLabel.Text = $"({(int)Math.Round(multiplier * 100f)}%)";
+                    SpyDisruptionLabel.Text = $"({(int)Math.Round(multiplier * 100f)}%, {turnsLeft} {Localizer.Token(TurnsText(turnsLeft))})";
             }
+        }
+
+        static GameText TurnsText(int turns)
+        {
+            if (Localizer.Language is not (Language.Russian or Language.Ukrainian))
+                return turns == 1 ? GameText.Turn2 : GameText.Turns2;
+
+            int lastDigit = turns % 10, lastTwoDigits = turns % 100;
+            if (lastDigit == 1 && lastTwoDigits != 11)
+                return GameText.Turn2;
+            if (lastDigit is >= 2 and <= 4 && lastTwoDigits is < 12 or > 14)
+                return GameText.TurnsFew;
+            return GameText.Turns2;
         }
 
         ResearchQItem CreateQueueItem(TechEntry tech)

@@ -123,7 +123,7 @@ namespace Ship_Game.AI
             if (!OwnerEmpire.IsFaction)
                 RunManagers();
             else
-                RemoveFactionEndedTasks();
+                ApplyPendingChanges();
 
             UpdateFleetsPosAndSpeed();
             OwnerEmpire.UpdateExoticConsumpsions(); // must be done after RunManager since
@@ -198,14 +198,6 @@ namespace Ship_Game.AI
 
             RunMilitaryPlanner();
             RunWarPlanner();
-        }
-
-        public void RemoveFactionEndedTasks()
-        {
-            foreach (MilitaryTask remove in TasksToRemove)
-                TaskList.RemoveRef(remove);
-
-            TasksToRemove.Clear();
         }
 
         static bool LoggedNullGoalSlot;

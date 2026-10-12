@@ -159,6 +159,29 @@ public class HullSaveTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ResavingAHullKeepsItsCommentLines()
+    {
+        const string thrusterHeader = "#Thruster PosX,PosY,PosZ,Scale";
+        ShipHull hull = ResourceManager.Hulls[0].GetClone();
+        hull.Comments = new[] { "#Model Author Zz Modeller", "#Starkit Scale 240" };
+        var file = new FileInfo(Path.Combine(Path.GetTempPath(), $"HullSaveTests_{Guid.NewGuid():N}.hull"));
+        try
+        {
+            hull.Save(file);
+            new ShipHull(file).Save(file); // the hull editor saves a hull it loaded from its file
+
+            string[] lines = File.ReadAllLines(file.FullName);
+            CollectionAssert.AreEqual(hull.Comments, lines.Where(l => l.StartsWith("#") && l != thrusterHeader).ToArray(),
+                                      "the model credits were lost when the hull was saved again");
+            Assert.AreEqual(1, lines.Count(l => l == thrusterHeader), "the thruster header is written once, not kept as a comment too");
+        }
+        finally
+        {
+            file.Delete();
+        }
+    }
+
+    [TestMethod]
     public void SavingAHullCreatesItsStyleFolder()
     {
         string root = Path.Combine(Path.GetTempPath(), "HullSaveTests_" + Guid.NewGuid().ToString("N"));

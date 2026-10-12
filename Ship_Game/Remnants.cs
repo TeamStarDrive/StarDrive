@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
@@ -231,7 +232,11 @@ namespace Ship_Game
 
             float hibernationDate = (NextLevelUpDate - NeededHibernationTurns/10f).RoundToFractionOf10();
             if (Universe.StarDate.AlmostEqual(hibernationDate))
+            {
                 HibernationTurns = NeededHibernationTurns;
+                if (Hibernating)
+                    SendIdleShipsToGuardPlanets(includeDeepSpace: true);
+            }
         }
 
         private void SetLevel(int level)
@@ -476,6 +481,7 @@ namespace Ship_Game
             var availableShips = portal.System.ShipList.Filter(s => s.Fleet == null 
                                                                     && s.Loyalty == Owner 
                                                                     && s.IsGuardian
+                                                                    && !s.IsHangarShip
                                                                     && !s.IsPlatformOrStation
                                                                     && !s.InCombat
                                                                     && s.AI.State != AIState.Resupply);
@@ -516,15 +522,76 @@ namespace Ship_Game
            return fleet?.Ships.Count(s => s.DesignRole == RoleName.bomber) ?? 0;
         }
 
-        public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep)
+        public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep, bool returnToPortal = true)
         {
-            if (fleet != null)
+            MilitaryTask task = fleet?.FleetTask;
+            if (task != null)
             {
-                fleet.FleetTask?.DisbandTaskForce();
-                fleet.FleetTask?.EndTask();
+                Ship[] ships = fleet.Ships.ToArray();
+                task.DisbandTaskForce(); // this clears the fleet's task, so it is ended through the saved reference
+                task.EndTask();
+                if (returnToPortal)
+                    EscortClosestPortal(ships);
             }
 
             return goalStep;
+        }
+
+        void EscortClosestPortal(Ship[] ships)
+        {
+            foreach (Ship ship in ships)
+            {
+                if (ship.Active && !ship.Dying && GetClosestPortal(ship.Position, out Ship portal))
+                    ship.AI.AddEscortGoal(portal);
+            }
+        }
+
+        /// <summary>
+        /// Remnant ships left with nothing to do, such as guardians that lost their orbit or the escorts of a portal
+        /// that died, guard the nearest planet in their system unless a portal there takes them. With includeDeepSpace,
+        /// idle ships outside any system escort the closest portal, or guard the nearest planet when no portal is left.
+        /// </summary>
+        public void SendIdleShipsToGuardPlanets(bool includeDeepSpace = false)
+        {
+            var portalSystems = new Array<SolarSystem>();
+            var goals = Owner.AI.Goals;
+            for (int i = 0; i < goals.Count; i++)
+            {
+                if (goals[i] is RemnantPortal { TargetShip: { Active: true } portal } portalGoal && portal.Loyalty == Owner)
+                    portalSystems.AddUniqueRef(portalGoal.PortalSystem ?? portal.System);
+            }
+
+            var ships = Owner.OwnedShips;
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                if (ship is not { Active: true, IsPlatformOrStation: false, IsHangarShip: false, Fleet: null } || !IsIdle(ship))
+                    continue;
+
+                if (ship.System != null)
+                {
+                    if (!portalSystems.ContainsRef(ship.System))
+                        GuardNearestPlanet(ship, ship.System.PlanetList);
+                }
+                else if (includeDeepSpace)
+                {
+                    if (GetClosestPortal(ship.Position, out Ship portal))
+                        ship.AI.AddEscortGoal(portal);
+                    else
+                        GuardNearestPlanet(ship, Universe.Planets);
+                }
+            }
+        }
+
+        static bool IsIdle(Ship ship) => ship.AI.DefaultAIState == AIState.AwaitingOrders
+                                         && (ship.AI.EscortTarget is { Active: false }
+                                             || ship.AI.EscortTarget == null && ship.AI.State == AIState.AwaitingOrders);
+
+        static void GuardNearestPlanet(Ship ship, IReadOnlyList<Planet> planets)
+        {
+            Planet planet = planets.FindMin(p => p.Position.SqDist(ship.Position));
+            if (planet != null)
+                ship.OrderToOrbit(planet, clearOrders: true, MoveOrder.Aggressive);
         }
 
         public bool GetClosestPortal(Vector2 position, out Ship portal)
@@ -545,7 +612,8 @@ namespace Ship_Game
             for (int i = 0; i < portal.System.ShipList.Count; i++)
             {
                 Ship ship = portal.System.ShipList[i];
-                if (!ship.IsPlatformOrStation && ship.IsGuardian && !ship.InCombat && ship.AI.EscortTarget == null && ship.Fleet == null)
+                if (!ship.IsPlatformOrStation && !ship.IsHangarShip && ship.IsGuardian && !ship.InCombat
+                    && ship.AI.EscortTarget == null && ship.Fleet == null)
                 {
                     ship.AI.AddEscortGoal(portal);
                     if (ship.OrdnancePercent < 1)
@@ -565,7 +633,7 @@ namespace Ship_Game
                 if (system.PlanetList.Any(p => p.Owner == Universe.Player
                                                && p.HasBuilding(b => b.DetectsRemnantFleet)))
                 {
-                    string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
+                    string message = string.Format(Localizer.Token(GameText.RemnantFleetTargetingPlanet), planet.Name, starDateEta.String(1));
                     Universe.Notifications.AddIncomingRemnants(planet, message);
                 }
             }
@@ -655,7 +723,7 @@ namespace Ship_Game
             foreach (SolarSystem system in portal.Universe.Systems)
             {
                 Ship chosenGuardian = Owner.Random.ItemFilter(system.ShipList,
-                    s => s is { IsGuardian: true, InCombat: false, BaseStrength: < 1000, BombBays.Count: 0 }
+                    s => s is { IsGuardian: true, IsHangarShip: false, InCombat: false, BaseStrength: < 1000, BombBays.Count: 0 }
                 );
                 chosenGuardian?.AI.AddEscortGoal(portal);
             }

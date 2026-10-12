@@ -21,6 +21,9 @@ namespace Ship_Game.AI
         [StarData] public Vector2 MovePosition;
         [StarData] public Planet OrbitTarget { get; private set; }
 
+        // this ship's left-right place in a ship group (not a fleet), set by the group's order
+        public float GroupLateralOffset;
+
         WayPoints WayPoints = new();
 
         // Optional one-shot detour chain set by Fleet/ShipGroup so a clustered fleet
@@ -47,13 +50,32 @@ namespace Ship_Game.AI
         // Called by Ship_Update.ExploreCurrentSystem the frame a system is first
         // discovered by this ship. If the ship has an active move order, re-issue it
         // so the router can now see the system's planet wells. No-op when the ship
-        // has no queued waypoints (idle / arrived) or when the snapshot is missing
-        // (legacy save predating snapshot serialization).
+        // has no queued waypoints (idle / arrived), when the snapshot is missing
+        // (legacy save predating snapshot serialization), or when other orders wait behind the move,
+        // including a scout's system to explore.
         public void OnSystemNewlyExplored(SolarSystem _)
         {
-            if (WayPoints.Count == 0 || LastMoveFinalPos == Vector2.Zero) return;
+            if (WayPoints.Count == 0 || LastMoveFinalPos == Vector2.Zero || ExplorationTarget != null || !HasOnlyOneMoveQueued()) return;
             // Re-issue from current position; AddWayPoint will rebuild detours.
+            float groupLateralOffset = GroupLateralOffset;
             AddWayPoint(LastMoveFinalPos, LastMoveFinalDir, LastMoveWantedState, LastMoveOrder, 0f, null);
+            GroupLateralOffset = groupLateralOffset;
+        }
+
+        bool HasOnlyOneMoveQueued()
+        {
+            WayPoint[] wayPoints = WayPoints.ToArray();
+            for (int i = 0; i < wayPoints.Length - 1; ++i)
+                if (!wayPoints[i].IsDetour)
+                    return false;
+
+            foreach (ShipGoal goal in OrderQueue)
+            {
+                if (goal != null && (goal.Goal != null || goal.Plan is not (Plan.RotateToFaceMovePosition or Plan.MoveToWithin1000
+                                                                            or Plan.MakeFinalApproach or Plan.RotateToDesiredFacing or Plan.HoldPosition)))
+                    return false;
+            }
+            return true;
         }
 
         [StarData] WayPoint[] WayPointsSave
@@ -214,11 +236,11 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueCurrentOrder(goal.MoveOrder);
+                    DequeueMoveLeg(goal);
             }
             else if (distance <= 1000f)
             {
-                DequeueCurrentOrder(goal.MoveOrder);
+                DequeueMoveLeg(goal);
             }
 
             // does current ship stance require us to enter combat?
@@ -230,6 +252,18 @@ namespace Ship_Game.AI
                 {
                     EnterCombatState(AIState.Combat);
                 }
+            }
+        }
+
+        // an overtake that ends with an order behind it goes back to fighting before that order resumes
+        void DequeueMoveLeg(ShipGoal goal)
+        {
+            DequeueCurrentOrder(goal.MoveOrder);
+            if (goal.WantedState == AIState.Pursue && State != AIState.Pursue && !OrderQueue.IsEmpty)
+            {
+                SetPriorityOrder(false);
+                if (BadGuysNear)
+                    EnterCombatState(AIState.Combat);
             }
         }
 

@@ -313,6 +313,12 @@ namespace Ship_Game
             return false;
         }
 
+        public void EndSalvo()
+        {
+            SalvoShotsLeft = 0;
+            SalvoTarget = null;
+        }
+
         void ContinueSalvo(FixedSimTime timeStep, Planet p)
         {
             if (SalvoShotsLeft <= 0)
@@ -321,8 +327,7 @@ namespace Ship_Game
             if (SalvoTarget is not { Active: true, Dying: false } || !p.Owner.IsEmpireAttackable(SalvoTarget.Loyalty)
                 || !SalvoTarget.Position.InRadius(p.Position, SpaceRange))
             {
-                SalvoShotsLeft = 0;
-                SalvoTarget = null;
+                EndSalvo();
                 return;
             }
 

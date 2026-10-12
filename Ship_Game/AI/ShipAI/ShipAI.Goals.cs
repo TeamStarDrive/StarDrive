@@ -69,6 +69,7 @@ namespace Ship_Game.AI
 
             EscortTarget = null; // This must come after ChangeAIState since it needs to reduce incoming ordnance of EscortTarget
             PatrolTarget = null;
+            GroupLateralOffset = 0f;
             OrderQueue.Clear();
             SetPriorityOrder(priority);
         }

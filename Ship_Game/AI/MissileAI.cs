@@ -33,14 +33,12 @@ namespace Ship_Game.AI
         readonly float MaxNozzleDirection = 0.5f;
         readonly float InitialPhaseDirection;
         float InitialPhaseTimer = 0.5f;
-        float DelayedIgnitionTimer;
 
         public MissileAI(Projectile missile, GameObject target, Vector2 initialVelocity)
         {
             Missile = missile;
             Target = target;
-            DelayedIgnitionTimer = missile.Weapon.DelayedIgnition;
-            
+
             if (Missile.Weapon.DelayedIgnition > 0f)
             {
                 float launchDir = Random.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
@@ -216,11 +214,9 @@ namespace Ship_Game.AI
                     CalculatedJamming = true;
                 }
 
-                if (DelayedIgnitionTimer > 0f) // ignition phase for some missiles
+                if (Missile.IgnitionDelay > 0f) // ignition phase for some missiles
                 {
-                    DelayedIgnitionTimer -= timeStep.FixedTime;
-                    if (DelayedIgnitionTimer <= 0f)
-                        Missile.IgniteEngine();
+                    Missile.CountDownIgnition(timeStep.FixedTime);
                     return;
                 }
 

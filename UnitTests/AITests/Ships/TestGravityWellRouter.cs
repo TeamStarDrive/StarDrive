@@ -107,6 +107,113 @@ public class TestGravityWellRouter : StarDriveTest
         }
     }
 
+    [TestMethod]
+    public void ASystemAtTheEndOfTheTripWithKnownRemnantsIsPassedAroundWhole()
+    {
+        AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(explored: true);
+    }
+
+    [TestMethod]
+    public void AnUnexploredSystemAtTheEndOfTheTripWithKnownRemnantsIsPassedAroundWhole()
+    {
+        AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(explored: false);
+    }
+
+    [TestMethod]
+    public void ExploringASystemOnTheWayKeepsTheOrdersQueuedAfterTheMove()
+    {
+        Planet far = AddDummyPlanet(new Vector2(600_000f, 0f));
+        Scout.AI.OrderToOrbit(far, clearOrders: true);
+        Assert.IsTrue(Scout.AI.FindGoal(ShipAI.Plan.Orbit, out _), "setup: the scout flies there to orbit");
+
+        Scout.AI.OnSystemNewlyExplored(far.System);
+
+        Assert.IsTrue(Scout.AI.FindGoal(ShipAI.Plan.Orbit, out ShipAI.ShipGoal orbit) && orbit.TargetPlanet == far,
+                      "the orbit order waiting behind the move survives the system being explored");
+    }
+
+    [TestMethod]
+    public void ExploringASystemOnTheWayKeepsTheQueuedWayPoints()
+    {
+        Scout.AI.OrderMoveTo(new Vector2(300_000f, 0f), Vectors.Up);
+        Scout.AI.OrderMoveTo(new Vector2(600_000f, 0f), Vectors.Up, AIState.MoveTo, MoveOrder.Regular | MoveOrder.AddWayPoint);
+        AssertEqual(2, Scout.AI.CopyWayPoints().Length, "setup: the scout has two waypoints");
+
+        Scout.AI.OnSystemNewlyExplored(null);
+
+        AssertEqual(2, Scout.AI.CopyWayPoints().Length, "the first waypoint is not skipped when a system on the way is explored");
+    }
+
+    [TestMethod]
+    public void ExploringASystemOnTheWayStillReroutesAPlainMove()
+    {
+        Scout.AI.OrderMoveTo(new Vector2(600_000f, 0f), Vectors.Up);
+        ShipAI.ShipGoal before = Scout.AI.OrderQueue.PeekFirst;
+
+        Scout.AI.OnSystemNewlyExplored(null);
+
+        Assert.AreNotSame(before, Scout.AI.OrderQueue.PeekFirst, "a plain move is issued again so the router sees the explored system");
+    }
+
+    [TestMethod]
+    public void ExploringASystemOnTheWayKeepsTheSystemAScoutWasSentToExplore()
+    {
+        SolarSystem target = AddDummyPlanet(new Vector2(600_000f, 0f)).System;
+        Scout.AI.OrderScout(target, null);
+
+        Scout.AI.OnSystemNewlyExplored(null);
+
+        Assert.AreSame(target, Scout.AI.ExplorationTarget, "the scout keeps the system it was sent to explore");
+    }
+
+    [TestMethod]
+    public void ExploringASystemOnTheWayKeepsAGroupShipsPlaceAcrossItsGroup()
+    {
+        Scout.AI.OrderMoveTo(new Vector2(600_000f, 0f), Vectors.Up);
+        Scout.AI.GroupLateralOffset = 2_000f;
+
+        Scout.AI.OnSystemNewlyExplored(null);
+
+        AssertEqual(1f, 2_000f, Scout.AI.GroupLateralOffset, "a move issued again keeps the ship's place across its group");
+    }
+
+    void AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(bool explored)
+    {
+        CreateAMinorFaction("Remnant");
+        UState.Remnants = Faction;
+        Vector2 sysPos = new(300_000f, 0f);
+        SolarSystem system = AddDummyPlanet(sysPos, 1f, 1f, 4f, sysPos + new Vector2(0f, 2_000f), explored).System;
+        Vector2 dest = sysPos + new Vector2(system.Radius + 10_000f, 0f);
+
+        bool wasOn = GlobalStats.RouteAroundGravityWells;
+        try
+        {
+            GlobalStats.RouteAroundGravityWells = true;
+            AssertEqual(0, GravityWellRouter.BuildDetours(Scout, Scout.Position, dest, MoveOrder.Regular).Length,
+                        "setup: with no known Remnants the route crosses the system between its wells");
+
+            SpawnShip("Vulcan Scout", Faction, sysPos + new Vector2(0f, 2_000f - system.Radius));
+            Ship observer = SpawnShip("Vulcan Scout", Player, sysPos + new Vector2(0f, -2_000f - system.Radius));
+            UState.Objects.Update(new(time: 2f));
+            UState.Objects.Update(new(time: 2f));
+            Player.Threats.Update(new(time: 2f));
+            observer.QueueTotalRemoval();
+            UState.Objects.Update(new(time: 2f));
+            Assert.IsTrue(Player.Threats.GetHostileStrengthAt(Faction, sysPos, system.Radius) > 0f, "setup: the player knows of Remnant ships there");
+            AssertEqual(explored, system.IsExploredBy(Player), "setup: whether the player explored the system");
+
+            Vector2[] detours = GravityWellRouter.BuildDetours(Scout, Scout.Position, dest, MoveOrder.Regular);
+            Assert.IsTrue(detours.Length > 0, "the route must turn off the straight line through the Remnants' system");
+            foreach (Vector2 detour in detours)
+                Assert.IsTrue(detour.OutsideRadius(sysPos, system.Radius),
+                              $"every turn of the route stays outside the system (detour {detour.Distance(sysPos):0} from its centre, radius {system.Radius:0})");
+        }
+        finally
+        {
+            GlobalStats.RouteAroundGravityWells = wasOn;
+        }
+    }
+
     // Covers the explore-leg wrapper (ShipAI.ExploreThrustTarget): it must feed the order-time
     // router with the right ship/origin/destination/order and walk the chain via GetThrustTarget,
     // and it must reuse the cached chain while the leg target is unchanged. The detour GEOMETRY

@@ -659,6 +659,7 @@ namespace Ship_Game.AI
                     if (!FindGoal(Plan.DoCombat, out ShipGoal _))
                     {
                         AddShipGoal(Plan.DoCombat, combatState, pushToFront);
+                        Orbit.SuspendOrbit();
                     }
                     break;
 

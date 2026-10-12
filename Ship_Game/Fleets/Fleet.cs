@@ -95,6 +95,7 @@ namespace Ship_Game.Fleets
         void OnDeserialized()
         {
             AssignPositions(FinalDirection);
+            MarkStragglersOnNextUpdate = Owner.isPlayer;
             UpdateSpeedLimit();
         }
 
@@ -103,6 +104,47 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < ships.Count; i++)
                 if (ships[i].CanBeAddedToFleets())
                     AddShip(ships[i]);
+        }
+
+        /// <summary>
+        /// The player adds ships to this fleet: the ships away from its main group catch up on their own
+        /// </summary>
+        public void AddShipsJoiningFleet(IReadOnlyList<Ship> ships)
+        {
+            AddShips(ships);
+            MarkShipsAwayFromTheBody();
+        }
+
+        bool MarkStragglersOnNextUpdate;
+
+        void MarkShipsAwayFromTheBody()
+        {
+            Ship[] ships = Ships.ToArray();
+            Vector2 body = Vector2.Zero;
+            int bodySurface = 0;
+            foreach (Ship ship in ships)
+            {
+                if (ship is not { Active: true })
+                    continue;
+
+                Vector2 centre = ship.Position - ship.FleetOffset;
+                int surface = 0;
+                foreach (Ship other in ships)
+                    if (other is { Active: true } && (other.Position - other.FleetOffset).InRadius(centre, 30_000))
+                        surface += other.SurfaceArea;
+
+                if (surface > bodySurface)
+                {
+                    bodySurface = surface;
+                    body = centre;
+                }
+            }
+
+            foreach (Ship ship in ships)
+                if (ship is { Active: true })
+                    ship.CatchingUpToFleet = (ship.Position - ship.FleetOffset).OutsideRadius(body, 30_000);
+
+            AveragePosition(force: true);
         }
 
         /// @return TRUE if ship was added to the Fleet,
@@ -917,7 +959,7 @@ namespace Ship_Game.Fleets
             else
             {
                 task.TargetEmpire = task.TargetPlanet.Owner;
-                float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 100_000);
+                float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
                 if (EndInvalidTask(TaskStep < 5 && !CanTakeThisFight(enemyStr, task, inCombat: TaskStep >= 5)))
                     return;
             }
@@ -1287,7 +1329,7 @@ namespace Ship_Game.Fleets
                     if (FleetInAreaInCombat(AveragePos, 50000) == CombatStatus.InCombat)
                         break;
 
-                    GatherAtAO(task, target.System.Radius*2);
+                    FleetMoveToPosition(target.System.Position, target.System.Radius*2, MoveOrder.Regular);
                     if (TryCalcEtaToPlanet(task, out float eta))
                         Owner.Remnants.InitTargetEmpireDefenseActions(target, eta, GetStrength());
 
@@ -2089,6 +2131,7 @@ namespace Ship_Game.Fleets
             float attackStr = 0;
             ThreatCluster currentCluster = clusters[0];
             float clusterStr = currentCluster.Strength * Owner.GetFleetStrEmpireMultiplier(currentCluster.Loyalty);
+            Vector2 facing = AveragePosition().DirectionToTarget(currentCluster.Position);
             int shipIndex = 0;
             for (int i = 0; i < ships.Count; i++)
             {
@@ -2102,7 +2145,7 @@ namespace Ship_Game.Fleets
                     continue;
                 }
 
-                ship.AI.OrderAttackMoveTo(currentCluster.Position);
+                ship.AI.OrderAttackMoveTo(currentCluster.Position + GetPositionFromDirection(ship, facing));
                 attackStr += ship.GetStrength();
                 if (attackStr >= clusterStr)
                 {
@@ -2110,6 +2153,7 @@ namespace Ship_Game.Fleets
                     {
                         currentCluster = clusters[clusterIndex];
                         clusterStr = currentCluster.Strength * Owner.GetFleetStrEmpireMultiplier(currentCluster.Loyalty);
+                        facing = AveragePosition().DirectionToTarget(currentCluster.Position);
                         attackStr = 0;
                     }
                     else
@@ -2186,12 +2230,18 @@ namespace Ship_Game.Fleets
         void DebugInfo(MilitaryTask task, string text)
             => Owner.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
+        public const float AssaultEnemyScanRadius = 100_000;
+
+        public static bool CanTakeThisFight(Empire owner, float ourStrength, float enemyStrength, Empire enemy)
+        {
+            return enemyStrength * owner.GetFleetStrEmpireMultiplier(enemy)
+                   < ourStrength * owner.PersonalityModifiers.CanWeTakeThisFightMultiplier;
+        }
+
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool inCombat)
         {
-            float ourStrengthThreshold = GetStrength() * Owner.PersonalityModifiers.CanWeTakeThisFightMultiplier;
-            float multiplier = Owner.GetFleetStrEmpireMultiplier(task.TargetEmpire);
-            if (enemyFleetStrength * multiplier < ourStrengthThreshold)
+            if (CanTakeThisFight(Owner, GetStrength(), enemyFleetStrength, task.TargetEmpire))
                 return true;
 
             // We fighting and cannot win, update fleet multipliers for next time
@@ -2687,6 +2737,13 @@ namespace Ship_Game.Fleets
             HasRepair = false;
             if (Ships.Count == 0)
                 return;
+
+            if (MarkStragglersOnNextUpdate)
+            {
+                MarkStragglersOnNextUpdate = false;
+                MarkShipsAwayFromTheBody();
+                UpdateSpeedLimit();
+            }
 
             // Surface-weighted warp readiness: the fleet warps once nearly all of the
             // established body is ready, instead of waiting for every last ship. This

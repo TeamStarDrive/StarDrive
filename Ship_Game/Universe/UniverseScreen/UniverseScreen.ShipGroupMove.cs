@@ -2,6 +2,7 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -172,6 +173,9 @@ namespace Ship_Game
                         if (planetClicked != null)
                             ShipCommands.RightClickOnPlanet(selectedShip, planetClicked, true);
                     }
+
+                    if (shipClicked != null && !shipClicked.Loyalty.isPlayer)
+                        ShipMoveCommands.SpreadGroupAttack(SelectedShipList, shipClicked);
                 }
                 else
                 {

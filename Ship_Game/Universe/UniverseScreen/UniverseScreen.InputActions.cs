@@ -40,6 +40,12 @@ namespace Ship_Game
 
         void MarkForColonization(Planet p)
         {
+            if (!p.InSafeDistanceFromRadiation())
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
             int graceTurns = p.ColonyGraceTurnsLeft(Player, out Empire lostBy);
             if (graceTurns > 0)
             {

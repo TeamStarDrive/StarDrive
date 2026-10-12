@@ -100,7 +100,10 @@ namespace Ship_Game.Gameplay
         public Vector2 FixedError;
         public bool ErrorSet = false;
         bool Deflected;
-        public bool TrailTurnedOn { get; protected set; } = true;
+
+        // seconds until a delayed-ignition missile lights its engine
+        [StarData] public float IgnitionDelay { get; private set; }
+        public bool TrailTurnedOn => IgnitionDelay <= 0f;
 
         // Only Guided Missiles can slow down, but lower the acceleration
         const float DecelThrustPower = 0.1f;
@@ -131,9 +134,9 @@ namespace Ship_Game.Gameplay
             Universe!.Objects.Add(this);
         }
 
-        // new projectile from a ship
+        // new projectile from a ship, carrying the ship's velocity unless given another one
         public static Projectile Create(Weapon weapon, Ship ship, Vector2 origin, Vector2 direction,
-                                        GameObject target, bool playSound)
+                                        GameObject target, bool playSound, Vector2? inheritedVelocity = null)
         {
             // Need to check here for better debug experience, since these crashes sneak in from time to time
             if (ship == null) throw new NullReferenceException(nameof(ship));
@@ -141,7 +144,7 @@ namespace Ship_Game.Gameplay
             if (ship.Loyalty == null) throw new NullReferenceException(nameof(ship.Loyalty));
 
             var p = new Projectile(ship.Universe.CreateId(), weapon, ship, null, ship.Loyalty, GameObjectType.Proj);
-            p.Initialize(origin, direction, target, playSound, Vector2.Zero);
+            p.Initialize(origin, direction, target, playSound, inheritedVelocity ?? ship.LaunchVelocity);
             return p;
         }
 
@@ -188,10 +191,12 @@ namespace Ship_Game.Gameplay
             float savedDuration = Duration;
             Vector2 savedVelocity = Velocity;
             float savedRotation = Rotation;
+            float savedIgnitionDelay = IgnitionDelay;
             Initialize(Position, savedVelocity.Normalized(), null, playSound: false, Vector2.Zero);
             Duration = savedDuration; // apply flight state from save data
             Velocity = savedVelocity;
             Rotation = savedRotation;
+            IgnitionDelay = savedIgnitionDelay;
             UpdateWorldMatrix();
         }
 
@@ -250,7 +255,7 @@ namespace Ship_Game.Gameplay
             WeaponType            = Weapon.WeaponType;
             RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
             ArmorPiercing         = Weapon.ArmorPen;
-            TrailTurnedOn         = !Weapon.Tag_Guided || Weapon.DelayedIgnition.AlmostZero();
+            IgnitionDelay         = Weapon.Tag_Guided ? Weapon.DelayedIgnition : 0f;
 
             Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
@@ -261,9 +266,6 @@ namespace Ship_Game.Gameplay
             else if (Weapon.Tag_Missile) durationMod = 2.0f;
             else if (Planet != null)     durationMod = 2.0f;
 
-            // @todo Do not inherit parent velocity until we fix target prediction code
-            // it is passed as vector zero parameter for now, unless it is MIRV
-            // Vector2 inheritedVelocity = Vector2.Zero; // (Owner?.Velocity ?? Vector2.Zero);
             VelocityMax = Speed;
             SetInitialVelocity(Speed * direction + inheritedVelocity);
 
@@ -279,11 +281,12 @@ namespace Ship_Game.Gameplay
             }
             else if (Weapon.Tag_Guided)
             {
-                if (!Weapon.IsTurret && !isMirv)
+                if (Weapon.IsTurret && !isMirv)
+                    Rotation = direction.ToRadians();
+                else if (!isMirv)
                     Rotation = Owner?.Rotation + Weapon.Module?.TurretAngleRads ?? Rotation;
 
-                Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
-                MissileAI = new MissileAI(this, target, missileVelocity);
+                MissileAI = new MissileAI(this, target, inheritedVelocity);
             }
 
             ModelPath = Weapon.ModelPath;
@@ -398,7 +401,7 @@ namespace Ship_Game.Gameplay
                 else
                 {
                     // use normal fire arc since the new warhead is not a missile
-                    warhead.SpawnMirvSalvo(Direction, target, Position);
+                    warhead.SpawnMirvSalvo(Direction, target, Position, Velocity);
                 }
             }
 
@@ -532,23 +535,26 @@ namespace Ship_Game.Gameplay
 
         void UpdateVelocityAndPos(float dt)
         {
-            float maxVel = VelocityMax * (TerminalPhase ? Weapon.TerminalPhaseSpeedMod : 1f);
-            var a = new AccelerationState(Velocity, maxVel, Rotation, ThrustAcceleration, DecelThrustPower);
-
             // standard particles have no acceleration
             if (ThrustThisFrame == Thrust.Coast && Acceleration == Vector2.Zero)
             {
-                if (a.Velocity > a.MaxVelocity)
-                    Velocity = a.VelocityDir * a.MaxVelocity;
-
                 // constant acceleration can be calculated more easily
                 IntegrateExplicitEulerConstantVelocity(dt);
             }
             else
             {
+                float maxVel = VelocityMax * (TerminalPhase ? Weapon.TerminalPhaseSpeedMod : 1f);
+                var a = new AccelerationState(Velocity, maxVel, Rotation, ThrustAcceleration, DecelThrustPower);
+                bool engineOn = ThrustThisFrame != Thrust.Coast;
+
                 // update Position Velocity and Acceleration using Velocity Verlet
                 Vector2 acc = default;
                 GetThrustAcceleration(ref acc, a);
+
+                // over the speed limit and sliding sideways, the stop logic takes us for stopped and cuts the engine
+                if (engineOn && ThrustThisFrame == Thrust.Coast)
+                    PrecisionDecelerate(ref acc, a.VelocityDir, a.Velocity, a.ThrustAcc);
+
                 IntegratePosVelocityVerlet(dt, acc);
             }
 
@@ -1056,9 +1062,9 @@ namespace Ship_Game.Gameplay
 
         public override string ToString() => $"Proj[{WeaponType}]:{Id} Wep={Weapon?.Name} Pos={Position} Rad={Radius} Loy=[{Loyalty}]";
 
-        public void IgniteEngine()
+        public void CountDownIgnition(float seconds)
         {
-            TrailTurnedOn = true;
+            IgnitionDelay -= seconds;
         }
     }
 }

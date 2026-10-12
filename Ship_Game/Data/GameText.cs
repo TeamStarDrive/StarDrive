@@ -4831,6 +4831,100 @@ namespace Ship_Game
         ArtifactShieldPenetrationBonus = 4604,
         /// <summary>Damage, {0} shots per salvo</summary>
         DamageShotsPerSalvo = 4605,
+        /// <summary>(Reserved Name)</summary>
+        ReservedDesignNameLabel = 4606,
+        /// <summary>Failed to save hull '{0}', see the log</summary>
+        HullSaveFailed = 4607,
+        /// <summary>Please enter a name for your design</summary>
+        EnterDesignName = 4608,
+        /// <summary>Please enter a name for your hull</summary>
+        EnterHullName = 4609,
+        /// <summary>{0} is a reserved ship name and you cannot overwrite this de</summary>
+        ReservedDesignNoOverwrite = 4610,
+        /// <summary>{0} currently exists in the universe. You cannot overwrite a</summary>
+        DesignInUniverseNoOverwrite = 4611,
+        /// <summary>{0} is currently in your planets' build queues. You cannot o</summary>
+        DesignInOurQueuesNoOverwrite = 4612,
+        /// <summary>{0} is in another empire's build queue. You cannot overwrite</summary>
+        DesignInOtherQueueNoOverwrite = 4613,
+        /// <summary>Hull named '{0}' already exists ({1}). Overwrite?</summary>
+        OverwriteHullQuestion = 4614,
+        /// <summary>Reserved Design named '{0}' already exists. Overwrite at '{1</summary>
+        OverwriteReservedDesignFileQuestion = 4615,
+        /// <summary>Reserved Design named '{0}' was loaded from this save. Overw</summary>
+        OverwriteReservedDesignFromSaveQuestion = 4616,
+        /// <summary>Design named '{0}' already exists. Overwrite?</summary>
+        OverwriteDesignQuestion = 4617,
+        /// <summary>'{0}' cannot be used as a file name</summary>
+        HullNameNotAFileName = 4618,
+        /// <summary>Hull '{0}' already uses the file name {1}. Choose another na</summary>
+        HullFileNameTaken = 4619,
+        /// <summary>Delete this Ship Design</summary>
+        DeleteShipDesignTip = 4620,
+        /// <summary>Research This Ship</summary>
+        ResearchShipDesignTip = 4621,
+        /// <summary>Delete this WIP Design</summary>
+        DeleteWipDesignTip = 4622,
+        /// <summary>Delete all related versions of this WIP Design</summary>
+        DeleteAllWipVersionsTip = 4623,
+        /// <summary>Already in Queue:\n{0}\n\n</summary>
+        ResearchTechsAlreadyQueued = 4624,
+        /// <summary>Confirm Research Missing Techs ({0}) for {1}:\n\n{2}Will be </summary>
+        ConfirmResearchMissingTechs = 4625,
+        /// <summary>{0} currently exists in the universe. You cannot delete a de</summary>
+        DesignInUniverseNoDelete = 4626,
+        /// <summary>{0} is currently in your planets' build queues. You cannot d</summary>
+        DesignInOurQueuesNoDelete = 4627,
+        /// <summary>{0} is in another empire's build queue. You cannot delete th</summary>
+        DesignInOtherQueueNoDelete = 4628,
+        /// <summary>Confirm Delete: {0}</summary>
+        ConfirmDeleteDesign = 4629,
+        /// <summary>Confirm Delete All WIP Versions: {0}</summary>
+        ConfirmDeleteAllWipVersions = 4630,
+        /// <summary>WIP</summary>
+        WipDesignsHeader = 4631,
+        /// <summary>AutoPatcher {0}</summary>
+        AutoPatcherTitle = 4632,
+        /// <summary>Cached patch missing</summary>
+        PatchCacheMissing = 4633,
+        /// <summary>Expected pre-downloaded patch at {0} but the folder is gone.</summary>
+        PatchCacheMissingTip = 4634,
+        /// <summary>Downloading</summary>
+        PatchDownloading = 4635,
+        /// <summary>Unzipping {0}</summary>
+        PatchUnzipping = 4636,
+        /// <summary>Deleting Stale Files</summary>
+        PatchDeletingStaleFiles = 4637,
+        /// <summary>Copying New Files</summary>
+        PatchCopyingNewFiles = 4638,
+        /// <summary>Admin rights required</summary>
+        PatchNeedsAdminRights = 4639,
+        /// <summary>The patch is downloaded but needs admin rights to write to y</summary>
+        PatchNeedsAdminRightsTip = 4640,
+        /// <summary>Patch downloaded — UAC prompt to apply patch in 3 seconds...</summary>
+        PatchUacPromptSoon = 4641,
+        /// <summary>Download failed!</summary>
+        PatchDownloadFailed = 4642,
+        /// <summary>Unzip failed!</summary>
+        PatchUnzipFailed = 4643,
+        /// <summary>Delete Stale Files failed!</summary>
+        PatchDeleteStaleFilesFailed = 4644,
+        /// <summary>Copy New Files failed!</summary>
+        PatchCopyNewFilesFailed = 4645,
+        /// <summary>Patch applied ({0} file(s) skipped — see blackbox.log; usual</summary>
+        PatchAppliedWithSkippedFiles = 4646,
+        /// <summary>Restarting StarDrive ...</summary>
+        PatchRestarting = 4647,
+        /// <summary>Patch was installed, but restarting the game failed:\n{0}\n\</summary>
+        PatchRestartFailed = 4648,
+        /// <summary>StarDrive — Restart failed</summary>
+        PatchRestartFailedTitle = 4649,
+        /// <summary>Remnant Fleet is targeting {0}\nETA - Stardate {1}</summary>
+        RemnantFleetTargetingPlanet = 4650,
+        /// <summary>turn</summary>
+        Turn2 = 4651,
+        /// <summary>turns</summary>
+        TurnsFew = 4652,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 
