@@ -190,6 +190,7 @@ public class CargoShuttleTests : StarDriveTest
     public void EachSimulationStepFliesTheShuttles()
     {
         AddDummyPlanet(new Vector2(500_000), 1f, 1f, 1f, new Vector2(505_000), explored: true).SetOwner(Enemy);
+        UState.Events.Disabled = true;
         UState.Paused = false;
         // zoomed out the game sends no shuttles of its own, and these still fly; nothing may pause the simulation meanwhile
         UState.ViewState = UniverseScreen.UnivScreenState.SystemView;
