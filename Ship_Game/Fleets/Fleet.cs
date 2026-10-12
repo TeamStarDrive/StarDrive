@@ -1136,6 +1136,10 @@ namespace Ship_Game.Fleets
                         task.SetTargetPlanet(newTarget);
                         task.AO = newTarget.Position;
                     }
+                    else if (task.WaveNeverLanded && Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
+                    {
+                        EndInvalidTask(true);
+                    }
                     else
                     {
                         CreatePostInvasionFromCurrentTask(this, task, Owner, "Post Invasion Defense");
@@ -1237,8 +1241,10 @@ namespace Ship_Game.Fleets
         {
             Planet currentTarget = task.TargetPlanet;
             newTarget            = null;
+            if (task.WaveNeverLanded)
+                task.PlanetsThatRepelledAWave.AddUniqueRef(currentTarget);
 
-            if (currentTarget.Owner != null && Owner.IsAtWarWith(currentTarget.Owner))
+            if (currentTarget.Owner != null && Owner.IsAtWarWith(currentTarget.Owner) && !task.WaveNeverLanded)
             {
                 newTarget = currentTarget; // Invasion or bombing was not effective, retry
                 return true; 
@@ -1246,8 +1252,8 @@ namespace Ship_Game.Fleets
 
             var currentSystem    = currentTarget.System;
             newTarget            = task.Type == MilitaryTask.TaskType.ReclaimPlanet
-                ? currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner))
-                : Owner.SafestToInvade(currentSystem.PlanetList, p => Owner.IsAtWarWith(p.Owner) && !Owner.LeavesToBombers(p));
+                ? currentSystem.PlanetList.Find(p => !task.RepelledAWave(p) && Owner.IsAtWarWith(p.Owner))
+                : Owner.SafestToInvade(currentSystem.PlanetList, p => !task.RepelledAWave(p) && Owner.IsAtWarWith(p.Owner) && !Owner.LeavesToBombers(p));
 
             if (newTarget != null)
                 return true;
@@ -1256,24 +1262,24 @@ namespace Ship_Game.Fleets
                 return false; // No targets found in system for reclaim fleets
 
             newTarget =  task.Type == MilitaryTask.TaskType.StrikeForce 
-                ? TryGetNewTargetPlanetStrike(currentSystem, task.TargetEmpire) 
-                : TryGetNewTargetPlanetInvasion(currentSystem);
+                ? TryGetNewTargetPlanetStrike(currentSystem, task.TargetEmpire, task) 
+                : TryGetNewTargetPlanetInvasion(currentSystem, task);
 
             return newTarget != null;
         }
 
-        Planet TryGetNewTargetPlanetInvasion(SolarSystem system)
+        Planet TryGetNewTargetPlanetInvasion(SolarSystem system, MilitaryTask task)
         {
-            var potentialSystems = system.FiveClosestSystems.Filter(s => s.PlanetList.Any(p => p.Owner?.IsAtWarWith(Owner) == true
+            var potentialSystems = system.FiveClosestSystems.Filter(s => s.PlanetList.Any(p => !task.RepelledAWave(p) && p.Owner?.IsAtWarWith(Owner) == true
                                                                                              && !Owner.LeavesToBombers(p)));
             if (potentialSystems.Length == 0)
                 return null;
 
             SolarSystem potentialSystem = potentialSystems.FindMin(s => Owner.KnownEnemyStrengthIn(s));
-            return Owner.SafestToInvade(potentialSystem.PlanetList, p => Owner.IsAtWarWith(p.Owner) && !Owner.LeavesToBombers(p));
+            return Owner.SafestToInvade(potentialSystem.PlanetList, p => !task.RepelledAWave(p) && Owner.IsAtWarWith(p.Owner) && !Owner.LeavesToBombers(p));
         }
 
-        Planet TryGetNewTargetPlanetStrike(SolarSystem system, Empire enemy)
+        Planet TryGetNewTargetPlanetStrike(SolarSystem system, Empire enemy, MilitaryTask task)
         {
             var planets = enemy?.GetPlanets() ?? new Array<Planet>();
             Planet closest = null;
@@ -1282,7 +1288,7 @@ namespace Ship_Game.Fleets
             {
                 Planet p = planets[i];
                 float distance = p.Position.Distance(system.Position);
-                if (distance < closestDistance && !Owner.LeavesToBombers(p))
+                if (distance < closestDistance && !task.RepelledAWave(p) && !Owner.LeavesToBombers(p))
                 {
                     closest = p;
                     closestDistance = distance;
@@ -2528,6 +2534,8 @@ namespace Ship_Game.Fleets
             float planetAssaultStrength = 0f;
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength = FleetTask.TargetPlanet.GetGroundStrength(Owner);
+            if (ourGroundStrength > 0)
+                task.TroopsLanded = true;
             var invasionShips = ships.ToArr();
 
             // collect current invasion stats from all ships in fleet. 
@@ -2562,7 +2570,8 @@ namespace Ship_Game.Fleets
                 Ship ship = invasionShips[x];
                 if (ship.IsTroopShip && ship.AI.State != AIState.AssaultPlanet && ship.Carrier.PlanetAssaultStrength > 0)
                 {
-                    ship.AI.OrderLandAllTroops(task.TargetPlanet, clearOrders:true);
+                    if (ship.AI.OrderLandAllTroops(task.TargetPlanet, clearOrders:true))
+                        task.TroopsSent = true;
                     numberOfShipsToSend--;
                     shipsInvading++;
                 }

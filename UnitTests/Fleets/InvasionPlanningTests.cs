@@ -193,7 +193,8 @@ public class InvasionPlanningTests : StarDriveTest
         Planet colony = AddDummyPlanetToEmpire(new Vector2(700_000), Player);
         var fleet = new Fleet(UState, Enemy);
 
-        var pick = (Planet)CallFleet(fleet, "TryGetNewTargetPlanetStrike", capital.System, Player);
+        var task = new MilitaryTask(capital, Enemy, MilitaryTaskImportance.Normal);
+        var pick = (Planet)CallFleet(fleet, "TryGetNewTargetPlanetStrike", capital.System, Player, task);
 
         Assert.AreEqual(colony, pick, "a strike fleet without bombers passes the capital next to it for a colony further away");
     }
@@ -215,6 +216,131 @@ public class InvasionPlanningTests : StarDriveTest
         args = new object[] { task, null };
         CallFleet(fleet, "TryGetNewTargetPlanet", args);
         Assert.AreEqual(capital, args[1], "with bombers it goes for the capital as before");
+    }
+
+    static Planet NextTarget(Fleet fleet, MilitaryTask task)
+    {
+        object[] args = { task, null };
+        CallFleet(fleet, "TryGetNewTargetPlanet", args);
+        return (Planet)args[1];
+    }
+
+    Planet NextTargetAfterAWave(Planet target, bool sent, bool landed)
+    {
+        var task = new MilitaryTask(target, Enemy, MilitaryTaskImportance.Normal) { TroopsSent = sent, TroopsLanded = landed };
+        return NextTarget(new Fleet(UState, Enemy) { FleetTask = task }, task);
+    }
+
+    [TestMethod]
+    public void AFleetDoesNotGoBackToAPlanetThatBeatAWave()
+    {
+        Planet first = AddDummyPlanetToEmpire(new Vector2(400_000), Player);
+        Planet second = AddPlanetTo(first.System, new Vector2(30_000f, 0f), Player);
+        var task = new MilitaryTask(first, Enemy, MilitaryTaskImportance.Normal) { TroopsSent = true };
+        var fleet = new Fleet(UState, Enemy) { FleetTask = task };
+        Assert.AreEqual(second, NextTarget(fleet, task), "setup: beaten at the first planet, the fleet moves on to the second");
+
+        task.SetTargetPlanet(second);
+        task.TroopsSent = true;
+
+        Assert.IsNull(NextTarget(fleet, task), "beaten at the second too, it does not go back to the first");
+    }
+
+    [TestMethod]
+    public void AStrikeFleetWhoseWaveNeverLandedMovesOnToThePlanetBeyond()
+    {
+        Planet target = AddDummyPlanetToEmpire(new Vector2(400_000), Player);
+        Planet beyond = AddDummyPlanetToEmpire(new Vector2(700_000), Player);
+        var task = new MilitaryTask(target, Enemy, MilitaryTaskImportance.Normal) { TroopsSent = true };
+        task.Type = MilitaryTask.TaskType.StrikeForce;
+
+        Assert.AreEqual(beyond, NextTarget(new Fleet(UState, Enemy) { FleetTask = task }, task),
+            "a strike fleet passes over the closest planet when that is the one that beat its wave");
+    }
+
+    [TestMethod]
+    public void APlanetTakenAfterAWaveThatSeemedNotToLandIsStillHeld()
+    {
+        Planet target = AddDummyPlanetToEmpire(new Vector2(400_000), Enemy);
+        var fleet = new Fleet(UState, Enemy);
+        var task = new MilitaryTask(target, Enemy, fleet, MilitaryTaskImportance.Normal) { TroopsSent = true };
+        fleet.FleetTask = task;
+        fleet.AddShip(SpawnShip(Warship, Enemy, target.Position + new Vector2(target.Radius + 5000f, 0f)));
+        fleet.TaskStep = 8;
+
+        CallFleet(fleet, "DoAssaultPlanet", task);
+
+        Assert.IsNotNull(fleet.FleetTask, "a fleet whose planet is ours stays to guard it, whatever its records say");
+    }
+
+    [TestMethod]
+    public void TroopsReachingTheGroundAreRecordedAsTheyLand()
+    {
+        LoadStarterShips(Player.data.DefaultTroopShip);
+        Planet target = AddHomeWorldToEmpire(new Vector2(400_000), Enemy);
+        var task = new MilitaryTask(target, Player, MilitaryTaskImportance.Normal);
+        var fleet = new Fleet(UState, Player) { FleetTask = task };
+        Ship troopShip = SpawnShip(Player.data.DefaultTroopShip, Player, target.Position + new Vector2(target.Radius + 3000f, 0f));
+        ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(troopShip);
+        fleet.AddShip(troopShip);
+
+        AssertEqual(1, troopShip.LandTroopsOnPlanet(target), "setup: the troop lands");
+
+        Assert.IsTrue(task.TroopsLanded, "the task learns of the landing as it happens, not at the fleet's next check");
+    }
+
+    [TestMethod]
+    public void AFleetWhoseTroopsNeverLandedMovesOnToAnotherPlanet()
+    {
+        Planet target = AddDummyPlanetToEmpire(new Vector2(400_000), Player);
+        Planet other = AddPlanetTo(target.System, new Vector2(30_000f, 0f), Player);
+
+        Assert.AreEqual(target, NextTargetAfterAWave(target, sent: false, landed: false),
+            "a fleet that has sent no troops yet tries the planet again with more");
+        Assert.AreEqual(target, NextTargetAfterAWave(target, sent: true, landed: true),
+            "so does one whose troops reached the ground");
+        Assert.AreEqual(other, NextTargetAfterAWave(target, sent: true, landed: false),
+            "one whose whole wave was lost before landing moves on to another planet");
+    }
+
+    [TestMethod]
+    public void AFleetWhoseTroopsNeverLandedGoesHomeWhenNoOtherTargetIsLeft()
+    {
+        Planet target = AddDummyPlanetToEmpire(new Vector2(400_000), Player);
+        var fleet = new Fleet(UState, Enemy);
+        var task = new MilitaryTask(target, Enemy, fleet, MilitaryTaskImportance.Normal) { TroopsSent = true };
+        fleet.FleetTask = task;
+        fleet.AddShip(SpawnShip(Warship, Enemy, target.Position + new Vector2(target.Radius + 5000f, 0f)));
+        fleet.TaskStep = 8;
+
+        CallFleet(fleet, "DoAssaultPlanet", task);
+
+        Assert.IsNull(fleet.FleetTask, "the fleet ends its invasion instead of staying to guard a planet it did not take");
+    }
+
+    [TestMethod]
+    public void TheTaskKnowsWhetherItsTroopsWereSentAndWhetherTheyLanded()
+    {
+        LoadStarterShips(Player.data.DefaultTroopShip);
+        Planet target = AddHomeWorldToEmpire(new Vector2(400_000), Enemy);
+        var task = new MilitaryTask(target, Player, MilitaryTaskImportance.Normal);
+        var fleet = new Fleet(UState, Player) { FleetTask = task };
+        Ship troopShip = SpawnShip(Player.data.DefaultTroopShip, Player, target.Position + new Vector2(target.Radius + 3000f, 0f));
+        ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(troopShip);
+
+        CallFleet(fleet, "OrderShipsToInvade", new[] { troopShip }, task, true);
+        Assert.IsFalse(task.TroopsSent, "a landing refused while the war is too young to invade sends no wave");
+
+        Player.GetRelations(Enemy).TurnsAtWar = 5;
+        CallFleet(fleet, "OrderShipsToInvade", new[] { troopShip }, task, true);
+        Assert.IsTrue(task.TroopsSent && !task.TroopsLanded, "the task knows a wave is on its way and has not landed");
+
+        Assert.IsTrue(ResourceManager.CreateTroop("Wyvern", Player).TryLandTroop(target), "setup: a troop reaches the ground");
+        CallFleet(fleet, "OrderShipsToInvade", new Ship[0], task, true);
+        Assert.IsTrue(task.TroopsLanded, "and that troops reached the ground");
+
+        task.SetTargetPlanet(target);
+        Assert.IsFalse(task.TroopsSent || task.TroopsLanded, "a target set again starts with a clean record");
     }
 
     [TestMethod]
