@@ -1,6 +1,8 @@
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
@@ -450,6 +452,91 @@ namespace UnitTests.AITests.Empire
 
             Assert.IsTrue(guardian.AI.FindGoal(ShipAI.Plan.Escort, out _), "setup: an idle guardian in the portal's system is sent to escort it");
             Assert.AreEqual(AIState.ReturnToHangar, hangarShip.AI.State, "a hangar ship flying home must not be turned around to escort the portal");
+        }
+
+        [TestMethod]
+        public void TheRemnantsNeitherDraftNorSendAwayAHangarShip()
+        {
+            Ship hangarShip = SpawnShip("Vulcan Scout", Faction, Portal.Position + new Vector2(800, 0));
+            hangarShip.IsGuardian = true; // as every Remnant ship is after a load
+            hangarShip.Mothership = Portal;
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in the portal's system
+
+            Faction.Remnants.AssignShipInPortalSystem(Portal, bombersNeeded: 0, neededStr: 1_000_000f, out var drafted);
+            Assert.IsFalse(drafted.ContainsRef(hangarShip), "a raid must not draft a hangar ship");
+
+            SolarSystem system = EmptySystem(new Vector2(0, 300_000));
+            AddPlanet(system, system.Position + new Vector2(8_000, 0));
+            hangarShip.Position = system.Position + new Vector2(3_000, 0);
+            UState.Objects.Update(new(time: 1f)); // moved in the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in the other system
+            hangarShip.AI.ClearOrders();
+            Assert.AreSame(system, hangarShip.System, "setup: the hangar ship is in a system with no portal");
+            Assert.AreEqual(AIState.AwaitingOrders, hangarShip.AI.State, "setup: the hangar ship sits idle");
+            Assert.AreEqual(AIState.AwaitingOrders, hangarShip.AI.DefaultAIState, "setup: the hangar ship has no standing task");
+
+            Faction.Remnants.CallGuardians(Portal);
+            Assert.IsFalse(hangarShip.AI.FindGoal(ShipAI.Plan.Escort, out _), "a new portal must not call a hangar ship away from its carrier");
+
+            Faction.Remnants.SendIdleShipsToGuardPlanets();
+            Assert.IsFalse(hangarShip.AI.FindGoal(ShipAI.Plan.Orbit, out _), "an idle hangar ship is not sent to guard a planet");
+        }
+
+        [TestMethod]
+        public void ARaidOnItsWayHomeSendsForNoBombers()
+        {
+            RemnantEngageEmpire raid = RaidUnderWay(fleetShips: 3, taskStep: 8);
+            foreach (Ship ship in raid.Fleet.Ships)
+                ship.Position = EnemyHome.Position;
+
+            LevelUpWithBombersAffordable(6);
+            raid.Evaluate();
+            raid.Evaluate();
+
+            AssertEqual(0, Faction.Remnants.NumBombersInFleet(raid.Fleet), "a raid turning home must not spend production on bombers");
+        }
+
+        void StartHibernation()
+        {
+            Remnants remnants = Faction.Remnants;
+            UState.StarDate = (remnants.NextLevelUpDate - remnants.NeededHibernationTurns / 10f).RoundToFractionOf10();
+            remnants.CheckHibernation();
+            Assert.IsTrue(remnants.Hibernating, "setup: the Remnants go into hibernation");
+        }
+
+        Ship IdleShipInDeepSpace(Vector2 pos)
+        {
+            Ship ship = SpawnShip("Vulcan Scout", Faction, pos);
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f));
+            ship.AI.ClearOrders();
+            Assert.IsNull(ship.System, "setup: the ship is outside every system");
+            return ship;
+        }
+
+        [TestMethod]
+        public void WhenTheRemnantsHibernateIdleShipsInDeepSpaceEscortTheClosestPortal()
+        {
+            Ship idle = IdleShipInDeepSpace(new Vector2(0, -300_000));
+
+            Faction.Remnants.SendIdleShipsToGuardPlanets();
+            Assert.IsFalse(idle.AI.FindGoal(ShipAI.Plan.Escort, out _), "setup: on a load or a portal's death ships in deep space are left alone");
+
+            StartHibernation();
+            Assert.IsTrue(idle.AI.FindGoal(ShipAI.Plan.Escort, out ShipAI.ShipGoal escort) && escort.TargetShip == Portal,
+                          "when the Remnants hibernate, an idle ship in deep space goes to the portal");
+        }
+
+        [TestMethod]
+        public void WhenTheRemnantsHibernateWithNoPortalIdleShipsInDeepSpaceGuardTheNearestPlanet()
+        {
+            Portal.Die(null, cleanupOnly: true);
+            Ship idle = IdleShipInDeepSpace(EnemyHome.Position + new Vector2(-150_000, 0));
+
+            StartHibernation();
+            Assert.IsTrue(idle.AI.FindGoal(ShipAI.Plan.Orbit, out ShipAI.ShipGoal orbit) && orbit.TargetPlanet == EnemyHome,
+                          "with no portal left, an idle ship in deep space guards the nearest planet");
         }
 
         [TestMethod]

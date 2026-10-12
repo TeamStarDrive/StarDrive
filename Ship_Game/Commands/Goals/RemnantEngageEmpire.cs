@@ -237,9 +237,12 @@ namespace Ship_Game.Commands.Goals
                 return ReturnToClosestPortalAndReroute();
 
             int numBombers = Remnants.NumBombersInFleet(Fleet);
-            RecountBombersNeeded();
-            if (BombersLevel > 0 && numBombers < BombersLevel / 2)
-                RequestBombers(numBombers);
+            if (Fleet.TaskStep < 8) // not on the way back
+            {
+                RecountBombersNeeded();
+                if (BombersLevel > 0 && numBombers < BombersLevel / 2)
+                    RequestBombers(numBombers);
+            }
 
             if (numBombers / 3 >= Fleet.Ships.Count - numBombers) // only bombers and some combat ships left
             {

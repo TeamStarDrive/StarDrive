@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
@@ -231,7 +232,11 @@ namespace Ship_Game
 
             float hibernationDate = (NextLevelUpDate - NeededHibernationTurns/10f).RoundToFractionOf10();
             if (Universe.StarDate.AlmostEqual(hibernationDate))
+            {
                 HibernationTurns = NeededHibernationTurns;
+                if (Hibernating)
+                    SendIdleShipsToGuardPlanets(includeDeepSpace: true);
+            }
         }
 
         private void SetLevel(int level)
@@ -476,6 +481,7 @@ namespace Ship_Game
             var availableShips = portal.System.ShipList.Filter(s => s.Fleet == null 
                                                                     && s.Loyalty == Owner 
                                                                     && s.IsGuardian
+                                                                    && !s.IsHangarShip
                                                                     && !s.IsPlatformOrStation
                                                                     && !s.InCombat
                                                                     && s.AI.State != AIState.Resupply);
@@ -542,30 +548,37 @@ namespace Ship_Game
 
         /// <summary>
         /// Remnant ships left with nothing to do, such as guardians that lost their orbit or the escorts of a portal
-        /// that died, guard the nearest planet in their system unless a portal there takes them
+        /// that died, guard the nearest planet in their system unless a portal there takes them. With includeDeepSpace,
+        /// idle ships outside any system escort the closest portal, or guard the nearest planet when no portal is left.
         /// </summary>
-        public void SendIdleShipsToGuardPlanets()
+        public void SendIdleShipsToGuardPlanets(bool includeDeepSpace = false)
         {
-            var portals = new Array<Ship>();
             var portalSystems = new Array<SolarSystem>();
             var goals = Owner.AI.Goals;
             for (int i = 0; i < goals.Count; i++)
             {
                 if (goals[i] is RemnantPortal { TargetShip: { Active: true } portal } portalGoal && portal.Loyalty == Owner)
-                {
-                    portals.Add(portal);
                     portalSystems.AddUniqueRef(portalGoal.PortalSystem ?? portal.System);
-                }
             }
 
             var ships = Owner.OwnedShips;
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
-                if (ship is { Active: true, IsPlatformOrStation: false, IsHangarShip: false, Fleet: null, System: not null }
-                    && IsIdle(ship) && !portals.ContainsRef(ship) && !portalSystems.ContainsRef(ship.System))
+                if (ship is not { Active: true, IsPlatformOrStation: false, IsHangarShip: false, Fleet: null } || !IsIdle(ship))
+                    continue;
+
+                if (ship.System != null)
                 {
-                    GuardNearestPlanet(ship);
+                    if (!portalSystems.ContainsRef(ship.System))
+                        GuardNearestPlanet(ship, ship.System.PlanetList);
+                }
+                else if (includeDeepSpace)
+                {
+                    if (GetClosestPortal(ship.Position, out Ship portal))
+                        ship.AI.AddEscortGoal(portal);
+                    else
+                        GuardNearestPlanet(ship, Universe.Planets);
                 }
             }
         }
@@ -574,9 +587,9 @@ namespace Ship_Game
                                          && (ship.AI.EscortTarget is { Active: false }
                                              || ship.AI.EscortTarget == null && ship.AI.State == AIState.AwaitingOrders);
 
-        static void GuardNearestPlanet(Ship ship)
+        static void GuardNearestPlanet(Ship ship, IReadOnlyList<Planet> planets)
         {
-            Planet planet = ship.System.PlanetList.FindMin(p => p.Position.SqDist(ship.Position));
+            Planet planet = planets.FindMin(p => p.Position.SqDist(ship.Position));
             if (planet != null)
                 ship.OrderToOrbit(planet, clearOrders: true, MoveOrder.Aggressive);
         }
