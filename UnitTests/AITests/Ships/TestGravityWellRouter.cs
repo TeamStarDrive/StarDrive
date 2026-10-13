@@ -297,6 +297,25 @@ public class TestGravityWellRouter : StarDriveTest
     }
 
     [TestMethod]
+    public void AnAtWarWellWhoseEdgeLeavesOurTerritoryBetweenTwoCheckedPointsKeepsItsFullSize()
+    {
+        Planet enemy = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), Enemy);
+        enemy.System.SetExploredBy(Player);
+        float reach = Player.GetProjectorRadius();
+        Vector2 outward = SDGraphics.RadMath.RadiansToDirection(System.MathF.PI / 8f); // halfway between two of the router's edge directions
+        AddDummyPlanetToEmpire(enemy.Position - outward * (reach - 9_980f), Player);
+        Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, enemy.Position + outward * 9_900f), "setup: our territory covers the well nearly to its edge");
+        Assert.IsFalse(UState.Influence.IsInInfluenceOf(Player, enemy.Position + outward * 10_000f), "setup: but its edge on that side lies outside");
+        foreach (float angle in new[] { 0f, System.MathF.PI / 4f })
+            Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, enemy.Position + SDGraphics.RadMath.RadiansToDirection(angle) * 10_500f),
+                          "setup: while the points of the well's circle on either side of that edge lie inside");
+
+        Player.data.Traits.EnemyPlanetInhibitionPercentCounter = 0.5f;
+
+        Assert.IsTrue(DetoursPast(enemy, 0.75f).Length > 0, "a ship at that edge is held by the full well, so the well keeps its full size");
+    }
+
+    [TestMethod]
     public void AFleetShipWhoseShiftedRouteCutsASystemRoutesOnItsOwn()
     {
         SolarSystem system = AddDummyPlanetToEmpire(new Vector2(500_000f, -1_000f), Enemy).System;

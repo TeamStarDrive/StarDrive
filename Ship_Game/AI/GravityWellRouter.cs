@@ -520,11 +520,12 @@ public static class GravityWellRouter
         if (counter <= 0f || p.Owner?.WillInhibit(ship.Loyalty) != true || !IsFriendly(ship, p.Position))
             return 1f;
 
-        const int edgeSamples = 8;
-        float edge = p.GravityWellRadius * PlanetWellSafetyMul;
-        for (int i = 0; i < edgeSamples; i++)
+        // the corners of the octagon around the well: an influence disc holding all of them holds the whole well
+        const int corners = 8;
+        float corner = p.GravityWellRadius * PlanetWellSafetyMul / MathF.Cos(MathF.PI / corners);
+        for (int i = 0; i < corners; i++)
         {
-            if (!IsFriendly(ship, SDGraphics.MathExt.PointFromRadians(p.Position, i * MathF.PI * 2f / edgeSamples, edge)))
+            if (!IsFriendly(ship, SDGraphics.MathExt.PointFromRadians(p.Position, i * MathF.PI * 2f / corners, corner)))
                 return 1f;
         }
 
