@@ -99,6 +99,43 @@ public class BlueprintLinkTests : StarDriveTest
         AssertEqual(LoopB, P.Blueprints.Name, "both plans are done; the colony moves on once and does not go round the loop forever");
     }
 
+    void AddLoop()
+    {
+        ResourceManager.AddBlueprintsTemplate(new BlueprintsTemplate(LoopA, false, LoopB, new HashSet<string> { Researched }, Planet.ColonyType.Colony));
+        ResourceManager.AddBlueprintsTemplate(new BlueprintsTemplate(LoopB, false, LoopA, new HashSet<string> { Researched }, Planet.ColonyType.Colony));
+    }
+
+    [TestMethod]
+    public void PlansWhoseLinksLoopCannotBeLinkedTo()
+    {
+        AddLoop();
+        ResourceManager.TryGetBlueprints(LoopA, out BlueprintsTemplate a);
+
+        Assert.IsFalse(a.CanSafelyLinkFor("unlinked"), "a chain that goes round in a loop is not offered as a link");
+    }
+
+    [TestMethod]
+    public void SavingAPlanUnderTheNameItsChainLeadsBackToDropsItsLink()
+    {
+        ResourceManager.AddBlueprintsTemplate(new BlueprintsTemplate(LoopA, false, LoopB, new HashSet<string> { Researched }, Planet.ColonyType.Colony));
+        var edited = new BlueprintsTemplate("edited", false, LoopA, new HashSet<string> { Researched }, Planet.ColonyType.Colony);
+
+        edited.RenameForSave(LoopB);
+
+        AssertEqual(LoopB, edited.Name, "the plan takes its new name");
+        AssertEqual("", edited.LinkTo, "saved as B, its link to A would close the loop A to B to A, so the link is dropped");
+    }
+
+    [TestMethod]
+    public void SavingAPlanUnderANameItsChainDoesNotReachKeepsItsLink()
+    {
+        var edited = new BlueprintsTemplate("edited", false, Next, new HashSet<string> { Researched }, Planet.ColonyType.Colony);
+
+        edited.RenameForSave(LoopB);
+
+        AssertEqual(Next, edited.LinkTo, "a link that does not lead back to the plan stays");
+    }
+
     [TestMethod]
     public void APlanBuiltBeyondWhatIsResearchedCountsAsAchieved()
     {

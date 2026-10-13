@@ -314,6 +314,20 @@ public class TestGravityWellRouter : StarDriveTest
         }
     }
 
+    [TestMethod]
+    public void ATradePartnersWellCostsNoTravelTime()
+    {
+        CreateThirdMajorEmpire();
+        Planet theirs = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), ThirdMajor);
+        SetWell(theirs, 10_000f);
+        Assert.IsTrue(UState.P.GravityWellRange > 0f, "setup: gravity wells are on");
+        AssertEqual(1f, 10_000f, theirs.GravityWellForEmpire(Player), "setup: the well of an empire without a treaty holds us");
+
+        Player.SignTreatyWith(ThirdMajor, TreatyType.Trade);
+
+        AssertEqual(1f, 0f, theirs.GravityWellForEmpire(Player), "a trade partner's well does not hold our ships, so travel estimates skip it");
+    }
+
     static void SetWell(Planet p, float radius)
     {
         typeof(SolarSystemBody).GetProperty(nameof(SolarSystemBody.GravityWellRadius))!.SetValue(p, radius);

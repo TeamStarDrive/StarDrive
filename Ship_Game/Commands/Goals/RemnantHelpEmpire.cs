@@ -114,7 +114,9 @@ namespace Ship_Game.Commands.Goals
 
             int numShipsinFleet = Remnants.NumShipsInFleet(Fleet);
             Ship singleShip = null;
-            if (!Remnants.AssignShipInPortalSystem(Portal, 0, Remnants.RequiredAttackFleetStr(TargetEmpire), out Array<Ship> ships))
+            float requiredStr = Remnants.RequiredAttackFleetStr(TargetEmpire);
+            float missingStr = requiredStr - (Fleet != null ? Fleet.GetStrength() : 0);
+            if (!Remnants.AssignShipInPortalSystem(Portal, 0, missingStr, out Array<Ship> ships))
                 if (!Remnants.CreateShip(Portal, false , numShipsinFleet, out singleShip))
                     return GoalStep.TryAgain;
 
@@ -128,7 +130,7 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < ships.Count; i++)
                 ships[i].AI.AddEscortGoal(Portal);
 
-            if (Fleet.GetStrength() < Remnants.RequiredAttackFleetStr(TargetEmpire))
+            if (Fleet.GetStrength() < requiredStr)
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();

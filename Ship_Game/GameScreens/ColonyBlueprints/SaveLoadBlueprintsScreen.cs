@@ -67,9 +67,7 @@ public class SaveLoadBlueprintsScreen : GenericLoadSaveScreen
         {
             string name = EnterNameArea.Text;
             string path = Path + name + ".yaml";
-            BlueprintsToSave.Name = name;
-            if (BlueprintsToSave.LinkTo == name)
-                BlueprintsToSave.LinkTo = ""; // avoid cyclic link for new blueprints
+            BlueprintsToSave.RenameForSave(name);
 
             YamlSerializer.SerializeOne(path, BlueprintsToSave);
             ResourceManager.AddBlueprintsTemplate(BlueprintsToSave);

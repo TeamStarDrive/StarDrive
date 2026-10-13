@@ -221,6 +221,39 @@ namespace UnitTests.AITests.Empire
                           $"the raid takes about what it needs, not a second batch ({escortsGathered} for {required})");
         }
 
+        Ship[] AddGuardians(int count, int first)
+        {
+            var guardians = new Ship[count];
+            for (int i = 0; i < count; ++i)
+            {
+                guardians[i] = SpawnShip("Vulcan Scout", Faction, Portal.Position + new Vector2(-800 - (first + i) * 10, 0));
+                guardians[i].IsGuardian = true;
+            }
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in the portal's system
+            return guardians;
+        }
+
+        [TestMethod]
+        public void AGatheringHelpFleetTakesOnlyTheStrengthItStillMisses()
+        {
+            FocusRemnantsOnEnemy();
+            var help = new RemnantHelpEmpire(Faction, Portal, Enemy);
+            AssertEqual(GoalStep.GoToNextStep, help.Evaluate(), "setup: a planet to help is chosen");
+            float required = Faction.Remnants.RequiredAttackFleetStr(Enemy);
+            Ship[] first = AddGuardians(1, 0);
+            float escortStr = first[0].BaseStrength;
+            Assert.IsTrue(escortStr < required / 2, "setup: one ship is well short of what the fleet needs");
+
+            AssertEqual(GoalStep.TryAgain, help.Evaluate(), "setup: the first ship is not enough");
+            AddGuardians((int)(3 * required / escortStr) + 10, 1);
+            for (int i = 0; i < 5 && help.Evaluate() == GoalStep.TryAgain; ++i) { }
+
+            float gathered = help.Fleet.GetStrength();
+            Assert.IsTrue(gathered >= required, $"setup: the fleet gathers what it needs ({gathered} of {required})");
+            Assert.IsTrue(gathered <= required + escortStr + 1f, $"the fleet takes what it misses, not the whole strength again ({gathered} for {required}, {escortStr} a ship)");
+        }
+
         [TestMethod]
         public void APortalDefenseFleetWithoutItsPortalShipWaitsInsteadOfCrashing()
         {

@@ -273,16 +273,13 @@ namespace Ship_Game
         void RefreshChainList()
         {
             BlueprintsChainList.Reset();
-            BuildChain(LinkBlueprintsName.Text.Text);
-
-            void BuildChain(string linkTo)
+            var visited = new HashSet<string>();
+            string linkTo = LinkBlueprintsName.Text.Text;
+            while (linkTo?.NotEmpty() == true && visited.Add(linkTo)
+                   && ResourceManager.TryGetBlueprints(linkTo, out BlueprintsTemplate linked))
             {
-                if (linkTo?.NotEmpty() == true
-                    && ResourceManager.TryGetBlueprints(linkTo, out BlueprintsTemplate linked))
-                {
-                    BlueprintsChainList.AddItem(new BlueprintsChainListItem(linked));
-                    BuildChain(linked.LinkTo);
-                }
+                BlueprintsChainList.AddItem(new BlueprintsChainListItem(linked));
+                linkTo = linked.LinkTo;
             }
         }
 
@@ -536,6 +533,7 @@ namespace Ship_Game
             Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: false);
             GovernorTab?.OnBlueprintsChanged(template);
             LinkBlueprints.Enabled = true;
+            LinkBlueprintsName.Text = template.LinkTo ?? "";
             RefreshChainList();
         }
 
