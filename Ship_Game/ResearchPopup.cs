@@ -127,7 +127,7 @@ public sealed class ResearchPopup : PopupWindow
                         }
                         break;
                     case UnlockType.Hull:
-                        iconRect = new(X, CenterY - 32, 96, 96);
+                        iconRect = new(X, CenterY - 48, 96, 96);
                         break;
                     case UnlockType.Advance:
                         iconRect = new(X + 24, CenterY - 24, 48, 48);
