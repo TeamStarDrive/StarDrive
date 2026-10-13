@@ -7,6 +7,7 @@ using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Empires.Components;
 using Ship_Game.Fleets;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -149,13 +150,19 @@ public class DefenseTaskStrengthTests : StarDriveTest
                       $"the fleet is still sized for the expected attack ({task.MinimumTaskForceStrength} for 20000)");
     }
 
+    Fleet PlayerFleetHeadingFor(SolarSystem system)
+    {
+        Fleet attackers = Player.CreateFleet(1, null);
+        for (int i = 0; i < 12; ++i)
+            attackers.AddShip(SpawnShip(Warship, Player, system.Position + new Vector2(80_000f + i * 300f, 0f)));
+        return attackers;
+    }
+
     [TestMethod]
     public void AnIncomingAttackIsDefendedAgainstWithTheAttackersOwnStrength()
     {
         SolarSystem system = AddDummyPlanetToEmpire(new Vector2(200_000f), Enemy).System;
-        Fleet attackers = Player.CreateFleet(1, null);
-        for (int i = 0; i < 12; ++i)
-            attackers.AddShip(SpawnShip(Warship, Player, system.Position + new Vector2(80_000f + i * 300f, 0f)));
+        Fleet attackers = PlayerFleetHeadingFor(system);
         var threat = new IncomingThreat(Enemy, system, new[] { attackers });
         Assert.IsTrue(threat.HighPriority, "setup: a player fleet is a priority threat");
         Assert.IsTrue(threat.Strength > 500f, "setup: a threat big enough to be taken at its strength");
@@ -168,5 +175,45 @@ public class DefenseTaskStrengthTests : StarDriveTest
         AssertEqual(1f, attackers.GetStrength(), defense.Task.EnemyStrength,
                     "the task holds the attackers' strength; it applies the empire's caution once, when it asks for ships");
         Assert.AreSame(Player, defense.Task.TargetEmpire, "that caution is the one toward the attacker, known before its fleet arrives");
+    }
+
+    [TestMethod]
+    public void ADefenseOfAnAllysSystemTargetsTheAttackerWeMayFightNotOneWeHaveAPactWith()
+    {
+        CreateThirdMajorEmpire();
+        CreateAMinorFaction("Remnant");
+        Enemy.InitFleetEmpireStrMultiplier();
+        ThirdMajor.InitFleetEmpireStrMultiplier();
+        Enemy.SignTreatyWith(ThirdMajor, TreatyType.Alliance);
+        ThirdMajor.SignTreatyWith(Player, TreatyType.NonAggression);
+        Assert.IsFalse(ThirdMajor.IsEmpireAttackable(Player), "setup: the defender has a pact with the player");
+        Assert.IsTrue(ThirdMajor.IsEmpireAttackable(Faction), "setup: and may fight the other attacker");
+
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(200_000f), Enemy).System;
+        var threat = new IncomingThreat(Enemy, system, new[] { PlayerFleetHeadingFor(system), new Fleet(UState, Faction) });
+        Enemy.ThreatDetector.SystemsWithThreat = new[] { threat };
+        ThirdMajor.WeightedCenter = system.Position + new Vector2(10_000f, 0f);
+        Enemy.WeightedCenter = system.Position + new Vector2(500_000f, 0f);
+
+        new EmpireDefense(ThirdMajor).Evaluate();
+
+        var defense = (DefendSystem)ThirdMajor.AI.FindGoal(g => g is DefendSystem);
+        Assert.IsNotNull(defense, "setup: the defender raises a defense of its ally's system");
+        Assert.AreSame(Faction, defense.Task.TargetEmpire, "the defense is aimed at the attacker it may fight, not the first fleet in the list");
+    }
+
+    [TestMethod]
+    public void AnIncomingPlayerFleetIsDefendedAgainstAsThePlayersBeforeAnyWar()
+    {
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(200_000f), Enemy).System;
+        Enemy.GetRelations(Player).CanAttack = false;
+        Assert.IsFalse(Enemy.IsEmpireAttackable(Player), "setup: no war, and with no pact the player's fleets still count as a threat");
+        Enemy.ThreatDetector.SystemsWithThreat = new[] { new IncomingThreat(Enemy, system, new[] { PlayerFleetHeadingFor(system) }) };
+
+        new EmpireDefense(Enemy).Evaluate();
+
+        var defense = (DefendSystem)Enemy.AI.FindGoal(g => g is DefendSystem);
+        Assert.IsNotNull(defense, "setup: the empire raises a defense");
+        Assert.AreSame(Player, defense.Task.TargetEmpire, "the defense keeps its caution toward the player while the fleet is on its way");
     }
 }

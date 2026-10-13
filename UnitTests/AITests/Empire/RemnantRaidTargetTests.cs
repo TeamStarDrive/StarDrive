@@ -255,7 +255,7 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        public void APortalDefenseFleetWithoutItsPortalShipWaitsInsteadOfCrashing()
+        public void APortalDefenseFleetWithoutItsPortalShipMovesOnInsteadOfCrashing()
         {
             MilitaryTask task = MilitaryTask.CreateRemnantDefendPortal(Faction, Portal);
             task.CreateRemnantFleet(Faction, SpawnShip("Vulcan Scout", Faction, Portal.Position), "Ancient Guardians", out Fleet fleet);
@@ -264,7 +264,7 @@ namespace UnitTests.AITests.Empire
 
             typeof(Fleet).GetMethod("DoRemnantPortalDefense", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(fleet, new object[] { task });
 
-            AssertEqual(2, fleet.TaskStep, "the fleet without its portal ship stays at its step");
+            AssertEqual(3, fleet.TaskStep, "with no enemy near, the fleet without its portal ship moves to the step where its goal sends it home");
         }
 
         [TestMethod]

@@ -1584,7 +1584,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (task.TargetShip != null && (task.TargetShip.Active || AveragePos.Distance(task.TargetShip.Position) < 50_000))
+                    if (task.TargetShip == null || task.TargetShip.Active || AveragePos.Distance(task.TargetShip.Position) < 50_000)
                     {
                         if (AttackEnemyStrengthClumpsInAO(task))
                             break;
