@@ -195,7 +195,9 @@
     <Compile Include="Ships\PlanetRepairTests.cs" />
     <Compile Include="Ships\ExternalForceTests.cs" />
     <Compile Include="Ships\TractorBeamTests.cs" />
+    <Compile Include="Ships\ArtilleryTacticTests.cs" />
     <Compile Include="AITests\Empire\DefenseTaskStrengthTests.cs" />
+    <Compile Include="AITests\Ships\OvertakeTests.cs" />
     <Compile Include="Ships\ModuleGridFlyweightTests.cs" />
     <Compile Include="Ships\ShipDesignWriterTests.cs" />
     <Compile Include="Ships\SiphonDamageTests.cs" />

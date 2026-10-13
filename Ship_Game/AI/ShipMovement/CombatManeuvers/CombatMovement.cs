@@ -170,12 +170,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
         {
-            float angle = Owner.Loyalty.Random.AvgFloat(1f, 3f);
-
             switch(DisengageType)
             {
-                case DisengageTypes.Left:  DisengageDirection = (DirectionToTarget.LeftVector() / angle).Normalized(); break;
-                case DisengageTypes.Right: DisengageDirection = (DirectionToTarget.RightVector() / angle).Normalized(); break;
+                case DisengageTypes.Left:  DisengageDirection = DirectionToTarget.LeftVector(); break;
+                case DisengageTypes.Right: DisengageDirection = DirectionToTarget.RightVector(); break;
                 default: DisengageDirection = Vector2.Zero; break;
             }
             

@@ -28,11 +28,7 @@ namespace Ship_Game.ExtensionMethods
         {
             float halfAngle = (float)Math.PI * 0.5f;
             float randomAngle = rotation + random.Float(-halfAngle, halfAngle);
-
-            float x = center.X + (float)Math.Cos(randomAngle) * radius;
-            float y = center.Y + (float)Math.Sin(randomAngle) * radius;
-
-            return new Vector2(x, y);
+            return center + randomAngle.RadiansToDirection() * radius;
         }
 
         // Gives a random point from a vector within a specified distance
