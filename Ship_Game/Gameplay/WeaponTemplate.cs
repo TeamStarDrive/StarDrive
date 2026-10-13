@@ -272,86 +272,14 @@ namespace Ship_Game.Gameplay
 
         public static float CalculateOffense(ShipModule m, IWeaponTemplate t)
         {
-            float off = 0f;
-            float empAndPowerShare = 0f;
-            float shotsPerSec = (1.0f / t.NetFireDelay);
+            float off = PayloadOffense(t, t, t.ProjectileCount);
 
-            if (t.IsBeam)
+            // Multiple warheads: every projectile releases them, so they come at this weapon's rate and over its reach
+            if (t.IsMirv && ResourceManager.GetWeaponTemplate(t.MirvWeapon, out IWeaponTemplate warhead))
             {
-                off += t.DamageAmount * 60 * t.BeamDuration * shotsPerSec;
-                off += t.TractorDamage * 30 * shotsPerSec;
-                off += t.PowerDamage * 45 * shotsPerSec;
-                off += t.RepulsionDamage * 45 * shotsPerSec;
-                off += t.SiphonDamage * 45 * shotsPerSec;
-                off += t.TroopDamageChance * shotsPerSec;
-            }
-            else
-            {
-                float empAndPower = t.EMPDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.5f
-                                  + t.PowerDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.75f;
-                off += t.DamageAmount * t.SalvoCount * t.ProjectileCount * shotsPerSec;
-                off += empAndPower;
-                if (off > 0f)
-                    empAndPowerShare = empAndPower / off;
-            }
-
-            //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
-            off *= t.Tag_Guided ? 2.5f : 1f;
-
-            off *= 1 + t.ArmorPen * 0.2f;
-            // FB: simpler calcs for these.
-            off *= t.EffectVsArmor > 1 ? 1f + (t.EffectVsArmor - 1f) * 0.5f : 1f;
-            off *= t.EffectVsArmor < 1 ? 1f - (1f - t.EffectVsArmor) * 0.5f : 1f;
-            off *= t.EffectVsShields > 1 ? 1f + (t.EffectVsShields - 1f) * 0.5f : 1f;
-            off *= t.EffectVsShields < 1 ? 1f - (1f - t.EffectVsShields) * 0.5f : 1f;
-
-            off *= t.TruePD ? 0.2f : 1f;
-            off *= t.Tag_Intercept && (t.Tag_Missile || t.Tag_Torpedo) ? 0.8f : 1f;
-            off *= t.ProjectileSpeed > 1 ? t.ProjectileSpeed / t.BaseRange : 1f;
-
-            // FB: Missiles which can be intercepted might get str modifiers
-            off *= t.Tag_Intercept && t.RotationRadsPerSecond > 1 ? 1 + t.HitPoints * 0.02f / t.ProjectileRadius.LowerBound(2) : 1;
-
-            // FB: offense calcs for damage radius
-            if (t.ExplosionRadius > 16 && !t.TruePD)
-                off *= empAndPowerShare + (1f - empAndPowerShare) * t.ExplosionRadius * 0.0625f;
-
-            // FB: Added shield pen chance
-            off *= 1 + t.ShieldPenChance * 0.01f;
-
-            if (t.TerminalPhaseAttack)
-            {
-                if (t.TerminalPhaseSpeedMod > 1)
-                    off *= 1 + t.TerminalPhaseDistance * t.TerminalPhaseSpeedMod * 0.00002f;
-                else
-                    off *= t.TerminalPhaseSpeedMod * 0.5f;
-            }
-
-            if (t.DelayedIgnition.Greater(0))
-                off *= 1 - (t.DelayedIgnition * 0.1f).UpperBound(0.95f);
-
-
-            // FB: Added correct exclusion offense calcs
-            float exclusionMultiplier = 1;
-            if (t.ExcludesFighters)  exclusionMultiplier -= 0.15f;
-            if (t.ExcludesCorvettes) exclusionMultiplier -= 0.15f;
-            if (t.ExcludesCapitals)  exclusionMultiplier -= 0.45f;
-            if (t.ExcludesStations)  exclusionMultiplier -= 0.25f;
-            off *= exclusionMultiplier;
-
-            // Imprecision gets worse when range gets higher
-            off *= !t.Tag_Guided ? (1 - t.FireImprecisionAngle * 0.01f * (t.BaseRange * 0.0005f)).LowerBound(0.1f) : 1f;
-
-            // FB: Range margins are less steep for missiles (with speed/range above: unguided ~ range, guided ~ its square root)
-            float reach = t.BaseRange * 0.00025f;
-            off *= !t.Tag_Guided ? reach * reach : reach * (float)Math.Sqrt(reach);
-
-            // Multiple warheads
-            if (t.IsMirv)
-            {
-                IWeaponTemplate warhead = ResourceManager.GetWeaponTemplate(t.MirvWeapon);
-                float warheadOff = warhead.CalculateOffense(m);
-                off += warheadOff;
+                off *= 0.25f; // the carrier deals its own damage only if it hits something before it splits
+                off += PayloadOffense(warhead, t, t.ProjectileCount * warhead.ProjectileCount)
+                     * FlightFactor(warhead) * warhead.OffPowerMod;
             }
 
             if (m == null)
@@ -366,11 +294,95 @@ namespace Ship_Game.Gameplay
             off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
 
             // FB: Field of Fire is also important
-            if (!t.IsMirv) // Only for non Mirv since this should be calculated once
-                off *= (m.FieldOfFire / (RadMath.PI * 0.34f)).Clamped(1,4);
+            off *= (m.FieldOfFire / (RadMath.PI * 0.34f)).Clamped(1,4);
 
             // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * t.OffPowerMod;
+        }
+
+        // What `payload` deals, fired by `delivery`: the weapon itself, or the carrier of a MIRV warhead
+        static float PayloadOffense(IWeaponTemplate payload, IWeaponTemplate delivery, int projectiles)
+        {
+            float off = 0f;
+            float empAndPowerShare = 0f;
+            float shotsPerSec = (1.0f / delivery.NetFireDelay);
+
+            if (payload.IsBeam)
+            {
+                off += payload.DamageAmount * 60 * payload.BeamDuration * shotsPerSec;
+                off += payload.TractorDamage * 30 * shotsPerSec;
+                off += payload.PowerDamage * 45 * shotsPerSec;
+                off += payload.RepulsionDamage * 45 * shotsPerSec;
+                off += payload.SiphonDamage * 45 * shotsPerSec;
+                off += payload.TroopDamageChance * shotsPerSec;
+            }
+            else
+            {
+                float empAndPower = payload.EMPDamage * delivery.SalvoCount * projectiles * shotsPerSec * 0.5f
+                                  + payload.PowerDamage * delivery.SalvoCount * projectiles * shotsPerSec * 0.75f;
+                off += payload.DamageAmount * delivery.SalvoCount * projectiles * shotsPerSec;
+                off += empAndPower;
+                if (off > 0f)
+                    empAndPowerShare = empAndPower / off;
+            }
+
+            //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
+            off *= payload.Tag_Guided ? 2.5f : 1f;
+
+            off *= 1 + payload.ArmorPen * 0.2f;
+            // FB: simpler calcs for these.
+            off *= payload.EffectVsArmor > 1 ? 1f + (payload.EffectVsArmor - 1f) * 0.5f : 1f;
+            off *= payload.EffectVsArmor < 1 ? 1f - (1f - payload.EffectVsArmor) * 0.5f : 1f;
+            off *= payload.EffectVsShields > 1 ? 1f + (payload.EffectVsShields - 1f) * 0.5f : 1f;
+            off *= payload.EffectVsShields < 1 ? 1f - (1f - payload.EffectVsShields) * 0.5f : 1f;
+
+            off *= payload.TruePD ? 0.2f : 1f;
+            off *= delivery.ProjectileSpeed > 1 ? delivery.ProjectileSpeed / delivery.BaseRange : 1f;
+            off *= FlightFactor(delivery);
+
+            // FB: offense calcs for damage radius
+            if (payload.ExplosionRadius > 16 && !payload.TruePD)
+                off *= empAndPowerShare + (1f - empAndPowerShare) * payload.ExplosionRadius * 0.0625f;
+
+            // FB: Added shield pen chance
+            off *= 1 + payload.ShieldPenChance * 0.01f;
+
+            if (payload.TerminalPhaseAttack)
+            {
+                if (payload.TerminalPhaseSpeedMod > 1)
+                    off *= 1 + payload.TerminalPhaseDistance * payload.TerminalPhaseSpeedMod * 0.00002f;
+                else
+                    off *= payload.TerminalPhaseSpeedMod * 0.5f;
+            }
+
+            // FB: Added correct exclusion offense calcs
+            float exclusionMultiplier = 1;
+            if (delivery.ExcludesFighters)  exclusionMultiplier -= 0.15f;
+            if (delivery.ExcludesCorvettes) exclusionMultiplier -= 0.15f;
+            if (delivery.ExcludesCapitals)  exclusionMultiplier -= 0.45f;
+            if (delivery.ExcludesStations)  exclusionMultiplier -= 0.25f;
+            off *= exclusionMultiplier;
+
+            // Imprecision gets worse when range gets higher
+            off *= !delivery.Tag_Guided ? (1 - delivery.FireImprecisionAngle * 0.01f * (delivery.BaseRange * 0.0005f)).LowerBound(0.1f) : 1f;
+
+            // FB: Range margins are less steep for missiles (with speed/range above: unguided ~ range, guided ~ its square root)
+            float reach = delivery.BaseRange * 0.00025f;
+            off *= !delivery.Tag_Guided ? reach * reach : reach * (float)Math.Sqrt(reach);
+            return off;
+        }
+
+        // How well a projectile gets through its flight: interception, its hit points and a delayed ignition
+        static float FlightFactor(IWeaponTemplate w)
+        {
+            float factor = w.Tag_Intercept && (w.Tag_Missile || w.Tag_Torpedo) ? 0.8f : 1f;
+
+            // FB: Missiles which can be intercepted might get str modifiers
+            factor *= w.Tag_Intercept && w.RotationRadsPerSecond > 1 ? 1 + w.HitPoints * 0.02f / w.ProjectileRadius.LowerBound(2) : 1;
+
+            if (w.DelayedIgnition.Greater(0))
+                factor *= 1 - (w.DelayedIgnition * 0.1f).UpperBound(0.95f);
+            return factor;
         }
 
         // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.

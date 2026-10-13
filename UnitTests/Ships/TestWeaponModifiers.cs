@@ -36,7 +36,7 @@ namespace UnitTests.Ships
             return weapon;
         }
 
-        static readonly string[] CloneUids = { "ZzGuided", "ZzUnguided" };
+        static readonly string[] CloneUids = { "ZzLauncher", "ZzWarhead", "ZzGuided", "ZzUnguided" };
 
         static Map<string, IWeaponTemplate> Weapons => (Map<string, IWeaponTemplate>)typeof(ResourceManager)
             .GetField("WeaponsDict", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null);
@@ -49,6 +49,15 @@ namespace UnitTests.Ships
             clone.UID = cloneUid;
             Weapons[cloneUid] = clone;
             return clone;
+        }
+
+        static (WeaponTemplate Launcher, WeaponTemplate Warhead) CloneClusterMissile()
+        {
+            WeaponTemplate warhead = CloneWeapon("ClusterMirv", "ZzWarhead");
+            WeaponTemplate launcher = CloneWeapon("ClusterMissiles", "ZzLauncher");
+            launcher.MirvWeapon = warhead.UID;
+            launcher.SalvoDuration = 0f;
+            return (launcher, warhead);
         }
 
         public override void Cleanup()
@@ -262,6 +271,129 @@ namespace UnitTests.Ships
             }
             AssertGreaterThan(perShot, perProjectile, "precondition: the design's costliest shot is a multi-projectile one");
             AssertEqual(0.001f, perShot, ship.OrdnanceMin);
+        }
+
+        // MIRV warheads come out of the launcher's shots, so they are rated at its fire rate and salvo
+        [TestMethod]
+        public void AMirvWarheadIsRatedAtItsLaunchersRate()
+        {
+            (WeaponTemplate launcher, WeaponTemplate warhead) = CloneClusterMissile();
+            float rating = WeaponTemplate.CalculateOffense(null, launcher);
+
+            warhead.FireDelay = launcher.FireDelay * 0.1f;
+            warhead.SalvoCount = 5;
+            AssertEqual(rating * 0.0001f, rating, WeaponTemplate.CalculateOffense(null, launcher),
+                        "a warhead's own fire delay and salvo are never used, so they must not change the rating");
+
+            launcher.SalvoCount *= 2;
+            AssertEqual(rating * 0.0001f, rating * 2f, WeaponTemplate.CalculateOffense(null, launcher),
+                        "twice the launcher's salvo must double its warheads' rating along with its own");
+
+            launcher.ProjectileCount *= 2;
+            AssertEqual(rating * 0.0001f, rating * 4f, WeaponTemplate.CalculateOffense(null, launcher),
+                        "twice the launcher's projectiles must double its warheads' rating along with its own");
+
+            launcher.FireDelay *= 4f;
+            AssertEqual(rating * 0.0001f, rating, WeaponTemplate.CalculateOffense(null, launcher),
+                        "a quarter of the launcher's fire rate must quarter its warheads' rating along with its own");
+        }
+
+        static float RatingWithoutWarheads(WeaponTemplate launcher)
+        {
+            string warhead = launcher.MirvWeapon;
+            launcher.MirvWeapon = null;
+            float rating = WeaponTemplate.CalculateOffense(null, launcher);
+            launcher.MirvWeapon = warhead;
+            return rating;
+        }
+
+        [TestMethod]
+        public void AMirvLaunchersOwnDamageCountsAQuarter()
+        {
+            (WeaponTemplate launcher, WeaponTemplate warhead) = CloneClusterMissile();
+            float alone = RatingWithoutWarheads(launcher);
+            AssertGreaterThan(alone, 0f, "setup: the launcher must have a rating of its own");
+
+            warhead.DamageAmount = 0f;
+            warhead.EMPDamage = 0f;
+            warhead.PowerDamage = 0f;
+            AssertEqual(alone * 0.0001f, alone * 0.25f, WeaponTemplate.CalculateOffense(null, launcher),
+                        "a launcher that splits lands its own damage only if it hits first, so it counts a quarter");
+        }
+
+        [TestMethod]
+        public void AMirvWarheadsOwnOffenseModifierScalesItsShare()
+        {
+            (WeaponTemplate launcher, WeaponTemplate warhead) = CloneClusterMissile();
+            float total = WeaponTemplate.CalculateOffense(null, launcher);
+            float launcherShare = RatingWithoutWarheads(launcher) * 0.25f;
+            AssertGreaterThan(total, launcherShare, "setup: the warheads must add to the launcher's rating");
+
+            warhead.OffPowerMod *= 2f;
+            float warheadShare = total - launcherShare;
+            AssertEqual(total * 0.0001f, launcherShare + warheadShare * 2f, WeaponTemplate.CalculateOffense(null, launcher),
+                        "the warhead's offense modifier must scale its own share of the rating");
+        }
+
+        // The launcher's flight and then each warhead's own leg can be cut short by interception and a delayed ignition
+        [TestMethod]
+        public void TheLaunchersFlightAndTheWarheadsOwnLegBothCount()
+        {
+            (WeaponTemplate launcher, WeaponTemplate warhead) = CloneClusterMissile();
+            launcher.DelayedIgnition = 0f;
+            warhead.DelayedIgnition = 0f;
+            warhead.Tag_Intercept = false;
+            float total = WeaponTemplate.CalculateOffense(null, launcher);
+            float launcherShare = RatingWithoutWarheads(launcher) * 0.25f;
+            float warheadShare = total - launcherShare;
+            AssertGreaterThan(warheadShare, 0f, "setup: the warheads must add to the launcher's rating");
+
+            warhead.DelayedIgnition = 5f;
+            AssertEqual(total * 0.0001f, launcherShare + warheadShare * 0.5f, WeaponTemplate.CalculateOffense(null, launcher),
+                        "a warhead's own delayed ignition must lower its share");
+
+            warhead.Tag_Intercept = true;
+            warhead.Tag_Missile = true;
+            warhead.RotationRadsPerSecond = 2f;
+            warhead.HitPoints = 20f;
+            warhead.ProjectileRadius = 4f;
+            AssertEqual(total * 0.0001f, launcherShare + warheadShare * 0.5f * 0.8f * 1.1f, WeaponTemplate.CalculateOffense(null, launcher),
+                        "a warhead that can be shot down on its own leg must rate by its interception and hit points");
+
+            float withWarheadLeg = WeaponTemplate.CalculateOffense(null, launcher);
+            launcher.DelayedIgnition = 5f;
+            AssertEqual(total * 0.0001f, withWarheadLeg * 0.5f, WeaponTemplate.CalculateOffense(null, launcher),
+                        "the launcher's delayed ignition must lower both its own share and its warheads'");
+        }
+
+        [TestMethod]
+        public void AMirvWarheadIsRatedOverItsLaunchersReach()
+        {
+            (WeaponTemplate launcher, WeaponTemplate warhead) = CloneClusterMissile();
+            float rating = WeaponTemplate.CalculateOffense(null, launcher);
+
+            warhead.BaseRange *= 3f;
+            AssertEqual(rating * 0.0001f, rating, WeaponTemplate.CalculateOffense(null, launcher),
+                        "warheads split off near the target, so their own range must not change the rating");
+
+            warhead.ProjectileSpeed *= 2f;
+            AssertEqual(rating * 0.0001f, rating, WeaponTemplate.CalculateOffense(null, launcher),
+                        "warheads split off near the target, so their own speed must not change the rating");
+        }
+
+        [TestMethod]
+        public void AModulesArcAndTurretBonusesCountOnceForAMirvWeapon()
+        {
+            (WeaponTemplate launcher, _) = CloneClusterMissile();
+            ShipModule module = ResourceManager.GetModuleTemplate("FlakTurret");
+            Assert.IsFalse(launcher.Tag_Kinetic, "setup: the launcher must not take the kinetic power penalties");
+            Assert.AreEqual(ShipModuleType.Turret, module.ModuleType, "setup: the module must be a turret");
+            float arcBonus = Math.Clamp(module.FieldOfFire / (MathF.PI * 0.34f), 1f, 4f);
+            AssertGreaterThan(arcBonus, 1f, "setup: the module needs a fire arc wide enough to earn a bonus");
+
+            float bare = WeaponTemplate.CalculateOffense(null, launcher);
+            AssertEqual(bare * 0.0001f, bare * arcBonus * 1.25f, WeaponTemplate.CalculateOffense(module, launcher),
+                        "the module's bonuses apply once, to the launcher and its warheads together");
         }
 
         // Range counts for a guided weapon by its square root, less steeply than for an unguided one
