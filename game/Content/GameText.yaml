@@ -12881,13 +12881,6 @@ ThisCrystallineStructureSyncsWith:
  SPA: "Esta estructura cristalina se sincroniza y amplifica las ondas cerebrales de los organimos biológicos. de forma simple, todo lo que se le acerce se vuelve mas inteligente. +0.5 de investigación al dueño de este planeta."
  UKR: "Ця кристалічна структура синхронізується з мозковими хвилями біологічних організмів і підсилює їх. Простіше кажучи, все, що опиняється поруч з нею, стає розумнішим. +0.5 дослідження за хід власнику цієї планети"
  PTB: "Esta estrutura cristalina sincroniza e amplifica as ondas cerebrais de organismos biológicos. Em termos simples, tudo que se aproxima dela fica mais inteligente. +0,5 de pesquisa por turno para o dono deste planeta"
-ResearchPerTurn3:
- Id: 4096
- ENG: "+0.5 research per turn"
- RUS: "+0.5 исследование за ход"
- SPA: "+0.5 de investigación por turno"
- UKR: "+0.5 дослідження за хід"
- PTB: "+0,5 de pesquisa por turno"
 CommoditiesAreSpecialResourcesThat:
  Id: 4097
  ENG: "Commodities are special resources that are limited in number and provide unique bonuses to colonies that possess them. Commodities are harvested automatically at colonies where they occur naturally. They can then be moved throughout your empire using freighters. You may specify whether you wish to import or export any commodities you have access to in this panel."
@@ -13824,12 +13817,6 @@ HotLavaSurroundsThisTile:
  RUS: "Эту область окружает раскаленная лава ,обитание здесь невозможно, но повышенние температуры неким образом помогает в производстве. Лавовый бассейн со временем затвердеет."
  UKR: "Гаряча лава оточує цю плитку, унеможливлюючи проживання в ній, але гарячі температури допомагають у виробництві. З часом лавовий басейн застигне."
  PTB: "Lava quente cerca este quadrante, tornando a habitação impossível, mas as altas temperaturas ajudam na produção. A poça de lava se solidificará com o tempo."
-MoltenRockFlatProduction:
- Id: 4253
- ENG: "Molten Rock, +0.5 Flat Production"
- RUS: "Расплавленная скала, +0.5 к продукции"
- UKR: "Розплавлена порода, +0.5 видобуток"
- PTB: "Rocha Fundida, +0,5 Produção Fixa"
 DisableVolcanoAlerts:
  Id: 4254
  ENG: "Disable Volcano Alerts"
@@ -13920,24 +13907,12 @@ HotLavaSurroundsThisTile2:
  RUS: "Эту область окружает раскаленная лава ,обитание здесь невозможно, но не свойственные температуры привлекают наших ученых. Лавовый бассейн со временем затвердеет."
  UKR: "Гаряча лава оточує цю плитку, унеможливлюючи проживання, але гарячі температури відкривають перед нашими вченими деякі дослідницькі можливості. З часом лавовий басейн застигне."
  PTB: "Lava quente cerca este quadrante, tornando a habitação impossível, mas as altas temperaturas revelam algumas oportunidades de pesquisa para nossos cientistas. A poça de lava se solidificará com o tempo."
-MoltenRockFlatResearch:
- Id: 4269
- ENG: "Molten Rock, +0.2 Flat Research"
- RUS: "Расплавленная скала, +0.2 к науке"
- UKR: "Розплавлена порода, +0.2 Дослідження площини"
- PTB: "Rocha Fundida, +0,2 Pesquisa Fixa"
 HotLavaSurroundsThisTile3:
  Id: 4270
  ENG: "Hot Lava surrounds this tile, making habitation impossible, the toxic fumes emitting from this pool are vary bad for the environment. The Lava Pool will solidify in time."
  RUS: "Эту область окружает раскаленная лава ,обитание здесь невозможно. Токсичные пары, которые выделяет этот лавовый бассейн, очень вредны для окружающей среды. Лавовый бассейн со временем затвердеет."
  UKR: "Гаряча лава оточує цю плитку, роблячи неможливим проживання в ній, а токсичні випари, що виділяються з цього басейну, дуже шкідливі для навколишнього середовища. З часом лавовий басейн застигне."
  PTB: "Lava quente cerca este quadrante, tornando a habitação impossível; os gases tóxicos emitidos por esta poça são muito ruins para o ambiente. A poça de lava se solidificará com o tempo."
-MoltenRockFertility:
- Id: 4271
- ENG: "Molten Rock, -0.2 Fertility"
- RUS: "Расплавленная скала, -0.2 к плодородию"
- UKR: "Розплавлена порода, -0.2 Родючість"
- PTB: "Rocha Fundida, -0,2 Fertilidade"
 NoOneCanLiveOn:
  Id: 4272
  ENG: "No one can live on this tile due to the enormous Lava Pool present. Biospheres cannot be build as well, until the Lava solidifies and cools down."
@@ -14052,48 +14027,24 @@ ThisMeteorCraterContainsFascinating:
  RUS: "Метеоритный кратер содержит удивительные и редкие материалы, которые могут помочь нам в исследованиях. К сожалению,это временный эффект."
  UKR: "Цей метеоритний кратер містить цікаві та рідкісні матеріали, які можуть допомогти нам у дослідженнях. На жаль, цей ефект тимчасовий."
  PTB: "Esta Cratera de Meteoro contém materiais fascinantes e raros que podem ajudar nossos esforços de pesquisa. Infelizmente, esse efeito é temporário."
-FlatResearchPerTurn:
- Id: 4291
- ENG: "+1 Flat Research per turn"
- RUS: "+1 к науке за ход"
- UKR: "+1 плоске дослідження за хід"
- PTB: "+1 Pesquisa Fixa por turno"
 ThisMeteorCraterContainsPrecious:
  Id: 4292
  ENG: "This Meteor Crater contains precious metals which can be traded for credits. Unfortunately, this effect is temporary."
  RUS: "Метеоритный кратер содержит драгоценные металлы, которые можно обменять на кредиты. К сожалению,это временный эффект."
  UKR: "Цей метеоритний кратер містить дорогоцінні метали, які можна обміняти на кредити. На жаль, цей ефект тимчасовий."
  PTB: "Esta Cratera de Meteoro contém metais preciosos que podem ser trocados por créditos. Infelizmente, esse efeito é temporário."
-CreditsPerColonist2:
- Id: 4293
- ENG: "+1 Credits per Colonist"
- RUS: "+1 к кредитам за колониста"
- UKR: "+1 кредит за кожного колоніста"
- PTB: "+1 Crédito por Colonista"
 ThisMeteorCraterContainsLarge:
  Id: 4294
  ENG: "This Meteor Crater contains large quantities of Minerals, which can help with production. Unfortunately, this effect is temporary."
  RUS: "Метеоритный кратер содержит большое количество минералов, которые могут помочь в производстве. К сожалению,это временный эффект."
  UKR: "Цей метеоритний кратер містить велику кількість мінералів, які можуть допомогти у виробництві. На жаль, цей ефект тимчасовий."
  PTB: "Esta Cratera de Meteoro contém grandes quantidades de Minerais, que podem ajudar na produção. Infelizmente, esse efeito é temporário."
-FlatProduction:
- Id: 4295
- ENG: "+2 Flat Production"
- RUS: "+2 к производству"
- UKR: "+2 Рівномірне виробництво"
- PTB: "+2 Produção Fixa"
 ThisMeteorCraterIsSlightly:
  Id: 4296
  ENG: "This Meteor Crater is slightly damaging the planet's environment. Fortunately, this effect is temporary."
  RUS: "Метеоритный кратер слегка повредил окружающую среду планеты. К счастью, это временный эффект."
  UKR: "Цей метеоритний кратер дещо шкодить навколишньому середовищу планети. На щастя, цей ефект тимчасовий."
  PTB: "Esta Cratera de Meteoro está danificando levemente o ambiente do planeta. Felizmente, esse efeito é temporário."
-Fertility2:
- Id: 4297
- ENG: " (-0.1) Fertility"
- RUS: " (-0.1) плодородие"
- UKR: " (-0,1) Родючість"
- PTB: " (-0,1) Fertilidade"
 TheEnemyHasLaunchedA:
  Id: 4298
  ENG: "The Enemy has launched a sneak assault force in an attempt to\nboard our Bombers and escorting ships!"
@@ -20008,12 +19959,6 @@ TheWholeStructureOfThis:
  RUS: "Вся конструкция этого здания - это мозг разумного ИИ. Спустя несколько столетий у него развилось раздвоение личности, один Бен, а другой Роб."
  UKR: "Уся конструкція цієї будівлі - це мозок розумного штучного інтелекту. Через кілька століть у ньому розвинулося роздвоєння особистості: один Бен, а інший Роб."
  PTB: "Toda a estrutura deste edifício é o cérebro de uma IA senciente. Depois de alguns séculos, ela desenvolveu uma dupla personalidade: uma chamada Ben e a outra Rob."
-ResearchTaxRates:
- Id: 18163
- ENG: "-2 research, +30% tax rates"
- RUS: "-2 к науке, + 30% к налоговым доходам."
- UKR: "-2 дослідження, +30% податкові ставки"
- PTB: "-2 de pesquisa, +30% nas taxas de imposto."
 AncientMegacity:
  Id: 5098
  ENG: "Ancient megacity"
@@ -20056,12 +20001,6 @@ NutritiousFlightlessBirdSpecies:
  RUS: "Вид съедобных нелетающих птиц."
  UKR: "Поживні нелітаючі види птахів."
  PTB: "Espécie nutritiva de ave não voadora."
-ProvidesFoodPerTurnTotal3:
- Id: 18218
- ENG: "Provides 0.6 food per turn, total worth of 3100 food."
- RUS: "Дает +0.6 еды за ход, всего 3100 еды."
- UKR: "Дає 0.6 їжі за хід, загальною вартістю 3100 їжі."
- PTB: "Fornece 0,6 de comida por turno, valor total de 3100 de comida."
 CaveSystem:
  Id: 18111
  ENG: "Cave system"
@@ -20092,12 +20031,6 @@ ACaveInWhichWe:
  RUS: "Пещера, в которой мы договорились с контрабандистами оставить товар."
  UKR: "Печера, в якій ми домовилися з контрабандистом висадити товар."
  PTB: "Uma caverna onde combinamos com o contrabandista de deixar as mercadorias."
-ProvidesFoodProductionCredits:
- Id: 18116
- ENG: "Provides +2 food, +3 production, - 1,3 credits"
- RUS: "Дает +2 еды, +3  продукции, - 1,3  кредитов."
- UKR: "Забезпечує +2 їжі, +3 виробництва, - 1,3 кредиту"
- PTB: "Fornece +2 de comida, +3 de produção, -1,3 créditos."
 EvaporativeWastePit:
  Id: 18103
  ENG: "Evaporative Waste pit"
@@ -20140,12 +20073,6 @@ TastyFruitsThatAreA:
  RUS: "Вкусные природные афродизиаки."
  UKR: "Смачні фрукти, які є природним афродизіаком, що вивільняє ферменти, які покращують роботу нервової системи."
  PTB: "Frutas saborosas que são um afrodisíaco natural e liberam enzimas de aprimoramento neural."
-ProvidesFoodPerTurnTotal4:
- Id: 18224
- ENG: "Provides 1 food per turn,  +4 flat research, +8 Million population per turn, total total worth of 250 food."
- RUS: "Дает +1 еды за ход, всего 350 еды и +8 миллионов населения за ход."
- UKR: "Дає 1 їжу за хід, +4 плоских дослідження, +8 мільйонів населення за хід, загальною вартістю 250 їжі."
- PTB: "Fornece 1 de comida por turno, +4 de pesquisa fixa, +8 milhões de população por turno, valor total de 250 de comida."
 WorldSeed:
  Id: 18175
  ENG: "World seed"
@@ -20158,12 +20085,6 @@ TheSeedOfAWorld:
  RUS: "Семя мирового древа. При посадке на планете оно будет медленно расти и начнет терраформировать окружающую среду."
  UKR: "Насіння світового дерева. Посаджене на планеті, воно буде повільно рости і почне тераформувати навколишнє середовище."
  PTB: "A semente de uma árvore-mundo. Quando plantada em um mundo, ela crescerá lentamente e começará a terraformar o ambiente."
-PlanetFertilityTerraformsAPlanet:
- Id: 18177
- ENG: "+0.15 planet fertility, terraform's a planet"
- RUS: "+0.15 к плодородию, терраформирует планеты."
- UKR: "+0.15 родючість планети, тераформа - це планета"
- PTB: "+0,15 de fertilidade planetária, terraforma um planeta."
 MysteriousAltar:
  Id: 18178
  ENG: "Mysterious altar"
@@ -20188,12 +20109,6 @@ ThisAncientDefensiveDeviceIs:
  RUS: "Это древнее защитное устройство создает мощный щит по всей планете, защищающий от бомбардировок. Но у этой древней технологии есть обратная сторона: плотное поле щита блокирует часть солнечного света."
  UKR: "Цей стародавній оборонний пристрій створює потужний щит для всієї планети, захищаючи її від бомбардувань. Але у цієї стародавньої технології є й зворотний бік: щільне поле щита блокує певний відсоток сонячного світла."
  PTB: "Este antigo dispositivo defensivo está criando um forte escudo em escala planetária, protegendo contra bombardeios. Mas há uma desvantagem nessa tecnologia antiga: o campo denso do escudo bloqueia uma porcentagem da luz solar."
-PlanetaryShieldStrengthFertilityInjuries:
- Id: 18182
- ENG: "+1800 planetary shield strength, -0.2 fertility, 2 injuries to each invading troop."
- RUS: "+1800 к силе планетарного щита, -0,2 к плодородию, +2 повреждения каждому вторгающемуся отряду."
- UKR: "+1800 міцності планетарного щита, -0.2 народжуваності, 2 поранення для кожного війська вторгнення."
- PTB: "+1800 de força de escudo planetário, -0,2 de fertilidade, 2 ferimentos em cada tropa invasora."
 ForcefieldEmitter:
  Id: 18183
  ENG: "Forcefield emitter"
@@ -20206,12 +20121,6 @@ ThisMysteriousForcefieldGeneratorHas:
  RUS: "Этот странный генератор силового поля создал огромный купол, препятствующий чему-либо попадать внутрь или наружу."
  UKR: "Цей таємничий генератор силового поля створив величезний купол, який не дає нікому проникнути всередину або вийти назовні."
  PTB: "Este misterioso gerador de campo de força criou uma enorme cúpula que impede qualquer coisa de entrar ou sair."
-FertilityBillionPopulation:
- Id: 18185
- ENG: "-0.15 fertility, -0.07 billion population"
- RUS: "-0.15 к плодородию, -0.07 милииарда населения."
- UKR: "-0,15 народжуваності, -0,07 млрд населення"
- PTB: "-0,15 de fertilidade, -0,07 bilhão de população."
 AncientObelisk:
  Id: 18186
  ENG: "Ancient Obelisk"
@@ -20236,12 +20145,6 @@ ThisMysteriousObeliskEmitsAn:
  RUS: "Таинственный обелиск излучает энергетическое поле, которое стимулирует нервные пути в мозге разумных организмов."
  UKR: "Цей таємничий обеліск випромінює енергетичне поле, яке стимулює нервові шляхи живих організмів."
  PTB: "Este misterioso obelisco emite um campo de energia que estimula as vias neurais em organismos sencientes."
-ResearchPerColonist:
- Id: 18190
- ENG: "0.2 research per colonist"
- RUS: "+0.2 к науке за колониста."
- UKR: "0,2 дослідження на колоніста"
- PTB: "0,2 de pesquisa por colono."
 NeuralDampener:
  Id: 18191
  ENG: "Neural Dampener"
@@ -20254,12 +20157,6 @@ ThisMysteriousObeliskEmitsAn2:
  RUS: "Таинственный обелиск излучает энергетическое поле, которое дестабилизирует нервные пути в разумных организмах."
  UKR: "Цей таємничий обеліск випромінює енергетичне поле, яке стабілізує нервові шляхи живих організмів."
  PTB: "Este misterioso obelisco emite um campo de energia que desestabiliza as vias neurais em organismos sencientes."
-NegativeResearchPerTurn:
- Id: 18193
- ENG: "-1 research per turn"
- RUS: "-1 к науке за ход."
- UKR: "-1 дослідження за хід"
- PTB: "-1 de pesquisa por turno."
 SpaceElevator2:
  Id: 18194
  ENG: "Space elevator"
@@ -20296,12 +20193,6 @@ APirateOutcastBaseLed:
  RUS: "База пиратов-изгоев, возглавляемая человеком, называющим себя Голдимирес. Он помогает нам с транспортировкой ресурсов."
  UKR: "Піратська база вигнанців, очолювана людиною, яка називає себе Голдімайрсом. Він допомагає нам з переміщенням ресурсів."
  PTB: "Uma base de proscritos piratas, liderada por um indivíduo que se chama Goldymires. Ele está nos ajudando com a movimentação de recursos."
-InfrastructureCreditsPerTurn:
- Id: 18200
- ENG: "+2 infrastructure, -1 credits per turn"
- RUS: "+2 к инфраструктуре, -1 кредитов за ход."
- UKR: "+2 інфраструктура, -1 кредит за хід"
- PTB: "+2 de infraestrutura, -1 crédito por turno."
 TeleportRing:
  Id: 18201
  ENG: "Teleport ring"
@@ -20326,12 +20217,6 @@ SelfreplicatingMachinesThatConsumeAll:
  RUS: "Самовоспроизводящиеся машины, которые потребляют всю биомассу с которой сталкиваются - для своего размножения. Часто проникают сквозь стены и оборонительные сооружения в поисках биомассы."
  UKR: "Самовідтворювальні машини, які споживають усю біомасу, що зустрічається на шляху до їхнього розмноження. Часто проникають крізь стіни та оборонні споруди в пошуках біомаси."
  PTB: "Máquinas autorreplicantes que consomem toda biomassa que encontram para se propagar. Frequentemente atravessam paredes e defesas em sua busca por mais biomassa."
-FoodPerTurn2:
- Id: 18205
- ENG: "-2 food per turn."
- RUS: "-2 еды за ход."
- UKR: "-2 одиниці їжі за хід."
- PTB: "-2 de comida por turno."
 UnidentifiedSignature:
  Id: 18206
  ENG: "Unidentified signature"
@@ -20398,12 +20283,6 @@ AtOneTimeAnAbandoned:
  RUS: "Некогда заброшенное помещение, сейчас очищено и отремонтировано, этот большой склад обеспечивает хранение на 200 дополнительных продуктов питания и производства."
  UKR: "Колись занедбаний склад, тепер прибраний і відремонтований, цей великий склад забезпечує зберігання 200 додаткових продуктів харчування та продукції."
  PTB: "Outrora um armazém abandonado, agora limpo e restaurado, este grande armazém fornece armazenamento para 200 unidades extras de comida e produção."
-MaximumGoodsStorage3:
- Id: 5369
- ENG: "+200 maximum goods storage"
- RUS: "+200 к месту на складе"
- UKR: "+200 максимальне зберігання товарів"
- PTB: "+200 de armazenamento máximo de bens"
 Oasis:
  Id: 5092
  ENG: "Oasis"
@@ -20416,12 +20295,6 @@ AFreshWaterReservoirSurrounded:
  RUS: "Резервуар с пресной водой, окруженный плодородной почвой и пышной растительностью."
  UKR: "Водойма з прісною водою, оточена родючим ґрунтом і пишним рослинним світом."
  PTB: "Um reservatório de água doce cercado por solo fértil e vegetação exuberante. "
-ProducesFoodPerTurnTotal:
- Id: 5094
- ENG: "Produces +0.5 food per turn, total worth of 4000 food"
- RUS: "Производит +0,5 еды за ход"
- UKR: "Виробляє +0.5 одиниць їжі за хід, загальною вартістю 4000 одиниць"
- PTB: "Produz +0,5 de comida por turno, com valor total de 4000 de comida"
 MeatGrinder:
  Id: 18234
  ENG: "Meat Grinder"
@@ -20434,12 +20307,6 @@ PopulationControlBuilding:
  RUS: "Здание контроля населения."
  UKR: "Будівля демографічного контролю."
  PTB: "Construção de controle populacional."
-FoodPerTurnMillionPopulation:
- Id: 18236
- ENG: "+2 food per turn, -10 Million population per turn."
- RUS: "+2 еды за ход, -10 миллионов населения за ход."
- UKR: "+2 їжі за хід, -10 мільйонів населення за хід."
- PTB: "+2 de comida por turno, -10 milhões de população por turno."
 Scrapyard:
  Id: 18237
  ENG: "Scrapyard"
@@ -22662,12 +22529,6 @@ BB_CrystalPlantDescr:
  RUS: "Это удивительное сооружение выращивает ценные кристаллы, которые можно продавать с очень высокой прибылью."
  UKR: "Ця дивовижна будівля здатна вирощувати дуже цінні кристали, які можна продати з дуже високим прибутком."
  PTB: "Esta construção maravilhosa é capaz de cultivar cristais muito valiosos, que podem ser vendidos com alto lucro."
-BB_CrystalPlantDescrBonus:
- Id: 17650
- ENG: "Generates +8 credits per turn"
- RUS: "Дает +8 кредитов в ход"
- UKR: "Генерує +8 кредитів за хід"
- PTB: "Gera +8 créditos por turno"
 BB_Hellstorm:
  Id: 17651
  ENG: "Hellstorm"
