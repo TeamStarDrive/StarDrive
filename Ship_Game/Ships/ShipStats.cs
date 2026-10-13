@@ -213,7 +213,7 @@ namespace Ship_Game.Ships
             if (level > 0)
                 radsPerSec += radsPerSec * level * 0.05f;
 
-            radsPerSec *= 1 - S.TractorDamage / Mass;
+            radsPerSec *= (1 - S.TractorDamage / Mass).LowerBound(0);
             return Math.Min(radsPerSec, Ship.MaxTurnRadians);
         }
 
@@ -241,7 +241,7 @@ namespace Ship_Game.Ships
         {
             float thrustWeightRatio = Thrust / mass;
             float speed = thrustWeightRatio * e.data.SubLightModifier;
-            speed *= 1 - S.TractorDamage / mass;
+            speed *= (1 - S.TractorDamage / mass).LowerBound(0);
             return Math.Min(speed, Ship.MaxSubLightSpeed);
         }
 

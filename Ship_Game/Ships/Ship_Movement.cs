@@ -309,7 +309,7 @@ namespace Ship_Game.Ships
             if (!atWarp && Velocity.Length() > maxSTLSpeed)
             {
                 // feature: exit from hyperspace at ridiculous speeds (STL max)
-                Velocity = Velocity.Normalized() * Math.Min(maxSTLSpeed, MaxSubLightSpeed);
+                Velocity = Velocity.Normalized() * maxSTLSpeed.Clamped(0, MaxSubLightSpeed);
             }
 
             if (isWarpCapable)

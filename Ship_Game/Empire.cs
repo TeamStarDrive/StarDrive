@@ -1184,6 +1184,9 @@ namespace Ship_Game
             Research.UpdateNetResearch();
 
             UpdateNetPlanetIncomes();
+            for (int i = 0; i < OwnedPlanets.Count; ++i)
+                OwnedPlanets[i].UpdateIncomingTradeGoods();
+
             UpdateMilitaryStrengths();
             CalculateScore(fromSave: true);
             UpdateRelationships(takeTurn: false);
@@ -1980,7 +1983,7 @@ namespace Ship_Game
                 return;
 
             float playerScore    = TotalScore;
-            var aiEmpires        = Universe.ActiveNonPlayerMajorEmpires;
+            var aiEmpires        = Universe.ActiveNonPlayerMajorEmpires.Filter(e => !e.MeetsDefeatConditions);
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
@@ -2058,14 +2061,15 @@ namespace Ship_Game
             }
         }
 
+        public bool MeetsDefeatConditions => OwnedPlanets.Count == 0
+                                             || Universe.P.EliminationMode && Capital != null && Capital.Owner != this;
+
         /// <summary>Returns TRUE if empire is defeated</summary>
         public bool UpdateIsEmpireDefeated()
         {
             if (IsFaction) return false;
             if (IsDefeated) return true;
-            if (!Universe.P.EliminationMode && OwnedPlanets.Count != 0)
-                return false;
-            if (Universe.P.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
+            if (!MeetsDefeatConditions)
                 return false;
 
             SetAsDefeated();

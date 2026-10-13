@@ -195,8 +195,8 @@ namespace Ship_Game.Fleets
             base.AddShip(ship);
             ship.Fleet = this;
             ship.AI.FleetNode = node;
-            ship.FleetOffset = node.RelativeFleetOffset;
             ship.RelativeFleetOffset = node.RelativeFleetOffset;
+            AssignPositionTo(ship);
             // A reinforcement that spawns away from the fleet body is "catching up":
             // exclude it from the fleet's assembly throttling until it reaches formation,
             // so it doesn't slow the established fleet down (see UpdateSpeedLimit/Update).
@@ -222,6 +222,53 @@ namespace Ship_Game.Fleets
                     }
                 }
             }
+        }
+
+        public static bool CanBeRequisitioned(Ship ship)
+        {
+            return ship.Fleet == null
+                && ship.CanBeAddedToFleets()
+                && !ship.IsHangarShip
+                && !ship.IsHomeDefense
+                && !ship.Resupplying
+                && ship.AI.State is not (AIState.Refit or AIState.Scrap or AIState.Scuttle);
+        }
+
+        public int CountShipsThatFit(Ship[] ships) => FillEmptyNodes(ships, assign: false);
+
+        public int AssignShipsToEmptyNodes(Ship[] ships) => FillEmptyNodes(ships, assign: true);
+
+        int FillEmptyNodes(Ship[] ships, bool assign)
+        {
+            var taken = new bool[DataNodes.Count];
+            int filled = 0;
+            for (int s = 0; s < ships.Length; ++s)
+            {
+                Ship ship = ships[s];
+                if (!CanBeRequisitioned(ship))
+                    continue;
+
+                for (int i = 0; i < DataNodes.Count; ++i)
+                {
+                    FleetDataNode node = DataNodes[i];
+                    if (taken[i] || node.Ship != null || node.Goal != null || node.ShipName != ship.Name)
+                        continue;
+
+                    taken[i] = true;
+                    ++filled;
+                    if (assign)
+                    {
+                        if (Ships.Count == 0)
+                            FinalPosition = ship.Position;
+
+                        AddExistingShip(ship, node);
+                        ship.AI.ResetPriorityOrder(false);
+                        ship.AI.OrderMoveTo(GetFinalPos(ship), FinalDirection);
+                    }
+                    break;
+                }
+            }
+            return filled;
         }
 
         bool AddShipToNodes(Ship shipToAdd)
@@ -464,7 +511,7 @@ namespace Ship_Game.Fleets
             RightFlankToCenterOffset();
 
             FinalPosition = AveragePosition(true);
-            SetAllSquadsShipPositions(0.0f);
+            SetAllSquadsShipPositions(FinalDirection.ToRadians());
             SetAIDefaultTactics();
             for (int i = 0; i < Ships.Count; i++)
             {
@@ -1090,6 +1137,10 @@ namespace Ship_Game.Fleets
                         task.SetTargetPlanet(newTarget);
                         task.AO = newTarget.Position;
                     }
+                    else if (task.WaveNeverLanded && Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
+                    {
+                        EndInvalidTask(true);
+                    }
                     else
                     {
                         CreatePostInvasionFromCurrentTask(this, task, Owner, "Post Invasion Defense");
@@ -1177,7 +1228,7 @@ namespace Ship_Game.Fleets
                 return false;
 
             float troopStr  = troopShips.Sum(s => s.GetOurTroopStrength(s.TroopCount));
-            float groundStr = p.GetGroundStrength(task.TargetEmpire) * Owner.DifficultyModifiers.EnemyTroopStrength;
+            float groundStr = p.GetGroundStrength(task.TargetEmpire) * p.InvasionResistance * Owner.DifficultyModifiers.EnemyTroopStrength;
             return troopStr > groundStr;
         }
 
@@ -1191,15 +1242,19 @@ namespace Ship_Game.Fleets
         {
             Planet currentTarget = task.TargetPlanet;
             newTarget            = null;
+            if (task.WaveNeverLanded)
+                task.PlanetsThatRepelledAWave.AddUniqueRef(currentTarget);
 
-            if (currentTarget.Owner != null && Owner.IsAtWarWith(currentTarget.Owner))
+            if (currentTarget.Owner != null && Owner.IsAtWarWith(currentTarget.Owner) && !task.WaveNeverLanded)
             {
                 newTarget = currentTarget; // Invasion or bombing was not effective, retry
                 return true; 
             }
 
             var currentSystem    = currentTarget.System;
-            newTarget            = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
+            newTarget            = task.Type == MilitaryTask.TaskType.ReclaimPlanet
+                ? currentSystem.PlanetList.Find(p => !task.RepelledAWave(p) && Owner.IsAtWarWith(p.Owner))
+                : Owner.SafestToInvade(currentSystem.PlanetList, p => !task.RepelledAWave(p) && Owner.IsAtWarWith(p.Owner) && !Owner.LeavesToBombers(p));
 
             if (newTarget != null)
                 return true;
@@ -1208,26 +1263,39 @@ namespace Ship_Game.Fleets
                 return false; // No targets found in system for reclaim fleets
 
             newTarget =  task.Type == MilitaryTask.TaskType.StrikeForce 
-                ? TryGetNewTargetPlanetStrike(currentSystem, task.TargetEmpire) 
-                : TryGetNewTargetPlanetInvasion(currentSystem);
+                ? TryGetNewTargetPlanetStrike(currentSystem, task.TargetEmpire, task) 
+                : TryGetNewTargetPlanetInvasion(currentSystem, task);
 
             return newTarget != null;
         }
 
-        Planet TryGetNewTargetPlanetInvasion(SolarSystem system)
+        Planet TryGetNewTargetPlanetInvasion(SolarSystem system, MilitaryTask task)
         {
-            var potentialSystems = system.FiveClosestSystems.Filter(s => s.PlanetList.Any(p => p.Owner?.IsAtWarWith(Owner) == true));
+            var potentialSystems = system.FiveClosestSystems.Filter(s => s.PlanetList.Any(p => !task.RepelledAWave(p) && p.Owner?.IsAtWarWith(Owner) == true
+                                                                                             && !Owner.LeavesToBombers(p)));
             if (potentialSystems.Length == 0)
                 return null;
 
             SolarSystem potentialSystem = potentialSystems.FindMin(s => Owner.KnownEnemyStrengthIn(s));
-            return potentialSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
+            return Owner.SafestToInvade(potentialSystem.PlanetList, p => !task.RepelledAWave(p) && Owner.IsAtWarWith(p.Owner) && !Owner.LeavesToBombers(p));
         }
 
-        Planet TryGetNewTargetPlanetStrike(SolarSystem system, Empire enemy)
+        Planet TryGetNewTargetPlanetStrike(SolarSystem system, Empire enemy, MilitaryTask task)
         {
             var planets = enemy?.GetPlanets() ?? new Array<Planet>();
-            return planets.Count == 0 ? null : planets.FindMin(p => p.Position.Distance(system.Position));
+            Planet closest = null;
+            float closestDistance = float.MaxValue;
+            for (int i = 0; i < planets.Count; ++i)
+            {
+                Planet p = planets[i];
+                float distance = p.Position.Distance(system.Position);
+                if (distance < closestDistance && !task.RepelledAWave(p) && !Owner.LeavesToBombers(p))
+                {
+                    closest = p;
+                    closestDistance = distance;
+                }
+            }
+            return closest;
         }
 
         void DoClaimDefense(MilitaryTask task)
@@ -2204,6 +2272,36 @@ namespace Ship_Game.Fleets
             return Ships.Any(ship => ship.Position.InRadius(task.TargetPlanet.Position, invasionSafeZone));
         }
 
+        bool TroopsHoldBack(MilitaryTask task, bool bombing)
+            => bombing && BombersStillLead(task) || PlanetDefensesStand(task.TargetPlanet);
+
+        const float BombingLeadTurns = 5;
+
+        bool BombersStillLead(MilitaryTask task)
+        {
+            float starDate = Owner.Universe.StarDate;
+            if (task.TroopsFollowBombersAt == 0)
+                task.TroopsFollowBombersAt = starDate + BombingLeadTurns * 0.1f;
+            return starDate + 0.05f < task.TroopsFollowBombersAt;
+        }
+
+        bool PlanetDefensesStand(Planet target)
+        {
+            for (int i = 0; i < target.OrbitalStations.Count; ++i)
+                if (IsLiveDefender(target.OrbitalStations[i], target))
+                    return true;
+
+            var ships = target.System.ShipList;
+            for (int i = 0; i < ships.Count; ++i)
+                if (ships[i]?.HomePlanet == target && IsLiveDefender(ships[i], target))
+                    return true;
+
+            return false;
+        }
+
+        bool IsLiveDefender(Ship ship, Planet target)
+            => ship is { Active: true, Dying: false } && ship.Loyalty == target.Owner && Owner.IsEmpireAttackable(ship.Loyalty);
+
         /// <summary>
         /// Status of planetary assault.
         /// <para>NotApplicable if waiting for invasion to start</para>
@@ -2218,6 +2316,9 @@ namespace Ship_Game.Fleets
 
             if (readyToInvade)
             {
+                if (TroopsHoldBack(task, bombing))
+                    return Status.Good;
+
                 bool invading = OrderShipsToInvade(RearShips, task, bombing);
 
                 if (bombing || invading)
@@ -2434,6 +2535,8 @@ namespace Ship_Game.Fleets
             float planetAssaultStrength = 0f;
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength = FleetTask.TargetPlanet.GetGroundStrength(Owner);
+            if (ourGroundStrength > 0)
+                task.TroopsLanded = true;
             var invasionShips = ships.ToArr();
 
             // collect current invasion stats from all ships in fleet. 
@@ -2443,6 +2546,7 @@ namespace Ship_Game.Fleets
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; 
 
                 if (ship.AI.State == AIState.AssaultPlanet) shipsInvading++;
+                shipsInvading += ShuttlesFlyingTroopsTo(ship, task.TargetPlanet);
             }
 
             planetAssaultStrength += ourGroundStrength;
@@ -2468,7 +2572,8 @@ namespace Ship_Game.Fleets
                 Ship ship = invasionShips[x];
                 if (ship.IsTroopShip && ship.AI.State != AIState.AssaultPlanet && ship.Carrier.PlanetAssaultStrength > 0)
                 {
-                    ship.AI.OrderLandAllTroops(task.TargetPlanet, clearOrders:true);
+                    if (ship.AI.OrderLandAllTroops(task.TargetPlanet, clearOrders:true))
+                        task.TroopsSent = true;
                     numberOfShipsToSend--;
                     shipsInvading++;
                 }
@@ -2477,7 +2582,20 @@ namespace Ship_Game.Fleets
             return shipsInvading > 0;
         }
 
-        float GetGroundStrOfPlanet(Planet p) => p.GetGroundStrengthOther(Owner);
+        static int ShuttlesFlyingTroopsTo(Ship carrier, Planet target)
+        {
+            int flying = 0;
+            ShipModule[] bays = carrier.Carrier.AllTroopBays;
+            for (int i = 0; i < bays.Length; ++i)
+            {
+                if (bays[i].TryGetHangarShipActive(out Ship shuttle) && shuttle.HasOurTroops && !shuttle.IsLanding
+                    && shuttle.AI.FindGoal(ShipAI.Plan.LandTroop, out ShipAI.ShipGoal landing) && landing.TargetPlanet == target)
+                    ++flying;
+            }
+            return flying;
+        }
+
+        float GetGroundStrOfPlanet(Planet p) => p.GetGroundStrengthOther(Owner) * p.InvasionResistance;
 
         void SetPostInvasionFleetCombat()
         {

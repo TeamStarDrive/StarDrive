@@ -1159,11 +1159,11 @@ namespace Ship_Game.Ships
                 UpdateTimer += 1f;
                 Loyalty.data.Traits.ApplyTraitToShip(this);
                 AI.ResetStateFlee();
+                UpdateTractor();
                 UpdateModulesAndStatus(FixedSimTime.One);
                 ExploreCurrentSystem(timeStep);
                 ScrambleFightersIfInCombat();
                 RecallHangarShipIfTooFarFromCarrier();
-                UpdateTractor();
                 UpdateSystem();
                 UpdateRebaseTarget();
                 SecondsAlive += 1;

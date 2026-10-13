@@ -337,7 +337,7 @@ namespace Ship_Game
         {
             system = u.Random.ItemFilter(u.Systems, s => s.RingList.Count == 0 
                                                          && !s.PiratePresence
-                                                         && includeReseachable || !s.IsResearchable);
+                                                         && (includeReseachable || !s.IsResearchable));
             return system != null;
         }
 

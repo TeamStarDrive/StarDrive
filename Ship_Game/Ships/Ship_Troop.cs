@@ -201,6 +201,9 @@ namespace Ship_Game.Ships
                     ++landed;
                 else break; // no more free tiles, probably
             }
+
+            if (landed > 0 && (IsHangarShip ? Mothership : this)?.Fleet?.FleetTask is { } task && task.TargetPlanet == planet)
+                task.TroopsLanded = true;
             return landed;
         }
 

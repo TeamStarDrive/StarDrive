@@ -533,7 +533,7 @@ namespace Ship_Game.AI
                 StardateAdded = exportPlanet.Universe.StarDate;
 
                 ExportFrom.AddToOutgoingFreighterList(freighter, goodsType);
-                ImportTo.AddToIncomingFreighterList(freighter);
+                ImportTo.AddToIncomingFreighterList(freighter, goodsType);
                 Detours = GravityWellRouter.BuildDetours(freighter, freighter.Position, legTarget, MoveOrder.Regular);
             }
 
@@ -542,9 +542,9 @@ namespace Ship_Game.AI
 
             public void UnRegisterTrade(Ship freighter)
             {
-                ExportFrom.RemoveFromOutgoingFreighterList(freighter);
+                ExportFrom.RemoveFromOutgoingFreighterList(freighter, Goods);
                 if (SupplyingPlanet)
-                    ImportTo.RemoveFromIncomingFreighterList(freighter);
+                    ImportTo.RemoveFromIncomingFreighterList(freighter, Goods);
             }
         }
 

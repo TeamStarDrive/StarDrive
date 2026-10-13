@@ -741,7 +741,7 @@ namespace Ship_Game.Gameplay
         // TODO: This is really funky, something is wrong with it
         bool AttemptAIFederationAbsorb(Empire aiEmpire)
         {
-            if (FedQuest == null) 
+            if (FedQuest == null || aiEmpire.MeetsDefeatConditions)
                 return false;
 
             Empire player = aiEmpire.Universe.Player;
@@ -962,7 +962,9 @@ namespace Ship_Game.Gameplay
                 || !Treaty_Alliance
                 || TotalAnger > 10
                 || Trust < 100
-                || them.TotalScore < us.TotalScore * 1.5f)
+                || them.TotalScore < us.TotalScore * 1.5f
+                || us.MeetsDefeatConditions
+                || them.MeetsDefeatConditions)
             {
                 return;
             }

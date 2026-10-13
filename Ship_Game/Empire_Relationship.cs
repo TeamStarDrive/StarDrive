@@ -709,6 +709,9 @@ namespace Ship_Game
         /// <returns></returns>
         public bool TryMergeOrSurrender(Empire enemy)
         {
+            if (MeetsDefeatConditions)
+                return false;
+
             var potentialEmpires = GlobalStats.RestrictAIPlayerInteraction
                 ? Universe.ActiveNonPlayerMajorEmpires
                 : Universe.ActiveMajorEmpires;
@@ -817,6 +820,9 @@ namespace Ship_Game
                 Log.Error($"Empire.MergeWith tried merge with self: {Name}");
                 return false;
             }
+
+            if (absorber.MeetsDefeatConditions)
+                return false;
 
             if (absorber.isPlayer)
             {

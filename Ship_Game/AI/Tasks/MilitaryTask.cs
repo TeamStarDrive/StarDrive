@@ -29,6 +29,12 @@ namespace Ship_Game.AI.Tasks
         [StarData] public int Priority = 5;
         [StarData] public int NeededTroopStrength;
         [StarData] public int TaskBombTimeNeeded;
+        [StarData] public float TroopsFollowBombersAt; // star date the bombers' lead on the target ends, 0 until they start
+        [StarData] public bool TroopsSent;
+        [StarData] public bool TroopsLanded;
+        public bool WaveNeverLanded => TroopsSent && !TroopsLanded;
+        [StarData] public Array<Planet> PlanetsThatRepelledAWave = new();
+        public bool RepelledAWave(Planet p) => PlanetsThatRepelledAWave.ContainsRef(p);
         [StarData] public MilitaryTaskImportance Importance { get; private set; }
 
         [StarData] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
@@ -430,6 +436,9 @@ namespace Ship_Game.AI.Tasks
         public void SetTargetPlanet(Planet p)
         {
             TargetPlanet = p;
+            TroopsFollowBombersAt = 0;
+            TroopsSent = false;
+            TroopsLanded = false;
         }
 
         public void SetTargetPlanetAsAO(Planet p)
