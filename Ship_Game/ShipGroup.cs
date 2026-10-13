@@ -433,7 +433,7 @@ namespace Ship_Game
 
             // Gravity-well routing: if the group is clustered enough, compute ONE detour
             // chain at the fleet's average position and translate per-ship by FleetOffset.
-            // Dispersed groups fall back to per-ship routing inside AddWayPoint.
+            // Dispersed groups, and ships whose translated chain hits an obstacle, route on their own.
             Vector2[] sharedDetours = TryComputeClusteredDetours(finalPos, order);
 
             foreach (Ship ship in Ships)
@@ -448,10 +448,14 @@ namespace Ship_Game
                     if (!ship.Loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
                         shipOrder |= MoveOrder.Aggressive;
 
-                    if (sharedDetours != null && !shipOrder.IsSet(MoveOrder.Aggressive))
-                        ship.AI.SetPendingDetours(TranslateDetours(sharedDetours, ship.FleetOffset));
-
                     Vector2 finalShipPos = FinalPosition + ship.FleetOffset;
+                    if (sharedDetours != null && !shipOrder.IsSet(MoveOrder.Aggressive))
+                    {
+                        Vector2[] shipDetours = TranslateDetours(sharedDetours, ship.FleetOffset);
+                        if (GravityWellRouter.IsRouteClear(ship, ship.Position, shipDetours, finalShipPos))
+                            ship.AI.SetPendingDetours(shipDetours);
+                    }
+
                     ship.AI.OrderMoveTo(finalShipPos, finalDir, AIState.FormationMoveTo, shipOrder);
                     if (this is not Fleet)
                         ship.AI.GroupLateralOffset = ship.RelativeFleetOffset.X;
@@ -459,7 +463,7 @@ namespace Ship_Game
             }
         }
 
-        // Returns a shared detour chain if the group is clustered enough that all ships
+        // Returns a shared detour chain if the group is clustered enough that its ships
         // can reuse the same route (with their FleetOffset applied). Returns null when
         // dispersed (each ship will route independently) or when routing produced none.
         Vector2[] TryComputeClusteredDetours(Vector2 finalPos, MoveOrder order)

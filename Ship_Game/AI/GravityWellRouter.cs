@@ -13,12 +13,12 @@ namespace Ship_Game.AI;
 //   - FAR systems (both origin AND destination >= 1.1 system diameters from system
 //     center) that aren't covered by friendly projector influence are treated as a
 //     SINGLE blob — the whole system disc becomes the obstacle. Skips:
-//       · friendly influence covers the system center (in our territory)
 //       · system is KNOWN to be empty (no planets → no wells, safe transit)
 //   - NEAR systems (origin OR destination within 1.1 diameters of the system center)
 //     fall back to per-planet gravity-well detection — too close to swing around the
 //     whole disc, and near the destination the disc contains the endpoint so it would
-//     otherwise be skipped entirely (and its wells clipped on approach). Skips:
+//     otherwise be skipped entirely (and its wells clipped on approach). So do far
+//     systems whose center is in friendly influence, where only some wells hold. Skips:
 //       · system is NOT known to our empire (can't see wells; reactive warp-drop
 //         logic handles whatever the ship hits — we can't strategically route
 //         around obstacles we don't know exist).
@@ -176,6 +176,19 @@ public static class GravityWellRouter
             detours.Add(nodes[i]);
     }
 
+    public static bool IsRouteClear(Ship ship, Vector2 from, Vector2[] detours, Vector2 to)
+    {
+        Vector2 a = from;
+        for (int i = 0; i <= detours.Length; i++)
+        {
+            Vector2 b = i < detours.Length ? detours[i] : to;
+            if (!IsSegmentClear(ship, from, to, a, b))
+                return false;
+            a = b;
+        }
+        return true;
+    }
+
     static bool IsSegmentClear(Ship ship, Vector2 origin, Vector2 finalDest, Vector2 a, Vector2 b)
     {
         return !FindFirstBlocker(ship, origin, finalDest, a, b,
@@ -290,7 +303,6 @@ public static class GravityWellRouter
         obstacleCenter = default;
         obstacleRadius = 0f;
         obstacleName = null;
-        float scale = ShipInhibitionScale(ship);
 
         Vector2 ab = b - a;
         float abLen2 = ab.SqLen();
@@ -319,14 +331,12 @@ public static class GravityWellRouter
             bool isNear = sys.Position.SqDist(origin) < nt2 || sys.Position.SqDist(finalDest) < nt2;
             bool isKnown = sys.IsExploredBy(ship.Loyalty);
 
-            if (!isNear)
-            {
-                if (ship.Universe.Influence.IsInInfluenceOf(ship.Loyalty, sys.Position))
-                {
-                    skipFriendly++;
-                    continue;
-                }
+            bool friendlyFar = !isNear && IsFriendly(ship, sys.Position) && !(isKnown && ship.Universe.HasRemnantPortal(sys));
+            if (friendlyFar)
+                skipFriendly++;
 
+            if (!isNear && !friendlyFar)
+            {
                 // Known portal systems carry a warp inhibitor — treat as obstacle even when
                 // planet-less (radiating-star / lone-system portals would otherwise be skipped
                 // by the known-empty rule and trap a passing ship).
@@ -367,7 +377,7 @@ public static class GravityWellRouter
                         continue;
                     planetsBlocking++;
 
-                    float r = p.GravityWellRadius * scale * PlanetWellSafetyMul;
+                    float r = p.GravityWellRadius * WellScale(p, ship) * PlanetWellSafetyMul;
                     TryCollect(origin, finalDest, a, ab, abLen2, p.Position, r, ref candidates, $"planet {p.Name}");
                 }
             }
@@ -376,7 +386,7 @@ public static class GravityWellRouter
         if (candidates.Count == 0)
         {
             if (LogVerbose && logNoBlock)
-                Log.Info($"[GWRouter]   no block: {sysCandidates}/{systems.Count} systems ({sysObstacles} far-unfriendly, {planetsBlocking} near-blocking planets; skipped {skipFriendly} friendly, {skipKnownEmpty} known-empty, {skipNearUnknown} near-unknown)");
+                Log.Info($"[GWRouter]   no block: {sysCandidates}/{systems.Count} systems ({sysObstacles} far-unfriendly, {planetsBlocking} blocking planets, {skipFriendly} far-friendly checked per planet; skipped {skipKnownEmpty} known-empty, {skipNearUnknown} unknown)");
             return false;
         }
 
@@ -473,20 +483,26 @@ public static class GravityWellRouter
     // coverage are handled correctly:
     //   - own planets:   never block (no self-inhibit)
     //   - enemy planets: ALWAYS block (inhibits even inside friendly projector range)
-    //   - star (system center) NOT in our influence: the whole system is hostile transit
+    //   - star (system center) NOT in friendly influence: the whole system is hostile transit
     //     space. A ship crossing it won't be in friendly projector range, so EVERY well
-    //     inhibits — a single planet that merely clips the fringe of our influence must not
+    //     inhibits — a single planet that merely clips the fringe of friendly influence must not
     //     exempt itself (the Romandal case: one planet sat partly in our influence while the
     //     system did not, so the router waved the scout straight through the well).
-    //   - star in our influence: friendly system — block only wells outside our coverage.
+    //   - star in friendly influence: friendly system — block only wells outside its coverage.
+    // Friendly influence is ours, an ally's or a trade partner's, as for the ship itself.
     static bool IsBlockingFor(Planet p, Ship ship)
     {
         Empire owner = p.Owner;
         if (owner == ship.Loyalty) return false;
         if (owner != null && owner.WillInhibit(ship.Loyalty)) return true;
-        if (!ship.Universe.Influence.IsInInfluenceOf(ship.Loyalty, p.ParentSystem.Position))
+        if (!IsFriendly(ship, p.ParentSystem.Position))
             return true;
-        return !ship.Universe.Influence.IsInInfluenceOf(ship.Loyalty, p.Position);
+        return !IsFriendly(ship, p.Position);
+    }
+
+    static bool IsFriendly(Ship ship, Vector2 pos)
+    {
+        return ship.Universe.Influence.GetInfluenceStatus(ship.Loyalty, pos) == InfluenceStatus.Friendly;
     }
 
     static bool HasKnownRemnantsOutsideOurInfluence(Ship ship, SolarSystem sys)
@@ -497,10 +513,12 @@ public static class GravityWellRouter
             && ship.Loyalty.Threats.GetHostileStrengthAt(remnants, sys.Position, sys.Radius) > 0f;
     }
 
-    static float ShipInhibitionScale(Ship s)
+    // Mirrors SolarSystem.IdentifyGravityWell: the trait shrinks only an at-war well in friendly influence
+    static float WellScale(Planet p, Ship ship)
     {
-        // Mirror Planet.IdentifyGravityWell: trait can shrink the effective well
-        return 1f - s.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
+        return p.Owner?.WillInhibit(ship.Loyalty) == true && IsFriendly(ship, p.Position)
+            ? 1f - ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter
+            : 1f;
     }
 
     // Quick segment-disc test: does the segment from a to a+ab come within radius r of center?
