@@ -122,6 +122,152 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void TheWarmongersGoAfterTheWeakestEmpireWhenEveryEmpireIsAtWar()
+        {
+            typeof(Remnants).GetProperty(nameof(Remnants.Story))!.SetValue(Faction.Remnants, Remnants.RemnantStory.AncientWarMongers);
+            Player.TotalScore = 1000;
+            Enemy.TotalScore = 400;
+            Player.UpdateRelationships(takeTurn: false);
+            Enemy.UpdateRelationships(takeTurn: false);
+            Assert.IsTrue(Player.IsAtWarWithMajorEmpire && Enemy.IsAtWarWithMajorEmpire, "setup: every empire is at war");
+
+            Assert.IsTrue(Faction.Remnants.FindValidTarget(out Ship_Game.Empire target), "setup: the Remnants find a target");
+            Assert.AreSame(Enemy, target, "with every empire at war the Warmongers go after the weakest, as their story says");
+        }
+
+        [TestMethod]
+        public void WithNoPortalLeftTheRemnantsGoAfterTheEmpireTheyFocusOn()
+        {
+            FocusRemnantsOnEnemy();
+
+            Assert.AreSame(EnemyHome, Faction.Remnants.GetTargetPlanetForFleetTaskWhenNoPortals(Portal.Position),
+                           "the empire that attacked their portal, while it stands, not the player");
+        }
+
+        [TestMethod]
+        public void WithNoPortalLeftTheRemnantsTurnOnThePlayerWhenTheirFocusHasJustLostItsLastPlanet()
+        {
+            FocusRemnantsOnEnemy();
+            EnemyHome.WipeOutColony(Enemy);
+            Assert.IsFalse(Enemy.IsDefeated, "setup: the defeat is noticed only at the empire's next turn");
+
+            Assert.AreSame(Colony, Faction.Remnants.GetTargetPlanetForFleetTaskWhenNoPortals(Portal.Position),
+                           "an empire with no planet left offers nothing to aim at");
+        }
+
+        [TestMethod]
+        public void ARaidFleetLostOnItsWayHomeIsNotCountedAsALostRaid()
+        {
+            Faction.InitFleetEmpireStrMultiplier();
+            UState.DeregisterRemnantPortal(PortalSystem);
+            RemnantEngageEmpire raid = RaidUnderWay(fleetShips: 0, taskStep: 8);
+            float before = Faction.GetFleetStrEmpireMultiplier(Enemy);
+
+            Assert.AreEqual(GoalStep.GoalFailed, raid.Evaluate(), "setup: the fleet is gone");
+
+            AssertEqual(0.0001f, before, Faction.GetFleetStrEmpireMultiplier(Enemy),
+                        "a raid already heading home was counted when it turned back, or did its job, so its loss is not counted again");
+        }
+
+        [TestMethod]
+        public void ARaidThatTurnsOnAnotherEmpireTellsItsTask()
+        {
+            typeof(Remnants).GetProperty(nameof(Remnants.Story))!.SetValue(Faction.Remnants, Remnants.RemnantStory.AncientExterminators);
+            CreateThirdMajorEmpire();
+            Player.TotalScore = 1000;
+            Enemy.TotalScore = 800;
+            ThirdMajor.TotalScore = 100;
+            RemnantEngageEmpire raid = RaidUnderWay(taskStep: 7);
+
+            raid.Evaluate();
+
+            Assert.AreSame(ThirdMajor, raid.TargetEmpire, "setup: the raid turns on the weakest empire");
+            Assert.AreSame(ThirdMajor, raid.Task.TargetEmpire, "planets the fleet clears from now on count against the new target");
+        }
+
+        [TestMethod]
+        public void AGatheringRaidTakesOnlyTheStrengthItStillMisses()
+        {
+            FocusRemnantsOnEnemy();
+            var raid = new RemnantEngageEmpire(Faction, Portal, Enemy);
+            raid.Evaluate();
+            raid.Evaluate();
+            raid.Task = MilitaryTask.CreateRemnantEngagement(raid.TargetPlanet, Faction);
+            raid.Task.TargetEmpire = Enemy;
+            raid.Task.CreateRemnantFleet(Faction, SpawnShip("Neutron Bomber Mk1", Faction, Portal.Position), "Ancient Fleet", out Fleet fleet);
+            raid.Fleet = fleet;
+            for (int i = 0; i < 2; ++i)
+                fleet.AddShip(SpawnShip("Neutron Bomber Mk1", Faction, Portal.Position));
+
+            float required = Faction.Remnants.RequiredAttackFleetStr(Enemy);
+            Ship probe = SpawnShip("Vulcan Scout", Faction, Portal.Position);
+            float escortStr = probe.BaseStrength;
+            probe.QueueTotalRemoval();
+            int escorts = (int)(3 * required / escortStr) + 10;
+            for (int i = 0; i < escorts; ++i)
+            {
+                Ship escort = SpawnShip("Vulcan Scout", Faction, Portal.Position + new Vector2(-800 - i * 10, 0));
+                escort.IsGuardian = true;
+            }
+            UState.Objects.Update(new(time: 1f)); // joins the spatial index
+            UState.Objects.Update(new(time: 1f)); // placed in the portal's system
+            AssertEqual(0, Faction.Remnants.GetNumBombersNeeded(Colony), "setup: this level needs no more bombers");
+
+            for (int i = 0; i < 5 && raid.Evaluate() == GoalStep.TryAgain; ++i) { }
+
+            float escortsGathered = raid.Fleet.GetStrength() - raid.Fleet.GetBomberStrength();
+            Assert.IsTrue(escortsGathered >= required, $"setup: the raid gathers what it needs ({escortsGathered} of {required})");
+            Assert.IsTrue(escortsGathered < required + 2 * escortStr,
+                          $"the raid takes about what it needs, not a second batch ({escortsGathered} for {required})");
+        }
+
+        [TestMethod]
+        public void APortalDefenseFleetWithoutItsPortalShipWaitsInsteadOfCrashing()
+        {
+            MilitaryTask task = MilitaryTask.CreateRemnantDefendPortal(Faction, Portal);
+            task.CreateRemnantFleet(Faction, SpawnShip("Vulcan Scout", Faction, Portal.Position), "Ancient Guardians", out Fleet fleet);
+            typeof(MilitaryTask).GetProperty(nameof(MilitaryTask.TargetShip))!.SetValue(task, null);
+            fleet.TaskStep = 2;
+
+            typeof(Fleet).GetMethod("DoRemnantPortalDefense", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(fleet, new object[] { task });
+
+            AssertEqual(2, fleet.TaskStep, "the fleet without its portal ship stays at its step");
+        }
+
+        [TestMethod]
+        public void AModWithoutARemnantDesignMultiplierSizesRaidsAsVanilla()
+        {
+            typeof(Remnants).GetProperty(nameof(Remnants.Level))!.SetValue(Faction.Remnants, Remnants.MaxLevel);
+            Enemy.OffensiveStrength = 10_000_000f;
+            float set = GlobalStats.Defaults.RemnantDesignStrMultiplier;
+            try
+            {
+                GlobalStats.Defaults.RemnantDesignStrMultiplier = 2f;
+                float vanilla = Faction.Remnants.RequiredAttackFleetStr(Enemy);
+                Assert.IsTrue(vanilla > Remnants.MaxLevel * Remnants.MaxLevel * 1000, "setup: the target's strength sets the raid size");
+
+                GlobalStats.Defaults.RemnantDesignStrMultiplier = 0f;
+
+                AssertEqual(1f, vanilla, Faction.Remnants.RequiredAttackFleetStr(Enemy), "a mod that leaves the multiplier at 0 gets vanilla's 2, as the difficulty settings do");
+            }
+            finally
+            {
+                GlobalStats.Defaults.RemnantDesignStrMultiplier = set;
+            }
+        }
+
+        [TestMethod]
+        public void TheRemnantsCanPickAShipAtTheTopLevelOnInsane()
+        {
+            UState.P.Difficulty = GameDifficulty.Insane;
+            typeof(Remnants).GetProperty(nameof(Remnants.Level))!.SetValue(Faction.Remnants, Remnants.MaxLevel);
+
+            for (int shipsInFleet = 0; shipsInFleet < 4; ++shipsInFleet)
+                Assert.IsTrue(System.Enum.IsDefined(Faction.Remnants.SelectShipForCreation(Remnants.MaxLevel, shipsInFleet)),
+                              $"a ship type is picked for a fleet of {shipsInFleet} at the top level");
+        }
+
+        [TestMethod]
         public void APortalRegistersItsSystemOnceItsShipIsPlaced()
         {
             SolarSystem system = EmptySystem(new Vector2(0, 300_000));
