@@ -2546,6 +2546,7 @@ namespace Ship_Game.Fleets
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; 
 
                 if (ship.AI.State == AIState.AssaultPlanet) shipsInvading++;
+                shipsInvading += ShuttlesFlyingTroopsTo(ship, task.TargetPlanet);
             }
 
             planetAssaultStrength += ourGroundStrength;
@@ -2579,6 +2580,19 @@ namespace Ship_Game.Fleets
             }
 
             return shipsInvading > 0;
+        }
+
+        static int ShuttlesFlyingTroopsTo(Ship carrier, Planet target)
+        {
+            int flying = 0;
+            ShipModule[] bays = carrier.Carrier.AllTroopBays;
+            for (int i = 0; i < bays.Length; ++i)
+            {
+                if (bays[i].TryGetHangarShipActive(out Ship shuttle) && shuttle.HasOurTroops && !shuttle.IsLanding
+                    && shuttle.AI.FindGoal(ShipAI.Plan.LandTroop, out ShipAI.ShipGoal landing) && landing.TargetPlanet == target)
+                    ++flying;
+            }
+            return flying;
         }
 
         float GetGroundStrOfPlanet(Planet p) => p.GetGroundStrengthOther(Owner) * p.InvasionResistance;

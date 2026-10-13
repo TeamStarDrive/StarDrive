@@ -274,6 +274,59 @@ public class InvasionPlanningTests : StarDriveTest
     }
 
     [TestMethod]
+    public void APlanetTakenMeanwhileIsStillHeldWhenTheNextTargetFindsNoTroops()
+    {
+        Planet taken = AddDummyPlanetToEmpire(new Vector2(400_000), Enemy);
+        Planet next = AddPlanetTo(taken.System, new Vector2(30_000f, 0f), Player);
+        Enemy.ShipsReadyForFleet = new FleetShips(Enemy, Enemy.AllFleetReadyShips());
+        var fleet = new Fleet(UState, Enemy);
+        var task = new MilitaryTask(taken, Enemy, fleet, MilitaryTaskImportance.Normal) { TroopsSent = true };
+        fleet.FleetTask = task;
+        fleet.AddShip(SpawnShip(Warship, Enemy, taken.Position + new Vector2(taken.Radius + 5000f, 0f)));
+        fleet.TaskStep = 8;
+        Assert.IsFalse(new MilitaryTask(next, Enemy, MilitaryTaskImportance.Normal).GetMoreTroops(next, out _),
+            "setup: there are no troops for the next planet");
+
+        CallFleet(fleet, "DoAssaultPlanet", task);
+
+        Assert.AreEqual(taken, task.TargetPlanet, "the task keeps the planet it fought for when it finds no troops for the next one");
+        Assert.IsNotNull(fleet.FleetTask, "and the fleet stays to guard it");
+    }
+
+    [TestMethod]
+    public void AssaultShuttlesFlyingInAreAWaveStillOnItsWay()
+    {
+        const string troopCarrier = "Neutron Troopship Mk2";
+        LoadStarterShips(troopCarrier, Player.data.DefaultAssaultShuttle);
+        Player.GetRelations(Enemy).TurnsAtWar = 5;
+        Planet target = AddHomeWorldToEmpire(new Vector2(400_000), Enemy);
+        var task = new MilitaryTask(target, Player, MilitaryTaskImportance.Normal);
+        var fleet = new Fleet(UState, Player) { FleetTask = task };
+        Ship carrier = SpawnShip(troopCarrier, Player, target.Position + new Vector2(target.Radius + 3000f, 0f));
+        carrier.KillAllTroops();
+        ShipModule[] bays = carrier.Carrier.AllTroopBays;
+        for (int i = 0; i < bays.Length; ++i)
+        {
+            bays[i].HangarTimer = 0f;
+            ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(carrier);
+        }
+        fleet.AddShip(carrier);
+
+        carrier.Carrier.AssaultPlanet(target);
+        Assert.IsTrue(bays[0].TryGetHangarShipActive(out Ship shuttle) && shuttle.HasOurTroops && !shuttle.IsLanding,
+            "setup: a shuttle carries troops toward the planet");
+        Assert.IsFalse(carrier.HasOurTroops, "setup: the carrier has launched all its troops");
+
+        bool invading = (bool)CallFleet(fleet, "OrderShipsToInvade", new[] { carrier }, task, false);
+        Assert.IsTrue(invading, "troops still flying in keep the invasion going, so the wave is not judged lost before it lands");
+
+        Planet elsewhere = AddDummyPlanetToEmpire(new Vector2(700_000), Enemy);
+        var otherTask = new MilitaryTask(elsewhere, Player, MilitaryTaskImportance.Normal);
+        bool invadingElsewhere = (bool)CallFleet(fleet, "OrderShipsToInvade", new[] { carrier }, otherTask, false);
+        Assert.IsFalse(invadingElsewhere, "control: shuttles flying to another planet are no wave on this one");
+    }
+
+    [TestMethod]
     public void TroopsReachingTheGroundAreRecordedAsTheyLand()
     {
         LoadStarterShips(Player.data.DefaultTroopShip);

@@ -513,6 +513,16 @@ namespace Ship_Game.AI.Tasks
             
         public bool GetMoreTroops(Planet p, out Array<Ship> moreTroops)
         {
+            Planet previousTarget = TargetPlanet;
+            if (GatherMoreTroops(p, out moreTroops))
+                return true;
+
+            TargetPlanet = previousTarget;
+            return false;
+        }
+
+        bool GatherMoreTroops(Planet p, out Array<Ship> moreTroops)
+        {
             moreTroops = new Array<Ship>();
             if (p == null)
                 return false;
