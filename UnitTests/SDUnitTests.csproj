@@ -188,6 +188,7 @@
     <Compile Include="UI\TestFloatSlider.cs" />
     <Compile Include="UI\UndoRedoKeyTests.cs" />
     <Compile Include="Ships\MissileJamTests.cs" />
+    <Compile Include="Ships\PointDefenseCollisionTests.cs" />
     <Compile Include="Ships\ShipEmpRecoveryTests.cs" />
     <Compile Include="Ships\ProjectileLoadTests.cs" />
     <Compile Include="Ships\ProjectileInheritanceTests.cs" />

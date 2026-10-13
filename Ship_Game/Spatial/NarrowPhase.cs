@@ -117,7 +117,9 @@ namespace Ship_Game.Spatial
                 else if (objectA.Type == GameObjectType.Proj ||
                          objectB.Type == GameObjectType.Proj)
                 {
-                    bool isProjA = objectA.Type == GameObjectType.Proj;
+                    // of two projectiles, the point defense one hits the other
+                    bool isProjA = objectA.Type == GameObjectType.Proj
+                                   && (objectB.Type != GameObjectType.Proj || !IsPointDefense(objectB));
                     var proj = (Projectile)(isProjA ? objectA : objectB);
                     SpatialObjectBase victim = isProjA ? objectB : objectA;
 
@@ -129,6 +131,11 @@ namespace Ship_Game.Spatial
                 }
             }
             return numCollisions;
+        }
+
+        static bool IsPointDefense(SpatialObjectBase proj)
+        {
+            return ((Projectile)proj).Weapon is { Tag_PD: true } or { TruePD: true };
         }
 
         static bool HandleBeamCollision(FixedSimTime timeStep, Beam beam, SpatialObjectBase victim, float hitDistance)
