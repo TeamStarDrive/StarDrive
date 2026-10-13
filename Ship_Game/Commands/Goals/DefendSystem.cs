@@ -26,7 +26,7 @@ namespace Ship_Game.Commands.Goals
         }
 
         public DefendSystem(Empire owner, SolarSystem system, float strengthWanted, int fleetCount
-            , MilitaryTaskImportance importance, Empire targetEmpire): this(owner)
+            , MilitaryTaskImportance importance, Empire targetEmpire, Empire attacker = null): this(owner)
         {
             StarDateAdded  = owner.Universe.StarDate;
             TargetSystem   = system;
@@ -35,7 +35,7 @@ namespace Ship_Game.Commands.Goals
             float radius   = system.Radius * 1.5f;
 
             Task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, owner, center, radius,
-                system, strengthWanted, importance)
+                system, strengthWanted, importance, attacker)
             {
                 Goal = this,
                 FleetCount = fleetCount,

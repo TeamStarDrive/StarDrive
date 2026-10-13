@@ -183,12 +183,12 @@ namespace Ship_Game.AI.Tasks
         }
 
         public MilitaryTask(TaskType type, Empire owner, Vector2 center, float radius, SolarSystem system, 
-            float strengthWanted, MilitaryTaskImportance importance) : this(type, owner, center, radius)
+            float strengthWanted, MilitaryTaskImportance importance, Empire attacker = null) : this(type, owner, center, radius)
         {
-            Empire dominant = owner.AI.ThreatMatrix.GetStrongestHostileAt(system.Position, system.Radius);
+            Empire dominant = owner.AI.ThreatMatrix.GetStrongestHostileAt(system.Position, system.Radius) ?? attacker;
             TargetSystem = system;
             TargetEmpire = dominant;
-            EnemyStrength = MinimumTaskForceStrength;
+            EnemyStrength = strengthWanted;
             MinimumTaskForceStrength = strengthWanted.LowerBound(500) * owner.GetFleetStrEmpireMultiplier(dominant);
             Importance= importance;
         }
@@ -316,6 +316,8 @@ namespace Ship_Game.AI.Tasks
                 {
                     if (!Fleet.IsCoreFleet)
                     {
+                        if (Type == TaskType.DefendVsRemnants && Fleet.TaskStep >= 2)
+                            Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                         Log.Warning($"MilitaryTask Evaluate found task with missing fleet {Type}");
                         EndTask();
                         return false;

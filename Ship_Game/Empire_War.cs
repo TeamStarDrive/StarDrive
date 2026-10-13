@@ -305,9 +305,9 @@ namespace Ship_Game
         }
 
         public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, MilitaryTaskImportance importance, 
-            int fleetCount = 1, Empire targetEmpire = null)
+            int fleetCount = 1, Empire targetEmpire = null, Empire attacker = null)
         {
-            AI.AddGoal(new DefendSystem(this, system, strengthWanted.LowerBound(100), fleetCount, importance, targetEmpire));
+            AI.AddGoal(new DefendSystem(this, system, strengthWanted.LowerBound(100), fleetCount, importance, targetEmpire, attacker));
         }
 
         public bool HasWarTaskTargetingSystem(SolarSystem system)

@@ -233,21 +233,25 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {Type}");
 
-            if (TargetPlanet.Owner != Owner)
+            if (TargetPlanet.Owner != Owner || TargetEmpire == null
+                || TargetEmpire.AI.GetRemnantEngagementGoalsFor(TargetPlanet).Length == 0)
             {
                 EndTask();
                 return;
             }
 
-            UpdateMinimumTaskForceStrength();
+            float raidStrength = MinimumTaskForceStrength;
+            float wanted = raidStrength.UpperBound(MinimumStrengthUpperBoundByImportance());
             float divider = (Owner.TotalPopBillion / 30).LowerBound(1);
-            InitFleetRequirements(MinimumTaskForceStrength / divider, minTroopStrength: 0, minBombMinutes: 0);
+            InitFleetRequirements(wanted / divider, minTroopStrength: 0, minBombMinutes: 0);
 
             if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
             {
                 Owner.AI.AddGoal(new DefendVsRemnants(TargetPlanet, TargetPlanet.Owner, Fleet));
                 NeedEvaluation = false;
             }
+
+            MinimumTaskForceStrength = raidStrength;
         }
 
         void RequisitionExplorationForce()

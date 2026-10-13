@@ -57,11 +57,12 @@ namespace Ship_Game.Commands.Goals
                 {
                     float minStr = threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength : 1000;
                     if (threatenedSystem.Enemies.Length > 0)
-                        minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
+                        minStr /= systemOwner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]);
 
                     var importance = systemOwner == Owner ? MilitaryTaskImportance.Important : MilitaryTaskImportance.Normal;
                     int fleetswanted = 3 - (int)importance;
-                    Owner.AddDefenseSystemGoal(targetSys, minStr, importance, fleetswanted, systemOwner);
+                    Empire attacker = threatenedSystem.Enemies.Length > 0 ? threatenedSystem.Enemies[0] : null;
+                    Owner.AddDefenseSystemGoal(targetSys, minStr, importance, fleetswanted, systemOwner, attacker);
                 }
             }
 
