@@ -539,7 +539,8 @@ namespace Ship_Game
                 BlueprintsName.Visible   = EditBlueprints.Visible;
                 ColonyBlueprints.Visible = LoadBlueprints.Visible && Planet.HasBlueprints;
                 BlueprintsCompletionLbl.Visible = EditBlueprints.Visible;
-                BlueprintsAchiveable.Visible    = EditBlueprints.Visible && Planet.Blueprints.PercentAchievable < 100;
+                BlueprintsAchiveable.Visible    = EditBlueprints.Visible && !Planet.Blueprints.SkipUnresearched
+                                                  && Planet.Blueprints.PercentAchievable < 100;
                 BlueprintsGovChange.Visible = EditBlueprints.Visible && BlueprintsGovChange.Text != "";
                 BlueprintsExclusive.Visible = EditBlueprints.Visible && Planet.Blueprints.Exclusive;
                 BlueprintsLink.Visible      = EditBlueprints.Visible && Planet.Blueprints.LinkedBlueprintsName != "";

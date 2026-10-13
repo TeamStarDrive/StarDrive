@@ -98,6 +98,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return Completed;
 
             int standing = ResearchedBuildingsStanding(built, out int researched);
+            PercentCompleted = researched > 0 ? standing * 100 / researched : 0;
             return researched > 0 && standing == researched;
         }
 
