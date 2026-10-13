@@ -197,6 +197,7 @@
     <Compile Include="Ships\ExternalForceTests.cs" />
     <Compile Include="Ships\TractorBeamTests.cs" />
     <Compile Include="Ships\ArtilleryTacticTests.cs" />
+    <Compile Include="Planets\BlueprintLinkTests.cs" />
     <Compile Include="AITests\Empire\DefenseTaskStrengthTests.cs" />
     <Compile Include="AITests\Ships\OvertakeTests.cs" />
     <Compile Include="AITests\Ships\ColonyShipAttackTests.cs" />

@@ -130,6 +130,7 @@ ManuallyAdjustTheNumberOf3: colony_governor
 
 # Colony screen: blueprints
 ExclusiveBlueprintsTip: colony_blueprints
+BlueprintsSkipUnresearchedTip: colony_blueprints
 LinkBlueprintsTip: colony_blueprints
 UploadBluprintsTip: colony_blueprints
 ClearBluprintsTip: colony_blueprints

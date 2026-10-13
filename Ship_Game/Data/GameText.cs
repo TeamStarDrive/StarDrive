@@ -4925,6 +4925,10 @@ namespace Ship_Game
         Turn2 = 4651,
         /// <summary>turns</summary>
         TurnsFew = 4652,
+        /// <summary>Skip Unresearched</summary>
+        BlueprintsSkipUnresearched = 4653,
+        /// <summary>When every building in these Blueprints that you have researched is built, and you have researched at least one, the Governor switches to the linked Blueprints without waiting for the rest. Researching more of these Blueprints later does not switch it back.</summary>
+        BlueprintsSkipUnresearchedTip = 4654,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

@@ -26,7 +26,9 @@ namespace Ship_Game.Universe.SolarBodies
         public ColonyType ColonyType => Template.ColonyType;
         bool Completed => PercentCompleted == 100;
 
-        public bool IsAchievableCompleted => PercentAchievable == 0 || PercentAchievable == PercentCompleted;
+        public bool SkipUnresearched => Template.SkipUnresearched;
+
+        public bool IsAchievableCompleted => PercentAchievable == 0 || PercentCompleted >= PercentAchievable;
         bool IsHalfAchievableCompleted => PercentAchievable == 0 || PercentCompleted >= PercentAchievable/2;
 
         public bool IsRequired(Building b) => PlannedBuildings.Contains(b.Name);
@@ -67,12 +69,33 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void UpdateCompletion()
         {
-            int totalRequiredBuilt = P.Buildings.ToArray().Count(IsRequired);
+            if (CountCompletion())
+                ChangeTemplateIfLinked();
+        }
+
+        bool CountCompletion()
+        {
+            Building[] built = P.Buildings.ToArray();
+            int totalRequiredBuilt = built.Count(IsRequired);
             float completion = (float)totalRequiredBuilt / PlannedBuildings.Count;
             PercentCompleted = (int)(completion * 100);
+            return Completed || SkipUnresearched && EveryResearchedBuildingStands(built);
+        }
 
-            if (Completed)
-                ChangeTemplateIfLinked();
+        bool EveryResearchedBuildingStands(Building[] built)
+        {
+            bool anyResearched = false;
+            foreach (string name in PlannedBuildings)
+            {
+                if (!Owner.IsBuildingUnlocked(name))
+                    continue;
+
+                anyResearched = true;
+                if (!built.Any(b => b.Name == name))
+                    return false;
+            }
+
+            return anyResearched;
         }
 
         public void UpdatePercentAchievable()
@@ -85,10 +108,17 @@ namespace Ship_Game.Universe.SolarBodies
 
         void ChangeTemplateIfLinked()
         {
-            if (LinkedBlueprintsName != null
-                && ResourceManager.TryGetBlueprints(LinkedBlueprintsName, out BlueprintsTemplate template))
+            var visited = new HashSet<string> { Name };
+            while (ResourceManager.TryGetBlueprints(LinkedBlueprintsName, out BlueprintsTemplate template)
+                   && visited.Add(template.Name))
             {
-                ChangeTemplate(template);
+                Template = template;
+                ChangeColonyType();
+                RefreshPlannedBuildingsWeCanBuild(P.GetBuildingsCanBuild());
+                bool done = CountCompletion();
+                UpdatePercentAchievable();
+                if (!done)
+                    break;
             }
         }
 

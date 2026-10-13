@@ -19,10 +19,12 @@ public sealed class BlueprintsTemplate
     [StarData] public string LinkTo;
     [StarData] public HashSet<string> PlannedBuildings;
     [StarData] public ColonyType ColonyType;
+    [StarData] public bool SkipUnresearched;
     public static string CurrentModName =>  GlobalStats.HasMod ? GlobalStats.ModName : "BBplus";
 
     [StarDataConstructor] public BlueprintsTemplate() { }
-    public BlueprintsTemplate(string name, bool exclusive, string linkTo, HashSet<string>plannedBuildings, ColonyType cType) 
+    public BlueprintsTemplate(string name, bool exclusive, string linkTo, HashSet<string>plannedBuildings, ColonyType cType,
+                              bool skipUnresearched = false)
     {
         Name = name;
         ModName = CurrentModName;
@@ -30,6 +32,7 @@ public sealed class BlueprintsTemplate
         LinkTo = linkTo;
         PlannedBuildings = plannedBuildings;
         ColonyType = cType == ColonyType.TradeHub ? ColonyType.Colony : cType;
+        SkipUnresearched = skipUnresearched;
     }
 
     public bool Validated => ResourceManager.BlueprintsValid(this, out _);

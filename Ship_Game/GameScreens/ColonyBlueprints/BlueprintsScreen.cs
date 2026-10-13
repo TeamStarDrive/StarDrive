@@ -26,6 +26,7 @@ namespace Ship_Game
         readonly UILabel CannotBuildTroopsWarning, CannotBuildShipsWarning;
         readonly UICheckBox ExclusiveCheckbox;
         public bool Exclusive;
+        public bool SkipUnresearched;
         readonly Submenu SubPlanArea;
         readonly FloatSlider InitPopulationSlider;
         readonly FloatSlider InitFertilitySlider;
@@ -132,6 +133,10 @@ namespace Ship_Game
                 () => Exclusive, TextFont, GameText.ExclusiveBlueprints, GameText.ExclusiveBlueprintsTip));
 
             ExclusiveCheckbox.TextColor = Color.Wheat;
+            UICheckBox skipUnresearchedCheckbox = base.Add(new UICheckBox(blueprintsOptionsX + SubBlueprintsOptions.Width / 2,
+                SubBlueprintsOptions.Y + 40 + Font14.LineSpacing, () => SkipUnresearched, TextFont,
+                GameText.BlueprintsSkipUnresearched, GameText.BlueprintsSkipUnresearchedTip));
+            skipUnresearchedCheckbox.TextColor = Color.Wheat;
             CannotBuildShipsWarning = base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 35 + Font14.LineSpacing*5),
                 GameText.BlueprintsCannotBuildShips, Font12, Color.Pink));
             CannotBuildTroopsWarning = base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 35 + Font14.LineSpacing * 6),
@@ -500,7 +505,8 @@ namespace Ship_Game
         BlueprintsTemplate CreateBlueprintsTemplate()
         {
             HashSet<string> plannedBuildings = TilesList.FilterSelect(t => t.HasBuilding && !t.Building.IsOutpost, t => t.Building.Name).ToHashSet();
-            return new BlueprintsTemplate(BlueprintsName.Text.Text, Exclusive, LinkBlueprintsName.Text.Text, plannedBuildings, SwitchColonyType.ActiveValue);
+            return new BlueprintsTemplate(BlueprintsName.Text.Text, Exclusive, LinkBlueprintsName.Text.Text, plannedBuildings, SwitchColonyType.ActiveValue,
+                                          SkipUnresearched);
         }
 
         void OnSaveBlueprintsClick()
@@ -560,6 +566,7 @@ namespace Ship_Game
             LinkBlueprints.Enabled = true;
             BlueprintsName.Text = template.Name;
             Exclusive = template.Exclusive;
+            SkipUnresearched = template.SkipUnresearched;
             SwitchColonyType.ActiveValue = template.ColonyType;
             if (template.LinkTo!= null && ResourceManager.TryGetBlueprints(template.LinkTo, out _)) 
                 LinkBlueprintsName.Text = template.LinkTo;
