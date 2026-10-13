@@ -1080,12 +1080,12 @@ ExcessWpnPwrDrain:
  ENG: "Excess Wpn Pwr Drain"
  RUS: "Избыточное энергопотребление оружия"
  UKR: "Надлишкові витр. енерг."
- PTB: "Drenagem excessiva de energia da arma"
+ PTB: "Alto Consumo de Energia"
 WpnFirePowerTime:
  ENG: "Wpn Fire Power Time"
  RUS: "Время непрерывной стрельбы (энерг.)"
  UKR: "Час безпер. стрільби"
- PTB: "Tempo de potência de fogo da arma"
+ PTB: "Tempo de Poder de Fogo"
 BurstWpnPwrDrain:
  ENG: "Burst Wpn Pwr Drain"
  RUS: "Пиковое потребление энергии оружия"
@@ -3570,7 +3570,7 @@ BB_Tech_IonicWeaponry_Name:
  RUS: "Ионное оружие"
  SPA: "Armamento iónico"
  UKR: "Іонна зброя"
- PTB: "Armamento Iônico"
+ PTB: "Feixes de Íons"
 BB_Tech_IonicWeaponry_Desc:
  Id: 598
  ENG: "Ion stream particle weapons have the unique effect of causing a target ship's capacitors to discharge. The result is a beam weapon that drains a target's power stores. However, Ion weapons are completely ineffective against shielded targets."
@@ -3752,14 +3752,14 @@ BB_Tech_Phasors_Name:
  RUS: "Фазоры"
  SPA: "Fasores"
  UKR: "Фазори"
- PTB: "Fasores"
+ PTB: "Armas de Feixe"
 BB_Tech_Phasors_Desc:
  Id: 624
  ENG: "Phasors are extremely efficient directed energy weapons capable of longer and more powerful firing bursts."
  RUS: "Фазоры - исключительно эффективное направленное энергетическое оружие, способное излучать долгие и мощные энергоимпульсы."
  SPA: "Los fasores son armas de energía dirigida de suma eficiencia capaces de disparar más lejos ráfagas más potentes."
  UKR: "Фазори - це надзвичайно ефективна зброя зі спрямованою енергією, здатна на довші та потужніші серії пострілів."
- PTB: "Fasores são armas de energia direcionada extremamente eficientes, capazes de rajadas de disparo mais longas e poderosas."
+ PTB: "Armas de Feixe são armas de energia direcionada extremamente eficientes, capazes de rajadas de disparo mais longas e poderosas."
 BB_Tech_PhotonCannons_Name:
  Id: 625
  ENG: "Photon Cannons"
@@ -3843,7 +3843,7 @@ BB_Tech_PlasmaThrowers_Name:
  RUS: "Плазменная векторизация"
  SPA: "Vectores de plasma"
  UKR: "Векторизація плазми"
- PTB: "Vetorização de Plasma"
+ PTB: "Canalização de Plasma"
 BB_Tech_PlasmaThrowers_Desc:
  Id: 637
  ENG: "If we channeled highly-ionized Plasma directly from a ship reactor through a magnetized, high-pressure system, then we could spray our enemies with super-heated energy to devastating effect. "
@@ -4011,7 +4011,7 @@ BB_Tech_SpaceWeapons_Name:
  RUS: "Космическое вооружение"
  SPA: "Armas espaciales"
  UKR: "Балістика"
- PTB: "Balistica"
+ PTB: "Armas Balísticas"
 BB_Tech_StarshipConstruction_Name:
  Id: 663
  ENG: "Starship Construction"
@@ -4738,28 +4738,28 @@ HeavymountIonBeam:
  RUS: "Мощный ионный луч"
  SPA: "Rayo de iones de montaje fijo"
  UKR: "Пучок важких іонів"
- PTB: "Feixe Iônico de Montagem Pesada"
+ PTB: "Feixes de Íons de Montagem Pesada"
 ThisIonBeamDrainsPower:
  Id: 971
  ENG: "This Ion beam drains power from the targeted vessel, provided that their shields are down."
  RUS: "Ионный луч высасывает энергию вражеского корабля, если у него нету щитов, или они уничтожены."
  SPA: "Este rayo de iones consume energía de la nave enemiga, siempre que sus escudos estén desactivados."
  UKR: "Цей іонний промінь викачує енергію з цільового судна за умови, що його щити опущені."
- PTB: "Este feixe iônico drena energia da embarcação-alvo, desde que seus escudos estejam abaixados."
+ PTB: "Este Feixe de Íons drena energia da embarcação-alvo, desde que seus escudos estejam abaixados."
 IonBeamTurret:
  Id: 972
  ENG: "Ion Beam Turret"
  RUS: "Ионный луч"
  SPA: "Torreta de rayo de iones"
  UKR: "Іонно-променева башта"
- PTB: "Torreta de Feixe Iônico"
+ PTB: "Torreta de Feixes de Íons"
 ThisTurretmountedIonBeamDrains:
  Id: 973
  ENG: "This turret-mounted Ion beam drains a moderate amount of power from the targeted ship, provided that its shields are down."
  RUS: "Эта ионная установка на поворотной станине высасывает некоторое количество энергии вражеского корабля, если у него нету щитов, или они уничтожены."
  SPA: "Este rayo de iones sobre torrera consume una cantidad moderada de energía de la nave enemiga, siempre que sus escudos estén desactivados."
  UKR: "Цей іонний промінь, встановлений на башті, відбирає помірну кількість енергії у корабля-мішені, за умови, що його щити опущені."
- PTB: "Este feixe iônico montado em torreta drena uma quantidade moderada de energia da nave-alvo, desde que seus escudos estejam abaixados."
+ PTB: "Este Feixe de Íons montado em torreta drena uma quantidade moderada de energia da nave-alvo, desde que seus escudos estejam abaixados."
 IonCannon2:
  Id: 974
  ENG: "Ion Cannon"
@@ -10501,7 +10501,7 @@ PowerStore:
  RUS: "Запас энерг."
  SPA: "Reservas de energía"
  UKR: "Запас енерг."
- PTB: "Armazenamento de Energia"
+ PTB: "Capacidade de Energia"
 IndicatesTheAmountOfPower2:
  Id: 2236
  ENG: "Indicates the amount of power storage capacity this module adds"
@@ -14664,10 +14664,12 @@ Pathfinder:
  Id: 4536
  ENG: "Pathfinder"
  RUS: "Прокладка маршрута"
+ PTB: "Caçador de Caminhos"
 PathfinderTip:
  Id: 4537
  ENG: "When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ships travel in straight lines and drop out of warp as wells are encountered."
  RUS: "Когда ВКЛ, при перемещении по вселенной корабли прокладывают курс в обход враждебных и неизвестных планетарных гравитационных скважин, избегая выхода из варпа. При ВЫКЛ корабли движутся по прямой и выходят из варпа при встрече со скважинами."
+ PTB: "Quando ATIVADO, as naves traçam uma rota ao redor de poços gravitacionais hostis e desconhecidos ao se mover pelo universo, evitando saídas do warp. Quando DESATIVADO, as naves viajam em linha reta e saem do warp ao encontrar os poços."
 PlayerBuiltProtectedFromScrap:
  Id: 4538
  ENG: "You placed this yourself, so the governor will never scrap it or cancel it."
@@ -22701,6 +22703,7 @@ BB_Nano-structureTecDescrBonus:
  ENG: "10% hp increase to all modules."
  RUS: "+10% к ОП всех модулей."
  UKR: "Приріст 10% хп до всіх модулів."
+ PTB: "Aumento de 10% de HP em todos os módulos."
 BB_CrystalPlant:
  Id: 17648
  ENG: "Crystal Growing Plant"
