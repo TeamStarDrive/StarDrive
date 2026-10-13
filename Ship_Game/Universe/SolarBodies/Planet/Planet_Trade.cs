@@ -250,10 +250,16 @@ namespace Ship_Game
 
             float popRatio = PopulationRatio.LowerBound(0.2f);
             float slots = popRatio > 0.95 ? 1 : 2 / popRatio;
+            int ratioSlots = (int)slots.Clamped(1, 5);
+            if (MaxPopulationBillion <= BigWorldBillions)
+                return ratioSlots;
+
             int roomSlots = (int)Math.Ceiling((MaxPopulation - Population) / ColonistsPerFreighter);
             int sizeCap = (int)MaxPopulationBillion.UpperBound(20);
-            return Math.Max((int)slots.Clamped(1, 5), Math.Min(roomSlots, sizeCap));
+            return Math.Max(ratioSlots, Math.Min(roomSlots, sizeCap));
         }
+
+        const float BigWorldBillions = 5;
 
         // # of Freighters on the way to pick up from us
         int NumOutgoingFreightersPickUp(Ship[] outgoing, Goods goods)

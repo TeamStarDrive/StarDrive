@@ -124,7 +124,7 @@ namespace Ship_Game.Ships
 
             public float UnloadCargoRef(ref float cargo, float maxAmount)
             {
-                float unload = cargo.Clamped(0f, maxAmount);
+                float unload = cargo.Clamped(0f, maxAmount.LowerBound(0f));
                 cargo      -= unload;
                 TotalCargo -= unload;
                 return unload;
@@ -132,7 +132,7 @@ namespace Ship_Game.Ships
 
             public float LoadCargoRef(ref float cargo, float amount)
             {
-                float load = amount.Clamped(0f, MaxCargo - TotalCargo);
+                float load = amount.Clamped(0f, (MaxCargo - TotalCargo).LowerBound(0f));
                 cargo      += load;
                 TotalCargo += load;
                 return load;

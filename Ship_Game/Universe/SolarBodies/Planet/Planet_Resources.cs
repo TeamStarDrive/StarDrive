@@ -91,7 +91,7 @@ namespace Ship_Game
 
         bool ShouldImportColonists(float popRatio) => popRatio < ColonistImportRatio;
 
-        float ColonistsAboveImportLine => (Population - ColonistImportRatio * MaxPopulation).LowerBound(0);
+        float ColonistsAboveImportLine => (Population - ColonistImportRatio * MaxPopulation - 1f).LowerBound(0);
 
         public bool ShortOnFood()
         {
