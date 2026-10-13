@@ -471,8 +471,9 @@ namespace Ship_Game
             IWeaponTemplate wOrMirv = w.T; // We want some stats to show warhead stats and not weapon stats
             if (wOrMirv.IsMirv)
             {
-                wOrMirv = ResourceManager.GetWeaponTemplate(w.MirvWeapon);
+                wOrMirv = ResourceManager.GetWeaponTemplateOrNull(w.MirvWeapon) ?? w.T;
             }
+            bool hasWarheads = wOrMirv != w.T;
 
             float range = ModifiedWeaponStat(w, WeaponStat.Range);
             // DelayedIgnition is the missile's float-then-ignite phase; it does
@@ -523,14 +524,14 @@ namespace Ship_Game
             if (wOrMirv.TerminalPhaseAttack)
             {
                 DrawStat(ref cursor, "T.Range", wOrMirv.TerminalPhaseDistance, GameText.ThisMissileHasTerminalPhase);
-                float warheadSpeed = w.IsMirv ? ModifiedWeaponStat(wOrMirv, WeaponStat.Speed) : speed;
+                float warheadSpeed = hasWarheads ? ModifiedWeaponStat(wOrMirv, WeaponStat.Speed) : speed;
                 DrawStat(ref cursor, "T.Speed", wOrMirv.TerminalPhaseSpeedMod * warheadSpeed, GameText.ThisIsTheSpeedThe);
             }
 
             if (w.DelayedIgnition.Greater(0))
                 DrawStat(ref cursor, "Ignition", w.DelayedIgnition, GameText.ThisMissileHasDelayedIgnition);
 
-            if (wOrMirv.ProjectileCount > 1 && w.IsMirv)
+            if (wOrMirv.ProjectileCount > 1 && hasWarheads)
                 DrawStat(ref cursor, "MIRV", wOrMirv.ProjectileCount, GameText.ThisWeaponHasMirvMeaning);
 
             cursor.X += 152f;
@@ -546,7 +547,7 @@ namespace Ship_Game
                                    : (salvos / delay) * w.ProjectileCount 
                                                       * (isBallistic ? ballisticDamage : energyDamage);
 
-                if (wOrMirv.ProjectileCount > 1 && w.IsMirv)
+                if (wOrMirv.ProjectileCount > 1 && hasWarheads)
                     dps *= wOrMirv.ProjectileCount;
 
                 DrawStat(ref cursor, "DPS", dps, GameText.IndicatesTheMaximumDamagePer);

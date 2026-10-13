@@ -207,7 +207,7 @@ namespace Ship_Game.Gameplay
             IWeaponTemplate wOrMirv = this;
             if (IsMirv)
             {
-                wOrMirv = ResourceManager.GetWeaponTemplate(MirvWeapon);
+                wOrMirv = ResourceManager.GetWeaponTemplateOrNull(MirvWeapon);
                 if (wOrMirv == null)
                 {
                     Log.Error($"Mirv weapon template {MirvWeapon} not found, using {UID}");
@@ -229,7 +229,7 @@ namespace Ship_Game.Gameplay
                     * ProjectileCount
                     * wOrMirv.DamageAmount;
 
-                if (IsMirv && wOrMirv.ProjectileCount > 0)
+                if (wOrMirv != this)
                     dps *= wOrMirv.ProjectileCount.LowerBound(1);
             }
             return dps;

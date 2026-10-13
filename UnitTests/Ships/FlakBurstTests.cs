@@ -186,6 +186,19 @@ public class FlakBurstTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AShellNamingAMissingWarheadHasItsOwnDamagePerSecond()
+    {
+        var shell = (WeaponTemplate)ResourceManager.GetWeaponTemplate(MisspeltShellUid);
+        shell.DamageAmount = 10f;
+        shell.ProjectileCount = 3;
+
+        shell.InitializeTemplate();
+
+        float expected = Math.Max(1, shell.SalvoCount) / shell.NetFireDelay * 3 * 10f;
+        AssertEqual(0.01f, expected, shell.DamagePerSecond, "a shell whose warhead does not exist flies on and deals its own damage");
+    }
+
+    [TestMethod]
     public void AClusterMissileStillSplitsIntoItsUnguidedWarheads()
     {
         Ship launcher = SpawnShip("Rocket Scout", Player, Gun);
