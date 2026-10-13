@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
+using Ship_Game.Data.Yaml;
+using Ship_Game.Data.YamlSerializer;
 using Vector2 = SDGraphics.Vector2;
 #pragma warning disable CA2213
 
@@ -147,5 +150,68 @@ public class BlueprintLinkTests : StarDriveTest
         AssertEqual(100, P.Blueprints.PercentCompleted, "setup: the whole plan stands, the unresearched building too, as on a captured colony");
         AssertEqual(50, P.Blueprints.PercentAchievable, "setup: half the plan is researched");
         Assert.IsTrue(P.Blueprints.IsAchievableCompleted, "a plan built past what is researched has reached its achievable part");
+    }
+
+    [TestMethod]
+    public void APlanMissingAResearchedBuildingIsNotAchievedThoughMoreOfItStands()
+    {
+        P.AddBlueprints(new BlueprintsTemplate("unlinked", false, null, new HashSet<string> { Researched, Unresearched, AlsoUnresearched }, Planet.ColonyType.Colony), Player);
+
+        Build(Unresearched);
+        Build(AlsoUnresearched);
+
+        Assert.IsTrue(P.Blueprints.PercentCompleted > P.Blueprints.PercentAchievable, "setup: two thirds stand, one third is researched, as on a captured colony");
+        Assert.IsFalse(P.Blueprints.IsAchievableCompleted, "the one researched building is still missing, so the governor keeps making room for it");
+    }
+
+    [TestMethod]
+    public void APlanSkippingUnresearchedMovesOnWhenResearchUnlocksABuildingThatAlreadyStands()
+    {
+        Upload(skipUnresearched: true, Unresearched, AlsoUnresearched);
+        Build(Unresearched);
+        AssertEqual("first", P.Blueprints.Name, "setup: nothing of the plan is researched yet, though one building stands, as on a captured colony");
+
+        Player.UnlockEmpireBuilding(Unresearched);
+        Player.UpdateForNewTech();
+
+        AssertEqual(Next, P.Blueprints.Name, "the newly researched building already stands, so the linked plan takes over");
+    }
+
+    static BlueprintsTemplate Load(string yaml)
+    {
+        using var parser = new YamlParser(">Blueprints<", new StringReader(yaml));
+        return parser.DeserializeOne<BlueprintsTemplate>();
+    }
+
+    static string Save(BlueprintsTemplate template)
+    {
+        var writer = new StringWriter();
+        YamlSerializer.SerializeOne(writer, template);
+        return writer.ToString();
+    }
+
+    [TestMethod]
+    public void ASavedPlanKeepsItsSkipUnresearchedFlag()
+    {
+        var saved = new BlueprintsTemplate("saved", false, Next, new HashSet<string> { Researched }, Planet.ColonyType.Colony, skipUnresearched: true);
+
+        BlueprintsTemplate loaded = Load(Save(saved));
+
+        Assert.IsTrue(loaded.SkipUnresearched, "the flag is written to the blueprints file and read back");
+        AssertEqual(Next, loaded.LinkTo, "setup: the rest of the plan comes back too");
+    }
+
+    [TestMethod]
+    public void APlanSavedBeforeTheFlagExistedLoadsWithoutIt()
+    {
+        string yaml = Save(new BlueprintsTemplate("old", false, Next, new HashSet<string> { Researched }, Planet.ColonyType.Colony, skipUnresearched: true));
+        string[] lines = yaml.Split('\n');
+        string older = string.Join("\n", lines.Where(l => !l.Contains(nameof(BlueprintsTemplate.SkipUnresearched))));
+        Assert.AreEqual(lines.Length - 1, older.Split('\n').Length, "setup: the file of an older build has no flag line");
+
+        BlueprintsTemplate loaded = Load(older);
+
+        Assert.IsFalse(loaded.SkipUnresearched, "blueprints saved by an older build load with the flag off");
+        AssertEqual(Next, loaded.LinkTo, "and the rest of the plan intact");
     }
 }

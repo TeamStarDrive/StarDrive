@@ -1004,7 +1004,7 @@ namespace Ship_Game
             AI.SpaceRoadsManager.UpdateAllRoadsMaintenance();
             AI.TriggerRefit();
             TriggerFreightersRefit();
-            UpdateBlueprintsAchievablePercentage();
+            UpdateBlueprintsForNewTech();
         }
 
         void TriggerRemoveGovernorQueuedBuildingsTechUnlock(TechEntry techEntry)
@@ -1016,12 +1016,13 @@ namespace Ship_Game
             }
         }
 
-        void UpdateBlueprintsAchievablePercentage()
+        void UpdateBlueprintsForNewTech()
         {
             for (int i = 0; i < OwnedPlanets.Count; i++)
             {
                 Planet p = OwnedPlanets[i];
                 p.Blueprints?.UpdatePercentAchievable();
+                p.Blueprints?.UpdateCompletion(); // a Skip Unresearched plan may now be done
             }
         }
 

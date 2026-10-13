@@ -28,8 +28,23 @@ namespace Ship_Game.Universe.SolarBodies
 
         public bool SkipUnresearched => Template.SkipUnresearched;
 
-        public bool IsAchievableCompleted => PercentAchievable == 0 || PercentCompleted >= PercentAchievable;
-        bool IsHalfAchievableCompleted => PercentAchievable == 0 || PercentCompleted >= PercentAchievable/2;
+        public bool IsAchievableCompleted
+        {
+            get
+            {
+                int standing = ResearchedBuildingsStanding(P.Buildings.ToArray(), out int researched);
+                return standing == researched;
+            }
+        }
+
+        bool IsHalfAchievableCompleted
+        {
+            get
+            {
+                int standing = ResearchedBuildingsStanding(P.Buildings.ToArray(), out int researched);
+                return standing * 2 >= researched;
+            }
+        }
 
         public bool IsRequired(Building b) => PlannedBuildings.Contains(b.Name);
         public bool IsNotRequired(Building b) => !IsRequired(b);
@@ -79,23 +94,28 @@ namespace Ship_Game.Universe.SolarBodies
             int totalRequiredBuilt = built.Count(IsRequired);
             float completion = (float)totalRequiredBuilt / PlannedBuildings.Count;
             PercentCompleted = (int)(completion * 100);
-            return Completed || SkipUnresearched && EveryResearchedBuildingStands(built);
+            if (Completed || !SkipUnresearched)
+                return Completed;
+
+            int standing = ResearchedBuildingsStanding(built, out int researched);
+            return researched > 0 && standing == researched;
         }
 
-        bool EveryResearchedBuildingStands(Building[] built)
+        int ResearchedBuildingsStanding(Building[] built, out int researched)
         {
-            bool anyResearched = false;
+            researched = 0;
+            int standing = 0;
             foreach (string name in PlannedBuildings)
             {
                 if (!Owner.IsBuildingUnlocked(name))
                     continue;
 
-                anyResearched = true;
-                if (!built.Any(b => b.Name == name))
-                    return false;
+                researched++;
+                if (built.Any(b => b.Name == name))
+                    standing++;
             }
 
-            return anyResearched;
+            return standing;
         }
 
         public void UpdatePercentAchievable()

@@ -108,6 +108,25 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
+        public void APlanWhoseResearchedBuildingIsMissingHoldsTerraformersBackThoughUnresearchedOnesStand()
+        {
+            string[] locked = ResourceManager.BuildingsDict.Values
+                .Where(b => b.IsSuitableForBlueprints && !b.IsMilitary && b.EventOnBuild == null && !Player.IsBuildingUnlocked(b.Name))
+                .Select(b => b.Name).Take(BigPlanSize).ToArray();
+            AssertEqual(BigPlanSize, locked.Length, "test needs this many buildings the empire has not researched");
+            Player.UnlockEmpireBuilding(locked[0]);
+            P.AddBlueprints(new BlueprintsTemplate("test", false, null, new HashSet<string>(locked), Planet.ColonyType.Colony), Player);
+            Plannable = locked.Skip(1).Select(name => ResourceManager.BuildingsDict[name]).ToArray();
+
+            BuildFirst(2);
+
+            Assert.IsTrue(P.Blueprints.PercentCompleted >= P.Blueprints.PercentAchievable / 2,
+                "setup: by the percentages the plan is past half its researched part, as on a captured colony");
+            Assert.IsFalse(P.Blueprints.OkToBuildTerraformers,
+                "the one researched building of the plan is not up yet, so terraformers wait");
+        }
+
+        [TestMethod]
         public void AnUnreachablePlanNeverBlocksTerraformers()
         {
             var unlocked = new HashSet<string>(Player.GetUnlockedBuildings().Select(b => b.Name));

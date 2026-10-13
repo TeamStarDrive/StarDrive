@@ -54,7 +54,7 @@ public sealed class BlueprintsTemplate
 
             if (!ResourceManager.TryGetBlueprints(next, out BlueprintsTemplate nextTemplate))
             {
-                Log.Error($"Could not find template for {next} in Resource Manager");
+                Log.Warning($"Could not find template for {next} in Resource Manager");
                 return true;
             }
 
