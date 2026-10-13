@@ -428,18 +428,17 @@ namespace Ship_Game.Gameplay
 
             if (ShouldPickNewTarget())
             {
-                TargetChangeTimer = 0.1f * Math.Max(Module.XSize, Module.YSize);
-                // cumulative bonuses for turrets, PD and true PD weapons
-                if (IsTurret) TargetChangeTimer *= 0.5f;
-                if (Tag_PD)   TargetChangeTimer *= 0.5f;
-                if (TruePD)   TargetChangeTimer *= 0.25f;
-
+                ResetTargetChangeTimer();
                 ClearFireTarget();
 
                 if (!PickProjectileTarget(enemyProjectiles))
                 {
                     PickShipTarget(mainTarget, enemyShips);
                 }
+            }
+            else if (TargetChangeTimer <= 0f && !IsRepairDrone && FireTarget is not Projectile && PickProjectileTarget(enemyProjectiles))
+            {
+                ResetTargetChangeTimer(); // point defense leaves a ship for a projectile in reach
             }
 
             if (FireTarget != null)
@@ -450,6 +449,15 @@ namespace Ship_Game.Gameplay
                     return FireAtTarget(FireTarget.Position, FireTarget);
             }
             return false; // no target to fire at
+        }
+
+        void ResetTargetChangeTimer()
+        {
+            TargetChangeTimer = 0.1f * Math.Max(Module.XSize, Module.YSize);
+            // cumulative bonuses for turrets, PD and true PD weapons
+            if (IsTurret) TargetChangeTimer *= 0.5f;
+            if (Tag_PD)   TargetChangeTimer *= 0.5f;
+            if (TruePD)   TargetChangeTimer *= 0.25f;
         }
 
         bool IsTargetAliveAndInRange(GameObject target)

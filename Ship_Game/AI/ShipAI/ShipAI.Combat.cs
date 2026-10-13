@@ -245,7 +245,9 @@ namespace Ship_Game.AI
 
             // Always make a full copy, this is for thread safety
             // Once the new array is assigned, its elements must not be modified
-            TrackProjectiles = ScannedProjectiles.ToArray();
+            Projectile[] tracked = ScannedProjectiles.ToArray();
+            tracked.SortByDistance(sensorShip.Position); // nearest first; the spatial search sorts only its cells
+            TrackProjectiles = tracked;
             ScannedProjectiles.Clear();
         }
 
