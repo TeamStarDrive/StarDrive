@@ -342,8 +342,9 @@ namespace Ship_Game.Gameplay
             // Imprecision gets worse when range gets higher
             off *= !t.Tag_Guided ? (1 - t.FireImprecisionAngle * 0.01f * (t.BaseRange * 0.0005f)).LowerBound(0.1f) : 1f;
 
-            // FB: Range margins are less steep for missiles
-            off *= (!t.Tag_Guided ? (t.BaseRange * 0.00025f) * (t.BaseRange * 0.00025f) : (t.BaseRange * 0.00025f));
+            // FB: Range margins are less steep for missiles (with speed/range above: unguided ~ range, guided ~ its square root)
+            float reach = t.BaseRange * 0.00025f;
+            off *= !t.Tag_Guided ? reach * reach : reach * (float)Math.Sqrt(reach);
 
             // Multiple warheads
             if (t.IsMirv)

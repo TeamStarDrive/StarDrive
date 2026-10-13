@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -32,6 +34,28 @@ namespace UnitTests.Ships
             weapon.TestDamageAmount = 15;
             weapon.TestProjectileSpeed = 1250;
             return weapon;
+        }
+
+        static readonly string[] CloneUids = { "ZzGuided", "ZzUnguided" };
+
+        static Map<string, IWeaponTemplate> Weapons => (Map<string, IWeaponTemplate>)typeof(ResourceManager)
+            .GetField("WeaponsDict", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null);
+
+        static WeaponTemplate CloneWeapon(string uid, string cloneUid)
+        {
+            Assert.IsTrue(ResourceManager.GetWeaponTemplate(uid, out IWeaponTemplate t), $"setup: no weapon {uid}");
+            var clone = (WeaponTemplate)typeof(object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance)!
+                                                      .Invoke(t, null);
+            clone.UID = cloneUid;
+            Weapons[cloneUid] = clone;
+            return clone;
+        }
+
+        public override void Cleanup()
+        {
+            foreach (string uid in CloneUids)
+                Weapons.Remove(uid);
+            base.Cleanup();
         }
 
         [TestMethod]
@@ -238,6 +262,28 @@ namespace UnitTests.Ships
             }
             AssertGreaterThan(perShot, perProjectile, "precondition: the design's costliest shot is a multi-projectile one");
             AssertEqual(0.001f, perShot, ship.OrdnanceMin);
+        }
+
+        // Range counts for a guided weapon by its square root, less steeply than for an unguided one
+        [TestMethod]
+        public void RangeRaisesAGuidedWeaponsRatingLessSteeplyThanAnUnguidedOne()
+        {
+            WeaponTemplate missile = CloneWeapon("Missile", "ZzGuided");
+            WeaponTemplate gun = CloneWeapon("MassDriver", "ZzUnguided");
+            Assert.IsTrue(missile.Tag_Guided && !gun.Tag_Guided, "setup: one guided and one unguided weapon");
+            gun.FireImprecisionAngle = 0;
+
+            float RatingAt(WeaponTemplate t, float range)
+            {
+                t.BaseRange = range;
+                return WeaponTemplate.CalculateOffense(null, t);
+            }
+            float missileAt4K = RatingAt(missile, 4000f);
+            float gunAt4K = RatingAt(gun, 4000f);
+            AssertEqual(missileAt4K * 0.0001f, missileAt4K * 2f, RatingAt(missile, 16000f),
+                        "4x the range must rate a guided weapon 2x");
+            AssertEqual(gunAt4K * 0.0001f, gunAt4K * 4f, RatingAt(gun, 16000f),
+                        "4x the range must rate an unguided weapon 4x");
         }
     }
 }
