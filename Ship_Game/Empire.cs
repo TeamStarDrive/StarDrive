@@ -1983,7 +1983,7 @@ namespace Ship_Game
                 return;
 
             float playerScore    = TotalScore;
-            var aiEmpires        = Universe.ActiveNonPlayerMajorEmpires;
+            var aiEmpires        = Universe.ActiveNonPlayerMajorEmpires.Filter(e => !e.MeetsDefeatConditions);
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
@@ -1995,7 +1995,7 @@ namespace Ship_Game
             var leaders = new Array<Empire>();
             foreach (Empire e in aiEmpires)
             {
-                if (e != biggestAI && e.IsKnown(biggestAI) && biggestAIScore * 0.6f > e.TotalScore && !e.MeetsDefeatConditions)
+                if (e != biggestAI && e.IsKnown(biggestAI) && biggestAIScore * 0.6f > e.TotalScore)
                     leaders.Add(e);
             }
 
