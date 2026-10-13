@@ -107,7 +107,12 @@ namespace Ship_Game.AI
                 return;
 
             if (!Owner.Loyalty.IsEmpireAttackable(toAttack.Loyalty, toAttack))
-                return;
+            {
+                if (!Owner.Loyalty.isPlayer || !Owner.Loyalty.GetRelations(toAttack.Loyalty, out Relationship relations)
+                    || !toAttack.IsColonyShipSettlingSystemOf(Owner.Loyalty, relations))
+                    return;
+                toAttack.PlayerOrderedAttackIn = toAttack.System;
+            }
             if (State == AIState.AttackTarget && Target == toAttack)
                 return;
 
@@ -561,6 +566,8 @@ namespace Ship_Game.AI
                     
                     ChangeAIState(AIState.AttackTarget);
                     TargetQueue.Add(toAttack);
+                    if (Owner.Loyalty.isPlayer && toAttack.IsColonyShipSettlingSystemOf(Owner.Loyalty, relations))
+                        toAttack.PlayerOrderedAttackIn = toAttack.System;
                     HasPriorityTarget = true;
                     SetPriorityOrder(false);
                     return;

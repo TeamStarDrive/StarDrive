@@ -61,6 +61,7 @@
     <Compile Include="AITests\Ships\OrbitCombatTests.cs" />
     <Compile Include="AITests\Ships\WarpInSpreadTests.cs" />
     <Compile Include="AITests\Ships\TestGravityWellRouter.cs" />
+    <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />
     <Compile Include="AITests\Ships\TestShipExploration.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
@@ -198,6 +199,7 @@
     <Compile Include="Ships\ArtilleryTacticTests.cs" />
     <Compile Include="AITests\Empire\DefenseTaskStrengthTests.cs" />
     <Compile Include="AITests\Ships\OvertakeTests.cs" />
+    <Compile Include="AITests\Ships\ColonyShipAttackTests.cs" />
     <Compile Include="Ships\ModuleGridFlyweightTests.cs" />
     <Compile Include="Ships\ShipDesignWriterTests.cs" />
     <Compile Include="Ships\SiphonDamageTests.cs" />

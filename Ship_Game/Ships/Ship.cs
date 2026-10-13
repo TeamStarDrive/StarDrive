@@ -557,6 +557,16 @@ namespace Ship_Game.Ships
         }
         public bool IsOrbiting(Planet p) => AI.IsOrbiting(p);
 
+        // the system where the player ordered an attack on this colony ship settling a system of the player's
+        [StarData] public SolarSystem PlayerOrderedAttackIn;
+
+        public bool IsColonyShipSettlingSystemOf(Empire empire, Relationship empireToUs)
+        {
+            return ShipData.IsColonyShip && System != null
+                && !empireToUs.Treaty_NAPact && !empireToUs.Treaty_Peace && !empireToUs.Treaty_Alliance
+                && System.HasPlanetsOwnedBy(empire) && !System.HasPlanetsOwnedBy(Loyalty);
+        }
+
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
             if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunchingOrLanding)
@@ -567,6 +577,10 @@ namespace Ship_Game.Ships
                 if (System != null && System.HasPlanetsOwnedBy(Loyalty))
                     return false;
 
+                if (attacker.isPlayer && PlayerOrderedAttackIn != null && PlayerOrderedAttackIn == System
+                    && IsColonyShipSettlingSystemOf(attacker, attackerToUs))
+                    return true;
+
                 if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, Loyalty, attacker, IsFreighter)
                  && IsInBordersOf(attacker))
                 {
@@ -576,7 +590,8 @@ namespace Ship_Game.Ships
                 SolarSystem system = System;
                 if (system != null)
                 {
-                    if (attackerToUs.WarnedSystemsList.Contains(system) && !IsFreighter)
+                    if (attackerToUs.WarnedSystemsList.Contains(system) && !IsFreighter
+                        && !attackerToUs.Treaty_NAPact && !attackerToUs.Treaty_Peace)
                         return true;
 
                     if (DesignRole == RoleName.troop &&
@@ -1194,6 +1209,8 @@ namespace Ship_Game.Ships
         {
             if (System?.Position.OutsideRadius(Position, System.Radius) == true)
                 SetSystem(null);
+            if (PlayerOrderedAttackIn != null && PlayerOrderedAttackIn != System)
+                PlayerOrderedAttackIn = null;
         }   
 
         void RecallHangarShipIfTooFarFromCarrier()
