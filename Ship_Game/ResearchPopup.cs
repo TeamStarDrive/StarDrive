@@ -54,17 +54,53 @@ public sealed class ResearchPopup : PopupWindow
         UnlockSL = Add(new ScrollList<UnlockListItem>(rect, 100));
 
         Array<UnlockItem> unlocks = UnlockItem.CreateUnlocksList(Technology, Universe.Player);
-        UnlockSL.SetItems(unlocks.Select(u => new UnlockListItem(u, Universe.Player)));
+        UnlockListItem[] items = unlocks.Select(u => new UnlockListItem(u, Universe.Player));
+        int rowHeight = 100;
+        foreach (UnlockListItem item in items)
+            rowHeight = Math.Max(rowHeight, item.NeededHeight(UnlockSL.ItemsHousing.W - 100));
+        foreach (UnlockListItem item in items)
+            item.RowHeight = rowHeight;
+        UnlockSL.SetItems(items);
     }
 
     class UnlockListItem : ScrollListItem<UnlockListItem>
     {
         readonly UnlockItem Unlock;
         readonly Empire Player;
+        float WrapWidth = -1, WrapHeight;
+        string WrappedDescr, WrappedSummary;
+        public int RowHeight = 100;
+
         public UnlockListItem(UnlockItem unlock, Empire player)
         {
             Unlock = unlock;
             Player = player;
+        }
+
+        public override int ItemHeight => RowHeight;
+
+        public int NeededHeight(float textWidth)
+        {
+            try { return (int)Math.Ceiling(WrapText(textWidth, out _, out _)) + 10; }
+            catch { return 0; }
+        }
+
+        float WrapText(float textWidth, out string descr, out string summary)
+        {
+            if (textWidth != WrapWidth)
+            {
+                Font textFont = Fonts.Arial12;
+                string shortDescr = Unlock.Type == UnlockType.Building ? Unlock.building?.GetShortDescrText() ?? "" : "";
+                WrappedDescr = textFont.ParseText(Unlock.Description, textWidth);
+                WrappedSummary = shortDescr.NotEmpty() ? textFont.ParseText(shortDescr, textWidth) : "";
+                WrapHeight = Fonts.Arial14Bold.LineSpacing + 5 + textFont.MeasureString(WrappedDescr).Y;
+                if (WrappedSummary.NotEmpty())
+                    WrapHeight += 2 + textFont.MeasureString(WrappedSummary).Y;
+                WrapWidth = textWidth;
+            }
+            descr = WrappedDescr;
+            summary = WrappedSummary;
+            return WrapHeight;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -73,12 +109,11 @@ public sealed class ResearchPopup : PopupWindow
             {
                 RectF iconRect = default;
                 string comment = "";
-                string summary = "";
 
                 switch (Unlock.Type)
                 {
                     case UnlockType.ShipModule:
-                        iconRect = Unlock.GetModuleRect(X + 16, Y + 16, 64, 64);
+                        iconRect = Unlock.GetModuleRect(X + 16, CenterY - 32, 64, 64);
                         comment = $" ({Unlock.ModW}x{Unlock.ModH})";
                         break;
                     case UnlockType.Troop:
@@ -90,13 +125,12 @@ public sealed class ResearchPopup : PopupWindow
                         {
                             comment = $"    Production Cost: {Unlock.building.ActualCost(Player)}";
                         }
-                        summary = Unlock.building?.GetShortDescrText() ?? "";
                         break;
                     case UnlockType.Hull:
                         iconRect = new(X, CenterY - 32, 96, 96);
                         break;
                     case UnlockType.Advance:
-                        iconRect = new(X + 24, Y + 24, 48, 48);
+                        iconRect = new(X + 24, CenterY - 24, 48, 48);
                         break;
                 }
 
@@ -105,9 +139,8 @@ public sealed class ResearchPopup : PopupWindow
                 Font titleFont = Fonts.Arial14Bold;
                 Font textFont = Fonts.Arial12;
 
-                string wrappedDescr = textFont.ParseText(Unlock.Description, Width - 100);
+                float textHeight = WrapText(Width - 100, out string wrappedDescr, out string wrappedSummary);
                 Vector2 descrSize = textFont.MeasureString(wrappedDescr);
-                float textHeight = titleFont.LineSpacing + 5 + descrSize.Y;
                     
                 // title text for the item
                 Vector2 titlePos = new(X + 100, CenterY - (int)(textHeight / 2f));
@@ -125,9 +158,8 @@ public sealed class ResearchPopup : PopupWindow
                 Vector2 descrPos = titlePos + new Vector2(0, titleFont.LineSpacing + 2);
                 batch.DrawString(textFont, wrappedDescr, descrPos, Color.LightGray);
 
-                if (summary.NotEmpty())
+                if (wrappedSummary.NotEmpty())
                 {
-                    string wrappedSummary = textFont.ParseText(summary, Width - 100);
                     Vector2 summaryPos = descrPos + new Vector2(0, descrSize.Y + 2);
                     batch.DrawString(textFont, wrappedSummary, summaryPos, Color.SteelBlue);
                 }
