@@ -129,14 +129,14 @@ namespace Ship_Game.StoryAndEvents
 
             switch (keyword)
             {
-                default: return keyword;
+                default: return keyword + suffix;
                 case "SING": return Player.data.Traits.Singular + suffix;
                 case "PLURAL": return Player.data.Traits.Plural + suffix;
                 case "TARSYS": return (SystemToDiscuss?.Name ?? "System") + suffix;
                 case "TAREMP": return TargetEmpire.data.Traits.Name + suffix;
                 case "ADJ1": return Player.data.Traits.Adj1 + suffix;
                 case "ADJ2": return Player.data.Traits.Adj2 + suffix;
-                case "MONEY": return CustomMoneyDemand.String();
+                case "MONEY": return CustomMoneyDemand.String() + suffix;
             }
         }
     }
