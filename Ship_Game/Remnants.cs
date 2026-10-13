@@ -406,8 +406,8 @@ namespace Ship_Game
 
         public Planet GetTargetPlanetForFleetTaskWhenNoPortals(Vector2 fleetPos)
         {
-            Empire targetEmpire = Owner.Remnants.FocusOnEmpire?.IsDefeated == true
-                ? Owner.Remnants.FocusOnEmpire
+            Empire targetEmpire = Owner.Remnants.FocusOnEmpire is { IsDefeated: false } focus && focus.GetPlanets().Count > 0
+                ? focus
                 : Owner.Universe.Player;
 
             return targetEmpire.GetPlanets().FindMin(p => p.Position.SqDist(fleetPos));
@@ -440,7 +440,7 @@ namespace Ship_Game
         Empire FindStrongestEmpireAtPeace(Empire[] empiresList)
         {
             var potentialTargets = empiresList.Filter(e => !e.IsAtWarWithMajorEmpire);
-            return potentialTargets.Length == 0 ? empiresList.FindMax(e => e.TotalScore) 
+            return potentialTargets.Length == 0 ? empiresList.FindMin(e => e.TotalScore)
                                                 : potentialTargets.FindMax(e => e.TotalScore);
         }
 
@@ -702,7 +702,7 @@ namespace Ship_Game
         public float RequiredAttackFleetStr(Empire targetEmpire)
         {
             float str = targetEmpire.OffensiveStrength
-                * Owner.GetFleetStrEmpireMultiplier(targetEmpire) / GlobalStats.Defaults.RemnantDesignStrMultiplier.LowerBound(0.1f);
+                * Owner.GetFleetStrEmpireMultiplier(targetEmpire) / GlobalStats.Defaults.RemnantDesignStr;
             // Cap at the level-fraction ceiling, then floor at the level-appropriate
             // minimum. Ordered this way because the floor can exceed the ceiling for
             // non-huge targets; a min-first Clamp would dip the requirement below the floor.
@@ -892,7 +892,7 @@ namespace Ship_Game
             ShipCosts.Add(type, ship.GetCost(Owner));
         }
 
-        RemnantShipType SelectShipForCreation(int level, int shipsInFleet) // Note Bombers are created exclusively 
+        internal RemnantShipType SelectShipForCreation(int level, int shipsInFleet) // Note Bombers are created exclusively
         {
             int ShipGroupSize()
             {
@@ -906,7 +906,7 @@ namespace Ship_Game
                 }
             }
 
-            int shipGroupSize  = ShipGroupSize() - (Level / 2).LowerBound(3);
+            int shipGroupSize  = (ShipGroupSize() - (Level / 2).LowerBound(3)).LowerBound(1);
             int fleetModifier  = shipsInFleet / shipGroupSize;
             int effectiveLevel = (level + (int)Universe.P.Difficulty + fleetModifier).UpperBound(level *2);
             int roll           = shipsInFleet.LowerBound(1) % shipGroupSize != 0 

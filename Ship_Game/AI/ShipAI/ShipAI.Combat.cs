@@ -436,7 +436,12 @@ namespace Ship_Game.AI
                 $"{s,-16} | tgt: {tgt.Name+tgt.Id,-20} | us: {Owner.Name+Owner.Id,-20} |");
 
             if (debug) Debug($"str={tgt.GetStrength().String()}");
-            if (Owner.AI.EscortTarget != null && tgt.AI.Target == Owner.AI.EscortTarget)
+            Ship boarding = tgt.AI.State == AIState.Boarding ? tgt.AI.EscortTarget : null;
+            Ship tgtTarget = boarding ?? tgt.AI.Target;
+            Fleet ourFleet = Owner.Fleet ?? (Owner.IsHangarShip ? Owner.Mothership?.Fleet : null);
+            bool boardingOurs = boarding != null && (boarding == Owner || boarding == Owner.AI.EscortTarget || boarding == Owner.Mothership
+                                                     || ourFleet != null && boarding.Fleet == ourFleet);
+            if (Owner.AI.EscortTarget != null && tgtTarget == Owner.AI.EscortTarget)
             {
                 value *= 10; // higher priority to anyone attacking the ship we are escorting
             }
@@ -451,7 +456,7 @@ namespace Ship_Game.AI
             }
             
             float distance = Owner.Distance(tgt).LowerBound(Owner.Radius + tgt.Radius);
-            if (tgt.AI.Target == Owner && distance < tgt.DesiredCombatRange) // prefer enemies targeting us (within range)
+            if (boardingOurs || tgt.AI.Target == Owner && distance < tgt.DesiredCombatRange) // prefer enemies targeting us (within range)
                 value *= 2.0f;
             if (tgt.Resupplying) // lower priority to enemies that are retreating
                 value *= 0.5f;
@@ -476,7 +481,7 @@ namespace Ship_Game.AI
                 // interceptors chase the smallest; everyone else de-prioritizes smaller ships
                 if (Owner.ShipData.HangarDesignation == HangarOptions.Interceptor)
                     value *= (1 / relSize);
-                else
+                else if (!boardingOurs)
                     value *= (relSize * relSize).LowerBound(0.005f);
             }
             else if (relSize > 1f)

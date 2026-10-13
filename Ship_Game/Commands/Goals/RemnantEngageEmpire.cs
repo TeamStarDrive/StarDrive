@@ -190,7 +190,9 @@ namespace Ship_Game.Commands.Goals
             int numShipsNoBombers = Remnants.NumShipsInFleet(Fleet) - numBombersInFleet;
             Ship singleShip       = null;
 
-            if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, Remnants.RequiredAttackFleetStr(TargetEmpire), out Array<Ship> ships))
+            float requiredStr = Remnants.RequiredAttackFleetStr(TargetEmpire);
+            float missingStr = requiredStr - (Fleet != null ? FleetStrNoBombers : 0);
+            if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, missingStr, out Array<Ship> ships))
                 if (!Remnants.CreateShip(Portal, missingBombers > 0 && !Portal.InCombat, numShipsNoBombers, out singleShip))
                     return GoalStep.TryAgain;
 
@@ -204,7 +206,8 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < ships.Count; i++)
                 ships[i].AI.AddEscortGoal(Portal);
 
-            if (numShipsNoBombers < numBombersInFleet || FleetStrNoBombers < Remnants.RequiredAttackFleetStr(TargetEmpire))
+            int bombersNow = Remnants.NumBombersInFleet(Fleet);
+            if (Remnants.NumShipsInFleet(Fleet) - bombersNow < bombersNow || FleetStrNoBombers < requiredStr)
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();
@@ -216,7 +219,8 @@ namespace Ship_Game.Commands.Goals
         {
             if (Fleet == null || Fleet.Ships.Count == 0)
             {
-                if (CountsForFleetStr)
+                bool onTheWayHome = Fleet?.TaskStep >= 8;
+                if (CountsForFleetStr && !onTheWayHome)
                     Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return GoalStep.GoalFailed; // fleet is dead
             }
@@ -261,6 +265,7 @@ namespace Ship_Game.Commands.Goals
                     return ReturnToClosestPortalAndReroute();
 
                 TargetEmpire = newVictim;
+                Task.TargetEmpire = newVictim;
 
                 // New target is too strong, need to get a new fleet
                 if (Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())

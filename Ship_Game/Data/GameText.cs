@@ -734,8 +734,6 @@ namespace Ship_Game
         AeroponicFarm = 403,
         /// <summary>Aeroponics is the use of a hydro-atomized spray to deliver</summary>
         AeroponicsIsTheUseOf = 404,
-        /// <summary>+1 food per turn</summary>
-        FoodPerTurn2 = 405,
         /// <summary>Biospheres</summary>
         Biospheres = 406,
         /// <summary>Biospheres are special, highly adaptable living habitats. Biospheres may only</summary>
@@ -3832,8 +3830,6 @@ namespace Ship_Game
         ThoughtCrystal = 4094,
         /// <summary>This crystalline structure syncs with and amplifies the brain waves</summary>
         ThisCrystallineStructureSyncsWith = 4095,
-        /// <summary>+1 research per turn</summary>
-        ResearchPerTurn3 = 4096,
         /// <summary>Commodities are special resources that are limited in number and</summary>
         CommoditiesAreSpecialResourcesThat = 4097,
         /// <summary>Broadside Flak Cannon</summary>
@@ -4142,8 +4138,6 @@ namespace Ship_Game
         Lava = 4251,
         /// <summary>Hot Lava surrounds this tile, making habitation impossible, but the</summary>
         HotLavaSurroundsThisTile = 4252,
-        /// <summary>Molten Rock, +0.5 Flat Production</summary>
-        MoltenRockFlatProduction = 4253,
         /// <summary>Disable Volcano Alerts</summary>
         DisableVolcanoAlerts = 4254,
         /// <summary>Disable Volcano Activation or Deactivation alerts. You will still be</summary>
@@ -4174,12 +4168,8 @@ namespace Ship_Game
         RemovingAVolcano = 4267,
         /// <summary>Hot Lava surrounds this tile, making habitation impossible, but the</summary>
         HotLavaSurroundsThisTile2 = 4268,
-        /// <summary>Molten Rock, +0.2 Flat Research</summary>
-        MoltenRockFlatResearch = 4269,
         /// <summary>Hot Lava surrounds this tile, making habitation impossible, the toxic</summary>
         HotLavaSurroundsThisTile3 = 4270,
-        /// <summary>Molten Rock, -0.2 Fertility</summary>
-        MoltenRockFertility = 4271,
         /// <summary>No one can live on this tile due to the</summary>
         NoOneCanLiveOn = 4272,
         /// <summary>The Volcano here prevents building Biospheres on this tile.</summary>
@@ -4218,20 +4208,12 @@ namespace Ship_Game
         MeteorCrater = 4289,
         /// <summary>This Meteor Crater contains fascinating and rare materials which may</summary>
         ThisMeteorCraterContainsFascinating = 4290,
-        /// <summary>+1 Flat Research per turn</summary>
-        FlatResearchPerTurn = 4291,
         /// <summary>This Meteor Crater contains precious metals which can be traded</summary>
         ThisMeteorCraterContainsPrecious = 4292,
-        /// <summary>+1 Credits per Colonist</summary>
-        CreditsPerColonist2 = 4293,
         /// <summary>This Meteor Crater contains large quantities of Minerals, which can</summary>
         ThisMeteorCraterContainsLarge = 4294,
-        /// <summary>+2 Flat Production</summary>
-        FlatProduction = 4295,
         /// <summary>This Meteor Crater is slightly damaging the planet's environment. Fortunately,</summary>
         ThisMeteorCraterIsSlightly = 4296,
-        /// <summary>(-0.1) Fertility</summary>
-        Fertility2 = 4297,
         /// <summary>The Enemy has launched a sneak assault force in an</summary>
         TheEnemyHasLaunchedA = 4298,
         /// <summary>was destroyed in an exploration event.</summary>
@@ -4925,6 +4907,10 @@ namespace Ship_Game
         Turn2 = 4651,
         /// <summary>turns</summary>
         TurnsFew = 4652,
+        /// <summary>Skip Unresearched</summary>
+        BlueprintsSkipUnresearched = 4653,
+        /// <summary>When every building in these Blueprints that you have researched is built, and you have researched at least one, the Governor switches to the linked Blueprints without waiting for the rest. Researching more of these Blueprints later does not switch it back.</summary>
+        BlueprintsSkipUnresearchedTip = 4654,
         /// <summary>Opens the Important Events log</summary>
         OpensTheImportantEventsLog = 18285,
 

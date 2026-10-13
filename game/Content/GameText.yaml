@@ -1080,12 +1080,12 @@ ExcessWpnPwrDrain:
  ENG: "Excess Wpn Pwr Drain"
  RUS: "Избыточное энергопотребление оружия"
  UKR: "Надлишкові витр. енерг."
- PTB: "Drenagem excessiva de energia da arma"
+ PTB: "Alto Consumo de Energia"
 WpnFirePowerTime:
  ENG: "Wpn Fire Power Time"
  RUS: "Время непрерывной стрельбы (энерг.)"
  UKR: "Час безпер. стрільби"
- PTB: "Tempo de potência de fogo da arma"
+ PTB: "Tempo de Poder de Fogo"
 BurstWpnPwrDrain:
  ENG: "Burst Wpn Pwr Drain"
  RUS: "Пиковое потребление энергии оружия"
@@ -3570,7 +3570,7 @@ BB_Tech_IonicWeaponry_Name:
  RUS: "Ионное оружие"
  SPA: "Armamento iónico"
  UKR: "Іонна зброя"
- PTB: "Armamento Iônico"
+ PTB: "Feixes de Íons"
 BB_Tech_IonicWeaponry_Desc:
  Id: 598
  ENG: "Ion stream particle weapons have the unique effect of causing a target ship's capacitors to discharge. The result is a beam weapon that drains a target's power stores. However, Ion weapons are completely ineffective against shielded targets."
@@ -3752,14 +3752,14 @@ BB_Tech_Phasors_Name:
  RUS: "Фазоры"
  SPA: "Fasores"
  UKR: "Фазори"
- PTB: "Fasores"
+ PTB: "Armas de Feixe"
 BB_Tech_Phasors_Desc:
  Id: 624
  ENG: "Phasors are extremely efficient directed energy weapons capable of longer and more powerful firing bursts."
  RUS: "Фазоры - исключительно эффективное направленное энергетическое оружие, способное излучать долгие и мощные энергоимпульсы."
  SPA: "Los fasores son armas de energía dirigida de suma eficiencia capaces de disparar más lejos ráfagas más potentes."
  UKR: "Фазори - це надзвичайно ефективна зброя зі спрямованою енергією, здатна на довші та потужніші серії пострілів."
- PTB: "Fasores são armas de energia direcionada extremamente eficientes, capazes de rajadas de disparo mais longas e poderosas."
+ PTB: "Armas de Feixe são armas de energia direcionada extremamente eficientes, capazes de rajadas de disparo mais longas e poderosas."
 BB_Tech_PhotonCannons_Name:
  Id: 625
  ENG: "Photon Cannons"
@@ -3843,7 +3843,7 @@ BB_Tech_PlasmaThrowers_Name:
  RUS: "Плазменная векторизация"
  SPA: "Vectores de plasma"
  UKR: "Векторизація плазми"
- PTB: "Vetorização de Plasma"
+ PTB: "Canalização de Plasma"
 BB_Tech_PlasmaThrowers_Desc:
  Id: 637
  ENG: "If we channeled highly-ionized Plasma directly from a ship reactor through a magnetized, high-pressure system, then we could spray our enemies with super-heated energy to devastating effect. "
@@ -4011,7 +4011,7 @@ BB_Tech_SpaceWeapons_Name:
  RUS: "Космическое вооружение"
  SPA: "Armas espaciales"
  UKR: "Балістика"
- PTB: "Balistica"
+ PTB: "Armas Balísticas"
 BB_Tech_StarshipConstruction_Name:
  Id: 663
  ENG: "Starship Construction"
@@ -4738,28 +4738,28 @@ HeavymountIonBeam:
  RUS: "Мощный ионный луч"
  SPA: "Rayo de iones de montaje fijo"
  UKR: "Пучок важких іонів"
- PTB: "Feixe Iônico de Montagem Pesada"
+ PTB: "Feixes de Íons de Montagem Pesada"
 ThisIonBeamDrainsPower:
  Id: 971
  ENG: "This Ion beam drains power from the targeted vessel, provided that their shields are down."
  RUS: "Ионный луч высасывает энергию вражеского корабля, если у него нету щитов, или они уничтожены."
  SPA: "Este rayo de iones consume energía de la nave enemiga, siempre que sus escudos estén desactivados."
  UKR: "Цей іонний промінь викачує енергію з цільового судна за умови, що його щити опущені."
- PTB: "Este feixe iônico drena energia da embarcação-alvo, desde que seus escudos estejam abaixados."
+ PTB: "Este Feixe de Íons drena energia da embarcação-alvo, desde que seus escudos estejam abaixados."
 IonBeamTurret:
  Id: 972
  ENG: "Ion Beam Turret"
  RUS: "Ионный луч"
  SPA: "Torreta de rayo de iones"
  UKR: "Іонно-променева башта"
- PTB: "Torreta de Feixe Iônico"
+ PTB: "Torreta de Feixes de Íons"
 ThisTurretmountedIonBeamDrains:
  Id: 973
  ENG: "This turret-mounted Ion beam drains a moderate amount of power from the targeted ship, provided that its shields are down."
  RUS: "Эта ионная установка на поворотной станине высасывает некоторое количество энергии вражеского корабля, если у него нету щитов, или они уничтожены."
  SPA: "Este rayo de iones sobre torrera consume una cantidad moderada de energía de la nave enemiga, siempre que sus escudos estén desactivados."
  UKR: "Цей іонний промінь, встановлений на башті, відбирає помірну кількість енергії у корабля-мішені, за умови, що його щити опущені."
- PTB: "Este feixe iônico montado em torreta drena uma quantidade moderada de energia da nave-alvo, desde que seus escudos estejam abaixados."
+ PTB: "Este Feixe de Íons montado em torreta drena uma quantidade moderada de energia da nave-alvo, desde que seus escudos estejam abaixados."
 IonCannon2:
  Id: 974
  ENG: "Ion Cannon"
@@ -10501,7 +10501,7 @@ PowerStore:
  RUS: "Запас энерг."
  SPA: "Reservas de energía"
  UKR: "Запас енерг."
- PTB: "Armazenamento de Energia"
+ PTB: "Capacidade de Energia"
 IndicatesTheAmountOfPower2:
  Id: 2236
  ENG: "Indicates the amount of power storage capacity this module adds"
@@ -12881,13 +12881,6 @@ ThisCrystallineStructureSyncsWith:
  SPA: "Esta estructura cristalina se sincroniza y amplifica las ondas cerebrales de los organimos biológicos. de forma simple, todo lo que se le acerce se vuelve mas inteligente. +0.5 de investigación al dueño de este planeta."
  UKR: "Ця кристалічна структура синхронізується з мозковими хвилями біологічних організмів і підсилює їх. Простіше кажучи, все, що опиняється поруч з нею, стає розумнішим. +0.5 дослідження за хід власнику цієї планети"
  PTB: "Esta estrutura cristalina sincroniza e amplifica as ondas cerebrais de organismos biológicos. Em termos simples, tudo que se aproxima dela fica mais inteligente. +0,5 de pesquisa por turno para o dono deste planeta"
-ResearchPerTurn3:
- Id: 4096
- ENG: "+0.5 research per turn"
- RUS: "+0.5 исследование за ход"
- SPA: "+0.5 de investigación por turno"
- UKR: "+0.5 дослідження за хід"
- PTB: "+0,5 de pesquisa por turno"
 CommoditiesAreSpecialResourcesThat:
  Id: 4097
  ENG: "Commodities are special resources that are limited in number and provide unique bonuses to colonies that possess them. Commodities are harvested automatically at colonies where they occur naturally. They can then be moved throughout your empire using freighters. You may specify whether you wish to import or export any commodities you have access to in this panel."
@@ -13824,12 +13817,6 @@ HotLavaSurroundsThisTile:
  RUS: "Эту область окружает раскаленная лава ,обитание здесь невозможно, но повышенние температуры неким образом помогает в производстве. Лавовый бассейн со временем затвердеет."
  UKR: "Гаряча лава оточує цю плитку, унеможливлюючи проживання в ній, але гарячі температури допомагають у виробництві. З часом лавовий басейн застигне."
  PTB: "Lava quente cerca este quadrante, tornando a habitação impossível, mas as altas temperaturas ajudam na produção. A poça de lava se solidificará com o tempo."
-MoltenRockFlatProduction:
- Id: 4253
- ENG: "Molten Rock, +0.5 Flat Production"
- RUS: "Расплавленная скала, +0.5 к продукции"
- UKR: "Розплавлена порода, +0.5 видобуток"
- PTB: "Rocha Fundida, +0,5 Produção Fixa"
 DisableVolcanoAlerts:
  Id: 4254
  ENG: "Disable Volcano Alerts"
@@ -13920,24 +13907,12 @@ HotLavaSurroundsThisTile2:
  RUS: "Эту область окружает раскаленная лава ,обитание здесь невозможно, но не свойственные температуры привлекают наших ученых. Лавовый бассейн со временем затвердеет."
  UKR: "Гаряча лава оточує цю плитку, унеможливлюючи проживання, але гарячі температури відкривають перед нашими вченими деякі дослідницькі можливості. З часом лавовий басейн застигне."
  PTB: "Lava quente cerca este quadrante, tornando a habitação impossível, mas as altas temperaturas revelam algumas oportunidades de pesquisa para nossos cientistas. A poça de lava se solidificará com o tempo."
-MoltenRockFlatResearch:
- Id: 4269
- ENG: "Molten Rock, +0.2 Flat Research"
- RUS: "Расплавленная скала, +0.2 к науке"
- UKR: "Розплавлена порода, +0.2 Дослідження площини"
- PTB: "Rocha Fundida, +0,2 Pesquisa Fixa"
 HotLavaSurroundsThisTile3:
  Id: 4270
  ENG: "Hot Lava surrounds this tile, making habitation impossible, the toxic fumes emitting from this pool are vary bad for the environment. The Lava Pool will solidify in time."
  RUS: "Эту область окружает раскаленная лава ,обитание здесь невозможно. Токсичные пары, которые выделяет этот лавовый бассейн, очень вредны для окружающей среды. Лавовый бассейн со временем затвердеет."
  UKR: "Гаряча лава оточує цю плитку, роблячи неможливим проживання в ній, а токсичні випари, що виділяються з цього басейну, дуже шкідливі для навколишнього середовища. З часом лавовий басейн застигне."
  PTB: "Lava quente cerca este quadrante, tornando a habitação impossível; os gases tóxicos emitidos por esta poça são muito ruins para o ambiente. A poça de lava se solidificará com o tempo."
-MoltenRockFertility:
- Id: 4271
- ENG: "Molten Rock, -0.2 Fertility"
- RUS: "Расплавленная скала, -0.2 к плодородию"
- UKR: "Розплавлена порода, -0.2 Родючість"
- PTB: "Rocha Fundida, -0,2 Fertilidade"
 NoOneCanLiveOn:
  Id: 4272
  ENG: "No one can live on this tile due to the enormous Lava Pool present. Biospheres cannot be build as well, until the Lava solidifies and cools down."
@@ -14052,48 +14027,24 @@ ThisMeteorCraterContainsFascinating:
  RUS: "Метеоритный кратер содержит удивительные и редкие материалы, которые могут помочь нам в исследованиях. К сожалению,это временный эффект."
  UKR: "Цей метеоритний кратер містить цікаві та рідкісні матеріали, які можуть допомогти нам у дослідженнях. На жаль, цей ефект тимчасовий."
  PTB: "Esta Cratera de Meteoro contém materiais fascinantes e raros que podem ajudar nossos esforços de pesquisa. Infelizmente, esse efeito é temporário."
-FlatResearchPerTurn:
- Id: 4291
- ENG: "+1 Flat Research per turn"
- RUS: "+1 к науке за ход"
- UKR: "+1 плоске дослідження за хід"
- PTB: "+1 Pesquisa Fixa por turno"
 ThisMeteorCraterContainsPrecious:
  Id: 4292
  ENG: "This Meteor Crater contains precious metals which can be traded for credits. Unfortunately, this effect is temporary."
  RUS: "Метеоритный кратер содержит драгоценные металлы, которые можно обменять на кредиты. К сожалению,это временный эффект."
  UKR: "Цей метеоритний кратер містить дорогоцінні метали, які можна обміняти на кредити. На жаль, цей ефект тимчасовий."
  PTB: "Esta Cratera de Meteoro contém metais preciosos que podem ser trocados por créditos. Infelizmente, esse efeito é temporário."
-CreditsPerColonist2:
- Id: 4293
- ENG: "+1 Credits per Colonist"
- RUS: "+1 к кредитам за колониста"
- UKR: "+1 кредит за кожного колоніста"
- PTB: "+1 Crédito por Colonista"
 ThisMeteorCraterContainsLarge:
  Id: 4294
  ENG: "This Meteor Crater contains large quantities of Minerals, which can help with production. Unfortunately, this effect is temporary."
  RUS: "Метеоритный кратер содержит большое количество минералов, которые могут помочь в производстве. К сожалению,это временный эффект."
  UKR: "Цей метеоритний кратер містить велику кількість мінералів, які можуть допомогти у виробництві. На жаль, цей ефект тимчасовий."
  PTB: "Esta Cratera de Meteoro contém grandes quantidades de Minerais, que podem ajudar na produção. Infelizmente, esse efeito é temporário."
-FlatProduction:
- Id: 4295
- ENG: "+2 Flat Production"
- RUS: "+2 к производству"
- UKR: "+2 Рівномірне виробництво"
- PTB: "+2 Produção Fixa"
 ThisMeteorCraterIsSlightly:
  Id: 4296
  ENG: "This Meteor Crater is slightly damaging the planet's environment. Fortunately, this effect is temporary."
  RUS: "Метеоритный кратер слегка повредил окружающую среду планеты. К счастью, это временный эффект."
  UKR: "Цей метеоритний кратер дещо шкодить навколишньому середовищу планети. На щастя, цей ефект тимчасовий."
  PTB: "Esta Cratera de Meteoro está danificando levemente o ambiente do planeta. Felizmente, esse efeito é temporário."
-Fertility2:
- Id: 4297
- ENG: " (-0.1) Fertility"
- RUS: " (-0.1) плодородие"
- UKR: " (-0,1) Родючість"
- PTB: " (-0,1) Fertilidade"
 TheEnemyHasLaunchedA:
  Id: 4298
  ENG: "The Enemy has launched a sneak assault force in an attempt to\nboard our Bombers and escorting ships!"
@@ -14664,10 +14615,12 @@ Pathfinder:
  Id: 4536
  ENG: "Pathfinder"
  RUS: "Прокладка маршрута"
+ PTB: "Caçador de Caminhos"
 PathfinderTip:
  Id: 4537
  ENG: "When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ships travel in straight lines and drop out of warp as wells are encountered."
  RUS: "Когда ВКЛ, при перемещении по вселенной корабли прокладывают курс в обход враждебных и неизвестных планетарных гравитационных скважин, избегая выхода из варпа. При ВЫКЛ корабли движутся по прямой и выходят из варпа при встрече со скважинами."
+ PTB: "Quando ATIVADO, as naves traçam uma rota ao redor de poços gravitacionais planetários hostis e desconhecidos ao se mover pelo universo, evitando saídas de dobra. Quando DESATIVADO, as naves viajam em linha reta e saem de dobra ao encontrar os poços."
 PlayerBuiltProtectedFromScrap:
  Id: 4538
  ENG: "You placed this yourself, so the governor will never scrap it or cancel it."
@@ -15025,6 +14978,12 @@ TurnsFew:
  SPA: "turnos"
  UKR: "ходи"
  PTB: "turnos"
+BlueprintsSkipUnresearched:
+ Id: 4653
+ ENG: "Skip Unresearched"
+BlueprintsSkipUnresearchedTip:
+ Id: 4654
+ ENG: "When every building in these Blueprints that you have researched is built, and you have researched at least one, the Governor switches to the linked Blueprints without waiting for the rest. Researching more of these Blueprints later does not switch it back."
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 
@@ -15055,12 +15014,6 @@ BB_GolddepositDesc:
  RUS: "Легкодоступное месторождение золота, сформировавшееся в эпоху высокой вулканической активности планеты"
  UKR: "Легко видобувне родовище золота, яке утворилося, коли на планеті було багато діючих вулканів"
  PTB: "Depósito de ouro facilmente extraível formado quando o planeta tinha muitos vulcões ativos"
-BB_GolddepositDescShort:
- Id: 4389
- ENG: "Provides 2 production per colonist, +3 credits, total worth of 350 production"
- RUS: "Даёт 2 производства на колониста, +3 кредита, суммарная ценность 350 производства"
- UKR: "Надає 2 виробництва на колоніста, +3 кредити, загальною вартістю 350 виробництв"
- PTB: "Fornece 2 de produção por colonista, +3 créditos, valor total de 350 de produção"
 BB_GoldMoutain:
  Id: 4390
  ENG: "Golden Mountain"
@@ -15073,12 +15026,6 @@ BB_GoldMountainDesc:
  RUS: "Огромная гора, насыщенная золотыми жилами."
  UKR: "Величезна гора, яка наповнена покладами золота."
  PTB: "Enorme montanha cheia de depósitos de ouro."
-BB_GoldMountainDescShort:
- Id: 4392
- ENG: "Provides 1.5 production per colonist, increases planet richness by 2, total worth of 3000 production"
- RUS: "Даёт 1.5 производства на колониста, +2 к богатству планеты, суммарная ценность 3000 производства"
- UKR: "Забезпечує 1,5 виробництва на колоніста, збільшує багатство планети на 2, загальною вартістю 3000 виробництва"
- PTB: "Fornece 1,5 de produção por colonista, aumenta a riqueza do planeta em 2, valor total de 3000 de produção"
 BB_MoltenGold:
  Id: 4393
  ENG: "Molten gold pit"
@@ -15091,12 +15038,6 @@ BB_MoltenGoldDesc:
  RUS: "Яма, наполненная расплавленным золотом, образуется из-за экстремальной вулканической активности, выталкивающей на поверхность большие объёмы золота; встречается лишь на очень горячих вулканических планетах."
  UKR: "Яма, заповнена розплавленим золотом, що утворюється внаслідок інтенсивної вулканічної активності, яка нагріває і виштовхує на поверхню велику кількість золота, його можна знайти в такому стані тільки на дуже гарячих вулканічних планетах."
  PTB: "Um poço cheio de ouro fundido criado por intensa atividade vulcânica, que aquece e empurra grandes quantidades de ouro para a superfície. Ele só pode ser encontrado nesse estado em planetas vulcânicos muito quentes."
-BB_MoltenGoldDescShort:
- Id: 4395
- ENG: "Provides 0.5 production per colonist, increases planet richness by 0.35" 
- RUS: "Даёт 0.5 производства на колониста, повышает богатство планеты на 0.35"
- UKR: "Забезпечує 0,5 виробництва на колоніста, збільшує багатство планети на 0,35"
- PTB: "Fornece 0,5 de produção por colonista, aumenta a riqueza do planeta em 0,35"
 BB_RushRefit:
  Id: 4396
  ENG: "Rush Refit"  
@@ -18456,7 +18397,7 @@ BlueprintsSnapshotTip:
  PTB: "Cria Projetos a partir dos edifícios aplicáveis atuais neste planeta. Não funcionará se nenhum dos edifícios atuais puder ser inserido em Projetos."
 BluePrintsOverView:
  Id: 6217
- ENG: "Colony Blueprints are mainly lists of buildings which can be uploaded for the Governor to follow. The Governor will prioritize these building if possible, and in case the Blueprints are Exclusive, the Governor will build only the specified buildings in the uploaded Blueprints. Blueprints can also be linked to other Blueprints so when they finished, new Blueprints are uploaded."                   
+ ENG: "Colony Blueprints are mainly lists of buildings which can be uploaded for the Governor to follow. The Governor will prioritize these buildings if possible, and in case the Blueprints are Exclusive, the Governor will build only the specified buildings in the uploaded Blueprints. Blueprints can also be linked to other Blueprints, which are uploaded once these are finished, or with Skip Unresearched, once every building in these Blueprints that you have researched is built, provided you have researched at least one."                   
  RUS: "Чертежи Колонии - это в основном списки зданий, которые можно загрузить для следования Губернатором. При возможности он будет приоритизировать их; в Эксклюзивных чертежах Губернатор строит только указанные здания. Чертежи можно связывать - по завершении будут загружены связанные."
  PTB: "Projetos de Colônia são principalmente listas de edifícios que podem ser carregadas para o Governador seguir. O Governador priorizará esses edifícios se possível e, caso os Projetos sejam Exclusivos, construirá apenas os edifícios especificados nos Projetos carregados. Projetos também podem ser vinculados a outros Projetos, para que, quando terminarem, novos Projetos sejam carregados."
 BluePrintsEnableGovernorToLoad:
@@ -18466,7 +18407,7 @@ BluePrintsEnableGovernorToLoad:
  PTB: "Ative um Governador para carregar Projetos."
 LinkBlueprintsTip:
  Id: 6219
- ENG: "When linking Blueprints to these Blueprints, the linked Blueprints will be uploaded after the Governor completes these Bluerpints. You can link Blueprints after you save them."                     
+ ENG: "When linking Blueprints to these Blueprints, the linked Blueprints will be uploaded after the Governor completes these Blueprints, or with Skip Unresearched, once every building in these Blueprints that you have researched is built, provided you have researched at least one. You can link Blueprints after you save them."                     
  RUS: "При связывании к этим Чертежам, связанные будут загружены после завершения текущих. Можно связать после сохранения."
  PTB: "Ao vincular Projetos a estes Projetos, os Projetos vinculados serão carregados depois que o Governador concluir estes Projetos. Você pode vincular Projetos depois de salvá-los."
 LinksChain:
@@ -20018,12 +19959,6 @@ TheWholeStructureOfThis:
  RUS: "Вся конструкция этого здания - это мозг разумного ИИ. Спустя несколько столетий у него развилось раздвоение личности, один Бен, а другой Роб."
  UKR: "Уся конструкція цієї будівлі - це мозок розумного штучного інтелекту. Через кілька століть у ньому розвинулося роздвоєння особистості: один Бен, а інший Роб."
  PTB: "Toda a estrutura deste edifício é o cérebro de uma IA senciente. Depois de alguns séculos, ela desenvolveu uma dupla personalidade: uma chamada Ben e a outra Rob."
-ResearchTaxRates:
- Id: 18163
- ENG: "-2 research, +30% tax rates"
- RUS: "-2 к науке, + 30% к налоговым доходам."
- UKR: "-2 дослідження, +30% податкові ставки"
- PTB: "-2 de pesquisa, +30% nas taxas de imposto."
 AncientMegacity:
  Id: 5098
  ENG: "Ancient megacity"
@@ -20066,12 +20001,6 @@ NutritiousFlightlessBirdSpecies:
  RUS: "Вид съедобных нелетающих птиц."
  UKR: "Поживні нелітаючі види птахів."
  PTB: "Espécie nutritiva de ave não voadora."
-ProvidesFoodPerTurnTotal3:
- Id: 18218
- ENG: "Provides 0.6 food per turn, total worth of 3100 food."
- RUS: "Дает +0.6 еды за ход, всего 3100 еды."
- UKR: "Дає 0.6 їжі за хід, загальною вартістю 3100 їжі."
- PTB: "Fornece 0,6 de comida por turno, valor total de 3100 de comida."
 CaveSystem:
  Id: 18111
  ENG: "Cave system"
@@ -20102,12 +20031,6 @@ ACaveInWhichWe:
  RUS: "Пещера, в которой мы договорились с контрабандистами оставить товар."
  UKR: "Печера, в якій ми домовилися з контрабандистом висадити товар."
  PTB: "Uma caverna onde combinamos com o contrabandista de deixar as mercadorias."
-ProvidesFoodProductionCredits:
- Id: 18116
- ENG: "Provides +2 food, +3 production, - 1,3 credits"
- RUS: "Дает +2 еды, +3  продукции, - 1,3  кредитов."
- UKR: "Забезпечує +2 їжі, +3 виробництва, - 1,3 кредиту"
- PTB: "Fornece +2 de comida, +3 de produção, -1,3 créditos."
 EvaporativeWastePit:
  Id: 18103
  ENG: "Evaporative Waste pit"
@@ -20138,12 +20061,6 @@ HighlyExoticMineralVeinsRarely:
  RUS: "Сложные экзотические минеральные жилы, редко встречающиеся на планетах земного типа."
  UKR: "Дуже екзотичні мінеральні жили, які рідко зустрічаються на земних планетах. Легко видобуваються, але в дуже обмеженій кількості. Видобута руда є чудовим провідником, що допомагає передавати дані."
  PTB: "Veios minerais altamente exóticos, raramente encontrados em mundos terrestres. Fáceis de minerar, mas em quantidade muito limitada. O minério extraído é um excelente condutor, ajudando nas transferências de dados."
-ProdPerAssignedColonistTotal:
- Id: 18108
- ENG: "+5 production per assigned colonist, total worth of 500 production,"
- RUS: "Планеты с этими минералами более богаты. (+5 к продукции)"
- UKR: "+5 виробництва за кожного призначеного колоніста, загальною вартістю 500 виробництва,"
- PTB: "+5 de produção por colono designado, valor total de 500 de produção,"
 ExoticFruits:
  Id: 18222
  ENG: "Exotic Fruits"
@@ -20156,12 +20073,6 @@ TastyFruitsThatAreA:
  RUS: "Вкусные природные афродизиаки."
  UKR: "Смачні фрукти, які є природним афродизіаком, що вивільняє ферменти, які покращують роботу нервової системи."
  PTB: "Frutas saborosas que são um afrodisíaco natural e liberam enzimas de aprimoramento neural."
-ProvidesFoodPerTurnTotal4:
- Id: 18224
- ENG: "Provides 1 food per turn,  +4 flat research, +8 Million population per turn, total total worth of 250 food."
- RUS: "Дает +1 еды за ход, всего 350 еды и +8 миллионов населения за ход."
- UKR: "Дає 1 їжу за хід, +4 плоских дослідження, +8 мільйонів населення за хід, загальною вартістю 250 їжі."
- PTB: "Fornece 1 de comida por turno, +4 de pesquisa fixa, +8 milhões de população por turno, valor total de 250 de comida."
 WorldSeed:
  Id: 18175
  ENG: "World seed"
@@ -20174,12 +20085,6 @@ TheSeedOfAWorld:
  RUS: "Семя мирового древа. При посадке на планете оно будет медленно расти и начнет терраформировать окружающую среду."
  UKR: "Насіння світового дерева. Посаджене на планеті, воно буде повільно рости і почне тераформувати навколишнє середовище."
  PTB: "A semente de uma árvore-mundo. Quando plantada em um mundo, ela crescerá lentamente e começará a terraformar o ambiente."
-PlanetFertilityTerraformsAPlanet:
- Id: 18177
- ENG: "+0.15 planet fertility, terraform's a planet"
- RUS: "+0.15 к плодородию, терраформирует планеты."
- UKR: "+0.15 родючість планети, тераформа - це планета"
- PTB: "+0,15 de fertilidade planetária, terraforma um planeta."
 MysteriousAltar:
  Id: 18178
  ENG: "Mysterious altar"
@@ -20204,12 +20109,6 @@ ThisAncientDefensiveDeviceIs:
  RUS: "Это древнее защитное устройство создает мощный щит по всей планете, защищающий от бомбардировок. Но у этой древней технологии есть обратная сторона: плотное поле щита блокирует часть солнечного света."
  UKR: "Цей стародавній оборонний пристрій створює потужний щит для всієї планети, захищаючи її від бомбардувань. Але у цієї стародавньої технології є й зворотний бік: щільне поле щита блокує певний відсоток сонячного світла."
  PTB: "Este antigo dispositivo defensivo está criando um forte escudo em escala planetária, protegendo contra bombardeios. Mas há uma desvantagem nessa tecnologia antiga: o campo denso do escudo bloqueia uma porcentagem da luz solar."
-PlanetaryShieldStrengthFertilityInjuries:
- Id: 18182
- ENG: "+1800 planetary shield strength, -0.2 fertility, 2 injuries to each invading troop."
- RUS: "+1800 к силе планетарного щита, -0,2 к плодородию, +2 повреждения каждому вторгающемуся отряду."
- UKR: "+1800 міцності планетарного щита, -0.2 народжуваності, 2 поранення для кожного війська вторгнення."
- PTB: "+1800 de força de escudo planetário, -0,2 de fertilidade, 2 ferimentos em cada tropa invasora."
 ForcefieldEmitter:
  Id: 18183
  ENG: "Forcefield emitter"
@@ -20222,12 +20121,6 @@ ThisMysteriousForcefieldGeneratorHas:
  RUS: "Этот странный генератор силового поля создал огромный купол, препятствующий чему-либо попадать внутрь или наружу."
  UKR: "Цей таємничий генератор силового поля створив величезний купол, який не дає нікому проникнути всередину або вийти назовні."
  PTB: "Este misterioso gerador de campo de força criou uma enorme cúpula que impede qualquer coisa de entrar ou sair."
-FertilityBillionPopulation:
- Id: 18185
- ENG: "-0.15 fertility, -0.07 billion population"
- RUS: "-0.15 к плодородию, -0.07 милииарда населения."
- UKR: "-0,15 народжуваності, -0,07 млрд населення"
- PTB: "-0,15 de fertilidade, -0,07 bilhão de população."
 AncientObelisk:
  Id: 18186
  ENG: "Ancient Obelisk"
@@ -20252,12 +20145,6 @@ ThisMysteriousObeliskEmitsAn:
  RUS: "Таинственный обелиск излучает энергетическое поле, которое стимулирует нервные пути в мозге разумных организмов."
  UKR: "Цей таємничий обеліск випромінює енергетичне поле, яке стимулює нервові шляхи живих організмів."
  PTB: "Este misterioso obelisco emite um campo de energia que estimula as vias neurais em organismos sencientes."
-ResearchPerColonist:
- Id: 18190
- ENG: "0.2 research per colonist"
- RUS: "+0.2 к науке за колониста."
- UKR: "0,2 дослідження на колоніста"
- PTB: "0,2 de pesquisa por colono."
 NeuralDampener:
  Id: 18191
  ENG: "Neural Dampener"
@@ -20270,12 +20157,6 @@ ThisMysteriousObeliskEmitsAn2:
  RUS: "Таинственный обелиск излучает энергетическое поле, которое дестабилизирует нервные пути в разумных организмах."
  UKR: "Цей таємничий обеліск випромінює енергетичне поле, яке стабілізує нервові шляхи живих організмів."
  PTB: "Este misterioso obelisco emite um campo de energia que desestabiliza as vias neurais em organismos sencientes."
-NegativeResearchPerTurn:
- Id: 18193
- ENG: "-1 research per turn"
- RUS: "-1 к науке за ход."
- UKR: "-1 дослідження за хід"
- PTB: "-1 de pesquisa por turno."
 SpaceElevator2:
  Id: 18194
  ENG: "Space elevator"
@@ -20312,12 +20193,6 @@ APirateOutcastBaseLed:
  RUS: "База пиратов-изгоев, возглавляемая человеком, называющим себя Голдимирес. Он помогает нам с транспортировкой ресурсов."
  UKR: "Піратська база вигнанців, очолювана людиною, яка називає себе Голдімайрсом. Він допомагає нам з переміщенням ресурсів."
  PTB: "Uma base de proscritos piratas, liderada por um indivíduo que se chama Goldymires. Ele está nos ajudando com a movimentação de recursos."
-InfrastructureCreditsPerTurn:
- Id: 18200
- ENG: "+2 infrastructure, -1 credits per turn"
- RUS: "+2 к инфраструктуре, -1 кредитов за ход."
- UKR: "+2 інфраструктура, -1 кредит за хід"
- PTB: "+2 de infraestrutura, -1 crédito por turno."
 TeleportRing:
  Id: 18201
  ENG: "Teleport ring"
@@ -20342,12 +20217,6 @@ SelfreplicatingMachinesThatConsumeAll:
  RUS: "Самовоспроизводящиеся машины, которые потребляют всю биомассу с которой сталкиваются - для своего размножения. Часто проникают сквозь стены и оборонительные сооружения в поисках биомассы."
  UKR: "Самовідтворювальні машини, які споживають усю біомасу, що зустрічається на шляху до їхнього розмноження. Часто проникають крізь стіни та оборонні споруди в пошуках біомаси."
  PTB: "Máquinas autorreplicantes que consomem toda biomassa que encontram para se propagar. Frequentemente atravessam paredes e defesas em sua busca por mais biomassa."
-FoodPerTurn2:
- Id: 18205
- ENG: "-2 food per turn."
- RUS: "-2 еды за ход."
- UKR: "-2 одиниці їжі за хід."
- PTB: "-2 de comida por turno."
 UnidentifiedSignature:
  Id: 18206
  ENG: "Unidentified signature"
@@ -20372,12 +20241,6 @@ LargePatchesOfTerrainHeavily:
  RUS: "Большие участки местности, покрытые огромными скалами. Из них можно добывать некоторые минералы."
  UKR: "Великі ділянки місцевості, вкриті величезними скелями. Можна видобувати деякі матеріали."
  PTB: "Grandes áreas de terreno fortemente cobertas por rochas enormes. Podem ser mineradas para obter alguns materiais."
-ProvidesProductionPerColonistTotal6:
- Id: 18151
- ENG: "Provides 0.4 production per colonist, total worth of 250 production, -1 infrastructure."
- RUS: "Дает 0,4 продукции за каждого колониста, всего 250 продукции , -1 к инфраструктуре."
- UKR: "Забезпечує 0.4 виробництва на колоніста, загальною вартістю 250 виробництв, -1 інфраструктура."
- PTB: "Fornece 0,4 de produção por colono, valor total de 250 de produção, -1 de infraestrutura."
 ScanInterferance:
  Id: 18152
  ENG: "Scan Interferance"
@@ -20396,12 +20259,6 @@ MassiveMountains:
  RUS: "Массивные горы"
  UKR: "Масивні гори"
  PTB: "Montanhas massivas"
-ProdPerAssignedColonistTotal3:
- Id: 18155
- ENG: "+0.2 prod per assigned colonist, total worth of 6000 production, -1 infrastructure, -1.1 billion population"
- RUS: "+0.2 продукции за задаействованного колониста, всего 6000 продукции, -1 к инфраструктуре, -1.1 миллиардов населения."
- UKR: "+0.2 виробництва за кожного колоніста, загальна вартість виробництва 6000, -1 інфраструктура, -1.1 мільярд населення"
- PTB: "+0,2 de produção por colono designado, valor total de 6000 de produção, -1 de infraestrutura, -1,1 bilhão de população."
 Mountain:
  Id: 18123
  ENG: "Mountain"
@@ -20414,12 +20271,6 @@ AnEnormousChainOfMountains:
  RUS: "Огромная горная структура, которая делает перемещение производственных материалов через них, невероятно сложной задачей. Предоставляет возможность добычи руд."
  UKR: "Величезний ланцюг гір, що робить переміщення виробництва через них неймовірно складним. Надає можливість для видобутку корисних копалин."
  PTB: "Uma enorme cadeia de montanhas que torna o transporte de produção por ela incrivelmente difícil. Oferece uma oportunidade para mineração."
-ProdPerAssignedColonistTotal2:
- Id: 18125
- ENG: "+0.2 prod per assigned colonist, total worth of 20000 production, -1 infrastructure, -0.7 billion population"
- RUS: "+0,2 к продукции за задействованного колониста, всего 20000 производства , -1 к инфраструктуре, -0,7 миллиарда населения."
- UKR: "+0.2 виробництва за кожного колоніста, загальна вартість виробництва 20000, -1 інфраструктура, -0.7 мільярда населення"
- PTB: "+0,2 de produção por colono designado, valor total de 20000 de produção, -1 de infraestrutura, -0,7 bilhão de população."
 LargeWarehouse:
  Id: 5367
  ENG: "Large Warehouse"
@@ -20432,12 +20283,6 @@ AtOneTimeAnAbandoned:
  RUS: "Некогда заброшенное помещение, сейчас очищено и отремонтировано, этот большой склад обеспечивает хранение на 200 дополнительных продуктов питания и производства."
  UKR: "Колись занедбаний склад, тепер прибраний і відремонтований, цей великий склад забезпечує зберігання 200 додаткових продуктів харчування та продукції."
  PTB: "Outrora um armazém abandonado, agora limpo e restaurado, este grande armazém fornece armazenamento para 200 unidades extras de comida e produção."
-MaximumGoodsStorage3:
- Id: 5369
- ENG: "+200 maximum goods storage"
- RUS: "+200 к месту на складе"
- UKR: "+200 максимальне зберігання товарів"
- PTB: "+200 de armazenamento máximo de bens"
 Oasis:
  Id: 5092
  ENG: "Oasis"
@@ -20450,12 +20295,6 @@ AFreshWaterReservoirSurrounded:
  RUS: "Резервуар с пресной водой, окруженный плодородной почвой и пышной растительностью."
  UKR: "Водойма з прісною водою, оточена родючим ґрунтом і пишним рослинним світом."
  PTB: "Um reservatório de água doce cercado por solo fértil e vegetação exuberante. "
-ProducesFoodPerTurnTotal:
- Id: 5094
- ENG: "Produces +0.5 food per turn, total worth of 4000 food"
- RUS: "Производит +0,5 еды за ход"
- UKR: "Виробляє +0.5 одиниць їжі за хід, загальною вартістю 4000 одиниць"
- PTB: "Produz +0,5 de comida por turno, com valor total de 4000 de comida"
 MeatGrinder:
  Id: 18234
  ENG: "Meat Grinder"
@@ -20468,12 +20307,6 @@ PopulationControlBuilding:
  RUS: "Здание контроля населения."
  UKR: "Будівля демографічного контролю."
  PTB: "Construção de controle populacional."
-FoodPerTurnMillionPopulation:
- Id: 18236
- ENG: "+2 food per turn, -10 Million population per turn."
- RUS: "+2 еды за ход, -10 миллионов населения за ход."
- UKR: "+2 їжі за хід, -10 мільйонів населення за хід."
- PTB: "+2 de comida por turno, -10 milhões de população por turno."
 Scrapyard:
  Id: 18237
  ENG: "Scrapyard"
@@ -20486,12 +20319,6 @@ TheRemainsOfAHuge:
  RUS: "Остатки огромного сооружения, которое было снесено, оставив большое количество материалов для повторного использования."
  UKR: "Залишки величезної споруди, яку було знесено, надали велику кількість матеріалів для повторного використання."
  PTB: "Os restos de uma enorme estrutura que foi demolida, fornecendo grandes quantidades de materiais para reutilização."
-ProvidesProductionPerColonistTotal7:
- Id: 18239
- ENG: "Provides 0.8 production per colonist, total worth of 1500 production."
- RUS: "Дает +0.8 продукции за колониста, всего 1500 продукции."
- UKR: "Забезпечує 0,8 виробництва на колоніста, загальною вартістю 1500 виробництва."
- PTB: "Fornece 0,8 de produção por colono, valor total de 1500 de produção."
 SpaceElevator:
  Id: 18097
  ENG: "Space elevator"
@@ -20564,12 +20391,6 @@ ShadyPlacesArePerfectGround:
  RUS: "Тенистые места - отличное место для азартных игр. При правильных связях мы можем получать прибыль."
  UKR: "Тінисті місця - ідеальний ґрунт для азартних ігор. Маючи правильні зв'язки, ми можемо отримати прибуток."
  PTB: "Lugares obscuros são perfeitos para apostas. Com as conexões certas, podemos obter lucro."
-MaxPopulationProductionPerRichness:
- Id: 17962
- ENG: "+0.4 Max Population, +2 Production per Richness"
- RUS: "+0.4 к макс. населению, +2 породукции за богатство"
- UKR: "+0.4 Максимальне населення, +2 Виробництво на багатство"
- PTB: "+0,4 População Máxima, +2 Produção por Riqueza"
 Underhive:
  Id: 17963
  ENG: "Underhive"
@@ -22695,6 +22516,7 @@ BB_Nano-structureTecDescrBonus:
  ENG: "10% hp increase to all modules."
  RUS: "+10% к ОП всех модулей."
  UKR: "Приріст 10% хп до всіх модулів."
+ PTB: "Aumento de 10% de HP em todos os módulos."
 BB_CrystalPlant:
  Id: 17648
  ENG: "Crystal Growing Plant"
@@ -22707,12 +22529,6 @@ BB_CrystalPlantDescr:
  RUS: "Это удивительное сооружение выращивает ценные кристаллы, которые можно продавать с очень высокой прибылью."
  UKR: "Ця дивовижна будівля здатна вирощувати дуже цінні кристали, які можна продати з дуже високим прибутком."
  PTB: "Esta construção maravilhosa é capaz de cultivar cristais muito valiosos, que podem ser vendidos com alto lucro."
-BB_CrystalPlantDescrBonus:
- Id: 17650
- ENG: "Generates +8 credits per turn"
- RUS: "Дает +8 кредитов в ход"
- UKR: "Генерує +8 кредитів за хід"
- PTB: "Gera +8 créditos por turno"
 BB_Hellstorm:
  Id: 17651
  ENG: "Hellstorm"
@@ -23180,7 +22996,7 @@ CodexWarfareCombatBasicsShort:
  ENG: "Stances, targets and how a ship dies"
 CodexWarfareCombatBasicsText:
  Id: 100093
- ENG: "<color=Caption>When combat starts</color>A ship goes on alert as soon as a hostile ship or an enemy colony is within its sensor range, and fires on any hostile that comes within its weapons' reach. Each weapon picks its own target inside its firing arc, favoring the ship's chosen target, and keeps it until it is dead or out of the arc. Weapons fire only if the ship has a command module, is not at warp and is not disabled by EMP.\n\n<color=Caption>Targets you choose</color>Right-click an enemy ship to make it the priority target. The ship keeps it until it is destroyed or becomes one of your own ships, or until it warps away while your ship is not chasing it. Shift and a right-click queue further targets, taken in order as each one falls. A ship that loses its target with no hostiles near leaves combat, and a fighter returns to its carrier unless the carrier's Fighters button is lit.\n\n<color=Caption>Stances</color>The stance sets how a ship moves in a fight. Set the default in the ship design screen, change it for one ship with the buttons on its selection panel, or for a fleet in the fleet design screen.\n<li>Attack Runs: head-on runs at the target, holding 90% of its average weapon range.</li>\n<li>Maximum Range (artillery): faces the target and holds 90% of its longest weapon range. Guard Mode moves the same way but engages on its own only targets within 5000 units.</li>\n<li>Short Range: closes to 90% of its shortest weapon range.</li>\n<li>Broadside Left and Right: presents that side to the target. Orbit Left and Right: circles the target keeping that side toward it. Both hold 90% of the average weapon range.</li>\n<li>Hold Position: does not move, and fires at whatever comes within range. Computer empires never hold position in a fight; their ships switch to guard mode.</li>\n<li>Evade: avoids combat, and when hostiles appear drops out of warp, moves clear and heads for the nearest safe planet of yours. Unarmed civilian ships take this stance on their own.</li>\n\n<color=Caption>How a ship dies</color>A ship is destroyed when the share of its internal module slots still intact falls below 50%, the ship destroy threshold of the game, whatever the state of its armor, weapons and engines; the internal slots are the ones with the I restriction, see Ship Design. When a ship dies, its modules with an explosive charge damage the ships around it; small hulls dodge such blasts most often (75% for fighters, falling with hull size to nothing for capital ships and stations, while freighters, platforms and any hull outside those classes dodge 90%), each crew level adds 1%, and a blast from point-blank range cuts the chance to a quarter for every hull but a fighter. The blast itself is capped by hull size, so a dying ship can cripple what it lands on without destroying it outright.\n\n<color=Caption>Disabled and damaged ships</color>A ship whose EMP damage exceeds its tolerance can neither move nor fire until the damage bleeds off, which is quick: twenty times quicker once no enemy has been seen for ten seconds, and orbiting your own or an ally's colony adds to it. Damaged ships repair themselves slowly and only out of combat, meaning not in combat and not hit in the last 5 seconds, and much faster in orbit of such a colony, as do stations tethered to one; see Armor and Shields for repair, and Ordnance for resupply.\n\n<color=Caption>Pack Mentality</color>Ships of a race with the Pack Mentality trait deal damage with a modifier that starts at minus 15% and rises by 1% for every ship of your own within sensor range, fighters excluded and at most 32 counted, so the top is plus 17%. The selection panel shows the current figure."
+ ENG: "<color=Caption>When combat starts</color>A ship goes on alert as soon as a hostile ship or an enemy colony is within its sensor range, and fires on any hostile that comes within its weapons' reach. Each weapon picks its own target inside its firing arc, favoring the ship's chosen target, and keeps it until it is dead or out of the arc. Weapons fire only if the ship has a command module, is not at warp and is not disabled by EMP.\n\n<color=Caption>Targets you choose</color>Right-click an enemy ship to make it the priority target. The ship keeps it until it is destroyed or becomes one of your own ships, or until it warps away while your ship is not chasing it. Shift and a right-click queue further targets, taken in order as each one falls. A right-click also works on a colony ship of an empire you have no non-aggression pact, peace or alliance with, while it is in a system where you hold a planet and it holds none, although you are not at war: from then on your ships fire on it as long as it stays in that system, and its empire is angered if you destroy it. A ship that loses its target with no hostiles near leaves combat, and a fighter returns to its carrier unless the carrier's Fighters button is lit.\n\n<color=Caption>Stances</color>The stance sets how a ship moves in a fight. Set the default in the ship design screen, change it for one ship with the buttons on its selection panel, or for a fleet in the fleet design screen.\n<li>Attack Runs: head-on runs at the target, holding 90% of its average weapon range.</li>\n<li>Maximum Range (artillery): faces the target and holds 90% of its longest weapon range. Guard Mode moves the same way but engages on its own only targets within 5000 units.</li>\n<li>Short Range: closes to 90% of its shortest weapon range.</li>\n<li>Broadside Left and Right: presents that side to the target. Orbit Left and Right: circles the target keeping that side toward it. Both hold 90% of the average weapon range.</li>\n<li>Hold Position: does not move, and fires at whatever comes within range. Computer empires never hold position in a fight; their ships switch to guard mode.</li>\n<li>Evade: avoids combat, and when hostiles appear drops out of warp, moves clear and heads for the nearest safe planet of yours. Unarmed civilian ships take this stance on their own.</li>\n\n<color=Caption>How a ship dies</color>A ship is destroyed when the share of its internal module slots still intact falls below 50%, the ship destroy threshold of the game, whatever the state of its armor, weapons and engines; the internal slots are the ones with the I restriction, see Ship Design. When a ship dies, its modules with an explosive charge damage the ships around it; small hulls dodge such blasts most often (75% for fighters, falling with hull size to nothing for capital ships and stations, while freighters, platforms and any hull outside those classes dodge 90%), each crew level adds 1%, and a blast from point-blank range cuts the chance to a quarter for every hull but a fighter. The blast itself is capped by hull size, so a dying ship can cripple what it lands on without destroying it outright.\n\n<color=Caption>Disabled and damaged ships</color>A ship whose EMP damage exceeds its tolerance can neither move nor fire until the damage bleeds off, which is quick: twenty times quicker once no enemy has been seen for ten seconds, and orbiting your own or an ally's colony adds to it. Damaged ships repair themselves slowly and only out of combat, meaning not in combat and not hit in the last 5 seconds, and much faster in orbit of such a colony, as do stations tethered to one; see Armor and Shields for repair, and Ordnance for resupply.\n\n<color=Caption>Pack Mentality</color>Ships of a race with the Pack Mentality trait deal damage with a modifier that starts at minus 15% and rises by 1% for every ship of your own within sensor range, fighters excluded and at most 32 counted, so the top is plus 17%. The selection panel shows the current figure."
 CodexWarfareGroundCombat:
  Id: 100094
  ENG: "Ground Combat"
@@ -23382,7 +23198,7 @@ CodexColonyBlueprintsShort:
  ENG: "Saved building plans the governor follows"
 CodexColonyBlueprintsText:
  Id: 100149
- ENG: "<color=Caption>What blueprints are</color>Blueprints are a saved list of buildings, optionally with a colony type. Upload them to a governed colony and the governor builds from the list first, in the order its own logic prefers. If the blueprints name a colony type, uploading them switches the colony to it.\n\n<color=Caption>Exclusive or not</color>\n<li>Ordinary blueprints: the governor builds what it can from the list, fills the rest of the planet by its own judgement, and falls back to its own choices while nothing on the list can be built yet. When no tile is free and a planned building is still waiting, it scraps one of its own buildings to make room, never one of yours.</li>\n<li>Exclusive blueprints: the governor builds only what is on the list and scraps everything that is not, including buildings you placed yourself.</li>\n\n<color=Caption>The two percentages</color>\n<li>Completion is how many of the planned buildings stand on the planet.</li>\n<li>Achievable is how many of them your technology can build today. A plan is considered done when completion reaches the achievable figure.</li>\n\n<color=Caption>Linking, editing and clearing</color>\n<li>Blueprints can link to another set. When the first set is complete, the linked set is uploaded in its place, so a colony can follow a chain of plans.</li>\n<li>Editing and saving under the same name updates every colony using those blueprints. Saving under a new name switches only this colony.</li>\n<li>Clearing returns the governor to its own judgement. Switching the colony to a Trade Hub or removing the governor clears them as well.</li>\n\n<color=Caption>In the editor</color>The Snapshot button fills the list from the buildings already on the planet, taking only unlocked ones that suit blueprints, and does nothing when none of them qualify.\n<li>A building you have not researched shows as locked. Right-click removes it from the plan, and it cannot be dragged back.</li>\n<li>The outpost cannot be removed from a plan.</li>"
+ ENG: "<color=Caption>What blueprints are</color>Blueprints are a saved list of buildings, optionally with a colony type. Upload them to a governed colony and the governor builds from the list first, in the order its own logic prefers. If the blueprints name a colony type, uploading them switches the colony to it.\n\n<color=Caption>Exclusive or not</color>\n<li>Ordinary blueprints: the governor builds what it can from the list, fills the rest of the planet by its own judgement, and falls back to its own choices while nothing on the list can be built yet. When no tile is free and a planned building is still waiting, it scraps one of its own buildings to make room, never one of yours.</li>\n<li>Exclusive blueprints: the governor builds only what is on the list and scraps everything that is not, including buildings you placed yourself.</li>\n\n<color=Caption>The two percentages</color>\n<li>Completion is how many of the planned buildings stand on the planet.</li>\n<li>Achievable is how many of them your technology can build today. A plan counts as achieved once every planned building you have researched stands.</li>\n\n<color=Caption>Linking, editing and clearing</color>\n<li>Blueprints can link to another set. When the first set is complete, the linked set is uploaded in its place, so a colony can follow a chain of plans. With Skip Unresearched ticked, the linked set comes in once every building in the first set that you have researched stands, provided you have researched at least one, and the colony does not go back to the first set when you research more of it.</li>\n<li>Editing and saving under the same name updates every colony using those blueprints. Saving under a new name switches only this colony.</li>\n<li>Clearing returns the governor to its own judgement. Switching the colony to a Trade Hub or removing the governor clears them as well.</li>\n\n<color=Caption>In the editor</color>The Snapshot button fills the list from the buildings already on the planet, taking only unlocked ones that suit blueprints, and does nothing when none of them qualify.\n<li>A building you have not researched shows as locked. Right-click removes it from the plan, and it cannot be dragged back.</li>\n<li>The outpost cannot be removed from a plan.</li>"
 CodexColonyGarrisonAndPorts:
  Id: 100150
  ENG: "Garrison and Ports"
@@ -23463,7 +23279,7 @@ CodexOverviewMapOverlaysShort:
  ENG: "What the FTL and weapons range overlays on the minimap show"
 CodexOverviewMapOverlaysText:
  Id: 100176
- ENG: "The map can draw extra rings and icons over the view you are already looking at, so you can check something without leaving it. There are two, each toggled from its own button on the minimap or by its key: one shows where a ship cannot warp, the other how far weapons and sensors reach.\n\n<color=Caption>FTL overlay</color>Toggled with the button on the minimap or F2. It draws, on the map you are looking at, everything that stops a ship from warping.\n<li>A red ring around every planet in a system you have explored is its gravity well. Its size comes from the gravity well setting of the game, scaled up for larger planets. A ship inside cannot enter warp, and a ship at warp that crosses into one is dropped out.</li>\n<li>A red ring around a ship is the field of its FTL inhibitor modules.</li>\n<li>Subspace projectors show their map icon while the overlay is on, and from the sector zoom outward your own influence is outlined as rings, so you can see where your lanes are anchored. The influence itself is the colored border drawn all the time.</li>\n\nInside your own projector influence a planet's well is ignored, unless the planet belongs to an empire you are at war with, in which case the well still holds, shrunk by whatever counter-inhibition technology you have researched. Gravity wells are drawn only up to the sector zoom, since further out they blur into one. A Hyperspace Flux event stops warp everywhere and is announced at the top of the screen instead.\n\n<color=Caption>Weapons range overlay</color>Toggled with the button on the minimap or F3. Every visible ship that carries weapons gets a faint ring at its longest weapon range: green for your ships, red for everyone else.\n<li>The selected ship gets more: a filled disc out to its longest range, an orange ring at the average range of its weapons, and a yellow ring at its shortest.</li>\n<li>The blue ring around the selected ship is its sensor range, which reaches further inside your own projector influence.</li>"
+ ENG: "The map can draw extra rings and icons over the view you are already looking at, so you can check something without leaving it. There are two, each toggled from its own button on the minimap or by its key: one shows where a ship cannot warp, the other how far weapons and sensors reach.\n\n<color=Caption>FTL overlay</color>Toggled with the button on the minimap or F2. It draws, on the map you are looking at, everything that stops a ship from warping.\n<li>A red ring around every planet in a system you have explored is its gravity well. Its size comes from the gravity well setting of the game, scaled up for larger planets. A ship inside cannot enter warp, and a ship at warp that crosses into one is dropped out.</li>\n<li>A red ring around a ship is the field of its FTL inhibitor modules.</li>\n<li>Subspace projectors show their map icon while the overlay is on, and from the sector zoom outward your own influence is outlined as rings, so you can see where your lanes are anchored. The influence itself is the colored border drawn all the time.</li>\n\nInside your own projector influence, or that of an ally or trade partner, a planet's well is ignored, unless the planet belongs to an empire you are at war with, in which case the well still holds, shrunk by whatever counter-inhibition technology you have researched. Gravity wells are drawn only up to the sector zoom, since further out they blur into one. A Hyperspace Flux event stops warp everywhere and is announced at the top of the screen instead.\n\n<color=Caption>Weapons range overlay</color>Toggled with the button on the minimap or F3. Every visible ship that carries weapons gets a faint ring at its longest weapon range: green for your ships, red for everyone else.\n<li>The selected ship gets more: a filled disc out to its longest range, an orange ring at the average range of its weapons, and a yellow ring at its shortest.</li>\n<li>The blue ring around the selected ship is its sensor range, which reaches further inside your own projector influence.</li>"
 CodexExpansionExoticResources:
  Id: 100177
  ENG: "Exotic Resources and Mining"
@@ -23598,7 +23414,7 @@ CodexWeaponsWeaponStatsShort:
  ENG: "What each row of a weapon's stats in the design screen means, and what changes it in combat"
 CodexWeaponsWeaponStatsText:
  Id: 100222
- ENG: "<color=Caption>Damage</color><li>Damage: what each projectile deals, or a whole beam burst. The screen shows it for an untrained crew: in combat every crew level adds 5%. The screen counts your ordnance effectiveness bonus only for explosive weapons that use ordnance, while in combat every weapon that uses ordnance gets it. Weapon technologies raise it by weapon type. Explosive weapons deal it in a blast of Blast Rad slots, which already counts the technology that enlarges it.</li><li>DPS: damage per second at full rate of fire, counting salvos, projectiles per shot and warheads.</li><li>Delay: seconds from one shot to the next, salvo or beam time included.</li><li>Salvo: shots fired one after another each time the weapon fires. Projectiles: projectiles in each shot, fanned across the weapon's dispersion arc when it has one. Imprecision: a random spread in degrees on every projectile.</li><li>VS Armor and VS Shield: the damage multiplier against armor modules and against shields, shown when it is not 100%.</li><li>Armor Pen and Shield Pen: armor piercing, and the chance a shot passes through shields altogether; see Armor and Shields. Gold means a bonus raised it.</li>\n\n<color=Caption>Reach and aim</color><li>Range: how far the weapon reaches; a weapon with range variance reaches up to 10% more or less on each shot; beams never vary. Speed: how far a projectile flies each second, on top of the speed of the ship that fired it; a guided missile instead leaves at its ship's speed and its engine brings it to this speed.</li><li>Fire Arc: the weapon fires only at targets inside this arc; see Ship Design.</li><li>Accuracy: the aim error in slots; see Sensors and Targeting. Guided weapons home in instead and show no Accuracy.</li><li>Ignition: a missile drifts at its launch speed for this many seconds before its engine lights, so it takes longer to reach its target. T.Range and T.Speed: a missile with a terminal phase speeds up to T.Speed once it is within T.Range of its target. MIRV: the missile splits into this many warheads near its target; Damage, Blast Rad, the terminal, VS and penetration rows and Cannot Target are per warhead, and DPS counts every warhead.</li>\n\n<color=Caption>Costs and special effects</color><li>Ord / Shot and Pwr / Shot: the ordnance and power every shot costs; Pwr/s: a beam's power per second while it fires. See Ordnance and Power Budget.</li><li>Duration: how long a beam fires at most; see Power Budget.</li><li>EMP: EMP damage per projectile; see Armor and Shields.</li><li>Tractor: a beam's pull, a fifth of it through shields. The target moves and turns slower by its total pull divided by its mass; once the pull exceeds its mass it stops and drops out of warp. The pull clears once no tractor beam holds it, and platforms and stations tethered to a planet are immune.</li><li>Siphon and Pwr Dmg: see Power Budget. Pwr Dmg drains the target's power store from any weapon, but only beams siphon.</li><li>Cannot Target: ship sizes the weapon never fires at, Capitals meaning frigates and larger; true point defense fires only at projectiles that can be intercepted.</li>"
+ ENG: "<color=Caption>Damage</color><li>Damage: what each projectile deals, or a whole beam burst. The screen shows it for an untrained crew: in combat every crew level adds 5%. The screen counts your ordnance effectiveness bonus only for explosive weapons that use ordnance, while in combat every weapon that uses ordnance gets it. Weapon technologies raise it by weapon type. Explosive weapons deal it in a blast of Blast Rad slots, which already counts the technology that enlarges it.</li><li>DPS: damage per second at full rate of fire, counting salvos, projectiles per shot and warheads.</li><li>Delay: seconds from one shot to the next, salvo or beam time included.</li><li>Salvo: shots fired one after another each time the weapon fires. Projectiles: projectiles in each shot, fanned across the weapon's dispersion arc when it has one. Imprecision: a random spread in degrees on every projectile.</li><li>VS Armor and VS Shield: the damage multiplier against armor modules and against shields, shown when it is not 100%.</li><li>Armor Pen and Shield Pen: armor piercing, and the chance a shot passes through shields altogether; see Armor and Shields. Gold means a bonus raised it.</li>\n\n<color=Caption>Reach and aim</color><li>Range: how far the weapon reaches; a weapon with range variance reaches up to 10% more or less on each shot; beams never vary. Speed: how far a projectile flies each second, on top of the speed of the ship that fired it; a guided missile instead leaves at its ship's speed and its engine brings it to this speed.</li><li>Fire Arc: the weapon fires only at targets inside this arc; see Ship Design.</li><li>Accuracy: the aim error in slots; see Sensors and Targeting. Guided weapons home in instead and show no Accuracy.</li><li>Ignition: a missile drifts at its launch speed for this many seconds before its engine lights, so it takes longer to reach its target. T.Range and T.Speed: a missile with a terminal phase speeds up to T.Speed once it is within T.Range of its target. MIRV: the missile splits into this many warheads near its target; Damage, Blast Rad, the terminal, EMP, Pwr Dmg, VS and penetration rows and Cannot Target are per warhead, and DPS counts every warhead.</li>\n\n<color=Caption>Costs and special effects</color><li>Ord / Shot and Pwr / Shot: the ordnance and power every shot costs; Pwr/s: a beam's power per second while it fires. See Ordnance and Power Budget.</li><li>Duration: how long a beam fires at most; see Power Budget.</li><li>EMP: EMP damage per projectile; see Armor and Shields.</li><li>Tractor: a beam's pull, a fifth of it through shields. The target moves and turns slower by its total pull divided by its mass; once the pull exceeds its mass it stops and drops out of warp. The pull clears once no tractor beam holds it, and platforms and stations tethered to a planet are immune.</li><li>Siphon and Pwr Dmg: see Power Budget. Pwr Dmg drains the target's power store from any weapon, but only beams siphon.</li><li>Cannot Target: ship sizes the weapon never fires at, Capitals meaning frigates and larger; true point defense fires only at projectiles that can be intercepted.</li>"
 CodexEconomyBudgetScreen:
  Id: 100223
  ENG: "The Budget Screen"

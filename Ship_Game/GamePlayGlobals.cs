@@ -25,6 +25,7 @@ public class GamePlayGlobals
     [StarData] public float ShipDestroyThreshold = 0.5f;
     // How tougher are remnant designs in the mod. This affects starting fleet multipliers and also increases with difficulty. Vanilla is 2
     [StarData] public float RemnantDesignStrMultiplier;
+    public float RemnantDesignStr => RemnantDesignStrMultiplier > 0.01f ? RemnantDesignStrMultiplier : 2f;
     [StarData] public int CostBasedOnSizeThreshold = 2500;  // Allow tuning the change up/down
     [StarData] public float HangarCombatShipCostMultiplier = 1;
     [StarData] public float ResearchStationProductionPerResearch = 2f; // Production consumed per 1 Research point

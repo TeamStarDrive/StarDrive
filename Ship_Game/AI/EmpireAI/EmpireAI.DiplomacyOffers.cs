@@ -307,6 +307,9 @@ namespace Ship_Game.AI
             if (coloniesNearOthers != null)
                 return coloniesNearOthers;
 
+            if (OffersColonyInKnownRemnantPortalSystem(theirOffer, them))
+                return "OfferResponse_Reject_PoorOffer_EnoughTrust";
+
             // Open borders is signed bilaterally whichever side offers it, so it is one treaty
             // to gate, to trust and to value, not a gift from whoever happened to tick the box
             bool openBorders = ourOffer.OpenBorders || theirOffer.OpenBorders;
@@ -628,6 +631,17 @@ namespace Ship_Game.AI
                         nearRival = true;
                 }
             }
+        }
+
+        bool OffersColonyInKnownRemnantPortalSystem(Offer theirOffer, Empire them)
+        {
+            foreach (string planetName in theirOffer.ColoniesOffered)
+            {
+                Planet p = them.FindPlanet(planetName);
+                if (p != null && p.System.IsExploredBy(OwnerEmpire) && OwnerEmpire.Universe.HasRemnantPortal(p.System))
+                    return true;
+            }
+            return false;
         }
 
         PeaceAnswer AnalyzePeaceOffer(Offer theirOffer, Offer ourOffer, Empire them)

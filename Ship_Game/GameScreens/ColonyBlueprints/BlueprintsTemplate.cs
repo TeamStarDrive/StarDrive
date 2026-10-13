@@ -19,10 +19,12 @@ public sealed class BlueprintsTemplate
     [StarData] public string LinkTo;
     [StarData] public HashSet<string> PlannedBuildings;
     [StarData] public ColonyType ColonyType;
+    [StarData] public bool SkipUnresearched;
     public static string CurrentModName =>  GlobalStats.HasMod ? GlobalStats.ModName : "BBplus";
 
     [StarDataConstructor] public BlueprintsTemplate() { }
-    public BlueprintsTemplate(string name, bool exclusive, string linkTo, HashSet<string>plannedBuildings, ColonyType cType) 
+    public BlueprintsTemplate(string name, bool exclusive, string linkTo, HashSet<string>plannedBuildings, ColonyType cType,
+                              bool skipUnresearched = false)
     {
         Name = name;
         ModName = CurrentModName;
@@ -30,22 +32,35 @@ public sealed class BlueprintsTemplate
         LinkTo = linkTo;
         PlannedBuildings = plannedBuildings;
         ColonyType = cType == ColonyType.TradeHub ? ColonyType.Colony : cType;
+        SkipUnresearched = skipUnresearched;
     }
 
     public bool Validated => ResourceManager.BlueprintsValid(this, out _);
 
+    public void RenameForSave(string name)
+    {
+        Name = name;
+        if (!CanSafelyLinkFor(name))
+            LinkTo = "";
+    }
+
     public bool CanSafelyLinkFor(string requestingTemplateName)
     {
-        if (string.IsNullOrEmpty(LinkTo))
-            return true;
+        var visited = new HashSet<string> { Name };
+        for (string next = LinkTo; !string.IsNullOrEmpty(next);)
+        {
+            if (next == requestingTemplateName || !visited.Add(next))
+                return false;
 
-        if (LinkTo == requestingTemplateName)
-            return false;
+            if (!ResourceManager.TryGetBlueprints(next, out BlueprintsTemplate nextTemplate))
+            {
+                Log.Warning($"Could not find template for {next} in Resource Manager");
+                return true;
+            }
 
-        if (ResourceManager.TryGetBlueprints(LinkTo, out BlueprintsTemplate nextTemplate))
-            return nextTemplate.CanSafelyLinkFor(requestingTemplateName);
+            next = nextTemplate.LinkTo;
+        }
 
-        Log.Error($"Could not find template for {LinkTo} in Resource Manager");
         return true;
     }
 }

@@ -1,7 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.Fleets;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Ships.AI;
+using Ship_Game.Universe;
 using UnitTests.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -175,6 +180,247 @@ public class TestGravityWellRouter : StarDriveTest
         Scout.AI.OnSystemNewlyExplored(null);
 
         AssertEqual(1f, 2_000f, Scout.AI.GroupLateralOffset, "a move issued again keeps the ship's place across its group");
+    }
+
+    [TestMethod]
+    public void ATradePartnersSystemOnTheWayIsCrossedStraight()
+    {
+        CreateThirdMajorEmpire();
+        AddDummyPlanetToEmpire(new Vector2(500_000f, 0f), ThirdMajor);
+        Vector2 dest = new(1_000_000f, 0f);
+        Assert.IsTrue(Detours(Scout.Position, dest).Length > 0, "setup: a system held by an empire without a treaty is passed around");
+
+        Player.SignTreatyWith(ThirdMajor, TreatyType.Trade);
+
+        AssertEqual(0, Detours(Scout.Position, dest).Length, "a trade partner's territory is friendly for the route, as it is for the ship");
+    }
+
+    [TestMethod]
+    public void AnAtWarWellInATradePartnersSystemOnTheWayIsPassedAround()
+    {
+        CreateThirdMajorEmpire();
+        Player.SignTreatyWith(ThirdMajor, TreatyType.Trade);
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(500_000f, 0f), ThirdMajor).System;
+        system.SetExploredBy(Player);
+        Planet enemy = AddPlanetTo(system, system.Position + new Vector2(0f, 3_000f), Enemy);
+        SetWell(enemy, 10_000f);
+        Assert.AreEqual(InfluenceStatus.Friendly, UState.Influence.GetInfluenceStatus(Player, system.Position),
+                        "setup: the system lies in a trade partner's territory");
+
+        Vector2 dest = new(1_000_000f, 0f);
+        Vector2[] detours = Detours(Scout.Position, dest);
+
+        Assert.IsTrue(detours.Length > 0, "the well of a planet at war with us holds our ships even in friendly territory");
+        AssertRouteStaysOutOf(Scout.Position, detours, dest, enemy, 10_000f);
+    }
+
+    [TestMethod]
+    public void AnAtWarWellInOurOwnSystemOnTheWayIsPassedAround()
+    {
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(500_000f, 0f), Player).System;
+        system.SetExploredBy(Player);
+        Planet enemy = AddPlanetTo(system, system.Position + new Vector2(0f, 3_000f), Enemy);
+        SetWell(enemy, 10_000f);
+        Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, system.Position), "setup: the system lies in our territory");
+
+        Vector2 dest = new(1_000_000f, 0f);
+        Vector2[] detours = Detours(Scout.Position, dest);
+
+        Assert.IsTrue(detours.Length > 0, "the well of a planet at war with us holds our ships in our own territory");
+        AssertRouteStaysOutOf(Scout.Position, detours, dest, enemy, 10_000f);
+    }
+
+    [TestMethod]
+    public void AKnownRemnantPortalInATradePartnersSystemOnTheWayIsPassedAround()
+    {
+        CreateThirdMajorEmpire();
+        Player.SignTreatyWith(ThirdMajor, TreatyType.Trade);
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(500_000f, 0f), ThirdMajor).System;
+        system.SetExploredBy(Player);
+        Vector2 dest = new(1_000_000f, 0f);
+        AssertEqual(0, Detours(Scout.Position, dest).Length, "setup: a trade partner's system is crossed");
+
+        UState.RegisterRemnantPortal(system);
+
+        Assert.IsTrue(Detours(Scout.Position, dest).Length > 0, "a known portal's inhibitor holds ships in friendly territory too");
+    }
+
+    [TestMethod]
+    public void AnAllysWellNearTheEndOfTheTripIsCrossed()
+    {
+        CreateThirdMajorEmpire();
+        Planet allied = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), ThirdMajor);
+        allied.System.SetExploredBy(Player);
+        Assert.IsTrue(DetoursPast(allied, 0.5f).Length > 0, "setup: the well of an empire without a treaty is passed around");
+
+        Player.SignTreatyWith(ThirdMajor, TreatyType.Alliance);
+
+        AssertEqual(0, DetoursPast(allied, 0.5f).Length, "an ally's well inside its territory does not hold our ships, so the route crosses it");
+    }
+
+    [TestMethod]
+    public void AnAtWarWellOutsideFriendlyTerritoryKeepsItsFullSizeWithTheCounterInhibitionTrait()
+    {
+        Player.data.Traits.EnemyPlanetInhibitionPercentCounter = 0.5f;
+        Planet enemy = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), Enemy);
+        enemy.System.SetExploredBy(Player);
+
+        Assert.IsTrue(DetoursPast(enemy, 0.75f).Length > 0, "outside friendly territory the trait does not shrink the well, as in the game");
+    }
+
+    [TestMethod]
+    public void AnAtWarWellInsideOurTerritoryShrinksByTheCounterInhibitionTrait()
+    {
+        Planet enemy = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), Enemy);
+        enemy.System.SetExploredBy(Player);
+        AddDummyPlanetToEmpire(enemy.System.Position + new Vector2(0f, -20_000f), Player);
+        Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, enemy.Position), "setup: our territory covers the enemy planet");
+        Assert.IsTrue(DetoursPast(enemy, 0.75f).Length > 0, "setup: without the trait the route passes around the well");
+
+        Player.data.Traits.EnemyPlanetInhibitionPercentCounter = 0.5f;
+
+        AssertEqual(0, DetoursPast(enemy, 0.75f).Length, "inside our territory the trait halves the enemy well, so the route crosses its outer part");
+    }
+
+    [TestMethod]
+    public void AnAtWarWellAtTheEdgeOfOurTerritoryKeepsItsFullSizeWithTheCounterInhibitionTrait()
+    {
+        Planet enemy = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), Enemy);
+        enemy.System.SetExploredBy(Player);
+        AddDummyPlanetToEmpire(enemy.Position - new Vector2(0f, Player.GetProjectorRadius() - 3_000f), Player);
+        Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, enemy.Position), "setup: our territory covers the enemy planet");
+        Assert.IsFalse(UState.Influence.IsInInfluenceOf(Player, enemy.Position + new Vector2(0f, 7_500f)), "setup: but not the part of its well the route passes");
+
+        Player.data.Traits.EnemyPlanetInhibitionPercentCounter = 0.5f;
+
+        Assert.IsTrue(DetoursPast(enemy, 0.75f).Length > 0, "outside our territory the game holds a ship by the full well, so the route passes around it");
+    }
+
+    [TestMethod]
+    public void AnAtWarWellWhoseEdgeLeavesOurTerritoryBetweenTwoCheckedPointsKeepsItsFullSize()
+    {
+        Planet enemy = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), Enemy);
+        enemy.System.SetExploredBy(Player);
+        float reach = Player.GetProjectorRadius();
+        Vector2 outward = SDGraphics.RadMath.RadiansToDirection(System.MathF.PI / 8f); // halfway between two of the router's edge directions
+        AddDummyPlanetToEmpire(enemy.Position - outward * (reach - 9_980f), Player);
+        Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, enemy.Position + outward * 9_900f), "setup: our territory covers the well nearly to its edge");
+        Assert.IsFalse(UState.Influence.IsInInfluenceOf(Player, enemy.Position + outward * 10_000f), "setup: but its edge on that side lies outside");
+        foreach (float angle in new[] { 0f, System.MathF.PI / 4f })
+            Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, enemy.Position + SDGraphics.RadMath.RadiansToDirection(angle) * 10_500f),
+                          "setup: while the points of the well's circle on either side of that edge lie inside");
+
+        Player.data.Traits.EnemyPlanetInhibitionPercentCounter = 0.5f;
+
+        Assert.IsTrue(DetoursPast(enemy, 0.75f).Length > 0, "a ship at that edge is held by the full well, so the well keeps its full size");
+    }
+
+    [TestMethod]
+    public void AFleetShipWhoseShiftedRouteCutsASystemRoutesOnItsOwn()
+    {
+        SolarSystem system = AddDummyPlanetToEmpire(new Vector2(500_000f, -1_000f), Enemy).System;
+        float flank = system.Radius * 0.1f;
+        Fleet fleet = Player.CreateFleet(1, null);
+        fleet.FinalDirection = Vectors.Right;
+        var ships = new Array<Ship>();
+        foreach (float across in new[] { -flank, 0f, flank })
+        {
+            var node = new FleetDataNode { ShipName = "Vulcan Scout", RelativeFleetOffset = new Vector2(across, 0f) };
+            fleet.DataNodes.Add(node);
+            Ship ship = SpawnShip("Vulcan Scout", Player, new Vector2(10_000f, across));
+            fleet.AddExistingShip(ship, node);
+            ships.Add(ship);
+        }
+
+        WithRouting(() => fleet.MoveTo(new Vector2(1_000_000f, 0f), Vectors.Right));
+
+        Assert.IsTrue(ships[1].AI.CopyWayPoints().Length > 1, "setup: the fleet's route turns around the system");
+        foreach (Ship ship in ships)
+        {
+            Vector2 a = ship.Position;
+            foreach (WayPoint wp in ship.AI.CopyWayPoints())
+            {
+                Assert.IsTrue(ClosestApproach(a, wp.Position, system.Position) > system.Radius,
+                              $"the ship {ship.FleetOffset.Y:0} across the fleet stays outside the system on its way to {wp.Position}");
+                a = wp.Position;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void ATradePartnersWellCostsNoTravelTime()
+    {
+        CreateThirdMajorEmpire();
+        Planet theirs = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), ThirdMajor);
+        SetWell(theirs, 10_000f);
+        Assert.IsTrue(UState.P.GravityWellRange > 0f, "setup: gravity wells are on");
+        AssertEqual(1f, 10_000f, theirs.GravityWellForEmpire(Player), "setup: the well of an empire without a treaty holds us");
+
+        Player.SignTreatyWith(ThirdMajor, TreatyType.Trade);
+
+        AssertEqual(1f, 0f, theirs.GravityWellForEmpire(Player), "a trade partner's well does not hold our ships, so travel estimates skip it");
+    }
+
+    static void SetWell(Planet p, float radius)
+    {
+        typeof(SolarSystemBody).GetProperty(nameof(SolarSystemBody.GravityWellRadius))!.SetValue(p, radius);
+    }
+
+    Planet AddPlanetTo(SolarSystem system, Vector2 pos, Ship_Game.Empire owner)
+    {
+        var p = new Planet(UState.CreateId(), system, pos, fertility: 1f, minerals: 1f, maxPop: 4f);
+        p.OrbitalAngle = p.Position.AngleToTarget(system.Position);
+        p.TestSetOrbitalRadius(p.Position.Distance(system.Position) + p.Radius);
+        system.RingList.Add(new SolarSystem.Ring { Asteroids = false, OrbitalDistance = p.OrbitalRadius, Planet = p });
+        system.PlanetList.Add(p);
+        p.SetOwner(owner);
+        return p;
+    }
+
+    Vector2[] DetoursPast(Planet p, float across)
+    {
+        const float r = 10_000f;
+        SetWell(p, r);
+        return Detours(p.Position + new Vector2(-3f * r, across * r), p.Position + new Vector2(3f * r, across * r));
+    }
+
+    Vector2[] Detours(Vector2 from, Vector2 to)
+    {
+        Vector2[] detours = null;
+        WithRouting(() => detours = GravityWellRouter.BuildDetours(Scout, from, to, MoveOrder.Regular));
+        return detours;
+    }
+
+    static void WithRouting(System.Action action)
+    {
+        bool wasOn = GlobalStats.RouteAroundGravityWells;
+        try
+        {
+            GlobalStats.RouteAroundGravityWells = true;
+            action();
+        }
+        finally
+        {
+            GlobalStats.RouteAroundGravityWells = wasOn;
+        }
+    }
+
+    static void AssertRouteStaysOutOf(Vector2 from, Vector2[] detours, Vector2 to, Planet well, float radius)
+    {
+        Vector2 a = from;
+        for (int i = 0; i <= detours.Length; i++)
+        {
+            Vector2 b = i < detours.Length ? detours[i] : to;
+            Assert.IsTrue(ClosestApproach(a, b, well.Position) > radius, $"the leg from {a} to {b} stays out of the enemy well");
+            a = b;
+        }
+    }
+
+    static float ClosestApproach(Vector2 a, Vector2 b, Vector2 c)
+    {
+        Vector2 ab = b - a;
+        float t = ab.SqLen() < 1f ? 0f : System.Math.Clamp((c - a).Dot(ab) / ab.SqLen(), 0f, 1f);
+        return (a + ab * t).Distance(c);
     }
 
     void AssertKnownRemnantsAtTheEndOfTheTripArePassedAroundWhole(bool explored)

@@ -56,12 +56,14 @@ namespace Ship_Game.Commands.Goals
                 if (targetSys.HasPlanetsOwnedBy(systemOwner))
                 {
                     float minStr = threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength : 1000;
-                    if (threatenedSystem.Enemies.Length > 0)
-                        minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
+                    Empire[] enemies = threatenedSystem.Enemies;
+                    Empire attacker = FirstEnemyWeCanAttack(enemies) ?? (enemies.Length > 0 ? enemies[0] : null);
+                    if (attacker != null)
+                        minStr /= systemOwner.GetFleetStrEmpireMultiplier(attacker);
 
                     var importance = systemOwner == Owner ? MilitaryTaskImportance.Important : MilitaryTaskImportance.Normal;
                     int fleetswanted = 3 - (int)importance;
-                    Owner.AddDefenseSystemGoal(targetSys, minStr, importance, fleetswanted, systemOwner);
+                    Owner.AddDefenseSystemGoal(targetSys, minStr, importance, fleetswanted, systemOwner, attacker);
                 }
             }
 
@@ -132,6 +134,17 @@ namespace Ship_Game.Commands.Goals
 
             possibleValue *= (int)possibleTask.Importance;
             return defenseValue > possibleValue;
+        }
+
+        Empire FirstEnemyWeCanAttack(Empire[] enemies)
+        {
+            for (int i = 0; i < enemies.Length; i++)
+            {
+                if (Owner.IsEmpireAttackable(enemies[i]))
+                    return enemies[i];
+            }
+
+            return null;
         }
 
         bool ShouldConsiderDefendingAlly(SolarSystem system, Empire ally)

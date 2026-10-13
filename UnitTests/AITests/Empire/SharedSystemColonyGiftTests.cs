@@ -195,6 +195,47 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        public void AColonyInAKnownRemnantPortalSystemIsRefusedWithoutAPenalty()
+        {
+            Setup();
+            UState.RegisterRemnantPortal(Gift.System);
+            Gift.System.SetExploredBy(Enemy);
+
+            var result = GiftToEnemyWithCost();
+            AssertEqual("OfferResponse_Reject_PoorOffer_EnoughTrust", result.Response, "the AI took a colony beside a Remnant portal");
+            AssertEqual(0.001f, 0f, result.TrustLost, "refusing a colony beside a portal cost trust");
+            AssertEqual(0.001f, 0f, result.AngerAdded, "refusing a colony beside a portal added anger");
+            Assert.AreEqual(Player, Gift.Owner, "the refused colony changed hands");
+        }
+
+        [TestMethod]
+        public void AColonyInAPortalSystemSinksAnOfferWithAnotherColony()
+        {
+            Setup();
+            UState.RegisterRemnantPortal(Gift.System);
+            Gift.System.SetExploredBy(Enemy);
+            Nearby.SetOwner(Player);
+            var gift = new Offer();
+            gift.ColoniesOffered.Add(Nearby.Name);
+            gift.ColoniesOffered.Add(Gift.Name);
+
+            string response = Enemy.AI.AnalyzeOffer(gift, new Offer(), Player, Offer.Attitude.Respectful);
+            AssertEqual("OfferResponse_Reject_PoorOffer_EnoughTrust", response, "a second colony carried the portal colony through");
+            Assert.AreEqual(Player, Gift.Owner, "the portal colony changed hands");
+            Assert.AreEqual(Player, Nearby.Owner, "the other colony changed hands");
+        }
+
+        [TestMethod]
+        public void APortalSystemTheAiHasNotExploredDoesNotCount()
+        {
+            Setup();
+            UState.RegisterRemnantPortal(Gift.System);
+            Assert.IsFalse(Gift.System.IsExploredBy(Enemy), "setup: the AI should not have explored the gift's system");
+
+            AssertAccepted(GiftToEnemy(), "a portal the AI cannot know of blocked the gift");
+        }
+
+        [TestMethod]
         public void ThePenaltyGrowsWithDifficulty()
         {
             CreateUniverseAndPlayerEmpire();

@@ -61,6 +61,7 @@
     <Compile Include="AITests\Ships\OrbitCombatTests.cs" />
     <Compile Include="AITests\Ships\WarpInSpreadTests.cs" />
     <Compile Include="AITests\Ships\TestGravityWellRouter.cs" />
+    <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />
     <Compile Include="AITests\Ships\TestShipExploration.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
@@ -195,6 +196,12 @@
     <Compile Include="Ships\PlanetRepairTests.cs" />
     <Compile Include="Ships\ExternalForceTests.cs" />
     <Compile Include="Ships\TractorBeamTests.cs" />
+    <Compile Include="Ships\ArtilleryTacticTests.cs" />
+    <Compile Include="Planets\BlueprintLinkTests.cs" />
+    <Compile Include="Data\GameTextDataTests.cs" />
+    <Compile Include="AITests\Empire\DefenseTaskStrengthTests.cs" />
+    <Compile Include="AITests\Ships\OvertakeTests.cs" />
+    <Compile Include="AITests\Ships\ColonyShipAttackTests.cs" />
     <Compile Include="Ships\ModuleGridFlyweightTests.cs" />
     <Compile Include="Ships\ShipDesignWriterTests.cs" />
     <Compile Include="Ships\SiphonDamageTests.cs" />
@@ -225,6 +232,7 @@
     <Compile Include="StoryAndEvents\ArtifactDiscoveryTests.cs" />
     <Compile Include="StoryAndEvents\OwlwokFreedomEventTests.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
+    <Compile Include="StoryAndEvents\EncounterTextTests.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />
     <Compile Include="TestEnvironment.cs" />

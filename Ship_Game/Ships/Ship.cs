@@ -557,6 +557,19 @@ namespace Ship_Game.Ships
         }
         public bool IsOrbiting(Planet p) => AI.IsOrbiting(p);
 
+        // the system where the player ordered an attack on this colony ship settling a system of the player's
+        [StarData] public SolarSystem PlayerOrderedAttackIn;
+
+        public bool IsColonyShipSettlingSystemOf(Empire empire, Relationship empireToUs)
+            => IsColonyShipSettling(System, empire, empireToUs);
+
+        bool IsColonyShipSettling(SolarSystem system, Empire empire, Relationship empireToUs)
+        {
+            return ShipData.IsColonyShip && system != null
+                && !empireToUs.Treaty_NAPact && !empireToUs.Treaty_Peace && !empireToUs.Treaty_Alliance
+                && system.HasPlanetsOwnedBy(empire) && !system.HasPlanetsOwnedBy(Loyalty);
+        }
+
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
             if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunchingOrLanding)
@@ -564,8 +577,13 @@ namespace Ship_Game.Ships
 
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
             {
-                if (System != null && System.HasPlanetsOwnedBy(Loyalty))
+                SolarSystem system = System;
+                if (system != null && system.HasPlanetsOwnedBy(Loyalty))
                     return false;
+
+                if (attacker.isPlayer && PlayerOrderedAttackIn != null && PlayerOrderedAttackIn == system
+                    && IsColonyShipSettling(system, attacker, attackerToUs))
+                    return true;
 
                 if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, Loyalty, attacker, IsFreighter)
                  && IsInBordersOf(attacker))
@@ -573,10 +591,10 @@ namespace Ship_Game.Ships
                     return true;
                 }
 
-                SolarSystem system = System;
                 if (system != null)
                 {
-                    if (attackerToUs.WarnedSystemsList.Contains(system) && !IsFreighter)
+                    if (attackerToUs.WarnedSystemsList.Contains(system) && !IsFreighter
+                        && !attackerToUs.Treaty_NAPact && !attackerToUs.Treaty_Peace)
                         return true;
 
                     if (DesignRole == RoleName.troop &&
@@ -1194,6 +1212,8 @@ namespace Ship_Game.Ships
         {
             if (System?.Position.OutsideRadius(Position, System.Radius) == true)
                 SetSystem(null);
+            if (PlayerOrderedAttackIn != null && PlayerOrderedAttackIn != System)
+                PlayerOrderedAttackIn = null;
         }   
 
         void RecallHangarShipIfTooFarFromCarrier()

@@ -523,7 +523,8 @@ namespace Ship_Game
             if (wOrMirv.TerminalPhaseAttack)
             {
                 DrawStat(ref cursor, "T.Range", wOrMirv.TerminalPhaseDistance, GameText.ThisMissileHasTerminalPhase);
-                DrawStat(ref cursor, "T.Speed", wOrMirv.TerminalPhaseSpeedMod * speed, GameText.ThisIsTheSpeedThe);
+                float warheadSpeed = w.IsMirv ? ModifiedWeaponStat(wOrMirv, WeaponStat.Speed) : speed;
+                DrawStat(ref cursor, "T.Speed", wOrMirv.TerminalPhaseSpeedMod * warheadSpeed, GameText.ThisIsTheSpeedThe);
             }
 
             if (w.DelayedIgnition.Greater(0))
@@ -558,7 +559,7 @@ namespace Ship_Game
 
             DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, GameText.TheAmountOfPowerThis);
             DrawStat(ref cursor, "Delay", delay, GameText.TimeBetweenShots);
-            DrawStat(ref cursor, "EMP", w.EMPDamage, GameText.IndicatesTheAmountOfEmp);
+            DrawStat(ref cursor, "EMP", wOrMirv.EMPDamage, GameText.IndicatesTheAmountOfEmp);
 
             if (isBeam)
             {
@@ -569,7 +570,7 @@ namespace Ship_Game
                 DrawStat(ref cursor, "Tractor", tractor, GameText.IndicatesTheAmountOfDrag);
             }
 
-            float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
+            float powerDamage = wOrMirv.PowerDamage + wOrMirv.PowerDamage * beamMultiplier;
             DrawStat(ref cursor, "Pwr Dmg", powerDamage, GameText.IndicatesTheAmountOfPower3);
             DrawStat(ref cursor, GameText.FireArc, m.FieldOfFire.ToDegrees(), GameText.AWeaponMayOnlyFire);
             DrawStat(ref cursor, "Ord / Shot", WeaponTemplate.OrdnancePerShot(w), GameText.IndicatesTheAmountOfOrdnance);

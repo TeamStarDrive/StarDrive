@@ -44,6 +44,7 @@ namespace Ship_Game.AI.CombatTactics
             float collisionRange = Owner.Radius + target.Radius;
             if (minDistance <= collisionRange)       minDistance = collisionRange;
             if (maxDistance < collisionRange + 150f) maxDistance = collisionRange + 150f;
+            minDistance = minDistance.UpperBound(maxDistance - 150f);
 
             
             if (DistanceToTarget > maxDistance)
@@ -57,12 +58,13 @@ namespace Ship_Game.AI.CombatTactics
                 // Start decelerating EARLY so we coast to a stop AT the standoff range instead of
                 // carrying our full approach momentum straight through it to point-blank (the
                 // artillery "overshoot" that makes long-range ships fight up close). Once the
-                // standoff range is within our reverse-thrust stopping distance (plus a 1.2 margin),
-                // start reverse-thrusting now while staying faced on the target so we can keep firing.
-                // Driving the thrust directly avoids the late-braking we'd get from
+                // standoff range is within the stopping distance for the speed we close on the target
+                // (plus a 1.2 margin), start reverse-thrusting now while staying faced on the target so
+                // we can keep firing. Driving the thrust directly avoids the late-braking we'd get from
                 // SubLightMoveTowardsPosition, which skips its speed cap on any frame it's rotating.
                 float distToStandoff = DistanceToTarget - maxDistance;
-                float brakingDistance = Owner.GetMinDecelerationDistance(Owner.CurrentVelocity) * 1.2f;
+                float closingSpeed = (Owner.Velocity - target.Velocity).Dot(DirectionToTarget);
+                float brakingDistance = Owner.GetMinDecelerationDistance(closingSpeed.LowerBound(0f)) * 1.2f;
 
                 if (distToStandoff <= brakingDistance)
                 {
