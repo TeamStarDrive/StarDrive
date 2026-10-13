@@ -119,6 +119,27 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void LaunchingFightersDoesNotChangeTheEmpiresStrength()
+        {
+            Player.UpdateMilitaryStrengths();
+            float docked = Player.OffensiveStrength;
+            float dockedMilitary = Player.CurrentMilitaryStrength;
+            float dockedCarrier = Carrier.GetStrength();
+            Assert.IsTrue(docked > 0f, "setup: the carrier counts");
+
+            Carrier.Carrier.ScrambleFighters();
+            UState.Objects.Update(TestSimStep);
+            var fighters = Carrier.Carrier.GetActiveFighters();
+            Assert.IsTrue(fighters.Count > 0, "setup: the fighters are out");
+            Player.UpdateMilitaryStrengths();
+
+            float fightersStr = fighters.Sum(f => f.GetStrength());
+            AssertEqual(docked * 0.001f, docked, Player.OffensiveStrength,
+                        $"a carrier's strength already holds its fighters (carrier {dockedCarrier} -> {Carrier.GetStrength()}, {fighters.Count} fighters {fightersStr})");
+            AssertEqual(dockedMilitary * 0.001f, dockedMilitary, Player.CurrentMilitaryStrength, "the total military strength the same way");
+        }
+
+        [TestMethod]
         public void MustRecallWhenNoCombatAndFarAway()
         {
             Carrier.Carrier.ScrambleFighters();

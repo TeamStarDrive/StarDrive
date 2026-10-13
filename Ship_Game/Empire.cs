@@ -1206,9 +1206,12 @@ namespace Ship_Game
             for (int i = 0; i < ships.Count; ++i)
             {
                 Ship ship = ships[i];
+                CurrentTroopStrength += ship.Carrier.MaxTroopStrengthInShipToCommit;
+                if (ship.IsHangarShip)
+                    continue;
+
                 float str = ship.GetStrength();
                 CurrentMilitaryStrength += str;
-                CurrentTroopStrength += ship.Carrier.MaxTroopStrengthInShipToCommit;
                 if (!ship.IsPlatformOrStation)
                     OffensiveStrength += str;
             }
