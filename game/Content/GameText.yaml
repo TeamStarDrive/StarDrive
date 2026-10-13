@@ -15063,12 +15063,6 @@ BB_GolddepositDesc:
  RUS: "Легкодоступное месторождение золота, сформировавшееся в эпоху высокой вулканической активности планеты"
  UKR: "Легко видобувне родовище золота, яке утворилося, коли на планеті було багато діючих вулканів"
  PTB: "Depósito de ouro facilmente extraível formado quando o planeta tinha muitos vulcões ativos"
-BB_GolddepositDescShort:
- Id: 4389
- ENG: "Provides 2 production per colonist, +3 credits, total worth of 350 production"
- RUS: "Даёт 2 производства на колониста, +3 кредита, суммарная ценность 350 производства"
- UKR: "Надає 2 виробництва на колоніста, +3 кредити, загальною вартістю 350 виробництв"
- PTB: "Fornece 2 de produção por colonista, +3 créditos, valor total de 350 de produção"
 BB_GoldMoutain:
  Id: 4390
  ENG: "Golden Mountain"
@@ -15081,12 +15075,6 @@ BB_GoldMountainDesc:
  RUS: "Огромная гора, насыщенная золотыми жилами."
  UKR: "Величезна гора, яка наповнена покладами золота."
  PTB: "Enorme montanha cheia de depósitos de ouro."
-BB_GoldMountainDescShort:
- Id: 4392
- ENG: "Provides 1.5 production per colonist, increases planet richness by 2, total worth of 3000 production"
- RUS: "Даёт 1.5 производства на колониста, +2 к богатству планеты, суммарная ценность 3000 производства"
- UKR: "Забезпечує 1,5 виробництва на колоніста, збільшує багатство планети на 2, загальною вартістю 3000 виробництва"
- PTB: "Fornece 1,5 de produção por colonista, aumenta a riqueza do planeta em 2, valor total de 3000 de produção"
 BB_MoltenGold:
  Id: 4393
  ENG: "Molten gold pit"
@@ -15099,12 +15087,6 @@ BB_MoltenGoldDesc:
  RUS: "Яма, наполненная расплавленным золотом, образуется из-за экстремальной вулканической активности, выталкивающей на поверхность большие объёмы золота; встречается лишь на очень горячих вулканических планетах."
  UKR: "Яма, заповнена розплавленим золотом, що утворюється внаслідок інтенсивної вулканічної активності, яка нагріває і виштовхує на поверхню велику кількість золота, його можна знайти в такому стані тільки на дуже гарячих вулканічних планетах."
  PTB: "Um poço cheio de ouro fundido criado por intensa atividade vulcânica, que aquece e empurra grandes quantidades de ouro para a superfície. Ele só pode ser encontrado nesse estado em planetas vulcânicos muito quentes."
-BB_MoltenGoldDescShort:
- Id: 4395
- ENG: "Provides 0.5 production per colonist, increases planet richness by 0.35" 
- RUS: "Даёт 0.5 производства на колониста, повышает богатство планеты на 0.35"
- UKR: "Забезпечує 0,5 виробництва на колоніста, збільшує багатство планети на 0,35"
- PTB: "Fornece 0,5 de produção por colonista, aumenta a riqueza do planeta em 0,35"
 BB_RushRefit:
  Id: 4396
  ENG: "Rush Refit"  
@@ -20146,12 +20128,6 @@ HighlyExoticMineralVeinsRarely:
  RUS: "Сложные экзотические минеральные жилы, редко встречающиеся на планетах земного типа."
  UKR: "Дуже екзотичні мінеральні жили, які рідко зустрічаються на земних планетах. Легко видобуваються, але в дуже обмеженій кількості. Видобута руда є чудовим провідником, що допомагає передавати дані."
  PTB: "Veios minerais altamente exóticos, raramente encontrados em mundos terrestres. Fáceis de minerar, mas em quantidade muito limitada. O minério extraído é um excelente condutor, ajudando nas transferências de dados."
-ProdPerAssignedColonistTotal:
- Id: 18108
- ENG: "+5 production per assigned colonist, total worth of 500 production,"
- RUS: "Планеты с этими минералами более богаты. (+5 к продукции)"
- UKR: "+5 виробництва за кожного призначеного колоніста, загальною вартістю 500 виробництва,"
- PTB: "+5 de produção por colono designado, valor total de 500 de produção,"
 ExoticFruits:
  Id: 18222
  ENG: "Exotic Fruits"
@@ -20380,12 +20356,6 @@ LargePatchesOfTerrainHeavily:
  RUS: "Большие участки местности, покрытые огромными скалами. Из них можно добывать некоторые минералы."
  UKR: "Великі ділянки місцевості, вкриті величезними скелями. Можна видобувати деякі матеріали."
  PTB: "Grandes áreas de terreno fortemente cobertas por rochas enormes. Podem ser mineradas para obter alguns materiais."
-ProvidesProductionPerColonistTotal6:
- Id: 18151
- ENG: "Provides 0.4 production per colonist, total worth of 250 production, -1 infrastructure."
- RUS: "Дает 0,4 продукции за каждого колониста, всего 250 продукции , -1 к инфраструктуре."
- UKR: "Забезпечує 0.4 виробництва на колоніста, загальною вартістю 250 виробництв, -1 інфраструктура."
- PTB: "Fornece 0,4 de produção por colono, valor total de 250 de produção, -1 de infraestrutura."
 ScanInterferance:
  Id: 18152
  ENG: "Scan Interferance"
@@ -20404,12 +20374,6 @@ MassiveMountains:
  RUS: "Массивные горы"
  UKR: "Масивні гори"
  PTB: "Montanhas massivas"
-ProdPerAssignedColonistTotal3:
- Id: 18155
- ENG: "+0.2 prod per assigned colonist, total worth of 6000 production, -1 infrastructure, -1.1 billion population"
- RUS: "+0.2 продукции за задаействованного колониста, всего 6000 продукции, -1 к инфраструктуре, -1.1 миллиардов населения."
- UKR: "+0.2 виробництва за кожного колоніста, загальна вартість виробництва 6000, -1 інфраструктура, -1.1 мільярд населення"
- PTB: "+0,2 de produção por colono designado, valor total de 6000 de produção, -1 de infraestrutura, -1,1 bilhão de população."
 Mountain:
  Id: 18123
  ENG: "Mountain"
@@ -20422,12 +20386,6 @@ AnEnormousChainOfMountains:
  RUS: "Огромная горная структура, которая делает перемещение производственных материалов через них, невероятно сложной задачей. Предоставляет возможность добычи руд."
  UKR: "Величезний ланцюг гір, що робить переміщення виробництва через них неймовірно складним. Надає можливість для видобутку корисних копалин."
  PTB: "Uma enorme cadeia de montanhas que torna o transporte de produção por ela incrivelmente difícil. Oferece uma oportunidade para mineração."
-ProdPerAssignedColonistTotal2:
- Id: 18125
- ENG: "+0.2 prod per assigned colonist, total worth of 20000 production, -1 infrastructure, -0.7 billion population"
- RUS: "+0,2 к продукции за задействованного колониста, всего 20000 производства , -1 к инфраструктуре, -0,7 миллиарда населения."
- UKR: "+0.2 виробництва за кожного колоніста, загальна вартість виробництва 20000, -1 інфраструктура, -0.7 мільярда населення"
- PTB: "+0,2 de produção por colono designado, valor total de 20000 de produção, -1 de infraestrutura, -0,7 bilhão de população."
 LargeWarehouse:
  Id: 5367
  ENG: "Large Warehouse"
@@ -20494,12 +20452,6 @@ TheRemainsOfAHuge:
  RUS: "Остатки огромного сооружения, которое было снесено, оставив большое количество материалов для повторного использования."
  UKR: "Залишки величезної споруди, яку було знесено, надали велику кількість матеріалів для повторного використання."
  PTB: "Os restos de uma enorme estrutura que foi demolida, fornecendo grandes quantidades de materiais para reutilização."
-ProvidesProductionPerColonistTotal7:
- Id: 18239
- ENG: "Provides 0.8 production per colonist, total worth of 1500 production."
- RUS: "Дает +0.8 продукции за колониста, всего 1500 продукции."
- UKR: "Забезпечує 0,8 виробництва на колоніста, загальною вартістю 1500 виробництва."
- PTB: "Fornece 0,8 de produção por colono, valor total de 1500 de produção."
 SpaceElevator:
  Id: 18097
  ENG: "Space elevator"
@@ -20572,12 +20524,6 @@ ShadyPlacesArePerfectGround:
  RUS: "Тенистые места - отличное место для азартных игр. При правильных связях мы можем получать прибыль."
  UKR: "Тінисті місця - ідеальний ґрунт для азартних ігор. Маючи правильні зв'язки, ми можемо отримати прибуток."
  PTB: "Lugares obscuros são perfeitos para apostas. Com as conexões certas, podemos obter lucro."
-MaxPopulationProductionPerRichness:
- Id: 17962
- ENG: "+0.4 Max Population, +2 Production per Richness"
- RUS: "+0.4 к макс. населению, +2 породукции за богатство"
- UKR: "+0.4 Максимальне населення, +2 Виробництво на багатство"
- PTB: "+0,4 População Máxima, +2 Produção por Riqueza"
 Underhive:
  Id: 17963
  ENG: "Underhive"

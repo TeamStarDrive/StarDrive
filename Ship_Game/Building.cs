@@ -516,7 +516,7 @@ namespace Ship_Game
             if (PlusFoodPerColonist.NotZero())
             {
                 text += p?.Owner == null 
-                    ? $"{BuildShortDescString(PlusFoodPerColonist, GameText.FoodPerColonist, ref comma)}" 
+                    ? $"{BuildShortDescString(PlusFoodPerColonist, GameText.FoodPerColonist, ref comma, timesStat: GameText.Fertility)}"
                     : $"{BuildShortDescString(ColonyResource.FoodYieldFormula(p.Fertility, PlusFoodPerColonist-1), GameText.FoodPerColonist, ref comma)}";
             }
 
@@ -529,7 +529,7 @@ namespace Ship_Game
             if (PlusProdPerColonist.NotZero())
             {
                 text += p?.Owner == null
-                    ? $"{BuildShortDescString(PlusProdPerColonist, GameText.ProdPerColonist, ref comma)}"
+                    ? $"{BuildShortDescString(PlusProdPerColonist, GameText.ProdPerColonist, ref comma, timesStat: GameText.Richness)}"
                     : $"{BuildShortDescString(ColonyResource.ProdYieldFormula(p.MineralRichness, PlusProdPerColonist - 1, p.Owner), GameText.ProdPerColonist, ref comma)}";
             }
 
@@ -575,7 +575,7 @@ namespace Ship_Game
             return text;
         }
 
-        string BuildShortDescString(float value, GameText text, ref bool comma, bool percent = false)
+        string BuildShortDescString(float value, GameText text, ref bool comma, bool percent = false, GameText? timesStat = null)
         {
             string shortDesc = "";
             if (comma)
@@ -583,7 +583,8 @@ namespace Ship_Game
 
             shortDesc = value > 0 ? $"{shortDesc}+" : $"{shortDesc}";
             string percentage = percent ? "%" : "";
-            shortDesc = $"{shortDesc}{value.RoundToFractionOf100()}{percentage} {new LocalizedText(text).Text}";
+            string times = timesStat != null ? $" (x {new LocalizedText(timesStat.Value).Text})" : "";
+            shortDesc = $"{shortDesc}{value.RoundToFractionOf100()}{percentage}{times} {new LocalizedText(text).Text}";
             comma = true;
             return shortDesc;
         }
