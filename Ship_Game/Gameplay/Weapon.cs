@@ -117,16 +117,17 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void SpawnMirvSalvo(Vector2 direction, GameObject target, Vector2 origin, Vector2 inheritedVelocity)
+        public IEnumerable<Vector2> SalvoDirections(Vector2 direction)
         {
-            SpawnSalvo(direction, target, origin, playSound: true, inheritedVelocity);
+            foreach (FireSource fireSource in EnumFireSources(Vector2.Zero, direction))
+                yield return fireSource.Direction;
         }
 
-        void SpawnSalvo(Vector2 direction, GameObject target, Vector2 origin, bool playSound, Vector2? inheritedVelocity = null)
+        void SpawnSalvo(Vector2 direction, GameObject target, Vector2 origin, bool playSound)
         {
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
             {
-                Projectile.Create(this, Owner, fireSource.Origin, fireSource.Direction, target, playSound, inheritedVelocity);
+                Projectile.Create(this, Owner, fireSource.Origin, fireSource.Direction, target, playSound);
                 playSound = false; // only play sound once per fire cone
             }
         }
