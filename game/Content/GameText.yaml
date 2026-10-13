@@ -14669,7 +14669,7 @@ PathfinderTip:
  Id: 4537
  ENG: "When ON, ships plot a course around hostile and unknown planetary gravity wells when moving across the universe, avoiding warp drops. Turning this OFF makes ships travel in straight lines and drop out of warp as wells are encountered."
  RUS: "Когда ВКЛ, при перемещении по вселенной корабли прокладывают курс в обход враждебных и неизвестных планетарных гравитационных скважин, избегая выхода из варпа. При ВЫКЛ корабли движутся по прямой и выходят из варпа при встрече со скважинами."
- PTB: "Quando ATIVADO, as naves traçam uma rota ao redor de poços gravitacionais hostis e desconhecidos ao se mover pelo universo, evitando saídas do warp. Quando DESATIVADO, as naves viajam em linha reta e saem do warp ao encontrar os poços."
+ PTB: "Quando ATIVADO, as naves traçam uma rota ao redor de poços gravitacionais planetários hostis e desconhecidos ao se mover pelo universo, evitando saídas de dobra. Quando DESATIVADO, as naves viajam em linha reta e saem de dobra ao encontrar os poços."
 PlayerBuiltProtectedFromScrap:
  Id: 4538
  ENG: "You placed this yourself, so the governor will never scrap it or cancel it."
