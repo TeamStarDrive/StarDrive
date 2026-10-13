@@ -172,6 +172,20 @@ public class FlakBurstTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AMirvWeaponsDamagePerSecondCountsTheDamageOfItsWarheads()
+    {
+        var shell = (WeaponTemplate)ResourceManager.GetWeaponTemplate(ShellUid);
+        var fragment = (WeaponTemplate)ResourceManager.GetWeaponTemplate(FragmentUid);
+        shell.DamageAmount = 10f;
+        fragment.DamageAmount = 40f;
+
+        shell.InitializeTemplate();
+
+        float expected = Math.Max(1, shell.SalvoCount) / shell.NetFireDelay * shell.ProjectileCount * 40f * Fragments;
+        AssertEqual(0.01f, expected, shell.DamagePerSecond, "a MIRV weapon's damage per second is what its warheads deal");
+    }
+
+    [TestMethod]
     public void AClusterMissileStillSplitsIntoItsUnguidedWarheads()
     {
         Ship launcher = SpawnShip("Rocket Scout", Player, Gun);

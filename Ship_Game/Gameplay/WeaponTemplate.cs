@@ -227,7 +227,7 @@ namespace Ship_Game.Gameplay
             {
                 dps = (SalvoCount.LowerBound(1) / NetFireDelay)
                     * ProjectileCount
-                    * DamageAmount;
+                    * wOrMirv.DamageAmount;
 
                 if (IsMirv && wOrMirv.ProjectileCount > 0)
                     dps *= wOrMirv.ProjectileCount.LowerBound(1);
