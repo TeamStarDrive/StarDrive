@@ -561,10 +561,13 @@ namespace Ship_Game.Ships
         [StarData] public SolarSystem PlayerOrderedAttackIn;
 
         public bool IsColonyShipSettlingSystemOf(Empire empire, Relationship empireToUs)
+            => IsColonyShipSettling(System, empire, empireToUs);
+
+        bool IsColonyShipSettling(SolarSystem system, Empire empire, Relationship empireToUs)
         {
-            return ShipData.IsColonyShip && System != null
+            return ShipData.IsColonyShip && system != null
                 && !empireToUs.Treaty_NAPact && !empireToUs.Treaty_Peace && !empireToUs.Treaty_Alliance
-                && System.HasPlanetsOwnedBy(empire) && !System.HasPlanetsOwnedBy(Loyalty);
+                && system.HasPlanetsOwnedBy(empire) && !system.HasPlanetsOwnedBy(Loyalty);
         }
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
@@ -574,11 +577,12 @@ namespace Ship_Game.Ships
 
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
             {
-                if (System != null && System.HasPlanetsOwnedBy(Loyalty))
+                SolarSystem system = System;
+                if (system != null && system.HasPlanetsOwnedBy(Loyalty))
                     return false;
 
-                if (attacker.isPlayer && PlayerOrderedAttackIn != null && PlayerOrderedAttackIn == System
-                    && IsColonyShipSettlingSystemOf(attacker, attackerToUs))
+                if (attacker.isPlayer && PlayerOrderedAttackIn != null && PlayerOrderedAttackIn == system
+                    && IsColonyShipSettling(system, attacker, attackerToUs))
                     return true;
 
                 if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, Loyalty, attacker, IsFreighter)
@@ -587,7 +591,6 @@ namespace Ship_Game.Ships
                     return true;
                 }
 
-                SolarSystem system = System;
                 if (system != null)
                 {
                     if (attackerToUs.WarnedSystemsList.Contains(system) && !IsFreighter

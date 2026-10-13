@@ -94,6 +94,22 @@ public class ColonyShipAttackTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AColonyShipThatChangedHandsNeedsANewOrder()
+    {
+        Guard.AI.OrderAttackSpecificTarget(Settler);
+        Assert.IsTrue(PlayerMayFireOnTheSettler, "setup: the order is given");
+
+        Settler.LoyaltyChangeFromBoarding(Player, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        Settler.LoyaltyChangeFromBoarding(ThirdMajor, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        Assert.AreSame(ThirdMajor, Settler.Loyalty, "setup: we boarded it and they took it back");
+        Assert.AreSame(System, Settler.System, "setup: still in our system");
+
+        Assert.IsFalse(PlayerMayFireOnTheSettler, "the order was given before the ship changed hands; a retaken ship needs a new order");
+    }
+
+    [TestMethod]
     public void AQueuedAttackOnAColonyShipCountsAsAnOrder()
     {
         TestShip hostile = SpawnShip(Warship, Enemy, Guard.Position + new Vector2(1_000f, 0f));
