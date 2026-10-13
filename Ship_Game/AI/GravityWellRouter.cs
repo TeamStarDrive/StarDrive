@@ -513,12 +513,22 @@ public static class GravityWellRouter
             && ship.Loyalty.Threats.GetHostileStrengthAt(remnants, sys.Position, sys.Radius) > 0f;
     }
 
-    // Mirrors SolarSystem.IdentifyGravityWell: the trait shrinks only an at-war well in friendly influence
+    // Mirrors SolarSystem.IdentifyGravityWell, which checks influence at the ship's position
     static float WellScale(Planet p, Ship ship)
     {
-        return p.Owner?.WillInhibit(ship.Loyalty) == true && IsFriendly(ship, p.Position)
-            ? 1f - ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter
-            : 1f;
+        float counter = ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
+        if (counter <= 0f || p.Owner?.WillInhibit(ship.Loyalty) != true || !IsFriendly(ship, p.Position))
+            return 1f;
+
+        const int edgeSamples = 8;
+        float edge = p.GravityWellRadius * PlanetWellSafetyMul;
+        for (int i = 0; i < edgeSamples; i++)
+        {
+            if (!IsFriendly(ship, SDGraphics.MathExt.PointFromRadians(p.Position, i * MathF.PI * 2f / edgeSamples, edge)))
+                return 1f;
+        }
+
+        return 1f - counter;
     }
 
     // Quick segment-disc test: does the segment from a to a+ab come within radius r of center?

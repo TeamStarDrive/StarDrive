@@ -283,6 +283,20 @@ public class TestGravityWellRouter : StarDriveTest
     }
 
     [TestMethod]
+    public void AnAtWarWellAtTheEdgeOfOurTerritoryKeepsItsFullSizeWithTheCounterInhibitionTrait()
+    {
+        Planet enemy = AddDummyPlanetToEmpire(new Vector2(300_000f, 0f), Enemy);
+        enemy.System.SetExploredBy(Player);
+        AddDummyPlanetToEmpire(enemy.Position - new Vector2(0f, Player.GetProjectorRadius() - 3_000f), Player);
+        Assert.IsTrue(UState.Influence.IsInInfluenceOf(Player, enemy.Position), "setup: our territory covers the enemy planet");
+        Assert.IsFalse(UState.Influence.IsInInfluenceOf(Player, enemy.Position + new Vector2(0f, 7_500f)), "setup: but not the part of its well the route passes");
+
+        Player.data.Traits.EnemyPlanetInhibitionPercentCounter = 0.5f;
+
+        Assert.IsTrue(DetoursPast(enemy, 0.75f).Length > 0, "outside our territory the game holds a ship by the full well, so the route passes around it");
+    }
+
+    [TestMethod]
     public void AFleetShipWhoseShiftedRouteCutsASystemRoutesOnItsOwn()
     {
         SolarSystem system = AddDummyPlanetToEmpire(new Vector2(500_000f, -1_000f), Enemy).System;
