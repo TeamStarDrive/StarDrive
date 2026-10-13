@@ -230,6 +230,7 @@ namespace Ship_Game.Fleets
                 && ship.CanBeAddedToFleets()
                 && !ship.IsHangarShip
                 && !ship.IsHomeDefense
+                && !ship.Resupplying
                 && ship.AI.State is not (AIState.Refit or AIState.Scrap or AIState.Scuttle);
         }
 

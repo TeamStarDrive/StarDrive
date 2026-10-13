@@ -91,6 +91,40 @@ public class FleetNodeAssignmentTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AssignNowLeavesShipsOnTheirWayToResupplyAlone()
+    {
+        Fleet fleet = EmptyFleet();
+        AddNode(fleet, new Vector2(0f, -1500f));
+        Ship resupplying = IdleShip();
+        resupplying.AI.State = AIState.Resupply;
+        Ship escorted = IdleShip();
+        escorted.AI.State = AIState.ResupplyEscort;
+
+        AssertEqual(0, fleet.CountShipsThatFit(new[] { resupplying, escorted }), "ships on their way to resupply or repair do not fit");
+        AssertEqual(0, fleet.AssignShipsToEmptyNodes(new[] { resupplying, escorted }));
+        AssertEqual(1, fleet.AssignShipsToEmptyNodes(new[] { IdleShip() }), "control: an idle ship of the same design does");
+    }
+
+    [TestMethod]
+    public void AFleetBuildWhoseShipIsLostBeforeJoiningFreesItsNode()
+    {
+        Fleet fleet = EmptyFleet();
+        var build = new FleetRequisition(Design, Player, fleet, false);
+        FleetDataNode node = AddNode(fleet, new Vector2(0f, -1500f), build);
+        Ship built = IdleShip();
+        build.ReportShipComplete(built);
+        build.AdvanceToNextStep();
+
+        built.QueueTotalRemoval();
+        RunObjectsSim(TestSimStep);
+        Assert.IsFalse(built.Active, "setup: the new ship is gone before its build goal runs");
+
+        build.Evaluate();
+        Assert.IsNull(node.Goal, "the build gives its node up");
+        AssertEqual(1, fleet.AssignShipsToEmptyNodes(new[] { IdleShip() }), "so Assign Now can fill it");
+    }
+
+    [TestMethod]
     public void AFinishedBuildNeverLandsOnANodeThatAlreadyHasAShip()
     {
         Fleet fleet = EmptyFleet();

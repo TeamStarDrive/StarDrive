@@ -51,8 +51,8 @@ namespace Ship_Game.Commands.Goals
         {
             if (PlanetBuildingAt.Owner == Owner)
             {
-                var queue = PlanetBuildingAt.ConstructionQueue;
-                for (int i = 0; i < queue.Count; ++i)
+                QueueItem[] queue = PlanetBuildingAt.ConstructionQueueSnapshot;
+                for (int i = 0; i < queue.Length; ++i)
                     if (queue[i].Goal == this)
                         return GoalStep.TryAgain;
             }
@@ -67,7 +67,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             if (FinishedShip == null)
             {
-                Log.Error($"FleetRequisition {Build.Template.Name} failed: BuiltShip is null!");
+                Fleet.RemoveGoal(this);
                 return GoalStep.GoalFailed;
             }
 
