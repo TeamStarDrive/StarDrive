@@ -1430,11 +1430,7 @@ namespace Ship_Game.Fleets
                         StartBombing(target);
                         AttackEnemyStrengthClumpsInAO(task);
                         if (target.Owner == null)
-                        {
                             TaskStep = 7;
-                            if (!Owner.Universe.HasRemnantPortal(target.System))
-                                Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
-                        }
 
                         break;
                     }
@@ -1445,9 +1441,6 @@ namespace Ship_Game.Fleets
                 case 6:
                     if (StartBombing(FleetTask.TargetPlanet))
                         break;
-
-                    if (target.Owner == null && !Owner.Universe.HasRemnantPortal(target.System))
-                        Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
 
                     TaskStep = 7;
                     break;

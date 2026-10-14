@@ -156,17 +156,53 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        public void ARaidFleetLostOnItsWayHomeIsNotCountedAsALostRaid()
+        public void ARaidIsSizedByTheTargetsStrengthTheRemnantsLevelAndTheDifficulty()
         {
-            Faction.InitFleetEmpireStrMultiplier();
+            UState.P.Difficulty = GameDifficulty.Brutal;
+            Faction.TestInitModifiers();
+            typeof(Remnants).GetProperty(nameof(Remnants.Level))!.SetValue(Faction.Remnants, 6);
+            Enemy.OffensiveStrength = 10_000_000f;
+
+            float brutal = 10_000_000f * 1.75f / GlobalStats.Defaults.RemnantDesignStr * 6 / Remnants.MaxLevel;
+            AssertEqual(brutal * 0.0001f, brutal, Faction.Remnants.RequiredAttackFleetStr(Enemy),
+                        "a raid is the target's offensive strength x the difficulty factor / the design strength x level / max level");
+
+            UState.P.Difficulty = GameDifficulty.Normal;
+            Faction.TestInitModifiers();
+            AssertEqual(brutal * 0.0001f, brutal * 1.25f / 1.75f, Faction.Remnants.RequiredAttackFleetStr(Enemy),
+                        "Normal sizes raids at 1.25 where Brutal sizes them at 1.75");
+        }
+
+        [TestMethod]
+        public void RaidOutcomesDoNotChangeTheSizeOfTheNextRaid()
+        {
+            Enemy.OffensiveStrength = 10_000_000f;
             UState.DeregisterRemnantPortal(PortalSystem);
-            RemnantEngageEmpire raid = RaidUnderWay(fleetShips: 0, taskStep: 8);
-            float before = Faction.GetFleetStrEmpireMultiplier(Enemy);
+            float before = Faction.Remnants.RequiredAttackFleetStr(Enemy);
+            Assert.IsTrue(before > Faction.Remnants.Level * Faction.Remnants.Level * 1000, "setup: the target's strength sets the raid size");
 
-            Assert.AreEqual(GoalStep.GoalFailed, raid.Evaluate(), "setup: the fleet is gone");
+            for (int i = 0; i < 2; ++i)
+                Assert.AreEqual(GoalStep.GoalFailed, RaidUnderWay(fleetShips: 0).Evaluate(), "setup: a raid is lost");
+            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredAttackFleetStr(Enemy), "not after lost raids");
 
-            AssertEqual(0.0001f, before, Faction.GetFleetStrEmpireMultiplier(Enemy),
-                        "a raid already heading home was counted when it turned back, or did its job, so its loss is not counted again");
+            for (int i = 0; i < 2; ++i)
+            {
+                RemnantEngageEmpire bombers = RaidUnderWay(fleetShips: 3, shipName: "Neutron Bomber Mk1");
+                bombers.TargetPlanet = EnemyHome;
+                bombers.Evaluate();
+                AssertEqual(8, bombers.Fleet.TaskStep, "setup: a raid with only bombers left turns back");
+            }
+            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredAttackFleetStr(Enemy), "not after raids turn back");
+
+            RemnantEngageEmpire clearing = RaidUnderWay(taskStep: 6);
+            Colony.WipeOutColony(Player);
+            for (int i = 0; i < 2; ++i)
+            {
+                clearing.Fleet.TaskStep = 6;
+                RunFleetTask(clearing.Fleet);
+                AssertEqual(7, clearing.Fleet.TaskStep, "setup: a raid clears a planet");
+            }
+            AssertEqual(before * 0.0001f, before, Faction.Remnants.RequiredAttackFleetStr(Enemy), "not after raids clear planets");
         }
 
         [TestMethod]
@@ -182,7 +218,7 @@ namespace UnitTests.AITests.Empire
             raid.Evaluate();
 
             Assert.AreSame(ThirdMajor, raid.TargetEmpire, "setup: the raid turns on the weakest empire");
-            Assert.AreSame(ThirdMajor, raid.Task.TargetEmpire, "planets the fleet clears from now on count against the new target");
+            Assert.AreSame(ThirdMajor, raid.Task.TargetEmpire, "the raid's task names the new target too");
         }
 
         [TestMethod]
@@ -404,56 +440,6 @@ namespace UnitTests.AITests.Empire
             raid.Evaluate();
 
             Assert.AreSame(EnemyHome, raid.TargetPlanet, "with no bombing left the raid goes after its target empire");
-        }
-
-        [TestMethod]
-        public void ClearingAPortalSystemColonyDoesNotChangeTheStrengthEstimate()
-        {
-            Faction.InitFleetEmpireStrMultiplier();
-            RemnantEngageEmpire raid = RaidUnderWay(taskStep: 6);
-            Colony.WipeOutColony(Player);
-            float before = Faction.GetFleetStrEmpireMultiplier(Enemy);
-
-            RunFleetTask(raid.Fleet);
-            AssertEqual(0.0001f, before, Faction.GetFleetStrEmpireMultiplier(Enemy), "a portal system colony does not count");
-
-            UState.DeregisterRemnantPortal(PortalSystem);
-            raid.Fleet.TaskStep = 6;
-            RunFleetTask(raid.Fleet);
-            Assert.IsTrue(Faction.GetFleetStrEmpireMultiplier(Enemy) < before, "setup: a cleared colony elsewhere lowers the estimate");
-        }
-
-        [TestMethod]
-        public void LosingTheFleetAtAPortalSystemColonyDoesNotChangeTheStrengthEstimate()
-        {
-            Faction.InitFleetEmpireStrMultiplier();
-            RemnantEngageEmpire raid = RaidUnderWay(fleetShips: 0);
-            float before = Faction.GetFleetStrEmpireMultiplier(Enemy);
-
-            Assert.AreEqual(GoalStep.GoalFailed, raid.Evaluate());
-            AssertEqual(0.0001f, before, Faction.GetFleetStrEmpireMultiplier(Enemy), "a portal system colony does not count");
-
-            UState.DeregisterRemnantPortal(PortalSystem);
-            RaidUnderWay(fleetShips: 0).Evaluate();
-            Assert.IsTrue(Faction.GetFleetStrEmpireMultiplier(Enemy) > before, "setup: a fleet lost elsewhere raises the estimate");
-        }
-
-        [TestMethod]
-        public void ABomberOnlyFleetCountsItsFailedRaidOnce()
-        {
-            Faction.InitFleetEmpireStrMultiplier();
-            RemnantEngageEmpire raid = RaidUnderWay(fleetShips: 3, shipName: "Neutron Bomber Mk1");
-            raid.TargetPlanet = EnemyHome;
-            AssertEqual(3, Faction.Remnants.NumBombersInFleet(raid.Fleet), "setup: only bombers are left");
-            float before = Faction.GetFleetStrEmpireMultiplier(Enemy);
-
-            raid.Evaluate();
-            float afterBailing = Faction.GetFleetStrEmpireMultiplier(Enemy);
-            AssertEqual(8, raid.Fleet.TaskStep, "setup: the fleet heads home");
-            raid.Evaluate();
-
-            Assert.IsTrue(afterBailing > before, "setup: a failed raid raises the estimate");
-            AssertEqual(0.0001f, afterBailing, Faction.GetFleetStrEmpireMultiplier(Enemy), "not again on the way home");
         }
 
         [TestMethod]
