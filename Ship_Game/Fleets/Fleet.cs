@@ -63,7 +63,6 @@ namespace Ship_Game.Fleets
         public SubTexture Icon => ResourceManager.FleetIcon(FleetIconIndex);
 
         [StarData] public int TaskStep;
-        [StarData] public bool IsCoreFleet;
         [StarData] public bool AutoRequisition { get; private set; }
 
         Ship[] AllButRearShips => Ships.Except(RearShips);
@@ -2614,17 +2613,8 @@ namespace Ship_Game.Fleets
                     EvaluateTask(task);
                 }
             }
-            else // no fleet task
+            else if (!Owner.isPlayer) // no fleet task
             {
-                if (Owner.isPlayer || IsCoreFleet)
-                {
-                    if (!IsCoreFleet) return;
-                    foreach (Ship ship in Ships)
-                    {
-                        ship.AI.CancelIntercept();
-                    }
-                    return;
-                }
                 Reset(fleeIfInCombat: false);
             }
         }

@@ -44,7 +44,7 @@ public class ShipDebugInfoPanel : Submenu
 
         if (Screen.SelectedFleet is { } fleet)
         {
-            Text.String($"Fleet: {fleet.Name}  IsCoreFleet:{fleet.IsCoreFleet}");
+            Text.String($"Fleet: {fleet.Name}");
             Text.String($"Ships:{fleet.Ships.Count} STR:{fleet.GetStrength()} STLCap:{fleet.STLSpeedLimit:0} FTLCap:{fleet.FTLSpeedLimit:0}");
             Text.String($"Distance: {fleet.AveragePosition().Distance(fleet.FinalPosition)}");
             Text.String($"FormationMove:{fleet.InFormationMove}  ReadyForWarp:{fleet.ReadyForWarp}");

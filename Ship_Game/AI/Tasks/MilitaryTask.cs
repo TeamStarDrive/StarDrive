@@ -261,7 +261,7 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            if (Fleet.IsCoreFleet || Owner.isPlayer)
+            if (Owner.isPlayer)
                 return;
 
             if (!FleetNeededForNextTask)
@@ -310,19 +310,13 @@ namespace Ship_Game.AI.Tasks
         public bool Evaluate(Empire e)
         {
             Owner = e;
-            if (Fleet != null)
+            if (Fleet != null && Fleet.Ships.Count == 0)
             {
-                if (Fleet == null || Fleet.Ships.Count == 0)
-                {
-                    if (!Fleet.IsCoreFleet)
-                    {
-                        if (Type == TaskType.DefendVsRemnants && Fleet.TaskStep >= 2)
-                            Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
-                        Log.Warning($"MilitaryTask Evaluate found task with missing fleet {Type}");
-                        EndTask();
-                        return false;
-                    }
-                }
+                if (Type == TaskType.DefendVsRemnants && Fleet.TaskStep >= 2)
+                    Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
+                Log.Warning($"MilitaryTask Evaluate found task with missing fleet {Type}");
+                EndTask();
+                return false;
             }
 
             NeedEvaluation = Fleet == null;
