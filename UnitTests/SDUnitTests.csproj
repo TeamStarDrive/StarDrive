@@ -107,6 +107,7 @@
     <Compile Include="Fleets\FleetCatchUpTests.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />
     <Compile Include="Fleets\FleetTests.cs" />
+    <Compile Include="Fleets\ResetFleetTests.cs" />
     <Compile Include="Graphics\BloomFilterTests.cs" />
     <Compile Include="Graphics\DistortionComponentTests.cs" />
     <Compile Include="Graphics\FillRectangleRectFTests.cs" />

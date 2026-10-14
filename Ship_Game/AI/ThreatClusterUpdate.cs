@@ -119,8 +119,7 @@ public sealed class ClusterUpdate
     /// </summary>
     /// <param name="timeStep">Elapsed time since last update</param>
     /// <param name="owner">The empire which owns the ThreatMatrix</param>
-    /// <param name="isOwnerCluster">if true, this cluster belongs to Owner (observation of self)</param>
-    public bool Update(FixedSimTime timeStep, Empire owner, bool isOwnerCluster)
+    public bool Update(FixedSimTime timeStep, Empire owner)
     {
         // nothing was observed this frame
         if (ObservedShips.IsEmpty)
@@ -162,9 +161,6 @@ public sealed class ClusterUpdate
                 inBorders = true;
 
             system ??= s.System;
-
-            if (isOwnerCluster)
-                s.CurrentCluster = Cluster;
         }
         
         // Unfortunately we also need to recalculate the Bounds

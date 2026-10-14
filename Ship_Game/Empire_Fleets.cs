@@ -185,6 +185,21 @@ public sealed partial class Empire
         }
         if (FleetUpdateTimer < 0f)
             FleetUpdateTimer = 5f;
+
+        // the UI thread also writes the player's fleets, so only AI fleets are pruned on the sim thread
+        if (!isPlayer)
+            RemoveResetFleets();
+    }
+
+    // a reset fleet has key 0 and no ships; nothing looks a fleet up by key 0
+    void RemoveResetFleets()
+    {
+        for (int i = Fleets.Count - 1; i >= 0; --i)
+        {
+            Fleet fleet = Fleets[i];
+            if (fleet.Key == 0 && fleet.Ships.IsEmpty)
+                Fleets.RemoveAt(i);
+        }
     }
 
     public void TrySendInitialFleets(Planet p)
