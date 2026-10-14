@@ -141,7 +141,7 @@ namespace Ship_Game.GameScreens.Scene
         public WarpingIn(float duration) : base(duration)
         {
         }
-        public override float ThrusterHeat => WarpThrusterHeat;
+        public override float ThrusterLength => WarpThrusterLength;
         public override void Initialize(SceneObj obj)
         {
             obj.Rotation = obj.Spawn.Rotation; // reset direction
@@ -188,7 +188,7 @@ namespace Ship_Game.GameScreens.Scene
         public WarpingOut(float duration) : base(duration)
         {
         }
-        public override float ThrusterHeat => SublightThrusterHeat.LerpTo(WarpThrusterHeat, Math.Min(SpoolTimer / SpoolTime, 1f));
+        public override float ThrusterLength => 1f.LerpTo(WarpThrusterLength, Math.Min(SpoolTimer / SpoolTime, 1f));
         public override void Initialize(SceneObj ship)
         {
             Start = ship.Position;

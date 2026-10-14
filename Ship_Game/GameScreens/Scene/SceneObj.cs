@@ -269,7 +269,8 @@ namespace Ship_Game.GameScreens.Scene
                 return;
 
             float heat = AI.ThrusterHeat;
-            float tickSpeed = heat > SceneAction.SublightThrusterHeat ? 0.004f : 0.002f;
+            float length = AI.ThrusterLength;
+            float tickSpeed = length > 1f ? 0.004f : 0.002f;
             Vector3 forward = Forward;
             Vector3 up = -Up; // in-game thrusters take the mesh's +Z as up
             for (int i = 0; i < Thrusters.Length; ++i)
@@ -277,7 +278,7 @@ namespace Ship_Game.GameScreens.Scene
                 Thruster thruster = Thrusters[i];
                 thruster.WorldPos = ThrusterWorldPos(Hull.Thrusters[i]);
                 thruster.Scale = Hull.Thrusters[i].Scale * BaseScale;
-                thruster.Update(forward, up, heat, tickSpeed, EmpireColor, EmpireColor);
+                thruster.Update(forward, up, heat, tickSpeed, EmpireColor, EmpireColor, length);
             }
         }
 

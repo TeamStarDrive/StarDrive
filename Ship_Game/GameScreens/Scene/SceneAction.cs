@@ -2,9 +2,9 @@
 {
     public abstract class SceneAction
     {
-        // the in-game thruster heat at full sublight thrust and in warp
-        public const float SublightThrusterHeat = 0.6f;
-        public const float WarpThrusterHeat = 1f;
+        // warp lengthens the plume; heat stays at most 1, where the plume shader's falloff is still valid
+        public const float MovingThrusterHeat = 1f;
+        public const float WarpThrusterLength = 3f;
 
         protected SceneObj Obj;
         protected readonly float Duration;
@@ -35,7 +35,8 @@
             return false;
         }
 
-        public virtual float ThrusterHeat => SublightThrusterHeat;
+        public virtual float ThrusterHeat => MovingThrusterHeat;
+        public virtual float ThrusterLength => 1f;
 
         public virtual void Draw()
         {

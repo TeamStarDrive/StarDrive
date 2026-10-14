@@ -16,6 +16,7 @@ namespace Ship_Game.GameScreens.Scene
         int State;
         public bool Finished { get; private set; }
         public float ThrusterHeat { get; private set; }
+        public float ThrusterLength { get; private set; } = 1f;
 
         public SceneShipAI(params Func<SceneAction>[] states)
         {
@@ -40,6 +41,7 @@ namespace Ship_Game.GameScreens.Scene
 
             bool done = Current.Update(timeStep);
             ThrusterHeat = Current.ThrusterHeat;
+            ThrusterLength = Current.ThrusterLength;
             if (done)
             {
                 if (Current is GoToState goTo)

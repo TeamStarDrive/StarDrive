@@ -55,14 +55,16 @@ namespace Ship_Game
         public void Update(Vector3 direction, float thrustSize, float thrustSpeed, Color thrust0, Color thrust1)
             => Update(direction, Vector3.UnitZ, thrustSize, thrustSpeed, thrust0, thrust1);
 
-        public void Update(Vector3 direction, Vector3 up, float thrustSize, float thrustSpeed, Color thrust0, Color thrust1)
+        // lengthScale stretches the plume along its length (the mesh's Z axis)
+        public void Update(Vector3 direction, Vector3 up, float thrustSize, float thrustSpeed, Color thrust0, Color thrust1,
+                           float lengthScale = 1f)
         {
             heat = thrustSize.Clamped(0f, 1f);
             tick += thrustSpeed;
             colors[0] = thrust0;
             colors[1] = thrust1;
 
-            world_matrix = Matrix.CreateScale(Scale)
+            world_matrix = Matrix.CreateScale(Scale, Scale, Scale * lengthScale)
                          * Matrix.CreateWorld(WorldPos, direction, up);
             inverse_scale_transpose  = Matrix.Transpose(Matrix.Invert(world_matrix));
         }
