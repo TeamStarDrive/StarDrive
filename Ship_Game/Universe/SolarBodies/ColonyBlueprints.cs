@@ -93,9 +93,12 @@ namespace Ship_Game.Universe.SolarBodies
             Building[] built = P.Buildings.ToArray();
             int totalRequiredBuilt = built.Count(IsRequired);
             float completion = (float)totalRequiredBuilt / PlannedBuildings.Count;
-            PercentCompleted = (int)(completion * 100);
-            if (Completed || !SkipUnresearched)
+            int percentCompleted = (int)(completion * 100);
+            if (percentCompleted == 100 || !SkipUnresearched)
+            {
+                PercentCompleted = percentCompleted;
                 return Completed;
+            }
 
             int standing = ResearchedBuildingsStanding(built, out int researched);
             PercentCompleted = researched > 0 ? standing * 100 / researched : 0;

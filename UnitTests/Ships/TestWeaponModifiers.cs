@@ -279,6 +279,7 @@ namespace UnitTests.Ships
         {
             (WeaponTemplate launcher, WeaponTemplate warhead) = CloneClusterMissile();
             float rating = WeaponTemplate.CalculateOffense(null, launcher);
+            AssertGreaterThan(rating, 0f, "setup: the launcher must have a rating");
 
             warhead.FireDelay = launcher.FireDelay * 0.1f;
             warhead.SalvoCount = 5;
@@ -371,6 +372,7 @@ namespace UnitTests.Ships
         {
             (WeaponTemplate launcher, WeaponTemplate warhead) = CloneClusterMissile();
             float rating = WeaponTemplate.CalculateOffense(null, launcher);
+            AssertGreaterThan(rating, 0f, "setup: the launcher must have a rating");
 
             warhead.BaseRange *= 3f;
             AssertEqual(rating * 0.0001f, rating, WeaponTemplate.CalculateOffense(null, launcher),

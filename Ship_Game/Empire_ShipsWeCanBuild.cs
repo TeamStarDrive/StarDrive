@@ -19,7 +19,7 @@ public sealed partial class Empire
     // shipyards, platforms, SSP-s
     HashSet<IShipDesign> SpaceStationsWeCanBuild;
 
-    // a save leaves out the player's designs, so its older copies never replace them; one in use is saved by what uses it
+    // a save leaves out the player's designs; one in use is saved by what uses it
     [StarData("ShipsWeCanBuild")] HashSet<IShipDesign> SavedShipsWeCanBuild
     {
         get => DesignsSavedInBuildLists(ShipsWeCanBuildSnapshot);

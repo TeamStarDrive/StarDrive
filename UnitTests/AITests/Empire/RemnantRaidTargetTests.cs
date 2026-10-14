@@ -341,7 +341,7 @@ namespace UnitTests.AITests.Empire
         {
             SolarSystem system = EmptySystem(new Vector2(0, 300_000));
             OpenPortal(system);
-            Assert.IsTrue(UState.HasRemnantPortal(system), "known portal systems feed the pathfinder and the raid rules");
+            Assert.IsTrue(UState.HasRemnantPortal(system), "known portal systems feed the pathfinder and the AI's refusal of colonies offered in them");
         }
 
         [TestMethod]
