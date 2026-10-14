@@ -2,6 +2,10 @@
 {
     public abstract class SceneAction
     {
+        // the in-game thruster heat at full sublight thrust and in warp
+        public const float SublightThrusterHeat = 0.6f;
+        public const float WarpThrusterHeat = 1f;
+
         protected SceneObj Obj;
         protected readonly float Duration;
         protected float Time;
@@ -30,6 +34,8 @@
             }
             return false;
         }
+
+        public virtual float ThrusterHeat => SublightThrusterHeat;
 
         public virtual void Draw()
         {

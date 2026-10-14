@@ -67,7 +67,11 @@ namespace Ship_Game.UI
             if (BackElements.NotEmpty) BatchDrawSimple(batch, elapsed, BackElements);
             if (BackAdditive.NotEmpty) BatchDrawAdditive(batch, elapsed, BackAdditive);
 
-            if (draw3D) manager.RenderSceneObjects();
+            if (draw3D)
+            {
+                manager.RenderSceneObjects();
+                Draw3DEffects();
+            }
 
             // @note Foreground is the default layer
             if (ForeElements.NotEmpty) BatchDrawSimple(batch, elapsed, ForeElements);
@@ -76,6 +80,11 @@ namespace Ship_Game.UI
             if (draw3D) manager.EndFrameRendering();
 
             ClearLayers();
+        }
+
+        // drawn over the 3D scene and under the foreground layers
+        protected virtual void Draw3DEffects()
+        {
         }
 
         static void BatchDrawSimple(SpriteBatch batch, DrawTimes elapsed, Array<UIElementV2> elements)

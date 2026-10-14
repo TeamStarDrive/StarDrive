@@ -244,6 +244,11 @@ namespace Ship_Game.GameScreens.MainMenu
             base.Update(fixedDeltaTime);
         }
 
+        protected override void Draw3DEffects()
+        {
+            Scene?.DrawThrusters();
+        }
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             DrawMultiLayeredExperimental(ScreenManager, batch, elapsed, draw3D:true);

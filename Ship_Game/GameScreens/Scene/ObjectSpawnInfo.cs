@@ -26,6 +26,7 @@ namespace Ship_Game.GameScreens.Scene
         public EmpireData Empire;
         public ISceneShipAI AI;
         public bool DisableJumpSfx;
+        public bool ThrusterFlashes;
         #pragma warning restore 649
     }
 }

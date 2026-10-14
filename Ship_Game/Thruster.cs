@@ -53,6 +53,9 @@ namespace Ship_Game
         }
 
         public void Update(Vector3 direction, float thrustSize, float thrustSpeed, Color thrust0, Color thrust1)
+            => Update(direction, Vector3.UnitZ, thrustSize, thrustSpeed, thrust0, thrust1);
+
+        public void Update(Vector3 direction, Vector3 up, float thrustSize, float thrustSpeed, Color thrust0, Color thrust1)
         {
             heat = thrustSize.Clamped(0f, 1f);
             tick += thrustSpeed;
@@ -60,7 +63,7 @@ namespace Ship_Game
             colors[1] = thrust1;
 
             world_matrix = Matrix.CreateScale(Scale)
-                         * Matrix.CreateWorld(WorldPos, direction, Vector3.UnitZ);
+                         * Matrix.CreateWorld(WorldPos, direction, up);
             inverse_scale_transpose  = Matrix.Transpose(Matrix.Invert(world_matrix));
         }
 
@@ -142,14 +145,6 @@ namespace Ship_Game
             float bankedZ = thrusterPos.Z*cosY - thrusterPos.X*sinY;
             Vector2 pos = center - dir2d*thrusterPos.Y + right*bankedX;
             return new Vector3(pos, bankedZ+deltaZ);
-        }
-
-        // 3D position calc is a bit different
-        public static Vector3 GetPosition(in Vector3 center, in Vector3 fwd, in Vector3 thrusterPos)
-        {
-            Vector3 right = fwd.Cross(Vector3.Up); // forward x up = right
-            Vector3 up = fwd.Cross(Vector3.Left);  // forward x left = up
-            return center + fwd*thrusterPos.Y + right*thrusterPos.X + up*thrusterPos.Z;
         }
     }
 }

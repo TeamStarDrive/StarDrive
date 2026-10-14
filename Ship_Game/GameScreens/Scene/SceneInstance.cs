@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
+using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
@@ -187,6 +188,15 @@ namespace Ship_Game.GameScreens.Scene
 
             Particles.Draw(Screen.View, Screen.Projection, nearView: true);
             Particles.Update(elapsed.CurrentGameTime);
+        }
+
+        public void DrawThrusters()
+        {
+            RenderStates.BasicBlendMode(Screen.Device, additive:true, depthWrite:false);
+            foreach (SceneGroup fleet in Groups)
+            {
+                fleet.DrawThrusters(ref Screen.View, ref Screen.Projection);
+            }
         }
     }
 }
