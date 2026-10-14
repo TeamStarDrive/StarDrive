@@ -33,8 +33,8 @@ namespace Ship_Game
         /// It should be called when a fleet task succeeds
         /// There is hard limit of 5 or (more if target empire is Remnants) on the multiplier
         /// </summary>
-        public void DecreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, WeAreRemnants ? -0.1f : -DecreaseValue);
-        public void IncreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, WeAreRemnants ? 0.025f : IncreaseValue);
+        public void DecreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, -DecreaseValue);
+        public void IncreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, IncreaseValue);
 
         void TryUpdateFleetStrEmpireMultiplier(Empire targetEmpire, float value)
         {
@@ -52,7 +52,7 @@ namespace Ship_Game
                 if (newValue > maxMultiplier)
                     newValue *= 0.5f; // reached upper limit, restart at lower value
 
-                FleetStrEmpireMultiplier[targetEmpire.Id] = newValue.LowerBound(WeAreRemnants ? 0.25f : 0.5f);
+                FleetStrEmpireMultiplier[targetEmpire.Id] = newValue.LowerBound(0.5f);
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Ship_Game
 
         public void InitFleetEmpireStrMultiplier()
         {
-            if (isPlayer || IsFaction && !WeAreRemnants)
+            if (isPlayer || IsFaction)
                 return;
 
             foreach (Empire e in Universe.MajorEmpires.Filter(e => e != this))

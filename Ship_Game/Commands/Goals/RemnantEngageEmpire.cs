@@ -76,9 +76,6 @@ namespace Ship_Game.Commands.Goals
 
         bool IsColonyInPortalSystem(Planet p) => IsAttackableColony(p) && p.System == PortalSystem;
 
-        // a raid on a colony in a portal system does not change the Remnants' strength estimate of the target empire
-        bool CountsForFleetStr => TargetPlanet == null || !UState.HasRemnantPortal(TargetPlanet.System);
-
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
 
         GoalStep ReturnToClosestPortalAndReroute()
@@ -218,12 +215,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep WaitForCompletion()
         {
             if (Fleet == null || Fleet.Ships.Count == 0)
-            {
-                bool onTheWayHome = Fleet?.TaskStep >= 8;
-                if (CountsForFleetStr && !onTheWayHome)
-                    Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return GoalStep.GoalFailed; // fleet is dead
-            }
 
             if (!IsPortalValidOrRerouted())
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalFailed);
@@ -249,11 +241,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             if (numBombers / 3 >= Fleet.Ships.Count - numBombers) // only bombers and some combat ships left
-            {
-                if (Fleet.TaskStep < 8 && CountsForFleetStr) // counted once, not on every turn of the way back
-                    Owner.IncreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return ReturnToClosestPortalAndReroute();
-            }
             if (Fleet.TaskStep != 7 && (TargetPlanet?.Owner == TargetEmpire || IsColonyInPortalSystem(TargetPlanet))) // Not cleared enemy at target planet yet
                 return GoalStep.TryAgain;
 

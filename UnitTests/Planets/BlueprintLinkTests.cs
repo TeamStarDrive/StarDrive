@@ -177,6 +177,32 @@ public class BlueprintLinkTests : StarDriveTest
         AssertEqual(Next, P.Blueprints.Name, "the newly researched building already stands, so the linked plan takes over");
     }
 
+    [TestMethod]
+    public void APlanSkippingUnresearchedCountsOnlyResearchedBuildingsTowardsItsCompletion()
+    {
+        P.AddBlueprints(new BlueprintsTemplate("unlinked", false, null, new HashSet<string> { Researched, Unresearched, AlsoUnresearched },
+                                               Planet.ColonyType.Colony, skipUnresearched: true), Player);
+        Build(Researched);
+        Build(AlsoUnresearched);
+        AssertEqual(100, P.Blueprints.PercentCompleted, "the one researched building stands, and a standing unresearched one adds nothing");
+
+        Player.UnlockEmpireBuilding(Unresearched);
+        Player.UpdateForNewTech();
+
+        AssertEqual(50, P.Blueprints.PercentCompleted, "research adds a building the plan still lacks, so completion drops to one of two");
+    }
+
+    [TestMethod]
+    public void APlanSkippingUnresearchedWithNothingResearchedShowsNoProgress()
+    {
+        P.AddBlueprints(new BlueprintsTemplate("unlinked", false, null, new HashSet<string> { Unresearched, AlsoUnresearched },
+                                               Planet.ColonyType.Colony, skipUnresearched: true), Player);
+
+        Build(Unresearched);
+
+        AssertEqual(0, P.Blueprints.PercentCompleted, "only researched buildings count, and none is, though one stands as on a captured colony");
+    }
+
     static BlueprintsTemplate Load(string yaml)
     {
         using var parser = new YamlParser(">Blueprints<", new StringReader(yaml));

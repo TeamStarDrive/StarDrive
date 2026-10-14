@@ -103,6 +103,11 @@ namespace Ship_Game.Gameplay
 
         // seconds until a delayed-ignition missile lights its engine
         [StarData] public float IgnitionDelay { get; private set; }
+
+        // Duration left when an unguided MIRV shell splits; 0 splits it at the end of its flight
+        [StarData] public float MirvFuse { get; private set; }
+        public bool HasMirvFuse { get; private set; }
+        GameObject MirvTarget;
         public bool TrailTurnedOn => IgnitionDelay <= 0f;
 
         // Only Guided Missiles can slow down, but lower the acceleration
@@ -192,11 +197,13 @@ namespace Ship_Game.Gameplay
             Vector2 savedVelocity = Velocity;
             float savedRotation = Rotation;
             float savedIgnitionDelay = IgnitionDelay;
+            float savedMirvFuse = MirvFuse;
             Initialize(Position, savedVelocity.Normalized(), null, playSound: false, Vector2.Zero);
             Duration = savedDuration; // apply flight state from save data
             Velocity = savedVelocity;
             Rotation = savedRotation;
             IgnitionDelay = savedIgnitionDelay;
+            MirvFuse = savedMirvFuse;
             UpdateWorldMatrix();
         }
 
@@ -289,6 +296,14 @@ namespace Ship_Game.Gameplay
                 MissileAI = new MissileAI(this, target, inheritedVelocity);
             }
 
+            HasMirvFuse = Weapon.IsMirv && !isMirv && MissileAI == null && DroneAI == null
+                          && ResourceManager.GetWeaponTemplate(Weapon.MirvWeapon, out _);
+            if (HasMirvFuse)
+            {
+                MirvTarget = target;
+                MirvFuse = target != null ? MirvFuseFor(target) : 0f;
+            }
+
             ModelPath = Weapon.ModelPath;
             InFlightCue = Weapon.InFlightCue;
             UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType is "Missile" or "Drone" or "Rocket";
@@ -371,6 +386,23 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        // the Duration left when the shell is MirvSeparationDistance short of passing its target
+        float MirvFuseFor(GameObject target)
+        {
+            Vector2 targetVelocity = (target as ShipModule)?.GetParent()?.Velocity ?? target.Velocity;
+            Vector2 closingVelocity = Velocity - targetVelocity;
+            float closingSpeed = closingVelocity.Length();
+            if (closingSpeed <= 0f)
+                return 0f;
+
+            float timeToPass = (target.Position - Position).Dot(closingVelocity) / (closingSpeed * closingSpeed);
+            if (timeToPass <= 0f)
+                return 0f;
+
+            float timeToSplit = (timeToPass - Weapon.MirvSeparationDistance / closingSpeed).LowerBound(0f);
+            return (InitialDuration - timeToSplit).LowerBound(0f);
+        }
+
         public void CreateMirv(GameObject target)
         {
             // breadcrumbs for easier debugging when we run into these rare bugs
@@ -401,7 +433,12 @@ namespace Ship_Game.Gameplay
                 else
                 {
                     // use normal fire arc since the new warhead is not a missile
-                    warhead.SpawnMirvSalvo(Direction, target, Position, Velocity);
+                    bool playSound = true;
+                    foreach (Vector2 direction in warhead.SalvoDirections(Direction))
+                    {
+                        CreateMirvWarhead(warhead, Position, direction, target, playSound, Velocity, Loyalty, Planet);
+                        playSound = false; // only play sound once per fire cone
+                    }
                 }
             }
 
@@ -610,6 +647,11 @@ namespace Ship_Game.Gameplay
             if (Duration > 0f)
             {
                 Duration -= timeStep.FixedTime;
+                if (HasMirvFuse && !Deflected && Duration <= MirvFuse)
+                {
+                    CreateMirv(MirvTarget is { Active: true } ? MirvTarget : null);
+                    return;
+                }
                 if (Duration < 0f)
                 {
                     Health = 0f;

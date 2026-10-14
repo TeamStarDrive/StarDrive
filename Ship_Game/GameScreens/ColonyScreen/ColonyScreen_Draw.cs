@@ -7,6 +7,7 @@ using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Graphics;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -942,8 +943,12 @@ namespace Ship_Game
             string damage = b.TheWeapon.SalvoCount > 1 && !b.TheWeapon.IsBeam
                 ? string.Format(Localizer.Token(GameText.DamageShotsPerSalvo), b.TheWeapon.SalvoCount)
                 : "Damage";
-            DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.DamageAmount, "UI/icon_offense", damage, signs: false);
-            DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
+            IWeaponTemplate warhead = b.TheWeapon.IsMirv ? ResourceManager.GetWeaponTemplateOrNull(b.TheWeapon.MirvWeapon) : null;
+            IWeaponTemplate hits = warhead ?? b.TheWeapon;
+            DrawBuildingInfo(ref cursor, batch, font, hits.DamageAmount, "UI/icon_offense", damage, signs: false);
+            if (warhead?.ProjectileCount > 1)
+                DrawBuildingInfo(ref cursor, batch, font, warhead.ProjectileCount, "UI/icon_offense", "MIRV", signs: false);
+            DrawBuildingInfo(ref cursor, batch, font, hits.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
             DrawBuildingInfo(ref cursor, batch, font, b.ActualFireDelay(planetLevel), "UI/icon_offense", "Fire Delay", signs: false);
         }
 

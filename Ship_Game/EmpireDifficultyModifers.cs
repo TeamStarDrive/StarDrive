@@ -24,6 +24,7 @@
         public readonly int RemnantTurnsLevelUp; // How many turns should pass before Remnants level up
         public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
         public readonly float RemnantNumBombers; // Multiplier to Remnant bombers wanted
+        public readonly float RemnantRaidStrength; // Multiplier to the share of the target's offensive strength a Remnant raid is sized from
         public readonly int RemnantPortalCreationMod; // Determines portal creation on a new remnant level
         public readonly int StandByColonyShips;
         public readonly int TrustLostStoleColony; // Vs players
@@ -101,6 +102,7 @@
                     RemnantTurnsLevelUp  = 350;
                     RemnantResourceMod   = 0.5f;
                     RemnantNumBombers    = 0.75f;
+                    RemnantRaidStrength  = 1.25f;
                     BaseColonyGoals      = 2;
                     ColonyGoalMultiplier = 0.5f;
                     StandByColonyShips   = 0;
@@ -136,6 +138,7 @@
                     RemnantTurnsLevelUp  = 325;
                     RemnantResourceMod   = 1f;
                     RemnantNumBombers    = 1f;
+                    RemnantRaidStrength  = 1.5f;
                     BaseColonyGoals      = 4;
                     ColonyGoalMultiplier = 0.75f;
                     StandByColonyShips   = 3;
@@ -182,6 +185,7 @@
                     RemnantTurnsLevelUp  = 300;
                     RemnantResourceMod   = 1.5f;
                     RemnantNumBombers    = 1.25f;
+                    RemnantRaidStrength  = 1.75f;
                     BaseColonyGoals      = 5;
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 4;
@@ -230,6 +234,7 @@
                     RemnantTurnsLevelUp  = 275;
                     RemnantResourceMod   = 2f;
                     RemnantNumBombers    = 1.5f;
+                    RemnantRaidStrength  = 1.75f;
                     BaseColonyGoals      = 6;
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 5;
@@ -277,11 +282,6 @@
                 ExpansionCheckInterval = 2;
                 if (empire.Universe.P.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
-            }
-
-            if (empire.WeAreRemnants)
-            {
-                TaskForceStrength = 1f;
             }
         }
     }
