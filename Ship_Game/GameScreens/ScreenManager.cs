@@ -611,11 +611,13 @@ namespace Ship_Game
             public Action<FileInfo> OnModified;
             public GameScreen Screen;
         }
+        // every access takes this lock; worker threads register targets too
         readonly Map<string, Hotloadable> HotLoadTargets = new();
 
         public void ResetHotLoadTargets()
         {
-            HotLoadTargets.Clear();
+            lock (HotLoadTargets)
+                HotLoadTargets.Clear();
         }
 
         // HotLoading allows for modifying game content while the game is running
@@ -641,16 +643,18 @@ namespace Ship_Game
         public void AddHotLoadTarget(GameScreen screen, FileInfo file, Action<FileInfo> onModified)
         {
             string key = file.Name;
-            HotLoadTargets[key] = new Hotloadable {
+            var target = new Hotloadable {
                 File = file.FullName,
                 LastModified = file.LastWriteTimeUtc,
                 OnModified = onModified
             };
+            lock (HotLoadTargets)
+                HotLoadTargets[key] = target;
             if (screen != null)
             {
                 screen.OnExit += () =>
                 {
-                    HotLoadTargets.Remove(key);
+                    RemoveHotLoadTarget(key);
                 };
             }
         }
@@ -664,14 +668,16 @@ namespace Ship_Game
             if (file == null)
                 throw new FileNotFoundException($"No such file: {relativePath}");
 
-            HotLoadTargets[relativePath] = new Hotloadable {
+            var target = new Hotloadable {
                 File = file.FullName,
                 LastModified = file.LastWriteTimeUtc,
                 Screen = screen
             };
+            lock (HotLoadTargets)
+                HotLoadTargets[relativePath] = target;
             screen.OnExit += () =>
             {
-                HotLoadTargets.Remove(relativePath);
+                RemoveHotLoadTarget(relativePath);
             };
             return file;
         }
@@ -701,7 +707,27 @@ namespace Ship_Game
         // Remove an entry from registered hot load targets
         public void RemoveHotLoadTarget(string key)
         {
-            HotLoadTargets.Remove(key);
+            lock (HotLoadTargets)
+                HotLoadTargets.Remove(key);
+        }
+
+        // Remove every hot load target that still calls `onModified`, leaving targets re-registered by others
+        public void RemoveHotLoadTargets(Action<FileInfo> onModified)
+        {
+            lock (HotLoadTargets)
+            {
+                foreach (string key in HotLoadTargets.Keys.ToArr())
+                {
+                    if (HotLoadTargets[key].OnModified == onModified)
+                        HotLoadTargets.Remove(key);
+                }
+            }
+        }
+
+        bool TryGetHotLoadTarget(string key, out Hotloadable hot)
+        {
+            lock (HotLoadTargets)
+                return HotLoadTargets.TryGetValue(key, out hot);
         }
 
         void PerformHotLoadTasks(UpdateTimes elapsed)
@@ -713,10 +739,12 @@ namespace Ship_Game
 
             // OnModified/ReloadContent is allowed to modify HotLoadTargets
             // so to avoid collection modification issues, we iterate by KEY
-            string[] keys = HotLoadTargets.Keys.ToArr();
+            string[] keys;
+            lock (HotLoadTargets)
+                keys = HotLoadTargets.Keys.ToArr();
             foreach (string targetKey in keys)
             {
-                if (HotLoadTargets.TryGetValue(targetKey, out Hotloadable hot))
+                if (TryGetHotLoadTarget(targetKey, out Hotloadable hot))
                 {
                     DateTime lastWrite;
                     string name;

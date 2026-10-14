@@ -7,6 +7,7 @@ using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.Scene;
 using Vector2 = SDGraphics.Vector2;
 using SDGraphics;
+using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.GameScreens.MainMenu
@@ -92,6 +93,7 @@ namespace Ship_Game.GameScreens.MainMenu
             list.StartGroupTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartGroupTransition<UIButton>(animOffset, +1, time:0.5f);
 
+            Mem.Dispose(ref Scene);
             Scene = SceneInstance.FromFile(this, menu.SceneFile);
 
             base.LoadContent();
