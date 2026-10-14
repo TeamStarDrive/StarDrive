@@ -15,9 +15,33 @@ public sealed partial class Empire
     // (Snapshot/Count for reads, AddBuildableShip/RemoveBuildableShip/ClearShipsWeCanBuild
     // for writes). Both HashSets are mutated under the same lock and share the cache
     // invalidation flow.
-    [StarData] HashSet<IShipDesign> ShipsWeCanBuild;
+    HashSet<IShipDesign> ShipsWeCanBuild;
     // shipyards, platforms, SSP-s
-    [StarData] HashSet<IShipDesign> SpaceStationsWeCanBuild;
+    HashSet<IShipDesign> SpaceStationsWeCanBuild;
+
+    // a save leaves out the player's designs, so its older copies never replace them; one in use is saved by what uses it
+    [StarData("ShipsWeCanBuild")] HashSet<IShipDesign> SavedShipsWeCanBuild
+    {
+        get => DesignsSavedInBuildLists(ShipsWeCanBuildSnapshot);
+        set => ShipsWeCanBuild = value;
+    }
+
+    [StarData("SpaceStationsWeCanBuild")] HashSet<IShipDesign> SavedSpaceStationsWeCanBuild
+    {
+        get => DesignsSavedInBuildLists(SpaceStationsWeCanBuildSnapshot);
+        set => SpaceStationsWeCanBuild = value;
+    }
+
+    public static bool IsSavedInBuildLists(IShipDesign design) => !design.IsPlayerDesign;
+
+    static HashSet<IShipDesign> DesignsSavedInBuildLists(IShipDesign[] designs)
+    {
+        var saved = new HashSet<IShipDesign>();
+        foreach (IShipDesign design in designs)
+            if (IsSavedInBuildLists(design))
+                saved.Add(design);
+        return saved;
+    }
 
     // Copy-on-write cache for safe lock-free iteration. Sim-thread readers used
     // to iterate the HashSets directly and could crash with `Collection was modified`

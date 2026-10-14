@@ -67,6 +67,14 @@ namespace Ship_Game
             Planet = planet;
         }
 
+        // like a loaded ship, a queued one uses the existing design the save matched
+        [StarDataDeserialized(typeof(ShipDesign))]
+        void OnDeserialized()
+        {
+            if (ShipData?.IsAnExistingSavedDesign == true)
+                ShipData = ResourceManager.Ships.GetDesign(ShipData.Name);
+        }
+
         public void SetCanceled(bool state = true) => IsCancelled = state;
 
         public void DrawAt(UniverseState us, SpriteBatch batch, Vector2 at, bool lowRes)

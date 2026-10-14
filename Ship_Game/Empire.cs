@@ -286,7 +286,7 @@ namespace Ship_Game
             ParentEmpire = parentEmpire;
         }
 
-        [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData), typeof(UniverseParams), typeof(Planet))]
+        [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData), typeof(UniverseParams), typeof(Planet), typeof(ShipDesign))]
         void OnDeserialized(UniverseState us)
         {
             dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);

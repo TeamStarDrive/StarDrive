@@ -138,7 +138,8 @@ public sealed partial class ShipDesign : IShipDesign
         else // design is from save only, add it to ship templates list
         {
             // TODO: use UniverseState to store temporary designs
-            ResourceManager.AddShipTemplate(this, playerDesign: true, readOnly: true);
+            // a copy keeps the player or shipped flag of the design it replaces
+            ResourceManager.AddShipTemplate(this, playerDesign: existing?.IsPlayerDesign ?? IsPlayerDesign, readOnly: true);
         }
     }
 
