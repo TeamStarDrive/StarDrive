@@ -289,6 +289,7 @@ namespace Ship_Game
         [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData), typeof(UniverseParams), typeof(Planet), typeof(ShipDesign))]
         void OnDeserialized(UniverseState us)
         {
+            RemoveResetFleets();
             dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
             CommonInitialize();
             if (!data.IsRebelFaction)

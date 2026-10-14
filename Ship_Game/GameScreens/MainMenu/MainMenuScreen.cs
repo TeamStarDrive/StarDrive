@@ -7,6 +7,7 @@ using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.Scene;
 using Vector2 = SDGraphics.Vector2;
 using SDGraphics;
+using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.GameScreens.MainMenu
@@ -36,7 +37,8 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             if (IsDisposed)
                 return;
-            Scene?.Dispose();
+            if (disposing)
+                Mem.Dispose(ref Scene);
             base.Dispose(disposing);
         }
 
@@ -92,7 +94,9 @@ namespace Ship_Game.GameScreens.MainMenu
             list.StartGroupTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartGroupTransition<UIButton>(animOffset, +1, time:0.5f);
 
-            Scene = SceneInstance.FromFile(this, menu.SceneFile);
+            SceneInstance scene = SceneInstance.FromFile(this, menu.SceneFile);
+            Mem.Dispose(ref Scene);
+            Scene = scene;
 
             base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
@@ -242,6 +246,11 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             base.Update(fixedDeltaTime);
+        }
+
+        protected override void Draw3DEffects()
+        {
+            Scene?.DrawThrusters();
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

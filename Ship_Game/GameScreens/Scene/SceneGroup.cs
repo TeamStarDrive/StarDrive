@@ -8,6 +8,7 @@ using Ship_Game.Data.Serialization.Types;
 using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game.GameScreens.Scene
 {
@@ -23,6 +24,7 @@ namespace Ship_Game.GameScreens.Scene
         [StarData] readonly bool EngineTrails;
         [StarData] readonly bool DustTrails;
         [StarData] readonly bool DebugTrail;
+        [StarData] readonly bool? ThrusterFlashes;
         [StarData] readonly ObjectSpawnInfo[] Objects = Empty<ObjectSpawnInfo>.Array;
         [StarData] readonly ObjectGroupInfo[] ObjectGroups = Empty<ObjectGroupInfo>.Array;
         #pragma warning restore 649
@@ -130,11 +132,14 @@ namespace Ship_Game.GameScreens.Scene
                 }
             }
 
-            foreach (ObjectSpawnInfo spawn in objects)
+            for (int i = 0; i < objects.Count; ++i)
             {
+                ObjectSpawnInfo spawn = objects[i];
                 spawn.AI = ai;
                 spawn.Empire = empire;
                 spawn.DisableJumpSfx = DisableJumpSfx;
+                // ships placed one by one show their thrusters, ships spawned in bulk do not
+                spawn.ThrusterFlashes = ThrusterFlashes ?? (i < Objects.Length);
 
                 if (DiverseShipEmpires)
                     empire = GetEmpire();
@@ -181,6 +186,9 @@ namespace Ship_Game.GameScreens.Scene
                 ship.Update(timeStep);
 
             // if all ship AI's have finished, create a new one
+            foreach (var ship in AllObjects)
+                if (ship.AI.Finished)
+                    ship.Destroy();
             AllObjects.RemoveAll(ship => ship.AI.Finished);
             if (AllObjects.IsEmpty)
                 CreateShips(Scene, screen);
@@ -196,6 +204,12 @@ namespace Ship_Game.GameScreens.Scene
         {
             foreach (var ship in AllObjects)
                 ship.Draw(batch, screen);
+        }
+
+        public void DrawThrusters(ref Matrix view, ref Matrix projection)
+        {
+            foreach (var ship in AllObjects)
+                ship.DrawThrusters(ref view, ref projection);
         }
     }
 }

@@ -19,7 +19,7 @@ public sealed partial class ThreatMatrix
             Threats = threats;
         }
         
-        public ThreatCluster[] UpdateAndGetResults(FixedSimTime timeStep, Empire owner, bool isOwnerCluster)
+        public ThreatCluster[] UpdateAndGetResults(FixedSimTime timeStep, Empire owner)
         {
             Array<ThreatCluster> results = new();
             foreach (ThreatCluster c in Clusters)
@@ -31,7 +31,7 @@ public sealed partial class ThreatMatrix
                 else
                 {
                     // this will update all cluster stats and bounds
-                    if (c.Update.Update(timeStep, owner, isOwnerCluster: isOwnerCluster))
+                    if (c.Update.Update(timeStep, owner))
                         Threats.ClustersMap.Update(c);
 
                     results.Add(c);

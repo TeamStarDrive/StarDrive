@@ -58,10 +58,12 @@ public sealed class ParticleManager : IDisposable
     ParticleVertexBufferShared SharedBufferData;
 
     public readonly RandomBase Random = new ThreadSafeRandom();
+    readonly Action<FileInfo> OnFileModified;
 
     public ParticleManager(GameContentManager content)
     {
         Content = content;
+        OnFileModified = _ => Reload();
         Reload();
     }
 
@@ -82,7 +84,9 @@ public sealed class ParticleManager : IDisposable
         if (!GlobalStats.IsUnitTest)
             Log.Write(ConsoleColor.Cyan, "ParticleManager.Unload");
 
-        GameBase.ScreenManager?.RemoveHotLoadTarget("3DParticles/Particles.yaml");
+        // the finalizer never touches ScreenManager's hot load targets
+        if (disposing)
+            GameBase.ScreenManager?.RemoveHotLoadTargets(OnFileModified);
 
         lock (Effects)
         {
@@ -117,7 +121,7 @@ public sealed class ParticleManager : IDisposable
 
         SharedBufferData = new(Content.Device);
 
-        FileInfo pSettings = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/Particles.yaml", f => Reload());
+        FileInfo pSettings = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/Particles.yaml", OnFileModified);
         LoadParticleSettings(pSettings);
         CreateParticles();
 
@@ -151,7 +155,7 @@ public sealed class ParticleManager : IDisposable
         CargoShuttle      = GetParticleOrNull("CargoShuttle") ?? ThrustEffect;
         CargoShuttleTrail = GetParticleOrNull("CargoShuttleTrail") ?? EngineTrail;
 
-        FileInfo pEffects = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/ParticleEffects.yaml", f => Reload());
+        FileInfo pEffects = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/ParticleEffects.yaml", OnFileModified);
         LoadParticleEffects(pEffects);
     }
 

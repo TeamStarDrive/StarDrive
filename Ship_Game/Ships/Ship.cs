@@ -48,10 +48,6 @@ namespace Ship_Game.Ships
         // full speed on their own. Transient: Fleet.Update clears it once in formation.
         public bool CatchingUpToFleet;
 
-        // This is the current cluster that our ship
-        // belongs to in ThreatMatrix's clusters
-        [StarData] public ThreatCluster CurrentCluster;
-
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
         [StarData] public ConstructionShip Construction;

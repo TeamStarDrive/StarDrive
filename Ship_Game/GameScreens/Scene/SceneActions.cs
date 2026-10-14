@@ -41,6 +41,7 @@ namespace Ship_Game.GameScreens.Scene
         public IdlingInDeepSpace(float duration) : base(duration)
         {
         }
+        public override float ThrusterHeat => 0f;
         public override void Initialize(SceneObj obj)
         {
             obj.Position = new Vector3(-50000, 0, 50000); // out of screen, out of mind
@@ -140,6 +141,7 @@ namespace Ship_Game.GameScreens.Scene
         public WarpingIn(float duration) : base(duration)
         {
         }
+        public override float ThrusterLength => WarpThrusterLength;
         public override void Initialize(SceneObj obj)
         {
             obj.Rotation = obj.Spawn.Rotation; // reset direction
@@ -179,12 +181,14 @@ namespace Ship_Game.GameScreens.Scene
         Vector3 Start; // far right foreground
         Vector3 End;
         readonly Vector3 WarpScale = new Vector3(1, 4, 1);
+        const float SpoolTime = 3.2f;
         float SpoolTimer;
         bool EnteringFTL;
 
         public WarpingOut(float duration) : base(duration)
         {
         }
+        public override float ThrusterLength => 1f.LerpTo(WarpThrusterLength, Math.Min(SpoolTimer / SpoolTime, 1f));
         public override void Initialize(SceneObj ship)
         {
             Start = ship.Position;
@@ -199,11 +203,11 @@ namespace Ship_Game.GameScreens.Scene
         public override bool Update(FixedSimTime timeStep)
         {
             SpoolTimer += timeStep.FixedTime;
-            if (SpoolTimer < 3.2f)
+            if (SpoolTimer < SpoolTime)
             {
                 Obj.Position += timeStep.FixedTime * Obj.Forward * Obj.Speed;
 
-                float remaining = 3.2f - SpoolTimer;
+                float remaining = SpoolTime - SpoolTimer;
                 if (!EnteringFTL && remaining < 0.5f)
                 {
                     FTLManager.EnterFTL(Obj.Position, Obj.Forward, Obj.HalfLength);

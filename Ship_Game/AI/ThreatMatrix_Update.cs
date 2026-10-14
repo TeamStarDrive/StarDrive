@@ -106,12 +106,12 @@ public sealed partial class ThreatMatrix
         // 1. our clusters are always visible, so just get them out
         ClustersGenerator ourClusters = new(this);
         ourClusters.CreateOurClusters(Owner, ourShips);
-        ThreatCluster[] ours = ourClusters.UpdateAndGetResults(timeStep, Owner, isOwnerCluster:true);
+        ThreatCluster[] ours = ourClusters.UpdateAndGetResults(timeStep, Owner);
 
         // 2. get all the clusters for rivals
         ClustersGenerator rivalClusters = new(this);
         rivalClusters.CreateAndUpdateRivalClusters(Owner, ours, NonCombatShips.AsSpan());
-        ThreatCluster[] rivals = rivalClusters.UpdateAndGetResults(timeStep, Owner, isOwnerCluster:false);
+        ThreatCluster[] rivals = rivalClusters.UpdateAndGetResults(timeStep, Owner);
 
         // 3. Update the list of clusters and UpdateAll ClustersMap
         //    to handle deleted clusters

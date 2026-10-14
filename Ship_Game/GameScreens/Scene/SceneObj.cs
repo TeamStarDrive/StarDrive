@@ -10,6 +10,7 @@ using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector3 = SDGraphics.Vector3;
 using Vector2 = SDGraphics.Vector2;
+using Matrix = SDGraphics.Matrix;
 using Ship_Game.Utils;
 
 namespace Ship_Game.GameScreens.Scene
@@ -50,7 +51,8 @@ namespace Ship_Game.GameScreens.Scene
         ParticleEmitter DustEmitter;
         public bool DebugTrail;
         Color ThrustColor1;
-        Color ThrustColor2;
+        Color EmpireColor;
+        Thruster[] Thrusters = Empty<Thruster>.Array;
 
         public SceneObj(SceneInstance scene, ObjectSpawnInfo spawn)
         {
@@ -63,7 +65,7 @@ namespace Ship_Game.GameScreens.Scene
             AI = spawn.AI.GetClone();
 
             ThrustColor1 = new Color(spawn.Empire.ThrustColor1R, spawn.Empire.ThrustColor1G, spawn.Empire.ThrustColor1B);
-            ThrustColor2 = spawn.Empire.Traits.Color;
+            EmpireColor = spawn.Empire.Traits.Color;
         }
 
         public void AxisRotate(float ax, float ay, float az)
@@ -179,10 +181,23 @@ namespace Ship_Game.GameScreens.Scene
                                            : GlobalStats.ShipVisibility;
 
             ScreenManager.Instance.AddObject(SO);
+            Thrusters = Spawn.ThrusterFlashes && Hull != null ? CreateThrusters(Hull) : Empty<Thruster>.Array;
             // Do a first dummy update with deltaTime 0
             // to make sure we have correct position at first frame
             AI.Update(this, FixedSimTime.Zero/*paused during load*/);
             UpdateTransform();
+            UpdateThrusters();
+        }
+
+        static Thruster[] CreateThrusters(ShipHull hull)
+        {
+            var thrusters = new Thruster[hull.Thrusters.Length];
+            for (int i = 0; i < thrusters.Length; ++i)
+            {
+                thrusters[i] = new Thruster();
+                thrusters[i].LoadAndAssignDefaultEffects(ResourceManager.RootContent);
+            }
+            return thrusters;
         }
 
         static SceneObject ChooseObject(string type, RandomBase random)
@@ -241,6 +256,32 @@ namespace Ship_Game.GameScreens.Scene
             SO.AffineTransform(Position, Rotation.DegsToRad(), Scale*BaseScale);
         }
 
+        // hull thrusters are placed around the ship's center, which is MeshOffset away from the mesh origin
+        Vector3 ThrusterWorldPos(in ShipHull.ThrusterZone zone)
+        {
+            var meshPos = new Vector3(zone.Position.X - Hull.MeshOffset.X, zone.Position.Y - Hull.MeshOffset.Y, zone.Position.Z);
+            return meshPos.Transform(SO.World);
+        }
+
+        void UpdateThrusters()
+        {
+            if (Thrusters.Length == 0)
+                return;
+
+            float heat = AI.ThrusterHeat;
+            float length = AI.ThrusterLength;
+            float tickSpeed = length > 1f ? 0.004f : 0.002f;
+            Vector3 forward = Forward;
+            Vector3 up = -Up; // in-game thrusters take the mesh's +Z as up
+            for (int i = 0; i < Thrusters.Length; ++i)
+            {
+                Thruster thruster = Thrusters[i];
+                thruster.WorldPos = ThrusterWorldPos(Hull.Thrusters[i]);
+                thruster.Scale = Hull.Thrusters[i].Scale * BaseScale;
+                thruster.Update(forward, up, heat, tickSpeed, EmpireColor, EmpireColor, length);
+            }
+        }
+
         public void Update(FixedSimTime timeStep)
         {
             if (DebugMeshInspect)
@@ -254,23 +295,32 @@ namespace Ship_Game.GameScreens.Scene
 
             SoundEmitter.Position = Position;
 
+            // shipObj can be modified while mod is loading
+            if (SO != null)
+            {
+                UpdateTransform();
+                SO.UpdateAnimation(timeStep.FixedTime);
+                UpdateThrusters();
+            }
+
             if (DebugTrail)
             {
                 Scene.Particles.EngineTrail.AddParticle(Position, Vector3.Zero, BaseScale * 2, Color.WhiteSmoke);
             }
             if (EngineTrails)
             {
-                if (Hull != null)
+                if (Hull != null && SO != null)
                 {
+                    Vector3 forward = Forward;
                     for (int i = 0; i < Hull.Thrusters.Length; ++i)
                     {
-                        Vector3 pos = Thruster.GetPosition(Position, Forward, Hull.Thrusters[i].Position);
-                        EngineTrail.Update(Scene.Particles, pos, Forward, BaseScale, 1f, ThrustColor1, ThrustColor2);
+                        Vector3 pos = ThrusterWorldPos(Hull.Thrusters[i]);
+                        EngineTrail.Update(Scene.Particles, pos, forward, BaseScale, 1f, ThrustColor1, EmpireColor);
                     }
                 }
                 else
                 {
-                    EngineTrail.Update(Scene.Particles, Position, Forward, BaseScale, 1f, ThrustColor1, ThrustColor2);
+                    EngineTrail.Update(Scene.Particles, Position, Forward, BaseScale, 1f, ThrustColor1, EmpireColor);
                 }
             }
             if (DustTrails)
@@ -281,12 +331,17 @@ namespace Ship_Game.GameScreens.Scene
                 }
                 DustEmitter.Update(timeStep.FixedTime, Position, BaseScale, Color.White);
             }
+        }
 
-            // shipObj can be modified while mod is loading
-            if (SO != null)
+        public void DrawThrusters(ref Matrix view, ref Matrix projection)
+        {
+            if (AI.ThrusterHeat <= 0f)
+                return;
+            // drawn twice, as in-game ships draw theirs
+            for (int i = 0; i < Thrusters.Length; ++i)
             {
-                UpdateTransform();
-                SO.UpdateAnimation(timeStep.FixedTime);
+                Thrusters[i].Draw(ref view, ref projection);
+                Thrusters[i].Draw(ref view, ref projection);
             }
         }
 
