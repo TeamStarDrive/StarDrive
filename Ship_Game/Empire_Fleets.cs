@@ -52,8 +52,7 @@ public sealed partial class Empire
             while (Index < Count)
             {
                 Fleet f = Items[Index++];
-                // we need Ships.NotEmpty check, because current code allows
-                // clearing f.Ships without calling Owner.RemoveFleet()
+                // a fleet stays in the list after its ships are cleared
                 if (f != null && f.Ships.NotEmpty)
                 {
                     Current = f;
@@ -104,11 +103,6 @@ public sealed partial class Empire
         foreach (Fleet fleet in Fleets)
             fleet.Reset(fleeIfInCombat: false, returnShipsToEmpireAI);
         Fleets.Clear();
-    }
-    
-    public void RemoveFleet(Fleet fleet)
-    {
-        Fleets.RemoveRef(fleet);
     }
 
     public int CreateFleetKey()
@@ -174,7 +168,7 @@ public sealed partial class Empire
         return fleet;
     }
 
-    void UpdateFleets(FixedSimTime timeStep)
+    internal void UpdateFleets(FixedSimTime timeStep)
     {
         FleetUpdateTimer -= timeStep.FixedTime;
         foreach (Fleet fleet in ActiveFleets)
@@ -191,7 +185,7 @@ public sealed partial class Empire
             RemoveResetFleets();
     }
 
-    // a reset fleet has key 0 and no ships; nothing looks a fleet up by key 0
+    // a reset fleet has key 0 and no ships
     void RemoveResetFleets()
     {
         for (int i = Fleets.Count - 1; i >= 0; --i)

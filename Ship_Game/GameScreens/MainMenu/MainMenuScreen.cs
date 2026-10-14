@@ -37,7 +37,8 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             if (IsDisposed)
                 return;
-            Scene?.Dispose();
+            if (disposing)
+                Mem.Dispose(ref Scene);
             base.Dispose(disposing);
         }
 
@@ -93,8 +94,9 @@ namespace Ship_Game.GameScreens.MainMenu
             list.StartGroupTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartGroupTransition<UIButton>(animOffset, +1, time:0.5f);
 
+            SceneInstance scene = SceneInstance.FromFile(this, menu.SceneFile);
             Mem.Dispose(ref Scene);
-            Scene = SceneInstance.FromFile(this, menu.SceneFile);
+            Scene = scene;
 
             base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");

@@ -14,11 +14,7 @@ public class ResetFleetTests : StarDriveTest
     {
         LoadStarterShips("Terran-Prototype");
         CreateUniverseAndPlayerEmpire();
-        UState.Events.Disabled = true;
         UState.StarDate = 1001f;
-        // an empire without planets is defeated on its turn, which clears all its fleets
-        AddHomeWorldToEmpire(new Vector2(-200_000f, 0f), Player);
-        AddHomeWorldToEmpire(new Vector2(200_000f, 0f), Enemy);
     }
 
     static bool IsListed(Empire empire, Fleet fleet)
@@ -53,10 +49,10 @@ public class ResetFleetTests : StarDriveTest
     {
         Fleet fleet = CreateResetFleet(Enemy);
         Fleet waiting = Enemy.CreateFleet(Enemy.CreateFleetKey(), null);
+        AssertTrue(IsListed(Enemy, fleet), "setup: a new fleet does not replace the reset fleet");
 
-        Enemy.Update(UState, TestSimStep);
+        Enemy.UpdateFleets(TestSimStep);
 
-        AssertFalse(Enemy.IsDefeated, "setup: the AI must not be defeated, which would clear its fleets anyway");
         AssertFalse(IsListed(Enemy, fleet), "the AI's fleet update removes a reset fleet");
         AssertTrue(IsListed(Enemy, waiting), "a fleet with a key that has no ships yet stays");
     }
@@ -69,8 +65,7 @@ public class ResetFleetTests : StarDriveTest
         waiting.DataNodes.Add(new FleetDataNode { ShipName = "Terran-Prototype" });
         int waitingKey = waiting.Key;
 
-        Player.Update(UState, TestSimStep);
-        AssertFalse(Player.IsDefeated, "setup: the player must not be defeated, which would clear its fleets");
+        Player.UpdateFleets(TestSimStep);
         AssertTrue(IsListed(Player, fleet), "the player's fleet update keeps a reset fleet, which the fleet design screen gives a key back");
 
         SavedGame save = Universe.Save("UnitTest.ResetFleets", throwOnError: true);

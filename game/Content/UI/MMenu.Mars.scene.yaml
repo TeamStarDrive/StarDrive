@@ -24,6 +24,9 @@ LookAt: [0, 0, 10000] # we're looking far into the screen
 # All RoleName's such as "fighter", "corvette", "frigate", "cruiser", "capital", "station", etc..
 # Asteroids: "asteroid"
 # SpaceJunk: "spacejunk"
+
+# Thruster plumes: a group's ThrusterFlashes: true|false turns them on or off.
+# Unset, ships listed under Objects show them and ships spawned from ObjectGroups do not.
 Groups:
   - Group:
     Name: Asteroids

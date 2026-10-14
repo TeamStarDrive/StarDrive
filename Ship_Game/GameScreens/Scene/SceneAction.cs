@@ -2,7 +2,7 @@
 {
     public abstract class SceneAction
     {
-        // warp lengthens the plume; heat stays at most 1, where the plume shader's falloff is still valid
+        // warp lengthens the plume; heat stays at most 1
         public const float MovingThrusterHeat = 1f;
         public const float WarpThrusterLength = 3f;
 

@@ -1145,7 +1145,7 @@ were still present; items 1 to 13 and 15 have since been resolved.
     for at least X% tax") used by the keep check and the build scoring. Needs a saved field, UI and
     Codex text; not started.
 
-## Everything else (26, eleven resolved)
+## Everything else (28, eleven resolved)
 
 1. ~~EMP recovery is a per-frame constant, unscaled by the time step.~~ Resolved 2026-09-28.
    `Ship.EmpRecovery` was drained once per simulation step, and the step is
@@ -1303,6 +1303,19 @@ Items 19-26 come from the branch review of `fixes_38` (the landing work), 2026-1
     the ship update.
 26. `[display]` **The planet info panel's exotic resource line is hard-coded English.**
     `PlanetInfoUIElement.cs` (~404) builds "Richness" and "Refine Ratio:" as literals.
+
+Items 27-28 come from the branch review of `fixes_48`, 2026-10-15.
+
+27. **The Remnants keep military tasks whose fleet has died.** Factions never evaluate their tasks
+    (`EmpireAI.Update` skips `RunManagers` for them), and `Fleet.UpdateAI` runs only for fleets
+    with ships, so nothing ends a Remnant task whose fleet has lost every ship. In a Combined Arms
+    save at stardate 1390.4, 25 of the Remnants' 29 tasks pointed to a fleet with no ships. They are
+    inert, since every task lookup reads the owner's own tasks, and small next to that save's 94.6 MB.
+28. `[thread]` **`GameScreen.Dispose(false)` disposes managed objects on the finalizer thread.**
+    `~GameScreen` (`GameScreen.cs` ~162) calls `Dispose(false)`, which runs `RemoveAll()` and
+    `Mem.Dispose(ref TransientContent)` without checking `disposing`. `MainMenuScreen` checks it
+    before disposing its scene since fixes_48; the base class wants the same, for every screen. It is
+    reached only when a screen is dropped without `RemoveScreen` disposing it.
 
 ## Larger items with their own notes
 
