@@ -52,9 +52,10 @@ namespace Ship_Game.GameScreens
 
 
             var ourRect = new Rectangle(ScreenWidth / 2 - 700, (ScreenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 700);
-            Add(new Menu2(ourRect));
+            var menuRect = HelperFunctions.WidenForRaceRow(ourRect, Universe.UState.ActiveMajorEmpires.Length);
+            Add(new Menu2(menuRect));
 
-            CloseButton(ourRect.Right - 40, ourRect.Y + 20);
+            CloseButton(menuRect.Right - 40, menuRect.Y + 20);
 
             InfiltrationTitle = Add(new UILabel("INFILTRATION LEVELS", Fonts.Arial20Bold, Color.Wheat));
             var levelRect = new Rectangle(ourRect.X + 35, ourRect.Y + 430, 250, 250);
