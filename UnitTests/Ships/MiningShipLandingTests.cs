@@ -266,4 +266,18 @@ public class MiningShipLandingTests : StarDriveTest
         Assert.IsFalse(landing.Dying, "a landed miner is taken in, not destroyed");
         AssertEqual(landing.CargoSpaceMax, loadedStation.GetOtherCargo(Ore), "the loaded landing still unloads at touchdown");
     }
+
+    [TestMethod]
+    public void AMinerNeverPicksTargetsWhateverItsRole()
+    {
+        Ship supplyMiner = SpawnShip("Mining Ship", Player, new Vector2(300_000));
+        Assert.IsTrue(supplyMiner.IsMiningShip && supplyMiner.ShipData.Role == RoleName.supply, "setup: the vanilla miner has the supply role");
+        Assert.IsTrue(supplyMiner.AI.IsNonCombatant, "a supply-role miner is a non-combatant");
+
+        Player.data.DefaultMiningShip = "Small Transport"; // a freighter-role miner, as in Combined Arms
+        Ship freighterMiner = SpawnShip("Small Transport", Player, new Vector2(310_000));
+        Assert.IsTrue(freighterMiner.IsMiningShip && freighterMiner.ShipData.Role == RoleName.freighter && !freighterMiner.IsFreighter,
+                      "setup: a freighter-role miner does not count as a freighter");
+        Assert.IsTrue(freighterMiner.AI.IsNonCombatant, "and so is a freighter-role one");
+    }
 }
