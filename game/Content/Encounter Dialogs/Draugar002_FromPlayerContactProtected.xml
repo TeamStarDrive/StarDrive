@@ -28,10 +28,8 @@
     </Message>
     <Message>
       <Index>2</Index>
-      <SetWar>true</SetWar>
       <Text>Thank you, we will taste, hrmm, talk to you later.</Text>
       <EndTransmission>true</EndTransmission>
-      <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
     </Message>
   </MessageList>
 </Encounter>
