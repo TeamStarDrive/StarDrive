@@ -179,9 +179,11 @@ namespace Ship_Game.GameScreens.Scene
     class WarpingOut : SceneAction
     {
         Vector3 Start; // far right foreground
-        Vector3 End;
         readonly Vector3 WarpScale = new Vector3(1, 4, 1);
+        const float WarpDistance = 50000f;
         const float SpoolTime = 3.2f;
+        const float EnterFTLTime = 0.5f;
+        const float ThrusterScaleUpTime = 0.2f;
         float SpoolTimer;
         bool EnteringFTL;
 
@@ -189,10 +191,11 @@ namespace Ship_Game.GameScreens.Scene
         {
         }
         public override float ThrusterLength => 1f.LerpTo(WarpThrusterLength, Math.Min(SpoolTimer / SpoolTime, 1f));
+        // back to its own size once it jumps
+        public override float ThrusterScale => SpoolTimer >= SpoolTime ? 1f
+            : 1f.LerpTo(SpoolThrusterScale, ((SpoolTimer - (SpoolTime - ThrusterScaleUpTime)) / ThrusterScaleUpTime).Clamped(0f, 1f));
         public override void Initialize(SceneObj ship)
         {
-            Start = ship.Position;
-            End   = ship.Position + ship.Forward * 50000f;
             if (!ship.Spawn.DisableJumpSfx)
             {
                 string cue = Ships.Ship.GetStartWarpCue(ship.Spawn.Empire, ship.HullSize);
@@ -206,9 +209,10 @@ namespace Ship_Game.GameScreens.Scene
             if (SpoolTimer < SpoolTime)
             {
                 Obj.Position += timeStep.FixedTime * Obj.Forward * Obj.Speed;
+                Start = Obj.Position; // the warp starts where the spool leaves it
 
                 float remaining = SpoolTime - SpoolTimer;
-                if (!EnteringFTL && remaining < 0.5f)
+                if (!EnteringFTL && remaining < EnterFTLTime)
                 {
                     FTLManager.EnterFTL(Obj.Position, Obj.Forward, Obj.HalfLength);
                     EnteringFTL = true;
@@ -217,7 +221,7 @@ namespace Ship_Game.GameScreens.Scene
             }
 
             // spooling finished, begin warping and updating main timer:
-            Obj.Position = Start.LerpTo(End, RelativeTime);
+            Obj.Position = Start + Obj.Forward * (WarpDistance * RelativeTime);
             Obj.Scale = WarpScale;
             if (base.Update(timeStep))
             {

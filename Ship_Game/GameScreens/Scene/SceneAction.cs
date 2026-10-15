@@ -2,9 +2,10 @@
 {
     public abstract class SceneAction
     {
-        // warp lengthens the plume; heat stays at most 1
+        // warp lengthens the plume, and the end of the spool scales it up too; heat stays at most 1
         public const float MovingThrusterHeat = 1f;
         public const float WarpThrusterLength = 3f;
+        public const float SpoolThrusterScale = 4f;
 
         protected SceneObj Obj;
         protected readonly float Duration;
@@ -37,6 +38,7 @@
 
         public virtual float ThrusterHeat => MovingThrusterHeat;
         public virtual float ThrusterLength => 1f;
+        public virtual float ThrusterScale => 1f;
 
         public virtual void Draw()
         {
