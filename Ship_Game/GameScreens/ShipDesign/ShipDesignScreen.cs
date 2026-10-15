@@ -384,10 +384,10 @@ namespace Ship_Game
             ResetActiveModule();
         }
 
-        public void OnDesignChanged(bool showRoleChangeTip = true, bool playSound = true)
+        public void OnDesignChanged(bool showRoleChangeTip = true, bool playSound = true, bool forceUpdate = false)
         {
             var oldRole = Role;
-            UpdateDesignedShip(forceUpdate:false);
+            UpdateDesignedShip(forceUpdate);
 
             if (showRoleChangeTip && Role != oldRole)
                 RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, Input.CursorPosition);

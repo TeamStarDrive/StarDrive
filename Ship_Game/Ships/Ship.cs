@@ -161,8 +161,8 @@ namespace Ship_Game.Ships
         private bool HasExploded;
         // rolled a derelict death: no main explosion and no death blast
         bool RolledDerelict;
-        // seen when it rolled a derelict death: a derelict takes the hull when the ship is removed
-        bool LeavesDerelict;
+        // 1 when it was seen as it rolled a derelict death: a derelict takes the hull when the ship is removed, once
+        int LeavesDerelict;
         // debug: its death is a derelict one, with no roll
         bool DebugDerelict;
         public float TotalDps { get; private set; }
@@ -1650,8 +1650,9 @@ namespace Ship_Game.Ships
                 return; // planet crash or tumble
 
             bool visible = IsVisibleToPlayer;
-            // set before Active goes false, or a removal running on the sim thread could miss it
-            LeavesDerelict = RolledDerelict && visible;
+            bool leavesDerelict = RolledDerelict && visible;
+            // set before Active goes false, or a removal running on another thread could miss it
+            LeavesDerelict = leavesDerelict ? 1 : 0;
 
             QueueTotalRemoval(); // sets Active=false, remove thether and from orbital stations
             OnShipDie(pSource);
@@ -1661,15 +1662,24 @@ namespace Ship_Game.Ships
             Carrier.ScuttleHangarShips();
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
-            if (!LeavesDerelict)
+            if (!leavesDerelict)
                 CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly, blast: !RolledDerelict);
         }
 
-        // on the sim thread alone, before the removal, so no ship update can be reading the scene object
+        // before the removal, on the thread removing the ship (sim, save or UI); a failure is logged, as a derelict is only a visual
         public void LeaveDerelict()
         {
-            if (LeavesDerelict && !Universe.Derelicts.TryAdd(this))
-                CreateExplosionEffects(visible: true, cleanupOnly: false, blast: false);
+            if (Interlocked.Exchange(ref LeavesDerelict, 0) == 0)
+                return;
+            try
+            {
+                if (!Universe.Derelicts.TryAdd(this))
+                    CreateExplosionEffects(visible: true, cleanupOnly: false, blast: false);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"LeaveDerelict failed: {Name}");
+            }
         }
 
         // frigate and bigger military ships, and untethered stations that are not research, mining, Dyson swarm or portal stations

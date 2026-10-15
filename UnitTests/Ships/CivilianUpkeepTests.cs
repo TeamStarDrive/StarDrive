@@ -15,7 +15,7 @@ public class CivilianUpkeepTests : StarDriveTest
     }
 
     // every slot of the hull holds a 1x1 cargo hold
-    static ShipDesign CargoDesign(string hullName, ShipCategory category)
+    internal static ShipDesign CargoDesign(string hullName, ShipCategory category)
     {
         Assert.IsTrue(ResourceManager.Hull(hullName, out ShipHull hull), $"setup: hull {hullName}");
         var design = new ShipDesign(hull, $"Cargo Test {hullName} {category}") { ShipCategory = category };

@@ -135,8 +135,17 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            ShipCategory? category = CurrentDesign?.ShipCategory;
             if (CategoryList.HandleInput(input))
+            {
+                // the category sets a freighter's role and upkeep, so the stats follow it
+                if (CurrentDesign != null && CurrentDesign.ShipCategory != category)
+                {
+                    OnDesignChanged(playSound: false, forceUpdate: true);
+                    CategoryList.SetActiveValue(CurrentDesign.ShipCategory); // the role can force a category of its own
+                }
                 return true;
+            }
 
             if (HangarOptionsList.HandleInput(input))
                 return true;

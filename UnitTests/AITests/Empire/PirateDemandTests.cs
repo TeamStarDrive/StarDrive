@@ -66,4 +66,28 @@ public class PirateDemandTests : StarDriveTest
         AssertEqual(threat + 1, Pirates.ThreatLevelFor(Player), "the threat rises");
         AssertEqual(PacedPeriod, Pirates.PaymentTimerFor(Player), "and the next rise is a paced period away");
     }
+
+    [TestMethod]
+    public void SayingGoodbyeWhileProtectedDoesNotDeclareWar()
+    {
+        int dialogs = 0;
+        foreach (Encounter e in ResourceManager.Encounters)
+        {
+            if (!e.PlayerInitiated || !e.FileName.EndsWith("_FromPlayerContactProtected"))
+                continue;
+            ++dialogs;
+            int wars = 0;
+            foreach (Response answer in e.MessageList[0].ResponseOptions)
+            {
+                Assert.AreNotEqual(-1, answer.DefaultIndex, $"setup: {e.FileName} answers lead straight to a reply");
+                Message reply = e.MessageList[answer.DefaultIndex];
+                if (reply.SetWar)
+                    ++wars;
+                else
+                    Assert.AreNotEqual(3, reply.SetPlayerContactStep, $"{e.FileName}: a peaceful answer does not move on to the war dialog");
+            }
+            AssertEqual(1, wars, $"{e.FileName}: only cancelling the contract declares war");
+        }
+        AssertEqual(2, dialogs, "setup: the Corsairs' and Draugar's protected contact dialogs");
+    }
 }

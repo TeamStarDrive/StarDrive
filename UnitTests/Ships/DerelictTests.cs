@@ -77,6 +77,11 @@ public class DerelictTests : StarDriveTest
         return changes.Any(c => !c.Add && c.Item == so);
     }
 
+    static bool HasExploded(Ship ship)
+    {
+        return (bool)typeof(Ship).GetField("HasExploded", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(ship)!;
+    }
+
     void MakeVisible(Ship ship)
     {
         ship.InFrustum = true;
@@ -154,6 +159,16 @@ public class DerelictTests : StarDriveTest
 
         station.TetherToPlanet(AddDummyPlanet(Site(12), 1f, 1f, 1f, Site(12) + new Vector2(5000f, 0), explored: true));
         AssertFalse(station.CanBecomeDerelict, "a station tethered to a planet");
+    }
+
+    [TestMethod]
+    public void ACivilianShipOnAFrigateHullNeverBecomesADerelict()
+    {
+        ShipDesign freighter = CivilianUpkeepTests.CargoDesign("Terran/Gunboat", ShipCategory.Civilian);
+        TestShip ship = SpawnShip(Ship.CreateNewShipTemplate(Empire.Void, freighter), Player, Site(0));
+        AssertEqual(RoleName.frigate, ship.ShipData.HullRole, "setup: a frigate hull");
+        AssertEqual(RoleType.Civilian, ship.DesignRoleType, "setup: a civilian design");
+        AssertFalse(ship.CanBecomeDerelict, "only military designs become derelicts, whatever their hull");
     }
 
     [TestMethod]
@@ -268,6 +283,12 @@ public class DerelictTests : StarDriveTest
         AssertFalse(LeftTheScene(TakeSceneChanges(), so), "removing the ship leaves its hull in the scene");
         AssertTrue(d.InScene, "with the derelict");
         AssertEqual(0.001f, ship.Position.X, d.Position.X, "where the ship died");
+        AssertFalse(HasExploded(ship), "with no explosion");
+
+        GiveSceneObject(ship);
+        ship.LeaveDerelict(); // a save or the UI removing the ship too, having seen its hull
+        AssertEqual(1, UState.Derelicts.Count, "a ship leaves one derelict");
+        AssertFalse(HasExploded(ship), "and no explosion over it");
     }
 
     [TestMethod]
@@ -287,12 +308,31 @@ public class DerelictTests : StarDriveTest
 
         MakeVisible(dying);
         dying.Die(null, cleanupOnly: false);
+        AssertFalse(HasExploded(dying), "setup: a seen derelict death waits for the removal to explode or not");
         TakeSceneChanges();
         UState.Objects.Update(TestSimStep);
         AssertFalse(dying.Active, "the ship is dead");
         AssertEqual(1, UState.Derelicts.Count, "no derelict past the cap");
+        AssertTrue(HasExploded(dying), "it explodes as usual");
         AssertTrue(LeftTheScene(TakeSceneChanges(), so), "its hull leaves the scene like any dead ship's");
         AssertEqual(0.001f, core.ActualMaxHealth, core.Health, "with no blast");
+    }
+
+    [TestMethod]
+    public void AScuttledShipNeverBecomesADerelict()
+    {
+        ViewEverything();
+        GlobalStats.Defaults.DerelictChance = 100;
+        (Ship scuttled, ShipModule core) = StackedPair(Site(0));
+        GiveSceneObject(scuttled);
+        MakeVisible(scuttled);
+
+        scuttled.ScuttleTimer = 0.01f; // a scuttle order about to run out
+        scuttled.Update(TestSimStep);
+        AssertFalse(scuttled.Active, "the scuttled ship is dead");
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(0, UState.Derelicts.Count, "scuttling skips the derelict roll");
+        AssertGreaterThan(core.ActualMaxHealth, core.Health, "so it blasts like an ordinary death");
     }
 
     [TestMethod]

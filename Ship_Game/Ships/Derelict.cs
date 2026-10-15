@@ -150,7 +150,7 @@ public sealed class Derelict
     // false once it has sunk out of sight and left the scene
     public bool Update(FixedSimTime timeStep)
     {
-        SceneObject so = So; // a reload can clear it from the UI thread
+        SceneObject so = So;
         if (so == null)
             return false;
 
