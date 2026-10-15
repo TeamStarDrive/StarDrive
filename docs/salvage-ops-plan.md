@@ -1,10 +1,12 @@
 # Salvage Ops: derelict ships, salvage yards, recovery
 
-An integration branch `feature/salvage-ops/base` cut from `jupiter-1.60/fixes_49`, with sub-branches under it.
-Phase 1 ships on its own: `base` merges into the patch branch `jupiter-1.60/fixes_49` once sub-branch 1 is in
-(190). Status (2026-10-15): sub-branch 1 (derelicts) is done; the rest is planned. Decisions 119-176 and 178-190 are
-all settled; 168-175 came from the review of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at
-it in game.
+An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
+into `base` as fixes land. Status (2026-10-15): phase 1 (sub-branch 1, derelicts) shipped through
+`jupiter-1.60/fixes_49` in PR #445. `base` is level with `jupiter-1.60/fixes_50`, and sub-branch 2 (salvageable) is
+cut from it; the rest is planned. Decisions 119-176, 178-190 and 222-227 are all settled; 168-175 came from the review
+of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-227 from the start of
+phase 2. The fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list
+safe on the sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
 ## The rules (Gilad, 2026-10-15)
 
@@ -71,6 +73,13 @@ it in game.
   - The timer stops while a salvage yard of an empire that has seen the derelict is in its system (143), and runs
     on again if that yard dies (129).
   - When the timer runs out it sinks away like a drifting derelict.
+  - **Its model (224):** a derelict from an unseen death, or one loaded from a save, has no model. It loads one from
+    its hull on the UI thread the first time it is on screen at system view or closer and known to the player, and
+    keeps it until it sinks away. At most 40 exist, so it needs no 15 s cleanup like ships.
+  - **Its smoke after a load (225):** the save keeps the smoke points that are left after the 60 s thin-out, at
+    most 6, so a loaded derelict smokes from the same places.
+  - **On the map (226):** the player sees only the derelicts the player knows of (137). At sector and galaxy view a
+    known one shows as a grey icon of its hull role, like a ship's tactical icon.
 
 ### Salvage
 
@@ -201,9 +210,10 @@ Implementation notes:
 - **Phase 2** adds persistence, salvage and the AI; **phase 3** adds recovery.
 - Each sub-branch merges into `feature/salvage-ops/base`, and the patch branch of the day is merged into `base` as
   fixes land.
-- **Shipping (190, replaces the single final PR of 140 and 154):** phase 1 merges into `jupiter-1.60/fixes_49` with a
-  merge commit and ships in that patch batch, through its PR to `main` with the usual gates. Later phases go the same
-  way, each into the patch branch of its day.
+- **Shipping (190, replaces the single final PR of 140 and 154):** phase 1 merged into `jupiter-1.60/fixes_49` with a
+  merge commit and shipped in that patch batch, through PR #445 to `main` with the usual gates. Later phases go the
+  same way, each into the patch branch of its day: phase 2 once sub-branches 2-5 are all in `base`, since sub-branch 2
+  alone leaves derelicts that nobody can salvage.
 - **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
   exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
   the hard cap of 100 alone.
@@ -235,8 +245,8 @@ Implementation notes:
   unarmed yard and its salvage ships add next to nothing, so the 152 trust penalty is the real lever.
 - **The death line.** A ship dies when its intact internal slots fall below 50% (`Ship_Events.cs:38`). Internal
   slots are I or IO modules (`ShipModule.cs:254`), armour included: Internal Bulkhead and Reinforced Bulkhead (I),
-  Structure and Ancient Armor (IO). The Codex entry "How a ship dies" (id 100093) says only I; sub-branch 1 fixes
-  it while it edits that entry.
+  Structure and Ancient Armor (IO). The Codex entry "How a ship dies" (id 100093) said only I; sub-branch 1 fixed
+  it while it edited that entry.
 - **Command.** `HasCommand` needs a live command module that is powered or draws no power (`ShipStats.cs:87-89`);
   platforms and projectors always have it (`ShipStats.cs:69`). Without it the engines give no thrust
   (`ShipEngines.cs:65`) and `Resupply()` returns `NoCommand` (`ShipResupply.cs:87`).
@@ -249,21 +259,31 @@ Implementation notes:
    targets and how a ship dies", GameText.yaml ~22996: no blast for a derelict, and internal slots are I or IO).
    Tests.
 2. **salvageable**:
-   - the two switches (rule option and Globals flag);
-   - derelicts in a system are saved in the universe list, with their design;
+   - the two switches (rule option and Globals flag): off, every derelict is a drifting one; the rule option with its
+     greyed-out state (227);
+   - derelicts in a system are saved in the universe list, with their design and their last smoke points (225);
    - unseen deaths in a system become derelicts at once;
    - the stop point and radiation decide which kind a derelict is;
-   - the timer with the yard pause;
+   - the timer, which runs out to a sinking (its yard pause comes with the yards, 223);
    - the throttle;
-   - selection, the info panel and the ring;
-   - each empire's knowledge of a derelict;
-   - notifications.
+   - the model loaded from the hull on the UI thread (224);
+   - selection with its highlight, and the info panel with the derelict's data: design, original owner, turns left
+     (223);
+   - each empire's knowledge of a derelict: the empires that had the ship in their sensors at its death, then on
+     each turn any empire with a sensor node over it (`Empire.SensorNodes`, the point check of `Pirates.cs:458`);
+     once known, it stays known (137);
+   - the grey icon at sector and galaxy view (226);
+   - the notification of a new derelict in a system where the player holds a colony (223).
 3. **yards**:
    - the salvage module, salvage ships and yard designs (Gilad);
    - the salvage hangar;
+   - the switches hide the salvage module, the salvage hangar and the yard designs, and the Globals flag skips the
+     load checks for the salvage default ships (227);
+   - the timer's pause while a yard is in the system (223);
+   - the strip/recover choice on the info panel, and the yard half of the notification (223);
    - the work cycle with a `CargoShuttles` route;
    - landing on the yard;
-   - stripping with production shares and sparks;
+   - stripping with production shares, sparks and the progress ring (223);
    - the hull dissolving;
    - the tech payout with its check;
    - credits for what the yard cannot keep;
