@@ -6144,6 +6144,8 @@ namespace Ship_Game
         ModPackageIncompleteTip = 7121,
         /// <summary>The install did not finish: some files could not be replaced</summary>
         ModInstallUnfinished = 7122,
+        /// <summary>Colonists per Cargo Unit</summary>
+        ColonistsPerCargoUnit = 7123,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

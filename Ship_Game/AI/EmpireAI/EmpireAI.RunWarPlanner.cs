@@ -78,9 +78,9 @@ namespace Ship_Game.AI
 
             // FB - we are Resetting Pirate timers here since status change can be done via communication by the player
             if (OwnerEmpire.WeArePirates)
-                OwnerEmpire.Pirates.ResetPaymentTimerFor(them);
+                OwnerEmpire.Pirates.ResetRefusedPaymentTimerFor(them);
             else if (them.WeArePirates)
-                them.Pirates.ResetPaymentTimerFor(OwnerEmpire);
+                them.Pirates.ResetRefusedPaymentTimerFor(OwnerEmpire);
         }
 
         public void DeclareWarOn(Empire them, WarType warType, bool playerAskedUsToJoin = false)

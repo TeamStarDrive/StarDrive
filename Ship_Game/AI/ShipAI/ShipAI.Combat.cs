@@ -48,7 +48,8 @@ namespace Ship_Game.AI
                           || Owner.IsConstructor
                           || Owner.DesignRole == RoleName.supply 
                           || Owner.DesignRole == RoleName.scout
-                          || Owner.DesignRole == RoleName.troop;
+                          || Owner.DesignRole == RoleName.troop
+                          || Owner.IsMiningShip;
         }
 
         // Allow controlling the Trigger delay for ships

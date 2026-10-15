@@ -129,7 +129,12 @@ namespace Ship_Game
 
             if (SelectedShip != null)
             {
-                if (input.DebugKillShip) // 'X' or 'Delete'
+                if (input.DebugKillShip && input.IsCtrlKeyDown) // Ctrl + 'X' or 'Delete': dies as a derelict, if it can be one
+                {
+                    Ship ship = SelectedShip;
+                    RunOnSimThread(() => ship.DebugDieAsDerelict());
+                }
+                else if (input.DebugKillShip) // 'X' or 'Delete'
                 {
                     // Apply damage as a percent of module health to all modules.
                     var damage = input.IsShiftKeyDown ? 0.9f : 1f;

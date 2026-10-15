@@ -64,7 +64,10 @@ namespace Ship_Game
         }
 
         public int MinimumColoniesForPayment   => Owner.data.MinimumColoniesForStartPayment;
-        int PaymentPeriodTurns                 => (int)(Owner.data.PiratePaymentPeriodTurns * Owner.Universe.ProductionPace);
+        // not scaled by pace: tribute is demanded on the same turns at every pace
+        int PaymentPeriodTurns                 => Owner.data.PiratePaymentPeriodTurns;
+        // scaled by pace: the threat each refusal adds keeps the game's pace
+        int RefusedPaymentPeriodTurns          => (int)(PaymentPeriodTurns * Owner.Universe.ProductionPace);
         public bool PaidBy(Empire victim)      => !Owner.IsAtWarWith(victim);
 
         public void AddGoalDirectorPayment(Empire victim) => 
@@ -136,6 +139,7 @@ namespace Ship_Game
         public int PaymentTimerFor(Empire victim)          => PaymentTimers[victim.Id];
         public void DecreasePaymentTimerFor(Empire victim) => PaymentTimers[victim.Id] -= 1;
         public void ResetPaymentTimerFor(Empire victim)    => PaymentTimers[victim.Id] = PaymentPeriodTurns;
+        public void ResetRefusedPaymentTimerFor(Empire victim) => PaymentTimers[victim.Id] = RefusedPaymentPeriodTurns;
 
         public void IncreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, ThreatLevels[victim.Id] + 1);
         public void DecreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim,  ThreatLevels[victim.Id] - 1);

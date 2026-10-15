@@ -1,0 +1,242 @@
+using System;
+using SDGraphics;
+using SDUtils;
+using Ship_Game.Audio;
+using Ship_Game.Graphics;
+using Ship_Game.Graphics.Particles;
+using Ship_Game.Universe;
+using Ship_Game.Utils;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Rendering;
+using Color = Microsoft.Xna.Framework.Color;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
+using Matrix = SDGraphics.Matrix;
+
+namespace Ship_Game.Ships;
+
+// a ship that died without exploding: it breaks up and drifts on with its lights out, tumbling and smoking, then sinks away
+public sealed class Derelict
+{
+    // a salvageable derelict stops over this time and stays put; a drifting one keeps going and sinks after its breakup
+    public const float StopSeconds = 10f;
+    public const float MinBreakupSeconds = 3f;
+    public const float MaxBreakupSeconds = 5f;
+    public const float SinkSpeed = 50f;
+    public const float RemoveDepth = 5000f;
+    // it shrinks as it sinks, to this share of its size at the removal depth
+    public const float ScaleAtRemoval = 0.1f;
+    // smoke from 20% of its modules at death, thinning out to the last six over 60 s
+    public const float SmokeSourcesPerModule = 0.2f;
+    public const int MinSmokeSources = 6;
+    public const float SmokeThinSeconds = 60f;
+    // the breakup's small blasts, with their volume and limit in AudioConfig.yaml
+    public const string BreakupBlastSound = "sd_derelict_breakup";
+
+    struct SmokeSource
+    {
+        public Vector3 Local;
+        public float Area;
+        public ShipModuleType Type;
+        public ShipModuleDamageVisualization Visual;
+    }
+
+    readonly UniverseState Universe;
+    SceneObject So;
+    readonly Vector2 MeshOffset;
+    readonly Vector2 DriftVelocity;
+    readonly Vector3 Spin; // radians per second around the X, Y and Z axes
+    readonly SmokeSource[] Smoke;
+    readonly float LightsAtDeath;
+    readonly AudioEmitter BlastEmitter = new(maxDistance: GameAudio.ShipSfxDistance);
+    float NextBlast;
+
+    public readonly float Radius;
+    public readonly float BreakupSeconds;
+    public readonly bool Salvageable;
+    public Vector2 Position { get; private set; }
+    public float Z { get; private set; }
+    public float Age { get; private set; }
+    public float RotationX { get; private set; }
+    public float RotationY { get; private set; }
+    public float RotationZ { get; private set; }
+    public int NumSmokeSources => Smoke.Length;
+    public bool InScene => So != null;
+
+    public int NumSmokingNow
+    {
+        get
+        {
+            int last = Math.Min(MinSmokeSources, Smoke.Length);
+            float thinned = (Age / SmokeThinSeconds).Clamped(0f, 1f);
+            return Smoke.Length - (int)((Smoke.Length - last) * thinned);
+        }
+    }
+
+    public Derelict(Ship ship, SceneObject so, bool salvageable = false)
+    {
+        Universe = ship.Universe;
+        So = so;
+        Salvageable = salvageable;
+        MeshOffset = ship.ShipData.BaseHull.MeshOffset;
+        Radius = ship.Radius;
+        Position = ship.Position;
+        RotationX = ship.XRotation;
+        RotationY = ship.YRotation;
+        RotationZ = ship.Rotation;
+        LightsAtDeath = ship.LightsOut ? 0f : 1f;
+
+        Vector2 velocity = ship.Velocity;
+        float speed = velocity.Length();
+        if (speed > ship.MaxSTLSpeed)
+            velocity *= ship.MaxSTLSpeed / speed;
+        DriftVelocity = velocity;
+
+        var random = Universe.Random;
+        float spin = 50f / ship.SurfaceArea;
+        Spin = new(random.Float(-1f, 1f) * spin, random.Float(-1f, 1f) * spin, random.Float(-1f, 1f) * spin);
+        BreakupSeconds = random.Float(MinBreakupSeconds, MaxBreakupSeconds);
+        Smoke = PickSmokeSources(ship);
+
+        GameAudio.PlaySfxAsync("sd_explosion_ship_det_small", ship.SoundEmitter);
+        SpaceJunk.SpawnJunk(Universe, (int)(Radius * 0.03f), Position, DriftVelocity, ship,
+                            maxSize: Radius * 0.1f, ignite: true);
+    }
+
+    // dead modules first, then damaged ones; conduits only spark, so they are left out
+    static SmokeSource[] PickSmokeSources(Ship ship)
+    {
+        var dead = new Array<ShipModule>();
+        var damaged = new Array<ShipModule>();
+        ShipModule[] modules = ship.Modules;
+        for (int i = 0; i < modules.Length; ++i)
+        {
+            ShipModule m = modules[i];
+            if (!m.CanVisualizeDamage || m.ModuleType == ShipModuleType.PowerConduit)
+                continue;
+            if (!m.Active)
+                dead.Add(m);
+            else if (m.Health < m.ActualMaxHealth)
+                damaged.Add(m);
+        }
+
+        int wanted = Math.Max(MinSmokeSources, (int)(modules.Length * SmokeSourcesPerModule + 0.5f));
+        var sources = new Array<SmokeSource>();
+        AddRandomSources(sources, wanted, dead, ship.Universe.Random);
+        AddRandomSources(sources, wanted, damaged, ship.Universe.Random);
+        return sources.ToArray();
+    }
+
+    static void AddRandomSources(Array<SmokeSource> sources, int wanted, Array<ShipModule> modules, RandomBase random)
+    {
+        while (sources.Count < wanted && modules.Count > 0)
+        {
+            int pick = random.InRange(modules.Count);
+            ShipModule m = modules[pick];
+            modules.RemoveAtSwapLast(pick);
+            sources.Add(new()
+            {
+                Local = new(m.LocalCenter, m.HullSurfaceZ),
+                Area = m.Area,
+                Type = m.ModuleType,
+            });
+        }
+    }
+
+    public Vector2 VelocityNow => Salvageable ? DriftVelocity * (1f - Age / StopSeconds).Clamped(0f, 1f) : DriftVelocity;
+
+    public float Scale => 1f - (1f - ScaleAtRemoval) * (Z / RemoveDepth).Clamped(0f, 1f);
+
+    // false once it has sunk out of sight and left the scene
+    public bool Update(FixedSimTime timeStep)
+    {
+        SceneObject so = So;
+        if (so == null)
+            return false;
+
+        float dt = timeStep.FixedTime;
+        Position += VelocityNow * dt;
+        Age += dt;
+        if (!Salvageable && Age > BreakupSeconds)
+            Z += SinkSpeed * dt;
+
+        if (Z >= RemoveDepth)
+        {
+            RemoveSceneObject();
+            return false;
+        }
+
+        float scale = Scale;
+        bool visible = Universe.IsSystemViewOrCloser && Universe.Screen.IsInFrustum(new Vector3(Position, Z), Radius * scale);
+        so.Visibility = visible ? GlobalStats.ShipVisibility : ObjectVisibility.None;
+        if (!visible)
+        {
+            for (int i = 0; i < Smoke.Length; ++i)
+                Smoke[i].Visual = null;
+            return true;
+        }
+
+        RotationX += Spin.X * dt;
+        RotationY += Spin.Y * dt;
+        RotationZ = (RotationZ + Spin.Z * dt).AsNormalizedRadians();
+
+        Matrix rotation = Matrix.CreateRotationY(RotationY) * Matrix.CreateRotationX(RotationX) * Matrix.CreateRotationZ(RotationZ);
+        var center = new Vector3(Position, Z);
+        so.World = Matrix.CreateTranslation(new Vector3(MeshOffset, 0f)) * Matrix.CreateScale(scale)
+                 * rotation * Matrix.CreateTranslation(center);
+        so.EmissiveScale = Age < BreakupSeconds ? LightsAtDeath * FluorescentLight.Level(FluorescentLight.TurnOff, Age / BreakupSeconds) : 0f;
+
+        ParticleManager particles = Universe.Screen.Particles;
+        if (dt <= 0f || particles == null)
+            return true;
+
+        if (Age < BreakupSeconds)
+            UpdateBreakup(dt, particles);
+
+        int smoking = NumSmokingNow;
+        for (int i = 0; i < Smoke.Length; ++i)
+        {
+            ref SmokeSource s = ref Smoke[i];
+            if (i >= smoking)
+            {
+                s.Visual = null;
+                continue;
+            }
+            Vector3 pos = (s.Local * scale).Transform(rotation) + center;
+            s.Visual ??= new ShipModuleDamageVisualization(s.Area, pos, s.Type, particles);
+            s.Visual.Update(timeStep, pos, scale: scale, isAlive: false);
+        }
+        return true;
+    }
+
+    void UpdateBreakup(float dt, ParticleManager particles)
+    {
+        var random = Universe.Random;
+        Vector2 velocity = VelocityNow;
+        if ((NextBlast -= dt) <= 0f)
+        {
+            NextBlast = random.Float(0.15f, 0.5f);
+            var pos = new Vector3(Position + random.Vector2D(Radius * 0.5f), Z);
+            ExplosionManager.AddExplosion(Universe.Screen, pos, velocity, Radius * 0.5f, 2.5f, ExplosionType.Projectile);
+            particles.Flash.AddParticle(pos);
+            BlastEmitter.Position = pos;
+            GameAudio.PlaySfxAsync(BreakupBlastSound, BlastEmitter);
+        }
+        if (random.RollDice(50))
+        {
+            var pos = new Vector3(Position + random.Vector2D(Radius * 0.5f), Z);
+            particles.Lightning.AddParticle(pos, new Vector3(velocity, 0f), 0.5f, Color.White);
+        }
+    }
+
+    public void RemoveSceneObject()
+    {
+        if (So != null)
+        {
+            Universe.Screen.RemoveObject(So);
+            So = null;
+        }
+        for (int i = 0; i < Smoke.Length; ++i)
+            Smoke[i].Visual = null;
+    }
+}

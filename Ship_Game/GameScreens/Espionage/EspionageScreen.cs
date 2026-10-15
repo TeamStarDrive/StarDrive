@@ -44,9 +44,10 @@ namespace Ship_Game.GameScreens.Espionage
 
 
             var ourRect = new Rectangle(ScreenWidth / 2 - 700, (ScreenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 660);
-            Add(new Menu2(ourRect));
+            var menuRect = HelperFunctions.WidenForRaceRow(ourRect, Universe.UState.MajorEmpires.Length);
+            Add(new Menu2(menuRect));
 
-            CloseButton(ourRect.Right - 40, ourRect.Y + 20);
+            CloseButton(menuRect.Right - 40, menuRect.Y + 20);
 
             var agentsRect     = new Rectangle(ourRect.X + 60,         ourRect.Y + 250, 368, 376);
             var dossierRect    = new Rectangle(agentsRect.Right + 30,  agentsRect.Y,    368, 376);

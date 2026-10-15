@@ -27,6 +27,13 @@ namespace Ship_Game
             return input.InGameSelect && toClick.HitTest(input.CursorPosition);
         }
 
+        // a race row puts a portrait every 148 px: the menu widens to fit it, up to the 1680 px minimum screen width
+        public static Rectangle WidenForRaceRow(in Rectangle menu, int numRaces)
+        {
+            int width = (148 * numRaces + 60).Clamped(menu.Width, 1680);
+            return new Rectangle(menu.X + (menu.Width - width) / 2, menu.Y, width, menu.Height);
+        }
+
         private static FleetDesign LoadFleetDesign(string fleetUid)
         {
             string designPath = fleetUid + ".yaml";

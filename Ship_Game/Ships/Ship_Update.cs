@@ -94,6 +94,12 @@ namespace Ship_Game.Ships
             }
         }
 
+        // the scene object now belongs to a derelict, so removing this ship leaves it in the scene
+        public void ReleaseSceneObject()
+        {
+            ShipSO = null;
+        }
+
         void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
             bool visibleToPlayer = forceVisible || IsVisibleToPlayer;

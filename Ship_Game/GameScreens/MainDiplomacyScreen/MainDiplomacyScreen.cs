@@ -457,6 +457,11 @@ namespace Ship_Game
                 }
                 DrawStat(Localizer.Token(GameText.FtlSpeedMultiplier), string.Concat(SelectedEmpire.data.FTLModifier, "x"), ref textCursor);
                 DrawStat(Localizer.Token(GameText.FtlPowerDrainModifier), string.Concat(SelectedEmpire.data.FTLPowerDrainModifier, "x"), ref textCursor);
+                float passengers = SelectedEmpire.data.Traits.PassengerModifier;
+                if (passengers > 1f)
+                    DrawGoodStat(Localizer.Token(GameText.ColonistsPerCargoUnit), passengers.String(2)+"x", ref textCursor);
+                else if (passengers < 1f)
+                    DrawBadStat(Localizer.Token(GameText.ColonistsPerCargoUnit), passengers.String(2)+"x", ref textCursor);
                 if (SelectedEmpire.data.FuelCellModifier != 0)
                     DrawStat(Localizer.Token(GameText.FuelCellModifier), SelectedEmpire.data.FuelCellModifier, ref textCursor, false);
                 if (SelectedEmpire.data.SubLightModifier != 1)
@@ -697,8 +702,9 @@ namespace Ship_Game
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DiplomaticOverview)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             LeftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 700);
-            DMenu = new Menu2(LeftRect);
-            Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
+            Rectangle menuRect = HelperFunctions.WidenForRaceRow(LeftRect, Universe.UState.MajorEmpires.Length);
+            DMenu = new Menu2(menuRect);
+            Add(new CloseButton(menuRect.Right - 40, menuRect.Y + 20));
             SelectedInfoRect = new Rectangle(LeftRect.X + 60, LeftRect.Y + 250, 368, 376);
             IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
