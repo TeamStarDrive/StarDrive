@@ -3,8 +3,8 @@
 An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
 into `base` as fixes land. Status (2026-10-15): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. `base` is level with `jupiter-1.60/fixes_50`, and sub-branch 2 (salvageable) is
-cut from it; the rest is planned. Decisions 119-176, 178-190 and 222-229 are all settled; 168-175 came from the review
-of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-229 from the start of
+cut from it; the rest is planned. Decisions 119-176, 178-190, 222-229 and 231 are all settled; 168-175 came from the review
+of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-229 and 231 from the start of
 phase 2. The fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list
 safe on the sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -36,7 +36,7 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   derelict with no roll, and does nothing to a ship that cannot become one. Like any unseen drifting death, a ship that
   is not on screen at system view or closer leaves nothing. Ctrl+Shift+X (or Ctrl+Shift+Delete) destroys it as a
   salvageable derelict, seen or not, and does nothing unless it would stop where a salvageable one can be (in a system,
-  clear of radiation, salvage ops on) and the 40 salvageable derelicts are not all there.
+  clear of radiation, salvage ops on) and the 100 salvageable derelicts are not all there.
 - **Where:** the stop point decides, and it is known at death: a salvageable derelict slows linearly to a stop over
   10 s, so it stops 5 s worth of its drift speed from where it died. A stop inside a system makes a **salvageable**
   derelict. Two cases make a **drifting** derelict instead, and only when the death is visible (125):
@@ -48,8 +48,8 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   171).
 - **How many:**
   - The universe keeps the list of derelicts (129).
-  - Base chance 35%, times (1 - salvageable / MaxSalvageableDerelicts), with the limit 40 as a Globals knob
-    (129, 142). At the limit the chance is 0; a death that rolled just before it was reached leaves a drifting
+  - Base chance 10%, times (1 - salvageable / MaxSalvageableDerelicts), with the limit 100 as a Globals knob
+    (129, 142; 35% and 40 until 231). At the limit the chance is 0; a death that rolled just before it was reached leaves a drifting
     derelict if it was seen, and nothing if it was not.
   - At most 100 drifting derelicts at once (142, raised from 20 by 188); past that, a visible death shows the
     normal explosion with no blast (170).
@@ -80,7 +80,9 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   - When the timer runs out it sinks away like a drifting derelict.
   - **Its model (224):** a derelict from an unseen death, or one loaded from a save, has no model. It loads one from
     its hull on the UI thread the first time it is on screen at system view or closer and known to the player, and
-    keeps it until it sinks away. At most 40 exist, so it needs no 15 s cleanup like ships.
+    keeps it until it sinks away. At most 100 exist, so it needs no 15 s cleanup like ships. A content reload (Apply
+    in the options) takes every model out of the scene: the salvageable derelicts stay and load theirs again when next
+    seen, and the drifting and sinking ones are gone.
   - **Its smoke after a load (225):** the save keeps the smoke points that are left after the 60 s thin-out, at
     most 6, so a loaded derelict smokes from the same places.
   - **On the map (226):** the player sees only the derelicts the player knows of (137). At sector and galaxy view a

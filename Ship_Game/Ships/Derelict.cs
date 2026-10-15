@@ -2,6 +2,7 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Universe;
@@ -36,12 +37,30 @@ public sealed class Derelict
     // a salvageable derelict lasts this many turns, times the production pace, then sinks away
     public const int SalvageableTurns = 100;
 
-    struct SmokeSource
+    [StarDataType]
+    public struct SmokeSource
     {
-        public Vector3 Local;
-        public float Area;
-        public ShipModuleType Type;
-        public ShipModuleDamageVisualization Visual;
+        [StarData] public Vector3 Local;
+        [StarData] public float Area;
+        [StarData] public ShipModuleType Type;
+        internal ShipModuleDamageVisualization Visual;
+    }
+
+    // what a save keeps of a salvageable derelict: no model, and only the smoke left after the thin-out
+    [StarDataType]
+    public sealed class SaveData
+    {
+        [StarData] public IShipDesign Design;
+        [StarData] public Empire Owner;
+        [StarData] public Vector2 Position;
+        [StarData] public Vector2 DriftVelocity;
+        [StarData] public Vector3 Rotation;
+        [StarData] public Vector3 Spin;
+        [StarData] public float Radius;
+        [StarData] public float Age;
+        [StarData] public int TurnsLeft;
+        [StarData] public bool[] KnownBy;
+        [StarData] public SmokeSource[] Smoke;
     }
 
     readonly UniverseState Universe;
@@ -121,6 +140,48 @@ public sealed class Derelict
         GameAudio.PlaySfxAsync("sd_explosion_ship_det_small", ship.SoundEmitter);
         SpaceJunk.SpawnJunk(Universe, (int)(Radius * 0.03f), Position, DriftVelocity, ship,
                             maxSize: Radius * 0.1f, ignite: true);
+    }
+
+    // from a save: a salvageable derelict with its lights out and no model until the player sees it
+    public Derelict(UniverseState universe, SaveData save)
+    {
+        Universe = universe;
+        Design = save.Design.IsAnExistingSavedDesign ? ResourceManager.Ships.GetDesign(save.Design.Name) : save.Design;
+        Owner = save.Owner;
+        Salvageable = true;
+        MeshOffset = Design.BaseHull.MeshOffset;
+        Radius = save.Radius;
+        Position = save.Position;
+        DriftVelocity = save.DriftVelocity;
+        RotationX = save.Rotation.X;
+        RotationY = save.Rotation.Y;
+        RotationZ = save.Rotation.Z;
+        Spin = save.Spin;
+        Age = save.Age;
+        TurnsLeft = save.TurnsLeft;
+        KnownBy = save.KnownBy ?? new bool[universe.NumEmpires];
+        Smoke = save.Smoke ?? Empty<SmokeSource>.Array;
+    }
+
+    public SaveData ToSave()
+    {
+        var smoke = new SmokeSource[Math.Min(MinSmokeSources, Smoke.Length)];
+        for (int i = 0; i < smoke.Length; ++i)
+            smoke[i] = new() { Local = Smoke[i].Local, Area = Smoke[i].Area, Type = Smoke[i].Type };
+        return new()
+        {
+            Design = Design,
+            Owner = Owner,
+            Position = Position,
+            DriftVelocity = DriftVelocity,
+            Rotation = new(RotationX, RotationY, RotationZ),
+            Spin = Spin,
+            Radius = Radius,
+            Age = Age,
+            TurnsLeft = TurnsLeft,
+            KnownBy = (bool[])KnownBy.Clone(),
+            Smoke = smoke,
+        };
     }
 
     static Vector2 DriftVelocityOf(Ship ship)
@@ -245,6 +306,31 @@ public sealed class Derelict
 
     public float Scale => 1f - (1f - ScaleAtRemoval) * (Z / RemoveDepth).Clamped(0f, 1f);
 
+    Matrix Rotation => Matrix.CreateRotationY(RotationY) * Matrix.CreateRotationX(RotationX) * Matrix.CreateRotationZ(RotationZ);
+
+    Matrix World(in Matrix rotation, float scale)
+    {
+        return Matrix.CreateTranslation(new Vector3(MeshOffset, 0f)) * Matrix.CreateScale(scale)
+             * rotation * Matrix.CreateTranslation(new Vector3(Position, Z));
+    }
+
+    // on the UI thread: a salvageable one with no model wants it once the player knows of it and it is on screen
+    public bool WantsModel => So == null && CanBeSalvaged && KnownByPlayer && Universe.IsSystemViewOrCloser
+                              && Universe.Screen.IsInFrustum(new Vector3(Position, Z), Radius);
+
+    // under the list's lock; it keeps the model until it sinks away or the content reloads, so it needs no cleanup like a ship's
+    public bool AttachModel(SceneObject so)
+    {
+        if (So != null || !CanBeSalvaged)
+            return false;
+        so.World = World(Rotation, Scale);
+        so.EmissiveScale = 0f;
+        so.Visibility = GlobalStats.ShipVisibility;
+        So = so;
+        Universe.Screen.AddObject(so);
+        return true;
+    }
+
     // false once it has sunk out of sight and left the scene; one with no model is gone once it starts to sink
     public bool Update(FixedSimTime timeStep)
     {
@@ -280,10 +366,9 @@ public sealed class Derelict
         RotationY += Spin.Y * dt;
         RotationZ = (RotationZ + Spin.Z * dt).AsNormalizedRadians();
 
-        Matrix rotation = Matrix.CreateRotationY(RotationY) * Matrix.CreateRotationX(RotationX) * Matrix.CreateRotationZ(RotationZ);
+        Matrix rotation = Rotation;
         var center = new Vector3(Position, Z);
-        so.World = Matrix.CreateTranslation(new Vector3(MeshOffset, 0f)) * Matrix.CreateScale(scale)
-                 * rotation * Matrix.CreateTranslation(center);
+        so.World = World(rotation, scale);
         so.EmissiveScale = Age < BreakupSeconds ? LightsAtDeath * FluorescentLight.Level(FluorescentLight.TurnOff, Age / BreakupSeconds) : 0f;
 
         ParticleManager particles = Universe.Screen.Particles;
