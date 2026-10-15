@@ -457,6 +457,11 @@ namespace Ship_Game
                 }
                 DrawStat(Localizer.Token(GameText.FtlSpeedMultiplier), string.Concat(SelectedEmpire.data.FTLModifier, "x"), ref textCursor);
                 DrawStat(Localizer.Token(GameText.FtlPowerDrainModifier), string.Concat(SelectedEmpire.data.FTLPowerDrainModifier, "x"), ref textCursor);
+                float passengers = SelectedEmpire.data.Traits.PassengerModifier;
+                if (passengers > 1f)
+                    DrawGoodStat(Localizer.Token(GameText.ColonistsPerCargoUnit), passengers.String(2)+"x", ref textCursor);
+                else if (passengers < 1f)
+                    DrawBadStat(Localizer.Token(GameText.ColonistsPerCargoUnit), passengers.String(2)+"x", ref textCursor);
                 if (SelectedEmpire.data.FuelCellModifier != 0)
                     DrawStat(Localizer.Token(GameText.FuelCellModifier), SelectedEmpire.data.FuelCellModifier, ref textCursor, false);
                 if (SelectedEmpire.data.SubLightModifier != 1)

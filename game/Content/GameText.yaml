@@ -3174,7 +3174,7 @@ BB_Tech_Cryogenics_Desc:
  PTB: "Criogenia é a ciência de suspender as funções vitais de um organismo por congelamento. Mesmo que os equipamentos criogênicos sejam volumosos, é possível transportar muito mais pessoas com criogenia do que sem ela."
 BB_Tech_Cryogenics_PassengerModifier_Bonus:
  Id: 540
- ENG: "Doubles the amount of colonists carried by passenger ships within your empire"
+ ENG: "Passenger ships carry one more load of colonists: twice as many as without it, or four times instead of three for races with Manifest Destiny."
  RUS: "Удваивает количество колонистов, перевозимых пассажирскими кораблями в пределах вашей империи"
  SPA: "Duplica la cantidad de colonos que pueden llevar las naves de pasajeros dentro de tu imperio"
  UKR: "Подвоює кількість колоністів, що перевозяться пасажирськими кораблями в межах вашої імперії"
@@ -18571,7 +18571,7 @@ TheirInfiltrationLevelWas:
  PTB: "O Nível de Infiltração deles era"
 NotifyLeechedTech:
  Id: 6254
- ENG: "We have leeched 10% from a tech they have\njust researched: "         
+ ENG: "We gained 10% of the cost of a tech they have\njust researched: "         
  RUS: "Мы похитили 10% от технологии, которую они только что\nисследовали: "
  PTB: "Nós drenamos 10% de uma tecnologia que eles\nacabaram de pesquisar: "
 WeIncitedUprise: 
@@ -18711,7 +18711,7 @@ EspioangeOpsLeechTech:
  PTB: "Sugar Tecnologia"
 EspioangeOpsLeechTechTip:
  Id: 6282
- ENG: "When they research a new tech that we do not have, we get 10% of that tech."    
+ ENG: "When they complete a tech we lack, 10% of its cost is added to our progress on it."    
  RUS: "Когда они исследуют новую технологию, которой у нас нет, мы получаем 10% от неё."
  PTB: "Quando eles pesquisarem uma nova tecnologia que não temos, receberemos 10% dessa tecnologia."
 EspioangeOpsSabotageTip:
@@ -19840,6 +19840,9 @@ ModPackageIncompleteTip:
 ModInstallUnfinished:
  Id: 7122
  ENG: "The install did not finish: some files could not be replaced (see blackbox.log). After the restart, open Available Mods and try again."
+ColonistsPerCargoUnit:
+ Id: 7123
+ ENG: "Colonists per Cargo Unit"
 EncCorsairs000_Msg0:
  ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
  RUS: "Дорогие друзья SING,\n\nМы рады видеть прогресс вашей империи. Разве это не захватывающе - колонизировать новые миры и бороться с неизвестной средой? Однако все эти маленькие транспорты, курсирующие от планеты к планете, как послушные пчёлки, слишком уязвимы в глубоком космосе.\n\nПоэтому у нас есть предложение. Вы прямо сейчас заплатите нам MONEY кредитов. Если согласитесь, мы можем пообещать определённый уровень «защиты» для кораблей SING. Если нет - увы, мы ничего обещать не можем.\n\nС уважением,\n    Капитан Марток, независимый торговец и джентльмен"
@@ -22958,7 +22961,7 @@ CodexExpansionPassengerTransportShort:
  ENG: "Moving colonists between worlds"
 CodexExpansionPassengerTransportText:
  Id: 100083
- ENG: "<color=Caption>Why it matters</color>Growth is a share of the people already on a world, so an empty colony grows slowly until it has a base to grow from; see Population under The Colony Screen. Freighters carrying colonists give it that base.\n\n<color=Caption>How it works</color>A freighter takes people from a world that is above 90% full with a capacity over 2 billion, or from a world about to run out of food once it holds more than half a billion, and delivers them to a world below 80% full, or below 90% while a Biosphere in its queue is about to add room. A world giving people away keeps enough to stay at that same line itself, unless it is about to run out of food, so it never ends up taking colonists back. The emptier the destination, the more freighters are sent to it, up to five at once; a world with a capacity over 5 billion takes as many as its empty room needs, up to one per billion of that capacity and never more than 20. With Auto Trade on every freighter carries colonists as needed; with it off, only a freighter you have set to Transport Colonists on its order panel does.\n\n<color=Caption>How many fit</color>Colonists fill a freighter's cargo space like any other good, so a freighter carrying people carries nothing else. Races with the Manifest Destiny trait carry three times as many colonists per unit of cargo, and the Cryogenic Suspension technology adds more."
+ ENG: "<color=Caption>Why it matters</color>Growth is a share of the people already on a world, so an empty colony grows slowly until it has a base to grow from; see Population under The Colony Screen. Freighters carrying colonists give it that base.\n\n<color=Caption>How it works</color>A freighter takes people from a world that is above 90% full with a capacity over 2 billion, or from a world about to run out of food once it holds more than half a billion, and delivers them to a world below 80% full, or below 90% while a Biosphere in its queue is about to add room. A world giving people away keeps enough to stay at that same line itself, unless it is about to run out of food, so it never ends up taking colonists back. The emptier the destination, the more freighters are sent to it, up to five at once; a world with a capacity over 5 billion takes as many as its empty room needs, up to one per billion of that capacity and never more than 20. With Auto Trade on every freighter carries colonists as needed; with it off, only a freighter you have set to Transport Colonists on its order panel does.\n\n<color=Caption>How many fit</color>Colonists fill a freighter's cargo space like any other good, so a freighter carrying people carries nothing else. Races with the Manifest Destiny trait carry three times as many colonists per unit of cargo, and the Cryogenics technology adds one load more: twice as many for other races, four times for Manifest Destiny."
 CodexExpansionDeepSpaceBuilding:
  Id: 100084
  ENG: "Deep Space Building"
