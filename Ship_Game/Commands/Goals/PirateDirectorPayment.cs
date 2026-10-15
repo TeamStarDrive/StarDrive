@@ -82,7 +82,7 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.PaidBy(TargetEmpire) && TargetEmpire.isPlayer && Pirates.ThreatLevelFor(TargetEmpire) > -1)
             {
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                Pirates.ResetPaymentTimerFor(TargetEmpire);
+                Pirates.ResetRefusedPaymentTimerFor(TargetEmpire);
                 return false;
             }
 
