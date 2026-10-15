@@ -180,6 +180,7 @@ namespace Ship_Game.Universe
 
         // TODO: Encapsulate
         public Array<SpaceJunk> JunkList = new();
+        public readonly Derelicts Derelicts = new();
 
         public DebugInfoScreen DebugWin => Screen.DebugWin;
         public NotificationManager Notifications => Screen.NotificationManager;
@@ -500,6 +501,7 @@ namespace Ship_Game.Universe
             }
 
             ClearSpaceJunk();
+            Derelicts.Clear();
         }
 
         void ClearSystems()

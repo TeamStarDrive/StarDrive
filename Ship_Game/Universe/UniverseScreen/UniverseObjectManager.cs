@@ -272,6 +272,7 @@ namespace Ship_Game
                     if (removeInactiveObjects)
                     {
                         UState.OnShipRemoved(ship);
+                        ship.LeaveDerelict();
                         ship.RemoveFromUniverseUnsafe();
                     }
                 }

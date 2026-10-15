@@ -20,11 +20,12 @@ namespace Ship_Game.Ships
         }
 
         public ShipModuleDamageVisualization(ShipModule module, ParticleManager p)
+            : this(module.Area, module.Center3D, module.ModuleType, p)
         {
-            float area = module.Area;
-            Vector3 center = module.Center3D;
-            ShipModuleType type = module.ModuleType;
+        }
 
+        public ShipModuleDamageVisualization(float area, in Vector3 center, ShipModuleType type, ParticleManager p)
+        {
             switch (type) // FB: other special effects based on some module types, use main moduletypes for performance sake
             {
                 case ShipModuleType.Shield: Lightning = p.Lightning.NewEmitter(40, center, 0.1f*area); break;
