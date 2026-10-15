@@ -86,6 +86,10 @@ public class UniverseParams
     [StarData] public bool FixedPlayerCreditCharge;
     [StarData] public bool DisableResearchStations;
     [StarData] public bool DisableMiningOps;
+    [StarData] public bool DisableSalvageOps;
+
+    // the mod's Globals flag is a hard switch: a mod without salvage content keeps them off whatever the rule option says
+    public bool SalvageOps => !DisableSalvageOps && GlobalStats.Defaults.EnableSalvageOps;
 
     public bool DebugDisableShipLaunch; // Only for testing
 
@@ -106,6 +110,7 @@ public class UniverseParams
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;
         DisablePirates = s.DisablePirates;
+        DisableSalvageOps = !s.EnableSalvageOps;
         EnableRandomizedAIFleetSizes = s.EnableRandomizedAIFleetSizes;
     }
 

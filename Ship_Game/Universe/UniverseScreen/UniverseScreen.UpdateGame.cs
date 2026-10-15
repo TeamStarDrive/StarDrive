@@ -213,6 +213,8 @@ namespace Ship_Game
             InvokePendingSimThreadActions();
 
             Array<Empire> updated = ProcessTurnEmpires(timeStep);
+            if (updated.ContainsRef(Player))
+                UState.Derelicts.UpdateTurn();
 
             if (!UState.Paused)
             {

@@ -9,6 +9,8 @@ using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
+using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -22,13 +24,17 @@ namespace UnitTests.Ships;
 /// <summary>
 /// Some deaths of frigates and bigger military ships, and of stations on their own, leave a derelict: no main
 /// explosion and no death blast. On screen it breaks up and drifts on with its lights out, tumbling and smoking,
-/// then sinks away. Unseen, or past the cap of drifting derelicts, it leaves nothing, still with no blast.
+/// then sinks away. One that stops in a system outside the star's radiation, with salvage ops on, is salvageable:
+/// it stays there, seen or not, until its turns run out. Unseen elsewhere, or past the cap of drifting derelicts,
+/// it leaves nothing, still with no blast.
 /// </summary>
 [TestClass]
 public class DerelictTests : StarDriveTest
 {
     readonly float DerelictChance = GlobalStats.Defaults.DerelictChance;
     readonly int MaxDriftingDerelicts = GlobalStats.Defaults.MaxDriftingDerelicts;
+    readonly int MaxSalvageableDerelicts = GlobalStats.Defaults.MaxSalvageableDerelicts;
+    readonly bool EnableSalvageOps = GlobalStats.Defaults.EnableSalvageOps;
 
     public DerelictTests()
     {
@@ -38,10 +44,13 @@ public class DerelictTests : StarDriveTest
         CreateUniverseAndPlayerEmpire();
     }
 
+    [TestCleanup]
     public override void Cleanup()
     {
         GlobalStats.Defaults.DerelictChance = DerelictChance;
         GlobalStats.Defaults.MaxDriftingDerelicts = MaxDriftingDerelicts;
+        GlobalStats.Defaults.MaxSalvageableDerelicts = MaxSalvageableDerelicts;
+        GlobalStats.Defaults.EnableSalvageOps = EnableSalvageOps;
         UState.Derelicts.Clear();
         Universe.Particles?.Dispose();
         Universe.Particles = null;
@@ -56,6 +65,8 @@ public class DerelictTests : StarDriveTest
         Universe.Frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(0, 1_000_000, 1_000_000, 0, -10_000, 10_000));
         UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
     }
+
+    static Derelict Drifting(Ship ship, SceneObject so) => new(ship, so, salvageable: false, seen: true);
 
     static SceneObject GiveSceneObject(Ship ship)
     {
@@ -253,13 +264,54 @@ public class DerelictTests : StarDriveTest
         MakeVisible(ship);
 
         corvette.InFrustum = false; // off screen, an ordinary death never tumbles, so it would show as dead
-        corvette.DebugDieAsDerelict();
+        corvette.DebugDieAsDerelict(salvageable: false);
         AssertTrue(corvette.Active, "a corvette cannot become a derelict, so nothing happens to it");
 
-        ship.DebugDieAsDerelict();
+        ship.DebugDieAsDerelict(salvageable: false);
         AssertFalse(ship.Active, "the dreadnought is destroyed");
         UState.Objects.Update(TestSimStep);
         AssertEqual(1, UState.Derelicts.Count, "as a derelict, with no roll");
+    }
+
+    [TestMethod]
+    public void TheDebugKeysMakeADriftingOrInASystemASalvageableDerelict()
+    {
+        ViewEverything();
+        GlobalStats.Defaults.DerelictChance = 0;
+        AddSystem();
+        Vector2 inSystem = SystemSite + new Vector2(30_000f, 0);
+
+        Ship seen = SpawnPlainShip("Dreadnought mk1-a", inSystem);
+        UState.Objects.Update(TestSimStep);
+        GiveSceneObject(seen);
+        MakeVisible(seen);
+        seen.DebugDieAsDerelict(salvageable: false);
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(1, UState.Derelicts.Count, "Ctrl+X: a seen death leaves a derelict, even in a system");
+        AssertFalse(Newest().Salvageable, "a drifting one");
+
+        Ship unseen = SpawnPlainShip("Dreadnought mk1-a", inSystem);
+        AssertFalse(unseen.IsVisibleToPlayer, "setup: off screen");
+        unseen.DebugDieAsDerelict(salvageable: false);
+        AssertFalse(unseen.Active, "setup: destroyed");
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(1, UState.Derelicts.Count, "unseen, it leaves nothing, like any unseen drifting one");
+
+        Ship salvaged = SpawnPlainShip("Dreadnought mk1-a", inSystem);
+        salvaged.DebugDieAsDerelict(salvageable: true);
+        AssertFalse(salvaged.Active, "Ctrl+Shift+X destroys a ship in a system");
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(2, UState.Derelicts.Count, "and leaves a derelict, seen or not");
+        AssertTrue(Newest().CanBeSalvaged, "a salvageable one");
+
+        Ship deepSpace = SpawnPlainShip("Dreadnought mk1-a", Site(0));
+        deepSpace.DebugDieAsDerelict(salvageable: true);
+        AssertTrue(deepSpace.Active, "outside every system it cannot be salvageable, so nothing happens to it");
+
+        GlobalStats.Defaults.MaxSalvageableDerelicts = 1;
+        Ship overLimit = SpawnPlainShip("Dreadnought mk1-a", inSystem);
+        overLimit.DebugDieAsDerelict(salvageable: true);
+        AssertTrue(overLimit.Active, "nor when the salvageable derelicts are all there");
     }
 
     [TestMethod]
@@ -342,7 +394,7 @@ public class DerelictTests : StarDriveTest
         UState.Objects.Update(TestSimStep);
         AssertGreaterThan(ship.MaxSTLSpeed, 0f, "setup: the ship has a top sublight speed");
         ship.Velocity = new Vector2(ship.MaxSTLSpeed * 10f, 0f); // it died at warp
-        var d = new Derelict(ship, new SceneObject(ship.Name));
+        Derelict d = Drifting(ship, new SceneObject(ship.Name));
         float startX = d.Position.X;
 
         d.Update(FixedSimTime.Zero);
@@ -376,7 +428,7 @@ public class DerelictTests : StarDriveTest
         TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
         UState.Objects.Update(TestSimStep);
         ship.Velocity = new Vector2(ship.MaxSTLSpeed, 0f);
-        var d = new Derelict(ship, new SceneObject(ship.Name), salvageable: true);
+        var d = new Derelict(ship, new SceneObject(ship.Name), salvageable: true, seen: true);
         float startX = d.Position.X;
 
         Step(d, Derelict.StopSeconds);
@@ -400,7 +452,7 @@ public class DerelictTests : StarDriveTest
         TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
         UState.Objects.Update(TestSimStep);
         var so = new SceneObject(ship.Name);
-        var d = new Derelict(ship, so);
+        Derelict d = Drifting(ship, so);
 
         Step(d, d.BreakupSeconds);
         AssertEqual(GlobalStats.ShipVisibility, so.Visibility, "setup: on screen, so it is drawn");
@@ -419,11 +471,11 @@ public class DerelictTests : StarDriveTest
     public void TheListDropsDerelictsThatSankAwayAndClearsTheRest()
     {
         TestShip noHull = SpawnShip("Dreadnought mk1-a", Player, Site(0));
-        AssertFalse(UState.Derelicts.TryAdd(noHull), "a ship with no scene object leaves no derelict");
+        AssertFalse(UState.Derelicts.TryAdd(noHull, salvageable: false, seen: true), "a drifting one needs the ship's scene object");
 
         TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(1));
         GiveSceneObject(ship);
-        AssertTrue(UState.Derelicts.TryAdd(ship), "setup: a derelict");
+        AssertTrue(UState.Derelicts.TryAdd(ship, salvageable: false, seen: true), "setup: a derelict");
         AssertFalse(ship.HasSO, "it took the hull");
         float lifetime = Derelict.MaxBreakupSeconds + Derelict.RemoveDepth / Derelict.SinkSpeed;
         for (int i = 0; i < (int)((lifetime + 1f) / TestSimStepD); ++i)
@@ -431,7 +483,7 @@ public class DerelictTests : StarDriveTest
         AssertEqual(0, UState.Derelicts.Count, "it sank away and left the list");
 
         GiveSceneObject(ship);
-        UState.Derelicts.TryAdd(ship);
+        UState.Derelicts.TryAdd(ship, salvageable: false, seen: true);
         Derelict d = UState.Derelicts.ToArray()[0];
         UState.Derelicts.Clear();
         AssertEqual(0, UState.Derelicts.Count, "cleared");
@@ -452,7 +504,7 @@ public class DerelictTests : StarDriveTest
         AssertTrue(ship.Active, "setup: the ship lives on without them");
 
         var so = new SceneObject(ship.Name);
-        var d = new Derelict(ship, so);
+        Derelict d = Drifting(ship, so);
         AssertGreaterThan(ship.Modules.Length * Derelict.SmokeSourcesPerModule, smoky.Length, "setup: a fifth of its modules is more");
         AssertEqual(smoky.Length, d.NumSmokeSources, "each dead module smokes, as they are fewer than a fifth of its modules");
 
@@ -490,7 +542,7 @@ public class DerelictTests : StarDriveTest
             m.SetHealth(0f, "Test");
         AssertTrue(ship.Active, "setup: the ship lives on without them");
 
-        var d = new Derelict(ship, new SceneObject(ship.Name));
+        Derelict d = Drifting(ship, new SceneObject(ship.Name));
         AssertEqual(fifth, d.NumSmokeSources, "a fifth of its modules smoke");
         AssertEqual(fifth, d.NumSmokingNow, "all of them at first");
 
@@ -530,10 +582,274 @@ public class DerelictTests : StarDriveTest
         AssertTrue(ship.LightsOut, "setup: the reactors are gone and the lights are out");
 
         var so = new SceneObject(ship.Name);
-        var d = new Derelict(ship, so);
+        Derelict d = Drifting(ship, so);
         var lights = new HashSet<float>();
         Step(d, d.BreakupSeconds, () => lights.Add(so.EmissiveScale));
         AssertEqual(1, lights.Count, "no flicker");
         AssertEqual(0f, lights.First(), "the lights stay out");
+    }
+
+    // far from the sites in deep space, and its planet far from where ships die in it
+    static readonly Vector2 SystemSite = new(600_000f, 600_000f);
+
+    SolarSystem AddSystem()
+    {
+        Planet planet = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true);
+        AssertGreaterThan(planet.System.Radius, 100_000f, "setup: the system reaches past the deaths in it");
+        return planet.System;
+    }
+
+    Derelict Newest() => UState.Derelicts.ToArray().Last();
+
+    // a dreadnought dies at the point, seen on screen or unseen, and its removal leaves a derelict or not
+    Ship DieAt(Vector2 position, bool seen, Vector2 velocity = default)
+    {
+        Ship ship = SpawnPlainShip("Dreadnought mk1-a", position);
+        UState.Objects.Update(TestSimStep); // sets its top speed
+        if (seen)
+        {
+            GiveSceneObject(ship);
+            MakeVisible(ship);
+        }
+        if (velocity.Length() > 0f)
+            AssertGreaterThan(ship.MaxSTLSpeed, velocity.Length(), "setup: under the speed cap");
+        ship.Velocity = velocity;
+        ship.Die(null, cleanupOnly: false);
+        UState.Objects.Update(TestSimStep);
+        AssertFalse(ship.Active, "setup: the ship is dead");
+        return ship;
+    }
+
+    [TestMethod]
+    public void AModTurnsSalvageOpsOnItselfAndTheRuleOptionTurnsThemOff()
+    {
+        AssertTrue(GlobalStats.VanillaDefaults.EnableSalvageOps, "vanilla has salvage content");
+        var mod = new GamePlayGlobals();
+        AssertFalse(mod.EnableSalvageOps, "a mod does not inherit the flag");
+        AssertEqual(GlobalStats.VanillaDefaults.MaxSalvageableDerelicts, mod.MaxSalvageableDerelicts, "as it does the other vanilla values");
+
+        var p = new UniverseParams();
+        AssertFalse(p.DisableSalvageOps, "with salvage content the rule option starts unticked");
+        AssertTrue(p.SalvageOps, "so salvage ops are on");
+        p.DisableSalvageOps = true;
+        AssertFalse(p.SalvageOps, "ticked, it turns them off");
+
+        GlobalStats.Defaults.EnableSalvageOps = false;
+        p = new UniverseParams();
+        AssertTrue(p.DisableSalvageOps, "without salvage content it starts ticked");
+        p.DisableSalvageOps = false;
+        AssertFalse(p.SalvageOps, "and unticking it cannot turn them on");
+    }
+
+    [TestMethod]
+    public void AnUnseenDeathInASystemLeavesASalvageableDerelictAlreadyAtItsStopPoint()
+    {
+        GlobalStats.Defaults.DerelictChance = 100;
+        AddSystem();
+        Ship ship = SpawnPlainShip("Dreadnought mk1-a", SystemSite + new Vector2(30_000f, 0));
+        UState.Objects.Update(TestSimStep);
+        SceneObject so = GiveSceneObject(ship); // a ship keeps its hull a while after it leaves the screen
+        AssertFalse(ship.IsVisibleToPlayer, "setup: the death is unseen");
+        ship.Velocity = new Vector2(ship.MaxSTLSpeed, 0f);
+        Vector2 stop = ship.Position + ship.Velocity * (Derelict.StopSeconds / 2f);
+        ship.Die(null, cleanupOnly: false);
+        TakeSceneChanges();
+        UState.Objects.Update(TestSimStep);
+
+        AssertEqual(1, UState.Derelicts.Count, "unseen, it still leaves a derelict in a system");
+        Derelict d = Newest();
+        AssertTrue(d.CanBeSalvaged, "a salvageable one");
+        AssertEqual(1f, stop, d.Position, "already where it would have stopped");
+        AssertEqual(0.001f, 0f, d.VelocityNow.Length(), "and stopped");
+        AssertFalse(d.InScene, "with no model, so a wreck the player may not know of is not drawn");
+        AssertTrue(LeftTheScene(TakeSceneChanges(), so), "the ship's leftover hull goes with the ship");
+        AssertFalse(HasExploded(ship), "and no explosion");
+        AssertEqual(ship.ShipData, d.Design, "it keeps the ship's design");
+        AssertEqual(Player, d.Owner, "and its owner");
+    }
+
+    [TestMethod]
+    public void ASeenDeathInASystemBreaksUpWhereTheShipDiedAndStaysSalvageable()
+    {
+        ViewEverything();
+        GlobalStats.Defaults.DerelictChance = 100;
+        AddSystem();
+        Vector2 site = SystemSite + new Vector2(30_000f, 0);
+        Ship ship = DieAt(site, seen: true, velocity: new Vector2(80f, 0));
+
+        Derelict d = Newest();
+        AssertTrue(d.CanBeSalvaged, "a salvageable derelict");
+        AssertTrue(d.InScene, "with the ship's hull");
+        AssertEqual(1f, site, d.Position, "where the ship died, not where it will stop");
+        AssertGreaterThan(d.VelocityNow.Length(), 0f, "still moving");
+        AssertTrue(d.IsKnownBy(Player), "the player saw it");
+        AssertFalse(HasExploded(ship), "with no explosion");
+    }
+
+    [TestMethod]
+    public void WhereItStopsNotWhereItDiedDecidesTheKind()
+    {
+        ViewEverything();
+        GlobalStats.Defaults.DerelictChance = 100;
+        SolarSystem system = AddSystem();
+        var speed = new Vector2(80f, 0);
+        float drift = speed.X * Derelict.StopSeconds / 2f;
+        Vector2 outside = SystemSite + new Vector2(system.Radius + drift / 2f, 0);
+        Vector2 inside = SystemSite + new Vector2(system.Radius - drift / 2f, 0);
+
+        DieAt(outside, seen: false, velocity: -speed);
+        AssertEqual(1, UState.Derelicts.Count, "dying just outside the system but stopping in it leaves a salvageable derelict, unseen");
+        AssertTrue(Newest().CanBeSalvaged, "a salvageable one");
+        UState.Derelicts.Clear(); // it would lower the chance of the deaths below
+
+        DieAt(inside, seen: false, velocity: speed);
+        AssertEqual(0, UState.Derelicts.Count, "dying just inside but stopping outside leaves nothing unseen");
+        DieAt(inside, seen: true, velocity: speed);
+        AssertEqual(1, UState.Derelicts.Count, "and seen, a derelict");
+        AssertFalse(Newest().Salvageable, "that drifts");
+    }
+
+    [TestMethod]
+    public void OutsideASystemInRadiationOrWithSalvageOpsOffADerelictDriftsAndUnseenItIsNothing()
+    {
+        ViewEverything();
+        GlobalStats.Defaults.DerelictChance = 100;
+        SolarSystem system = AddSystem();
+        system.Sun = SunType.FindSun("star_neutron");
+        AssertGreaterThan(system.Sun.RadiationDamage, 0f, "setup: a star that radiates");
+
+        Vector2 deepSpace = Site(0);
+        Vector2 inRadiation = SystemSite + new Vector2(system.Sun.RadiationRadius * 0.5f, 0);
+        Vector2 nearRadiation = SystemSite + new Vector2(system.Sun.RadiationRadius + 1000f, 0);
+        AssertGreaterThan(system.Radius, system.Sun.RadiationRadius + 1000f, "setup: the margin lies inside the system");
+        AssertTrue(UState.FindClosestSystem(deepSpace).Position.Distance(deepSpace) > system.Radius, "setup: deep space");
+        foreach ((Vector2 site, string where) in new[] { (deepSpace, "outside every system"), (inRadiation, "inside the star's radiation"),
+                                                         (nearRadiation, "within 2000 of the star's radiation") })
+        {
+            int before = UState.Derelicts.Count;
+            DieAt(site, seen: true);
+            AssertEqual(before + 1, UState.Derelicts.Count, $"{where}, a seen death leaves a derelict");
+            AssertFalse(Newest().Salvageable, $"{where}, a drifting one");
+            DieAt(site, seen: false);
+            AssertEqual(before + 1, UState.Derelicts.Count, $"{where}, an unseen death leaves nothing");
+        }
+
+        UState.P.DisableSalvageOps = true;
+        Vector2 inSystem = SystemSite + new Vector2(30_000f, 0);
+        int count = UState.Derelicts.Count;
+        DieAt(inSystem, seen: true);
+        AssertEqual(count + 1, UState.Derelicts.Count, "with salvage ops off, a seen death in a system leaves a derelict");
+        AssertFalse(Newest().Salvageable, "a drifting one");
+        DieAt(inSystem, seen: false);
+        AssertEqual(count + 1, UState.Derelicts.Count, "and an unseen one nothing");
+    }
+
+    [TestMethod]
+    public void SalvageableDerelictsLowerTheChanceToNoneAtTheirLimitThenDrift()
+    {
+        GlobalStats.Defaults.DerelictChance = 40;
+        GlobalStats.Defaults.MaxSalvageableDerelicts = 4;
+        GlobalStats.Defaults.MaxDriftingDerelicts = 2;
+        AssertEqual(0.001f, 40f, UState.Derelicts.Chance, "with none, the full chance");
+
+        AssertTrue(UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(0)), salvageable: true, seen: false), "setup: a salvageable derelict");
+        AssertEqual(0.001f, 30f, UState.Derelicts.Chance, "a quarter of the limit takes a quarter of the chance");
+
+        TestShip drifter = SpawnShip("Corsair", Player, Site(1));
+        GiveSceneObject(drifter);
+        AssertTrue(UState.Derelicts.TryAdd(drifter, salvageable: false, seen: true), "setup: a drifting derelict");
+        AssertEqual(0.001f, 30f, UState.Derelicts.Chance, "drifting ones do not count");
+
+        for (int i = 2; i < 5; ++i)
+            UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(i)), salvageable: true, seen: false);
+        AssertEqual(4, UState.Derelicts.NumSalvageable, "setup: the limit is reached");
+        AssertEqual(0.001f, 0f, UState.Derelicts.Chance, "and no death rolls a derelict");
+
+        AssertFalse(UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(5)), salvageable: true, seen: false),
+                    "over the limit an unseen one is nothing");
+        TestShip seen = SpawnShip("Corsair", Player, Site(6));
+        GiveSceneObject(seen);
+        AssertTrue(UState.Derelicts.TryAdd(seen, salvageable: true, seen: true), "and a seen one, as the salvageable ones fill no drifting place");
+        AssertFalse(Newest().Salvageable, "drifts instead");
+        AssertEqual(4, UState.Derelicts.NumSalvageable, "so the limit holds");
+    }
+
+    [TestMethod]
+    public void AtTheLimitOfSalvageableDerelictsADeathBlastsAsUsual()
+    {
+        GlobalStats.Defaults.DerelictChance = 100;
+        GlobalStats.Defaults.MaxSalvageableDerelicts = 1;
+        UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(5)), salvageable: true, seen: false);
+        AssertEqual(1, UState.Derelicts.NumSalvageable, "setup: the limit is reached");
+
+        (Ship dying, ShipModule core) = StackedPair(Site(0));
+        dying.Die(null, cleanupOnly: false);
+        AssertFalse(dying.Active, "the ship is dead");
+        AssertGreaterThan(core.ActualMaxHealth, core.Health, "it rolled no derelict, so it blasts");
+    }
+
+    [TestMethod]
+    public void ASalvageableDerelictLastsAHundredTurnsTimesThePaceThenSinksAway()
+    {
+        UState.P.Pace = 3f;
+        AssertEqual(0.001f, 2f, UState.ProductionPace, "setup: a slower pace");
+        TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
+        UState.Derelicts.TryAdd(ship, salvageable: true, seen: false);
+        Derelict d = Newest();
+        AssertEqual(200, d.TurnsLeft, "100 turns times the production pace");
+
+        for (int turn = 1; turn < 200; ++turn)
+            UState.Derelicts.UpdateTurn();
+        UState.Derelicts.Update(TestSimStep);
+        AssertEqual(1, d.TurnsLeft, "one turn later");
+        AssertTrue(d.CanBeSalvaged, "it is still there to salvage");
+        AssertEqual(0.001f, 0f, d.Z, "on the plane");
+
+        AssertEqual(0.001f, GlobalStats.Defaults.DerelictChance * (1f - 1f / GlobalStats.Defaults.MaxSalvageableDerelicts),
+                    UState.Derelicts.Chance, "setup: it lowers the chance");
+        UState.Derelicts.UpdateTurn();
+        AssertTrue(d.Sinking, "its time is up");
+        AssertFalse(d.CanBeSalvaged, "and it can no longer be salvaged");
+        AssertEqual(0.001f, GlobalStats.Defaults.DerelictChance, UState.Derelicts.Chance, "nor lowers the chance");
+        UState.Derelicts.Update(TestSimStep);
+        AssertEqual(0, UState.Derelicts.Count, "with no model, it is gone at once");
+
+        TestShip seen = SpawnShip("Dreadnought mk1-a", Player, Site(1));
+        GiveSceneObject(seen);
+        UState.Derelicts.TryAdd(seen, salvageable: true, seen: true);
+        d = Newest();
+        while (d.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        float seconds = 0f;
+        while (UState.Derelicts.Count > 0)
+        {
+            UState.Derelicts.Update(TestSimStep);
+            seconds += TestSimStep.FixedTime;
+            Assert.IsTrue(seconds < 200f, "the derelict never left");
+        }
+        AssertEqual(0.5f, Derelict.RemoveDepth / Derelict.SinkSpeed, seconds, "with a model, it sinks away like a drifting one");
+    }
+
+    [TestMethod]
+    public void EmpiresKnowADerelictFromItsDeathOrTheirSensorsAndKeepKnowingIt()
+    {
+        TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
+        ship.KnownByEmpires.SetSeen(Player);
+        UState.Derelicts.TryAdd(ship, salvageable: true, seen: false);
+        Derelict d = Newest();
+        AssertTrue(d.IsKnownBy(Player), "an empire that had the ship in its sensors at its death knows of it");
+        AssertFalse(d.IsKnownBy(Enemy), "one that did not, does not");
+
+        Enemy.SensorNodes = new[] { new Empire.InfluenceNode { Position = d.Position + new Vector2(11_000f, 0), Radius = 10_000f } };
+        UState.Derelicts.UpdateTurn();
+        AssertFalse(d.IsKnownBy(Enemy), "a sensor that does not reach it tells nothing");
+
+        Enemy.SensorNodes = new[] { new Empire.InfluenceNode { Position = d.Position + new Vector2(9000f, 0), Radius = 10_000f } };
+        UState.Derelicts.UpdateTurn();
+        AssertTrue(d.IsKnownBy(Enemy), "a sensor over it on a turn tells an empire of it");
+
+        Enemy.SensorNodes = Empty<Empire.InfluenceNode>.Array;
+        UState.Derelicts.UpdateTurn();
+        AssertTrue(d.IsKnownBy(Enemy), "and it stays known");
     }
 }

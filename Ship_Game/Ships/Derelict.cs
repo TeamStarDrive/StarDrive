@@ -15,7 +15,8 @@ using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game.Ships;
 
-// a ship that died without exploding: it breaks up and drifts on with its lights out, tumbling and smoking, then sinks away
+// a ship that died without exploding: it breaks up and drifts on with its lights out, tumbling and smoking, then sinks away;
+// a salvageable one stops in its system and sinks only when its turns run out
 public sealed class Derelict
 {
     // a salvageable derelict stops over this time and stays put; a drifting one keeps going and sinks after its breakup
@@ -32,6 +33,8 @@ public sealed class Derelict
     public const float SmokeThinSeconds = 60f;
     // the breakup's small blasts, with their volume and limit in AudioConfig.yaml
     public const string BreakupBlastSound = "sd_derelict_breakup";
+    // a salvageable derelict lasts this many turns, times the production pace, then sinks away
+    public const int SalvageableTurns = 100;
 
     struct SmokeSource
     {
@@ -51,9 +54,14 @@ public sealed class Derelict
     readonly AudioEmitter BlastEmitter = new(maxDistance: GameAudio.ShipSfxDistance);
     float NextBlast;
 
+    public readonly IShipDesign Design;
+    public readonly Empire Owner;
     public readonly float Radius;
     public readonly float BreakupSeconds;
     public readonly bool Salvageable;
+    // by empire id - 1; written on the sim thread, read on the UI thread
+    bool[] KnownBy;
+    public int TurnsLeft { get; private set; }
     public Vector2 Position { get; private set; }
     public float Z { get; private set; }
     public float Age { get; private set; }
@@ -73,10 +81,13 @@ public sealed class Derelict
         }
     }
 
-    public Derelict(Ship ship, SceneObject so, bool salvageable = false)
+    // seen: it breaks up where the ship died; unseen, it is a salvageable one already at its stop point, with no effects
+    public Derelict(Ship ship, SceneObject so, bool salvageable, bool seen)
     {
         Universe = ship.Universe;
         So = so;
+        Design = ship.ShipData;
+        Owner = ship.Loyalty;
         Salvageable = salvageable;
         MeshOffset = ship.ShipData.BaseHull.MeshOffset;
         Radius = ship.Radius;
@@ -85,12 +96,7 @@ public sealed class Derelict
         RotationY = ship.YRotation;
         RotationZ = ship.Rotation;
         LightsAtDeath = ship.LightsOut ? 0f : 1f;
-
-        Vector2 velocity = ship.Velocity;
-        float speed = velocity.Length();
-        if (speed > ship.MaxSTLSpeed)
-            velocity *= ship.MaxSTLSpeed / speed;
-        DriftVelocity = velocity;
+        DriftVelocity = DriftVelocityOf(ship);
 
         var random = Universe.Random;
         float spin = 50f / ship.SurfaceArea;
@@ -98,9 +104,101 @@ public sealed class Derelict
         BreakupSeconds = random.Float(MinBreakupSeconds, MaxBreakupSeconds);
         Smoke = PickSmokeSources(ship);
 
+        KnownBy = new bool[Universe.NumEmpires];
+        var empires = Universe.Empires;
+        for (int i = 0; i < empires.Count; ++i)
+            if (ship.KnownByEmpires.KnownBy(empires[i]))
+                SetKnownBy(empires[i]);
+        if (salvageable)
+            TurnsLeft = (int)(SalvageableTurns * Universe.ProductionPace);
+
+        if (!seen)
+        {
+            Position = StopPoint(ship);
+            Age = StopSeconds;
+            return;
+        }
         GameAudio.PlaySfxAsync("sd_explosion_ship_det_small", ship.SoundEmitter);
         SpaceJunk.SpawnJunk(Universe, (int)(Radius * 0.03f), Position, DriftVelocity, ship,
                             maxSize: Radius * 0.1f, ignite: true);
+    }
+
+    static Vector2 DriftVelocityOf(Ship ship)
+    {
+        Vector2 velocity = ship.Velocity;
+        float speed = velocity.Length();
+        return speed > ship.MaxSTLSpeed ? velocity * (ship.MaxSTLSpeed / speed) : velocity;
+    }
+
+    // a salvageable derelict slows linearly to a stop, so it covers half the distance it would drift in that time
+    public static Vector2 StopPoint(Ship ship) => ship.Position + DriftVelocityOf(ship) * (StopSeconds * 0.5f);
+
+    // the system a salvageable derelict would stop in: none outside every system, or inside a star's radiation or 2000 around it
+    public static SolarSystem SalvageSystemAt(UniverseState universe, Vector2 stop)
+    {
+        var systems = universe.Systems;
+        for (int i = 0; i < systems.Count; ++i)
+        {
+            SolarSystem system = systems[i];
+            float distance = stop.Distance(system.Position);
+            if (distance < system.Radius)
+                return system.InSafeDistanceFromRadiation(distance) ? system : null;
+        }
+        return null;
+    }
+
+    public bool IsKnownBy(Empire empire)
+    {
+        bool[] known = KnownBy;
+        int i = empire.Id - 1;
+        return i < known.Length && known[i];
+    }
+
+    public bool KnownByPlayer => IsKnownBy(Universe.Player);
+
+    void SetKnownBy(Empire empire)
+    {
+        int i = empire.Id - 1;
+        if (i >= KnownBy.Length)
+        {
+            var grown = new bool[Universe.NumEmpires.LowerBound(i + 1)];
+            Array.Copy(KnownBy, grown, KnownBy.Length);
+            grown[i] = true;
+            KnownBy = grown;
+        }
+        else
+        {
+            KnownBy[i] = true;
+        }
+    }
+
+    // a salvageable one sinks once its turns run out
+    public bool Sinking => Salvageable ? TurnsLeft <= 0 : Age > BreakupSeconds;
+
+    public bool CanBeSalvaged => Salvageable && TurnsLeft > 0;
+
+    // once a turn, on the sim thread: its timer runs down, and an empire with a sensor over it learns of it for good
+    public void UpdateTurn()
+    {
+        if (!CanBeSalvaged)
+            return;
+        --TurnsLeft;
+        var empires = Universe.Empires;
+        for (int i = 0; i < empires.Count; ++i)
+        {
+            Empire e = empires[i];
+            if (!IsKnownBy(e) && InSensorRangeOf(e))
+                SetKnownBy(e);
+        }
+    }
+
+    bool InSensorRangeOf(Empire empire)
+    {
+        Empire.InfluenceNode[] nodes = empire.SensorNodes;
+        for (int i = 0; i < nodes.Length; ++i)
+            if (nodes[i].Position.InRadius(Position, nodes[i].Radius))
+                return true;
+        return false;
     }
 
     // dead modules first, then damaged ones; conduits only spark, so they are left out
@@ -147,17 +245,17 @@ public sealed class Derelict
 
     public float Scale => 1f - (1f - ScaleAtRemoval) * (Z / RemoveDepth).Clamped(0f, 1f);
 
-    // false once it has sunk out of sight and left the scene
+    // false once it has sunk out of sight and left the scene; one with no model is gone once it starts to sink
     public bool Update(FixedSimTime timeStep)
     {
         SceneObject so = So;
-        if (so == null)
+        if (so == null && !CanBeSalvaged)
             return false;
 
         float dt = timeStep.FixedTime;
         Position += VelocityNow * dt;
         Age += dt;
-        if (!Salvageable && Age > BreakupSeconds)
+        if (Sinking)
             Z += SinkSpeed * dt;
 
         if (Z >= RemoveDepth)
@@ -165,6 +263,8 @@ public sealed class Derelict
             RemoveSceneObject();
             return false;
         }
+        if (so == null)
+            return true;
 
         float scale = Scale;
         bool visible = Universe.IsSystemViewOrCloser && Universe.Screen.IsInFrustum(new Vector3(Position, Z), Radius * scale);

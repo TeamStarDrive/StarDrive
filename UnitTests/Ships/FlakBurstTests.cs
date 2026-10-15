@@ -63,6 +63,7 @@ public class FlakBurstTests : StarDriveTest
         return clone;
     }
 
+    [TestCleanup]
     public override void Cleanup()
     {
         Weapons.Remove(ShellUid);

@@ -12,6 +12,7 @@ Globals:
   ShipDestroyThreshold: 0.5 # ships with internal slots below this ratio will Die
   DerelictChance: 35 # percent of military ship (frigate and above) and untethered station deaths that leave a derelict, with no death blast
   MaxDriftingDerelicts: 100 # most drifting derelicts at once
+  MaxSalvageableDerelicts: 40 # most salvageable derelicts at once; the derelict chance falls with their share of it
   RemnantDesignStrMultiplier: 2
   CostBasedOnSizeThreshold: 3000
   HangarCombatShipCostMultiplier: 1
@@ -53,6 +54,7 @@ Globals:
   UseCombatRepair: false
   DisableRemnantStory: false
   DisablePirates: false
+  EnableSalvageOps: true # salvageable derelicts and salvage yards; mods do not inherit it and set it themselves
   AIUsesPlayerDesigns: true
   EnableRandomizedAIFleetSizes: false # Allows Ai to slightly alter fleet sizes within range specified in FleetBuildRatios.yaml
 

@@ -25,6 +25,8 @@ DisablesAllPirateFactionsFor: overview_rule_options
 IfCheckedRemnantForcesIn: overview_rule_options
 DisableResearchStationsTip: overview_rule_options
 DisableMiningOpsTip: overview_rule_options
+DisableSalvageOpsTip: overview_rule_options
+DisableSalvageOpsModTip: overview_rule_options
 AddToAllStartingEmpire: overview_rule_options
 HigherMineralDecayIncreasesThe: overview_rule_options
 ThisWillControlTheChances: overview_rule_options

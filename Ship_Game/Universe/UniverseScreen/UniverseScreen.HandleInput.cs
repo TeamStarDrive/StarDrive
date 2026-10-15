@@ -129,10 +129,11 @@ namespace Ship_Game
 
             if (SelectedShip != null)
             {
-                if (input.DebugKillShip && input.IsCtrlKeyDown) // Ctrl + 'X' or 'Delete': dies as a derelict, if it can be one
+                if (input.DebugKillShip && input.IsCtrlKeyDown) // Ctrl + 'X' or 'Delete': dies as a drifting derelict; with Shift, a salvageable one
                 {
                     Ship ship = SelectedShip;
-                    RunOnSimThread(() => ship.DebugDieAsDerelict());
+                    bool salvageable = input.IsShiftKeyDown;
+                    RunOnSimThread(() => ship.DebugDieAsDerelict(salvageable));
                 }
                 else if (input.DebugKillShip) // 'X' or 'Delete'
                 {

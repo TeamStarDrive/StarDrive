@@ -3,8 +3,8 @@
 An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
 into `base` as fixes land. Status (2026-10-15): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. `base` is level with `jupiter-1.60/fixes_50`, and sub-branch 2 (salvageable) is
-cut from it; the rest is planned. Decisions 119-176, 178-190 and 222-227 are all settled; 168-175 came from the review
-of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-227 from the start of
+cut from it; the rest is planned. Decisions 119-176, 178-190 and 222-229 are all settled; 168-175 came from the review
+of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-229 from the start of
 phase 2. The fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list
 safe on the sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -32,20 +32,25 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   (`Ship_Update.cs:42`).
 - **Planet crashes (178 B):** a ship that is about to crash on a planet does not roll for a derelict, so crash sites
   stay as common as before.
-- **Debug key (Gilad, 2026-10-15):** in debug mode, Ctrl+X (or Ctrl+Delete) destroys the selected ship as a derelict
-  with no roll, and does nothing to a ship that cannot become one. Like any unseen derelict death, a ship that is
-  not on screen at system view or closer leaves nothing.
+- **Debug keys (Gilad, 2026-10-15):** in debug mode, Ctrl+X (or Ctrl+Delete) destroys the selected ship as a drifting
+  derelict with no roll, and does nothing to a ship that cannot become one. Like any unseen drifting death, a ship that
+  is not on screen at system view or closer leaves nothing. Ctrl+Shift+X (or Ctrl+Shift+Delete) destroys it as a
+  salvageable derelict, seen or not, and does nothing unless it would stop where a salvageable one can be (in a system,
+  clear of radiation, salvage ops on) and the 40 salvageable derelicts are not all there.
 - **Where:** the stop point decides, and it is known at death: a salvageable derelict slows linearly to a stop over
   10 s, so it stops 5 s worth of its drift speed from where it died. A stop inside a system makes a **salvageable**
   derelict. Two cases make a **drifting** derelict instead, and only when the death is visible (125):
   - a stop outside every system;
-  - a stop inside a star's radiation zone.
+  - a stop inside a star's radiation zone, or not more than 2000 beyond it, the danger margin the game already uses
+    (`SolarSystem.InSafeDistanceFromRadiation`, 229), so salvage ships never work inside radiation.
 
-  An unseen death that stops outside every system or in a radiation zone leaves nothing (125, 170, 171).
+  An unseen death that stops outside every system, or in a radiation zone or its margin, leaves nothing (125, 170,
+  171).
 - **How many:**
   - The universe keeps the list of derelicts (129).
   - Base chance 35%, times (1 - salvageable / MaxSalvageableDerelicts), with the limit 40 as a Globals knob
-    (129, 142).
+    (129, 142). At the limit the chance is 0; a death that rolled just before it was reached leaves a drifting
+    derelict if it was seen, and nothing if it was not.
   - At most 100 drifting derelicts at once (142, raised from 20 by 188); past that, a visible death shows the
     normal explosion with no blast (170).
 - **What it is:** a derelict is its own lightweight object, not a `Ship` (120).

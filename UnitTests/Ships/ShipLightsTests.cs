@@ -25,6 +25,7 @@ public class ShipLightsTests : StarDriveTest
         CreateUniverseAndPlayerEmpire();
     }
 
+    [TestCleanup]
     public override void Cleanup()
     {
         Universe.Particles?.Dispose();

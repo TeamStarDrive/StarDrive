@@ -6146,6 +6146,12 @@ namespace Ship_Game
         ModInstallUnfinished = 7122,
         /// <summary>Colonists per Cargo Unit</summary>
         ColonistsPerCargoUnit = 7123,
+        /// <summary>Disable Salvage Ops</summary>
+        DisableSalvageOpsName = 7124,
+        /// <summary>Every derelict drifts on and sinks away, so there are no wrecks to salvage.</summary>
+        DisableSalvageOpsTip = 7125,
+        /// <summary>This mod has no salvage content, so salvage ops are off.</summary>
+        DisableSalvageOpsModTip = 7126,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
