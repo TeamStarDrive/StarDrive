@@ -3,8 +3,8 @@
 An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
 into `base` as fixes land. Status (2026-10-15): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. `base` is level with `jupiter-1.60/fixes_50`, and sub-branch 2 (salvageable) is
-cut from it; the rest is planned. Decisions 119-176, 178-190, 222-229 and 231 are all settled; 168-175 came from the review
-of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-229 and 231 from the start of
+cut from it; the rest is planned. Decisions 119-176, 178-190 and 222-232 are all settled; 168-175 came from the review
+of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 from the start of
 phase 2. The fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list
 safe on the sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -52,7 +52,9 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
     (129, 142; 35% and 40 until 231). At the limit the chance is 0; a death that rolled just before it was reached leaves a drifting
     derelict if it was seen, and nothing if it was not.
   - At most 100 drifting derelicts at once (142, raised from 20 by 188); past that, a visible death shows the
-    normal explosion with no blast (170).
+    normal explosion with no blast (170). The cap counts drifting and sinking derelicts that have a model, so a wreck
+    with no model takes no place in it (232). It limits new ones only: after a load or a content reload the wrecks
+    that come back get their models when seen, so for at most their 100 s sink more than 100 can have one.
 - **What it is:** a derelict is its own lightweight object, not a `Ship` (120).
 
 ### How a derelict moves and ends
@@ -78,15 +80,18 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   - The timer stops while a salvage yard of an empire that has seen the derelict is in its system (143), and runs
     on again if that yard dies (129).
   - When the timer runs out it sinks away like a drifting derelict.
-  - **Its model (224):** a derelict from an unseen death, or one loaded from a save, has no model. It loads one from
-    its hull on the UI thread the first time it is on screen at system view or closer and known to the player, and
-    keeps it until it sinks away. At most 100 exist, so it needs no 15 s cleanup like ships. A content reload (Apply
-    in the options) takes every model out of the scene: the salvageable derelicts stay and load theirs again when next
-    seen, and the drifting and sinking ones are gone.
-  - **Its smoke after a load (225):** the save keeps the smoke points that are left after the 60 s thin-out, at
-    most 6, so a loaded derelict smokes from the same places.
   - **On the map (226):** the player sees only the derelicts the player knows of (137). At sector and galaxy view a
     known one shows as a grey icon of its hull role, like a ship's tactical icon.
+- **Its model (224, 230):** a derelict from an unseen death, one loaded from a save, or one after a content reload has
+  no model. It loads one from its hull on the UI thread the first time it is on screen at system view or closer and
+  known to the player, and keeps it until it sinks away. With no model it still drifts and sinks; one the player does
+  not know of is gone once it starts to sink, as there is nothing to show. The two caps and the 100 s sink bound them,
+  so it needs no 15 s cleanup like ships. A content reload (Apply in the options) takes every model out of the scene; the derelicts
+  stay and load theirs again when next seen.
+- **A save (225, 230):** every derelict is saved, drifting and sinking ones too, with its kind and depth, whatever the
+  salvage switches say. The save keeps all its smoke points while they thin out, then the 6 left, so a loaded
+  derelict smokes from the same places. A derelict saved during its breakup comes back dark with no more blasts, and a
+  drifting one starts to sink at once.
 
 ### Salvage
 
@@ -207,7 +212,7 @@ Implementation notes:
   at +250, where the Mineral Decay slider starts, so the two sliders below move down 25 px. Check it at the
   1680x1050 minimum.
 - **Load:** a save made with salvage ops on, loaded under a mod whose flag is off: the hard switch wins, and the
-  saved salvageable derelicts sink away like drifting ones (169).
+  saved salvageable derelicts sink away like drifting ones (169), and one the player does not know of is gone.
 
 ### Phases and branches
 
@@ -268,7 +273,8 @@ Implementation notes:
 2. **salvageable**:
    - the two switches (rule option and Globals flag): off, every derelict is a drifting one; the rule option with its
      greyed-out state (227);
-   - derelicts in a system are saved in the universe list, with their design and their last smoke points (225);
+   - every derelict is saved in the universe list, with its design and its smoke points: all while they thin out, then
+     the 6 left (225, 230);
    - unseen deaths in a system become derelicts at once;
    - the stop point and radiation decide which kind a derelict is;
    - the timer, which runs out to a sinking (its yard pause comes with the yards, 223);
@@ -311,4 +317,5 @@ Each sub-branch adds its Codex text and tests.
 - The roll, not visibility, removes the blast, so the camera never changes combat (170). A tumbling ship that did
   not roll a derelict still blasts when it ends (`Ship.cs:1760-1765`).
 - Hauling FROM a station does not exist yet; it is the largest new piece of phase 2.
-- Saves grow with salvageable derelicts; the throttle and the timer bound them. Each one is small (no modules).
+- Saves grow with derelicts: the throttle and the timer bound the salvageable ones, and the cap of 100 the drifting
+  ones. Each one is small (no modules).

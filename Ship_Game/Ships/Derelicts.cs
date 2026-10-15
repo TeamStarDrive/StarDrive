@@ -27,6 +27,16 @@ public sealed class Derelicts
         return n;
     }
 
+    // the drifting cap counts only the ones with a model: a wreck nobody can see costs nothing
+    int CountDriftingInScene()
+    {
+        int n = 0;
+        for (int i = 0; i < Items.Count; ++i)
+            if (!Items[i].CanBeSalvaged && Items[i].InScene)
+                ++n;
+        return n;
+    }
+
     // the percent chance of a derelict death, lowered by the salvageable derelicts' share of their limit, to none at it
     public float Chance
     {
@@ -46,7 +56,7 @@ public sealed class Derelicts
             SceneObject so = seen ? ship.GetSO() : null;
             if (salvageable && CountSalvageable() >= GlobalStats.Defaults.MaxSalvageableDerelicts)
                 salvageable = false;
-            if (!salvageable && (!seen || so == null || Items.Count - CountSalvageable() >= GlobalStats.Defaults.MaxDriftingDerelicts))
+            if (!salvageable && (!seen || so == null || CountDriftingInScene() >= GlobalStats.Defaults.MaxDriftingDerelicts))
                 return false;
             Items.Add(new Derelict(ship, so, salvageable, seen));
             if (so != null)
@@ -65,23 +75,20 @@ public sealed class Derelicts
         }
     }
 
-    // a save keeps the salvageable ones; drifting and sinking ones are only a visual
     public Derelict.SaveData[] GetSaves()
     {
         lock (Sync)
         {
-            var saves = new Array<Derelict.SaveData>();
-            for (int i = 0; i < Items.Count; ++i)
-                if (Items[i].CanBeSalvaged)
-                    saves.Add(Items[i].ToSave());
-            return saves.ToArray();
+            var saves = new Derelict.SaveData[Items.Count];
+            for (int i = 0; i < saves.Length; ++i)
+                saves[i] = Items[i].ToSave();
+            return saves;
         }
     }
 
-    // with salvage ops turned off by the mod the saved ones are left out, as a sinking one with no model would be gone at once
     public void Load(UniverseState universe, Derelict.SaveData[] saves)
     {
-        if (saves == null || !universe.P.SalvageOps)
+        if (saves == null)
             return;
         lock (Sync)
         {
@@ -110,7 +117,7 @@ public sealed class Derelicts
         }
     }
 
-    // false when it left the list, already has a model or its turns ran out while the model loaded
+    // false when it left the list or already has a model
     public bool TryAttachModel(Derelict derelict, SceneObject so)
     {
         lock (Sync)
@@ -137,17 +144,13 @@ public sealed class Derelicts
         }
     }
 
-    // a content reload takes every model out of the scene: the salvageable ones stay and get a model again when seen
+    // a content reload takes every model out of the scene: the derelicts stay and get a model again when seen
     public void RemoveSceneObjects()
     {
         lock (Sync)
         {
-            for (int i = Items.Count - 1; i >= 0; --i)
-            {
+            for (int i = 0; i < Items.Count; ++i)
                 Items[i].RemoveSceneObject();
-                if (!Items[i].CanBeSalvaged)
-                    Items.RemoveAt(i);
-            }
         }
     }
 

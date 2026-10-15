@@ -236,7 +236,7 @@ namespace Ship_Game.Universe
 
             [StarData] public IReadOnlyList<Ship> Ships;
             [StarData] public IReadOnlyList<Projectile> Projectiles;
-            [StarData] public Derelict.SaveData[] SalvageableDerelicts;
+            [StarData] public Derelict.SaveData[] Derelicts;
 
             // gather a list of all designs in the universe
             public void SetAllDesigns(UniverseState us)
@@ -324,7 +324,7 @@ namespace Ship_Game.Universe
             {
                 Ships = Objects.GetShips(),
                 Projectiles = Objects.GetProjectiles(),
-                SalvageableDerelicts = Derelicts.GetSaves()
+                Derelicts = Derelicts.GetSaves()
             };
             save.SetAllDesigns(this);
 
@@ -354,7 +354,7 @@ namespace Ship_Game.Universe
             // NOTE: This will automatically call AddShipInfluence() to update InfluenceTree
             Objects.AddRange(save.Ships);
             Objects.AddRange(save.Projectiles);
-            Derelicts.Load(this, save.SalvageableDerelicts);
+            Derelicts.Load(this, save.Derelicts);
 
             // updated InfluenceTree with all universe planets
             foreach (Planet planet in AllPlanetsList)

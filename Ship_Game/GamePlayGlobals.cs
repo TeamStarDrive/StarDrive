@@ -25,7 +25,7 @@ public class GamePlayGlobals
     [StarData] public float ShipDestroyThreshold = 0.5f;
     // Percent of the deaths of military ships (frigate and above) and untethered stations that leave a derelict, with no death blast
     [StarData] public float DerelictChance = 10;
-    // Most drifting derelicts at once; past it a derelict death shows the normal explosion, still with no death blast
+    // Most drifting derelicts with a model at once; past it a derelict death shows the normal explosion, still with no death blast
     [StarData] public int MaxDriftingDerelicts = 100;
     // Most salvageable derelicts at once; the derelict chance falls with their share of it, to none at the limit
     [StarData] public int MaxSalvageableDerelicts = 100;

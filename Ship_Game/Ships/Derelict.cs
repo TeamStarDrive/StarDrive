@@ -46,13 +46,15 @@ public sealed class Derelict
         internal ShipModuleDamageVisualization Visual;
     }
 
-    // what a save keeps of a salvageable derelict: no model, and only the smoke left after the thin-out
+    // what a save keeps of a derelict: no model, and all its smoke points while they thin out, then the six left
     [StarDataType]
     public sealed class SaveData
     {
         [StarData] public IShipDesign Design;
         [StarData] public Empire Owner;
+        [StarData] public bool Salvageable;
         [StarData] public Vector2 Position;
+        [StarData] public float Z;
         [StarData] public Vector2 DriftVelocity;
         [StarData] public Vector3 Rotation;
         [StarData] public Vector3 Spin;
@@ -142,37 +144,41 @@ public sealed class Derelict
                             maxSize: Radius * 0.1f, ignite: true);
     }
 
-    // from a save: a salvageable derelict with its lights out and no model until the player sees it
+    // from a save: its lights out, past its breakup, and no model until the player sees it; with salvage ops off it sinks away
     public Derelict(UniverseState universe, SaveData save)
     {
         Universe = universe;
         Design = save.Design.IsAnExistingSavedDesign ? ResourceManager.Ships.GetDesign(save.Design.Name) : save.Design;
         Owner = save.Owner;
-        Salvageable = true;
+        Salvageable = save.Salvageable;
         MeshOffset = Design.BaseHull.MeshOffset;
         Radius = save.Radius;
         Position = save.Position;
+        Z = save.Z;
         DriftVelocity = save.DriftVelocity;
         RotationX = save.Rotation.X;
         RotationY = save.Rotation.Y;
         RotationZ = save.Rotation.Z;
         Spin = save.Spin;
         Age = save.Age;
-        TurnsLeft = save.TurnsLeft;
+        TurnsLeft = universe.P.SalvageOps ? save.TurnsLeft : 0;
         KnownBy = save.KnownBy ?? new bool[universe.NumEmpires];
         Smoke = save.Smoke ?? Empty<SmokeSource>.Array;
     }
 
     public SaveData ToSave()
     {
-        var smoke = new SmokeSource[Math.Min(MinSmokeSources, Smoke.Length)];
+        int kept = Age < SmokeThinSeconds ? Smoke.Length : Math.Min(MinSmokeSources, Smoke.Length);
+        var smoke = new SmokeSource[kept];
         for (int i = 0; i < smoke.Length; ++i)
             smoke[i] = new() { Local = Smoke[i].Local, Area = Smoke[i].Area, Type = Smoke[i].Type };
         return new()
         {
             Design = Design,
             Owner = Owner,
+            Salvageable = Salvageable,
             Position = Position,
+            Z = Z,
             DriftVelocity = DriftVelocity,
             Rotation = new(RotationX, RotationY, RotationZ),
             Spin = Spin,
@@ -314,14 +320,14 @@ public sealed class Derelict
              * rotation * Matrix.CreateTranslation(new Vector3(Position, Z));
     }
 
-    // on the UI thread: a salvageable one with no model wants it once the player knows of it and it is on screen
-    public bool WantsModel => So == null && CanBeSalvaged && KnownByPlayer && Universe.IsSystemViewOrCloser
+    // on the UI thread: one with no model wants it once the player knows of it and it is on screen
+    public bool WantsModel => So == null && KnownByPlayer && Universe.IsSystemViewOrCloser
                               && Universe.Screen.IsInFrustum(new Vector3(Position, Z), Radius);
 
     // under the list's lock; it keeps the model until it sinks away or the content reloads, so it needs no cleanup like a ship's
     public bool AttachModel(SceneObject so)
     {
-        if (So != null || !CanBeSalvaged)
+        if (So != null)
             return false;
         so.World = World(Rotation, Scale);
         so.EmissiveScale = 0f;
@@ -331,11 +337,11 @@ public sealed class Derelict
         return true;
     }
 
-    // false once it has sunk out of sight and left the scene; one with no model is gone once it starts to sink
+    // false once it has sunk out of sight and left the scene; with no model, one the player does not know of is gone once it starts to sink
     public bool Update(FixedSimTime timeStep)
     {
         SceneObject so = So;
-        if (so == null && !CanBeSalvaged)
+        if (so == null && Sinking && !KnownByPlayer)
             return false;
 
         float dt = timeStep.FixedTime;

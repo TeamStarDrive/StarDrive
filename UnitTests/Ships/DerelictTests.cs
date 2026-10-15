@@ -372,6 +372,39 @@ public class DerelictTests : StarDriveTest
     }
 
     [TestMethod]
+    public void TheDriftingCapCountsOnlyTheDriftingAndSinkingWrecksWithAModel()
+    {
+        GlobalStats.Defaults.MaxDriftingDerelicts = 1;
+        TestShip expired = SpawnShip("Dreadnought mk1-a", Player, Site(0));
+        expired.KnownByEmpires.SetSeen(Player);
+        UState.Derelicts.TryAdd(expired, salvageable: true, seen: false);
+        Derelict sinking = Newest();
+        while (sinking.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        AssertTrue(sinking.Sinking && sinking.KnownByPlayer && !sinking.InScene, "setup: a known wreck sinking with no model");
+        TestShip salvageable = SpawnShip("Dreadnought mk1-a", Player, Site(1));
+        GiveSceneObject(salvageable);
+        UState.Derelicts.TryAdd(salvageable, salvageable: true, seen: true);
+        AssertTrue(Newest().CanBeSalvaged && Newest().InScene, "setup: and a salvageable one with a model");
+
+        TestShip first = SpawnShip("Dreadnought mk1-a", Player, Site(2));
+        GiveSceneObject(first);
+        AssertTrue(UState.Derelicts.TryAdd(first, salvageable: false, seen: true), "neither fills the cap");
+        TestShip second = SpawnShip("Dreadnought mk1-a", Player, Site(3));
+        GiveSceneObject(second);
+        AssertFalse(UState.Derelicts.TryAdd(second, salvageable: false, seen: true), "a drifting one with a model does");
+
+        UState.Derelicts.Clear();
+        GiveSceneObject(salvageable);
+        UState.Derelicts.TryAdd(salvageable, salvageable: true, seen: true);
+        while (Newest().TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        AssertTrue(Newest().Sinking && Newest().InScene, "setup: a salvageable one sinking with its model");
+        GiveSceneObject(second);
+        AssertFalse(UState.Derelicts.TryAdd(second, salvageable: false, seen: true), "and so does a sinking one with a model");
+    }
+
+    [TestMethod]
     public void AScuttledShipNeverBecomesADerelict()
     {
         ViewEverything();
@@ -797,6 +830,7 @@ public class DerelictTests : StarDriveTest
         TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
         UState.Derelicts.TryAdd(ship, salvageable: true, seen: false);
         Derelict d = Newest();
+        AssertFalse(d.KnownByPlayer, "setup: the player does not know of it");
         AssertEqual(200, d.TurnsLeft, "100 turns times the production pace");
 
         for (int turn = 1; turn < 200; ++turn)
@@ -813,12 +847,25 @@ public class DerelictTests : StarDriveTest
         AssertFalse(d.CanBeSalvaged, "and it can no longer be salvaged");
         AssertEqual(0.001f, GlobalStats.Defaults.DerelictChance, UState.Derelicts.Chance, "nor lowers the chance");
         UState.Derelicts.Update(TestSimStep);
-        AssertEqual(0, UState.Derelicts.Count, "with no model, it is gone at once");
+        AssertEqual(0, UState.Derelicts.Count, "with no model and unknown to the player, it is gone at once");
 
         TestShip seen = SpawnShip("Dreadnought mk1-a", Player, Site(1));
         GiveSceneObject(seen);
         UState.Derelicts.TryAdd(seen, salvageable: true, seen: true);
-        d = Newest();
+        AssertEqual(0.5f, Derelict.RemoveDepth / Derelict.SinkSpeed, SecondsToSinkAway(Newest()),
+                    "with a model, it sinks away like a drifting one");
+
+        TestShip known = SpawnShip("Dreadnought mk1-a", Player, Site(2));
+        known.KnownByEmpires.SetSeen(Player);
+        UState.Derelicts.TryAdd(known, salvageable: true, seen: false);
+        AssertTrue(Newest().KnownByPlayer && !Newest().InScene, "setup: one the player knows of, with no model");
+        AssertEqual(0.5f, Derelict.RemoveDepth / Derelict.SinkSpeed, SecondsToSinkAway(Newest()),
+                    "with no model, one the player knows of sinks away too, to show if the player looks");
+    }
+
+    // its turns run out, then the seconds until it has sunk away and left the list
+    float SecondsToSinkAway(Derelict d)
+    {
         while (d.TurnsLeft > 0)
             UState.Derelicts.UpdateTurn();
         float seconds = 0f;
@@ -828,7 +875,7 @@ public class DerelictTests : StarDriveTest
             seconds += TestSimStep.FixedTime;
             Assert.IsTrue(seconds < 200f, "the derelict never left");
         }
-        AssertEqual(0.5f, Derelict.RemoveDepth / Derelict.SinkSpeed, seconds, "with a model, it sinks away like a drifting one");
+        return seconds;
     }
 
     [TestMethod]
@@ -859,9 +906,16 @@ public class DerelictTests : StarDriveTest
     // a death in the system, with more than six modules dead so it smokes from more than six places
     Derelict SalvageableWithSmoke(bool seen = false, Vector2 velocity = default)
     {
-        GlobalStats.Defaults.DerelictChance = 100;
         AddSystem();
-        Ship ship = SpawnPlainShip("Dreadnought mk1-a", SystemSite + new Vector2(30_000f, 0));
+        Derelict d = DieWithSmoke(SystemSite + new Vector2(30_000f, 0), seen, velocity);
+        AssertTrue(d.CanBeSalvaged, "setup: a salvageable derelict");
+        return d;
+    }
+
+    Derelict DieWithSmoke(Vector2 position, bool seen, Vector2 velocity = default, bool drifting = false)
+    {
+        GlobalStats.Defaults.DerelictChance = 100;
+        Ship ship = SpawnPlainShip("Dreadnought mk1-a", position);
         UState.Objects.Update(TestSimStep); // sets its top speed
         foreach (ShipModule m in ship.Modules.Where(m => m.CanVisualizeDamage && !m.HasInternalRestrictions
                                                          && m.ModuleType != ShipModuleType.PowerConduit).Take(10))
@@ -873,12 +927,40 @@ public class DerelictTests : StarDriveTest
             MakeVisible(ship);
         }
         ship.Velocity = velocity;
-        ship.Die(null, cleanupOnly: false);
+        if (drifting)
+            ship.DebugDieAsDerelict(salvageable: false);
+        else
+            ship.Die(null, cleanupOnly: false);
         UState.Objects.Update(TestSimStep);
         Derelict d = Newest();
-        AssertTrue(d.CanBeSalvaged, "setup: a salvageable derelict");
         AssertGreaterThan(d.NumSmokeSources, Derelict.MinSmokeSources, "setup: it smokes from more than six places");
         return d;
+    }
+
+    // seen, by the debug key, which skips the roll: the chance falls once a salvageable derelict exists
+    Derelict DriftingWithSmoke(Vector2 velocity = default)
+    {
+        Derelict d = DieWithSmoke(Site(0), seen: true, velocity, drifting: true);
+        AssertFalse(d.Salvageable, "setup: a drifting derelict");
+        return d;
+    }
+
+    void StepAll(Derelicts derelicts, float seconds)
+    {
+        int steps = (int)Math.Round(seconds / TestSimStepD);
+        for (int i = 0; i < steps; ++i)
+            derelicts.Update(TestSimStep);
+    }
+
+    static void AssertSameSmoke(Derelict before, Derelict after)
+    {
+        Derelict.SmokeSource[] a = SmokeOf(before), b = SmokeOf(after);
+        for (int i = 0; i < b.Length; ++i)
+        {
+            AssertEqual(0.001f, a[i].Local, b[i].Local, $"smoke point {i} in the same place");
+            AssertEqual(0.001f, a[i].Area, b[i].Area, $"smoke point {i} as big");
+            AssertEqual(a[i].Type, b[i].Type, $"smoke point {i} of the same module type");
+        }
     }
 
     static Derelict.SmokeSource[] SmokeOf(Derelict d)
@@ -896,13 +978,12 @@ public class DerelictTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ASaveKeepsASalvageableDerelictWithItsStateKnowledgeAndLastSixSmokePoints()
+    public void ASaveKeepsASalvageableDerelictWithItsStateKnowledgeAndSmokePoints()
     {
         ViewEverything();
         CreateThirdMajorEmpire();
         Derelict d = SalvageableWithSmoke(seen: true, velocity: new Vector2(80f, 0));
-        for (int i = 0; i < 60; ++i)
-            UState.Derelicts.Update(TestSimStep);
+        StepAll(UState.Derelicts, 1f);
         AssertGreaterThan(d.VelocityNow.Length(), 0f, "setup: it is still slowing to a stop");
         Enemy.SensorNodes = SensorOver(d);
         for (int turn = 0; turn < 3; ++turn)
@@ -910,17 +991,9 @@ public class DerelictTests : StarDriveTest
         AssertTrue(d.IsKnownBy(Enemy) && d.IsKnownBy(Player), "setup: the enemy and the player know of it");
         AssertFalse(d.IsKnownBy(ThirdMajor), "setup: the third empire does not");
 
-        Ship drifter = SpawnPlainShip("Dreadnought mk1-a", Site(0));
-        UState.Objects.Update(TestSimStep);
-        GiveSceneObject(drifter);
-        MakeVisible(drifter);
-        drifter.DebugDieAsDerelict(salvageable: false);
-        UState.Objects.Update(TestSimStep);
-        AssertEqual(2, UState.Derelicts.Count, "setup: and a drifting derelict");
-
         UniverseScreen loaded = SaveAndLoad();
         Derelict[] after = loaded.UState.Derelicts.ToArray();
-        AssertEqual(1, after.Length, "the salvageable derelict comes back; the drifting one was only a visual");
+        AssertEqual(1, after.Length, "the salvageable derelict comes back");
         Derelict back = after[0];
         AssertTrue(back.CanBeSalvaged, "still salvageable");
         AssertEqual(0.01f, d.Position, back.Position, "where it was");
@@ -935,43 +1008,96 @@ public class DerelictTests : StarDriveTest
         AssertTrue(back.IsKnownBy(loaded.UState.GetEmpireById(Enemy.Id)), "the enemy still knows of it");
         AssertTrue(back.IsKnownBy(loaded.UState.Player), "and so does the player");
         AssertFalse(back.IsKnownBy(loaded.UState.GetEmpireById(ThirdMajor.Id)), "the third empire still does not");
-        AssertEqual(Derelict.MinSmokeSources, back.NumSmokeSources, "it smokes from six places");
-        Derelict.SmokeSource[] before = SmokeOf(d), loadedSmoke = SmokeOf(back);
-        for (int i = 0; i < loadedSmoke.Length; ++i)
-            AssertEqual(0.001f, before[i].Local, loadedSmoke[i].Local, $"the ones left after the thin-out: point {i}");
+        AssertEqual(d.NumSmokeSources, back.NumSmokeSources, "still thinning out, it smokes from all its places");
+        AssertSameSmoke(d, back);
         AssertFalse(back.InScene, "with no model until the player sees it");
     }
 
     [TestMethod]
-    public void UnderAModWithoutSalvageContentASavedSalvageableDerelictIsGone()
+    public void ASaveKeepsADriftingDerelictWhichSinksOnWithNoModelUntilThePlayerSeesIt()
     {
-        SalvageableWithSmoke();
-        AssertEqual(1, UState.Derelicts.GetSaves().Length, "setup: the save keeps it");
-        GlobalStats.Defaults.EnableSalvageOps = false;
+        ViewEverything();
+        Derelict d = DriftingWithSmoke(new Vector2(80f, 0));
+        StepAll(UState.Derelicts, d.BreakupSeconds + 10f);
+        AssertTrue(d.Sinking && d.Z > 0f, "setup: it is sinking");
+
         UniverseScreen loaded = SaveAndLoad();
-        AssertEqual(0, loaded.UState.Derelicts.Count, "the mod's switch wins, and with no model it would sink away at once");
+        Derelict[] after = loaded.UState.Derelicts.ToArray();
+        AssertEqual(1, after.Length, "it comes back");
+        Derelict back = after[0];
+        AssertFalse(back.Salvageable, "still a drifting one");
+        AssertTrue(back.Sinking, "and sinking");
+        AssertEqual(0.01f, d.Z, back.Z, "as deep as it was");
+        AssertEqual(0.01f, d.Position, back.Position, "where it was");
+        AssertEqual(0.01f, d.VelocityNow, back.VelocityNow, "drifting as it was");
+        AssertEqual(0.001f, d.Age, back.Age, "as old");
+        AssertTrue(back.KnownByPlayer, "known to the player, who saw it die");
+        AssertEqual(d.NumSmokeSources, back.NumSmokeSources, "still thinning out, it smokes from all its places");
+        AssertSameSmoke(d, back);
+        AssertFalse(back.InScene, "with no model");
+
+        float z = back.Z, x = back.Position.X;
+        StepAll(loaded.UState.Derelicts, 1f);
+        AssertEqual(1, loaded.UState.Derelicts.Count, "it does not vanish for want of a model");
+        AssertEqual(1f, z + Derelict.SinkSpeed, back.Z, "it sinks on");
+        AssertEqual(1f, x + 80f, back.Position.X, "and drifts on");
+        loaded.Frustum = Universe.Frustum;
+        loaded.UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
+        AssertTrue(back.WantsModel, "on screen it gets a model");
     }
 
     [TestMethod]
-    public void AContentReloadKeepsTheSalvageableDerelictsWithoutTheirModels()
+    public void PastTheThinOutASaveKeepsOnlyTheSixSmokePointsLeft()
+    {
+        Derelict d = DriftingWithSmoke();
+        StepAll(UState.Derelicts, Derelict.SmokeThinSeconds + 1f);
+        AssertEqual(1, UState.Derelicts.Count, "setup: it has not sunk away yet");
+        Derelict.SmokeSource[] saved = UState.Derelicts.GetSaves()[0].Smoke, smoke = SmokeOf(d);
+        AssertEqual(Derelict.MinSmokeSources, saved.Length, "the six left");
+        for (int i = 0; i < saved.Length; ++i)
+            AssertEqual(0.001f, smoke[i].Local, saved[i].Local, $"the ones still smoking: point {i}");
+    }
+
+    [TestMethod]
+    public void UnderAModWithoutSalvageContentASavedSalvageableDerelictSinksAway()
+    {
+        Derelict known = SalvageableWithSmoke(seen: true);
+        UState.Derelicts.TryAdd(SpawnShip("Dreadnought mk1-a", Enemy, SystemSite + new Vector2(0, 30_000f)), salvageable: true, seen: false);
+        Derelict unknown = Newest();
+        AssertTrue(known.KnownByPlayer && !unknown.KnownByPlayer, "setup: one the player knows of, and one the player does not");
+        DriftingWithSmoke();
+
+        GlobalStats.Defaults.EnableSalvageOps = false;
+        UniverseScreen loaded = SaveAndLoad();
+        Derelict[] after = loaded.UState.Derelicts.ToArray();
+        AssertEqual(3, after.Length, "all three load");
+        AssertTrue(after[0].Sinking && after[1].Sinking, "the mod's switch wins: the salvageable ones sink");
+        AssertEqual(0, loaded.UState.Derelicts.NumSalvageable, "and none can be salvaged");
+        AssertFalse(after[2].Salvageable, "the drifting one is only a visual, so it loads whatever the switch says");
+        AssertLessThan(after[2].Age, Derelict.MinBreakupSeconds, "setup: it was saved during its breakup");
+
+        loaded.UState.Derelicts.Update(TestSimStep);
+        Derelict[] left = loaded.UState.Derelicts.ToArray();
+        AssertEqual(2, left.Length, "with no model, the one the player does not know of is gone at once");
+        AssertTrue(left[0] == after[0] && left[1] == after[2], "the known one and the drifting one sink on");
+        AssertGreaterThan(after[0].Z, 0f, "the known one sinks");
+        AssertGreaterThan(after[2].Z, 0f, "saved during its breakup, the drifting one sinks at once");
+    }
+
+    [TestMethod]
+    public void AContentReloadKeepsEveryDerelictWithoutItsModel()
     {
         ViewEverything();
         Derelict salvageable = SalvageableWithSmoke(seen: true);
-        Ship drifter = SpawnPlainShip("Dreadnought mk1-a", Site(0));
-        UState.Objects.Update(TestSimStep);
-        GiveSceneObject(drifter);
-        MakeVisible(drifter);
-        drifter.DebugDieAsDerelict(salvageable: false);
-        UState.Objects.Update(TestSimStep);
-        Derelict drifting = Newest();
+        Derelict drifting = DriftingWithSmoke();
         AssertTrue(salvageable.InScene && drifting.InScene, "setup: both have models");
 
         UState.RemoveSceneObjects(); // as the options screen's Apply reloads the content
         Derelict[] after = UState.Derelicts.ToArray();
-        AssertEqual(1, after.Length, "only the salvageable one stays");
-        AssertTrue(after[0] == salvageable, "the same derelict, with its turns and knowledge");
-        AssertFalse(salvageable.InScene, "its model is gone");
-        AssertTrue(salvageable.WantsModel, "and it gets one again once on screen");
+        AssertEqual(2, after.Length, "both stay");
+        AssertTrue(after[0] == salvageable && after[1] == drifting, "the same derelicts, with their turns and knowledge");
+        AssertFalse(salvageable.InScene || drifting.InScene, "their models are gone");
+        AssertTrue(salvageable.WantsModel && drifting.WantsModel, "and they get them again once on screen");
     }
 
     [TestMethod]
@@ -1004,9 +1130,14 @@ public class DerelictTests : StarDriveTest
         TestShip late = SpawnShip("Dreadnought mk1-a", Enemy, Site(2));
         AssertTrue(UState.Derelicts.TryAdd(late, salvageable: true, seen: false), "setup: another salvageable derelict");
         Derelict expired = Newest();
+        Player.SensorNodes = SensorOver(expired);
+        UState.Derelicts.UpdateTurn();
+        AssertTrue(expired.WantsModel, "setup: the player knows of it and it is on screen");
         while (expired.TurnsLeft > 0)
             UState.Derelicts.UpdateTurn();
-        AssertFalse(UState.Derelicts.TryAttachModel(expired, new SceneObject("expired")), "nor does one whose turns ran out while it loaded");
+        AssertTrue(expired.WantsModel, "its turns ran out: it still wants one, to sink away on screen");
+        AssertTrue(UState.Derelicts.TryAttachModel(expired, new SceneObject("expired")),
+                   "one whose turns ran out while its model loaded still takes it, to sink away on screen");
 
         TestShip other = SpawnShip("Dreadnought mk1-a", Enemy, Site(1));
         UState.Derelicts.TryAdd(other, salvageable: true, seen: false);
