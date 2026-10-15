@@ -3174,7 +3174,7 @@ BB_Tech_Cryogenics_Desc:
  PTB: "Criogenia é a ciência de suspender as funções vitais de um organismo por congelamento. Mesmo que os equipamentos criogênicos sejam volumosos, é possível transportar muito mais pessoas com criogenia do que sem ela."
 BB_Tech_Cryogenics_PassengerModifier_Bonus:
  Id: 540
- ENG: "Passenger ships carry one more load of colonists: twice as many as without it, or four times instead of three for races with Manifest Destiny."
+ ENG: "Freighters carry one more load of colonists: twice as many as without it, or four times instead of three for races with Manifest Destiny."
  RUS: "Удваивает количество колонистов, перевозимых пассажирскими кораблями в пределах вашей империи"
  SPA: "Duplica la cantidad de colonos que pueden llevar las naves de pasajeros dentro de tu imperio"
  UKR: "Подвоює кількість колоністів, що перевозяться пасажирськими кораблями в межах вашої імперії"
