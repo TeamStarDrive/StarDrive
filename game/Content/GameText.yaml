@@ -18571,7 +18571,7 @@ TheirInfiltrationLevelWas:
  PTB: "O Nível de Infiltração deles era"
 NotifyLeechedTech:
  Id: 6254
- ENG: "We gained 10% of the cost of a tech they have\njust researched: "         
+ ENG: "We gained research progress worth 10% of a tech they have\njust researched: "         
  RUS: "Мы похитили 10% от технологии, которую они только что\nисследовали: "
  PTB: "Nós drenamos 10% de uma tecnologia que eles\nacabaram de pesquisar: "
 WeIncitedUprise: 
