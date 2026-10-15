@@ -11,8 +11,14 @@ public sealed class Derelicts
 {
     readonly Array<Derelict> Items = new();
     readonly object Sync = new();
+    // rebuilt under the lock whenever the list changes, so the UI thread reads it every frame without waiting
+    Derelict[] Shared = Empty<Derelict>.Array;
 
     public int Count { get { lock (Sync) return Items.Count; } }
+
+    public Derelict[] Current => Volatile.Read(ref Shared);
+
+    void Publish() => Volatile.Write(ref Shared, Items.ToArray());
 
     public int NumSalvageable { get { lock (Sync) return CountSalvageable(); } }
 
@@ -59,6 +65,7 @@ public sealed class Derelicts
             if (!salvageable && (!seen || so == null || CountDriftingInScene() >= GlobalStats.Defaults.MaxDriftingDerelicts))
                 return false;
             Items.Add(new Derelict(ship, so, salvageable, seen));
+            Publish();
             if (so != null)
                 ship.ReleaseSceneObject();
             return true;
@@ -69,9 +76,23 @@ public sealed class Derelicts
     {
         lock (Sync)
         {
-            for (int i = Items.Count - 1; i >= 0; --i)
-                if (!Items[i].Update(timeStep))
-                    Items.RemoveAt(i);
+            bool removed = false;
+            try
+            {
+                for (int i = Items.Count - 1; i >= 0; --i)
+                {
+                    if (!Items[i].Update(timeStep))
+                    {
+                        Items.RemoveAt(i);
+                        removed = true;
+                    }
+                }
+            }
+            finally
+            {
+                if (removed)
+                    Publish();
+            }
         }
     }
 
@@ -92,9 +113,16 @@ public sealed class Derelicts
             return;
         lock (Sync)
         {
-            for (int i = 0; i < saves.Length; ++i)
-                if (saves[i].Design?.BaseHull != null)
-                    Items.Add(new Derelict(universe, saves[i]));
+            try
+            {
+                for (int i = 0; i < saves.Length; ++i)
+                    if (saves[i].Design?.BaseHull != null)
+                        Items.Add(new Derelict(universe, saves[i]));
+            }
+            finally
+            {
+                Publish();
+            }
         }
     }
 
@@ -166,6 +194,7 @@ public sealed class Derelicts
             finally
             {
                 Items.Clear();
+                Publish();
             }
         }
     }

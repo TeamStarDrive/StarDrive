@@ -6152,6 +6152,14 @@ namespace Ship_Game
         DisableSalvageOpsTip = 7125,
         /// <summary>This mod has no salvage content, so salvage ops are off.</summary>
         DisableSalvageOpsModTip = 7126,
+        /// <summary>Derelict</summary>
+        Derelict = 7127,
+        /// <summary>Original Owner: {0}</summary>
+        DerelictOriginalOwner = 7128,
+        /// <summary>Turns left before this derelict sinks away and can no longer be salvaged.</summary>
+        DerelictTurnsLeftTip = 7129,
+        /// <summary>Production left to salvage from this derelict, out of the production it started with.</summary>
+        DerelictProductionTip = 7130,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

@@ -3,8 +3,8 @@
 An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
 into `base` as fixes land. Status (2026-10-15): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. `base` is level with `jupiter-1.60/fixes_50`, and sub-branch 2 (salvageable) is
-cut from it; the rest is planned. Decisions 119-176, 178-190 and 222-232 are all settled; 168-175 came from the review
-of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 from the start of
+cut from it; the rest is planned. Decisions 119-176, 178-190, 222-232 and 236-242 are all settled; 168-175 came from the
+review of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-242 from
 phase 2. The fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list
 safe on the sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -80,8 +80,17 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   - The timer stops while a salvage yard of an empire that has seen the derelict is in its system (143), and runs
     on again if that yard dies (129).
   - When the timer runs out it sinks away like a drifting derelict.
-  - **On the map (226):** the player sees only the derelicts the player knows of (137). At sector and galaxy view a
-    known one shows as a grey icon of its hull role, like a ship's tactical icon.
+  - **On the map (226, 238):** the player sees only the derelicts the player knows of (137). Wherever a ship shows its
+    tactical icon, zoomed out past ship view or with Alt held, a known one shows as a grey icon of its hull role, at
+    the size a ship's icon has.
+  - **Selection (223, 236, 237):** the player selects only a salvageable derelict the player knows of, by its icon or
+    its hull, as a ship is selected. Once its turns run out it can no longer be selected, and a drifting derelict never
+    can. While one is selected, a right click on a ship does not select the ship, as with a selected planet.
+  - **Its panel:** it sits where the ship info panel does, laid out like it: the design's name and role, the hull in
+    grey, a column of icons at the top left with tooltips (the original owner's flag, whose tooltip names the empire,
+    then a yellow hourglass with the turns left; 240, 241), and on the right, in the ship panel's first bar row, a bar
+    of the production remaining out of what it started with (239, 242). The turns and production tooltips link to
+    the Codex. The rest of the right side is kept for bars and buttons.
 - **Its model (224, 230):** a derelict from an unseen death, one loaded from a save, or one after a content reload has
   no model. It loads one from its hull on the UI thread the first time it is on screen at system view or closer and
   known to the player, and keeps it until it sinks away. With no model it still drifts and sinks; one the player does
@@ -111,7 +120,7 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   - *strip* recovers techs and production;
   - *recover* recovers only the ship.
 
-  The player picks the mode on the derelict's info panel (the ship info panel shows a selected derelict's data).
+  The player picks the mode on the derelict's info panel (its own panel, where the ship info panel sits).
   The AI picks it from the tech list: it strips when the list holds techs it wants for its progression.
 - **What the derelict records:** per empire, the production share it has stripped and its hull recovery progress
   (123, 133).
@@ -119,8 +128,10 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   - The yard keeps the stripped production and freighters haul it to colonies (132 B).
   - Production that arrives while the yard's store is full turns into credits at 1 credit per 5 production, so the
     salvage ships keep working (149, 157).
-  - The derelict's total production is its design cost, which already includes the production pace
-    (`ShipDesign_Stats.cs:191`). It is taken from the original owner and stored at death (160).
+  - The derelict's total production is half the share of health the ship had left at its death, times its design
+    cost before any empire's cost bonus, at the game's production pace (`ShipDesign_Stats.cs`
+    `GetCostBeforeBonuses`). It is stored at death (160, 239): a ship that cost 1000 and died with 40% of its health
+    leaves 200 to salvage.
   - When the empires' stripped shares add up to that total, the hull dissolves.
 - **Techs (159):**
   - The derelict lists every tech its design needs that the salvaging empire has not researched yet.

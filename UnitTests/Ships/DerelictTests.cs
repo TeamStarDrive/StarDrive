@@ -990,6 +990,8 @@ public class DerelictTests : StarDriveTest
             UState.Derelicts.UpdateTurn();
         AssertTrue(d.IsKnownBy(Enemy) && d.IsKnownBy(Player), "setup: the enemy and the player know of it");
         AssertFalse(d.IsKnownBy(ThirdMajor), "setup: the third empire does not");
+        AssertGreaterThan(d.Production, 0f, "setup: it has production to salvage");
+        typeof(Derelict).GetProperty(nameof(Derelict.ProductionLeft))!.SetValue(d, d.Production * 0.5f); // partly salvaged
 
         UniverseScreen loaded = SaveAndLoad();
         Derelict[] after = loaded.UState.Derelicts.ToArray();
@@ -1003,6 +1005,8 @@ public class DerelictTests : StarDriveTest
                     new Vector3(back.RotationX, back.RotationY, back.RotationZ), "turned as it was");
         AssertEqual(0.01f, d.Radius, back.Radius, "as big");
         AssertEqual(d.TurnsLeft, back.TurnsLeft, "with the turns it had left");
+        AssertEqual(0.01f, d.Production, back.Production, "the production it started with");
+        AssertEqual(0.01f, d.ProductionLeft, back.ProductionLeft, "and what was left of it");
         Assert.AreSame(ResourceManager.Ships.GetDesign(d.Design.Name), back.Design, "of the loaded game's own design");
         AssertEqual(Player.Id, back.Owner.Id, "and owner");
         AssertTrue(back.IsKnownBy(loaded.UState.GetEmpireById(Enemy.Id)), "the enemy still knows of it");
@@ -1144,5 +1148,131 @@ public class DerelictTests : StarDriveTest
         Derelict gone = Newest();
         UState.Derelicts.Clear();
         AssertFalse(UState.Derelicts.TryAttachModel(gone, new SceneObject("late")), "one that left while its model loaded gets none");
+    }
+
+    Derelict SalvageableOf(Empire owner, Vector2 at, bool knownByPlayer)
+    {
+        TestShip ship = SpawnShip("Dreadnought mk1-a", owner, at);
+        if (knownByPlayer)
+            ship.KnownByEmpires.SetSeen(Player);
+        AssertTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false), "setup: a salvageable derelict");
+        return Newest();
+    }
+
+    [TestMethod]
+    public void ASalvageableDerelictHoldsHalfTheHealthItHadLeftTimesItsCostBeforeBonuses()
+    {
+        UState.P.Pace = 3f;
+        AssertEqual(0.001f, 2f, UState.ProductionPace, "setup: a slower pace, which the cost includes");
+        Enemy.data.Traits.ShipCostMod = 0.5f;
+        TestShip ship = SpawnShip("Dreadnought mk1-a", Enemy, Site(0));
+        foreach (ShipModule m in ship.Modules.Where(m => m.CanVisualizeDamage && !m.HasInternalRestrictions).Take(10))
+            m.SetHealth(0f, "Test");
+        float health = ship.HealthPercent;
+        AssertTrue(health is > 0f and < 0.99f, "setup: the ship is damaged");
+        float cost = (int)(ship.ShipData.BaseCost * 2f);
+        AssertLessThan(cost, ship.GetCost(Enemy), "setup: its cost trait made it cost its owner more");
+
+        UState.Derelicts.TryAdd(ship, salvageable: true, seen: false);
+        Derelict d = Newest();
+        AssertEqual(0.5f, health * 0.5f * cost, d.Production, "half the share of health it had left, times its cost before any empire's bonus");
+        AssertEqual(0.01f, d.Production, d.ProductionLeft, "none of it salvaged yet");
+
+        TestShip station = SpawnShip("Platform Base mk1-a", Enemy, Site(1));
+        AssertTrue(station.ShipData.IsPlatformOrStation && station.HealthPercent > 0.99f, "setup: an undamaged platform");
+        UState.Derelicts.TryAdd(station, salvageable: true, seen: false);
+        AssertEqual(0.5f, 0.5f * (int)(station.ShipData.BaseCost * 2f * 0.7f), Newest().Production, "a platform or station costs 30% less");
+
+        Derelict drifting = DriftingWithSmoke();
+        AssertEqual(0.01f, 0f, drifting.Production, "a drifting one has nothing to salvage");
+    }
+
+    [TestMethod]
+    public void ThePlayerSelectsOnlyTheSalvageableDerelictsItKnowsOf()
+    {
+        Derelict known = SalvageableOf(Enemy, Site(1), knownByPlayer: true);
+        Derelict unknown = SalvageableOf(Enemy, Site(2), knownByPlayer: false);
+        Derelict drifting = DriftingWithSmoke();
+        AssertTrue(known.SelectableByPlayer, "a salvageable derelict the player knows of can be selected");
+        AssertFalse(unknown.SelectableByPlayer, "one the player does not know of cannot");
+        AssertTrue(drifting.KnownByPlayer && !drifting.SelectableByPlayer, "nor can a drifting one, though the player saw it die");
+
+        while (known.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        AssertFalse(known.SelectableByPlayer, "nor one whose turns ran out");
+    }
+
+    [TestMethod]
+    public void TheUIThreadSeesEveryChangeToTheList()
+    {
+        AssertEqual(0, UState.Derelicts.Current.Length, "setup: none yet");
+        Derelict stays = SalvageableOf(Enemy, Site(0), knownByPlayer: true);
+        Derelict leaves = SalvageableOf(Enemy, Site(1), knownByPlayer: false);
+        AssertTrue(UState.Derelicts.Current.SequenceEqual(new[] { stays, leaves }), "the added ones");
+
+        while (leaves.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        UState.Derelicts.Update(TestSimStep);
+        AssertEqual(1, UState.Derelicts.Count, "setup: with no model, the one the player does not know of is gone");
+        AssertTrue(UState.Derelicts.Current.SequenceEqual(new[] { stays }), "and gone from what the UI thread sees");
+
+        UniverseScreen loaded = SaveAndLoad();
+        AssertEqual(1, loaded.UState.Derelicts.Current.Length, "a loaded one");
+
+        UState.Derelicts.Clear();
+        AssertEqual(0, UState.Derelicts.Current.Length, "and none once cleared");
+    }
+
+    void LookDownAt(Vector2 position, double height)
+    {
+        Universe.CamPos = new Vector3d(position.X, position.Y, height);
+        Universe.SetViewPerspective(Matrices.CreateLookAtDown(position.X, position.Y, -height), maxDistance: UniverseScreen.CAM_MAX);
+    }
+
+    [TestMethod]
+    public void AClickOnItsIconOrItsHullFindsADerelictThePlayerCanSelect()
+    {
+        Derelict d = SalvageableOf(Enemy, Site(0), knownByPlayer: true);
+        Derelict unknown = SalvageableOf(Enemy, Site(5), knownByPlayer: false);
+
+        LookDownAt(d.Position, 2_000_000);
+        Vector2 icon = Universe.ProjectToScreenPosition(d.Position).ToVec2f();
+        AssertLessThan(Universe.ProjectToScreenSize(d.Radius), 2.0, "setup: zoomed out it is only an icon");
+        Assert.AreSame(d, Universe.FindClickedDerelict(icon), "a click on its icon");
+        Assert.AreSame(d, Universe.FindClickedDerelict(icon + new Vector2(10f, 0)), "or at its edge");
+        Assert.IsNull(Universe.FindClickedDerelict(icon + new Vector2(20f, 0)), "but not past it");
+        Assert.IsNull(Universe.FindClickedDerelict(Universe.ProjectToScreenPosition(unknown.Position).ToVec2f()),
+                      "nor on one the player does not know of");
+
+        LookDownAt(d.Position, 5000);
+        Vector2 center = Universe.ProjectToScreenPosition(d.Position).ToVec2f();
+        float hull = (float)Universe.ProjectToScreenSize(d.Radius);
+        AssertGreaterThan(hull, 50f, "setup: up close its hull is bigger than its icon");
+        Assert.AreSame(d, Universe.FindClickedDerelict(center + new Vector2(hull * 0.9f, 0)), "up close a click on its hull");
+    }
+
+    [TestMethod]
+    public void SelectingADerelictClearsTheOtherSelectionsAndOneThatSinksDropsOut()
+    {
+        Universe.ShipInfoUIElement ??= new(new Rectangle(0, 0, 407, 242), Universe.ScreenManager, Universe);
+        Derelict d = SalvageableOf(Enemy, Site(0), knownByPlayer: true);
+        TestShip ship = SpawnShip("Vulcan Scout", Player, Site(3));
+
+        Universe.SetSelectedShip(ship);
+        Universe.SetSelectedDerelict(d);
+        Assert.AreSame(d, Universe.SelectedDerelict, "the derelict is selected");
+        AssertTrue(Universe.SelectedShip == null && Universe.SelectedShips.Count == 0, "in place of the ship");
+        AssertTrue(Universe.HasSelectedItem, "so a right click on a ship selects nothing, as with a planet");
+
+        Universe.SetSelectedShip(ship);
+        Assert.IsNull(Universe.SelectedDerelict, "selecting a ship deselects it");
+
+        Universe.SetSelectedDerelict(d);
+        Universe.UpdateSelectedDerelict();
+        Assert.AreSame(d, Universe.SelectedDerelict, "it stays selected while it can be salvaged");
+        while (d.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        Universe.UpdateSelectedDerelict();
+        Assert.IsNull(Universe.SelectedDerelict, "once it starts to sink it is no longer selected");
     }
 }

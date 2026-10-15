@@ -36,6 +36,8 @@ public sealed class Derelict
     public const string BreakupBlastSound = "sd_derelict_breakup";
     // a salvageable derelict lasts this many turns, times the production pace, then sinks away
     public const int SalvageableTurns = 100;
+    // the production to salvage: this share of the health the ship had left at its death, times its cost before any empire's bonus
+    public const float SalvageShareOfHealth = 0.5f;
 
     [StarDataType]
     public struct SmokeSource
@@ -61,6 +63,8 @@ public sealed class Derelict
         [StarData] public float Radius;
         [StarData] public float Age;
         [StarData] public int TurnsLeft;
+        [StarData] public float Production;
+        [StarData] public float ProductionLeft;
         [StarData] public bool[] KnownBy;
         [StarData] public SmokeSource[] Smoke;
     }
@@ -83,6 +87,9 @@ public sealed class Derelict
     // by empire id - 1; written on the sim thread, read on the UI thread
     bool[] KnownBy;
     public int TurnsLeft { get; private set; }
+    // a salvageable one's production to salvage, fixed at its death, and what is still left of it
+    public readonly float Production;
+    public float ProductionLeft { get; private set; }
     public Vector2 Position { get; private set; }
     public float Z { get; private set; }
     public float Age { get; private set; }
@@ -131,7 +138,12 @@ public sealed class Derelict
             if (ship.KnownByEmpires.KnownBy(empires[i]))
                 SetKnownBy(empires[i]);
         if (salvageable)
+        {
             TurnsLeft = (int)(SalvageableTurns * Universe.ProductionPace);
+            Production = ship.HealthPercent.Clamped(0f, 1f) * SalvageShareOfHealth
+                       * Design.GetCostBeforeBonuses(Universe.ProductionPace);
+            ProductionLeft = Production;
+        }
 
         if (!seen)
         {
@@ -162,6 +174,8 @@ public sealed class Derelict
         Spin = save.Spin;
         Age = save.Age;
         TurnsLeft = universe.P.SalvageOps ? save.TurnsLeft : 0;
+        Production = save.Production;
+        ProductionLeft = save.ProductionLeft;
         KnownBy = save.KnownBy ?? new bool[universe.NumEmpires];
         Smoke = save.Smoke ?? Empty<SmokeSource>.Array;
     }
@@ -185,6 +199,8 @@ public sealed class Derelict
             Radius = Radius,
             Age = Age,
             TurnsLeft = TurnsLeft,
+            Production = Production,
+            ProductionLeft = ProductionLeft,
             KnownBy = (bool[])KnownBy.Clone(),
             Smoke = smoke,
         };
@@ -243,6 +259,9 @@ public sealed class Derelict
     public bool Sinking => Salvageable ? TurnsLeft <= 0 : Age > BreakupSeconds;
 
     public bool CanBeSalvaged => Salvageable && TurnsLeft > 0;
+
+    // the player finds on the map and selects only the salvageable ones it knows of
+    public bool SelectableByPlayer => CanBeSalvaged && KnownByPlayer;
 
     // once a turn, on the sim thread: its timer runs down, and an empire with a sensor over it learns of it for good
     public void UpdateTurn()
