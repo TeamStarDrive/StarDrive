@@ -3874,7 +3874,7 @@ BB_Tech_Privatization_Desc:
  PTB: "A privatização permite que entidades privadas possuam participações em operações públicas, subsidiando assim os custos de manutenção de cargueiros e instalações de espaço profundo, como plataformas e estações."
 BB_Tech_Privatization_Bonus:
  Id: 642
- ENG: "Platform and Freighter maintenance is reduced by 50%"
+ ENG: "Maintenance of platforms, stations, ships on freighter hulls and freighters on any hull is reduced by 50%"
  RUS: "Расходы на содержание платформ и транспортов снижаются на 50%."
  SPA: "El mantenimiento de plataformas y cargueros se reduce en un 50%"
  UKR: "Обслуговування платформ і вантажних суден знижено на 50%"

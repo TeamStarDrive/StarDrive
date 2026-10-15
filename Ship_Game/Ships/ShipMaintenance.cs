@@ -64,9 +64,11 @@ namespace Ship_Game.Ships
                 case RoleName.troop:                       maint *= 0.5f; break;
             }
 
+            // civilian upkeep: freighter, platform and station hulls, and a freighter on any hull
             if (role == RoleName.freighter ||
                 role == RoleName.platform ||
-                role == RoleName.station)
+                role == RoleName.station ||
+                ship.IsFreighter)
             {
                 maint *= empire.data.CivMaintMod;
                 if (empire.data.Privatization)
