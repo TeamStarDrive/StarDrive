@@ -512,6 +512,16 @@
       MaxConcurrent: 8
 
     - SoundEffect:
+      Id: sd_derelict_breakup # the small blasts of a derelict breaking up: the Explo1 sounds, quieter and with their own limit
+      Volume: 0.8
+      Sounds:
+        - "Explosions/Explo1.0.m4a"
+        - "Explosions/Explo1.1.m4a"
+        - "Explosions/Explo1.2.m4a"
+        - "Explosions/Explo1.3.m4a"
+      MaxConcurrent: 4
+
+    - SoundEffect:
       Id: sd_explosion_ship_det_small
       # TODO: maybe we can add volume ranges here?
       Volume: 0.4

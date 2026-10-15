@@ -121,6 +121,7 @@ namespace Ship_Game
                 ++SimTurnId;
 
                 UState.Objects.Update(FixedSimTime.Zero/*paused*/);
+                UState.Derelicts.Update(FixedSimTime.Zero); // hides or shows them as the camera moves
 
                 // keep build-goal icons visible/selectable and tracking the camera while
                 // paused; must stay on this thread - GoalsList is owned by the sim thread
@@ -290,6 +291,8 @@ namespace Ship_Game
                 // update in reverse, to allow Update() to remove the junk
                 for (int i = UState.JunkList.Count - 1; i >= 0; --i)
                     UState.JunkList[i]?.Update(timeStep);
+
+                UState.Derelicts.Update(timeStep);
             }
             EmpireMiscPerf.Stop();
         }

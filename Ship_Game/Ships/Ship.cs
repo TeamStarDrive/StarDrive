@@ -159,6 +159,12 @@ namespace Ship_Game.Ships
         [StarData] public LandShip LandShip;
         private bool ReallyDie;
         private bool HasExploded;
+        // rolled a derelict death: no main explosion and no death blast
+        bool RolledDerelict;
+        // seen when it rolled a derelict death: a derelict takes the hull when the ship is removed
+        bool LeavesDerelict;
+        // debug: its death is a derelict one, with no roll
+        bool DebugDerelict;
         public float TotalDps { get; private set; }
 
         public bool HasCommand;
@@ -399,6 +405,16 @@ namespace Ship_Game.Ships
             percent = percent.Clamped(0f, 1f);
             foreach (ShipModule module in ModuleSlotList)
                 module.DebugDamage(percent);
+        }
+
+        // debug: destroys the ship as a derelict, and does nothing to a ship that cannot become one
+        public void DebugDieAsDerelict()
+        {
+            if (!Active || Dying || !CanBecomeDerelict)
+                return;
+            DebugDerelict = true;
+            DebugDamage(1f);
+            DebugDerelict = false;
         }
 
         public void DebugBlowBiggestExplodingModule()  => DebugBlowExplodingModule(true);
@@ -1633,16 +1649,42 @@ namespace Ship_Game.Ships
             if (Dying && !ReallyDie)
                 return; // planet crash or tumble
 
+            bool visible = IsVisibleToPlayer;
+            // set before Active goes false, or a removal running on the sim thread could miss it
+            LeavesDerelict = RolledDerelict && visible;
+
             QueueTotalRemoval(); // sets Active=false, remove thether and from orbital stations
             OnShipDie(pSource);
             Mothership?.OnLaunchedShipDie(this);
             
-            bool visible = IsVisibleToPlayer;
             Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
             Carrier.ScuttleHangarShips();
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
-            CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly);
+            if (!LeavesDerelict)
+                CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly, blast: !RolledDerelict);
+        }
+
+        // on the sim thread alone, before the removal, so no ship update can be reading the scene object
+        public void LeaveDerelict()
+        {
+            if (LeavesDerelict && !Universe.Derelicts.TryAdd(this))
+                CreateExplosionEffects(visible: true, cleanupOnly: false, blast: false);
+        }
+
+        // frigate and bigger military ships, and untethered stations that are not research, mining, Dyson swarm or portal stations
+        public bool CanBecomeDerelict
+        {
+            get
+            {
+                if (IsMeteor || IsLaunchingOrLanding)
+                    return false;
+                if (ShipData.IsStation)
+                    return TetheredTo == null && !IsResearchStation && !IsMiningStation && !IsDysonSwarmController
+                        && !(Loyalty.WeAreRemnants && Name == Loyalty.data.RemnantPortal);
+                return ShipData.HullRole is >= RoleName.frigate and <= RoleName.capital
+                    && DesignRoleType is RoleType.Warship or RoleType.WarSupport or RoleType.Troop;
+            }
         }
 
         bool WillShipDieNow(Projectile proj)
@@ -1651,17 +1693,29 @@ namespace Ship_Game.Ships
                 return false;
 
             // will ship instantly explode?
-            if (IsMeteor || proj is { Explodes: true } && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
+            bool instantKill = IsMeteor || proj is { Explodes: true } && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200);
+            // 35% the ship will not explode immediately, but will start tumbling out of control
+            bool tumbles = !instantKill && Loyalty.Random.RollDice(35);
+            Planet crashPlanet = null;
+            bool crashes = tumbles && PlanetCrash.GetPlanetToCrashOn(this, out crashPlanet);
+
+            // a ship that crashes on a planet does not roll for a derelict
+            if (CanBecomeDerelict && (DebugDerelict || !crashes && Loyalty.Random.RollDice(GlobalStats.Defaults.DerelictChance)))
+            {
+                RolledDerelict = true;
+                return true;
+            }
+
+            if (instantKill)
                 return true;
 
-            if (Loyalty.Random.RollDice(35))
+            if (tumbles)
             {
-                // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
-                if (PlanetCrash.GetPlanetToCrashOn(this, out Planet planet))
+                if (crashes)
                 {
                     Dying = true;
-                    PlanetCrash = new(planet, this);
+                    PlanetCrash = new(crashPlanet, this);
                 }
 
                 if (InFrustum)
@@ -1685,7 +1739,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        void CreateExplosionEffects(bool visible, bool cleanupOnly)
+        void CreateExplosionEffects(bool visible, bool cleanupOnly, bool blast)
         {
             if (!cleanupOnly && visible)
             {
@@ -1705,8 +1759,11 @@ namespace Ship_Game.Ships
 
                 if (PlanetCrash == null)
                 {
-                    float explosionDamage = GetExplosionDamage();
-                    Universe.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage * 0.01f);
+                    if (blast)
+                    {
+                        float explosionDamage = GetExplosionDamage();
+                        Universe.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage * 0.01f);
+                    }
                     if (visible)
                     {
                         // Added by RedFox - spawn flaming spacejunk when a ship dies

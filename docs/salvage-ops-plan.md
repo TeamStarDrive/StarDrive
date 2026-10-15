@@ -1,8 +1,10 @@
 # Salvage Ops: derelict ships, salvage yards, recovery
 
-An integration branch `feature/salvage-ops/base` cut from `jupiter-1.60/fixes_49`, with sub-branches under it. One
-PR to `main` once the whole feature is complete (140, 154). Status (2026-10-15): planning done, nothing coded.
-Decisions 119-176 are all settled; 168-175 came from the review of this plan.
+An integration branch `feature/salvage-ops/base` cut from `jupiter-1.60/fixes_49`, with sub-branches under it.
+Phase 1 ships on its own: `base` merges into the patch branch `jupiter-1.60/fixes_49` once sub-branch 1 is in
+(190). Status (2026-10-15): sub-branch 1 (derelicts) is done; the rest is planned. Decisions 119-176 and 178-190 are
+all settled; 168-175 came from the review of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at
+it in game.
 
 ## The rules (Gilad, 2026-10-15)
 
@@ -26,9 +28,14 @@ Decisions 119-176 are all settled; 168-175 came from the review of this plan.
 
   "Visible" is `IsVisibleToPlayer`: on screen, zoomed in to system view or closer, and in the player's sensor range
   (`Ship_Update.cs:42`).
-- **Where:** the stop point decides, and it is known at death, since the drift slows linearly to a stop. A stop
-  inside a system makes a **salvageable** derelict. Two cases make a **drifting** derelict instead, and only when
-  the death is visible (125):
+- **Planet crashes (178 B):** a ship that is about to crash on a planet does not roll for a derelict, so crash sites
+  stay as common as before.
+- **Debug key (Gilad, 2026-10-15):** in debug mode, Ctrl+X (or Ctrl+Delete) destroys the selected ship as a derelict
+  with no roll, and does nothing to a ship that cannot become one. Like any unseen derelict death, a ship that is
+  not on screen at system view or closer leaves nothing.
+- **Where:** the stop point decides, and it is known at death: a salvageable derelict slows linearly to a stop over
+  10 s, so it stops 5 s worth of its drift speed from where it died. A stop inside a system makes a **salvageable**
+  derelict. Two cases make a **drifting** derelict instead, and only when the death is visible (125):
   - a stop outside every system;
   - a stop inside a star's radiation zone.
 
@@ -37,15 +44,27 @@ Decisions 119-176 are all settled; 168-175 came from the review of this plan.
   - The universe keeps the list of derelicts (129).
   - Base chance 35%, times (1 - salvageable / MaxSalvageableDerelicts), with the limit 40 as a Globals knob
     (129, 142).
-  - At most 20 drifting derelicts at once (142); past that, a visible death shows the normal explosion with no
-    blast (170).
+  - At most 100 drifting derelicts at once (142, raised from 20 by 188); past that, a visible death shows the
+    normal explosion with no blast (170).
 - **What it is:** a derelict is its own lightweight object, not a `Ship` (120).
 
 ### How a derelict moves and ends
 
-- It drifts on its velocity for 10 s to a full stop, with the drift speed capped at the ship's top sublight speed.
-  It keeps an x/y/z tumble with smoke and has its lights off. Rotation and smoke update only in the frustum.
-- **Drifting derelict:** sinks away from the camera at 50 units/s and is removed at Z 5000, which takes 100 s (129).
+- It drifts on its velocity at death, capped at the ship's top sublight speed (185). A drifting derelict keeps that
+  speed (184); a salvageable one slows to a full stop over 10 s. It keeps an x/y/z tumble with smoke and has its
+  lights off. Rotation and smoke update only in the frustum.
+- **Smoke (Gilad, 2026-10-15, 187):** at death it smokes from 20% of its modules (at least 6), dead ones first, then
+  damaged ones; they go out one by one over 60 s until 6 are left.
+- **Breakup (179, 180):** for 3-5 s, a small explosion every 0.15-0.5 s with a flash, sparks, and a few burning junk
+  pieces at death. Each blast plays `sd_derelict_breakup`: the `Explo1` weapon explosion sounds at 40% of their
+  volume, with a limit of 4 at once of its own, so weapon impacts keep their 8 (the Explosions category's limits stay
+  shared). The small detonation sound plays once at death for every size. The lights flicker out over the breakup,
+  and a ship that was already dark stays dark. The tumble keeps the tumbling-death rate (181), and a derelict stays
+  drawn after the player loses sensor contact (182).
+- **Drifting derelict:** after its breakup it starts to sink away from the camera at 50 units/s (186), and is removed at
+  Z 5000, which takes 100 s (129).
+  As it sinks it shrinks, to 10% of its size at Z 5000 (183): at planet view the camera is 35,000 above the plane,
+  so the depth alone would leave it at 88% of its size when it goes.
 - **Salvageable derelict:**
   - It stays on the plane, with no Z drift (141).
   - Its timer is 100 turns x ProductionPace.
@@ -176,19 +195,26 @@ Implementation notes:
 
 ### Phases and branches
 
-- **Phase 1** is visual only (128): every derelict drifts away after it stops, and nothing is saved. The roll
-  still covers every eligible death, so a rolled death never blasts; an unseen one leaves nothing in phase 1 (170).
+- **Phase 1** is visual only (128): every derelict is a drifting one, which keeps its speed and sinks away after its
+  breakup, and nothing is saved. The roll still covers every eligible death, so a rolled death never blasts; an
+  unseen one leaves nothing in phase 1 (170).
 - **Phase 2** adds persistence, salvage and the AI; **phase 3** adds recovery.
-- Each sub-branch merges into `feature/salvage-ops/base` through a GitHub PR with the usual gates, and `main` is
-  merged into `base` as fixes land. One final PR goes from `base` to `main`, with a merge commit (154).
+- Each sub-branch merges into `feature/salvage-ops/base`, and the patch branch of the day is merged into `base` as
+  fixes land.
+- **Shipping (190, replaces the single final PR of 140 and 154):** phase 1 merges into `jupiter-1.60/fixes_49` with a
+  merge commit and ships in that patch batch, through its PR to `main` with the usual gates. Later phases go the same
+  way, each into the patch branch of its day.
+- **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
+  exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
+  the hard cap of 100 alone.
 
 ## What the code already has
 
 - **Tumbling death.** 35% of the kills that are not instant tumble, only in the frustum or before a planet crash
-  (`Ship.cs:1657`). Each axis spins at up to 50/SurfaceArea rad/s (`Ship.cs:1678`). `Ship_Update.UpdateDying`
-  (`Ship_Update.cs:353`) adds small explosions, flash, lightning, burning junk and module smoke
+  (`Ship.cs:1698`). Each axis spins at up to 50/SurfaceArea rad/s (`Ship.cs:1732`). `Ship_Update.UpdateDying`
+  (`Ship_Update.cs:359`) adds small explosions, flash, lightning, burning junk and module smoke
   (`UpdateWhileDying`), then `Die` -> `CreateExplosionEffects` -> `Spatial.ShipExplode`, the death blast
-  (`Ship.cs:1709`). An explosive hit above max(SurfaceArea/2, 200) damage kills at once (`Ship.cs:1654`).
+  (`Ship.cs:1765`). An explosive hit above max(SurfaceArea/2, 200) damage kills at once (`Ship.cs:1696`).
 - **Lights.** Ship lights follow power through `ShipSO.EmissiveScale`; a derelict sets it to 0.
 - **Build visuals.** `ConstructionShip.AddConstructionEffects`, run from 100% down to 0, reads as a wreck being
   taken apart. It takes a `Ship`, so the derelict needs its own entry point.
@@ -218,8 +244,8 @@ Implementation notes:
 ## Sub-branches
 
 1. **derelicts** (phase 1): which ships count (172); the roll, which removes the blast for every rolled death (170);
-   the 3-5 s of small explosions; the `Derelict` object; the drift to a stop with its speed cap; tumble and smoke in
-   the frustum; lights off; sinking away at 50/s to Z 5000; the cap of 20. Not saved. Globals knobs. Codex ("Stances,
+   the 3-5 s of small explosions; the `Derelict` object; the drift with its speed cap; tumble and smoke in
+   the frustum; lights off; sinking away at 50/s to Z 5000; the cap of 100. Not saved. Globals knobs. Codex ("Stances,
    targets and how a ship dies", GameText.yaml ~22996: no blast for a derelict, and internal slots are I or IO).
    Tests.
 2. **salvageable**:
@@ -256,6 +282,6 @@ Each sub-branch adds its Codex text and tests.
 - A recovered ship of a player design breaks on load unless the derelict's design is saved.
 - No blast for derelicts shifts combat a little: stacked fleets take fewer death blasts.
 - The roll, not visibility, removes the blast, so the camera never changes combat (170). A tumbling ship that did
-  not roll a derelict still blasts when it ends (`Ship.cs:1706-1709`).
+  not roll a derelict still blasts when it ends (`Ship.cs:1760-1765`).
 - Hauling FROM a station does not exist yet; it is the largest new piece of phase 2.
 - Saves grow with salvageable derelicts; the throttle and the timer bound them. Each one is small (no modules).

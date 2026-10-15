@@ -179,6 +179,23 @@ namespace UnitTests.Data
         }
 
         [TestMethod]
+        public void DerelictBreakupBlastsHaveTheirOwnLimitSoWeaponImpactsKeepTheirs()
+        {
+            AudioConfig config = new();
+            AudioCategory explosions = config.GetCategory("Explosions");
+            SoundEffect breakup = config.GetSoundEffect(Ship_Game.Ships.Derelict.BreakupBlastSound);
+            AssertTrue(breakup != null, "the derelict breakup sound is defined");
+            AssertEqual(0.001f, 0.8f, breakup.Volume, "the Explo1 sounds at 40% of their volume");
+
+            breakup.NumActiveInstances = 3;
+            AssertTrue(explosions.CanPlayEffect(breakup), "a fourth blast still plays");
+            breakup.NumActiveInstances = 4;
+            AssertFalse(explosions.CanPlayEffect(breakup), "breakup blasts stop at four at once");
+            AssertTrue(explosions.CanPlayEffect(config.GetSoundEffect("Explo1")), "while weapon impacts still play");
+            breakup.NumActiveInstances = 0;
+        }
+
+        [TestMethod]
         public void EmitterVolumeScaleMultipliesTheEffectiveVolume()
         {
             AudioConfig config = new();

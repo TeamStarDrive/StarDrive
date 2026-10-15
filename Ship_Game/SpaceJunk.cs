@@ -181,6 +181,9 @@ namespace Ship_Game
             if (universe.JunkList.Count > 1000)
                 return; // don't allow too much junk
 
+            if (ResourceManager.NumJunkModels == 0)
+                return; // junk models are not loaded in Unit Tests
+
             if (!source.IsInFrustum(universe.Screen))
                 return; // not visible on the screen, so lets forget about it :)
 
