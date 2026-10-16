@@ -801,6 +801,9 @@ namespace Ship_Game
 
         public void AddResearchStationBuiltNotification(Ship s, ExplorableGameObject solarBody)
         {
+            if (Screen.UState.P.DisableStationBuiltWarning)
+                return;
+
             string message;
             if (solarBody is Planet planet)
             {
@@ -824,6 +827,9 @@ namespace Ship_Game
 
         public void AddMiningStationBuiltNotification(Ship s, Planet planet)
         {
+            if (Screen.UState.P.DisableStationBuiltWarning)
+                return;
+
             AddNotification(new Notification
             {
                 Message = $"{planet.System.Name}: {s.Name}" + $" {Localizer.Token(GameText.MiningStationBuiltPlanetNotify)} {planet.Name}",
