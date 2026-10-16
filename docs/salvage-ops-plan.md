@@ -347,7 +347,14 @@ Implementation notes:
    - ordering a yard: the `SalvageOps` goal, the cap of 3 per empire per system, Deep Space Build, the button on the
      derelict's panel, the Exotic Systems rows and the abort (248-251);
    - the timer's pause while a yard is in the system (223);
-   - the trust penalty.
+   - the trust penalty;
+   - left from sub-branch 2:
+     - Gilad's check in game that a ship entering a system with derelicts brings the notification, with debug mode
+       off, since debug mode shows the player every ship and so a debug kill is always known as it forms;
+     - 267: whether saves made on the salvageable branch before `c1e1ef38a`, whose salvageable derelicts load with no
+       system, get a fallback;
+     - 268: whether the infiltration Codex entries (100190, 100196, 100199) mention that the top level shows a rival's
+       derelicts.
 4. **salvaging** (247):
    - the strip/recover choice on the info panel, and the yard half of the notification (223);
    - the work cycle with a `CargoShuttles` route;
