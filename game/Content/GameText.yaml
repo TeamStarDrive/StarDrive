@@ -22972,7 +22972,7 @@ CodexEconomyAutomationShort:
  ENG: "Handing routine jobs to the empire AI"
 CodexEconomyAutomationText:
  Id: 100070
- ENG: "The automation window opens with H or with the AI button on the minimap. Each box on its Automation tab hands one job to the same AI that runs the computer empires: exploring and colonizing, freighters, construction, and research and taxes; its Alerts tab picks the notifications you receive. The window also holds Autobuild Projectors, which lays subspace projector roads along your busy trade lanes; see Subspace Projectors. The entries below explain each box.\n\nColonies are automated separately by governors, assigned in the colony screen or from the planet list (L); see Governor and Budgets under The Colony Screen."
+ ENG: "The automation window opens with H or with the AI button on the minimap. Each box on its Automation tab hands one job to the same AI that runs the computer empires: exploring and colonizing, freighters, construction, and research and taxes; its Alerts tab picks the alerts you get. The window also holds Autobuild Projectors, which lays subspace projector roads along your busy trade lanes; see Subspace Projectors. The entries below explain each box.\n\nColonies are automated separately by governors, assigned in the colony screen or from the planet list (L); see Governor and Budgets under The Colony Screen."
 CodexExpansion:
  Id: 100071
  ENG: "Expansion"

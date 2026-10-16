@@ -77,12 +77,12 @@ namespace Ship_Game.Commands.Goals
             return Owner.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
-        // a projector we took is scuttled, and on long turns it can be gone before the later steps run
-        bool ScuttledAfterCapture => TargetShip is { Active: false } && TargetShip.Loyalty == Pirates.Owner;
+        // a projector lost while ours ends the raid as WaitForDestruction does, whichever step sees it
+        bool LostWhileOurs => TargetShip is { Active: false } && TargetShip.Loyalty == Pirates.Owner;
 
         GoalStep CheckIfHijacked()
         {
-            if (ScuttledAfterCapture)
+            if (LostWhileOurs)
             {
                 BoardingShip?.AI.OrderPirateFleeHome(true);
                 return WaitForDestruction();
@@ -102,7 +102,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep FleeFromOrbital()
         {
             BoardingShip?.AI.OrderPirateFleeHome(true);
-            if (ScuttledAfterCapture)
+            if (LostWhileOurs)
                 return WaitForDestruction();
 
             if (TargetShip == null || !TargetShip.Active || TargetShip.Loyalty != Pirates.Owner)

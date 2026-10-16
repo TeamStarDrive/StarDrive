@@ -178,7 +178,7 @@ namespace Ship_Game.GameScreens.Scene
 
     class WarpingOut : SceneAction
     {
-        Vector3 Start; // far right foreground
+        Vector3 Start; // where the spool ends and the warp starts
         readonly Vector3 WarpScale = new Vector3(1, 4, 1);
         const float WarpDistance = 50000f;
         const float SpoolTime = 3.2f;

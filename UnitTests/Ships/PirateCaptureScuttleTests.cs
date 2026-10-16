@@ -63,7 +63,7 @@ public class PirateCaptureScuttleTests : StarDriveTest
 
     void RunUntilGone(Ship station) => RunSimWhile((simTimeout: 40, fatal: true), () => station.Active);
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Subspace Projector")]
     [DataRow("Basic Research Station")]
     [DataRow("Basic Mining Station")]
@@ -88,7 +88,7 @@ public class PirateCaptureScuttleTests : StarDriveTest
             Assert.IsTrue(shuttle.Active && shuttle.TroopCount == 1, "the troops live on after the station blows");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(false, DisplayName = "the raid looks only after the blast")]
     [DataRow(true, DisplayName = "the raid sees the capture, then the blast")]
     public void AProjectorRaidSucceedsWhenTheCapturedProjectorIsScuttled(bool raidSeesTheCapture)

@@ -59,7 +59,7 @@ namespace Ship_Game.AI.CombatTactics
                 // carrying our full approach momentum straight through it to point-blank (the
                 // artillery "overshoot" that makes long-range ships fight up close). Once the
                 // standoff range is within the stopping distance for the speed we close on the target
-                // (plus a 1.2 margin), start reverse-thrusting now while staying faced on the target so
+                // (plus a 1.2 margin), start braking now while staying faced on the target so
                 // we can keep firing. Driving the thrust directly avoids the late-braking we'd get from
                 // SubLightMoveTowardsPosition, which skips its speed cap on any frame it's rotating.
                 float distToStandoff = DistanceToTarget - maxDistance;
