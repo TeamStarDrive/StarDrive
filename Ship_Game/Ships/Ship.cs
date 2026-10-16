@@ -360,7 +360,14 @@ namespace Ship_Game.Ships
             if (Loyalty.WeArePirates)
             {
                 if (IsSubspaceProjector || IsResearchStation || IsMiningStation)
+                {
+                    // a ship taken back under a protection contract is handed back to its owner, not scuttled
+                    if (Loyalty.AI.HasGoal(g => g is { Type: GoalType.PirateProtection } && g.TargetShip == this))
+                        return;
+
                     ScuttleTimer = 20;
+                    DisengageExcessTroops(TroopCount); // the troops leave before she blows
+                }
                 else
                     AI.OrderPirateFleeHome();
             }

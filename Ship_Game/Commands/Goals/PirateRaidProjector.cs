@@ -77,8 +77,17 @@ namespace Ship_Game.Commands.Goals
             return Owner.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
+        // a projector we took is scuttled, and on long turns it can be gone before the later steps run
+        bool ScuttledAfterCapture => TargetShip is { Active: false } && TargetShip.Loyalty == Pirates.Owner;
+
         GoalStep CheckIfHijacked()
         {
+            if (ScuttledAfterCapture)
+            {
+                BoardingShip?.AI.OrderPirateFleeHome(true);
+                return WaitForDestruction();
+            }
+
             if (TargetShip == null
                 || !TargetShip.Active
                 || TargetShip.Loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
@@ -93,10 +102,12 @@ namespace Ship_Game.Commands.Goals
         GoalStep FleeFromOrbital()
         {
             BoardingShip?.AI.OrderPirateFleeHome(true);
+            if (ScuttledAfterCapture)
+                return WaitForDestruction();
+
             if (TargetShip == null || !TargetShip.Active || TargetShip.Loyalty != Pirates.Owner)
                 return GoalStep.GoalFailed; // Target destroyed or they took it from us
 
-            TargetShip.DisengageExcessTroops(TargetShip.TroopCount); // She's gonna blow! (PiratePostChangeLoyalty)
             TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
             return GoalStep.GoToNextStep;
         }
