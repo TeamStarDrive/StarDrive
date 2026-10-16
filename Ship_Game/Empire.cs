@@ -54,6 +54,8 @@ namespace Ship_Game
 
         [StarData] readonly Array<Planet> OwnedPlanets;
         [StarData] readonly Array<SolarSystem> OwnedSolarSystems;
+        // the systems with salvageable derelicts it knows of, so it knows every derelict in them; on the sim thread, rebuilt on load
+        public readonly HashSet<SolarSystem> DerelictSystems = new();
         public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
         public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
 

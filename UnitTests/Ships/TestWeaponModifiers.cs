@@ -60,6 +60,7 @@ namespace UnitTests.Ships
             return (launcher, warhead);
         }
 
+        [TestCleanup]
         public override void Cleanup()
         {
             foreach (string uid in CloneUids)

@@ -50,6 +50,7 @@ namespace Ship_Game
                 captured |= SelectedShip != null && ShipInfoUIElement.HandleInput(input);
                 captured |= SelectedPlanet != null && pInfoUI.HandleInput(input);
                 captured |= SelectedShipList != null && shipListInfoUI.HandleInput(input);
+                captured |= SelectedDerelict != null && DerelictInfoUI.HandleInput(input);
             }
 
             if (SelectedSystem == null)
@@ -129,10 +130,11 @@ namespace Ship_Game
 
             if (SelectedShip != null)
             {
-                if (input.DebugKillShip && input.IsCtrlKeyDown) // Ctrl + 'X' or 'Delete': dies as a derelict, if it can be one
+                if (input.DebugKillShip && input.IsCtrlKeyDown) // Ctrl + 'X' or 'Delete': dies as a drifting derelict; with Shift, a salvageable one
                 {
                     Ship ship = SelectedShip;
-                    RunOnSimThread(() => ship.DebugDieAsDerelict());
+                    bool salvageable = input.IsShiftKeyDown;
+                    RunOnSimThread(() => ship.DebugDieAsDerelict(salvageable));
                 }
                 else if (input.DebugKillShip) // 'X' or 'Delete'
                 {
@@ -307,6 +309,7 @@ namespace Ship_Game
                 return true;
 
             UpdateSelectedShips();
+            UpdateSelectedDerelict();
             if (HandlePrevSelectedShipChange(input))
                 return true;
 
@@ -564,10 +567,6 @@ namespace Ship_Game
             // Also no InFrustum gate: a Project per candidate already validates on-screen
             // position, and InFrustum can be momentarily stale in the camera-move window
             // before UpdateVisibleObjects re-runs.
-            float iconHalfPx = (16f + GlobalStats.IconSize) * 0.5f;
-            const float MarginPx = 4f;
-            float iconClickRadiusPx = iconHalfPx + MarginPx;
-
             Vector2 cursor = input.CursorPosition;
             Ship best = null;
             float bestDistPx = float.MaxValue;
@@ -583,11 +582,43 @@ namespace Ship_Game
 
                 ProjectToScreenCoords(ship.Position, ship.Radius,
                                       out Vector2d shipScreen, out double shipScreenRadius);
-                float threshold = Math.Max(iconClickRadiusPx, (float)shipScreenRadius + MarginPx);
+                float threshold = ClickRadiusPx(shipScreenRadius);
                 float distPx = cursor.Distance(shipScreen.ToVec2f());
                 if (distPx <= threshold && distPx < bestDistPx)
                 {
                     best = ship;
+                    bestDistPx = distPx;
+                }
+            }
+            return best;
+        }
+
+        // the larger of its on-screen radius and its icon's
+        static float ClickRadiusPx(double screenRadius)
+        {
+            const float MarginPx = 4f;
+            float iconClickRadiusPx = (16f + GlobalStats.IconSize) * 0.5f + MarginPx;
+            return Math.Max(iconClickRadiusPx, (float)screenRadius + MarginPx);
+        }
+
+        // like a ship's, from the salvageable derelicts the player knows of
+        internal Derelict FindClickedDerelict(Vector2 cursor)
+        {
+            Derelict best = null;
+            float bestDistPx = float.MaxValue;
+
+            Derelict[] derelicts = UState.Derelicts.Current;
+            for (int i = 0; i < derelicts.Length; i++)
+            {
+                Derelict d = derelicts[i];
+                if (!d.SelectableByPlayer)
+                    continue;
+
+                ProjectToScreenCoords(d.Position, d.Radius, out Vector2d screenPos, out double screenRadius);
+                float distPx = cursor.Distance(screenPos.ToVec2f());
+                if (distPx <= ClickRadiusPx(screenRadius) && distPx < bestDistPx)
+                {
+                    best = d;
                     bestDistPx = distPx;
                 }
             }
@@ -762,6 +793,14 @@ namespace Ship_Game
 
             if (SelectShipClicks(input))
             {
+                GameAudio.ShipClicked();
+                return true;
+            }
+
+            Derelict derelict = FindClickedDerelict(input.CursorPosition);
+            if (derelict != null)
+            {
+                SetSelectedDerelict(derelict);
                 GameAudio.ShipClicked();
                 return true;
             }

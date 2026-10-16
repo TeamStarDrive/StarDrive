@@ -200,6 +200,19 @@ public partial class ShipDesign
         return (int)cost;
     }
 
+    // as GetCost, before any empire's cost bonus
+    public float GetCostBeforeBonuses(float pace)
+    {
+        if (FixedCost > 0)
+            return FixedCost * pace;
+
+        float cost = BaseCost * pace;
+        if (IsPlatformOrStation)
+            cost *= 0.7f;
+
+        return (int)cost;
+    }
+
     public float GetMaintenanceCost(Empire empire)
     {
         return ShipMaintenance.GetBaseMaintenance(this, empire, 0);

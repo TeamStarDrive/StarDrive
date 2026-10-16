@@ -340,6 +340,8 @@ namespace Ship_Game
         }
 
         readonly HashSet<int> ShipsInSystems = new(); // by Ship.Id
+        // ships that entered a system with derelicts this step, gathered under the ShipsInSystems lock
+        readonly Array<Ship> EnteredDerelictSystems = new();
 
         void UpdateSolarSystemShips()
         {
@@ -349,6 +351,7 @@ namespace Ship_Game
             void UpdateSystems(int start, int end)
             {
                 HashSet<int> shipsInSystems = new();
+                Array<Ship> entered = null;
                 for (int i = start; i < end; ++i)
                 {
                     SolarSystem system = UState.Systems[i];
@@ -367,6 +370,8 @@ namespace Ship_Game
                         system.ShipList.Add(ship);
                         shipsInSystems.Add(ship.Id); // this ship was seen in a system
 
+                        if (ship.System != system && system.Derelicts.Count > 0)
+                            (entered ??= new()).Add(ship);
                         ship.SetSystem(system);
                     }
                 }
@@ -375,11 +380,23 @@ namespace Ship_Game
                 {
                     foreach (int id in shipsInSystems)
                         ShipsInSystems.Add(id);
+                    if (entered != null)
+                        EnteredDerelictSystems.AddRange(entered);
                 }
             }
 
             //UpdateSystems(0, UState.Systems.Count);
             Parallel.For(UState.Systems.Count, UpdateSystems, MaxTaskCores);
+
+            try
+            {
+                for (int i = 0; i < EnteredDerelictSystems.Count; ++i)
+                    UState.Derelicts.Enter(EnteredDerelictSystems[i]);
+            }
+            finally
+            {
+                EnteredDerelictSystems.Clear();
+            }
         }
 
         void UpdateAllShips(FixedSimTime timeStep)

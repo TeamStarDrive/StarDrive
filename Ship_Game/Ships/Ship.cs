@@ -161,10 +161,12 @@ namespace Ship_Game.Ships
         private bool HasExploded;
         // rolled a derelict death: no main explosion and no death blast
         bool RolledDerelict;
-        // 1 when it was seen as it rolled a derelict death: a derelict takes the hull when the ship is removed, once
+        // the Derelict* flags of a rolled derelict death that leaves one: a derelict takes the hull when the ship is removed, once
         int LeavesDerelict;
-        // debug: its death is a derelict one, with no roll
-        bool DebugDerelict;
+        const int DerelictLeaves = 1, DerelictSalvageable = 2, DerelictSeen = 4;
+        // debug: its death is a derelict one of this kind, with no roll
+        enum DebugDerelictKind { None, Drifting, Salvageable }
+        DebugDerelictKind DebugDerelict;
         public float TotalDps { get; private set; }
 
         public bool HasCommand;
@@ -407,14 +409,22 @@ namespace Ship_Game.Ships
                 module.DebugDamage(percent);
         }
 
-        // debug: destroys the ship as a derelict, and does nothing to a ship that cannot become one
-        public void DebugDieAsDerelict()
+        // debug: destroys the ship as a drifting or a salvageable derelict, and does nothing to a ship that cannot become that kind
+        public void DebugDieAsDerelict(bool salvageable)
         {
             if (!Active || Dying || !CanBecomeDerelict)
                 return;
-            DebugDerelict = true;
-            DebugDamage(1f);
-            DebugDerelict = false;
+            if (salvageable && (!StopsWhereSalvageable || Universe.Derelicts.NumSalvageable >= GlobalStats.Defaults.MaxSalvageableDerelicts))
+                return;
+            DebugDerelict = salvageable ? DebugDerelictKind.Salvageable : DebugDerelictKind.Drifting;
+            try
+            {
+                DebugDamage(1f);
+            }
+            finally
+            {
+                DebugDerelict = DebugDerelictKind.None;
+            }
         }
 
         public void DebugBlowBiggestExplodingModule()  => DebugBlowExplodingModule(true);
@@ -1650,9 +1660,9 @@ namespace Ship_Game.Ships
                 return; // planet crash or tumble
 
             bool visible = IsVisibleToPlayer;
-            bool leavesDerelict = RolledDerelict && visible;
+            int derelict = RolledDerelict ? DerelictAtDeath(visible) : 0;
             // set before Active goes false, or a removal running on another thread could miss it
-            LeavesDerelict = leavesDerelict ? 1 : 0;
+            LeavesDerelict = derelict;
 
             QueueTotalRemoval(); // sets Active=false, remove thether and from orbital stations
             OnShipDie(pSource);
@@ -1662,19 +1672,34 @@ namespace Ship_Game.Ships
             Carrier.ScuttleHangarShips();
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
-            if (!leavesDerelict)
+            if (derelict == 0)
                 CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly, blast: !RolledDerelict);
         }
 
-        // before the removal, on the thread removing the ship (sim, save or UI); a failure is logged, as a derelict is only a visual
+        // with salvage ops on, it would stop in a system clear of the star's radiation
+        bool StopsWhereSalvageable => Universe.P.SalvageOps && Derelict.SalvageSystemAt(Universe, Derelict.StopPoint(this)) != null;
+
+        // salvageable when it stops where it can be; else a drifting one, if seen
+        int DerelictAtDeath(bool seen)
+        {
+            int flags = seen ? DerelictLeaves | DerelictSeen : 0;
+            if (DebugDerelict != DebugDerelictKind.Drifting && StopsWhereSalvageable)
+                flags |= DerelictLeaves | DerelictSalvageable;
+            return flags;
+        }
+
+        // before the removal, on the thread removing the ship (sim, save or UI); a failure is logged and leaves no derelict
         public void LeaveDerelict()
         {
-            if (Interlocked.Exchange(ref LeavesDerelict, 0) == 0)
+            int derelict = Interlocked.Exchange(ref LeavesDerelict, 0);
+            if (derelict == 0)
                 return;
+            bool seen = (derelict & DerelictSeen) != 0;
             try
             {
-                if (!Universe.Derelicts.TryAdd(this))
-                    CreateExplosionEffects(visible: true, cleanupOnly: false, blast: false);
+                Empire killer = LastDamagedBy?.GetLoyalty(); // the killing hit's source, which the removal has not cleared yet
+                if (!Universe.Derelicts.TryAdd(this, salvageable: (derelict & DerelictSalvageable) != 0, seen: seen, killer))
+                    CreateExplosionEffects(visible: seen, cleanupOnly: false, blast: false);
             }
             catch (Exception e)
             {
@@ -1710,7 +1735,7 @@ namespace Ship_Game.Ships
             bool crashes = tumbles && PlanetCrash.GetPlanetToCrashOn(this, out crashPlanet);
 
             // a ship that crashes on a planet does not roll for a derelict
-            if (CanBecomeDerelict && (DebugDerelict || !crashes && Loyalty.Random.RollDice(GlobalStats.Defaults.DerelictChance)))
+            if (CanBecomeDerelict && (DebugDerelict != DebugDerelictKind.None || !crashes && Loyalty.Random.RollDice(Universe.Derelicts.Chance)))
             {
                 RolledDerelict = true;
                 return true;

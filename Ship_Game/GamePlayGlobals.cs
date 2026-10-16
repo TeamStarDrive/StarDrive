@@ -24,9 +24,11 @@ public class GamePlayGlobals
     // How easy ships are to destroy. Ships which have active internal slots below this ratio, will Die()
     [StarData] public float ShipDestroyThreshold = 0.5f;
     // Percent of the deaths of military ships (frigate and above) and untethered stations that leave a derelict, with no death blast
-    [StarData] public float DerelictChance = 35;
-    // Most drifting derelicts at once; past it a derelict death shows the normal explosion, still with no death blast
+    [StarData] public float DerelictChance = 10;
+    // Most drifting derelicts with a model at once; past it a derelict death shows the normal explosion, still with no death blast
     [StarData] public int MaxDriftingDerelicts = 100;
+    // Most salvageable derelicts at once; the derelict chance falls with their share of it, to none at the limit
+    [StarData] public int MaxSalvageableDerelicts = 100;
     // How tougher are remnant designs in the mod. This affects starting fleet multipliers and also increases with difficulty. Vanilla is 2
     [StarData] public float RemnantDesignStrMultiplier;
     public float RemnantDesignStr => RemnantDesignStrMultiplier > 0.01f ? RemnantDesignStrMultiplier : 2f;
@@ -94,6 +96,8 @@ public class GamePlayGlobals
     [StarData] public bool DisableRemnantStory;
     // for mods that don't require pirates
     [StarData] public bool DisablePirates;
+    // salvageable derelicts and salvage yards; off, the Disable Salvage Ops rule option is locked on
+    [StarData] public bool EnableSalvageOps;
     [StarData] public bool AIUsesPlayerDesigns = true; // Can AI use player designs? This will make the AI stronger.
     // changes how upkeep is calculated, default:false means upkeep depends on ship cost
     // setting this to true means upkeep depends on number of hull design slots
@@ -132,6 +136,7 @@ public class GamePlayGlobals
         {
             foreach (var field in typeof(GamePlayGlobals).GetFields())
                 field.SetValue(this, field.GetValue(GlobalStats.VanillaDefaults));
+            EnableSalvageOps = false; // a mod turns it on itself, once it has salvage designs
         }
     }
 

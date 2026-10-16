@@ -152,6 +152,8 @@ public interface IShipDesign
 
     float GetCost(Empire e, bool ignorePace = false);
 
+    float GetCostBeforeBonuses(float pace);
+
     float GetMaintenanceCost(Empire empire);
 
     // Role name as a string

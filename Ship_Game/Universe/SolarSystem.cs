@@ -29,6 +29,9 @@ namespace Ship_Game
 
         public Array<Ship> ShipList = new();
 
+        // the salvageable derelicts that stopped here; on the sim thread, and rebuilt on load
+        public readonly Array<Derelict> Derelicts = new();
+
         [StarData] public bool PiratePresence { get; private set; }
 
         public Array<ILight> Lights = new();

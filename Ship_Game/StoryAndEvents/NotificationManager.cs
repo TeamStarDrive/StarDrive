@@ -833,6 +833,21 @@ namespace Ship_Game
             }, "smallservo");
         }
 
+        // the derelict whose system just joined the player's list of systems with salvageable derelicts
+        public void AddNewDerelictNotification(Derelict d)
+        {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = string.Format(Localizer.Token(GameText.NewSalvageableDerelict), d.System.Name, d.Design.Name),
+                ReferencedItem1 = d,
+                ReferencedItem2 = d.System,
+                IconPath        = d.Design.BaseHull.IconPath,
+                SymbolPath      = "NewUI/icon_derelict_notification",
+                Action          = "SnapToDerelict"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddAbortLandNotification(Planet planet, Ship s)
         {
             string message = $"{planet.Name}: {Localizer.Token(GameText.AbortLandPlayerTroopsNoFleet)} {planet.Owner.Name}";
@@ -1091,6 +1106,18 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SnapViewShip(s);
+        }
+
+        // a click on one that can no longer be salvaged shows its system
+        public void SnapToDerelict(Derelict derelict, SolarSystem system)
+        {
+            if (derelict is not { SelectableByPlayer: true })
+            {
+                SnapToSystem(system);
+                return;
+            }
+            GameAudio.SubBassWhoosh();
+            Screen.SnapViewDerelict(derelict);
         }
 
         public void SnapToExpandedSystem(Planet p, SolarSystem system)
