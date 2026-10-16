@@ -205,7 +205,7 @@ namespace Ship_Game.Gameplay
             UID                         = s.UID;
             AccuracyPercent             = s.AccuracyPercent;
             ResearchPerTurn             = s.ResearchPerTurn;
-            Refining           = s.Refining;
+            Refining                    = s.Refining;
             WeaponInaccuracyBase        = WeaponTemplate.GetWeaponInaccuracyBase(s.XSize * s.YSize, s.AccuracyPercent);
 
             if (s.ExplosionDamage > 0)

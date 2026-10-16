@@ -79,4 +79,20 @@ public class ArtilleryTacticTests : StarDriveTest
 
         Assert.AreNotEqual(Thrust.Reverse, ThrustOnApproach(), "moving away from a target out of range, it has nothing to brake for");
     }
+
+    [TestMethod]
+    public void AnArtilleryShipWaitingForATargetComingAtItDoesNotBackAway()
+    {
+        PlaceTarget(shortOfStandoff: StopDistanceAtOwnSpeed * 0.5f, theirSpeed: -Speed, ourSpeed: 0f);
+
+        Assert.AreEqual(Thrust.Coast, ThrustOnApproach(), "still and out of range, it lets the target come to it instead of backing away");
+    }
+
+    [TestMethod]
+    public void AnArtilleryShipDriftingAwayFromATargetComingAtItStops()
+    {
+        PlaceTarget(shortOfStandoff: StopDistanceAtOwnSpeed * 0.5f, theirSpeed: -Speed, ourSpeed: -Speed * 0.2f);
+
+        Assert.AreEqual(Thrust.AllStop, ThrustOnApproach(), "out of range and already moving away, it stops instead of speeding away");
+    }
 }
