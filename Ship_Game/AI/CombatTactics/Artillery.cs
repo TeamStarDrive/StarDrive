@@ -69,7 +69,11 @@ namespace Ship_Game.AI.CombatTactics
                 if (distToStandoff <= brakingDistance)
                 {
                     AI.RotateTowardsPosition(Owner.PredictAim(target), timeStep, 0.05f);
-                    Owner.SubLightAccelerate(stlSpeedLimit: 0f, Thrust.Reverse);
+                    // braking sheds only our own speed toward the target, it never backs away from one coming at us
+                    if (Owner.Velocity.Dot(DirectionToTarget) > 0f)
+                        Owner.SubLightAccelerate(stlSpeedLimit: 0f, Thrust.Reverse);
+                    else
+                        AI.ReverseThrustUntilStopped(timeStep);
                     return CombatMoveState.Approach;
                 }
 
