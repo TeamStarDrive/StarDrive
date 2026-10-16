@@ -15,6 +15,7 @@ using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
+using UnitTests.UI;
 using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
@@ -626,9 +627,11 @@ public class DerelictTests : StarDriveTest
     // far from the sites in deep space, and its planet far from where ships die in it
     static readonly Vector2 SystemSite = new(600_000f, 600_000f);
 
-    SolarSystem AddSystem()
+    SolarSystem AddSystem() => AddSystem(SystemSite);
+
+    SolarSystem AddSystem(Vector2 site)
     {
-        Planet planet = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true);
+        Planet planet = AddDummyPlanet(site, 1f, 1f, 1f, site + new Vector2(0, 60_000f), explored: true);
         AssertGreaterThan(planet.System.Radius, 100_000f, "setup: the system reaches past the deaths in it");
         return planet.System;
     }
@@ -879,29 +882,76 @@ public class DerelictTests : StarDriveTest
     }
 
     [TestMethod]
-    public void EmpiresKnowADerelictFromItsDeathOrTheirSensorsAndKeepKnowingIt()
+    public void AShipEnteringASystemShowsItsEmpireTheDerelictsThere()
     {
-        TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
-        ship.KnownByEmpires.SetSeen(Player);
-        UState.Derelicts.TryAdd(ship, salvageable: true, seen: false);
-        Derelict d = Newest();
-        AssertTrue(d.IsKnownBy(Player), "an empire that had the ship in its sensors at its death knows of it");
-        AssertFalse(d.IsKnownBy(Enemy), "one that did not, does not");
+        NotificationManager notifications = TrackNotifications();
+        SolarSystem system = AddSystem();
+        Derelict d = Forms(Enemy, SystemSite + new Vector2(30_000f, 0));
+        AssertFalse(Player.DerelictSystems.Contains(system) || d.KnownByPlayer, "setup: the player does not know of it");
 
-        Enemy.SensorNodes = new[] { new Empire.InfluenceNode { Position = d.Position + new Vector2(11_000f, 0), Radius = 10_000f } };
-        UState.Derelicts.UpdateTurn();
-        AssertFalse(d.IsKnownBy(Enemy), "a sensor that does not reach it tells nothing");
+        TestShip scout = SpawnShip("Vulcan Scout", Player, SystemSite + new Vector2(system.Radius + 20_000f, 0));
+        UpdateObjectsTwice();
+        AssertTrue(scout.System == null, "setup: the scout waits outside the system");
+        AssertFalse(Player.DerelictSystems.Contains(system), "a ship outside the system learns nothing");
 
-        Enemy.SensorNodes = new[] { new Empire.InfluenceNode { Position = d.Position + new Vector2(9000f, 0), Radius = 10_000f } };
-        UState.Derelicts.UpdateTurn();
-        AssertTrue(d.IsKnownBy(Enemy), "a sensor over it on a turn tells an empire of it");
+        MoveAndUpdate(scout, SystemSite + new Vector2(system.Radius - 20_000f, 0));
+        AssertTrue(scout.System == system, "setup: the scout entered the system");
+        AssertTrue(Player.DerelictSystems.Contains(system) && d.KnownByPlayer, "its empire lists the system and knows the derelict");
+        AssertTrue(notifications.IsNotificationPresent(OneNew(system, d)), "and the player is told");
 
-        Enemy.SensorNodes = Empty<Empire.InfluenceNode>.Array;
-        UState.Derelicts.UpdateTurn();
-        AssertTrue(d.IsKnownBy(Enemy), "and it stays known");
+        SpawnShip("Vulcan Scout", Player, SystemSite + new Vector2(0, 30_000f));
+        UpdateObjectsTwice();
+        AssertEqual(1, notifications.NumberOfNotifications, "another ship entering does not tell again");
+
+        CreateThirdMajorEmpire();
+        SpawnShip("Vulcan Scout", ThirdMajor, SystemSite + new Vector2(0, -30_000f));
+        UpdateObjectsTwice();
+        AssertTrue(ThirdMajor.DerelictSystems.Contains(system), "another empire's ship shows that empire the system");
+        AssertEqual(1, notifications.NumberOfNotifications, "and tells the player nothing");
+        var entered = (Array<Ship>)typeof(UniverseObjectManager)
+            .GetField("EnteredDerelictSystems", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(UState.Objects);
+        AssertEqual(0, entered.Count, "each step's arrivals are handled once");
+
+        SolarSystem empty = AddSystem(SystemSite + new Vector2(0, 400_000f));
+        TestShip visitor = SpawnShip("Vulcan Scout", Player, empty.Position + new Vector2(30_000f, 0));
+        UpdateObjectsTwice();
+        AssertTrue(visitor.System == empty, "setup: a scout in a system with no derelicts");
+        AssertFalse(Player.DerelictSystems.Contains(empty), "which is not listed");
     }
 
-    static Empire.InfluenceNode[] SensorOver(Derelict d) => new[] { new Empire.InfluenceNode { Position = d.Position, Radius = 10_000f } };
+    [TestMethod]
+    public void AJoinThatComesAfterTheDerelictLeftChangesNothing()
+    {
+        SolarSystem system = AddSystem();
+        UState.Derelicts.TryAdd(SpawnShip("Dreadnought mk1-a", Player, SystemSite + new Vector2(30_000f, 0)), salvageable: true, seen: false);
+        Derelict d = Newest();
+        while (d.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        Universe.InvokePendingSimThreadActions();
+        AssertFalse(system.Derelicts.Count > 0 || Player.DerelictSystems.Contains(system), "one whose turns ran out before it joined does not join");
+
+        UState.Derelicts.TryAdd(SpawnShip("Dreadnought mk1-a", Player, SystemSite + new Vector2(-30_000f, 0)), salvageable: true, seen: false);
+        UState.Derelicts.Clear();
+        Universe.InvokePendingSimThreadActions();
+        AssertFalse(system.Derelicts.Count > 0 || Player.DerelictSystems.Contains(system), "nor one cleared away before it joined");
+    }
+
+    [TestMethod]
+    public void OnLoadAnEmpireKnowsEveryDerelictInASystemItLists()
+    {
+        SolarSystem system = AddSystem();
+        TestShip seen = SpawnShip("Dreadnought mk1-a", Enemy, SystemSite + new Vector2(30_000f, 0));
+        seen.KnownByEmpires.SetSeen(Player);
+        UState.Derelicts.TryAdd(seen, salvageable: true, seen: false);
+        UState.Derelicts.TryAdd(SpawnShip("Dreadnought mk1-a", Enemy, SystemSite + new Vector2(-30_000f, 0)), salvageable: true, seen: false);
+        Derelict unseen = Newest();
+        AssertFalse(unseen.KnownByPlayer, "setup: saved before they joined their system, the player knows only the one it saw die");
+
+        UniverseScreen loaded = SaveAndLoad();
+        Derelict[] after = loaded.UState.Derelicts.ToArray();
+        AssertTrue(loaded.UState.Player.DerelictSystems.Contains(after[0].System), "the player lists their system");
+        AssertTrue(after[1].KnownByPlayer, "and so knows the other one there too");
+    }
 
     // a death in the system, with more than six modules dead so it smokes from more than six places
     Derelict SalvageableWithSmoke(bool seen = false, Vector2 velocity = default)
@@ -983,9 +1033,11 @@ public class DerelictTests : StarDriveTest
         ViewEverything();
         CreateThirdMajorEmpire();
         Derelict d = SalvageableWithSmoke(seen: true, velocity: new Vector2(80f, 0));
+        Universe.InvokePendingSimThreadActions(); // it joins its system
         StepAll(UState.Derelicts, 1f);
         AssertGreaterThan(d.VelocityNow.Length(), 0f, "setup: it is still slowing to a stop");
-        Enemy.SensorNodes = SensorOver(d);
+        SpawnShip("Vulcan Scout", Enemy, SystemSite + new Vector2(0, 30_000f));
+        UpdateObjectsTwice(); // an enemy scout enters the system
         for (int turn = 0; turn < 3; ++turn)
             UState.Derelicts.UpdateTurn();
         AssertTrue(d.IsKnownBy(Enemy) && d.IsKnownBy(Player), "setup: the enemy and the player know of it");
@@ -1015,6 +1067,12 @@ public class DerelictTests : StarDriveTest
         AssertEqual(d.NumSmokeSources, back.NumSmokeSources, "still thinning out, it smokes from all its places");
         AssertSameSmoke(d, back);
         AssertFalse(back.InScene, "with no model until the player sees it");
+        SolarSystem system = loaded.UState.Systems.First(s => s.Id == d.System.Id);
+        Assert.AreSame(system, back.System, "in the loaded game's own system");
+        AssertTrue(system.Derelicts.SequenceEqual(new[] { back }), "which lists it again");
+        AssertTrue(loaded.UState.Player.DerelictSystems.Contains(system), "as the player, who knows of it, lists the system again");
+        AssertTrue(loaded.UState.GetEmpireById(Enemy.Id).DerelictSystems.Contains(system), "and so does the enemy");
+        AssertFalse(loaded.UState.GetEmpireById(ThirdMajor.Id).DerelictSystems.Contains(system), "and the third empire does not");
     }
 
     [TestMethod]
@@ -1079,6 +1137,7 @@ public class DerelictTests : StarDriveTest
         AssertEqual(0, loaded.UState.Derelicts.NumSalvageable, "and none can be salvaged");
         AssertFalse(after[2].Salvageable, "the drifting one is only a visual, so it loads whatever the switch says");
         AssertLessThan(after[2].Age, Derelict.MinBreakupSeconds, "setup: it was saved during its breakup");
+        AssertEqual(0, loaded.UState.Player.DerelictSystems.Count, "and no system is listed for ones that cannot be salvaged");
 
         loaded.UState.Derelicts.Update(TestSimStep);
         Derelict[] left = loaded.UState.Derelicts.ToArray();
@@ -1108,14 +1167,13 @@ public class DerelictTests : StarDriveTest
     public void ADerelictGetsAModelOnlyOnceThePlayerKnowsOfItAndSeesIt()
     {
         ViewEverything();
-        TestShip ship = SpawnShip("Dreadnought mk1-a", Enemy, Site(0));
-        UState.Derelicts.TryAdd(ship, salvageable: true, seen: false);
-        Derelict d = Newest();
+        AddSystem();
+        Derelict d = Forms(Enemy, SystemSite + new Vector2(30_000f, 0));
         AssertFalse(d.IsKnownBy(Player), "setup: the player does not know of it");
         AssertFalse(d.WantsModel, "a wreck the player does not know of gets no model");
 
-        Player.SensorNodes = SensorOver(d);
-        UState.Derelicts.UpdateTurn();
+        SpawnShip("Vulcan Scout", Player, SystemSite + new Vector2(0, 30_000f));
+        UpdateObjectsTwice(); // the scout enters its system
         AssertTrue(d.WantsModel, "once known, on screen at planet view, it wants one");
         AssertEqual(1, UState.Derelicts.WantingModels().Length, "and the list asks for it");
         UState.ViewState = UniverseScreen.UnivScreenState.SectorView;
@@ -1131,11 +1189,7 @@ public class DerelictTests : StarDriveTest
         AssertFalse(d.WantsModel, "and keeps it");
         AssertFalse(UState.Derelicts.TryAttachModel(d, new SceneObject("second")), "it never takes a second one");
 
-        TestShip late = SpawnShip("Dreadnought mk1-a", Enemy, Site(2));
-        AssertTrue(UState.Derelicts.TryAdd(late, salvageable: true, seen: false), "setup: another salvageable derelict");
-        Derelict expired = Newest();
-        Player.SensorNodes = SensorOver(expired);
-        UState.Derelicts.UpdateTurn();
+        Derelict expired = Forms(Enemy, SystemSite + new Vector2(-30_000f, 0));
         AssertTrue(expired.WantsModel, "setup: the player knows of it and it is on screen");
         while (expired.TurnsLeft > 0)
             UState.Derelicts.UpdateTurn();
@@ -1274,5 +1328,204 @@ public class DerelictTests : StarDriveTest
             UState.Derelicts.UpdateTurn();
         Universe.UpdateSelectedDerelict();
         Assert.IsNull(Universe.SelectedDerelict, "once it starts to sink it is no longer selected");
+    }
+
+    NotificationManager TrackNotifications()
+    {
+        Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+        return Universe.NotificationManager;
+    }
+
+    static string OneNew(SolarSystem system, Derelict d)
+    {
+        return string.Format(Localizer.Token(GameText.NewSalvageableDerelict), system.Name, d.Design.Name);
+    }
+
+    // a salvageable derelict of the owner's ship, killed by the killer, which joins its system's lists on the sim thread
+    Derelict Forms(Empire owner, Vector2 at, Empire killer = null, bool seenByPlayer = false)
+    {
+        TestShip ship = SpawnShip("Dreadnought mk1-a", owner, at);
+        if (seenByPlayer)
+            ship.KnownByEmpires.SetSeen(Player);
+        AssertTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false, killer), "setup: a salvageable derelict");
+        Universe.InvokePendingSimThreadActions();
+        return Newest();
+    }
+
+    // a system finds its ships where the spatial index put them the step before, so an arrival counts on the second step
+    void UpdateObjectsTwice()
+    {
+        UState.Objects.Update(TestSimStep);
+        UState.Objects.Update(TestSimStep);
+    }
+
+    void MoveAndUpdate(Ship ship, Vector2 to)
+    {
+        ship.Position = to;
+        UpdateObjectsTwice();
+    }
+
+    // whether the player lists the system of a derelict of the enemy's ship, killed by the third empire, formed while the rule holds
+    bool PlayerLearnsOfOneFormingIn(SolarSystem system, Action rule, Action undo, bool seenByPlayer = false)
+    {
+        rule();
+        Derelict d = Forms(Enemy, SystemSite + new Vector2(30_000f, 0), ThirdMajor, seenByPlayer);
+        AssertTrue(d.System == system, "setup: it stopped in the system");
+        bool learned = Player.DerelictSystems.Contains(system);
+        AssertEqual(learned, d.KnownByPlayer, "an empire that lists the system knows of the derelict");
+        UState.Derelicts.Clear();
+        undo();
+        return learned;
+    }
+
+    [TestMethod]
+    public void EmpiresThatLearnOfAFormingDerelictListItsSystem()
+    {
+        CreateThirdMajorEmpire();
+        SolarSystem system = AddSystem();
+        Derelict d = Forms(Enemy, SystemSite + new Vector2(30_000f, 0), ThirdMajor);
+        AssertTrue(system.Derelicts.SequenceEqual(new[] { d }), "it joins its system");
+        AssertTrue(Enemy.DerelictSystems.Contains(system), "its owner lists the system");
+        AssertTrue(ThirdMajor.DerelictSystems.Contains(system), "and so does its killer");
+        AssertFalse(Player.DerelictSystems.Contains(system) || d.KnownByPlayer, "an empire no rule names does not, and does not know of it");
+        UState.Derelicts.Clear();
+
+        void Nothing() { }
+        AssertFalse(PlayerLearnsOfOneFormingIn(system, Nothing, Nothing), "setup: no rule names the player");
+        AssertTrue(PlayerLearnsOfOneFormingIn(system, Nothing, Nothing, seenByPlayer: true), "the player had the ship in its sensors at its death");
+        AssertTrue(PlayerLearnsOfOneFormingIn(system, () => Player.SignTreatyWith(Enemy, TreatyType.Alliance),
+                                              () => Player.BreakTreatyWith(Enemy, TreatyType.Alliance)), "the player is allied with its owner");
+        AssertTrue(PlayerLearnsOfOneFormingIn(system, () => Player.SignTreatyWith(ThirdMajor, TreatyType.Alliance),
+                                              () => Player.BreakTreatyWith(ThirdMajor, TreatyType.Alliance)), "or with its killer");
+        Espionage onOwner = Player.GetRelations(Enemy).Espionage, onKiller = Player.GetRelations(ThirdMajor).Espionage;
+        AssertFalse(PlayerLearnsOfOneFormingIn(system, () => onOwner.Level = Espionage.MaxLevel - 1, () => onOwner.Level = 0),
+                    "an infiltration below the top level is not enough");
+        AssertTrue(PlayerLearnsOfOneFormingIn(system, () => onOwner.Level = Espionage.MaxLevel, () => onOwner.Level = 0),
+                   "the player has infiltrated its owner to the top level");
+        AssertTrue(PlayerLearnsOfOneFormingIn(system, () => onKiller.Level = Espionage.MaxLevel, () => onKiller.Level = 0),
+                   "or its killer");
+        AssertTrue(PlayerLearnsOfOneFormingIn(system, () => Player.data.MoleList.Add(new Mole { PlanetId = system.PlanetList[0].Id }),
+                                              () => Player.data.MoleList.Clear()), "the player has a mole on a planet there");
+        Planet elsewhere = AddSystem(SystemSite + new Vector2(0, 400_000f)).PlanetList[0];
+        AssertFalse(PlayerLearnsOfOneFormingIn(system, () => Player.data.MoleList.Add(new Mole { PlanetId = elsewhere.Id }),
+                                               () => Player.data.MoleList.Clear()), "a mole in another system tells nothing");
+        TestShip scout = SpawnShip("Vulcan Scout", Player, Site(5));
+        AssertTrue(PlayerLearnsOfOneFormingIn(system, () => MoveAndUpdate(scout, SystemSite + new Vector2(0, -90_000f)),
+                                              () => MoveAndUpdate(scout, Site(5))), "the player has a ship there");
+        AssertTrue(system.ShipList.Any(s => s.Loyalty == Enemy), "setup: the enemy's ships are still there");
+        AssertFalse(PlayerLearnsOfOneFormingIn(system, Nothing, Nothing), "another empire's ship there tells the player nothing");
+        AssertTrue(PlayerLearnsOfOneFormingIn(system, () => system.PlanetList[0].SetOwner(Player), Nothing), "the player holds a colony there");
+
+        Derelict own = Forms(Player, SystemSite + new Vector2(-30_000f, 0));
+        AssertTrue(own.System == system && Player.DerelictSystems.Contains(system), "the player's own lost ship");
+        UState.Derelicts.Clear();
+        Forms(Enemy, SystemSite + new Vector2(-30_000f, 0), killer: Player);
+        AssertTrue(Player.DerelictSystems.Contains(system), "and one the player killed");
+    }
+
+    [TestMethod]
+    public void AnEmpireThatListsASystemKnowsEveryDerelictInItAndASystemLeavesTheListsWithItsLastSalvageableOne()
+    {
+        SolarSystem system = AddSystem();
+        Derelict deepSpace = Forms(Enemy, Site(0));
+        AssertTrue(deepSpace.System == null && Enemy.DerelictSystems.Count == 0, "one outside every system joins no list");
+
+        Derelict first = Forms(Player, SystemSite + new Vector2(30_000f, 0));
+        UState.Derelicts.UpdateTurn();
+        Derelict second = Forms(Enemy, SystemSite + new Vector2(-30_000f, 0));
+        AssertTrue(second.KnownByPlayer, "the player, who lists the system, knows of a new one there that no rule names");
+        AssertTrue(system.Derelicts.SequenceEqual(new[] { first, second }), "the system holds both");
+        AssertTrue(Enemy.DerelictSystems.Contains(system), "setup: the enemy lists it too");
+
+        while (first.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        AssertTrue(system.Derelicts.SequenceEqual(new[] { second }), "one that can no longer be salvaged leaves its system at once");
+        AssertTrue(Player.DerelictSystems.Contains(system) && Enemy.DerelictSystems.Contains(system), "which stays listed while another is left");
+
+        while (second.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        AssertEqual(0, system.Derelicts.Count, "the last one leaves too");
+        AssertFalse(Player.DerelictSystems.Contains(system) || Enemy.DerelictSystems.Contains(system), "and the system leaves every list");
+        AssertEqual(3, UState.Derelicts.Count, "though they are still there to sink away");
+
+        Forms(Player, SystemSite + new Vector2(0, 30_000f));
+        AssertTrue(Player.DerelictSystems.Contains(system), "setup: a new one lists it again");
+        UState.Derelicts.Clear();
+        AssertFalse(Player.DerelictSystems.Contains(system) || system.Derelicts.Count > 0, "clearing the derelicts clears the lists");
+    }
+
+    [TestMethod]
+    public void TheEmpireWhoseFireKilledTheShipListsTheSystemOfItsDerelict()
+    {
+        GlobalStats.Defaults.DerelictChance = 100;
+        SolarSystem system = AddSystem();
+        Ship ship = SpawnPlainShip("Dreadnought mk1-a", SystemSite + new Vector2(30_000f, 0));
+        UState.Objects.Update(TestSimStep);
+        TestShip shooter = SpawnShip("Vulcan Scout", Enemy, Site(5));
+        AssertFalse(ship.KnownByEmpires.KnownBy(Enemy), "setup: the enemy has no sensors on it");
+        ship.SetLastDamagedBy(shooter); // as every hit does
+        ship.Die(ship.LastDamagedBy, cleanupOnly: false);
+        UState.Objects.Update(TestSimStep);
+        Universe.InvokePendingSimThreadActions();
+        AssertTrue(Newest().System == system, "setup: a salvageable derelict in the system");
+        AssertTrue(Enemy.DerelictSystems.Contains(system), "the enemy, whose fire killed it, lists its system");
+    }
+
+    [TestMethod]
+    public void ThePlayerIsToldWhenASystemJoinsItsList()
+    {
+        NotificationManager notifications = TrackNotifications();
+        SolarSystem system = AddSystem();
+        SolarSystem other = AddSystem(SystemSite + new Vector2(0, 400_000f));
+        AssertFalse(system.HasPlanetsOwnedBy(Player), "setup: the player holds no colony there");
+        Derelict d = Forms(Player, SystemSite + new Vector2(30_000f, 0));
+        AssertEqual(1, notifications.NumberOfNotifications, "a system joins the player's list");
+        AssertTrue(notifications.IsNotificationPresent(OneNew(system, d)), "telling of the derelict that brought it");
+
+        Forms(Enemy, SystemSite + new Vector2(-30_000f, 0), seenByPlayer: true);
+        AssertEqual(1, notifications.NumberOfNotifications, "a new one in a system already on the list is not news");
+        Forms(Enemy, other.Position + new Vector2(30_000f, 0));
+        AssertEqual(1, notifications.NumberOfNotifications, "nor is one in a system the player does not learn of");
+    }
+
+    void ClickTopNotification(NotificationManager notifications)
+    {
+        var mouse = new MockInputProvider { MousePos = new Vector2(GameBase.ScreenWidth - 40, 100) };
+        var input = new InputState { Provider = mouse };
+        mouse.LeftMouse = SDGraphics.Input.ButtonState.Pressed;
+        input.Update(new UpdateTimes(1 / 60f, 0f));
+        mouse.LeftMouse = SDGraphics.Input.ButtonState.Released;
+        input.Update(new UpdateTimes(1 / 60f, 0f));
+        AssertTrue(notifications.HandleInput(input), "setup: the click reaches the notification");
+    }
+
+    [TestMethod]
+    public void ClickingTheNotificationSelectsTheDerelictOrShowsItsSystemOnceItCanNoLongerBeSalvaged()
+    {
+        Universe.SystemInfoOverlay ??= new(new Rectangle(0, 0, 407, 242), Universe.ScreenManager, Universe);
+        ViewEverything();
+        GlobalStats.Defaults.DerelictChance = 100;
+        NotificationManager notifications = TrackNotifications();
+        SolarSystem system = AddSystem();
+        Vector2 site = SystemSite + new Vector2(30_000f, 0), speed = new(80f, 0);
+        DieAt(site, seen: true, velocity: speed);
+        Derelict d = Newest();
+        Universe.InvokePendingSimThreadActions();
+        StepAll(UState.Derelicts, 4f);
+        AssertGreaterThan(d.VelocityNow.Length(), 0f, "setup: seen, it is still slowing to a stop");
+        ClickTopNotification(notifications);
+        Assert.AreSame(d, Universe.SelectedDerelict, "the derelict is selected");
+        AssertEqual(1f, (site + speed * (Derelict.StopSeconds / 2f)).X, (float)Universe.CamDestination.X,
+                    "and the camera goes to where it comes to rest");
+
+        while (d.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        Derelict sank = Forms(Enemy, SystemSite + new Vector2(-30_000f, 0), seenByPlayer: true);
+        AssertEqual(1, notifications.NumberOfNotifications, "setup: told of the next one there");
+        while (sank.TurnsLeft > 0)
+            UState.Derelicts.UpdateTurn();
+        ClickTopNotification(notifications);
+        Assert.IsNull(Universe.SelectedDerelict, "one whose turns ran out before the click cannot be selected");
+        Assert.AreSame(system, Universe.SelectedSystem, "so its system is shown");
     }
 }

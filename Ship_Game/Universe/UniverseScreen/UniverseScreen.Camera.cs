@@ -187,6 +187,13 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
+        public void SnapViewDerelict(Derelict derelict)
+        {
+            SetSelectedDerelict(derelict);
+            Vector2 at = derelict.RestPosition;
+            SnapViewTo(new(at.X, at.Y + 400, 2500), 5f, 2f);
+        }
+
         public void SnapViewFleet(Fleet fleet)
         {
             ViewingShip = false;

@@ -213,6 +213,7 @@ namespace Ship_Game
             InvokePendingSimThreadActions();
 
             Array<Empire> updated = ProcessTurnEmpires(timeStep);
+            // derelicts count the player's turns; not in EndOfTurnUpdate, which also runs at start and on load
             if (updated.ContainsRef(Player))
                 UState.Derelicts.UpdateTurn();
 

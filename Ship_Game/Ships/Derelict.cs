@@ -65,6 +65,7 @@ public sealed class Derelict
         [StarData] public int TurnsLeft;
         [StarData] public float Production;
         [StarData] public float ProductionLeft;
+        [StarData] public SolarSystem System;
         [StarData] public bool[] KnownBy;
         [StarData] public SmokeSource[] Smoke;
     }
@@ -90,6 +91,8 @@ public sealed class Derelict
     // a salvageable one's production to salvage, fixed at its death, and what is still left of it
     public readonly float Production;
     public float ProductionLeft { get; private set; }
+    // a salvageable one's system, where it stops
+    public readonly SolarSystem System;
     public Vector2 Position { get; private set; }
     public float Z { get; private set; }
     public float Age { get; private set; }
@@ -143,6 +146,7 @@ public sealed class Derelict
             Production = ship.HealthPercent.Clamped(0f, 1f) * SalvageShareOfHealth
                        * Design.GetCostBeforeBonuses(Universe.ProductionPace);
             ProductionLeft = Production;
+            System = SalvageSystemAt(Universe, StopPoint(ship));
         }
 
         if (!seen)
@@ -176,6 +180,7 @@ public sealed class Derelict
         TurnsLeft = universe.P.SalvageOps ? save.TurnsLeft : 0;
         Production = save.Production;
         ProductionLeft = save.ProductionLeft;
+        System = save.System;
         KnownBy = save.KnownBy ?? new bool[universe.NumEmpires];
         Smoke = save.Smoke ?? Empty<SmokeSource>.Array;
     }
@@ -201,6 +206,7 @@ public sealed class Derelict
             TurnsLeft = TurnsLeft,
             Production = Production,
             ProductionLeft = ProductionLeft,
+            System = System,
             KnownBy = (bool[])KnownBy.Clone(),
             Smoke = smoke,
         };
@@ -239,7 +245,8 @@ public sealed class Derelict
 
     public bool KnownByPlayer => IsKnownBy(Universe.Player);
 
-    void SetKnownBy(Empire empire)
+    // under the list's lock
+    internal void SetKnownBy(Empire empire)
     {
         int i = empire.Id - 1;
         if (i >= KnownBy.Length)
@@ -263,28 +270,11 @@ public sealed class Derelict
     // the player finds on the map and selects only the salvageable ones it knows of
     public bool SelectableByPlayer => CanBeSalvaged && KnownByPlayer;
 
-    // once a turn, on the sim thread: its timer runs down, and an empire with a sensor over it learns of it for good
+    // once a turn, on the sim thread: its timer runs down
     public void UpdateTurn()
     {
-        if (!CanBeSalvaged)
-            return;
-        --TurnsLeft;
-        var empires = Universe.Empires;
-        for (int i = 0; i < empires.Count; ++i)
-        {
-            Empire e = empires[i];
-            if (!IsKnownBy(e) && InSensorRangeOf(e))
-                SetKnownBy(e);
-        }
-    }
-
-    bool InSensorRangeOf(Empire empire)
-    {
-        Empire.InfluenceNode[] nodes = empire.SensorNodes;
-        for (int i = 0; i < nodes.Length; ++i)
-            if (nodes[i].Position.InRadius(Position, nodes[i].Radius))
-                return true;
-        return false;
+        if (CanBeSalvaged)
+            --TurnsLeft;
     }
 
     // dead modules first, then damaged ones; conduits only spark, so they are left out
@@ -328,6 +318,9 @@ public sealed class Derelict
     }
 
     public Vector2 VelocityNow => Salvageable ? DriftVelocity * (1f - Age / StopSeconds).Clamped(0f, 1f) : DriftVelocity;
+
+    // where a salvageable one comes to rest: slowing linearly, it covers half its speed times the time left
+    public Vector2 RestPosition => Salvageable ? Position + VelocityNow * ((StopSeconds - Age) * 0.5f) : Position;
 
     public float Scale => 1f - (1f - ScaleAtRemoval) * (Z / RemoveDepth).Clamped(0f, 1f);
 

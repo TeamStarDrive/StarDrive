@@ -78,6 +78,9 @@ public sealed class Notification
                 case "SnapToShip":
                     m.SnapToShip(ReferencedItem1 as Ship);
                     break;
+                case "SnapToDerelict":
+                    m.SnapToDerelict(ReferencedItem1 as Derelict, ReferencedItem2 as SolarSystem);
+                    break;
             }
             return true;
         }

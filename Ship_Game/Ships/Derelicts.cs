@@ -55,8 +55,9 @@ public sealed class Derelicts
     }
 
     // over its limit a salvageable one drifts; only a seen death hands its hull over, so a wreck the player does not know never shows
-    public bool TryAdd(Ship ship, bool salvageable, bool seen)
+    public bool TryAdd(Ship ship, bool salvageable, bool seen, Empire killer = null)
     {
+        Derelict added;
         lock (Sync)
         {
             SceneObject so = seen ? ship.GetSO() : null;
@@ -64,12 +65,114 @@ public sealed class Derelicts
                 salvageable = false;
             if (!salvageable && (!seen || so == null || CountDriftingInScene() >= GlobalStats.Defaults.MaxDriftingDerelicts))
                 return false;
-            Items.Add(new Derelict(ship, so, salvageable, seen));
+            added = new Derelict(ship, so, salvageable, seen);
+            Items.Add(added);
             Publish();
             if (so != null)
                 ship.ReleaseSceneObject();
-            return true;
         }
+        if (added.CanBeSalvaged && added.System != null)
+            ship.Universe.Screen?.RunOnSimThread(() => Join(added, killer));
+        return true;
+    }
+
+    // on the sim thread, which owns the empires' lists: it joins its system, and each empire that learns of it lists the system
+    void Join(Derelict d, Empire killer)
+    {
+        SolarSystem system = d.System;
+        bool playerLearned = false;
+        lock (Sync)
+        {
+            if (!d.CanBeSalvaged || !Items.ContainsRef(d))
+                return;
+            system.Derelicts.Add(d);
+            var empires = system.Universe.Empires;
+            for (int i = 0; i < empires.Count; ++i)
+            {
+                Empire e = empires[i];
+                if (e.DerelictSystems.Contains(system))
+                {
+                    d.SetKnownBy(e);
+                }
+                else if (LearnsOf(e, d, killer))
+                {
+                    ListSystem(e, system);
+                    playerLearned |= e.isPlayer;
+                }
+            }
+        }
+        if (playerLearned)
+            system.Universe.Notifications?.AddNewDerelictNotification(d);
+    }
+
+    // on the sim thread: a ship entering a system with derelicts its empire does not list shows them to its empire
+    public void Enter(Ship ship)
+    {
+        SolarSystem system = ship.System;
+        Empire e = ship.Loyalty;
+        Derelict first;
+        lock (Sync)
+        {
+            if (system == null || system.Derelicts.Count == 0 || e.DerelictSystems.Contains(system))
+                return;
+            ListSystem(e, system);
+            first = system.Derelicts[0];
+        }
+        if (e.isPlayer)
+            system.Universe.Notifications?.AddNewDerelictNotification(first);
+    }
+
+    // under the lock: the empire lists the system, so it knows every derelict in it
+    static void ListSystem(Empire e, SolarSystem system)
+    {
+        e.DerelictSystems.Add(system);
+        for (int i = 0; i < system.Derelicts.Count; ++i)
+            system.Derelicts[i].SetKnownBy(e);
+    }
+
+    // who learns of it as it forms: its owner, its killer, sensors at its death, a colony or a ship there, allies and full infiltrators of either, a mole there
+    static bool LearnsOf(Empire e, Derelict d, Empire killer)
+    {
+        return e == d.Owner || e == killer || d.IsKnownBy(e)
+            || d.System.HasPlanetsOwnedBy(e) || HasShipIn(e, d.System)
+            || e.IsAlliedWith(d.Owner) || e.IsAlliedWith(killer)
+            || FullyInfiltrates(e, d.Owner) || FullyInfiltrates(e, killer)
+            || HasMoleIn(e, d.System);
+    }
+
+    static bool HasShipIn(Empire e, SolarSystem system)
+    {
+        var ships = system.ShipList;
+        for (int i = 0; i < ships.Count; ++i)
+            if (ships[i].Loyalty == e)
+                return true;
+        return false;
+    }
+
+    static bool FullyInfiltrates(Empire e, Empire target)
+    {
+        return e.GetRelationsOrNull(target)?.Espionage?.Level >= Espionage.MaxLevel;
+    }
+
+    static bool HasMoleIn(Empire e, SolarSystem system)
+    {
+        var moles = e.data.MoleList;
+        for (int i = 0; i < moles.Count; ++i)
+            for (int j = 0; j < system.PlanetList.Count; ++j)
+                if (moles[i].PlanetId == system.PlanetList[j].Id)
+                    return true;
+        return false;
+    }
+
+    // under the lock: one that can no longer be salvaged leaves its system, and a system with none left leaves every empire's list
+    static void Leave(Derelict d)
+    {
+        SolarSystem system = d.System;
+        if (system == null || !system.Derelicts.RemoveRef(d) || system.Derelicts.Count > 0)
+            return;
+        var empires = system.Universe.Empires;
+        for (int i = 0; i < empires.Count; ++i)
+            empires[i].DerelictSystems.Remove(system);
     }
 
     public void Update(FixedSimTime timeStep)
@@ -118,11 +221,31 @@ public sealed class Derelicts
                 for (int i = 0; i < saves.Length; ++i)
                     if (saves[i].Design?.BaseHull != null)
                         Items.Add(new Derelict(universe, saves[i]));
+                RejoinSystems(universe);
             }
             finally
             {
                 Publish();
             }
+        }
+    }
+
+    // the lists are not saved: an empire lists every system with a derelict it knows of, and so knows every derelict there
+    void RejoinSystems(UniverseState universe)
+    {
+        for (int i = 0; i < Items.Count; ++i)
+            if (Items[i].CanBeSalvaged && Items[i].System != null)
+                Items[i].System.Derelicts.Add(Items[i]);
+
+        var empires = universe.Empires;
+        for (int i = 0; i < Items.Count; ++i)
+        {
+            Derelict d = Items[i];
+            if (!d.CanBeSalvaged || d.System == null)
+                continue;
+            for (int j = 0; j < empires.Count; ++j)
+                if (d.IsKnownBy(empires[j]) && !empires[j].DerelictSystems.Contains(d.System))
+                    ListSystem(empires[j], d.System);
         }
     }
 
@@ -168,7 +291,11 @@ public sealed class Derelicts
         lock (Sync)
         {
             for (int i = 0; i < Items.Count; ++i)
+            {
                 Items[i].UpdateTurn();
+                if (!Items[i].CanBeSalvaged)
+                    Leave(Items[i]);
+            }
         }
     }
 
@@ -189,7 +316,10 @@ public sealed class Derelicts
             try
             {
                 for (int i = 0; i < Items.Count; ++i)
+                {
                     Items[i].RemoveSceneObject();
+                    Leave(Items[i]);
+                }
             }
             finally
             {

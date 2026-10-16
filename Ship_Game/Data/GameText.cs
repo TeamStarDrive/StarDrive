@@ -6160,6 +6160,8 @@ namespace Ship_Game
         DerelictTurnsLeftTip = 7129,
         /// <summary>Production left to salvage from this derelict, out of the production it started with.</summary>
         DerelictProductionTip = 7130,
+        /// <summary>A salvageable derelict in {0}: {1}</summary>
+        NewSalvageableDerelict = 7131,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

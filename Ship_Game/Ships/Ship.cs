@@ -1697,7 +1697,8 @@ namespace Ship_Game.Ships
             bool seen = (derelict & DerelictSeen) != 0;
             try
             {
-                if (!Universe.Derelicts.TryAdd(this, salvageable: (derelict & DerelictSalvageable) != 0, seen: seen))
+                Empire killer = LastDamagedBy?.GetLoyalty(); // the killing hit's source, which the removal has not cleared yet
+                if (!Universe.Derelicts.TryAdd(this, salvageable: (derelict & DerelictSalvageable) != 0, seen: seen, killer))
                     CreateExplosionEffects(visible: seen, cleanupOnly: false, blast: false);
             }
             catch (Exception e)

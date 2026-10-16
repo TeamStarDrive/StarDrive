@@ -1,10 +1,10 @@
 # Salvage Ops: derelict ships, salvage yards, recovery
 
 An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
-into `base` as fixes land. Status (2026-10-15): phase 1 (sub-branch 1, derelicts) shipped through
+into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. `base` is level with `jupiter-1.60/fixes_50`, and sub-branch 2 (salvageable) is
-cut from it; the rest is planned. Decisions 119-176, 178-190, 222-232 and 236-242 are all settled; 168-175 came from the
-review of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-242 from
+cut from it; the rest is planned. Decisions 119-176, 178-190, 222-232 and 236-266 are all settled; 168-175 came from the
+review of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from
 phase 2. The fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list
 safe on the sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -108,14 +108,50 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   - Designs per race are Gilad's: the yard and its salvage ship.
   - The modules are unlocked by Platforms in Combined Arms and by Starship Construction in vanilla and Star Trek
     (139, 153).
+- **Ordering a yard (Gilad, 2026-10-16), as mining stations are ordered:**
+  - **The cap (248):** at most 3 yards per empire per system, built and ordered together, as mining stations count
+    their goals per planet (`Mineable.NumMiningGoalsFor`). It is a Globals knob, `MaxSalvageYardsPerSystem`, default 3.
+  - **The goal:** a `SalvageOps` goal like `MiningOps` (`Commands/Goals/MiningOps.cs`). It builds a constructor,
+    waits for it, and then the yard works. It holds the system and the place to build, and is saved with the
+    empire's goals. Every way of ordering a yard makes one, and the cap counts them.
+  - **Where it sits (249):** where it is placed in the system, not tethered to a planet, as wrecks lie anywhere in a
+    system. Where auto salvage ops and the AI place a yard is settled in the ai sub-branch.
+  - **The ways to order one:**
+    - Deep Space Build, only inside a system with a salvageable derelict the empire knows of (163, 251), under the
+      cap;
+    - a button on the derelict's panel, which places the yard near that derelict (250). It shows the yards built and
+      ordered in that system out of the cap, and is greyed out at it;
+    - rows in the Exotic Systems screen for the systems with salvageable derelicts the empire knows of, with a deploy
+      button and an abort, like the mining rows (`ExoticSystemsListScreenItem`);
+    - an abort, like `EmpireAI.CancelMiningStation`, removes one order whose yard is not built yet, and its
+      constructor.
+  - **The player's auto-build switch (252)** comes with the AI planner, in the ai sub-branch.
 - **The salvage ship's cycle (122):**
   1. it launches from the yard;
   2. it flies to the derelict;
   3. it runs small shuttles to and from the derelict, like supply shuttles;
   4. it flies back and lands on the yard to hand over the salvage.
 - **Work:** a yard works every derelict in its own system that its empire knows of, with no orders, like a mining
-  station (136). An empire sees and salvages only derelicts it has seen, through sensors at the death or later
-  (137). Derelicts cannot be shot (150).
+  station (136). An empire sees and salvages only the derelicts it knows of (137, by the knowledge rules below).
+  Derelicts cannot be shot (150).
+- **Knowledge (Gilad, 2026-10-16; 257-265):**
+  - Each system holds its salvageable derelicts, and each empire holds the set of systems with salvageable derelicts
+    it knows of. An empire that lists a system knows every derelict in it. The AI reads these lists.
+  - When a salvageable derelict forms, these empires list its system, checked on the sim thread: its owner; its
+    killer (the empire whose fire last hit the ship, from `Ship.LastDamagedBy`, which a ship keeps for 10 s after a
+    hit); one with a ship there, any ship (263, 264); one with a colony there, factions too; the allies of its owner
+    or killer; one that has infiltrated either of them to level 5 (the raw level, not capped by the infiltrator's own
+    limit); one with a mole on a planet there; and, as a backstop for a death seen from outside the system, an empire
+    that had the ship in its sensors at its death (265). An empire that already lists the system skips the rules.
+  - Later, a ship entering a system with derelicts its empire does not list adds the system to that empire's list
+    (259, replacing the per-turn sensor check: being in the system is what counts, not sensors). Entering is found
+    where the game assigns each ship its system every step (`UniverseObjectManager.UpdateSolarSystemShips`).
+  - A derelict leaves its system once it can no longer be salvaged (its turns ran out, later also stripped or
+    recovered), and a system with none left leaves every empire's list.
+  - The lists are not saved: on load each system takes back its derelicts, and each empire lists every system with a
+    derelict it knows of.
+  - Learning later by a new colony, a treaty or a mole after the derelict formed is the dynamic-updates step, after
+    this.
 - **Two modes per derelict (133, 135):**
   - *strip* recovers techs and production;
   - *recover* recovers only the ship.
@@ -154,7 +190,13 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
 - **Empires that leave:** a dead or absorbed empire's shares and recovery progress go to the absorbing empire,
   otherwise they are dropped (162).
 - **Notifications (151):**
-  - a new salvageable derelict in a system where you hold a colony or a yard, combined per system per turn;
+  - a system joining your list of systems with salvageable derelicts (see Knowledge), wherever it is (260), told at
+    once on the sim thread, with no per-step check (256 as reworked by 257):
+    - it names the derelict that brought the system onto your list, whoever's ship it was, your own included (245);
+    - its icon is the hull's icon with the yellow hourglass over it at 0.8 of its size (246);
+    - a click takes the camera to where the derelict comes to rest and selects it; once it can no longer be salvaged,
+      the click shows the system (244);
+    - it never pauses the game (253), and has no alert switch (254);
   - the result of each of your recovery rolls.
 - **Pirates (176):** pirates salvage too, in *recover* mode only: they take ships, never production or techs. This
   is for now. How they reach a derelict (their bases working as yards, or salvage ships of their own) is settled in
@@ -235,7 +277,7 @@ Implementation notes:
   fixes land.
 - **Shipping (190, replaces the single final PR of 140 and 154):** phase 1 merged into `jupiter-1.60/fixes_49` with a
   merge commit and shipped in that patch batch, through PR #445 to `main` with the usual gates. Later phases go the
-  same way, each into the patch branch of its day: phase 2 once sub-branches 2-5 are all in `base`, since sub-branch 2
+  same way, each into the patch branch of its day: phase 2 once sub-branches 2-6 are all in `base`, since sub-branch 2
   alone leaves derelicts that nobody can salvage.
 - **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
   exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
@@ -288,34 +330,38 @@ Implementation notes:
      the 6 left (225, 230);
    - unseen deaths in a system become derelicts at once;
    - the stop point and radiation decide which kind a derelict is;
-   - the timer, which runs out to a sinking (its yard pause comes with the yards, 223);
+   - the timer, which counts the player's turns and runs out to a sinking; it ticks where the player's turn is found,
+     not in `EndOfTurnUpdate`, which also runs at start and on load (266; its yard pause comes with the yards, 223);
    - the throttle;
    - the model loaded from the hull on the UI thread (224);
    - selection with its highlight, and the info panel with the derelict's data: design, original owner, turns left
      (223);
-   - each empire's knowledge of a derelict: the empires that had the ship in their sensors at its death, then on
-     each turn any empire with a sensor node over it (`Empire.SensorNodes`, the point check of `Pirates.cs:458`);
-     once known, it stays known (137);
    - the grey icon at sector and galaxy view (226);
-   - the notification of a new derelict in a system where the player holds a colony (223).
-3. **yards**:
+   - each empire's knowledge of derelicts, by system (see Knowledge): the systems' and empires' derelict lists, and
+     the notification of a system joining the player's list (137, 223, 243-246, 253, 254, 256-266).
+3. **yards** (247):
    - the salvage module, salvage ships and yard designs (Gilad);
    - the salvage hangar;
    - the switches hide the salvage module, the salvage hangar and the yard designs, and the Globals flag skips the
      load checks for the salvage default ships (227);
+   - ordering a yard: the `SalvageOps` goal, the cap of 3 per empire per system, Deep Space Build, the button on the
+     derelict's panel, the Exotic Systems rows and the abort (248-251);
    - the timer's pause while a yard is in the system (223);
+   - the trust penalty.
+4. **salvaging** (247):
    - the strip/recover choice on the info panel, and the yard half of the notification (223);
    - the work cycle with a `CargoShuttles` route;
    - landing on the yard;
    - stripping with production shares, sparks and the progress ring (223);
-   - the hull dissolving;
+   - the hull dissolving, after which it can no longer be selected, nor reached from its notification, though its
+     turns have not run out;
    - the tech payout with its check;
-   - credits for what the yard cannot keep;
-   - the trust penalty.
-4. **hauling**: freighters pick up a yard's stored production for colonies that import it (132 B).
-5. **ai**: the yard planner and design picker, the strip/recover choice from the tech list, the rival rule (138),
-   salvage ships kept out of danger and radiation, pirates in recover mode (176).
-6. **recovery** (phase 3): hull recovery progress, the first-to-100% roll, break-up and catastrophic explosion, the
+   - credits for what the yard cannot keep.
+5. **hauling**: freighters pick up a yard's stored production for colonies that import it (132 B).
+6. **ai**: the yard planner and design picker, where auto salvage ops and the AI place a yard (249), the player's
+   auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), salvage ships kept out
+   of danger and radiation, pirates in recover mode (176).
+7. **recovery** (phase 3): hull recovery progress, the first-to-100% roll, break-up and catastrophic explosion, the
    recovered ship's damage rule, the order home (175).
 
 Each sub-branch adds its Codex text and tests.
