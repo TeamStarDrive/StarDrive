@@ -18,6 +18,10 @@ namespace Ship_Game
         readonly UniverseScreen Screen;
         UniverseState UState => Screen.UState;
         Submenu ConstructionSubMenu;
+        UIList Ticks;
+        UIList Rest;
+        UIList Alerts;
+        int SelectedTab;
         DropOptions<int> FreighterDropDown;
         DropOptions<int> ColonyShipDropDown;
         DropOptions<int> ScoutDropDown;
@@ -30,8 +34,8 @@ namespace Ship_Game
         public AutomationWindow(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
-            const int windowWidth = 220;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 89, windowWidth, 710);
+            const int windowWidth = 280;
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 189, windowWidth, 710);
             CanEscapeFromScreen = false;
         }
 
@@ -73,9 +77,10 @@ namespace Ship_Game
             MiningOpsEnabled = !Screen.Player.Universe.P.DisableMiningOps;
 
             RectF win = new(Rect);
-            ConstructionSubMenu = new(win, GameText.Automation);
+            ConstructionSubMenu = new(win, new LocalizedText[] { GameText.Automation, GameText.Alerts });
+            float top = ConstructionSubMenu.ClientArea.Y + 1f;
 
-            UIList rest = AddList(new(win.X + 10f, win.Y + 290));
+            UIList rest = Rest = AddList(new(win.X + 10f, top + 264f));
             rest.Padding = new(2f, 10f);
             rest.AddCheckbox(() => UState.Player.AutoPickConstructors,  title: GameText.AutoPickConstructorsName, tooltip: GameText.AutoPickConstructorsTip);
             rest.AddCheckbox(() => UState.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
@@ -92,14 +97,23 @@ namespace Ship_Game
 
             rest.AddCheckbox(() => RushConstruction,                      title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
             rest.AddCheckbox(() => UState.P.AllowPlayerInterTrade,        title: GameText.AllowPlayerInterTradeTitle, tooltip: GameText.AllowPlayerInterTradeTip);
-            rest.AddCheckbox(() => UState.P.SuppressOnBuildNotifications, title: GameText.DisableBuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);
-            rest.AddCheckbox(() => UState.P.DisableInhibitionWarning,     title: GameText.DisableInhibitionAlerts, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
-            rest.AddCheckbox(() => UState.P.DisableVolcanoWarning,        title: GameText.DisableVolcanoAlerts, tooltip: GameText.DisableVolcanoActivationOrDeactivation);
-            rest.AddCheckbox(() => UState.P.DisableCrashSiteWarning,      title: GameText.DisableCrashSiteAlerts, tooltip: GameText.DisableCrashSiteAlertsTip);
-            rest.AddCheckbox(() => UState.P.EnableStarvationWarning,      title: GameText.EnableStarvationWarning, tooltip: GameText.EnableStarvationWarningTip);
             rest.AddCheckbox(() => UState.P.PrioitizeProjectors,          title: GameText.PrioritizeProjector, tooltip: GameText.PrioritizeProjectorTip);
 
-            UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
+            UIList alerts = Alerts = AddList(new(win.X + 10f, top));
+            alerts.Padding = new(2f, 10f);
+            alerts.AddCheckbox(() => !UState.P.SuppressOnBuildNotifications, v => UState.P.SuppressOnBuildNotifications = !v,
+                               title: GameText.BuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);
+            alerts.AddCheckbox(() => !UState.P.DisableInhibitionWarning, v => UState.P.DisableInhibitionWarning = !v,
+                               title: GameText.InhibitionAlerts, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
+            alerts.AddCheckbox(() => !UState.P.DisableVolcanoWarning, v => UState.P.DisableVolcanoWarning = !v,
+                               title: GameText.VolcanoAlerts, tooltip: GameText.VolcanoAlertsTip);
+            alerts.AddCheckbox(() => !UState.P.DisableCrashSiteWarning, v => UState.P.DisableCrashSiteWarning = !v,
+                               title: GameText.ShipCrashAlerts, tooltip: GameText.ShipCrashAlertsTip);
+            alerts.AddCheckbox(() => !UState.P.DisableStationBuiltWarning, v => UState.P.DisableStationBuiltWarning = !v,
+                               title: GameText.StationBuiltAlerts, tooltip: GameText.StationBuiltAlertsTip);
+            alerts.AddCheckbox(() => UState.P.EnableStarvationWarning, title: GameText.StarvationAlerts, tooltip: GameText.EnableStarvationWarningTip);
+
+            UIList ticks = Ticks = AddList(new Vector2(win.X + 10f, top));
             ticks.Padding = new Vector2(2f, 10f);
 
             ScoutDropDown = ticks.Add(new CheckedDropdown())
@@ -126,6 +140,24 @@ namespace Ship_Game
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
             UpdateDropDowns();
+
+            PerformLayout();
+            Bottom = Math.Max(Rest.Bottom, Alerts.Bottom) + 20f;
+            ConstructionSubMenu.Bottom = Bottom;
+            ConstructionSubMenu.PerformLayout();
+
+            ConstructionSubMenu.OnTabChange = OnTabChange;
+            ConstructionSubMenu.SelectedIndex = SelectedTab;
+        }
+
+        void OnTabChange(int tab)
+        {
+            SelectedTab = tab;
+            Ticks.Visible = Rest.Visible = tab == 0;
+            Alerts.Visible = tab == 1;
+            foreach (DropOptions<int> dropDown in new[] { ScoutDropDown, ColonyShipDropDown, ConstructorDropDown,
+                                                          FreighterDropDown, ResearchStationDropDown, MiningStationDropDown })
+                if (dropDown != null) { dropDown.Open = false; dropDown.Reset(); }
         }
 
         public void ToggleVisibility()
@@ -186,6 +218,9 @@ namespace Ship_Game
         {
             if (!IsOpen)
                 return false;
+
+            if (ConstructionSubMenu.HandleInput(input))
+                return true;
 
             if (base.HandleInput(input))
             {

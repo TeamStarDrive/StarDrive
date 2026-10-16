@@ -6162,6 +6162,26 @@ namespace Ship_Game
         DerelictProductionTip = 7130,
         /// <summary>A salvageable derelict in {0}: {1}</summary>
         NewSalvageableDerelict = 7131,
+        /// <summary>Alerts</summary>
+        Alerts = 7132,
+        /// <summary>Building Alerts</summary>
+        BuildingAlerts = 7133,
+        /// <summary>Inhibition Alerts</summary>
+        InhibitionAlerts = 7134,
+        /// <summary>Volcano Alerts</summary>
+        VolcanoAlerts = 7135,
+        /// <summary>Alerts when a volcano becomes active, calms after an eruption or goes dormant, and when a lava pool hardens into a bare tile. Eruptions are reported either way.</summary>
+        VolcanoAlertsTip = 7136,
+        /// <summary>Ship Crash Alerts</summary>
+        ShipCrashAlerts = 7137,
+        /// <summary>Alerts when a ship crashes on a planet. With these off, you hear of a crash site only when a ship is recovered from it.</summary>
+        ShipCrashAlertsTip = 7138,
+        /// <summary>Station Built Alerts</summary>
+        StationBuiltAlerts = 7139,
+        /// <summary>Alerts when one of your research or mining stations has been built.</summary>
+        StationBuiltAlertsTip = 7140,
+        /// <summary>Starvation Alerts</summary>
+        StarvationAlerts = 7141,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

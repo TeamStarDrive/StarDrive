@@ -60,6 +60,24 @@ namespace UnitTests.NotificationTests
         }
 
         [TestMethod]
+        public void TestStationBuiltAlertsCanBeSwitchedOff()
+        {
+            LoadStarterShips("Terran-Prototype");
+            var station = SpawnShip("Terran-Prototype", Player, new Vector2(3000));
+            Planet planet = Player.GetPlanets().First();
+
+            UState.P.DisableStationBuiltWarning = true;
+            NotifMgr.AddMiningStationBuiltNotification(station, planet);
+            NotifMgr.AddResearchStationBuiltNotification(station, planet);
+            AssertEqual(0, NotifMgr.NumberOfNotifications, "with the switch off, no station built alert");
+
+            UState.P.DisableStationBuiltWarning = false;
+            NotifMgr.AddMiningStationBuiltNotification(station, planet);
+            NotifMgr.AddResearchStationBuiltNotification(station, planet);
+            AssertEqual(2, NotifMgr.NumberOfNotifications, "with the switch on, both station built alerts");
+        }
+
+        [TestMethod]
         public void TestImportantNotificationIsLogged()
         {
             NotifMgr.AddEmpireDiedNotification(Enemy);

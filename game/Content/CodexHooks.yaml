@@ -166,8 +166,9 @@ YourEmpireWillAutomaticallySelect: automation_research_and_taxes
 YourEmpireWillAutomaticallyManage3: automation_research_and_taxes
 NormallyWhenYouManuallyAdd: automation_alerts
 InhibitionAlertsAreDisplayedWhen: automation_alerts
-DisableVolcanoActivationOrDeactivation: automation_alerts
-DisableCrashSiteAlertsTip: automation_alerts
+VolcanoAlertsTip: automation_alerts
+ShipCrashAlertsTip: automation_alerts
+StationBuiltAlertsTip: automation_alerts
 EnableStarvationWarningTip: automation_alerts
 
 # Budget screen

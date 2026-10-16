@@ -8047,10 +8047,10 @@ DisableInhibitionAlerts:
  PTB: "Desativar Alertas de Inibição"
 InhibitionAlertsAreDisplayedWhen:
  Id: 1843
- ENG: "Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default when starting a game on Hard and above."
- RUS: "Предупреждения о запрете отображаются, когда выбран один корабль, и он заблокирован. Обычно он предназначен для начинающих игроков и по умолчанию будет отключен при запуске игры на уровне сложности и выше."
- UKR: "Сповіщення про блокування з'являються, коли вибрано один корабель і він заблокований. Зазвичай воно призначене для гравців-початківців і за замовчуванням вимкнене, коли ви починаєте гру на складному рівні і вище."
- PTB: "Alertas de Inibição são exibidos quando uma única nave está selecionada e está inibida. Em geral, isso é destinado a jogadores novatos e ficará desativado por padrão ao iniciar uma partida no Difícil ou acima."
+ ENG: "Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default when starting a game above Hard."
+ RUS: "Предупреждения о запрете отображаются, когда выбран один корабль, и он заблокирован. Обычно он предназначен для начинающих игроков и по умолчанию будет отключен при запуске игры на сложности выше «Тяжелый»."
+ UKR: "Сповіщення про блокування з'являються, коли вибрано один корабель і він заблокований. Зазвичай воно призначене для гравців-початківців і за замовчуванням вимкнене, коли ви починаєте гру на рівні, вищому за «Важкий»."
+ PTB: "Alertas de Inibição são exibidos quando uma única nave está selecionada e está inibida. Em geral, isso é destinado a jogadores novatos e ficará desativado por padrão ao iniciar uma partida acima do Difícil."
 DisableRemnantStory:
  Id: 1844
  ENG: "Disable Remnant Story"
@@ -19867,6 +19867,66 @@ DerelictProductionTip:
 NewSalvageableDerelict:
  Id: 7131
  ENG: "A salvageable derelict in {0}: {1}"
+Alerts:
+ Id: 7132
+ ENG: "Alerts"
+ RUS: "Оповещения"
+ UKR: "Сповіщення"
+ PTB: "Alertas"
+BuildingAlerts:
+ Id: 7133
+ ENG: "Building Alerts"
+ RUS: "Оповещения о строительстве"
+ UKR: "Сповіщення про будівлі"
+ PTB: "Alertas de Construção"
+InhibitionAlerts:
+ Id: 7134
+ ENG: "Inhibition Alerts"
+ RUS: "Предупреждения о запрете"
+ UKR: "Сповіщення про блокування варпу"
+ PTB: "Alertas de Inibição"
+VolcanoAlerts:
+ Id: 7135
+ ENG: "Volcano Alerts"
+ RUS: "Оповещения о вулканах"
+ UKR: "Сповіщення про вулкани"
+ PTB: "Alertas de Vulcão"
+VolcanoAlertsTip:
+ Id: 7136
+ ENG: "Alerts when a volcano becomes active, calms after an eruption or goes dormant, and when a lava pool hardens into a bare tile. Eruptions are reported either way."
+ RUS: "Оповещения, когда вулкан активизируется, успокаивается после извержения или становится бездействующим, а также когда бассейн с лавой затвердевает, освобождая клетку. Об извержениях сообщается в любом случае."
+ UKR: "Сповіщення, коли вулкан стає активним, вщухає після виверження або переходить у стан спокою, а також коли лава застигає й звільняє плитку. Про виверження повідомляється в будь-якому разі."
+ PTB: "Alertas quando um vulcão fica ativo, se acalma após uma erupção ou fica dormente, e quando uma poça de lava se solidifica e deixa o quadrante livre. Erupções são informadas de qualquer forma."
+ShipCrashAlerts:
+ Id: 7137
+ ENG: "Ship Crash Alerts"
+ RUS: "Оповещения о крушениях кораблей"
+ UKR: "Сповіщення про аварії кораблів"
+ PTB: "Alertas de Queda de Nave"
+ShipCrashAlertsTip:
+ Id: 7138
+ ENG: "Alerts when a ship crashes on a planet. With these off, you hear of a crash site only when a ship is recovered from it."
+ RUS: "Оповещения о крушениях кораблей на планетах. Если они отключены, о месте крушения вы узнаете, только когда с него будет восстановлен корабль."
+ UKR: "Сповіщення про аварії кораблів на планетах. Якщо їх вимкнено, про місце аварії ви дізнаєтеся, лише коли з нього буде відновлено корабель."
+ PTB: "Alertas quando uma nave cai em um planeta. Com eles desativados, você só saberá de um local de queda quando uma nave for recuperada dele."
+StationBuiltAlerts:
+ Id: 7139
+ ENG: "Station Built Alerts"
+ RUS: "Оповещения о постройке станций"
+ UKR: "Сповіщення про побудову станцій"
+ PTB: "Alertas de Estação Construída"
+StationBuiltAlertsTip:
+ Id: 7140
+ ENG: "Alerts when one of your research or mining stations has been built."
+ RUS: "Оповещения о постройке ваших научных или горнодобывающих станций."
+ UKR: "Сповіщення, коли побудовано вашу дослідницьку або видобувну станцію."
+ PTB: "Alertas quando uma de suas estações de pesquisa ou de mineração for construída."
+StarvationAlerts:
+ Id: 7141
+ ENG: "Starvation Alerts"
+ RUS: "Предупреждения о голоде"
+ UKR: "Попередження про голод"
+ PTB: "Avisos de Fome"
 EncCorsairs000_Msg0:
  ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
  RUS: "Дорогие друзья SING,\n\nМы рады видеть прогресс вашей империи. Разве это не захватывающе - колонизировать новые миры и бороться с неизвестной средой? Однако все эти маленькие транспорты, курсирующие от планеты к планете, как послушные пчёлки, слишком уязвимы в глубоком космосе.\n\nПоэтому у нас есть предложение. Вы прямо сейчас заплатите нам MONEY кредитов. Если согласитесь, мы можем пообещать определённый уровень «защиты» для кораблей SING. Если нет - увы, мы ничего обещать не можем.\n\nС уважением,\n    Капитан Марток, независимый торговец и джентльмен"
@@ -22936,7 +22996,7 @@ CodexEconomyAutomationShort:
  ENG: "Handing routine jobs to the empire AI"
 CodexEconomyAutomationText:
  Id: 100070
- ENG: "The automation window opens with H or with the AI button on the minimap. Each box hands one job to the same AI that runs the computer empires: exploring and colonizing, freighters, construction, research and taxes, and the alerts you receive. It also holds Autobuild Projectors, which lays subspace projector roads along your busy trade lanes; see Subspace Projectors. The entries below explain each box.\n\nColonies are automated separately by governors, assigned in the colony screen or from the planet list (L); see Governor and Budgets under The Colony Screen."
+ ENG: "The automation window opens with H or with the AI button on the minimap. Each box on its Automation tab hands one job to the same AI that runs the computer empires: exploring and colonizing, freighters, construction, and research and taxes; its Alerts tab picks the alerts you get. The window also holds Autobuild Projectors, which lays subspace projector roads along your busy trade lanes; see Subspace Projectors. The entries below explain each box.\n\nColonies are automated separately by governors, assigned in the colony screen or from the planet list (L); see Governor and Budgets under The Colony Screen."
 CodexExpansion:
  Id: 100071
  ENG: "Expansion"
@@ -23294,10 +23354,10 @@ CodexAutomationAlerts:
  ENG: "Alerts"
 CodexAutomationAlertsShort:
  Id: 100172
- ENG: "Which notifications the boxes at the bottom switch off"
+ ENG: "Which notifications the boxes on the Alerts tab show"
 CodexAutomationAlertsText:
  Id: 100173
- ENG: "<color=Caption>Building alerts</color>A notification arrives when a building you queued yourself, or a capital, is finished, unless you are looking at that colony at the time. Disabling it silences those. Buildings the governor queued, or whose lock you removed while they were queued, never notify.\n\n<color=Caption>Inhibition alerts</color>The Inhibited flag drawn on a selected ship held by a gravity well. A ship stopped by enemy inhibitors or a flux event shows only its status icon, which this box does not touch. The flag is also hidden while the FTL overlay is up. Off by default when starting above Hard.\n\n<color=Caption>Volcano alerts</color>Notifications when a volcano becomes active, calms after an eruption, or goes dormant, and when a lava pool hardens into a bare tile, on any world you own or have troops on. The eruption itself, a lava pool hardening into a new building, and a building lost to lava are always reported.\n\n<color=Caption>Crash site alerts</color>Notifications when a ship crashes on one of your planets, or on an explored planet within sensor range of one of your ships. With them off you still hear when a crashed ship is actually recovered.\n\n<color=Caption>Starvation warning</color>A notification the moment a colony starts to starve. Off by default."
+ ENG: "The Alerts tab of the automation window has a box for each alert below; a ticked box means the alert is shown.\n\n<color=Caption>Building alerts</color>A notification arrives when a building you queued yourself, or a capital, is finished, unless you are looking at that colony at the time. Unticking the box silences those. Buildings the governor queued, or whose lock you removed while they were queued, never notify.\n\n<color=Caption>Inhibition alerts</color>The Inhibited flag drawn on a selected ship held by a gravity well. A ship stopped by enemy inhibitors or a flux event shows only its status icon, which this box does not touch. The flag is also hidden while the FTL overlay is up. Off by default when starting above Hard.\n\n<color=Caption>Volcano alerts</color>Notifications when a volcano becomes active, calms after an eruption, or goes dormant on any world you own or have troops on, and when a lava pool hardens into a bare tile on a world you own. The eruption itself, a lava pool hardening into a new building, and a building lost to lava are always reported.\n\n<color=Caption>Ship crash alerts</color>Notifications when a ship crashes on one of your planets, or on an explored planet within sensor range of one of your ships. With them off you still hear when a crashed ship is actually recovered.\n\n<color=Caption>Station built alerts</color>A notification when one of your research or mining stations has been built.\n\n<color=Caption>Starvation alerts</color>A notification the moment a colony starts to starve. Off by default."
 CodexOverviewMapOverlays:
  Id: 100174
  ENG: "Map Overlays"
