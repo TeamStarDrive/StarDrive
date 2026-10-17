@@ -28,7 +28,10 @@ namespace UnitTests.Ships;
 /// built, and the best pick when neither can; the window resets a choice that can no longer be built to the default.
 /// Neither picker nor the window's list takes a station with less cargo room than one salvage chunk. The derelicts
 /// window deploys the picked station, aborts an order not yet built, its constructor queued or not, and then says
-/// the station is deployed; with no design to build it says so in grey.
+/// the station is deployed; with no design to build it says so in grey. A built station costs the builder trust, once,
+/// with each AI that has a colony in its system and knows it, unless the two have open borders, an alliance or a war:
+/// the AI personality's value, 5 for all, times a difficulty multiplier when the builder is the player. The value
+/// survives a save, 0 included.
 /// </summary>
 [TestClass]
 public class SalvageOpsTests : StarDriveTest
@@ -575,6 +578,105 @@ public class SalvageOpsTests : StarDriveTest
         window.StationButton.OnClick(window.StationButton);
         Universe.InvokePendingSimThreadActions();
         Assert.IsFalse(Player.AI.HasGoal(g => g == order), "which takes the order away");
+    }
+
+    [TestMethod]
+    public void ABuiltStationCostsTheBuilderTrustWithAnAIThatHasAColonyInItsSystem()
+    {
+        Forms(Player, InSystem);
+        WreckSystem.PlanetList[0].SetOwner(Enemy);
+        Assert.IsTrue(WreckSystem.HasPlanetsOwnedBy(Enemy) && Enemy.IsKnown(Player), "setup: an AI with a colony there, that knows the player");
+        Enemy.GetRelations(Player).AtWar = Player.GetRelations(Enemy).AtWar = false;
+        Relationship aiToPlayer = Enemy.GetRelations(Player);
+        var order = new SalvageOps(Player, WreckSystem, BuildPos, Station);
+        Player.AI.AddGoalAndEvaluate(order);
+        float trust = aiToPlayer.Trust;
+
+        order.TargetShip = SpawnShip(Station.Name, Player, BuildPos);
+        order.Evaluate();
+        AssertEqual("Salvage", order.StepName, "setup: the station is built");
+        AssertEqual(5f, trust - aiToPlayer.Trust, "the AI trusts the player 5 less, its personality's default at Normal difficulty");
+
+        order.Evaluate();
+        AssertEqual(5f, trust - aiToPlayer.Trust, "once for each station");
+    }
+
+    [TestMethod]
+    public void OnlyAnAIThatKnowsTheBuilderWithNoOpenBordersAllianceOrWarLosesTrust()
+    {
+        Assert.IsTrue(ResourceManager.DiplomaticTraits.DiplomaticTraitsList.All(t => t.SalvageStationTrustLoss == 5f),
+                      "every personality loses 5, as none sets its own");
+        CreateThirdMajorEmpire();
+        WreckSystem.PlanetList[0].SetOwner(Enemy);
+        Relationship aiToPlayer = Enemy.GetRelations(Player), aiToAI = Enemy.GetRelations(ThirdMajor);
+        aiToPlayer.AtWar = Player.GetRelations(Enemy).AtWar = false;
+        aiToAI.AtWar = ThirdMajor.GetRelations(Enemy).AtWar = false;
+        float Loss(Empire builder)
+        {
+            Relationship rel = Enemy.GetRelations(builder);
+            float before = rel.Trust;
+            SalvageOps.CostTrustOfColonyOwners(builder, WreckSystem);
+            return before - rel.Trust;
+        }
+
+        UState.P.Difficulty = GameDifficulty.Insane;
+        Enemy.TestInitModifiers();
+        AssertEqual(5f * 1.75f, Loss(Player), "the player loses more at a harder difficulty");
+        AssertEqual(5f, Loss(ThirdMajor), "another AI does not");
+
+        Empire stranger = UState.CreateEmpire(ResourceManager.MajorRaces.First(e => UState.GetEmpireByName(e.Name) == null), isPlayer: false);
+        Enemy.GetRelations(stranger).AtWar = false;
+        Assert.IsFalse(Enemy.IsKnown(stranger), "setup: an empire the AI has not met");
+        AssertEqual(0f, Loss(stranger), "none from an empire the AI has not met");
+
+        aiToPlayer.Treaty_OpenBorders = true;
+        AssertEqual(0f, Loss(Player), "none with open borders");
+        aiToPlayer.Treaty_OpenBorders = false;
+        aiToPlayer.Treaty_Alliance = true;
+        AssertEqual(0f, Loss(Player), "nor with an alliance");
+        aiToPlayer.Treaty_Alliance = false;
+        aiToPlayer.AtWar = true;
+        AssertEqual(0f, Loss(Player), "nor at war");
+        aiToPlayer.AtWar = false;
+
+        GlobalStats.RestrictAIPlayerInteraction = true;
+        try
+        {
+            AssertEqual(0f, Loss(Player), "nor with the AI kept away from the player");
+        }
+        finally
+        {
+            GlobalStats.RestrictAIPlayerInteraction = false;
+        }
+
+        WreckSystem.PlanetList[0].SetOwner(ThirdMajor);
+        AssertEqual(0f, Loss(Player), "and none once the AI has no colony there");
+
+        WreckSystem.PlanetList[0].SetOwner(Player);
+        Relationship playerToAI = Player.GetRelations(ThirdMajor);
+        float playerTrust = playerToAI.Trust;
+        SalvageOps.CostTrustOfColonyOwners(ThirdMajor, WreckSystem);
+        AssertEqual(playerTrust, playerToAI.Trust, "and a player's colony costs nothing, as the player keeps no trust");
+    }
+
+    [TestMethod]
+    public void InALoadedGameAnAIBuilderPassesOverItsOwnColonyAndATrustLossOf0Holds()
+    {
+        CreateThirdMajorEmpire();
+        WreckSystem.PlanetList[0].SetOwner(ThirdMajor);
+        Enemy.TestSetPersonality("Cunning");
+        Enemy.data.DiplomaticPersonality.SalvageStationTrustLoss = 0; // as a mod might set it
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageTrust", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+
+        Empire builder = loaded.UState.GetEmpireByName(ThirdMajor.Name);
+        SolarSystem system = loaded.UState.Systems.First(s => s.Position == WreckSystem.Position);
+        Assert.IsTrue(builder.IsKnown(builder) && system.HasPlanetsOwnedBy(builder), "setup: a loaded empire knows itself, and has a colony there");
+        SalvageOps.CostTrustOfColonyOwners(builder, system); // it has no relationship with itself to ask about
+        AssertEqual(0f, loaded.UState.GetEmpireByName(Enemy.Name).data.DiplomaticPersonality.SalvageStationTrustLoss,
+                    "and a personality's loss of 0 survives the save");
     }
 
     // the basic station, less one salvage unit if asked, plus medium cargo holds in a strip below its grid

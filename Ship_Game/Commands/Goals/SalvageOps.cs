@@ -147,6 +147,26 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
+        // a station built costs the builder trust with each AI empire that has a colony in the system and knows it, unless they have open borders, an alliance or a war
+        public static void CostTrustOfColonyOwners(Empire builder, SolarSystem system)
+        {
+            if (builder.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
+                return;
+
+            foreach (Empire owner in system.OwnerList)
+            {
+                if (owner == builder || owner.isPlayer || owner.IsFaction || owner.data.DiplomaticPersonality == null
+                    || !owner.IsKnown(builder) || owner.IsOpenBordersTreaty(builder) || owner.IsAlliedWith(builder)
+                    || owner.IsAtWarWith(builder))
+                    continue;
+
+                float loss = owner.data.DiplomaticPersonality.SalvageStationTrustLoss;
+                if (builder.isPlayer)
+                    loss *= owner.DifficultyModifiers.SalvageStationTrustLossVsPlayer;
+                owner.GetRelations(builder).Trust -= loss;
+            }
+        }
+
         // an order ends, with any constructor it has, when salvage ops are off (a save loaded under a mod without salvage content), and before its station is built once its system has no derelict left to salvage
         protected override GoalStep? PreEvaluate()
         {
@@ -180,6 +200,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (Owner.isPlayer)
                     Owner.Universe.Notifications?.AddSalvageStationBuiltNotification(SalvageStation, TargetSystem);
+                CostTrustOfColonyOwners(Owner, TargetSystem);
                 return GoalStep.GoToNextStep;
             }
 

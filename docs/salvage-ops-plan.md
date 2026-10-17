@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-349 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-354 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-349 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-354 from sub-branch 3. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -227,7 +227,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     their production until their empire has a station in that system again, which takes them over, even beyond its
     module count (291).
   - A boarded station works for its new owner. If the new owner already has a station in that system, the boarders
-    launch as troop transports and the station is scuttled (285), as captured stations are after 298.
+    launch as troop transports and the station is scuttled (285), as captured stations are after 298. Taking one over
+    costs no trust, which is for building one (350-354).
   - An absorbed empire's platforms and claims go to the absorbing empire. A second station in one system is
     scuttled, and the absorber's station takes over its platforms (296).
 - **Knowledge (Gilad, 2026-10-16; 257-265):**
@@ -274,9 +275,13 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - Salvage never gives Remnant tech (127).
 - **AI restraint:** the AI does not salvage in a system where a rival it is not at war with, and has no open
   borders treaty with, is present (138).
-- **Trust:** when a salvage station is built in a system where an AI empire owns a colony, and the two have no open
-  borders treaty, no alliance and no war, that AI's trust in the builder drops. The amount is a new personality
-  value in `DTrait` (`EmpireData.cs:34`), default 5 (152, 161).
+- **Trust (Gilad, 2026-10-17; 152, 161, 350-354):** when a salvage station is built, each AI empire with a colony in
+  its system that knows the builder (350 A), and has no open borders treaty, no alliance and no war with it, trusts
+  the builder less, once per station. The amount is `DTrait.SalvageStationTrustLoss`, 5 for every personality, as
+  `DiplomaticTraits.xml` sets none (351 B). Against the player it is multiplied by the difficulty's
+  `DifficultyModifiers.SalvageStationTrustLossVsPlayer` (352), 1 at Normal, 1.25, 1.5 and 1.75 at Insane, the scale of
+  `AngerMultiplierVsPlayer` (354). The player is not told (353 A); a one-time diplomacy warning, like the
+  colonisation warnings, is logged for later (353 B). It is an AI reaction, so the Codex says nothing of it.
 - **Placement:** a station cannot be placed outside a system (163).
 - **Empires that leave:** a dead empire's shares are dropped, and an absorbed one's go to the absorbing empire
   (162, 296).
@@ -466,7 +471,7 @@ Implementation notes:
      330, 345-347);
    - a boarded station working for its new owner, or scuttled after its boarders leave when the new owner already
      has one there (285); an absorbed empire's second station (296);
-   - the trust penalty;
+   - the trust penalty (152, 161, 350-354);
    - the station-built notification, under the switch it shares (300);
    - left from sub-branch 2:
      - Gilad's check in game that a ship entering a system with derelicts brings the notification, with debug mode

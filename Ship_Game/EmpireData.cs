@@ -45,6 +45,7 @@ namespace Ship_Game
         [StarData] public float WeaknessDecline;
         [StarData] public float PowerIncrease;
         [StarData] public float TrustGainedAtPeace;
+        [StarData(DefaultValue = 5f)] public float SalvageStationTrustLoss = 5; // trust lost in an empire that builds a salvage station in a system where we have a colony
 
         [XmlIgnore]
         public bool IsTrusting => Trustworthiness >= 80;
