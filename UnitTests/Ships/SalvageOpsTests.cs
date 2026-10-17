@@ -294,7 +294,7 @@ public class SalvageOpsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AStationIsSeenWhenItIsOursOrInOurSensors()
+    public void AStationStillThereIsSeenWhenItIsOursOrInOurSensors()
     {
         Ship ours = SpawnShip(Station.Name, Player, SystemSite + new Vector2(0, -40_000f));
         Ship unseen = SpawnShip(Station.Name, Enemy, SystemSite + new Vector2(0, -50_000f));
@@ -306,6 +306,9 @@ public class SalvageOpsTests : StarDriveTest
         Assert.IsTrue(stations.Contains(ours) && stations.Contains(seen), "our own station and one in our sensors");
         Assert.IsFalse(stations.Contains(unseen), "not one we do not see");
         Assert.IsFalse(stations.Contains(warship), "and no other ship");
+
+        ours.Die(null, cleanupOnly: true);
+        Assert.IsFalse(SalvageOps.StationsSeenBy(Player, new[] { ours, seen }).Contains(ours), "nor one that is gone");
     }
 
     [TestMethod]

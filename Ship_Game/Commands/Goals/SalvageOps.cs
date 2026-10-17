@@ -86,17 +86,9 @@ namespace Ship_Game.Commands.Goals
         // the salvage stations an empire sees, its own among them, which a new one keeps clear of; the player's sight is read the UI-safe way
         public static Ship[] StationsSeenBy(Empire empire, Ship[] ships)
         {
-            var seen = new Array<Ship>();
-            for (int i = 0; i < ships.Length; ++i)
-            {
-                Ship s = ships[i];
-                if (!s.IsSalvageStation || !s.Active)
-                    continue;
-                if (s.Loyalty == empire || (empire.isPlayer ? s.KnownByEmpires.KnownByPlayer(empire.Universe)
-                                                            : s.KnownByEmpires.KnownBy(empire)))
-                    seen.Add(s);
-            }
-            return seen.ToArray();
+            return ships.Filter(s => s.IsSalvageStation && s.Active
+                && (s.Loyalty == empire || (empire.isPlayer ? s.KnownByEmpires.KnownByPlayer(empire.Universe)
+                                                            : s.KnownByEmpires.KnownBy(empire))));
         }
 
         public const float FirstSearchRadius = 1000f;

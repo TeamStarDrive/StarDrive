@@ -348,12 +348,13 @@ public class SalvageDerelictTests : StarDriveTest
     [TestMethod]
     public void AnOrderAndItsClaimSurviveSaveAndLoad()
     {
-        Derelict d = Forms(InSystem);
         Derelict other = Forms(InSystem + new Vector2(0, 5_000f));
+        Derelict d = Forms(InSystem);
         BuiltStation(Player);
         SalvageDerelict.Order(Player, d);
         d.TryClaim(Player);
         Assert.AreNotEqual(d.Id, other.Id, "setup: each derelict has its own id");
+        Assert.AreSame(d, UState.Derelicts.Current[1], "setup: the ordered one formed second, so finding it takes its id");
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageDerelict", throwOnError: true);
