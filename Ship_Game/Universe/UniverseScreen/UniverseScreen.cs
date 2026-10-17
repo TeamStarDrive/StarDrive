@@ -734,6 +734,10 @@ namespace Ship_Game
             {
                 shipListInfoUI.Update(elapsed);
             }
+            else if (ShowDerelictInfo)
+            {
+                DerelictInfoUI.Update(elapsed);
+            }
         }
 
         public void OnPlayerDefeated()

@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-323 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-327 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-323 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-327 from sub-branch 3. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -149,7 +149,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       those no-placement zones in red.
     - The panel button (318) places it at the average position of the system's derelicts: a random point within 1000
       of it, then within 1500, 2000 and so on, until a point passes the rules above.
-    - The button is greyed out, with a tooltip saying why, when no station can be ordered there (319).
+    - The button is greyed out, with a tooltip saying why, when no station can be ordered there (319). It is the
+      square action button with the Deep Space Build icon (324), with texts 7146-7149 (325). It sits in a drawer that
+      slides out to the right of the derelict's panel, like the ship panel's orders, where the Salvage and Recover
+      buttons go later (327). A salvage station is scrapped from its own ship panel, which has no refit (326).
     - Salvage stations are queued as urgent orbitals, as research and mining stations are (320).
     - An order not yet built ends, with its constructor, once its system has no salvageable derelict left; a built
       station stays (322).

@@ -8,6 +8,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 using Point = SDGraphics.Point;
 using Vector2 = SDGraphics.Vector2;
 
@@ -192,6 +193,97 @@ public class SalvageOpsTests : StarDriveTest
         Assert.IsFalse(Valid(SystemSite + new Vector2(DeepSpaceBuildingWindow.MinimumBuildDistanceFromSun - 100f, 0)), "too near the star");
         Assert.IsFalse(Valid(SystemSite + new Vector2(WreckSystem.Radius * DeepSpaceBuildingWindow.SystemPlacementRadius + 100f, 0)),
                        "outside the system's placement area");
+    }
+
+    [TestMethod]
+    public void TheSiteSearchStartsWithin1000OfTheDerelictsAverageSpot()
+    {
+        Forms(Player, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Vector2 average = InSystem + new Vector2(0, 5_000f);
+
+        Assert.IsTrue(SalvageOps.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(1), out Vector2 site), "a site is found");
+        Assert.IsTrue(site.InRadius(average, SalvageOps.FirstSearchRadius), "within 1000 of the derelicts' average spot, where it is clear");
+    }
+
+    [TestMethod]
+    public void TheSiteSearchWidensUntilAPointIsClear()
+    {
+        Forms(Player, InSystem);
+        Ship rival = SpawnShip(Station.Name, Enemy, InSystem + new Vector2(3_000f, 0));
+        for (int seed = 1; seed <= 20; ++seed)
+        {
+            Assert.IsTrue(SalvageOps.FindSite(WreckSystem, new[] { rival }, new SeededRandom(seed), out Vector2 site), $"seed {seed}: a site is found");
+            Assert.IsTrue(SalvageOps.IsValidSite(WreckSystem, site, new[] { rival }), $"seed {seed}: and it is a valid one");
+            Assert.IsTrue(site.OutsideRadius(InSystem, SalvageOps.Clearance), $"seed {seed}: clear of the derelict, which sits on the average spot");
+        }
+
+        SolarSystem empty = AddDummyPlanet(SystemSite + new Vector2(0, 400_000f), 1f, 1f, 1f, SystemSite + new Vector2(0, 460_000f), explored: true).System;
+        Assert.IsFalse(SalvageOps.FindSite(empty, Empty<Ship>.Array, new SeededRandom(1), out _), "no site in a system without derelicts");
+    }
+
+    [TestMethod]
+    public void TheSiteSearchGivesUpWhenNoPointInTheSystemIsClear()
+    {
+        Forms(Player, InSystem);
+        WreckSystem.Radius = DeepSpaceBuildingWindow.MinimumBuildDistanceFromSun / DeepSpaceBuildingWindow.SystemPlacementRadius;
+        Assert.IsFalse(SalvageOps.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(1), out _),
+                       "a system whose placement area lies within the star's 20000 has no site, and the search ends");
+    }
+
+    [TestMethod]
+    public void ThePanelButtonKeepsClearOfTheSalvageStationsThePlayerSeesOnly()
+    {
+        Forms(Player, InSystem);
+        Player.AddBuildableShip(Station);
+        Assert.IsTrue(SalvageOps.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(7), out Vector2 free), "setup: the site with nothing else there");
+
+        Ship unseen = SpawnShip(Station.Name, Enemy, free);
+        Assert.IsTrue(SalvageOps.OrderNearDerelicts(Player, WreckSystem, new[] { unseen }, new SeededRandom(7)), "an order");
+        AssertEqual(free, ((SalvageOps)Player.AI.FindGoal(g => g is SalvageOps)).StaticBuildPos, "a station the player does not see changes nothing");
+
+        Player.AI.CancelSalvageStation(WreckSystem);
+        unseen.KnownByEmpires.SetSeen(Player);
+        Assert.IsTrue(SalvageOps.OrderNearDerelicts(Player, WreckSystem, new[] { unseen }, new SeededRandom(7)), "another order");
+        Vector2 site = ((SalvageOps)Player.AI.FindGoal(g => g is SalvageOps)).StaticBuildPos;
+        Assert.IsTrue(site.OutsideRadius(free, SalvageOps.Clearance), "keeps clear of one the player sees");
+    }
+
+    [TestMethod]
+    public void ThePanelButtonOrdersThePickedStationAtAFreeSiteNearTheDerelicts()
+    {
+        Forms(Player, InSystem);
+        Player.ClearShipsWeCanBuild();
+        AssertEqual(SalvageOps.OrderBlock.NoDesign, SalvageOps.WhyNoOrderIn(Player, WreckSystem), "greyed until a salvage station can be built");
+        Assert.IsFalse(SalvageOps.OrderNearDerelicts(Player, WreckSystem, Empty<Ship>.Array, new SeededRandom(1)), "so it orders nothing");
+
+        Player.AddBuildableShip(Station);
+        AssertEqual(SalvageOps.OrderBlock.None, SalvageOps.WhyNoOrderIn(Player, WreckSystem), "then it can order");
+        Assert.IsTrue(SalvageOps.OrderNearDerelicts(Player, WreckSystem, Empty<Ship>.Array, new SeededRandom(1)), "and does");
+        var order = (SalvageOps)Player.AI.FindGoal(g => g is SalvageOps);
+        AssertEqual(Station, order.ToBuild, "the picked station");
+        AssertEqual(WreckSystem, order.TargetSystem, "in the derelict's system");
+        Assert.IsTrue(SalvageOps.IsValidSite(WreckSystem, order.StaticBuildPos, Empty<Ship>.Array), "at a free site");
+        Assert.IsTrue(order.StaticBuildPos.InRadius(InSystem, 10_000f), "near the derelict");
+
+        AssertEqual(SalvageOps.OrderBlock.StationThere, SalvageOps.WhyNoOrderIn(Player, WreckSystem), "greyed once a station is on order");
+        Assert.IsFalse(SalvageOps.OrderNearDerelicts(Player, WreckSystem, Empty<Ship>.Array, new SeededRandom(2)), "and orders no second one");
+        AssertEqual(SalvageOps.OrderBlock.NotHere, SalvageOps.WhyNoOrderIn(Enemy, WreckSystem), "an empire that knows of no derelict there cannot order");
+    }
+
+    [TestMethod]
+    public void AStationIsSeenWhenItIsOursOrInOurSensors()
+    {
+        Ship ours = SpawnShip(Station.Name, Player, SystemSite + new Vector2(0, -40_000f));
+        Ship unseen = SpawnShip(Station.Name, Enemy, SystemSite + new Vector2(0, -50_000f));
+        Ship seen = SpawnShip(Station.Name, Enemy, SystemSite + new Vector2(0, -60_000f));
+        Ship warship = SpawnShip("Dreadnought mk1-a", Player, SystemSite + new Vector2(0, -70_000f));
+        seen.KnownByEmpires.SetSeen(Player);
+
+        Ship[] stations = SalvageOps.StationsSeenBy(Player, new[] { ours, unseen, seen, warship });
+        Assert.IsTrue(stations.Contains(ours) && stations.Contains(seen), "our own station and one in our sensors");
+        Assert.IsFalse(stations.Contains(unseen), "not one we do not see");
+        Assert.IsFalse(stations.Contains(warship), "and no other ship");
     }
 
     [TestMethod]

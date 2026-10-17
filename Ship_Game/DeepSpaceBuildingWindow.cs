@@ -259,7 +259,8 @@ namespace Ship_Game
 
             Planet[] planets = Screen.UState.GetVisiblePlanets();
             SolarSystem[] systems = Screen.UState.GetVisibleSystems();
-            SeenSalvageStations = ShipToBuild?.IsSalvageStation == true ? FindSeenSalvageStations() : Empty<Ship>.Array;
+            SeenSalvageStations = ShipToBuild?.IsSalvageStation == true
+                ? SalvageOps.StationsSeenBy(Player, Screen.UState.Objects.GetShips()) : Empty<Ship>.Array;
 
             foreach (Planet planet in planets)
             {
@@ -361,15 +362,6 @@ namespace Ship_Game
 
         // the salvage stations the player sees, at any zoom and off screen too, which a new one must keep clear of; refreshed each frame
         Ship[] SeenSalvageStations = Empty<Ship>.Array;
-
-        Ship[] FindSeenSalvageStations()
-        {
-            var seen = new Array<Ship>();
-            foreach (Ship s in Screen.UState.Objects.GetShips())
-                if (s.IsSalvageStation && s.Active && (s.Loyalty == Player || s.InPlayerSensorRange))
-                    seen.Add(s);
-            return seen.ToArray();
-        }
 
         // where a salvage station may go in the system, and in red where it may not: planets' orbits, and around its derelicts and the salvage stations seen there
         void DrawSalvageStationZones(SolarSystem system, SubTexture nodeTex)

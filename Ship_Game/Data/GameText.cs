@@ -6186,6 +6186,14 @@ namespace Ship_Game
         SalvageStationBuiltSystemNotify = 7144,
         /// <summary>You cannot mix research station, mining station and salvage station modules in one design.</summary>
         CannotMixStationModules = 7145,
+        /// <summary>Build a salvage station near this system's derelicts.</summary>
+        SalvageStationOrderTip = 7146,
+        /// <summary>You already have a salvage station in this system, built or on order.</summary>
+        SalvageStationOrderedTip = 7147,
+        /// <summary>No salvage station design can be built yet.</summary>
+        SalvageStationNoDesignTip = 7148,
+        /// <summary>No free site for a salvage station near these derelicts.</summary>
+        SalvageStationNoSite = 7149,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
