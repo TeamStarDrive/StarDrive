@@ -398,6 +398,7 @@ namespace Ship_Game.Ships
                         }
                         break;
                     case ResupplyReason.LowOrdnanceNonCombat:
+                    case ResupplyReason.RequestResupplyForOrbital when ship.OrdnancePercent < ShipResupply.OrdnanceThresholdCombat:
                     case ResupplyReason.LowOrdnanceCombatOrDepleted: text = "Ammo Reserves Critical";           break;
                     case ResupplyReason.NoCommand:                   text = "No Command, Cannot Attack";        break;
                     case ResupplyReason.FighterReactorsDamaged:      text = "Reactors Damaged";                 break;

@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-17): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branches 2 (salvageable) and 3 (stations) are merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 4 (`feature/salvage-ops/salvaging`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-389 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-390 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, 312-366 from sub-branch 3 and 367-389
+each derelict claimed by one empire, replace the yards and their salvage ships, 312-366 from sub-branch 3 and 367-390
 from sub-branch 4. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
@@ -230,7 +230,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - The module launches the empire's current constructor design, the one Deep Space Build uses (271 A, 283). The
     constructor flies to the derelict and builds the platform next to it. If it dies on the way, the order stands
     and a unit launches another once its timer allows.
-  - **The launch (Gilad, 2026-10-17; 378-389):**
+  - **The launch (Gilad, 2026-10-17 and 18; 378-390):**
     - The salvage unit is a hangar bay, as a refining module is a mining bay (384 A): an `IsSalvageBay` that counts
       in `Is(Hangar)`, kept out of the fighter hangars, ship strength and the designer's hangar picker. The bay
       launches the constructor as a hangar launches its ship (383), with the launch animation, the link between bay
@@ -241,6 +241,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       the processing unit's figure (387 A). A station low on ordnance asks the nearest planet that can launch supply
       shuttles for one (`RearmShipFromPlanet`), as an untethered station does; a constructor that docks gives its
       ordnance back.
+    - Out of combat a platform or station asks a colony for a supply shuttle however low it runs (Gilad, 2026-10-18;
+      390 A). Since Mars 1.50 one below 10% took the combat path, which for an orbital only waits for a supply ship
+      nearby, so a salvage station far from colonies could run dry for good; the fix is for every orbital, and its
+      panel still says Ammo Reserves Critical below 10%. Codex 100105 already said so.
     - A bay waits 30 s after a launch (`hangerTimerConstant`, 386 A), and after a constructor docks, its repair time,
       5 to 30 s; a constructor still flying holds its bay.
     - The platform's site is a random point on a circle of the derelict's radius + 100 around it (378).

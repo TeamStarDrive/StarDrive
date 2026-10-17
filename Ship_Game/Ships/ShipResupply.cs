@@ -112,7 +112,8 @@ namespace Ship_Game.Ships
 
             if (ResupplyNeededLowOrdnance())
             {
-                if (InCombat || Ship.OrdnancePercent < OrdnanceThresholdCombat)
+                // out of combat a platform or station asks a colony for a supply shuttle however low it runs
+                if (InCombat || Ship.OrdnancePercent < OrdnanceThresholdCombat && !Ship.IsPlatformOrStation)
                     return ResupplyReason.LowOrdnanceCombatOrDepleted;
 
                 return Ship.IsPlatformOrStation ? ResupplyReason.RequestResupplyForOrbital 
