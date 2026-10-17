@@ -30,6 +30,12 @@
   
   <PowerDraw>2000</PowerDraw>
   <Salvage>true</Salvage>
+  <!-- for Hangar items -->
+  <hangarShipUID>Doesnt Matter</hangarShipUID>
+  <hangerTimerConstant>30</hangerTimerConstant>
+
+  <OrdinanceCapacity>60</OrdinanceCapacity>
+
   <NameIndex>7142</NameIndex>
   <DescriptionIndex>7143</DescriptionIndex>
 </ShipModule>

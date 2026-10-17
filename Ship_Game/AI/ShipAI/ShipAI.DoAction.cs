@@ -377,6 +377,8 @@ namespace Ship_Game.AI
             {
                 UpdateResearchStationGoal(orbital, Owner.System, goal.OldShip);
                 UpdateSalvageOpsGoal(orbital, bg.TargetSystem);
+                if (goal is SalvageDerelict salvage)
+                    salvage.OnPlatformBuilt(orbital, Owner);
             }
         }
 
@@ -816,9 +818,9 @@ namespace Ship_Game.AI
             if (!Owner.IsHangarShip || !Owner.Mothership.Active)
             {
                 ClearOrders(State);
-                if      (Owner.IsMiningShip)                     Owner.Die(null, true);
-                else if (Owner.ShipData.Role == RoleName.supply) OrderScrapShip();
-                else                                             GoOrbitNearestPlanetAndResupply(true);
+                if      (Owner.IsMiningShip || Owner.IsConstructor) Owner.Die(null, true);
+                else if (Owner.ShipData.Role == RoleName.supply)    OrderScrapShip();
+                else                                                GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
 

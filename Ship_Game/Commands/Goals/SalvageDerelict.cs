@@ -1,33 +1,45 @@
 using System;
+using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
-    // an empire's order to salvage one derelict, worked by a salvage unit of its station in the derelict's system
+    // an empire's order to salvage one derelict: a salvage unit of its station in the derelict's system launches a constructor, which builds a salvage platform beside it
     [StarDataType]
-    public class SalvageDerelict : Goal
+    public class SalvageDerelict : DeepSpaceBuildGoal
     {
+        // the platform's construction is never below this, times the production pace
+        public const float MinPlatformConstruction = 100f;
+        // the platform's site is this far out from the derelict's radius
+        public const float PlatformClearance = 100f;
+
         [StarData] public int DerelictId;
-        [StarData] public SolarSystem TargetSystem;
+        [StarData] public Ship Platform;
         Derelict Found;
 
         public Derelict Derelict => Found ??= UState.Derelicts.Find(DerelictId);
+
+        // no build marker on the map: the derelict's Salvage button calls the order off
+        public override bool IsDeploymentGoal => false;
 
         [StarDataConstructor]
         public SalvageDerelict(Empire owner) : base(GoalType.SalvageDerelict, owner)
         {
             Steps = new Func<GoalStep>[]
             {
-                LaunchConstructor
+                LaunchConstructor,
+                BuildPlatform,
+                Salvage
             };
         }
 
         public SalvageDerelict(Empire owner, Derelict derelict) : this(owner)
         {
             DerelictId = derelict.Id;
-            TargetSystem = derelict.System;
+            Initialize(ShipDesign.SalvagePlatformName, Vector2.Zero, derelict.System);
             Found = derelict;
         }
 
@@ -61,6 +73,18 @@ namespace Ship_Game.Commands.Goals
             return station.Modules.Count(m => m.Salvage && m.Active);
         }
 
+        // the platform's cost to the empire, never below 100, both times the production pace
+        public static float PlatformConstruction(Empire empire, IShipDesign platform)
+            => Math.Max(platform.GetCost(empire), MinPlatformConstruction * empire.Universe.ProductionPace);
+
+        // the constructor a small Deep Space Build job gets, the cheapest one with auto pick, or empty without one
+        public static string ConstructorName(Empire empire)
+        {
+            if (!ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign platform))
+                return "";
+            return ShipBuilder.PickConstructor(empire, PlatformConstruction(empire, platform), GetCheapest: true)?.Name ?? "";
+        }
+
         // the derelict panel's and the derelicts window's Salvage button; false when the empire cannot order it
         public static bool Order(Empire empire, Derelict d)
         {
@@ -87,33 +111,122 @@ namespace Ship_Game.Commands.Goals
         // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first
         bool Stands => Owner.Universe.P.SalvageOps && Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner);
 
+        bool Launched => Step > 0;
+
         protected override GoalStep? PreEvaluate() => Stands ? null : GoalStep.GoalFailed;
 
-        // an order that ends gives up its claim, so the derelict's timer runs on, unless another order of its empire's holds the derelict
+        // an order that ends calls its constructor home, or scuttles it with its station lost, takes its platform away, and gives up its claim unless another order of its empire's holds the derelict
         public override void OnRemoved()
         {
+            if (Constructor() is { } constructor)
+            {
+                if (constructor.Mothership is { Active: true } station && station.Loyalty == Owner)
+                {
+                    constructor.AI.OrderReturnToHangarDeferred();
+                }
+                else
+                {
+                    constructor.Mothership?.OnLaunchedShipDie(constructor);
+                    constructor.AI.OrderScuttleShip();
+                }
+            }
+            if (Platform is { Active: true } platform)
+                platform.QueueTotalRemoval();
+
             if (Derelict is { } d && d.Claimant == Owner
                 && !Owner.AI.HasGoal(g => g != this && g is SalvageDerelict s && s.DerelictId == DerelictId))
                 d.ReleaseClaim();
         }
 
-        GoalStep LaunchConstructor()
+        // from the constructor's deploy: the platform takes over the derelict, and the ordnance its constructor took is spent
+        public void OnPlatformBuilt(Ship platform, Ship constructor)
         {
-            return HoldsAUnit() ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            Platform = platform;
+            constructor.Mothership?.OnLaunchedShipDie(constructor);
         }
 
-        // the first orders that stand hold the station's units, and a second for the same derelict ends; the goals are evaluated last to first
-        bool HoldsAUnit()
+        // a free salvage unit of the station launches the constructor when the station has the ordnance for it
+        GoalStep LaunchConstructor()
         {
             Ship station = SalvageOps.StationIn(Owner, TargetSystem);
-            if (station == null)
-                return false;
+            if (station == null || !HoldsAUnit(station))
+                return GoalStep.GoalFailed;
 
-            int ahead = 0;
-            var goals = Owner.AI.Goals;
-            for (int i = 0; i < goals.Count && goals[i] != this; ++i)
+            ShipModule bay = FreeBay(station);
+            Ship constructor = bay != null ? Ship.CreateShipFromHangar(UState, bay, Owner, station.Position, station) : null;
+            if (constructor == null)
+                return GoalStep.TryAgain;
+
+            station.OnShipLaunched(constructor, bay);
+            FinishedShip = constructor;
+            if (StaticBuildPos == Vector2.Zero)
+                StaticBuildPos = Derelict.RestPosition + MathExt.PointOnCircle(Owner.Random.Float(0f, 360f), Derelict.Radius + PlatformClearance);
+            constructor.AI.OrderDeepSpaceBuild(this, PlatformConstruction(Owner, ToBuild), ToBuild.Grid.Radius);
+            return GoalStep.GoToNextStep;
+        }
+
+        // the derelict becomes the empire's as its constructor starts to build; one lost on its way is launched again
+        GoalStep BuildPlatform()
+        {
+            if (Platform != null)
+                return GoalStep.GoToNextStep;
+            if (Constructor() is not { } constructor)
+                return GoalStep.RestartGoal;
+            if (SalvageOps.StationIn(Owner, TargetSystem) == null)
+                return GoalStep.GoalFailed;
+
+            if (constructor.Position.InRadius(BuildPosition, ConstructionShip.ConstructingDistance))
             {
-                if (goals[i] is SalvageDerelict s && s.TargetSystem == TargetSystem && s.Stands)
+                Derelict.TryClaim(Owner); // Stands holds off another empire's claim
+                constructor.Construction.TryConstruct(BuildPosition);
+            }
+            return GoalStep.TryAgain;
+        }
+
+        // the order's constructor while it flies or builds; one boarded on its way is its boarder's ship now, and frees its unit
+        Ship Constructor()
+        {
+            Ship constructor = FinishedShip;
+            if (constructor == null || constructor.Loyalty == Owner)
+                return constructor;
+
+            constructor.Mothership?.OnLaunchedShipDie(constructor);
+            constructor.Mothership = null;
+            FinishedShip = null;
+            return null;
+        }
+
+        GoalStep Salvage()
+        {
+            return Platform is { Active: true } ? GoalStep.TryAgain : GoalStep.GoalFailed;
+        }
+
+        static ShipModule FreeBay(Ship station)
+        {
+            ShipModule[] bays = station.Carrier.AllHangars;
+            for (int i = 0; i < bays.Length; ++i)
+            {
+                ShipModule bay = bays[i];
+                if (bay.IsSalvageBay && bay.Active && bay.HangarTimer <= 0f && !bay.IsHangarShipActive)
+                    return bay;
+            }
+            return null;
+        }
+
+        // launched orders hold the station's units first, then waiting ones as they were placed, and a second order for the same derelict ends; the goals are evaluated last to first
+        bool HoldsAUnit(Ship station)
+        {
+            int ahead = 0;
+            bool placedBefore = true;
+            var goals = Owner.AI.Goals;
+            for (int i = 0; i < goals.Count; ++i)
+            {
+                if (goals[i] == this)
+                {
+                    placedBefore = false;
+                    continue;
+                }
+                if (goals[i] is SalvageDerelict s && s.TargetSystem == TargetSystem && s.Stands && (placedBefore || s.Launched))
                 {
                     if (s.DerelictId == DerelictId)
                         return false;

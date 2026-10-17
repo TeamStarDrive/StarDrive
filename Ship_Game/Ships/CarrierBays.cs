@@ -5,6 +5,7 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
@@ -652,6 +653,9 @@ namespace Ship_Game.Ships
         // the ship this empire's hangar would launch now, or empty if none
         public static string HangarShipName(Empire empire, ShipModule hangar)
         {
+            if (hangar.IsSalvageBay) // launches nothing else, even with no constructor to launch
+                return SalvageDerelict.ConstructorName(empire);
+
             string shipName = "";
             if (hangar.IsSupplyBay)
                 shipName = empire.GetSupplyShuttleName();

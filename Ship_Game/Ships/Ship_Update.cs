@@ -184,7 +184,7 @@ namespace Ship_Game.Ships
                     if (divesToMine)
                         InitLaunch(LaunchPlan.Mining, RotationDegrees);
                     else if (IsHangarShip && !Mothership.InCombat && AI.State is not (AIState.AssaultPlanet or AIState.ReturnToHangar)
-                        && !IsSupplyShuttle && !IsMiningShip)
+                        && !IsSupplyShuttle && !IsMiningShip && !IsConstructor)
                         AI.BackToCarrier();
                 }
             }

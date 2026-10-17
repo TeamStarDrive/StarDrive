@@ -15,8 +15,8 @@ namespace UnitTests.Ships;
 /// The Salvage button orders a derelict salvaged when the empire knows of it, salvage ops are on, and the empire has a
 /// built salvage station in its system with a free salvage unit: each live unit works one order, and every order of
 /// the empire's there takes one. Orders placed together reach the sim thread one by one, so the first ones hold the
-/// units and a second for the same derelict ends; an order beyond the live units, as after a unit dies, ends, and so
-/// does one whose station is lost, while an order ahead that is ending holds no unit. A station in other hands, its
+/// units and a second for the same derelict ends; an order waiting to launch beyond the live units, as after a unit
+/// dies, ends, and so does one whose station is lost, while an order ahead that is ending holds no unit. A station in other hands, its
 /// takeover still queued, no longer counts for its old owner. A claim stops the derelict's timer and holds off other
 /// empires, whose orders on it end and free their units. Whatever ends an order gives up its claim, so the timer runs
 /// on: the button's second click, which calls off the order it finds on reaching the sim thread or gives up a claim
@@ -35,7 +35,7 @@ public class SalvageDerelictTests : StarDriveTest
 
     public SalvageDerelictTests()
     {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station");
+        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName);
         CreateUniverseAndPlayerEmpire();
         WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
         AddHomeWorldToEmpire(new Vector2(200_000f), Player);
@@ -59,6 +59,7 @@ public class SalvageDerelictTests : StarDriveTest
         return UState.Derelicts.Current.Last();
     }
 
+    // with no ordnance, so its orders wait to launch their constructors
     Ship BuiltStation(Empire owner)
     {
         var order = new SalvageOps(owner, WreckSystem, BuildPos, Station);
@@ -67,6 +68,7 @@ public class SalvageDerelictTests : StarDriveTest
         order.TargetShip = SpawnShip(Station.Name, owner, BuildPos);
         order.Evaluate();
         AssertEqual("Salvage", order.StepName, "setup: the station is built");
+        order.TargetShip.ChangeOrdnance(-order.TargetShip.Ordinance);
         return order.TargetShip;
     }
 
@@ -287,6 +289,8 @@ public class SalvageDerelictTests : StarDriveTest
 
         var duplicate = new SalvageDerelict(Player, d);
         Player.AI.AddGoal(duplicate);
+        standing.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(g => g == standing), "a later duplicate does not end the order placed before it");
         duplicate.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(g => g == duplicate), "setup: the duplicate ends");
         Assert.IsTrue(Player.AI.HasGoal(g => g == standing), "the order stands");

@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-17): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branches 2 (salvageable) and 3 (stations) are merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 4 (`feature/salvage-ops/salvaging`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-376 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-389 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, 312-366 from sub-branch 3 and 367-376
+each derelict claimed by one empire, replace the yards and their salvage ships, 312-366 from sub-branch 3 and 367-389
 from sub-branch 4. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
@@ -219,16 +219,49 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       Texts 7166-7171.
     - Orders placed together reach the sim thread one by one, each checked as it arrives: the first ones hold the
       units, and a second for the same derelict ends. An order whose constructor has not launched ends when its
-      station is lost or has no unit for it, the latest one first.
+      station is lost or has no unit for it, the latest one first. Launched orders hold their units before those
+      waiting to launch, so a busy unit that dies keeps a free one counted busy (369 A; part 2).
     - **The second click (370 B):** it calls the order off on the sim thread, its claim included, so the derelict's
       timer runs on and any empire can salvage it. A platform at work stops, sends what it has stripped to the station
       as if it had finished, and goes as a finished one does; the tech check of an empire's work that ends (287) runs
       too. With the player's salvage on automatic (252, the ai sub-branch) the click does nothing.
     - Whatever ends an order gives up its claim (`SalvageDerelict.OnRemoved`), the clearing of a defeated or merged
       empire's goals included; the merger's handing claims to the absorber comes with losses and takeovers (296).
-  - The module launches the empire's current constructor design, the one Deep Space Build uses, at no cost (271 A,
-    283). The constructor flies to the derelict and builds the platform next to it. If it dies on the way, the order
-    stands and the module launches another the next turn.
+  - The module launches the empire's current constructor design, the one Deep Space Build uses (271 A, 283). The
+    constructor flies to the derelict and builds the platform next to it. If it dies on the way, the order stands
+    and a unit launches another once its timer allows.
+  - **The launch (Gilad, 2026-10-17; 378-389):**
+    - The salvage unit is a hangar bay, as a refining module is a mining bay (384 A): an `IsSalvageBay` that counts
+      in `Is(Hangar)`, kept out of the fighter hangars, ship strength and the designer's hangar picker. The bay
+      launches the constructor as a hangar launches its ship (383), with the launch animation, the link between bay
+      and ship, and docking on return. A hangar ship heads back to its carrier once its launch animation ends,
+      unless it is a supply shuttle, a miner or an assault ship, so a constructor is kept out of that too.
+    - A launch costs ordnance, as a hangar launch does (385 B, replacing "at no cost" of 271 A): the constructor's
+      mass / 5 x `HangarCombatShipCostMultiplier`, 22-26 for the vanilla constructors. The unit carries 60 ordnance,
+      the processing unit's figure (387 A). A station low on ordnance asks the nearest planet that can launch supply
+      shuttles for one (`RearmShipFromPlanet`), as an untethered station does; a constructor that docks gives its
+      ordnance back.
+    - A bay waits 30 s after a launch (`hangerTimerConstant`, 386 A), and after a constructor docks, its repair time,
+      5 to 30 s; a constructor still flying holds its bay.
+    - The platform's site is a random point on a circle of the derelict's radius + 100 around it (378).
+    - The platform's construction is the Salvage Platform's cost x the production pace with the empire's bonuses
+      (380), never below 100 x the pace (388 B, 389 A), so a vanilla constructor builds it on its second turn there.
+    - A rival's constructor on its way when the derelict is claimed flies home and docks (379), and so does one whose
+      order the second click calls off, on manual salvage; with salvage on automatic the click does nothing (381).
+    - A constructor in flight whose station is lost is scuttled at once (382).
+    - As built (part 2): the order is a deep-space build goal for the Salvage Platform, in three steps (launch,
+      build, platform), and puts no build marker on the map, since the Salvage button calls it off. Its constructor
+      is the one a small Deep Space Build job gets (the dropdown design, or the cheapest with auto pick on), and a
+      salvage bay launches nothing else. It flies and builds as any constructor does and claims the derelict as it
+      starts to build, within 200 of the site; the platform it builds takes over the derelict, and the ordnance the
+      constructor took is spent. One boarded on its way is its boarder's ship, and its unit is free to launch another;
+      one flying home to a station lost on the way is removed, as a miner is, and a station's death blast can destroy
+      one just launched beside it. The designer shows the constructor and its launch ordnance under a salvage unit's
+      stats, as it shows a refining module's miner.
+    - Until losses (part 5) and the dismantling (part 4) come, a lost platform ends its order and its claim, and an
+      order called off takes its platform away.
+    - The Codex: 100093 says that a derelict's turns stand still from the moment a constructor starts to build there
+      (376 A), and 100099 adds the salvage unit's constructor to what each kind of bay launches.
 - **The claim (272 B, 273, 274):**
   - The derelict becomes an empire's when that empire's constructor starts to build there. From then on no other
     empire can salvage or recover it. A rival constructor on its way turns back, and its module is free again.
