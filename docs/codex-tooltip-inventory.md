@@ -30,7 +30,7 @@ Tokens: 439. Already hooked: 375.
 | 15 | `AutoPickConstructorsTip` | Best constructors for the job will be selected automatically. Generally, if a build job localtion is in a system with friendly colonies, cheaper constructors... | AutomationWindow.cs |  | automation_construction |
 | 16 | `AutoPickMiningStationTip` | This will pick the best Mining Station with most Refining generated and will upgrade them whenever possible, if the auto build Mining Stations checkbox is ch... | AutomationWindow.cs |  | automation_construction |
 | 17 | `AutoPickResearchStationTip` | This will pick the best Research Station with most Research generated and will upgrade them whenever possible, if the auto build Research Stations checkbox i... | AutomationWindow.cs |  | automation_construction |
-| 18 | `AutoPickSalvageStationTip` | A salvage station ordered from a derelict's panel is the best design you can build: the one with the most salvage units, then the most cargo room, then the s... | AutomationWindow.cs |  | automation_construction |
+| 18 | `AutoPickSalvageStationTip` | A salvage station ordered from a derelict's panel or a system's derelict list is the best design you can build: the one with the most salvage units, then the... | AutomationWindow.cs |  | automation_construction |
 | 19 | `BB_EnableStarvationWarningTip` | When enabled, you will get a warning when a planet population start starving. | AutomationWindow.cs |  | automation_alerts |
 | 20 | `IfAutoTradeIsChecked` | If Auto Trade is checked, the Best freighters available for your Empire will be built for import/export needs. | AutomationWindow.cs |  | automation_freighters |
 | 21 | `InhibitionAlertsAreDisplayedWhen` | Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default wh... | AutomationWindow.cs |  | automation_alerts |
@@ -380,8 +380,8 @@ Tokens: 439. Already hooked: 375.
 | 365 | `DerelictOriginalOwner` | Original Owner: {0} | Ships/DerelictInfoUIElement.cs (raw string at site: pass the enum) |  |  |
 | 366 | `DerelictProductionTip` | Production left to salvage from this derelict, out of the production it started with. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
 | 367 | `DerelictTurnsLeftTip` | Turns left before this derelict sinks away and can no longer be salvaged. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
-| 368 | `SalvageStationNoDesignTip` | No salvage station design can be built yet. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
-| 369 | `SalvageStationOrderTip` | Build a salvage station near this system's derelicts. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
+| 368 | `SalvageStationNoDesignTip` | No salvage station design can be built yet. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
+| 369 | `SalvageStationOrderTip` | Build a salvage station near this system's derelicts. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
 | 370 | `SalvageStationOrderedTip` | You already have a salvage station in this system, built or on order. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
 | 371 | `ConstructionProgressTip` | Amount of completed construction. The constructor adds construction every turn, and if the structure sits in a system where you or an ally hold colonies, tho... | Ships/ShipInfoUIElement.cs |  | automation_construction |
 | 372 | `EmpOverloadShipIsDisabled` | EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload. | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
