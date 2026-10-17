@@ -90,13 +90,14 @@ namespace Ship_Game
             RefitShipList.EnableItemHighlight = true;
             RefitShipList.OnClick = OnRefitShipItemClicked;
 
-            if (!ShipToRefit.IsSubspaceProjector)
+            if (!ShipToRefit.IsSubspaceProjector && !ShipToRefit.IsSalvageStation)
             {
                 foreach (IShipDesign design in ShipToRefit.Loyalty.ShipsWeCanBuildSnapshot)
                 {
                     if ((design.Hull == ShipToRefit.ShipData.Hull || ShipToRefit.IsResearchStation || ShipToRefit.IsMiningStation)
                         && design != ShipToRefit.ShipData
                         && !design.ShipRole.Protected
+                        && !design.IsSalvageStation
                         && ShipToRefit.IsResearchStation == design.IsResearchStation
                         && ShipToRefit.IsMiningStation == design.IsMiningStation)
                     {

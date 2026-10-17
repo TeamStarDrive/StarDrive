@@ -1,12 +1,15 @@
-# Salvage Ops: derelict ships, salvage yards, recovery
+# Salvage Ops: derelict ships, salvage stations, recovery
 
 An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
-`jupiter-1.60/fixes_49` in PR #445. `base` is level with `jupiter-1.60/fixes_50`, and sub-branch 2 (salvageable) is
-cut from it; the rest is planned. Decisions 119-176, 178-190, 222-232 and 236-266 are all settled; 168-175 came from the
-review of this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from
-phase 2. The fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list
-safe on the sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
+`jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
+`jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-366 are all settled; 168-175 came from the review of
+this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
+269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-366 from sub-branch 3. The
+fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
+sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
 ## The rules (Gilad, 2026-10-15)
 
@@ -18,7 +21,7 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   - the design role is military: a warship, carrier, bomber, support or troop ship. Freighters, colony ships,
     scouts and constructors on those hulls do not count.
 - **Stations:** an untethered station-role design (131, 172). Shipyards, subspace projectors and platforms never
-  become derelicts (131). Research stations, mining stations, Dyson swarm controllers, salvage yards and Remnant
+  become derelicts (131). Research stations, mining stations, Dyson swarm controllers, salvage stations and Remnant
   portals never become derelicts; they die normally, with the main explosion and blast (148, 156, 172). Pirate bases
   count when they are untethered (172).
 - **When it is decided:** at death, by the roll alone (170). A ship that rolls a derelict death has no main
@@ -42,7 +45,7 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   derelict. Two cases make a **drifting** derelict instead, and only when the death is visible (125):
   - a stop outside every system;
   - a stop inside a star's radiation zone, or not more than 2000 beyond it, the danger margin the game already uses
-    (`SolarSystem.InSafeDistanceFromRadiation`, 229), so salvage ships never work inside radiation.
+    (`SolarSystem.InSafeDistanceFromRadiation`, 229), so salvage platforms never work inside radiation.
 
   An unseen death that stops outside every system, or in a radiation zone or its margin, leaves nothing (125, 170,
   171).
@@ -77,8 +80,7 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
 - **Salvageable derelict:**
   - It stays on the plane, with no Z drift (141).
   - Its timer is 100 turns x ProductionPace.
-  - The timer stops while a salvage yard of an empire that has seen the derelict is in its system (143), and runs
-    on again if that yard dies (129).
+  - The timer stops once an empire claims the derelict (274, replacing 143), and runs on again if the claim is lost.
   - When the timer runs out it sinks away like a drifting derelict.
   - **On the map (226, 238):** the player sees only the derelicts the player knows of (137). Wherever a ship shows its
     tactical icon, zoomed out past ship view or with Alt held, a known one shows as a grey icon of its hull role, at
@@ -90,7 +92,8 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
     grey, a column of icons at the top left with tooltips (the original owner's flag, whose tooltip names the empire,
     then a yellow hourglass with the turns left; 240, 241), and on the right, in the ship panel's first bar row, a bar
     of the production remaining out of what it started with (239, 242). The turns and production tooltips link to
-    the Codex. The rest of the right side is kept for bars and buttons.
+    the Codex. The rest of the right side is kept for bars and buttons: the Salvage and Recover buttons (277), and
+    once it is claimed, the flag of the empire salvaging it (273).
 - **Its model (224, 230):** a derelict from an unseen death, one loaded from a save, or one after a content reload has
   no model. It loads one from its hull on the UI thread the first time it is on screen at system view or closer and
   known to the player, and keeps it until it sinks away. With no model it still drifts and sinks; one the player does
@@ -102,38 +105,148 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   derelict smokes from the same places. A derelict saved during its breakup comes back dark with no more blasts, and a
   drifting one starts to sink at once.
 
-### Salvage
+### Salvage (Gilad, 2026-10-16; 269-302 replace the yards and salvage ships of 122 and 136)
 
-- **Salvage yard:** a station with a salvage module, like the processing units of mining ops (122).
-  - Designs per race are Gilad's: the yard and its salvage ship.
-  - The modules are unlocked by Platforms in Combined Arms and by Starship Construction in vanilla and Star Trek
-    (139, 153).
-- **Ordering a yard (Gilad, 2026-10-16), as mining stations are ordered:**
-  - **The cap (248):** at most 3 yards per empire per system, built and ordered together, as mining stations count
-    their goals per planet (`Mineable.NumMiningGoalsFor`). It is a Globals knob, `MaxSalvageYardsPerSystem`, default 3.
+- **The salvage station:**
+  - A station-role design with a salvage module, `<Salvage>True</Salvage>` in the module's data, as a refining
+    module makes a mining station (290). The ship designer lets the module go on station hulls only (297), and a
+    platform-role design never counts, whatever it carries.
+  - Each live salvage module works one derelict at a time. A module that dies launches nothing new; a platform it
+    already sent carries on (290).
+  - It keeps the salvaged production in its cargo. A design with less cargo room than one chunk
+    (`SalvageChunkSize`) is not a usable salvage station: the picker and the Automation dropdown skip it, a race
+    default like that logs an error at load, and the ship designer lists it as a design issue, as it does for mining
+    and research stations (`ShipDesignIssues`, `LowRefiningTime` and `LowResearchTime`) (302).
+  - **The design issue (Gilad, 2026-10-17; 340-342):** Low Salvage Cargo, critical, with the research and refining
+    icons' layout and production hammers (340 A). Its remedy adds the cargo room one chunk needs, read from the knob,
+    as other design issues add their numbers (342). Deep Space Build still lists such a design, since the player picks
+    it there (341 B). Texts 7159-7162; Codex 100167 and tooltip 7157 say a design with low cargo is skipped, with no
+    number (342, 343).
+  - It cannot be refit (293), and the orbital pickers ignore it (290).
+  - Each race names one in `DefaultSalvageStation`. The picker takes the design with the most salvage modules, then
+    the most cargo room, then the sturdiest per slot, as `PickMiningStation` does (295).
+  - **The Automation window (Gilad, 2026-10-17; 279, 334-338):**
+    - A Salvage Station dropdown, a seventh row in the top table under a plain title, which becomes the Auto Build
+      Salvage Stations checkbox with 252 (334 A); and an Auto Pick Salvage Stations checkbox, off in a new game as
+      research and mining start (335 A).
+    - With auto pick off, the derelict panel's button and the derelicts window order the dropdown's design; Deep Space
+      Build orders the design picked in it. The dropdown lists only the salvage stations the player can build, as the
+      other dropdowns do, and a choice that can no longer be built falls back to the race's default, then to the best
+      pick (336).
+    - Both show only with salvage ops on and once a salvage station can be built; the dropdown hides while auto pick
+      is on. Texts 7156-7158; Codex 100167 gets the salvage pick rule.
+    - The window moves up 70 px, its top at 119 instead of 189, so its last rows clear the minimap at 1680x1050
+      (337 A). With Deep Space Build open too it now covers that window's list down to its header; that stays until
+      the Automation window becomes a screen of its own (338).
+  - Designs per race are Gilad's: the station and the platform (280). The modules are unlocked by Small Stations in
+    vanilla (312), by Platforms in Combined Arms and by Starship Construction in Star Trek (139, 153).
+- **Ordering a station, as mining stations are ordered:**
+  - **The cap (269 A, 278):** one salvage station per empire per system, built and ordered together, so empires
+    can each have one in the same system. It is a fixed rule, with no Globals knob.
   - **The goal:** a `SalvageOps` goal like `MiningOps` (`Commands/Goals/MiningOps.cs`). It builds a constructor,
-    waits for it, and then the yard works. It holds the system and the place to build, and is saved with the
-    empire's goals. Every way of ordering a yard makes one, and the cap counts them.
+    waits for it, and then the station works. It holds the system and the place to build, and is saved with the
+    empire's goals. Every way of ordering a station makes one, and the cap counts them.
   - **Where it sits (249):** where it is placed in the system, not tethered to a planet, as wrecks lie anywhere in a
-    system. Where auto salvage ops and the AI place a yard is settled in the ai sub-branch.
+    system. Where auto salvage ops and the AI place a station is settled in the ai sub-branch.
   - **The ways to order one:**
     - Deep Space Build, only inside a system with a salvageable derelict the empire knows of (163, 251), under the
       cap;
-    - a button on the derelict's panel, which places the yard near that derelict (250). It shows the yards built and
-      ordered in that system out of the cap, and is greyed out at it;
-    - rows in the Exotic Systems screen for the systems with salvageable derelicts the empire knows of, with a deploy
-      button and an abort, like the mining rows (`ExoticSystemsListScreenItem`);
-    - an abort, like `EmpireAI.CancelMiningStation`, removes one order whose yard is not built yet, and its
+    - a button on the derelict's panel, when the empire has no station in that system, which places the station
+      near that derelict (250);
+    - the Exotic Systems screen (Gilad, 2026-10-17; 328 A, 332), from its rows' button (below);
+    - an abort, like `EmpireAI.CancelMiningStation`, removes an order whose station is not built yet, and its
       constructor.
   - **The player's auto-build switch (252)** comes with the AI planner, in the ai sub-branch.
-- **The salvage ship's cycle (122):**
-  1. it launches from the yard;
-  2. it flies to the derelict;
-  3. it runs small shuttles to and from the derelict, like supply shuttles;
-  4. it flies back and lands on the yard to hand over the salvage.
-- **Work:** a yard works every derelict in its own system that its empire knows of, with no orders, like a mining
-  station (136). An empire sees and salvages only the derelicts it knows of (137, by the knowledge rules below).
-  Derelicts cannot be shot (150).
+  - **Placement (Gilad, 2026-10-17; 317-320, 322):**
+    - In Deep Space Build a salvage station never orbits a planet: near one it shows Cannot Orbit (317).
+    - It sits at least `SalvageOps.Clearance` (2000) from every salvageable derelict in the system and from every
+      salvage station the empire sees, inside 80% of the system's radius, clear of the star's 20000 and its radiation
+      and of planets' orbits (318). With a salvage station picked, Deep Space Build marks the systems where one can be ordered and draws
+      those no-placement zones in red.
+    - The panel button (318) places it at the average position of the system's derelicts: a random point within 1000
+      of it, then within 1500, 2000 and so on, until a point passes the rules above.
+    - The button is greyed out, with a tooltip saying why, when no station can be ordered there (319). It is the
+      square action button with the Deep Space Build icon (324), with texts 7146-7149 (325). It sits in a drawer that
+      slides out to the right of the derelict's panel, like the ship panel's orders, where the Salvage and Recover
+      buttons go later (327). A salvage station is scrapped from its own ship panel, which has no refit (326).
+    - Salvage stations are queued as urgent orbitals, as research and mining stations are (320).
+    - An order not yet built ends, with its constructor, once its system has no salvageable derelict left; a built
+      station stays (322).
+  - **The Exotic Systems rows (Gilad, 2026-10-17; 328 A, 332):**
+    - Each system with salvageable derelicts the player knows of has a salvage row, apart from that system's research
+      or Dyson swarm row. The row goes with the system's last such derelict, even with the player's station built there.
+    - System: as other rows, with the derelict notification's yellow hourglass to the right of the hostiles warning.
+      Star or Planet: how many derelicts ("3 Derelicts"). Resource: the production icon and the production left in
+      them, in k or M from 10000. Richness and Owner stay empty.
+    - The row's Salvage Ops button opens a window listing the system's derelicts (`SystemDerelictsScreen`). A button
+      centred at the bottom of the window's frame, under a list 45 px shorter, orders the station (330 A, 345 C):
+      Deploy Salvage Station, placed as the panel button places it, with 7146 as its tooltip; Abort Deployment (4473)
+      in the military style once ordered, with no tooltip (347), which also ends an order stuck with no port; Salvage
+      Station Deployed in the player's colour once built; and the 7148 grey text when no design can be built. The abort
+      runs on the sim thread. The window will show each derelict's salvaging empire and hold the Salvage and Recover
+      buttons (sub-branches 4 and 7).
+    - Texts 7150-7155, 7163 and 7164; the derelict passage of 100093 names the rows and the window's deploy and abort
+      (331, reworded for 332, 346 and 349), and tooltip 7157 and Codex 100167 name the window as a way to order
+      (346); the Codex tooltip inventory is regenerated for them (348).
+  - **One kind of station per design (321):** research, refining and salvage modules make three kinds of station, so the
+    ship designer refuses a module of one kind in a design that holds another, with a floating message (text 7145).
+    The one shipped design that mixed kinds, the Cordrazine C-Mining Station mk3-a, lost its research lab (323).
+- **The salvage platform (271 A, 280, 283-285):**
+  - One fixed design for every race, `Salvage Platform` in `ShipDesigns/Mandatory`, known by its name as the
+    subspace projector is (314). No empire builds it from a list, the ship designer lists it only with debug features
+    on, the orbital pickers never see it, and it has no dropdown (279, 290). The player cannot order, refit, scrap or
+    list it. It cannot be boarded (285), and has no upkeep (284).
+  - The Salvage button on the derelict's panel (277) gives the derelict to a free module of the empire's station in
+    its system. The buttons are greyed out when the empire has no station there or no free module. The mode is fixed
+    once the constructor launches; Recover comes with phase 3.
+  - The module launches the empire's current constructor design, the one Deep Space Build uses, at no cost (271 A,
+    283). The constructor flies to the derelict and builds the platform next to it. If it dies on the way, the order
+    stands and the module launches another the next turn.
+- **The claim (272 B, 273, 274):**
+  - The derelict becomes an empire's when that empire's constructor starts to build there. From then on no other
+    empire can salvage or recover it. A rival constructor on its way turns back, and its module is free again.
+  - The derelict keeps its original owner, whose flag its panel shows and whose design gives its tech list, and adds
+    the empire salvaging it (273).
+  - Its timer stops at the claim and runs on again if the claim is lost (274).
+  - An empire sees and salvages only the derelicts it knows of (137, by the knowledge rules below). Derelicts cannot
+    be shot (150).
+- **Work (276, 282, 286, 292):**
+  - A platform strips `SalvageSpeed` production points per turn, a Globals knob with default 10, and keeps all of it
+    on board, with no limit, until the derelict is empty. Neither the speed nor the chunk scales with the game's pace:
+    the derelict's production already does, so salvage takes longer at a slower pace, as building does. Techs that
+    raise the speed come in the last phase (270).
+  - Visual shuttles run between the platform and the derelict, like freighter shuttles, and the derelict sparks
+    while it is stripped. There is no progress ring (286).
+  - When the derelict is empty its hull dissolves. The platform then sends up to `SalvageChunkSize` production per
+    turn to its station, a Globals knob with default 100, each chunk with a visual shuttle. It sends what fits, and
+    waits while the station is full. Once it is empty it is dismantled, and its module is free.
+  - Production that does not fit never turns into credits (replaces 149 and 157).
+- **Losses (275, 285, 291, 296, 298, 356-360, 362):**
+  - A destroyed platform releases its claim, and what it held is lost; the derelict keeps what is left of it.
+  - A station that is lost (destroyed, boarded or scrapped) leaves its platforms working: they strip on and hold
+    their production until their empire has a station in that system again, which takes them over, even beyond its
+    module count (291).
+  - A station is taken over at the moment it changes hands, by boarding or by a gift, a merger's included
+    (`SalvageOps.TakeOver`, called from `LoyaltyChanges`): its old owner's order ends, and its new owner gets one from
+    the salvage step on, whatever the old owner was, so a defeated empire's station works for its rebels and one taken
+    from pirates works for its boarder. The change of hands runs on the sim thread, and is queued for it when a save
+    or the UI applies it; a queued one that the station's loss or a later change of hands has overtaken does nothing.
+    A save applies the pending changes of hands on the sim thread before it starts (`UniverseScreen.Save.cs`), so the
+    save worker, which applies them too, writes none half done.
+    An order that finds its station in other hands, as after a save that caught a change of hands halfway, hands it
+    on. `UniverseObjectManager.UpdateLists` cleans up a ship removed as it changes hands, as an evacuated station is.
+  - Taking one over brings no built notification and costs no trust, which is for building one (350-354). An order of
+    the new owner's there not yet built is dropped with its constructor (356 A). If the new owner already has a station
+    in that system that still stands, a boarded station's boarders launch as troop transports, it is evacuated at once,
+    as an extra research station is, and a player is told, with text 7165 (285, 357 A). Pirates keep one they board,
+    for now, though they scuttle a projector, research or mining station (358 B).
+  - An absorbed empire's platforms and claims go to the absorbing empire, and so do its stations, which change hands
+    a step after the merger; an order of the absorber's there not yet built is dropped (356 A). Where the absorber
+    already has a station, the absorbed one is removed at once with its troops, as an absorbed research station is,
+    and no one is told (296, 359), though by then its troops are the absorber's and could launch (kept, 362 A). The
+    absorber's station takes over the removed one's platforms (296).
+  - The Codex says so in 100086 (Deep Space Building), and 100130 (Federations) adds the salvage stations to the
+    ships a merger loses (360).
 - **Knowledge (Gilad, 2026-10-16; 257-265):**
   - Each system holds its salvageable derelicts, and each empire holds the set of systems with salvageable derelicts
     it knows of. An empire that lists a system knows every derelict in it. The AI reads these lists.
@@ -156,57 +269,66 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   - *strip* recovers techs and production;
   - *recover* recovers only the ship.
 
-  The player picks the mode on the derelict's info panel (its own panel, where the ship info panel sits).
+  The player picks the mode with the Salvage and Recover buttons on the derelict's panel (277).
   The AI picks it from the tech list: it strips when the list holds techs it wants for its progression.
-- **What the derelict records:** per empire, the production share it has stripped and its hull recovery progress
-  (123, 133).
+- **What the derelict records:** per empire, the production share it has stripped, built up claim after claim, since
+  a lost claim lets another empire finish the derelict (123, 133, 287).
 - **Production:**
-  - The yard keeps the stripped production and freighters haul it to colonies (132 B).
-  - Production that arrives while the yard's store is full turns into credits at 1 credit per 5 production, so the
-    salvage ships keep working (149, 157).
+  - The station keeps the stripped production and freighters haul it to colonies (132 B).
   - The derelict's total production is half the share of health the ship had left at its death, times its design
     cost before any empire's cost bonus, at the game's production pace (`ShipDesign_Stats.cs`
     `GetCostBeforeBonuses`). It is stored at death (160, 239): a ship that cost 1000 and died with 40% of its health
-    leaves 200 to salvage.
-  - When the empires' stripped shares add up to that total, the hull dissolves.
-- **Techs (159):**
+    leaves 200 to salvage, 20 turns at the default speed. Every salvageable derelict leaves at least 50, times the
+    production pace (`Derelict.MinSalvageProduction`; Gilad, 2026-10-17; 355), as the Codex derelict passage of
+    100093 says.
+  - When the shares add up to that total, the hull dissolves.
+- **Techs (159, 287):**
   - The derelict lists every tech its design needs that the salvaging empire has not researched yet.
-  - When the hull dissolves, each empire rolls a check per tech: the hull-role chance x `(1 + ModHpModifier)`. This
-    is a new check that borrows the reverse-engineering chances: reverse engineering itself advances an unresearched
-    hull tech with no roll, and rolls only to unlock a hull whose tech is already researched (`Empire.cs:2136`).
-  - A passed check adds the empire's share x 10% of the tech cost x `(1 + ModHpModifier)`. This can complete a
-    tech.
-  - On an early end (recovered by someone, broken by a failed roll, timer out), the strippers get their tech by
-    their share so far (144).
+  - When an empire's own work on the derelict ends, finished or with its claim lost, it rolls a check per tech: the
+    hull-role chance x `(1 + ModHpModifier)`. This is a new check that borrows the reverse-engineering chances:
+    reverse engineering itself advances an unresearched hull tech with no roll, and rolls only to unlock a hull
+    whose tech is already researched (`Empire.cs:2136`).
+  - A passed check adds the empire's share of the total x 10% of the tech cost x `(1 + ModHpModifier)`. This can
+    complete a tech. A claim lost early gives tech by the share so far (144).
   - Salvage never gives Remnant tech (127).
-- **Progress display:** an empire-coloured ring around the derelict, plus stripping sparks while it is being worked
-  (136).
 - **AI restraint:** the AI does not salvage in a system where a rival it is not at war with, and has no open
   borders treaty with, is present (138).
-- **Trust:** when a salvage yard is built in a system where an AI empire owns a colony, and the two have no open
-  borders treaty, no alliance and no war, that AI's trust in the builder drops. The amount is a new personality
-  value in `DTrait` (`EmpireData.cs:34`), default 5 (152, 161).
-- **Placement:** a yard cannot be placed outside a system (163).
-- **Empires that leave:** a dead or absorbed empire's shares and recovery progress go to the absorbing empire,
-  otherwise they are dropped (162).
-- **Notifications (151):**
+- **Trust (Gilad, 2026-10-17; 152, 161, 350-354):** when a salvage station is built, each AI empire with a colony in
+  its system that knows the builder (350 A), and has no open borders treaty, no alliance and no war with it, trusts
+  the builder less, once per station. The amount is `DTrait.SalvageStationTrustLoss`, 5 for every personality, as
+  `DiplomaticTraits.xml` sets none (351 B). Against the player it is multiplied by the difficulty's
+  `DifficultyModifiers.SalvageStationTrustLossVsPlayer` (352), 1 at Normal, 1.25, 1.5 and 1.75 at Insane, the scale of
+  `AngerMultiplierVsPlayer` (354). The player is not told (353 A); a one-time diplomacy warning, like the
+  colonisation warnings, is logged for later (353 B). It is an AI reaction, so the Codex says nothing of it.
+- **Placement:** a station cannot be placed outside a system (163).
+- **Empires that leave:** a dead empire's shares are dropped, and an absorbed one's go to the absorbing empire
+  (162, 296).
+- **Notifications (151, 294, 299-301):** each kind has a switch in a new alerts tab of the Automation window, which
+  takes every alert checkbox out of the window's one tall table (279, 289):
   - a system joining your list of systems with salvageable derelicts (see Knowledge), wherever it is (260), told at
     once on the sim thread, with no per-step check (256 as reworked by 257):
     - it names the derelict that brought the system onto your list, whoever's ship it was, your own included (245);
     - its icon is the hull's icon with the yellow hourglass over it at 0.8 of its size (246);
     - a click takes the camera to where the derelict comes to rest and selects it; once it can no longer be salvaged,
       the click shows the system (244);
-    - it never pauses the game (253), and has no alert switch (254);
+    - it never pauses the game (253), and has its own switch, for players who find it a nuisance (299, reversing
+      254);
+  - a station built: research, mining and salvage stations share one switch (300);
+  - a platform that finished stripping, with its production and the tech results, and a claim lost, to a destroyed
+    platform or to a rival that started first: one switch for both (301);
   - the result of each of your recovery rolls.
 - **Pirates (176):** pirates salvage too, in *recover* mode only: they take ships, never production or techs. This
-  is for now. How they reach a derelict (their bases working as yards, or salvage ships of their own) is settled in
-  the ai sub-branch.
+  is for now. How they reach a derelict is settled in the ai sub-branch; later they may raid a salvage station to
+  capture it, and recover the derelicts in its system with it. A salvage station pirates board already stays theirs
+  (358 B), but does nothing for them until then.
 
 ### Recovery
 
 - **Ships only;** a station derelict can never come back as a ship (131). Remnant ships can be recovered (127).
-  Recovery is possible only while the stripped total is under 50% (144).
-- **The race:** the first empire to reach 100% hull recovery rolls for the ship.
+  Recovery is possible only while less than half of the derelict's production has been stripped (144).
+- **The work (288):** the Recover button sends a platform as the Salvage button does, so only the claiming empire
+  works on it. Recovery takes as much work as the derelict's whole production, at the same salvage speed, and then
+  that empire rolls for the ship.
 - **The chances (145):**
   - base chance by hull role, like reverse engineering: frigate 60, destroyer 50 (the table's default, 173),
     cruiser 40, battleship 30, capital 20, times `1 + ModHpModifier` (Skilled / Haphazard Engineers);
@@ -238,11 +360,13 @@ safe on the sim, save and UI threads, a ship leaves at most one derelict, and a 
   not inherited: the constructor clears it after the copy (168).
 - **Off, by either switch (166):**
   - every derelict is a drifting one (visual only);
-  - the salvage module, salvage hangar and yard designs are hidden from the design screen and build lists;
+  - the salvage module and the salvage station and platform designs are hidden from the design screen and build
+    lists;
   - techs stay as they are (no `RequiresSalvageOps` flag for now).
 - **Off by the Globals flag, also (166):** the load-time checks for the salvage default ships are skipped.
-  - That means the per-race defaults (like `DefaultMiningShip` / `DefaultMiningStation` in
-    `CheckForRequiredShipDesigns`, `ResourceManager.cs:2274`) and any global default in its `requiredShips` list.
+  - That means the per-race default `DefaultSalvageStation`, checked like `DefaultMiningStation` in
+    `CheckForRequiredShipDesigns` (`ResourceManager.cs:2274`), and the `Salvage Platform` design, required like the
+    designs in its `requiredShips` list (314).
   - A mod without salvage designs then logs no errors.
 - **The rule option when the Globals flag is off (167):** shown greyed out and ticked, with a tooltip that says the
   mod has no salvage content.
@@ -256,7 +380,14 @@ Implementation notes:
   - modules hidden in the design screen (`ModuleSelectScrollList.cs:44`).
 
   The tech side (`Tech.RequiresMiningOps`, `TechEntry.cs:685`) is not copied for now. Mining ops has no
-  build-list filter to copy, so hiding the yard designs from build lists is new code.
+  build-list filter to copy, so hiding the station and platform designs from build lists is new code.
+- **Done (227):** with salvage ops off:
+  - the module list leaves out the salvage unit;
+  - the design load screen leaves out the salvage stations and the platform, work in progress included and debug
+    features or not; only the developer sandbox still shows them;
+  - `CanBeAddedToBuildableShips` keeps salvage stations out of every empire's buildable ships.
+
+  When ordering is built, it checks `SalvageOps` itself, since a save keeps its buildable ships.
 - **Globals flag** for mods that have no salvage content yet, so salvage ops ship in vanilla first and Combined Arms
   and Star Trek follow. Unlike `DisablePirates` in Globals, which only sets the rule option's default
   (`UniverseParams.cs:108`), this flag is a hard switch: when the mod turns salvage ops off, the rule option cannot
@@ -294,8 +425,8 @@ Implementation notes:
 - **Build visuals.** `ConstructionShip.AddConstructionEffects`, run from 100% down to 0, reads as a wreck being
   taken apart. It takes a `Ship`, so the derelict needs its own entry point.
 - **Visual shuttles.** `CargoShuttles` has the routes Trade, PortToShip, Drop and ShipToShip. They are visual only
-  and never saved. Salvage adds a route between a salvage ship and a derelict; the routes take a `Ship` at each
-  end, so that route needs a derelict end.
+  and never saved. Salvage adds a route between a platform and a derelict; the routes take a `Ship` at each end, so
+  that route needs a derelict end. A chunk from a platform to its station is a ShipToShip route.
 - **Mining ops pattern.** The `MiningOps` goal plus `MiningBays`: hangar ships launch, land back, and the station
   processes per turn. Freighters already deliver supplies TO a mining station (the `SupplyGoodsToStation` goal);
   hauling FROM a station is new.
@@ -307,7 +438,7 @@ Implementation notes:
   A planet adds its repair only when the ship is tethered to it or in orbit (`Ship_Repair.cs:42`).
 - **Border anger.** `Relationship.UpdateAngerBorders` (`Relationship.cs:725`) adds anger from the known military
   STRENGTH of the other empire's ships inside our borders, and is skipped under open borders or an alliance. An
-  unarmed yard and its salvage ships add next to nothing, so the 152 trust penalty is the real lever.
+  unarmed station and its platforms add next to nothing, so the 152 trust penalty is the real lever.
 - **The death line.** A ship dies when its intact internal slots fall below 50% (`Ship_Events.cs:38`). Internal
   slots are I or IO modules (`ShipModule.cs:254`), armour included: Internal Bulkhead and Reinforced Bulkhead (I),
   Structure and Ancient Armor (IO). The Codex entry "How a ship dies" (id 100093) said only I; sub-branch 1 fixed
@@ -315,6 +446,9 @@ Implementation notes:
 - **Command.** `HasCommand` needs a live command module that is powered or draws no power (`ShipStats.cs:87-89`);
   platforms and projectors always have it (`ShipStats.cs:69`). Without it the engines give no thrust
   (`ShipEngines.cs:65`) and `Resupply()` returns `NoCommand` (`ShipResupply.cs:87`).
+- **Captured stations.** Pirates scuttle a captured subspace projector, research station or mining station on a 20 s
+  timer (`Ship.PiratePostChangeLoyalty`). The troops aboard used to die with it; since 298, fixed on
+  `jupiter-1.60/fixes_50`, they launch first and fly home. A salvage station pirates board is kept (358 B).
 
 ## Sub-branches
 
@@ -331,7 +465,8 @@ Implementation notes:
    - unseen deaths in a system become derelicts at once;
    - the stop point and radiation decide which kind a derelict is;
    - the timer, which counts the player's turns and runs out to a sinking; it ticks where the player's turn is found,
-     not in `EndOfTurnUpdate`, which also runs at start and on load (266; its yard pause comes with the yards, 223);
+     not in `EndOfTurnUpdate`, which also runs at start and on load (266; its stop at a claim comes with salvaging,
+     274);
    - the throttle;
    - the model loaded from the hull on the UI thread (224);
    - selection with its highlight, and the info panel with the derelict's data: design, original owner, turns left
@@ -339,37 +474,65 @@ Implementation notes:
    - the grey icon at sector and galaxy view (226);
    - each empire's knowledge of derelicts, by system (see Knowledge): the systems' and empires' derelict lists, and
      the notification of a system joining the player's list (137, 223, 243-246, 253, 254, 256-266).
-3. **yards** (247):
-   - the salvage module, salvage ships and yard designs (Gilad);
-   - the salvage hangar;
-   - the switches hide the salvage module, the salvage hangar and the yard designs, and the Globals flag skips the
-     load checks for the salvage default ships (227);
-   - ordering a yard: the `SalvageOps` goal, the cap of 3 per empire per system, Deep Space Build, the button on the
-     derelict's panel, the Exotic Systems rows and the abort (248-251);
-   - the timer's pause while a yard is in the system (223);
-   - the trust penalty;
+3. **stations** (branch `feature/salvage-ops/yards`, 247):
+   - first, on `jupiter-1.60/fixes_50` and merged in from there: the Automation window's alerts tab with every alert
+     checkbox, and in it the one switch for research and mining station deployments that salvage stations join
+     later (289, 300); the troops leaving a captured station before the pirate scuttle (298);
+   - the salvage module, `<Salvage>True</Salvage>`, on station hulls only (290, 297);
+   - the station and platform designs (Gilad, 280); each race's `DefaultSalvageStation` and the one `Salvage Platform`
+     design (314), their load checks, the station picker and its Automation dropdown (279, 295, 334-338); the design
+     issue for too little cargo (302, 340-344); no refit (293); the orbital pickers ignore both (290);
+   - the switches hide the salvage module and the station and platform designs, and the Globals flag skips their
+     load checks (227);
+   - ordering a station: the `SalvageOps` goal, one per empire per system, Deep Space Build, the button on the
+     derelict's panel, the Exotic Systems rows and their derelicts window, and the abort (248-251, 269, 278,
+     330, 345-347);
+   - a boarded station working for its new owner, whose order there is dropped, or evacuated after its boarders
+     leave when the new owner already has one there, and pirates keeping one they board (285, 356-358); an absorbed
+     empire's stations, and its second station in a system (296, 359); the Codex text for both (360);
+   - the trust penalty (152, 161, 350-354);
+   - a salvageable derelict's production never below 50, times the production pace (355);
+   - the station-built notification, under the switch it shares (300);
    - left from sub-branch 2:
      - Gilad's check in game that a ship entering a system with derelicts brings the notification, with debug mode
-       off, since debug mode shows the player every ship and so a debug kill is always known as it forms;
-     - 267: whether saves made on the salvageable branch before `c1e1ef38a`, whose salvageable derelicts load with no
-       system, get a fallback;
-     - 268: whether the infiltration Codex entries (100190, 100196, 100199) mention that the top level shows a rival's
-       derelicts.
+       off, since debug mode shows the player every ship and so a debug kill is always known as it forms: done, ok
+       for now (Gilad, 2026-10-17);
+     - 267: saves made on the salvageable branch before `c1e1ef38a`, whose salvageable derelicts load with no system,
+       get no fallback, as no save made during feature work does (Gilad, 2026-10-17; 361);
+     - 268: the level 5 description on the infiltration screen (6339), like each level's other benefits, says that
+       its network learns of the salvageable derelicts left by their ships and by ships they destroy, and Codex 100196
+       adds it to level 5's rewards, holding above the limit level as the dossier lines do (Gilad, 2026-10-17). The
+       Russian and Portuguese are kept to five lines, clear of the progress bar at 1680x1050.
+   - logged for later from the review before the merge into base (Gilad, 2026-10-17; 366):
+     - the ship designer refuses a salvage unit whose footprint would clear a research lab or refinery away from the
+       cursor, as it counts only the module under the cursor as replaced; it is only ever stricter than needed;
+     - per-frame UI work: Deep Space Build walks every ship each frame while a salvage station is being placed, and
+       the derelict panel and the derelicts window run the station picker each frame;
+     - text 7143 (the salvage module's description) already speaks of platforms and stripping, which come with
+       sub-branch 4; for the Codex review stage.
 4. **salvaging** (247):
-   - the strip/recover choice on the info panel, and the yard half of the notification (223);
-   - the work cycle with a `CargoShuttles` route;
-   - landing on the yard;
-   - stripping with production shares, sparks and the progress ring (223);
+   - the Salvage button on the derelict's panel (277);
+   - the module's free constructor and the platform it builds (271, 283);
+   - the claim, the "salvaged by" flag and the timer's stop (272-274);
+   - the platform's work: stripping at `SalvageSpeed` and keeping it on board, with a `CargoShuttles` route to the
+     derelict and sparks on it (282, 286); the selected platform's panel shows the salvage progress, as a selected
+     mining ship's shows its own; the player can select a platform but gives it no orders (314);
    - the hull dissolving, after which it can no longer be selected, nor reached from its notification, though its
      turns have not run out;
-   - the tech payout with its check;
-   - credits for what the yard cannot keep.
-5. **hauling**: freighters pick up a yard's stored production for colonies that import it (132 B).
-6. **ai**: the yard planner and design picker, where auto salvage ops and the AI place a yard (249), the player's
-   auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), salvage ships kept out
-   of danger and radiation, pirates in recover mode (176).
-7. **recovery** (phase 3): hull recovery progress, the first-to-100% roll, break-up and catastrophic explosion, the
-   recovered ship's damage rule, the order home (175).
+   - the chunks to the station with their shuttles, and the platform dismantled (276, 282, 292);
+   - losses and takeovers (275, 291), boarders never taking a platform (285), and the absorber's station taking
+     over the platforms of an absorbed second station (296);
+   - the tech payout with its check (159, 287);
+   - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301).
+5. **hauling**: freighters pick up a station's stored production for colonies that import it (132 B).
+6. **ai**: the station planner and design picker, where auto salvage ops and the AI place a station (249), the
+   player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
+   and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
+   they have no small station hull (315), and later their raids to capture a salvage station.
+7. **recovery** (phase 3): the Recover button, recovery work at the salvage speed (288), the roll, break-up and
+   catastrophic explosion, the recovered ship's damage rule, the order home (175), the recovery notification, and
+   the techs that raise the salvage speed (270).
+8. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
 
 Each sub-branch adds its Codex text and tests.
 
@@ -381,5 +544,6 @@ Each sub-branch adds its Codex text and tests.
 - The roll, not visibility, removes the blast, so the camera never changes combat (170). A tumbling ship that did
   not roll a derelict still blasts when it ends (`Ship.cs:1760-1765`).
 - Hauling FROM a station does not exist yet; it is the largest new piece of phase 2.
+- A platform keeps all it stripped on board until the derelict is empty, so losing one loses the whole job (275).
 - Saves grow with derelicts: the throttle and the timer bound the salvageable ones, and the cap of 100 the drifting
   ones. Each one is small (no modules).

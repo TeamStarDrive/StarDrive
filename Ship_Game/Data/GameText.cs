@@ -6162,6 +6162,70 @@ namespace Ship_Game
         DerelictProductionTip = 7130,
         /// <summary>A salvageable derelict in {0}: {1}</summary>
         NewSalvageableDerelict = 7131,
+        /// <summary>Alerts</summary>
+        Alerts = 7132,
+        /// <summary>Building Alerts</summary>
+        BuildingAlerts = 7133,
+        /// <summary>Inhibition Alerts</summary>
+        InhibitionAlerts = 7134,
+        /// <summary>Volcano Alerts</summary>
+        VolcanoAlerts = 7135,
+        /// <summary>Alerts when a volcano becomes active, calms after an eruption or goes dormant, and when a lava pool hardens into a bare tile. Eruptions are reported either way.</summary>
+        VolcanoAlertsTip = 7136,
+        /// <summary>Ship Crash Alerts</summary>
+        ShipCrashAlerts = 7137,
+        /// <summary>Alerts when a ship crashes on a planet. With these off, you hear of a crash site only when a ship is recovered from it.</summary>
+        ShipCrashAlertsTip = 7138,
+        /// <summary>Station Built Alerts</summary>
+        StationBuiltAlerts = 7139,
+        /// <summary>Alerts when one of your research, mining or salvage stations has been built.</summary>
+        StationBuiltAlertsTip = 7140,
+        /// <summary>Starvation Alerts</summary>
+        StarvationAlerts = 7141,
+        /// <summary>Salvage Station was deployed in system</summary>
+        SalvageStationBuiltSystemNotify = 7144,
+        /// <summary>You cannot mix research station, mining station and salvage station modules in one design.</summary>
+        CannotMixStationModules = 7145,
+        /// <summary>Build a salvage station near this system's derelicts.</summary>
+        SalvageStationOrderTip = 7146,
+        /// <summary>You already have a salvage station in this system, built or on order.</summary>
+        SalvageStationOrderedTip = 7147,
+        /// <summary>No salvage station design can be built yet.</summary>
+        SalvageStationNoDesignTip = 7148,
+        /// <summary>No free site for a salvage station near these derelicts.</summary>
+        SalvageStationNoSite = 7149,
+        /// <summary>1 Derelict</summary>
+        OneDerelict = 7150,
+        /// <summary>{0} Derelicts</summary>
+        NumDerelicts = 7151,
+        /// <summary>You know of salvageable derelicts in this system.</summary>
+        SalvageableDerelictsHereTip = 7152,
+        /// <summary>Production left to salvage from the derelicts you know of in this system.</summary>
+        SystemSalvageProductionTip = 7153,
+        /// <summary>Salvage Ops</summary>
+        SalvageOpsButton = 7154,
+        /// <summary>Derelicts in {0}</summary>
+        DerelictsInSystem = 7155,
+        /// <summary>Auto Pick Salvage Stations</summary>
+        AutoPickSalvageStation = 7156,
+        /// <summary>A salvage station ordered from a derelict's panel or a system's derelict list is the best design you can build</summary>
+        AutoPickSalvageStationTip = 7157,
+        /// <summary>Salvage Station</summary>
+        SalvageStationDropDown = 7158,
+        /// <summary>Low Salvage Cargo</summary>
+        DesignIssueLowSalvageCargoTitle = 7159,
+        /// <summary>This Salvage Station has less cargo room than one load of salvaged production</summary>
+        DesignIssueLowSalvageCargoProblem = 7160,
+        /// <summary>Add Storage.</summary>
+        DesignIssueLowSalvageCargoRemidiation = 7161,
+        /// <summary>Cargo room needed for one load:</summary>
+        DesignIssueLowSalvageCargoNeeded = 7162,
+        /// <summary>Deploy Salvage Station</summary>
+        DeploySalvageStation = 7163,
+        /// <summary>Salvage Station Deployed</summary>
+        SalvageStationDeployed = 7164,
+        /// <summary>Salvage Station was evacuated since you</summary>
+        RemoveExcessSalvageStation = 7165,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

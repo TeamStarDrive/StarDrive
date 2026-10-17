@@ -185,6 +185,10 @@
     <Compile Include="Ships\TroopLandingTests.cs" />
     <Compile Include="Ships\OrdnanceShuttleTests.cs" />
     <Compile Include="Ships\PirateBaseLandingTests.cs" />
+    <Compile Include="Ships\PirateCaptureScuttleTests.cs" />
+    <Compile Include="Ships\SalvageModuleTests.cs" />
+    <Compile Include="Ships\SalvageOpsTests.cs" />
+    <Compile Include="Ships\SalvageDesignTests.cs" />
     <Compile Include="Ships\ShipLaunchPlaceTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
     <Compile Include="Ships\ModuleResistTests.cs" />
@@ -279,6 +283,7 @@
     <Compile Include="Serialization\BinarySerializerTests.cs" />
     <Compile Include="UI\AutoUpdateCheckerTests.cs" />
     <Compile Include="UI\AvailableModsTests.cs" />
+    <Compile Include="UI\ExoticSystemsSalvageRowsTests.cs" />
     <Compile Include="UI\ImportantEventsScreenTests.cs" />
     <Compile Include="UI\MockGameScreen.cs" />
     <Compile Include="UI\MockInputProvider.cs" />

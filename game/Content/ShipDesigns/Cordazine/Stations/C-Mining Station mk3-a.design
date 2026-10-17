@@ -12,8 +12,8 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=Crystal Armor Med;Crystal Armor Small;PhotonTurret4x4;BosonTransmiter;Amplifier;ArmoredShield4x4;ArmoredMissile;FuelCellSmallArmored;OrdnanceLockerSmall;AntiMatterReactor;EnergyPDRapid;ArmoredTurret;ContainerDeck;Bridge;MediumCargoHold;Extreme Fusion Reactor;ProcessingUnit;ResearchLab;MarineBarracks2x2
-Modules=201
+ModuleUIDs=Crystal Armor Med;Crystal Armor Small;PhotonTurret4x4;BosonTransmiter;Amplifier;ArmoredShield4x4;ArmoredMissile;FuelCellSmallArmored;OrdnanceLockerSmall;AntiMatterReactor;EnergyPDRapid;ArmoredTurret;ContainerDeck;Bridge;MediumCargoHold;Extreme Fusion Reactor;ProcessingUnit;MarineBarracks2x2
+Modules=203
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 22,0;0;2,2
 21,2;0;2,2
@@ -144,8 +144,10 @@ Modules=201
 41,25;1
 7,26;1
 17,26;14;2,2
-19,26;17;6,2
-25,26;18;2,2
+19,26;14;2,2
+21,26;14;2,2
+23,26;14;2,2
+25,26;17;2,2
 27,26;13;2,2
 38,26;1
 7,27;1

@@ -143,6 +143,7 @@ namespace Ship_Game
         public bool CanBuildShipyards { get; private set; }
         public bool CanBuildResearchStations { get; private set; }
         public bool CanBuildMiningStations { get; private set; }
+        public bool CanBuildSalvageStations { get; private set; }
         [StarData] public float CurrentMilitaryStrength;
         [StarData] public float OffensiveStrength; // No Orbitals
         [StarData] public LoyaltyLists EmpireShips;
@@ -174,6 +175,7 @@ namespace Ship_Game
         [StarData] public bool AutoBuildTerraformers;
         [StarData] public bool AutoPickBestResearchStation;
         [StarData] public bool AutoPickBestMiningStation;
+        [StarData] public bool AutoPickBestSalvageStation;
         [StarData] public bool SymmetricDesignMode = true;
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
@@ -1294,6 +1296,9 @@ namespace Ship_Game
 
             if (s.IsMiningStation)
                 CanBuildMiningStations= true;
+
+            if (s.IsSalvageStation)
+                CanBuildSalvageStations = true;
         }
 
         public void ApplyModuleHealthTechBonus(float bonus)

@@ -15,6 +15,7 @@ public partial class UniverseScreen
     {
         try
         {
+            ApplyPendingChangesBeforeSave();
             IsSaving = true;
             var savedGame = new SavedGame(this);
             savedGame.Save(saveName);
@@ -33,8 +34,12 @@ public partial class UniverseScreen
         return null;
     }
 
+    // a change of hands applies here, on the sim thread, with what it sets off, so the save worker finds none half done
+    void ApplyPendingChangesBeforeSave() => UState.Objects.UpdateLists(removeInactiveObjects: true);
+
     public void SaveAsync(string saveName, bool resetLogOnComplete = false)
     {
+        ApplyPendingChangesBeforeSave();
         IsSaving = true;
         var savedGame = new SavedGame(this);
         savedGame.SaveAsync(saveName, (error) =>

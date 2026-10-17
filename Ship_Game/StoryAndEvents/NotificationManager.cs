@@ -801,6 +801,9 @@ namespace Ship_Game
 
         public void AddResearchStationBuiltNotification(Ship s, ExplorableGameObject solarBody)
         {
+            if (Screen.UState.P.DisableStationBuiltWarning)
+                return;
+
             string message;
             if (solarBody is Planet planet)
             {
@@ -824,6 +827,9 @@ namespace Ship_Game
 
         public void AddMiningStationBuiltNotification(Ship s, Planet planet)
         {
+            if (Screen.UState.P.DisableStationBuiltWarning)
+                return;
+
             AddNotification(new Notification
             {
                 Message = $"{planet.System.Name}: {s.Name}" + $" {Localizer.Token(GameText.MiningStationBuiltPlanetNotify)} {planet.Name}",
@@ -831,6 +837,31 @@ namespace Ship_Game
                 ReferencedItem1 = s,
                 IconPath = s.ShipData.IconPath
             }, "smallservo");
+        }
+
+        public void AddSalvageStationBuiltNotification(Ship s, SolarSystem system)
+        {
+            if (Screen.UState.P.DisableStationBuiltWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Message         = $"{system.Name}: {s.Name} {Localizer.Token(GameText.SalvageStationBuiltSystemNotify)}",
+                Action          = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath        = s.ShipData.IconPath
+            }, "smallservo");
+        }
+
+        public void AddExcessSalvageStationRemoved(Ship station, SolarSystem system)
+        {
+            AddNotification(new Notification
+            {
+                Message         = Localizer.Token(GameText.RemoveExcessSalvageStation),
+                Action          = "SnapToSystem",
+                ReferencedItem1 = system,
+                IconPath        = station.ShipData.IconPath
+            }, "sd_ui_notification_encounter");
         }
 
         // the derelict whose system just joined the player's list of systems with salvageable derelicts

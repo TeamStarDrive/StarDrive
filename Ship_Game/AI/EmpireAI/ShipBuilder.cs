@@ -70,7 +70,8 @@ namespace Ship_Game.AI
                                           && !s.IsSubspaceProjector
                                           && !s.IsDysonSwarmController
                                           && !s.IsResearchStation
-                                          && !s.IsMiningStation);
+                                          && !s.IsMiningStation
+                                          && !s.IsSalvageStation);
 
             if (potentialShips.Count == 0)
             {
@@ -315,6 +316,55 @@ namespace Ship_Game.AI
             }
         }
 
+        // the player's Automation window design with auto pick off, else the race's default, as long as it can be built and holds a salvage chunk; otherwise the best pick
+        public static IShipDesign PickSalvageStation(Empire empire)
+        {
+            if (empire.isPlayer && !empire.AutoPickBestSalvageStation)
+            {
+                IShipDesign chosen = BuildableSalvageStation(empire, empire.data.CurrentSalvageStation)
+                                  ?? BuildableSalvageStation(empire, empire.data.DefaultSalvageStation);
+                if (chosen != null)
+                    return chosen;
+            }
+            return BestSalvageStation(empire);
+        }
+
+        public static bool IsUsableSalvageStation(IShipDesign design)
+        {
+            return design.IsSalvageStation && ShipResupply.HasRoomForSalvageChunk(design);
+        }
+
+        static IShipDesign BuildableSalvageStation(Empire empire, string name)
+        {
+            if (name.IsEmpty())
+                return null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+                if (IsUsableSalvageStation(design) && design.Name == name)
+                    return design;
+            return null;
+        }
+
+        // the most salvage modules, then the most cargo room, then the sturdiest per slot; null until one can be built
+        static IShipDesign BestSalvageStation(Empire empire)
+        {
+            IShipDesign best = null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+            {
+                if (IsUsableSalvageStation(design) && (best == null || IsBetterSalvageStation(design, best, empire)))
+                    best = design;
+            }
+            return best;
+        }
+
+        static bool IsBetterSalvageStation(IShipDesign a, IShipDesign b, Empire empire)
+        {
+            if (a.NumSalvageModules != b.NumSalvageModules)
+                return a.NumSalvageModules > b.NumSalvageModules;
+            if (a.BaseCargoSpace != b.BaseCargoSpace)
+                return a.BaseCargoSpace > b.BaseCargoSpace;
+            return a.GetStrength(empire) / a.SurfaceArea > b.GetStrength(empire) / b.SurfaceArea;
+        }
+
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig, int levelsOfPiratesAtWarWithUs)
         {
             float maxKFTL  = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
@@ -470,6 +520,7 @@ namespace Ship_Game.AI
                 || bestShip.IsSubspaceProjector
                 || bestShip.IsResearchStation
                 || bestShip.IsMiningStation
+                || bestShip.IsSalvageStation
                 || bestShip.IsDysonSwarmController)
             {
                 return null;

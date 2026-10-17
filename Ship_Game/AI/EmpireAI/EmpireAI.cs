@@ -390,6 +390,7 @@ namespace Ship_Game.AI
                     || !ship.CanBeRefitted
                     || ship.IsResearchStation
                     || ship.IsMiningStation
+                    || ship.IsSalvageStation
                     || ship.IsMiningShip
                     || ship.ShipData.IsColonyShip
                     || ship.IsConstructor)
@@ -453,6 +454,26 @@ namespace Ship_Game.AI
                 RemoveGoal(stationGoal);
 
             Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(p) && g.Build.Template.IsMiningStation);
+            if (constructionGoal != null)
+            {
+                constructionGoal.FinishedShip?.AI.OrderScrapShip();
+                constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
+                RemoveGoal(constructionGoal);
+            }
+        }
+
+        public void CancelSalvageStation(SolarSystem system)
+        {
+            Goal stationGoal = FindGoal(g => g.IsSalvageOpsGoal(system) && g.TargetShip == null);
+            if (stationGoal != null)
+                RemoveGoal(stationGoal);
+
+            CancelSalvageStationConstruction(system);
+        }
+
+        public void CancelSalvageStationConstruction(SolarSystem system)
+        {
+            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(system) && g.ToBuild?.IsSalvageStation == true);
             if (constructionGoal != null)
             {
                 constructionGoal.FinishedShip?.AI.OrderScrapShip();

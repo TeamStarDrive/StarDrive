@@ -27,6 +27,10 @@ public partial class ShipDesign
     public bool IsFreighter         { get; private set; }
     public bool IsResearchStation   { get; private set; }
     public bool IsMiningStation     { get; private set; }
+    public bool IsSalvageStation    { get; private set; }
+    // the one fixed platform design a salvage station builds beside a derelict, which the player never designs, builds, orders or refits
+    public const string SalvagePlatformName = "Salvage Platform";
+    public bool IsSalvagePlatform => Name == SalvagePlatformName;
     public bool IsUnitTestShip      { get; private set; }
     public bool IsSingleTroopShip   { get; private set; }
     public bool IsTroopShip         { get; private set; }
@@ -42,6 +46,7 @@ public partial class ShipDesign
     public float BaseResearchPerTurn       { get; private set; }
     public float BaseRefiningPerTurn       { get; private set; }
     public byte NumConstructionModules     { get; private set; }
+    public byte NumSalvageModules          { get; private set; }
     public bool IsCandidateForTradingBuild { get; private set; }
     public bool IsDysonSwarmController     { get; private set; }
 
@@ -82,6 +87,7 @@ public partial class ShipDesign
         float baseResearchPerTurn = 0;
         float baseProcessingPerTurn = 0;
         byte numConstructionModules = 0;
+        byte numSalvageModules = 0;
 
         var mTemplates = new Array<ShipModule>();
         var hangars = new Array<ShipModule>();
@@ -123,6 +129,9 @@ public partial class ShipDesign
             if (m.DeployBuildingOnColonize.NotEmpty())
                 ++numBuildingsDeployed;
 
+            if (m.Salvage)
+                numSalvageModules++;
+
             startingColonyGoods += m.NumberOfEquipment + m.NumberOfFood;
         }
 
@@ -146,6 +155,7 @@ public partial class ShipDesign
         StartingColonyGoods = startingColonyGoods;
         NumBuildingsDeployed = numBuildingsDeployed;
         NumConstructionModules = numConstructionModules;
+        NumSalvageModules = numSalvageModules;
 
         Hangars = hangars.ToArray();
         AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
@@ -175,6 +185,7 @@ public partial class ShipDesign
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
         IsMiningStation   = IsPlatformOrStation && BaseRefiningPerTurn > 0;
+        IsSalvageStation  = IsStation && NumSalvageModules > 0;
         IsDysonSwarmController  = Name == DysonSwarm.DysonSwarmControllerName;
 
         // only enable this flag for non-testing environment
@@ -291,13 +302,14 @@ public partial class ShipDesign
 
     public bool CanBeAddedToBuildableShips(Empire empire)
     {
-        return IsValidDesign && !IsUnitTestShip
+        return IsValidDesign && !IsUnitTestShip && !IsSalvagePlatform
             && Role != RoleName.prototype
             && Role != RoleName.disabled
             && Role != RoleName.supply
             && !ShipRole.Protected
             && (empire.isPlayer || IsShipGoodForGoals(empire))
-            && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer);
+            && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer)
+            && (!IsSalvageStation || empire.Universe.P.SalvageOps);
     }
 
     public int GetCompletionPercent()

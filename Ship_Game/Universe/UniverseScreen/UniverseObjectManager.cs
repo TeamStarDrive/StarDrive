@@ -267,21 +267,20 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (!ship.Active)
-                {
-                    if (removeInactiveObjects)
-                    {
-                        UState.OnShipRemoved(ship);
-                        ship.LeaveDerelict();
-                        ship.RemoveFromUniverseUnsafe();
-                    }
-                }
-                else if (applyLoyaltyChanges)
+                if (ship.Active && applyLoyaltyChanges)
                 {
                     // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
                     bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
                     if (loyaltyChanged)
                         ship.ReinsertSpatial = true;
+                }
+
+                // a ship can be removed as it changes hands, so this comes after the loyalty change
+                if (!ship.Active && removeInactiveObjects)
+                {
+                    UState.OnShipRemoved(ship);
+                    ship.LeaveDerelict();
+                    ship.RemoveFromUniverseUnsafe();
                 }
             }
 

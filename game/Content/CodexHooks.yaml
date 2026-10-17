@@ -160,14 +160,16 @@ AutoBuildResearchStationTip: automation_construction
 AutoBuildMiningStationTip: automation_construction
 AutoPickResearchStationTip: automation_construction
 AutoPickMiningStationTip: automation_construction
+AutoPickSalvageStationTip: automation_construction
 RushAllConstructionTip: automation_construction
 PrioritizeProjectorTip: automation_construction
 YourEmpireWillAutomaticallySelect: automation_research_and_taxes
 YourEmpireWillAutomaticallyManage3: automation_research_and_taxes
 NormallyWhenYouManuallyAdd: automation_alerts
 InhibitionAlertsAreDisplayedWhen: automation_alerts
-DisableVolcanoActivationOrDeactivation: automation_alerts
-DisableCrashSiteAlertsTip: automation_alerts
+VolcanoAlertsTip: automation_alerts
+ShipCrashAlertsTip: automation_alerts
+StationBuiltAlertsTip: automation_alerts
 EnableStarvationWarningTip: automation_alerts
 
 # Budget screen
@@ -454,3 +456,10 @@ BudgetPerTurnNote: economy_budget_screen
 # Derelict info panel
 DerelictTurnsLeftTip: warfare_combat_basics
 DerelictProductionTip: warfare_combat_basics
+SalvageStationOrderTip: warfare_combat_basics
+SalvageStationOrderedTip: warfare_combat_basics
+SalvageStationNoDesignTip: warfare_combat_basics
+
+# Exotic Systems salvage rows
+SalvageableDerelictsHereTip: warfare_combat_basics
+SystemSalvageProductionTip: warfare_combat_basics

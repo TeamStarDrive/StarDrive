@@ -573,6 +573,15 @@ namespace Ship_Game.GameScreens.ShipDesign
                 severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowRefiningTimeNotGood)}" : "");
         }
 
+        public void CheckLowSalvageCargo()
+        {
+            if (!Hull.IsSalvageStation || ShipResupply.HasRoomForSalvageChunk(Hull))
+                return;
+
+            string needed = $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoNeeded)} {GlobalStats.Defaults.SalvageChunkSize.GetNumberString()}.";
+            AddDesignIssue(DesignIssueType.LowSalvageCargo, WarningLevel.Critical, needed);
+        }
+
         string GetRangeLaunchText(int maxWeaponRange, out int minLaunchRangeWeapons, out bool usingMinimumCarrierRange)
         {
             usingMinimumCarrierRange = false;
@@ -717,7 +726,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         OrbitalCarrierHoldPosition,
         LowResearchTime,
         ConstructorCost,
-        LowRefiningTime
+        LowRefiningTime,
+        LowSalvageCargo
     }
 
     public enum WarningLevel
@@ -952,6 +962,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem = GameText.DesignIssueLowRefiningTimeProblem;
                     Remediation = GameText.DesignIssueLowRefiningTimeRemidiation;
                     Texture = ResourceManager.Texture("NewUI/IssueLowRefiingTime");
+                    break;
+                case DesignIssueType.LowSalvageCargo:
+                    Title       = GameText.DesignIssueLowSalvageCargoTitle;
+                    Problem     = GameText.DesignIssueLowSalvageCargoProblem;
+                    Remediation = GameText.DesignIssueLowSalvageCargoRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowSalvageCargo");
                     break;
             }
         }

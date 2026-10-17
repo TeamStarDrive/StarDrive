@@ -62,6 +62,12 @@ namespace Ship_Game.Ships
             return ship.BaseCargoSpace*0.5f / totalRefiningPerTurn >= NumTurnsForGoodRefiningSupply*0.5f;
         }
 
+        // a salvage station takes its platforms' production a chunk at a time, so it needs cargo room for one
+        public static bool HasRoomForSalvageChunk(IShipDesign ship)
+        {
+            return ship.BaseCargoSpace >= GlobalStats.Defaults.SalvageChunkSize;
+        }
+
         public static float DamageThreshold(ShipCategory category)
         {
             float threshold;    

@@ -24,6 +24,35 @@ public sealed class Derelicts
 
     public Derelict[] ToArray() { lock (Sync) return Items.ToArray(); }
 
+    // from any thread, so it reads the published list and not the empire's, which the sim thread owns
+    public bool AnyKnownIn(Empire empire, SolarSystem system)
+    {
+        Derelict[] current = Current;
+        for (int i = 0; i < current.Length; ++i)
+            if (current[i].System == system && current[i].CanBeSalvaged && current[i].IsKnownBy(empire))
+                return true;
+        return false;
+    }
+
+    // from any thread: how many salvageable derelicts the empire knows of in the system, the first of them, and the production left in them
+    public int CountKnownIn(Empire empire, SolarSystem system, out Derelict first, out float productionLeft)
+    {
+        Derelict[] current = Current;
+        int count = 0;
+        first = null;
+        productionLeft = 0f;
+        for (int i = 0; i < current.Length; ++i)
+        {
+            if (current[i].System == system && current[i].CanBeSalvaged && current[i].IsKnownBy(empire))
+            {
+                ++count;
+                first ??= current[i];
+                productionLeft += current[i].ProductionLeft;
+            }
+        }
+        return count;
+    }
+
     int CountSalvageable()
     {
         int n = 0;
