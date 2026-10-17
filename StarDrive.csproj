@@ -352,6 +352,7 @@
     <Compile Include="Ship_Game\Ships\Derelict.cs" />
     <Compile Include="Ship_Game\Ships\Derelicts.cs" />
     <Compile Include="Ship_Game\Ships\DerelictInfoUIElement.cs" />
+    <Compile Include="Ship_Game\Ships\SystemDerelictsScreen.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\EngineTrail.cs" />
     <Compile Include="Ship_Game\Ships\ExternalSlotGrid.cs" />

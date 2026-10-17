@@ -6194,6 +6194,18 @@ namespace Ship_Game
         SalvageStationNoDesignTip = 7148,
         /// <summary>No free site for a salvage station near these derelicts.</summary>
         SalvageStationNoSite = 7149,
+        /// <summary>1 Derelict</summary>
+        OneDerelict = 7150,
+        /// <summary>{0} Derelicts</summary>
+        NumDerelicts = 7151,
+        /// <summary>You know of salvageable derelicts in this system.</summary>
+        SalvageableDerelictsHereTip = 7152,
+        /// <summary>Production left to salvage from the derelicts you know of in this system.</summary>
+        SystemSalvageProductionTip = 7153,
+        /// <summary>Salvage Ops</summary>
+        SalvageOpsButton = 7154,
+        /// <summary>Derelicts in {0}</summary>
+        DerelictsInSystem = 7155,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

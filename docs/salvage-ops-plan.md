@@ -136,8 +136,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       cap;
     - a button on the derelict's panel, when the empire has no station in that system, which places the station
       near that derelict (250);
-    - rows in the Exotic Systems screen for the systems with salvageable derelicts the empire knows of, with a deploy
-      button and an abort, like the mining rows (`ExoticSystemsListScreenItem`);
+    - the Exotic Systems screen (Gilad, 2026-10-17; 328 A, 332), from its rows' button (below);
     - an abort, like `EmpireAI.CancelMiningStation`, removes an order whose station is not built yet, and its
       constructor.
   - **The player's auto-build switch (252)** comes with the AI planner, in the ai sub-branch.
@@ -156,6 +155,18 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     - Salvage stations are queued as urgent orbitals, as research and mining stations are (320).
     - An order not yet built ends, with its constructor, once its system has no salvageable derelict left; a built
       station stays (322).
+  - **The Exotic Systems rows (Gilad, 2026-10-17; 328 A, 332):**
+    - Each system with salvageable derelicts the player knows of has a salvage row, apart from that system's research
+      or Dyson swarm row. The row goes with the system's last such derelict, even with the player's station built there.
+    - System: as other rows, with the derelict notification's yellow hourglass to the right of the hostiles warning.
+      Star or Planet: how many derelicts ("3 Derelicts"). Resource: the production icon and the production left in
+      them, in k or M from 10000. Richness and Owner stay empty.
+    - The row's Salvage Ops button opens a window listing the system's derelicts (`SystemDerelictsScreen`), a template
+      for now. It will order the station: Deploy, Abort once ordered, Deployed once built, and the 7148 grey text when
+      no design can be built (330 A). It will show each derelict's salvaging empire and hold the Salvage and Recover
+      buttons. Until then, an order is cancelled from its build marker once its constructor is queued; one stuck with
+      no port waits for the window's Abort.
+    - Texts 7150-7155; the derelict passage of 100093 names the rows (331, reworded for 332).
   - **One kind of station per design (321):** research, refining and salvage modules make three kinds of station, so the
     ship designer refuses a module of one kind in a design that holds another, with a floating message (text 7145).
     The one shipped design that mixed kinds, the Cordrazine C-Mining Station mk3-a, lost its research lab (323).

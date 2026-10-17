@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
@@ -35,7 +34,9 @@ namespace Ship_Game
         readonly SortButton Sb_Resource;
         readonly SortButton Sb_Richness;
         readonly SortButton Sb_Owner;
-        readonly Array<ExplorableGameObject> ExploredSolarBodies = new();
+        // a researchable or mineable body, a star for a Dyson swarm, or a system with salvageable derelicts the player knows of
+        readonly record struct ExoticEntry(ExplorableGameObject Body, bool Salvage);
+        readonly Array<ExoticEntry> Rows = new();
         UIButton PlanetArrayListButton;
 
         RectF ERect;
@@ -83,15 +84,18 @@ namespace Ship_Game
             foreach (SolarSystem system in Universe.UState.Systems.OrderBy(s => s.Position.Distance(Universe.Player.WeightedCenter)))
             {
                 if (system.IsExploredBy(Player) && Player.CanBuildDysonSwarmIn(system))
-                    ExploredSolarBodies.Add(system);
+                    Rows.Add(new(system, Salvage: false));
                 if (system.IsResearchable && system.IsExploredBy(Player))
-                    ExploredSolarBodies.Add(system);
+                    Rows.Add(new(system, Salvage: false));
 
                 foreach (Planet p in system.PlanetList)
                 {
                     if (p.IsExploredBy(Player)&& (p.IsResearchable || p.IsMineable))
-                        ExploredSolarBodies.Add(p);
+                        Rows.Add(new(p, Salvage: false));
                 }
+
+                if (UState.Derelicts.AnyKnownIn(Player, system))
+                    Rows.Add(new(system, Salvage: true));
             }
 
             CalcPlanetsDistances();
@@ -103,17 +107,17 @@ namespace Ship_Game
         void CalcPlanetsDistances()
         {
             var playerPlanets = Player.GetPlanets();
-            foreach (ExplorableGameObject solarBody in ExploredSolarBodies)
+            foreach (ExoticEntry row in Rows) // a system can have two rows
             {
-                if (solarBody is Planet planet)
+                if (row.Body is Planet planet)
                 {
                     float shortestDistance = playerPlanets.Min(p => p.Position.Distance(planet.Position));
-                    DistancesToClosestColony.Add(planet, shortestDistance);
+                    DistancesToClosestColony[planet] = shortestDistance;
                 }
-                else if (solarBody is SolarSystem system)
+                else if (row.Body is SolarSystem system)
                 {
                     float shortestDistance = playerPlanets.Min(p => p.Position.Distance(system.Position));
-                    DistancesToClosestColony.Add(system, shortestDistance);
+                    DistancesToClosestColony[system] = shortestDistance;
                 }
             }
         }
@@ -201,67 +205,48 @@ namespace Ship_Game
             ExoticSL.Reset();
         }
 
-        void Sort<T>(SortButton button, Func<ExplorableGameObject, T> sortPredicate)
+        ExoticSystemsListScreenItem NewItem(ExoticEntry row) => new(row.Body, GetShortestDistance(row.Body), row.Salvage);
+
+        void Sort<T>(SortButton button, Func<ExoticEntry, T> sortPredicate)
         {
             InitSortedItems(button);
-            ExplorableGameObject[] solarBodies = ExploredSolarBodies.Sorted(button.Ascending, sortPredicate);
-            foreach (ExplorableGameObject solarBody in solarBodies)
-            {
-                var e = new ExoticSystemsListScreenItem(solarBody, GetShortestDistance(solarBody));
-                ExoticSL.AddItem(e);
-            }
+            ExoticEntry[] rows = Rows.Sorted(button.Ascending, sortPredicate);
+            foreach (ExoticEntry row in rows)
+                ExoticSL.AddItem(NewItem(row));
         }
 
-        void Sort(SortButton button, Map<ExplorableGameObject, float> list)
-        {
-            InitSortedItems(button);
-            var sortedList = button.Ascending ? list.OrderBy(d => d.Value)
-                                              : list.OrderByDescending(d => d.Value);
-
-            foreach (KeyValuePair<ExplorableGameObject, float> kv in sortedList)
-            {
-                ExplorableGameObject solarBody = kv.Key;
-                float distance = kv.Value;
-                var e = new ExoticSystemsListScreenItem(solarBody, distance);
-                ExoticSL.AddItem(e);
-            }
-        }
-
-        void HandleButton<T>(InputState input, SortButton button, Func<ExplorableGameObject, T> sortPredicate)
+        void HandleButton<T>(InputState input, SortButton button, Func<ExoticEntry, T> sortPredicate)
         {
             if (button.HandleInput(input))
                 Sort(button, sortPredicate);
         }
 
-        void HandleButton(InputState input, SortButton button, Map<ExplorableGameObject, float> list)
-        {
-            if (button.HandleInput(input))
-                Sort(button, list);
-        }
-
-        void ResetButton<T>(SortButton button, Func<ExplorableGameObject, T> sortPredicate)
+        void ResetButton<T>(SortButton button, Func<ExoticEntry, T> sortPredicate)
         {
             if (LastSorted.Text == button.Text)
                 Sort(button, sortPredicate);
         }
 
-        void ResetButton(SortButton button, Map<ExplorableGameObject, float> list)
-        {
-            if (LastSorted.Text == button.Text)
-                Sort(button, list);
-        }
+        static string SystemKey(ExoticEntry r) => r.Body is Planet p ? p.System.Name : r.Body is SolarSystem s ? s.Name : "";
+        static string NameKey(ExoticEntry r) => r.Body is Planet p ? p.Name : "";
+        float DistanceKey(ExoticEntry r) => GetShortestDistance(r.Body);
+        static string ResourceKey(ExoticEntry r) => r.Salvage ? Localizer.Token(GameText.Production)
+            : r.Body is Planet p ? (p.Mining?.TranslatedResourceName.Text ?? "")
+            : r.Body is SolarSystem s && s.DysonSwarmType > 0 ? s.DysonSwarmType.ToString() : "";
+        float RichnessKey(ExoticEntry r) => r.Body is Planet { Mining: not null } p ? p.Mining.Richness : (Sb_Richness.Ascending ? 1000 : 0);
+        static string OwnerKey(ExoticEntry r) => r.Body is Planet p && p.IsMineable && p.Mining.HasOpsOwner ? p.Mining.Owner.data.Traits.Singular : "";
 
         public override bool HandleInput(InputState input)
         {
             if (ExoticSL.NumEntries == 0)
                 ResetList();
 
-            HandleButton(input, Sb_Sys, sb => sb is Planet p ? p.System.Name : sb is SolarSystem s ? s.Name : "");
-            HandleButton(input, Sb_Name, sb => sb is Planet p ? p.Name : "");
-            HandleButton(input, Sb_Distance, DistancesToClosestColony);
-            HandleButton(input, Sb_Resource, sb => sb is Planet p ? (p?.Mining?.TranslatedResourceName.Text ?? "" ) : sb is SolarSystem s && s.DysonSwarmType > 0 ? s.DysonSwarmType.ToString() : "");
-            HandleButton(input, Sb_Richness, sb => sb is Planet p ? (p?.Mining?.Richness ?? (Sb_Richness.Ascending ? 1000 : 0)) : (Sb_Richness.Ascending ? 1000 : 0));
-            HandleButton(input, Sb_Owner, sb => sb is Planet p && p.IsMineable && p.Mining.HasOpsOwner? p.Mining.Owner.data.Traits.Singular : "");
+            HandleButton(input, Sb_Sys, SystemKey);
+            HandleButton(input, Sb_Name, NameKey);
+            HandleButton(input, Sb_Distance, DistanceKey);
+            HandleButton(input, Sb_Resource, ResourceKey);
+            HandleButton(input, Sb_Richness, RichnessKey);
+            HandleButton(input, Sb_Owner, OwnerKey);
 
             if (input.KeyPressed(Keys.G) && !GlobalStats.TakingInput)
             {
@@ -295,20 +280,17 @@ namespace Ship_Game
 
             if (LastSorted == null)
             {
-                foreach (ExplorableGameObject solarBody in ExploredSolarBodies)
-                {
-                    var entry = new ExoticSystemsListScreenItem(solarBody, GetShortestDistance(solarBody));
-                    ExoticSL.AddItem(entry);
-                }
+                foreach (ExoticEntry row in Rows)
+                    ExoticSL.AddItem(NewItem(row));
             }
             else
             {
-                ResetButton(Sb_Sys, sb => sb is Planet p ? p.System.Name : sb is SolarSystem s ? s.Name : "");
-                ResetButton(Sb_Name, sb => sb is Planet p ? p.Name : "");
-                ResetButton(Sb_Distance, DistancesToClosestColony);
-                ResetButton(Sb_Resource, sb => sb is Planet p ? p?.Mining?.TranslatedResourceName ?? "Research" : "");
-                ResetButton(Sb_Richness, sb => sb is Planet p ? (p?.Mining?.Richness ?? 0) : 0);
-                ResetButton(Sb_Owner, sb => sb is Planet p && p.IsMineable && p.Mining.HasOpsOwner ? p.Mining.Owner.data.Traits.Singular : "");
+                ResetButton(Sb_Sys, SystemKey);
+                ResetButton(Sb_Name, NameKey);
+                ResetButton(Sb_Distance, DistanceKey);
+                ResetButton(Sb_Resource, ResourceKey);
+                ResetButton(Sb_Richness, RichnessKey);
+                ResetButton(Sb_Owner, OwnerKey);
             }
 
             SelectedPlanet = ExoticSL.NumEntries > 0 ? ExoticSL.AllEntries[0].Planet : null;
