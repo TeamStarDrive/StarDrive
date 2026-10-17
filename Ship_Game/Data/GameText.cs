@@ -6206,6 +6206,12 @@ namespace Ship_Game
         SalvageOpsButton = 7154,
         /// <summary>Derelicts in {0}</summary>
         DerelictsInSystem = 7155,
+        /// <summary>Auto Pick Salvage Stations</summary>
+        AutoPickSalvageStation = 7156,
+        /// <summary>A salvage station ordered from a derelict's panel is the best design you can build</summary>
+        AutoPickSalvageStationTip = 7157,
+        /// <summary>Salvage Station</summary>
+        SalvageStationDropDown = 7158,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

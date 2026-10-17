@@ -316,8 +316,31 @@ namespace Ship_Game.AI
             }
         }
 
-        // the most salvage modules, then the most cargo room, then the sturdiest per slot; null until one can be built
+        // the player's Automation window design with auto pick off, else the race's default, as long as it can be built; otherwise the best pick
         public static IShipDesign PickSalvageStation(Empire empire)
+        {
+            if (empire.isPlayer && !empire.AutoPickBestSalvageStation)
+            {
+                IShipDesign chosen = BuildableSalvageStation(empire, empire.data.CurrentSalvageStation)
+                                  ?? BuildableSalvageStation(empire, empire.data.DefaultSalvageStation);
+                if (chosen != null)
+                    return chosen;
+            }
+            return BestSalvageStation(empire);
+        }
+
+        static IShipDesign BuildableSalvageStation(Empire empire, string name)
+        {
+            if (name.IsEmpty())
+                return null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+                if (design.IsSalvageStation && design.Name == name)
+                    return design;
+            return null;
+        }
+
+        // the most salvage modules, then the most cargo room, then the sturdiest per slot; null until one can be built
+        static IShipDesign BestSalvageStation(Empire empire)
         {
             IShipDesign best = null;
             foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)

@@ -156,6 +156,7 @@ namespace Ship_Game
         [StarData] public string CurrentConstructor   = "";
         [StarData] public string CurrentMiningStation = "";
         [StarData] public string CurrentResearchStation = "";
+        [StarData] public string CurrentSalvageStation = "";
         [StarData] public string DiplomacyDialogPath;
         [StarData] public DTrait DiplomaticPersonality;
         [StarData] public ETrait EconomicPersonality;

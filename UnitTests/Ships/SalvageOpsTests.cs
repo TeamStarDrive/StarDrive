@@ -22,7 +22,9 @@ namespace UnitTests.Ships;
 /// abort before it is built takes the order and its constructor away, as salvage ops off does, and as the system
 /// running out of derelicts does; a built station keeps its order. A site lies in the system, clear of its star and
 /// planets' orbits and 2000 units from its derelicts and from salvage stations. An order survives a save. The picker
-/// takes the station with the most salvage modules, then the most cargo room.
+/// takes the station with the most salvage modules, then the most cargo room. The player's picker, with auto pick off
+/// as it starts, takes the station chosen in the Automation window, or the race's default when the choice cannot be
+/// built, and the best pick when neither can; the window resets a choice that can no longer be built to the default.
 /// </summary>
 [TestClass]
 public class SalvageOpsTests : StarDriveTest
@@ -355,6 +357,7 @@ public class SalvageOpsTests : StarDriveTest
     [TestMethod]
     public void ThePickerTakesTheMostSalvageModulesThenTheMostCargoRoom()
     {
+        Player.AutoPickBestSalvageStation = true;
         Player.ClearShipsWeCanBuild();
         Assert.IsNull(ShipBuilder.PickSalvageStation(Player), "none until a salvage station can be built");
 
@@ -372,6 +375,83 @@ public class SalvageOpsTests : StarDriveTest
                       "setup: as many salvage units, more cargo room");
         Player.AddBuildableShip(roomier);
         AssertEqual(roomier, ShipBuilder.PickSalvageStation(Player), "with as many, more cargo room wins");
+    }
+
+    [TestMethod]
+    public void WithAutoPickOffThePanelButtonOrdersTheStationChosenInTheAutomationWindow()
+    {
+        Assert.IsFalse(Player.AutoPickBestSalvageStation, "auto pick starts off");
+        AssertEqual(Station.Name, Player.data.DefaultSalvageStation, "setup: the basic station is the race's default");
+        ShipDesign fewer = Variant("Fewer Units Station", dropOneSalvageUnit: true, extraHolds: 3);
+        ShipDesign roomier = Variant("Roomier Station", dropOneSalvageUnit: false, extraHolds: 1);
+        Player.ClearShipsWeCanBuild();
+        Player.AddBuildableShip(Station);
+        Player.AddBuildableShip(fewer);
+        Player.AddBuildableShip(roomier);
+        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "with nothing chosen, the race's default, though a better one can be built");
+
+        Player.data.CurrentSalvageStation = fewer.Name;
+        AssertEqual(fewer, ShipBuilder.PickSalvageStation(Player), "the station chosen in the Automation window");
+        Forms(Player, InSystem);
+        ResourceManager.AddShipTemplate(fewer, playerDesign: false); // the order queues its station by name
+        try
+        {
+            Assert.IsTrue(SalvageOps.OrderNearDerelicts(Player, WreckSystem, Empty<Ship>.Array, new SeededRandom(1)), "setup: the panel button orders");
+            AssertEqual(fewer, Player.AI.FindGoal(g => g is SalvageOps).ToBuild, "the chosen station");
+        }
+        finally
+        {
+            ResourceManager.Ships.Delete(fewer.Name);
+        }
+
+        Player.AutoPickBestSalvageStation = true;
+        AssertEqual(roomier, ShipBuilder.PickSalvageStation(Player), "auto pick takes the best, whatever was chosen");
+    }
+
+    [TestMethod]
+    public void AChoiceThatCannotBeBuiltGivesWayToTheRaceDefaultThenToTheBestPick()
+    {
+        ShipDesign roomier = Variant("Roomier Station", dropOneSalvageUnit: false, extraHolds: 1);
+        Player.ClearShipsWeCanBuild();
+        Player.AddBuildableShip(Station);
+        Player.AddBuildableShip(roomier);
+        Player.AddBuildableShip(ResearchStation);
+
+        Player.data.CurrentSalvageStation = "No Such Station Design";
+        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "a deleted design gives way to the race's default");
+        Player.data.CurrentSalvageStation = ResearchStation.Name;
+        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "as does a design that is no salvage station");
+        Player.data.CurrentSalvageStation = roomier.Name;
+        Player.RemoveBuildableShip(roomier);
+        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "and one the player can no longer build");
+
+        Player.AddBuildableShip(roomier);
+        Player.data.CurrentSalvageStation = "";
+        Player.RemoveBuildableShip(Station);
+        AssertEqual(roomier, ShipBuilder.PickSalvageStation(Player), "a default the player cannot build gives way to the best pick");
+    }
+
+    [TestMethod]
+    public void TheAutomationWindowResetsAChoiceThatCanNoLongerBeBuiltToTheRaceDefault()
+    {
+        ShipDesign roomier = Variant("Roomier Station", dropOneSalvageUnit: false, extraHolds: 1);
+        Player.AddBuildableShip(Station);
+        Player.AddBuildableShip(roomier);
+        Player.MarkShipRolesUsableForEmpire(Station);
+        Player.data.CurrentSalvageStation = roomier.Name;
+
+        var window = new AutomationWindow(Universe);
+        window.LoadContent();
+        AssertEqual(roomier.Name, Player.data.CurrentSalvageStation, "a station the player can build stays chosen");
+
+        Player.RemoveBuildableShip(roomier);
+        window.UpdateDropDowns();
+        AssertEqual(Station.Name, Player.data.CurrentSalvageStation, "one that can no longer be built gives way to the race's default");
+
+        UState.P.DisableSalvageOps = true;
+        Player.data.CurrentSalvageStation = "No Such Station Design";
+        window.LoadContent();
+        AssertEqual("No Such Station Design", Player.data.CurrentSalvageStation, "with salvage ops off the window leaves the choice alone");
     }
 
     // the basic station, less one salvage unit if asked, plus medium cargo holds in a strip below its grid

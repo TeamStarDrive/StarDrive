@@ -28,20 +28,23 @@ namespace Ship_Game
         DropOptions<int> ConstructorDropDown;
         DropOptions<int> ResearchStationDropDown;
         DropOptions<int> MiningStationDropDown;
+        CheckedDropdown SalvageStationRow;
+        DropOptions<int> SalvageStationDropDown;
         bool ResearchStationsEnabled;
         bool MiningOpsEnabled;
+        bool SalvageOpsEnabled;
 
         public AutomationWindow(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
             const int windowWidth = 280;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 189, windowWidth, 710);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 119, windowWidth, 710);
             CanEscapeFromScreen = false;
         }
 
         class CheckedDropdown : UIElementV2
         {
-            UICheckBox Check;
+            UIElementV2 Check;
             DropOptions<int> Options;
             public DropOptions<int> Create(Expression<Func<bool>> binding, LocalizedText title, LocalizedText tooltip)
             {
@@ -49,9 +52,17 @@ namespace Ship_Game
                 Options = new DropOptions<int>(new Vector2(-200f, -200f), 190, 18);
                 return Options;
             }
+            // a title in place of the checkbox, for a station with no auto build switch
+            public DropOptions<int> Create(LocalizedText title)
+            {
+                Check = new UILabel(new Vector2(-200f, -200f), title, Fonts.Arial12Bold);
+                Options = new DropOptions<int>(new Vector2(-200f, -200f), 190, 18);
+                return Options;
+            }
             public override void PerformLayout()
             {
-                Check.Pos = Pos;
+                // a title lines up with the checkbox titles, which start after their box
+                Check.Pos = Check is UICheckBox ? Pos : new Vector2(Pos.X + 16f, Pos.Y);
                 Check.PerformLayout();
                 Options.Pos = new Vector2(Pos.X, Pos.Y + 16f);
                 Options.PerformLayout();
@@ -75,12 +86,14 @@ namespace Ship_Game
 
             ResearchStationsEnabled = !Screen.Player.Universe.P.DisableResearchStations;
             MiningOpsEnabled = !Screen.Player.Universe.P.DisableMiningOps;
+            SalvageOpsEnabled = Screen.Player.Universe.P.SalvageOps;
 
             RectF win = new(Rect);
             ConstructionSubMenu = new(win, new LocalizedText[] { GameText.Automation, GameText.Alerts });
             float top = ConstructionSubMenu.ClientArea.Y + 1f;
 
-            UIList rest = Rest = AddList(new(win.X + 10f, top + 264f));
+            // the salvage station's dropdown adds a row to the table above
+            UIList rest = Rest = AddList(new(win.X + 10f, top + (SalvageOpsEnabled ? 308f : 264f)));
             rest.Padding = new(2f, 10f);
             rest.AddCheckbox(() => UState.Player.AutoPickConstructors,  title: GameText.AutoPickConstructorsName, tooltip: GameText.AutoPickConstructorsTip);
             rest.AddCheckbox(() => UState.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
@@ -94,6 +107,9 @@ namespace Ship_Game
 
             if (MiningOpsEnabled && Screen.Player.CanBuildMiningStations)
                 rest.AddCheckbox(() => UState.Player.AutoPickBestMiningStation, title: GameText.AutoPickMiningStation, tooltip: GameText.AutoPickMiningStationTip);
+
+            if (SalvageOpsEnabled && Screen.Player.CanBuildSalvageStations)
+                rest.AddCheckbox(() => UState.Player.AutoPickBestSalvageStation, title: GameText.AutoPickSalvageStation, tooltip: GameText.AutoPickSalvageStationTip);
 
             rest.AddCheckbox(() => RushConstruction,                      title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
             rest.AddCheckbox(() => UState.P.AllowPlayerInterTrade,        title: GameText.AllowPlayerInterTradeTitle, tooltip: GameText.AllowPlayerInterTradeTip);
@@ -136,6 +152,11 @@ namespace Ship_Game
                 MiningStationDropDown = ticks.Add(new CheckedDropdown())
                     .Create(() => Screen.Player.AutoBuildMiningStations, title: GameText.AutoBuildMiningStation, tooltip: GameText.AutoBuildMiningStationTip);
 
+            if (SalvageOpsEnabled)
+            {
+                SalvageStationRow = ticks.Add(new CheckedDropdown());
+                SalvageStationDropDown = SalvageStationRow.Create(GameText.SalvageStationDropDown);
+            }
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
@@ -156,7 +177,8 @@ namespace Ship_Game
             Ticks.Visible = Rest.Visible = tab == 0;
             Alerts.Visible = tab == 1;
             foreach (DropOptions<int> dropDown in new[] { ScoutDropDown, ColonyShipDropDown, ConstructorDropDown,
-                                                          FreighterDropDown, ResearchStationDropDown, MiningStationDropDown })
+                                                          FreighterDropDown, ResearchStationDropDown, MiningStationDropDown,
+                                                          SalvageStationDropDown })
                 if (dropDown != null) { dropDown.Open = false; dropDown.Reset(); }
         }
 
@@ -211,6 +233,13 @@ namespace Ship_Game
                 }
                 MiningStationDropDown.Visible = !Screen.Player.AutoPickBestMiningStation && canBuild;
             }
+            if (SalvageOpsEnabled)
+            {
+                bool canBuild = Screen.Player.CanBuildSalvageStations;
+                if (canBuild && SalvageStationDropDown.Count == 0)
+                    InitSalvageStationDropDown();
+                SalvageStationRow.Visible = !Screen.Player.AutoPickBestSalvageStation && canBuild;
+            }
             base.Draw(batch, elapsed);
         }
 
@@ -234,6 +263,8 @@ namespace Ship_Game
                     playerData.CurrentResearchStation = ResearchStationDropDown.ActiveName;
                 if (MiningOpsEnabled && Screen.Player.CanBuildMiningStations)
                     playerData.CurrentMiningStation   = MiningStationDropDown.ActiveName;
+                if (SalvageOpsEnabled && SalvageStationDropDown.NotEmpty)
+                    playerData.CurrentSalvageStation  = SalvageStationDropDown.ActiveName;
 
                 return true;
             }
@@ -278,9 +309,18 @@ namespace Ship_Game
             }
         }
 
+        void InitSalvageStationDropDown()
+        {
+            InitDropOptions(SalvageStationDropDown, ref Screen.Player.data.CurrentSalvageStation, Screen.Player.data.DefaultSalvageStation,
+                ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsSalvageStation);
+        }
+
         public void UpdateDropDowns()
         {
             EmpireData playerData = Screen.Player.data;
+            if (SalvageOpsEnabled && Screen.Player.CanBuildSalvageStations)
+                InitSalvageStationDropDown();
+
             if (MiningOpsEnabled && Screen.Player.CanBuildMiningStations)
             {
                 InitDropOptions(MiningStationDropDown, ref playerData.CurrentMiningStation, playerData.DefaultMiningStation,

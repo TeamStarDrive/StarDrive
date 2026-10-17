@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-327 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-338 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-327 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-338 from sub-branch 3. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -119,8 +119,19 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     (`ShipDesignIssues`, `LowRefiningTime` and `LowResearchTime`) (302).
   - It cannot be refit (293), and the orbital pickers ignore it (290).
   - Each race names one in `DefaultSalvageStation`. The picker takes the design with the most salvage modules, then
-    the most cargo room, then the sturdiest per slot, as `PickMiningStation` does (295), and the Automation window
-    gets a dropdown for it (279).
+    the most cargo room, then the sturdiest per slot, as `PickMiningStation` does (295).
+  - **The Automation window (Gilad, 2026-10-17; 279, 334-338):**
+    - A Salvage Station dropdown, a seventh row in the top table under a plain title, which becomes the Auto Build
+      Salvage Stations checkbox with 252 (334 A); and an Auto Pick Salvage Stations checkbox, off in a new game as
+      research and mining start (335 A).
+    - With auto pick off, the derelict panel's button orders the dropdown's design; Deep Space Build orders the
+      design picked in it. The dropdown lists only the salvage stations the player can build, as the other dropdowns
+      do, and a choice that can no longer be built falls back to the race's default, then to the best pick (336).
+    - Both show only with salvage ops on and once a salvage station can be built; the dropdown hides while auto pick
+      is on. Texts 7156-7158; Codex 100167 gets the salvage pick rule.
+    - The window moves up 70 px, its top at 119 instead of 189, so its last rows clear the minimap at 1680x1050
+      (337 A). With Deep Space Build open too it now covers that window's list down to its header; that stays until
+      the Automation window becomes a screen of its own (338).
   - Designs per race are Gilad's: the station and the platform (280). The modules are unlocked by Small Stations in
     vanilla (312), by Platforms in Combined Arms and by Starship Construction in Star Trek (139, 153).
 - **Ordering a station, as mining stations are ordered:**
@@ -436,8 +447,8 @@ Implementation notes:
      later (289, 300); the troops leaving a captured station before the pirate scuttle (298);
    - the salvage module, `<Salvage>True</Salvage>`, on station hulls only (290, 297);
    - the station and platform designs (Gilad, 280); each race's `DefaultSalvageStation` and the one `Salvage Platform`
-     design (314), their load checks, the station picker and its Automation dropdown (279, 295); the design issue for
-     too little cargo (302); no refit (293); the orbital pickers ignore both (290);
+     design (314), their load checks, the station picker and its Automation dropdown (279, 295, 334-338); the design
+     issue for too little cargo (302); no refit (293); the orbital pickers ignore both (290);
    - the switches hide the salvage module and the station and platform designs, and the Globals flag skips their
      load checks (227);
    - ordering a station: the `SalvageOps` goal, one per empire per system, Deep Space Build, the button on the
