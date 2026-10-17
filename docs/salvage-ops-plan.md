@@ -474,6 +474,7 @@ Implementation notes:
 7. **recovery** (phase 3): the Recover button, recovery work at the salvage speed (288), the roll, break-up and
    catastrophic explosion, the recovered ship's damage rule, the order home (175), the recovery notification, and
    the techs that raise the salvage speed (270).
+8. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
 
 Each sub-branch adds its Codex text and tests.
 

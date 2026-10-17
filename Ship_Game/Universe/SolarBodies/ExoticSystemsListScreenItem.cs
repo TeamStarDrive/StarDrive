@@ -59,6 +59,7 @@ namespace Ship_Game
         ExplorableGameObject SolarBody;
         ThreatMatrix.HostilePresence Hostiles;
         public readonly int NumDerelicts;
+        public readonly Derelict FirstDerelict;
         public readonly float SalvageProduction;
 
         // a salvage row is a system with salvageable derelicts the player knows of, apart from that system's research or Dyson swarm row
@@ -84,7 +85,7 @@ namespace Ship_Game
             if (salvage)
             {
                 IsForSalvage = true;
-                NumDerelicts = Universe.Derelicts.CountKnownIn(Player, System, out SalvageProduction);
+                NumDerelicts = Universe.Derelicts.CountKnownIn(Player, System, out FirstDerelict, out SalvageProduction);
             }
             else if (solarBody.IsResearchable && !solarBody.IsResearchStationDeployedBy(Player))
             {
@@ -400,10 +401,14 @@ namespace Ship_Game
 
         void AddTextureAndStatus()
         {
-            if (IsForSalvage)
-                return;
-
             var icon = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
+            if (IsForSalvage) // the first derelict's hull icon, tinted grey as its panel tints the hull, where other rows show their star or planet
+            {
+                if (FirstDerelict != null)
+                    Panel(icon, Color.Gray, FirstDerelict.Design.Icon);
+                return;
+            }
+
             Add(new UIPanel(icon, ResourceManager.Texture(IsStar ? System.Sun.IconPath : Planet.IconPath))
             {
                 Tooltip = GameText.PlanetTypeAndRichnessThe

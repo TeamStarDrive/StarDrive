@@ -86,6 +86,7 @@ public class ExoticSystemsSalvageRowsTests : StarDriveTest
         AssertEqual(2, salvageRows.Length, "a row for each system with derelicts the player knows of");
         ExoticSystemsListScreenItem salvage = salvageRows.Single(r => r.System == WreckSystem);
         AssertEqual(2, salvage.NumDerelicts, "the ones there that can still be salvaged");
+        Assert.AreSame(first, salvage.FirstDerelict, "the row shows the first of them");
         AssertEqual(0.01f, first.ProductionLeft + second.ProductionLeft, salvage.SalvageProduction, "and the production left in them");
         AssertEqual(1, salvageRows.Single(r => r.System == OtherSystem).NumDerelicts, "each system counts its own");
         Assert.IsFalse(salvage.IsForResearch || salvage.IsForMining || salvage.IsForDysonSwarm, "a salvage row is no other kind");

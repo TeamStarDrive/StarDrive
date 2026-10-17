@@ -34,17 +34,19 @@ public sealed class Derelicts
         return false;
     }
 
-    // from any thread: how many salvageable derelicts the empire knows of in the system, and the production left in them
-    public int CountKnownIn(Empire empire, SolarSystem system, out float productionLeft)
+    // from any thread: how many salvageable derelicts the empire knows of in the system, the first of them, and the production left in them
+    public int CountKnownIn(Empire empire, SolarSystem system, out Derelict first, out float productionLeft)
     {
         Derelict[] current = Current;
         int count = 0;
+        first = null;
         productionLeft = 0f;
         for (int i = 0; i < current.Length; ++i)
         {
             if (current[i].System == system && current[i].CanBeSalvaged && current[i].IsKnownBy(empire))
             {
                 ++count;
+                first ??= current[i];
                 productionLeft += current[i].ProductionLeft;
             }
         }
