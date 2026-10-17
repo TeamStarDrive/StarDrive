@@ -53,7 +53,7 @@ namespace Ship_Game
             }
             foreach (IShipDesign s in Player.SpaceStationsWeCanBuildSnapshot)
             {
-                if (!s.IsSubspaceProjector && !s.IsDysonSwarmController)
+                if (!s.IsSubspaceProjector && !s.IsDysonSwarmController && !s.IsSalvageStation)
                     SL.AddItem(new(Screen, s));
             }
 

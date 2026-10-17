@@ -612,7 +612,7 @@ namespace Ship_Game.Ships
             if (s.Loyalty != Player)
                 return;
 
-            if (s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+            if (s.IsSalvagePlatform || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
             if (s.ShipData.Role > RoleName.station && !s.IsConstructor)
@@ -716,7 +716,7 @@ namespace Ship_Game.Ships
             }
             if (s.CanBeScrapped)
             {
-                if (!s.IsConstructor && !s.IsSubspaceProjector)
+                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.IsSalvageStation)
                 {
                     var rf = new OrdersButton(s, OrderType.Refit, GameText.OrderShipRefit)
                     {

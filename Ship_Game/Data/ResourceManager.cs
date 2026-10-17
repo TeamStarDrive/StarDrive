@@ -2297,6 +2297,8 @@ namespace Ship_Game
                 Assert(e, e.DefaultResearchStation, "DefaultResearchStation", s => s.IsResearchStation, "IsResearchStation");
                 Assert(e, e.DefaultMiningShip, "DefaultMiningShip", s => s.BaseCargoSpace > 0, "BaseCargoSpace");
                 Assert(e, e.DefaultMiningStation, "DefaultMiningStation", s => s.IsMiningStation, "IsMiningStation");
+                if (GlobalStats.Defaults.EnableSalvageOps)
+                    Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", s => s.IsSalvageStation, "IsSalvageStation");
             }
 
             string[] requiredShips =
@@ -2311,6 +2313,10 @@ namespace Ship_Game
             {
                 Assert(null, requiredShip, "RequiredShip");
             }
+
+            // a mod with salvage ops off has no salvage designs, so neither salvage check runs
+            if (GlobalStats.Defaults.EnableSalvageOps)
+                Assert(null, ShipDesign.SalvagePlatformName, "RequiredShip");
 
             GetWeaponTemplate(DysonSwarm.DysonSwarmLauncherTemplate, out IWeaponTemplate t);
             if (t == null)

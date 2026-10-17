@@ -138,7 +138,7 @@ namespace Ship_Game.AI.Research
                 if (shortTermBest.ShipStyle == null)
                     continue;
 
-                if (shortTermBest.IsShipyard)
+                if (shortTermBest.IsShipyard || shortTermBest.IsSalvagePlatform)
                     continue;
 
                 if (!OwnerEmpire.ShipStyleMatch(shipStyle))

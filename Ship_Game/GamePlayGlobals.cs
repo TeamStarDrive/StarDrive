@@ -96,7 +96,7 @@ public class GamePlayGlobals
     [StarData] public bool DisableRemnantStory;
     // for mods that don't require pirates
     [StarData] public bool DisablePirates;
-    // salvageable derelicts and salvage yards; off, the Disable Salvage Ops rule option is locked on
+    // salvageable derelicts and salvage stations; off, the Disable Salvage Ops rule option is locked on
     [StarData] public bool EnableSalvageOps;
     [StarData] public bool AIUsesPlayerDesigns = true; // Can AI use player designs? This will make the AI stronger.
     // changes how upkeep is calculated, default:false means upkeep depends on ship cost

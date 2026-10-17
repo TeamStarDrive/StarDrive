@@ -42,7 +42,7 @@ public class DerelictTests : StarDriveTest
     {
         LoadStarterShips("Dreadnought mk1-a", "Corsair", "Hunter mk1-a", "Vulcan Scout", "Seeder Transport", "Shipyard",
                          "Platform Base mk1-a", "Subspace Projector", "Cordrazine Small Station Mk1",
-                         "C-Research Station mk1-a", "C-Mining Station mk1-a");
+                         "C-Research Station mk1-a", "C-Mining Station mk1-a", "Cordrazine Basic Salvage Station");
         CreateUniverseAndPlayerEmpire();
     }
 
@@ -153,9 +153,12 @@ public class DerelictTests : StarDriveTest
 
         TestShip research = SpawnShip("C-Research Station mk1-a", Player, Site(8));
         TestShip mining = SpawnShip("C-Mining Station mk1-a", Player, Site(9));
-        AssertTrue(research.IsResearchStation && mining.IsMiningStation, "setup: a research and a mining station");
+        TestShip salvage = SpawnShip("Cordrazine Basic Salvage Station", Player, Site(13));
+        AssertTrue(research.IsResearchStation && mining.IsMiningStation && salvage.IsSalvageStation,
+                   "setup: a research, a mining and a salvage station");
         AssertFalse(research.CanBecomeDerelict, "a research station");
         AssertFalse(mining.CanBecomeDerelict, "a mining station");
+        AssertFalse(salvage.CanBecomeDerelict, "a salvage station");
 
         TestShip station = SpawnShip("Cordrazine Small Station Mk1", Player, Site(10));
         AssertTrue(station.IsStation, "setup: a station");

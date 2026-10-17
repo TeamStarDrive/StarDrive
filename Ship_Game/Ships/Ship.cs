@@ -199,6 +199,8 @@ namespace Ship_Game.Ships
         public bool IsDysonSwarmController  => ShipData.IsDysonSwarmController;
         public bool IsResearchStation       => ShipData.IsResearchStation;
         public bool IsMiningStation         => ShipData.IsMiningStation;
+        public bool IsSalvageStation        => ShipData.IsSalvageStation;
+        public bool IsSalvagePlatform       => ShipData.IsSalvagePlatform;
 
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
@@ -387,7 +389,7 @@ namespace Ship_Game.Ships
 
             if (Loyalty.isPlayer)
             {
-                if (!forAttack && (IsPlatformOrStation || IsSubspaceProjector))
+                if (IsSalvagePlatform || (!forAttack && (IsPlatformOrStation || IsSubspaceProjector)))
                     return false;
 
                 if (!CanTakeFleetOrders)
@@ -667,7 +669,7 @@ namespace Ship_Game.Ships
         public bool IsHangarShip   => Mothership != null;
         public bool IsHomeDefense  => HomePlanet != null;
         public bool CanBeRefitted  => CanBeScrapped;
-        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false };
+        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false } && !IsSalvagePlatform;
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays 
@@ -1714,7 +1716,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // frigate and bigger military ships, and untethered stations that are not research, mining, Dyson swarm or portal stations
+        // frigate and bigger military ships, and untethered stations that are not research, mining, salvage, Dyson swarm or portal stations
         public bool CanBecomeDerelict
         {
             get
@@ -1722,7 +1724,7 @@ namespace Ship_Game.Ships
                 if (IsMeteor || IsLaunchingOrLanding)
                     return false;
                 if (ShipData.IsStation)
-                    return TetheredTo == null && !IsResearchStation && !IsMiningStation && !IsDysonSwarmController
+                    return TetheredTo == null && !IsResearchStation && !IsMiningStation && !IsSalvageStation && !IsDysonSwarmController
                         && !(Loyalty.WeAreRemnants && Name == Loyalty.data.RemnantPortal);
                 return ShipData.HullRole is >= RoleName.frigate and <= RoleName.capital
                     && DesignRoleType is RoleType.Warship or RoleType.WarSupport or RoleType.Troop;

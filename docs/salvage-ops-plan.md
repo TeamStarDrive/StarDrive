@@ -121,8 +121,8 @@ most one derelict, and a failure to make one is logged.
   - Each race names one in `DefaultSalvageStation`. The picker takes the design with the most salvage modules, then
     the most cargo room, then the sturdiest per slot, as `PickMiningStation` does (295), and the Automation window
     gets a dropdown for it (279).
-  - Designs per race are Gilad's: the station and the platform (280). The modules are unlocked by Platforms in
-    Combined Arms and by Starship Construction in vanilla and Star Trek (139, 153).
+  - Designs per race are Gilad's: the station and the platform (280). The modules are unlocked by Small Stations in
+    vanilla (312), by Platforms in Combined Arms and by Starship Construction in Star Trek (139, 153).
 - **Ordering a station, as mining stations are ordered:**
   - **The cap (269 A, 278):** one salvage station per empire per system, built and ordered together, so empires
     can each have one in the same system. It is a fixed rule, with no Globals knob.
@@ -142,8 +142,10 @@ most one derelict, and a failure to make one is logged.
       constructor.
   - **The player's auto-build switch (252)** comes with the AI planner, in the ai sub-branch.
 - **The salvage platform (271 A, 280, 283-285):**
-  - Each race names a fixed platform design in `DefaultSalvagePlatform`. The ship designer and the orbital pickers
-    ignore it, and it has no dropdown (279, 290). It cannot be refit or boarded (285), and has no upkeep (284).
+  - One fixed design for every race, `Salvage Platform` in `ShipDesigns/Mandatory`, known by its name as the
+    subspace projector is (314). No empire builds it from a list, the ship designer lists it only with debug features
+    on, the orbital pickers never see it, and it has no dropdown (279, 290). The player cannot order, refit, scrap or
+    list it. It cannot be boarded (285), and has no upkeep (284).
   - The Salvage button on the derelict's panel (277) gives the derelict to a free module of the empire's station in
     its system. The buttons are greyed out when the empire has no station there or no free module. The mode is fixed
     once the constructor launches; Recover comes with phase 3.
@@ -288,9 +290,9 @@ most one derelict, and a failure to make one is logged.
     lists;
   - techs stay as they are (no `RequiresSalvageOps` flag for now).
 - **Off by the Globals flag, also (166):** the load-time checks for the salvage default ships are skipped.
-  - That means the per-race defaults `DefaultSalvageStation` and `DefaultSalvagePlatform`, checked like
-    `DefaultMiningStation` in `CheckForRequiredShipDesigns` (`ResourceManager.cs:2274`), and any global default in
-    its `requiredShips` list.
+  - That means the per-race default `DefaultSalvageStation`, checked like `DefaultMiningStation` in
+    `CheckForRequiredShipDesigns` (`ResourceManager.cs:2274`), and the `Salvage Platform` design, required like the
+    designs in its `requiredShips` list (314).
   - A mod without salvage designs then logs no errors.
 - **The rule option when the Globals flag is off (167):** shown greyed out and ticked, with a tooltip that says the
   mod has no salvage content.
@@ -397,9 +399,9 @@ Implementation notes:
      checkbox, and in it the one switch for research and mining station deployments that salvage stations join
      later (289, 300); the troops leaving a captured station before the pirate scuttle (298);
    - the salvage module, `<Salvage>True</Salvage>`, on station hulls only (290, 297);
-   - the station and platform designs (Gilad, 280); `DefaultSalvageStation` and `DefaultSalvagePlatform`, their load
-     checks, the station picker and its Automation dropdown (279, 295); the design issue for too little cargo
-     (302); no refit (293); the orbital pickers ignore both (290);
+   - the station and platform designs (Gilad, 280); each race's `DefaultSalvageStation` and the one `Salvage Platform`
+     design (314), their load checks, the station picker and its Automation dropdown (279, 295); the design issue for
+     too little cargo (302); no refit (293); the orbital pickers ignore both (290);
    - the switches hide the salvage module and the station and platform designs, and the Globals flag skips their
      load checks (227);
    - ordering a station: the `SalvageOps` goal, one per empire per system, Deep Space Build, the button on the
@@ -420,18 +422,19 @@ Implementation notes:
    - the module's free constructor and the platform it builds (271, 283);
    - the claim, the "salvaged by" flag and the timer's stop (272-274);
    - the platform's work: stripping at `SalvageSpeed` and keeping it on board, with a `CargoShuttles` route to the
-     derelict and sparks on it (282, 286);
+     derelict and sparks on it (282, 286); the selected platform's panel shows the salvage progress, as a selected
+     mining ship's shows its own; the player can select a platform but gives it no orders (314);
    - the hull dissolving, after which it can no longer be selected, nor reached from its notification, though its
      turns have not run out;
    - the chunks to the station with their shuttles, and the platform dismantled (276, 282, 292);
-   - losses and takeovers (275, 291);
+   - losses and takeovers (275, 291), and boarders never taking a platform (285);
    - the tech payout with its check (159, 287);
    - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301).
 5. **hauling**: freighters pick up a station's stored production for colonies that import it (132 B).
 6. **ai**: the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
-   and platforms kept out of danger, pirates in recover mode (176), and later their raids to capture a salvage
-   station.
+   and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
+   they have no small station hull (315), and later their raids to capture a salvage station.
 7. **recovery** (phase 3): the Recover button, recovery work at the salvage speed (288), the roll, break-up and
    catastrophic explosion, the recovered ship's damage rule, the order home (175), the recovery notification, and
    the techs that raise the salvage speed (270).

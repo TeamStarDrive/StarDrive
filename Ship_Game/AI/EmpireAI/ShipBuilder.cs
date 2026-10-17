@@ -70,7 +70,8 @@ namespace Ship_Game.AI
                                           && !s.IsSubspaceProjector
                                           && !s.IsDysonSwarmController
                                           && !s.IsResearchStation
-                                          && !s.IsMiningStation);
+                                          && !s.IsMiningStation
+                                          && !s.IsSalvageStation);
 
             if (potentialShips.Count == 0)
             {
@@ -470,6 +471,7 @@ namespace Ship_Game.AI
                 || bestShip.IsSubspaceProjector
                 || bestShip.IsResearchStation
                 || bestShip.IsMiningStation
+                || bestShip.IsSalvageStation
                 || bestShip.IsDysonSwarmController)
             {
                 return null;

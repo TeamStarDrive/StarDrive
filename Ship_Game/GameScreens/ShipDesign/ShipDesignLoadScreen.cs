@@ -424,6 +424,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 && (Screen.Player.WeCanBuildThis(design) || CanShowPlayerLockedDesign(design))
                 && (!design.IsSubspaceProjector || Screen.EnableDebugFeatures) // ignore subspace projectors (unless debug features are enabled)
                 && (!design.IsDysonSwarmController || Screen.EnableDebugFeatures) // ignore Dyson Swarm Sats (unless debug features are enabled)
+                && (!design.IsSalvagePlatform || Screen.EnableDebugFeatures) // ignore the salvage platform (unless debug features are enabled)
                 && (!design.IsUnitTestShip || Screen.EnableDebugFeatures) // ignore unit testing ships (unless debug features are enabled)
                 && ResourceManager.ShipRoles.TryGetValue(design.Role, out ShipRole sr) && !sr.Protected;
         }

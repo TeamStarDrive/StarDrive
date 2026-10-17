@@ -51,7 +51,7 @@ Globals:
   UseCombatRepair: false
   DisableRemnantStory: false
   DisablePirates: false
-  EnableSalvageOps: false # salvageable derelicts and salvage yards; not inherited from vanilla, turn it on once the mod has salvage designs
+  EnableSalvageOps: false # salvageable derelicts and salvage stations; not inherited from vanilla, turn it on once the mod has salvage designs
   AIUsesPlayerDesigns: true
   EnableRandomizedAIFleetSizes: true  
 

@@ -262,6 +262,7 @@ namespace Ship_Game
 
         [StarData] public string DefaultResearchStation;
         [StarData] public string DefaultMiningStation;
+        [StarData] public string DefaultSalvageStation;
 
         // FB - Thruster Colors
         [StarData] public byte ThrustColor0R;

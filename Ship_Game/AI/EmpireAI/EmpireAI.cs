@@ -390,6 +390,7 @@ namespace Ship_Game.AI
                     || !ship.CanBeRefitted
                     || ship.IsResearchStation
                     || ship.IsMiningStation
+                    || ship.IsSalvageStation
                     || ship.IsMiningShip
                     || ship.ShipData.IsColonyShip
                     || ship.IsConstructor)

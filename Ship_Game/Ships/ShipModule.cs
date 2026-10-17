@@ -191,6 +191,7 @@ namespace Ship_Game.Ships
         public float AmplifyShields              => Flyweight.AmplifyShields;
         public float ResearchPerTurn             => Flyweight.ResearchPerTurn;
         public float Refining                    => Flyweight.Refining;
+        public bool Salvage                      => Flyweight.Salvage;
 
         /// <summary>
         /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(float)"/>

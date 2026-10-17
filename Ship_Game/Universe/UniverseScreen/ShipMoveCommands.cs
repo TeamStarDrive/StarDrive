@@ -229,7 +229,7 @@ namespace Ship_Game.Universe
 
         public bool AttackSpecificShip(Ship ship, Ship target)
         {
-            if (ship.IsConstructor || ship.IsSupplyShuttle)
+            if (ship.IsConstructor || ship.IsSupplyShuttle || ship.IsSalvagePlatform)
             {
                 GameAudio.NegativeClick();
                 return false;
