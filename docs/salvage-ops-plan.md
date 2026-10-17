@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-355 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-362 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-355 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-362 from sub-branch 3. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -221,16 +221,30 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     turn to its station, a Globals knob with default 100, each chunk with a visual shuttle. It sends what fits, and
     waits while the station is full. Once it is empty it is dismantled, and its module is free.
   - Production that does not fit never turns into credits (replaces 149 and 157).
-- **Losses (275, 285, 291, 296, 298):**
+- **Losses (275, 285, 291, 296, 298, 356-360, 362):**
   - A destroyed platform releases its claim, and what it held is lost; the derelict keeps what is left of it.
   - A station that is lost (destroyed, boarded or scrapped) leaves its platforms working: they strip on and hold
     their production until their empire has a station in that system again, which takes them over, even beyond its
     module count (291).
-  - A boarded station works for its new owner. If the new owner already has a station in that system, the boarders
-    launch as troop transports and the station is scuttled (285), as captured stations are after 298. Taking one over
-    costs no trust, which is for building one (350-354).
-  - An absorbed empire's platforms and claims go to the absorbing empire. A second station in one system is
-    scuttled, and the absorber's station takes over its platforms (296).
+  - A station is taken over at the moment it changes hands, by boarding or by a gift, a merger's included
+    (`SalvageOps.TakeOver`, called from `LoyaltyChanges`): its old owner's order ends, and its new owner gets one from
+    the salvage step on, whatever the old owner was, so a defeated empire's station works for its rebels and one taken
+    from pirates works for its boarder. The change of hands runs on the sim thread, and is queued for it when a save
+    or the UI applies it; a queued one that the station's loss or a later change of hands has overtaken does nothing.
+    An order that finds its station in other hands, as after a save that caught a change of hands halfway, hands it
+    on. `UniverseObjectManager.UpdateLists` cleans up a ship removed as it changes hands, as an evacuated station is.
+  - Taking one over brings no built notification and costs no trust, which is for building one (350-354). An order of
+    the new owner's there not yet built is dropped with its constructor (356 A). If the new owner already has a station
+    in that system that still stands, a boarded station's boarders launch as troop transports, it is evacuated at once,
+    as an extra research station is, and a player is told, with text 7165 (285, 357 A). Pirates keep one they board,
+    for now, though they scuttle a projector, research or mining station (358 B).
+  - An absorbed empire's platforms and claims go to the absorbing empire, and so do its stations, which change hands
+    a step after the merger; an order of the absorber's there not yet built is dropped (356 A). Where the absorber
+    already has a station, the absorbed one is removed at once with its troops, as an absorbed research station is,
+    and no one is told (296, 359), though by then its troops are the absorber's and could launch (kept, 362 A). The
+    absorber's station takes over the removed one's platforms (296).
+  - The Codex says so in 100086 (Deep Space Building), and 100130 (Federations) adds the salvage stations to the
+    ships a merger loses (360).
 - **Knowledge (Gilad, 2026-10-16; 257-265):**
   - Each system holds its salvageable derelicts, and each empire holds the set of systems with salvageable derelicts
     it knows of. An empire that lists a system knows every derelict in it. The AI reads these lists.
@@ -303,7 +317,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - the result of each of your recovery rolls.
 - **Pirates (176):** pirates salvage too, in *recover* mode only: they take ships, never production or techs. This
   is for now. How they reach a derelict is settled in the ai sub-branch; later they may raid a salvage station to
-  capture it, and recover the derelicts in its system with it.
+  capture it, and recover the derelicts in its system with it. A salvage station pirates board already stays theirs
+  (358 B), but does nothing for them until then.
 
 ### Recovery
 
@@ -430,9 +445,8 @@ Implementation notes:
   platforms and projectors always have it (`ShipStats.cs:69`). Without it the engines give no thrust
   (`ShipEngines.cs:65`) and `Resupply()` returns `NoCommand` (`ShipResupply.cs:87`).
 - **Captured stations.** Pirates scuttle a captured subspace projector, research station or mining station on a 20 s
-  timer (`Ship.PiratePostChangeLoyalty`), and the troops aboard die with it. That is a bug (298): the troops are to
-  launch first, as planets launch invading troops after peace (`Planet.ForceLaunchInvadingTroops`), and fly to their
-  nearest planet, or home for pirates. The fix goes on `jupiter-1.60/fixes_50`.
+  timer (`Ship.PiratePostChangeLoyalty`). The troops aboard used to die with it; since 298, fixed on
+  `jupiter-1.60/fixes_50`, they launch first and fly home. A salvage station pirates board is kept (358 B).
 
 ## Sub-branches
 
@@ -471,16 +485,17 @@ Implementation notes:
    - ordering a station: the `SalvageOps` goal, one per empire per system, Deep Space Build, the button on the
      derelict's panel, the Exotic Systems rows and their derelicts window, and the abort (248-251, 269, 278,
      330, 345-347);
-   - a boarded station working for its new owner, or scuttled after its boarders leave when the new owner already
-     has one there (285); an absorbed empire's second station (296);
+   - a boarded station working for its new owner, whose order there is dropped, or evacuated after its boarders
+     leave when the new owner already has one there, and pirates keeping one they board (285, 356-358); an absorbed
+     empire's stations, and its second station in a system (296, 359); the Codex text for both (360);
    - the trust penalty (152, 161, 350-354);
    - a salvageable derelict's production never below 50, times the production pace (355);
    - the station-built notification, under the switch it shares (300);
    - left from sub-branch 2:
      - Gilad's check in game that a ship entering a system with derelicts brings the notification, with debug mode
        off, since debug mode shows the player every ship and so a debug kill is always known as it forms;
-     - 267: whether saves made on the salvageable branch before `c1e1ef38a`, whose salvageable derelicts load with no
-       system, get a fallback;
+     - 267: saves made on the salvageable branch before `c1e1ef38a`, whose salvageable derelicts load with no system,
+       get no fallback, as no save made during feature work does (Gilad, 2026-10-17; 361);
      - 268: whether the infiltration Codex entries (100190, 100196, 100199) mention that the top level shows a rival's
        derelicts.
 4. **salvaging** (247):
@@ -493,7 +508,8 @@ Implementation notes:
    - the hull dissolving, after which it can no longer be selected, nor reached from its notification, though its
      turns have not run out;
    - the chunks to the station with their shuttles, and the platform dismantled (276, 282, 292);
-   - losses and takeovers (275, 291), and boarders never taking a platform (285);
+   - losses and takeovers (275, 291), boarders never taking a platform (285), and the absorber's station taking
+     over the platforms of an absorbed second station (296);
    - the tech payout with its check (159, 287);
    - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301).
 5. **hauling**: freighters pick up a station's stored production for colonies that import it (132 B).

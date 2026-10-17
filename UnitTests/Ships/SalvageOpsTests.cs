@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
@@ -31,7 +33,15 @@ namespace UnitTests.Ships;
 /// the station is deployed; with no design to build it says so in grey. A built station costs the builder trust, once,
 /// with each AI that has a colony in its system and knows it, unless the two have open borders, an alliance or a war:
 /// the AI personality's value, 5 for all, times a difficulty multiplier when the builder is the player. The value
-/// survives a save, 0 included.
+/// survives a save, 0 included. A boarded station works for its boarder as it changes hands, past the build, with no
+/// built notice and no trust cost, and takes the place of the boarder's order there; where the boarder has a station
+/// already, its troops leave and it is evacuated, and the player is told, though one just lost does not count. Pirates
+/// keep one they board. An absorbed empire's station works for the absorber once it changes hands a step later, or is
+/// removed with its troops where the absorber has one, with no one told, and either way an evacuated or removed one
+/// leaves its owner's ships. One boarded from an empire that then merges stays with its boarder, a defeated empire's
+/// works for its rebels, and one taken over survives a save. A change of hands applied off the sim thread is taken over
+/// on it, unless the station is gone or has changed hands again by then; an order that finds its station in other
+/// hands hands it on, once.
 /// </summary>
 [TestClass]
 public class SalvageOpsTests : StarDriveTest
@@ -46,7 +56,7 @@ public class SalvageOpsTests : StarDriveTest
 
     public SalvageOpsTests()
     {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station");
+        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", "Assault Shuttle");
         CreateUniverseAndPlayerEmpire();
         WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
         AddHomeWorldToEmpire(new Vector2(200_000f), Player);
@@ -677,6 +687,324 @@ public class SalvageOpsTests : StarDriveTest
         SalvageOps.CostTrustOfColonyOwners(builder, system); // it has no relationship with itself to ask about
         AssertEqual(0f, loaded.UState.GetEmpireByName(Enemy.Name).data.DiplomaticPersonality.SalvageStationTrustLoss,
                     "and a personality's loss of 0 survives the save");
+    }
+
+    SalvageOps BuiltStation(Empire owner, Vector2 at)
+    {
+        var order = new SalvageOps(owner, WreckSystem, at, Station);
+        owner.AI.AddGoal(order);
+        order.AdvanceToNextStep(); // past the queueing, which needs a port
+        order.TargetShip = SpawnShip(Station.Name, owner, at);
+        order.Evaluate();
+        AssertEqual("Salvage", order.StepName, "setup: the station is built");
+        return order;
+    }
+
+    void Board(Ship station, Empire boarder)
+    {
+        station.KillAllTroops();
+        ResourceManager.CreateTroop("Wyvern", boarder).LandOnShip(station);
+        station.LoyaltyChangeFromBoarding(boarder, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        AssertEqual(boarder, station.Loyalty, "setup: the boarder holds the station");
+    }
+
+    NotificationManager TrackNotifications()
+    {
+        Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+        return Universe.NotificationManager;
+    }
+
+    Goal StationGoalOf(Empire empire) => empire.AI.FindGoal(g => g.IsSalvageOpsGoal(WreckSystem));
+
+    [TestMethod]
+    public void ABoardedStationWorksForItsBoarderWithNoBuiltNoticeNorTrustCost()
+    {
+        CreateThirdMajorEmpire();
+        Forms(Enemy, InSystem);
+        SalvageOps theirs = BuiltStation(Enemy, BuildPos);
+        Ship station = theirs.TargetShip;
+        WreckSystem.PlanetList[0].SetOwner(ThirdMajor);
+        ThirdMajor.GetRelations(Player).AtWar = Player.GetRelations(ThirdMajor).AtWar = false;
+        Relationship aiToPlayer = ThirdMajor.GetRelations(Player);
+        float trust = aiToPlayer.Trust;
+        NotificationManager notifications = TrackNotifications();
+
+        Board(station, Player);
+        Assert.IsFalse(Enemy.AI.HasGoal(g => g == theirs), "the old owner's order ends as the station changes hands");
+        Assert.IsTrue(SalvageOps.CanOrderIn(Enemy, WreckSystem), "so it can order another there");
+        Goal ours = StationGoalOf(Player);
+        AssertEqual(station, ours?.TargetShip, "the station works for its boarder");
+        AssertEqual("Salvage", ours.StepName, "past the build");
+        AssertEqual(trust, aiToPlayer.Trust, "taking one over costs no trust, which is for building one");
+        AssertEqual(0, notifications.NumberOfNotifications, "and tells of no station built");
+
+        ours.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(g => g == ours), "the boarder keeps it");
+    }
+
+    [TestMethod]
+    public void ABoardedStationTakesThePlaceOfTheBoardersOrderNotYetBuilt()
+    {
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        var order = new SalvageOps(Player, WreckSystem, BuildPos + new Vector2(0, -10_000f), Station);
+        Player.AI.AddGoalAndEvaluate(order);
+        Assert.IsTrue(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(WreckSystem)), "setup: the player's station is queued");
+
+        Board(station, Player);
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "the player's order is dropped");
+        Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(WreckSystem)), "with its construction");
+        AssertEqual(station, StationGoalOf(Player)?.TargetShip, "for the station taken");
+        Assert.IsTrue(station.Active, "which stays");
+    }
+
+    [TestMethod]
+    public void ABoardedStationIsEvacuatedWhereTheBoarderHasOneItsTroopsLeavingFirst()
+    {
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        SalvageOps theirs = BuiltStation(Enemy, BuildPos);
+        SalvageOps ours = BuiltStation(Player, BuildPos + new Vector2(0, -10_000f));
+        Ship station = theirs.TargetShip;
+        NotificationManager notifications = TrackNotifications();
+
+        Board(station, Player);
+        Assert.IsFalse(station.Active, "the boarded station is evacuated");
+        Assert.IsFalse(Enemy.AI.HasGoal(g => g == theirs), "the old owner's order ends");
+        AssertEqual(ours, StationGoalOf(Player), "the player keeps its own station there");
+        AssertEqual(1, Player.AI.CountGoals(g => g.IsSalvageOpsGoal(WreckSystem)), "and only that one");
+        Assert.IsTrue(notifications.IsNotificationPresent(Localizer.Token(GameText.RemoveExcessSalvageStation)), "and is told");
+
+        RunObjectsSim(TestSimStep);
+        Assert.IsFalse(Player.OwnedShips.Contains(station) || UState.Objects.GetShips().Contains(station), "it leaves the player's ships and the universe");
+        Ship[] shuttles = UState.Objects.GetShips().Filter(s => s.Loyalty == Player && s.IsDefaultAssaultShuttle);
+        AssertEqual(1, shuttles.Length, "the boarder's troop leaves in an assault shuttle first");
+        AssertEqual(1, shuttles[0].TroopCount, "with the troop on board");
+    }
+
+    [TestMethod]
+    public void AStationBoardedBeforeTheOrderOfOneJustLostEndsWorksForTheBoarder()
+    {
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        SalvageOps lost = BuiltStation(Player, BuildPos + new Vector2(0, -10_000f));
+        lost.TargetShip.Die(null, cleanupOnly: true);
+
+        Board(station, Player);
+        Assert.IsTrue(station.Active, "a station just lost does not count as one there");
+        Assert.IsTrue(Player.AI.HasGoal(g => g.IsSalvageOpsGoal(WreckSystem) && g.TargetShip == station), "so the boarded one works for the player");
+
+        lost.Evaluate();
+        AssertEqual(1, Player.AI.CountGoals(g => g.IsSalvageOpsGoal(WreckSystem)), "and is the one left once the lost one's order ends");
+    }
+
+    [TestMethod]
+    public void PiratesKeepASalvageStationTheyBoard()
+    {
+        CreateAMinorFaction("Corsairs");
+        Empire raiders = Faction;
+        Assert.IsTrue(raiders.WeArePirates, "setup: pirates");
+        Forms(Player, InSystem);
+        Ship station = BuiltStation(Player, BuildPos).TargetShip;
+
+        Board(station, raiders);
+        AssertLessThan(station.ScuttleTimer, 0f, "the pirates do not scuttle it");
+        AssertEqual(station, StationGoalOf(raiders)?.TargetShip, "it works for them as for any boarder");
+        AssertEqual(1, station.TroopCount, "and their troop holds it");
+    }
+
+    // two steps of the objects: the first puts new ships in their empires' lists and in the spatial index, from which the second finds their systems
+    void Settle(Ship station)
+    {
+        RunObjectsSim(TestSimStep);
+        RunObjectsSim(TestSimStep);
+        AssertEqual(WreckSystem, station.System, "setup: the station is in its system");
+    }
+
+    [TestMethod]
+    public void AnAbsorbedEmpiresStationWorksForTheAbsorberOnceItChangesHands()
+    {
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        var order = new SalvageOps(Player, WreckSystem, BuildPos + new Vector2(0, -10_000f), Station);
+        Player.AI.AddGoalAndEvaluate(order);
+        UState.Objects.UpdateLists();
+        Assert.IsTrue(Enemy.OwnedShips.Contains(station) && station.System == null, "setup: a station among its empire's ships, not yet placed in its system");
+
+        Player.AbsorbEmpire(Enemy);
+        RunObjectsSim(TestSimStep);
+        AssertEqual(Player, station.Loyalty, "setup: the station changes hands a step after the merger");
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "the absorber's order there is dropped");
+        Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(WreckSystem)), "with its construction");
+        Goal ours = StationGoalOf(Player);
+        AssertEqual(station, ours?.TargetShip, "for the absorbed station");
+        AssertEqual("Salvage", ours.StepName, "past the build");
+    }
+
+    [TestMethod]
+    public void AnAbsorbedEmpiresStationIsRemovedWithItsTroopsWhereTheAbsorberHasOne()
+    {
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        SalvageOps ours = BuiltStation(Player, BuildPos + new Vector2(0, -10_000f));
+        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(station);
+        Settle(station);
+        NotificationManager notifications = TrackNotifications();
+
+        Player.AbsorbEmpire(Enemy);
+        RunObjectsSim(TestSimStep);
+        Assert.IsFalse(station.Active, "the absorbed station is removed");
+        AssertEqual(ours, StationGoalOf(Player), "the absorber keeps its own");
+        AssertEqual(1, Player.AI.CountGoals(g => g.IsSalvageOpsGoal(WreckSystem)), "and only that one");
+        Assert.IsFalse(notifications.IsNotificationPresent(Localizer.Token(GameText.RemoveExcessSalvageStation)), "no one is told");
+
+        RunObjectsSim(TestSimStep);
+        Assert.IsFalse(Player.OwnedShips.Contains(station) || UState.Objects.GetShips().Contains(station), "it leaves the absorber's ships and the universe");
+        AssertEqual(0, UState.Objects.GetShips().Count(s => s.IsDefaultAssaultShuttle), "and no troop leaves it in a shuttle");
+    }
+
+    [TestMethod]
+    public void AStationBoardedFromAnEmpireThatThenMergesStaysWithItsBoarder()
+    {
+        CreateThirdMajorEmpire();
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        SalvageOps ours = BuiltStation(Player, BuildPos + new Vector2(0, -10_000f));
+        Settle(station);
+
+        Board(station, ThirdMajor);
+        Player.AbsorbEmpire(Enemy);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(station.Active && station.Loyalty == ThirdMajor, "the boarder keeps the station");
+        AssertEqual(station, StationGoalOf(ThirdMajor)?.TargetShip, "which works for it");
+        AssertEqual(ours, StationGoalOf(Player), "and the absorber keeps its own");
+    }
+
+    [TestMethod]
+    public void ADefeatedEmpiresStationWorksForItsRebels()
+    {
+        Forms(Enemy, InSystem);
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        Settle(station);
+
+        Enemy.SetAsDefeated();
+        RunObjectsSim(TestSimStep);
+        Empire rebels = station.Loyalty;
+        Assert.IsTrue(station.Active && rebels != Enemy, "setup: the station goes to the defeated empire's rebels");
+        AssertEqual(station, StationGoalOf(rebels)?.TargetShip, "and works for them, so whoever boards it takes it over");
+    }
+
+    // the player's boarders hold the station, and the change of hands is applied off the sim thread, as a save or the UI does
+    void BoardOffTheSimThread(Ship station)
+    {
+        station.KillAllTroops();
+        ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(station);
+        station.LoyaltyChangeFromBoarding(Player, addNotification: false);
+        FieldInfo simThread = typeof(UniverseScreen).GetField("SimThread", BindingFlags.Instance | BindingFlags.NonPublic);
+        simThread.SetValue(Universe, new Thread(() => { }));
+        try
+        {
+            UState.Objects.UpdateLists();
+        }
+        finally
+        {
+            simThread.SetValue(Universe, null);
+        }
+        AssertEqual(Player, station.Loyalty, "setup: the station changes hands");
+    }
+
+    [TestMethod]
+    public void AChangeOfHandsOffTheSimThreadIsTakenOverOnIt()
+    {
+        Forms(Enemy, InSystem);
+        SalvageOps theirs = BuiltStation(Enemy, BuildPos);
+        Ship station = theirs.TargetShip;
+
+        BoardOffTheSimThread(station);
+        Assert.IsTrue(Enemy.AI.HasGoal(g => g == theirs) && StationGoalOf(Player) == null, "the takeover waits for the sim thread");
+
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsFalse(Enemy.AI.HasGoal(g => g == theirs), "where the old owner's order ends");
+        AssertEqual(station, StationGoalOf(Player)?.TargetShip, "and the station works for its boarder");
+    }
+
+    [TestMethod]
+    public void AStationLostBeforeItsTakeoverReachesTheSimThreadIsNotTakenOver()
+    {
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        var order = new SalvageOps(Player, WreckSystem, BuildPos + new Vector2(0, -10_000f), Station);
+        Player.AI.AddGoalAndEvaluate(order);
+
+        BoardOffTheSimThread(station);
+        station.Die(null, cleanupOnly: true);
+        Universe.InvokePendingSimThreadActions();
+        AssertEqual(order, StationGoalOf(Player), "a station gone by then is not taken over, and the player's order there stands");
+        Assert.IsTrue(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(WreckSystem)), "with its construction");
+    }
+
+    [TestMethod]
+    public void AQueuedTakeoverOvertakenByAnotherChangeOfHandsDoesNothing()
+    {
+        CreateThirdMajorEmpire();
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        SalvageOps ours = BuiltStation(Player, BuildPos + new Vector2(0, -10_000f));
+
+        BoardOffTheSimThread(station);
+        Board(station, ThirdMajor);
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsTrue(station.Active && station.Loyalty == ThirdMajor, "the player's queued takeover leaves the station its last boarder took");
+        AssertEqual(station, StationGoalOf(ThirdMajor)?.TargetShip, "which works for it");
+        AssertEqual(ours, StationGoalOf(Player), "and the player keeps its own");
+    }
+
+    [TestMethod]
+    public void AnOrderWhoseStationChangedHandsWithoutItHandsItOnOnce()
+    {
+        Forms(Enemy, InSystem);
+        SalvageOps theirs = BuiltStation(Enemy, BuildPos);
+        Ship station = theirs.TargetShip;
+
+        BoardOffTheSimThread(station);
+        theirs.Evaluate();
+        Assert.IsFalse(Enemy.AI.HasGoal(g => g == theirs), "an order that finds its station in other hands ends");
+        Goal ours = StationGoalOf(Player);
+        AssertEqual(station, ours?.TargetShip, "handing it to its new owner");
+
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsTrue(station.Active, "the queued takeover, overtaken, does not evacuate the station");
+        AssertEqual(1, Player.AI.CountGoals(g => g.IsSalvageOpsGoal(WreckSystem)), "nor gives it a second order");
+        AssertEqual(ours, StationGoalOf(Player), "the first one holds it");
+    }
+
+    [TestMethod]
+    public void AStationTakenOverSurvivesSaveAndLoad()
+    {
+        Forms(Enemy, InSystem);
+        Board(BuiltStation(Enemy, BuildPos).TargetShip, Player);
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageTakeOver", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+
+        Empire player = loaded.UState.Player;
+        var ours = (SalvageOps)player.AI.FindGoal(g => g is SalvageOps);
+        AssertEqual(WreckSystem.Name, ours?.TargetSystem?.Name, "the station's order loads with its system");
+        AssertEqual("Salvage", ours.StepName, "past the build");
+        Assert.IsTrue(ours.TargetShip is { Active: true, IsSalvageStation: true } && ours.TargetShip.Loyalty == player, "holding the station");
+
+        ours.Evaluate();
+        Assert.IsTrue(player.AI.HasGoal(g => g == ours), "and keeps it in the loaded game");
     }
 
     // the basic station, less one salvage unit if asked, plus medium cargo holds in a strip below its grid

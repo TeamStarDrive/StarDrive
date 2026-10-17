@@ -6224,6 +6224,8 @@ namespace Ship_Game
         DeploySalvageStation = 7163,
         /// <summary>Salvage Station Deployed</summary>
         SalvageStationDeployed = 7164,
+        /// <summary>Salvage Station was evacuated since you</summary>
+        RemoveExcessSalvageStation = 7165,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

@@ -8,7 +8,7 @@ using Ship_Game.Utils;
 
 namespace Ship_Game.Commands.Goals
 {
-    // an empire's one salvage station in a system: ordered, built by a constructor, then kept while it lasts
+    // an empire's one salvage station in a system: ordered and built by a constructor, or taken over, then kept while it lasts
     [StarDataType]
     public class SalvageOps : Goal
     {
@@ -38,6 +38,15 @@ namespace Ship_Game.Commands.Goals
             TargetSystem = system;
             StaticBuildPos = buildPos;
             StationToBuild = stationToBuild;
+        }
+
+        // a station that changes hands skips the build, its notification and its trust cost
+        public SalvageOps(Empire owner, Ship station, SolarSystem system) : this(owner)
+        {
+            StarDateAdded = owner.Universe.StarDate;
+            TargetSystem = system;
+            TargetShip = station;
+            ChangeToStep(Salvage);
         }
 
         // only in a system with a salvageable derelict the empire knows of, and one per empire per system
@@ -167,6 +176,52 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
+        // a ship is placed in its system a step after it spawns, so until then its position tells
+        static SolarSystem SystemOf(Ship station)
+        {
+            if (station.System != null)
+                return station.System;
+            SolarSystem closest = station.Universe.FindClosestSystem(station.Position);
+            return closest != null && station.Position.InRadius(closest.Position, closest.Radius) ? closest : null;
+        }
+
+        static bool HasStationIn(Empire empire, SolarSystem system)
+            => empire.AI.HasGoal(g => g?.IsSalvageOpsGoal(system) == true && g.TargetShip is { Active: true });
+
+        // as a station changes hands: it works for its new owner, whose order there is dropped; where the new owner has a station already it is evacuated, a boarded one's troops leaving first and a player told
+        public static void TakeOver(Ship station, Empire from, Empire to, bool boarded)
+        {
+            if (station.Universe.Screen is { IsOnSimThread: false } screen) // a save or the UI can apply the change of hands
+            {
+                screen.RunOnSimThread(() => TakeOver(station, from, to, boarded));
+                return;
+            }
+            // a queued call that the station's fate or its own order has overtaken does nothing
+            if (!station.Active || station.Loyalty != to || to.AI.HasGoal(g => g is SalvageOps && g.TargetShip == station))
+                return;
+
+            if (from.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station) is { } held)
+                from.AI.RemoveGoal(held);
+            SolarSystem system = SystemOf(station);
+            if (system == null)
+                return;
+
+            if (HasStationIn(to, system))
+            {
+                if (boarded)
+                {
+                    station.DisengageExcessTroops(station.TroopCount);
+                    if (to.isPlayer)
+                        to.Universe.Notifications?.AddExcessSalvageStationRemoved(station, system);
+                }
+                station.QueueTotalRemoval();
+                return;
+            }
+
+            to.AI.CancelSalvageStation(system);
+            to.AI.AddGoalAndEvaluate(new SalvageOps(to, station, system));
+        }
+
         // an order ends, with any constructor it has, when salvage ops are off (a save loaded under a mod without salvage content), and before its station is built once its system has no derelict left to salvage
         protected override GoalStep? PreEvaluate()
         {
@@ -209,8 +264,15 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep Salvage()
         {
-            if (SalvageStation is not { Active: true } || SalvageStation.Loyalty != Owner)
+            if (SalvageStation is not { Active: true })
                 return GoalStep.GoalFailed;
+
+            // a change of hands this order missed, such as one a save applied, is taken over now
+            if (SalvageStation.Loyalty != Owner)
+            {
+                TakeOver(SalvageStation, Owner, SalvageStation.Loyalty, boarded: false);
+                return GoalStep.GoalComplete;
+            }
 
             return GoalStep.TryAgain;
         }

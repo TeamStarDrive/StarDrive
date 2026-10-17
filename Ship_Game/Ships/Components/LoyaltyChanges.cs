@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
 
@@ -111,6 +112,8 @@ namespace Ship_Game.Ships.Components
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
             SafelyTransferShip(ship, oldLoyalty, newLoyalty);
             newLoyalty.ResetTargetsForShipsTargetingAfterBoarding(ship);
+            if (ship.IsSalvageStation)
+                SalvageOps.TakeOver(ship, oldLoyalty, newLoyalty, boarded: true);
 
             if (notification)
             {
@@ -123,6 +126,8 @@ namespace Ship_Game.Ships.Components
         {
             Empire oldLoyalty = ship.Loyalty;
             SafelyTransferShip(ship, oldLoyalty, newLoyalty);
+            if (ship.IsSalvageStation)
+                SalvageOps.TakeOver(ship, oldLoyalty, newLoyalty, boarded: false);
 
             // TODO: change to absorbed ship notification
             if (notification)
