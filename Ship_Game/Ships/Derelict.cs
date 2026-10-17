@@ -54,6 +54,7 @@ public sealed class Derelict
     [StarDataType]
     public sealed class SaveData
     {
+        [StarData] public int Id;
         [StarData] public IShipDesign Design;
         [StarData] public Empire Owner;
         [StarData] public bool Salvageable;
@@ -68,6 +69,7 @@ public sealed class Derelict
         [StarData] public float Production;
         [StarData] public float ProductionLeft;
         [StarData] public SolarSystem System;
+        [StarData] public Empire Claimant;
         [StarData] public bool[] KnownBy;
         [StarData] public SmokeSource[] Smoke;
     }
@@ -82,6 +84,8 @@ public sealed class Derelict
     readonly AudioEmitter BlastEmitter = new(maxDistance: GameAudio.ShipSfxDistance);
     float NextBlast;
 
+    // unique among the universe's objects, so a salvage order saved with its empire finds it again
+    public readonly int Id;
     public readonly IShipDesign Design;
     public readonly Empire Owner;
     public readonly float Radius;
@@ -95,6 +99,8 @@ public sealed class Derelict
     public float ProductionLeft { get; private set; }
     // a salvageable one's system, where it stops
     public readonly SolarSystem System;
+    // the empire salvaging it, set on the sim thread; its timer stands meanwhile
+    public Empire Claimant { get; private set; }
     public Vector2 Position { get; private set; }
     public float Z { get; private set; }
     public float Age { get; private set; }
@@ -119,6 +125,7 @@ public sealed class Derelict
     {
         Universe = ship.Universe;
         So = so;
+        Id = Universe.CreateId();
         Design = ship.ShipData;
         Owner = ship.Loyalty;
         Salvageable = salvageable;
@@ -166,6 +173,7 @@ public sealed class Derelict
     public Derelict(UniverseState universe, SaveData save)
     {
         Universe = universe;
+        Id = save.Id;
         Design = save.Design.IsAnExistingSavedDesign ? ResourceManager.Ships.GetDesign(save.Design.Name) : save.Design;
         Owner = save.Owner;
         Salvageable = save.Salvageable;
@@ -183,6 +191,7 @@ public sealed class Derelict
         Production = save.Production;
         ProductionLeft = save.ProductionLeft;
         System = save.System;
+        Claimant = save.Claimant;
         KnownBy = save.KnownBy ?? new bool[universe.NumEmpires];
         Smoke = save.Smoke ?? Empty<SmokeSource>.Array;
     }
@@ -195,6 +204,7 @@ public sealed class Derelict
             smoke[i] = new() { Local = Smoke[i].Local, Area = Smoke[i].Area, Type = Smoke[i].Type };
         return new()
         {
+            Id = Id,
             Design = Design,
             Owner = Owner,
             Salvageable = Salvageable,
@@ -209,6 +219,7 @@ public sealed class Derelict
             Production = Production,
             ProductionLeft = ProductionLeft,
             System = System,
+            Claimant = Claimant,
             KnownBy = (bool[])KnownBy.Clone(),
             Smoke = smoke,
         };
@@ -272,11 +283,26 @@ public sealed class Derelict
     // the player finds on the map and selects only the salvageable ones it knows of
     public bool SelectableByPlayer => CanBeSalvaged && KnownByPlayer;
 
-    // once a turn, on the sim thread: its timer runs down
+    // once a turn, on the sim thread: its timer runs down while no empire salvages it
     public void UpdateTurn()
     {
-        if (CanBeSalvaged)
+        if (CanBeSalvaged && Claimant == null)
             --TurnsLeft;
+    }
+
+    // on the sim thread: false when another empire holds it
+    public bool TryClaim(Empire empire)
+    {
+        if (Claimant != null && Claimant != empire)
+            return false;
+        Claimant = empire;
+        return true;
+    }
+
+    // on the sim thread: its timer runs on, and any empire can salvage it again
+    public void ReleaseClaim()
+    {
+        Claimant = null;
     }
 
     // dead modules first, then damaged ones; conduits only spark, so they are left out

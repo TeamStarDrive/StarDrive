@@ -1,13 +1,14 @@
 # Salvage Ops: derelict ships, salvage stations, recovery
 
 An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
-into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
-`jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
-`jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-366 are all settled; 168-175 came from the review of
+into `base` as fixes land. Status (2026-10-17): phase 1 (sub-branch 1, derelicts) shipped through
+`jupiter-1.60/fixes_49` in PR #445. Sub-branches 2 (salvageable) and 3 (stations) are merged into `base`, which holds
+`jupiter-1.60/fixes_50` too, and sub-branch 4 (`feature/salvage-ops/salvaging`) is cut from it; the rest is planned.
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-376 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-366 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, 312-366 from sub-branch 3 and 367-376
+from sub-branch 4. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -92,8 +93,11 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     grey, a column of icons at the top left with tooltips (the original owner's flag, whose tooltip names the empire,
     then a yellow hourglass with the turns left; 240, 241), and on the right, in the ship panel's first bar row, a bar
     of the production remaining out of what it started with (239, 242). The turns and production tooltips link to
-    the Codex. The rest of the right side is kept for bars and buttons: the Salvage and Recover buttons (277), and
-    once it is claimed, the flag of the empire salvaging it (273).
+    the Codex. The Salvage and Recover buttons sit in its drawer (277, 327). Once it is claimed, the flag and name of
+    the empire salvaging it show at the bottom, just above the panel's lower border, under the production icon
+    (273; Gilad, 2026-10-17; 375 D); the flag and name pulse in that empire's colour, fading out and back, and a
+    smaller font fits a long name. The hourglass pulses so while its timer runs, and is grey with its number while the
+    timer stands, its tooltip then saying so (375 H).
 - **Its model (224, 230):** a derelict from an unseen death, one loaded from a save, or one after a content reload has
   no model. It loads one from its hull on the UI thread the first time it is on screen at system view or closer and
   known to the player, and keeps it until it sinks away. With no model it still drifts and sinks; one the player does
@@ -183,8 +187,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       Deploy Salvage Station, placed as the panel button places it, with 7146 as its tooltip; Abort Deployment (4473)
       in the military style once ordered, with no tooltip (347), which also ends an order stuck with no port; Salvage
       Station Deployed in the player's colour once built; and the 7148 grey text when no design can be built. The abort
-      runs on the sim thread. The window will show each derelict's salvaging empire and hold the Salvage and Recover
-      buttons (sub-branches 4 and 7).
+      runs on the sim thread. Each derelict's row shows, beside its hull and name, a bar of its production left as on
+      its panel, the pulsing flag of the empire salvaging it, with its name in the tooltip, and the Salvage button with
+      the panel button's rules and tooltips (Gilad, 2026-10-17; 373 A); the Recover button joins it in sub-branch 7.
     - Texts 7150-7155, 7163 and 7164; the derelict passage of 100093 names the rows and the window's deploy and abort
       (331, reworded for 332, 346 and 349), and tooltip 7157 and Codex 100167 name the window as a way to order
       (346); the Codex tooltip inventory is regenerated for them (348).
@@ -199,6 +204,28 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - The Salvage button on the derelict's panel (277) gives the derelict to a free module of the empire's station in
     its system. The buttons are greyed out when the empire has no station there or no free module. The mode is fixed
     once the constructor launches; Recover comes with phase 3.
+  - **The Salvage button (Gilad, 2026-10-17; 368-373, 375):**
+    - It sits in the drawer's second slot, under Deploy Salvage Station, a square action button with the Salvage
+      Unit's art (375 C): lit while it can order, sunken (the pressed back) while the order stands, grey otherwise.
+    - Each order is a `SalvageDerelict` goal of its own, saved with the empire's goals, holding the derelict by its
+      id and its system; a derelict's id comes from the universe's object ids and is saved with it. The station's
+      `SalvageOps` goal ends with the station, while its platforms work on (291), so the order cannot live there
+      (368 A).
+    - Free units: the station's live salvage units less the empire's orders in that system, every one of which the
+      one station there works, platforms it took over beyond its count included. A busy unit that dies keeps a free
+      one counted busy until its platform is done (369 A).
+    - Greyed, with a tooltip each (371): no built station of the empire's there, one on order or in other hands
+      counting as none; every unit busy; another empire salvaging it, named. Lit with its own tooltip once ordered.
+      Texts 7166-7171.
+    - Orders placed together reach the sim thread one by one, each checked as it arrives: the first ones hold the
+      units, and a second for the same derelict ends. An order whose constructor has not launched ends when its
+      station is lost or has no unit for it, the latest one first.
+    - **The second click (370 B):** it calls the order off on the sim thread, its claim included, so the derelict's
+      timer runs on and any empire can salvage it. A platform at work stops, sends what it has stripped to the station
+      as if it had finished, and goes as a finished one does; the tech check of an empire's work that ends (287) runs
+      too. With the player's salvage on automatic (252, the ai sub-branch) the click does nothing.
+    - Whatever ends an order gives up its claim (`SalvageDerelict.OnRemoved`), the clearing of a defeated or merged
+      empire's goals included; the merger's handing claims to the absorber comes with losses and takeovers (296).
   - The module launches the empire's current constructor design, the one Deep Space Build uses, at no cost (271 A,
     283). The constructor flies to the derelict and builds the platform next to it. If it dies on the way, the order
     stands and the module launches another the next turn.
@@ -208,6 +235,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - The derelict keeps its original owner, whose flag its panel shows and whose design gives its tech list, and adds
     the empire salvaging it (273).
   - Its timer stops at the claim and runs on again if the claim is lost (274).
+  - The derelict holds its claimant, saved with it: `Derelict.TryClaim`, which fails while another empire holds it,
+    and `ReleaseClaim`, both on the sim thread (372). An order on a derelict another empire claimed ends at its next
+    evaluation, freeing its unit.
   - An empire sees and salvages only the derelicts it knows of (137, by the knowledge rules below). Derelicts cannot
     be shot (150).
 - **Work (276, 282, 286, 292):**
@@ -510,10 +540,16 @@ Implementation notes:
        the derelict panel and the derelicts window run the station picker each frame;
      - text 7143 (the salvage module's description) already speaks of platforms and stripping, which come with
        sub-branch 4; for the Codex review stage.
-4. **salvaging** (247):
-   - the Salvage button on the derelict's panel (277);
+4. **salvaging** (branch `feature/salvage-ops/salvaging`, 247), in parts (Gilad, 2026-10-17; 367): 1, the button and
+   the claim; 2, the constructor and the platform, with the Codex sentence of 100093's derelict passage that a
+   claim stops the timer, as claims first happen then (376 A); 3, the work, with the rest of the Codex text for the
+   button and the claim (374 A); 4, the chunks and the dismantling; 5, losses and takeovers; 6, the tech payout; 7,
+   the notifications:
+   - the Salvage button on the derelict's panel and the derelicts window's rows, with the order, its units and its
+     second click (277, 368-373, 375; part 1);
    - the module's free constructor and the platform it builds (271, 283);
-   - the claim, the "salvaged by" flag and the timer's stop (272-274);
+   - the claim, the "salvaged by" flag and the timer's stop (272-274; part 1, the claim made by the constructor in
+     part 2);
    - the platform's work: stripping at `SalvageSpeed` and keeping it on board, with a `CargoShuttles` route to the
      derelict and sparks on it (282, 286); the selected platform's panel shows the salvage progress, as a selected
      mining ship's shows its own; the player can select a platform but gives it no orders (314);

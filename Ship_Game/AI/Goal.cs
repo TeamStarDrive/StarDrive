@@ -57,7 +57,8 @@ namespace Ship_Game.AI
         RemnantDefendPortal,
         MiningOps,
         RemnantHelpEmpire,
-        SalvageOps
+        SalvageOps,
+        SalvageDerelict
     }
 
     public enum GoalStep

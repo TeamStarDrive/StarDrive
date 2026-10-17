@@ -11,7 +11,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with the player's salvage station order there
+// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with the player's salvage station order there and an order to salvage each
 public sealed class SystemDerelictsScreen : GameScreen
 {
     public override bool HelpKeyOpensCodex => true;
@@ -32,19 +32,65 @@ public sealed class SystemDerelictsScreen : GameScreen
         TransitionOffTime = 0.25f;
     }
 
+    // a derelict's hull and name, its production left, the flag of the empire salvaging it and the Salvage button, as on its panel
     sealed class DerelictListItem : ScrollListItem<DerelictListItem>
     {
+        readonly UniverseScreen Universe;
         readonly Derelict Derelict;
+        readonly ProgressBar ProductionBar = new(0, 0, 150, 18) { color = "yellow" };
 
-        public DerelictListItem(Derelict derelict)
+        public DerelictListItem(UniverseScreen universe, Derelict derelict)
         {
+            Universe = universe;
             Derelict = derelict;
         }
 
+        Rectangle ProductionRect => new((int)X + 40, (int)Y + 21, 16, 16);
+        Rectangle ClaimRect => new((int)X + 231, (int)Y + 20, 18, 18);
+        Rectangle SalvageRect => new((int)(X + Width) - 40, (int)Y + 2, 36, 36);
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            batch.Draw(Derelict.Design.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
-            batch.DrawString(Fonts.Arial12Bold, Derelict.Design.Name, new Vector2(X + 40f, Y + 8f), Color.White);
+            batch.Draw(Derelict.Design.Icon, new Rectangle((int)X, (int)Y + 5, 29, 30), Color.White);
+            batch.DrawString(Fonts.Arial12Bold, Derelict.Design.Name, new Vector2(X + 40f, Y + 2f), Color.White);
+
+            Rectangle production = ProductionRect;
+            batch.Draw(ResourceManager.Texture("NewUI/icon_production"), production, Color.White);
+            ProductionBar.SetRect(new Rectangle(production.X + production.Width + 5, (int)Y + 20, 150, 18));
+            ProductionBar.Max = Derelict.Production;
+            ProductionBar.Progress = Derelict.ProductionLeft;
+            ProductionBar.Draw(batch);
+
+            if (Derelict.Claimant is { } claimant)
+                batch.Draw(ResourceManager.Flag(claimant), ClaimRect, Universe.ApplyCurrentAlphaToColor(claimant.EmpireColor));
+
+            SalvageDerelict.Block block = SalvageDerelict.WhyNoOrder(Universe.Player, Derelict);
+            if (block != SalvageDerelict.Block.Gone)
+            {
+                Rectangle salvage = SalvageRect;
+                DerelictSalvageButton.Draw(batch, salvage, block, salvage.HitTest(Universe.Input.CursorPosition));
+            }
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            Vector2 cursor = input.CursorPosition;
+            SalvageDerelict.Block block = SalvageRect.HitTest(cursor) ? SalvageDerelict.WhyNoOrder(Universe.Player, Derelict) : SalvageDerelict.Block.Gone;
+            if (block != SalvageDerelict.Block.Gone)
+            {
+                LocalizedText tip = DerelictSalvageButton.Tooltip(block, Derelict);
+                if (tip.IsValid)
+                    ToolTip.CreateTooltip(tip);
+                if (input.LeftMouseClick)
+                    DerelictSalvageButton.Click(Universe.Player, Derelict, block);
+                return true;
+            }
+
+            if (Derelict.Claimant is { } claimant && ClaimRect.HitTest(cursor))
+                ToolTip.CreateTooltip(string.Format(Localizer.Token(GameText.DerelictSalvagedBy), claimant.Name));
+            else if (ProductionRect.HitTest(cursor) || ProductionBar.pBar.HitTest(cursor))
+                ToolTip.CreateTooltip(GameText.DerelictProductionTip);
+            return base.HandleInput(input);
         }
     }
 
@@ -61,7 +107,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         Derelict[] derelicts = System.Universe.Derelicts.Current;
         for (int i = 0; i < derelicts.Length; ++i)
             if (derelicts[i].System == System && derelicts[i].SelectableByPlayer)
-                list.AddItem(new DerelictListItem(derelicts[i]));
+                list.AddItem(new DerelictListItem(Universe, derelicts[i]));
 
         var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
         var stationRect = new Rectangle((int)rect.CenterX - btn.Width / 2, (int)rect.Bottom - btn.Height - 12, btn.Width, btn.Height);

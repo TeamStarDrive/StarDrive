@@ -6226,6 +6226,18 @@ namespace Ship_Game
         SalvageStationDeployed = 7164,
         /// <summary>Salvage Station was evacuated since you</summary>
         RemoveExcessSalvageStation = 7165,
+        /// <summary>Salvage this derelict</summary>
+        SalvageDerelictTip = 7166,
+        /// <summary>Your salvage station is working this derelict.</summary>
+        SalvageDerelictOrderedTip = 7167,
+        /// <summary>Salvaging this derelict needs a salvage station of yours built in this system.</summary>
+        SalvageDerelictNoStationTip = 7168,
+        /// <summary>Every salvage unit of your station in this system is busy.</summary>
+        SalvageDerelictNoFreeUnitTip = 7169,
+        /// <summary>{0} is salvaging this derelict.</summary>
+        DerelictSalvagedBy = 7170,
+        /// <summary>Turns left stand still while an empire salvages this derelict</summary>
+        DerelictTurnsStandTip = 7171,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

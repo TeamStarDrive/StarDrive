@@ -188,6 +188,13 @@ namespace Ship_Game.Commands.Goals
         static bool HasStationIn(Empire empire, SolarSystem system)
             => empire.AI.HasGoal(g => g?.IsSalvageOpsGoal(system) == true && g.TargetShip is { Active: true });
 
+        // from any thread: the empire's built salvage station in the system, or null
+        public static Ship StationIn(Empire empire, SolarSystem system)
+        {
+            Ship station = empire.AI.FindGoal(g => g?.IsSalvageOpsGoal(system) == true)?.TargetShip;
+            return station is { Active: true } && station.Loyalty == empire ? station : null;
+        }
+
         // as a station changes hands: it works for its new owner, whose order there is dropped; where the new owner has a station already it is evacuated, a boarded one's troops leaving first and a player told
         public static void TakeOver(Ship station, Empire from, Empire to, bool boarded)
         {

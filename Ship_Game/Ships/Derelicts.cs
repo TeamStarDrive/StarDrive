@@ -24,6 +24,16 @@ public sealed class Derelicts
 
     public Derelict[] ToArray() { lock (Sync) return Items.ToArray(); }
 
+    // from any thread: the derelict with this id, or null once it has left the list
+    public Derelict Find(int id)
+    {
+        Derelict[] current = Current;
+        for (int i = 0; i < current.Length; ++i)
+            if (current[i].Id == id)
+                return current[i];
+        return null;
+    }
+
     // from any thread, so it reads the published list and not the empire's, which the sim thread owns
     public bool AnyKnownIn(Empire empire, SolarSystem system)
     {
