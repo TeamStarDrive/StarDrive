@@ -273,7 +273,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Ships.ShipDesign newShipData = Ships.ShipDesign.Parse(info);
                 if (newShipData == null)
                     continue;
-                if (UnlockAllDesigns || Screen.Player.WeCanShowThisWIP(newShipData))
+                if (UnlockAllDesigns || Screen.Player.WeCanShowThisWIP(newShipData) && !IsTurnedOff(newShipData, Universe.P))
                     WIPs.Add(newShipData);
             }
 
@@ -426,7 +426,14 @@ namespace Ship_Game.GameScreens.ShipDesign
                 && (!design.IsDysonSwarmController || Screen.EnableDebugFeatures) // ignore Dyson Swarm Sats (unless debug features are enabled)
                 && (!design.IsSalvagePlatform || Screen.EnableDebugFeatures) // ignore the salvage platform (unless debug features are enabled)
                 && (!design.IsUnitTestShip || Screen.EnableDebugFeatures) // ignore unit testing ships (unless debug features are enabled)
+                && !IsTurnedOff(design, Universe.P)
                 && ResourceManager.ShipRoles.TryGetValue(design.Role, out ShipRole sr) && !sr.Protected;
+        }
+
+        // with salvage ops off, the salvage stations and the salvage platform are not listed, debug features or not
+        public static bool IsTurnedOff(IShipDesign design, UniverseParams p)
+        {
+            return !p.SalvageOps && (design.IsSalvageStation || design.IsSalvagePlatform);
         }
 
         void LoadShipToScreen()

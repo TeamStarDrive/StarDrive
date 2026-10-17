@@ -307,6 +307,13 @@ Implementation notes:
 
   The tech side (`Tech.RequiresMiningOps`, `TechEntry.cs:685`) is not copied for now. Mining ops has no
   build-list filter to copy, so hiding the station and platform designs from build lists is new code.
+- **Done (227):** with salvage ops off:
+  - the module list leaves out the salvage unit;
+  - the design load screen leaves out the salvage stations and the platform, work in progress included and debug
+    features or not; only the developer sandbox still shows them;
+  - `CanBeAddedToBuildableShips` keeps salvage stations out of every empire's buildable ships.
+
+  When ordering is built, it checks `SalvageOps` itself, since a save keeps its buildable ships.
 - **Globals flag** for mods that have no salvage content yet, so salvage ops ship in vanilla first and Combined Arms
   and Star Trek follow. Unlike `DisablePirates` in Globals, which only sets the rule option's default
   (`UniverseParams.cs:108`), this flag is a hard switch: when the mod turns salvage ops off, the rule option cannot

@@ -308,7 +308,8 @@ public partial class ShipDesign
             && Role != RoleName.supply
             && !ShipRole.Protected
             && (empire.isPlayer || IsShipGoodForGoals(empire))
-            && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer);
+            && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer)
+            && (!IsSalvageStation || empire.Universe.P.SalvageOps);
     }
 
     public int GetCompletionPercent()

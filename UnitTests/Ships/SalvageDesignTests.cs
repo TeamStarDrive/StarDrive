@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.AI;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Point = SDGraphics.Point;
@@ -12,7 +13,8 @@ namespace UnitTests.Ships;
 /// <summary>
 /// Every race has a basic salvage station on its own small station hull, the Terran layout with two salvage units,
 /// which the AI's orbital pickers never choose. The salvage platform is one fixed design: no empire builds it from a
-/// list, and the player cannot order, refit, scrap or list it, nor pays upkeep for it.
+/// list, and the player cannot order, refit, scrap or list it, nor pays upkeep for it. With salvage ops off, the ship
+/// designer and the build lists leave out the salvage unit, the salvage stations and the platform.
 /// </summary>
 [TestClass]
 public class SalvageDesignTests : StarDriveTest
@@ -98,6 +100,33 @@ public class SalvageDesignTests : StarDriveTest
         ShipDesign copy = ((ShipDesign)platform).GetClone("Salvage Platform Copy");
         Assert.IsFalse(copy.IsSalvagePlatform, "only the design with that name is the salvage platform");
         Assert.IsTrue(copy.CanBeAddedToBuildableShips(Player), "setup: the same platform under another name is buildable");
+    }
+
+    [TestMethod]
+    public void WithSalvageOpsOffTheDesignerAndTheBuildListsLeaveOutTheSalvageUnitAndDesigns()
+    {
+        ShipModule unit = ResourceManager.GetModuleTemplate("SalvageUnit");
+        IShipDesign station = Design("Terran Basic Salvage Station");
+        IShipDesign platform = Design(ShipDesign.SalvagePlatformName);
+        Assert.IsTrue(UState.P.SalvageOps, "setup: salvage ops on");
+        Assert.IsFalse(ModuleSelectScrollList.IsTurnedOff(unit, UState.P), "setup: the designer lists the salvage unit");
+        Assert.IsFalse(ShipDesignLoadScreen.IsTurnedOff(station, UState.P), "setup: and the salvage stations");
+        Assert.IsTrue(station.CanBeAddedToBuildableShips(Player), "setup: which the player can add to the buildable ships");
+
+        UState.P.DisableSalvageOps = true;
+        Assert.IsTrue(ModuleSelectScrollList.IsTurnedOff(unit, UState.P), "with salvage ops off the designer leaves out the salvage unit");
+        Assert.IsTrue(ShipDesignLoadScreen.IsTurnedOff(station, UState.P), "and the salvage stations");
+        Assert.IsTrue(ShipDesignLoadScreen.IsTurnedOff(platform, UState.P), "and the salvage platform");
+        Assert.IsFalse(station.CanBeAddedToBuildableShips(Player), "and no salvage station goes in the buildable ships");
+
+        Assert.IsFalse(ModuleSelectScrollList.IsTurnedOff(ResourceManager.GetModuleTemplate("Structure"), UState.P),
+                       "other modules stay listed");
+        foreach (string name in new[] { "Basic Mining Station", "Basic Research Station" })
+        {
+            IShipDesign other = Design(name);
+            Assert.IsFalse(ShipDesignLoadScreen.IsTurnedOff(other, UState.P), $"other stations and platforms stay listed: {name}");
+            Assert.IsTrue(other.CanBeAddedToBuildableShips(Player), $"and buildable: {name}");
+        }
     }
 
     [TestMethod]
