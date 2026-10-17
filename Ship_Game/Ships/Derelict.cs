@@ -38,6 +38,8 @@ public sealed class Derelict
     public const int SalvageableTurns = 100;
     // the production to salvage: this share of the health the ship had left at its death, times its cost before any empire's bonus
     public const float SalvageShareOfHealth = 0.5f;
+    // and never less than this, times the production pace
+    public const float MinSalvageProduction = 50f;
 
     [StarDataType]
     public struct SmokeSource
@@ -143,8 +145,8 @@ public sealed class Derelict
         if (salvageable)
         {
             TurnsLeft = (int)(SalvageableTurns * Universe.ProductionPace);
-            Production = ship.HealthPercent.Clamped(0f, 1f) * SalvageShareOfHealth
-                       * Design.GetCostBeforeBonuses(Universe.ProductionPace);
+            Production = (ship.HealthPercent.Clamped(0f, 1f) * SalvageShareOfHealth * Design.GetCostBeforeBonuses(Universe.ProductionPace))
+                         .LowerBound(MinSalvageProduction * Universe.ProductionPace);
             ProductionLeft = Production;
             System = SalvageSystemAt(Universe, StopPoint(ship));
         }

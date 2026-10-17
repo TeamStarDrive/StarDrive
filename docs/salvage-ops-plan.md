@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-354 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-355 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-354 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-355 from sub-branch 3. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -262,7 +262,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - The derelict's total production is half the share of health the ship had left at its death, times its design
     cost before any empire's cost bonus, at the game's production pace (`ShipDesign_Stats.cs`
     `GetCostBeforeBonuses`). It is stored at death (160, 239): a ship that cost 1000 and died with 40% of its health
-    leaves 200 to salvage, 20 turns at the default speed.
+    leaves 200 to salvage, 20 turns at the default speed. Every salvageable derelict leaves at least 50, times the
+    production pace (`Derelict.MinSalvageProduction`; Gilad, 2026-10-17; 355), as the Codex derelict passage of
+    100093 says.
   - When the shares add up to that total, the hull dissolves.
 - **Techs (159, 287):**
   - The derelict lists every tech its design needs that the salvaging empire has not researched yet.
@@ -472,6 +474,7 @@ Implementation notes:
    - a boarded station working for its new owner, or scuttled after its boarders leave when the new owner already
      has one there (285); an absorbed empire's second station (296);
    - the trust penalty (152, 161, 350-354);
+   - a salvageable derelict's production never below 50, times the production pace (355);
    - the station-built notification, under the switch it shares (300);
    - left from sub-branch 2:
      - Gilad's check in game that a ship entering a system with derelicts brings the notification, with debug mode
