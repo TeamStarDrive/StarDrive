@@ -839,6 +839,20 @@ namespace Ship_Game
             }, "smallservo");
         }
 
+        public void AddSalvageStationBuiltNotification(Ship s, SolarSystem system)
+        {
+            if (Screen.UState.P.DisableStationBuiltWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Message         = $"{system.Name}: {s.Name} {Localizer.Token(GameText.SalvageStationBuiltSystemNotify)}",
+                Action          = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath        = s.ShipData.IconPath
+            }, "smallservo");
+        }
+
         // the derelict whose system just joined the player's list of systems with salvageable derelicts
         public void AddNewDerelictNotification(Derelict d)
         {

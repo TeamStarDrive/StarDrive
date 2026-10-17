@@ -312,7 +312,7 @@ namespace Ship_Game.Commands.Goals
 
         bool ConstructionGoalInProgress =>
             (ResearchingPlanet && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetPlanet))
-            || (ResearchingStar && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetSystem))));
+            || (ResearchingStar && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetSystem) && g.ToBuild?.IsResearchStation == true)));
 
         ExplorableGameObject TargetSolarBody => TargetPlanet != null ? TargetPlanet : TargetSystem;
     }

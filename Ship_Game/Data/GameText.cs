@@ -6178,10 +6178,14 @@ namespace Ship_Game
         ShipCrashAlertsTip = 7138,
         /// <summary>Station Built Alerts</summary>
         StationBuiltAlerts = 7139,
-        /// <summary>Alerts when one of your research or mining stations has been built.</summary>
+        /// <summary>Alerts when one of your research, mining or salvage stations has been built.</summary>
         StationBuiltAlertsTip = 7140,
         /// <summary>Starvation Alerts</summary>
         StarvationAlerts = 7141,
+        /// <summary>Salvage Station was deployed in system</summary>
+        SalvageStationBuiltSystemNotify = 7144,
+        /// <summary>You cannot mix research station, mining station and salvage station modules in one design.</summary>
+        CannotMixStationModules = 7145,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

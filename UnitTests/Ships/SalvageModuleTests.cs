@@ -11,7 +11,8 @@ namespace UnitTests.Ships;
 /// <summary>
 /// A salvage module is one with Salvage set in its module file. A station-role design with one is a salvage station,
 /// and counts its salvage modules, since each works one derelict; a platform-role design never is one, whatever it
-/// carries. The count follows the design as it is edited.
+/// carries. The count follows the design as it is edited. The designer keeps research, refining and salvage modules
+/// out of one design.
 /// </summary>
 [TestClass]
 public class SalvageModuleTests : StarDriveTest
@@ -74,6 +75,23 @@ public class SalvageModuleTests : StarDriveTest
         ShipDesign platform = WithSalvageUnits(research, 1);
         AssertEqual(1, platform.NumSalvageModules, "its salvage unit still counts");
         Assert.IsFalse(platform.IsSalvageStation, "but a platform is no salvage station");
+    }
+
+    [TestMethod]
+    public void TheDesignerKeepsResearchMiningAndSalvageModulesApart()
+    {
+        ShipModule research = ResourceManager.GetModuleTemplate("ResearchLab");
+        ShipModule refining = ResourceManager.GetModuleTemplate("ProcessingUnit");
+        ShipModule salvage = ResourceManager.GetModuleTemplate("SalvageUnit");
+        ShipModule plain = ResourceManager.GetModuleTemplate("Structure");
+        Assert.IsTrue(research.ResearchPerTurn > 0 && refining.Refining > 0 && salvage.Salvage, "setup: one module of each kind");
+
+        Assert.IsTrue(ShipDesignScreen.MixesStationKinds(salvage, new[] { plain, refining }), "no salvage module on a mining station");
+        Assert.IsTrue(ShipDesignScreen.MixesStationKinds(research, new[] { salvage }), "no research module on a salvage station");
+        Assert.IsTrue(ShipDesignScreen.MixesStationKinds(refining, new[] { research }), "no refining module on a research station");
+        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(salvage, new[] { plain, salvage }), "more of the same kind is fine");
+        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(plain, new[] { refining, research }), "and other modules go anywhere");
+        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(salvage, new ShipModule[0]), "as does the first of a kind");
     }
 
     [TestMethod]

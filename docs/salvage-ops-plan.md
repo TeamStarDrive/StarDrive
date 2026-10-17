@@ -4,12 +4,12 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266 and 269-302 are all settled; 168-175 came from the review of this plan,
-178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2, and 269-302
-from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with each
-derelict claimed by one empire, replace the yards and their salvage ships. The fixes_49 review settled 210, 212, 213,
-216-218 and 220 for derelicts: one lock keeps the derelict list safe on the sim, save and UI threads, a ship leaves at
-most one derelict, and a failure to make one is logged.
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-323 are all settled; 168-175 came from the review of
+this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
+269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-323 from sub-branch 3. The
+fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
+sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
 ## The rules (Gilad, 2026-10-15)
 
@@ -141,6 +141,21 @@ most one derelict, and a failure to make one is logged.
     - an abort, like `EmpireAI.CancelMiningStation`, removes an order whose station is not built yet, and its
       constructor.
   - **The player's auto-build switch (252)** comes with the AI planner, in the ai sub-branch.
+  - **Placement (Gilad, 2026-10-17; 317-320, 322):**
+    - In Deep Space Build a salvage station never orbits a planet: near one it shows Cannot Orbit (317).
+    - It sits at least `SalvageOps.Clearance` (2000) from every salvageable derelict in the system and from every
+      salvage station the empire sees, inside 80% of the system's radius, clear of the star's 20000 and its radiation
+      and of planets' orbits (318). With a salvage station picked, Deep Space Build marks the systems where one can be ordered and draws
+      those no-placement zones in red.
+    - The panel button (318) places it at the average position of the system's derelicts: a random point within 1000
+      of it, then within 1500, 2000 and so on, until a point passes the rules above.
+    - The button is greyed out, with a tooltip saying why, when no station can be ordered there (319).
+    - Salvage stations are queued as urgent orbitals, as research and mining stations are (320).
+    - An order not yet built ends, with its constructor, once its system has no salvageable derelict left; a built
+      station stays (322).
+  - **One kind of station per design (321):** research, refining and salvage modules make three kinds of station, so the
+    ship designer refuses a module of one kind in a design that holds another, with a floating message (text 7145).
+    The one shipped design that mixed kinds, the Cordrazine C-Mining Station mk3-a, lost its research lab (323).
 - **The salvage platform (271 A, 280, 283-285):**
   - One fixed design for every race, `Salvage Platform` in `ShipDesigns/Mandatory`, known by its name as the
     subspace projector is (314). No empire builds it from a list, the ship designer lists it only with debug features

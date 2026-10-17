@@ -316,6 +316,27 @@ namespace Ship_Game.AI
             }
         }
 
+        // the most salvage modules, then the most cargo room, then the sturdiest per slot; null until one can be built
+        public static IShipDesign PickSalvageStation(Empire empire)
+        {
+            IShipDesign best = null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+            {
+                if (design.IsSalvageStation && (best == null || IsBetterSalvageStation(design, best, empire)))
+                    best = design;
+            }
+            return best;
+        }
+
+        static bool IsBetterSalvageStation(IShipDesign a, IShipDesign b, Empire empire)
+        {
+            if (a.NumSalvageModules != b.NumSalvageModules)
+                return a.NumSalvageModules > b.NumSalvageModules;
+            if (a.BaseCargoSpace != b.BaseCargoSpace)
+                return a.BaseCargoSpace > b.BaseCargoSpace;
+            return a.GetStrength(empire) / a.SurfaceArea > b.GetStrength(empire) / b.SurfaceArea;
+        }
+
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig, int levelsOfPiratesAtWarWithUs)
         {
             float maxKFTL  = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
