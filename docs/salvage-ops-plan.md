@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-362 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-366 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-362 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-366 from sub-branch 3. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -231,6 +231,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     the salvage step on, whatever the old owner was, so a defeated empire's station works for its rebels and one taken
     from pirates works for its boarder. The change of hands runs on the sim thread, and is queued for it when a save
     or the UI applies it; a queued one that the station's loss or a later change of hands has overtaken does nothing.
+    A save applies the pending changes of hands on the sim thread before it starts (`UniverseScreen.Save.cs`), so the
+    save worker, which applies them too, writes none half done.
     An order that finds its station in other hands, as after a save that caught a change of hands halfway, hands it
     on. `UniverseObjectManager.UpdateLists` cleans up a ship removed as it changes hands, as an evacuated station is.
   - Taking one over brings no built notification and costs no trust, which is for building one (350-354). An order of
@@ -501,6 +503,13 @@ Implementation notes:
        its network learns of the salvageable derelicts left by their ships and by ships they destroy, and Codex 100196
        adds it to level 5's rewards, holding above the limit level as the dossier lines do (Gilad, 2026-10-17). The
        Russian and Portuguese are kept to five lines, clear of the progress bar at 1680x1050.
+   - logged for later from the review before the merge into base (Gilad, 2026-10-17; 366):
+     - the ship designer refuses a salvage unit whose footprint would clear a research lab or refinery away from the
+       cursor, as it counts only the module under the cursor as replaced; it is only ever stricter than needed;
+     - per-frame UI work: Deep Space Build walks every ship each frame while a salvage station is being placed, and
+       the derelict panel and the derelicts window run the station picker each frame;
+     - text 7143 (the salvage module's description) already speaks of platforms and stripping, which come with
+       sub-branch 4; for the Codex review stage.
 4. **salvaging** (247):
    - the Salvage button on the derelict's panel (277);
    - the module's free constructor and the platform it builds (271, 283);

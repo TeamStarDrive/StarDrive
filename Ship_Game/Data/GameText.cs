@@ -6208,7 +6208,7 @@ namespace Ship_Game
         DerelictsInSystem = 7155,
         /// <summary>Auto Pick Salvage Stations</summary>
         AutoPickSalvageStation = 7156,
-        /// <summary>A salvage station ordered from a derelict's panel is the best design you can build</summary>
+        /// <summary>A salvage station ordered from a derelict's panel or a system's derelict list is the best design you can build</summary>
         AutoPickSalvageStationTip = 7157,
         /// <summary>Salvage Station</summary>
         SalvageStationDropDown = 7158,

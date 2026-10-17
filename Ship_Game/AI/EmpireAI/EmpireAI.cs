@@ -473,7 +473,7 @@ namespace Ship_Game.AI
 
         public void CancelSalvageStationConstruction(SolarSystem system)
         {
-            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(system) && g.Build.Template.IsSalvageStation);
+            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(system) && g.ToBuild?.IsSalvageStation == true);
             if (constructionGoal != null)
             {
                 constructionGoal.FinishedShip?.AI.OrderScrapShip();

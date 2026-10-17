@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -984,6 +985,64 @@ public class SalvageOpsTests : StarDriveTest
         Assert.IsTrue(station.Active, "the queued takeover, overtaken, does not evacuate the station");
         AssertEqual(1, Player.AI.CountGoals(g => g.IsSalvageOpsGoal(WreckSystem)), "nor gives it a second order");
         AssertEqual(ours, StationGoalOf(Player), "the first one holds it");
+    }
+
+    // as the game saves: started on the sim thread, written by a worker, then loaded
+    UniverseScreen SaveAsTheGameDoesAndLoad(string name)
+    {
+        FieldInfo simThread = typeof(UniverseScreen).GetField("SimThread", BindingFlags.Instance | BindingFlags.NonPublic);
+        simThread.SetValue(Universe, Thread.CurrentThread);
+        try
+        {
+            UState.StarDate = 1001f; // the loader needs a stardate past 1000
+            Universe.SaveAsync(name);
+            for (int waited = 0; Universe.IsSaving && waited < 30_000; waited += 10)
+                Thread.Sleep(10);
+            Assert.IsFalse(Universe.IsSaving, "setup: the save is written");
+        }
+        finally
+        {
+            simThread.SetValue(Universe, null);
+        }
+        Universe.InvokePendingSimThreadActions();
+        UniverseScreen loaded = LoadGame.Load(new FileInfo($"{SavedGame.DefaultSaveGameFolder}{name}.sav"), noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+        return loaded;
+    }
+
+    [TestMethod]
+    public void AMergedEmpiresStationStillChangingHandsWhenASaveStartsLoadsWithItsOrder()
+    {
+        Forms(Enemy, InSystem);
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        Settle(station);
+
+        Player.AbsorbEmpire(Enemy);
+        UniverseScreen loaded = SaveAsTheGameDoesAndLoad("UnitTest.SalvageMergerSave");
+        Empire player = loaded.UState.Player;
+        Goal ours = player.AI.FindGoal(g => g is SalvageOps);
+        Assert.IsTrue(ours?.TargetShip is { Active: true, IsSalvageStation: true } && ours.TargetShip.Loyalty == player,
+                      "the station the merger brought loads with the absorber's order for it");
+    }
+
+    [TestMethod]
+    public void AStationBoardedWhereTheBoarderHasOneAsASaveStartsIsEvacuatedBeforeItIsWritten()
+    {
+        Forms(Enemy, InSystem);
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        BuiltStation(Player, BuildPos + new Vector2(0, -10_000f));
+        Settle(station);
+        station.KillAllTroops();
+        ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(station);
+        station.LoyaltyChangeFromBoarding(Player, addNotification: false);
+
+        UniverseScreen loaded = SaveAsTheGameDoesAndLoad("UnitTest.SalvageBoardingSave");
+        Empire player = loaded.UState.Player;
+        Ship[] ships = loaded.UState.Objects.GetShips();
+        AssertEqual(1, ships.Count(s => s.IsSalvageStation && s.Loyalty == player), "the boarded station was evacuated before the save");
+        AssertEqual(1, player.AI.CountGoals(g => g is SalvageOps), "the player's own station keeps the one order");
+        Assert.IsTrue(ships.Any(s => s.Loyalty == player && s.IsDefaultAssaultShuttle && s.TroopCount == 1), "and the boarder's troop left it in a shuttle");
     }
 
     [TestMethod]
