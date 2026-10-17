@@ -2298,7 +2298,10 @@ namespace Ship_Game
                 Assert(e, e.DefaultMiningShip, "DefaultMiningShip", s => s.BaseCargoSpace > 0, "BaseCargoSpace");
                 Assert(e, e.DefaultMiningStation, "DefaultMiningStation", s => s.IsMiningStation, "IsMiningStation");
                 if (GlobalStats.Defaults.EnableSalvageOps)
+                {
                     Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", s => s.IsSalvageStation, "IsSalvageStation");
+                    Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", ShipResupply.HasRoomForSalvageChunk, "BaseCargoSpace");
+                }
             }
 
             string[] requiredShips =

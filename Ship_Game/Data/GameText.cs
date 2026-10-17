@@ -6212,6 +6212,14 @@ namespace Ship_Game
         AutoPickSalvageStationTip = 7157,
         /// <summary>Salvage Station</summary>
         SalvageStationDropDown = 7158,
+        /// <summary>Low Salvage Cargo</summary>
+        DesignIssueLowSalvageCargoTitle = 7159,
+        /// <summary>This Salvage Station has less cargo room than one load of salvaged production</summary>
+        DesignIssueLowSalvageCargoProblem = 7160,
+        /// <summary>Add Storage.</summary>
+        DesignIssueLowSalvageCargoRemidiation = 7161,
+        /// <summary>Cargo room needed for one load:</summary>
+        DesignIssueLowSalvageCargoNeeded = 7162,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

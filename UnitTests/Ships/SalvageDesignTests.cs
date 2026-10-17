@@ -14,7 +14,8 @@ namespace UnitTests.Ships;
 /// Every race has a basic salvage station on its own small station hull, the Terran layout with two salvage units,
 /// which the AI's orbital pickers never choose. The salvage platform is one fixed design: no empire builds it from a
 /// list, and the player cannot order, refit, scrap or list it, nor pays upkeep for it. With salvage ops off, the ship
-/// designer and the build lists leave out the salvage unit, the salvage stations and the platform.
+/// designer and the build lists leave out the salvage unit, the salvage stations and the platform. The ship designer
+/// flags a salvage station with less cargo room than one salvage chunk, and every race's default holds one.
 /// </summary>
 [TestClass]
 public class SalvageDesignTests : StarDriveTest
@@ -72,7 +73,40 @@ public class SalvageDesignTests : StarDriveTest
             Assert.IsTrue(data.DefaultSalvageStation.NotEmpty(), $"{race.Name} names a default salvage station");
             IShipDesign station = Design(data.DefaultSalvageStation);
             Assert.IsTrue(station.IsSalvageStation, $"{race.Name}: {station.Name} is a salvage station");
+            Assert.IsTrue(ShipResupply.HasRoomForSalvageChunk(station), $"{race.Name}: {station.Name} holds one salvage chunk");
             AssertEqual(data.Traits.ShipType, station.BaseHull.Style, $"{race.Name}: {station.Name} is on its own hull");
+        }
+    }
+
+    [TestMethod]
+    public void TheShipDesignerFlagsASalvageStationWithLessCargoRoomThanOneChunk()
+    {
+        IShipDesign station = Design("Terran Basic Salvage Station");
+        var issues = new ShipDesignIssues(Universe, station);
+        issues.CheckLowSalvageCargo();
+        AssertEqual(0, issues.CurrentDesignIssues.Count, "setup: the basic station holds one chunk");
+
+        float chunkSize = GlobalStats.Defaults.SalvageChunkSize;
+        try
+        {
+            GlobalStats.Defaults.SalvageChunkSize = station.BaseCargoSpace + 1;
+            issues.CheckLowSalvageCargo();
+            AssertEqual(1, issues.CurrentDesignIssues.Count, "a station that cannot hold one chunk is flagged");
+            DesignIssueDetails issue = issues.CurrentDesignIssues[0];
+            Assert.AreEqual(DesignIssueType.LowSalvageCargo, issue.Type, "as low salvage cargo");
+            Assert.AreEqual(WarningLevel.Critical, issue.Severity, "a critical issue");
+            StringAssert.EndsWith(issue.AdditionalText, $" {(station.BaseCargoSpace + 1).GetNumberString()}.",
+                                  "its remedy names the cargo room one chunk needs");
+
+            IShipDesign research = Design("Basic Research Station");
+            Assert.IsFalse(ShipResupply.HasRoomForSalvageChunk(research), "setup: a research station with less cargo room");
+            var other = new ShipDesignIssues(Universe, research);
+            other.CheckLowSalvageCargo();
+            Assert.IsTrue(other.CurrentDesignIssues.IsEmpty, "other stations are never flagged for it");
+        }
+        finally
+        {
+            GlobalStats.Defaults.SalvageChunkSize = chunkSize;
         }
     }
 

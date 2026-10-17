@@ -11,6 +11,7 @@ Globals:
   DerelictChance: 10 # percent of military ship (frigate and above) and untethered station deaths that leave a derelict, with no death blast
   MaxDriftingDerelicts: 100 # most drifting derelicts with a model at once
   MaxSalvageableDerelicts: 100 # most salvageable derelicts at once; the derelict chance falls with their share of it
+  SalvageChunkSize: 100 # most production a salvage platform sends its station in a turn; a salvage station needs cargo room for one chunk
   RemnantDesignStrMultiplier: 2
   CostBasedOnSizeThreshold: 3000
   HangarCombatShipCostMultiplier: 1

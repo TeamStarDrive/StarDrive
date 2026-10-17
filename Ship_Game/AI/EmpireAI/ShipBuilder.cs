@@ -316,7 +316,7 @@ namespace Ship_Game.AI
             }
         }
 
-        // the player's Automation window design with auto pick off, else the race's default, as long as it can be built; otherwise the best pick
+        // the player's Automation window design with auto pick off, else the race's default, as long as it can be built and holds a salvage chunk; otherwise the best pick
         public static IShipDesign PickSalvageStation(Empire empire)
         {
             if (empire.isPlayer && !empire.AutoPickBestSalvageStation)
@@ -329,12 +329,17 @@ namespace Ship_Game.AI
             return BestSalvageStation(empire);
         }
 
+        public static bool IsUsableSalvageStation(IShipDesign design)
+        {
+            return design.IsSalvageStation && ShipResupply.HasRoomForSalvageChunk(design);
+        }
+
         static IShipDesign BuildableSalvageStation(Empire empire, string name)
         {
             if (name.IsEmpty())
                 return null;
             foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
-                if (design.IsSalvageStation && design.Name == name)
+                if (IsUsableSalvageStation(design) && design.Name == name)
                     return design;
             return null;
         }
@@ -345,7 +350,7 @@ namespace Ship_Game.AI
             IShipDesign best = null;
             foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
             {
-                if (design.IsSalvageStation && (best == null || IsBetterSalvageStation(design, best, empire)))
+                if (IsUsableSalvageStation(design) && (best == null || IsBetterSalvageStation(design, best, empire)))
                     best = design;
             }
             return best;

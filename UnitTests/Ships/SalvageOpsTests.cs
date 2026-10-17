@@ -25,6 +25,7 @@ namespace UnitTests.Ships;
 /// takes the station with the most salvage modules, then the most cargo room. The player's picker, with auto pick off
 /// as it starts, takes the station chosen in the Automation window, or the race's default when the choice cannot be
 /// built, and the best pick when neither can; the window resets a choice that can no longer be built to the default.
+/// Neither picker nor the window's list takes a station with less cargo room than one salvage chunk.
 /// </summary>
 [TestClass]
 public class SalvageOpsTests : StarDriveTest
@@ -35,6 +36,7 @@ public class SalvageOpsTests : StarDriveTest
     readonly SolarSystem WreckSystem;
     readonly IShipDesign Station;
     readonly IShipDesign ResearchStation;
+    readonly float SalvageChunkSize = GlobalStats.Defaults.SalvageChunkSize;
 
     public SalvageOpsTests()
     {
@@ -50,6 +52,7 @@ public class SalvageOpsTests : StarDriveTest
     [TestCleanup]
     public override void Cleanup()
     {
+        GlobalStats.Defaults.SalvageChunkSize = SalvageChunkSize;
         UState.Derelicts.Clear();
         base.Cleanup();
     }
@@ -452,6 +455,52 @@ public class SalvageOpsTests : StarDriveTest
         Player.data.CurrentSalvageStation = "No Such Station Design";
         window.LoadContent();
         AssertEqual("No Such Station Design", Player.data.CurrentSalvageStation, "with salvage ops off the window leaves the choice alone");
+    }
+
+    [TestMethod]
+    public void NeitherPickerTakesAStationWithLessCargoRoomThanOneChunk()
+    {
+        ShipDesign fewer = Variant("Fewer Units Station", dropOneSalvageUnit: true, extraHolds: 3);
+        Player.ClearShipsWeCanBuild();
+        Player.AddBuildableShip(Station);
+        Player.AddBuildableShip(fewer);
+        Player.data.CurrentSalvageStation = Station.Name;
+        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "setup: the basic station, chosen and the race's default");
+        Player.AutoPickBestSalvageStation = true;
+        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "setup: and the best pick, with more salvage units");
+
+        GlobalStats.Defaults.SalvageChunkSize = (Station.BaseCargoSpace + fewer.BaseCargoSpace) / 2f;
+        AssertEqual(fewer, ShipBuilder.PickSalvageStation(Player), "auto pick passes over a station that cannot hold one chunk");
+        Player.AutoPickBestSalvageStation = false;
+        AssertEqual(fewer, ShipBuilder.PickSalvageStation(Player), "and so does the player's pick, chosen station and race default alike");
+
+        GlobalStats.Defaults.SalvageChunkSize = fewer.BaseCargoSpace + 1;
+        Assert.IsNull(ShipBuilder.PickSalvageStation(Player), "none when no station holds one chunk");
+    }
+
+    [TestMethod]
+    public void TheAutomationWindowLeavesOutAStationWithLessCargoRoomThanOneChunk()
+    {
+        ShipDesign roomier = Variant("Roomier Station", dropOneSalvageUnit: false, extraHolds: 1);
+        ShipDesign fewer = Variant("Fewer Units Station", dropOneSalvageUnit: true, extraHolds: 3);
+        Player.AddBuildableShip(Station);
+        Player.AddBuildableShip(roomier);
+        Player.AddBuildableShip(fewer);
+        Player.MarkShipRolesUsableForEmpire(Station);
+        Player.data.DefaultSalvageStation = roomier.Name;
+        Player.data.CurrentSalvageStation = Station.Name;
+
+        var window = new AutomationWindow(Universe);
+        window.LoadContent();
+        AssertEqual(Station.Name, Player.data.CurrentSalvageStation, "setup: the basic station stays chosen");
+
+        GlobalStats.Defaults.SalvageChunkSize = (Station.BaseCargoSpace + roomier.BaseCargoSpace) / 2f;
+        window.UpdateDropDowns();
+        AssertEqual(roomier.Name, Player.data.CurrentSalvageStation, "once it cannot hold one chunk it gives way to the race's default");
+
+        Player.data.CurrentSalvageStation = fewer.Name;
+        window.UpdateDropDowns();
+        AssertEqual(fewer.Name, Player.data.CurrentSalvageStation, "while a station that holds one chunk stays chosen");
     }
 
     // the basic station, less one salvage unit if asked, plus medium cargo holds in a strip below its grid

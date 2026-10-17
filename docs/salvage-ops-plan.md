@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-338 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-344 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-338 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-344 from sub-branch 3. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -114,9 +114,14 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - Each live salvage module works one derelict at a time. A module that dies launches nothing new; a platform it
     already sent carries on (290).
   - It keeps the salvaged production in its cargo. A design with less cargo room than one chunk
-    (`SalvageChunkSize`) is not a usable salvage station: the picker skips it, a race default like that logs an
-    error at load, and the ship designer lists it as a design issue, as it does for mining and research stations
-    (`ShipDesignIssues`, `LowRefiningTime` and `LowResearchTime`) (302).
+    (`SalvageChunkSize`) is not a usable salvage station: the picker and the Automation dropdown skip it, a race
+    default like that logs an error at load, and the ship designer lists it as a design issue, as it does for mining
+    and research stations (`ShipDesignIssues`, `LowRefiningTime` and `LowResearchTime`) (302).
+  - **The design issue (Gilad, 2026-10-17; 340-342):** Low Salvage Cargo, critical, with the research and refining
+    icons' layout and production hammers (340 A). Its remedy adds the cargo room one chunk needs, read from the knob,
+    as other design issues add their numbers (342). Deep Space Build still lists such a design, since the player picks
+    it there (341 B). Texts 7159-7162; Codex 100167 and tooltip 7157 say a design with low cargo is skipped, with no
+    number (342, 343).
   - It cannot be refit (293), and the orbital pickers ignore it (290).
   - Each race names one in `DefaultSalvageStation`. The picker takes the design with the most salvage modules, then
     the most cargo room, then the sturdiest per slot, as `PickMiningStation` does (295).
@@ -448,7 +453,7 @@ Implementation notes:
    - the salvage module, `<Salvage>True</Salvage>`, on station hulls only (290, 297);
    - the station and platform designs (Gilad, 280); each race's `DefaultSalvageStation` and the one `Salvage Platform`
      design (314), their load checks, the station picker and its Automation dropdown (279, 295, 334-338); the design
-     issue for too little cargo (302); no refit (293); the orbital pickers ignore both (290);
+     issue for too little cargo (302, 340-344); no refit (293); the orbital pickers ignore both (290);
    - the switches hide the salvage module and the station and platform designs, and the Globals flag skips their
      load checks (227);
    - ordering a station: the `SalvageOps` goal, one per empire per system, Deep Space Build, the button on the

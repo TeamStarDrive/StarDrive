@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -312,7 +313,7 @@ namespace Ship_Game
         void InitSalvageStationDropDown()
         {
             InitDropOptions(SalvageStationDropDown, ref Screen.Player.data.CurrentSalvageStation, Screen.Player.data.DefaultSalvageStation,
-                ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsSalvageStation);
+                ship => ship.IsShipGoodToBuild(Screen.Player) && ShipBuilder.IsUsableSalvageStation(ship));
         }
 
         public void UpdateDropDowns()
