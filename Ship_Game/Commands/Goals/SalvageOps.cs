@@ -126,7 +126,7 @@ namespace Ship_Game.Commands.Goals
 
         public enum OrderBlock { None, StationThere, NotHere, NoDesign }
 
-        // why the derelict panel's button cannot order a station in the system, or None when it can
+        // why the derelict panel's button and the derelicts window cannot order a station in the system, or None when they can
         public static OrderBlock WhyNoOrderIn(Empire empire, SolarSystem system)
         {
             if (system != null && empire.AI.HasGoal(g => g?.IsSalvageOpsGoal(system) == true))
@@ -136,7 +136,7 @@ namespace Ship_Game.Commands.Goals
             return ShipBuilder.PickSalvageStation(empire) == null ? OrderBlock.NoDesign : OrderBlock.None;
         }
 
-        // the derelict panel's button: the picked station at a free site near the system's derelicts; false when it cannot order or finds no site
+        // the derelict panel's button and the derelicts window's Deploy: the picked station at a free site near the system's derelicts; false when it cannot order or finds no site
         public static bool OrderNearDerelicts(Empire empire, SolarSystem system, Ship[] ships, RandomBase random)
         {
             if (WhyNoOrderIn(empire, system) != OrderBlock.None

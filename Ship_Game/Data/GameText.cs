@@ -6220,6 +6220,10 @@ namespace Ship_Game
         DesignIssueLowSalvageCargoRemidiation = 7161,
         /// <summary>Cargo room needed for one load:</summary>
         DesignIssueLowSalvageCargoNeeded = 7162,
+        /// <summary>Deploy Salvage Station</summary>
+        DeploySalvageStation = 7163,
+        /// <summary>Salvage Station Deployed</summary>
+        SalvageStationDeployed = 7164,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-16): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branch 2 (salvageable) is merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 3 (`feature/salvage-ops/yards`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-344 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-349 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, and 312-344 from sub-branch 3. The
+each derelict claimed by one empire, replace the yards and their salvage ships, and 312-349 from sub-branch 3. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
 
@@ -129,9 +129,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     - A Salvage Station dropdown, a seventh row in the top table under a plain title, which becomes the Auto Build
       Salvage Stations checkbox with 252 (334 A); and an Auto Pick Salvage Stations checkbox, off in a new game as
       research and mining start (335 A).
-    - With auto pick off, the derelict panel's button orders the dropdown's design; Deep Space Build orders the
-      design picked in it. The dropdown lists only the salvage stations the player can build, as the other dropdowns
-      do, and a choice that can no longer be built falls back to the race's default, then to the best pick (336).
+    - With auto pick off, the derelict panel's button and the derelicts window order the dropdown's design; Deep Space
+      Build orders the design picked in it. The dropdown lists only the salvage stations the player can build, as the
+      other dropdowns do, and a choice that can no longer be built falls back to the race's default, then to the best
+      pick (336).
     - Both show only with salvage ops on and once a salvage station can be built; the dropdown hides while auto pick
       is on. Texts 7156-7158; Codex 100167 gets the salvage pick rule.
     - The window moves up 70 px, its top at 119 instead of 189, so its last rows clear the minimap at 1680x1050
@@ -177,12 +178,16 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     - System: as other rows, with the derelict notification's yellow hourglass to the right of the hostiles warning.
       Star or Planet: how many derelicts ("3 Derelicts"). Resource: the production icon and the production left in
       them, in k or M from 10000. Richness and Owner stay empty.
-    - The row's Salvage Ops button opens a window listing the system's derelicts (`SystemDerelictsScreen`), a template
-      for now. It will order the station: Deploy, Abort once ordered, Deployed once built, and the 7148 grey text when
-      no design can be built (330 A). It will show each derelict's salvaging empire and hold the Salvage and Recover
-      buttons. Until then, an order is cancelled from its build marker once its constructor is queued; one stuck with
-      no port waits for the window's Abort.
-    - Texts 7150-7155; the derelict passage of 100093 names the rows (331, reworded for 332).
+    - The row's Salvage Ops button opens a window listing the system's derelicts (`SystemDerelictsScreen`). A button
+      centred at the bottom of the window's frame, under a list 45 px shorter, orders the station (330 A, 345 C):
+      Deploy Salvage Station, placed as the panel button places it, with 7146 as its tooltip; Abort Deployment (4473)
+      in the military style once ordered, with no tooltip (347), which also ends an order stuck with no port; Salvage
+      Station Deployed in the player's colour once built; and the 7148 grey text when no design can be built. The abort
+      runs on the sim thread. The window will show each derelict's salvaging empire and hold the Salvage and Recover
+      buttons (sub-branches 4 and 7).
+    - Texts 7150-7155, 7163 and 7164; the derelict passage of 100093 names the rows and the window's deploy and abort
+      (331, reworded for 332, 346 and 349), and tooltip 7157 and Codex 100167 name the window as a way to order
+      (346); the Codex tooltip inventory is regenerated for them (348).
   - **One kind of station per design (321):** research, refining and salvage modules make three kinds of station, so the
     ship designer refuses a module of one kind in a design that holds another, with a floating message (text 7145).
     The one shipped design that mixed kinds, the Cordrazine C-Mining Station mk3-a, lost its research lab (323).
@@ -457,7 +462,8 @@ Implementation notes:
    - the switches hide the salvage module and the station and platform designs, and the Globals flag skips their
      load checks (227);
    - ordering a station: the `SalvageOps` goal, one per empire per system, Deep Space Build, the button on the
-     derelict's panel, the Exotic Systems rows and the abort (248-251, 269, 278);
+     derelict's panel, the Exotic Systems rows and their derelicts window, and the abort (248-251, 269, 278,
+     330, 345-347);
    - a boarded station working for its new owner, or scuttled after its boarders leave when the new owner already
      has one there (285); an absorbed empire's second station (296);
    - the trust penalty;

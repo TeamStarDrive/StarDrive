@@ -9,6 +9,7 @@ using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
+using Color = Microsoft.Xna.Framework.Color;
 using Point = SDGraphics.Point;
 using Vector2 = SDGraphics.Vector2;
 
@@ -25,7 +26,9 @@ namespace UnitTests.Ships;
 /// takes the station with the most salvage modules, then the most cargo room. The player's picker, with auto pick off
 /// as it starts, takes the station chosen in the Automation window, or the race's default when the choice cannot be
 /// built, and the best pick when neither can; the window resets a choice that can no longer be built to the default.
-/// Neither picker nor the window's list takes a station with less cargo room than one salvage chunk.
+/// Neither picker nor the window's list takes a station with less cargo room than one salvage chunk. The derelicts
+/// window deploys the picked station, aborts an order not yet built, its constructor queued or not, and then says
+/// the station is deployed; with no design to build it says so in grey.
 /// </summary>
 [TestClass]
 public class SalvageOpsTests : StarDriveTest
@@ -501,6 +504,77 @@ public class SalvageOpsTests : StarDriveTest
         Player.data.CurrentSalvageStation = fewer.Name;
         window.UpdateDropDowns();
         AssertEqual(fewer.Name, Player.data.CurrentSalvageStation, "while a station that holds one chunk stays chosen");
+    }
+
+    [TestMethod]
+    public void TheDerelictsWindowDeploysAStationAbortsItUntilItIsBuiltThenShowsItDeployed()
+    {
+        Forms(Player, InSystem);
+        Player.ClearShipsWeCanBuild();
+        var window = new SystemDerelictsScreen(Universe, WreckSystem);
+        window.LoadContent();
+        Assert.IsFalse(window.StationButton.Visible, "no button while no salvage station can be built");
+        Assert.IsTrue(window.StationStatus.Visible, "but grey text");
+        AssertEqual(new LocalizedText(GameText.SalvageStationNoDesignTip), window.StationStatus.Text, "saying so");
+        AssertEqual(Color.Gray, window.StationStatus.Color, "in grey");
+
+        Player.AddBuildableShip(Station);
+        window.Update(0f);
+        Assert.IsTrue(window.StationButton.Visible && !window.StationStatus.Visible, "a button once one can be built");
+        AssertEqual(new LocalizedText(GameText.DeploySalvageStation), window.StationButton.Text, "to deploy it");
+
+        window.StationButton.OnClick(window.StationButton);
+        var order = (SalvageOps)Player.AI.FindGoal(g => g is SalvageOps);
+        Assert.IsNotNull(order, "deploy orders a station");
+        AssertEqual(Station, order.ToBuild, "the picked one");
+        Assert.IsTrue(SalvageOps.IsValidSite(WreckSystem, order.StaticBuildPos, Empty<Ship>.Array)
+                      && order.StaticBuildPos.InRadius(InSystem, 10_000f), "at a free site near the derelict, as the panel button orders it");
+
+        window.UpdateStationOrder();
+        AssertEqual(new LocalizedText(GameText.AbortDeployent), window.StationButton.Text, "the button then aborts");
+        Assert.AreNotSame(UIButton.StyleTexture(ButtonStyle.Default), UIButton.StyleTexture(ButtonStyle.Military), "setup: the styles differ");
+        Assert.AreSame(UIButton.StyleTexture(ButtonStyle.Military), window.StationButton.Normal, "in the military style");
+        Goal build = Player.AI.FindGoal(g => g.IsBuildingOrbitalFor(WreckSystem));
+        Assert.IsNotNull(build, "setup: the station is queued");
+
+        window.ReloadContent();
+        AssertEqual(new LocalizedText(GameText.AbortDeployent), window.StationButton.Text, "and still does after a reload, which builds a new button");
+        Assert.IsFalse(window.StationStatus.Visible, "with no status text");
+        Assert.AreSame(UIButton.StyleTexture(ButtonStyle.Military), window.StationButton.Normal, "in the same style");
+
+        window.StationButton.OnClick(window.StationButton);
+        Assert.IsTrue(Player.AI.HasGoal(g => g == order), "the abort waits for the sim thread");
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order || g == build), "where it takes the order and its construction away");
+
+        window.UpdateStationOrder();
+        AssertEqual(new LocalizedText(GameText.DeploySalvageStation), window.StationButton.Text, "so it can deploy again");
+        Assert.AreSame(UIButton.StyleTexture(ButtonStyle.Default), window.StationButton.Normal, "in the default style");
+
+        Ship station = SpawnShip(Station.Name, Player, BuildPos);
+        Player.AI.AddGoal(new SalvageOps(Player, WreckSystem, BuildPos, Station) { TargetShip = station });
+        window.UpdateStationOrder();
+        Assert.IsFalse(window.StationButton.Visible, "no button once the station is built");
+        Assert.IsTrue(window.StationStatus.Visible, "but text");
+        AssertEqual(new LocalizedText(GameText.SalvageStationDeployed), window.StationStatus.Text, "saying it is deployed");
+        AssertEqual(Player.EmpireColor, window.StationStatus.Color, "in the player's colour");
+    }
+
+    [TestMethod]
+    public void TheDerelictsWindowAbortsAnOrderWithNoConstructorQueued()
+    {
+        Forms(Player, InSystem);
+        Player.AddBuildableShip(Station);
+        var order = new SalvageOps(Player, WreckSystem, BuildPos, Station);
+        Player.AI.AddGoal(order);
+        Assert.IsFalse(Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(WreckSystem)), "setup: nothing queued, as for an order that finds no port");
+
+        var window = new SystemDerelictsScreen(Universe, WreckSystem);
+        window.LoadContent();
+        AssertEqual(new LocalizedText(GameText.AbortDeployent), window.StationButton.Text, "the window offers the abort");
+        window.StationButton.OnClick(window.StationButton);
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "which takes the order away");
     }
 
     // the basic station, less one salvage unit if asked, plus medium cargo holds in a strip below its grid
