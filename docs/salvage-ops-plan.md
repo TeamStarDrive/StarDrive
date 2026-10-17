@@ -493,11 +493,14 @@ Implementation notes:
    - the station-built notification, under the switch it shares (300);
    - left from sub-branch 2:
      - Gilad's check in game that a ship entering a system with derelicts brings the notification, with debug mode
-       off, since debug mode shows the player every ship and so a debug kill is always known as it forms;
+       off, since debug mode shows the player every ship and so a debug kill is always known as it forms: done, ok
+       for now (Gilad, 2026-10-17);
      - 267: saves made on the salvageable branch before `c1e1ef38a`, whose salvageable derelicts load with no system,
        get no fallback, as no save made during feature work does (Gilad, 2026-10-17; 361);
-     - 268: whether the infiltration Codex entries (100190, 100196, 100199) mention that the top level shows a rival's
-       derelicts.
+     - 268: the level 5 description on the infiltration screen (6339), like each level's other benefits, says that
+       its network learns of the salvageable derelicts left by their ships and by ships they destroy, and Codex 100196
+       adds it to level 5's rewards, holding above the limit level as the dossier lines do (Gilad, 2026-10-17). The
+       Russian and Portuguese are kept to five lines, clear of the progress bar at 1680x1050.
 4. **salvaging** (247):
    - the Salvage button on the derelict's panel (277);
    - the module's free constructor and the platform it builds (271, 283);
