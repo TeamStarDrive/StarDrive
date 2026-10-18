@@ -42,6 +42,9 @@ namespace Ship_Game
         const float DropSpread = 30f;
         const float MaxDropPart = 0.9f;
         const float FlashScale = 0.3f;
+        // the shuttle's glow, at half its particle's size
+        const float GlowScale = 0.5f;
+        const float TrailScale = 0.8f;
 
         enum Route
         {
@@ -235,8 +238,8 @@ namespace Ship_Game
                 else if (visible)
                 {
                     Vector3 position = shuttle.PositionAt(progress);
-                    particles.CargoShuttleTrail.AddParticle(position, Vector3.Zero, 1f, shuttle.TrailColor);
-                    particles.CargoShuttle.AddParticle(position, Vector3.Zero, 1f, Color.White);
+                    particles.CargoShuttleTrail.AddParticle(position, Vector3.Zero, TrailScale, shuttle.TrailColor);
+                    particles.CargoShuttle.AddParticle(position, Vector3.Zero, GlowScale, Color.White);
                 }
             }
         }
