@@ -32,7 +32,7 @@ namespace Ship_Game
         public const float MinHullLaunchDelay = 0.2f;
         public const float MaxHullLaunchDelay = 2f;
         public const float HullShuttleSeconds = 4.8f;
-        public const float ProductionPerLoadShuttle = 10f;
+        public const float ProductionPerLoadShuttle = 15f;
         // a load's shuttles fly at the pace of the other cargo shuttles, three times the hull shuttles'
         public const float LoadShuttleSpeed = 600f;
         // a load's shuttles are twice the size of the others, their glow and trail alike
@@ -146,7 +146,7 @@ namespace Ship_Game
         // one for every 3 production stripped, rounded up
         public static int SalvageShuttlesFor(float stripped) => ((int)Math.Ceiling(stripped / ProductionPerSalvageShuttle)).Clamped(1, MaxShuttles);
 
-        // one for every 10 production of the load, rounded up
+        // one for every 15 production of the load, rounded up
         public static int LoadShuttlesFor(float load) => ((int)Math.Ceiling(load / ProductionPerLoadShuttle)).Clamped(1, MaxShuttles);
 
         public void Send(Planet planet, Color trailColor, int shuttles, float seconds, bool toPort)

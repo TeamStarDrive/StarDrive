@@ -126,12 +126,12 @@ namespace Ship_Game.Commands.Goals
         public static float PlatformConstruction(Empire empire, IShipDesign platform)
             => Math.Max(platform.GetCost(empire), MinPlatformConstruction * empire.Universe.ProductionPace);
 
-        // the constructor a small Deep Space Build job gets, the cheapest one with auto pick, or empty without one
+        // the empire's constructor, or with auto pick the cheapest whatever the platform costs, a job of no cost being small for every constructor; empty without one
         public static string ConstructorName(Empire empire)
         {
-            if (!ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign platform))
+            if (!ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign _))
                 return "";
-            return ShipBuilder.PickConstructor(empire, PlatformConstruction(empire, platform), GetCheapest: true)?.Name ?? "";
+            return ShipBuilder.PickConstructor(empire, 0f, GetCheapest: true)?.Name ?? "";
         }
 
         // the derelict panel's and the derelicts window's Salvage button; false when the empire cannot order it

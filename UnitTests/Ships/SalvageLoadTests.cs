@@ -12,7 +12,7 @@ namespace UnitTests.Ships;
 /// <summary>
 /// The turn after its hold fills, a salvage platform sends its whole load to its station instead of stripping, as
 /// much as the station has room for; the rest stays aboard, and it strips again once its hold has room. With no room
-/// in the station the load waits, and the platform's status says so. The load's shuttles, one per 10 production and
+/// in the station the load waits, and the platform's status says so. The load's shuttles, one per 15 production and
 /// at most 20, fly one way from the platform to the station at 600 a second, and launch only where the player sees
 /// either end, and none launches once its platform is gone. Once its derelict is stripped empty, or the Salvage
 /// button's second click calls the order off, the platform sends its station all it holds, full or not, then takes
@@ -159,10 +159,11 @@ public class SalvageLoadTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheLoadsShuttlesFlyOneWayToTheStationOnePerTenProduction()
+    public void TheLoadsShuttlesFlyOneWayToTheStationOnePerFifteenProduction()
     {
-        AssertEqual(3, CargoShuttles.LoadShuttlesFor(24f), "a load of 24 takes 3 shuttles, rounded up");
-        AssertEqual(1, CargoShuttles.LoadShuttlesFor(10f), "10 takes one");
+        AssertEqual(5, CargoShuttles.LoadShuttlesFor(75f), "a load of 75 takes 5 shuttles");
+        AssertEqual(2, CargoShuttles.LoadShuttlesFor(16f), "16 takes 2, rounded up");
+        AssertEqual(1, CargoShuttles.LoadShuttlesFor(15f), "15 takes one");
         AssertEqual(1, CargoShuttles.LoadShuttlesFor(0.5f), "and so does any amount");
         AssertEqual(20, CargoShuttles.LoadShuttlesFor(1000f), "at most 20");
 
@@ -186,7 +187,7 @@ public class SalvageLoadTests : StarDriveTest
         station.InFrustum = true;
         order.Evaluate();
         Universe.CargoShuttles.Update(Universe, TestSimStep);
-        AssertEqual(3, Universe.CargoShuttles.InFlight(platform, station), "a load of 24 sends 3 shuttles where the player sees the station");
+        AssertEqual(2, Universe.CargoShuttles.InFlight(platform, station), "a load of 24 sends 2 shuttles where the player sees the station");
 
         // a flight takes 0.42 to 0.6 of its route's time, launched within 0.35 of it, the route timed for 600 a second on average
         double seconds = platform.Position.Distance(station.Position) / (600.0 * 0.51);
@@ -194,7 +195,7 @@ public class SalvageLoadTests : StarDriveTest
         double time = TestSimStepD;
         for (; time < seconds * 0.42 - 0.05; time += TestSimStepD)
             Universe.CargoShuttles.Update(Universe, TestSimStep);
-        AssertEqual(3, Universe.CargoShuttles.InFlight(platform, station), "none is there before the quickest flight");
+        AssertEqual(2, Universe.CargoShuttles.InFlight(platform, station), "none is there before the quickest flight");
         for (; time < seconds * 0.95 + 0.05; time += TestSimStepD)
             Universe.CargoShuttles.Update(Universe, TestSimStep);
         AssertEqual(0, Universe.CargoShuttles.InFlight(platform, station), "and all are there by the latest launch and the slowest flight, none coming back");

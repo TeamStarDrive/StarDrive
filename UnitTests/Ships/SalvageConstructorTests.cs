@@ -15,7 +15,8 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// A salvage unit is a hangar bay, as a refining module is a mining bay: it carries 60 ordnance and launches the
-/// empire's constructor, never a fighter, for an order on a derelict. The launch costs ordnance, so a station short of
+/// empire's constructor, or with auto pick the cheapest whatever the platform costs, never a fighter, for an order on
+/// a derelict. The launch costs ordnance, so a station short of
 /// it waits, and the unit then waits out its 30 s timer; a constructor lost on its way is launched again. After its
 /// launch the constructor flies to a site 100 out from the derelict's radius, however far from its station, and claims
 /// the derelict as it starts to build there. Its construction is the platform's cost to the empire, never below 100,
@@ -41,7 +42,8 @@ public class SalvageConstructorTests : StarDriveTest
 
     public SalvageConstructorTests()
     {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName);
+        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName,
+                         "Owlwok Constructor", "Kulrathi Constructor");
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
@@ -138,6 +140,27 @@ public class SalvageConstructorTests : StarDriveTest
     }
 
     [TestMethod]
+    public void WithAutoPickAUnitLaunchesTheCheapestConstructorWhateverThePlatformCosts()
+    {
+        ShipModule unit = BuiltStation(Player, PlayerStation).Modules.Find(m => m.Salvage);
+        IShipDesign cheap = ResourceManager.Ships.GetDesign("Owlwok Constructor");
+        IShipDesign dearer = ResourceManager.Ships.GetDesign("Kulrathi Constructor");
+        Player.AddBuildableShip(cheap);
+        Player.AddBuildableShip(dearer);
+        Player.AutoPickConstructors = true;
+        AssertLessThan(cheap.GetCost(Player), dearer.GetCost(Player), "setup: one constructor is cheaper");
+
+        float construction = SalvageDerelict.PlatformConstruction(Player, ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName));
+        AssertGreaterThan(construction, dearer.GetCost(Player) * 2f, "setup: the platform takes more than twice either's cost");
+        Assert.AreSame(dearer, ShipBuilder.PickConstructor(Player, construction, GetCheapest: true),
+                       "setup: so a job of that size gets the faster one");
+        AssertEqual(cheap.Name, CarrierBays.HangarShipName(Player, unit), "a unit launches the cheapest");
+
+        Player.AutoPickConstructors = false;
+        AssertEqual(Constructor, CarrierBays.HangarShipName(Player, unit), "and without auto pick the empire's own");
+    }
+
+    [TestMethod]
     public void AnOrderLaunchesTheConstructorFromAFreeUnitForItsOrdnance()
     {
         Derelict d = Forms(Wreck);
@@ -193,19 +216,21 @@ public class SalvageConstructorTests : StarDriveTest
     public void ThePlatformsConstructionIsItsCostNeverBelowAHundredBothTimesThePace()
     {
         IShipDesign platform = ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName);
-        AssertLessThan(platform.GetCost(Player), 100f, "setup: the platform costs less than 100");
-        AssertEqual(0.01f, 100f, SalvageDerelict.PlatformConstruction(Player, platform), "so its construction is 100");
+        AssertGreaterThan(platform.GetCost(Player), 100f, "setup: the platform costs more than 100");
+        AssertEqual(0.01f, platform.GetCost(Player), SalvageDerelict.PlatformConstruction(Player, platform), "so its construction is its cost");
+        BuiltStation(Player, PlayerStation);
+        SalvageDerelict order = OrderedAndLaunched(Forms(Wreck), Player);
+        AssertEqual(0.01f, platform.GetCost(Player), order.FinishedShip.Construction.ConstructionNeeded, "the constructor builds that much");
+
+        Player.data.Traits.ShipCostMod = -0.5f;
+        AssertLessThan(platform.GetCost(Player), 100f, "setup: a cost bonus takes the platform's cost below 100");
+        AssertEqual(0.01f, 100f, SalvageDerelict.PlatformConstruction(Player, platform), "and its construction to 100");
 
         UState.P.Pace = 3f;
+        AssertLessThan(platform.GetCost(Player), 100f * UState.ProductionPace, "setup: at a slower pace it still costs less than 100 times it");
         AssertEqual(0.01f, 100f * UState.ProductionPace, SalvageDerelict.PlatformConstruction(Player, platform), "times the production pace");
-        Player.data.Traits.ShipCostMod = 10f;
-        AssertGreaterThan(platform.GetCost(Player), 100f * UState.ProductionPace, "setup: a cost malus lifts the platform's cost above that");
-        AssertEqual(0.01f, platform.GetCost(Player), SalvageDerelict.PlatformConstruction(Player, platform), "and its construction with it");
-
-        Derelict d = Forms(Wreck);
-        BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
-        AssertEqual(0.01f, platform.GetCost(Player), order.FinishedShip.Construction.ConstructionNeeded, "the constructor builds that much");
+        SalvageDerelict floored = OrderedAndLaunched(Forms(Wreck + new Vector2(0, 5_000f)), Player);
+        AssertEqual(0.01f, 100f * UState.ProductionPace, floored.FinishedShip.Construction.ConstructionNeeded, "which the next constructor builds");
     }
 
     [TestMethod]

@@ -120,7 +120,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - Each live salvage module works one derelict at a time. A module that dies launches nothing new; a platform it
     already sent carries on (290).
   - It keeps the salvaged production in its cargo. A design with less cargo room than one load, the Salvage
-    Platform design's hold (24 for now, following the design), is not a usable salvage station: the picker and the
+    Platform design's hold (75, following the design; 442), is not a usable salvage station: the picker and the
     Automation dropdown skip it, a race default like that logs an error at load, and the ship designer lists it as a
     design issue, as it does for mining and research stations (`ShipDesignIssues`, `LowRefiningTime` and
     `LowResearchTime`) (302). The load replaced the `SalvageChunkSize` knob in part 4 of sub-branch 4 (405 A).
@@ -257,14 +257,16 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       5 to 30 s; a constructor still flying holds its bay.
     - The platform's site is a random point on a circle of the derelict's radius + 100 around it (378).
     - The platform's construction is the Salvage Platform's cost x the production pace with the empire's bonuses
-      (380), never below 100 x the pace (388 B, 389 A), so a vanilla constructor builds it on its second turn there.
+      (380), never below 100 x the pace (388 B, 389 A). With its own holds it costs 156 at the normal pace, above the
+      floor (443 A), so a vanilla constructor, which adds 35 to 51 on its first turn and 100 on each after, builds it
+      on its third turn.
     - A rival's constructor on its way when the derelict is claimed flies home and docks (379), and so does one whose
       order the second click calls off, on manual salvage; with salvage on automatic the click does nothing (381).
     - A constructor in flight whose station is lost is scuttled at once (382).
     - As built (part 2): the order is a deep-space build goal for the Salvage Platform, in three steps (launch,
       build, platform; part 4 adds a fourth, the dismantling), and puts no build marker on the map, since the Salvage button calls it off. Its constructor
-      is the one a small Deep Space Build job gets (the dropdown design, or the cheapest with auto pick on), and a
-      salvage bay launches nothing else. It flies and builds as any constructor does and claims the derelict as it
+      is the one a small Deep Space Build job gets (the dropdown design, or the cheapest with auto pick on, whatever
+      the platform costs since 446 B), and a salvage bay launches nothing else. It flies and builds as any constructor does and claims the derelict as it
       starts to build, within 200 of the site; the platform it builds takes over the derelict, and the ordnance the
       constructor took is spent. One boarded on its way is its boarder's ship, and its unit is free to launch another;
       one flying home to a station lost on the way is removed, as a miner is, and a station's death blast can destroy
@@ -286,8 +288,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     be shot (150).
 - **Work (276, 282, 286, 292; Gilad, 2026-10-18; 391-411):**
   - A platform strips `SalvageSpeed` production per turn, a Globals knob with default 12 (394, was 10), into its hold
-    as production cargo, and strips only what fits there (391, which drops the "no limit" of 282). Its hold takes 24
-    for now; Gilad adds cargo modules for it later.
+    as production cargo, and strips only what fits there (391, which drops the "no limit" of 282). Its hold takes 75,
+    in cargo modules of its own (442).
   - Each turn it either strips or, with its hold full, sends its whole load to its station, as much as the station
     has room for; the rest stays aboard, and it strips again once it has room (398 A, 404, 406 A). The load replaces
     the chunk: `SalvageChunkSize` goes, and a salvage station needs cargo room for one platform's hold (405 A). The
@@ -318,8 +320,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - Once the platform has sent all it holds, it takes itself apart, as its build run backwards, and dissolves in the
     end, freeing its unit (403; shown as a build since 423).
   - **Loads and dismantling (Gilad, 2026-10-18; 413-426):**
-    - A load's shuttles: one per 10 production, rounded up, at most 20 (413), flying one way from the platform to
-      the station and ending there with a flash (415 A). They fly at the normal pace of cargo shuttles, not the hull
+    - A load's shuttles: one per 15 production, rounded up, at most 20 (413; 15 since 442, was 10), flying one way
+      from the platform to the station and ending there with a flash (415 A). They fly at the normal pace of cargo shuttles, not the hull
       shuttles' third (414), taken as 600 a second on average, three times the hull shuttles' 200 or so: the trip's
       time follows its distance, each flight takes 0.42 to 0.6 of it and launches within its first 35%, as a supply
       ship's shuttles do. Each is drawn wherever it is on screen, from planet view in, and a load launches them only
@@ -345,6 +347,29 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     - As built (part 4): texts 7175-7177; the Codex section in 100093 gains the loads, the dismantling, the freed
       unit, the lost station and the second click's wind-down. Texts 7143 and 7167 are now true. A mod whose
       Globals.yaml still sets `SalvageChunkSize` loads with a warning in the log.
+  - **The platform's holds (Gilad, 2026-10-18; 442-451):**
+    - The Salvage Platform carries cargo modules of its own: four `SalvageCargo2x2` (15 cargo, cost 40) and six
+      `SalvageCargo1x1` (2.5, cost 10), a hold of 75, Gilad having halved his first 30 and 5 (442).
+    - Its category is Unclassified, no longer Civilian: its panel drops " - Civilian", its low-health warning starts
+      at 85% of its internal health instead of 97.5%, and the evade stance it loses never applied to an unarmed ship.
+    - No tech unlocks the two, so no empire has them and the ship designer never lists them; nothing needs them
+      unlocked, since no empire builds the platform from a list. The design is no longer unlockable either, so with
+      debug features on the designer's Load list leaves it out; the developer sandbox lists it greyed out, and only
+      its Load button opens it.
+    - A load's shuttles are one per 15 production, rounded up (442), so a full hold sends 5, under the cap of 20.
+    - Their costs stand (443 A): the platform costs 224, 156 at the orbital 70%, above the floor of 100.
+    - They keep the vanilla Small and Medium Cargo Hold names and descriptions, which only the debug designer shows
+      (444 A), and no test pins that no tech unlocks them (445 B).
+    - At 12 a turn a full hold takes 7 turns, and a salvage station needs cargo room for 75; every race's basic
+      station holds 316.
+    - With auto pick a salvage unit launches the cheapest constructor whatever the platform costs (446 B): the
+      platform's 156 is more than twice a constructor's cost of 78 or less, and a Deep Space Build job that size takes
+      the fastest design with the most construction modules instead.
+    - Review (447-451): the shuttle and construction tests were tightened (447) and the plan's wording fixed (448).
+      Left as they are: the 2x2 hold's vanilla `Name` and `Description` lines, which the loader ignores (449), and the
+      designer's debug-features clause for the platform, which a mod's platform of unlockable modules still needs
+      (450). Combined Arms uses no vanilla modules, so its platform needs holds of its own once it turns salvage on;
+      that waits until the feature is complete for BB (451).
   - Production that does not fit never turns into credits (replaces 149 and 157).
   - As built (part 3): texts 7172-7174 (the two statuses and the load bar's tooltip, hooked to 100093; the derelict
     bar reuses the derelict panel's 7130), and the Codex section "Salvaging a derelict" in 100093, after "How a ship
