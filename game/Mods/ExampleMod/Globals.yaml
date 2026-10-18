@@ -12,6 +12,7 @@ Globals:
   MaxDriftingDerelicts: 100 # most drifting derelicts with a model at once
   MaxSalvageableDerelicts: 100 # most salvageable derelicts at once; the derelict chance falls with their share of it
   SalvageChunkSize: 100 # most production a salvage platform sends its station in a turn; a salvage station needs cargo room for one chunk
+  SalvageSpeed: 12 # production a salvage platform strips from its derelict in a turn, while its hold has room
   RemnantDesignStrMultiplier: 2
   CostBasedOnSizeThreshold: 3000
   HangarCombatShipCostMultiplier: 1

@@ -29,6 +29,8 @@ namespace Ship_Game.Ships
         public float CargoSpaceMax;
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
+        // what its hold still takes: the hold keeps the limit it had when first loaded, while the cargo room changes with damage and repair
+        public float CargoRoom => (Cargo != null ? Math.Min(CargoSpaceFree, Cargo.Room) : CargoSpaceFree).LowerBound(0f);
         public float PassengerModifier => Loyalty.data.Traits.PassengerModifier;
 
         public float MiningStationCargoSpaceMax => CargoSpaceMax*0.5f; // Divided for exotic raw resources and food/production
@@ -89,6 +91,8 @@ namespace Ship_Game.Ships
 
             [StarDataConstructor]
             public CargoContainer(float maxCargo) { MaxCargo = maxCargo; }
+
+            public float Room => MaxCargo - TotalCargo;
 
             // this search is deliberately linear. the amount of cargo items is usually 0 or 1-2
             int IndexOf(string cargoId)

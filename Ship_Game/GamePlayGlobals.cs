@@ -31,6 +31,8 @@ public class GamePlayGlobals
     [StarData] public int MaxSalvageableDerelicts = 100;
     // Most production a salvage platform sends its station in a turn; a salvage station needs cargo room for one such chunk
     [StarData] public float SalvageChunkSize = 100;
+    // Production a salvage platform strips from its derelict in a turn, while its hold has room
+    [StarData] public float SalvageSpeed = 12;
     // How tougher are remnant designs in the mod. This affects starting fleet multipliers and also increases with difficulty. Vanilla is 2
     [StarData] public float RemnantDesignStrMultiplier;
     public float RemnantDesignStr => RemnantDesignStrMultiplier > 0.01f ? RemnantDesignStrMultiplier : 2f;

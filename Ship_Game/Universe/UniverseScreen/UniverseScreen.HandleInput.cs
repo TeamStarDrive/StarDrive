@@ -614,7 +614,7 @@ namespace Ship_Game
                 if (!d.SelectableByPlayer)
                     continue;
 
-                ProjectToScreenCoords(d.Position, d.Radius, out Vector2d screenPos, out double screenRadius);
+                ProjectToScreenCoords(d.Position, d.Radius, out Vector2d screenPos, out double screenRadius, zAxis: d.Z);
                 float distPx = cursor.Distance(screenPos.ToVec2f());
                 if (distPx <= ClickRadiusPx(screenRadius) && distPx < bestDistPx)
                 {

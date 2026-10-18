@@ -14,7 +14,8 @@ namespace Ship_Game
     /// <summary>
     /// Small cargo shuttles flying up from a planet to its space port while a freighter lands there to trade,
     /// and back down as it takes off; from a space port to a troop ship unloading onto the colony, and back; down
-    /// from an assault shuttle dropping its troop; and from a supply shuttle to the ship it rearms.
+    /// from an assault shuttle dropping its troop; from a supply shuttle to the ship it rearms; and from a salvage
+    /// platform to the derelict it strips, and back.
     /// They are only a visual effect: nothing is saved and nothing waits for them.
     /// </summary>
     public sealed class CargoShuttles
@@ -26,6 +27,11 @@ namespace Ship_Game
         public const float OrdnancePerShuttle = 2f;
         public const int MaxOrdnanceShuttles = 5;
         public const float OrdnanceShuttleSeconds = 3f;
+        public const float ProductionPerSalvageShuttle = 3f;
+        // a salvage platform's shuttles launch 0.2 to 2 s after the turn's stripping, take 2 to 2.9 s each way, and turn back at once
+        public const float MinHullLaunchDelay = 0.2f;
+        public const float MaxHullLaunchDelay = 2f;
+        public const float HullShuttleSeconds = 4.8f;
         const float LaunchPart = 0.35f;
         const float DropLaunchPart = 0.1f;
         const float MinFlightPart = 0.42f;
@@ -42,7 +48,8 @@ namespace Ship_Game
             Trade,
             PortToShip,
             Drop,
-            ShipToShip
+            ShipToShip,
+            ShipToHull
         }
 
         readonly struct Request
@@ -56,8 +63,10 @@ namespace Ship_Game
             public readonly int Count;
             public readonly float Seconds;
             public readonly bool Rising;
+            public readonly float Spread;
 
-            public Request(Route route, Planet planet, Ship ship, Ship fromShip, Vector3 from, Color trailColor, int count, float seconds, bool rising)
+            public Request(Route route, Planet planet, Ship ship, Ship fromShip, Vector3 from, Color trailColor, int count, float seconds, bool rising,
+                           float spread = 0f)
             {
                 Route = route;
                 Planet = planet;
@@ -68,6 +77,7 @@ namespace Ship_Game
                 Count = count;
                 Seconds = seconds;
                 Rising = rising;
+                Spread = spread;
             }
         }
 
@@ -115,6 +125,9 @@ namespace Ship_Game
 
         public static int OrdnanceShuttlesFor(float ordnance) => ((int)(ordnance / OrdnancePerShuttle)).Clamped(1, MaxOrdnanceShuttles);
 
+        // one for every 3 production stripped, rounded up
+        public static int SalvageShuttlesFor(float stripped) => ((int)Math.Ceiling(stripped / ProductionPerSalvageShuttle)).Clamped(1, MaxShuttles);
+
         public void Send(Planet planet, Color trailColor, int shuttles, float seconds, bool toPort)
             => Queue(new(Route.Trade, planet, null, null, Vector3.Zero, trailColor, shuttles, seconds, rising: toPort));
 
@@ -126,6 +139,10 @@ namespace Ship_Game
 
         public void SendShipToShip(Ship from, Ship to, Color trailColor, int shuttles, float seconds)
             => Queue(new(Route.ShipToShip, null, to, from, Vector3.Zero, trailColor, shuttles, seconds, rising: true));
+
+        // each to a random point on the hull and back
+        public void SendToHullAndBack(Ship from, Vector3 hull, float hullRadius, Color trailColor, int shuttles)
+            => Queue(new(Route.ShipToHull, null, from, null, hull, trailColor, shuttles, HullShuttleSeconds, rising: false, spread: hullRadius * 0.5f));
 
         void Queue(in Request request)
         {
@@ -156,6 +173,26 @@ namespace Ship_Game
             int count = 0;
             for (int i = 0; i < Flying.Count; ++i)
                 if (Flying[i].FromShip == from && Flying[i].Ship == to)
+                    ++count;
+            return count;
+        }
+
+        // launched from or to the ship at their high end, past their delay
+        internal int Launched(Ship ship)
+        {
+            int count = 0;
+            for (int i = 0; i < Flying.Count; ++i)
+                if (Flying[i].Ship == ship && Flying[i].Age > Flying[i].Delay)
+                    ++count;
+            return count;
+        }
+
+        // flying towards the ship at their high end, as a salvage platform's shuttles coming back from the hull
+        internal int InFlightTowards(Ship ship)
+        {
+            int count = 0;
+            for (int i = 0; i < Flying.Count; ++i)
+                if (Flying[i].Ship == ship && Flying[i].Rising)
                     ++count;
             return count;
         }
@@ -251,6 +288,13 @@ namespace Ship_Game
                         shuttle.FromShip = request.FromShip;
                         shuttle.Ship = request.Ship;
                         shuttle.Delay = Random.Float(0f, LaunchPart) * request.Seconds;
+                        break;
+                    case Route.ShipToHull:
+                        Vector2 onHull = request.From.ToVec2().GenerateRandomPointInsideCircle(request.Spread, Random);
+                        shuttle.Low = onHull.ToVec3(request.From.Z);
+                        shuttle.Ship = request.Ship;
+                        shuttle.ComesBack = true;
+                        shuttle.Delay = Random.Float(MinHullLaunchDelay, MaxHullLaunchDelay);
                         break;
                 }
 

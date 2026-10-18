@@ -6238,6 +6238,12 @@ namespace Ship_Game
         DerelictSalvagedBy = 7170,
         /// <summary>Turns left stand still while an empire salvages this derelict</summary>
         DerelictTurnsStandTip = 7171,
+        /// <summary>Salvaging {0}</summary>
+        SalvagingDerelict = 7172,
+        /// <summary>Salvage hold full</summary>
+        SalvageHoldFull = 7173,
+        /// <summary>Production this salvage platform has stripped from its derelict</summary>
+        SalvageHoldTip = 7174,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

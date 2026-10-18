@@ -468,3 +468,6 @@ SalvageDerelictNoFreeUnitTip: warfare_combat_basics
 # Exotic Systems salvage rows
 SalvageableDerelictsHereTip: warfare_combat_basics
 SystemSalvageProductionTip: warfare_combat_basics
+
+# Salvage platform panel
+SalvageHoldTip: warfare_combat_basics

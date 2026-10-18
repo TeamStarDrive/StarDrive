@@ -17,7 +17,7 @@ using Matrix = SDGraphics.Matrix;
 namespace Ship_Game.Ships;
 
 // a ship that died without exploding: it breaks up and drifts on with its lights out, tumbling and smoking, then sinks away;
-// a salvageable one stops in its system and sinks only when its turns run out
+// a salvageable one stops in its system and sinks only when its turns run out or a platform strips it empty
 public sealed class Derelict
 {
     // a salvageable derelict stops over this time and stays put; a drifting one keeps going and sinks after its breakup
@@ -25,9 +25,14 @@ public sealed class Derelict
     public const float MinBreakupSeconds = 3f;
     public const float MaxBreakupSeconds = 5f;
     public const float SinkSpeed = 50f;
+    // one stripped empty sinks away twice as fast
+    public const float StrippedSinkSpeed = 2f * SinkSpeed;
     public const float RemoveDepth = 5000f;
-    // it shrinks as it sinks, to this share of its size at the removal depth
+    // it shrinks as it sinks from its rest depth, to this share of its size at the removal depth
     public const float ScaleAtRemoval = 0.1f;
+    // a salvageable one settles at 25 a second as deep as its radius, at most 500, keeping its size, so it looks a little distant
+    public const float RestSinkSpeed = 25f;
+    public const float MaxRestDepth = 500f;
     // smoke from 20% of its modules at death, thinning out to the last six over 60 s
     public const float SmokeSourcesPerModule = 0.2f;
     public const int MinSmokeSources = 6;
@@ -40,6 +45,13 @@ public sealed class Derelict
     public const float SalvageShareOfHealth = 0.5f;
     // and never less than this, times the production pace
     public const float MinSalvageProduction = 50f;
+    // while a platform strips it on screen, per production of the salvage speed: flashes a second, rounded up, and small pieces of junk a second
+    public const float StripFlashesPerSalvage = 0.33f;
+    public const float StripJunkPerSalvage = 0.16f;
+    // each piece of junk flies off its hull in a random direction at this speed
+    public const float MinStripJunkSpeed = 30f;
+    public const float MaxStripJunkSpeed = 80f;
+    public const float StripJunkShareOfRadius = 0.05f;
 
     [StarDataType]
     public struct SmokeSource
@@ -71,6 +83,7 @@ public sealed class Derelict
         [StarData] public SolarSystem System;
         [StarData] public Empire Claimant;
         [StarData] public bool[] KnownBy;
+        [StarData] public float[] Shares;
         [StarData] public SmokeSource[] Smoke;
     }
 
@@ -83,6 +96,11 @@ public sealed class Derelict
     readonly float LightsAtDeath;
     readonly AudioEmitter BlastEmitter = new(maxDistance: GameAudio.ShipSfxDistance);
     float NextBlast;
+    // its flashes and junk run on this long after a platform last stripped it, while the player sees that platform
+    float StripEffectsLeft;
+    Ship StrippedBy;
+    float NextStripFlash;
+    float NextStripJunk;
 
     // unique among the universe's objects, so a salvage order saved with its empire finds it again
     public readonly int Id;
@@ -93,6 +111,8 @@ public sealed class Derelict
     public readonly bool Salvageable;
     // by empire id - 1; written on the sim thread, read on the UI thread
     bool[] KnownBy;
+    // the production each empire has stripped from it, claim after claim, by empire id - 1; written under the list's lock
+    float[] Shares = Empty<float>.Array;
     public int TurnsLeft { get; private set; }
     // a salvageable one's production to salvage, fixed at its death, and what is still left of it
     public readonly float Production;
@@ -161,6 +181,7 @@ public sealed class Derelict
         if (!seen)
         {
             Position = StopPoint(ship);
+            Z = RestDepth;
             Age = StopSeconds;
             return;
         }
@@ -193,6 +214,7 @@ public sealed class Derelict
         System = save.System;
         Claimant = save.Claimant;
         KnownBy = save.KnownBy ?? new bool[universe.NumEmpires];
+        Shares = save.Shares ?? Empty<float>.Array;
         Smoke = save.Smoke ?? Empty<SmokeSource>.Array;
     }
 
@@ -221,6 +243,7 @@ public sealed class Derelict
             System = System,
             Claimant = Claimant,
             KnownBy = (bool[])KnownBy.Clone(),
+            Shares = (float[])Shares.Clone(),
             Smoke = smoke,
         };
     }
@@ -275,10 +298,12 @@ public sealed class Derelict
         }
     }
 
-    // a salvageable one sinks once its turns run out
-    public bool Sinking => Salvageable ? TurnsLeft <= 0 : Age > BreakupSeconds;
+    // a salvageable one sinks once its turns run out or it is stripped empty
+    public bool Sinking => Salvageable ? TurnsLeft <= 0 || Stripped : Age > BreakupSeconds;
 
-    public bool CanBeSalvaged => Salvageable && TurnsLeft > 0;
+    public bool Stripped => Salvageable && ProductionLeft <= 0f;
+
+    public bool CanBeSalvaged => Salvageable && TurnsLeft > 0 && !Stripped;
 
     // the player finds on the map and selects only the salvageable ones it knows of
     public bool SelectableByPlayer => CanBeSalvaged && KnownByPlayer;
@@ -304,6 +329,39 @@ public sealed class Derelict
     {
         Claimant = null;
     }
+
+    // from any thread: the production the empire has stripped from it so far
+    public float ShareOf(Empire empire)
+    {
+        float[] shares = Shares;
+        int i = empire.Id - 1;
+        return i < shares.Length ? shares[i] : 0f;
+    }
+
+    // under the list's lock, on the sim thread: up to this much of what is left goes to the empire's share; returns what was stripped
+    internal float Strip(Empire empire, Ship platform, float amount)
+    {
+        float stripped = amount.Clamped(0f, ProductionLeft);
+        if (stripped <= 0f)
+            return 0f;
+
+        ProductionLeft -= stripped;
+        int i = empire.Id - 1;
+        if (i >= Shares.Length)
+        {
+            var grown = new float[Universe.NumEmpires.LowerBound(i + 1)];
+            Array.Copy(Shares, grown, Shares.Length);
+            Shares = grown;
+        }
+        Shares[i] += stripped;
+        // a little over a turn, so they run unbroken while a platform strips it every turn; one stripped empty sinks with none
+        StripEffectsLeft = Stripped ? 0f : Universe.P.TurnTimer * 1.2f;
+        StrippedBy = platform;
+        return stripped;
+    }
+
+    // on the sim thread: its flashes and junk show while a platform strips it that the player sees, as a supply ship's shuttles do
+    internal bool StripEffectsShown => StripEffectsLeft > 0f && StrippedBy is { Active: true, InPlayerSensorRange: true };
 
     // dead modules first, then damaged ones; conduits only spark, so they are left out
     static SmokeSource[] PickSmokeSources(Ship ship)
@@ -350,7 +408,9 @@ public sealed class Derelict
     // where a salvageable one comes to rest: slowing linearly, it covers half its speed times the time left
     public Vector2 RestPosition => Salvageable ? Position + VelocityNow * ((StopSeconds - Age) * 0.5f) : Position;
 
-    public float Scale => 1f - (1f - ScaleAtRemoval) * (Z / RemoveDepth).Clamped(0f, 1f);
+    public float RestDepth => Salvageable ? Math.Min(Radius, MaxRestDepth) : 0f;
+
+    public float Scale => 1f - (1f - ScaleAtRemoval) * ((Z - RestDepth) / (RemoveDepth - RestDepth)).Clamped(0f, 1f);
 
     Matrix Rotation => Matrix.CreateRotationY(RotationY) * Matrix.CreateRotationX(RotationX) * Matrix.CreateRotationZ(RotationZ);
 
@@ -387,8 +447,12 @@ public sealed class Derelict
         float dt = timeStep.FixedTime;
         Position += VelocityNow * dt;
         Age += dt;
+        if ((StripEffectsLeft -= dt) <= 0f)
+            StrippedBy = null;
         if (Sinking)
-            Z += SinkSpeed * dt;
+            Z += (Stripped ? StrippedSinkSpeed : SinkSpeed) * dt;
+        else if (Z < RestDepth)
+            Z = (Z + RestSinkSpeed * dt).UpperBound(RestDepth);
 
         if (Z >= RemoveDepth)
         {
@@ -423,6 +487,8 @@ public sealed class Derelict
 
         if (Age < BreakupSeconds)
             UpdateBreakup(dt, particles);
+        if (StripEffectsShown)
+            UpdateStripping(dt, particles, scale);
 
         int smoking = NumSmokingNow;
         for (int i = 0; i < Smoke.Length; ++i)
@@ -457,6 +523,25 @@ public sealed class Derelict
         {
             var pos = new Vector3(Position + random.Vector2D(Radius * 0.5f), Z);
             particles.Lightning.AddParticle(pos, new Vector3(velocity, 0f), 0.5f, Color.White);
+        }
+    }
+
+    // flashes at random points on its hull, and small pieces of junk pulled off it in random directions, both at random intervals around their rates
+    void UpdateStripping(float dt, ParticleManager particles, float scale)
+    {
+        var random = Universe.Random;
+        float salvage = GlobalStats.Defaults.SalvageSpeed;
+        float spread = Radius * 0.5f * scale;
+        if ((NextStripFlash -= dt) <= 0f)
+        {
+            NextStripFlash = random.Float(0.5f, 1.5f) / (float)Math.Ceiling(salvage * StripFlashesPerSalvage);
+            particles.Flash.AddParticle(new Vector3(Position + random.Vector2D(spread), Z));
+        }
+        if ((NextStripJunk -= dt) <= 0f)
+        {
+            NextStripJunk = random.Float(0.5f, 1.5f) / (salvage * StripJunkPerSalvage);
+            Vector2 velocity = random.Direction2D() * random.Float(MinStripJunkSpeed, MaxStripJunkSpeed);
+            SpaceJunk.SpawnJunk(Universe, new Vector3(Position + random.Vector2D(spread), Z), velocity, Radius * StripJunkShareOfRadius * scale);
         }
     }
 

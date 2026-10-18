@@ -4,6 +4,7 @@ using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -18,6 +19,8 @@ namespace Ship_Game.Commands.Goals
 
         [StarData] public int DerelictId;
         [StarData] public Ship Platform;
+        // its platform stripped the derelict empty, and holds its load on
+        [StarData] public bool Emptied { get; private set; }
         Derelict Found;
 
         public Derelict Derelict => Found ??= UState.Derelicts.Find(DerelictId);
@@ -108,14 +111,15 @@ namespace Ship_Game.Commands.Goals
                 d.ReleaseClaim();
         }
 
-        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first
-        bool Stands => Owner.Universe.P.SalvageOps && Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner);
+        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first, and once its platform has stripped it empty
+        bool Stands => Owner.Universe.P.SalvageOps
+                       && (Emptied || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner));
 
         bool Launched => Step > 0;
 
         protected override GoalStep? PreEvaluate() => Stands ? null : GoalStep.GoalFailed;
 
-        // an order that ends calls its constructor home, or scuttles it with its station lost, takes its platform away, and gives up its claim unless another order of its empire's holds the derelict
+        // an order that ends calls its constructor home, or scuttles it with its station lost, takes its platform away unless it is in other hands, and gives up its claim unless another order of its empire's holds the derelict
         public override void OnRemoved()
         {
             if (Constructor() is { } constructor)
@@ -130,7 +134,7 @@ namespace Ship_Game.Commands.Goals
                     constructor.AI.OrderScuttleShip();
                 }
             }
-            if (Platform is { Active: true } platform)
+            if (Platform is { Active: true } platform && platform.Loyalty == Owner)
                 platform.QueueTotalRemoval();
 
             if (Derelict is { } d && d.Claimant == Owner
@@ -196,10 +200,42 @@ namespace Ship_Game.Commands.Goals
             return null;
         }
 
+        // each turn the platform strips what its hold has room for, and waits with its hold full; one lost or in other hands ends the order
         GoalStep Salvage()
         {
-            return Platform is { Active: true } ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            if (Platform is not { Active: true } platform || platform.Loyalty != Owner)
+                return GoalStep.GoalFailed;
+            if (!Emptied && !HoldFull(platform))
+                Strip(platform, Derelict);
+            return GoalStep.TryAgain;
         }
+
+        // it strips only what its hold took
+        void Strip(Ship platform, Derelict d)
+        {
+            float wanted = Math.Min(Math.Min(GlobalStats.Defaults.SalvageSpeed, platform.CargoRoom), d.ProductionLeft);
+            float stripped = UState.Derelicts.Strip(d, Owner, platform, platform.LoadProduction(wanted));
+            if (stripped > 0f)
+                SendShuttles(platform, d, stripped);
+            Emptied = d.Stripped;
+        }
+
+        // they show only where the player sees the platform, as a supply ship's do
+        void SendShuttles(Ship platform, Derelict d, float stripped)
+        {
+            if (platform.InFrustum && UState.IsPlanetViewOrCloser && platform.InPlayerSensorRange)
+                UState.Screen.CargoShuttles.SendToHullAndBack(platform, new Vector3(d.Position, d.Z), d.Radius, Owner.EmpireColor,
+                                                              CargoShuttles.SalvageShuttlesFor(stripped));
+        }
+
+        // less room than this left in a platform's hold counts as full
+        const float FullHoldRoom = 0.01f;
+
+        public static bool HoldFull(Ship platform) => platform.CargoRoom < FullHoldRoom;
+
+        // from any thread: the order a salvage platform works for, or null
+        public static SalvageDerelict OfPlatform(Ship platform)
+            => platform.Loyalty.AI.FindGoal(g => g is SalvageDerelict s && s.Platform == platform) as SalvageDerelict;
 
         static ShipModule FreeBay(Ship station)
         {

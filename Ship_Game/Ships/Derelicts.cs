@@ -175,6 +175,18 @@ public sealed class Derelicts
         return false;
     }
 
+    // on the sim thread: a platform strips up to this much from the derelict for its empire, and one stripped empty leaves its system at once
+    public float Strip(Derelict d, Empire empire, Ship platform, float amount)
+    {
+        lock (Sync)
+        {
+            float stripped = d.Strip(empire, platform, amount);
+            if (d.Stripped)
+                Leave(d);
+            return stripped;
+        }
+    }
+
     // under the lock: one that can no longer be salvaged leaves its system, and a system with none left leaves every empire's list
     static void Leave(Derelict d)
     {
