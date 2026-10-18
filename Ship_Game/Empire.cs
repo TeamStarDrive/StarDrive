@@ -480,16 +480,18 @@ namespace Ship_Game
                 rel.Them.GetRelations(this).AtWar = false;
             }
 
+            Empire rebels = Universe.CreateRebelsFromEmpireData(data, this);
+            Universe.Stats.UpdateEmpire(Universe.StarDate, rebels);
+
             foreach (Ship ship in OwnedShips)
             {
                 ship.AI.ClearOrders();
             }
+            SalvageDerelict.PassOn(this, rebels);
+            Universe.Derelicts.PassShares(this, null);
             AI.ClearGoals();
             AI.EndAllTasks();
             ResetFleets();
-
-            Empire rebels = Universe.CreateRebelsFromEmpireData(data, this);
-            Universe.Stats.UpdateEmpire(Universe.StarDate, rebels);
 
             foreach (Ship s in OwnedShips)
             {
@@ -2253,6 +2255,12 @@ namespace Ship_Game
 
         public void AbsorbEmpire(Empire target)
         {
+            if (Universe.Screen is { IsOnSimThread: false } screen) // a federation accepted in the diplomacy screen
+            {
+                screen.RunOnSimThread(() => AbsorbEmpire(target));
+                return;
+            }
+
             AbsorbAllEnvPreferences(target);
             var planets = target.GetPlanets();
             for (int i = planets.Count-1; i >= 0; i--)
@@ -2336,6 +2344,8 @@ namespace Ship_Game
                 target.Money = 0.0f;
             }
 
+            SalvageDerelict.PassOn(target, this);
+            Universe.Derelicts.PassShares(target, this);
             target.AI.SpaceRoadsManager.RemoveSpaceRoadsByAbsorb();
             target.SetAsMerged();
             ResetBorders();

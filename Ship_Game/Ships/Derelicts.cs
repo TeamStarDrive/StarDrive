@@ -140,6 +140,15 @@ public sealed class Derelicts
             system.Universe.Notifications?.AddNewDerelictNotification(first);
     }
 
+    // a ship that changes hands where it is counts as entering its system for its new owner; a save or the UI can apply the change of hands
+    public void ChangedHands(Ship ship)
+    {
+        if (ship.Universe.Screen is { IsOnSimThread: false } screen)
+            screen.RunOnSimThread(() => Enter(ship));
+        else
+            Enter(ship);
+    }
+
     // under the lock: the empire lists the system, so it knows every derelict in it
     static void ListSystem(Empire e, SolarSystem system)
     {
@@ -184,6 +193,16 @@ public sealed class Derelicts
             if (d.Stripped)
                 Leave(d);
             return stripped;
+        }
+    }
+
+    // on the sim thread: an absorbed empire's shares go to the empire absorbing it, and a defeated one's, with no empire to take them, are dropped
+    public void PassShares(Empire from, Empire to)
+    {
+        lock (Sync)
+        {
+            for (int i = 0; i < Items.Count; ++i)
+                Items[i].PassShare(from, to);
         }
     }
 

@@ -346,6 +346,15 @@ public sealed class Derelict
             return 0f;
 
         ProductionLeft -= stripped;
+        AddShare(empire, stripped);
+        // a little over a turn, so they run unbroken while a platform strips it every turn; one stripped empty sinks with none
+        StripEffectsLeft = Stripped ? 0f : Universe.P.TurnTimer * 1.2f;
+        StrippedBy = platform;
+        return stripped;
+    }
+
+    void AddShare(Empire empire, float amount)
+    {
         int i = empire.Id - 1;
         if (i >= Shares.Length)
         {
@@ -353,11 +362,18 @@ public sealed class Derelict
             Array.Copy(Shares, grown, Shares.Length);
             Shares = grown;
         }
-        Shares[i] += stripped;
-        // a little over a turn, so they run unbroken while a platform strips it every turn; one stripped empty sinks with none
-        StripEffectsLeft = Stripped ? 0f : Universe.P.TurnTimer * 1.2f;
-        StrippedBy = platform;
-        return stripped;
+        Shares[i] += amount;
+    }
+
+    // under the list's lock, on the sim thread: an empire that leaves passes its share to the empire absorbing it, or with none drops it
+    internal void PassShare(Empire from, Empire to)
+    {
+        float share = ShareOf(from);
+        if (share <= 0f)
+            return;
+        Shares[from.Id - 1] = 0f;
+        if (to != null)
+            AddShare(to, share);
     }
 
     // on the sim thread: its flashes and junk show while a platform strips it that the player sees, as a supply ship's shuttles do

@@ -233,7 +233,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       until it is gone; the player can order the derelict again, a new platform going up while the old one comes
       apart. A rival's claim leaves the old platform to finish, and the old order's end leaves a new order's claim.
     - Whatever ends an order gives up its claim (`SalvageDerelict.OnRemoved`), the clearing of a defeated or merged
-      empire's goals included; the merger's handing claims to the absorber comes with losses and takeovers (296).
+      empire's goals included, but an order with a built platform passes first, its claim with it, to the absorber or
+      to the rebels (296, 431 A; part 5).
   - The module launches the empire's current constructor design, the one Deep Space Build uses (271 A, 283). The
     constructor flies to the derelict and builds the platform next to it. If it dies on the way, the order stands
     and a unit launches another once its timer allows.
@@ -269,7 +270,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       one flying home to a station lost on the way is removed, as a miner is, and a station's death blast can destroy
       one just launched beside it. The designer shows the constructor and its launch ordnance under a salvage unit's
       stats, as it shows a refining module's miner.
-    - Until losses (part 5) come, a lost platform ends its order and its claim.
+    - A lost platform ends its order and its claim (275).
     - The Codex: 100093 says that a derelict's turns stand still from the moment a constructor starts to build there
       (376 A), and 100099 adds the salvage unit's constructor to what each kind of bay launches.
 - **The claim (272 B, 273, 274):**
@@ -352,9 +353,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     which part 4 made true, and the Salvage button's tooltip (7166) promises technology, which part 6 brings; nothing
     ships before them, so they stay as they are (407 A).
   - The hold's room is what its cargo container still takes (`Ship.CargoRoom`): a container keeps the limit it had
-    when first loaded, while the cargo room changes as cargo modules die and are repaired. Until part 5 keeps
-    boarders off platforms (285), a platform in other hands ends its order and its claim, as a lost one does, and
-    stays with its new owner, whole if it was coming apart.
+    when first loaded, while the cargo room changes as cargo modules die and are repaired. Since part 5 no boarder
+    takes a platform (285, 427 A), so only the debug tools put one in other hands; one that is ends its order and its
+    claim, as a lost one does, and stays with its new owner, whole if it was coming apart.
 - **Losses (275, 285, 291, 296, 298, 356-360, 362):**
   - A destroyed platform releases its claim, and what it held is lost; the derelict keeps what is left of it.
   - A station that is lost (destroyed, boarded or scrapped) takes its platforms with it, at work or coming apart,
@@ -381,6 +382,47 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     absorber's station takes over the removed one's platforms (296).
   - The Codex says so in 100086 (Deep Space Building), and 100130 (Federations) adds the salvage stations to the
     ships a merger loses (360).
+  - **Losses and takeovers (Gilad, 2026-10-18; 427-441):**
+    - A platform is never a boarding target (427 A): carriers and troop ships never pick it, a right-click on it with
+      a troop ship gives the refusal click, transporters pass it over, a planet sends no boarders at it, and a shuttle
+      already on its way drops the order with its troop aboard, as with a target that takes off. Pirates never pick
+      one for a raid, as they never pick a ship taking off (428 A): an unarmed platform would be a cheap kill that
+      levels them up, and their raids on salvage come with the ai sub-branch.
+    - An absorbed empire's orders with a built platform pass to the absorber, at work or coming apart, with their
+      claims; the platforms change hands a step after the merger, and their orders wait for it. Its orders not yet
+      built end and give up their claims (429 A). A constructor launched from a salvage unit is a hangar ship, which
+      the merger's scrap order cannot take, so an order that ends with its empire gone scuttles its constructor
+      itself, and 100130's lost constructors hold for it.
+    - The absorber's own order on a derelict that a passed platform works ends at its next turn, its constructor
+      flying home, as 356 A drops the absorber's unbuilt station order (430 A): an order not yet built gives way to
+      another of its empire's with a platform at work on its derelict, checked at its own turn, since a merger can
+      run while the absorber's goals are being evaluated (436 A).
+    - A defeated empire's platforms go to its rebels with their orders and claims, as in a merger, and work for the
+      rebels' station (431 A); the rebels, a faction, run their goals and are never defeated for having no planets.
+    - An absorbed empire's shares go to the absorber and a defeated one's are dropped, at the merger or the defeat
+      (162; 432 A, 435 A), so the rebels earn tech only for what they strip themselves.
+    - A merger called off the sim thread, as a federation accepted in the diplomacy screen is, queues itself onto it,
+      which also takes away the race of planets and ships changing hands while the sim updates them (434 A). The sim
+      thread drains its queue while the game is paused under the diplomacy screen, so the merger lands at once.
+    - The Codex (433 A): 100093's salvaging section says a platform cannot be boarded, that an empire joining yours
+      brings its platforms and the derelicts they salvage, working for your station there, and drops an order of
+      yours on one of them not yet built, and that a defeated empire's station and platforms go to its rebels;
+      100114 (Capturing Ships) says a salvage platform cannot be boarded; 100130 adds that the absorbed empire's
+      salvage platforms work on for your station in their system.
+    - The absorber learns of the derelicts where its passed ships are, as a ship changing hands there counts as
+      entering the system (437 A; see Knowledge); Codex 100093 says so.
+    - From the review (Gilad, 2026-10-18): a platform built in the very step of a merger or defeat joins its empire's
+      ships a step later, so the merger does not queue its change of hands, and its passed order ends with the
+      platform left to the empire that is gone; so does one in a second merger the same step. Left as is (438 B).
+      The right-click refusals differ: a single troop ship hears the affirmative click before the refusal, as for a
+      constructor; a fleet's troop ships lose their orders before each is refused with a click; a group's is silent and
+      keeps its order. Logged for a later fix (439). A merger queued from the diplomacy screen can land while an async
+      save is still writing, as every queued action can; kept (440 A). The save helper of the takeover tests is a copy
+      of the stations' one, as each salvage test class keeps its own helpers (441 A).
+    - As built (part 5): `Ship.CanBeBoarded`, `SalvageDerelict.PassOn` (called by `Empire.AbsorbEmpire` and
+      `Empire.SetAsDefeated` before the goals are cleared, the rebels now created first), `Derelicts.PassShares`,
+      `Derelicts.ChangedHands`, and `LoyaltyChanges.ChangesTo`, which tells a passed order its platform is still
+      changing hands.
 - **Knowledge (Gilad, 2026-10-16; 257-265):**
   - Each system holds its salvageable derelicts, and each empire holds the set of systems with salvageable derelicts
     it knows of. An empire that lists a system knows every derelict in it. The AI reads these lists.
@@ -393,6 +435,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - Later, a ship entering a system with derelicts its empire does not list adds the system to that empire's list
     (259, replacing the per-turn sensor check: being in the system is what counts, not sensors). Entering is found
     where the game assigns each ship its system every step (`UniverseObjectManager.UpdateSolarSystemShips`).
+  - A ship that changes hands inside a system counts as entering it for its new owner, by a merger, a defeat's
+    rebels, a boarding or a gift alike, with the notification for the player (Gilad, 2026-10-18; 437 A). Without it
+    an absorber could hold a station and platforms in a system whose derelicts it never knew of, and the player could
+    neither see nor call off a passed order. `Derelicts.ChangedHands`, from `LoyaltyChanges`, on the sim thread.
   - A derelict leaves its system once it can no longer be salvaged (its turns ran out, later also stripped or
     recovered), and a system with none left leaves every empire's list.
   - The lists are not saved: on load each system takes back its derelicts, and each empire lists every system with a
@@ -436,7 +482,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   colonisation warnings, is logged for later (353 B). It is an AI reaction, so the Codex says nothing of it.
 - **Placement:** a station cannot be placed outside a system (163).
 - **Empires that leave:** a dead empire's shares are dropped, and an absorbed one's go to the absorbing empire
-  (162, 296).
+  (162, 296; built in part 5, 432 A, 435 A).
 - **Notifications (151, 294, 299-301):** each kind has a switch in a new alerts tab of the Automation window, which
   takes every alert checkbox out of the window's one tall table (279, 289):
   - a system joining your list of systems with salvageable derelicts (see Knowledge), wherever it is (260), told at
@@ -664,7 +710,7 @@ Implementation notes:
    - the loads to the station with their shuttles, and the platform taken apart (276, 282, 292, 398, 403-406,
      413-421; part 4);
    - losses and takeovers (275; 291 as replaced by 420 in part 4), boarders never taking a platform (285), and the absorber's station taking
-     over the platforms of an absorbed second station (296);
+     over the platforms of an absorbed second station (296); 427-441, part 5;
    - the tech payout with its check (159, 287);
    - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301).
 5. **hauling**: freighters pick up a station's stored production for colonies that import it (132 B).

@@ -20,7 +20,7 @@ namespace UnitTests.Ships;
 /// apart until the station has taken all of it.
 /// The click gives up the claim at once, so the derelict can be ordered again while the old platform comes apart, a
 /// rival's claim included, and the old order's end leaves a new order's claim alone. A platform is lost with its
-/// station, at work or coming apart; one boarded while it comes apart stays whole with its boarder. A called-off
+/// station, at work or coming apart; one in other hands while it comes apart stays whole. A called-off
 /// order coming apart survives a save.
 /// </summary>
 [TestClass]
@@ -300,7 +300,7 @@ public class SalvageLoadTests : StarDriveTest
     }
 
     [TestMethod]
-    public void APlatformBoardedWhileComingApartStaysWholeWithItsBoarder()
+    public void APlatformInOtherHandsWhileComingApartStaysWhole()
     {
         Derelict d = Forms(Wreck);
         BuiltStation();
@@ -312,15 +312,13 @@ public class SalvageLoadTests : StarDriveTest
         RunObjectsSim(UState.P.TurnTimer);
         Assert.IsTrue(platform.Dismantling && platform.DismantlePercent > 0f, "setup: the platform comes apart");
 
-        platform.KillAllTroops();
-        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(platform);
-        platform.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        platform.LoyaltyChangeByGift(Enemy, addNotification: false);
         UState.Objects.UpdateLists();
-        AssertEqual(Enemy, platform.Loyalty, "setup: the platform is boarded");
+        AssertEqual(Enemy, platform.Loyalty, "setup: the platform changes hands, as only the debug tools can make it");
 
         order.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(order), "its order ends");
-        Assert.IsTrue(platform.Active, "the boarders keep the platform");
+        Assert.IsTrue(platform.Active, "its new owner keeps the platform");
         Assert.IsFalse(platform.Dismantling, "which no longer comes apart");
         AssertEqual(0f, platform.DismantlePercent, "its dismantling undone");
     }

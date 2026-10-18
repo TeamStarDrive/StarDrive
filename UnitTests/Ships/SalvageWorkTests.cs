@@ -160,17 +160,15 @@ public class SalvageWorkTests : StarDriveTest
         order.Evaluate();
         float left = d.ProductionLeft;
 
-        platform.KillAllTroops();
-        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(platform);
-        platform.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        platform.LoyaltyChangeByGift(Enemy, addNotification: false);
         UState.Objects.UpdateLists();
-        AssertEqual(Enemy, platform.Loyalty, "setup: the platform is boarded");
+        AssertEqual(Enemy, platform.Loyalty, "setup: the platform changes hands, as only the debug tools can make it");
 
         order.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(order), "its order ends, as with a lost platform");
         Assert.IsNull(d.Claimant, "with its claim");
         AssertEqual(left, d.ProductionLeft, "and strips no more");
-        Assert.IsTrue(platform.Active, "the boarders keep the platform");
+        Assert.IsTrue(platform.Active, "its new owner keeps the platform");
         AssertEqual(0.01f, 12f, platform.GetProduction(), "with what it holds");
     }
 

@@ -58,6 +58,39 @@ namespace Ship_Game.Commands.Goals
             Found = derelict;
         }
 
+        // an order passed on with its platform, at work or coming apart
+        SalvageDerelict(Empire owner, SalvageDerelict passed) : this(owner)
+        {
+            StarDateAdded = passed.StarDateAdded;
+            DerelictId = passed.DerelictId;
+            Initialize(ShipDesign.SalvagePlatformName, passed.StaticBuildPos, passed.TargetSystem);
+            Platform = passed.Platform;
+            Emptied = passed.Emptied;
+            CalledOff = passed.CalledOff;
+            DismantleTurnsLeft = passed.DismantleTurnsLeft;
+            ChangeToStep(passed.Dismantling ? Dismantle : Salvage);
+        }
+
+        // on the sim thread, before the goals of an empire that leaves are cleared: its built platforms' orders and claims pass to the empire absorbing it or to its rebels, the platforms changing hands a step later
+        public static void PassOn(Empire from, Empire to)
+        {
+            var goals = from.AI.Goals;
+            for (int i = goals.Count - 1; i >= 0; --i)
+            {
+                if (goals[i] is not SalvageDerelict { Platform: { Active: true } platform } order || platform.Loyalty != from)
+                    continue;
+
+                to.AI.AddGoal(new SalvageDerelict(to, order));
+                if (order.Derelict is { } d && d.Claimant == from)
+                {
+                    d.ReleaseClaim();
+                    d.TryClaim(to);
+                }
+                order.Platform = null; // its end no longer takes the platform away
+                from.AI.RemoveGoal(order);
+            }
+        }
+
         public enum Block { None, Ordered, ClaimedByOther, NoStation, NoFreeUnit, Gone }
 
         // from any thread: why the empire cannot order the derelict salvaged, Ordered while its order stands, or None when it can
@@ -139,20 +172,25 @@ namespace Ship_Game.Commands.Goals
                 d.ReleaseClaim();
         }
 
-        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first, and once its platform's work is over
+        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first or another order of its empire's has a platform at work on it, and once its platform's work is over
         bool Stands => Owner.Universe.P.SalvageOps
-                       && (Finished || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner));
+                       && (Finished || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner) && !GivesWay);
+
+        // an order not yet built gives way to one passed on to its empire with a platform at work on the derelict
+        bool GivesWay => Platform == null
+                         && Owner.AI.HasGoal(g => g != this && g is SalvageDerelict { Finished: false, Platform: { Active: true } } s
+                                                  && s.DerelictId == DerelictId);
 
         bool Launched => Step > 0;
 
         protected override GoalStep? PreEvaluate() => Stands ? null : GoalStep.GoalFailed;
 
-        // an order that ends calls its constructor home, or scuttles it with its station lost, takes its platform away unless it is in other hands, where it stops coming apart, and gives up its claim unless another order of its empire's works the derelict
+        // an order that ends calls its constructor home, or scuttles it with its station lost or its empire gone, takes its platform away unless it is in other hands, where it stops coming apart, and gives up its claim unless another order of its empire's works the derelict
         public override void OnRemoved()
         {
             if (Constructor() is { } constructor)
             {
-                if (constructor.Mothership is { Active: true } station && station.Loyalty == Owner)
+                if (constructor.Mothership is { Active: true } station && station.Loyalty == Owner && !Owner.IsDefeated)
                 {
                     constructor.AI.OrderReturnToHangarDeferred();
                 }
@@ -236,8 +274,10 @@ namespace Ship_Game.Commands.Goals
         // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; once its work is over it sends all it holds, then takes itself apart; one lost or in other hands ends the order, and a lost station takes its platform with it
         GoalStep Salvage()
         {
-            if (Platform is not { Active: true } platform || platform.Loyalty != Owner)
+            if (Platform is not { Active: true } platform)
                 return GoalStep.GoalFailed;
+            if (platform.Loyalty != Owner)
+                return PassingOn(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
             if (SalvageOps.StationIn(Owner, TargetSystem) is not { } station)
                 return GoalStep.GoalFailed;
 
@@ -256,13 +296,20 @@ namespace Ship_Game.Commands.Goals
         // it is gone once its turns are over, freeing its unit
         GoalStep Dismantle()
         {
-            if (Platform is not { Active: true } platform || platform.Loyalty != Owner || SalvageOps.StationIn(Owner, TargetSystem) == null)
+            if (Platform is not { Active: true } platform)
+                return GoalStep.GoalFailed;
+            if (platform.Loyalty != Owner)
+                return PassingOn(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            if (SalvageOps.StationIn(Owner, TargetSystem) == null)
                 return GoalStep.GoalFailed;
             if (--DismantleTurnsLeft > 0)
                 return GoalStep.TryAgain;
             platform.FinishDismantling();
             return GoalStep.GoalComplete;
         }
+
+        // a platform passed on to the empire waits for its change of hands
+        bool PassingOn(Ship platform) => platform.LoyaltyTracker.ChangesTo(Owner);
 
         // as much of its hold as the station has room for, its shuttles launching where the player sees either end
         void SendLoad(Ship platform, Ship station)
