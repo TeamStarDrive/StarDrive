@@ -184,25 +184,15 @@ public sealed class Derelicts
         return false;
     }
 
-    // on the sim thread: a platform strips up to this much from the derelict for its empire, and one stripped empty leaves its system at once
-    public float Strip(Derelict d, Empire empire, Ship platform, float amount)
+    // on the sim thread: a platform strips up to this much from the derelict, and one stripped empty leaves its system at once
+    public float Strip(Derelict d, Ship platform, float amount)
     {
         lock (Sync)
         {
-            float stripped = d.Strip(empire, platform, amount);
+            float stripped = d.Strip(platform, amount);
             if (d.Stripped)
                 Leave(d);
             return stripped;
-        }
-    }
-
-    // on the sim thread: an absorbed empire's shares go to the empire absorbing it, and a defeated one's, with no empire to take them, are dropped
-    public void PassShares(Empire from, Empire to)
-    {
-        lock (Sync)
-        {
-            for (int i = 0; i < Items.Count; ++i)
-                Items[i].PassShare(from, to);
         }
     }
 

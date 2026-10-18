@@ -13,14 +13,13 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// A salvage platform strips its derelict a turn at a time: 12 production, the Globals' SalvageSpeed, or what its hold
-/// still takes, or what is left, into its hold as production cargo, counted to its empire's share on the derelict, a
-/// share kept apart from other empires' earlier claims, and only what its hold took. With its hold full it strips no
-/// more. Its shuttles fly from it to the hull and back, one for every 3 production stripped, launched 0.2 to
+/// still takes, or what is left, into its hold as production cargo, and only what its hold took. With its hold full it
+/// strips no more. Its shuttles fly from it to the hull and back, one for every 3 production stripped, launched 0.2 to
 /// 2 s apart and 2 to 2.9 s each way, turning back at once, and only where the player sees the platform, as the
 /// derelict's flashes do. A derelict stripped empty can no longer be salvaged: it leaves its system's and the empires'
 /// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
-/// panel reads Salvaging and the derelict's design, or Salvage hold full. The shares, and an order whose platform
-/// stripped its derelict empty, survive a save.
+/// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs, and an order whose
+/// platform stripped its derelict empty, with its derelict's techs and production, survive a save.
 /// </summary>
 [TestClass]
 public class SalvageWorkTests : StarDriveTest
@@ -90,7 +89,7 @@ public class SalvageWorkTests : StarDriveTest
     }
 
     [TestMethod]
-    public void APlatformStripsTwelveATurnIntoItsHoldForItsEmpiresShare()
+    public void APlatformStripsTwelveATurnIntoItsHold()
     {
         AssertEqual(12f, GlobalStats.Defaults.SalvageSpeed, "setup: the default salvage speed");
         Derelict d = Forms(Wreck);
@@ -102,12 +101,10 @@ public class SalvageWorkTests : StarDriveTest
         order.Evaluate();
         AssertEqual(0.01f, 12f, platform.GetProduction(), "a turn's work is 12 production in the platform's hold");
         AssertEqual(0.01f, left - 12f, d.ProductionLeft, "taken from the derelict");
-        AssertEqual(0.01f, 12f, d.ShareOf(Player), "and counted to the empire's share");
-        AssertEqual(0f, d.ShareOf(Enemy), "and to no other's");
 
         order.Evaluate();
         AssertEqual(0.01f, 24f, platform.GetProduction(), "turn after turn");
-        AssertEqual(0.01f, 24f, d.ShareOf(Player), "turn after turn");
+        AssertEqual(0.01f, left - 24f, d.ProductionLeft, "turn after turn");
     }
 
     [TestMethod]
@@ -145,7 +142,6 @@ public class SalvageWorkTests : StarDriveTest
         order.Evaluate();
         AssertEqual(0.01f, 18f, platform.GetProduction(), "the hold takes 18");
         AssertEqual(0.01f, left - 18f, d.ProductionLeft, "and only that much leaves the derelict");
-        AssertEqual(0.01f, 18f, d.ShareOf(Player), "or counts to the empire's share");
         Assert.IsTrue(SalvageDerelict.HoldFull(platform), "then the hold is full");
         AssertEqual(Localizer.Token(GameText.SalvageHoldFull), ShipInfoUIElement.SalvageStatus(platform, order), "and its status says so");
     }
@@ -179,13 +175,11 @@ public class SalvageWorkTests : StarDriveTest
         Ship station = BuiltStation();
         SalvageDerelict order = AtWork(d, hold: 100f);
         float earlier = d.ProductionLeft - 5f;
-        AssertEqual(0.01f, earlier, UState.Derelicts.Strip(d, Enemy, null, earlier), "setup: an earlier claim of the enemy's stripped all but 5");
+        AssertEqual(0.01f, earlier, UState.Derelicts.Strip(d, null, earlier), "setup: an earlier claim of the enemy's stripped all but 5");
         Assert.IsTrue(WreckSystem.Derelicts.Contains(d) && Player.DerelictSystems.Contains(WreckSystem), "setup: the derelict is listed");
 
         order.Evaluate();
         AssertEqual(0.01f, 5f, order.Platform.GetProduction(), "the platform strips the 5 left");
-        AssertEqual(0.01f, 5f, d.ShareOf(Player), "for the empire's share");
-        AssertEqual(0.01f, earlier, d.ShareOf(Enemy), "apart from the enemy's earlier one");
         Assert.IsTrue(d.Stripped && !d.CanBeSalvaged && !d.SelectableByPlayer, "the derelict is stripped empty and can no longer be salvaged or selected");
         Assert.IsFalse(WreckSystem.Derelicts.Contains(d), "it leaves its system's list at once");
         Assert.IsFalse(Player.DerelictSystems.Contains(WreckSystem), "and the system, with none left, leaves the empire's");
@@ -264,7 +258,7 @@ public class SalvageWorkTests : StarDriveTest
 
         order.Evaluate();
         Assert.IsTrue(mine.StripEffectsShown, "the player's platform at work makes its derelict flash");
-        UState.Derelicts.Strip(theirs, Enemy, unseen, 12f);
+        UState.Derelicts.Strip(theirs, unseen, 12f);
         Assert.IsFalse(theirs.StripEffectsShown, "a rival's platform out of the player's sight makes no flashes");
     }
 
@@ -286,7 +280,7 @@ public class SalvageWorkTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheSharesAndAnOrderThatStrippedItsDerelictEmptySurviveSaveAndLoad()
+    public void ADerelictsTechsAndAnOrderThatStrippedItsDerelictEmptySurviveSaveAndLoad()
     {
         Derelict partly = Forms(Wreck);
         Derelict emptied = Forms(Wreck + new Vector2(0, 5_000f));
@@ -294,9 +288,10 @@ public class SalvageWorkTests : StarDriveTest
         SalvageDerelict working = AtWork(partly, hold: 100f);
         working.Evaluate();
         SalvageDerelict done = AtWork(emptied, hold: 100f);
-        UState.Derelicts.Strip(emptied, Enemy, null, emptied.ProductionLeft - 5f);
+        UState.Derelicts.Strip(emptied, null, emptied.ProductionLeft - 5f);
         done.Evaluate();
         Assert.IsTrue(done.Emptied, "setup: the second platform stripped its derelict empty");
+        AssertEqual(6, partly.Techs.Length, "setup: a capital's derelict holds 6 techs");
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageWork", throwOnError: true);
@@ -305,7 +300,7 @@ public class SalvageWorkTests : StarDriveTest
 
         Empire player = loaded.UState.Player;
         Derelict loadedPartly = loaded.UState.Derelicts.Find(partly.Id);
-        AssertEqual(0.01f, 12f, loadedPartly.ShareOf(player), "a derelict keeps each empire's share");
+        CollectionAssert.AreEqual(partly.Techs, loadedPartly.Techs, "a derelict keeps its techs");
         AssertEqual(0.01f, partly.ProductionLeft, loadedPartly.ProductionLeft, "and the production left in it");
 
         SalvageDerelict[] orders = player.AI.FindGoals<SalvageDerelict>();
@@ -314,7 +309,15 @@ public class SalvageWorkTests : StarDriveTest
         SalvageDerelict loadedDone = orders.First(o => o.DerelictId == emptied.Id);
         Assert.IsTrue(loadedDone.Emptied, "an order whose platform stripped its derelict empty stays so");
         AssertEqual(0.01f, 5f, loadedDone.Platform.GetProduction(), "with its platform's load");
+        CollectionAssert.AreEqual(emptied.Techs, loadedDone.Techs, "and its derelict's techs");
+        AssertEqual(emptied.Production, loadedDone.DerelictProduction, "and whole production");
+
+        TechEntry tech = player.GetTechEntry(loadedDone.Techs[0]);
+        tech.Unlocked = false;
+        tech.Discovered = true;
+        tech.Progress = 0f;
         loadedDone.Evaluate();
         Assert.IsTrue(player.AI.HasGoal(loadedDone), "and stands on");
+        AssertEqual(0.01f, 0.2f * 5f / emptied.Production * tech.TechCost, tech.Progress, "its load of 5 pays the tech by what the order kept");
     }
 }

@@ -31,6 +31,8 @@ public class GamePlayGlobals
     [StarData] public int MaxSalvageableDerelicts = 100;
     // Production a salvage platform strips from its derelict in a turn, while its hold has room
     [StarData] public float SalvageSpeed = 12;
+    // Share of what a tech has left to research that a derelict's whole production advances it by, each load paying its part
+    [StarData] public float SalvageTechShare = 0.2f;
     // How tougher are remnant designs in the mod. This affects starting fleet multipliers and also increases with difficulty. Vanilla is 2
     [StarData] public float RemnantDesignStrMultiplier;
     public float RemnantDesignStr => RemnantDesignStrMultiplier > 0.01f ? RemnantDesignStrMultiplier : 2f;

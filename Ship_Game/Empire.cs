@@ -488,7 +488,6 @@ namespace Ship_Game
                 ship.AI.ClearOrders();
             }
             SalvageDerelict.PassOn(this, rebels);
-            Universe.Derelicts.PassShares(this, null);
             AI.ClearGoals();
             AI.EndAllTasks();
             ResetFleets();
@@ -2345,7 +2344,6 @@ namespace Ship_Game
             }
 
             SalvageDerelict.PassOn(target, this);
-            Universe.Derelicts.PassShares(target, this);
             target.AI.SpaceRoadsManager.RemoveSpaceRoadsByAbsorb();
             target.SetAsMerged();
             ResetBorders();

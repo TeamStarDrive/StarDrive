@@ -83,7 +83,7 @@ public sealed class Derelict
         [StarData] public SolarSystem System;
         [StarData] public Empire Claimant;
         [StarData] public bool[] KnownBy;
-        [StarData] public float[] Shares;
+        [StarData] public string[] Techs;
         [StarData] public SmokeSource[] Smoke;
     }
 
@@ -111,11 +111,11 @@ public sealed class Derelict
     public readonly bool Salvageable;
     // by empire id - 1; written on the sim thread, read on the UI thread
     bool[] KnownBy;
-    // the production each empire has stripped from it, claim after claim, by empire id - 1; written under the list's lock
-    float[] Shares = Empty<float>.Array;
     public int TurnsLeft { get; private set; }
     // a salvageable one's production to salvage, fixed at its death, and what is still left of it
     public readonly float Production;
+    // a salvageable one's techs, picked at its death, which its loads advance for the empire salvaging it
+    public readonly string[] Techs = Empty<string>.Array;
     public float ProductionLeft { get; private set; }
     // a salvageable one's system, where it stops
     public readonly SolarSystem System;
@@ -175,6 +175,7 @@ public sealed class Derelict
             Production = (ship.HealthPercent.Clamped(0f, 1f) * SalvageShareOfHealth * Design.GetCostBeforeBonuses(Universe.ProductionPace))
                          .LowerBound(MinSalvageProduction * Universe.ProductionPace);
             ProductionLeft = Production;
+            Techs = PickTechs(Design, Owner, random);
             System = SalvageSystemAt(Universe, StopPoint(ship));
         }
 
@@ -214,7 +215,7 @@ public sealed class Derelict
         System = save.System;
         Claimant = save.Claimant;
         KnownBy = save.KnownBy ?? new bool[universe.NumEmpires];
-        Shares = save.Shares ?? Empty<float>.Array;
+        Techs = save.Techs ?? Empty<string>.Array;
         Smoke = save.Smoke ?? Empty<SmokeSource>.Array;
     }
 
@@ -243,7 +244,7 @@ public sealed class Derelict
             System = System,
             Claimant = Claimant,
             KnownBy = (bool[])KnownBy.Clone(),
-            Shares = (float[])Shares.Clone(),
+            Techs = Techs,
             Smoke = smoke,
         };
     }
@@ -270,6 +271,60 @@ public sealed class Derelict
                 return system.InSafeDistanceFromRadiation(distance) ? system : null;
         }
         return null;
+    }
+
+    // how many techs a salvageable one holds, by its hull role; an untethered station holds 3
+    public static int TechsHeld(RoleName hullRole) => hullRole switch
+    {
+        RoleName.frigate    => 2,
+        RoleName.destroyer  => 3,
+        RoleName.cruiser    => 4,
+        RoleName.battleship => 5,
+        RoleName.capital    => 6,
+        _                   => 3,
+    };
+
+    // the techs that unlock the design's modules and its hull, root techs left out
+    public static Array<string> TechsOf(IShipDesign design)
+    {
+        var techs = new Array<string>();
+        foreach (Technology tech in ResourceManager.TechsList)
+            if (!tech.IsRootNode && (UnlocksAModule(tech, design.UniqueModuleUIDs) || UnlocksHull(tech, design.Hull)))
+                techs.Add(tech.UID);
+        return techs;
+    }
+
+    static bool UnlocksAModule(Technology tech, string[] modules)
+    {
+        for (int i = 0; i < tech.ModulesUnlocked.Count; ++i)
+            if (modules.Contains(tech.ModulesUnlocked[i].ModuleUID))
+                return true;
+        return false;
+    }
+
+    static bool UnlocksHull(Technology tech, string hull)
+    {
+        for (int i = 0; i < tech.HullsUnlocked.Count; ++i)
+            if (tech.HullsUnlocked[i].Name == hull)
+                return true;
+        return false;
+    }
+
+    // as many of its design's techs as its hull role holds, at random; a Remnant ship holds none
+    static string[] PickTechs(IShipDesign design, Empire owner, RandomBase random)
+    {
+        if (owner.WeAreRemnants)
+            return Empty<string>.Array;
+
+        Array<string> techs = TechsOf(design);
+        var held = new string[Math.Min(TechsHeld(design.HullRole), techs.Count)];
+        for (int i = 0; i < held.Length; ++i)
+        {
+            int pick = random.InRange(i, techs.Count);
+            held[i] = techs[pick];
+            techs[pick] = techs[i];
+        }
+        return held;
     }
 
     public bool IsKnownBy(Empire empire)
@@ -330,50 +385,18 @@ public sealed class Derelict
         Claimant = null;
     }
 
-    // from any thread: the production the empire has stripped from it so far
-    public float ShareOf(Empire empire)
-    {
-        float[] shares = Shares;
-        int i = empire.Id - 1;
-        return i < shares.Length ? shares[i] : 0f;
-    }
-
-    // under the list's lock, on the sim thread: up to this much of what is left goes to the empire's share; returns what was stripped
-    internal float Strip(Empire empire, Ship platform, float amount)
+    // under the list's lock, on the sim thread: up to this much of what is left; returns what was stripped
+    internal float Strip(Ship platform, float amount)
     {
         float stripped = amount.Clamped(0f, ProductionLeft);
         if (stripped <= 0f)
             return 0f;
 
         ProductionLeft -= stripped;
-        AddShare(empire, stripped);
         // a little over a turn, so they run unbroken while a platform strips it every turn; one stripped empty sinks with none
         StripEffectsLeft = Stripped ? 0f : Universe.P.TurnTimer * 1.2f;
         StrippedBy = platform;
         return stripped;
-    }
-
-    void AddShare(Empire empire, float amount)
-    {
-        int i = empire.Id - 1;
-        if (i >= Shares.Length)
-        {
-            var grown = new float[Universe.NumEmpires.LowerBound(i + 1)];
-            Array.Copy(Shares, grown, Shares.Length);
-            Shares = grown;
-        }
-        Shares[i] += amount;
-    }
-
-    // under the list's lock, on the sim thread: an empire that leaves passes its share to the empire absorbing it, or with none drops it
-    internal void PassShare(Empire from, Empire to)
-    {
-        float share = ShareOf(from);
-        if (share <= 0f)
-            return;
-        Shares[from.Id - 1] = 0f;
-        if (to != null)
-            AddShare(to, share);
     }
 
     // on the sim thread: its flashes and junk show while a platform strips it that the player sees, as a supply ship's shuttles do

@@ -1,5 +1,6 @@
 using System;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
@@ -27,6 +28,9 @@ namespace Ship_Game.Commands.Goals
         // the Salvage button's second click called the order off while its platform stood
         [StarData] public bool CalledOff { get; private set; }
         [StarData] int DismantleTurnsLeft;
+        // its derelict's techs and whole production, kept for the loads sent once the derelict has sunk away
+        [StarData] public string[] Techs { get; private set; } = Empty<string>.Array;
+        [StarData] public float DerelictProduction { get; private set; }
         Derelict Found;
 
         // its platform's work is over: it sends its station all it holds, then takes itself apart
@@ -54,6 +58,8 @@ namespace Ship_Game.Commands.Goals
         public SalvageDerelict(Empire owner, Derelict derelict) : this(owner)
         {
             DerelictId = derelict.Id;
+            Techs = derelict.Techs;
+            DerelictProduction = derelict.Production;
             Initialize(ShipDesign.SalvagePlatformName, Vector2.Zero, derelict.System);
             Found = derelict;
         }
@@ -63,6 +69,8 @@ namespace Ship_Game.Commands.Goals
         {
             StarDateAdded = passed.StarDateAdded;
             DerelictId = passed.DerelictId;
+            Techs = passed.Techs;
+            DerelictProduction = passed.DerelictProduction;
             Initialize(ShipDesign.SalvagePlatformName, passed.StaticBuildPos, passed.TargetSystem);
             Platform = passed.Platform;
             Emptied = passed.Emptied;
@@ -316,9 +324,28 @@ namespace Ship_Game.Commands.Goals
         {
             float sent = station.LoadProduction(Math.Min(platform.GetProduction(), station.CargoRoom));
             platform.UnloadProduction(sent);
-            if (sent > 0f && UState.IsPlanetViewOrCloser && (SeenByPlayer(platform) || SeenByPlayer(station)))
+            if (sent <= 0f)
+                return;
+            AdvanceTechs(sent);
+            if (UState.IsPlanetViewOrCloser && (SeenByPlayer(platform) || SeenByPlayer(station)))
                 UState.Screen.CargoShuttles.SendLoad(platform, station, Owner.EmpireColor, CargoShuttles.LoadShuttlesFor(sent));
         }
+
+        // a load advances each of its derelict's techs the empire can learn by the salvage tech share of what the tech has left to research, times the load's share of the derelict's production, so salvage never completes one
+        void AdvanceTechs(float sent)
+        {
+            if (DerelictProduction <= 0f)
+                return;
+            float share = GlobalStats.Defaults.SalvageTechShare * sent / DerelictProduction;
+            for (int i = 0; i < Techs.Length; ++i)
+            {
+                if (Owner.TryGetTechEntry(Techs[i], out TechEntry tech) && CanLearn(Owner, tech))
+                    tech.Progress += share * (tech.TechCost * Owner.data.Traits.ResearchMultiplierForTech(tech, Owner) - tech.Progress);
+            }
+        }
+
+        // a tech the empire has not researched and sees on its tree
+        public static bool CanLearn(Empire empire, TechEntry tech) => tech.Locked && tech.Discovered && !tech.IsHidden(empire);
 
         static bool SeenByPlayer(Ship ship) => ship.InFrustum && ship.InPlayerSensorRange;
 
@@ -326,7 +353,7 @@ namespace Ship_Game.Commands.Goals
         void Strip(Ship platform, Derelict d)
         {
             float wanted = Math.Min(Math.Min(GlobalStats.Defaults.SalvageSpeed, platform.CargoRoom), d.ProductionLeft);
-            float stripped = UState.Derelicts.Strip(d, Owner, platform, platform.LoadProduction(wanted));
+            float stripped = UState.Derelicts.Strip(d, platform, platform.LoadProduction(wanted));
             if (stripped > 0f)
                 SendShuttles(platform, d, stripped);
             Emptied = d.Stripped;

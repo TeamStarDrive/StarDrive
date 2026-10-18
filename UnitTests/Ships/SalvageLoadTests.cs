@@ -90,7 +90,7 @@ public class SalvageLoadTests : StarDriveTest
     }
 
     // an earlier claim of the enemy's stripped all but 5
-    void AllBut5Stripped(Derelict d) => UState.Derelicts.Strip(d, Enemy, null, d.ProductionLeft - 5f);
+    void AllBut5Stripped(Derelict d) => UState.Derelicts.Strip(d, null, d.ProductionLeft - 5f);
 
     static string Status(SalvageDerelict order) => ShipInfoUIElement.SalvageStatus(order.Platform, order);
 

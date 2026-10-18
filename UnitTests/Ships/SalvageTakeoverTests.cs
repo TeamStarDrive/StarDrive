@@ -20,10 +20,10 @@ namespace UnitTests.Ships;
 /// a transporter passes it over for the next ship, and pirates never pick it for a raid; each check has a ship that
 /// can be boarded beside it. An absorbed empire's built platforms pass to the absorber with their orders and claims, at
 /// work or coming apart, wait for their change of hands a step later, and then work for the station that passed with
-/// them or, where the absorber has one there, for the absorber's own; its shares go to the absorber too. Its orders not
-/// yet built end with their claims and their constructors, and the absorber's own order on a derelict a passed platform
-/// works ends, its constructor flying home. A defeated empire's platforms work for its rebels, and its shares are
-/// dropped. Ships changing hands in a system show its derelicts to their new owner, as entering it would, and the
+/// them or, where the absorber has one there, for the absorber's own, keeping their derelicts' techs and production.
+/// Its orders not yet built end with their claims and their constructors, and the absorber's own order on a derelict a
+/// passed platform works ends, its constructor flying home. A defeated empire's platforms work for its rebels. Ships
+/// changing hands in a system show its derelicts to their new owner, as entering it would, and the
 /// player is told; applied off the sim thread, it lands on it. A merger called off the sim thread runs on it, and one
 /// a save catches before the platforms change hands loads with their orders.
 /// </summary>
@@ -238,7 +238,7 @@ public class SalvageTakeoverTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AnAbsorbedEmpiresPlatformPassesWithItsOrderClaimAndShareAndWorksOnOnceItChangesHands()
+    public void AnAbsorbedEmpiresPlatformPassesWithItsOrderAndClaimAndWorksOnOnceItChangesHands()
     {
         Derelict d = Forms(Wreck);
         Ship station = BuiltStation(Enemy, EnemyStation);
@@ -246,7 +246,7 @@ public class SalvageTakeoverTests : StarDriveTest
         Ship platform = theirs.Platform;
         theirs.Evaluate();
         AssertEqual(0.01f, 12f, platform.GetProduction(), "setup: the platform holds a turn's work");
-        AssertEqual(0.01f, 12f, d.ShareOf(Enemy), "setup: counted to its empire's share");
+        AssertGreaterThan(theirs.Techs.Length, 0, "setup: its order keeps its derelict's techs");
         Settle(station, platform);
 
         Player.AbsorbEmpire(Enemy);
@@ -255,8 +255,8 @@ public class SalvageTakeoverTests : StarDriveTest
         AssertEqual("Salvage", ours.StepName, "at work");
         AssertEqual(Player, d.Claimant, "with the claim");
         AssertEqual(Block.Ordered, SalvageDerelict.WhyNoOrder(Player, d), "so the derelict is the absorber's to call off");
-        AssertEqual(0.01f, 12f, d.ShareOf(Player), "and the share goes to the absorber");
-        AssertEqual(0f, d.ShareOf(Enemy), "leaving the absorbed empire none");
+        CollectionAssert.AreEqual(theirs.Techs, ours.Techs, "and its derelict's techs");
+        AssertEqual(theirs.DerelictProduction, ours.DerelictProduction, "and whole production");
 
         AssertEqual(Enemy, platform.Loyalty, "setup: the platform changes hands a step after the merger");
         ours.Evaluate();
@@ -268,7 +268,6 @@ public class SalvageTakeoverTests : StarDriveTest
         AssertEqual(station, SalvageOps.StationIn(Player, WreckSystem), "setup: and so does the station");
         ours.Evaluate();
         AssertEqual(0.01f, 24f, platform.GetProduction(), "then it strips for the absorber");
-        AssertEqual(0.01f, 24f, d.ShareOf(Player), "to the absorber's share");
     }
 
     [TestMethod]
@@ -362,14 +361,13 @@ public class SalvageTakeoverTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ADefeatedEmpiresPlatformWorksForItsRebelsAndItsShareIsDropped()
+    public void ADefeatedEmpiresPlatformWorksForItsRebels()
     {
         Derelict d = Forms(Wreck);
         Ship station = BuiltStation(Enemy, EnemyStation);
         SalvageDerelict theirs = AtWork(Enemy, d);
         Ship platform = theirs.Platform;
         theirs.Evaluate();
-        AssertEqual(0.01f, 12f, d.ShareOf(Enemy), "setup: the empire's share");
         Settle(station, platform);
 
         Enemy.SetAsDefeated();
@@ -379,12 +377,9 @@ public class SalvageTakeoverTests : StarDriveTest
         SalvageDerelict ours = OrderOf(rebels);
         AssertEqual(platform, ours?.Platform, "with its order");
         AssertEqual(rebels, d.Claimant, "and its claim");
-        AssertEqual(0f, d.ShareOf(Enemy), "the defeated empire's share is dropped");
-        AssertEqual(0f, d.ShareOf(rebels), "not passed to its rebels");
 
         ours.Evaluate();
         AssertEqual(0.01f, 24f, platform.GetProduction(), "it strips on for the rebels' station");
-        AssertEqual(0.01f, 12f, d.ShareOf(rebels), "to their own share");
     }
 
     // a salvageable derelict of the enemy's own ship that no one destroyed and the player never saw, so only the enemy knows of it

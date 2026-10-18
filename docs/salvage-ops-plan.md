@@ -205,7 +205,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       Station Deployed in the player's colour once built; and the 7148 grey text when no design can be built. The abort
       runs on the sim thread. Each derelict's row shows, beside its hull and name, a bar of its production left as on
       its panel, the pulsing flag of the empire salvaging it, with its name in the tooltip, and the Salvage button with
-      the panel button's rules and tooltips (Gilad, 2026-10-17; 373 A); the Recover button joins it in sub-branch 7.
+      the panel button's rules and tooltips (Gilad, 2026-10-17; 373 A); the Recover button joins it in sub-branch 5,
+      recovery (465).
     - Texts 7150-7155, 7163 and 7164; the derelict passage of 100093 names the rows and the window's deploy and abort
       (331, reworded for 332, 346 and 349), and tooltip 7157 and Codex 100167 name the window as a way to order
       (346); the Codex tooltip inventory is regenerated for them (348).
@@ -219,7 +220,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     list it. It cannot be boarded (285), and has no upkeep (284).
   - The Salvage button on the derelict's panel (277) gives the derelict to a free module of the empire's station in
     its system. The buttons are greyed out when the empire has no station there or no free module. The mode is fixed
-    once the constructor launches; Recover comes with phase 3.
+    once the constructor launches; Recover comes with sub-branch 5, recovery.
   - **The Salvage button (Gilad, 2026-10-17; 368-373, 375):**
     - It sits in the drawer's second slot, under Deploy Salvage Station, and since 452 in its first, alone, a square
       action button with the Salvage Unit's art (375 C): lit while it can order, sunken (the pressed back) while the
@@ -356,7 +357,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     - Its statuses (420 A): "Station hold full" while its load waits for room, "Salvage finished" once the work is
       over with a load aboard, and "Dismantling"; "Salvage hold full" stays for the turn before a full load leaves.
       The derelict's bar hides once the work is over, the second click included (421 A).
-    - Until hauling (sub-branch 5) nothing empties a station, so a station that fills stops its platforms: their
+    - Until hauling (sub-branch 6) nothing empties a station, so a station that fills stops its platforms: their
       loads wait aboard, and a finished one waits to come apart.
     - As built (part 4): texts 7175-7177; the Codex section in 100093 gains the loads, the dismantling, the freed
       unit, the lost station and the second click's wind-down. Texts 7143 and 7167 are now true. A mod whose
@@ -438,8 +439,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       run while the absorber's goals are being evaluated (436 A).
     - A defeated empire's platforms go to its rebels with their orders and claims, as in a merger, and work for the
       rebels' station (431 A); the rebels, a faction, run their goals and are never defeated for having no planets.
-    - An absorbed empire's shares go to the absorber and a defeated one's are dropped, at the merger or the defeat
-      (162; 432 A, 435 A), so the rebels earn tech only for what they strip themselves.
+    - An absorbed empire's shares went to the absorber and a defeated one's were dropped (162; 432 A, 435 A); part 6
+      removed the shares (457 A), since a load pays its tech as it reaches the station, so a passed order pays its new
+      empire for the loads it sends from then on.
     - A merger called off the sim thread, as a federation accepted in the diplomacy screen is, queues itself onto it,
       which also takes away the race of planets and ships changing hands while the sim updates them (434 A). The sim
       thread drains its queue while the game is paused under the diplomacy screen, so the merger lands at once.
@@ -459,9 +461,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       save is still writing, as every queued action can; kept (440 A). The save helper of the takeover tests is a copy
       of the stations' one, as each salvage test class keeps its own helpers (441 A).
     - As built (part 5): `Ship.CanBeBoarded`, `SalvageDerelict.PassOn` (called by `Empire.AbsorbEmpire` and
-      `Empire.SetAsDefeated` before the goals are cleared, the rebels now created first), `Derelicts.PassShares`,
-      `Derelicts.ChangedHands`, and `LoyaltyChanges.ChangesTo`, which tells a passed order its platform is still
-      changing hands.
+      `Empire.SetAsDefeated` before the goals are cleared, the rebels now created first), `Derelicts.PassShares` (gone
+      in part 6), `Derelicts.ChangedHands`, and `LoyaltyChanges.ChangesTo`, which tells a passed order its platform is
+      still changing hands.
 - **Knowledge (Gilad, 2026-10-16; 257-265):**
   - Each system holds its salvageable derelicts, and each empire holds the set of systems with salvageable derelicts
     it knows of. An empire that lists a system knows every derelict in it. The AI reads these lists.
@@ -490,8 +492,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
 
   The player picks the mode with the Salvage and Recover buttons on the derelict's panel (277).
   The AI picks it from the tech list: it strips when the list holds techs it wants for its progression.
-- **What the derelict records:** per empire, the production share it has stripped, built up claim after claim, since
-  a lost claim lets another empire finish the derelict (123, 133, 287).
+- **What the derelict records:** its whole production and what is left of it, and its techs, picked at its death (see
+  Techs). The per-empire shares of 123, 133 and 287 went in part 6 (457 A): a lost claim lets another empire finish
+  the derelict, and its loads pay by their share of the whole production, so the next empire earns only for the rest.
 - **Production:**
   - The station keeps the stripped production and freighters haul it to colonies (132 B).
   - The derelict's total production is half the share of health the ship had left at its death, times its design
@@ -500,16 +503,49 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     leaves 200 to salvage, 17 turns of stripping at the default speed. Every salvageable derelict leaves at least 50,
     times the production pace (`Derelict.MinSalvageProduction`; Gilad, 2026-10-17; 355), as the Codex derelict
     passage of 100093 says.
-  - When the shares add up to that total, the hull sinks away (396 B).
-- **Techs (159, 287):**
-  - The derelict lists every tech its design needs that the salvaging empire has not researched yet.
-  - When an empire's own work on the derelict ends, finished or with its claim lost, it rolls a check per tech: the
-    hull-role chance x `(1 + ModHpModifier)`. This is a new check that borrows the reverse-engineering chances:
-    reverse engineering itself advances an unresearched hull tech with no roll, and rolls only to unlock a hull
-    whose tech is already researched (`Empire.cs:2136`).
-  - A passed check adds the empire's share of the total x 10% of the tech cost x `(1 + ModHpModifier)`. This can
-    complete a tech. A claim lost early gives tech by the share so far (144).
-  - Salvage never gives Remnant tech (127).
+  - When it is all stripped, the hull sinks away (396 B).
+- **Techs (Gilad, 2026-10-19; 457-471, replacing the per-tech roll and the shares of 159 and 287):**
+  - A salvageable derelict holds a few techs, picked at random at its death and saved with it, the same for every
+    empire: of the techs that unlock its design's modules and its hull, root techs left out (458 A, the hull's tech
+    included as 467 asked; 470 A), 2 for a frigate, 3 for a destroyer, 4 for a cruiser, 5 for a battleship, 6 for a
+    capital and 3 for an untethered station, or all of them when the design has fewer (460 B). It reads the modules
+    and not the design's `TechsNeeded`, which holds every ancestor of those techs and, for a design saved during a
+    game, only its hull's techs until the next load.
+  - Each load a platform sends to its station, in the step it leaves whatever its shuttles show, advances each of
+    those techs the empire has not researched and sees on its tree by 20% of what the tech has left to research, times
+    the load's share of the derelict's whole production (459). What is left is measured at the empire's own cost, race
+    modifiers included, as research measures it, and a partial load pays only for what the station took. A
+    multi-level tech is paid only before its first level.
+  - Every empire gets the same 20% (472 A, replacing 468 A): `ModHpModifier` is the empire's whole module health
+    bonus, which Durability and Nanoweave research, artifacts, Remnant gifts and the AI's difficulty bonus raise as
+    well as the Engineers trait's 0.2, so a late-game empire near +2.1 would have been paid about 62% of what is left.
+  - The 20% is the Globals knob `SalvageTechShare`, default 0.2 (469 A). It is not clamped (473 B): at 1 or more a
+    derelict stripped in one load fills a tech, which the next research turn completes, and below 0 it takes research
+    away, as its comment in Globals.yaml warns.
+  - Salvage never completes a tech: each load takes 20% of what is left, so the returns shrink over loads and wrecks
+    and the empire's own research finishes it (459, 462). A tech whose parents are unresearched is paid as any other.
+    Example (Gilad's): a tech of 1000 with 1000 left and a wreck of 300 production; a load of 50 pays 20% of 1000 x
+    50/300 = 33.3, and with 600 left by the next load of 50, 20. A whole wreck gives a fresh tech a little under 20%
+    of its cost: about 18.5% in loads of 75.
+  - Skipped: techs hidden from the empire's race (`TechEntry.IsHidden`) and secret ones it has not discovered (463 A).
+    A Remnant wreck holds none (127). The wreck of another empire that researched Remnant tech can hold those techs,
+    and an empire that has discovered them gains on them (475 A); the Remnant techs are secret, so others are skipped.
+  - A load lost with its platform pays nothing. The order keeps its derelict's techs and whole production, saved with
+    it, since a derelict can sink away before its last load leaves while a full station holds it back; a passed order
+    keeps them too. A tech researched meanwhile is paid no more.
+  - No roll: salvage never unlocks a hull (461), nor a module without its tech (the module route was dropped: a
+    design's techs, not its modules, decide what it can build, and the AI and mergers go by techs too). A recovered
+    ship may unlock its race's hull when the recovering empire has the hull's tech, settled in sub-branch 5 (471).
+  - Since salvage completes nothing, there is no completion to tell (466); part 7's platform notification lists the
+    points each tech gained. Each tech's node in the research tree already shows its progress and the cost left.
+  - The panel shows the techs the player can still learn after a preview sheet (464).
+  - As built (part 6): `Derelict.Techs`, `TechsHeld`, `TechsOf` and the pick; `SalvageDerelict.Techs`,
+    `DerelictProduction`, `AdvanceTechs` and `CanLearn`; the shares and `Derelicts.PassShares` removed, and
+    `Derelicts.Strip` takes no empire. Codex 100093 gains the rule, and the salvage unit's description (7143) strips
+    for production and technology in all four languages, as the Salvage button's tooltip (7166) does (474 A). Saves
+    made on this branch before part 6 load with no techs on their wrecks, with no fallback.
+  - Review (472-475): the in-house review found the module health bonus behind the Engineers scaling (472 A), the
+    unclamped knob (473 B), 7143 (474 A) and the Remnant wording (475 A); a test now covers a partial load.
 - **AI restraint:** the AI does not salvage in a system where a rival it is not at war with, and has no open
   borders treaty with, is present (138).
 - **Trust (Gilad, 2026-10-17; 152, 161, 350-354):** when a salvage station is built, each AI empire with a colony in
@@ -520,8 +556,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   `AngerMultiplierVsPlayer` (354). The player is not told (353 A); a one-time diplomacy warning, like the
   colonisation warnings, is logged for later (353 B). It is an AI reaction, so the Codex says nothing of it.
 - **Placement:** a station cannot be placed outside a system (163).
-- **Empires that leave:** a dead empire's shares are dropped, and an absorbed one's go to the absorbing empire
-  (162, 296; built in part 5, 432 A, 435 A).
+- **Empires that leave:** an absorbed empire's platforms pass with their orders, and a defeated one's go to its rebels
+  (162, 296; built in part 5, 429 A, 431 A); the shares passed with them until part 6 removed them (457 A).
 - **Notifications (151, 294, 299-301):** each kind has a switch in a new alerts tab of the Automation window, which
   takes every alert checkbox out of the window's one tall table (279, 289):
   - a system joining your list of systems with salvageable derelicts (see Knowledge), wherever it is (260), told at
@@ -533,8 +569,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     - it never pauses the game (253), and has its own switch, for players who find it a nuisance (299, reversing
       254);
   - a station built: research, mining and salvage stations share one switch (300);
-  - a platform that finished stripping, with its production and the tech results, and a claim lost, to a destroyed
-    platform or to a rival that started first: one switch for both (301);
+  - a platform that finished stripping, with its production and the points each tech gained, and a claim lost, to a
+    destroyed platform or to a rival that started first: one switch for both (301);
   - the result of each of your recovery rolls.
 - **Pirates (176):** pirates salvage too, in *recover* mode only: they take ships, never production or techs. This
   is for now. How they reach a derelict is settled in the ai sub-branch; later they may raid a salvage station to
@@ -622,13 +658,15 @@ Implementation notes:
 - **Phase 1** is visual only (128): every derelict is a drifting one, which keeps its speed and sinks away after its
   breakup, and nothing is saved. The roll still covers every eligible death, so a rolled death never blasts; an
   unseen one leaves nothing in phase 1 (170).
-- **Phase 2** adds persistence, salvage and the AI; **phase 3** adds recovery.
+- **Phase 2** adds persistence, salvage, recovery and the AI. Recovery was phase 3 until Gilad moved it ahead of
+  hauling and the AI (2026-10-19; 465): it needs neither, and the AI's strip-or-recover choice then has both sides
+  in place.
 - Each sub-branch merges into `feature/salvage-ops/base`, and the patch branch of the day is merged into `base` as
   fixes land.
 - **Shipping (190, replaces the single final PR of 140 and 154):** phase 1 merged into `jupiter-1.60/fixes_49` with a
   merge commit and shipped in that patch batch, through PR #445 to `main` with the usual gates. Later phases go the
-  same way, each into the patch branch of its day: phase 2 once sub-branches 2-6 are all in `base`, since sub-branch 2
-  alone leaves derelicts that nobody can salvage.
+  same way, each into the patch branch of its day: phase 2 once sub-branches 2-7 are all in `base`, recovery
+  included (465), since sub-branch 2 alone leaves derelicts that nobody can salvage.
 - **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
   exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
   the hard cap of 100 alone.
@@ -750,16 +788,19 @@ Implementation notes:
      413-421; part 4);
    - losses and takeovers (275; 291 as replaced by 420 in part 4), boarders never taking a platform (285), and the absorber's station taking
      over the platforms of an absorbed second station (296); 427-441, part 5;
-   - the tech payout with its check (159, 287);
+   - the tech payout per load (457-471, replacing the check of 159 and 287), and the panel's techs after a preview
+     sheet (464);
    - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301).
-5. **hauling**: freighters pick up a station's stored production for colonies that import it (132 B).
-6. **ai**: the station planner and design picker, where auto salvage ops and the AI place a station (249), the
+5. **recovery** (was 7 and phase 3; Gilad, 2026-10-19; 465): the Recover button, recovery work at the salvage speed
+   (288), the roll, break-up and catastrophic explosion, the recovered ship's damage rule, the order home (175), the
+   recovery notification, the techs that raise the salvage speed (270), and whether a recovered ship unlocks its
+   race's hull when the empire has the hull's tech, for certain or by a roll (471). The chances' `1 + ModHpModifier`
+   (145) is the whole module health bonus, which research raises too, not the Engineers trait alone (472).
+6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
+7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
    and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
    they have no small station hull (315), and later their raids to capture a salvage station.
-7. **recovery** (phase 3): the Recover button, recovery work at the salvage speed (288), the roll, break-up and
-   catastrophic explosion, the recovered ship's damage rule, the order home (175), the recovery notification, and
-   the techs that raise the salvage speed (270).
 8. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
 
 Each sub-branch adds its Codex text and tests.
