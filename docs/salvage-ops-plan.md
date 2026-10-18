@@ -95,7 +95,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     grey, a column of icons at the top left with tooltips (the original owner's flag, whose tooltip names the empire,
     then a yellow hourglass with the turns left; 240, 241), and on the right, in the ship panel's first bar row, a bar
     of the production remaining out of what it started with (239, 242). The turns and production tooltips link to
-    the Codex. The Salvage and Recover buttons sit in its drawer (277, 327). Once it is claimed, the flag and name of
+    the Codex. Under the bar sits the Build Salvage Station button, or the station order's status in its place
+    (452-455), and the Salvage and Recover buttons sit in its drawer (277, 327). Once it is claimed, the flag and name of
     the empire salvaging it show at the bottom, just above the panel's lower border, under the production icon
     (273; Gilad, 2026-10-17; 375 D); the flag and name pulse in that empire's colour, fading out and back, and a
     smaller font fits a long name. The hourglass pulses so while its timer runs, and is grey with its number while the
@@ -176,6 +177,18 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       square action button with the Deep Space Build icon (324), with texts 7146-7149 (325). It sits in a drawer that
       slides out to the right of the derelict's panel, like the ship panel's orders, where the Salvage and Recover
       buttons go later (327). A salvage station is scrapped from its own ship panel, which has no refit (326).
+    - **In the panel, with the order's status (Gilad, 2026-10-18; 452-456, replacing 324 and the drawer of 327):** the
+      button leaves the drawer for the panel itself, under the production bar: a text button, Build Salvage Station
+      (7178), at the derelicts window's button size, 168 px, and greyed on the shorter button's grey plate with no
+      design to build. Once ordered, its place says Salvage Station Ordered (7179) in wheat until the station is
+      built, then Salvage Station Deployed (7164) in the player's colour (452 A), centred across the claimant line's
+      width and split onto two lines where the language's text is wider; both carry the 7147 tooltip (454 A). The
+      texts were to be Build Station, Station Ordered and Station Deployed, with "Salvage Station" for "Station"
+      (453 A); the last is 7164 word for word, so it is reused. The panel has no abort: the derelicts window keeps its
+      Abort Deployment. "No free site" shows above the panel's frame, clear of the derelict's name even wrapped to
+      four lines (455 A). Codex 100093 names the button and the two statuses. The button's text runs past the
+      168 px plate in Russian and Portuguese, as 7163 does on the derelicts window's button. No test covers the
+      panel; it is checked by eye (456 B).
     - Salvage stations are queued as urgent orbitals, as research and mining stations are (320).
     - An order not yet built ends, with its constructor, once its system has no salvageable derelict left; a built
       station stays (322).
@@ -208,8 +221,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     its system. The buttons are greyed out when the empire has no station there or no free module. The mode is fixed
     once the constructor launches; Recover comes with phase 3.
   - **The Salvage button (Gilad, 2026-10-17; 368-373, 375):**
-    - It sits in the drawer's second slot, under Deploy Salvage Station, a square action button with the Salvage
-      Unit's art (375 C): lit while it can order, sunken (the pressed back) while the order stands, grey otherwise.
+    - It sits in the drawer's second slot, under Deploy Salvage Station, and since 452 in its first, alone, a square
+      action button with the Salvage Unit's art (375 C): lit while it can order, sunken (the pressed back) while the
+      order stands, grey otherwise.
     - Each order is a `SalvageDerelict` goal of its own, saved with the empire's goals, holding the derelict by its
       id and its system; a derelict's id comes from the universe's object ids and is saved with it. The station's
       `SalvageOps` goal ends with the station, so the order cannot live there (368 A); since part 4 an order whose
@@ -264,10 +278,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       order the second click calls off, on manual salvage; with salvage on automatic the click does nothing (381).
     - A constructor in flight whose station is lost is scuttled at once (382).
     - As built (part 2): the order is a deep-space build goal for the Salvage Platform, in three steps (launch,
-      build, platform; part 4 adds a fourth, the dismantling), and puts no build marker on the map, since the Salvage button calls it off. Its constructor
-      is the one a small Deep Space Build job gets (the dropdown design, or the cheapest with auto pick on, whatever
-      the platform costs since 446 B), and a salvage bay launches nothing else. It flies and builds as any constructor does and claims the derelict as it
-      starts to build, within 200 of the site; the platform it builds takes over the derelict, and the ordnance the
+      build, platform; part 4 adds a fourth, the dismantling), and puts no build marker on the map, since the
+      Salvage button calls it off. Its constructor is the one a small Deep Space Build job gets (the dropdown design,
+      or the cheapest with auto pick on, whatever the platform costs since 446 B), and a salvage bay launches nothing
+      else. It flies and builds as any constructor does and claims the derelict as it starts to build, within 200 of the site; the platform it builds takes over the derelict, and the ordnance the
       constructor took is spent. One boarded on its way is its boarder's ship, and its unit is free to launch another;
       one flying home to a station lost on the way is removed, as a miner is, and a station's death blast can destroy
       one just launched beside it. The designer shows the constructor and its launch ordnance under a salvage unit's

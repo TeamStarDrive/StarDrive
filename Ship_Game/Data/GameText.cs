@@ -6250,6 +6250,10 @@ namespace Ship_Game
         SalvageFinished = 7176,
         /// <summary>Dismantling</summary>
         PlatformDismantling = 7177,
+        /// <summary>Build Salvage Station</summary>
+        BuildSalvageStation = 7178,
+        /// <summary>Salvage Station Ordered</summary>
+        SalvageStationOrdered = 7179,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
