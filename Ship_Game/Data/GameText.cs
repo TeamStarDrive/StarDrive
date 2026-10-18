@@ -6244,6 +6244,12 @@ namespace Ship_Game
         SalvageHoldFull = 7173,
         /// <summary>Production this salvage platform has stripped from its derelict</summary>
         SalvageHoldTip = 7174,
+        /// <summary>Station hold full</summary>
+        SalvageStationHoldFull = 7175,
+        /// <summary>Salvage finished</summary>
+        SalvageFinished = 7176,
+        /// <summary>Dismantling</summary>
+        PlatformDismantling = 7177,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

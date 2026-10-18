@@ -4,10 +4,10 @@ An integration branch `feature/salvage-ops/base`, with sub-branches under it; th
 into `base` as fixes land. Status (2026-10-17): phase 1 (sub-branch 1, derelicts) shipped through
 `jupiter-1.60/fixes_49` in PR #445. Sub-branches 2 (salvageable) and 3 (stations) are merged into `base`, which holds
 `jupiter-1.60/fixes_50` too, and sub-branch 4 (`feature/salvage-ops/salvaging`) is cut from it; the rest is planned.
-Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-390 are all settled; 168-175 came from the review of
+Decisions 119-176, 178-190, 222-232, 236-266, 269-302 and 312-426 are all settled; 168-175 came from the review of
 this plan, 178-190 from the review of sub-branch 1 and Gilad's look at it in game, 222-232 and 236-266 from phase 2,
 269-302 from Gilad's redesign of salvage: one salvage station per empire per system and a platform per derelict, with
-each derelict claimed by one empire, replace the yards and their salvage ships, 312-366 from sub-branch 3 and 367-390
+each derelict claimed by one empire, replace the yards and their salvage ships, 312-366 from sub-branch 3 and 367-426
 from sub-branch 4. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
@@ -119,14 +119,14 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     platform-role design never counts, whatever it carries.
   - Each live salvage module works one derelict at a time. A module that dies launches nothing new; a platform it
     already sent carries on (290).
-  - It keeps the salvaged production in its cargo. A design with less cargo room than one chunk
-    (`SalvageChunkSize`) is not a usable salvage station: the picker and the Automation dropdown skip it, a race
-    default like that logs an error at load, and the ship designer lists it as a design issue, as it does for mining
-    and research stations (`ShipDesignIssues`, `LowRefiningTime` and `LowResearchTime`) (302). With part 4 of
-    sub-branch 4 one chunk becomes one platform's hold, and the knob goes (405 A).
+  - It keeps the salvaged production in its cargo. A design with less cargo room than one load, the Salvage
+    Platform design's hold (24 for now, following the design), is not a usable salvage station: the picker and the
+    Automation dropdown skip it, a race default like that logs an error at load, and the ship designer lists it as a
+    design issue, as it does for mining and research stations (`ShipDesignIssues`, `LowRefiningTime` and
+    `LowResearchTime`) (302). The load replaced the `SalvageChunkSize` knob in part 4 of sub-branch 4 (405 A).
   - **The design issue (Gilad, 2026-10-17; 340-342):** Low Salvage Cargo, critical, with the research and refining
-    icons' layout and production hammers (340 A). Its remedy adds the cargo room one chunk needs, read from the knob,
-    as other design issues add their numbers (342). Deep Space Build still lists such a design, since the player picks
+    icons' layout and production hammers (340 A). Its remedy adds the cargo room one load needs, read from the
+    platform design, as other design issues add their numbers (342). Deep Space Build still lists such a design, since the player picks
     it there (341 B). Texts 7159-7162; Codex 100167 and tooltip 7157 say a design with low cargo is skipped, with no
     number (342, 343).
   - It cannot be refit (293), and the orbital pickers ignore it (290).
@@ -212,11 +212,11 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       Unit's art (375 C): lit while it can order, sunken (the pressed back) while the order stands, grey otherwise.
     - Each order is a `SalvageDerelict` goal of its own, saved with the empire's goals, holding the derelict by its
       id and its system; a derelict's id comes from the universe's object ids and is saved with it. The station's
-      `SalvageOps` goal ends with the station, while its platforms work on (291), so the order cannot live there
-      (368 A).
+      `SalvageOps` goal ends with the station, so the order cannot live there (368 A); since part 4 an order whose
+      station is lost ends at its next turn, its platform with it (420, replacing the platforms working on of 291).
     - Free units: the station's live salvage units less the empire's orders in that system, every one of which the
-      one station there works, platforms it took over beyond its count included. A busy unit that dies keeps a free
-      one counted busy until its platform is done (369 A).
+      one station there works, platforms an absorber's station takes over beyond its count included (296). A busy
+      unit that dies keeps a free one counted busy until its platform is done (369 A).
     - Greyed, with a tooltip each (371): no built station of the empire's there, one on order or in other hands
       counting as none; every unit busy; another empire salvaging it, named. Lit with its own tooltip once ordered.
       Texts 7166-7171.
@@ -228,6 +228,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       timer runs on and any empire can salvage it. A platform at work stops, sends what it has stripped to the station
       as if it had finished, and goes as a finished one does; the tech check of an empire's work that ends (287) runs
       too. With the player's salvage on automatic (252, the ai sub-branch) the click does nothing.
+    - **While the platform winds down (Gilad, 2026-10-18; 419 A):** the called-off order is no longer the
+      derelict's, so its button is lit again, or grey while every unit is busy, the old platform holding its unit
+      until it is gone; the player can order the derelict again, a new platform going up while the old one comes
+      apart. A rival's claim leaves the old platform to finish, and the old order's end leaves a new order's claim.
     - Whatever ends an order gives up its claim (`SalvageDerelict.OnRemoved`), the clearing of a defeated or merged
       empire's goals included; the merger's handing claims to the absorber comes with losses and takeovers (296).
   - The module launches the empire's current constructor design, the one Deep Space Build uses (271 A, 283). The
@@ -257,7 +261,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       order the second click calls off, on manual salvage; with salvage on automatic the click does nothing (381).
     - A constructor in flight whose station is lost is scuttled at once (382).
     - As built (part 2): the order is a deep-space build goal for the Salvage Platform, in three steps (launch,
-      build, platform), and puts no build marker on the map, since the Salvage button calls it off. Its constructor
+      build, platform; part 4 adds a fourth, the dismantling), and puts no build marker on the map, since the Salvage button calls it off. Its constructor
       is the one a small Deep Space Build job gets (the dropdown design, or the cheapest with auto pick on), and a
       salvage bay launches nothing else. It flies and builds as any constructor does and claims the derelict as it
       starts to build, within 200 of the site; the platform it builds takes over the derelict, and the ordnance the
@@ -265,8 +269,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       one flying home to a station lost on the way is removed, as a miner is, and a station's death blast can destroy
       one just launched beside it. The designer shows the constructor and its launch ordnance under a salvage unit's
       stats, as it shows a refining module's miner.
-    - Until losses (part 5) and the dismantling (part 4) come, a lost platform ends its order and its claim, and an
-      order called off takes its platform away.
+    - Until losses (part 5) come, a lost platform ends its order and its claim.
     - The Codex: 100093 says that a derelict's turns stand still from the moment a constructor starts to build there
       (376 A), and 100099 adds the salvage unit's constructor to what each kind of bay launches.
 - **The claim (272 B, 273, 274):**
@@ -287,7 +290,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - Each turn it either strips or, with its hold full, sends its whole load to its station, as much as the station
     has room for; the rest stays aboard, and it strips again once it has room (398 A, 404, 406 A). The load replaces
     the chunk: `SalvageChunkSize` goes, and a salvage station needs cargo room for one platform's hold (405 A). The
-    sending comes with part 4 (399 B); until then a full platform waits.
+    sending came with part 4 (399 B).
   - Neither the speed nor the load scales with the game's pace: the derelict's production already does, so salvage
     takes longer at a slower pace, as building does. Techs that raise the speed come in the last phase (270).
   - Visual shuttles run between the platform and the derelict: one for every 3 production stripped that turn,
@@ -296,9 +299,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     time, turning back at the hull at once (Gilad, 2026-10-18; 411).
   - While a platform strips it, turn after turn, the derelict flashes at random points on its hull and small pieces of
     junk fly off it in random directions, without a break between turns, stopping once the platform stops stripping,
-    as with its hold full (409 B, replacing 395 and 401 B). Per second, at random intervals around the rate: 0.33
-    flashes per production of the salvage speed, rounded up, 4 at the default speed; and 0.16 pieces of junk per
-    production of the salvage speed, 1.92 at the default speed (410), each at 30 to 80 a second.
+    as with its hold full (409 B, replacing 395 and 401 B). Per second, at random intervals around the rate: 0.66
+    flashes per production of the salvage speed, rounded up, 8 at the default speed; and 0.32 pieces of junk per
+    production of the salvage speed, 3.84 at the default speed, each at 30 to 80 a second (410, doubled by Gilad,
+    2026-10-18; 425).
   - The shuttles, flashes and junk all show only while the player sees the platform and the derelict is on screen, as
     a supply ship's shuttles do (408 B): the shuttles from planet view in, as other cargo shuttles; the flashes and
     junk from system view in, as the derelict's smoke and breakup. There is no progress ring (286). The derelict stays
@@ -306,27 +310,56 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - The selected platform's panel (392 C, 393 A, 400 A, 402 B, 403 A): its status reads "Salvaging" and the
     derelict's design, or "Salvage hold full"; two bars, as a miner's, each with a tooltip: its load out of its hold,
     and the derelict's production left, hidden once the derelict is empty; and its load above the panel, as a
-    freighter's. The derelict's own panel keeps its bars.
+    freighter's. The derelict's own panel keeps its bars, its production bar red as on the platform's panel, and so
+    does each row of the derelicts window (Gilad, 2026-10-18; 424).
   - When the derelict is empty it can no longer be salvaged: it leaves every salvage list, selection and
     notification, and sinks away as one whose turns ran out, at twice the speed (396 B).
   - Once the platform has sent all it holds, it takes itself apart, as its build run backwards, and dissolves in the
-    end, freeing its unit (403).
+    end, freeing its unit (403; shown as a build since 423).
+  - **Loads and dismantling (Gilad, 2026-10-18; 413-426):**
+    - A load's shuttles: one per 10 production, rounded up, at most 20 (413), flying one way from the platform to
+      the station and ending there with a flash (415 A). They fly at the normal pace of cargo shuttles, not the hull
+      shuttles' third (414), taken as 600 a second on average, three times the hull shuttles' 200 or so: the trip's
+      time follows its distance, each flight takes 0.42 to 0.6 of it and launches within its first 35%, as a supply
+      ship's shuttles do. Each is drawn wherever it is on screen, from planet view in, and a load launches them only
+      where the player sees the platform or the station (416 A). A shuttle whose ship is gone before it launches never
+      launches, on every ship-to-ship route, a supply ship's included, so a load's last shuttles do not launch from
+      the empty space a platform left on a long trip (Gilad, 2026-10-18; 422 A). A load's shuttles are twice the
+      size of the others, their glow and trail alike: each shuttle takes a size when it is sent, which multiplies the
+      glow's and trail's scales, 1 for every other route (426).
+    - Once its derelict is stripped empty or its order is called off, the platform sends its station all it holds,
+      full or not, and starts to come apart in the turn its last load leaves; with no room in the station it waits.
+      It takes two turns (417 B), shown as a build from its start to its end: the build's blue sparks, sparks,
+      lightning, flashes and parts from 0% to 100%, seen from ship view in where the player sees the platform (Gilad,
+      2026-10-18; 423, replacing the build run backwards of 418 A). Once complete it vanishes in a flash and its
+      parts fade, as a finished build's do, and its order ends, freeing its unit.
+    - With no salvage station of its empire's in the system, a platform is gone at its order's next turn, at work or
+      coming apart, its load with it, and its claim is given up: it never works on without a station (Gilad,
+      2026-10-18; 420, replacing the platforms working on of 291).
+    - Its statuses (420 A): "Station hold full" while its load waits for room, "Salvage finished" once the work is
+      over with a load aboard, and "Dismantling"; "Salvage hold full" stays for the turn before a full load leaves.
+      The derelict's bar hides once the work is over, the second click included (421 A).
+    - Until hauling (sub-branch 5) nothing empties a station, so a station that fills stops its platforms: their
+      loads wait aboard, and a finished one waits to come apart.
+    - As built (part 4): texts 7175-7177; the Codex section in 100093 gains the loads, the dismantling, the freed
+      unit, the lost station and the second click's wind-down. Texts 7143 and 7167 are now true. A mod whose
+      Globals.yaml still sets `SalvageChunkSize` loads with a warning in the log.
   - Production that does not fit never turns into credits (replaces 149 and 157).
   - As built (part 3): texts 7172-7174 (the two statuses and the load bar's tooltip, hooked to 100093; the derelict
     bar reuses the derelict panel's 7130), and the Codex section "Salvaging a derelict" in 100093, after "How a ship
     dies", with the Salvage button, its units, the claim and the work (374 A, 397 A). The tooltip of the second
     click (7167) and the salvage unit's description (7143) already say the platform sends its load to the station,
-    which part 4 makes true, and the Salvage button's tooltip (7166) promises technology, which part 6 brings; nothing
+    which part 4 made true, and the Salvage button's tooltip (7166) promises technology, which part 6 brings; nothing
     ships before them, so they stay as they are (407 A).
   - The hold's room is what its cargo container still takes (`Ship.CargoRoom`): a container keeps the limit it had
     when first loaded, while the cargo room changes as cargo modules die and are repaired. Until part 5 keeps
     boarders off platforms (285), a platform in other hands ends its order and its claim, as a lost one does, and
-    stays with its new owner.
+    stays with its new owner, whole if it was coming apart.
 - **Losses (275, 285, 291, 296, 298, 356-360, 362):**
   - A destroyed platform releases its claim, and what it held is lost; the derelict keeps what is left of it.
-  - A station that is lost (destroyed, boarded or scrapped) leaves its platforms working: they strip on and hold
-    their production until their empire has a station in that system again, which takes them over, even beyond its
-    module count (291).
+  - A station that is lost (destroyed, boarded or scrapped) takes its platforms with it, at work or coming apart,
+    with their loads and claims (420, replacing 291, which left them working until their empire had a station there
+    again; built in part 4).
   - A station is taken over at the moment it changes hands, by boarding or by a gift, a merger's included
     (`SalvageOps.TakeOver`, called from `LoyaltyChanges`): its old owner's order ends, and its new owner gets one from
     the salvage step on, whatever the old owner was, so a defeated empire's station works for its rebels and one taken
@@ -527,7 +560,8 @@ Implementation notes:
   taken apart. It takes a `Ship`, so the derelict needs its own entry point.
 - **Visual shuttles.** `CargoShuttles` has the routes Trade, PortToShip, Drop and ShipToShip. They are visual only
   and never saved. Salvage adds a route between a platform and a derelict; the routes take a `Ship` at each end, so
-  that route needs a derelict end. A chunk from a platform to its station is a ShipToShip route.
+  that route needs a derelict end. A load from a platform to its station has a route of its own, timed by its
+  distance (414, 416 A).
 - **Mining ops pattern.** The `MiningOps` goal plus `MiningBays`: hangar ships launch, land back, and the station
   processes per turn. Freighters already deliver supplies TO a mining station (the `SupplyGoodsToStation` goal);
   hauling FROM a station is new.
@@ -627,8 +661,9 @@ Implementation notes:
      orders (314);
    - the hull sinking away once empty, after which it can no longer be selected, nor reached from its notification,
      though its turns have not run out (396);
-   - the loads to the station with their shuttles, and the platform taken apart (276, 282, 292, 398, 403-406);
-   - losses and takeovers (275, 291), boarders never taking a platform (285), and the absorber's station taking
+   - the loads to the station with their shuttles, and the platform taken apart (276, 282, 292, 398, 403-406,
+     413-421; part 4);
+   - losses and takeovers (275; 291 as replaced by 420 in part 4), boarders never taking a platform (285), and the absorber's station taking
      over the platforms of an absorbed second station (296);
    - the tech payout with its check (159, 287);
    - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301).

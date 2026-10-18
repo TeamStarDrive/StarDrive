@@ -46,8 +46,8 @@ public sealed class Derelict
     // and never less than this, times the production pace
     public const float MinSalvageProduction = 50f;
     // while a platform strips it on screen, per production of the salvage speed: flashes a second, rounded up, and small pieces of junk a second
-    public const float StripFlashesPerSalvage = 0.33f;
-    public const float StripJunkPerSalvage = 0.16f;
+    public const float StripFlashesPerSalvage = 0.66f;
+    public const float StripJunkPerSalvage = 0.32f;
     // each piece of junk flies off its hull in a random direction at this speed
     public const float MinStripJunkSpeed = 30f;
     public const float MaxStripJunkSpeed = 80f;

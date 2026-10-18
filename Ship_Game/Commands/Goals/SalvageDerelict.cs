@@ -8,7 +8,7 @@ using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Commands.Goals
 {
-    // an empire's order to salvage one derelict: a salvage unit of its station in the derelict's system launches a constructor, which builds a salvage platform beside it
+    // an empire's order to salvage one derelict: a salvage unit of its station in the derelict's system launches a constructor, which builds a salvage platform beside it; the platform strips it for the station, then takes itself apart
     [StarDataType]
     public class SalvageDerelict : DeepSpaceBuildGoal
     {
@@ -17,11 +17,22 @@ namespace Ship_Game.Commands.Goals
         // the platform's site is this far out from the derelict's radius
         public const float PlatformClearance = 100f;
 
+        // a platform takes itself apart over two turns
+        public const int DismantleTurns = 2;
+
         [StarData] public int DerelictId;
         [StarData] public Ship Platform;
-        // its platform stripped the derelict empty, and holds its load on
+        // its platform stripped the derelict empty
         [StarData] public bool Emptied { get; private set; }
+        // the Salvage button's second click called the order off while its platform stood
+        [StarData] public bool CalledOff { get; private set; }
+        [StarData] int DismantleTurnsLeft;
         Derelict Found;
+
+        // its platform's work is over: it sends its station all it holds, then takes itself apart
+        public bool Finished => Emptied || CalledOff;
+
+        public bool Dismantling => DismantleTurnsLeft > 0;
 
         public Derelict Derelict => Found ??= UState.Derelicts.Find(DerelictId);
 
@@ -35,7 +46,8 @@ namespace Ship_Game.Commands.Goals
             {
                 LaunchConstructor,
                 BuildPlatform,
-                Salvage
+                Salvage,
+                Dismantle
             };
         }
 
@@ -64,8 +76,9 @@ namespace Ship_Game.Commands.Goals
             return LiveUnits(station) > NumOrdersIn(empire, d.System) ? Block.None : Block.NoFreeUnit;
         }
 
+        // an order whose platform's work is over is no longer the derelict's, though it holds its unit until its platform is gone
         public static SalvageDerelict OrderOf(Empire empire, Derelict d)
-            => empire.AI.FindGoal(g => g is SalvageDerelict s && s.DerelictId == d.Id) as SalvageDerelict;
+            => empire.AI.FindGoal(g => g is SalvageDerelict { Finished: false } s && s.DerelictId == d.Id) as SalvageDerelict;
 
         // every order of the empire's in the system takes a unit of its one station there
         static int NumOrdersIn(Empire empire, SolarSystem system)
@@ -97,7 +110,7 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        // the button's second click calls the order off on the sim thread, where its claim is given up
+        // the button's second click calls the order off on the sim thread, where its claim is given up; a platform standing sends what it holds and takes itself apart
         public static void Cancel(Empire empire, Derelict d)
         {
             if (empire.Universe.Screen is { IsOnSimThread: false } screen)
@@ -106,20 +119,35 @@ namespace Ship_Game.Commands.Goals
                 return;
             }
             if (OrderOf(empire, d) is { } order)
-                empire.AI.RemoveGoal(order);
+            {
+                if (order.Platform is { Active: true })
+                    order.CallOff();
+                else
+                    empire.AI.RemoveGoal(order);
+            }
             else if (d.Claimant == empire) // a claim kept without its order, as a save can catch it
+            {
+                d.ReleaseClaim();
+            }
+        }
+
+        // the derelict's turns run on, and any empire can salvage it
+        void CallOff()
+        {
+            CalledOff = true;
+            if (Derelict is { } d && d.Claimant == Owner)
                 d.ReleaseClaim();
         }
 
-        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first, and once its platform has stripped it empty
+        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first, and once its platform's work is over
         bool Stands => Owner.Universe.P.SalvageOps
-                       && (Emptied || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner));
+                       && (Finished || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner));
 
         bool Launched => Step > 0;
 
         protected override GoalStep? PreEvaluate() => Stands ? null : GoalStep.GoalFailed;
 
-        // an order that ends calls its constructor home, or scuttles it with its station lost, takes its platform away unless it is in other hands, and gives up its claim unless another order of its empire's holds the derelict
+        // an order that ends calls its constructor home, or scuttles it with its station lost, takes its platform away unless it is in other hands, where it stops coming apart, and gives up its claim unless another order of its empire's works the derelict
         public override void OnRemoved()
         {
             if (Constructor() is { } constructor)
@@ -134,11 +162,16 @@ namespace Ship_Game.Commands.Goals
                     constructor.AI.OrderScuttleShip();
                 }
             }
-            if (Platform is { Active: true } platform && platform.Loyalty == Owner)
-                platform.QueueTotalRemoval();
+            if (Platform is { Active: true } platform)
+            {
+                if (platform.Loyalty == Owner)
+                    platform.QueueTotalRemoval();
+                else
+                    platform.StopDismantling(); // its new owner keeps it whole
+            }
 
             if (Derelict is { } d && d.Claimant == Owner
-                && !Owner.AI.HasGoal(g => g != this && g is SalvageDerelict s && s.DerelictId == DerelictId))
+                && !Owner.AI.HasGoal(g => g != this && g is SalvageDerelict { Finished: false } s && s.DerelictId == DerelictId))
                 d.ReleaseClaim();
         }
 
@@ -200,15 +233,47 @@ namespace Ship_Game.Commands.Goals
             return null;
         }
 
-        // each turn the platform strips what its hold has room for, and waits with its hold full; one lost or in other hands ends the order
+        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; once its work is over it sends all it holds, then takes itself apart; one lost or in other hands ends the order, and a lost station takes its platform with it
         GoalStep Salvage()
         {
             if (Platform is not { Active: true } platform || platform.Loyalty != Owner)
                 return GoalStep.GoalFailed;
-            if (!Emptied && !HoldFull(platform))
+            if (SalvageOps.StationIn(Owner, TargetSystem) is not { } station)
+                return GoalStep.GoalFailed;
+
+            if (Finished || HoldFull(platform))
+                SendLoad(platform, station);
+            else
                 Strip(platform, Derelict);
-            return GoalStep.TryAgain;
+
+            if (!Finished || platform.GetProduction() > 0f)
+                return GoalStep.TryAgain;
+            DismantleTurnsLeft = DismantleTurns;
+            platform.StartDismantling();
+            return GoalStep.GoToNextStep;
         }
+
+        // it is gone once its turns are over, freeing its unit
+        GoalStep Dismantle()
+        {
+            if (Platform is not { Active: true } platform || platform.Loyalty != Owner || SalvageOps.StationIn(Owner, TargetSystem) == null)
+                return GoalStep.GoalFailed;
+            if (--DismantleTurnsLeft > 0)
+                return GoalStep.TryAgain;
+            platform.FinishDismantling();
+            return GoalStep.GoalComplete;
+        }
+
+        // as much of its hold as the station has room for, its shuttles launching where the player sees either end
+        void SendLoad(Ship platform, Ship station)
+        {
+            float sent = station.LoadProduction(Math.Min(platform.GetProduction(), station.CargoRoom));
+            platform.UnloadProduction(sent);
+            if (sent > 0f && UState.IsPlanetViewOrCloser && (SeenByPlayer(platform) || SeenByPlayer(station)))
+                UState.Screen.CargoShuttles.SendLoad(platform, station, Owner.EmpireColor, CargoShuttles.LoadShuttlesFor(sent));
+        }
+
+        static bool SeenByPlayer(Ship ship) => ship.InFrustum && ship.InPlayerSensorRange;
 
         // it strips only what its hold took
         void Strip(Ship platform, Derelict d)
@@ -228,10 +293,15 @@ namespace Ship_Game.Commands.Goals
                                                               CargoShuttles.SalvageShuttlesFor(stripped));
         }
 
-        // less room than this left in a platform's hold counts as full
+        // less room than this left in a platform's or a station's hold counts as full
         const float FullHoldRoom = 0.01f;
 
-        public static bool HoldFull(Ship platform) => platform.CargoRoom < FullHoldRoom;
+        public static bool HoldFull(Ship ship) => ship.CargoRoom < FullHoldRoom;
+
+        // from any thread: with its hold full or its work over, its load waits for room in its station
+        public bool LoadWaitsForStation(Ship platform)
+            => (Finished || HoldFull(platform)) && platform.GetProduction() > 0f
+               && SalvageOps.StationIn(Owner, TargetSystem) is { } station && HoldFull(station);
 
         // from any thread: the order a salvage platform works for, or null
         public static SalvageDerelict OfPlatform(Ship platform)
@@ -249,7 +319,7 @@ namespace Ship_Game.Commands.Goals
             return null;
         }
 
-        // launched orders hold the station's units first, then waiting ones as they were placed, and a second order for the same derelict ends; the goals are evaluated last to first
+        // launched orders hold the station's units first, then waiting ones as they were placed, and a second order for the same derelict ends, unless the first one's work is over; the goals are evaluated last to first
         bool HoldsAUnit(Ship station)
         {
             int ahead = 0;
@@ -264,7 +334,7 @@ namespace Ship_Game.Commands.Goals
                 }
                 if (goals[i] is SalvageDerelict s && s.TargetSystem == TargetSystem && s.Stands && (placedBefore || s.Launched))
                 {
-                    if (s.DerelictId == DerelictId)
+                    if (s.DerelictId == DerelictId && !s.Finished)
                         return false;
                     ++ahead;
                 }

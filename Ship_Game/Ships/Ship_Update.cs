@@ -7,6 +7,8 @@ using SDGraphics;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
@@ -226,12 +228,48 @@ namespace Ship_Game.Ships
                 }
             }
 
+            if (Dismantling && timeStep.FixedTime > 0f)
+                UpdateDismantling(timeStep, visibleToPlayer);
+
             if (ShipSO != null)
                 ShipSO.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
 
             SoundEmitter.Position = new Vector3(Position, 0);
 
             ResetFrameThrustState();
+        }
+
+        // a salvage platform taking itself apart, shown as a build over its dismantling's turns, after which it is gone
+        [StarData] public bool Dismantling { get; private set; }
+        [StarData] float DismantleTime;
+
+        public void StartDismantling() => Dismantling = true;
+
+        public void StopDismantling()
+        {
+            Dismantling = false;
+            DismantleTime = 0f;
+        }
+
+        // as a build's percentage, from none to 100 over the dismantling's turns
+        public float DismantlePercent => 100f * (DismantleTime / (SalvageDerelict.DismantleTurns * Universe.P.TurnTimer)).Clamped(0f, 1f);
+
+        void UpdateDismantling(FixedSimTime timeStep, bool visibleToPlayer)
+        {
+            DismantleTime += timeStep.FixedTime;
+            if (visibleToPlayer)
+                ConstructionShip.AddEffects(this, ShipData.Grid.Radius * 0.5f, DismantlePercent, tetherPlanet: null);
+        }
+
+        // once done it vanishes in a flash, and its parts fade out as a finished build's do
+        public void FinishDismantling()
+        {
+            if (IsVisibleToPlayer && Universe.IsShipViewOrCloser)
+            {
+                Universe.Screen.Particles?.Flash.AddParticle(Position.ToVec3());
+                Universe.Screen.ResetConstructionParts(Id);
+            }
+            QueueTotalRemoval();
         }
 
         void ExploreCurrentSystem(FixedSimTime timeStep)

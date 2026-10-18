@@ -15,10 +15,10 @@ namespace UnitTests.Ships;
 /// A salvage platform strips its derelict a turn at a time: 12 production, the Globals' SalvageSpeed, or what its hold
 /// still takes, or what is left, into its hold as production cargo, counted to its empire's share on the derelict, a
 /// share kept apart from other empires' earlier claims, and only what its hold took. With its hold full it strips no
-/// more and waits. Its shuttles fly from it to the hull and back, one for every 3 production stripped, launched 0.2 to
+/// more. Its shuttles fly from it to the hull and back, one for every 3 production stripped, launched 0.2 to
 /// 2 s apart and 2 to 2.9 s each way, turning back at once, and only where the player sees the platform, as the
 /// derelict's flashes do. A derelict stripped empty can no longer be salvaged: it leaves its system's and the empires'
-/// lists at once and sinks away at twice the speed, while the order stands on with the platform's load. The platform's
+/// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
 /// panel reads Salvaging and the derelict's design, or Salvage hold full. The shares, and an order whose platform
 /// stripped its derelict empty, survive a save.
 /// </summary>
@@ -59,7 +59,7 @@ public class SalvageWorkTests : StarDriveTest
         return UState.Derelicts.Current.Last();
     }
 
-    void BuiltStation()
+    Ship BuiltStation()
     {
         var order = new SalvageOps(Player, WreckSystem, PlayerStation, Station);
         Player.AI.AddGoal(order);
@@ -67,6 +67,7 @@ public class SalvageWorkTests : StarDriveTest
         order.TargetShip = SpawnShip(Station.Name, Player, PlayerStation);
         order.Evaluate();
         AssertEqual("Salvage", order.StepName, "setup: the station is built");
+        return order.TargetShip;
     }
 
     // the player's order with its platform built beside the derelict, as its constructor leaves it, about to strip
@@ -110,7 +111,7 @@ public class SalvageWorkTests : StarDriveTest
     }
 
     [TestMethod]
-    public void APlatformStripsOnlyWhatItsHoldTakesAndWaitsWithItFull()
+    public void APlatformStripsOnlyWhatItsHoldTakes()
     {
         Derelict d = Forms(Wreck);
         BuiltStation();
@@ -127,7 +128,6 @@ public class SalvageWorkTests : StarDriveTest
 
         order.Evaluate();
         AssertEqual(0.01f, left - 30f, d.ProductionLeft, "so it strips no more");
-        Assert.IsTrue(Player.AI.HasGoal(order), "and its order waits");
     }
 
     [TestMethod]
@@ -141,7 +141,6 @@ public class SalvageWorkTests : StarDriveTest
         platform.CargoSpaceMax = 24f;
         float left = d.ProductionLeft;
 
-        order.Evaluate();
         order.Evaluate();
         order.Evaluate();
         AssertEqual(0.01f, 18f, platform.GetProduction(), "the hold takes 18");
@@ -179,7 +178,7 @@ public class SalvageWorkTests : StarDriveTest
     public void ADerelictStrippedEmptyCanNoLongerBeSalvagedAndSinksAwayAtTwiceTheSpeed()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation();
+        Ship station = BuiltStation();
         SalvageDerelict order = AtWork(d, hold: 100f);
         float earlier = d.ProductionLeft - 5f;
         AssertEqual(0.01f, earlier, UState.Derelicts.Strip(d, Enemy, null, earlier), "setup: an earlier claim of the enemy's stripped all but 5");
@@ -197,7 +196,7 @@ public class SalvageWorkTests : StarDriveTest
         order.Evaluate();
         Assert.IsTrue(Player.AI.HasGoal(order) && order.Emptied, "the order stands on");
         Assert.IsTrue(order.Platform.Active, "with its platform");
-        AssertEqual(0.01f, 5f, order.Platform.GetProduction(), "and its load");
+        AssertEqual(0.01f, 5f, station.GetProduction(), "which sends its station its load");
 
         Assert.IsTrue(d.Sinking, "the hull sinks away");
         float z = d.Z;
@@ -316,8 +315,8 @@ public class SalvageWorkTests : StarDriveTest
         AssertEqual(0.01f, 12f, loadedWorking.Platform.GetProduction(), "a working platform keeps its load");
         SalvageDerelict loadedDone = orders.First(o => o.DerelictId == emptied.Id);
         Assert.IsTrue(loadedDone.Emptied, "an order whose platform stripped its derelict empty stays so");
+        AssertEqual(0.01f, 5f, loadedDone.Platform.GetProduction(), "with its platform's load");
         loadedDone.Evaluate();
         Assert.IsTrue(player.AI.HasGoal(loadedDone), "and stands on");
-        AssertEqual(0.01f, 5f, loadedDone.Platform.GetProduction(), "with its platform's load");
     }
 }

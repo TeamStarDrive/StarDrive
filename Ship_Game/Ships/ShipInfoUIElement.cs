@@ -490,7 +490,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // its load out of its hold, and the production left in its derelict until it is stripped empty
+        // its load out of its hold, and the production left in its derelict while it works there
         void DrawSalvageStatus(SpriteBatch batch, Vector2 mousePos, SalvageDerelict salvage)
         {
             if (!Ship.IsSalvagePlatform)
@@ -504,7 +504,7 @@ namespace Ship_Game.Ships
             if (MiningRect.HitTest(mousePos) || SalvageHoldBar.pBar.HitTest(mousePos))
                 ToolTip.CreateTooltip(GameText.SalvageHoldTip);
 
-            if (salvage?.Derelict is not { Stripped: false } d)
+            if (salvage is not { Finished: false, Derelict: { Stripped: false } d })
                 return;
             SalvageDerelictBar.Max = d.Production;
             SalvageDerelictBar.Progress = d.ProductionLeft;
@@ -514,12 +514,20 @@ namespace Ship_Game.Ships
                 ToolTip.CreateTooltip(GameText.DerelictProductionTip);
         }
 
-        // a salvage platform takes no orders: it strips its derelict, or waits with its hold full
+        // a salvage platform takes no orders: it strips its derelict, sends its station its load, and takes itself apart once its work is over
         internal static string SalvageStatus(Ship platform, SalvageDerelict salvage)
         {
+            if (salvage == null)
+                return ShipListScreenItem.GetStatusText(platform);
+            if (salvage.Dismantling)
+                return Localizer.Token(GameText.PlatformDismantling);
+            if (salvage.LoadWaitsForStation(platform))
+                return Localizer.Token(GameText.SalvageStationHoldFull);
+            if (salvage.Finished)
+                return Localizer.Token(GameText.SalvageFinished);
             if (SalvageDerelict.HoldFull(platform))
                 return Localizer.Token(GameText.SalvageHoldFull);
-            if (salvage?.Derelict is { Stripped: false } d)
+            if (salvage.Derelict is { Stripped: false } d)
                 return string.Format(Localizer.Token(GameText.SalvagingDerelict), d.Design.Name);
             return ShipListScreenItem.GetStatusText(platform);
         }

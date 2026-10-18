@@ -37,7 +37,7 @@ public sealed class DerelictInfoUIElement : UIElement
         TurnsRect = new(r.X + 13, r.Y + 137, 22, 22);
         HullRect = new(r.X + 62, r.Y + 110, 115, 115);
         ProductionRect = new(r.X + 187, r.Y + 110, 20, 20);
-        ProductionBar = new(ProductionRect.X + ProductionRect.Width + 15, ProductionRect.Y, 150, 18) { color = "yellow" };
+        ProductionBar = new(ProductionRect.X + ProductionRect.Width + 15, ProductionRect.Y, 150, 18) { color = "red" }; // as on its salvage platform's panel
         ClaimRect = new(ProductionRect.X, r.Y + 208, 20, 20); // just above the panel's lower border
         ClaimLine = new(ClaimRect.X, ClaimRect.Y, r.X + r.Width - 20 - ClaimRect.X, ClaimRect.Height);
         Drawer = new SlidingElement(new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130));

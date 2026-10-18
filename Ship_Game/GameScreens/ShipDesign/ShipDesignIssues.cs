@@ -575,10 +575,10 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public void CheckLowSalvageCargo()
         {
-            if (!Hull.IsSalvageStation || ShipResupply.HasRoomForSalvageChunk(Hull))
+            if (!Hull.IsSalvageStation || ShipResupply.HasRoomForSalvageLoad(Hull))
                 return;
 
-            string needed = $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoNeeded)} {GlobalStats.Defaults.SalvageChunkSize.GetNumberString()}.";
+            string needed = $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoNeeded)} {ShipResupply.SalvageLoad.GetNumberString()}.";
             AddDesignIssue(DesignIssueType.LowSalvageCargo, WarningLevel.Critical, needed);
         }
 

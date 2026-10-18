@@ -25,7 +25,8 @@ namespace UnitTests.Ships;
 /// station is destroyed or boarded is scuttled at once, and one flying home to a lost station is removed. One boarded
 /// on its way is its boarder's ship, and its unit launches another for the order. Launched
 /// orders hold the units before those waiting to launch. A platform's loss ends its order and its claim, and calling
-/// the order off takes the platform away. An order mid-flight survives a save and goes on to build.
+/// the order off gives up the claim at once while the platform stays to come apart. An order mid-flight survives a
+/// save and goes on to build.
 /// </summary>
 [TestClass]
 public class SalvageConstructorTests : StarDriveTest
@@ -448,7 +449,7 @@ public class SalvageConstructorTests : StarDriveTest
     }
 
     [TestMethod]
-    public void CallingOffAnOrderWithItsPlatformBuiltTakesThePlatformAway()
+    public void CallingOffAnOrderWithItsPlatformBuiltGivesUpTheClaimAndLeavesThePlatformToComeApart()
     {
         Derelict d = Forms(Wreck);
         BuiltStation(Player, PlayerStation);
@@ -456,8 +457,9 @@ public class SalvageConstructorTests : StarDriveTest
         Ship platform = order.Platform;
 
         DerelictSalvageButton.Click(Player, d, Block.Ordered);
-        Assert.IsFalse(platform.Active, "the platform goes with its order");
-        Assert.IsNull(d.Claimant, "and so does the claim");
+        Assert.IsNull(d.Claimant, "the claim goes at once");
+        Assert.IsTrue(order.CalledOff && Player.AI.HasGoal(order), "while the order winds down");
+        Assert.IsTrue(platform.Active, "with its platform");
     }
 
     [TestMethod]

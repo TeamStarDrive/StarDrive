@@ -37,7 +37,7 @@ public sealed class SystemDerelictsScreen : GameScreen
     {
         readonly UniverseScreen Universe;
         readonly Derelict Derelict;
-        readonly ProgressBar ProductionBar = new(0, 0, 150, 18) { color = "yellow" };
+        readonly ProgressBar ProductionBar = new(0, 0, 150, 18) { color = "red" }; // as on the derelict's panel
 
         public DerelictListItem(UniverseScreen universe, Derelict derelict)
         {
