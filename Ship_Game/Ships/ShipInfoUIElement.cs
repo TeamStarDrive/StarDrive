@@ -6,6 +6,7 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.PathFinder;
@@ -38,6 +39,9 @@ namespace Ship_Game.Ships
         readonly ProgressBar OBar;
         readonly ProgressBar ConstructionBar;
         readonly ProgressBar MiningBar;
+        readonly ProgressBar SalvageHoldBar;
+        readonly Rectangle SalvageDerelictRect;
+        readonly ProgressBar SalvageDerelictBar;
         UITextEntry ShipNameArea;
         private readonly SlidingElement SlidingElement;
         private readonly Rectangle DefenseRect;
@@ -86,6 +90,11 @@ namespace Ship_Game.Ships
 
             MiningRect = ConstructionRect;
             MiningBar = new ProgressBar(MiningRect.X + MiningRect.Width + 15, MiningRect.Y, 150, 18) { color = "red" };
+
+            // a salvage platform's load in the miner's row, and its derelict's production left in the row below
+            SalvageHoldBar = new ProgressBar(MiningRect.X + MiningRect.Width + 15, MiningRect.Y, 150, 18) { color = "yellow" };
+            SalvageDerelictRect = new Rectangle(MiningRect.X, MiningRect.Y + MiningRect.Height + spacing, 20, 20);
+            SalvageDerelictBar = new ProgressBar(SalvageDerelictRect.X + SalvageDerelictRect.Width + 15, SalvageDerelictRect.Y, 150, 18) { color = "red" };
 
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
             ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisShipsCurrentDefense));
@@ -143,7 +152,9 @@ namespace Ship_Game.Ships
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
             var shipStatus = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64).ToFloored();
-            string text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(s), 120);
+            SalvageDerelict salvage = s.IsSalvagePlatform ? SalvageDerelict.OfPlatform(s) : null;
+            string status = s.IsSalvagePlatform ? SalvageStatus(s, salvage) : ShipListScreenItem.GetStatusText(s);
+            string text = Fonts.TahomaBold9.ParseText(status, 120);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
 
             s.RenderOverlay(batch, ShipInfoRect, ShowModules && s.Loyalty.CanBeScannedByPlayer);
@@ -193,6 +204,7 @@ namespace Ship_Game.Ships
             {
                 DrawConstructionStatus(batch, mousePos);
                 DrawMiningStatus(batch, mousePos);
+                DrawSalvageStatus(batch, mousePos, salvage);
                 DrawCarrierStatus(mousePos, s);
                 DrawResupplyReason(batch, s);
                 DrawRadiationDamageWarning(s);
@@ -398,6 +410,7 @@ namespace Ship_Game.Ships
                         }
                         break;
                     case ResupplyReason.LowOrdnanceNonCombat:
+                    case ResupplyReason.RequestResupplyForOrbital when ship.OrdnancePercent < ShipResupply.OrdnanceThresholdCombat:
                     case ResupplyReason.LowOrdnanceCombatOrDepleted: text = "Ammo Reserves Critical";           break;
                     case ResupplyReason.NoCommand:                   text = "No Command, Cannot Attack";        break;
                     case ResupplyReason.FighterReactorsDamaged:      text = "Reactors Damaged";                 break;
@@ -475,6 +488,48 @@ namespace Ship_Game.Ships
                         ToolTip.CreateTooltip(mining.TranslatedResourceName);
                 }
             }
+        }
+
+        // its load out of its hold, and the production left in its derelict while it works there
+        void DrawSalvageStatus(SpriteBatch batch, Vector2 mousePos, SalvageDerelict salvage)
+        {
+            if (!Ship.IsSalvagePlatform)
+                return;
+
+            SubTexture production = ResourceManager.Texture("NewUI/icon_production");
+            SalvageHoldBar.Progress = Ship.GetProduction();
+            SalvageHoldBar.Max = SalvageHoldBar.Progress + Ship.CargoRoom;
+            SalvageHoldBar.Draw(batch);
+            batch.Draw(production, MiningRect, Color.White);
+            if (MiningRect.HitTest(mousePos) || SalvageHoldBar.pBar.HitTest(mousePos))
+                ToolTip.CreateTooltip(GameText.SalvageHoldTip);
+
+            if (salvage is not { Finished: false, Derelict: { Stripped: false } d })
+                return;
+            SalvageDerelictBar.Max = d.Production;
+            SalvageDerelictBar.Progress = d.ProductionLeft;
+            SalvageDerelictBar.Draw(batch);
+            batch.Draw(production, SalvageDerelictRect, Color.White);
+            if (SalvageDerelictRect.HitTest(mousePos) || SalvageDerelictBar.pBar.HitTest(mousePos))
+                ToolTip.CreateTooltip(GameText.DerelictProductionTip);
+        }
+
+        // a salvage platform takes no orders: it strips its derelict, sends its station its load, and takes itself apart once its work is over
+        internal static string SalvageStatus(Ship platform, SalvageDerelict salvage)
+        {
+            if (salvage == null)
+                return ShipListScreenItem.GetStatusText(platform);
+            if (salvage.Dismantling)
+                return Localizer.Token(GameText.PlatformDismantling);
+            if (salvage.LoadWaitsForStation(platform))
+                return Localizer.Token(GameText.SalvageStationHoldFull);
+            if (salvage.Finished)
+                return Localizer.Token(GameText.SalvageFinished);
+            if (SalvageDerelict.HoldFull(platform))
+                return Localizer.Token(GameText.SalvageHoldFull);
+            if (salvage.Derelict is { Stripped: false } d)
+                return string.Format(Localizer.Token(GameText.SalvagingDerelict), d.Design.Name);
+            return ShipListScreenItem.GetStatusText(platform);
         }
 
         void DrawCarrierStatus(Vector2 mousePos, Ship ship)  // Added by Fat Bastard - display hangar status

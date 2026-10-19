@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.GameScreens.ShipDesign;
@@ -15,7 +16,7 @@ namespace UnitTests.Ships;
 /// which the AI's orbital pickers never choose. The salvage platform is one fixed design: no empire builds it from a
 /// list, and the player cannot order, refit, scrap or list it, nor pays upkeep for it. With salvage ops off, the ship
 /// designer and the build lists leave out the salvage unit, the salvage stations and the platform. The ship designer
-/// flags a salvage station with less cargo room than one salvage chunk, and every race's default holds one.
+/// flags a salvage station with less cargo room than one load, the platform's hold, and every race's default holds one.
 /// </summary>
 [TestClass]
 public class SalvageDesignTests : StarDriveTest
@@ -37,6 +38,14 @@ public class SalvageDesignTests : StarDriveTest
     static IShipDesign Design(string name)
     {
         Assert.IsTrue(ResourceManager.Ships.GetDesign(name, out IShipDesign design), $"setup: {name} is loaded");
+        return design;
+    }
+
+    // a copy of the design without its cargo holds
+    static ShipDesign Holdless(IShipDesign from, string name)
+    {
+        ShipDesign design = ((ShipDesign)from).GetClone(name);
+        design.SetDesignSlots(from.GetOrLoadDesignSlots().Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID).CargoCapacity <= 0f), updateRole: false);
         return design;
     }
 
@@ -73,41 +82,38 @@ public class SalvageDesignTests : StarDriveTest
             Assert.IsTrue(data.DefaultSalvageStation.NotEmpty(), $"{race.Name} names a default salvage station");
             IShipDesign station = Design(data.DefaultSalvageStation);
             Assert.IsTrue(station.IsSalvageStation, $"{race.Name}: {station.Name} is a salvage station");
-            Assert.IsTrue(ShipResupply.HasRoomForSalvageChunk(station), $"{race.Name}: {station.Name} holds one salvage chunk");
+            Assert.IsTrue(ShipResupply.HasRoomForSalvageLoad(station), $"{race.Name}: {station.Name} holds one salvage load");
             AssertEqual(data.Traits.ShipType, station.BaseHull.Style, $"{race.Name}: {station.Name} is on its own hull");
         }
     }
 
     [TestMethod]
-    public void TheShipDesignerFlagsASalvageStationWithLessCargoRoomThanOneChunk()
+    public void TheShipDesignerFlagsASalvageStationWithLessCargoRoomThanOneLoad()
     {
+        float platformHold = Design(ShipDesign.SalvagePlatformName).BaseCargoSpace;
+        AssertGreaterThan(platformHold, 0f, "setup: the platform has a hold");
+        AssertEqual(platformHold, ShipResupply.SalvageLoad, "one load is the salvage platform's hold");
+
         IShipDesign station = Design("Terran Basic Salvage Station");
         var issues = new ShipDesignIssues(Universe, station);
         issues.CheckLowSalvageCargo();
-        AssertEqual(0, issues.CurrentDesignIssues.Count, "setup: the basic station holds one chunk");
+        AssertEqual(0, issues.CurrentDesignIssues.Count, "setup: the basic station holds one load");
 
-        float chunkSize = GlobalStats.Defaults.SalvageChunkSize;
-        try
-        {
-            GlobalStats.Defaults.SalvageChunkSize = station.BaseCargoSpace + 1;
-            issues.CheckLowSalvageCargo();
-            AssertEqual(1, issues.CurrentDesignIssues.Count, "a station that cannot hold one chunk is flagged");
-            DesignIssueDetails issue = issues.CurrentDesignIssues[0];
-            Assert.AreEqual(DesignIssueType.LowSalvageCargo, issue.Type, "as low salvage cargo");
-            Assert.AreEqual(WarningLevel.Critical, issue.Severity, "a critical issue");
-            StringAssert.EndsWith(issue.AdditionalText, $" {(station.BaseCargoSpace + 1).GetNumberString()}.",
-                                  "its remedy names the cargo room one chunk needs");
+        ShipDesign holdless = Holdless(station, "Holdless Salvage Station");
+        AssertLessThan(holdless.BaseCargoSpace, platformHold, "setup: the station without its cargo holds cannot hold one load");
+        var flagged = new ShipDesignIssues(Universe, holdless);
+        flagged.CheckLowSalvageCargo();
+        AssertEqual(1, flagged.CurrentDesignIssues.Count, "a station that cannot hold one load is flagged");
+        DesignIssueDetails issue = flagged.CurrentDesignIssues[0];
+        Assert.AreEqual(DesignIssueType.LowSalvageCargo, issue.Type, "as low salvage cargo");
+        Assert.AreEqual(WarningLevel.Critical, issue.Severity, "a critical issue");
+        StringAssert.EndsWith(issue.AdditionalText, $" {platformHold.GetNumberString()}.", "its remedy names the cargo room one load needs");
 
-            IShipDesign research = Design("Basic Research Station");
-            Assert.IsFalse(ShipResupply.HasRoomForSalvageChunk(research), "setup: a research station with less cargo room");
-            var other = new ShipDesignIssues(Universe, research);
-            other.CheckLowSalvageCargo();
-            Assert.IsTrue(other.CurrentDesignIssues.IsEmpty, "other stations are never flagged for it");
-        }
-        finally
-        {
-            GlobalStats.Defaults.SalvageChunkSize = chunkSize;
-        }
+        ShipDesign research = Holdless(Design("Basic Research Station"), "Holdless Research Station");
+        Assert.IsFalse(ShipResupply.HasRoomForSalvageLoad(research), "setup: a research station with less cargo room");
+        var other = new ShipDesignIssues(Universe, research);
+        other.CheckLowSalvageCargo();
+        Assert.IsTrue(other.CurrentDesignIssues.IsEmpty, "other stations are never flagged for it");
     }
 
     [TestMethod]

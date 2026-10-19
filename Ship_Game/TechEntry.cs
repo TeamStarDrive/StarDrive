@@ -2,6 +2,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -67,14 +68,15 @@ namespace Ship_Game
         {
             get
             {
-                if (StoredTechCostLevel != Level)
+                int level = Level;
+                if (Volatile.Read(ref StoredTechCostLevel) != level)
                 {
-                    StoredTechCostLevel = Level;
-                    
                     float cost = Tech.ActualCost(Universe);
-                    float techLevel = (float)Math.Max(1, Math.Pow(MultiLevelCostMultiplier, Level.UpperBound(MaxLevel-1)));
+                    float techLevel = (float)Math.Max(1, Math.Pow(MultiLevelCostMultiplier, level.UpperBound(MaxLevel-1)));
                     int rootTech = Tech.IsRootNode ? 100 : 0;
                     StoredTechCost = cost * (techLevel + rootTech);
+                    // stamped after the cost, so the UI and sim threads never read the level's stamp before its cost
+                    Volatile.Write(ref StoredTechCostLevel, level);
                 }
                 return StoredTechCost;
             }

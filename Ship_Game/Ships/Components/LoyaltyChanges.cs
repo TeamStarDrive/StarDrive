@@ -59,6 +59,9 @@ namespace Ship_Game.Ships.Components
             Change = new(loyalty, addNotification ? Type.AbsorbedNotify : Type.Absorbed);
         }
 
+        // from any thread: the ship is to change hands to the empire at its next update
+        public bool ChangesTo(Empire empire) => Volatile.Read(ref Change)?.To == empire;
+
         /// <returns>TRUE if loyalty changed</returns>
         public bool Update(Ship ship)
         {
@@ -91,6 +94,8 @@ namespace Ship_Game.Ships.Components
                 case Type.AbsorbedNotify: LoyaltyChangeDueToFederation(ship, changeTo, true);  break;
             }
 
+            if (type != Type.Spawn)
+                ship.Universe.Derelicts.ChangedHands(ship);
             return true;
         }
 

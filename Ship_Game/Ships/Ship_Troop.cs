@@ -25,6 +25,8 @@ namespace Ship_Game.Ships
         public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttlesWithTroops > 0;
 
         public bool TroopsAreBoardingShip => HostileTroops.Count > 0;
+        // a salvage platform never changes hands to boarders
+        public bool CanBeBoarded => !IsSalvagePlatform;
         public int NumPlayerTroopsOnShip  => Loyalty.isPlayer ? OurTroops.Count : HostileTroops.Count;
         public int NumAiTroopsOnShip      => Loyalty.isPlayer ? HostileTroops.Count : OurTroops.Count;
 

@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Threading;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Universe;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -23,6 +25,9 @@ public sealed class Derelicts
     public int NumSalvageable { get { lock (Sync) return CountSalvageable(); } }
 
     public Derelict[] ToArray() { lock (Sync) return Items.ToArray(); }
+
+    // from any thread: the derelict with this id, or null once it has left the list
+    public Derelict Find(int id) => Current.Find(d => d.Id == id);
 
     // from any thread, so it reads the published list and not the empire's, which the sim thread owns
     public bool AnyKnownIn(Empire empire, SolarSystem system)
@@ -53,24 +58,10 @@ public sealed class Derelicts
         return count;
     }
 
-    int CountSalvageable()
-    {
-        int n = 0;
-        for (int i = 0; i < Items.Count; ++i)
-            if (Items[i].CanBeSalvaged)
-                ++n;
-        return n;
-    }
+    int CountSalvageable() => Items.Count(d => d.CanBeSalvaged);
 
     // the drifting cap counts only the ones with a model: a wreck nobody can see costs nothing
-    int CountDriftingInScene()
-    {
-        int n = 0;
-        for (int i = 0; i < Items.Count; ++i)
-            if (!Items[i].CanBeSalvaged && Items[i].InScene)
-                ++n;
-        return n;
-    }
+    int CountDriftingInScene() => Items.Count(d => !d.CanBeSalvaged && d.InScene);
 
     // the percent chance of a derelict death, lowered by the salvageable derelicts' share of their limit, to none at it
     public float Chance
@@ -151,6 +142,15 @@ public sealed class Derelicts
             system.Universe.Notifications?.AddNewDerelictNotification(first);
     }
 
+    // a ship that changes hands where it is counts as entering its system for its new owner; a save or the UI can apply the change of hands
+    public void ChangedHands(Ship ship)
+    {
+        if (ship.Universe.Screen is { IsOnSimThread: false } screen)
+            screen.RunOnSimThread(() => Enter(ship));
+        else
+            Enter(ship);
+    }
+
     // under the lock: the empire lists the system, so it knows every derelict in it
     static void ListSystem(Empire e, SolarSystem system)
     {
@@ -169,14 +169,7 @@ public sealed class Derelicts
             || HasMoleIn(e, d.System);
     }
 
-    static bool HasShipIn(Empire e, SolarSystem system)
-    {
-        var ships = system.ShipList;
-        for (int i = 0; i < ships.Count; ++i)
-            if (ships[i].Loyalty == e)
-                return true;
-        return false;
-    }
+    static bool HasShipIn(Empire e, SolarSystem system) => system.ShipList.Any(s => s.Loyalty == e);
 
     static bool FullyInfiltrates(Empire e, Empire target)
     {
@@ -191,6 +184,18 @@ public sealed class Derelicts
                 if (moles[i].PlanetId == system.PlanetList[j].Id)
                     return true;
         return false;
+    }
+
+    // on the sim thread: a platform strips up to this much from the derelict, and one stripped empty leaves its system at once
+    public float Strip(Derelict d, Ship platform, float amount)
+    {
+        lock (Sync)
+        {
+            float stripped = d.Strip(platform, amount);
+            if (d.Stripped)
+                Leave(d);
+            return stripped;
+        }
     }
 
     // under the lock: one that can no longer be salvaged leaves its system, and a system with none left leaves every empire's list
@@ -228,28 +233,18 @@ public sealed class Derelicts
         }
     }
 
-    public Derelict.SaveData[] GetSaves()
+    // a derelict whose design is gone from the game is left out
+    public void Load(UniverseState universe, Derelict[] loaded)
     {
-        lock (Sync)
-        {
-            var saves = new Derelict.SaveData[Items.Count];
-            for (int i = 0; i < saves.Length; ++i)
-                saves[i] = Items[i].ToSave();
-            return saves;
-        }
-    }
-
-    public void Load(UniverseState universe, Derelict.SaveData[] saves)
-    {
-        if (saves == null)
+        if (loaded == null)
             return;
         lock (Sync)
         {
             try
             {
-                for (int i = 0; i < saves.Length; ++i)
-                    if (saves[i].Design?.BaseHull != null)
-                        Items.Add(new Derelict(universe, saves[i]));
+                for (int i = 0; i < loaded.Length; ++i)
+                    if (loaded[i].Design?.BaseHull != null)
+                        Items.Add(loaded[i]);
                 RejoinSystems(universe);
             }
             finally
@@ -324,6 +319,27 @@ public sealed class Derelicts
                 Items[i].UpdateTurn();
                 if (!Items[i].CanBeSalvaged)
                     Leave(Items[i]);
+            }
+            ShowTechsToStations();
+        }
+    }
+
+    // under the lock, on the sim thread: each empire with a salvage station built in a derelict's system, which so knows of it, sees its techs from then on; an empire's stations are looked up once a turn
+    void ShowTechsToStations()
+    {
+        HashSet<SolarSystem>[] stations = null;
+        for (int i = 0; i < Items.Count; ++i)
+        {
+            Derelict d = Items[i];
+            if (!d.CanBeSalvaged || d.System == null)
+                continue;
+            var empires = d.System.Universe.Empires;
+            stations ??= new HashSet<SolarSystem>[empires.Count];
+            for (int j = 0; j < empires.Count; ++j)
+            {
+                Empire e = empires[j];
+                if (d.IsKnownBy(e) && !d.ShowsTechsTo(e) && (stations[j] ??= SalvageOps.StationSystems(e)).Contains(d.System))
+                    d.ShowTechsTo(e);
             }
         }
     }

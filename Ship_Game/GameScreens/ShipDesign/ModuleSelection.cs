@@ -418,7 +418,7 @@ namespace Ship_Game
             if (mod.NumberOfColonists.Greater(0))
                 DrawStat(ref modTitlePos, "Colonists", mod.NumberOfColonists, GameText.ProsperInTerranWorldsAnd); // Number of Colonists
 
-            if (mod.PermittedHangarRoles.Length == 0 && !mod.IsSupplyBay && !mod.IsTroopBay && !mod.IsMiningBay)
+            if (mod.PermittedHangarRoles.Length == 0 && !mod.IsSupplyBay && !mod.IsTroopBay && !mod.IsMiningBay && !mod.IsSalvageBay)
                 return;
 
             var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);

@@ -105,9 +105,14 @@ namespace Ship_Game.Ships
             if (Owner == null || !ConstructionStarted)
                 return;
 
-            float percentCompleted = ConstructionPercentage;
-            var universe = Owner.Universe;
-            if (Owner.InFrustum && universe.IsShipViewOrCloser)
+            AddEffects(Owner, BuildRadius, ConstructionPercentage, tetherPlanet);
+        }
+
+        // a build's sparks, lightning, flashes and parts at its percentage, which a salvage platform taking itself apart shows too
+        public static void AddEffects(Ship ship, float buildRadius, float percentCompleted, Planet tetherPlanet)
+        {
+            var universe = ship.Universe;
+            if (ship.InFrustum && universe.IsShipViewOrCloser)
             {
                 // visualize construction efforts
                 Vector3 center = RandomPoint();
@@ -137,13 +142,13 @@ namespace Ship_Game.Ships
                 if (percentCompleted > 5 && universe.Random.RollDice(percentCompleted*1.2f))
                 {
                     center = RandomPoint();
-                    SpaceJunk.ConstructionPart(universe, center.ToVec2(), Owner.Velocity, Owner, percentCompleted, tetherPlanet);
+                    SpaceJunk.ConstructionPart(universe, center.ToVec2(), ship.Velocity, ship, percentCompleted, tetherPlanet);
                 }
             }
 
             Vector3 RandomPoint()
             {
-                return Owner.Position.GenerateRandomPointInsideCircle(BuildRadius * percentCompleted * 0.01f, Owner.Universe.Random).ToVec3();
+                return ship.Position.GenerateRandomPointInsideCircle(buildRadius * percentCompleted * 0.01f, ship.Universe.Random).ToVec3();
             }
         }
 

@@ -28,8 +28,8 @@ namespace Ship_Game
         // Top and Bottom padding for list items
         const int PaddingTop   = 15;
         const int PaddingBot   = 15;
-        const int PaddingLeft  = 8;
-        const int PaddingRight = 24; // leave extra room for scrollbar
+        public const int PaddingLeft  = 8;
+        public const int PaddingRight = 24; // leave extra room for scrollbar
 
         // inner housing rect for scroll list items
         // available for reading, BUT it will be recalculated in every PerformLayout()

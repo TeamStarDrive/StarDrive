@@ -29,7 +29,7 @@ namespace UnitTests.Ships;
 /// takes the station with the most salvage modules, then the most cargo room. The player's picker, with auto pick off
 /// as it starts, takes the station chosen in the Automation window, or the race's default when the choice cannot be
 /// built, and the best pick when neither can; the window resets a choice that can no longer be built to the default.
-/// Neither picker nor the window's list takes a station with less cargo room than one salvage chunk. The derelicts
+/// Neither picker nor the window's list takes a station with less cargo room than one load, a salvage platform's hold. The derelicts
 /// window deploys the picked station, aborts an order not yet built, its constructor queued or not, and then says
 /// the station is deployed; with no design to build it says so in grey. A built station costs the builder trust, once,
 /// with each AI that has a colony in its system and knows it, unless the two have open borders, an alliance or a war:
@@ -53,11 +53,10 @@ public class SalvageOpsTests : StarDriveTest
     readonly SolarSystem WreckSystem;
     readonly IShipDesign Station;
     readonly IShipDesign ResearchStation;
-    readonly float SalvageChunkSize = GlobalStats.Defaults.SalvageChunkSize;
 
     public SalvageOpsTests()
     {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", "Assault Shuttle");
+        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", "Assault Shuttle", ShipDesign.SalvagePlatformName);
         CreateUniverseAndPlayerEmpire();
         WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
         AddHomeWorldToEmpire(new Vector2(200_000f), Player);
@@ -69,7 +68,6 @@ public class SalvageOpsTests : StarDriveTest
     [TestCleanup]
     public override void Cleanup()
     {
-        GlobalStats.Defaults.SalvageChunkSize = SalvageChunkSize;
         UState.Derelicts.Clear();
         base.Cleanup();
     }
@@ -294,7 +292,7 @@ public class SalvageOpsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AStationIsSeenWhenItIsOursOrInOurSensors()
+    public void AStationStillThereIsSeenWhenItIsOursOrInOurSensors()
     {
         Ship ours = SpawnShip(Station.Name, Player, SystemSite + new Vector2(0, -40_000f));
         Ship unseen = SpawnShip(Station.Name, Enemy, SystemSite + new Vector2(0, -50_000f));
@@ -306,6 +304,9 @@ public class SalvageOpsTests : StarDriveTest
         Assert.IsTrue(stations.Contains(ours) && stations.Contains(seen), "our own station and one in our sensors");
         Assert.IsFalse(stations.Contains(unseen), "not one we do not see");
         Assert.IsFalse(stations.Contains(warship), "and no other ship");
+
+        ours.Die(null, cleanupOnly: true);
+        Assert.IsFalse(SalvageOps.StationsSeenBy(Player, new[] { ours, seen }).Contains(ours), "nor one that is gone");
     }
 
     [TestMethod]
@@ -475,34 +476,36 @@ public class SalvageOpsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void NeitherPickerTakesAStationWithLessCargoRoomThanOneChunk()
+    public void NeitherPickerTakesAStationWithLessCargoRoomThanOneLoad()
     {
+        ShipDesign holdless = Variant("Holdless Station", dropOneSalvageUnit: false, extraHolds: 0, dropHolds: true);
         ShipDesign fewer = Variant("Fewer Units Station", dropOneSalvageUnit: true, extraHolds: 3);
+        AssertLessThan(holdless.BaseCargoSpace, ShipResupply.SalvageLoad, "setup: a station that cannot hold one platform's load");
+        AssertGreaterThan(holdless.NumSalvageModules, fewer.NumSalvageModules, "setup: with more salvage units than the other");
         Player.ClearShipsWeCanBuild();
-        Player.AddBuildableShip(Station);
+        Player.AddBuildableShip(holdless);
         Player.AddBuildableShip(fewer);
-        Player.data.CurrentSalvageStation = Station.Name;
-        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "setup: the basic station, chosen and the race's default");
-        Player.AutoPickBestSalvageStation = true;
-        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "setup: and the best pick, with more salvage units");
 
-        GlobalStats.Defaults.SalvageChunkSize = (Station.BaseCargoSpace + fewer.BaseCargoSpace) / 2f;
-        AssertEqual(fewer, ShipBuilder.PickSalvageStation(Player), "auto pick passes over a station that cannot hold one chunk");
+        Player.AutoPickBestSalvageStation = true;
+        AssertEqual(fewer, ShipBuilder.PickSalvageStation(Player), "auto pick passes over a station that cannot hold one load");
         Player.AutoPickBestSalvageStation = false;
+        Player.data.CurrentSalvageStation = holdless.Name;
+        Player.data.DefaultSalvageStation = holdless.Name;
         AssertEqual(fewer, ShipBuilder.PickSalvageStation(Player), "and so does the player's pick, chosen station and race default alike");
 
-        GlobalStats.Defaults.SalvageChunkSize = fewer.BaseCargoSpace + 1;
-        Assert.IsNull(ShipBuilder.PickSalvageStation(Player), "none when no station holds one chunk");
+        Player.ClearShipsWeCanBuild();
+        Player.AddBuildableShip(holdless);
+        Assert.IsNull(ShipBuilder.PickSalvageStation(Player), "none when no station holds one load");
     }
 
     [TestMethod]
-    public void TheAutomationWindowLeavesOutAStationWithLessCargoRoomThanOneChunk()
+    public void TheAutomationWindowLeavesOutAStationWithLessCargoRoomThanOneLoad()
     {
         ShipDesign roomier = Variant("Roomier Station", dropOneSalvageUnit: false, extraHolds: 1);
-        ShipDesign fewer = Variant("Fewer Units Station", dropOneSalvageUnit: true, extraHolds: 3);
+        ShipDesign holdless = Variant("Holdless Station", dropOneSalvageUnit: false, extraHolds: 0, dropHolds: true);
         Player.AddBuildableShip(Station);
         Player.AddBuildableShip(roomier);
-        Player.AddBuildableShip(fewer);
+        Player.AddBuildableShip(holdless);
         Player.MarkShipRolesUsableForEmpire(Station);
         Player.data.DefaultSalvageStation = roomier.Name;
         Player.data.CurrentSalvageStation = Station.Name;
@@ -511,13 +514,9 @@ public class SalvageOpsTests : StarDriveTest
         window.LoadContent();
         AssertEqual(Station.Name, Player.data.CurrentSalvageStation, "setup: the basic station stays chosen");
 
-        GlobalStats.Defaults.SalvageChunkSize = (Station.BaseCargoSpace + roomier.BaseCargoSpace) / 2f;
+        Player.data.CurrentSalvageStation = holdless.Name;
         window.UpdateDropDowns();
-        AssertEqual(roomier.Name, Player.data.CurrentSalvageStation, "once it cannot hold one chunk it gives way to the race's default");
-
-        Player.data.CurrentSalvageStation = fewer.Name;
-        window.UpdateDropDowns();
-        AssertEqual(fewer.Name, Player.data.CurrentSalvageStation, "while a station that holds one chunk stays chosen");
+        AssertEqual(roomier.Name, Player.data.CurrentSalvageStation, "a station that cannot hold one load gives way to the race's default");
     }
 
     [TestMethod]
@@ -1066,14 +1065,16 @@ public class SalvageOpsTests : StarDriveTest
         Assert.IsTrue(player.AI.HasGoal(g => g == ours), "and keeps it in the loaded game");
     }
 
-    // the basic station, less one salvage unit if asked, plus medium cargo holds in a strip below its grid
-    ShipDesign Variant(string name, bool dropOneSalvageUnit, int extraHolds)
+    // the basic station, less one salvage unit or every cargo hold if asked, plus medium cargo holds in a strip below its grid
+    ShipDesign Variant(string name, bool dropOneSalvageUnit, int extraHolds, bool dropHolds = false)
     {
         ShipModule hold = ResourceManager.GetModuleTemplate("MediumCargoHold");
         ShipDesign design = ((ShipDesign)Station).GetClone(name);
         var slots = new Array<DesignSlot>(Station.GetOrLoadDesignSlots());
         if (dropOneSalvageUnit)
             slots.Remove(slots.First(s => ResourceManager.GetModuleTemplate(s.ModuleUID).Salvage));
+        if (dropHolds)
+            slots.RemoveAll(s => ResourceManager.GetModuleTemplate(s.ModuleUID).CargoCapacity > 0f);
 
         ShipGridInfo info = design.GridInfo;
         var size = new Point(hold.XSize, hold.YSize);

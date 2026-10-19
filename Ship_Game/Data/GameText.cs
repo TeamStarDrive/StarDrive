@@ -6226,6 +6226,74 @@ namespace Ship_Game
         SalvageStationDeployed = 7164,
         /// <summary>Salvage Station was evacuated since you</summary>
         RemoveExcessSalvageStation = 7165,
+        /// <summary>Salvage this derelict</summary>
+        SalvageDerelictTip = 7166,
+        /// <summary>Your salvage station is working this derelict.</summary>
+        SalvageDerelictOrderedTip = 7167,
+        /// <summary>Salvaging this derelict needs a salvage station of yours built in this system.</summary>
+        SalvageDerelictNoStationTip = 7168,
+        /// <summary>Every salvage unit of your station in this system is busy.</summary>
+        SalvageDerelictNoFreeUnitTip = 7169,
+        /// <summary>{0} is salvaging this derelict.</summary>
+        DerelictSalvagedBy = 7170,
+        /// <summary>Turns left stand still while an empire salvages this derelict</summary>
+        DerelictTurnsStandTip = 7171,
+        /// <summary>Salvaging {0}</summary>
+        SalvagingDerelict = 7172,
+        /// <summary>Salvage hold full</summary>
+        SalvageHoldFull = 7173,
+        /// <summary>Production this salvage platform has stripped from its derelict</summary>
+        SalvageHoldTip = 7174,
+        /// <summary>Station hold full</summary>
+        SalvageStationHoldFull = 7175,
+        /// <summary>Salvage finished</summary>
+        SalvageFinished = 7176,
+        /// <summary>Dismantling</summary>
+        PlatformDismantling = 7177,
+        /// <summary>Build Salvage Station</summary>
+        BuildSalvageStation = 7178,
+        /// <summary>Salvage Station Ordered</summary>
+        SalvageStationOrdered = 7179,
+        /// <summary>Technologies this derelict holds. Once you have a salvage</summary>
+        DerelictTechsHeldTip = 7180,
+        /// <summary>Technologies you can learn from this derelict. Each load of</summary>
+        DerelictTechsShownTip = 7181,
+        /// <summary>Researched: {0}%</summary>
+        DerelictTechResearched = 7182,
+        /// <summary>Gained by this salvage: {0}</summary>
+        DerelictTechGained = 7183,
+        /// <summary>Salvager</summary>
+        DerelictSalvager = 7184,
+        /// <summary>Status</summary>
+        DerelictStatus = 7185,
+        /// <summary>Platform ordered</summary>
+        SalvagePlatformOrdered = 7186,
+        /// <summary>Building platform</summary>
+        BuildingSalvagePlatform = 7187,
+        /// <summary>Salvaging</summary>
+        DerelictSalvaging = 7188,
+        /// <summary>Derelict Alerts</summary>
+        DerelictAlerts = 7189,
+        /// <summary>Alerts when you learn of salvageable derelicts in a system</summary>
+        DerelictAlertsTip = 7190,
+        /// <summary>Salvage Alerts</summary>
+        SalvageAlerts = 7191,
+        /// <summary>Alerts when one of your salvage platforms has sent its station</summary>
+        SalvageAlertsTip = 7192,
+        /// <summary>{0}: the {1} is stripped</summary>
+        SalvageStrippedNotify = 7193,
+        /// <summary>{0}: salvage of the {1} called off</summary>
+        SalvageCalledOffNotify = 7194,
+        /// <summary>{0} production salvaged</summary>
+        SalvageProductionNotify = 7195,
+        /// <summary>{0}: your salvage platform at the {1} was destroyed</summary>
+        SalvagePlatformDestroyedNotify = 7196,
+        /// <summary>{0}: the {2} started salvaging the {1} first</summary>
+        SalvageClaimedFirstNotify = 7197,
+        /// <summary>{0}: your salvage station was lost, and your salvage of the</summary>
+        SalvageStationLostNotify = 7198,
+        /// <summary>{0}: the {1} sank away before your platform was built</summary>
+        SalvageSankNotify = 7199,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

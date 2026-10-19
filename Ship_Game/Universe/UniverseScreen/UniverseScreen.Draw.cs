@@ -991,10 +991,10 @@ namespace Ship_Game
             {
                 Derelict d = derelicts[i];
                 bool selected = d == SelectedDerelict;
-                if (!(icons || selected) || !d.SelectableByPlayer || !IsInFrustum(d.Position, d.Radius))
+                if (!(icons || selected) || !d.SelectableByPlayer || !IsInFrustum(new Vector3(d.Position, d.Z), d.Radius))
                     continue;
 
-                ProjectToScreenCoords(d.Position, d.Radius, out Vector2d screenPos, out double screenRadius);
+                ProjectToScreenCoords(d.Position, d.Radius, out Vector2d screenPos, out double screenRadius, zAxis: d.Z);
                 if (icons)
                 {
                     float size = Ship.ScaleIconSize((float)screenRadius, 16f, 8f);

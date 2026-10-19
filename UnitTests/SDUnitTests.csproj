@@ -187,6 +187,13 @@
     <Compile Include="Ships\PirateBaseLandingTests.cs" />
     <Compile Include="Ships\PirateCaptureScuttleTests.cs" />
     <Compile Include="Ships\SalvageModuleTests.cs" />
+    <Compile Include="Ships\SalvageConstructorTests.cs" />
+    <Compile Include="Ships\SalvageLoadTests.cs" />
+    <Compile Include="Ships\SalvageTakeoverTests.cs" />
+    <Compile Include="Ships\SalvageTechTests.cs" />
+    <Compile Include="Ships\SalvageNotifyTests.cs" />
+    <Compile Include="Ships\SalvageWorkTests.cs" />
+    <Compile Include="Ships\SalvageDerelictTests.cs" />
     <Compile Include="Ships\SalvageOpsTests.cs" />
     <Compile Include="Ships\SalvageDesignTests.cs" />
     <Compile Include="Ships\ShipLaunchPlaceTests.cs" />

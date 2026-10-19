@@ -14,7 +14,8 @@ namespace Ship_Game
     /// <summary>
     /// Small cargo shuttles flying up from a planet to its space port while a freighter lands there to trade,
     /// and back down as it takes off; from a space port to a troop ship unloading onto the colony, and back; down
-    /// from an assault shuttle dropping its troop; and from a supply shuttle to the ship it rearms.
+    /// from an assault shuttle dropping its troop; from a supply shuttle to the ship it rearms; from a salvage
+    /// platform to the derelict it strips, and back; and from a salvage platform to its station with its load.
     /// They are only a visual effect: nothing is saved and nothing waits for them.
     /// </summary>
     public sealed class CargoShuttles
@@ -26,23 +27,40 @@ namespace Ship_Game
         public const float OrdnancePerShuttle = 2f;
         public const int MaxOrdnanceShuttles = 5;
         public const float OrdnanceShuttleSeconds = 3f;
+        public const float ProductionPerSalvageShuttle = 3f;
+        // a salvage platform's shuttles launch 0.2 to 2 s after the turn's stripping, take 2 to 2.9 s each way, and turn back at once
+        public const float MinHullLaunchDelay = 0.2f;
+        public const float MaxHullLaunchDelay = 2f;
+        public const float HullShuttleSeconds = 4.8f;
+        public const float ProductionPerLoadShuttle = 15f;
+        // a load's shuttles fly at the pace of the other cargo shuttles, three times the hull shuttles'
+        public const float LoadShuttleSpeed = 600f;
+        // a load's shuttles are twice the size of the others, their glow and trail alike
+        public const float LoadShuttleSize = 2f;
+        const float LoadFrustumRadius = 200f;
         const float LaunchPart = 0.35f;
         const float DropLaunchPart = 0.1f;
         const float MinFlightPart = 0.42f;
         const float MaxFlightPart = 0.6f;
+        const float MeanFlightPart = (MinFlightPart + MaxFlightPart) / 2f;
         const float MaxBend = 0.25f;
         const float SurfaceLift = 30f;
         const float PortSpread = 50f;
         const float DropSpread = 30f;
         const float MaxDropPart = 0.9f;
         const float FlashScale = 0.3f;
+        // the shuttle's glow, at half its particle's size
+        const float GlowScale = 0.5f;
+        const float TrailScale = 0.8f;
 
         enum Route
         {
             Trade,
             PortToShip,
             Drop,
-            ShipToShip
+            ShipToShip,
+            ShipToHull,
+            Load
         }
 
         readonly struct Request
@@ -56,8 +74,12 @@ namespace Ship_Game
             public readonly int Count;
             public readonly float Seconds;
             public readonly bool Rising;
+            public readonly float Spread;
+            public readonly float Size;
 
-            public Request(Route route, Planet planet, Ship ship, Ship fromShip, Vector3 from, Color trailColor, int count, float seconds, bool rising)
+            // size multiplies the glow's and the trail's scales
+            public Request(Route route, Planet planet, Ship ship, Ship fromShip, Vector3 from, Color trailColor, int count, float seconds, bool rising,
+                           float spread = 0f, float size = 1f)
             {
                 Route = route;
                 Planet = planet;
@@ -68,6 +90,8 @@ namespace Ship_Game
                 Count = count;
                 Seconds = seconds;
                 Rising = rising;
+                Spread = spread;
+                Size = size;
             }
         }
 
@@ -76,6 +100,7 @@ namespace Ship_Game
             public Planet Planet;
             public Ship Ship;
             public Ship FromShip;
+            public Ship Launcher; // the ship it launches from, on the routes that start at a ship
             public Color TrailColor;
             public Vector3 Low;
             public Vector3 High;
@@ -85,12 +110,16 @@ namespace Ship_Game
             public float Age;
             public bool Rising;
             public bool ComesBack;
+            public bool SeenWhereItFlies;
+            public float Size;
 
             Vector2 Origin => Planet?.Position ?? Vector2.Zero;
             Vector3 LowEnd => FromShip != null ? (FromShip.Position - Origin).ToVec3(0f) : Low;
             Vector3 HighEnd => Ship != null ? (Ship.Position - Origin).ToVec3(0f) : High;
 
-            public bool InFrustum => Planet?.InFrustum ?? Ship.InFrustum;
+            // a load's shuttle where it flies, the others by their planet or ship
+            public bool IsInFrustum(UniverseScreen screen, float progress)
+                => SeenWhereItFlies ? screen.IsInFrustum(PositionAt(progress.UpperBound(1f)), LoadFrustumRadius) : Planet?.InFrustum ?? Ship.InFrustum;
 
             public Vector3 PositionAt(float progress)
             {
@@ -115,6 +144,12 @@ namespace Ship_Game
 
         public static int OrdnanceShuttlesFor(float ordnance) => ((int)(ordnance / OrdnancePerShuttle)).Clamped(1, MaxOrdnanceShuttles);
 
+        // one for every 3 production stripped, rounded up
+        public static int SalvageShuttlesFor(float stripped) => ((int)Math.Ceiling(stripped / ProductionPerSalvageShuttle)).Clamped(1, MaxShuttles);
+
+        // one for every 15 production of the load, rounded up
+        public static int LoadShuttlesFor(float load) => ((int)Math.Ceiling(load / ProductionPerLoadShuttle)).Clamped(1, MaxShuttles);
+
         public void Send(Planet planet, Color trailColor, int shuttles, float seconds, bool toPort)
             => Queue(new(Route.Trade, planet, null, null, Vector3.Zero, trailColor, shuttles, seconds, rising: toPort));
 
@@ -126,6 +161,17 @@ namespace Ship_Game
 
         public void SendShipToShip(Ship from, Ship to, Color trailColor, int shuttles, float seconds)
             => Queue(new(Route.ShipToShip, null, to, from, Vector3.Zero, trailColor, shuttles, seconds, rising: true));
+
+        // each to a random point on the hull and back
+        public void SendToHullAndBack(Ship from, Vector3 hull, float hullRadius, Color trailColor, int shuttles)
+            => Queue(new(Route.ShipToHull, null, from, null, hull, trailColor, shuttles, HullShuttleSeconds, rising: false, spread: hullRadius * 0.5f));
+
+        // one way, their flight timed by the distance
+        public void SendLoad(Ship from, Ship to, Color trailColor, int shuttles)
+        {
+            float seconds = from.Position.Distance(to.Position) / (LoadShuttleSpeed * MeanFlightPart);
+            Queue(new(Route.Load, null, to, from, Vector3.Zero, trailColor, shuttles, seconds, rising: true, size: LoadShuttleSize));
+        }
 
         void Queue(in Request request)
         {
@@ -160,6 +206,26 @@ namespace Ship_Game
             return count;
         }
 
+        // launched from or to the ship at their high end, past their delay
+        internal int Launched(Ship ship)
+        {
+            int count = 0;
+            for (int i = 0; i < Flying.Count; ++i)
+                if (Flying[i].Ship == ship && Flying[i].Age > Flying[i].Delay)
+                    ++count;
+            return count;
+        }
+
+        // flying towards the ship at their high end, as a salvage platform's shuttles coming back from the hull
+        internal int InFlightTowards(Ship ship)
+        {
+            int count = 0;
+            for (int i = 0; i < Flying.Count; ++i)
+                if (Flying[i].Ship == ship && Flying[i].Rising)
+                    ++count;
+            return count;
+        }
+
         public void Update(UniverseScreen screen, FixedSimTime timeStep)
         {
             TakeRequests();
@@ -177,7 +243,13 @@ namespace Ship_Game
                 if (progress < 0f)
                     continue;
 
-                bool visible = closeEnough && shuttle.InFrustum;
+                if (launches && shuttle.Launcher is { Active: false }) // a shuttle whose ship is gone before it launches never launches
+                {
+                    Flying.RemoveAtSwapLast(i);
+                    continue;
+                }
+
+                bool visible = closeEnough && shuttle.IsInFrustum(screen, progress);
                 if (visible && launches)
                     particles.Flash.AddParticle(shuttle.PositionAt(0f), Vector3.Zero, FlashScale, Color.White);
 
@@ -186,6 +258,7 @@ namespace Ship_Game
                     if (shuttle.ComesBack)
                     {
                         shuttle.ComesBack = false;
+                        shuttle.Launcher = null; // turning back is no launch
                         shuttle.Rising = !shuttle.Rising;
                         shuttle.Age = shuttle.Delay;
                         continue;
@@ -198,8 +271,8 @@ namespace Ship_Game
                 else if (visible)
                 {
                     Vector3 position = shuttle.PositionAt(progress);
-                    particles.CargoShuttleTrail.AddParticle(position, Vector3.Zero, 1f, shuttle.TrailColor);
-                    particles.CargoShuttle.AddParticle(position, Vector3.Zero, 1f, Color.White);
+                    particles.CargoShuttleTrail.AddParticle(position, Vector3.Zero, TrailScale * shuttle.Size, shuttle.TrailColor);
+                    particles.CargoShuttle.AddParticle(position, Vector3.Zero, GlowScale * shuttle.Size, Color.White);
                 }
             }
         }
@@ -226,6 +299,7 @@ namespace Ship_Game
                     Bend = Random.Float(-MaxBend, MaxBend),
                     Flight = Random.Float(MinFlightPart, MaxFlightPart) * request.Seconds,
                     Rising = request.Rising,
+                    Size = request.Size,
                 };
 
                 switch (request.Route)
@@ -248,9 +322,18 @@ namespace Ship_Game
                         shuttle.Delay = Random.Float(0f, DropLaunchPart) * request.Seconds;
                         break;
                     case Route.ShipToShip:
-                        shuttle.FromShip = request.FromShip;
+                    case Route.Load:
+                        shuttle.FromShip = shuttle.Launcher = request.FromShip;
                         shuttle.Ship = request.Ship;
                         shuttle.Delay = Random.Float(0f, LaunchPart) * request.Seconds;
+                        shuttle.SeenWhereItFlies = request.Route == Route.Load;
+                        break;
+                    case Route.ShipToHull:
+                        Vector2 onHull = request.From.ToVec2().GenerateRandomPointInsideCircle(request.Spread, Random);
+                        shuttle.Low = onHull.ToVec3(request.From.Z);
+                        shuttle.Ship = shuttle.Launcher = request.Ship;
+                        shuttle.ComesBack = true;
+                        shuttle.Delay = Random.Float(MinHullLaunchDelay, MaxHullLaunchDelay);
                         break;
                 }
 

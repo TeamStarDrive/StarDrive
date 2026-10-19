@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -86,17 +87,9 @@ namespace Ship_Game.Commands.Goals
         // the salvage stations an empire sees, its own among them, which a new one keeps clear of; the player's sight is read the UI-safe way
         public static Ship[] StationsSeenBy(Empire empire, Ship[] ships)
         {
-            var seen = new Array<Ship>();
-            for (int i = 0; i < ships.Length; ++i)
-            {
-                Ship s = ships[i];
-                if (!s.IsSalvageStation || !s.Active)
-                    continue;
-                if (s.Loyalty == empire || (empire.isPlayer ? s.KnownByEmpires.KnownByPlayer(empire.Universe)
-                                                            : s.KnownByEmpires.KnownBy(empire)))
-                    seen.Add(s);
-            }
-            return seen.ToArray();
+            return ships.Filter(s => s.IsSalvageStation && s.Active
+                && (s.Loyalty == empire || (empire.isPlayer ? s.KnownByEmpires.KnownByPlayer(empire.Universe)
+                                                            : s.KnownByEmpires.KnownBy(empire))));
         }
 
         public const float FirstSearchRadius = 1000f;
@@ -187,6 +180,24 @@ namespace Ship_Game.Commands.Goals
 
         static bool HasStationIn(Empire empire, SolarSystem system)
             => empire.AI.HasGoal(g => g?.IsSalvageOpsGoal(system) == true && g.TargetShip is { Active: true });
+
+        // from any thread: the empire's built salvage station in the system, or null
+        public static Ship StationIn(Empire empire, SolarSystem system)
+        {
+            Ship station = empire.AI.FindGoal(g => g?.IsSalvageOpsGoal(system) == true)?.TargetShip;
+            return station is { Active: true } && station.Loyalty == empire ? station : null;
+        }
+
+        // on the sim thread: the systems where StationIn finds the empire's built station, in one pass over its goals
+        public static HashSet<SolarSystem> StationSystems(Empire empire)
+        {
+            var systems = new HashSet<SolarSystem>();
+            var goals = empire.AI.Goals;
+            for (int i = 0; i < goals.Count; ++i)
+                if (goals[i] is SalvageOps { TargetShip: { Active: true } station } order && station.Loyalty == empire && order.TargetSystem != null)
+                    systems.Add(order.TargetSystem);
+            return systems;
+        }
 
         // as a station changes hands: it works for its new owner, whose order there is dropped; where the new owner has a station already it is evacuated, a boarded one's troops leaving first and a player told
         public static void TakeOver(Ship station, Empire from, Empire to, bool boarded)

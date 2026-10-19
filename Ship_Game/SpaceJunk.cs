@@ -34,13 +34,13 @@ namespace Ship_Game
         }
 
         public SpaceJunk(UniverseState universe, Vector2 parentPos, Vector2 parentVel,
-                         float maxSize, bool ignite, int constructorId, Planet tetherPlanet)
+                         float maxSize, bool ignite, int constructorId, Planet tetherPlanet, float parentZ = 0f)
         {
             Universe = universe;
             float spawnInRadius = maxSize + 25f;
             Position.X = Universe.Random.Float(parentPos.X - spawnInRadius, parentPos.X + spawnInRadius);
             Position.Y = Universe.Random.Float(parentPos.Y - spawnInRadius, parentPos.Y + spawnInRadius);
-            Position.Z = Universe.Random.Float(-spawnInRadius*0.5f, spawnInRadius*0.5f);
+            Position.Z = parentZ + Universe.Random.Float(-spawnInRadius*0.5f, spawnInRadius*0.5f);
             if (constructorId > 0)
             {
                 if (tetherPlanet != null)
@@ -178,15 +178,37 @@ namespace Ship_Game
                 return; // we can't spawn junk while loading the game :'/
             }
 
-            if (universe.JunkList.Count > 1000)
-                return; // don't allow too much junk
-
-            if (ResourceManager.NumJunkModels == 0)
-                return; // junk models are not loaded in Unit Tests
+            if (!CanSpawn(universe))
+                return;
 
             if (!source.IsInFrustum(universe.Screen))
                 return; // not visible on the screen, so lets forget about it :)
 
+            AddJunk(universe, howMuchJunk, position, velocity, maxSize, ignite, constructorId, tetherPlanet);
+        }
+
+        // a small piece pulled off something that is no game object, as a stripped derelict: at its depth, at just this velocity; the caller checks it is on screen
+        public static void SpawnJunk(UniverseState universe, Vector3 position, Vector2 velocity, float maxSize)
+        {
+            if (!CanSpawn(universe))
+                return;
+            var junk = new SpaceJunk(universe, position.ToVec2(), Vector2.Zero, maxSize, ignite: false, constructorId: 0, tetherPlanet: null, parentZ: position.Z);
+            junk.Velocity = new Vector3(velocity, 0f);
+            universe.Screen.AddObject(junk.So);
+            universe.JunkList.Add(junk);
+        }
+
+        static bool CanSpawn(UniverseState universe)
+        {
+            if (universe.JunkList.Count > 1000)
+                return false; // don't allow too much junk
+
+            return ResourceManager.NumJunkModels > 0; // junk models are not loaded in Unit Tests
+        }
+
+        static void AddJunk(UniverseState universe, int howMuchJunk, Vector2 position, Vector2 velocity,
+                            float maxSize, bool ignite, int constructorId, Planet tetherPlanet)
+        {
             var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
             {

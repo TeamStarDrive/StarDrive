@@ -47,7 +47,7 @@ namespace Ship_Game.AI
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
             if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLaunchingOrLanding
-                || escortTarget.Loyalty == Owner.Loyalty)
+                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoarded)
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -377,6 +377,8 @@ namespace Ship_Game.AI
             {
                 UpdateResearchStationGoal(orbital, Owner.System, goal.OldShip);
                 UpdateSalvageOpsGoal(orbital, bg.TargetSystem);
+                if (goal is SalvageDerelict salvage)
+                    salvage.OnPlatformBuilt(orbital, Owner);
             }
         }
 
@@ -794,7 +796,7 @@ namespace Ship_Game.AI
                 return;
 
             ShipWeight ship = NearByShips.Where(
-                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0
+                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0 && s.Ship.CanBeBoarded
                          && s.Ship.Position.InRadius(Owner.Position, module.TransporterRange + 500f))
                 .OrderBy(sw => Owner.Position.SqDist(sw.Ship.Position))
                 .FirstOrDefault();
@@ -816,9 +818,9 @@ namespace Ship_Game.AI
             if (!Owner.IsHangarShip || !Owner.Mothership.Active)
             {
                 ClearOrders(State);
-                if      (Owner.IsMiningShip)                     Owner.Die(null, true);
-                else if (Owner.ShipData.Role == RoleName.supply) OrderScrapShip();
-                else                                             GoOrbitNearestPlanetAndResupply(true);
+                if      (Owner.IsMiningShip || Owner.IsConstructor) Owner.Die(null, true);
+                else if (Owner.ShipData.Role == RoleName.supply)    OrderScrapShip();
+                else                                                GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
 

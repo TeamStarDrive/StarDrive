@@ -170,6 +170,8 @@ InhibitionAlertsAreDisplayedWhen: automation_alerts
 VolcanoAlertsTip: automation_alerts
 ShipCrashAlertsTip: automation_alerts
 StationBuiltAlertsTip: automation_alerts
+DerelictAlertsTip: automation_alerts
+SalvageAlertsTip: automation_alerts
 EnableStarvationWarningTip: automation_alerts
 
 # Budget screen
@@ -459,7 +461,17 @@ DerelictProductionTip: warfare_combat_basics
 SalvageStationOrderTip: warfare_combat_basics
 SalvageStationOrderedTip: warfare_combat_basics
 SalvageStationNoDesignTip: warfare_combat_basics
+DerelictTurnsStandTip: warfare_combat_basics
+SalvageDerelictTip: warfare_combat_basics
+SalvageDerelictOrderedTip: warfare_combat_basics
+SalvageDerelictNoStationTip: warfare_combat_basics
+SalvageDerelictNoFreeUnitTip: warfare_combat_basics
+DerelictTechsHeldTip: warfare_combat_basics
+DerelictTechsShownTip: warfare_combat_basics
 
 # Exotic Systems salvage rows
 SalvageableDerelictsHereTip: warfare_combat_basics
 SystemSalvageProductionTip: warfare_combat_basics
+
+# Salvage platform panel
+SalvageHoldTip: warfare_combat_basics

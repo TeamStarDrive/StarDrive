@@ -473,11 +473,14 @@ public class DerelictTests : StarDriveTest
         float stopDistance = ship.MaxSTLSpeed * Derelict.StopSeconds / 2f;
         AssertEqual(stopDistance * 0.01f, stopDistance, d.Position.X - startX, "it slows to a stop over 10 s");
         AssertEqual(0.001f, 0f, d.VelocityNow.Length(), "and stops");
+        AssertEqual(1f, Math.Min(25f * Derelict.StopSeconds, d.RestDepth), d.Z, "settling meanwhile at 25 a second");
 
         float stopX = d.Position.X;
-        Step(d, 10f);
+        Step(d, 30f);
         AssertEqual(0.001f, stopX, d.Position.X, "it stays stopped");
-        AssertEqual(0.001f, 0f, d.Z, "on the plane, with no sinking");
+        AssertEqual(0.001f, Math.Min(d.Radius, 500f), d.RestDepth, "its rest depth is its radius, at most 500");
+        AssertEqual(1f, d.RestDepth, d.Z, "there it stays, a little below the plane, not sinking away");
+        AssertEqual(0.001f, 1f, d.Scale, "and at its full size");
     }
 
     // the hull's size in its world matrix: rotation keeps a row's length, so the row is as long as the scale
@@ -844,7 +847,7 @@ public class DerelictTests : StarDriveTest
         UState.Derelicts.Update(TestSimStep);
         AssertEqual(1, d.TurnsLeft, "one turn later");
         AssertTrue(d.CanBeSalvaged, "it is still there to salvage");
-        AssertEqual(0.001f, 0f, d.Z, "on the plane");
+        AssertEqual(0.001f, d.RestDepth, d.Z, "at its rest depth, where an unseen one starts");
 
         AssertEqual(0.001f, GlobalStats.Defaults.DerelictChance * (1f - 1f / GlobalStats.Defaults.MaxSalvageableDerelicts),
                     UState.Derelicts.Chance, "setup: it lowers the chance");
@@ -865,8 +868,8 @@ public class DerelictTests : StarDriveTest
         known.KnownByEmpires.SetSeen(Player);
         UState.Derelicts.TryAdd(known, salvageable: true, seen: false);
         AssertTrue(Newest().KnownByPlayer && !Newest().InScene, "setup: one the player knows of, with no model");
-        AssertEqual(0.5f, Derelict.RemoveDepth / Derelict.SinkSpeed, SecondsToSinkAway(Newest()),
-                    "with no model, one the player knows of sinks away too, to show if the player looks");
+        AssertEqual(0.5f, (Derelict.RemoveDepth - Newest().RestDepth) / Derelict.SinkSpeed, SecondsToSinkAway(Newest()),
+                    "with no model, one the player knows of sinks away too, from its rest depth, to show if the player looks");
     }
 
     // its turns run out, then the seconds until it has sunk away and left the list
@@ -1021,6 +1024,11 @@ public class DerelictTests : StarDriveTest
         return (Derelict.SmokeSource[])typeof(Derelict).GetField("Smoke", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(d);
     }
 
+    static Vector2 MeshOffsetOf(Derelict d)
+    {
+        return (Vector2)typeof(Derelict).GetField("MeshOffset", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(d);
+    }
+
     UniverseScreen SaveAndLoad()
     {
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
@@ -1063,6 +1071,7 @@ public class DerelictTests : StarDriveTest
         AssertEqual(0.01f, d.Production, back.Production, "the production it started with");
         AssertEqual(0.01f, d.ProductionLeft, back.ProductionLeft, "and what was left of it");
         Assert.AreSame(ResourceManager.Ships.GetDesign(d.Design.Name), back.Design, "of the loaded game's own design");
+        AssertEqual(new Vector2(0f, -16f), MeshOffsetOf(back), "its model offset on its hull, as the Dreadnought hull sets it");
         AssertEqual(Player.Id, back.Owner.Id, "and owner");
         AssertTrue(back.IsKnownBy(loaded.UState.GetEmpireById(Enemy.Id)), "the enemy still knows of it");
         AssertTrue(back.IsKnownBy(loaded.UState.Player), "and so does the player");
@@ -1117,7 +1126,10 @@ public class DerelictTests : StarDriveTest
         Derelict d = DriftingWithSmoke();
         StepAll(UState.Derelicts, Derelict.SmokeThinSeconds + 1f);
         AssertEqual(1, UState.Derelicts.Count, "setup: it has not sunk away yet");
-        Derelict.SmokeSource[] saved = UState.Derelicts.GetSaves()[0].Smoke, smoke = SmokeOf(d);
+        AssertGreaterThan(d.NumSmokeSources, Derelict.MinSmokeSources, "setup: it holds more than the six still smoking");
+        Derelict back = SaveAndLoad().UState.Derelicts.Find(d.Id);
+        Assert.IsNotNull(back, "setup: it comes back from the save");
+        Derelict.SmokeSource[] saved = SmokeOf(back), smoke = SmokeOf(d);
         AssertEqual(Derelict.MinSmokeSources, saved.Length, "the six left");
         for (int i = 0; i < saved.Length; ++i)
             AssertEqual(0.001f, smoke[i].Local, saved[i].Local, $"the ones still smoking: point {i}");
@@ -1302,16 +1314,16 @@ public class DerelictTests : StarDriveTest
         Derelict unknown = SalvageableOf(Enemy, Site(5), knownByPlayer: false);
 
         LookDownAt(d.Position, 2_000_000);
-        Vector2 icon = Universe.ProjectToScreenPosition(d.Position).ToVec2f();
+        Vector2 icon = Universe.ProjectToScreenPosition(d.Position, d.Z).ToVec2f();
         AssertLessThan(Universe.ProjectToScreenSize(d.Radius), 2.0, "setup: zoomed out it is only an icon");
         Assert.AreSame(d, Universe.FindClickedDerelict(icon), "a click on its icon");
         Assert.AreSame(d, Universe.FindClickedDerelict(icon + new Vector2(10f, 0)), "or at its edge");
         Assert.IsNull(Universe.FindClickedDerelict(icon + new Vector2(20f, 0)), "but not past it");
-        Assert.IsNull(Universe.FindClickedDerelict(Universe.ProjectToScreenPosition(unknown.Position).ToVec2f()),
+        Assert.IsNull(Universe.FindClickedDerelict(Universe.ProjectToScreenPosition(unknown.Position, unknown.Z).ToVec2f()),
                       "nor on one the player does not know of");
 
         LookDownAt(d.Position, 5000);
-        Vector2 center = Universe.ProjectToScreenPosition(d.Position).ToVec2f();
+        Vector2 center = Universe.ProjectToScreenPosition(d.Position, d.Z).ToVec2f();
         float hull = (float)Universe.ProjectToScreenSize(d.Radius);
         AssertGreaterThan(hull, 50f, "setup: up close its hull is bigger than its icon");
         Assert.AreSame(d, Universe.FindClickedDerelict(center + new Vector2(hull * 0.9f, 0)), "up close a click on its hull");

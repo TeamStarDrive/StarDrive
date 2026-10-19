@@ -76,6 +76,8 @@ public class UniverseParams
     [StarData] public bool DisableVolcanoWarning;
     [StarData] public bool DisableCrashSiteWarning;
     [StarData] public bool DisableStationBuiltWarning;
+    [StarData] public bool DisableDerelictWarning;
+    [StarData] public bool DisableSalvageWarning;
     [StarData] public bool PrioitizeProjectors;
     [StarData(DefaultValue=true)] public bool ShowAllDesigns = true;
     [StarData] public bool FilterOldModules;
