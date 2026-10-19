@@ -94,7 +94,7 @@ namespace Ship_Game.Commands.Goals
             ChangeToStep(passed.Dismantling ? Dismantle : Salvage);
         }
 
-        // on the sim thread, before the goals of an empire that leaves are cleared: its built platforms' orders and claims pass to the empire absorbing it or to its rebels, the platforms changing hands a step later
+        // on the sim thread, before the goals of an empire that leaves are cleared: its built platforms' orders pass to the empire absorbing it or to its rebels, with the claims of those still at work, the platforms changing hands a step later
         public static void PassOn(Empire from, Empire to)
         {
             var goals = from.AI.Goals;
@@ -104,7 +104,7 @@ namespace Ship_Game.Commands.Goals
                     continue;
 
                 to.AI.AddGoal(new SalvageDerelict(to, order));
-                if (order.Derelict is { } d && d.Claimant == from)
+                if (!order.Finished && order.Derelict is { } d && d.Claimant == from) // a finished order's derelict can be claimed by an order not yet built, which ends
                 {
                     d.ReleaseClaim();
                     d.TryClaim(to);
@@ -305,10 +305,16 @@ namespace Ship_Game.Commands.Goals
             if (constructor == null || constructor.Loyalty == Owner)
                 return constructor;
 
-            constructor.Mothership?.OnLaunchedShipDie(constructor);
-            constructor.Mothership = null;
+            LetGo(constructor.Mothership, constructor);
             FinishedShip = null;
             return null;
+        }
+
+        // a constructor in other hands is no longer its station's, and its unit is free, with the ordnance it took written off
+        static void LetGo(Ship station, Ship constructor)
+        {
+            station?.OnLaunchedShipDie(constructor);
+            constructor.Mothership = null;
         }
 
         // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; once its work is over it sends all it holds, then takes itself apart, the player told; one lost or in other hands ends the order, and a lost station takes its platform with it
@@ -324,6 +330,8 @@ namespace Ship_Game.Commands.Goals
             if (Station() is not { } station)
                 return StationLost();
 
+            if (!Finished)
+                Derelict.TryClaim(Owner); // takes back a claim that a call-off caught halfway by a save dropped
             if (Finished || HoldFull(platform))
                 SendLoad(platform, station);
             else
@@ -449,13 +457,18 @@ namespace Ship_Game.Commands.Goals
         public static SalvageDerelict OfPlatform(Ship platform)
             => platform.Loyalty.AI.FindGoal(g => g is SalvageDerelict s && s.Platform == platform) as SalvageDerelict;
 
+        // a bay whose constructor is in other hands, as one boarded on its way home after its order ended, lets it go here
         static ShipModule FreeBay(Ship station)
         {
             ShipModule[] bays = station.Carrier.AllHangars;
             for (int i = 0; i < bays.Length; ++i)
             {
                 ShipModule bay = bays[i];
-                if (bay.IsSalvageBay && bay.Active && bay.HangarTimer <= 0f && !bay.IsHangarShipActive)
+                if (!bay.IsSalvageBay || !bay.Active)
+                    continue;
+                if (bay.TryGetHangarShipActive(out Ship launched) && launched.Loyalty != station.Loyalty)
+                    LetGo(station, launched);
+                if (bay.HangarTimer <= 0f && !bay.IsHangarShipActive)
                     return bay;
             }
             return null;

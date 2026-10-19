@@ -250,8 +250,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       until it is gone; the player can order the derelict again, a new platform going up while the old one comes
       apart. A rival's claim leaves the old platform to finish, and the old order's end leaves a new order's claim.
     - Whatever ends an order gives up its claim (`SalvageDerelict.OnRemoved`), the clearing of a defeated or merged
-      empire's goals included, but an order with a built platform passes first, its claim with it, to the absorber or
-      to the rebels (296, 431 A; part 5).
+      empire's goals included, but an order with a built platform passes first to the absorber or to the rebels, with
+      its claim while its platform is still at work (296, 431 A; part 5; 502 A).
   - The module launches the empire's current constructor design, the one Deep Space Build uses (271 A, 283). The
     constructor flies to the derelict and builds the platform next to it. If it dies on the way, the order stands
     and a unit launches another once its timer allows.
@@ -782,8 +782,9 @@ Implementation notes:
      the 6 left (225, 230). Since 476 A (Gilad, 2026-10-19) the derelict saves itself with `[StarData]` on its own
      fields, as a ship does, instead of through a `Derelict.SaveData` copy: a `[StarDataSerialize]` hook writes the
      smoke points, and a `[StarDataDeserialized]` hook swaps in the loaded design, sets the mesh offset and the
-     universe, and with salvage ops off runs its turns out. The save pauses the sim, so it reads the live derelict;
-     the list is copied under its lock;
+     universe, and with salvage ops off runs its turns out. The save stops the sim's turns but not its queued
+     actions, so it reads the live derelict, and a click queued then can land halfway through it (505 A); the list
+     is copied under its lock;
    - unseen deaths in a system become derelicts at once;
    - the stop point and radiation decide which kind a derelict is;
    - the timer, which counts the player's turns and runs out to a sinking; it ticks where the player's turn is found,
@@ -856,6 +857,32 @@ Implementation notes:
      derelicts window, with the window's status column (464, 478-484);
    - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301;
      493-499, part 7).
+   - the review before the merge into base (Gilad, 2026-10-19; 502-512): the Codex adversarial review and three
+     in-house reviewers, one each for the order lifecycle, the work and saves, and the UI and texts, found no blocker.
+     Fixed:
+     - an absorbed empire's called-off order no longer carries over a claim that belongs to an order of that empire's
+       not yet built, which ends; the absorber kept a claim with no live order, the derelict's timer stopped for
+       good (502 A; reachable once AIs salvage);
+     - a constructor taken by another empire on its way home, after its order ended, kept its salvage unit busy
+       while it lived; the next order looking for a free bay now lets it go, as an order lets go of its own
+       constructor boarded on its way out (503 A);
+     - a platform at work takes back its derelict's claim each turn, stripping or waiting to send its load, should a
+       call-off that a save caught halfway have dropped it (505 A);
+     - hull shuttles no longer launch from a platform destroyed during their launch delay, as 422 A did for loads,
+       and those already out still fly back (506 A);
+     - `Ship.CargoRoom` reads its cargo container once, as the UI reads it every frame (508);
+     - the Codex counts of a wreck's techs are maxima, and scuttling a station tells nothing too (509); the second
+       click's tooltip (7167) holds for an order with no platform yet (510 A); and two test nits (511).
+     Logged, not fixed:
+     - a mod that turns salvage on with a Salvage Platform design that does not load throws on the Salvage click;
+       Gilad would rather stop the game at load with an assertion (504 B);
+     - a long design name in the derelicts window runs under the salvager's flag (507 B);
+     - `OnPlatformBuilt` writes the station's ordnance in space from a parallel AI worker, as a miner's return does,
+       so two platforms finishing in the same step can lose one update (512);
+     - the derelicts window and the panel scan the empire's goals each frame for each row, with 366's per-frame
+       work (512);
+     - the salvager tooltips (`DerelictSalvagedBy`) are raw strings with no Codex link, as `DerelictOriginalOwner`
+       is (512).
 5. **recovery** (was 7 and phase 3; Gilad, 2026-10-19; 465): the Recover button, recovery work at the salvage speed
    (288), the roll, break-up and catastrophic explosion, the recovered ship's damage rule, the order home (175), the
    recovery notification, the techs that raise the salvage speed (270), and whether a recovered ship unlocks its

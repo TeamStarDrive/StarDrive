@@ -16,7 +16,8 @@ namespace UnitTests.Ships;
 /// still takes, or what is left, into its hold as production cargo, and only what its hold took. With its hold full it
 /// strips no more. Its shuttles fly from it to the hull and back, one for every 3 production stripped, launched 0.2 to
 /// 2 s apart and 2 to 2.9 s each way, turning back at once, and only where the player sees the platform, as the
-/// derelict's flashes do. A derelict stripped empty can no longer be salvaged: it leaves its system's and the empires'
+/// derelict's flashes do; none launches once the platform is gone, and those already out fly back. A platform at work
+/// takes back a claim that a call-off caught halfway by a save dropped, even while it only waits to send its load. A derelict stripped empty can no longer be salvaged: it leaves its system's and the empires'
 /// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
 /// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs and the empires that see
 /// them, an order's points for each tech, and an order whose platform stripped its derelict empty, with its derelict's
@@ -278,6 +279,65 @@ public class SalvageWorkTests : StarDriveTest
         order.Evaluate();
         Assert.IsTrue(SalvageDerelict.HoldFull(platform), "setup: two turns fill its hold");
         AssertEqual(Localizer.Token(GameText.SalvageHoldFull), ShipInfoUIElement.SalvageStatus(platform, order), "and then says its hold is full");
+    }
+
+    [TestMethod]
+    public void HullShuttlesNeverLaunchOnceTheirPlatformIsGone()
+    {
+        Derelict d = Forms(Wreck);
+        BuiltStation();
+        SalvageDerelict order = AtWork(d, hold: 100f);
+        Ship platform = order.Platform;
+        UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
+        RunSimWhile((simTimeout: 5, fatal: true), () => !platform.InPlayerSensorRange);
+        platform.InFrustum = true;
+        order.Evaluate();
+        Universe.CargoShuttles.Update(Universe, TestSimStep);
+        AssertEqual(4, Universe.CargoShuttles.InFlight(null, platform), "setup: a turn's 12 sends 4 shuttles, none launched yet");
+
+        platform.QueueTotalRemoval();
+        for (double time = TestSimStepD; time < 2.05; time += TestSimStepD)
+            Universe.CargoShuttles.Update(Universe, TestSimStep);
+        AssertEqual(0, Universe.CargoShuttles.InFlight(null, platform), "with the platform gone before they launch, none does");
+    }
+
+    [TestMethod]
+    public void HullShuttlesAlreadyOutFlyBackThoughTheirPlatformIsGone()
+    {
+        Derelict d = Forms(Wreck);
+        BuiltStation();
+        SalvageDerelict order = AtWork(d, hold: 100f);
+        Ship platform = order.Platform;
+        UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
+        RunSimWhile((simTimeout: 5, fatal: true), () => !platform.InPlayerSensorRange);
+        platform.InFrustum = true;
+        order.Evaluate();
+        double time = 0.0;
+        for (; time < 2.05; time += TestSimStepD)
+            Universe.CargoShuttles.Update(Universe, TestSimStep);
+        AssertEqual(4, Universe.CargoShuttles.Launched(platform), "setup: a turn's 4 shuttles are all out");
+
+        platform.QueueTotalRemoval();
+        for (; time < 4.2; time += TestSimStepD)
+            Universe.CargoShuttles.Update(Universe, TestSimStep);
+        AssertEqual(4, Universe.CargoShuttles.InFlight(null, platform), "they fly on with the platform gone, turning back at the hull");
+    }
+
+    [TestMethod]
+    public void APlatformAtWorkTakesBackAClaimASaveCaughtHalfGivenUp()
+    {
+        Derelict d = Forms(Wreck);
+        Ship station = BuiltStation();
+        station.LoadProduction(station.CargoRoom);
+        SalvageDerelict order = AtWork(d, hold: 24f);
+        order.Evaluate();
+        order.Evaluate();
+        Assert.IsTrue(SalvageDerelict.HoldFull(order.Platform) && SalvageDerelict.HoldFull(station), "setup: both holds are full, so the platform only waits to send its load");
+        d.ReleaseClaim(); // as a call-off a save caught halfway can leave it
+
+        order.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(order), "setup: the order stands");
+        AssertEqual(Player, d.Claimant, "its platform takes the claim back");
     }
 
     [TestMethod]

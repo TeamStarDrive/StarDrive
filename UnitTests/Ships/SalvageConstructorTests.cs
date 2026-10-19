@@ -24,7 +24,8 @@ namespace UnitTests.Ships;
 /// ordnance it took, and its unit is free to launch again. A rival's constructor turns back when the derelict is
 /// claimed and docks, giving its ordnance back, and so does one whose order the second click calls off; one whose
 /// station is destroyed or boarded is scuttled at once, and one flying home to a lost station is removed. One boarded
-/// on its way is its boarder's ship, and its unit launches another for the order. Launched
+/// on its way is its boarder's ship, and its unit launches another for the order; one boarded on its way home leaves
+/// its unit to the next order. Launched
 /// orders hold the units before those waiting to launch. A platform's loss ends its order and its claim, and calling
 /// the order off gives up the claim at once while the platform stays to come apart. An order mid-flight survives a
 /// save and goes on to build.
@@ -403,6 +404,35 @@ public class SalvageConstructorTests : StarDriveTest
         order.Evaluate();
         Assert.IsTrue(order.FinishedShip is { } another && another != boarded && another.Loyalty == Player, "the order launches another constructor");
         AssertEqual(Enemy, boarded.Loyalty, "and leaves the boarded one to its boarder");
+    }
+
+    [TestMethod]
+    public void AConstructorBoardedOnItsWayHomeLeavesItsUnitToTheNextOrder()
+    {
+        Derelict first = Forms(Wreck);
+        Derelict second = Forms(Wreck + new Vector2(0, 5_000f));
+        Derelict next = Forms(Wreck + new Vector2(0, -5_000f));
+        Ship station = BuiltStation(Player, PlayerStation);
+        SalvageDerelict order = OrderedAndLaunched(first, Player);
+        Ship boarded = order.FinishedShip;
+        ShipModule bay = BayOf(station, boarded);
+        OrderedAndLaunched(second, Player);
+        RunPastLaunch(boarded);
+        SalvageDerelict.Cancel(Player, first);
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: the order ends before its platform, its constructor flying home");
+
+        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(boarded);
+        boarded.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        UState.Objects.UpdateLists();
+        AssertEqual(Enemy, boarded.Loyalty, "setup: the constructor is boarded on its way home");
+        bay.HangarTimer = 0f; // its timer ran out meanwhile
+
+        Assert.IsTrue(SalvageDerelict.Order(Player, next), "a new order counts the unit free");
+        Ship launched = OrderOf(Player, next).FinishedShip;
+        Assert.IsNotNull(launched, "and launches its constructor");
+        Assert.AreSame(bay, BayOf(station, launched), "from the boarded one's bay");
+        Assert.IsNull(boarded.Mothership, "which lets the boarded constructor go");
+        AssertEqual(Enemy, boarded.Loyalty, "to its boarder");
     }
 
     [TestMethod]

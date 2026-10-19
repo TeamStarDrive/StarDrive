@@ -1127,7 +1127,9 @@ public class DerelictTests : StarDriveTest
         StepAll(UState.Derelicts, Derelict.SmokeThinSeconds + 1f);
         AssertEqual(1, UState.Derelicts.Count, "setup: it has not sunk away yet");
         AssertGreaterThan(d.NumSmokeSources, Derelict.MinSmokeSources, "setup: it holds more than the six still smoking");
-        Derelict.SmokeSource[] saved = SmokeOf(SaveAndLoad().UState.Derelicts.Find(d.Id)), smoke = SmokeOf(d);
+        Derelict back = SaveAndLoad().UState.Derelicts.Find(d.Id);
+        Assert.IsNotNull(back, "setup: it comes back from the save");
+        Derelict.SmokeSource[] saved = SmokeOf(back), smoke = SmokeOf(d);
         AssertEqual(Derelict.MinSmokeSources, saved.Length, "the six left");
         for (int i = 0; i < saved.Length; ++i)
             AssertEqual(0.001f, smoke[i].Local, saved[i].Local, $"the ones still smoking: point {i}");

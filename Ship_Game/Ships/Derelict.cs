@@ -196,7 +196,6 @@ public sealed class Derelict
             MeshOffset = Design.BaseHull.MeshOffset;
         if (!us.P.SalvageOps)
             TurnsLeft = 0;
-        KnownBy ??= Empty<bool>.Array;
         Smoke = SavedSmoke ?? Empty<SmokeSource>.Array;
         SavedSmoke = null;
     }

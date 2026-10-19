@@ -22,7 +22,8 @@ namespace UnitTests.Ships;
 /// work or coming apart, wait for their change of hands a step later, and then work for the station that passed with
 /// them or, where the absorber has one there, for the absorber's own, keeping their derelicts' techs, production, name
 /// and icon and starting their points for those techs, and the production they delivered, again from none.
-/// Its orders not yet built end with their claims and their constructors, and the absorber's own order on a derelict a
+/// Its orders not yet built end with their claims and their constructors, a called-off order passing without the claim
+/// of one of those on its derelict, and the absorber's own order on a derelict a
 /// passed platform works ends, its constructor flying home, with no notification. A defeated empire's platforms work
 /// for its rebels. Ships changing hands in a system show its derelicts to their new owner, as entering it would, and
 /// the player is told; applied off the sim thread, it lands on it. A merger called off the sim thread runs on it, and
@@ -325,6 +326,25 @@ public class SalvageTakeoverTests : StarDriveTest
         ours.Evaluate();
         Assert.IsFalse(platform.Active, "and is gone after its second");
         Assert.IsFalse(Player.AI.HasGoal(ours), "its order done");
+    }
+
+    [TestMethod]
+    public void ACalledOffOrderPassesWithoutTheClaimOfAnOrderNotYetBuiltOnItsDerelict()
+    {
+        Derelict d = Forms(Wreck);
+        Ship station = BuiltStation(Enemy, EnemyStation);
+        SalvageDerelict theirs = AtWork(Enemy, d);
+        Ship platform = theirs.Platform;
+        SalvageDerelict.Cancel(Enemy, d);
+        Assert.IsTrue(theirs.CalledOff && d.Claimant == null, "setup: the order is called off, its platform winding down");
+        Assert.IsTrue(SalvageDerelict.Order(Enemy, d), "setup: the empire orders the derelict again");
+        Ship constructor = SalvageDerelict.OrderOf(Enemy, d).FinishedShip;
+        Assert.IsTrue(d.TryClaim(Enemy), "setup: the new order's constructor starts to build");
+        Settle(station, platform, constructor);
+
+        Player.AbsorbEmpire(Enemy);
+        Assert.IsTrue(OrderOf(Player) is { CalledOff: true }, "the called-off order passes, its platform winding down");
+        Assert.IsNull(d.Claimant, "without the claim of the order not yet built, which ends and gives it up");
     }
 
     [TestMethod]

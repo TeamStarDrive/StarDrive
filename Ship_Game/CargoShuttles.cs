@@ -100,6 +100,7 @@ namespace Ship_Game
             public Planet Planet;
             public Ship Ship;
             public Ship FromShip;
+            public Ship Launcher; // the ship it launches from, on the routes that start at a ship
             public Color TrailColor;
             public Vector3 Low;
             public Vector3 High;
@@ -242,7 +243,7 @@ namespace Ship_Game
                 if (progress < 0f)
                     continue;
 
-                if (launches && shuttle.FromShip is { Active: false }) // a shuttle whose ship is gone before it launches never launches
+                if (launches && shuttle.Launcher is { Active: false }) // a shuttle whose ship is gone before it launches never launches
                 {
                     Flying.RemoveAtSwapLast(i);
                     continue;
@@ -257,6 +258,7 @@ namespace Ship_Game
                     if (shuttle.ComesBack)
                     {
                         shuttle.ComesBack = false;
+                        shuttle.Launcher = null; // turning back is no launch
                         shuttle.Rising = !shuttle.Rising;
                         shuttle.Age = shuttle.Delay;
                         continue;
@@ -321,7 +323,7 @@ namespace Ship_Game
                         break;
                     case Route.ShipToShip:
                     case Route.Load:
-                        shuttle.FromShip = request.FromShip;
+                        shuttle.FromShip = shuttle.Launcher = request.FromShip;
                         shuttle.Ship = request.Ship;
                         shuttle.Delay = Random.Float(0f, LaunchPart) * request.Seconds;
                         shuttle.SeenWhereItFlies = request.Route == Route.Load;
@@ -329,7 +331,7 @@ namespace Ship_Game
                     case Route.ShipToHull:
                         Vector2 onHull = request.From.ToVec2().GenerateRandomPointInsideCircle(request.Spread, Random);
                         shuttle.Low = onHull.ToVec3(request.From.Z);
-                        shuttle.Ship = request.Ship;
+                        shuttle.Ship = shuttle.Launcher = request.Ship;
                         shuttle.ComesBack = true;
                         shuttle.Delay = Random.Float(MinHullLaunchDelay, MaxHullLaunchDelay);
                         break;
