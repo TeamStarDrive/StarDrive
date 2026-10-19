@@ -128,6 +128,13 @@ namespace Ship_Game
                                title: GameText.ShipCrashAlerts, tooltip: GameText.ShipCrashAlertsTip);
             alerts.AddCheckbox(() => !UState.P.DisableStationBuiltWarning, v => UState.P.DisableStationBuiltWarning = !v,
                                title: GameText.StationBuiltAlerts, tooltip: GameText.StationBuiltAlertsTip);
+            if (SalvageOpsEnabled)
+            {
+                alerts.AddCheckbox(() => !UState.P.DisableDerelictWarning, v => UState.P.DisableDerelictWarning = !v,
+                                   title: GameText.DerelictAlerts, tooltip: GameText.DerelictAlertsTip);
+                alerts.AddCheckbox(() => !UState.P.DisableSalvageWarning, v => UState.P.DisableSalvageWarning = !v,
+                                   title: GameText.SalvageAlerts, tooltip: GameText.SalvageAlertsTip);
+            }
             alerts.AddCheckbox(() => UState.P.EnableStarvationWarning, title: GameText.StarvationAlerts, tooltip: GameText.EnableStarvationWarningTip);
 
             UIList ticks = Ticks = AddList(new Vector2(win.X + 10f, top));

@@ -602,11 +602,35 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     - its icon is the hull's icon with the yellow hourglass over it at 0.8 of its size (246);
     - a click takes the camera to where the derelict comes to rest and selects it; once it can no longer be salvaged,
       the click shows the system (244);
-    - it never pauses the game (253), and has its own switch, for players who find it a nuisance (299, reversing
-      254);
+    - it never pauses the game (253), and has its own switch, Derelict Alerts (7189, 7190), for players who find it
+      a nuisance (299, reversing 254);
   - a station built: research, mining and salvage stations share one switch (300);
-  - a platform that finished stripping, with its production and the points each tech gained, and a claim lost, to a
-    destroyed platform or to a rival that started first: one switch for both (301);
+  - a salvage's end, under one switch, Salvage Alerts (7191, 7192; 301), none of them pausing the game (Gilad,
+    2026-10-19; 493-499, after a preview sheet of in-game renders):
+    - a platform that has sent its station its last load and starts to come apart, its derelict stripped empty or its
+      order called off (493 B): the derelict's hull icon with the research symbol over it at 0.8 (495 A), a header
+      saying which (7193, 7194), the production its loads brought (7195), then a line for each tech, its name and
+      then its points, whole with thousands separators (496, layout 3), leaving out a tech whose points show as 0; a
+      click shows the system, as the derelict has sunk away;
+    - a salvage that ends early (494): its platform destroyed while at work or sending its last loads (7196, the
+      platform's icon), a rival's constructor starting to build first (7197, the hull icon under the rival's flag),
+      its station lost, told once for each order there (7198, the station's icon, or the derelict's when the order
+      has not found its station since a load), and the derelict sinking away before the claim (7199, the hull icon
+      with the hourglass). A click selects the derelict while it can still be salvaged, or shows the system, and
+      the one for a sunk derelict shows the system (498);
+    - not told: a constructor lost on its way, an order called off before its platform is built, a platform lost
+      while it comes apart, salvage ops turned off, an order giving way to a platform passed on to its empire,
+      another empire's salvage, a station the player scrapped or scuttled, which leaves its scuttle timer set (500 A),
+      and an order beyond the station's live units once a salvage unit is lost, which is rare (501 A);
+    - the order keeps the production its loads brought (`SalvageDerelict.Delivered`, which starts again from none
+      on a passed order, as the points do) and its derelict's design name and hull icon (`DerelictName`,
+      `DerelictIcon`), all saved, as the derelict may have sunk away before the last load;
+    - the text is white, since a notification's text is red only when it pauses the game (497);
+    - review (500, 501): the in-house review found a scrapped station told as lost once for each order there
+      (500 A, silent now) and the silent end of an order beyond the live units (501 A, kept silent);
+  - both new switches sit under Station Built Alerts, ticked by default and shown only with salvage ops on (499),
+    saved as `UniverseParams.DisableDerelictWarning` and `DisableSalvageWarning`. Codex 100173 describes both boxes
+    and 100093 the notifications;
   - the result of each of your recovery rolls.
 - **Pirates (176):** pirates salvage too, in *recover* mode only: they take ships, never production or techs. This
   is for now. How they reach a derelict is settled in the ai sub-branch; later they may raid a salvage station to
@@ -830,7 +854,8 @@ Implementation notes:
      over the platforms of an absorbed second station (296); 427-441, part 5;
    - the tech payout per load (457-471, replacing the check of 159 and 287), and the techs on the panel and in the
      derelicts window, with the window's status column (464, 478-484);
-   - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301).
+   - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301;
+     493-499, part 7).
 5. **recovery** (was 7 and phase 3; Gilad, 2026-10-19; 465): the Recover button, recovery work at the salvage speed
    (288), the roll, break-up and catastrophic explosion, the recovered ship's damage rule, the order home (175), the
    recovery notification, the techs that raise the salvage speed (270), and whether a recovered ship unlocks its

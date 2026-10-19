@@ -1167,6 +1167,8 @@ namespace UnitTests.Serialization
             AssertEqual(instance.DisableVolcanoWarning, result.DisableVolcanoWarning);
             AssertEqual(instance.DisableCrashSiteWarning, result.DisableCrashSiteWarning);
             AssertEqual(instance.DisableStationBuiltWarning, result.DisableStationBuiltWarning);
+            AssertEqual(instance.DisableDerelictWarning, result.DisableDerelictWarning);
+            AssertEqual(instance.DisableSalvageWarning, result.DisableSalvageWarning);
             AssertEqual(instance.ShowAllDesigns, result.ShowAllDesigns);
             AssertEqual(instance.FilterOldModules, result.FilterOldModules);
             AssertEqual(instance.DisableRemnantStory, result.DisableRemnantStory);

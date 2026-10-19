@@ -6272,6 +6272,28 @@ namespace Ship_Game
         BuildingSalvagePlatform = 7187,
         /// <summary>Salvaging</summary>
         DerelictSalvaging = 7188,
+        /// <summary>Derelict Alerts</summary>
+        DerelictAlerts = 7189,
+        /// <summary>Alerts when you learn of salvageable derelicts in a system</summary>
+        DerelictAlertsTip = 7190,
+        /// <summary>Salvage Alerts</summary>
+        SalvageAlerts = 7191,
+        /// <summary>Alerts when one of your salvage platforms has sent its station</summary>
+        SalvageAlertsTip = 7192,
+        /// <summary>{0}: the {1} is stripped</summary>
+        SalvageStrippedNotify = 7193,
+        /// <summary>{0}: salvage of the {1} called off</summary>
+        SalvageCalledOffNotify = 7194,
+        /// <summary>{0} production salvaged</summary>
+        SalvageProductionNotify = 7195,
+        /// <summary>{0}: your salvage platform at the {1} was destroyed</summary>
+        SalvagePlatformDestroyedNotify = 7196,
+        /// <summary>{0}: the {2} started salvaging the {1} first</summary>
+        SalvageClaimedFirstNotify = 7197,
+        /// <summary>{0}: your salvage station was lost, and your salvage of the</summary>
+        SalvageStationLostNotify = 7198,
+        /// <summary>{0}: the {1} sank away before your platform was built</summary>
+        SalvageSankNotify = 7199,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

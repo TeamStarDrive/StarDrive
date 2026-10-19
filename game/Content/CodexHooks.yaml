@@ -170,6 +170,8 @@ InhibitionAlertsAreDisplayedWhen: automation_alerts
 VolcanoAlertsTip: automation_alerts
 ShipCrashAlertsTip: automation_alerts
 StationBuiltAlertsTip: automation_alerts
+DerelictAlertsTip: automation_alerts
+SalvageAlertsTip: automation_alerts
 EnableStarvationWarningTip: automation_alerts
 
 # Budget screen

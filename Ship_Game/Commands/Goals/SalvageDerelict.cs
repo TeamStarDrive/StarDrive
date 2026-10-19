@@ -33,7 +33,14 @@ namespace Ship_Game.Commands.Goals
         [StarData] public float DerelictProduction { get; private set; }
         // the research its loads have given each of those techs, by the techs' order; a passed order starts again from none
         [StarData] public float[] Gained { get; private set; } = Empty<float>.Array;
+        // the production its loads have brought its station; a passed order starts again from none
+        [StarData] public float Delivered { get; private set; }
+        // its derelict's design name and hull icon, kept for the notifications once the derelict has sunk away
+        [StarData] public string DerelictName { get; private set; }
+        [StarData] public string DerelictIcon { get; private set; }
         Derelict Found;
+        // its station as last found, for the notification of its loss
+        Ship LastStation;
 
         // its platform's work is over: it sends its station all it holds, then takes itself apart
         public bool Finished => Emptied || CalledOff;
@@ -63,6 +70,8 @@ namespace Ship_Game.Commands.Goals
             Techs = derelict.Techs;
             Gained = new float[Techs.Length];
             DerelictProduction = derelict.Production;
+            DerelictName = derelict.Design.Name;
+            DerelictIcon = derelict.Design.BaseHull?.IconPath;
             Initialize(ShipDesign.SalvagePlatformName, Vector2.Zero, derelict.System);
             Found = derelict;
         }
@@ -75,6 +84,8 @@ namespace Ship_Game.Commands.Goals
             Techs = passed.Techs;
             Gained = new float[Techs.Length];
             DerelictProduction = passed.DerelictProduction;
+            DerelictName = passed.DerelictName;
+            DerelictIcon = passed.DerelictIcon;
             Initialize(ShipDesign.SalvagePlatformName, passed.StaticBuildPos, passed.TargetSystem);
             Platform = passed.Platform;
             Emptied = passed.Emptied;
@@ -195,7 +206,22 @@ namespace Ship_Game.Commands.Goals
 
         bool Launched => Step > 0;
 
-        protected override GoalStep? PreEvaluate() => Stands ? null : GoalStep.GoalFailed;
+        // an order that no longer stands ends; the player is told when a rival claimed its derelict first, or it sank before the claim
+        protected override GoalStep? PreEvaluate()
+        {
+            if (Stands)
+                return null;
+            if (Owner.Universe.P.SalvageOps && !GivesWay)
+            {
+                if (Derelict is { CanBeSalvaged: true } d)
+                    PlayerNotifications?.AddSalvageClaimedFirstNotification(this, d.Claimant);
+                else
+                    PlayerNotifications?.AddSalvageSankNotification(this);
+            }
+            return GoalStep.GoalFailed;
+        }
+
+        NotificationManager PlayerNotifications => Owner.isPlayer ? UState.Notifications : null;
 
         // an order that ends calls its constructor home, or scuttles it with its station lost or its empire gone, takes its platform away unless it is in other hands, where it stops coming apart, and gives up its claim unless another order of its empire's works the derelict
         public override void OnRemoved()
@@ -235,8 +261,10 @@ namespace Ship_Game.Commands.Goals
         // a free salvage unit of the station launches the constructor when the station has the ordnance for it
         GoalStep LaunchConstructor()
         {
-            Ship station = SalvageOps.StationIn(Owner, TargetSystem);
-            if (station == null || !HoldsAUnit(station))
+            Ship station = Station();
+            if (station == null)
+                return StationLost();
+            if (!HoldsAUnit(station))
                 return GoalStep.GoalFailed;
 
             ShipModule bay = FreeBay(station);
@@ -259,8 +287,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoToNextStep;
             if (Constructor() is not { } constructor)
                 return GoalStep.RestartGoal;
-            if (SalvageOps.StationIn(Owner, TargetSystem) == null)
-                return GoalStep.GoalFailed;
+            if (Station() == null)
+                return StationLost();
 
             if (constructor.Position.InRadius(BuildPosition, ConstructionShip.ConstructingDistance))
             {
@@ -283,15 +311,18 @@ namespace Ship_Game.Commands.Goals
             return null;
         }
 
-        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; once its work is over it sends all it holds, then takes itself apart; one lost or in other hands ends the order, and a lost station takes its platform with it
+        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; once its work is over it sends all it holds, then takes itself apart, the player told; one lost or in other hands ends the order, and a lost station takes its platform with it
         GoalStep Salvage()
         {
             if (Platform is not { Active: true } platform)
+            {
+                PlayerNotifications?.AddSalvagePlatformDestroyedNotification(this);
                 return GoalStep.GoalFailed;
+            }
             if (platform.Loyalty != Owner)
                 return PassingOn(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
-            if (SalvageOps.StationIn(Owner, TargetSystem) is not { } station)
-                return GoalStep.GoalFailed;
+            if (Station() is not { } station)
+                return StationLost();
 
             if (Finished || HoldFull(platform))
                 SendLoad(platform, station);
@@ -302,6 +333,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             DismantleTurnsLeft = DismantleTurns;
             platform.StartDismantling();
+            PlayerNotifications?.AddSalvageFinishedNotification(this);
             return GoalStep.GoToNextStep;
         }
 
@@ -323,6 +355,17 @@ namespace Ship_Game.Commands.Goals
         // a platform passed on to the empire waits for its change of hands
         bool PassingOn(Ship platform) => platform.LoyaltyTracker.ChangesTo(Owner);
 
+        Ship Station() => SalvageOps.StationIn(Owner, TargetSystem) is { } station ? LastStation = station : null;
+
+        // a station lost ends the order, and the player is told unless the station was scrapped or scuttled, which leaves its scuttle timer set
+        GoalStep StationLost()
+        {
+            bool scrapped = LastStation != null && LastStation.ScuttleTimer != -1f;
+            if (!scrapped)
+                PlayerNotifications?.AddSalvageStationLostNotification(this, LastStation);
+            return GoalStep.GoalFailed;
+        }
+
         // as much of its hold as the station has room for, its shuttles launching where the player sees either end
         void SendLoad(Ship platform, Ship station)
         {
@@ -330,6 +373,7 @@ namespace Ship_Game.Commands.Goals
             platform.UnloadProduction(sent);
             if (sent <= 0f)
                 return;
+            Delivered += sent;
             AdvanceTechs(sent);
             if (UState.IsPlanetViewOrCloser && (SeenByPlayer(platform) || SeenByPlayer(station)))
                 UState.Screen.CargoShuttles.SendLoad(platform, station, Owner.EmpireColor, CargoShuttles.LoadShuttlesFor(sent));

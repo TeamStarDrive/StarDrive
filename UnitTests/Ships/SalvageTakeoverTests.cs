@@ -20,13 +20,13 @@ namespace UnitTests.Ships;
 /// a transporter passes it over for the next ship, and pirates never pick it for a raid; each check has a ship that
 /// can be boarded beside it. An absorbed empire's built platforms pass to the absorber with their orders and claims, at
 /// work or coming apart, wait for their change of hands a step later, and then work for the station that passed with
-/// them or, where the absorber has one there, for the absorber's own, keeping their derelicts' techs and production
-/// and starting their points for those techs again from none.
+/// them or, where the absorber has one there, for the absorber's own, keeping their derelicts' techs, production, name
+/// and icon and starting their points for those techs, and the production they delivered, again from none.
 /// Its orders not yet built end with their claims and their constructors, and the absorber's own order on a derelict a
-/// passed platform works ends, its constructor flying home. A defeated empire's platforms work for its rebels. Ships
-/// changing hands in a system show its derelicts to their new owner, as entering it would, and the
-/// player is told; applied off the sim thread, it lands on it. A merger called off the sim thread runs on it, and one
-/// a save catches before the platforms change hands loads with their orders.
+/// passed platform works ends, its constructor flying home, with no notification. A defeated empire's platforms work
+/// for its rebels. Ships changing hands in a system show its derelicts to their new owner, as entering it would, and
+/// the player is told; applied off the sim thread, it lands on it. A merger called off the sim thread runs on it, and
+/// one a save catches before the platforms change hands loads with their orders.
 /// </summary>
 [TestClass]
 public class SalvageTakeoverTests : StarDriveTest
@@ -259,6 +259,8 @@ public class SalvageTakeoverTests : StarDriveTest
         AssertEqual(Block.Ordered, SalvageDerelict.WhyNoOrder(Player, d), "so the derelict is the absorber's to call off");
         CollectionAssert.AreEqual(theirs.Techs, ours.Techs, "and its derelict's techs");
         AssertEqual(theirs.DerelictProduction, ours.DerelictProduction, "and whole production");
+        AssertEqual("Dreadnought mk1-a", ours.DerelictName, "and name");
+        AssertEqual(d.Design.BaseHull.IconPath, ours.DerelictIcon, "and hull icon");
         CollectionAssert.AreEqual(new float[theirs.Techs.Length], ours.Gained, "its points start again from none, as they were the merged empire's");
 
         AssertEqual(Enemy, platform.Loyalty, "setup: the platform changes hands a step after the merger");
@@ -306,12 +308,14 @@ public class SalvageTakeoverTests : StarDriveTest
         SalvageDerelict.Cancel(Enemy, d);
         theirs.Evaluate();
         Assert.IsTrue(theirs.Dismantling, "setup: the platform comes apart");
+        AssertEqual(0.01f, 12f, theirs.Delivered, "setup: having sent its station a load of 12");
         Settle(station, platform);
 
         Player.AbsorbEmpire(Enemy);
         SalvageDerelict ours = OrderOf(Player);
         Assert.IsTrue(ours.CalledOff && ours.Dismantling, "it passes called off and coming apart");
         Assert.IsNull(d.Claimant, "with no claim to pass");
+        AssertEqual(0f, ours.Delivered, "and its production delivered starts again from none, as it was the merged empire's");
 
         ours.Evaluate();
         Assert.IsTrue(Player.AI.HasGoal(ours) && platform.Dismantling, "it waits for its change of hands, still coming apart");
@@ -351,11 +355,14 @@ public class SalvageTakeoverTests : StarDriveTest
         RunSimWhile((simTimeout: 5, fatal: true), () => ownConstructor.IsLaunching);
         Ship platform = AtWork(Enemy, d).Platform;
         Settle(theirStation, platform);
+        var notes = Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
 
         Player.AbsorbEmpire(Enemy);
         RunObjectsSim(TestSimStep);
+        int told = notes.NumberOfNotifications;
         ownOrder.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(ownOrder), "the absorber's own order on the derelict ends");
+        AssertEqual(told, notes.NumberOfNotifications, "telling the player nothing, as the derelict stays the player's");
         AssertEqual(platform, SalvageDerelict.OrderOf(Player, d)?.Platform, "the passed platform's order is the derelict's");
         AssertEqual(Player, d.Claimant, "and keeps its claim");
 
