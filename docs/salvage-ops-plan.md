@@ -312,7 +312,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     the chunk: `SalvageChunkSize` goes, and a salvage station needs cargo room for one platform's hold (405 A). The
     sending came with part 4 (399 B).
   - Neither the speed nor the load scales with the game's pace: the derelict's production already does, so salvage
-    takes longer at a slower pace, as building does. Techs that raise the speed come in the last phase (270).
+    takes longer at a slower pace, as building does. Techs that raise the speed come at the end of the feature (270, 516).
   - Visual shuttles run between the platform and the derelict: one for every 3 production stripped that turn,
     rounded up, each from the platform to a random point on the hull and back, in the empire's colour (394). They
     launch 0.2 to 2 s apart after the turn's stripping and take 2 to 2.9 s each way, three times the first draft's
@@ -537,7 +537,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     keeps them too. A tech researched meanwhile is paid no more.
   - No roll: salvage never unlocks a hull (461), nor a module without its tech (the module route was dropped: a
     design's techs, not its modules, decide what it can build, and the AI and mergers go by techs too). A recovered
-    ship may unlock its race's hull when the recovering empire has the hull's tech, settled in sub-branch 5 (471).
+    ship never unlocks its hull either; scrapping it runs the reverse-engineering roll (471, 514 A).
   - Since salvage completes nothing, there is no completion to tell (466); part 7's platform notification lists the
     points each tech gained. Each tech's node in the research tree already shows its progress and the cost left.
   - **On the panel and in the derelicts window (Gilad, 2026-10-19; 464, 478-484, after three preview sheets):**
@@ -631,7 +631,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - both new switches sit under Station Built Alerts, ticked by default and shown only with salvage ops on (499),
     saved as `UniverseParams.DisableDerelictWarning` and `DisableSalvageWarning`. Codex 100173 describes both boxes
     and 100093 the notifications;
-  - the result of each of your recovery rolls.
+  - the result of each of your recovery rolls, under Salvage Alerts (513 A); a recovery called off is not told.
 - **Pirates (176):** pirates salvage too, in *recover* mode only: they take ships, never production or techs. This
   is for now. How they reach a derelict is settled in the ai sub-branch; later they may raid a salvage station to
   capture it, and recover the derelicts in its system with it. A salvage station pirates board already stays theirs
@@ -639,25 +639,64 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
 
 ### Recovery
 
-- **Ships only;** a station derelict can never come back as a ship (131). Remnant ships can be recovered (127).
-  Recovery is possible only while less than half of the derelict's production has been stripped (144).
-- **The work (288):** the Recover button sends a platform as the Salvage button does, so only the claiming empire
-  works on it. Recovery takes as much work as the derelict's whole production, at the same salvage speed, and then
-  that empire rolls for the ship.
-- **The chances (145):**
-  - base chance by hull role, like reverse engineering: frigate 60, destroyer 50 (the table's default, 173),
-    cruiser 40, battleship 30, capital 20, times `1 + ModHpModifier` (Skilled / Haphazard Engineers);
-  - on a failed roll, a second roll decides how bad it is: 10% catastrophic, scaled by the same trait;
-  - a plain failure breaks the derelict apart;
-  - a catastrophic one makes it explode, with blast damage to nearby ships (133, 155).
-- **The recovered ship (126, 134, 146, 147, 158, 164):**
+Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 145:
+
+- **Ships only;** a station derelict can never come back as a ship (131). Remnant ships can be recovered (127), and so
+  can the empire's own lost ships.
+- **The order (288, 518 A):** a recovery is a saved mode of the salvage order, so the claim, passing on, call-offs and
+  the notifications work as they do for salvage. The Recover button sends a platform as the Salvage button does, so
+  only the claiming empire works on it, and its second click calls the recovery off.
+- **Switching (520, 533 A):** the same platform switches between the modes, at any time; the stop once half the
+  production was stripped (144) is gone. Recover on a derelict the platform strips sends what it holds to the station
+  first, then starts the work the next turn. Salvage during a recovery turns the platform to stripping and keeps the
+  work done, which a later Recover takes up again, at a chance lowered by what was stripped meanwhile.
+- **The work (519, 530 A, 531 B, 532 A, 536 A):** time only, nothing is paid. It is the share of health the ship had
+  lost at its death, times its design cost before any empire's cost bonus, at the game's production pace, times
+  `SalvageRecoveryWorkFactor` (Globals, default 1.1), times 1 minus the race's Engineers value (below). The derelict
+  saves its health at death for it. The platform works it off at `SalvageRecoverySpeed` (Globals, default 36) per
+  turn. A ship that cost 1000 and died with 40% of its health needs 660, 19 turns; 528 with Skilled Engineers and 792
+  with Haphazard ones. Losing the station or the platform, or calling the recovery off, loses the work (522 A).
+- **The chances (145, 173, 515 C, 520, 528 A, 529 A):**
+  - base chance by hull role, as reverse engineering's: frigate 60, destroyer 50 (the table's default), cruiser 40,
+    battleship 30, capital 20;
+  - times 1 plus the race's Engineers value, +0.2 for Skilled Engineers and -0.2 for Haphazard ones, read from the
+    race traits the empire was made with, which saves already keep (`EmpireData.SelectedTraitSet`; Gilad, 2026-10-20;
+    544 B, replacing a value saved at the empire's start). `ModHpModifier` holds research, artifacts, Remnant gifts
+    and the AI's difficulty bonus too (472), and none of them count. Rebels keep the traits of the race they rise
+    from, saves from before salvage ops read them as well, and an Assimilator keeps its own Engineers value, as
+    conquering changes no trait list (528 A dropped). `Empire.RaceEngineers` reads it once, and again only when the
+    traits change. A mod race that sets the module health bonus in its race file rather than through a trait gets
+    none;
+  - times the share of the derelict's production not yet stripped, by any empire: 0.8 with 20 of 100 stripped;
+  - on a failed roll, a second roll decides how bad it is: 10% times 1 minus the Engineers value is catastrophic, 8%
+    for Skilled Engineers and 12% for Haphazard ones;
+  - a plain failure breaks the derelict apart as a drifting one breaks up, and it sinks away. Nothing is left to
+    strip, and the platform comes apart (517 A);
+  - a catastrophic one makes it explode with its hull role's biggest blast, the death blast's cap
+    (`Ship.ExplosionDamageCap`: 40 times its radius for a frigate or destroyer, 60 for a cruiser, 80 for a
+    battleship, 100 for a capital), which catches the ships near it, the platform beside it included; one
+    notification tells of it (133, 155, 526 A, 527 A).
+- **On the panel and in the derelicts window (523, 524, 534 A, 535 A):** during a recovery the tech icons give way to
+  a bar of its progress, on the panel and in the window's Technologies column, from the order on, at 0% until the
+  platform starts work. The status shows the chance, and so does the Recover button's tooltip, and on the panel its
+  left side below the hourglass and the tech count, before any order. The looks go on preview sheets.
+- **The visual (525 B):** the platform's shuttles fly each turn as in salvage, one for every 3 of the turn's work, but
+  in place of salvage's flashes and junk the derelict shows a station build's effect (`ConstructionShip.AddEffects`:
+  sparks, lightning, flashes and flying parts) at the recovery's progress, spreading out from its centre as the
+  progress rises.
+- **No hull unlock (471, 514 A):** recovery never unlocks the ship's hull. Scrapping the recovered ship at a shipyard
+  runs the game's reverse-engineering roll, or advances the hull's tech by 25% when it is not researched.
+- **The recovered ship (126, 134, 146, 147, 158, 164):** it appears where the derelict rests, facing the same way, and
+  the platform comes apart as after a salvage.
   - repair modules, external armour and engines are dead. A repair module is any module with a repair value except
     a command module: Main Engineering, repair-drone bays, Construction Array and the like (174). `RepairRate`
     sums every module with a repair value, command modules included;
   - armour in internal slots is at 2% health;
   - every other module is at 4% health, command modules included;
   - the next module loss may destroy it, and that is accepted;
-  - it comes back at crew level 0, keeps its name and joins no fleet.
+  - it comes back at crew level 0, keeps its name and joins no fleet, with no ordnance, no troops and empty hangars,
+    which its bays and supply refill as usual;
+  - the empire whose ship it was is not told and does not mind.
 - **How it gets home:**
   - Command modules carry repair (vanilla: Bridge 500, CIC 1200, Cockpit 200) and work at full rate at 4%, so repair
     brings the engines back.
@@ -725,7 +764,7 @@ Implementation notes:
   fixes land.
 - **Shipping (190, replaces the single final PR of 140 and 154):** phase 1 merged into `jupiter-1.60/fixes_49` with a
   merge commit and shipped in that patch batch, through PR #445 to `main` with the usual gates. Later phases go the
-  same way, each into the patch branch of its day: phase 2 once sub-branches 2-7 are all in `base`, recovery
+  same way, each into the patch branch of its day: phase 2 once sub-branches 2-8 are all in `base`, recovery
   included (465), since sub-branch 2 alone leaves derelicts that nobody can salvage.
 - **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
   exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
@@ -883,17 +922,41 @@ Implementation notes:
        work (512);
      - the salvager tooltips (`DerelictSalvagedBy`) are raw strings with no Codex link, as `DerelictOriginalOwner`
        is (512).
-5. **recovery** (was 7 and phase 3; Gilad, 2026-10-19; 465): the Recover button, recovery work at the salvage speed
-   (288), the roll, break-up and catastrophic explosion, the recovered ship's damage rule, the order home (175), the
-   recovery notification, the techs that raise the salvage speed (270), and whether a recovered ship unlocks its
-   race's hull when the empire has the hull's tech, for certain or by a roll (471). The chances' `1 + ModHpModifier`
-   (145) is the whole module health bonus, which research raises too, not the Engineers trait alone (472).
+5. **recovery** (was 7 and phase 3; Gilad, 2026-10-19; 465), with its rules settled in 513-536 (see Recovery), in
+   parts (518):
+   1. the Recover button and the recovery mode of the salvage order, the switch between the modes, the race's
+      Engineers value and the chance on the panel;
+   2. the work and its progress bar, with the build effect;
+   3. the roll, the break-up and the catastrophic blast;
+   4. the recovered ship: its damage, its saved design and the order home (175);
+   5. the notification, and what is left of the Codex; each part writes the Codex text of what it builds.
+
+   Part 1 (Gilad, 2026-10-20; 537-546, after a preview sheet and in-game renders in BlackBoxPlus-references\previews\s5p1):
+   - the Recover button sits under Salvage in the drawer, with the crossed hammers of the construction map symbol
+     (537 C), and beside it at the end of each row of the derelicts window, which widens to 840 px (539 B);
+   - both buttons are grey until clicked, a clickable one lights up under the cursor, the button of the standing
+     order's work stays lit, a click on it calls the order off and a click on the other turns the order to that work;
+     a button that cannot order looks as grey and does not light up (540 A). With no salvage station of the player's
+     built in the derelict's system there are no buttons and no drawer, unless an order or claim of the player's
+     stands, which they give up;
+   - the chance shows on the panel under the hourglass and the tech count, with the crossed hammers (538 B), for any
+     ship derelict, station built or not (541 A), and in the Recover button's tooltip;
+   - a recovering platform strips nothing and first sends what it holds; the work comes with part 2;
+   - texts 7200-7205; 7168, the no-station tooltip, goes, as no button shows then. Codex 100093 gains Recovering a
+     derelict;
+   - review (542-546): the Engineers value comes from the race's traits (544 B), which makes the rebels' value
+     (542) and old saves right; the Codex places the window's button (543); a claim kept without its order shows the
+     call-off tooltip on both buttons (545 A); the buttons read the derelict's block and order once a frame (546 A).
+     Logged for later parts: the texts already tell of the break-up, the blast and the work kept or lost, a called-off
+     recovery still sends the salvage notification (part 5), and a recovering platform's status reads Salvaging
+     (part 2).
 6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
    and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
    they have no small station hull (315), and later their raids to capture a salvage station.
-8. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
+8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270).
+9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
 
 Each sub-branch adds its Codex text and tests.
 

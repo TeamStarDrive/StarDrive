@@ -67,6 +67,23 @@ namespace Ship_Game
         [StarData] public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName => data.PortraitName;
+
+        // its race's Skilled or Haphazard Engineers, which derelict recovery goes by, read again only when its traits change
+        public float RaceEngineers
+        {
+            get
+            {
+                string traits = data.SelectedTraitSet;
+                if (!ReferenceEquals(traits, EngineersReadFrom))
+                {
+                    Engineers = DerelictRecovery.EngineersOf(traits);
+                    EngineersReadFrom = traits;
+                }
+                return Engineers;
+            }
+        }
+        string EngineersReadFrom;
+        float Engineers;
         public bool ScanComplete = true;
 
         [StarData] public bool AutoTaxes;

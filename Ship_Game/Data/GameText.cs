@@ -6230,8 +6230,6 @@ namespace Ship_Game
         SalvageDerelictTip = 7166,
         /// <summary>Your salvage station is working this derelict.</summary>
         SalvageDerelictOrderedTip = 7167,
-        /// <summary>Salvaging this derelict needs a salvage station of yours built in this system.</summary>
-        SalvageDerelictNoStationTip = 7168,
         /// <summary>Every salvage unit of your station in this system is busy.</summary>
         SalvageDerelictNoFreeUnitTip = 7169,
         /// <summary>{0} is salvaging this derelict.</summary>
@@ -6294,6 +6292,18 @@ namespace Ship_Game
         SalvageStationLostNotify = 7198,
         /// <summary>{0}: the {1} sank away before your platform was built</summary>
         SalvageSankNotify = 7199,
+        /// <summary>Recover this ship: a salvage unit of your station in this</summary>
+        RecoverDerelictTip = 7200,
+        /// <summary>Your salvage station is recovering this ship. Click to call it</summary>
+        RecoverDerelictOrderedTip = 7201,
+        /// <summary>Recover this ship instead: its salvage platform first sends</summary>
+        RecoverDerelictSwitchTip = 7202,
+        /// <summary>Salvage this derelict instead: its salvage platform strips it</summary>
+        SalvageDerelictSwitchTip = 7203,
+        /// <summary>A station cannot be recovered, only salvaged.</summary>
+        RecoverDerelictStationTip = 7204,
+        /// <summary>Your chance to recover this ship: {0}. It starts at {1} for</summary>
+        DerelictRecoveryChanceTip = 7205,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

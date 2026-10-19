@@ -12,7 +12,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with the player's salvage station order there and an order to salvage each
+// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with the player's salvage station order there and orders to salvage or recover each
 public sealed class SystemDerelictsScreen : GameScreen
 {
     public override bool HelpKeyOpensCodex => true;
@@ -33,7 +33,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         TransitionOffTime = 0.25f;
     }
 
-    const int WindowWidth = 800;
+    const int WindowWidth = 840;
     // the columns from a row's left edge: the hull's icon, then its name over its production bar, the salvager's flag, the techs and the status
     const int NameX = 40;
     const int SalvagerX = 230;
@@ -43,7 +43,7 @@ public sealed class SystemDerelictsScreen : GameScreen
     const int StatusX = 512;
     const int HeaderHeight = 22;
 
-    // a derelict's hull and name, its production left, the flag of the empire salvaging it, its techs and its salvage's status, and the Salvage button, as on its panel
+    // a derelict's hull and name, its production left, the flag of the empire salvaging it, its techs and its salvage's status, and the Salvage and Recover buttons, as on its panel
     sealed class DerelictListItem : ScrollListItem<DerelictListItem>
     {
         readonly UniverseScreen Universe;
@@ -63,7 +63,8 @@ public sealed class SystemDerelictsScreen : GameScreen
         Rectangle ClaimRect => new((int)X + SalvagerX + SalvagerWidth / 2 - 10, (int)Y + 10, 20, 20);
         Rectangle TechsRect => new((int)X + TechsX, (int)Y + 10, 19, 20);
         Rectangle TechRect(int i) => new((int)X + TechsX + i * TechSpacing, (int)Y + 6, 26, 22);
-        Rectangle SalvageRect => new((int)(X + Width) - 40, (int)Y + 2, 36, 36);
+        Rectangle SalvageRect => new((int)(X + Width) - 80, (int)Y + 2, 36, 36);
+        Rectangle RecoverRect => new((int)(X + Width) - 40, (int)Y + 2, 36, 36);
         // up to 6 short of the Salvage button
         int StatusWidth => SalvageRect.X - 6 - ((int)X + StatusX);
 
@@ -84,12 +85,31 @@ public sealed class SystemDerelictsScreen : GameScreen
             DrawTechs(batch);
             DrawStatus(batch);
 
-            SalvageDerelict.Block block = SalvageDerelict.WhyNoOrder(Universe.Player, Derelict);
-            if (block != SalvageDerelict.Block.Gone)
+            Empire player = Universe.Player;
+            SalvageDerelict.Block block = SalvageDerelict.WhyNoOrder(player, Derelict);
+            if (DerelictSalvageButton.Shown(player, Derelict, block))
             {
-                Rectangle salvage = SalvageRect;
-                DerelictSalvageButton.Draw(batch, salvage, block, salvage.HitTest(Universe.Input.CursorPosition));
+                SalvageDerelict order = DerelictSalvageButton.StandingOrder(player, Derelict, block);
+                DrawButton(batch, DerelictSalvageButton.Kind.Salvage, block, order, SalvageRect);
+                DrawButton(batch, DerelictSalvageButton.Kind.Recover, DerelictSalvageButton.BlockOf(DerelictSalvageButton.Kind.Recover, block, Derelict), order, RecoverRect);
             }
+        }
+
+        void DrawButton(SpriteBatch batch, DerelictSalvageButton.Kind kind, SalvageDerelict.Block block, SalvageDerelict order, in Rectangle rect)
+        {
+            bool lit = DerelictSalvageButton.Lit(kind, block, order);
+            DerelictSalvageButton.Draw(batch, rect, kind, block, lit, rect.HitTest(Universe.Input.CursorPosition));
+        }
+
+        // the button's tooltip and click, where the cursor is on it
+        void HandleButton(InputState input, DerelictSalvageButton.Kind kind, SalvageDerelict.Block block, SalvageDerelict order, in Rectangle rect)
+        {
+            if (!rect.HitTest(input.CursorPosition))
+                return;
+            bool lit = DerelictSalvageButton.Lit(kind, block, order);
+            DerelictSalvageButton.Tooltip(Universe.Player, Derelict, kind, block, lit, order);
+            if (input.LeftMouseClick)
+                DerelictSalvageButton.Click(Universe.Player, Derelict, kind, block, lit);
         }
 
         // the count of all it holds until the player sees its techs, then the icons of those the player can learn
@@ -135,15 +155,17 @@ public sealed class SystemDerelictsScreen : GameScreen
         public override bool HandleInput(InputState input)
         {
             Vector2 cursor = input.CursorPosition;
-            SalvageDerelict.Block block = SalvageRect.HitTest(cursor) ? SalvageDerelict.WhyNoOrder(Universe.Player, Derelict) : SalvageDerelict.Block.Gone;
-            if (block != SalvageDerelict.Block.Gone)
+            if (SalvageRect.HitTest(cursor) || RecoverRect.HitTest(cursor))
             {
-                LocalizedText tip = DerelictSalvageButton.Tooltip(block, Derelict);
-                if (tip.IsValid)
-                    ToolTip.CreateTooltip(tip);
-                if (input.LeftMouseClick)
-                    DerelictSalvageButton.Click(Universe.Player, Derelict, block);
-                return true;
+                Empire player = Universe.Player;
+                SalvageDerelict.Block block = SalvageDerelict.WhyNoOrder(player, Derelict);
+                if (DerelictSalvageButton.Shown(player, Derelict, block))
+                {
+                    SalvageDerelict order = DerelictSalvageButton.StandingOrder(player, Derelict, block);
+                    HandleButton(input, DerelictSalvageButton.Kind.Salvage, block, order, SalvageRect);
+                    HandleButton(input, DerelictSalvageButton.Kind.Recover, DerelictSalvageButton.BlockOf(DerelictSalvageButton.Kind.Recover, block, Derelict), order, RecoverRect);
+                    return true;
+                }
             }
 
             if (Derelict.Claimant is { } claimant && ClaimRect.HitTest(cursor))

@@ -236,7 +236,7 @@ public class SalvageDerelictTests : StarDriveTest
         Assert.IsTrue(d.TryClaim(Player), "setup: the order holds its derelict");
         AssertEqual(Block.Ordered, SalvageDerelict.WhyNoOrder(Player, d), "the button is lit");
 
-        OffTheSimThread(() => DerelictSalvageButton.Click(Player, d, Block.Ordered));
+        OffTheSimThread(() => DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true));
         Assert.IsNotNull(OrderOf(Player, d), "the click waits for the sim thread");
         AssertEqual(Player, d.Claimant, "and so does the claim");
 
@@ -256,7 +256,7 @@ public class SalvageDerelictTests : StarDriveTest
         BuiltStation(Player);
         SalvageDerelict.Order(Player, d);
         SalvageDerelict clicked = OrderOf(Player, d);
-        OffTheSimThread(() => DerelictSalvageButton.Click(Player, d, Block.Ordered));
+        OffTheSimThread(() => DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true));
 
         Player.AI.RemoveGoal(clicked);
         SalvageDerelict.Order(Player, d);
@@ -274,7 +274,7 @@ public class SalvageDerelictTests : StarDriveTest
         Assert.IsTrue(d.TryClaim(Player), "setup: a claim with no order behind it, as a save can catch it");
         AssertEqual(Block.Ordered, SalvageDerelict.WhyNoOrder(Player, d), "the button is lit");
 
-        DerelictSalvageButton.Click(Player, d, Block.Ordered);
+        DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true);
         Assert.IsNull(d.Claimant, "and its click gives the claim up");
     }
 
