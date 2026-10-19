@@ -1024,6 +1024,11 @@ public class DerelictTests : StarDriveTest
         return (Derelict.SmokeSource[])typeof(Derelict).GetField("Smoke", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(d);
     }
 
+    static Vector2 MeshOffsetOf(Derelict d)
+    {
+        return (Vector2)typeof(Derelict).GetField("MeshOffset", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(d);
+    }
+
     UniverseScreen SaveAndLoad()
     {
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
@@ -1066,6 +1071,7 @@ public class DerelictTests : StarDriveTest
         AssertEqual(0.01f, d.Production, back.Production, "the production it started with");
         AssertEqual(0.01f, d.ProductionLeft, back.ProductionLeft, "and what was left of it");
         Assert.AreSame(ResourceManager.Ships.GetDesign(d.Design.Name), back.Design, "of the loaded game's own design");
+        AssertEqual(new Vector2(0f, -16f), MeshOffsetOf(back), "its model offset on its hull, as the Dreadnought hull sets it");
         AssertEqual(Player.Id, back.Owner.Id, "and owner");
         AssertTrue(back.IsKnownBy(loaded.UState.GetEmpireById(Enemy.Id)), "the enemy still knows of it");
         AssertTrue(back.IsKnownBy(loaded.UState.Player), "and so does the player");
@@ -1120,7 +1126,8 @@ public class DerelictTests : StarDriveTest
         Derelict d = DriftingWithSmoke();
         StepAll(UState.Derelicts, Derelict.SmokeThinSeconds + 1f);
         AssertEqual(1, UState.Derelicts.Count, "setup: it has not sunk away yet");
-        Derelict.SmokeSource[] saved = UState.Derelicts.GetSaves()[0].Smoke, smoke = SmokeOf(d);
+        AssertGreaterThan(d.NumSmokeSources, Derelict.MinSmokeSources, "setup: it holds more than the six still smoking");
+        Derelict.SmokeSource[] saved = SmokeOf(SaveAndLoad().UState.Derelicts.Find(d.Id)), smoke = SmokeOf(d);
         AssertEqual(Derelict.MinSmokeSources, saved.Length, "the six left");
         for (int i = 0; i < saved.Length; ++i)
             AssertEqual(0.001f, smoke[i].Local, saved[i].Local, $"the ones still smoking: point {i}");

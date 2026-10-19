@@ -719,7 +719,11 @@ Implementation notes:
    - the two switches (rule option and Globals flag): off, every derelict is a drifting one; the rule option with its
      greyed-out state (227);
    - every derelict is saved in the universe list, with its design and its smoke points: all while they thin out, then
-     the 6 left (225, 230);
+     the 6 left (225, 230). Since 476 A (Gilad, 2026-10-19) the derelict saves itself with `[StarData]` on its own
+     fields, as a ship does, instead of through a `Derelict.SaveData` copy: a `[StarDataSerialize]` hook writes the
+     smoke points, and a `[StarDataDeserialized]` hook swaps in the loaded design, sets the mesh offset and the
+     universe, and with salvage ops off runs its turns out. The save pauses the sim, so it reads the live derelict;
+     the list is copied under its lock;
    - unseen deaths in a system become derelicts at once;
    - the stop point and radiation decide which kind a derelict is;
    - the timer, which counts the player's turns and runs out to a sinking; it ticks where the player's turn is found,

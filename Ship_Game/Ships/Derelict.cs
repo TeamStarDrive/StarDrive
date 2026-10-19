@@ -18,6 +18,7 @@ namespace Ship_Game.Ships;
 
 // a ship that died without exploding: it breaks up and drifts on with its lights out, tumbling and smoking, then sinks away;
 // a salvageable one stops in its system and sinks only when its turns run out or a platform strips it empty
+[StarDataType]
 public sealed class Derelict
 {
     // a salvageable derelict stops over this time and stays put; a drifting one keeps going and sinks after its breakup
@@ -62,37 +63,14 @@ public sealed class Derelict
         internal ShipModuleDamageVisualization Visual;
     }
 
-    // what a save keeps of a derelict: no model, and all its smoke points while they thin out, then the six left
-    [StarDataType]
-    public sealed class SaveData
-    {
-        [StarData] public int Id;
-        [StarData] public IShipDesign Design;
-        [StarData] public Empire Owner;
-        [StarData] public bool Salvageable;
-        [StarData] public Vector2 Position;
-        [StarData] public float Z;
-        [StarData] public Vector2 DriftVelocity;
-        [StarData] public Vector3 Rotation;
-        [StarData] public Vector3 Spin;
-        [StarData] public float Radius;
-        [StarData] public float Age;
-        [StarData] public int TurnsLeft;
-        [StarData] public float Production;
-        [StarData] public float ProductionLeft;
-        [StarData] public SolarSystem System;
-        [StarData] public Empire Claimant;
-        [StarData] public bool[] KnownBy;
-        [StarData] public string[] Techs;
-        [StarData] public SmokeSource[] Smoke;
-    }
-
-    readonly UniverseState Universe;
+    UniverseState Universe;
     SceneObject So;
-    readonly Vector2 MeshOffset;
-    readonly Vector2 DriftVelocity;
-    readonly Vector3 Spin; // radians per second around the X, Y and Z axes
-    readonly SmokeSource[] Smoke;
+    Vector2 MeshOffset;
+    [StarData] readonly Vector2 DriftVelocity;
+    [StarData] readonly Vector3 Spin; // radians per second around the X, Y and Z axes
+    SmokeSource[] Smoke;
+    // a save keeps all its smoke points while they thin out, then the six left
+    [StarData] SmokeSource[] SavedSmoke;
     readonly float LightsAtDeath;
     readonly AudioEmitter BlastEmitter = new(maxDistance: GameAudio.ShipSfxDistance);
     float NextBlast;
@@ -103,30 +81,30 @@ public sealed class Derelict
     float NextStripJunk;
 
     // unique among the universe's objects, so a salvage order saved with its empire finds it again
-    public readonly int Id;
-    public readonly IShipDesign Design;
-    public readonly Empire Owner;
-    public readonly float Radius;
+    [StarData] public readonly int Id;
+    [StarData] public IShipDesign Design { get; private set; }
+    [StarData] public readonly Empire Owner;
+    [StarData] public readonly float Radius;
     public readonly float BreakupSeconds;
-    public readonly bool Salvageable;
+    [StarData] public readonly bool Salvageable;
     // by empire id - 1; written on the sim thread, read on the UI thread
-    bool[] KnownBy;
-    public int TurnsLeft { get; private set; }
+    [StarData] bool[] KnownBy;
+    [StarData] public int TurnsLeft { get; private set; }
     // a salvageable one's production to salvage, fixed at its death, and what is still left of it
-    public readonly float Production;
+    [StarData] public readonly float Production;
     // a salvageable one's techs, picked at its death, which its loads advance for the empire salvaging it
-    public readonly string[] Techs = Empty<string>.Array;
-    public float ProductionLeft { get; private set; }
+    [StarData] public readonly string[] Techs = Empty<string>.Array;
+    [StarData] public float ProductionLeft { get; private set; }
     // a salvageable one's system, where it stops
-    public readonly SolarSystem System;
+    [StarData] public readonly SolarSystem System;
     // the empire salvaging it, set on the sim thread; its timer stands meanwhile
-    public Empire Claimant { get; private set; }
-    public Vector2 Position { get; private set; }
-    public float Z { get; private set; }
-    public float Age { get; private set; }
-    public float RotationX { get; private set; }
-    public float RotationY { get; private set; }
-    public float RotationZ { get; private set; }
+    [StarData] public Empire Claimant { get; private set; }
+    [StarData] public Vector2 Position { get; private set; }
+    [StarData] public float Z { get; private set; }
+    [StarData] public float Age { get; private set; }
+    [StarData] public float RotationX { get; private set; }
+    [StarData] public float RotationY { get; private set; }
+    [StarData] public float RotationZ { get; private set; }
     public int NumSmokeSources => Smoke.Length;
     public bool InScene => So != null;
 
@@ -191,62 +169,34 @@ public sealed class Derelict
                             maxSize: Radius * 0.1f, ignite: true);
     }
 
-    // from a save: its lights out, past its breakup, and no model until the player sees it; with salvage ops off it sinks away
-    public Derelict(UniverseState universe, SaveData save)
+    [StarDataConstructor]
+    Derelict()
     {
-        Universe = universe;
-        Id = save.Id;
-        Design = save.Design.IsAnExistingSavedDesign ? ResourceManager.Ships.GetDesign(save.Design.Name) : save.Design;
-        Owner = save.Owner;
-        Salvageable = save.Salvageable;
-        MeshOffset = Design.BaseHull.MeshOffset;
-        Radius = save.Radius;
-        Position = save.Position;
-        Z = save.Z;
-        DriftVelocity = save.DriftVelocity;
-        RotationX = save.Rotation.X;
-        RotationY = save.Rotation.Y;
-        RotationZ = save.Rotation.Z;
-        Spin = save.Spin;
-        Age = save.Age;
-        TurnsLeft = universe.P.SalvageOps ? save.TurnsLeft : 0;
-        Production = save.Production;
-        ProductionLeft = save.ProductionLeft;
-        System = save.System;
-        Claimant = save.Claimant;
-        KnownBy = save.KnownBy ?? new bool[universe.NumEmpires];
-        Techs = save.Techs ?? Empty<string>.Array;
-        Smoke = save.Smoke ?? Empty<SmokeSource>.Array;
     }
 
-    public SaveData ToSave()
+    [StarDataSerialize]
+    StarDataDynamicField[] OnSerialize()
     {
-        int kept = Age < SmokeThinSeconds ? Smoke.Length : Math.Min(MinSmokeSources, Smoke.Length);
-        var smoke = new SmokeSource[kept];
+        var smoke = new SmokeSource[Age < SmokeThinSeconds ? Smoke.Length : Math.Min(MinSmokeSources, Smoke.Length)];
         for (int i = 0; i < smoke.Length; ++i)
             smoke[i] = new() { Local = Smoke[i].Local, Area = Smoke[i].Area, Type = Smoke[i].Type };
-        return new()
-        {
-            Id = Id,
-            Design = Design,
-            Owner = Owner,
-            Salvageable = Salvageable,
-            Position = Position,
-            Z = Z,
-            DriftVelocity = DriftVelocity,
-            Rotation = new(RotationX, RotationY, RotationZ),
-            Spin = Spin,
-            Radius = Radius,
-            Age = Age,
-            TurnsLeft = TurnsLeft,
-            Production = Production,
-            ProductionLeft = ProductionLeft,
-            System = System,
-            Claimant = Claimant,
-            KnownBy = (bool[])KnownBy.Clone(),
-            Techs = Techs,
-            Smoke = smoke,
-        };
+        return new StarDataDynamicField[] { new(nameof(SavedSmoke), smoke) };
+    }
+
+    // from a save: its lights out, past its breakup, and no model until the player sees it; with salvage ops off it sinks away
+    [StarDataDeserialized(typeof(ShipDesign), typeof(UniverseParams))]
+    public void OnDeserialized(UniverseState us)
+    {
+        Universe = us;
+        if (Design is { IsAnExistingSavedDesign: true })
+            Design = ResourceManager.Ships.GetDesign(Design.Name);
+        if (Design?.BaseHull != null)
+            MeshOffset = Design.BaseHull.MeshOffset;
+        if (!us.P.SalvageOps)
+            TurnsLeft = 0;
+        KnownBy ??= Empty<bool>.Array;
+        Smoke = SavedSmoke ?? Empty<SmokeSource>.Array;
+        SavedSmoke = null;
     }
 
     static Vector2 DriftVelocityOf(Ship ship)

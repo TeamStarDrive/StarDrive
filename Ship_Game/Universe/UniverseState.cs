@@ -236,7 +236,7 @@ namespace Ship_Game.Universe
 
             [StarData] public IReadOnlyList<Ship> Ships;
             [StarData] public IReadOnlyList<Projectile> Projectiles;
-            [StarData] public Derelict.SaveData[] Derelicts;
+            [StarData] public Derelict[] Derelicts;
 
             // gather a list of all designs in the universe
             public void SetAllDesigns(UniverseState us)
@@ -324,7 +324,7 @@ namespace Ship_Game.Universe
             {
                 Ships = Objects.GetShips(),
                 Projectiles = Objects.GetProjectiles(),
-                Derelicts = Derelicts.GetSaves()
+                Derelicts = Derelicts.ToArray()
             };
             save.SetAllDesigns(this);
 
@@ -340,7 +340,7 @@ namespace Ship_Game.Universe
 
         // Only call OnDeserialized evt if Empire and Ship have finished their events
         [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile),
-                              typeof(Beam), typeof(UniverseParams), typeof(ShipDesign))]
+                              typeof(Beam), typeof(UniverseParams), typeof(ShipDesign), typeof(Derelict))]
         public void OnDeserialized()
         {
             Initialize(UniverseWidth);

@@ -231,28 +231,18 @@ public sealed class Derelicts
         }
     }
 
-    public Derelict.SaveData[] GetSaves()
+    // a derelict whose design is gone from the game is left out
+    public void Load(UniverseState universe, Derelict[] loaded)
     {
-        lock (Sync)
-        {
-            var saves = new Derelict.SaveData[Items.Count];
-            for (int i = 0; i < saves.Length; ++i)
-                saves[i] = Items[i].ToSave();
-            return saves;
-        }
-    }
-
-    public void Load(UniverseState universe, Derelict.SaveData[] saves)
-    {
-        if (saves == null)
+        if (loaded == null)
             return;
         lock (Sync)
         {
             try
             {
-                for (int i = 0; i < saves.Length; ++i)
-                    if (saves[i].Design?.BaseHull != null)
-                        Items.Add(new Derelict(universe, saves[i]));
+                for (int i = 0; i < loaded.Length; ++i)
+                    if (loaded[i].Design?.BaseHull != null)
+                        Items.Add(loaded[i]);
                 RejoinSystems(universe);
             }
             finally
