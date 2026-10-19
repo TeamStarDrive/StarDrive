@@ -6254,6 +6254,24 @@ namespace Ship_Game
         BuildSalvageStation = 7178,
         /// <summary>Salvage Station Ordered</summary>
         SalvageStationOrdered = 7179,
+        /// <summary>Technologies this derelict holds. Once you have a salvage</summary>
+        DerelictTechsHeldTip = 7180,
+        /// <summary>Technologies you can learn from this derelict. Each load of</summary>
+        DerelictTechsShownTip = 7181,
+        /// <summary>Researched: {0}%</summary>
+        DerelictTechResearched = 7182,
+        /// <summary>Gained by this salvage: {0}</summary>
+        DerelictTechGained = 7183,
+        /// <summary>Salvager</summary>
+        DerelictSalvager = 7184,
+        /// <summary>Status</summary>
+        DerelictStatus = 7185,
+        /// <summary>Platform ordered</summary>
+        SalvagePlatformOrdered = 7186,
+        /// <summary>Building platform</summary>
+        BuildingSalvagePlatform = 7187,
+        /// <summary>Salvaging</summary>
+        DerelictSalvaging = 7188,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

@@ -89,6 +89,8 @@ public sealed class Derelict
     [StarData] public readonly bool Salvageable;
     // by empire id - 1; written on the sim thread, read on the UI thread
     [StarData] bool[] KnownBy;
+    // by empire id - 1: the empires that had a salvage station built in its system while it lay there, which see its techs from then on
+    [StarData] bool[] TechsShown = Empty<bool>.Array;
     [StarData] public int TurnsLeft { get; private set; }
     // a salvageable one's production to salvage, fixed at its death, and what is still left of it
     [StarData] public readonly float Production;
@@ -277,29 +279,38 @@ public sealed class Derelict
         return held;
     }
 
-    public bool IsKnownBy(Empire empire)
-    {
-        bool[] known = KnownBy;
-        int i = empire.Id - 1;
-        return i < known.Length && known[i];
-    }
+    public bool IsKnownBy(Empire empire) => IsSet(KnownBy, empire);
 
     public bool KnownByPlayer => IsKnownBy(Universe.Player);
 
     // under the list's lock
-    internal void SetKnownBy(Empire empire)
+    internal void SetKnownBy(Empire empire) => Set(ref KnownBy, empire);
+
+    public bool ShowsTechsTo(Empire empire) => IsSet(TechsShown, empire);
+
+    // under the list's lock
+    internal void ShowTechsTo(Empire empire) => Set(ref TechsShown, empire);
+
+    static bool IsSet(bool[] byEmpire, Empire empire)
     {
         int i = empire.Id - 1;
-        if (i >= KnownBy.Length)
+        return i < byEmpire.Length && byEmpire[i];
+    }
+
+    // a list too short for the empire grows into a new array, so the UI thread reads the old one or the new one whole
+    void Set(ref bool[] byEmpire, Empire empire)
+    {
+        int i = empire.Id - 1;
+        if (i >= byEmpire.Length)
         {
             var grown = new bool[Universe.NumEmpires.LowerBound(i + 1)];
-            Array.Copy(KnownBy, grown, KnownBy.Length);
+            Array.Copy(byEmpire, grown, byEmpire.Length);
             grown[i] = true;
-            KnownBy = grown;
+            byEmpire = grown;
         }
         else
         {
-            KnownBy[i] = true;
+            byEmpire[i] = true;
         }
     }
 

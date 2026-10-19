@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Utils;
@@ -10,12 +11,19 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the selected derelict, laid out like the ship info panel: icons for its original owner and turns left, a bar for its production remaining, the salvage station order for its system under the bar, the empire salvaging it at the bottom, and its Salvage order in the drawer that slides out to the right
+// the selected derelict, laid out like the ship info panel: icons for its original owner, turns left and techs, a bar for its production remaining, the salvage station order for its system under the bar, the techs the player sees under that, the empire salvaging it at the bottom, and its Salvage order in the drawer that slides out to the right
 public sealed class DerelictInfoUIElement : UIElement
 {
+    // the tech icons' size, and their spacing, which leaves room for the widest points under them
+    const int TechWidth = 30;
+    const int TechHeight = 25;
+    const int TechSpacing = 34;
+    static readonly Color PointsColor = new(140, 200, 255);
+
     readonly UniverseScreen Universe;
     readonly Rectangle OwnerRect;
     readonly Rectangle TurnsRect;
+    readonly Rectangle TechsRect;
     readonly Rectangle HullRect;
     readonly Rectangle ProductionRect;
     readonly ProgressBar ProductionBar;
@@ -25,6 +33,9 @@ public sealed class DerelictInfoUIElement : UIElement
     readonly Rectangle SalvageRect;
     readonly Rectangle StationRect;
     readonly Rectangle StatusRect;
+    readonly Rectangle FirstTechRect;
+    // the techs the player can learn from it as last drawn, empty while the player does not see them
+    readonly Array<TechEntry> Learnable = new();
     readonly SeededRandom SiteRandom = new();
 
     public DerelictInfoUIElement(Rectangle r, UniverseScreen universe)
@@ -36,6 +47,7 @@ public sealed class DerelictInfoUIElement : UIElement
         TransitionOffTime = TimeSpan.FromSeconds(0.25);
         OwnerRect = new(r.X + 13, r.Y + 112, 22, 22);
         TurnsRect = new(r.X + 13, r.Y + 137, 22, 22);
+        TechsRect = new(r.X + 13, r.Y + 162, 22, 22);
         HullRect = new(r.X + 62, r.Y + 110, 115, 115);
         ProductionRect = new(r.X + 187, r.Y + 110, 20, 20);
         ProductionBar = new(ProductionRect.X + ProductionRect.Width + 15, ProductionRect.Y, 150, 18) { color = "red" }; // as on its salvage platform's panel
@@ -44,9 +56,12 @@ public sealed class DerelictInfoUIElement : UIElement
         Drawer = new SlidingElement(new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130));
         SalvageRect = new(r.X + r.Width + 2, Drawer.Housing.Y + 15, 48, 48); // the drawer's first slot, as the ship panel's first order
         int centre = ProductionBar.pBar.X + ProductionBar.pBar.Width / 2;
-        StationRect = new(centre - 84, r.Y + 145, 168, 24); // under the bar, at the derelicts window's button size
+        StationRect = new(centre - 84, r.Y + 135, 168, 24); // under the bar, at the derelicts window's button size
         StatusRect = new(ClaimLine.X, StationRect.Y, ClaimLine.Width, StationRect.Height); // the claimant line's width
+        FirstTechRect = new(ProductionRect.X, StationRect.Bottom + 4, TechWidth, TechHeight); // the points under them clear the claimant line
     }
+
+    Rectangle TechRect(int i) => new(FirstTechRect.X + i * TechSpacing, FirstTechRect.Y, TechWidth, TechHeight);
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
     {
@@ -88,9 +103,42 @@ public sealed class DerelictInfoUIElement : UIElement
         ProductionBar.Progress = d.ProductionLeft;
         ProductionBar.Draw(batch);
         DrawStationOrder(batch, d);
+        DrawTechs(batch, d);
 
         if (claimant != null)
             DrawClaimant(batch, claimant);
+    }
+
+    // the count under the turns; once the player sees its techs, the icons of those the player can learn, with the points the player's salvage of it has given each
+    void DrawTechs(SpriteBatch batch, Derelict d)
+    {
+        Empire player = Universe.Player;
+        bool seen = SalvageDerelict.SeesTechs(player, d);
+        if (seen)
+            DerelictTechIcons.Learnable(player, d, Learnable);
+        else
+            Learnable.Clear();
+        DerelictTechIcons.DrawCount(batch, TechsRect, DerelictTechIcons.Count(seen, d, Learnable));
+
+        SalvageDerelict order = Learnable.Count > 0 ? SalvageDerelict.OrderOf(player, d) : null;
+        for (int i = 0; i < Learnable.Count; ++i)
+        {
+            Rectangle rect = TechRect(i);
+            DerelictTechIcons.DrawIcon(batch, rect, Learnable[i]);
+            if (order != null)
+            {
+                string points = "+" + DerelictTechIcons.Points(DerelictTechIcons.GainedOf(order, Learnable[i]));
+                DrawCentred(batch, Fonts.Arial8Bold, points, PointsColor, rect.CenterX(), rect.Bottom + DerelictTechIcons.BarHeight + 7);
+            }
+        }
+    }
+
+    TechEntry TechAt(Vector2 cursor)
+    {
+        for (int i = 0; i < Learnable.Count; ++i)
+            if (TechRect(i).HitTest(cursor))
+                return Learnable[i];
+        return null;
     }
 
     // its flag and name, pulsing in its colour
@@ -150,48 +198,13 @@ public sealed class DerelictInfoUIElement : UIElement
                     StationRect.CenterX(), StationRect.CenterY());
     }
 
-    // the status as last fitted, kept while the text and the font stay: one line, or two where the language's text is wider than the space
-    string StatusFittedFrom;
-    Graphics.Font StatusFittedWith;
-    string StatusLine1;
-    string StatusLine2;
+    // two lines only in the smaller font, so a language's longer status stays clear of the techs under it
+    readonly FittedStatus Status = new();
 
     void DrawStatus(SpriteBatch batch, GameText status, Color color)
     {
-        string text = Localizer.Token(status);
-        Graphics.Font font = Fonts.Arial12Bold;
-        if (!ReferenceEquals(text, StatusFittedFrom) || StatusFittedWith != font)
-            FitStatus(text, font);
-
-        int x = StatusRect.CenterX(), y = StatusRect.CenterY();
-        if (StatusLine2 == null)
-        {
-            DrawCentred(batch, font, StatusLine1, color, x, y);
-            return;
-        }
-        DrawCentred(batch, font, StatusLine1, color, x, y - font.LineSpacing / 2);
-        DrawCentred(batch, font, StatusLine2, color, x, y + font.LineSpacing / 2);
-    }
-
-    // split at the space nearest the middle
-    void FitStatus(string text, Graphics.Font font)
-    {
-        StatusFittedFrom = text;
-        StatusFittedWith = font;
-        StatusLine1 = text;
-        StatusLine2 = null;
-        if (font.TextWidth(text) <= StatusRect.Width)
-            return;
-
-        int middle = text.Length / 2, split = -1;
-        for (int i = 0; i < text.Length; ++i)
-            if (text[i] == ' ' && (split < 0 || Math.Abs(i - middle) < Math.Abs(split - middle)))
-                split = i;
-        if (split > 0)
-        {
-            StatusLine1 = text.Substring(0, split);
-            StatusLine2 = text.Substring(split + 1);
-        }
+        Status.Fit(Localizer.Token(status), StatusRect.Width);
+        Status.Draw(batch, color, StatusRect.CenterX(), StatusRect.CenterY(), centred: true);
     }
 
     static void DrawCentred(SpriteBatch batch, Graphics.Font font, string text, Color color, int centreX, int centreY)
@@ -221,7 +234,7 @@ public sealed class DerelictInfoUIElement : UIElement
         batch.DrawString(font, text, pos, color);
     }
 
-    // the drawer's tab opens and closes it; tooltips over the icons, the bar, the station order and the drawer's button; a click on the panel or the open drawer stays on it
+    // the drawer's tab opens and closes it; tooltips over the icons, the bar, the station order, the techs and the drawer's button; a click on the panel or the open drawer stays on it
     public override bool HandleInput(InputState input)
     {
         Derelict d = Universe.SelectedDerelict;
@@ -255,6 +268,10 @@ public sealed class DerelictInfoUIElement : UIElement
             ToolTip.CreateTooltip(string.Format(Localizer.Token(GameText.DerelictOriginalOwner), d.Owner.Name));
         else if (TurnsRect.HitTest(cursor))
             ToolTip.CreateTooltip(claimant != null ? GameText.DerelictTurnsStandTip : GameText.DerelictTurnsLeftTip);
+        else if (TechsRect.HitTest(cursor))
+            ToolTip.CreateTooltip(SalvageDerelict.SeesTechs(Universe.Player, d) ? GameText.DerelictTechsShownTip : GameText.DerelictTechsHeldTip);
+        else if (TechAt(cursor) is { } tech)
+            ToolTip.CreateTooltip(DerelictTechIcons.Tooltip(tech, SalvageDerelict.OrderOf(Universe.Player, d)));
         else if (ProductionRect.HitTest(cursor) || ProductionBar.pBar.HitTest(cursor))
             ToolTip.CreateTooltip(GameText.DerelictProductionTip);
         else if (claimant != null && ClaimLine.HitTest(cursor))

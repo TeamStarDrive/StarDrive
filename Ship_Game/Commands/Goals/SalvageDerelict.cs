@@ -31,6 +31,8 @@ namespace Ship_Game.Commands.Goals
         // its derelict's techs and whole production, kept for the loads sent once the derelict has sunk away
         [StarData] public string[] Techs { get; private set; } = Empty<string>.Array;
         [StarData] public float DerelictProduction { get; private set; }
+        // the research its loads have given each of those techs, by the techs' order; a passed order starts again from none
+        [StarData] public float[] Gained { get; private set; } = Empty<float>.Array;
         Derelict Found;
 
         // its platform's work is over: it sends its station all it holds, then takes itself apart
@@ -59,6 +61,7 @@ namespace Ship_Game.Commands.Goals
         {
             DerelictId = derelict.Id;
             Techs = derelict.Techs;
+            Gained = new float[Techs.Length];
             DerelictProduction = derelict.Production;
             Initialize(ShipDesign.SalvagePlatformName, Vector2.Zero, derelict.System);
             Found = derelict;
@@ -70,6 +73,7 @@ namespace Ship_Game.Commands.Goals
             StarDateAdded = passed.StarDateAdded;
             DerelictId = passed.DerelictId;
             Techs = passed.Techs;
+            Gained = new float[Techs.Length];
             DerelictProduction = passed.DerelictProduction;
             Initialize(ShipDesign.SalvagePlatformName, passed.StaticBuildPos, passed.TargetSystem);
             Platform = passed.Platform;
@@ -340,12 +344,32 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < Techs.Length; ++i)
             {
                 if (Owner.TryGetTechEntry(Techs[i], out TechEntry tech) && CanLearn(Owner, tech))
-                    tech.Progress += share * (tech.TechCost * Owner.data.Traits.ResearchMultiplierForTech(tech, Owner) - tech.Progress);
+                {
+                    float points = share * (tech.TechCost * Owner.data.Traits.ResearchMultiplierForTech(tech, Owner) - tech.Progress);
+                    tech.Progress += points;
+                    Gained[i] += points;
+                }
             }
         }
 
         // a tech the empire has not researched and sees on its tree
         public static bool CanLearn(Empire empire, TechEntry tech) => tech.Locked && tech.Discovered && !tech.IsHidden(empire);
+
+        // from any thread: an empire sees a derelict's techs while it has a salvage station built in the derelict's system, and from then on
+        public static bool SeesTechs(Empire empire, Derelict d) => d.ShowsTechsTo(empire) || SalvageOps.StationIn(empire, d.System) != null;
+
+        public enum Stage { None, PlatformOrdered, BuildingPlatform, Salvaging }
+
+        // from any thread: how far the empire's salvage of the derelict has come, or Salvaging while another empire holds it, with its claimant as read once
+        public static Stage StageOf(Empire empire, Derelict d, out Empire claimant)
+        {
+            claimant = d.Claimant;
+            if (claimant != null && claimant != empire)
+                return Stage.Salvaging;
+            if (OrderOf(empire, d) is { } order)
+                return !order.Launched ? Stage.PlatformOrdered : order.Platform == null ? Stage.BuildingPlatform : Stage.Salvaging;
+            return claimant == empire ? Stage.Salvaging : Stage.None;
+        }
 
         static bool SeenByPlayer(Ship ship) => ship.InFrustum && ship.InPlayerSensorRange;
 

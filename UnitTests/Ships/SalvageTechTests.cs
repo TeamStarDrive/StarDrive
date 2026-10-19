@@ -4,6 +4,7 @@ using SDUtils;
 using Ship_Game;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
+using Stage = Ship_Game.Commands.Goals.SalvageDerelict.Stage;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships;
@@ -15,7 +16,10 @@ namespace UnitTests.Ships;
 /// advances each of those techs the empire has not researched and sees on its tree by a fifth of what the tech has left
 /// to research, times the load's share of the derelict's production, so the second of two loads pays a fifth of what
 /// is left by then, and salvage never completes a tech. A load the station takes only part of pays for that part, and
-/// the empire's module health bonus leaves the payout alone.
+/// the empire's module health bonus leaves the payout alone. The order keeps the points each load gave each tech. An
+/// empire sees a wreck's techs once it has a salvage station built in the wreck's system, and from the next turn on
+/// even after the station is lost; until then the count is all the wreck holds, and after it only those the empire can
+/// learn. A salvage shows as Platform ordered, Building platform, then Salvaging, and another empire's as Salvaging.
 /// </summary>
 [TestClass]
 public class SalvageTechTests : StarDriveTest
@@ -44,10 +48,10 @@ public class SalvageTechTests : StarDriveTest
         base.Cleanup();
     }
 
-    Derelict Forms(Empire owner, Vector2 at)
+    Derelict Forms(Empire owner, Vector2 at, Empire killer = null)
     {
         TestShip ship = SpawnShip("Dreadnought mk1-a", owner, at);
-        Assert.IsTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false), "setup: a salvageable derelict");
+        Assert.IsTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false, killer), "setup: a salvageable derelict");
         Universe.InvokePendingSimThreadActions();
         ship.QueueTotalRemoval();
         return UState.Derelicts.Current.Last();
@@ -225,5 +229,113 @@ public class SalvageTechTests : StarDriveTest
         {
             hiddenFrom.RemoveAt(hiddenFrom.Count - 1);
         }
+    }
+
+    [TestMethod]
+    public void AnOrderKeepsThePointsEachLoadGaveEachTech()
+    {
+        Derelict d = Forms(Player, Wreck);
+        Ship station = BuiltStation();
+        SalvageDerelict order = AtWork(d, hold: 24f);
+        TechEntry fresh = Learnable(d.Techs[0], 0f);
+        TechEntry begun = Learnable(d.Techs[1], 0.4f);
+        TechEntry researched = Learnable(d.Techs[2], 0f);
+        researched.Unlocked = true;
+        AssertEqual(6, order.Gained.Length, "a count for each of the wreck's techs");
+
+        SendsALoadOf24(order, station);
+        AssertGreaterThan(fresh.Progress, 0f, "setup: the load paid the fresh tech");
+        AssertEqual(0.01f, fresh.Progress, order.Gained[0], "the order keeps what the load gave the fresh tech");
+        AssertEqual(0.01f, begun.Progress - 0.4f * begun.TechCost, order.Gained[1], "and the begun one");
+        AssertEqual(0f, order.Gained[2], "and nothing for one already researched");
+
+        SendsALoadOf24(order, station);
+        AssertEqual(0.01f, fresh.Progress, order.Gained[0], "the points add up load after load");
+        AssertEqual(0.01f, fresh.Progress, DerelictTechIcons.GainedOf(order, fresh), "as the panel reads them");
+    }
+
+    [TestMethod]
+    public void AnEmpireSeesAWrecksTechsOnceItHasAStationBuiltInItsSystemAndAfterTheStationIsLost()
+    {
+        Derelict d = Forms(Player, Wreck, killer: Enemy);
+        Assert.IsTrue(d.IsKnownBy(Enemy), "setup: the empire that destroyed the ship knows of the wreck too");
+        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, d), "with no station in the wreck's system, its techs are hidden");
+        var ordered = new SalvageOps(Player, WreckSystem, PlayerStation, Station);
+        Player.AI.AddGoal(ordered);
+        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, d), "as they are with a station ordered but not built");
+        Player.AI.RemoveGoal(ordered);
+
+        Ship station = BuiltStation();
+        Assert.IsTrue(SalvageDerelict.SeesTechs(Player, d), "a station built shows them at once");
+        Assert.IsFalse(d.ShowsTechsTo(Player), "setup: before a turn has passed");
+        var elsewhere = new Vector2(-600_000f, 600_000f);
+        SolarSystem other = AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true).System;
+        var theirs = new SalvageOps(Enemy, other, elsewhere + new Vector2(33_000f, 0), Station);
+        Enemy.AI.AddGoal(theirs);
+        theirs.TargetShip = SpawnShip(Station.Name, Enemy, elsewhere + new Vector2(33_000f, 0));
+        Assert.IsNotNull(SalvageOps.StationIn(Enemy, other), "setup: the other empire has a station built in another system");
+        UState.Derelicts.UpdateTurn();
+        Assert.IsTrue(d.ShowsTechsTo(Player), "the next turn keeps them shown");
+        Assert.IsFalse(d.ShowsTechsTo(Enemy), "to the empire with the station in the wreck's system only");
+
+        station.Die(null, cleanupOnly: true);
+        Assert.IsNull(SalvageOps.StationIn(Player, WreckSystem), "setup: the station is lost");
+        Assert.IsTrue(SalvageDerelict.SeesTechs(Player, d), "the techs stay shown once the station is lost");
+        Derelict later = Forms(Player, Wreck + new Vector2(0, 5_000f));
+        UState.Derelicts.UpdateTurn();
+        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, later), "but a wreck that came to rest after the loss hides its own");
+    }
+
+    [TestMethod]
+    public void TheCountIsAllTheWreckHoldsUntilTheEmpireSeesItsTechsThenOnlyThoseItCanLearn()
+    {
+        Derelict d = Forms(Player, Wreck);
+        for (int i = 0; i < d.Techs.Length; ++i)
+            Learnable(d.Techs[i], 0f);
+        Player.GetTechEntry(d.Techs[0]).Unlocked = true;
+        Player.GetTechEntry(d.Techs[1]).Discovered = false;
+
+        var learnable = new Array<TechEntry>();
+        DerelictTechIcons.Learnable(Player, d, learnable);
+        CollectionAssert.AreEqual(new[] { d.Techs[2], d.Techs[3], d.Techs[4], d.Techs[5] }, learnable.Select(t => t.UID).ToArray(),
+                                  "the techs the empire can learn, in the wreck's order");
+        AssertEqual(6, DerelictTechIcons.Count(seen: false, d, learnable), "all 6 the wreck holds while its techs are hidden");
+        AssertEqual(4, DerelictTechIcons.Count(seen: true, d, learnable), "then only the 4 the empire can learn");
+    }
+
+    [TestMethod]
+    public void ASalvageGoesFromPlatformOrderedToBuildingPlatformToSalvagingAndAnotherEmpiresShowsAsSalvaging()
+    {
+        Derelict d = Forms(Player, Wreck);
+        BuiltStation();
+        AssertEqual(Stage.None, SalvageDerelict.StageOf(Player, d, out _), "no salvage yet");
+
+        var order = new SalvageDerelict(Player, d);
+        Player.AI.AddGoal(order);
+        AssertEqual(Stage.PlatformOrdered, SalvageDerelict.StageOf(Player, d, out _), "ordered, before a unit launches its constructor");
+        order.Evaluate();
+        Ship constructor = order.FinishedShip;
+        Assert.IsNotNull(constructor, "setup: a unit launches the constructor");
+        AssertEqual(Stage.BuildingPlatform, SalvageDerelict.StageOf(Player, d, out _), "while the constructor flies out and builds");
+        order.OnPlatformBuilt(SpawnShip(ShipDesign.SalvagePlatformName, Player, order.BuildPosition), constructor);
+        constructor.QueueTotalRemoval();
+        AssertEqual(Stage.Salvaging, SalvageDerelict.StageOf(Player, d, out _), "once the platform is built");
+
+        Derelict theirs = Forms(Player, Wreck + new Vector2(0, 5_000f));
+        Assert.IsTrue(theirs.TryClaim(Enemy), "setup: another empire salvages a second wreck");
+        AssertEqual(Stage.Salvaging, SalvageDerelict.StageOf(Player, theirs, out Empire claimant), "which shows as Salvaging");
+        AssertEqual(Enemy, claimant, "in the colour of the empire salvaging it");
+    }
+
+    [TestMethod]
+    public void PointsShowWholeBelowTenThousandThenInThousandsWithOneDecimalThenWholeThousands()
+    {
+        AssertEqual("7", DerelictTechIcons.Points(7.9f), "whole points, cut short");
+        AssertEqual("990", DerelictTechIcons.Points(990f), "under a thousand");
+        AssertEqual("9999", DerelictTechIcons.Points(9999f), "up to 9999");
+        AssertEqual("12.5k", DerelictTechIcons.Points(12_500f), "then thousands with one decimal");
+        AssertEqual("99.9k", DerelictTechIcons.Points(99_940f), "up to 99.9k");
+        AssertEqual("100k", DerelictTechIcons.Points(99_960f), "then whole thousands, so six fit side by side, from where one decimal would round to 100");
+        AssertEqual("250k", DerelictTechIcons.Points(250_400f), "however many");
     }
 }

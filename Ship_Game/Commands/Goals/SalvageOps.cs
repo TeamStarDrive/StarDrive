@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -185,6 +186,17 @@ namespace Ship_Game.Commands.Goals
         {
             Ship station = empire.AI.FindGoal(g => g?.IsSalvageOpsGoal(system) == true)?.TargetShip;
             return station is { Active: true } && station.Loyalty == empire ? station : null;
+        }
+
+        // on the sim thread: the systems where StationIn finds the empire's built station, in one pass over its goals
+        public static HashSet<SolarSystem> StationSystems(Empire empire)
+        {
+            var systems = new HashSet<SolarSystem>();
+            var goals = empire.AI.Goals;
+            for (int i = 0; i < goals.Count; ++i)
+                if (goals[i] is SalvageOps { TargetShip: { Active: true } station } order && station.Loyalty == empire && order.TargetSystem != null)
+                    systems.Add(order.TargetSystem);
+            return systems;
         }
 
         // as a station changes hands: it works for its new owner, whose order there is dropped; where the new owner has a station already it is evacuated, a boarded one's troops leaving first and a player told

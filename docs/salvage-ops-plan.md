@@ -188,7 +188,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       Abort Deployment. "No free site" shows above the panel's frame, clear of the derelict's name even wrapped to
       four lines (455 A). Codex 100093 names the button and the two statuses. The button's text runs past the
       168 px plate in Russian and Portuguese, as 7163 does on the derelicts window's button. No test covers the
-      panel; it is checked by eye (456 B).
+      panel; it is checked by eye (456 B). Part 6 moves the button and the status 10 px up, for the techs under them
+      (481; see Techs).
     - Salvage stations are queued as urgent orbitals, as research and mining stations are (320).
     - An order not yet built ends, with its constructor, once its system has no salvageable derelict left; a built
       station stays (322).
@@ -206,7 +207,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       runs on the sim thread. Each derelict's row shows, beside its hull and name, a bar of its production left as on
       its panel, the pulsing flag of the empire salvaging it, with its name in the tooltip, and the Salvage button with
       the panel button's rules and tooltips (Gilad, 2026-10-17; 373 A); the Recover button joins it in sub-branch 5,
-      recovery (465).
+      recovery (465). Part 6 widens the window to 800 px and adds column titles, the derelict's techs and its
+      salvage's status (479, 484, 492; see Techs).
     - Texts 7150-7155, 7163 and 7164; the derelict passage of 100093 names the rows and the window's deploy and abort
       (331, reworded for 332, 346 and 349), and tooltip 7157 and Codex 100167 name the window as a way to order
       (346); the Codex tooltip inventory is regenerated for them (348).
@@ -538,7 +540,41 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     ship may unlock its race's hull when the recovering empire has the hull's tech, settled in sub-branch 5 (471).
   - Since salvage completes nothing, there is no completion to tell (466); part 7's platform notification lists the
     points each tech gained. Each tech's node in the research tree already shows its progress and the cost left.
-  - The panel shows the techs the player can still learn after a preview sheet (464).
+  - **On the panel and in the derelicts window (Gilad, 2026-10-19; 464, 478-484, after three preview sheets):**
+    - A research icon under the panel's turns icon always shows a count (478 B): every tech the derelict holds until
+      the player sees its techs, then only those the player can learn, so it drops as the player researches them. Its
+      tooltips (7180, 7181) say which, without naming the techs.
+    - The player sees a derelict's techs once a salvage station of the player's is built in its system, and from then
+      on, even after the station is lost (483 B). Each turn `Derelicts.UpdateTurn` marks a salvageable derelict for
+      every empire with a station built in its system, in `Derelict.TechsShown`, saved by empire as `KnownBy` is, and
+      `SalvageDerelict.SeesTechs` adds the station standing now, so a station shows them the moment it is built. A
+      derelict that comes to rest after the station is lost hides its techs until another is built. The turn looks up
+      each empire's built stations once, in one pass over its goals (`SalvageOps.StationSystems`; 490).
+    - Once seen, the icons of the techs the player can learn sit under the station order, 30x25 and 34 apart, on the
+      research notification's background, each over a 4 px bar of how far the player has researched it (478 B). The
+      Build Salvage Station button and the station's status moved 10 px up to make room (481). While the player's
+      salvage of the derelict stands, each icon has under it the research points that order's loads have given the
+      tech (481, the third picture), whole below 10,000, then in thousands with one decimal, and in whole thousands
+      from 100,000 (+990, +12.5k, +100k), so six fit side by side in the game's Arial8Bold.
+      `SalvageDerelict.Gained` keeps them by tech, saved, and an order passed on with its platform starts again from
+      none (482 A). A tooltip over an icon gives the tech's name, how far it is researched (7182) and the points
+      (7183). No floating text when a load pays (480 A).
+    - The derelicts window is 800 px wide, from 400, with column titles in wheat at the rows' size (Arial12Bold;
+      7127 Derelict, 7184 Salvager, 1406 Technologies, 7185 Status; 492 B, after a sheet of 760 and 800 px and a
+      smaller title font) over the hull and name with the production bar, the salvager's pulsing flag in a 70 px
+      column, the techs (the count until the player sees them, then the icons and bars 32 apart, with the panel's
+      tooltips) and the status (479): Platform ordered (7186) while a unit waits to launch the constructor, Building
+      platform (7187) while the
+      constructor flies out and builds, then Salvaging (7188), in wheat for the player's salvage and in the salvaging
+      empire's colour for another's (484). A status too wide for its column, which ends 6 px short of the Salvage
+      button, takes the smaller font, and two lines of it where even that is too wide (486); the panel's station
+      status fits the same way (`FittedStatus`), so a two-line status stays clear of the techs under it (487).
+    - The research tree's icon lookup moved to `Technology.Icon`, which the panel and the window share.
+    - Review (485-491): the Codex window sentence names the icons of the techs you can learn (485), the statuses fit
+      their space (486, 487), 7180 says only those are counted, as the window shows icons in place of the count (488),
+      the Salvager header reads Империя, Імперія and Império (489), the turn's station lookup (490), and
+      `TechEntry.TechCost` stamps its cache after the cost, as the panel now reads it from the UI thread (491).
+    - Open: the Derelict title (7127) and the panel's first tooltips (7128-7130) are still English only.
   - As built (part 6): `Derelict.Techs`, `TechsHeld`, `TechsOf` and the pick; `SalvageDerelict.Techs`,
     `DerelictProduction`, `AdvanceTechs` and `CanLearn`; the shares and `Derelicts.PassShares` removed, and
     `Derelicts.Strip` takes no empire. Codex 100093 gains the rule, and the salvage unit's description (7143) strips
@@ -792,8 +828,8 @@ Implementation notes:
      413-421; part 4);
    - losses and takeovers (275; 291 as replaced by 420 in part 4), boarders never taking a platform (285), and the absorber's station taking
      over the platforms of an absorbed second station (296); 427-441, part 5;
-   - the tech payout per load (457-471, replacing the check of 159 and 287), and the panel's techs after a preview
-     sheet (464);
+   - the tech payout per load (457-471, replacing the check of 159 and 287), and the techs on the panel and in the
+     derelicts window, with the window's status column (464, 478-484);
    - the platform notifications and their switch, and the switch for the derelict notification (294, 299, 301).
 5. **recovery** (was 7 and phase 3; Gilad, 2026-10-19; 465): the Recover button, recovery work at the salvage speed
    (288), the roll, break-up and catastrophic explosion, the recovered ship's damage rule, the order home (175), the

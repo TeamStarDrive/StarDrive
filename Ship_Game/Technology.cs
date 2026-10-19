@@ -42,6 +42,10 @@ namespace Ship_Game
         public LocalizedText Name => new(NameIndex);
         public LocalizedText Description => new(DescriptionIndex);
 
+        // its icon on the research tree: the one its IconPath names, or the one named as its UID
+        public SubTexture Icon => IconPath == null ? ResourceManager.Texture("TechIcons/" + UID)
+                                : ResourceManager.TextureOrDefault("TechIcons/" + IconPath, "TechIcons/" + UID);
+
         public override string ToString()
         {
             return $"Tech {UID} Name={Name.Text} Root={IsRootNode} Cost={Cost} Parents={Parents.Length}";

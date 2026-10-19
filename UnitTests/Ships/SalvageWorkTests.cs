@@ -18,8 +18,9 @@ namespace UnitTests.Ships;
 /// 2 s apart and 2 to 2.9 s each way, turning back at once, and only where the player sees the platform, as the
 /// derelict's flashes do. A derelict stripped empty can no longer be salvaged: it leaves its system's and the empires'
 /// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
-/// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs, and an order whose
-/// platform stripped its derelict empty, with its derelict's techs and production, survive a save.
+/// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs and the empires that see
+/// them, an order's points for each tech, and an order whose platform stripped its derelict empty, with its derelict's
+/// techs and production, survive a save.
 /// </summary>
 [TestClass]
 public class SalvageWorkTests : StarDriveTest
@@ -292,6 +293,10 @@ public class SalvageWorkTests : StarDriveTest
         done.Evaluate();
         Assert.IsTrue(done.Emptied, "setup: the second platform stripped its derelict empty");
         AssertEqual(6, partly.Techs.Length, "setup: a capital's derelict holds 6 techs");
+        UState.Derelicts.UpdateTurn();
+        Assert.IsTrue(partly.ShowsTechsTo(Player), "setup: the player's station shows the player its techs");
+        working.Gained[0] = 37.5f;
+        working.Gained[5] = 2f;
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageWork", throwOnError: true);
@@ -302,10 +307,12 @@ public class SalvageWorkTests : StarDriveTest
         Derelict loadedPartly = loaded.UState.Derelicts.Find(partly.Id);
         CollectionAssert.AreEqual(partly.Techs, loadedPartly.Techs, "a derelict keeps its techs");
         AssertEqual(0.01f, partly.ProductionLeft, loadedPartly.ProductionLeft, "and the production left in it");
+        Assert.IsTrue(loadedPartly.ShowsTechsTo(player), "and that the player sees its techs");
 
         SalvageDerelict[] orders = player.AI.FindGoals<SalvageDerelict>();
         SalvageDerelict loadedWorking = orders.First(o => o.DerelictId == partly.Id);
         AssertEqual(0.01f, 12f, loadedWorking.Platform.GetProduction(), "a working platform keeps its load");
+        CollectionAssert.AreEqual(new[] { 37.5f, 0f, 0f, 0f, 0f, 2f }, loadedWorking.Gained, "and its order the points its loads gave each tech");
         SalvageDerelict loadedDone = orders.First(o => o.DerelictId == emptied.Id);
         Assert.IsTrue(loadedDone.Emptied, "an order whose platform stripped its derelict empty stays so");
         AssertEqual(0.01f, 5f, loadedDone.Platform.GetProduction(), "with its platform's load");

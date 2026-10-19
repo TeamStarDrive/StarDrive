@@ -20,7 +20,8 @@ namespace UnitTests.Ships;
 /// a transporter passes it over for the next ship, and pirates never pick it for a raid; each check has a ship that
 /// can be boarded beside it. An absorbed empire's built platforms pass to the absorber with their orders and claims, at
 /// work or coming apart, wait for their change of hands a step later, and then work for the station that passed with
-/// them or, where the absorber has one there, for the absorber's own, keeping their derelicts' techs and production.
+/// them or, where the absorber has one there, for the absorber's own, keeping their derelicts' techs and production
+/// and starting their points for those techs again from none.
 /// Its orders not yet built end with their claims and their constructors, and the absorber's own order on a derelict a
 /// passed platform works ends, its constructor flying home. A defeated empire's platforms work for its rebels. Ships
 /// changing hands in a system show its derelicts to their new owner, as entering it would, and the
@@ -247,6 +248,7 @@ public class SalvageTakeoverTests : StarDriveTest
         theirs.Evaluate();
         AssertEqual(0.01f, 12f, platform.GetProduction(), "setup: the platform holds a turn's work");
         AssertGreaterThan(theirs.Techs.Length, 0, "setup: its order keeps its derelict's techs");
+        theirs.Gained[0] = 40f; // as its loads would have paid the merged empire
         Settle(station, platform);
 
         Player.AbsorbEmpire(Enemy);
@@ -257,6 +259,7 @@ public class SalvageTakeoverTests : StarDriveTest
         AssertEqual(Block.Ordered, SalvageDerelict.WhyNoOrder(Player, d), "so the derelict is the absorber's to call off");
         CollectionAssert.AreEqual(theirs.Techs, ours.Techs, "and its derelict's techs");
         AssertEqual(theirs.DerelictProduction, ours.DerelictProduction, "and whole production");
+        CollectionAssert.AreEqual(new float[theirs.Techs.Length], ours.Gained, "its points start again from none, as they were the merged empire's");
 
         AssertEqual(Enemy, platform.Loyalty, "setup: the platform changes hands a step after the merger");
         ours.Evaluate();
