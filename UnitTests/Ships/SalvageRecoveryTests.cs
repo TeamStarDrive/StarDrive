@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
@@ -6,6 +7,7 @@ using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
 using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
 using Kind = Ship_Game.Ships.DerelictSalvageButton.Kind;
+using Stage = Ship_Game.Commands.Goals.SalvageDerelict.Stage;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships;
@@ -17,7 +19,11 @@ namespace UnitTests.Ships;
 /// show while the player has a salvage station built in the derelict's system or an order on it. The chance to recover
 /// a ship is its hull's, 60 for a frigate down to 20 for a capital, times 1 plus its race's engineers, read from its
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
-/// stripped; of the failures, 10% times 1 minus the engineers explode.
+/// stripped; of the failures, 10% times 1 minus the engineers explode. A recovering platform breaks in for 10 turns at
+/// any pace, then works at twice the salvage speed through the share of health the ship lost at its death times its
+/// slots at the production pace, plus a tenth, times 1 minus the engineers, and holds once all is done. Turning the
+/// order to salvage keeps the work but a later recovery breaks in again; saves and passing on keep both. A rival's
+/// recovery reads Recovering throughout, its break-in unshown.
 /// </summary>
 [TestClass]
 public class SalvageRecoveryTests : StarDriveTest
@@ -46,10 +52,11 @@ public class SalvageRecoveryTests : StarDriveTest
         base.Cleanup();
     }
 
-    // a salvageable derelict of the player's, so the player knows of it; the ship itself is gone
-    Derelict Forms(Vector2 at, string design = "Dreadnought mk1-a")
+    // a salvageable derelict of the player's, so the player knows of it, its ship dead with this share of its health; the ship itself is gone
+    Derelict Forms(Vector2 at, string design = "Dreadnought mk1-a", float health = 1f)
     {
         TestShip ship = SpawnShip(design, Player, at);
+        ship.Health = ship.HealthMax * health;
         Assert.IsTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false), "setup: a salvageable derelict");
         Universe.InvokePendingSimThreadActions();
         ship.QueueTotalRemoval();
@@ -92,6 +99,15 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     static float Chance(Empire empire, Derelict d) => DerelictRecovery.Chance(empire, d);
+
+    // the platform's turns of work, one evaluation of its order each
+    static void Turns(SalvageDerelict order, int turns)
+    {
+        for (int i = 0; i < turns; ++i)
+            order.Evaluate();
+    }
+
+    Stage StageOf(Derelict d) => SalvageDerelict.StageOf(Player, d, out _, out _);
 
     Block BlockOf(Derelict d, Kind kind) => DerelictSalvageButton.BlockOf(kind, SalvageDerelict.WhyNoOrder(Player, d), d);
 
@@ -288,10 +304,12 @@ public class SalvageRecoveryTests : StarDriveTest
     [TestMethod]
     public void AnOrdersRecoverySurvivesSaveAndPassingOn()
     {
-        Derelict d = Forms(Wreck);
+        Derelict d = Forms(Wreck, health: 0.4f);
         BuiltStation();
-        AtWork(d, recover: true);
+        SalvageDerelict order = AtWork(d, recover: true);
         Player.data.SelectedTraitSet = "Skilled Engineers";
+        Turns(order, 11);
+        AssertEqual(0.01f, 24f, order.RecoveryWork, "setup: broken in, and a turn's work done");
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
@@ -299,9 +317,156 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsNotNull(loaded, "setup: the save loads");
         SalvageDerelict loadedOrder = loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First();
         Assert.IsTrue(loadedOrder.Recovering, "a recovery stays one through a save");
+        AssertEqual(0.01f, 24f, loadedOrder.RecoveryWork, "with its work done");
+        AssertEqual(10, loadedOrder.BreakInDone, "and its break-in");
+        AssertEqual(0.001f, 0.4f, loaded.UState.Derelicts.Current.First().HealthAtDeath, "the derelict keeps the health its ship died with");
         AssertEqual(0.01f, 0.2f, loaded.UState.Player.RaceEngineers, "and the race's engineers with its traits");
 
         SalvageDerelict.PassOn(Player, Enemy);
-        Assert.IsTrue(Enemy.AI.FindGoals<SalvageDerelict>().First().Recovering, "and passed on with its platform");
+        SalvageDerelict passed = Enemy.AI.FindGoals<SalvageDerelict>().First();
+        Assert.IsTrue(passed.Recovering, "and passed on with its platform");
+        AssertEqual(0.01f, 24f, passed.RecoveryWork, "with its work done");
+        AssertEqual(10, passed.BreakInDone, "and its break-in");
+    }
+
+    [TestMethod]
+    public void TheWorkIsTheHealthLostAtDeathTimesTheSlotsAtThePaceLessTheEngineers()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        AssertEqual(0.001f, 0.4f, d.HealthAtDeath, "the derelict keeps the share of health its ship died with");
+        int slots = d.Design.SurfaceArea;
+        Player.data.SelectedTraitSet = "";
+        AssertEqual(0.01f, 0.6f * slots * 1.1f, DerelictRecovery.Work(Player, d), "the share lost times the ship's slots, and a tenth more");
+
+        Player.data.SelectedTraitSet = "Skilled Engineers";
+        AssertEqual(0.01f, 0.6f * slots * 1.1f * 0.8f, DerelictRecovery.Work(Player, d), "a fifth less for Skilled Engineers");
+        Player.data.SelectedTraitSet = "Haphazard Engineers";
+        AssertEqual(0.01f, 0.6f * slots * 1.1f * 1.2f, DerelictRecovery.Work(Player, d), "a fifth more for Haphazard ones");
+
+        Player.data.SelectedTraitSet = "";
+        UState.P.Pace = 3f; // a production pace of 2
+        AssertEqual(0.01f, 0.6f * slots * 1.1f * 2f, DerelictRecovery.Work(Player, d), "twice the work at twice the production pace");
+        AssertEqual(0.01f, 24f, DerelictRecovery.Speed, "worked at twice the salvage speed, at any pace");
+        AssertEqual(10, DerelictRecovery.BreakInTurns, "after a break-in of 10 turns, at any pace too");
+    }
+
+    [TestMethod]
+    public void ARecoveringPlatformBreaksInThenWorksAtTwiceTheSalvageSpeedUntilAllIsDone()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        BuiltStation();
+        Player.data.SelectedTraitSet = "";
+        SalvageDerelict order = AtWork(d, recover: true);
+        float work = DerelictRecovery.Work(Player, d);
+        Assert.IsTrue(work > 48f, "setup: work for more than two turns");
+
+        Turns(order, 9);
+        Assert.IsTrue(order.BreakingIn, "nine turns in, its platform still breaks in");
+        AssertEqual(1, order.BreakInTurnsLeft, "with a turn left");
+        AssertEqual(0f, order.RecoveryWork, "and no work done");
+        AssertEqual(Stage.BreakingIn, StageOf(d), "the derelicts window says so");
+        AssertEqual(string.Format(Localizer.Token(GameText.DerelictBreakingIn), 1), ShipInfoUIElement.SalvageStatus(order.Platform, order),
+                    "and the platform's status, with the turns left");
+
+        Turns(order, 1);
+        Assert.IsFalse(order.BreakingIn, "after ten it has broken in");
+        AssertEqual(0f, order.RecoveryWork, "and the work starts the next turn");
+        Turns(order, 1);
+        AssertEqual(0.01f, 24f, order.RecoveryWork, "at twice the salvage speed");
+        AssertEqual(Stage.Recovering, StageOf(d), "the window's status reads Recovering");
+        AssertEqual(string.Format(Localizer.Token(GameText.RecoveringDerelict), d.Design.Name), ShipInfoUIElement.SalvageStatus(order.Platform, order),
+                    "and the platform's names the ship");
+
+        Turns(order, (int)Math.Ceiling(work / 24f) - 1);
+        AssertEqual(1f, DerelictRecovery.Progress(Player, d, order.RecoveryWork), "all of the work is done");
+        Turns(order, 1);
+        AssertEqual(0.001f, work, order.RecoveryWork, "and the platform holds there");
+    }
+
+    [TestMethod]
+    public void TurningToSalvageKeepsTheWorkButARecoveryBreaksInAgain()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        BuiltStation();
+        Player.data.SelectedTraitSet = "";
+        SalvageDerelict order = AtWork(d, recover: true);
+        Turns(order, 12);
+        AssertEqual(0.01f, 48f, order.RecoveryWork, "setup: broken in, and two turns' work");
+
+        SalvageDerelict.Switch(Player, d, recover: false);
+        Turns(order, 1);
+        AssertEqual(0.01f, 48f, order.RecoveryWork, "the work done stays while the platform strips");
+
+        SalvageDerelict.Switch(Player, d, recover: true);
+        Assert.IsTrue(order.BreakingIn, "a recovery taken up again breaks in again");
+        AssertEqual(10, order.BreakInTurnsLeft, "for all its turns");
+        Turns(order, 1);
+        AssertEqual(10, order.BreakInTurnsLeft, "which start once its platform has sent what it holds");
+        Turns(order, 10);
+        AssertEqual(0.01f, 48f, order.RecoveryWork, "the work waiting meanwhile");
+        Turns(order, 1);
+        AssertEqual(0.01f, 72f, order.RecoveryWork, "then going on from where it was");
+    }
+
+    [TestMethod]
+    public void TheBarShowsTheWorkDoneAndItsTooltipTheTurnsLeftWithTheBreakIn()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        Player.data.SelectedTraitSet = "";
+        float work = DerelictRecovery.Work(Player, d);
+        AssertEqual(0.001f, 0.25f, DerelictRecovery.Progress(Player, d, work * 0.25f), "a quarter of the work done");
+        int workTurns = (int)Math.Ceiling(work / 24f);
+        AssertEqual(10 + workTurns, DerelictRecovery.TurnsLeft(Player, d, 0, 0f), "the break-in's turns, then the work's");
+        AssertEqual(6 + workTurns, DerelictRecovery.TurnsLeft(Player, d, 4, 0f), "four turns into the break-in");
+        AssertEqual((int)Math.Ceiling((work - 24f) / 24f), DerelictRecovery.TurnsLeft(Player, d, 10, 24f), "a turn's work done after it");
+        AssertEqual(0, DerelictRecovery.TurnsLeft(Player, d, 10, work), "none once all is done");
+    }
+
+    [TestMethod]
+    public void ARecoveryTurnSendsAShuttleForEverySixSlotsOfWork()
+    {
+        AssertEqual(4, CargoShuttles.RecoveryShuttlesFor(24f), "four for a turn's 24");
+        AssertEqual(2, CargoShuttles.RecoveryShuttlesFor(7f), "rounded up");
+        AssertEqual(1, CargoShuttles.RecoveryShuttlesFor(0.5f), "and at least one");
+    }
+
+    [TestMethod]
+    public void PassingOnAnOrderMidBreakInKeepsItsTurns()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        BuiltStation();
+        SalvageDerelict order = AtWork(d, recover: true);
+        Turns(order, 4);
+        AssertEqual(6, order.BreakInTurnsLeft, "setup: four turns into the break-in");
+
+        SalvageDerelict.PassOn(Player, Enemy);
+        SalvageDerelict passed = Enemy.AI.FindGoals<SalvageDerelict>().First();
+        Assert.IsTrue(passed.BreakingIn, "the order passed on still breaks in");
+        AssertEqual(6, passed.BreakInTurnsLeft, "with the turns it had left");
+    }
+
+    [TestMethod]
+    public void ARivalsRecoveryReadsRecoveringThroughoutWithoutItsBreakIn()
+    {
+        Derelict d = Forms(Wreck);
+        var theirs = new SalvageDerelict(Enemy, d, recover: true);
+        Enemy.AI.AddGoal(theirs);
+        Assert.IsTrue(d.TryClaim(Enemy), "setup: the rival's constructor starts to build");
+        AssertEqual(Stage.Recovering, StageOf(d), "a rival's recovery reads Recovering while its platform is built");
+        AssertEqual(string.Format(Localizer.Token(GameText.DerelictRecoveredBy), Enemy.Name), DerelictSalvageButton.ClaimTip(d, Enemy),
+                    "and its flag's tooltip says it recovers the derelict");
+
+        theirs.OnPlatformBuilt(SpawnShip(ShipDesign.SalvagePlatformName, Enemy, theirs.BuildPosition), SpawnShip("Terran Constructor", Enemy, theirs.BuildPosition));
+        Assert.IsTrue(theirs.BreakingIn, "setup: its platform breaks in");
+        AssertEqual(Stage.Recovering, SalvageDerelict.StageOf(Player, d, out Empire claimant, out SalvageDerelict order), "the window still reads Recovering");
+        AssertEqual(Enemy, claimant, "in its colour");
+        Assert.IsNull(order, "with no order of the player's, so no bar");
+        AssertEqual(string.Format(Localizer.Token(GameText.RecoveringDerelict), d.Design.Name), ShipInfoUIElement.SalvageStatus(theirs.Platform, theirs),
+                    "and so does its platform's status");
+
+        SalvageDerelict.Switch(Enemy, d, recover: false);
+        AssertEqual(Stage.Salvaging, StageOf(d), "its salvage reads Salvaging");
+        AssertEqual(string.Format(Localizer.Token(GameText.DerelictSalvagedBy), Enemy.Name), DerelictSalvageButton.ClaimTip(d, Enemy),
+                    "and its flag's tooltip says it salvages the derelict");
     }
 }

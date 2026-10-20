@@ -29,6 +29,10 @@ namespace Ship_Game.Commands.Goals
         [StarData] public bool CalledOff { get; private set; }
         // the Recover button's order: its platform works to bring the derelict's ship back instead of stripping it
         [StarData] public bool Recovering { get; private set; }
+        // the work its platform has done on the recovery, kept while it strips and passed on with it
+        [StarData] public float RecoveryWork { get; private set; }
+        // the turns its platform has broken into the derelict since the order last turned to the recovery, passed on with it
+        [StarData] public int BreakInDone { get; private set; }
         [StarData] int DismantleTurnsLeft;
         // its derelict's techs and whole production, kept for the loads sent once the derelict has sunk away
         [StarData] public string[] Techs { get; private set; } = Empty<string>.Array;
@@ -94,6 +98,8 @@ namespace Ship_Game.Commands.Goals
             Emptied = passed.Emptied;
             CalledOff = passed.CalledOff;
             Recovering = passed.Recovering;
+            RecoveryWork = passed.RecoveryWork;
+            BreakInDone = passed.BreakInDone;
             DismantleTurnsLeft = passed.DismantleTurnsLeft;
             ChangeToStep(passed.Dismantling ? Dismantle : Salvage);
         }
@@ -187,8 +193,21 @@ namespace Ship_Game.Commands.Goals
             if (OrderOf(empire, d) is not { } order)
                 Cancel(empire, d);
             else if (!recover || DerelictRecovery.CanRecover(d))
-                order.Recovering = recover;
+                order.TurnTo(recover);
         }
+
+        // turned to salvage, it keeps the recovery's work done, but a later recovery breaks in again
+        void TurnTo(bool recover)
+        {
+            Recovering = recover; // first, so the UI never reads a salvage still breaking in
+            if (!recover)
+                BreakInDone = 0;
+        }
+
+        // from any thread: its platform has yet to break into the derelict before the recovery's work starts
+        public bool BreakingIn => Recovering && BreakInDone < DerelictRecovery.BreakInTurns;
+
+        public int BreakInTurnsLeft => (DerelictRecovery.BreakInTurns - BreakInDone).LowerBound(0);
 
         // the button's second click calls the order off on the sim thread, where its claim is given up; a platform standing sends what it holds and takes itself apart
         public static void Cancel(Empire empire, Derelict d)
@@ -341,7 +360,7 @@ namespace Ship_Game.Commands.Goals
             constructor.Mothership = null;
         }
 
-        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; a recovering one strips nothing and first sends all it holds; once its work is over it sends all it holds, then takes itself apart, the player told; one lost or in other hands ends the order, and a lost station takes its platform with it
+        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; a recovering one strips nothing, first sends all it holds, then works on the recovery; once its work is over it sends all it holds, then takes itself apart, the player told; one lost or in other hands ends the order, and a lost station takes its platform with it
         GoalStep Salvage()
         {
             if (Platform is not { Active: true } platform)
@@ -358,7 +377,9 @@ namespace Ship_Game.Commands.Goals
                 Derelict.TryClaim(Owner); // takes back a claim that a call-off caught halfway by a save dropped
             if (Finished || HoldFull(platform) || Recovering && platform.GetProduction() > 0f)
                 SendLoad(platform, station);
-            else if (!Recovering)
+            else if (Recovering)
+                Recover(platform, Derelict);
+            else
                 Strip(platform, Derelict);
 
             if (!Finished || platform.GetProduction() > 0f)
@@ -434,16 +455,18 @@ namespace Ship_Game.Commands.Goals
         // from any thread: an empire sees a derelict's techs while it has a salvage station built in the derelict's system, and from then on
         public static bool SeesTechs(Empire empire, Derelict d) => d.ShowsTechsTo(empire) || SalvageOps.StationIn(empire, d.System) != null;
 
-        public enum Stage { None, PlatformOrdered, BuildingPlatform, Salvaging }
+        public enum Stage { None, PlatformOrdered, BuildingPlatform, Salvaging, BreakingIn, Recovering }
 
-        // from any thread: how far the empire's salvage of the derelict has come, or Salvaging while another empire holds it, with its claimant as read once
-        public static Stage StageOf(Empire empire, Derelict d, out Empire claimant)
+        // from any thread: how far the empire's salvage or recovery of the derelict has come, with its order, or Salvaging or Recovering while another empire holds it, with its claimant as read once
+        public static Stage StageOf(Empire empire, Derelict d, out Empire claimant, out SalvageDerelict order)
         {
             claimant = d.Claimant;
+            order = null;
             if (claimant != null && claimant != empire)
-                return Stage.Salvaging;
-            if (OrderOf(empire, d) is { } order)
-                return !order.Launched ? Stage.PlatformOrdered : order.Platform == null ? Stage.BuildingPlatform : Stage.Salvaging;
+                return OrderOf(claimant, d) is { Recovering: true } ? Stage.Recovering : Stage.Salvaging;
+            if ((order = OrderOf(empire, d)) != null)
+                return !order.Launched ? Stage.PlatformOrdered : order.Platform == null ? Stage.BuildingPlatform
+                     : order.BreakingIn ? Stage.BreakingIn : order.Recovering ? Stage.Recovering : Stage.Salvaging;
             return claimant == empire ? Stage.Salvaging : Stage.None;
         }
 
@@ -455,16 +478,35 @@ namespace Ship_Game.Commands.Goals
             float wanted = Math.Min(Math.Min(GlobalStats.Defaults.SalvageSpeed, platform.CargoRoom), d.ProductionLeft);
             float stripped = UState.Derelicts.Strip(d, platform, platform.LoadProduction(wanted));
             if (stripped > 0f)
-                SendShuttles(platform, d, stripped);
+                SendShuttles(platform, d, CargoShuttles.SalvageShuttlesFor(stripped));
             Emptied = d.Stripped;
         }
 
+        // a turn of breaking in, then a turn's work at the recovery speed, until all of it is done; the shuttles fly a full turn's while it breaks in
+        void Recover(Ship platform, Derelict d)
+        {
+            float speed = DerelictRecovery.Speed;
+            if (BreakingIn)
+            {
+                ++BreakInDone;
+                d.ShowRecoveryWork(platform, DerelictRecovery.Progress(Owner, d, RecoveryWork));
+                SendShuttles(platform, d, CargoShuttles.RecoveryShuttlesFor(speed));
+                return;
+            }
+            float work = DerelictRecovery.Work(Owner, d);
+            if (RecoveryWork >= work || speed <= 0f)
+                return;
+            float before = RecoveryWork;
+            RecoveryWork = Math.Min(RecoveryWork + speed, work); // the work exactly, once all is done
+            d.ShowRecoveryWork(platform, DerelictRecovery.Progress(Owner, d, RecoveryWork));
+            SendShuttles(platform, d, CargoShuttles.RecoveryShuttlesFor(RecoveryWork - before));
+        }
+
         // they show only where the player sees the platform, as a supply ship's do
-        void SendShuttles(Ship platform, Derelict d, float stripped)
+        void SendShuttles(Ship platform, Derelict d, int shuttles)
         {
             if (platform.InFrustum && UState.IsPlanetViewOrCloser && platform.InPlayerSensorRange)
-                UState.Screen.CargoShuttles.SendToHullAndBack(platform, new Vector3(d.Position, d.Z), d.Radius, Owner.EmpireColor,
-                                                              CargoShuttles.SalvageShuttlesFor(stripped));
+                UState.Screen.CargoShuttles.SendToHullAndBack(platform, new Vector3(d.Position, d.Z), d.Radius, Owner.EmpireColor, shuttles);
         }
 
         // less room than this left in a platform's or a station's hold counts as full

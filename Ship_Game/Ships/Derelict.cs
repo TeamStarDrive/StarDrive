@@ -79,6 +79,10 @@ public sealed class Derelict
     Ship StrippedBy;
     float NextStripFlash;
     float NextStripJunk;
+    // its recovery shows a station build's effects at its progress as long after a platform last worked on it, while the player sees that platform
+    float RecoveryEffectsLeft;
+    Ship RecoveredBy;
+    float RecoveryPercent;
 
     // unique among the universe's objects, so a salvage order saved with its empire finds it again
     [StarData] public readonly int Id;
@@ -97,6 +101,8 @@ public sealed class Derelict
     // a salvageable one's techs, picked at its death, which its loads advance for the empire salvaging it
     [StarData] public readonly string[] Techs = Empty<string>.Array;
     [StarData] public float ProductionLeft { get; private set; }
+    // a salvageable one's share of its health at its death, which a recovery's work makes up
+    [StarData] public readonly float HealthAtDeath;
     // a salvageable one's system, where it stops
     [StarData] public readonly SolarSystem System;
     // the empire salvaging it, set on the sim thread; its timer stands meanwhile
@@ -152,7 +158,8 @@ public sealed class Derelict
         if (salvageable)
         {
             TurnsLeft = (int)(SalvageableTurns * Universe.ProductionPace);
-            Production = (ship.HealthPercent.Clamped(0f, 1f) * SalvageShareOfHealth * Design.GetCostBeforeBonuses(Universe.ProductionPace))
+            HealthAtDeath = ship.HealthPercent.Clamped(0f, 1f);
+            Production = (HealthAtDeath * SalvageShareOfHealth * Design.GetCostBeforeBonuses(Universe.ProductionPace))
                          .LowerBound(MinSalvageProduction * Universe.ProductionPace);
             ProductionLeft = Production;
             Techs = PickTechs(Design, Owner, random);
@@ -362,6 +369,16 @@ public sealed class Derelict
     // on the sim thread: its flashes and junk show while a platform strips it that the player sees, as a supply ship's shuttles do
     internal bool StripEffectsShown => StripEffectsLeft > 0f && StrippedBy is { Active: true, InPlayerSensorRange: true };
 
+    // on the sim thread: a platform's turn of work on its recovery, now this far done
+    public void ShowRecoveryWork(Ship platform, float progress)
+    {
+        RecoveryEffectsLeft = Universe.P.TurnTimer * 1.2f; // as its strip effects, unbroken while the work goes on
+        RecoveredBy = platform;
+        RecoveryPercent = progress.Clamped(0f, 1f) * 100f;
+    }
+
+    internal bool RecoveryEffectsShown => RecoveryEffectsLeft > 0f && RecoveredBy is { Active: true, InPlayerSensorRange: true };
+
     // dead modules first, then damaged ones; conduits only spark, so they are left out
     static SmokeSource[] PickSmokeSources(Ship ship)
     {
@@ -448,6 +465,8 @@ public sealed class Derelict
         Age += dt;
         if ((StripEffectsLeft -= dt) <= 0f)
             StrippedBy = null;
+        if ((RecoveryEffectsLeft -= dt) <= 0f)
+            RecoveredBy = null;
         if (Sinking)
             Z += (Stripped ? StrippedSinkSpeed : SinkSpeed) * dt;
         else if (Z < RestDepth)
@@ -488,6 +507,8 @@ public sealed class Derelict
             UpdateBreakup(dt, particles);
         if (StripEffectsShown)
             UpdateStripping(dt, particles, scale);
+        if (RecoveryEffectsShown && Universe.IsShipViewOrCloser) // where a station build shows them
+            ConstructionShip.AddEffects(Universe, center, Radius * 0.5f * scale, RecoveryPercent, RecoveredBy);
 
         int smoking = NumSmokingNow;
         for (int i = 0; i < Smoke.Length; ++i)

@@ -66,7 +66,7 @@ public static class DerelictSalvageButton
             Block.None => GameText.SalvageDerelictTip,
             Block.Ordered when lit => kind == Kind.Recover ? GameText.RecoverDerelictOrderedTip : GameText.SalvageDerelictOrderedTip,
             Block.Ordered => GameText.SalvageDerelictSwitchTip,
-            Block.ClaimedByOther => string.Format(Localizer.Token(GameText.DerelictSalvagedBy), d.Claimant?.Name ?? ""),
+            Block.ClaimedByOther => ClaimTip(d, d.Claimant),
             Block.NoFreeUnit => GameText.SalvageDerelictNoFreeUnitTip,
             Block.NotAShip => GameText.RecoverDerelictStationTip,
             _ => LocalizedText.None,
@@ -75,8 +75,37 @@ public static class DerelictSalvageButton
             ToolTip.CreateTooltip(tip);
     }
 
+    // from any thread: the empire holding the derelict, salvaging or recovering it
+    public static string ClaimTip(Derelict d, Empire claimant)
+    {
+        bool recovering = claimant != null && SalvageDerelict.OrderOf(claimant, d) is { Recovering: true };
+        return string.Format(Localizer.Token(recovering ? GameText.DerelictRecoveredBy : GameText.DerelictSalvagedBy), claimant?.Name ?? "");
+    }
+
     // a whole percent, as the panel shows it
-    public static string Percent(float percent) => $"{(int)(percent + 0.5f)}%";
+    public static string Percent(float percent) => $"{Whole(percent)}%";
+
+    static int Whole(float value) => (int)(value + 0.5f);
+
+    // the yellow bar of a recovery's progress, its percent rounded down, so it reads 100% only once all is done
+    public static ProgressBar RecoveryBar(in Rectangle rect) => new(rect) { color = "yellow", Max = 100f, DrawPercentage = true };
+
+    // the empire's recovery's progress in the techs' place: the crossed hammers and a bar of the work done
+    public static void DrawRecovery(SpriteBatch batch, in Rectangle iconRect, ProgressBar bar, Empire empire, Derelict d, SalvageDerelict order)
+    {
+        batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_construction"), iconRect, Color.White);
+        bar.Progress = DerelictRecovery.Progress(empire, d, order.RecoveryWork) * 100f;
+        bar.Draw(batch);
+    }
+
+    // the work done and all of it, the recovery speed, the break-in's turns, and the turns left in all
+    public static void RecoveryTooltip(Empire empire, Derelict d, SalvageDerelict order)
+    {
+        string tip = string.Format(Localizer.Token(GameText.DerelictRecoveryProgressTip), Whole(order.RecoveryWork),
+                                   Whole(DerelictRecovery.Work(empire, d)), Whole(DerelictRecovery.Speed), DerelictRecovery.BreakInTurns,
+                                   DerelictRecovery.TurnsLeft(empire, d, order.BreakInDone, order.RecoveryWork));
+        ToolTip.CreateTooltip(tip, codexUid: Codex.CodexHooks.Find(GameText.DerelictRecoveryProgressTip));
+    }
 
     // orders the derelict salvaged or recovered, calls the order off from its lit button, or turns it to the other button's work
     public static void Click(Empire player, Derelict d, Kind kind, Block block, bool lit)

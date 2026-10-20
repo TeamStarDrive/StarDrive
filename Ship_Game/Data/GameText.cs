@@ -6304,6 +6304,16 @@ namespace Ship_Game
         RecoverDerelictStationTip = 7204,
         /// <summary>Your chance to recover this ship: {0}. It starts at {1} for</summary>
         DerelictRecoveryChanceTip = 7205,
+        /// <summary>Recovery progress: {0} of {1} work done, at {2} a turn after</summary>
+        DerelictRecoveryProgressTip = 7206,
+        /// <summary>Recovering {0}</summary>
+        RecoveringDerelict = 7207,
+        /// <summary>Recovering</summary>
+        DerelictRecovering = 7208,
+        /// <summary>Breaking in (turns left: {0})</summary>
+        DerelictBreakingIn = 7209,
+        /// <summary>{0} is recovering this derelict.</summary>
+        DerelictRecoveredBy = 7210,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

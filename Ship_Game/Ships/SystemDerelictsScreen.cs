@@ -49,7 +49,8 @@ public sealed class SystemDerelictsScreen : GameScreen
         readonly UniverseScreen Universe;
         readonly Derelict Derelict;
         readonly ProgressBar ProductionBar = new(0, 0, 150, 18) { color = "red" }; // as on the derelict's panel
-        // the techs the player can learn from it as last drawn, empty while the player does not see them
+        readonly ProgressBar RecoveryBar = DerelictSalvageButton.RecoveryBar(new(0, 0, 150, 18));
+        // the techs the player can learn from it as last drawn, empty while the player does not see them or recovers it
         readonly Array<TechEntry> Learnable = new();
         readonly FittedStatus Status = new();
 
@@ -63,6 +64,9 @@ public sealed class SystemDerelictsScreen : GameScreen
         Rectangle ClaimRect => new((int)X + SalvagerX + SalvagerWidth / 2 - 10, (int)Y + 10, 20, 20);
         Rectangle TechsRect => new((int)X + TechsX, (int)Y + 10, 19, 20);
         Rectangle TechRect(int i) => new((int)X + TechsX + i * TechSpacing, (int)Y + 6, 26, 22);
+        // in the techs' place, at the production bar's sizes
+        Rectangle RecoveryRect => new((int)X + TechsX, (int)Y + 12, 16, 16);
+        Rectangle RecoveryBarRect => new((int)X + TechsX + 21, (int)Y + 11, 150, 18);
         Rectangle SalvageRect => new((int)(X + Width) - 80, (int)Y + 2, 36, 36);
         Rectangle RecoverRect => new((int)(X + Width) - 40, (int)Y + 2, 36, 36);
         // up to 6 short of the Salvage button
@@ -82,14 +86,14 @@ public sealed class SystemDerelictsScreen : GameScreen
 
             if (Derelict.Claimant is { } claimant)
                 batch.Draw(ResourceManager.Flag(claimant), ClaimRect, Universe.ApplyCurrentAlphaToColor(claimant.EmpireColor));
-            DrawTechs(batch);
-            DrawStatus(batch);
 
             Empire player = Universe.Player;
             SalvageDerelict.Block block = SalvageDerelict.WhyNoOrder(player, Derelict);
+            SalvageDerelict order = DerelictSalvageButton.StandingOrder(player, Derelict, block);
+            DrawTechs(batch, order);
+            DrawStatus(batch);
             if (DerelictSalvageButton.Shown(player, Derelict, block))
             {
-                SalvageDerelict order = DerelictSalvageButton.StandingOrder(player, Derelict, block);
                 DrawButton(batch, DerelictSalvageButton.Kind.Salvage, block, order, SalvageRect);
                 DrawButton(batch, DerelictSalvageButton.Kind.Recover, DerelictSalvageButton.BlockOf(DerelictSalvageButton.Kind.Recover, block, Derelict), order, RecoverRect);
             }
@@ -112,10 +116,17 @@ public sealed class SystemDerelictsScreen : GameScreen
                 DerelictSalvageButton.Click(Universe.Player, Derelict, kind, block, lit);
         }
 
-        // the count of all it holds until the player sees its techs, then the icons of those the player can learn
-        void DrawTechs(SpriteBatch batch)
+        // the count of all it holds until the player sees its techs, then the icons of those the player can learn, or while the player's order recovers it, the recovery's progress in their place
+        void DrawTechs(SpriteBatch batch, SalvageDerelict order)
         {
             Empire player = Universe.Player;
+            if (order is { Recovering: true })
+            {
+                Learnable.Clear();
+                RecoveryBar.SetRect(RecoveryBarRect);
+                DerelictSalvageButton.DrawRecovery(batch, RecoveryRect, RecoveryBar, player, Derelict, order);
+                return;
+            }
             if (!SalvageDerelict.SeesTechs(player, Derelict))
             {
                 Learnable.Clear();
@@ -127,21 +138,36 @@ public sealed class SystemDerelictsScreen : GameScreen
                 DerelictTechIcons.DrawIcon(batch, TechRect(i), Learnable[i]);
         }
 
-        // the player's salvage in wheat, another empire's in its colour
+        // the player's salvage or recovery in wheat, with the turns left while its platform breaks in, another empire's in its colour
         void DrawStatus(SpriteBatch batch)
         {
             Empire player = Universe.Player;
-            SalvageDerelict.Stage stage = SalvageDerelict.StageOf(player, Derelict, out Empire claimant);
+            SalvageDerelict.Stage stage = SalvageDerelict.StageOf(player, Derelict, out Empire claimant, out SalvageDerelict order);
             if (stage == SalvageDerelict.Stage.None)
                 return;
 
-            Status.Fit(Localizer.Token(stage switch
+            Status.Fit(stage == SalvageDerelict.Stage.BreakingIn ? BreakingIn(order.BreakInTurnsLeft) : Localizer.Token(stage switch
             {
                 SalvageDerelict.Stage.PlatformOrdered  => GameText.SalvagePlatformOrdered,
                 SalvageDerelict.Stage.BuildingPlatform => GameText.BuildingSalvagePlatform,
+                SalvageDerelict.Stage.Recovering       => GameText.DerelictRecovering,
                 _                                      => GameText.DerelictSalvaging,
             }), StatusWidth);
-            Status.Draw(batch, claimant != null && claimant != player ? claimant.EmpireColor : Color.Wheat, X + StatusX, Y + 20, centred: false);
+            Status.Draw(batch, claimant != null && claimant != player ? claimant.EmpireColor : Color.Wheat, X + StatusX, Y + 20, centered: false);
+        }
+
+        // made again only when the turns left change, so the status keeps its fit
+        string BreakingInText;
+        int BreakingInTurns = -1;
+
+        string BreakingIn(int turnsLeft)
+        {
+            if (turnsLeft != BreakingInTurns)
+            {
+                BreakingInTurns = turnsLeft;
+                BreakingInText = string.Format(Localizer.Token(GameText.DerelictBreakingIn), turnsLeft);
+            }
+            return BreakingInText;
         }
 
         TechEntry TechAt(Vector2 cursor)
@@ -169,9 +195,12 @@ public sealed class SystemDerelictsScreen : GameScreen
             }
 
             if (Derelict.Claimant is { } claimant && ClaimRect.HitTest(cursor))
-                ToolTip.CreateTooltip(string.Format(Localizer.Token(GameText.DerelictSalvagedBy), claimant.Name));
+                ToolTip.CreateTooltip(DerelictSalvageButton.ClaimTip(Derelict, claimant));
             else if (ProductionRect.HitTest(cursor) || ProductionBar.pBar.HitTest(cursor))
                 ToolTip.CreateTooltip(GameText.DerelictProductionTip);
+            else if ((RecoveryRect.HitTest(cursor) || RecoveryBarRect.HitTest(cursor))
+                     && DerelictSalvageButton.StandingOrder(Universe.Player, Derelict, SalvageDerelict.WhyNoOrder(Universe.Player, Derelict)) is { Recovering: true } recovery)
+                DerelictSalvageButton.RecoveryTooltip(Universe.Player, Derelict, recovery);
             else if (TechsRect.HitTest(cursor) && !SalvageDerelict.SeesTechs(Universe.Player, Derelict))
                 ToolTip.CreateTooltip(GameText.DerelictTechsHeldTip);
             else if (TechAt(cursor) is { } tech)

@@ -34,6 +34,35 @@ public static class DerelictRecovery
     // percent of the empire's failed recoveries that explode
     public static float CatastropheChanceOf(Empire empire) => (CatastropheChance * (1f - Engineers(empire))).Clamped(0f, 100f);
 
+    // a platform works a recovery's slots at twice the salvage speed, which the salvage techs raise for both
+    public const float SpeedPerSalvageSpeed = 2f;
+
+    public static float Speed => GlobalStats.Defaults.SalvageSpeed * SpeedPerSalvageSpeed;
+
+    // the turns a platform breaks into the derelict before the work starts, whatever its size and the game's pace
+    public static int BreakInTurns => GlobalStats.Defaults.SalvageRecoveryBreakInTurns.LowerBound(0);
+
+    // from any thread: the time it takes, nothing paid: the share of health the ship had lost at its death, times its slots at the game's pace, the work factor and 1 minus the engineers
+    public static float Work(Empire empire, Derelict d)
+        => ((1f - d.HealthAtDeath) * d.Design.SurfaceArea * empire.Universe.ProductionPace
+            * GlobalStats.Defaults.SalvageRecoveryWorkFactor * (1f - Engineers(empire)).LowerBound(0f)).LowerBound(0f);
+
+    // from any thread: the share of the work done, all of it when there is none
+    public static float Progress(Empire empire, Derelict d, float workDone)
+    {
+        float work = Work(empire, d);
+        return work > 0f ? (workDone / work).Clamped(0f, 1f) : 1f;
+    }
+
+    // whole turns left: those of the break-in, then the work's at the recovery speed
+    public static int TurnsLeft(Empire empire, Derelict d, int breakInDone, float workDone)
+    {
+        int breakIn = (BreakInTurns - breakInDone).LowerBound(0);
+        float left = Work(empire, d) - workDone;
+        float speed = Speed;
+        return left <= 0f ? breakIn : speed > 0f ? breakIn + (int)Math.Ceiling(left / speed) : int.MaxValue;
+    }
+
     static float Engineers(Empire empire) => empire.RaceEngineers;
 
     // the module health bonus of the race traits named, Skilled or Haphazard Engineers, without what research, artifacts or a difficulty add

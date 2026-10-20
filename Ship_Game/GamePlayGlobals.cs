@@ -29,10 +29,14 @@ public class GamePlayGlobals
     [StarData] public int MaxDriftingDerelicts = 100;
     // Most salvageable derelicts at once; the derelict chance falls with their share of it, to none at the limit
     [StarData] public int MaxSalvageableDerelicts = 100;
-    // Production a salvage platform strips from its derelict in a turn, while its hold has room
+    // Production a salvage platform strips from its derelict in a turn, while its hold has room; above 0, as a recovery works at twice it
     [StarData] public float SalvageSpeed = 12;
     // Share of what a tech has left to research that a derelict's whole production advances it by, each load paying its part
     [StarData] public float SalvageTechShare = 0.2f;
+    // A recovery's work: this times the share of health the ship had lost at its death times its slots, at the production pace, times 1 minus the race's engineers; above 0. A platform works it at twice the salvage speed
+    [StarData] public float SalvageRecoveryWorkFactor = 1.1f;
+    // Turns a salvage platform breaks into its derelict before a recovery's work starts, whatever the ship's size and the production pace; 0 or more
+    [StarData] public int SalvageRecoveryBreakInTurns = 10;
     // How tougher are remnant designs in the mod. This affects starting fleet multipliers and also increases with difficulty. Vanilla is 2
     [StarData] public float RemnantDesignStrMultiplier;
     public float RemnantDesignStr => RemnantDesignStrMultiplier > 0.01f ? RemnantDesignStrMultiplier : 2f;

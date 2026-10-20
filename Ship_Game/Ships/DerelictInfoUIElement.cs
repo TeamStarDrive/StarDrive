@@ -36,7 +36,9 @@ public sealed class DerelictInfoUIElement : UIElement
     readonly Rectangle StationRect;
     readonly Rectangle StatusRect;
     readonly Rectangle FirstTechRect;
-    // the techs the player can learn from it as last drawn, empty while the player does not see them
+    readonly Rectangle RecoveryRect;
+    readonly ProgressBar RecoveryBar;
+    // the techs the player can learn from it as last drawn, empty while the player does not see them or recovers it
     readonly Array<TechEntry> Learnable = new();
     readonly SeededRandom SiteRandom = new();
 
@@ -59,10 +61,12 @@ public sealed class DerelictInfoUIElement : UIElement
         Drawer = new SlidingElement(new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130));
         SalvageRect = new(r.X + r.Width + 2, Drawer.Housing.Y + 15, 48, 48); // the drawer's first slot, as the ship panel's first order
         RecoverRect = new(SalvageRect.X, SalvageRect.Y + 52, 48, 48); // under it, as the ship panel stacks two orders
-        int centre = ProductionBar.pBar.X + ProductionBar.pBar.Width / 2;
-        StationRect = new(centre - 84, r.Y + 135, 168, 24); // under the bar, at the derelicts window's button size
+        int center = ProductionBar.pBar.X + ProductionBar.pBar.Width / 2;
+        StationRect = new(center - 84, r.Y + 135, 168, 24); // under the bar, at the derelicts window's button size
         StatusRect = new(ClaimLine.X, StationRect.Y, ClaimLine.Width, StationRect.Height); // the claimant line's width
         FirstTechRect = new(ProductionRect.X, StationRect.Bottom + 4, TechWidth, TechHeight); // the points under them clear the claimant line
+        RecoveryRect = new(ProductionRect.X, FirstTechRect.Y + 3, ProductionRect.Width, ProductionRect.Height); // in the techs' place, as the production bar
+        RecoveryBar = DerelictSalvageButton.RecoveryBar(new(ProductionBar.pBar.X, RecoveryRect.Y, ProductionBar.pBar.Width, 18));
     }
 
     Rectangle TechRect(int i) => new(FirstTechRect.X + i * TechSpacing, FirstTechRect.Y, TechWidth, TechHeight);
@@ -76,6 +80,7 @@ public sealed class DerelictInfoUIElement : UIElement
 
         Empire player = Universe.Player;
         SalvageDerelict.Block salvageBlock = SalvageDerelict.WhyNoOrder(player, d);
+        SalvageDerelict order = DerelictSalvageButton.StandingOrder(player, d, salvageBlock);
         if (DerelictSalvageButton.Shown(player, d, salvageBlock))
         {
             const int columns = 1;
@@ -83,7 +88,6 @@ public sealed class DerelictInfoUIElement : UIElement
             if (State != ElementState.Closed) // hidden behind the panel when closed
             {
                 int slide = (int)(0f.SmoothStep(1f, TransitionPosition) * 300f);
-                SalvageDerelict order = DerelictSalvageButton.StandingOrder(player, d, salvageBlock);
                 DrawButton(batch, DerelictSalvageButton.Kind.Salvage, salvageBlock, order, SalvageRect, slide);
                 DrawButton(batch, DerelictSalvageButton.Kind.Recover, DerelictSalvageButton.BlockOf(DerelictSalvageButton.Kind.Recover, salvageBlock, d), order, RecoverRect, slide);
             }
@@ -112,7 +116,7 @@ public sealed class DerelictInfoUIElement : UIElement
         ProductionBar.Progress = d.ProductionLeft;
         ProductionBar.Draw(batch);
         DrawStationOrder(batch, d);
-        DrawTechs(batch, d);
+        DrawTechs(batch, d, order);
         if (DerelictRecovery.CanRecover(d))
         {
             batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_construction"), ChanceRect, Color.White);
@@ -130,8 +134,8 @@ public sealed class DerelictInfoUIElement : UIElement
         DerelictSalvageButton.Draw(batch, button, kind, block, DerelictSalvageButton.Lit(kind, block, order), hovered);
     }
 
-    // the count under the turns; once the player sees its techs, the icons of those the player can learn, with the points the player's salvage of it has given each
-    void DrawTechs(SpriteBatch batch, Derelict d)
+    // the count under the turns; once the player sees its techs, the icons of those the player can learn, with the points the player's salvage of it has given each, or while the player's order recovers it, the recovery's progress in their place
+    void DrawTechs(SpriteBatch batch, Derelict d, SalvageDerelict order)
     {
         Empire player = Universe.Player;
         bool seen = SalvageDerelict.SeesTechs(player, d);
@@ -141,7 +145,12 @@ public sealed class DerelictInfoUIElement : UIElement
             Learnable.Clear();
         DerelictTechIcons.DrawCount(batch, TechsRect, DerelictTechIcons.Count(seen, d, Learnable));
 
-        SalvageDerelict order = Learnable.Count > 0 ? SalvageDerelict.OrderOf(player, d) : null;
+        if (order is { Recovering: true })
+        {
+            Learnable.Clear();
+            DerelictSalvageButton.DrawRecovery(batch, RecoveryRect, RecoveryBar, player, d, order);
+            return;
+        }
         for (int i = 0; i < Learnable.Count; ++i)
         {
             Rectangle rect = TechRect(i);
@@ -149,7 +158,7 @@ public sealed class DerelictInfoUIElement : UIElement
             if (order != null)
             {
                 string points = "+" + DerelictTechIcons.Points(DerelictTechIcons.GainedOf(order, Learnable[i]));
-                DrawCentred(batch, Fonts.Arial8Bold, points, PointsColor, rect.CenterX(), rect.Bottom + DerelictTechIcons.BarHeight + 7);
+                DrawCentered(batch, Fonts.Arial8Bold, points, PointsColor, rect.CenterX(), rect.Bottom + DerelictTechIcons.BarHeight + 7);
             }
         }
     }
@@ -215,7 +224,7 @@ public sealed class DerelictInfoUIElement : UIElement
                     : hovered ? "EmpireTopBar/empiretopbar_btn_168px_hover"
                     : "EmpireTopBar/empiretopbar_btn_168px";
         batch.Draw(ResourceManager.Texture(back), StationRect, Color.White);
-        DrawCentred(batch, Fonts.TahomaBold9, Localizer.Token(GameText.BuildSalvageStation), enabled ? ButtonText : Color.Gray,
+        DrawCentered(batch, Fonts.TahomaBold9, Localizer.Token(GameText.BuildSalvageStation), enabled ? ButtonText : Color.Gray,
                     StationRect.CenterX(), StationRect.CenterY());
     }
 
@@ -225,12 +234,12 @@ public sealed class DerelictInfoUIElement : UIElement
     void DrawStatus(SpriteBatch batch, GameText status, Color color)
     {
         Status.Fit(Localizer.Token(status), StatusRect.Width);
-        Status.Draw(batch, color, StatusRect.CenterX(), StatusRect.CenterY(), centred: true);
+        Status.Draw(batch, color, StatusRect.CenterX(), StatusRect.CenterY(), centered: true);
     }
 
-    static void DrawCentred(SpriteBatch batch, Graphics.Font font, string text, Color color, int centreX, int centreY)
+    static void DrawCentered(SpriteBatch batch, Graphics.Font font, string text, Color color, int centerX, int centerY)
     {
-        var pos = new Vector2(centreX - font.TextWidth(text) / 2, centreY - font.LineSpacing / 2);
+        var pos = new Vector2(centerX - font.TextWidth(text) / 2, centerY - font.LineSpacing / 2);
         batch.DrawString(font, text, pos, color);
     }
 
@@ -293,12 +302,15 @@ public sealed class DerelictInfoUIElement : UIElement
             ToolTip.CreateTooltip(SalvageDerelict.SeesTechs(Universe.Player, d) ? GameText.DerelictTechsShownTip : GameText.DerelictTechsHeldTip);
         else if (ChanceRect.HitTest(cursor) && DerelictRecovery.CanRecover(d))
             ChanceTooltip(d);
+        else if ((RecoveryRect.HitTest(cursor) || RecoveryBar.pBar.HitTest(cursor))
+                 && DerelictSalvageButton.StandingOrder(player, d, salvageBlock) is { Recovering: true } recovery)
+            DerelictSalvageButton.RecoveryTooltip(player, d, recovery);
         else if (TechAt(cursor) is { } tech)
             ToolTip.CreateTooltip(DerelictTechIcons.Tooltip(tech, SalvageDerelict.OrderOf(Universe.Player, d)));
         else if (ProductionRect.HitTest(cursor) || ProductionBar.pBar.HitTest(cursor))
             ToolTip.CreateTooltip(GameText.DerelictProductionTip);
         else if (claimant != null && ClaimLine.HitTest(cursor))
-            ToolTip.CreateTooltip(string.Format(Localizer.Token(GameText.DerelictSalvagedBy), claimant.Name));
+            ToolTip.CreateTooltip(DerelictSalvageButton.ClaimTip(d, claimant));
         return ElementRect.HitTest(cursor) || drawerOpen && Drawer.ButtonHousing.HitTest(cursor);
     }
 
