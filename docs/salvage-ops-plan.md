@@ -683,6 +683,14 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
     for Skilled Engineers and 12% for Haphazard ones;
   - the roll comes the same turn as the last of the work, as the bar reaches 100% (593, Gilad, in place of 571 A's
     turn after it), at the chance of that moment; a recovery with no work to do rolls the turn after its break-in;
+  - both rolls use the empire's luck, draws from 0 to 1 that are its own for the derelict: each empire picks a luck
+    seed as it is made, at the game's start or as rebels rise, saved with it, and `Empire.Luck(key, index)` mixes the
+    seed, the empire's id, the derelict's id and which draw, so loading a save never changes the outcome while the
+    chance stays the same, and one empire's outcome tells nothing of another's; empires in saves from before have no
+    seed and still draw apart by their ids; a draw passes under its percent, as a dice roll does (Gilad, 2026-10-21:
+    618 B, as the empire's random, seeded from the clock and not saved, rolled anew after each load; 619 A, as one
+    draw for the derelict told the player a rival's outcome after a reload; 620 A, the seed the empire's rather than
+    the derelict's, for other rolls to use later); the Codex says so;
   - a plain failure breaks the derelict apart as a drifting one breaks up, 3 to 5 seconds of flashes and lightning
     on its hull but none of the small blasts, which are left to a catastrophe (585 B), with one ShipSlow sound at half
     the break-up's volume as it gives way where the player sees it (583, 584 B), and it sinks away at a stripped

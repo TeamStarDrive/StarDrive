@@ -2,7 +2,6 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data;
-using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
@@ -38,13 +37,17 @@ public static class DerelictRecovery
 
     public enum Outcome { Recovered, BrokenApart, Exploded }
 
-    // as the last of the work is done: the chance as it stands then, and for a failure a second roll for how bad it is
-    public static Outcome Roll(Empire empire, Derelict d, RandomBase random)
+    // as the last of the work is done: the empire's first draw against the chance as it stands then, and for a failure its second for how bad it is; a draw under the percent passes, as a dice roll does
+    public static Outcome Roll(Empire empire, Derelict d)
     {
-        if (random.RollDice(Chance(empire, d)))
+        (float recovery, float catastrophe) = Draws(empire, d);
+        if (recovery * 100f < Chance(empire, d))
             return Outcome.Recovered;
-        return random.RollDice(CatastropheChanceOf(empire)) ? Outcome.Exploded : Outcome.BrokenApart;
+        return catastrophe * 100f < CatastropheChanceOf(empire) ? Outcome.Exploded : Outcome.BrokenApart;
     }
+
+    // the empire's own two draws from 0 to 1 for the derelict, its luck keyed by the derelict's id: the same after every load, and each empire's its own
+    public static (float Recovery, float Catastrophe) Draws(Empire empire, Derelict d) => (empire.Luck(d.Id, 0), empire.Luck(d.Id, 1));
 
     // its hull role's biggest death blast
     public static float BlastDamage(Derelict d) => d.Radius * Ship.ExplosionDamageCapPerRadius(d.Design.HullRole);

@@ -238,6 +238,27 @@ namespace Ship_Game
         // per-faction pseudo-random source
         public readonly RandomBase Random = new ThreadSafeRandom();
 
+        // picked as the empire is made and saved, for the draws a reload must not change
+        [StarData] public int LuckSeed { get; private set; }
+
+        // a draw from 0 to 1 that is this empire's own for what it rolls, the same after every load: the key names what is rolled, such as an object's id, and the index which of its draws
+        public float Luck(int key, int index)
+        {
+            ulong x = Mix((ulong)(uint)LuckSeed << 32 | (uint)Id);
+            x = Mix(x ^ (uint)key);
+            x = Mix(x ^ (uint)index);
+            return (x >> 40) / (float)(1 << 24); // 24 bits make a float in [0, 1)
+        }
+
+        // the SplitMix64 finish, so seeds, ids and keys next to each other draw unalike
+        static ulong Mix(ulong x)
+        {
+            x += 0x9E3779B97F4A7C15UL;
+            x = (x ^ (x >> 30)) * 0xBF58476D1CE4E5B9UL;
+            x = (x ^ (x >> 27)) * 0x94D049BB133111EBUL;
+            return x ^ (x >> 31);
+        }
+
         /// <summary>
         /// Empire unique ID. If this is 0, then this empire is invalid!
         /// Set in UniverseState_Empires.cs
@@ -259,6 +280,7 @@ namespace Ship_Game
         public Empire(UniverseState us)
         {
             Universe = us;
+            LuckSeed = Random.Int(1, int.MaxValue - 1);
             Research = new(this);
 
             EmpireShips = new(this);

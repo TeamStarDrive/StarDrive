@@ -534,7 +534,7 @@ namespace Ship_Game.Commands.Goals
         // a success raises the derelict for its ship, which ends the platform's work once it takes the derelict's place; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up; true for the catastrophe; the work's parts rise with the derelict as they shrink away, fade out as a finished build's, or go at once in the blast
         bool Roll(Ship platform, Derelict d)
         {
-            switch (DerelictRecovery.Roll(Owner, d, Owner.Random))
+            switch (DerelictRecovery.Roll(Owner, d))
             {
                 case DerelictRecovery.Outcome.Recovered:
                     RecoverySucceeded = true;

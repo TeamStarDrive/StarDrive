@@ -8,7 +8,6 @@ using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
-using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Rendering;
 using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
 using Outcome = Ship_Game.Ships.DerelictRecovery.Outcome;
@@ -122,25 +121,23 @@ public class SalvageRecoveryTests : StarDriveTest
 
     Stage StageOf(Derelict d) => SalvageDerelict.StageOf(Player, d, out _, out _);
 
-    // each roll is the next of these, from 0 to 1, the last one again and again: a dice roll passes under its percent
-    sealed class FixedRandom : RandomBase
+    // the empire's luck seed set to the first whose draws for the derelict, each from 0 to 1, are as wanted: a draw passes under its percent, as a dice roll does
+    static void Draws(Derelict d, Empire empire, Func<float, float, bool> wanted)
     {
-        readonly Rolls Source;
-        public FixedRandom(params double[] rolls) : base(1) { Source = new(rolls); }
-        protected override Random Rand => Source;
-
-        sealed class Rolls : Random
+        PropertyInfo seed = typeof(Empire).GetProperty(nameof(Empire.LuckSeed))!;
+        for (int s = 1; s < 1_000_000; ++s)
         {
-            readonly double[] Values;
-            int At;
-            public Rolls(double[] values) { Values = values; }
-            protected override double Sample() => Values[Math.Min(At++, Values.Length - 1)];
-            public override double NextDouble() => Sample();
+            seed.SetValue(empire, s);
+            (float recovery, float catastrophe) = DerelictRecovery.Draws(empire, d);
+            if (wanted(recovery, catastrophe))
+                return;
         }
+        Assert.Fail("setup: no seed draws as wanted");
     }
 
-    static void RollsWith(Empire empire, params double[] rolls)
-        => typeof(Empire).GetField(nameof(Empire.Random))!.SetValue(empire, new FixedRandom(rolls));
+    void Succeeds(Derelict d) => Draws(d, Player, (recovery, _) => recovery < 0.01f);
+    void BreaksApart(Derelict d) => Draws(d, Player, (recovery, catastrophe) => recovery > 0.99f && catastrophe > 0.5f);
+    void Explodes(Derelict d) => Draws(d, Player, (recovery, catastrophe) => recovery > 0.99f && catastrophe < 0.01f);
 
     // the player's recovery with a turn of work left, so its next turn finishes the work and rolls
     SalvageDerelict OneTurnOfWorkLeft(Derelict d)
@@ -408,7 +405,7 @@ public class SalvageRecoveryTests : StarDriveTest
     public void ARecoveringPlatformBreaksInThenWorksAtTwiceTheSalvageSpeedUntilAllIsDone()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        RollsWith(Player, 0.0);
+        Succeeds(d);
         BuiltStation();
         Player.data.SelectedTraitSet = "";
         SalvageDerelict order = AtWork(d, recover: true);
@@ -443,7 +440,7 @@ public class SalvageRecoveryTests : StarDriveTest
     public void ARecoveryWithNoWorkRollsTheTurnAfterItsBreakIn()
     {
         Derelict d = Forms(Wreck);
-        RollsWith(Player, 0.0);
+        Succeeds(d);
         BuiltStation();
         Player.data.SelectedTraitSet = "";
         SalvageDerelict order = AtWork(d, recover: true);
@@ -550,17 +547,45 @@ public class SalvageRecoveryTests : StarDriveTest
         Derelict d = Forms(Wreck);
         Player.data.SelectedTraitSet = "";
         AssertEqual(0.01f, 20f, Chance(Player, d), "setup: a capital's 20%");
-        AssertEqual(Outcome.Recovered, DerelictRecovery.Roll(Player, d, new FixedRandom(0.19)), "a roll under the chance recovers the ship");
-        AssertEqual(Outcome.BrokenApart, DerelictRecovery.Roll(Player, d, new FixedRandom(0.21, 0.11)),
-                    "one over it fails, and a second roll over a tenth breaks the derelict apart");
-        AssertEqual(Outcome.Exploded, DerelictRecovery.Roll(Player, d, new FixedRandom(0.21, 0.09)), "while one under a tenth blows it up");
+        Draws(d, Player, (recovery, _) => recovery is > 0.15f and < 0.19f);
+        AssertEqual(Outcome.Recovered, DerelictRecovery.Roll(Player, d), "a draw under the chance recovers the ship");
+        Draws(d, Player, (recovery, catastrophe) => recovery is > 0.21f and < 0.25f && catastrophe is > 0.11f and < 0.15f);
+        AssertEqual(Outcome.BrokenApart, DerelictRecovery.Roll(Player, d), "one over it fails, and a second draw over a tenth breaks the derelict apart");
+        Draws(d, Player, (recovery, catastrophe) => recovery is > 0.21f and < 0.25f && catastrophe < 0.09f);
+        AssertEqual(Outcome.Exploded, DerelictRecovery.Roll(Player, d), "while one under a tenth blows it up");
+    }
+
+    [TestMethod]
+    public void EachEmpireHasItsOwnDrawsForADerelictTheSameAfterAReload()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        Derelict other = Forms(Wreck + new Vector2(0f, 5_000f), health: 0.4f);
+        Assert.AreNotEqual(Player.LuckSeed, Enemy.LuckSeed, "each empire picks a luck seed of its own as it is made");
+        (float recovery, float catastrophe) = DerelictRecovery.Draws(Player, d);
+        Assert.IsTrue(recovery is >= 0f and < 1f && catastrophe is >= 0f and < 1f, "from which it draws from 0 to 1 for a derelict");
+        Assert.AreNotEqual(DerelictRecovery.Draws(Player, other), (recovery, catastrophe), "other draws for another derelict");
+        Assert.AreNotEqual(DerelictRecovery.Draws(Enemy, d), (recovery, catastrophe), "and another empire its own for the same one");
+        PropertyInfo seed = typeof(Empire).GetProperty(nameof(Empire.LuckSeed))!;
+        seed.SetValue(Player, 0);
+        seed.SetValue(Enemy, 0);
+        Assert.AreNotEqual(DerelictRecovery.Draws(Enemy, d), DerelictRecovery.Draws(Player, d), "even with no seed, as in a save made before it, by the empires' ids");
+        seed.SetValue(Player, 1234);
+        Player.data.SelectedTraitSet = "";
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Derelict again = loaded.UState.Derelicts.Current.First(x => x.Id == d.Id);
+        AssertEqual(1234, loaded.UState.Player.LuckSeed, "a save keeps the empire's luck seed");
+        Assert.AreEqual(DerelictRecovery.Draws(Player, d), DerelictRecovery.Draws(loaded.UState.Player, again), "so the player's draws are the same after a reload");
+        AssertEqual(DerelictRecovery.Roll(Player, d), DerelictRecovery.Roll(loaded.UState.Player, again), "so its roll comes out the same after a reload");
     }
 
     [TestMethod]
     public void TheRollComesWithTheLastOfTheWorkAndASuccessRaisesTheDerelict()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        RollsWith(Player, 0.0);
+        Succeeds(d);
         SalvageDerelict order = OneTurnOfWorkLeft(d);
         Assert.IsFalse(order.RecoverySucceeded, "no roll while work is left");
 
@@ -573,7 +598,7 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsFalse(WreckSystem.Derelicts.ContainsRef(d), "and leaves its system");
         d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
         AssertEqual(0.01f, depth * 0.5f, d.Z, "it rises evenly");
-        RollsWith(Player, 0.99, 0.99);
+        BreaksApart(d);
         Turns(order, 1);
         Assert.IsTrue(order.RecoverySucceeded && !order.Finished && Player.AI.HasGoal(g => g == order), "rolling no more, its order standing as it rises");
         d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
@@ -583,7 +608,7 @@ public class SalvageRecoveryTests : StarDriveTest
     // the player's recovery whose last turn of work rolled a success, the derelict now rising for its ship
     SalvageDerelict RolledASuccess(Derelict d)
     {
-        RollsWith(Player, 0.0);
+        Succeeds(d);
         SalvageDerelict order = OneTurnOfWorkLeft(d);
         Turns(order, 1);
         Assert.IsTrue(order.RecoverySucceeded, "setup: the roll succeeds");
@@ -834,7 +859,7 @@ public class SalvageRecoveryTests : StarDriveTest
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         SalvageDerelict order = OneTurnOfWorkLeft(d);
-        RollsWith(Player, 0.99, 0.99);
+        BreaksApart(d);
         Turns(order, 1);
         Assert.IsTrue(d.BrokenApart, "setup: the roll broke it apart");
         Assert.IsFalse(UState.Derelicts.AnyMayComeBackAs("Dreadnought mk1-a"), "a derelict that will never come back keeps no design");
@@ -930,7 +955,7 @@ public class SalvageRecoveryTests : StarDriveTest
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         SalvageDerelict order = OneTurnOfWorkLeft(d);
-        RollsWith(Player, 0.99, 0.99);
+        BreaksApart(d);
         var notes = Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
 
         Turns(order, 1);
@@ -959,7 +984,7 @@ public class SalvageRecoveryTests : StarDriveTest
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         SalvageDerelict order = OneTurnOfWorkLeft(d);
-        RollsWith(Player, 0.99, 0.99);
+        BreaksApart(d);
         Turns(order, 1);
         Assert.IsTrue(order.RecoveryFailed, "setup: the roll failed");
 
@@ -981,7 +1006,7 @@ public class SalvageRecoveryTests : StarDriveTest
     public void ASuccessfulRollEndsTheWorksEffect()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        RollsWith(Player, 0.0);
+        Succeeds(d);
         SalvageDerelict order = OneTurnOfWorkLeft(d);
         SeesTheWork(order, d);
         Turns(order, 1);
@@ -993,7 +1018,7 @@ public class SalvageRecoveryTests : StarDriveTest
     public void TheTurnThatFinishesTheWorkSendsNoShuttles()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        RollsWith(Player, 0.0);
+        Succeeds(d);
         SalvageDerelict order = OneTurnOfWorkLeft(d);
         Ship platform = order.Platform;
         SeesTheWork(order, d);
@@ -1013,7 +1038,7 @@ public class SalvageRecoveryTests : StarDriveTest
         Derelict d = Forms(Wreck, health: 0.4f);
         SalvageDerelict order = OneTurnOfWorkLeft(d);
         SeesTheWork(order, d);
-        RollsWith(Player, 0.99, 0.99);
+        BreaksApart(d);
         Turns(order, 1);
         Assert.IsTrue(order.RecoveryFailed, "setup: the roll fails");
         Assert.IsFalse(d.RecoveryEffectsShown, "and the work's effect ends with it");
@@ -1030,7 +1055,7 @@ public class SalvageRecoveryTests : StarDriveTest
         float health = near.Health;
         near.SetLastDamagedBy(platform); // as if a shot had just hit it
 
-        RollsWith(Player, 0.99, 0.0);
+        Explodes(d);
         Turns(order, 1);
         Assert.IsFalse(UState.Derelicts.Current.ContainsRef(d), "a roll over the chance, and a second one under a tenth, blow the derelict up");
         Assert.IsFalse(d.CanBeSalvaged, "so a panel still holding it shows it no more");
