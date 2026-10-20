@@ -35,7 +35,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public int BreakInDone { get; private set; }
         // its roll broke the derelict apart, so its platform's work is over
         [StarData] public bool RecoveryFailed { get; private set; }
-        // its roll succeeded, and the recovery holds there
+        // its roll succeeded: the derelict rises for its ship, which takes its place
         [StarData] public bool RecoverySucceeded { get; private set; }
         [StarData] int DismantleTurnsLeft;
         // its derelict's techs and whole production, kept for the loads sent once the derelict has sunk away
@@ -53,7 +53,10 @@ namespace Ship_Game.Commands.Goals
         Ship LastStation;
 
         // its platform's work is over: it sends its station all it holds, then takes itself apart
-        public bool Finished => Emptied || CalledOff || RecoveryFailed;
+        public bool Finished => Emptied || CalledOff || RecoveryFailed || Recovered;
+
+        // from any thread: the recovered ship has taken the derelict's place, which has left the list
+        public bool Recovered => RecoverySucceeded && UState.Derelicts.Find(DerelictId) == null;
 
         public bool Dismantling => DismantleTurnsLeft > 0;
 
@@ -124,6 +127,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     d.ReleaseClaim();
                     d.TryClaim(to);
+                    d.PassRecovery(from, to);
                 }
                 order.Platform = null; // its end no longer takes the platform away
                 from.AI.RemoveGoal(order);
@@ -198,7 +202,7 @@ namespace Ship_Game.Commands.Goals
             }
             if (OrderOf(empire, d) is not { } order)
                 Cancel(empire, d);
-            else if (!recover || DerelictRecovery.CanRecover(d))
+            else if (!order.RecoverySucceeded && (!recover || DerelictRecovery.CanRecover(d))) // a successful roll is past turning
                 order.TurnTo(recover);
         }
 
@@ -244,9 +248,9 @@ namespace Ship_Game.Commands.Goals
                 d.ReleaseClaim();
         }
 
-        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first or another order of its empire's has a platform at work on it, and once its platform's work is over
+        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first or another order of its empire's has a platform at work on it, while the derelict rises after a successful roll, and once its platform's work is over
         bool Stands => Owner.Universe.P.SalvageOps
-                       && (Finished || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner) && !GivesWay);
+                       && (Finished || RecoverySucceeded || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner) && !GivesWay);
 
         // an order not yet built gives way to one passed on to its empire with a platform at work on the derelict
         bool GivesWay => Platform == null
@@ -392,7 +396,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             DismantleTurnsLeft = DismantleTurns;
             platform.StartDismantling();
-            if (!RecoveryFailed)
+            if (!RecoveryFailed && !RecoverySucceeded)
                 PlayerNotifications?.AddSalvageFinishedNotification(this);
             return GoalStep.GoToNextStep;
         }
@@ -527,14 +531,14 @@ namespace Ship_Game.Commands.Goals
             return RecoveryWork >= work && Roll(platform, d);
         }
 
-        // a success holds; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up; true for the catastrophe; the work's parts rise with the derelict as they shrink away, fade out as a finished build's, or go at once in the blast
+        // a success raises the derelict for its ship, which ends the platform's work once it takes the derelict's place; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up; true for the catastrophe; the work's parts rise with the derelict as they shrink away, fade out as a finished build's, or go at once in the blast
         bool Roll(Ship platform, Derelict d)
         {
             switch (DerelictRecovery.Roll(Owner, d, Owner.Random))
             {
                 case DerelictRecovery.Outcome.Recovered:
                     RecoverySucceeded = true;
-                    UState.Derelicts.Rise(d);
+                    UState.Derelicts.Rise(d, Owner);
                     UState.Screen.RiseConstructionParts(platform.Id, Derelict.RiseSeconds, d.RestDepth / Derelict.RiseSeconds);
                     return false;
                 case DerelictRecovery.Outcome.BrokenApart:

@@ -60,8 +60,21 @@ public sealed class Derelicts
 
     int CountSalvageable() => Items.Count(d => d.CanBeSalvaged);
 
-    // the drifting cap counts only the ones with a model: a wreck nobody can see costs nothing
-    int CountDriftingInScene() => Items.Count(d => !d.CanBeSalvaged && d.InScene);
+    // the drifting cap counts only the ones with a model: a wreck nobody can see costs nothing, and one rising for its ship is not drifting
+    int CountDriftingInScene() => Items.Count(d => !d.CanBeSalvaged && !d.RisingForItsShip && d.InScene);
+
+    // from any thread: a derelict of the design that may yet come back as a ship, salvageable or rising for its ship and not a station, which keeps the design from being overwritten or deleted
+    public bool AnyMayComeBackAs(string designName)
+    {
+        Derelict[] current = Current;
+        for (int i = 0; i < current.Length; ++i)
+        {
+            Derelict d = current[i];
+            if ((d.CanBeSalvaged || d.RisingForItsShip) && DerelictRecovery.CanRecover(d) && d.Design.Name == designName)
+                return true;
+        }
+        return false;
+    }
 
     // the percent chance of a derelict death, lowered by the salvageable derelicts' share of their limit, to none at it
     public float Chance
@@ -210,12 +223,13 @@ public sealed class Derelicts
         }
     }
 
-    // on the sim thread: a successful recovery raises it, heard where the player sees it
-    public void Rise(Derelict d)
+    // on the sim thread: a successful recovery raises it for the empire, heard where the player sees it, and it leaves its system at once
+    public void Rise(Derelict d, Empire empire)
     {
         lock (Sync)
         {
-            d.Rise();
+            d.Rise(empire);
+            Leave(d);
             if (d.OnScreen)
                 d.Sound(Derelict.RecoveredSound);
         }
@@ -258,8 +272,10 @@ public sealed class Derelicts
             empires[i].DerelictSystems.Remove(system);
     }
 
+    // on the sim thread; one risen for its ship leaves the list with its model, and its ship is made after the lock, as a new ship joins its empire's lists
     public void Update(FixedSimTime timeStep)
     {
+        Array<(Derelict Derelict, SceneObject Model)> risen = null;
         lock (Sync)
         {
             bool removed = false;
@@ -267,7 +283,14 @@ public sealed class Derelicts
             {
                 for (int i = Items.Count - 1; i >= 0; --i)
                 {
-                    if (!Items[i].Update(timeStep))
+                    Derelict d = Items[i];
+                    bool stays = d.Update(timeStep);
+                    if (stays && d.Risen)
+                    {
+                        (risen ??= new()).Add((d, d.TakeModel()));
+                        stays = false;
+                    }
+                    if (!stays)
                     {
                         Items.RemoveAt(i);
                         removed = true;
@@ -280,6 +303,8 @@ public sealed class Derelicts
                     Publish();
             }
         }
+        for (int i = 0; risen != null && i < risen.Count; ++i)
+            risen[i].Derelict.BringBackShip(risen[i].Model);
     }
 
     // a derelict whose design is gone from the game is left out

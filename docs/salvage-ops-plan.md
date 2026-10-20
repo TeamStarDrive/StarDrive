@@ -700,7 +700,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
     its own small death blast its owner's (578 A). One notification tells of it (133, 155, 526 A, 527 A; part 5);
   - a success brings the derelict up from its rest depth to a ship's depth, evenly over 3 seconds (576 C), with the
     Afterburner sound where the player sees it (586 H), running on past the rise and fading out over its last 2
-    seconds to end at 6 (587 C, a file of its own, 589 A), and the recovery holds there until part 4 makes the ship.
+    seconds to end at 6 (587 C, a file of its own, 589 A), and the ship takes its place as it reaches that depth (595 A;
+    see The recovered ship).
 - **On the panel and in the derelicts window (523, 524, 534 A, 535 A, 549-553):** during a recovery the tech icons
   give way to a yellow bar of the work done, with its percent rounded down, on the panel and in the window's
   Technologies column, from the order on, at 0% until the work starts; the tech count stays. On the platform's own
@@ -733,24 +734,50 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   roll (576 C).
 - **No hull unlock (471, 514 A):** recovery never unlocks the ship's hull. Scrapping the recovered ship at a shipyard
   runs the game's reverse-engineering roll, or advances the hull's tech by 25% when it is not researched.
-- **The recovered ship (126, 134, 146, 147, 158, 164, 575):** it appears where the derelict rests, facing the same way,
-  at a ship's normal depth, which the derelict rose to after the roll (576 C), not its sunken one, and the platform
-  comes apart as after a salvage.
+- **The recovered ship (126, 134, 146, 147, 158, 164, 575; Gilad, 2026-10-20, 595-603):** it appears where the derelict
+  rests, facing the same way, at a ship's normal depth, which the derelict rose to after the roll (576 C), not its
+  sunken one, as the rise ends 3 seconds after the roll: it takes the derelict's place in the same frame, its model
+  and all, and the platform comes apart as after a salvage from the next turn, without the salvage notification (595 A).
   - repair modules, external armour and engines are dead. A repair module is any module with a repair value except
     a command module: Main Engineering, repair-drone bays, Construction Array and the like (174). `RepairRate`
-    sums every module with a repair value, command modules included;
+    sums every module with a repair value, command modules included, and a dead one still gives a tenth of its repair,
+    as in any ship (`ShipStats`). Main Engineering, a reactor too, dies as well, so a design whose only reactor it is
+    (vanilla's Dodaving mk1-d, mk1-e, mk2-a, mk2-b and mk3) comes back without power, dark, its command modules
+    repairing at a tenth until Main Engineering works again (605 B);
+  - an engine is a module of the Engine type, `Is(ShipModuleType.Engine)`, vanilla's 18 (600 A); armour is
+    `Is(ShipModuleType.Armor)`, and external armour is armour on the hull's outer edge as designed, the game's
+    external flag at full health, so the armour the dead edge exposes stays at 2% (601 A);
   - armour in internal slots is at 2% health;
   - every other module is at 4% health, command modules included;
-  - the next module loss may destroy it, and that is accepted;
+  - a module that comes back alive keeps at least 1 health, below which the game kills a module a second later, so
+    a small one in a mod, such as a Combined Arms conduit of 20, comes back at 1 (604 A);
+  - the modules die quietly, with no blasts, debris or sounds and no death check as the ship appears, so a design
+    whose dead modules take half its internal slots comes back below the game's 50% line, and its next module loss
+    destroys it; the next module loss may destroy it, and that is accepted;
   - it comes back at crew level 0, keeps its name and joins no fleet, with no ordnance, no troops and empty hangars,
-    which its bays and supply refill as usual;
+    which its bays and supply refill as usual; its shields and stored power are empty, recharging as usual (603 A).
+    The derelict saves the ship's name at its death for it;
+  - it appears dark, and its lights flicker on over 2 seconds as a refinery's do once it has power for a second, as
+    any ship's after its power fails, about the time the success sound fades (596 C);
+  - every module is below the game's 15% fire line, so it burns and smokes all over until repair takes each past 15%,
+    and the derelict's smoke ends as it appears;
   - the empire whose ship it was is not told and does not mind.
+- **During the rise (597 B, 598 A, 599 A):** the derelict can no longer be salvaged and leaves its system's list, but
+  stays selected, its panel and its row in the derelicts window showing the recovery's full bar with no buttons, so
+  nothing switches or calls off a recovery whose roll succeeded; its tooltip shows no turns left. If the derelict is
+  still selected as the ship appears, the ship is selected in its place when it is the player's, and a rival's
+  derelict is deselected (606 A). Once the roll succeeds the ship is the
+  empire's: it comes even if the platform or the station is lost during the rise, passing on with an order passed
+  on then, and an empire gone by then gets nothing, the derelict sinking away as one whose turns ran out.
 - **How it gets home:**
-  - Command modules carry repair (vanilla: Bridge 500, CIC 1200, Cockpit 200) and work at full rate at 4%, so repair
-    brings the engines back.
-  - The recovery orders the trip home, to the nearest planet that repairs, for the player and the AI alike (175).
-    The resupply logic would not send it on its own: `ResupplyNeededLowHealth` (`ShipResupply.cs:141`) reads the
-    share of live internal slots, not their health, and every internal module is alive at 2-4%.
+  - Command modules carry repair (vanilla: Bridge 500, CIC 1200, Cockpit 200) and work at full rate at 4% while
+    powered, a tenth without, so repair brings the engines back.
+  - The recovery orders the trip home, to the nearest planet that repairs, for the player and the AI alike (175):
+    the nearest of the empire's planets with ship repair, a safe one first, as a damaged ship's resupply picks the
+    nearest safe planet (602 A); in vanilla every colony repairs (an Outpost 20, a Capital or Space Port 40, more with
+    the colony's level). With none it waits where it is. The resupply logic would not send it on its own:
+    `ResupplyNeededLowHealth` (`ShipResupply.cs:141`) reads the share of live internal slots, not their health, and
+    every internal module is alive at 2-4%.
   - A design with no repair at all (possible in mods) gets its engines at 1% instead.
   - Some stations may carry repair drones, per design.
 
@@ -1066,6 +1093,41 @@ Implementation notes:
    - the roll comes with the last of the work rather than the turn after it (593, Gilad, 2026-10-20), so the
      tooltip's turns left no longer add a turn for it, but for a recovery with no work left, and the Codex says so;
      that turn sends no shuttles and starts no effect, the outcome showing at once (594 A).
+
+   Part 4 (Gilad, 2026-10-20; 595-603, after a preview page of the lights in
+   BlackBoxPlus-references\previews\s5p4):
+   - the ship takes the derelict's place as its rise ends, with its model, and the order's work is over then, so the
+     platform comes apart without the salvage notification; the success's hold is gone, and with it the turn left in
+     its tooltip and a Breaking in after a turn to salvage and back, which nothing can do once the roll succeeds
+     (595 A);
+   - the damage of 174, read as an engine of the Engine type and armour on the hull's outer edge as designed (600 A,
+     601 A), its shields and stored power empty (603 A), its lights flickering on (596 C), its name saved with the
+     derelict, and the order home to the nearest planet that repairs (602 A);
+   - during the rise the panel shows the full bar with no buttons and the selection passes to the ship (597 B, 598 A);
+     the ship comes for the empire whatever happens to the platform, passes on with the order, and an empire gone by
+     then gets nothing (599 A);
+   - Codex 100093 gains the recovered ship;
+   - review (604-613): a module alive keeps at least 1 health (604 A); Main Engineering stays dead, the Codex telling
+     of a ship whose only reactor it is coming back dark (605 B); the selection passes only to the player's own ship
+     (606 A); the ship's strength is read again with its damage (607 A); a ship that cannot be made, or fails to,
+     leaves its derelict to sink, logged, and the other derelicts risen that frame still get theirs (609 A, 610 A);
+     the Codex says a safe planet first (611 A); armor spelled as the code spells it (612 A); tests of the 1 health,
+     the design's repair, the 3 seconds and an order saved after its ship appeared (613 A). Logged, not fixed: the
+     model blinks out for the one frame before the new ship knows it is on screen (608); during the rise the bar's
+     tooltip (7206) still says losing the platform loses the work, and a platform lost then still tells of its loss
+     (part 5); after a recovery the platform's status reads Salvage finished, as after a failed one (part 5); the
+     derelicts window keeps a recovered derelict's row, back to its tech icons; a content reload in the frame the ship
+     appears could miss its model;
+   - then (Gilad, 2026-10-20; 614-617): a derelict rising for its ship no longer counts toward the drifting cap, which
+     would refuse a ship dying on screen in those 3 seconds a drifting derelict at the cap's edge (614 A); a design
+     cannot be overwritten or deleted while a derelict of it may yet come back as a ship, one that can be salvaged or
+     rises for its ship and is not a station, as with a ship of it in the universe (615 A, 617 A), with texts 7211 and
+     7212 that name the derelict (616 A); Codex 100207 adds the derelict to the names a design cannot take;
+   - review of the fixes: a ship that fails halfway is taken out of the universe again, its model handed over only
+     at the very end; the Codex says the command modules repair at full rate while they are powered, as each module's
+     power decides; the Russian and Ukrainian texts call a design a дизайн, as the design screen does. Logged for
+     part 5: the order's `Recovered` is also true when no ship could be made, so the recovery's notification must
+     follow the ship's arrival, not `Recovered` alone.
 6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors

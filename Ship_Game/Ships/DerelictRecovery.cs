@@ -3,10 +3,11 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Utils;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the chance to recover a derelict ship, by its hull's role, raised or lowered by the recovering race's engineers and lowered by the share of it already stripped, and the share of the failed recoveries that explode
+// the chance to recover a derelict ship, by its hull's role, raised or lowered by the recovering race's engineers and lowered by the share of it already stripped, the share of the failed recoveries that explode, and the damage a recovered ship comes back with
 public static class DerelictRecovery
 {
     // percent of the failed recoveries that explode, before the engineers
@@ -79,6 +80,42 @@ public static class DerelictRecovery
         int work = left > 0f ? (int)Math.Ceiling(left / speed) : 1;
         return breakIn + work;
     }
+
+    // a recovered ship's modules come back at these shares of their health: its armor inside the hull's edge, and every module neither dead nor armor, command modules too
+    public const float InternalArmorHealth = 0.02f;
+    public const float ModuleHealth = 0.04f;
+    // the engines of a design with no repair at all, which come back at this share instead of dead, so it can still fly home
+    public const float EnginesHealthWithoutRepair = 0.01f;
+
+    // a module with a repair value other than a command module's, such as Main Engineering, a Construction Array or a repair drone bay
+    public static bool IsRepairModule(ShipModule m) => m.IsRepairModule || m.BonusRepairRate > 0f && !m.IsCommandModule;
+
+    // a design repairs when any of its modules has a repair value, a command module's too
+    public static bool DesignRepairs(ShipModule[] modules)
+    {
+        for (int i = 0; i < modules.Length; ++i)
+            if (modules[i].BonusRepairRate > 0f)
+                return true;
+        return false;
+    }
+
+    // the share of its health a recovered ship's module comes back at: its repair modules, engines and the armor on the hull's edge as designed dead, its other armor and every other module barely alive
+    public static float HealthOnRecovery(ShipModule m, bool designRepairs)
+    {
+        if (m.Is(ShipModuleType.Engine))
+            return designRepairs ? 0f : EnginesHealthWithoutRepair;
+        if (IsRepairModule(m))
+            return 0f;
+        if (m.Is(ShipModuleType.Armor))
+            return m.IsExternal ? 0f : InternalArmorHealth;
+        return ModuleHealth;
+    }
+
+    // the nearest of the empire's planets that repairs ships, a safe one first, as a damaged ship resupplies at the nearest safe planet; none with no such planet
+    public static Planet RepairPlanet(Empire empire, Vector2 position)
+        => empire.SafePlanets.FindClosestTo(position, Repairs) ?? empire.UnsafePlanets.FindClosestTo(position, Repairs);
+
+    static bool Repairs(Planet p) => p.TotalRepair > 0f;
 
     static float Engineers(Empire empire) => empire.RaceEngineers;
 

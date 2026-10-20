@@ -1,12 +1,15 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
+using SynapseGaming.LightingSystem.Rendering;
 using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
 using Outcome = Ship_Game.Ships.DerelictRecovery.Outcome;
 using Kind = Ship_Game.Ships.DerelictSalvageButton.Kind;
@@ -25,7 +28,11 @@ namespace UnitTests.Ships;
 /// stripped; of the failures, 10% times 1 minus the engineers explode. A recovering platform breaks in for 10 turns at
 /// any pace, then works at twice the salvage speed through the share of health the ship lost at its death times its
 /// slots at the production pace, plus a tenth, times 1 minus the engineers, and rolls as the last of it is done, or the
-/// turn after the break-in with none to do, holding on a success. Turning the
+/// turn after the break-in with none to do. A success raises the derelict, its panel showing the work done with no
+/// buttons, and at a ship's depth its ship takes its place for the empire that recovered it, under its name, with a new
+/// crew, its repair modules, engines and the armor on its edge dead, its other armor at 2% and all else at 4%, with no
+/// ordnance, troops, power or shields, dark until its lights flicker on, and heads for its empire's nearest planet that
+/// repairs; the selection passes to it, and with that empire gone the derelict sinks away instead. Turning the
 /// order to salvage keeps the work but a later recovery breaks in again; saves and passing on keep both. A rival's
 /// recovery reads Recovering throughout, its break-in unshown.
 /// </summary>
@@ -57,10 +64,12 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     // a salvageable derelict of the player's, so the player knows of it, its ship dead with this share of its health; the ship itself is gone
-    Derelict Forms(Vector2 at, string design = "Dreadnought mk1-a", float health = 1f)
+    Derelict Forms(Vector2 at, string design = "Dreadnought mk1-a", float health = 1f, string name = null)
     {
         TestShip ship = SpawnShip(design, Player, at);
         ship.Health = ship.HealthMax * health;
+        if (name != null)
+            ship.VanityName = name;
         Assert.IsTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false), "setup: a salvageable derelict");
         Universe.InvokePendingSimThreadActions();
         ship.QueueTotalRemoval();
@@ -548,7 +557,7 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheRollComesWithTheLastOfTheWorkAndASuccessHolds()
+    public void TheRollComesWithTheLastOfTheWorkAndASuccessRaisesTheDerelict()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         RollsWith(Player, 0.0);
@@ -560,20 +569,360 @@ public class SalvageRecoveryTests : StarDriveTest
         Turns(order, 1);
         AssertEqual(1f, DerelictRecovery.Progress(Player, d, order.RecoveryWork), "the last turn's work done");
         Assert.IsTrue(order.RecoverySucceeded, "and the same turn a roll under the chance succeeds");
+        Assert.IsFalse(d.CanBeSalvaged, "so the derelict can no longer be salvaged");
+        Assert.IsFalse(WreckSystem.Derelicts.ContainsRef(d), "and leaves its system");
         d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
-        AssertEqual(0.01f, depth * 0.5f, d.Z, "and the derelict rises evenly");
-        d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
-        AssertEqual(0f, d.Z, "to a ship's depth over a few seconds");
+        AssertEqual(0.01f, depth * 0.5f, d.Z, "it rises evenly");
         RollsWith(Player, 0.99, 0.99);
         Turns(order, 1);
-        d.Update(Seconds(1f));
-        Assert.IsTrue(d.CanBeSalvaged && d.Claimant == Player && d.Z == 0f, "where the recovery holds, rolling no more");
+        Assert.IsTrue(order.RecoverySucceeded && !order.Finished && Player.AI.HasGoal(g => g == order), "rolling no more, its order standing as it rises");
+        d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
+        AssertEqual(0f, d.Z, "to a ship's depth over a few seconds");
+    }
+
+    // the player's recovery whose last turn of work rolled a success, the derelict now rising for its ship
+    SalvageDerelict RolledASuccess(Derelict d)
+    {
+        RollsWith(Player, 0.0);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
+        Turns(order, 1);
+        Assert.IsTrue(order.RecoverySucceeded, "setup: the roll succeeds");
+        return order;
+    }
+
+    // the derelict rises the rest of the way, and its ship takes its place
+    Ship RisesForItsShip(Derelict d)
+    {
+        UState.Derelicts.Update(Seconds(Derelict.RiseSeconds));
+        Assert.IsNotNull(d.RecoveredAs, "setup: the ship takes the derelict's place");
+        return d.RecoveredAs;
+    }
+
+    [TestMethod]
+    public void TheShipTakesTheDerelictsPlaceAsItReachesAShipsDepth()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f, name: "Vigilant Dawn");
+        typeof(Derelict).GetProperty(nameof(Derelict.RotationZ))!.SetValue(d, 2f);
+        Player.data.BaseShipLevel = 3;
+        SalvageDerelict order = RolledASuccess(d);
+        var notes = Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+
+        UState.Derelicts.Update(Seconds(1.5f));
+        Assert.IsNull(d.RecoveredAs, "no ship while the derelict rises");
+        Assert.IsTrue(UState.Derelicts.Current.ContainsRef(d) && !order.Finished, "which stays, its order standing");
+        UState.Derelicts.Update(Seconds(1.5f));
+        Ship ship = d.RecoveredAs;
+        Assert.IsNotNull(ship, "as it reaches a ship's depth, 3 seconds after the roll, its ship takes its place");
+        Assert.IsFalse(UState.Derelicts.Current.ContainsRef(d), "and the derelict is gone");
+        AssertEqual("Dreadnought mk1-a", ship.Name, "the ship of its design");
+        AssertEqual(Player, ship.Loyalty, "the recovering empire's");
+        AssertEqual(d.Position, ship.Position, "where it lay");
+        AssertEqual(2f, ship.Rotation, "facing its way");
+        AssertEqual("Vigilant Dawn", ship.VanityName, "under its name");
+        AssertEqual(0, ship.Level, "with a new crew");
+        Assert.IsNull(d.Claimant, "the derelict given up");
+
+        Assert.IsTrue(order.Finished, "the platform's work is over");
+        Turns(order, 1);
+        Assert.IsTrue(order.Dismantling, "and it takes itself apart");
+        AssertEqual(0, notes.NumberOfNotifications, "which does not tell of a salvage's end");
+    }
+
+    [TestMethod]
+    public void TheShipComesBackDamagedWithNoOrdnanceTroopsPowerOrShields()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        Ship ship = RisesForItsShip(d);
+        Assert.IsTrue(ResourceManager.GetShipTemplate("Dreadnought mk1-a", out Ship designed), "setup: the design as built");
+
+        float Share(ShipModule m) => m.Health / m.ActualMaxHealth;
+        ShipModule[] modules = ship.Modules;
+        int engines = 0, edge = 0, inner = 0, exposed = 0;
+        for (int i = 0; i < modules.Length; ++i)
+        {
+            ShipModule m = modules[i];
+            if (m.ModuleType == ShipModuleType.Engine)
+            {
+                ++engines;
+                Assert.IsTrue(!m.Active && m.Health == 0f, $"its engines dead: {m.UID}");
+            }
+            else if (m.ModuleType == ShipModuleType.Armor && designed.Modules[i].IsExternal)
+            {
+                ++edge;
+                Assert.IsTrue(!m.Active && m.Health == 0f, $"its armor on the hull's edge as designed dead: {m.UID}");
+            }
+            else if (m.ModuleType == ShipModuleType.Armor)
+            {
+                ++inner;
+                AssertEqual(0.0001f, 0.02f, Share(m), $"its other armor at 2%: {m.UID}");
+                if (m.IsExternal)
+                    ++exposed;
+            }
+        }
+        Assert.IsTrue(engines > 0 && edge > 0 && inner > 0, "setup: the design has engines and armor on and inside its edge");
+        AssertGreaterThan(exposed, 0, "the armor under its dead edge now on the outside");
+        AssertEqual(0f, ship.MaxSTLSpeed, "it cannot move until its engines are repaired");
+        ShipModule bridge = modules.First(m => m.UID == "Bridge");
+        Assert.IsTrue(bridge.Active, "its command module alive");
+        AssertEqual(0.0001f, 0.04f, Share(bridge), "at 4%");
+        AssertEqual(0.0001f, 0.04f, Share(modules.First(m => m.UID == "Extreme Fusion Reactor")), "as every other module");
+        Assert.IsTrue(ship.Active, "the ship alive");
+
+        AssertGreaterThan(ship.OrdinanceMax, 0f, "setup: it holds ordnance");
+        AssertEqual(0f, ship.Ordinance, "with none aboard");
+        AssertGreaterThan(ship.TroopCapacity, 0, "setup: it holds troops");
+        AssertEqual(0, ship.TroopCount, "with none aboard");
+        AssertGreaterThan(ship.PowerStoreMax, 0f, "setup: it stores power");
+        AssertEqual(0f, ship.PowerCurrent, "with none stored");
+        AssertGreaterThan(ship.ShieldMax, 0f, "setup: it has shields");
+        AssertEqual(0f, ship.ShieldPower, "empty");
+        AssertLessThan(ship.GetStrength(), ship.BaseStrength, "its strength that of the damaged ship");
+    }
+
+    [TestMethod]
+    public void AModuleThatComesBackAliveKeepsAtLeastOneHealth()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        Ship ship = RisesForItsShip(d);
+        ShipModule reactor = ship.Modules.First(m => m.UID == "Extreme Fusion Reactor");
+        reactor.SetRecoveredHealth(0.5f / reactor.ActualMaxHealth);
+        AssertEqual(1f, reactor.Health, "a module whose share would leave it under 1 health keeps 1");
+        reactor.Update(Seconds(1f));
+        Assert.IsTrue(reactor.Active, "so it stays alive past its next update");
+    }
+
+    [TestMethod]
+    public void RepairModulesComeBackDeadAndADesignWithNoRepairGetsItsEnginesBarelyAlive()
+    {
+        ShipModule engineering = ResourceManager.GetModuleTemplate("Main Engineering");
+        ShipModule engine = ResourceManager.GetModuleTemplate("CapEngines");
+        ShipModule bridge = ResourceManager.GetModuleTemplate("Bridge");
+        AssertEqual(0f, DerelictRecovery.HealthOnRecovery(engineering, designRepairs: true), "a repair module other than a command module comes back dead");
+        AssertEqual(0.04f, DerelictRecovery.HealthOnRecovery(bridge, designRepairs: true), "a command module at 4%, whatever its repair");
+        AssertEqual(0f, DerelictRecovery.HealthOnRecovery(engine, designRepairs: true), "the engines dead while the design repairs");
+        AssertEqual(0.01f, DerelictRecovery.HealthOnRecovery(engine, designRepairs: false), "and at 1% when it has no repair at all");
+
+        ShipModule reactor = ResourceManager.GetModuleTemplate("Extreme Fusion Reactor");
+        Assert.IsFalse(DerelictRecovery.DesignRepairs(new[] { engine, reactor }), "a design of modules with no repair value has no repair");
+        Assert.IsTrue(DerelictRecovery.DesignRepairs(new[] { engine, reactor, bridge }), "while a command module's repair counts");
+        Assert.IsTrue(DerelictRecovery.DesignRepairs(new[] { engine, engineering }), "as does a repair module's");
+    }
+
+    [TestMethod]
+    public void TheShipHeadsForItsEmpiresNearestPlanetThatRepairs()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        Planet near = AddDummyPlanetToEmpire(Wreck + new Vector2(40_000f, 0f), Player);
+        Planet far = AddDummyPlanetToEmpire(Wreck + new Vector2(120_000f, 0f), Player);
+        foreach (Planet p in Player.GetPlanets())
+            p.TotalRepair = 0f;
+        far.TotalRepair = 20f;
+        Player.UpdateRallyPoints();
+        Assert.IsTrue(near.Position.Distance(Wreck) < far.Position.Distance(Wreck), "setup: the planet with no repair is nearer");
+
+        RolledASuccess(d);
+        Ship ship = RisesForItsShip(d);
+        AssertEqual(AIState.Resupply, ship.AI.State, "the ship heads off to be repaired");
+        AssertEqual(far, ship.AI.OrbitTarget, "at the nearest planet that repairs");
+    }
+
+    [TestMethod]
+    public void AsItRisesThePanelShowsTheWorkDoneWithNoButtonsAndNothingTurnsTheOrder()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = RolledASuccess(d);
+        Universe.SetSelectedDerelict(d);
+        Universe.UpdateSelectedDerelict();
+        Assert.AreSame(d, Universe.SelectedDerelict, "it stays selected as it rises");
+
+        Block block = SalvageDerelict.WhyNoOrder(Player, d);
+        Assert.IsFalse(DerelictSalvageButton.Shown(Player, d, block), "with no buttons");
+        Assert.AreSame(order, DerelictSalvageButton.StandingOrder(Player, d, block), "its panel showing the recovery");
+        AssertEqual(1f, DerelictRecovery.Progress(Player, d, order.RecoveryWork), "all its work done");
+        AssertEqual(Stage.Recovering, StageOf(d), "still recovering");
+        SalvageDerelict.Switch(Player, d, recover: false);
+        Assert.IsTrue(order.Recovering, "and its order can no longer be turned to salvage");
+    }
+
+    [TestMethod]
+    public void TheSelectionPassesFromTheDerelictToItsShip()
+    {
+        Universe.ShipInfoUIElement ??= new(new SDGraphics.Rectangle(0, 0, 407, 242), Universe.ScreenManager, Universe);
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        Universe.SetSelectedDerelict(d);
+        Ship ship = RisesForItsShip(d);
+        Universe.UpdateSelectedDerelict();
+        Assert.AreSame(ship, Universe.SelectedShip, "the ship taking its place is selected");
+        Assert.IsNull(Universe.SelectedDerelict, "and the derelict no more");
+    }
+
+    [TestMethod]
+    public void TheSelectionDoesNotPassToARivalsShip()
+    {
+        Universe.ShipInfoUIElement ??= new(new SDGraphics.Rectangle(0, 0, 407, 242), Universe.ScreenManager, Universe);
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        SalvageDerelict.PassOn(Player, Enemy);
+        Universe.SetSelectedDerelict(d);
+        Ship ship = RisesForItsShip(d);
+        AssertEqual(Enemy, ship.Loyalty, "setup: a rival's ship takes its place");
+        Universe.UpdateSelectedDerelict();
+        Assert.IsNull(Universe.SelectedShip, "which is not selected");
+        Assert.IsNull(Universe.SelectedDerelict, "and the derelict no more");
+    }
+
+    [TestMethod]
+    public void AnOrderSavedAfterItsShipAppearedStillComesApartUntold()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        RisesForItsShip(d);
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
         UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
-        Assert.IsTrue(loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First().RecoverySucceeded, "through a save");
-        Assert.IsTrue(loaded.UState.Derelicts.Current.First().Rising, "the derelict still up");
+        var notes = loaded.NotificationManager = new NotificationManager(loaded.ScreenManager, loaded);
+        SalvageDerelict order = loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First();
+        Assert.IsTrue(order.Recovered && order.Finished, "its derelict gone, its platform's work is over");
+        order.Evaluate();
+        Assert.IsTrue(order.Dismantling, "so the platform takes itself apart");
+        AssertEqual(0, notes.NumberOfNotifications, "without telling of a salvage's end");
+    }
+
+    [TestMethod]
+    public void ADerelictRisingForItsShipLeavesTheDriftingCapFree()
+    {
+        int cap = GlobalStats.Defaults.MaxDriftingDerelicts;
+        try
+        {
+            GlobalStats.Defaults.MaxDriftingDerelicts = 1;
+            Derelict d = Forms(Wreck, health: 0.4f);
+            Assert.IsTrue(UState.Derelicts.TryAttachModel(d, new SceneObject("rising")), "setup: the derelict has a model");
+            RolledASuccess(d);
+            Assert.IsTrue(d.RisingForItsShip && d.InScene, "setup: it rises for its ship");
+
+            TestShip dying = SpawnShip("Dreadnought mk1-a", Player, Wreck + new Vector2(0f, 20_000f));
+            typeof(Ship).GetField("ShipSO", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(dying, new SceneObject("dying"));
+            Assert.IsTrue(UState.Derelicts.TryAdd(dying, salvageable: false, seen: true), "a ship dying on screen meanwhile still leaves a drifting derelict");
+        }
+        finally
+        {
+            GlobalStats.Defaults.MaxDriftingDerelicts = cap;
+        }
+    }
+
+    [TestMethod]
+    public void ADerelictThatMayYetComeBackAsAShipKeepsItsDesignFromBeingOverwrittenOrDeleted()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        Assert.IsTrue(UState.Derelicts.AnyMayComeBackAs("Dreadnought mk1-a"), "a salvageable derelict of the design");
+        Assert.IsFalse(UState.Derelicts.AnyMayComeBackAs("Vulcan Scout"), "only of its own design");
+        Forms(Wreck + new Vector2(0f, 5_000f), design: "Terran Basic Salvage Station");
+        Assert.IsFalse(UState.Derelicts.AnyMayComeBackAs("Terran Basic Salvage Station"), "not a station, which can only be salvaged");
+
+        RolledASuccess(d);
+        Assert.IsTrue(UState.Derelicts.AnyMayComeBackAs("Dreadnought mk1-a"), "one rising for its ship too");
+        RisesForItsShip(d);
+        Assert.IsFalse(UState.Derelicts.AnyMayComeBackAs("Dreadnought mk1-a"), "but no more once its ship has taken its place");
+    }
+
+    [TestMethod]
+    public void AFailedRecoveryNoLongerKeepsTheDesign()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
+        RollsWith(Player, 0.99, 0.99);
+        Turns(order, 1);
+        Assert.IsTrue(d.BrokenApart, "setup: the roll broke it apart");
+        Assert.IsFalse(UState.Derelicts.AnyMayComeBackAs("Dreadnought mk1-a"), "a derelict that will never come back keeps no design");
+    }
+
+    [TestMethod]
+    public void ADerelictWhoseShipCannotBeMadeSinksAway()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = RolledASuccess(d);
+        ShipDesign foreign = ((ShipDesign)d.Design).GetClone(d.Design.Name);
+        foreign.ModName = "No Such Mod";
+        typeof(Derelict).GetProperty(nameof(Derelict.Design))!.SetValue(d, foreign);
+        Universe.SetSelectedDerelict(d);
+
+        UState.Derelicts.Update(Seconds(3f));
+        Assert.IsNull(d.RecoveredAs, "a design of another mod makes no ship");
+        Assert.IsFalse(UState.Derelicts.Current.ContainsRef(d), "the derelict has left the list");
+        Assert.IsTrue(d.Sinking && !d.SelectableByPlayer, "and sinks away, no longer to be selected");
+        Universe.UpdateSelectedDerelict();
+        Assert.IsNull(Universe.SelectedDerelict, "so its panel closes");
+        Assert.IsTrue(order.Finished, "its platform's work is over");
+    }
+
+    [TestMethod]
+    public void ADerelictRisingForAnEmpireGoneSinksAwayWithNoShip()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        typeof(Empire).GetProperty(nameof(Empire.IsDefeated))!.SetValue(Player, true);
+        UState.Derelicts.Update(Seconds(Derelict.RiseSeconds));
+        Assert.IsNull(d.RecoveredAs, "no ship comes back for an empire gone");
+        Assert.IsTrue(d.Sinking, "and the derelict sinks away");
+        Assert.IsFalse(d.SelectableByPlayer, "no longer to be selected");
+    }
+
+    [TestMethod]
+    public void ARecoveryPassedOnAsTheDerelictRisesBringsItsShipToTheEmpireItPassedTo()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        SalvageDerelict.PassOn(Player, Enemy);
+        AssertEqual(Enemy, RisesForItsShip(d).Loyalty, "the ship comes back for the empire the order passed to");
+    }
+
+    [TestMethod]
+    public void ThroughASaveTheDerelictStillRisesForItsShipUnderItsName()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f, name: "Vigilant Dawn");
+        RolledASuccess(d);
+        UState.Derelicts.Update(Seconds(Derelict.RiseSeconds * 0.5f));
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsTrue(loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First().RecoverySucceeded, "the success survives a save");
+        Derelict risen = loaded.UState.Derelicts.Current.First();
+        Assert.IsTrue(risen.Rising, "and the derelict still rises");
+        loaded.UState.Derelicts.Update(Seconds(Derelict.RiseSeconds));
+        Assert.IsNotNull(risen.RecoveredAs, "its ship taking its place");
+        AssertEqual(loaded.UState.Player, risen.RecoveredAs.Loyalty, "for the empire that recovered it");
+        AssertEqual("Vigilant Dawn", risen.RecoveredAs.VanityName, "under its name");
+    }
+
+    [TestMethod]
+    public void TheShipAppearsDarkAndItsLightsFlickerOnOnceItHasPower()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        Ship ship = RisesForItsShip(d);
+        AssertEqual(0f, ship.LightLevel(0f), "dark as it appears");
+
+        var update = typeof(Ship).GetMethod("UpdateLights", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        void Powered(float seconds) => update.Invoke(ship, new object[] { new FixedSimTime(seconds), true });
+        Powered(1f);
+        Assert.IsFalse(ship.LightsOut, "its lights come on after a second of power");
+        bool dark = false, lit = false;
+        for (int i = 0; i < 19; ++i)
+        {
+            Powered(0.1f);
+            dark |= ship.LightLevel(0f) == 0f;
+            lit |= ship.LightLevel(0f) == 1f;
+        }
+        Assert.IsTrue(dark && lit, "flickering over two seconds");
+        Powered(0.2f);
+        AssertEqual(1f, ship.LightLevel(0f), "then on for good");
+        Powered(1f);
+        AssertEqual(1f, ship.LightLevel(0f), "and steady");
     }
 
     [TestMethod]

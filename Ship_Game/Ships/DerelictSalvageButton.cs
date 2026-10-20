@@ -22,9 +22,9 @@ public static class DerelictSalvageButton
     public static bool Shown(Empire player, Derelict d, Block salvageBlock)
         => salvageBlock != Block.Gone && (salvageBlock == Block.Ordered || SalvageOps.StationIn(player, d.System) != null);
 
-    // from any thread: the order standing on the derelict, read once for both buttons; none for a claim a save kept without its order
+    // from any thread: the order standing on the derelict, read once for both buttons, or the recovery whose roll raises it, with its bar full and no buttons; none for a claim a save kept without its order
     public static SalvageDerelict StandingOrder(Empire player, Derelict d, Block salvageBlock)
-        => salvageBlock == Block.Ordered ? SalvageDerelict.OrderOf(player, d) : null;
+        => salvageBlock == Block.Ordered || d.Rising ? SalvageDerelict.OrderOf(player, d) : null;
 
     // the order stands in the button's work; a claim kept without its order lights the Salvage button
     public static bool Lit(Kind kind, Block block, SalvageDerelict order)
@@ -98,12 +98,13 @@ public static class DerelictSalvageButton
         bar.Draw(batch);
     }
 
-    // the work done and all of it, the recovery speed, the break-in's turns, and the turns left in all
+    // the work done and all of it, the recovery speed, the break-in's turns, and the turns left in all, none once the roll succeeds
     public static void RecoveryTooltip(Empire empire, Derelict d, SalvageDerelict order)
     {
+        int turnsLeft = order.RecoverySucceeded ? 0 : DerelictRecovery.TurnsLeft(empire, d, order.BreakInDone, order.RecoveryWork);
         string tip = string.Format(Localizer.Token(GameText.DerelictRecoveryProgressTip), Whole(order.RecoveryWork),
                                    Whole(DerelictRecovery.Work(empire, d)), Whole(DerelictRecovery.Speed), DerelictRecovery.BreakInTurns,
-                                   DerelictRecovery.TurnsLeft(empire, d, order.BreakInDone, order.RecoveryWork));
+                                   turnsLeft);
         ToolTip.CreateTooltip(tip, codexUid: Codex.CodexHooks.Find(GameText.DerelictRecoveryProgressTip));
     }
 

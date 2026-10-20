@@ -126,8 +126,14 @@ public sealed class Derelict
     // how far a recovery's break-in has steadied it, from tumbling as it died to still and level as a ship at rest, and how far the break-in's turns so far take it; it never tumbles again
     [StarData] public float Steadiness { get; private set; }
     [StarData] float SteadyTarget;
-    // a successful recovery's roll brings it up from its rest depth to a ship's, over RiseSeconds
+    // a successful recovery's roll brings it up from its rest depth to a ship's, over RiseSeconds, for its ship to take its place
     [StarData] public bool Rising { get; private set; }
+    // the empire whose recovery raises it, which its ship comes back for
+    [StarData] public Empire RecoveredFor { get; private set; }
+    // the ship's name at its death, which a recovered ship keeps
+    [StarData] public readonly string ShipName;
+    // the ship that took its place at a ship's depth, set on the sim thread and read on the UI thread; not saved, as the derelict is gone from then on
+    public Ship RecoveredAs { get; private set; }
     public int NumSmokeSources => Smoke.Length;
     public bool InScene => So != null;
 
@@ -149,6 +155,7 @@ public sealed class Derelict
         Id = Universe.CreateId();
         Design = ship.ShipData;
         Owner = ship.Loyalty;
+        ShipName = ship.VanityName;
         Salvageable = salvageable;
         MeshOffset = ship.ShipData.BaseHull.MeshOffset;
         Radius = ship.Radius;
@@ -340,10 +347,13 @@ public sealed class Derelict
 
     public bool Stripped => Salvageable && ProductionLeft <= 0f;
 
-    public bool CanBeSalvaged => Salvageable && TurnsLeft > 0 && !Stripped && !BrokenApart;
+    public bool CanBeSalvaged => Salvageable && TurnsLeft > 0 && !Stripped && !BrokenApart && !Rising;
 
-    // the player finds on the map and selects only the salvageable ones it knows of
-    public bool SelectableByPlayer => CanBeSalvaged && KnownByPlayer;
+    // rising after a successful recovery until its ship takes its place, unless it sinks away for want of the empire that recovered it
+    public bool RisingForItsShip => Rising && RecoveredAs == null && !Sinking;
+
+    // the player finds on the map and selects only the salvageable ones it knows of, and keeps one selected as it rises for its ship
+    public bool SelectableByPlayer => (CanBeSalvaged || RisingForItsShip) && KnownByPlayer;
 
     // once a turn, on the sim thread: its timer runs down while no empire salvages it
     public void UpdateTurn()
@@ -472,12 +482,55 @@ public sealed class Derelict
         RotationZ = (RotationZ + Spin.Z * tumbling).AsNormalizedRadians();
     }
 
-    // under the list's lock, on the sim thread: a successful recovery's roll brings it up to a ship's depth, its work's effects over
-    internal void Rise()
+    // under the list's lock, on the sim thread: a successful recovery's roll brings it up to a ship's depth for the empire, its work's effects over
+    internal void Rise(Empire empire)
     {
         Rising = true;
+        RecoveredFor = empire;
         RecoveryEffectsLeft = 0f;
         RecoveredBy = null;
+    }
+
+    // on the sim thread: a recovery passed on as the derelict rises passes on the ship it rises for
+    internal void PassRecovery(Empire from, Empire to)
+    {
+        if (RecoveredFor == from)
+            RecoveredFor = to;
+    }
+
+    // under the list's lock, on the sim thread: risen to a ship's depth, it leaves the list for its ship to take its place
+    internal bool Risen => Rising && Z <= 0f && !Sinking;
+
+    // under the list's lock: its model, already in the scene, goes to the ship that takes its place, and its smoke ends
+    internal SceneObject TakeModel()
+    {
+        SceneObject so = So;
+        So = null;
+        for (int i = 0; i < Smoke.Length; ++i)
+            Smoke[i].Visual = null;
+        return so;
+    }
+
+    // on the sim thread, out of the list: its ship takes its place with its model, for the empire that recovered it, which gives up its claim; with no ship made it sinks away, its model gone
+    internal void BringBackShip(SceneObject model)
+    {
+        Ship ship = null;
+        try
+        {
+            ship = Ship.CreateRecoveredShip(Universe, this, RecoveredFor, model);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, $"Recovered ship failed for design {Design.Name}");
+        }
+        if (ship == null)
+        {
+            TurnsLeft = 0;
+            if (model != null)
+                Universe.Screen.RemoveObject(model);
+        }
+        ReleaseClaim();
+        RecoveredAs = ship;
     }
 
     static float Signed(float radians)
@@ -581,7 +634,11 @@ public sealed class Derelict
         if (Sinking)
             Z += (Stripped || BrokenApart ? StrippedSinkSpeed : SinkSpeed) * dt;
         else if (Rising)
+        {
             Z = (Z - RestDepth / RiseSeconds * dt).LowerBound(0f);
+            if (Z <= 0f && RecoveredFor is not { IsDefeated: false })
+                TurnsLeft = 0; // nobody is left to take its ship, so it sinks away as one whose turns ran out
+        }
         else if (Z < RestDepth)
             Z = (Z + RestSinkSpeed * dt).UpperBound(RestDepth);
 

@@ -6314,6 +6314,10 @@ namespace Ship_Game
         DerelictBreakingIn = 7209,
         /// <summary>{0} is recovering this derelict.</summary>
         DerelictRecoveredBy = 7210,
+        /// <summary>A derelict {0} lies in the universe and may yet come back as</summary>
+        DesignDerelictNoOverwrite = 7211,
+        /// <summary>A derelict {0} lies in the universe and may yet come back as</summary>
+        DesignDerelictNoDelete = 7212,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

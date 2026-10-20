@@ -102,6 +102,15 @@ namespace Ship_Game.Ships
             ShipSO = null;
         }
 
+        // a recovered ship takes over its derelict's model, already in the scene, before it joins the universe
+        void TakeSceneObject(SceneObject so)
+        {
+            RefreshHullSurfaceZ();
+            HullSurfaceZRefreshed = true;
+            NotVisibleToPlayerTimer = 0f;
+            ShipSO = so; // last, so the model is the ship's only once all else is done
+        }
+
         void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
             bool visibleToPlayer = forceVisible || IsVisibleToPlayer;

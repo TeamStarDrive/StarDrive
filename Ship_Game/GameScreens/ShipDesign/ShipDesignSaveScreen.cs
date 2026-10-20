@@ -268,6 +268,14 @@ namespace Ship_Game
                     return;
                 }
 
+                if (Universe.Derelicts.AnyMayComeBackAs(shipOrHullName))
+                {
+                    GameAudio.NegativeClick();
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, string.Format(Localizer.Token(GameText.DesignDerelictNoOverwrite), shipOrHullName),
+                                                                 MessageBoxButtons.Ok, MessageBoxWidth));
+                    return;
+                }
+
                 if (HelperFunctions.DesignInQueue(Screen, shipOrHullName, out string playerPlanets))
                 {
                     GameAudio.NegativeClick();
