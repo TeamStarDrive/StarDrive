@@ -244,7 +244,7 @@ namespace Ship_Game
         // a draw from 0 to 1 that is this empire's own for what it rolls, the same after every load: the key names what is rolled, such as an object's id, and the index which of its draws
         public float Luck(int key, int index)
         {
-            ulong x = Mix((ulong)(uint)LuckSeed << 32 | (uint)Id);
+            ulong x = Mix(((ulong)(uint)LuckSeed << 32) | (uint)Id);
             x = Mix(x ^ (uint)key);
             x = Mix(x ^ (uint)index);
             return (x >> 40) / (float)(1 << 24); // 24 bits make a float in [0, 1)
