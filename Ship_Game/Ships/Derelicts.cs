@@ -198,13 +198,36 @@ public sealed class Derelicts
         }
     }
 
-    // on the sim thread: a failed recovery breaks it up, and it leaves its system at once
+    // on the sim thread: a failed recovery breaks it up, heard where the player sees it, and it leaves its system at once
     public void BreakApart(Derelict d)
     {
         lock (Sync)
         {
+            if (d.OnScreen)
+                d.Sound(Derelict.GiveWaySound);
             d.BreakApart();
             Leave(d);
+        }
+    }
+
+    // on the sim thread: a successful recovery raises it, heard where the player sees it
+    public void Rise(Derelict d)
+    {
+        lock (Sync)
+        {
+            d.Rise();
+            if (d.OnScreen)
+                d.Sound(Derelict.RecoveredSound);
+        }
+    }
+
+    // on the sim thread: a recovery's break-in turn, heard where its effects show on screen
+    public void SoundBreakIn(Derelict d)
+    {
+        lock (Sync)
+        {
+            if (d.OnScreen && d.RecoveryEffectsShown)
+                d.Sound(Derelict.BreakInSound);
         }
     }
 

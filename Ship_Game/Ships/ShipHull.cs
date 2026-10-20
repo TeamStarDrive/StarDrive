@@ -74,6 +74,8 @@ namespace Ship_Game.Ships
         // camera). NaN cells = no vertex sampled. Populated lazily on first
         // LoadModel; null until the mesh is in memory.
         float[,] SurfaceMap;
+        // and the most-positive, the surface that faces the camera when the hull is upside down, as a tumbling derelict
+        float[,] BackSurfaceMap;
 
         // Lift VFX slightly toward the camera so emitters sit just above the
         // deck instead of co-planar with the mesh surface.
@@ -163,9 +165,10 @@ namespace Ship_Game.Ships
 
             int w = Size.X, h = Size.Y;
             var map = new float[w, h];
+            var back = new float[w, h];
             for (int y = 0; y < h; ++y)
                 for (int x = 0; x < w; ++x)
-                    map[x, y] = float.NaN;
+                    map[x, y] = back[x, y] = float.NaN;
 
             for (int i = 0; i < positions.Length; ++i)
             {
@@ -178,8 +181,12 @@ namespace Ship_Game.Ships
                 float current = map[gx, gy];
                 if (float.IsNaN(current) || v.Z < current)
                     map[gx, gy] = v.Z;
+                float behind = back[gx, gy];
+                if (float.IsNaN(behind) || v.Z > behind)
+                    back[gx, gy] = v.Z;
             }
 
+            BackSurfaceMap = back;
             SurfaceMap = map;
         }
 
@@ -203,6 +210,16 @@ namespace Ship_Game.Ships
                         best = z;
                 }
             return (float.IsNaN(best) ? 0f : best) + SurfaceLift;
+        }
+
+        // the same for one cell of the back surface, lifted the other way, as it faces the camera upside down
+        public float SampleBackSurfaceZ(Point pos)
+        {
+            float[,] map = BackSurfaceMap;
+            if (map == null) return -SurfaceLift;
+            if ((uint)pos.X >= (uint)map.GetLength(0) || (uint)pos.Y >= (uint)map.GetLength(1)) return -SurfaceLift;
+            float z = map[pos.X, pos.Y];
+            return (float.IsNaN(z) ? 0f : z) - SurfaceLift;
         }
 
         public ShipHull()

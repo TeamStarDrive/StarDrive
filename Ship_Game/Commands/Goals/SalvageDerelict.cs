@@ -508,13 +508,14 @@ namespace Ship_Game.Commands.Goals
                 ++BreakInDone;
                 d.SteadyTo(BreakInDone / (float)DerelictRecovery.BreakInTurns);
                 d.ShowRecoveryWork(platform, DerelictRecovery.Progress(Owner, d, RecoveryWork));
+                UState.Derelicts.SoundBreakIn(d);
                 SendShuttles(platform, d, CargoShuttles.RecoveryShuttlesFor(speed));
                 return false;
             }
             d.SteadyTo(1f); // at once after a break-in of no turns
             float work = DerelictRecovery.Work(Owner, d);
             if (RecoveryWork >= work)
-                return Roll(d);
+                return Roll(platform, d);
             if (speed <= 0f)
                 return false;
             float before = RecoveryWork;
@@ -524,21 +525,24 @@ namespace Ship_Game.Commands.Goals
             return false;
         }
 
-        // a success holds; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up; true for the catastrophe
-        bool Roll(Derelict d)
+        // a success holds; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up; true for the catastrophe; the work's parts rise with the derelict as they shrink away, fade out as a finished build's, or go at once in the blast
+        bool Roll(Ship platform, Derelict d)
         {
             switch (DerelictRecovery.Roll(Owner, d, Owner.Random))
             {
                 case DerelictRecovery.Outcome.Recovered:
                     RecoverySucceeded = true;
-                    d.Rise();
+                    UState.Derelicts.Rise(d);
+                    UState.Screen.RiseConstructionParts(platform.Id, Derelict.RiseSeconds, d.RestDepth / Derelict.RiseSeconds);
                     return false;
                 case DerelictRecovery.Outcome.BrokenApart:
                     RecoveryFailed = true;
                     UState.Derelicts.BreakApart(d);
+                    UState.Screen.ResetConstructionParts(platform.Id);
                     return false;
                 default:
                     UState.Derelicts.Explode(d);
+                    UState.Screen.RemoveConstructionParts(platform.Id);
                     return true;
             }
         }

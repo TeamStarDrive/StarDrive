@@ -683,9 +683,12 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
     for Skilled Engineers and 12% for Haphazard ones;
   - the roll comes the turn after the work reaches 100%, so the full bar shows for a turn (571 A), at the chance of
     that moment;
-  - a plain failure breaks the derelict apart as a drifting one breaks up, 3 to 5 seconds of small blasts and
-    lightning, and it sinks away at a stripped derelict's speed. Nothing is left to strip; the order ends, and the
-    platform takes itself apart over two turns as after a salvage, freeing its unit (517 A);
+  - a plain failure breaks the derelict apart as a drifting one breaks up, 3 to 5 seconds of flashes and lightning
+    on its hull but none of the small blasts, which are left to a catastrophe (585 B), with one ShipSlow sound at half
+    the break-up's volume as it gives way where the player sees it (583, 584 B), and it sinks away at a stripped
+    derelict's speed; the Codex says it breaks up without explosions (592 A). Nothing
+    is left to strip; the order ends, and the platform takes itself apart over two turns as after a salvage, freeing
+    its unit (517 A);
   - a catastrophic one makes it explode with its hull role's biggest blast, the death blast's cap
     (`Ship.ExplosionDamageCap`: 40 times its radius for a frigate, 60 for a cruiser, 80 for a battleship, 100 for
     a capital), which catches the ships near it; the ship's explosion and sound play where the player sees it, the
@@ -695,8 +698,9 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
     resistance to explosions does not lessen it, the modules it destroys do not blow up, and it clears the last
     attacker of each ship it hits, so a ship it kills is nobody's kill (577 B). The platform dies as any ship does,
     its own small death blast its owner's (578 A). One notification tells of it (133, 155, 526 A, 527 A; part 5);
-  - a success brings the derelict up from its rest depth to a ship's depth, evenly over 3 seconds (576 C), and the
-    recovery holds there until part 4 makes the ship.
+  - a success brings the derelict up from its rest depth to a ship's depth, evenly over 3 seconds (576 C), with the
+    Afterburner sound where the player sees it (586 H), running on past the rise and fading out over its last 2
+    seconds to end at 6 (587 C, a file of its own, 589 A), and the recovery holds there until part 4 makes the ship.
 - **On the panel and in the derelicts window (523, 524, 534 A, 535 A, 549-553):** during a recovery the tech icons
   give way to a yellow bar of the work done, with its percent rounded down, on the panel and in the window's
   Technologies column, from the order on, at 0% until the work starts; the tech count stays. On the platform's own
@@ -712,8 +716,14 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
 - **The visual (525 B, 547, 554):** the platform's shuttles fly each turn as in salvage, one for every 6 slots of the
   turn's work, 4 at 24, and a full turn's during the break-in, but in place of salvage's flashes and junk the derelict
   shows a station build's effect (`ConstructionShip.AddEffects`: sparks, lightning, flashes and flying parts) at the
-  recovery's progress, spreading out from its center to half its radius as the progress rises, at ship view or closer
-  as a build's.
+  recovery's progress, spreading out from its center to half its radius as the progress rises, so the break-in shows
+  a tight knot of sparks at its center (580 A), from planet view or closer, where the shuttles show (581 B). Each
+  break-in turn plays the shield static once, quietly, where the player sees the effect (583). The roll ends the
+  effect: its parts rise with the derelict and shrink away over its rise on a success (590 A), fade out as a
+  finished build's on a plain failure, and go at once in a blast. The effect sits on the hull's surface facing the
+  camera, as the derelict lies, its top or, upside down, its back (588 A), as its smoke does, since particles inside
+  the hull are hidden; so do a derelict's break-up flashes, lightning and blasts, at its death too, and its strip
+  flashes (582 A).
 - **Steadied for the work (Gilad, 2026-10-20; 570, 574, part 3):** over the break-in's turns the derelict's tumbling
   slows evenly, smoothly between turns, until it stops, and it turns level, its pitch and roll back to a ship's at
   rest and its heading kept, so it is ready to fly if recovered; its smoke goes on. Once still it stays still, also
@@ -1029,6 +1039,28 @@ Implementation notes:
      tumbling is a step the tests reach, a break-in of no turns is tested, and the ship-only overload of
      `IsStackedOnExplosion` is gone (579 A). Logged for part 4: a held success turned to salvage and back would show
      Breaking in for good, which part 4's spawn on the roll turn removes.
+
+   Play-test fixes (Gilad, 2026-10-20; 580-592, after a listening page in BlackBoxPlus-references\previews\s5p2):
+   - the recovery's effect was hidden inside the derelict's hull, at its center for the whole break-in, so only the
+     shuttles showed each turn; it now sits on the hull's surface facing the camera, keeps spreading from the center
+     with the progress (580 A), and shows from planet view, as the shuttles do (581 B); the break-up's and the strip's
+     particles move onto the hull too (582 A);
+   - sounds (583, 584 B): the shield static once each break-in turn where the player sees the effect
+     (`sd_derelict_break_in`), and ShipSlow once, at half the break-up's volume, as a plain failure gives way where
+     the player sees it (`sd_derelict_give_way`); the catastrophe keeps the ship's death sound, and a success plays
+     the Afterburner sound once as it rises, where the player sees it (`sd_derelict_recovered`, 586 H), cut to 6
+     seconds of its 23 with a 2-second fade (587 C);
+   - a plain failure's break-up drops its small blasts and their sound, leaving flashes and lightning (585 B); a
+     ship's death break-up keeps both;
+   - after a play-test (Gilad, 2026-10-20): the break-in static at half the volume first set (0.4); the roll ends the
+     work's effect, and the parts it left fade out as a finished build's on a plain failure, or go at once in a
+     catastrophe's blast;
+   - review (588-592): a hull keeps its back surface too, so the effect shows on an upside-down derelict, picked by
+     which side faces the camera, at most 0.4 MB for vanilla's 125 hulls and 1.5 MB for Star Trek's 352, whatever
+     the number of ships (588 A); the success's sound is a file of its own, the Afterburner's first 6 seconds with
+     the fade in it, cut with the game's own NAudio, so nothing in the game times it (589 A); a success's parts rise
+     with the derelict and shrink away over its 3-second rise rather than fade unseen under it (590 A); a test that
+     the roll ends the work's effect (591 A); the Codex says a failed recovery breaks up without explosions (592 A).
 6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors

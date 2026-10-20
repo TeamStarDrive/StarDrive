@@ -42,6 +42,10 @@ public sealed class Derelict
     public const float SmokeThinSeconds = 60f;
     // the breakup's small blasts, with their volume and limit in AudioConfig.yaml
     public const string BreakupBlastSound = "sd_derelict_breakup";
+    // a recovery's sounds, with their volumes in AudioConfig.yaml: each break-in turn's static, a plain failure's as the derelict gives way, and a success's as it rises
+    public const string BreakInSound = "sd_derelict_break_in";
+    public const string GiveWaySound = "sd_derelict_give_way";
+    public const string RecoveredSound = "sd_derelict_recovered";
     // a salvageable derelict lasts this many turns, times the production pace, then sinks away
     public const int SalvageableTurns = 100;
     // the production to salvage: this share of the health the ship had left at its death, times its cost before any empire's bonus
@@ -388,9 +392,20 @@ public sealed class Derelict
         RecoveryPercent = progress.Clamped(0f, 1f) * 100f;
     }
 
-    internal bool RecoveryEffectsShown => RecoveryEffectsLeft > 0f && RecoveredBy is { Active: true, InPlayerSensorRange: true };
+    // where the player sees its platform, from planet view or closer, as the platform's shuttles show
+    internal bool RecoveryEffectsShown => RecoveryEffectsLeft > 0f && RecoveredBy is { Active: true, InPlayerSensorRange: true } && Universe.IsPlanetViewOrCloser;
 
-    // under the list's lock, on the sim thread: a failed recovery breaks it up as a drifting one does, then it sinks away
+    // a point this far from its center along its hull, on the hull's camera-facing surface as it lies now, its back once upside down, since an effect inside the hull is hidden
+    internal Vector3 OnHull(Vector2 local)
+    {
+        ShipHull hull = Design.BaseHull;
+        var cell = new Point((int)Math.Floor(local.X / 16f) + hull.GridCenter.X, (int)Math.Floor(local.Y / 16f) + hull.GridCenter.Y);
+        Matrix rotation = Rotation;
+        float surface = rotation.M33 < 0f ? hull.SampleBackSurfaceZ(cell) : hull.SampleSurfaceZ(cell, 1, 1);
+        return (new Vector3(local, surface) * Scale).Transform(rotation) + new Vector3(Position, Z);
+    }
+
+    // under the list's lock, on the sim thread: a failed recovery breaks it up as a drifting one does, with none of its blasts, then it sinks away
     internal void BreakApart()
     {
         BrokenApart = true;
@@ -401,6 +416,13 @@ public sealed class Derelict
 
     // under the list's lock: the player sees its blast where it has a model on screen
     internal bool OnScreen => So != null && Universe.IsSystemViewOrCloser && Universe.Screen.IsInFrustum(new Vector3(Position, Z), Radius);
+
+    // under the list's lock, on the sim thread: one of its recovery's sounds, from its center
+    internal void Sound(string sound)
+    {
+        BlastEmitter.Position = new Vector3(Position, Z);
+        GameAudio.PlaySfxAsync(sound, BlastEmitter);
+    }
 
     // on the sim thread, out of the list: a failed recovery's catastrophe, a ship's death explosion where the player sees it, and its hull role's biggest blast on the ships near it, which blames nobody
     internal void Explode(bool seen)
@@ -450,10 +472,12 @@ public sealed class Derelict
         RotationZ = (RotationZ + Spin.Z * tumbling).AsNormalizedRadians();
     }
 
-    // on the sim thread: a successful recovery's roll brings it up to a ship's depth
-    public void Rise()
+    // under the list's lock, on the sim thread: a successful recovery's roll brings it up to a ship's depth, its work's effects over
+    internal void Rise()
     {
         Rising = true;
+        RecoveryEffectsLeft = 0f;
+        RecoveredBy = null;
     }
 
     static float Signed(float radians)
@@ -594,8 +618,8 @@ public sealed class Derelict
             UpdateBreakup(dt, particles);
         if (StripEffectsShown)
             UpdateStripping(dt, particles, scale);
-        if (RecoveryEffectsShown && Universe.IsShipViewOrCloser) // where a station build shows them
-            ConstructionShip.AddEffects(Universe, center, Radius * 0.5f * scale, RecoveryPercent, RecoveredBy);
+        if (RecoveryEffectsShown)
+            ConstructionShip.AddEffects(Universe, this, Radius * 0.5f, RecoveryPercent, RecoveredBy);
 
         int smoking = NumSmokingNow;
         for (int i = 0; i < Smoke.Length; ++i)
@@ -620,15 +644,18 @@ public sealed class Derelict
         if ((NextBlast -= dt) <= 0f)
         {
             NextBlast = random.Float(0.15f, 0.5f);
-            var pos = new Vector3(Position + random.Vector2D(Radius * 0.5f), Z);
-            ExplosionManager.AddExplosion(Universe.Screen, pos, velocity, Radius * 0.5f, 2.5f, ExplosionType.Projectile);
+            Vector3 pos = OnHull(random.Vector2D(Radius * 0.5f));
             particles.Flash.AddParticle(pos);
-            BlastEmitter.Position = pos;
-            GameAudio.PlaySfxAsync(BreakupBlastSound, BlastEmitter);
+            if (!BrokenApart) // a failed recovery's break-up has none, as a blast is a catastrophe's
+            {
+                ExplosionManager.AddExplosion(Universe.Screen, pos, velocity, Radius * 0.5f, 2.5f, ExplosionType.Projectile);
+                BlastEmitter.Position = pos;
+                GameAudio.PlaySfxAsync(BreakupBlastSound, BlastEmitter);
+            }
         }
         if (random.RollDice(50))
         {
-            var pos = new Vector3(Position + random.Vector2D(Radius * 0.5f), Z);
+            Vector3 pos = OnHull(random.Vector2D(Radius * 0.5f));
             particles.Lightning.AddParticle(pos, new Vector3(velocity, 0f), 0.5f, Color.White);
         }
     }
@@ -642,7 +669,7 @@ public sealed class Derelict
         if ((NextStripFlash -= dt) <= 0f)
         {
             NextStripFlash = random.Float(0.5f, 1.5f) / (float)Math.Ceiling(salvage * StripFlashesPerSalvage);
-            particles.Flash.AddParticle(new Vector3(Position + random.Vector2D(spread), Z));
+            particles.Flash.AddParticle(OnHull(random.Vector2D(Radius * 0.5f)));
         }
         if ((NextStripJunk -= dt) <= 0f)
         {

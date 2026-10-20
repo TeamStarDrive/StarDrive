@@ -243,6 +243,30 @@ namespace Ship_Game
             }
         }
 
+        // a construction part of a build that rises away, as a recovered derelict, rises with it and shrinks away over that time
+        public void TryRiseAway(int id, float seconds, float riseSpeed)
+        {
+            if (id == ConstructionPartId)
+            {
+                lock (this)
+                {
+                    Duration = MaxDuration = seconds;
+                    IsFading = true;
+                    Velocity.Z -= riseSpeed;
+                }
+            }
+        }
+
+        // a construction part of a build blown up goes at once
+        public void TryRemove(int id)
+        {
+            if (id == ConstructionPartId)
+            {
+                lock (this)
+                    Duration = 0f;
+            }
+        }
+
         public void Update(FixedSimTime timeStep)
         {
             Duration -= timeStep.FixedTime;

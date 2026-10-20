@@ -595,6 +595,39 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsTrue(passed.RecoveryFailed && passed.Finished, "the order passed on keeps its platform's work over");
     }
 
+    // the player sees the platform at work from planet view, where the work's effect shows
+    void SeesTheWork(SalvageDerelict order, Derelict d)
+    {
+        UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
+        RunSimWhile((simTimeout: 5, fatal: true), () => !order.Platform.InPlayerSensorRange);
+        Assert.IsFalse(order.RecoverySucceeded || order.RecoveryFailed, "setup: no roll yet");
+        Assert.IsTrue(d.RecoveryEffectsShown, "setup: the last turn's work shows");
+    }
+
+    [TestMethod]
+    public void ASuccessfulRollEndsTheWorksEffect()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RollsWith(Player, 0.0);
+        SalvageDerelict order = AllWorkDone(d);
+        SeesTheWork(order, d);
+        Turns(order, 1);
+        Assert.IsTrue(order.RecoverySucceeded, "setup: the roll succeeds");
+        Assert.IsFalse(d.RecoveryEffectsShown, "and the work's effect ends with it, its parts rising away with the derelict");
+    }
+
+    [TestMethod]
+    public void AFailedRollEndsTheWorksEffect()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = AllWorkDone(d);
+        SeesTheWork(order, d);
+        RollsWith(Player, 0.99, 0.99);
+        Turns(order, 1);
+        Assert.IsTrue(order.RecoveryFailed, "setup: the roll fails");
+        Assert.IsFalse(d.RecoveryEffectsShown, "and the work's effect ends with it");
+    }
+
     [TestMethod]
     public void ACatastropheBlowsUpTheDerelictAndItsPlatformAndHitsTheShipsNearItBlamingNobody()
     {
