@@ -681,8 +681,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   - times the share of the derelict's production not yet stripped, by any empire: 0.8 with 20 of 100 stripped;
   - on a failed roll, a second roll decides how bad it is: 10% times 1 minus the Engineers value is catastrophic, 8%
     for Skilled Engineers and 12% for Haphazard ones;
-  - the roll comes the turn after the work reaches 100%, so the full bar shows for a turn (571 A), at the chance of
-    that moment;
+  - the roll comes the same turn as the last of the work, as the bar reaches 100% (593, Gilad, in place of 571 A's
+    turn after it), at the chance of that moment; a recovery with no work to do rolls the turn after its break-in;
   - a plain failure breaks the derelict apart as a drifting one breaks up, 3 to 5 seconds of flashes and lightning
     on its hull but none of the small blasts, which are left to a catastrophe (585 B), with one ShipSlow sound at half
     the break-up's volume as it gives way where the player sees it (583, 584 B), and it sinks away at a stripped
@@ -714,7 +714,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   tooltip and on the panel's left side below the hourglass and the tech count, before any order, not in the status
   (551).
 - **The visual (525 B, 547, 554):** the platform's shuttles fly each turn as in salvage, one for every 6 slots of the
-  turn's work, 4 at 24, and a full turn's during the break-in, but in place of salvage's flashes and junk the derelict
+  turn's work, 4 at 24, and a full turn's during the break-in, but none on the turn that finishes the work, whose roll's
+  outcome shows at once with no new effect (594 A); in place of salvage's flashes and junk the derelict
   shows a station build's effect (`ConstructionShip.AddEffects`: sparks, lightning, flashes and flying parts) at the
   recovery's progress, spreading out from its center to half its radius as the progress rises, so the break-in shows
   a tight knot of sparks at its center (580 A), from planet view or closer, where the shuttles show (581 B). Each
@@ -1020,8 +1021,8 @@ Implementation notes:
      break-in (567 A); the mode turns before the break-in resets, and the salvage files spell center (568 A).
 
    Part 3 (Gilad, 2026-10-20; 569-579):
-   - the roll comes the turn after all the work is done (571 A); a success brings the derelict up to a ship's depth
-     over 3 seconds (576 C) and holds there, saved, until part 4;
+   - the roll comes the turn after all the work is done (571 A; later with the last of it, 593); a success brings the
+     derelict up to a ship's depth over 3 seconds (576 C) and holds there, saved, until part 4;
    - a plain failure breaks the derelict up as a drifting one does, saved, and it leaves its system and sinks at a
      stripped one's speed; the order's work is over, and its platform takes itself apart without the salvage
      notification;
@@ -1035,10 +1036,11 @@ Implementation notes:
    - Codex 100093 gains the roll, the break-up, the blast and the steadying, and "How a ship dies" now says a
      derelict gives no blast as it forms;
    - review (577-579): the blast stays sourceless and clears the last attacker of the ships it hits (577 B); the
-     platform's own death blast stays its owner's (578 A); the tooltip's turns left count the roll's turn, the
-     tumbling is a step the tests reach, a break-in of no turns is tested, and the ship-only overload of
+     platform's own death blast stays its owner's (578 A); the tooltip's turns left count the roll's turn (until
+     593), the tumbling is a step the tests reach, a break-in of no turns is tested, and the ship-only overload of
      `IsStackedOnExplosion` is gone (579 A). Logged for part 4: a held success turned to salvage and back would show
-     Breaking in for good, which part 4's spawn on the roll turn removes.
+     Breaking in for good, and a held success's tooltip shows a turn left for good, which part 4's spawn on the roll
+     turn removes.
 
    Play-test fixes (Gilad, 2026-10-20; 580-592, after a listening page in BlackBoxPlus-references\previews\s5p2):
    - the recovery's effect was hidden inside the derelict's hull, at its center for the whole break-in, so only the
@@ -1060,7 +1062,10 @@ Implementation notes:
      the number of ships (588 A); the success's sound is a file of its own, the Afterburner's first 6 seconds with
      the fade in it, cut with the game's own NAudio, so nothing in the game times it (589 A); a success's parts rise
      with the derelict and shrink away over its 3-second rise rather than fade unseen under it (590 A); a test that
-     the roll ends the work's effect (591 A); the Codex says a failed recovery breaks up without explosions (592 A).
+     the roll ends the work's effect (591 A); the Codex says a failed recovery breaks up without explosions (592 A);
+   - the roll comes with the last of the work rather than the turn after it (593, Gilad, 2026-10-20), so the
+     tooltip's turns left no longer add a turn for it, but for a recovery with no work left, and the Codex says so;
+     that turn sends no shuttles and starts no effect, the outcome showing at once (594 A).
 6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors

@@ -497,7 +497,7 @@ namespace Ship_Game.Commands.Goals
             Emptied = d.Stripped;
         }
 
-        // a turn of breaking in, which steadies the derelict, then a turn's work at the recovery speed, until all of it is done, and the turn after, the roll; the shuttles fly a full turn's while it breaks in; true when the derelict exploded
+        // a turn of breaking in, which steadies the derelict, then a turn's work at the recovery speed, the roll coming with the last of it; the shuttles fly a full turn's while it breaks in, and none with the last of the work; true when the derelict exploded
         bool Recover(Ship platform, Derelict d)
         {
             if (RecoverySucceeded)
@@ -514,15 +514,17 @@ namespace Ship_Game.Commands.Goals
             }
             d.SteadyTo(1f); // at once after a break-in of no turns
             float work = DerelictRecovery.Work(Owner, d);
-            if (RecoveryWork >= work)
-                return Roll(platform, d);
-            if (speed <= 0f)
-                return false;
-            float before = RecoveryWork;
-            RecoveryWork = Math.Min(RecoveryWork + speed, work); // the work exactly, once all is done
-            d.ShowRecoveryWork(platform, DerelictRecovery.Progress(Owner, d, RecoveryWork));
-            SendShuttles(platform, d, CargoShuttles.RecoveryShuttlesFor(RecoveryWork - before));
-            return false;
+            if (RecoveryWork < work && speed > 0f)
+            {
+                float before = RecoveryWork;
+                RecoveryWork = Math.Min(RecoveryWork + speed, work); // the work exactly, once all is done
+                if (RecoveryWork < work) // the turn that finishes it shows the roll's outcome instead
+                {
+                    d.ShowRecoveryWork(platform, DerelictRecovery.Progress(Owner, d, RecoveryWork));
+                    SendShuttles(platform, d, CargoShuttles.RecoveryShuttlesFor(RecoveryWork - before));
+                }
+            }
+            return RecoveryWork >= work && Roll(platform, d);
         }
 
         // a success holds; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up; true for the catastrophe; the work's parts rise with the derelict as they shrink away, fade out as a finished build's, or go at once in the blast

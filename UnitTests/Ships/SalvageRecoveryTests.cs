@@ -24,7 +24,8 @@ namespace UnitTests.Ships;
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
 /// stripped; of the failures, 10% times 1 minus the engineers explode. A recovering platform breaks in for 10 turns at
 /// any pace, then works at twice the salvage speed through the share of health the ship lost at its death times its
-/// slots at the production pace, plus a tenth, times 1 minus the engineers, and holds once all is done. Turning the
+/// slots at the production pace, plus a tenth, times 1 minus the engineers, and rolls as the last of it is done, or the
+/// turn after the break-in with none to do, holding on a success. Turning the
 /// order to salvage keeps the work but a later recovery breaks in again; saves and passing on keep both. A rival's
 /// recovery reads Recovering throughout, its break-in unshown.
 /// </summary>
@@ -132,14 +133,16 @@ public class SalvageRecoveryTests : StarDriveTest
     static void RollsWith(Empire empire, params double[] rolls)
         => typeof(Empire).GetField(nameof(Empire.Random))!.SetValue(empire, new FixedRandom(rolls));
 
-    // the player's recovery with all its work done, so its next turn rolls
-    SalvageDerelict AllWorkDone(Derelict d)
+    // the player's recovery with a turn of work left, so its next turn finishes the work and rolls
+    SalvageDerelict OneTurnOfWorkLeft(Derelict d)
     {
         BuiltStation();
         Player.data.SelectedTraitSet = "";
         SalvageDerelict order = AtWork(d, recover: true);
-        Turns(order, 10 + (int)Math.Ceiling(DerelictRecovery.Work(Player, d) / 24f));
-        AssertEqual(1f, DerelictRecovery.Progress(Player, d, order.RecoveryWork), "setup: all the work done");
+        int workTurns = (int)Math.Ceiling(DerelictRecovery.Work(Player, d) / 24f);
+        Assert.IsTrue(workTurns > 1, "setup: work for more than a turn");
+        Turns(order, 10 + workTurns - 1);
+        AssertLessThan(DerelictRecovery.Progress(Player, d, order.RecoveryWork), 1f, "setup: a turn's work left");
         return order;
     }
 
@@ -396,6 +399,7 @@ public class SalvageRecoveryTests : StarDriveTest
     public void ARecoveringPlatformBreaksInThenWorksAtTwiceTheSalvageSpeedUntilAllIsDone()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
+        RollsWith(Player, 0.0);
         BuiltStation();
         Player.data.SelectedTraitSet = "";
         SalvageDerelict order = AtWork(d, recover: true);
@@ -421,8 +425,27 @@ public class SalvageRecoveryTests : StarDriveTest
 
         Turns(order, (int)Math.Ceiling(work / 24f) - 1);
         AssertEqual(1f, DerelictRecovery.Progress(Player, d, order.RecoveryWork), "all of the work is done");
+        Assert.IsTrue(order.RecoverySucceeded, "and rolled for the same turn");
         Turns(order, 1);
-        AssertEqual(0.001f, work, order.RecoveryWork, "and the platform holds there");
+        AssertEqual(0.001f, work, order.RecoveryWork, "the platform holding there");
+    }
+
+    [TestMethod]
+    public void ARecoveryWithNoWorkRollsTheTurnAfterItsBreakIn()
+    {
+        Derelict d = Forms(Wreck);
+        RollsWith(Player, 0.0);
+        BuiltStation();
+        Player.data.SelectedTraitSet = "";
+        SalvageDerelict order = AtWork(d, recover: true);
+        AssertEqual(0f, DerelictRecovery.Work(Player, d), "setup: a ship that died at full health leaves no work");
+        AssertEqual(11, DerelictRecovery.TurnsLeft(Player, d, 0, 0f), "its tooltip counts the break-in's turns and the roll's");
+
+        Turns(order, 10);
+        Assert.IsFalse(order.BreakingIn || order.RecoverySucceeded, "broken in, no roll yet");
+        AssertEqual(1, DerelictRecovery.TurnsLeft(Player, d, order.BreakInDone, order.RecoveryWork), "the roll's turn left");
+        Turns(order, 1);
+        Assert.IsTrue(order.RecoverySucceeded, "the turn after the break-in it rolls");
     }
 
     [TestMethod]
@@ -458,10 +481,10 @@ public class SalvageRecoveryTests : StarDriveTest
         float work = DerelictRecovery.Work(Player, d);
         AssertEqual(0.001f, 0.25f, DerelictRecovery.Progress(Player, d, work * 0.25f), "a quarter of the work done");
         int workTurns = (int)Math.Ceiling(work / 24f);
-        AssertEqual(10 + workTurns + 1, DerelictRecovery.TurnsLeft(Player, d, 0, 0f), "the break-in's turns, then the work's, then the roll's");
-        AssertEqual(6 + workTurns + 1, DerelictRecovery.TurnsLeft(Player, d, 4, 0f), "four turns into the break-in");
-        AssertEqual((int)Math.Ceiling((work - 24f) / 24f) + 1, DerelictRecovery.TurnsLeft(Player, d, 10, 24f), "a turn's work done after it");
-        AssertEqual(1, DerelictRecovery.TurnsLeft(Player, d, 10, work), "only the roll's once all the work is done");
+        AssertEqual(10 + workTurns, DerelictRecovery.TurnsLeft(Player, d, 0, 0f), "the break-in's turns, then the work's, the last of which rolls");
+        AssertEqual(6 + workTurns, DerelictRecovery.TurnsLeft(Player, d, 4, 0f), "four turns into the break-in");
+        AssertEqual((int)Math.Ceiling((work - 24f) / 24f), DerelictRecovery.TurnsLeft(Player, d, 10, 24f), "a turn's work done after it");
+        AssertEqual(1, DerelictRecovery.TurnsLeft(Player, d, 10, work), "the roll's own with no work left");
     }
 
     [TestMethod]
@@ -525,17 +548,18 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheRollComesTheTurnAfterAllTheWorkIsDoneAndASuccessHolds()
+    public void TheRollComesWithTheLastOfTheWorkAndASuccessHolds()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         RollsWith(Player, 0.0);
-        SalvageDerelict order = AllWorkDone(d);
-        Assert.IsFalse(order.RecoverySucceeded, "the full bar shows for a turn before the roll");
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
+        Assert.IsFalse(order.RecoverySucceeded, "no roll while work is left");
 
         float depth = d.Z;
         AssertGreaterThan(depth, 0f, "setup: the derelict rests below a ship's depth");
         Turns(order, 1);
-        Assert.IsTrue(order.RecoverySucceeded, "the turn after, a roll under the chance succeeds");
+        AssertEqual(1f, DerelictRecovery.Progress(Player, d, order.RecoveryWork), "the last turn's work done");
+        Assert.IsTrue(order.RecoverySucceeded, "and the same turn a roll under the chance succeeds");
         d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
         AssertEqual(0.01f, depth * 0.5f, d.Z, "and the derelict rises evenly");
         d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
@@ -556,7 +580,7 @@ public class SalvageRecoveryTests : StarDriveTest
     public void AFailedRollBreaksTheDerelictApartAndItsPlatformComesApart()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        SalvageDerelict order = AllWorkDone(d);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
         RollsWith(Player, 0.99, 0.99);
         var notes = Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
 
@@ -585,7 +609,7 @@ public class SalvageRecoveryTests : StarDriveTest
     public void AFailedRecoveryPassedOnStaysFailed()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        SalvageDerelict order = AllWorkDone(d);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
         RollsWith(Player, 0.99, 0.99);
         Turns(order, 1);
         Assert.IsTrue(order.RecoveryFailed, "setup: the roll failed");
@@ -609,7 +633,7 @@ public class SalvageRecoveryTests : StarDriveTest
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         RollsWith(Player, 0.0);
-        SalvageDerelict order = AllWorkDone(d);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
         SeesTheWork(order, d);
         Turns(order, 1);
         Assert.IsTrue(order.RecoverySucceeded, "setup: the roll succeeds");
@@ -617,10 +641,28 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
+    public void TheTurnThatFinishesTheWorkSendsNoShuttles()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RollsWith(Player, 0.0);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
+        Ship platform = order.Platform;
+        SeesTheWork(order, d);
+        platform.InFrustum = true;
+        Universe.CargoShuttles.Update(Universe, TestSimStep);
+        AssertEqual(0, Universe.CargoShuttles.InFlight(null, platform), "setup: no shuttles out");
+
+        Turns(order, 1);
+        Universe.CargoShuttles.Update(Universe, TestSimStep);
+        Assert.IsTrue(order.RecoverySucceeded, "setup: the last of the work rolls");
+        AssertEqual(0, Universe.CargoShuttles.InFlight(null, platform), "and sends no shuttles, its outcome showing at once");
+    }
+
+    [TestMethod]
     public void AFailedRollEndsTheWorksEffect()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        SalvageDerelict order = AllWorkDone(d);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
         SeesTheWork(order, d);
         RollsWith(Player, 0.99, 0.99);
         Turns(order, 1);
@@ -632,7 +674,7 @@ public class SalvageRecoveryTests : StarDriveTest
     public void ACatastropheBlowsUpTheDerelictAndItsPlatformAndHitsTheShipsNearItBlamingNobody()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        SalvageDerelict order = AllWorkDone(d);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
         Ship platform = order.Platform;
         Ship near = SpawnShip("Dreadnought mk1-a", Enemy, d.Position + new Vector2(0f, d.Radius + 200f));
         RunObjectsSim(TestSimStep);

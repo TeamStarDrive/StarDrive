@@ -37,7 +37,7 @@ public static class DerelictRecovery
 
     public enum Outcome { Recovered, BrokenApart, Exploded }
 
-    // the turn after all the work is done: the chance as it stands then, and for a failure a second roll for how bad it is
+    // as the last of the work is done: the chance as it stands then, and for a failure a second roll for how bad it is
     public static Outcome Roll(Empire empire, Derelict d, RandomBase random)
     {
         if (random.RollDice(Chance(empire, d)))
@@ -68,7 +68,7 @@ public static class DerelictRecovery
         return work > 0f ? (workDone / work).Clamped(0f, 1f) : 1f;
     }
 
-    // whole turns left: those of the break-in, then the work's at the recovery speed, then the roll's
+    // whole turns left: those of the break-in, then the work's at the recovery speed, the last of which rolls; with no work left, the roll's own
     public static int TurnsLeft(Empire empire, Derelict d, int breakInDone, float workDone)
     {
         int breakIn = (BreakInTurns - breakInDone).LowerBound(0);
@@ -76,8 +76,8 @@ public static class DerelictRecovery
         float speed = Speed;
         if (left > 0f && speed <= 0f)
             return int.MaxValue;
-        int work = left > 0f ? (int)Math.Ceiling(left / speed) : 0;
-        return breakIn + work + 1;
+        int work = left > 0f ? (int)Math.Ceiling(left / speed) : 1;
+        return breakIn + work;
     }
 
     static float Engineers(Empire empire) => empire.RaceEngineers;
