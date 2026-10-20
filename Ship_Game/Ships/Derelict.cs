@@ -34,6 +34,8 @@ public sealed class Derelict
     // a salvageable one settles at 25 a second as deep as its radius, at most 500, keeping its size, so it looks a little distant
     public const float RestSinkSpeed = 25f;
     public const float MaxRestDepth = 500f;
+    // a recovered one rises from its rest depth to a ship's over this time
+    public const float RiseSeconds = 3f;
     // smoke from 20% of its modules at death, thinning out to the last six over 60 s
     public const float SmokeSourcesPerModule = 0.2f;
     public const int MinSmokeSources = 6;
@@ -83,6 +85,8 @@ public sealed class Derelict
     float RecoveryEffectsLeft;
     Ship RecoveredBy;
     float RecoveryPercent;
+    // a failed recovery's break-up runs this much longer before it sinks away
+    float BreakApartLeft;
 
     // unique among the universe's objects, so a salvage order saved with its empire finds it again
     [StarData] public readonly int Id;
@@ -113,6 +117,13 @@ public sealed class Derelict
     [StarData] public float RotationX { get; private set; }
     [StarData] public float RotationY { get; private set; }
     [StarData] public float RotationZ { get; private set; }
+    // a failed recovery broke it apart: it can no longer be salvaged, and sinks away once its break-up is over
+    [StarData] public bool BrokenApart { get; private set; }
+    // how far a recovery's break-in has steadied it, from tumbling as it died to still and level as a ship at rest, and how far the break-in's turns so far take it; it never tumbles again
+    [StarData] public float Steadiness { get; private set; }
+    [StarData] float SteadyTarget;
+    // a successful recovery's roll brings it up from its rest depth to a ship's, over RiseSeconds
+    [StarData] public bool Rising { get; private set; }
     public int NumSmokeSources => Smoke.Length;
     public bool InScene => So != null;
 
@@ -320,12 +331,12 @@ public sealed class Derelict
         }
     }
 
-    // a salvageable one sinks once its turns run out or it is stripped empty
-    public bool Sinking => Salvageable ? TurnsLeft <= 0 || Stripped : Age > BreakupSeconds;
+    // a salvageable one sinks once its turns run out, it is stripped empty or a failed recovery's break-up is over
+    public bool Sinking => Salvageable ? TurnsLeft <= 0 || Stripped || BrokenApart && BreakApartLeft <= 0f : Age > BreakupSeconds;
 
     public bool Stripped => Salvageable && ProductionLeft <= 0f;
 
-    public bool CanBeSalvaged => Salvageable && TurnsLeft > 0 && !Stripped;
+    public bool CanBeSalvaged => Salvageable && TurnsLeft > 0 && !Stripped && !BrokenApart;
 
     // the player finds on the map and selects only the salvageable ones it knows of
     public bool SelectableByPlayer => CanBeSalvaged && KnownByPlayer;
@@ -378,6 +389,78 @@ public sealed class Derelict
     }
 
     internal bool RecoveryEffectsShown => RecoveryEffectsLeft > 0f && RecoveredBy is { Active: true, InPlayerSensorRange: true };
+
+    // under the list's lock, on the sim thread: a failed recovery breaks it up as a drifting one does, then it sinks away
+    internal void BreakApart()
+    {
+        BrokenApart = true;
+        BreakApartLeft = Universe.Random.Float(MinBreakupSeconds, MaxBreakupSeconds);
+        RecoveryEffectsLeft = 0f;
+        RecoveredBy = null;
+    }
+
+    // under the list's lock: the player sees its blast where it has a model on screen
+    internal bool OnScreen => So != null && Universe.IsSystemViewOrCloser && Universe.Screen.IsInFrustum(new Vector3(Position, Z), Radius);
+
+    // on the sim thread, out of the list: a failed recovery's catastrophe, a ship's death explosion where the player sees it, and its hull role's biggest blast on the ships near it, which blames nobody
+    internal void Explode(bool seen)
+    {
+        float damage = DerelictRecovery.BlastDamage(this);
+        if (seen)
+        {
+            var center = new Vector3(Position, Z - 100f); // as a ship's, a little above it
+            float size = 2f * Radius * GlobalStats.Defaults.ShipExplosionVisualIncreaser * Ship.ExplosionEffectScale(Design.HullRole);
+            ExplosionManager.AddExplosion(Universe.Screen, center, Vector2.Zero, size, 12f, ExplosionType.Ship);
+            BlastEmitter.Position = center;
+            GameAudio.PlaySfxAsync(Ship.DieSoundEffect(Design.SurfaceArea), BlastEmitter);
+            var random = Universe.Random;
+            int junk = (int)(Radius * 0.05f);
+            for (int i = 0; i < junk; ++i)
+            {
+                Vector2 velocity = random.Direction2D() * random.Float(MinStripJunkSpeed, MaxStripJunkSpeed);
+                SpaceJunk.SpawnJunk(Universe, new Vector3(Position + random.Vector2D(Radius * 0.5f), Z), velocity, Radius * 0.1f);
+            }
+        }
+        Universe.Spatial.DerelictExplode(Design.HullRole, Radius, Universe.Random, damage, Position, Radius + damage * 0.01f);
+    }
+
+    // on the sim thread: a recovery's break-in has taken its steadying this far, which it reaches at an even pace over the break-in's turns, or at once with none
+    public void SteadyTo(float target)
+    {
+        SteadyTarget = Math.Max(SteadyTarget, target.Clamped(0f, 1f));
+    }
+
+    // its tumbling slows with its steadiness, and its pitch and roll come level with it, reaching a ship's at rest together; its heading is kept
+    void Steady(float dt)
+    {
+        int turns = DerelictRecovery.BreakInTurns;
+        float before = Steadiness;
+        Steadiness = turns > 0 ? Math.Min(SteadyTarget, Steadiness + dt / (turns * Universe.P.TurnTimer)) : SteadyTarget;
+        float kept = Steadiness < 1f ? (1f - Steadiness) / (1f - before) : 0f;
+        RotationX = Signed(RotationX) * kept;
+        RotationY = Signed(RotationY) * kept;
+    }
+
+    // while on screen it turns as it tumbled at its death, slower as it steadies, and not at all once still
+    internal void Tumble(float dt)
+    {
+        float tumbling = (1f - Steadiness) * dt;
+        RotationX += Spin.X * tumbling;
+        RotationY += Spin.Y * tumbling;
+        RotationZ = (RotationZ + Spin.Z * tumbling).AsNormalizedRadians();
+    }
+
+    // on the sim thread: a successful recovery's roll brings it up to a ship's depth
+    public void Rise()
+    {
+        Rising = true;
+    }
+
+    static float Signed(float radians)
+    {
+        float r = radians.AsNormalizedRadians();
+        return r > RadMath.PI ? r - RadMath.TwoPI : r;
+    }
 
     // dead modules first, then damaged ones; conduits only spark, so they are left out
     static SmokeSource[] PickSmokeSources(Ship ship)
@@ -467,8 +550,14 @@ public sealed class Derelict
             StrippedBy = null;
         if ((RecoveryEffectsLeft -= dt) <= 0f)
             RecoveredBy = null;
+        if (BreakApartLeft > 0f)
+            BreakApartLeft -= dt;
+        if (Steadiness < SteadyTarget && dt > 0f)
+            Steady(dt);
         if (Sinking)
-            Z += (Stripped ? StrippedSinkSpeed : SinkSpeed) * dt;
+            Z += (Stripped || BrokenApart ? StrippedSinkSpeed : SinkSpeed) * dt;
+        else if (Rising)
+            Z = (Z - RestDepth / RiseSeconds * dt).LowerBound(0f);
         else if (Z < RestDepth)
             Z = (Z + RestSinkSpeed * dt).UpperBound(RestDepth);
 
@@ -490,9 +579,7 @@ public sealed class Derelict
             return true;
         }
 
-        RotationX += Spin.X * dt;
-        RotationY += Spin.Y * dt;
-        RotationZ = (RotationZ + Spin.Z * dt).AsNormalizedRadians();
+        Tumble(dt);
 
         Matrix rotation = Rotation;
         var center = new Vector3(Position, Z);
@@ -503,7 +590,7 @@ public sealed class Derelict
         if (dt <= 0f || particles == null)
             return true;
 
-        if (Age < BreakupSeconds)
+        if (Age < BreakupSeconds || BreakApartLeft > 0f)
             UpdateBreakup(dt, particles);
         if (StripEffectsShown)
             UpdateStripping(dt, particles, scale);

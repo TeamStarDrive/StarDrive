@@ -198,6 +198,32 @@ public sealed class Derelicts
         }
     }
 
+    // on the sim thread: a failed recovery breaks it up, and it leaves its system at once
+    public void BreakApart(Derelict d)
+    {
+        lock (Sync)
+        {
+            d.BreakApart();
+            Leave(d);
+        }
+    }
+
+    // on the sim thread: a failed recovery's catastrophe takes it out of the universe at once; its blast comes after the lock, as the ships it kills roll for derelicts of their own as they die
+    public void Explode(Derelict d)
+    {
+        bool seen;
+        lock (Sync)
+        {
+            seen = d.OnScreen;
+            d.BreakApart(); // so a panel or order still holding it no longer finds it salvageable
+            Leave(d);
+            d.RemoveSceneObject();
+            if (Items.RemoveRef(d))
+                Publish();
+        }
+        d.Explode(seen);
+    }
+
     // under the lock: one that can no longer be salvaged leaves its system, and a system with none left leaves every empire's list
     static void Leave(Derelict d)
     {

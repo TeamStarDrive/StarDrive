@@ -681,12 +681,22 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   - times the share of the derelict's production not yet stripped, by any empire: 0.8 with 20 of 100 stripped;
   - on a failed roll, a second roll decides how bad it is: 10% times 1 minus the Engineers value is catastrophic, 8%
     for Skilled Engineers and 12% for Haphazard ones;
-  - a plain failure breaks the derelict apart as a drifting one breaks up, and it sinks away. Nothing is left to
-    strip, and the platform comes apart (517 A);
+  - the roll comes the turn after the work reaches 100%, so the full bar shows for a turn (571 A), at the chance of
+    that moment;
+  - a plain failure breaks the derelict apart as a drifting one breaks up, 3 to 5 seconds of small blasts and
+    lightning, and it sinks away at a stripped derelict's speed. Nothing is left to strip; the order ends, and the
+    platform takes itself apart over two turns as after a salvage, freeing its unit (517 A);
   - a catastrophic one makes it explode with its hull role's biggest blast, the death blast's cap
-    (`Ship.ExplosionDamageCap`: 40 times its radius for a frigate or destroyer, 60 for a cruiser, 80 for a
-    battleship, 100 for a capital), which catches the ships near it, the platform beside it included; one
-    notification tells of it (133, 155, 526 A, 527 A).
+    (`Ship.ExplosionDamageCap`: 40 times its radius for a frigate, 60 for a cruiser, 80 for a battleship, 100 for
+    a capital), which catches the ships near it; the ship's explosion and sound play where the player sees it, the
+    blast hits seen or not, and the derelict is gone at once. The platform beside it is always destroyed, whatever
+    a platform's usual chance to dodge a blast (572 A). Nobody is blamed: no kill credit and no relations change
+    with the empires whose ships it hits (573 A). The blast has no source, as other sourceless damage: armor's
+    resistance to explosions does not lessen it, the modules it destroys do not blow up, and it clears the last
+    attacker of each ship it hits, so a ship it kills is nobody's kill (577 B). The platform dies as any ship does,
+    its own small death blast its owner's (578 A). One notification tells of it (133, 155, 526 A, 527 A; part 5);
+  - a success brings the derelict up from its rest depth to a ship's depth, evenly over 3 seconds (576 C), and the
+    recovery holds there until part 4 makes the ship.
 - **On the panel and in the derelicts window (523, 524, 534 A, 535 A, 549-553):** during a recovery the tech icons
   give way to a yellow bar of the work done, with its percent rounded down, on the panel and in the window's
   Technologies column, from the order on, at 0% until the work starts; the tech count stays. On the platform's own
@@ -704,10 +714,17 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   shows a station build's effect (`ConstructionShip.AddEffects`: sparks, lightning, flashes and flying parts) at the
   recovery's progress, spreading out from its center to half its radius as the progress rises, at ship view or closer
   as a build's.
+- **Steadied for the work (Gilad, 2026-10-20; 570, 574, part 3):** over the break-in's turns the derelict's tumbling
+  slows evenly, smoothly between turns, until it stops, and it turns level, its pitch and roll back to a ship's at
+  rest and its heading kept, so it is ready to fly if recovered; its smoke goes on. Once still it stays still, also
+  after a turn to salvage or a call-off; a break-in cut short keeps the steadying it reached, and a break-in of 0
+  turns steadies it at once. The steadying is saved with the derelict. It stays at its rest depth until a successful
+  roll (576 C).
 - **No hull unlock (471, 514 A):** recovery never unlocks the ship's hull. Scrapping the recovered ship at a shipyard
   runs the game's reverse-engineering roll, or advances the hull's tech by 25% when it is not researched.
-- **The recovered ship (126, 134, 146, 147, 158, 164):** it appears where the derelict rests, facing the same way, and
-  the platform comes apart as after a salvage.
+- **The recovered ship (126, 134, 146, 147, 158, 164, 575):** it appears where the derelict rests, facing the same way,
+  at a ship's normal depth, which the derelict rose to after the roll (576 C), not its sunken one, and the platform
+  comes apart as after a salvage.
   - repair modules, external armour and engines are dead. A repair module is any module with a repair value except
     a command module: Main Engineering, repair-drone bays, Construction Array and the like (174). `RepairRate`
     sums every module with a repair value, command modules included;
@@ -947,7 +964,8 @@ Implementation notes:
    1. the Recover button and the recovery mode of the salvage order, the switch between the modes, the race's
       Engineers value and the chance on the panel;
    2. the work and its progress bar, with the build effect;
-   3. the roll, the break-up and the catastrophic blast;
+   3. the roll, the break-up and the catastrophic blast, and the derelict steadied during the break-in (570); parts 3
+      and 4 are built back to back, as separate commits, and play-tested once both are in (569 A);
    4. the recovered ship: its damage, its saved design and the order home (175);
    5. the notification, and what is left of the Codex; each part writes the Codex text of what it builds.
 
@@ -990,6 +1008,27 @@ Implementation notes:
      follow a colon, so no plural after 1 (564 A); the knobs' ranges in the Globals comments, the break-in floored at
      0 and the work at nothing (565 A); the build effect runs out as the strip effects do (566 B); 7202 tells of the
      break-in (567 A); the mode turns before the break-in resets, and the salvage files spell center (568 A).
+
+   Part 3 (Gilad, 2026-10-20; 569-579):
+   - the roll comes the turn after all the work is done (571 A); a success brings the derelict up to a ship's depth
+     over 3 seconds (576 C) and holds there, saved, until part 4;
+   - a plain failure breaks the derelict up as a drifting one does, saved, and it leaves its system and sinks at a
+     stripped one's speed; the order's work is over, and its platform takes itself apart without the salvage
+     notification;
+   - a catastrophe takes the derelict out at once, with a ship's death explosion where the player sees it and its
+     hull role's death-blast cap through the death blast's own loop with no source (573 A); the platform is always
+     destroyed (572 A) and the order ends untold until part 5. `Ship.ExplosionDamageCapPerRadius`,
+     `ExplosionEffectScale` and `DieSoundEffect` and `SpatialManager.DerelictExplode` share the ship's death blast
+     with a derelict. A destroyer hull falls to the death blast's default of 15 times its radius, as a ship's does;
+     the rules' earlier "40 for a frigate or destroyer" read the table wrong;
+   - the steadying over the break-in, saved (570, 574);
+   - Codex 100093 gains the roll, the break-up, the blast and the steadying, and "How a ship dies" now says a
+     derelict gives no blast as it forms;
+   - review (577-579): the blast stays sourceless and clears the last attacker of the ships it hits (577 B); the
+     platform's own death blast stays its owner's (578 A); the tooltip's turns left count the roll's turn, the
+     tumbling is a step the tests reach, a break-in of no turns is tested, and the ship-only overload of
+     `IsStackedOnExplosion` is gone (579 A). Logged for part 4: a held success turned to salvage and back would show
+     Breaking in for good, which part 4's spawn on the roll turn removes.
 6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors

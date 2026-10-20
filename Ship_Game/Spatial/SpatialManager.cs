@@ -3,6 +3,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Gameplay
@@ -236,7 +237,22 @@ namespace Ship_Game.Gameplay
 
             // find any nearby ship -- even allies
             SpatialObjectBase[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
+            Explode(nearby, thisShip, thisShip.ShipData.HullRole, thisShip.Radius, thisShip.Loyalty.Random, damageAmount, explosionCenter, damageRadius);
+        }
 
+        // a derelict blowing up with a ship's blast for its hull, but nobody's: armor resists it no more than other sourceless damage, and the modules it kills do not explode
+        public void DerelictExplode(RoleName hullRole, float radius, RandomBase random, float damageAmount, Vector2 explosionCenter, float damageRadius)
+        {
+            if (damageRadius <= 0.0f || damageAmount <= 0.0f)
+                return;
+
+            SpatialObjectBase[] nearby = FindNearby(GameObjectType.Ship, explosionCenter, damageRadius + 64, maxResults:32);
+            Explode(nearby, source: null, hullRole, radius, random, damageAmount, explosionCenter, damageRadius);
+        }
+
+        void Explode(SpatialObjectBase[] nearby, Ship source, RoleName hullRole, float radius, RandomBase random,
+                     float damageAmount, Vector2 explosionCenter, float damageRadius)
+        {
             for (int i = 0; i < nearby.Length; ++i)
             {
                 var otherShip = (Ship)nearby[i];
@@ -249,10 +265,12 @@ namespace Ship_Game.Gameplay
 
                 float distToNearest = explosionCenter.Distance(nearest.Position);
                 float reducedRadius = damageRadius - distToNearest;
-                bool stacked = otherShip.IsStackedOnExplosion(thisShip, explosionCenter);
-                float evadeChance = otherShip.ExplosionEvadeBaseChance(distToNearest < thisShip.Radius, stacked);
-                if (reducedRadius < 0f || thisShip.Loyalty.Random.RollDice(evadeChance))
+                bool stacked = otherShip.IsStackedOnExplosion(hullRole, explosionCenter);
+                float evadeChance = otherShip.ExplosionEvadeBaseChance(distToNearest < radius, stacked);
+                if (reducedRadius < 0f || random.RollDice(evadeChance))
                     continue;
+                if (source == null)
+                    otherShip.SetLastDamagedBy(null); // a sourceless blast is the last hit, so a ship it kills is nobody's kill
 
                 // a stacked hull takes the blast inside, at its nearest module
                 ShipModule entry = stacked ? nearest : otherShip.FindBlastEntryModule(explosionCenter) ?? nearest;
@@ -275,7 +293,7 @@ namespace Ship_Game.Gameplay
                     continue; // shields absorbed everything for this ship
 
                 // Ignoring shields because we already checked shields above
-                otherShip.DamageExplosive(thisShip, localDamage, entry.Position, spreadRadius, true);
+                otherShip.DamageExplosive(source, localDamage, entry.Position, spreadRadius, true);
 
                 if (!otherShip.Dying)
                 {

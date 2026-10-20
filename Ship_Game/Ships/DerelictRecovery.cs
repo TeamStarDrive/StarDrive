@@ -2,6 +2,7 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Ships;
 
@@ -34,6 +35,19 @@ public static class DerelictRecovery
     // percent of the empire's failed recoveries that explode
     public static float CatastropheChanceOf(Empire empire) => (CatastropheChance * (1f - Engineers(empire))).Clamped(0f, 100f);
 
+    public enum Outcome { Recovered, BrokenApart, Exploded }
+
+    // the turn after all the work is done: the chance as it stands then, and for a failure a second roll for how bad it is
+    public static Outcome Roll(Empire empire, Derelict d, RandomBase random)
+    {
+        if (random.RollDice(Chance(empire, d)))
+            return Outcome.Recovered;
+        return random.RollDice(CatastropheChanceOf(empire)) ? Outcome.Exploded : Outcome.BrokenApart;
+    }
+
+    // its hull role's biggest death blast
+    public static float BlastDamage(Derelict d) => d.Radius * Ship.ExplosionDamageCapPerRadius(d.Design.HullRole);
+
     // a platform works a recovery's slots at twice the salvage speed, which the salvage techs raise for both
     public const float SpeedPerSalvageSpeed = 2f;
 
@@ -54,13 +68,16 @@ public static class DerelictRecovery
         return work > 0f ? (workDone / work).Clamped(0f, 1f) : 1f;
     }
 
-    // whole turns left: those of the break-in, then the work's at the recovery speed
+    // whole turns left: those of the break-in, then the work's at the recovery speed, then the roll's
     public static int TurnsLeft(Empire empire, Derelict d, int breakInDone, float workDone)
     {
         int breakIn = (BreakInTurns - breakInDone).LowerBound(0);
         float left = Work(empire, d) - workDone;
         float speed = Speed;
-        return left <= 0f ? breakIn : speed > 0f ? breakIn + (int)Math.Ceiling(left / speed) : int.MaxValue;
+        if (left > 0f && speed <= 0f)
+            return int.MaxValue;
+        int work = left > 0f ? (int)Math.Ceiling(left / speed) : 0;
+        return breakIn + work + 1;
     }
 
     static float Engineers(Empire empire) => empire.RaceEngineers;

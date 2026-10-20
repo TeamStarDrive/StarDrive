@@ -33,6 +33,10 @@ namespace Ship_Game.Commands.Goals
         [StarData] public float RecoveryWork { get; private set; }
         // the turns its platform has broken into the derelict since the order last turned to the recovery, passed on with it
         [StarData] public int BreakInDone { get; private set; }
+        // its roll broke the derelict apart, so its platform's work is over
+        [StarData] public bool RecoveryFailed { get; private set; }
+        // its roll succeeded, and the recovery holds there
+        [StarData] public bool RecoverySucceeded { get; private set; }
         [StarData] int DismantleTurnsLeft;
         // its derelict's techs and whole production, kept for the loads sent once the derelict has sunk away
         [StarData] public string[] Techs { get; private set; } = Empty<string>.Array;
@@ -49,7 +53,7 @@ namespace Ship_Game.Commands.Goals
         Ship LastStation;
 
         // its platform's work is over: it sends its station all it holds, then takes itself apart
-        public bool Finished => Emptied || CalledOff;
+        public bool Finished => Emptied || CalledOff || RecoveryFailed;
 
         public bool Dismantling => DismantleTurnsLeft > 0;
 
@@ -100,6 +104,8 @@ namespace Ship_Game.Commands.Goals
             Recovering = passed.Recovering;
             RecoveryWork = passed.RecoveryWork;
             BreakInDone = passed.BreakInDone;
+            RecoveryFailed = passed.RecoveryFailed;
+            RecoverySucceeded = passed.RecoverySucceeded;
             DismantleTurnsLeft = passed.DismantleTurnsLeft;
             ChangeToStep(passed.Dismantling ? Dismantle : Salvage);
         }
@@ -360,7 +366,7 @@ namespace Ship_Game.Commands.Goals
             constructor.Mothership = null;
         }
 
-        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; a recovering one strips nothing, first sends all it holds, then works on the recovery; once its work is over it sends all it holds, then takes itself apart, the player told; one lost or in other hands ends the order, and a lost station takes its platform with it
+        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; a recovering one strips nothing, first sends all it holds, then works on the recovery; once its work is over it sends all it holds, then takes itself apart, the player told of a salvage's end; one lost or in other hands ends the order, and a lost station takes its platform with it
         GoalStep Salvage()
         {
             if (Platform is not { Active: true } platform)
@@ -377,17 +383,26 @@ namespace Ship_Game.Commands.Goals
                 Derelict.TryClaim(Owner); // takes back a claim that a call-off caught halfway by a save dropped
             if (Finished || HoldFull(platform) || Recovering && platform.GetProduction() > 0f)
                 SendLoad(platform, station);
-            else if (Recovering)
-                Recover(platform, Derelict);
-            else
+            else if (Recovering && Recover(platform, Derelict))
+                return Exploded(platform);
+            else if (!Recovering)
                 Strip(platform, Derelict);
 
             if (!Finished || platform.GetProduction() > 0f)
                 return GoalStep.TryAgain;
             DismantleTurnsLeft = DismantleTurns;
             platform.StartDismantling();
-            PlayerNotifications?.AddSalvageFinishedNotification(this);
+            if (!RecoveryFailed)
+                PlayerNotifications?.AddSalvageFinishedNotification(this);
             return GoalStep.GoToNextStep;
+        }
+
+        // the blast always destroys the platform beside it, and the order ends with them
+        GoalStep Exploded(Ship platform)
+        {
+            platform.InstantKill();
+            Platform = null; // its end no longer takes the platform away
+            return GoalStep.GoalFailed;
         }
 
         // it is gone once its turns are over, freeing its unit
@@ -482,24 +497,50 @@ namespace Ship_Game.Commands.Goals
             Emptied = d.Stripped;
         }
 
-        // a turn of breaking in, then a turn's work at the recovery speed, until all of it is done; the shuttles fly a full turn's while it breaks in
-        void Recover(Ship platform, Derelict d)
+        // a turn of breaking in, which steadies the derelict, then a turn's work at the recovery speed, until all of it is done, and the turn after, the roll; the shuttles fly a full turn's while it breaks in; true when the derelict exploded
+        bool Recover(Ship platform, Derelict d)
         {
+            if (RecoverySucceeded)
+                return false;
             float speed = DerelictRecovery.Speed;
             if (BreakingIn)
             {
                 ++BreakInDone;
+                d.SteadyTo(BreakInDone / (float)DerelictRecovery.BreakInTurns);
                 d.ShowRecoveryWork(platform, DerelictRecovery.Progress(Owner, d, RecoveryWork));
                 SendShuttles(platform, d, CargoShuttles.RecoveryShuttlesFor(speed));
-                return;
+                return false;
             }
+            d.SteadyTo(1f); // at once after a break-in of no turns
             float work = DerelictRecovery.Work(Owner, d);
-            if (RecoveryWork >= work || speed <= 0f)
-                return;
+            if (RecoveryWork >= work)
+                return Roll(d);
+            if (speed <= 0f)
+                return false;
             float before = RecoveryWork;
             RecoveryWork = Math.Min(RecoveryWork + speed, work); // the work exactly, once all is done
             d.ShowRecoveryWork(platform, DerelictRecovery.Progress(Owner, d, RecoveryWork));
             SendShuttles(platform, d, CargoShuttles.RecoveryShuttlesFor(RecoveryWork - before));
+            return false;
+        }
+
+        // a success holds; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up; true for the catastrophe
+        bool Roll(Derelict d)
+        {
+            switch (DerelictRecovery.Roll(Owner, d, Owner.Random))
+            {
+                case DerelictRecovery.Outcome.Recovered:
+                    RecoverySucceeded = true;
+                    d.Rise();
+                    return false;
+                case DerelictRecovery.Outcome.BrokenApart:
+                    RecoveryFailed = true;
+                    UState.Derelicts.BreakApart(d);
+                    return false;
+                default:
+                    UState.Derelicts.Explode(d);
+                    return true;
+            }
         }
 
         // they show only where the player sees the platform, as a supply ship's do

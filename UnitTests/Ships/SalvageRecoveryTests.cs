@@ -1,11 +1,14 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
+using Outcome = Ship_Game.Ships.DerelictRecovery.Outcome;
 using Kind = Ship_Game.Ships.DerelictSalvageButton.Kind;
 using Stage = Ship_Game.Commands.Goals.SalvageDerelict.Stage;
 using Vector2 = SDGraphics.Vector2;
@@ -108,6 +111,39 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     Stage StageOf(Derelict d) => SalvageDerelict.StageOf(Player, d, out _, out _);
+
+    // each roll is the next of these, from 0 to 1, the last one again and again: a dice roll passes under its percent
+    sealed class FixedRandom : RandomBase
+    {
+        readonly Rolls Source;
+        public FixedRandom(params double[] rolls) : base(1) { Source = new(rolls); }
+        protected override Random Rand => Source;
+
+        sealed class Rolls : Random
+        {
+            readonly double[] Values;
+            int At;
+            public Rolls(double[] values) { Values = values; }
+            protected override double Sample() => Values[Math.Min(At++, Values.Length - 1)];
+            public override double NextDouble() => Sample();
+        }
+    }
+
+    static void RollsWith(Empire empire, params double[] rolls)
+        => typeof(Empire).GetField(nameof(Empire.Random))!.SetValue(empire, new FixedRandom(rolls));
+
+    // the player's recovery with all its work done, so its next turn rolls
+    SalvageDerelict AllWorkDone(Derelict d)
+    {
+        BuiltStation();
+        Player.data.SelectedTraitSet = "";
+        SalvageDerelict order = AtWork(d, recover: true);
+        Turns(order, 10 + (int)Math.Ceiling(DerelictRecovery.Work(Player, d) / 24f));
+        AssertEqual(1f, DerelictRecovery.Progress(Player, d, order.RecoveryWork), "setup: all the work done");
+        return order;
+    }
+
+    static FixedSimTime Seconds(float seconds) => new(seconds);
 
     Block BlockOf(Derelict d, Kind kind) => DerelictSalvageButton.BlockOf(kind, SalvageDerelict.WhyNoOrder(Player, d), d);
 
@@ -310,6 +346,8 @@ public class SalvageRecoveryTests : StarDriveTest
         Player.data.SelectedTraitSet = "Skilled Engineers";
         Turns(order, 11);
         AssertEqual(0.01f, 24f, order.RecoveryWork, "setup: broken in, and a turn's work done");
+        d.Update(Seconds(UState.P.TurnTimer * 3f));
+        AssertEqual(0.001f, 0.3f, d.Steadiness, "setup: steadied for three turns");
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
@@ -319,7 +357,11 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsTrue(loadedOrder.Recovering, "a recovery stays one through a save");
         AssertEqual(0.01f, 24f, loadedOrder.RecoveryWork, "with its work done");
         AssertEqual(10, loadedOrder.BreakInDone, "and its break-in");
-        AssertEqual(0.001f, 0.4f, loaded.UState.Derelicts.Current.First().HealthAtDeath, "the derelict keeps the health its ship died with");
+        Derelict loadedDerelict = loaded.UState.Derelicts.Current.First();
+        AssertEqual(0.001f, 0.4f, loadedDerelict.HealthAtDeath, "the derelict keeps the health its ship died with");
+        AssertEqual(0.001f, 0.3f, loadedDerelict.Steadiness, "and its steadying");
+        loadedDerelict.Update(Seconds(UState.P.TurnTimer * 10f));
+        AssertEqual(1f, loadedDerelict.Steadiness, "which goes on to where the break-in took it");
         AssertEqual(0.01f, 0.2f, loaded.UState.Player.RaceEngineers, "and the race's engineers with its traits");
 
         SalvageDerelict.PassOn(Player, Enemy);
@@ -416,10 +458,10 @@ public class SalvageRecoveryTests : StarDriveTest
         float work = DerelictRecovery.Work(Player, d);
         AssertEqual(0.001f, 0.25f, DerelictRecovery.Progress(Player, d, work * 0.25f), "a quarter of the work done");
         int workTurns = (int)Math.Ceiling(work / 24f);
-        AssertEqual(10 + workTurns, DerelictRecovery.TurnsLeft(Player, d, 0, 0f), "the break-in's turns, then the work's");
-        AssertEqual(6 + workTurns, DerelictRecovery.TurnsLeft(Player, d, 4, 0f), "four turns into the break-in");
-        AssertEqual((int)Math.Ceiling((work - 24f) / 24f), DerelictRecovery.TurnsLeft(Player, d, 10, 24f), "a turn's work done after it");
-        AssertEqual(0, DerelictRecovery.TurnsLeft(Player, d, 10, work), "none once all is done");
+        AssertEqual(10 + workTurns + 1, DerelictRecovery.TurnsLeft(Player, d, 0, 0f), "the break-in's turns, then the work's, then the roll's");
+        AssertEqual(6 + workTurns + 1, DerelictRecovery.TurnsLeft(Player, d, 4, 0f), "four turns into the break-in");
+        AssertEqual((int)Math.Ceiling((work - 24f) / 24f) + 1, DerelictRecovery.TurnsLeft(Player, d, 10, 24f), "a turn's work done after it");
+        AssertEqual(1, DerelictRecovery.TurnsLeft(Player, d, 10, work), "only the roll's once all the work is done");
     }
 
     [TestMethod]
@@ -468,5 +510,174 @@ public class SalvageRecoveryTests : StarDriveTest
         AssertEqual(Stage.Salvaging, StageOf(d), "its salvage reads Salvaging");
         AssertEqual(string.Format(Localizer.Token(GameText.DerelictSalvagedBy), Enemy.Name), DerelictSalvageButton.ClaimTip(d, Enemy),
                     "and its flag's tooltip says it salvages the derelict");
+    }
+
+    [TestMethod]
+    public void TheRollRecoversAtTheChanceAndATenthOfTheFailuresExplode()
+    {
+        Derelict d = Forms(Wreck);
+        Player.data.SelectedTraitSet = "";
+        AssertEqual(0.01f, 20f, Chance(Player, d), "setup: a capital's 20%");
+        AssertEqual(Outcome.Recovered, DerelictRecovery.Roll(Player, d, new FixedRandom(0.19)), "a roll under the chance recovers the ship");
+        AssertEqual(Outcome.BrokenApart, DerelictRecovery.Roll(Player, d, new FixedRandom(0.21, 0.11)),
+                    "one over it fails, and a second roll over a tenth breaks the derelict apart");
+        AssertEqual(Outcome.Exploded, DerelictRecovery.Roll(Player, d, new FixedRandom(0.21, 0.09)), "while one under a tenth blows it up");
+    }
+
+    [TestMethod]
+    public void TheRollComesTheTurnAfterAllTheWorkIsDoneAndASuccessHolds()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RollsWith(Player, 0.0);
+        SalvageDerelict order = AllWorkDone(d);
+        Assert.IsFalse(order.RecoverySucceeded, "the full bar shows for a turn before the roll");
+
+        float depth = d.Z;
+        AssertGreaterThan(depth, 0f, "setup: the derelict rests below a ship's depth");
+        Turns(order, 1);
+        Assert.IsTrue(order.RecoverySucceeded, "the turn after, a roll under the chance succeeds");
+        d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
+        AssertEqual(0.01f, depth * 0.5f, d.Z, "and the derelict rises evenly");
+        d.Update(Seconds(Derelict.RiseSeconds * 0.5f));
+        AssertEqual(0f, d.Z, "to a ship's depth over a few seconds");
+        RollsWith(Player, 0.99, 0.99);
+        Turns(order, 1);
+        d.Update(Seconds(1f));
+        Assert.IsTrue(d.CanBeSalvaged && d.Claimant == Player && d.Z == 0f, "where the recovery holds, rolling no more");
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsTrue(loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First().RecoverySucceeded, "through a save");
+        Assert.IsTrue(loaded.UState.Derelicts.Current.First().Rising, "the derelict still up");
+    }
+
+    [TestMethod]
+    public void AFailedRollBreaksTheDerelictApartAndItsPlatformComesApart()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = AllWorkDone(d);
+        RollsWith(Player, 0.99, 0.99);
+        var notes = Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+
+        Turns(order, 1);
+        Assert.IsTrue(d.BrokenApart, "a roll over the chance, and a second one over a tenth, break the derelict apart");
+        AssertEqual(0, notes.NumberOfNotifications, "which does not tell of a salvage's end");
+        Assert.IsFalse(d.CanBeSalvaged, "so it can no longer be salvaged");
+        Assert.IsFalse(WreckSystem.Derelicts.ContainsRef(d), "and leaves its system");
+        Assert.IsTrue(order.RecoveryFailed && order.Dismantling, "its platform takes itself apart");
+        Assert.IsFalse(d.Sinking, "the derelict breaks up first");
+        d.Update(Seconds(Derelict.MaxBreakupSeconds + 0.1f));
+        Assert.IsTrue(d.Sinking, "then sinks away");
+
+        UState.StarDate = 1001f;
+        SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsTrue(loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First().RecoveryFailed, "the failure survives a save");
+        Assert.IsTrue(loaded.UState.Derelicts.Current.First().BrokenApart, "and so does the broken derelict");
+
+        Turns(order, SalvageDerelict.DismantleTurns);
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "the order ends with its platform");
+        Assert.IsNull(d.Claimant, "and gives up the derelict");
+    }
+
+    [TestMethod]
+    public void AFailedRecoveryPassedOnStaysFailed()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = AllWorkDone(d);
+        RollsWith(Player, 0.99, 0.99);
+        Turns(order, 1);
+        Assert.IsTrue(order.RecoveryFailed, "setup: the roll failed");
+
+        SalvageDerelict.PassOn(Player, Enemy);
+        SalvageDerelict passed = Enemy.AI.FindGoals<SalvageDerelict>().First();
+        Assert.IsTrue(passed.RecoveryFailed && passed.Finished, "the order passed on keeps its platform's work over");
+    }
+
+    [TestMethod]
+    public void ACatastropheBlowsUpTheDerelictAndItsPlatformAndHitsTheShipsNearItBlamingNobody()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = AllWorkDone(d);
+        Ship platform = order.Platform;
+        Ship near = SpawnShip("Dreadnought mk1-a", Enemy, d.Position + new Vector2(0f, d.Radius + 200f));
+        RunObjectsSim(TestSimStep);
+        float health = near.Health;
+        near.SetLastDamagedBy(platform); // as if a shot had just hit it
+
+        RollsWith(Player, 0.99, 0.0);
+        Turns(order, 1);
+        Assert.IsFalse(UState.Derelicts.Current.ContainsRef(d), "a roll over the chance, and a second one under a tenth, blow the derelict up");
+        Assert.IsFalse(d.CanBeSalvaged, "so a panel still holding it shows it no more");
+        Assert.IsFalse(platform.Active, "and its platform with it");
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "which ends the order");
+        AssertLessThan(near.Health, health, "the blast hits a ship near it");
+        Assert.IsNull(near.LastDamagedBy, "and blames nobody, not even the ship that hit it last");
+    }
+
+    [TestMethod]
+    public void TheBreakInSteadiesTheDerelictEvenlyToAShipsLevelRestForGood()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        float tumbled = d.RotationZ;
+        d.Tumble(1f);
+        Assert.AreNotEqual(tumbled, d.RotationZ, "setup: it tumbles as it did at its death");
+        typeof(Derelict).GetProperty(nameof(Derelict.RotationX))!.SetValue(d, 1f);
+        typeof(Derelict).GetProperty(nameof(Derelict.RotationY))!.SetValue(d, -0.5f);
+        typeof(Derelict).GetProperty(nameof(Derelict.RotationZ))!.SetValue(d, 2f);
+        float heading = d.RotationZ;
+        BuiltStation();
+        SalvageDerelict order = AtWork(d, recover: true);
+        float turn = UState.P.TurnTimer;
+
+        Turns(order, 1);
+        d.Update(Seconds(turn * 0.5f));
+        AssertEqual(0.001f, 0.05f, d.Steadiness, "half a turn into the break-in's first turn, a twentieth of the way");
+        AssertEqual(0.001f, 0.95f, d.RotationX, "its pitch coming level at the same pace");
+        AssertEqual(0.001f, -0.475f, d.RotationY, "and its roll");
+        d.Update(Seconds(turn));
+        AssertEqual(0.001f, 0.1f, d.Steadiness, "no further than the break-in's turns so far take it");
+
+        for (int i = 1; i < 10; ++i)
+        {
+            Turns(order, 1);
+            d.Update(Seconds(turn));
+        }
+        AssertEqual(1f, d.Steadiness, "still once the break-in is over");
+        AssertEqual(0f, d.RotationX, "and level");
+        AssertEqual(0f, d.RotationY, "in both ways");
+        AssertEqual(heading, d.RotationZ, "its heading kept");
+
+        SalvageDerelict.Switch(Player, d, recover: false);
+        Turns(order, 1);
+        d.Update(Seconds(turn));
+        d.Tumble(turn);
+        AssertEqual(1f, d.Steadiness, "and it stays still once its platform turns to salvage");
+        Assert.IsTrue(d.RotationX == 0f && d.RotationY == 0f && d.RotationZ == heading, "tumbling no more");
+    }
+
+    [TestMethod]
+    public void WithNoBreakInTheWorkStartsAtOnceAndTheDerelictSteadiesAtOnce()
+    {
+        int breakIn = GlobalStats.Defaults.SalvageRecoveryBreakInTurns;
+        try
+        {
+            GlobalStats.Defaults.SalvageRecoveryBreakInTurns = 0;
+            Derelict d = Forms(Wreck, health: 0.4f);
+            typeof(Derelict).GetProperty(nameof(Derelict.RotationX))!.SetValue(d, 1f);
+            BuiltStation();
+            SalvageDerelict order = AtWork(d, recover: true);
+            Assert.IsFalse(order.BreakingIn, "with no break-in");
+            Turns(order, 1);
+            AssertEqual(0.01f, 24f, order.RecoveryWork, "the work starts the first turn");
+            d.Update(Seconds(0.1f));
+            AssertEqual(1f, d.Steadiness, "and the derelict steadies at once");
+            AssertEqual(0f, d.RotationX, "level");
+        }
+        finally
+        {
+            GlobalStats.Defaults.SalvageRecoveryBreakInTurns = breakIn;
+        }
     }
 }
