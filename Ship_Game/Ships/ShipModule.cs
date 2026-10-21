@@ -648,7 +648,8 @@ namespace Ship_Game.Ships
             public float ParentScale;
             public float Cos;
             public float Sin;
-            public float Tan;
+            public float BankSin;
+            public float BankCos;
         }
 
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
@@ -659,7 +660,7 @@ namespace Ship_Game.Ships
             float cy = a.ParentY + offset.X * a.Sin + offset.Y * a.Cos;
             Position.X = cx;
             Position.Y = cy;
-            ZPos = HullSurfaceZ - a.Tan * offset.X;
+            ZPos = HullSurfaceZ * a.BankCos - a.BankSin * offset.X;
             Rotation = a.ParentRotation; // assume parent rotation is already normalized
         }
 

@@ -991,7 +991,7 @@ namespace Ship_Game.Gameplay
                     }
 
                     // before the damage, so that a killing hit's push carries into the wreck
-                    PushShip(parent);
+                    PushShip(parent, hitPos);
                     ArmorPiercingTouch(module, parent, hitPos);
                     Health = 0f;
                     if (InFrustum)
@@ -1007,14 +1007,16 @@ namespace Ship_Game.Gameplay
         float PushOrdnance => WarheadOrdnance >= 0f ? WarheadOrdnance : Weapon.OrdinanceRequiredToFire;
 
         // 5 mass per ordnance point, pushing by its momentum relative to the ship; plasma and drones push nothing
-        void PushShip(Ship ship)
+        void PushShip(Ship ship, Vector2 hitPos)
         {
             float ordnance = PushOrdnance;
             if (ordnance <= 0f || Weapon.Tag_Plasma || Weapon.IsRepairDrone)
                 return;
             bool missile = Weapon.Tag_Guided || Weapon.Tag_Missile || Weapon.Tag_Torpedo; // missiles, rockets and torpedoes push by half
             float mass = ordnance * 5f * (missile ? 0.5f : 1f);
-            ship.ApplyImpulse(mass * (Velocity - ship.Velocity));
+            Vector2 impulse = mass * (Velocity - ship.Velocity);
+            ship.BankFromHit(impulse, hitPos);
+            ship.ApplyImpulse(impulse);
         }
 
         void CreateWeaponDeathEffect(GameObject target)

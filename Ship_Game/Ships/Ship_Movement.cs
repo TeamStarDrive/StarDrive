@@ -73,6 +73,10 @@ namespace Ship_Game.Ships
         // -1.0: rotating towards Left
         float RotationThisFrame;
 
+        // the roll a hit eases the ship to, and the seconds left to get there
+        float HitRoll;
+        float HitRollSeconds;
+
         // assume Thrust or Mass just changed
         // this is called from StatusChange, which is not very often
         void UpdateVelocityMax() 
@@ -142,18 +146,24 @@ namespace Ship_Game.Ships
             RotationThisFrame = 0f;
 
             bool shouldBank = IsVisibleToPlayer && rotAmount != 0f && !AI.IsInOrbit;
-            if (shouldBank)
+            if (HitRollSeconds > 0f) // a hit's roll eases in before the ship banks or settles
+            {
+                float dt = timeStep.FixedTime;
+                if (IsLaunchingOrLanding) // launching and landing set the roll themselves
+                    HitRollSeconds = 0f;
+                else if (HitRollSeconds <= dt)
+                    YRotation = HitRoll;
+                else
+                    YRotation += (HitRoll - YRotation) * (dt / HitRollSeconds);
+                HitRollSeconds -= dt;
+            }
+            // a roll past the bank limit, from a hit, settles back before the ship banks into its turn
+            else if (shouldBank && Math.Abs(YRotation) <= MaxBank)
             {
                 if (rotAmount > 0f) // Y-bank:
-                {
-                    if (YRotation > -MaxBank)
-                        YRotation -= GetYBankAmount(timeStep);
-                }
+                    YRotation = Math.Max(YRotation - GetYBankAmount(timeStep), -MaxBank);
                 else if (rotAmount < 0f)
-                {
-                    if (YRotation < MaxBank)
-                        YRotation += GetYBankAmount(timeStep);
-                }
+                    YRotation = Math.Min(YRotation + GetYBankAmount(timeStep), MaxBank);
             }
             else
             {
@@ -214,6 +224,23 @@ namespace Ship_Game.Ships
             float cap = Math.Max(MaxSTLSpeed, Velocity.Length());
             float speed = pushed.Length();
             Velocity = speed > cap ? pushed * (cap / speed) : pushed;
+        }
+
+        // stations, and ships that are dying, at warp, launching or landing, are not rolled by hits or blasts
+        public bool RollsFromHits => !Dying && !Stats.IsStationary && !IsInWarp && !IsLaunchingOrLanding;
+
+        // eases in a turn-like roll of torque over a disc's inertia over 0.25 s, capped at 3x turn rate and 90 degrees unless rolled further
+        public void BankFromHit(Vector2 impulse, Vector2 hitPos)
+        {
+            if (!RollsFromHits || Mass <= 0f || Radius <= 0f)
+                return;
+
+            Vector2 arm = hitPos - Position;
+            float torque = arm.X * impulse.Y - arm.Y * impulse.X;
+            float from = HitRollSeconds > 0f ? HitRoll : YRotation;
+            float cap = Math.Max(Math.Min(3f * RotationRadsPerSecond, RadMath.HalfPI), Math.Abs(from));
+            HitRoll = (from - torque / (0.5f * Mass * Radius * Radius)).Clamped(-cap, cap);
+            HitRollSeconds = HitRoll != YRotation ? 0.25f : 0f;
         }
 
         // NOTE: do not call outside of unit tests or Ship.Update !

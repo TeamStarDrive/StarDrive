@@ -111,7 +111,7 @@ namespace UnitTests.AITests.Ships
                 yBankReached = Math.Max(Math.Abs(ship.YRotation), yBankReached);
             });
 
-            // Allow 10% tolerance in max bank (saves performance in game since not using lower/higher bounds)
+            // banking stops at the limit
             AssertLessThan(yBankReached, maxYBank * 1.1f);
             AssertGreaterThan(yBankReached, maxYBank * 0.95f);
             AssertEqual(0, ship.YRotation, "Ship should reach 0 Y rotation at this point");

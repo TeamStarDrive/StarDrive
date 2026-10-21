@@ -277,11 +277,12 @@ namespace Ship_Game.Gameplay
                 // Ignoring shields because we already checked shields above
                 otherShip.DamageExplosive(thisShip, localDamage, entry.Position, spreadRadius, true);
 
-                if (!otherShip.Dying)
+                if (otherShip.RollsFromHits)
                 {
-                    float rotationImpulse = damageRadius / (float)Math.Pow(otherShip.Mass, 1.3);
-                    otherShip.YRotation = otherShip.YRotation > 0.0f ? rotationImpulse : -rotationImpulse;
-                    otherShip.YRotation = otherShip.YRotation.Clamped(-otherShip.MaxBank, otherShip.MaxBank);
+                    // a blast never flattens a bigger roll the ship already has
+                    float rotationImpulse = (damageRadius / (float)Math.Pow(otherShip.Mass, 1.3)).UpperBound(otherShip.MaxBank);
+                    if (Math.Abs(otherShip.YRotation) < rotationImpulse)
+                        otherShip.YRotation = otherShip.YRotation > 0.0f ? rotationImpulse : -rotationImpulse;
                 }
 
                 // apply some impulse from the explosion

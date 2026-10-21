@@ -181,6 +181,7 @@
     <Compile Include="Ships\MiningStationVisualsTests.cs" />
     <Compile Include="Ships\LaunchingShipProtectionTests.cs" />
     <Compile Include="Ships\HangarLandingTests.cs" />
+    <Compile Include="Ships\HitBankTests.cs" />
     <Compile Include="Ships\BoardingLandingTests.cs" />
     <Compile Include="Ships\TroopLandingTests.cs" />
     <Compile Include="Ships\OrdnanceShuttleTests.cs" />
