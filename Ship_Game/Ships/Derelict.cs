@@ -16,12 +16,12 @@ using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game.Ships;
 
-// a ship that died without exploding: it breaks up and drifts on with its lights out, tumbling and smoking, then sinks away;
-// a salvageable one stops in its system and sinks only when its turns run out or a platform strips it empty
+// a ship that died without exploding: it breaks up and drifts to a stop with its lights out, tumbling and smoking, then sinks away;
+// a salvageable one stays in its system and sinks only when its turns run out or a platform strips it empty
 [StarDataType]
 public sealed class Derelict
 {
-    // a salvageable derelict stops over this time and stays put; a drifting one keeps going and sinks after its breakup
+    // a derelict stops over this time and stays put; a drifting one sinks from the end of its breakup
     public const float StopSeconds = 10f;
     public const float MinBreakupSeconds = 3f;
     public const float MaxBreakupSeconds = 5f;
@@ -111,7 +111,7 @@ public sealed class Derelict
     [StarData] public float ProductionLeft { get; private set; }
     // a salvageable one's share of its health at its death, which a recovery's work makes up
     [StarData] public readonly float HealthAtDeath;
-    // a salvageable one's system, where it stops
+    // where it stops: a salvageable one's system, clear of the star's radiation, or the system a drifting one lies in
     [StarData] public readonly SolarSystem System;
     // the empire salvaging it, set on the sim thread; its timer stands meanwhile
     [StarData] public Empire Claimant { get; private set; }
@@ -147,7 +147,7 @@ public sealed class Derelict
         }
     }
 
-    // seen: it breaks up where the ship died; unseen, it is a salvageable one already at its stop point, with no effects
+    // seen: it breaks up where the ship died; unseen, with no effects, a salvageable one is already at its stop point and a drifting one goes on from where the ship died
     public Derelict(Ship ship, SceneObject so, bool salvageable, bool seen)
     {
         Universe = ship.Universe;
@@ -187,12 +187,19 @@ public sealed class Derelict
             Techs = PickTechs(Design, Owner, random);
             System = SalvageSystemAt(Universe, StopPoint(ship));
         }
+        else
+        {
+            System = SystemAt(Universe, StopPoint(ship));
+        }
 
         if (!seen)
         {
-            Position = StopPoint(ship);
-            Z = RestDepth;
-            Age = StopSeconds;
+            if (salvageable)
+            {
+                Position = StopPoint(ship);
+                Z = RestDepth;
+                Age = StopSeconds;
+            }
             return;
         }
         GameAudio.PlaySfxAsync("sd_explosion_ship_det_small", ship.SoundEmitter);
@@ -236,22 +243,35 @@ public sealed class Derelict
         return speed > ship.MaxSTLSpeed ? velocity * (ship.MaxSTLSpeed / speed) : velocity;
     }
 
-    // a salvageable derelict slows linearly to a stop, so it covers half the distance it would drift in that time
+    // a derelict slows linearly to a stop, so it covers half the distance it would drift in that time
     public static Vector2 StopPoint(Ship ship) => ship.Position + DriftVelocityOf(ship) * (StopSeconds * 0.5f);
 
     // the system a salvageable derelict would stop in: none outside every system, or inside a star's radiation or 2000 around it
     public static SolarSystem SalvageSystemAt(UniverseState universe, Vector2 stop)
     {
+        SolarSystem system = SystemAt(universe, stop);
+        return system != null && system.InSafeDistanceFromRadiation(stop.Distance(system.Position)) ? system : null;
+    }
+
+    // the system a point lies in, radiation or not
+    public static SolarSystem SystemAt(UniverseState universe, Vector2 point)
+    {
         var systems = universe.Systems;
         for (int i = 0; i < systems.Count; ++i)
-        {
-            SolarSystem system = systems[i];
-            float distance = stop.Distance(system.Position);
-            if (distance < system.Radius)
-                return system.InSafeDistanceFromRadiation(distance) ? system : null;
-        }
+            if (point.Distance(systems[i].Position) < systems[i].Radius)
+                return systems[i];
         return null;
     }
+
+    // the percent chance that a derelict of the hull's role drifts rather than lies to be salvaged
+    public static float DriftingChance(RoleName hullRole) => hullRole switch
+    {
+        RoleName.frigate    => 75f,
+        RoleName.cruiser    => 50f,
+        RoleName.battleship => 25f,
+        RoleName.capital    => 10f,
+        _                   => 70f,
+    };
 
     // how many techs a salvageable one holds, by its hull role; an untethered station holds 3
     public static int TechsHeld(RoleName hullRole) => hullRole switch
@@ -581,10 +601,11 @@ public sealed class Derelict
         }
     }
 
-    public Vector2 VelocityNow => Salvageable ? DriftVelocity * (1f - Age / StopSeconds).Clamped(0f, 1f) : DriftVelocity;
+    // salvageable or drifting, it slows linearly to a stop
+    public Vector2 VelocityNow => DriftVelocity * (1f - Age / StopSeconds).Clamped(0f, 1f);
 
-    // where a salvageable one comes to rest: slowing linearly, it covers half its speed times the time left
-    public Vector2 RestPosition => Salvageable ? Position + VelocityNow * ((StopSeconds - Age) * 0.5f) : Position;
+    // where it comes to rest: slowing linearly, it covers half its speed times the time left
+    public Vector2 RestPosition => Position + VelocityNow * ((StopSeconds - Age) * 0.5f);
 
     public float RestDepth => Salvageable ? Math.Min(Radius, MaxRestDepth) : 0f;
 
@@ -615,11 +636,11 @@ public sealed class Derelict
         return true;
     }
 
-    // false once it has sunk out of sight and left the scene; with no model, one the player does not know of is gone once it starts to sink
+    // false once it has sunk out of sight and left the scene; with no model, a salvageable one the player does not know of is gone once it starts to sink, and a drifting one sinks on for the player to come upon
     public bool Update(FixedSimTime timeStep)
     {
         SceneObject so = So;
-        if (so == null && Sinking && !KnownByPlayer)
+        if (so == null && Salvageable && Sinking && !KnownByPlayer)
             return false;
 
         float dt = timeStep.FixedTime;

@@ -5,6 +5,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Universe;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships;
@@ -61,8 +62,54 @@ public sealed class Derelicts
 
     int CountSalvageable() => Items.Count(d => d.CanBeSalvaged);
 
-    // the drifting cap counts only the ones with a model: a wreck nobody can see costs nothing, and one rising for its ship is not drifting
-    int CountDriftingInScene() => Items.Count(d => !d.CanBeSalvaged && !d.RisingForItsShip && d.InScene);
+    // a test's fixed outcome for the hull's roll; null in the game
+    internal bool? TestDriftRoll;
+
+    // the hull's roll for a derelict to drift rather than lie to be salvaged
+    public bool RollsDrifting(RoleName hullRole, RandomBase random) => TestDriftRoll ?? random.RollDice(Derelict.DriftingChance(hullRole));
+
+    // the drifting cap counts every derelict past salvage, with a model or not, but none rising for its ship
+    int CountDrifting() => Items.Count(d => !d.CanBeSalvaged && !d.RisingForItsShip);
+
+    static bool PlayerKnowsAtDeath(Ship ship, Empire killer)
+    {
+        Empire player = ship.Universe.Player;
+        return player != null && (ship.Loyalty == player || killer == player || InOwnSensors(player, ship.Position));
+    }
+
+    // from any thread: within the sensors of the empire's own ships and planets, its allies' and its moles' left out
+    static bool InOwnSensors(Empire empire, Vector2 point)
+    {
+        Empire.InfluenceNode[] nodes = empire.SensorNodes;
+        for (int i = 0; i < nodes.Length; ++i)
+        {
+            GameObject source = nodes[i].Source;
+            bool own = source is Ship s ? s.Active && s.Loyalty == empire : source is Planet p && p.Owner == empire;
+            if (own && point.InRadius(source.Position, nodes[i].Radius))
+                return true;
+        }
+        return false;
+    }
+
+    // under the lock: outside every system only a wreck the player owned, destroyed or had in its own sensors drifts, and at the cap one with a model takes the place of the oldest drifting one without
+    bool HasPlaceToDrift(Ship ship, bool withModel, Empire killer)
+    {
+        if (Derelict.SystemAt(ship.Universe, Derelict.StopPoint(ship)) == null && !PlayerKnowsAtDeath(ship, killer))
+            return false;
+        if (CountDrifting() < DriftingCap(ship.Universe))
+            return true;
+        if (!withModel)
+            return false;
+        for (int i = 0; i < Items.Count; ++i)
+        {
+            if (!Items[i].Salvageable && !Items[i].InScene)
+            {
+                Items.RemoveAt(i);
+                return true;
+            }
+        }
+        return false;
+    }
 
     // from any thread: a derelict of the design that may yet come back as a ship, salvageable or rising for its ship and not a station, which keeps the design from being overwritten or deleted
     public bool AnyMayComeBackAs(string designName)
@@ -84,17 +131,19 @@ public sealed class Derelicts
     static int Cap(UniverseState universe, float multiplier)
         => Math.Max(1, (int)Math.Ceiling(universe.Systems.Count * multiplier.Clamped(MinCapMultiplier, MaxCapMultiplier) - 0.001f));
 
-    // as the game or a mod loads: a cap multiplier over 10 is used as 10
+    // as the game or a mod loads: a cap multiplier out of 0.1 to 10 is used as the nearer of the two
     public static void WarnOfCapMultipliers(GamePlayGlobals settings, string file)
     {
-        WarnIfOverMax(nameof(GamePlayGlobals.DriftingDerelictCapMultiplier), settings.DriftingDerelictCapMultiplier, file);
-        WarnIfOverMax(nameof(GamePlayGlobals.SalvageableDerelictCapMultiplier), settings.SalvageableDerelictCapMultiplier, file);
+        WarnIfOutOfRange(nameof(GamePlayGlobals.DriftingDerelictCapMultiplier), settings.DriftingDerelictCapMultiplier, file);
+        WarnIfOutOfRange(nameof(GamePlayGlobals.SalvageableDerelictCapMultiplier), settings.SalvageableDerelictCapMultiplier, file);
     }
 
-    static void WarnIfOverMax(string knob, float multiplier, string file)
+    static void WarnIfOutOfRange(string knob, float multiplier, string file)
     {
         if (multiplier > MaxCapMultiplier)
             Log.Warning($"{file}: {knob}={multiplier} is over {MaxCapMultiplier}, so {MaxCapMultiplier} is used");
+        else if (multiplier < MinCapMultiplier)
+            Log.Warning($"{file}: {knob}={multiplier} is under {MinCapMultiplier}, so {MinCapMultiplier} is used");
     }
 
     public static int SalvageableCap(UniverseState universe) => Cap(universe, GlobalStats.Defaults.SalvageableDerelictCapMultiplier);
@@ -108,7 +157,7 @@ public sealed class Derelicts
         return GlobalStats.Defaults.DerelictChance * (1f - share).Clamped(0f, 1f);
     }
 
-    // over its limit a salvageable one drifts; only a seen death hands its hull over, so a wreck the player does not know never shows
+    // over its limit a salvageable one drifts; a drifting one is left seen or not where it has a place, but only a seen death hands its hull over, and an unseen one gets its model once the player knows of it and sees it
     public bool TryAdd(Ship ship, bool salvageable, bool seen, Empire killer = null)
     {
         Derelict added;
@@ -117,9 +166,11 @@ public sealed class Derelicts
             SceneObject so = seen ? ship.GetSO() : null;
             if (salvageable && CountSalvageable() >= SalvageableCap(ship.Universe))
                 salvageable = false;
-            if (!salvageable && (!seen || so == null || CountDriftingInScene() >= DriftingCap(ship.Universe)))
+            if (!salvageable && !HasPlaceToDrift(ship, so != null, killer))
                 return false;
-            added = new Derelict(ship, so, salvageable, seen);
+            added = new Derelict(ship, so, salvageable, seen: salvageable ? seen : so != null);
+            if (!salvageable && PlayerKnowsAtDeath(ship, killer))
+                added.SetKnownBy(ship.Universe.Player);
             Items.Add(added);
             Publish();
             if (so != null)
@@ -127,7 +178,20 @@ public sealed class Derelicts
         }
         if (added.CanBeSalvaged && added.System != null)
             ship.Universe.Screen?.RunOnSimThread(() => Join(added, killer));
+        else if (!added.Salvageable && added.System != null && !added.KnownByPlayer)
+            ship.Universe.Screen?.RunOnSimThread(() => LearnOfDrifting(added, killer));
         return true;
+    }
+
+    // on the sim thread, which owns the empires' lists: the player learns of a drifting one in a system as of a salvageable one there
+    void LearnOfDrifting(Derelict d, Empire killer)
+    {
+        Empire player = d.System.Universe.Player;
+        lock (Sync)
+        {
+            if (Items.ContainsRef(d) && (LearnsOf(player, d, killer) || player.DerelictSystems.Contains(d.System)))
+                d.SetKnownBy(player);
+        }
     }
 
     // on the sim thread, which owns the empires' lists: it joins its system, and each empire that learns of it lists the system
@@ -159,7 +223,7 @@ public sealed class Derelicts
             system.Universe.Notifications?.AddNewDerelictNotification(d);
     }
 
-    // on the sim thread: a ship entering a system with derelicts its empire does not list shows them to its empire
+    // on the sim thread: a ship entering a system with derelicts its empire does not list shows them to its empire, and a player's ship shows the player the drifting ones there
     public void Enter(Ship ship)
     {
         SolarSystem system = ship.System;
@@ -167,13 +231,25 @@ public sealed class Derelicts
         Derelict first;
         lock (Sync)
         {
-            if (system == null || system.Derelicts.Count == 0 || e.DerelictSystems.Contains(system))
+            if (system == null)
+                return;
+            if (e.isPlayer)
+                ShowDriftingIn(e, system);
+            if (system.Derelicts.Count == 0 || e.DerelictSystems.Contains(system))
                 return;
             ListSystem(e, system);
             first = system.Derelicts[0];
         }
         if (e.isPlayer)
             system.Universe.Notifications?.AddNewDerelictNotification(first);
+    }
+
+    // under the lock
+    void ShowDriftingIn(Empire player, SolarSystem system)
+    {
+        for (int i = 0; i < Items.Count; ++i)
+            if (!Items[i].Salvageable && Items[i].System == system)
+                Items[i].SetKnownBy(player);
     }
 
     // a ship that changes hands where it is counts as entering its system for its new owner; a save or the UI can apply the change of hands
@@ -185,12 +261,14 @@ public sealed class Derelicts
             Enter(ship);
     }
 
-    // under the lock: the empire lists the system, so it knows every derelict in it
-    static void ListSystem(Empire e, SolarSystem system)
+    // under the lock: the empire lists the system, so it knows every derelict in it, a player the drifting ones too
+    void ListSystem(Empire e, SolarSystem system)
     {
         e.DerelictSystems.Add(system);
         for (int i = 0; i < system.Derelicts.Count; ++i)
             system.Derelicts[i].SetKnownBy(e);
+        if (e.isPlayer)
+            ShowDriftingIn(e, system);
     }
 
     // who learns of it as it forms: its owner, its killer, sensors at its death, a colony or a ship there, allies and full infiltrators of either, a mole there

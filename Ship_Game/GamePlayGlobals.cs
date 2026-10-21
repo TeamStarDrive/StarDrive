@@ -23,11 +23,11 @@ public class GamePlayGlobals
     // GamePlay modifiers
     // How easy ships are to destroy. Ships which have active internal slots below this ratio, will Die()
     [StarData] public float ShipDestroyThreshold = 0.5f;
-    // Percent of the deaths of military ships (frigate and above) and untethered stations that leave a derelict, with no death blast
+    // Percent of the deaths of military ships (frigate and above) and untethered stations that leave a derelict, with no death blast; with salvage ops off, only those whose hull's roll makes them drift
     [StarData] public float DerelictChance = 10;
-    // Most drifting derelicts with a model at once, as a multiple of the galaxy's star systems from 0.1 to 10, over 10 used as 10 with a warning in the log; the cap is rounded up, at least 1. Past it a derelict death shows the normal explosion, still with no death blast
+    // Most drifting derelicts at once, seen or not, as a multiple of the galaxy's star systems from 0.1 to 10, a value outside it used as the nearer end with a warning in the log; the cap is rounded up, at least 1. Past it a seen derelict death takes the place of the oldest drifting one not seen, or shows the normal explosion, still with no death blast
     [StarData] public float DriftingDerelictCapMultiplier = 1f;
-    // Most salvageable derelicts at once, as a multiple of the galaxy's star systems from 0.1 to 10, over 10 used as 10 with a warning in the log; the cap is rounded up, at least 1. The derelict chance falls with their share of it, to none at the limit
+    // Most salvageable derelicts at once, as a multiple of the galaxy's star systems from 0.1 to 10, a value outside it used as the nearer end with a warning in the log; the cap is rounded up, at least 1. The derelict chance falls with their share of it, to none at the limit
     [StarData] public float SalvageableDerelictCapMultiplier = 1f;
     // Production a salvage platform strips from its derelict in a turn, while its hold has room; above 0, as a recovery works at twice it
     [StarData] public float SalvageSpeed = 12;

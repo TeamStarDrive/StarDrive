@@ -339,7 +339,7 @@ namespace Ship_Game
         }
 
         readonly HashSet<int> ShipsInSystems = new(); // by Ship.Id
-        // ships that entered a system with derelicts this step, gathered under the ShipsInSystems lock
+        // ships that entered a system with salvageable derelicts this step, and the player's that entered any, for its drifting ones, gathered under the ShipsInSystems lock
         readonly Array<Ship> EnteredDerelictSystems = new();
 
         void UpdateSolarSystemShips()
@@ -369,7 +369,7 @@ namespace Ship_Game
                         system.ShipList.Add(ship);
                         shipsInSystems.Add(ship.Id); // this ship was seen in a system
 
-                        if (ship.System != system && system.Derelicts.Count > 0)
+                        if (ship.System != system && (system.Derelicts.Count > 0 || ship.Loyalty.isPlayer))
                             (entered ??= new()).Add(ship);
                         ship.SetSystem(system);
                     }

@@ -25,31 +25,40 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   become derelicts (131). Research stations, mining stations, Dyson swarm controllers, salvage stations and Remnant
   portals never become derelicts; they die normally, with the main explosion and blast (148, 156, 172). Pirate bases
   count when they are untethered (172).
-- **When it is decided:** at death, by the roll alone (170). A ship that rolls a derelict death has no main
-  explosion and no death blast (120, 121), wherever it is and whoever sees it, so the camera never changes combat.
-  What it leaves behind depends on visibility:
+- **When it is decided:** at death, by the roll alone (170), then by a second roll, by its hull, that makes it a
+  drifting one (Gilad, 2026-10-21; 680-685): 75% for a frigate, 50% for a cruiser, 25% for a battleship, 10% for a
+  capital and 70% for any other, a destroyer or a station among them (`Derelict.DriftingChance`, hard-coded). With
+  salvage ops off only a death whose second roll makes it drift is a derelict one; any other dies as usual, with its
+  blast. A ship that rolls a derelict death has no main explosion and no death blast (120, 121), wherever it is and
+  whoever sees it, so the camera never changes combat. What it leaves behind depends on visibility:
   - visible, under the cap: 3-5 s of smaller explosions, then a derelict (120, 121);
-  - visible, over the cap: the normal explosion picture, still with no blast (170);
-  - unseen: a derelict at once, with no effects, where a derelict can exist (120), otherwise nothing (125, 170).
+  - visible, over the drifting cap: it takes the place of the oldest drifting derelict with no model, which leaves the
+    list (683 A), and with none, the normal explosion picture, still with no blast (170);
+  - unseen: a derelict at once, with no effects (120): a salvageable one at its stop point, a drifting one where the
+    ship died, going on from there as a seen one would. Outside every system a drifting one is left only if the player
+    owned the ship, destroyed it or had it in sensor range as it died (681); otherwise, and over the drifting cap,
+    nothing (125, 170). The sensor range is that of the player's own ships and planets, read from its sensor nodes
+    (693 A): the game shows the player its allies' ships and what they scan, but neither they, an ally's kill nor a
+    mole count, so a death seen only through an ally's sensors outside every system shows the normal explosion.
 
   "Visible" is `IsVisibleToPlayer`: on screen, zoomed in to system view or closer, and in the player's sensor range
   (`Ship_Update.cs:42`).
 - **Planet crashes (178 B):** a ship that is about to crash on a planet does not roll for a derelict, so crash sites
   stay as common as before.
 - **Debug keys (Gilad, 2026-10-15):** in debug mode, Ctrl+X (or Ctrl+Delete) destroys the selected ship as a drifting
-  derelict with no roll, and does nothing to a ship that cannot become one. Like any unseen drifting death, a ship that
-  is not on screen at system view or closer leaves nothing. Ctrl+Shift+X (or Ctrl+Shift+Delete) destroys it as a
+  derelict with no roll, and does nothing to a ship that cannot become one; unseen, it leaves a drifting derelict with
+  no model wherever an unseen drifting death does. Ctrl+Shift+X (or Ctrl+Shift+Delete) destroys it as a
   salvageable derelict, seen or not, and does nothing unless it would stop where a salvageable one can be (in a system,
   clear of radiation, salvage ops on) and the salvageable cap is not full.
 - **Where:** the stop point decides, and it is known at death: a salvageable derelict slows linearly to a stop over
   10 s, so it stops 5 s worth of its drift speed from where it died. A stop inside a system makes a **salvageable**
-  derelict. Two cases make a **drifting** derelict instead, and only when the death is visible (125):
+  derelict, unless the hull's roll makes it drift. Two cases make a **drifting** derelict instead (125):
   - a stop outside every system;
   - a stop inside a star's radiation zone, or not more than 2000 beyond it, the danger margin the game already uses
     (`SolarSystem.InSafeDistanceFromRadiation`, 229), so salvage platforms never work inside radiation.
 
-  An unseen death that stops outside every system, or in a radiation zone or its margin, leaves nothing (125, 170,
-  171).
+  Since 681 an unseen death that stops in a radiation zone or its margin leaves a drifting derelict too, and one that
+  stops outside every system leaves one only as above (replacing the nothing of 125, 170 and 171).
 - **How many:**
   - The universe keeps the list of derelicts (129).
   - Base chance 10%, times (1 - salvageable / the salvageable cap) (129, 142; 35% and 40 until 231). At the limit the
@@ -59,21 +68,22 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     `DriftingDerelictCapMultiplier`, default 1 and used from 0.1 to 10, the cap rounded up and at least 1 (Gilad,
     2026-10-21; 676-679 and 686, replacing the fixed 100 of 142 and 188): about 23 in a tiny galaxy of normal stars
     with 3 opponents and 89 in a medium one with 7, as each major empire's home system comes on top of the count the
-    new game screen shows. A multiplier over 10 is used as 10, with a warning in the log as the game or the mod loads
-    (`GlobalStats.LoadModInfo`), not as the mod lists read each mod's Globals.yaml. The cap is worked out from the
-    systems' count wherever it is read, so it holds once the universe is made, after a load and in tests. A mod's
-    Globals.yaml that still sets the old `MaxDriftingDerelicts` or `MaxSalvageableDerelicts` loads with a warning in
-    the log.
-  - At most the drifting cap of drifting derelicts at once (142, 20 until 188); past that, a visible death shows the
-    normal explosion with no blast (170). The cap counts drifting and sinking derelicts that have a model, so a wreck
-    with no model takes no place in it (232). It limits new ones only: after a load or a content reload the wrecks
-    that come back get their models when seen, so for at most their 100 s sink more than the cap can have one.
+    new game screen shows. A multiplier over 10 is used as 10 and one under 0.1 as 0.1 (692 A), with a warning in the
+    log as the game or the mod loads (`GlobalStats.LoadModInfo`), not as the mod lists read each mod's Globals.yaml.
+    The cap is worked out from the systems' count wherever it is read, so it holds once the universe is made, after a
+    load and in tests. A mod's Globals.yaml that still sets the old `MaxDriftingDerelicts` or `MaxSalvageableDerelicts`
+    loads with a warning in the log.
+  - At most the drifting cap of drifting derelicts at once (142, 20 until 188). It counts every derelict past
+    salvage, drifting or sinking, with a model or not, but none rising for its ship (683 A, replacing 232, which
+    counted only those with a model). Past it a visible death takes the place of the oldest drifting derelict with no
+    model, and with none shows the normal explosion with no blast (170); an unseen one leaves nothing.
 - **What it is:** a derelict is its own lightweight object, not a `Ship` (120).
 
 ### How a derelict moves and ends
 
-- It drifts on its velocity at death, capped at the ship's top sublight speed (185). A drifting derelict keeps that
-  speed (184); a salvageable one slows to a full stop over 10 s. It keeps an x/y/z tumble with smoke and has its
+- It drifts on its velocity at death, capped at the ship's top sublight speed (185), and slows to a full stop over
+  10 s, drifting or salvageable (680, replacing 184, which kept a drifting one's speed). A drifting one sinks from the
+  end of its breakup, as before, so it lasts about 105 s. It keeps an x/y/z tumble with smoke and has its
   lights off. Rotation and smoke update only in the frustum.
 - **Smoke (Gilad, 2026-10-15, 187):** at death it smokes from 20% of its modules (at least 6), dead ones first, then
   damaged ones; they go out one by one over 60 s until 6 are left.
@@ -112,8 +122,13 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     timer stands, its tooltip then saying so (375 H).
 - **Its model (224, 230):** a derelict from an unseen death, one loaded from a save, or one after a content reload has
   no model. It loads one from its hull on the UI thread the first time it is on screen at system view or closer and
-  known to the player, and keeps it until it sinks away. With no model it still drifts and sinks; one the player does
-  not know of is gone once it starts to sink, as there is nothing to show. The two caps and the 100 s sink bound them,
+  known to the player, and keeps it until it sinks away. With no model it still drifts and sinks; a salvageable one
+  the player does not know of is gone once it starts to sink, as there is nothing to show, while a drifting one sinks
+  on, so a player who comes upon it in time sees it (681). The player learns of a drifting one in a system as of a
+  salvageable one there, as it forms (`Derelicts.LearnOfDrifting`, on the sim thread), when a ship of the player's
+  enters the system or becomes the player's there (`Derelicts.Enter`), or once the player lists the system, as it
+  then knows every derelict there (694 A). A drifting one never lists its system, brings
+  no notification and cannot be selected. The two caps and the 100 s sink bound them,
   so it needs no 15 s cleanup like ships. A content reload (Apply in the options) takes every model out of the scene; the derelicts
   stay and load theirs again when next seen.
 - **A save (225, 230):** every derelict is saved, drifting and sinking ones too, with its kind and depth, whatever the
@@ -1226,7 +1241,13 @@ Implementation notes:
      the cap to 1 (686); `Cap` and its limits are private (688); the tests check the shipped default of 1 (690), and
      the debug key's test has 10 systems, so it tells the salvageable cap from the drifting one (691). Test universes
      start with no systems, so a test that makes more derelicts than its own systems adds bare ones in rows from the
-     universe's corner (`StarDriveTest.AddRemoteSystems`, 689).
+     universe's corner (`StarDriveTest.AddRemoteSystems`, 689). A multiplier under 0.1 warns too (692 A).
+   - then the drifting derelicts (Gilad, 2026-10-21; 680-685), so a player who comes to a system after a battle sees
+     some of its wrecks, salvage ops on or off: the hull's second roll, unseen ones kept, the 10 s stop, the rule
+     outside every system and the cap counting every one (see How many and How a derelict moves and ends). Tests fix
+     the hull's roll with `Derelicts.TestDriftRoll`, null in the game; the roll itself is tested through a seeded
+     random. Review: the player's own sensors only, outside every system (693 A); a listed system shows its drifting
+     ones (694 A); a test that the oldest of two gives up its place (695 A); no test of the warning under 0.1 (696 A).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
    and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
