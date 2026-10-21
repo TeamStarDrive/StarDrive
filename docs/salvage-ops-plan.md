@@ -1175,11 +1175,48 @@ Implementation notes:
      (640 A); the tooltip inventory's scan misses the claim tooltips, `DerelictSalvagedBy` since `ClaimTip` and
      `DerelictRecoveredBy`, both unhooked, and is left (641 A); the tests check which notification came, and the
      alerts switch's test that the notifications come with it on (642 A).
+
+   Pre-merge review (Gilad, 2026-10-21; 643-658, after the Codex adversarial review and three in-house area reviews,
+   recorded in BlackBoxPlus-references\reviews\recovery_premerge_review_2026-10-21.md):
+   - the derelicts risen in a frame get their ships even when another derelict's update throws, the hand-off run
+     from a finally (643 A, Codex's one finding, which an in-house reviewer found too);
+   - a successful roll is past calling off, as it was past turning: a click queued in the frame of the roll does
+     nothing (644 A);
+   - the one frame between the list's update and the ship, when the panel shows the derelict's techs, is left (645);
+   - a module of under 1 max health is a mod's error, as a module below 1 health is destroyed, and the content load
+     logs a warning for it; vanilla, Combined Arms and Star Trek have none (646);
+   - a derelict whose ship cannot be made is gone at once with its model, out of the list, rather than sinking away,
+     as its comment and test now say (647 A);
+   - another empire's recovering platform shows no recovery bar or tooltip on its panel, its break-in unshown, as
+     in the derelicts window (562 A), which leaves 637's guard nothing to guard (648 A);
+   - a click on the success notification shows the system once the ship is not the player's (649 A);
+   - left as they are: the break-up's seconds unsaved, so a save in them sinks the derelict at once on load (650 B),
+     the tooltip's turns left counting the platform's turns alone (653 B), and no positive control for the recovery
+     shuttles (655);
+   - the rebels' luck seed comes from the clock as they rise, so a reload that runs a defeat again gives them new
+     draws; logged for the ai sub-branch, as nothing recovers for them until then (651 B);
+   - the Salvage Unit's description says it can recover a ship (7143, 656 B); Codex 100207 spells center (657 A);
+     the summaries of 7201 and 7203 end at a word within 60 characters (658 A); a DerelictRecovery comment no
+     longer names the salvage techs, which sub-branch 8 brings (652 A);
+   - the derelicts window reads the goals as it opens and once each click has reached the sim thread, a read queued
+     behind the click's own work, instead of every frame, its station button's design pick included (654 A): the
+     game does not run under it, as a universe covered by another screen runs only the queued work of clicks, paused
+     or not; the Exotic Systems screen under it pauses the game, except when opened from the planet list, which
+     closes first and leaves the universe covered, and the window pauses the game itself only when opened over the
+     running game, which play never does (659 A). The derelict panel, with the game running under it, still reads
+     every frame. A click cannot change the goals on the UI thread even paused: the paused sim thread still runs the
+     queued actions and walks the player's goals for the build icons;
+   - review of the fixes (659-663): a derelict's hand-off that throws is logged and the others risen that frame
+     still get their ships (661 A); left: no test of a row button's click or of 643, 646 and 648 (660 A), the window's
+     tech tooltip without the gained line for an unbuilt order on a derelict a rival claimed, which reads 0 there
+     (662 A), a second click within a frame of the first playing its sound for nothing, as before (663 A), and the
+     claim tooltip looking up a rival's order while it is hovered (664 B).
 6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
    and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
-   they have no small station hull (315), and later their raids to capture a salvage station.
+   they have no small station hull (315), and later their raids to capture a salvage station; the rebels' luck seed
+   made from their parent empire's, so a reload that runs a defeat again draws the same for them (651 B).
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.

@@ -98,13 +98,12 @@ public static class DerelictSalvageButton
         bar.Draw(batch);
     }
 
-    // the work done and all of it, the recovery speed, the break-in's turns, and the turns left in all; once the roll succeeds, that the ship comes, told only to the player, whose it is
+    // the player's recovery: the work done and all of it, the recovery speed, the break-in's turns, and the turns left in all; once the roll succeeds, that the ship comes
     public static void RecoveryTooltip(Empire empire, Derelict d, SalvageDerelict order)
     {
         if (order.RecoverySucceeded)
         {
-            if (order.Owner.isPlayer)
-                ToolTip.CreateTooltip(GameText.DerelictRisingTip);
+            ToolTip.CreateTooltip(GameText.DerelictRisingTip);
             return;
         }
         int turnsLeft = DerelictRecovery.TurnsLeft(empire, d, order.BreakInDone, order.RecoveryWork);

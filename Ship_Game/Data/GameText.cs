@@ -6294,11 +6294,11 @@ namespace Ship_Game
         SalvageSankNotify = 7199,
         /// <summary>Recover this ship: a salvage unit of your station in this</summary>
         RecoverDerelictTip = 7200,
-        /// <summary>Your salvage station is recovering this ship. Click to call it</summary>
+        /// <summary>Your salvage station is recovering this ship. Click to call</summary>
         RecoverDerelictOrderedTip = 7201,
         /// <summary>Recover this ship instead: its salvage platform first sends</summary>
         RecoverDerelictSwitchTip = 7202,
-        /// <summary>Salvage this derelict instead: its salvage platform strips it</summary>
+        /// <summary>Salvage this derelict instead: its salvage platform strips</summary>
         SalvageDerelictSwitchTip = 7203,
         /// <summary>A station cannot be recovered, only salvaged.</summary>
         RecoverDerelictStationTip = 7204,

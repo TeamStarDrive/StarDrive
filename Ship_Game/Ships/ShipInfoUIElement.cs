@@ -492,7 +492,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // its load out of its hold, and the production left in its derelict or the progress of its recovery while it works there
+        // its load out of its hold, and the production left in its derelict or, the player's alone, the progress of its recovery while it works there
         void DrawSalvageStatus(SpriteBatch batch, Vector2 mousePos, SalvageDerelict salvage)
         {
             if (!Ship.IsSalvagePlatform)
@@ -510,6 +510,8 @@ namespace Ship_Game.Ships
                 return;
             if (salvage.Recovering)
             {
+                if (!salvage.Owner.isPlayer) // another empire's shows no bar, its break-in unshown, as in the derelicts window
+                    return;
                 DerelictSalvageButton.DrawRecovery(batch, SalvageDerelictRect, SalvageRecoveryBar, salvage.Owner, d, salvage);
                 if (SalvageDerelictRect.HitTest(mousePos) || SalvageRecoveryBar.pBar.HitTest(mousePos))
                     DerelictSalvageButton.RecoveryTooltip(salvage.Owner, d, salvage);

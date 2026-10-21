@@ -219,7 +219,7 @@ namespace Ship_Game.Commands.Goals
 
         public int BreakInTurnsLeft => (DerelictRecovery.BreakInTurns - BreakInDone).LowerBound(0);
 
-        // the button's second click calls the order off on the sim thread, where its claim is given up; a platform standing sends what it holds and takes itself apart
+        // the button's second click calls the order off on the sim thread, where its claim is given up; a platform standing sends what it holds and takes itself apart; a successful roll is past calling off
         public static void Cancel(Empire empire, Derelict d)
         {
             if (empire.Universe.Screen is { IsOnSimThread: false } screen)
@@ -229,6 +229,8 @@ namespace Ship_Game.Commands.Goals
             }
             if (OrderOf(empire, d) is { } order)
             {
+                if (order.RecoverySucceeded)
+                    return;
                 if (order.Platform is { Active: true })
                     order.CallOff();
                 else

@@ -511,7 +511,7 @@ public sealed class Derelict
         return so;
     }
 
-    // on the sim thread, out of the list: its ship takes its place with its model, for the empire that recovered it, which gives up its claim and, the player's, is told, a failure to tell keeping the ship; with no ship made it sinks away, its model gone
+    // on the sim thread, out of the list: its ship takes its place with its model, for the empire that recovered it, which gives up its claim and, the player's, is told, a failure to tell keeping the ship; with no ship made it is gone, out of the list with its model
     internal void BringBackShip(SceneObject model)
     {
         Ship ship = null;

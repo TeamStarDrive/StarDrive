@@ -758,7 +758,7 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AsItRisesThePanelShowsTheWorkDoneWithNoButtonsAndNothingTurnsTheOrder()
+    public void AsItRisesThePanelShowsTheWorkDoneWithNoButtonsAndNothingTurnsOrCallsOffTheOrder()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         SalvageDerelict order = RolledASuccess(d);
@@ -773,6 +773,9 @@ public class SalvageRecoveryTests : StarDriveTest
         AssertEqual(Stage.Recovering, StageOf(d), "still recovering");
         SalvageDerelict.Switch(Player, d, recover: false);
         Assert.IsTrue(order.Recovering, "and its order can no longer be turned to salvage");
+        SalvageDerelict.Cancel(Player, d);
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsTrue(!order.CalledOff && !order.Finished && d.Claimant == Player, "nor called off, as a click queued in the frame of the roll would");
     }
 
     [TestMethod]
@@ -870,7 +873,7 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ADerelictWhoseShipCannotBeMadeSinksAway()
+    public void ADerelictWhoseShipCannotBeMadeIsGone()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         SalvageDerelict order = RolledASuccess(d);
@@ -884,7 +887,7 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsNull(d.RecoveredAs, "a design of another mod makes no ship");
         AssertEqual(0, notes.NumberOfNotifications, "and tells nothing");
         Assert.IsFalse(UState.Derelicts.Current.ContainsRef(d), "the derelict has left the list");
-        Assert.IsTrue(d.Sinking && !d.SelectableByPlayer, "and sinks away, no longer to be selected");
+        Assert.IsFalse(d.SelectableByPlayer, "and is gone, no longer to be selected");
         Universe.UpdateSelectedDerelict();
         Assert.IsNull(Universe.SelectedDerelict, "so its panel closes");
         Assert.IsTrue(order.Finished, "its platform's work is over");
@@ -1166,10 +1169,17 @@ public class SalvageRecoveryTests : StarDriveTest
 
         notes.SnapToShipOrSystem(ship, WreckSystem);
         Assert.AreSame(ship, Universe.SelectedShip, "the click selects the ship");
+        ship.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        AssertEqual(Enemy, ship.Loyalty, "setup: the ship is boarded");
+        notes.SnapToShipOrSystem(ship, WreckSystem);
+        Assert.AreSame(WreckSystem, Universe.SelectedSystem, "in other hands it shows the system");
+        Assert.IsNull(Universe.SelectedShip, "selecting the ship no more");
+
+        Universe.ClearSelectedItems();
         ship.Die(null, cleanupOnly: true);
         notes.SnapToShipOrSystem(ship, WreckSystem);
-        Assert.AreSame(WreckSystem, Universe.SelectedSystem, "and once it is gone shows the system");
-        Assert.IsNull(Universe.SelectedShip, "selecting the ship no more");
+        Assert.AreSame(WreckSystem, Universe.SelectedSystem, "and once it is gone shows the system too");
     }
 
     [TestMethod]

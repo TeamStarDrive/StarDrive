@@ -1255,10 +1255,10 @@ namespace Ship_Game
             Screen.SnapViewShip(s);
         }
 
-        // a click on a ship no longer in play shows its system
+        // a click on a ship no longer in play, or no longer the player's, shows its system
         public void SnapToShipOrSystem(Ship ship, SolarSystem system)
         {
-            if (ship is not { Active: true })
+            if (ship is not { Active: true } || ship.Loyalty != Screen.Player)
             {
                 SnapToSystem(system);
                 return;

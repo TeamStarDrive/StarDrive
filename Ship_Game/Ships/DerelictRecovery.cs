@@ -52,7 +52,7 @@ public static class DerelictRecovery
     // its hull role's biggest death blast
     public static float BlastDamage(Derelict d) => d.Radius * Ship.ExplosionDamageCapPerRadius(d.Design.HullRole);
 
-    // a platform works a recovery's slots at twice the salvage speed, which the salvage techs raise for both
+    // a platform works a recovery's slots at twice the salvage speed
     public const float SpeedPerSalvageSpeed = 2f;
 
     public static float Speed => GlobalStats.Defaults.SalvageSpeed * SpeedPerSalvageSpeed;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using SDGraphics;
@@ -272,39 +273,54 @@ public sealed class Derelicts
             empires[i].DerelictSystems.Remove(system);
     }
 
-    // on the sim thread; one risen for its ship leaves the list with its model, and its ship is made after the lock, as a new ship joins its empire's lists
+    // on the sim thread; one risen for its ship leaves the list with its model, and its ship is made after the lock, as a new ship joins its empire's lists, even when another derelict's update or hand-off throws
     public void Update(FixedSimTime timeStep)
     {
         Array<(Derelict Derelict, SceneObject Model)> risen = null;
-        lock (Sync)
+        try
         {
-            bool removed = false;
-            try
+            lock (Sync)
             {
-                for (int i = Items.Count - 1; i >= 0; --i)
+                bool removed = false;
+                try
                 {
-                    Derelict d = Items[i];
-                    bool stays = d.Update(timeStep);
-                    if (stays && d.Risen)
+                    for (int i = Items.Count - 1; i >= 0; --i)
                     {
-                        (risen ??= new()).Add((d, d.TakeModel()));
-                        stays = false;
-                    }
-                    if (!stays)
-                    {
-                        Items.RemoveAt(i);
-                        removed = true;
+                        Derelict d = Items[i];
+                        bool stays = d.Update(timeStep);
+                        if (stays && d.Risen)
+                        {
+                            (risen ??= new()).Add((d, d.TakeModel()));
+                            stays = false;
+                        }
+                        if (!stays)
+                        {
+                            Items.RemoveAt(i);
+                            removed = true;
+                        }
                     }
                 }
-            }
-            finally
-            {
-                if (removed)
-                    Publish();
+                finally
+                {
+                    if (removed)
+                        Publish();
+                }
             }
         }
-        for (int i = 0; risen != null && i < risen.Count; ++i)
-            risen[i].Derelict.BringBackShip(risen[i].Model);
+        finally
+        {
+            for (int i = 0; risen != null && i < risen.Count; ++i)
+            {
+                try
+                {
+                    risen[i].Derelict.BringBackShip(risen[i].Model);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"Recovered ship hand-off failed for design {risen[i].Derelict.Design.Name}");
+                }
+            }
+        }
     }
 
     // a derelict whose design is gone from the game is left out

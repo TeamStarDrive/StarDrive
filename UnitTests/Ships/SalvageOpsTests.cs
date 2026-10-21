@@ -532,7 +532,7 @@ public class SalvageOpsTests : StarDriveTest
         AssertEqual(Color.Gray, window.StationStatus.Color, "in grey");
 
         Player.AddBuildableShip(Station);
-        window.Update(0f);
+        window.UpdateStationOrder();
         Assert.IsTrue(window.StationButton.Visible && !window.StationStatus.Visible, "a button once one can be built");
         AssertEqual(new LocalizedText(GameText.DeploySalvageStation), window.StationButton.Text, "to deploy it");
 
@@ -588,6 +588,32 @@ public class SalvageOpsTests : StarDriveTest
         window.StationButton.OnClick(window.StationButton);
         Universe.InvokePendingSimThreadActions();
         Assert.IsFalse(Player.AI.HasGoal(g => g == order), "which takes the order away");
+    }
+
+    [TestMethod]
+    public void TheDerelictsWindowPausesTheGameAndReadsTheGoalsAsItOpensAndOnceAClickHasReachedTheSimThread()
+    {
+        Forms(Player, InSystem);
+        Derelict d = UState.Derelicts.Current.Last();
+        Player.AddBuildableShip(Station);
+        UState.Paused = false;
+        var window = new SystemDerelictsScreen(Universe, WreckSystem);
+        window.LoadContent();
+        Assert.IsTrue(UState.Paused, "the window pauses the game");
+        AssertEqual(SalvageDerelict.Stage.None, window.StageShown(d), "setup: nobody salvages the derelict");
+        AssertEqual(new LocalizedText(GameText.DeploySalvageStation), window.StationButton.Text, "setup: a station can be deployed");
+
+        Assert.IsTrue(d.TryClaim(Enemy), "setup: a rival claims the derelict");
+        window.Update(0f);
+        AssertEqual(SalvageDerelict.Stage.None, window.StageShown(d), "the window does not read the goals again while nothing in it is clicked");
+
+        window.StationButton.OnClick(window.StationButton);
+        window.Update(0f);
+        AssertEqual(SalvageDerelict.Stage.None, window.StageShown(d), "nor before the click reaches the sim thread");
+        Universe.InvokePendingSimThreadActions();
+        window.Update(0f);
+        AssertEqual(SalvageDerelict.Stage.Salvaging, window.StageShown(d), "but reads them once it has");
+        AssertEqual(new LocalizedText(GameText.AbortDeployent), window.StationButton.Text, "the station button too, now aborting the order");
     }
 
     [TestMethod]
