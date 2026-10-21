@@ -34,8 +34,8 @@ namespace UnitTests.Ships;
 public class DerelictTests : StarDriveTest
 {
     readonly float DerelictChance = GlobalStats.Defaults.DerelictChance;
-    readonly int MaxDriftingDerelicts = GlobalStats.Defaults.MaxDriftingDerelicts;
-    readonly int MaxSalvageableDerelicts = GlobalStats.Defaults.MaxSalvageableDerelicts;
+    readonly float DriftingDerelictCapMultiplier = GlobalStats.Defaults.DriftingDerelictCapMultiplier;
+    readonly float SalvageableDerelictCapMultiplier = GlobalStats.Defaults.SalvageableDerelictCapMultiplier;
     readonly bool EnableSalvageOps = GlobalStats.Defaults.EnableSalvageOps;
 
     public DerelictTests()
@@ -50,8 +50,8 @@ public class DerelictTests : StarDriveTest
     public override void Cleanup()
     {
         GlobalStats.Defaults.DerelictChance = DerelictChance;
-        GlobalStats.Defaults.MaxDriftingDerelicts = MaxDriftingDerelicts;
-        GlobalStats.Defaults.MaxSalvageableDerelicts = MaxSalvageableDerelicts;
+        GlobalStats.Defaults.DriftingDerelictCapMultiplier = DriftingDerelictCapMultiplier;
+        GlobalStats.Defaults.SalvageableDerelictCapMultiplier = SalvageableDerelictCapMultiplier;
         GlobalStats.Defaults.EnableSalvageOps = EnableSalvageOps;
         UState.Derelicts.Clear();
         Universe.Particles?.Dispose();
@@ -284,6 +284,7 @@ public class DerelictTests : StarDriveTest
         ViewEverything();
         GlobalStats.Defaults.DerelictChance = 0;
         AddSystem();
+        AddRemoteSystems(9);
         Vector2 inSystem = SystemSite + new Vector2(30_000f, 0);
 
         Ship seen = SpawnPlainShip("Dreadnought mk1-a", inSystem);
@@ -313,7 +314,7 @@ public class DerelictTests : StarDriveTest
         deepSpace.DebugDieAsDerelict(salvageable: true);
         AssertTrue(deepSpace.Active, "outside every system it cannot be salvageable, so nothing happens to it");
 
-        GlobalStats.Defaults.MaxSalvageableDerelicts = 1;
+        GlobalStats.Defaults.SalvageableDerelictCapMultiplier = 0.1f; // of its 10 systems, one salvageable place, and the drifting cap stays at 10
         Ship overLimit = SpawnPlainShip("Dreadnought mk1-a", inSystem);
         overLimit.DebugDieAsDerelict(salvageable: true);
         AssertTrue(overLimit.Active, "nor when the salvageable derelicts are all there");
@@ -353,7 +354,7 @@ public class DerelictTests : StarDriveTest
     {
         ViewEverything();
         GlobalStats.Defaults.DerelictChance = 100;
-        GlobalStats.Defaults.MaxDriftingDerelicts = 1;
+        GlobalStats.Defaults.DriftingDerelictCapMultiplier = 0.1f; // a cap of 1 in a galaxy of up to 10 systems
         Ship first = SpawnPlainShip("Dreadnought mk1-a", Site(0));
         (Ship dying, ShipModule core) = StackedPair(Site(1));
         GiveSceneObject(first);
@@ -378,7 +379,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void TheDriftingCapCountsOnlyTheDriftingAndSinkingWrecksWithAModel()
     {
-        GlobalStats.Defaults.MaxDriftingDerelicts = 1;
+        GlobalStats.Defaults.DriftingDerelictCapMultiplier = 0.1f; // a cap of 1 in a galaxy of up to 10 systems
         TestShip expired = SpawnShip("Dreadnought mk1-a", Player, Site(0));
         expired.KnownByEmpires.SetSeen(Player);
         UState.Derelicts.TryAdd(expired, salvageable: true, seen: false);
@@ -669,7 +670,7 @@ public class DerelictTests : StarDriveTest
         AssertTrue(GlobalStats.VanillaDefaults.EnableSalvageOps, "vanilla has salvage content");
         var mod = new GamePlayGlobals();
         AssertFalse(mod.EnableSalvageOps, "a mod does not inherit the flag");
-        AssertEqual(GlobalStats.VanillaDefaults.MaxSalvageableDerelicts, mod.MaxSalvageableDerelicts, "as it does the other vanilla values");
+        AssertEqual(GlobalStats.VanillaDefaults.SalvageableDerelictCapMultiplier, mod.SalvageableDerelictCapMultiplier, "as it does the other vanilla values");
 
         var p = new UniverseParams();
         AssertFalse(p.DisableSalvageOps, "with salvage content the rule option starts unticked");
@@ -755,6 +756,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void OutsideASystemInRadiationOrWithSalvageOpsOffADerelictDriftsAndUnseenItIsNothing()
     {
+        AddRemoteSystems(10);
         ViewEverything();
         GlobalStats.Defaults.DerelictChance = 100;
         SolarSystem system = AddSystem();
@@ -790,23 +792,25 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void SalvageableDerelictsLowerTheChanceToNoneAtTheirLimitThenDrift()
     {
+        for (int i = 0; i < 4; ++i)
+            AddDummyPlanet(new Vector2(-400_000f + i * 100_000f, -400_000f));
+        AssertEqual(0.0001f, 1f, GlobalStats.Defaults.SalvageableDerelictCapMultiplier, "setup: the shipped default, which leaves one place per system");
         GlobalStats.Defaults.DerelictChance = 40;
-        GlobalStats.Defaults.MaxSalvageableDerelicts = 4;
-        GlobalStats.Defaults.MaxDriftingDerelicts = 2;
-        AssertEqual(0.001f, 40f, UState.Derelicts.Chance, "with none, the full chance");
+        GlobalStats.Defaults.DriftingDerelictCapMultiplier = 0.5f;
+        AssertEqual(0.001f, 40f, UState.Derelicts.Chance(UState), "with none, the full chance");
 
         AssertTrue(UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(0)), salvageable: true, seen: false), "setup: a salvageable derelict");
-        AssertEqual(0.001f, 30f, UState.Derelicts.Chance, "a quarter of the limit takes a quarter of the chance");
+        AssertEqual(0.001f, 30f, UState.Derelicts.Chance(UState), "a quarter of the limit takes a quarter of the chance");
 
         TestShip drifter = SpawnShip("Corsair", Player, Site(1));
         GiveSceneObject(drifter);
         AssertTrue(UState.Derelicts.TryAdd(drifter, salvageable: false, seen: true), "setup: a drifting derelict");
-        AssertEqual(0.001f, 30f, UState.Derelicts.Chance, "drifting ones do not count");
+        AssertEqual(0.001f, 30f, UState.Derelicts.Chance(UState), "drifting ones do not count");
 
         for (int i = 2; i < 5; ++i)
             UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(i)), salvageable: true, seen: false);
         AssertEqual(4, UState.Derelicts.NumSalvageable, "setup: the limit is reached");
-        AssertEqual(0.001f, 0f, UState.Derelicts.Chance, "and no death rolls a derelict");
+        AssertEqual(0.001f, 0f, UState.Derelicts.Chance(UState), "and no death rolls a derelict");
 
         AssertFalse(UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(5)), salvageable: true, seen: false),
                     "over the limit an unseen one is nothing");
@@ -818,10 +822,29 @@ public class DerelictTests : StarDriveTest
     }
 
     [TestMethod]
+    public void EachCapIsTheGalaxysStarSystemsTimesItsMultiplierRoundedUp()
+    {
+        AssertEqual(1, Derelicts.SalvageableCap(UState), "a galaxy with no systems still has room for one");
+        for (int i = 0; i < 25; ++i)
+            AddDummyPlanet(new Vector2(-400_000f + i * 50_000f, -400_000f));
+        AssertEqual(25, Derelicts.SalvageableCap(UState), "one salvageable derelict per system by default");
+        AssertEqual(25, Derelicts.DriftingCap(UState), "and one drifting");
+
+        GlobalStats.Defaults.SalvageableDerelictCapMultiplier = 1.2f;
+        AssertEqual(30, Derelicts.SalvageableCap(UState), "the float 30.000002 of 25 times 1.2 does not round it up");
+        GlobalStats.Defaults.SalvageableDerelictCapMultiplier = 0.33f;
+        AssertEqual(9, Derelicts.SalvageableCap(UState), "part of a derelict rounds up");
+        GlobalStats.Defaults.DriftingDerelictCapMultiplier = 0.01f;
+        AssertEqual(3, Derelicts.DriftingCap(UState), "a multiplier is never below 0.1");
+        GlobalStats.Defaults.DriftingDerelictCapMultiplier = 20f;
+        AssertEqual(250, Derelicts.DriftingCap(UState), "nor above 10");
+    }
+
+    [TestMethod]
     public void AtTheLimitOfSalvageableDerelictsADeathBlastsAsUsual()
     {
         GlobalStats.Defaults.DerelictChance = 100;
-        GlobalStats.Defaults.MaxSalvageableDerelicts = 1;
+        GlobalStats.Defaults.SalvageableDerelictCapMultiplier = 0.1f; // a cap of 1 in a galaxy of up to 10 systems
         UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(5)), salvageable: true, seen: false);
         AssertEqual(1, UState.Derelicts.NumSalvageable, "setup: the limit is reached");
 
@@ -849,12 +872,11 @@ public class DerelictTests : StarDriveTest
         AssertTrue(d.CanBeSalvaged, "it is still there to salvage");
         AssertEqual(0.001f, d.RestDepth, d.Z, "at its rest depth, where an unseen one starts");
 
-        AssertEqual(0.001f, GlobalStats.Defaults.DerelictChance * (1f - 1f / GlobalStats.Defaults.MaxSalvageableDerelicts),
-                    UState.Derelicts.Chance, "setup: it lowers the chance");
+        AssertEqual(0.001f, 0f, UState.Derelicts.Chance(UState), "setup: it takes the one place of a galaxy with no systems, so it leaves no chance");
         UState.Derelicts.UpdateTurn();
         AssertTrue(d.Sinking, "its time is up");
         AssertFalse(d.CanBeSalvaged, "and it can no longer be salvaged");
-        AssertEqual(0.001f, GlobalStats.Defaults.DerelictChance, UState.Derelicts.Chance, "nor lowers the chance");
+        AssertEqual(0.001f, GlobalStats.Defaults.DerelictChance, UState.Derelicts.Chance(UState), "nor lowers the chance");
         UState.Derelicts.Update(TestSimStep);
         AssertEqual(0, UState.Derelicts.Count, "with no model and unknown to the player, it is gone at once");
 
@@ -945,6 +967,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void OnLoadAnEmpireKnowsEveryDerelictInASystemItLists()
     {
+        AddRemoteSystems(10);
         SolarSystem system = AddSystem();
         TestShip seen = SpawnShip("Dreadnought mk1-a", Enemy, SystemSite + new Vector2(30_000f, 0));
         seen.KnownByEmpires.SetSeen(Player);
@@ -1138,6 +1161,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void UnderAModWithoutSalvageContentASavedSalvageableDerelictSinksAway()
     {
+        AddRemoteSystems(10);
         Derelict known = SalvageableWithSmoke(seen: true);
         UState.Derelicts.TryAdd(SpawnShip("Dreadnought mk1-a", Enemy, SystemSite + new Vector2(0, 30_000f)), salvageable: true, seen: false);
         Derelict unknown = Newest();
@@ -1181,6 +1205,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void ADerelictGetsAModelOnlyOnceThePlayerKnowsOfItAndSeesIt()
     {
+        AddRemoteSystems(10);
         ViewEverything();
         AddSystem();
         Derelict d = Forms(Enemy, SystemSite + new Vector2(30_000f, 0));
@@ -1231,6 +1256,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void ASalvageableDerelictHoldsHalfTheHealthItHadLeftTimesItsCostBeforeBonuses()
     {
+        AddRemoteSystems(10);
         UState.P.Pace = 3f;
         AssertEqual(0.001f, 2f, UState.ProductionPace, "setup: a slower pace, which the cost includes");
         Enemy.data.Traits.ShipCostMod = 0.5f;
@@ -1268,6 +1294,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void ThePlayerSelectsOnlyTheSalvageableDerelictsItKnowsOf()
     {
+        AddRemoteSystems(10);
         Derelict known = SalvageableOf(Enemy, Site(1), knownByPlayer: true);
         Derelict unknown = SalvageableOf(Enemy, Site(2), knownByPlayer: false);
         Derelict drifting = DriftingWithSmoke();
@@ -1283,6 +1310,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void TheUIThreadSeesEveryChangeToTheList()
     {
+        AddRemoteSystems(10);
         AssertEqual(0, UState.Derelicts.Current.Length, "setup: none yet");
         Derelict stays = SalvageableOf(Enemy, Site(0), knownByPlayer: true);
         Derelict leaves = SalvageableOf(Enemy, Site(1), knownByPlayer: false);
@@ -1310,6 +1338,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void AClickOnItsIconOrItsHullFindsADerelictThePlayerCanSelect()
     {
+        AddRemoteSystems(10);
         Derelict d = SalvageableOf(Enemy, Site(0), knownByPlayer: true);
         Derelict unknown = SalvageableOf(Enemy, Site(5), knownByPlayer: false);
 
@@ -1450,6 +1479,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void AnEmpireThatListsASystemKnowsEveryDerelictInItAndASystemLeavesTheListsWithItsLastSalvageableOne()
     {
+        AddRemoteSystems(10);
         SolarSystem system = AddSystem();
         Derelict deepSpace = Forms(Enemy, Site(0));
         AssertTrue(deepSpace.System == null && Enemy.DerelictSystems.Count == 0, "one outside every system joins no list");
@@ -1498,6 +1528,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void ThePlayerIsToldWhenASystemJoinsItsList()
     {
+        AddRemoteSystems(10);
         NotificationManager notifications = TrackNotifications();
         SolarSystem system = AddSystem();
         SolarSystem other = AddSystem(SystemSite + new Vector2(0, 400_000f));

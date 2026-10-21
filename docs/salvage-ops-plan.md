@@ -40,7 +40,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   derelict with no roll, and does nothing to a ship that cannot become one. Like any unseen drifting death, a ship that
   is not on screen at system view or closer leaves nothing. Ctrl+Shift+X (or Ctrl+Shift+Delete) destroys it as a
   salvageable derelict, seen or not, and does nothing unless it would stop where a salvageable one can be (in a system,
-  clear of radiation, salvage ops on) and the 100 salvageable derelicts are not all there.
+  clear of radiation, salvage ops on) and the salvageable cap is not full.
 - **Where:** the stop point decides, and it is known at death: a salvageable derelict slows linearly to a stop over
   10 s, so it stops 5 s worth of its drift speed from where it died. A stop inside a system makes a **salvageable**
   derelict. Two cases make a **drifting** derelict instead, and only when the death is visible (125):
@@ -52,13 +52,22 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   171).
 - **How many:**
   - The universe keeps the list of derelicts (129).
-  - Base chance 10%, times (1 - salvageable / MaxSalvageableDerelicts), with the limit 100 as a Globals knob
-    (129, 142; 35% and 40 until 231). At the limit the chance is 0; a death that rolled just before it was reached leaves a drifting
-    derelict if it was seen, and nothing if it was not.
-  - At most 100 drifting derelicts at once (142, raised from 20 by 188); past that, a visible death shows the
+  - Base chance 10%, times (1 - salvageable / the salvageable cap) (129, 142; 35% and 40 until 231). At the limit the
+    chance is 0; a death that rolled just before it was reached leaves a drifting derelict if it was seen, and nothing
+    if it was not.
+  - Each cap is the galaxy's star systems times its Globals multiplier, `SalvageableDerelictCapMultiplier` and
+    `DriftingDerelictCapMultiplier`, default 1 and used from 0.1 to 10, the cap rounded up and at least 1 (Gilad,
+    2026-10-21; 676-679 and 686, replacing the fixed 100 of 142 and 188): about 23 in a tiny galaxy of normal stars
+    with 3 opponents and 89 in a medium one with 7, as each major empire's home system comes on top of the count the
+    new game screen shows. A multiplier over 10 is used as 10, with a warning in the log as the game or the mod loads
+    (`GlobalStats.LoadModInfo`), not as the mod lists read each mod's Globals.yaml. The cap is worked out from the
+    systems' count wherever it is read, so it holds once the universe is made, after a load and in tests. A mod's
+    Globals.yaml that still sets the old `MaxDriftingDerelicts` or `MaxSalvageableDerelicts` loads with a warning in
+    the log.
+  - At most the drifting cap of drifting derelicts at once (142, 20 until 188); past that, a visible death shows the
     normal explosion with no blast (170). The cap counts drifting and sinking derelicts that have a model, so a wreck
     with no model takes no place in it (232). It limits new ones only: after a load or a content reload the wrecks
-    that come back get their models when seen, so for at most their 100 s sink more than 100 can have one.
+    that come back get their models when seen, so for at most their 100 s sink more than the cap can have one.
 - **What it is:** a derelict is its own lightweight object, not a `Ship` (120).
 
 ### How a derelict moves and ends
@@ -866,7 +875,7 @@ Implementation notes:
   included (465), since sub-branch 2 alone leaves derelicts that nobody can salvage.
 - **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
   exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
-  the hard cap of 100 alone.
+  the drifting cap alone.
 
 ## What the code already has
 
@@ -1212,6 +1221,12 @@ Implementation notes:
      (662 A), a second click within a frame of the first playing its sound for nothing, as before (663 A), and the
      claim tooltip looking up a rival's order while it is hovered (664 B).
 6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
+   - first, the derelict caps (Gilad, 2026-10-21; 676-679, 686-691): each is the galaxy's star systems times its
+     multiplier, used from 0.1 to 10 (see How many). Review: the clamp at 10 also keeps a huge value from overflowing
+     the cap to 1 (686); `Cap` and its limits are private (688); the tests check the shipped default of 1 (690), and
+     the debug key's test has 10 systems, so it tells the salvageable cap from the drifting one (691). Test universes
+     start with no systems, so a test that makes more derelicts than its own systems adds bare ones in rows from the
+     universe's corner (`StarDriveTest.AddRemoteSystems`, 689).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
    and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
@@ -1232,5 +1247,5 @@ Each sub-branch adds its Codex text and tests.
   not roll a derelict still blasts when it ends (`Ship.cs:1760-1765`).
 - Hauling FROM a station does not exist yet; it is the largest new piece of phase 2.
 - A platform keeps what it stripped in its hold until it sends a load, so losing one loses that load (275).
-- Saves grow with derelicts: the throttle and the timer bound the salvageable ones, and the cap of 100 the drifting
+- Saves grow with derelicts: the throttle and the timer bound the salvageable ones, and the drifting cap the drifting
   ones. Each one is small (no modules).

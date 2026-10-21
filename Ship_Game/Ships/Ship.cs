@@ -423,7 +423,7 @@ namespace Ship_Game.Ships
         {
             if (!Active || Dying || !CanBecomeDerelict)
                 return;
-            if (salvageable && (!StopsWhereSalvageable || Universe.Derelicts.NumSalvageable >= GlobalStats.Defaults.MaxSalvageableDerelicts))
+            if (salvageable && (!StopsWhereSalvageable || Universe.Derelicts.NumSalvageable >= Derelicts.SalvageableCap(Universe)))
                 return;
             DebugDerelict = salvageable ? DebugDerelictKind.Salvageable : DebugDerelictKind.Drifting;
             try
@@ -1755,7 +1755,7 @@ namespace Ship_Game.Ships
             bool crashes = tumbles && PlanetCrash.GetPlanetToCrashOn(this, out crashPlanet);
 
             // a ship that crashes on a planet does not roll for a derelict
-            if (CanBecomeDerelict && (DebugDerelict != DebugDerelictKind.None || !crashes && Loyalty.Random.RollDice(Universe.Derelicts.Chance)))
+            if (CanBecomeDerelict && (DebugDerelict != DebugDerelictKind.None || !crashes && Loyalty.Random.RollDice(Universe.Derelicts.Chance(Universe))))
             {
                 RolledDerelict = true;
                 return true;

@@ -77,15 +77,35 @@ public sealed class Derelicts
         return false;
     }
 
-    // the percent chance of a derelict death, lowered by the salvageable derelicts' share of their limit, to none at it
-    public float Chance
+    const float MinCapMultiplier = 0.1f;
+    const float MaxCapMultiplier = 10f;
+
+    // the galaxy's star systems times the multiplier, used from 0.1 to 10; the cap is rounded up, at least 1, and a float's stray last digit never rounds it up
+    static int Cap(UniverseState universe, float multiplier)
+        => Math.Max(1, (int)Math.Ceiling(universe.Systems.Count * multiplier.Clamped(MinCapMultiplier, MaxCapMultiplier) - 0.001f));
+
+    // as the game or a mod loads: a cap multiplier over 10 is used as 10
+    public static void WarnOfCapMultipliers(GamePlayGlobals settings, string file)
     {
-        get
-        {
-            int max = GlobalStats.Defaults.MaxSalvageableDerelicts;
-            float share = max > 0 ? NumSalvageable / (float)max : 0f;
-            return GlobalStats.Defaults.DerelictChance * (1f - share).Clamped(0f, 1f);
-        }
+        WarnIfOverMax(nameof(GamePlayGlobals.DriftingDerelictCapMultiplier), settings.DriftingDerelictCapMultiplier, file);
+        WarnIfOverMax(nameof(GamePlayGlobals.SalvageableDerelictCapMultiplier), settings.SalvageableDerelictCapMultiplier, file);
+    }
+
+    static void WarnIfOverMax(string knob, float multiplier, string file)
+    {
+        if (multiplier > MaxCapMultiplier)
+            Log.Warning($"{file}: {knob}={multiplier} is over {MaxCapMultiplier}, so {MaxCapMultiplier} is used");
+    }
+
+    public static int SalvageableCap(UniverseState universe) => Cap(universe, GlobalStats.Defaults.SalvageableDerelictCapMultiplier);
+
+    public static int DriftingCap(UniverseState universe) => Cap(universe, GlobalStats.Defaults.DriftingDerelictCapMultiplier);
+
+    // the percent chance of a derelict death, lowered by the salvageable derelicts' share of their limit, to none at it
+    public float Chance(UniverseState universe)
+    {
+        float share = NumSalvageable / (float)SalvageableCap(universe);
+        return GlobalStats.Defaults.DerelictChance * (1f - share).Clamped(0f, 1f);
     }
 
     // over its limit a salvageable one drifts; only a seen death hands its hull over, so a wreck the player does not know never shows
@@ -95,9 +115,9 @@ public sealed class Derelicts
         lock (Sync)
         {
             SceneObject so = seen ? ship.GetSO() : null;
-            if (salvageable && CountSalvageable() >= GlobalStats.Defaults.MaxSalvageableDerelicts)
+            if (salvageable && CountSalvageable() >= SalvageableCap(ship.Universe))
                 salvageable = false;
-            if (!salvageable && (!seen || so == null || CountDriftingInScene() >= GlobalStats.Defaults.MaxDriftingDerelicts))
+            if (!salvageable && (!seen || so == null || CountDriftingInScene() >= DriftingCap(ship.Universe)))
                 return false;
             added = new Derelict(ship, so, salvageable, seen);
             Items.Add(added);

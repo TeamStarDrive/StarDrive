@@ -25,10 +25,10 @@ public class GamePlayGlobals
     [StarData] public float ShipDestroyThreshold = 0.5f;
     // Percent of the deaths of military ships (frigate and above) and untethered stations that leave a derelict, with no death blast
     [StarData] public float DerelictChance = 10;
-    // Most drifting derelicts with a model at once; past it a derelict death shows the normal explosion, still with no death blast
-    [StarData] public int MaxDriftingDerelicts = 100;
-    // Most salvageable derelicts at once; the derelict chance falls with their share of it, to none at the limit
-    [StarData] public int MaxSalvageableDerelicts = 100;
+    // Most drifting derelicts with a model at once, as a multiple of the galaxy's star systems from 0.1 to 10, over 10 used as 10 with a warning in the log; the cap is rounded up, at least 1. Past it a derelict death shows the normal explosion, still with no death blast
+    [StarData] public float DriftingDerelictCapMultiplier = 1f;
+    // Most salvageable derelicts at once, as a multiple of the galaxy's star systems from 0.1 to 10, over 10 used as 10 with a warning in the log; the cap is rounded up, at least 1. The derelict chance falls with their share of it, to none at the limit
+    [StarData] public float SalvageableDerelictCapMultiplier = 1f;
     // Production a salvage platform strips from its derelict in a turn, while its hold has room; above 0, as a recovery works at twice it
     [StarData] public float SalvageSpeed = 12;
     // Share of what a tech has left to research that a derelict's whole production advances it by, each load paying its part
