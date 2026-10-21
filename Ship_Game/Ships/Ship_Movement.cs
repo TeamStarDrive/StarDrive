@@ -204,6 +204,18 @@ namespace Ship_Game.Ships
             ThrustThisFrame = Thrust.AllStop;
         }
 
+        // never past the greater of top speed and speed now; stations and ships at warp, launching, landing or crashing don't move
+        public void ApplyImpulse(Vector2 impulse)
+        {
+            if (Stats.IsStationary || IsInWarp || IsLaunchingOrLanding || PlanetCrash != null || Mass <= 0f)
+                return;
+
+            Vector2 pushed = Velocity + impulse / Mass;
+            float cap = Math.Max(MaxSTLSpeed, Velocity.Length());
+            float speed = pushed.Length();
+            Velocity = speed > cap ? pushed * (cap / speed) : pushed;
+        }
+
         // NOTE: do not call outside of unit tests or Ship.Update !
         public void UpdateVelocityAndPosition(FixedSimTime timeStep)
         {

@@ -107,6 +107,9 @@ namespace Ship_Game.Gameplay
         // Duration left when an unguided MIRV shell splits; 0 splits it at the end of its flight
         [StarData] public float MirvFuse { get; private set; }
         public bool HasMirvFuse { get; private set; }
+
+        // a MIRV warhead's share of the ordnance its shot cost; below 0 for any other shell
+        [StarData(DefaultValue = -1f)] public float WarheadOrdnance { get; private set; } = -1f;
         GameObject MirvTarget;
         public bool TrailTurnedOn => IgnitionDelay <= 0f;
 
@@ -156,7 +159,7 @@ namespace Ship_Game.Gameplay
         // new Mirv cluster warhead
         // the original missile will be destroyed, but was launched by a Ship or by a Planet
         static void CreateMirvWarhead(Weapon warhead, Vector2 origin, Vector2 direction, GameObject target,
-                                      bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet)
+                                      bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet, float ordnanceShare)
         {
             // Loyalty cannot be null, otherwise kill events will not work correctly
             if (loyalty == null) throw new NullReferenceException(nameof(loyalty));
@@ -166,6 +169,7 @@ namespace Ship_Game.Gameplay
 
             var p = new Projectile(universe.CreateId(), warhead, warhead.Owner, planet, loyalty, GameObjectType.Proj);
             p.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
+            p.WarheadOrdnance = ordnanceShare;
         }
 
         // new projectile from planet
@@ -415,6 +419,7 @@ namespace Ship_Game.Gameplay
             {
                 // this is the spawned warhead weapon stats
                 Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module);
+                float ordnanceShare = PushOrdnance / Math.Max(1, warhead.ProjectileCount);
                 if (warhead.Tag_Guided)
                 {
                     for (int i = 0; i < warhead.ProjectileCount; i++)
@@ -427,7 +432,7 @@ namespace Ship_Game.Gameplay
 
                         separationVector += separationVel; // Add it to the initial velocity
                         bool playSound = i == 0; // play sound once
-                        CreateMirvWarhead(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet);
+                        CreateMirvWarhead(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet, ordnanceShare);
                     }
                 }
                 else
@@ -436,7 +441,7 @@ namespace Ship_Game.Gameplay
                     bool playSound = true;
                     foreach (Vector2 direction in warhead.SalvoDirections(Direction))
                     {
-                        CreateMirvWarhead(warhead, Position, direction, target, playSound, Velocity, Loyalty, Planet);
+                        CreateMirvWarhead(warhead, Position, direction, target, playSound, Velocity, Loyalty, Planet, ordnanceShare);
                         playSound = false; // only play sound once per fire cone
                     }
                 }
@@ -985,6 +990,8 @@ namespace Ship_Game.Gameplay
                         return true;
                     }
 
+                    // before the damage, so that a killing hit's push carries into the wreck
+                    PushShip(parent);
                     ArmorPiercingTouch(module, parent, hitPos);
                     Health = 0f;
                     if (InFrustum)
@@ -994,6 +1001,20 @@ namespace Ship_Game.Gameplay
 
             DieNextFrame = !Deflected;
             return true;
+        }
+
+        // the ordnance a shell's push counts: its weapon's cost, or a MIRV warhead's share of its shot
+        float PushOrdnance => WarheadOrdnance >= 0f ? WarheadOrdnance : Weapon.OrdinanceRequiredToFire;
+
+        // 5 mass per ordnance point, pushing by its momentum relative to the ship; plasma and drones push nothing
+        void PushShip(Ship ship)
+        {
+            float ordnance = PushOrdnance;
+            if (ordnance <= 0f || Weapon.Tag_Plasma || Weapon.IsRepairDrone)
+                return;
+            bool missile = Weapon.Tag_Guided || Weapon.Tag_Missile || Weapon.Tag_Torpedo; // missiles, rockets and torpedoes push by half
+            float mass = ordnance * 5f * (missile ? 0.5f : 1f);
+            ship.ApplyImpulse(mass * (Velocity - ship.Velocity));
         }
 
         void CreateWeaponDeathEffect(GameObject target)
