@@ -1107,6 +1107,18 @@ namespace Ship_Game.Ships
             }
         }
 
+        // a recovered ship's module back at this share of its health, dead at none, quietly: no blast, debris or sound, and its shield empty; one alive keeps at least 1 health, below which a module dies
+        internal void SetRecoveredHealth(float share)
+        {
+            float maxHealth = ActualMaxHealth;
+            float health = share > 0f ? (maxHealth * share).LowerBound(1f).UpperBound(maxHealth) : 0f;
+            Parent.OnHealthChange(health - Health, "Recovered");
+            Health = health;
+            Active = health > 0f;
+            OnFire = health < maxHealth * OnFireThreshold;
+            ShieldPower = 0f;
+        }
+
         void ResurrectModule()
         {
             Active = true;

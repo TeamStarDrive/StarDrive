@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using SDGraphics;
@@ -60,8 +61,21 @@ public sealed class Derelicts
 
     int CountSalvageable() => Items.Count(d => d.CanBeSalvaged);
 
-    // the drifting cap counts only the ones with a model: a wreck nobody can see costs nothing
-    int CountDriftingInScene() => Items.Count(d => !d.CanBeSalvaged && d.InScene);
+    // the drifting cap counts only the ones with a model: a wreck nobody can see costs nothing, and one rising for its ship is not drifting
+    int CountDriftingInScene() => Items.Count(d => !d.CanBeSalvaged && !d.RisingForItsShip && d.InScene);
+
+    // from any thread: a derelict of the design that may yet come back as a ship, salvageable or rising for its ship and not a station, which keeps the design from being overwritten or deleted
+    public bool AnyMayComeBackAs(string designName)
+    {
+        Derelict[] current = Current;
+        for (int i = 0; i < current.Length; ++i)
+        {
+            Derelict d = current[i];
+            if ((d.CanBeSalvaged || d.RisingForItsShip) && DerelictRecovery.CanRecover(d) && d.Design.Name == designName)
+                return true;
+        }
+        return false;
+    }
 
     // the percent chance of a derelict death, lowered by the salvageable derelicts' share of their limit, to none at it
     public float Chance
@@ -198,6 +212,56 @@ public sealed class Derelicts
         }
     }
 
+    // on the sim thread: a failed recovery breaks it up, heard where the player sees it, and it leaves its system at once
+    public void BreakApart(Derelict d)
+    {
+        lock (Sync)
+        {
+            if (d.OnScreen)
+                d.Sound(Derelict.GiveWaySound);
+            d.BreakApart();
+            Leave(d);
+        }
+    }
+
+    // on the sim thread: a successful recovery raises it for the empire, heard where the player sees it, and it leaves its system at once
+    public void Rise(Derelict d, Empire empire)
+    {
+        lock (Sync)
+        {
+            d.Rise(empire);
+            Leave(d);
+            if (d.OnScreen)
+                d.Sound(Derelict.RecoveredSound);
+        }
+    }
+
+    // on the sim thread: a recovery's break-in turn, heard where its effects show on screen
+    public void SoundBreakIn(Derelict d)
+    {
+        lock (Sync)
+        {
+            if (d.OnScreen && d.RecoveryEffectsShown)
+                d.Sound(Derelict.BreakInSound);
+        }
+    }
+
+    // on the sim thread: a failed recovery's catastrophe takes it out of the universe at once; its blast comes after the lock, as the ships it kills roll for derelicts of their own as they die
+    public void Explode(Derelict d)
+    {
+        bool seen;
+        lock (Sync)
+        {
+            seen = d.OnScreen;
+            d.BreakApart(); // so a panel or order still holding it no longer finds it salvageable
+            Leave(d);
+            d.RemoveSceneObject();
+            if (Items.RemoveRef(d))
+                Publish();
+        }
+        d.Explode(seen);
+    }
+
     // under the lock: one that can no longer be salvaged leaves its system, and a system with none left leaves every empire's list
     static void Leave(Derelict d)
     {
@@ -209,26 +273,52 @@ public sealed class Derelicts
             empires[i].DerelictSystems.Remove(system);
     }
 
+    // on the sim thread; one risen for its ship leaves the list with its model, and its ship is made after the lock, as a new ship joins its empire's lists, even when another derelict's update or hand-off throws
     public void Update(FixedSimTime timeStep)
     {
-        lock (Sync)
+        Array<(Derelict Derelict, SceneObject Model)> risen = null;
+        try
         {
-            bool removed = false;
-            try
+            lock (Sync)
             {
-                for (int i = Items.Count - 1; i >= 0; --i)
+                bool removed = false;
+                try
                 {
-                    if (!Items[i].Update(timeStep))
+                    for (int i = Items.Count - 1; i >= 0; --i)
                     {
-                        Items.RemoveAt(i);
-                        removed = true;
+                        Derelict d = Items[i];
+                        bool stays = d.Update(timeStep);
+                        if (stays && d.Risen)
+                        {
+                            (risen ??= new()).Add((d, d.TakeModel()));
+                            stays = false;
+                        }
+                        if (!stays)
+                        {
+                            Items.RemoveAt(i);
+                            removed = true;
+                        }
                     }
                 }
+                finally
+                {
+                    if (removed)
+                        Publish();
+                }
             }
-            finally
+        }
+        finally
+        {
+            for (int i = 0; risen != null && i < risen.Count; ++i)
             {
-                if (removed)
-                    Publish();
+                try
+                {
+                    risen[i].Derelict.BringBackShip(risen[i].Model);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"Recovered ship hand-off failed for design {risen[i].Derelict.Design.Name}");
+                }
             }
         }
     }

@@ -307,6 +307,20 @@ namespace Ship_Game
                 UState.JunkList[i]?.TryReset(id);
         }
 
+        // a build that rises away takes its parts up with it as they shrink away
+        public void RiseConstructionParts(int id, float seconds, float riseSpeed)
+        {
+            for (int i = UState.JunkList.Count - 1; i >= 0; --i)
+                UState.JunkList[i]?.TryRiseAway(id, seconds, riseSpeed);
+        }
+
+        // a build blown up loses its parts at once, where a finished one's fade out
+        public void RemoveConstructionParts(int id)
+        {
+            for (int i = UState.JunkList.Count - 1; i >= 0; --i)
+                UState.JunkList[i]?.TryRemove(id);
+        }
+
         /// <summary>Returns list of updated Empires</summary>
         Array<Empire> ProcessTurnEmpires(FixedSimTime timeStep)
         {

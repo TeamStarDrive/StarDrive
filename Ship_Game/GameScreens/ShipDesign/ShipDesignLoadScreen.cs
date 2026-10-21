@@ -141,6 +141,14 @@ namespace Ship_Game.GameScreens.ShipDesign
                     return;
                 }
 
+                if (Screen.Universe.Derelicts.AnyMayComeBackAs(shipId))
+                {
+                    GameAudio.NegativeClick();
+                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, string.Format(Localizer.Token(GameText.DesignDerelictNoDelete), shipId),
+                                                                        MessageBoxButtons.Ok, ShipDesignSaveScreen.MessageBoxWidth));
+                    return;
+                }
+
                 if (HelperFunctions.DesignInQueue(Screen.Screen, shipId, out string playerPlanets))
                 {
                     GameAudio.NegativeClick();

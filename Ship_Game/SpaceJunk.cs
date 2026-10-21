@@ -165,6 +165,16 @@ namespace Ship_Game
             GameObject source, float maxSize, Planet tetherPlanet) => SpawnJunk(universe, 1, position, velocity, source, maxSize,
                                                     ignite: false, constructorId: source.Id, tetherPlanet: tetherPlanet);
 
+        // a part of a build over something that is no game object, as a recovered derelict: at its depth, kept with the constructor's parts; the caller checks it is on screen
+        public static void ConstructionPart(UniverseState universe, Vector3 position, int constructorId, float maxSize)
+        {
+            if (!CanSpawn(universe))
+                return;
+            var junk = new SpaceJunk(universe, position.ToVec2(), Vector2.Zero, maxSize, ignite: false, constructorId, tetherPlanet: null, parentZ: position.Z);
+            universe.Screen.AddObject(junk.So);
+            universe.JunkList.Add(junk);
+        }
+
         /**
          * @param spawnRadius Spawned junk is spread around the given radius
          * @param scaleMod Applies additional scale modifier on the spawned junk
@@ -230,6 +240,30 @@ namespace Ship_Game
                     Duration = MaxDuration = ConstructionPartDuration * 0.5f;
                     IsFading = true;
                 }
+            }
+        }
+
+        // a construction part of a build that rises away, as a recovered derelict, rises with it and shrinks away over that time
+        public void TryRiseAway(int id, float seconds, float riseSpeed)
+        {
+            if (id == ConstructionPartId)
+            {
+                lock (this)
+                {
+                    Duration = MaxDuration = seconds;
+                    IsFading = true;
+                    Velocity.Z -= riseSpeed;
+                }
+            }
+        }
+
+        // a construction part of a build blown up goes at once
+        public void TryRemove(int id)
+        {
+            if (id == ConstructionPartId)
+            {
+                lock (this)
+                    Duration = 0f;
             }
         }
 

@@ -1649,6 +1649,8 @@ namespace Ship_Game
                     Log.Warning($"ShipModule UID='{uid}' missing NameIndex: {data.NameIndex}");
                 if (!Localizer.Contains(data.DescriptionIndex))
                     Log.Warning($"ShipModule UID='{uid}' missing DescriptionIndex: {data.DescriptionIndex}");
+                if (data.HealthMax < 1f)
+                    Log.Warning($"ShipModule UID='{uid}' HealthMax={data.HealthMax} is under 1, and a module below 1 health is destroyed");
 
                 if (data.IsCommandModule && data.TargetTracking == 0) data.TargetTracking = (sbyte) (int)(data.XSize * data.YSize * 1.25f );
                 if (data.IsCommandModule && data.TargetAccuracy == 0) data.TargetAccuracy = data.TargetTracking;

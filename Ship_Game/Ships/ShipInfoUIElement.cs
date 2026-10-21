@@ -42,6 +42,7 @@ namespace Ship_Game.Ships
         readonly ProgressBar SalvageHoldBar;
         readonly Rectangle SalvageDerelictRect;
         readonly ProgressBar SalvageDerelictBar;
+        readonly ProgressBar SalvageRecoveryBar;
         UITextEntry ShipNameArea;
         private readonly SlidingElement SlidingElement;
         private readonly Rectangle DefenseRect;
@@ -91,10 +92,11 @@ namespace Ship_Game.Ships
             MiningRect = ConstructionRect;
             MiningBar = new ProgressBar(MiningRect.X + MiningRect.Width + 15, MiningRect.Y, 150, 18) { color = "red" };
 
-            // a salvage platform's load in the miner's row, and its derelict's production left in the row below
-            SalvageHoldBar = new ProgressBar(MiningRect.X + MiningRect.Width + 15, MiningRect.Y, 150, 18) { color = "yellow" };
+            // a salvage platform's load in the miner's row, brown as the colony screen's stored production, and its derelict's production left or its recovery's progress in the row below
+            SalvageHoldBar = new ProgressBar(MiningRect.X + MiningRect.Width + 15, MiningRect.Y, 150, 18) { color = "brown" };
             SalvageDerelictRect = new Rectangle(MiningRect.X, MiningRect.Y + MiningRect.Height + spacing, 20, 20);
             SalvageDerelictBar = new ProgressBar(SalvageDerelictRect.X + SalvageDerelictRect.Width + 15, SalvageDerelictRect.Y, 150, 18) { color = "red" };
+            SalvageRecoveryBar = DerelictSalvageButton.RecoveryBar(SalvageDerelictBar.pBar);
 
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
             ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisShipsCurrentDefense));
@@ -490,7 +492,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // its load out of its hold, and the production left in its derelict while it works there
+        // its load out of its hold, and the production left in its derelict or, the player's alone, the progress of its recovery while it works there
         void DrawSalvageStatus(SpriteBatch batch, Vector2 mousePos, SalvageDerelict salvage)
         {
             if (!Ship.IsSalvagePlatform)
@@ -506,6 +508,15 @@ namespace Ship_Game.Ships
 
             if (salvage is not { Finished: false, Derelict: { Stripped: false } d })
                 return;
+            if (salvage.Recovering)
+            {
+                if (!salvage.Owner.isPlayer) // another empire's shows no bar, its break-in unshown, as in the derelicts window
+                    return;
+                DerelictSalvageButton.DrawRecovery(batch, SalvageDerelictRect, SalvageRecoveryBar, salvage.Owner, d, salvage);
+                if (SalvageDerelictRect.HitTest(mousePos) || SalvageRecoveryBar.pBar.HitTest(mousePos))
+                    DerelictSalvageButton.RecoveryTooltip(salvage.Owner, d, salvage);
+                return;
+            }
             SalvageDerelictBar.Max = d.Production;
             SalvageDerelictBar.Progress = d.ProductionLeft;
             SalvageDerelictBar.Draw(batch);
@@ -524,11 +535,13 @@ namespace Ship_Game.Ships
             if (salvage.LoadWaitsForStation(platform))
                 return Localizer.Token(GameText.SalvageStationHoldFull);
             if (salvage.Finished)
-                return Localizer.Token(GameText.SalvageFinished);
+                return Localizer.Token(salvage.RecoverySucceeded ? GameText.PlatformShipRecovered : GameText.SalvageFinished);
             if (SalvageDerelict.HoldFull(platform))
                 return Localizer.Token(GameText.SalvageHoldFull);
+            if (salvage.BreakingIn && salvage.Owner.isPlayer) // a rival's reads Recovering throughout, as in the derelicts window
+                return string.Format(Localizer.Token(GameText.DerelictBreakingIn), salvage.BreakInTurnsLeft);
             if (salvage.Derelict is { Stripped: false } d)
-                return string.Format(Localizer.Token(GameText.SalvagingDerelict), d.Design.Name);
+                return string.Format(Localizer.Token(salvage.Recovering ? GameText.RecoveringDerelict : GameText.SalvagingDerelict), d.Design.Name);
             return ShipListScreenItem.GetStatusText(platform);
         }
 

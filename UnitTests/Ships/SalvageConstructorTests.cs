@@ -338,7 +338,7 @@ public class SalvageConstructorTests : StarDriveTest
         Ship constructor = order.FinishedShip;
         RunPastLaunch(constructor);
 
-        DerelictSalvageButton.Click(Player, d, Block.Ordered);
+        DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true);
         Assert.IsNull(OrderOf(Player, d), "the click calls the order off");
         RunObjectsSim(TestSimStep);
         AssertEqual(AIState.ReturnToHangar, constructor.AI.State, "and its constructor flies home");
@@ -443,7 +443,7 @@ public class SalvageConstructorTests : StarDriveTest
         SalvageDerelict order = OrderedAndLaunched(d, Player);
         Ship constructor = order.FinishedShip;
         RunClearOf(station, constructor);
-        DerelictSalvageButton.Click(Player, d, Block.Ordered);
+        DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true);
         RunObjectsSim(TestSimStep);
         AssertEqual(AIState.ReturnToHangar, constructor.AI.State, "setup: the constructor flies home");
 
@@ -511,7 +511,7 @@ public class SalvageConstructorTests : StarDriveTest
         SalvageDerelict order = WithItsPlatform(d);
         Ship platform = order.Platform;
 
-        DerelictSalvageButton.Click(Player, d, Block.Ordered);
+        DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true);
         Assert.IsNull(d.Claimant, "the claim goes at once");
         Assert.IsTrue(order.CalledOff && Player.AI.HasGoal(order), "while the order winds down");
         Assert.IsTrue(platform.Active, "with its platform");

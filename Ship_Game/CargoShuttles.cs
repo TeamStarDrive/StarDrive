@@ -28,6 +28,7 @@ namespace Ship_Game
         public const int MaxOrdnanceShuttles = 5;
         public const float OrdnanceShuttleSeconds = 3f;
         public const float ProductionPerSalvageShuttle = 3f;
+        public const float WorkPerRecoveryShuttle = 6f;
         // a salvage platform's shuttles launch 0.2 to 2 s after the turn's stripping, take 2 to 2.9 s each way, and turn back at once
         public const float MinHullLaunchDelay = 0.2f;
         public const float MaxHullLaunchDelay = 2f;
@@ -146,6 +147,9 @@ namespace Ship_Game
 
         // one for every 3 production stripped, rounded up
         public static int SalvageShuttlesFor(float stripped) => ((int)Math.Ceiling(stripped / ProductionPerSalvageShuttle)).Clamped(1, MaxShuttles);
+
+        // one for every 6 slots of a turn's recovery work, rounded up
+        public static int RecoveryShuttlesFor(float work) => ((int)Math.Ceiling(work / WorkPerRecoveryShuttle)).Clamped(1, MaxShuttles);
 
         // one for every 15 production of the load, rounded up
         public static int LoadShuttlesFor(float load) => ((int)Math.Ceiling(load / ProductionPerLoadShuttle)).Clamped(1, MaxShuttles);

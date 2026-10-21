@@ -206,10 +206,12 @@ public partial class UniverseScreen
         SelectedDerelict = derelict;
     }
 
-    // one that starts to sink can no longer be selected
+    // one that starts to sink can no longer be selected, and one the player recovered hands the selection to its ship
     public void UpdateSelectedDerelict()
     {
-        if (SelectedDerelict is { SelectableByPlayer: false })
+        if (SelectedDerelict is { RecoveredAs: { Active: true } ship } && ship.Loyalty == Player)
+            SetSelectedShip(ship);
+        else if (SelectedDerelict is { SelectableByPlayer: false })
             SelectedDerelict = null;
     }
 }

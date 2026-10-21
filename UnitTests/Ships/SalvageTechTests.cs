@@ -308,22 +308,22 @@ public class SalvageTechTests : StarDriveTest
     {
         Derelict d = Forms(Player, Wreck);
         BuiltStation();
-        AssertEqual(Stage.None, SalvageDerelict.StageOf(Player, d, out _), "no salvage yet");
+        AssertEqual(Stage.None, SalvageDerelict.StageOf(Player, d, out _, out _), "no salvage yet");
 
         var order = new SalvageDerelict(Player, d);
         Player.AI.AddGoal(order);
-        AssertEqual(Stage.PlatformOrdered, SalvageDerelict.StageOf(Player, d, out _), "ordered, before a unit launches its constructor");
+        AssertEqual(Stage.PlatformOrdered, SalvageDerelict.StageOf(Player, d, out _, out _), "ordered, before a unit launches its constructor");
         order.Evaluate();
         Ship constructor = order.FinishedShip;
         Assert.IsNotNull(constructor, "setup: a unit launches the constructor");
-        AssertEqual(Stage.BuildingPlatform, SalvageDerelict.StageOf(Player, d, out _), "while the constructor flies out and builds");
+        AssertEqual(Stage.BuildingPlatform, SalvageDerelict.StageOf(Player, d, out _, out _), "while the constructor flies out and builds");
         order.OnPlatformBuilt(SpawnShip(ShipDesign.SalvagePlatformName, Player, order.BuildPosition), constructor);
         constructor.QueueTotalRemoval();
-        AssertEqual(Stage.Salvaging, SalvageDerelict.StageOf(Player, d, out _), "once the platform is built");
+        AssertEqual(Stage.Salvaging, SalvageDerelict.StageOf(Player, d, out _, out _), "once the platform is built");
 
         Derelict theirs = Forms(Player, Wreck + new Vector2(0, 5_000f));
         Assert.IsTrue(theirs.TryClaim(Enemy), "setup: another empire salvages a second wreck");
-        AssertEqual(Stage.Salvaging, SalvageDerelict.StageOf(Player, theirs, out Empire claimant), "which shows as Salvaging");
+        AssertEqual(Stage.Salvaging, SalvageDerelict.StageOf(Player, theirs, out Empire claimant, out _), "which shows as Salvaging");
         AssertEqual(Enemy, claimant, "in the colour of the empire salvaging it");
     }
 

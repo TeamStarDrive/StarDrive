@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 450. Already hooked: 385.
+Tokens: 456. Already hooked: 392.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -38,7 +38,7 @@ Tokens: 450. Already hooked: 385.
 | 23 | `NormallyWhenYouManuallyAdd` |  Normally, when you manually add a building to the colony's build queue, you will be notified when it is completed. You can disable these notifications, if y... | AutomationWindow.cs |  | automation_alerts |
 | 24 | `rioritizeProjectorTip` | Whenever a Subspace Projector is placed in a planet's construction queue, manually or automatically, it would be placed at the top of the list. | AutomationWindow.cs |  | automation_construction |
 | 25 | `RushAllConstructionTip` | Signals Continuous Construction rush of all items in your empire, including existing and future items.   WARNING: This will quickly spend your treasury and m... | AutomationWindow.cs |  | automation_construction |
-| 26 | `SalvageAlertsTip` | Alerts when one of your salvage platforms has sent its station its last load, with the production and research its salvage brought, and when your salvage of ... | AutomationWindow.cs |  | automation_alerts |
+| 26 | `SalvageAlertsTip` | Alerts when one of your salvage platforms has sent its station its last load, with the production and research its salvage brought; when your salvage of a de... | AutomationWindow.cs |  | automation_alerts |
 | 27 | `ShipCrashAlertsTip` | Alerts when a ship crashes on a planet. With these off, you hear of a crash site only when a ship is recovered from it. | AutomationWindow.cs |  | automation_alerts |
 | 28 | `StationBuiltAlertsTip` | Alerts when one of your research, mining or salvage stations has been built. | AutomationWindow.cs |  | automation_alerts |
 | 29 | `TheBestColonyShipWill` | The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons. | AutomationWindow.cs |  | automation_exploration |
@@ -381,7 +381,7 @@ Tokens: 450. Already hooked: 385.
 | 366 | `OrdersThisShipToExplore` | Orders this ship to explore the galaxy | ShipListScreenItem.cs |  | expansion_scouting |
 | 367 | `DerelictOriginalOwner` | Original Owner: {0} | Ships/DerelictInfoUIElement.cs (raw string at site: pass the enum) |  |  |
 | 368 | `DerelictProductionTip` | Production left to salvage from this derelict, out of the production it started with. | Ships/DerelictInfoUIElement.cs<br>Ships/ShipInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
-| 369 | `DerelictSalvagedBy` | {0} is salvaging this derelict. | Ships/DerelictInfoUIElement.cs (raw string at site: pass the enum)<br>Ships/SystemDerelictsScreen.cs (raw string at site: pass the enum) |  |  |
+| 369 | `DerelictRecoveryChanceTip` | Your chance to recover this ship: {0}. It starts at {1} for its hull, which Skilled Engineers raise and Haphazard Engineers lower, and falls with the share o... | Ships/DerelictInfoUIElement.cs (raw string at site: pass the enum) |  | warfare_combat_basics |
 | 370 | `DerelictTechsHeldTip` | Technologies this derelict holds. Once you have a salvage station built in its system, you see which of them you can learn from it, and only those are counted. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
 | 371 | `DerelictTechsShownTip` | Technologies you can learn from this derelict. Each load of it that reaches your salvage station advances them, and the count drops as you research them. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
 | 372 | `DerelictTurnsLeftTip` | Turns left before this derelict sinks away and can no longer be salvaged. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
@@ -389,77 +389,83 @@ Tokens: 450. Already hooked: 385.
 | 374 | `SalvageStationNoDesignTip` | No salvage station design can be built yet. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
 | 375 | `SalvageStationOrderTip` | Build a salvage station near this system's derelicts. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
 | 376 | `SalvageStationOrderedTip` | You already have a salvage station in this system, built or on order. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
-| 377 | `SalvageDerelictNoFreeUnitTip` | Every salvage unit of your station in this system is busy. | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
-| 378 | `SalvageDerelictNoStationTip` | Salvaging this derelict needs a salvage station of yours built in this system. | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
-| 379 | `SalvageDerelictOrderedTip` | Your salvage station is working this derelict. Click to call it off: its salvage platform, if built, sends what it has stripped to the station and is dismant... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
-| 380 | `SalvageDerelictTip` | Salvage this derelict: a salvage unit of your station in this system sends a constructor, which builds a salvage platform beside it to strip it for productio... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
-| 381 | `ConstructionProgressTip` | Amount of completed construction. The constructor adds construction every turn, and if the structure sits in a system where you or an ally hold colonies, tho... | Ships/ShipInfoUIElement.cs |  | automation_construction |
-| 382 | `EmpOverloadShipIsDisabled` | EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload. | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
-| 383 | `IndicatesAShipsExperienceLevel2` | Indicates a ship's experience level, from 0 to 10. Each level adds 5% to turn speed and 20% to repair rate, adds 5% to weapon damage, tightens weapon accurac... | Ships/ShipInfoUIElement.cs |  | warfare_ship_experience |
-| 384 | `IndicatesThisShipsCurrentBonus` | Indicates this ship's current bonus or penalty to damage from the Pack Mentality trait | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
-| 385 | `SalvageHoldTip` | Production this salvage platform has stripped from its derelict and holds for its salvage station, out of what its cargo hold takes. It strips only while its... | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
-| 386 | `StructuralIntegrityOfTheShip` | Structural integrity of the ship: the share of its internal module slots still intact. The ship is destroyed when this drops below 50%. | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
-| 387 | `ThisShipIsInhibitedAnd` | This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automat... | Ships/ShipInfoUIElement.cs |  | overview_map_overlays |
-| 388 | `ThisShowsTheHangarStatus` | This shows the hangar status of the ship. Green is the number of ships currently launched, White is the number of ships ready to launch and Red is the number... | Ships/ShipInfoUIElement.cs |  | warfare_fighter_bays |
-| 389 | `ToggleTheModuleGridOverlay` | Toggle the module grid overlay on or off | Ships/ShipInfoUIElement.cs |  |  |
-| 390 | `ArcDragTip` | Shift for fine tune Alt to match an existing turret | ToolTip.cs |  | warfare_ship_design |
-| 391 | `ArcDragTipAltControl` | Shift for fine tune Ctrl to match an existing turret | ToolTip.cs |  | warfare_ship_design |
-| 392 | `ResearchUnlocksMoreThanFourItems` | This Technology unlocks more than 4 items. Right Click on the title to Expand | TreeNode.cs |  |  |
-| 393 | `IndicatesThisTroopsExperienceLevel` | Indicates this troop's experience level, from 0 to 10. Each level adds 5% to its base attack values and 1 to its maximum strength, and takes 4 points off a b... | Troops/TroopInfoUIElement.cs |  | warfare_ground_combat |
-| 394 | `LaunchThisTroopIntoOrbit` | Launch this troop into orbit | Troops/TroopInfoUIElement.cs |  | colony_garrison_and_ports |
-| 395 | `CurrentResearch` | Current Research | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 396 | `EconomicOverview2` | Economic Overview | Universe/EmpireUIOverlay.cs |  |  |
-| 397 | `OpensTheDiplomacyOverviewScreen` | Opens the Diplomacy Overview Screen | Universe/EmpireUIOverlay.cs |  |  |
-| 398 | `OpensTheEmpireOverviewScreen` | Opens the Empire Overview Screen | Universe/EmpireUIOverlay.cs |  |  |
-| 399 | `OpensTheEspionageManagementScreen` | Opens the Espionage Management Screen | Universe/EmpireUIOverlay.cs |  |  |
-| 400 | `OpensTheFleetManager` | Opens the Fleet Manager | Universe/EmpireUIOverlay.cs |  |  |
-| 401 | `OpensTheHelpMenu` | Opens the Help Menu | Universe/EmpireUIOverlay.cs |  |  |
-| 402 | `OpensTheMainMenu` | Opens the Main Menu | Universe/EmpireUIOverlay.cs |  |  |
-| 403 | `OpensTheShipRoster` | Opens the Ship Roster | Universe/EmpireUIOverlay.cs |  |  |
-| 404 | `OpensTheShipyard` | Opens the Shipyard | Universe/EmpireUIOverlay.cs |  |  |
-| 405 | `ResearchScreen` | Research Screen | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
-| 406 | `BlueprintsScreenTip` | Opens the Blueprints Screen, which allows you to create, delete and edit Blueprints for colonies. | Universe/MiniMap.cs |  | colony_blueprints |
-| 407 | `EmpirePatrolsScreenTip` | Opens the Empire Patrols screen, which allows you to rename or delete stored patrol plans. | Universe/MiniMap.cs |  |  |
-| 408 | `FtlOverlayVisualisesSubspaceProjection` | FTL Overlay: visualizes subspace projection and FTL inhibiting gravity wells and fields. | Universe/MiniMap.cs |  | overview_map_overlays |
-| 409 | `OpenFreighterUtilWindow` | Opens the Freighter Utilization Window. | Universe/MiniMap.cs |  | economy_freighters_and_trade_routes |
-| 410 | `OpensEmpireExoticBonusesDisabled` | Mining Ops are disabled in this game. The Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status | Universe/MiniMap.cs |  | expansion_exotic_resources |
-| 411 | `OpensExoticPlanetsPanel` | Opens Exotic Systems Array | Universe/MiniMap.cs |  |  |
-| 412 | `OpensPlanetReconnaissancePanel` | Opens Planet Array | Universe/MiniMap.cs |  |  |
-| 413 | `OpensTheAutomationPanelWhich` | Opens the automation panel which allows you to automate certain empire tasks | Universe/MiniMap.cs |  | economy_automation |
-| 414 | `OpensTheDeepSpaceBuilding` | Opens the deep space building window which will allow you to place an order for a platform or other deep space structure | Universe/MiniMap.cs |  | expansion_deep_space_building |
-| 415 | `OpensTheImportantEventsLog` | Opens the Important Events log | Universe/MiniMap.cs |  |  |
-| 416 | `WeaponsRangeOverlayVisualisesShips` | Weapons Range Overlay: visualizes ships' maximum weapon range. When a ship is selected, you will see green circles with Yellow, Orange and Red borders (short... | Universe/MiniMap.cs |  | overview_map_overlays |
-| 417 | `ZoomOutToTheGalaxy` | Zoom out to the galaxy view | Universe/MiniMap.cs |  | overview_controls |
-| 418 | `ZoomsToYourCurrentlySelected` | Zooms to your current selection: ship, planet, system or fleet. | Universe/MiniMap.cs |  | overview_controls |
-| 419 | `CannotBuildMiningStationTip` | You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
-| 420 | `IndicatesThatHostileForcesWere` | Indicates that hostile forces were recently spotted in this system | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_scouting |
-| 421 | `PlanetTypeAndRichnessThe` | Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's su... | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs |  | economy_planetary_qualities |
-| 422 | `ResearchPointsAreAddedInto` | Research points are added into an empire-wide pool where they are applied towards the top item in your research queue.   | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | colony_labor_sliders |
-| 423 | `SalvageableDerelictsHereTip` | You know of salvageable derelicts in this system. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | warfare_combat_basics |
-| 424 | `SystemSalvageProductionTip` | Production left to salvage from the derelicts you know of in this system. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | warfare_combat_basics |
-| 425 | `ColonizeGracePeriodTip` | Grace period: {0} lost its colony here and may return. You can colonize this planet when the grace period ends, or now if you are at war with {0}. Turns left... | Universe/SolarBodies/Planet/Planet_Colonize.cs (raw string at site: pass the enum) |  |  |
-| 426 | `LockedRightClickToRemove` | This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
-| 427 | `OutpostsCannotBeRemoved` | The Outpost cannot be removed from the Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
-| 428 | `RightClickToRemove` | Right Click to remove this building from current Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
-| 429 | `CancelDeployResearchStationTip` | Cancel ongoing deployment mission of research station to this planet's orbit. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
-| 430 | `CannotBuildResearchStationTip` | You do not have the required technology to build a Research Station, research relevant tech to gain Research Station schematics. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
-| 431 | `CannotDeployMiningStationNotOwnerTip` | You Cannot start Mining Operations here since there is already an owner for these ops. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
-| 432 | `DeployMiningStationTip` | Deploy Mining Station in this planet's orbit. You can deploy up to 4 Mining Stations here, and only one empire can own a planet's Mining Operations. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
-| 433 | `DeployResearchStationTip` | Deploy a Research Station in this planet's orbit. Each empire can have only one Research Station here. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
-| 434 | `MineableRichnessTip` | Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace mig... | Universe/SolarBodies/PlanetInfoUIElement.cs<br>Universe/SolarBodies/UnownedPlanetScreen.cs |  | expansion_exotic_refining |
-| 435 | `OpenTheGroundAssaultView` | Open the Ground Assault View for this planet where you can land troops and order bombardments | Universe/SolarBodies/PlanetInfoUIElement.cs |  | warfare_ground_combat |
-| 436 | `OpensColonyOverviewScreen` | Opens colony overview screen | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 437 | `ViewPlanetDetails` | View Planet Details | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
-| 438 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs |  |  |
-| 439 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | diplomacy_espionage |
-| 440 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | warfare_ground_combat |
-| 441 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  | colony_garrison_and_ports |
-| 442 | `SendAvailableTroopsToThis` | Send available troops to this planet. One idle transport of your default troop ship design is sent per click. Otherwise a troop launches from your nearest co... | Universe/SolarBodies/PlanetListScreenItem.cs |  | colony_garrison_and_ports |
-| 443 | `IndicatesThatAnAnomalyWas` | Indicates that an anomaly was detected on the surface of this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_scouting |
-| 444 | `IndicatesThatYourEmpireHas` | Indicates that your empire has a mission underway to colonize this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_colony_ships |
-| 445 | `MiningStationsCanBePlaced` | Indicates that Mining Stations can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_exotic_resources |
-| 446 | `MiningStationsOpsOwned` | Mining Station operations here are owned by this empire | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_exotic_resources |
-| 447 | `ResearchStationCanBePlaced` | Indicates that a Research Station can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_deep_space_building |
-| 448 | `IndicatesThatAnAnomalyHas` | Indicates that an anomaly has been detected on a planet within this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_scouting |
-| 449 | `IndicatesThatSpaceCombatIs` | Indicates that space combat is occurring in this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  | warfare_combat_basics |
-| 450 | `ResearchStationCanBePlacedSystem` | Indicates that a Research Station can be deployed in this system to research it's Star. | Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_deep_space_building |
+| 377 | `DerelictRecoveryProgressTip` | Recovery progress: {0} of {1} work done, at {2} a turn after {3} turns of breaking in. Turns left in all: {4}. It costs only time. Turning the order to salva... | Ships/DerelictSalvageButton.cs (raw string at site: pass the enum) |  | warfare_combat_basics |
+| 378 | `DerelictRisingTip` | Recovered: the ship takes the derelict's place as it rises, and it is yours whatever happens to the platform or the station. | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 379 | `RecoverDerelictOrderedTip` | Your salvage station is recovering this ship. Click to call it off: its salvage platform, if built, sends what it still holds to the station and is dismantle... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 380 | `RecoverDerelictStationTip` | A station cannot be recovered, only salvaged. | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 381 | `RecoverDerelictSwitchTip` | Recover this ship instead: its salvage platform first sends what it holds to your station, then breaks in and works to bring the ship back. Recovery chance: ... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 382 | `RecoverDerelictTip` | Recover this ship: a salvage unit of your station in this system sends a constructor, which builds a salvage platform beside it to bring the ship back for yo... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 383 | `SalvageDerelictNoFreeUnitTip` | Every salvage unit of your station in this system is busy. | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 384 | `SalvageDerelictOrderedTip` | Your salvage station is working this derelict. Click to call it off: its salvage platform, if built, sends what it has stripped to the station and is dismant... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 385 | `SalvageDerelictSwitchTip` | Salvage this derelict instead: its salvage platform strips it for production and technology. The work done on the recovery is kept for a later one, which bre... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 386 | `SalvageDerelictTip` | Salvage this derelict: a salvage unit of your station in this system sends a constructor, which builds a salvage platform beside it to strip it for productio... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 387 | `ConstructionProgressTip` | Amount of completed construction. The constructor adds construction every turn, and if the structure sits in a system where you or an ally hold colonies, tho... | Ships/ShipInfoUIElement.cs |  | automation_construction |
+| 388 | `EmpOverloadShipIsDisabled` | EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload. | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
+| 389 | `IndicatesAShipsExperienceLevel2` | Indicates a ship's experience level, from 0 to 10. Each level adds 5% to turn speed and 20% to repair rate, adds 5% to weapon damage, tightens weapon accurac... | Ships/ShipInfoUIElement.cs |  | warfare_ship_experience |
+| 390 | `IndicatesThisShipsCurrentBonus` | Indicates this ship's current bonus or penalty to damage from the Pack Mentality trait | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
+| 391 | `SalvageHoldTip` | Production this salvage platform has stripped from its derelict and holds for its salvage station, out of what its cargo hold takes. It strips only while its... | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
+| 392 | `StructuralIntegrityOfTheShip` | Structural integrity of the ship: the share of its internal module slots still intact. The ship is destroyed when this drops below 50%. | Ships/ShipInfoUIElement.cs |  | warfare_combat_basics |
+| 393 | `ThisShipIsInhibitedAnd` | This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automat... | Ships/ShipInfoUIElement.cs |  | overview_map_overlays |
+| 394 | `ThisShowsTheHangarStatus` | This shows the hangar status of the ship. Green is the number of ships currently launched, White is the number of ships ready to launch and Red is the number... | Ships/ShipInfoUIElement.cs |  | warfare_fighter_bays |
+| 395 | `ToggleTheModuleGridOverlay` | Toggle the module grid overlay on or off | Ships/ShipInfoUIElement.cs |  |  |
+| 396 | `ArcDragTip` | Shift for fine tune Alt to match an existing turret | ToolTip.cs |  | warfare_ship_design |
+| 397 | `ArcDragTipAltControl` | Shift for fine tune Ctrl to match an existing turret | ToolTip.cs |  | warfare_ship_design |
+| 398 | `ResearchUnlocksMoreThanFourItems` | This Technology unlocks more than 4 items. Right Click on the title to Expand | TreeNode.cs |  |  |
+| 399 | `IndicatesThisTroopsExperienceLevel` | Indicates this troop's experience level, from 0 to 10. Each level adds 5% to its base attack values and 1 to its maximum strength, and takes 4 points off a b... | Troops/TroopInfoUIElement.cs |  | warfare_ground_combat |
+| 400 | `LaunchThisTroopIntoOrbit` | Launch this troop into orbit | Troops/TroopInfoUIElement.cs |  | colony_garrison_and_ports |
+| 401 | `CurrentResearch` | Current Research | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
+| 402 | `EconomicOverview2` | Economic Overview | Universe/EmpireUIOverlay.cs |  |  |
+| 403 | `OpensTheDiplomacyOverviewScreen` | Opens the Diplomacy Overview Screen | Universe/EmpireUIOverlay.cs |  |  |
+| 404 | `OpensTheEmpireOverviewScreen` | Opens the Empire Overview Screen | Universe/EmpireUIOverlay.cs |  |  |
+| 405 | `OpensTheEspionageManagementScreen` | Opens the Espionage Management Screen | Universe/EmpireUIOverlay.cs |  |  |
+| 406 | `OpensTheFleetManager` | Opens the Fleet Manager | Universe/EmpireUIOverlay.cs |  |  |
+| 407 | `OpensTheHelpMenu` | Opens the Help Menu | Universe/EmpireUIOverlay.cs |  |  |
+| 408 | `OpensTheMainMenu` | Opens the Main Menu | Universe/EmpireUIOverlay.cs |  |  |
+| 409 | `OpensTheShipRoster` | Opens the Ship Roster | Universe/EmpireUIOverlay.cs |  |  |
+| 410 | `OpensTheShipyard` | Opens the Shipyard | Universe/EmpireUIOverlay.cs |  |  |
+| 411 | `ResearchScreen` | Research Screen | Universe/EmpireUIOverlay.cs (raw string at site: pass the enum) |  |  |
+| 412 | `BlueprintsScreenTip` | Opens the Blueprints Screen, which allows you to create, delete and edit Blueprints for colonies. | Universe/MiniMap.cs |  | colony_blueprints |
+| 413 | `EmpirePatrolsScreenTip` | Opens the Empire Patrols screen, which allows you to rename or delete stored patrol plans. | Universe/MiniMap.cs |  |  |
+| 414 | `FtlOverlayVisualisesSubspaceProjection` | FTL Overlay: visualizes subspace projection and FTL inhibiting gravity wells and fields. | Universe/MiniMap.cs |  | overview_map_overlays |
+| 415 | `OpenFreighterUtilWindow` | Opens the Freighter Utilization Window. | Universe/MiniMap.cs |  | economy_freighters_and_trade_routes |
+| 416 | `OpensEmpireExoticBonusesDisabled` | Mining Ops are disabled in this game. The Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status | Universe/MiniMap.cs |  | expansion_exotic_resources |
+| 417 | `OpensExoticPlanetsPanel` | Opens Exotic Systems Array | Universe/MiniMap.cs |  |  |
+| 418 | `OpensPlanetReconnaissancePanel` | Opens Planet Array | Universe/MiniMap.cs |  |  |
+| 419 | `OpensTheAutomationPanelWhich` | Opens the automation panel which allows you to automate certain empire tasks | Universe/MiniMap.cs |  | economy_automation |
+| 420 | `OpensTheDeepSpaceBuilding` | Opens the deep space building window which will allow you to place an order for a platform or other deep space structure | Universe/MiniMap.cs |  | expansion_deep_space_building |
+| 421 | `OpensTheImportantEventsLog` | Opens the Important Events log | Universe/MiniMap.cs |  |  |
+| 422 | `WeaponsRangeOverlayVisualisesShips` | Weapons Range Overlay: visualizes ships' maximum weapon range. When a ship is selected, you will see green circles with Yellow, Orange and Red borders (short... | Universe/MiniMap.cs |  | overview_map_overlays |
+| 423 | `ZoomOutToTheGalaxy` | Zoom out to the galaxy view | Universe/MiniMap.cs |  | overview_controls |
+| 424 | `ZoomsToYourCurrentlySelected` | Zooms to your current selection: ship, planet, system or fleet. | Universe/MiniMap.cs |  | overview_controls |
+| 425 | `CannotBuildMiningStationTip` | You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
+| 426 | `IndicatesThatHostileForcesWere` | Indicates that hostile forces were recently spotted in this system | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_scouting |
+| 427 | `PlanetTypeAndRichnessThe` | Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's su... | Universe/SolarBodies/ExoticSystemsListScreenItem.cs<br>Universe/SolarBodies/PlanetListScreenItem.cs |  | economy_planetary_qualities |
+| 428 | `ResearchPointsAreAddedInto` | Research points are added into an empire-wide pool where they are applied towards the top item in your research queue.   | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | colony_labor_sliders |
+| 429 | `SalvageableDerelictsHereTip` | You know of salvageable derelicts in this system. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | warfare_combat_basics |
+| 430 | `SystemSalvageProductionTip` | Production left to salvage from the derelicts you know of in this system. | Universe/SolarBodies/ExoticSystemsListScreenItem.cs |  | warfare_combat_basics |
+| 431 | `ColonizeGracePeriodTip` | Grace period: {0} lost its colony here and may return. You can colonize this planet when the grace period ends, or now if you are at war with {0}. Turns left... | Universe/SolarBodies/Planet/Planet_Colonize.cs (raw string at site: pass the enum) |  |  |
+| 432 | `LockedRightClickToRemove` | This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
+| 433 | `OutpostsCannotBeRemoved` | The Outpost cannot be removed from the Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
+| 434 | `RightClickToRemove` | Right Click to remove this building from current Blueprints. | Universe/SolarBodies/PlanetGridSquare.cs |  | colony_blueprints |
+| 435 | `CancelDeployResearchStationTip` | Cancel ongoing deployment mission of research station to this planet's orbit. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
+| 436 | `CannotBuildResearchStationTip` | You do not have the required technology to build a Research Station, research relevant tech to gain Research Station schematics. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
+| 437 | `CannotDeployMiningStationNotOwnerTip` | You Cannot start Mining Operations here since there is already an owner for these ops. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
+| 438 | `DeployMiningStationTip` | Deploy Mining Station in this planet's orbit. You can deploy up to 4 Mining Stations here, and only one empire can own a planet's Mining Operations. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_exotic_resources |
+| 439 | `DeployResearchStationTip` | Deploy a Research Station in this planet's orbit. Each empire can have only one Research Station here. | Universe/SolarBodies/PlanetInfoUIElement.cs |  | expansion_deep_space_building |
+| 440 | `MineableRichnessTip` | Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace mig... | Universe/SolarBodies/PlanetInfoUIElement.cs<br>Universe/SolarBodies/UnownedPlanetScreen.cs |  | expansion_exotic_refining |
+| 441 | `OpenTheGroundAssaultView` | Open the Ground Assault View for this planet where you can land troops and order bombardments | Universe/SolarBodies/PlanetInfoUIElement.cs |  | warfare_ground_combat |
+| 442 | `OpensColonyOverviewScreen` | Opens colony overview screen | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
+| 443 | `ViewPlanetDetails` | View Planet Details | Universe/SolarBodies/PlanetInfoUIElement.cs |  |  |
+| 444 | `ExoticSystemsArrayTip` | View all explored exotic systems. | Universe/SolarBodies/PlanetListScreen.cs |  |  |
+| 445 | `IndicatesThatAFriendlyAgent` | Indicates that a friendly agent has been planted on this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | diplomacy_espionage |
+| 446 | `IndicatesThatGroundCombatIs` | Indicates that ground combat is underway at this planet  | Universe/SolarBodies/PlanetListScreenItem.cs |  | warfare_ground_combat |
+| 447 | `RecallAllTroopsBasedOn` | Recall all troops based on this planet. They will rebase to your nearest colony | Universe/SolarBodies/PlanetListScreenItem.cs |  | colony_garrison_and_ports |
+| 448 | `SendAvailableTroopsToThis` | Send available troops to this planet. One idle transport of your default troop ship design is sent per click. Otherwise a troop launches from your nearest co... | Universe/SolarBodies/PlanetListScreenItem.cs |  | colony_garrison_and_ports |
+| 449 | `IndicatesThatAnAnomalyWas` | Indicates that an anomaly was detected on the surface of this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_scouting |
+| 450 | `IndicatesThatYourEmpireHas` | Indicates that your empire has a mission underway to colonize this planet | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_colony_ships |
+| 451 | `MiningStationsCanBePlaced` | Indicates that Mining Stations can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs<br>Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_exotic_resources |
+| 452 | `MiningStationsOpsOwned` | Mining Station operations here are owned by this empire | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_exotic_resources |
+| 453 | `ResearchStationCanBePlaced` | Indicates that a Research Station can be deployed in orbit of this planet. | Universe/SolarBodies/SolarsystemOverlay.cs |  | expansion_deep_space_building |
+| 454 | `IndicatesThatAnAnomalyHas` | Indicates that an anomaly has been detected on a planet within this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_scouting |
+| 455 | `IndicatesThatSpaceCombatIs` | Indicates that space combat is occurring in this system | Universe/UniverseScreen/UniverseScreen.Render.cs |  | warfare_combat_basics |
+| 456 | `ResearchStationCanBePlacedSystem` | Indicates that a Research Station can be deployed in this system to research it's Star. | Universe/UniverseScreen/UniverseScreen.Render.cs |  | expansion_deep_space_building |

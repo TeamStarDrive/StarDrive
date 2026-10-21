@@ -42,21 +42,21 @@ public sealed class FittedStatus
         }
     }
 
-    // centred on x, or from x; one line on y, or two either side of it
-    public void Draw(SpriteBatch batch, Color color, float x, float y, bool centred)
+    // centered on x, or from x; one line on y, or two either side of it
+    public void Draw(SpriteBatch batch, Color color, float x, float y, bool centered)
     {
         if (Line2 == null)
         {
-            DrawLine(batch, Line1, color, x, y, centred);
+            DrawLine(batch, Line1, color, x, y, centered);
             return;
         }
-        DrawLine(batch, Line1, color, x, y - Font.LineSpacing / 2, centred);
-        DrawLine(batch, Line2, color, x, y + Font.LineSpacing / 2, centred);
+        DrawLine(batch, Line1, color, x, y - Font.LineSpacing / 2, centered);
+        DrawLine(batch, Line2, color, x, y + Font.LineSpacing / 2, centered);
     }
 
-    void DrawLine(SpriteBatch batch, string line, Color color, float x, float centreY, bool centred)
+    void DrawLine(SpriteBatch batch, string line, Color color, float x, float centerY, bool centered)
     {
-        var pos = new Vector2(centred ? x - Font.TextWidth(line) / 2 : x, centreY - Font.LineSpacing / 2);
+        var pos = new Vector2(centered ? x - Font.TextWidth(line) / 2 : x, centerY - Font.LineSpacing / 2);
         batch.DrawString(Font, line, pos, color);
     }
 }

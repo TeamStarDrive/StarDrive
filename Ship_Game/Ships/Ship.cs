@@ -1575,9 +1575,9 @@ namespace Ship_Game.Ships
         }
 
         // a station, frigate or bigger exploding within a tenth of this cruiser-or-bigger's radius from its center
-        public bool IsStackedOnExplosion(Ship exploding, Vector2 explosionCenter)
+        public bool IsStackedOnExplosion(RoleName explodingHullRole, Vector2 explosionCenter)
         {
-            return exploding.ShipData.HullRole is RoleName.station or (>= RoleName.frigate and <= RoleName.capital)
+            return explodingHullRole is RoleName.station or (>= RoleName.frigate and <= RoleName.capital)
                 && ShipData.HullRole is >= RoleName.cruiser and <= RoleName.capital
                 && Position.InRadius(explosionCenter, Radius * 0.1f);
         }
@@ -1585,24 +1585,48 @@ namespace Ship_Game.Ships
         /// <summary>
         /// Upper bound on this ship's death blast, as a multiple of its hull radius.
         /// </summary>
-        public float ExplosionDamageCap()
+        public float ExplosionDamageCap() => Radius * ExplosionDamageCapPerRadius(ShipData.HullRole);
+
+        public static float ExplosionDamageCapPerRadius(RoleName hullRole)
         {
-            float perRadius;
-            switch (ShipData.HullRole)
+            switch (hullRole)
             {
                 default:
                 case RoleName.drone:
                 case RoleName.scout:
-                case RoleName.fighter:    perRadius = 15; break;
-                case RoleName.corvette:   perRadius = 25; break;
-                case RoleName.frigate:    perRadius = 40; break;
-                case RoleName.cruiser:    perRadius = 60; break;
-                case RoleName.battleship: perRadius = 80; break;
+                case RoleName.fighter:    return 15;
+                case RoleName.corvette:   return 25;
+                case RoleName.frigate:    return 40;
+                case RoleName.cruiser:    return 60;
+                case RoleName.battleship: return 80;
                 case RoleName.capital:
-                case RoleName.station:    perRadius = 100; break;
+                case RoleName.station:    return 100;
             }
+        }
 
-            return Radius * perRadius;
+        // the ShipExplode effect itself has a bit of empty space
+        // so the effect needs to be doubled in size, or in some case more
+        public static float ExplosionEffectScale(RoleName hullRole)
+        {
+            switch (hullRole)
+            {
+                case RoleName.scout:      return 2;
+                case RoleName.fighter:    return 2;
+                case RoleName.corvette:   return 2;
+                case RoleName.frigate:    return 2;
+                case RoleName.battleship: return 3;
+                case RoleName.capital:    return 3;
+                case RoleName.cruiser:    return 3;
+                case RoleName.station:    return 4;
+                default:                  return 3;
+            }
+        }
+
+        public static string DieSoundEffect(int surfaceArea)
+        {
+            if      (surfaceArea < 80)  return "sd_explosion_ship_det_small";
+            else if (surfaceArea < 250) return "sd_explosion_ship_det_medium";
+            else                        return "sd_explosion_ship_det_large";
         }
 
         void AddExplosionEffect(bool addWarpExplode)
@@ -1613,20 +1637,7 @@ namespace Ship_Game.Ships
             float diameter = 2f * Radius * (ShipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
             float explosionSize = PlanetCrash != null ? diameter * 0.05f : diameter * boost;
 
-            // the ShipExplode effect itself has a bit of empty space
-            // so the effect needs to be doubled in size, or in some case more
-            switch (ShipData.HullRole)
-            {
-                case RoleName.scout:      explosionSize *= 2; break;
-                case RoleName.fighter:    explosionSize *= 2; break;
-                case RoleName.corvette:   explosionSize *= 2; break;
-                case RoleName.frigate:    explosionSize *= 2; break;
-                case RoleName.battleship: explosionSize *= 3; break;
-                case RoleName.capital:    explosionSize *= 3; break;
-                case RoleName.cruiser:    explosionSize *= 3; break;
-                case RoleName.station:    explosionSize *= 4; break;
-                default:                  explosionSize *= 3; break;
-            }
+            explosionSize *= ExplosionEffectScale(ShipData.HullRole);
 
             ExplosionManager.AddExplosion(Universe.Screen, position, Velocity, explosionSize, 12f, ExplosionType.Ship);
 
@@ -1786,14 +1797,7 @@ namespace Ship_Game.Ships
         void CreateExplosionEffects(bool visible, bool cleanupOnly, bool blast)
         {
             if (!cleanupOnly && visible)
-            {
-                string dieSoundEffect;
-                if      (SurfaceArea < 80)  dieSoundEffect = "sd_explosion_ship_det_small";
-                else if (SurfaceArea < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
-                else                        dieSoundEffect = "sd_explosion_ship_det_large";
-
-                GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
-            }
+                GameAudio.PlaySfxAsync(DieSoundEffect(SurfaceArea), SoundEmitter);
 
             if (!HasExploded)
             {

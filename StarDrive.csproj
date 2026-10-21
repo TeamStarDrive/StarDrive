@@ -353,6 +353,7 @@
     <Compile Include="Ship_Game\Ships\Derelict.cs" />
     <Compile Include="Ship_Game\Ships\Derelicts.cs" />
     <Compile Include="Ship_Game\Ships\DerelictInfoUIElement.cs" />
+    <Compile Include="Ship_Game\Ships\DerelictRecovery.cs" />
     <Compile Include="Ship_Game\Ships\DerelictSalvageButton.cs" />
     <Compile Include="Ship_Game\Ships\DerelictTechIcons.cs" />
     <Compile Include="Ship_Game\Ships\FittedStatus.cs" />

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -12,7 +13,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with the player's salvage station order there and an order to salvage each
+// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with the player's salvage station order there and orders to salvage or recover each; the game does not run under it, a covered universe running only the queued work of clicks, so it reads the goals as it opens and again once each click has reached the sim thread; opened over the running game, it pauses it
 public sealed class SystemDerelictsScreen : GameScreen
 {
     public override bool HelpKeyOpensCodex => true;
@@ -24,7 +25,7 @@ public sealed class SystemDerelictsScreen : GameScreen
     public UILabel StationStatus { get; private set; }
     Empire Player => Universe.Player;
 
-    public SystemDerelictsScreen(UniverseScreen universe, SolarSystem system) : base(universe, toPause: null)
+    public SystemDerelictsScreen(UniverseScreen universe, SolarSystem system) : base(universe, toPause: universe)
     {
         Universe = universe;
         System = system;
@@ -33,7 +34,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         TransitionOffTime = 0.25f;
     }
 
-    const int WindowWidth = 800;
+    const int WindowWidth = 840;
     // the columns from a row's left edge: the hull's icon, then its name over its production bar, the salvager's flag, the techs and the status
     const int NameX = 40;
     const int SalvagerX = 230;
@@ -43,27 +44,53 @@ public sealed class SystemDerelictsScreen : GameScreen
     const int StatusX = 512;
     const int HeaderHeight = 22;
 
-    // a derelict's hull and name, its production left, the flag of the empire salvaging it, its techs and its salvage's status, and the Salvage button, as on its panel
+    // a derelict's hull and name, its production left, the flag of the empire salvaging it, its techs and its salvage's status, and the Salvage and Recover buttons, as on its panel
     sealed class DerelictListItem : ScrollListItem<DerelictListItem>
     {
         readonly UniverseScreen Universe;
-        readonly Derelict Derelict;
+        public readonly Derelict Derelict;
+        readonly Action Clicked;
         readonly ProgressBar ProductionBar = new(0, 0, 150, 18) { color = "red" }; // as on the derelict's panel
-        // the techs the player can learn from it as last drawn, empty while the player does not see them
+        readonly ProgressBar RecoveryBar = DerelictSalvageButton.RecoveryBar(new(0, 0, 150, 18));
+        // the techs the player can learn from it as last drawn, empty while the player does not see them or recovers it
         readonly Array<TechEntry> Learnable = new();
         readonly FittedStatus Status = new();
 
-        public DerelictListItem(UniverseScreen universe, Derelict derelict)
+        // what it read from the goals at the window's last reading
+        SalvageDerelict.Block Block, RecoverBlock;
+        SalvageDerelict Order;
+        bool ButtonsShown, TechsSeen;
+        public SalvageDerelict.Stage Stage { get; private set; }
+        Empire StageClaimant;
+        SalvageDerelict StageOrder;
+
+        public DerelictListItem(UniverseScreen universe, Derelict derelict, Action clicked)
         {
             Universe = universe;
             Derelict = derelict;
+            Clicked = clicked;
+        }
+
+        public void Read()
+        {
+            Empire player = Universe.Player;
+            Block = SalvageDerelict.WhyNoOrder(player, Derelict);
+            RecoverBlock = DerelictSalvageButton.BlockOf(DerelictSalvageButton.Kind.Recover, Block, Derelict);
+            Order = DerelictSalvageButton.StandingOrder(player, Derelict, Block);
+            ButtonsShown = DerelictSalvageButton.Shown(player, Derelict, Block);
+            TechsSeen = SalvageDerelict.SeesTechs(player, Derelict);
+            Stage = SalvageDerelict.StageOf(player, Derelict, out StageClaimant, out StageOrder);
         }
 
         Rectangle ProductionRect => new((int)X + NameX, (int)Y + 21, 16, 16);
         Rectangle ClaimRect => new((int)X + SalvagerX + SalvagerWidth / 2 - 10, (int)Y + 10, 20, 20);
         Rectangle TechsRect => new((int)X + TechsX, (int)Y + 10, 19, 20);
         Rectangle TechRect(int i) => new((int)X + TechsX + i * TechSpacing, (int)Y + 6, 26, 22);
-        Rectangle SalvageRect => new((int)(X + Width) - 40, (int)Y + 2, 36, 36);
+        // in the techs' place, at the production bar's sizes
+        Rectangle RecoveryRect => new((int)X + TechsX, (int)Y + 12, 16, 16);
+        Rectangle RecoveryBarRect => new((int)X + TechsX + 21, (int)Y + 11, 150, 18);
+        Rectangle SalvageRect => new((int)(X + Width) - 80, (int)Y + 2, 36, 36);
+        Rectangle RecoverRect => new((int)(X + Width) - 40, (int)Y + 2, 36, 36);
         // up to 6 short of the Salvage button
         int StatusWidth => SalvageRect.X - 6 - ((int)X + StatusX);
 
@@ -81,22 +108,48 @@ public sealed class SystemDerelictsScreen : GameScreen
 
             if (Derelict.Claimant is { } claimant)
                 batch.Draw(ResourceManager.Flag(claimant), ClaimRect, Universe.ApplyCurrentAlphaToColor(claimant.EmpireColor));
+
             DrawTechs(batch);
             DrawStatus(batch);
-
-            SalvageDerelict.Block block = SalvageDerelict.WhyNoOrder(Universe.Player, Derelict);
-            if (block != SalvageDerelict.Block.Gone)
+            if (ButtonsShown)
             {
-                Rectangle salvage = SalvageRect;
-                DerelictSalvageButton.Draw(batch, salvage, block, salvage.HitTest(Universe.Input.CursorPosition));
+                DrawButton(batch, DerelictSalvageButton.Kind.Salvage, Block, SalvageRect);
+                DrawButton(batch, DerelictSalvageButton.Kind.Recover, RecoverBlock, RecoverRect);
             }
         }
 
-        // the count of all it holds until the player sees its techs, then the icons of those the player can learn
+        void DrawButton(SpriteBatch batch, DerelictSalvageButton.Kind kind, SalvageDerelict.Block block, in Rectangle rect)
+        {
+            bool lit = DerelictSalvageButton.Lit(kind, block, Order);
+            DerelictSalvageButton.Draw(batch, rect, kind, block, lit, rect.HitTest(Universe.Input.CursorPosition));
+        }
+
+        // the button's tooltip and click, where the cursor is on it; a click has the window read the goals again once it reaches the sim thread
+        void HandleButton(InputState input, DerelictSalvageButton.Kind kind, SalvageDerelict.Block block, in Rectangle rect)
+        {
+            if (!rect.HitTest(input.CursorPosition))
+                return;
+            bool lit = DerelictSalvageButton.Lit(kind, block, Order);
+            DerelictSalvageButton.Tooltip(Universe.Player, Derelict, kind, block, lit, Order);
+            if (input.LeftMouseClick)
+            {
+                DerelictSalvageButton.Click(Universe.Player, Derelict, kind, block, lit);
+                Clicked();
+            }
+        }
+
+        // the count of all it holds until the player sees its techs, then the icons of those the player can learn, or while the player's order recovers it, the recovery's progress in their place
         void DrawTechs(SpriteBatch batch)
         {
             Empire player = Universe.Player;
-            if (!SalvageDerelict.SeesTechs(player, Derelict))
+            if (Order is { Recovering: true })
+            {
+                Learnable.Clear();
+                RecoveryBar.SetRect(RecoveryBarRect);
+                DerelictSalvageButton.DrawRecovery(batch, RecoveryRect, RecoveryBar, player, Derelict, Order);
+                return;
+            }
+            if (!TechsSeen)
             {
                 Learnable.Clear();
                 DerelictTechIcons.DrawCount(batch, TechsRect, Derelict.Techs.Length);
@@ -107,21 +160,34 @@ public sealed class SystemDerelictsScreen : GameScreen
                 DerelictTechIcons.DrawIcon(batch, TechRect(i), Learnable[i]);
         }
 
-        // the player's salvage in wheat, another empire's in its colour
+        // the player's salvage or recovery in wheat, with the turns left while its platform breaks in, another empire's in its colour
         void DrawStatus(SpriteBatch batch)
         {
-            Empire player = Universe.Player;
-            SalvageDerelict.Stage stage = SalvageDerelict.StageOf(player, Derelict, out Empire claimant);
-            if (stage == SalvageDerelict.Stage.None)
+            if (Stage == SalvageDerelict.Stage.None)
                 return;
 
-            Status.Fit(Localizer.Token(stage switch
+            Status.Fit(Stage == SalvageDerelict.Stage.BreakingIn ? BreakingIn(StageOrder.BreakInTurnsLeft) : Localizer.Token(Stage switch
             {
                 SalvageDerelict.Stage.PlatformOrdered  => GameText.SalvagePlatformOrdered,
                 SalvageDerelict.Stage.BuildingPlatform => GameText.BuildingSalvagePlatform,
+                SalvageDerelict.Stage.Recovering       => GameText.DerelictRecovering,
                 _                                      => GameText.DerelictSalvaging,
             }), StatusWidth);
-            Status.Draw(batch, claimant != null && claimant != player ? claimant.EmpireColor : Color.Wheat, X + StatusX, Y + 20, centred: false);
+            Status.Draw(batch, StageClaimant != null && StageClaimant != Universe.Player ? StageClaimant.EmpireColor : Color.Wheat, X + StatusX, Y + 20, centered: false);
+        }
+
+        // made again only when the turns left change, so the status keeps its fit
+        string BreakingInText;
+        int BreakingInTurns = -1;
+
+        string BreakingIn(int turnsLeft)
+        {
+            if (turnsLeft != BreakingInTurns)
+            {
+                BreakingInTurns = turnsLeft;
+                BreakingInText = string.Format(Localizer.Token(GameText.DerelictBreakingIn), turnsLeft);
+            }
+            return BreakingInText;
         }
 
         TechEntry TechAt(Vector2 cursor)
@@ -135,25 +201,23 @@ public sealed class SystemDerelictsScreen : GameScreen
         public override bool HandleInput(InputState input)
         {
             Vector2 cursor = input.CursorPosition;
-            SalvageDerelict.Block block = SalvageRect.HitTest(cursor) ? SalvageDerelict.WhyNoOrder(Universe.Player, Derelict) : SalvageDerelict.Block.Gone;
-            if (block != SalvageDerelict.Block.Gone)
+            if (ButtonsShown && (SalvageRect.HitTest(cursor) || RecoverRect.HitTest(cursor)))
             {
-                LocalizedText tip = DerelictSalvageButton.Tooltip(block, Derelict);
-                if (tip.IsValid)
-                    ToolTip.CreateTooltip(tip);
-                if (input.LeftMouseClick)
-                    DerelictSalvageButton.Click(Universe.Player, Derelict, block);
+                HandleButton(input, DerelictSalvageButton.Kind.Salvage, Block, SalvageRect);
+                HandleButton(input, DerelictSalvageButton.Kind.Recover, RecoverBlock, RecoverRect);
                 return true;
             }
 
             if (Derelict.Claimant is { } claimant && ClaimRect.HitTest(cursor))
-                ToolTip.CreateTooltip(string.Format(Localizer.Token(GameText.DerelictSalvagedBy), claimant.Name));
+                ToolTip.CreateTooltip(DerelictSalvageButton.ClaimTip(Derelict, claimant));
             else if (ProductionRect.HitTest(cursor) || ProductionBar.pBar.HitTest(cursor))
                 ToolTip.CreateTooltip(GameText.DerelictProductionTip);
-            else if (TechsRect.HitTest(cursor) && !SalvageDerelict.SeesTechs(Universe.Player, Derelict))
+            else if ((RecoveryRect.HitTest(cursor) || RecoveryBarRect.HitTest(cursor)) && Order is { Recovering: true } recovery)
+                DerelictSalvageButton.RecoveryTooltip(Universe.Player, Derelict, recovery);
+            else if (TechsRect.HitTest(cursor) && !TechsSeen)
                 ToolTip.CreateTooltip(GameText.DerelictTechsHeldTip);
             else if (TechAt(cursor) is { } tech)
-                ToolTip.CreateTooltip(DerelictTechIcons.Tooltip(tech, SalvageDerelict.OrderOf(Universe.Player, Derelict)));
+                ToolTip.CreateTooltip(DerelictTechIcons.Tooltip(tech, Order));
             return base.HandleInput(input);
         }
     }
@@ -162,7 +226,7 @@ public sealed class SystemDerelictsScreen : GameScreen
     {
         RectF rect = new(ScreenWidth / 2 - WindowWidth / 2, 200, WindowWidth, 500);
         string title = string.Format(Localizer.Token(GameText.DerelictsInSystem), System.Name);
-        var list = new ScrollList<DerelictListItem>(rect);
+        var list = Rows = new ScrollList<DerelictListItem>(rect);
         var derelictsList = Add(new SubmenuScrollList<DerelictListItem>(rect, title, list));
         derelictsList.SetBackground(Colors.TransparentBlackFill);
         RectF area = derelictsList.ClientArea;
@@ -173,7 +237,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         Derelict[] derelicts = System.Universe.Derelicts.Current;
         for (int i = 0; i < derelicts.Length; ++i)
             if (derelicts[i].System == System && derelicts[i].SelectableByPlayer)
-                list.AddItem(new DerelictListItem(Universe, derelicts[i]));
+                list.AddItem(new DerelictListItem(Universe, derelicts[i], ReadAfterClick));
 
         var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
         var stationRect = new Rectangle((int)rect.CenterX - btn.Width / 2, (int)rect.Bottom - btn.Height - 12, btn.Width, btn.Height);
@@ -184,7 +248,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         StationStatus = Add(new UILabel(new Rectangle((int)rect.X, stationRect.Y, (int)rect.W, stationRect.Height),
                                         "", Fonts.Arial12Bold, Color.Gray) { TextAlign = TextAlign.Center });
         Shown = null; // a reload builds a new button and label
-        UpdateStationOrder();
+        ReadGoals();
 
         base.LoadContent();
     }
@@ -205,8 +269,45 @@ public sealed class SystemDerelictsScreen : GameScreen
 
     public override void Update(float fixedDeltaTime)
     {
-        UpdateStationOrder();
+        RemoveGoneRows();
+        if (ClickReached)
+        {
+            ClickReached = false;
+            ReadGoals();
+        }
         base.Update(fixedDeltaTime);
+    }
+
+    ScrollList<DerelictListItem> Rows;
+    volatile bool ClickReached;
+
+    // queued after the click's own work, so it is set once that work is done
+    void ReadAfterClick() => Universe.RunOnSimThread(() => ClickReached = true);
+
+    void ReadGoals()
+    {
+        for (int i = 0; i < Rows.NumEntries; ++i)
+            Rows[i].Read();
+        UpdateStationOrder();
+    }
+
+    public bool Lists(Derelict d) => Rows.Any(row => row.Derelict == d);
+
+    // the derelict's row's stage as last read, None without a row
+    public SalvageDerelict.Stage StageShown(Derelict d)
+    {
+        for (int i = 0; i < Rows.NumEntries; ++i)
+            if (Rows[i].Derelict == d)
+                return Rows[i].Stage;
+        return SalvageDerelict.Stage.None;
+    }
+
+    // a row leaves once its derelict can no longer be selected: recovered as its ship appears, broken apart, blown up, stripped or sunk away
+    void RemoveGoneRows()
+    {
+        for (int i = Rows.NumEntries - 1; i >= 0; --i)
+            if (!Rows[i].Derelict.SelectableByPlayer)
+                Rows.Remove(Rows[i]);
     }
 
     public enum StationOrder { None, Deploy, Abort, Deployed, NoDesign }
@@ -252,6 +353,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         {
             GameAudio.EchoAffirmative();
             Universe.RunOnSimThread(() => Player.AI.CancelSalvageStation(System));
+            ReadAfterClick();
             return;
         }
 
@@ -259,6 +361,7 @@ public sealed class SystemDerelictsScreen : GameScreen
             && SalvageOps.OrderNearDerelicts(Player, System, Universe.UState.Objects.GetShips(), SiteRandom))
         {
             GameAudio.EchoAffirmative();
+            ReadAfterClick();
             return;
         }
 
