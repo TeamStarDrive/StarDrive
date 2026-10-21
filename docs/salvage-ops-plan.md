@@ -631,7 +631,22 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - both new switches sit under Station Built Alerts, ticked by default and shown only with salvage ops on (499),
     saved as `UniverseParams.DisableDerelictWarning` and `DisableSalvageWarning`. Codex 100173 describes both boxes
     and 100093 the notifications;
-  - the result of each of your recovery rolls, under Salvage Alerts (513 A); a recovery called off is not told.
+  - the result of each of your recovery rolls, under Salvage Alerts (513 A); a recovery called off is not told, even
+    after an earlier salvage brought production (628 A). As built in part 5 (Gilad, 2026-10-21; 623-635, after a
+    preview sheet of in-game renders in BlackBoxPlus-references\previews\s5p5):
+    - the success is told as the ship appears, from the derelict, so it comes even with the platform or the station
+      lost during the rise and never when no ship could be made, to the player whenever the ship is the player's
+      (623 A): "{0}: the {1} is recovered" (7215), the hull icon with the crossed hammers in green, a click
+      selecting the ship, or once it is gone showing the system (624 A), with the colonized chime (626 A);
+    - a plain failure is told at the roll, "your recovery of the {1} failed, and it broke apart" (7216), the hammers
+      in yellow, with the encounter sound; a catastrophe at the roll too, "the {1} exploded as your platform worked to
+      recover it, destroying the platform" (7217), the hammers in red, with the warning sound, and no notification of
+      the platform's loss; a click on either shows the system (625 A, 626 A, 627: a C, b B, c C);
+    - none pauses the game; the hammers are the Recover button's, at 0.8 of the symbol as the hourglass and the
+      research symbol;
+    - not told: the production and research an earlier salvage brought (629 A), the platform or the station lost once
+      the roll has succeeded (630 A), a ship that could not be made, which the log keeps (634 A), and a rival's ship;
+    - 7192, the Salvage Alerts tooltip, and Codex 100173 name the recovery's outcomes, and 100093 tells of them.
 - **Pirates (176):** pirates salvage too, in *recover* mode only: they take ships, never production or techs. This
   is for now. How they reach a derelict is settled in the ai sub-branch; later they may raid a salvage station to
   capture it, and recover the derelicts in its system with it. A salvage station pirates board already stays theirs
@@ -1136,6 +1151,30 @@ Implementation notes:
      power decides; the Russian and Ukrainian texts call a design a дизайн, as the design screen does. Logged for
      part 5: the order's `Recovered` is also true when no ship could be made, so the recovery's notification must
      follow the ship's arrival, not `Recovered` alone.
+
+   Part 5 (Gilad, 2026-10-21; 623-635, after a preview sheet of in-game renders in
+   BlackBoxPlus-references\previews\s5p5):
+   - the notifications of each outcome under Salvage Alerts (see Notifications, 623-630, 634); a called-off recovery
+     no longer sends the salvage notification (628 A), nor does a platform or station lost during the rise (630 A);
+   - during the rise the bar's tooltip says the ship takes the derelict's place and is the empire's whatever happens to
+     the platform or the station (7213, 631 A), in place of 7206, which told of the work lost with them;
+   - from the ship's arrival until it starts to come apart the platform's status reads Ship recovered (7214, 632 A),
+     where it read Salvage finished; a failed one reads Dismantling at once, as before;
+   - a row of the derelicts window leaves it once its derelict can no longer be selected: recovered as its ship
+     appears, broken apart, blown up, stripped or sunk away; a rising derelict's row stays until its ship appears
+     (633 A);
+   - Codex 100093 tells of the notifications, that losing the platform or the station loses nothing once the roll
+     succeeds, the rising derelict's row and rows leaving the list; 100173 names the recovery's outcomes; the rest of
+     Recovering a derelict was checked against the code (635 A). Not tested, as text swaps: 631 and 632. Still
+     logged: the model's one-frame blink (608) and a content reload in the frame the ship appears;
+   - review (636-642): the success is told inside the ship's making, so a failure to tell cannot cost the other
+     derelicts risen that frame their ships, and keeps the ship (636 A); another empire's platform, an ally's shown,
+     has no tooltip during the rise, which would call the ship yours (637 A); the platform reading Ship recovered for
+     up to a turn when no ship could be made is left (638 B); the Codex says a rising derelict's row leaves once its
+     ship appears (639 A), and 100173 that losing the platform or the station after a successful roll tells nothing
+     (640 A); the tooltip inventory's scan misses the claim tooltips, `DerelictSalvagedBy` since `ClaimTip` and
+     `DerelictRecoveredBy`, both unhooked, and is left (641 A); the tests check which notification came, and the
+     alerts switch's test that the notifications come with it on (642 A).
 6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors

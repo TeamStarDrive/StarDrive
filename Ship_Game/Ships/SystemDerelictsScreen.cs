@@ -47,7 +47,7 @@ public sealed class SystemDerelictsScreen : GameScreen
     sealed class DerelictListItem : ScrollListItem<DerelictListItem>
     {
         readonly UniverseScreen Universe;
-        readonly Derelict Derelict;
+        public readonly Derelict Derelict;
         readonly ProgressBar ProductionBar = new(0, 0, 150, 18) { color = "red" }; // as on the derelict's panel
         readonly ProgressBar RecoveryBar = DerelictSalvageButton.RecoveryBar(new(0, 0, 150, 18));
         // the techs the player can learn from it as last drawn, empty while the player does not see them or recovers it
@@ -213,7 +213,7 @@ public sealed class SystemDerelictsScreen : GameScreen
     {
         RectF rect = new(ScreenWidth / 2 - WindowWidth / 2, 200, WindowWidth, 500);
         string title = string.Format(Localizer.Token(GameText.DerelictsInSystem), System.Name);
-        var list = new ScrollList<DerelictListItem>(rect);
+        var list = Rows = new ScrollList<DerelictListItem>(rect);
         var derelictsList = Add(new SubmenuScrollList<DerelictListItem>(rect, title, list));
         derelictsList.SetBackground(Colors.TransparentBlackFill);
         RectF area = derelictsList.ClientArea;
@@ -256,8 +256,21 @@ public sealed class SystemDerelictsScreen : GameScreen
 
     public override void Update(float fixedDeltaTime)
     {
+        RemoveGoneRows();
         UpdateStationOrder();
         base.Update(fixedDeltaTime);
+    }
+
+    ScrollList<DerelictListItem> Rows;
+
+    public bool Lists(Derelict d) => Rows.Any(row => row.Derelict == d);
+
+    // a row leaves once its derelict can no longer be selected: recovered as its ship appears, broken apart, blown up, stripped or sunk away
+    void RemoveGoneRows()
+    {
+        for (int i = Rows.NumEntries - 1; i >= 0; --i)
+            if (!Rows[i].Derelict.SelectableByPlayer)
+                Rows.Remove(Rows[i]);
     }
 
     public enum StationOrder { None, Deploy, Abort, Deployed, NoDesign }

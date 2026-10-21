@@ -511,13 +511,15 @@ public sealed class Derelict
         return so;
     }
 
-    // on the sim thread, out of the list: its ship takes its place with its model, for the empire that recovered it, which gives up its claim; with no ship made it sinks away, its model gone
+    // on the sim thread, out of the list: its ship takes its place with its model, for the empire that recovered it, which gives up its claim and, the player's, is told, a failure to tell keeping the ship; with no ship made it sinks away, its model gone
     internal void BringBackShip(SceneObject model)
     {
         Ship ship = null;
         try
         {
             ship = Ship.CreateRecoveredShip(Universe, this, RecoveredFor, model);
+            if (ship != null && RecoveredFor.isPlayer)
+                Universe.Notifications?.AddDerelictRecoveredNotification(this, ship);
         }
         catch (Exception e)
         {

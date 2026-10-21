@@ -33,7 +33,10 @@ namespace UnitTests.Ships;
 /// ordnance, troops, power or shields, dark until its lights flicker on, and heads for its empire's nearest planet that
 /// repairs; the selection passes to it, and with that empire gone the derelict sinks away instead. Turning the
 /// order to salvage keeps the work but a later recovery breaks in again; saves and passing on keep both. A rival's
-/// recovery reads Recovering throughout, its break-in unshown.
+/// recovery reads Recovering throughout, its break-in unshown. The player is told of each outcome of theirs, the ship
+/// as it appears and a failure or a blast at the roll, but not of a rival's ship, a recovery called off, or a platform
+/// or station lost during the rise; the Salvage alerts switch silences them all. A derelict's row leaves the derelicts
+/// window once it can no longer be selected.
 /// </summary>
 [TestClass]
 public class SalvageRecoveryTests : StarDriveTest
@@ -650,7 +653,8 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsTrue(order.Finished, "the platform's work is over");
         Turns(order, 1);
         Assert.IsTrue(order.Dismantling, "and it takes itself apart");
-        AssertEqual(0, notes.NumberOfNotifications, "which does not tell of a salvage's end");
+        AssertEqual($"{WreckSystem.Name}: the Dreadnought mk1-a is recovered", notes.GetNotificationsAtomic().Single().Message,
+                    "which tells only of the ship, not of a salvage's end");
     }
 
     [TestMethod]
@@ -874,9 +878,11 @@ public class SalvageRecoveryTests : StarDriveTest
         foreign.ModName = "No Such Mod";
         typeof(Derelict).GetProperty(nameof(Derelict.Design))!.SetValue(d, foreign);
         Universe.SetSelectedDerelict(d);
+        var notes = Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
 
         UState.Derelicts.Update(Seconds(3f));
         Assert.IsNull(d.RecoveredAs, "a design of another mod makes no ship");
+        AssertEqual(0, notes.NumberOfNotifications, "and tells nothing");
         Assert.IsFalse(UState.Derelicts.Current.ContainsRef(d), "the derelict has left the list");
         Assert.IsTrue(d.Sinking && !d.SelectableByPlayer, "and sinks away, no longer to be selected");
         Universe.UpdateSelectedDerelict();
@@ -960,7 +966,8 @@ public class SalvageRecoveryTests : StarDriveTest
 
         Turns(order, 1);
         Assert.IsTrue(d.BrokenApart, "a roll over the chance, and a second one over a tenth, break the derelict apart");
-        AssertEqual(0, notes.NumberOfNotifications, "which does not tell of a salvage's end");
+        AssertEqual($"{WreckSystem.Name}: your recovery of the Dreadnought mk1-a failed, and it broke apart", notes.GetNotificationsAtomic().Single().Message,
+                    "which tells only of the failure, not of a salvage's end");
         Assert.IsFalse(d.CanBeSalvaged, "so it can no longer be salvaged");
         Assert.IsFalse(WreckSystem.Derelicts.ContainsRef(d), "and leaves its system");
         Assert.IsTrue(order.RecoveryFailed && order.Dismantling, "its platform takes itself apart");
@@ -1128,5 +1135,187 @@ public class SalvageRecoveryTests : StarDriveTest
         {
             GlobalStats.Defaults.SalvageRecoveryBreakInTurns = breakIn;
         }
+    }
+
+    NotificationManager TrackNotifications() => Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+
+    [TestMethod]
+    public void ThePlayerIsToldAsTheShipAppearsAndAClickSelectsItOrOnceItIsGoneShowsTheSystem()
+    {
+        Universe.ShipInfoUIElement ??= new(new SDGraphics.Rectangle(0, 0, 407, 242), Universe.ScreenManager, Universe);
+        Universe.SystemInfoOverlay ??= new(new SDGraphics.Rectangle(0, 0, 407, 242), Universe.ScreenManager, Universe);
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = RolledASuccess(d);
+        NotificationManager notes = TrackNotifications();
+        UState.Derelicts.Update(Seconds(Derelict.RiseSeconds * 0.5f));
+        AssertEqual(0, notes.NumberOfNotifications, "nothing is told while the derelict rises");
+
+        Ship ship = RisesForItsShip(d);
+        Notification told = notes.GetNotificationsAtomic().Single();
+        AssertEqual($"{WreckSystem.Name}: the Dreadnought mk1-a is recovered", told.Message, "the player is told as its ship appears");
+        AssertEqual(d.Design.BaseHull.IconPath, told.IconPath, "under the derelict's hull icon");
+        AssertEqual("NewUI/icon_recovered_notification", told.SymbolPath, "with the green hammers");
+        Assert.IsFalse(told.Pause, "it does not pause the game");
+        AssertEqual("SnapToShipOrSystem", told.Action);
+        Assert.AreSame(ship, told.ReferencedItem1, "a click selects the ship");
+        Assert.AreSame(WreckSystem, told.ReferencedItem2, "or shows the system once it is gone");
+
+        Turns(order, 1);
+        Assert.IsTrue(order.Dismantling, "setup: the platform comes apart");
+        AssertEqual(1, notes.NumberOfNotifications, "telling nothing more");
+
+        notes.SnapToShipOrSystem(ship, WreckSystem);
+        Assert.AreSame(ship, Universe.SelectedShip, "the click selects the ship");
+        ship.Die(null, cleanupOnly: true);
+        notes.SnapToShipOrSystem(ship, WreckSystem);
+        Assert.AreSame(WreckSystem, Universe.SelectedSystem, "and once it is gone shows the system");
+        Assert.IsNull(Universe.SelectedShip, "selecting the ship no more");
+    }
+
+    [TestMethod]
+    public void ARivalsRecoveredShipIsNotTold()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        RolledASuccess(d);
+        SalvageDerelict.PassOn(Player, Enemy);
+        NotificationManager notes = TrackNotifications();
+        AssertEqual(Enemy, RisesForItsShip(d).Loyalty, "setup: a rival's ship takes the derelict's place");
+        AssertEqual(0, notes.NumberOfNotifications, "which the player is not told of");
+    }
+
+    [TestMethod]
+    public void AFailedRollIsToldAtOnceAndAClickShowsTheSystem()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
+        BreaksApart(d);
+        NotificationManager notes = TrackNotifications();
+
+        Turns(order, 1);
+        Assert.IsTrue(d.BrokenApart, "setup: the roll breaks the derelict apart");
+        Notification told = notes.GetNotificationsAtomic().Single();
+        AssertEqual($"{WreckSystem.Name}: your recovery of the Dreadnought mk1-a failed, and it broke apart", told.Message, "the player is told at once");
+        AssertEqual(d.Design.BaseHull.IconPath, told.IconPath, "under the derelict's hull icon");
+        AssertEqual("NewUI/icon_recovery_failed_notification", told.SymbolPath, "with the yellow hammers");
+        Assert.IsFalse(told.Pause, "it does not pause the game");
+        AssertEqual("SnapToSystem", told.Action, "a click shows the system, as the derelict breaks up and sinks away");
+        Assert.AreSame(WreckSystem, told.ReferencedItem1);
+
+        Turns(order, SalvageDerelict.DismantleTurns);
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "setup: the platform came apart");
+        AssertEqual(1, notes.NumberOfNotifications, "telling nothing more");
+    }
+
+    [TestMethod]
+    public void ACatastropheIsToldAtOnceAndNotAsAPlatformLost()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = OneTurnOfWorkLeft(d);
+        Explodes(d);
+        NotificationManager notes = TrackNotifications();
+
+        Turns(order, 1);
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "setup: the blast ends the order with its platform");
+        Notification told = notes.GetNotificationsAtomic().Single();
+        AssertEqual($"{WreckSystem.Name}: the Dreadnought mk1-a exploded as your platform worked to recover it, destroying the platform", told.Message,
+                    "the player is told once, of the blast");
+        AssertEqual(d.Design.BaseHull.IconPath, told.IconPath, "under the derelict's hull icon");
+        AssertEqual("NewUI/icon_recovery_exploded_notification", told.SymbolPath, "with the red hammers");
+        Assert.IsFalse(told.Pause, "it does not pause the game");
+        AssertEqual("SnapToSystem", told.Action, "a click shows the system, as the derelict is gone");
+        Assert.AreSame(WreckSystem, told.ReferencedItem1);
+    }
+
+    [TestMethod]
+    public void ACalledOffRecoveryIsNotToldEvenAfterItsSalvageBroughtProduction()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        BuiltStation();
+        SalvageDerelict order = AtWork(d);
+        Turns(order, 1);
+        AssertGreaterThan(order.Platform.GetProduction(), 0f, "setup: the platform stripped a load");
+        SalvageDerelict.Switch(Player, d, recover: true);
+        Universe.InvokePendingSimThreadActions();
+        Turns(order, 1);
+        AssertGreaterThan(order.Delivered, 0f, "setup: turned to recovery, it sent its load to the station");
+
+        NotificationManager notes = TrackNotifications();
+        SalvageDerelict.Cancel(Player, d);
+        Universe.InvokePendingSimThreadActions();
+        Turns(order, 1);
+        Assert.IsTrue(order.CalledOff && order.Dismantling, "setup: the called-off platform comes apart");
+        AssertEqual(0, notes.NumberOfNotifications, "and the player, who called the recovery off, is told nothing");
+    }
+
+    [TestMethod]
+    public void APlatformLostAsTheDerelictRisesIsNotToldAndTheShipStillComes()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = RolledASuccess(d);
+        NotificationManager notes = TrackNotifications();
+        order.Platform.Die(null, cleanupOnly: true);
+
+        Turns(order, 1);
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "setup: losing its platform as the derelict rises ends the order");
+        AssertEqual(0, notes.NumberOfNotifications, "untold");
+        RisesForItsShip(d);
+        AssertEqual($"{WreckSystem.Name}: the Dreadnought mk1-a is recovered", notes.GetNotificationsAtomic().Single().Message,
+                    "as the ship still comes, which is told");
+    }
+
+    [TestMethod]
+    public void AStationLostAsTheDerelictRisesIsNotToldAndTheShipStillComes()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = RolledASuccess(d);
+        Ship station = SalvageOps.StationIn(Player, WreckSystem);
+        NotificationManager notes = TrackNotifications();
+        station.Die(null, cleanupOnly: true);
+
+        Turns(order, 1);
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "setup: losing the station as the derelict rises ends the order");
+        AssertEqual(0, notes.NumberOfNotifications, "untold");
+        RisesForItsShip(d);
+        AssertEqual($"{WreckSystem.Name}: the Dreadnought mk1-a is recovered", notes.GetNotificationsAtomic().Single().Message,
+                    "as the ship still comes, which is told");
+    }
+
+    [TestMethod]
+    public void TheSalvageAlertsSwitchSilencesTheRecoveryNotifications()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = RolledASuccess(d);
+        NotificationManager notes = TrackNotifications();
+        UState.P.DisableSalvageWarning = true;
+
+        Ship ship = RisesForItsShip(d);
+        notes.AddRecoveryFailedNotification(order, exploded: false);
+        notes.AddRecoveryFailedNotification(order, exploded: true);
+        AssertEqual(0, notes.NumberOfNotifications, "with Salvage alerts off, no recovery's outcome is told");
+
+        UState.P.DisableSalvageWarning = false;
+        notes.AddDerelictRecoveredNotification(d, ship);
+        notes.AddRecoveryFailedNotification(order, exploded: false);
+        notes.AddRecoveryFailedNotification(order, exploded: true);
+        AssertEqual(3, notes.NumberOfNotifications, "and with them on, each is");
+    }
+
+    [TestMethod]
+    public void TheDerelictsWindowDropsTheRowOfADerelictThatCanNoLongerBeSelected()
+    {
+        Derelict recovered = Forms(Wreck, health: 0.4f);
+        Derelict stripped = Forms(Wreck + new Vector2(0f, 5_000f), health: 0.4f);
+        RolledASuccess(recovered);
+        var window = new SystemDerelictsScreen(Universe, WreckSystem);
+        window.LoadContent();
+        Assert.IsTrue(window.Lists(recovered) && window.Lists(stripped), "setup: the window lists a derelict rising for its ship, and another");
+
+        UState.Derelicts.Strip(stripped, null, stripped.ProductionLeft);
+        window.Update(0f);
+        Assert.IsFalse(window.Lists(stripped), "a derelict stripped empty leaves it");
+        Assert.IsTrue(window.Lists(recovered), "while the one rising stays");
+        RisesForItsShip(recovered);
+        window.Update(0f);
+        Assert.IsFalse(window.Lists(recovered), "until its ship takes its place");
     }
 }

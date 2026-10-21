@@ -939,6 +939,41 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        // a recovered derelict's ship as it takes the derelict's place; a click selects the ship, or once it is gone shows the system
+        public void AddDerelictRecoveredNotification(Derelict d, Ship ship)
+        {
+            if (Screen.UState.P.DisableSalvageWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = string.Format(Localizer.Token(GameText.DerelictRecoveredNotify), d.System.Name, d.Design.Name),
+                ReferencedItem1 = ship,
+                ReferencedItem2 = d.System,
+                IconPath        = d.Design.BaseHull?.IconPath,
+                SymbolPath      = "NewUI/icon_recovered_notification",
+                Action          = "SnapToShipOrSystem"
+            }, "sd_ui_notification_colonized_01");
+        }
+
+        // a recovery whose roll broke its derelict apart, or blew it up with its platform; a click shows the system, as the derelict is gone
+        public void AddRecoveryFailedNotification(SalvageDerelict order, bool exploded)
+        {
+            if (Screen.UState.P.DisableSalvageWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = SalvageText(exploded ? GameText.RecoveryExplodedNotify : GameText.RecoveryBrokeApartNotify, order),
+                ReferencedItem1 = order.TargetSystem,
+                IconPath        = order.DerelictIcon,
+                SymbolPath      = exploded ? "NewUI/icon_recovery_exploded_notification" : "NewUI/icon_recovery_failed_notification",
+                Action          = "SnapToSystem"
+            }, exploded ? "sd_ui_notification_warning" : "sd_ui_notification_encounter");
+        }
+
         // a salvage that ended before its platform sent its last load; a click selects the derelict while it can still be salvaged
         void AddSalvageLostNotification(SalvageDerelict order, string message, string iconPath, Empire claimant = null)
         {
@@ -1218,6 +1253,17 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SnapViewShip(s);
+        }
+
+        // a click on a ship no longer in play shows its system
+        public void SnapToShipOrSystem(Ship ship, SolarSystem system)
+        {
+            if (ship is not { Active: true })
+            {
+                SnapToSystem(system);
+                return;
+            }
+            SnapToShip(ship);
         }
 
         // a click on one that can no longer be salvaged shows its system

@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 456. Already hooked: 391.
+Tokens: 456. Already hooked: 392.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -38,7 +38,7 @@ Tokens: 456. Already hooked: 391.
 | 23 | `NormallyWhenYouManuallyAdd` |  Normally, when you manually add a building to the colony's build queue, you will be notified when it is completed. You can disable these notifications, if y... | AutomationWindow.cs |  | automation_alerts |
 | 24 | `rioritizeProjectorTip` | Whenever a Subspace Projector is placed in a planet's construction queue, manually or automatically, it would be placed at the top of the list. | AutomationWindow.cs |  | automation_construction |
 | 25 | `RushAllConstructionTip` | Signals Continuous Construction rush of all items in your empire, including existing and future items.   WARNING: This will quickly spend your treasury and m... | AutomationWindow.cs |  | automation_construction |
-| 26 | `SalvageAlertsTip` | Alerts when one of your salvage platforms has sent its station its last load, with the production and research its salvage brought, and when your salvage of ... | AutomationWindow.cs |  | automation_alerts |
+| 26 | `SalvageAlertsTip` | Alerts when one of your salvage platforms has sent its station its last load, with the production and research its salvage brought; when your salvage of a de... | AutomationWindow.cs |  | automation_alerts |
 | 27 | `ShipCrashAlertsTip` | Alerts when a ship crashes on a planet. With these off, you hear of a crash site only when a ship is recovered from it. | AutomationWindow.cs |  | automation_alerts |
 | 28 | `StationBuiltAlertsTip` | Alerts when one of your research, mining or salvage stations has been built. | AutomationWindow.cs |  | automation_alerts |
 | 29 | `TheBestColonyShipWill` | The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons. | AutomationWindow.cs |  | automation_exploration |
@@ -382,18 +382,18 @@ Tokens: 456. Already hooked: 391.
 | 367 | `DerelictOriginalOwner` | Original Owner: {0} | Ships/DerelictInfoUIElement.cs (raw string at site: pass the enum) |  |  |
 | 368 | `DerelictProductionTip` | Production left to salvage from this derelict, out of the production it started with. | Ships/DerelictInfoUIElement.cs<br>Ships/ShipInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
 | 369 | `DerelictRecoveryChanceTip` | Your chance to recover this ship: {0}. It starts at {1} for its hull, which Skilled Engineers raise and Haphazard Engineers lower, and falls with the share o... | Ships/DerelictInfoUIElement.cs (raw string at site: pass the enum) |  | warfare_combat_basics |
-| 370 | `DerelictSalvagedBy` | {0} is salvaging this derelict. | Ships/DerelictInfoUIElement.cs (raw string at site: pass the enum)<br>Ships/SystemDerelictsScreen.cs (raw string at site: pass the enum) |  |  |
-| 371 | `DerelictTechsHeldTip` | Technologies this derelict holds. Once you have a salvage station built in its system, you see which of them you can learn from it, and only those are counted. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
-| 372 | `DerelictTechsShownTip` | Technologies you can learn from this derelict. Each load of it that reaches your salvage station advances them, and the count drops as you research them. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
-| 373 | `DerelictTurnsLeftTip` | Turns left before this derelict sinks away and can no longer be salvaged. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
-| 374 | `DerelictTurnsStandTip` | Turns left stand still while an empire salvages this derelict, and run on if the salvage ends before it is stripped. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
-| 375 | `SalvageStationNoDesignTip` | No salvage station design can be built yet. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
-| 376 | `SalvageStationOrderTip` | Build a salvage station near this system's derelicts. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
-| 377 | `SalvageStationOrderedTip` | You already have a salvage station in this system, built or on order. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
-| 378 | `DerelictRecoveryProgressTip` | Recovery progress: {0} of {1} work done, at {2} a turn after {3} turns of breaking in; {4} turns left in all. It costs only time. Turning the order to salvag... | Ships/DerelictSalvageButton.cs (raw string at site: pass the enum) |  | warfare_combat_basics |
+| 370 | `DerelictTechsHeldTip` | Technologies this derelict holds. Once you have a salvage station built in its system, you see which of them you can learn from it, and only those are counted. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
+| 371 | `DerelictTechsShownTip` | Technologies you can learn from this derelict. Each load of it that reaches your salvage station advances them, and the count drops as you research them. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
+| 372 | `DerelictTurnsLeftTip` | Turns left before this derelict sinks away and can no longer be salvaged. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
+| 373 | `DerelictTurnsStandTip` | Turns left stand still while an empire salvages this derelict, and run on if the salvage ends before it is stripped. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
+| 374 | `SalvageStationNoDesignTip` | No salvage station design can be built yet. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
+| 375 | `SalvageStationOrderTip` | Build a salvage station near this system's derelicts. | Ships/DerelictInfoUIElement.cs<br>Ships/SystemDerelictsScreen.cs |  | warfare_combat_basics |
+| 376 | `SalvageStationOrderedTip` | You already have a salvage station in this system, built or on order. | Ships/DerelictInfoUIElement.cs |  | warfare_combat_basics |
+| 377 | `DerelictRecoveryProgressTip` | Recovery progress: {0} of {1} work done, at {2} a turn after {3} turns of breaking in. Turns left in all: {4}. It costs only time. Turning the order to salva... | Ships/DerelictSalvageButton.cs (raw string at site: pass the enum) |  | warfare_combat_basics |
+| 378 | `DerelictRisingTip` | Recovered: the ship takes the derelict's place as it rises, and it is yours whatever happens to the platform or the station. | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
 | 379 | `RecoverDerelictOrderedTip` | Your salvage station is recovering this ship. Click to call it off: its salvage platform, if built, sends what it still holds to the station and is dismantle... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
 | 380 | `RecoverDerelictStationTip` | A station cannot be recovered, only salvaged. | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
-| 381 | `RecoverDerelictSwitchTip` | Recover this ship instead: its salvage platform first sends what it holds to your station, then works to bring the ship back. Recovery chance: {0}. A failed ... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
+| 381 | `RecoverDerelictSwitchTip` | Recover this ship instead: its salvage platform first sends what it holds to your station, then breaks in and works to bring the ship back. Recovery chance: ... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
 | 382 | `RecoverDerelictTip` | Recover this ship: a salvage unit of your station in this system sends a constructor, which builds a salvage platform beside it to bring the ship back for yo... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
 | 383 | `SalvageDerelictNoFreeUnitTip` | Every salvage unit of your station in this system is busy. | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |
 | 384 | `SalvageDerelictOrderedTip` | Your salvage station is working this derelict. Click to call it off: its salvage platform, if built, sends what it has stripped to the station and is dismant... | Ships/DerelictSalvageButton.cs |  | warfare_combat_basics |

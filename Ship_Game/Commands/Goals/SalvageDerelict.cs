@@ -370,12 +370,13 @@ namespace Ship_Game.Commands.Goals
             constructor.Mothership = null;
         }
 
-        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; a recovering one strips nothing, first sends all it holds, then works on the recovery; once its work is over it sends all it holds, then takes itself apart, the player told of a salvage's end; one lost or in other hands ends the order, and a lost station takes its platform with it
+        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; a recovering one strips nothing, first sends all it holds, then works on the recovery; once its work is over it sends all it holds, then takes itself apart, the player told of a salvage's end but not a recovery's; one lost or in other hands ends the order, and a lost station takes its platform with it, the player told unless the roll succeeded, as the ship still comes
         GoalStep Salvage()
         {
             if (Platform is not { Active: true } platform)
             {
-                PlayerNotifications?.AddSalvagePlatformDestroyedNotification(this);
+                if (!RecoverySucceeded)
+                    PlayerNotifications?.AddSalvagePlatformDestroyedNotification(this);
                 return GoalStep.GoalFailed;
             }
             if (platform.Loyalty != Owner)
@@ -396,7 +397,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             DismantleTurnsLeft = DismantleTurns;
             platform.StartDismantling();
-            if (!RecoveryFailed && !RecoverySucceeded)
+            if (!Recovering)
                 PlayerNotifications?.AddSalvageFinishedNotification(this);
             return GoalStep.GoToNextStep;
         }
@@ -429,11 +430,11 @@ namespace Ship_Game.Commands.Goals
 
         Ship Station() => SalvageOps.StationIn(Owner, TargetSystem) is { } station ? LastStation = station : null;
 
-        // a station lost ends the order, and the player is told unless the station was scrapped or scuttled, which leaves its scuttle timer set
+        // a station lost ends the order, and the player is told unless the station was scrapped or scuttled, which leaves its scuttle timer set, or the roll succeeded, as the ship still comes
         GoalStep StationLost()
         {
             bool scrapped = LastStation != null && LastStation.ScuttleTimer != -1f;
-            if (!scrapped)
+            if (!scrapped && !RecoverySucceeded)
                 PlayerNotifications?.AddSalvageStationLostNotification(this, LastStation);
             return GoalStep.GoalFailed;
         }
@@ -531,7 +532,7 @@ namespace Ship_Game.Commands.Goals
             return RecoveryWork >= work && Roll(platform, d);
         }
 
-        // a success raises the derelict for its ship, which ends the platform's work once it takes the derelict's place; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up; true for the catastrophe; the work's parts rise with the derelict as they shrink away, fade out as a finished build's, or go at once in the blast
+        // a success raises the derelict for its ship, which ends the platform's work once it takes the derelict's place, the player told then; a failure breaks the derelict apart and ends the platform's work, and a catastrophe blows it up, the player told at once; true for the catastrophe; the work's parts rise with the derelict as they shrink away, fade out as a finished build's, or go at once in the blast
         bool Roll(Ship platform, Derelict d)
         {
             switch (DerelictRecovery.Roll(Owner, d))
@@ -545,10 +546,12 @@ namespace Ship_Game.Commands.Goals
                     RecoveryFailed = true;
                     UState.Derelicts.BreakApart(d);
                     UState.Screen.ResetConstructionParts(platform.Id);
+                    PlayerNotifications?.AddRecoveryFailedNotification(this, exploded: false);
                     return false;
                 default:
                     UState.Derelicts.Explode(d);
                     UState.Screen.RemoveConstructionParts(platform.Id);
+                    PlayerNotifications?.AddRecoveryFailedNotification(this, exploded: true);
                     return true;
             }
         }

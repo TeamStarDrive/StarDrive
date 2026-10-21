@@ -472,6 +472,7 @@ RecoverDerelictSwitchTip: warfare_combat_basics
 RecoverDerelictStationTip: warfare_combat_basics
 DerelictRecoveryChanceTip: warfare_combat_basics
 DerelictRecoveryProgressTip: warfare_combat_basics
+DerelictRisingTip: warfare_combat_basics
 DerelictTechsHeldTip: warfare_combat_basics
 DerelictTechsShownTip: warfare_combat_basics
 

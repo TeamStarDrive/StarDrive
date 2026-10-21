@@ -6318,6 +6318,16 @@ namespace Ship_Game
         DesignDerelictNoOverwrite = 7211,
         /// <summary>A derelict {0} lies in the universe and may yet come back as</summary>
         DesignDerelictNoDelete = 7212,
+        /// <summary>Recovered: the ship takes the derelict's place as it rises,</summary>
+        DerelictRisingTip = 7213,
+        /// <summary>Ship recovered</summary>
+        PlatformShipRecovered = 7214,
+        /// <summary>{0}: the {1} is recovered</summary>
+        DerelictRecoveredNotify = 7215,
+        /// <summary>{0}: your recovery of the {1} failed, and it broke apart</summary>
+        RecoveryBrokeApartNotify = 7216,
+        /// <summary>{0}: the {1} exploded as your platform worked to recover it,</summary>
+        RecoveryExplodedNotify = 7217,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

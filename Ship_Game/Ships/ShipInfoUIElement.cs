@@ -533,7 +533,7 @@ namespace Ship_Game.Ships
             if (salvage.LoadWaitsForStation(platform))
                 return Localizer.Token(GameText.SalvageStationHoldFull);
             if (salvage.Finished)
-                return Localizer.Token(GameText.SalvageFinished);
+                return Localizer.Token(salvage.RecoverySucceeded ? GameText.PlatformShipRecovered : GameText.SalvageFinished);
             if (SalvageDerelict.HoldFull(platform))
                 return Localizer.Token(GameText.SalvageHoldFull);
             if (salvage.BreakingIn && salvage.Owner.isPlayer) // a rival's reads Recovering throughout, as in the derelicts window
