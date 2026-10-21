@@ -827,10 +827,10 @@ public class SalvageRecoveryTests : StarDriveTest
     [TestMethod]
     public void ADerelictRisingForItsShipLeavesTheDriftingCapFree()
     {
-        int cap = GlobalStats.Defaults.MaxDriftingDerelicts;
+        float cap = GlobalStats.Defaults.DriftingDerelictCapMultiplier;
         try
         {
-            GlobalStats.Defaults.MaxDriftingDerelicts = 1;
+            GlobalStats.Defaults.DriftingDerelictCapMultiplier = 0.1f; // a cap of 1 in a galaxy of up to 10 systems
             Derelict d = Forms(Wreck, health: 0.4f);
             Assert.IsTrue(UState.Derelicts.TryAttachModel(d, new SceneObject("rising")), "setup: the derelict has a model");
             RolledASuccess(d);
@@ -842,7 +842,7 @@ public class SalvageRecoveryTests : StarDriveTest
         }
         finally
         {
-            GlobalStats.Defaults.MaxDriftingDerelicts = cap;
+            GlobalStats.Defaults.DriftingDerelictCapMultiplier = cap;
         }
     }
 

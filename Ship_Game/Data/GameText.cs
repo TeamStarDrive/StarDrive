@@ -6148,7 +6148,7 @@ namespace Ship_Game
         ColonistsPerCargoUnit = 7123,
         /// <summary>Disable Salvage Ops</summary>
         DisableSalvageOpsName = 7124,
-        /// <summary>Every derelict drifts on and sinks away, so there are no wrecks to salvage.</summary>
+        /// <summary>Every derelict drifts and sinks away, so there are no wrecks to salvage.</summary>
         DisableSalvageOpsTip = 7125,
         /// <summary>This mod has no salvage content, so salvage ops are off.</summary>
         DisableSalvageOpsModTip = 7126,

@@ -38,6 +38,7 @@ public class SalvageNotifyTests : StarDriveTest
         UState.Objects.EnableParallelUpdate = false;
         WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
         AddHomeWorldToEmpire(new Vector2(200_000f), Player);
+        AddRemoteSystems(10);
         Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Basic Salvage Station", out Station), "setup: the station is loaded");
         Player.data.CurrentConstructor = "Terran Constructor";
     }
