@@ -175,12 +175,26 @@ namespace Ship_Game.Commands.Goals
         public static float PlatformConstruction(Empire empire, IShipDesign platform)
             => Math.Max(platform.GetCost(empire), MinPlatformConstruction * empire.Universe.ProductionPace);
 
-        // the empire's constructor, or with auto pick the cheapest whatever the platform costs, a job of no cost being small for every constructor; empty without one
-        public static string ConstructorName(Empire empire)
+        // the empire's constructor, or with auto pick the cheapest whatever the platform costs, a job of no cost being small for every constructor; pirates, who build none, launch the default constructor of the race whose station it is; empty without one
+        public static string ConstructorName(Empire empire, Ship station = null)
         {
             if (!ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign _))
                 return "";
+            if (empire.WeArePirates)
+                return station != null ? RaceConstructorName(empire, station.ShipData.ShipStyle) : "";
             return ShipBuilder.PickConstructor(empire, 0f, GetCheapest: true)?.Name ?? "";
+        }
+
+        static string RaceConstructorName(Empire empire, string shipStyle)
+        {
+            var empires = empire.Universe.Empires;
+            for (int i = 0; i < empires.Count; ++i)
+            {
+                EmpireData data = empires[i].data;
+                if (data.Traits.ShipType == shipStyle)
+                    return ResourceManager.Ships.GetDesign(data.DefaultConstructor, out IShipDesign _) ? data.DefaultConstructor : "";
+            }
+            return "";
         }
 
         // the Salvage and Recover buttons, and an AI empire's station; false when the empire cannot order it

@@ -14,11 +14,15 @@ namespace UnitTests.Ships;
 /// <summary>
 /// An AI empire's salvage station fills its free salvage units each turn, the derelict with the fewest turns left
 /// first, while no armed hostile is in its sensor range, a rival's unarmed station holding off nothing, and one the
-/// empire holds without being able to build one does too; the player's, the rebels' and the pirates' order nothing
-/// themselves. It recovers a ship stronger than the strongest design of its hull role the empire can build, or of a
-/// role it can build none of, and strips the rest. Every few turns the planner orders an AI empire that can build a
-/// salvage station one, the closest system first and one a run, in a system it has explored with a derelict it knows
-/// of, near its colonies, outside enemy borders unless its own reach there, with no colony of a rival it is at peace
+/// empire holds without being able to build one does too; the player's and the rebels' order nothing themselves, and
+/// pirates' recovers every derelict ship it can but one of a design they spawn, with the constructor of the race whose
+/// station it is, which keeps to its work when pirates are called home and is never drafted to defend a base; it
+/// strips none, orders nothing with no such constructor, and regains a tenth of its ordnance a turn out of combat
+/// unless it makes its own. A ship pirates recover heads for their nearest base, and their orbital raids go for a
+/// salvage station first. An AI empire's station recovers a ship stronger than the strongest design of its hull role
+/// the empire can build, or of a role it can build none of, and strips the rest. Every few turns the planner orders an
+/// AI empire that can build a salvage station one, the closest system first and one a run, in a system it has explored
+/// with a derelict it knows of, near its colonies, outside enemy borders unless its own reach there, with no colony of a rival it is at peace
 /// with and has no open borders or alliance with, the player counting as any empire, where the production left in the
 /// derelicts it can work pays for the station, or one's design uses a tech it wants, or it is a ship it would recover;
 /// where it knows of hostile strength it asks once for a fleet to clear the system instead. With Auto Build Salvage
@@ -41,7 +45,7 @@ public class SalvageAITests : StarDriveTest
 
     public SalvageAITests()
     {
-        LoadStarterShips("Terran Basic Salvage Station", Older, Newer, ShipDesign.SalvagePlatformName);
+        LoadStarterShips("Terran Basic Salvage Station", Older, Newer, ShipDesign.SalvagePlatformName, "Corsair Asteroid Base", "Platform Base mk1-a");
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         Local = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true);
@@ -203,7 +207,7 @@ public class SalvageAITests : StarDriveTest
     }
 
     [TestMethod]
-    public void ThePlayersTheRebelsAndThePiratesStationsOrderNothingThemselves()
+    public void ThePlayersAndTheRebelsStationsOrderNothingThemselves()
     {
         Derelict mine = Wreck(Older, WreckSite, Player);
         Turn(StationOf(Player));
@@ -214,13 +218,138 @@ public class SalvageAITests : StarDriveTest
         Ship rebelStation = StationOf(rebels);
         Turn(rebelStation);
         Assert.IsNull(OrderOf(rebels, theirs), "rebels only finish what they inherit");
+    }
 
+    Empire PirateFaction()
+    {
         CreateAMinorFaction("Corsairs");
         Assert.IsTrue(Faction.WeArePirates, "setup: pirates");
-        Derelict pirates = Wreck(Older, WreckSite + new Vector2(0, 16_000f), Faction);
-        Ship pirateStation = StationOf(Faction);
-        Turn(pirateStation);
-        Assert.IsNull(OrderOf(Faction, pirates), "nor do pirates");
+        return Faction;
+    }
+
+    [TestMethod]
+    public void APirateStationRecoversEveryDerelictShipItCanWithTheConstructorOfItsRaceAndStripsNone()
+    {
+        Empire pirates = PirateFaction();
+        Derelict hulk = Wreck(Station.Name, WreckSite + new Vector2(0, -8_000f), pirates, turnsGone: 3);
+        Derelict weaker = Wreck(Older, WreckSite, pirates, turnsGone: 1);
+        Derelict stronger = Wreck(Newer, WreckSite + new Vector2(0, 8_000f), pirates);
+        Assert.IsTrue(pirates.AddBuildableShip(ResourceManager.Ships.GetDesign(Newer)), "setup: the pirates hold a stronger design of the role");
+        Assert.IsFalse(SalvageDerelict.WouldRecover(pirates, weaker), "setup: so an AI empire would strip the weaker ship");
+        Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Constructor", out _), "setup: the station's race has a constructor");
+
+        Ship station = StationOf(pirates);
+        Turn(station);
+        Assert.IsNull(OrderOf(pirates, hulk), "a station's derelict, which can only be stripped, is left alone");
+        Assert.IsTrue(OrderOf(pirates, weaker) is { Recovering: true } && OrderOf(pirates, stronger) is { Recovering: true },
+                      "and its units recover both ships, the weaker too");
+        Ship constructor = OrderOf(pirates, weaker).FinishedShip;
+        AssertEqual("Terran Constructor", constructor?.Name, "with the constructor of the race whose station it is, as pirates build none");
+
+        AIState working = constructor.AI.State;
+        constructor.AI.OrderPirateFleeHome();
+        AssertEqual(working, constructor.AI.State, "which keeps to its work when a raid's recall sends the pirates there home");
+    }
+
+    [TestMethod]
+    public void APirateStationPassesOverAShipOfADesignTheySpawn()
+    {
+        Empire pirates = PirateFaction();
+        Derelict theirs = Wreck(Older, WreckSite, pirates, turnsGone: 1);
+        Derelict other = Wreck(Newer, WreckSite + new Vector2(0, 8_000f), pirates);
+        pirates.Pirates.ShipsWeCanSpawn.AddUnique(Older); // as their own frigates are
+        Turn(StationOf(pirates));
+        Assert.IsNull(OrderOf(pirates, theirs), "a ship of a design they spawn, which their base would take in for nothing, is passed over");
+        Assert.IsNotNull(OrderOf(pirates, other), "while another is recovered");
+    }
+
+    [TestMethod]
+    public void APirateStationWithNoConstructorOfItsRaceForItsBaysOrdersNothing()
+    {
+        Empire pirates = PirateFaction();
+        Ship platform = SpawnShip("Platform Base mk1-a", pirates, SystemSite + new Vector2(0, -40_000f));
+        Assert.IsFalse(UState.Empires.Any(e => e.data.Traits.ShipType == platform.ShipData.ShipStyle), "setup: a design of no race in the game");
+        AssertEqual("", SalvageDerelict.ConstructorName(pirates, platform), "pirates' bays on a design of no race launch nothing");
+
+        Derelict d = Wreck(Older, WreckSite, pirates);
+        Ship station = StationOf(pirates);
+        Player.data.DefaultConstructor = "No Such Constructor"; // the station's race, the player's
+        Turn(station);
+        Assert.IsNull(OrderOf(pirates, d), "and a station whose race has no constructor orders nothing");
+    }
+
+    [TestMethod]
+    public void APirateBaseUnderAttackDraftsNoConstructor()
+    {
+        Empire pirates = PirateFaction();
+        Ship pirateBase = SpawnShip(pirates.data.PirateBaseBasic, pirates, SystemSite + new Vector2(-80_000f, 0));
+        Ship constructor = SpawnShip("Terran Constructor", pirates, SystemSite + new Vector2(-200_000f, 0));
+        pirates.GetRelations(Enemy).AtWar = Enemy.GetRelations(pirates).AtWar = true;
+        SpawnShipNoCombatHoldPos(Newer, Enemy, pirateBase.Position + new Vector2(3_000f, 0));
+        UState.Objects.Update(new(time: 2f));
+        AssertGreaterThan(pirateBase.AI.PotentialTargets.Sum(s => s.BaseStrength), pirateBase.AI.FriendliesNearby.Sum(s => s.BaseStrength),
+                          "setup: the base is outgunned");
+        constructor.BaseStrength = 10f; // as a mod's constructor with armor; vanilla's have none, and no strength
+
+        pirateBase.InCombat = true;
+        new PirateDefendBase(pirates, pirateBase).Evaluate();
+        Assert.AreNotEqual(pirateBase, constructor.AI.EscortTarget, "a constructor is not drafted to escort the base");
+    }
+
+    [TestMethod]
+    public void APirateStationThatMakesNoOrdnanceRegainsATenthOfItsStoreATurn()
+    {
+        Empire pirates = PirateFaction();
+        Ship station = StationOf(pirates);
+        AssertEqual(0.001f, 0f, station.OrdAddedPerSecond, "setup: the station makes no ordnance");
+        station.ChangeOrdnance(-station.Ordinance);
+        Turn(station);
+        AssertEqual(0.01f, station.OrdinanceMax * 0.1f, station.Ordinance, "one pirates hold regains a tenth of its store a turn");
+
+        station.ChangeOrdnance(-station.Ordinance);
+        station.InCombat = true;
+        Turn(station);
+        AssertEqual(0.01f, 0f, station.Ordinance, "nor in combat, as a pirate base");
+
+        station.InCombat = false;
+        station.OrdAddedPerSecond = 1f; // as a design that makes its own
+        Turn(station);
+        AssertEqual(0.01f, 0f, station.Ordinance, "but not one that makes its own");
+
+        Ship theirs = StationOf(Enemy);
+        theirs.ChangeOrdnance(-theirs.Ordinance);
+        Turn(theirs);
+        AssertEqual(0.01f, 0f, theirs.Ordinance, "nor an AI empire's");
+    }
+
+    [TestMethod]
+    public void AShipPiratesRecoverHeadsForTheirNearestBase()
+    {
+        Empire pirates = PirateFaction();
+        SpawnShip(pirates.data.PirateBaseBasic, pirates, SystemSite + new Vector2(300_000f, 0));
+        Ship near = SpawnShip(pirates.data.PirateBaseBasic, pirates, SystemSite + new Vector2(-80_000f, 0));
+        UState.Objects.UpdateLists();
+        Assert.IsTrue(pirates.Pirates.GetBases(out var bases) && bases.Count == 2, "setup: two pirate bases");
+
+        Derelict d = Wreck(Older, WreckSite, pirates);
+        Ship ship = Ship.CreateRecoveredShip(UState, d, pirates, model: null);
+        AssertEqual(near, ship.AI.EscortTarget, "the ship heads for the pirates' nearest base, which takes in a small one and keeps a large one");
+    }
+
+    [TestMethod]
+    public void APirateOrbitalRaidGoesForASalvageStationFirst()
+    {
+        Empire pirates = PirateFaction();
+        Ship platform = SpawnShip("Platform Base mk1-a", Enemy, SystemSite + new Vector2(0, -40_000f));
+        UState.Objects.UpdateLists();
+        var raid = new PirateRaidOrbital(pirates, Enemy);
+        Assert.IsTrue(raid.PickTarget(Ship_Game.Pirates.TargetType.Platform, out Ship target) && target == platform,
+                      "setup: with no salvage station, the raid takes the orbital it rolled");
+
+        Ship station = StationOf(Enemy);
+        UState.Objects.UpdateLists();
+        Assert.IsTrue(raid.PickTarget(Ship_Game.Pirates.TargetType.Platform, out target), "setup: a target");
+        AssertEqual(station, target, "a salvage station comes first, whatever orbital it rolled");
     }
 
     // the AI able to build the station, with the system explored unless asked

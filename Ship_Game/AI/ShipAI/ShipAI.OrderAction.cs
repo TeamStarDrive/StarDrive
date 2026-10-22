@@ -485,6 +485,9 @@ namespace Ship_Game.AI
 
         public void OrderPirateFleeHome(bool signalRetreat = false)
         {
+            if (Owner.IsConstructor && Owner.Mothership?.Loyalty == Owner.Loyalty)
+                return; // one out from its own salvage station keeps to its platform
+
             if (Owner.Loyalty.WeArePirates 
                 && !Owner.IsPlatformOrStation 
                 && Owner.Loyalty.Pirates.GetBases(out Array<Ship> pirateBases))

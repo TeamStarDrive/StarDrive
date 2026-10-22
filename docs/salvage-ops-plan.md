@@ -1404,8 +1404,27 @@ Implementation notes:
      and 7160 name the list by the checkbox; Codex 100167 and 100093 say what the switch does. A hidden dropdown in
      any of the window's checkbox rows takes no clicks, as one under Auto Pick could pick a design unseen (784 A).
      The window's rows have no test.
+   - Pirates (Gilad, 2026-10-22; 785-791): a station they capture works for them, and their orbital raids go for a
+     salvage station first, whatever orbital they roll (785 B, 791); they get no designs or stations of their own,
+     which a later pirate part may bring. Their station recovers every derelict ship it can in its system, the
+     fewest turns left first, and never strips (786 A, 176); its bays launch the default constructor of the race
+     whose station it is, as pirates build none (787 A), and it regains a tenth of its ordnance a turn, as a pirate
+     base does out of combat, unless its design makes ordnance (788 A). A ship they recover heads for their nearest
+     base, where the rules for the ships they capture apply: one below a cruiser is taken in, its design joining
+     theirs with a level-up roll, and a cruiser or larger stays on as an escort, while one of a design they already
+     spawn is taken in for nothing (789 A), so their station passes over a derelict of such a design, their own
+     wrecks among them (792 A). With nothing left to recover the station stays, neither hauling nor ending (790 A,
+     770 A). Their recovery chance is the default for now; techs that raise it, which pirates get by their level,
+     come with the salvage techs (sub-branch 8).
+   - As built (part 5): `SalvageOps.OrderDerelicts` for pirates, `SalvageDerelict.ConstructorName` given the
+     station, `SalvageOps.ReplenishOrdnance`, the recovered ship's `OrderPirateFleeHome`, which a constructor out from
+     its own salvage station ignores, as a raid's recall would strand its order, `Pirates.TargetType.SalvageStation`
+     and `PirateRaidOrbital.PickTarget`; a pirate base under attack drafts no constructor to defend it, as a mod's
+     armored one has the strength it drafts by. Codex 100086 and 100093 say what a captured station does for
+     pirates.
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
-   and with it the recovery speed, always twice it (554); they leave the break-in alone.
+   and with it the recovery speed, always twice it (554); they leave the break-in alone. Techs that raise the
+   recovery chance, which pirates get by their level (Gilad, 2026-10-22).
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
 10. **dismantling** (Gilad, 2026-10-22; 719): every station and platform scrapped where it stands is taken apart
     over turns, as a salvage platform is, instead of vanishing.

@@ -1070,7 +1070,7 @@ public class SalvageHaulTests : StarDriveTest
         Assert.IsTrue(Faction.WeArePirates, "setup: pirates");
         Ship pirates = StationHolding(0f, Faction, atWork: false);
         Turn(pirates);
-        Assert.IsTrue(pirates.Active && OrderOf(pirates) != null, "one pirates hold stays, as it does nothing for them");
+        Assert.IsTrue(pirates.Active && OrderOf(pirates) != null, "one pirates hold stays, as it neither hauls nor ends for them");
     }
 
     [TestMethod]

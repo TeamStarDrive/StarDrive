@@ -301,9 +301,15 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            // one counting down to its scuttling, or about to change hands, calls no freighters and does not end; one pirates hold does nothing for them
-            if (!Owner.WeArePirates && !SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
+            // one counting down to its scuttling, or about to change hands, orders nothing, calls no freighters and does not end; one pirates hold only recovers for them
+            if (!SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
             {
+                if (Owner.WeArePirates)
+                {
+                    ReplenishOrdnance(SalvageStation);
+                    OrderDerelicts();
+                    return GoalStep.TryAgain;
+                }
                 if (Owner.isPlayer ? Owner.AutoBuildSalvageStations : !Owner.IsFaction)
                     OrderDerelicts();
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
@@ -315,18 +321,30 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.TryAgain;
         }
 
-        // an AI empire's station, or the player's with Auto Build Salvage Stations on, fills its free units, the derelict with the fewest turns left first as a claim stops its clock, while no armed hostile is in its sensor range
+        // an AI empire's station, or the player's with Auto Build Salvage Stations on, fills its free units, the derelict with the fewest turns left first as a claim stops its clock, while no armed hostile is in its sensor range; pirates' recovers every ship it can and strips nothing, while its bays have a constructor to launch
         void OrderDerelicts()
         {
-            if (HaulsBlocked(SalvageStation))
+            bool pirates = Owner.WeArePirates;
+            if (HaulsBlocked(SalvageStation) || pirates && SalvageDerelict.ConstructorName(Owner, SalvageStation).IsEmpty())
                 return;
 
-            Derelict[] open = Owner.Universe.Derelicts.Current.Filter(d => d.System == TargetSystem
-                && SalvageDerelict.WhyNoOrder(Owner, d) == SalvageDerelict.Block.None);
+            Derelict[] open = Owner.Universe.Derelicts.Current.Filter(d => d.System == TargetSystem && CanOrder(d, pirates));
             open.Sort(d => d.TurnsLeft);
             for (int i = 0; i < open.Length; ++i)
-                if (!SalvageDerelict.Order(Owner, open[i], recover: SalvageDerelict.WouldRecover(Owner, open[i])))
+                if (!SalvageDerelict.Order(Owner, open[i], recover: pirates || SalvageDerelict.WouldRecover(Owner, open[i])))
                     break; // its units are all busy
+        }
+
+        // pirates pass over a ship of a design they spawn, which their base takes in for nothing
+        bool CanOrder(Derelict d, bool pirates)
+            => pirates ? SalvageDerelict.WhyNoRecovery(Owner, d) == SalvageDerelict.Block.None && !Owner.Pirates.ShipsWeCanSpawn.Contains(d.Design.Name)
+                       : SalvageDerelict.WhyNoOrder(Owner, d) == SalvageDerelict.Block.None;
+
+        // nothing resupplies a station pirates hold, so one that makes no ordnance of its own regains a tenth of its store a turn out of combat, as a pirate base does
+        static void ReplenishOrdnance(Ship station)
+        {
+            if (station.OrdAddedPerSecond <= 0f && !station.InCombat)
+                station.ChangeOrdnance(station.OrdinanceMax / 10f);
         }
 
         // one not yet placed in its system has yet to show its owner the derelicts there
