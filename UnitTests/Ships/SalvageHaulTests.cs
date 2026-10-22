@@ -12,7 +12,7 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// Freighters haul the production a salvage station holds to colonies. Each turn the player's station calls an idle
+/// Freighters haul the production a salvage station holds to colonies. Each turn the station calls an idle
 /// freighter for each average freighter load it holds beyond the room in the holds of those already on their way,
 /// and for all it holds once it has no room for another platform load, with at most 3 on their way and none while
 /// an armed hostile is in its sensor range or it counts down to its scuttling; no freighter is built for it, and the
@@ -30,7 +30,10 @@ namespace UnitTests.Ships;
 /// once it holds less than 1 it is scrapped with no refund, the player told unless salvage alerts are off; not while
 /// it is yet to be placed in its system, the player scuttles it or it is about to change hands. Its status says how
 /// many freighters are on their way, that it waits for them while it holds production, or that it salvages, and
-/// counts down while it is scuttled. AI empires' stations call none yet, and are not scrapped.
+/// counts down while it is scuttled. AI empires' and rebels' stations haul and are scrapped by the same rules, the
+/// player told nothing, and their freighters go to their trade partners whatever the player's inter-trade setting; a
+/// station pirates hold does neither, and one whose empire owns no colony is scrapped once nothing is left to
+/// salvage, whatever it holds.
 /// </summary>
 [TestClass]
 public class SalvageHaulTests : StarDriveTest
@@ -597,15 +600,50 @@ public class SalvageHaulTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AnAIEmpiresStationCallsNoFreighterYet()
+    public void AnAIEmpiresStationCallsItsOwnFreighters()
+    {
+        Planet importer = Importer(SystemSite + new Vector2(0, 200_000f), Enemy);
+        Ship mine = Freighter(StationSite + new Vector2(4_000f, 0));
+        Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0), Enemy);
+        Ship station = StationHolding(20f, Enemy);
+
+        Turn(station);
+        Assert.IsTrue(Hauls(freighter, station, out Planet colony), "an AI empire's station calls its freighter");
+        AssertEqual(importer.Name, colony.Name, "for its importing colony");
+        Assert.IsFalse(Hauls(mine, station), "and none of the player's");
+    }
+
+    [TestMethod]
+    public void AnAIEmpiresStationHaulsToATradePartnerWhateverThePlayersInterTradeSetting()
+    {
+        CreateThirdMajorEmpire();
+        Planet partners = Importer(SystemSite + new Vector2(0, 200_000f), ThirdMajor);
+        Colony(SystemSite + new Vector2(0, -250_000f), Enemy);
+        Enemy.SignTreatyWith(ThirdMajor, TreatyType.Trade);
+        Assert.IsTrue(Enemy.IsTradeTreaty(ThirdMajor), "setup: a trade treaty");
+        UState.P.AllowPlayerInterTrade = false;
+        Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0), Enemy);
+        freighter.AllowInterEmpireTrade = true;
+        Ship station = StationHolding(20f, Enemy);
+
+        Turn(station);
+        Assert.IsTrue(Hauls(freighter, station, out Planet colony), "a freighter is called");
+        AssertEqual(partners.Name, colony.Name, "for the partner's importing colony, as Allow Player Inter Trade rules only the player's");
+    }
+
+    [TestMethod]
+    public void AStationAnAIEmpireBoardsHaulsForIt()
     {
         Planet importer = Importer(SystemSite + new Vector2(0, 200_000f), Enemy);
         Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0), Enemy);
-        Ship station = StationHolding(20f, Enemy);
-        AssertGreaterThan(importer.FreeProdImportSlots, 0, "setup: the AI's colony imports");
+        Ship station = StationHolding(20f);
+        station.LoyaltyTracker.SetBoardingLoyalty(Enemy, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(station.Loyalty == Enemy && OrderOf(station) != null, "setup: the station works for its boarder");
 
         Turn(station);
-        Assert.IsFalse(Hauls(freighter, station), "an AI empire's station calls none of its freighters");
+        Assert.IsTrue(Hauls(freighter, station, out Planet colony), "it calls its new owner's freighter");
+        AssertEqual(importer.Name, colony.Name, "for its new owner's colony");
     }
 
     // its haul's freighter as it lands on the station
@@ -1010,12 +1048,49 @@ public class SalvageHaulTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AnAIEmpiresOrADyingStationIsNotScrapped()
+    public void AnAIEmpiresStationWithNothingLeftToSalvageIsScrappedAndThePlayerIsNotTold()
     {
         Ship theirs = StationHolding(0f, Enemy, atWork: false);
+        TrackNotifications();
         Turn(theirs);
-        Assert.IsTrue(theirs.Active && OrderOf(theirs) != null, "an AI empire's station with nothing left to salvage stays");
+        Assert.IsTrue(Scrapped(theirs), "an AI empire's station with nothing left to salvage is scrapped");
+        AssertEqual(0, Told().Length, "and the player is told nothing");
+    }
 
+    [TestMethod]
+    public void ARebelsStationWithNothingLeftToSalvageIsScrappedButOnePiratesHoldIsNot()
+    {
+        Empire rebels = UState.CreateRebelsFromEmpireData(Player.data, Player);
+        Assert.IsTrue(rebels.IsFaction && !rebels.WeArePirates, "setup: rebels, a faction but not pirates");
+        Ship theirs = StationHolding(0f, rebels, atWork: false);
+        Turn(theirs);
+        Assert.IsTrue(Scrapped(theirs), "the rebels' station with nothing left to salvage is scrapped");
+
+        CreateAMinorFaction("Corsairs");
+        Assert.IsTrue(Faction.WeArePirates, "setup: pirates");
+        Ship pirates = StationHolding(0f, Faction, atWork: false);
+        Turn(pirates);
+        Assert.IsTrue(pirates.Active && OrderOf(pirates) != null, "one pirates hold stays, as it does nothing for them");
+    }
+
+    [TestMethod]
+    public void AStationWhoseEmpireOwnsNoColonyIsScrappedWithWhatItHoldsOnceNothingIsLeftToSalvage()
+    {
+        Empire rebels = UState.CreateRebelsFromEmpireData(Player.data, Player);
+        AssertEqual(0, rebels.NumPlanets, "setup: the rebels own no colony");
+        Ship theirs = StationHolding(20f, rebels);
+        Turn(theirs);
+        Assert.IsTrue(theirs.Active && OrderOf(theirs) != null, "with a derelict left there, a station holding 20 stays");
+
+        UState.Derelicts.Strip(Work, null, Work.ProductionLeft);
+        Assert.IsFalse(Work.CanBeSalvaged, "setup: the derelict is stripped");
+        Turn(theirs);
+        Assert.IsTrue(Scrapped(theirs), "with nothing left, it is scrapped though it holds 20, as it has nowhere to send them");
+    }
+
+    [TestMethod]
+    public void ADyingStationIsNotScrapped()
+    {
         Ship dying = BuiltStation(atWork: false);
         TrackNotifications();
         dying.Dying = true;

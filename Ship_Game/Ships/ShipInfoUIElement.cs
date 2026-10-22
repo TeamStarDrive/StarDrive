@@ -546,7 +546,7 @@ namespace Ship_Game.Ships
             return ShipListScreenItem.GetStatusText(platform);
         }
 
-        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling, shows its orders, as it calls no freighters
+        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling, shows its orders
         internal static string SalvageStationStatus(Ship station)
         {
             if (!station.Loyalty.isPlayer || station.ScuttleTimer >= 0f)

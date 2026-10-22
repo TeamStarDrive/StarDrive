@@ -301,11 +301,12 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            // one counting down to its scuttling, or about to change hands, calls no freighters and does not end
-            if (Owner.isPlayer && !SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
+            // one counting down to its scuttling, or about to change hands, calls no freighters and does not end; one pirates hold does nothing for them
+            if (!Owner.WeArePirates && !SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
             {
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
-                if (workDone && SalvageStation.GetProduction() < 1f)
+                // an empire with no colony has nowhere to send what it holds, which goes with the station
+                if (workDone && (SalvageStation.GetProduction() < 1f || Owner.NumPlanets == 0))
                     return ScrapStation(SalvageStation);
                 Haul(SalvageStation, workDone);
             }
@@ -319,10 +320,11 @@ namespace Ship_Game.Commands.Goals
         bool NothingLeftToSalvage()
             => !Owner.AI.HasGoal(g => g is SalvageDerelict s && s.TargetSystem == TargetSystem) && !AnyToSalvageIn(Owner, TargetSystem);
 
-        // it vanishes as a station scrapped does, with no refund, and the player is told
+        // it vanishes as a station scrapped does, with no refund, and a player is told
         GoalStep ScrapStation(Ship station)
         {
-            Owner.Universe.Notifications?.AddSalvageStationScrappedNotification(station, TargetSystem);
+            if (Owner.isPlayer)
+                Owner.Universe.Notifications?.AddSalvageStationScrappedNotification(station, TargetSystem);
             station.AI.OrderScuttleShip();
             return GoalStep.GoalComplete;
         }
@@ -330,7 +332,7 @@ namespace Ship_Game.Commands.Goals
         // the most freighters on their way to load at one station
         public const int MaxHauls = 3;
 
-        // the player's station calls an idle freighter for each average freighter load it holds beyond the holds of those on their way, and for all of it once it has no room for another platform load or nothing left to salvage
+        // a station calls an idle freighter for each average freighter load it holds beyond the holds of those on their way, and for all of it once it has no room for another platform load or nothing left to salvage
         void Haul(Ship station, bool workDone)
         {
             if (HaulsBlocked(station))

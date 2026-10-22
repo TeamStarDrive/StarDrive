@@ -1288,7 +1288,7 @@ Implementation notes:
      load its whole hold, as two at one colony can (729 C, left). The ship list reads "Picking up
      Production from <station> to <colony>", the trade lines go blue to the station and gold to the colony, and
      the haul adds space-road heat as colony trade does.
-   - Only the player's stations call freighters; AI empires haul from theirs in sub-branch 7.
+   - Only the player's stations called freighters here; AI empires' and rebels' call theirs since sub-branch 7 (740 A).
    - Once nothing is left to do in its system, the station sends what it has left, below an average load too, and
      once it holds nothing it is scrapped, vanishing as a scrapped station does, with no refund (667, 718 A,
      719 B). Nothing is left to do when no salvage or recovery order of its empire's is left there, its platforms
@@ -1325,6 +1325,49 @@ Implementation notes:
    made from their parent empire's, so a reload that runs a defeat again draws the same for them (651 B). Once AI
    empires order salvage: a claim with no order behind it (a save's, or a defeated faction's, whose goals are not
    cleared) never ends, and with the 726 B test it keeps another empire's station there at work for good.
+   - Decisions (Gilad, 2026-10-22; 739-769):
+     - Parts (739 A): 1) AI hauling and the station's end; 2) the AI planner, its stations and its derelict orders;
+       3) a claim with no order behind it and the rebels' luck seed; 4) the player's auto switch; 5) pirates, talked
+       over again before they are built (747 A).
+     - AI empires haul and their stations end by the player's rules, no one told and no freighter built for it
+       (740 A); so do the rebels', as they finish what they inherit, while a station pirates hold does nothing for
+       them, as 358 B keeps it.
+     - The planner runs as the mining planner does: not with salvage ops off, for an empire that cannot build a
+       salvage station, or for the player with Auto Build Salvage Stations off (768), every `MiningOpsTurnsPerRun`
+       turns, one new station a run. A system it has explored, with a salvageable derelict it knows of, within the
+       distance its mining and research stations use, outside enemy influence, with no Remnant portal and no rival
+       there (741 B). A rival has a colony in the system and is neither at war with it nor holds open borders or an
+       alliance with it, as no trust is lost in those cases (138, 760 A); the player counts as any empire (765 A).
+       Only where the production left in the derelicts it can work there is at least the station's cost, or one of
+       them holds a tech it wants or is a ship it would recover (741 B, 759). The site is the panel button's (249).
+     - No station and no new order where it knows of hostile strength; it asks its military to clear the system as
+       the mining planner does, and a constructor or platform already out carries on (742 A).
+     - The station's goal fills its free units each turn, the derelict with the fewest turns left first, as a claim
+       stops its clock (744 A), a station held without the tech to build one included (769 A).
+     - Strip or recover, chosen once as the order is placed (758 A), from the chance and never the empire's own
+       draws: it recovers a ship whose design is stronger (`GetStrength`) than the strongest design of its hull role
+       it can build now, or than none when it can build none of that role (743, 750 A, 751 A), whatever its techs
+       (752 A) and its chance (753 A), and strips the rest. A tech it wants is one it can still learn that its
+       designs use (743, 749 A): `TechEntry.shipDesignsCanuseThis`, which AI research reads too (761 A), from every
+       role of the race's list (762 B) but shipyards and the Salvage Platform, which the research progression skips
+       as well (767 B). Its recompute turns the flag on as well as off (766 A), at start, on load, and on absorb with
+       the race's designs read again (764 A), and when the player saves or deletes a design (763 A).
+     - The player's auto switch (252, 745 A): Auto Build Salvage Stations in the Salvage Station dropdown's row
+       (334 A), off in a new game (756). With it on, the planner orders the player's stations and salvage by the
+       same rules (754 A), passing over systems with hostiles and sending no military; the Salvage and Recover
+       buttons are grey with a tooltip saying salvage is on automatic, and their second click does nothing (381). A
+       station can still be ordered by hand, and Abort Deployment still works, auto free to order one there again
+       on a later run; turning auto off leaves its orders as the player's own (755 A). Codex 100167 and 100093 say
+       what the switch does, not how it picks (746 A).
+     - Rebels and Remnants never order salvage (757 A).
+     - Each turn a derelict lets go of a claim whose empire is defeated or has no order on it (748 A).
+     - A station pirates hold neither hauls nor ends (770 A), which 100086 leaves unsaid until the pirates part
+       (771 A). One whose empire owns no colony, as the rebels', is scrapped once nothing is left to salvage, with
+       whatever it holds, as it has nowhere to send it (772 B); so is one of an empire that has just lost its last
+       colony, its goals running a pass before its defeat, as the rebels it would pass to would scrap it (773 A).
+   - As built (part 1): every station but one pirates hold calls freighters and ends by the hauling rules, a player
+     alone told of a station scrapped; Codex 100086 no longer says the station's end is only yours, and adds the end
+     of one whose empire has no colony.
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
