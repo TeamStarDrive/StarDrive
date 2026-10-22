@@ -4,6 +4,7 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.Commands.Goals;
+using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
@@ -28,7 +29,9 @@ namespace UnitTests.Ships;
 /// where it knows of hostile strength it asks once for a fleet to clear the system instead. With Auto Build Salvage
 /// Stations on, the player's stations order their derelicts and the planner orders the player stations by the same
 /// rules, asking for no fleet, while the Salvage and Recover buttons do nothing, a standing order's still lit, and
-/// their tooltips say salvage is on automatic; turned off, it leaves its orders standing as the player's.
+/// their tooltips say salvage is on automatic; turned off, it leaves its orders standing as the player's. The switch
+/// and the planner's timer are saved. An empire with no colony left orders nothing, and a derelict with less than a
+/// fifth of its turns left is worth no station.
 /// </summary>
 [TestClass]
 public class SalvageAITests : StarDriveTest
@@ -79,9 +82,11 @@ public class SalvageAITests : StarDriveTest
         return d;
     }
 
-    // the empire's built station in the system, holding production so it stays with nothing left to salvage
-    Ship StationOf(Empire owner)
+    // the empire's built station in the system, holding production so it stays with nothing left to salvage; a major empire gets a colony far off unless asked, as one with none orders nothing
+    Ship StationOf(Empire owner, bool colony = true)
     {
+        if (colony && !owner.IsFaction && owner.NumPlanets == 0)
+            AddDummyPlanetToEmpire(ColonySite(owner), owner);
         var order = new SalvageOps(owner, System, StationSite, Station);
         owner.AI.AddGoal(order);
         order.AdvanceToNextStep(); // past the queueing, which needs a port
@@ -92,6 +97,8 @@ public class SalvageAITests : StarDriveTest
         AssertEqual(2, SalvageDerelict.LiveUnits(order.TargetShip), "setup: it has two salvage units");
         return order.TargetShip;
     }
+
+    Vector2 ColonySite(Empire owner) => owner == Player ? new(200_000f, 900_000f) : new(900_000f, 200_000f);
 
     static void Turn(Ship station) => station.Loyalty.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station).Evaluate();
 
@@ -121,6 +128,20 @@ public class SalvageAITests : StarDriveTest
         Assert.IsNotNull(OrderOf(Enemy, oldest), "the derelict with the fewest turns left is ordered");
         Assert.IsNotNull(OrderOf(Enemy, older), "and the next, for the second unit");
         Assert.IsNull(OrderOf(Enemy, newest), "but not the third, with no unit free");
+    }
+
+    [TestMethod]
+    public void AnAIEmpireWithNoColonyLeftOrdersNothing()
+    {
+        Derelict d = Wreck(Older, WreckSite, Enemy);
+        Ship station = StationOf(Enemy, colony: false);
+        AssertEqual(0, Enemy.NumPlanets, "setup: the AI owns no colony, so it is defeated this turn");
+        Turn(station);
+        Assert.IsNull(OrderOf(Enemy, d), "its station orders nothing");
+
+        AddDummyPlanetToEmpire(ColonySite(Enemy), Enemy);
+        Turn(station);
+        Assert.IsNotNull(OrderOf(Enemy, d), "with a colony it does");
     }
 
     [TestMethod]
@@ -479,6 +500,7 @@ public class SalvageAITests : StarDriveTest
         Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
         Assert.IsTrue(Player.AddBuildableShip(Station), "setup: the player can build the station");
         Player.MarkShipRolesUsableForEmpire(Station);
+        Assert.IsTrue(Player.CanBuildSalvageStations && Player.DerelictSystems.Contains(System), "setup: and knows of a derelict in the system");
         Assert.IsFalse(Plans(new SalvageOpsPlanner(Player), owner: Player), "the planner orders nothing for the player with auto build off");
     }
 
@@ -579,6 +601,20 @@ public class SalvageAITests : StarDriveTest
     }
 
     [TestMethod]
+    public void ADerelictWithLessThanAFifthOfItsTurnsLeftIsWorthNoStation()
+    {
+        Derelict d = Wreck(Older, WreckSite, Enemy, turnsGone: 161);
+        AssertEqual(39, d.TurnsLeft, "setup: 39 of its 200 turns left");
+        AssertGreaterThan(d.ProductionLeft, Station.GetCost(Enemy), "setup: its production pays for the station");
+        SalvageOpsPlanner planner = Planner();
+        Assert.IsFalse(Plans(planner), "with less than a fifth of its turns left, it is worth no station");
+
+        Derelict later = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Enemy, turnsGone: 160);
+        AssertEqual(40, later.TurnsLeft, "setup: 40 of its 200 turns left");
+        Assert.IsTrue(Plans(planner), "one with a fifth left is");
+    }
+
+    [TestMethod]
     public void ThePlannerOrdersOneStationARunTheSystemClosestToTheEmpireFirst()
     {
         Vector2 farSite = SystemSite * 1.5f;
@@ -607,5 +643,21 @@ public class SalvageAITests : StarDriveTest
         System.UpdateOwnerList();
         Assert.IsTrue(System.HasPlanetsOwnedBy(Enemy), "setup: the AI has a colony there");
         Assert.IsTrue(Plans(planner, ignoreDistance: false), "but in one where it has a colony");
+    }
+
+    [TestMethod]
+    public void TheAutoBuildSwitchAndThePlannersTimerSurviveSaveAndLoad()
+    {
+        Player.AutoBuildSalvageStations = true;
+        Enemy.AI.SalvageOpsAI.TurnTimer = 7;
+        AddDummyPlanetToEmpire(ColonySite(Player), Player); // the loader needs a colony of each major empire
+        AddDummyPlanetToEmpire(ColonySite(Enemy), Enemy);
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageAI", throwOnError: true);
+        UniverseScreen game = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(game, "setup: the save loads");
+
+        Assert.IsTrue(game.UState.Player.AutoBuildSalvageStations, "Auto Build Salvage Stations stays on");
+        AssertEqual(7, game.UState.GetEmpireById(Enemy.Id).AI.SalvageOpsAI.TurnTimer, "and the planner keeps its count of turns");
     }
 }

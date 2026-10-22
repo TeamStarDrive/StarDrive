@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Ships;
@@ -9,7 +11,7 @@ namespace UnitTests.Technologies;
 /// A tech that unlocks modules and no hull is of use to an empire while a design of its race has one of those
 /// modules, shipyards and the salvage platform left out, or while it leads to a tech of use. It is worked out both
 /// ways at start, on load, as the player saves or deletes a design and as an absorbed race's designs join the
-/// empire's, the race's designs read again.
+/// empire's, the race's designs read again, on the sim thread.
 /// </summary>
 [TestClass]
 public class ShipDesignTechUseTests : StarDriveTest
@@ -34,15 +36,30 @@ public class ShipDesignTechUseTests : StarDriveTest
 
     bool OfUse(Empire empire, string tech) => empire.GetTechEntry(tech).shipDesignsCanuseThis;
 
-    // the dreadnought's modules in a design of this name, the dreadnought itself unloaded
-    void DreadnoughtCopy(string name, bool shipyard)
+    // the dreadnought's modules in a design of this name, the dreadnought itself unloaded, and the race's designs read again unless asked
+    void DreadnoughtCopy(string name, bool shipyard, bool readAgain = true)
     {
         LoadStarterShips(Dreadnought);
         ShipDesign copy = ((ShipDesign)ResourceManager.Ships.GetDesign(Dreadnought)).GetClone(name);
         copy.IsShipyard = shipyard;
         ResourceManager.Ships.Delete(Dreadnought);
         Assert.IsTrue(ResourceManager.AddShipTemplate(copy, playerDesign: false), "setup: the copy is added");
-        Player.ShipDesignsChanged();
+        if (readAgain)
+            Player.ShipDesignsChanged();
+    }
+
+    void OffTheSimThread(System.Action action)
+    {
+        FieldInfo simThread = typeof(UniverseScreen).GetField("SimThread", BindingFlags.Instance | BindingFlags.NonPublic);
+        simThread.SetValue(Universe, new Thread(() => { }));
+        try
+        {
+            action();
+        }
+        finally
+        {
+            simThread.SetValue(Universe, null);
+        }
     }
 
     [TestMethod]
@@ -72,6 +89,18 @@ public class ShipDesignTechUseTests : StarDriveTest
 
         ResourceManager.DeleteShip(UState, Copy); // as the player deletes it; no file of that name is on disk
         Assert.IsFalse(OfUse(Player, "CanopyShields"), "with it gone, the tech is of no use again");
+    }
+
+    [TestMethod]
+    public void OffTheSimThreadTheDesignsAreReadAgainOnIt()
+    {
+        DreadnoughtCopy(Copy, shipyard: false, readAgain: false);
+        OffTheSimThread(() => Player.ShipDesignsChanged()); // as the design screen saves one
+        Assert.IsFalse(OfUse(Player, "CanopyShields"), "off the sim thread, the designs wait to be read again");
+
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsTrue(Player.AllFactionShipDesigns.Any(d => d.Name == Copy), "on it, they are read again");
+        Assert.IsTrue(OfUse(Player, "CanopyShields"), "and the copy's canopy shield makes its tech of use");
     }
 
     [TestMethod]

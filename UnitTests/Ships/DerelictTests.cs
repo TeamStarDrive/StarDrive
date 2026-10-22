@@ -1046,7 +1046,7 @@ public class DerelictTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ASalvageableDerelictLastsAHundredTurnsTimesThePaceThenSinksAway()
+    public void ASalvageableDerelictLastsTwoHundredTurnsTimesThePaceThenSinksAway()
     {
         UState.P.Pace = 3f;
         AssertEqual(0.001f, 2f, UState.ProductionPace, "setup: a slower pace");
@@ -1054,9 +1054,9 @@ public class DerelictTests : StarDriveTest
         UState.Derelicts.TryAdd(ship, salvageable: true, seen: false);
         Derelict d = Newest();
         AssertFalse(d.KnownByPlayer, "setup: the player does not know of it");
-        AssertEqual(200, d.TurnsLeft, "100 turns times the production pace");
+        AssertEqual(400, d.TurnsLeft, "200 turns times the production pace");
 
-        for (int turn = 1; turn < 200; ++turn)
+        for (int turn = 1; turn < 400; ++turn)
             UState.Derelicts.UpdateTurn();
         UState.Derelicts.Update(TestSimStep);
         AssertEqual(1, d.TurnsLeft, "one turn later");

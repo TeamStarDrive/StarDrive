@@ -310,11 +310,11 @@ namespace Ship_Game.Commands.Goals
                     OrderDerelicts();
                     return GoalStep.TryAgain;
                 }
-                if (Owner.isPlayer ? Owner.AutoBuildSalvageStations : !Owner.IsFaction)
+                if (Owner.NumPlanets > 0 && (Owner.isPlayer ? Owner.AutoBuildSalvageStations : !Owner.IsFaction)) // one with no colony left is defeated this turn
                     OrderDerelicts();
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
-                // an empire with no colony has nowhere to send what it holds, which goes with the station
-                if (workDone && (SalvageStation.GetProduction() < 1f || Owner.NumPlanets == 0))
+                // what it holds goes with the station of an empire with nowhere to send it
+                if (workDone && (SalvageStation.GetProduction() < 1f || NowhereToSend(Owner)))
                     return ScrapStation(SalvageStation);
                 Haul(SalvageStation, workDone);
             }
@@ -346,6 +346,9 @@ namespace Ship_Game.Commands.Goals
             if (station.OrdAddedPerSecond <= 0f && !station.InCombat)
                 station.ChangeOrdnance(station.OrdinanceMax / 10f);
         }
+
+        // from any thread: rebels, who build no freighters, and an empire with no colony have nowhere to send what a station holds
+        public static bool NowhereToSend(Empire empire) => empire.NumPlanets == 0 || empire.data.IsRebelFaction;
 
         // one not yet placed in its system has yet to show its owner the derelicts there
         static bool CanEnd(Ship station) => station.System != null;

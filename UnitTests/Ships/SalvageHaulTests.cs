@@ -32,8 +32,8 @@ namespace UnitTests.Ships;
 /// many freighters are on their way, that it waits for them while it holds production, or that it salvages, and
 /// counts down while it is scuttled. AI empires' and rebels' stations haul and are scrapped by the same rules, the
 /// player told nothing, and their freighters go to their trade partners whatever the player's inter-trade setting; a
-/// station pirates hold does neither, and one whose empire owns no colony is scrapped once nothing is left to
-/// salvage, whatever it holds.
+/// station pirates hold does neither, and one of the rebels, who build no freighters, or of an empire that owns no
+/// colony is scrapped once nothing is left to salvage, whatever it holds.
 /// </summary>
 [TestClass]
 public class SalvageHaulTests : StarDriveTest
@@ -1086,6 +1086,32 @@ public class SalvageHaulTests : StarDriveTest
         Assert.IsFalse(Work.CanBeSalvaged, "setup: the derelict is stripped");
         Turn(theirs);
         Assert.IsTrue(Scrapped(theirs), "with nothing left, it is scrapped though it holds 20, as it has nowhere to send them");
+    }
+
+    [TestMethod]
+    public void AnEmpireThatHasLostItsLastColonyScrapsItsStationWithWhatItHolds()
+    {
+        AssertEqual(0, Enemy.NumPlanets, "setup: the AI owns no colony, as in its last turn before its defeat");
+        Ship theirs = StationHolding(20f, Enemy);
+
+        UState.Derelicts.Strip(Work, null, Work.ProductionLeft);
+        Assert.IsFalse(Work.CanBeSalvaged, "setup: the derelict is stripped");
+        Turn(theirs);
+        Assert.IsTrue(Scrapped(theirs), "with nothing left, it is scrapped though it holds 20, as it has nowhere to send them");
+    }
+
+    [TestMethod]
+    public void ARebelsStationIsScrappedWithWhatItHoldsThoughTheyOwnAColony()
+    {
+        Empire rebels = UState.CreateRebelsFromEmpireData(Player.data, Player);
+        Colony(SystemSite + new Vector2(0, 200_000f), rebels);
+        AssertEqual(1, rebels.NumPlanets, "setup: the rebels own a colony, as after a revolt");
+        Ship theirs = StationHolding(20f, rebels);
+
+        UState.Derelicts.Strip(Work, null, Work.ProductionLeft);
+        Assert.IsFalse(Work.CanBeSalvaged, "setup: the derelict is stripped");
+        Turn(theirs);
+        Assert.IsTrue(Scrapped(theirs), "with nothing left, it is scrapped though it holds 20, as rebels build no freighters");
     }
 
     [TestMethod]

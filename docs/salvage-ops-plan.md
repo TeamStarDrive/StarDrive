@@ -101,7 +101,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - It settles a little below the plane, at 25 units/s, as deep as its ship's radius and at most 500, keeping its
     size, so it looks a little distant (Gilad, 2026-10-18; 412, replacing 141). One from an unseen death starts there.
     Clicks, its icon and its selection brackets take its depth into account.
-  - Its timer is 100 turns x ProductionPace.
+  - Its timer is 200 turns x ProductionPace (797 B, Gilad, 2026-10-23; it was 100).
   - The timer stops once an empire claims the derelict (274, replacing 143), and runs on again if the claim is lost.
   - When the timer runs out it sinks away like a drifting derelict, from its rest depth, shrinking from there.
   - **On the map (226, 238):** the player sees only the derelicts the player knows of (137). Wherever a ship shows its
@@ -517,7 +517,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - *recover* recovers only the ship.
 
   The player picks the mode with the Salvage and Recover buttons on the derelict's panel (277).
-  The AI picks it from the tech list: it strips when the list holds techs it wants for its progression.
+  The AI picks it by the ship's strength against the designs it can build (743, 750-753 A).
 - **What the derelict records:** its whole production and what is left of it, and its techs, picked at its death (see
   Techs). The per-empire shares of 123, 133 and 287 went in part 6 (457 A): a lost claim lets another empire finish
   the derelict, and its loads pay by their share of the whole production, so the next empire earns only for the rest.
@@ -606,8 +606,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     made on this branch before part 6 load with no techs on their wrecks, with no fallback.
   - Review (472-475): the in-house review found the module health bonus behind the Engineers scaling (472 A), the
     unclamped knob (473 B), 7143 (474 A) and the Remnant wording (475 A); a test now covers a partial load.
-- **AI restraint:** the AI does not salvage in a system where a rival it is not at war with, and has no open
-  borders treaty with, is present (138).
+- **AI restraint:** the AI builds no salvage station in a system where a rival it is neither at war with nor holds
+  open borders or an alliance with has a colony (138, 760 A); a station it already has there orders on.
 - **Trust (Gilad, 2026-10-17; 152, 161, 350-354):** when a salvage station is built, each AI empire with a colony in
   its system that knows the builder (350 A), and has no open borders treaty, no alliance and no war with it, trusts
   the builder less, once per station. The amount is `DTrait.SalvageStationTrustLoss`, 5 for every personality, as
@@ -1339,9 +1339,11 @@ Implementation notes:
        there (741 B). A rival has a colony in the system and is neither at war with it nor holds open borders or an
        alliance with it, as no trust is lost in those cases (138, 760 A); the player counts as any empire (765 A).
        Only where the production left in the derelicts it can work there is at least the station's cost, or one of
-       them holds a tech it wants or is a ship it would recover (741 B, 759). The site is the panel button's (249).
-     - No station and no new order where it knows of hostile strength; it asks its military to clear the system as
-       the mining planner does, and a constructor or platform already out carries on (742 A).
+       them holds a tech it wants or is a ship it would recover (741 B, 759; the techs its design uses, 779 C). The
+       site is the panel button's (249).
+     - No station and no new order where it knows of hostile strength (a station's new orders wait only for an
+       armed hostile in its sensor range, 778 A); it asks its military to clear the system as the mining planner
+       does, and a constructor or platform already out carries on (742 A).
      - The station's goal fills its free units each turn, the derelict with the fewest turns left first, as a claim
        stops its clock (744 A), a station held without the tech to build one included (769 A).
      - Strip or recover, chosen once as the order is placed (758 A), from the chance and never the empire's own
@@ -1355,7 +1357,8 @@ Implementation notes:
      - The player's auto switch (252, 745 A): Auto Build Salvage Stations in the Salvage Station dropdown's row
        (334 A), off in a new game (756). With it on, the planner orders the player's stations and salvage by the
        same rules (754 A), passing over systems with hostiles and sending no military; the Salvage and Recover
-       buttons are grey with a tooltip saying salvage is on automatic, and their second click does nothing (381). A
+       buttons are grey with a tooltip saying salvage is on automatic, and their second click does nothing (381;
+       as built, a standing order's stays lit and no click does anything, 781 A). A
        station can still be ordered by hand, and Abort Deployment still works, auto free to order one there again
        on a later run; turning auto off leaves its orders as the player's own (755 A). Codex 100167 and 100093 say
        what the switch does, not how it picks (746 A).
@@ -1420,8 +1423,33 @@ Implementation notes:
      station, `SalvageOps.ReplenishOrdnance`, the recovered ship's `OrderPirateFleeHome`, which a constructor out from
      its own salvage station ignores, as a raid's recall would strand its order, `Pirates.TargetType.SalvageStation`
      and `PirateRaidOrbital.PickTarget`; a pirate base under attack drafts no constructor to defend it, as a mod's
-     armored one has the strength it drafts by. Codex 100086 and 100093 say what a captured station does for
-     pirates.
+     armored one has the strength it drafts by. Codex 100086 and 100093 said what a captured station does for
+     pirates, until the pre-merge review took it out (795 A).
+   - Pre-merge review (Gilad, 2026-10-23; 793-802): Codex approved with no findings; the three in-house area
+     reviewers found the rest.
+     - A station of an empire with nowhere to send what it holds locked up once its hold was full while a platform
+       there held production: the platform's load waited for room for good, so its order never ended, its claim
+       held and the derelict's timer stood. Now what such a station cannot take of a platform's load is lost, the
+       platform strips on, and the station is scrapped with what it holds once the work is done (793 A). Rebels
+       count as having nowhere to send it whatever colonies they hold, as they build no freighters, though they haul
+       with those they inherit (794 A).
+     - Codex 100086 and 100093 say nothing of what pirates do with a station they capture (795 A).
+     - Logged, not built: a constructor pirates board in the turn after they board its station sits idle for good,
+       as the early return in `OrderPirateFleeHome` keeps it from going home (796 A).
+     - The planner counts only derelicts with at least a fifth of their turns left, and a salvageable derelict lasts
+       200 turns times the production pace, up from 100 (797 B).
+     - An empire with no colony left, defeated that turn, has its stations order nothing (798 A).
+     - Texts: the 7157 summary, "color" in 100093, and 100086's no-colony end, which names the rebels and comes
+       after its pointer to Combat Basics (799 A); this plan's stale lines (800 A); "color" and "labeled" in
+       100207 too (804 B). A rebel platform with its hold full reads Station hold full for the turn before its load
+       is lost, as the station is full (803 A).
+     - Tests: the planner's setup check for the player, the design read again off the sim thread, and the switch
+       and the planner's timer through a save; Abort Deployment with auto on (755 A), the player's station held
+       without the tech (782 A) and the switch's orders telling the player (783 A) still have none (801 A). An
+       empire that has lost its last colony scrapping its station with what it holds (773 A) has one now too.
+     - As built: `SalvageOps.NowhereToSend`, used by the station's end and `SalvageDerelict.SendLoad`;
+       `Derelict.LifetimeTurns`; `SalvageOpsPlanner.MinTurnsLeftPercent`. The full suite runs before the merge
+       (802 A).
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone. Techs that raise the
    recovery chance, which pirates get by their level (Gilad, 2026-10-22).

@@ -84,15 +84,19 @@ namespace Ship_Game.AI.ExpansionAI
             return true;
         }
 
+        // a derelict with less than this share of its turns left counts for nothing, as it may sink before the station is up
+        const int MinTurnsLeftPercent = 20;
+
         // the production left in the derelicts it can work there pays for the station, or one's design uses a tech it wants, or it is a ship it would recover
         bool WorthAStation(SolarSystem system, float stationCost)
         {
             float production = 0f;
+            int lifetime = Derelict.LifetimeTurns(Universe);
             Derelict[] derelicts = Universe.Derelicts.Current;
             for (int i = 0; i < derelicts.Length; ++i)
             {
                 Derelict d = derelicts[i];
-                if (d.System != system || !d.CanBeSalvaged || !d.IsKnownBy(Owner)
+                if (d.System != system || !d.CanBeSalvaged || !d.IsKnownBy(Owner) || d.TurnsLeft * 100 < lifetime * MinTurnsLeftPercent
                     || d.Claimant != null && d.Claimant != Owner && SalvageOps.StationIn(d.Claimant, system) != null)
                     continue;
 

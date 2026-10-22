@@ -460,6 +460,8 @@ namespace Ship_Game.Commands.Goals
         {
             float sent = station.LoadProduction(Math.Min(platform.GetProduction(), station.CargoRoom));
             platform.UnloadProduction(sent);
+            if (SalvageOps.NowhereToSend(Owner))
+                platform.UnloadProduction(platform.GetProduction()); // what its station has no room for is lost, as it would wait for good
             if (sent <= 0f)
                 return;
             Delivered += sent;
