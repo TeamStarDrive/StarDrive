@@ -304,6 +304,8 @@ namespace Ship_Game.Commands.Goals
             // one counting down to its scuttling, or about to change hands, calls no freighters and does not end; one pirates hold does nothing for them
             if (!Owner.WeArePirates && !SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
             {
+                if (!Owner.isPlayer && !Owner.IsFaction)
+                    OrderDerelicts();
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
                 // an empire with no colony has nowhere to send what it holds, which goes with the station
                 if (workDone && (SalvageStation.GetProduction() < 1f || Owner.NumPlanets == 0))
@@ -311,6 +313,20 @@ namespace Ship_Game.Commands.Goals
                 Haul(SalvageStation, workDone);
             }
             return GoalStep.TryAgain;
+        }
+
+        // an AI empire's station fills its free units, the derelict with the fewest turns left first as a claim stops its clock, while no armed hostile is in its sensor range
+        void OrderDerelicts()
+        {
+            if (HaulsBlocked(SalvageStation))
+                return;
+
+            Derelict[] open = Owner.Universe.Derelicts.Current.Filter(d => d.System == TargetSystem
+                && SalvageDerelict.WhyNoOrder(Owner, d) == SalvageDerelict.Block.None);
+            open.Sort(d => d.TurnsLeft);
+            for (int i = 0; i < open.Length; ++i)
+                if (!SalvageDerelict.Order(Owner, open[i], recover: SalvageDerelict.WouldRecover(Owner, open[i])))
+                    break; // its units are all busy
         }
 
         // one not yet placed in its system has yet to show its owner the derelicts there

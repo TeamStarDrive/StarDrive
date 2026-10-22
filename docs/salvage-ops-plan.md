@@ -1377,6 +1377,15 @@ Implementation notes:
      designs, shipyards and the salvage platform left out, at start and as a save loads (`InitEmpireUnlocks`), and
      `Empire.ShipDesignsChanged` reads the designs again on the sim thread as the player saves or deletes one and at
      the end of an absorb, once the absorbed race is the empire's. A flag a save held off turns back on at load.
+   - A station's new orders wait only for an armed hostile in its sensor range, as its hauls do, so a rival's
+     unarmed salvage station there, which has a little strength of its own, holds off none; the planner keeps the
+     mining planner's rule of any hostile strength known (778 A). Worth a station is read from the derelict's design,
+     the techs it uses, as anyone can tell from the ship, not the few it holds, which only a station there shows
+     (779 C). Where the empire's own borders reach the system, an enemy's colony there does not keep it out (760 A).
+   - As built (part 2, the orders and the planner): `SalvageOps.OrderDerelicts`, `SalvageDerelict.WouldRecover` and
+     `DesignHasWantedTech`, and `SalvageOpsPlanner`, saved with the empire's AI and run after the mining planner,
+     which asks for a fleet only once while one is on its way. The Remnant portal rule, the derelicts other empires
+     work from their stations, and the call from the AI's turn have no test.
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
