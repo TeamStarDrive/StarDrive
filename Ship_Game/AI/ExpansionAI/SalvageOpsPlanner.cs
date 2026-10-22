@@ -7,7 +7,7 @@ using Ship_Game.Universe;
 
 namespace Ship_Game.AI.ExpansionAI
 {
-    // every few turns, as the mining planner: a salvage station in a system worth one, the closest to the empire first
+    // every few turns, as the mining planner, for an AI empire or the player with Auto Build Salvage Stations on: a salvage station in a system worth one, the closest to the empire first
     [StarDataType]
     public class SalvageOpsPlanner
     {
@@ -42,7 +42,7 @@ namespace Ship_Game.AI.ExpansionAI
 
                 if (Owner.KnownEnemyStrengthNoResearchStationsIn(system) > 0f)
                 {
-                    if (!Owner.HasWarTaskTargetingSystem(system) && !Owner.AI.HasGoal(g => g is DefendSystem d && d.TargetSystem == system)) // a fleet another planner asked for this turn has no task yet
+                    if (!Owner.isPlayer && !Owner.HasWarTaskTargetingSystem(system) && !Owner.AI.HasGoal(g => g is DefendSystem d && d.TargetSystem == system)) // a fleet another planner asked for this turn has no task yet
                         Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), Tasks.MilitaryTaskImportance.Normal);
                     continue;
                 }
@@ -57,7 +57,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         bool ShouldRun()
         {
-            if (!Universe.P.SalvageOps || !Owner.CanBuildSalvageStations || Owner.isPlayer)
+            if (!Universe.P.SalvageOps || !Owner.CanBuildSalvageStations || Owner.isPlayer && !Owner.AutoBuildSalvageStations)
                 return false;
 
             if (--TurnTimer > 0)

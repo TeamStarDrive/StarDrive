@@ -1392,6 +1392,18 @@ Implementation notes:
      passes with it at once. Today only a test reaches the defeat rule: a defeated empire's goals are cleared,
      pirates clear theirs before they fall, and rebels are never defeated. Rebels take the luck seed of the empire
      they rise from, their id keeping their draws their own (651 B).
+   - With auto on (781 A), a standing order's button stays lit, showing its work, every other is grey, none lights
+     under the cursor, no click does anything, and every tooltip says salvage is on automatic. The checkbox shows
+     whenever salvage ops are on, as those of research and mining do, so a station captured without the tech orders
+     by itself with auto on (782 A). The orders the switch places tell the player as orders by hand do, the Salvage
+     alerts box turning them off (783 A).
+   - As built (part 4): `Empire.AutoBuildSalvageStations`, saved, off in a new game; the Automation window's salvage
+     row is its checkbox, text 7158 retitled, the row's dropdown hiding as those of research and mining do. With it
+     on, `SalvageOpsPlanner` runs for the player, asking for no fleet, and every salvage station of the player's
+     fills its units; `DerelictSalvageButton` keeps the buttons from ordering. Texts 7222 and 7223; tooltips 7157
+     and 7160 name the list by the checkbox; Codex 100167 and 100093 say what the switch does. A hidden dropdown in
+     any of the window's checkbox rows takes no clicks, as one under Auto Pick could pick a design unseen (784 A).
+     The window's rows have no test.
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.

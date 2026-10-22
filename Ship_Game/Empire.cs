@@ -135,6 +135,7 @@ namespace Ship_Game
         [StarData] public bool AutoResearch;
         [StarData] public bool AutoBuildResearchStations;
         [StarData] public bool AutoBuildMiningStations;
+        [StarData] public bool AutoBuildSalvageStations;
         [StarData] public int TotalScore;
         [StarData] public float TechScore;
         [StarData] public float ExpansionScore;

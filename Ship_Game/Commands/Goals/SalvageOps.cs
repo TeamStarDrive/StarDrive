@@ -304,7 +304,7 @@ namespace Ship_Game.Commands.Goals
             // one counting down to its scuttling, or about to change hands, calls no freighters and does not end; one pirates hold does nothing for them
             if (!Owner.WeArePirates && !SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
             {
-                if (!Owner.isPlayer && !Owner.IsFaction)
+                if (Owner.isPlayer ? Owner.AutoBuildSalvageStations : !Owner.IsFaction)
                     OrderDerelicts();
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
                 // an empire with no colony has nowhere to send what it holds, which goes with the station
@@ -315,7 +315,7 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.TryAgain;
         }
 
-        // an AI empire's station fills its free units, the derelict with the fewest turns left first as a claim stops its clock, while no armed hostile is in its sensor range
+        // an AI empire's station, or the player's with Auto Build Salvage Stations on, fills its free units, the derelict with the fewest turns left first as a claim stops its clock, while no armed hostile is in its sensor range
         void OrderDerelicts()
         {
             if (HaulsBlocked(SalvageStation))

@@ -158,6 +158,7 @@ AllowPlayerInterTradeTip: automation_freighters
 AutoPickConstructorsTip: automation_construction
 AutoBuildResearchStationTip: automation_construction
 AutoBuildMiningStationTip: automation_construction
+AutoBuildSalvageStationTip: automation_construction
 AutoPickResearchStationTip: automation_construction
 AutoPickMiningStationTip: automation_construction
 AutoPickSalvageStationTip: automation_construction
@@ -471,6 +472,7 @@ RecoverDerelictTip: warfare_combat_basics
 RecoverDerelictOrderedTip: warfare_combat_basics
 RecoverDerelictSwitchTip: warfare_combat_basics
 RecoverDerelictStationTip: warfare_combat_basics
+SalvageAutomaticTip: warfare_combat_basics
 DerelictRecoveryChanceTip: warfare_combat_basics
 DerelictRecoveryProgressTip: warfare_combat_basics
 DerelictRisingTip: warfare_combat_basics

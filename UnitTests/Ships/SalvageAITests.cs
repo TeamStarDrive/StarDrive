@@ -21,7 +21,10 @@ namespace UnitTests.Ships;
 /// of, near its colonies, outside enemy borders unless its own reach there, with no colony of a rival it is at peace
 /// with and has no open borders or alliance with, the player counting as any empire, where the production left in the
 /// derelicts it can work pays for the station, or one's design uses a tech it wants, or it is a ship it would recover;
-/// where it knows of hostile strength it asks once for a fleet to clear the system instead.
+/// where it knows of hostile strength it asks once for a fleet to clear the system instead. With Auto Build Salvage
+/// Stations on, the player's stations order their derelicts and the planner orders the player stations by the same
+/// rules, asking for no fleet, while the Salvage and Recover buttons do nothing, a standing order's still lit, and
+/// their tooltips say salvage is on automatic; turned off, it leaves its orders standing as the player's.
 /// </summary>
 [TestClass]
 public class SalvageAITests : StarDriveTest
@@ -53,6 +56,7 @@ public class SalvageAITests : StarDriveTest
     {
         UState.Derelicts.Clear();
         GlobalStats.Defaults.SalvageableDerelictCapMultiplier = SalvageableDerelictCapMultiplier;
+        ToolTip.Clear();
         base.Cleanup();
     }
 
@@ -89,11 +93,12 @@ public class SalvageAITests : StarDriveTest
 
     static SalvageDerelict OrderOf(Empire empire, Derelict d) => SalvageDerelict.OrderOf(empire, d);
 
-    // a hostile the empire's station sees in the system
-    void HostileThere(Empire empire)
+    // a hostile, the player's unless given, the empire's station sees in the system
+    void HostileThere(Empire empire, Empire hostile = null)
     {
-        empire.GetRelations(Player).AtWar = Player.GetRelations(empire).AtWar = true;
-        SpawnShipNoCombatHoldPos("Vulcan Scout", Player, SystemSite + new Vector2(0, -20_000f));
+        hostile ??= Player;
+        empire.GetRelations(hostile).AtWar = hostile.GetRelations(empire).AtWar = true;
+        SpawnShipNoCombatHoldPos("Vulcan Scout", hostile, SystemSite + new Vector2(0, -20_000f));
         SpawnShipNoCombatHoldPos("Vulcan Scout", empire, SystemSite + new Vector2(0, -21_000f));
         UState.Objects.Update(new(time: 2f));
         empire.Threats.Update(new(time: 2f));
@@ -202,7 +207,7 @@ public class SalvageAITests : StarDriveTest
     {
         Derelict mine = Wreck(Older, WreckSite, Player);
         Turn(StationOf(Player));
-        Assert.IsNull(OrderOf(Player, mine), "the player orders salvage by hand");
+        Assert.IsNull(OrderOf(Player, mine), "with Auto Build Salvage Stations off, the player orders salvage by hand");
 
         Empire rebels = UState.CreateRebelsFromEmpireData(Player.data, Player);
         Derelict theirs = Wreck(Older, WreckSite + new Vector2(0, 8_000f), rebels);
@@ -231,11 +236,12 @@ public class SalvageAITests : StarDriveTest
         return planner;
     }
 
-    bool Plans(SalvageOpsPlanner planner, bool ignoreDistance = true)
+    // the AI's planner, or the owner's given
+    bool Plans(SalvageOpsPlanner planner, bool ignoreDistance = true, Empire owner = null)
     {
         planner.TurnTimer = 1;
         planner.RunSalvageOpsPlanner(ignoreDistance);
-        return Enemy.AI.HasGoal(g => g.IsSalvageOpsGoal(System));
+        return (owner ?? Enemy).AI.HasGoal(g => g.IsSalvageOpsGoal(System));
     }
 
     [TestMethod]
@@ -344,9 +350,80 @@ public class SalvageAITests : StarDriveTest
         Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
         Assert.IsTrue(Player.AddBuildableShip(Station), "setup: the player can build the station");
         Player.MarkShipRolesUsableForEmpire(Station);
-        var players = new SalvageOpsPlanner(Player) { TurnTimer = 1 };
-        players.RunSalvageOpsPlanner(ignoreDistance: true);
-        Assert.IsFalse(Player.AI.HasGoal(g => g.IsSalvageOpsGoal(System)), "the planner orders nothing for the player");
+        Assert.IsFalse(Plans(new SalvageOpsPlanner(Player), owner: Player), "the planner orders nothing for the player with auto build off");
+    }
+
+    [TestMethod]
+    public void WithAutoBuildOnThePlayersStationOrdersItsDerelictsAndTurningItOffLeavesTheOrdersAsThePlayers()
+    {
+        Derelict d = Wreck(Older, WreckSite, Player);
+        Ship station = StationOf(Player);
+        Player.AutoBuildSalvageStations = true;
+        Turn(station);
+        SalvageDerelict order = OrderOf(Player, d);
+        Assert.IsNotNull(order, "with auto build on, the player's station orders its derelicts");
+
+        Player.AutoBuildSalvageStations = false;
+        Derelict later = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
+        Turn(station);
+        Assert.IsNull(OrderOf(Player, later), "turned off, it orders no more");
+        AssertEqual(order, OrderOf(Player, d), "and leaves its order standing as the player's");
+    }
+
+    [TestMethod]
+    public void WithAutoBuildOnThePlannerOrdersThePlayerAStationButAsksForNoFleetWhereItKnowsOfHostiles()
+    {
+        Wreck(Older, WreckSite, Player);
+        Assert.IsTrue(Player.AddBuildableShip(Station), "setup: the player can build the station");
+        Player.MarkShipRolesUsableForEmpire(Station);
+        Assert.IsTrue(Player.CanBuildSalvageStations && Player.DerelictSystems.Contains(System), "setup: and knows of a derelict in the system");
+        var planner = new SalvageOpsPlanner(Player);
+        Player.AutoBuildSalvageStations = true;
+        Assert.IsTrue(Plans(planner, owner: Player), "with auto build on, the planner orders the player a station");
+
+        Player.AI.RemoveGoal(Player.AI.FindGoal(g => g.IsSalvageOpsGoal(System)));
+        HostileThere(Player, hostile: Enemy);
+        Assert.IsFalse(Plans(planner, owner: Player), "but none where the player knows of hostile strength");
+        Assert.IsFalse(Player.AI.HasGoal(g => g is DefendSystem), "and asks for no fleet");
+    }
+
+    [TestMethod]
+    public void WithSalvageOnAutomaticTheButtonsDoNothingAndAStandingOrdersButtonStaysLit()
+    {
+        Derelict d = Wreck(Older, WreckSite, Player);
+        Derelict other = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
+        StationOf(Player);
+        Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: an order placed by hand");
+        Player.AutoBuildSalvageStations = true;
+        AssertEqual(SalvageDerelict.Block.None, SalvageDerelict.WhyNoOrder(Player, other), "setup: a unit is free for the other");
+
+        Assert.IsFalse(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.None), "with salvage on automatic no button lights under the cursor");
+        DerelictSalvageButton.Click(Player, other, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.None, lit: false);
+        DerelictSalvageButton.Click(Player, other, DerelictSalvageButton.Kind.Recover, SalvageDerelict.Block.None, lit: false);
+        Assert.IsNull(OrderOf(Player, other), "and no click orders");
+
+        SalvageDerelict order = OrderOf(Player, d);
+        Assert.IsTrue(DerelictSalvageButton.Lit(DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.Ordered, order), "the standing order's button stays lit");
+        DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.Ordered, lit: true);
+        DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Recover, SalvageDerelict.Block.Ordered, lit: false);
+        Assert.IsTrue(Player.AI.HasGoal(order) && !order.CalledOff && !order.Recovering, "while its second click calls nothing off and the other button turns nothing");
+
+        Player.AutoBuildSalvageStations = false;
+        Assert.IsTrue(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.None), "turned off, the buttons light again");
+    }
+
+    [TestMethod]
+    public void WithSalvageOnAutomaticEveryButtonsTooltipSaysSo()
+    {
+        Derelict d = Wreck(Older, WreckSite, Player);
+        ToolTip.Clear();
+        DerelictSalvageButton.Tooltip(Player, d, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.ClaimedByOther, lit: false, order: null);
+        Assert.IsNull(ToolTip.GetActiveCodexUid(), "setup: a claim's tooltip names its empire, with no Codex link");
+
+        Player.AutoBuildSalvageStations = true;
+        ToolTip.Clear();
+        DerelictSalvageButton.Tooltip(Player, d, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.ClaimedByOther, lit: false, order: null);
+        AssertEqual("warfare_combat_basics", ToolTip.GetActiveCodexUid(), "with salvage on automatic it is the automatic tip, linked to Combat Basics");
     }
 
     [TestMethod]

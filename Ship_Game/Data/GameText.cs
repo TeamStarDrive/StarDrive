@@ -6210,8 +6210,8 @@ namespace Ship_Game
         AutoPickSalvageStation = 7156,
         /// <summary>A salvage station ordered from a derelict's panel or a system's derelict list is the best design you can build</summary>
         AutoPickSalvageStationTip = 7157,
-        /// <summary>Salvage Station</summary>
-        SalvageStationDropDown = 7158,
+        /// <summary>Auto Build Salvage Stations</summary>
+        AutoBuildSalvageStation = 7158,
         /// <summary>Low Salvage Cargo</summary>
         DesignIssueLowSalvageCargoTitle = 7159,
         /// <summary>This Salvage Station has less cargo room than one load of salvaged production</summary>
@@ -6336,6 +6336,10 @@ namespace Ship_Game
         SalvageStationScrappedNotify = 7220,
         /// <summary>Other empires are salvaging or recovering every derelict you know of in this system.</summary>
         SalvageStationAllWorkedTip = 7221,
+        /// <summary>This will auto build salvage stations for you in systems</summary>
+        AutoBuildSalvageStationTip = 7222,
+        /// <summary>Salvage is on automatic: your salvage stations order the</summary>
+        SalvageAutomaticTip = 7223,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
