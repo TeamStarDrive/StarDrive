@@ -50,12 +50,27 @@ namespace Ship_Game.Commands.Goals
             ChangeToStep(Salvage);
         }
 
-        // only in a system with a salvageable derelict the empire knows of, and one per empire per system
+        // only in a system with a derelict left for the empire to salvage, and one per empire per system
         public static bool CanOrderIn(Empire empire, SolarSystem system)
         {
             return system != null && empire.Universe.P.SalvageOps
-                && empire.Universe.Derelicts.AnyKnownIn(empire, system)
+                && AnyToSalvageIn(empire, system)
                 && !empire.AI.HasGoal(g => g?.IsSalvageOpsGoal(system) == true);
+        }
+
+        // from any thread: a salvageable derelict the empire knows of in the system that no other empire works from its station there, as an empire's claims end with its station
+        public static bool AnyToSalvageIn(Empire empire, SolarSystem system)
+        {
+            Derelict[] derelicts = empire.Universe.Derelicts.Current;
+            for (int i = 0; i < derelicts.Length; ++i)
+            {
+                Derelict d = derelicts[i];
+                Empire claimant = d.Claimant;
+                if (d.System == system && d.CanBeSalvaged && d.IsKnownBy(empire)
+                    && (claimant == null || claimant == empire || StationIn(claimant, system) == null))
+                    return true;
+            }
+            return false;
         }
 
         public const float Clearance = 2000f; // from every salvageable derelict and every other salvage station
@@ -126,7 +141,7 @@ namespace Ship_Game.Commands.Goals
             return false;
         }
 
-        public enum OrderBlock { None, StationThere, NotHere, NoDesign }
+        public enum OrderBlock { None, StationThere, NotHere, AllWorked, NoDesign }
 
         // why the derelict panel's button and the derelicts window cannot order a station in the system, or None when they can
         public static OrderBlock WhyNoOrderIn(Empire empire, SolarSystem system)
@@ -134,7 +149,8 @@ namespace Ship_Game.Commands.Goals
             if (system != null && empire.AI.HasGoal(g => g?.IsSalvageOpsGoal(system) == true))
                 return OrderBlock.StationThere;
             if (!CanOrderIn(empire, system))
-                return OrderBlock.NotHere;
+                return system != null && empire.Universe.P.SalvageOps && empire.Universe.Derelicts.AnyKnownIn(empire, system)
+                     ? OrderBlock.AllWorked : OrderBlock.NotHere;
             return ShipBuilder.PickSalvageStation(empire) == null ? OrderBlock.NoDesign : OrderBlock.None;
         }
 
@@ -230,13 +246,13 @@ namespace Ship_Game.Commands.Goals
             }
 
             to.AI.CancelSalvageStation(system);
-            to.AI.AddGoalAndEvaluate(new SalvageOps(to, station, system));
+            to.AI.AddGoal(new SalvageOps(to, station, system)); // its first turn waits for the goal pass, once the change of hands has shown its new owner the derelicts there
         }
 
-        // an order ends, with any constructor it has, when salvage ops are off (a save loaded under a mod without salvage content), and before its station is built once its system has no derelict left to salvage
+        // an order ends, with any constructor it has, when salvage ops are off (a save loaded under a mod without salvage content), and before its station is built once its system has no derelict left for it to salvage
         protected override GoalStep? PreEvaluate()
         {
-            if (Owner.Universe.P.SalvageOps && (SalvageStation != null || Owner.DerelictSystems.Contains(TargetSystem)))
+            if (Owner.Universe.P.SalvageOps && (SalvageStation != null || AnyToSalvageIn(Owner, TargetSystem)))
                 return null;
 
             Owner.AI.CancelSalvageStationConstruction(TargetSystem);
@@ -285,22 +301,43 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            Haul(SalvageStation);
+            if (Owner.isPlayer && !SalvageStation.Dying)
+            {
+                bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
+                if (workDone && SalvageStation.GetProduction() < 1f)
+                    return ScrapStation(SalvageStation);
+                Haul(SalvageStation, workDone);
+            }
             return GoalStep.TryAgain;
+        }
+
+        // one not yet placed in its system has yet to show its owner the derelicts there, and one being scuttled ends that way
+        static bool CanEnd(Ship station) => station.System != null && station.ScuttleTimer < 0f;
+
+        // no salvage or recovery order of the empire's is left in the system, the platforms of those ended gone too, and no derelict left there for it to salvage
+        bool NothingLeftToSalvage()
+            => !Owner.AI.HasGoal(g => g is SalvageDerelict s && s.TargetSystem == TargetSystem) && !AnyToSalvageIn(Owner, TargetSystem);
+
+        // it vanishes as a station scrapped does, with no refund, and the player is told
+        GoalStep ScrapStation(Ship station)
+        {
+            Owner.Universe.Notifications?.AddSalvageStationScrappedNotification(station, TargetSystem);
+            station.AI.OrderScuttleShip();
+            return GoalStep.GoalComplete;
         }
 
         // the most freighters on their way to load at one station
         public const int MaxHauls = 3;
 
-        // the player's station calls an idle freighter for each average freighter load it holds beyond the holds of those on their way, and for all of it once it has no room for another platform load
-        void Haul(Ship station)
+        // the player's station calls an idle freighter for each average freighter load it holds beyond the holds of those on their way, and for all of it once it has no room for another platform load or nothing left to salvage
+        void Haul(Ship station, bool workDone)
         {
-            if (!Owner.isPlayer || station.Dying || HaulsBlocked(station))
+            if (HaulsBlocked(station))
                 return;
 
             int coming = HaulsComing(station, out float holds);
             float uncalled = station.GetProduction() - holds;
-            float callAt = station.CargoRoom < ShipResupply.SalvageLoad ? 1f : Owner.AverageFreighterCargoCap;
+            float callAt = workDone || station.CargoRoom < ShipResupply.SalvageLoad ? 1f : Owner.AverageFreighterCargoCap;
             while (coming < MaxHauls && uncalled >= callAt
                    && Owner.TryDispatchHaul(station, out Planet colony, out Ship freighter))
             {
@@ -329,7 +366,7 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < ships.Count; ++i)
             {
                 Ship ship = ships[i];
-                if (ship.AI.FindGoal(ShipAI.Plan.PickupGoodsFromStation, out ShipAI.ShipGoal g) && g.Trade?.FromStation == station)
+                if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.PickupGoodsFromStation, out ShipAI.ShipGoal g) && g.Trade?.FromStation == station)
                 {
                     ++coming;
                     holds += ship.CargoRoom;

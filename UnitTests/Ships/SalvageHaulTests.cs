@@ -22,15 +22,23 @@ namespace UnitTests.Ships;
 /// operation and trade routes rule as for research and mining stations, and with auto trade off only freighters set
 /// to trade production haul. The freighter lands on the station, fills its hold whatever its colony's room, and
 /// delivers like any freighter, taxed only for what the colony takes; outside the station's system it waits while
-/// the station sees an armed hostile, and gives up as at a blockaded colony. AI empires' stations call none yet.
+/// the station sees an armed hostile, and gives up as at a blockaded colony. Once nothing is left to salvage in its
+/// system, no order of its empire's there and no derelict its empire knows of there that another empire does not
+/// work from its station there, the station calls for all it has left, and once it holds less than 1 it is scrapped
+/// with no refund, the player told unless salvage alerts are off; not while it is yet to be placed in its system or
+/// the player scuttles it. Its status says how many freighters are on their way, that it waits for them while it
+/// holds production, or that it salvages. AI empires' stations call none yet, and are not scrapped.
 /// </summary>
 [TestClass]
 public class SalvageHaulTests : StarDriveTest
 {
     static readonly Vector2 SystemSite = new(600_000f, 600_000f);
     static readonly Vector2 StationSite = SystemSite + new Vector2(30_000f, 0);
+    static readonly Vector2 WreckSite = SystemSite + new Vector2(-30_000f, 0);
     readonly Planet Local; // in the station's system
     readonly IShipDesign Station;
+    Derelict Work; // the derelict a station at work has left to salvage
+    NotificationManager Notes;
 
     public SalvageHaulTests()
     {
@@ -46,23 +54,56 @@ public class SalvageHaulTests : StarDriveTest
         AssertEqual(20f, Player.AverageFreighterCargoCap, "setup: an average freighter load is 20 at game start");
     }
 
-    // the empire's station in the system, its order at work
-    Ship BuiltStation(Empire owner = null)
+    [TestCleanup]
+    public override void Cleanup()
+    {
+        UState.Derelicts.Clear();
+        base.Cleanup();
+    }
+
+    // a salvageable derelict of the owner's ship, so the owner knows of it; the ship itself is gone
+    Derelict Wreck(Vector2 at, Empire owner = null)
+    {
+        TestShip ship = SpawnShip("Dreadnought mk1-a", owner ?? Player, at);
+        Assert.IsTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false), "setup: a salvageable derelict");
+        Universe.InvokePendingSimThreadActions();
+        ship.QueueTotalRemoval();
+        Derelict d = UState.Derelicts.Current.Last();
+        Assert.IsTrue(d.CanBeSalvaged && d.IsKnownBy(owner ?? Player), "setup: its owner knows of it");
+        return d;
+    }
+
+    // the empire's station in the system, its order at work, with a derelict there it knows of unless it has nothing left to salvage, and placed in its system a step after it spawns unless asked
+    Ship BuiltStation(Empire owner = null, bool atWork = true, bool placed = true)
     {
         owner ??= Player;
+        if (atWork)
+        {
+            Work = Wreck(WreckSite, owner);
+            AssertEqual(Local.System, Work.System, "setup: the derelict is in the station's system");
+        }
         var order = new SalvageOps(owner, Local.System, StationSite, Station);
         owner.AI.AddGoal(order);
         order.AdvanceToNextStep(); // past the queueing, which needs a port
         order.TargetShip = SpawnShip(Station.Name, owner, StationSite);
         order.Evaluate();
         AssertEqual("Salvage", order.StepName, "setup: the station is built");
+        if (placed)
+            Place(order.TargetShip);
         return order.TargetShip;
     }
 
-    // a station holding this much, with room for far more
-    Ship StationHolding(float production, Empire owner = null)
+    void Place(Ship station)
     {
-        Ship station = BuiltStation(owner);
+        RunObjectsSim(TestSimStep);
+        RunObjectsSim(TestSimStep);
+        AssertEqual(Local.System, station.System, "setup: the station is placed in its system");
+    }
+
+    // a station holding this much, with room for far more
+    Ship StationHolding(float production, Empire owner = null, bool atWork = true)
+    {
+        Ship station = BuiltStation(owner, atWork);
         station.CargoSpaceMax = 1000f;
         AssertEqual(0.01f, production, station.LoadProduction(production), "setup: the station holds the production");
         return station;
@@ -186,9 +227,11 @@ public class SalvageHaulTests : StarDriveTest
     {
         Planet far = Importer(SystemSite + new Vector2(0, 300_000f));
         Planet near = Importer(SystemSite + new Vector2(0, -200_000f));
-        Ship slow = Freighter(StationSite + new Vector2(150_000f, 0));
+        Ship slow = Freighter(StationSite + new Vector2(600_000f, 0));
         Ship quick = Freighter(StationSite + new Vector2(5_000f, 0));
         Ship station = StationHolding(20f);
+        Assert.IsTrue(quick.TryGetHaulEta(station, near, out int quickEta) && slow.TryGetHaulEta(station, near, out int slowEta) && quickEta < slowEta,
+                      "setup: one freighter is quicker to the station and on to the colony");
 
         Turn(station);
         Assert.IsTrue(Hauls(quick, station, out Planet colony), "the quickest freighter goes");
@@ -694,5 +737,176 @@ public class SalvageHaulTests : StarDriveTest
         Assert.IsTrue(Delivers(game.UState.Objects.FindShip(loaded.Id), loadedImporter), "one with its load aboard still delivers it");
         AssertEqual(1, SalvageOps.HaulsComing(loadedStation, out _), "the station counts the one on its way");
         AssertEqual(2, loadedImporter.NumIncomingFreighters, "and the colony both");
+    }
+
+    void TrackNotifications()
+    {
+        Universe.NotificationManager = Notes = new NotificationManager(Universe.ScreenManager, Universe);
+    }
+
+    Notification[] Told() => Notes.GetNotificationsAtomic();
+
+    static bool Scrapped(Ship station) => !station.Active && OrderOf(station) == null;
+
+    [TestMethod]
+    public void WithNothingLeftToSalvageTheStationCallsForWhatItHasLeftBelowAnAverageLoad()
+    {
+        Importer(SystemSite + new Vector2(0, 200_000f));
+        Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0));
+        Ship station = StationHolding(5f);
+
+        Turn(station);
+        Assert.IsFalse(Hauls(freighter, station), "5 with a derelict left to salvage calls none");
+
+        UState.Derelicts.Strip(Work, null, Work.ProductionLeft);
+        Assert.IsFalse(Work.CanBeSalvaged, "setup: the derelict is stripped");
+        Turn(station);
+        Assert.IsTrue(Hauls(freighter, station), "with nothing left to salvage the 5 call a freighter");
+        Assert.IsTrue(station.Active, "and the station stays while it holds them");
+    }
+
+    [TestMethod]
+    public void ADerelictAnotherEmpireWorksFromItsStationThereLeavesNothingToSalvage()
+    {
+        Ship station = StationHolding(0f);
+        Assert.IsTrue(Work.TryClaim(Player), "setup: the player claims the derelict, with no order of its own");
+        Turn(station);
+        Assert.IsTrue(station.Active, "a derelict the player claimed keeps the station");
+
+        Work.ReleaseClaim();
+        Assert.IsTrue(Work.TryClaim(Enemy), "setup: another empire claims it, with no station there, as one whose station was just taken");
+        Turn(station);
+        Assert.IsTrue(station.Active, "a claim ending with its empire's station keeps the station too");
+
+        BuiltStation(Enemy, atWork: false);
+        Turn(station);
+        Assert.IsTrue(Scrapped(station), "one another empire works from its station there leaves nothing to salvage, and the empty station is scrapped");
+    }
+
+    [TestMethod]
+    public void AKnownDerelictNotYetOrderedKeepsAnEmptyStation()
+    {
+        Ship station = StationHolding(0f);
+        Turn(station);
+        Turn(station);
+        Assert.IsTrue(station.Active && OrderOf(station) != null, "a derelict there not yet ordered keeps the station at work");
+    }
+
+    [TestMethod]
+    public void AnOrderInTheSystemKeepsTheStationButOneElsewhereDoesNot()
+    {
+        Vector2 elsewhere = new(600_000f, 1_200_000f);
+        AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true);
+        Derelict away = Wreck(elsewhere + new Vector2(-30_000f, 0));
+        Assert.IsTrue(away.System != null && away.System != Local.System, "setup: a derelict in another system");
+        Ship station = StationHolding(0f);
+        var here = new SalvageDerelict(Player, Work);
+        Player.AI.AddGoal(here);
+        Player.AI.AddGoal(new SalvageDerelict(Player, away));
+        UState.Derelicts.Strip(Work, null, Work.ProductionLeft);
+
+        Turn(station);
+        Assert.IsTrue(station.Active, "an order of the player's in the system keeps the station, though its derelict is stripped");
+
+        Player.AI.RemoveGoal(here);
+        Turn(station);
+        Assert.IsTrue(Scrapped(station), "with it gone, an order and a derelict in another system keep nothing here");
+    }
+
+    [TestMethod]
+    public void WithNothingLeftToSalvageAnEmptyStationIsScrappedWithNoRefundAndThePlayerIsTold()
+    {
+        Ship station = StationHolding(0.5f, atWork: false);
+        TrackNotifications();
+        float money = Player.Money;
+
+        Turn(station);
+        Assert.IsTrue(Scrapped(station), "holding less than 1 with nothing left to salvage, the station is scrapped");
+        AssertEqual(money, Player.Money, "with no refund");
+        Assert.IsTrue(station.ScuttleTimer > 0f, "as a station scrapped is, its scuttle timer set");
+        Notification[] told = Told();
+        AssertEqual(1, told.Length, "the player is told once");
+        AssertEqual(string.Format(Localizer.Token(GameText.SalvageStationScrappedNotify), Local.System.Name), told[0].Message,
+                    "that the station in the system was scrapped");
+        Assert.IsTrue(told[0].ReferencedItem1 == Local.System && !told[0].Pause, "a click shows the system, and the game goes on");
+        StringAssert.StartsWith(Localizer.Token(GameText.SalvageStationScrappedNotify), "{0}: with nothing left to salvage");
+    }
+
+    [TestMethod]
+    public void SalvageAlertsOffTellNothingOfAScrappedStation()
+    {
+        Ship station = StationHolding(0f, atWork: false);
+        TrackNotifications();
+        UState.P.DisableSalvageWarning = true;
+
+        Turn(station);
+        Assert.IsTrue(Scrapped(station), "the station is scrapped");
+        AssertEqual(0, Told().Length, "and nothing is told");
+    }
+
+    [TestMethod]
+    public void AStationWithNothingLeftToSalvageIsScrappedOnceItsProductionIsHauledAway()
+    {
+        Planet importer = Importer(SystemSite + new Vector2(0, 200_000f));
+        Ship station = StationHolding(5f, atWork: false);
+        Ship freighter = LandingToHaul(station, importer);
+
+        Turn(station);
+        Assert.IsTrue(station.Active, "holding 5, it is not scrapped");
+
+        freighter.AI.TradeAfterLanding(null, station);
+        Turn(station);
+        Assert.IsTrue(Scrapped(station), "once the freighter has taken them it is");
+        Assert.IsTrue(Delivers(freighter, importer), "and the freighter still delivers them");
+    }
+
+    [TestMethod]
+    public void AnAIEmpiresOrADyingStationIsNotScrapped()
+    {
+        Ship theirs = StationHolding(0f, Enemy, atWork: false);
+        Turn(theirs);
+        Assert.IsTrue(theirs.Active && OrderOf(theirs) != null, "an AI empire's station with nothing left to salvage stays");
+
+        Ship dying = BuiltStation(atWork: false);
+        TrackNotifications();
+        dying.Dying = true;
+        Turn(dying);
+        Assert.IsTrue(dying.Active && OrderOf(dying) != null, "a dying station is not scrapped");
+        AssertEqual(0, Told().Length, "and nothing is told");
+    }
+
+    [TestMethod]
+    public void AStationNotYetPlacedInItsSystemOrBeingScuttledIsNotScrapped()
+    {
+        Ship station = BuiltStation(atWork: false, placed: false);
+        TrackNotifications();
+        Assert.IsNull(station.System, "setup: not yet placed in its system");
+        Turn(station);
+        Assert.IsTrue(station.Active, "a station yet to show the player the derelicts in its system is not scrapped");
+
+        Place(station);
+        station.ScuttleTimer = 10f;
+        Turn(station);
+        Assert.IsTrue(station.Active && OrderOf(station) != null, "nor is one the player is scuttling");
+        AssertEqual(0, Told().Length, "and nothing is told");
+    }
+
+    [TestMethod]
+    public void TheStationsStatusSaysWhetherFreightersAreOnTheirWayOrAwaitedOrItSalvages()
+    {
+        Planet importer = Importer(SystemSite + new Vector2(0, 200_000f), slots: 10);
+        Ship station = StationHolding(0.5f);
+        AssertEqual("Salvaging", ShipInfoUIElement.SalvageStationStatus(station), "holding less than 1, it salvages");
+
+        station.LoadProduction(0.5f);
+        AssertEqual("Waiting for freighters", ShipInfoUIElement.SalvageStationStatus(station), "holding 1 with none coming, it waits");
+
+        LandingToHaul(station, importer);
+        LandingToHaul(station, importer);
+        AssertEqual("Freighters on their way: 2", ShipInfoUIElement.SalvageStationStatus(station), "with two coming, it counts them");
+
+        Ship theirs = StationHolding(40f, Enemy, atWork: false);
+        AssertEqual(ShipListScreenItem.GetStatusText(theirs), ShipInfoUIElement.SalvageStationStatus(theirs),
+                    "another empire's shows its orders");
     }
 }

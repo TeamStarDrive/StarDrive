@@ -1274,9 +1274,10 @@ Implementation notes:
      delivers like any freighter, keeping aboard what the colony has no room for. Every delivery, a colony's included,
      is now taxed only for what the colony takes (723 A). A freighter loading another good leaves what it still holds
      in that colony as far as its store has room, taxed as a delivery, and what has no room turns into credits at the
-     tax rate, as a colony's excess goods do (724 B; before, the store's cap destroyed it). A ship scrapped at a colony unloads its
-     food, production and colonists there as far as there is room, the goods taxed; goods with no room turn into
-     credits at the tax rate, as a colony's excess goods do, and colonists with no room are lost (Gilad, 2026-10-22).
+     tax rate, as a colony's excess goods do (724 B; before, the store's cap destroyed it). A ship scrapped at a
+     colony unloads its food, production and colonists there as far as there is room, the goods taxed; goods with no
+     room turn into credits at the tax rate, as a colony's excess goods do, and colonists with no room are lost
+     (Gilad, 2026-10-22).
      A station lost or in other hands calls off a run still on its way; a load aboard is still delivered. A
      freighter reaching a station that other freighters emptied does not land. The ship list reads "Picking up
      Production from <station> to <colony>", the trade lines go blue to the station and gold to the colony, and
@@ -1286,16 +1287,31 @@ Implementation notes:
      once it holds nothing it is scrapped, vanishing as a scrapped station does, with no refund (667, 718 A,
      719 B). Nothing is left to do when no salvage or recovery order of its empire's is left there, its platforms
      gone, and every salvageable derelict its empire knows of there is claimed by another empire or gone; a known
-     derelict not yet ordered keeps the station. The player is told once, under Salvage Alerts (720 A).
+     derelict not yet ordered keeps the station. The player is told once, under Salvage Alerts, as the station is
+     scrapped (720 A; with 719 B there is no dismantling to tell of first). Less than 1 aboard counts as nothing, as a
+     haul takes no less. A station taken over gets its first turn with the goal pass, not at once, so the change of
+     hands has shown its new owner the derelicts there first, and a station not yet placed in its system, which has
+     yet to show them, or one being scuttled, does not end. A derelict claimed by an empire with no station there
+     still counts as work: that empire's claims end with its next goal pass, and the player's pass comes first, so a
+     station just boarded would otherwise be scrapped with its old owner's claims still standing (review).
+   - One test of what is left to salvage rules the order, the drop of an order not yet built and the station's
+     end (726 B): a known salvageable derelict that no other empire works from its station there. Where other
+     empires work every one, the derelict panel's button is grey with its tooltip saying so and the derelicts
+     window says so in grey in the button's place (text 7221), placement shows no zone there, and an order not yet
+     built is dropped as when the derelicts run out. Before, a station could be built only to be scrapped a turn later.
    - The station's status reads "Waiting for freighters" while it holds production and none is coming,
      "Freighters on their way: N" while some are, and "Salvaging" when it holds nothing (672 A). No notification
      for a full station with nowhere to send its production (673 A).
-   - Parts: 1) the hauling; 2) the station's end, its status, the Codex text in 100093 and the Freighters entry.
+   - Parts: 1) the hauling; 2) the station's end, its status, the Codex text: Hauling the salvage in 100093, and the
+     Freighters (100055), Automation Freighters (100164), Alerts (100173) and Deep Space Building (100086) entries.
+     Texts 7218-7221.
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
    and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
    they have no small station hull (315), and later their raids to capture a salvage station; the rebels' luck seed
-   made from their parent empire's, so a reload that runs a defeat again draws the same for them (651 B).
+   made from their parent empire's, so a reload that runs a defeat again draws the same for them (651 B). Once AI
+   empires order salvage: a claim with no order behind it (a save's, or a defeated faction's, whose goals are not
+   cleared) never ends, and with the 726 B test it keeps another empire's station there at work for good.
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.

@@ -310,10 +310,10 @@ public sealed class SystemDerelictsScreen : GameScreen
                 Rows.Remove(Rows[i]);
     }
 
-    public enum StationOrder { None, Deploy, Abort, Deployed, NoDesign }
+    public enum StationOrder { None, Deploy, Abort, Deployed, NoDesign, AllWorked }
     StationOrder? Shown;
 
-    // Deploy while a station can be ordered, Abort while the order is not built, then Deployed; grey text when no design can be built
+    // Deploy while a station can be ordered, Abort while the order is not built, then Deployed; grey text when no design can be built or other empires work every derelict there
     public static StationOrder StationOrderIn(Empire empire, SolarSystem system)
     {
         Goal order = empire.AI.FindGoal(g => g?.IsSalvageOpsGoal(system) == true);
@@ -324,6 +324,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         {
             SalvageOps.OrderBlock.None => StationOrder.Deploy,
             SalvageOps.OrderBlock.NoDesign => StationOrder.NoDesign,
+            SalvageOps.OrderBlock.AllWorked => StationOrder.AllWorked,
             _ => StationOrder.None,
         };
     }
@@ -341,8 +342,9 @@ public sealed class SystemDerelictsScreen : GameScreen
         StationButton.Style = abort ? ButtonStyle.Military : ButtonStyle.Default;
         StationButton.Tooltip = abort ? LocalizedText.None : GameText.SalvageStationOrderTip;
 
-        StationStatus.Visible = state is StationOrder.Deployed or StationOrder.NoDesign;
-        StationStatus.Text = state == StationOrder.Deployed ? GameText.SalvageStationDeployed : GameText.SalvageStationNoDesignTip;
+        StationStatus.Visible = state is StationOrder.Deployed or StationOrder.NoDesign or StationOrder.AllWorked;
+        StationStatus.Text = state == StationOrder.Deployed ? GameText.SalvageStationDeployed
+                           : state == StationOrder.AllWorked ? GameText.SalvageStationAllWorkedTip : GameText.SalvageStationNoDesignTip;
         StationStatus.Color = state == StationOrder.Deployed ? Player.EmpireColor : Color.Gray;
     }
 
