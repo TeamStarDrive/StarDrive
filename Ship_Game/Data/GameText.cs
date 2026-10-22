@@ -6328,6 +6328,14 @@ namespace Ship_Game
         RecoveryBrokeApartNotify = 7216,
         /// <summary>{0}: the {1} exploded as your platform worked to recover it,</summary>
         RecoveryExplodedNotify = 7217,
+        /// <summary>Waiting for freighters</summary>
+        SalvageStationWaitingForFreighters = 7218,
+        /// <summary>Freighters on their way: {0}</summary>
+        SalvageStationFreightersComing = 7219,
+        /// <summary>{0}: with nothing left to salvage, your salvage station was scrapped</summary>
+        SalvageStationScrappedNotify = 7220,
+        /// <summary>Other empires are salvaging or recovering every derelict you know of in this system.</summary>
+        SalvageStationAllWorkedTip = 7221,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

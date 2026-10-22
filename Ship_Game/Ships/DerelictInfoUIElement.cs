@@ -202,13 +202,14 @@ public sealed class DerelictInfoUIElement : UIElement
             NameText = name.Substring(0, length).TrimEnd() + "...";
     }
 
-    // the Build Salvage Station button while a station can be ordered in the derelict's system, greyed with no design to build; once ordered, its status in the button's place
+    // the Build Salvage Station button while a station can be ordered in the derelict's system, greyed with no design to build or with other empires working every derelict there; once ordered, its status in the button's place
     void DrawStationOrder(SpriteBatch batch, Derelict d)
     {
         switch (SystemDerelictsScreen.StationOrderIn(Universe.Player, d.System))
         {
             case SystemDerelictsScreen.StationOrder.Deploy:   DrawStationButton(batch, enabled: true);                                           break;
-            case SystemDerelictsScreen.StationOrder.NoDesign: DrawStationButton(batch, enabled: false);                                          break;
+            case SystemDerelictsScreen.StationOrder.NoDesign:
+            case SystemDerelictsScreen.StationOrder.AllWorked: DrawStationButton(batch, enabled: false);                                         break;
             case SystemDerelictsScreen.StationOrder.Abort:    DrawStatus(batch, GameText.SalvageStationOrdered, Color.Wheat);                    break;
             case SystemDerelictsScreen.StationOrder.Deployed: DrawStatus(batch, GameText.SalvageStationDeployed, Universe.Player.EmpireColor); break;
         }
@@ -344,10 +345,13 @@ public sealed class DerelictInfoUIElement : UIElement
         {
             case SystemDerelictsScreen.StationOrder.Deploy:
             case SystemDerelictsScreen.StationOrder.NoDesign:
+            case SystemDerelictsScreen.StationOrder.AllWorked:
                 if (!StationRect.HitTest(input.CursorPosition))
                     return false;
                 bool canOrder = order == SystemDerelictsScreen.StationOrder.Deploy;
-                ToolTip.CreateTooltip(canOrder ? GameText.SalvageStationOrderTip : GameText.SalvageStationNoDesignTip);
+                ToolTip.CreateTooltip(canOrder ? GameText.SalvageStationOrderTip
+                                    : order == SystemDerelictsScreen.StationOrder.AllWorked ? GameText.SalvageStationAllWorkedTip
+                                    : GameText.SalvageStationNoDesignTip);
                 if (input.LeftMouseClick)
                     OrderStation(d, canOrder);
                 return true;

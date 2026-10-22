@@ -873,7 +873,9 @@ public class DerelictTests : StarDriveTest
         AssertTrue(Newest().CanBeSalvaged, "control: with the hull's roll against drifting, it lies to be salvaged");
 
         UState.Derelicts.TestDriftRoll = true;
+        GlobalStats.Defaults.DerelictChance = 200; // the first one's share lowers the chance below 100, so this keeps the death's roll certain
         DieAt(inSystem, seen: false);
+        AssertEqual(2, UState.Derelicts.Count, "setup: the second death leaves a derelict too");
         Derelict d = Newest();
         AssertFalse(d.Salvageable, "with it for drifting, it drifts, unseen too");
         Assert.AreSame(system, d.System, "in the system it lies in");

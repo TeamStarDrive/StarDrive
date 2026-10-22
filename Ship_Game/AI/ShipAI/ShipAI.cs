@@ -1,4 +1,5 @@
 using Ship_Game.AI.ShipMovement;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
@@ -631,6 +632,7 @@ namespace Ship_Game.AI
                 case Plan.DropOffGoods:             DropOffGoods.Execute(timeStep, goal);     break;
                 case Plan.PickupGoodsForStation:    DoPickupGoodsForStation(timeStep, goal);  break;
                 case Plan.DropOffGoodsForStation:   DoDropOffGoodsForStation(timeStep, goal); break;
+                case Plan.PickupGoodsFromStation:   DoPickupGoodsFromStation(timeStep, goal); break;
                 case Plan.ReturnToHangar:           DoReturnToHangar(timeStep);               break;
                 case Plan.TroopToShip:              DoTroopToShip(timeStep, goal);            break;
                 case Plan.BoardShip:                DoBoardShip(timeStep);                    break;
@@ -775,6 +777,29 @@ namespace Ship_Game.AI
             }
 
             g.Trade.BlockadeTimer = 120f; // blockade was removed, continue as planned
+            return false;
+        }
+
+        // as at a colony: a haul outside its station's system waits while armed hostiles are in the station's sensor range, and gives up once that lasts too long
+        public bool WaitForBlockadeRemoval(ShipGoal g, Ship station, FixedSimTime timeStep)
+        {
+            if (Owner.System != station.System && SalvageOps.HaulsBlocked(station))
+            {
+                g.Trade.BlockadeTimer -= timeStep.FixedTime;
+                if (g.Trade.BlockadeTimer > 0f)
+                {
+                    ReverseThrustUntilStopped(timeStep);
+                    return true;
+                }
+
+                ClearOrders();
+                ChangeAIState(AIState.AwaitingOrders);
+                if (Owner.Loyalty.FindNearestRallyPoint(Owner.Position) is { } fallback)
+                    AddOrbitPlanetGoal(fallback, AIState.AwaitingOrders);
+                return true;
+            }
+
+            g.Trade.BlockadeTimer = 120f;
             return false;
         }
 

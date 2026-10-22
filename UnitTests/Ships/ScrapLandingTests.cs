@@ -13,7 +13,8 @@ namespace UnitTests.Ships;
 /// <summary>
 /// A ship sent to be scrapped lands once it is in range: of the nearest of the empire's shipyards at its
 /// planet (the shipyard launch played backwards, so it starts as far out as a launch ends), or of the
-/// planet itself when it has none (its radius + 300). It is scrapped once it has landed.
+/// planet itself when it has none (its radius + 300). It is scrapped once it has landed, and the cargo it carries goes
+/// into the planet as far as there is room, its goods taxed as a delivery.
 /// </summary>
 [TestClass]
 public class ScrapLandingTests : StarDriveTest
@@ -24,7 +25,7 @@ public class ScrapLandingTests : StarDriveTest
 
     public ScrapLandingTests()
     {
-        LoadStarterShips("Shipyard");
+        LoadStarterShips("Shipyard", "Owlwok Freighter S");
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         Homeworld = AddHomeWorldToEmpire(new Vector2(200_000), Player, new Vector2(205_000), explored: true);
@@ -103,6 +104,60 @@ public class ScrapLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AScrappedShipsCargoGoesIntoThePlanetTaxedAndGoodsWithNoRoomTurnIntoCredits()
+    {
+        Player.data.Traits.TaxGoods = false;
+        Player.data.Traits.Mercantile = 1f; // a credit of trade income for each unit delivered
+        Player.data.TaxRate = 0.25f;
+        TestShip empty = SpawnShip("Owlwok Freighter S", Player, Homeworld.Position + new Vector2(5000, 0));
+        TestShip loaded = SpawnShip("Owlwok Freighter S", Player, Homeworld.Position + new Vector2(0, 5000));
+        AssertGreaterThan(loaded.CargoSpaceMax, 10f, "setup: the freighter has a hold");
+        loaded.LoadProduction(7f);
+        loaded.LoadFood(3f);
+        float colonists = loaded.LoadColonists(0.5f);
+        AssertGreaterThan(colonists, 0f, "setup: colonists aboard");
+        float scrapCost = loaded.GetScrapCost();
+        Homeworld.ProdHere = 0;
+        Homeworld.FoodHere = 0;
+        Homeworld.Population = Homeworld.MaxPopulation - 100f;
+        float population = Homeworld.Population;
+
+        float money = Player.Money;
+        OrderScrap(empty);
+        RunUntilLanded();
+        float refund = Player.Money - money;
+        AssertGreaterThan(refund, 0f, "setup: an empty freighter's scrap returns credits");
+
+        Homeworld.Storage.Max = Homeworld.ProdHere + scrapCost + 3f;
+        float taxed = Player.TradeMoneyAddedThisTurn;
+        float credits = Player.ExcessCargoMoney;
+        money = Player.Money;
+        OrderScrap(loaded);
+        RunUntilLanded();
+        AssertEqual(0.01f, Homeworld.Storage.Max, Homeworld.ProdHere, "after half the ship's cost, the store takes 3 of the 7 production aboard");
+        AssertEqual(0.01f, 3f, Homeworld.FoodHere, "and all 3 food");
+        AssertEqual(0.001f, population + colonists, Homeworld.Population, "and the colonists join its population");
+        AssertEqual(0.01f, 6f, Player.TradeMoneyAddedThisTurn - taxed, "the 6 goods the planet takes are taxed as a delivery");
+        AssertEqual(0.01f, 1f, Player.ExcessCargoMoney - credits, "and the 4 production with no room bring a quarter of a credit each, at a 25% tax rate");
+        AssertEqual(0.01f, refund, Player.Money - money, "paid with the turn's income, not with the ship's own refund");
+    }
+
+    [TestMethod]
+    public void AScrappedShipsColonistsWithNoRoomAreLost()
+    {
+        TestShip loaded = SpawnShip("Owlwok Freighter S", Player, Homeworld.Position + new Vector2(0, 5000));
+        float colonists = loaded.LoadColonists(0.5f);
+        AssertGreaterThan(colonists, 0f, "setup: colonists aboard");
+        Homeworld.Population = Homeworld.MaxPopulation - colonists * 0.5f;
+        float credits = Player.ExcessCargoMoney;
+
+        OrderScrap(loaded);
+        RunUntilLanded();
+        AssertEqual(0.001f, Homeworld.MaxPopulation, Homeworld.Population, "the colony takes the half of the colonists it has room for");
+        AssertEqual(0.001f, credits, Player.ExcessCargoMoney, "and the rest are lost, bringing no credits");
+    }
+
+    [TestMethod]
     public void APlanetLostDuringTheLandingGetsNoProduction()
     {
         Homeworld.ProdHere = 0;
@@ -115,6 +170,35 @@ public class ScrapLandingTests : StarDriveTest
         RunUntilLanded();
         AssertEqual(0.01f, prodAfterCapture, Homeworld.ProdHere, "a planet lost during the landing gets none of the production");
         AssertGreaterThan(Player.Money, money, "the credits still come back");
+    }
+
+    [TestMethod]
+    public void APlanetLostDuringTheLandingGetsNoCargoAndItBringsNoCredits()
+    {
+        Player.data.TaxRate = 0.25f;
+        TestShip empty = SpawnShip("Owlwok Freighter S", Player, Homeworld.Position + new Vector2(5000, 0));
+        TestShip loaded = SpawnShip("Owlwok Freighter S", Player, Homeworld.Position + new Vector2(0, 5000));
+        loaded.LoadProduction(8f);
+        Homeworld.ProdHere = 0;
+
+        float money = Player.Money;
+        OrderScrap(empty);
+        RunUntilLanding();
+        Homeworld.SetOwner(Enemy);
+        RunUntilLanded();
+        float refund = Player.Money - money;
+
+        Homeworld.SetOwner(Player);
+        OrderScrap(loaded);
+        RunUntilLanding();
+        Homeworld.SetOwner(Enemy);
+        float prodAfterCapture = Homeworld.ProdHere;
+        money = Player.Money;
+        float credits = Player.ExcessCargoMoney;
+        RunUntilLanded();
+        AssertEqual(0.01f, prodAfterCapture, Homeworld.ProdHere, "a planet lost during the landing gets none of the cargo");
+        AssertEqual(0.01f, refund, Player.Money - money, "and the cargo brings no credits, only the ship's own refund");
+        AssertEqual(0.001f, credits, Player.ExcessCargoMoney, "nor any to come with the turn's income");
     }
 
     [TestMethod]

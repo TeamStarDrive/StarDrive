@@ -461,6 +461,7 @@ DerelictProductionTip: warfare_combat_basics
 SalvageStationOrderTip: warfare_combat_basics
 SalvageStationOrderedTip: warfare_combat_basics
 SalvageStationNoDesignTip: warfare_combat_basics
+SalvageStationAllWorkedTip: warfare_combat_basics
 DerelictTurnsStandTip: warfare_combat_basics
 SalvageDerelictTip: warfare_combat_basics
 SalvageDerelictOrderedTip: warfare_combat_basics

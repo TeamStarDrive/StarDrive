@@ -798,6 +798,28 @@ namespace Ship_Game.Ships
             return GetAstrogateTime(distance, distanceSTL, targetStation.Position);
         }
 
+        public float GetAstrogateTimeTo(Ship station)
+        {
+            float distance    = Position.Distance(station.Position);
+            float distanceSTL = station.IsTethered ? station.GetTether().GravityWellForEmpire(Loyalty) : 0f;
+            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner if the ship is in one
+
+            if (planet != null && !IsInFriendlyProjectorRange)
+                distanceSTL += planet.GravityWellRadius;
+
+            return GetAstrogateTime(distance, distanceSTL, station.Position);
+        }
+
+        public float GetAstrogateTimeBetween(Ship originStation, Planet destination)
+        {
+            float distance    = originStation.Position.Distance(destination.Position);
+            float distanceSTL = destination.GravityWellForEmpire(Loyalty);
+            if (originStation.IsTethered)
+                distanceSTL += originStation.GetTether().GravityWellForEmpire(Loyalty);
+
+            return GetAstrogateTime(distance, distanceSTL, destination.Position);
+        }
+
         public float GetAstrogateTimeBetween(Planet origin, Planet destination)
         {
             float distance    = origin.Position.Distance(destination.Position);

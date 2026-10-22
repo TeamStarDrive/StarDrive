@@ -19,30 +19,31 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// An empire orders a salvage station only in a system with a salvageable derelict it knows of, and holds one order
-/// per system, so empires can each have one there; of two orders that reach the sim thread together, the first holds
-/// the system. The order queues the station as an urgent orbital, the station its constructor builds becomes the
+/// An empire orders a salvage station only in a system with a salvageable derelict it knows of that no other empire
+/// works from its station there, the panel and the window saying so when other empires work them all, and holds one
+/// order per system, so empires can each have one there; of two orders that reach the sim thread together, the first
+/// holds the system. The order queues the station as an urgent orbital, the station its constructor builds becomes the
 /// order's, untethered where it was ordered, and losing it, or its own construction before that, ends the order. An
 /// abort before it is built takes the order and its constructor away, as salvage ops off does, and as the system
-/// running out of derelicts does; a built station keeps its order. A site lies in the system, clear of its star and
-/// planets' orbits and 2000 units from its derelicts and from salvage stations. An order survives a save. The picker
-/// takes the station with the most salvage modules, then the most cargo room. The player's picker, with auto pick off
-/// as it starts, takes the station chosen in the Automation window, or the race's default when the choice cannot be
-/// built, and the best pick when neither can; the window resets a choice that can no longer be built to the default.
-/// Neither picker nor the window's list takes a station with less cargo room than one load, a salvage platform's hold. The derelicts
-/// window deploys the picked station, aborts an order not yet built, its constructor queued or not, and then says
-/// the station is deployed; with no design to build it says so in grey. A built station costs the builder trust, once,
-/// with each AI that has a colony in its system and knows it, unless the two have open borders, an alliance or a war:
-/// the AI personality's value, 5 for all, times a difficulty multiplier when the builder is the player. The value
-/// survives a save, 0 included. A boarded station works for its boarder as it changes hands, past the build, with no
-/// built notice and no trust cost, and takes the place of the boarder's order there; where the boarder has a station
-/// already, its troops leave and it is evacuated, and the player is told, though one just lost does not count. Pirates
-/// keep one they board. An absorbed empire's station works for the absorber once it changes hands a step later, or is
-/// removed with its troops where the absorber has one, with no one told, and either way an evacuated or removed one
-/// leaves its owner's ships. One boarded from an empire that then merges stays with its boarder, a defeated empire's
-/// works for its rebels, and one taken over survives a save. A change of hands applied off the sim thread is taken over
-/// on it, unless the station is gone or has changed hands again by then; an order that finds its station in other
-/// hands hands it on, once.
+/// running out of derelicts for it does; a built station keeps its order while it holds production. A site lies in the
+/// system, clear of its star and planets' orbits and 2000 units from its derelicts and from salvage stations. An order
+/// survives a save. The picker takes the station with the most salvage modules, then the most cargo room. The player's
+/// picker, with auto pick off as it starts, takes the station chosen in the Automation window, or the race's default
+/// when the choice cannot be built, and the best pick when neither can; the window resets a choice that can no longer
+/// be built to the default. Neither picker nor the window's list takes a station with less cargo room than one load, a
+/// salvage platform's hold. The derelicts window deploys the picked station, aborts an order not yet built, its
+/// constructor queued or not, and then says the station is deployed; with no design to build it says so in grey. A
+/// built station costs the builder trust, once, with each AI that has a colony in its system and knows it, unless the
+/// two have open borders, an alliance or a war: the AI personality's value, 5 for all, times a difficulty multiplier
+/// when the builder is the player. The value survives a save, 0 included. A boarded station works for its boarder as it
+/// changes hands, past the build, with no built notice and no trust cost, and takes the place of the boarder's order
+/// there; where the boarder has a station already, its troops leave and it is evacuated, and the player is told, though
+/// one just lost does not count. Pirates keep one they board. An absorbed empire's station works for the absorber once
+/// it changes hands a step later, or is removed with its troops where the absorber has one, with no one told, and
+/// either way an evacuated or removed one leaves its owner's ships. One boarded from an empire that then merges stays
+/// with its boarder, a defeated empire's works for its rebels, and one taken over survives a save. A change of hands
+/// applied off the sim thread is taken over on it, unless the station is gone or has changed hands again by then; an
+/// order that finds its station in other hands hands it on, once.
 /// </summary>
 [TestClass]
 public class SalvageOpsTests : StarDriveTest
@@ -125,6 +126,7 @@ public class SalvageOpsTests : StarDriveTest
         AssertEqual("Salvage", order.StepName, "the order goes on once the station is built");
         Assert.IsFalse(SalvageOps.CanOrderIn(Player, WreckSystem), "and keeps the system's one order");
 
+        station.LoadProduction(5f); // an empty one would be scrapped with nothing left to salvage
         RunOutDerelicts();
         order.Evaluate();
         Assert.IsTrue(Player.AI.HasGoal(g => g == order), "a built station keeps its order when the system's derelicts are gone");
@@ -190,6 +192,51 @@ public class SalvageOpsTests : StarDriveTest
         order.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(g => g == order || g == build), "the order and its construction end");
         Assert.IsTrue(item.IsCancelled, "and its constructor leaves the queue");
+    }
+
+    [TestMethod]
+    public void NoStationIsOrderedWhereOtherEmpiresWorkEveryDerelictFromTheirStationsThere()
+    {
+        Forms(Player, InSystem);
+        Player.AddBuildableShip(Station);
+        Derelict d = UState.Derelicts.Current.Last();
+        Assert.IsTrue(d.TryClaim(Enemy), "setup: another empire claims the derelict");
+        AssertEqual(SalvageOps.OrderBlock.None, SalvageOps.WhyNoOrderIn(Player, WreckSystem), "with no station of its own there its claim is ending, so the player can order");
+
+        BuiltStation(Enemy, BuildPos);
+        Assert.IsFalse(SalvageOps.CanOrderIn(Player, WreckSystem), "with its station there, the player cannot");
+        AssertEqual(SalvageOps.OrderBlock.AllWorked, SalvageOps.WhyNoOrderIn(Player, WreckSystem), "and the panel's button says why");
+        var window = new SystemDerelictsScreen(Universe, WreckSystem);
+        window.LoadContent();
+        Assert.IsFalse(window.StationButton.Visible, "the derelicts window shows no button");
+        Assert.IsTrue(window.StationStatus.Visible, "but grey text");
+        AssertEqual(new LocalizedText(GameText.SalvageStationAllWorkedTip), window.StationStatus.Text, "saying so");
+        AssertEqual(Color.Gray, window.StationStatus.Color, "in grey");
+        StringAssert.StartsWith(Localizer.Token(GameText.SalvageStationAllWorkedTip), "Other empires are salvaging or recovering every derelict");
+
+        Forms(Player, InSystem + new Vector2(0, 10_000f));
+        AssertEqual(SalvageOps.OrderBlock.None, SalvageOps.WhyNoOrderIn(Player, WreckSystem), "a second derelict no one works lets it order again");
+        window.UpdateStationOrder();
+        Assert.IsTrue(window.StationButton.Visible && !window.StationStatus.Visible, "and the window shows its button again");
+    }
+
+    [TestMethod]
+    public void AnOrderNotYetBuiltIsDroppedOnceOtherEmpiresWorkEveryDerelictThere()
+    {
+        Forms(Player, InSystem);
+        Derelict d = UState.Derelicts.Current.Last();
+        var order = new SalvageOps(Player, WreckSystem, BuildPos, Station);
+        Player.AI.AddGoalAndEvaluate(order);
+        Goal build = Player.AI.FindGoal(g => g.IsBuildingOrbitalFor(WreckSystem));
+        Assert.IsNotNull(build, "setup: the station is queued");
+
+        Assert.IsTrue(d.TryClaim(Enemy), "setup: another empire claims the derelict");
+        order.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(g => g == order), "while that empire has no station there, the order stands");
+
+        BuiltStation(Enemy, BuildPos + new Vector2(0, -10_000f));
+        order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(g => g == order || g == build), "with its station there, the order and its construction end");
     }
 
     [TestMethod]
@@ -765,8 +812,41 @@ public class SalvageOpsTests : StarDriveTest
         AssertEqual(trust, aiToPlayer.Trust, "taking one over costs no trust, which is for building one");
         AssertEqual(0, notifications.NumberOfNotifications, "and tells of no station built");
 
+        RunObjectsSim(TestSimStep); // placed in its system, the station shows the boarder the derelict there
         ours.Evaluate();
         Assert.IsTrue(Player.AI.HasGoal(g => g == ours), "the boarder keeps it");
+    }
+
+    [TestMethod]
+    public void AStationTakenOverIsNotScrappedBeforeItsNewOwnerLearnsOfTheDerelictsThere()
+    {
+        Forms(Enemy, InSystem);
+        Derelict d = UState.Derelicts.Current.Last();
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        Settle(station);
+        Assert.IsFalse(d.IsKnownBy(Player), "setup: the boarder knows of no derelict there");
+
+        Board(station, Player);
+        Assert.IsTrue(station.Active && d.IsKnownBy(Player), "the empty station is not scrapped as it changes hands, which shows the boarder the derelict there");
+        StationGoalOf(Player).Evaluate();
+        Assert.IsTrue(station.Active, "and with it to salvage, the station works for the boarder");
+    }
+
+    [TestMethod]
+    public void AStationTakenOverBeforeItIsPlacedInItsSystemIsNotScrappedUntilItIs()
+    {
+        Forms(Enemy, InSystem);
+        Derelict d = UState.Derelicts.Current.Last();
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        Board(station, Player);
+        Assert.IsTrue(station.System == null && !d.IsKnownBy(Player), "setup: it changed hands before it was placed in its system, the boarder knowing of no derelict there");
+        StationGoalOf(Player).Evaluate();
+        Assert.IsTrue(station.Active, "its order's turn does not scrap the empty station");
+
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(d.IsKnownBy(Player), "setup: once it is placed there, the boarder learns of the derelict");
+        StationGoalOf(Player).Evaluate();
+        Assert.IsTrue(station.Active, "and with it to salvage, the station works for the boarder");
     }
 
     [TestMethod]
@@ -1074,7 +1154,9 @@ public class SalvageOpsTests : StarDriveTest
     public void AStationTakenOverSurvivesSaveAndLoad()
     {
         Forms(Enemy, InSystem);
-        Board(BuiltStation(Enemy, BuildPos).TargetShip, Player);
+        Ship station = BuiltStation(Enemy, BuildPos).TargetShip;
+        Settle(station); // so the boarder learns of the derelict there as it takes the station
+        Board(station, Player);
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageTakeOver", throwOnError: true);
