@@ -301,16 +301,54 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            // one counting down to its scuttling, or about to change hands, calls no freighters and does not end
-            if (Owner.isPlayer && !SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
+            // one counting down to its scuttling, or about to change hands, orders nothing, calls no freighters and does not end; one pirates hold only recovers for them
+            if (!SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
             {
+                if (Owner.WeArePirates)
+                {
+                    ReplenishOrdnance(SalvageStation);
+                    OrderDerelicts();
+                    return GoalStep.TryAgain;
+                }
+                if (Owner.NumPlanets > 0 && (Owner.isPlayer ? Owner.AutoBuildSalvageStations : !Owner.IsFaction)) // one with no colony left is defeated this turn
+                    OrderDerelicts();
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
-                if (workDone && SalvageStation.GetProduction() < 1f)
+                // what it holds goes with the station of an empire with nowhere to send it
+                if (workDone && (SalvageStation.GetProduction() < 1f || NowhereToSend(Owner)))
                     return ScrapStation(SalvageStation);
                 Haul(SalvageStation, workDone);
             }
             return GoalStep.TryAgain;
         }
+
+        // an AI empire's station, or the player's with Auto Build Salvage Stations on, fills its free units, the derelict with the fewest turns left first as a claim stops its clock, while no armed hostile is in its sensor range; pirates' recovers every ship it can and strips nothing, while its bays have a constructor to launch
+        void OrderDerelicts()
+        {
+            bool pirates = Owner.WeArePirates;
+            if (HaulsBlocked(SalvageStation) || pirates && SalvageDerelict.ConstructorName(Owner, SalvageStation).IsEmpty())
+                return;
+
+            Derelict[] open = Owner.Universe.Derelicts.Current.Filter(d => d.System == TargetSystem && CanOrder(d, pirates));
+            open.Sort(d => d.TurnsLeft);
+            for (int i = 0; i < open.Length; ++i)
+                if (!SalvageDerelict.Order(Owner, open[i], recover: pirates || SalvageDerelict.WouldRecover(Owner, open[i])))
+                    break; // its units are all busy
+        }
+
+        // pirates pass over a ship of a design they spawn, which their base takes in for nothing
+        bool CanOrder(Derelict d, bool pirates)
+            => pirates ? SalvageDerelict.WhyNoRecovery(Owner, d) == SalvageDerelict.Block.None && !Owner.Pirates.ShipsWeCanSpawn.Contains(d.Design.Name)
+                       : SalvageDerelict.WhyNoOrder(Owner, d) == SalvageDerelict.Block.None;
+
+        // nothing resupplies a station pirates hold, so one that makes no ordnance of its own regains a tenth of its store a turn out of combat, as a pirate base does
+        static void ReplenishOrdnance(Ship station)
+        {
+            if (station.OrdAddedPerSecond <= 0f && !station.InCombat)
+                station.ChangeOrdnance(station.OrdinanceMax / 10f);
+        }
+
+        // from any thread: rebels, who build no freighters, and an empire with no colony have nowhere to send what a station holds
+        public static bool NowhereToSend(Empire empire) => empire.NumPlanets == 0 || empire.data.IsRebelFaction;
 
         // one not yet placed in its system has yet to show its owner the derelicts there
         static bool CanEnd(Ship station) => station.System != null;
@@ -319,10 +357,11 @@ namespace Ship_Game.Commands.Goals
         bool NothingLeftToSalvage()
             => !Owner.AI.HasGoal(g => g is SalvageDerelict s && s.TargetSystem == TargetSystem) && !AnyToSalvageIn(Owner, TargetSystem);
 
-        // it vanishes as a station scrapped does, with no refund, and the player is told
+        // it vanishes as a station scrapped does, with no refund, and a player is told
         GoalStep ScrapStation(Ship station)
         {
-            Owner.Universe.Notifications?.AddSalvageStationScrappedNotification(station, TargetSystem);
+            if (Owner.isPlayer)
+                Owner.Universe.Notifications?.AddSalvageStationScrappedNotification(station, TargetSystem);
             station.AI.OrderScuttleShip();
             return GoalStep.GoalComplete;
         }
@@ -330,7 +369,7 @@ namespace Ship_Game.Commands.Goals
         // the most freighters on their way to load at one station
         public const int MaxHauls = 3;
 
-        // the player's station calls an idle freighter for each average freighter load it holds beyond the holds of those on their way, and for all of it once it has no room for another platform load or nothing left to salvage
+        // a station calls an idle freighter for each average freighter load it holds beyond the holds of those on their way, and for all of it once it has no room for another platform load or nothing left to salvage
         void Haul(Ship station, bool workDone)
         {
             if (HaulsBlocked(station))

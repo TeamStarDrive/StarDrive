@@ -2,6 +2,7 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
@@ -47,7 +48,7 @@ public sealed class Derelict
     public const string GiveWaySound = "sd_derelict_give_way";
     public const string RecoveredSound = "sd_derelict_recovered";
     // a salvageable derelict lasts this many turns, times the production pace, then sinks away
-    public const int SalvageableTurns = 100;
+    public const int SalvageableTurns = 200;
     // the production to salvage: this share of the health the ship had left at its death, times its cost before any empire's bonus
     public const float SalvageShareOfHealth = 0.5f;
     // and never less than this, times the production pace
@@ -179,7 +180,7 @@ public sealed class Derelict
                 SetKnownBy(empires[i]);
         if (salvageable)
         {
-            TurnsLeft = (int)(SalvageableTurns * Universe.ProductionPace);
+            TurnsLeft = LifetimeTurns(Universe);
             HealthAtDeath = ship.HealthPercent.Clamped(0f, 1f);
             Production = (HealthAtDeath * SalvageShareOfHealth * Design.GetCostBeforeBonuses(Universe.ProductionPace))
                          .LowerBound(MinSalvageProduction * Universe.ProductionPace);
@@ -245,6 +246,9 @@ public sealed class Derelict
 
     // a derelict slows linearly to a stop, so it covers half the distance it would drift in that time
     public static Vector2 StopPoint(Ship ship) => ship.Position + DriftVelocityOf(ship) * (StopSeconds * 0.5f);
+
+    // the turns a salvageable derelict lasts at the universe's production pace
+    public static int LifetimeTurns(UniverseState universe) => (int)(SalvageableTurns * universe.ProductionPace);
 
     // the system a salvageable derelict would stop in: none outside every system, or inside a star's radiation or 2000 around it
     public static SolarSystem SalvageSystemAt(UniverseState universe, Vector2 stop)
@@ -375,9 +379,11 @@ public sealed class Derelict
     // the player finds on the map and selects only the salvageable ones it knows of, and keeps one selected as it rises for its ship
     public bool SelectableByPlayer => (CanBeSalvaged || RisingForItsShip) && KnownByPlayer;
 
-    // once a turn, on the sim thread: its timer runs down while no empire salvages it
+    // once a turn, on the sim thread: it lets go of a claim whose empire is defeated or has no order on it, as a save or a defeated faction can leave one, and its timer runs down while no empire salvages it
     public void UpdateTurn()
     {
+        if (Claimant is { } claimant && (claimant.IsDefeated || SalvageDerelict.OrderOf(claimant, this) == null))
+            ReleaseClaim();
         if (CanBeSalvaged && Claimant == null)
             --TurnsLeft;
     }

@@ -25,9 +25,12 @@ namespace UnitTests.Ships;
 /// Its orders not yet built end with their claims and their constructors, a called-off order passing without the claim
 /// of one of those on its derelict, and the absorber's own order on a derelict a
 /// passed platform works ends, its constructor flying home, with no notification. A defeated empire's platforms work
-/// for its rebels. Ships changing hands in a system show its derelicts to their new owner, as entering it would, and
-/// the player is told; applied off the sim thread, it lands on it. A merger called off the sim thread runs on it, and
-/// one a save catches before the platforms change hands loads with their orders.
+/// for its rebels, the claims passed with them holding at the turn, while the turn lets go of a defeated faction's
+/// claims though it keeps its goals; what the rebels' full station cannot take of a platform's load is lost, so the
+/// platform strips on and the station is scrapped once it is done. Ships changing hands in a system show its
+/// derelicts to their new owner, as entering it would, and the player is told; applied off the sim thread, it lands
+/// on it. A merger called off the sim thread runs on it, and one a save catches before the platforms change hands
+/// loads with their orders.
 /// </summary>
 [TestClass]
 public class SalvageTakeoverTests : StarDriveTest
@@ -410,6 +413,63 @@ public class SalvageTakeoverTests : StarDriveTest
 
         ours.Evaluate();
         AssertEqual(0.01f, 24f, platform.GetProduction(), "it strips on for the rebels' station");
+    }
+
+    [TestMethod]
+    public void WhatTheRebelsFullStationCannotTakeIsLostSoThePlatformStripsOnAndTheStationIsScrappedOnceItIsDone()
+    {
+        Derelict d = Forms(Wreck);
+        Ship station = BuiltStation(Enemy, EnemyStation);
+        SalvageDerelict theirs = AtWork(Enemy, d);
+        Ship platform = theirs.Platform;
+        Settle(station, platform);
+        Enemy.SetAsDefeated();
+        RunObjectsSim(TestSimStep);
+        RunObjectsSim(TestSimStep); // a step more places the station in its system
+        Empire rebels = platform.Loyalty;
+        Assert.IsTrue(rebels.data.IsRebelFaction && station.Loyalty == rebels, "setup: the rebels take the station and the platform");
+        AssertEqual(WreckSystem, station.System, "setup: the station is placed in its system");
+        SalvageDerelict ours = OrderOf(rebels);
+        station.CargoSpaceMax = 20f;
+        station.LoadProduction(20f);
+        platform.LoadProduction(100f);
+        Assert.IsTrue(SalvageDerelict.HoldFull(station) && SalvageDerelict.HoldFull(platform), "setup: both holds are full");
+
+        ours.Evaluate();
+        AssertEqual(0.01f, 0f, platform.GetProduction(), "the platform's load, which the full station cannot take, is lost");
+        ours.Evaluate();
+        AssertEqual(0.01f, 12f, platform.GetProduction(), "so it strips on");
+
+        UState.Derelicts.Strip(d, null, d.ProductionLeft - 5f);
+        for (int turn = 0; turn < 10 && OrderOf(rebels) != null; ++turn)
+            ours.Evaluate();
+        Assert.IsTrue(d.Stripped && OrderOf(rebels) == null, "it strips the rest, loses that too and takes itself apart");
+
+        rebels.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station).Evaluate();
+        Assert.IsFalse(station.Active, "and the station is scrapped with what it holds");
+    }
+
+    [TestMethod]
+    public void AClaimPassedToTheRebelsHoldsAtTheTurnAndADefeatedFactionsIsLetGo()
+    {
+        Derelict d = Forms(Wreck);
+        Ship station = BuiltStation(Enemy, EnemyStation);
+        SalvageDerelict theirs = AtWork(Enemy, d);
+        Settle(station, theirs.Platform);
+        Enemy.SetAsDefeated();
+        Empire rebels = d.Claimant;
+        Assert.IsTrue(rebels != Enemy && rebels.data.IsRebelFaction, "setup: the claim passes to the defeated empire's rebels");
+
+        int turns = d.TurnsLeft;
+        UState.Derelicts.UpdateTurn();
+        AssertEqual(rebels, d.Claimant, "with its order, so it holds at the turn, before the platform changes hands");
+        AssertEqual(turns, d.TurnsLeft, "and the timer stands");
+
+        rebels.SetAsDefeated();
+        Assert.IsNotNull(OrderOf(rebels), "setup: a defeated faction keeps its goals");
+        UState.Derelicts.UpdateTurn();
+        Assert.IsNull(d.Claimant, "but the turn lets its claim go");
+        AssertEqual(turns - 1, d.TurnsLeft, "so the timer runs on");
     }
 
     // a salvageable derelict of the enemy's own ship that no one destroyed and the player never saw, so only the enemy knows of it

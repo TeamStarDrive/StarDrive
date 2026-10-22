@@ -7,12 +7,15 @@ using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
 
 namespace Ship_Game.Ships;
 
-// the Salvage and Recover buttons on the derelict's panel and on each row of the derelicts window, shown while the player has a salvage station built in its system or an order on it: grey, lit under the cursor when a click can order, and lit while the order stands in its button's work
+// the Salvage and Recover buttons on the derelict's panel and on each row of the derelicts window, shown while the player has a salvage station built in its system or an order on it: grey, lit under the cursor when a click can order, and lit while the order stands in its button's work; with salvage on automatic no click does anything
 public static class DerelictSalvageButton
 {
     public enum Kind { Salvage, Recover }
 
-    public static bool Clickable(Block block) => block is Block.None or Block.Ordered;
+    // from any thread: Auto Build Salvage Stations has the player's stations order their derelicts
+    public static bool OnAutomatic(Empire player) => player.AutoBuildSalvageStations;
+
+    public static bool Clickable(Empire player, Block block) => !OnAutomatic(player) && block is Block.None or Block.Ordered;
 
     // from any thread: the Recover button's from the Salvage button's
     public static Block BlockOf(Kind kind, Block salvageBlock, Derelict d)
@@ -30,10 +33,11 @@ public static class DerelictSalvageButton
     public static bool Lit(Kind kind, Block block, SalvageDerelict order)
         => block == Block.Ordered && (order?.Recovering ?? false) == (kind == Kind.Recover);
 
-    public static void Draw(SpriteBatch batch, in Rectangle rect, Kind kind, Block block, bool lit, bool hovered)
+    public static void Draw(SpriteBatch batch, in Rectangle rect, Empire player, Kind kind, Block block, bool lit, bool hovered)
     {
-        bool bright = lit || hovered && Clickable(block);
-        string back = hovered && Clickable(block) ? "SelectionBox/button_action_hover"
+        bool lights = hovered && Clickable(player, block);
+        bool bright = lit || lights;
+        string back = lights ? "SelectionBox/button_action_hover"
                     : lit ? "SelectionBox/button_action"
                     : "SelectionBox/button_action_disabled";
         batch.Draw(ResourceManager.Texture(back), rect, Color.White);
@@ -47,6 +51,11 @@ public static class DerelictSalvageButton
     // the tips carry their ids, so they link to the Codex; those with figures link through the id they are made from
     public static void Tooltip(Empire player, Derelict d, Kind kind, Block block, bool lit, SalvageDerelict order)
     {
+        if (OnAutomatic(player))
+        {
+            ToolTip.CreateTooltip(GameText.SalvageAutomaticTip);
+            return;
+        }
         if (block == Block.Ordered && order == null) // a claim kept without its order, which either button's click gives up
         {
             ToolTip.CreateTooltip(GameText.SalvageDerelictOrderedTip);
@@ -117,7 +126,11 @@ public static class DerelictSalvageButton
     public static void Click(Empire player, Derelict d, Kind kind, Block block, bool lit)
     {
         bool recover = kind == Kind.Recover;
-        if (block == Block.Ordered)
+        if (OnAutomatic(player))
+        {
+            GameAudio.NegativeClick();
+        }
+        else if (block == Block.Ordered)
         {
             GameAudio.EchoAffirmative();
             if (lit)

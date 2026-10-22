@@ -745,6 +745,7 @@ namespace Ship_Game
             Player.UpdateShipsWeCanBuild();
             if (!UnlockAllFactionDesigns && !Player.WeCanBuildThis(toSave.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");
+            Player.ShipDesignsChanged();
             ChangeHull(toSave);
         }
 

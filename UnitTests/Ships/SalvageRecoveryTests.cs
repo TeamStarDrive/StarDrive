@@ -24,7 +24,8 @@ namespace UnitTests.Ships;
 /// show while the player has a salvage station built in the derelict's system or an order on it. The chance to recover
 /// a ship is its hull's, 60 for a frigate down to 20 for a capital, times 1 plus its race's engineers, read from its
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
-/// stripped; of the failures, 10% times 1 minus the engineers explode. A recovering platform breaks in for 10 turns at
+/// stripped; of the failures, 10% times 1 minus the engineers explode. Each empire's draws are its own, from a luck seed
+/// that saves keep and rebels take from the empire they rise from. A recovering platform breaks in for 10 turns at
 /// any pace, then works at twice the salvage speed through the share of health the ship lost at its death times its
 /// slots at the production pace, plus a tenth, times 1 minus the engineers, and rolls as the last of it is done, or the
 /// turn after the break-in with none to do. A success raises the derelict, its panel showing the work done with no
@@ -219,6 +220,16 @@ public class SalvageRecoveryTests : StarDriveTest
         Player.data.Traits.ModHpModifier = 1f;
         Empire rebels = UState.CreateRebelsFromEmpireData(Player.data, Player);
         AssertEqual(0.01f, 0.2f, rebels.RaceEngineers, "the race's Skilled Engineers, not the empire's health research");
+    }
+
+    [TestMethod]
+    public void RebelsTakeTheLuckSeedOfTheEmpireTheyRiseFromAndDrawTheirOwn()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        typeof(Empire).GetProperty(nameof(Empire.LuckSeed))!.SetValue(Player, 1234);
+        Empire rebels = UState.CreateRebelsFromEmpireData(Player.data, Player);
+        AssertEqual(1234, rebels.LuckSeed, "the empire's seed, so a reload that raises them again draws the same for them");
+        Assert.AreNotEqual(DerelictRecovery.Draws(Player, d), DerelictRecovery.Draws(rebels, d), "while their id keeps their draws their own");
     }
 
     [TestMethod]

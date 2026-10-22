@@ -29,7 +29,6 @@ namespace Ship_Game
         DropOptions<int> ConstructorDropDown;
         DropOptions<int> ResearchStationDropDown;
         DropOptions<int> MiningStationDropDown;
-        CheckedDropdown SalvageStationRow;
         DropOptions<int> SalvageStationDropDown;
         bool ResearchStationsEnabled;
         bool MiningOpsEnabled;
@@ -45,7 +44,7 @@ namespace Ship_Game
 
         class CheckedDropdown : UIElementV2
         {
-            UIElementV2 Check;
+            UICheckBox Check;
             DropOptions<int> Options;
             public DropOptions<int> Create(Expression<Func<bool>> binding, LocalizedText title, LocalizedText tooltip)
             {
@@ -53,17 +52,9 @@ namespace Ship_Game
                 Options = new DropOptions<int>(new Vector2(-200f, -200f), 190, 18);
                 return Options;
             }
-            // a title in place of the checkbox, for a station with no auto build switch
-            public DropOptions<int> Create(LocalizedText title)
-            {
-                Check = new UILabel(new Vector2(-200f, -200f), title, Fonts.Arial12Bold);
-                Options = new DropOptions<int>(new Vector2(-200f, -200f), 190, 18);
-                return Options;
-            }
             public override void PerformLayout()
             {
-                // a title lines up with the checkbox titles, which start after their box
-                Check.Pos = Check is UICheckBox ? Pos : new Vector2(Pos.X + 16f, Pos.Y);
+                Check.Pos = Pos;
                 Check.PerformLayout();
                 Options.Pos = new Vector2(Pos.X, Pos.Y + 16f);
                 Options.PerformLayout();
@@ -71,7 +62,7 @@ namespace Ship_Game
             }
             public override bool HandleInput(InputState input)
             {
-                return Check.HandleInput(input) || Options.HandleInput(input);
+                return Check.HandleInput(input) || Options.Visible && Options.HandleInput(input); // a hidden dropdown takes no clicks
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
@@ -93,7 +84,7 @@ namespace Ship_Game
             ConstructionSubMenu = new(win, new LocalizedText[] { GameText.Automation, GameText.Alerts });
             float top = ConstructionSubMenu.ClientArea.Y + 1f;
 
-            // the salvage station's dropdown adds a row to the table above
+            // the salvage station's row adds to the table above
             UIList rest = Rest = AddList(new(win.X + 10f, top + (SalvageOpsEnabled ? 308f : 264f)));
             rest.Padding = new(2f, 10f);
             rest.AddCheckbox(() => UState.Player.AutoPickConstructors,  title: GameText.AutoPickConstructorsName, tooltip: GameText.AutoPickConstructorsTip);
@@ -161,10 +152,8 @@ namespace Ship_Game
                     .Create(() => Screen.Player.AutoBuildMiningStations, title: GameText.AutoBuildMiningStation, tooltip: GameText.AutoBuildMiningStationTip);
 
             if (SalvageOpsEnabled)
-            {
-                SalvageStationRow = ticks.Add(new CheckedDropdown());
-                SalvageStationDropDown = SalvageStationRow.Create(GameText.SalvageStationDropDown);
-            }
+                SalvageStationDropDown = ticks.Add(new CheckedDropdown())
+                    .Create(() => Screen.Player.AutoBuildSalvageStations, title: GameText.AutoBuildSalvageStation, tooltip: GameText.AutoBuildSalvageStationTip);
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
@@ -246,7 +235,7 @@ namespace Ship_Game
                 bool canBuild = Screen.Player.CanBuildSalvageStations;
                 if (canBuild && SalvageStationDropDown.Count == 0)
                     InitSalvageStationDropDown();
-                SalvageStationRow.Visible = !Screen.Player.AutoPickBestSalvageStation && canBuild;
+                SalvageStationDropDown.Visible = !Screen.Player.AutoPickBestSalvageStation && canBuild;
             }
             base.Draw(batch, elapsed);
         }

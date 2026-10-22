@@ -313,7 +313,7 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        // a recovered derelict's ship where it lay, level and facing its way, under its name, for the empire that recovered it, taking over its model: damaged as the recovery's rules have it, its crew new, with no ordnance, troops, stored power or shields, its lights flickering on once it has power, and on its way to the empire's nearest planet that repairs
+        // a recovered derelict's ship where it lay, level and facing its way, under its name, for the empire that recovered it, taking over its model: damaged as the recovery's rules have it, its crew new, with no ordnance, troops, stored power or shields, its lights flickering on once it has power, and on its way to the empire's nearest planet that repairs, or the pirates' nearest base
         public static Ship CreateRecoveredShip(UniverseState us, Derelict d, Empire owner, SceneObject model)
         {
             IShipDesign design = d.Design;
@@ -338,7 +338,9 @@ namespace Ship_Game.Ships
                 ship.SetOrdnance(0f);
                 ship.PowerCurrent = 0f;
                 ship.FlickerLightsOn();
-                if (DerelictRecovery.RepairPlanet(owner, ship.Position) is { } planet)
+                if (owner.WeArePirates)
+                    ship.AI.OrderPirateFleeHome(); // to their nearest base, which takes in a small ship and keeps a cruiser or larger
+                else if (DerelictRecovery.RepairPlanet(owner, ship.Position) is { } planet)
                     ship.AI.OrderResupply(planet, clearOrders: true);
                 if (model != null) // last, so a failure before it leaves the model to the derelict to take out of the scene
                     ship.TakeSceneObject(model);

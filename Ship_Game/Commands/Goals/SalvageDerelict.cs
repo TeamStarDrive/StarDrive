@@ -175,15 +175,29 @@ namespace Ship_Game.Commands.Goals
         public static float PlatformConstruction(Empire empire, IShipDesign platform)
             => Math.Max(platform.GetCost(empire), MinPlatformConstruction * empire.Universe.ProductionPace);
 
-        // the empire's constructor, or with auto pick the cheapest whatever the platform costs, a job of no cost being small for every constructor; empty without one
-        public static string ConstructorName(Empire empire)
+        // the empire's constructor, or with auto pick the cheapest whatever the platform costs, a job of no cost being small for every constructor; pirates, who build none, launch the default constructor of the race whose station it is; empty without one
+        public static string ConstructorName(Empire empire, Ship station = null)
         {
             if (!ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign _))
                 return "";
+            if (empire.WeArePirates)
+                return station != null ? RaceConstructorName(empire, station.ShipData.ShipStyle) : "";
             return ShipBuilder.PickConstructor(empire, 0f, GetCheapest: true)?.Name ?? "";
         }
 
-        // the derelict panel's and the derelicts window's Salvage and Recover buttons; false when the empire cannot order it
+        static string RaceConstructorName(Empire empire, string shipStyle)
+        {
+            var empires = empire.Universe.Empires;
+            for (int i = 0; i < empires.Count; ++i)
+            {
+                EmpireData data = empires[i].data;
+                if (data.Traits.ShipType == shipStyle)
+                    return ResourceManager.Ships.GetDesign(data.DefaultConstructor, out IShipDesign _) ? data.DefaultConstructor : "";
+            }
+            return "";
+        }
+
+        // the Salvage and Recover buttons, and an AI empire's station; false when the empire cannot order it
         public static bool Order(Empire empire, Derelict d, bool recover = false)
         {
             if ((recover ? WhyNoRecovery(empire, d) : WhyNoOrder(empire, d)) != Block.None)
@@ -446,6 +460,8 @@ namespace Ship_Game.Commands.Goals
         {
             float sent = station.LoadProduction(Math.Min(platform.GetProduction(), station.CargoRoom));
             platform.UnloadProduction(sent);
+            if (SalvageOps.NowhereToSend(Owner))
+                platform.UnloadProduction(platform.GetProduction()); // what its station has no room for is lost, as it would wait for good
             if (sent <= 0f)
                 return;
             Delivered += sent;
@@ -473,6 +489,31 @@ namespace Ship_Game.Commands.Goals
 
         // a tech the empire has not researched and sees on its tree
         public static bool CanLearn(Empire empire, TechEntry tech) => tech.Locked && tech.Discovered && !tech.IsHidden(empire);
+
+        // a tech the derelict's design uses that the empire can still learn and its designs use, as anyone can tell from the ship whatever few of them it holds
+        public static bool DesignHasWantedTech(Empire empire, Derelict d)
+        {
+            Array<string> techs = Derelict.TechsOf(d.Design);
+            for (int i = 0; i < techs.Count; ++i)
+                if (empire.TryGetTechEntry(techs[i], out TechEntry tech) && CanLearn(empire, tech) && tech.shipDesignsCanuseThis)
+                    return true;
+            return false;
+        }
+
+        // the AI's pick, from what the derelict is and never from its own draws: it recovers a ship stronger than the strongest design of that hull role it can build, or of a role it can build none of, and strips the rest
+        public static bool WouldRecover(Empire empire, Derelict d)
+        {
+            if (!DerelictRecovery.CanRecover(d))
+                return false;
+
+            RoleName role = d.Design.HullRole;
+            float best = -1f;
+            IShipDesign[] designs = empire.ShipsWeCanBuildSnapshot;
+            for (int i = 0; i < designs.Length; ++i)
+                if (designs[i].HullRole == role)
+                    best = Math.Max(best, designs[i].GetStrength(empire));
+            return best < 0f || d.Design.GetStrength(empire) > best;
+        }
 
         // from any thread: an empire sees a derelict's techs while it has a salvage station built in the derelict's system, and from then on
         public static bool SeesTechs(Empire empire, Derelict d) => d.ShowsTechsTo(empire) || SalvageOps.StationIn(empire, d.System) != null;

@@ -718,6 +718,7 @@ namespace Ship_Game
                     case TargetType.Research         when ship.IsResearchStation: 
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
+                    case TargetType.SalvageStation   when ship.IsSalvageStation:
                     case TargetType.Projector:       targets.Add(ship); break; // Add all of above cases into targets
                 }
             }
@@ -1027,7 +1028,8 @@ namespace Ship_Game
             Shipyard,
             Station,
             Platform,
-            Research
+            Research,
+            SalvageStation
         }
     }
 
