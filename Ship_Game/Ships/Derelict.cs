@@ -2,6 +2,7 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
@@ -375,9 +376,11 @@ public sealed class Derelict
     // the player finds on the map and selects only the salvageable ones it knows of, and keeps one selected as it rises for its ship
     public bool SelectableByPlayer => (CanBeSalvaged || RisingForItsShip) && KnownByPlayer;
 
-    // once a turn, on the sim thread: its timer runs down while no empire salvages it
+    // once a turn, on the sim thread: it lets go of a claim whose empire is defeated or has no order on it, as a save or a defeated faction can leave one, and its timer runs down while no empire salvages it
     public void UpdateTurn()
     {
+        if (Claimant is { } claimant && (claimant.IsDefeated || SalvageDerelict.OrderOf(claimant, this) == null))
+            ReleaseClaim();
         if (CanBeSalvaged && Claimant == null)
             --TurnsLeft;
     }

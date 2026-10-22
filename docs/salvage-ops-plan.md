@@ -1386,6 +1386,12 @@ Implementation notes:
      `DesignHasWantedTech`, and `SalvageOpsPlanner`, saved with the empire's AI and run after the mining planner,
      which asks for a fleet only once while one is on its way. The Remnant portal rule, the derelicts other empires
      work from their stations, and the call from the AI's turn have no test.
+   - As built (part 3): each turn, as its timer runs, a derelict lets go of a claim whose empire is defeated or has
+     no order on it still at work, as a save can catch one, or an empire's goals cleared with two orders on the
+     derelict, each leaving the claim to the other, which has no test (780 A); a claim passed on holds, as the order
+     passes with it at once. Today only a test reaches the defeat rule: a defeated empire's goals are cleared,
+     pirates clear theirs before they fall, and rebels are never defeated. Rebels take the luck seed of the empire
+     they rise from, their id keeping their draws their own (651 B).
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.

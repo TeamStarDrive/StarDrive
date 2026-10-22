@@ -21,7 +21,8 @@ namespace UnitTests.Ships;
 /// empires, whose orders on it end and free their units. Whatever ends an order gives up its claim, so the timer runs
 /// on: the button's second click, which calls off the order it finds on reaching the sim thread or gives up a claim
 /// kept without one, the clearing of an empire's goals, the derelict that can no longer be salvaged, salvage ops off;
-/// a duplicate's end leaves the claim of the order that stands. An order and its claim survive a save, which keeps
+/// a duplicate's end leaves the claim of the order that stands. A claim kept without its order, as a save can catch
+/// one, is let go at the turn, while one whose order stands holds. An order and its claim survive a save, which keeps
 /// each derelict's id.
 /// </summary>
 [TestClass]
@@ -197,8 +198,11 @@ public class SalvageDerelictTests : StarDriveTest
         UState.Derelicts.UpdateTurn();
         AssertEqual(turns - 1, d.TurnsLeft, "setup: its timer runs");
 
-        Assert.IsTrue(d.TryClaim(Player), "an empire claims it");
+        BuiltStation(Player);
+        Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: ordered");
+        Assert.IsTrue(d.TryClaim(Player), "an empire's order claims it");
         UState.Derelicts.UpdateTurn();
+        AssertEqual(Player, d.Claimant, "which holds at the turn while its order stands");
         AssertEqual(turns - 1, d.TurnsLeft, "and its timer stands");
         Assert.IsFalse(d.TryClaim(Enemy), "another empire cannot claim it");
         AssertEqual(Player, d.Claimant, "it stays the first's");
@@ -277,6 +281,19 @@ public class SalvageDerelictTests : StarDriveTest
 
         DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true);
         Assert.IsNull(d.Claimant, "and its click gives the claim up");
+    }
+
+    [TestMethod]
+    public void AClaimKeptWithoutItsOrderIsLetGoAtTheTurn()
+    {
+        Derelict d = Forms(InSystem);
+        int turns = d.TurnsLeft;
+        Assert.IsTrue(d.TryClaim(Enemy), "setup: a claim with no order behind it, as a save can catch it");
+
+        UState.Derelicts.UpdateTurn();
+        Assert.IsNull(d.Claimant, "the turn lets it go");
+        AssertEqual(turns - 1, d.TurnsLeft, "so its timer runs on");
+        Assert.IsTrue(d.TryClaim(Player), "and any empire can claim it");
     }
 
     [TestMethod]

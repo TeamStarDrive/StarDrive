@@ -316,6 +316,7 @@ namespace Ship_Game
         {
             this.data = data;
             IsFaction = true;
+            LuckSeed = parentEmpire.LuckSeed; // so a reload that raises them again draws the same for them; their id keeps their draws their own
             EmpireColor = new Color(128, 128, 128, 255);
 
             // clone the entire tech tree
