@@ -383,8 +383,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     - Its statuses (420 A): "Station hold full" while its load waits for room, "Salvage finished" once the work is
       over with a load aboard, and "Dismantling"; "Salvage hold full" stays for the turn before a full load leaves.
       The derelict's bar hides once the work is over, the second click included (421 A).
-    - Until hauling (sub-branch 6) nothing empties a station, so a station that fills stops its platforms: their
-      loads wait aboard, and a finished one waits to come apart.
+    - A station that fills stops its platforms: their loads wait aboard, and a finished one waits to come apart,
+      until freighters haul its production away (sub-branch 6).
     - As built (part 4): texts 7175-7177; the Codex section in 100093 gains the loads, the dismantling, the freed
       unit, the lost station and the second click's wind-down. Texts 7143 and 7167 are now true. A mod whose
       Globals.yaml still sets `SalvageChunkSize` loads with a warning in the log.
@@ -1235,7 +1235,8 @@ Implementation notes:
      tech tooltip without the gained line for an unbuilt order on a derelict a rival claimed, which reads 0 there
      (662 A), a second click within a frame of the first playing its sound for nothing, as before (663 A), and the
      claim tooltip looking up a rival's order while it is hovered (664 B).
-6. **hauling** (was 5): freighters pick up a station's stored production for colonies that import it (132 B).
+6. **hauling** (was 5): freighters pick up a station's stored production for colonies (132 B); the hauling itself
+   came last (Gilad, 2026-10-22; 665-673, 716-720).
    - first, the derelict caps (Gilad, 2026-10-21; 676-679, 686-691): each is the galaxy's star systems times its
      multiplier, used from 0.1 to 10 (see How many). Review: the clamp at 10 also keeps a huge value from overflowing
      the cap to 1 (686); `Cap` and its limits are private (688); the tests check the shipped default of 1 (690), and
@@ -1248,6 +1249,48 @@ Implementation notes:
      the hull's roll with `Derelicts.TestDriftRoll`, null in the game; the roll itself is tested through a seeded
      random. Review: the player's own sensors only, outside every system (693 A); a listed system shows its drifting
      ones (694 A); a test that the oldest of two gives up its place (695 A); no test of the warning under 0.1 (696 A).
+   - The station's own order hauls, as research and mining stations get their supplies from their own orders
+     (665): each turn it calls an idle freighter for each average freighter load it holds (20 at game start)
+     beyond the room in the holds of those already on their way, with at most 3 on their way at once, like a
+     mining station's 3 supply runs (667 A). Once it has no room for another platform load (75 of the Basic Salvage
+     Station's 316), it calls for all it holds, as an average load can outgrow the station's hold (721 A). Orders
+     run before the trade turn, so hauls take idle freighters first. A freighter holding other goods is not called.
+     No order is kept per run: the station counts the freighters whose first order is to load at it.
+   - Where a haul goes (666 C, 717 A): the closest of the empire's colonies importing production that an idle
+     freighter reaches, then the closest of its trade partners' importing colonies, with Allow Player Inter Trade
+     on and the freighter's own inter-empire trade on (a partner's colony counts the 35-turn limit and pays the
+     2-credit tariff), then the closest of its colonies with room for 3 or more in its production store, counting
+     what is on its way there, loaded or still to load. Closest is the straight distance from the station; the
+     quickest freighter there goes. Only trade partners count, not allies without a trade treaty (716 A).
+   - No freighter is built for a haul (668 B). Areas of operation and route lists rule as for research and mining
+     stations: a station inside one of the freighter's areas, or a freighter with neither, and a route list alone
+     never reaches an untethered station (669 A). With Auto Trade off only freighters set to trade production go.
+   - While an armed hostile is in the station's sensor range it calls none, and a haul outside the system waits,
+     giving up after the 120 s of a blockaded colony (670 A, 722 C: not the whole system, so an enemy's platforms
+     elsewhere in it do not block the station for good). Armed means it has weapons, so an unarmed station working
+     the same wrecks does not count (725 A). Hauled production is taxed like any delivery (671 A).
+   - The freighter lands on the station and, at touchdown, fills its hold whatever its colony's room, to move the
+     production out of the station (Gilad, 2026-10-22); only a station holding nothing calls the run off. It then
+     delivers like any freighter, keeping aboard what the colony has no room for. Every delivery, a colony's included,
+     is now taxed only for what the colony takes (723 A). A freighter loading another good leaves what it still holds
+     in that colony as far as its store has room, taxed as a delivery, and what has no room turns into credits at the
+     tax rate, as a colony's excess goods do (724 B; before, the store's cap destroyed it). A ship scrapped at a colony unloads its
+     food, production and colonists there as far as there is room, the goods taxed; goods with no room turn into
+     credits at the tax rate, as a colony's excess goods do, and colonists with no room are lost (Gilad, 2026-10-22).
+     A station lost or in other hands calls off a run still on its way; a load aboard is still delivered. A
+     freighter reaching a station that other freighters emptied does not land. The ship list reads "Picking up
+     Production from <station> to <colony>", the trade lines go blue to the station and gold to the colony, and
+     the haul adds space-road heat as colony trade does.
+   - Only the player's stations call freighters; AI empires haul from theirs in sub-branch 7.
+   - Once nothing is left to do in its system, the station sends what it has left, below an average load too, and
+     once it holds nothing it is scrapped, vanishing as a scrapped station does, with no refund (667, 718 A,
+     719 B). Nothing is left to do when no salvage or recovery order of its empire's is left there, its platforms
+     gone, and every salvageable derelict its empire knows of there is claimed by another empire or gone; a known
+     derelict not yet ordered keeps the station. The player is told once, under Salvage Alerts (720 A).
+   - The station's status reads "Waiting for freighters" while it holds production and none is coming,
+     "Freighters on their way: N" while some are, and "Salvaging" when it holds nothing (672 A). No notification
+     for a full station with nowhere to send its production (673 A).
+   - Parts: 1) the hauling; 2) the station's end, its status, the Codex text in 100093 and the Freighters entry.
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
    and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since
@@ -1256,6 +1299,8 @@ Implementation notes:
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
+10. **dismantling** (Gilad, 2026-10-22; 719): every station and platform scrapped where it stands is taken apart
+    over turns, as a salvage platform is, instead of vanishing.
 
 Each sub-branch adds its Codex text and tests.
 
@@ -1266,7 +1311,8 @@ Each sub-branch adds its Codex text and tests.
 - No blast for derelicts shifts combat a little: stacked fleets take fewer death blasts.
 - The roll, not visibility, removes the blast, so the camera never changes combat (170). A tumbling ship that did
   not roll a derelict still blasts when it ends (`Ship.cs:1760-1765`).
-- Hauling FROM a station does not exist yet; it is the largest new piece of phase 2.
+- Hauling gives a trade plan a station as its source in place of a colony, so every reader of a plan's source takes
+  one: the ship list, the trade lines and the projector bridges (sub-branch 6).
 - A platform keeps what it stripped in its hold until it sends a load, so losing one loses that load (275).
 - Saves grow with derelicts: the throttle and the timer bound the salvageable ones, and the drifting cap the drifting
   ones. Each one is small (no modules).

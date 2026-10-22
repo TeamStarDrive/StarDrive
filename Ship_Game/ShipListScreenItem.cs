@@ -238,10 +238,11 @@ namespace Ship_Game
                         string status    = "";
                         switch (last2.Plan)
                         {
-                            case ShipAI.Plan.PickupGoods:  status = Localizer.Token(GameText.PickingUp); break;
+                            case ShipAI.Plan.PickupGoods:
+                            case ShipAI.Plan.PickupGoodsFromStation: status = Localizer.Token(GameText.PickingUp); break;
                             case ShipAI.Plan.DropOffGoods: status = Localizer.Token(GameText.Delivering); break;
                         }
-                        return $"{status} {goodsType} from {last2.Trade?.ExportFrom.Name} to {last2.Trade?.ImportTo?.Name ?? last2.Trade?.TargetStation.Name} {blockade}";
+                        return $"{status} {goodsType} from {last2.Trade?.ExportName} to {last2.Trade?.ImportTo?.Name ?? last2.Trade?.TargetStation.Name} {blockade}";
                     }
                     return $"{Localizer.Token(GameText.TradingGoods)} \n {Localizer.Token(GameText.SeekingRoute)}";
                 case AIState.Research:

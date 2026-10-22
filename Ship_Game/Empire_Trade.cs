@@ -338,6 +338,60 @@ namespace Ship_Game
             return GetTradeParameters(goods, idleFreighters, targetStation, exportingPlanets, out exportAndFreighter);
         }
 
+        // a haul from the station: to the closest of the empire's colonies importing production that an idle freighter reaches, then of its trade partners' with inter-empire trade allowed, then of its colonies with room for it
+        public bool TryDispatchHaul(Ship station, out Planet importPlanet, out Ship freighter)
+        {
+            importPlanet = null;
+            freighter = null;
+            Ship[] idleFreighters = GetIdleFreighters(interTrade: false);
+            if (idleFreighters.Length == 0)
+                return false;
+
+            Planet[] importing = OwnedPlanets.Filter(p => p.FreeGoodsImportSlots(Goods.Production) > 0);
+            if (TryHaulTo(station, importing, idleFreighters, out importPlanet, out freighter))
+                return true;
+
+            if (!isPlayer || Universe.P.AllowPlayerInterTrade)
+            {
+                UpdateTradeTreaties(); // the trade turn, which keeps them, comes after the station's order
+                Planet[] partners = TradingEmpiresPlanetList().Filter(p => p.FreeGoodsImportSlots(Goods.Production) > 0);
+                if (TryHaulTo(station, partners, idleFreighters.Filter(s => s.AllowInterEmpireTrade), out importPlanet, out freighter))
+                    return true;
+            }
+
+            Planet[] withRoom = OwnedPlanets.Filter(p => !p.TradeBlocked && p.ProdStoreRoom >= Ship.MinHaulLoad);
+            return TryHaulTo(station, withRoom, idleFreighters, out importPlanet, out freighter);
+        }
+
+        // the closest colony a freighter reaches, and the quickest freighter there
+        static bool TryHaulTo(Ship station, Planet[] colonies, Ship[] freighters, out Planet importPlanet, out Ship freighter)
+        {
+            colonies.Sort(p => p.Position.SqDist(station.Position));
+            for (int i = 0; i < colonies.Length; ++i)
+            {
+                int fastest = int.MaxValue;
+                freighter = null;
+                for (int j = 0; j < freighters.Length; ++j)
+                {
+                    if (freighters[j].TryGetHaulEta(station, colonies[i], out int eta) && eta < fastest)
+                    {
+                        fastest = eta;
+                        freighter = freighters[j];
+                    }
+                }
+
+                if (freighter != null)
+                {
+                    importPlanet = colonies[i];
+                    return true;
+                }
+            }
+
+            importPlanet = null;
+            freighter = null;
+            return false;
+        }
+
         void DispatchOrBuildFreighters(Goods goods, Array<Planet> importPlanetList, bool interTrade, ref TradeState state)
         {
             if (state.NoFreeFreighters)

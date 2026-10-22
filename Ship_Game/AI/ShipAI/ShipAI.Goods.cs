@@ -75,7 +75,7 @@ namespace Ship_Game.AI
             switch (g.Trade.Goods)
             {
                 case Goods.Food:
-                    exportPlanet.ProdHere   += Owner.UnloadProduction();
+                    Owner.UnloadIntoColony(exportPlanet, Goods.Production);
                     exportPlanet.Population += Owner.UnloadColonists();
 
                     // food amount estimated the import planet needs
@@ -90,7 +90,7 @@ namespace Ship_Game.AI
                     freighterTooSmall      = Owner.CargoSpaceMax.Less(maxFoodLoad);
                     break;
                 case Goods.Production:
-                    exportPlanet.FoodHere   += Owner.UnloadFood();
+                    Owner.UnloadIntoColony(exportPlanet, Goods.Food);
                     exportPlanet.Population += Owner.UnloadColonists();
                     float maxProdLoad        = exportPlanet.ExportableProd(exportPlanet, importPlanet, eta);
                     if (maxProdLoad.Less(3f.UpperBound(Owner.CargoSpaceMax)))
@@ -103,8 +103,8 @@ namespace Ship_Game.AI
                     freighterTooSmall      = Owner.CargoSpaceMax.Less(maxProdLoad);
                     break;
                 case Goods.Colonists:
-                    exportPlanet.ProdHere += Owner.UnloadProduction();
-                    exportPlanet.FoodHere += Owner.UnloadFood();
+                    Owner.UnloadIntoColony(exportPlanet, Goods.Production);
+                    Owner.UnloadIntoColony(exportPlanet, Goods.Food);
 
                     float maxPopLoad        = exportPlanet.ExportablePop(exportPlanet, importPlanet);
                     if (maxPopLoad.AlmostZero())
@@ -171,13 +171,14 @@ namespace Ship_Game.AI
             importPlanet.ChangeIncomingCargo(g.Trade.Goods, -Owner.GetCargo(g.Trade.Goods));
             float cargoBefore = Owner.CargoSpaceUsed;
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
-            if (Owner.GetCargo(Goods.Colonists).AlmostZero())
-                Owner.Loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
+            bool taxed = Owner.GetCargo(Goods.Colonists).AlmostZero();
 
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
             float unloaded = cargoBefore - Owner.CargoSpaceUsed;
+            if (taxed) // only the goods the colony takes; what stays aboard is taxed where it is delivered
+                Owner.Loyalty.TaxGoods(unloaded, importPlanet);
 
             importPlanet.UpdateAverageFreightTurns(importPlanet, exportPlanet, g.Trade.Goods, g.Trade.StardateAdded);
             Owner.Loyalty.UpdateAverageFreightFTL(Owner.MaxFTLSpeed);
@@ -206,7 +207,7 @@ namespace Ship_Game.AI
 
         public void CancelPickup(AIState newState)
         {
-            if (OrderQueue.TryPeekFirst(out ShipGoal g) && g.Plan is Plan.PickupGoods or Plan.PickupGoodsForStation)
+            if (OrderQueue.TryPeekFirst(out ShipGoal g) && g.Plan is Plan.PickupGoods or Plan.PickupGoodsForStation or Plan.PickupGoodsFromStation)
                 ClearOrders(newState);
         }
 
@@ -219,6 +220,8 @@ namespace Ship_Game.AI
             {
                 if (g.Plan == Plan.DropOffGoodsForStation && station == g.Trade.TargetStation)
                     UnloadGoodsForStation(g);
+                else if (g.Plan == Plan.PickupGoodsFromStation && station == g.Trade.FromStation)
+                    LoadGoodsFromStation(g);
                 return 0f;
             }
 
@@ -260,6 +263,16 @@ namespace Ship_Game.AI
             }
             Plan plan = Plan.PickupGoodsForStation;
             SetTradePlan(plan, exportPlanet, targetStation, goods);
+        }
+
+        public void SetupFreighterPlan(Ship fromStation, Planet importPlanet, Goods goods)
+        {
+            if (fromStation.System != null && (Owner.Loyalty == importPlanet.Owner || Owner.Loyalty.IsAlliedWith(importPlanet.Owner)))
+            {
+                Owner.Loyalty.AI.SpaceRoadsManager.AddSpaceRoadHeat(fromStation.System,
+                    importPlanet.System, Owner.CargoSpaceMax * 0.02f);
+            }
+            SetTradePlan(Plan.PickupGoodsFromStation, fromStation, importPlanet, goods);
         }
     }
 

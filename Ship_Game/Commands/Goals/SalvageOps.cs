@@ -285,7 +285,57 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
+            Haul(SalvageStation);
             return GoalStep.TryAgain;
+        }
+
+        // the most freighters on their way to load at one station
+        public const int MaxHauls = 3;
+
+        // the player's station calls an idle freighter for each average freighter load it holds beyond the holds of those on their way, and for all of it once it has no room for another platform load
+        void Haul(Ship station)
+        {
+            if (!Owner.isPlayer || station.Dying || HaulsBlocked(station))
+                return;
+
+            int coming = HaulsComing(station, out float holds);
+            float uncalled = station.GetProduction() - holds;
+            float callAt = station.CargoRoom < ShipResupply.SalvageLoad ? 1f : Owner.AverageFreighterCargoCap;
+            while (coming < MaxHauls && uncalled >= callAt
+                   && Owner.TryDispatchHaul(station, out Planet colony, out Ship freighter))
+            {
+                uncalled -= freighter.CargoRoom;
+                freighter.AI.SetupFreighterPlan(station, colony, Goods.Production);
+                colony.UpdateIncomingTradeGoods();
+                ++coming;
+            }
+        }
+
+        // armed hostiles in a station's sensor range hold off its hauls
+        public static bool HaulsBlocked(Ship station)
+        {
+            if (!station.AI.BadGuysNear)
+                return false;
+
+            return station.AI.PotentialTargets.Any(s => s.Active && !s.Dying && s.TotalDps > 0f);
+        }
+
+        // from any thread: the freighters on their way to load at the station, those landing on it included, and the room in their holds
+        public static int HaulsComing(Ship station, out float holds)
+        {
+            holds = 0f;
+            int coming = 0;
+            var ships = station.Loyalty.OwnedShips;
+            for (int i = 0; i < ships.Count; ++i)
+            {
+                Ship ship = ships[i];
+                if (ship.AI.FindGoal(ShipAI.Plan.PickupGoodsFromStation, out ShipAI.ShipGoal g) && g.Trade?.FromStation == station)
+                {
+                    ++coming;
+                    holds += ship.CargoRoom;
+                }
+            }
+            return coming;
         }
 
         bool ConstructionGoalInProgress

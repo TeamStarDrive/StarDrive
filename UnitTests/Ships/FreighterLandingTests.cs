@@ -354,7 +354,7 @@ public class FreighterLandingTests : StarDriveTest
         freighter.AI.OrderScrapShip();
         Assert.IsTrue(freighter.IsLaunching, "a docked freighter takes off at once to be scrapped");
         AssertEqual(AIState.Scrap, freighter.AI.State, "a docked freighter goes straight to be scrapped");
-        Assert.IsFalse(freighter.IsIdleFreighter, "so it cannot be handed a trade job and lose the cargo when scrapped");
+        Assert.IsFalse(freighter.IsIdleFreighter, "so it cannot be handed a trade job on its way to be scrapped");
     }
 
     [TestMethod]
@@ -604,6 +604,55 @@ public class FreighterLandingTests : StarDriveTest
                     "a freighter with the goods on board adds only the landing to unload");
     }
 
+    void TaxAndCreditsAtAQuarter()
+    {
+        Player.data.Traits.TaxGoods = false;
+        Player.data.Traits.Mercantile = 1f; // a credit of trade income for each unit delivered
+        Player.data.TaxRate = 0.25f;
+    }
+
+    [TestMethod]
+    public void ProductionLeftAboardGoesIntoAColonyLoadingFoodAsFarAsItHasRoomAndTheRestTurnsIntoCredits()
+    {
+        TaxAndCreditsAtAQuarter();
+        Importer.Storage.Max = 100f;
+        Ship freighter = SpawnFreighter(Exporter, new Vector2(5000, 0));
+        AssertGreaterThan(freighter.CargoSpaceMax, 10f, "setup: the freighter has a hold");
+        freighter.LoadProduction(10f);
+        Exporter.ProdHere = Exporter.Storage.Max - 4f;
+        freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
+        float money = Player.Money;
+        float taxed = Player.TradeMoneyAddedThisTurn;
+
+        freighter.AI.TradeAfterLanding(Exporter, null);
+        Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.DropOffGoods, out _) && freighter.GetFood() > 0f, "setup: the freighter loads food");
+        AssertEqual(0f, freighter.GetProduction(), "it leaves the production it held");
+        AssertEqual(0.01f, Exporter.Storage.Max, Exporter.ProdHere, "the colony takes the 4 it has room for");
+        AssertEqual(0.01f, 4f, Player.TradeMoneyAddedThisTurn - taxed, "taxed as a delivery");
+        AssertEqual(0.01f, 1.5f, Player.Money - money, "and the 6 with no room bring a quarter of a credit each, at a 25% tax rate");
+    }
+
+    [TestMethod]
+    public void FoodLeftAboardGoesIntoAColonyLoadingForAStationAsFarAsItHasRoomAndTheRestTurnsIntoCredits()
+    {
+        TaxAndCreditsAtAQuarter();
+        Ship station = SpawnResearchStation(Exporter.Position + new Vector2(20_000, 0));
+        Ship freighter = SpawnFreighter(Exporter, new Vector2(5000, 0));
+        freighter.LoadFood(10f);
+        Exporter.FoodHere = Exporter.Storage.Max - 4f;
+        freighter.AI.SetupFreighterPlan(Exporter, station, Goods.Production);
+        float money = Player.Money;
+        float taxed = Player.TradeMoneyAddedThisTurn;
+
+        freighter.AI.TradeAfterLanding(Exporter, null);
+        Assert.IsTrue(HasTradeGoal(freighter, ShipAI.Plan.DropOffGoodsForStation, out _) && freighter.GetProduction() > 0f,
+                      "setup: the freighter loads production for the station");
+        AssertEqual(0f, freighter.GetFood(), "it leaves the food it held");
+        AssertEqual(0.01f, Exporter.Storage.Max, Exporter.FoodHere, "the colony takes the 4 it has room for");
+        AssertEqual(0.01f, 4f, Player.TradeMoneyAddedThisTurn - taxed, "taxed as a delivery");
+        AssertEqual(0.01f, 1.5f, Player.Money - money, "and the 6 with no room bring a quarter of a credit each, at a 25% tax rate");
+    }
+
     [TestMethod]
     public void AFreighterLandsOnAResearchStationToUnload()
     {
@@ -749,7 +798,7 @@ public class FreighterLandingTests : StarDriveTest
         Goal scrap = Player.AI.FindGoal(g => g.Type == GoalType.ScrapShip && g.OldShip == freighter);
         Assert.IsNotNull(scrap, "a scrap ordered while the freighter is down waits for it");
         Assert.IsTrue(freighter.IsLanding, "the freighter carries on with its landing");
-        Assert.IsFalse(freighter.AI.HasTradePlan, "but it no longer goes down to load goods the scrap would lose");
+        Assert.IsFalse(freighter.AI.HasTradePlan, "but it no longer goes down to load goods");
 
         RunUntilLanded(freighter);
         scrap.Evaluate();

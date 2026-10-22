@@ -1,4 +1,5 @@
-﻿using Ship_Game.Ships;
+﻿using System;
+using Ship_Game.Ships;
 using SDGraphics;
 
 namespace Ship_Game.AI
@@ -64,7 +65,7 @@ namespace Ship_Game.AI
             switch (g.Trade.Goods)
             {
                 case Goods.Food:
-                    exportPlanet.ProdHere += Owner.UnloadProduction();
+                    Owner.UnloadIntoColony(exportPlanet, Goods.Production);
                     exportPlanet.Population += Owner.UnloadColonists();
 
                     // food amount estimated the import planet needs
@@ -72,7 +73,7 @@ namespace Ship_Game.AI
                     exportPlanet.FoodHere -= Owner.LoadFood(maxFoodLoad);
                     break;
                 case Goods.Production:
-                    exportPlanet.FoodHere += Owner.UnloadFood();
+                    Owner.UnloadIntoColony(exportPlanet, Goods.Food);
                     exportPlanet.Population += Owner.UnloadColonists();
                     float maxProdLoad = exportPlanet.ExportableProd(exportPlanet, targetStation, eta);
                     exportPlanet.ProdHere -= Owner.LoadProduction(maxProdLoad);
@@ -133,6 +134,60 @@ namespace Ship_Game.AI
             Planet toOrbit = Owner.Loyalty.FindNearestRallyPoint(Owner.Position);
             CancelTradePlan(toOrbit);
             Owner.Loyalty.CheckForRefitFreighter(Owner, 10);
+        }
+
+        // a haul flies to its station and loads as it lands there, unless other freighters took what the station held
+        public void DoPickupGoodsFromStation(FixedSimTime timeStep, ShipGoal g)
+        {
+            Ship station = g.Trade.FromStation;
+            if (!CanHaul(station, g.Trade.ImportTo))
+            {
+                CancelTradePlan();
+                return;
+            }
+
+            if (WaitForBlockadeRemoval(g, station, timeStep))
+                return;
+
+            if (Owner.Position.InRadius(station.Position, LandShip.ShipyardLandingRange(Owner)) && station.GetProduction() < 1f)
+            {
+                CancelTradePlan(Owner.Loyalty.FindNearestRallyPoint(Owner.Position));
+                return;
+            }
+
+            FlyInToStation(timeStep, g, station);
+        }
+
+        bool CanHaul(Ship station, Planet importPlanet)
+        {
+            return station is { Active: true, Dying: false }
+                   && station.Loyalty == Owner.Loyalty
+                   && importPlanet.Owner != null // colony was wiped out
+                   && !importPlanet.Quarantine
+                   && (importPlanet.Owner == Owner.Loyalty || importPlanet.Owner.IsTradeTreaty(Owner.Loyalty));
+        }
+
+        // at touchdown a haul fills its hold, whatever its colony's room, to move the production out of the station
+        void LoadGoodsFromStation(ShipGoal g)
+        {
+            Ship station = g.Trade.FromStation;
+            Planet importPlanet = g.Trade.ImportTo;
+            if (!CanHaul(station, importPlanet))
+            {
+                CancelTradePlan();
+                return;
+            }
+
+            float load = Math.Min(Owner.CargoRoom, station.GetProduction());
+            if (load < 1f)
+            {
+                CancelTradePlan(Owner.Loyalty.FindNearestRallyPoint(Owner.Position));
+                return;
+            }
+
+            station.UnloadProduction(Owner.LoadProduction(load));
+            importPlanet.ChangeIncomingCargo(Goods.Production, Owner.GetCargo(Goods.Production));
+            SetTradePlan(Plan.DropOffGoods, station, importPlanet, Goods.Production);
         }
     }
 }
