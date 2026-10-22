@@ -142,7 +142,7 @@ namespace Ship_Game.AI
             Ship station = g.Trade.FromStation;
             if (!CanHaul(station, g.Trade.ImportTo))
             {
-                CancelTradePlan();
+                CallOffTrade(g.Trade);
                 return;
             }
 
@@ -151,12 +151,16 @@ namespace Ship_Game.AI
 
             if (Owner.Position.InRadius(station.Position, LandShip.ShipyardLandingRange(Owner)) && station.GetProduction() < 1f)
             {
-                CancelTradePlan(Owner.Loyalty.FindNearestRallyPoint(Owner.Position));
+                CallOffTrade(g.Trade);
                 return;
             }
 
             FlyInToStation(timeStep, g, station);
         }
+
+        // a trade called off flies back to its exporting colony, or a haul, with none, to the nearest rally point
+        public void CallOffTrade(TradePlan trade)
+            => CancelTradePlan(trade.ExportFrom ?? Owner.Loyalty.FindNearestRallyPoint(Owner.Position));
 
         bool CanHaul(Ship station, Planet importPlanet)
         {
@@ -174,14 +178,14 @@ namespace Ship_Game.AI
             Planet importPlanet = g.Trade.ImportTo;
             if (!CanHaul(station, importPlanet))
             {
-                CancelTradePlan();
+                CallOffTrade(g.Trade);
                 return;
             }
 
             float load = Math.Min(Owner.CargoRoom, station.GetProduction());
             if (load < 1f)
             {
-                CancelTradePlan(Owner.Loyalty.FindNearestRallyPoint(Owner.Position));
+                CallOffTrade(g.Trade);
                 return;
             }
 

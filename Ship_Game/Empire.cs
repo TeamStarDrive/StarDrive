@@ -106,7 +106,7 @@ namespace Ship_Game
         [StarData] public EmpireAI AI;
         public ThreatMatrix Threats => AI.ThreatMatrix;
 
-        [StarData] float UpdateTimer;
+        [StarData] internal float UpdateTimer;
 
         [StarData] public bool isPlayer;
         [StarData] public bool IsDefeated { get; private set; }
@@ -125,6 +125,8 @@ namespace Ship_Game
         public float GrossPlanetIncome { get; private set; }
         public float PotentialIncome { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
+        [StarData] public float ExcessCargoMoney { get; private set; } // tax on food and production a full colony store could not take from a ship, since the last turn's income
+        float ExcessCargoMoneyCollected; // that tax as the last turn's income collected it
         public float MoneyLastTurn;
         [StarData] public float AllTimeTradeIncome;
         [StarData] public bool AutoBuildSpaceRoads;
@@ -384,6 +386,12 @@ namespace Ship_Game
         public void AddMoney(float moneyDiff)
         {
             Money += moneyDiff;
+        }
+
+        // paid with the next turn's income, among the excess goods
+        public void AddExcessCargoMoney(float money)
+        {
+            ExcessCargoMoney += money;
         }
 
         public void TriggerAllShipStatusUpdate()
@@ -1419,6 +1427,8 @@ namespace Ship_Game
             ++TurnCount;
 
             UpdateTradeIncome();
+            ExcessCargoMoneyCollected = ExcessCargoMoney; // once a turn, as the budget screen updates incomes between turns too
+            ExcessCargoMoney = 0f;
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             UpdatePlanetStorageStats();
@@ -1460,7 +1470,7 @@ namespace Ship_Game
             NetPlanetIncomes              = 0;
             TroopCostOnPlanets            = 0;
             GrossPlanetIncome             = 0;
-            ExcessGoodsMoneyAddedThisTurn = 0;
+            ExcessGoodsMoneyAddedThisTurn = ExcessCargoMoneyCollected;
             PotentialIncome               = 0;
             TotalFoodPerColonist          = 0;
 
@@ -2381,6 +2391,8 @@ namespace Ship_Game
                 Money += target.Money;
                 target.Money = 0.0f;
             }
+            ExcessCargoMoney += target.ExcessCargoMoney; // its credits still to come with a turn's income
+            target.ExcessCargoMoney = 0f;
 
             SalvageDerelict.PassOn(target, this);
             target.AI.SpaceRoadsManager.RemoveSpaceRoadsByAbsorb();

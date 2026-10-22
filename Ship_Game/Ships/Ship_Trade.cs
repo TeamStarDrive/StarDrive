@@ -119,7 +119,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        // the food or production it holds goes into its empire's colony as far as the store has room, taxed as a delivery; what has no room turns into credits at the tax rate, as a colony's excess goods do
+        // the food or production it holds goes into its empire's colony as far as the store has room, taxed as a delivery; what has no room turns into credits at the tax rate, paid as a colony's excess goods are
         public void UnloadIntoColony(Planet colony, Goods goods)
         {
             bool food = goods == Goods.Food;
@@ -130,7 +130,7 @@ namespace Ship_Game.Ships
             else
                 colony.ProdHere += taken;
             Loyalty.TaxGoods(taken, colony);
-            Loyalty.AddMoney((food ? UnloadFood() : UnloadProduction()) * Loyalty.data.TaxRate);
+            Loyalty.AddExcessCargoMoney((food ? UnloadFood() : UnloadProduction()) * Loyalty.data.TaxRate);
         }
 
         // a colony pickup's floor: a haul needs a freighter with room for at least this, and goes to a colony without an import slot only with room for at least this

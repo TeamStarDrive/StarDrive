@@ -141,7 +141,7 @@ namespace Ship_Game.AI
             Planet importPlanet = g.Trade.ImportTo;
             if (!CanDeliver(importPlanet))
             {
-                AI.CancelTradePlan(g.Trade.ExportFrom);
+                AI.CallOffTrade(g.Trade);
                 return;
             }
 
@@ -164,7 +164,7 @@ namespace Ship_Game.AI
             Planet exportPlanet = g.Trade.ExportFrom;
             if (!CanDeliver(importPlanet))
             {
-                AI.CancelTradePlan(exportPlanet);
+                AI.CallOffTrade(g.Trade);
                 return 0f;
             }
 

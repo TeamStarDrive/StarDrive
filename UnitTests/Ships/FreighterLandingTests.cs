@@ -621,7 +621,7 @@ public class FreighterLandingTests : StarDriveTest
         freighter.LoadProduction(10f);
         Exporter.ProdHere = Exporter.Storage.Max - 4f;
         freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
-        float money = Player.Money;
+        float credits = Player.ExcessCargoMoney;
         float taxed = Player.TradeMoneyAddedThisTurn;
 
         freighter.AI.TradeAfterLanding(Exporter, null);
@@ -629,7 +629,32 @@ public class FreighterLandingTests : StarDriveTest
         AssertEqual(0f, freighter.GetProduction(), "it leaves the production it held");
         AssertEqual(0.01f, Exporter.Storage.Max, Exporter.ProdHere, "the colony takes the 4 it has room for");
         AssertEqual(0.01f, 4f, Player.TradeMoneyAddedThisTurn - taxed, "taxed as a delivery");
-        AssertEqual(0.01f, 1.5f, Player.Money - money, "and the 6 with no room bring a quarter of a credit each, at a 25% tax rate");
+        AssertEqual(0.01f, 1.5f, Player.ExcessCargoMoney - credits, "and the 6 with no room bring a quarter of a credit each, at a 25% tax rate");
+    }
+
+    [TestMethod]
+    public void CreditsForGoodsWithNoRoomArePaidOnceWithTheTurnsIncomeUnderExcessGoods()
+    {
+        TaxAndCreditsAtAQuarter();
+        Ship freighter = SpawnFreighter(Exporter, new Vector2(5000, 0));
+        freighter.LoadProduction(10f);
+        Exporter.ProdHere = Exporter.Storage.Max - 4f;
+        freighter.AI.SetupFreighterPlan(Exporter, Importer, Goods.Food);
+        Player.UpdateNetPlanetIncomes();
+        float colonies = Player.ExcessGoodsMoneyAddedThisTurn; // the colonies' own excess goods
+        float money = Player.Money;
+
+        freighter.AI.TradeAfterLanding(Exporter, null);
+        AssertEqual(0.01f, 1.5f, Player.ExcessCargoMoney, "setup: the 6 with no room bring a quarter of a credit each");
+        AssertEqual(0.001f, money, Player.Money, "they are not paid at once");
+
+        Player.DoMoney();
+        AssertEqual(0.01f, colonies + 1.5f, Player.ExcessGoodsMoneyAddedThisTurn, "but with the turn's income, under Excess Goods");
+
+        Player.UpdateNetPlanetIncomes();
+        AssertEqual(0.01f, colonies + 1.5f, Player.ExcessGoodsMoneyAddedThisTurn, "an update of incomes between turns still shows them");
+        Player.DoMoney();
+        AssertEqual(0.01f, colonies, Player.ExcessGoodsMoneyAddedThisTurn, "and the next turn's income does not pay them again");
     }
 
     [TestMethod]
@@ -641,7 +666,7 @@ public class FreighterLandingTests : StarDriveTest
         freighter.LoadFood(10f);
         Exporter.FoodHere = Exporter.Storage.Max - 4f;
         freighter.AI.SetupFreighterPlan(Exporter, station, Goods.Production);
-        float money = Player.Money;
+        float credits = Player.ExcessCargoMoney;
         float taxed = Player.TradeMoneyAddedThisTurn;
 
         freighter.AI.TradeAfterLanding(Exporter, null);
@@ -650,7 +675,7 @@ public class FreighterLandingTests : StarDriveTest
         AssertEqual(0f, freighter.GetFood(), "it leaves the food it held");
         AssertEqual(0.01f, Exporter.Storage.Max, Exporter.FoodHere, "the colony takes the 4 it has room for");
         AssertEqual(0.01f, 4f, Player.TradeMoneyAddedThisTurn - taxed, "taxed as a delivery");
-        AssertEqual(0.01f, 1.5f, Player.Money - money, "and the 6 with no room bring a quarter of a credit each, at a 25% tax rate");
+        AssertEqual(0.01f, 1.5f, Player.ExcessCargoMoney - credits, "and the 6 with no room bring a quarter of a credit each, at a 25% tax rate");
     }
 
     [TestMethod]

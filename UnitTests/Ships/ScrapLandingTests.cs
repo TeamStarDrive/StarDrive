@@ -130,6 +130,7 @@ public class ScrapLandingTests : StarDriveTest
 
         Homeworld.Storage.Max = Homeworld.ProdHere + scrapCost + 3f;
         float taxed = Player.TradeMoneyAddedThisTurn;
+        float credits = Player.ExcessCargoMoney;
         money = Player.Money;
         OrderScrap(loaded);
         RunUntilLanded();
@@ -137,7 +138,23 @@ public class ScrapLandingTests : StarDriveTest
         AssertEqual(0.01f, 3f, Homeworld.FoodHere, "and all 3 food");
         AssertEqual(0.001f, population + colonists, Homeworld.Population, "and the colonists join its population");
         AssertEqual(0.01f, 6f, Player.TradeMoneyAddedThisTurn - taxed, "the 6 goods the planet takes are taxed as a delivery");
-        AssertEqual(0.01f, refund + 1f, Player.Money - money, "and the 4 production with no room bring a quarter of a credit each, at a 25% tax rate");
+        AssertEqual(0.01f, 1f, Player.ExcessCargoMoney - credits, "and the 4 production with no room bring a quarter of a credit each, at a 25% tax rate");
+        AssertEqual(0.01f, refund, Player.Money - money, "paid with the turn's income, not with the ship's own refund");
+    }
+
+    [TestMethod]
+    public void AScrappedShipsColonistsWithNoRoomAreLost()
+    {
+        TestShip loaded = SpawnShip("Owlwok Freighter S", Player, Homeworld.Position + new Vector2(0, 5000));
+        float colonists = loaded.LoadColonists(0.5f);
+        AssertGreaterThan(colonists, 0f, "setup: colonists aboard");
+        Homeworld.Population = Homeworld.MaxPopulation - colonists * 0.5f;
+        float credits = Player.ExcessCargoMoney;
+
+        OrderScrap(loaded);
+        RunUntilLanded();
+        AssertEqual(0.001f, Homeworld.MaxPopulation, Homeworld.Population, "the colony takes the half of the colonists it has room for");
+        AssertEqual(0.001f, credits, Player.ExcessCargoMoney, "and the rest are lost, bringing no credits");
     }
 
     [TestMethod]
@@ -177,9 +194,11 @@ public class ScrapLandingTests : StarDriveTest
         Homeworld.SetOwner(Enemy);
         float prodAfterCapture = Homeworld.ProdHere;
         money = Player.Money;
+        float credits = Player.ExcessCargoMoney;
         RunUntilLanded();
         AssertEqual(0.01f, prodAfterCapture, Homeworld.ProdHere, "a planet lost during the landing gets none of the cargo");
         AssertEqual(0.01f, refund, Player.Money - money, "and the cargo brings no credits, only the ship's own refund");
+        AssertEqual(0.001f, credits, Player.ExcessCargoMoney, "nor any to come with the turn's income");
     }
 
     [TestMethod]

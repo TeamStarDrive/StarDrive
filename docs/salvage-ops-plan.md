@@ -215,8 +215,8 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
       panel; it is checked by eye (456 B). Part 6 moves the button and the status 10 px up, for the techs under them
       (481; see Techs).
     - Salvage stations are queued as urgent orbitals, as research and mining stations are (320).
-    - An order not yet built ends, with its constructor, once its system has no salvageable derelict left; a built
-      station stays (322).
+    - An order not yet built ends, with its constructor, once its system has no derelict left for its empire to
+      salvage (322, 726 B); a built station ends once nothing is left to salvage there (718 A).
   - **The Exotic Systems rows (Gilad, 2026-10-17; 328 A, 332):**
     - Each system with salvageable derelicts the player knows of has a salvage row, apart from that system's research
       or Dyson swarm row. The row goes with the system's last such derelict, even with the player's station built there.
@@ -1250,16 +1250,17 @@ Implementation notes:
      random. Review: the player's own sensors only, outside every system (693 A); a listed system shows its drifting
      ones (694 A); a test that the oldest of two gives up its place (695 A); no test of the warning under 0.1 (696 A).
    - The station's own order hauls, as research and mining stations get their supplies from their own orders
-     (665): each turn it calls an idle freighter for each average freighter load it holds (20 at game start)
-     beyond the room in the holds of those already on their way, with at most 3 on their way at once, like a
-     mining station's 3 supply runs (667 A). Once it has no room for another platform load (75 of the Basic Salvage
-     Station's 316), it calls for all it holds, as an average load can outgrow the station's hold (721 A). Orders
-     run before the trade turn, so hauls take idle freighters first. A freighter holding other goods is not called.
-     No order is kept per run: the station counts the freighters whose first order is to load at it.
-   - Where a haul goes (666 C, 717 A): the closest of the empire's colonies importing production that an idle
-     freighter reaches, then the closest of its trade partners' importing colonies, with Allow Player Inter Trade
-     on and the freighter's own inter-empire trade on (a partner's colony counts the 35-turn limit and pays the
-     2-credit tariff), then the closest of its colonies with room for 3 or more in its production store, counting
+     (665): each turn, while what it holds beyond the room in the holds of those already on their way is an
+     average freighter load (20 at game start) or more, it calls another idle freighter, with at most 3 on their
+     way at once, like a mining station's 3 supply runs (667 A). Once it has no room for another platform load (75
+     of the Basic Salvage Station's 316), 1 or more is enough, as an average load can outgrow the station's hold
+     (721 A). Orders run before the trade turn, so hauls take idle freighters first. A freighter holding other
+     goods is not called. No order is kept per run: the station counts the freighters with an order to load at it.
+     A station counting down to its scuttling calls none (727 A).
+   - Where a haul goes (666 C, 717 A): the closest of the empire's colonies with an open production import slot
+     that an idle freighter reaches, then the closest of its trade partners' such colonies, with Allow Player
+     Inter Trade on and the freighter's own inter-empire trade on (a partner's colony counts the 35-turn limit and
+     pays the 2-credit tariff), then the closest of its colonies with room for 3 or more in its production store, counting
      what is on its way there, loaded or still to load. Closest is the straight distance from the station; the
      quickest freighter there goes. Only trade partners count, not allies without a trade treaty (716 A).
    - No freighter is built for a haul (668 B). Areas of operation and route lists rule as for research and mining
@@ -1274,12 +1275,17 @@ Implementation notes:
      delivers like any freighter, keeping aboard what the colony has no room for. Every delivery, a colony's included,
      is now taxed only for what the colony takes (723 A). A freighter loading another good leaves what it still holds
      in that colony as far as its store has room, taxed as a delivery, and what has no room turns into credits at the
-     tax rate, as a colony's excess goods do (724 B; before, the store's cap destroyed it). A ship scrapped at a
-     colony unloads its food, production and colonists there as far as there is room, the goods taxed; goods with no
-     room turn into credits at the tax rate, as a colony's excess goods do, and colonists with no room are lost
-     (Gilad, 2026-10-22).
-     A station lost or in other hands calls off a run still on its way; a load aboard is still delivered. A
-     freighter reaching a station that other freighters emptied does not land. The ship list reads "Picking up
+     tax rate (724 B; before, the store's cap destroyed it). A ship scrapped at a colony unloads its food, production
+     and colonists there as far as there is room, the goods taxed; goods with no room turn into credits at the tax
+     rate, and colonists with no room are lost (Gilad, 2026-10-22). Those credits are paid with the turn's income
+     under Excess Goods, as a colony's own excess goods are (734 B): the empire gathers them, and its money turn
+     collects them once, as the budget screen and techs update incomes between turns too. Saves keep those still to
+     come, and an empire absorbed passes them on (review).
+     A station lost or in other hands calls off a run still on its way; a load aboard is still delivered. A run whose
+     colony is lost, quarantined or no longer a trade partner's is called off too, and a run called off flies to the
+     nearest rally point, as it has no exporting colony to fly back to (728 A). A freighter reaching a station that
+     other freighters emptied does not land. Two freighters touching down on one station in the same step can both
+     load its whole hold, as two at one colony can (729 C, left). The ship list reads "Picking up
      Production from <station> to <colony>", the trade lines go blue to the station and gold to the colony, and
      the haul adds space-road heat as colony trade does.
    - Only the player's stations call freighters; AI empires haul from theirs in sub-branch 7.
@@ -1291,7 +1297,8 @@ Implementation notes:
      scrapped (720 A; with 719 B there is no dismantling to tell of first). Less than 1 aboard counts as nothing, as a
      haul takes no less. A station taken over gets its first turn with the goal pass, not at once, so the change of
      hands has shown its new owner the derelicts there first, and a station not yet placed in its system, which has
-     yet to show them, or one being scuttled, does not end. A derelict claimed by an empire with no station there
+     yet to show them, does not end, nor one about to change hands, which calls no freighters either, as a boarding
+     applies after the turn's goal pass (732 A). A derelict claimed by an empire with no station there
      still counts as work: that empire's claims end with its next goal pass, and the player's pass comes first, so a
      station just boarded would otherwise be scrapped with its old owner's claims still standing (review).
    - One test of what is left to salvage rules the order, the drop of an order not yet built and the station's
@@ -1305,6 +1312,12 @@ Implementation notes:
    - Parts: 1) the hauling; 2) the station's end, its status, the Codex text: Hauling the salvage in 100093, and the
      Freighters (100055), Automation Freighters (100164), Alerts (100173) and Deep Space Building (100086) entries.
      Texts 7218-7221.
+   - Pre-merge review (2026-10-22; Codex approve, three in-house areas, no blockers): 727 A, 728 A, 732 A and 734 B
+     above; 729 C, the same-step double load, left; 730, 731 and 733 not answered, nothing changed (a scrapped
+     station kept in a save through its last haul's FromStation, the status line's walk of the empire's ships each
+     frame, and a one-frame flip of the panel's grey button as another empire's goal list shifts); 735 the Codex
+     wording; 736 this plan; 737 A tests of the 35-turn partner limit, allies without a trade treaty, a waiting
+     haul going on, a station changing hands, colonists lost on scrap and a docked freighter called first.
 7. **ai** (was 6): the station planner and design picker, where auto salvage ops and the AI place a station (249), the
    player's auto-build switch (252), the strip/recover choice from the tech list, the rival rule (138), constructors
    and platforms kept out of danger, pirates in recover mode (176) with salvage station designs of their own, since

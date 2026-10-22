@@ -301,7 +301,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            if (Owner.isPlayer && !SalvageStation.Dying)
+            // one counting down to its scuttling, or about to change hands, calls no freighters and does not end
+            if (Owner.isPlayer && !SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
             {
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
                 if (workDone && SalvageStation.GetProduction() < 1f)
@@ -311,8 +312,8 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.TryAgain;
         }
 
-        // one not yet placed in its system has yet to show its owner the derelicts there, and one being scuttled ends that way
-        static bool CanEnd(Ship station) => station.System != null && station.ScuttleTimer < 0f;
+        // one not yet placed in its system has yet to show its owner the derelicts there
+        static bool CanEnd(Ship station) => station.System != null;
 
         // no salvage or recovery order of the empire's is left in the system, the platforms of those ended gone too, and no derelict left there for it to salvage
         bool NothingLeftToSalvage()

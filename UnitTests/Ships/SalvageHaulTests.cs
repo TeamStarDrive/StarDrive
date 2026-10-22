@@ -15,19 +15,22 @@ namespace UnitTests.Ships;
 /// Freighters haul the production a salvage station holds to colonies. Each turn the player's station calls an idle
 /// freighter for each average freighter load it holds beyond the room in the holds of those already on their way,
 /// and for all it holds once it has no room for another platform load, with at most 3 on their way and none while
-/// an armed hostile is in its sensor range; no freighter is built for it. A haul goes to the closest of the empire's
-/// colonies importing production that a freighter reaches, then to the closest of its trade partners' with
-/// inter-empire trade allowed, then to the closest of its colonies with room for production and open to trade, by
-/// the quickest freighter there; a freighter holding other goods or with little room goes on none. Areas of
-/// operation and trade routes rule as for research and mining stations, and with auto trade off only freighters set
-/// to trade production haul. The freighter lands on the station, fills its hold whatever its colony's room, and
-/// delivers like any freighter, taxed only for what the colony takes; outside the station's system it waits while
-/// the station sees an armed hostile, and gives up as at a blockaded colony. Once nothing is left to salvage in its
-/// system, no order of its empire's there and no derelict its empire knows of there that another empire does not
-/// work from its station there, the station calls for all it has left, and once it holds less than 1 it is scrapped
-/// with no refund, the player told unless salvage alerts are off; not while it is yet to be placed in its system or
-/// the player scuttles it. Its status says how many freighters are on their way, that it waits for them while it
-/// holds production, or that it salvages. AI empires' stations call none yet, and are not scrapped.
+/// an armed hostile is in its sensor range or it counts down to its scuttling; no freighter is built for it, and the
+/// empire's turn runs the call before its trade. A haul goes to the closest of the empire's colonies importing
+/// production that a freighter reaches, then to the closest of its trade partners' within 35 turns with
+/// inter-empire trade allowed, allies without a trade treaty left out, then to the closest of its colonies with room
+/// for production and open to trade, by the quickest freighter there; a freighter holding other goods or with little
+/// room goes on none. Areas of operation and trade routes rule as for research and mining stations, and with auto
+/// trade off only freighters set to trade production haul. The freighter lands on the station, fills its hold
+/// whatever its colony's room, and delivers like any freighter, taxed only for what the colony takes; outside the
+/// station's system it waits while the station sees an armed hostile, going on once it is gone, and gives up as at
+/// a blockaded colony. A haul whose station or colony is lost is called off and flies to the nearest rally point.
+/// Once nothing is left to salvage in its system, no order of its empire's there and no derelict its empire knows
+/// of there that another empire does not work from its station there, the station calls for all it has left, and
+/// once it holds less than 1 it is scrapped with no refund, the player told unless salvage alerts are off; not while
+/// it is yet to be placed in its system, the player scuttles it or it is about to change hands. Its status says how
+/// many freighters are on their way, that it waits for them while it holds production, or that it salvages, and
+/// counts down while it is scuttled. AI empires' stations call none yet, and are not scrapped.
 /// </summary>
 [TestClass]
 public class SalvageHaulTests : StarDriveTest
@@ -304,6 +307,42 @@ public class SalvageHaulTests : StarDriveTest
     }
 
     [TestMethod]
+    public void APartnersColonyMoreThan35TurnsAwayGetsNoHaul()
+    {
+        CreateThirdMajorEmpire();
+        Planet partners = Importer(SystemSite + new Vector2(0, 200_000f), ThirdMajor);
+        Planet mine = Colony(SystemSite + new Vector2(0, -250_000f));
+        TradeWith(ThirdMajor);
+        Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0));
+        freighter.AllowInterEmpireTrade = true;
+        Ship station = StationHolding(20f);
+        freighter.MaxFTLSpeed = 1_000f;
+        Assert.IsTrue(!freighter.TryGetHaulEta(station, partners, out int eta) && eta > 35, "setup: a slow freighter, 36 turns or more from the partner's colony");
+
+        Turn(station);
+        Assert.IsTrue(Hauls(freighter, station, out Planet colony) && colony == mine, "the haul goes to the player's colony with room, farther still");
+        AssertEqual(0, partners.NumIncomingFreighters, "the partner's colony gets none");
+    }
+
+    [TestMethod]
+    public void AnAllyWithoutATradeTreatyGetsNoHaul()
+    {
+        CreateThirdMajorEmpire();
+        Planet allys = Importer(SystemSite + new Vector2(0, 200_000f), ThirdMajor);
+        Planet mine = Colony(SystemSite + new Vector2(0, -250_000f));
+        Player.SignTreatyWith(ThirdMajor, TreatyType.Alliance);
+        Assert.IsTrue(Player.IsAlliedWith(ThirdMajor) && !Player.IsTradeTreaty(ThirdMajor), "setup: allied, with no trade treaty");
+        UState.P.AllowPlayerInterTrade = true;
+        Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0));
+        freighter.AllowInterEmpireTrade = true;
+        Ship station = StationHolding(20f);
+
+        Turn(station);
+        Assert.IsTrue(Hauls(freighter, station, out Planet colony) && colony == mine, "the haul goes to the player's colony with room");
+        AssertEqual(0, allys.NumIncomingFreighters, "the ally's importing colony gets none");
+    }
+
+    [TestMethod]
     public void WithNoImporterOrPartnerAHaulGoesToTheClosestColonyWithRoom()
     {
         Planet full = Colony(SystemSite + new Vector2(0, -150_000f));
@@ -437,6 +476,33 @@ public class SalvageHaulTests : StarDriveTest
         Assert.IsTrue(Hauls(freighter, station), "one set to it goes");
     }
 
+    // the empire's whole turn, as the game runs it, with a rival colony so the game is not won
+    void EmpireTurn(Empire empire)
+    {
+        AddDummyPlanetToEmpire(new Vector2(900_000f, 200_000f), Enemy);
+        empire.UpdateTimer = 0f;
+        Assert.IsTrue(empire.Update(UState, TestSimStep), "setup: the empire takes its turn");
+    }
+
+    [TestMethod]
+    public void TheEmpiresTurnCallsADockedFreighterForAHaulBeforeOfferingItItsColonysExports()
+    {
+        Planet exporter = Colony(SystemSite + new Vector2(0, 250_000f));
+        exporter.PS = Planet.GoodState.EXPORT;
+        exporter.ProdHere = exporter.Storage.Max;
+        exporter.ManualProdExportSlots = 1;
+        exporter.UpdateIncomingTradeGoods();
+        Importer(SystemSite + new Vector2(0, -200_000f));
+        Ship freighter = Freighter(exporter.Position + new Vector2(8_000f, 0));
+        freighter.LoadFood(5f);
+        freighter.AI.SetupFreighterPlan(exporter, exporter, Goods.Food);
+        RunSimWhile((simTimeout: 120, fatal: true), () => freighter.LandShip is not { Docked: true });
+        Ship station = StationHolding(20f);
+
+        EmpireTurn(Player);
+        Assert.IsTrue(Hauls(freighter, station), "the station's order calls the docked freighter before the turn's trade offers it its colony's exports");
+    }
+
     [TestMethod]
     public void NoFreighterIsCalledWhileAnArmedHostileIsInTheStationsSensorRange()
     {
@@ -506,6 +572,28 @@ public class SalvageHaulTests : StarDriveTest
         RunObjectsSim(0.1f);
         Assert.IsTrue(inside.IsLanding && Hauls(inside, station), "one inside the system goes on and lands");
         hostile.QueueTotalRemoval();
+    }
+
+    [TestMethod]
+    public void AWaitingHaulGoesOnOnceTheHostilesAreGone()
+    {
+        Planet importer = Importer(SystemSite + new Vector2(0, 200_000f));
+        Ship station = StationHolding(20f);
+        Ship freighter = Freighter(StationSite + new Vector2(200_000f, 0));
+        Ship hostile = SpawnShip("Dreadnought mk1-a", Enemy, StationSite + new Vector2(0, 20_000f));
+        RunObjectsSim(1.5f);
+        Assert.IsTrue(freighter.System == null && SalvageOps.HaulsBlocked(station), "setup: the freighter is outside the system, and a hostile is at the station");
+        freighter.AI.SetupFreighterPlan(station, importer, Goods.Production);
+        RunObjectsSim(2f);
+        freighter.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal g);
+        AssertLessThan(g.Trade.BlockadeTimer, 119f, "setup: the haul waits");
+
+        hostile.QueueTotalRemoval();
+        float distance = freighter.Position.Distance(station.Position);
+        RunObjectsSim(5f);
+        Assert.IsTrue(Hauls(freighter, station) || Delivers(freighter, importer), "once the hostile is gone the haul goes on");
+        AssertGreaterThan(distance - freighter.Position.Distance(station.Position), 2_000f, "flying on to the station");
+        AssertEqual(0.01f, 120f, g.Trade.BlockadeTimer, "its blockade timer back at its full 120 seconds");
     }
 
     [TestMethod]
@@ -587,6 +675,7 @@ public class SalvageHaulTests : StarDriveTest
         second.AI.TradeAfterLanding(null, station);
         AssertEqual(0f, second.GetProduction(), "the second takes nothing");
         Assert.IsFalse(Hauls(second, station) || Delivers(second, importer), "and its haul is called off");
+        Assert.IsTrue(FliesTo(second, Player.FindNearestRallyPoint(second.Position)), "for the nearest rally point");
     }
 
     [TestMethod]
@@ -604,6 +693,62 @@ public class SalvageHaulTests : StarDriveTest
         Assert.IsTrue(Delivers(loaded, importer), "one with the load aboard still delivers it");
     }
 
+    static bool FliesTo(Ship freighter, Planet planet)
+        => freighter.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal g) && g.Plan == ShipAI.Plan.Orbit && g.TargetPlanet == planet;
+
+    [TestMethod]
+    public void AHaulWhoseStationChangesHandsIsCalledOffAndFliesToTheNearestRallyPoint()
+    {
+        Planet importer = Importer(SystemSite + new Vector2(0, 200_000f));
+        Ship station = StationHolding(20f);
+        Ship freighter = LandingToHaul(station, importer);
+        Planet rally = Player.FindNearestRallyPoint(freighter.Position);
+        Assert.IsNotNull(rally, "setup: the player has a rally point");
+
+        station.LoyaltyTracker.SetBoardingLoyalty(Enemy, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(station.Loyalty == Enemy, "setup: the station changed hands");
+        Assert.IsFalse(Hauls(freighter, station), "the haul is called off");
+        Assert.IsTrue(FliesTo(freighter, rally), "and the freighter, with no colony it loaded at, flies to the nearest rally point");
+    }
+
+    [TestMethod]
+    public void AHaulWhoseColonyIsLostIsCalledOffAndFliesToTheNearestRallyPoint()
+    {
+        Planet importer = Importer(SystemSite + new Vector2(0, 200_000f));
+        Ship station = StationHolding(40f);
+        Ship flying = LandingToHaul(station, importer);
+        flying.AI.TradeAfterLanding(null, station);
+        Ship landed = LandingToHaul(station, importer);
+        landed.AI.TradeAfterLanding(null, station);
+        Assert.IsTrue(Delivers(flying, importer) && Delivers(landed, importer), "setup: both deliver");
+        Planet rally = Player.FindNearestRallyPoint(flying.Position);
+        Assert.IsNotNull(rally, "setup: the player has a rally point");
+
+        importer.SetOwner(Enemy);
+        landed.AI.TradeAfterLanding(importer, null);
+        Assert.IsTrue(!Delivers(landed, importer) && FliesTo(landed, rally), "one touching down on the lost colony calls its delivery off and flies to the nearest rally point");
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(!Delivers(flying, importer) && FliesTo(flying, rally), "and so does one on its way there");
+        AssertGreaterThan(flying.GetProduction(), 0f, "its load still aboard");
+    }
+
+    [TestMethod]
+    public void AColonysTradeCalledOffStillFliesBackToTheColonyItLoadedAt()
+    {
+        Planet exporter = Colony(SystemSite + new Vector2(0, 250_000f));
+        Planet importer = Colony(SystemSite + new Vector2(0, -250_000f));
+        Assert.IsTrue(Player.GetCurrentCapital(out Planet home), "setup: the player's home world");
+        Ship freighter = Freighter(home.Position + new Vector2(5_000f, 0));
+        Assert.IsTrue(Player.FindNearestRallyPoint(freighter.Position) == home, "setup: the nearest rally point is the home world");
+        freighter.LoadFood(5f);
+        freighter.AI.SetTradePlan(ShipAI.Plan.DropOffGoods, exporter, importer, Goods.Food);
+
+        importer.SetOwner(Enemy);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(FliesTo(freighter, exporter), "with its colony lost, it flies back to the colony it loaded at, not to the rally point");
+    }
+
     [TestMethod]
     public void ADyingStationCallsNoFreighterAndGivesNoLoad()
     {
@@ -615,6 +760,7 @@ public class SalvageHaulTests : StarDriveTest
 
         freighter.AI.TradeAfterLanding(null, station);
         AssertEqual(0f, freighter.GetProduction(), "a freighter touching down on a dying station takes nothing");
+        Assert.IsTrue(FliesTo(freighter, Player.FindNearestRallyPoint(freighter.Position)), "and flies to the nearest rally point");
         Turn(station);
         Assert.IsFalse(Hauls(idle, station), "and the station calls no freighter");
     }
@@ -646,6 +792,7 @@ public class SalvageHaulTests : StarDriveTest
 
         RunObjectsSim(0.1f);
         Assert.IsFalse(Hauls(freighter, station) || freighter.IsLanding, "with less than 1 left there, it does not land");
+        Assert.IsTrue(FliesTo(freighter, Player.FindNearestRallyPoint(freighter.Position)), "and flies to the nearest rally point");
 
         station.LoadProduction(10f);
         Ship next = Freighter(freighter.Position + new Vector2(0, 10f));
@@ -726,6 +873,7 @@ public class SalvageHaulTests : StarDriveTest
 
         AddDummyPlanetToEmpire(new Vector2(900_000f, 200_000f), Enemy); // the loader needs a colony of each major empire
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        Player.AddExcessCargoMoney(1.5f);
         SavedGame save = Universe.Save("UnitTest.SalvageHaul", throwOnError: true);
         UniverseScreen game = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
         Assert.IsNotNull(game, "setup: the save loads");
@@ -737,6 +885,7 @@ public class SalvageHaulTests : StarDriveTest
         Assert.IsTrue(Delivers(game.UState.Objects.FindShip(loaded.Id), loadedImporter), "one with its load aboard still delivers it");
         AssertEqual(1, SalvageOps.HaulsComing(loadedStation, out _), "the station counts the one on its way");
         AssertEqual(2, loadedImporter.NumIncomingFreighters, "and the colony both");
+        AssertEqual(0.001f, 1.5f, game.UState.Player.ExcessCargoMoney, "credits for goods with no room, still to come with a turn's income, are kept");
     }
 
     void TrackNotifications()
@@ -889,6 +1038,44 @@ public class SalvageHaulTests : StarDriveTest
         Turn(station);
         Assert.IsTrue(station.Active && OrderOf(station) != null, "nor is one the player is scuttling");
         AssertEqual(0, Told().Length, "and nothing is told");
+    }
+
+    [TestMethod]
+    public void AStationAboutToChangeHandsCallsNoFreighterAndIsNotScrapped()
+    {
+        Importer(SystemSite + new Vector2(0, 200_000f));
+        Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0));
+        Ship station = StationHolding(20f, atWork: false);
+        TrackNotifications();
+        station.LoyaltyTracker.SetBoardingLoyalty(Enemy, addNotification: false);
+
+        Turn(station);
+        Assert.IsFalse(Hauls(freighter, station), "a station boarded, its change of hands still to come, calls no freighter");
+        station.UnloadProduction(20f);
+        Turn(station);
+        Assert.IsTrue(station.Active && OrderOf(station) != null, "and, emptied with nothing left to salvage, is not scrapped");
+        AssertEqual(0, Told().Length, "and nothing is told");
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(station.Active && station.Loyalty == Enemy, "it goes to its boarder");
+    }
+
+    [TestMethod]
+    public void AStationCountingDownToItsScuttlingCallsNoFreighterAndShowsItsCountdown()
+    {
+        Importer(SystemSite + new Vector2(0, 200_000f));
+        Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0));
+        Ship station = StationHolding(20f);
+        station.ScuttleTimer = 10f; // as the ship list's scrap button sets it
+        station.AI.ClearOrders(AIState.Scuttle, priority: true);
+
+        Turn(station);
+        Assert.IsFalse(Hauls(freighter, station), "a station counting down to its scuttling calls no freighter");
+        StringAssert.StartsWith(ShipInfoUIElement.SalvageStationStatus(station), "Self Destruct: 10", "and its status shows the countdown");
+
+        station.ScuttleTimer = -1f; // as a second click calls it off
+        station.AI.ClearOrders();
+        Turn(station);
+        Assert.IsTrue(Hauls(freighter, station), "called off, it calls one again");
     }
 
     [TestMethod]
