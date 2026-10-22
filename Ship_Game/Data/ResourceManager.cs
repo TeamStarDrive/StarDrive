@@ -792,6 +792,7 @@ namespace Ship_Game
                 foreach (Empire e in us.Empires)
                     if (e.RemoveBuildableShip(design))
                         e.UpdateShipsWeCanBuild();
+                us.Player?.ShipDesignsChanged();
             }
         }
 

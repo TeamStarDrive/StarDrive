@@ -1368,6 +1368,15 @@ Implementation notes:
    - As built (part 1): every station but one pirates hold calls freighters and ends by the hauling rules, a player
      alone told of a station scrapped; Codex 100086 no longer says the station's end is only yours, and adds the end
      of one whose empire has no colony.
+   - The flag as research reads it (774 A): a tech that leads on to one unlocking no module, a bonus or hull tech,
+     is of use too, so about a third of the techs no design of the race uses still count, 14 of 36 for the Terrans,
+     the laser beam turrets among them; research needs it so, or it could not reach those techs. A design the player
+     saves or deletes reads only the player's designs again, not those of AI empires sharing a ship style, as a load
+     does (775 B), and diplomacy's tech values still count shipyards and the salvage platform (776 A).
+   - As built (part 2, the flag): `Empire.UpdateShipDesignTechUse` works the flag out both ways from the race's
+     designs, shipyards and the salvage platform left out, at start and as a save loads (`InitEmpireUnlocks`), and
+     `Empire.ShipDesignsChanged` reads the designs again on the sim thread as the player saves or deletes one and at
+     the end of an absorb, once the absorbed race is the empire's. A flag a save held off turns back on at load.
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.

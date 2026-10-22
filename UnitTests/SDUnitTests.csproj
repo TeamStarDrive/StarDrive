@@ -260,6 +260,7 @@
     <Compile Include="Ships\WeaponFireRateTests.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
     <Compile Include="Technologies\RefiningEfficiencyTests.cs" />
+    <Compile Include="Technologies\ShipDesignTechUseTests.cs" />
     <Compile Include="Technologies\TechBonusIsolationTests.cs" />
     <Compile Include="Technologies\TestResearchPriorities.cs" />
     <Compile Include="Technologies\TestShipCostMods.cs" />

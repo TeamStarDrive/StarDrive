@@ -803,21 +803,7 @@ namespace Ship_Game
 
         public void ResetTechsAndUnlocks()
         {
-            IShipDesign[] ourShips = AllFactionShipDesigns;
-
-            foreach (TechEntry entry in TechEntries)
-            {
-                var tech = entry.Tech;
-                bool modulesNotHulls = tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0;
-                if (modulesNotHulls && !WeCanUseThisInDesigns(entry, ourShips))
-                    entry.shipDesignsCanuseThis = false;
-            }
-
-            foreach (TechEntry entry in TechEntries)
-            {
-                if (!entry.shipDesignsCanuseThis)
-                    entry.shipDesignsCanuseThis = WeCanUseThisLater(entry);
-            }
+            UpdateShipDesignTechUse();
 
             foreach (TechEntry entry in TechEntries)
             {
@@ -829,6 +815,37 @@ namespace Ship_Game
             {
                 entry.UnlockFromSave(this, unlockBonuses: false);
             }
+        }
+
+        // a tech that unlocks modules and no hull is of use while a design of the race, shipyards and the salvage platform left out, has one of them, or it leads to a tech of use
+        void UpdateShipDesignTechUse()
+        {
+            IShipDesign[] ourShips = AllFactionShipDesigns.Filter(d => !d.IsShipyard && !d.IsSalvagePlatform);
+
+            foreach (TechEntry entry in TechEntries)
+            {
+                var tech = entry.Tech;
+                bool modulesNotHulls = tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0;
+                entry.shipDesignsCanuseThis = !modulesNotHulls || WeCanUseThisInDesigns(entry, ourShips);
+            }
+
+            foreach (TechEntry entry in TechEntries)
+            {
+                if (!entry.shipDesignsCanuseThis)
+                    entry.shipDesignsCanuseThis = WeCanUseThisLater(entry);
+            }
+        }
+
+        // the race's designs read again, and what they use, on the sim thread as research reads it
+        public void ShipDesignsChanged()
+        {
+            if (Universe?.Screen is { IsOnSimThread: false } screen)
+            {
+                screen.RunOnSimThread(ShipDesignsChanged);
+                return;
+            }
+            FactionDesignsCache = null;
+            UpdateShipDesignTechUse();
         }
 
         void CreateEmpireTechTree()
@@ -2410,6 +2427,7 @@ namespace Ship_Game
             target.data.AgentList.Clear();
             target.data.AbsorbedBy = data.Traits.Name;
             ThirdPartyAbsorb(target);
+            ShipDesignsChanged(); // its race's designs are ours now too
             CalculateScore();
         }
 
