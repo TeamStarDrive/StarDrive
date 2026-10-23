@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
@@ -36,7 +37,7 @@ public class DismantleOrbitalTests : StarDriveTest
 
     public DismantleOrbitalTests()
     {
-        LoadStarterShips(Platform, PatrolStation, BigStation, Projector, SalvageStation);
+        LoadStarterShips(Platform, PatrolStation, BigStation, Projector, SalvageStation, "Assault Shuttle");
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         Colony = AddHomeWorldToEmpire(new Vector2(200_000f), Player);
@@ -297,6 +298,22 @@ public class DismantleOrbitalTests : StarDriveTest
         goal.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(goal), "and its old owner's dismantling ends");
         Assert.IsTrue(station.Active && !station.Dismantling, "leaving it whole");
+    }
+
+    [TestMethod]
+    public void ItsTroopsLeaveInShuttlesAsItGoes()
+    {
+        Ship station = Orbital(PatrolStation);
+        ResourceManager.CreateTroop("Wyvern", Player).LandOnShip(station);
+        int troops = station.TroopCount;
+        Assert.IsTrue(troops > 0, "setup: troops aboard");
+
+        station.AI.OrderScrapShip();
+        Turns(station, 8);
+        Assert.IsFalse(station.Active, "setup: it is gone");
+        RunObjectsSim(TestSimStep);
+        Ship[] shuttles = UState.Objects.GetShips().Filter(s => s.Loyalty == Player && s.IsDefaultAssaultShuttle);
+        AssertEqual(troops, shuttles.Length, "each of its troops leaves in an assault shuttle first");
     }
 
     [TestMethod]

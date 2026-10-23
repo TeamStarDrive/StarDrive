@@ -840,6 +840,33 @@ public class SalvageHaulTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AHaulWhoseStationComesApartIsCalledOffAndItCallsNoOther()
+    {
+        Planet importer = Importer(SystemSite + new Vector2(0, 200_000f));
+        Ship station = StationHolding(20f);
+        Ship freighter = LandingToHaul(station, importer);
+        Ship idle = Freighter(StationSite + new Vector2(8_000f, 0));
+
+        station.AI.OrderScrapShip();
+        Assert.IsTrue(station.Dismantling, "setup: the player scraps the station");
+        RunObjectsSim(TestSimStep);
+        Assert.IsFalse(Hauls(freighter, station), "the haul on its way is called off");
+
+        Turn(station);
+        Assert.IsFalse(Hauls(idle, station) || Hauls(freighter, station), "and, coming apart, it calls no freighter again for the 20 it holds");
+    }
+
+    [TestMethod]
+    public void AStationComingApartIsNoLongerTheOneAtWorkInItsSystem()
+    {
+        Ship station = BuiltStation();
+        Assert.IsTrue(SalvageOps.StationSystems(Player).Contains(Local.System), "setup: the player's station works the system");
+        station.AI.OrderScrapShip();
+        Assert.IsFalse(SalvageOps.StationSystems(Player).Contains(Local.System), "coming apart, it no longer does");
+        Assert.IsNull(SalvageOps.StationIn(Player, Local.System), "for any reader");
+    }
+
+    [TestMethod]
     public void AScrapOrderCallsOffAHaulLandingOnItsStation()
     {
         Planet importer = Importer(SystemSite + new Vector2(0, 200_000f));
