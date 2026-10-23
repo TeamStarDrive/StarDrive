@@ -1597,6 +1597,38 @@ Implementation notes:
      rest close by and still warps on the way. Tests were added for the stop, for a colony lost on the way and for
      the unloading waiting for touchdown; the one escape left is a pair (the end of the delivery removes the builder
      as its last step does).
+   - Part 3 (the tests and the Codex): 18 tests for what the part 1 mutation run let through and for 871, in
+     DismantleOrbitalWorkTests, DismantleOrbitalTests and RefitLandingTests. One coming apart makes no ordnance and
+     its planet does not rearm it; no ship turns to it for supplies or repair and repair drones pass it over; its
+     beams go out; miners bring it nothing; a research station researches nothing and a mining station refines
+     nothing; a Dyson swarm no longer counts its controller; a refit constructor on its way scraps itself; a new
+     orbital is not placed where one comes apart; a refit never takes off from a shipyard coming apart; a call-off
+     reaching the sim thread after its place is taken changes nothing. Once it is gone, a research station's planet
+     can be researched again and a mining station lets go of its ops; its ops another empire's, a mining station's
+     cannot be called off. Left untested: troop bays (no shipped station has one), the button's negative click, the
+     resupply gate (its priority order already stops a resupply) and the goal's own check that it still comes apart
+     (nothing else stops it while its goal is there).
+     Then (Gilad, 2026-10-23; 870-878, after a Codex audit): a research or mining station keeps its place at the
+     planet while it comes apart, as a call-off brings it back to work: no other research station of the empire's
+     can be placed there, and a mining station still counts among the four allowed there. The 7229 tooltip in four
+     languages and the Codex say so (870 A, in the words of 876 A, as the mining claim itself may lapse meanwhile).
+     A call-off at a planet no one owns needs room among its orbitals too, as 859 said (871 A). The selection's
+     Scrap tooltip, 7005, says an orbital is taken apart where it stands (872 A) and, as a lone projector's panel
+     shows it too, that a subspace projector is removed at once (877 A). Exotic
+     Resources says the mining claim may lapse while the last station comes apart (873 A). Hauling names the station's
+     Dismantling status (874 A). The Russian tooltip names the builder ship as 4443 does (875 A). Logged (878 A): one
+     boarded, or made whole by its empire's goals being cleared, at a planet no one owns rejoins its orbitals even when
+     they are full, nothing removing an orbital over the limit once it is placed. Logged, from before the branch:
+     2214, the ship list's Scrap tooltip on a subspace projector or a ship without engines, still says it flies to a
+     planet where the button self-destructs it; and at a planet no one owns the orbital limit does not count the
+     empire's constructors on their way, in placement and now in a call-off, so 100086's "counting those on the way"
+     holds only at a colony.
+     The recheck of the part 1 mutants caught 15 of these 16; the escape, a supply base supplying while it comes
+     apart, is a double check, as one that cannot be refitted has no ordnance status to supply from. The 871 test
+     fails with the old rule. The self-review added a refit constructor on its way to a deep-space orbital, which
+     fails with that gate alone removed (as the one at a planet does: a refit always deploys as a structure, so the
+     same check in the orbital deploy is never reached by one), and the research station's planet open to research
+     again once its order ends.
 
 Each sub-branch adds its Codex text and tests.
 

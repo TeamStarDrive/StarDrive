@@ -256,6 +256,37 @@ public class DismantleOrbitalTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AtAPlanetNoOneOwnsItCannotBeCalledOffOnceItsOrbitalsAreFull()
+    {
+        Planet unowned = AddDummyPlanet(new Vector2(400_000f), 1f, 1f, 1f, new Vector2(400_000f, 410_000f), explored: true);
+        Ship platform = Orbital(Platform, unowned);
+        platform.AI.OrderScrapShip();
+        Assert.IsTrue(DismantleOrbital.CanCallOff(platform), "setup: with room among the planet's orbitals it can be called off");
+        while (unowned.OrbitalStations.Count < ShipBuilder.OrbitalsLimit)
+            SpawnShip(Platform, Player, unowned.Position + new Vector2(5_000f, 0)).TetherToPlanet(unowned);
+
+        platform.ScrapFromButton();
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsTrue(platform.Dismantling && GoalOf(platform) != null, "at a planet no one owns, its orbitals full again, it comes apart on");
+        Assert.IsFalse(unowned.OrbitalStations.Contains(platform), "and stays out of them");
+    }
+
+    [TestMethod]
+    public void ACallOffReachingTheSimThreadOnceItsPlaceIsTakenChangesNothing()
+    {
+        Ship platform = Orbital(Platform);
+        platform.AI.OrderScrapShip();
+        Assert.IsTrue(DismantleOrbital.CanCallOff(platform), "setup: its place is free as Scrap is clicked again");
+        platform.ScrapFromButton();
+        while (Colony.OrbitalStations.Count < ShipBuilder.OrbitalsLimit)
+            SpawnShip(Platform, Player, Colony.Position + new Vector2(5_000f, 0)).TetherToPlanet(Colony);
+
+        Universe.InvokePendingSimThreadActions();
+        Assert.IsTrue(platform.Dismantling && GoalOf(platform) != null, "its place taken before the sim thread calls it off, it comes apart on");
+        Assert.IsFalse(Colony.OrbitalStations.Contains(platform), "and stays out of the planet's orbitals");
+    }
+
+    [TestMethod]
     public void ASalvageStationsCannotBeCalledOff()
     {
         Ship station = SpawnShip(SalvageStation, Player, new Vector2(600_000f));

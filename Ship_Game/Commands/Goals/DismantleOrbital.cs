@@ -47,7 +47,7 @@ namespace Ship_Game.Commands.Goals
             if (orbital.IsSalvageStation || orbital.IsMiningStation && orbital.GetTether() is { IsMineable: true } mined && mined.Mining.Owner != orbital.Loyalty)
                 return false;
             Planet planet = orbital.GetTether();
-            return planet?.Owner == null || planet.Owner == orbital.Loyalty && !planet.IsOutOfOrbitalsLimit(orbital.ShipData);
+            return planet == null || (planet.Owner == null || planet.Owner == orbital.Loyalty) && !planet.IsOutOfOrbitalsLimit(orbital.ShipData);
         }
 
         // on the sim thread: the Scrap button again calls it off where it can be, the orbital whole and at work again
