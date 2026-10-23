@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.AI;
@@ -28,8 +30,9 @@ namespace UnitTests.Ships;
 /// derelicts it can work pays for the station, or one's design uses a tech it wants, or it is a ship it would recover;
 /// where it knows of hostile strength it asks once for a fleet to clear the system instead. With Auto Build Salvage
 /// Stations on, the player's stations order their derelicts and the planner orders the player stations by the same
-/// rules, asking for no fleet, while the Salvage and Recover buttons do nothing, a standing order's still lit, and
-/// their tooltips say salvage is on automatic; turned off, it leaves its orders standing as the player's. The switch
+/// rules, asking for no fleet, while the Salvage and Recover buttons only switch a standing order's work, its own
+/// button still lit and calling nothing off, and their other tooltips say salvage is on automatic; turned off, it
+/// leaves its orders standing as the player's. The switch
 /// and the planner's timer are saved. An empire with no colony left orders nothing, and a derelict with less than a
 /// fifth of its turns left is worth no station.
 /// </summary>
@@ -539,7 +542,7 @@ public class SalvageAITests : StarDriveTest
     }
 
     [TestMethod]
-    public void WithSalvageOnAutomaticTheButtonsDoNothingAndAStandingOrdersButtonStaysLit()
+    public void WithSalvageOnAutomaticOnlyAStandingOrdersOtherButtonClicksToSwitchItsWork()
     {
         Derelict d = Wreck(Older, WreckSite, Player);
         Derelict other = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
@@ -548,33 +551,68 @@ public class SalvageAITests : StarDriveTest
         Player.AutoBuildSalvageStations = true;
         AssertEqual(SalvageDerelict.Block.None, SalvageDerelict.WhyNoOrder(Player, other), "setup: a unit is free for the other");
 
-        Assert.IsFalse(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.None), "with salvage on automatic no button lights under the cursor");
+        Assert.IsFalse(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.None, lit: false), "with salvage on automatic a derelict with no order lights no button under the cursor");
         DerelictSalvageButton.Click(Player, other, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.None, lit: false);
         DerelictSalvageButton.Click(Player, other, DerelictSalvageButton.Kind.Recover, SalvageDerelict.Block.None, lit: false);
         Assert.IsNull(OrderOf(Player, other), "and no click orders");
 
         SalvageDerelict order = OrderOf(Player, d);
         Assert.IsTrue(DerelictSalvageButton.Lit(DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.Ordered, order), "the standing order's button stays lit");
+        Assert.IsFalse(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.Ordered, lit: true), "but does not light up under the cursor");
         DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.Ordered, lit: true);
+        Assert.IsTrue(Player.AI.HasGoal(order) && !order.CalledOff, "and its second click calls nothing off");
+
+        Assert.IsTrue(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.Ordered, lit: false), "the other button lights up under the cursor");
         DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Recover, SalvageDerelict.Block.Ordered, lit: false);
-        Assert.IsTrue(Player.AI.HasGoal(order) && !order.CalledOff && !order.Recovering, "while its second click calls nothing off and the other button turns nothing");
+        Assert.IsTrue(Player.AI.HasGoal(order) && order.Recovering, "and its click turns the order to recovery");
 
         Player.AutoBuildSalvageStations = false;
-        Assert.IsTrue(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.None), "turned off, the buttons light again");
+        Assert.IsTrue(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.None, lit: false), "turned off, the buttons light again");
     }
 
     [TestMethod]
-    public void WithSalvageOnAutomaticEveryButtonsTooltipSaysSo()
+    public void WithSalvageOnAutomaticTheButtonsTooltipsSaySoButTheSwitchsOwn()
     {
         Derelict d = Wreck(Older, WreckSite, Player);
-        ToolTip.Clear();
-        DerelictSalvageButton.Tooltip(Player, d, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.ClaimedByOther, lit: false, order: null);
-        Assert.IsNull(ToolTip.GetActiveCodexUid(), "setup: a claim's tooltip names its empire, with no Codex link");
+        Derelict theirs = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
+        StationOf(Player);
+        Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: an order");
+        SalvageDerelict order = OrderOf(Player, d);
+        Assert.IsTrue(theirs.TryClaim(Enemy), "setup: the enemy's claim on the other");
+        AssertEqual(string.Format(Localizer.Token(GameText.DerelictSalvagedBy), Enemy.Name),
+                    Tip(DerelictSalvageButton.Kind.Salvage, theirs, SalvageDerelict.Block.ClaimedByOther, false, null), "setup: a claim's tooltip names its empire");
+        AssertEqual("derelicts_salvaging", ToolTip.GetActiveCodexUid(), "linked to Salvaging");
 
         Player.AutoBuildSalvageStations = true;
+        AssertEqual(Localizer.Token(GameText.SalvageAutomaticTip),
+                    Tip(DerelictSalvageButton.Kind.Salvage, theirs, SalvageDerelict.Block.ClaimedByOther, false, null), "with salvage on automatic a claim's button says so");
+        AssertEqual(Localizer.Token(GameText.SalvageAutomaticOrderTip),
+                    Tip(DerelictSalvageButton.Kind.Salvage, d, SalvageDerelict.Block.Ordered, true, order), "as the standing order's own button does, offering the switch");
+        AssertEqual("derelicts_salvaging", ToolTip.GetActiveCodexUid(), "linked to Salvaging");
+        StringAssert.StartsWith(Tip(DerelictSalvageButton.Kind.Recover, d, SalvageDerelict.Block.Ordered, false, order),
+                                "Recover this ship instead", "while the other button gives its switch");
+    }
+
+    [TestMethod]
+    public void WithSalvageOnAutomaticAStationsLitButtonOffersNoSwitch()
+    {
+        Derelict d = Wreck("Terran Basic Salvage Station", WreckSite, Player);
+        StationOf(Player);
+        Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: a station's derelict ordered");
+        Player.AutoBuildSalvageStations = true;
+        AssertEqual(Localizer.Token(GameText.SalvageAutomaticTip),
+                    Tip(DerelictSalvageButton.Kind.Salvage, d, SalvageDerelict.Block.Ordered, true, OrderOf(Player, d)),
+                    "its lit button offers no switch a station's derelict cannot take");
+    }
+
+    // the raw text of the button's tooltip, the only one shown
+    string Tip(DerelictSalvageButton.Kind kind, Derelict d, SalvageDerelict.Block block, bool lit, SalvageDerelict order)
+    {
         ToolTip.Clear();
-        DerelictSalvageButton.Tooltip(Player, d, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.ClaimedByOther, lit: false, order: null);
-        AssertEqual("warfare_combat_basics", ToolTip.GetActiveCodexUid(), "with salvage on automatic it is the automatic tip, linked to Combat Basics");
+        DerelictSalvageButton.Tooltip(Player, d, kind, block, lit, order);
+        var tips = (IEnumerable)typeof(ToolTip).GetField("ActiveTips", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null);
+        object tip = tips!.Cast<object>().Single();
+        return (string)tip.GetType().GetField("RawText")!.GetValue(tip);
     }
 
     [TestMethod]

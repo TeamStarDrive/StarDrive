@@ -296,7 +296,8 @@ public sealed class DerelictInfoUIElement : UIElement
 
         Empire claimant = d.Claimant;
         if (OwnerRect.HitTest(cursor))
-            ToolTip.CreateTooltip(string.Format(Localizer.Token(GameText.DerelictOriginalOwner), d.Owner.Name));
+            ToolTip.CreateTooltip(string.Format(Localizer.Token(GameText.DerelictOriginalOwner), d.Owner.Name),
+                                  codexUid: Codex.CodexHooks.Find(GameText.DerelictOriginalOwner));
         else if (TurnsRect.HitTest(cursor))
             ToolTip.CreateTooltip(claimant != null ? GameText.DerelictTurnsStandTip : GameText.DerelictTurnsLeftTip);
         else if (TechsRect.HitTest(cursor))
@@ -307,11 +308,11 @@ public sealed class DerelictInfoUIElement : UIElement
                  && DerelictSalvageButton.StandingOrder(player, d, salvageBlock) is { Recovering: true } recovery)
             DerelictSalvageButton.RecoveryTooltip(player, d, recovery);
         else if (TechAt(cursor) is { } tech)
-            ToolTip.CreateTooltip(DerelictTechIcons.Tooltip(tech, SalvageDerelict.OrderOf(Universe.Player, d)));
+            DerelictTechIcons.ShowTooltip(tech, SalvageDerelict.OrderOf(Universe.Player, d));
         else if (ProductionRect.HitTest(cursor) || ProductionBar.pBar.HitTest(cursor))
             ToolTip.CreateTooltip(GameText.DerelictProductionTip);
         else if (claimant != null && ClaimLine.HitTest(cursor))
-            ToolTip.CreateTooltip(DerelictSalvageButton.ClaimTip(d, claimant));
+            DerelictSalvageButton.ClaimTooltip(d, claimant);
         return ElementRect.HitTest(cursor) || drawerOpen && Drawer.ButtonHousing.HitTest(cursor);
     }
 

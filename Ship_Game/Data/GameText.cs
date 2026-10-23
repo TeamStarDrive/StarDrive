@@ -6343,6 +6343,8 @@ namespace Ship_Game
         // 7224 to 7226 are the Salvage Speed tech's texts, used by its XML
         /// <summary>Salvage Speed Modifier</summary>
         EmpireSalvageSpeed = 7227,
+        /// <summary>Salvage is on automatic, so this button cannot call the</summary>
+        SalvageAutomaticOrderTip = 7228,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

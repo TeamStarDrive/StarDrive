@@ -73,6 +73,10 @@ public static class DerelictTechIcons
         return (points / 1000f).ToString(points < 99_950f ? "0.0" : "0", CultureInfo.InvariantCulture) + "k";
     }
 
+    // the icon's tip, linked to the Codex through the id it is made from
+    public static void ShowTooltip(TechEntry tech, SalvageDerelict order)
+        => ToolTip.CreateTooltip(Tooltip(tech, order), codexUid: Codex.CodexHooks.Find(GameText.DerelictTechResearched));
+
     // its name, how far the empire has researched it and, while the empire's salvage of the derelict stands, what that salvage has given it
     public static string Tooltip(TechEntry tech, SalvageDerelict order)
     {

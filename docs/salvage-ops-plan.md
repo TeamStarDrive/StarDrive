@@ -1491,6 +1491,25 @@ Implementation notes:
        Codex 100182 says which techs each switch hides (822 A). The Recover tooltip shows the recovery speed
        rounded up (823).
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
+   - Decisions (Gilad, 2026-10-23; 826-830), worked on the base branch: how a ship dies leaves Combat Basics for a
+     Warfare topic of its own, How a Ship Dies, right after Combat Basics (828 A), with Destruction, Death Blasts and
+     Wrecks under it (827 A); Death Blasts says in short what a blast does, without its percentages (827), and
+     Wrecks how a derelict forms and which drift (826 A). Derelicts follows, with Salvaging, Recovering and Hauling
+     under it (829 A). Codex ids 100232-100255; the derelict and salvage tooltips point to the entry each describes,
+     the ship structure one to Destruction, and the see pointers follow (830). Combat Basics opens with a lead that
+     points to both topics.
+     Then (Gilad, 831): Wrecks, Derelicts, Salvaging, Recovering and Hauling each in gold-titled sections of a
+     paragraph, in plain words without the exact numbers (a small chance, varies with the hull, clear of the radiation
+     zone with some margin), as players skip long technical paragraphs.
+     F1 opens the page each tip describes, the rival's claim and the derelict tech icons too, which had no link.
+     With Auto Build Salvage Stations on, the player can still switch a standing order between salvage and recovery:
+     its other button lights and switches it, as auto never revisits that choice, while its lit button calls nothing
+     off and a derelict with no order takes no click (832 A); the lit button's tip says so (7228), and the Automation
+     tip and the Codex say the buttons still switch (833 A).
+     The self-review put back what the plain words had lost or bent: who knows of a derelict is settled as it
+     forms; only a freighter from outside the system waits on a hostile; a recovered ship stays fragile until
+     repaired; with salvage ops off it is the hull's roll that decides. On automatic the lit button offers the
+     switch only where one can be made, a station's derelict never, and a click needs a standing order.
 10. **dismantling** (Gilad, 2026-10-22; 719): every station and platform scrapped where it stands is taken apart
     over turns, as a salvage platform is, instead of vanishing.
 

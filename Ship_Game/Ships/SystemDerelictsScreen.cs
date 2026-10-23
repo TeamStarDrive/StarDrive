@@ -209,7 +209,7 @@ public sealed class SystemDerelictsScreen : GameScreen
             }
 
             if (Derelict.Claimant is { } claimant && ClaimRect.HitTest(cursor))
-                ToolTip.CreateTooltip(DerelictSalvageButton.ClaimTip(Derelict, claimant));
+                DerelictSalvageButton.ClaimTooltip(Derelict, claimant);
             else if (ProductionRect.HitTest(cursor) || ProductionBar.pBar.HitTest(cursor))
                 ToolTip.CreateTooltip(GameText.DerelictProductionTip);
             else if ((RecoveryRect.HitTest(cursor) || RecoveryBarRect.HitTest(cursor)) && Order is { Recovering: true } recovery)
@@ -217,7 +217,7 @@ public sealed class SystemDerelictsScreen : GameScreen
             else if (TechsRect.HitTest(cursor) && !TechsSeen)
                 ToolTip.CreateTooltip(GameText.DerelictTechsHeldTip);
             else if (TechAt(cursor) is { } tech)
-                ToolTip.CreateTooltip(DerelictTechIcons.Tooltip(tech, Order));
+                DerelictTechIcons.ShowTooltip(tech, Order);
             return base.HandleInput(input);
         }
     }
