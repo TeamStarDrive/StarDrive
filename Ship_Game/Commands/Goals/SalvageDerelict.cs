@@ -535,10 +535,13 @@ namespace Ship_Game.Commands.Goals
 
         static bool SeenByPlayer(Ship ship) => ship.InFrustum && ship.InPlayerSensorRange;
 
+        // from any thread: production the empire's platforms strip from a derelict in a turn, raised by its Salvage Speed research, and pirates' by their level
+        public static float SalvageSpeed(Empire empire) => GlobalStats.Defaults.SalvageSpeed * empire.data.SalvageSpeedMultiplier;
+
         // it strips only what its hold took
         void Strip(Ship platform, Derelict d)
         {
-            float wanted = Math.Min(Math.Min(GlobalStats.Defaults.SalvageSpeed, platform.CargoRoom), d.ProductionLeft);
+            float wanted = Math.Min(Math.Min(SalvageSpeed(Owner), platform.CargoRoom), d.ProductionLeft);
             float stripped = UState.Derelicts.Strip(d, platform, platform.LoadProduction(wanted));
             if (stripped > 0f)
                 SendShuttles(platform, d, CargoShuttles.SalvageShuttlesFor(stripped));
@@ -550,7 +553,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (RecoverySucceeded)
                 return false;
-            float speed = DerelictRecovery.Speed;
+            float speed = DerelictRecovery.Speed(Owner);
             if (BreakingIn)
             {
                 ++BreakInDone;

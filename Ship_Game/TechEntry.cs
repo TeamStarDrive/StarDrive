@@ -485,16 +485,20 @@ namespace Ship_Game
                 WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
         }
 
-        public void UnlockByConquest(Empire us, Empire conqueredEmpire, TechEntry conqueredTech)
+        public void UnlockByConquest(Empire us, Empire conqueredEmpire, TechEntry conqueredTech, bool fromSave)
         {
             if (!Discovered && conqueredTech.Discovered)
             {
                 SetDiscovered(us);
             }
 
-            if (!Unlocked && conqueredTech.Unlocked)
+            // a multi-level tech comes up to the conquered empire's level as it is absorbed, a bonus for each, and a load keeps the levels the save has
+            if (IsMultiLevel ? !fromSave && Level < conqueredTech.Level : !Unlocked && conqueredTech.Unlocked)
             {
-                Unlock(us);
+                int levels = IsMultiLevel ? Math.Min(conqueredTech.Level, MaxLevel) - Level : 1;
+                for (int i = 0; i < levels; ++i)
+                    if (!Unlock(us))
+                        break;
                 ConqueredSource.AddUnique(conqueredEmpire.data.Traits.ShipType);
                 WasAcquiredFrom.AddUnique(conqueredEmpire.data.Traits.ShipType);
             }
@@ -685,7 +689,8 @@ namespace Ship_Game
             if (this == None) // this is a None technology, and should never unlock
                 return true;
             if (Tech.RequiresMiningOps && empire.Universe.P.DisableMiningOps
-                || Tech.RequiresResearchStations && empire.Universe.P.DisableResearchStations)
+                || Tech.RequiresResearchStations && empire.Universe.P.DisableResearchStations
+                || Tech.RequiresSalvageOps && !empire.Universe.P.SalvageOps)
             {
                 return true;
             }
@@ -993,6 +998,7 @@ namespace Ship_Game
                 case "Diplomacy Bonus": data.OngoingDiplomaticModifier += unlockedBonus.Bonus; break;
                 case "Exotic Storage Bonus": data.ExoticStorageMultiplier += unlockedBonus.Bonus; break;
                 case "Mining Speed Bonus": data.MiningSpeedMultiplier += unlockedBonus.Bonus; break;
+                case "Salvage Speed Bonus": data.SalvageSpeedMultiplier += unlockedBonus.Bonus; break;
                 case "Refining Ratio Bonus": data.RefiningRatioMultiplier += unlockedBonus.Bonus; break;
                 case "Ordnance Effectiveness":
                 case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;

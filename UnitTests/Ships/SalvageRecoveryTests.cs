@@ -26,9 +26,10 @@ namespace UnitTests.Ships;
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
 /// stripped; of the failures, 10% times 1 minus the engineers explode. Each empire's draws are its own, from a luck seed
 /// that saves keep and rebels take from the empire they rise from. A recovering platform breaks in for 10 turns at
-/// any pace, then works at twice the salvage speed through the share of health the ship lost at its death times its
-/// slots at the production pace, plus a tenth, times 1 minus the engineers, and rolls as the last of it is done, or the
-/// turn after the break-in with none to do. A success raises the derelict, its panel showing the work done with no
+/// any pace, then works at twice its empire's salvage speed, which research raises and so cuts the turns left, through
+/// the share of health the ship lost at its death times its slots at the production pace, plus a tenth, times 1 minus
+/// the engineers, and rolls as the last of it is done, or the turn after the break-in with none to do. A success raises
+/// the derelict, its panel showing the work done with no
 /// buttons, and at a ship's depth its ship takes its place for the empire that recovered it, under its name, with a new
 /// crew, its repair modules, engines and the armor on its edge dead, its other armor at 2% and all else at 4%, with no
 /// ordnance, troops, power or shields, dark until its lights flicker on, and heads for its empire's nearest planet that
@@ -411,7 +412,7 @@ public class SalvageRecoveryTests : StarDriveTest
         Player.data.SelectedTraitSet = "";
         UState.P.Pace = 3f; // a production pace of 2
         AssertEqual(0.01f, 0.6f * slots * 1.1f * 2f, DerelictRecovery.Work(Player, d), "twice the work at twice the production pace");
-        AssertEqual(0.01f, 24f, DerelictRecovery.Speed, "worked at twice the salvage speed, at any pace");
+        AssertEqual(0.01f, 24f, DerelictRecovery.Speed(Player), "worked at twice the salvage speed, at any pace");
         AssertEqual(10, DerelictRecovery.BreakInTurns, "after a break-in of 10 turns, at any pace too");
     }
 
@@ -448,6 +449,25 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsTrue(order.RecoverySucceeded, "and rolled for the same turn");
         Turns(order, 1);
         AssertEqual(0.001f, work, order.RecoveryWork, "the platform holding there");
+    }
+
+    [TestMethod]
+    public void AResearchedSalvageSpeedLevelSpeedsARecoveryAndItsTurnsLeft()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        Succeeds(d);
+        BuiltStation();
+        Player.data.SelectedTraitSet = "";
+        Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        SalvageDerelict order = AtWork(d, recover: true);
+        float work = DerelictRecovery.Work(Player, d);
+        int turnsLeft = (int)Math.Ceiling((work - 28.8f) / 28.8f);
+        Assert.AreNotEqual((int)Math.Ceiling((work - 28.8f) / 24f), turnsLeft, "setup: work enough that the speeds count different turns");
+
+        Turns(order, 11);
+        AssertEqual(0.01f, 28.8f, order.RecoveryWork, "a turn's work at twice the researched salvage speed");
+        AssertEqual(turnsLeft, DerelictRecovery.TurnsLeft(Player, d, order.BreakInDone, order.RecoveryWork),
+                    "and its tooltip counts the turns left at it");
     }
 
     [TestMethod]

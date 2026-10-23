@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
@@ -21,7 +22,13 @@ namespace UnitTests.Ships;
 /// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
 /// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs and the empires that see
 /// them, an order's points for each tech, and an order whose platform stripped its derelict empty, with its derelict's
-/// techs and production, survive a save.
+/// techs and production, survive a save. Each level of the Salvage Speed tech, off Small Stations and hidden with salvage
+/// ops off, strips a fifth more a turn, all five twice as much, a recovery working at twice it; pirates salvage a tenth
+/// faster for each level from level 3, set by the level they rise to. A researched level survives a save, and an older
+/// save without the tech loads with it to research. An empire absorbing another comes up to its level of the tech, a
+/// bonus for each level gained, and keeps its own when higher, and a load keeps the levels a save has. A tech hidden
+/// since the save leaves the research queues and research's picks, and, unresearched, the tree, and the queue takes it
+/// no more.
 /// </summary>
 [TestClass]
 public class SalvageWorkTests : StarDriveTest
@@ -386,5 +393,167 @@ public class SalvageWorkTests : StarDriveTest
         loadedDone.Evaluate();
         Assert.IsTrue(player.AI.HasGoal(loadedDone), "and stands on");
         AssertEqual(0.01f, 0.2f * 5f / emptied.Production * tech.TechCost, tech.Progress, "its load of 5 pays the tech by what the order kept");
+    }
+
+    [TestMethod]
+    public void EachSalvageSpeedLevelStripsAFifthMoreATurnAndARecoveryWorksAtTwiceIt()
+    {
+        Derelict d = Forms(Wreck);
+        BuiltStation();
+        SalvageDerelict order = AtWork(d, hold: 1000f);
+        Ship platform = order.Platform;
+        AssertGreaterThan(d.ProductionLeft, 40f, "setup: production left for two turns of it");
+        AssertEqual(0.01f, 24f, DerelictRecovery.Speed(Player), "setup: a recovery works at 24 a turn without it");
+
+        Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        order.Evaluate();
+        AssertEqual(0.01f, 14.4f, platform.GetProduction(), "a fifth more a turn with one level of Salvage Speed");
+        AssertEqual(0.01f, 28.8f, DerelictRecovery.Speed(Player), "and a recovery at twice it");
+
+        for (int i = 0; i < 4; ++i)
+            Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        AssertEqual(5, Player.GetTechEntry("SalvageSpeed").Level, "setup: all five levels");
+        order.Evaluate();
+        AssertEqual(0.01f, 14.4f + 24f, platform.GetProduction(), "twice as much with all five");
+        AssertEqual(0.01f, 48f, DerelictRecovery.Speed(Player), "and a recovery at twice that");
+    }
+
+    [TestMethod]
+    public void PiratesSalvageATenthFasterForEachLevelTheyRiseToFromLevelThree()
+    {
+        CreateAMinorFaction("Corsairs");
+        Empire pirates = Faction;
+        Assert.IsTrue(pirates.WeArePirates, "setup: pirates");
+        MethodInfo riseTo = typeof(Pirates).GetMethod("AdvanceInTech", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.IsNotNull(riseTo, "setup: what pirates gain as they rise a level");
+
+        riseTo.Invoke(pirates.Pirates, new object[] { 1 });
+        AssertEqual(0.01f, 12f, SalvageDerelict.SalvageSpeed(pirates), "nothing more at level 1, where they start");
+        riseTo.Invoke(pirates.Pirates, new object[] { 2 });
+        AssertEqual(0.01f, 12f, SalvageDerelict.SalvageSpeed(pirates), "nor at level 2");
+        riseTo.Invoke(pirates.Pirates, new object[] { 3 });
+        AssertEqual(0.01f, 13.2f, SalvageDerelict.SalvageSpeed(pirates), "a tenth more as they reach level 3");
+        riseTo.Invoke(pirates.Pirates, new object[] { 20 });
+        AssertEqual(0.01f, 33.6f, SalvageDerelict.SalvageSpeed(pirates), "180% more at level 20");
+        AssertEqual(0.01f, 67.2f, DerelictRecovery.Speed(pirates), "a recovery at twice it");
+        riseTo.Invoke(pirates.Pirates, new object[] { 5 });
+        AssertEqual(0.01f, 15.6f, SalvageDerelict.SalvageSpeed(pirates), "set by the level they rise to, after a fall too");
+    }
+
+    [TestMethod]
+    public void TheSalvageSpeedTechLeadsOnFromSmallStationsAndIsHiddenWithSalvageOpsOff()
+    {
+        Assert.IsTrue(ResourceManager.TryGetTech("SalvageSpeed", out Technology tech), "the tech is loaded");
+        Assert.IsTrue(tech.ComesFrom.Any(t => t.UID == "SmallStations"), "Small Stations leads to it");
+        AssertEqual(5, tech.MaxLevel, "in five levels");
+
+        TechEntry entry = Player.GetTechEntry("SalvageSpeed");
+        Assert.IsFalse(entry.IsHidden(Player), "shown with salvage ops on");
+        UState.P.DisableSalvageOps = true;
+        Assert.IsTrue(entry.IsHidden(Player), "hidden with them off");
+    }
+
+    [TestMethod]
+    public void AResearchedSalvageSpeedLevelSurvivesSaveAndLoad()
+    {
+        Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        AssertEqual(0.01f, 14.4f, SalvageDerelict.SalvageSpeed(Player), "setup: one level");
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageWork", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+
+        Empire player = loaded.UState.Player;
+        AssertEqual(1, player.GetTechEntry("SalvageSpeed").Level, "the level stays researched");
+        AssertEqual(0.01f, 14.4f, SalvageDerelict.SalvageSpeed(player), "and its speed with it");
+    }
+
+    [TestMethod]
+    public void AnOlderSaveWithoutTheSalvageSpeedTechLoadsWithItToResearch()
+    {
+        Player.TechnologyDict.Remove("SalvageSpeed"); // as a save from before the tech
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageWork", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "the save loads");
+
+        Empire player = loaded.UState.Player;
+        Assert.IsTrue(player.TryGetTechEntry("SalvageSpeed", out TechEntry tech), "with the tech");
+        Assert.IsTrue(tech.Discovered && tech.Locked, "to research");
+        AssertEqual(0.01f, 12f, SalvageDerelict.SalvageSpeed(player), "at the salvage speed without it");
+    }
+
+    [TestMethod]
+    public void AnEmpireAbsorbingAnotherComesUpToItsSalvageSpeedLevelABonusForEachLevelGained()
+    {
+        Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        for (int i = 0; i < 3; ++i)
+            Enemy.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        AssertEqual(3, Enemy.GetTechEntry("SalvageSpeed").Level, "setup: the other empire is three levels in");
+
+        Player.AbsorbEmpire(Enemy);
+        AssertEqual(3, Player.GetTechEntry("SalvageSpeed").Level, "the absorbing empire comes up to its level");
+        AssertEqual(0.01f, 19.2f, SalvageDerelict.SalvageSpeed(Player), "a bonus for each level gained");
+    }
+
+    [TestMethod]
+    public void AnEmpireAbsorbingOneWithFewerSalvageSpeedLevelsKeepsItsOwn()
+    {
+        for (int i = 0; i < 3; ++i)
+            Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        Enemy.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+
+        Player.AbsorbEmpire(Enemy);
+        AssertEqual(3, Player.GetTechEntry("SalvageSpeed").Level, "the absorbing empire keeps its own level");
+        AssertEqual(0.01f, 19.2f, SalvageDerelict.SalvageSpeed(Player), "and gains no bonus");
+    }
+
+    [TestMethod]
+    public void ALoadKeepsTheSalvageSpeedLevelsASaveHasThoughTheAbsorbedEmpireHadMore()
+    {
+        Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        for (int i = 0; i < 3; ++i)
+            Enemy.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        Enemy.data.AbsorbedBy = Player.data.Traits.Name; // as an older save's absorb left it, one level below
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageWork", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+
+        Empire player = loaded.UState.Player;
+        AssertEqual(1, player.GetTechEntry("SalvageSpeed").Level, "the absorber keeps the level the save has");
+        AssertEqual(0.01f, 14.4f, SalvageDerelict.SalvageSpeed(player), "and its bonus");
+    }
+
+    [TestMethod]
+    public void ATechHiddenSinceTheSaveLeavesTheQueuesAndResearchsPicksAndUnresearchedTheTree()
+    {
+        Player.UnlockTech("SmallStations", TechUnlockType.Normal);
+        Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        Player.Research.AddToQueue("SalvageSpeed");
+        Assert.IsTrue(Player.CurrentTechsResearchable().Any(t => t.UID == "SalvageSpeed"), "setup: its next level is open to research");
+        Enemy.Research.AddToQueue("SalvageSpeed");
+        Assert.IsTrue(Enemy.GetTechEntry("SalvageSpeed").Locked && Enemy.GetTechEntry("SalvageSpeed").Discovered,
+                      "setup: the other empire has none of it, queued");
+
+        UState.P.DisableSalvageOps = true; // as a mod turning salvage ops off under the save
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageWork", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+
+        Empire player = loaded.UState.Player;
+        Empire enemy = loaded.UState.GetEmpireById(Enemy.Id);
+        Assert.IsFalse(player.Research.IsQueued("SalvageSpeed") || enemy.Research.IsQueued("SalvageSpeed"), "it leaves the research queues");
+        Assert.IsFalse(player.CurrentTechsResearchable().Any(t => t.UID == "SalvageSpeed"), "and research no longer picks it");
+        Assert.IsFalse(player.Research.AddToQueue("SalvageSpeed"), "nor can the player queue its next level");
+        player.Research.SetTopic("SalvageSpeed");
+        Assert.IsFalse(player.Research.IsQueued("SalvageSpeed"), "nor a script set it as the topic");
+        AssertEqual(1, player.GetTechEntry("SalvageSpeed").Level, "a level researched stays");
+        AssertEqual(0.01f, 14.4f, SalvageDerelict.SalvageSpeed(player), "with its bonus");
+        Assert.IsFalse(enemy.GetTechEntry("SalvageSpeed").Discovered, "an unresearched one leaves the tree");
     }
 }

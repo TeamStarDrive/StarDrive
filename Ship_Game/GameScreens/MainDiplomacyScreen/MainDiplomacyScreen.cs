@@ -490,6 +490,8 @@ namespace Ship_Game
                     DrawStat(Localizer.Token(GameText.EmpireExoticStorage), SelectedEmpire.data.ExoticStorageMultiplier-1, ref textCursor, false);
                 if (SelectedEmpire.data.MiningSpeedMultiplier != 1)
                     DrawStat(Localizer.Token(GameText.EmpireMiningSpeed), SelectedEmpire.data.MiningSpeedMultiplier-1, ref textCursor, false);
+                if (SelectedEmpire.data.SalvageSpeedMultiplier != 1)
+                    DrawStat(Localizer.Token(GameText.EmpireSalvageSpeed), SelectedEmpire.data.SalvageSpeedMultiplier-1, ref textCursor, false);
                 if (SelectedEmpire.data.RefiningRatioMultiplier != 1)
                     DrawStat(Localizer.Token(GameText.EmpireRefiningEfficiency), SelectedEmpire.data.RefiningRatioMultiplier-1, ref textCursor, false);
             }

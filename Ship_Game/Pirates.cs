@@ -374,6 +374,7 @@ namespace Ship_Game
                 case 4: Owner.data.FTLPowerDrainModifier = 0.8f;                                         break;
             }
 
+            Owner.data.SalvageSpeedMultiplier = 1f + 0.1f * (level - 2).LowerBound(0); // a tenth more salvage speed a level from level 3
             Owner.data.BaseShipLevel = level / 4;
             EmpireHullBonuses.RefreshBonuses(Owner);
         }

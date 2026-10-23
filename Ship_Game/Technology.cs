@@ -77,6 +77,7 @@ namespace Ship_Game
         public Array<RaceRequirements> UnlockedAtGameStart = new();
         public bool RequiresResearchStations;
         public bool RequiresMiningOps;
+        public bool RequiresSalvageOps;
 
         //This is used with the tech restrictors above to list races or traits that will create
         //rules for the restriction
