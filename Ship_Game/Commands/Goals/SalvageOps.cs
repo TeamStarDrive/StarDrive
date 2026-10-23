@@ -17,6 +17,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public sealed override Ship TargetShip { get; set; }
         [StarData] public Vector2 StaticBuildPos;
         [StarData] IShipDesign StationToBuild;
+        [StarData] public float StationCost; // as built, all of it refunded when the station comes apart
         Ship SalvageStation => TargetShip;
         public override IShipDesign ToBuild => StationToBuild;
 
@@ -41,12 +42,13 @@ namespace Ship_Game.Commands.Goals
             StationToBuild = stationToBuild;
         }
 
-        // a station that changes hands skips the build, its notification and its trust cost
-        public SalvageOps(Empire owner, Ship station, SolarSystem system) : this(owner)
+        // a station that changes hands skips the build, its notification and its trust cost, and keeps the cost it was built for
+        public SalvageOps(Empire owner, Ship station, SolarSystem system, float stationCost) : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetSystem = system;
             TargetShip = station;
+            StationCost = stationCost;
             ChangeToStep(Salvage);
         }
 
@@ -227,7 +229,8 @@ namespace Ship_Game.Commands.Goals
             if (!station.Active || station.Loyalty != to || to.AI.HasGoal(g => g is SalvageOps && g.TargetShip == station))
                 return;
 
-            if (from.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station) is { } held)
+            var held = from.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station) as SalvageOps;
+            if (held != null)
                 from.AI.RemoveGoal(held);
             SolarSystem system = SystemOf(station);
             if (system == null)
@@ -246,7 +249,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             to.AI.CancelSalvageStation(system);
-            to.AI.AddGoal(new SalvageOps(to, station, system)); // its first turn waits for the goal pass, once the change of hands has shown its new owner the derelicts there
+            to.AI.AddGoal(new SalvageOps(to, station, system, held?.StationCost ?? 0f)); // its first turn waits for the goal pass, once the change of hands has shown its new owner the derelicts there
         }
 
         // an order ends, with any constructor it has, when salvage ops are off (a save loaded under a mod without salvage content), and before its station is built once its system has no derelict left for it to salvage
@@ -280,6 +283,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (SalvageStation != null)
             {
+                StationCost = SalvageStation.GetCost(Owner);
                 if (Owner.isPlayer)
                     Owner.Universe.Notifications?.AddSalvageStationBuiltNotification(SalvageStation, TargetSystem);
                 CostTrustOfColonyOwners(Owner, TargetSystem);

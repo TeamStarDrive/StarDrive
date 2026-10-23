@@ -728,6 +728,13 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.BuildOrbital, targetPlanet, AIState.Ferrying, targetConstructor);
         }
 
+        public void OrderDeliverRefund(Planet colony, Goal delivery)
+        {
+            ClearOrders();
+            IgnoreCombat = true;
+            AddShipGoal(Plan.DeliverRefund, colony, delivery, AIState.Ferrying);
+        }
+
         public void OrderMinePlanet(Planet targetPlanet)
         {
             ClearOrders();

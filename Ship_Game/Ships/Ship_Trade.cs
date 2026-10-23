@@ -209,6 +209,13 @@ namespace Ship_Game.Ships
                     CargoShuttles.OrdnanceShuttlesFor(ordnance), CargoShuttles.OrdnanceShuttleSeconds);
         }
 
+        public void SendRefundShuttlesDown(Planet planet, float production)
+        {
+            if (production > 0f && CargoShuttlesShown(planet))
+                Universe.Screen.CargoShuttles.SendDown(planet, Position.ToVec3(), Loyalty.EmpireColor,
+                    CargoShuttles.RefundShuttlesFor(production), CargoShuttles.RefundShuttleSeconds);
+        }
+
         public void RemoveTradeRoute(Planet planet)
         {
             TradeRoutes.Remove(planet.Id);

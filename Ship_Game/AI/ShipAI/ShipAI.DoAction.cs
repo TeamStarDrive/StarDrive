@@ -946,6 +946,25 @@ namespace Ship_Game.AI
             FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Supply);
         }
 
+        // a builder carrying a refund stops near its colony while the delivery sends down what fits, or lands there for all of it
+        void DoDeliverRefund(FixedSimTime timeStep, ShipGoal goal)
+        {
+            Planet colony = goal.TargetPlanet;
+            if (goal.Goal is not DeliverRefund delivery || delivery.OldShip != Owner || colony == null)
+            {
+                ClearOrders();
+                return;
+            }
+
+            float stopRange = colony.Radius + DeliverRefund.StopDistance;
+            if (delivery.Lands)
+                FlyInToLand(timeStep, goal, colony, LandPlan.Refund);
+            else if (!Owner.IsInWarp && Owner.Position.InRadius(colony.Position, stopRange + Owner.GetMinDecelerationDistance(Owner.CurrentVelocity))) // braking at sublight in time to come to rest there
+                ReverseThrustUntilStopped(timeStep);
+            else
+                ApproachToLand(timeStep, goal.GetThrustTarget(colony.Position, Owner.Position), colony.Position, stopRange, glideSpeed: 0f);
+        }
+
         void DoLandOnPirateBase(FixedSimTime timeStep, ShipGoal goal)
         {
             Ship pirateBase = goal.TargetShip;

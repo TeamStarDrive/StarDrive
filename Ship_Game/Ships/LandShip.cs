@@ -94,6 +94,7 @@ namespace Ship_Game.Ships
         {
             LandPlan.Scrap => Owner.Loyalty.AI.HasGoal(GoalType.ScrapShip, Owner),
             LandPlan.Refit => Owner.Loyalty.AI.HasGoal(GoalType.Refit, Owner),
+            LandPlan.Refund => Owner.Loyalty.AI.HasGoal(GoalType.DeliverRefund, Owner),
             _ => false
         };
 
@@ -537,6 +538,7 @@ namespace Ship_Game.Ships
         Board,
         Troops,
         AssaultDive,
-        PirateBase
+        PirateBase,
+        Refund
     }
 }

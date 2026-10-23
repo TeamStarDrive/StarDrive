@@ -190,6 +190,7 @@
     <Compile Include="Ships\SalvageAITests.cs" />
     <Compile Include="Ships\SalvageConstructorTests.cs" />
     <Compile Include="Ships\DismantleOrbitalTests.cs" />
+    <Compile Include="Ships\DeliverRefundTests.cs" />
     <Compile Include="Ships\SalvageHaulTests.cs" />
     <Compile Include="Ships\SalvageLoadTests.cs" />
     <Compile Include="Ships\SalvageTakeoverTests.cs" />

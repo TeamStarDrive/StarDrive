@@ -181,7 +181,7 @@ namespace Ship_Game
             var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
-                if (ship.Name == ShipToRefit.Name && (specificFleet == null || ship.Fleet == specificFleet) && !ship.Dismantling)
+                if (ship.Name == ShipToRefit.Name && (specificFleet == null || ship.Fleet == specificFleet) && !ship.Dismantling && !ship.DeliversRefund)
                     Player.AI.AddGoalAndEvaluate(GetRefitGoal(ship));
             }
 

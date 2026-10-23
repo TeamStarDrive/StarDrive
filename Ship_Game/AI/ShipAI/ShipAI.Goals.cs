@@ -640,7 +640,8 @@ namespace Ship_Game.AI
             MiningStationNotOpsOwner = 48,
             SupplyReturnHome = 49,
             LandOnPirateBase = 50,
-            PickupGoodsFromStation = 51
+            PickupGoodsFromStation = 51,
+            DeliverRefund = 52
         }
     }
 }

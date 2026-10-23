@@ -154,6 +154,7 @@
     <Compile Include="Ship_Game\Commands\Goals\SalvageOps.cs" />
     <Compile Include="Ship_Game\Commands\Goals\SalvageDerelict.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DismantleOrbital.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\DeliverRefund.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantDefendPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\InhibitorInvestigate.cs" />
     <Compile Include="Ship_Game\Commands\Goals\SupplyGoodsToStation.cs" />

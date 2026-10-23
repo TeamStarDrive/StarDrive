@@ -671,7 +671,8 @@ namespace Ship_Game.Ships
         public bool IsHangarShip   => Mothership != null;
         public bool IsHomeDefense  => HomePlanet != null;
         public bool CanBeRefitted  => CanBeScrapped && !Dismantling; // one coming apart also pays no upkeep
-        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false } && !IsSalvagePlatform;
+        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false } && !IsSalvagePlatform && !DeliversRefund;
+        public bool DeliversRefund => IsSupplyShuttle && AI != null && AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal order) && order.Plan == ShipAI.Plan.DeliverRefund; // a builder carrying a refund takes no orders
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays && !Dismantling

@@ -6345,6 +6345,8 @@ namespace Ship_Game
         SalvageAutomaticOrderTip = 7228,
         /// <summary>Dismantle: takes this orbital apart where it stands, over</summary>
         DismantleOrbitalTip = 7229,
+        /// <summary>Delivering production to</summary>
+        DeliveringProductionTo = 7230,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

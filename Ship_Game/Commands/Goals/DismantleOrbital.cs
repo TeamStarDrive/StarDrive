@@ -7,7 +7,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    // a platform, station or orbital shipyard scrapped where it stands: it stops at once, comes apart over its turns, and once it is gone its refund goes into the planet it orbits, when that planet is its empire's
+    // a platform, station or orbital shipyard scrapped where it stands: it stops at once, comes apart over its turns, and once it is gone its refund goes into the planet it orbits when that planet is its empire's, and otherwise leaves in a builder ship for its colonies
     [StarDataType]
     public class DismantleOrbital : Goal
     {
@@ -100,23 +100,35 @@ namespace Ship_Game.Commands.Goals
             if (--TurnsLeft > 0)
                 return GoalStep.TryAgain;
 
+            float refund = Refund(orbital);
             if (orbital.GetTether() is { } planet && planet.Owner == Owner)
-                Deposit(planet, Refund(orbital));
+                Deposit(Owner, planet, refund);
+            else
+                DeliverRefund.Launch(Owner, orbital.Position, refund);
             orbital.DisengageExcessTroops(orbital.TroopCount);
             orbital.FinishDismantling();
             orbital.OnDismantled();
             return GoalStep.GoalComplete;
         }
 
-        // half of what it costs to build, less for its damage, and the production aboard in full
-        float Refund(Ship orbital) => orbital.GetCost(Owner) * RefundShare * orbital.HealthPercent + orbital.GetProduction();
+        // half of what it costs to build, a salvage station all of the cost its order stored as it was built, less for its damage, and the production aboard in full
+        float Refund(Ship orbital)
+        {
+            float cost = orbital.GetCost(Owner) * RefundShare;
+            if (orbital.IsSalvageStation)
+                cost = Owner.AI.FindGoal(g => g is SalvageOps && g.TargetShip == orbital) is SalvageOps { StationCost: > 0f } order
+                     ? order.StationCost : orbital.GetCost(Owner);
+            return cost * orbital.HealthPercent + orbital.GetProduction();
+        }
+
+        public static float Room(Planet planet) => (planet.Storage.Max - planet.ProdHere).LowerBound(0f);
 
         // as much as its store has room for, the rest paid with the turn's income at the empire's tax rate
-        void Deposit(Planet planet, float refund)
+        public static void Deposit(Empire empire, Planet planet, float refund)
         {
-            float taken = refund.UpperBound((planet.Storage.Max - planet.ProdHere).LowerBound(0f));
+            float taken = refund.UpperBound(Room(planet));
             planet.ProdHere += taken;
-            Owner.AddExcessCargoMoney((refund - taken) * Owner.data.TaxRate);
+            empire.AddExcessCargoMoney((refund - taken) * empire.data.TaxRate);
         }
     }
 }

@@ -1566,6 +1566,37 @@ Implementation notes:
      never takes one coming apart, and a refit constructor on its way scraps itself as at a lost orbital; one
      counting down to its scuttling is not taken apart, one dying gives nothing, and repair drones pass it over. The
      governor still removes another empire's orbital in its orbit at once.
+   - Part 2 (Gilad, 2026-10-23; 861-868): the builder rises with the shipyard launch from where the orbital stood,
+     facing its first colony (861 A). The ship list shows it, with its status and no Refit or Scrap buttons (862 A).
+     Once no colony it has not stopped at has room, it lands at the nearest safe colony, one it stopped at included,
+     the excess paid as credits (863 A). A colony whose store filled on the way still counts as a stop and is skipped
+     from then on (864 A). The colony lost during the landing, the whole load is paid as credits at the tax rate
+     (865 A). An empire absorbed loses the builder and its load, as one that falls does (866 B). Loads on their way
+     count against a colony's room, for builders and scrapped ships alike (867 A). It makes at most 10 stops, or one
+     for each of the empire's colonies when it has fewer (868, Gilad's clarification).
+   - As built (part 2, the builder): a DeliverRefund goal holds the load and the builder, the empire's supply shuttle
+     design. The design has no hold, so the panel draws the goal's load as a freighter's production. Its ship plan
+     flies it within the planet's radius + 200 and stops it there, and the goal, at its next turn, sends down what
+     the store has room for, untaxed: 1 shuttle per 50 production, rounded up, at most 20, where the player sees it.
+     Each turn the goal decides whether it lands there instead (all of it fits, or its last stop), on a shipyard of
+     the colony or the planet, and unloads it after touchdown as a scrapped ship's goal does. Its status is text
+     7230. It takes no orders: it cannot be scrapped or refitted, so it pays no upkeep; its panel has no order
+     buttons, Refit All skips it, and clearing its empire's goals removes it. The salvage station's order now stores
+     the station's cost as built (StationCost) and passes it to a new owner on a take-over. Codex: Refitting and
+     Scrapping gains The builder ship's delivery; the Dismantling section, the 7229 tooltip in four languages and
+     Hauling's station's end follow.
+     The self-review: the Excess Goods tooltip and the Economic Overview now name a refund no colony could take. The
+     selection panel's order buttons pass the builder over, as its Resupply cleared the builder's order and let it be
+     scrapped, the refund lost. A builder boarded just before its turn waits for its change of hands instead of being
+     paid out and removed. The tooltip says a salvage station gives all of its cost rather than half; the Codex says
+     the builder stops only where part of its load fits, and that with no safe colony no builder rises.
+     Then (Gilad, 2026-10-23; 869 A): it may go back to a colony it stopped at once that colony's store has room
+     again, so the skip of 848 and the "skipped from then on" of 864 go; the stop limit still ends the trip.
+     The mutation run (46 of 51 caught) found the builder, flying in at full speed, braking only at the radius + 200
+     and coming to rest about 100 inside the planet's disc. It now brakes in time, at sublight only, so it comes to
+     rest close by and still warps on the way. Tests were added for the stop, for a colony lost on the way and for
+     the unloading waiting for touchdown; the one escape left is a pair (the end of the delivery removes the builder
+     as its last step does).
 
 Each sub-branch adds its Codex text and tests.
 
