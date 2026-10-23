@@ -1512,6 +1512,60 @@ Implementation notes:
      switch only where one can be made, a station's derelict never, and a click needs a standing order.
 10. **dismantling** (Gilad, 2026-10-22; 719): every station and platform scrapped where it stands is taken apart
     over turns, as a salvage platform is, instead of vanishing.
+   - Decisions (Gilad, 2026-10-23; 834-842), on feature/salvage-ops/dismantling. Every scrap of a platform,
+     station or orbital shipyard takes it apart over turns: the Scrap button on its panel and on its ship list row,
+     the governor's scrapping and a salvage station's end (834 A). Scuttle in the right-click menu stays a
+     10-second self-destruct, and removals by rule stay instant: an orbital over the limit at a planet not yours,
+     a research station whose target can no longer be researched, a second salvage station taken over, the old
+     orbital a refit replaces. Subspace projectors keep vanishing at once, and the salvage platform keeps its own
+     dismantling (835 A). It takes 1 turn per 50 slots (836).
+     Coming apart, it stops at once: no weapons, research, refining, building, supply or repair, and no upkeep. It
+     leaves the planet's orbitals, so the governor and the orbital limit count its slot free. It can still be shot,
+     and its status reads "Dismantling" (837 A, 840 B). Every orbital shows the salvage platform's coming-apart
+     effect. Clicking Scrap again calls it off, whole and at work again; the AI never calls one off (839 A). No
+     notifications (841). Destroyed, it dies as any ship does; boarded, its new owner gets it whole and at work
+     (842 A).
+     Refund (838): one orbiting a planet of yours vanishes at the end, and the planet gets 50% of its production
+     cost x its health, the excess paid as credits at the tax rate. A deep-space one is worth 50% x health too,
+     and a salvage station all of its cost x health: the cost its goal stored when it was built, handed to the
+     dismantling goal. That refund leaves in a builder ship, which the player cannot order, rising from the
+     orbital as a recovered ship rises; an empire goal holds the amount. The builder flies to the nearest safe
+     colony with room in its production store, stops within the planet's radius + 200 and sends what fits, its
+     shuttles 1 per 50 production where seen, then goes on to the next colony, up to 10. Where all of it fits, or
+     at the 10th, it lands on the planet or a shipyard and unloads all, the excess paid as credits at the tax
+     rate, and the goal ends. It can be attacked.
+     Then (Gilad, 2026-10-23; 843-856): the turns are 1 per 50 slots, rounded up, at least 3 and at most 20, not
+     scaled by the pace (843). An orbital tethered to a planet not yours, a research or mining station's, or one
+     whose planet changed hands, counts as deep space (844 A). A salvage station gives all of its cost on every
+     dismantling, a Scrap while at work included (845 A), and the production in its hold joins the refund in full,
+     not scaled by health (846 A). The salvage station's goal stores the station's own cost as built, which passes
+     to a new owner with the station (847 A); the builder's goal stores its refund and uses it. Each leg goes where
+     a scrapped ship goes: among the empire's five safe colonies with the most room in their production store, the
+     nearest, skipping those it unloaded at; one turned unsafe on the way is swapped without counting a leg (848 A,
+     written "S"). At most 20 shuttles a stop (849 A); a landing sends none. With no safe colony, what is left is
+     paid as credits at the tax rate at once and a builder in flight is removed; with every colony full, it lands at
+     the nearest and the excess is paid as credits (850 A). The builder's status reads "Delivering production to
+     <colony>", its load above the panel as a freighter's (851 A; text 7230). Its health is taken as the orbital
+     goes, with no repair while it comes apart (852); a builder destroyed or boarded loses its load, untold (853);
+     the salvage station's end notice goes, with text 7220 (854); the refund lands untaxed and is not trade (855);
+     every empire works by these rules (856).
+     Its troops leave for a planet as it goes (Gilad, 2026-10-23; 857 A, written "S"), and production aboard any
+     orbital, a research or mining station's supplies too, joins its refund in full (858 A).
+   - As built (part 1, the dismantling): a DismantleOrbital goal starts it and ends it; ShipAI.OrderScrapShip sends
+     every orbital Scrap takes apart there, from the panel, the ship list row, the governor and the salvage station's
+     end, whose order waits for the station's end. Research and mining orders wait while their station comes apart,
+     so a call-off brings it back to work, and let go of their planet as a death does once it is gone. A boarded one
+     stops coming apart as it changes hands. The tooltip of both Scrap buttons on an orbital is text 7229; the
+     salvage station's end notice and text 7220 are gone. Codex: Refitting and Scrapping gains a Dismantling an
+     orbital section; Hauling and Alerts follow, and the Salvage Alerts tooltip drops the end notice.
+     The self-review: a second Scrap of one coming apart, as a selection's, called the first off and left it to be
+     removed whole; now it changes nothing. A call-off brings it back only while its place is still free: its planet
+     its empire's or no one's, with room among its orbitals, a mining station's ops still its empire's (Gilad,
+     2026-10-23; 859 A); a salvage station's cannot be called off, its salvage ended as it began (860 A).
+     Its planet taken while it comes apart, it stays its empire's and never joins the captor's orbitals. A refit
+     never takes one coming apart, and a refit constructor on its way scraps itself as at a lost orbital; one
+     counting down to its scuttling is not taken apart, one dying gives nothing, and repair drones pass it over. The
+     governor still removes another empire's orbital in its orbit at once.
 
 Each sub-branch adds its Codex text and tests.
 

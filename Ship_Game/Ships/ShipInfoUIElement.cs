@@ -546,10 +546,10 @@ namespace Ship_Game.Ships
             return ShipListScreenItem.GetStatusText(platform);
         }
 
-        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling, shows its orders
+        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling or coming apart, shows its orders
         internal static string SalvageStationStatus(Ship station)
         {
-            if (!station.Loyalty.isPlayer || station.ScuttleTimer >= 0f)
+            if (!station.Loyalty.isPlayer || station.ScuttleTimer >= 0f || station.Dismantling)
                 return ShipListScreenItem.GetStatusText(station);
             int coming = SalvageOps.HaulsComing(station, out _);
             if (coming > 0)
@@ -796,7 +796,7 @@ namespace Ship_Game.Ships
             }
             if (s.CanBeScrapped)
             {
-                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.IsSalvageStation)
+                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.IsSalvageStation && !s.Dismantling)
                 {
                     var rf = new OrdersButton(s, OrderType.Refit, GameText.OrderShipRefit)
                     {
@@ -805,7 +805,7 @@ namespace Ship_Game.Ships
                     };
                     Orders.Add(rf);
                 }
-                var sc = new OrdersButton(s, OrderType.Scrap, GameText.OrderShipBackToThe)
+                var sc = new OrdersButton(s, OrderType.Scrap, DismantleOrbital.DismantledInPlace(s) ? GameText.DismantleOrbitalTip : GameText.OrderShipBackToThe)
                 {
                     ValueToModify = new(() => s.DoingScrap, x => s.DoingScrap = x),
                     Active = false

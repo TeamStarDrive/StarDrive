@@ -40,6 +40,7 @@ namespace Ship_Game
         public ShipListScreen Screen;
         public string StatusText;
         readonly bool IsScuttle;
+        readonly bool Dismantles;
         readonly bool IsCombat;  //fbedard
         public bool Selected = false;  //fbedard: for multi-select
         private readonly string SystemName;
@@ -96,6 +97,7 @@ namespace Ship_Game
             {
                 IsScuttle = true;
             }
+            Dismantles = DismantleOrbital.DismantledInPlace(Ship);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -169,7 +171,7 @@ namespace Ship_Game
                 ExploreButton.Draw(batch);
                 //PatrolButton.Draw(batch); // FB - Disabled until we make it better
             }
-            if (!Ship.IsSubspaceProjector && !Ship.IsSalvageStation)
+            if (!Ship.IsSubspaceProjector && !Ship.IsSalvageStation && !Ship.Dismantling)
                 RefitButton.Draw(batch);
             ScrapButton.Draw(batch);
 
@@ -178,6 +180,8 @@ namespace Ship_Game
 
         public static string GetStatusText(Ship ship)
         {
+            if (ship.Dismantling)
+                return Localizer.Token(GameText.PlatformDismantling);
             string orders = GetOrdersText(ship);
             return ship.LandShip is { Docked: true } ? $"{orders} {Localizer.Token(GameText.ShipListDocked)}" : orders;
         }
@@ -379,7 +383,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!Ship.IsSubspaceProjector && !Ship.IsSalvageStation && RefitButton.HandleInput(input))
+            if (!Ship.IsSubspaceProjector && !Ship.IsSalvageStation && !Ship.Dismantling && RefitButton.HandleInput(input))
             {
                 GameAudio.EchoAffirmative();
                 Screen.ScreenManager.AddScreen(new RefitToWindow(Screen, this));
@@ -389,7 +393,12 @@ namespace Ship_Game
             if (ScrapButton.HandleInput(input))
             {
                 GameAudio.EchoAffirmative();
-                if (!IsScuttle)
+                if (Dismantles && Ship.ScuttleTimer < 0f) // one counting down to its scuttling calls that off below
+                {
+                    Ship.ScrapFromButton();
+                    Screen.Universe.RunOnSimThread(() => Screen.StatusDirty = true);
+                }
+                else if (!IsScuttle)
                 {
                     if (Ship.AI.State == AIState.Scrap)
                     {
@@ -464,7 +473,7 @@ namespace Ship_Game
             RefitButton.r = refit;
             ScrapButton.r = scrap;
             RefitButton.Tooltip = GameText.OpensAMenuAllowingYou;
-            ScrapButton.Tooltip = GameText.OrdersTheShipToReturn;
+            ScrapButton.Tooltip = Dismantles ? GameText.DismantleOrbitalTip : GameText.OrdersTheShipToReturn;
 
             float width = (int)(OrdersRect.Width * 0.8f);
             while (width % 10f != 0f)

@@ -102,7 +102,7 @@ namespace Ship_Game.Universe.SolarBodies
                 {
                     if      (!swarmController.Active)           keysToUpdate.Add(item.Key);
                     else if (swarmController.Loyalty != Owner) swarmController.AI.OrderScuttleShip();
-                    else                                       count++;
+                    else if (!swarmController.Dismantling)     count++;
                 }
             }
 

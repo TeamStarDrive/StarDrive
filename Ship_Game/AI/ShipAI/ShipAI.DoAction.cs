@@ -322,7 +322,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (goal is RefitOrbital && goal.OldShip?.Active == false)
+            if (goal is RefitOrbital && (goal.OldShip?.Active == false || goal.OldShip?.Dismantling == true))
             {
                 OrderScrapShip();
                 return;
@@ -401,7 +401,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (goal is RefitOrbital && goal.OldShip?.Active == false)
+            if (goal is RefitOrbital && (goal.OldShip?.Active == false || goal.OldShip?.Dismantling == true))
             {
                 OrderScrapShip();
                 return;
@@ -865,7 +865,7 @@ namespace Ship_Game.AI
             if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
                 mothership.ChangeOrdnance(Owner.Ordinance);
 
-            if (Owner.IsMiningShip)
+            if (Owner.IsMiningShip && !mothership.Dismantling)
             {
                 string cargoId = mothership.GetTether()?.Mining.CargoId ?? "";
                 if (cargoId.NotEmpty())

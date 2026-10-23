@@ -412,7 +412,7 @@ namespace Ship_Game.Commands.Goals
             if (!Finished || platform.GetProduction() > 0f)
                 return GoalStep.TryAgain;
             DismantleTurnsLeft = DismantleTurns;
-            platform.StartDismantling();
+            platform.StartDismantling(DismantleTurns);
             if (!Recovering)
                 PlayerNotifications?.AddSalvageFinishedNotification(this);
             return GoalStep.GoToNextStep;
@@ -446,10 +446,10 @@ namespace Ship_Game.Commands.Goals
 
         Ship Station() => SalvageOps.StationIn(Owner, TargetSystem) is { } station ? LastStation = station : null;
 
-        // a station lost ends the order, and the player is told unless the station was scrapped or scuttled, which leaves its scuttle timer set, or the roll succeeded, as the ship still comes
+        // a station lost ends the order, and the player is told unless the station was scrapped or scuttled, coming apart or with its scuttle timer set, or the roll succeeded, as the ship still comes
         GoalStep StationLost()
         {
-            bool scrapped = LastStation != null && LastStation.ScuttleTimer != -1f;
+            bool scrapped = LastStation != null && (LastStation.Dismantling || LastStation.ScuttleTimer != -1f);
             if (!scrapped && !RecoverySucceeded)
                 PlayerNotifications?.AddSalvageStationLostNotification(this, LastStation);
             return GoalStep.GoalFailed;

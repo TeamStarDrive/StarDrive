@@ -126,6 +126,19 @@ namespace Ship_Game.Ships
             CreateEventOnDeath();
         }
 
+        // an orbital taken apart lets go of its swarm, its research or its mining as one destroyed does
+        public void OnDismantled()
+        {
+            if (IsDysonSwarmController)
+                System?.DysonSwarm?.Update();
+
+            if (IsResearchStation)
+                OnResearchStationDeath();
+
+            if (IsMiningStation)
+                OnMiningStationDeath();
+        }
+
         void UpdateKillAndDefenseTasks(ShipModule module, ref bool shouldCheckInvestigateInhibition)
         {
             Ship killerShip = module.GetParent();

@@ -670,11 +670,11 @@ namespace Ship_Game.Ships
 
         public bool IsHangarShip   => Mothership != null;
         public bool IsHomeDefense  => HomePlanet != null;
-        public bool CanBeRefitted  => CanBeScrapped;
+        public bool CanBeRefitted  => CanBeScrapped && !Dismantling; // one coming apart also pays no upkeep
         public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false } && !IsSalvagePlatform;
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
-        public bool SupplyShipCanSupply => Carrier.HasSupplyBays 
+        public bool SupplyShipCanSupply => Carrier.HasSupplyBays && !Dismantling
             && OrdnanceStatusWithIncoming(OrdAddedPerSecond * 60) > Status.Critical
             && OrdnanceStatus != Status.NotApplicable;
 
@@ -750,14 +750,18 @@ namespace Ship_Game.Ships
 
         public bool DoingScrap
         {
-            get => AI.State == AIState.Scrap;
-            set => AI.OrderScrapShip();
+            get => AI.State == AIState.Scrap || Dismantling;
+            set => ScrapFromButton();
         }
 
         public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
-            set => Universe.Screen.ScreenManager.AddScreen(new RefitToWindow(Universe.Screen, this));
+            set
+            {
+                if (!Dismantling)
+                    Universe.Screen.ScreenManager.AddScreen(new RefitToWindow(Universe.Screen, this));
+            }
         }
 
         public bool DoingScuttle => AI.State == AIState.Scuttle;
@@ -1363,7 +1367,7 @@ namespace Ship_Game.Ships
             if (ShouldRecalculatePower) // must be before ShipStatusChange
                 RecalculatePower();
             
-            if (OrdAddedPerSecond > 0f)
+            if (OrdAddedPerSecond > 0f && !Dismantling)
                 ChangeOrdnance(OrdAddedPerSecond); // Add ordnance
 
             if (OrdnanceChanged)
@@ -1382,7 +1386,8 @@ namespace Ship_Game.Ships
 
             if (InCombat
                 || ShieldPower < ShieldMax
-                || engineState == MoveState.Warp)
+                || engineState == MoveState.Warp
+                || Dismantling)
             {
                 ShieldPower = 0.0f;
                 foreach (ShipModule shield in GetShields())
@@ -1403,14 +1408,15 @@ namespace Ship_Game.Ships
             if (!InCombat && IsHomeDefense && !IsLaunching && !HomePlanet.SpaceCombatNearPlanet && AI.State != AIState.ReturnHome)
                 ReturnHome();
 
-            // Ship Repair
-            if (HealthPercent < 1)
+            // Ship Repair, none while it comes apart
+            if (HealthPercent < 1 && !Dismantling)
                 Repair(timeSinceLastUpdate);
 
             if (CurrentMechanicalBoardingDefense < MechanicalBoardingDefense)
                 RepairMechanicalBoardingDefense();
 
-            UpdateResupply();
+            if (!Dismantling)
+                UpdateResupply();
             UpdateTroops(timeSinceLastUpdate);
 
             if (TimeSinceLastDamage > 10f)

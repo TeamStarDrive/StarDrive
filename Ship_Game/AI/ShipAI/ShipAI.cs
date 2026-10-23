@@ -448,7 +448,7 @@ namespace Ship_Game.AI
             supply => supply.Position.SqDist(Owner.Position));
 
         public Ship NearByRepairShip => FriendliesNearby.FindMinFiltered(
-            supply => supply.HasRepairModule,
+            supply => supply.HasRepairModule && !supply.Dismantling,
             supply => supply.Position.SqDist(Owner.Position));
 
         public void ProcessResupply(ResupplyReason resupplyReason)

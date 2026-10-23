@@ -1144,7 +1144,7 @@ namespace Ship_Game.Ships
         public bool LaunchBoardingParty(Troop troop, out Ship ship)
         {
             ship = null;
-            if (!IsTroopBay || !Powered)
+            if (!IsTroopBay || !Powered || Parent.Dismantling)
                 return false;
 
             if (HangarShip != null) // this bay's ship is already out
@@ -1251,11 +1251,11 @@ namespace Ship_Game.Ships
             if (Active && Is(ShipModuleType.Hangar))
                 HangarTimer -= timeStep.FixedTime;
 
-            // Shield Recharge / Discharge
+            // Shield Recharge / Discharge, down while its ship comes apart
             if (Is(ShipModuleType.Shield))
             {
                 float shieldMax = ActualShieldPowerMax;
-                ShieldPower = RechargeShields(ShieldPower, shieldMax, timeStep); // use regular recharge
+                ShieldPower = Parent.Dismantling ? 0f : RechargeShields(ShieldPower, shieldMax, timeStep); // use regular recharge
             }
 
             if (TransporterTimer > 0)

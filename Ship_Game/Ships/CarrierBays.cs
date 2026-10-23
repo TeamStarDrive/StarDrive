@@ -629,7 +629,7 @@ namespace Ship_Game.Ships
         public bool PrepHangarShip(Empire empire, ShipModule hangar, out string shipName)
         {
             shipName = "";
-            if (Owner == null || empire.Id == -1)
+            if (Owner == null || empire.Id == -1 || Owner.Dismantling)
                 return false;
 
             if (hangar.TryGetHangarShipActive(out _))

@@ -264,7 +264,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         Vector2 GetLaunchPos(QueueItem q, out bool fromShipyard)
         {
-            if (q.LaunchShipyard is { Active: true, Dying: false } shipyard && shipyard.Loyalty == Owner && shipyard.GetTether() == P)
+            if (q.LaunchShipyard is { Active: true, Dying: false, Dismantling: false } shipyard && shipyard.Loyalty == Owner && shipyard.GetTether() == P)
             {
                 fromShipyard = true;
                 return shipyard.Position.GenerateRandomPointInsideCircle(50, Owner.Random);

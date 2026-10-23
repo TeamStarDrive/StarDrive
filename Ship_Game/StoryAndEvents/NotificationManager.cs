@@ -912,23 +912,6 @@ namespace Ship_Game
             }, "sd_ui_notification_research_01");
         }
 
-        // a station scrapped once nothing was left to salvage in its system and nothing left aboard to haul; a click shows the system, as the station is gone
-        public void AddSalvageStationScrappedNotification(Ship station, SolarSystem system)
-        {
-            if (Screen.UState.P.DisableSalvageWarning)
-                return;
-
-            AddNotification(new Notification
-            {
-                Pause           = false,
-                Message         = string.Format(Localizer.Token(GameText.SalvageStationScrappedNotify), system.Name),
-                ReferencedItem1 = system,
-                IconPath        = station.ShipData.IconPath,
-                SymbolPath      = "NewUI/icon_salvage_notification",
-                Action          = "SnapToSystem"
-            }, "sd_ui_notification_research_01");
-        }
-
         public void AddSalvagePlatformDestroyedNotification(SalvageDerelict order)
             => AddSalvageLostNotification(order, SalvageText(GameText.SalvagePlatformDestroyedNotify, order), order.ToBuild.IconPath);
 

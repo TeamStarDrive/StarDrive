@@ -27,7 +27,7 @@ namespace UnitTests.Ships;
 /// a blockaded colony. A haul whose station or colony is lost is called off and flies to the nearest rally point.
 /// Once nothing is left to salvage in its system, no order of its empire's there and no derelict its empire knows
 /// of there that another empire does not work from its station there, the station calls for all it has left, and
-/// once it holds less than 1 it is scrapped with no refund, the player told unless salvage alerts are off; not while
+/// once it holds less than 1 it is scrapped, coming apart where it stands, the player told nothing; not while
 /// it is yet to be placed in its system, the player scuttles it or it is about to change hands. Its status says how
 /// many freighters are on their way, that it waits for them while it holds production, or that it salvages, and
 /// counts down while it is scuttled. AI empires' and rebels' stations haul and are scrapped by the same rules, the
@@ -933,7 +933,10 @@ public class SalvageHaulTests : StarDriveTest
 
     Notification[] Told() => Notes.GetNotificationsAtomic();
 
-    static bool Scrapped(Ship station) => !station.Active && OrderOf(station) == null;
+    // scrapped, it comes apart where it stands, its order waiting for its end
+    static bool Scrapped(Ship station)
+        => station.Active && station.Dismantling && OrderOf(station) != null
+        && station.Loyalty.AI.HasGoal(g => g is DismantleOrbital && g.OldShip == station);
 
     [TestMethod]
     public void WithNothingLeftToSalvageTheStationCallsForWhatItHasLeftBelowAnAverageLoad()
@@ -1001,34 +1004,19 @@ public class SalvageHaulTests : StarDriveTest
     }
 
     [TestMethod]
-    public void WithNothingLeftToSalvageAnEmptyStationIsScrappedWithNoRefundAndThePlayerIsTold()
+    public void WithNothingLeftToSalvageAnEmptyStationIsScrappedAndThePlayerIsNotTold()
     {
         Ship station = StationHolding(0.5f, atWork: false);
         TrackNotifications();
-        float money = Player.Money;
 
         Turn(station);
         Assert.IsTrue(Scrapped(station), "holding less than 1 with nothing left to salvage, the station is scrapped");
-        AssertEqual(money, Player.Money, "with no refund");
-        Assert.IsTrue(station.ScuttleTimer > 0f, "as a station scrapped is, its scuttle timer set");
-        Notification[] told = Told();
-        AssertEqual(1, told.Length, "the player is told once");
-        AssertEqual(string.Format(Localizer.Token(GameText.SalvageStationScrappedNotify), Local.System.Name), told[0].Message,
-                    "that the station in the system was scrapped");
-        Assert.IsTrue(told[0].ReferencedItem1 == Local.System && !told[0].Pause, "a click shows the system, and the game goes on");
-        StringAssert.StartsWith(Localizer.Token(GameText.SalvageStationScrappedNotify), "{0}: with nothing left to salvage");
-    }
-
-    [TestMethod]
-    public void SalvageAlertsOffTellNothingOfAScrappedStation()
-    {
-        Ship station = StationHolding(0f, atWork: false);
-        TrackNotifications();
-        UState.P.DisableSalvageWarning = true;
+        AssertEqual(-1f, station.ScuttleTimer, "it comes apart, not counting down to a scuttling");
+        AssertEqual(0, Told().Length, "and the player is told nothing");
 
         Turn(station);
-        Assert.IsTrue(Scrapped(station), "the station is scrapped");
-        AssertEqual(0, Told().Length, "and nothing is told");
+        Assert.IsTrue(Scrapped(station), "its order waits for its end, scrapping it once only");
+        AssertEqual(1, Player.AI.CountGoals(g => g is DismantleOrbital), "with one dismantling");
     }
 
     [TestMethod]

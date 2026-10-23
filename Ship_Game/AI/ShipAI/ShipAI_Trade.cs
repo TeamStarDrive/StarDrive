@@ -164,7 +164,7 @@ namespace Ship_Game.AI
 
         bool CanHaul(Ship station, Planet importPlanet)
         {
-            return station is { Active: true, Dying: false }
+            return station is { Active: true, Dying: false, Dismantling: false }
                    && station.Loyalty == Owner.Loyalty
                    && importPlanet.Owner != null // colony was wiped out
                    && !importPlanet.Quarantine

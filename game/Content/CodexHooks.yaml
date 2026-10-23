@@ -204,6 +204,7 @@ IndicatesAShipsExperienceLevel2: warfare_ship_experience
 ThisShowsTheHangarStatus: warfare_fighter_bays
 OpensAMenuAllowingYou: warfare_refit_and_scrap
 OrdersTheShipToReturn: warfare_refit_and_scrap
+DismantleOrbitalTip: warfare_refit_and_scrap
 RefitOnlyThisShipTo: warfare_refit_and_scrap
 RefitInFleetTip: warfare_refit_and_scrap
 RefitAllShipsOfThis: warfare_refit_and_scrap
