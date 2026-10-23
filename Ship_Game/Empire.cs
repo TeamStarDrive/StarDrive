@@ -639,6 +639,7 @@ namespace Ship_Game
             {
                 if (tech.CanBeResearched
                     && tech.Discovered
+                    && !tech.IsHidden(this)
                     && (tech.shipDesignsCanuseThis || tech.Tech.BonusUnlocked.NotEmpty)
                     && HavePreReq(tech.UID))
                 {
@@ -879,6 +880,13 @@ namespace Ship_Game
 
                     TechnologyDict.Add(tech.UID, entry);
                 }
+                else if (TechnologyDict[tech.UID] is { } saved && saved.IsHidden(this)) // hidden since the save, as a mod turned its feature off
+                {
+                    if (Research.IsQueued(tech.UID))
+                        Research.RemoveFromQueue(tech.UID);
+                    if (saved.Locked)
+                        saved.SetDiscovered(false);
+                }
             }
         }
 
@@ -1098,12 +1106,12 @@ namespace Ship_Game
             }
         }
 
-        public void AssimilateTech(Empire conqueredEmpire)
+        public void AssimilateTech(Empire conqueredEmpire, bool fromSave)
         {
             foreach (TechEntry conquered in conqueredEmpire.TechEntries)
             {
                 TechEntry ourTech = GetTechEntry(conquered.UID);
-                ourTech.UnlockByConquest(this, conqueredEmpire, conquered);
+                ourTech.UnlockByConquest(this, conqueredEmpire, conquered, fromSave);
             }
         }
 
@@ -2378,10 +2386,10 @@ namespace Ship_Game
                     ship.AI.OrderScuttleShip();
             }
 
-            AssimilateTech(target);
+            AssimilateTech(target, fromSave: false);
             foreach (TechEntry techEntry in target.TechEntries)
             {
-                if (techEntry.Unlocked)
+                if (techEntry.Unlocked && !techEntry.IsMultiLevel) // a multi-level tech came to its level in AssimilateTech
                     AcquireTech(techEntry.UID, target, TechUnlockType.Normal);
             }
             foreach (KeyValuePair<string, bool> kv in target.UnlockedHullsDict)

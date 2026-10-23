@@ -26,9 +26,10 @@ namespace UnitTests.Ships;
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
 /// stripped; of the failures, 10% times 1 minus the engineers explode. Each empire's draws are its own, from a luck seed
 /// that saves keep and rebels take from the empire they rise from. A recovering platform breaks in for 10 turns at
-/// any pace, then works at twice the salvage speed through the share of health the ship lost at its death times its
-/// slots at the production pace, plus a tenth, times 1 minus the engineers, and rolls as the last of it is done, or the
-/// turn after the break-in with none to do. A success raises the derelict, its panel showing the work done with no
+/// any pace, then works at twice its empire's salvage speed, which research raises and so cuts the turns left, through
+/// the share of health the ship lost at its death times its slots at the production pace, plus a tenth, times 1 minus
+/// the engineers, and rolls as the last of it is done, or the turn after the break-in with none to do. A success raises
+/// the derelict, its panel showing the work done with no
 /// buttons, and at a ship's depth its ship takes its place for the empire that recovered it, under its name, with a new
 /// crew, its repair modules, engines and the armor on its edge dead, its other armor at 2% and all else at 4%, with no
 /// ordnance, troops, power or shields, dark until its lights flicker on, and heads for its empire's nearest planet that

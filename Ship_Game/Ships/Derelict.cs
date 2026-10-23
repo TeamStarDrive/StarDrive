@@ -751,6 +751,8 @@ public sealed class Derelict
     {
         var random = Universe.Random;
         float salvage = SalvageDerelict.SalvageSpeed(StrippedBy.Loyalty);
+        if (salvage <= 0f)
+            return;
         float spread = Radius * 0.5f * scale;
         if ((NextStripFlash -= dt) <= 0f)
         {

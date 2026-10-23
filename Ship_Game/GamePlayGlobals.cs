@@ -33,7 +33,7 @@ public class GamePlayGlobals
     [StarData] public float SalvageSpeed = 12;
     // Share of what a tech has left to research that a derelict's whole production advances it by, each load paying its part
     [StarData] public float SalvageTechShare = 0.2f;
-    // A recovery's work: this times the share of health the ship had lost at its death times its slots, at the production pace, times 1 minus the race's engineers; above 0. A platform works it at twice the salvage speed
+    // A recovery's work: this times the share of health the ship had lost at its death times its slots, at the production pace, times 1 minus the race's engineers; above 0. A platform works it at twice its empire's salvage speed
     [StarData] public float SalvageRecoveryWorkFactor = 1.1f;
     // Turns a salvage platform breaks into its derelict before a recovery's work starts, whatever the ship's size and the production pace; 0 or more
     [StarData] public int SalvageRecoveryBreakInTurns = 10;

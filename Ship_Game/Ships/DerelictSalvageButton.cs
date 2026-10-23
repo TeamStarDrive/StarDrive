@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
@@ -95,6 +96,7 @@ public static class DerelictSalvageButton
     public static string Percent(float percent) => $"{Whole(percent)}%";
 
     static int Whole(float value) => (int)(value + 0.5f);
+    static int WholeUp(float value) => (int)Math.Ceiling(value - 0.001f);
 
     // the yellow bar of a recovery's progress, its percent rounded down, so it reads 100% only once all is done
     public static ProgressBar RecoveryBar(in Rectangle rect) => new(rect) { color = "yellow", Max = 100f, DrawPercentage = true };
@@ -117,7 +119,7 @@ public static class DerelictSalvageButton
         }
         int turnsLeft = DerelictRecovery.TurnsLeft(empire, d, order.BreakInDone, order.RecoveryWork);
         string tip = string.Format(Localizer.Token(GameText.DerelictRecoveryProgressTip), Whole(order.RecoveryWork),
-                                   Whole(DerelictRecovery.Work(empire, d)), Whole(DerelictRecovery.Speed(empire)), DerelictRecovery.BreakInTurns,
+                                   Whole(DerelictRecovery.Work(empire, d)), WholeUp(DerelictRecovery.Speed(empire)), DerelictRecovery.BreakInTurns,
                                    turnsLeft);
         ToolTip.CreateTooltip(tip, codexUid: Codex.CodexHooks.Find(GameText.DerelictRecoveryProgressTip));
     }

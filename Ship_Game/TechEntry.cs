@@ -485,16 +485,20 @@ namespace Ship_Game
                 WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
         }
 
-        public void UnlockByConquest(Empire us, Empire conqueredEmpire, TechEntry conqueredTech)
+        public void UnlockByConquest(Empire us, Empire conqueredEmpire, TechEntry conqueredTech, bool fromSave)
         {
             if (!Discovered && conqueredTech.Discovered)
             {
                 SetDiscovered(us);
             }
 
-            if (!Unlocked && conqueredTech.Unlocked)
+            // a multi-level tech comes up to the conquered empire's level as it is absorbed, a bonus for each, and a load keeps the levels the save has
+            if (IsMultiLevel ? !fromSave && Level < conqueredTech.Level : !Unlocked && conqueredTech.Unlocked)
             {
-                Unlock(us);
+                int levels = IsMultiLevel ? Math.Min(conqueredTech.Level, MaxLevel) - Level : 1;
+                for (int i = 0; i < levels; ++i)
+                    if (!Unlock(us))
+                        break;
                 ConqueredSource.AddUnique(conqueredEmpire.data.Traits.ShipType);
                 WasAcquiredFrom.AddUnique(conqueredEmpire.data.Traits.ShipType);
             }

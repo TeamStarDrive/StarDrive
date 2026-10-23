@@ -336,7 +336,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
     the chunk: `SalvageChunkSize` goes, and a salvage station needs cargo room for one platform's hold (405 A). The
     sending came with part 4 (399 B).
   - Neither the speed nor the load scales with the game's pace: the derelict's production already does, so salvage
-    takes longer at a slower pace, as building does. Techs that raise the speed come at the end of the feature (270, 516).
+    takes longer at a slower pace, as building does. The Salvage Speed tech raises it (270, 516; sub-branch 8).
   - Visual shuttles run between the platform and the derelict: one for every 3 production stripped that turn,
     rounded up, each from the platform to a random point on the hull and back, in the empire's colour (394). They
     launch 0.2 to 2 s apart after the turn's stripping and take 2 to 2.9 s each way, three times the first draft's
@@ -693,14 +693,14 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
 - **The work (Gilad, 2026-10-20; 519, 530 A, 532 A, 536 A, 554, 556 A, 557 B, 558 B, 559; 554 replaces the design
   cost of 519 and the 36 a turn of 531 B):** time only, nothing is paid.
   - The platform first breaks into the derelict for `SalvageRecoveryBreakInTurns` (Globals, default 10, at least 0)
-    turns, whatever the ship's size and the production pace (559); the salvage-speed techs do not shorten it. Only
+    turns, whatever the ship's size and the production pace (559); the Salvage Speed tech does not shorten it. Only
     turns of work count: a turn spent sending the hold does not. Turning the order to salvage starts the break-in
     again for a later recovery, and passing the order on keeps it.
   - The work is the share of health the ship had lost at its death, times its slots (the design's surface area), times
     the production pace, times `SalvageRecoveryWorkFactor` (Globals, default 1.1), times 1 minus the race's Engineers
     value (below). The derelict saves its health at death for it.
   - The platform works it at twice `SalvageSpeed` a turn, 24 by default, not scaled by the pace, so a slower pace
-    takes longer, as salvage does (557 B). The salvage-speed techs (sub-branch 8) raise both.
+    takes longer, as salvage does (557 B). The Salvage Speed tech (sub-branch 8) raises both.
   - A cruiser of 310 slots that died with 40% of its health needs 205, 9 turns after its 10 of break-in; the median
     vanilla designs take 13 turns for a frigate, 19 for a cruiser, 30 for a battleship and 54 for a capital in all,
     and the Behemoth's 4096 slots 123.
@@ -838,7 +838,7 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   - every derelict is a drifting one (visual only);
   - the salvage module and the salvage station and platform designs are hidden from the design screen and build
     lists;
-  - techs stay as they are (no `RequiresSalvageOps` flag for now).
+  - the Salvage Speed tech is hidden, by its `RequiresSalvageOps` flag (808 A).
 - **Off by the Globals flag, also (166):** the load-time checks for the salvage default ships are skipped.
   - That means the per-race default `DefaultSalvageStation`, checked like `DefaultMiningStation` in
     `CheckForRequiredShipDesigns` (`ResourceManager.cs:2274`), and the `Salvage Platform` design, required like the
@@ -1461,7 +1461,8 @@ Implementation notes:
        and junk come faster with the speed, the AI researches it as any bonus tech, and its texts are 7224-7226 in
        English, Russian, Ukrainian and Portuguese (807).
      - Hidden with salvage ops off, as Mining Speed is with Mining Ops off, by the tech's `RequiresSalvageOps`
-       (808 A). Mods that load only their own techs never load it.
+       (808 A). Mods that load only their own techs never load it; a mod that loads vanilla techs and overrides Small
+       Stations without the link leaves it with no parent, never discovered.
      - No tech for the recovery chance (809 C, 810).
      - Pirates, who research nothing, gain a tenth of the salvage speed a level from level 3, +180% at level 20
        (811, 814 A). Gilad then had it set where they gain their other bonuses as they rise a level,
@@ -1477,6 +1478,18 @@ Implementation notes:
        Gilad loads one in game to check.
      - As built: `EmpireData.SalvageSpeedMultiplier`, set by research and by `Pirates.AdvanceInTech`;
        `SalvageDerelict.SalvageSpeed`, `DerelictRecovery.Speed(Empire)`; Codex 100093 names the tech.
+     - Pre-merge review (Gilad, 2026-10-23; 819-825): an empire absorbing another came a level up in each
+       multi-level tech the other had researched, its bonus counted again, so it gained two levels however far the
+       other had gone, in every multi-level tech since before this feature (Mining Speed, Refining Efficiency,
+       Exotic Storage, Ordnance and Warhead Development, Coherency, Energization, Dispersion, Durability, Dyson
+       Swarm Overclock Upgrade); now it comes up to the other's level, a bonus for each level gained, and keeps its
+       own when higher (819 A, kept with all of them in view, 824 A; Codex 100130 says so). A load, which runs the
+       absorb's tech transfer again, keeps the levels the save has, so an older save's absorber stays where the old
+       rule left it (825 A). A tech hidden since the save, as a mod turned its feature off, leaves the research
+       queue and, unresearched, the tree; research never picks a hidden tech and the queue takes none, so no
+       empire's research stalls on it (820 A). A speed of none, from a mod, shows no strip effects (821 A).
+       Codex 100182 says which techs each switch hides (822 A). The Recover tooltip shows the recovery speed
+       rounded up (823).
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
 10. **dismantling** (Gilad, 2026-10-22; 719): every station and platform scrapped where it stands is taken apart
     over turns, as a salvage platform is, instead of vanishing.
