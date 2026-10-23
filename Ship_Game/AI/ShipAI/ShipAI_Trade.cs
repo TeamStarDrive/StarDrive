@@ -38,7 +38,8 @@ namespace Ship_Game.AI
             return exportPlanet.Owner == Owner.Loyalty
                    && !exportPlanet.Quarantine
                    && targetStation != null
-                   && targetStation.Loyalty == Owner.Loyalty;
+                   && targetStation.Loyalty == Owner.Loyalty
+                   && !targetStation.Dismantling;
         }
 
         static bool NothingToLoadForStation(ShipGoal g, Planet exportPlanet)
@@ -103,6 +104,7 @@ namespace Ship_Game.AI
             return targetStation != null
                    && targetStation.Active
                    && targetStation.Loyalty == Owner.Loyalty
+                   && !targetStation.Dismantling
                    && !targetStation.Supply.InTradeBlockade;
         }
 

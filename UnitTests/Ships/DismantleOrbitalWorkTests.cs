@@ -17,7 +17,8 @@ namespace UnitTests.Ships;
 /// <summary>
 /// An orbital coming apart does no work, for itself or for anyone: it makes no ordnance and its planet does not rearm
 /// it, no ship turns to it for supplies or repair and no repair drone heals it, its beams go out, miners bring it
-/// nothing, a research station researches nothing and a mining station refines nothing, and a Dyson swarm no longer
+/// nothing, its supply order ends and freighters bring it nothing, turning back with what they carry, a research
+/// station researches nothing and a mining station refines nothing, and a Dyson swarm no longer
 /// counts its controller. A refit constructor on its way, to a planet or to deep space, scraps itself, and a new orbital
 /// is not placed where one comes apart. Once it is gone, a research station's planet can be researched again and a
 /// mining station lets go of its ops; while its ops are another empire's, a mining station's dismantling cannot be
@@ -33,7 +34,7 @@ public class DismantleOrbitalWorkTests : StarDriveTest
 
     public DismantleOrbitalWorkTests()
     {
-        LoadStarterShips(PatrolStation, SupplyBase, Platform, "Mining Ship", DysonSwarm.DysonSwarmControllerName);
+        LoadStarterShips(PatrolStation, SupplyBase, Platform, "Mining Ship", "Owlwok Freighter S", DysonSwarm.DysonSwarmControllerName);
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         Colony = AddHomeWorldToEmpire(new Vector2(200_000f), Player);
@@ -191,6 +192,64 @@ public class DismantleOrbitalWorkTests : StarDriveTest
 
         TakeApart(station);
         AssertEqual(0f, Delivered(station, ore), "coming apart, it takes in nothing");
+    }
+
+    [TestMethod]
+    public void ItsSupplyOrderEnds()
+    {
+        Ship station = SpawnShip("Basic Research Station", Player, new Vector2(600_000f));
+        var supply = new SupplyGoodsToStation(Player, station, Goods.Production);
+        Player.AI.AddGoal(supply);
+        supply.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(supply), "setup: with no freighter to send, its supply order waits");
+
+        TakeApart(station);
+        supply.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(supply), "coming apart, its supply order ends");
+    }
+
+    // a freighter taking off from the colony to load its supplies
+    Ship SupplyRun(Ship station)
+    {
+        Ship freighter = Ship.CreateShipNearPlanet(UState, "Owlwok Freighter S", Player, Colony, doOrbit: false);
+        freighter.TransportingProduction = true;
+        freighter.AI.SetupFreighterPlan(Colony, station, Goods.Production);
+        return freighter;
+    }
+
+    [TestMethod]
+    public void AFreighterLoadsNothingForIt()
+    {
+        Colony.PS = Planet.GoodState.EXPORT;
+        Colony.ProdHere = Colony.Storage.Max;
+        Ship control = SpawnShip("Basic Research Station", Player, Colony.Position + new Vector2(30_000f, 0));
+        Ship station = SpawnShip("Basic Research Station", Player, Colony.Position + new Vector2(-30_000f, 0));
+        TakeApart(station);
+        Ship loaded = SupplyRun(control);
+        Ship empty = SupplyRun(station);
+
+        RunObjectsSim(TestSimStep);
+        AssertGreaterThan(loaded.GetProduction(), 0f, "setup: a freighter loads for a station at work");
+        AssertEqual(0f, empty.GetProduction(), "but nothing for one coming apart");
+    }
+
+    static bool BoundFor(Ship freighter, Ship station)
+        => freighter.AI.OrderQueue.Any(g => g.Plan == ShipAI.Plan.DropOffGoodsForStation && g.Trade?.TargetStation == station);
+
+    [TestMethod]
+    public void AFreighterOnItsWayTurnsBackWithItsLoad()
+    {
+        Ship station = SpawnShip("Basic Research Station", Player, Colony.Position + new Vector2(30_000f, 0));
+        Ship freighter = SpawnShip("Owlwok Freighter S", Player, Colony.Position + new Vector2(42_000f, 0));
+        freighter.LoadProduction(5f);
+        freighter.AI.SetTradePlan(ShipAI.Plan.DropOffGoodsForStation, Colony, station, Goods.Production);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(BoundFor(freighter, station), "setup: the freighter is on its way to the station");
+
+        TakeApart(station);
+        RunObjectsSim(TestSimStep);
+        Assert.IsFalse(BoundFor(freighter, station), "once it comes apart, the freighter turns back");
+        AssertEqual(5f, freighter.GetProduction(), "with its load");
     }
 
     [TestMethod]

@@ -262,13 +262,13 @@ namespace Ship_Game.Ships
             TetheredTo?.RemoveFromOrbitalStations(this);
         }
 
-        // whole again, the parts of its dismantling fading out, an orbital back among its planet's orbitals unless the planet is now another empire's
-        public void StopDismantling()
+        // whole again, the parts of its dismantling fading out, an orbital back among its planet's orbitals while the planet is no one's, its empire's or the empire it passes to
+        public void StopDismantling(Empire passingTo = null)
         {
             Dismantling = false;
             DismantleTime = 0f;
             Universe.Screen?.ResetConstructionParts(Id);
-            if (TetheredTo is { } planet && (planet.Owner == null || planet.Owner == Loyalty)
+            if (TetheredTo is { } planet && (planet.Owner == null || planet.Owner == Loyalty || planet.Owner == passingTo || LoyaltyTracker.ChangesTo(planet.Owner))
                 && planet.OrbitalStations.AddUniqueRef(this) && IsShipyard)
                 planet.UpdateShipyards();
         }

@@ -150,9 +150,9 @@ namespace Ship_Game.Ships.Components
             // also, any orders should be cleared the ensure new owner can assign suitable jobs
             ship.RemoveFromPoolAndFleet(clearOrders: true);
 
-            // its new owner keeps an orbital coming apart whole, back among its planet's orbitals while the planet is its old owner's or no one's
+            // its new owner keeps an orbital coming apart whole, back among its planet's orbitals while the planet is its old owner's, its new owner's or no one's
             if (ship.Dismantling && !ship.IsSalvagePlatform)
-                ship.StopDismantling();
+                ship.StopDismantling(passingTo: newLoyalty);
 
             // set the new loyalty before updating anything else
             ship.Loyalty = newLoyalty;

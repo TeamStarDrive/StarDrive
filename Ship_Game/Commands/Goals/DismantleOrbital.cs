@@ -90,12 +90,12 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
-        // once its turns are over it is gone, its troops leaving for a planet first; one dying gives nothing
+        // once its turns are over it is gone, its troops leaving for a planet first; one dying or counting down to its scuttling gives nothing
         GoalStep Dismantle()
         {
             if (OldShip is not { Active: true, Dismantling: true } orbital || orbital.Loyalty != Owner)
                 return GoalStep.GoalFailed;
-            if (orbital.Dying)
+            if (orbital.Dying || orbital.ScuttleTimer >= 0f)
                 return GoalStep.TryAgain;
             if (--TurnsLeft > 0)
                 return GoalStep.TryAgain;

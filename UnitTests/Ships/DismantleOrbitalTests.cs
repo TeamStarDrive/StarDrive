@@ -21,9 +21,10 @@ namespace UnitTests.Ships;
 /// rate with the turn's income. Scrap again calls it off, the orbital whole and at work, while its place is still
 /// free: its planet its empire's or no one's, with room among its orbitals; a salvage station's cannot be. Another
 /// Scrap of one coming apart, as a selection's, changes nothing, and one counting down to its scuttling is not taken
-/// apart. Boarded, it is whole for its new owner; dying or destroyed, it gives nothing; its planet taken, it stays its
-/// empire's, out of the captor's orbitals. A subspace projector still vanishes at once. A save keeps the dismantling
-/// where it was.
+/// apart. Boarded, given away or absorbed with its empire, it is whole for its new owner, among its planet's orbitals
+/// while the planet is no one's, its old owner's or its new owner's; dying, destroyed or scuttled, it gives nothing;
+/// its planet taken, it stays its empire's, out of the captor's orbitals. A subspace projector still vanishes at once.
+/// A save keeps the dismantling where it was.
 /// </summary>
 [TestClass]
 public class DismantleOrbitalTests : StarDriveTest
@@ -315,7 +316,40 @@ public class DismantleOrbitalTests : StarDriveTest
     }
 
     [TestMethod]
-    public void BoardedItIsWholeForItsNewOwner()
+    public void BoardedByTheEmpireThatTookItsPlanetItJoinsItsOrbitals()
+    {
+        Ship station = Orbital(PatrolStation);
+        station.AI.OrderScrapShip();
+        Colony.Construction.ClearQueue();
+        Colony.SetOwner(Enemy);
+        Assert.IsFalse(Colony.OrbitalStations.Contains(station), "setup: the planet taken, it is out of the captor's orbitals");
+
+        station.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(station.Loyalty == Enemy && !station.Dismantling, "boarded by the captor, it is whole for it");
+        Assert.IsTrue(Colony.OrbitalStations.Contains(station), "and among the orbitals of its planet, now its owner's");
+    }
+
+    [TestMethod]
+    public void AbsorbedWithItsEmpireItRejoinsItsPlanetsOrbitalsWhole()
+    {
+        Planet enemyColony = AddDummyPlanet(new Vector2(600_000f, 200_000f), 1f, 1f, 1f, new Vector2(605_000f, 200_000f), explored: true);
+        enemyColony.SetOwner(Enemy);
+        Ship station = SpawnShip(PatrolStation, Enemy, enemyColony.Position + new Vector2(3_000f, 0));
+        station.TetherToPlanet(enemyColony);
+        station.AI.OrderScrapShip();
+        Assert.IsTrue(station.Dismantling, "setup: the enemy's station comes apart");
+        UState.Objects.UpdateLists();
+        Assert.IsTrue(Enemy.OwnedShips.Contains(station), "setup: among its empire's ships");
+
+        Player.AbsorbEmpire(Enemy);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(station.Loyalty == Player && !station.Dismantling, "absorbed, it is whole for its new owner");
+        Assert.IsTrue(enemyColony.OrbitalStations.Contains(station), "among the orbitals of its planet, now its new owner's");
+    }
+
+    [TestMethod]
+    public void GivenAwayItIsWholeForItsNewOwner()
     {
         Ship station = Orbital(PatrolStation);
         station.AI.OrderScrapShip();
@@ -372,6 +406,20 @@ public class DismantleOrbitalTests : StarDriveTest
         platform.Dying = true;
         Turns(platform, 1);
         Assert.IsTrue(platform.Active && GoalOf(platform) != null, "dying on its last turn, it is not taken away");
+        AssertEqual(0f, Colony.ProdHere, "and the planet gets nothing");
+    }
+
+    [TestMethod]
+    public void ScuttledWhileItComesApartItGivesNothing()
+    {
+        Ship platform = Orbital(Platform);
+        Colony.ProdHere = 0f;
+        platform.AI.OrderScrapShip();
+        Turns(platform, 2);
+
+        Universe.OrderScuttle(platform); // the command wheel's Scuttle
+        Turns(platform, 1);
+        Assert.IsTrue(platform.Active && GoalOf(platform) != null, "counting down to its scuttling on its last turn, it is not taken away");
         AssertEqual(0f, Colony.ProdHere, "and the planet gets nothing");
     }
 

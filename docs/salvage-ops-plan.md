@@ -1629,6 +1629,22 @@ Implementation notes:
      fails with that gate alone removed (as the one at a planet does: a refit always deploys as a structure, so the
      same check in the orbital deploy is never reached by one), and the research station's planet open to research
      again once its order ends.
+     The pre-merge review (Gilad, 2026-10-23; 879-890): an orbital made whole as it changes hands rejoins its
+     planet's orbitals when the planet is the empire's it passes to as well, after an absorb or when the empire that
+     took its planet boards it (882 A). A station's supply order ends as it starts coming apart, and a freighter
+     loading for it or on its way turns back with what it carries, as for a station lost (884 A). One counting down
+     to its scuttling gives nothing, its turns waiting (885 A). The Codex gives the turns as 3 to 20 (888 A). Left as
+     they are: the last turn and the builder's unloading not waiting for a change of hands about to land (879 B, 880
+     B), its full combat strength while it comes apart (881 B), a station boarded where its new owner's own comes
+     apart still removed (883 B), Star Trek's transporters (886 B) and Hauling's reasons a freighter gives up (887
+     B); the gift test is named for a gift (889 B). Logged (890 A): a salvage station's stored cost is lost when its
+     empire is absorbed or defeated, its goals cleared before the take-over, so its refund is its new owner's current
+     cost.
+     Then (891-894, after the self-review): logged, one at a planet another empire took rejoins that empire's
+     orbitals when its own empire is defeated in the frame that empire boards it, the rebels then holding it there
+     (891 A), and, as 878, one rejoining after an absorb or its captor's boarding even when the planet's orbitals are
+     full (894 A). Left: no test for one passing to a third empire (892 B), and its progress running on while it
+     counts down to a scuttle that is then cancelled (893 B).
 
 Each sub-branch adds its Codex text and tests.
 
