@@ -121,7 +121,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                     return true;
             }
 
-            return false;
+            return DismantleOrbital.AnyAt(Owner, TetherPlanet, position, 500f);
         }
 
         // Checks if a Construction Ship is due to deploy a structure at a point

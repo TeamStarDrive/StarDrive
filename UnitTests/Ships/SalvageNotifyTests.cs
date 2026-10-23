@@ -285,7 +285,7 @@ public class SalvageNotifyTests : StarDriveTest
         SalvageDerelict building = Ordered(Player, waiting);
         TrackNotifications();
         station.AI.OrderScrapShip();
-        Assert.IsFalse(station.Active, "setup: the player scraps the station, which scuttles at once");
+        Assert.IsTrue(station.Active && station.Dismantling, "setup: the player scraps the station, which comes apart where it stands");
 
         atWork.Evaluate();
         for (int i = 0; i < 3 && Player.AI.HasGoal(building); ++i)

@@ -125,7 +125,7 @@ namespace Ship_Game
         public float GrossPlanetIncome { get; private set; }
         public float PotentialIncome { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
-        [StarData] public float ExcessCargoMoney { get; private set; } // tax on food and production a full colony store could not take from a ship, since the last turn's income
+        [StarData] public float ExcessCargoMoney { get; private set; } // tax on food and production a full colony store could not take from a ship, and on a refund no colony could take, since the last turn's income
         float ExcessCargoMoneyCollected; // that tax as the last turn's income collected it
         public float MoneyLastTurn;
         [StarData] public float AllTimeTradeIncome;

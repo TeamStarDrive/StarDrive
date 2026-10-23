@@ -17,6 +17,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public sealed override Ship TargetShip { get; set; }
         [StarData] public Vector2 StaticBuildPos;
         [StarData] IShipDesign StationToBuild;
+        [StarData] public float StationCost; // as built, all of it refunded when the station comes apart
         Ship SalvageStation => TargetShip;
         public override IShipDesign ToBuild => StationToBuild;
 
@@ -41,12 +42,13 @@ namespace Ship_Game.Commands.Goals
             StationToBuild = stationToBuild;
         }
 
-        // a station that changes hands skips the build, its notification and its trust cost
-        public SalvageOps(Empire owner, Ship station, SolarSystem system) : this(owner)
+        // a station that changes hands skips the build, its notification and its trust cost, and keeps the cost it was built for
+        public SalvageOps(Empire owner, Ship station, SolarSystem system, float stationCost) : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetSystem = system;
             TargetShip = station;
+            StationCost = stationCost;
             ChangeToStep(Salvage);
         }
 
@@ -197,11 +199,11 @@ namespace Ship_Game.Commands.Goals
         static bool HasStationIn(Empire empire, SolarSystem system)
             => empire.AI.HasGoal(g => g?.IsSalvageOpsGoal(system) == true && g.TargetShip is { Active: true });
 
-        // from any thread: the empire's built salvage station in the system, or null
+        // from any thread: the empire's built salvage station in the system, or null, as one coming apart is no longer at work
         public static Ship StationIn(Empire empire, SolarSystem system)
         {
             Ship station = empire.AI.FindGoal(g => g?.IsSalvageOpsGoal(system) == true)?.TargetShip;
-            return station is { Active: true } && station.Loyalty == empire ? station : null;
+            return station is { Active: true, Dismantling: false } && station.Loyalty == empire ? station : null;
         }
 
         // on the sim thread: the systems where StationIn finds the empire's built station, in one pass over its goals
@@ -210,7 +212,7 @@ namespace Ship_Game.Commands.Goals
             var systems = new HashSet<SolarSystem>();
             var goals = empire.AI.Goals;
             for (int i = 0; i < goals.Count; ++i)
-                if (goals[i] is SalvageOps { TargetShip: { Active: true } station } order && station.Loyalty == empire && order.TargetSystem != null)
+                if (goals[i] is SalvageOps { TargetShip: { Active: true, Dismantling: false } station } order && station.Loyalty == empire && order.TargetSystem != null)
                     systems.Add(order.TargetSystem);
             return systems;
         }
@@ -227,7 +229,8 @@ namespace Ship_Game.Commands.Goals
             if (!station.Active || station.Loyalty != to || to.AI.HasGoal(g => g is SalvageOps && g.TargetShip == station))
                 return;
 
-            if (from.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station) is { } held)
+            var held = from.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station) as SalvageOps;
+            if (held != null)
                 from.AI.RemoveGoal(held);
             SolarSystem system = SystemOf(station);
             if (system == null)
@@ -246,7 +249,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             to.AI.CancelSalvageStation(system);
-            to.AI.AddGoal(new SalvageOps(to, station, system)); // its first turn waits for the goal pass, once the change of hands has shown its new owner the derelicts there
+            to.AI.AddGoal(new SalvageOps(to, station, system, held?.StationCost ?? 0f)); // its first turn waits for the goal pass, once the change of hands has shown its new owner the derelicts there
         }
 
         // an order ends, with any constructor it has, when salvage ops are off (a save loaded under a mod without salvage content), and before its station is built once its system has no derelict left for it to salvage
@@ -280,6 +283,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (SalvageStation != null)
             {
+                StationCost = SalvageStation.GetCost(Owner);
                 if (Owner.isPlayer)
                     Owner.Universe.Notifications?.AddSalvageStationBuiltNotification(SalvageStation, TargetSystem);
                 CostTrustOfColonyOwners(Owner, TargetSystem);
@@ -301,8 +305,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            // one counting down to its scuttling, or about to change hands, orders nothing, calls no freighters and does not end; one pirates hold only recovers for them
-            if (!SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
+            // one counting down to its scuttling, coming apart, or about to change hands, orders nothing, calls no freighters and does not end; one pirates hold only recovers for them
+            if (!SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.Dismantling && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
             {
                 if (Owner.WeArePirates)
                 {
@@ -357,13 +361,11 @@ namespace Ship_Game.Commands.Goals
         bool NothingLeftToSalvage()
             => !Owner.AI.HasGoal(g => g is SalvageDerelict s && s.TargetSystem == TargetSystem) && !AnyToSalvageIn(Owner, TargetSystem);
 
-        // it vanishes as a station scrapped does, with no refund, and a player is told
+        // it comes apart as a station scrapped does, this order waiting for its end
         GoalStep ScrapStation(Ship station)
         {
-            if (Owner.isPlayer)
-                Owner.Universe.Notifications?.AddSalvageStationScrappedNotification(station, TargetSystem);
-            station.AI.OrderScuttleShip();
-            return GoalStep.GoalComplete;
+            station.AI.OrderScrapShip();
+            return GoalStep.TryAgain;
         }
 
         // the most freighters on their way to load at one station

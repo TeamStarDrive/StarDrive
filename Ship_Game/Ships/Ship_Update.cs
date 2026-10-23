@@ -4,6 +4,7 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
@@ -248,26 +249,49 @@ namespace Ship_Game.Ships
             ResetFrameThrustState();
         }
 
-        // a salvage platform taking itself apart, shown as a build over its dismantling's turns, after which it is gone
+        // a salvage platform taking itself apart, or an orbital scrapped where it stands, shown as a build over its dismantling's turns, after which it is gone
         [StarData] public bool Dismantling { get; private set; }
         [StarData] float DismantleTime;
+        [StarData(DefaultValue = SalvageDerelict.DismantleTurns)] int DismantleTurns = SalvageDerelict.DismantleTurns;
 
-        public void StartDismantling() => Dismantling = true;
+        // an orbital leaves its planet's orbitals at once, its place there free
+        public void StartDismantling(int turns)
+        {
+            Dismantling = true;
+            DismantleTurns = turns;
+            TetheredTo?.RemoveFromOrbitalStations(this);
+        }
 
-        public void StopDismantling()
+        // whole again, the parts of its dismantling fading out, an orbital back among its planet's orbitals while the planet is no one's, its empire's or the empire it passes to
+        public void StopDismantling(Empire passingTo = null)
         {
             Dismantling = false;
             DismantleTime = 0f;
+            Universe.Screen?.ResetConstructionParts(Id);
+            if (TetheredTo is { } planet && (planet.Owner == null || planet.Owner == Loyalty || planet.Owner == passingTo || LoyaltyTracker.ChangesTo(planet.Owner))
+                && planet.OrbitalStations.AddUniqueRef(this) && IsShipyard)
+                planet.UpdateShipyards();
+        }
+
+        // from the UI: Scrap takes an orbital apart where it stands, or calls that off while its place is free; another ship flies off to be scrapped
+        public void ScrapFromButton()
+        {
+            if (!DismantleOrbital.DismantledInPlace(this) || !Dismantling)
+                AI.OrderScrapShip();
+            else if (DismantleOrbital.CanCallOff(this))
+                Universe.Screen.RunOnSimThread(() => DismantleOrbital.CallOff(this));
+            else
+                GameAudio.NegativeClick();
         }
 
         // as a build's percentage, from none to 100 over the dismantling's turns
-        public float DismantlePercent => 100f * (DismantleTime / (SalvageDerelict.DismantleTurns * Universe.P.TurnTimer)).Clamped(0f, 1f);
+        public float DismantlePercent => 100f * (DismantleTime / (DismantleTurns * Universe.P.TurnTimer)).Clamped(0f, 1f);
 
         void UpdateDismantling(FixedSimTime timeStep, bool visibleToPlayer)
         {
             DismantleTime += timeStep.FixedTime;
             if (visibleToPlayer)
-                ConstructionShip.AddEffects(this, ShipData.Grid.Radius * 0.5f, DismantlePercent, tetherPlanet: null);
+                ConstructionShip.AddEffects(this, ShipData.Grid.Radius * 0.5f, DismantlePercent, TetheredTo);
         }
 
         // once done it vanishes in a flash, and its parts fade out as a finished build's do

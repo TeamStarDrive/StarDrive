@@ -176,6 +176,22 @@ public class RefitLandingTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ARefitNeverTakesOffFromAShipyardComingApart()
+    {
+        Ship landedOn = AddShipyard(AroundPlanet(0f, 2500f));
+        OrderRefit(Homeworld.Position + AroundPlanet(0f, 6000f));
+        RunUntilLanding();
+        QueueItem refit = RunUntilQueued();
+        AssertEqual(landedOn, refit.LaunchShipyard, "setup: the refit remembers the shipyard its old ship landed on");
+
+        landedOn.AI.OrderScrapShip();
+        Assert.IsTrue(landedOn.Dismantling, "setup: the shipyard comes apart");
+        Ship newShip = FinishBuild(Homeworld, refit, Refit);
+        AssertEqual(101f, Homeworld.Radius, newShip.Position.Distance(Homeworld.Position),
+                    "the new ship takes off from the planet, not from a shipyard coming apart");
+    }
+
+    [TestMethod]
     public void ARefittingShipFliesStraightIntoItsShipyardLanding()
     {
         Ship shipyard = AddShipyard(new Vector2(0, 2500));

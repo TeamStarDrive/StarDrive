@@ -693,10 +693,16 @@ namespace Ship_Game.AI
                 OrderScuttleShip();
         }
 
-        // Move to closest colony and get back some resources
+        // Move to closest colony and get back some resources; an orbital comes apart where it stands
         public void OrderScrapShip()
         {
-            Owner.Loyalty.AI.AddScrapShipGoal(Owner, immediateScuttle:false);
+            if (DismantleOrbital.DismantledInPlace(Owner))
+            {
+                if (!Owner.Dismantling)
+                    Owner.Loyalty.AI.AddGoalAndEvaluate(new DismantleOrbital(Owner, Owner.Loyalty));
+            }
+            else
+                Owner.Loyalty.AI.AddScrapShipGoal(Owner, immediateScuttle:false);
         }
 
         // Immediately self-destruct
@@ -720,6 +726,13 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             EscortTarget = targetConstructor;
             AddShipGoal(Plan.BuildOrbital, targetPlanet, AIState.Ferrying, targetConstructor);
+        }
+
+        public void OrderDeliverRefund(Planet colony, Goal delivery)
+        {
+            ClearOrders();
+            IgnoreCombat = true;
+            AddShipGoal(Plan.DeliverRefund, colony, delivery, AIState.Ferrying);
         }
 
         public void OrderMinePlanet(Planet targetPlanet)

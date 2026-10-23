@@ -58,7 +58,9 @@ namespace Ship_Game.AI
         MiningOps,
         RemnantHelpEmpire,
         SalvageOps,
-        SalvageDerelict
+        SalvageDerelict,
+        DismantleOrbital,
+        DeliverRefund
     }
 
     public enum GoalStep

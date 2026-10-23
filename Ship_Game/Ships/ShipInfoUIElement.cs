@@ -218,6 +218,7 @@ namespace Ship_Game.Ships
                 DrawStructuralIntegrity(batch, mousePos, s, ref numStatus);
             }
             DrawCargoUsed(batch, mousePos, s, ref numStatus);
+            DrawRefundLoad(batch, mousePos, s, ref numStatus);
         }
 
         void DrawIconWithTooltip(SpriteBatch batch, SubTexture icon, Func<string> tooltip, Vector2 mousePos, Color color, int numStatus)
@@ -366,23 +367,33 @@ namespace Ship_Game.Ships
                 return;
 
             foreach (Cargo cargo in ship.EnumLoadedCargo())
+                DrawGood(batch, mousePos, cargo.CargoId, cargo.Amount, ref numStatus);
+        }
+
+        // a builder carrying a refund shows its load as a freighter's production
+        void DrawRefundLoad(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
+        {
+            if (ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal order) && order.Goal is DeliverRefund { Load: > 0f } delivery)
+                DrawGood(batch, mousePos, "Production", delivery.Load, ref numStatus);
+        }
+
+        void DrawGood(SpriteBatch batch, Vector2 mousePos, string cargoId, float amount, ref int numStatus)
+        {
+            SubTexture texture = ResourceManager.Texture("Goods/" + cargoId);
+            var goodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
+            batch.Draw(texture, goodRect, Color.White);
+
+            var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
+            batch.DrawString(Fonts.Arial12, amount.ToString("0"), textPos, Color.White);
+
+            if (goodRect.HitTest(mousePos))
             {
-                SubTexture texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
-                var goodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
-                batch.Draw(texture, goodRect, Color.White);
-
-                var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12, cargo.Amount.ToString("0"), textPos, Color.White);
-
-                if (goodRect.HitTest(mousePos))
-                {
-                    Good good = ResourceManager.TransportableGoods.Find(g => g.UID == cargo.CargoId);
-                    if (good != null) 
-                        ToolTip.CreateTooltip($"{new LocalizedText(good.NameIndex).Text}\n\n{new LocalizedText(good.DescriptionIndex).Text}",
-                                              codexUid: Codex.CodexHooks.Find(new LocalizedText(good.DescriptionIndex)));
-                }
-                numStatus++;
+                Good good = ResourceManager.TransportableGoods.Find(g => g.UID == cargoId);
+                if (good != null)
+                    ToolTip.CreateTooltip($"{new LocalizedText(good.NameIndex).Text}\n\n{new LocalizedText(good.DescriptionIndex).Text}",
+                                          codexUid: Codex.CodexHooks.Find(new LocalizedText(good.DescriptionIndex)));
             }
+            numStatus++;
         }
 
         void DrawResupplyReason(SpriteBatch batch, Ship ship)
@@ -546,10 +557,10 @@ namespace Ship_Game.Ships
             return ShipListScreenItem.GetStatusText(platform);
         }
 
-        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling, shows its orders
+        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling or coming apart, shows its orders
         internal static string SalvageStationStatus(Ship station)
         {
-            if (!station.Loyalty.isPlayer || station.ScuttleTimer >= 0f)
+            if (!station.Loyalty.isPlayer || station.ScuttleTimer >= 0f || station.Dismantling)
                 return ShipListScreenItem.GetStatusText(station);
             int coming = SalvageOps.HaulsComing(station, out _);
             if (coming > 0)
@@ -692,7 +703,7 @@ namespace Ship_Game.Ships
             if (s.Loyalty != Player)
                 return;
 
-            if (s.IsSalvagePlatform || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+            if (s.IsSalvagePlatform || s.DeliversRefund || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
             if (s.ShipData.Role > RoleName.station && !s.IsConstructor)
@@ -796,7 +807,7 @@ namespace Ship_Game.Ships
             }
             if (s.CanBeScrapped)
             {
-                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.IsSalvageStation)
+                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.IsSalvageStation && !s.Dismantling)
                 {
                     var rf = new OrdersButton(s, OrderType.Refit, GameText.OrderShipRefit)
                     {
@@ -805,7 +816,7 @@ namespace Ship_Game.Ships
                     };
                     Orders.Add(rf);
                 }
-                var sc = new OrdersButton(s, OrderType.Scrap, GameText.OrderShipBackToThe)
+                var sc = new OrdersButton(s, OrderType.Scrap, DismantleOrbital.DismantledInPlace(s) ? GameText.DismantleOrbitalTip : GameText.OrderShipBackToThe)
                 {
                     ValueToModify = new(() => s.DoingScrap, x => s.DoingScrap = x),
                     Active = false

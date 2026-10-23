@@ -1512,6 +1512,139 @@ Implementation notes:
      switch only where one can be made, a station's derelict never, and a click needs a standing order.
 10. **dismantling** (Gilad, 2026-10-22; 719): every station and platform scrapped where it stands is taken apart
     over turns, as a salvage platform is, instead of vanishing.
+   - Decisions (Gilad, 2026-10-23; 834-842), on feature/salvage-ops/dismantling. Every scrap of a platform,
+     station or orbital shipyard takes it apart over turns: the Scrap button on its panel and on its ship list row,
+     the governor's scrapping and a salvage station's end (834 A). Scuttle in the right-click menu stays a
+     10-second self-destruct, and removals by rule stay instant: an orbital over the limit at a planet not yours,
+     a research station whose target can no longer be researched, a second salvage station taken over, the old
+     orbital a refit replaces. Subspace projectors keep vanishing at once, and the salvage platform keeps its own
+     dismantling (835 A). It takes 1 turn per 50 slots (836).
+     Coming apart, it stops at once: no weapons, research, refining, building, supply or repair, and no upkeep. It
+     leaves the planet's orbitals, so the governor and the orbital limit count its slot free. It can still be shot,
+     and its status reads "Dismantling" (837 A, 840 B). Every orbital shows the salvage platform's coming-apart
+     effect. Clicking Scrap again calls it off, whole and at work again; the AI never calls one off (839 A). No
+     notifications (841). Destroyed, it dies as any ship does; boarded, its new owner gets it whole and at work
+     (842 A).
+     Refund (838): one orbiting a planet of yours vanishes at the end, and the planet gets 50% of its production
+     cost x its health, the excess paid as credits at the tax rate. A deep-space one is worth 50% x health too,
+     and a salvage station all of its cost x health: the cost its goal stored when it was built, handed to the
+     dismantling goal. That refund leaves in a builder ship, which the player cannot order, rising from the
+     orbital as a recovered ship rises; an empire goal holds the amount. The builder flies to the nearest safe
+     colony with room in its production store, stops within the planet's radius + 200 and sends what fits, its
+     shuttles 1 per 50 production where seen, then goes on to the next colony, up to 10. Where all of it fits, or
+     at the 10th, it lands on the planet or a shipyard and unloads all, the excess paid as credits at the tax
+     rate, and the goal ends. It can be attacked.
+     Then (Gilad, 2026-10-23; 843-856): the turns are 1 per 50 slots, rounded up, at least 3 and at most 20, not
+     scaled by the pace (843). An orbital tethered to a planet not yours, a research or mining station's, or one
+     whose planet changed hands, counts as deep space (844 A). A salvage station gives all of its cost on every
+     dismantling, a Scrap while at work included (845 A), and the production in its hold joins the refund in full,
+     not scaled by health (846 A). The salvage station's goal stores the station's own cost as built, which passes
+     to a new owner with the station (847 A); the builder's goal stores its refund and uses it. Each leg goes where
+     a scrapped ship goes: among the empire's five safe colonies with the most room in their production store, the
+     nearest, skipping those it unloaded at; one turned unsafe on the way is swapped without counting a leg (848 A,
+     written "S"). At most 20 shuttles a stop (849 A); a landing sends none. With no safe colony, what is left is
+     paid as credits at the tax rate at once and a builder in flight is removed; with every colony full, it lands at
+     the nearest and the excess is paid as credits (850 A). The builder's status reads "Delivering production to
+     <colony>", its load above the panel as a freighter's (851 A; text 7230). Its health is taken as the orbital
+     goes, with no repair while it comes apart (852); a builder destroyed or boarded loses its load, untold (853);
+     the salvage station's end notice goes, with text 7220 (854); the refund lands untaxed and is not trade (855);
+     every empire works by these rules (856).
+     Its troops leave for a planet as it goes (Gilad, 2026-10-23; 857 A, written "S"), and production aboard any
+     orbital, a research or mining station's supplies too, joins its refund in full (858 A).
+   - As built (part 1, the dismantling): a DismantleOrbital goal starts it and ends it; ShipAI.OrderScrapShip sends
+     every orbital Scrap takes apart there, from the panel, the ship list row, the governor and the salvage station's
+     end, whose order waits for the station's end. Research and mining orders wait while their station comes apart,
+     so a call-off brings it back to work, and let go of their planet as a death does once it is gone. A boarded one
+     stops coming apart as it changes hands. The tooltip of both Scrap buttons on an orbital is text 7229; the
+     salvage station's end notice and text 7220 are gone. Codex: Refitting and Scrapping gains a Dismantling an
+     orbital section; Hauling and Alerts follow, and the Salvage Alerts tooltip drops the end notice.
+     The self-review: a second Scrap of one coming apart, as a selection's, called the first off and left it to be
+     removed whole; now it changes nothing. A call-off brings it back only while its place is still free: its planet
+     its empire's or no one's, with room among its orbitals, a mining station's ops still its empire's (Gilad,
+     2026-10-23; 859 A); a salvage station's cannot be called off, its salvage ended as it began (860 A).
+     Its planet taken while it comes apart, it stays its empire's and never joins the captor's orbitals. A refit
+     never takes one coming apart, and a refit constructor on its way scraps itself as at a lost orbital; one
+     counting down to its scuttling is not taken apart, one dying gives nothing, and repair drones pass it over. The
+     governor still removes another empire's orbital in its orbit at once.
+   - Part 2 (Gilad, 2026-10-23; 861-868): the builder rises with the shipyard launch from where the orbital stood,
+     facing its first colony (861 A). The ship list shows it, with its status and no Refit or Scrap buttons (862 A).
+     Once no colony it has not stopped at has room, it lands at the nearest safe colony, one it stopped at included,
+     the excess paid as credits (863 A). A colony whose store filled on the way still counts as a stop and is skipped
+     from then on (864 A). The colony lost during the landing, the whole load is paid as credits at the tax rate
+     (865 A). An empire absorbed loses the builder and its load, as one that falls does (866 B). Loads on their way
+     count against a colony's room, for builders and scrapped ships alike (867 A). It makes at most 10 stops, or one
+     for each of the empire's colonies when it has fewer (868, Gilad's clarification).
+   - As built (part 2, the builder): a DeliverRefund goal holds the load and the builder, the empire's supply shuttle
+     design. The design has no hold, so the panel draws the goal's load as a freighter's production. Its ship plan
+     flies it within the planet's radius + 200 and stops it there, and the goal, at its next turn, sends down what
+     the store has room for, untaxed: 1 shuttle per 50 production, rounded up, at most 20, where the player sees it.
+     Each turn the goal decides whether it lands there instead (all of it fits, or its last stop), on a shipyard of
+     the colony or the planet, and unloads it after touchdown as a scrapped ship's goal does. Its status is text
+     7230. It takes no orders: it cannot be scrapped or refitted, so it pays no upkeep; its panel has no order
+     buttons, Refit All skips it, and clearing its empire's goals removes it. The salvage station's order now stores
+     the station's cost as built (StationCost) and passes it to a new owner on a take-over. Codex: Refitting and
+     Scrapping gains The builder ship's delivery; the Dismantling section, the 7229 tooltip in four languages and
+     Hauling's station's end follow.
+     The self-review: the Excess Goods tooltip and the Economic Overview now name a refund no colony could take. The
+     selection panel's order buttons pass the builder over, as its Resupply cleared the builder's order and let it be
+     scrapped, the refund lost. A builder boarded just before its turn waits for its change of hands instead of being
+     paid out and removed. The tooltip says a salvage station gives all of its cost rather than half; the Codex says
+     the builder stops only where part of its load fits, and that with no safe colony no builder rises.
+     Then (Gilad, 2026-10-23; 869 A): it may go back to a colony it stopped at once that colony's store has room
+     again, so the skip of 848 and the "skipped from then on" of 864 go; the stop limit still ends the trip.
+     The mutation run (46 of 51 caught) found the builder, flying in at full speed, braking only at the radius + 200
+     and coming to rest about 100 inside the planet's disc. It now brakes in time, at sublight only, so it comes to
+     rest close by and still warps on the way. Tests were added for the stop, for a colony lost on the way and for
+     the unloading waiting for touchdown; the one escape left is a pair (the end of the delivery removes the builder
+     as its last step does).
+   - Part 3 (the tests and the Codex): 18 tests for what the part 1 mutation run let through and for 871, in
+     DismantleOrbitalWorkTests, DismantleOrbitalTests and RefitLandingTests. One coming apart makes no ordnance and
+     its planet does not rearm it; no ship turns to it for supplies or repair and repair drones pass it over; its
+     beams go out; miners bring it nothing; a research station researches nothing and a mining station refines
+     nothing; a Dyson swarm no longer counts its controller; a refit constructor on its way scraps itself; a new
+     orbital is not placed where one comes apart; a refit never takes off from a shipyard coming apart; a call-off
+     reaching the sim thread after its place is taken changes nothing. Once it is gone, a research station's planet
+     can be researched again and a mining station lets go of its ops; its ops another empire's, a mining station's
+     cannot be called off. Left untested: troop bays (no shipped station has one), the button's negative click, the
+     resupply gate (its priority order already stops a resupply) and the goal's own check that it still comes apart
+     (nothing else stops it while its goal is there).
+     Then (Gilad, 2026-10-23; 870-878, after a Codex audit): a research or mining station keeps its place at the
+     planet while it comes apart, as a call-off brings it back to work: no other research station of the empire's
+     can be placed there, and a mining station still counts among the four allowed there. The 7229 tooltip in four
+     languages and the Codex say so (870 A, in the words of 876 A, as the mining claim itself may lapse meanwhile).
+     A call-off at a planet no one owns needs room among its orbitals too, as 859 said (871 A). The selection's
+     Scrap tooltip, 7005, says an orbital is taken apart where it stands (872 A) and, as a lone projector's panel
+     shows it too, that a subspace projector is removed at once (877 A). Exotic
+     Resources says the mining claim may lapse while the last station comes apart (873 A). Hauling names the station's
+     Dismantling status (874 A). The Russian tooltip names the builder ship as 4443 does (875 A). Logged (878 A): one
+     boarded, or made whole by its empire's goals being cleared, at a planet no one owns rejoins its orbitals even when
+     they are full, nothing removing an orbital over the limit once it is placed. Logged, from before the branch:
+     2214, the ship list's Scrap tooltip on a subspace projector or a ship without engines, still says it flies to a
+     planet where the button self-destructs it; and at a planet no one owns the orbital limit does not count the
+     empire's constructors on their way, in placement and now in a call-off, so 100086's "counting those on the way"
+     holds only at a colony.
+     The recheck of the part 1 mutants caught 15 of these 16; the escape, a supply base supplying while it comes
+     apart, is a double check, as one that cannot be refitted has no ordnance status to supply from. The 871 test
+     fails with the old rule. The self-review added a refit constructor on its way to a deep-space orbital, which
+     fails with that gate alone removed (as the one at a planet does: a refit always deploys as a structure, so the
+     same check in the orbital deploy is never reached by one), and the research station's planet open to research
+     again once its order ends.
+     The pre-merge review (Gilad, 2026-10-23; 879-890): an orbital made whole as it changes hands rejoins its
+     planet's orbitals when the planet is the empire's it passes to as well, after an absorb or when the empire that
+     took its planet boards it (882 A). A station's supply order ends as it starts coming apart, and a freighter
+     loading for it or on its way turns back with what it carries, as for a station lost (884 A). One counting down
+     to its scuttling gives nothing, its turns waiting (885 A). The Codex gives the turns as 3 to 20 (888 A). Left as
+     they are: the last turn and the builder's unloading not waiting for a change of hands about to land (879 B, 880
+     B), its full combat strength while it comes apart (881 B), a station boarded where its new owner's own comes
+     apart still removed (883 B), Star Trek's transporters (886 B) and Hauling's reasons a freighter gives up (887
+     B); the gift test is named for a gift (889 B). Logged (890 A): a salvage station's stored cost is lost when its
+     empire is absorbed or defeated, its goals cleared before the take-over, so its refund is its new owner's current
+     cost.
+     Then (891-894, after the self-review): logged, one at a planet another empire took rejoins that empire's
+     orbitals when its own empire is defeated in the frame that empire boards it, the rebels then holding it there
+     (891 A), and, as 878, one rejoining after an absorb or its captor's boarding even when the planet's orbitals are
+     full (894 A). Left: no test for one passing to a third empire (892 B), and its progress running on while it
+     counts down to a scuttle that is then cancelled (893 B).
 
 Each sub-branch adds its Codex text and tests.
 

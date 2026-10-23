@@ -38,7 +38,8 @@ namespace Ship_Game.AI
             return exportPlanet.Owner == Owner.Loyalty
                    && !exportPlanet.Quarantine
                    && targetStation != null
-                   && targetStation.Loyalty == Owner.Loyalty;
+                   && targetStation.Loyalty == Owner.Loyalty
+                   && !targetStation.Dismantling;
         }
 
         static bool NothingToLoadForStation(ShipGoal g, Planet exportPlanet)
@@ -103,6 +104,7 @@ namespace Ship_Game.AI
             return targetStation != null
                    && targetStation.Active
                    && targetStation.Loyalty == Owner.Loyalty
+                   && !targetStation.Dismantling
                    && !targetStation.Supply.InTradeBlockade;
         }
 
@@ -164,7 +166,7 @@ namespace Ship_Game.AI
 
         bool CanHaul(Ship station, Planet importPlanet)
         {
-            return station is { Active: true, Dying: false }
+            return station is { Active: true, Dying: false, Dismantling: false }
                    && station.Loyalty == Owner.Loyalty
                    && importPlanet.Owner != null // colony was wiped out
                    && !importPlanet.Quarantine

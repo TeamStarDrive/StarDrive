@@ -446,7 +446,7 @@ public class SalvageTakeoverTests : StarDriveTest
         Assert.IsTrue(d.Stripped && OrderOf(rebels) == null, "it strips the rest, loses that too and takes itself apart");
 
         rebels.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station).Evaluate();
-        Assert.IsFalse(station.Active, "and the station is scrapped with what it holds");
+        Assert.IsTrue(station.Dismantling, "and the station is scrapped with what it holds, coming apart where it stands");
     }
 
     [TestMethod]
