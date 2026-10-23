@@ -267,6 +267,7 @@ namespace Ship_Game
             if (loadShips)
             {
                 Profiled(LoadAllShipDesigns); // Hotspot #1  502.9ms  22.75%
+                Profiled(CheckModSalvageContent);
                 Profiled(CheckForRequiredShipDesigns);
             }
             Profiled(LoadBuildings);
@@ -2271,6 +2272,29 @@ namespace Ship_Game
                 Log.Error($"Assert ship={usage} not defined for empire={e.Name,-20}");
             if (design != null && !flag(design))
                 Log.Error($"Assert Ship.{flagName} failed! {usage,-20}  ship={design.Name,-20}  role={design.Role,-12}  empire={e.Name,-20}");
+        }
+
+        // a mod that turns salvage ops on without the content for them has them off, with a warning
+        internal static void CheckModSalvageContent()
+        {
+            if (GlobalStats.HasMod && GlobalStats.Defaults.EnableSalvageOps && MissingSalvageContent() is { } missing)
+            {
+                Log.Warning($"Mod {GlobalStats.ModName} turns salvage ops on but has {missing}, so they are off");
+                GlobalStats.Defaults.EnableSalvageOps = false;
+            }
+        }
+
+        // what salvage ops need that the loaded content lacks, or null: a whole Salvage Platform and a salvage module for stations
+        static string MissingSalvageContent()
+        {
+            if (!Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign platform))
+                return $"no {ShipDesign.SalvagePlatformName} design";
+            if (platform.InvalidModules != null) // redundant, as a design missing modules is dropped at load, but kept as a guard
+                return $"no {platform.InvalidModules} for its {ShipDesign.SalvagePlatformName}";
+            foreach (ShipModule module in ModuleTemplates.Values)
+                if (module.Salvage)
+                    return null;
+            return "no salvage module";
         }
 
         // Added by RedFox: makes sure all required ship designs are present

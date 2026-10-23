@@ -873,6 +873,15 @@ Implementation notes:
   1680x1050 minimum.
 - **Load:** a save made with salvage ops on, loaded under a mod whose flag is off: the hard switch wins, and the
   saved salvageable derelicts sink away like drifting ones (169), and one the player does not know of is gone.
+- **Old saves and incomplete mods (Gilad, 2026-10-23; 900-904):** a game saved before salvage ops existed, vanilla or
+  a mod's, loads with them off: every save now marks its rule options as saved with salvage ops, and one without the
+  mark ticks Disable Salvage Ops (900; saved setups are YAML and untouched; this branch's own earlier saves load with
+  them off too). So an old save never meets an empire with no default salvage station. A mod that turns the flag on
+  without a Salvage Platform design or any salvage module has salvage ops off, with a warning, and still loads;
+  vanilla is not checked (901 A). The check for a platform missing modules stays as a guard, though such a design is
+  dropped at load (903 B). The Codex says nothing of old saves (902 B). Found on the way: Disable Pirates and Disable
+  Remnant Story, unticked against a mod's Globals that tick them, came back ticked on load, a save leaving out the
+  unticked value; they are always written now (904 B).
 
 ### Phases and branches
 

@@ -697,6 +697,23 @@ public class DerelictTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AGameSavedBeforeSalvageOpsLoadsWithThemOff()
+    {
+        var p = new UniverseParams(); // a load builds it as a new game does, then sets the fields its save has
+        AssertTrue(p.SalvageOps, "setup: built as for a new game, salvage ops are on");
+        p.OnDeserialized(); // a save from before salvage ops has none of their fields
+        AssertFalse(p.SalvageOps, "a game saved before they existed loads with them off");
+    }
+
+    [TestMethod]
+    public void AGameSavedWithSalvageOpsLoadsWithThemAsTheyWere()
+    {
+        AssertTrue(SaveAndLoad().UState.P.SalvageOps, "saved on, they load on");
+        UState.P.DisableSalvageOps = true;
+        AssertFalse(SaveAndLoad().UState.P.SalvageOps, "saved off, they load off");
+    }
+
+    [TestMethod]
     public void AnUnseenDeathInASystemLeavesASalvageableDerelictAlreadyAtItsStopPoint()
     {
         GlobalStats.Defaults.DerelictChance = 100;

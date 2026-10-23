@@ -1183,6 +1183,27 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
+        public void ARuleOptionUntickedAgainstTheModsGlobalsStaysUnticked()
+        {
+            bool pirates = GlobalStats.Defaults.DisablePirates;
+            bool remnantStory = GlobalStats.Defaults.DisableRemnantStory;
+            try
+            {
+                GlobalStats.Defaults.DisablePirates = true;
+                GlobalStats.Defaults.DisableRemnantStory = true;
+                var instance = new UniverseParams { DisablePirates = false, DisableRemnantStory = false }; // unticked at the new game
+                var result = SerDes(instance);
+                Assert.IsFalse(result.DisablePirates, "the mod's Globals tick Disable Pirates, but unticked it loads unticked");
+                Assert.IsFalse(result.DisableRemnantStory, "as does Disable Remnant Story");
+            }
+            finally
+            {
+                GlobalStats.Defaults.DisablePirates = pirates;
+                GlobalStats.Defaults.DisableRemnantStory = remnantStory;
+            }
+        }
+
+        [TestMethod]
         public void CanSerializeShipDesign()
         {
             CreateUniverseAndPlayerEmpire();

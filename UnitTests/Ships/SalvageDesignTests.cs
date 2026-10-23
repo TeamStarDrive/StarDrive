@@ -17,6 +17,7 @@ namespace UnitTests.Ships;
 /// list, and the player cannot order, refit, scrap or list it, nor pays upkeep for it. With salvage ops off, the ship
 /// designer and the build lists leave out the salvage unit, the salvage stations and the platform. The ship designer
 /// flags a salvage station with less cargo room than one load, the platform's hold, and every race's default holds one.
+/// A mod that turns salvage ops on without the salvage platform has them off.
 /// </summary>
 [TestClass]
 public class SalvageDesignTests : StarDriveTest
@@ -47,6 +48,35 @@ public class SalvageDesignTests : StarDriveTest
         ShipDesign design = ((ShipDesign)from).GetClone(name);
         design.SetDesignSlots(from.GetOrLoadDesignSlots().Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID).CargoCapacity <= 0f), updateRole: false);
         return design;
+    }
+
+    [TestMethod]
+    public void AModTurningSalvageOpsOnWithoutTheSalvagePlatformHasThemOff()
+    {
+        ModEntry activeMod = GlobalStats.ActiveMod;
+        GamePlayGlobals defaults = GlobalStats.Defaults;
+        try
+        {
+            GlobalStats.ActiveMod = new ModEntry(new GamePlayGlobals { Mod = new ModInformation { Name = "ZzSalvageMod" } });
+            GlobalStats.Defaults = new GamePlayGlobals { EnableSalvageOps = true };
+            ResourceManager.CheckModSalvageContent();
+            Assert.IsTrue(GlobalStats.Defaults.EnableSalvageOps, "a mod with the salvage platform and a salvage unit keeps them on");
+
+            ResourceManager.Ships.Delete(ShipDesign.SalvagePlatformName);
+            ResourceManager.CheckModSalvageContent();
+            Assert.IsFalse(GlobalStats.Defaults.EnableSalvageOps, "one without the salvage platform has them off");
+
+            GlobalStats.ActiveMod = null;
+            GlobalStats.Defaults.EnableSalvageOps = true;
+            ResourceManager.CheckModSalvageContent();
+            Assert.IsTrue(GlobalStats.Defaults.EnableSalvageOps, "vanilla is left as it is");
+        }
+        finally
+        {
+            GlobalStats.ActiveMod = activeMod;
+            GlobalStats.Defaults = defaults;
+            LoadStarterShips(ShipDesign.SalvagePlatformName);
+        }
     }
 
     [TestMethod]
