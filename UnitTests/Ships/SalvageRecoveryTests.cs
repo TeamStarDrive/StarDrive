@@ -411,7 +411,7 @@ public class SalvageRecoveryTests : StarDriveTest
         Player.data.SelectedTraitSet = "";
         UState.P.Pace = 3f; // a production pace of 2
         AssertEqual(0.01f, 0.6f * slots * 1.1f * 2f, DerelictRecovery.Work(Player, d), "twice the work at twice the production pace");
-        AssertEqual(0.01f, 24f, DerelictRecovery.Speed, "worked at twice the salvage speed, at any pace");
+        AssertEqual(0.01f, 24f, DerelictRecovery.Speed(Player), "worked at twice the salvage speed, at any pace");
         AssertEqual(10, DerelictRecovery.BreakInTurns, "after a break-in of 10 turns, at any pace too");
     }
 
@@ -448,6 +448,25 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsTrue(order.RecoverySucceeded, "and rolled for the same turn");
         Turns(order, 1);
         AssertEqual(0.001f, work, order.RecoveryWork, "the platform holding there");
+    }
+
+    [TestMethod]
+    public void AResearchedSalvageSpeedLevelSpeedsARecoveryAndItsTurnsLeft()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        Succeeds(d);
+        BuiltStation();
+        Player.data.SelectedTraitSet = "";
+        Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
+        SalvageDerelict order = AtWork(d, recover: true);
+        float work = DerelictRecovery.Work(Player, d);
+        int turnsLeft = (int)Math.Ceiling((work - 28.8f) / 28.8f);
+        Assert.AreNotEqual((int)Math.Ceiling((work - 28.8f) / 24f), turnsLeft, "setup: work enough that the speeds count different turns");
+
+        Turns(order, 11);
+        AssertEqual(0.01f, 28.8f, order.RecoveryWork, "a turn's work at twice the researched salvage speed");
+        AssertEqual(turnsLeft, DerelictRecovery.TurnsLeft(Player, d, order.BreakInDone, order.RecoveryWork),
+                    "and its tooltip counts the turns left at it");
     }
 
     [TestMethod]

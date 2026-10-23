@@ -117,7 +117,7 @@ public static class DerelictSalvageButton
         }
         int turnsLeft = DerelictRecovery.TurnsLeft(empire, d, order.BreakInDone, order.RecoveryWork);
         string tip = string.Format(Localizer.Token(GameText.DerelictRecoveryProgressTip), Whole(order.RecoveryWork),
-                                   Whole(DerelictRecovery.Work(empire, d)), Whole(DerelictRecovery.Speed), DerelictRecovery.BreakInTurns,
+                                   Whole(DerelictRecovery.Work(empire, d)), Whole(DerelictRecovery.Speed(empire)), DerelictRecovery.BreakInTurns,
                                    turnsLeft);
         ToolTip.CreateTooltip(tip, codexUid: Codex.CodexHooks.Find(GameText.DerelictRecoveryProgressTip));
     }

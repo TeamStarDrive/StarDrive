@@ -1,6 +1,7 @@
 using System;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data;
 using Vector2 = SDGraphics.Vector2;
 
@@ -55,7 +56,7 @@ public static class DerelictRecovery
     // a platform works a recovery's slots at twice the salvage speed
     public const float SpeedPerSalvageSpeed = 2f;
 
-    public static float Speed => GlobalStats.Defaults.SalvageSpeed * SpeedPerSalvageSpeed;
+    public static float Speed(Empire empire) => SalvageDerelict.SalvageSpeed(empire) * SpeedPerSalvageSpeed;
 
     // the turns a platform breaks into the derelict before the work starts, whatever its size and the game's pace
     public static int BreakInTurns => GlobalStats.Defaults.SalvageRecoveryBreakInTurns.LowerBound(0);
@@ -77,7 +78,7 @@ public static class DerelictRecovery
     {
         int breakIn = (BreakInTurns - breakInDone).LowerBound(0);
         float left = Work(empire, d) - workDone;
-        float speed = Speed;
+        float speed = Speed(empire);
         if (left > 0f && speed <= 0f)
             return int.MaxValue;
         int work = left > 0f ? (int)Math.Ceiling(left / speed) : 1;

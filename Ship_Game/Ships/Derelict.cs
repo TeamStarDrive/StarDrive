@@ -750,7 +750,7 @@ public sealed class Derelict
     void UpdateStripping(float dt, ParticleManager particles, float scale)
     {
         var random = Universe.Random;
-        float salvage = GlobalStats.Defaults.SalvageSpeed;
+        float salvage = SalvageDerelict.SalvageSpeed(StrippedBy.Loyalty);
         float spread = Radius * 0.5f * scale;
         if ((NextStripFlash -= dt) <= 0f)
         {

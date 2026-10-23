@@ -1417,8 +1417,8 @@ Implementation notes:
      theirs with a level-up roll, and a cruiser or larger stays on as an escort, while one of a design they already
      spawn is taken in for nothing (789 A), so their station passes over a derelict of such a design, their own
      wrecks among them (792 A). With nothing left to recover the station stays, neither hauling nor ending (790 A,
-     770 A). Their recovery chance is the default for now; techs that raise it, which pirates get by their level,
-     come with the salvage techs (sub-branch 8).
+     770 A). Their recovery chance is the default; no tech raises it (809 C), and they gain salvage speed, and with
+     it recovery speed, by their level instead (sub-branch 8).
    - As built (part 5): `SalvageOps.OrderDerelicts` for pirates, `SalvageDerelict.ConstructorName` given the
      station, `SalvageOps.ReplenishOrdnance`, the recovered ship's `OrderPirateFleeHome`, which a constructor out from
      its own salvage station ignores, as a raid's recall would strand its order, `Pirates.TargetType.SalvageStation`
@@ -1452,7 +1452,31 @@ Implementation notes:
        (802 A).
 8. **salvage techs** (moved out of recovery; Gilad, 2026-10-20; 516): the techs that raise the salvage speed (270),
    and with it the recovery speed, always twice it (554); they leave the break-in alone. Techs that raise the
-   recovery chance, which pirates get by their level (Gilad, 2026-10-22).
+   recovery chance, which pirates get by their level (Gilad, 2026-10-22), are dropped (809 C).
+   - Decisions (Gilad, 2026-10-23; 805-818):
+     - One tech, Salvage Speed, a leaf off Small Stations, the tech that unlocks the Salvage Unit, as Mining Speed is
+       off Deep Core Mining (805 A). Mining Speed's shape: 5 levels, each adding a fifth of the salvage speed,
+       costing 1000 and half as much again each level (806 A).
+     - A turn's strip still stops at the room the platform's hold has, the break-in is unchanged, the strip's flashes
+       and junk come faster with the speed, the AI researches it as any bonus tech, and its texts are 7224-7226 in
+       English, Russian, Ukrainian and Portuguese (807).
+     - Hidden with salvage ops off, as Mining Speed is with Mining Ops off, by the tech's `RequiresSalvageOps`
+       (808 A). Mods that load only their own techs never load it.
+     - No tech for the recovery chance (809 C, 810).
+     - Pirates, who research nothing, gain a tenth of the salvage speed a level from level 3, +180% at level 20
+       (811, 814 A). Gilad then had it set where they gain their other bonuses as they rise a level,
+       `Pirates.AdvanceInTech`, into their own `EmpireData.SalvageSpeedMultiplier`, so no other code tells pirates
+       apart (815, in place of 812 A). A level down keeps it, as it does their fuel cells, until their next rise sets
+       it by that level, and an older save's pirates gain it at their next rise, those already at level 20 never
+       (816 A, 818 A).
+     - The diplomacy screen's empire stats show a Salvage Speed Modifier, as they do Mining Speed's, text 7227
+       (817 A).
+     - Its icon: Mining Speed's bolt beside a small medallion of a ship broken in two (813 A; preview sheet in
+       BlackBoxPlus-references\previews\s8icon).
+     - An older save gets the tech on load, as the game adds every tech a save lacks (`Empire.CreateEmpireTechTree`);
+       Gilad loads one in game to check.
+     - As built: `EmpireData.SalvageSpeedMultiplier`, set by research and by `Pirates.AdvanceInTech`;
+       `SalvageDerelict.SalvageSpeed`, `DerelictRecovery.Speed(Empire)`; Codex 100093 names the tech.
 9. **Codex review** (Gilad, 2026-10-17; 333): the last stage. Gilad reviews the Codex text of the whole feature.
 10. **dismantling** (Gilad, 2026-10-22; 719): every station and platform scrapped where it stands is taken apart
     over turns, as a salvage platform is, instead of vanishing.
