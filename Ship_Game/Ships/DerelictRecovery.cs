@@ -7,7 +7,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the chance to recover a derelict ship, by its hull's role, raised or lowered by the recovering race's engineers and lowered by the share of it already stripped, the share of the failed recoveries that explode, and the damage a recovered ship comes back with
+// the chance to recover a derelict ship, by its hull's role, raised or lowered by the recovering race's engineers, by whose ship it was and, for the player, by the difficulty, and lowered by the share of it already stripped; the share of the failed recoveries that explode, and the damage a recovered ship comes back with
 public static class DerelictRecovery
 {
     // percent of the failed recoveries that explode, before the engineers
@@ -26,11 +26,19 @@ public static class DerelictRecovery
         _                   => 50f,
     };
 
+    // a ship of a Remnant design, whoever lost it, is half as easy to recover, and one that was the empire's own a quarter easier, both for its own Remnant ship
+    public const float RemnantShipChance = 0.5f;
+    public const float OwnShipChance = 1.25f;
+
+    public static float OriginChance(Empire empire, Derelict d)
+        => (d.Owner == empire ? OwnShipChance : 1f) * (Remnants.IsRemnantDesign(empire.Universe, d.Design) ? RemnantShipChance : 1f);
+
     // percent, from any thread
     public static float Chance(Empire empire, Derelict d)
     {
         float unstripped = d.Production > 0f ? d.ProductionLeft / d.Production : 0f;
-        return (HullChance(d.Design.HullRole) * (1f + Engineers(empire)) * unstripped).Clamped(0f, 100f);
+        return (HullChance(d.Design.HullRole) * (1f + Engineers(empire)) * unstripped * OriginChance(empire, d)
+                * empire.DifficultyModifiers.RecoveryChance).Clamped(0f, 100f);
     }
 
     // percent of the empire's failed recoveries that explode

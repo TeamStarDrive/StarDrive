@@ -2327,7 +2327,7 @@ namespace Ship_Game
                 if (GlobalStats.Defaults.EnableSalvageOps)
                 {
                     Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", s => s.IsSalvageStation, "IsSalvageStation");
-                    Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", ShipResupply.HasRoomForSalvageLoad, "BaseCargoSpace");
+                    Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", ShipResupply.HasRoomForSalvageLoads, "BaseCargoSpace");
                 }
             }
 

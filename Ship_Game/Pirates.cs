@@ -567,7 +567,7 @@ namespace Ship_Game
 
         bool StaysAtBase(Ship ship)
         {
-            if (ship.Name == Owner.data.PirateFlagShip)
+            if (ship.Name == Owner.data.PirateFlagShip || Remnants.IsRemnantDesign(Owner.Universe, ship.ShipData)) // a Remnant ship is kept and never taken in
                 return true;
 
             return !ship.IsDefaultAssaultShuttle

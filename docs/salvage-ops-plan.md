@@ -882,6 +882,24 @@ Implementation notes:
   dropped at load (903 B). The Codex says nothing of old saves (902 B). Found on the way: Disable Pirates and Disable
   Remnant Story, unticked against a mod's Globals that tick them, came back ticked on load, a save leaving out the
   unticked value; they are always written now (904 B).
+- **Recovery chance and the station pick (Gilad, 2026-10-24; 910-913):** a Remnant ship's recovery chance is halved
+  and a ship that was the recovering empire's own gets a quarter more, for every empire; the player's chance is also
+  multiplied by 1, 0.75, 0.5 or 0.25 at Normal, Hard, Brutal or Insane, the AI's never (a difficulty modifier). A
+  salvage station is usable only with cargo room for a platform load for each of its salvage units, for the pickers,
+  the Automation window's list and the race default's check at load; the ship designer flags one red under that,
+  yellow under one and a half loads a unit and green under two, the red remedy saying the pickers skip it. The pick
+  for a system counts the derelicts the empire would work there, the planner's own test for the AI and the player
+  alike (known, salvageable, a fifth of their turns left, not worked from another empire's station there; 911 A), and
+  takes the most salvage units up to that count, then the fewest beyond it, then the most cargo room, then the
+  strongest per slot; with no system in mind, the most units as before. The planner, the derelict panel and window
+  and an order building its station each pick for their system. The design issue's red and yellow-or-green remedies
+  are 7231 and 7232 (912 A); the chance tooltip and the Codex name the three factors in words (913 A). These ride in
+  PR #472 on feature/salvage-ops/base (910 A).
+- **Pirates keep Remnant ships (Gilad, 2026-10-24; 914):** a pirate base never takes in a ship of a Remnant design, matched by
+  the design's style against the Remnant race's ship type, as the design cannot be renamed and a ship's vanity name
+  can; it guards the base instead, so a Remnant ship another empire recovered, lost again and pirates recovered stays
+  with them too. The recovery chance's half for a Remnant ship follows the design too, whoever lost it, and a
+  Remnant ship of an empire's own gets both its half and its quarter more (915 A).
 
 ### Phases and branches
 

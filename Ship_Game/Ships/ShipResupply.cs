@@ -62,10 +62,12 @@ namespace Ship_Game.Ships
             return ship.BaseCargoSpace*0.5f / totalRefiningPerTurn >= NumTurnsForGoodRefiningSupply*0.5f;
         }
 
-        // a salvage platform sends its station its whole hold as one load, so a salvage station needs cargo room for one
-        public static bool HasRoomForSalvageLoad(IShipDesign ship)
+        // a salvage platform sends its station its whole hold as one load, so a salvage station needs cargo room for one for each of its salvage units
+        public static float SalvageCargoNeeded(IShipDesign ship) => SalvageLoad * ship.NumSalvageModules;
+
+        public static bool HasRoomForSalvageLoads(IShipDesign ship)
         {
-            return ship.BaseCargoSpace >= SalvageLoad;
+            return ship.BaseCargoSpace >= SalvageCargoNeeded(ship);
         }
 
         // the Salvage Platform design's cargo room, or none without the design

@@ -27,11 +27,11 @@ namespace UnitTests.Ships;
 /// abort before it is built takes the order and its constructor away, as salvage ops off does, and as the system
 /// running out of derelicts for it does; a built station keeps its order while it holds production. A site lies in the
 /// system, clear of its star and planets' orbits and 2000 units from its derelicts and from salvage stations. An order
-/// survives a save. The picker takes the station with the most salvage modules, then the most cargo room. The player's
-/// picker, with auto pick off as it starts, takes the station chosen in the Automation window, or the race's default
-/// when the choice cannot be built, and the best pick when neither can; the window resets a choice that can no longer
-/// be built to the default. Neither picker nor the window's list takes a station with less cargo room than one load, a
-/// salvage platform's hold. The derelicts window deploys the picked station, aborts an order not yet built, its
+/// survives a save. The picker with no system in mind takes the station with the most salvage modules, then the most
+/// cargo room. The player's picker, with auto pick off as it starts, takes the station chosen in the Automation window,
+/// or the race's default when the choice cannot be built, and the best pick when neither can; the window resets a
+/// choice that can no longer be built to the default. Neither picker nor the window's list takes a station with less
+/// cargo room than a load, a salvage platform's hold, for each of its salvage units. The derelicts window deploys the picked station, aborts an order not yet built, its
 /// constructor queued or not, and then says the station is deployed; with no design to build it says so in grey. A
 /// built station costs the builder trust, once, with each AI that has a colony in its system and knows it, unless the
 /// two have open borders, an alliance or a war: the AI personality's value, 5 for all, times a difficulty multiplier
@@ -523,7 +523,7 @@ public class SalvageOpsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void NeitherPickerTakesAStationWithLessCargoRoomThanOneLoad()
+    public void NeitherPickerTakesAStationWithLessCargoRoomThanALoadForEachOfItsSalvageUnits()
     {
         ShipDesign holdless = Variant("Holdless Station", dropOneSalvageUnit: false, extraHolds: 0, dropHolds: true);
         ShipDesign fewer = Variant("Fewer Units Station", dropOneSalvageUnit: true, extraHolds: 3);
@@ -546,7 +546,7 @@ public class SalvageOpsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheAutomationWindowLeavesOutAStationWithLessCargoRoomThanOneLoad()
+    public void TheAutomationWindowLeavesOutAStationWithLessCargoRoomThanALoadForEachOfItsSalvageUnits()
     {
         ShipDesign roomier = Variant("Roomier Station", dropOneSalvageUnit: false, extraHolds: 1);
         ShipDesign holdless = Variant("Holdless Station", dropOneSalvageUnit: false, extraHolds: 0, dropHolds: true);

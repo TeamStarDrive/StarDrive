@@ -339,7 +339,7 @@ namespace Ship_Game.Ships
                 ship.PowerCurrent = 0f;
                 ship.FlickerLightsOn();
                 if (owner.WeArePirates)
-                    ship.AI.OrderPirateFleeHome(); // to their nearest base, which takes in a small ship and keeps a cruiser or larger
+                    ship.AI.OrderPirateFleeHome(); // to their nearest base, which takes in a small ship and keeps a cruiser or larger, or a Remnant ship
                 else if (DerelictRecovery.RepairPlanet(owner, ship.Position) is { } planet)
                     ship.AI.OrderResupply(planet, clearOrders: true);
                 if (model != null) // last, so a failure before it leaves the model to the derelict to take out of the scene

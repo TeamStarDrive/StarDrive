@@ -24,7 +24,9 @@ namespace UnitTests.Ships;
 /// show while the player has a salvage station built in the derelict's system or an order on it. The chance to recover
 /// a ship is its hull's, 60 for a frigate down to 20 for a capital, times 1 plus its race's engineers, read from its
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
-/// stripped; of the failures, 10% times 1 minus the engineers explode. Each empire's draws are its own, from a luck seed
+/// stripped, half that for a ship of a Remnant design whoever lost it and a quarter more for one of the empire's own,
+/// both for its own Remnant ship, and for the player a quarter less for each difficulty level above Normal, the AI's at
+/// any; of the failures, 10% times 1 minus the engineers explode. Each empire's draws are its own, from a luck seed
 /// that saves keep and rebels take from the empire they rise from. A recovering platform breaks in for 10 turns at
 /// any pace, then works at twice its empire's salvage speed, which research raises and so cuts the turns left, through
 /// the share of health the ship lost at its death times its slots at the production pace, plus a tenth, times 1 minus
@@ -51,7 +53,7 @@ public class SalvageRecoveryTests : StarDriveTest
 
     public SalvageRecoveryTests()
     {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName);
+        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName, "Ancient Frigate");
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
@@ -67,10 +69,12 @@ public class SalvageRecoveryTests : StarDriveTest
         base.Cleanup();
     }
 
-    // a salvageable derelict of the player's, so the player knows of it, its ship dead with this share of its health; the ship itself is gone
-    Derelict Forms(Vector2 at, string design = "Dreadnought mk1-a", float health = 1f, string name = null)
+    // a salvageable derelict of the player's unless another owner is given, which the player then knows of as it has seen the ship, its ship dead with this share of its health; the ship itself is gone
+    Derelict Forms(Vector2 at, string design = "Dreadnought mk1-a", float health = 1f, string name = null, Empire owner = null)
     {
-        TestShip ship = SpawnShip(design, Player, at);
+        TestShip ship = SpawnShip(design, owner ?? Player, at);
+        if (owner != null)
+            ship.KnownByEmpires.SetSeen(Player);
         ship.Health = ship.HealthMax * health;
         if (name != null)
             ship.VanityName = name;
@@ -174,8 +178,9 @@ public class SalvageRecoveryTests : StarDriveTest
     [TestMethod]
     public void TheChanceIsTheHullsRaisedByTheRacesEngineersAndLoweredByWhatIsStripped()
     {
-        Derelict d = Forms(Wreck);
+        Derelict d = Forms(Wreck, owner: Enemy);
         AssertEqual(RoleName.capital, d.Design.HullRole, "setup: a capital's derelict");
+        Assert.IsTrue(d.IsKnownBy(Player), "setup: another empire's, which the player knows of");
         Player.data.SelectedTraitSet = "Savage";
         AssertEqual(0.01f, 20f, Chance(Player, d), "a capital's 20");
 
@@ -188,6 +193,61 @@ public class SalvageRecoveryTests : StarDriveTest
 
         Player.data.SelectedTraitSet = "Haphazard Engineers";
         AssertEqual(0.01f, 12f, Chance(Player, d), "and a fifth less for Haphazard Engineers");
+    }
+
+    [TestMethod]
+    public void AShipOfARemnantDesignIsHalfAsEasyToRecoverWhoeverLostItAndOneOfTheEmpiresOwnAQuarterEasier()
+    {
+        float capMultiplier = GlobalStats.Defaults.SalvageableDerelictCapMultiplier;
+        GlobalStats.Defaults.SalvageableDerelictCapMultiplier = 10f; // room for five salvageable derelicts in this small galaxy
+        try
+        {
+            Player.data.SelectedTraitSet = "";
+            Enemy.data.SelectedTraitSet = "";
+            Derelict theirs = Forms(Wreck, owner: Enemy);
+            AssertEqual(0.01f, 20f, Chance(Player, theirs), "setup: another empire's capital, at its hull's 20");
+            AssertEqual(0.01f, 25f, Chance(Enemy, theirs), "a quarter more for the empire whose ship it was, an AI too");
+
+            Derelict own = Forms(Wreck + new Vector2(0f, 5_000f));
+            AssertEqual(0.01f, 25f, Chance(Player, own), "and for the player's own");
+
+            CreateAMinorFaction("Remnant");
+            Assert.IsTrue(Faction.WeAreRemnants && UState.Remnants == Faction, "setup: the Remnants are in the game");
+            Derelict remnant = Forms(Wreck + new Vector2(0f, 10_000f), design: "Ancient Frigate", owner: Faction);
+            Assert.IsTrue(remnant.CanBeSalvaged && remnant.Design.HullRole == RoleName.frigate, "setup: a salvageable Remnant frigate, at its hull's 60");
+            AssertEqual(0.01f, 30f, Chance(Player, remnant), "half for a Remnant ship");
+            AssertEqual(0.01f, 30f, Chance(Enemy, remnant), "for every empire");
+
+            Derelict lostRemnant = Forms(Wreck + new Vector2(0f, 15_000f), design: "Ancient Frigate");
+            AssertEqual(0.01f, 37.5f, Chance(Player, lostRemnant), "a Remnant ship the player recovered and lost is still one, a quarter more as its own");
+            AssertEqual(0.01f, 30f, Chance(Enemy, lostRemnant), "and half for any other empire");
+
+            Derelict remnantsOther = Forms(Wreck + new Vector2(0f, 20_000f), owner: Faction);
+            AssertEqual(0.01f, 20f, Chance(Player, remnantsOther), "while a ship of another design the Remnants held is not halved");
+        }
+        finally
+        {
+            GlobalStats.Defaults.SalvageableDerelictCapMultiplier = capMultiplier;
+        }
+    }
+
+    [TestMethod]
+    public void EachDifficultyLevelAboveNormalLowersThePlayersChanceByAQuarterButNotTheAIs()
+    {
+        AssertEqual(0.001f, 1f, new DifficultyModifiers(Player, GameDifficulty.Normal).RecoveryChance, "Normal");
+        AssertEqual(0.001f, 0.75f, new DifficultyModifiers(Player, GameDifficulty.Hard).RecoveryChance, "Hard");
+        AssertEqual(0.001f, 0.5f, new DifficultyModifiers(Player, GameDifficulty.Brutal).RecoveryChance, "Brutal");
+        AssertEqual(0.001f, 0.25f, new DifficultyModifiers(Player, GameDifficulty.Insane).RecoveryChance, "Insane");
+        AssertEqual(0.001f, 1f, new DifficultyModifiers(Enemy, GameDifficulty.Insane).RecoveryChance, "the AI's at any difficulty");
+
+        Player.data.SelectedTraitSet = "";
+        Enemy.data.SelectedTraitSet = "";
+        Derelict d = Forms(Wreck, owner: Enemy);
+        UState.P.Difficulty = GameDifficulty.Brutal;
+        Player.TestInitModifiers();
+        Enemy.TestInitModifiers();
+        AssertEqual(0.01f, 10f, Chance(Player, d), "half the hull's 20 for the player at Brutal");
+        AssertEqual(0.01f, 25f, Chance(Enemy, d), "while the AI's chance for its own ship is as at Normal");
     }
 
     [TestMethod]
@@ -578,7 +638,7 @@ public class SalvageRecoveryTests : StarDriveTest
     [TestMethod]
     public void TheRollRecoversAtTheChanceAndATenthOfTheFailuresExplode()
     {
-        Derelict d = Forms(Wreck);
+        Derelict d = Forms(Wreck, owner: Enemy);
         Player.data.SelectedTraitSet = "";
         AssertEqual(0.01f, 20f, Chance(Player, d), "setup: a capital's 20%");
         Draws(d, Player, (recovery, _) => recovery is > 0.15f and < 0.19f);

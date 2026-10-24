@@ -6214,11 +6214,11 @@ namespace Ship_Game
         AutoBuildSalvageStation = 7158,
         /// <summary>Low Salvage Cargo</summary>
         DesignIssueLowSalvageCargoTitle = 7159,
-        /// <summary>This Salvage Station has less cargo room than one load of salvaged production</summary>
+        /// <summary>Each salvage unit's platform sends its loads to this Salvage Station</summary>
         DesignIssueLowSalvageCargoProblem = 7160,
         /// <summary>Add Storage.</summary>
         DesignIssueLowSalvageCargoRemidiation = 7161,
-        /// <summary>Cargo room needed for one load:</summary>
+        /// <summary>Cargo room needed for one load per salvage unit:</summary>
         DesignIssueLowSalvageCargoNeeded = 7162,
         /// <summary>Deploy Salvage Station</summary>
         DeploySalvageStation = 7163,
@@ -6347,6 +6347,10 @@ namespace Ship_Game
         DismantleOrbitalTip = 7229,
         /// <summary>Delivering production to</summary>
         DeliveringProductionTo = 7230,
+        /// <summary>Without it, the list under Auto Build Salvage Stations in the</summary>
+        DesignIssueLowSalvageCargoSkipped = 7231,
+        /// <summary>Cargo room for two loads per salvage unit:</summary>
+        DesignIssueLowSalvageCargoTwoLoads = 7232,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

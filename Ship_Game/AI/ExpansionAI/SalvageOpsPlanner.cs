@@ -28,7 +28,7 @@ namespace Ship_Game.AI.ExpansionAI
         // ignoreDistance is for tests
         public void RunSalvageOpsPlanner(bool ignoreDistance = false)
         {
-            if (!ShouldRun() || ShipBuilder.PickSalvageStation(Owner) is not { } station)
+            if (!ShouldRun() || ShipBuilder.PickSalvageStation(Owner) == null)
                 return;
 
             SolarSystem[] systems = Owner.DerelictSystems.ToArr();
@@ -37,7 +37,11 @@ namespace Ship_Game.AI.ExpansionAI
             for (int i = 0; i < systems.Length; ++i)
             {
                 SolarSystem system = systems[i];
-                if (!Candidate(system, averageDist, ignoreDistance) || !WorthAStation(system, station.GetCost(Owner)))
+                if (!Candidate(system, averageDist, ignoreDistance))
+                    continue;
+
+                IShipDesign station = ShipBuilder.PickSalvageStation(Owner, system);
+                if (!WorthAStation(system, station.GetCost(Owner)))
                     continue;
 
                 if (Owner.KnownEnemyStrengthNoResearchStationsIn(system) > 0f)
@@ -84,9 +88,6 @@ namespace Ship_Game.AI.ExpansionAI
             return true;
         }
 
-        // a derelict with less than this share of its turns left counts for nothing, as it may sink before the station is up
-        const int MinTurnsLeftPercent = 20;
-
         // the production left in the derelicts it can work there pays for the station, or one's design uses a tech it wants, or it is a ship it would recover
         bool WorthAStation(SolarSystem system, float stationCost)
         {
@@ -96,8 +97,7 @@ namespace Ship_Game.AI.ExpansionAI
             for (int i = 0; i < derelicts.Length; ++i)
             {
                 Derelict d = derelicts[i];
-                if (d.System != system || !d.CanBeSalvaged || !d.IsKnownBy(Owner) || d.TurnsLeft * 100 < lifetime * MinTurnsLeftPercent
-                    || d.Claimant != null && d.Claimant != Owner && SalvageOps.StationIn(d.Claimant, system) != null)
+                if (!SalvageOps.WorthAStationFor(Owner, d, system, lifetime))
                     continue;
 
                 if (SalvageDerelict.DesignHasWantedTech(Owner, d) || SalvageDerelict.WouldRecover(Owner, d))

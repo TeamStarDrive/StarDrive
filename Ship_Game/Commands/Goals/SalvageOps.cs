@@ -75,6 +75,29 @@ namespace Ship_Game.Commands.Goals
             return false;
         }
 
+        // a derelict with less than this share of its turns left counts for nothing, as it may sink before a station is up
+        public const int MinTurnsLeftPercent = 20;
+
+        // from any thread: a salvageable derelict in the system that the empire knows of, with enough turns left, and that no other empire works from its station there
+        public static bool WorthAStationFor(Empire empire, Derelict d, SolarSystem system, int lifetime)
+        {
+            Empire claimant = d.Claimant;
+            return d.System == system && d.CanBeSalvaged && d.IsKnownBy(empire) && d.TurnsLeft * 100 >= lifetime * MinTurnsLeftPercent
+                   && (claimant == null || claimant == empire || StationIn(claimant, system) == null);
+        }
+
+        // from any thread: the derelicts in the system a new station of the empire's would work
+        public static int DerelictsToWorkIn(Empire empire, SolarSystem system)
+        {
+            int lifetime = Derelict.LifetimeTurns(empire.Universe);
+            int count = 0;
+            Derelict[] derelicts = empire.Universe.Derelicts.Current;
+            for (int i = 0; i < derelicts.Length; ++i)
+                if (WorthAStationFor(empire, derelicts[i], system, lifetime))
+                    ++count;
+            return count;
+        }
+
         public const float Clearance = 2000f; // from every salvageable derelict and every other salvage station
 
         // from any thread: inside the system, clear of its star, radiation and planets' orbits, and of its derelicts and the salvage stations among `ships`
@@ -163,7 +186,7 @@ namespace Ship_Game.Commands.Goals
                 || !FindSite(system, StationsSeenBy(empire, ships), random, out Vector2 site))
                 return false;
 
-            empire.AI.AddGoalAndEvaluate(new SalvageOps(empire, system, site, ShipBuilder.PickSalvageStation(empire)));
+            empire.AI.AddGoalAndEvaluate(new SalvageOps(empire, system, site, ShipBuilder.PickSalvageStation(empire, system)));
             return true;
         }
 
@@ -268,7 +291,7 @@ namespace Ship_Game.Commands.Goals
             if (Owner.AI.FindGoal(g => g.IsSalvageOpsGoal(TargetSystem)) != this)
                 return GoalStep.GoalFailed;
 
-            StationToBuild ??= ShipBuilder.PickSalvageStation(Owner);
+            StationToBuild ??= ShipBuilder.PickSalvageStation(Owner, TargetSystem);
             if (StationToBuild == null)
                 return GoalStep.GoalFailed;
 
