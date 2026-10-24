@@ -6,6 +6,7 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.PathFinder;
@@ -38,6 +39,10 @@ namespace Ship_Game.Ships
         readonly ProgressBar OBar;
         readonly ProgressBar ConstructionBar;
         readonly ProgressBar MiningBar;
+        readonly ProgressBar SalvageHoldBar;
+        readonly Rectangle SalvageDerelictRect;
+        readonly ProgressBar SalvageDerelictBar;
+        readonly ProgressBar SalvageRecoveryBar;
         UITextEntry ShipNameArea;
         private readonly SlidingElement SlidingElement;
         private readonly Rectangle DefenseRect;
@@ -86,6 +91,12 @@ namespace Ship_Game.Ships
 
             MiningRect = ConstructionRect;
             MiningBar = new ProgressBar(MiningRect.X + MiningRect.Width + 15, MiningRect.Y, 150, 18) { color = "red" };
+
+            // a salvage platform's load in the miner's row, brown as the colony screen's stored production, and its derelict's production left or its recovery's progress in the row below
+            SalvageHoldBar = new ProgressBar(MiningRect.X + MiningRect.Width + 15, MiningRect.Y, 150, 18) { color = "brown" };
+            SalvageDerelictRect = new Rectangle(MiningRect.X, MiningRect.Y + MiningRect.Height + spacing, 20, 20);
+            SalvageDerelictBar = new ProgressBar(SalvageDerelictRect.X + SalvageDerelictRect.Width + 15, SalvageDerelictRect.Y, 150, 18) { color = "red" };
+            SalvageRecoveryBar = DerelictSalvageButton.RecoveryBar(SalvageDerelictBar.pBar);
 
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
             ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisShipsCurrentDefense));
@@ -143,7 +154,10 @@ namespace Ship_Game.Ships
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
             var shipStatus = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64).ToFloored();
-            string text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(s), 120);
+            SalvageDerelict salvage = s.IsSalvagePlatform ? SalvageDerelict.OfPlatform(s) : null;
+            string status = s.IsSalvagePlatform ? SalvageStatus(s, salvage)
+                          : s.IsSalvageStation ? SalvageStationStatus(s) : ShipListScreenItem.GetStatusText(s);
+            string text = Fonts.TahomaBold9.ParseText(status, 120);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
 
             s.RenderOverlay(batch, ShipInfoRect, ShowModules && s.Loyalty.CanBeScannedByPlayer);
@@ -193,6 +207,7 @@ namespace Ship_Game.Ships
             {
                 DrawConstructionStatus(batch, mousePos);
                 DrawMiningStatus(batch, mousePos);
+                DrawSalvageStatus(batch, mousePos, salvage);
                 DrawCarrierStatus(mousePos, s);
                 DrawResupplyReason(batch, s);
                 DrawRadiationDamageWarning(s);
@@ -203,6 +218,7 @@ namespace Ship_Game.Ships
                 DrawStructuralIntegrity(batch, mousePos, s, ref numStatus);
             }
             DrawCargoUsed(batch, mousePos, s, ref numStatus);
+            DrawRefundLoad(batch, mousePos, s, ref numStatus);
         }
 
         void DrawIconWithTooltip(SpriteBatch batch, SubTexture icon, Func<string> tooltip, Vector2 mousePos, Color color, int numStatus)
@@ -351,23 +367,33 @@ namespace Ship_Game.Ships
                 return;
 
             foreach (Cargo cargo in ship.EnumLoadedCargo())
+                DrawGood(batch, mousePos, cargo.CargoId, cargo.Amount, ref numStatus);
+        }
+
+        // a builder carrying a refund shows its load as a freighter's production
+        void DrawRefundLoad(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
+        {
+            if (ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal order) && order.Goal is DeliverRefund { Load: > 0f } delivery)
+                DrawGood(batch, mousePos, "Production", delivery.Load, ref numStatus);
+        }
+
+        void DrawGood(SpriteBatch batch, Vector2 mousePos, string cargoId, float amount, ref int numStatus)
+        {
+            SubTexture texture = ResourceManager.Texture("Goods/" + cargoId);
+            var goodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
+            batch.Draw(texture, goodRect, Color.White);
+
+            var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
+            batch.DrawString(Fonts.Arial12, amount.ToString("0"), textPos, Color.White);
+
+            if (goodRect.HitTest(mousePos))
             {
-                SubTexture texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
-                var goodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
-                batch.Draw(texture, goodRect, Color.White);
-
-                var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12, cargo.Amount.ToString("0"), textPos, Color.White);
-
-                if (goodRect.HitTest(mousePos))
-                {
-                    Good good = ResourceManager.TransportableGoods.Find(g => g.UID == cargo.CargoId);
-                    if (good != null) 
-                        ToolTip.CreateTooltip($"{new LocalizedText(good.NameIndex).Text}\n\n{new LocalizedText(good.DescriptionIndex).Text}",
-                                              codexUid: Codex.CodexHooks.Find(new LocalizedText(good.DescriptionIndex)));
-                }
-                numStatus++;
+                Good good = ResourceManager.TransportableGoods.Find(g => g.UID == cargoId);
+                if (good != null)
+                    ToolTip.CreateTooltip($"{new LocalizedText(good.NameIndex).Text}\n\n{new LocalizedText(good.DescriptionIndex).Text}",
+                                          codexUid: Codex.CodexHooks.Find(new LocalizedText(good.DescriptionIndex)));
             }
+            numStatus++;
         }
 
         void DrawResupplyReason(SpriteBatch batch, Ship ship)
@@ -398,6 +424,7 @@ namespace Ship_Game.Ships
                         }
                         break;
                     case ResupplyReason.LowOrdnanceNonCombat:
+                    case ResupplyReason.RequestResupplyForOrbital when ship.OrdnancePercent < ShipResupply.OrdnanceThresholdCombat:
                     case ResupplyReason.LowOrdnanceCombatOrDepleted: text = "Ammo Reserves Critical";           break;
                     case ResupplyReason.NoCommand:                   text = "No Command, Cannot Attack";        break;
                     case ResupplyReason.FighterReactorsDamaged:      text = "Reactors Damaged";                 break;
@@ -475,6 +502,70 @@ namespace Ship_Game.Ships
                         ToolTip.CreateTooltip(mining.TranslatedResourceName);
                 }
             }
+        }
+
+        // its load out of its hold, and the production left in its derelict or, the player's alone, the progress of its recovery while it works there
+        void DrawSalvageStatus(SpriteBatch batch, Vector2 mousePos, SalvageDerelict salvage)
+        {
+            if (!Ship.IsSalvagePlatform)
+                return;
+
+            SubTexture production = ResourceManager.Texture("NewUI/icon_production");
+            SalvageHoldBar.Progress = Ship.GetProduction();
+            SalvageHoldBar.Max = SalvageHoldBar.Progress + Ship.CargoRoom;
+            SalvageHoldBar.Draw(batch);
+            batch.Draw(production, MiningRect, Color.White);
+            if (MiningRect.HitTest(mousePos) || SalvageHoldBar.pBar.HitTest(mousePos))
+                ToolTip.CreateTooltip(GameText.SalvageHoldTip);
+
+            if (salvage is not { Finished: false, Derelict: { Stripped: false } d })
+                return;
+            if (salvage.Recovering)
+            {
+                if (!salvage.Owner.isPlayer) // another empire's shows no bar, its break-in unshown, as in the derelicts window
+                    return;
+                DerelictSalvageButton.DrawRecovery(batch, SalvageDerelictRect, SalvageRecoveryBar, salvage.Owner, d, salvage);
+                if (SalvageDerelictRect.HitTest(mousePos) || SalvageRecoveryBar.pBar.HitTest(mousePos))
+                    DerelictSalvageButton.RecoveryTooltip(salvage.Owner, d, salvage);
+                return;
+            }
+            SalvageDerelictBar.Max = d.Production;
+            SalvageDerelictBar.Progress = d.ProductionLeft;
+            SalvageDerelictBar.Draw(batch);
+            batch.Draw(production, SalvageDerelictRect, Color.White);
+            if (SalvageDerelictRect.HitTest(mousePos) || SalvageDerelictBar.pBar.HitTest(mousePos))
+                ToolTip.CreateTooltip(GameText.DerelictProductionTip);
+        }
+
+        // a salvage platform takes no orders: it strips its derelict, sends its station its load, and takes itself apart once its work is over
+        internal static string SalvageStatus(Ship platform, SalvageDerelict salvage)
+        {
+            if (salvage == null)
+                return ShipListScreenItem.GetStatusText(platform);
+            if (salvage.Dismantling)
+                return Localizer.Token(GameText.PlatformDismantling);
+            if (salvage.LoadWaitsForStation(platform))
+                return Localizer.Token(GameText.SalvageStationHoldFull);
+            if (salvage.Finished)
+                return Localizer.Token(salvage.RecoverySucceeded ? GameText.PlatformShipRecovered : GameText.SalvageFinished);
+            if (SalvageDerelict.HoldFull(platform))
+                return Localizer.Token(GameText.SalvageHoldFull);
+            if (salvage.BreakingIn && salvage.Owner.isPlayer) // a rival's reads Recovering throughout, as in the derelicts window
+                return string.Format(Localizer.Token(GameText.DerelictBreakingIn), salvage.BreakInTurnsLeft);
+            if (salvage.Derelict is { Stripped: false } d)
+                return string.Format(Localizer.Token(salvage.Recovering ? GameText.RecoveringDerelict : GameText.SalvagingDerelict), d.Design.Name);
+            return ShipListScreenItem.GetStatusText(platform);
+        }
+
+        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling or coming apart, shows its orders
+        internal static string SalvageStationStatus(Ship station)
+        {
+            if (!station.Loyalty.isPlayer || station.ScuttleTimer >= 0f || station.Dismantling)
+                return ShipListScreenItem.GetStatusText(station);
+            int coming = SalvageOps.HaulsComing(station, out _);
+            if (coming > 0)
+                return string.Format(Localizer.Token(GameText.SalvageStationFreightersComing), coming);
+            return Localizer.Token(station.GetProduction() >= 1f ? GameText.SalvageStationWaitingForFreighters : GameText.DerelictSalvaging);
         }
 
         void DrawCarrierStatus(Vector2 mousePos, Ship ship)  // Added by Fat Bastard - display hangar status
@@ -612,7 +703,7 @@ namespace Ship_Game.Ships
             if (s.Loyalty != Player)
                 return;
 
-            if (s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+            if (s.IsSalvagePlatform || s.DeliversRefund || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
             if (s.ShipData.Role > RoleName.station && !s.IsConstructor)
@@ -716,7 +807,7 @@ namespace Ship_Game.Ships
             }
             if (s.CanBeScrapped)
             {
-                if (!s.IsConstructor && !s.IsSubspaceProjector)
+                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.IsSalvageStation && !s.Dismantling)
                 {
                     var rf = new OrdersButton(s, OrderType.Refit, GameText.OrderShipRefit)
                     {
@@ -725,7 +816,7 @@ namespace Ship_Game.Ships
                     };
                     Orders.Add(rf);
                 }
-                var sc = new OrdersButton(s, OrderType.Scrap, GameText.OrderShipBackToThe)
+                var sc = new OrdersButton(s, OrderType.Scrap, DismantleOrbital.DismantledInPlace(s) ? GameText.DismantleOrbitalTip : GameText.OrderShipBackToThe)
                 {
                     ValueToModify = new(() => s.DoingScrap, x => s.DoingScrap = x),
                     Active = false

@@ -198,17 +198,17 @@ namespace UnitTests.Ships
                                               RoleName.fighter, RoleName.freighter, RoleName.station }, hullRoles,
                                       "setup: the hull role of each test ship");
 
-            AssertTrue(capital.IsStackedOnExplosion(cruiser, site), "a cruiser exploding on a capital");
-            AssertTrue(cruiser.IsStackedOnExplosion(capital, site), "a capital exploding on a cruiser");
-            AssertTrue(capital.IsStackedOnExplosion(frigate, site), "a frigate exploding on a capital");
-            AssertTrue(capital.IsStackedOnExplosion(station, site), "a station exploding on a capital");
-            AssertFalse(capital.IsStackedOnExplosion(corvette, site), "a corvette's blast is always raycast");
-            AssertFalse(capital.IsStackedOnExplosion(fighter, site), "a fighter's blast is always raycast");
-            AssertFalse(capital.IsStackedOnExplosion(freighter, site), "a freighter's blast is always raycast");
-            AssertFalse(frigate.IsStackedOnExplosion(capital, site), "a frigate is always raycast");
-            AssertFalse(fighter.IsStackedOnExplosion(capital, site), "a fighter is always raycast");
-            AssertFalse(freighter.IsStackedOnExplosion(capital, site), "a freighter is always raycast");
-            AssertFalse(station.IsStackedOnExplosion(capital, site), "a station is always raycast");
+            AssertTrue(capital.IsStackedOnExplosion(cruiser.ShipData.HullRole, site), "a cruiser exploding on a capital");
+            AssertTrue(cruiser.IsStackedOnExplosion(capital.ShipData.HullRole, site), "a capital exploding on a cruiser");
+            AssertTrue(capital.IsStackedOnExplosion(frigate.ShipData.HullRole, site), "a frigate exploding on a capital");
+            AssertTrue(capital.IsStackedOnExplosion(station.ShipData.HullRole, site), "a station exploding on a capital");
+            AssertFalse(capital.IsStackedOnExplosion(corvette.ShipData.HullRole, site), "a corvette's blast is always raycast");
+            AssertFalse(capital.IsStackedOnExplosion(fighter.ShipData.HullRole, site), "a fighter's blast is always raycast");
+            AssertFalse(capital.IsStackedOnExplosion(freighter.ShipData.HullRole, site), "a freighter's blast is always raycast");
+            AssertFalse(frigate.IsStackedOnExplosion(capital.ShipData.HullRole, site), "a frigate is always raycast");
+            AssertFalse(fighter.IsStackedOnExplosion(capital.ShipData.HullRole, site), "a fighter is always raycast");
+            AssertFalse(freighter.IsStackedOnExplosion(capital.ShipData.HullRole, site), "a freighter is always raycast");
+            AssertFalse(station.IsStackedOnExplosion(capital.ShipData.HullRole, site), "a station is always raycast");
         }
 
         [TestMethod]
@@ -219,13 +219,13 @@ namespace UnitTests.Ships
             float cruiserRadius = RadiusOf("Terran-Prototype");
             TestShip inside = SpawnShip("Terran-Prototype", Player, site + new Vector2(cruiserRadius * 0.09f, 0));
             TestShip outside = SpawnShip("Terran-Prototype", Player, site + new Vector2(cruiserRadius * 0.11f, 0));
-            AssertTrue(inside.IsStackedOnExplosion(exploding, site), "9% of the cruiser's radius away");
-            AssertFalse(outside.IsStackedOnExplosion(exploding, site), "11% of the cruiser's radius away");
+            AssertTrue(inside.IsStackedOnExplosion(exploding.ShipData.HullRole, site), "9% of the cruiser's radius away");
+            AssertFalse(outside.IsStackedOnExplosion(exploding.ShipData.HullRole, site), "11% of the cruiser's radius away");
 
             float smallerOffset = cruiserRadius * 0.2f;
             AssertGreaterThan(exploding.Radius * 0.1f, smallerOffset, "setup: within a tenth of the capital's radius");
             TestShip smaller = SpawnShip("Terran-Prototype", Player, site + new Vector2(smallerOffset, 0));
-            AssertFalse(smaller.IsStackedOnExplosion(exploding, site), "the checked ship's radius sets the range");
+            AssertFalse(smaller.IsStackedOnExplosion(exploding.ShipData.HullRole, site), "the checked ship's radius sets the range");
         }
 
         [TestMethod]
@@ -252,7 +252,7 @@ namespace UnitTests.Ships
 
             ShipModule core = stacked.FindClosestModule(site);
             ShipModule plate = stacked.FindBlastEntryModule(site);
-            AssertTrue(stacked.IsStackedOnExplosion(dying, site), "setup: the two hulls are stacked");
+            AssertTrue(stacked.IsStackedOnExplosion(dying.ShipData.HullRole, site), "setup: the two hulls are stacked");
             AssertFalse(core.IsExternal, "setup: the module nearest the blast is internal");
             AssertTrue(plate.IsExternal, "setup: the raycast would enter through an armour plate");
 

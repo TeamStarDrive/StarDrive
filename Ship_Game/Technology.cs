@@ -42,6 +42,10 @@ namespace Ship_Game
         public LocalizedText Name => new(NameIndex);
         public LocalizedText Description => new(DescriptionIndex);
 
+        // its icon on the research tree: the one its IconPath names, or the one named as its UID
+        public SubTexture Icon => IconPath == null ? ResourceManager.Texture("TechIcons/" + UID)
+                                : ResourceManager.TextureOrDefault("TechIcons/" + IconPath, "TechIcons/" + UID);
+
         public override string ToString()
         {
             return $"Tech {UID} Name={Name.Text} Root={IsRootNode} Cost={Cost} Parents={Parents.Length}";
@@ -73,6 +77,7 @@ namespace Ship_Game
         public Array<RaceRequirements> UnlockedAtGameStart = new();
         public bool RequiresResearchStations;
         public bool RequiresMiningOps;
+        public bool RequiresSalvageOps;
 
         //This is used with the tech restrictors above to list races or traits that will create
         //rules for the restriction

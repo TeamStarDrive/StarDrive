@@ -6,6 +6,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.UI;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -37,12 +38,19 @@ namespace Ship_Game
             return Screen.CanNeverFitModuleGrid(module);
         }
 
+        // a rule option that turns a mechanic off takes its modules out of the list
+        public static bool IsTurnedOff(ShipModule m, UniverseParams p)
+        {
+            return m.IsMiningBay && p.DisableMiningOps
+                || m.ResearchPerTurn > 0 && p.DisableResearchStations
+                || m.Salvage && !p.SalvageOps;
+        }
+
         bool ShouldBeFiltered(ShipModule m)
         {
             return CanNeverFitModuleGrid(m) 
                 || m.IsObsolete(Player) && Screen.IsFilterOldModulesMode
-                || m.IsMiningBay && Player.Universe.P.DisableMiningOps
-                || m.ResearchPerTurn > 0 && Player.Universe.P.DisableResearchStations;
+                || IsTurnedOff(m, Player.Universe.P);
         }
 
         readonly Map<int, ModuleSelectListItem> Categories = new Map<int, ModuleSelectListItem>();

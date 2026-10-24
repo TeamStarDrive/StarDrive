@@ -47,7 +47,7 @@ namespace Ship_Game.AI
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
             if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLaunchingOrLanding
-                || escortTarget.Loyalty == Owner.Loyalty)
+                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoarded)
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -322,7 +322,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (goal is RefitOrbital && goal.OldShip?.Active == false)
+            if (goal is RefitOrbital && (goal.OldShip?.Active == false || goal.OldShip?.Dismantling == true))
             {
                 OrderScrapShip();
                 return;
@@ -376,6 +376,9 @@ namespace Ship_Game.AI
             else
             {
                 UpdateResearchStationGoal(orbital, Owner.System, goal.OldShip);
+                UpdateSalvageOpsGoal(orbital, bg.TargetSystem);
+                if (goal is SalvageDerelict salvage)
+                    salvage.OnPlatformBuilt(orbital, Owner);
             }
         }
 
@@ -398,7 +401,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (goal is RefitOrbital && goal.OldShip?.Active == false)
+            if (goal is RefitOrbital && (goal.OldShip?.Active == false || goal.OldShip?.Dismantling == true))
             {
                 OrderScrapShip();
                 return;
@@ -472,6 +475,17 @@ namespace Ship_Game.AI
 
             if (!planet.Mining.HasOpsOwner)
                 planet.Mining.ChangeOwnershipIfNeeded(Owner.Loyalty);
+        }
+
+        // an empire has one salvage station order per system, so the order there is this station's
+        void UpdateSalvageOpsGoal(Ship orbital, SolarSystem system)
+        {
+            if (!orbital.IsSalvageStation)
+                return;
+
+            Goal goal = Owner.Loyalty.AI.FindGoal(g => g.IsSalvageOpsGoal(system) && g.TargetShip == null);
+            if (goal != null)
+                goal.TargetShip = orbital;
         }
 
         // Gravity-well routing for the explore legs. The explore loop thrusts directly at the
@@ -782,7 +796,7 @@ namespace Ship_Game.AI
                 return;
 
             ShipWeight ship = NearByShips.Where(
-                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0
+                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0 && s.Ship.CanBeBoarded
                          && s.Ship.Position.InRadius(Owner.Position, module.TransporterRange + 500f))
                 .OrderBy(sw => Owner.Position.SqDist(sw.Ship.Position))
                 .FirstOrDefault();
@@ -804,9 +818,9 @@ namespace Ship_Game.AI
             if (!Owner.IsHangarShip || !Owner.Mothership.Active)
             {
                 ClearOrders(State);
-                if      (Owner.IsMiningShip)                     Owner.Die(null, true);
-                else if (Owner.ShipData.Role == RoleName.supply) OrderScrapShip();
-                else                                             GoOrbitNearestPlanetAndResupply(true);
+                if      (Owner.IsMiningShip || Owner.IsConstructor) Owner.Die(null, true);
+                else if (Owner.ShipData.Role == RoleName.supply)    OrderScrapShip();
+                else                                                GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
 
@@ -851,7 +865,7 @@ namespace Ship_Game.AI
             if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
                 mothership.ChangeOrdnance(Owner.Ordinance);
 
-            if (Owner.IsMiningShip)
+            if (Owner.IsMiningShip && !mothership.Dismantling)
             {
                 string cargoId = mothership.GetTether()?.Mining.CargoId ?? "";
                 if (cargoId.NotEmpty())
@@ -930,6 +944,25 @@ namespace Ship_Game.AI
             }
 
             FlyInToLand(timeStep, goal, goal.TargetPlanet, LandPlan.Supply);
+        }
+
+        // a builder carrying a refund stops near its colony while the delivery sends down what fits, or lands there for all of it
+        void DoDeliverRefund(FixedSimTime timeStep, ShipGoal goal)
+        {
+            Planet colony = goal.TargetPlanet;
+            if (goal.Goal is not DeliverRefund delivery || delivery.OldShip != Owner || colony == null)
+            {
+                ClearOrders();
+                return;
+            }
+
+            float stopRange = colony.Radius + DeliverRefund.StopDistance;
+            if (delivery.Lands)
+                FlyInToLand(timeStep, goal, colony, LandPlan.Refund);
+            else if (!Owner.IsInWarp && Owner.Position.InRadius(colony.Position, stopRange + Owner.GetMinDecelerationDistance(Owner.CurrentVelocity))) // braking at sublight in time to come to rest there
+                ReverseThrustUntilStopped(timeStep);
+            else
+                ApproachToLand(timeStep, goal.GetThrustTarget(colony.Position, Owner.Position), colony.Position, stopRange, glideSpeed: 0f);
         }
 
         void DoLandOnPirateBase(FixedSimTime timeStep, ShipGoal goal)

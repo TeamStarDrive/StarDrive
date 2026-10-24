@@ -450,8 +450,11 @@ namespace Ship_Game.Ships
         // seconds of power before lights that went out come back, so they don't blink at the edge of running dry
         public const float RelightSeconds = 1f;
         public const float StutterSeconds = 2f;
+        // a recovered ship's lights, dark as it appears, flicker on over this time once they come on
+        public const float RecoveredLightsSeconds = 2f;
         public bool LightsOut { get; private set; }
         float PoweredSeconds;
+        float LightsFlickerLeft;
 
         void UpdateLights(FixedSimTime timeStep, bool hasPower)
         {
@@ -464,15 +467,27 @@ namespace Ship_Game.Ships
             {
                 LightsOut = false;
             }
+            else if (!LightsOut && LightsFlickerLeft > 0f)
+            {
+                LightsFlickerLeft -= timeStep.FixedTime;
+            }
         }
 
-        // brightness of the ship's glow map: dark without power, a fluorescent stutter while EMP-disabled or dying
+        // a recovered ship appears dark, and its lights flicker on as a refinery's do once it has power
+        void FlickerLightsOn()
+        {
+            LightsOut = true;
+            PoweredSeconds = 0f;
+            LightsFlickerLeft = RecoveredLightsSeconds;
+        }
+
+        // brightness of the ship's glow map: dark without power, a fluorescent stutter while EMP-disabled or dying, and a recovered ship's flicker as its lights first come on
         public float LightLevel(float simTime)
         {
             if (LightsOut)
                 return 0f;
             if (!EMPDisabled && !Dying)
-                return 1f;
+                return LightsFlickerLeft > 0f ? FluorescentLight.Level(FluorescentLight.TurnOn, 1f - LightsFlickerLeft / RecoveredLightsSeconds) : 1f;
             float offset = Id % 1024 * 0.618f % StutterSeconds; // ships don't stutter in step
             return FluorescentLight.Stutter(simTime + offset, StutterSeconds);
         }

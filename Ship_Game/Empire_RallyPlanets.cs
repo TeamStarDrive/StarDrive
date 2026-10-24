@@ -329,7 +329,7 @@ public sealed partial class Empire
             return planet != null;
         }
 
-        var scrapGoals = AI.FindGoals(g => g.Type == GoalType.ScrapShip);
+        var scrapGoals = AI.FindGoals(g => g.Type is GoalType.ScrapShip or GoalType.DeliverRefund);
         var potentialPlanets = SafePlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).TakeItems(5);
         if (potentialPlanets.Length == 0)
             return false;

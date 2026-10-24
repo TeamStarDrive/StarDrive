@@ -45,6 +45,7 @@ namespace Ship_Game
         [StarData] public float WeaknessDecline;
         [StarData] public float PowerIncrease;
         [StarData] public float TrustGainedAtPeace;
+        [StarData(DefaultValue = 5f)] public float SalvageStationTrustLoss = 5; // trust lost in an empire that builds a salvage station in a system where we have a colony
 
         [XmlIgnore]
         public bool IsTrusting => Trustworthiness >= 80;
@@ -156,6 +157,7 @@ namespace Ship_Game
         [StarData] public string CurrentConstructor   = "";
         [StarData] public string CurrentMiningStation = "";
         [StarData] public string CurrentResearchStation = "";
+        [StarData] public string CurrentSalvageStation = "";
         [StarData] public string DiplomacyDialogPath;
         [StarData] public DTrait DiplomaticPersonality;
         [StarData] public ETrait EconomicPersonality;
@@ -230,6 +232,7 @@ namespace Ship_Game
         [StarData] public float BaseReproductiveRate = 0.01f;
         [StarData] public float ExoticStorageMultiplier = 1;
         [StarData] public float MiningSpeedMultiplier = 1;
+        [StarData] public float SalvageSpeedMultiplier = 1;
         [StarData] public float RefiningRatioMultiplier = 1;
 
         // Added by McShooterz: power bonus
@@ -262,6 +265,7 @@ namespace Ship_Game
 
         [StarData] public string DefaultResearchStation;
         [StarData] public string DefaultMiningStation;
+        [StarData] public string DefaultSalvageStation;
 
         // FB - Thruster Colors
         [StarData] public byte ThrustColor0R;
@@ -489,6 +493,7 @@ namespace Ship_Game
 
             BombEnvironmentDamageMultiplier = template.BombEnvironmentDamageMultiplier;
             OngoingDiplomaticModifier = template.OngoingDiplomaticModifier;
+            SalvageSpeedMultiplier = template.SalvageSpeedMultiplier;
         }
 
         public void ResetAllBonusModifiers(Empire empire)

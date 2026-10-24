@@ -23,10 +23,20 @@ public class GamePlayGlobals
     // GamePlay modifiers
     // How easy ships are to destroy. Ships which have active internal slots below this ratio, will Die()
     [StarData] public float ShipDestroyThreshold = 0.5f;
-    // Percent of the deaths of military ships (frigate and above) and untethered stations that leave a derelict, with no death blast
-    [StarData] public float DerelictChance = 35;
-    // Most drifting derelicts at once; past it a derelict death shows the normal explosion, still with no death blast
-    [StarData] public int MaxDriftingDerelicts = 100;
+    // Percent of the deaths of military ships (frigate and above) and untethered stations that leave a derelict, with no death blast; with salvage ops off, only those whose hull's roll makes them drift
+    [StarData] public float DerelictChance = 10;
+    // Most drifting derelicts at once, seen or not, as a multiple of the galaxy's star systems from 0.1 to 10, a value outside it used as the nearer end with a warning in the log; the cap is rounded up, at least 1. Past it a seen derelict death takes the place of the oldest drifting one not seen, or shows the normal explosion, still with no death blast
+    [StarData] public float DriftingDerelictCapMultiplier = 1f;
+    // Most salvageable derelicts at once, as a multiple of the galaxy's star systems from 0.1 to 10, a value outside it used as the nearer end with a warning in the log; the cap is rounded up, at least 1. The derelict chance falls with their share of it, to none at the limit
+    [StarData] public float SalvageableDerelictCapMultiplier = 1f;
+    // Production a salvage platform strips from its derelict in a turn, while its hold has room, before the Salvage Speed research or pirates' level raise it; above 0, as a recovery works at twice it
+    [StarData] public float SalvageSpeed = 12;
+    // Share of what a tech has left to research that a derelict's whole production advances it by, each load paying its part
+    [StarData] public float SalvageTechShare = 0.2f;
+    // A recovery's work: this times the share of health the ship had lost at its death times its slots, at the production pace, times 1 minus the race's engineers; above 0. A platform works it at twice its empire's salvage speed
+    [StarData] public float SalvageRecoveryWorkFactor = 1.1f;
+    // Turns a salvage platform breaks into its derelict before a recovery's work starts, whatever the ship's size and the production pace; 0 or more
+    [StarData] public int SalvageRecoveryBreakInTurns = 10;
     // How tougher are remnant designs in the mod. This affects starting fleet multipliers and also increases with difficulty. Vanilla is 2
     [StarData] public float RemnantDesignStrMultiplier;
     public float RemnantDesignStr => RemnantDesignStrMultiplier > 0.01f ? RemnantDesignStrMultiplier : 2f;
@@ -94,6 +104,8 @@ public class GamePlayGlobals
     [StarData] public bool DisableRemnantStory;
     // for mods that don't require pirates
     [StarData] public bool DisablePirates;
+    // salvageable derelicts and salvage stations; off, the Disable Salvage Ops rule option is locked on
+    [StarData] public bool EnableSalvageOps;
     [StarData] public bool AIUsesPlayerDesigns = true; // Can AI use player designs? This will make the AI stronger.
     // changes how upkeep is calculated, default:false means upkeep depends on ship cost
     // setting this to true means upkeep depends on number of hull design slots
@@ -132,6 +144,7 @@ public class GamePlayGlobals
         {
             foreach (var field in typeof(GamePlayGlobals).GetFields())
                 field.SetValue(this, field.GetValue(GlobalStats.VanillaDefaults));
+            EnableSalvageOps = false; // a mod turns it on itself, once it has salvage designs
         }
     }
 

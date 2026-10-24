@@ -267,21 +267,20 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (!ship.Active)
-                {
-                    if (removeInactiveObjects)
-                    {
-                        UState.OnShipRemoved(ship);
-                        ship.LeaveDerelict();
-                        ship.RemoveFromUniverseUnsafe();
-                    }
-                }
-                else if (applyLoyaltyChanges)
+                if (ship.Active && applyLoyaltyChanges)
                 {
                     // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
                     bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
                     if (loyaltyChanged)
                         ship.ReinsertSpatial = true;
+                }
+
+                // a ship can be removed as it changes hands, so this comes after the loyalty change
+                if (!ship.Active && removeInactiveObjects)
+                {
+                    UState.OnShipRemoved(ship);
+                    ship.LeaveDerelict();
+                    ship.RemoveFromUniverseUnsafe();
                 }
             }
 
@@ -340,6 +339,8 @@ namespace Ship_Game
         }
 
         readonly HashSet<int> ShipsInSystems = new(); // by Ship.Id
+        // ships that entered a system with salvageable derelicts this step, and the player's that entered any, for its drifting ones, gathered under the ShipsInSystems lock
+        readonly Array<Ship> EnteredDerelictSystems = new();
 
         void UpdateSolarSystemShips()
         {
@@ -349,6 +350,7 @@ namespace Ship_Game
             void UpdateSystems(int start, int end)
             {
                 HashSet<int> shipsInSystems = new();
+                Array<Ship> entered = null;
                 for (int i = start; i < end; ++i)
                 {
                     SolarSystem system = UState.Systems[i];
@@ -367,6 +369,8 @@ namespace Ship_Game
                         system.ShipList.Add(ship);
                         shipsInSystems.Add(ship.Id); // this ship was seen in a system
 
+                        if (ship.System != system && (system.Derelicts.Count > 0 || ship.Loyalty.isPlayer))
+                            (entered ??= new()).Add(ship);
                         ship.SetSystem(system);
                     }
                 }
@@ -375,11 +379,23 @@ namespace Ship_Game
                 {
                     foreach (int id in shipsInSystems)
                         ShipsInSystems.Add(id);
+                    if (entered != null)
+                        EnteredDerelictSystems.AddRange(entered);
                 }
             }
 
             //UpdateSystems(0, UState.Systems.Count);
             Parallel.For(UState.Systems.Count, UpdateSystems, MaxTaskCores);
+
+            try
+            {
+                for (int i = 0; i < EnteredDerelictSystems.Count; ++i)
+                    UState.Derelicts.Enter(EnteredDerelictSystems[i]);
+            }
+            finally
+            {
+                EnteredDerelictSystems.Clear();
+            }
         }
 
         void UpdateAllShips(FixedSimTime timeStep)

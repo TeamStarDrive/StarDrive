@@ -76,17 +76,31 @@ public class UniverseParams
     [StarData] public bool DisableVolcanoWarning;
     [StarData] public bool DisableCrashSiteWarning;
     [StarData] public bool DisableStationBuiltWarning;
+    [StarData] public bool DisableDerelictWarning;
+    [StarData] public bool DisableSalvageWarning;
     [StarData] public bool PrioitizeProjectors;
     [StarData(DefaultValue=true)] public bool ShowAllDesigns = true;
     [StarData] public bool FilterOldModules;
 
-    [StarData] public bool DisableRemnantStory;
+    [StarData(NoDefaults = true)] public bool DisableRemnantStory; // always written, as a load starts from the mod's Globals
     [StarData] public bool EnableRandomizedAIFleetSizes;
     [StarData] public bool DisableAlternateAITraits;
-    [StarData] public bool DisablePirates;
+    [StarData(NoDefaults = true)] public bool DisablePirates; // always written, as a load starts from the mod's Globals
     [StarData] public bool FixedPlayerCreditCharge;
     [StarData] public bool DisableResearchStations;
     [StarData] public bool DisableMiningOps;
+    [StarData] public bool DisableSalvageOps;
+    [StarData] bool SavedWithSalvageOps; // set as it is saved, so a game saved before salvage ops existed loads with them off
+
+    // the mod's Globals flag is a hard switch: a mod without salvage content keeps them off whatever the rule option says
+    public bool SalvageOps => !DisableSalvageOps && GlobalStats.Defaults.EnableSalvageOps;
+
+    [StarDataSerialize]
+    StarDataDynamicField[] OnSerialize()
+    {
+        SavedWithSalvageOps = true;
+        return null;
+    }
 
     public bool DebugDisableShipLaunch; // Only for testing
 
@@ -107,6 +121,7 @@ public class UniverseParams
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;
         DisablePirates = s.DisablePirates;
+        DisableSalvageOps = !s.EnableSalvageOps;
         EnableRandomizedAIFleetSizes = s.EnableRandomizedAIFleetSizes;
     }
 
@@ -117,5 +132,9 @@ public class UniverseParams
         //         because if they are 0, the game would break
         if (FTLModifier == 0f) FTLModifier = DefaultInSystemFTLModifier;
         if (EnemyFTLModifier == 0f) EnemyFTLModifier = DefaultEnemyFTLModifier;
+
+        // a game saved before salvage ops existed keeps them off
+        if (!SavedWithSalvageOps)
+            DisableSalvageOps = true;
     }
 }

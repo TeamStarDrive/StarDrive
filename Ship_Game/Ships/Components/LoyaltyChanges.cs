@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
 
@@ -58,6 +59,12 @@ namespace Ship_Game.Ships.Components
             Change = new(loyalty, addNotification ? Type.AbsorbedNotify : Type.Absorbed);
         }
 
+        // from any thread: the ship is to change hands to the empire at its next update
+        public bool ChangesTo(Empire empire) => Volatile.Read(ref Change)?.To == empire;
+
+        // from any thread: the ship is to change hands from the empire to another at its next update
+        public bool ChangesFrom(Empire empire) => Volatile.Read(ref Change)?.To is { } to && to != empire;
+
         /// <returns>TRUE if loyalty changed</returns>
         public bool Update(Ship ship)
         {
@@ -90,6 +97,8 @@ namespace Ship_Game.Ships.Components
                 case Type.AbsorbedNotify: LoyaltyChangeDueToFederation(ship, changeTo, true);  break;
             }
 
+            if (type != Type.Spawn)
+                ship.Universe.Derelicts.ChangedHands(ship);
             return true;
         }
 
@@ -111,6 +120,8 @@ namespace Ship_Game.Ships.Components
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
             SafelyTransferShip(ship, oldLoyalty, newLoyalty);
             newLoyalty.ResetTargetsForShipsTargetingAfterBoarding(ship);
+            if (ship.IsSalvageStation)
+                SalvageOps.TakeOver(ship, oldLoyalty, newLoyalty, boarded: true);
 
             if (notification)
             {
@@ -123,6 +134,8 @@ namespace Ship_Game.Ships.Components
         {
             Empire oldLoyalty = ship.Loyalty;
             SafelyTransferShip(ship, oldLoyalty, newLoyalty);
+            if (ship.IsSalvageStation)
+                SalvageOps.TakeOver(ship, oldLoyalty, newLoyalty, boarded: false);
 
             // TODO: change to absorbed ship notification
             if (notification)
@@ -136,6 +149,10 @@ namespace Ship_Game.Ships.Components
             // ship shouldn't stay in any pools or fleets after being captured or federated
             // also, any orders should be cleared the ensure new owner can assign suitable jobs
             ship.RemoveFromPoolAndFleet(clearOrders: true);
+
+            // its new owner keeps an orbital coming apart whole, back among its planet's orbitals while the planet is its old owner's, its new owner's or no one's
+            if (ship.Dismantling && !ship.IsSalvagePlatform)
+                ship.StopDismantling(passingTo: newLoyalty);
 
             // set the new loyalty before updating anything else
             ship.Loyalty = newLoyalty;

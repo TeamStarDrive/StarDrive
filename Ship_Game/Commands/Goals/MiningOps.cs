@@ -140,6 +140,13 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
+            if (MiningStation.Dismantling) // it waits for its end, or for being called off
+            {
+                MiningStation.Carrier.MiningBays.DestroyEmmiters();
+                MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
+                return GoalStep.TryAgain;
+            }
+
             if (TargetPlanet.Mining.Owner != Owner) // We are not the owners of this mining Ops yet
             {
                 AddMiningStationPlan(Plan.MiningStationNotOpsOwner);

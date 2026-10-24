@@ -129,6 +129,24 @@
     -
       UID: warfare_combat_basics
     -
+      UID: warfare_ship_death
+      Children:
+        -
+          UID: ship_death_destruction
+        -
+          UID: ship_death_blasts
+        -
+          UID: ship_death_wrecks
+    -
+      UID: warfare_derelicts
+      Children:
+        -
+          UID: derelicts_salvaging
+        -
+          UID: derelicts_recovering
+        -
+          UID: derelicts_hauling
+    -
       UID: warfare_ground_combat
     -
       UID: warfare_fighter_bays

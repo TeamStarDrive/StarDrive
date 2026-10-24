@@ -107,10 +107,21 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             Owner.RefundCreditsPostRemoval(OldShip);
             if (PlanetBuildingAt.Owner == Owner)
+            {
                 PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
+                UnloadCargo(PlanetBuildingAt);
+            }
             Owner.TryUnlockByScrap(OldShip);
             OldShip.QueueTotalRemoval();
             return GoalStep.GoalComplete;
+        }
+
+        // its cargo goes into the colony as far as there is room, goods without room turning into credits, and colonists without room are lost
+        void UnloadCargo(Planet colony)
+        {
+            OldShip.UnloadIntoColony(colony, Goods.Food);
+            OldShip.UnloadIntoColony(colony, Goods.Production);
+            colony.Population += OldShip.UnloadColonists(colony.MaxPopulation - colony.Population);
         }
 
         bool OldShipOnPlan

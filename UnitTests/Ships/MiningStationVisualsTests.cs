@@ -43,6 +43,7 @@ public class MiningStationVisualsTests : StarDriveTest
         Universe.Particles = new ParticleManager(Content) { PhotonExplosion = Flames, SmokePlume = Smoke };
     }
 
+    [TestCleanup]
     public override void Cleanup()
     {
         Universe.Particles?.Dispose();

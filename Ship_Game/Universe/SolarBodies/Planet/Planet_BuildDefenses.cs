@@ -145,8 +145,19 @@ namespace Ship_Game
             }
         }
 
+        // it comes apart where it stands, and its refund goes into this planet once it is gone; another empire's in our orbit is removed at once
         private void ScrapOrbital(Ship orbital)
         {
+            if (IsPlanetExtraDebugTarget())
+                Log.Info(ConsoleColor.Magenta,$"{Name}, {Owner.Name} - SCRAPPED Orbital ----- {orbital.Name}" +
+                         $", STR: {orbital.BaseStrength}");
+
+            if (orbital.Loyalty == Owner)
+            {
+                Owner.AI.AddGoalAndEvaluate(new DismantleOrbital(orbital, Owner));
+                return;
+            }
+
             float expectedStorage = Storage.Prod + orbital.GetCost(Owner) / 2;
             if (expectedStorage > Storage.Max) // taxed excess cost will go to empire treasury
             {
@@ -157,11 +168,6 @@ namespace Ship_Game
             {
                 Storage.Prod = expectedStorage;
             }
-
-            if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Magenta,$"{Name}, {Owner.Name} - SCRAPPED Orbital ----- {orbital.Name}" +
-                         $", STR: {orbital.BaseStrength}");
-
             orbital.QueueTotalRemoval();
         }
 

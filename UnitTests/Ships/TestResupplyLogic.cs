@@ -92,6 +92,34 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void ADepletedStationOutOfCombatAsksAColonyForASupplyShuttle()
+        {
+            LoadStarterShips("Terran Basic Salvage Station");
+            Ship station = SpawnShip("Terran Basic Salvage Station", Player, new Vector2(40000, 0));
+            station.ChangeOrdnance(-station.OrdinanceMax);
+            AssertLessThan(station.OrdnancePercent, ShipResupply.OrdnanceThresholdCombat, "setup: the station has run out of ordnance");
+            AssertGreaterThan(Homeworld.NumSupplyShuttlesCanLaunch(), 0, "setup: the homeworld can launch a supply shuttle");
+
+            ResupplyReason resupplyReason = station.Supply.Resupply();
+            AssertEqual(ResupplyReason.RequestResupplyForOrbital, resupplyReason, "a station out of combat asks a colony however low it runs");
+            station.AI.ProcessResupply(resupplyReason);
+            Assert.IsTrue(Player.AI.HasGoal(g => g.Type == GoalType.RearmShipFromPlanet && g.TargetShip == station), "for a supply shuttle");
+        }
+
+        [TestMethod]
+        public void ADepletedStationInCombatWaitsForASupplyShipNearby()
+        {
+            LoadStarterShips("Vulfen Small Station mk1-a");
+            Ship station = SpawnShip("Vulfen Small Station mk1-a", Player, new Vector2(40000, 0));
+            SpawnEnemyShip();
+            Update(EnemyScanInterval);
+            Assert.IsTrue(station.AI.BadGuysNear, "setup: an enemy is near the station");
+            station.ChangeOrdnance(-station.OrdinanceMax);
+
+            AssertEqual(ResupplyReason.LowOrdnanceCombatOrDepleted, station.Supply.Resupply(), "a station with kinetic weapons out of ordnance in combat asks no colony");
+        }
+
+        [TestMethod]
         public void ResupplyConditionNoCommand()
         {
             SpawnOurShip();

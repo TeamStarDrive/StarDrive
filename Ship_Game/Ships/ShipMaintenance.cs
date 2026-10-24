@@ -20,7 +20,8 @@ namespace Ship_Game.Ships
         {
             return empire.WeAreRemnants
                 || empire?.data == null
-                || ship.Name == empire.data.PrototypeShip;
+                || ship.Name == empire.data.PrototypeShip
+                || ship.IsSalvagePlatform;
         }
 
         public static float GetMaintenanceCost(Ship ship, Empire empire, int troopCount)

@@ -81,7 +81,7 @@ namespace Ship_Game.Commands.Goals
             StarDateAdded = Owner.Universe.StarDate;
             var orbitalType = GetOrbital();
             // orbitalType = Pirates.TargetType.Projector; // TODO for testing
-            if (!Pirates.GetTarget(TargetEmpire, orbitalType, out Ship orbital))
+            if (!PickTarget(orbitalType, out Ship orbital))
                 return Owner.Universe.StarDate.Greater(StarDateAdded + 1) ? GoalStep.GoalFailed : GoalStep.TryAgain;
 
             TargetShip           = orbital; // This is the main target, we want this dead or possibly boarded
@@ -103,6 +103,11 @@ namespace Ship_Game.Commands.Goals
             Pirates.ExecuteVictimRetaliation(TargetEmpire);
             return GoalStep.GoToNextStep;
         }
+
+        // a salvage station first, as pirates recover ships with one they capture, else the orbital rolled
+        internal bool PickTarget(Pirates.TargetType rolled, out Ship orbital)
+            => Pirates.GetTarget(TargetEmpire, Pirates.TargetType.SalvageStation, out orbital)
+               || Pirates.GetTarget(TargetEmpire, rolled, out orbital);
 
         GoalStep CheckSuccess()
         {
