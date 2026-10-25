@@ -76,6 +76,20 @@ namespace Ship_Game.Fleets
 
         public bool HasPatrolPlan => Patrol != null;
 
+        Ship LongestSensorShip;
+
+        // looked up again only once the ship it came from has died or left the fleet
+        public float LongestSensorRange
+        {
+            get
+            {
+                Ship sensorShip = LongestSensorShip;
+                if (sensorShip is not { Active: true })
+                    LongestSensorShip = sensorShip = Ships.FindMaxFiltered(s => s is { Active: true }, s => s.SensorRange);
+                return sensorShip?.SensorRange ?? 0f;
+            }
+        }
+
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} ID={Id} task={FleetTask?.Type}";
 
@@ -2669,6 +2683,8 @@ namespace Ship_Game.Fleets
 
             RemoveFromAllSquads(ship);
             bool removed = Ships.RemoveRef(ship);
+            if (LongestSensorShip == ship)
+                LongestSensorShip = null;
 
             if (ship.Fleet == this)
             {

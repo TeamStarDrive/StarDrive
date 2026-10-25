@@ -262,6 +262,7 @@ namespace Ship_Game.AI
             if (goal.WantedState == AIState.Pursue && State != AIState.Pursue && !OrderQueue.IsEmpty)
             {
                 SetPriorityOrder(false);
+                PullBackTimer = 0f; // a chase limit is checked as soon as each overtake ends
                 if (BadGuysNear)
                     EnterCombatState(AIState.Combat);
             }

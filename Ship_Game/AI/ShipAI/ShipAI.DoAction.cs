@@ -99,12 +99,16 @@ namespace Ship_Game.AI
                 DequeueCurrentOrder();
 
             Target = PotentialTargets.Find(t => IsTargetValid(t)
-                                                && t.Position.InRadius(Owner.Position, Owner.SensorRange));
+                                                && t.Position.InRadius(Owner.Position, Owner.SensorRange)
+                                                && MayChase(t));
             return Target;
         }
 
         void DoCombat(FixedSimTime timeStep)
         {
+            if (PullBackFromChase(timeStep))
+                return;
+
             Ship target = UpdateCombatTarget();
             if (target == null)
             {
@@ -244,7 +248,8 @@ namespace Ship_Game.AI
                 // priority-order move only drops it out of combat (it never reaches the prediction
                 // point). This is what left Remnant portals oscillating Combat<->Pursue instead of
                 // fighting in place.
-                if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
+                // a ship on its fleet's move keeps that move, which an overtake would clear
+                if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || OnFleetMove || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
                     return false;
 
                 float distance = Owner.Position.Distance(target.Position);

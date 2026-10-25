@@ -202,6 +202,17 @@ namespace Ship_Game.Ships
         /// Are any of the supply shuttles launched
         /// </summary>
         public bool HasSupplyShuttlesInSpace => AllSupplyBays.Any(hangar => hangar.IsHangarShipActive);
+
+        public bool HasFightersIn(SolarSystem system)
+        {
+            ShipModule[] hangars = AllFighterHangars;
+            for (int i = 0; i < hangars.Length; ++i)
+            {
+                if (hangars[i].TryGetHangarShipActive(out Ship fighter) && fighter.Position.InRadius(system.Position, system.Radius))
+                    return true;
+            }
+            return false;
+        }
         public ShipModule[] SupplyHangarsAlive => AllSupplyBays.Filter(hangar => hangar.Active);
 
         public int NumTroopsInShipAndInSpace
