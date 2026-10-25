@@ -131,9 +131,16 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 artifacts.AddSubItem(new ItemToOffer(artifact.NameText, "Artifacts") { SpecialInquiry = artifact.Name });
             }
 
-            LocalizedText coloniesHeader = LocalizedText.Parse($"{{Colonies}} ({Us.GetPlanets().Count})");
-            ItemToOffer colonies = AddHeader(coloniesHeader);
+            var offerableColonies = new Array<Planet>();
             foreach (Planet p in Us.GetPlanets())
+            {
+                if (!Us.isPlayer || Us.CanOfferColonyTo(p, Them))
+                    offerableColonies.Add(p);
+            }
+
+            LocalizedText coloniesHeader = LocalizedText.Parse($"{{Colonies}} ({offerableColonies.Count})");
+            ItemToOffer colonies = AddHeader(coloniesHeader);
+            foreach (Planet p in offerableColonies)
             {
                 colonies.AddSubItem(new ItemToOffer(p.Name, "Colony") { SpecialInquiry = p.Name });
             }

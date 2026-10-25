@@ -4,6 +4,7 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Fleets;
+using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -291,6 +292,23 @@ public class InvasionPlanningTests : StarDriveTest
 
         Assert.AreEqual(taken, task.TargetPlanet, "the task keeps the planet it fought for when it finds no troops for the next one");
         Assert.IsNotNull(fleet.FleetTask, "and the fleet stays to guard it");
+    }
+
+    // the search a fleet makes for troops when its target is given away works before its empire's first turn after a load
+    [TestMethod]
+    public void AFleetCanLookForTroopsBeforeItsEmpiresFirstTurnAfterALoad()
+    {
+        Planet target = AddDummyPlanetToEmpire(new Vector2(400_000), Player);
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.FleetPoolLoad", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+
+        Empire enemy = loaded.UState.GetEmpireById(Enemy.Id);
+        Planet next = loaded.UState.GetPlanet(target.Id);
+        Assert.IsNotNull(enemy.ShipsReadyForFleet, "the ships ready for a fleet are known before the empire's first turn");
+        Assert.IsFalse(new MilitaryTask(next, enemy, MilitaryTaskImportance.Normal).GetMoreTroops(next, out _),
+            "and the search for troops runs, finding none");
     }
 
     [TestMethod]

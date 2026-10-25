@@ -23,6 +23,9 @@ public class IncomingThreatDetector
     // Whether a solar system under threat has been notified to the player
     [StarData] BitArray Notified;
 
+    // only for player, replaced whole for UI access: the hostile empires with warships the player sees in the player's systems
+    public (SolarSystem System, Empire[] Hostiles)[] HostilesInSystems = Empty<(SolarSystem, Empire[])>.Array;
+
 
     [StarDataConstructor]
     public IncomingThreatDetector()
@@ -33,6 +36,7 @@ public class IncomingThreatDetector
     {
         Threats.Clear();
         SystemsWithThreat = Empty<IncomingThreat>.Array;
+        HostilesInSystems = Empty<(SolarSystem, Empire[])>.Array;
     }
 
     public void Update(Empire owner, FixedSimTime timeStep)
@@ -87,6 +91,7 @@ public class IncomingThreatDetector
         if (!owner.isPlayer)
             return;
 
+        UpdateHostilesInSystems(owner);
         if (Notified.Values == null)
         {
             var allSystems = owner.Universe.Systems;
@@ -124,6 +129,29 @@ public class IncomingThreatDetector
                 }
             }
         }
+    }
+
+    public void UpdateHostilesInSystems(Empire owner)
+    {
+        var found = new Array<(SolarSystem, Empire[])>();
+        var systems = owner.GetOwnedSystems();
+        for (int i = 0; i < systems.Count; i++)
+        {
+            SolarSystem sys = systems[i];
+            Array<Empire> hostiles = null;
+            for (int j = 0; j < sys.ShipList.Count; j++)
+            {
+                Ship ship = sys.ShipList[j];
+                Empire loyalty = ship.Loyalty;
+                if (owner.GetRelations(loyalty, out var r) && r.IsHostile && IsShipAThreat(ship))
+                    (hostiles ??= new()).AddUniqueRef(loyalty);
+            }
+
+            if (hostiles != null)
+                found.Add((sys, hostiles.ToArr()));
+        }
+
+        HostilesInSystems = found.ToArr();
     }
 
     static bool IsShipAThreat(Ship s)

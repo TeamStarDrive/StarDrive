@@ -1269,6 +1269,7 @@ namespace Ship_Game
                 OwnedPlanets[i].UpdateIncomingTradeGoods();
 
             UpdateMilitaryStrengths();
+            ShipsReadyForFleet = new FleetShips(this, AllFleetReadyShips()); // fleets read it before the empire's first turn after a load
             CalculateScore(fromSave: true);
             UpdateRelationships(takeTurn: false);
             UpdateShipMaintenance();
@@ -2681,6 +2682,26 @@ namespace Ship_Game
 
         public bool IsSystemUnderThreatForUs(SolarSystem system)
             => SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == system);
+
+        // a colony under threat may go only to the one empire threatening it
+        public bool CanOfferColonyTo(Planet p, Empire them)
+        {
+            foreach (IncomingThreat threat in SystemsWithThreat)
+            {
+                if (threat.ThreatTimedOut || threat.TargetSystem != p.System)
+                    continue;
+                Empire[] enemies = threat.Enemies;
+                if (enemies == null || enemies.Length == 0 || enemies.Any(e => e != them))
+                    return false;
+            }
+
+            foreach ((SolarSystem system, Empire[] hostiles) in ThreatDetector.HostilesInSystems)
+            {
+                if (system == p.System && hostiles.Any(e => e != them))
+                    return false;
+            }
+            return true;
+        }
 
         public bool IsSystemUnderThreatForAllies(SolarSystem system) 
             => AlliedSystemsWithThreat().Any(t => !t.ThreatTimedOut && t.TargetSystem == system);
