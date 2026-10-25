@@ -1020,7 +1020,10 @@ namespace Ship_Game.Fleets
             {
                 task.TargetEmpire = task.TargetPlanet.Owner;
                 float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
-                if (EndInvalidTask(TaskStep < 5 && !CanTakeThisFight(enemyStr, task, inCombat: TaskStep >= 5)))
+                if (EndInvalidTask(TaskStep < 5 && !CanTakeThisFight(enemyStr, task, inCombat: TaskStep >= 5) && !ThirdPartyAhead(task)))
+                    return;
+
+                if (TaskStep is 5 or 6 && !task.WentIn && HoldsForThirdParty(task))
                     return;
             }
 
@@ -1066,6 +1069,7 @@ namespace Ship_Game.Fleets
                     {
                         EngageCombatToPlanet(shipBeingTargeted.Position, MoveOrder.Aggressive);
                         ClearPriorityOrderForShipsInAO(Ships, shipBeingTargeted.Position, shipBeingTargeted.SensorRange);
+                        task.WentIn = true;
                         TaskStep = 6;
                         break;
                     }
@@ -1084,7 +1088,8 @@ namespace Ship_Game.Fleets
 
                         if (combatRally.IsSet(MoveStatus.Dispersed))
                         {
-                            GatherAtAO(task, distanceFromAO: 30000);
+                            // with a third party ahead the fleet gathers again outside the system, where it waits
+                            GatherAtAO(task, distanceFromAO: ThirdPartyAhead(task) ? task.TargetPlanet.System.Radius * 2 : 30000);
                             TaskStep = 3;
                         }
 
@@ -1104,9 +1109,11 @@ namespace Ship_Game.Fleets
 
                     Vector2 resetPos = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.Radius);
                     EngageCombatToPlanet(resetPos, MoveOrder.Aggressive);
+                    task.WentIn = true;
                     TaskStep = 6;
                     break;
                 case 6:
+                    task.WentIn = true; // every fleet at this step has passed the hold
                     RearShipsToCombat(MoveOrder.Aggressive);
                     switch (StatusOfPlanetAssault(task))
                     {
@@ -1163,7 +1170,7 @@ namespace Ship_Game.Fleets
             }
 
             bool invasionEffective = StillInvasionEffective(task);
-            bool combatEffective   = StillCombatEffective(task, inCombat: TaskStep >= 5);
+            bool combatEffective   = ThirdPartyAhead(task) || StillCombatEffective(task, inCombat: TaskStep >= 5); // a third party ahead is left to the hold before going in
             bool remnantsTargeting = !Owner.WeAreRemnants
                 && CommandShip?.System == task.TargetPlanet.System
                 && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
@@ -1813,8 +1820,12 @@ namespace Ship_Game.Fleets
                     TaskStep = 4;
                     break;
                 case 4:
+                    if (!task.WentIn && HoldsForThirdParty(task))
+                        return;
+
                     EngageCombatToPlanet(task.TargetPlanet.Position, MoveOrder.Aggressive);
                     StartBombing(task.TargetPlanet);
+                    task.WentIn = true;
                     TaskStep = 5;
                     break;
                 case 5:
@@ -1855,7 +1866,8 @@ namespace Ship_Game.Fleets
                 && CommandShip?.System == task.TargetPlanet.System
                 && Owner.Universe.Remnants.Remnants.HostileTargetingSystem(task.TargetPlanet.System);
 
-            if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task, inCombat: TaskStep >= 3)))
+            if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting
+                               || !ThirdPartyAhead(task) && !StillCombatEffective(task, inCombat: TaskStep >= 3)))
                 return;
 
             bool bombOk = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
@@ -2368,6 +2380,81 @@ namespace Ship_Game.Fleets
             return false;
         }
 
+        const float ThirdPartyHoldSeconds = 120f;
+
+        bool OutsideTargetSystem(MilitaryTask task)
+        {
+            SolarSystem system = task.TargetPlanet.System;
+            return !AveragePosition().InRadius(system.Position, system.Radius);
+        }
+
+        // a fleet not yet gone in, with known ships of a third party hostile to it in its target system
+        bool ThirdPartyAhead(MilitaryTask task)
+            => !task.WentIn && OutsideTargetSystem(task) && Owner.HasThirdPartyIn(task.TargetPlanet.System, task.TargetEmpire);
+
+        // before going in, a fleet waits outside for a third party to leave, unless it is at war with them all and can beat everyone there
+        bool HoldsForThirdParty(MilitaryTask task)
+        {
+            if (!OutsideTargetSystem(task))
+                return false;
+
+            bool held = task.ThirdPartyHoldEndsAt > 0f;
+            bool thirdParty = Owner.HasThirdPartyIn(task.TargetPlanet.System, task.TargetEmpire, out bool allAtWar);
+            if (!thirdParty && !held)
+                return false;
+
+            float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, AssaultEnemyScanRadius);
+            bool canBeatAll = CanTakeThisFight(enemyStr, task, inCombat: false);
+            if (!thirdParty || allAtWar && canBeatAll)
+            {
+                task.ThirdPartyHoldEndsAt = 0f;
+                return EndInvalidTask(!canBeatAll); // after a hold the fleet goes in only if it can beat what is left
+            }
+
+            float starDate = Owner.Universe.StarDate;
+            if (!held)
+                task.ThirdPartyHoldEndsAt = starDate + ThirdPartyHoldSeconds / Owner.Universe.P.TurnTimer * 0.1f;
+
+            if (starDate + 0.05f < task.ThirdPartyHoldEndsAt)
+                return true;
+
+            RetargetAwayFromThirdParty(task);
+            return true;
+        }
+
+        // the same enemy's planet in one of the five closest systems without a known third party, in the system with the least known enemy strength
+        void RetargetAwayFromThirdParty(MilitaryTask task)
+        {
+            if (EndInvalidTask(task.Type == MilitaryTask.TaskType.ReclaimPlanet)) // a reclaim fleet has no other planet to go to
+                return;
+
+            Empire enemy = task.TargetEmpire;
+            bool IsTarget(Planet p) => p.Owner == enemy && !task.RepelledAWave(p) && !Owner.LeavesToBombers(p);
+            SolarSystem[] systems = task.TargetPlanet.System.FiveClosestSystems.Filter(s => s.PlanetList.Any(IsTarget) && !Owner.HasThirdPartyIn(s, enemy));
+            if (EndInvalidTask(systems.Length == 0))
+                return;
+
+            Planet newTarget = Owner.SafestToInvade(systems.FindMin(s => Owner.KnownEnemyStrengthIn(s)).PlanetList, IsTarget);
+            // the fleet's own troops are topped up to the new planet's need when the empire has more
+            if (task.Type != MilitaryTask.TaskType.GlassPlanet && task.GetMoreTroops(newTarget, out Array<Ship> troops, TroopStrengthAboard()))
+            {
+                AddShips(troops);
+                AutoArrange();
+            }
+
+            task.SetTargetPlanet(newTarget);
+            task.AO = newTarget.Position;
+            AddFleetProjectorGoal();
+            TaskStep = 2;
+        }
+
+        float TroopStrengthAboard()
+        {
+            float strength = 0f;
+            for (int i = 0; i < Ships.Count; ++i)
+                strength += Ships[i].Carrier.PlanetAssaultStrength;
+            return strength;
+        }
 
         // Most of out troop ships are committed (they are in te planet's gravity well)
         bool MajorityTroopShipsAreInWell(Planet p)

@@ -1639,24 +1639,25 @@ namespace Ship_Game
 
         // TODO: this should be cached as well, because it is super intensive
 
-        public bool GetTroopShipForRebase(out Ship troopShip, Vector2 pos, string planetName = "")
+        public bool GetTroopShipForRebase(out Ship troopShip, Vector2 pos, string planetName = "", Array<Ship> taken = null)
         {
             // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
-            return NearestFreeTroopShip(out troopShip, pos) || LaunchNearestTroopForRebase(out troopShip, pos, planetName);
+            return NearestFreeTroopShip(out troopShip, pos, taken) || LaunchNearestTroopForRebase(out troopShip, pos, planetName);
         }
 
         public bool GetTroopShipForRebase(out Ship troopShip, Ship ship)
         {
             // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
-            return NearestFreeTroopShip(out troopShip, ship.Position) || LaunchNearestTroopForRebase(out troopShip, ship.Position);
+            return NearestFreeTroopShip(out troopShip, ship.Position, null) || LaunchNearestTroopForRebase(out troopShip, ship.Position);
         }
 
         // TODO: this is a really bad idea to iterate through all ships
         //       would be better to use Spatial.FindNearby perhaps to find closest ships?
-        bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter)
+        bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter, Array<Ship> taken)
         {
+            // a ship already taken still looks free until its orders arrive
             troopShip = EmpireShips.OwnedShips.FindMinFiltered(
-                s => s.IsIdleSingleTroopship,
+                s => s.IsIdleSingleTroopship && (taken == null || !taken.ContainsRef(s)),
                 s => s.Position.SqDist(objectCenter));
             return troopShip != null;
         }
