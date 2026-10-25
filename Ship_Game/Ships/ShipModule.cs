@@ -1617,8 +1617,8 @@ namespace Ship_Game.Ships
             switch (orientation)
             {
                 default: return false;
-                case ModuleOrientation.Left:  t = ResourceManager.TextureOrNull($"{defaultTex}_270"); break;
-                case ModuleOrientation.Right: t = ResourceManager.TextureOrNull($"{defaultTex}_90");  break;
+                case ModuleOrientation.Left:
+                case ModuleOrientation.Right: t = ResourceManager.TextureOrNull($"{defaultTex}_90");  break; // mirrored on the ship's right half
                 case ModuleOrientation.Rear:  t = ResourceManager.TextureOrNull($"{defaultTex}_180"); break;
             }
 

@@ -190,13 +190,13 @@ namespace Ship_Game
                             slot.Tex = m.Powered ? ResourceManager.Texture(m.IconTexturePath + "_power") : m.ModuleTexture;
                         }
                     }
-                    DrawModuleTex(slot.Module.ModuleRot, batch, slot, slot.WorldRect);
+                    DrawModuleTex(slot.Module.ModuleRot, batch, slot, slot.WorldRect, rightHalf: slot.WorldPos.X >= 0f);
                 }
             }
         }
 
         void DrawModuleTex(ModuleOrientation orientation, SpriteBatch batch, SlotStruct slot,
-                           RectF moduleWorldRect, ShipModule template = null, float alpha = 1)
+                           RectF moduleWorldRect, bool rightHalf, ShipModule template = null, float alpha = 1)
         {
             SpriteEffects effects = SpriteEffects.None;
             SubTexture texture = slot != null ? slot.Tex : ResourceManager.Texture(template.IconTexturePath);
@@ -224,9 +224,12 @@ namespace Ship_Game
                     effects = SpriteEffects.FlipVertically;
                     break;
                 case ModuleOrientation.Normal:
+                    if (slot?.WorldPos.X >= 0f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
+                        effects = SpriteEffects.FlipHorizontally;
+                    break;
                 case ModuleOrientation.Left:
                 case ModuleOrientation.Right:
-                    if (slot?.WorldPos.X >= 0f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
+                    if (rightHalf)
                         effects = SpriteEffects.FlipHorizontally;
                     break;
             }
@@ -402,7 +405,9 @@ namespace Ship_Game
             Vector2 moduleWorldSize = ActiveModule.WorldSize;
             var worldRect = new RectF(moduleWorldPos, moduleWorldSize);
 
-            DrawModuleTex(ActiveModule.ModuleRot, batch, null, worldRect, template);
+            // the half comes from the slot the module will land in, which can sit across the center line from the cursor
+            bool rightHalf = (ProjectedSlot?.WorldPos.X ?? moduleWorldPos.X) >= 0f;
+            DrawModuleTex(ActiveModule.ModuleRot, batch, null, worldRect, rightHalf, template);
             DrawWeaponArcs(batch, ActiveModule, moduleWorldPos, 0, ActiveModule.TurretAngle);
             DrawHangarShipText(ActiveModule, worldRect);
 
@@ -414,7 +419,9 @@ namespace Ship_Game
                     ModuleOrientation orientation = GetMirroredOrientation(ActiveModule.ModuleRot);
 
                     var mirrorWorldRect = new RectF(mirrorWorldPos, moduleWorldSize);
-                    DrawModuleTex(orientation, batch, null, mirrorWorldRect, template, 0.5f);
+                    bool mirrorRightHalf = ProjectedSlot != null && GetMirrorSlot(ProjectedSlot, ActiveModule, out MirrorSlot twin)
+                                         ? twin.Slot.WorldPos.X >= 0f : mirrorWorldPos.X >= 0f;
+                    DrawModuleTex(orientation, batch, null, mirrorWorldRect, mirrorRightHalf, template, 0.5f);
 
                     int turretAngle = GetMirroredTurretAngle(ActiveModule.TurretAngle);
                     DrawWeaponArcs(batch, ActiveModule, mirrorWorldPos, 0f, turretAngle);
