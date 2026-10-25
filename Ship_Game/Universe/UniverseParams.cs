@@ -92,7 +92,7 @@ public class UniverseParams
     [StarData] public bool DisableSalvageOps;
     [StarData] bool SavedWithSalvageOps; // set as it is saved, so a game saved before salvage ops existed loads with them off
 
-    // the mod's Globals flag is a hard switch: a mod without salvage content keeps them off whatever the rule option says
+    // the Globals flag, vanilla's or a mod's, is a hard switch: with it off they stay off whatever the rule option says
     public bool SalvageOps => !DisableSalvageOps && GlobalStats.Defaults.EnableSalvageOps;
 
     [StarDataSerialize]

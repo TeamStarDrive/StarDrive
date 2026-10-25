@@ -2344,7 +2344,7 @@ namespace Ship_Game
                 Assert(null, requiredShip, "RequiredShip");
             }
 
-            // a mod with salvage ops off has no salvage designs, so neither salvage check runs
+            // with salvage ops off, as in a mod with no salvage designs, neither salvage check runs
             if (GlobalStats.Defaults.EnableSalvageOps)
                 Assert(null, ShipDesign.SalvagePlatformName, "RequiredShip");
 

@@ -72,9 +72,9 @@ public sealed class RuleOptionsScreen : GameScreen
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*7, () => P.DisableMiningOps, title: GameText.DisableMiningOpsName, tooltip: GameText.DisableMiningOpsTip);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*8, () => P.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*9, () => P.UseLegacyEspionage, title: GameText.UseLegacyEspionage, tooltip: GameText.UseLegacyEspionageTip);
-        bool modHasSalvage = GlobalStats.Defaults.EnableSalvageOps;
+        bool salvageOpsEnabled = GlobalStats.Defaults.EnableSalvageOps;
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*10, () => P.DisableSalvageOps, title: GameText.DisableSalvageOpsName,
-                 tooltip: modHasSalvage ? GameText.DisableSalvageOpsTip : GameText.DisableSalvageOpsModTip).Locked = !modHasSalvage;
+                 tooltip: salvageOpsEnabled ? GameText.DisableSalvageOpsTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
 
         var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 275, 270, 50);
         CustomMineralDecay = SliderDecimal1(mdRect, GameText.MineralDecayRate, 0.2f, 3, P.CustomMineralDecay);

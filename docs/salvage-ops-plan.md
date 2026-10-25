@@ -830,7 +830,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
 
 ### Switches (Gilad, 2026-10-15)
 
-- **Globals flag `EnableSalvageOps`** (165): default false in C#, set to true in vanilla `Globals.yaml`. Combined
+- **Globals flag `EnableSalvageOps`** (165): default false in C#. Vanilla `Globals.yaml` set it to true, then to false
+  while the feature is tested in game (929 A); the tests turn it on for vanilla (930 A). Combined
   Arms, Star Trek and every other mod stay off until they set it. A mod inherits every vanilla value it does not set
   (the `GamePlayGlobals` constructor copies `VanillaDefaults` before the mod's file is read), so this one flag is
   not inherited: the constructor clears it after the copy (168).
@@ -844,8 +845,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
     `CheckForRequiredShipDesigns` (`ResourceManager.cs:2274`), and the `Salvage Platform` design, required like the
     designs in its `requiredShips` list (314).
   - A mod without salvage designs then logs no errors.
-- **The rule option when the Globals flag is off (167):** shown greyed out and ticked, with a tooltip that says the
-  mod has no salvage content.
+- **The rule option when the Globals flag is off (167):** shown greyed out and ticked, with a tooltip that says
+  salvage ops are off by the Globals flag or for want of salvage content, vanilla's flag included (931 A).
 
 Implementation notes:
 

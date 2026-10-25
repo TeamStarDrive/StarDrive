@@ -6150,7 +6150,7 @@ namespace Ship_Game
         DisableSalvageOpsName = 7124,
         /// <summary>Every derelict drifts and sinks away, so there are no wrecks to salvage.</summary>
         DisableSalvageOpsTip = 7125,
-        /// <summary>This mod has no salvage content, so salvage ops are off.</summary>
+        /// <summary>Salvage ops are off: EnableSalvageOps is false in Globals.yaml, or the mod has no salvage content.</summary>
         DisableSalvageOpsModTip = 7126,
         /// <summary>Derelict</summary>
         Derelict = 7127,

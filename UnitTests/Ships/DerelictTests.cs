@@ -678,7 +678,8 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void AModTurnsSalvageOpsOnItselfAndTheRuleOptionTurnsThemOff()
     {
-        AssertTrue(GlobalStats.VanillaDefaults.EnableSalvageOps, "vanilla has salvage content");
+        AssertFalse(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableSalvageOps, "vanilla ships with salvage ops off");
+        AssertTrue(GlobalStats.VanillaDefaults.EnableSalvageOps, "setup: the tests turn them on");
         var mod = new GamePlayGlobals();
         AssertFalse(mod.EnableSalvageOps, "a mod does not inherit the flag");
         AssertEqual(GlobalStats.VanillaDefaults.SalvageableDerelictCapMultiplier, mod.SalvageableDerelictCapMultiplier, "as it does the other vanilla values");
