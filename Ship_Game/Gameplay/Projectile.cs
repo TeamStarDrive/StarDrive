@@ -1018,6 +1018,8 @@ namespace Ship_Game.Gameplay
             bool missile = Weapon.Tag_Guided || Weapon.Tag_Missile || Weapon.Tag_Torpedo; // missiles, rockets and torpedoes push by half
             float mass = ordnance * 5f * (missile ? 0.5f : 1f);
             Vector2 impulse = mass * (velocity - ship.Velocity);
+            if (!float.IsFinite(impulse.X) || !float.IsFinite(impulse.Y))
+                return; // a broken velocity must never reach the ship's roll or motion
             ship.BankFromHit(impulse, hitPos);
             ship.ApplyImpulse(impulse);
         }

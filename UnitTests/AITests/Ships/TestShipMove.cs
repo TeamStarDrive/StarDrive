@@ -112,7 +112,7 @@ namespace UnitTests.AITests.Ships
             });
 
             // banking stops at the limit
-            AssertLessThan(yBankReached, maxYBank * 1.1f);
+            AssertLessThan(yBankReached, maxYBank + 0.001f);
             AssertGreaterThan(yBankReached, maxYBank * 0.95f);
             AssertEqual(0, ship.YRotation, "Ship should reach 0 Y rotation at this point");
         }

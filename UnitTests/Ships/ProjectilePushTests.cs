@@ -19,7 +19,8 @@ namespace UnitTests.Ships;
 /// its momentum relative to the ship over the ship's mass; a missile, rocket or torpedo (guided, or tagged missile or
 /// torpedo) by half that, while a cannon shell pushes fully though it explodes. A MIRV warhead counts its share of the
 /// ordnance its shot cost. Plasma and drones push nothing, nor does a hit on a raised shield, even one that breaks it,
-/// unless the shell penetrates shields, or one that kills the ship, whose wreck keeps the motion it had. A shell that
+/// unless the shell penetrates shields, or one that kills the ship, whose wreck keeps the motion it had, or a shell whose
+/// velocity is not a number. A shell that
 /// armor deflects pushes along the path it struck on. A push never takes a ship past the greater of its top speed and
 /// its speed now, and stations and ships at warp, launching, landing or crashing onto a planet are not moved.
 /// </summary>
@@ -223,6 +224,25 @@ public class ProjectilePushTests : StarDriveTest
 
         Assert.IsFalse(target.Active, "setup: the hit kills the ship");
         AssertEqual(motion, target.Velocity, "a killing hit pushes nothing, so the wreck keeps the ship's motion");
+    }
+
+    [TestMethod]
+    public void AShellWithABrokenVelocityNeitherPushesNorRollsTheShip()
+    {
+        Weapon massDriver = CreateWeapon("MassDriver");
+        Ship target = SpawnTarget("Dreadnought mk1-a", 0);
+        Vector2 offCenter = target.Position + new Vector2(target.Radius * 0.5f, 0f);
+
+        foreach (Vector2 broken in new[] { new Vector2(float.NaN, 1600f), new Vector2(float.PositiveInfinity, 0f), new Vector2(0f, float.NegativeInfinity) })
+        {
+            Hit(massDriver, target, broken, at: offCenter);
+            AssertEqual(Vector2.Zero, target.Velocity, $"a shell flying at {broken} pushes nothing");
+            AssertEqual(0f, (float)HitRollSeconds.GetValue(target), "nor rolls the ship");
+            Assert.IsTrue(float.IsFinite(target.YRotation), "and leaves its roll a number");
+        }
+
+        Hit(massDriver, target, new Vector2(0f, 1600f), at: offCenter);
+        AssertEqual(0.0001f, 13f * 5f * 1600f / target.Mass, target.Velocity.Y, "while a shell at a real velocity still pushes");
     }
 
     [TestMethod]
