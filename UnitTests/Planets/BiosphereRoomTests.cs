@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
@@ -57,6 +58,38 @@ namespace UnitTests.Planets
             Colony.DoGoverning();
 
             Assert.IsNotNull(QueuedBiosphere, "setup: a colony with nowhere to build must roof bare ground to make room");
+            Assert.IsTrue(QueuedBiosphere.pgs.NoBuildingOnTile, "the biosphere must make room where there is none");
+        }
+
+        // Issue #481: ordinary blueprints never scrap the player's building, so only a biosphere can make room
+        [TestMethod]
+        public void ABiosphereMakesRoomForTheBlueprintsWhenTheOnlyBuildingOutsideThemIsThePlayers()
+        {
+            Building playerBuilt = ResourceManager.CreateBuilding(Colony, ResourceManager.BuildingsDict.Values
+                .First(b => b.IsSuitableForBlueprints && !b.IsMilitary && !b.IsSpacePort && b.PlusTerraformPoints <= 0
+                            && !b.CanBuildAnywhere && !Colony.BuildingBuiltOrQueued(b)).Name);
+            playerBuilt.IsPlayerAdded = true;
+            Colony.TilesList.First(t => t.Habitable && t.NoBuildingOnTile).PlaceBuilding(playerBuilt, Colony);
+            OccupyTheColonyLeaving(bareTiles: 1);
+            SetPopulationRatio(0.5f);
+
+            Building waiting = ResourceManager.BuildingsDict.Values
+                .First(b => b.IsMilitary && b.IsSuitableForBlueprints && !b.CanBuildAnywhere && !Colony.BuildingBuiltOrQueued(b));
+            Player.UnlockEmpireBuilding(waiting.Name);
+            var planned = new HashSet<string> { waiting.Name };
+            foreach (Building b in Colony.Buildings)
+                if (b.IsSuitableForBlueprints && b != playerBuilt)
+                    planned.Add(b.Name);
+
+            Colony.AddBlueprints(new BlueprintsTemplate("test", false, null, planned, Planet.ColonyType.Colony), Player);
+            Colony.RefreshBuildingsWeCanBuildHere();
+            Assert.IsTrue(Colony.Blueprints.ShouldScrapNonRequiredBuilding(), "setup: the governor must be looking for a building to scrap");
+            Assert.IsFalse(Colony.BiosphereCarriesItsPopulation(Bio), "setup: room must be the only reason to build");
+
+            Colony.DoGoverning();
+
+            Assert.IsTrue(Colony.HasBuilding(b => b == playerBuilt), "the governor scrapped the player's building");
+            Assert.IsNotNull(QueuedBiosphere, "with nothing it may scrap, the governor must roof bare ground for the waiting building");
             Assert.IsTrue(QueuedBiosphere.pgs.NoBuildingOnTile, "the biosphere must make room where there is none");
         }
 

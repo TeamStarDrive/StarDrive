@@ -1329,7 +1329,8 @@ namespace Ship_Game.Ships
                     ParentScale = PlanetCrash?.Scale ?? 1f,
                     Cos = RadMath.Cos(Rotation),
                     Sin = RadMath.Sin(Rotation),
-                    Tan = (float)Math.Tan(YRotation)
+                    BankSin = RadMath.Sin(YRotation),
+                    BankCos = RadMath.Cos(YRotation)
                 };
 
                 if (Active)

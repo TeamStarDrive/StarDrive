@@ -419,20 +419,26 @@ namespace Ship_Game.Ships
                                      moduleSize * m.YSize);
 
                 SubTexture tex = m.ModuleTexture;
-                m.GetOrientedModuleTexture(ref tex, m.ModuleRot);
+                SpriteEffects effects = SpriteEffects.None;
+                if (m.GetOrientedModuleTexture(ref tex, m.ModuleRot)
+                    && m.ModuleRot is ModuleOrientation.Left or ModuleOrientation.Right
+                    && m.Pos.X >= ShipData.GridInfo.Center.X) // sideways art is mirrored on the right half, as in the shipyard
+                {
+                    effects = SpriteEffects.FlipHorizontally;
+                }
 
                 if (moduleHealthColor)
                 {
                     Color healthColor = m.GetHealthStatusColor();
                     if (!drawHullBackground)
                         batch.FillRectangle(rect, healthColor);
-                    batch.Draw(tex, rect, healthColor.AddRgb(0.66f));
+                    batch.Draw(tex, rect, healthColor.AddRgb(0.66f), 0f, Vector2.Zero, effects, 1f);
                 }
                 else
                 {
                     if (!drawHullBackground)
                         batch.FillRectangle(rect, new Color(40, 40, 40));
-                    batch.Draw(tex, rect, Color.White);
+                    batch.Draw(tex, rect, Color.White, 0f, Vector2.Zero, effects, 1f);
                 }
 
                 if (markLockedModules && !Loyalty.IsModuleUnlocked(m.UID))

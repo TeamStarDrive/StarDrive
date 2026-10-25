@@ -48,6 +48,35 @@ namespace UnitTests.Planets
             }
         }
 
+        // a special resource such as a Gold Deposit can never be built again, and no plan can name one
+        [TestMethod]
+        public void ACommodityIsNeverScrappedWithOrWithoutBlueprints()
+        {
+            Building[] commodities = ResourceManager.BuildingsDict.Values
+                .Where(b => b.IsCommodity && b.Scrappable && b.PlusTerraformPoints <= 0)
+                .Select(b => ResourceManager.CreateBuilding(P, b.Name)).ToArray();
+            Assert.IsTrue(commodities.Any(b => !b.IsMoneyBuilding), "setup: a commodity that earns nothing is kept by this rule alone");
+            var planned = new HashSet<string> { ResourceManager.BuildingsDict.Values.First(b => b.IsSuitableForBlueprints && !b.IsMilitary).Name };
+
+            foreach (bool blueprints in new[] { false, true })
+            {
+                if (blueprints)
+                    P.AddBlueprints(new BlueprintsTemplate("test", false, null, planned, Planet.ColonyType.Colony), Player);
+
+                foreach (Building commodity in commodities)
+                {
+                    foreach (bool overBudget in new[] { false, true })
+                    {
+                        foreach (bool replacing in new[] { false, true })
+                        {
+                            Assert.IsFalse(Suitable(commodity, overBudget, replacing),
+                                $"{commodity.Name} was offered for scrap with blueprints={blueprints}, overBudget={overBudget}, replacing={replacing}");
+                        }
+                    }
+                }
+            }
+        }
+
         [TestMethod]
         public void TheGuardDoesNotCoverGovernorBuiltToo()
         {

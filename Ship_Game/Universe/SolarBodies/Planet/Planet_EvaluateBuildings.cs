@@ -67,7 +67,10 @@ namespace Ship_Game
                 // or we can try scrap buildings not in blueprints
                 TryScrapBuilding(overBudget);
                 if (!overBudget) // we can try to build something if we have blueprints
+                {
                     BuildOrReplaceBuilding(budget, tolerance, overBudget);
+                    TryBuildBiospheres(budget, out _); // when the scrap made no room, biospheres are the only new ground
+                }
             }
             else
             {
@@ -494,6 +497,7 @@ namespace Ship_Game
             if (b.IsBiospheres
                 || b.IsMilitary
                 || !b.Scrappable
+                || b.IsCommodity // a special resource the governor could never build again
                 || b.IsPlayerAdded && PlayerBuiltIsProtected // never scrap what the player built by hand
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || b.BuildOnlyOnce
