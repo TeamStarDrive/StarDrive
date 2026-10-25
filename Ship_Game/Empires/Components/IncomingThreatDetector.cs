@@ -20,8 +20,9 @@ public class IncomingThreatDetector
     [StarData] public IncomingThreat[] SystemsWithThreat = Empty<IncomingThreat>.Array;
 
     // Only for Player warnings
-    // Whether a solar system under threat has been notified to the player
-    [StarData] BitArray Notified;
+    // Whether a solar system under threat has been notified to the player, by the system's index in the universe
+    // not saved, so every load sets it up again from the after-load alert option
+    BitArray Notified;
 
     // only for player, replaced whole for UI access: the hostile empires with warships the player sees in the player's systems
     public (SolarSystem System, Empire[] Hostiles)[] HostilesInSystems = Empty<(SolarSystem, Empire[])>.Array;
@@ -92,9 +93,9 @@ public class IncomingThreatDetector
             return;
 
         UpdateHostilesInSystems(owner);
+        var allSystems = owner.Universe.Systems;
         if (Notified.Values == null)
         {
-            var allSystems = owner.Universe.Systems;
             Notified = new BitArray(allSystems.Count);
             for (int i = 0; i < allSystems.Count; i++)
             {
@@ -108,12 +109,13 @@ public class IncomingThreatDetector
         for (int i = 0; i < systems.Count; i++)
         {
             SolarSystem sys = systems[i];
+            int index = allSystems.IndexOf(sys);
 
             // if system is already notified, keep checking while it's under threat
             // once the threat disappears, the flag will be cleared and player will be notified again
-            if (Notified.IsSet(i))
+            if (Notified.IsSet(index))
             {
-                Notified.Set(i, sys.HostileForcesPresent(owner));
+                Notified.Set(index, sys.HostileForcesPresent(owner));
                 continue;
             }
 
@@ -124,7 +126,7 @@ public class IncomingThreatDetector
                 if (owner.GetRelations(loyalty, out var r) && r.IsHostile && IsShipAThreat(ship))
                 {
                     owner.Universe.Notifications?.AddBeingInvadedNotification(sys, loyalty, StrRatio(sys, owner, loyalty));
-                    Notified.Set(i);
+                    Notified.Set(index);
                     break;
                 }
             }
@@ -166,7 +168,7 @@ public class IncomingThreatDetector
             for (int j = 0; j < s.ShipList.Count; j++)
             {
                 Ship ship = s.ShipList[j];
-                if (owner.GetRelations(ship.Loyalty).IsHostile && IsShipAThreat(ship))
+                if (owner.GetRelations(ship.Loyalty, out var r) && r.IsHostile && IsShipAThreat(ship))
                     return true;
             }
         }
