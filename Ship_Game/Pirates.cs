@@ -374,6 +374,7 @@ namespace Ship_Game
                 case 4: Owner.data.FTLPowerDrainModifier = 0.8f;                                         break;
             }
 
+            Owner.data.SalvageSpeedMultiplier = 1f + 0.1f * (level - 2).LowerBound(0); // a tenth more salvage speed a level from level 3
             Owner.data.BaseShipLevel = level / 4;
             EmpireHullBonuses.RefreshBonuses(Owner);
         }
@@ -566,7 +567,7 @@ namespace Ship_Game
 
         bool StaysAtBase(Ship ship)
         {
-            if (ship.Name == Owner.data.PirateFlagShip)
+            if (ship.Name == Owner.data.PirateFlagShip || Remnants.IsRemnantDesign(Owner.Universe, ship.ShipData)) // a Remnant ship is kept and never taken in
                 return true;
 
             return !ship.IsDefaultAssaultShuttle
@@ -707,7 +708,7 @@ namespace Ship_Game
             for (int i = 0; i < victimShips.Count; i++)
             {
                 Ship ship = victimShips[i];
-                if (RaidingThisShip(ship) || ship.IsLaunchingOrLanding)
+                if (RaidingThisShip(ship) || ship.IsLaunchingOrLanding || ship.IsSalvagePlatform)
                     continue;
 
                 switch (type)
@@ -718,6 +719,7 @@ namespace Ship_Game
                     case TargetType.Research         when ship.IsResearchStation: 
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
+                    case TargetType.SalvageStation   when ship.IsSalvageStation:
                     case TargetType.Projector:       targets.Add(ship); break; // Add all of above cases into targets
                 }
             }
@@ -1027,7 +1029,8 @@ namespace Ship_Game
             Shipyard,
             Station,
             Platform,
-            Research
+            Research,
+            SalvageStation
         }
     }
 

@@ -90,13 +90,14 @@ namespace Ship_Game
             RefitShipList.EnableItemHighlight = true;
             RefitShipList.OnClick = OnRefitShipItemClicked;
 
-            if (!ShipToRefit.IsSubspaceProjector)
+            if (!ShipToRefit.IsSubspaceProjector && !ShipToRefit.IsSalvageStation)
             {
                 foreach (IShipDesign design in ShipToRefit.Loyalty.ShipsWeCanBuildSnapshot)
                 {
                     if ((design.Hull == ShipToRefit.ShipData.Hull || ShipToRefit.IsResearchStation || ShipToRefit.IsMiningStation)
                         && design != ShipToRefit.ShipData
                         && !design.ShipRole.Protected
+                        && !design.IsSalvageStation
                         && ShipToRefit.IsResearchStation == design.IsResearchStation
                         && ShipToRefit.IsMiningStation == design.IsMiningStation)
                     {
@@ -180,7 +181,7 @@ namespace Ship_Game
             var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
-                if (ship.Name == ShipToRefit.Name && (specificFleet == null || ship.Fleet == specificFleet))
+                if (ship.Name == ShipToRefit.Name && (specificFleet == null || ship.Fleet == specificFleet) && !ship.Dismantling && !ship.DeliversRefund)
                     Player.AI.AddGoalAndEvaluate(GetRefitGoal(ship));
             }
 

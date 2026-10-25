@@ -283,12 +283,16 @@ namespace Ship_Game
             {
                 Ship freighter = incoming[i];
                 if (freighter.Active &&
-                    freighter.AI.FindGoal(ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal) &&
+                    (freighter.AI.FindGoal(ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal)
+                     || freighter.AI.FindGoal(ShipAI.Plan.PickupGoodsFromStation, out goal)) &&
                     goal.Trade.Goods == goods)
                     cargoSpace += freighter.CargoSpaceMax;
             }
             return cargoSpace;
         }
+
+        // the room left in its store for production once what is on its way, loaded or still to load, has landed
+        public float ProdStoreRoom => Storage.Max - ProdHere - IncomingProd - ProdBeingFetched;
 
         public int FreeGoodsImportSlots(Goods goods)
         {

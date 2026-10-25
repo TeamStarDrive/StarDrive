@@ -155,6 +155,9 @@ namespace Ship_Game.Commands.Goals
             if (PlanetNoLongerReseachable(out GoalStep noLongerResearchable))
                 return noLongerResearchable;
 
+            if (ResearchStation.Dismantling) // it waits for its end, or for being called off
+                return GoalStep.TryAgain;
+
             // Factions do not research and pirate owners will set scuttle (see PiratePostChangeLoyalty)
             if (!Owner.IsFaction)
             {
@@ -312,7 +315,7 @@ namespace Ship_Game.Commands.Goals
 
         bool ConstructionGoalInProgress =>
             (ResearchingPlanet && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetPlanet))
-            || (ResearchingStar && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetSystem))));
+            || (ResearchingStar && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetSystem) && g.ToBuild?.IsResearchStation == true)));
 
         ExplorableGameObject TargetSolarBody => TargetPlanet != null ? TargetPlanet : TargetSystem;
     }

@@ -46,6 +46,10 @@ namespace Ship_Game
         // whether to display verbose state logs
         public bool Verbose;
 
+        // from any thread: a design of the Remnant race's, by its style, whoever's ship it is or was
+        public static bool IsRemnantDesign(UniverseState universe, IShipDesign design)
+            => universe.Remnants is { } remnants && design.ShipStyle == remnants.data.Traits.ShipType;
+
         [StarDataConstructor]
         Remnants() {}
 

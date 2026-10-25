@@ -73,16 +73,7 @@ namespace Ship_Game
             TitleRect = new(BaseRect.X, BaseRect.Y - 22, 90, 36);
         }
 
-        SubTexture TechIcon
-        {
-            get
-            {
-                string iconPath = Entry.Tech.IconPath;
-                if (iconPath == null)
-                    return ResourceManager.Texture("TechIcons/" + Entry.UID);
-                return ResourceManager.TextureOrDefault("TechIcons/" + iconPath, "TechIcons/" + Entry.UID);
-            }
-        }
+        SubTexture TechIcon => Entry.Tech.Icon;
 
         public void Draw(SpriteBatch batch)
         {

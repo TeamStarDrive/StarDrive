@@ -37,6 +37,7 @@ namespace Ship_Game.AI
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
         [StarData] public ExpansionAI.ResearchStationPlanner ResearchStationsAI;
         [StarData] public ExpansionAI.MiningOpsPlanner MiningOpsAI;
+        [StarData] public ExpansionAI.SalvageOpsPlanner SalvageOpsAI;
         [StarData] public EspionageManager EspionageManager;
         [StarData] public SpaceRoadsManager SpaceRoadsManager;
         BudgetPriorities BudgetSettings;
@@ -54,6 +55,7 @@ namespace Ship_Game.AI
             ExpansionAI = new(OwnerEmpire);
             ResearchStationsAI = new(OwnerEmpire);
             MiningOpsAI = new(OwnerEmpire);
+            SalvageOpsAI = new(OwnerEmpire);
             GoalsList = new();
 
             InitializeManagers(e);
@@ -162,8 +164,12 @@ namespace Ship_Game.AI
                 if (MiningOpsAI == null)
                     MiningOpsAI = new(OwnerEmpire);
 
+                if (SalvageOpsAI == null)
+                    SalvageOpsAI = new(OwnerEmpire);
+
                 ResearchStationsAI.RunResearchStationPlanner();
                 MiningOpsAI.RunMiningOpsPlanner();
+                SalvageOpsAI.RunSalvageOpsPlanner();
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
@@ -390,6 +396,7 @@ namespace Ship_Game.AI
                     || !ship.CanBeRefitted
                     || ship.IsResearchStation
                     || ship.IsMiningStation
+                    || ship.IsSalvageStation
                     || ship.IsMiningShip
                     || ship.ShipData.IsColonyShip
                     || ship.IsConstructor)
@@ -453,6 +460,26 @@ namespace Ship_Game.AI
                 RemoveGoal(stationGoal);
 
             Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(p) && g.Build.Template.IsMiningStation);
+            if (constructionGoal != null)
+            {
+                constructionGoal.FinishedShip?.AI.OrderScrapShip();
+                constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
+                RemoveGoal(constructionGoal);
+            }
+        }
+
+        public void CancelSalvageStation(SolarSystem system)
+        {
+            Goal stationGoal = FindGoal(g => g.IsSalvageOpsGoal(system) && g.TargetShip == null);
+            if (stationGoal != null)
+                RemoveGoal(stationGoal);
+
+            CancelSalvageStationConstruction(system);
+        }
+
+        public void CancelSalvageStationConstruction(SolarSystem system)
+        {
+            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(system) && g.ToBuild?.IsSalvageStation == true);
             if (constructionGoal != null)
             {
                 constructionGoal.FinishedShip?.AI.OrderScrapShip();

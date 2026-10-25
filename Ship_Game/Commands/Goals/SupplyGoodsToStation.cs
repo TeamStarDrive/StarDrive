@@ -17,7 +17,7 @@ namespace Ship_Game.Commands.Goals
         Ship TargetStation => TargetShip;
         Ship Freighter => FinishedShip;
 
-        bool StationApplicable => TargetShip != null && TargetShip.Active && TargetShip.Loyalty == Owner;
+        bool StationApplicable => TargetShip != null && TargetShip.Active && TargetShip.Loyalty == Owner && !TargetShip.Dismantling;
 
         [StarDataConstructor]
         public SupplyGoodsToStation(Empire owner) : base(GoalType.SupplyGoodsToStation, owner)

@@ -522,6 +522,24 @@
       MaxConcurrent: 4
 
     - SoundEffect:
+      Id: sd_derelict_break_in # a derelict's recovery breaking in, once a turn: the shield static
+      Volume: 0.4
+      Sound: "Weapons/sd_shield_static_1.m4a"
+      MaxConcurrent: 2
+
+    - SoundEffect:
+      Id: sd_derelict_give_way # a derelict giving way as its recovery fails, once: the ShipSlow sound, at half the break-up's volume
+      Volume: 0.4
+      Sound: "Weapons/ShipSlow.m4a"
+      MaxConcurrent: 2
+
+    - SoundEffect:
+      Id: sd_derelict_recovered # a recovered derelict rising to a ship's depth, once: the Afterburner sound's first 6 seconds, fading out over the last 2
+      Volume: 0.8
+      Sound: "Explosions/sd_derelict_recovered.m4a"
+      MaxConcurrent: 2
+
+    - SoundEffect:
       Id: sd_explosion_ship_det_small
       # TODO: maybe we can add volume ranges here?
       Volume: 0.4

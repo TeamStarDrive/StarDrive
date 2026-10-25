@@ -1132,7 +1132,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void CanSerializeUniverseParams()
         {
-            var instance = new UniverseParams();
+            var instance = new UniverseParams { DisableSalvageOps = true }; // off its default, so it must be written
             var result = SerDes(instance);
             AssertEqual(instance.Difficulty, result.Difficulty);
             AssertEqual(instance.StarsCount, result.StarsCount);
@@ -1167,6 +1167,8 @@ namespace UnitTests.Serialization
             AssertEqual(instance.DisableVolcanoWarning, result.DisableVolcanoWarning);
             AssertEqual(instance.DisableCrashSiteWarning, result.DisableCrashSiteWarning);
             AssertEqual(instance.DisableStationBuiltWarning, result.DisableStationBuiltWarning);
+            AssertEqual(instance.DisableDerelictWarning, result.DisableDerelictWarning);
+            AssertEqual(instance.DisableSalvageWarning, result.DisableSalvageWarning);
             AssertEqual(instance.ShowAllDesigns, result.ShowAllDesigns);
             AssertEqual(instance.FilterOldModules, result.FilterOldModules);
             AssertEqual(instance.DisableRemnantStory, result.DisableRemnantStory);
@@ -1176,7 +1178,29 @@ namespace UnitTests.Serialization
             AssertEqual(instance.FixedPlayerCreditCharge, result.FixedPlayerCreditCharge);
             AssertEqual(instance.DisableResearchStations, result.DisableResearchStations);
             AssertEqual(instance.DisableMiningOps, result.DisableMiningOps);
+            AssertEqual(instance.DisableSalvageOps, result.DisableSalvageOps);
             AssertEqual(instance.PrioitizeProjectors, result.PrioitizeProjectors);
+        }
+
+        [TestMethod]
+        public void ARuleOptionUntickedAgainstTheModsGlobalsStaysUnticked()
+        {
+            bool pirates = GlobalStats.Defaults.DisablePirates;
+            bool remnantStory = GlobalStats.Defaults.DisableRemnantStory;
+            try
+            {
+                GlobalStats.Defaults.DisablePirates = true;
+                GlobalStats.Defaults.DisableRemnantStory = true;
+                var instance = new UniverseParams { DisablePirates = false, DisableRemnantStory = false }; // unticked at the new game
+                var result = SerDes(instance);
+                Assert.IsFalse(result.DisablePirates, "the mod's Globals tick Disable Pirates, but unticked it loads unticked");
+                Assert.IsFalse(result.DisableRemnantStory, "as does Disable Remnant Story");
+            }
+            finally
+            {
+                GlobalStats.Defaults.DisablePirates = pirates;
+                GlobalStats.Defaults.DisableRemnantStory = remnantStory;
+            }
         }
 
         [TestMethod]

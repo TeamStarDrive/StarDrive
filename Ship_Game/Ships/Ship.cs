@@ -161,10 +161,14 @@ namespace Ship_Game.Ships
         private bool HasExploded;
         // rolled a derelict death: no main explosion and no death blast
         bool RolledDerelict;
-        // 1 when it was seen as it rolled a derelict death: a derelict takes the hull when the ship is removed, once
+        // its hull's roll made the derelict a drifting one
+        bool RolledDrifting;
+        // the Derelict* flags of a rolled derelict death that leaves one: a derelict takes the hull when the ship is removed, once
         int LeavesDerelict;
-        // debug: its death is a derelict one, with no roll
-        bool DebugDerelict;
+        const int DerelictLeaves = 1, DerelictSalvageable = 2, DerelictSeen = 4;
+        // debug: its death is a derelict one of this kind, with no roll
+        enum DebugDerelictKind { None, Drifting, Salvageable }
+        DebugDerelictKind DebugDerelict;
         public float TotalDps { get; private set; }
 
         public bool HasCommand;
@@ -197,6 +201,8 @@ namespace Ship_Game.Ships
         public bool IsDysonSwarmController  => ShipData.IsDysonSwarmController;
         public bool IsResearchStation       => ShipData.IsResearchStation;
         public bool IsMiningStation         => ShipData.IsMiningStation;
+        public bool IsSalvageStation        => ShipData.IsSalvageStation;
+        public bool IsSalvagePlatform       => ShipData.IsSalvagePlatform;
 
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
@@ -385,7 +391,7 @@ namespace Ship_Game.Ships
 
             if (Loyalty.isPlayer)
             {
-                if (!forAttack && (IsPlatformOrStation || IsSubspaceProjector))
+                if (IsSalvagePlatform || (!forAttack && (IsPlatformOrStation || IsSubspaceProjector)))
                     return false;
 
                 if (!CanTakeFleetOrders)
@@ -414,14 +420,22 @@ namespace Ship_Game.Ships
                 module.DebugDamage(percent);
         }
 
-        // debug: destroys the ship as a derelict, and does nothing to a ship that cannot become one
-        public void DebugDieAsDerelict()
+        // debug: destroys the ship as a drifting or a salvageable derelict, and does nothing to a ship that cannot become that kind
+        public void DebugDieAsDerelict(bool salvageable)
         {
             if (!Active || Dying || !CanBecomeDerelict)
                 return;
-            DebugDerelict = true;
-            DebugDamage(1f);
-            DebugDerelict = false;
+            if (salvageable && (!StopsWhereSalvageable || Universe.Derelicts.NumSalvageable >= Derelicts.SalvageableCap(Universe)))
+                return;
+            DebugDerelict = salvageable ? DebugDerelictKind.Salvageable : DebugDerelictKind.Drifting;
+            try
+            {
+                DebugDamage(1f);
+            }
+            finally
+            {
+                DebugDerelict = DebugDerelictKind.None;
+            }
         }
 
         public void DebugBlowBiggestExplodingModule()  => DebugBlowExplodingModule(true);
@@ -656,11 +670,12 @@ namespace Ship_Game.Ships
 
         public bool IsHangarShip   => Mothership != null;
         public bool IsHomeDefense  => HomePlanet != null;
-        public bool CanBeRefitted  => CanBeScrapped;
-        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false };
+        public bool CanBeRefitted  => CanBeScrapped && !Dismantling; // one coming apart also pays no upkeep
+        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false } && !IsSalvagePlatform && !DeliversRefund;
+        public bool DeliversRefund => IsSupplyShuttle && AI != null && AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal order) && order.Plan == ShipAI.Plan.DeliverRefund; // a builder carrying a refund takes no orders
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
-        public bool SupplyShipCanSupply => Carrier.HasSupplyBays 
+        public bool SupplyShipCanSupply => Carrier.HasSupplyBays && !Dismantling
             && OrdnanceStatusWithIncoming(OrdAddedPerSecond * 60) > Status.Critical
             && OrdnanceStatus != Status.NotApplicable;
 
@@ -736,14 +751,18 @@ namespace Ship_Game.Ships
 
         public bool DoingScrap
         {
-            get => AI.State == AIState.Scrap;
-            set => AI.OrderScrapShip();
+            get => AI.State == AIState.Scrap || Dismantling;
+            set => ScrapFromButton();
         }
 
         public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
-            set => Universe.Screen.ScreenManager.AddScreen(new RefitToWindow(Universe.Screen, this));
+            set
+            {
+                if (!Dismantling)
+                    Universe.Screen.ScreenManager.AddScreen(new RefitToWindow(Universe.Screen, this));
+            }
         }
 
         public bool DoingScuttle => AI.State == AIState.Scuttle;
@@ -782,6 +801,28 @@ namespace Ship_Game.Ships
                 distanceSTL += targetStation.GetTether().GravityWellForEmpire(Loyalty);
 
             return GetAstrogateTime(distance, distanceSTL, targetStation.Position);
+        }
+
+        public float GetAstrogateTimeTo(Ship station)
+        {
+            float distance    = Position.Distance(station.Position);
+            float distanceSTL = station.IsTethered ? station.GetTether().GravityWellForEmpire(Loyalty) : 0f;
+            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner if the ship is in one
+
+            if (planet != null && !IsInFriendlyProjectorRange)
+                distanceSTL += planet.GravityWellRadius;
+
+            return GetAstrogateTime(distance, distanceSTL, station.Position);
+        }
+
+        public float GetAstrogateTimeBetween(Ship originStation, Planet destination)
+        {
+            float distance    = originStation.Position.Distance(destination.Position);
+            float distanceSTL = destination.GravityWellForEmpire(Loyalty);
+            if (originStation.IsTethered)
+                distanceSTL += originStation.GetTether().GravityWellForEmpire(Loyalty);
+
+            return GetAstrogateTime(distance, distanceSTL, destination.Position);
         }
 
         public float GetAstrogateTimeBetween(Planet origin, Planet destination)
@@ -1237,7 +1278,7 @@ namespace Ship_Game.Ships
 
         void RecallHangarShipIfTooFarFromCarrier()
         {
-            if (IsHangarShip && !InCombat && !IsMiningShip && Position.OutsideRadius(Mothership.Position, Mothership.SensorRange))
+            if (IsHangarShip && !InCombat && !IsMiningShip && !IsConstructor && Position.OutsideRadius(Mothership.Position, Mothership.SensorRange))
                 AI.BackToCarrier();
         }
 
@@ -1328,7 +1369,7 @@ namespace Ship_Game.Ships
             if (ShouldRecalculatePower) // must be before ShipStatusChange
                 RecalculatePower();
             
-            if (OrdAddedPerSecond > 0f)
+            if (OrdAddedPerSecond > 0f && !Dismantling)
                 ChangeOrdnance(OrdAddedPerSecond); // Add ordnance
 
             if (OrdnanceChanged)
@@ -1347,7 +1388,8 @@ namespace Ship_Game.Ships
 
             if (InCombat
                 || ShieldPower < ShieldMax
-                || engineState == MoveState.Warp)
+                || engineState == MoveState.Warp
+                || Dismantling)
             {
                 ShieldPower = 0.0f;
                 foreach (ShipModule shield in GetShields())
@@ -1368,14 +1410,15 @@ namespace Ship_Game.Ships
             if (!InCombat && IsHomeDefense && !IsLaunching && !HomePlanet.SpaceCombatNearPlanet && AI.State != AIState.ReturnHome)
                 ReturnHome();
 
-            // Ship Repair
-            if (HealthPercent < 1)
+            // Ship Repair, none while it comes apart
+            if (HealthPercent < 1 && !Dismantling)
                 Repair(timeSinceLastUpdate);
 
             if (CurrentMechanicalBoardingDefense < MechanicalBoardingDefense)
                 RepairMechanicalBoardingDefense();
 
-            UpdateResupply();
+            if (!Dismantling)
+                UpdateResupply();
             UpdateTroops(timeSinceLastUpdate);
 
             if (TimeSinceLastDamage > 10f)
@@ -1564,9 +1607,9 @@ namespace Ship_Game.Ships
         }
 
         // a station, frigate or bigger exploding within a tenth of this cruiser-or-bigger's radius from its center
-        public bool IsStackedOnExplosion(Ship exploding, Vector2 explosionCenter)
+        public bool IsStackedOnExplosion(RoleName explodingHullRole, Vector2 explosionCenter)
         {
-            return exploding.ShipData.HullRole is RoleName.station or (>= RoleName.frigate and <= RoleName.capital)
+            return explodingHullRole is RoleName.station or (>= RoleName.frigate and <= RoleName.capital)
                 && ShipData.HullRole is >= RoleName.cruiser and <= RoleName.capital
                 && Position.InRadius(explosionCenter, Radius * 0.1f);
         }
@@ -1574,24 +1617,48 @@ namespace Ship_Game.Ships
         /// <summary>
         /// Upper bound on this ship's death blast, as a multiple of its hull radius.
         /// </summary>
-        public float ExplosionDamageCap()
+        public float ExplosionDamageCap() => Radius * ExplosionDamageCapPerRadius(ShipData.HullRole);
+
+        public static float ExplosionDamageCapPerRadius(RoleName hullRole)
         {
-            float perRadius;
-            switch (ShipData.HullRole)
+            switch (hullRole)
             {
                 default:
                 case RoleName.drone:
                 case RoleName.scout:
-                case RoleName.fighter:    perRadius = 15; break;
-                case RoleName.corvette:   perRadius = 25; break;
-                case RoleName.frigate:    perRadius = 40; break;
-                case RoleName.cruiser:    perRadius = 60; break;
-                case RoleName.battleship: perRadius = 80; break;
+                case RoleName.fighter:    return 15;
+                case RoleName.corvette:   return 25;
+                case RoleName.frigate:    return 40;
+                case RoleName.cruiser:    return 60;
+                case RoleName.battleship: return 80;
                 case RoleName.capital:
-                case RoleName.station:    perRadius = 100; break;
+                case RoleName.station:    return 100;
             }
+        }
 
-            return Radius * perRadius;
+        // the ShipExplode effect itself has a bit of empty space
+        // so the effect needs to be doubled in size, or in some case more
+        public static float ExplosionEffectScale(RoleName hullRole)
+        {
+            switch (hullRole)
+            {
+                case RoleName.scout:      return 2;
+                case RoleName.fighter:    return 2;
+                case RoleName.corvette:   return 2;
+                case RoleName.frigate:    return 2;
+                case RoleName.battleship: return 3;
+                case RoleName.capital:    return 3;
+                case RoleName.cruiser:    return 3;
+                case RoleName.station:    return 4;
+                default:                  return 3;
+            }
+        }
+
+        public static string DieSoundEffect(int surfaceArea)
+        {
+            if      (surfaceArea < 80)  return "sd_explosion_ship_det_small";
+            else if (surfaceArea < 250) return "sd_explosion_ship_det_medium";
+            else                        return "sd_explosion_ship_det_large";
         }
 
         void AddExplosionEffect(bool addWarpExplode)
@@ -1602,20 +1669,7 @@ namespace Ship_Game.Ships
             float diameter = 2f * Radius * (ShipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
             float explosionSize = PlanetCrash != null ? diameter * 0.05f : diameter * boost;
 
-            // the ShipExplode effect itself has a bit of empty space
-            // so the effect needs to be doubled in size, or in some case more
-            switch (ShipData.HullRole)
-            {
-                case RoleName.scout:      explosionSize *= 2; break;
-                case RoleName.fighter:    explosionSize *= 2; break;
-                case RoleName.corvette:   explosionSize *= 2; break;
-                case RoleName.frigate:    explosionSize *= 2; break;
-                case RoleName.battleship: explosionSize *= 3; break;
-                case RoleName.capital:    explosionSize *= 3; break;
-                case RoleName.cruiser:    explosionSize *= 3; break;
-                case RoleName.station:    explosionSize *= 4; break;
-                default:                  explosionSize *= 3; break;
-            }
+            explosionSize *= ExplosionEffectScale(ShipData.HullRole);
 
             ExplosionManager.AddExplosion(Universe.Screen, position, Velocity, explosionSize, 12f, ExplosionType.Ship);
 
@@ -1658,9 +1712,9 @@ namespace Ship_Game.Ships
                 return; // planet crash or tumble
 
             bool visible = IsVisibleToPlayer;
-            bool leavesDerelict = RolledDerelict && visible;
+            int derelict = RolledDerelict ? DerelictAtDeath(visible) : 0;
             // set before Active goes false, or a removal running on another thread could miss it
-            LeavesDerelict = leavesDerelict ? 1 : 0;
+            LeavesDerelict = derelict;
 
             QueueTotalRemoval(); // sets Active=false, remove thether and from orbital stations
             OnShipDie(pSource);
@@ -1670,19 +1724,34 @@ namespace Ship_Game.Ships
             Carrier.ScuttleHangarShips();
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
-            if (!leavesDerelict)
+            if (derelict == 0)
                 CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly, blast: !RolledDerelict);
         }
 
-        // before the removal, on the thread removing the ship (sim, save or UI); a failure is logged, as a derelict is only a visual
+        // with salvage ops on, it would stop in a system clear of the star's radiation
+        bool StopsWhereSalvageable => Universe.P.SalvageOps && Derelict.SalvageSystemAt(Universe, Derelict.StopPoint(this)) != null;
+
+        // salvageable when its hull's roll did not make it drift and it stops where it can be; else a drifting one, seen or not
+        int DerelictAtDeath(bool seen)
+        {
+            int flags = DerelictLeaves | (seen ? DerelictSeen : 0);
+            if (!RolledDrifting && StopsWhereSalvageable)
+                flags |= DerelictSalvageable;
+            return flags;
+        }
+
+        // before the removal, on the thread removing the ship (sim, save or UI); a failure is logged and leaves no derelict
         public void LeaveDerelict()
         {
-            if (Interlocked.Exchange(ref LeavesDerelict, 0) == 0)
+            int derelict = Interlocked.Exchange(ref LeavesDerelict, 0);
+            if (derelict == 0)
                 return;
+            bool seen = (derelict & DerelictSeen) != 0;
             try
             {
-                if (!Universe.Derelicts.TryAdd(this))
-                    CreateExplosionEffects(visible: true, cleanupOnly: false, blast: false);
+                Empire killer = LastDamagedBy?.GetLoyalty(); // the killing hit's source, which the removal has not cleared yet
+                if (!Universe.Derelicts.TryAdd(this, salvageable: (derelict & DerelictSalvageable) != 0, seen: seen, killer))
+                    CreateExplosionEffects(visible: seen, cleanupOnly: false, blast: false);
             }
             catch (Exception e)
             {
@@ -1690,7 +1759,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // frigate and bigger military ships, and untethered stations that are not research, mining, Dyson swarm or portal stations
+        // frigate and bigger military ships, and untethered stations that are not research, mining, salvage, Dyson swarm or portal stations
         public bool CanBecomeDerelict
         {
             get
@@ -1698,7 +1767,7 @@ namespace Ship_Game.Ships
                 if (IsMeteor || IsLaunchingOrLanding)
                     return false;
                 if (ShipData.IsStation)
-                    return TetheredTo == null && !IsResearchStation && !IsMiningStation && !IsDysonSwarmController
+                    return TetheredTo == null && !IsResearchStation && !IsMiningStation && !IsSalvageStation && !IsDysonSwarmController
                         && !(Loyalty.WeAreRemnants && Name == Loyalty.data.RemnantPortal);
                 return ShipData.HullRole is >= RoleName.frigate and <= RoleName.capital
                     && DesignRoleType is RoleType.Warship or RoleType.WarSupport or RoleType.Troop;
@@ -1717,11 +1786,16 @@ namespace Ship_Game.Ships
             Planet crashPlanet = null;
             bool crashes = tumbles && PlanetCrash.GetPlanetToCrashOn(this, out crashPlanet);
 
-            // a ship that crashes on a planet does not roll for a derelict
-            if (CanBecomeDerelict && (DebugDerelict || !crashes && Loyalty.Random.RollDice(GlobalStats.Defaults.DerelictChance)))
+            // a ship that crashes on a planet does not roll for a derelict; with salvage ops off, one whose hull's roll does not make it drift leaves none and dies as usual
+            if (CanBecomeDerelict && (DebugDerelict != DebugDerelictKind.None || !crashes && Loyalty.Random.RollDice(Universe.Derelicts.Chance(Universe))))
             {
-                RolledDerelict = true;
-                return true;
+                RolledDrifting = DebugDerelict == DebugDerelictKind.Drifting
+                    || DebugDerelict == DebugDerelictKind.None && Universe.Derelicts.RollsDrifting(ShipData.HullRole, Loyalty.Random);
+                if (RolledDrifting || Universe.P.SalvageOps)
+                {
+                    RolledDerelict = true;
+                    return true;
+                }
             }
 
             if (instantKill)
@@ -1760,14 +1834,7 @@ namespace Ship_Game.Ships
         void CreateExplosionEffects(bool visible, bool cleanupOnly, bool blast)
         {
             if (!cleanupOnly && visible)
-            {
-                string dieSoundEffect;
-                if      (SurfaceArea < 80)  dieSoundEffect = "sd_explosion_ship_det_small";
-                else if (SurfaceArea < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
-                else                        dieSoundEffect = "sd_explosion_ship_det_large";
-
-                GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
-            }
+                GameAudio.PlaySfxAsync(DieSoundEffect(SurfaceArea), SoundEmitter);
 
             if (!HasExploded)
             {

@@ -101,6 +101,8 @@ public interface IShipDesign
     bool IsBomber          { get; }
     bool IsResearchStation { get; }
     bool IsMiningStation   { get; }
+    bool IsSalvageStation  { get; }
+    bool IsSalvagePlatform { get; }
     bool IsCandidateForTradingBuild { get; }
     bool IsDysonSwarmController     { get; }
 
@@ -121,6 +123,7 @@ public interface IShipDesign
     float StartingColonyGoods { get; }
     int NumBuildingsDeployed { get; }
     byte NumConstructionModules { get; }
+    byte NumSalvageModules { get; }
 
     // Hangar Templates
     ShipModule[] Hangars { get; }
@@ -151,6 +154,8 @@ public interface IShipDesign
     TacticalIcon GetTacticalIcon();
 
     float GetCost(Empire e, bool ignorePace = false);
+
+    float GetCostBeforeBonuses(float pace);
 
     float GetMaintenanceCost(Empire empire);
 

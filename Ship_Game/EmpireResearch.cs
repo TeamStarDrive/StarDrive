@@ -230,6 +230,8 @@ namespace Ship_Game
                 Log.Error($"SetResearchTopic: Unrecognized tech: {techUID}");
                 return;
             }
+            if (Empire.TryGetTechEntry(techUID, out TechEntry topic) && topic.IsHidden(Empire))
+                return; // it could never unlock
 
             Queue.Remove(techUID);
             Queue.Insert(0, techUID); // this makes it the current ResearchTopic
@@ -243,6 +245,8 @@ namespace Ship_Game
                 Log.Error($"AddToResearchQueue: Unrecognized tech: {techUID}");
                 return false;
             }
+            if (entry.IsHidden(Empire))
+                return false; // it could never unlock
 
             var unlockableModules = entry.GetUnlockableModules(Empire);
             foreach (var module in unlockableModules ) 

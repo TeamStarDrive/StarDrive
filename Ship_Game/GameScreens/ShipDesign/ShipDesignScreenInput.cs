@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using SDGraphics;
 using SDUtils;
@@ -419,6 +420,41 @@ namespace Ship_Game
             return changedArcs;
         }
 
+        public enum StationModuleKind { None, Research, Mining, Salvage }
+
+        public static StationModuleKind StationKindOf(ShipModule m)
+        {
+            return m.ResearchPerTurn > 0 ? StationModuleKind.Research
+                 : m.Refining > 0 ? StationModuleKind.Mining
+                 : m.Salvage ? StationModuleKind.Salvage
+                 : StationModuleKind.None;
+        }
+
+        // research, mining and salvage stations are told apart by their modules, so a design holds only one of those kinds
+        public static bool MixesStationKinds(ShipModule module, IEnumerable<ShipModule> installed)
+        {
+            StationModuleKind kind = StationKindOf(module);
+            if (kind == StationModuleKind.None)
+                return false;
+
+            foreach (ShipModule m in installed)
+            {
+                StationModuleKind other = StationKindOf(m);
+                if (other != StationModuleKind.None && other != kind)
+                    return true;
+            }
+            return false;
+        }
+
+        // the modules left in the design once the module at `replaced`, or every module of `replacedUID`, gives way
+        IEnumerable<ShipModule> ModulesStaying(SlotStruct replaced, string replacedUID)
+        {
+            ShipModule replacedModule = replaced?.Root.Module;
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+                if (slot.Module != null && slot.Module != replacedModule && (replacedUID == null || slot.ModuleUID != replacedUID))
+                    yield return slot.Module;
+        }
+
         void HandlePlaceNewModule(InputState input, SlotStruct slotUnderCursor)
         {
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
@@ -427,6 +463,17 @@ namespace Ship_Game
             if (slotUnderCursor == null)
             { 
                 GameAudio.NegativeClick();
+                return;
+            }
+
+            string replacedUID = input.IsShiftKeyDown ? slotUnderCursor.ModuleUID : null;
+            if (MixesStationKinds(ActiveModule, ModulesStaying(slotUnderCursor, replacedUID)))
+            {
+                if (input.LeftMouseClick)
+                {
+                    GameAudio.NegativeClick();
+                    ToolTip.CreateFloatingText(GameText.CannotMixStationModules, "", input.CursorPosition, 5);
+                }
                 return;
             }
 
@@ -698,6 +745,7 @@ namespace Ship_Game
             Player.UpdateShipsWeCanBuild();
             if (!UnlockAllFactionDesigns && !Player.WeCanBuildThis(toSave.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");
+            Player.ShipDesignsChanged();
             ChangeHull(toSave);
         }
 

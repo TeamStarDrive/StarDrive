@@ -62,6 +62,18 @@ namespace Ship_Game.Ships
             return ship.BaseCargoSpace*0.5f / totalRefiningPerTurn >= NumTurnsForGoodRefiningSupply*0.5f;
         }
 
+        // a salvage platform sends its station its whole hold as one load, so a salvage station needs cargo room for one for each of its salvage units
+        public static float SalvageCargoNeeded(IShipDesign ship) => SalvageLoad * ship.NumSalvageModules;
+
+        public static bool HasRoomForSalvageLoads(IShipDesign ship)
+        {
+            return ship.BaseCargoSpace >= SalvageCargoNeeded(ship);
+        }
+
+        // the Salvage Platform design's cargo room, or none without the design
+        public static float SalvageLoad
+            => ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign platform) ? platform.BaseCargoSpace : 0f;
+
         public static float DamageThreshold(ShipCategory category)
         {
             float threshold;    
@@ -106,7 +118,8 @@ namespace Ship_Game.Ships
 
             if (ResupplyNeededLowOrdnance())
             {
-                if (InCombat || Ship.OrdnancePercent < OrdnanceThresholdCombat)
+                // out of combat a platform or station asks a colony for a supply shuttle however low it runs
+                if (InCombat || Ship.OrdnancePercent < OrdnanceThresholdCombat && !Ship.IsPlatformOrStation)
                     return ResupplyReason.LowOrdnanceCombatOrDepleted;
 
                 return Ship.IsPlatformOrStation ? ResupplyReason.RequestResupplyForOrbital 

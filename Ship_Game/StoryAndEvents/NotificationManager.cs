@@ -1,9 +1,12 @@
 using System;
+using System.Globalization;
+using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -839,6 +842,159 @@ namespace Ship_Game
             }, "smallservo");
         }
 
+        public void AddSalvageStationBuiltNotification(Ship s, SolarSystem system)
+        {
+            if (Screen.UState.P.DisableStationBuiltWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Message         = $"{system.Name}: {s.Name} {Localizer.Token(GameText.SalvageStationBuiltSystemNotify)}",
+                Action          = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath        = s.ShipData.IconPath
+            }, "smallservo");
+        }
+
+        public void AddExcessSalvageStationRemoved(Ship station, SolarSystem system)
+        {
+            AddNotification(new Notification
+            {
+                Message         = Localizer.Token(GameText.RemoveExcessSalvageStation),
+                Action          = "SnapToSystem",
+                ReferencedItem1 = system,
+                IconPath        = station.ShipData.IconPath
+            }, "sd_ui_notification_encounter");
+        }
+
+        // the derelict whose system just joined the player's list of systems with salvageable derelicts
+        public void AddNewDerelictNotification(Derelict d)
+        {
+            if (Screen.UState.P.DisableDerelictWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = string.Format(Localizer.Token(GameText.NewSalvageableDerelict), d.System.Name, d.Design.Name),
+                ReferencedItem1 = d,
+                ReferencedItem2 = d.System,
+                IconPath        = d.Design.BaseHull.IconPath,
+                SymbolPath      = "NewUI/icon_derelict_notification",
+                Action          = "SnapToDerelict"
+            }, "sd_ui_notification_encounter");
+        }
+
+        // a salvage whose platform sent its station its last load: the production its loads brought, then each tech with the research they gave it
+        public void AddSalvageFinishedNotification(SalvageDerelict order)
+        {
+            if (Screen.UState.P.DisableSalvageWarning)
+                return;
+
+            var message = new StringBuilder(string.Format(Localizer.Token(order.CalledOff ? GameText.SalvageCalledOffNotify : GameText.SalvageStrippedNotify),
+                                                          order.TargetSystem.Name, order.DerelictName));
+            message.Append('\n').Append(string.Format(Localizer.Token(GameText.SalvageProductionNotify), order.Delivered.ToString("N0", CultureInfo.InvariantCulture)));
+            for (int i = 0; i < order.Techs.Length; ++i)
+            {
+                string points = order.Gained[i].ToString("N0", CultureInfo.InvariantCulture);
+                if (points != "0" && ResourceManager.TryGetTech(order.Techs[i], out Technology tech))
+                    message.Append('\n').Append(tech.Name.Text).Append(" +").Append(points);
+            }
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = message.ToString(),
+                ReferencedItem1 = order.TargetSystem,
+                IconPath        = order.DerelictIcon,
+                SymbolPath      = "NewUI/icon_salvage_notification",
+                Action          = "SnapToSystem"
+            }, "sd_ui_notification_research_01");
+        }
+
+        public void AddSalvagePlatformDestroyedNotification(SalvageDerelict order)
+            => AddSalvageLostNotification(order, SalvageText(GameText.SalvagePlatformDestroyedNotify, order), order.ToBuild.IconPath);
+
+        public void AddSalvageClaimedFirstNotification(SalvageDerelict order, Empire claimant)
+            => AddSalvageLostNotification(order, SalvageText(GameText.SalvageClaimedFirstNotify, order, claimant.Name), order.DerelictIcon, claimant);
+
+        // the station's icon, or with the station not found since a load the derelict's
+        public void AddSalvageStationLostNotification(SalvageDerelict order, Ship station)
+            => AddSalvageLostNotification(order, SalvageText(GameText.SalvageStationLostNotify, order), station?.ShipData.IconPath ?? order.DerelictIcon);
+
+        // a salvage whose derelict sank away before its constructor started to build
+        public void AddSalvageSankNotification(SalvageDerelict order)
+        {
+            if (Screen.UState.P.DisableSalvageWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = SalvageText(GameText.SalvageSankNotify, order),
+                ReferencedItem1 = order.TargetSystem,
+                IconPath        = order.DerelictIcon,
+                SymbolPath      = "NewUI/icon_derelict_notification",
+                Action          = "SnapToSystem"
+            }, "sd_ui_notification_encounter");
+        }
+
+        // a recovered derelict's ship as it takes the derelict's place; a click selects the ship, or once it is gone shows the system
+        public void AddDerelictRecoveredNotification(Derelict d, Ship ship)
+        {
+            if (Screen.UState.P.DisableSalvageWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = string.Format(Localizer.Token(GameText.DerelictRecoveredNotify), d.System.Name, d.Design.Name),
+                ReferencedItem1 = ship,
+                ReferencedItem2 = d.System,
+                IconPath        = d.Design.BaseHull?.IconPath,
+                SymbolPath      = "NewUI/icon_recovered_notification",
+                Action          = "SnapToShipOrSystem"
+            }, "sd_ui_notification_colonized_01");
+        }
+
+        // a recovery whose roll broke its derelict apart, or blew it up with its platform; a click shows the system, as the derelict is gone
+        public void AddRecoveryFailedNotification(SalvageDerelict order, bool exploded)
+        {
+            if (Screen.UState.P.DisableSalvageWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = SalvageText(exploded ? GameText.RecoveryExplodedNotify : GameText.RecoveryBrokeApartNotify, order),
+                ReferencedItem1 = order.TargetSystem,
+                IconPath        = order.DerelictIcon,
+                SymbolPath      = exploded ? "NewUI/icon_recovery_exploded_notification" : "NewUI/icon_recovery_failed_notification",
+                Action          = "SnapToSystem"
+            }, exploded ? "sd_ui_notification_warning" : "sd_ui_notification_encounter");
+        }
+
+        // a salvage that ended before its platform sent its last load; a click selects the derelict while it can still be salvaged
+        void AddSalvageLostNotification(SalvageDerelict order, string message, string iconPath, Empire claimant = null)
+        {
+            if (Screen.UState.P.DisableSalvageWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = message,
+                RelevantEmpire  = claimant,
+                ReferencedItem1 = order.Derelict,
+                ReferencedItem2 = order.TargetSystem,
+                IconPath        = iconPath,
+                Action          = "SnapToDerelict"
+            }, "sd_ui_notification_warning");
+        }
+
+        static string SalvageText(GameText text, SalvageDerelict order, string empire = null)
+            => string.Format(Localizer.Token(text), order.TargetSystem.Name, order.DerelictName, empire);
+
         public void AddAbortLandNotification(Planet planet, Ship s)
         {
             string message = $"{planet.Name}: {Localizer.Token(GameText.AbortLandPlayerTroopsNoFleet)} {planet.Owner.Name}";
@@ -1001,7 +1157,7 @@ namespace Ship_Game
             }
         }
 
-        Notification[] GetNotificationsAtomic()
+        internal Notification[] GetNotificationsAtomic()
         {
             lock (NotificationList)
                 return NotificationList.ToArr();
@@ -1097,6 +1253,29 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SnapViewShip(s);
+        }
+
+        // a click on a ship no longer in play, or no longer the player's, shows its system
+        public void SnapToShipOrSystem(Ship ship, SolarSystem system)
+        {
+            if (ship is not { Active: true } || ship.Loyalty != Screen.Player)
+            {
+                SnapToSystem(system);
+                return;
+            }
+            SnapToShip(ship);
+        }
+
+        // a click on one that can no longer be salvaged shows its system
+        public void SnapToDerelict(Derelict derelict, SolarSystem system)
+        {
+            if (derelict is not { SelectableByPlayer: true })
+            {
+                SnapToSystem(system);
+                return;
+            }
+            GameAudio.SubBassWhoosh();
+            Screen.SnapViewDerelict(derelict);
         }
 
         public void SnapToExpandedSystem(Planet p, SolarSystem system)

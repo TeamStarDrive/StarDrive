@@ -72,12 +72,15 @@ public sealed class RuleOptionsScreen : GameScreen
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*7, () => P.DisableMiningOps, title: GameText.DisableMiningOpsName, tooltip: GameText.DisableMiningOpsTip);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*8, () => P.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*9, () => P.UseLegacyEspionage, title: GameText.UseLegacyEspionage, tooltip: GameText.UseLegacyEspionageTip);
+        bool salvageOpsEnabled = GlobalStats.Defaults.EnableSalvageOps;
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*10, () => P.DisableSalvageOps, title: GameText.DisableSalvageOpsName,
+                 tooltip: salvageOpsEnabled ? GameText.DisableSalvageOpsTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
 
-        var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 250, 270, 50);
+        var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 275, 270, 50);
         CustomMineralDecay = SliderDecimal1(mdRect, GameText.MineralDecayRate, 0.2f, 3, P.CustomMineralDecay);
         CustomMineralDecay.OnChange = (s) => P.CustomMineralDecay = (s.AbsoluteValue).RoundToFractionOf10();
 
-        var vaRect = new Rectangle(ftlRect.X + indent + 2, ftlRect.Y + 310, 270, 50);
+        var vaRect = new Rectangle(ftlRect.X + indent + 2, ftlRect.Y + 335, 270, 50);
         VolcanicActivity = SliderDecimal1(vaRect, GameText.VolcanicActivity, 0.5f, 3, P.VolcanicActivity);
         VolcanicActivity.OnChange = (s) => P.VolcanicActivity = (s.AbsoluteValue).RoundToFractionOf10();
 

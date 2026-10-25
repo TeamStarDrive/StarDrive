@@ -119,6 +119,37 @@ namespace Ship_Game.Ships
             return true;
         }
 
+        // the food or production it holds goes into its empire's colony as far as the store has room, taxed as a delivery; what has no room turns into credits at the tax rate, paid as a colony's excess goods are
+        public void UnloadIntoColony(Planet colony, Goods goods)
+        {
+            bool food = goods == Goods.Food;
+            float room = colony.Storage.Max - (food ? colony.FoodHere : colony.ProdHere);
+            float taken = food ? UnloadFood(room) : UnloadProduction(room);
+            if (food)
+                colony.FoodHere += taken;
+            else
+                colony.ProdHere += taken;
+            Loyalty.TaxGoods(taken, colony);
+            Loyalty.AddExcessCargoMoney((food ? UnloadFood() : UnloadProduction()) * Loyalty.data.TaxRate);
+        }
+
+        // a colony pickup's floor: a haul needs a freighter with room for at least this, and goes to a colony without an import slot only with room for at least this
+        public const float MinHaulLoad = 3f;
+
+        // a haul's turns: to the station, down on it and off again, then on to the colony and down there; a freighter holding other goods takes none, as a hold carries one kind of good
+        public bool TryGetHaulEta(Ship station, Planet importPlanet, out int eta)
+        {
+            eta = 0;
+            if (CargoRoom < MinHaulLoad || CargoSpaceUsed - GetProduction() >= 1f
+                || !CanTransportGoodsType(Goods.Production) || !InTradingZones(station) || !InTradingZones(importPlanet))
+                return false;
+
+            eta = (int)(GetTradeDepartureTime() + GetAstrogateTimeTo(station) + GetStationLandingTime()
+                        + LaunchShip.TakeOffSeconds(this, fromDock: true) / Universe.P.TurnTimer
+                        + GetAstrogateTimeBetween(station, importPlanet) + GetTradeLandingTime(importPlanet));
+            return TradeDistanceOk(importPlanet, eta);
+        }
+
         public struct ExportPlanetAndEta
         {
             public readonly Planet Planet;
@@ -176,6 +207,13 @@ namespace Ship_Game.Ships
             if (ordnance > 0f && target.InFrustum && Universe.IsPlanetViewOrCloser && InPlayerSensorRange)
                 Universe.Screen.CargoShuttles.SendShipToShip(this, target, Loyalty.EmpireColor,
                     CargoShuttles.OrdnanceShuttlesFor(ordnance), CargoShuttles.OrdnanceShuttleSeconds);
+        }
+
+        public void SendRefundShuttlesDown(Planet planet, float production)
+        {
+            if (production > 0f && CargoShuttlesShown(planet))
+                Universe.Screen.CargoShuttles.SendDown(planet, Position.ToVec3(), Loyalty.EmpireColor,
+                    CargoShuttles.RefundShuttlesFor(production), CargoShuttles.RefundShuttleSeconds);
         }
 
         public void RemoveTradeRoute(Planet planet)

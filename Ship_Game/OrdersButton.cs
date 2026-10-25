@@ -149,6 +149,8 @@ namespace Ship_Game
                 for (int i = 0; i < ShipList.Count; i++)
                 {
                     Ship ship = ShipList[i];
+                    if (ship.DeliversRefund) // a builder carrying a refund takes no orders
+                        continue;
                     switch (OrderType)
                     {
                         case OrderType.Patrol:             OnPatrolClicked(input);                                 return true;

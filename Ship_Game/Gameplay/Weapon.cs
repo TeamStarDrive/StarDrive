@@ -143,7 +143,7 @@ namespace Ship_Game.Gameplay
 
         bool CanFireWeapon()
         {
-            return Module.Active && Module.Powered
+            return Module.Active && Module.Powered && !Owner.Dismantling
                 && Owner.engineState  != Ship.MoveState.Warp
                 && Owner.PowerCurrent >= PowerPerShot
                 && Owner.Ordinance    >= OrdnancePerShot

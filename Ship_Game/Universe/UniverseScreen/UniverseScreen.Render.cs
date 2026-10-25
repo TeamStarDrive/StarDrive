@@ -490,6 +490,7 @@ namespace Ship_Game
             Frustum.Matrix = ViewProjection;
 
             CreateShipSceneObjects();
+            UState.Derelicts.LoadModels(this);
 
             BeginSunburnPerf.Start();
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);

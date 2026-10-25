@@ -161,7 +161,7 @@ namespace UnitTests.Technologies
             UnlockTech(Enemy, "Centralized Banking");
             UnlockTech(Enemy, "Disintegrator Array");
             TechEntry[] enemyTechs = Enemy.UnlockedTechs;
-            Player.AssimilateTech(Enemy);
+            Player.AssimilateTech(Enemy, fromSave: false);
 
             TechEntry[] playerTechs2 = Player.UnlockedTechs.Sorted(e => e.UID);
             TechEntry[] newUnlocks = playerTechs2.Except(playerTechs).Sorted(e => e.UID);

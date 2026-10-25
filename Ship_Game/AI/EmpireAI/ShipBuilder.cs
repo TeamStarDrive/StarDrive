@@ -1,4 +1,5 @@
 using System;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
@@ -70,7 +71,8 @@ namespace Ship_Game.AI
                                           && !s.IsSubspaceProjector
                                           && !s.IsDysonSwarmController
                                           && !s.IsResearchStation
-                                          && !s.IsMiningStation);
+                                          && !s.IsMiningStation
+                                          && !s.IsSalvageStation);
 
             if (potentialShips.Count == 0)
             {
@@ -315,6 +317,59 @@ namespace Ship_Game.AI
             }
         }
 
+        // the player's Automation window design with auto pick off, else the race's default, as long as it can be built and holds a salvage platform's load for each of its salvage units; otherwise the best pick for the derelicts the empire would work in the system, or with no system the most salvage units
+        public static IShipDesign PickSalvageStation(Empire empire, SolarSystem system = null)
+        {
+            if (empire.isPlayer && !empire.AutoPickBestSalvageStation)
+            {
+                IShipDesign chosen = BuildableSalvageStation(empire, empire.data.CurrentSalvageStation)
+                                  ?? BuildableSalvageStation(empire, empire.data.DefaultSalvageStation);
+                if (chosen != null)
+                    return chosen;
+            }
+            return BestSalvageStation(empire, system != null ? SalvageOps.DerelictsToWorkIn(empire, system) : int.MaxValue);
+        }
+
+        public static bool IsUsableSalvageStation(IShipDesign design)
+        {
+            return design.IsSalvageStation && ShipResupply.HasRoomForSalvageLoads(design);
+        }
+
+        static IShipDesign BuildableSalvageStation(Empire empire, string name)
+        {
+            if (name.IsEmpty())
+                return null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+                if (IsUsableSalvageStation(design) && design.Name == name)
+                    return design;
+            return null;
+        }
+
+        // the most salvage modules up to the derelicts to work, then the fewest beyond them, then the most cargo room, then the sturdiest per slot; null until one can be built
+        static IShipDesign BestSalvageStation(Empire empire, int derelicts)
+        {
+            IShipDesign best = null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+            {
+                if (IsUsableSalvageStation(design) && (best == null || IsBetterSalvageStation(design, best, empire, derelicts)))
+                    best = design;
+            }
+            return best;
+        }
+
+        static bool IsBetterSalvageStation(IShipDesign a, IShipDesign b, Empire empire, int derelicts)
+        {
+            int aAtWork = Math.Min(a.NumSalvageModules, derelicts);
+            int bAtWork = Math.Min(b.NumSalvageModules, derelicts);
+            if (aAtWork != bAtWork)
+                return aAtWork > bAtWork;
+            if (a.NumSalvageModules != b.NumSalvageModules)
+                return a.NumSalvageModules < b.NumSalvageModules;
+            if (a.BaseCargoSpace != b.BaseCargoSpace)
+                return a.BaseCargoSpace > b.BaseCargoSpace;
+            return a.GetStrength(empire) / a.SurfaceArea > b.GetStrength(empire) / b.SurfaceArea;
+        }
+
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig, int levelsOfPiratesAtWarWithUs)
         {
             float maxKFTL  = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
@@ -470,6 +525,7 @@ namespace Ship_Game.AI
                 || bestShip.IsSubspaceProjector
                 || bestShip.IsResearchStation
                 || bestShip.IsMiningStation
+                || bestShip.IsSalvageStation
                 || bestShip.IsDysonSwarmController)
             {
                 return null;

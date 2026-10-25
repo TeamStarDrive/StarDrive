@@ -111,6 +111,7 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EspionageManager.cs" />
     <Compile Include="Ship_Game\AI\ExpansionAI\MiningOpsPlanner.cs" />
     <Compile Include="Ship_Game\AI\ExpansionAI\ResearchStationPlanner.cs" />
+    <Compile Include="Ship_Game\AI\ExpansionAI\SalvageOpsPlanner.cs" />
     <Compile Include="Ship_Game\AI\GravityWellRouter.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI_Trade.cs" />
     <Compile Include="Ship_Game\AI\ThreatCluster.cs" />
@@ -150,6 +151,10 @@
     <Compile Include="Ship_Game\Audio\NAudio\NAudioSampleMixer.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MiningOps.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\SalvageOps.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\SalvageDerelict.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\DismantleOrbital.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\DeliverRefund.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantDefendPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\InhibitorInvestigate.cs" />
     <Compile Include="Ship_Game\Commands\Goals\SupplyGoodsToStation.cs" />
@@ -350,6 +355,12 @@
     <Compile Include="Ship_Game\Ships\ConstructionShip.cs" />
     <Compile Include="Ship_Game\Ships\Derelict.cs" />
     <Compile Include="Ship_Game\Ships\Derelicts.cs" />
+    <Compile Include="Ship_Game\Ships\DerelictInfoUIElement.cs" />
+    <Compile Include="Ship_Game\Ships\DerelictRecovery.cs" />
+    <Compile Include="Ship_Game\Ships\DerelictSalvageButton.cs" />
+    <Compile Include="Ship_Game\Ships\DerelictTechIcons.cs" />
+    <Compile Include="Ship_Game\Ships\FittedStatus.cs" />
+    <Compile Include="Ship_Game\Ships\SystemDerelictsScreen.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\EngineTrail.cs" />
     <Compile Include="Ship_Game\Ships\ExternalSlotGrid.cs" />

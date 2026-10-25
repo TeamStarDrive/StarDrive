@@ -108,6 +108,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckTargets(ds.PoweredWeapons, S.TrackingPower);
                 Issues.CheckLowResearchTime(ds.ResearchTime());
                 Issues.CheckLowRefiningTime(ds.RefiningTime());
+                Issues.CheckLowSalvageCargo();
                 Issues.CheckSecondaryCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange);
                 Issues.CheckConstructorCost(S.IsConstructor, S.GetCost(S.Universe.Player));
                 Issues.CheckDedicatedCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange, S.SensorRange,

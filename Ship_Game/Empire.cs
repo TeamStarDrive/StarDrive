@@ -54,6 +54,8 @@ namespace Ship_Game
 
         [StarData] readonly Array<Planet> OwnedPlanets;
         [StarData] readonly Array<SolarSystem> OwnedSolarSystems;
+        // the systems with salvageable derelicts it knows of, so it knows every derelict in them; on the sim thread, rebuilt on load
+        public readonly HashSet<SolarSystem> DerelictSystems = new();
         public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
         public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
 
@@ -65,6 +67,23 @@ namespace Ship_Game
         [StarData] public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName => data.PortraitName;
+
+        // its race's Skilled or Haphazard Engineers, which derelict recovery goes by, read again only when its traits change
+        public float RaceEngineers
+        {
+            get
+            {
+                string traits = data.SelectedTraitSet;
+                if (!ReferenceEquals(traits, EngineersReadFrom))
+                {
+                    Engineers = DerelictRecovery.EngineersOf(traits);
+                    EngineersReadFrom = traits;
+                }
+                return Engineers;
+            }
+        }
+        string EngineersReadFrom;
+        float Engineers;
         public bool ScanComplete = true;
 
         [StarData] public bool AutoTaxes;
@@ -87,7 +106,7 @@ namespace Ship_Game
         [StarData] public EmpireAI AI;
         public ThreatMatrix Threats => AI.ThreatMatrix;
 
-        [StarData] float UpdateTimer;
+        [StarData] internal float UpdateTimer;
 
         [StarData] public bool isPlayer;
         [StarData] public bool IsDefeated { get; private set; }
@@ -106,6 +125,8 @@ namespace Ship_Game
         public float GrossPlanetIncome { get; private set; }
         public float PotentialIncome { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
+        [StarData] public float ExcessCargoMoney { get; private set; } // tax on food and production a full colony store could not take from a ship, and on a refund no colony could take, since the last turn's income
+        float ExcessCargoMoneyCollected; // that tax as the last turn's income collected it
         public float MoneyLastTurn;
         [StarData] public float AllTimeTradeIncome;
         [StarData] public bool AutoBuildSpaceRoads;
@@ -114,6 +135,7 @@ namespace Ship_Game
         [StarData] public bool AutoResearch;
         [StarData] public bool AutoBuildResearchStations;
         [StarData] public bool AutoBuildMiningStations;
+        [StarData] public bool AutoBuildSalvageStations;
         [StarData] public int TotalScore;
         [StarData] public float TechScore;
         [StarData] public float ExpansionScore;
@@ -141,6 +163,7 @@ namespace Ship_Game
         public bool CanBuildShipyards { get; private set; }
         public bool CanBuildResearchStations { get; private set; }
         public bool CanBuildMiningStations { get; private set; }
+        public bool CanBuildSalvageStations { get; private set; }
         [StarData] public float CurrentMilitaryStrength;
         [StarData] public float OffensiveStrength; // No Orbitals
         [StarData] public LoyaltyLists EmpireShips;
@@ -172,6 +195,7 @@ namespace Ship_Game
         [StarData] public bool AutoBuildTerraformers;
         [StarData] public bool AutoPickBestResearchStation;
         [StarData] public bool AutoPickBestMiningStation;
+        [StarData] public bool AutoPickBestSalvageStation;
         [StarData] public bool SymmetricDesignMode = true;
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
@@ -217,6 +241,27 @@ namespace Ship_Game
         // per-faction pseudo-random source
         public readonly RandomBase Random = new ThreadSafeRandom();
 
+        // picked as the empire is made and saved, for the draws a reload must not change
+        [StarData] public int LuckSeed { get; private set; }
+
+        // a draw from 0 to 1 that is this empire's own for what it rolls, the same after every load: the key names what is rolled, such as an object's id, and the index which of its draws
+        public float Luck(int key, int index)
+        {
+            ulong x = Mix(((ulong)(uint)LuckSeed << 32) | (uint)Id);
+            x = Mix(x ^ (uint)key);
+            x = Mix(x ^ (uint)index);
+            return (x >> 40) / (float)(1 << 24); // 24 bits make a float in [0, 1)
+        }
+
+        // the SplitMix64 finish, so seeds, ids and keys next to each other draw unalike
+        static ulong Mix(ulong x)
+        {
+            x += 0x9E3779B97F4A7C15UL;
+            x = (x ^ (x >> 30)) * 0xBF58476D1CE4E5B9UL;
+            x = (x ^ (x >> 27)) * 0x94D049BB133111EBUL;
+            return x ^ (x >> 31);
+        }
+
         /// <summary>
         /// Empire unique ID. If this is 0, then this empire is invalid!
         /// Set in UniverseState_Empires.cs
@@ -238,6 +283,7 @@ namespace Ship_Game
         public Empire(UniverseState us)
         {
             Universe = us;
+            LuckSeed = Random.Int(1, int.MaxValue - 1);
             Research = new(this);
 
             EmpireShips = new(this);
@@ -271,6 +317,7 @@ namespace Ship_Game
         {
             this.data = data;
             IsFaction = true;
+            LuckSeed = parentEmpire.LuckSeed; // so a reload that raises them again draws the same for them; their id keeps their draws their own
             EmpireColor = new Color(128, 128, 128, 255);
 
             // clone the entire tech tree
@@ -341,6 +388,12 @@ namespace Ship_Game
         public void AddMoney(float moneyDiff)
         {
             Money += moneyDiff;
+        }
+
+        // paid with the next turn's income, among the excess goods
+        public void AddExcessCargoMoney(float money)
+        {
+            ExcessCargoMoney += money;
         }
 
         public void TriggerAllShipStatusUpdate()
@@ -476,16 +529,17 @@ namespace Ship_Game
                 rel.Them.GetRelations(this).AtWar = false;
             }
 
+            Empire rebels = Universe.CreateRebelsFromEmpireData(data, this);
+            Universe.Stats.UpdateEmpire(Universe.StarDate, rebels);
+
             foreach (Ship ship in OwnedShips)
             {
                 ship.AI.ClearOrders();
             }
+            SalvageDerelict.PassOn(this, rebels);
             AI.ClearGoals();
             AI.EndAllTasks();
             ResetFleets();
-
-            Empire rebels = Universe.CreateRebelsFromEmpireData(data, this);
-            Universe.Stats.UpdateEmpire(Universe.StarDate, rebels);
 
             foreach (Ship s in OwnedShips)
             {
@@ -585,6 +639,7 @@ namespace Ship_Game
             {
                 if (tech.CanBeResearched
                     && tech.Discovered
+                    && !tech.IsHidden(this)
                     && (tech.shipDesignsCanuseThis || tech.Tech.BonusUnlocked.NotEmpty)
                     && HavePreReq(tech.UID))
                 {
@@ -751,21 +806,7 @@ namespace Ship_Game
 
         public void ResetTechsAndUnlocks()
         {
-            IShipDesign[] ourShips = AllFactionShipDesigns;
-
-            foreach (TechEntry entry in TechEntries)
-            {
-                var tech = entry.Tech;
-                bool modulesNotHulls = tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0;
-                if (modulesNotHulls && !WeCanUseThisInDesigns(entry, ourShips))
-                    entry.shipDesignsCanuseThis = false;
-            }
-
-            foreach (TechEntry entry in TechEntries)
-            {
-                if (!entry.shipDesignsCanuseThis)
-                    entry.shipDesignsCanuseThis = WeCanUseThisLater(entry);
-            }
+            UpdateShipDesignTechUse();
 
             foreach (TechEntry entry in TechEntries)
             {
@@ -777,6 +818,37 @@ namespace Ship_Game
             {
                 entry.UnlockFromSave(this, unlockBonuses: false);
             }
+        }
+
+        // a tech that unlocks modules and no hull is of use while a design of the race, shipyards and the salvage platform left out, has one of them, or it leads to a tech of use
+        void UpdateShipDesignTechUse()
+        {
+            IShipDesign[] ourShips = AllFactionShipDesigns.Filter(d => !d.IsShipyard && !d.IsSalvagePlatform);
+
+            foreach (TechEntry entry in TechEntries)
+            {
+                var tech = entry.Tech;
+                bool modulesNotHulls = tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0;
+                entry.shipDesignsCanuseThis = !modulesNotHulls || WeCanUseThisInDesigns(entry, ourShips);
+            }
+
+            foreach (TechEntry entry in TechEntries)
+            {
+                if (!entry.shipDesignsCanuseThis)
+                    entry.shipDesignsCanuseThis = WeCanUseThisLater(entry);
+            }
+        }
+
+        // the race's designs read again, and what they use, on the sim thread as research reads it
+        public void ShipDesignsChanged()
+        {
+            if (Universe?.Screen is { IsOnSimThread: false } screen)
+            {
+                screen.RunOnSimThread(ShipDesignsChanged);
+                return;
+            }
+            FactionDesignsCache = null;
+            UpdateShipDesignTechUse();
         }
 
         void CreateEmpireTechTree()
@@ -807,6 +879,13 @@ namespace Ship_Game
                         entry.ForceNeedsFullResearch();
 
                     TechnologyDict.Add(tech.UID, entry);
+                }
+                else if (TechnologyDict[tech.UID] is { } saved && saved.IsHidden(this)) // hidden since the save, as a mod turned its feature off
+                {
+                    if (Research.IsQueued(tech.UID))
+                        Research.RemoveFromQueue(tech.UID);
+                    if (saved.Locked)
+                        saved.SetDiscovered(false);
                 }
             }
         }
@@ -1027,12 +1106,12 @@ namespace Ship_Game
             }
         }
 
-        public void AssimilateTech(Empire conqueredEmpire)
+        public void AssimilateTech(Empire conqueredEmpire, bool fromSave)
         {
             foreach (TechEntry conquered in conqueredEmpire.TechEntries)
             {
                 TechEntry ourTech = GetTechEntry(conquered.UID);
-                ourTech.UnlockByConquest(this, conqueredEmpire, conquered);
+                ourTech.UnlockByConquest(this, conqueredEmpire, conquered, fromSave);
             }
         }
 
@@ -1292,6 +1371,9 @@ namespace Ship_Game
 
             if (s.IsMiningStation)
                 CanBuildMiningStations= true;
+
+            if (s.IsSalvageStation)
+                CanBuildSalvageStations = true;
         }
 
         public void ApplyModuleHealthTechBonus(float bonus)
@@ -1372,6 +1454,8 @@ namespace Ship_Game
             ++TurnCount;
 
             UpdateTradeIncome();
+            ExcessCargoMoneyCollected = ExcessCargoMoney; // once a turn, as the budget screen updates incomes between turns too
+            ExcessCargoMoney = 0f;
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             UpdatePlanetStorageStats();
@@ -1413,7 +1497,7 @@ namespace Ship_Game
             NetPlanetIncomes              = 0;
             TroopCostOnPlanets            = 0;
             GrossPlanetIncome             = 0;
-            ExcessGoodsMoneyAddedThisTurn = 0;
+            ExcessGoodsMoneyAddedThisTurn = ExcessCargoMoneyCollected;
             PotentialIncome               = 0;
             TotalFoodPerColonist          = 0;
 
@@ -2246,6 +2330,12 @@ namespace Ship_Game
 
         public void AbsorbEmpire(Empire target)
         {
+            if (Universe.Screen is { IsOnSimThread: false } screen) // a federation accepted in the diplomacy screen
+            {
+                screen.RunOnSimThread(() => AbsorbEmpire(target));
+                return;
+            }
+
             AbsorbAllEnvPreferences(target);
             var planets = target.GetPlanets();
             for (int i = planets.Count-1; i >= 0; i--)
@@ -2296,10 +2386,10 @@ namespace Ship_Game
                     ship.AI.OrderScuttleShip();
             }
 
-            AssimilateTech(target);
+            AssimilateTech(target, fromSave: false);
             foreach (TechEntry techEntry in target.TechEntries)
             {
-                if (techEntry.Unlocked)
+                if (techEntry.Unlocked && !techEntry.IsMultiLevel) // a multi-level tech came to its level in AssimilateTech
                     AcquireTech(techEntry.UID, target, TechUnlockType.Normal);
             }
             foreach (KeyValuePair<string, bool> kv in target.UnlockedHullsDict)
@@ -2328,7 +2418,10 @@ namespace Ship_Game
                 Money += target.Money;
                 target.Money = 0.0f;
             }
+            ExcessCargoMoney += target.ExcessCargoMoney; // its credits still to come with a turn's income
+            target.ExcessCargoMoney = 0f;
 
+            SalvageDerelict.PassOn(target, this);
             target.AI.SpaceRoadsManager.RemoveSpaceRoadsByAbsorb();
             target.SetAsMerged();
             ResetBorders();
@@ -2344,6 +2437,7 @@ namespace Ship_Game
             target.data.AgentList.Clear();
             target.data.AbsorbedBy = data.Traits.Name;
             ThirdPartyAbsorb(target);
+            ShipDesignsChanged(); // its race's designs are ours now too
             CalculateScore();
         }
 
