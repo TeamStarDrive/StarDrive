@@ -1,11 +1,16 @@
 using System;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.LoadGame;
+using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
 #pragma warning disable CA2213
 
@@ -207,6 +212,105 @@ public class FreighterLandingTests : StarDriveTest
         freighter.AI.SetupFreighterPlan(Importer, Importer, Goods.Food);
         RunSimWhile((simTimeout: 120, fatal: true), () => freighter.LandShip is not { Docked: true });
         return freighter;
+    }
+
+    // a model just made for the landing freighter, hidden as a landing ship's new model is, with no launch or land look yet
+    SceneObject FreshModelOnScreen(Ship freighter)
+    {
+        var so = new SceneObject(freighter.Name) { Visibility = ObjectVisibility.None };
+        typeof(Ship).GetField("ShipSO", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(freighter, so);
+        freighter.KnownByEmpires.SetSeen(Player);
+        freighter.InFrustum = true;
+        Assert.IsTrue(freighter.IsVisibleToPlayer, "setup: the freighter's colony is on screen");
+        return so;
+    }
+
+    [TestMethod]
+    public void ADockedFreighterDropsAModelItGets()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        FreshModelOnScreen(freighter);
+        freighter.Update(TestSimStep);
+
+        Assert.IsNull(freighter.GetSO(), "a landed freighter is down on the planet, not standing at the galaxy center (#483)");
+    }
+
+    [TestMethod]
+    public void ALandingFreighterShowsAModelItGetsWhereItIs()
+    {
+        Assert.IsFalse(Importer.HasSpacePort, "setup: the freighter lands on the planet itself");
+        Ship freighter = SpawnFreighter(Importer, new Vector2(8000, 0));
+        freighter.LoadFood(5f);
+        freighter.AI.SetupFreighterPlan(Importer, Importer, Goods.Food);
+        RunUntilLanding(freighter);
+        RunObjectsSim(new FixedSimTime(LaunchShip.PlanetDuration(freighter) * 0.25f)); // past the landing's first flashes, which need particles
+        SceneObject so = FreshModelOnScreen(freighter);
+        freighter.Update(TestSimStep);
+
+        Assert.IsFalse(freighter.LandShip.Done, "setup: the freighter is still on its way down");
+        Assert.AreSame(so, freighter.GetSO(), "a landing freighter keeps its model");
+        AssertEqual(GlobalStats.ShipVisibility, so.Visibility, "and shows it once it lands on screen");
+        var at = new Vector2(so.World.Translation.X, so.World.Translation.Y);
+        AssertLessThan(at.Distance(freighter.Position), 1000f, "placed where it lands");
+    }
+
+    [TestMethod]
+    public void AFreighterGettingAModelAsItTouchesDownTakesTheLandedPose()
+    {
+        Assert.IsFalse(Importer.HasSpacePort, "setup: the freighter lands on the planet itself");
+        Ship freighter = SpawnFreighter(Importer, new Vector2(8000, 0));
+        freighter.LoadFood(5f);
+        freighter.AI.SetupFreighterPlan(Importer, Importer, Goods.Food);
+        RunUntilLanding(freighter);
+        float stepPart = TestSimStep.FixedTime / LaunchShip.PlanetDuration(freighter);
+        float LandingProgress()
+        {
+            object landing = typeof(LandShip).GetField("PlanetLanding", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(freighter.LandShip);
+            return (float)landing!.GetType().GetField("Progress", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(landing)!;
+        }
+        while (LandingProgress() + stepPart < 1f)
+            RunObjectsSim(TestSimStep);
+
+        SceneObject so = FreshModelOnScreen(freighter);
+        Universe.Particles = new ParticleManager(Content);
+        try
+        {
+            freighter.Update(TestSimStep);
+        }
+        finally
+        {
+            Universe.Particles.Dispose();
+            Universe.Particles = null;
+        }
+
+        Assert.IsTrue(freighter.LandShip.Done, "setup: this was the touchdown step");
+        Assert.AreSame(so, freighter.GetSO(), "setup: the model goes only on the next step");
+        float scale = Math.Abs(so.World.M11) + Math.Abs(so.World.M12) + Math.Abs(so.World.M13);
+        AssertLessThan(scale, 0.01f, "a model that arrives as the freighter touches down is shrunk into the planet, not shown full size");
+    }
+
+    [TestMethod]
+    public void ADockedFreighterTakingOffOnScreenIsQueuedForAModel()
+    {
+        Ship freighter = DockAfterUnloadingAtImporter();
+        Assert.IsNull(freighter.GetSO(), "setup: a docked freighter holds no model");
+        freighter.TakeOffAfterTrading();
+        freighter.KnownByEmpires.SetSeen(Player);
+        freighter.InFrustum = true;
+        Universe.Particles = new ParticleManager(Content);
+        try
+        {
+            freighter.Update(TestSimStep);
+        }
+        finally
+        {
+            Universe.Particles.Dispose();
+            Universe.Particles = null;
+        }
+
+        Assert.IsTrue(freighter.IsLaunching, "setup: the freighter takes off");
+        var queued = (Array<Ship>)typeof(UniverseScreen).GetField("SceneObjFrontQueue", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(Universe);
+        Assert.IsTrue(queued.ContainsRef(freighter), "taking off on screen, it gets a model again");
     }
 
     void LetImporterExportProductionToExporter()
