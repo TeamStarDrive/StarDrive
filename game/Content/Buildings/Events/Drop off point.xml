@@ -9,7 +9,7 @@
   <PlusFlatFoodAmount>2</PlusFlatFoodAmount>
   <PlusFlatProductionAmount>3</PlusFlatProductionAmount>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  <Scrappable>true</Scrappable>
+  <Scrappable>false</Scrappable>
   <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18114</NameTranslationIndex>
