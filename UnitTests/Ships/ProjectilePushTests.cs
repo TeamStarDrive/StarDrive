@@ -16,11 +16,12 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// A shell that costs ordnance weighs 5 per ordnance point and, as it hits a ship, changes the ship's velocity by
-/// its momentum relative to the ship over the ship's mass, through shields too; a missile, rocket or torpedo (guided,
-/// or tagged missile or torpedo) by half that, while a cannon shell pushes fully though it explodes. A MIRV
-/// warhead counts its share of the ordnance its shot cost. Plasma and drones push nothing. A push never takes a ship
-/// past the greater of its top speed and its speed now, and stations and ships at warp, launching, landing or
-/// crashing onto a planet are not moved.
+/// its momentum relative to the ship over the ship's mass; a missile, rocket or torpedo (guided, or tagged missile or
+/// torpedo) by half that, while a cannon shell pushes fully though it explodes. A MIRV warhead counts its share of the
+/// ordnance its shot cost. Plasma and drones push nothing, nor does a hit on a raised shield, even one that breaks it,
+/// unless the shell penetrates shields, or one that kills the ship, whose wreck keeps the motion it had. A shell that
+/// armor deflects pushes along the path it struck on. A push never takes a ship past the greater of its top speed and
+/// its speed now, and stations and ships at warp, launching, landing or crashing onto a planet are not moved.
 /// </summary>
 [TestClass]
 public class ProjectilePushTests : StarDriveTest
@@ -64,16 +65,20 @@ public class ProjectilePushTests : StarDriveTest
         return new Weapon(UState, copy, attacker, null);
     }
 
-    // a shell flying at the given velocity strikes the target's first module
-    static void Hit(Weapon w, Ship target, Vector2 shellVelocity, ShipModule module = null)
+    // a shell flying at the given velocity strikes the target's first module, or the one given, where given
+    static void Hit(Weapon w, Ship target, Vector2 shellVelocity, ShipModule module = null, float damage = 1f, Vector2? at = null,
+                    bool penetratesShields = false)
     {
         Projectile shell = Projectile.Create(w, w.Owner, target.Position + new Vector2(0, -target.Radius - 500f),
                                              new Vector2(0, 1), target, playSound: false);
         shell.Velocity = shellVelocity;
-        shell.DamageAmount = 1f;
+        shell.DamageAmount = damage;
+        shell.IgnoresShields = penetratesShields;
         module ??= target.Modules[0];
-        Assert.IsTrue(shell.Touch(module, module.Position), "setup: the shell hits the ship");
+        Assert.IsTrue(shell.Touch(module, at ?? module.Position), "setup: the shell hits the ship");
     }
+
+    static readonly FieldInfo HitRollSeconds = typeof(Ship).GetField("HitRollSeconds", BindingFlags.Instance | BindingFlags.NonPublic);
 
     [TestMethod]
     public void AShellPushesTheShipByFiveTimesItsOrdnanceCostTimesItsVelocityOverTheShipsMass()
@@ -137,7 +142,29 @@ public class ProjectilePushTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AShieldDoesNotStopThePush()
+    public void AHitOnARaisedShieldNeitherPushesNorRollsTheShipEvenWhenItBreaksTheShield()
+    {
+        Weapon massDriver = CreateWeapon("MassDriver");
+        Ship target = SpawnShip("Dreadnought mk1-a", Player, Site(0));
+        target.Velocity = Vector2.Zero;
+        ShipModule shield = target.GetShields().First();
+        Assert.IsTrue(shield.ShieldsAreActive, "setup: the shield is up");
+        Vector2 offCenter = target.Position + new Vector2(target.Radius * 0.5f, 0f);
+
+        Hit(massDriver, target, new Vector2(0f, 1600f), shield, damage: shield.ShieldPower + 500f, at: offCenter);
+
+        Assert.IsFalse(shield.ShieldsAreActive, "setup: the shell breaks the shield");
+        AssertEqual(Vector2.Zero, target.Velocity, "a hit on a raised shield pushes nothing");
+        AssertEqual(0f, (float)HitRollSeconds.GetValue(target), "nor rolls the ship");
+
+        DrainShields(target);
+        Hit(massDriver, target, new Vector2(0f, 1600f), target.Modules[0], at: offCenter);
+        AssertEqual(0.0001f, 13f * 5f * 1600f / target.Mass, target.Velocity.Y, "while a shell that meets no raised shield pushes");
+        AssertGreaterThan((float)HitRollSeconds.GetValue(target), 0f, "and rolls it");
+    }
+
+    [TestMethod]
+    public void AShellThatPenetratesShieldsPushesThoughItLandsOnARaisedOne()
     {
         Weapon massDriver = CreateWeapon("MassDriver");
         Ship target = SpawnShip("Dreadnought mk1-a", Player, Site(0));
@@ -145,9 +172,57 @@ public class ProjectilePushTests : StarDriveTest
         ShipModule shield = target.GetShields().First();
         Assert.IsTrue(shield.ShieldsAreActive, "setup: the shield is up");
 
-        Hit(massDriver, target, new Vector2(0f, 1600f), shield);
+        Hit(massDriver, target, new Vector2(0f, 1600f), shield, penetratesShields: true);
 
-        AssertEqual(0.0001f, 13f * 5f * 1600f / target.Mass, target.Velocity.Y, "the push reaches the ship through its shield");
+        AssertEqual(0.0001f, 13f * 5f * 1600f / target.Mass, target.Velocity.Y, "a shell that rolled its shield penetration pushes through the bubble");
+    }
+
+    [TestMethod]
+    public void ADeflectedShellPushesAlongThePathItStruckOn()
+    {
+        Weapon railgun = CreateWeapon("Railgun");
+        Assert.IsFalse(railgun.Explodes, "setup: a railgun shell does not explode, so armor can deflect it");
+        Ship target = SpawnTarget("Dreadnought mk1-a", 0);
+        ShipModule armor = target.Modules.First(m => m.Is(ShipModuleType.Armor));
+        FieldInfo deflection = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.Deflection));
+        float saved = armor.Deflection;
+        target.InFrustum = true;
+        UState.ViewState = UniverseScreen.UnivScreenState.ShipView; // a shell is deflected only on screen, at ship view or closer
+        try
+        {
+            deflection.SetValue(armor.Flyweight, 100f);
+            Projectile shell = Projectile.Create(railgun, railgun.Owner, target.Position + new Vector2(0, -target.Radius - 500f),
+                                                 new Vector2(0, 1), target, playSound: false);
+            shell.Velocity = new Vector2(0f, 1600f);
+            shell.DamageAmount = 1f;
+            shell.ArmorPiercing = 0; // so it strikes the armor rather than passing through it
+            AssertEqual(100f, armor.Deflection, "setup: the armor deflects weak shots");
+            Assert.IsTrue(target.InFrustum && UState.IsShipViewOrCloser, "setup: on screen");
+
+            Assert.IsTrue(shell.Touch(armor, armor.Position), "setup: the shell hits the ship");
+
+            Assert.AreEqual(target.Loyalty, shell.Loyalty, "setup: the armor deflects the shell, which turns away");
+            AssertEqual(0.0001f, new Vector2(0f, 2.8f * 5f * 1600f / target.Mass), target.Velocity,
+                        "the ship is pushed along the path the shell struck on, not the one it turned to");
+        }
+        finally
+        {
+            deflection.SetValue(armor.Flyweight, saved);
+        }
+    }
+
+    [TestMethod]
+    public void AHitThatKillsTheShipPushesNothingSoItsWreckKeepsTheMotionItHad()
+    {
+        Weapon massDriver = CreateWeapon("MassDriver");
+        Ship target = SpawnTarget("Vulcan Scout", 0);
+        var motion = new Vector2(target.MaxSTLSpeed * 0.25f, 0f);
+        target.Velocity = motion;
+
+        Hit(massDriver, target, new Vector2(0f, 1600f), damage: 10_000_000f);
+
+        Assert.IsFalse(target.Active, "setup: the hit kills the ship");
+        AssertEqual(motion, target.Velocity, "a killing hit pushes nothing, so the wreck keeps the ship's motion");
     }
 
     [TestMethod]
