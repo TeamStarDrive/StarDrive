@@ -1,0 +1,41 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FrigateModule>false</FrigateModule>
+  <DestroyerModule>false</DestroyerModule>
+  <CruiserModule>false</CruiserModule>
+  <BattleshipModule>false</BattleshipModule>
+  <CapitalModule>false</CapitalModule>
+  <FreighterModule>false</FreighterModule>
+  <PlatformModule>false</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  <Cost>100</Cost>
+  <TechLevel>3</TechLevel>
+  <XSize>5</XSize>
+  <YSize>5</YSize>
+  <ModuleType>Special</ModuleType>
+  <Name>Salvage unit</Name>
+  <Restrictions>I</Restrictions>
+  <UID>SalvageUnit</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/SalvageUnit</IconTexturePath>
+  <Mass>100</Mass>
+  <HealthMax>2500</HealthMax>
+  <RepairDifficulty>5</RepairDifficulty>
+  
+  <PowerDraw>2000</PowerDraw>
+  <Salvage>true</Salvage>
+  <!-- for Hangar items -->
+  <hangarShipUID>Doesnt Matter</hangarShipUID>
+  <hangerTimerConstant>30</hangerTimerConstant>
+
+  <OrdinanceCapacity>60</OrdinanceCapacity>
+
+  <NameIndex>7142</NameIndex>
+  <DescriptionIndex>7143</DescriptionIndex>
+</ShipModule>

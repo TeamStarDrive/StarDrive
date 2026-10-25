@@ -52,13 +52,18 @@ namespace Ship_Game
         UILabel Owner;
         bool IsPlanet => Planet != null;
         public bool IsStar => Planet == null;
-        public bool IsForResearch => IsStar && System.IsResearchable || Planet?.IsResearchable == true;
+        public readonly bool IsForSalvage;
+        public bool IsForResearch => !IsForSalvage && (IsStar && System.IsResearchable || Planet?.IsResearchable == true);
         public bool IsForMining => !IsStar && Planet.IsMineable;
-        public bool IsForDysonSwarm => IsStar && System.DysonSwarmType > 0;
+        public bool IsForDysonSwarm => !IsForSalvage && IsStar && System.DysonSwarmType > 0;
         ExplorableGameObject SolarBody;
         ThreatMatrix.HostilePresence Hostiles;
+        public readonly int NumDerelicts;
+        public readonly Derelict FirstDerelict;
+        public readonly float SalvageProduction;
 
-        public ExoticSystemsListScreenItem(ExplorableGameObject solarBody, float distance)
+        // a salvage row is a system with salvageable derelicts the player knows of, apart from that system's research or Dyson swarm row
+        public ExoticSystemsListScreenItem(ExplorableGameObject solarBody, float distance, bool salvage = false)
         {
             SolarBody = solarBody;
             if (solarBody is Planet planet) 
@@ -77,7 +82,12 @@ namespace Ship_Game
             Distance = distance / 1000; // Distance from nearest player colony
 
 
-            if (solarBody.IsResearchable && !solarBody.IsResearchStationDeployedBy(Player))
+            if (salvage)
+            {
+                IsForSalvage = true;
+                NumDerelicts = Universe.Derelicts.CountKnownIn(Player, System, out FirstDerelict, out SalvageProduction);
+            }
+            else if (solarBody.IsResearchable && !solarBody.IsResearchStationDeployedBy(Player))
             {
                 foreach (Goal g in Player.AI.Goals)
                 {
@@ -106,7 +116,11 @@ namespace Ship_Game
             int h = (int)Height;
             RemoveAll();
 
-            if (Planet?.IsResearchable == true || System.IsResearchable)
+            if (IsForSalvage)
+            {
+                DeployButton = Button(ButtonStyle.Default, GameText.SalvageOpsButton, OnSalvageOpsClicked);
+            }
+            else if (Planet?.IsResearchable == true || System.IsResearchable)
             {
                 ButtonStyle researchStyle = MarkedForResearch ? ButtonStyle.Military : ButtonStyle.BigDip;
                 LocalizedText researchText = !MarkedForResearch ? GameText.DeployResearchStation : GameText.AbortDeployent;
@@ -156,12 +170,14 @@ namespace Ship_Game
             Hostiles = Player.KnownEnemyPresenceIn(System);
             AddSystemName();
             AddHostileWarning();
+            AddDerelictsSymbol();
             SetResearchVisibility();
             SetMiningVisibility();
             SetDysonSwarmVisibility();
             AddTextureAndStatus();
             AddDistanceStats();
             AddPlanetName();
+            AddDerelictCount();
             AddResourceName();
             AddRichnessStat();
             AddOwner();
@@ -282,6 +298,18 @@ namespace Ship_Game
             Label(namePos, richness, SmallFont, TextColor);
         }
 
+        // in the Star or Planet column, where a planet's name goes
+        void AddDerelictCount()
+        {
+            if (!IsForSalvage)
+                return;
+
+            string count = NumDerelicts == 1 ? Localizer.Token(GameText.OneDerelict)
+                                             : string.Format(Localizer.Token(GameText.NumDerelicts), NumDerelicts);
+            var countPos = new Vector2(PlanetNameEntry.X, PlanetNameRect.Y + PlanetNameRect.Height / 2 - NormalFont.LineSpacing / 2);
+            Label(countPos, count, NormalFont, TextColor);
+        }
+
         void AddDistanceStats()
         {
             var distancePos = new Vector2(DistanceRect.X + 45, DistanceRect.Y + DistanceRect.Height / 2 - SmallFont.LineSpacing / 2);
@@ -290,6 +318,14 @@ namespace Ship_Game
 
         void AddResourceName()
         {
+            if (IsForSalvage)
+            {
+                var productionPos = new Vector2(ResourceRect.X + 30, ResourceRect.Y + ResourceRect.Height / 2 - SmallFont.LineSpacing / 2);
+                Label(productionPos, GetResourceLabel(), SmallFont, Color.White).Tooltip = GameText.SystemSalvageProductionTip;
+                Panel(ResourceIconRect, ResourceManager.Texture("NewUI/icon_production")).Tooltip = GameText.SystemSalvageProductionTip;
+                return;
+            }
+
             bool researchable = IsForResearch;
             bool mineable = IsForMining;
             var namePos = new Vector2(ResourceRect.X + 30, ResourceRect.Y + ResourceRect.Height / 2 - SmallFont.LineSpacing / 2);
@@ -311,6 +347,9 @@ namespace Ship_Game
 
         string GetResourceLabel()
         {
+            if (IsForSalvage) // whole numbers, then k or M from 10000
+                return SalvageProduction < 10000f ? SalvageProduction.String(0) : SalvageProduction.GetNumberString();
+
             return IsForResearch ? "Research"
                                  : IsForMining ? Planet.Mining.TranslatedResourceName.Text
                                                : $"{Localizer.Token(GameText.DysonSwarm)} {System.DysonSwarmType}";
@@ -350,9 +389,26 @@ namespace Ship_Game
             }
         }
 
+        // the derelict notification's yellow hourglass, right of the hostiles warning
+        void AddDerelictsSymbol()
+        {
+            if (!IsForSalvage)
+                return;
+
+            var symbolRect = new Rectangle(SysNameRect.Right - 22, SysNameRect.Y + 5, 16, 16);
+            Panel(symbolRect, ResourceManager.Texture("NewUI/icon_derelict_notification")).Tooltip = GameText.SalvageableDerelictsHereTip;
+        }
+
         void AddTextureAndStatus()
         {
             var icon = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
+            if (IsForSalvage) // the first derelict's hull icon, tinted grey as its panel tints the hull, where other rows show their star or planet
+            {
+                if (FirstDerelict != null)
+                    Panel(icon, Color.Gray, FirstDerelict.Design.Icon);
+                return;
+            }
+
             Add(new UIPanel(icon, ResourceManager.Texture(IsStar ? System.Sun.IconPath : Planet.IconPath))
             {
                 Tooltip = GameText.PlanetTypeAndRichnessThe
@@ -413,6 +469,12 @@ namespace Ship_Game
             }
 
             SetMiningVisibility();
+        }
+
+        void OnSalvageOpsClicked(UIButton b)
+        {
+            GameAudio.AcceptClick();
+            Universe.Screen.ScreenManager.AddScreen(new SystemDerelictsScreen(Universe.Screen, System));
         }
 
         void OnDysonSwarmClicked(UIButton b)

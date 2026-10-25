@@ -393,7 +393,7 @@ namespace Ship_Game
         }
 
         internal static bool IsLeftOffTheList(Ship ship)
-            => ship.IsHangarShip || ship.IsHomeDefense || ship.LandShip is { Trades: false };
+            => ship.IsHangarShip || ship.IsHomeDefense || ship.LandShip is { Trades: false } || ship.IsSalvagePlatform;
 
         public bool StatusDirty; // set from the sim thread, which must not walk ShipSL
 

@@ -38,7 +38,7 @@ public sealed class DroneAI
     public void ChooseTarget()
     {
         DroneTarget = Drone.Owner?.AI.FriendliesNearby.FindMinFiltered(
-            ship => !ship.IsDeadOrDying && !ship.IsHangarShip
+            ship => !ship.IsDeadOrDying && !ship.IsHangarShip && !ship.Dismantling
                  && ship.HealthStatus < Status.Maximum
                  && ship.Position.InRadius(Drone.Owner.Position, 10000f),
             ship =>

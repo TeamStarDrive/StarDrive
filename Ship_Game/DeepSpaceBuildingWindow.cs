@@ -21,7 +21,11 @@ namespace Ship_Game
         Planet TargetPlanet;
         SolarSystem TargetSystem;
         ShipInfoOverlayComponent ShipInfoOverlay;
-        const float MinimumBuildDistanceFromSun = 20000;
+        public const float MinimumBuildDistanceFromSun = 20000;
+        public const float SystemPlacementRadius = 0.8f; // a placement within this share of a system's radius is in the system
+
+        // a structure placed this close to a planet orbits it
+        public static float TetherRadius(Planet planet) => 2500f * planet.Scale;
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
         {
@@ -53,7 +57,7 @@ namespace Ship_Game
             }
             foreach (IShipDesign s in Player.SpaceStationsWeCanBuildSnapshot)
             {
-                if (!s.IsSubspaceProjector && !s.IsDysonSwarmController)
+                if (!s.IsSubspaceProjector && !s.IsDysonSwarmController && (!s.IsSalvageStation || Player.Universe.P.SalvageOps))
                     SL.AddItem(new(Screen, s));
             }
 
@@ -163,6 +167,10 @@ namespace Ship_Game
                 {
                     Player.AI.AddGoalAndEvaluate(new MiningOps(Player, TargetPlanet, ShipToBuild, TetherOffset));
                 }
+                else if (ShipToBuild.IsSalvageStation)
+                {
+                    Player.AI.AddGoalAndEvaluate(new SalvageOps(Player, TargetSystem, worldPos, ShipToBuild));
+                }
                 else
                 {
                     if (TargetPlanet != null)
@@ -192,6 +200,11 @@ namespace Ship_Game
 
             if (targetSystem != null && targetPlanet == null && ShipToBuild.IsMiningStation)
                 return false;
+
+            // a salvage station never orbits a planet
+            if (ShipToBuild.IsSalvageStation)
+                return targetPlanet == null && SalvageOps.CanOrderIn(Player, targetSystem)
+                    && SalvageOps.IsValidSite(targetSystem, Screen.CursorWorldPosition2D, SeenSalvageStations);
 
             if (targetPlanet != null)
             {
@@ -246,12 +259,14 @@ namespace Ship_Game
 
             Planet[] planets = Screen.UState.GetVisiblePlanets();
             SolarSystem[] systems = Screen.UState.GetVisibleSystems();
+            SeenSalvageStations = ShipToBuild?.IsSalvageStation == true
+                ? SalvageOps.StationsSeenBy(Player, Screen.UState.Objects.GetShips()) : Empty<Ship>.Array;
 
             foreach (Planet planet in planets)
             {
                 if (OkToBuild(planet, null))
                 {
-                    float radius = 2500f * planet.Scale;
+                    float radius = TetherRadius(planet);
                     Screen.DrawCircleProjected(planet.Position, radius, new Color(255, 165, 0, 100).Premultiplied(), 2f,
                                                nodeTex, new Color(0, 0, 255, 100).Premultiplied());
                 }
@@ -259,7 +274,12 @@ namespace Ship_Game
 
             foreach (SolarSystem system in systems)
             {
-                if (OkToBuild(null, system))
+                if (ShipToBuild?.IsSalvageStation == true)
+                {
+                    if (SalvageOps.CanOrderIn(Player, system))
+                        DrawSalvageStationZones(system, nodeTex);
+                }
+                else if (OkToBuild(null, system))
                 {
                     if (ShipToBuild?.IsResearchStation == true)
                     {
@@ -294,7 +314,7 @@ namespace Ship_Game
                 foreach (Planet planet in planets)
                 {
                     Vector2 planetPos = planet.Position;
-                    if (planetPos.Distance(cursorWorldPos) <= (2500f * planet.Scale))
+                    if (planetPos.Distance(cursorWorldPos) <= TetherRadius(planet))
                     {
                         TetherOffset = cursorWorldPos - planetPos;
 
@@ -326,7 +346,7 @@ namespace Ship_Game
 
                 foreach (SolarSystem system in systems)
                 {
-                    if (system.Position.Distance(cursorWorldPos) <= system.Radius * 0.8f)
+                    if (system.Position.Distance(cursorWorldPos) <= system.Radius * SystemPlacementRadius)
                     {
                         TargetSystem = system;
                         break;
@@ -338,6 +358,29 @@ namespace Ship_Game
                 Color shipColor = OkToBuild(TargetPlanet, TargetSystem) ? new Color(0, 255, 0, 100).Premultiplied() : Color.Red.Alpha(100);
                 batch.Draw(platform, cursorPos, shipColor, 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
             }
+        }
+
+        // the salvage stations the player sees, at any zoom and off screen too, which a new one must keep clear of; refreshed each frame
+        Ship[] SeenSalvageStations = Empty<Ship>.Array;
+
+        // where a salvage station may go in the system, and in red where it may not: planets' orbits, and around its derelicts and the salvage stations seen there
+        void DrawSalvageStationZones(SolarSystem system, SubTexture nodeTex)
+        {
+            Screen.DrawCircleProjected(system.Position, system.Radius * SystemPlacementRadius, new Color(255, 165, 0, 100).Premultiplied(), 2f,
+                nodeTex, new Color(0, 0, 255, 100).Premultiplied());
+
+            var red = new Color(255, 0, 0, 100).Premultiplied();
+            var redFill = new Color(255, 0, 0, 50).Premultiplied();
+            foreach (Planet planet in system.PlanetList)
+                Screen.DrawCircleProjected(planet.Position, TetherRadius(planet), red, 2f, nodeTex, redFill);
+
+            foreach (Derelict derelict in Screen.UState.Derelicts.Current)
+                if (derelict.System == system && derelict.CanBeSalvaged)
+                    Screen.DrawCircleProjected(derelict.RestPosition, SalvageOps.Clearance, red, 2f, nodeTex, redFill);
+
+            foreach (Ship station in SeenSalvageStations)
+                if (station.Position.InRadius(system.Position, system.Radius))
+                    Screen.DrawCircleProjected(station.Position, SalvageOps.Clearance, red, 2f, nodeTex, redFill);
         }
 
         float CurrentRadiusSmoothed;

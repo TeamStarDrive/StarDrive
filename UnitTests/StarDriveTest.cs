@@ -357,6 +357,20 @@ public partial class StarDriveTest : IDisposable
         };
     }
         
+    int NumRemoteSystems;
+
+    // bare systems in rows from the universe's corner, clear of each other, for a test that makes more derelicts than its own systems: the derelict caps count the galaxy's systems
+    public void AddRemoteSystems(int count)
+    {
+        const float spacing = 320_000f; // a bare system's radius is 150,000
+        int perRow = (int)(UState.UniverseWidth / spacing) - 1;
+        for (int i = 0; i < count; ++i, ++NumRemoteSystems)
+        {
+            var pos = new Vector2(-UState.Size + spacing * (1 + NumRemoteSystems % perRow), -UState.Size + spacing * (1 + NumRemoteSystems / perRow));
+            UState.AddSolarSystem(CreateRandomSolarSystem(pos));
+        }
+    }
+
     void AddPlanetToSolarSystem(SolarSystem s, Planet p)
     {
         p.OrbitalAngle = p.Position.AngleToTarget(s.Position);

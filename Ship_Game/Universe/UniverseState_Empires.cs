@@ -46,7 +46,7 @@ public partial class UniverseState
             if (e.data.AbsorbedBy != null)
             {
                 Empire masterEmpire = GetEmpireByName(e.data.AbsorbedBy);
-                masterEmpire.AssimilateTech(e);
+                masterEmpire.AssimilateTech(e, fromSave: true);
             }
         }
 

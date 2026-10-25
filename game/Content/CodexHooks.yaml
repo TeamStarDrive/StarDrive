@@ -25,6 +25,8 @@ DisablesAllPirateFactionsFor: overview_rule_options
 IfCheckedRemnantForcesIn: overview_rule_options
 DisableResearchStationsTip: overview_rule_options
 DisableMiningOpsTip: overview_rule_options
+DisableSalvageOpsTip: overview_rule_options
+DisableSalvageOpsModTip: overview_rule_options
 AddToAllStartingEmpire: overview_rule_options
 HigherMineralDecayIncreasesThe: overview_rule_options
 ThisWillControlTheChances: overview_rule_options
@@ -156,8 +158,10 @@ AllowPlayerInterTradeTip: automation_freighters
 AutoPickConstructorsTip: automation_construction
 AutoBuildResearchStationTip: automation_construction
 AutoBuildMiningStationTip: automation_construction
+AutoBuildSalvageStationTip: automation_construction
 AutoPickResearchStationTip: automation_construction
 AutoPickMiningStationTip: automation_construction
+AutoPickSalvageStationTip: automation_construction
 RushAllConstructionTip: automation_construction
 PrioritizeProjectorTip: automation_construction
 YourEmpireWillAutomaticallySelect: automation_research_and_taxes
@@ -167,6 +171,8 @@ InhibitionAlertsAreDisplayedWhen: automation_alerts
 VolcanoAlertsTip: automation_alerts
 ShipCrashAlertsTip: automation_alerts
 StationBuiltAlertsTip: automation_alerts
+DerelictAlertsTip: automation_alerts
+SalvageAlertsTip: automation_alerts
 EnableStarvationWarningTip: automation_alerts
 
 # Budget screen
@@ -198,6 +204,7 @@ IndicatesAShipsExperienceLevel2: warfare_ship_experience
 ThisShowsTheHangarStatus: warfare_fighter_bays
 OpensAMenuAllowingYou: warfare_refit_and_scrap
 OrdersTheShipToReturn: warfare_refit_and_scrap
+DismantleOrbitalTip: warfare_refit_and_scrap
 RefitOnlyThisShipTo: warfare_refit_and_scrap
 RefitInFleetTip: warfare_refit_and_scrap
 RefitAllShipsOfThis: warfare_refit_and_scrap
@@ -247,7 +254,7 @@ IndicatesThatAFriendlyAgent: diplomacy_espionage
 
 # Bucket 5: the vanilla entries rewritten from the code
 EmpOverloadShipIsDisabled: warfare_combat_basics
-StructuralIntegrityOfTheShip: warfare_combat_basics
+StructuralIntegrityOfTheShip: ship_death_destruction
 IndicatesThisShipsCurrentBonus: warfare_combat_basics
 ShipWillMakeHeadonAttack: warfare_combat_basics
 ShipWillRotateSoThat2: warfare_combat_basics
@@ -449,3 +456,38 @@ BudgetDefenseBudgetTip: economy_budget_screen
 BudgetGovernorTotalTip: economy_budget_screen
 BudgetNetGainTip: economy_budget_screen
 BudgetPerTurnNote: economy_budget_screen
+
+# Derelict info panel
+DerelictOriginalOwner: warfare_derelicts
+DerelictTurnsLeftTip: warfare_derelicts
+DerelictProductionTip: warfare_derelicts
+SalvageStationOrderTip: warfare_derelicts
+SalvageStationOrderedTip: warfare_derelicts
+SalvageStationNoDesignTip: warfare_derelicts
+SalvageStationAllWorkedTip: warfare_derelicts
+DerelictTurnsStandTip: warfare_derelicts
+SalvageDerelictTip: derelicts_salvaging
+SalvageDerelictOrderedTip: derelicts_salvaging
+SalvageDerelictNoFreeUnitTip: derelicts_salvaging
+SalvageDerelictSwitchTip: derelicts_recovering
+RecoverDerelictTip: derelicts_recovering
+RecoverDerelictOrderedTip: derelicts_recovering
+RecoverDerelictSwitchTip: derelicts_recovering
+RecoverDerelictStationTip: derelicts_recovering
+SalvageAutomaticTip: derelicts_salvaging
+SalvageAutomaticOrderTip: derelicts_salvaging
+DerelictRecoveryChanceTip: derelicts_recovering
+DerelictRecoveryProgressTip: derelicts_recovering
+DerelictRisingTip: derelicts_recovering
+DerelictTechsHeldTip: derelicts_salvaging
+DerelictTechsShownTip: derelicts_salvaging
+DerelictTechResearched: derelicts_salvaging
+DerelictSalvagedBy: derelicts_salvaging
+DerelictRecoveredBy: derelicts_recovering
+
+# Exotic Systems salvage rows
+SalvageableDerelictsHereTip: warfare_derelicts
+SystemSalvageProductionTip: warfare_derelicts
+
+# Salvage platform panel
+SalvageHoldTip: derelicts_salvaging

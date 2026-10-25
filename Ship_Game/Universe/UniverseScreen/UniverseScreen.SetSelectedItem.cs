@@ -16,6 +16,7 @@ public partial class UniverseScreen
     public Ship PrevSelectedShip;
     Array<Ship> SelectedShipList = new();
     public ClickableSpaceBuildGoal SelectedItem;
+    public Derelict SelectedDerelict;
 
     public IReadOnlyList<Ship> SelectedShips => SelectedShipList;
 
@@ -23,6 +24,7 @@ public partial class UniverseScreen
                                 || SelectedItem != null
                                 || SelectedShip != null
                                 || SelectedPlanet != null
+                                || SelectedDerelict != null
                                 || SelectedShipList.Count != 0;
 
     public void ClearSelectedItems(bool clearFlags = true,
@@ -38,6 +40,7 @@ public partial class UniverseScreen
         SelectedFleet = fleet;
         SelectedItem = null;
         SelectedShip = null;
+        SelectedDerelict = null;
 
         if (clearShipList)
         {
@@ -194,5 +197,21 @@ public partial class UniverseScreen
         SelectedSomethingTimer = 3f;
         ClearSelectedItems();
         SelectedItem = item;
+    }
+
+    public void SetSelectedDerelict(Derelict derelict)
+    {
+        SelectedSomethingTimer = 3f;
+        ClearSelectedItems();
+        SelectedDerelict = derelict;
+    }
+
+    // one that starts to sink can no longer be selected, and one the player recovered hands the selection to its ship
+    public void UpdateSelectedDerelict()
+    {
+        if (SelectedDerelict is { RecoveredAs: { Active: true } ship } && ship.Loyalty == Player)
+            SetSelectedShip(ship);
+        else if (SelectedDerelict is { SelectableByPlayer: false })
+            SelectedDerelict = null;
     }
 }

@@ -2,6 +2,7 @@
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
+using Ship_Game.Universe;
 using System;
 using Vector2 = SDGraphics.Vector2;
 
@@ -105,9 +106,20 @@ namespace Ship_Game.Ships
             if (Owner == null || !ConstructionStarted)
                 return;
 
-            float percentCompleted = ConstructionPercentage;
-            var universe = Owner.Universe;
-            if (Owner.InFrustum && universe.IsShipViewOrCloser)
+            AddEffects(Owner, BuildRadius, ConstructionPercentage, tetherPlanet);
+        }
+
+        // a build's sparks, lightning, flashes and parts at its percentage, which a salvage platform taking itself apart shows too
+        public static void AddEffects(Ship ship, float buildRadius, float percentCompleted, Planet tetherPlanet)
+            => AddEffects(ship.Universe, new Vector3(ship.Position, 0f), buildRadius, percentCompleted, ship, tetherPlanet, onHull: null);
+
+        // the same over a derelict a platform recovers, on its hull, the parts the platform's; the caller checks it is on screen
+        public static void AddEffects(UniverseState universe, Derelict onHull, float buildRadius, float percentCompleted, Ship platform)
+            => AddEffects(universe, Vector3.Zero, buildRadius, percentCompleted, platform, tetherPlanet: null, onHull);
+
+        static void AddEffects(UniverseState universe, Vector3 buildCenter, float buildRadius, float percentCompleted, Ship ship, Planet tetherPlanet, Derelict onHull)
+        {
+            if (onHull != null || ship.InFrustum && universe.IsShipViewOrCloser)
             {
                 // visualize construction efforts
                 Vector3 center = RandomPoint();
@@ -137,13 +149,19 @@ namespace Ship_Game.Ships
                 if (percentCompleted > 5 && universe.Random.RollDice(percentCompleted*1.2f))
                 {
                     center = RandomPoint();
-                    SpaceJunk.ConstructionPart(universe, center.ToVec2(), Owner.Velocity, Owner, percentCompleted, tetherPlanet);
+                    if (onHull != null)
+                        SpaceJunk.ConstructionPart(universe, center, ship.Id, percentCompleted);
+                    else
+                        SpaceJunk.ConstructionPart(universe, center.ToVec2(), ship.Velocity, ship, percentCompleted, tetherPlanet);
                 }
             }
 
             Vector3 RandomPoint()
             {
-                return Owner.Position.GenerateRandomPointInsideCircle(BuildRadius * percentCompleted * 0.01f, Owner.Universe.Random).ToVec3();
+                float spread = buildRadius * percentCompleted * 0.01f;
+                if (onHull != null)
+                    return onHull.OnHull(Vector2.Zero.GenerateRandomPointInsideCircle(spread, universe.Random));
+                return buildCenter.ToVec2().GenerateRandomPointInsideCircle(spread, universe.Random).ToVec3(buildCenter.Z);
             }
         }
 

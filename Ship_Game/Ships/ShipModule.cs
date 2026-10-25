@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.AI;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
@@ -191,6 +192,7 @@ namespace Ship_Game.Ships
         public float AmplifyShields              => Flyweight.AmplifyShields;
         public float ResearchPerTurn             => Flyweight.ResearchPerTurn;
         public float Refining                    => Flyweight.Refining;
+        public bool Salvage                      => Flyweight.Salvage;
 
         /// <summary>
         /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(float)"/>
@@ -211,6 +213,7 @@ namespace Ship_Game.Ships
         public bool Explodes => ExplosionDamage > 0;
 
         public bool IsMiningBay => Refining > 0;
+        public bool IsSalvageBay => Salvage;
 
         // used in module selection category
         public bool IsPowerArmor => Is(ShipModuleType.Armor) && !IsBulkhead && (PowerDraw > 0 || PowerFlowMax > 0);
@@ -263,12 +266,12 @@ namespace Ship_Game.Ships
                 case ShipModuleType.Shield:     return ShieldPowerMax >= 1f;
                 case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
                 case ShipModuleType.Ordnance:   return ModuleType == type && OrdinanceCapacity > 0;
-                case ShipModuleType.Hangar:     return ModuleType == type || IsMiningBay;
+                case ShipModuleType.Hangar:     return ModuleType == type || IsMiningBay || IsSalvageBay;
                 default:                        return ModuleType == type;
             }
         }
 
-        public bool IsFighterHangar => !IsMiningBay && !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
+        public bool IsFighterHangar => !IsMiningBay && !IsSalvageBay && !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
 
         /// <summary> Actually health ratio [0.0 ... 1.0] </summary>
         public float HealthPercent => Health / ActualMaxHealth;
@@ -487,6 +490,8 @@ namespace Ship_Game.Ships
                 m.HangarShipUID = us.Player.GetSupplyShuttleName();
             else if (m.IsMiningBay)
                 m.HangarShipUID = us.Player.GetMiningShipName();
+            else if (m.IsSalvageBay)
+                m.HangarShipUID = SalvageDerelict.ConstructorName(us.Player);
             else if (m.ModuleType == ShipModuleType.Hangar)
                 m.HangarShipUID = m.IsTroopBay ? us.Player.GetAssaultShuttleName() : hangarShipUID;
 
@@ -1102,6 +1107,18 @@ namespace Ship_Game.Ships
             }
         }
 
+        // a recovered ship's module back at this share of its health, dead at none, quietly: no blast, debris or sound, and its shield empty; one alive keeps at least 1 health, below which a module dies
+        internal void SetRecoveredHealth(float share)
+        {
+            float maxHealth = ActualMaxHealth;
+            float health = share > 0f ? (maxHealth * share).LowerBound(1f).UpperBound(maxHealth) : 0f;
+            Parent.OnHealthChange(health - Health, "Recovered");
+            Health = health;
+            Active = health > 0f;
+            OnFire = health < maxHealth * OnFireThreshold;
+            ShieldPower = 0f;
+        }
+
         void ResurrectModule()
         {
             Active = true;
@@ -1127,7 +1144,7 @@ namespace Ship_Game.Ships
         public bool LaunchBoardingParty(Troop troop, out Ship ship)
         {
             ship = null;
-            if (!IsTroopBay || !Powered)
+            if (!IsTroopBay || !Powered || Parent.Dismantling)
                 return false;
 
             if (HangarShip != null) // this bay's ship is already out
@@ -1234,11 +1251,11 @@ namespace Ship_Game.Ships
             if (Active && Is(ShipModuleType.Hangar))
                 HangarTimer -= timeStep.FixedTime;
 
-            // Shield Recharge / Discharge
+            // Shield Recharge / Discharge, down while its ship comes apart
             if (Is(ShipModuleType.Shield))
             {
                 float shieldMax = ActualShieldPowerMax;
-                ShieldPower = RechargeShields(ShieldPower, shieldMax, timeStep); // use regular recharge
+                ShieldPower = Parent.Dismantling ? 0f : RechargeShields(ShieldPower, shieldMax, timeStep); // use regular recharge
             }
 
             if (TransporterTimer > 0)

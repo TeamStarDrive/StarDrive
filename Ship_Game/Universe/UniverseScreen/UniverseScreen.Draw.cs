@@ -436,6 +436,7 @@ namespace Ship_Game
             IconsGroupTotalPerf.Start();
             batch.SafeBegin();
             {
+                DrawDerelicts(batch); // under the ships' icons
                 DrawShipsAndProjectiles(batch);
                 DrawShipAndPlanetIcons(batch);
                 DrawSolarSystems(batch);
@@ -736,6 +737,7 @@ namespace Ship_Game
         bool ShowShipInfo => SelectedShip != null && CanShowInfo;
         bool ShowShipList => SelectedShips.Count > 1 && SelectedFleet == null && CanShowInfo;
         bool ShowFleetInfo => SelectedFleet != null && CanShowInfo;
+        bool ShowDerelictInfo => SelectedDerelict != null && CanShowInfo;
 
         private void DrawSelectedItems(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -767,6 +769,10 @@ namespace Ship_Game
             else if (ShowShipList)
             {
                 shipListInfoUI.Draw(batch, elapsed);
+            }
+            else if (ShowDerelictInfo)
+            {
+                DerelictInfoUI.Draw(batch, elapsed);
             }
             else if (SelectedItem != null)
             {
@@ -973,6 +979,36 @@ namespace Ship_Game
             DrawShips.Stop();
         }
 
+        // the salvageable derelicts the player knows of: a grey icon of the hull's role where a ship shows its icon, and the selection's brackets
+        void DrawDerelicts(SpriteBatch batch)
+        {
+            if (LookingAtPlanet)
+                return;
+
+            bool icons = (viewState > UnivScreenState.ShipView || ShowTacticalCloseup) && !IsCinematicModeEnabled;
+            Derelict[] derelicts = UState.Derelicts.Current;
+            for (int i = 0; i < derelicts.Length; ++i)
+            {
+                Derelict d = derelicts[i];
+                bool selected = d == SelectedDerelict;
+                if (!(icons || selected) || !d.SelectableByPlayer || !IsInFrustum(new Vector3(d.Position, d.Z), d.Radius))
+                    continue;
+
+                ProjectToScreenCoords(d.Position, d.Radius, out Vector2d screenPos, out double screenRadius, zAxis: d.Z);
+                if (icons)
+                {
+                    float size = Ship.ScaleIconSize((float)screenRadius, 16f, 8f);
+                    Vector2 pos = screenPos.ToVec2f();
+                    TacticalIcon icon = d.Design.GetTacticalIcon();
+                    DrawTextureSized(icon.Primary, pos, d.RotationZ, size, size, Color.Gray);
+                    if (icon.Secondary != null)
+                        DrawTextureSized(icon.Secondary, pos, d.RotationZ, size, size, Color.Gray);
+                }
+                if (selected)
+                    batch.BracketRectangle(screenPos, Math.Max(screenRadius, 7.0), Color.Gray);
+            }
+        }
+
         void DrawProjectedGroup()
         {
             if (!Project.Started || CurrentGroup == null)
@@ -1148,9 +1184,9 @@ namespace Ship_Game
                 ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g) && g.Trade != null)
             {
                 Vector2 importPosition = g.Trade.ImportTo?.Position ?? g.Trade.TargetStation.Position;
-                Vector2 exportPosition = g.Trade.ExportFrom.Position;
+                Vector2 exportPosition = g.Trade.ExportPosition;
 
-                if (g.Plan is ShipAI.Plan.PickupGoods or ShipAI.Plan.PickupGoodsForStation )
+                if (g.Plan is ShipAI.Plan.PickupGoods or ShipAI.Plan.PickupGoodsForStation or ShipAI.Plan.PickupGoodsFromStation)
                 {
                     DrawLineToPlanet(start, exportPosition, Color.Blue);
                     DrawLineToPlanet(exportPosition, importPosition, Color.Gold);

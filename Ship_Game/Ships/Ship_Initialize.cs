@@ -9,6 +9,7 @@ using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
 using Ship_Game.ExtensionMethods;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
@@ -310,6 +311,60 @@ namespace Ship_Game.Ships
 
             us.AddShip(ship);
             return ship;
+        }
+
+        // a recovered derelict's ship where it lay, level and facing its way, under its name, for the empire that recovered it, taking over its model: damaged as the recovery's rules have it, its crew new, with no ordnance, troops, stored power or shields, its lights flickering on once it has power, and on its way to the empire's nearest planet that repairs, or the pirates' nearest base
+        public static Ship CreateRecoveredShip(UniverseState us, Derelict d, Empire owner, SceneObject model)
+        {
+            IShipDesign design = d.Design;
+            Ship template = ResourceManager.GetShipTemplate(design.Name, out Ship t) && t.ShipData == design ? t
+                          : design is ShipDesign data ? CreateNewShipTemplate(Empire.Void, data) : null;
+            Ship ship = template != null ? CreateShipAtPoint(us, template, owner, d.Position) : null;
+            if (ship == null)
+            {
+                Log.Warning($"Recovered ship failed for design {design.Name}");
+                return null;
+            }
+
+            try
+            {
+                ship.Rotation = d.RotationZ;
+                if (d.ShipName.NotEmpty())
+                    ship.VanityName = d.ShipName;
+                ship.Level = 0;
+                ship.KillAllTroops();
+                ship.CalcTroopBoardingDefense();
+                ship.TakeRecoveryDamage();
+                ship.SetOrdnance(0f);
+                ship.PowerCurrent = 0f;
+                ship.FlickerLightsOn();
+                if (owner.WeArePirates)
+                    ship.AI.OrderPirateFleeHome(); // to their nearest base, which takes in a small ship and keeps a cruiser or larger, or a Remnant ship
+                else if (DerelictRecovery.RepairPlanet(owner, ship.Position) is { } planet)
+                    ship.AI.OrderResupply(planet, clearOrders: true);
+                if (model != null) // last, so a failure before it leaves the model to the derelict to take out of the scene
+                    ship.TakeSceneObject(model);
+            }
+            catch
+            {
+                ship.QueueTotalRemoval(); // a ship half made leaves at once, and its derelict sinks away instead
+                throw;
+            }
+            return ship;
+        }
+
+        // each module quietly at its share of its health by the recovery's rules, the hull's edge read as designed, then its outline, power, stats and shields again
+        void TakeRecoveryDamage()
+        {
+            bool designRepairs = DerelictRecovery.DesignRepairs(ModuleSlotList);
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                ModuleSlotList[i].SetRecoveredHealth(DerelictRecovery.HealthOnRecovery(ModuleSlotList[i], designRepairs));
+
+            Externals = new ExternalSlotGrid(GetGridState());
+            RecalculatePower();
+            StrengthOutdated = true;
+            ShipStatusChange();
+            UpdateShields();
         }
 
         public static Ship CreateShipAt(UniverseState us, string shipName, Empire owner, Planet p, Vector2 pos, bool doOrbit)

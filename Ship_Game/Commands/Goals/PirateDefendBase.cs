@@ -51,6 +51,7 @@ namespace Ship_Game.Commands.Goals
         {
             Ship ship = Pirates.Owner.Random.ItemFilter(Pirates.Owner.OwnedShips,
                 s => !s.IsFreighter
+                  && !s.IsConstructor // a salvage station's keeps to its platform
                   && !Pirates.SpawnedShips.Contains(s.Id)
                   && s.BaseStrength > 0
                   && !s.InCombat

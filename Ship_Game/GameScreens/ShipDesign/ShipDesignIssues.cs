@@ -573,6 +573,26 @@ namespace Ship_Game.GameScreens.ShipDesign
                 severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowRefiningTimeNotGood)}" : "");
         }
 
+        // red under a load for each salvage unit, which auto pick and the Automation window's list pass over, yellow under one and a half, green under two
+        public void CheckLowSalvageCargo()
+        {
+            if (!Hull.IsSalvageStation)
+                return;
+
+            float oneLoadEach = ShipResupply.SalvageCargoNeeded(Hull);
+            float cargo = Hull.BaseCargoSpace;
+            WarningLevel severity = WarningLevel.Informative;
+
+            if      (cargo >= oneLoadEach * 2f)   return;
+            else if (cargo < oneLoadEach)         severity = WarningLevel.Critical;
+            else if (cargo < oneLoadEach * 1.5f)  severity = WarningLevel.Minor;
+
+            string needed = severity == WarningLevel.Critical
+                ? $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoNeeded)} {oneLoadEach.GetNumberString()}. {Localizer.Token(GameText.DesignIssueLowSalvageCargoSkipped)}"
+                : $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoTwoLoads)} {(oneLoadEach * 2f).GetNumberString()}.";
+            AddDesignIssue(DesignIssueType.LowSalvageCargo, severity, needed);
+        }
+
         string GetRangeLaunchText(int maxWeaponRange, out int minLaunchRangeWeapons, out bool usingMinimumCarrierRange)
         {
             usingMinimumCarrierRange = false;
@@ -717,7 +737,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         OrbitalCarrierHoldPosition,
         LowResearchTime,
         ConstructorCost,
-        LowRefiningTime
+        LowRefiningTime,
+        LowSalvageCargo
     }
 
     public enum WarningLevel
@@ -952,6 +973,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem = GameText.DesignIssueLowRefiningTimeProblem;
                     Remediation = GameText.DesignIssueLowRefiningTimeRemidiation;
                     Texture = ResourceManager.Texture("NewUI/IssueLowRefiingTime");
+                    break;
+                case DesignIssueType.LowSalvageCargo:
+                    Title       = GameText.DesignIssueLowSalvageCargoTitle;
+                    Problem     = GameText.DesignIssueLowSalvageCargoProblem;
+                    Remediation = GameText.DesignIssueLowSalvageCargoRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowSalvageCargo");
                     break;
             }
         }

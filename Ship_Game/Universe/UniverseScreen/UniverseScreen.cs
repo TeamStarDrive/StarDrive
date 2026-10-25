@@ -129,6 +129,7 @@ namespace Ship_Game
         public SolarsystemOverlay SystemInfoOverlay;
         public ShipListInfoUIElement shipListInfoUI;
         public VariableUIElement vuiElement;
+        public DerelictInfoUIElement DerelictInfoUI;
         public MiniMap Minimap { get; private set; }
         bool loading;
         public float transitionElapsedTime;
@@ -535,6 +536,7 @@ namespace Ship_Game
             pInfoUI           = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
             shipListInfoUI    = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
             vuiElement        = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
+            DerelictInfoUI    = new DerelictInfoUIElement(SelectedStuffRect, this);
             EmpireUI          = new EmpireUIOverlay(Player, device, this);
 
             if (GlobalStats.RenderBloom)
@@ -731,6 +733,10 @@ namespace Ship_Game
             else if (ShowFleetInfo)
             {
                 shipListInfoUI.Update(elapsed);
+            }
+            else if (ShowDerelictInfo)
+            {
+                DerelictInfoUI.Update(elapsed);
             }
         }
 

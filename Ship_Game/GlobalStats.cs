@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game;
@@ -420,6 +421,7 @@ public static class GlobalStats
         {
             var defaultSettings = new FileInfo("Content/Globals.yaml");
             VanillaDefaults = GamePlayGlobals.Deserialize(defaultSettings);
+            Derelicts.WarnOfCapMultipliers(VanillaDefaults, "Content/Globals.yaml");
         }
 
         if (modPath.NotEmpty())
@@ -428,6 +430,7 @@ public static class GlobalStats
             if (modInfo.Exists)
             {
                 GamePlayGlobals settings = GamePlayGlobals.Deserialize(modInfo);
+                Derelicts.WarnOfCapMultipliers(settings, Path.Combine(modPath, "Globals.yaml"));
                 var me = new ModEntry(settings);
                 SetActiveModNoSave(me);
             }

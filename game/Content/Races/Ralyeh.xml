@@ -16,6 +16,7 @@
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <DefaultMiningShip>Ralyeh Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Ralyeh Basic Mining Station</DefaultMiningStation>  
+  <DefaultSalvageStation>Ralyeh Basic Salvage Station</DefaultSalvageStation>
   
   <RebelName>Ralyeh Apostates</RebelName>
   <RebelSing>Apostate</RebelSing>

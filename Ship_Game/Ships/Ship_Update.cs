@@ -4,9 +4,12 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
@@ -100,6 +103,15 @@ namespace Ship_Game.Ships
             ShipSO = null;
         }
 
+        // a recovered ship takes over its derelict's model, already in the scene, before it joins the universe
+        void TakeSceneObject(SceneObject so)
+        {
+            RefreshHullSurfaceZ();
+            HullSurfaceZRefreshed = true;
+            NotVisibleToPlayerTimer = 0f;
+            ShipSO = so; // last, so the model is the ship's only once all else is done
+        }
+
         void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
             bool visibleToPlayer = forceVisible || IsVisibleToPlayer;
@@ -184,7 +196,7 @@ namespace Ship_Game.Ships
                     if (divesToMine)
                         InitLaunch(LaunchPlan.Mining, RotationDegrees);
                     else if (IsHangarShip && !Mothership.InCombat && AI.State is not (AIState.AssaultPlanet or AIState.ReturnToHangar)
-                        && !IsSupplyShuttle && !IsMiningShip)
+                        && !IsSupplyShuttle && !IsMiningShip && !IsConstructor)
                         AI.BackToCarrier();
                 }
             }
@@ -226,12 +238,71 @@ namespace Ship_Game.Ships
                 }
             }
 
+            if (Dismantling && timeStep.FixedTime > 0f)
+                UpdateDismantling(timeStep, visibleToPlayer);
+
             if (ShipSO != null)
                 ShipSO.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
 
             SoundEmitter.Position = new Vector3(Position, 0);
 
             ResetFrameThrustState();
+        }
+
+        // a salvage platform taking itself apart, or an orbital scrapped where it stands, shown as a build over its dismantling's turns, after which it is gone
+        [StarData] public bool Dismantling { get; private set; }
+        [StarData] float DismantleTime;
+        [StarData(DefaultValue = SalvageDerelict.DismantleTurns)] int DismantleTurns = SalvageDerelict.DismantleTurns;
+
+        // an orbital leaves its planet's orbitals at once, its place there free
+        public void StartDismantling(int turns)
+        {
+            Dismantling = true;
+            DismantleTurns = turns;
+            TetheredTo?.RemoveFromOrbitalStations(this);
+        }
+
+        // whole again, the parts of its dismantling fading out, an orbital back among its planet's orbitals while the planet is no one's, its empire's or the empire it passes to
+        public void StopDismantling(Empire passingTo = null)
+        {
+            Dismantling = false;
+            DismantleTime = 0f;
+            Universe.Screen?.ResetConstructionParts(Id);
+            if (TetheredTo is { } planet && (planet.Owner == null || planet.Owner == Loyalty || planet.Owner == passingTo || LoyaltyTracker.ChangesTo(planet.Owner))
+                && planet.OrbitalStations.AddUniqueRef(this) && IsShipyard)
+                planet.UpdateShipyards();
+        }
+
+        // from the UI: Scrap takes an orbital apart where it stands, or calls that off while its place is free; another ship flies off to be scrapped
+        public void ScrapFromButton()
+        {
+            if (!DismantleOrbital.DismantledInPlace(this) || !Dismantling)
+                AI.OrderScrapShip();
+            else if (DismantleOrbital.CanCallOff(this))
+                Universe.Screen.RunOnSimThread(() => DismantleOrbital.CallOff(this));
+            else
+                GameAudio.NegativeClick();
+        }
+
+        // as a build's percentage, from none to 100 over the dismantling's turns
+        public float DismantlePercent => 100f * (DismantleTime / (DismantleTurns * Universe.P.TurnTimer)).Clamped(0f, 1f);
+
+        void UpdateDismantling(FixedSimTime timeStep, bool visibleToPlayer)
+        {
+            DismantleTime += timeStep.FixedTime;
+            if (visibleToPlayer)
+                ConstructionShip.AddEffects(this, ShipData.Grid.Radius * 0.5f, DismantlePercent, TetheredTo);
+        }
+
+        // once done it vanishes in a flash, and its parts fade out as a finished build's do
+        public void FinishDismantling()
+        {
+            if (IsVisibleToPlayer && Universe.IsShipViewOrCloser)
+            {
+                Universe.Screen.Particles?.Flash.AddParticle(Position.ToVec3());
+                Universe.Screen.ResetConstructionParts(Id);
+            }
+            QueueTotalRemoval();
         }
 
         void ExploreCurrentSystem(FixedSimTime timeStep)

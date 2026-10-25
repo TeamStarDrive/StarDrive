@@ -130,6 +130,7 @@ namespace Ship_Game
                     .Filter(ship => (ship.IsBuildableByPlayer(Universe.Player) && Universe.Screen.Player.WeCanBuildThis(ship) || Universe.Debug)
                                     && !ship.IsResearchStation
                                     && !ship.IsMiningStation
+                                    && !ship.IsSalvageStation
                                     && !ship.IsConstructor
                                     && !ship.IsSubspaceProjector
                                     && !ship.IsDysonSwarmController);
