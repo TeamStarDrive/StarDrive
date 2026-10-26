@@ -82,7 +82,8 @@ namespace Ship_Game
                     }
                 }
 
-                s.AI.CombatState = node.CombatState;
+                if (node.StanceChosen)
+                    s.AI.CombatState = node.CombatState;
                 s.RelativeFleetOffset = node.RelativeFleetOffset;
                 node.Ship = s;
                 node.OrdersRadius = node.OrdersRadius > 1 ? node.OrdersRadius : s.SensorRange * node.OrdersRadius;

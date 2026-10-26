@@ -20,7 +20,7 @@ namespace Ship_Game.AI.CombatTactics.UI
             if (nodes.IsEmpty)
                 Reset(new CombatState[0]);
             else
-                Reset(nodes.Select(n => n.CombatState));
+                Reset(nodes.Select(n => n.ShownStance));
 
         }
 

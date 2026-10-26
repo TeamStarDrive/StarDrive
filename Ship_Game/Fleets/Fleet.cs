@@ -208,6 +208,8 @@ namespace Ship_Game.Fleets
             base.AddShip(ship);
             ship.Fleet = this;
             ship.AI.FleetNode = node;
+            if (node.StanceChosen)
+                ship.SetCombatStance(node.CombatState);
             ship.RelativeFleetOffset = node.RelativeFleetOffset;
             AssignPositionTo(ship);
             // A reinforcement that spawns away from the fleet body is "catching up":
@@ -577,8 +579,11 @@ namespace Ship_Game.Fleets
 
         bool AssignExistingOrCreateNewNode(Ship ship)
         {
-            FleetDataNode node = DataNodes.Find(n => n.Ship == ship || n.Ship == null && n.ShipName == ship.Name && n.Goal == null);
+            // a ship already in a slot keeps it, before any empty slot of its design is offered
+            FleetDataNode node = DataNodes.Find(n => n.Ship == ship)
+                              ?? DataNodes.Find(n => n.Ship == null && n.ShipName == ship.Name && n.Goal == null);
             bool nodeFound = node != null;
+            bool takesEmptySlot = nodeFound && node.Ship == null;
 
             if (node == null)
             {
@@ -590,6 +595,8 @@ namespace Ship_Game.Fleets
             node.ShipName = ship.Name;
             node.OrdersRadius = node.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : node.OrdersRadius;
             ship.AI.FleetNode = node;
+            if (takesEmptySlot && node.StanceChosen)
+                ship.SetCombatStance(node.CombatState);
             return nodeFound;
             
         }
@@ -3155,7 +3162,8 @@ namespace Ship_Game.Fleets
                         ship.FleetOffset = offset + (facing + radiansAngle).RadiansToDirection() * spacing;
                         ship.RelativeFleetOffset = Offset + radiansAngle.RadiansToDirection() * spacing;
                         n.RelativeFleetOffset = ship.RelativeFleetOffset; // update the node offset also !
-                        n.CombatState = n.Ship.AI.CombatState;
+                        if (!n.StanceChosen)
+                            n.CombatState = n.Ship.AI.CombatState;
                     }
                 }
             }
@@ -3172,7 +3180,8 @@ namespace Ship_Game.Fleets
                     {
                         n.Ship.FleetOffset = Vector2.Zero;
                         n.Ship.RelativeFleetOffset = Vector2.Zero;
-                        n.CombatState  = n.Ship.AI.CombatState;
+                        if (!n.StanceChosen)
+                            n.CombatState = n.Ship.AI.CombatState;
                         n.OrdersRadius = n.Ship.SensorRange;
                     }
                 }

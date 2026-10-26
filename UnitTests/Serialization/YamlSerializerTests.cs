@@ -269,6 +269,7 @@ public class YamlSerializerTests : StarDriveTest
                     SizeWeight = 0.6f,
                     ArmoredWeight = 0.7f,
                     CombatState = CombatState.Evade,
+                    StanceChosen = true,
                     OrdersRadius = 100000
                 },
                 new FleetDataDesignNode
@@ -305,6 +306,7 @@ public class YamlSerializerTests : StarDriveTest
                       SizeWeight: 0.6
                       ArmoredWeight: 0.7
                       CombatState: Evade
+                      StanceChosen: true
                       OrdersRadius: 100000
                     - FleetDataDesignNode:
                       ShipName: ""Ship 2""
@@ -317,6 +319,7 @@ public class YamlSerializerTests : StarDriveTest
                       SizeWeight: 0.6
                       ArmoredWeight: 0.7
                       CombatState: Evade
+                      StanceChosen: false
                       OrdersRadius: 100000
                 ".Replace("\r\n", "\n").Replace("                ", "");
         AssertEqual(yaml, text);
