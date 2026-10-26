@@ -234,6 +234,34 @@ namespace Ship_Game
             }
         }
 
+        // a race's trait list by the names its traits have in the game's language
+        public static string ShownTraitNames(string selectedTraits)
+        {
+            if (string.IsNullOrEmpty(selectedTraits))
+                return "";
+
+            Array<RacialTraitOption> traits = ResourceManager.RaceTraits?.TraitList;
+            var shown = new Array<string>();
+            foreach (string part in selectedTraits.Split(','))
+            {
+                string name = part.Trim();
+                if (name.Length == 0)
+                    continue; // older saves end the list with a comma
+
+                string shownName = name;
+                for (int i = 0; traits != null && i < traits.Count; ++i)
+                {
+                    if (traits[i].TraitName == name)
+                    {
+                        shownName = traits[i].LocalizedName.Text;
+                        break;
+                    }
+                }
+                shown.Add(shownName);
+            }
+            return string.Join(", ", shown);
+        }
+
         public void ApplyTraitToShip(Ship ship)
         {
             if (Pack > 0) ship.UpdatePackDamageModifier();
