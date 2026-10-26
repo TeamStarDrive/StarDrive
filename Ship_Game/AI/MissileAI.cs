@@ -75,7 +75,10 @@ namespace Ship_Game.AI
 
         void Retarget()
         {
+            Ship before = TargetShip(Target);
             Target = ChooseTarget();
+            if (TargetShip(Target) is { } ship && ship != before)
+                Missile.RollLockOn(Target); // another ship is a new roll
             ErrorAdjustTimer = 0f; // readjust error
         }
 

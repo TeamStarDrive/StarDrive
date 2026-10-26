@@ -113,6 +113,20 @@ namespace Ship_Game.Gameplay
         GameObject MirvTarget;
         public bool TrailTurnedOn => IgnitionDelay <= 0f;
 
+        // the ship a locked-on shot flies past every other ship to reach, while that ship is in play
+        [StarData] public Ship LockedOn { get => LockedShip is { Active: true } ? LockedShip : null; internal set => LockedShip = value; }
+        Ship LockedShip;
+
+        // a shot passing through ships passes every ship until it is clear of them all, lock or none
+        [StarData] bool InsideShips;
+        [StarData] bool PassedAShipThisStep;
+
+        const float MaxLockOnChance = 75f;
+        public const float LockOnHalfRadius = 300f;
+        const float LockOnChanceCap = 95f;
+        const float SmartMissileLockOn = 1.2f;
+        const float UnguidedLockOn = 0.2f;
+
         // Only Guided Missiles can slow down, but lower the acceleration
         const float DecelThrustPower = 0.1f;
 
@@ -153,13 +167,15 @@ namespace Ship_Game.Gameplay
 
             var p = new Projectile(ship.Universe.CreateId(), weapon, ship, null, ship.Loyalty, GameObjectType.Proj);
             p.Initialize(origin, direction, target, playSound, inheritedVelocity ?? ship.LaunchVelocity);
+            p.RollLockOn(target);
             return p;
         }
 
-        // new Mirv cluster warhead
+        // new Mirv cluster warhead, locked on and passing ships as its missile was
         // the original missile will be destroyed, but was launched by a Ship or by a Planet
         static void CreateMirvWarhead(Weapon warhead, Vector2 origin, Vector2 direction, GameObject target,
-                                      bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet, float ordnanceShare)
+                                      bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet, float ordnanceShare,
+                                      Projectile missile)
         {
             // Loyalty cannot be null, otherwise kill events will not work correctly
             if (loyalty == null) throw new NullReferenceException(nameof(loyalty));
@@ -170,6 +186,9 @@ namespace Ship_Game.Gameplay
             var p = new Projectile(universe.CreateId(), warhead, warhead.Owner, planet, loyalty, GameObjectType.Proj);
             p.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
             p.WarheadOrdnance = ordnanceShare;
+            p.LockedOn = missile.LockedOn;
+            p.InsideShips = missile.InsideShips;
+            p.PassedAShipThisStep = missile.PassedAShipThisStep;
         }
 
         // new projectile from planet
@@ -183,7 +202,51 @@ namespace Ship_Game.Gameplay
                 ZPos  = 2500f, // +Z: deep in background, away from camera
             };
             p.Initialize(weapon.Origin, direction, target, playSound: true, Vector2.Zero, IsSwarmSat: IsSwarmSat);
+            p.RollLockOn(target);
             return p;
+        }
+
+        // percent chance a shot locks on: a bigger hull is harder to screen, an agile or smart missile finds a way through
+        public static float LockOnChance(float sizeShare, bool guided, float turnRadsPerSec, bool smartMissiles)
+        {
+            if (!guided)
+                return MaxLockOnChance * sizeShare * UnguidedLockOn;
+
+            float turn = 0.5f + 0.25f * turnRadsPerSec.Clamped(0f, 4f);
+            float smart = smartMissiles ? SmartMissileLockOn : 1f;
+            return Math.Min(MaxLockOnChance * sizeShare * turn * smart, LockOnChanceCap);
+        }
+
+        // rolls whether this shot flies past every ship but the one it is fired at; point defense and repair drones never lock on
+        internal void RollLockOn(GameObject target)
+        {
+            LockedOn = null;
+            Ship ship = target as Ship ?? (target as ShipModule)?.GetParent();
+            if (ship == null || Weapon.Tag_PD || Weapon.TruePD || Weapon.IsRepairDrone)
+                return;
+
+            float turn = RotationRadsPerSecond > 0f ? RotationRadsPerSecond : Speed / 350f; // as it steers
+            float chance = LockOnChance(ship.Grid.LockOnSizeShare, MissileAI != null, turn, Loyalty.data.Traits.SmartMissiles);
+            if (Loyalty.Random.RollDice(chance))
+                LockedOn = ship;
+        }
+
+        // a locked-on shot passes every ship but its target, and a shot among ships it was passing passes them all until it is clear
+        public bool PassesBy(Ship ship)
+        {
+            Ship lockedOn = LockedOn;
+            if (ship == lockedOn || (lockedOn == null && !InsideShips))
+                return false;
+
+            InsideShips = PassedAShipThisStep = true;
+            return true;
+        }
+
+        // a shot that met no ship in the last step is clear of them
+        void UpdateLockOn()
+        {
+            InsideShips &= PassedAShipThisStep;
+            PassedAShipThisStep = false;
         }
 
         // loading from savegame
@@ -432,7 +495,7 @@ namespace Ship_Game.Gameplay
 
                         separationVector += separationVel; // Add it to the initial velocity
                         bool playSound = i == 0; // play sound once
-                        CreateMirvWarhead(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet, ordnanceShare);
+                        CreateMirvWarhead(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet, ordnanceShare, this);
                     }
                 }
                 else
@@ -441,7 +504,7 @@ namespace Ship_Game.Gameplay
                     bool playSound = true;
                     foreach (Vector2 direction in warhead.SalvoDirections(Direction))
                     {
-                        CreateMirvWarhead(warhead, Position, direction, target, playSound, Velocity, Loyalty, Planet, ordnanceShare);
+                        CreateMirvWarhead(warhead, Position, direction, target, playSound, Velocity, Loyalty, Planet, ordnanceShare, this);
                         playSound = false; // only play sound once per fire cone
                     }
                 }
@@ -671,6 +734,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             UpdateVelocityAndPos(timeStep.FixedTime);
+            UpdateLockOn();
             Emitter.Position = pos3d;
 
             if (InFrustum)
