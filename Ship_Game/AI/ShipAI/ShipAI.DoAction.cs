@@ -252,8 +252,10 @@ namespace Ship_Game.AI
                 if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || OnFleetMove || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
                     return false;
 
+                // above Normal difficulty a target at three quarters of the chaser's top speed is cut off too
+                float outpacedAt = Owner.Universe.P.Difficulty > GameDifficulty.Normal ? Owner.MaxSTLSpeed * 0.75f : Owner.MaxSTLSpeed;
                 float distance = Owner.Position.Distance(target.Position);
-                return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && Owner.MaxSTLSpeed < target.CurrentVelocity;
+                return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && outpacedAt < target.CurrentVelocity;
             }
         }
 

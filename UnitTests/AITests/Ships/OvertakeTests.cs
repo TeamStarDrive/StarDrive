@@ -34,6 +34,37 @@ public class OvertakeTests : StarDriveTest
                       $"it aims ahead of where the target flies, not where its nose points (aim {chaser.AI.MovePosition.X - target.Position.X:0} from the target)");
     }
 
+    // a target 8,000 ahead flying straight away at the given share of the chaser's top speed
+    bool CutsOffATargetAt(float speedShare, GameDifficulty difficulty)
+    {
+        UState.P.Difficulty = difficulty;
+        TestShip chaser = SpawnShip(Design, Enemy, new Vector2(100_000f, 100_000f));
+        TestShip target = SpawnShip(Design, Player, chaser.Position + new Vector2(8_000f, 0f));
+        target.Velocity = new Vector2(chaser.MaxSTLSpeed * speedShare, 0f);
+
+        for (int i = 0; i < 1000 && chaser.AI.State != AIState.Pursue; ++i)
+            chaser.AI.MoveToEngageTarget(target, TestSimStep);
+        return chaser.AI.State == AIState.Pursue;
+    }
+
+    [TestMethod]
+    public void AboveNormalATargetAtFourFifthsOfTheChasersSpeedIsCutOff()
+    {
+        Assert.IsTrue(CutsOffATargetAt(0.8f, GameDifficulty.Hard), "on Hard");
+    }
+
+    [TestMethod]
+    public void OnNormalATargetAtFourFifthsOfTheChasersSpeedIsChasedAsBefore()
+    {
+        Assert.IsFalse(CutsOffATargetAt(0.8f, GameDifficulty.Normal), "on Normal only a faster target is cut off");
+    }
+
+    [TestMethod]
+    public void AboveNormalATargetBelowThreeQuartersOfTheChasersSpeedIsChasedAsBefore()
+    {
+        Assert.IsFalse(CutsOffATargetAt(0.7f, GameDifficulty.Insane), "below three quarters of its speed it is caught by chasing");
+    }
+
     [TestMethod]
     public void TheSpreadAheadOfATargetLiesAheadOfIt()
     {
