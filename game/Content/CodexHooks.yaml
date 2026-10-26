@@ -274,7 +274,7 @@ OrdersThisShipToExplore: expansion_scouting
 IndicatesThatHostileForcesWere: expansion_scouting
 IndicatesThatAnAnomalyWas: expansion_scouting
 IndicatesThatAnAnomalyHas: expansion_scouting
-OpenTheGroundAssaultView: warfare_ground_combat
+OpenTheGroundAssaultView: ground_combat_battle
 ButtonBuildCapitalTip: economy_the_colony_screen
 
 # Bucket 4: the ship design screen
