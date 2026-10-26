@@ -74,7 +74,7 @@ time.
   member by hand rather than regenerating the file.
 - In-game Codex text is different: its tokens use ids 100000 and up and are named from the
   entry's UID, with no enum member (see the header of `game/Content/Codex.yaml`).
-- The in-game Codex describes the rules the code uses, with numbers. Grep `GameText.yaml` for the
+- The in-game Codex describes the rules the code uses. Grep `GameText.yaml` for the
   changed mechanic's words and numbers: Codex entries are the `Codex*` tokens there, and
   tooltips are ordinary tokens there too (`game/Content/CodexHooks.yaml` only maps tooltips to
   entries). An entry or tooltip that now describes the old rule is a blocker and is fixed in the
@@ -82,6 +82,10 @@ time.
 - The Codex describes what the player's own buttons and actions do. It does not reveal the AI's
   decision rules, such as which offers it turns down and what a refused offer costs you: that
   spoils the game, so a change like that needs no Codex text.
+- Codex entries are written for a player, not as a spec. Keep paragraphs short under more gold
+  `<color=Caption>` headings, and give a subject that grows large its own entry. A number stays
+  where it helps the player decide, such as the repair priorities; exact formulas, such as how
+  a missile's lock-on chance is worked out, are left out.
 
 ## Mods
 

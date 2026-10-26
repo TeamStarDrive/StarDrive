@@ -129,6 +129,8 @@
     -
       UID: warfare_combat_basics
     -
+      UID: warfare_combat_stances
+    -
       UID: warfare_ship_death
       Children:
         -
