@@ -121,6 +121,36 @@ namespace Ship_Game.Gameplay
         [StarData] bool InsideShips;
         [StarData] bool PassedAShipThisStep;
 
+        // a missile's target in a save: its ship, and the module it aims at counted from 1, or 0 for the ship itself; set only by a load
+        [StarData] Ship SavedTargetShip;
+        [StarData] int SavedTargetModule;
+
+        // the save gets the missile's target, the missile in play is left as it is
+        [StarDataSerialize]
+        StarDataDynamicField[] OnSerialize()
+        {
+            GameObject target = MissileAI?.Target;
+            if ((target as Ship ?? (target as ShipModule)?.GetParent()) is not { Active: true } ship)
+                return null;
+
+            int module = target is ShipModule m ? Array.IndexOf(ship.Modules, m) + 1 : 0;
+            return new StarDataDynamicField[] { new(nameof(SavedTargetShip), ship), new(nameof(SavedTargetModule), module) };
+        }
+
+        // the target a loaded missile flies on at: its saved module if the ship still has it, else the ship; only once
+        internal GameObject TakeSavedTarget()
+        {
+            if (SavedTargetShip is not { } ship)
+                return null;
+
+            int module = SavedTargetModule;
+            SavedTargetShip = null;
+            SavedTargetModule = 0;
+            if (!ship.Active)
+                return null;
+            return module > 0 && module <= ship.Modules.Length ? ship.Modules[module - 1] : ship;
+        }
+
         const float MaxLockOnChance = 75f;
         public const float LockOnHalfRadius = 300f;
         const float LockOnChanceCap = 95f;

@@ -221,6 +221,7 @@
     <Compile Include="Ships\ProjectileInheritanceTests.cs" />
     <Compile Include="Ships\ProjectileHitOnceTests.cs" />
     <Compile Include="Ships\LockOnTests.cs" />
+    <Compile Include="Ships\MissileTargetLoadTests.cs" />
     <Compile Include="Ships\ProjectilePushTests.cs" />
     <Compile Include="Ships\ShipPositionPrecisionTests.cs" />
     <Compile Include="Ships\BlastRadiusDisplayTests.cs" />

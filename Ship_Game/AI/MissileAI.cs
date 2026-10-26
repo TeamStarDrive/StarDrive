@@ -200,6 +200,9 @@ namespace Ship_Game.AI
         // added by gremlin Deveksmod Missilethink.
         public void Think(FixedSimTime timeStep)
         {
+            if (Target == null && Missile.TakeSavedTarget() is { } saved)
+                Target = saved; // a loaded missile flies on at what it was after
+
             if (TargetShip(Target) is { IsLaunchingOrLanding: true })
                 Retarget();
 
