@@ -150,6 +150,13 @@
           UID: derelicts_hauling
     -
       UID: warfare_ground_combat
+      Children:
+        -
+          UID: ground_combat_landing
+        -
+          UID: ground_combat_battle
+        -
+          UID: ground_combat_bombardment
     -
       UID: warfare_fighter_bays
     -
@@ -176,6 +183,13 @@
           UID: design_sensors_and_targeting
     -
       UID: warfare_refit_and_scrap
+      Children:
+        -
+          UID: refit_and_scrap_refitting
+        -
+          UID: refit_and_scrap_scrapping
+        -
+          UID: refit_and_scrap_dismantling
     -
       UID: warfare_ship_experience
     -
