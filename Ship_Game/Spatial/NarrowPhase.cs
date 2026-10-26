@@ -122,6 +122,8 @@ namespace Ship_Game.Spatial
                                    && (objectB.Type != GameObjectType.Proj || !IsPointDefense(objectB));
                     var proj = (Projectile)(isProjA ? objectA : objectB);
                     SpatialObjectBase victim = isProjA ? objectB : objectA;
+                    if (proj.DieNextFrame)
+                        continue; // a shot that hit something or was shot down this step hits nothing more
 
                     if (HitTestProj(timeStep.FixedTime, proj, victim, out ShipModule hitModule, out Vector2 hitPos))
                     {
