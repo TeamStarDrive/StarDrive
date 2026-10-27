@@ -395,7 +395,7 @@ namespace Ship_Game.Ships
                 if (enginesOn)
                 {
                     if (notPaused && thruster.heat < velocityPercent)
-                        thruster.heat += 0.06f;
+                        thruster.heat = Math.Min(thruster.heat + 3.6f * timeStep.FixedTime, velocityPercent + 0.06f); // warms up by game time, at most 0.06 past the ship's speed
 
                     if (engineState == MoveState.Warp)
                     {

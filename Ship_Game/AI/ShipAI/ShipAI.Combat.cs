@@ -85,7 +85,7 @@ namespace Ship_Game.AI
             Intercepting = false;
         }
 
-        bool FireOnTarget()
+        bool FireOnTarget(float stepTime)
         {
             // base reasons not to fire. @TODO actions decided by loyalty like should be the same in all areas. 
             if (!Owner.HasCommand || Owner.engineState == Ship.MoveState.Warp
@@ -109,7 +109,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < count; ++i)
             {
                 var weapon = weapons[i];
-                bool didFire = weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets);
+                bool didFire = weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets, stepTime);
                 didFireAtAny |= didFire;
                 if (didFire)
                 {
