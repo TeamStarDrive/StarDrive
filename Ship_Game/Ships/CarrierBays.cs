@@ -213,6 +213,7 @@ namespace Ship_Game.Ships
             }
             return false;
         }
+
         public ShipModule[] SupplyHangarsAlive => AllSupplyBays.Filter(hangar => hangar.Active);
 
         public int NumTroopsInShipAndInSpace

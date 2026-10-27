@@ -37,7 +37,6 @@ public class IncomingThreatDetector
     {
         Threats.Clear();
         SystemsWithThreat = Empty<IncomingThreat>.Array;
-        HostilesInSystems = Empty<(SolarSystem, Empire[])>.Array;
     }
 
     public void Update(Empire owner, FixedSimTime timeStep)

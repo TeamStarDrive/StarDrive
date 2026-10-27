@@ -483,6 +483,14 @@ namespace Ship_Game.AI
             AddOrbitPlanetGoal(p);
         }
 
+        // queues an orbit of the planet after the orders the ship is carrying out, which keep its state
+        public void QueueOrbit(Planet p)
+        {
+            AIState state = State;
+            AddOrbitPlanetGoal(p);
+            ChangeAIState(state);
+        }
+
         public void OrderPirateFleeHome(bool signalRetreat = false)
         {
             if (Owner.IsConstructor && Owner.Mothership?.Loyalty == Owner.Loyalty)

@@ -2898,6 +2898,7 @@ namespace Ship_Game
             ActiveRelations = Empty<Relationship>.Array;
             RelationsMap = Empty<Relationship>.Array;
             ThreatDetector.Clear();
+            ThreatDetector.HostilesInSystems = Empty<(SolarSystem, Empire[])>.Array;
             ClearInfluenceList();
             TechnologyDict.Clear();
             ResetFleets(returnShipsToEmpireAI: false);

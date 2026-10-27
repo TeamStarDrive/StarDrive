@@ -664,4 +664,130 @@ public class ChaseLimitTests : StarDriveTest
         far.Die(far, cleanupOnly: true);
         Assert.AreEqual(30_000f, fleet.LongestSensorRange, "a dead ship still listed in the fleet no longer counts");
     }
+
+    [TestMethod]
+    public void AFleetLooksUpItsLongestSensorRangeAgainOnceThatShipSeesLess()
+    {
+        TestShip near = FleetShip(FleetPos);
+        TestShip far = FleetShip(FleetPos + new Vector2(500f, 0f));
+        near.SensorRange = 30_000f;
+        far.SensorRange = 50_000f;
+        Fleet fleet = Enemy.CreateFleet(1, null);
+        fleet.AddShip(near);
+        fleet.AddShip(far);
+        Assert.AreEqual(50_000f, fleet.LongestSensorRange);
+
+        far.SensorRange = 10_000f;
+        Assert.AreEqual(30_000f, fleet.LongestSensorRange, "a ship whose sensors were shot away no longer sees farthest");
+    }
+
+    [TestMethod]
+    public void AFleetLooksUpItsLongestSensorRangeAgainOnceAShipJoins()
+    {
+        TestShip near = FleetShip(FleetPos);
+        TestShip far = FleetShip(FleetPos + new Vector2(500f, 0f));
+        near.SensorRange = 30_000f;
+        far.SensorRange = 50_000f;
+        Fleet fleet = Enemy.CreateFleet(1, null);
+        fleet.AddShip(near);
+        Assert.AreEqual(30_000f, fleet.LongestSensorRange);
+
+        fleet.AddShip(far);
+        Assert.AreEqual(50_000f, fleet.LongestSensorRange, "a ship that joins and sees farther counts");
+    }
+
+    [TestMethod]
+    public void AFleetLooksUpItsLongestSensorRangeAgainOnceAShipTakesASlot()
+    {
+        TestShip near = FleetShip(FleetPos);
+        TestShip far = FleetShip(FleetPos + new Vector2(500f, 0f));
+        near.SensorRange = 30_000f;
+        far.SensorRange = 50_000f;
+        Fleet fleet = Enemy.CreateFleet(1, null);
+        fleet.AddShip(near);
+        Assert.AreEqual(30_000f, fleet.LongestSensorRange);
+
+        var slot = new FleetDataNode { ShipName = far.Name };
+        fleet.DataNodes.Add(slot);
+        fleet.AddExistingShip(far, slot);
+        Assert.AreEqual(50_000f, fleet.LongestSensorRange, "a ship that fills a slot and sees farther counts");
+    }
+
+    [TestMethod]
+    public void AMovingFleetShipTakesOnALoneShipOverATenthOfItsStrength()
+    {
+        TestShip ship = Quiet(SpawnShip(FrigateName, Enemy, FleetPos));
+        MovingFleet(ship);
+        TestShip rival = Holding(ScoutName, Player, ship.Position + new Vector2(0f, 5000f));
+        AssertGreaterThan(rival.GetStrength(), ship.GetStrength() * 0.15f, "setup: the scout is over a tenth of the fleet frigate");
+        AssertLessThan(rival.GetStrength(), ship.GetStrength() * 0.5f, "setup: but well under half of it");
+        JustOutOfReach(rival, ship);
+        RunObjectsSim(OneSecond);
+
+        Assert.AreSame(rival, ship.AI.Target, "a lone ship over a tenth of the fleet ship's strength is worth the fight");
+    }
+
+    [TestMethod]
+    public void AnOrbitWithNoPlanetMakesNoGuard()
+    {
+        TestShip ship = Quiet(SpawnShip(FrigateName, Enemy, new Vector2(600_000f)));
+        ship.AI.OrderQueue.Enqueue(new ShipAI.ShipGoal(ShipAI.Plan.Orbit, ship.Position, Vectors.Up, null, null, 0f, "", 0f, AIState.Orbit, null));
+        Assert.IsTrue(ship.AI.FindGoal(ShipAI.Plan.Orbit, out _), "setup: the ship holds an orbit with no planet, as a save can leave it");
+
+        typeof(ShipAI).GetMethod("UpdateChaseLimits", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(ship.AI, null);
+
+        Assert.IsNull(typeof(ShipAI).GetField("GuardedSystem", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(ship.AI),
+                      "an orbit with no planet guards no system");
+    }
+
+    [TestMethod]
+    public void AGuardAnsweringItsColonysCallForHelpGoesBackToItsOrbit()
+    {
+        Planet colony = AddDummyPlanetToEmpire(new Vector2(600_000f), Enemy);
+        TestShip guard = Quiet(SpawnShip(FrigateName, Enemy, colony.Position + new Vector2(0f, 300f)));
+        guard.AI.OrderToOrbit(colony, clearOrders: true, MoveOrder.Aggressive);
+        Assert.IsTrue(guard.AI.State is AIState.AwaitingOrders or AIState.Orbit, "setup: the guard waits in orbit");
+        colony.System.ShipList.Add(guard);
+        typeof(Planet).GetProperty(nameof(Planet.SpaceCombatNearPlanet))!.SetValue(colony, true);
+
+        typeof(Planet).GetMethod("CallForHelp", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(colony, null);
+
+        AssertEqual(AIState.MoveTo, guard.AI.State, "the guard answers the call");
+        Assert.AreNotEqual(ShipAI.Plan.Orbit, guard.AI.OrderQueue.PeekFirst.Plan, "its move to the colony comes first");
+        Assert.AreEqual(ShipAI.Plan.Orbit, guard.AI.OrderQueue.PeekLast.Plan, "its orbit after it");
+        Assert.AreEqual(colony, guard.AI.OrbitedPlanet, "so it stays a guard");
+    }
+
+    [TestMethod]
+    public void AShipPassingThroughAnsweringACallForHelpIsNotSentBackToAnOrbitElsewhere()
+    {
+        Planet colony = AddDummyPlanetToEmpire(new Vector2(600_000f), Enemy);
+        Planet elsewhere = AddDummyPlanetToEmpire(new Vector2(-600_000f), Enemy);
+        TestShip ship = Quiet(SpawnShip(FrigateName, Enemy, colony.Position + new Vector2(0f, 300f)));
+        ship.AI.OrderToOrbit(elsewhere, clearOrders: true, MoveOrder.Aggressive);
+        Assert.AreEqual(elsewhere, ship.AI.OrbitedPlanet, "setup: the ship is on its way to orbit a planet in another system");
+        colony.System.ShipList.Add(ship);
+        typeof(Planet).GetProperty(nameof(Planet.SpaceCombatNearPlanet))!.SetValue(colony, true);
+
+        typeof(Planet).GetMethod("CallForHelp", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(colony, null);
+
+        AssertEqual(AIState.MoveTo, ship.AI.State, "setup: the ship answers the call");
+        Assert.IsNull(ship.AI.OrbitedPlanet, "it does not count as that other system's guard while it helps here");
+    }
+
+    [TestMethod]
+    public void AFleetShipAnsweringAColonysCallForHelpIsLeftToItsFleet()
+    {
+        Planet colony = AddDummyPlanetToEmpire(new Vector2(600_000f), Enemy);
+        TestShip ship = Quiet(SpawnShip(FrigateName, Enemy, colony.Position + new Vector2(0f, 300f)));
+        Enemy.CreateFleet(1, null).AddShip(ship);
+        ship.AI.OrderToOrbit(colony, clearOrders: true, MoveOrder.Aggressive);
+        colony.System.ShipList.Add(ship);
+        typeof(Planet).GetProperty(nameof(Planet.SpaceCombatNearPlanet))!.SetValue(colony, true);
+
+        typeof(Planet).GetMethod("CallForHelp", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(colony, null);
+
+        AssertEqual(AIState.MoveTo, ship.AI.State, "setup: the fleet ship answers the call");
+        Assert.IsNull(ship.AI.OrbitedPlanet, "its fleet, not an orbit, takes it on from there");
+    }
 }

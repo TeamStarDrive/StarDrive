@@ -160,6 +160,16 @@ public class ThirdPartyTargetTests : StarDriveTest
     }
 
     [TestMethod]
+    public void PiratesAreNoThirdParty()
+    {
+        CreateAMinorFaction("Corsairs");
+        Assert.IsTrue(Faction.WeArePirates && Enemy.IsEmpireHostile(Faction), "setup: hostile pirates");
+        SeenBeside(Target, Faction);
+
+        Assert.IsFalse(Enemy.HasThirdPartyIn(Target.System, Player), "a pirate base in the system does not keep a war away from it");
+    }
+
+    [TestMethod]
     public void AResearchStationIsNoThirdParty()
     {
         AtWarWithThirdEmpire();

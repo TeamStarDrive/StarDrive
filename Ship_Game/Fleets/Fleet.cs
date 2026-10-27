@@ -77,16 +77,23 @@ namespace Ship_Game.Fleets
         public bool HasPatrolPlan => Patrol != null;
 
         Ship LongestSensorShip;
+        float LongestSensorShipRange;
 
-        // looked up again only once the ship it came from has died or left the fleet
+        // looked up again once the ship it came from has died, left the fleet or changed its range, or a ship has joined
         public float LongestSensorRange
         {
             get
             {
                 Ship sensorShip = LongestSensorShip;
-                if (sensorShip is not { Active: true })
-                    LongestSensorShip = sensorShip = Ships.FindMaxFiltered(s => s is { Active: true }, s => s.SensorRange);
-                return sensorShip?.SensorRange ?? 0f;
+                float range = LongestSensorShipRange;
+                if (sensorShip is not { Active: true } || sensorShip.SensorRange != range)
+                {
+                    sensorShip = Ships.FindMaxFiltered(s => s is { Active: true }, s => s.SensorRange);
+                    range = sensorShip?.SensorRange ?? 0f;
+                    LongestSensorShipRange = range;
+                    LongestSensorShip = sensorShip;
+                }
+                return range;
             }
         }
 
@@ -186,6 +193,7 @@ namespace Ship_Game.Fleets
                 return true;
             }
 
+            LongestSensorShip = null; // a ship that joins may see farther
             UpdateOurFleetShip(newShip);
 
             SortIntoFlanks(newShip, TotalFleetAttributes.GetAveragedValues());
@@ -206,6 +214,7 @@ namespace Ship_Game.Fleets
         {
             node.Ship = ship;
             base.AddShip(ship);
+            LongestSensorShip = null;
             ship.Fleet = this;
             ship.AI.FleetNode = node;
             if (node.StanceChosen)
@@ -2110,7 +2119,8 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                ship.AI.CombatState = ship.ShipData.DefaultCombatState;
+                // back to the stance chosen for its slot, else its design's
+                ship.AI.CombatState = ship.AI.FleetNode is { StanceChosen: true } slot && slot.Ship == ship ? slot.CombatState : ship.ShipData.DefaultCombatState;
                 ship.AI.ClearOrders();
             }
         }

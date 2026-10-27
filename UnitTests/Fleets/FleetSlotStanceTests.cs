@@ -63,6 +63,23 @@ public class FleetSlotStanceTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ClearingAFleetsOrdersKeepsTheStanceSetForItsSlots()
+    {
+        Fleet fleet = EmptyFleet();
+        FleetDataNode chosen = AddSlot(fleet, new Vector2(0f, -1500f));
+        chosen.SetCombatStance(CombatState.HoldPosition);
+        Ship inChosen = BuildFor(fleet, chosen);
+        FleetDataNode untouched = AddSlot(fleet, new Vector2(0f, 1500f));
+        Ship inUntouched = BuildFor(fleet, untouched);
+        inUntouched.AI.CombatState = CombatState.Evade;
+
+        fleet.ClearOrders();
+
+        AssertEqual(CombatState.HoldPosition, inChosen.AI.CombatState, "a ship keeps the stance set for its slot");
+        AssertEqual(CombatState.ShortRange, inUntouched.AI.CombatState, "a ship in an untouched slot goes back to its design's stance");
+    }
+
+    [TestMethod]
     public void AShipBuiltForAnUntouchedSlotKeepsItsDesignsStance()
     {
         Fleet fleet = EmptyFleet();

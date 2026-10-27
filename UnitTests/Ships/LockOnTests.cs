@@ -349,6 +349,48 @@ public class LockOnTests : StarDriveTest
     }
 
     [TestMethod]
+    public void AMissilePassingThroughAShipRollsNoLockWhenItTurnsToThatShip()
+    {
+        Enemy.data.Traits.SmartMissiles = true;
+        Ship launcher = SpawnShip("Rocket Scout", Enemy, Gun + new Vector2(0, 5000));
+        Ship first = SpawnShip("Vulcan Scout", Player, Gun + new Vector2(0, -3000));
+        Ship screen = SpawnShip("Vulcan Scout", Player, Gun);
+        launcher.AI.Target = screen;
+        Projectile missile = Projectile.Create(GuidedWeapon(launcher), launcher, Gun, Vectors.Up, first.Modules[0], playSound: false);
+        missile.LockedOn = first;
+        AssertEqual(0, Collide(missile, screen), "setup: the missile locked on the first ship passes through the screen");
+        first.InitLaunch(LaunchPlan.Planet, 0f); // a target that starts launching is dropped for another
+        Assert.IsTrue(first.IsLaunching, "setup: the first target must be launching");
+
+        for (int i = 0; i < 200; ++i)
+        {
+            missile.MissileAI.Target = first.Modules[0];
+            missile.LockedOn = first;
+            missile.MissileAI.Think(TestSimStep);
+            Assert.AreEqual(screen, (missile.MissileAI.Target as ShipModule)?.GetParent(), "setup: the missile turns to the screen");
+            Assert.AreNotEqual(screen, missile.LockedOn, "a missile inside the ship it turns to does not lock on to it");
+        }
+        AssertEqual(0, Collide(missile, screen), "so it does not hit that ship from the inside");
+    }
+
+    [TestMethod]
+    public void ADeflectedShotLosesItsLock()
+    {
+        Ship screen = SpawnShip("Vulcan Scout", Player, Gun);
+        Ship target = SpawnShip("Vulcan Scout", Player, Gun + new Vector2(0, -3000));
+        Ship gunship = SpawnShip("Vulcan Scout", Enemy, Gun + new Vector2(0, 3000));
+        Ship other = SpawnShip("Vulcan Scout", Enemy, Gun);
+        Projectile shell = Shell(gunship, Gun, target);
+        shell.LockedOn = target;
+        AssertEqual(0, Collide(shell, screen), "setup: the locked-on shell passes the screen");
+
+        shell.Deflect(Player, new SDGraphics.Vector3(Gun, 0f));
+
+        Assert.IsNull(shell.LockedOn, "a deflected shot flies off with no lock");
+        AssertEqual(1, Collide(shell, other), "and hits the next ship of another empire it meets");
+    }
+
+    [TestMethod]
     public void ASmartMissileKeepsItsLockWhenItTurnsToAnotherPartOfTheSameShip()
     {
         Enemy.data.Traits.SmartMissiles = true;

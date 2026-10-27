@@ -46,6 +46,8 @@ namespace Ship_Game.AI
         Ship GuardedStation;
         bool OnFleetMove;
         float PullBackTimer;
+        Predicate<Ship> MayChaseFilter;
+        Func<Ship, float> TargetPriority;
 
         void InitializeTargeting()
         {
@@ -414,10 +416,13 @@ namespace Ship_Game.AI
             {
                 Fleet governing = Owner.Fleet ?? (Owner.IsHangarShip ? Owner.Mothership?.Fleet : null);
                 FocusClump = governing?.Focus;
-                return PotentialTargets.FindMaxFiltered(MayChase, GetTargetPriority);
+                return PotentialTargets.FindMaxFiltered(MayChaseFilter ??= MayChase, TargetPriority ??= GetTargetPriority);
             }
             return null;
         }
+
+        // the planet this ship is set to orbit, not counting resupply, flee or parking orbits
+        public Planet OrbitedPlanet => FindGoal(Plan.Orbit, out ShipGoal orbit) && orbit.WantedState == AIState.Orbit ? orbit.TargetPlanet : null;
 
         // an AI guard outside any fleet keeps to the system of the planet it orbits or the station it escorts, an AI fleet ship on a task keeps near its fleet while it travels on the fleet's move
         void UpdateChaseLimits()
@@ -432,10 +437,10 @@ namespace Ship_Game.AI
             Fleet fleet = Owner.Fleet;
             if (fleet == null)
             {
-                if (FindGoal(Plan.Orbit, out ShipGoal orbit) && orbit.WantedState == AIState.Orbit)
+                if (OrbitedPlanet is { } planet)
                 {
-                    GuardedPlanet = orbit.TargetPlanet;
-                    GuardedSystem = GuardedPlanet.System;
+                    GuardedPlanet = planet;
+                    GuardedSystem = planet.System;
                 }
                 else if (FindGoal(Plan.Escort, out ShipGoal escort)
                          && escort.TargetShip is { Active: true, IsPlatformOrStation: true, System: { } system } station)

@@ -19,7 +19,7 @@ namespace Ship_Game
 
         public bool HasThirdPartyIn(SolarSystem system, Empire enemy) => HasThirdPartyIn(system, enemy, out _);
 
-        // known armed ships in the system of an empire hostile to us, other than the enemy we attack and the Remnants
+        // known armed ships in the system of an empire hostile to us, other than the enemy we attack, the Remnants and the pirates
         public bool HasThirdPartyIn(SolarSystem system, Empire enemy, out bool allAtWar)
         {
             allAtWar = true;
@@ -29,7 +29,7 @@ namespace Ship_Game
             {
                 ThreatCluster c = clusters[i];
                 Empire them = c.Loyalty;
-                if (!c.Position.InRadius(system.Position, system.Radius) || them == enemy || them.WeAreRemnants || c.StrengthNoResearchStations <= 0f)
+                if (!c.Position.InRadius(system.Position, system.Radius) || them == enemy || them.WeAreRemnants || them.WeArePirates || c.StrengthNoResearchStations <= 0f)
                     continue;
 
                 found = true;

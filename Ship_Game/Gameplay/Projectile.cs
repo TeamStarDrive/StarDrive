@@ -247,12 +247,12 @@ namespace Ship_Game.Gameplay
             return Math.Min(MaxLockOnChance * sizeShare * turn * smart, LockOnChanceCap);
         }
 
-        // rolls whether this shot flies past every ship but the one it is fired at; point defense and repair drones never lock on
+        // rolls whether this shot flies past every ship but the one it is fired at; point defense, repair drones and a shot still passing through ships never lock on
         internal void RollLockOn(GameObject target)
         {
             LockedOn = null;
             Ship ship = target as Ship ?? (target as ShipModule)?.GetParent();
-            if (ship == null || Weapon.Tag_PD || Weapon.TruePD || Weapon.IsRepairDrone)
+            if (ship == null || InsideShips || Weapon.Tag_PD || Weapon.TruePD || Weapon.IsRepairDrone)
                 return;
 
             float turn = RotationRadsPerSecond > 0f ? RotationRadsPerSecond : Speed / 350f; // as it steers
@@ -464,6 +464,8 @@ namespace Ship_Game.Gameplay
         {
             Loyalty = empire;
             Deflected = true;
+            LockedOn = null; // a deflected shot flies off with no lock
+            InsideShips = false;
             Vector2 newDirection = empire.Random.Direction2D();
             float momentumLoss = 5 - empire.Random.RollDie(4);
             Duration *= momentumLoss * 0.1f;

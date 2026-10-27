@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
@@ -81,6 +82,17 @@ public class ThreatenedColonyOfferTests : StarDriveTest
         Assert.IsFalse(Player.CanOfferColonyTo(Threatened, ThirdMajor), "a colony with hostile warships beside it cannot be given to another empire");
         Assert.IsTrue(Player.CanOfferColonyTo(Threatened, Enemy), "it can still be handed to the warships' empire");
         Assert.IsTrue(Player.CanOfferColonyTo(Safe, ThirdMajor), "and a colony elsewhere is offered as before");
+    }
+
+    [TestMethod]
+    public void AColonyWithHostileWarshipsBesideItIsHeldBackWhileTheProjectionIsDisrupted()
+    {
+        WarshipBeside(Threatened, Enemy).KnownByEmpires.SetSeen(Player);
+        PlayerTakesATurn();
+
+        typeof(Empire).GetMethod("SetInfluenceActive", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(Player, new object[] { false });
+
+        Assert.IsFalse(Player.CanOfferColonyTo(Threatened, ThirdMajor), "a disrupted subspace projection does not hide the warships the player sees");
     }
 
     [TestMethod]
