@@ -26,6 +26,8 @@ public sealed class Derelicts
 
     public int NumSalvageable { get { lock (Sync) return CountSalvageable(); } }
 
+    public int NumDrifting { get { lock (Sync) return CountDrifting(); } }
+
     public Derelict[] ToArray() { lock (Sync) return Items.ToArray(); }
 
     // from any thread: the derelict with this id, or null once it has left the list
@@ -150,10 +152,10 @@ public sealed class Derelicts
 
     public static int DriftingCap(UniverseState universe) => Cap(universe, GlobalStats.Defaults.DriftingDerelictCapMultiplier);
 
-    // the percent chance of a derelict death, lowered by the salvageable derelicts' share of their limit, to none at it
+    // the percent chance of a derelict death, lowered by the share of their limit taken, to none at it: by the salvageable derelicts with salvage ops on, the drifting ones with them off
     public float Chance(UniverseState universe)
     {
-        float share = NumSalvageable / (float)SalvageableCap(universe);
+        float share = universe.P.SalvageOps ? NumSalvageable / (float)SalvageableCap(universe) : NumDrifting / (float)DriftingCap(universe);
         return GlobalStats.Defaults.DerelictChance * (1f - share).Clamped(0f, 1f);
     }
 

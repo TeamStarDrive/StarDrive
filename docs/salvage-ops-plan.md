@@ -28,9 +28,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
 - **When it is decided:** at death, by the roll alone (170), then by a second roll, by its hull, that makes it a
   drifting one (Gilad, 2026-10-21; 680-685): 75% for a frigate, 50% for a cruiser, 25% for a battleship, 10% for a
   capital and 70% for any other, a destroyer or a station among them (`Derelict.DriftingChance`, hard-coded). With
-  salvage ops off only a death whose second roll makes it drift is a derelict one; any other dies as usual, with its
-  blast. A ship that rolls a derelict death has no main explosion and no death blast (120, 121), wherever it is and
-  whoever sees it, so the camera never changes combat. What it leaves behind depends on visibility:
+  salvage ops off there is no second roll and every derelict drifts (Gilad, 2026-10-27). A ship that rolls a derelict
+  death has no main explosion and no death blast (120, 121), wherever it is and whoever sees it, so the camera never
+  changes combat. What it leaves behind depends on visibility:
   - visible, under the cap: 3-5 s of smaller explosions, then a derelict (120, 121);
   - visible, over the drifting cap: it takes the place of the oldest drifting derelict with no model, which leaves the
     list (683 A), and with none, the normal explosion picture, still with no blast (170);
@@ -61,9 +61,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   stops outside every system leaves one only as above (replacing the nothing of 125, 170 and 171).
 - **How many:**
   - The universe keeps the list of derelicts (129).
-  - Base chance 10%, times (1 - salvageable / the salvageable cap) (129, 142; 35% and 40 until 231). At the limit the
-    chance is 0; a death that rolled just before it was reached leaves a drifting derelict if it was seen, and nothing
-    if it was not.
+  - Base chance 20%, times (1 - salvageable / the salvageable cap) with salvage ops on, or (1 - drifting / the
+    drifting cap) with them off (129, 142; 35% and 40 until 231; 10%, and the salvageable share alone, until Gilad
+    2026-10-27). At the limit the chance is 0; with salvage ops on, a death that rolled just before it was reached
+    leaves a drifting derelict if it was seen, and nothing if it was not.
   - Each cap is the galaxy's star systems times its Globals multiplier, `SalvageableDerelictCapMultiplier` and
     `DriftingDerelictCapMultiplier`, default 1 and used from 0.1 to 10, the cap rounded up and at least 1 (Gilad,
     2026-10-21; 676-679 and 686, replacing the fixed 100 of 142 and 188): about 23 in a tiny galaxy of normal stars
@@ -918,7 +919,9 @@ Implementation notes:
   included (465), since sub-branch 2 alone leaves derelicts that nobody can salvage.
 - **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
   exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
-  the drifting cap alone.
+  the drifting cap alone. With salvage ops off the drifting ones lower it instead (Gilad, 2026-10-27): a drifting wreck
+  is kept seen or not by then, so the camera does not change that count; only the player's own sensors outside every
+  system do.
 
 ## What the code already has
 
