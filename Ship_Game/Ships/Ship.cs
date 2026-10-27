@@ -289,6 +289,9 @@ namespace Ship_Game.Ships
         {
             AI.CombatState = stance;
             ShipStatusChanged = true;
+            // the fleet slot keeps the stance for the ship that next takes it
+            if (AI.FleetNode is { } slot && slot.Ship == this)
+                slot.KeepStance(stance);
         }
 
         public bool CanTakeFleetMoveOrders()

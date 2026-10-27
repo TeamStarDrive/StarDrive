@@ -157,6 +157,9 @@ namespace Ship_Game.AI
             FleetNode = null;
             ResupplyTarget = null;
             ExplorationTarget = null;
+            GuardedSystem = null;
+            GuardedPlanet = null;
+            GuardedStation = null;
 
             Mem.Dispose(ref OrderQueue);
             NearByShips?.Clear();

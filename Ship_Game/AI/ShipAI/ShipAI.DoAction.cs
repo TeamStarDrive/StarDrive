@@ -99,12 +99,16 @@ namespace Ship_Game.AI
                 DequeueCurrentOrder();
 
             Target = PotentialTargets.Find(t => IsTargetValid(t)
-                                                && t.Position.InRadius(Owner.Position, Owner.SensorRange));
+                                                && t.Position.InRadius(Owner.Position, Owner.SensorRange)
+                                                && MayChase(t));
             return Target;
         }
 
         void DoCombat(FixedSimTime timeStep)
         {
+            if (PullBackFromChase(timeStep))
+                return;
+
             Ship target = UpdateCombatTarget();
             if (target == null)
             {
@@ -244,11 +248,14 @@ namespace Ship_Game.AI
                 // priority-order move only drops it out of combat (it never reaches the prediction
                 // point). This is what left Remnant portals oscillating Combat<->Pursue instead of
                 // fighting in place.
-                if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
+                // a ship on its fleet's move keeps that move, which an overtake would clear
+                if (Owner.IsInWarp || target.IsInWarp || Owner.Stats.IsStationary || OnFleetMove || Owner.Loyalty.Random.RollDice(95 - Owner.Level))
                     return false;
 
+                // above Normal difficulty a target at three quarters of the chaser's top speed is cut off too
+                float outpacedAt = Owner.Universe.P.Difficulty > GameDifficulty.Normal ? Owner.MaxSTLSpeed * 0.75f : Owner.MaxSTLSpeed;
                 float distance = Owner.Position.Distance(target.Position);
-                return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && Owner.MaxSTLSpeed < target.CurrentVelocity;
+                return distance < 15_000 && distance > Owner.WeaponsMaxRange * 0.7f && outpacedAt < target.CurrentVelocity;
             }
         }
 

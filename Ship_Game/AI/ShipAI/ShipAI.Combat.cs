@@ -40,6 +40,15 @@ namespace Ship_Game.AI
         Array<Ship> ScannedFriendlies = new();
         Array<Projectile> ScannedProjectiles = new();
 
+        // how far an AI ship may chase, refreshed with each target pick and each pull-back check
+        SolarSystem GuardedSystem;
+        Planet GuardedPlanet;
+        Ship GuardedStation;
+        bool OnFleetMove;
+        float PullBackTimer;
+        Predicate<Ship> MayChaseFilter;
+        Func<Ship, float> TargetPriority;
+
         void InitializeTargeting()
         {
             TargetProjectiles = DoesShipHavePointDefense(Owner);
@@ -407,9 +416,108 @@ namespace Ship_Game.AI
             {
                 Fleet governing = Owner.Fleet ?? (Owner.IsHangarShip ? Owner.Mothership?.Fleet : null);
                 FocusClump = governing?.Focus;
-                return PotentialTargets.FindMax(GetTargetPriority);
+                return PotentialTargets.FindMaxFiltered(MayChaseFilter ??= MayChase, TargetPriority ??= GetTargetPriority);
             }
             return null;
+        }
+
+        // the planet this ship is set to orbit, not counting resupply, flee or parking orbits
+        public Planet OrbitedPlanet => FindGoal(Plan.Orbit, out ShipGoal orbit) && orbit.WantedState == AIState.Orbit ? orbit.TargetPlanet : null;
+
+        // an AI guard outside any fleet keeps to the system of the planet it orbits or the station it escorts, an AI fleet ship on a task keeps near its fleet while it travels on the fleet's move
+        void UpdateChaseLimits()
+        {
+            GuardedSystem = null;
+            GuardedPlanet = null;
+            GuardedStation = null;
+            OnFleetMove = false;
+            if (Owner.Loyalty.isPlayer || Owner.IsHangarShip)
+                return;
+
+            Fleet fleet = Owner.Fleet;
+            if (fleet == null)
+            {
+                if (OrbitedPlanet is { } planet)
+                {
+                    GuardedPlanet = planet;
+                    GuardedSystem = planet.System;
+                }
+                else if (FindGoal(Plan.Escort, out ShipGoal escort)
+                         && escort.TargetShip is { Active: true, IsPlatformOrStation: true, System: { } system } station)
+                {
+                    GuardedStation = station;
+                    GuardedSystem = system;
+                }
+            }
+            else if (fleet.FleetTask != null)
+            {
+                OnFleetMove = OrderQueue.Any(g => g is { WantedState: AIState.FormationMoveTo, Plan: Plan.MoveToWithin1000 or Plan.MakeFinalApproach });
+            }
+        }
+
+        // a guard chases outside its system only a ship firing on it or its station, or a carrier with fighters in the system, a moving fleet ship skips a lone weak ship that threatens neither it nor its fleet
+        bool MayChase(Ship target)
+        {
+            if (GuardedSystem is { } system)
+                return target.Position.InRadius(system.Position, system.Radius)
+                    || target.Carrier.HasFightersIn(system)
+                    || FiresOn(target, Owner)
+                    || GuardedStation is { } station && FiresOn(target, station);
+
+            return !OnFleetMove
+                || PotentialTargets.Length > 1
+                || target.GetStrength() >= Owner.GetStrength() * 0.1f
+                || Reaches(target, Owner)
+                || TargetOf(target) is { } targeted && (targeted.Fleet ?? targeted.Mothership?.Fleet) == Owner.Fleet;
+        }
+
+        // a boarding shuttle's target is the ship it boards
+        static Ship TargetOf(Ship ship) => (ship.AI.State == AIState.Boarding ? ship.AI.EscortTarget : null) ?? ship.AI.Target;
+
+        static bool Reaches(Ship attacker, Ship victim) => victim.Position.InRadius(attacker.Position, attacker.WeaponsMaxRange + victim.Radius);
+
+        static bool FiresOn(Ship attacker, Ship victim) => TargetOf(attacker) == victim && Reaches(attacker, victim);
+
+        // once a second in combat, a guard past 1.5 system radii or a moving fleet ship past its fleet's longest sensor range goes back on a locked order
+        bool PullBackFromChase(FixedSimTime timeStep)
+        {
+            PullBackTimer -= timeStep.FixedTime;
+            if (PullBackTimer > 0f)
+                return false;
+
+            PullBackTimer = EmpireConstants.TargetSelectionInterval;
+            UpdateChaseLimits();
+            if (GuardedSystem is { } system)
+            {
+                if (Owner.Position.InRadius(system.Position, system.Radius * 1.5f))
+                    return false;
+
+                if (GuardedPlanet is { } planet)
+                {
+                    OrderToOrbit(planet, clearOrders: true);
+                }
+                else
+                {
+                    Ship station = GuardedStation;
+                    OrderMoveToNoStop(station.Position, Owner.Position.DirectionToTarget(station.Position), AIState.MoveTo);
+                    AddEscortGoal(station, clearOrders: false);
+                }
+                return true;
+            }
+
+            Fleet fleet = Owner.Fleet;
+            if (!OnFleetMove || fleet == null)
+                return false;
+
+            // a ship already near its spot at the fleet's destination has nothing to rejoin
+            float range = fleet.LongestSensorRange;
+            Vector2 spot = fleet.GetFinalPos(Owner);
+            if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), range) || Owner.Position.InRadius(spot, range))
+                return false;
+
+            ResetPriorityOrder(clearOrders: false);
+            OrderMoveTo(spot, fleet.FinalDirection, AIState.FormationMoveTo);
+            return true;
         }
 
         // Set this to get debug output of GetTargetPriority() weights
@@ -575,6 +683,7 @@ namespace Ship_Game.AI
 
                     // TODO: this should be split into two parts 1) update target 2) choose new target
                     //       because choosing a new target is expensive, and it's not even used sometimes
+                    UpdateChaseLimits();
                     Ship selectedTarget = SelectCombatTarget(sensorRadius);
                     if (Owner.Fleet == null && selectedTarget == null && Owner.IsHangarShip)
                     {

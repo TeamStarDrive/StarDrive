@@ -515,17 +515,18 @@ namespace Ship_Game.AI.Tasks
             return TaskForce.Sum(s => s.GetStrength());
         }
             
-        public bool GetMoreTroops(Planet p, out Array<Ship> moreTroops)
+        // troops still aboard the fleet count toward the planet's need, so only what they fall short of is gathered
+        public bool GetMoreTroops(Planet p, out Array<Ship> moreTroops, float troopStrengthAboard = 0f)
         {
             Planet previousTarget = TargetPlanet;
-            if (GatherMoreTroops(p, out moreTroops))
+            if (GatherMoreTroops(p, out moreTroops, troopStrengthAboard))
                 return true;
 
             TargetPlanet = previousTarget;
             return false;
         }
 
-        bool GatherMoreTroops(Planet p, out Array<Ship> moreTroops)
+        bool GatherMoreTroops(Planet p, out Array<Ship> moreTroops, float troopStrengthAboard)
         {
             moreTroops = new Array<Ship>();
             if (p == null)
@@ -533,15 +534,16 @@ namespace Ship_Game.AI.Tasks
 
             TargetPlanet = p;
             NeededTroopStrength = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
-            if (!AreThereEnoughTroopsToInvade(Owner.ShipsReadyForFleet.InvasionTroopStrength, out _, TargetPlanet.Position, true))
+            int wanted = NeededTroopStrength - (int)troopStrengthAboard;
+            if (wanted <= 0 || !AreThereEnoughTroopsToInvade(Owner.ShipsReadyForFleet.InvasionTroopStrength + troopStrengthAboard, out _, TargetPlanet.Position, true))
                 return false;
 
-            moreTroops = Owner.ShipsReadyForFleet.ExtractTroops(NeededTroopStrength);
+            moreTroops = Owner.ShipsReadyForFleet.ExtractTroops(wanted);
             float troopStr = moreTroops.Count == 0 ? 0 : moreTroops.Sum(s => s.GetOurTroopStrength(maxTroops: 500));
 
-            while (troopStr < NeededTroopStrength)
+            while (troopStr < wanted)
             {
-                Owner.GetTroopShipForRebase(out Ship troopShip, TargetPlanet.Position);
+                Owner.GetTroopShipForRebase(out Ship troopShip, TargetPlanet.Position, taken: moreTroops);
                 if (troopShip == null)
                     break; // No more troops
 

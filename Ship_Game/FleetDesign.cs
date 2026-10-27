@@ -24,6 +24,8 @@ public class FleetDataDesignNode
     [StarData] public float SizeWeight = 0.5f;
     [StarData] public float ArmoredWeight = 0.5f;
     [StarData] public CombatState CombatState;
+    // the player picked this slot's stance; a slot never picked leaves its ship on the design's stance
+    [StarData] public bool StanceChosen;
     [StarData] public float OrdersRadius = 500000;
 
     public FleetDataDesignNode() {}
@@ -39,6 +41,7 @@ public class FleetDataDesignNode
         SizeWeight = copy.SizeWeight;
         ArmoredWeight = copy.ArmoredWeight;
         CombatState = copy.CombatState;
+        StanceChosen = copy.StanceChosen;
         OrdersRadius = copy.OrdersRadius;
     }
 }
@@ -72,8 +75,27 @@ public sealed class FleetDataNode : FleetDataDesignNode
 
     public void SetCombatStance(CombatState stance)
     {
-        CombatState = stance;
+        KeepStance(stance);
         Ship?.SetCombatStance(stance);
+    }
+
+    public void KeepStance(CombatState stance)
+    {
+        CombatState = stance;
+        StanceChosen = true;
+    }
+
+    // the stance of this slot's ship, or of the ship still to be built for it
+    public CombatState ShownStance
+    {
+        get
+        {
+            if (Ship != null)
+                return Ship.AI.CombatState;
+            if (StanceChosen || !ResourceManager.GetShipTemplate(ShipName, out Ship template))
+                return CombatState;
+            return template.ShipData.DefaultCombatState;
+        }
     }
 
     public static float ApplyTargetWeight(float targetValue, float avgTargetsValue, float weightTypeValue)

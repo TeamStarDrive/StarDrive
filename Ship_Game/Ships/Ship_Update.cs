@@ -50,11 +50,11 @@ namespace Ship_Game.Ships
         // check UniverseScreen.QueueShipSceneObject()
         public void CreateSceneObject()
         {
-            if (StarDriveGame.Instance == null || ShipSO != null)
-                return; // allow creating invisible ships in Unit Tests
+            if (StarDriveGame.Instance == null || ShipSO != null || LandShip is { Done: true })
+                return; // allow creating invisible ships in Unit Tests, and a landed ship is out of sight
 
             //Log.Info($"CreateSO {Id} {Name}");
-            if (!ShipData.LoadModel(out ShipSO, Universe.Screen.ContentManager))
+            if (!ShipData.LoadModel(out SceneObject so, Universe.Screen.ContentManager))
                 return; // loading Ship SO failed
 
             // Modules installed before the mesh loaded got a SurfaceLift fallback;
@@ -67,12 +67,12 @@ namespace Ship_Game.Ships
                 HullSurfaceZRefreshed = true;
             }
 
-            if (!IsLaunching && !IsLanding) // launch and land updates will create the SO to avoid flickering
-                ShipSO.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
-
             NotVisibleToPlayerTimer = 0;
-            UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
-            ScreenManager.Instance.AddObject(ShipSO);
+            so.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
+            // a launching or landing ship's model waits for its next update, which gives it its launch or land look
+            so.Visibility = IsLaunching || IsLanding ? ObjectVisibility.None : GlobalStats.ShipVisibility;
+            ScreenManager.Instance.AddObject(so);
+            ShipSO = so; // last, so the sim can only take out a model that is already in the scene
         }
 
         bool HullSurfaceZRefreshed;
@@ -112,15 +112,16 @@ namespace Ship_Game.Ships
             ShipSO = so; // last, so the model is the ship's only once all else is done
         }
 
-        void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
+        void UpdateVisibilityToPlayer(FixedSimTime timeStep)
         {
-            bool visibleToPlayer = forceVisible || IsVisibleToPlayer;
+            bool visibleToPlayer = IsVisibleToPlayer;
             if (visibleToPlayer) NotVisibleToPlayerTimer = 0f;
             else                 NotVisibleToPlayerTimer += timeStep.FixedTime;
 
             if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
             {
-                if (!visibleToPlayer && NotVisibleToPlayerTimer > RemoveInvisibleSceneObjectsAfterTime)
+                // a landed ship is down on its planet, dock or carrier, out of sight until its launch makes a model again
+                if (LandShip is { Done: true } || !visibleToPlayer && NotVisibleToPlayerTimer > RemoveInvisibleSceneObjectsAfterTime)
                 {
                     RemoveSceneObject();
                 }
@@ -138,7 +139,7 @@ namespace Ship_Game.Ships
                 Die(null, cleanupOnly:true);
             }
             
-            UpdateVisibilityToPlayer(timeStep, forceVisible: false);
+            UpdateVisibilityToPlayer(timeStep);
 
             if (!Active)
                 return;

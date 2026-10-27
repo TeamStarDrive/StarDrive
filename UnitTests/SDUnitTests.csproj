@@ -63,6 +63,7 @@
     <Compile Include="AITests\Ships\WarpInSpreadTests.cs" />
     <Compile Include="AITests\Ships\TestGravityWellRouter.cs" />
     <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />
+    <Compile Include="AITests\Ships\ChaseLimitTests.cs" />
     <Compile Include="AITests\Ships\TestShipExploration.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
@@ -97,6 +98,8 @@
     <Compile Include="Data\Ship17EndToEndTest.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
+    <Compile Include="Empires\HostilePresenceAlertTests.cs" />
+    <Compile Include="Empires\ThreatenedColonyOfferTests.cs" />
     <Compile Include="Empires\RefitPortSelectionTests.cs" />
     <Compile Include="Empires\CrippledPortTests.cs" />
     <Compile Include="Empires\SpacePortScaleTests.cs" />
@@ -216,6 +219,9 @@
     <Compile Include="Ships\ShipEmpRecoveryTests.cs" />
     <Compile Include="Ships\ProjectileLoadTests.cs" />
     <Compile Include="Ships\ProjectileInheritanceTests.cs" />
+    <Compile Include="Ships\ProjectileHitOnceTests.cs" />
+    <Compile Include="Ships\LockOnTests.cs" />
+    <Compile Include="Ships\MissileTargetLoadTests.cs" />
     <Compile Include="Ships\ProjectilePushTests.cs" />
     <Compile Include="Ships\ShipPositionPrecisionTests.cs" />
     <Compile Include="Ships\BlastRadiusDisplayTests.cs" />
@@ -316,7 +322,9 @@
     <Compile Include="AITests\Empire\SurrenderTests.cs" />
     <Compile Include="Fleets\FleetFacingTests.cs" />
     <Compile Include="Fleets\FleetNodeAssignmentTests.cs" />
+    <Compile Include="Fleets\FleetSlotStanceTests.cs" />
     <Compile Include="Fleets\InvasionPlanningTests.cs" />
+    <Compile Include="Fleets\ThirdPartyTargetTests.cs" />
     <Compile Include="UI\FleetButtonsListTests.cs" />
     <Compile Include="Planets\ColonistTradeTests.cs" />
     <Compile Include="Planets\ProductionImportOrderTests.cs" />

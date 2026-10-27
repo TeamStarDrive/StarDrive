@@ -17,6 +17,28 @@ namespace Ship_Game
             return AI.HasGoal(g => g.IsWarMissionTarget(planet));
         }
 
+        public bool HasThirdPartyIn(SolarSystem system, Empire enemy) => HasThirdPartyIn(system, enemy, out _);
+
+        // known armed ships in the system of an empire hostile to us, other than the enemy we attack, the Remnants and the pirates
+        public bool HasThirdPartyIn(SolarSystem system, Empire enemy, out bool allAtWar)
+        {
+            allAtWar = true;
+            bool found = false;
+            ThreatCluster[] clusters = AI.ThreatMatrix.FindHostileClusters(system.Position, system.Radius);
+            for (int i = 0; i < clusters.Length; ++i)
+            {
+                ThreatCluster c = clusters[i];
+                Empire them = c.Loyalty;
+                if (!c.Position.InRadius(system.Position, system.Radius) || them == enemy || them.WeAreRemnants || them.WeArePirates || c.StrengthNoResearchStations <= 0f)
+                    continue;
+
+                found = true;
+                if (!IsAtWarWith(them))
+                    allAtWar = false;
+            }
+            return found;
+        }
+
         public bool GetPotentialTargetPlanets(Empire enemy, WarType warType, out Planet[] targetPlanets)
         {
             targetPlanets = null;

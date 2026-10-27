@@ -268,7 +268,7 @@ namespace Ship_Game.Ships
                 Done = PlanetLanding.Done;
             }
 
-            if (visibleToPlayer && !Done)
+            if (visibleToPlayer) // on the touchdown tick too, so a model that arrives then takes the landed pose
                 LaunchShip.UpdateSceneObject(Owner, scale, PosZ, timeStep);
         }
 

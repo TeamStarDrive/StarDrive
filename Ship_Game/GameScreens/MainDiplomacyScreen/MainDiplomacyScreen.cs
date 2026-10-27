@@ -35,6 +35,8 @@ namespace Ship_Game
 
         Array<RaceEntry> Races = new();
         ScrollList<ArtifactItemListItem> ArtifactsSL;
+        UITextBox IntelBox;
+        UITextBox BonusBox;
 
         Empire Player;
         readonly bool UsingNewEspioange;
@@ -307,194 +309,9 @@ namespace Ship_Game
                 intReport += espionage.EffectiveLevel == 0 ? " (basic)" : $" (level {espionage.EffectiveLevel})";
 
             batch.DrawDropShadowText(intReport, textCursor, Fonts.Arial20Bold, SelectedEmpire.EmpireColor);
-            textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 5);
 
-            if (UsingNewEspioange || IntelligenceLevel(SelectedEmpire) > 0)
-                DrawDiploLine(batch, Font12, Localizer.Token(GameText.HomeWorld)+SelectedEmpire.data.Traits.HomeworldName, Color.Wheat, ref textCursor);
-
-            if (UsingNewEspioange || IntelligenceLevel(SelectedEmpire) > 0)
-            {
-                if (SelectedEmpire.Capital != null)
-                {
-                    string controlsHomeworld = Localizer.Token(GameText.ControlsHomeWorld) + ((SelectedEmpire.Capital.Owner == SelectedEmpire)
-                        ? Localizer.Token(GameText.Yes)
-                        : Localizer.Token(GameText.No));
-
-                    DrawDiploLine(batch, Font12, controlsHomeworld, Color.Wheat, ref textCursor);
-                }
-
-                bool alwaysShow = SelectedEmpire.isPlayer || !UsingNewEspioange;
-                if (alwaysShow || espionage.CanViewNumPlanets)
-                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalPlanets)} {SelectedEmpire.GetPlanets().Count}", Color.Wheat, ref textCursor);
-
-                if (alwaysShow || espionage.CanViewNumShips)
-                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalStarships)} {SelectedEmpire.OwnedShips.Count}", Color.Wheat, ref textCursor);
-
-                if (alwaysShow || espionage.CanViewMoneyAndMaint)
-                {
-                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.Treasury)} {SelectedEmpire.Money.String(2)}", Color.Wheat, ref textCursor);
-                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.MaintenanceCosts)} {(SelectedEmpire.BuildingAndShipMaint + SelectedEmpire.TroopCostOnPlanets).String(2)}", Color.Wheat, ref textCursor);
-                }
-
-                if (SelectedEmpire.Research.HasTopic)
-                {
-                    if (SelectedEmpire.isPlayer || UsingNewEspioange && espionage.CanViewResearchTopic || IntelligenceLevel(SelectedEmpire) > 1)
-                        DrawDiploLine(batch, Font12, $"Researching: {SelectedEmpire.Research.Current.Tech.Name.Text}", Color.Wheat, ref textCursor);
-                    else if (UsingNewEspioange && espionage.CanViewTechType || IntelligenceLevel(SelectedEmpire) > 0)
-                        DrawDiploLine(batch, Font12, $"Researching: {SelectedEmpire.Research.Current.TechnologyType}", Color.Wheat, ref textCursor);
-                    else
-                        DrawDiploLine(batch, Font12, "Researching: Unknown", Color.Wheat, ref textCursor);
-                }
-            }
-
-            if (!UsingNewEspioange)
-            {
-                if (IntelligenceLevel(SelectedEmpire) > 1)
-                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalSpies)} {SelectedEmpire.data.AgentList.Count}", Color.LightGreen, ref textCursor);
-                else if (IntelligenceLevel(SelectedEmpire) > 0)
-                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalSpies)} {(SelectedEmpire.data.AgentList.Count >= Player.data.AgentList.Count ? "Many" : "Few")}", Color.Yellow, ref textCursor);
-                else
-                    DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.TotalSpies)} Unknown", Color.Pink, ref textCursor);
-            }
-            else if (SelectedEmpire != Player)
-            {
-                DrawDiploLine(batch, Font12, $"Their Infiltration Level: {espionage.InfiltrationLevelSummary()}", Color.Wheat, ref textCursor);
-            }
-
-            DrawDiploLine(batch, Font12, $"{Localizer.Token(GameText.Population2)} {GetPop(SelectedEmpire).String(1)} {Localizer.Token(GameText.Billion)}", Color.Wheat, ref textCursor);
-
-            if (UsingNewEspioange && espionage?.CanViewTheirMoles == true || IntelligenceLevel(SelectedEmpire) > 1)
-            {
-                string traitlist = Font12.ParseText($"Number Of Moles: {Player.GetNumOfTheirMoles(SelectedEmpire)}", IntelligenceRect.Width - 10);
-                DrawDiploLine(batch, Font12, traitlist, Color.Wheat, ref textCursor);
-            }
-
-            //Diplomatic Relations
-            foreach (Relationship rel in SelectedEmpire.AllRelations)
-            {
-                if (!rel.Known || rel.Them.IsFaction || rel.Them.IsDefeated)
-                    continue;
-
-                if (SelectedEmpire.isPlayer 
-                    || UsingNewEspioange && espionage.CanViewTheirTreaties
-                    || IntelligenceLevel(SelectedEmpire) > 0)
-                {
-                    Color color = rel.Them.EmpireColor;
-                    string name = rel.Them.data.Traits.Name;
-                    string andTrade = rel.Treaty_Trade ? Localizer.Token(GameText.AndTrade) : ""; // "and Trade"
-
-                    if      (rel.Treaty_Alliance)    DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.Alliance)} {andTrade}", color, ref textCursor);
-                    else if (rel.Treaty_OpenBorders) DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.OpenBorders)} {andTrade}", color, ref textCursor);
-                    else if (rel.Treaty_NAPact)      DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.NonaggressionPact2)} {andTrade}", color, ref textCursor);
-                    else if (rel.Treaty_Peace)       DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.PeaceTreaty)} {andTrade}", color, ref textCursor);
-                    else if (rel.AtWar)              DrawDiploLine(batch, Font12, $"{name}: {Localizer.Token(GameText.AtWar)} {andTrade}", color, ref textCursor);
-                }
-            }
-
-            if (SelectedEmpire.isPlayer || (UsingNewEspioange && espionage?.CanViewTraitSet == true) || IntelligenceLevel(SelectedEmpire) > 1)
-            {
-                textCursor.Y += Font12.LineSpacing + 2;
-                string traitlist = Font12.ParseText($"Racial Traits: {SelectedEmpire.data.SelectedTraitSet}", IntelligenceRect.Width - 50);
-                DrawDiploLine(batch, Font12, traitlist, SelectedEmpire.EmpireColor, ref textCursor);
-            }
-
-            //End of intel report
             textCursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
             batch.DrawDropShadowText((SelectedEmpire.isPlayer ? Localizer.Token(GameText.YourEmpiresBonuses) : Localizer.Token(GameText.TheirBonuses)), textCursor, Fonts.Arial20Bold, SelectedEmpire.EmpireColor);
-            textCursor.Y += Fonts.Arial20Bold.LineSpacing + 5;
-            //Added by McShooterz: Only display modified bonuses
-            if (SelectedEmpire.isPlayer 
-                || UsingNewEspioange && espionage.CanViewBonuses 
-                || IntelligenceLevel(SelectedEmpire) > 0)
-            {
-                if (SelectedEmpire.data.Traits.PopGrowthMax > 0f)
-                    DrawBadStat(Localizer.Token(GameText.MaximumPopulationGrowth), "+"+SelectedEmpire.data.Traits.PopGrowthMax.ToString(".##"), ref textCursor);
-                if (SelectedEmpire.data.Traits.PopGrowthMin > 0f)
-                    DrawGoodStat(Localizer.Token(GameText.MinimumPopulationGrowth), "+"+SelectedEmpire.data.Traits.PopGrowthMin.ToString(".##"), ref textCursor);
-                if (SelectedEmpire.data.Traits.ReproductionMod != 0)
-                    DrawStat(Localizer.Token(GameText.PopulationGrowthModifier), SelectedEmpire.data.Traits.ReproductionMod, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.ConsumptionModifier != 0)
-                    DrawStat(Localizer.Token(GameText.FoodConsumptionModifier), SelectedEmpire.data.Traits.ConsumptionModifier, ref textCursor, true);
-                if (SelectedEmpire.data.Traits.ProductionMod != 0)
-                    DrawStat(Localizer.Token(GameText.ProductionModifier), SelectedEmpire.data.Traits.ProductionMod, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.ResearchMod != 0)
-                    DrawStat(Localizer.Token(GameText.ResearchModifier), SelectedEmpire.data.Traits.ResearchMod, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.DiplomacyMod != 0)
-                    DrawStat(Localizer.Token(GameText.DiplomacyModifier), SelectedEmpire.data.Traits.DiplomacyMod, ref textCursor, false);
-                if (SelectedEmpire.data.OngoingDiplomaticModifier != 0)
-                    DrawStat(Localizer.Token(GameText.OngoingDiplomacyModifier), SelectedEmpire.data.OngoingDiplomaticModifier, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.GroundCombatModifier != 0)
-                    DrawStat(Localizer.Token(GameText.TroopStrengthModifier), SelectedEmpire.data.Traits.GroundCombatModifier, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.ShipCostMod != 0)
-                    DrawStat(Localizer.Token(GameText.ShipCostModifier), SelectedEmpire.data.Traits.ShipCostMod, ref textCursor, true);
-                if (SelectedEmpire.data.Traits.ModHpModifier != 0)
-                    DrawStat(Localizer.Token(GameText.ShipHitpointsModifier), SelectedEmpire.data.Traits.ModHpModifier, ref textCursor, false);
-                //Added by McShooterz: new races stats to display in diplomacy
-                if (SelectedEmpire.data.Traits.RepairMod != 0)
-                    DrawStat(Localizer.Token(GameText.RepairRateModifier), SelectedEmpire.data.Traits.RepairMod, ref textCursor, false);
-                if (SelectedEmpire.data.PowerFlowMod != 0)
-                    DrawStat(Localizer.Token(GameText.ReactorPowerModifier), SelectedEmpire.data.PowerFlowMod, ref textCursor, false);
-                if (SelectedEmpire.data.ShieldPowerMod != 0)
-                    DrawStat(Localizer.Token(GameText.ShieldStrengthModifier), SelectedEmpire.data.ShieldPowerMod, ref textCursor, false);
-                if (SelectedEmpire.data.MassModifier != 1)
-                    DrawStat(Localizer.Token(GameText.ShipMassModifier), SelectedEmpire.data.MassModifier - 1f, ref textCursor, true);
-                if (SelectedEmpire.data.Traits.TaxMod != 0)
-                    DrawStat(Localizer.Token(GameText.TaxIncomeModifier), SelectedEmpire.data.Traits.TaxMod, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.MaintMod != 0 || SelectedEmpire.data.Traits.ShipMaintMultiplier < 1)
-                {
-                    if (SelectedEmpire.data.Traits.MaintMod != 0 )
-                        DrawStat(Localizer.Token(GameText.MaintenanceModifier), SelectedEmpire.data.Traits.MaintMod, ref textCursor, true);
-
-                    float shipMaintTotal = ((1 + SelectedEmpire.data.Traits.MaintMod) * SelectedEmpire.data.Traits.ShipMaintMultiplier) - 1;
-                    DrawStat(Localizer.Token(GameText.ShipMaintenanceModifier), shipMaintTotal, ref textCursor, true);
-                }
-
-                DrawStat(Localizer.Token(GameText.InbordersFtlBonus), SelectedEmpire.data.Traits.InBordersSpeedBonus, ref textCursor, false);
-                if (Universe.UState.P.FTLModifier != 1f)
-                {
-                    float fTLModifier = Universe.UState.P.FTLModifier * 100f;
-                    DrawBadStat(Localizer.Token(GameText.InsystemFtlSpeed), fTLModifier.ToString("##")+"%", ref textCursor);
-                }
-                DrawStat(Localizer.Token(GameText.FtlSpeedMultiplier), string.Concat(SelectedEmpire.data.FTLModifier, "x"), ref textCursor);
-                DrawStat(Localizer.Token(GameText.FtlPowerDrainModifier), string.Concat(SelectedEmpire.data.FTLPowerDrainModifier, "x"), ref textCursor);
-                float passengers = SelectedEmpire.data.Traits.PassengerModifier;
-                if (passengers > 1f)
-                    DrawGoodStat(Localizer.Token(GameText.ColonistsPerCargoUnit), passengers.String(2)+"x", ref textCursor);
-                else if (passengers < 1f)
-                    DrawBadStat(Localizer.Token(GameText.ColonistsPerCargoUnit), passengers.String(2)+"x", ref textCursor);
-                if (SelectedEmpire.data.FuelCellModifier != 0)
-                    DrawStat(Localizer.Token(GameText.FuelCellModifier), SelectedEmpire.data.FuelCellModifier, ref textCursor, false);
-                if (SelectedEmpire.data.SubLightModifier != 1)
-                    DrawStat(Localizer.Token(GameText.SublightSpeedBonus), SelectedEmpire.data.SubLightModifier - 1f, ref textCursor, false);
-                if (SelectedEmpire.data.SensorModifier != 1)
-                    DrawStat(Localizer.Token(GameText.SensorRangeModifier), SelectedEmpire.data.SensorModifier - 1f, ref textCursor, false);
-                if (SelectedEmpire.data.ExperienceMod != 0)
-                    DrawStat("Ship Experience Modifier", SelectedEmpire.data.ExperienceMod, ref textCursor, false);
-                if (SelectedEmpire.data.SpyModifier > 0f)
-                    DrawGoodStat(Localizer.Token(GameText.SpyEffectivenessModifier), "+"+SelectedEmpire.data.SpyModifier.ToString("#"), ref textCursor);
-                else if (SelectedEmpire.data.SpyModifier < 0f)
-                    DrawBadStat(Localizer.Token(GameText.SpyEffectivenessModifier), "-"+SelectedEmpire.data.SpyModifier.ToString("#"), ref textCursor);
-                if (SelectedEmpire.data.Traits.Spiritual != 0)
-                    DrawStat(Localizer.Token(GameText.ArtifactBonusModifier), SelectedEmpire.data.Traits.Spiritual, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.TargetingModifier != 0)
-                    DrawStat(Localizer.Token(GameText.CannonAccuracyModifier), SelectedEmpire.data.Traits.TargetingModifier, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.DodgeMod > 0)
-                    DrawStat(Localizer.Token(GameText.DodgeModifier), SelectedEmpire.data.Traits.DodgeMod , ref textCursor, false);
-                if (SelectedEmpire.data.OrdnanceEffectivenessBonus != 0)
-                    DrawStat(Localizer.Token(GameText.OrdnanceDamageradiusModifier), SelectedEmpire.data.OrdnanceEffectivenessBonus, ref textCursor, false);
-                if (SelectedEmpire.data.MissileHPModifier != 1)
-                    DrawStat(Localizer.Token(GameText.MissileHitpointsBonus), SelectedEmpire.data.MissileHPModifier - 1f, ref textCursor, false);
-                if (SelectedEmpire.data.MissileDodgeChance != 0)
-                    DrawStat(Localizer.Token(GameText.MissileDodgeChance), SelectedEmpire.data.MissileDodgeChance, ref textCursor, false); 
-                if (SelectedEmpire.data.ExoticStorageMultiplier != 1)
-                    DrawStat(Localizer.Token(GameText.EmpireExoticStorage), SelectedEmpire.data.ExoticStorageMultiplier-1, ref textCursor, false);
-                if (SelectedEmpire.data.MiningSpeedMultiplier != 1)
-                    DrawStat(Localizer.Token(GameText.EmpireMiningSpeed), SelectedEmpire.data.MiningSpeedMultiplier-1, ref textCursor, false);
-                if (SelectedEmpire.data.SalvageSpeedMultiplier != 1)
-                    DrawStat(Localizer.Token(GameText.EmpireSalvageSpeed), SelectedEmpire.data.SalvageSpeedMultiplier-1, ref textCursor, false);
-                if (SelectedEmpire.data.RefiningRatioMultiplier != 1)
-                    DrawStat(Localizer.Token(GameText.EmpireRefiningEfficiency), SelectedEmpire.data.RefiningRatioMultiplier-1, ref textCursor, false);
-            }
             base.Draw(batch, elapsed);
             batch.SafeEnd();
         }
@@ -513,33 +330,233 @@ namespace Ship_Game
             return empireList.Length;
         }
 
-        private void DrawBadStat(string text, string text2, ref Vector2 Position)
+        void ShowEmpire(Empire empire)
         {
-            Position = Position.ToFloored();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.LightPink);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
-            //};
-            nPos = nPos.ToFloored();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.LightPink);
-            Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+            SelectedEmpire = empire;
+            if (ListArtifacts())
+                GameAudio.EchoAffirmative();
+            ListIntelligence();
+            ListBonuses();
+            ArtifactsSL.ScrollToTop();
+            IntelBox.ItemsList.ScrollToTop();
+            BonusBox.ItemsList.ScrollToTop();
         }
 
-        private void DrawGoodStat(string text, string text2, ref Vector2 Position)
+        bool WasOnTop = true;
+
+        // treaties, gifts and trades made on a screen opened from here show on return
+        public override void Update(float fixedDeltaTime)
         {
-            Position = Position.ToFloored();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.LightGreen);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
-            //};
-            nPos = nPos.ToFloored();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.LightGreen);
-            Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+            bool onTop = ScreenManager.Current == this;
+            if (onTop && !WasOnTop && SelectedEmpire != null)
+            {
+                ListArtifacts();
+                ListIntelligence();
+                ListBonuses();
+            }
+            WasOnTop = onTop;
+            base.Update(fixedDeltaTime);
         }
 
-        private void DrawStat(string text, float value, ref Vector2 Position, bool OppositeBonuses)
+        void ListIntelligence()
+        {
+            IntelBox.Clear();
+            Espionage espionage = SelectedEmpire.isPlayer || !UsingNewEspioange ? null : Player.GetEspionage(SelectedEmpire);
+            if (UsingNewEspioange || IntelligenceLevel(SelectedEmpire) > 0)
+                IntelLine(Localizer.Token(GameText.HomeWorld)+SelectedEmpire.data.Traits.HomeworldName, Color.Wheat);
+
+            if (UsingNewEspioange || IntelligenceLevel(SelectedEmpire) > 0)
+            {
+                if (SelectedEmpire.Capital != null)
+                {
+                    string controlsHomeworld = Localizer.Token(GameText.ControlsHomeWorld) + ((SelectedEmpire.Capital.Owner == SelectedEmpire)
+                        ? Localizer.Token(GameText.Yes)
+                        : Localizer.Token(GameText.No));
+
+                    IntelLine(controlsHomeworld, Color.Wheat);
+                }
+
+                bool alwaysShow = SelectedEmpire.isPlayer || !UsingNewEspioange;
+                if (alwaysShow || espionage.CanViewNumPlanets)
+                    IntelLine($"{Localizer.Token(GameText.TotalPlanets)} {SelectedEmpire.GetPlanets().Count}", Color.Wheat);
+
+                if (alwaysShow || espionage.CanViewNumShips)
+                    IntelLine($"{Localizer.Token(GameText.TotalStarships)} {SelectedEmpire.OwnedShips.Count}", Color.Wheat);
+
+                if (alwaysShow || espionage.CanViewMoneyAndMaint)
+                {
+                    IntelLine($"{Localizer.Token(GameText.Treasury)} {SelectedEmpire.Money.String(2)}", Color.Wheat);
+                    IntelLine($"{Localizer.Token(GameText.MaintenanceCosts)} {(SelectedEmpire.BuildingAndShipMaint + SelectedEmpire.TroopCostOnPlanets).String(2)}", Color.Wheat);
+                }
+
+                if (SelectedEmpire.Research.HasTopic)
+                {
+                    if (SelectedEmpire.isPlayer || UsingNewEspioange && espionage.CanViewResearchTopic || IntelligenceLevel(SelectedEmpire) > 1)
+                        IntelLine($"Researching: {SelectedEmpire.Research.Current.Tech.Name.Text}", Color.Wheat);
+                    else if (UsingNewEspioange && espionage.CanViewTechType || IntelligenceLevel(SelectedEmpire) > 0)
+                        IntelLine($"Researching: {SelectedEmpire.Research.Current.TechnologyType}", Color.Wheat);
+                    else
+                        IntelLine("Researching: Unknown", Color.Wheat);
+                }
+            }
+
+            if (!UsingNewEspioange)
+            {
+                if (IntelligenceLevel(SelectedEmpire) > 1)
+                    IntelLine($"{Localizer.Token(GameText.TotalSpies)} {SelectedEmpire.data.AgentList.Count}", Color.LightGreen);
+                else if (IntelligenceLevel(SelectedEmpire) > 0)
+                    IntelLine($"{Localizer.Token(GameText.TotalSpies)} {(SelectedEmpire.data.AgentList.Count >= Player.data.AgentList.Count ? "Many" : "Few")}", Color.Yellow);
+                else
+                    IntelLine($"{Localizer.Token(GameText.TotalSpies)} Unknown", Color.Pink);
+            }
+            else if (SelectedEmpire != Player)
+            {
+                IntelLine($"Their Infiltration Level: {espionage.InfiltrationLevelSummary()}", Color.Wheat);
+            }
+
+            IntelLine($"{Localizer.Token(GameText.Population2)} {GetPop(SelectedEmpire).String(1)} {Localizer.Token(GameText.Billion)}", Color.Wheat);
+
+            if (UsingNewEspioange && espionage?.CanViewTheirMoles == true || IntelligenceLevel(SelectedEmpire) > 1)
+            {
+                IntelLine($"Number Of Moles: {Player.GetNumOfTheirMoles(SelectedEmpire)}", Color.Wheat);
+            }
+
+            //Diplomatic Relations
+            foreach (Relationship rel in SelectedEmpire.AllRelations)
+            {
+                if (!rel.Known || rel.Them.IsFaction || rel.Them.IsDefeated)
+                    continue;
+
+                if (SelectedEmpire.isPlayer 
+                    || UsingNewEspioange && espionage.CanViewTheirTreaties
+                    || IntelligenceLevel(SelectedEmpire) > 0)
+                {
+                    Color color = rel.Them.EmpireColor;
+                    string name = rel.Them.data.Traits.Name;
+                    string andTrade = rel.Treaty_Trade ? Localizer.Token(GameText.AndTrade) : ""; // "and Trade"
+
+                    if      (rel.Treaty_Alliance)    IntelLine($"{name}: {Localizer.Token(GameText.Alliance)} {andTrade}", color);
+                    else if (rel.Treaty_OpenBorders) IntelLine($"{name}: {Localizer.Token(GameText.OpenBorders)} {andTrade}", color);
+                    else if (rel.Treaty_NAPact)      IntelLine($"{name}: {Localizer.Token(GameText.NonaggressionPact2)} {andTrade}", color);
+                    else if (rel.Treaty_Peace)       IntelLine($"{name}: {Localizer.Token(GameText.PeaceTreaty)} {andTrade}", color);
+                    else if (rel.AtWar)              IntelLine($"{name}: {Localizer.Token(GameText.AtWar)} {andTrade}", color);
+                }
+            }
+
+            if (SelectedEmpire.isPlayer || (UsingNewEspioange && espionage?.CanViewTraitSet == true) || IntelligenceLevel(SelectedEmpire) > 1)
+            {
+                IntelBox.AddLine("", Font12, Color.Wheat);
+                IntelLine($"Racial Traits: {RacialTrait.ShownTraitNames(SelectedEmpire.data.SelectedTraitSet)}", SelectedEmpire.EmpireColor);
+            }
+        }
+
+        void IntelLine(string text, Color color) => IntelBox.AddLines(text, Font12, color);
+
+        void ListBonuses()
+        {
+            BonusBox.Clear();
+            Espionage espionage = SelectedEmpire.isPlayer || !UsingNewEspioange ? null : Player.GetEspionage(SelectedEmpire);
+            //Added by McShooterz: Only display modified bonuses
+            if (SelectedEmpire.isPlayer 
+                || UsingNewEspioange && espionage.CanViewBonuses 
+                || IntelligenceLevel(SelectedEmpire) > 0)
+            {
+                if (SelectedEmpire.data.Traits.PopGrowthMax > 0f)
+                    AddStat(Localizer.Token(GameText.MaximumPopulationGrowth), "+"+SelectedEmpire.data.Traits.PopGrowthMax.ToString(".##"), Color.LightPink);
+                if (SelectedEmpire.data.Traits.PopGrowthMin > 0f)
+                    AddStat(Localizer.Token(GameText.MinimumPopulationGrowth), "+"+SelectedEmpire.data.Traits.PopGrowthMin.ToString(".##"), Color.LightGreen);
+                if (SelectedEmpire.data.Traits.ReproductionMod != 0)
+                    AddStat(Localizer.Token(GameText.PopulationGrowthModifier), SelectedEmpire.data.Traits.ReproductionMod, false);
+                if (SelectedEmpire.data.Traits.ConsumptionModifier != 0)
+                    AddStat(Localizer.Token(GameText.FoodConsumptionModifier), SelectedEmpire.data.Traits.ConsumptionModifier, true);
+                if (SelectedEmpire.data.Traits.ProductionMod != 0)
+                    AddStat(Localizer.Token(GameText.ProductionModifier), SelectedEmpire.data.Traits.ProductionMod, false);
+                if (SelectedEmpire.data.Traits.ResearchMod != 0)
+                    AddStat(Localizer.Token(GameText.ResearchModifier), SelectedEmpire.data.Traits.ResearchMod, false);
+                if (SelectedEmpire.data.Traits.DiplomacyMod != 0)
+                    AddStat(Localizer.Token(GameText.DiplomacyModifier), SelectedEmpire.data.Traits.DiplomacyMod, false);
+                if (SelectedEmpire.data.OngoingDiplomaticModifier != 0)
+                    AddStat(Localizer.Token(GameText.OngoingDiplomacyModifier), SelectedEmpire.data.OngoingDiplomaticModifier, false);
+                if (SelectedEmpire.data.Traits.GroundCombatModifier != 0)
+                    AddStat(Localizer.Token(GameText.TroopStrengthModifier), SelectedEmpire.data.Traits.GroundCombatModifier, false);
+                if (SelectedEmpire.data.Traits.ShipCostMod != 0)
+                    AddStat(Localizer.Token(GameText.ShipCostModifier), SelectedEmpire.data.Traits.ShipCostMod, true);
+                if (SelectedEmpire.data.Traits.ModHpModifier != 0)
+                    AddStat(Localizer.Token(GameText.ShipHitpointsModifier), SelectedEmpire.data.Traits.ModHpModifier, false);
+                //Added by McShooterz: new races stats to display in diplomacy
+                if (SelectedEmpire.data.Traits.RepairMod != 0)
+                    AddStat(Localizer.Token(GameText.RepairRateModifier), SelectedEmpire.data.Traits.RepairMod, false);
+                if (SelectedEmpire.data.PowerFlowMod != 0)
+                    AddStat(Localizer.Token(GameText.ReactorPowerModifier), SelectedEmpire.data.PowerFlowMod, false);
+                if (SelectedEmpire.data.ShieldPowerMod != 0)
+                    AddStat(Localizer.Token(GameText.ShieldStrengthModifier), SelectedEmpire.data.ShieldPowerMod, false);
+                if (SelectedEmpire.data.MassModifier != 1)
+                    AddStat(Localizer.Token(GameText.ShipMassModifier), SelectedEmpire.data.MassModifier - 1f, true);
+                if (SelectedEmpire.data.Traits.TaxMod != 0)
+                    AddStat(Localizer.Token(GameText.TaxIncomeModifier), SelectedEmpire.data.Traits.TaxMod, false);
+                if (SelectedEmpire.data.Traits.MaintMod != 0 || SelectedEmpire.data.Traits.ShipMaintMultiplier < 1)
+                {
+                    if (SelectedEmpire.data.Traits.MaintMod != 0 )
+                        AddStat(Localizer.Token(GameText.MaintenanceModifier), SelectedEmpire.data.Traits.MaintMod, true);
+
+                    float shipMaintTotal = ((1 + SelectedEmpire.data.Traits.MaintMod) * SelectedEmpire.data.Traits.ShipMaintMultiplier) - 1;
+                    AddStat(Localizer.Token(GameText.ShipMaintenanceModifier), shipMaintTotal, true);
+                }
+
+                AddStat(Localizer.Token(GameText.InbordersFtlBonus), SelectedEmpire.data.Traits.InBordersSpeedBonus, false);
+                if (Universe.UState.P.FTLModifier != 1f)
+                {
+                    float fTLModifier = Universe.UState.P.FTLModifier * 100f;
+                    AddStat(Localizer.Token(GameText.InsystemFtlSpeed), fTLModifier.ToString("##")+"%", Color.LightPink);
+                }
+                AddStat(Localizer.Token(GameText.FtlSpeedMultiplier), string.Concat(SelectedEmpire.data.FTLModifier, "x"), Color.White);
+                AddStat(Localizer.Token(GameText.FtlPowerDrainModifier), string.Concat(SelectedEmpire.data.FTLPowerDrainModifier, "x"), Color.White);
+                float passengers = SelectedEmpire.data.Traits.PassengerModifier;
+                if (passengers > 1f)
+                    AddStat(Localizer.Token(GameText.ColonistsPerCargoUnit), passengers.String(2)+"x", Color.LightGreen);
+                else if (passengers < 1f)
+                    AddStat(Localizer.Token(GameText.ColonistsPerCargoUnit), passengers.String(2)+"x", Color.LightPink);
+                if (SelectedEmpire.data.FuelCellModifier != 0)
+                    AddStat(Localizer.Token(GameText.FuelCellModifier), SelectedEmpire.data.FuelCellModifier, false);
+                if (SelectedEmpire.data.SubLightModifier != 1)
+                    AddStat(Localizer.Token(GameText.SublightSpeedBonus), SelectedEmpire.data.SubLightModifier - 1f, false);
+                if (SelectedEmpire.data.SensorModifier != 1)
+                    AddStat(Localizer.Token(GameText.SensorRangeModifier), SelectedEmpire.data.SensorModifier - 1f, false);
+                if (SelectedEmpire.data.ExperienceMod != 0)
+                    AddStat("Ship Experience Modifier", SelectedEmpire.data.ExperienceMod, false);
+                if (SelectedEmpire.data.SpyModifier > 0f)
+                    AddStat(Localizer.Token(GameText.SpyEffectivenessModifier), "+"+SelectedEmpire.data.SpyModifier.ToString("#"), Color.LightGreen);
+                else if (SelectedEmpire.data.SpyModifier < 0f)
+                    AddStat(Localizer.Token(GameText.SpyEffectivenessModifier), SelectedEmpire.data.SpyModifier.ToString("#"), Color.LightPink);
+                if (SelectedEmpire.data.Traits.Spiritual != 0)
+                    AddStat(Localizer.Token(GameText.ArtifactBonusModifier), SelectedEmpire.data.Traits.Spiritual, false);
+                if (SelectedEmpire.data.Traits.TargetingModifier != 0)
+                    AddStat(Localizer.Token(GameText.CannonAccuracyModifier), SelectedEmpire.data.Traits.TargetingModifier, false);
+                if (SelectedEmpire.data.Traits.DodgeMod > 0)
+                    AddStat(Localizer.Token(GameText.DodgeModifier), SelectedEmpire.data.Traits.DodgeMod , false);
+                if (SelectedEmpire.data.OrdnanceEffectivenessBonus != 0)
+                    AddStat(Localizer.Token(GameText.OrdnanceDamageradiusModifier), SelectedEmpire.data.OrdnanceEffectivenessBonus, false);
+                if (SelectedEmpire.data.MissileHPModifier != 1)
+                    AddStat(Localizer.Token(GameText.MissileHitpointsBonus), SelectedEmpire.data.MissileHPModifier - 1f, false);
+                if (SelectedEmpire.data.MissileDodgeChance != 0)
+                    AddStat(Localizer.Token(GameText.MissileDodgeChance), SelectedEmpire.data.MissileDodgeChance, false); 
+                if (SelectedEmpire.data.ExoticStorageMultiplier != 1)
+                    AddStat(Localizer.Token(GameText.EmpireExoticStorage), SelectedEmpire.data.ExoticStorageMultiplier-1, false);
+                if (SelectedEmpire.data.MiningSpeedMultiplier != 1)
+                    AddStat(Localizer.Token(GameText.EmpireMiningSpeed), SelectedEmpire.data.MiningSpeedMultiplier-1, false);
+                if (SelectedEmpire.data.SalvageSpeedMultiplier != 1)
+                    AddStat(Localizer.Token(GameText.EmpireSalvageSpeed), SelectedEmpire.data.SalvageSpeedMultiplier-1, false);
+                if (SelectedEmpire.data.RefiningRatioMultiplier != 1)
+                    AddStat(Localizer.Token(GameText.EmpireRefiningEfficiency), SelectedEmpire.data.RefiningRatioMultiplier-1, false);
+            }
+        }
+
+        void AddStat(string text, string value, Color color)
+        {
+            BonusBox.AddElement(new BonusLine(text, value, color));
+        }
+
+        void AddStat(string text, float value, bool OppositeBonuses)
         {
             Color color;
             if (value <= 10f)
@@ -554,29 +571,42 @@ namespace Ship_Game
             {
                 color = (value == 0f ? Color.White : Color.LightPink);
             }
-            Position = Position.ToFloored();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, color);
-
-            string valuePercent = value.ToString("#.##")+"%";
-            var nPos = new Vector2(Position.X + 310f, Position.Y);
-            nPos.X -= Fonts.Arial12Bold.MeasureString(valuePercent).X;
-
-            nPos = nPos.ToFloored();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, valuePercent, nPos, color);
-            Position.Y += Fonts.Arial12Bold.LineSpacing;
+            AddStat(text, value.ToString("#.##")+"%", color);
         }
 
-        private void DrawStat(string text, string text2, ref Vector2 Position)
+        // the rows under a panel's title, starting where its text started
+        static RectF RowsUnderTitle(in Rectangle panel, float rowGap)
         {
-            Position = Position.ToFloored();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.White);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-                nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
-            //};
-            nPos = nPos.ToFloored();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.White);
-            Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+            float firstRow = panel.Y + 10 + Fonts.Arial20Bold.LineSpacing + 5;
+            float top = firstRow - 15 - rowGap; // a scroll list leaves 15 px above its first row
+            float left = panel.X + 20 - ScrollListBase.PaddingLeft;
+            return new RectF(left, top, panel.Right - left, panel.Bottom - top);
+        }
+
+        // a bonus with its value lined up on the right
+        sealed class BonusLine : UIElementV2
+        {
+            readonly string Label;
+            readonly string Value;
+            readonly Color TextColor;
+
+            public BonusLine(string label, string value, Color color)
+            {
+                Label = label;
+                Value = value;
+                TextColor = color;
+                Size = new Vector2(310f, Fonts.Arial12Bold.LineSpacing);
+            }
+
+            public override bool HandleInput(InputState input) => false;
+
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+            {
+                Vector2 pos = Pos.ToFloored();
+                batch.DrawString(Fonts.Arial12, Label, pos, TextColor);
+                var valuePos = new Vector2(pos.X + 310f - Fonts.Arial12Bold.MeasureString(Value).X, pos.Y);
+                batch.DrawString(Fonts.Arial12Bold, Value, valuePos.ToFloored(), TextColor);
+            }
         }
 
         private float GetPop(Empire e)
@@ -632,12 +662,12 @@ namespace Ship_Game
             return scientificStr;
         }
 
-        void CreateArtifactsScrollList(Empire empire)
+        // @return false when spies have not seen the empire's artifacts
+        bool ListArtifacts()
         {
-            SelectedEmpire = empire;
             ArtifactsSL.Reset();
             if (UsingNewEspioange && SelectedEmpire != Player && !Player.GetRelations(SelectedEmpire).Espionage.CanViewArtifacts)
-                return;
+                return false;
 
             var entry = new ArtifactEntry();
             for (int i = 0; i < SelectedEmpire.data.OwnedArtifacts.Count; i++)
@@ -660,7 +690,7 @@ namespace Ship_Game
                     entry = new ArtifactEntry();
                 }
             }
-            GameAudio.EchoAffirmative();
+            return true;
         }
 
         public override bool HandleInput(InputState input)
@@ -684,11 +714,11 @@ namespace Ship_Game
                     if (Player == race.e || !Player.IsKnown(race.e))
                     {
                         if (Player == race.e)
-                            CreateArtifactsScrollList(race.e);
+                            ShowEmpire(race.e);
                     }
                     else
                     {
-                        CreateArtifactsScrollList(race.e);
+                        ShowEmpire(race.e);
                     }
                 }
             }
@@ -703,13 +733,17 @@ namespace Ship_Game
             Rectangle titleRect = new Rectangle((int)screenWidth / 2 - 200, 44, 400, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DiplomaticOverview)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            LeftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 700);
+            LeftRect = new Rectangle((int)screenWidth / 2 - 700, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 774);
             Rectangle menuRect = HelperFunctions.WidenForRaceRow(LeftRect, Universe.UState.MajorEmpires.Length);
             DMenu = new Menu2(menuRect);
             Add(new CloseButton(menuRect.Right - 40, menuRect.Y + 20));
-            SelectedInfoRect = new Rectangle(LeftRect.X + 60, LeftRect.Y + 250, 368, 376);
-            IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
-            OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
+            SelectedInfoRect = new Rectangle(LeftRect.X + 60, LeftRect.Y + 250, 368, 450);
+            IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 450);
+            OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 450);
+            IntelBox = Add(new UITextBox(RowsUnderTitle(IntelligenceRect, 2f), useBorder: false, Font12));
+            IntelBox.ItemsList.ItemPadding = new(0f, 2f);
+            BonusBox = Add(new UITextBox(RowsUnderTitle(OperationsRect, 0f), useBorder: false));
+            BonusBox.ItemsList.ItemPadding = new(0f, 0f);
             
             RectF artifacts = new(SelectedInfoRect.X , SelectedInfoRect.Y + 250, SelectedInfoRect.Width - 40, 130);
             ArtifactsSL = Add(new ScrollList<ArtifactItemListItem>(artifacts));
@@ -727,7 +761,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    CreateArtifactsScrollList(e);
+                    ShowEmpire(e);
                 }
                 Races.Add(new RaceEntry { e = e });
             }

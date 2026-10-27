@@ -35,6 +35,9 @@ namespace Ship_Game.Ships
         // Radius of the module grid
         public readonly float Radius;
 
+        // how hard a hull is to screen from a shot locking on to it, from its size
+        public readonly float LockOnSizeShare;
+
         static bool EnableDebugGridExport = false;
 
         // to reduce memory usage, this is just a grid of ModuleIndexes
@@ -62,6 +65,7 @@ namespace Ship_Game.Ships
             // Ship's true radius is half of Module Grid's Diagonal Length
             var span = new Vector2(Width, Height) * 16f;
             Radius = span.Length() * 0.5f;
+            LockOnSizeShare = Radius / (Radius + Projectile.LockOnHalfRadius);
 
             // set the default values to -1 (no mapping)
             ModuleIndexGrid = new short[Width * Height];

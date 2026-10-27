@@ -33,6 +33,8 @@ namespace Ship_Game.AI.Tasks
         [StarData] public bool TroopsSent;
         [StarData] public bool TroopsLanded;
         public bool WaveNeverLanded => TroopsSent && !TroopsLanded;
+        [StarData] public bool WentIn; // the fleet was ordered in at its target, so a third party showing up there no longer holds it back
+        [StarData] public float ThirdPartyHoldEndsAt; // star date the fleet's wait outside its target for a third party ends, 0 while not waiting
         [StarData] public Array<Planet> PlanetsThatRepelledAWave = new();
         public bool RepelledAWave(Planet p) => PlanetsThatRepelledAWave.ContainsRef(p);
         [StarData] public MilitaryTaskImportance Importance { get; private set; }
@@ -435,6 +437,8 @@ namespace Ship_Game.AI.Tasks
             TroopsFollowBombersAt = 0;
             TroopsSent = false;
             TroopsLanded = false;
+            WentIn = false;
+            ThirdPartyHoldEndsAt = 0;
         }
 
         public void SetTargetPlanetAsAO(Planet p)

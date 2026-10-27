@@ -1269,6 +1269,7 @@ namespace Ship_Game
                 OwnedPlanets[i].UpdateIncomingTradeGoods();
 
             UpdateMilitaryStrengths();
+            ShipsReadyForFleet = new FleetShips(this, AllFleetReadyShips()); // fleets read it before the empire's first turn after a load
             CalculateScore(fromSave: true);
             UpdateRelationships(takeTurn: false);
             UpdateShipMaintenance();
@@ -1638,24 +1639,25 @@ namespace Ship_Game
 
         // TODO: this should be cached as well, because it is super intensive
 
-        public bool GetTroopShipForRebase(out Ship troopShip, Vector2 pos, string planetName = "")
+        public bool GetTroopShipForRebase(out Ship troopShip, Vector2 pos, string planetName = "", Array<Ship> taken = null)
         {
             // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
-            return NearestFreeTroopShip(out troopShip, pos) || LaunchNearestTroopForRebase(out troopShip, pos, planetName);
+            return NearestFreeTroopShip(out troopShip, pos, taken) || LaunchNearestTroopForRebase(out troopShip, pos, planetName);
         }
 
         public bool GetTroopShipForRebase(out Ship troopShip, Ship ship)
         {
             // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
-            return NearestFreeTroopShip(out troopShip, ship.Position) || LaunchNearestTroopForRebase(out troopShip, ship.Position);
+            return NearestFreeTroopShip(out troopShip, ship.Position, null) || LaunchNearestTroopForRebase(out troopShip, ship.Position);
         }
 
         // TODO: this is a really bad idea to iterate through all ships
         //       would be better to use Spatial.FindNearby perhaps to find closest ships?
-        bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter)
+        bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter, Array<Ship> taken)
         {
+            // a ship already taken still looks free until its orders arrive
             troopShip = EmpireShips.OwnedShips.FindMinFiltered(
-                s => s.IsIdleSingleTroopship,
+                s => s.IsIdleSingleTroopship && (taken == null || !taken.ContainsRef(s)),
                 s => s.Position.SqDist(objectCenter));
             return troopShip != null;
         }
@@ -2682,6 +2684,26 @@ namespace Ship_Game
         public bool IsSystemUnderThreatForUs(SolarSystem system)
             => SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == system);
 
+        // a colony under threat may go only to the one empire threatening it
+        public bool CanOfferColonyTo(Planet p, Empire them)
+        {
+            foreach (IncomingThreat threat in SystemsWithThreat)
+            {
+                if (threat.ThreatTimedOut || threat.TargetSystem != p.System)
+                    continue;
+                Empire[] enemies = threat.Enemies;
+                if (enemies == null || enemies.Length == 0 || enemies.Any(e => e != them))
+                    return false;
+            }
+
+            foreach ((SolarSystem system, Empire[] hostiles) in ThreatDetector.HostilesInSystems)
+            {
+                if (system == p.System && hostiles.Any(e => e != them))
+                    return false;
+            }
+            return true;
+        }
+
         public bool IsSystemUnderThreatForAllies(SolarSystem system) 
             => AlliedSystemsWithThreat().Any(t => !t.ThreatTimedOut && t.TargetSystem == system);
 
@@ -2876,6 +2898,7 @@ namespace Ship_Game
             ActiveRelations = Empty<Relationship>.Array;
             RelationsMap = Empty<Relationship>.Array;
             ThreatDetector.Clear();
+            ThreatDetector.HostilesInSystems = Empty<(SolarSystem, Empire[])>.Array;
             ClearInfluenceList();
             TechnologyDict.Clear();
             ResetFleets(returnShipsToEmpireAI: false);

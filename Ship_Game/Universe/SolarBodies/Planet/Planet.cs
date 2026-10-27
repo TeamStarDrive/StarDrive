@@ -1717,7 +1717,10 @@ namespace Ship_Game
                 {
                     // Move Offensively to planet
                     Vector2 finalDir = ship.Position.DirectionToTarget(Position);
+                    Planet orbited = ship.Fleet == null ? ship.AI.OrbitedPlanet : null;
                     ship.AI.OrderMoveTo(Position, finalDir, MoveOrder.Aggressive|MoveOrder.AddWayPoint|MoveOrder.NoStop);
+                    if (orbited != null && orbited.System == System)
+                        ship.AI.QueueOrbit(orbited); // a guard of this system goes back to its orbit once it has answered the call
                 }
             }
         }

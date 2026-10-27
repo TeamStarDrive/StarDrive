@@ -131,6 +131,14 @@ namespace Ship_Game
             Highlight = null;
         }
 
+        // shows the list from its first item again
+        public void ScrollToTop()
+        {
+            VisibleItemsBegin = 0;
+            ScrollBarPosChanged = false;
+            RequiresLayout = true;
+        }
+
         #region ScrollList HandleInput
 
         // scrollbar delta which moves the content by the requested amount of entries
