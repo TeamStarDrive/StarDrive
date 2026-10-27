@@ -1164,10 +1164,10 @@ namespace Ship_Game.Ships
             if (timeStep.FixedTime > 0f && VelocityMax <= 0f
                 && !ShipData.IsShipyard && ShipData.Role <= RoleName.station)
             {
-                // rotate Platform and SSP:
+                // rotate Platform and SSP by the step's time, in radians a second:
                 // the randomized rotation part is based on Id, because
                 // calling RandomMath.Float is super expensive here
-                float addedRotation = 0.003f + ((Id % 10) * 0.0001f);
+                float addedRotation = (0.18f + (Id % 10) * 0.006f) * timeStep.FixedTime;
                 Rotation += addedRotation;
             }
 

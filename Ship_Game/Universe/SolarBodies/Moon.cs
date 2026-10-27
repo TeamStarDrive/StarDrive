@@ -80,7 +80,7 @@ namespace Ship_Game.Gameplay
             RotationRadians.Z -= 0.05f * timeStep.FixedTime;
             if (!System.Universe.Paused)
             {
-                OrbitalAngle += (float)Math.Asin(15f / OrbitRadius);
+                OrbitalAngle += (float)Math.Asin(15f / OrbitRadius) * SolarSystemBody.OrbitStepsPerSecond * timeStep.FixedTime;
                 if (OrbitalAngle >= 360.0f) OrbitalAngle -= 360f;
             }
 

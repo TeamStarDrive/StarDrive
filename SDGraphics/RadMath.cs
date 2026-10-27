@@ -180,7 +180,7 @@ public static class RadMath
         float ratio = radians * InvTwoPI;
         // compare radians, because InvTwoPI isn't accurate in
         // case: AsNormalizedRadians(2PI) expected: 2PI
-        const float nearlyTwoPI = TwoPI + 0.001f; // 0.05degrees tolerance
+        const float nearlyTwoPI = TwoPI + 0.00002f; // float error at 2PI only, so a slow spin still wraps
         if (radians > nearlyTwoPI)
         {
             return Math.Min((ratio - (int)ratio) * TwoPI, TwoPI);
