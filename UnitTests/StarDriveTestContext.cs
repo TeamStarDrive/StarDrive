@@ -57,7 +57,7 @@ namespace UnitTests
             // won't reject the empty ModPath), ModPath, and Defaults. It does NOT
             // SaveActiveMod, so the developer's real mod selection is untouched.
             GlobalStats.SetActiveModNoSave(null);
-            GlobalStats.VanillaDefaults.EnableSalvageOps = true; // vanilla ships with salvage ops off, and the tests run with them on
+            GlobalStats.VanillaDefaults.EnableSalvageOps = true; // the tests run with salvage ops on, whatever vanilla ships
 
             // Same user-config leak hazard: the AUTO / AUTOFAST builds set
             // RestrictAIPlayerInteraction=true and persist it to the user config.

@@ -833,7 +833,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
 ### Switches (Gilad, 2026-10-15)
 
 - **Globals flag `EnableSalvageOps`** (165): default false in C#. Vanilla `Globals.yaml` set it to true, then to false
-  while the feature is tested in game (929 A); the tests turn it on for vanilla (930 A). Combined
+  while the feature is tested in game (929 A), then to true again for 1.60 (Gilad, 2026-10-28); the tests turn it
+  on for vanilla whatever it ships (930 A). Combined
   Arms, Star Trek and every other mod stay off until they set it. A mod inherits every vanilla value it does not set
   (the `GamePlayGlobals` constructor copies `VanillaDefaults` before the mod's file is read), so this one flag is
   not inherited: the constructor clears it after the copy (168).
