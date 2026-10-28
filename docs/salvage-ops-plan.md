@@ -879,13 +879,18 @@ Implementation notes:
   saved salvageable derelicts sink away like drifting ones (169), and one the player does not know of is gone.
 - **Old saves and incomplete mods (Gilad, 2026-10-23; 900-904):** a game saved before salvage ops existed, vanilla or
   a mod's, loads with them off: every save now marks its rule options as saved with salvage ops, and one without the
-  mark ticks Disable Salvage Ops (900; saved setups are YAML and untouched; this branch's own earlier saves load with
+  mark ticks Disable Salvage Ops (900; saved setups are YAML and have their own mark, below; this branch's own earlier saves load with
   them off too). So an old save never meets an empire with no default salvage station. A mod that turns the flag on
   without a Salvage Platform design or any salvage module has salvage ops off, with a warning, and still loads;
   vanilla is not checked (901 A). The check for a platform missing modules stays as a guard, though such a design is
   dropped at load (903 B). The Codex says nothing of old saves (902 B). Found on the way: Disable Pirates and Disable
   Remnant Story, unticked against a mod's Globals that tick them, came back ticked on load, a save leaving out the
   unticked value; they are always written now (904 B).
+- **Saved setups (Gilad, 2026-10-28; 133 A, 135 A):** a setup records whether the salvage ops box was the player's
+  to choose as it was saved, that is whether the Globals flag was on. One saved while the box was locked ticked (on
+  patch 1.60.00071, or in a mod without salvage content) starts salvage ops from the Globals flag, and every setup
+  loaded while the flag is off, a vanilla one in such a mod among them, starts with the box ticked; otherwise the
+  player's tick stays.
 - **Recovery chance and the station pick (Gilad, 2026-10-24; 910-913):** a Remnant ship's recovery chance is halved
   and a ship that was the recovering empire's own gets a quarter more, for every empire; the player's chance is also
   multiplied by 1, 0.75, 0.5 or 0.25 at Normal, Hard, Brutal or Insane, the AI's never (a difficulty modifier). A
