@@ -204,7 +204,11 @@ namespace Ship_Game.AI
                 Target = saved; // a loaded missile flies on at what it was after
 
             if (TargetShip(Target) is { IsLaunchingOrLanding: true })
+            {
                 Retarget();
+                if (!Missile.Active)
+                    return; // with no other target it self-destructed
+            }
 
             Vector2 targetIntercept = Vector2.Zero;
             if (Target != null)
@@ -256,6 +260,8 @@ namespace Ship_Game.AI
                 TargetUpdateTimer = 0.15f;
                 if (Target == null || !Target.Active || TargetShip(Target) is { Dying: true })
                     Retarget();
+                if (!Missile.Active)
+                    return;
             }
 
             if (ErrorAdjustTimer <= 0f)

@@ -603,7 +603,7 @@ namespace Ship_Game.AI
             if (TriggerDelay <= 0f)
             {
                 TriggerDelay = timeStep.FixedTime * StepsBetweenFireAttempts;
-                return FireOnTarget();
+                return FireOnTarget(timeStep.FixedTime);
             }
             return false;
         }

@@ -39,7 +39,7 @@ namespace UnitTests.Ships
             CreateShipWithFieldOfFire(45, out Ship ship, out WeaponTestWrapper weapon);
             Ship target = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
 
-            Assert.IsTrue(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Fire at target must succeed");
+            Assert.IsTrue(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips, TestSimStep.FixedTime), "Fire at target must succeed");
             AssertEqual(1, GetProjectileCount(ship), "Invalid projectile count");
         }
 
@@ -49,7 +49,7 @@ namespace UnitTests.Ships
             CreateShipWithFieldOfFire(45, out Ship ship, out WeaponTestWrapper weapon);
             Ship target = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
 
-            Assert.IsFalse(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Weapon cannot shoot behind its firing ARC!");
+            Assert.IsFalse(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips, TestSimStep.FixedTime), "Weapon cannot shoot behind its firing ARC!");
             AssertEqual(0, GetProjectileCount(ship), "No projectiles should launch");
         }
 
@@ -61,7 +61,7 @@ namespace UnitTests.Ships
             Ship opportune = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
 
             var otherShips = new[]{ opportune };
-            Assert.IsTrue(weapon.UpdateAndFireAtTarget(main, NoProjectiles, otherShips), "Fire at target must succeed");
+            Assert.IsTrue(weapon.UpdateAndFireAtTarget(main, NoProjectiles, otherShips, TestSimStep.FixedTime), "Fire at target must succeed");
             AssertEqual(1, GetProjectileCount(ship), "Invalid projectile count");
             AssertEqual(((ShipModule)weapon.FireTarget).GetParent(), opportune, "Weapon must have fired at target of opportunity");
         }
@@ -78,12 +78,12 @@ namespace UnitTests.Ships
             Ship enemy = SpawnShip("Rocket Scout", Enemy, inFrontOfUs, lookingAtUs);
 
             Weapon rockets = enemy.Weapons.Find(w => w.UID == "Rocket");
-            Assert.IsTrue(rockets.UpdateAndFireAtTarget(us, NoProjectiles, NoShips), "Fire at target must succeed");
+            Assert.IsTrue(rockets.UpdateAndFireAtTarget(us, NoProjectiles, NoShips, TestSimStep.FixedTime), "Fire at target must succeed");
             enemy.AI.OrderHoldPosition(enemy.Position, enemy.Direction);
             enemy.Update(new FixedSimTime(0.01f)); // update weapons & projectiles
 
             var projectiles = GetProjectiles(enemy).ToArr();
-            Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips), "Fire PD at a projectile must succeed");
+            Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips, TestSimStep.FixedTime), "Fire PD at a projectile must succeed");
             AssertEqual(1, GetProjectileCount(us), "Invalid projectile count");
             AssertEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");
         }

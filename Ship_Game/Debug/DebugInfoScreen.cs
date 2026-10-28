@@ -148,6 +148,7 @@ public sealed partial class DebugInfoScreen : GameScreen
             DebugModes.SpaceRoads=> new SpaceRoadsDebug(this),
             DebugModes.Goals => new EmpireGoalsDebug(this),
             DebugModes.MiningOps => new MiningOpsDebug(this),
+            DebugModes.SalvageOps => new SalvageOpsDebug(this),
             _ => null
         };
     }

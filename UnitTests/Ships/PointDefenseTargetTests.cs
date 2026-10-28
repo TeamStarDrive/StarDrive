@@ -43,7 +43,7 @@ public class PointDefenseTargetTests : StarDriveTest
         Ship enemy = SpawnShip("Rocket Scout", Enemy, ahead, ahead.DirectionToTarget(Gun));
         Ship[] noShips = Empty<Ship>.Array;
 
-        Assert.IsTrue(gun.UpdateAndFireAtTarget(enemy, Empty<Projectile>.Array, noShips), "setup: with no missile about, the gun fires at the ship");
+        Assert.IsTrue(gun.UpdateAndFireAtTarget(enemy, Empty<Projectile>.Array, noShips, TestSimStep.FixedTime), "setup: with no missile about, the gun fires at the ship");
         Assert.AreEqual(enemy, (gun.FireTarget as ShipModule)?.GetParent(), "setup: the gun is aimed at the ship");
 
         Weapon rockets = enemy.Weapons.Find(w => w.UID == "Rocket");
@@ -52,7 +52,7 @@ public class PointDefenseTargetTests : StarDriveTest
         for (int i = 0; i < 20 && gun.FireTarget is not Projectile; ++i)
         {
             gun.CooldownTimer = 0f;
-            gun.UpdateAndFireAtTarget(enemy, missiles, noShips);
+            gun.UpdateAndFireAtTarget(enemy, missiles, noShips, TestSimStep.FixedTime);
         }
         return (gun, enemy, missile);
     }
@@ -71,6 +71,38 @@ public class PointDefenseTargetTests : StarDriveTest
         (WeaponTestWrapper gun, Ship enemy, _) = GunOnAShipThenAMissile(new Vector2(0, 500));
 
         Assert.AreEqual(enemy, (gun.FireTarget as ShipModule)?.GetParent(), "a missile behind the gun's arc does not pull it off its ship");
+    }
+
+    // fire attempts, each a sim step of stepTime, before a point defense gun aimed at a ship turns to a missile in reach
+    int FireAttemptsToTurnToAMissile(float stepTime, Vector2 at)
+    {
+        Ship us = SpawnShip("TEST_Vulcan Scout", Player, at);
+        WeaponTestWrapper gun = PointDefenseGun(us);
+        Vector2 ahead = at + new Vector2(0, -1000);
+        Ship enemy = SpawnShip("Rocket Scout", Enemy, ahead, ahead.DirectionToTarget(at));
+        Ship[] noShips = Empty<Ship>.Array;
+        Assert.IsTrue(gun.UpdateAndFireAtTarget(enemy, Empty<Projectile>.Array, noShips, stepTime), "setup: the gun fires at the ship");
+
+        Weapon rockets = enemy.Weapons.Find(w => w.UID == "Rocket");
+        var missiles = new[] { Projectile.Create(rockets, enemy, at + new Vector2(0, -500), Vectors.Down, us.Modules[0], playSound: false) };
+        int attempts = 0;
+        while (gun.FireTarget is not Projectile && attempts < 1000)
+        {
+            gun.CooldownTimer = 0f;
+            gun.UpdateAndFireAtTarget(enemy, missiles, noShips, stepTime);
+            ++attempts;
+        }
+        AssertLessThan(attempts, 1000, "setup: the gun turns to the missile");
+        return attempts;
+    }
+
+    [TestMethod]
+    public void APointDefenseGunWaitsAsLongInGameTimeBeforeTurningToAMissileWhateverTheSimulationRate()
+    {
+        int at60 = FireAttemptsToTurnToAMissile(1f / 60f, Gun);
+        int at240 = FireAttemptsToTurnToAMissile(1f / 240f, Gun + new Vector2(50_000, 0));
+        AssertEqual(6, at60, "at 60 steps a second its 0.1 s timer takes six attempts, as it always has");
+        AssertEqual(1f / 60f, at60 / 60f, at240 / 240f, $"it waits the same game time at 240 steps a second as at 60 ({at60} and {at240} attempts)");
     }
 
     [TestMethod]

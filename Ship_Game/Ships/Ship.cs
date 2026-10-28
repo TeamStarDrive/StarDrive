@@ -161,7 +161,7 @@ namespace Ship_Game.Ships
         private bool HasExploded;
         // rolled a derelict death: no main explosion and no death blast
         bool RolledDerelict;
-        // its hull's roll made the derelict a drifting one
+        // the derelict drifts, by its hull's roll or as salvage ops are off
         bool RolledDrifting;
         // the Derelict* flags of a rolled derelict death that leaves one: a derelict takes the hull when the ship is removed, once
         int LeavesDerelict;
@@ -1164,10 +1164,10 @@ namespace Ship_Game.Ships
             if (timeStep.FixedTime > 0f && VelocityMax <= 0f
                 && !ShipData.IsShipyard && ShipData.Role <= RoleName.station)
             {
-                // rotate Platform and SSP:
+                // rotate Platform and SSP by the step's time, in radians a second:
                 // the randomized rotation part is based on Id, because
                 // calling RandomMath.Float is super expensive here
-                float addedRotation = 0.003f + ((Id % 10) * 0.0001f);
+                float addedRotation = (0.18f + (Id % 10) * 0.006f) * timeStep.FixedTime;
                 Rotation += addedRotation;
             }
 
@@ -1789,16 +1789,13 @@ namespace Ship_Game.Ships
             Planet crashPlanet = null;
             bool crashes = tumbles && PlanetCrash.GetPlanetToCrashOn(this, out crashPlanet);
 
-            // a ship that crashes on a planet does not roll for a derelict; with salvage ops off, one whose hull's roll does not make it drift leaves none and dies as usual
+            // a ship that crashes on a planet does not roll for a derelict; the hull's roll is made only with salvage ops on, as with them off every derelict drifts
             if (CanBecomeDerelict && (DebugDerelict != DebugDerelictKind.None || !crashes && Loyalty.Random.RollDice(Universe.Derelicts.Chance(Universe))))
             {
                 RolledDrifting = DebugDerelict == DebugDerelictKind.Drifting
-                    || DebugDerelict == DebugDerelictKind.None && Universe.Derelicts.RollsDrifting(ShipData.HullRole, Loyalty.Random);
-                if (RolledDrifting || Universe.P.SalvageOps)
-                {
-                    RolledDerelict = true;
-                    return true;
-                }
+                    || DebugDerelict == DebugDerelictKind.None && (!Universe.P.SalvageOps || Universe.Derelicts.RollsDrifting(ShipData.HullRole, Loyalty.Random));
+                RolledDerelict = true;
+                return true;
             }
 
             if (instantKill)

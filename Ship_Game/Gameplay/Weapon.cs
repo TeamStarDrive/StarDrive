@@ -28,6 +28,7 @@ namespace Ship_Game.Gameplay
         int CombinedShots = 1;
         public GameObject FireTarget { get; private set; }
         float TargetChangeTimer;
+        bool TargetChangeReady => TargetChangeTimer <= 0.0001f; // a float leftover of whole steps counts as run out
 
         // these are set during install to ShipModule
         public bool IsTurret;
@@ -420,9 +421,9 @@ namespace Ship_Game.Gameplay
         // But if mainTarget is not viable, will pick a new Target using ships/projectiles lists
         // @return TRUE if target was fired at
         public bool UpdateAndFireAtTarget(Ship mainTarget,
-            Projectile[] enemyProjectiles, Ship[] enemyShips)
+            Projectile[] enemyProjectiles, Ship[] enemyShips, float stepTime)
         {
-            TargetChangeTimer -= 0.0167f;
+            TargetChangeTimer -= stepTime; // one sim step's game time a fire attempt
             if (!CanFireWeaponCooldown())
                 return false; // we can't fire, so don't bother checking targets
 
@@ -436,7 +437,7 @@ namespace Ship_Game.Gameplay
                     PickShipTarget(mainTarget, enemyShips);
                 }
             }
-            else if (TargetChangeTimer <= 0f && !IsRepairDrone && FireTarget is not Projectile && PickProjectileTarget(enemyProjectiles))
+            else if (TargetChangeReady && !IsRepairDrone && FireTarget is not Projectile && PickProjectileTarget(enemyProjectiles))
             {
                 ResetTargetChangeTimer(); // point defense leaves a ship for a projectile in reach
             }
@@ -471,7 +472,7 @@ namespace Ship_Game.Gameplay
         bool ShouldPickNewTarget()
         {
             // Reasons for this weapon not to choose a new target
-            return TargetChangeTimer <= 0f // ready to change targets
+            return TargetChangeReady // ready to change targets
                 && !IsRepairDrone // TODO: is this correct?
                 && !IsTargetAliveAndInRange(FireTarget); // Target is dead or out of range
         }

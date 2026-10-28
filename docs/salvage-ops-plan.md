@@ -28,9 +28,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
 - **When it is decided:** at death, by the roll alone (170), then by a second roll, by its hull, that makes it a
   drifting one (Gilad, 2026-10-21; 680-685): 75% for a frigate, 50% for a cruiser, 25% for a battleship, 10% for a
   capital and 70% for any other, a destroyer or a station among them (`Derelict.DriftingChance`, hard-coded). With
-  salvage ops off only a death whose second roll makes it drift is a derelict one; any other dies as usual, with its
-  blast. A ship that rolls a derelict death has no main explosion and no death blast (120, 121), wherever it is and
-  whoever sees it, so the camera never changes combat. What it leaves behind depends on visibility:
+  salvage ops off there is no second roll and every derelict drifts (Gilad, 2026-10-27). A ship that rolls a derelict
+  death has no main explosion and no death blast (120, 121), wherever it is and whoever sees it, so the camera never
+  changes combat. What it leaves behind depends on visibility:
   - visible, under the cap: 3-5 s of smaller explosions, then a derelict (120, 121);
   - visible, over the drifting cap: it takes the place of the oldest drifting derelict with no model, which leaves the
     list (683 A), and with none, the normal explosion picture, still with no blast (170);
@@ -61,9 +61,11 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   stops outside every system leaves one only as above (replacing the nothing of 125, 170 and 171).
 - **How many:**
   - The universe keeps the list of derelicts (129).
-  - Base chance 10%, times (1 - salvageable / the salvageable cap) (129, 142; 35% and 40 until 231). At the limit the
-    chance is 0; a death that rolled just before it was reached leaves a drifting derelict if it was seen, and nothing
-    if it was not.
+  - Base chance 20%, times (1 - salvageable / the salvageable cap) with salvage ops on, or (1 - drifting / the
+    drifting cap) with them off (129, 142; 35% and 40 until 231; 10%, and the salvageable share alone, until Gilad
+    2026-10-27). At the limit the chance is 0; a death that rolled salvageable just before it was reached drifts
+    instead where the drifting cap has room, seen or not, and at the drifting cap only a seen one stays, in the
+    place of the oldest drifting one without a model.
   - Each cap is the galaxy's star systems times its Globals multiplier, `SalvageableDerelictCapMultiplier` and
     `DriftingDerelictCapMultiplier`, default 1 and used from 0.1 to 10, the cap rounded up and at least 1 (Gilad,
     2026-10-21; 676-679 and 686, replacing the fixed 100 of 142 and 188): about 23 in a tiny galaxy of normal stars
@@ -831,7 +833,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
 ### Switches (Gilad, 2026-10-15)
 
 - **Globals flag `EnableSalvageOps`** (165): default false in C#. Vanilla `Globals.yaml` set it to true, then to false
-  while the feature is tested in game (929 A); the tests turn it on for vanilla (930 A). Combined
+  while the feature is tested in game (929 A), then to true again for 1.60 (Gilad, 2026-10-28); the tests turn it
+  on for vanilla whatever it ships (930 A). Combined
   Arms, Star Trek and every other mod stay off until they set it. A mod inherits every vanilla value it does not set
   (the `GamePlayGlobals` constructor copies `VanillaDefaults` before the mod's file is read), so this one flag is
   not inherited: the constructor clears it after the copy (168).
@@ -876,13 +879,18 @@ Implementation notes:
   saved salvageable derelicts sink away like drifting ones (169), and one the player does not know of is gone.
 - **Old saves and incomplete mods (Gilad, 2026-10-23; 900-904):** a game saved before salvage ops existed, vanilla or
   a mod's, loads with them off: every save now marks its rule options as saved with salvage ops, and one without the
-  mark ticks Disable Salvage Ops (900; saved setups are YAML and untouched; this branch's own earlier saves load with
+  mark ticks Disable Salvage Ops (900; saved setups are YAML and have their own mark, below; this branch's own earlier saves load with
   them off too). So an old save never meets an empire with no default salvage station. A mod that turns the flag on
   without a Salvage Platform design or any salvage module has salvage ops off, with a warning, and still loads;
   vanilla is not checked (901 A). The check for a platform missing modules stays as a guard, though such a design is
   dropped at load (903 B). The Codex says nothing of old saves (902 B). Found on the way: Disable Pirates and Disable
   Remnant Story, unticked against a mod's Globals that tick them, came back ticked on load, a save leaving out the
   unticked value; they are always written now (904 B).
+- **Saved setups (Gilad, 2026-10-28; 133 A, 135 A):** a setup records whether the salvage ops box was the player's
+  to choose as it was saved, that is whether the Globals flag was on. One saved while the box was locked ticked (on
+  patch 1.60.00071, or in a mod without salvage content) starts salvage ops from the Globals flag, and every setup
+  loaded while the flag is off, a vanilla one in such a mod among them, starts with the box ticked; otherwise the
+  player's tick stays.
 - **Recovery chance and the station pick (Gilad, 2026-10-24; 910-913):** a Remnant ship's recovery chance is halved
   and a ship that was the recovering empire's own gets a quarter more, for every empire; the player's chance is also
   multiplied by 1, 0.75, 0.5 or 0.25 at Normal, Hard, Brutal or Insane, the AI's never (a difficulty modifier). A
@@ -916,9 +924,11 @@ Implementation notes:
   merge commit and shipped in that patch batch, through PR #445 to `main` with the usual gates. Later phases go the
   same way, each into the patch branch of its day: phase 2 once sub-branches 2-8 are all in `base`, recovery
   included (465), since sub-branch 2 alone leaves derelicts that nobody can salvage.
-- **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
-  exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
-  the drifting cap alone.
+- **Drifting derelicts and the chance (189 A):** with salvage ops on only salvageable derelicts lower the chance (129,
+  142). When 189 A was settled, drifting ones existed only for deaths the player saw, so counting them would have let
+  the camera change the blast odds (170); with salvage ops on they still have the drifting cap alone. With salvage ops
+  off the drifting ones lower it instead (Gilad, 2026-10-27): a drifting wreck is now kept seen or not, so the camera
+  does not change that count; only the player's own sensors outside every system do.
 
 ## What the code already has
 

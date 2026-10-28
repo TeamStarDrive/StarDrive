@@ -21,7 +21,7 @@ public sealed class LoadNewGameSetupScreen : GenericLoadSaveScreen
     {
         if (SelectedFile is { Enabled: true, Data: SetupSave setupSave })
         {
-            Screen.SetCustomSetup(setupSave.Settings);
+            Screen.SetCustomSetup(setupSave.SettingsToStart());
         }
         else
         {

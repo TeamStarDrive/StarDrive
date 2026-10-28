@@ -678,7 +678,7 @@ public class DerelictTests : StarDriveTest
     [TestMethod]
     public void AModTurnsSalvageOpsOnItselfAndTheRuleOptionTurnsThemOff()
     {
-        AssertFalse(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableSalvageOps, "vanilla ships with salvage ops off");
+        AssertTrue(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Content/Globals.yaml")).EnableSalvageOps, "vanilla ships with salvage ops on");
         AssertTrue(GlobalStats.VanillaDefaults.EnableSalvageOps, "setup: the tests turn them on");
         var mod = new GamePlayGlobals();
         AssertFalse(mod.EnableSalvageOps, "a mod does not inherit the flag");
@@ -812,11 +812,12 @@ public class DerelictTests : StarDriveTest
         }
 
         UState.P.DisableSalvageOps = true;
-        UState.Derelicts.TestDriftRoll = true;
+        UState.Derelicts.Clear(); // with salvage ops off the drifting ones would lower the chance of the deaths below
+        GlobalStats.Defaults.DerelictChance = 200; // and so does the first of them, so this keeps the second death's roll certain
         Vector2 inSystem = SystemSite + new Vector2(30_000f, 0);
         int count = UState.Derelicts.Count;
         DieAt(inSystem, seen: true);
-        AssertEqual(count + 1, UState.Derelicts.Count, "with salvage ops off, a seen death in a system that rolls drifting leaves a derelict");
+        AssertEqual(count + 1, UState.Derelicts.Count, "with salvage ops off, a seen death in a system leaves a derelict");
         AssertFalse(Newest().Salvageable, "a drifting one");
         DieAt(inSystem, seen: false);
         AssertEqual(count + 2, UState.Derelicts.Count, "and so does an unseen one");
@@ -853,6 +854,25 @@ public class DerelictTests : StarDriveTest
         AssertTrue(UState.Derelicts.TryAdd(seen, salvageable: true, seen: true), "and a seen one, as the salvageable ones fill no drifting place");
         AssertFalse(Newest().Salvageable, "drifts instead");
         AssertEqual(4, UState.Derelicts.NumSalvageable, "so the limit holds");
+    }
+
+    [TestMethod]
+    public void WithSalvageOpsOffDriftingDerelictsLowerTheChanceToNoneAtTheirLimit()
+    {
+        for (int i = 0; i < 4; ++i)
+            AddDummyPlanet(new Vector2(-400_000f + i * 100_000f, -400_000f));
+        AssertEqual(4, UState.Systems.Count, "setup: four systems, so four drifting places");
+        GlobalStats.Defaults.SalvageableDerelictCapMultiplier = 0.5f; // two salvageable places, so only the drifting cap gives these numbers
+        GlobalStats.Defaults.DerelictChance = 40;
+        UState.P.DisableSalvageOps = true;
+        AssertEqual(0.001f, 40f, UState.Derelicts.Chance(UState), "with none, the full chance");
+
+        AssertTrue(UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(0)), salvageable: false, seen: false), "setup: a drifting derelict");
+        AssertEqual(0.001f, 30f, UState.Derelicts.Chance(UState), "a quarter of the limit takes a quarter of the chance");
+
+        for (int i = 1; i < 4; ++i)
+            AssertTrue(UState.Derelicts.TryAdd(SpawnShip("Corsair", Player, Site(i)), salvageable: false, seen: false), "setup: another drifting derelict");
+        AssertEqual(0.001f, 0f, UState.Derelicts.Chance(UState), "and none at the limit");
     }
 
     [TestMethod]
@@ -901,21 +921,14 @@ public class DerelictTests : StarDriveTest
     }
 
     [TestMethod]
-    public void WithSalvageOpsOffOnlyADeathWhoseHullRollsDriftingLeavesADerelict()
+    public void WithSalvageOpsOffEveryDerelictDriftsWhateverItsHullsRoll()
     {
         GlobalStats.Defaults.DerelictChance = 100;
         UState.P.DisableSalvageOps = true;
-        (Ship ordinary, ShipModule core) = StackedPair(Site(0));
-        ordinary.Die(null, cleanupOnly: false);
-        AssertFalse(ordinary.Active, "setup: the ship is dead");
-        AssertGreaterThan(core.ActualMaxHealth, core.Health, "with the hull's roll against drifting, it dies as usual, with a blast");
-        UState.Objects.Update(TestSimStep);
-        AssertEqual(0, UState.Derelicts.Count, "and leaves no derelict");
-
-        UState.Derelicts.TestDriftRoll = true;
-        (Ship drifter, ShipModule drifterCore) = StackedPair(Site(1));
-        drifter.Die(null, cleanupOnly: false);
-        AssertEqual(0.001f, drifterCore.ActualMaxHealth, drifterCore.Health, "with it for drifting, no blast");
+        (Ship ship, ShipModule core) = StackedPair(Site(0));
+        ship.Die(null, cleanupOnly: false);
+        AssertFalse(ship.Active, "setup: the ship is dead");
+        AssertEqual(0.001f, core.ActualMaxHealth, core.Health, "with the hull's roll against drifting, still no blast");
         UState.Objects.Update(TestSimStep);
         AssertEqual(1, UState.Derelicts.Count, "and a derelict");
         AssertFalse(Newest().Salvageable, "a drifting one");

@@ -221,6 +221,7 @@ namespace Ship_Game
         [StarData] public float ShieldStrengthCurrent { get; private set; }
         public float ShieldStrengthMax { get; private set; }
         float PosUpdateTimer = 1f;
+        public const float OrbitStepsPerSecond = 60f; // orbit steps a game second a planet or moon on screen moves
         float ZrotateAmount  = 0.03f;
         [StarData] public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
         [StarData] public float BaseFertilityTerraformRatio { get; protected set; } // A value to add to base fertility during Terraform. 
@@ -369,7 +370,9 @@ namespace Ship_Game
             if (!Universe.Paused && (PosUpdateTimer <= 0.0f || System.InFrustum))
             {
                 PosUpdateTimer = 5f;
-                OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
+                float orbitStep = (float)Math.Asin(15.0 / OrbitalRadius);
+                // on screen it orbits by the step's time, off screen a step every 5 seconds
+                OrbitalAngle += System.InFrustum ? orbitStep * OrbitStepsPerSecond * timeStep.FixedTime : orbitStep;
                 if (OrbitalAngle >= 360f)
                     OrbitalAngle -= 360f;
                 UpdatePositionOnly();

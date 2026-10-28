@@ -1,8 +1,10 @@
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -253,6 +255,47 @@ public class LaunchingShipProtectionTests : StarDriveTest
         RunObjectsSim(TestSimStep);
         Assert.AreNotSame(target, (missile.MissileAI.Target as ShipModule)?.GetParent(),
                           "a missile drops a ship that starts taking off at once, whatever it is doing");
+    }
+
+    static long LogLength()
+    {
+        Log.FlushAllLogs();
+        using var log = new FileStream(Log.LogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        return log.Length;
+    }
+
+    static string LoggedSince(long length)
+    {
+        Log.FlushAllLogs();
+        using var log = new FileStream(Log.LogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        log.Seek(length, SeekOrigin.Begin);
+        using var reader = new StreamReader(log);
+        return reader.ReadToEnd();
+    }
+
+    [TestMethod]
+    public void APlainMissileWhoseTargetStartsTakingOffAsItsTargetCheckComesDueSelfDestructsOnce()
+    {
+        LoadStarterShips("Rocket Scout");
+        Player.data.Traits.SmartMissiles = false;
+        Ship launcher = SpawnShip("Rocket Scout", Player, new Vector2(300_000, 0));
+        Ship target = SpawnShip("Vulcan Scout", Enemy, launcher.Position + new Vector2(0, -2500));
+        RunObjectsSim(1f);
+        Projectile missile = MissileAt(launcher, target);
+        RunObjectsSim(0.3f);
+        Assert.IsTrue(missile.Active, "setup: the missile flies at a ship in play");
+
+        target.InitLaunch(LaunchPlan.Planet, 0f);
+        typeof(MissileAI).GetField("TargetUpdateTimer", BindingFlags.NonPublic | BindingFlags.Instance)!
+                         .SetValue(missile.MissileAI, 0.001f); // its regular target check comes due this step
+        long logLength = LogLength();
+        Log.Write("LaunchingShipProtectionTests: the target starts taking off");
+        missile.Update(TestSimStep);
+
+        string logged = LoggedSince(logLength);
+        Assert.IsFalse(missile.Active, "setup: a plain missile whose target starts taking off self-destructs");
+        Assert.IsTrue(logged.Contains("LaunchingShipProtectionTests: the target starts taking off"), "setup: the test reads what the log gained");
+        Assert.IsFalse(logged.Contains("(!)"), "the step logs no error, as the missile is not told to die a second time");
     }
 
     [TestMethod]

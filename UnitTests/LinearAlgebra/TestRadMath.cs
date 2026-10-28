@@ -161,6 +161,13 @@ namespace UnitTests.LinearAlgebra
         }
 
         [TestMethod]
+        public void AnAngleJustPastAFullTurnWrapsToJustPastZero()
+        {
+            AssertEqual(0.00001f, 0.0005f, (RadMath.TwoPI + 0.0005f).AsNormalizedRadians(), "a small step past 2PI wraps, so a slow spin goes on");
+            AssertEqual(0.00001f, RadMath.TwoPI, (RadMath.TwoPI + 0.00001f).AsNormalizedRadians(), "while float error at 2PI still reads as 2PI");
+        }
+
+        [TestMethod]
         public void RadiansFromDegreesAndNormalized()
         {
             const float ToRad = RadMath.DegreeToRadian;

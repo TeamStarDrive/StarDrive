@@ -27,6 +27,7 @@ public enum DebugModes
     SpaceRoads,
     Goals,
     MiningOps,
+    SalvageOps,
     Espionage,
 
 

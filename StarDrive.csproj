@@ -129,6 +129,7 @@
     <Compile Include="Ship_Game\Commands\Goals\RemnantHelpEmpire.cs" />
     <Compile Include="Ship_Game\Debug\Page\EspionageDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\MiningOpsDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\SalvageOpsDebug.cs" />
     <Compile Include="Ship_Game\Empire_Espionage.cs" />
     <Compile Include="Ship_Game\Empire_Find.cs" />
     <Compile Include="Ship_Game\Empire_Patrols.cs" />
