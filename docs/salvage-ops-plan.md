@@ -16,9 +16,10 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
 
 ### Which deaths make a derelict
 
-- **Who:** military roles only, frigate and above (124, 172). Instant kills can become derelicts too (130). In
-  `RoleName` carrier, bomber, support, troopShip and station sort below frigate, so the rule takes both roles:
-  - the hull role is frigate, destroyer, cruiser, battleship or capital;
+- **Who:** military roles only, corvette and above (124, 172; corvettes added by Gilad, 2026-10-29, 153). Instant
+  kills can become derelicts too (130). In `RoleName` carrier, bomber, support, troopShip and station sort below
+  corvette, so the rule takes both roles:
+  - the hull role is corvette, frigate, destroyer, cruiser, battleship or capital;
   - the design role is military: a warship, carrier, bomber, support or troop ship. Freighters, colony ships,
     scouts and constructors on those hulls do not count.
 - **Stations:** an untethered station-role design (131, 172). Shipyards, subspace projectors and platforms never
@@ -27,8 +28,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   count when they are untethered (172).
 - **When it is decided:** at death, by the roll alone (170), then by a second roll, by its hull, that makes it a
   drifting one (Gilad, 2026-10-21; 680-685): 75% for a frigate, 50% for a cruiser, 25% for a battleship, 10% for a
-  capital and 70% for any other, a destroyer or a station among them (`Derelict.DriftingChance`, hard-coded). With
-  salvage ops off there is no second roll and every derelict drifts (Gilad, 2026-10-27). A ship that rolls a derelict
+  capital and 70% for any other, a destroyer or a station among them (`Derelict.DriftingChance`, hard-coded). A
+  corvette's derelict always drifts (`Derelict.CanLieSalvageable`; Gilad, 2026-10-29, 153). With salvage ops off
+  there is no second roll and every derelict drifts (Gilad, 2026-10-27). A ship that rolls a derelict
   death has no main explosion and no death blast (120, 121), wherever it is and whoever sees it, so the camera never
   changes combat. What it leaves behind depends on visibility:
   - visible, under the cap: 3-5 s of smaller explosions, then a derelict (120, 121);
@@ -49,10 +51,11 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   derelict with no roll, and does nothing to a ship that cannot become one; unseen, it leaves a drifting derelict with
   no model wherever an unseen drifting death does. Ctrl+Shift+X (or Ctrl+Shift+Delete) destroys it as a
   salvageable derelict, seen or not, and does nothing unless it would stop where a salvageable one can be (in a system,
-  clear of radiation, salvage ops on) and the salvageable cap is not full.
+  clear of radiation, salvage ops on, not a corvette) and the salvageable cap is not full.
 - **Where:** the stop point decides, and it is known at death: a salvageable derelict slows linearly to a stop over
   10 s, so it stops 5 s worth of its drift speed from where it died. A stop inside a system makes a **salvageable**
-  derelict, unless the hull's roll makes it drift. Two cases make a **drifting** derelict instead (125):
+  derelict, unless it is a corvette's or the hull's roll makes it drift. Two cases make a **drifting** derelict
+  instead (125):
   - a stop outside every system;
   - a stop inside a star's radiation zone, or not more than 2000 beyond it, the danger margin the game already uses
     (`SolarSystem.InSafeDistanceFromRadiation`, 229), so salvage platforms never work inside radiation.

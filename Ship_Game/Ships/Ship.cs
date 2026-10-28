@@ -1731,8 +1731,9 @@ namespace Ship_Game.Ships
                 CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly, blast: !RolledDerelict);
         }
 
-        // with salvage ops on, it would stop in a system clear of the star's radiation
-        bool StopsWhereSalvageable => Universe.P.SalvageOps && Derelict.SalvageSystemAt(Universe, Derelict.StopPoint(this)) != null;
+        // with salvage ops on, a hull that can lie salvageable would stop in a system clear of the star's radiation
+        bool StopsWhereSalvageable => Universe.P.SalvageOps && Derelict.CanLieSalvageable(ShipData.HullRole)
+                                      && Derelict.SalvageSystemAt(Universe, Derelict.StopPoint(this)) != null;
 
         // salvageable when its hull's roll did not make it drift and it stops where it can be; else a drifting one, seen or not
         int DerelictAtDeath(bool seen)
@@ -1762,7 +1763,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // frigate and bigger military ships, and untethered stations that are not research, mining, salvage, Dyson swarm or portal stations
+        // corvette and bigger military ships, and untethered stations that are not research, mining, salvage, Dyson swarm or portal stations
         public bool CanBecomeDerelict
         {
             get
@@ -1772,7 +1773,7 @@ namespace Ship_Game.Ships
                 if (ShipData.IsStation)
                     return TetheredTo == null && !IsResearchStation && !IsMiningStation && !IsSalvageStation && !IsDysonSwarmController
                         && !(Loyalty.WeAreRemnants && Name == Loyalty.data.RemnantPortal);
-                return ShipData.HullRole is >= RoleName.frigate and <= RoleName.capital
+                return ShipData.HullRole is >= RoleName.corvette and <= RoleName.capital
                     && DesignRoleType is RoleType.Warship or RoleType.WarSupport or RoleType.Troop;
             }
         }

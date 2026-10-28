@@ -267,6 +267,9 @@ public sealed class Derelict
         return null;
     }
 
+    // a corvette's derelict always drifts; a frigate or bigger, or a station, can lie to be salvaged
+    public static bool CanLieSalvageable(RoleName hullRole) => hullRole != RoleName.corvette;
+
     // the percent chance that a derelict of the hull's role drifts rather than lies to be salvaged
     public static float DriftingChance(RoleName hullRole) => hullRole switch
     {

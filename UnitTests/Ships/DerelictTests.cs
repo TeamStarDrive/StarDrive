@@ -24,13 +24,13 @@ using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// Some deaths of frigates and bigger military ships, and of stations on their own, leave a derelict: no main
+/// Some deaths of corvettes and bigger military ships, and of stations on their own, leave a derelict: no main
 /// explosion and no death blast. On screen it breaks up and drifts to a stop with its lights out, tumbling and smoking,
 /// then sinks away. One that stops in a system outside the star's radiation, with salvage ops on, is salvageable
 /// unless its hull's roll makes it drift: it stays there, seen or not, until its turns run out. A drifting one is left
 /// seen or not, but outside every system only if the player owned it, destroyed it or had it in its own sensors; past
 /// the cap of drifting derelicts a seen death takes the place of the oldest one with no model, and with none it leaves
-/// nothing, still with no blast.
+/// nothing, still with no blast. A corvette's derelict always drifts.
 /// </summary>
 [TestClass]
 public class DerelictTests : StarDriveTest
@@ -141,13 +141,15 @@ public class DerelictTests : StarDriveTest
     }
 
     [TestMethod]
-    public void FrigatesAndBiggerWarshipsAndStationsOnTheirOwnCanBecomeDerelicts()
+    public void CorvettesAndBiggerWarshipsAndStationsOnTheirOwnCanBecomeDerelicts()
     {
         AssertTrue(SpawnShip("Dreadnought mk1-a", Player, Site(0)).CanBecomeDerelict, "a capital warship");
         TestShip frigate = SpawnShip("Corsair", Player, Site(1));
         AssertEqual(RoleName.frigate, frigate.ShipData.HullRole, "setup: the Corsair is a frigate");
         AssertTrue(frigate.CanBecomeDerelict, "a frigate warship");
-        AssertFalse(SpawnShip("Hunter mk1-a", Player, Site(2)).CanBecomeDerelict, "a corvette");
+        TestShip corvette = SpawnShip("Hunter mk1-a", Player, Site(2));
+        AssertEqual(RoleName.corvette, corvette.ShipData.HullRole, "setup: the Hunter is a corvette");
+        AssertTrue(corvette.CanBecomeDerelict, "a corvette warship");
         AssertFalse(SpawnShip("Vulcan Scout", Player, Site(3)).CanBecomeDerelict, "a fighter");
         AssertFalse(SpawnShip("Seeder Transport", Player, Site(4)).CanBecomeDerelict, "a freighter");
         AssertFalse(SpawnShip("Shipyard", Player, Site(5)).CanBecomeDerelict, "a shipyard");
@@ -267,14 +269,14 @@ public class DerelictTests : StarDriveTest
         ViewEverything();
         GlobalStats.Defaults.DerelictChance = 0;
         Ship ship = SpawnPlainShip("Dreadnought mk1-a", Site(0));
-        Ship corvette = SpawnPlainShip("Hunter mk1-a", Site(1));
+        Ship fighter = SpawnPlainShip("Vulcan Scout", Site(1));
         UState.Objects.Update(TestSimStep);
         GiveSceneObject(ship);
         MakeVisible(ship);
 
-        corvette.InFrustum = false; // off screen, an ordinary death never tumbles, so it would show as dead
-        corvette.DebugDieAsDerelict(salvageable: false);
-        AssertTrue(corvette.Active, "a corvette cannot become a derelict, so nothing happens to it");
+        fighter.InFrustum = false; // off screen, an ordinary death never tumbles, so it would show as dead
+        fighter.DebugDieAsDerelict(salvageable: false);
+        AssertTrue(fighter.Active, "a fighter cannot become a derelict, so nothing happens to it");
 
         ship.DebugDieAsDerelict(salvageable: false);
         AssertFalse(ship.Active, "the dreadnought is destroyed");
@@ -323,6 +325,32 @@ public class DerelictTests : StarDriveTest
         Ship overLimit = SpawnPlainShip("Dreadnought mk1-a", inSystem);
         overLimit.DebugDieAsDerelict(salvageable: true);
         AssertTrue(overLimit.Active, "nor when the salvageable derelicts are all there");
+    }
+
+    [TestMethod]
+    public void ACorvettesDerelictAlwaysDrifts()
+    {
+        GlobalStats.Defaults.DerelictChance = 100;
+        AddSystem();
+        AddRemoteSystems(9);
+        Vector2 inSystem = SystemSite + new Vector2(30_000f, 0);
+
+        Ship corvette = SpawnPlainShip("Hunter mk1-a", inSystem);
+        AssertEqual(RoleName.corvette, corvette.ShipData.HullRole, "setup: a corvette");
+        corvette.Die(null, cleanupOnly: false);
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(1, UState.Derelicts.Count, "a corvette leaves a derelict");
+        AssertFalse(Newest().Salvageable, "which drifts, though its hull's roll and where it stopped would let a frigate's lie");
+
+        Ship frigate = SpawnPlainShip("Corsair", inSystem);
+        frigate.Die(null, cleanupOnly: false);
+        UState.Objects.Update(TestSimStep);
+        AssertEqual(2, UState.Derelicts.Count, "control: a frigate leaves one too");
+        AssertTrue(Newest().CanBeSalvaged, "control: there a frigate's lies to be salvaged");
+
+        Ship keyed = SpawnPlainShip("Hunter mk1-a", inSystem);
+        keyed.DebugDieAsDerelict(salvageable: true);
+        AssertTrue(keyed.Active, "Ctrl+Shift+X cannot make a corvette's derelict salvageable, so nothing happens to it");
     }
 
     [TestMethod]
