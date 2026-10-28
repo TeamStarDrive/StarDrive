@@ -63,8 +63,9 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   - The universe keeps the list of derelicts (129).
   - Base chance 20%, times (1 - salvageable / the salvageable cap) with salvage ops on, or (1 - drifting / the
     drifting cap) with them off (129, 142; 35% and 40 until 231; 10%, and the salvageable share alone, until Gilad
-    2026-10-27). At the limit the chance is 0; with salvage ops on, a death that rolled just before it was reached
-    leaves a drifting derelict if it was seen, and nothing if it was not.
+    2026-10-27). At the limit the chance is 0; a death that rolled salvageable just before it was reached drifts
+    instead where the drifting cap has room, seen or not, and at the drifting cap only a seen one stays, in the
+    place of the oldest drifting one without a model.
   - Each cap is the galaxy's star systems times its Globals multiplier, `SalvageableDerelictCapMultiplier` and
     `DriftingDerelictCapMultiplier`, default 1 and used from 0.1 to 10, the cap rounded up and at least 1 (Gilad,
     2026-10-21; 676-679 and 686, replacing the fixed 100 of 142 and 188): about 23 in a tiny galaxy of normal stars
@@ -917,11 +918,11 @@ Implementation notes:
   merge commit and shipped in that patch batch, through PR #445 to `main` with the usual gates. Later phases go the
   same way, each into the patch branch of its day: phase 2 once sub-branches 2-8 are all in `base`, recovery
   included (465), since sub-branch 2 alone leaves derelicts that nobody can salvage.
-- **Drifting derelicts and the chance (189 A):** only salvageable derelicts lower the chance (129, 142); drifting ones
-  exist only for deaths the player saw, so counting them would let the camera change the blast odds (170). They have
-  the drifting cap alone. With salvage ops off the drifting ones lower it instead (Gilad, 2026-10-27): a drifting wreck
-  is kept seen or not by then, so the camera does not change that count; only the player's own sensors outside every
-  system do.
+- **Drifting derelicts and the chance (189 A):** with salvage ops on only salvageable derelicts lower the chance (129,
+  142). When 189 A was settled, drifting ones existed only for deaths the player saw, so counting them would have let
+  the camera change the blast odds (170); with salvage ops on they still have the drifting cap alone. With salvage ops
+  off the drifting ones lower it instead (Gilad, 2026-10-27): a drifting wreck is now kept seen or not, so the camera
+  does not change that count; only the player's own sensors outside every system do.
 
 ## What the code already has
 
