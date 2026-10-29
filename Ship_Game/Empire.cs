@@ -163,7 +163,6 @@ namespace Ship_Game
         public bool CanBuildShipyards { get; private set; }
         public bool CanBuildResearchStations { get; private set; }
         public bool CanBuildMiningStations { get; private set; }
-        public bool CanBuildSalvageStations { get; private set; }
         // its race's salvage ship, or null for a race without one
         public IShipDesign SalvageShipDesign => ResourceManager.SalvageShipDesignOf(data);
         // a salvage ship with a platform's load of cargo room for each salvage unit is among the designs it can build
@@ -199,7 +198,6 @@ namespace Ship_Game
         [StarData] public bool AutoBuildTerraformers;
         [StarData] public bool AutoPickBestResearchStation;
         [StarData] public bool AutoPickBestMiningStation;
-        [StarData] public bool AutoPickBestSalvageStation;
         [StarData] public bool AutoPickBestSalvageShip;
         [StarData] public bool SymmetricDesignMode = true;
         [StarData] public Array<string> ObsoletePlayerShipModules;
@@ -1266,6 +1264,7 @@ namespace Ship_Game
         {
             Universe = us;
             EmpireShips.UpdatePublicLists();
+            EndSalvageStationWork();
             Research.UpdateNetResearch();
 
             UpdateNetPlanetIncomes();
@@ -1280,6 +1279,28 @@ namespace Ship_Game
             UpdateMaxColonyValues();
             CalcWeightedCenter(calcNow: true);
             AI.RunEconomicPlanner(fromSave: true);
+        }
+
+        // a save with salvage stations at work: they leave the designs it can build, hauls from them are called off, a freighter that loaded keeping its cargo for trade, their builds are cancelled, and an AI empire scraps its stations
+        void EndSalvageStationWork()
+        {
+            bool removed = false;
+            foreach (IShipDesign design in ShipsWeCanBuildSnapshot.Concat(SpaceStationsWeCanBuildSnapshot))
+                if (design.IsSalvageStation)
+                    removed |= RemoveBuildableShip(design);
+            if (removed)
+                UpdateBestOrbitals();
+
+            var ships = OwnedShips;
+            for (int i = 0; i < ships.Count; ++i)
+            {
+                Ship ship = ships[i];
+                if (ship.AI.OrderQueue.Any(g => g.Trade is { ExportFrom: null, TargetStation: null }))
+                    ship.AI.CancelTradePlan(FindNearestRallyPoint(ship.Position));
+                else if (ship.IsSalvageStation && !isPlayer && !IsFaction && !ship.Dismantling)
+                    AI.AddGoal(new DismantleOrbital(ship, this));
+            }
+            AI.CancelSalvageStationBuilds();
         }
 
         public void UpdateMilitaryStrengths()
@@ -1376,9 +1397,6 @@ namespace Ship_Game
 
             if (s.IsMiningStation)
                 CanBuildMiningStations= true;
-
-            if (s.IsSalvageStation)
-                CanBuildSalvageStations = true;
 
             if (ShipBuilder.IsUsableSalvageShip(s))
                 CanBuildSalvageShips = true;

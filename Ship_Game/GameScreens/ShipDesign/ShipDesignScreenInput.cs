@@ -420,17 +420,16 @@ namespace Ship_Game
             return changedArcs;
         }
 
-        public enum StationModuleKind { None, Research, Mining, Salvage }
+        public enum StationModuleKind { None, Research, Mining }
 
         public static StationModuleKind StationKindOf(ShipModule m)
         {
             return m.ResearchPerTurn > 0 ? StationModuleKind.Research
                  : m.Refining > 0 ? StationModuleKind.Mining
-                 : m.Salvage ? StationModuleKind.Salvage
                  : StationModuleKind.None;
         }
 
-        // research, mining and salvage stations are told apart by their modules, so a design holds only one of those kinds
+        // research and mining stations are told apart by their modules, so a design holds only one of those kinds
         public static bool MixesStationKinds(ShipModule module, IEnumerable<ShipModule> installed)
         {
             StationModuleKind kind = StationKindOf(module);

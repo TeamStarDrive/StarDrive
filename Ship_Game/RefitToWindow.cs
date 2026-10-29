@@ -80,6 +80,17 @@ namespace Ship_Game
             }
         }
 
+        // another design on its hull, or a research or mining station's on any hull, of the same kind of station or none; nothing for a subspace projector
+        public static bool CanRefitTo(Ship ship, IShipDesign design)
+        {
+            return !ship.IsSubspaceProjector
+                && (design.Hull == ship.ShipData.Hull || ship.IsResearchStation || ship.IsMiningStation)
+                && design != ship.ShipData
+                && !design.ShipRole.Protected
+                && ship.IsResearchStation == design.IsResearchStation
+                && ship.IsMiningStation == design.IsMiningStation;
+        }
+
         public override void LoadContent()
         {
             RectF shipDesignsRect = new(ScreenWidth / 2 - 200, 200, 400, 500);
@@ -90,20 +101,10 @@ namespace Ship_Game
             RefitShipList.EnableItemHighlight = true;
             RefitShipList.OnClick = OnRefitShipItemClicked;
 
-            if (!ShipToRefit.IsSubspaceProjector && !ShipToRefit.IsSalvageStation)
+            foreach (IShipDesign design in ShipToRefit.Loyalty.ShipsWeCanBuildSnapshot)
             {
-                foreach (IShipDesign design in ShipToRefit.Loyalty.ShipsWeCanBuildSnapshot)
-                {
-                    if ((design.Hull == ShipToRefit.ShipData.Hull || ShipToRefit.IsResearchStation || ShipToRefit.IsMiningStation)
-                        && design != ShipToRefit.ShipData
-                        && !design.ShipRole.Protected
-                        && !design.IsSalvageStation
-                        && ShipToRefit.IsResearchStation == design.IsResearchStation
-                        && ShipToRefit.IsMiningStation == design.IsMiningStation)
-                    {
-                        RefitShipList.AddItem(new RefitShipListItem(this, design));
-                    }
-                }
+                if (CanRefitTo(ShipToRefit, design))
+                    RefitShipList.AddItem(new RefitShipListItem(this, design));
             }
 
             ConfirmRefit = new DanButton(new Vector2(shipDesignsRect.X, (shipDesignsRect.Y + 505)), "Do Refit");

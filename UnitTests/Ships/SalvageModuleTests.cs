@@ -10,9 +10,9 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// A salvage module is one with Salvage set in its module file. A station-role design with one is a salvage station,
-/// and counts its salvage modules, since each works one derelict; a platform-role design never is one, whatever it
-/// carries. The count follows the design as it is edited. The designer keeps research, refining and salvage modules
-/// out of one design.
+/// and counts its salvage modules; a platform-role design never is one, whatever it carries, and neither is a salvage
+/// ship. The count follows the design as it is edited. The designer keeps research and refining modules out of one
+/// design, while the salvage unit, which no station takes, mixes with either.
 /// </summary>
 [TestClass]
 public class SalvageModuleTests : StarDriveTest
@@ -78,7 +78,15 @@ public class SalvageModuleTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheDesignerKeepsResearchMiningAndSalvageModulesApart()
+    public void AStationWithASalvageUnitIsNoSalvageShip()
+    {
+        ShipDesign station = WithSalvageUnits(Design("Basic Mining Station"), 1);
+        Assert.IsTrue(station.IsSalvageStation && station.NumSalvageModules > 0, "setup: a station with a salvage unit");
+        Assert.IsFalse(station.IsSalvageShip, "is a salvage station, not a salvage ship");
+    }
+
+    [TestMethod]
+    public void TheDesignerKeepsResearchAndMiningModulesApartButNotTheSalvageUnit()
     {
         ShipModule research = ResourceManager.GetModuleTemplate("ResearchLab");
         ShipModule refining = ResourceManager.GetModuleTemplate("ProcessingUnit");
@@ -86,12 +94,13 @@ public class SalvageModuleTests : StarDriveTest
         ShipModule plain = ResourceManager.GetModuleTemplate("Structure");
         Assert.IsTrue(research.ResearchPerTurn > 0 && refining.Refining > 0 && salvage.Salvage, "setup: one module of each kind");
 
-        Assert.IsTrue(ShipDesignScreen.MixesStationKinds(salvage, new[] { plain, refining }), "no salvage module on a mining station");
-        Assert.IsTrue(ShipDesignScreen.MixesStationKinds(research, new[] { salvage }), "no research module on a salvage station");
-        Assert.IsTrue(ShipDesignScreen.MixesStationKinds(refining, new[] { research }), "no refining module on a research station");
-        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(salvage, new[] { plain, salvage }), "more of the same kind is fine");
+        Assert.IsTrue(ShipDesignScreen.MixesStationKinds(refining, new[] { plain, research }), "no refining module on a research station");
+        Assert.IsTrue(ShipDesignScreen.MixesStationKinds(research, new[] { refining }), "no research module on a mining station");
+        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(salvage, new[] { plain, refining }), "a salvage unit is no station kind of its own");
+        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(research, new[] { salvage }), "so a research module goes with it");
+        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(refining, new[] { plain, refining }), "more of the same kind is fine");
         Assert.IsFalse(ShipDesignScreen.MixesStationKinds(plain, new[] { refining, research }), "and other modules go anywhere");
-        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(salvage, new ShipModule[0]), "as does the first of a kind");
+        Assert.IsFalse(ShipDesignScreen.MixesStationKinds(research, new ShipModule[0]), "as does the first of a kind");
     }
 
     [TestMethod]

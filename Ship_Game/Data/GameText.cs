@@ -6178,22 +6178,12 @@ namespace Ship_Game
         ShipCrashAlertsTip = 7138,
         /// <summary>Station Built Alerts</summary>
         StationBuiltAlerts = 7139,
-        /// <summary>Alerts when one of your research, mining or salvage stations has been built.</summary>
+        /// <summary>Alerts when one of your research or mining stations has been built.</summary>
         StationBuiltAlertsTip = 7140,
         /// <summary>Starvation Alerts</summary>
         StarvationAlerts = 7141,
-        /// <summary>Salvage Station was deployed in system</summary>
-        SalvageStationBuiltSystemNotify = 7144,
-        /// <summary>You cannot mix research station, mining station and salvage station modules in one design.</summary>
+        /// <summary>You cannot mix research station and mining station modules in one design.</summary>
         CannotMixStationModules = 7145,
-        /// <summary>Build a salvage station near this system's derelicts.</summary>
-        SalvageStationOrderTip = 7146,
-        /// <summary>You already have a salvage station in this system, built or on order.</summary>
-        SalvageStationOrderedTip = 7147,
-        /// <summary>No salvage station design can be built yet.</summary>
-        SalvageStationNoDesignTip = 7148,
-        /// <summary>No free site for a salvage station near these derelicts.</summary>
-        SalvageStationNoSite = 7149,
         /// <summary>1 Derelict</summary>
         OneDerelict = 7150,
         /// <summary>{0} Derelicts</summary>
@@ -6206,26 +6196,14 @@ namespace Ship_Game
         SalvageOpsButton = 7154,
         /// <summary>Derelicts in {0}</summary>
         DerelictsInSystem = 7155,
-        /// <summary>Auto Pick Salvage Stations</summary>
-        AutoPickSalvageStation = 7156,
-        /// <summary>A salvage station ordered from a derelict's panel or a</summary>
-        AutoPickSalvageStationTip = 7157,
         /// <summary>Auto Salvage</summary>
         AutoSalvage = 7158,
         /// <summary>Low Salvage Cargo</summary>
         DesignIssueLowSalvageCargoTitle = 7159,
-        /// <summary>Each salvage unit's platform sends its loads to this Salvage Station</summary>
-        DesignIssueLowSalvageCargoProblem = 7160,
         /// <summary>Add Storage.</summary>
         DesignIssueLowSalvageCargoRemidiation = 7161,
         /// <summary>Cargo room needed for one load per salvage unit:</summary>
         DesignIssueLowSalvageCargoNeeded = 7162,
-        /// <summary>Deploy Salvage Station</summary>
-        DeploySalvageStation = 7163,
-        /// <summary>Salvage Station Deployed</summary>
-        SalvageStationDeployed = 7164,
-        /// <summary>Salvage Station was evacuated since you</summary>
-        RemoveExcessSalvageStation = 7165,
         /// <summary>Salvage this derelict: a salvage ship of yours already sent to</summary>
         SalvageDerelictTip = 7166,
         /// <summary>Your salvage ship is working this derelict. Click to call it</summary>
@@ -6240,16 +6218,10 @@ namespace Ship_Game
         SalvageHoldFull = 7173,
         /// <summary>Production this salvage platform has stripped from its</summary>
         SalvageHoldTip = 7174,
-        /// <summary>Station hold full</summary>
-        SalvageStationHoldFull = 7175,
         /// <summary>Salvage finished</summary>
         SalvageFinished = 7176,
         /// <summary>Dismantling</summary>
         PlatformDismantling = 7177,
-        /// <summary>Build Salvage Station</summary>
-        BuildSalvageStation = 7178,
-        /// <summary>Salvage Station Ordered</summary>
-        SalvageStationOrdered = 7179,
         /// <summary>Technologies this derelict holds. Once your salvage platform</summary>
         DerelictTechsHeldTip = 7180,
         /// <summary>Technologies you can learn from this derelict. Each load</summary>
@@ -6286,8 +6258,6 @@ namespace Ship_Game
         SalvagePlatformDestroyedNotify = 7196,
         /// <summary>{0}: the {2} started salvaging the {1} first</summary>
         SalvageClaimedFirstNotify = 7197,
-        /// <summary>{0}: your salvage station was lost, and your salvage of the</summary>
-        SalvageStationLostNotify = 7198,
         /// <summary>{0}: the {1} sank away before your platform was built</summary>
         SalvageSankNotify = 7199,
         /// <summary>Recover this ship: a salvage ship of yours already sent to</summary>
@@ -6326,12 +6296,6 @@ namespace Ship_Game
         RecoveryBrokeApartNotify = 7216,
         /// <summary>{0}: the {1} exploded as your platform worked to recover it,</summary>
         RecoveryExplodedNotify = 7217,
-        /// <summary>Waiting for freighters</summary>
-        SalvageStationWaitingForFreighters = 7218,
-        /// <summary>Freighters on their way: {0}</summary>
-        SalvageStationFreightersComing = 7219,
-        /// <summary>Other empires are salvaging or recovering every derelict you know of in this system.</summary>
-        SalvageStationAllWorkedTip = 7221,
         /// <summary>Your empire will order salvage of the derelicts it knows of</summary>
         AutoSalvageTip = 7222,
         // 7224 to 7226 are the Salvage Speed tech's texts, used by its XML
@@ -6341,8 +6305,6 @@ namespace Ship_Game
         DismantleOrbitalTip = 7229,
         /// <summary>Delivering production to</summary>
         DeliveringProductionTo = 7230,
-        /// <summary>Without it, auto pick skips this station.</summary>
-        DesignIssueLowSalvageCargoSkipped = 7231,
         /// <summary>Cargo room for two loads per salvage unit:</summary>
         DesignIssueLowSalvageCargoTwoLoads = 7232,
         /// <summary>Research Salvage Ships to build a salvage ship for this</summary>

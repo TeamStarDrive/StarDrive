@@ -292,11 +292,10 @@ namespace Ship_Game.AI
                         ship.AI.OrderQueue.TryPeekFirst(out ShipGoal goal);
                         if (goal?.Trade != null)
                         {
-                            if (goal.Trade.ExportSystem is { } exportSystem && exportSystem != ship.System // a haul in its station's own system
-                                && !ProjectorAlreadyAtBridgeTarget(ship.System, exportSystem.Position))
+                            if (!ProjectorAlreadyAtBridgeTarget(ship.System, goal.Trade.ExportFrom.System.Position))
                             {
                                 Owner.AI.AddGoalAndEvaluate(new ProjectorBridge(ship.System,
-                                    exportSystem.Position, Owner, endCondition));
+                                    goal.Trade.ExportFrom.System.Position, Owner, endCondition));
                             }
 
                             return;

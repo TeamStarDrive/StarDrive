@@ -544,8 +544,5 @@ namespace Ship_Game.Commands.Goals
                 owner.GetRelations(salvager).Trust -= loss;
             }
         }
-
-        // from any thread: rebels, who build no freighters, and an empire with no colony have nowhere to send what a station holds
-        public static bool NowhereToSend(Empire empire) => empire.NumPlanets == 0 || empire.data.IsRebelFaction;
     }
 }

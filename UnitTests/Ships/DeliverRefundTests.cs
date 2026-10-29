@@ -16,9 +16,8 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// An orbital taken apart in deep space or at a planet not its empire's sends its refund, half of its cost by its
-/// health and the production aboard, or a salvage station's whole cost as its order stored it when built and passed it
-/// on a change of hands, in a builder ship that rises from where it stood, facing its first colony, and takes no
-/// orders. The builder goes, as a scrapped ship does, to the nearest of the five safe colonies with the most room;
+/// health and the production aboard, a salvage station's as any other's, in a builder ship that rises from where it
+/// stood, facing its first colony, and takes no orders. The builder goes, as a scrapped ship does, to the nearest of the five safe colonies with the most room;
 /// where only part fits it stops close by and sends that down, untaxed, and flies on, back to one it stopped at too
 /// once its store has room again; where all of it fits, or at its last stop, at most ten or one for each colony, it lands and unloads all, the
 /// excess paid as credits at the tax rate, all of it on a colony lost during the landing. With no colony left with
@@ -31,7 +30,7 @@ namespace UnitTests.Ships;
 public class DeliverRefundTests : StarDriveTest
 {
     const string Platform = "Platform Base mk1-a";
-    const string SalvageStation = "Terran Basic Salvage Station";
+    const string SalvageStation = "TEST_Old Salvage Station";
     readonly Planet Colony;
 
     public DeliverRefundTests()
@@ -632,35 +631,12 @@ public class DeliverRefundTests : StarDriveTest
         AssertEqual(20, CargoShuttles.RefundShuttlesFor(5000f), "never more than 20");
     }
 
-    // a built salvage station in a system of its own, its order on its salvage step
-    SalvageOps BuiltSalvageStation(Empire owner, out Ship station)
-    {
-        Vector2 site = new(600_000f, 600_000f);
-        SolarSystem system = AddDummyPlanet(site, 1f, 1f, 1f, site + new Vector2(0, 60_000f), explored: true).System;
-        Assert.IsTrue(ResourceManager.Ships.GetDesign(SalvageStation, out IShipDesign design), "setup: the station is loaded");
-        var order = new SalvageOps(owner, system, site + new Vector2(30_000f, 0), design);
-        owner.AI.AddGoal(order);
-        order.AdvanceToNextStep();
-        order.TargetShip = station = SpawnShip(SalvageStation, owner, order.StaticBuildPos);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the station is built");
-        return order;
-    }
-
     [TestMethod]
-    public void ASalvageStationsOrderStoresItsCostAsBuilt()
+    public void ASalvageStationRefundsHalfOfItsCostAsAnyOrbitalDoes()
     {
-        SalvageOps order = BuiltSalvageStation(Player, out Ship station);
-        AssertEqual(0.01f, station.GetCost(Player), order.StationCost, "its order keeps what the station cost as it was built");
-    }
-
-    [TestMethod]
-    public void ASalvageStationRefundsAllOfTheCostItsOrderStored()
-    {
-        SalvageOps order = BuiltSalvageStation(Player, out Ship station);
-        order.StationCost = 777f;
+        Ship station = SpawnShip(SalvageStation, Player, new Vector2(630_000f, 600_000f));
+        float cost = station.GetCost(Player);
         station.Health = station.HealthMax * 0.8f;
-        station.CargoSpaceMax = 100f;
         station.LoadProduction(10f);
 
         station.AI.OrderScrapShip();
@@ -668,36 +644,7 @@ public class DeliverRefundTests : StarDriveTest
         for (int i = 0; i < 20 && Player.AI.HasGoal(dismantling); ++i)
             dismantling.Evaluate();
         Assert.IsFalse(station.Active, "setup: the station is gone");
-        AssertEqual(0.01f, 777f * 0.8f + 10f, Delivery?.Load ?? 0f, "all of the cost its order stored, by its health, and its hold in full");
-    }
-
-    [TestMethod]
-    public void ASalvageStationWithNoCostStoredRefundsAllOfItsCostNow()
-    {
-        SalvageOps order = BuiltSalvageStation(Player, out Ship station);
-        order.StationCost = 0f;
-        float cost = station.GetCost(Player);
-
-        station.AI.OrderScrapShip();
-        var dismantling = (DismantleOrbital)Player.AI.FindGoal(g => g is DismantleOrbital && g.OldShip == station);
-        for (int i = 0; i < 20 && Player.AI.HasGoal(dismantling); ++i)
-            dismantling.Evaluate();
-        Assert.IsFalse(station.Active, "setup: the station is gone");
-        AssertEqual(0.01f, cost, Delivery?.Load ?? 0f, "all of what it costs");
-    }
-
-    [TestMethod]
-    public void ASalvageStationsCostPassesToItsNewOwner()
-    {
-        SalvageOps order = BuiltSalvageStation(Player, out Ship station);
-        order.StationCost = 777f;
-
-        station.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
-        RunObjectsSim(TestSimStep);
-        Universe.InvokePendingSimThreadActions();
-        var theirs = Enemy.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station) as SalvageOps;
-        Assert.IsNotNull(theirs, "setup: the station works for its new owner");
-        AssertEqual(777f, theirs.StationCost, "with the cost it was built for");
+        AssertEqual(0.01f, cost * 0.5f * 0.8f + 10f, Delivery?.Load ?? 0f, "half of what it costs, by its health, and its hold in full");
     }
 
     [TestMethod]

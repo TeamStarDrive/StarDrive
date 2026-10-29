@@ -19926,10 +19926,10 @@ StationBuiltAlerts:
  PTB: "Alertas de Estação Construída"
 StationBuiltAlertsTip:
  Id: 7140
- ENG: "Alerts when one of your research, mining or salvage stations has been built."
- RUS: "Оповещения о постройке ваших научных, горнодобывающих станций или станций утилизации."
- UKR: "Сповіщення, коли побудовано вашу дослідницьку, видобувну станцію або станцію утилізації."
- PTB: "Alertas quando uma de suas estações de pesquisa, de mineração ou de salvamento for construída."
+ ENG: "Alerts when one of your research or mining stations has been built."
+ RUS: "Оповещения о постройке ваших научных или горнодобывающих станций."
+ UKR: "Сповіщення, коли побудовано вашу дослідницьку або видобувну станцію."
+ PTB: "Alertas quando uma de suas estações de pesquisa ou de mineração for construída."
 StarvationAlerts:
  Id: 7141
  ENG: "Starvation Alerts"
@@ -19948,42 +19948,12 @@ SalvageUnitDesc:
  RUS: "Блок утилизации разбирает брошенные корабли на производство и технологии или восстанавливает корабль, чтобы он снова летал. Корабль с таким блоком становится кораблём утилизации. Каждый блок работает с одним брошенным кораблём за раз: он запускает конструктор, который строит рядом с остовом платформу утилизации, и платформа отправляет добытое в грузовые отсеки корабля."
  UKR: "Блок утилізації розбирає покинуті кораблі на виробництво й технології або відновлює корабель, щоб він знову літав. Корабель із таким блоком стає кораблем утилізації. Кожен блок працює з одним покинутим кораблем за раз: він запускає конструктор, який будує поруч з остовом платформу утилізації, і платформа відправляє здобуте до вантажних відсіків корабля."
  PTB: "A Unidade de Salvamento desmonta naves abandonadas para obter produção e tecnologia, ou recupera uma delas para voltar a voar. Uma nave que leva uma é uma nave de salvamento. Cada unidade trabalha uma nave abandonada por vez: lança um construtor que ergue uma plataforma de salvamento ao lado do destroço, e a plataforma envia o que desmonta para os porões de carga da nave."
-SalvageStationBuiltSystemNotify:
- Id: 7144
- ENG: "(Salvage Station) was\ndeployed in system"
- RUS: "(Станция утилизации) была\nразвёрнута в системе"
- UKR: "(Станція утилізації) була\nрозгорнута в системі"
- PTB: "(Estação de Salvamento) foi\nimplantada no sistema"
 CannotMixStationModules:
  Id: 7145
- ENG: "You cannot mix research station, mining station and salvage station modules in one design."
- RUS: "Нельзя совмещать в одном проекте модули научной станции, горнодобывающей станции и станции утилизации."
- UKR: "Не можна поєднувати в одному проекті модулі дослідницької станції, видобувної станції та станції утилізації."
- PTB: "Não é possível misturar módulos de estação de pesquisa, de mineração e de salvamento no mesmo projeto."
-SalvageStationOrderTip:
- Id: 7146
- ENG: "Build a salvage station near this system's derelicts."
- RUS: "Построить станцию утилизации рядом с брошенными кораблями этой системы."
- UKR: "Побудувати станцію утилізації поруч із покинутими кораблями цієї системи."
- PTB: "Construir uma estação de salvamento perto das naves abandonadas deste sistema."
-SalvageStationOrderedTip:
- Id: 7147
- ENG: "You already have a salvage station in this system, built or on order."
- RUS: "У вас уже есть станция утилизации в этой системе, построенная или заказанная."
- UKR: "У вас уже є станція утилізації в цій системі, побудована або замовлена."
- PTB: "Você já tem uma estação de salvamento neste sistema, construída ou encomendada."
-SalvageStationNoDesignTip:
- Id: 7148
- ENG: "No salvage station design can be built yet."
- RUS: "Ни один проект станции утилизации пока нельзя построить."
- UKR: "Жоден проект станції утилізації поки не можна побудувати."
- PTB: "Nenhum projeto de estação de salvamento pode ser construído ainda."
-SalvageStationNoSite:
- Id: 7149
- ENG: "No free site for a salvage station near these derelicts."
- RUS: "Нет свободного места для станции утилизации рядом с этими брошенными кораблями."
- UKR: "Немає вільного місця для станції утилізації поруч із цими покинутими кораблями."
- PTB: "Não há local livre para uma estação de salvamento perto destas naves abandonadas."
+ ENG: "You cannot mix research station and mining station modules in one design."
+ RUS: "Нельзя совмещать в одном проекте модули научной и горнодобывающей станций."
+ UKR: "Не можна поєднувати в одному проекті модулі дослідницької та видобувної станцій."
+ PTB: "Não é possível misturar módulos de estação de pesquisa e de mineração no mesmo projeto."
 OneDerelict:
  Id: 7150
  ENG: "1 Derelict"
@@ -20020,18 +19990,6 @@ DerelictsInSystem:
  RUS: "Брошенные корабли в системе {0}"
  UKR: "Покинуті кораблі в системі {0}"
  PTB: "Naves abandonadas em {0}"
-AutoPickSalvageStation:
- Id: 7156
- ENG: "Auto Pick Salvage Stations"
- RUS: "Автовыбор станций утилизации"
- UKR: "Автоматичний вибір станції утилізації"
- PTB: "Escolher Estações de Salvamento Automaticamente"
-AutoPickSalvageStationTip:
- Id: 7157
- ENG: "A salvage station ordered from a derelict's panel or a system's derelict list, or built by Auto Build Salvage Stations, is the best design you can build for that system: the one whose salvage units best match the derelicts there you can work that are not close to sinking away, the most units up to their number and then the fewest beyond it, then the most cargo room, then the strongest for its size. With this off, it is the design picked in the list under Auto Build Salvage Stations. Either way, a design with less cargo room than one load for each of its salvage units is never picked."
- RUS: "Станция утилизации, заказанная с панели брошенного корабля, из списка брошенных кораблей системы или автоматически (флажок «Автопостройка станций утилизации»), строится по лучшему доступному вам проекту для этой системы: с числом блоков утилизации, лучше всего подходящим к брошенным кораблям, которыми вы можете там заняться и которые не скоро исчезнут, — с наибольшим числом блоков до их количества, а сверх него с наименьшим, затем с наибольшим грузовым отсеком, затем с наибольшей прочностью для своего размера. Если выключено, используется проект, выбранный в списке под флажком «Автопостройка станций утилизации». В любом случае проект, грузовой отсек которого меньше одной партии на каждый блок утилизации, не выбирается."
- UKR: "Станція утилізації, замовлена з панелі покинутого корабля, зі списку покинутих кораблів системи або автоматично (позначка «Автоматичне будівництво станцій утилізації»), будується за найкращим доступним вам проектом для цієї системи: з кількістю блоків утилізації, що найкраще відповідає покинутим кораблям, якими ви можете там зайнятися і які не скоро зникнуть, — з найбільшою кількістю блоків до їхнього числа, а понад нього з найменшою, потім з найбільшим вантажним відсіком, потім з найбільшою міцністю для свого розміру. Якщо вимкнено, використовується проект, вибраний у списку під позначкою «Автоматичне будівництво станцій утилізації». У будь-якому разі проект, вантажний відсік якого менший за одну партію на кожен блок утилізації, не обирається."
- PTB: "Uma estação de salvamento encomendada pelo painel de uma nave abandonada ou pela lista de naves abandonadas de um sistema, ou construída por Construir Estações de Salvamento Automaticamente, usa o melhor projeto que você pode construir para esse sistema: aquele cujas unidades de salvamento melhor correspondem às naves abandonadas com que você pode trabalhar ali e que não estão perto de desaparecer, com mais unidades até o número delas e depois com menos além dele, depois mais espaço de carga, depois o mais resistente para o seu tamanho. Desmarcado, usa o projeto escolhido na lista sob Construir Estações de Salvamento Automaticamente. Em ambos os casos, um projeto com menos espaço de carga do que um lote para cada uma de suas unidades de salvamento nunca é escolhido."
 AutoSalvage:
  Id: 7158
  ENG: "Auto Salvage"
@@ -20044,12 +20002,6 @@ DesignIssueLowSalvageCargoTitle:
  RUS: "Малый грузовой отсек"
  UKR: "Малий вантажний відсік"
  PTB: "Pouca Carga de Salvamento"
-DesignIssueLowSalvageCargoProblem:
- Id: 7160
- ENG: "Each salvage unit's platform sends its loads to this Salvage Station and waits while the station is full. With room for two loads per unit, its platforms keep working while freighters empty it."
- RUS: "Платформа каждого блока утилизации отправляет свои партии на эту станцию утилизации и ждёт, пока станция заполнена. При грузовом отсеке на две партии на блок её платформы продолжают работать, пока грузовые суда её разгружают."
- UKR: "Платформа кожного блока утилізації відправляє свої партії на цю станцію утилізації і чекає, поки станція заповнена. З вантажним відсіком на дві партії на блок її платформи продовжують працювати, поки вантажні судна її розвантажують."
- PTB: "A plataforma de cada unidade de salvamento envia seus lotes a esta Estação de Salvamento e espera enquanto a estação está cheia. Com espaço para dois lotes por unidade, suas plataformas continuam trabalhando enquanto os cargueiros a esvaziam."
 DesignIssueLowSalvageCargoRemidiation:
  Id: 7161
  ENG: "Add Storage."
@@ -20062,24 +20014,6 @@ DesignIssueLowSalvageCargoNeeded:
  RUS: "Необходимый грузовой объём на одну партию на блок утилизации:"
  UKR: "Потрібний вантажний об'єм на одну партію на блок утилізації:"
  PTB: "Espaço de carga necessário para um lote por unidade de salvamento:"
-DeploySalvageStation:
- Id: 7163
- ENG: "Deploy Salvage Station"
- RUS: "Развернуть станцию утилизации"
- UKR: "Розгорнути станцію утилізації"
- PTB: "Implantar Estação de Salvamento"
-SalvageStationDeployed:
- Id: 7164
- ENG: "Salvage Station Deployed"
- RUS: "Станция утилизации развёрнута"
- UKR: "Розгорнуто станцію утилізації"
- PTB: "Estação de Salvamento Implantada"
-RemoveExcessSalvageStation:
- Id: 7165
- ENG: "Salvage Station was evacuated since you\nalready have one in this system."
- RUS: "Станция утилизации эвакуирована, поскольку\nу вас уже есть станция в этой системе."
- UKR: "Станцію утилізації евакуйовано, оскільки\nу вас уже є станція в цій системі."
- PTB: "A Estação de Salvamento foi evacuada, pois você\njá tem uma neste sistema."
 SalvageDerelictTip:
  Id: 7166
  ENG: "Salvage this derelict: a salvage ship of yours already sent to this system takes the order if it has a free unit; otherwise a salvage ship flies here, an idle one of yours or one built at your shipyard nearest it. It launches a constructor that builds a salvage platform beside the derelict. The platform strips it for production and technology and sends its loads to the ship."
@@ -20122,12 +20056,6 @@ SalvageHoldTip:
  RUS: "Производство, которое эта платформа утилизации добыла из брошенного корабля и держит для своего корабля утилизации, из вместимости её грузового отсека. Она разбирает корабль, только пока в отсеке есть место."
  UKR: "Виробництво, яке ця платформа утилізації здобула з покинутого корабля і тримає для свого корабля утилізації, з місткості її вантажного відсіку. Вона розбирає корабель, лише поки у відсіку є місце."
  PTB: "Produção que esta plataforma de salvamento retirou da nave abandonada e guarda para sua nave de salvamento, do total que seu porão de carga comporta. Ela só desmonta enquanto houver espaço no porão."
-SalvageStationHoldFull:
- Id: 7175
- ENG: "Station hold full"
- RUS: "Отсек станции полон"
- UKR: "Відсік станції повний"
- PTB: "Porão da estação cheio"
 SalvageFinished:
  Id: 7176
  ENG: "Salvage finished"
@@ -20140,18 +20068,6 @@ PlatformDismantling:
  RUS: "Разборка"
  UKR: "Розбирання"
  PTB: "Desmontando"
-BuildSalvageStation:
- Id: 7178
- ENG: "Build Salvage Station"
- RUS: "Построить станцию утилизации"
- UKR: "Побудувати станцію утилізації"
- PTB: "Construir Estação de Salvamento"
-SalvageStationOrdered:
- Id: 7179
- ENG: "Salvage Station Ordered"
- RUS: "Станция утилизации заказана"
- UKR: "Станцію утилізації замовлено"
- PTB: "Estação de Salvamento Encomendada"
 DerelictTechsHeldTip:
  Id: 7180
  ENG: "Technologies this derelict holds. Once your salvage platform stands at it, you see which of them you can learn from it, and only those are counted."
@@ -20260,12 +20176,6 @@ SalvageClaimedFirstNotify:
  RUS: "{0}: утилизацию {1} уже ведёт {2}"
  UKR: "{0}: утилізацію {1} вже веде {2}"
  PTB: "{0}: {2} começou o salvamento de {1} antes de você"
-SalvageStationLostNotify:
- Id: 7198
- ENG: "{0}: your salvage station was lost, and your salvage of the {1} with it"
- RUS: "{0}: ваша станция утилизации потеряна, а с ней и утилизация {1}"
- UKR: "{0}: вашу станцію утилізації втрачено, а з нею й утилізацію {1}"
- PTB: "{0}: sua estação de salvamento foi perdida, e com ela o salvamento de {1}"
 SalvageSankNotify:
  Id: 7199
  ENG: "{0}: the {1} sank away before your platform was built"
@@ -20380,24 +20290,6 @@ RecoveryExplodedNotify:
  RUS: "{0}: брошенный корабль {1} взорвался во время восстановления и уничтожил вашу платформу"
  UKR: "{0}: покинутий корабель {1} вибухнув під час відновлення і знищив вашу платформу"
  PTB: "{0}: a nave abandonada {1} explodiu durante a recuperação e destruiu sua plataforma"
-SalvageStationWaitingForFreighters:
- Id: 7218
- ENG: "Waiting for freighters"
- RUS: "Ожидание грузовиков"
- UKR: "Очікування транспортів"
- PTB: "Aguardando cargueiros"
-SalvageStationFreightersComing:
- Id: 7219
- ENG: "Freighters on their way: {0}"
- RUS: "Грузовики в пути: {0}"
- UKR: "Транспорти в дорозі: {0}"
- PTB: "Cargueiros a caminho: {0}"
-SalvageStationAllWorkedTip:
- Id: 7221
- ENG: "Other empires are salvaging or recovering every derelict you know of in this system."
- RUS: "Все известные вам брошенные корабли здесь заняты другими империями."
- UKR: "Усі відомі вам покинуті кораблі тут зайняті іншими імперіями."
- PTB: "Outros impérios já ocupam todas as naves abandonadas que você conhece aqui."
 AutoSalvageTip:
  Id: 7222
  ENG: "Your empire will order salvage of the derelicts it knows of in nearby systems that are safe to work, recovering the ships stronger than any of their kind you can build. It sends your idle salvage ships first. With none free, it builds the one picked in the list below, or the best with Auto Pick Salvage Ships on, while you have fewer salvage ships than one for every five planets you own (at least one, at most five). You can still order salvage yourself, but while this is on you cannot call off an order."
@@ -20430,22 +20322,16 @@ EmpireSalvageSpeed:
  PTB: "Modificador de Velocidade de Salvamento do Império"
 DismantleOrbitalTip:
  Id: 7229
- ENG: "Dismantle: takes this orbital apart where it stands, over turns that grow with its size. It stops working at once, its weapons and shields too, costs no upkeep and frees its place among the planet's orbitals, though while it lasts no other research station of yours can be placed there and a mining station still counts among the four allowed there. Once it is gone, half of its production cost, less for the damage it has taken, and any production aboard go into the planet it orbits if that planet is yours, or otherwise to your colonies in a builder ship. Click again to call it off, while its place is still free. A salvage station gives all of what it cost to build rather than half, and its dismantling cannot be called off."
- RUS: "Разобрать: разбирает этот орбитальный объект на месте за несколько ходов — чем он больше, тем дольше. Он сразу прекращает работу, отключая оружие и щиты, не требует содержания и освобождает своё место среди орбитальных объектов планеты, хотя, пока он не исчезнет, там нельзя разместить другую вашу научную станцию, а горная станция по-прежнему считается одной из четырёх допустимых там. Когда его не станет, половина его стоимости производства, меньше — за полученные повреждения, и всё производство на борту поступят на планету, на орбите которой он находится, если она ваша, а иначе отправятся к вашим колониям на строительном судне. Нажмите ещё раз, чтобы отменить, пока его место свободно. Станция утилизации возвращает всё, во что обошлась её постройка, а не половину, и её разборку отменить нельзя."
- UKR: "Розібрати: розбирає цей орбітальний об'єкт на місці за кілька ходів — що він більший, то довше. Він одразу припиняє роботу, вимикаючи зброю та щити, не потребує утримання і звільняє своє місце серед орбітальних об'єктів планети, хоча, доки він не зникне, там не можна розмістити іншу вашу дослідницьку станцію, а гірничодобувна станція й далі вважається однією з чотирьох дозволених там. Коли його не стане, половина його вартості виробництва, менше — за отримані пошкодження, і все виробництво на борту надійдуть на планету, на орбіті якої він перебуває, якщо вона ваша, а інакше вирушать до ваших колоній на кораблі-будівельнику. Натисніть ще раз, щоб скасувати, поки його місце вільне. Станція утилізації повертає все, у що обійшлося її будівництво, а не половину, і її розбирання скасувати не можна."
- PTB: "Desmontar: desmonta esta estrutura orbital onde ela está, ao longo de turnos que crescem com o seu tamanho. Ela para de funcionar na hora, armas e escudos também, não custa manutenção e libera o seu lugar entre as estruturas orbitais do planeta, embora, enquanto ela durar, nenhuma outra estação de pesquisa sua possa ser colocada ali e uma estação de mineração continue contando entre as quatro permitidas ali. Quando ela se for, metade do seu custo de produção, menos pelos danos que ela sofreu, e toda a produção a bordo vão para o planeta que ela orbita, se for seu, ou senão para as suas colônias numa nave construtora. Clique de novo para cancelar, enquanto o seu lugar ainda estiver livre. Uma estação de salvamento devolve todo o seu custo de construção, não a metade, e o seu desmonte não pode ser cancelado."
+ ENG: "Dismantle: takes this orbital apart where it stands, over turns that grow with its size. It stops working at once, its weapons and shields too, costs no upkeep and frees its place among the planet's orbitals, though while it lasts no other research station of yours can be placed there and a mining station still counts among the four allowed there. Once it is gone, half of its production cost, less for the damage it has taken, and any production aboard go into the planet it orbits if that planet is yours, or otherwise to your colonies in a builder ship. Click again to call it off, while its place is still free."
+ RUS: "Разобрать: разбирает этот орбитальный объект на месте за несколько ходов — чем он больше, тем дольше. Он сразу прекращает работу, отключая оружие и щиты, не требует содержания и освобождает своё место среди орбитальных объектов планеты, хотя, пока он не исчезнет, там нельзя разместить другую вашу научную станцию, а горная станция по-прежнему считается одной из четырёх допустимых там. Когда его не станет, половина его стоимости производства, меньше — за полученные повреждения, и всё производство на борту поступят на планету, на орбите которой он находится, если она ваша, а иначе отправятся к вашим колониям на строительном судне. Нажмите ещё раз, чтобы отменить, пока его место свободно."
+ UKR: "Розібрати: розбирає цей орбітальний об'єкт на місці за кілька ходів — що він більший, то довше. Він одразу припиняє роботу, вимикаючи зброю та щити, не потребує утримання і звільняє своє місце серед орбітальних об'єктів планети, хоча, доки він не зникне, там не можна розмістити іншу вашу дослідницьку станцію, а гірничодобувна станція й далі вважається однією з чотирьох дозволених там. Коли його не стане, половина його вартості виробництва, менше — за отримані пошкодження, і все виробництво на борту надійдуть на планету, на орбіті якої він перебуває, якщо вона ваша, а інакше вирушать до ваших колоній на кораблі-будівельнику. Натисніть ще раз, щоб скасувати, поки його місце вільне."
+ PTB: "Desmontar: desmonta esta estrutura orbital onde ela está, ao longo de turnos que crescem com o seu tamanho. Ela para de funcionar na hora, armas e escudos também, não custa manutenção e libera o seu lugar entre as estruturas orbitais do planeta, embora, enquanto ela durar, nenhuma outra estação de pesquisa sua possa ser colocada ali e uma estação de mineração continue contando entre as quatro permitidas ali. Quando ela se for, metade do seu custo de produção, menos pelos danos que ela sofreu, e toda a produção a bordo vão para o planeta que ela orbita, se for seu, ou senão para as suas colônias numa nave construtora. Clique de novo para cancelar, enquanto o seu lugar ainda estiver livre."
 DeliveringProductionTo:
  Id: 7230
  ENG: "Delivering production to"
  RUS: "Доставка производства на"
  UKR: "Доставка виробництва на"
  PTB: "Entregando produção em"
-DesignIssueLowSalvageCargoSkipped:
- Id: 7231
- ENG: "Without it, auto pick skips this station."
- RUS: "Без него автовыбор эту станцию пропускает."
- UKR: "Без нього автоматичний вибір цю станцію пропускає."
- PTB: "Sem ele, a escolha automática ignora esta estação."
 DesignIssueLowSalvageCargoTwoLoads:
  Id: 7232
  ENG: "Cargo room for two loads per salvage unit:"

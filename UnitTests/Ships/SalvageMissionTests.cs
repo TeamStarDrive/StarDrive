@@ -26,7 +26,8 @@ namespace UnitTests.Ships;
 /// colony it last unloaded at, though another be nearer, or, never unloaded, at the nearest safe colony, a ship like
 /// any other. A queued salvage ship refitted to another design ends its mission once built, untold. A mission flying
 /// out survives a save, and an order saved with a salvage station's work ends on load. The derelicts window counts the
-/// player's salvage ships at work and idle.
+/// player's salvage ships at work and idle, pauses the game, and reads the goals as it opens and once a click in it
+/// has reached the sim thread.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -555,5 +556,28 @@ public class SalvageMissionTests : SalvageOrderTest
         var window = new SystemDerelictsScreen(Universe, WreckSystem);
         window.LoadContent();
         AssertEqual("Salvage ships: 1 working, 2 idle", window.ShipsCount.Text.Text, "the player's, not another empire's");
+    }
+
+    [TestMethod]
+    public void TheDerelictsWindowPausesTheGameAndReadsTheGoalsAsItOpensAndOnceAClickHasReachedTheSimThread()
+    {
+        Derelict d = Forms(Wreck);
+        UState.Paused = false;
+        var window = new SystemDerelictsScreen(Universe, WreckSystem);
+        window.LoadContent();
+        Assert.IsTrue(UState.Paused, "the window pauses the game");
+        AssertEqual(SalvageDerelict.Stage.None, window.StageShown(d), "setup: nobody salvages the derelict");
+
+        Assert.IsTrue(d.TryClaim(Enemy), "setup: a rival claims the derelict");
+        window.Update(0f);
+        AssertEqual(SalvageDerelict.Stage.None, window.StageShown(d), "the window does not read the goals again while nothing in it is clicked");
+
+        // as a row's Salvage or Recover button does after its click
+        typeof(SystemDerelictsScreen).GetMethod("ReadAfterClick", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(window, null);
+        window.Update(0f);
+        AssertEqual(SalvageDerelict.Stage.None, window.StageShown(d), "nor before the click reaches the sim thread");
+        Universe.InvokePendingSimThreadActions();
+        window.Update(0f);
+        AssertEqual(SalvageDerelict.Stage.Salvaging, window.StageShown(d), "but reads them once it has");
     }
 }

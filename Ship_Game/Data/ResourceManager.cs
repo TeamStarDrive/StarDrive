@@ -2284,7 +2284,7 @@ namespace Ship_Game
             }
         }
 
-        // what salvage ops need that the loaded content lacks, or null: a whole Salvage Platform and a salvage module for stations
+        // what salvage ops need that the loaded content lacks, or null: a whole Salvage Platform and a salvage module
         static string MissingSalvageContent()
         {
             if (!Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign platform))
@@ -2330,8 +2330,6 @@ namespace Ship_Game
                 Assert(e, e.DefaultMiningStation, "DefaultMiningStation", s => s.IsMiningStation, "IsMiningStation");
                 if (GlobalStats.Defaults.EnableSalvageOps)
                 {
-                    Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", s => s.IsSalvageStation, "IsSalvageStation");
-                    Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", ShipResupply.HasRoomForSalvageLoads, "BaseCargoSpace");
                     if (!e.IsFactionOrMinorRace && SalvageShipDesignOf(e) == null)
                         Log.Warning($"Race {e.Name} has no salvage ship design in DefaultSalvageShip ('{e.DefaultSalvageShip}')");
                 }

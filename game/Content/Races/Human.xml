@@ -15,7 +15,6 @@
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <DefaultMiningStation>Basic Mining Station</DefaultMiningStation>
   <DefaultMiningShip>Terran Mining Ship</DefaultMiningShip>
-  <DefaultSalvageStation>Terran Basic Salvage Station</DefaultSalvageStation>
   <DefaultSalvageShip>Terran Salvage Ship</DefaultSalvageShip>
   
   <ThrustColor0R>95</ThrustColor0R>

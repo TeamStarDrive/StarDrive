@@ -1,8 +1,8 @@
 Version=1
-Name=Draylok Basic Salvage Station
-Hull=Draylok/Draylok_Station_Small
+Name=TEST_Old Salvage Station
+Hull=Terran/Terran_Station_Small
 Role=station
-Style=Draylok
+Style=Terran
 Size=28,28
 GridCenter=14,14
 DefaultCombatState=Artillery

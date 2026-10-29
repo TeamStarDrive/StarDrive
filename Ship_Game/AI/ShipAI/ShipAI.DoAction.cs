@@ -383,7 +383,6 @@ namespace Ship_Game.AI
             else
             {
                 UpdateResearchStationGoal(orbital, Owner.System, goal.OldShip);
-                UpdateSalvageOpsGoal(orbital, bg.TargetSystem);
                 if (goal is SalvageDerelict salvage)
                     salvage.OnPlatformBuilt(orbital, Owner);
             }
@@ -482,17 +481,6 @@ namespace Ship_Game.AI
 
             if (!planet.Mining.HasOpsOwner)
                 planet.Mining.ChangeOwnershipIfNeeded(Owner.Loyalty);
-        }
-
-        // an empire has one salvage station order per system, so the order there is this station's
-        void UpdateSalvageOpsGoal(Ship orbital, SolarSystem system)
-        {
-            if (!orbital.IsSalvageStation)
-                return;
-
-            Goal goal = Owner.Loyalty.AI.FindGoal(g => g.IsSalvageOpsGoal(system) && g.TargetShip == null);
-            if (goal != null)
-                goal.TargetShip = orbital;
         }
 
         // Gravity-well routing for the explore legs. The explore loop thrusts directly at the

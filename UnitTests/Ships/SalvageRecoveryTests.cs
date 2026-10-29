@@ -48,7 +48,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
 {
     public SalvageRecoveryTests()
     {
-        LoadStarterShips("Terran Basic Salvage Station", "Ancient Frigate");
+        LoadStarterShips("Terran Small Patrol Station 1", "Ancient Frigate");
     }
 
     // a salvageable derelict of the player's unless another owner is given, which the player then knows of as it has seen the ship, its ship dead with this share of its health; the ship itself is gone
@@ -295,7 +295,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
     [TestMethod]
     public void AStationCanOnlyBeSalvaged()
     {
-        Derelict d = Forms(Wreck, design: "Terran Basic Salvage Station");
+        Derelict d = Forms(Wreck, design: "Terran Small Patrol Station 1");
         Assert.IsFalse(DerelictRecovery.CanRecover(d), "a station's derelict");
         AssertEqual(Block.NotAShip, SalvageDerelict.WhyNoRecovery(Player, d), "greys the Recover button");
         Assert.IsFalse(SalvageDerelict.Order(Player, d, recover: true), "which orders nothing");
@@ -871,8 +871,8 @@ public class SalvageRecoveryTests : SalvageOrderTest
         Derelict d = Forms(Wreck, health: 0.4f);
         Assert.IsTrue(UState.Derelicts.AnyMayComeBackAs("Dreadnought mk1-a"), "a salvageable derelict of the design");
         Assert.IsFalse(UState.Derelicts.AnyMayComeBackAs("Vulcan Scout"), "only of its own design");
-        Forms(Wreck + new Vector2(0f, 5_000f), design: "Terran Basic Salvage Station");
-        Assert.IsFalse(UState.Derelicts.AnyMayComeBackAs("Terran Basic Salvage Station"), "not a station, which can only be salvaged");
+        Forms(Wreck + new Vector2(0f, 5_000f), design: "Terran Small Patrol Station 1");
+        Assert.IsFalse(UState.Derelicts.AnyMayComeBackAs("Terran Small Patrol Station 1"), "not a station, which can only be salvaged");
 
         RolledASuccess(d);
         Assert.IsTrue(UState.Derelicts.AnyMayComeBackAs("Dreadnought mk1-a"), "one rising for its ship too");

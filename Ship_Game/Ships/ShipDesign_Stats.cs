@@ -311,7 +311,7 @@ public partial class ShipDesign
             && !ShipRole.Protected
             && (empire.isPlayer || IsShipGoodForGoals(empire))
             && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer)
-            && (!IsSalvageStation || empire.Universe.P.SalvageOps)
+            && !IsSalvageStation // no empire builds a salvage station, as salvage ships salvage
             && (!IsSalvageShip || empire.Universe.P.SalvageOps && !empire.IsFaction); // factions build no salvage ships
     }
 

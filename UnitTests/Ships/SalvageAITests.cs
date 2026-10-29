@@ -12,36 +12,29 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// An AI empire recovers a ship stronger than the strongest design of its hull role the empire can build, or of a role
-/// it can build none of, and strips the rest. A pirate station regains a tenth of its ordnance a turn out of combat
-/// unless it makes its own, and a pirate base under attack drafts no constructor. A ship pirates recover heads for their
-/// nearest base, which keeps a ship of a Remnant design, whoever's ship it was, where it takes in another small one,
-/// and their orbital raids go for a salvage platform first, a salvage station being an orbital like any other. The pick
-/// for a system takes the station with the most salvage units up to the derelicts the empire would work there, those it
-/// knows of with a fifth of their turns left that no other empire works there, then the fewest units beyond them, and
-/// with no system the most units. Neither the AI's pick nor the player's takes a station with less cargo room than a
-/// load for each of its salvage units.
+/// it can build none of, and strips the rest. A pirate base under attack drafts no constructor. A ship pirates recover
+/// heads for their nearest base, which keeps a ship of a Remnant design, whoever's ship it was, where it takes in
+/// another small one, and their orbital raids go for a salvage platform first.
 /// </summary>
 [TestClass]
 public class SalvageAITests : StarDriveTest
 {
     static readonly Vector2 SystemSite = new(600_000f, 600_000f);
-    static readonly Vector2 StationSite = SystemSite + new Vector2(30_000f, 0);
     static readonly Vector2 WreckSite = SystemSite + new Vector2(-30_000f, 0);
     const string Older = "Dreadnought mk1-a";
     const string Newer = "Dreadnought mk2-c";
+    const string Station = "Terran Small Patrol Station 1";
     readonly Planet Local; // in the derelicts' system
     readonly SolarSystem System;
-    readonly IShipDesign Station;
     readonly float SalvageableDerelictCapMultiplier = GlobalStats.Defaults.SalvageableDerelictCapMultiplier;
 
     public SalvageAITests()
     {
-        LoadStarterShips("Terran Basic Salvage Station", Older, Newer, ShipDesign.SalvagePlatformName, "Corsair Asteroid Base", "Platform Base mk1-a", "Ancient Frigate", "Terran Salvage Ship");
+        LoadStarterShips(Station, Older, Newer, ShipDesign.SalvagePlatformName, "Corsair Asteroid Base", "Platform Base mk1-a", "Ancient Frigate", "Terran Salvage Ship");
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         Local = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true);
         System = Local.System;
-        Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Basic Salvage Station", out Station), "setup: the station is loaded");
         Player.GetRelations(Enemy).AtWar = Enemy.GetRelations(Player).AtWar = false;
         GlobalStats.Defaults.SalvageableDerelictCapMultiplier = 10f; // room for more salvageable derelicts in this small galaxy, last as a failed constructor skips the cleanup
     }
@@ -69,25 +62,6 @@ public class SalvageAITests : StarDriveTest
         return d;
     }
 
-    // the empire's built station in the system, holding production so it stays with nothing left to salvage; a major empire gets a colony far off
-    Ship StationOf(Empire owner)
-    {
-        if (!owner.IsFaction && owner.NumPlanets == 0)
-            AddDummyPlanetToEmpire(ColonySite(owner), owner);
-        var order = new SalvageOps(owner, System, StationSite, Station);
-        owner.AI.AddGoal(order);
-        order.AdvanceToNextStep(); // past the queueing, which needs a port
-        order.TargetShip = SpawnShip(Station.Name, owner, StationSite);
-        order.TargetShip.LoadProduction(5f);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the station is built");
-        return order.TargetShip;
-    }
-
-    Vector2 ColonySite(Empire owner) => owner == Player ? new(200_000f, 900_000f) : new(900_000f, 200_000f);
-
-    static void Turn(Ship station) => station.Loyalty.AI.FindGoal(g => g is SalvageOps && g.TargetShip == station).Evaluate();
-
     [TestMethod]
     public void ItRecoversAShipStrongerThanTheBestOfItsHullRoleItCanBuildOrOfARoleItBuildsNoneOfAndStripsTheRest()
     {
@@ -99,7 +73,7 @@ public class SalvageAITests : StarDriveTest
 
         Derelict d = Wreck(Older, WreckSite, Enemy);
         Assert.IsTrue(SalvageDerelict.WouldRecover(Enemy, d), "a ship of a role it can build none of is recovered");
-        Derelict hulk = Wreck(Station.Name, WreckSite + new Vector2(0, -8_000f), Enemy);
+        Derelict hulk = Wreck(Station, WreckSite + new Vector2(0, -8_000f), Enemy);
         Assert.IsFalse(SalvageDerelict.WouldRecover(Enemy, hulk), "but a station's derelict, which cannot be, is stripped");
 
         Assert.IsTrue(Enemy.AddBuildableShip(older), "setup: it can build the same design");
@@ -167,34 +141,6 @@ public class SalvageAITests : StarDriveTest
     }
 
     [TestMethod]
-    public void APirateStationThatMakesNoOrdnanceRegainsATenthOfItsStoreATurn()
-    {
-        Empire pirates = PirateFaction();
-        Ship station = StationOf(pirates);
-        AssertEqual(0.001f, 0f, station.OrdAddedPerSecond, "setup: the station makes no ordnance");
-        station.OrdinanceMax = 100f; // a store, as a design with missiles has
-        station.ChangeOrdnance(-station.Ordinance);
-        Turn(station);
-        AssertEqual(0.01f, 10f, station.Ordinance, "one pirates hold regains a tenth of its store a turn");
-
-        station.ChangeOrdnance(-station.Ordinance);
-        station.InCombat = true;
-        Turn(station);
-        AssertEqual(0.01f, 0f, station.Ordinance, "nor in combat, as a pirate base");
-
-        station.InCombat = false;
-        station.OrdAddedPerSecond = 1f; // as a design that makes its own
-        Turn(station);
-        AssertEqual(0.01f, 0f, station.Ordinance, "but not one that makes its own");
-
-        Ship theirs = StationOf(Enemy);
-        theirs.OrdinanceMax = 100f;
-        theirs.ChangeOrdnance(-theirs.Ordinance);
-        Turn(theirs);
-        AssertEqual(0.01f, 0f, theirs.Ordinance, "nor an AI empire's");
-    }
-
-    [TestMethod]
     public void AShipPiratesRecoverHeadsForTheirNearestBase()
     {
         Empire pirates = PirateFaction();
@@ -213,104 +159,14 @@ public class SalvageAITests : StarDriveTest
     {
         Empire pirates = PirateFaction();
         Ship platform = SpawnShip("Platform Base mk1-a", Enemy, SystemSite + new Vector2(0, -40_000f));
-        Ship station = StationOf(Enemy);
         UState.Objects.UpdateLists();
-        Assert.IsFalse(station.IsPlatform, "setup: a salvage station is no platform");
         var raid = new PirateRaidOrbital(pirates, Enemy);
         Assert.IsTrue(raid.PickTarget(Ship_Game.Pirates.TargetType.Platform, out Ship target) && target == platform,
-                      "with no salvage platform, the raid takes the orbital it rolled, though a salvage station stands");
+                      "with no salvage platform, the raid takes the orbital it rolled");
 
         Ship salvage = SpawnShip(ShipDesign.SalvagePlatformName, Enemy, WreckSite + new Vector2(0, 2_000f));
         UState.Objects.UpdateLists();
         Assert.IsTrue(raid.PickTarget(Ship_Game.Pirates.TargetType.Platform, out target), "setup: a target");
         AssertEqual(salvage, target, "a salvage platform comes first, whatever orbital it rolled");
-    }
-
-    // the basic station with this many salvage units, in a strip below its grid, and all its cargo holds
-    ShipDesign WithUnits(int units)
-    {
-        ShipModule unit = ResourceManager.GetModuleTemplate("SalvageUnit");
-        ShipDesign design = ((ShipDesign)Station).GetClone($"Station Of {units} Units");
-        ShipGridInfo info = design.GridInfo;
-        var size = new Point(unit.XSize, unit.YSize);
-        DesignSlot[] slots = Station.GetOrLoadDesignSlots().Where(s => !ResourceManager.GetModuleTemplate(s.ModuleUID).Salvage)
-            .Concat(Enumerable.Range(0, units).Select(i => new DesignSlot(new Point(i * size.X, info.Size.Y), unit.UID, size, 0, ModuleOrientation.Normal, null)))
-            .ToArray();
-        info.Size = new Point(units * size.X > info.Size.X ? units * size.X : info.Size.X, info.Size.Y + size.Y);
-        design.GridInfo = info;
-        design.SetDesignSlots(slots, updateRole: false);
-        AssertEqual(units, design.NumSalvageModules, $"setup: a station with {units} salvage units");
-        return design;
-    }
-
-    [TestMethod]
-    public void ThePickForASystemTakesTheMostSalvageUnitsUpToItsDerelictsThenTheFewestBeyondThem()
-    {
-        ShipDesign three = WithUnits(3);
-        ShipDesign four = WithUnits(4);
-        AssertEqual(2, Station.NumSalvageModules, "setup: the basic station has two salvage units");
-        Assert.IsTrue(ShipBuilder.IsUsableSalvageStation(three) && ShipBuilder.IsUsableSalvageStation(four), "setup: each holds a load for each of its units");
-        Enemy.ClearShipsWeCanBuild();
-        Enemy.AddBuildableShip(Station);
-        Enemy.AddBuildableShip(four);
-        Enemy.AddBuildableShip(three);
-        AssertEqual(four, ShipBuilder.PickSalvageStation(Enemy), "with no system, the most salvage units");
-
-        Wreck(Older, WreckSite, Enemy);
-        AssertEqual(Station, ShipBuilder.PickSalvageStation(Enemy, System), "for one derelict, the fewest units");
-        Wreck(Older, WreckSite + new Vector2(0, 8_000f), Enemy);
-        Wreck(Older, WreckSite + new Vector2(0, 16_000f), Enemy);
-        AssertEqual(three, ShipBuilder.PickSalvageStation(Enemy, System), "for three, as many units as derelicts and no more");
-        Wreck(Older, WreckSite + new Vector2(0, 24_000f), Enemy);
-        AssertEqual(four, ShipBuilder.PickSalvageStation(Enemy, System), "for four, four");
-        Wreck(Older, WreckSite + new Vector2(0, 32_000f), Enemy);
-        AssertEqual(four, ShipBuilder.PickSalvageStation(Enemy, System), "and for more derelicts than any station has units, the most units");
-    }
-
-    [TestMethod]
-    public void ThePickForASystemCountsOnlyTheDerelictsTheEmpireWouldWorkThere()
-    {
-        ShipDesign three = WithUnits(3);
-        Enemy.ClearShipsWeCanBuild();
-        Enemy.AddBuildableShip(Station);
-        Enemy.AddBuildableShip(three);
-        Wreck(Older, WreckSite, Enemy);
-        Wreck(Older, WreckSite + new Vector2(0, 8_000f), Enemy);
-        AssertEqual(2, SalvageOps.DerelictsToWorkIn(Enemy, System), "setup: two derelicts it knows of there");
-        AssertEqual(Station, ShipBuilder.PickSalvageStation(Enemy, System), "setup: two units for two derelicts");
-
-        Derelict sinking = Wreck(Older, WreckSite + new Vector2(0, 16_000f), Enemy, turnsGone: 161);
-        AssertEqual(39, sinking.TurnsLeft, "setup: 39 of its 200 turns left");
-        AssertEqual(Station, ShipBuilder.PickSalvageStation(Enemy, System), "not one with less than a fifth of its turns left");
-
-        Derelict worked = Wreck(Older, WreckSite + new Vector2(0, 24_000f), Player);
-        Assert.IsTrue(worked.IsKnownBy(Enemy), "setup: the empire knows of every derelict in the system");
-        StationOf(Player);
-        Assert.IsTrue(worked.TryClaim(Player), "setup: the player's station works it");
-        AssertEqual(Station, ShipBuilder.PickSalvageStation(Enemy, System), "nor one another empire works from its station there");
-
-        Wreck(Older, WreckSite + new Vector2(0, 32_000f), Enemy);
-        AssertEqual(three, ShipBuilder.PickSalvageStation(Enemy, System), "while a third it would work counts");
-    }
-
-    [TestMethod]
-    public void NeitherPickTakesAStationWithLessCargoRoomThanALoadForEachOfItsSalvageUnits()
-    {
-        AssertEqual(75f, ShipResupply.SalvageLoad, "setup: a load of 75, the platform's hold");
-        ShipDesign thirteen = WithUnits(13);
-        Assert.IsTrue(thirteen.BaseCargoSpace >= 900f && thirteen.BaseCargoSpace < 975f, "setup: room for twelve loads but not thirteen");
-        Assert.IsFalse(ShipBuilder.IsUsableSalvageStation(thirteen), "a station with thirteen units and room for twelve loads cannot be used");
-
-        Enemy.ClearShipsWeCanBuild();
-        Enemy.AddBuildableShip(Station);
-        Enemy.AddBuildableShip(thirteen);
-        AssertEqual(Station, ShipBuilder.PickSalvageStation(Enemy), "the AI's pick passes over it");
-
-        Player.ClearShipsWeCanBuild();
-        Player.AddBuildableShip(Station);
-        Player.AddBuildableShip(thirteen);
-        Player.data.CurrentSalvageStation = thirteen.Name;
-        Assert.IsFalse(Player.AutoPickBestSalvageStation, "setup: the player's auto pick is off");
-        AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "and the player's chosen station gives way to the race's default");
     }
 }

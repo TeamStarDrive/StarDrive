@@ -155,8 +155,7 @@ namespace Ship_Game.Ships
 
             var shipStatus = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64).ToFloored();
             SalvageDerelict salvage = s.IsSalvagePlatform ? SalvageDerelict.OfPlatform(s) : null;
-            string status = s.IsSalvagePlatform ? SalvageStatus(s, salvage)
-                          : s.IsSalvageStation ? SalvageStationStatus(s) : ShipListScreenItem.GetStatusText(s);
+            string status = s.IsSalvagePlatform ? SalvageStatus(s, salvage) : ShipListScreenItem.GetStatusText(s);
             string text = Fonts.TahomaBold9.ParseText(status, 120);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
 
@@ -557,17 +556,6 @@ namespace Ship_Game.Ships
             return ShipListScreenItem.GetStatusText(platform);
         }
 
-        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling or coming apart, shows its orders
-        internal static string SalvageStationStatus(Ship station)
-        {
-            if (!station.Loyalty.isPlayer || station.ScuttleTimer >= 0f || station.Dismantling)
-                return ShipListScreenItem.GetStatusText(station);
-            int coming = SalvageOps.HaulsComing(station, out _);
-            if (coming > 0)
-                return string.Format(Localizer.Token(GameText.SalvageStationFreightersComing), coming);
-            return Localizer.Token(station.GetProduction() >= 1f ? GameText.SalvageStationWaitingForFreighters : GameText.DerelictSalvaging);
-        }
-
         void DrawCarrierStatus(Vector2 mousePos, Ship ship)  // Added by Fat Bastard - display hangar status
         {
             if (ship.Carrier.AllFighterHangars?.Length > 0)
@@ -807,7 +795,7 @@ namespace Ship_Game.Ships
             }
             if (s.CanBeScrapped)
             {
-                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.IsSalvageStation && !s.Dismantling)
+                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.Dismantling)
                 {
                     var rf = new OrdersButton(s, OrderType.Refit, GameText.OrderShipRefit)
                     {

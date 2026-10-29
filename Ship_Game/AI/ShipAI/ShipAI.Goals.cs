@@ -188,13 +188,6 @@ namespace Ship_Game.AI
             EnqueueOrPush(goal);
         }
 
-        internal void SetTradePlan(Plan plan, Ship fromStation, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
-        {
-            ClearOrders(AIState.SystemTrader);
-            var goal = new ShipGoal(plan, fromStation, importPlanet, goodsType, Owner, blockadeTimer, AIState.SystemTrader);
-            EnqueueOrPush(goal);
-        }
-
         bool AddShipGoal(Plan plan, Planet target, Goal theGoal, AIState wantedState, bool pushToFront = false)
         {
             if (target == null)
@@ -458,15 +451,6 @@ namespace Ship_Game.AI
                 WantedState = wantedState;
             }
 
-            public ShipGoal(Plan plan, Ship fromStation, Planet importPlanet, Goods goods,
-                            Ship freighter, float blockadeTimer, AIState wantedState)
-            {
-                Plan        = plan;
-                Vector2 legTarget = plan == Plan.DropOffGoods ? importPlanet.Position : fromStation.Position;
-                Trade       = new TradePlan(fromStation, importPlanet, goods, freighter, blockadeTimer, legTarget);
-                WantedState = wantedState;
-            }
-
             public ShipGoal(Plan plan, Vector2 waypoint, Vector2 direction, AIState state,
                             MoveOrder order, float speedLimit, Goal goal, bool isDetourWaypoint = false)
             {
@@ -512,8 +496,6 @@ namespace Ship_Game.AI
             [StarData] public readonly Ship Freighter;
             [StarData] public readonly float StardateAdded;
             [StarData] public readonly Ship TargetStation;
-            // the station a haul loads at, in place of a colony exporting the goods
-            [StarData] public readonly Ship FromStation;
             [StarData] public float BlockadeTimer; // Indicates how much time to wait with freight when trade is blocked
 
             // Pathfinder detour chain for the current trade leg only — pickup phase routes
@@ -554,24 +536,6 @@ namespace Ship_Game.AI
                 ImportTo.AddToIncomingFreighterList(freighter, goodsType);
                 Detours = GravityWellRouter.BuildDetours(freighter, freighter.Position, legTarget, MoveOrder.Regular);
             }
-
-            public TradePlan(Ship fromStation, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer, Vector2 legTarget)
-            {
-                FromStation   = fromStation;
-                ImportTo      = importPlanet;
-                Goods         = goodsType;
-                BlockadeTimer = blockadeTimer;
-                Freighter     = freighter;
-                StardateAdded = importPlanet.Universe.StarDate;
-
-                ImportTo.AddToIncomingFreighterList(freighter, goodsType);
-                Detours = GravityWellRouter.BuildDetours(freighter, freighter.Position, legTarget, MoveOrder.Regular);
-            }
-
-            // where the goods come from: the colony exporting them, or the station a haul loads at
-            public Vector2 ExportPosition => ExportFrom?.Position ?? FromStation.Position;
-            public SolarSystem ExportSystem => ExportFrom?.System ?? FromStation.System;
-            public string ExportName => ExportFrom?.Name ?? FromStation.Name;
 
             public Vector2 GetThrustTarget(Vector2 finalTarget, Vector2 shipPosition)
                 => GravityWellRouter.GetThrustTarget(Detours, ref DetourIndex, finalTarget, shipPosition);
@@ -640,7 +604,7 @@ namespace Ship_Game.AI
             MiningStationNotOpsOwner = 48,
             SupplyReturnHome = 49,
             LandOnPirateBase = 50,
-            PickupGoodsFromStation = 51,
+            PickupGoodsFromStation = 51, // no goal has it, kept so saves holding it load without an error
             DeliverRefund = 52
         }
     }

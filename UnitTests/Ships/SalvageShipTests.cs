@@ -16,8 +16,8 @@ namespace UnitTests.Ships;
 /// hull. The shipyard gives a design with a salvage unit the support role; its unit is a bay, which launches its
 /// constructors, but makes it no carrier, and the ship designer flags one short of a load a unit with its own warning.
 /// A major empire, the player or an AI's, adds its race's salvage ship to its buildable ships with salvage ops on, a
-/// faction never does, and none is ever a freighter, whatever its role; the design list leaves them out with salvage ops off. A station with a salvage
-/// unit is no salvage ship. The Salvage Ships technology comes after Frigate Construction, unlocks the salvage unit
+/// faction never does, and none is ever a freighter, whatever its role; the design list leaves them out with salvage ops off.
+/// The Salvage Ships technology comes after Frigate Construction, unlocks the salvage unit
 /// and leads to Salvage Speed in place of Small Stations, costs 400 and is hidden with salvage ops off. An empire can build salvage ships once a buildable
 /// salvage ship has room for a platform's load for each of its units; a race naming a station or a ship without a
 /// salvage unit names no salvage ship. An empire saved before salvage ships, or with a salvage ship that no longer is
@@ -35,7 +35,7 @@ public class SalvageShipTests : StarDriveTest
     public SalvageShipTests()
     {
         LoadStarterShips(SalvageShips);
-        LoadStarterShips("Terran Basic Salvage Station", ShipDesign.SalvagePlatformName); // the platform's hold is a salvage load
+        LoadStarterShips("TEST_Old Salvage Station", ShipDesign.SalvagePlatformName); // the platform's hold is a salvage load
         CreateUniverseAndPlayerEmpire();
     }
 
@@ -166,14 +166,6 @@ public class SalvageShipTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AStationWithASalvageUnitIsNoSalvageShip()
-    {
-        IShipDesign station = Design("Terran Basic Salvage Station");
-        Assert.IsTrue(station.IsSalvageStation && station.NumSalvageModules > 0, "setup: a station with salvage units");
-        Assert.IsFalse(station.IsSalvageShip, "is a salvage station, not a salvage ship");
-    }
-
-    [TestMethod]
     public void TheSalvageShipsTechnologyComesAfterFrigateConstructionUnlocksTheSalvageUnitAndLeadsToSalvageSpeed()
     {
         AssertEqual(400f, ResourceManager.Tech("SalvageShips").Cost, "it costs 400");
@@ -205,7 +197,7 @@ public class SalvageShipTests : StarDriveTest
         Assert.IsTrue(Enemy.CanBuildSalvageShips, "one with room for its load does");
 
         AssertEqual("Terran Salvage Ship", Player.SalvageShipDesign?.Name, "setup: the Terran race's salvage ship");
-        Player.data.DefaultSalvageShip = "Terran Basic Salvage Station";
+        Player.data.DefaultSalvageShip = "TEST_Old Salvage Station";
         Assert.IsNull(Player.SalvageShipDesign, "a race naming a salvage station names no salvage ship");
         Player.data.DefaultSalvageShip = "Terran Constructor";
         Assert.IsNull(Player.SalvageShipDesign, "nor one naming a ship without a salvage unit");

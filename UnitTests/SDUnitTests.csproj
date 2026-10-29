@@ -196,7 +196,6 @@
     <Compile Include="Ships\DismantleOrbitalTests.cs" />
     <Compile Include="Ships\DismantleOrbitalWorkTests.cs" />
     <Compile Include="Ships\DeliverRefundTests.cs" />
-    <Compile Include="Ships\SalvageHaulTests.cs" />
     <Compile Include="Ships\SalvageLoadTests.cs" />
     <Compile Include="Ships\SalvageTakeoverTests.cs" />
     <Compile Include="Ships\SalvageTechTests.cs" />
@@ -204,7 +203,8 @@
     <Compile Include="Ships\SalvageRecoveryTests.cs" />
     <Compile Include="Ships\SalvageWorkTests.cs" />
     <Compile Include="Ships\SalvageDerelictTests.cs" />
-    <Compile Include="Ships\SalvageOpsTests.cs" />
+    <Compile Include="Ships\SalvageSiteTests.cs" />
+    <Compile Include="Ships\OldSalvageStationTests.cs" />
     <Compile Include="Ships\SalvageDesignTests.cs" />
     <Compile Include="Ships\SalvageShipTests.cs" />
     <Compile Include="Ships\SalvageOrderTest.cs" />

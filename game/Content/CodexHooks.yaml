@@ -161,7 +161,6 @@ AutoBuildMiningStationTip: automation_construction
 AutoSalvageTip: automation_construction
 AutoPickResearchStationTip: automation_construction
 AutoPickMiningStationTip: automation_construction
-AutoPickSalvageStationTip: automation_construction
 AutoPickSalvageShipTip: automation_construction
 RushAllConstructionTip: automation_construction
 PrioritizeProjectorTip: automation_construction
@@ -462,10 +461,6 @@ BudgetPerTurnNote: economy_budget_screen
 DerelictOriginalOwner: warfare_derelicts
 DerelictTurnsLeftTip: warfare_derelicts
 DerelictProductionTip: warfare_derelicts
-SalvageStationOrderTip: warfare_derelicts
-SalvageStationOrderedTip: warfare_derelicts
-SalvageStationNoDesignTip: warfare_derelicts
-SalvageStationAllWorkedTip: warfare_derelicts
 DerelictTurnsStandTip: warfare_derelicts
 SalvageDerelictTip: derelicts_salvaging
 SalvageDerelictOrderedTip: derelicts_salvaging

@@ -44,7 +44,7 @@ public class DerelictTests : StarDriveTest
     {
         LoadStarterShips("Dreadnought mk1-a", "Corsair", "Hunter mk1-a", "Vulcan Scout", "Seeder Transport", "Shipyard",
                          "Platform Base mk1-a", "Subspace Projector", "Cordrazine Small Station Mk1",
-                         "C-Research Station mk1-a", "C-Mining Station mk1-a", "Cordrazine Basic Salvage Station");
+                         "C-Research Station mk1-a", "C-Mining Station mk1-a", "TEST_Old Salvage Station");
         CreateUniverseAndPlayerEmpire();
         UState.Derelicts.TestDriftRoll = false; // a death drifts by its hull's roll only in the tests of that roll
     }
@@ -158,7 +158,7 @@ public class DerelictTests : StarDriveTest
 
         TestShip research = SpawnShip("C-Research Station mk1-a", Player, Site(8));
         TestShip mining = SpawnShip("C-Mining Station mk1-a", Player, Site(9));
-        TestShip salvage = SpawnShip("Cordrazine Basic Salvage Station", Player, Site(13));
+        TestShip salvage = SpawnShip("TEST_Old Salvage Station", Player, Site(13));
         AssertTrue(research.IsResearchStation && mining.IsMiningStation && salvage.IsSalvageStation,
                    "setup: a research, a mining and a salvage station");
         AssertFalse(research.CanBecomeDerelict, "a research station");

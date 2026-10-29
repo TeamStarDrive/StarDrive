@@ -152,7 +152,6 @@
     <Compile Include="Ship_Game\Audio\NAudio\NAudioSampleMixer.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MiningOps.cs" />
-    <Compile Include="Ship_Game\Commands\Goals\SalvageOps.cs" />
     <Compile Include="Ship_Game\Commands\Goals\SalvageDerelict.cs" />
     <Compile Include="Ship_Game\Commands\Goals\SalvageMission.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DismantleOrbital.cs" />
