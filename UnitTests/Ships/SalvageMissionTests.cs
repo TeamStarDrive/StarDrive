@@ -27,7 +27,7 @@ namespace UnitTests.Ships;
 /// any other. A queued salvage ship refitted to another design ends its mission once built, untold. A mission flying
 /// out survives a save, and an order saved with a salvage station's work ends on load. The derelicts window counts the
 /// player's salvage ships at work and idle, pauses the game, and reads the goals as it opens and once a click in it
-/// has reached the sim thread.
+/// has reached the sim thread. On its way to unload, the ship takes no right-click order and joins no fleet.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -297,6 +297,33 @@ public class SalvageMissionTests : SalvageOrderTest
         Assert.IsTrue(mission.FlyingOut, "and flies back to its site");
         mission.Evaluate();
         AssertEqual(AIState.MoveTo, ship.AI.State, "where it heads");
+    }
+
+    [TestMethod]
+    public void OnItsWayToUnloadTheShipTakesNoRightClickOrdersSoItStillUnloadsAtItsColony()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(order);
+        SalvageMission mission = MissionOf(order);
+        Launched(order);
+        ship.LoadProduction(ship.CargoRoom);
+        PlatformBuilt(order);
+        mission.Evaluate();
+        Assert.IsTrue(mission.Unloading && ship.AI.OrbitTarget == Homeworld, "setup: the full ship leaves to unload at the homeworld");
+
+        var commands = new Ship_Game.Universe.ShipMoveCommands(Universe);
+        Planet other = AddHomeWorldToEmpire(Homeworld.Position + new Vector2(0, 60_000f), Player);
+        commands.RightClickOnPlanet(ship, other);
+        AssertEqual(Homeworld, ship.AI.OrbitTarget, "a right-click on another planet orders it nowhere");
+        commands.MoveShipToLocation(Empty<Ship>.Array, ship.Position + new Vector2(5_000f, 0), new Vector2(0, -1), ship);
+        Assert.IsTrue(ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget == Homeworld, "nor does one on open space");
+        Ship enemy = SpawnShip("Vulcan Scout", Enemy, ship.Position + new Vector2(5_000f, 0));
+        Assert.IsFalse(commands.AttackSpecificShip(ship, enemy), "and one on an enemy ship is refused");
+        Assert.IsFalse(ship.CanBeAddedToFleets(), "nor can it join a fleet");
+
+        InOrbitAtHomeworld(ship);
+        mission.Evaluate();
+        Assert.IsTrue(ship.GetProduction() == 0f && mission.FlyingOut, "so it unloads at its colony and flies back");
     }
 
     [TestMethod]

@@ -324,7 +324,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool CanBeAddedToFleets() => CanBeAddedToFleets(ShipData, Loyalty);
+        public bool CanBeAddedToFleets() => CanBeAddedToFleets(ShipData, Loyalty) && !WorksForSalvage; // nor does a salvage ship at work
 
         /// <summary>
         /// Stations and platforms, subspace projectors, supply and builder shuttles, mining ships, constructors and drones never join a fleet

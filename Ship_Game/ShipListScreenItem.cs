@@ -167,7 +167,7 @@ namespace Ship_Game
             stlPos = stlPos.ToFloored();
             batch.DrawString(Fonts.Arial12, Ship.MaxSTLSpeed.ToString("0"), stlPos, Color.White);
 
-            if (IsCombat)
+            if (IsCombat && !Ship.WorksForSalvage)
             {
                 ExploreButton.Draw(batch);
                 //PatrolButton.Draw(batch); // FB - Disabled until we make it better
@@ -381,7 +381,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (IsCombat)
+            if (IsCombat && !Ship.WorksForSalvage)
             {
                 // Explore button for ship list
                 if (ExploreButton.HandleInput(input))

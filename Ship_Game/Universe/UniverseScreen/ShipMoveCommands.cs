@@ -99,6 +99,7 @@ namespace Ship_Game.Universe
             if (ship.IsConstructor 
                 || ship.IsPlatformOrStation 
                 || ship.IsSubspaceProjector 
+                || ship.WorksForSalvage
                 || !HelperFunctions.CanExitWarpForChangingDirectionByCommand([ship], ship.AI.PotentialTargets))
             {
                 if (audio)
@@ -233,7 +234,7 @@ namespace Ship_Game.Universe
 
         public bool AttackSpecificShip(Ship ship, Ship target)
         {
-            if (ship.IsConstructor || ship.IsSupplyShuttle || ship.IsSalvagePlatform
+            if (ship.IsConstructor || ship.IsSupplyShuttle || ship.IsSalvagePlatform || ship.WorksForSalvage
                 || ship.ShipData.Role == RoleName.troop && target.Loyalty != Universe.Player && !target.CanBeBoardedBy(ship.Loyalty))
             {
                 GameAudio.NegativeClick();
@@ -343,7 +344,7 @@ namespace Ship_Game.Universe
 
         public void MoveShipToLocation(Ship[] enemyShips, Vector2 pos, Vector2 direction, Ship ship)
         {
-            if (ship.IsPlatformOrStation || !HelperFunctions.CanExitWarpForChangingDirectionByCommand([ship], enemyShips))
+            if (ship.IsPlatformOrStation || ship.WorksForSalvage || !HelperFunctions.CanExitWarpForChangingDirectionByCommand([ship], enemyShips))
             {
                 GameAudio.NegativeClick();
                 return;
