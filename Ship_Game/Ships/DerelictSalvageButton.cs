@@ -8,12 +8,13 @@ using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
 
 namespace Ship_Game.Ships;
 
-// the Salvage and Recover buttons on the derelict's panel and on each row of the derelicts window, shown unless the derelict is gone or the player has no salvage ship, can build none and its race names none: gray, lit under the cursor when a click can order, and lit while the order stands in its button's work; gray while the player can build no salvage ship and has none
+// the Salvage and Recover buttons on the derelict's panel and on each row of the derelicts window, shown unless the derelict is gone or the player has no salvage ship, can build none and its race names none: gray, lit under the cursor when a click can order, and lit while the order stands in its button's work; gray while the player can build no salvage ship and has none; with Auto Salvage on, a lit button calls nothing off, as the planner would order the derelict again
 public static class DerelictSalvageButton
 {
     public enum Kind { Salvage, Recover }
 
-    public static bool Clickable(Block block) => block is Block.None or Block.Ordered;
+    public static bool Clickable(Empire player, Block block, bool lit)
+        => block == Block.None || block == Block.Ordered && !(lit && SalvageMission.OnAutomatic(player));
 
     // from any thread: the Recover button's from the Salvage button's
     public static Block BlockOf(Kind kind, Block salvageBlock, Derelict d)
@@ -30,9 +31,9 @@ public static class DerelictSalvageButton
     public static bool Lit(Kind kind, Block block, SalvageDerelict order)
         => block == Block.Ordered && (order?.Recovering ?? false) == (kind == Kind.Recover);
 
-    public static void Draw(SpriteBatch batch, in Rectangle rect, Kind kind, Block block, bool lit, bool hovered)
+    public static void Draw(SpriteBatch batch, in Rectangle rect, Empire player, Kind kind, Block block, bool lit, bool hovered)
     {
-        bool lights = hovered && Clickable(block);
+        bool lights = hovered && Clickable(player, block, lit);
         bool bright = lit || lights;
         string back = lights ? "SelectionBox/button_action_hover"
                     : lit ? "SelectionBox/button_action"
@@ -48,6 +49,11 @@ public static class DerelictSalvageButton
     // the tips carry their ids, so they link to the Codex; those with figures link through the id they are made from
     public static void Tooltip(Empire player, Derelict d, Kind kind, Block block, bool lit, SalvageDerelict order)
     {
+        if (lit && SalvageMission.OnAutomatic(player))
+        {
+            ToolTip.CreateTooltip(GameText.SalvageOnAutomaticTip);
+            return;
+        }
         if (block == Block.Ordered && order == null) // a claim kept without its order, which either button's click gives up
         {
             ToolTip.CreateTooltip(GameText.SalvageDerelictOrderedTip);
@@ -147,11 +153,15 @@ public static class DerelictSalvageButton
         ToolTip.CreateTooltip(tip, codexUid: Codex.CodexHooks.Find(GameText.DerelictRecoveryProgressTip));
     }
 
-    // orders the derelict salvaged or recovered, calls the order off from its lit button, or turns it to the other button's work
+    // orders the derelict salvaged or recovered, calls the order off from its lit button unless on automatic, or turns it to the other button's work
     public static void Click(Empire player, Derelict d, Kind kind, Block block, bool lit)
     {
         bool recover = kind == Kind.Recover;
-        if (block == Block.Ordered)
+        if (!Clickable(player, block, lit))
+        {
+            GameAudio.NegativeClick();
+        }
+        else if (block == Block.Ordered)
         {
             GameAudio.EchoAffirmative();
             if (lit)
@@ -159,7 +169,7 @@ public static class DerelictSalvageButton
             else
                 SalvageDerelict.Switch(player, d, recover);
         }
-        else if (block == Block.None && SalvageDerelict.Order(player, d, recover))
+        else if (SalvageDerelict.Order(player, d, recover))
         {
             GameAudio.EchoAffirmative();
         }

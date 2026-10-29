@@ -20032,12 +20032,12 @@ AutoPickSalvageStationTip:
  RUS: "Станция утилизации, заказанная с панели брошенного корабля, из списка брошенных кораблей системы или автоматически (флажок «Автопостройка станций утилизации»), строится по лучшему доступному вам проекту для этой системы: с числом блоков утилизации, лучше всего подходящим к брошенным кораблям, которыми вы можете там заняться и которые не скоро исчезнут, — с наибольшим числом блоков до их количества, а сверх него с наименьшим, затем с наибольшим грузовым отсеком, затем с наибольшей прочностью для своего размера. Если выключено, используется проект, выбранный в списке под флажком «Автопостройка станций утилизации». В любом случае проект, грузовой отсек которого меньше одной партии на каждый блок утилизации, не выбирается."
  UKR: "Станція утилізації, замовлена з панелі покинутого корабля, зі списку покинутих кораблів системи або автоматично (позначка «Автоматичне будівництво станцій утилізації»), будується за найкращим доступним вам проектом для цієї системи: з кількістю блоків утилізації, що найкраще відповідає покинутим кораблям, якими ви можете там зайнятися і які не скоро зникнуть, — з найбільшою кількістю блоків до їхнього числа, а понад нього з найменшою, потім з найбільшим вантажним відсіком, потім з найбільшою міцністю для свого розміру. Якщо вимкнено, використовується проект, вибраний у списку під позначкою «Автоматичне будівництво станцій утилізації». У будь-якому разі проект, вантажний відсік якого менший за одну партію на кожен блок утилізації, не обирається."
  PTB: "Uma estação de salvamento encomendada pelo painel de uma nave abandonada ou pela lista de naves abandonadas de um sistema, ou construída por Construir Estações de Salvamento Automaticamente, usa o melhor projeto que você pode construir para esse sistema: aquele cujas unidades de salvamento melhor correspondem às naves abandonadas com que você pode trabalhar ali e que não estão perto de desaparecer, com mais unidades até o número delas e depois com menos além dele, depois mais espaço de carga, depois o mais resistente para o seu tamanho. Desmarcado, usa o projeto escolhido na lista sob Construir Estações de Salvamento Automaticamente. Em ambos os casos, um projeto com menos espaço de carga do que um lote para cada uma de suas unidades de salvamento nunca é escolhido."
-AutoBuildSalvageStation:
+AutoSalvage:
  Id: 7158
- ENG: "Auto Build Salvage Stations"
- RUS: "Автопостройка станций утилизации"
- UKR: "Автоматичне будівництво станцій утилізації"
- PTB: "Construir Estações de Salvamento Automaticamente"
+ ENG: "Auto Salvage"
+ RUS: "Автоутилизация"
+ UKR: "Автоматична утилізація"
+ PTB: "Salvamento Automático"
 DesignIssueLowSalvageCargoTitle:
  Id: 7159
  ENG: "Low Salvage Cargo"
@@ -20398,12 +20398,12 @@ SalvageStationAllWorkedTip:
  RUS: "Все известные вам брошенные корабли здесь заняты другими империями."
  UKR: "Усі відомі вам покинуті кораблі тут зайняті іншими імперіями."
  PTB: "Outros impérios já ocupam todas as naves abandonadas que você conhece aqui."
-AutoBuildSalvageStationTip:
+AutoSalvageTip:
  Id: 7222
- ENG: "This will auto build salvage stations for you in systems where you know of salvageable derelicts. It will use the salvage station you pick in the dropdown list below (visible if your empire can build one), or the best one with Auto Pick Salvage Stations on."
- RUS: "Будет автоматически строить для вас станции утилизации в системах, где вам известны брошенные корабли, пригодные для утилизации. Используется станция, выбранная в списке ниже (виден, если ваша империя может её построить), или лучшая при включённом автовыборе станций утилизации."
- UKR: "Автоматично будуватиме для вас станції утилізації в системах, де вам відомі покинуті кораблі, придатні для утилізації. Використовується станція, вибрана у списку нижче (відображається, якщо ваша імперія може її збудувати), або найкраща, якщо ввімкнено автоматичний вибір станції утилізації."
- PTB: "Isso construirá automaticamente estações de salvamento para você em sistemas onde você conhece naves abandonadas que podem ser recuperadas. Usará a estação de salvamento que você escolher na lista suspensa abaixo (visível se seu império puder construir uma), ou a melhor com Escolher Estações de Salvamento Automaticamente marcado."
+ ENG: "Your empire will order salvage of the derelicts it knows of in nearby systems that are safe to work, recovering the ships stronger than any of their kind you can build. It sends your idle salvage ships first. With none free, it builds the one picked in the list below, or the best with Auto Pick Salvage Ships on, while you have fewer salvage ships than one for every five planets you own (at least one, at most five). You can still order salvage yourself, but while this is on you cannot call off an order."
+ RUS: "Ваша империя будет отдавать приказы на утилизацию известных ей брошенных кораблей в ближних системах, где работать безопасно, восстанавливая корабли сильнее любых кораблей того же класса, которые вы можете построить. Сначала отправляются ваши свободные корабли утилизации. Если свободных нет, строится корабль, выбранный в списке ниже, или лучший при включённом автовыборе кораблей утилизации, пока у вас меньше кораблей утилизации, чем один на каждые пять ваших планет (не меньше одного и не больше пяти). Вы по-прежнему можете сами отдавать приказы на утилизацию, но пока это включено, отменить приказ нельзя."
+ UKR: "Ваша імперія віддаватиме накази на утилізацію відомих їй покинутих кораблів у ближніх системах, де працювати безпечно, відновлюючи кораблі, сильніші за будь-які кораблі того ж класу, які ви можете збудувати. Спершу вирушають ваші вільні кораблі утилізації. Якщо вільних немає, будується корабель, вибраний у списку нижче, або найкращий, якщо ввімкнено автоматичний вибір кораблів утилізації, доки у вас менше кораблів утилізації, ніж один на кожні п'ять ваших планет (не менше одного й не більше п'яти). Ви й далі можете самі віддавати накази на утилізацію, але поки це ввімкнено, скасувати наказ не можна."
+ PTB: "Seu império ordenará o salvamento das naves abandonadas que conhece em sistemas próximos onde é seguro trabalhar, recuperando as naves mais fortes do que qualquer uma do mesmo tipo que você possa construir. Suas naves de salvamento livres vão primeiro. Sem nenhuma livre, ele constrói a escolhida na lista abaixo, ou a melhor com Escolher Naves de Salvamento Automaticamente marcado, enquanto você tiver menos naves de salvamento do que uma para cada cinco planetas seus (pelo menos uma, no máximo cinco). Você ainda pode ordenar salvamentos por conta própria, mas, com isto marcado, não pode cancelar uma ordem."
 BB_SalvageSpeedTech:
  Id: 7224
  ENG: "Salvage Speed"
@@ -20442,10 +20442,10 @@ DeliveringProductionTo:
  PTB: "Entregando produção em"
 DesignIssueLowSalvageCargoSkipped:
  Id: 7231
- ENG: "Without it, the list under Auto Build Salvage Stations in the Automation window leaves this station out, and auto pick skips it."
- RUS: "Без него список под флажком «Автопостройка станций утилизации» в окне автоматизации её не показывает, а автовыбор её пропускает."
- UKR: "Без нього список під позначкою «Автоматичне будівництво станцій утилізації» у вікні автоматизації її не показує, а автоматичний вибір її пропускає."
- PTB: "Sem ele, a lista sob Construir Estações de Salvamento Automaticamente na janela de Automação omite esta estação, e a escolha automática a ignora."
+ ENG: "Without it, auto pick skips this station."
+ RUS: "Без него автовыбор эту станцию пропускает."
+ UKR: "Без нього автоматичний вибір цю станцію пропускає."
+ PTB: "Sem ele, a escolha automática ignora esta estação."
 DesignIssueLowSalvageCargoTwoLoads:
  Id: 7232
  ENG: "Cargo room for two loads per salvage unit:"
@@ -20508,10 +20508,10 @@ AutoPickSalvageShip:
  PTB: "Escolher Naves de Salvamento Automaticamente"
 AutoPickSalvageShipTip:
  Id: 7246
- ENG: "When a salvage order finds no idle salvage ship of yours, the one built for it is the best design you can build for that system: the most salvage units up to the derelicts there you can work and then the fewest beyond them, then the most cargo room, then the strongest for its size. With this off, it is the design picked in the list below. Either way, a design with less cargo room than one load for each of its salvage units is never picked."
- RUS: "Если для приказа на утилизацию нет вашего свободного корабля утилизации, для него строится лучший доступный вам проект для этой системы: с наибольшим числом блоков утилизации до количества брошенных кораблей, которыми вы можете там заняться, а сверх него с наименьшим, затем с наибольшим грузовым отсеком, затем с наибольшей прочностью для своего размера. Если выключено, используется проект, выбранный в списке ниже. В любом случае проект, грузовой отсек которого меньше одной партии на каждый блок утилизации, не выбирается."
- UKR: "Якщо для наказу на утилізацію немає вашого вільного корабля утилізації, для нього будується найкращий доступний вам проект для цієї системи: з найбільшою кількістю блоків утилізації до числа покинутих кораблів, якими ви можете там зайнятися, а понад нього з найменшою, потім з найбільшим вантажним відсіком, потім з найбільшою міцністю для свого розміру. Якщо вимкнено, використовується проект, вибраний у списку нижче. У будь-якому разі проект, вантажний відсік якого менший за одну партію на кожен блок утилізації, не обирається."
- PTB: "Quando uma ordem de salvamento não encontra uma nave de salvamento sua livre, a construída para ela usa o melhor projeto que você pode construir para esse sistema: mais unidades de salvamento até o número de naves abandonadas com que você pode trabalhar ali e depois menos além dele, depois mais espaço de carga, depois o mais resistente para o seu tamanho. Desmarcado, usa o projeto escolhido na lista abaixo. Em ambos os casos, um projeto com menos espaço de carga do que um lote para cada uma de suas unidades de salvamento nunca é escolhido."
+ ENG: "When a salvage order finds no idle salvage ship of yours, the one built for it is the best design you can build for that system: the most salvage units up to the derelicts there you can work and then the fewest beyond them, then the most cargo room, then the strongest for its size. With this off, it is the design picked in the Auto Salvage list. Either way, a design with less cargo room than one load for each of its salvage units is never picked."
+ RUS: "Если для приказа на утилизацию нет вашего свободного корабля утилизации, для него строится лучший доступный вам проект для этой системы: с наибольшим числом блоков утилизации до количества брошенных кораблей, которыми вы можете там заняться, а сверх него с наименьшим, затем с наибольшим грузовым отсеком, затем с наибольшей прочностью для своего размера. Если выключено, используется проект, выбранный в списке автоутилизации. В любом случае проект, грузовой отсек которого меньше одной партии на каждый блок утилизации, не выбирается."
+ UKR: "Якщо для наказу на утилізацію немає вашого вільного корабля утилізації, для нього будується найкращий доступний вам проект для цієї системи: з найбільшою кількістю блоків утилізації до числа покинутих кораблів, якими ви можете там зайнятися, а понад нього з найменшою, потім з найбільшим вантажним відсіком, потім з найбільшою міцністю для свого розміру. Якщо вимкнено, використовується проект, вибраний у списку автоматичної утилізації. У будь-якому разі проект, вантажний відсік якого менший за одну партію на кожен блок утилізації, не обирається."
+ PTB: "Quando uma ordem de salvamento não encontra uma nave de salvamento sua livre, a construída para ela usa o melhor projeto que você pode construir para esse sistema: mais unidades de salvamento até o número de naves abandonadas com que você pode trabalhar ali e depois menos além dele, depois mais espaço de carga, depois o mais resistente para o seu tamanho. Desmarcado, usa o projeto escolhido na lista do Salvamento Automático. Em ambos os casos, um projeto com menos espaço de carga do que um lote para cada uma de suas unidades de salvamento nunca é escolhido."
 DesignIssueLowSalvageShipCargoProblem:
  Id: 7247
  ENG: "Each salvage unit's platform sends its loads to this salvage ship, which flies off to unload once its hold is full while the platforms wait for it. With room for two loads per unit, it makes fewer trips."
@@ -20560,6 +20560,12 @@ SalvageShipsCount:
  RUS: "Корабли утилизации: заняты {0}, свободны {1}"
  UKR: "Кораблі утилізації: зайняті {0}, вільні {1}"
  PTB: "Naves de salvamento: {0} trabalhando, {1} livres"
+SalvageOnAutomaticTip:
+ Id: 7255
+ ENG: "Auto Salvage is on, so salvage orders cannot be called off. Turn it off in the Automation window first."
+ RUS: "Включена автоутилизация, поэтому приказы на утилизацию отменить нельзя. Сначала отключите её в окне автоматизации."
+ UKR: "Увімкнено автоматичну утилізацію, тому накази на утилізацію скасувати не можна. Спершу вимкніть її у вікні автоматизації."
+ PTB: "O Salvamento Automático está ligado, então ordens de salvamento não podem ser canceladas. Desligue-o primeiro na janela de Automação."
 EncCorsairs000_Msg0:
  ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
  RUS: "Дорогие друзья SING,\n\nМы рады видеть прогресс вашей империи. Разве это не захватывающе - колонизировать новые миры и бороться с неизвестной средой? Однако все эти маленькие транспорты, курсирующие от планеты к планете, как послушные пчёлки, слишком уязвимы в глубоком космосе.\n\nПоэтому у нас есть предложение. Вы прямо сейчас заплатите нам MONEY кредитов. Если согласитесь, мы можем пообещать определённый уровень «защиты» для кораблей SING. Если нет - увы, мы ничего обещать не можем.\n\nС уважением,\n    Капитан Марток, независимый торговец и джентльмен"

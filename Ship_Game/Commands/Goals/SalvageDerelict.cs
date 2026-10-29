@@ -119,7 +119,7 @@ namespace Ship_Game.Commands.Goals
         }
 
         // from any thread: a salvage ship of the empire's with a live salvage unit, at work or idle
-        static bool HasSalvageShip(Empire empire)
+        public static bool HasSalvageShip(Empire empire)
         {
             var ships = empire.OwnedShips;
             for (int i = 0; i < ships.Count; ++i)
@@ -453,16 +453,6 @@ namespace Ship_Game.Commands.Goals
 
         // a tech the empire has not researched and sees on its tree
         public static bool CanLearn(Empire empire, TechEntry tech) => tech.Locked && tech.Discovered && !tech.IsHidden(empire);
-
-        // a tech the derelict's design uses that the empire can still learn and its designs use, as anyone can tell from the ship whatever few of them it holds
-        public static bool DesignHasWantedTech(Empire empire, Derelict d)
-        {
-            Array<string> techs = Derelict.TechsOf(d.Design);
-            for (int i = 0; i < techs.Count; ++i)
-                if (empire.TryGetTechEntry(techs[i], out TechEntry tech) && CanLearn(empire, tech) && tech.shipDesignsCanuseThis)
-                    return true;
-            return false;
-        }
 
         // the AI's pick, from what the derelict is and never from its own draws: it recovers a ship stronger than the strongest design of that hull role it can build, or of a role it can build none of, and strips the rest
         public static bool WouldRecover(Empire empire, Derelict d)

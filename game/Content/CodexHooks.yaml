@@ -158,7 +158,7 @@ AllowPlayerInterTradeTip: automation_freighters
 AutoPickConstructorsTip: automation_construction
 AutoBuildResearchStationTip: automation_construction
 AutoBuildMiningStationTip: automation_construction
-AutoBuildSalvageStationTip: automation_construction
+AutoSalvageTip: automation_construction
 AutoPickResearchStationTip: automation_construction
 AutoPickMiningStationTip: automation_construction
 AutoPickSalvageStationTip: automation_construction
@@ -469,6 +469,7 @@ SalvageStationAllWorkedTip: warfare_derelicts
 DerelictTurnsStandTip: warfare_derelicts
 SalvageDerelictTip: derelicts_salvaging
 SalvageDerelictOrderedTip: derelicts_salvaging
+SalvageOnAutomaticTip: derelicts_salvaging
 SalvageDerelictSwitchTip: derelicts_recovering
 RecoverDerelictTip: derelicts_recovering
 RecoverDerelictOrderedTip: derelicts_recovering

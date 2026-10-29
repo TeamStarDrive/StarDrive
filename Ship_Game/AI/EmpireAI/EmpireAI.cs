@@ -397,6 +397,7 @@ namespace Ship_Game.AI
                     || ship.IsResearchStation
                     || ship.IsMiningStation
                     || ship.IsSalvageStation
+                    || ship.IsSalvageShip
                     || ship.IsMiningShip
                     || ship.ShipData.IsColonyShip
                     || ship.IsConstructor)

@@ -6210,8 +6210,8 @@ namespace Ship_Game
         AutoPickSalvageStation = 7156,
         /// <summary>A salvage station ordered from a derelict's panel or a</summary>
         AutoPickSalvageStationTip = 7157,
-        /// <summary>Auto Build Salvage Stations</summary>
-        AutoBuildSalvageStation = 7158,
+        /// <summary>Auto Salvage</summary>
+        AutoSalvage = 7158,
         /// <summary>Low Salvage Cargo</summary>
         DesignIssueLowSalvageCargoTitle = 7159,
         /// <summary>Each salvage unit's platform sends its loads to this Salvage Station</summary>
@@ -6332,8 +6332,8 @@ namespace Ship_Game
         SalvageStationFreightersComing = 7219,
         /// <summary>Other empires are salvaging or recovering every derelict you know of in this system.</summary>
         SalvageStationAllWorkedTip = 7221,
-        /// <summary>This will auto build salvage stations for you in systems</summary>
-        AutoBuildSalvageStationTip = 7222,
+        /// <summary>Your empire will order salvage of the derelicts it knows of</summary>
+        AutoSalvageTip = 7222,
         // 7224 to 7226 are the Salvage Speed tech's texts, used by its XML
         /// <summary>Salvage Speed Modifier</summary>
         EmpireSalvageSpeed = 7227,
@@ -6341,7 +6341,7 @@ namespace Ship_Game
         DismantleOrbitalTip = 7229,
         /// <summary>Delivering production to</summary>
         DeliveringProductionTo = 7230,
-        /// <summary>Without it, the list under Auto Build Salvage Stations in the</summary>
+        /// <summary>Without it, auto pick skips this station.</summary>
         DesignIssueLowSalvageCargoSkipped = 7231,
         /// <summary>Cargo room for two loads per salvage unit:</summary>
         DesignIssueLowSalvageCargoTwoLoads = 7232,
@@ -6377,6 +6377,8 @@ namespace Ship_Game
         RearmingAt = 7253,
         /// <summary>Salvage ships: {0} working, {1} idle</summary>
         SalvageShipsCount = 7254,
+        /// <summary>Auto Salvage is on, so salvage orders cannot be called off.</summary>
+        SalvageOnAutomaticTip = 7255,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

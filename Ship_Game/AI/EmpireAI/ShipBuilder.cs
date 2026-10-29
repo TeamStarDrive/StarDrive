@@ -72,7 +72,8 @@ namespace Ship_Game.AI
                                           && !s.IsDysonSwarmController
                                           && !s.IsResearchStation
                                           && !s.IsMiningStation
-                                          && !s.IsSalvageStation);
+                                          && !s.IsSalvageStation
+                                          && !s.IsSalvageShip);
 
             if (potentialShips.Count == 0)
             {
@@ -99,7 +100,7 @@ namespace Ship_Game.AI
         {
             float Strength(IShipDesign s) => forHangar ? s.BaseStrength : s.GetStrength(empire);
 
-            Array<IShipDesign> potentialShips = ShipsWeCanBuild(empire, design => design.Role == role
+            Array<IShipDesign> potentialShips = ShipsWeCanBuild(empire, design => design.Role == role && !design.IsSalvageShip
                 && (maxSize == 0 || design.SurfaceArea <= maxSize)
                 && (designation == HangarOptions.General || designation == design.HangarDesignation)
             );
@@ -215,6 +216,7 @@ namespace Ship_Game.AI
         {
             Array<IShipDesign> ships = ShipsWeCanBuild(empire, s => s.Hull == oldShip.ShipData.Hull
                                                             && s.Role == oldShip.DesignRole
+                                                            && !s.IsSalvageShip
                                                             && s.GetStrength(empire).Greater(oldShip.ShipData.GetStrength(empire) * 1.1f)
                                                             && s.Name != oldShip.Name);
             if (ships.Count == 0)

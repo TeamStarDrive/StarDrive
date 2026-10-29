@@ -15,8 +15,8 @@ namespace UnitTests.Ships;
 /// Every major race names a salvage ship: a support ship, not a station, carrying one salvage unit, every module on its
 /// hull. The shipyard gives a design with a salvage unit the support role; its unit is a bay, which launches its
 /// constructors, but makes it no carrier, and the ship designer flags one short of a load a unit with its own warning.
-/// The player adds salvage ships to its buildable ships with salvage ops on, an AI empire never does, and none is
-/// ever a freighter, whatever its role; the design list leaves them out with salvage ops off. A station with a salvage
+/// A major empire, the player or an AI's, adds its race's salvage ship to its buildable ships with salvage ops on, a
+/// faction never does, and none is ever a freighter, whatever its role; the design list leaves them out with salvage ops off. A station with a salvage
 /// unit is no salvage ship. The Salvage Ships technology comes after Frigate Construction, unlocks the salvage unit
 /// and leads to Salvage Speed in place of Small Stations, costs 400 and is hidden with salvage ops off. An empire can build salvage ships once a buildable
 /// salvage ship has room for a platform's load for each of its units; a race naming a station or a ship without a
@@ -35,7 +35,7 @@ public class SalvageShipTests : StarDriveTest
     public SalvageShipTests()
     {
         LoadStarterShips(SalvageShips);
-        LoadStarterShips("Terran Basic Salvage Station");
+        LoadStarterShips("Terran Basic Salvage Station", ShipDesign.SalvagePlatformName); // the platform's hold is a salvage load
         CreateUniverseAndPlayerEmpire();
     }
 
@@ -97,14 +97,17 @@ public class SalvageShipTests : StarDriveTest
     }
 
     [TestMethod]
-    public void OnlyThePlayerAddsASalvageShipToItsBuildableShipsAndNoneIsEverAFreighter()
+    public void AMajorEmpireAddsASalvageShipToItsBuildableShipsAFactionNeverAndNoneIsEverAFreighter()
     {
         IShipDesign ship = Design("Terran Salvage Ship");
         Assert.IsTrue(ship.IsSalvageShip, "setup: the Terran salvage ship");
         Assert.IsTrue(ship.CanBeAddedToBuildableShips(Player), "the player can build it");
-        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Enemy), "an AI empire cannot");
+        foreach (string name in SalvageShips)
+            Assert.IsTrue(Design(name).CanBeAddedToBuildableShips(Enemy), $"an AI empire can build {name}, as the race's own AI builds it");
+        CreateAMinorFaction("Corsairs");
+        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Faction), "a faction cannot");
         UState.P.DisableSalvageOps = true;
-        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Player), "nor the player with salvage ops off");
+        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Player) || ship.CanBeAddedToBuildableShips(Enemy), "nor any empire with salvage ops off");
         UState.P.DisableSalvageOps = false;
 
         ShipDesign freighter = AsFreighter(ship, "Salvage Freighter", keepUnit: true);

@@ -117,7 +117,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         void DrawButton(SpriteBatch batch, DerelictSalvageButton.Kind kind, SalvageDerelict.Block block, in Rectangle rect)
         {
             bool lit = DerelictSalvageButton.Lit(kind, block, Order);
-            DerelictSalvageButton.Draw(batch, rect, kind, block, lit, rect.HitTest(Universe.Input.CursorPosition));
+            DerelictSalvageButton.Draw(batch, rect, Universe.Player, kind, block, lit, rect.HitTest(Universe.Input.CursorPosition));
         }
 
         // the button's tooltip and click, where the cursor is on it; a click has the window read the goals again once it reaches the sim thread

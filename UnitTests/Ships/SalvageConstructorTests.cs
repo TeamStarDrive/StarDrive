@@ -83,6 +83,16 @@ public class SalvageConstructorTests : SalvageOrderTest
         return order;
     }
 
+    // the player's order, its constructor launched toward a platform site on the derelict's far side from the ship, so it flies clear of the ship's death blast
+    SalvageDerelict LaunchedAway(Derelict d)
+    {
+        SalvageDerelict order = Ordered(d);
+        Ship ship = ShipBuilt(order);
+        order.StaticBuildPos = d.RestPosition + ship.Position.DirectionToTarget(d.RestPosition) * (d.Radius + SalvageDerelict.PlatformClearance);
+        Launched(order);
+        return order;
+    }
+
     // the player's order with its platform built and at work
     SalvageDerelict WithItsPlatform(Derelict d)
     {
@@ -389,7 +399,7 @@ public class SalvageConstructorTests : SalvageOrderTest
     public void AConstructorInFlightWhoseShipIsDestroyedIsScuttledAtOnce()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = OrderedAndLaunched(d);
+        SalvageDerelict order = LaunchedAway(d);
         Ship ship = ShipOf(order);
         Ship constructor = order.FinishedShip;
         RunClearOf(ship, constructor);
@@ -485,7 +495,7 @@ public class SalvageConstructorTests : SalvageOrderTest
     public void AConstructorFlyingHomeToAShipLostOnTheWayIsRemoved()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = OrderedAndLaunched(d);
+        SalvageDerelict order = LaunchedAway(d);
         Ship ship = ShipOf(order);
         Ship constructor = order.FinishedShip;
         RunClearOf(ship, constructor);

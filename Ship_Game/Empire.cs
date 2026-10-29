@@ -135,7 +135,7 @@ namespace Ship_Game
         [StarData] public bool AutoResearch;
         [StarData] public bool AutoBuildResearchStations;
         [StarData] public bool AutoBuildMiningStations;
-        [StarData] public bool AutoBuildSalvageStations;
+        [StarData("AutoBuildSalvageStations")] public bool AutoSalvage;
         [StarData] public int TotalScore;
         [StarData] public float TechScore;
         [StarData] public float ExpansionScore;
@@ -1358,7 +1358,7 @@ namespace Ship_Game
             {
                 case RoleName.bomber:     CanBuildBombers      = true; break;
                 case RoleName.carrier:    CanBuildCarriers     = true; break;
-                case RoleName.support:    CanBuildSupportShips = true; break;
+                case RoleName.support when !s.IsSalvageShip: CanBuildSupportShips = true; break;
                 case RoleName.troopShip:  CanBuildTroopShips   = true; break;
                 case RoleName.corvette:   CanBuildCorvettes    = true; break;
                 case RoleName.frigate:    CanBuildFrigates     = true; break;

@@ -312,7 +312,7 @@ public partial class ShipDesign
             && (empire.isPlayer || IsShipGoodForGoals(empire))
             && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer)
             && (!IsSalvageStation || empire.Universe.P.SalvageOps)
-            && (!IsSalvageShip || empire.isPlayer && empire.Universe.P.SalvageOps); // only the player builds salvage ships
+            && (!IsSalvageShip || empire.Universe.P.SalvageOps && !empire.IsFaction); // factions build no salvage ships
     }
 
     public int GetCompletionPercent()

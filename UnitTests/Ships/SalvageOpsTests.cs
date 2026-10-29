@@ -27,10 +27,9 @@ namespace UnitTests.Ships;
 /// running out of derelicts for it does; a built station keeps its order while it holds production. A site lies in the
 /// system, clear of its star and planets' orbits and 2000 units from its derelicts and from salvage stations. An order
 /// survives a save. The picker with no system in mind takes the station with the most salvage modules, then the most
-/// cargo room. The player's picker, with auto pick off as it starts, takes the station chosen in the Automation window,
-/// or the race's default when the choice cannot be built, and the best pick when neither can; the window resets a
-/// choice that can no longer be built to the default. Neither picker nor the window's list takes a station with less
-/// cargo room than a load, a salvage platform's hold, for each of its salvage units. The derelicts window pauses the
+/// cargo room. The player's picker, with auto pick off as it starts, takes the station chosen, or the race's default
+/// when the choice cannot be built, and the best pick when neither can. Neither picker takes a station with less cargo
+/// room than a load, a salvage platform's hold, for each of its salvage units. The derelicts window pauses the
 /// game and reads the goals as it opens and once a click in it has reached the sim thread. A built station costs the builder trust, once, with each AI that has a colony in its system and knows it, unless the
 /// two have open borders, an alliance or a war: the AI personality's value, 5 for all, times a difficulty multiplier
 /// when the builder is the player. The value survives a save, 0 included. A boarded station works for its boarder as it
@@ -489,29 +488,6 @@ public class SalvageOpsTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheAutomationWindowResetsAChoiceThatCanNoLongerBeBuiltToTheRaceDefault()
-    {
-        ShipDesign roomier = Variant("Roomier Station", dropOneSalvageUnit: false, extraHolds: 1);
-        Player.AddBuildableShip(Station);
-        Player.AddBuildableShip(roomier);
-        Player.MarkShipRolesUsableForEmpire(Station);
-        Player.data.CurrentSalvageStation = roomier.Name;
-
-        var window = new AutomationWindow(Universe);
-        window.LoadContent();
-        AssertEqual(roomier.Name, Player.data.CurrentSalvageStation, "a station the player can build stays chosen");
-
-        Player.RemoveBuildableShip(roomier);
-        window.UpdateDropDowns();
-        AssertEqual(Station.Name, Player.data.CurrentSalvageStation, "one that can no longer be built gives way to the race's default");
-
-        UState.P.DisableSalvageOps = true;
-        Player.data.CurrentSalvageStation = "No Such Station Design";
-        window.LoadContent();
-        AssertEqual("No Such Station Design", Player.data.CurrentSalvageStation, "with salvage ops off the window leaves the choice alone");
-    }
-
-    [TestMethod]
     public void NeitherPickerTakesAStationWithLessCargoRoomThanALoadForEachOfItsSalvageUnits()
     {
         ShipDesign holdless = Variant("Holdless Station", dropOneSalvageUnit: false, extraHolds: 0, dropHolds: true);
@@ -532,27 +508,6 @@ public class SalvageOpsTests : StarDriveTest
         Player.ClearShipsWeCanBuild();
         Player.AddBuildableShip(holdless);
         Assert.IsNull(ShipBuilder.PickSalvageStation(Player), "none when no station has room for a load a unit");
-    }
-
-    [TestMethod]
-    public void TheAutomationWindowLeavesOutAStationWithLessCargoRoomThanALoadForEachOfItsSalvageUnits()
-    {
-        ShipDesign roomier = Variant("Roomier Station", dropOneSalvageUnit: false, extraHolds: 1);
-        ShipDesign holdless = Variant("Holdless Station", dropOneSalvageUnit: false, extraHolds: 0, dropHolds: true);
-        Player.AddBuildableShip(Station);
-        Player.AddBuildableShip(roomier);
-        Player.AddBuildableShip(holdless);
-        Player.MarkShipRolesUsableForEmpire(Station);
-        Player.data.DefaultSalvageStation = roomier.Name;
-        Player.data.CurrentSalvageStation = Station.Name;
-
-        var window = new AutomationWindow(Universe);
-        window.LoadContent();
-        AssertEqual(Station.Name, Player.data.CurrentSalvageStation, "setup: the basic station stays chosen");
-
-        Player.data.CurrentSalvageStation = holdless.Name;
-        window.UpdateDropDowns();
-        AssertEqual(roomier.Name, Player.data.CurrentSalvageStation, "a station that cannot hold one load gives way to the race's default");
     }
 
     [TestMethod]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.AI.ExpansionAI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
@@ -75,14 +76,11 @@ namespace Ship_Game.Commands.Goals
             return false;
         }
 
-        // a derelict with less than this share of its turns left counts for nothing, as it may sink before a station is up
-        public const int MinTurnsLeftPercent = 20;
-
         // from any thread: a salvageable derelict in the system that the empire knows of, with enough turns left, and that no other empire works from its station there
         public static bool WorthAStationFor(Empire empire, Derelict d, SolarSystem system, int lifetime)
         {
             Empire claimant = d.Claimant;
-            return d.System == system && d.CanBeSalvaged && d.IsKnownBy(empire) && d.TurnsLeft * 100 >= lifetime * MinTurnsLeftPercent
+            return d.System == system && d.CanBeSalvaged && d.IsKnownBy(empire) && d.TurnsLeft * 100 >= lifetime * SalvageOpsPlanner.MinTurnsLeftPercent
                    && (claimant == null || claimant == empire || StationIn(claimant, system) == null);
         }
 
