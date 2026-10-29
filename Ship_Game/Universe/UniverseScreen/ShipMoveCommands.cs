@@ -65,7 +65,7 @@ namespace Ship_Game.Universe
             }
             else if (selectedShip.DesignRole == RoleName.troop)
             {
-                if (!targetShip.CanBeBoarded)
+                if (!targetShip.CanBeBoardedBy(selectedShip.Loyalty))
                     return false;
                 selectedShip.AI.OrderTroopToBoardShip(targetShip);
             }
@@ -234,7 +234,7 @@ namespace Ship_Game.Universe
         public bool AttackSpecificShip(Ship ship, Ship target)
         {
             if (ship.IsConstructor || ship.IsSupplyShuttle || ship.IsSalvagePlatform
-                || ship.ShipData.Role == RoleName.troop && target.Loyalty != Universe.Player && !target.CanBeBoarded)
+                || ship.ShipData.Role == RoleName.troop && target.Loyalty != Universe.Player && !target.CanBeBoardedBy(ship.Loyalty))
             {
                 GameAudio.NegativeClick();
                 return false;

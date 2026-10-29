@@ -122,6 +122,8 @@ namespace Ship_Game.Ships.Components
             newLoyalty.ResetTargetsForShipsTargetingAfterBoarding(ship);
             if (ship.IsSalvageStation)
                 SalvageOps.TakeOver(ship, oldLoyalty, newLoyalty, boarded: true);
+            if (ship.IsSalvagePlatform)
+                SalvageDerelict.Captured(ship, oldLoyalty, newLoyalty);
 
             if (notification)
             {

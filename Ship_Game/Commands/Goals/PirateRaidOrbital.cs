@@ -104,9 +104,9 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
-        // a salvage station first, as pirates recover ships with one they capture, else the orbital rolled
+        // a salvage platform first, as pirates recover the derelict's ship with one they capture, else the orbital rolled
         internal bool PickTarget(Pirates.TargetType rolled, out Ship orbital)
-            => Pirates.GetTarget(TargetEmpire, Pirates.TargetType.SalvageStation, out orbital)
+            => Pirates.GetTarget(TargetEmpire, Pirates.TargetType.SalvagePlatform, out orbital)
                || Pirates.GetTarget(TargetEmpire, rolled, out orbital);
 
         GoalStep CheckSuccess()

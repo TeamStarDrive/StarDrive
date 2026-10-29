@@ -572,8 +572,7 @@ namespace Ship_Game
 
             return !ship.IsDefaultAssaultShuttle
                    && !SpawnedShips.Contains(ship.Id)
-                   && !ship.IsFreighter
-                   && !ship.ShipData.IsColonyShip
+                   && !IsHauler(ship)
                    && !ShouldSalvageCombatShip(ship)
                    && !ShipsWeCanSpawn.Contains(ship.Name);
         }
@@ -708,7 +707,7 @@ namespace Ship_Game
             for (int i = 0; i < victimShips.Count; i++)
             {
                 Ship ship = victimShips[i];
-                if (RaidingThisShip(ship) || ship.IsLaunchingOrLanding || ship.IsSalvagePlatform)
+                if (RaidingThisShip(ship) || ship.IsLaunchingOrLanding || ship.IsSalvagePlatform && type != TargetType.SalvagePlatform)
                     continue;
 
                 switch (type)
@@ -719,7 +718,7 @@ namespace Ship_Game
                     case TargetType.Research         when ship.IsResearchStation: 
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
-                    case TargetType.SalvageStation   when ship.IsSalvageStation:
+                    case TargetType.SalvagePlatform  when ship.IsSalvagePlatform && !ship.Dismantling: // one at work, not one taking itself apart
                     case TargetType.Projector:       targets.Add(ship); break; // Add all of above cases into targets
                 }
             }
@@ -852,11 +851,14 @@ namespace Ship_Game
 
         void SalvageShip(Ship ship)
         {
-            if (ship.IsFreighter || ship.ShipData.IsColonyShip)
+            if (IsHauler(ship))
                 SalvageFreighter(ship);
             else 
                 SalvageCombatShip(ship);
         }
+
+        // a freighter, a colony ship or a salvage ship, which a base takes in for a chance to level up, never keeping it or spawning its like
+        public static bool IsHauler(Ship ship) => ship.IsFreighter || ship.IsSalvageShip || ship.ShipData.IsColonyShip;
 
         void SalvageFreighter(Ship freighter)
         {
@@ -1030,7 +1032,7 @@ namespace Ship_Game
             Station,
             Platform,
             Research,
-            SalvageStation
+            SalvagePlatform
         }
     }
 

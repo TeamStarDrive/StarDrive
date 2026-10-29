@@ -50,8 +50,8 @@ namespace Ship_Game.Commands.Goals
         void SendMoreForces()
         {
             Ship ship = Pirates.Owner.Random.ItemFilter(Pirates.Owner.OwnedShips,
-                s => !s.IsFreighter
-                  && !s.IsConstructor // a salvage station's keeps to its platform
+                s => !Pirates.IsHauler(s)
+                  && !s.IsConstructor // a constructor it took never fights
                   && !Pirates.SpawnedShips.Contains(s.Id)
                   && s.BaseStrength > 0
                   && !s.InCombat

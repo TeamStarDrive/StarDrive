@@ -15,10 +15,11 @@ namespace UnitTests.Ships;
 /// it can build none of, and strips the rest. A pirate station regains a tenth of its ordnance a turn out of combat
 /// unless it makes its own, and a pirate base under attack drafts no constructor. A ship pirates recover heads for their
 /// nearest base, which keeps a ship of a Remnant design, whoever's ship it was, where it takes in another small one,
-/// and their orbital raids go for a salvage station first. The pick for a system takes the station with the most
-/// salvage units up to the derelicts the empire would work there, those it knows of with a fifth of their turns left
-/// that no other empire works there, then the fewest units beyond them, and with no system the most units. Neither the
-/// AI's pick nor the player's takes a station with less cargo room than a load for each of its salvage units.
+/// and their orbital raids go for a salvage platform first, a salvage station being an orbital like any other. The pick
+/// for a system takes the station with the most salvage units up to the derelicts the empire would work there, those it
+/// knows of with a fifth of their turns left that no other empire works there, then the fewest units beyond them, and
+/// with no system the most units. Neither the AI's pick nor the player's takes a station with less cargo room than a
+/// load for each of its salvage units.
 /// </summary>
 [TestClass]
 public class SalvageAITests : StarDriveTest
@@ -208,19 +209,21 @@ public class SalvageAITests : StarDriveTest
     }
 
     [TestMethod]
-    public void APirateOrbitalRaidGoesForASalvageStationFirst()
+    public void APirateOrbitalRaidGoesForASalvagePlatformFirst()
     {
         Empire pirates = PirateFaction();
         Ship platform = SpawnShip("Platform Base mk1-a", Enemy, SystemSite + new Vector2(0, -40_000f));
-        UState.Objects.UpdateLists();
-        var raid = new PirateRaidOrbital(pirates, Enemy);
-        Assert.IsTrue(raid.PickTarget(Ship_Game.Pirates.TargetType.Platform, out Ship target) && target == platform,
-                      "setup: with no salvage station, the raid takes the orbital it rolled");
-
         Ship station = StationOf(Enemy);
         UState.Objects.UpdateLists();
+        Assert.IsFalse(station.IsPlatform, "setup: a salvage station is no platform");
+        var raid = new PirateRaidOrbital(pirates, Enemy);
+        Assert.IsTrue(raid.PickTarget(Ship_Game.Pirates.TargetType.Platform, out Ship target) && target == platform,
+                      "with no salvage platform, the raid takes the orbital it rolled, though a salvage station stands");
+
+        Ship salvage = SpawnShip(ShipDesign.SalvagePlatformName, Enemy, WreckSite + new Vector2(0, 2_000f));
+        UState.Objects.UpdateLists();
         Assert.IsTrue(raid.PickTarget(Ship_Game.Pirates.TargetType.Platform, out target), "setup: a target");
-        AssertEqual(station, target, "a salvage station comes first, whatever orbital it rolled");
+        AssertEqual(salvage, target, "a salvage platform comes first, whatever orbital it rolled");
     }
 
     // the basic station with this many salvage units, in a strip below its grid, and all its cargo holds

@@ -493,9 +493,6 @@ namespace Ship_Game.AI
 
         public void OrderPirateFleeHome(bool signalRetreat = false)
         {
-            if (Owner.IsConstructor && Owner.Mothership?.Loyalty == Owner.Loyalty)
-                return; // one out from its own salvage station keeps to its platform
-
             if (Owner.Loyalty.WeArePirates 
                 && !Owner.IsPlatformOrStation 
                 && Owner.Loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
@@ -503,7 +500,7 @@ namespace Ship_Game.AI
                 Ship ship = pirateBases.FindClosestTo(Owner);
                 OrderMoveToPirateBase(Owner.Loyalty.Pirates, ship);
             }
-            else
+            else if (!Owner.IsSalvagePlatform) // a salvage platform pirates hold stays at its derelict
             {
                 OrderFlee();
             }

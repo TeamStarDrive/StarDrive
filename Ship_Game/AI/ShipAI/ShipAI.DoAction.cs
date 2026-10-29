@@ -47,7 +47,7 @@ namespace Ship_Game.AI
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
             if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLaunchingOrLanding
-                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoarded)
+                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoardedBy(Owner.Loyalty))
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -803,7 +803,7 @@ namespace Ship_Game.AI
                 return;
 
             ShipWeight ship = NearByShips.Where(
-                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0 && s.Ship.CanBeBoarded
+                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0 && s.Ship.CanBeBoardedBy(Owner.Loyalty)
                          && s.Ship.Position.InRadius(Owner.Position, module.TransporterRange + 500f))
                 .OrderBy(sw => Owner.Position.SqDist(sw.Ship.Position))
                 .FirstOrDefault();

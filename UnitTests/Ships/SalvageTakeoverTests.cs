@@ -12,16 +12,16 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// A salvage platform cannot be boarded: a troop ship sent to board it drops the order with its troop aboard, a
-/// right-click with a troop ship on it is refused, a carrier sends no shuttles at it, a planet sends no boarders at it,
-/// a transporter passes it over for the next ship, and pirates never pick it for a raid; each check has a ship that
-/// can be boarded beside it. A salvage ship boarded is its boarder's once it changes hands, its mission and orders
-/// ending then, and a ship like any other, which can be scrapped. An absorbed or defeated empire's salvage ends: its
-/// missions and orders end with their claims, its platforms go, and its salvage ships pass to the absorber or its rebels
-/// as ships like any other, a constructor in flight scuttled rather than called home. The turn lets go of a defeated
-/// faction's claims though it keeps its goals. Ships changing
-/// hands in a system show its derelicts to their new owner, as entering it would, and the player is told; applied off
-/// the sim thread, it lands on it. A merger called off the sim thread runs on it.
+/// Only pirates board a salvage platform: another empire's troop ship sent to board it drops the order with its troop
+/// aboard, a right-click with a troop ship on it is refused, only a pirate carrier sends shuttles at it, a planet sends
+/// no boarders at it, and a transporter passes it over for the next ship; each check has a ship that can be boarded
+/// beside it. Pirates pick one at work for a raid as a salvage platform, never as a platform. A salvage ship boarded is
+/// its boarder's once it changes hands, its mission and orders ending then, and a ship like any other, which can be
+/// scrapped. An absorbed or defeated empire's salvage ends: its missions and orders end with their claims, its platforms
+/// go, and its salvage ships pass to the absorber or its rebels as ships like any other, a constructor in flight
+/// scuttled rather than called home. The turn lets go of a defeated faction's claims though it keeps its goals. Ships
+/// changing hands in a system show its derelicts to their new owner, as entering it would, and the player is told;
+/// applied off the sim thread, it lands on it. A merger called off the sim thread runs on it.
 /// </summary>
 [TestClass]
 public class SalvageTakeoverTests : SalvageOrderTest
@@ -128,23 +128,40 @@ public class SalvageTakeoverTests : SalvageOrderTest
         Assert.IsTrue(!ship.WorksForSalvage && ship.CanBeScrapped, "a ship like any other, which can be scrapped");
     }
 
-    [TestMethod]
-    public void ACarrierSendsNoShuttlesAtAPlatformThoughPiratesBoardAnyShip()
+    // a carrier of the empire's with troops aboard, past its first moments, when it sends none
+    Ship CarrierOf(Empire empire, Vector2 at)
     {
-        CreateAMinorFaction("Corsairs");
-        Assert.IsTrue(Faction.WeArePirates, "setup: pirates, whose carriers board ships of any strength");
-        Ship platform = SpawnShip(ShipDesign.SalvagePlatformName, Player, new Vector2(300_000f));
-        Ship scout = SpawnShip("Vulcan Scout", Player, platform.Position + new Vector2(0, 600f));
-        Ship carrier = SpawnShip(Carrier, Faction, platform.Position + new Vector2(0, -600f));
+        Ship carrier = SpawnShip(Carrier, empire, at);
         for (int i = 0; i < 6; ++i)
-            ResourceManager.CreateTroop("Wyvern", Faction).LandOnShip(carrier);
-        typeof(Ship).GetProperty(nameof(Ship.SecondsAlive)).SetValue(carrier, 10); // past its first moments, when it sends no troops
+            ResourceManager.CreateTroop("Wyvern", empire).LandOnShip(carrier);
+        typeof(Ship).GetProperty(nameof(Ship.SecondsAlive)).SetValue(carrier, 10);
+        return carrier;
+    }
+
+    // true when the carrier sends its shuttles to board the target
+    static bool Assaults(Ship carrier, Ship target)
+    {
         object tactics = typeof(CarrierBays).GetField("TroopTactics", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(carrier.Carrier);
         MethodInfo assault = typeof(AssaultShipCombat).GetMethod("AssaultTargetShip", BindingFlags.Instance | BindingFlags.NonPublic);
+        return (bool)assault.Invoke(tactics, new object[] { target });
+    }
 
-        Assert.IsFalse((bool)assault.Invoke(tactics, new object[] { platform }), "a carrier sends no shuttles at a platform");
-        Assert.IsFalse(carrier.Carrier.AllTroopBays.Any(b => b.HangarShip != null), "and launches none");
-        Assert.IsTrue((bool)assault.Invoke(tactics, new object[] { scout }), "setup: the same carrier sends them at a ship beside it");
+    [TestMethod]
+    public void OnlyAPirateCarrierSendsShuttlesAtAPlatform()
+    {
+        Empire rebels = UState.CreateRebelsFromEmpireData(Enemy.data, Enemy);
+        CreateAMinorFaction("Corsairs");
+        Assert.IsTrue(rebels.IsFaction && !rebels.WeArePirates && Faction.WeArePirates, "setup: rebels and pirates, factions whose carriers board ships of any strength");
+        Ship platform = SpawnShip(ShipDesign.SalvagePlatformName, Player, new Vector2(300_000f));
+        Ship scout = SpawnShip("Vulcan Scout", Player, platform.Position + new Vector2(0, 600f));
+        Ship rebel = CarrierOf(rebels, platform.Position + new Vector2(0, -600f));
+
+        Assert.IsFalse(Assaults(rebel, platform), "a rebel carrier sends no shuttles at a platform");
+        Assert.IsFalse(rebel.Carrier.AllTroopBays.Any(b => b.HangarShip != null), "and launches none");
+        Assert.IsTrue(Assaults(rebel, scout), "setup: the same carrier sends them at a ship beside it");
+
+        Ship pirate = CarrierOf(Faction, platform.Position + new Vector2(600f, 0));
+        Assert.IsTrue(Assaults(pirate, platform), "but a pirate carrier sends them at the platform");
     }
 
     [TestMethod]
@@ -190,19 +207,25 @@ public class SalvageTakeoverTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void PiratesNeverPickASalvagePlatformForARaid()
+    public void PiratesPickASalvagePlatformAtWorkForARaidAsOneButNeverAsAPlatform()
     {
         CreateAMinorFaction("Corsairs");
         Assert.IsTrue(Faction.WeArePirates, "setup: the Corsairs are pirates");
         Ship platform = SpawnShip(ShipDesign.SalvagePlatformName, Player, new Vector2(300_000f));
         RunObjectsSim(TestSimStep);
         Assert.IsTrue(platform.IsPlatform, "setup: a salvage platform has the platform role");
-        Assert.IsFalse(Faction.Pirates.GetTarget(Player, Pirates.TargetType.Platform, out _), "pirates never pick a salvage platform for a raid");
+        Assert.IsFalse(Faction.Pirates.GetTarget(Player, Pirates.TargetType.Platform, out _), "pirates never pick a salvage platform as a platform");
+        Assert.IsTrue(Faction.Pirates.GetTarget(Player, Pirates.TargetType.SalvagePlatform, out Ship target) && target == platform, "but as a salvage platform");
 
         Ship other = SpawnShip(OtherPlatform, Player, new Vector2(310_000f));
         RunObjectsSim(TestSimStep);
-        Assert.IsTrue(Faction.Pirates.GetTarget(Player, Pirates.TargetType.Platform, out Ship target) && target == other,
+        Assert.IsTrue(Faction.Pirates.GetTarget(Player, Pirates.TargetType.Platform, out target) && target == other,
                       "setup: they pick another platform");
+        for (int i = 0; i < 10; ++i) // a pick at random among those that qualify
+            Assert.IsTrue(Faction.Pirates.GetTarget(Player, Pirates.TargetType.SalvagePlatform, out target) && target == platform, "which is no salvage platform");
+
+        platform.StartDismantling(SalvageDerelict.DismantleTurns);
+        Assert.IsFalse(Faction.Pirates.GetTarget(Player, Pirates.TargetType.SalvagePlatform, out _), "nor one taking itself apart");
     }
 
     static bool HasSalvage(Empire empire) => empire.AI.HasGoal(g => g is SalvageDerelict or SalvageMission);
