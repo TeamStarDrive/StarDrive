@@ -20082,16 +20082,16 @@ RemoveExcessSalvageStation:
  PTB: "A Estação de Salvamento foi evacuada, pois você\njá tem uma neste sistema."
 SalvageDerelictTip:
  Id: 7166
- ENG: "Salvage this derelict: a salvage unit of your station in this system sends a constructor, which builds a salvage platform beside it to strip it for production and technology."
- RUS: "Утилизировать этот брошенный корабль: блок утилизации вашей станции в этой системе отправит конструктор, который построит рядом с ним платформу утилизации, чтобы разобрать его на производство и технологии."
- UKR: "Утилізувати цей покинутий корабель: блок утилізації вашої станції в цій системі відправить конструктор, який збудує поруч із ним платформу утилізації, щоб розібрати його на виробництво й технології."
- PTB: "Fazer o salvamento desta nave abandonada: uma unidade de salvamento da sua estação neste sistema envia um construtor, que ergue uma plataforma de salvamento ao lado dela para desmontá-la e obter produção e tecnologia."
+ ENG: "Salvage this derelict: a salvage ship is built at your shipyard nearest it, flies here and turns into a salvage platform, which strips it for production and technology, then turns back into the ship and brings the production home."
+ RUS: "Утилизировать этот брошенный корабль: на ближайшей к нему вашей верфи строится корабль утилизации, который летит сюда и превращается в платформу утилизации; она разбирает корабль на производство и технологии, а затем снова становится кораблём и доставляет производство домой."
+ UKR: "Утилізувати цей покинутий корабель: на найближчій до нього вашій верфі будується корабель утилізації, який летить сюди й перетворюється на платформу утилізації; вона розбирає корабель на виробництво й технології, а потім знову стає кораблем і доставляє виробництво додому."
+ PTB: "Fazer o salvamento desta nave abandonada: uma nave de salvamento é construída no seu estaleiro mais próximo, voa até aqui e se transforma em uma plataforma de salvamento, que a desmonta para obter produção e tecnologia, depois volta a ser a nave e leva a produção para casa."
 SalvageDerelictOrderedTip:
  Id: 7167
- ENG: "Your salvage station is working this derelict. Click to call it off: its salvage platform, if built, sends what it has stripped to the station and is dismantled."
- RUS: "Ваша станция утилизации разбирает этот брошенный корабль. Нажмите, чтобы отменить: платформа утилизации, если она уже построена, отправит добытое на станцию и будет разобрана."
- UKR: "Ваша станція утилізації розбирає цей покинутий корабель. Натисніть, щоб скасувати: платформа утилізації, якщо її вже збудовано, відправить здобуте на станцію і буде розібрана."
- PTB: "Sua estação de salvamento está desmontando esta nave abandonada. Clique para cancelar: a plataforma de salvamento, se já construída, envia o que desmontou para a estação e é desmantelada."
+ ENG: "Your salvage ship is working this derelict. Click to call it off: a ship still queued leaves its queue, one on its way flies back and lands, and a platform turns back into the ship and brings home what it has stripped."
+ RUS: "Ваш корабль утилизации работает с этим брошенным кораблём. Нажмите, чтобы отменить: ещё не построенный корабль убирается из очереди, летящий возвращается и садится, а платформа снова становится кораблём и доставляет добытое домой."
+ UKR: "Ваш корабель утилізації працює з цим покинутим кораблем. Натисніть, щоб скасувати: ще не збудований корабель прибирається з черги, той, що летить, повертається й сідає, а платформа знову стає кораблем і доставляє здобуте додому."
+ PTB: "Sua nave de salvamento está trabalhando nesta nave abandonada. Clique para cancelar: uma nave ainda na fila sai da fila, uma a caminho volta e pousa, e uma plataforma volta a ser a nave e leva para casa o que desmontou."
 SalvageDerelictNoFreeUnitTip:
  Id: 7169
  ENG: "Every salvage unit of your station in this system is busy."
@@ -20124,10 +20124,10 @@ SalvageHoldFull:
  PTB: "Porão de carga cheio"
 SalvageHoldTip:
  Id: 7174
- ENG: "Production this salvage platform has stripped from its derelict and holds for its salvage station, out of what its cargo hold takes. It strips only while its hold has room."
- RUS: "Производство, которое эта платформа утилизации добыла из брошенного корабля и держит для своей станции утилизации, из вместимости её грузового отсека. Она разбирает корабль, только пока в отсеке есть место."
- UKR: "Виробництво, яке ця платформа утилізації здобула з покинутого корабля і тримає для своєї станції утилізації, з місткості її вантажного відсіку. Вона розбирає корабель, лише поки у відсіку є місце."
- PTB: "Produção que esta plataforma de salvamento retirou da nave abandonada e guarda para sua estação de salvamento, do total que seu porão de carga comporta. Ela só desmonta enquanto houver espaço no porão."
+ ENG: "Production this salvage platform has stripped from its derelict, which its salvage ship brings home once the work is done. It is lost if the platform or the ship is lost."
+ RUS: "Производство, которое эта платформа утилизации добыла из брошенного корабля; корабль утилизации доставит его домой, когда работа закончится. Оно пропадёт, если платформа или корабль будут потеряны."
+ UKR: "Виробництво, яке ця платформа утилізації здобула з покинутого корабля; корабель утилізації доставить його додому, коли роботу буде завершено. Воно пропаде, якщо платформу чи корабель буде втрачено."
+ PTB: "Produção que esta plataforma de salvamento retirou da nave abandonada, que sua nave de salvamento leva para casa quando o trabalho termina. Ela é perdida se a plataforma ou a nave for perdida."
 SalvageStationHoldFull:
  Id: 7175
  ENG: "Station hold full"
@@ -20160,16 +20160,16 @@ SalvageStationOrdered:
  PTB: "Estação de Salvamento Encomendada"
 DerelictTechsHeldTip:
  Id: 7180
- ENG: "Technologies this derelict holds. Once you have a salvage station built in its system, you see which of them you can learn from it, and only those are counted."
- RUS: "Технологии, которые содержит этот брошенный корабль. Когда в его системе будет построена ваша станция утилизации, вы увидите, какие из них можете изучить с его помощью, и учитываться будут только они."
- UKR: "Технології, які містить цей покинутий корабель. Коли в його системі буде збудовано вашу станцію утилізації, ви побачите, які з них можете дослідити з його допомогою, і враховуватимуться лише вони."
- PTB: "Tecnologias que esta nave abandonada contém. Quando você tiver uma estação de salvamento construída no sistema dela, verá quais delas pode aprender com ela, e só essas serão contadas."
+ ENG: "Technologies this derelict holds. Once your salvage platform stands at it, you see which of them you can learn from it, and only those are counted."
+ RUS: "Технологии, которые содержит этот брошенный корабль. Когда рядом с ним встанет ваша платформа утилизации, вы увидите, какие из них можете изучить с его помощью, и учитываться будут только они."
+ UKR: "Технології, які містить цей покинутий корабель. Коли поруч із ним стане ваша платформа утилізації, ви побачите, які з них можете дослідити з його допомогою, і враховуватимуться лише вони."
+ PTB: "Tecnologias que esta nave abandonada contém. Quando sua plataforma de salvamento estiver ao lado dela, você verá quais delas pode aprender com ela, e só essas serão contadas."
 DerelictTechsShownTip:
  Id: 7181
- ENG: "Technologies you can learn from this derelict. Each load of it that reaches your salvage station advances them, and the count drops as you research them."
- RUS: "Технологии, которые вы можете изучить с помощью этого брошенного корабля. Каждая партия с него, доставленная на вашу станцию утилизации, продвигает их исследование, а счётчик уменьшается по мере того, как вы их изучаете."
- UKR: "Технології, які ви можете дослідити з допомогою цього покинутого корабля. Кожна партія з нього, доставлена на вашу станцію утилізації, просуває їх дослідження, а лічильник зменшується в міру того, як ви їх досліджуєте."
- PTB: "Tecnologias que você pode aprender com esta nave abandonada. Cada lote dela que chega à sua estação de salvamento as faz avançar, e a contagem diminui à medida que você as pesquisa."
+ ENG: "Technologies you can learn from this derelict. Each turn your salvage platform strips it advances them, and the count drops as you research them."
+ RUS: "Технологии, которые вы можете изучить с помощью этого брошенного корабля. Каждый ход, пока ваша платформа утилизации его разбирает, продвигает их исследование, а счётчик уменьшается по мере того, как вы их изучаете."
+ UKR: "Технології, які ви можете дослідити з допомогою цього покинутого корабля. Кожен хід, поки ваша платформа утилізації його розбирає, просуває їх дослідження, а лічильник зменшується в міру того, як ви їх досліджуєте."
+ PTB: "Tecnologias que você pode aprender com esta nave abandonada. Cada turno em que sua plataforma de salvamento a desmonta as faz avançar, e a contagem diminui à medida que você as pesquisa."
 DerelictTechResearched:
  Id: 7182
  ENG: "Researched: {0}%"
@@ -20232,10 +20232,10 @@ SalvageAlerts:
  PTB: "Alertas de Salvamento"
 SalvageAlertsTip:
  Id: 7192
- ENG: "Alerts when one of your salvage platforms has sent its station its last load, with the production and research its salvage brought; when your salvage of a derelict ends early: its platform or station lost, another empire salvaging the derelict first, or the derelict sinking away before your platform was built; and with the outcome of each of your recoveries: the ship recovered, or the derelict broken apart or blown up."
- RUS: "Оповещения, когда ваша платформа утилизации отправила станции последнюю партию, с добытым производством и исследованиями; когда утилизация брошенного корабля обрывается: платформа или станция потеряна, другая империя начала её первой или корабль исчез до постройки вашей платформы; и об исходе каждого вашего восстановления: корабль восстановлен, развалился или взорвался."
- UKR: "Сповіщення, коли ваша платформа утилізації відправила станції останню партію, зі здобутим виробництвом і дослідженнями; коли утилізація покинутого корабля обривається: платформу чи станцію втрачено, інша імперія почала її першою або корабель зник до побудови вашої платформи; і про наслідок кожного вашого відновлення: корабель відновлено, він розвалився або вибухнув."
- PTB: "Alertas quando uma de suas plataformas de salvamento envia o último lote à estação, com a produção e a pesquisa obtidas; quando o salvamento de uma nave abandonada termina antes da hora: plataforma ou estação perdida, outro império começou primeiro ou a nave desapareceu antes de sua plataforma ser construída; e com o resultado de cada recuperação sua: a nave recuperada, despedaçada ou explodida."
+ ENG: "Alerts when one of your salvage platforms finishes its work, with the production it stripped and the research it gave; when your salvage of a derelict ends early: its salvage ship or platform lost, another empire salvaging the derelict first, or the derelict sinking away before your salvage ship reached it; when a salvage ship bringing production home is lost; and with the outcome of each of your recoveries: the ship recovered, or the derelict broken apart or blown up."
+ RUS: "Оповещения, когда ваша платформа утилизации закончила работу, с добытым производством и исследованиями; когда утилизация брошенного корабля обрывается: корабль или платформа утилизации потеряны, другая империя начала её первой или корабль исчез раньше, чем до него долетел ваш корабль утилизации; когда потерян корабль утилизации, вёзший производство домой; и об исходе каждого вашего восстановления: корабль восстановлен, развалился или взорвался."
+ UKR: "Сповіщення, коли ваша платформа утилізації завершила роботу, зі здобутим виробництвом і дослідженнями; коли утилізація покинутого корабля обривається: корабель чи платформу утилізації втрачено, інша імперія почала її першою або корабель зник раніше, ніж до нього долетів ваш корабель утилізації; коли втрачено корабель утилізації, що віз виробництво додому; і про наслідок кожного вашого відновлення: корабель відновлено, він розвалився або вибухнув."
+ PTB: "Alertas quando uma de suas plataformas de salvamento termina o trabalho, com a produção e a pesquisa obtidas; quando o salvamento de uma nave abandonada termina antes da hora: nave ou plataforma de salvamento perdida, outro império começou primeiro ou a nave desapareceu antes de sua nave de salvamento chegar; quando uma nave de salvamento que levava produção para casa é perdida; e com o resultado de cada recuperação sua: a nave recuperada, despedaçada ou explodida."
 SalvageStrippedNotify:
  Id: 7193
  ENG: "{0}: the {1} is stripped"
@@ -20274,28 +20274,28 @@ SalvageStationLostNotify:
  PTB: "{0}: sua estação de salvamento foi perdida, e com ela o salvamento de {1}"
 SalvageSankNotify:
  Id: 7199
- ENG: "{0}: the {1} sank away before your platform was built"
- RUS: "{0}: брошенный корабль {1} исчез до постройки вашей платформы"
- UKR: "{0}: покинутий корабель {1} зник до побудови вашої платформи"
- PTB: "{0}: a nave abandonada {1} desapareceu antes de sua plataforma ser construída"
+ ENG: "{0}: the {1} sank away before your salvage ship reached it"
+ RUS: "{0}: брошенный корабль {1} исчез раньше, чем до него долетел ваш корабль утилизации"
+ UKR: "{0}: покинутий корабель {1} зник раніше, ніж до нього долетів ваш корабель утилізації"
+ PTB: "{0}: a nave abandonada {1} desapareceu antes de sua nave de salvamento chegar"
 RecoverDerelictTip:
  Id: 7200
- ENG: "Recover this ship: a salvage unit of your station in this system sends a constructor, which builds a salvage platform beside it to bring the ship back for you. Recovery chance: {0}. A failed recovery breaks the derelict apart, and {1} of failures make it explode."
- RUS: "Восстановить этот корабль: блок утилизации вашей станции в этой системе отправит конструктор, который построит рядом с ним платформу утилизации, чтобы вернуть вам корабль. Шанс восстановления: {0}. При неудаче брошенный корабль разваливается, а {1} неудач заканчиваются взрывом."
- UKR: "Відновити цей корабель: блок утилізації вашої станції в цій системі відправить конструктор, який збудує поруч із ним платформу утилізації, щоб повернути вам корабель. Шанс відновлення: {0}. У разі невдачі покинутий корабель розвалюється, а {1} невдач закінчуються вибухом."
- PTB: "Recuperar esta nave: uma unidade de salvamento da sua estação neste sistema envia um construtor, que ergue uma plataforma de salvamento ao lado dela para trazer a nave de volta para você. Chance de recuperação: {0}. Uma recuperação fracassada despedaça a nave abandonada, e {1} das falhas a fazem explodir."
+ ENG: "Recover this ship: a salvage ship is built at your shipyard nearest it, flies here and turns into a salvage platform, which works to bring the ship back for you. Recovery chance: {0}. A failed recovery breaks the derelict apart, and {1} of failures make it explode."
+ RUS: "Восстановить этот корабль: на ближайшей к нему вашей верфи строится корабль утилизации, который летит сюда и превращается в платформу утилизации, чтобы вернуть вам корабль. Шанс восстановления: {0}. При неудаче брошенный корабль разваливается, а {1} неудач заканчиваются взрывом."
+ UKR: "Відновити цей корабель: на найближчій до нього вашій верфі будується корабель утилізації, який летить сюди й перетворюється на платформу утилізації, щоб повернути вам корабель. Шанс відновлення: {0}. У разі невдачі покинутий корабель розвалюється, а {1} невдач закінчуються вибухом."
+ PTB: "Recuperar esta nave: uma nave de salvamento é construída no seu estaleiro mais próximo, voa até aqui e se transforma em uma plataforma de salvamento para trazer a nave de volta para você. Chance de recuperação: {0}. Uma recuperação fracassada despedaça a nave abandonada, e {1} das falhas a fazem explodir."
 RecoverDerelictOrderedTip:
  Id: 7201
- ENG: "Your salvage station is recovering this ship. Click to call it off: its salvage platform, if built, sends what it still holds to the station and is dismantled, and the work done on the recovery is lost."
- RUS: "Ваша станция утилизации восстанавливает этот корабль. Нажмите, чтобы отменить: платформа утилизации, если она уже построена, отправит оставшееся на станцию и будет разобрана, а проделанная работа по восстановлению пропадёт."
- UKR: "Ваша станція утилізації відновлює цей корабель. Натисніть, щоб скасувати: платформа утилізації, якщо її вже збудовано, відправить решту на станцію і буде розібрана, а виконана робота з відновлення пропаде."
- PTB: "Sua estação de salvamento está recuperando esta nave. Clique para cancelar: a plataforma de salvamento, se já construída, envia o que ainda tem para a estação e é desmantelada, e o trabalho feito na recuperação é perdido."
+ ENG: "Your salvage ship is recovering this ship. Click to call it off: a ship still queued leaves its queue, one on its way flies back and lands, and a platform turns back into the ship and brings home what it has stripped; the work done on the recovery is lost."
+ RUS: "Ваш корабль утилизации восстанавливает этот корабль. Нажмите, чтобы отменить: ещё не построенный корабль убирается из очереди, летящий возвращается и садится, а платформа снова становится кораблём и доставляет добытое домой; проделанная работа по восстановлению пропадёт."
+ UKR: "Ваш корабель утилізації відновлює цей корабель. Натисніть, щоб скасувати: ще не збудований корабель прибирається з черги, той, що летить, повертається й сідає, а платформа знову стає кораблем і доставляє здобуте додому; виконана робота з відновлення пропаде."
+ PTB: "Sua nave de salvamento está recuperando esta nave. Clique para cancelar: uma nave ainda na fila sai da fila, uma a caminho volta e pousa, e uma plataforma volta a ser a nave e leva para casa o que desmontou; o trabalho feito na recuperação é perdido."
 RecoverDerelictSwitchTip:
  Id: 7202
- ENG: "Recover this ship instead: its salvage platform first sends what it holds to your station, then breaks in and works to bring the ship back. Recovery chance: {0}. A failed recovery breaks the derelict apart, and {1} of failures make it explode."
- RUS: "Восстановить этот корабль вместо утилизации: платформа утилизации сначала отправит на вашу станцию то, что у неё в трюме, а затем вскроет корпус и начнёт возвращать корабль. Шанс восстановления: {0}. При неудаче брошенный корабль разваливается, а {1} неудач заканчиваются взрывом."
- UKR: "Відновити цей корабель замість утилізації: платформа утилізації спершу відправить на вашу станцію те, що має в трюмі, а потім розкриє корпус і почне повертати корабель. Шанс відновлення: {0}. У разі невдачі покинутий корабель розвалюється, а {1} невдач закінчуються вибухом."
- PTB: "Recuperar esta nave em vez de desmontá-la: a plataforma de salvamento primeiro envia para a sua estação o que tem no porão, depois abre o casco e trabalha para trazer a nave de volta. Chance de recuperação: {0}. Uma recuperação fracassada despedaça a nave abandonada, e {1} das falhas a fazem explodir."
+ ENG: "Recover this ship instead: its salvage platform breaks in and works to bring the ship back, keeping what it has stripped. Recovery chance: {0}. A failed recovery breaks the derelict apart, and {1} of failures make it explode."
+ RUS: "Восстановить этот корабль вместо утилизации: платформа утилизации вскроет корпус и начнёт возвращать корабль, сохранив уже добытое. Шанс восстановления: {0}. При неудаче брошенный корабль разваливается, а {1} неудач заканчиваются взрывом."
+ UKR: "Відновити цей корабель замість утилізації: платформа утилізації розкриє корпус і почне повертати корабель, зберігши вже здобуте. Шанс відновлення: {0}. У разі невдачі покинутий корабель розвалюється, а {1} невдач закінчуються вибухом."
+ PTB: "Recuperar esta nave em vez de desmontá-la: a plataforma de salvamento abre o casco e trabalha para trazer a nave de volta, mantendo o que já desmontou. Chance de recuperação: {0}. Uma recuperação fracassada despedaça a nave abandonada, e {1} das falhas a fazem explodir."
 SalvageDerelictSwitchTip:
  Id: 7203
  ENG: "Salvage this derelict instead: its salvage platform strips it for production and technology. The work done on the recovery is kept for a later one, which breaks in again first, at a chance lowered by what is stripped meanwhile."
@@ -20316,10 +20316,10 @@ DerelictRecoveryChanceTip:
  PTB: "Sua chance de recuperar esta nave: {0}. Ela começa em {1} para o casco; Engenheiros Habilidosos a aumentam, Engenheiros Descuidados a reduzem, e ela cai com a parte da nave abandonada já desmontada. Uma nave Remnant é mais difícil de recuperar e uma sua, mais fácil, e cada nível de dificuldade acima de Normal reduz a sua chance. Uma recuperação fracassada a despedaça, e {2} das falhas a fazem explodir."
 DerelictRecoveryProgressTip:
  Id: 7206
- ENG: "Recovery progress: {0} of {1} work done, at {2} a turn after {3} turns of breaking in. Turns left in all: {4}. It costs only time. Turning the order to salvage keeps the work done, but a later recovery breaks in again; calling the order off, or losing the platform or the station, loses the work."
- RUS: "Ход восстановления: выполнено {0} из {1} единиц работы, по {2} за ход после вскрытия корпуса (ходов: {3}). Всего осталось ходов: {4}. Это стоит только времени. Переключение приказа на утилизацию сохраняет проделанную работу, но корпус придётся вскрывать заново; при отмене приказа или потере платформы или станции работа пропадает."
- UKR: "Хід відновлення: виконано {0} з {1} одиниць роботи, по {2} за хід після розкриття корпусу (ходів: {3}). Усього залишилося ходів: {4}. Це коштує лише часу. Перемикання наказу на утилізацію зберігає виконану роботу, але корпус доведеться розкривати знову; у разі скасування наказу або втрати платформи чи станції робота пропадає."
- PTB: "Progresso da recuperação: {0} de {1} de trabalho feito, a {2} por turno depois de {3} turnos abrindo o casco. Turnos restantes no total: {4}. Custa apenas tempo. Mudar a ordem para desmontar mantém o trabalho feito, mas uma recuperação posterior abre o casco de novo; cancelar a ordem ou perder a plataforma ou a estação perde o trabalho."
+ ENG: "Recovery progress: {0} of {1} work done, at {2} a turn after {3} turns of breaking in. Turns left in all: {4}. It costs only time. Turning the order to salvage keeps the work done, but a later recovery breaks in again; calling the order off, or losing the platform, loses the work."
+ RUS: "Ход восстановления: выполнено {0} из {1} единиц работы, по {2} за ход после вскрытия корпуса (ходов: {3}). Всего осталось ходов: {4}. Это стоит только времени. Переключение приказа на утилизацию сохраняет проделанную работу, но корпус придётся вскрывать заново; при отмене приказа или потере платформы работа пропадает."
+ UKR: "Хід відновлення: виконано {0} з {1} одиниць роботи, по {2} за хід після розкриття корпусу (ходів: {3}). Усього залишилося ходів: {4}. Це коштує лише часу. Перемикання наказу на утилізацію зберігає виконану роботу, але корпус доведеться розкривати знову; у разі скасування наказу або втрати платформи робота пропадає."
+ PTB: "Progresso da recuperação: {0} de {1} de trabalho feito, a {2} por turno depois de {3} turnos abrindo o casco. Turnos restantes no total: {4}. Custa apenas tempo. Mudar a ordem para desmontar mantém o trabalho feito, mas uma recuperação posterior abre o casco de novo; cancelar a ordem ou perder a plataforma perde o trabalho."
 RecoveringDerelict:
  Id: 7207
  ENG: "Recovering {0}"
@@ -20358,10 +20358,10 @@ DesignDerelictNoDelete:
  PTB: "Uma nave abandonada {0} está no universo e ainda pode voltar à ativa. Você não pode excluir um projeto com este nome."
 DerelictRisingTip:
  Id: 7213
- ENG: "Recovered: the ship takes the derelict's place as it rises, and it is yours whatever happens to the platform or the station."
- RUS: "Восстановление удалось: корабль займёт место брошенного, когда тот поднимется, и он ваш, что бы ни случилось с платформой или станцией."
- UKR: "Відновлення вдалося: корабель займе місце покинутого, коли той підніметься, і він ваш, хоч би що сталося з платформою чи станцією."
- PTB: "Recuperação concluída: a nave toma o lugar da nave abandonada ao subir, e é sua, aconteça o que acontecer com a plataforma ou a estação."
+ ENG: "Recovered: the ship takes the derelict's place as it rises, and it is yours whatever happens to the platform."
+ RUS: "Восстановление удалось: корабль займёт место брошенного, когда тот поднимется, и он ваш, что бы ни случилось с платформой."
+ UKR: "Відновлення вдалося: корабель займе місце покинутого, коли той підніметься, і він ваш, хоч би що сталося з платформою."
+ PTB: "Recuperação concluída: a nave toma o lugar da nave abandonada ao subir, e é sua, aconteça o que acontecer com a plataforma."
 PlatformShipRecovered:
  Id: 7214
  ENG: "Ship recovered"
@@ -20488,6 +20488,60 @@ BB_SalvageShipsTechDescrBonus:
  RUS: "Открывает корабли утилизации для разборки и восстановления брошенных кораблей"
  UKR: "Відкриває кораблі утилізації для розбирання й відновлення покинутих кораблів"
  PTB: "Libera naves de salvamento para desmontar e recuperar naves abandonadas"
+SalvageDerelictNoTechTip:
+ Id: 7236
+ ENG: "Research Salvage Ships to build a salvage ship for this derelict."
+ RUS: "Изучите «Корабли утилизации», чтобы строить корабли утилизации для таких брошенных кораблей."
+ UKR: "Дослідіть «Кораблі утилізації», щоб будувати кораблі утилізації для таких покинутих кораблів."
+ PTB: "Pesquise Naves de Salvamento para construir uma nave de salvamento para esta nave abandonada."
+SalvageShipOrdered:
+ Id: 7237
+ ENG: "Salvage ship ordered"
+ RUS: "Корабль утилизации заказан"
+ UKR: "Корабель утилізації замовлено"
+ PTB: "Nave de salvamento encomendada"
+SalvageShipOnItsWay:
+ Id: 7238
+ ENG: "Salvage ship on its way"
+ RUS: "Корабль утилизации в пути"
+ UKR: "Корабель утилізації в дорозі"
+ PTB: "Nave de salvamento a caminho"
+DeployingSalvagePlatform:
+ Id: 7239
+ ENG: "Deploying platform"
+ RUS: "Развёртывание платформы"
+ UKR: "Розгортання платформи"
+ PTB: "Implantando plataforma"
+SalvageShipFlyingTo:
+ Id: 7240
+ ENG: "Flying to {0}"
+ RUS: "Летит к {0}"
+ UKR: "Летить до {0}"
+ PTB: "Voando até {0}"
+SalvageShipLostNotify:
+ Id: 7241
+ ENG: "{0}: your salvage ship for the {1} was lost"
+ RUS: "{0}: ваш корабль утилизации для {1} потерян"
+ UKR: "{0}: ваш корабель утилізації для {1} втрачено"
+ PTB: "{0}: sua nave de salvamento para {1} foi perdida"
+SalvageShipLostHomeNotify:
+ Id: 7242
+ ENG: "Your salvage ship bringing home {0} production was lost"
+ RUS: "Ваш корабль утилизации, вёзший домой {0} производства, потерян"
+ UKR: "Ваш корабель утилізації, що віз додому {0} виробництва, втрачено"
+ PTB: "Sua nave de salvamento que levava {0} de produção para casa foi perdida"
+ReturningTo:
+ Id: 7243
+ ENG: "Returning to"
+ RUS: "Возвращается на"
+ UKR: "Повертається на"
+ PTB: "Retornando para"
+PlatformTurningBack:
+ Id: 7244
+ ENG: "Turning back into the ship"
+ RUS: "Превращается обратно в корабль"
+ UKR: "Перетворюється назад на корабель"
+ PTB: "Voltando a ser a nave"
 EncCorsairs000_Msg0:
  ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
  RUS: "Дорогие друзья SING,\n\nМы рады видеть прогресс вашей империи. Разве это не захватывающе - колонизировать новые миры и бороться с неизвестной средой? Однако все эти маленькие транспорты, курсирующие от планеты к планете, как послушные пчёлки, слишком уязвимы в глубоком космосе.\n\nПоэтому у нас есть предложение. Вы прямо сейчас заплатите нам MONEY кредитов. Если согласитесь, мы можем пообещать определённый уровень «защиты» для кораблей SING. Если нет - увы, мы ничего обещать не можем.\n\nС уважением,\n    Капитан Марток, независимый торговец и джентльмен"

@@ -665,9 +665,6 @@ namespace Ship_Game.Ships
         // the ship this empire's hangar would launch now, or empty if none
         public static string HangarShipName(Empire empire, ShipModule hangar)
         {
-            if (hangar.IsSalvageBay) // launches nothing else, even with no constructor to launch
-                return SalvageDerelict.ConstructorName(empire, hangar.GetParent());
-
             string shipName = "";
             if (hangar.IsSupplyBay)
                 shipName = empire.GetSupplyShuttleName();

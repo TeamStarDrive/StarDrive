@@ -12,43 +12,18 @@ namespace UnitTests.Ships;
 /// <summary>
 /// A salvageable derelict holds a few techs, picked at random at its death from those that unlock its design's modules
 /// and its hull, root techs left out: 2 for a frigate, 3 for a destroyer, 4 for a cruiser, 5 for a battleship, 6 for a
-/// capital and 3 for an untethered station; a Remnant ship holds none. Each load its platform sends to the station
-/// advances each of those techs the empire has not researched and sees on its tree by a fifth of what the tech has left
-/// to research, times the load's share of the derelict's production, so the second of two loads pays a fifth of what
-/// is left by then, and salvage never completes a tech. A load the station takes only part of pays for that part, and
-/// the empire's module health bonus leaves the payout alone. The order keeps the points each load gave each tech. An
-/// empire sees a wreck's techs once it has a salvage station built in the wreck's system, and from the next turn on
-/// even after the station is lost; until then the count is all the wreck holds, and after it only those the empire can
-/// learn. A salvage shows as Platform ordered, Building platform, then Salvaging, and another empire's as Salvaging.
+/// capital and 3 for an untethered station; a Remnant ship holds none. Each turn its platform strips advances each of
+/// those techs the empire has not researched and sees on its tree by a fifth of what the tech has left to research,
+/// times the turn's share of the derelict's production, so the next turn pays a fifth of what is left by then, and
+/// salvage never completes a tech; the empire's module health bonus leaves the payout alone. The order keeps the points
+/// it gave each tech. An empire sees a wreck's techs once its salvage platform stands at it, and from then on even after
+/// the platform is lost; until then the count is all the wreck holds, and after it only those the empire can learn. A
+/// salvage shows as Salvage ship ordered, Salvage ship on its way, Deploying platform, then Salvaging, and another
+/// empire's as Salvaging.
 /// </summary>
 [TestClass]
-public class SalvageTechTests : StarDriveTest
+public class SalvageTechTests : SalvageOrderTest
 {
-    static readonly Vector2 SystemSite = new(600_000f, 600_000f);
-    static readonly Vector2 Wreck = SystemSite + new Vector2(30_000f, 0);
-    static readonly Vector2 PlayerStation = SystemSite + new Vector2(33_000f, 0);
-    readonly SolarSystem WreckSystem;
-    readonly IShipDesign Station;
-
-    public SalvageTechTests()
-    {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName);
-        CreateUniverseAndPlayerEmpire();
-        UState.Objects.EnableParallelUpdate = false;
-        WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
-        AddHomeWorldToEmpire(new Vector2(200_000f), Player);
-        AddRemoteSystems(10);
-        Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Basic Salvage Station", out Station), "setup: the station is loaded");
-        Player.data.CurrentConstructor = "Terran Constructor";
-    }
-
-    [TestCleanup]
-    public override void Cleanup()
-    {
-        UState.Derelicts.Clear();
-        base.Cleanup();
-    }
-
     Derelict Forms(Empire owner, Vector2 at, Empire killer = null)
     {
         TestShip ship = SpawnShip("Dreadnought mk1-a", owner, at);
@@ -56,33 +31,6 @@ public class SalvageTechTests : StarDriveTest
         Universe.InvokePendingSimThreadActions();
         ship.QueueTotalRemoval();
         return UState.Derelicts.Current.Last();
-    }
-
-    Ship BuiltStation()
-    {
-        var order = new SalvageOps(Player, WreckSystem, PlayerStation, Station);
-        Player.AI.AddGoal(order);
-        order.AdvanceToNextStep(); // past the queueing, which needs a port
-        order.TargetShip = SpawnShip(Station.Name, Player, PlayerStation);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the station is built");
-        return order.TargetShip;
-    }
-
-    // the player's order with its platform built beside the derelict, about to strip
-    SalvageDerelict AtWork(Derelict d, float hold)
-    {
-        Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: ordered");
-        SalvageDerelict order = SalvageDerelict.OrderOf(Player, d);
-        Ship constructor = order.FinishedShip;
-        Assert.IsTrue(d.TryClaim(Player), "setup: the constructor claims the derelict as it starts to build");
-        Ship platform = SpawnShip(ShipDesign.SalvagePlatformName, Player, order.BuildPosition);
-        platform.CargoSpaceMax = hold;
-        constructor.QueueTotalRemoval();
-        order.OnPlatformBuilt(platform, constructor);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the platform is built");
-        return order;
     }
 
     // a tech of the derelict's, unresearched and on the player's tree, with this much of its cost researched
@@ -96,14 +44,12 @@ public class SalvageTechTests : StarDriveTest
         return tech;
     }
 
-    // two turns fill a hold of 24 and the third sends it to the station
-    static void SendsALoadOf24(SalvageDerelict order, Ship station)
+    // a turn's work strips 12
+    static void Strips12(SalvageDerelict order)
     {
-        float before = station.GetProduction();
+        float before = order.Load;
         order.Evaluate();
-        order.Evaluate();
-        order.Evaluate();
-        AssertEqual(0.01f, before + 24f, station.GetProduction(), "setup: a load of 24 reaches the station");
+        AssertEqual(0.01f, before + 12f, order.Load, "setup: a turn strips 12");
     }
 
     [TestMethod]
@@ -143,87 +89,66 @@ public class SalvageTechTests : StarDriveTest
     }
 
     [TestMethod]
-    public void EachLoadAdvancesEachTechTheEmpireCanLearnByAFifthOfWhatIsLeftTimesTheLoadsShareOfTheWreck()
+    public void EachTurnsStripAdvancesEachTechTheEmpireCanLearnByAFifthOfWhatIsLeftTimesItsShareOfTheWreck()
     {
         Derelict d = Forms(Player, Wreck);
-        Ship station = BuiltStation();
-        SalvageDerelict order = AtWork(d, hold: 24f);
+        SalvageDerelict order = AtWork(d);
         TechEntry fresh = Learnable(d.Techs[0], 0f);
         TechEntry begun = Learnable(d.Techs[1], 0.4f);
         TechEntry researched = Learnable(d.Techs[2], 0f);
         researched.Unlocked = true;
         TechEntry undiscovered = Learnable(d.Techs[3], 0f);
         undiscovered.Discovered = false;
-        float share = 24f / d.Production;
+        float share = 12f / d.Production;
 
-        SendsALoadOf24(order, station);
-        AssertEqual(0.01f, 0.2f * share * fresh.TechCost, fresh.Progress, "a fifth of a fresh tech's cost, times the load's share of the wreck");
+        Strips12(order);
+        AssertEqual(0.01f, 0.2f * share * fresh.TechCost, fresh.Progress, "a fifth of a fresh tech's cost, times the turn's share of the wreck");
         AssertEqual(0.01f, (0.4f + 0.2f * share * 0.6f) * begun.TechCost, begun.Progress, "a fifth of what a begun one has left");
         AssertEqual(0f, researched.Progress, "nothing to a tech already researched");
         AssertEqual(0f, undiscovered.Progress, "nor to one not yet on the empire's tree");
 
         fresh.Progress = 0.6f * fresh.TechCost; // its research went on meanwhile
-        SendsALoadOf24(order, station);
-        AssertEqual(0.01f, (0.6f + 0.2f * share * 0.4f) * fresh.TechCost, fresh.Progress, "the next load pays a fifth of what is left by then");
+        Strips12(order);
+        AssertEqual(0.01f, (0.6f + 0.2f * share * 0.4f) * fresh.TechCost, fresh.Progress, "the next turn pays a fifth of what is left by then");
     }
 
     [TestMethod]
     public void SalvageNeverCompletesATech()
     {
         Derelict d = Forms(Player, Wreck);
-        Ship station = BuiltStation();
-        SalvageDerelict order = AtWork(d, hold: 24f);
+        SalvageDerelict order = AtWork(d);
         TechEntry tech = Learnable(d.Techs[0], 0.9f);
 
-        SendsALoadOf24(order, station);
-        AssertEqual(0.01f, (0.9f + 0.2f * 24f / d.Production * 0.1f) * tech.TechCost, tech.Progress, "a tech nearly done gains a fifth of the little it has left");
+        Strips12(order);
+        AssertEqual(0.01f, (0.9f + 0.2f * 12f / d.Production * 0.1f) * tech.TechCost, tech.Progress, "a tech nearly done gains a fifth of the little it has left");
         AssertLessThan(tech.Progress, tech.TechCost, "so it is never complete");
         Assert.IsTrue(tech.Locked, "and stays unresearched");
-    }
-
-    [TestMethod]
-    public void APartialLoadPaysOnlyForWhatTheStationTook()
-    {
-        Derelict d = Forms(Player, Wreck);
-        Ship station = BuiltStation();
-        station.CargoSpaceMax = 10f;
-        SalvageDerelict order = AtWork(d, hold: 24f);
-        TechEntry tech = Learnable(d.Techs[0], 0f);
-
-        order.Evaluate();
-        order.Evaluate();
-        order.Evaluate();
-        AssertEqual(0.01f, 10f, station.GetProduction(), "setup: the station takes 10 of the load of 24");
-        AssertEqual(0.01f, 14f, order.Platform.GetProduction(), "setup: the rest stays aboard");
-        AssertEqual(0.01f, 0.2f * 10f / d.Production * tech.TechCost, tech.Progress, "the tech is paid for the 10 the station took");
     }
 
     [TestMethod]
     public void AnEmpiresModuleHealthBonusLeavesThePayoutAlone()
     {
         Derelict d = Forms(Player, Wreck);
-        Ship station = BuiltStation();
-        SalvageDerelict order = AtWork(d, hold: 24f);
+        SalvageDerelict order = AtWork(d);
         TechEntry tech = Learnable(d.Techs[0], 0f);
         Player.data.Traits.ModHpModifier = 2.1f; // Skilled Engineers with the module health techs researched
 
-        SendsALoadOf24(order, station);
-        AssertEqual(0.01f, 0.2f * 24f / d.Production * tech.TechCost, tech.Progress, "every empire is paid a flat fifth");
+        Strips12(order);
+        AssertEqual(0.01f, 0.2f * 12f / d.Production * tech.TechCost, tech.Progress, "every empire is paid a flat fifth");
     }
 
     [TestMethod]
     public void ATechHiddenFromTheEmpiresRaceIsNeverAdvanced()
     {
         Derelict d = Forms(Player, Wreck);
-        Ship station = BuiltStation();
-        SalvageDerelict order = AtWork(d, hold: 24f);
+        SalvageDerelict order = AtWork(d);
         TechEntry tech = Learnable(d.Techs[0], 0f);
         Array<Technology.RaceRequirements> hiddenFrom = tech.Tech.HiddenFrom;
         hiddenFrom.Add(new() { ShipType = Player.data.Traits.ShipType });
         try
         {
             Assert.IsTrue(tech.IsHidden(Player), "setup: the tech is hidden from the player's race");
-            SendsALoadOf24(order, station);
+            Strips12(order);
             AssertEqual(0f, tech.Progress, "a tech hidden from the empire's race gains nothing");
         }
         finally
@@ -233,58 +158,52 @@ public class SalvageTechTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AnOrderKeepsThePointsEachLoadGaveEachTech()
+    public void AnOrderKeepsThePointsItGaveEachTech()
     {
         Derelict d = Forms(Player, Wreck);
-        Ship station = BuiltStation();
-        SalvageDerelict order = AtWork(d, hold: 24f);
+        SalvageDerelict order = AtWork(d);
         TechEntry fresh = Learnable(d.Techs[0], 0f);
         TechEntry begun = Learnable(d.Techs[1], 0.4f);
         TechEntry researched = Learnable(d.Techs[2], 0f);
         researched.Unlocked = true;
         AssertEqual(6, order.Gained.Length, "a count for each of the wreck's techs");
+        new float[6].CopyTo(order.Gained, 0);
 
-        SendsALoadOf24(order, station);
-        AssertGreaterThan(fresh.Progress, 0f, "setup: the load paid the fresh tech");
-        AssertEqual(0.01f, fresh.Progress, order.Gained[0], "the order keeps what the load gave the fresh tech");
+        Strips12(order);
+        AssertGreaterThan(fresh.Progress, 0f, "setup: the turn paid the fresh tech");
+        AssertEqual(0.01f, fresh.Progress, order.Gained[0], "the order keeps what the turn gave the fresh tech");
         AssertEqual(0.01f, begun.Progress - 0.4f * begun.TechCost, order.Gained[1], "and the begun one");
         AssertEqual(0f, order.Gained[2], "and nothing for one already researched");
 
-        SendsALoadOf24(order, station);
-        AssertEqual(0.01f, fresh.Progress, order.Gained[0], "the points add up load after load");
+        Strips12(order);
+        AssertEqual(0.01f, fresh.Progress, order.Gained[0], "the points add up turn after turn");
         AssertEqual(0.01f, fresh.Progress, DerelictTechIcons.GainedOf(order, fresh), "as the panel reads them");
     }
 
     [TestMethod]
-    public void AnEmpireSeesAWrecksTechsOnceItHasAStationBuiltInItsSystemAndAfterTheStationIsLost()
+    public void AnEmpireSeesAWrecksTechsOnceItsPlatformStandsAtItAndAfterThePlatformIsLost()
     {
         Derelict d = Forms(Player, Wreck, killer: Enemy);
         Assert.IsTrue(d.IsKnownBy(Enemy), "setup: the empire that destroyed the ship knows of the wreck too");
-        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, d), "with no station in the wreck's system, its techs are hidden");
-        var ordered = new SalvageOps(Player, WreckSystem, PlayerStation, Station);
-        Player.AI.AddGoal(ordered);
-        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, d), "as they are with a station ordered but not built");
-        Player.AI.RemoveGoal(ordered);
+        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, d), "with no platform at the wreck, its techs are hidden");
+        SalvageDerelict order = Ordered(d);
+        ShipBuilt(order);
+        order.Evaluate();
+        Assert.IsTrue(order.Deploying, "setup: the salvage ship deploys");
+        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, d), "as they are with the salvage ship ordered, on its way or deploying");
 
-        Ship station = BuiltStation();
-        Assert.IsTrue(SalvageDerelict.SeesTechs(Player, d), "a station built shows them at once");
-        Assert.IsFalse(d.ShowsTechsTo(Player), "setup: before a turn has passed");
-        var elsewhere = new Vector2(-600_000f, 600_000f);
-        SolarSystem other = AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true).System;
-        var theirs = new SalvageOps(Enemy, other, elsewhere + new Vector2(33_000f, 0), Station);
-        Enemy.AI.AddGoal(theirs);
-        theirs.TargetShip = SpawnShip(Station.Name, Enemy, elsewhere + new Vector2(33_000f, 0));
-        Assert.IsNotNull(SalvageOps.StationIn(Enemy, other), "setup: the other empire has a station built in another system");
-        UState.Derelicts.UpdateTurn();
-        Assert.IsTrue(d.ShowsTechsTo(Player), "the next turn keeps them shown");
-        Assert.IsFalse(d.ShowsTechsTo(Enemy), "to the empire with the station in the wreck's system only");
+        order.Evaluate();
+        order.Evaluate();
+        Assert.IsNotNull(order.Platform, "setup: the platform stands");
+        Assert.IsTrue(SalvageDerelict.SeesTechs(Player, d), "a standing platform shows them");
+        Assert.IsFalse(d.ShowsTechsTo(Enemy), "to its empire only");
 
-        station.Die(null, cleanupOnly: true);
-        Assert.IsNull(SalvageOps.StationIn(Player, WreckSystem), "setup: the station is lost");
-        Assert.IsTrue(SalvageDerelict.SeesTechs(Player, d), "the techs stay shown once the station is lost");
+        order.Platform.Die(null, cleanupOnly: true);
+        order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: the platform is lost, and its order with it");
+        Assert.IsTrue(SalvageDerelict.SeesTechs(Player, d), "the techs stay shown");
         Derelict later = Forms(Player, Wreck + new Vector2(0, 5_000f));
-        UState.Derelicts.UpdateTurn();
-        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, later), "but a wreck that came to rest after the loss hides its own");
+        Assert.IsFalse(SalvageDerelict.SeesTechs(Player, later), "but a wreck no platform stood at hides its own");
     }
 
     [TestMethod]
@@ -305,22 +224,22 @@ public class SalvageTechTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ASalvageGoesFromPlatformOrderedToBuildingPlatformToSalvagingAndAnotherEmpiresShowsAsSalvaging()
+    public void ASalvageGoesFromShipOrderedToOnItsWayToDeployingToSalvagingAndAnotherEmpiresShowsAsSalvaging()
     {
         Derelict d = Forms(Player, Wreck);
-        BuiltStation();
         AssertEqual(Stage.None, SalvageDerelict.StageOf(Player, d, out _, out _), "no salvage yet");
 
-        var order = new SalvageDerelict(Player, d);
-        Player.AI.AddGoal(order);
-        AssertEqual(Stage.PlatformOrdered, SalvageDerelict.StageOf(Player, d, out _, out _), "ordered, before a unit launches its constructor");
+        SalvageDerelict order = Ordered(d);
+        AssertEqual(Stage.ShipOrdered, SalvageDerelict.StageOf(Player, d, out _, out _), "ordered, while its salvage ship is queued");
+        Ship ship = ShipBuilt(order, at: Homeworld.Position + new Vector2(2_000f, 0));
         order.Evaluate();
-        Ship constructor = order.FinishedShip;
-        Assert.IsNotNull(constructor, "setup: a unit launches the constructor");
-        AssertEqual(Stage.BuildingPlatform, SalvageDerelict.StageOf(Player, d, out _, out _), "while the constructor flies out and builds");
-        order.OnPlatformBuilt(SpawnShip(ShipDesign.SalvagePlatformName, Player, order.BuildPosition), constructor);
-        constructor.QueueTotalRemoval();
-        AssertEqual(Stage.Salvaging, SalvageDerelict.StageOf(Player, d, out _, out _), "once the platform is built");
+        AssertEqual(Stage.ShipOnItsWay, SalvageDerelict.StageOf(Player, d, out _, out _), "while the ship flies out");
+        ship.Position = order.BuildPosition;
+        order.Evaluate();
+        AssertEqual(Stage.Deploying, SalvageDerelict.StageOf(Player, d, out _, out _), "while it turns into the platform");
+        order.Evaluate();
+        order.Evaluate();
+        AssertEqual(Stage.Salvaging, SalvageDerelict.StageOf(Player, d, out _, out _), "once the platform stands");
 
         Derelict theirs = Forms(Player, Wreck + new Vector2(0, 5_000f));
         Assert.IsTrue(theirs.TryClaim(Enemy), "setup: another empire salvages a second wreck");

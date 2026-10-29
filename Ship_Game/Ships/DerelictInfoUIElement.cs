@@ -2,7 +2,6 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Utils;
 using Color = Microsoft.Xna.Framework.Color;
@@ -11,7 +10,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the selected derelict, laid out like the ship info panel: icons for its original owner, turns left, techs and the player's chance to recover it, a bar for its production remaining, the salvage station order for its system under the bar, the techs the player sees under that, the empire salvaging it at the bottom, and its Salvage and Recover orders in the drawer that slides out to the right while the player has a salvage station built in its system
+// the selected derelict, laid out like the ship info panel: icons for its original owner, turns left, techs and the player's chance to recover it, a bar for its production remaining, the player's salvage or recovery of it under the bar, the techs the player sees under that, the empire salvaging it at the bottom, and its Salvage and Recover orders in the drawer that slides out to the right while the player's race has a salvage ship or with an order on it
 public sealed class DerelictInfoUIElement : UIElement
 {
     // the tech icons' size, and their spacing, which leaves room for the widest points under them
@@ -33,14 +32,12 @@ public sealed class DerelictInfoUIElement : UIElement
     readonly SlidingElement Drawer;
     readonly Rectangle SalvageRect;
     readonly Rectangle RecoverRect;
-    readonly Rectangle StationRect;
     readonly Rectangle StatusRect;
     readonly Rectangle FirstTechRect;
     readonly Rectangle RecoveryRect;
     readonly ProgressBar RecoveryBar;
     // the techs the player can learn from it as last drawn, empty while the player does not see them or recovers it
     readonly Array<TechEntry> Learnable = new();
-    readonly SeededRandom SiteRandom = new();
 
     public DerelictInfoUIElement(Rectangle r, UniverseScreen universe)
     {
@@ -61,10 +58,8 @@ public sealed class DerelictInfoUIElement : UIElement
         Drawer = new SlidingElement(new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130));
         SalvageRect = new(r.X + r.Width + 2, Drawer.Housing.Y + 15, 48, 48); // the drawer's first slot, as the ship panel's first order
         RecoverRect = new(SalvageRect.X, SalvageRect.Y + 52, 48, 48); // under it, as the ship panel stacks two orders
-        int center = ProductionBar.pBar.X + ProductionBar.pBar.Width / 2;
-        StationRect = new(center - 84, r.Y + 135, 168, 24); // under the bar, at the derelicts window's button size
-        StatusRect = new(ClaimLine.X, StationRect.Y, ClaimLine.Width, StationRect.Height); // the claimant line's width
-        FirstTechRect = new(ProductionRect.X, StationRect.Bottom + 4, TechWidth, TechHeight); // the points under them clear the claimant line
+        StatusRect = new(ClaimLine.X, r.Y + 135, ClaimLine.Width, 24); // under the bar, the claimant line's width
+        FirstTechRect = new(ProductionRect.X, StatusRect.Bottom + 4, TechWidth, TechHeight); // the points under them clear the claimant line
         RecoveryRect = new(ProductionRect.X, FirstTechRect.Y + 3, ProductionRect.Width, ProductionRect.Height); // in the techs' place, as the production bar
         RecoveryBar = DerelictSalvageButton.RecoveryBar(new(ProductionBar.pBar.X, RecoveryRect.Y, ProductionBar.pBar.Width, 18));
     }
@@ -81,7 +76,7 @@ public sealed class DerelictInfoUIElement : UIElement
         Empire player = Universe.Player;
         SalvageDerelict.Block salvageBlock = SalvageDerelict.WhyNoOrder(player, d);
         SalvageDerelict order = DerelictSalvageButton.StandingOrder(player, d, salvageBlock);
-        if (DerelictSalvageButton.Shown(player, d, salvageBlock))
+        if (DerelictSalvageButton.Shown(salvageBlock))
         {
             const int columns = 1;
             Drawer.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (Drawer.Open ? 20 - columns : 0));
@@ -115,7 +110,7 @@ public sealed class DerelictInfoUIElement : UIElement
         ProductionBar.Max = d.Production;
         ProductionBar.Progress = d.ProductionLeft;
         ProductionBar.Draw(batch);
-        DrawStationOrder(batch, d);
+        DrawOrderStatus(batch, d);
         DrawTechs(batch, d, order);
         if (DerelictRecovery.CanRecover(d))
         {
@@ -202,59 +197,23 @@ public sealed class DerelictInfoUIElement : UIElement
             NameText = name.Substring(0, length).TrimEnd() + "...";
     }
 
-    // the Build Salvage Station button while a station can be ordered in the derelict's system, greyed with no design to build or with other empires working every derelict there; once ordered, its status in the button's place
-    void DrawStationOrder(SpriteBatch batch, Derelict d)
+    // the player's salvage or recovery of it, as its row in the derelicts window reads; a rival's shows on the claimant line
+    void DrawOrderStatus(SpriteBatch batch, Derelict d)
     {
-        switch (SystemDerelictsScreen.StationOrderIn(Universe.Player, d.System))
-        {
-            case SystemDerelictsScreen.StationOrder.Deploy:   DrawStationButton(batch, enabled: true);                                           break;
-            case SystemDerelictsScreen.StationOrder.NoDesign:
-            case SystemDerelictsScreen.StationOrder.AllWorked: DrawStationButton(batch, enabled: false);                                         break;
-            case SystemDerelictsScreen.StationOrder.Abort:    DrawStatus(batch, GameText.SalvageStationOrdered, Color.Wheat);                    break;
-            case SystemDerelictsScreen.StationOrder.Deployed: DrawStatus(batch, GameText.SalvageStationDeployed, Universe.Player.EmpireColor); break;
-        }
-    }
-
-    static readonly Color ButtonText = new(255, 240, 189); // as on the game's buttons
-
-    // greyed on the shorter button's grey plate, drawn to this one's size
-    void DrawStationButton(SpriteBatch batch, bool enabled)
-    {
-        bool hovered = enabled && StationRect.HitTest(Universe.Input.CursorPosition);
-        string back = !enabled ? "EmpireTopBar/empiretopbar_btn_132px_menu"
-                    : hovered ? "EmpireTopBar/empiretopbar_btn_168px_hover"
-                    : "EmpireTopBar/empiretopbar_btn_168px";
-        batch.Draw(ResourceManager.Texture(back), StationRect, Color.White);
-        DrawCentered(batch, Fonts.TahomaBold9, Localizer.Token(GameText.BuildSalvageStation), enabled ? ButtonText : Color.Gray,
-                    StationRect.CenterX(), StationRect.CenterY());
+        SalvageDerelict.Stage stage = SalvageDerelict.StageOf(Universe.Player, d, out Empire claimant, out SalvageDerelict order);
+        if (stage == SalvageDerelict.Stage.None || claimant != null && claimant != Universe.Player)
+            return;
+        Status.Fit(DerelictSalvageButton.StageText(stage, order), StatusRect.Width);
+        Status.Draw(batch, Color.Wheat, StatusRect.CenterX(), StatusRect.CenterY(), centered: true);
     }
 
     // two lines only in the smaller font, so a language's longer status stays clear of the techs under it
     readonly FittedStatus Status = new();
 
-    void DrawStatus(SpriteBatch batch, GameText status, Color color)
-    {
-        Status.Fit(Localizer.Token(status), StatusRect.Width);
-        Status.Draw(batch, color, StatusRect.CenterX(), StatusRect.CenterY(), centered: true);
-    }
-
     static void DrawCentered(SpriteBatch batch, Graphics.Font font, string text, Color color, int centerX, int centerY)
     {
         var pos = new Vector2(centerX - font.TextWidth(text) / 2, centerY - font.LineSpacing / 2);
         batch.DrawString(font, text, pos, color);
-    }
-
-    void OrderStation(Derelict d, bool canOrder)
-    {
-        if (canOrder && SalvageOps.OrderNearDerelicts(Universe.Player, d.System, Universe.UState.Objects.GetShips(), SiteRandom))
-        {
-            GameAudio.EchoAffirmative();
-            return;
-        }
-
-        GameAudio.NegativeClick();
-        if (canOrder) // above the panel's frame, clear of the derelict's name and of the tooltip at the cursor, even wrapped to four lines
-            ToolTip.CreateFloatingText(GameText.SalvageStationNoSite, "", new Vector2(ElementRect.X + 20, ElementRect.Y - 80), 5);
     }
 
     // beside its icon, where the ship info panel writes a ship's defense and troops
@@ -265,7 +224,7 @@ public sealed class DerelictInfoUIElement : UIElement
         batch.DrawString(font, text, pos, color);
     }
 
-    // the drawer's tab opens and closes it; tooltips over the icons, the bar, the station order, the techs and the drawer's buttons; a click on the panel or the open drawer stays on it
+    // the drawer's tab opens and closes it; tooltips over the icons, the bar, the techs and the drawer's buttons; a click on the panel or the open drawer stays on it
     public override bool HandleInput(InputState input)
     {
         Derelict d = Universe.SelectedDerelict;
@@ -274,7 +233,7 @@ public sealed class DerelictInfoUIElement : UIElement
 
         Empire player = Universe.Player;
         SalvageDerelict.Block salvageBlock = SalvageDerelict.WhyNoOrder(player, d);
-        bool orders = DerelictSalvageButton.Shown(player, d, salvageBlock);
+        bool orders = DerelictSalvageButton.Shown(salvageBlock);
         if (orders && Drawer.HandleInput(input))
         {
             State = Drawer.Open ? ElementState.TransitionOn : ElementState.TransitionOff;
@@ -282,9 +241,6 @@ public sealed class DerelictInfoUIElement : UIElement
         }
 
         Vector2 cursor = input.CursorPosition;
-        if (StatusRect.HitTest(cursor) && HandleStationOrder(input, d))
-            return true;
-
         bool drawerOpen = orders && State == ElementState.Open;
         if (drawerOpen && (SalvageRect.HitTest(cursor) || RecoverRect.HitTest(cursor)))
         {
@@ -336,32 +292,5 @@ public sealed class DerelictInfoUIElement : UIElement
                                    DerelictSalvageButton.Percent(DerelictRecovery.HullChance(d.Design.HullRole)),
                                    DerelictSalvageButton.Percent(DerelictRecovery.CatastropheChanceOf(player)));
         ToolTip.CreateTooltip(tip, codexUid: Codex.CodexHooks.Find(GameText.DerelictRecoveryChanceTip));
-    }
-
-    // the button's tooltip and click over the button, or the status's tooltip over its line; false where the cursor is on neither
-    bool HandleStationOrder(InputState input, Derelict d)
-    {
-        SystemDerelictsScreen.StationOrder order = SystemDerelictsScreen.StationOrderIn(Universe.Player, d.System);
-        switch (order)
-        {
-            case SystemDerelictsScreen.StationOrder.Deploy:
-            case SystemDerelictsScreen.StationOrder.NoDesign:
-            case SystemDerelictsScreen.StationOrder.AllWorked:
-                if (!StationRect.HitTest(input.CursorPosition))
-                    return false;
-                bool canOrder = order == SystemDerelictsScreen.StationOrder.Deploy;
-                ToolTip.CreateTooltip(canOrder ? GameText.SalvageStationOrderTip
-                                    : order == SystemDerelictsScreen.StationOrder.AllWorked ? GameText.SalvageStationAllWorkedTip
-                                    : GameText.SalvageStationNoDesignTip);
-                if (input.LeftMouseClick)
-                    OrderStation(d, canOrder);
-                return true;
-            case SystemDerelictsScreen.StationOrder.Abort:
-            case SystemDerelictsScreen.StationOrder.Deployed:
-                ToolTip.CreateTooltip(GameText.SalvageStationOrderedTip);
-                return true;
-            default:
-                return false;
-        }
     }
 }

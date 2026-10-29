@@ -6226,9 +6226,9 @@ namespace Ship_Game
         SalvageStationDeployed = 7164,
         /// <summary>Salvage Station was evacuated since you</summary>
         RemoveExcessSalvageStation = 7165,
-        /// <summary>Salvage this derelict</summary>
+        /// <summary>Salvage this derelict: a salvage ship is built at your</summary>
         SalvageDerelictTip = 7166,
-        /// <summary>Your salvage station is working this derelict.</summary>
+        /// <summary>Your salvage ship is working this derelict. Click to call it</summary>
         SalvageDerelictOrderedTip = 7167,
         /// <summary>Every salvage unit of your station in this system is busy.</summary>
         SalvageDerelictNoFreeUnitTip = 7169,
@@ -6240,7 +6240,7 @@ namespace Ship_Game
         SalvagingDerelict = 7172,
         /// <summary>Salvage hold full</summary>
         SalvageHoldFull = 7173,
-        /// <summary>Production this salvage platform has stripped from its derelict</summary>
+        /// <summary>Production this salvage platform has stripped from its</summary>
         SalvageHoldTip = 7174,
         /// <summary>Station hold full</summary>
         SalvageStationHoldFull = 7175,
@@ -6252,9 +6252,9 @@ namespace Ship_Game
         BuildSalvageStation = 7178,
         /// <summary>Salvage Station Ordered</summary>
         SalvageStationOrdered = 7179,
-        /// <summary>Technologies this derelict holds. Once you have a salvage</summary>
+        /// <summary>Technologies this derelict holds. Once your salvage platform</summary>
         DerelictTechsHeldTip = 7180,
-        /// <summary>Technologies you can learn from this derelict. Each load of</summary>
+        /// <summary>Technologies you can learn from this derelict. Each turn</summary>
         DerelictTechsShownTip = 7181,
         /// <summary>Researched: {0}%</summary>
         DerelictTechResearched = 7182,
@@ -6276,7 +6276,7 @@ namespace Ship_Game
         DerelictAlertsTip = 7190,
         /// <summary>Salvage Alerts</summary>
         SalvageAlerts = 7191,
-        /// <summary>Alerts when one of your salvage platforms has sent its station</summary>
+        /// <summary>Alerts when one of your salvage platforms finishes its work,</summary>
         SalvageAlertsTip = 7192,
         /// <summary>{0}: the {1} is stripped</summary>
         SalvageStrippedNotify = 7193,
@@ -6290,13 +6290,13 @@ namespace Ship_Game
         SalvageClaimedFirstNotify = 7197,
         /// <summary>{0}: your salvage station was lost, and your salvage of the</summary>
         SalvageStationLostNotify = 7198,
-        /// <summary>{0}: the {1} sank away before your platform was built</summary>
+        /// <summary>{0}: the {1} sank away before your salvage ship reached it</summary>
         SalvageSankNotify = 7199,
-        /// <summary>Recover this ship: a salvage unit of your station in this</summary>
+        /// <summary>Recover this ship: a salvage ship is built at your shipyard</summary>
         RecoverDerelictTip = 7200,
-        /// <summary>Your salvage station is recovering this ship. Click to call</summary>
+        /// <summary>Your salvage ship is recovering this ship. Click to call it</summary>
         RecoverDerelictOrderedTip = 7201,
-        /// <summary>Recover this ship instead: its salvage platform first sends</summary>
+        /// <summary>Recover this ship instead: its salvage platform breaks in</summary>
         RecoverDerelictSwitchTip = 7202,
         /// <summary>Salvage this derelict instead: its salvage platform strips</summary>
         SalvageDerelictSwitchTip = 7203,
@@ -6351,6 +6351,24 @@ namespace Ship_Game
         DesignIssueLowSalvageCargoSkipped = 7231,
         /// <summary>Cargo room for two loads per salvage unit:</summary>
         DesignIssueLowSalvageCargoTwoLoads = 7232,
+        /// <summary>Research Salvage Ships to build a salvage ship for this</summary>
+        SalvageDerelictNoTechTip = 7236,
+        /// <summary>Salvage ship ordered</summary>
+        SalvageShipOrdered = 7237,
+        /// <summary>Salvage ship on its way</summary>
+        SalvageShipOnItsWay = 7238,
+        /// <summary>Deploying platform</summary>
+        DeployingSalvagePlatform = 7239,
+        /// <summary>Flying to {0}</summary>
+        SalvageShipFlyingTo = 7240,
+        /// <summary>{0}: your salvage ship for the {1} was lost</summary>
+        SalvageShipLostNotify = 7241,
+        /// <summary>Your salvage ship bringing home {0} production was lost</summary>
+        SalvageShipLostHomeNotify = 7242,
+        /// <summary>Returning to</summary>
+        ReturningTo = 7243,
+        /// <summary>Turning back into the ship</summary>
+        PlatformTurningBack = 7244,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

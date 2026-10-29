@@ -194,18 +194,18 @@ public class SalvageHaulTests : StarDriveTest
     {
         Importer(SystemSite + new Vector2(0, 200_000f), slots: 10);
         typeof(Empire).GetProperty(nameof(Empire.AverageFreighterCargoCap)).SetValue(Player, 400f);
-        AssertEqual(75f, ShipResupply.SalvageLoad, "setup: a platform load is 75");
+        AssertEqual(100f, ShipResupply.SalvageLoad, "setup: a platform load is 100");
         Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0));
         Ship station = BuiltStation();
         station.CargoSpaceMax = 316f;
-        station.LoadProduction(240f);
+        station.LoadProduction(200f);
 
         Turn(station);
-        Assert.IsFalse(Hauls(freighter, station), "240 of 316, with room for another load of 75 and less than an average load of 400, calls none");
+        Assert.IsFalse(Hauls(freighter, station), "200 of 316, with room for another load of 100 and less than an average load of 400, calls none");
 
-        station.LoadProduction(10f);
+        station.LoadProduction(20f);
         Turn(station);
-        Assert.IsTrue(Hauls(freighter, station), "250, with room for only 66, calls one");
+        Assert.IsTrue(Hauls(freighter, station), "220, with room for only 96, calls one");
     }
 
     [TestMethod]
@@ -860,10 +860,9 @@ public class SalvageHaulTests : StarDriveTest
     public void AStationComingApartIsNoLongerTheOneAtWorkInItsSystem()
     {
         Ship station = BuiltStation();
-        Assert.IsTrue(SalvageOps.StationSystems(Player).Contains(Local.System), "setup: the player's station works the system");
+        Assert.AreSame(station, SalvageOps.StationIn(Player, Local.System), "setup: the player's station works the system");
         station.AI.OrderScrapShip();
-        Assert.IsFalse(SalvageOps.StationSystems(Player).Contains(Local.System), "coming apart, it no longer does");
-        Assert.IsNull(SalvageOps.StationIn(Player, Local.System), "for any reader");
+        Assert.IsNull(SalvageOps.StationIn(Player, Local.System), "coming apart, it no longer does");
     }
 
     [TestMethod]

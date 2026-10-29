@@ -102,7 +102,7 @@ public sealed class Derelict
     [StarData] public readonly bool Salvageable;
     // by empire id - 1; written on the sim thread, read on the UI thread
     [StarData] bool[] KnownBy;
-    // by empire id - 1: the empires that had a salvage station built in its system while it lay there, which see its techs from then on
+    // by empire id - 1: the empires whose salvage platform stood at it, which see its techs from then on
     [StarData] bool[] TechsShown = Empty<bool>.Array;
     [StarData] public int TurnsLeft { get; private set; }
     // a salvageable one's production to salvage, fixed at its death, and what is still left of it

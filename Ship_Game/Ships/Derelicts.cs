@@ -510,28 +510,14 @@ public sealed class Derelicts
                 if (!Items[i].CanBeSalvaged)
                     Leave(Items[i]);
             }
-            ShowTechsToStations();
         }
     }
 
-    // under the lock, on the sim thread: each empire with a salvage station built in a derelict's system, which so knows of it, sees its techs from then on; an empire's stations are looked up once a turn
-    void ShowTechsToStations()
+    // on the sim thread: the empire's salvage platform stands at it, so the empire sees its techs from then on
+    public void ShowTechs(Derelict d, Empire empire)
     {
-        HashSet<SolarSystem>[] stations = null;
-        for (int i = 0; i < Items.Count; ++i)
-        {
-            Derelict d = Items[i];
-            if (!d.CanBeSalvaged || d.System == null)
-                continue;
-            var empires = d.System.Universe.Empires;
-            stations ??= new HashSet<SolarSystem>[empires.Count];
-            for (int j = 0; j < empires.Count; ++j)
-            {
-                Empire e = empires[j];
-                if (d.IsKnownBy(e) && !d.ShowsTechsTo(e) && (stations[j] ??= SalvageOps.StationSystems(e)).Contains(d.System))
-                    d.ShowTechsTo(e);
-            }
-        }
+        lock (Sync)
+            d.ShowTechsTo(empire);
     }
 
     // a content reload takes every model out of the scene: the derelicts stay and get a model again when seen

@@ -1,10 +1,10 @@
 Version=1
 Name=Ralyeh Salvage Ship
-Hull=Ralyeh/Vessel S
+Hull=Ralyeh/Vessel M
 Role=supply
 Style=Ralyeh
-Size=4,10
-GridCenter=2,5
+Size=6,16
+GridCenter=3,8
 DefaultAIState=DoNothing
 DefaultCombatState=Evade
 ShipCategory=Civilian
@@ -13,27 +13,29 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=Structure;Maneuvering_Thruster_1x1;NuclearReactorSmall;Cockpit;PowerSolar;PowerConduit;Engine;WarpEngine_1x1;SalvageUnit
-Modules=21
+ModuleUIDs=BasicCargoHold;Maneuvering_Thruster_1x1;NuclearReactorMed;PowerConduit;Cockpit;Engine;WarpEngine_2x2;SalvageUnit
+Modules=23
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 1,0;0
 2,0;0
-0,1;0
-1,1;8;2,2
-3,1;0
-0,2;0
-3,2;0
-0,4;1
-1,4;2
-2,4;2
-3,4;1
-1,5;3
-2,5;4
-1,6;2
-2,6;2
-1,7;5
-2,7;5
-1,8;6
-2,8;6
-1,9;7
-2,9;7
+3,0;0
+4,0;0
+1,1;7;4,4
+4,5;0
+4,6;0
+2,7;0
+3,7;0
+1,8;1
+2,8;2;2,2
+4,8;1
+1,9;1
+4,9;1
+2,10;3
+3,10;0
+2,11;3
+3,11;4
+2,12;0
+3,12;0
+2,13;5
+3,13;5
+2,14;6;2,2

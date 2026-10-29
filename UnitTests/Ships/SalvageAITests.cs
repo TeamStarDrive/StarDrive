@@ -16,30 +16,24 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// An AI empire's salvage station fills its free salvage units each turn, the derelict with the fewest turns left
-/// first, while no armed hostile is in its sensor range, a rival's unarmed station holding off nothing, and one the
-/// empire holds without being able to build one does too; the player's and the rebels' order nothing themselves, and
-/// pirates' recovers every derelict ship it can but one of a design they spawn, with the constructor of the race whose
-/// station it is, which keeps to its work when pirates are called home and is never drafted to defend a base; it
-/// strips none, orders nothing with no such constructor, and regains a tenth of its ordnance a turn out of combat
-/// unless it makes its own. A ship pirates recover heads for their nearest base, which keeps a ship of a Remnant design,
-/// whoever's ship it was, where it takes in another small one, and their orbital raids go for a salvage station first. An AI empire's station recovers a ship stronger than the strongest design of its hull role
-/// the empire can build, or of a role it can build none of, and strips the rest. Every few turns the planner orders an
-/// AI empire that can build a salvage station one, the closest system first and one a run, in a system it has explored
-/// with a derelict it knows of, near its colonies, outside enemy borders unless its own reach there, with no colony of a rival it is at peace
-/// with and has no open borders or alliance with, the player counting as any empire, where the production left in the
-/// derelicts it can work pays for the station, or one's design uses a tech it wants, or it is a ship it would recover;
-/// where it knows of hostile strength it asks once for a fleet to clear the system instead. With Auto Build Salvage
-/// Stations on, the player's stations order their derelicts and the planner orders the player stations by the same
-/// rules, asking for no fleet, while the Salvage and Recover buttons only switch a standing order's work, its own
-/// button still lit and calling nothing off, and their other tooltips say salvage is on automatic; turned off, it
-/// leaves its orders standing as the player's. The switch
-/// and the planner's timer are saved. An empire with no colony left orders nothing, and a derelict with less than a
-/// fifth of its turns left is worth no station. The pick for a system takes the station with the most salvage units
-/// up to the derelicts the empire would work there, those it knows of with a fifth of their turns left that no other
-/// empire works from its station there, then the fewest units beyond them, and with no system the most units; the
-/// planner orders the pick for its system, the derelicts' production weighed against that station's cost. Neither the AI's pick nor the player's takes a station with less cargo room
-/// than a load for each of its salvage units.
+/// An AI empire recovers a ship stronger than the strongest design of its hull role the empire can build, or of a role
+/// it can build none of, and strips the rest. A pirate station regains a tenth of its ordnance a turn out of combat
+/// unless it makes its own, and a pirate base under attack drafts no constructor. A ship pirates recover heads for their
+/// nearest base, which keeps a ship of a Remnant design, whoever's ship it was, where it takes in another small one,
+/// and their orbital raids go for a salvage station first. Every few turns the planner orders an AI empire that can
+/// build a salvage station one, the closest system first and one a run, in a system it has explored with a derelict it
+/// knows of, near its colonies, outside enemy borders unless its own reach there, with no colony of a rival it is at
+/// peace with and has no open borders or alliance with, the player counting as any empire, where the production left
+/// in the derelicts it can work pays for the station, or one's design uses a tech it wants, or it is a ship it would
+/// recover; where it knows of hostile strength it asks once for a fleet to clear the system instead. With Auto Build
+/// Salvage Stations on, the planner orders the player stations by the same rules, asking for no fleet, while the
+/// Salvage and Recover buttons only switch a standing order's work, its own button still lit and calling nothing off,
+/// and their other tooltips say salvage is on automatic. The switch and the planner's timer are saved. A derelict with
+/// less than a fifth of its turns left is worth no station. The pick for a system takes the station with the most
+/// salvage units up to the derelicts the empire would work there, those it knows of with a fifth of their turns left
+/// that no other empire works there, then the fewest units beyond them, and with no system the most units; the planner
+/// orders the pick for its system, the derelicts' production weighed against that station's cost. Neither the AI's
+/// pick nor the player's takes a station with less cargo room than a load for each of its salvage units.
 /// </summary>
 [TestClass]
 public class SalvageAITests : StarDriveTest
@@ -56,13 +50,14 @@ public class SalvageAITests : StarDriveTest
 
     public SalvageAITests()
     {
-        LoadStarterShips("Terran Basic Salvage Station", Older, Newer, ShipDesign.SalvagePlatformName, "Corsair Asteroid Base", "Platform Base mk1-a", "Ancient Frigate");
+        LoadStarterShips("Terran Basic Salvage Station", Older, Newer, ShipDesign.SalvagePlatformName, "Corsair Asteroid Base", "Platform Base mk1-a", "Ancient Frigate", "Terran Salvage Ship");
         CreateUniverseAndPlayerEmpire();
         UState.Objects.EnableParallelUpdate = false;
         Local = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true);
         System = Local.System;
         Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Basic Salvage Station", out Station), "setup: the station is loaded");
         Player.GetRelations(Enemy).AtWar = Enemy.GetRelations(Player).AtWar = false;
+        Player.data.AllowSalvageShip = true; // the Salvage and Recover buttons need the Salvage Ships technology
         GlobalStats.Defaults.SalvageableDerelictCapMultiplier = 10f; // room for more salvageable derelicts in this small galaxy, last as a failed constructor skips the cleanup
     }
 
@@ -90,10 +85,10 @@ public class SalvageAITests : StarDriveTest
         return d;
     }
 
-    // the empire's built station in the system, holding production so it stays with nothing left to salvage; a major empire gets a colony far off unless asked, as one with none orders nothing
-    Ship StationOf(Empire owner, bool colony = true)
+    // the empire's built station in the system, holding production so it stays with nothing left to salvage; a major empire gets a colony far off
+    Ship StationOf(Empire owner)
     {
-        if (colony && !owner.IsFaction && owner.NumPlanets == 0)
+        if (!owner.IsFaction && owner.NumPlanets == 0)
             AddDummyPlanetToEmpire(ColonySite(owner), owner);
         var order = new SalvageOps(owner, System, StationSite, Station);
         owner.AI.AddGoal(order);
@@ -102,7 +97,6 @@ public class SalvageAITests : StarDriveTest
         order.TargetShip.LoadProduction(5f);
         order.Evaluate();
         AssertEqual("Salvage", order.StepName, "setup: the station is built");
-        AssertEqual(2, SalvageDerelict.LiveUnits(order.TargetShip), "setup: it has two salvage units");
         return order.TargetShip;
     }
 
@@ -125,34 +119,6 @@ public class SalvageAITests : StarDriveTest
     }
 
     [TestMethod]
-    public void AnAIStationFillsItsFreeUnitsTheDerelictWithFewestTurnsLeftFirst()
-    {
-        Derelict oldest = Wreck(Older, WreckSite, Enemy, turnsGone: 3);
-        Derelict newest = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Enemy);
-        Derelict older = Wreck(Older, WreckSite + new Vector2(0, 16_000f), Enemy, turnsGone: 1);
-        Ship station = StationOf(Enemy);
-
-        Turn(station);
-        Assert.IsNotNull(OrderOf(Enemy, oldest), "the derelict with the fewest turns left is ordered");
-        Assert.IsNotNull(OrderOf(Enemy, older), "and the next, for the second unit");
-        Assert.IsNull(OrderOf(Enemy, newest), "but not the third, with no unit free");
-    }
-
-    [TestMethod]
-    public void AnAIEmpireWithNoColonyLeftOrdersNothing()
-    {
-        Derelict d = Wreck(Older, WreckSite, Enemy);
-        Ship station = StationOf(Enemy, colony: false);
-        AssertEqual(0, Enemy.NumPlanets, "setup: the AI owns no colony, so it is defeated this turn");
-        Turn(station);
-        Assert.IsNull(OrderOf(Enemy, d), "its station orders nothing");
-
-        AddDummyPlanetToEmpire(ColonySite(Enemy), Enemy);
-        Turn(station);
-        Assert.IsNotNull(OrderOf(Enemy, d), "with a colony it does");
-    }
-
-    [TestMethod]
     public void ItRecoversAShipStrongerThanTheBestOfItsHullRoleItCanBuildOrOfARoleItBuildsNoneOfAndStripsTheRest()
     {
         IShipDesign older = ResourceManager.Ships.GetDesign(Older);
@@ -161,7 +127,7 @@ public class SalvageAITests : StarDriveTest
         AssertGreaterThan(newer.GetStrength(Enemy), older.GetStrength(Enemy), "setup: the newer is the stronger");
         Assert.IsFalse(Enemy.ShipsWeCanBuildSnapshot.Any(s => s.HullRole == older.HullRole), "setup: the AI builds none of that role");
 
-        Derelict d = Wreck(Older, WreckSite, Enemy, turnsGone: 1); // ordered before the hulk
+        Derelict d = Wreck(Older, WreckSite, Enemy);
         Assert.IsTrue(SalvageDerelict.WouldRecover(Enemy, d), "a ship of a role it can build none of is recovered");
         Derelict hulk = Wreck(Station.Name, WreckSite + new Vector2(0, -8_000f), Enemy);
         Assert.IsFalse(SalvageDerelict.WouldRecover(Enemy, hulk), "but a station's derelict, which cannot be, is stripped");
@@ -169,13 +135,8 @@ public class SalvageAITests : StarDriveTest
         Assert.IsTrue(Enemy.AddBuildableShip(older), "setup: it can build the same design");
         Assert.IsFalse(SalvageDerelict.WouldRecover(Enemy, d), "one no stronger than the best it can build is stripped");
 
-        Derelict stronger = Wreck(Newer, WreckSite + new Vector2(0, 8_000f), Enemy, turnsGone: 1);
+        Derelict stronger = Wreck(Newer, WreckSite + new Vector2(0, 8_000f), Enemy);
         Assert.IsTrue(SalvageDerelict.WouldRecover(Enemy, stronger), "a stronger one is recovered");
-
-        Ship station = StationOf(Enemy);
-        Turn(station);
-        Assert.IsFalse(OrderOf(Enemy, d).Recovering, "so the station strips the one");
-        Assert.IsTrue(OrderOf(Enemy, stronger).Recovering, "and recovers the other");
     }
 
     [TestMethod]
@@ -191,105 +152,11 @@ public class SalvageAITests : StarDriveTest
         Assert.IsTrue(SalvageDerelict.WouldRecover(Enemy, d), "the cruiser is weighed against cruisers only, of which it builds none");
     }
 
-    [TestMethod]
-    public void AnAIStationOrdersNothingWhileAnArmedHostileIsInItsSensorRange()
-    {
-        Ship station = StationOf(Enemy); // before the derelict, so it has nothing to order yet
-        Enemy.GetRelations(Player).AtWar = Player.GetRelations(Enemy).AtWar = true;
-        Ship hostile = SpawnShip(Older, Player, StationSite + new Vector2(0, 20_000f));
-        RunObjectsSim(1.5f);
-        Assert.IsTrue(SalvageOps.HaulsBlocked(station), "setup: the station sees an armed hostile");
-        Derelict d = Wreck(Older, WreckSite, Enemy);
-        Turn(station);
-        Assert.IsNull(OrderOf(Enemy, d), "no order while it is there");
-
-        hostile.QueueTotalRemoval();
-        RunObjectsSim(1.5f);
-        Turn(station);
-        Assert.IsNotNull(OrderOf(Enemy, d), "and an order once it is gone");
-    }
-
-    [TestMethod]
-    public void AWarRivalsUnarmedStationThereHoldsOffNoOrder()
-    {
-        Ship station = StationOf(Enemy);
-        Enemy.GetRelations(Player).AtWar = Player.GetRelations(Enemy).AtWar = true;
-        Ship rivals = SpawnShip(Station.Name, Player, StationSite + new Vector2(0, -10_000f));
-        RunObjectsSim(1.5f);
-        UState.Objects.Update(new(time: 2f));
-        Enemy.Threats.Update(new(time: 2f));
-        Assert.IsTrue(station.AI.PotentialTargets.Contains(rivals) && rivals.TotalDps <= 0f, "setup: the station sees the rival's unarmed station");
-        AssertGreaterThan(Enemy.KnownEnemyStrengthNoResearchStationsIn(System), 0f, "setup: which counts as hostile strength there");
-        Derelict d = Wreck(Older, WreckSite, Enemy);
-        Turn(station);
-        Assert.IsNotNull(OrderOf(Enemy, d), "the station orders all the same");
-    }
-
-    [TestMethod]
-    public void AStationTheAIHoldsWithoutBeingAbleToBuildOneStillOrders()
-    {
-        Assert.IsFalse(Enemy.CanBuildSalvageStations, "setup: the AI cannot build a salvage station");
-        Derelict d = Wreck(Older, WreckSite, Enemy);
-        Ship station = StationOf(Enemy);
-        Turn(station);
-        Assert.IsNotNull(OrderOf(Enemy, d), "its station still fills its units");
-    }
-
-    [TestMethod]
-    public void ThePlayersAndTheRebelsStationsOrderNothingThemselves()
-    {
-        Derelict mine = Wreck(Older, WreckSite, Player);
-        Turn(StationOf(Player));
-        Assert.IsNull(OrderOf(Player, mine), "with Auto Build Salvage Stations off, the player orders salvage by hand");
-
-        Empire rebels = UState.CreateRebelsFromEmpireData(Player.data, Player);
-        Derelict theirs = Wreck(Older, WreckSite + new Vector2(0, 8_000f), rebels);
-        Ship rebelStation = StationOf(rebels);
-        Turn(rebelStation);
-        Assert.IsNull(OrderOf(rebels, theirs), "rebels only finish what they inherit");
-    }
-
     Empire PirateFaction()
     {
         CreateAMinorFaction("Corsairs");
         Assert.IsTrue(Faction.WeArePirates, "setup: pirates");
         return Faction;
-    }
-
-    [TestMethod]
-    public void APirateStationRecoversEveryDerelictShipItCanWithTheConstructorOfItsRaceAndStripsNone()
-    {
-        Empire pirates = PirateFaction();
-        Derelict hulk = Wreck(Station.Name, WreckSite + new Vector2(0, -8_000f), pirates, turnsGone: 3);
-        Derelict weaker = Wreck(Older, WreckSite, pirates, turnsGone: 1);
-        Derelict stronger = Wreck(Newer, WreckSite + new Vector2(0, 8_000f), pirates);
-        Assert.IsTrue(pirates.AddBuildableShip(ResourceManager.Ships.GetDesign(Newer)), "setup: the pirates hold a stronger design of the role");
-        Assert.IsFalse(SalvageDerelict.WouldRecover(pirates, weaker), "setup: so an AI empire would strip the weaker ship");
-        Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Constructor", out _), "setup: the station's race has a constructor");
-
-        Ship station = StationOf(pirates);
-        Turn(station);
-        Assert.IsNull(OrderOf(pirates, hulk), "a station's derelict, which can only be stripped, is left alone");
-        Assert.IsTrue(OrderOf(pirates, weaker) is { Recovering: true } && OrderOf(pirates, stronger) is { Recovering: true },
-                      "and its units recover both ships, the weaker too");
-        Ship constructor = OrderOf(pirates, weaker).FinishedShip;
-        AssertEqual("Terran Constructor", constructor?.Name, "with the constructor of the race whose station it is, as pirates build none");
-
-        AIState working = constructor.AI.State;
-        constructor.AI.OrderPirateFleeHome();
-        AssertEqual(working, constructor.AI.State, "which keeps to its work when a raid's recall sends the pirates there home");
-    }
-
-    [TestMethod]
-    public void APirateStationPassesOverAShipOfADesignTheySpawn()
-    {
-        Empire pirates = PirateFaction();
-        Derelict theirs = Wreck(Older, WreckSite, pirates, turnsGone: 1);
-        Derelict other = Wreck(Newer, WreckSite + new Vector2(0, 8_000f), pirates);
-        pirates.Pirates.ShipsWeCanSpawn.AddUnique(Older); // as their own frigates are
-        Turn(StationOf(pirates));
-        Assert.IsNull(OrderOf(pirates, theirs), "a ship of a design they spawn, which their base would take in for nothing, is passed over");
-        Assert.IsNotNull(OrderOf(pirates, other), "while another is recovered");
     }
 
     [TestMethod]
@@ -309,21 +176,6 @@ public class SalvageAITests : StarDriveTest
         Assert.IsTrue(scout.AI.FindGoal(ShipAI.Plan.LandOnPirateBase, out _), "the base takes in a small ship");
         Assert.IsFalse(remnant.AI.FindGoal(ShipAI.Plan.LandOnPirateBase, out _), "but keeps the Remnant one");
         Assert.IsTrue(remnant.AI.FindGoal(ShipAI.Plan.Escort, out ShipAI.ShipGoal escort) && escort.TargetShip == pirateBase, "to guard it");
-    }
-
-    [TestMethod]
-    public void APirateStationWithNoConstructorOfItsRaceForItsBaysOrdersNothing()
-    {
-        Empire pirates = PirateFaction();
-        Ship platform = SpawnShip("Platform Base mk1-a", pirates, SystemSite + new Vector2(0, -40_000f));
-        Assert.IsFalse(UState.Empires.Any(e => e.data.Traits.ShipType == platform.ShipData.ShipStyle), "setup: a design of no race in the game");
-        AssertEqual("", SalvageDerelict.ConstructorName(pirates, platform), "pirates' bays on a design of no race launch nothing");
-
-        Derelict d = Wreck(Older, WreckSite, pirates);
-        Ship station = StationOf(pirates);
-        Player.data.DefaultConstructor = "No Such Constructor"; // the station's race, the player's
-        Turn(station);
-        Assert.IsNull(OrderOf(pirates, d), "and a station whose race has no constructor orders nothing");
     }
 
     [TestMethod]
@@ -350,9 +202,10 @@ public class SalvageAITests : StarDriveTest
         Empire pirates = PirateFaction();
         Ship station = StationOf(pirates);
         AssertEqual(0.001f, 0f, station.OrdAddedPerSecond, "setup: the station makes no ordnance");
+        station.OrdinanceMax = 100f; // a store, as a design with missiles has
         station.ChangeOrdnance(-station.Ordinance);
         Turn(station);
-        AssertEqual(0.01f, station.OrdinanceMax * 0.1f, station.Ordinance, "one pirates hold regains a tenth of its store a turn");
+        AssertEqual(0.01f, 10f, station.Ordinance, "one pirates hold regains a tenth of its store a turn");
 
         station.ChangeOrdnance(-station.Ordinance);
         station.InCombat = true;
@@ -365,6 +218,7 @@ public class SalvageAITests : StarDriveTest
         AssertEqual(0.01f, 0f, station.Ordinance, "but not one that makes its own");
 
         Ship theirs = StationOf(Enemy);
+        theirs.OrdinanceMax = 100f;
         theirs.ChangeOrdnance(-theirs.Ordinance);
         Turn(theirs);
         AssertEqual(0.01f, 0f, theirs.Ordinance, "nor an AI empire's");
@@ -578,20 +432,20 @@ public class SalvageAITests : StarDriveTest
     [TestMethod]
     public void NeitherPickTakesAStationWithLessCargoRoomThanALoadForEachOfItsSalvageUnits()
     {
-        AssertEqual(75f, ShipResupply.SalvageLoad, "setup: a load of 75, the platform's hold");
-        ShipDesign five = WithUnits(5);
-        Assert.IsTrue(five.BaseCargoSpace >= 300f && five.BaseCargoSpace < 375f, "setup: room for four loads but not five");
-        Assert.IsFalse(ShipBuilder.IsUsableSalvageStation(five), "a station with five units and room for four loads cannot be used");
+        AssertEqual(100f, ShipResupply.SalvageLoad, "setup: a load of 100, the platform's hold");
+        ShipDesign seven = WithUnits(7);
+        Assert.IsTrue(seven.BaseCargoSpace >= 600f && seven.BaseCargoSpace < 700f, "setup: room for six loads but not seven");
+        Assert.IsFalse(ShipBuilder.IsUsableSalvageStation(seven), "a station with seven units and room for six loads cannot be used");
 
         Enemy.ClearShipsWeCanBuild();
         Enemy.AddBuildableShip(Station);
-        Enemy.AddBuildableShip(five);
+        Enemy.AddBuildableShip(seven);
         AssertEqual(Station, ShipBuilder.PickSalvageStation(Enemy), "the AI's pick passes over it");
 
         Player.ClearShipsWeCanBuild();
         Player.AddBuildableShip(Station);
-        Player.AddBuildableShip(five);
-        Player.data.CurrentSalvageStation = five.Name;
+        Player.AddBuildableShip(seven);
+        Player.data.CurrentSalvageStation = seven.Name;
         Assert.IsFalse(Player.AutoPickBestSalvageStation, "setup: the player's auto pick is off");
         AssertEqual(Station, ShipBuilder.PickSalvageStation(Player), "and the player's chosen station gives way to the race's default");
     }
@@ -654,23 +508,6 @@ public class SalvageAITests : StarDriveTest
     }
 
     [TestMethod]
-    public void WithAutoBuildOnThePlayersStationOrdersItsDerelictsAndTurningItOffLeavesTheOrdersAsThePlayers()
-    {
-        Derelict d = Wreck(Older, WreckSite, Player);
-        Ship station = StationOf(Player);
-        Player.AutoBuildSalvageStations = true;
-        Turn(station);
-        SalvageDerelict order = OrderOf(Player, d);
-        Assert.IsNotNull(order, "with auto build on, the player's station orders its derelicts");
-
-        Player.AutoBuildSalvageStations = false;
-        Derelict later = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
-        Turn(station);
-        Assert.IsNull(OrderOf(Player, later), "turned off, it orders no more");
-        AssertEqual(order, OrderOf(Player, d), "and leaves its order standing as the player's");
-    }
-
-    [TestMethod]
     public void WithAutoBuildOnThePlannerOrdersThePlayerAStationButAsksForNoFleetWhereItKnowsOfHostiles()
     {
         Wreck(Older, WreckSite, Player);
@@ -692,10 +529,9 @@ public class SalvageAITests : StarDriveTest
     {
         Derelict d = Wreck(Older, WreckSite, Player);
         Derelict other = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
-        StationOf(Player);
         Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: an order placed by hand");
         Player.AutoBuildSalvageStations = true;
-        AssertEqual(SalvageDerelict.Block.None, SalvageDerelict.WhyNoOrder(Player, other), "setup: a unit is free for the other");
+        AssertEqual(SalvageDerelict.Block.None, SalvageDerelict.WhyNoOrder(Player, other), "setup: the other can be ordered");
 
         Assert.IsFalse(DerelictSalvageButton.Clickable(Player, SalvageDerelict.Block.None, lit: false), "with salvage on automatic a derelict with no order lights no button under the cursor");
         DerelictSalvageButton.Click(Player, other, DerelictSalvageButton.Kind.Salvage, SalvageDerelict.Block.None, lit: false);
@@ -721,7 +557,6 @@ public class SalvageAITests : StarDriveTest
     {
         Derelict d = Wreck(Older, WreckSite, Player);
         Derelict theirs = Wreck(Older, WreckSite + new Vector2(0, 8_000f), Player);
-        StationOf(Player);
         Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: an order");
         SalvageDerelict order = OrderOf(Player, d);
         Assert.IsTrue(theirs.TryClaim(Enemy), "setup: the enemy's claim on the other");
@@ -743,7 +578,6 @@ public class SalvageAITests : StarDriveTest
     public void WithSalvageOnAutomaticAStationsLitButtonOffersNoSwitch()
     {
         Derelict d = Wreck("Terran Basic Salvage Station", WreckSite, Player);
-        StationOf(Player);
         Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: a station's derelict ordered");
         Player.AutoBuildSalvageStations = true;
         AssertEqual(Localizer.Token(GameText.SalvageAutomaticTip),

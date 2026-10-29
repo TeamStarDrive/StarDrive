@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
-using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.UI;
 using Ship_Game.Utils;
@@ -13,17 +12,13 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with the player's salvage station order there and orders to salvage or recover each; the game does not run under it, a covered universe running only the queued work of clicks, so it reads the goals as it opens and again once each click has reached the sim thread; opened over the running game, it pauses it
+// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with orders to salvage or recover each; the game does not run under it, a covered universe running only the queued work of clicks, so it reads the goals as it opens and again once each click has reached the sim thread; opened over the running game, it pauses it
 public sealed class SystemDerelictsScreen : GameScreen
 {
     public override bool HelpKeyOpensCodex => true;
 
     readonly UniverseScreen Universe;
     readonly SolarSystem System;
-    readonly SeededRandom SiteRandom = new();
-    public UIButton StationButton { get; private set; }
-    public UILabel StationStatus { get; private set; }
-    Empire Player => Universe.Player;
 
     public SystemDerelictsScreen(UniverseScreen universe, SolarSystem system) : base(universe, toPause: universe)
     {
@@ -77,7 +72,7 @@ public sealed class SystemDerelictsScreen : GameScreen
             Block = SalvageDerelict.WhyNoOrder(player, Derelict);
             RecoverBlock = DerelictSalvageButton.BlockOf(DerelictSalvageButton.Kind.Recover, Block, Derelict);
             Order = DerelictSalvageButton.StandingOrder(player, Derelict, Block);
-            ButtonsShown = DerelictSalvageButton.Shown(player, Derelict, Block);
+            ButtonsShown = DerelictSalvageButton.Shown(Block);
             TechsSeen = SalvageDerelict.SeesTechs(player, Derelict);
             Stage = SalvageDerelict.StageOf(player, Derelict, out StageClaimant, out StageOrder);
         }
@@ -166,28 +161,8 @@ public sealed class SystemDerelictsScreen : GameScreen
             if (Stage == SalvageDerelict.Stage.None)
                 return;
 
-            Status.Fit(Stage == SalvageDerelict.Stage.BreakingIn ? BreakingIn(StageOrder.BreakInTurnsLeft) : Localizer.Token(Stage switch
-            {
-                SalvageDerelict.Stage.PlatformOrdered  => GameText.SalvagePlatformOrdered,
-                SalvageDerelict.Stage.BuildingPlatform => GameText.BuildingSalvagePlatform,
-                SalvageDerelict.Stage.Recovering       => GameText.DerelictRecovering,
-                _                                      => GameText.DerelictSalvaging,
-            }), StatusWidth);
+            Status.Fit(DerelictSalvageButton.StageText(Stage, StageOrder), StatusWidth);
             Status.Draw(batch, StageClaimant != null && StageClaimant != Universe.Player ? StageClaimant.EmpireColor : Color.Wheat, X + StatusX, Y + 20, centered: false);
-        }
-
-        // made again only when the turns left change, so the status keeps its fit
-        string BreakingInText;
-        int BreakingInTurns = -1;
-
-        string BreakingIn(int turnsLeft)
-        {
-            if (turnsLeft != BreakingInTurns)
-            {
-                BreakingInTurns = turnsLeft;
-                BreakingInText = string.Format(Localizer.Token(GameText.DerelictBreakingIn), turnsLeft);
-            }
-            return BreakingInText;
         }
 
         TechEntry TechAt(Vector2 cursor)
@@ -230,24 +205,14 @@ public sealed class SystemDerelictsScreen : GameScreen
         var derelictsList = Add(new SubmenuScrollList<DerelictListItem>(rect, title, list));
         derelictsList.SetBackground(Colors.TransparentBlackFill);
         RectF area = derelictsList.ClientArea;
-        // the column titles above the list, and the station button below it, inside the frame
-        list.RectF = new(area.X, area.Y + HeaderHeight, area.W, area.H - HeaderHeight - 45);
+        // the column titles above the list, inside the frame
+        list.RectF = new(area.X, area.Y + HeaderHeight, area.W, area.H - HeaderHeight);
         AddHeaders(area);
 
         Derelict[] derelicts = System.Universe.Derelicts.Current;
         for (int i = 0; i < derelicts.Length; ++i)
             if (derelicts[i].System == System && derelicts[i].SelectableByPlayer)
                 list.AddItem(new DerelictListItem(Universe, derelicts[i], ReadAfterClick));
-
-        var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
-        var stationRect = new Rectangle((int)rect.CenterX - btn.Width / 2, (int)rect.Bottom - btn.Height - 12, btn.Width, btn.Height);
-        StationButton = Button(ButtonStyle.Default, GameText.DeploySalvageStation, OnStationClicked);
-        StationButton.Font = Fonts.TahomaBold9;
-        StationButton.Rect = stationRect;
-        StationButton.ClickSfx = null;
-        StationStatus = Add(new UILabel(new Rectangle((int)rect.X, stationRect.Y, (int)rect.W, stationRect.Height),
-                                        "", Fonts.Arial12Bold, Color.Gray) { TextAlign = TextAlign.Center });
-        Shown = null; // a reload builds a new button and label
         ReadGoals();
 
         base.LoadContent();
@@ -288,7 +253,6 @@ public sealed class SystemDerelictsScreen : GameScreen
     {
         for (int i = 0; i < Rows.NumEntries; ++i)
             Rows[i].Read();
-        UpdateStationOrder();
     }
 
     public bool Lists(Derelict d) => Rows.Any(row => row.Derelict == d);
@@ -308,68 +272,6 @@ public sealed class SystemDerelictsScreen : GameScreen
         for (int i = Rows.NumEntries - 1; i >= 0; --i)
             if (!Rows[i].Derelict.SelectableByPlayer)
                 Rows.Remove(Rows[i]);
-    }
-
-    public enum StationOrder { None, Deploy, Abort, Deployed, NoDesign, AllWorked }
-    StationOrder? Shown;
-
-    // Deploy while a station can be ordered, Abort while the order is not built, then Deployed; grey text when no design can be built or other empires work every derelict there
-    public static StationOrder StationOrderIn(Empire empire, SolarSystem system)
-    {
-        Goal order = empire.AI.FindGoal(g => g?.IsSalvageOpsGoal(system) == true);
-        if (order != null)
-            return order.TargetShip != null ? StationOrder.Deployed : StationOrder.Abort;
-
-        return SalvageOps.WhyNoOrderIn(empire, system) switch
-        {
-            SalvageOps.OrderBlock.None => StationOrder.Deploy,
-            SalvageOps.OrderBlock.NoDesign => StationOrder.NoDesign,
-            SalvageOps.OrderBlock.AllWorked => StationOrder.AllWorked,
-            _ => StationOrder.None,
-        };
-    }
-
-    public void UpdateStationOrder()
-    {
-        StationOrder state = StationOrderIn(Player, System);
-        if (Shown == state)
-            return;
-
-        Shown = state;
-        bool abort = state == StationOrder.Abort;
-        StationButton.Visible = state is StationOrder.Deploy or StationOrder.Abort;
-        StationButton.Text = abort ? GameText.AbortDeployent : GameText.DeploySalvageStation;
-        StationButton.Style = abort ? ButtonStyle.Military : ButtonStyle.Default;
-        StationButton.Tooltip = abort ? LocalizedText.None : GameText.SalvageStationOrderTip;
-
-        StationStatus.Visible = state is StationOrder.Deployed or StationOrder.NoDesign or StationOrder.AllWorked;
-        StationStatus.Text = state == StationOrder.Deployed ? GameText.SalvageStationDeployed
-                           : state == StationOrder.AllWorked ? GameText.SalvageStationAllWorkedTip : GameText.SalvageStationNoDesignTip;
-        StationStatus.Color = state == StationOrder.Deployed ? Player.EmpireColor : Color.Gray;
-    }
-
-    void OnStationClicked(UIButton b)
-    {
-        StationOrder state = StationOrderIn(Player, System);
-        if (state == StationOrder.Abort)
-        {
-            GameAudio.EchoAffirmative();
-            Universe.RunOnSimThread(() => Player.AI.CancelSalvageStation(System));
-            ReadAfterClick();
-            return;
-        }
-
-        if (state == StationOrder.Deploy
-            && SalvageOps.OrderNearDerelicts(Player, System, Universe.UState.Objects.GetShips(), SiteRandom))
-        {
-            GameAudio.EchoAffirmative();
-            ReadAfterClick();
-            return;
-        }
-
-        GameAudio.NegativeClick();
-        if (state == StationOrder.Deploy) // above the button, clear of its tooltip at the cursor
-            ToolTip.CreateFloatingText(GameText.SalvageStationNoSite, "", new Vector2(b.X, b.Y - 70), 5);
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)

@@ -213,7 +213,6 @@ namespace Ship_Game.Ships
         public bool Explodes => ExplosionDamage > 0;
 
         public bool IsMiningBay => Refining > 0;
-        public bool IsSalvageBay => Salvage;
 
         // used in module selection category
         public bool IsPowerArmor => Is(ShipModuleType.Armor) && !IsBulkhead && (PowerDraw > 0 || PowerFlowMax > 0);
@@ -266,12 +265,12 @@ namespace Ship_Game.Ships
                 case ShipModuleType.Shield:     return ShieldPowerMax >= 1f;
                 case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
                 case ShipModuleType.Ordnance:   return ModuleType == type && OrdinanceCapacity > 0;
-                case ShipModuleType.Hangar:     return ModuleType == type || IsMiningBay || IsSalvageBay;
+                case ShipModuleType.Hangar:     return ModuleType == type || IsMiningBay;
                 default:                        return ModuleType == type;
             }
         }
 
-        public bool IsFighterHangar => !IsMiningBay && !IsSalvageBay && !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
+        public bool IsFighterHangar => !IsMiningBay && !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
 
         /// <summary> Actually health ratio [0.0 ... 1.0] </summary>
         public float HealthPercent => Health / ActualMaxHealth;
@@ -490,8 +489,6 @@ namespace Ship_Game.Ships
                 m.HangarShipUID = us.Player.GetSupplyShuttleName();
             else if (m.IsMiningBay)
                 m.HangarShipUID = us.Player.GetMiningShipName();
-            else if (m.IsSalvageBay)
-                m.HangarShipUID = SalvageDerelict.ConstructorName(us.Player);
             else if (m.ModuleType == ShipModuleType.Hangar)
                 m.HangarShipUID = m.IsTroopBay ? us.Player.GetAssaultShuttleName() : hangarShipUID;
 

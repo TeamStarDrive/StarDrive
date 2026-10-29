@@ -715,6 +715,22 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
+        // the goal's item goes first in the queue
+        public void MoveToFront(Goal goal)
+        {
+            lock (ConstructionQueue)
+            {
+                for (int i = 1; i < ConstructionQueue.Count; ++i)
+                {
+                    if (ConstructionQueue[i].Goal == goal)
+                    {
+                        MoveTo(0, i);
+                        return;
+                    }
+                }
+            }
+        }
+
         public void MoveToAndContinuousRushFirstItem()
         {
             if (Empty)

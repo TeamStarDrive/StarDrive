@@ -193,7 +193,6 @@
     <Compile Include="Ships\PirateCaptureScuttleTests.cs" />
     <Compile Include="Ships\SalvageModuleTests.cs" />
     <Compile Include="Ships\SalvageAITests.cs" />
-    <Compile Include="Ships\SalvageConstructorTests.cs" />
     <Compile Include="Ships\DismantleOrbitalTests.cs" />
     <Compile Include="Ships\DismantleOrbitalWorkTests.cs" />
     <Compile Include="Ships\DeliverRefundTests.cs" />
@@ -208,6 +207,8 @@
     <Compile Include="Ships\SalvageOpsTests.cs" />
     <Compile Include="Ships\SalvageDesignTests.cs" />
     <Compile Include="Ships\SalvageShipTests.cs" />
+    <Compile Include="Ships\SalvageOrderTest.cs" />
+    <Compile Include="Ships\SalvageShipFlowTests.cs" />
     <Compile Include="Ships\ShipLaunchPlaceTests.cs" />
     <Compile Include="Ships\ExplosionShieldTests.cs" />
     <Compile Include="Ships\ModuleResistTests.cs" />

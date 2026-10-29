@@ -19,9 +19,9 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// The Recover button orders a derelict ship recovered: a saved mode of the salvage order, passed on with it, in which
-/// its platform strips nothing and first sends what it holds to its station. While an order stands, the other button
-/// turns it to that button's work, and its own lit button calls it off; a station can only be salvaged. The buttons
-/// show while the player has a salvage station built in the derelict's system or an order on it. The chance to recover
+/// its platform strips nothing. While an order stands, the other button turns it to that button's work, and its own
+/// lit button calls it off; a station can only be salvaged. The buttons show while the player's race has a salvage
+/// ship or with an order on the derelict, but not with salvage ops off. The chance to recover
 /// a ship is its hull's, 60 for a frigate down to 20 for a capital, times 1 plus its race's engineers, read from its
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
 /// stripped, half that for a ship of a Remnant design whoever lost it and a quarter more for one of the empire's own,
@@ -39,34 +39,15 @@ namespace UnitTests.Ships;
 /// order to salvage keeps the work but a later recovery breaks in again; saves and passing on keep both. A rival's
 /// recovery reads Recovering throughout, its break-in unshown. The player is told of each outcome of theirs, the ship
 /// as it appears and a failure or a blast at the roll, but not of a rival's ship, a recovery called off, or a platform
-/// or station lost during the rise; the Salvage alerts switch silences them all. A derelict's row leaves the derelicts
+/// lost during the rise; the Salvage alerts switch silences them all. A derelict's row leaves the derelicts
 /// window once it can no longer be selected.
 /// </summary>
 [TestClass]
-public class SalvageRecoveryTests : StarDriveTest
+public class SalvageRecoveryTests : SalvageOrderTest
 {
-    static readonly Vector2 SystemSite = new(600_000f, 600_000f);
-    static readonly Vector2 Wreck = SystemSite + new Vector2(30_000f, 0);
-    static readonly Vector2 PlayerStation = SystemSite + new Vector2(33_000f, 0);
-    readonly SolarSystem WreckSystem;
-    readonly IShipDesign Station;
-
     public SalvageRecoveryTests()
     {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName, "Ancient Frigate");
-        CreateUniverseAndPlayerEmpire();
-        UState.Objects.EnableParallelUpdate = false;
-        WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
-        AddHomeWorldToEmpire(new Vector2(200_000f), Player);
-        Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Basic Salvage Station", out Station), "setup: the station is loaded");
-        Player.data.CurrentConstructor = "Terran Constructor";
-    }
-
-    [TestCleanup]
-    public override void Cleanup()
-    {
-        UState.Derelicts.Clear();
-        base.Cleanup();
+        LoadStarterShips("Terran Basic Salvage Station", "Ancient Frigate");
     }
 
     // a salvageable derelict of the player's unless another owner is given, which the player then knows of as it has seen the ship, its ship dead with this share of its health; the ship itself is gone
@@ -82,41 +63,6 @@ public class SalvageRecoveryTests : StarDriveTest
         Universe.InvokePendingSimThreadActions();
         ship.QueueTotalRemoval();
         return UState.Derelicts.Current.Last();
-    }
-
-    SalvageOps StationOrder()
-    {
-        var order = new SalvageOps(Player, WreckSystem, PlayerStation, Station);
-        Player.AI.AddGoal(order);
-        order.AdvanceToNextStep(); // past the queueing, which needs a port
-        return order;
-    }
-
-    Ship BuiltStation(SalvageOps order = null)
-    {
-        order ??= StationOrder();
-        order.TargetShip = SpawnShip(Station.Name, Player, PlayerStation);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the station is built");
-        return order.TargetShip;
-    }
-
-    // the player's order with its platform built beside the derelict, as its constructor leaves it
-    SalvageDerelict AtWork(Derelict d, bool recover = false)
-    {
-        Assert.IsTrue(SalvageDerelict.Order(Player, d, recover), "setup: ordered");
-        SalvageDerelict order = SalvageDerelict.OrderOf(Player, d);
-        Ship constructor = order.FinishedShip;
-        Assert.IsNotNull(constructor, "setup: a constructor launches");
-        Assert.IsTrue(d.TryClaim(Player), "setup: the constructor claims the derelict as it starts to build");
-
-        Ship platform = SpawnShip(ShipDesign.SalvagePlatformName, Player, order.BuildPosition);
-        platform.CargoSpaceMax = 100f;
-        constructor.QueueTotalRemoval();
-        order.OnPlatformBuilt(platform, constructor);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the platform is built");
-        return order;
     }
 
     static float Chance(Empire empire, Derelict d) => DerelictRecovery.Chance(empire, d);
@@ -151,7 +97,6 @@ public class SalvageRecoveryTests : StarDriveTest
     // the player's recovery with a turn of work left, so its next turn finishes the work and rolls
     SalvageDerelict OneTurnOfWorkLeft(Derelict d)
     {
-        BuiltStation();
         Player.data.SelectedTraitSet = "";
         SalvageDerelict order = AtWork(d, recover: true);
         int workTurns = (int)Math.Ceiling(DerelictRecovery.Work(Player, d) / 24f);
@@ -294,23 +239,20 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ARecoveringPlatformStripsNothingAndFirstSendsWhatItHolds()
+    public void ARecoveringPlatformStripsNothingAndKeepsWhatItStripped()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation();
         SalvageDerelict order = AtWork(d);
         order.Evaluate();
-        AssertEqual(0.01f, 12f, order.Platform.GetProduction(), "setup: the platform stripped a turn's work");
+        AssertEqual(0.01f, 12f, order.Load, "setup: the platform stripped a turn's work");
 
         SalvageDerelict.Switch(Player, d, recover: true);
         Assert.IsTrue(order.Recovering, "the Recover button turns the order to a recovery");
         float left = d.ProductionLeft;
-        float stored = station.GetProduction();
         order.Evaluate();
-        AssertEqual(0.01f, 0f, order.Platform.GetProduction(), "the platform first sends what it holds");
-        AssertEqual(0.01f, stored + 12f, station.GetProduction(), "to its station");
         order.Evaluate();
-        AssertEqual(0.01f, left, d.ProductionLeft, "and strips nothing");
+        AssertEqual(0.01f, left, d.ProductionLeft, "which strips nothing");
+        AssertEqual(0.01f, 12f, order.Load, "and keeps what it stripped");
 
         SalvageDerelict.Switch(Player, d, recover: false);
         Assert.IsFalse(order.Recovering, "the Salvage button turns it back");
@@ -319,26 +261,9 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ARecoveringPlatformsLoadWaitsForRoomInItsStation()
-    {
-        Derelict d = Forms(Wreck);
-        Ship station = BuiltStation();
-        SalvageDerelict order = AtWork(d);
-        order.Evaluate();
-        station.LoadProduction(station.CargoRoom);
-        Assert.IsFalse(order.LoadWaitsForStation(order.Platform), "setup: with room in its hold, a stripping platform's load does not wait");
-
-        SalvageDerelict.Switch(Player, d, recover: true);
-        Assert.IsTrue(order.LoadWaitsForStation(order.Platform), "a recovering one's does, as its station is full");
-        order.Evaluate();
-        AssertEqual(0.01f, 12f, order.Platform.GetProduction(), "so it keeps its load");
-    }
-
-    [TestMethod]
     public void TheButtonsOrderTurnAndCallOffTheOrder()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation();
         Block recover = BlockOf(d, Kind.Recover);
         AssertEqual(Block.None, recover, "setup: the player can order it");
         Assert.IsFalse(DerelictSalvageButton.Lit(Kind.Recover, recover, null), "both buttons are grey");
@@ -365,7 +290,6 @@ public class SalvageRecoveryTests : StarDriveTest
     public void AStationCanOnlyBeSalvaged()
     {
         Derelict d = Forms(Wreck, design: "Terran Basic Salvage Station");
-        BuiltStation();
         Assert.IsFalse(DerelictRecovery.CanRecover(d), "a station's derelict");
         AssertEqual(Block.NotAShip, SalvageDerelict.WhyNoRecovery(Player, d), "greys the Recover button");
         Assert.IsFalse(SalvageDerelict.Order(Player, d, recover: true), "which orders nothing");
@@ -378,36 +302,35 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheButtonsShowOnlyWithASalvageStationBuiltInTheSystemOrAnOrderStanding()
+    public void TheButtonsShowWhileTheRaceHasASalvageShipOrAnOrderStanding()
     {
         Derelict d = Forms(Wreck);
-        bool Shown() => DerelictSalvageButton.Shown(Player, d, SalvageDerelict.WhyNoOrder(Player, d));
-        Assert.IsFalse(Shown(), "no station there");
-
-        SalvageOps stationOrder = StationOrder();
-        Assert.IsFalse(Shown(), "nor one on order");
-        d.TryClaim(Enemy);
-        Assert.IsFalse(Shown(), "nor while another empire salvages it");
-
-        d.ReleaseClaim();
-        d.TryClaim(Player); // as a save can catch a claim without its order
-        Assert.IsTrue(Shown(), "a claim of the player's shows them, to give it up");
-        d.ReleaseClaim();
-
-        BuiltStation(stationOrder);
-        Assert.IsTrue(Shown(), "a built station shows them");
+        bool Shown() => DerelictSalvageButton.Shown(SalvageDerelict.WhyNoOrder(Player, d));
+        Assert.IsTrue(Shown(), "the player's race has a salvage ship");
         d.TryClaim(Enemy);
         Assert.IsTrue(Shown(), "greyed while another empire salvages it");
+        d.ReleaseClaim();
+
+        Player.data.AllowSalvageShip = false;
+        AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, d), "setup: without the Salvage Ships technology");
+        Assert.IsTrue(Shown(), "they show, greyed, until it is researched");
+        Player.data.AllowSalvageShip = true;
+
+        Player.data.DefaultSalvageShip = null;
+        Assert.IsFalse(Shown(), "a race without a salvage ship shows none");
+        d.TryClaim(Player); // as a save can catch a claim without its order
+        Assert.IsTrue(Shown(), "but a claim of the player's shows them, to give it up");
+        d.ReleaseClaim();
+        Player.data.DefaultSalvageShip = "Terran Salvage Ship";
 
         UState.P.DisableSalvageOps = true;
-        Assert.IsFalse(Shown(), "but not with salvage ops off");
+        Assert.IsFalse(Shown(), "and none shows with salvage ops off");
     }
 
     [TestMethod]
     public void TheOtherButtonGivesUpAClaimKeptWithoutItsOrder()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation();
         d.TryClaim(Player); // as a save can catch a claim without its order
         Block block = BlockOf(d, Kind.Recover);
         AssertEqual(Block.Ordered, block, "setup: the claim reads as an order");
@@ -425,7 +348,6 @@ public class SalvageRecoveryTests : StarDriveTest
     public void AnOrdersRecoverySurvivesSaveAndPassingOn()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        BuiltStation();
         SalvageDerelict order = AtWork(d, recover: true);
         Player.data.SelectedTraitSet = "Skilled Engineers";
         Turns(order, 11);
@@ -481,7 +403,6 @@ public class SalvageRecoveryTests : StarDriveTest
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         Succeeds(d);
-        BuiltStation();
         Player.data.SelectedTraitSet = "";
         SalvageDerelict order = AtWork(d, recover: true);
         float work = DerelictRecovery.Work(Player, d);
@@ -516,7 +437,6 @@ public class SalvageRecoveryTests : StarDriveTest
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         Succeeds(d);
-        BuiltStation();
         Player.data.SelectedTraitSet = "";
         Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
         SalvageDerelict order = AtWork(d, recover: true);
@@ -535,7 +455,6 @@ public class SalvageRecoveryTests : StarDriveTest
     {
         Derelict d = Forms(Wreck);
         Succeeds(d);
-        BuiltStation();
         Player.data.SelectedTraitSet = "";
         SalvageDerelict order = AtWork(d, recover: true);
         AssertEqual(0f, DerelictRecovery.Work(Player, d), "setup: a ship that died at full health leaves no work");
@@ -552,7 +471,6 @@ public class SalvageRecoveryTests : StarDriveTest
     public void TurningToSalvageKeepsTheWorkButARecoveryBreaksInAgain()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        BuiltStation();
         Player.data.SelectedTraitSet = "";
         SalvageDerelict order = AtWork(d, recover: true);
         Turns(order, 12);
@@ -566,8 +484,8 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.IsTrue(order.BreakingIn, "a recovery taken up again breaks in again");
         AssertEqual(10, order.BreakInTurnsLeft, "for all its turns");
         Turns(order, 1);
-        AssertEqual(10, order.BreakInTurnsLeft, "which start once its platform has sent what it holds");
-        Turns(order, 10);
+        AssertEqual(9, order.BreakInTurnsLeft, "which start at once");
+        Turns(order, 9);
         AssertEqual(0.01f, 48f, order.RecoveryWork, "the work waiting meanwhile");
         Turns(order, 1);
         AssertEqual(0.01f, 72f, order.RecoveryWork, "then going on from where it was");
@@ -599,7 +517,6 @@ public class SalvageRecoveryTests : StarDriveTest
     public void PassingOnAnOrderMidBreakInKeepsItsTurns()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        BuiltStation();
         SalvageDerelict order = AtWork(d, recover: true);
         Turns(order, 4);
         AssertEqual(6, order.BreakInTurnsLeft, "setup: four turns into the break-in");
@@ -621,7 +538,9 @@ public class SalvageRecoveryTests : StarDriveTest
         AssertEqual(string.Format(Localizer.Token(GameText.DerelictRecoveredBy), Enemy.Name), DerelictSalvageButton.ClaimTip(d, Enemy),
                     "and its flag's tooltip says it recovers the derelict");
 
-        theirs.OnPlatformBuilt(SpawnShip(ShipDesign.SalvagePlatformName, Enemy, theirs.BuildPosition), SpawnShip("Terran Constructor", Enemy, theirs.BuildPosition));
+        ShipBuilt(theirs);
+        for (int turn = 0; turn < 1 + SalvageDerelict.DeployTurns; ++turn)
+            theirs.Evaluate();
         Assert.IsTrue(theirs.BreakingIn, "setup: its platform breaks in");
         AssertEqual(Stage.Recovering, SalvageDerelict.StageOf(Player, d, out Empire claimant, out SalvageDerelict order), "the window still reads Recovering");
         AssertEqual(Enemy, claimant, "in its colour");
@@ -858,7 +777,7 @@ public class SalvageRecoveryTests : StarDriveTest
         Assert.AreSame(d, Universe.SelectedDerelict, "it stays selected as it rises");
 
         Block block = SalvageDerelict.WhyNoOrder(Player, d);
-        Assert.IsFalse(DerelictSalvageButton.Shown(Player, d, block), "with no buttons");
+        Assert.IsFalse(DerelictSalvageButton.Shown(block), "with no buttons");
         Assert.AreSame(order, DerelictSalvageButton.StandingOrder(Player, d, block), "its panel showing the recovery");
         AssertEqual(1f, DerelictRecovery.Progress(Player, d, order.RecoveryWork), "all its work done");
         AssertEqual(Stage.Recovering, StageOf(d), "still recovering");
@@ -1177,7 +1096,6 @@ public class SalvageRecoveryTests : StarDriveTest
         typeof(Derelict).GetProperty(nameof(Derelict.RotationY))!.SetValue(d, -0.5f);
         typeof(Derelict).GetProperty(nameof(Derelict.RotationZ))!.SetValue(d, 2f);
         float heading = d.RotationZ;
-        BuiltStation();
         SalvageDerelict order = AtWork(d, recover: true);
         float turn = UState.P.TurnTimer;
 
@@ -1216,8 +1134,7 @@ public class SalvageRecoveryTests : StarDriveTest
             GlobalStats.Defaults.SalvageRecoveryBreakInTurns = 0;
             Derelict d = Forms(Wreck, health: 0.4f);
             typeof(Derelict).GetProperty(nameof(Derelict.RotationX))!.SetValue(d, 1f);
-            BuiltStation();
-            SalvageDerelict order = AtWork(d, recover: true);
+                SalvageDerelict order = AtWork(d, recover: true);
             Assert.IsFalse(order.BreakingIn, "with no break-in");
             Turns(order, 1);
             AssertEqual(0.01f, 24f, order.RecoveryWork, "the work starts the first turn");
@@ -1328,23 +1245,21 @@ public class SalvageRecoveryTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ACalledOffRecoveryIsNotToldEvenAfterItsSalvageBroughtProduction()
+    public void ACalledOffRecoveryIsNotToldEvenAfterItsSalvageStrippedProduction()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
-        BuiltStation();
         SalvageDerelict order = AtWork(d);
         Turns(order, 1);
-        AssertGreaterThan(order.Platform.GetProduction(), 0f, "setup: the platform stripped a load");
+        AssertGreaterThan(order.Load, 0f, "setup: the platform stripped production");
         SalvageDerelict.Switch(Player, d, recover: true);
         Universe.InvokePendingSimThreadActions();
         Turns(order, 1);
-        AssertGreaterThan(order.Delivered, 0f, "setup: turned to recovery, it sent its load to the station");
 
         NotificationManager notes = TrackNotifications();
         SalvageDerelict.Cancel(Player, d);
         Universe.InvokePendingSimThreadActions();
         Turns(order, 1);
-        Assert.IsTrue(order.CalledOff && order.Dismantling, "setup: the called-off platform comes apart");
+        Assert.IsTrue(order.CalledOff && order.Dismantling, "setup: the called-off platform turns back into the ship");
         AssertEqual(0, notes.NumberOfNotifications, "and the player, who called the recovery off, is told nothing");
     }
 
@@ -1358,23 +1273,6 @@ public class SalvageRecoveryTests : StarDriveTest
 
         Turns(order, 1);
         Assert.IsFalse(Player.AI.HasGoal(g => g == order), "setup: losing its platform as the derelict rises ends the order");
-        AssertEqual(0, notes.NumberOfNotifications, "untold");
-        RisesForItsShip(d);
-        AssertEqual($"{WreckSystem.Name}: the Dreadnought mk1-a is recovered", notes.GetNotificationsAtomic().Single().Message,
-                    "as the ship still comes, which is told");
-    }
-
-    [TestMethod]
-    public void AStationLostAsTheDerelictRisesIsNotToldAndTheShipStillComes()
-    {
-        Derelict d = Forms(Wreck, health: 0.4f);
-        SalvageDerelict order = RolledASuccess(d);
-        Ship station = SalvageOps.StationIn(Player, WreckSystem);
-        NotificationManager notes = TrackNotifications();
-        station.Die(null, cleanupOnly: true);
-
-        Turns(order, 1);
-        Assert.IsFalse(Player.AI.HasGoal(g => g == order), "setup: losing the station as the derelict rises ends the order");
         AssertEqual(0, notes.NumberOfNotifications, "untold");
         RisesForItsShip(d);
         AssertEqual($"{WreckSystem.Name}: the Dreadnought mk1-a is recovered", notes.GetNotificationsAtomic().Single().Message,

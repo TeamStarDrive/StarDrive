@@ -156,6 +156,7 @@ namespace Ship_Game.Ships
             var shipStatus = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64).ToFloored();
             SalvageDerelict salvage = s.IsSalvagePlatform ? SalvageDerelict.OfPlatform(s) : null;
             string status = s.IsSalvagePlatform ? SalvageStatus(s, salvage)
+                          : s.IsSalvageShip ? SalvageShipStatus(s)
                           : s.IsSalvageStation ? SalvageStationStatus(s) : ShipListScreenItem.GetStatusText(s);
             string text = Fonts.TahomaBold9.ParseText(status, 120);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
@@ -504,15 +505,15 @@ namespace Ship_Game.Ships
             }
         }
 
-        // its load out of its hold, and the production left in its derelict or, the player's alone, the progress of its recovery while it works there
+        // the production its order has stripped, out of its derelict's, and the production left in its derelict or, the player's alone, the progress of its recovery while it works there
         void DrawSalvageStatus(SpriteBatch batch, Vector2 mousePos, SalvageDerelict salvage)
         {
-            if (!Ship.IsSalvagePlatform)
+            if (!Ship.IsSalvagePlatform || salvage == null)
                 return;
 
             SubTexture production = ResourceManager.Texture("NewUI/icon_production");
-            SalvageHoldBar.Progress = Ship.GetProduction();
-            SalvageHoldBar.Max = SalvageHoldBar.Progress + Ship.CargoRoom;
+            SalvageHoldBar.Max = Math.Max(salvage.DerelictProduction, 1f);
+            SalvageHoldBar.Progress = salvage.Load;
             SalvageHoldBar.Draw(batch);
             batch.Draw(production, MiningRect, Color.White);
             if (MiningRect.HitTest(mousePos) || SalvageHoldBar.pBar.HitTest(mousePos))
@@ -537,24 +538,29 @@ namespace Ship_Game.Ships
                 ToolTip.CreateTooltip(GameText.DerelictProductionTip);
         }
 
-        // a salvage platform takes no orders: it strips its derelict, sends its station its load, and takes itself apart once its work is over
+        // a salvage platform takes no orders: it strips its derelict into its order's hold, and turns back into its salvage ship once its work is over
         internal static string SalvageStatus(Ship platform, SalvageDerelict salvage)
         {
             if (salvage == null)
                 return ShipListScreenItem.GetStatusText(platform);
             if (salvage.Dismantling)
-                return Localizer.Token(GameText.PlatformDismantling);
-            if (salvage.LoadWaitsForStation(platform))
-                return Localizer.Token(GameText.SalvageStationHoldFull);
+                return Localizer.Token(GameText.PlatformTurningBack);
             if (salvage.Finished)
                 return Localizer.Token(salvage.RecoverySucceeded ? GameText.PlatformShipRecovered : GameText.SalvageFinished);
-            if (SalvageDerelict.HoldFull(platform))
-                return Localizer.Token(GameText.SalvageHoldFull);
             if (salvage.BreakingIn && salvage.Owner.isPlayer) // a rival's reads Recovering throughout, as in the derelicts window
                 return string.Format(Localizer.Token(GameText.DerelictBreakingIn), salvage.BreakInTurnsLeft);
             if (salvage.Derelict is { Stripped: false } d)
                 return string.Format(Localizer.Token(salvage.Recovering ? GameText.RecoveringDerelict : GameText.SalvagingDerelict), d.Design.Name);
             return ShipListScreenItem.GetStatusText(platform);
+        }
+
+        // a salvage ship takes no orders: it flies out to its derelict and turns into the platform there; bringing home what it stripped, it shows its delivery
+        internal static string SalvageShipStatus(Ship ship)
+        {
+            if (SalvageDerelict.OfShip(ship) is not { } salvage)
+                return ShipListScreenItem.GetStatusText(ship);
+            return salvage.Deploying ? Localizer.Token(GameText.DeployingSalvagePlatform)
+                                     : string.Format(Localizer.Token(GameText.SalvageShipFlyingTo), salvage.DerelictName);
         }
 
         // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling or coming apart, shows its orders
@@ -703,7 +709,7 @@ namespace Ship_Game.Ships
             if (s.Loyalty != Player)
                 return;
 
-            if (s.IsSalvagePlatform || s.DeliversRefund || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+            if (s.IsSalvagePlatform || s.WorksForSalvage || s.DeliversRefund || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
             if (s.ShipData.Role > RoleName.station && !s.IsConstructor)

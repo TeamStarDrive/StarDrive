@@ -229,17 +229,6 @@ namespace Ship_Game.Commands.Goals
             return station is { Active: true, Dismantling: false } && station.Loyalty == empire ? station : null;
         }
 
-        // on the sim thread: the systems where StationIn finds the empire's built station, in one pass over its goals
-        public static HashSet<SolarSystem> StationSystems(Empire empire)
-        {
-            var systems = new HashSet<SolarSystem>();
-            var goals = empire.AI.Goals;
-            for (int i = 0; i < goals.Count; ++i)
-                if (goals[i] is SalvageOps { TargetShip: { Active: true, Dismantling: false } station } order && station.Loyalty == empire && order.TargetSystem != null)
-                    systems.Add(order.TargetSystem);
-            return systems;
-        }
-
         // as a station changes hands: it works for its new owner, whose order there is dropped; where the new owner has a station already it is evacuated, a boarded one's troops leaving first and a player told
         public static void TakeOver(Ship station, Empire from, Empire to, bool boarded)
         {
@@ -328,17 +317,14 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            // one counting down to its scuttling, coming apart, or about to change hands, orders nothing, calls no freighters and does not end; one pirates hold only recovers for them
+            // one counting down to its scuttling, coming apart, or about to change hands, calls no freighters and does not end; one pirates hold only keeps its ordnance up
             if (!SalvageStation.Dying && SalvageStation.ScuttleTimer < 0f && !SalvageStation.Dismantling && !SalvageStation.LoyaltyTracker.ChangesFrom(Owner))
             {
                 if (Owner.WeArePirates)
                 {
                     ReplenishOrdnance(SalvageStation);
-                    OrderDerelicts();
                     return GoalStep.TryAgain;
                 }
-                if (Owner.NumPlanets > 0 && (Owner.isPlayer ? Owner.AutoBuildSalvageStations : !Owner.IsFaction)) // one with no colony left is defeated this turn
-                    OrderDerelicts();
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
                 // what it holds goes with the station of an empire with nowhere to send it
                 if (workDone && (SalvageStation.GetProduction() < 1f || NowhereToSend(Owner)))
@@ -347,25 +333,6 @@ namespace Ship_Game.Commands.Goals
             }
             return GoalStep.TryAgain;
         }
-
-        // an AI empire's station, or the player's with Auto Build Salvage Stations on, fills its free units, the derelict with the fewest turns left first as a claim stops its clock, while no armed hostile is in its sensor range; pirates' recovers every ship it can and strips nothing, while its bays have a constructor to launch
-        void OrderDerelicts()
-        {
-            bool pirates = Owner.WeArePirates;
-            if (HaulsBlocked(SalvageStation) || pirates && SalvageDerelict.ConstructorName(Owner, SalvageStation).IsEmpty())
-                return;
-
-            Derelict[] open = Owner.Universe.Derelicts.Current.Filter(d => d.System == TargetSystem && CanOrder(d, pirates));
-            open.Sort(d => d.TurnsLeft);
-            for (int i = 0; i < open.Length; ++i)
-                if (!SalvageDerelict.Order(Owner, open[i], recover: pirates || SalvageDerelict.WouldRecover(Owner, open[i])))
-                    break; // its units are all busy
-        }
-
-        // pirates pass over a ship of a design they spawn, which their base takes in for nothing
-        bool CanOrder(Derelict d, bool pirates)
-            => pirates ? SalvageDerelict.WhyNoRecovery(Owner, d) == SalvageDerelict.Block.None && !Owner.Pirates.ShipsWeCanSpawn.Contains(d.Design.Name)
-                       : SalvageDerelict.WhyNoOrder(Owner, d) == SalvageDerelict.Block.None;
 
         // nothing resupplies a station pirates hold, so one that makes no ordnance of its own regains a tenth of its store a turn out of combat, as a pirate base does
         static void ReplenishOrdnance(Ship station)

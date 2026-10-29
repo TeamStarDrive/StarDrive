@@ -7,7 +7,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    // the refund of an orbital taken apart in deep space or at a planet not its empire's, which a builder ship the player cannot order carries to its colonies: it stops near each and sends down what fits, until all of it fits at one or it comes to its last, where it lands and unloads all
+    // the refund of an orbital taken apart in deep space or at a planet not its empire's, which a builder ship the player cannot order carries to its colonies, or what a salvage platform stripped, which its salvage ship carries the same way: it stops near each and sends down what fits, until all of it fits at one or it comes to its last, where it lands and unloads all
     [StarDataType]
     public class DeliverRefund : Goal
     {
@@ -22,6 +22,8 @@ namespace Ship_Game.Commands.Goals
         [StarData] public bool Lands { get; private set; }
         [StarData] int Stops;
         [StarData] bool NoRoomLeft;
+        // a salvage ship bringing home what its platform stripped, whose loss with production aboard is told
+        [StarData] bool Salvaged;
 
         Ship Builder => OldShip;
 
@@ -58,9 +60,27 @@ namespace Ship_Game.Commands.Goals
             }
 
             builder.InitLaunch(LaunchPlan.Shipyard, from.AngleToTarget(delivery.PlanetBuildingAt.Position));
-            delivery.OldShip = builder;
-            delivery.Order(builder);
-            owner.AI.AddGoal(delivery);
+            delivery.Start(builder);
+        }
+
+        // a salvage ship carries home what its platform stripped as a refund is carried, and with nothing aboard lands at its empire's nearest safe colony; with no safe colony what it carries is paid as credits at the tax rate, and it leaves
+        public static void Send(Empire owner, Ship ship, float load, bool salvaged = false)
+        {
+            var delivery = new DeliverRefund(owner, load) { Stops = 1, Salvaged = salvaged };
+            if (!delivery.PickColony(ship.Position))
+            {
+                owner.AddExcessCargoMoney(load * owner.data.TaxRate);
+                ship.QueueTotalRemoval();
+                return;
+            }
+            delivery.Start(ship);
+        }
+
+        void Start(Ship builder)
+        {
+            OldShip = builder;
+            Order(builder);
+            Owner.AI.AddGoal(this);
         }
 
         // a delivery its empire's goals no longer hold, as one absorbed or fallen loses them, takes its builder and load away
@@ -70,7 +90,7 @@ namespace Ship_Game.Commands.Goals
                 builder.QueueTotalRemoval();
         }
 
-        // among the five safe colonies with the most room, the nearest, one it stopped at too once its store has room again; with none with room, the nearest safe colony, where it lands; false with no safe colony
+        // among the five safe colonies with the most room, the nearest, one it stopped at too once its store has room again; with none with room, or nothing aboard, the nearest safe colony, where it lands; false with no safe colony
         bool PickColony(Vector2 from)
         {
             PlanetBuildingAt = null;
@@ -79,7 +99,7 @@ namespace Ship_Game.Commands.Goals
                 return false;
 
             Goal[] coming = Owner.AI.FindGoals(g => g.Type is GoalType.ScrapShip or GoalType.DeliverRefund);
-            Planet[] open = safe.Filter(p => p.MissingProdHereForScrap(coming) > 0f);
+            Planet[] open = Load > 0f ? safe.Filter(p => p.MissingProdHereForScrap(coming) > 0f) : Empty<Planet>.Array;
             NoRoomLeft = open.Length == 0;
             Planet[] candidates = NoRoomLeft ? safe : open.SortedDescending(p => p.MissingProdHereForScrap(coming)).TakeItems(ShortList);
             PlanetBuildingAt = candidates.FindMin(p => p.Position.SqDist(from));
@@ -103,7 +123,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep Deliver()
         {
             if (Builder is not { Active: true, Dying: false } builder || builder.Loyalty != Owner)
-                return GoalStep.GoalFailed;
+                return Lost();
             if (builder.LoyaltyTracker.ChangesFrom(Owner)) // boarded, it changes hands at its next update
                 return GoalStep.TryAgain;
             if (builder.IsLanding)
@@ -152,11 +172,19 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoalComplete;
         }
 
+        // the player is told of a salvage ship lost with production aboard
+        GoalStep Lost()
+        {
+            if (Salvaged && Load > 0f && Owner.isPlayer)
+                UState.Notifications?.AddSalvageShipLostHomeNotification(Load, Owner);
+            return GoalStep.GoalFailed;
+        }
+
         // landed, it unloads all, the excess paid as credits at the tax rate, and all of it on a colony lost during the landing
         GoalStep Unload()
         {
             if (Builder is not { Active: true } builder || builder.Loyalty != Owner)
-                return GoalStep.GoalFailed;
+                return Lost();
             if (builder.LandShip is { Done: false })
                 return GoalStep.TryAgain;
 

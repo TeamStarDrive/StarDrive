@@ -4,37 +4,31 @@
   <DroneModule>false</DroneModule>
   <FighterModule>false</FighterModule>
   <CorvetteModule>false</CorvetteModule>
-  <FrigateModule>false</FrigateModule>
-  <DestroyerModule>false</DestroyerModule>
-  <CruiserModule>false</CruiserModule>
-  <BattleshipModule>false</BattleshipModule>
-  <CapitalModule>false</CapitalModule>
-  <FreighterModule>false</FreighterModule>
   <PlatformModule>false</PlatformModule>
-  <StationModule>true</StationModule>
+  <StationModule>false</StationModule>
   
-  <Cost>100</Cost>
+  <Cost>50</Cost>
   <TechLevel>3</TechLevel>
-  <XSize>5</XSize>
-  <YSize>5</YSize>
+  <XSize>4</XSize>
+  <YSize>4</YSize>
   <ModuleType>Special</ModuleType>
   <Name>Salvage unit</Name>
-  <Restrictions>I</Restrictions>
+  <Restrictions>IO</Restrictions>
   <UID>SalvageUnit</UID> 
   <Version>2</Version>
 
   <IconTexturePath>Modules/SalvageUnit</IconTexturePath>
   <Mass>100</Mass>
-  <HealthMax>2500</HealthMax>
+  <HealthMax>1500</HealthMax>
   <RepairDifficulty>5</RepairDifficulty>
   
-  <PowerDraw>2000</PowerDraw>
+  <PowerDraw>150</PowerDraw>
   <Salvage>true</Salvage>
   <!-- for Hangar items -->
   <hangarShipUID>Doesnt Matter</hangarShipUID>
   <hangerTimerConstant>30</hangerTimerConstant>
-
   <OrdinanceCapacity>60</OrdinanceCapacity>
+  <CargoCapacity>50</CargoCapacity>
 
   <NameIndex>7142</NameIndex>
   <DescriptionIndex>7143</DescriptionIndex>
