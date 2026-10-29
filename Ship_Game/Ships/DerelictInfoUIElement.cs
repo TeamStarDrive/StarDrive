@@ -126,7 +126,7 @@ public sealed class DerelictInfoUIElement : UIElement
     {
         var button = new Rectangle(rect.X - slide, rect.Y, rect.Width, rect.Height);
         bool hovered = State == ElementState.Open && button.HitTest(Universe.Input.CursorPosition);
-        DerelictSalvageButton.Draw(batch, button, Universe.Player, kind, block, DerelictSalvageButton.Lit(kind, block, order), hovered);
+        DerelictSalvageButton.Draw(batch, button, kind, block, DerelictSalvageButton.Lit(kind, block, order), hovered);
     }
 
     // the count under the turns; once the player sees its techs, the icons of those the player can learn, with the points the player's salvage of it has given each, or while the player's order recovers it, the recovery's progress in their place

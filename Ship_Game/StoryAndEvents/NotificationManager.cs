@@ -885,7 +885,7 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        // a salvage whose platform finished its work: the production it stripped, then each tech with the research its stripping gave it
+        // a salvage whose platform sent the salvage ship its last load: the production its loads brought, then each tech with the research they gave it
         public void AddSalvageFinishedNotification(SalvageDerelict order)
         {
             if (Screen.UState.P.DisableSalvageWarning)
@@ -893,7 +893,7 @@ namespace Ship_Game
 
             var message = new StringBuilder(string.Format(Localizer.Token(order.CalledOff ? GameText.SalvageCalledOffNotify : GameText.SalvageStrippedNotify),
                                                           order.TargetSystem.Name, order.DerelictName));
-            message.Append('\n').Append(string.Format(Localizer.Token(GameText.SalvageProductionNotify), order.Load.ToString("N0", CultureInfo.InvariantCulture)));
+            message.Append('\n').Append(string.Format(Localizer.Token(GameText.SalvageProductionNotify), order.Delivered.ToString("N0", CultureInfo.InvariantCulture)));
             for (int i = 0; i < order.Techs.Length; ++i)
             {
                 string points = order.Gained[i].ToString("N0", CultureInfo.InvariantCulture);
@@ -918,12 +918,12 @@ namespace Ship_Game
         public void AddSalvageClaimedFirstNotification(SalvageDerelict order, Empire claimant)
             => AddSalvageLostNotification(order, SalvageText(GameText.SalvageClaimedFirstNotify, order, claimant.Name), order.DerelictIcon, claimant);
 
-        // a salvage ship destroyed or in other hands on its way out or as it deployed, with its race's salvage ship's icon
-        public void AddSalvageShipLostNotification(SalvageDerelict order)
-            => AddSalvageLostNotification(order, SalvageText(GameText.SalvageShipLostNotify, order), order.Owner.SalvageShipDesign?.IconPath ?? order.DerelictIcon);
+        // the salvage ship of the order's mission destroyed or in other hands, with the ship's icon
+        public void AddSalvageShipLostNotification(SalvageDerelict order, string shipIcon)
+            => AddSalvageLostNotification(order, SalvageText(GameText.SalvageShipLostNotify, order), shipIcon ?? order.DerelictIcon);
 
-        // a salvage ship destroyed or in other hands bringing home what its platform stripped
-        public void AddSalvageShipLostHomeNotification(float load, Empire owner)
+        // a salvage ship destroyed or in other hands with production aboard
+        public void AddSalvageShipLostLoadNotification(float load, string shipIcon)
         {
             if (Screen.UState.P.DisableSalvageWarning)
                 return;
@@ -931,12 +931,12 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Pause    = false,
-                Message  = string.Format(Localizer.Token(GameText.SalvageShipLostHomeNotify), load.ToString("N0", CultureInfo.InvariantCulture)),
-                IconPath = owner.SalvageShipDesign?.IconPath
+                Message  = string.Format(Localizer.Token(GameText.SalvageShipLostLoadNotify), load.ToString("N0", CultureInfo.InvariantCulture)),
+                IconPath = shipIcon
             }, "sd_ui_notification_warning");
         }
 
-        // a salvage whose derelict sank away before its salvage ship began to deploy
+        // a salvage whose derelict sank away before its constructor started to build
         public void AddSalvageSankNotification(SalvageDerelict order)
         {
             if (Screen.UState.P.DisableSalvageWarning)

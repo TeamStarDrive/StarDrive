@@ -8,16 +8,12 @@ using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
 
 namespace Ship_Game.Ships;
 
-// the Salvage and Recover buttons on the derelict's panel and on each row of the derelicts window, shown while the player's race has a salvage ship or with an order on the derelict: gray, lit under the cursor when a click can order, and lit while the order stands in its button's work; gray with the Salvage Ships technology still to research; with salvage on automatic only a standing order's other button clicks, to switch its work
+// the Salvage and Recover buttons on the derelict's panel and on each row of the derelicts window, shown unless the derelict is gone or the player has no salvage ship, can build none and its race names none: gray, lit under the cursor when a click can order, and lit while the order stands in its button's work; gray while the player can build no salvage ship and has none
 public static class DerelictSalvageButton
 {
     public enum Kind { Salvage, Recover }
 
-    // from any thread: Auto Build Salvage Stations has the player's stations order their derelicts
-    public static bool OnAutomatic(Empire player) => player.AutoBuildSalvageStations;
-
-    public static bool Clickable(Empire player, Block block, bool lit)
-        => OnAutomatic(player) ? block == Block.Ordered && !lit : block is Block.None or Block.Ordered;
+    public static bool Clickable(Block block) => block is Block.None or Block.Ordered;
 
     // from any thread: the Recover button's from the Salvage button's
     public static Block BlockOf(Kind kind, Block salvageBlock, Derelict d)
@@ -34,9 +30,9 @@ public static class DerelictSalvageButton
     public static bool Lit(Kind kind, Block block, SalvageDerelict order)
         => block == Block.Ordered && (order?.Recovering ?? false) == (kind == Kind.Recover);
 
-    public static void Draw(SpriteBatch batch, in Rectangle rect, Empire player, Kind kind, Block block, bool lit, bool hovered)
+    public static void Draw(SpriteBatch batch, in Rectangle rect, Kind kind, Block block, bool lit, bool hovered)
     {
-        bool lights = hovered && Clickable(player, block, lit);
+        bool lights = hovered && Clickable(block);
         bool bright = lit || lights;
         string back = lights ? "SelectionBox/button_action_hover"
                     : lit ? "SelectionBox/button_action"
@@ -52,11 +48,6 @@ public static class DerelictSalvageButton
     // the tips carry their ids, so they link to the Codex; those with figures link through the id they are made from
     public static void Tooltip(Empire player, Derelict d, Kind kind, Block block, bool lit, SalvageDerelict order)
     {
-        if (OnAutomatic(player) && !Clickable(player, block, lit))
-        {
-            ToolTip.CreateTooltip(lit && order != null && DerelictRecovery.CanRecover(d) ? GameText.SalvageAutomaticOrderTip : GameText.SalvageAutomaticTip);
-            return;
-        }
         if (block == Block.Ordered && order == null) // a claim kept without its order, which either button's click gives up
         {
             ToolTip.CreateTooltip(GameText.SalvageDerelictOrderedTip);
@@ -100,12 +91,14 @@ public static class DerelictSalvageButton
     // from any thread: a salvage's stage as the derelicts window and the derelict's panel read it, with the turns left while its platform breaks in
     public static string StageText(SalvageDerelict.Stage stage, SalvageDerelict order) => stage switch
     {
-        SalvageDerelict.Stage.BreakingIn   => BreakingIn(order.BreakInTurnsLeft),
-        SalvageDerelict.Stage.ShipOrdered  => Localizer.Token(GameText.SalvageShipOrdered),
-        SalvageDerelict.Stage.ShipOnItsWay => Localizer.Token(GameText.SalvageShipOnItsWay),
-        SalvageDerelict.Stage.Deploying    => Localizer.Token(GameText.DeployingSalvagePlatform),
-        SalvageDerelict.Stage.Recovering   => Localizer.Token(GameText.DerelictRecovering),
-        _                                  => Localizer.Token(GameText.DerelictSalvaging),
+        SalvageDerelict.Stage.BreakingIn       => BreakingIn(order.BreakInTurnsLeft),
+        SalvageDerelict.Stage.WaitingForShip   => Localizer.Token(GameText.WaitingForASalvageShip),
+        SalvageDerelict.Stage.ShipOrdered      => Localizer.Token(GameText.SalvageShipOrdered),
+        SalvageDerelict.Stage.ShipOnItsWay     => Localizer.Token(GameText.SalvageShipOnItsWay),
+        SalvageDerelict.Stage.PlatformOrdered  => Localizer.Token(GameText.SalvagePlatformOrdered),
+        SalvageDerelict.Stage.BuildingPlatform => Localizer.Token(GameText.BuildingSalvagePlatform),
+        SalvageDerelict.Stage.Recovering       => Localizer.Token(GameText.DerelictRecovering),
+        _                                      => Localizer.Token(GameText.DerelictSalvaging),
     };
 
     // on the UI thread: made again only when the turns left change, so a status keeps its fit
@@ -158,11 +151,7 @@ public static class DerelictSalvageButton
     public static void Click(Empire player, Derelict d, Kind kind, Block block, bool lit)
     {
         bool recover = kind == Kind.Recover;
-        if (OnAutomatic(player) && (!Clickable(player, block, lit) || SalvageDerelict.OrderOf(player, d) == null)) // on automatic a click only switches a standing order
-        {
-            GameAudio.NegativeClick();
-        }
-        else if (block == Block.Ordered)
+        if (block == Block.Ordered)
         {
             GameAudio.EchoAffirmative();
             if (lit)

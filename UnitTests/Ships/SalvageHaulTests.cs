@@ -194,18 +194,18 @@ public class SalvageHaulTests : StarDriveTest
     {
         Importer(SystemSite + new Vector2(0, 200_000f), slots: 10);
         typeof(Empire).GetProperty(nameof(Empire.AverageFreighterCargoCap)).SetValue(Player, 400f);
-        AssertEqual(100f, ShipResupply.SalvageLoad, "setup: a platform load is 100");
+        AssertEqual(75f, ShipResupply.SalvageLoad, "setup: a platform load is 75");
         Ship freighter = Freighter(StationSite + new Vector2(5_000f, 0));
         Ship station = BuiltStation();
         station.CargoSpaceMax = 316f;
-        station.LoadProduction(200f);
+        station.LoadProduction(240f);
 
         Turn(station);
-        Assert.IsFalse(Hauls(freighter, station), "200 of 316, with room for another load of 100 and less than an average load of 400, calls none");
+        Assert.IsFalse(Hauls(freighter, station), "240 of 316, with room for another load of 75 and less than an average load of 400, calls none");
 
-        station.LoadProduction(20f);
+        station.LoadProduction(10f);
         Turn(station);
-        Assert.IsTrue(Hauls(freighter, station), "220, with room for only 96, calls one");
+        Assert.IsTrue(Hauls(freighter, station), "250, with room for only 66, calls one");
     }
 
     [TestMethod]

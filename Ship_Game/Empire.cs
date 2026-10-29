@@ -166,8 +166,8 @@ namespace Ship_Game
         public bool CanBuildSalvageStations { get; private set; }
         // its race's salvage ship, or null for a race without one
         public IShipDesign SalvageShipDesign => ResourceManager.SalvageShipDesignOf(data);
-        // researched the Salvage Ships technology, with a salvage ship for its race
-        public bool CanBuildSalvageShips => data.AllowSalvageShip && SalvageShipDesign != null;
+        // a salvage ship with a platform's load of cargo room for each salvage unit is among the designs it can build
+        public bool CanBuildSalvageShips { get; private set; }
         [StarData] public float CurrentMilitaryStrength;
         [StarData] public float OffensiveStrength; // No Orbitals
         [StarData] public LoyaltyLists EmpireShips;
@@ -200,6 +200,7 @@ namespace Ship_Game
         [StarData] public bool AutoPickBestResearchStation;
         [StarData] public bool AutoPickBestMiningStation;
         [StarData] public bool AutoPickBestSalvageStation;
+        [StarData] public bool AutoPickBestSalvageShip;
         [StarData] public bool SymmetricDesignMode = true;
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
@@ -540,7 +541,6 @@ namespace Ship_Game
             {
                 ship.AI.ClearOrders();
             }
-            SalvageDerelict.PassOn(this, rebels);
             AI.ClearGoals();
             AI.EndAllTasks();
             ResetFleets();
@@ -1379,6 +1379,9 @@ namespace Ship_Game
 
             if (s.IsSalvageStation)
                 CanBuildSalvageStations = true;
+
+            if (ShipBuilder.IsUsableSalvageShip(s))
+                CanBuildSalvageShips = true;
         }
 
         public void ApplyModuleHealthTechBonus(float bonus)
@@ -2427,7 +2430,6 @@ namespace Ship_Game
             ExcessCargoMoney += target.ExcessCargoMoney; // its credits still to come with a turn's income
             target.ExcessCargoMoney = 0f;
 
-            SalvageDerelict.PassOn(target, this);
             target.AI.SpaceRoadsManager.RemoveSpaceRoadsByAbsorb();
             target.SetAsMerged();
             ResetBorders();

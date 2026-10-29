@@ -520,13 +520,6 @@ public sealed class Derelict
         RecoveredBy = null;
     }
 
-    // on the sim thread: a recovery passed on as the derelict rises passes on the ship it rises for
-    internal void PassRecovery(Empire from, Empire to)
-    {
-        if (RecoveredFor == from)
-            RecoveredFor = to;
-    }
-
     // under the list's lock, on the sim thread: risen to a ship's depth, it leaves the list for its ship to take its place
     internal bool Risen => Rising && Z <= 0f && !Sinking;
 

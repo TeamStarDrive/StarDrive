@@ -18,10 +18,11 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// The Recover button orders a derelict ship recovered: a saved mode of the salvage order, passed on with it, in which
-/// its platform strips nothing. While an order stands, the other button turns it to that button's work, and its own
-/// lit button calls it off; a station can only be salvaged. The buttons show while the player's race has a salvage
-/// ship or with an order on the derelict, but not with salvage ops off. The chance to recover
+/// The Recover button orders a derelict ship recovered: a saved mode of the salvage order in which its platform strips
+/// nothing, first sending what it holds to its salvage ship. While an order stands, the other button turns it to that button's work, and its own
+/// lit button calls it off; a station can only be salvaged. The buttons show unless the player has no salvage ship,
+/// can build none and its race names none, or salvage ops are off, grayed while the player can build no salvage ship
+/// and has none. The chance to recover
 /// a ship is its hull's, 60 for a frigate down to 20 for a capital, times 1 plus its race's engineers, read from its
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
 /// stripped, half that for a ship of a Remnant design whoever lost it and a quarter more for one of the empire's own,
@@ -36,10 +37,10 @@ namespace UnitTests.Ships;
 /// crew, its repair modules, engines and the armor on its edge dead, its other armor at 2% and all else at 4%, with no
 /// ordnance, troops, power or shields, dark until its lights flicker on, and heads for its empire's nearest planet that
 /// repairs; the selection passes to it, and with that empire gone the derelict sinks away instead. Turning the
-/// order to salvage keeps the work but a later recovery breaks in again; saves and passing on keep both. A rival's
+/// order to salvage keeps the work but a later recovery breaks in again; saves keep both. A rival's
 /// recovery reads Recovering throughout, its break-in unshown. The player is told of each outcome of theirs, the ship
 /// as it appears and a failure or a blast at the roll, but not of a rival's ship, a recovery called off, or a platform
-/// lost during the rise; the Salvage alerts switch silences them all. A derelict's row leaves the derelicts
+/// or salvage ship lost during the rise; the Salvage alerts switch silences them all. A derelict's row leaves the derelicts
 /// window once it can no longer be selected.
 /// </summary>
 [TestClass]
@@ -94,15 +95,16 @@ public class SalvageRecoveryTests : SalvageOrderTest
     void BreaksApart(Derelict d) => Draws(d, Player, (recovery, catastrophe) => recovery > 0.99f && catastrophe > 0.5f);
     void Explodes(Derelict d) => Draws(d, Player, (recovery, catastrophe) => recovery > 0.99f && catastrophe < 0.01f);
 
-    // the player's recovery with a turn of work left, so its next turn finishes the work and rolls
-    SalvageDerelict OneTurnOfWorkLeft(Derelict d)
+    // the empire's recovery, the player's unless given, with a turn of work left, so its next turn finishes the work and rolls
+    SalvageDerelict OneTurnOfWorkLeft(Derelict d, Empire empire = null)
     {
-        Player.data.SelectedTraitSet = "";
-        SalvageDerelict order = AtWork(d, recover: true);
-        int workTurns = (int)Math.Ceiling(DerelictRecovery.Work(Player, d) / 24f);
+        empire ??= Player;
+        empire.data.SelectedTraitSet = "";
+        SalvageDerelict order = AtWork(d, recover: true, empire: empire);
+        int workTurns = (int)Math.Ceiling(DerelictRecovery.Work(empire, d) / 24f);
         Assert.IsTrue(workTurns > 1, "setup: work for more than a turn");
         Turns(order, 10 + workTurns - 1);
-        AssertLessThan(DerelictRecovery.Progress(Player, d, order.RecoveryWork), 1f, "setup: a turn's work left");
+        AssertLessThan(DerelictRecovery.Progress(empire, d, order.RecoveryWork), 1f, "setup: a turn's work left");
         return order;
     }
 
@@ -239,20 +241,24 @@ public class SalvageRecoveryTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void ARecoveringPlatformStripsNothingAndKeepsWhatItStripped()
+    public void ARecoveringPlatformStripsNothingAndFirstSendsWhatItHoldsToItsSalvageShip()
     {
         Derelict d = Forms(Wreck);
         SalvageDerelict order = AtWork(d);
+        Ship ship = MissionOf(order).SalvageShip;
         order.Evaluate();
-        AssertEqual(0.01f, 12f, order.Load, "setup: the platform stripped a turn's work");
+        AssertEqual(0.01f, 12f, order.Platform.GetProduction(), "setup: the platform stripped a turn's work");
 
         SalvageDerelict.Switch(Player, d, recover: true);
         Assert.IsTrue(order.Recovering, "the Recover button turns the order to a recovery");
         float left = d.ProductionLeft;
+        float stored = ship.GetProduction();
         order.Evaluate();
+        AssertEqual(0.01f, stored + 12f, ship.GetProduction(), "whose platform first sends what it holds to its salvage ship");
+        AssertEqual(0, order.BreakInDone, "breaking in from the next turn");
         order.Evaluate();
-        AssertEqual(0.01f, left, d.ProductionLeft, "which strips nothing");
-        AssertEqual(0.01f, 12f, order.Load, "and keeps what it stripped");
+        AssertEqual(0.01f, left, d.ProductionLeft, "and strips nothing");
+        AssertEqual(1, order.BreakInDone, "while it breaks in");
 
         SalvageDerelict.Switch(Player, d, recover: false);
         Assert.IsFalse(order.Recovering, "the Salvage button turns it back");
@@ -311,17 +317,21 @@ public class SalvageRecoveryTests : SalvageOrderTest
         Assert.IsTrue(Shown(), "greyed while another empire salvages it");
         d.ReleaseClaim();
 
-        Player.data.AllowSalvageShip = false;
-        AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, d), "setup: without the Salvage Ships technology");
-        Assert.IsTrue(Shown(), "they show, greyed, until it is researched");
-        Player.data.AllowSalvageShip = true;
+        PropertyInfo canBuild = typeof(Empire).GetProperty(nameof(Empire.CanBuildSalvageShips))!;
+        canBuild.SetValue(Player, false);
+        AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, d), "setup: the player can build no salvage ship yet and has none");
+        Assert.IsTrue(Shown(), "they show, greyed, until it can");
+        Ship own = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
+        AssertEqual(Block.None, SalvageDerelict.WhyNoOrder(Player, d), "a salvage ship of its own can take the order meanwhile");
+        own.QueueTotalRemoval();
 
         Player.data.DefaultSalvageShip = null;
-        Assert.IsFalse(Shown(), "a race without a salvage ship shows none");
+        Assert.IsFalse(Shown(), "a race without a salvage ship that can build none shows none");
         d.TryClaim(Player); // as a save can catch a claim without its order
         Assert.IsTrue(Shown(), "but a claim of the player's shows them, to give it up");
         d.ReleaseClaim();
         Player.data.DefaultSalvageShip = "Terran Salvage Ship";
+        canBuild.SetValue(Player, true);
 
         UState.P.DisableSalvageOps = true;
         Assert.IsFalse(Shown(), "and none shows with salvage ops off");
@@ -345,7 +355,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void AnOrdersRecoverySurvivesSaveAndPassingOn()
+    public void AnOrdersRecoverySurvivesSaveAndLoad()
     {
         Derelict d = Forms(Wreck, health: 0.4f);
         SalvageDerelict order = AtWork(d, recover: true);
@@ -369,12 +379,6 @@ public class SalvageRecoveryTests : SalvageOrderTest
         loadedDerelict.Update(Seconds(UState.P.TurnTimer * 10f));
         AssertEqual(1f, loadedDerelict.Steadiness, "which goes on to where the break-in took it");
         AssertEqual(0.01f, 0.2f, loaded.UState.Player.RaceEngineers, "and the race's engineers with its traits");
-
-        SalvageDerelict.PassOn(Player, Enemy);
-        SalvageDerelict passed = Enemy.AI.FindGoals<SalvageDerelict>().First();
-        Assert.IsTrue(passed.Recovering, "and passed on with its platform");
-        AssertEqual(0.01f, 24f, passed.RecoveryWork, "with its work done");
-        AssertEqual(10, passed.BreakInDone, "and its break-in");
     }
 
     [TestMethod]
@@ -484,7 +488,9 @@ public class SalvageRecoveryTests : SalvageOrderTest
         Assert.IsTrue(order.BreakingIn, "a recovery taken up again breaks in again");
         AssertEqual(10, order.BreakInTurnsLeft, "for all its turns");
         Turns(order, 1);
-        AssertEqual(9, order.BreakInTurnsLeft, "which start at once");
+        AssertEqual(10, order.BreakInTurnsLeft, "its platform first sending its salvage ship what it stripped meanwhile");
+        Turns(order, 1);
+        AssertEqual(9, order.BreakInTurnsLeft, "then breaking in");
         Turns(order, 9);
         AssertEqual(0.01f, 48f, order.RecoveryWork, "the work waiting meanwhile");
         Turns(order, 1);
@@ -514,33 +520,18 @@ public class SalvageRecoveryTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void PassingOnAnOrderMidBreakInKeepsItsTurns()
-    {
-        Derelict d = Forms(Wreck, health: 0.4f);
-        SalvageDerelict order = AtWork(d, recover: true);
-        Turns(order, 4);
-        AssertEqual(6, order.BreakInTurnsLeft, "setup: four turns into the break-in");
-
-        SalvageDerelict.PassOn(Player, Enemy);
-        SalvageDerelict passed = Enemy.AI.FindGoals<SalvageDerelict>().First();
-        Assert.IsTrue(passed.BreakingIn, "the order passed on still breaks in");
-        AssertEqual(6, passed.BreakInTurnsLeft, "with the turns it had left");
-    }
-
-    [TestMethod]
     public void ARivalsRecoveryReadsRecoveringThroughoutWithoutItsBreakIn()
     {
-        Derelict d = Forms(Wreck);
-        var theirs = new SalvageDerelict(Enemy, d, recover: true);
-        Enemy.AI.AddGoal(theirs);
+        Derelict d = Forms(Wreck, owner: Enemy);
+        SalvageDerelict theirs = Ordered(d, recover: true, empire: Enemy);
         Assert.IsTrue(d.TryClaim(Enemy), "setup: the rival's constructor starts to build");
         AssertEqual(Stage.Recovering, StageOf(d), "a rival's recovery reads Recovering while its platform is built");
         AssertEqual(string.Format(Localizer.Token(GameText.DerelictRecoveredBy), Enemy.Name), DerelictSalvageButton.ClaimTip(d, Enemy),
                     "and its flag's tooltip says it recovers the derelict");
 
         ShipBuilt(theirs);
-        for (int turn = 0; turn < 1 + SalvageDerelict.DeployTurns; ++turn)
-            theirs.Evaluate();
+        Launched(theirs);
+        PlatformBuilt(theirs);
         Assert.IsTrue(theirs.BreakingIn, "setup: its platform breaks in");
         AssertEqual(Stage.Recovering, SalvageDerelict.StageOf(Player, d, out Empire claimant, out SalvageDerelict order), "the window still reads Recovering");
         AssertEqual(Enemy, claimant, "in its colour");
@@ -619,10 +610,12 @@ public class SalvageRecoveryTests : SalvageOrderTest
     }
 
     // the player's recovery whose last turn of work rolled a success, the derelict now rising for its ship
-    SalvageDerelict RolledASuccess(Derelict d)
+    // the empire's, the player's unless given
+    SalvageDerelict RolledASuccess(Derelict d, Empire empire = null)
     {
-        Succeeds(d);
-        SalvageDerelict order = OneTurnOfWorkLeft(d);
+        empire ??= Player;
+        Draws(d, empire, (recovery, _) => recovery < 0.01f);
+        SalvageDerelict order = OneTurnOfWorkLeft(d, empire);
         Turns(order, 1);
         Assert.IsTrue(order.RecoverySucceeded, "setup: the roll succeeds");
         return order;
@@ -665,6 +658,23 @@ public class SalvageRecoveryTests : SalvageOrderTest
         Assert.IsTrue(order.Dismantling, "and it takes itself apart");
         AssertEqual($"{WreckSystem.Name}: the Dreadnought mk1-a is recovered", notes.GetNotificationsAtomic().Single().Message,
                     "which tells only of the ship, not of a salvage's end");
+    }
+
+    [TestMethod]
+    public void ASalvageShipLostAfterASuccessfulRollTellsOfNoLoss()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        SalvageDerelict order = RolledASuccess(d);
+        SalvageMission mission = order.Mission;
+        Ship ship = mission.SalvageShip;
+        ship.UnloadProduction(ship.GetProduction());
+        var notes = Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+
+        ship.Die(null, cleanupOnly: true);
+        mission.Evaluate();
+        order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order), "its salvage ship lost, the order ends");
+        AssertEqual(0, notes.GetNotificationsAtomic().Length, "telling of no salvage ship lost, as the recovered ship still comes");
     }
 
     [TestMethod]
@@ -805,9 +815,8 @@ public class SalvageRecoveryTests : SalvageOrderTest
     public void TheSelectionDoesNotPassToARivalsShip()
     {
         Universe.ShipInfoUIElement ??= new(new SDGraphics.Rectangle(0, 0, 407, 242), Universe.ScreenManager, Universe);
-        Derelict d = Forms(Wreck, health: 0.4f);
-        RolledASuccess(d);
-        SalvageDerelict.PassOn(Player, Enemy);
+        Derelict d = Forms(Wreck, health: 0.4f, owner: Enemy);
+        RolledASuccess(d, Enemy);
         Universe.SetSelectedDerelict(d);
         Ship ship = RisesForItsShip(d);
         AssertEqual(Enemy, ship.Loyalty, "setup: a rival's ship takes its place");
@@ -916,15 +925,6 @@ public class SalvageRecoveryTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void ARecoveryPassedOnAsTheDerelictRisesBringsItsShipToTheEmpireItPassedTo()
-    {
-        Derelict d = Forms(Wreck, health: 0.4f);
-        RolledASuccess(d);
-        SalvageDerelict.PassOn(Player, Enemy);
-        AssertEqual(Enemy, RisesForItsShip(d).Loyalty, "the ship comes back for the empire the order passed to");
-    }
-
-    [TestMethod]
     public void ThroughASaveTheDerelictStillRisesForItsShipUnderItsName()
     {
         Derelict d = Forms(Wreck, health: 0.4f, name: "Vigilant Dawn");
@@ -997,20 +997,6 @@ public class SalvageRecoveryTests : SalvageOrderTest
         Turns(order, SalvageDerelict.DismantleTurns);
         Assert.IsFalse(Player.AI.HasGoal(g => g == order), "the order ends with its platform");
         Assert.IsNull(d.Claimant, "and gives up the derelict");
-    }
-
-    [TestMethod]
-    public void AFailedRecoveryPassedOnStaysFailed()
-    {
-        Derelict d = Forms(Wreck, health: 0.4f);
-        SalvageDerelict order = OneTurnOfWorkLeft(d);
-        BreaksApart(d);
-        Turns(order, 1);
-        Assert.IsTrue(order.RecoveryFailed, "setup: the roll failed");
-
-        SalvageDerelict.PassOn(Player, Enemy);
-        SalvageDerelict passed = Enemy.AI.FindGoals<SalvageDerelict>().First();
-        Assert.IsTrue(passed.RecoveryFailed && passed.Finished, "the order passed on keeps its platform's work over");
     }
 
     // the player sees the platform at work from planet view, where the work's effect shows
@@ -1193,9 +1179,8 @@ public class SalvageRecoveryTests : SalvageOrderTest
     [TestMethod]
     public void ARivalsRecoveredShipIsNotTold()
     {
-        Derelict d = Forms(Wreck, health: 0.4f);
-        RolledASuccess(d);
-        SalvageDerelict.PassOn(Player, Enemy);
+        Derelict d = Forms(Wreck, health: 0.4f, owner: Enemy);
+        RolledASuccess(d, Enemy);
         NotificationManager notes = TrackNotifications();
         AssertEqual(Enemy, RisesForItsShip(d).Loyalty, "setup: a rival's ship takes the derelict's place");
         AssertEqual(0, notes.NumberOfNotifications, "which the player is not told of");
@@ -1250,7 +1235,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
         Derelict d = Forms(Wreck, health: 0.4f);
         SalvageDerelict order = AtWork(d);
         Turns(order, 1);
-        AssertGreaterThan(order.Load, 0f, "setup: the platform stripped production");
+        AssertGreaterThan(order.Platform.GetProduction(), 0f, "setup: the platform stripped production");
         SalvageDerelict.Switch(Player, d, recover: true);
         Universe.InvokePendingSimThreadActions();
         Turns(order, 1);
@@ -1259,7 +1244,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
         SalvageDerelict.Cancel(Player, d);
         Universe.InvokePendingSimThreadActions();
         Turns(order, 1);
-        Assert.IsTrue(order.CalledOff && order.Dismantling, "setup: the called-off platform turns back into the ship");
+        Assert.IsTrue(order.CalledOff && order.Dismantling, "setup: the called-off platform comes apart");
         AssertEqual(0, notes.NumberOfNotifications, "and the player, who called the recovery off, is told nothing");
     }
 

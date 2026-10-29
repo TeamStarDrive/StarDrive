@@ -60,7 +60,8 @@ namespace Ship_Game.AI
         SalvageOps,
         SalvageDerelict,
         DismantleOrbital,
-        DeliverRefund
+        DeliverRefund,
+        SalvageMission
     }
 
     public enum GoalStep

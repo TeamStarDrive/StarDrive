@@ -158,6 +158,7 @@ namespace Ship_Game
         [StarData] public string CurrentMiningStation = "";
         [StarData] public string CurrentResearchStation = "";
         [StarData] public string CurrentSalvageStation = "";
+        [StarData] public string CurrentSalvageShip = "";
         [StarData] public string DiplomacyDialogPath;
         [StarData] public DTrait DiplomaticPersonality;
         [StarData] public ETrait EconomicPersonality;
@@ -233,7 +234,6 @@ namespace Ship_Game
         [StarData] public float ExoticStorageMultiplier = 1;
         [StarData] public float MiningSpeedMultiplier = 1;
         [StarData] public float SalvageSpeedMultiplier = 1;
-        [StarData] public bool AllowSalvageShip; // the Salvage Ships technology
         [StarData] public float RefiningRatioMultiplier = 1;
 
         // Added by McShooterz: power bonus
@@ -499,7 +499,6 @@ namespace Ship_Game
             BombEnvironmentDamageMultiplier = template.BombEnvironmentDamageMultiplier;
             OngoingDiplomaticModifier = template.OngoingDiplomaticModifier;
             SalvageSpeedMultiplier = template.SalvageSpeedMultiplier;
-            AllowSalvageShip = template.AllowSalvageShip;
         }
 
         public void ResetAllBonusModifiers(Empire empire)

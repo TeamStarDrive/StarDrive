@@ -370,6 +370,46 @@ namespace Ship_Game.AI
             return a.GetStrength(empire) / a.SurfaceArea > b.GetStrength(empire) / b.SurfaceArea;
         }
 
+        // the player's Automation window design with auto pick off, else the race's default, as long as it can be built and holds a salvage platform's load for each of its salvage units; otherwise the best pick for the derelicts the empire could work in the system, or with no system the most salvage units
+        public static IShipDesign PickSalvageShip(Empire empire, SolarSystem system = null)
+        {
+            if (empire.isPlayer && !empire.AutoPickBestSalvageShip)
+            {
+                IShipDesign chosen = BuildableSalvageShip(empire, empire.data.CurrentSalvageShip)
+                                  ?? BuildableSalvageShip(empire, empire.data.DefaultSalvageShip);
+                if (chosen != null)
+                    return chosen;
+            }
+            return BestSalvageShip(empire, system != null ? SalvageMission.DerelictsToWorkIn(empire, system) : int.MaxValue);
+        }
+
+        public static bool IsUsableSalvageShip(IShipDesign design)
+        {
+            return design.IsSalvageShip && ShipResupply.HasRoomForSalvageLoads(design);
+        }
+
+        static IShipDesign BuildableSalvageShip(Empire empire, string name)
+        {
+            if (name.IsEmpty())
+                return null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+                if (IsUsableSalvageShip(design) && design.Name == name)
+                    return design;
+            return null;
+        }
+
+        // ranked as salvage stations are; null until one can be built
+        static IShipDesign BestSalvageShip(Empire empire, int derelicts)
+        {
+            IShipDesign best = null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+            {
+                if (IsUsableSalvageShip(design) && (best == null || IsBetterSalvageStation(design, best, empire, derelicts)))
+                    best = design;
+            }
+            return best;
+        }
+
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig, int levelsOfPiratesAtWarWithUs)
         {
             float maxKFTL  = ShipStats.GetFTLSpeed(s, empire) * 0.001f;

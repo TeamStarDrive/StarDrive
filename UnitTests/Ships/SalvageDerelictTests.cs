@@ -12,9 +12,10 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// The Salvage button orders a derelict salvaged when the empire knows of it, salvage ops are on, its race has a salvage
-/// ship and it has researched Salvage Ships; with no technology it says so, and a race without a salvage ship cannot
-/// order at all. Each derelict takes one order, and an empire may order as many as it likes. Orders placed together
+/// The Salvage button orders a derelict salvaged when the empire knows of it, salvage ops are on, and it can build a
+/// salvage ship or has one with a live salvage unit; otherwise it says what is missing, the research while its race
+/// names a salvage ship and a salvage ship while it names none. Each derelict takes one order, and an empire may
+/// order as many as it likes. Orders placed together
 /// reach the sim thread one by one, so a second for the same derelict ends. A claim stops the derelict's timer and
 /// holds off other empires, whose orders on it end. Whatever ends an order gives up its claim, so the timer runs on:
 /// the button's second click, which calls off the order it finds on reaching the sim thread or gives up a claim kept
@@ -52,24 +53,32 @@ public class SalvageDerelictTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void TheButtonNeedsTheSalvageShipsTechnologyAndARaceWithASalvageShip()
+    public void TheButtonNeedsASalvageShipToBuildOrOneOfItsOwn()
     {
         Derelict first = Forms(Wreck);
         Derelict second = Forms(Wreck + new Vector2(0, 5_000f));
         Derelict third = Forms(Wreck + new Vector2(0, 10_000f));
 
-        Player.data.AllowSalvageShip = false;
-        AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, first), "without the Salvage Ships technology");
+        PropertyInfo canBuild = typeof(Empire).GetProperty(nameof(Empire.CanBuildSalvageShips))!;
+        canBuild.SetValue(Player, false);
+        AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, first), "with no salvage ship to build or of its own");
         Assert.IsFalse(SalvageDerelict.Order(Player, first), "no order");
-        Player.data.AllowSalvageShip = true;
 
         string salvageShip = Player.data.DefaultSalvageShip;
         Player.data.DefaultSalvageShip = null;
         AssertEqual(Block.NoSalvageShip, SalvageDerelict.WhyNoOrder(Player, first), "nor for a race without a salvage ship");
         Assert.IsFalse(SalvageDerelict.Order(Player, first), "which cannot salvage");
+        Ship own = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
+        AssertEqual(Block.None, SalvageDerelict.WhyNoOrder(Player, first), "but a salvage ship of its own can take an order");
+        foreach (ShipModule unit in own.Modules)
+            if (unit.Salvage)
+                unit.Die(null, cleanupOnly: true);
+        AssertEqual(Block.NoSalvageShip, SalvageDerelict.WhyNoOrder(Player, first), "unless its salvage unit is destroyed");
+        own.QueueTotalRemoval();
         Player.data.DefaultSalvageShip = salvageShip;
+        canBuild.SetValue(Player, true);
 
-        AssertEqual(Block.None, SalvageDerelict.WhyNoOrder(Player, first), "with both the empire can order it");
+        AssertEqual(Block.None, SalvageDerelict.WhyNoOrder(Player, first), "and one it can build");
         Assert.IsTrue(SalvageDerelict.Order(Player, first), "and the button orders it");
         AssertEqual(Block.Ordered, SalvageDerelict.WhyNoOrder(Player, first), "which then stands");
         AssertEqual(WreckSystem, OrderOf(Player, first).TargetSystem, "for the derelict's system");
@@ -107,8 +116,10 @@ public class SalvageDerelictTests : SalvageOrderTest
         AssertEqual(0, Player.AI.CountGoals(g => g is SalvageDerelict), "they wait for the sim thread");
 
         Universe.InvokePendingSimThreadActions();
+        foreach (SalvageMission mission in Player.AI.FindGoals<SalvageMission>())
+            mission.Evaluate();
         AssertEqual(1, Player.AI.CountGoals(g => g is SalvageDerelict s && s.DerelictId == a.Id), "a second order for the same derelict ends");
-        AssertEqual(1, Homeworld.ConstructionQueue.Count(q => q.Goal is SalvageDerelict s && s.DerelictId == a.Id), "queueing no second ship");
+        AssertEqual(2, Homeworld.ConstructionQueue.Count(q => q.Goal is SalvageMission), "queueing a salvage ship for each order that stands, none for the second");
         Assert.IsNotNull(OrderOf(Player, b), "and the other stands");
     }
 

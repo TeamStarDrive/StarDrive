@@ -165,7 +165,7 @@ namespace Ship_Game.Ships
 
         // aggressive dispose looks to cause a crash here. 
         public ShipModule[] AllActiveHangars   => AllHangars?.Filter(module => module.Active);
-        public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
+        public bool HasActiveHangars           => AllHangars.Any(module => module.Active && !module.IsSalvageBay); // FB: this changes dynamically; a salvage unit launches only its constructor, so it makes no carrier
         public bool HasTransporters            => AllTransporters.Length > 0;
         public ShipModule[] AllActiveTroopBays => AllTroopBays.Filter(module => module.Active);
         public int NumActiveHangars            => AllHangars.Count(hangar => hangar.Active);
@@ -665,6 +665,9 @@ namespace Ship_Game.Ships
         // the ship this empire's hangar would launch now, or empty if none
         public static string HangarShipName(Empire empire, ShipModule hangar)
         {
+            if (hangar.IsSalvageBay) // launches nothing else, even with no constructor to launch
+                return SalvageDerelict.ConstructorName(empire, hangar.GetParent());
+
             string shipName = "";
             if (hangar.IsSupplyBay)
                 shipName = empire.GetSupplyShuttleName();

@@ -21,9 +21,6 @@
     <UnlockedMod>
       <ModuleUID>ProcessingUnit</ModuleUID>
     </UnlockedMod>		
-    <UnlockedMod>
-      <ModuleUID>SalvageUnit</ModuleUID>
-    </UnlockedMod>			
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />

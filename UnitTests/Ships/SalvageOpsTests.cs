@@ -236,10 +236,10 @@ public class SalvageOpsTests : StarDriveTest
         Ship rival = SpawnShip(Station.Name, Enemy, SystemSite + new Vector2(0, -40_000f));
         Ship other = SpawnShip("Dreadnought mk1-a", Enemy, SystemSite + new Vector2(0, 40_000f));
         Ship[] ships = { rival, other };
-        bool Valid(Vector2 pos) => SalvageOps.IsValidSite(WreckSystem, pos, ships);
+        bool Valid(Vector2 pos) => SalvageMission.IsValidSite(WreckSystem, pos, ships);
 
         Assert.IsTrue(Valid(BuildPos), "in the system, clear of everything");
-        float near = SalvageOps.Clearance - 100f, clear = SalvageOps.Clearance + 100f;
+        float near = SalvageMission.Clearance - 100f, clear = SalvageMission.Clearance + 100f;
         Assert.IsFalse(Valid(InSystem + new Vector2(near, 0)), "too near a salvageable derelict");
         Assert.IsTrue(Valid(InSystem + new Vector2(clear, 0)), "just clear of it");
         Assert.IsFalse(Valid(rival.Position + new Vector2(near, 0)), "too near a salvage station, any empire's");
@@ -258,8 +258,8 @@ public class SalvageOpsTests : StarDriveTest
         Forms(Player, InSystem + new Vector2(0, 10_000f));
         Vector2 average = InSystem + new Vector2(0, 5_000f);
 
-        Assert.IsTrue(SalvageOps.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(1), out Vector2 site), "a site is found");
-        Assert.IsTrue(site.InRadius(average, SalvageOps.FirstSearchRadius), "within 1000 of the derelicts' average spot, where it is clear");
+        Assert.IsTrue(SalvageMission.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(1), out Vector2 site), "a site is found");
+        Assert.IsTrue(site.InRadius(average, SalvageMission.FirstSearchRadius), "within 1000 of the derelicts' average spot, where it is clear");
     }
 
     [TestMethod]
@@ -269,13 +269,13 @@ public class SalvageOpsTests : StarDriveTest
         Ship rival = SpawnShip(Station.Name, Enemy, InSystem + new Vector2(3_000f, 0));
         for (int seed = 1; seed <= 20; ++seed)
         {
-            Assert.IsTrue(SalvageOps.FindSite(WreckSystem, new[] { rival }, new SeededRandom(seed), out Vector2 site), $"seed {seed}: a site is found");
-            Assert.IsTrue(SalvageOps.IsValidSite(WreckSystem, site, new[] { rival }), $"seed {seed}: and it is a valid one");
-            Assert.IsTrue(site.OutsideRadius(InSystem, SalvageOps.Clearance), $"seed {seed}: clear of the derelict, which sits on the average spot");
+            Assert.IsTrue(SalvageMission.FindSite(WreckSystem, new[] { rival }, new SeededRandom(seed), out Vector2 site), $"seed {seed}: a site is found");
+            Assert.IsTrue(SalvageMission.IsValidSite(WreckSystem, site, new[] { rival }), $"seed {seed}: and it is a valid one");
+            Assert.IsTrue(site.OutsideRadius(InSystem, SalvageMission.Clearance), $"seed {seed}: clear of the derelict, which sits on the average spot");
         }
 
         SolarSystem empty = AddDummyPlanet(SystemSite + new Vector2(0, 400_000f), 1f, 1f, 1f, SystemSite + new Vector2(0, 460_000f), explored: true).System;
-        Assert.IsFalse(SalvageOps.FindSite(empty, Empty<Ship>.Array, new SeededRandom(1), out _), "no site in a system without derelicts");
+        Assert.IsFalse(SalvageMission.FindSite(empty, Empty<Ship>.Array, new SeededRandom(1), out _), "no site in a system without derelicts");
     }
 
     [TestMethod]
@@ -283,7 +283,7 @@ public class SalvageOpsTests : StarDriveTest
     {
         Forms(Player, InSystem);
         WreckSystem.Radius = DeepSpaceBuildingWindow.MinimumBuildDistanceFromSun / DeepSpaceBuildingWindow.SystemPlacementRadius;
-        Assert.IsFalse(SalvageOps.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(1), out _),
+        Assert.IsFalse(SalvageMission.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(1), out _),
                        "a system whose placement area lies within the star's 20000 has no site, and the search ends");
     }
 
@@ -292,7 +292,7 @@ public class SalvageOpsTests : StarDriveTest
     {
         Forms(Player, InSystem);
         Player.AddBuildableShip(Station);
-        Assert.IsTrue(SalvageOps.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(7), out Vector2 free), "setup: the site with nothing else there");
+        Assert.IsTrue(SalvageMission.FindSite(WreckSystem, Empty<Ship>.Array, new SeededRandom(7), out Vector2 free), "setup: the site with nothing else there");
 
         Ship unseen = SpawnShip(Station.Name, Enemy, free);
         Assert.IsTrue(SalvageOps.OrderNearDerelicts(Player, WreckSystem, new[] { unseen }, new SeededRandom(7)), "an order");
@@ -302,7 +302,7 @@ public class SalvageOpsTests : StarDriveTest
         unseen.KnownByEmpires.SetSeen(Player);
         Assert.IsTrue(SalvageOps.OrderNearDerelicts(Player, WreckSystem, new[] { unseen }, new SeededRandom(7)), "another order");
         Vector2 site = ((SalvageOps)Player.AI.FindGoal(g => g is SalvageOps)).StaticBuildPos;
-        Assert.IsTrue(site.OutsideRadius(free, SalvageOps.Clearance), "keeps clear of one the player sees");
+        Assert.IsTrue(site.OutsideRadius(free, SalvageMission.Clearance), "keeps clear of one the player sees");
     }
 
     [TestMethod]
@@ -319,7 +319,7 @@ public class SalvageOpsTests : StarDriveTest
         var order = (SalvageOps)Player.AI.FindGoal(g => g is SalvageOps);
         AssertEqual(Station, order.ToBuild, "the picked station");
         AssertEqual(WreckSystem, order.TargetSystem, "in the derelict's system");
-        Assert.IsTrue(SalvageOps.IsValidSite(WreckSystem, order.StaticBuildPos, Empty<Ship>.Array), "at a free site");
+        Assert.IsTrue(SalvageMission.IsValidSite(WreckSystem, order.StaticBuildPos, Empty<Ship>.Array), "at a free site");
         Assert.IsTrue(order.StaticBuildPos.InRadius(InSystem, 10_000f), "near the derelict");
 
         AssertEqual(SalvageOps.OrderBlock.StationThere, SalvageOps.WhyNoOrderIn(Player, WreckSystem), "greyed once a station is on order");
@@ -336,13 +336,13 @@ public class SalvageOpsTests : StarDriveTest
         Ship warship = SpawnShip("Dreadnought mk1-a", Player, SystemSite + new Vector2(0, -70_000f));
         seen.KnownByEmpires.SetSeen(Player);
 
-        Ship[] stations = SalvageOps.StationsSeenBy(Player, new[] { ours, unseen, seen, warship });
+        Ship[] stations = SalvageMission.SitesSeenBy(Player, new[] { ours, unseen, seen, warship });
         Assert.IsTrue(stations.Contains(ours) && stations.Contains(seen), "our own station and one in our sensors");
         Assert.IsFalse(stations.Contains(unseen), "not one we do not see");
         Assert.IsFalse(stations.Contains(warship), "and no other ship");
 
         ours.Die(null, cleanupOnly: true);
-        Assert.IsFalse(SalvageOps.StationsSeenBy(Player, new[] { ours, seen }).Contains(ours), "nor one that is gone");
+        Assert.IsFalse(SalvageMission.SitesSeenBy(Player, new[] { ours, seen }).Contains(ours), "nor one that is gone");
     }
 
     [TestMethod]
@@ -614,7 +614,7 @@ public class SalvageOpsTests : StarDriveTest
         {
             Relationship rel = Enemy.GetRelations(builder);
             float before = rel.Trust;
-            SalvageOps.CostTrustOfColonyOwners(builder, WreckSystem);
+            SalvageMission.CostTrustOfColonyOwners(builder, WreckSystem);
             return before - rel.Trust;
         }
 
@@ -654,7 +654,7 @@ public class SalvageOpsTests : StarDriveTest
         WreckSystem.PlanetList[0].SetOwner(Player);
         Relationship playerToAI = Player.GetRelations(ThirdMajor);
         float playerTrust = playerToAI.Trust;
-        SalvageOps.CostTrustOfColonyOwners(ThirdMajor, WreckSystem);
+        SalvageMission.CostTrustOfColonyOwners(ThirdMajor, WreckSystem);
         AssertEqual(playerTrust, playerToAI.Trust, "and a player's colony costs nothing, as the player keeps no trust");
     }
 
@@ -673,7 +673,7 @@ public class SalvageOpsTests : StarDriveTest
         Empire builder = loaded.UState.GetEmpireByName(ThirdMajor.Name);
         SolarSystem system = loaded.UState.Systems.First(s => s.Position == WreckSystem.Position);
         Assert.IsTrue(builder.IsKnown(builder) && system.HasPlanetsOwnedBy(builder), "setup: a loaded empire knows itself, and has a colony there");
-        SalvageOps.CostTrustOfColonyOwners(builder, system); // it has no relationship with itself to ask about
+        SalvageMission.CostTrustOfColonyOwners(builder, system); // it has no relationship with itself to ask about
         AssertEqual(0f, loaded.UState.GetEmpireByName(Enemy.Name).data.DiplomaticPersonality.SalvageStationTrustLoss,
                     "and a personality's loss of 0 survives the save");
     }

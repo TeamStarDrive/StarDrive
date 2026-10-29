@@ -182,12 +182,12 @@ public partial class ShipDesign
         IsSingleTroopShip = Role == RoleName.troop;
         IsTroopShip       = Role is RoleName.troop or RoleName.troopShip;
         IsBomber          = Role == RoleName.bomber;
-        IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
+        IsSalvageStation  = IsStation && NumSalvageModules > 0;
+        IsSalvageShip     = !IsPlatformOrStation && NumSalvageModules > 0;
+        IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian && !IsSalvageShip; // trade never takes a salvage ship
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
         IsMiningStation   = IsPlatformOrStation && BaseRefiningPerTurn > 0;
-        IsSalvageStation  = IsStation && NumSalvageModules > 0;
-        IsSalvageShip     = !IsPlatformOrStation && NumSalvageModules > 0;
         IsDysonSwarmController  = Name == DysonSwarm.DysonSwarmControllerName;
 
         // only enable this flag for non-testing environment
@@ -304,14 +304,15 @@ public partial class ShipDesign
 
     public bool CanBeAddedToBuildableShips(Empire empire)
     {
-        return IsValidDesign && !IsUnitTestShip && !IsSalvagePlatform && !IsSalvageShip
+        return IsValidDesign && !IsUnitTestShip && !IsSalvagePlatform
             && Role != RoleName.prototype
             && Role != RoleName.disabled
             && Role != RoleName.supply
             && !ShipRole.Protected
             && (empire.isPlayer || IsShipGoodForGoals(empire))
             && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer)
-            && (!IsSalvageStation || empire.Universe.P.SalvageOps);
+            && (!IsSalvageStation || empire.Universe.P.SalvageOps)
+            && (!IsSalvageShip || empire.isPlayer && empire.Universe.P.SalvageOps); // only the player builds salvage ships
     }
 
     public int GetCompletionPercent()

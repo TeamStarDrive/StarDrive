@@ -13,16 +13,13 @@
       <UID>SalvageSpeed</UID>
     </LeadsToTech>
   </LeadsTo>
-  <ModulesUnlocked />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>SalvageUnit</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
   <BuildingsUnlocked />
-  <BonusUnlocked>
-    <UnlockedBonus>
-      <Name>Salvage Ships</Name>
-      <BonusType>Allow Salvage Ship</BonusType>
-      <Bonus>0</Bonus>
-      <BonusIndex>7235</BonusIndex>
-    </UnlockedBonus>
-  </BonusUnlocked>
+  <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked />
 </Technology>

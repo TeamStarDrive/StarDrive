@@ -204,8 +204,8 @@ namespace Ship_Game.Ships
         public bool IsSalvageStation        => ShipData.IsSalvageStation;
         public bool IsSalvagePlatform       => ShipData.IsSalvagePlatform;
         public bool IsSalvageShip           => ShipData.IsSalvageShip;
-        // a salvage ship takes no orders while its salvage order holds it; one captured or left without one is a ship like any other
-        public bool WorksForSalvage         => IsSalvageShip && Commands.Goals.SalvageDerelict.OfShip(this) != null;
+        // a salvage ship takes no orders while its mission holds it; an idle or captured one is a ship like any other
+        public bool WorksForSalvage         => IsSalvageShip && Commands.Goals.SalvageMission.OfShip(this) != null;
 
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
@@ -678,7 +678,7 @@ namespace Ship_Game.Ships
         public bool IsHomeDefense  => HomePlanet != null;
         public bool CanBeRefitted  => CanBeScrapped && !Dismantling; // one coming apart also pays no upkeep
         public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false } && !IsSalvagePlatform && !WorksForSalvage && !DeliversRefund;
-        public bool DeliversRefund => (IsSupplyShuttle || IsSalvageShip) && AI != null && AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal order) && order.Plan == ShipAI.Plan.DeliverRefund; // a builder carrying a refund takes no orders
+        public bool DeliversRefund => IsSupplyShuttle && AI != null && AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal order) && order.Plan == ShipAI.Plan.DeliverRefund; // a builder carrying a refund takes no orders
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays && !Dismantling

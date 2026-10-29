@@ -153,9 +153,11 @@ public class SalvageOpsDebug : DebugPage
 
     static string Progress(Empire salvager, Derelict d, SalvageDerelict.Stage stage, SalvageDerelict order) => stage switch
     {
+        SalvageDerelict.Stage.WaitingForShip   => "waiting for a salvage ship",
         SalvageDerelict.Stage.ShipOrdered      => "salvage ship ordered",
         SalvageDerelict.Stage.ShipOnItsWay     => "salvage ship on its way",
-        SalvageDerelict.Stage.Deploying        => "deploying platform",
+        SalvageDerelict.Stage.PlatformOrdered  => "platform ordered",
+        SalvageDerelict.Stage.BuildingPlatform => "building platform",
         SalvageDerelict.Stage.BreakingIn       => $"breaking in, {order?.BreakInTurnsLeft} turns left",
         SalvageDerelict.Stage.Recovering       => $"recovering {Percent(DerelictRecovery.Progress(salvager, d, order?.RecoveryWork ?? 0f))}",
         _                                      => $"salvaging {Percent(d.Production > 0f ? 1f - d.ProductionLeft / d.Production : 0f)}",

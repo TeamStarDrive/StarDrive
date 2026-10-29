@@ -183,9 +183,22 @@ namespace Ship_Game
         public static string GetStatusText(Ship ship)
         {
             if (ship.Dismantling)
-                return Localizer.Token(ship.IsSalvageShip ? GameText.DeployingSalvagePlatform : GameText.PlatformDismantling);
+                return Localizer.Token(GameText.PlatformDismantling);
+            if (ship.IsSalvageShip && SalvageMission.OfShip(ship) is { } mission)
+                return MissionStatus(ship, mission);
             string orders = GetOrdersText(ship);
             return ship.LandShip is { Docked: true } ? $"{orders} {Localizer.Token(GameText.ShipListDocked)}" : orders;
+        }
+
+        // a salvage ship at work: flying to its mission's system, salvaging there or waiting with its hold full, or at its colony delivering production or rearming
+        static string MissionStatus(Ship ship, SalvageMission mission)
+        {
+            if (mission.Unloading && mission.Colony is { } colony)
+                return $"{Localizer.Token(ship.GetProduction() > 0f ? GameText.DeliveringProductionTo : GameText.RearmingAt)} {colony.Name}";
+            string system = mission.TargetSystem.Name;
+            if (mission.FlyingOut)
+                return string.Format(Localizer.Token(GameText.SalvageShipFlyingTo), system);
+            return SalvageDerelict.HoldFull(ship) ? Localizer.Token(GameText.SalvageHoldFull) : string.Format(Localizer.Token(GameText.SalvagingIn), system);
         }
 
         static string GetOrdersText(Ship ship)
@@ -352,7 +365,7 @@ namespace Ship_Game
                 case AIState.ReturnToHangar:   return Localizer.Token(GameText.ReturningToHangar);
                 case AIState.Ferrying:
                     if (ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.Plan == ShipAI.Plan.DeliverRefund)
-                        return $"{Localizer.Token(goal.Goal is DeliverRefund { Load: > 0f } ? GameText.DeliveringProductionTo : GameText.ReturningTo)} {goal.TargetPlanet.Name}";
+                        return $"{Localizer.Token(GameText.DeliveringProductionTo)} {goal.TargetPlanet.Name}";
                     if (goal?.Plan != ShipAI.Plan.BuildOrbital)
                         return Localizer.Token(GameText.FerryingOrdnance);
                     return "Building Structure";

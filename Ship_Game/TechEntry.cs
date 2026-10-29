@@ -999,7 +999,6 @@ namespace Ship_Game
                 case "Exotic Storage Bonus": data.ExoticStorageMultiplier += unlockedBonus.Bonus; break;
                 case "Mining Speed Bonus": data.MiningSpeedMultiplier += unlockedBonus.Bonus; break;
                 case "Salvage Speed Bonus": data.SalvageSpeedMultiplier += unlockedBonus.Bonus; break;
-                case "Allow Salvage Ship": data.AllowSalvageShip = true; break;
                 case "Refining Ratio Bonus": data.RefiningRatioMultiplier += unlockedBonus.Bonus; break;
                 case "Ordnance Effectiveness":
                 case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;

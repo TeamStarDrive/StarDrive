@@ -13,63 +13,86 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// A salvage platform strips its derelict a turn at a time, 12 production, the Globals' SalvageSpeed, or what is left,
-/// into its order's hold, which has no limit. Its shuttles fly from it to the hull and back, one for every 3 production
-/// stripped, launched 0.2 to 2 s apart and 2 to 2.9 s each way, turning back at once, and only where the player sees
-/// the platform, as the derelict's flashes do; none launches once the platform is gone, and those already out fly back.
-/// A platform at work takes back a claim that a call-off caught halfway by a save dropped. One in other hands ends its
-/// order, with what it stripped. A derelict stripped empty can no longer be salvaged: it leaves its system's and the
-/// empires' lists at once and sinks away at twice the speed, while the order stands on with the platform turning back
-/// into the ship. The platform's panel reads Salvaging and the derelict's design, and Turning back into the ship. A
-/// derelict's techs and the empires that see them, an order's points for each tech and what it stripped, and an order
-/// whose platform stripped its derelict empty, with its derelict's techs and production, survive a save. Each level of
-/// the Salvage Speed tech, off Salvage Ships and hidden with salvage ops off, strips a fifth more a turn, all five twice
-/// as much, a recovery working at twice it; pirates salvage a tenth faster for each level from level 3, set by the
-/// level they rise to. A researched level survives a save, and an older save without the tech loads with it to
-/// research. An empire absorbing another comes up to its level of the tech, a bonus for each level gained, and keeps
-/// its own when higher, and a load keeps the levels a save has. A tech hidden since the save leaves the research queues
-/// and research's picks, and, unresearched, the tree, and the queue takes it no more.
+/// A salvage platform strips its derelict a turn at a time: 12 production, the Globals' SalvageSpeed, or what its hold
+/// still takes, or what is left, into its hold as production cargo, and only what its hold took. With its hold full it
+/// strips no more. Its shuttles fly from it to the hull and back, one for every 3 production stripped, launched 0.2 to
+/// 2 s apart and 2 to 2.9 s each way, turning back at once, and only where the player sees the platform, as the
+/// derelict's flashes do; none launches once the platform is gone, and those already out fly back. A platform at work
+/// takes back a claim that a call-off caught halfway by a save dropped, even while it only waits to send its load. A derelict stripped empty can no longer be salvaged: it leaves its system's and the empires'
+/// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
+/// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs and the empires that see
+/// them, an order's points for each tech, and an order whose platform stripped its derelict empty, with its derelict's
+/// techs and production, survive a save. Each level of the Salvage Speed tech, off Salvage Ships and hidden with salvage
+/// ops off, strips a fifth more a turn, all five twice as much, a recovery working at twice it; pirates salvage a tenth
+/// faster for each level from level 3, set by the level they rise to. A researched level survives a save, and an older
+/// save without the tech loads with it to research. An empire absorbing another comes up to its level of the tech, a
+/// bonus for each level gained, and keeps its own when higher, and a load keeps the levels a save has. A tech hidden
+/// since the save leaves the research queues and research's picks, and, unresearched, the tree, and the queue takes it
+/// no more.
 /// </summary>
 [TestClass]
 public class SalvageWorkTests : SalvageOrderTest
 {
     [TestMethod]
-    public void APlatformStripsTwelveATurnIntoItsOrdersHold()
+    public void APlatformStripsTwelveATurnIntoItsHold()
     {
         AssertEqual(12f, GlobalStats.Defaults.SalvageSpeed, "setup: the default salvage speed");
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 100f);
+        Ship platform = order.Platform;
         float left = d.ProductionLeft;
 
         order.Evaluate();
-        AssertEqual(0.01f, 12f, order.Load, "a turn's work is 12 production in the order's hold");
+        AssertEqual(0.01f, 12f, platform.GetProduction(), "a turn's work is 12 production in the platform's hold");
         AssertEqual(0.01f, left - 12f, d.ProductionLeft, "taken from the derelict");
 
         order.Evaluate();
-        AssertEqual(0.01f, 24f, order.Load, "turn after turn");
+        AssertEqual(0.01f, 24f, platform.GetProduction(), "turn after turn");
         AssertEqual(0.01f, left - 24f, d.ProductionLeft, "turn after turn");
     }
 
     [TestMethod]
-    public void TheOrdersHoldHasNoLimit()
+    public void APlatformStripsOnlyWhatItsHoldTakes()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
-        AssertGreaterThan(order.Platform.CargoSpaceMax, 0f, "setup: the platform has cargo modules");
-        AssertGreaterThan(d.ProductionLeft, order.Platform.CargoSpaceMax + 24f, "setup: the derelict holds more than they take");
+        SalvageDerelict order = AtWork(d, hold: 30f);
+        Ship platform = order.Platform;
+        float left = d.ProductionLeft;
+        AssertGreaterThan(left, 30f, "setup: the derelict holds more than the platform's hold takes");
 
-        int turns = (int)(order.Platform.CargoSpaceMax / 12f) + 2;
-        for (int i = 0; i < turns; ++i)
-            order.Evaluate();
-        AssertEqual(0.01f, 12f * turns, order.Load, "the order holds all the platform stripped, more than its cargo modules take");
-        AssertEqual(0f, order.Platform.GetProduction(), "none of it in the platform's own hold");
+        order.Evaluate();
+        order.Evaluate();
+        order.Evaluate();
+        AssertEqual(0.01f, 30f, platform.GetProduction(), "12, 12, then the 6 its hold still takes");
+        Assert.IsTrue(SalvageDerelict.HoldFull(platform), "its hold is full");
+
+        order.Evaluate();
+        AssertEqual(0.01f, left - 30f, d.ProductionLeft, "so it strips no more");
+    }
+
+    [TestMethod]
+    public void APlatformStripsOnlyWhatItsHoldTookWhenTheHoldLagsBehindItsCargoRoom()
+    {
+        Derelict d = Forms(Wreck);
+        SalvageDerelict order = AtWork(d, hold: 18f);
+        Ship platform = order.Platform;
+        platform.LoadProduction(0f); // the hold takes its limit from the cargo room of the moment, before a damaged cargo module is repaired
+        platform.CargoSpaceMax = 24f;
+        float left = d.ProductionLeft;
+
+        order.Evaluate();
+        order.Evaluate();
+        AssertEqual(0.01f, 18f, platform.GetProduction(), "the hold takes 18");
+        AssertEqual(0.01f, left - 18f, d.ProductionLeft, "and only that much leaves the derelict");
+        Assert.IsTrue(SalvageDerelict.HoldFull(platform), "then the hold is full");
+        AssertEqual(Localizer.Token(GameText.SalvageHoldFull), ShipInfoUIElement.SalvageStatus(platform, order), "and its status says so");
     }
 
     [TestMethod]
     public void APlatformInOtherHandsEndsItsOrderAndItsClaim()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 100f);
         Ship platform = order.Platform;
         order.Evaluate();
         float left = d.ProductionLeft;
@@ -83,19 +106,21 @@ public class SalvageWorkTests : SalvageOrderTest
         Assert.IsNull(d.Claimant, "with its claim");
         AssertEqual(left, d.ProductionLeft, "and strips no more");
         Assert.IsTrue(platform.Active, "its new owner keeps the platform");
+        AssertEqual(0.01f, 12f, platform.GetProduction(), "with what it holds");
     }
 
     [TestMethod]
     public void ADerelictStrippedEmptyCanNoLongerBeSalvagedAndSinksAwayAtTwiceTheSpeed()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 100f);
+        Ship ship = MissionOf(order).SalvageShip;
         float earlier = d.ProductionLeft - 5f;
         AssertEqual(0.01f, earlier, UState.Derelicts.Strip(d, null, earlier), "setup: an earlier claim of the enemy's stripped all but 5");
         Assert.IsTrue(WreckSystem.Derelicts.Contains(d) && Player.DerelictSystems.Contains(WreckSystem), "setup: the derelict is listed");
 
         order.Evaluate();
-        AssertEqual(0.01f, 5f, order.Load, "the platform strips the 5 left");
+        AssertEqual(0.01f, 5f, order.Platform.GetProduction(), "the platform strips the 5 left");
         Assert.IsTrue(d.Stripped && !d.CanBeSalvaged && !d.SelectableByPlayer, "the derelict is stripped empty and can no longer be salvaged or selected");
         Assert.IsFalse(WreckSystem.Derelicts.Contains(d), "it leaves its system's list at once");
         Assert.IsFalse(Player.DerelictSystems.Contains(WreckSystem), "and the system, with none left, leaves the empire's");
@@ -103,7 +128,8 @@ public class SalvageWorkTests : SalvageOrderTest
 
         order.Evaluate();
         Assert.IsTrue(Player.AI.HasGoal(order) && order.Emptied, "the order stands on");
-        Assert.IsTrue(order.Platform.Active && order.Dismantling, "with its platform turning back into the ship");
+        Assert.IsTrue(order.Platform.Active, "with its platform");
+        AssertEqual(0.01f, 5f, ship.GetProduction(), "which sends its salvage ship its load");
 
         Assert.IsTrue(d.Sinking, "the hull sinks away");
         float z = d.Z;
@@ -119,7 +145,7 @@ public class SalvageWorkTests : SalvageOrderTest
         AssertEqual(1, CargoShuttles.SalvageShuttlesFor(0.5f), "any amount takes one");
 
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 100f);
         Ship platform = order.Platform;
         UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
         RunSimWhile((simTimeout: 5, fatal: true), () => !platform.InPlayerSensorRange);
@@ -162,7 +188,7 @@ public class SalvageWorkTests : SalvageOrderTest
     {
         Derelict mine = Forms(Wreck);
         Derelict theirs = Forms(Wreck + new Vector2(0, 5_000f));
-        SalvageDerelict order = AtWork(mine);
+        SalvageDerelict order = AtWork(mine, hold: 100f);
         Ship platform = order.Platform;
         Ship unseen = SpawnShip(ShipDesign.SalvagePlatformName, Enemy, new Vector2(900_000f, 200_000f));
         RunSimWhile((simTimeout: 5, fatal: true), () => !platform.InPlayerSensorRange);
@@ -176,26 +202,26 @@ public class SalvageWorkTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void ThePlatformsStatusReadsSalvagingTheDerelictThenTurningBackIntoTheShip()
+    public void ThePlatformsStatusReadsSalvagingTheDerelictOrSalvageHoldFull()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 24f);
         Ship platform = order.Platform;
         Assert.AreSame(order, SalvageDerelict.OfPlatform(platform), "the platform's order is found from it");
         AssertEqual(string.Format(Localizer.Token(GameText.SalvagingDerelict), d.Design.Name), ShipInfoUIElement.SalvageStatus(platform, order),
                     "while it strips, the status names the derelict's design");
 
-        UState.Derelicts.Strip(d, null, d.ProductionLeft - 5f);
         order.Evaluate();
-        Assert.IsTrue(order.Dismantling, "setup: its work is over");
-        AssertEqual(Localizer.Token(GameText.PlatformTurningBack), ShipInfoUIElement.SalvageStatus(platform, order), "and then it turns back into the ship");
+        order.Evaluate();
+        Assert.IsTrue(SalvageDerelict.HoldFull(platform), "setup: two turns fill its hold");
+        AssertEqual(Localizer.Token(GameText.SalvageHoldFull), ShipInfoUIElement.SalvageStatus(platform, order), "and then says its hold is full");
     }
 
     [TestMethod]
     public void HullShuttlesNeverLaunchOnceTheirPlatformIsGone()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 100f);
         Ship platform = order.Platform;
         UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
         RunSimWhile((simTimeout: 5, fatal: true), () => !platform.InPlayerSensorRange);
@@ -214,7 +240,7 @@ public class SalvageWorkTests : SalvageOrderTest
     public void HullShuttlesAlreadyOutFlyBackThoughTheirPlatformIsGone()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 100f);
         Ship platform = order.Platform;
         UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
         RunSimWhile((simTimeout: 5, fatal: true), () => !platform.InPlayerSensorRange);
@@ -235,8 +261,12 @@ public class SalvageWorkTests : SalvageOrderTest
     public void APlatformAtWorkTakesBackAClaimASaveCaughtHalfGivenUp()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 24f);
+        Ship ship = MissionOf(order).SalvageShip;
+        ship.LoadProduction(ship.CargoRoom);
         order.Evaluate();
+        order.Evaluate();
+        Assert.IsTrue(SalvageDerelict.HoldFull(order.Platform) && SalvageDerelict.HoldFull(ship), "setup: both holds are full, so the platform only waits to send its load");
         d.ReleaseClaim(); // as a call-off a save caught halfway can leave it
 
         order.Evaluate();
@@ -249,15 +279,16 @@ public class SalvageWorkTests : SalvageOrderTest
     {
         Derelict partly = Forms(Wreck);
         Derelict emptied = Forms(Wreck + new Vector2(0, 5_000f));
-        SalvageDerelict working = AtWork(partly);
+        SalvageDerelict working = AtWork(partly, hold: 100f);
         working.Evaluate();
-        SalvageDerelict done = AtWork(emptied);
+        SalvageDerelict done = AtWork(emptied, hold: 100f);
         UState.Derelicts.Strip(emptied, null, emptied.ProductionLeft - 5f);
         done.Evaluate();
         Assert.IsTrue(done.Emptied, "setup: the second platform stripped its derelict empty");
         AssertEqual(6, partly.Techs.Length, "setup: a capital's derelict holds 6 techs");
         Assert.IsTrue(partly.ShowsTechsTo(Player), "setup: the player's platform shows the player its techs");
-        new[] { 37.5f, 0f, 0f, 0f, 0f, 2f }.CopyTo(working.Gained, 0);
+        working.Gained[0] = 37.5f;
+        working.Gained[5] = 2f;
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageWork", throwOnError: true);
@@ -272,36 +303,42 @@ public class SalvageWorkTests : SalvageOrderTest
 
         SalvageDerelict[] orders = player.AI.FindGoals<SalvageDerelict>();
         SalvageDerelict loadedWorking = orders.First(o => o.DerelictId == partly.Id);
-        AssertEqual(0.01f, 12f, loadedWorking.Load, "a working order keeps what it stripped");
-        CollectionAssert.AreEqual(new[] { 37.5f, 0f, 0f, 0f, 0f, 2f }, loadedWorking.Gained, "and the points it gave each tech");
+        AssertEqual(0.01f, 12f, loadedWorking.Platform.GetProduction(), "a working platform keeps its load");
+        CollectionAssert.AreEqual(new[] { 37.5f, 0f, 0f, 0f, 0f, 2f }, loadedWorking.Gained, "and its order the points its loads gave each tech");
         SalvageDerelict loadedDone = orders.First(o => o.DerelictId == emptied.Id);
-        Assert.IsTrue(loadedDone.Emptied && loadedDone.Dismantling, "an order whose platform stripped its derelict empty stays so, its platform turning back");
-        AssertEqual(0.01f, 5f, loadedDone.Load, "with what it stripped");
+        Assert.IsTrue(loadedDone.Emptied, "an order whose platform stripped its derelict empty stays so");
+        AssertEqual(0.01f, 5f, loadedDone.Platform.GetProduction(), "with its platform's load");
         CollectionAssert.AreEqual(emptied.Techs, loadedDone.Techs, "and its derelict's techs");
         AssertEqual(emptied.Production, loadedDone.DerelictProduction, "and whole production");
 
+        TechEntry tech = player.GetTechEntry(loadedDone.Techs[0]);
+        tech.Unlocked = false;
+        tech.Discovered = true;
+        tech.Progress = 0f;
         loadedDone.Evaluate();
         Assert.IsTrue(player.AI.HasGoal(loadedDone), "and stands on");
+        AssertEqual(0.01f, 0.2f * 5f / emptied.Production * tech.TechCost, tech.Progress, "its load of 5 pays the tech by what the order kept");
     }
 
     [TestMethod]
     public void EachSalvageSpeedLevelStripsAFifthMoreATurnAndARecoveryWorksAtTwiceIt()
     {
         Derelict d = Forms(Wreck);
-        SalvageDerelict order = AtWork(d);
+        SalvageDerelict order = AtWork(d, hold: 1000f);
+        Ship platform = order.Platform;
         AssertGreaterThan(d.ProductionLeft, 40f, "setup: production left for two turns of it");
         AssertEqual(0.01f, 24f, DerelictRecovery.Speed(Player), "setup: a recovery works at 24 a turn without it");
 
         Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
         order.Evaluate();
-        AssertEqual(0.01f, 14.4f, order.Load, "a fifth more a turn with one level of Salvage Speed");
+        AssertEqual(0.01f, 14.4f, platform.GetProduction(), "a fifth more a turn with one level of Salvage Speed");
         AssertEqual(0.01f, 28.8f, DerelictRecovery.Speed(Player), "and a recovery at twice it");
 
         for (int i = 0; i < 4; ++i)
             Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
         AssertEqual(5, Player.GetTechEntry("SalvageSpeed").Level, "setup: all five levels");
         order.Evaluate();
-        AssertEqual(0.01f, 14.4f + 24f, order.Load, "twice as much with all five");
+        AssertEqual(0.01f, 14.4f + 24f, platform.GetProduction(), "twice as much with all five");
         AssertEqual(0.01f, 48f, DerelictRecovery.Speed(Player), "and a recovery at twice that");
     }
 

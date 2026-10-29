@@ -44,6 +44,9 @@ namespace Ship_Game.Ships
             if (Ship.IsColonyShip || Modules.Any(ShipModuleType.Colony))
                 return RoleName.colony;
 
+            if (Modules.Any(m => m.IsSalvageBay)) // a salvage ship, never a freighter or a warship
+                return RoleName.support;
+
             if (DataRole == RoleName.freighter && Category == ShipCategory.Civilian &&
                 SurfaceAreaPercentOf(m => m.CargoCapacity > 0) >= 0.5f)
             {

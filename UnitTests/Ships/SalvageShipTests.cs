@@ -7,17 +7,21 @@ using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Point = SDGraphics.Point;
+using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships;
 
 /// <summary>
-/// Every major race names a salvage ship: a ship, not a station, carrying one salvage unit, every module on its hull,
-/// which no empire adds to its buildable ships under any role, and which the design list leaves out with salvage ops
-/// off. A station with a salvage unit is no salvage ship. The Salvage Ships technology comes after Corvettes, leads to
-/// Salvage Speed in place of Small Stations, costs 400 and is hidden with salvage ops off. Researched, it lets an
-/// empire build its race's salvage ship; a race naming none, a station or a ship without a salvage unit cannot. The
-/// technology's flag survives a save and goes with a reset of all techs, and an empire saved before salvage ships,
-/// or with a salvage ship that no longer is a design, takes its race's on load.
+/// Every major race names a salvage ship: a support ship, not a station, carrying one salvage unit, every module on its
+/// hull. The shipyard gives a design with a salvage unit the support role; its unit is a bay, which launches its
+/// constructors, but makes it no carrier, and the ship designer flags one short of a load a unit with its own warning.
+/// The player adds salvage ships to its buildable ships with salvage ops on, an AI empire never does, and none is
+/// ever a freighter, whatever its role; the design list leaves them out with salvage ops off. A station with a salvage
+/// unit is no salvage ship. The Salvage Ships technology comes after Frigate Construction, unlocks the salvage unit
+/// and leads to Salvage Speed in place of Small Stations, costs 400 and is hidden with salvage ops off. An empire can build salvage ships once a buildable
+/// salvage ship has room for a platform's load for each of its units; a race naming a station or a ship without a
+/// salvage unit names no salvage ship. An empire saved before salvage ships, or with a salvage ship that no longer is
+/// a design, takes its race's on load.
 /// </summary>
 [TestClass]
 public class SalvageShipTests : StarDriveTest
@@ -49,6 +53,14 @@ public class SalvageShipTests : StarDriveTest
         return false;
     }
 
+    static bool Unlocks(string tech, string module)
+    {
+        foreach (Technology.UnlockedMod unlocked in ResourceManager.Tech(tech).ModulesUnlocked)
+            if (unlocked.ModuleUID == module)
+                return true;
+        return false;
+    }
+
     // a copy of the design under the freighter role, with or without its salvage unit
     static ShipDesign AsFreighter(IShipDesign from, string name, bool keepUnit)
     {
@@ -70,6 +82,7 @@ public class SalvageShipTests : StarDriveTest
             Assert.IsNotNull(ship, $"{race.Name} names a salvage ship, not '{data.DefaultSalvageShip}'");
             Assert.IsTrue(ship.IsValidDesign && ship.BaseCanWarp, $"{race.Name}: {ship.Name} is a valid design that can warp");
             AssertEqual(1, ship.NumSalvageModules, $"{race.Name}: {ship.Name} carries one salvage unit");
+            AssertEqual(RoleName.support, ship.Role, $"{race.Name}: {ship.Name} is a support ship");
             Assert.IsFalse(ship.IsPlatformOrStation, $"{race.Name}: {ship.Name} is no station or platform");
 
             var cells = new HashSet<Point>();
@@ -84,19 +97,21 @@ public class SalvageShipTests : StarDriveTest
     }
 
     [TestMethod]
-    public void NoEmpireAddsASalvageShipToItsBuildableShipsUnderAnyRole()
+    public void OnlyThePlayerAddsASalvageShipToItsBuildableShipsAndNoneIsEverAFreighter()
     {
         IShipDesign ship = Design("Terran Salvage Ship");
         Assert.IsTrue(ship.IsSalvageShip, "setup: the Terran salvage ship");
-        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Player), "the player never builds it from a list");
-        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Enemy), "nor does an AI empire");
+        Assert.IsTrue(ship.CanBeAddedToBuildableShips(Player), "the player can build it");
+        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Enemy), "an AI empire cannot");
+        UState.P.DisableSalvageOps = true;
+        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Player), "nor the player with salvage ops off");
+        UState.P.DisableSalvageOps = false;
 
         ShipDesign freighter = AsFreighter(ship, "Salvage Freighter", keepUnit: true);
-        Assert.IsTrue(freighter.Role == RoleName.freighter && freighter.IsSalvageShip, "setup: a copy under a role the lists take");
-        Assert.IsFalse(freighter.CanBeAddedToBuildableShips(Player), "is not buildable either");
+        Assert.IsTrue(freighter.Role == RoleName.freighter && freighter.IsSalvageShip, "setup: a copy under the freighter role");
+        Assert.IsFalse(freighter.IsFreighter || freighter.IsCandidateForTradingBuild, "is no freighter, so trade never takes it");
         ShipDesign plain = AsFreighter(ship, "Plain Freighter", keepUnit: false);
-        Assert.IsFalse(plain.IsSalvageShip, "setup: without its salvage unit it is no salvage ship");
-        Assert.IsTrue(plain.CanBeAddedToBuildableShips(Player), "control: and the player can build it");
+        Assert.IsTrue(!plain.IsSalvageShip && plain.IsFreighter, "control: without its salvage unit it is one");
     }
 
     [TestMethod]
@@ -111,6 +126,43 @@ public class SalvageShipTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ASalvageShipsUnitIsABayForItsConstructorsButMakesItNoCarrier()
+    {
+        Ship ship = SpawnShip("Terran Salvage Ship", Player, new Vector2(100_000f, 0));
+        AssertEqual(1, ship.Carrier.AllHangars.Length, "setup: the ship's one bay");
+        Assert.IsTrue(ship.Carrier.AllHangars[0].IsSalvageBay, "is its salvage unit, which launches its constructors");
+        Assert.IsFalse(ship.Carrier.HasActiveHangars || ship.Carrier.IsPrimaryCarrierRoleForLaunchRange, "but it makes no carrier");
+        AssertEqual(0f, ship.WeaponsMaxRange, "so the unarmed ship takes no carrier's range");
+    }
+
+    [TestMethod]
+    public void TheShipyardGivesADesignWithASalvageUnitTheSupportRole()
+    {
+        IShipDesign from = Design("Terran Salvage Ship");
+        ShipDesign design = ((ShipDesign)from).GetClone("Shipyard Salvage Ship");
+        design.SetDesignSlots(from.GetOrLoadDesignSlots(), updateRole: true); // as the shipyard sets a design's role from its modules
+        AssertEqual(RoleName.support, design.Role, "a design with a salvage unit takes the support role");
+    }
+
+    [TestMethod]
+    public void TheShipDesignerFlagsASalvageShipShortOfALoadAUnitWithItsOwnWarning()
+    {
+        IShipDesign from = Design("Terran Salvage Ship");
+        ShipDesign design = ((ShipDesign)from).GetClone("Short Salvage Ship");
+        design.SetDesignSlots(from.GetOrLoadDesignSlots().Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID) is { CargoCapacity: <= 0f } or { Salvage: true }),
+                              updateRole: false);
+        AssertLessThan(design.BaseCargoSpace, 75f, "setup: a salvage ship with less cargo room than its unit's load");
+
+        var issues = new ShipDesignIssues(Universe, design);
+        issues.CheckLowSalvageCargo();
+        AssertEqual(1, issues.CurrentDesignIssues.Count, "the ship designer flags it");
+        DesignIssueDetails issue = issues.CurrentDesignIssues[0];
+        Assert.AreEqual(DesignIssueType.LowSalvageShipCargo, issue.Type, "with the salvage ship's warning");
+        Assert.AreEqual(WarningLevel.Critical, issue.Severity, "in red");
+        StringAssert.EndsWith(issue.AdditionalText, Localizer.Token(GameText.DesignIssueLowSalvageShipCargoSkipped), "saying the salvage ship list and auto pick skip it");
+    }
+
+    [TestMethod]
     public void AStationWithASalvageUnitIsNoSalvageShip()
     {
         IShipDesign station = Design("Terran Basic Salvage Station");
@@ -119,11 +171,14 @@ public class SalvageShipTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheSalvageShipsTechnologyComesAfterCorvettesAndLeadsToSalvageSpeed()
+    public void TheSalvageShipsTechnologyComesAfterFrigateConstructionUnlocksTheSalvageUnitAndLeadsToSalvageSpeed()
     {
         AssertEqual(400f, ResourceManager.Tech("SalvageShips").Cost, "it costs 400");
-        Assert.IsTrue(LeadsTo("Corvettes", "SalvageShips"), "Corvettes leads to it");
-        Assert.IsTrue(LeadsTo("SalvageShips", "SalvageSpeed"), "and it to Salvage Speed");
+        Assert.IsTrue(LeadsTo("FrigateConstruction", "SalvageShips"), "Frigate Construction leads to it");
+        Assert.IsFalse(LeadsTo("Corvettes", "SalvageShips"), "and Corvettes no longer does");
+        Assert.IsTrue(Unlocks("SalvageShips", "SalvageUnit"), "it unlocks the salvage unit");
+        Assert.IsFalse(Unlocks("SmallStations", "SalvageUnit"), "which Small Stations no longer does");
+        Assert.IsTrue(LeadsTo("SalvageShips", "SalvageSpeed"), "and it leads to Salvage Speed");
         Assert.IsFalse(LeadsTo("SmallStations", "SalvageSpeed"), "which Small Stations no longer leads to");
 
         TechEntry entry = Player.GetTechEntry("SalvageShips");
@@ -133,39 +188,29 @@ public class SalvageShipTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ResearchingSalvageShipsLetsAnEmpireBuildItsRacesSalvageShip()
+    public void AnEmpireCanBuildSalvageShipsOnceABuildableOneHasRoomForALoadPerUnit()
     {
+        Assert.IsFalse(Enemy.CanBuildSalvageShips, "setup: the AI empire can build no salvage ship");
+        ShipDesign shortHold = ((ShipDesign)Design("Terran Salvage Ship")).GetClone("Short Salvage Ship");
+        shortHold.SetDesignSlots(Design("Terran Salvage Ship").GetOrLoadDesignSlots()
+                              .Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID) is { CargoCapacity: <= 0f } or { Salvage: true }),
+                              updateRole: false);
+        Assert.IsTrue(shortHold.IsSalvageShip && shortHold.BaseCargoSpace < ShipResupply.SalvageLoad, "setup: a salvage ship short of a load");
+        Enemy.MarkShipRolesUsableForEmpire(shortHold);
+        Assert.IsFalse(Enemy.CanBuildSalvageShips, "which does not count");
+        Enemy.MarkShipRolesUsableForEmpire(Design("Cordrazine Salvage Ship"));
+        Assert.IsTrue(Enemy.CanBuildSalvageShips, "one with room for its load does");
+
         AssertEqual("Terran Salvage Ship", Player.SalvageShipDesign?.Name, "setup: the Terran race's salvage ship");
-        Assert.IsFalse(Player.data.AllowSalvageShip || Player.CanBuildSalvageShips, "setup: without the technology it cannot build it");
-
-        Player.UnlockTech("SalvageShips", TechUnlockType.Normal);
-        Assert.IsTrue(Player.data.AllowSalvageShip, "the technology allows salvage ships");
-        Assert.IsTrue(Player.CanBuildSalvageShips, "so the empire can build its race's");
-        Assert.IsFalse(Enemy.CanBuildSalvageShips, "and an empire without the technology still cannot");
-
         Player.data.DefaultSalvageShip = "Terran Basic Salvage Station";
         Assert.IsNull(Player.SalvageShipDesign, "a race naming a salvage station names no salvage ship");
-        Assert.IsFalse(Player.CanBuildSalvageShips, "and cannot build one, technology or not");
         Player.data.DefaultSalvageShip = "Terran Constructor";
-        Assert.IsFalse(Player.CanBuildSalvageShips, "nor can one naming a ship without a salvage unit");
-        Player.data.DefaultSalvageShip = null;
-        Assert.IsFalse(Player.CanBuildSalvageShips, "nor one naming none");
+        Assert.IsNull(Player.SalvageShipDesign, "nor one naming a ship without a salvage unit");
     }
 
     [TestMethod]
-    public void ResettingAllTechsTakesAwayTheSalvageShips()
+    public void AnEmpireSavedBeforeSalvageShipsOrWithOneGoneTakesItsRaces()
     {
-        Player.UnlockTech("SalvageShips", TechUnlockType.Normal);
-        Assert.IsTrue(Player.CanBuildSalvageShips, "setup: researched");
-        Player.ResetAllTechsAndBonuses();
-        Assert.IsFalse(Player.GetTechEntry("SalvageShips").Unlocked, "setup: the reset takes the technology back");
-        Assert.IsFalse(Player.data.AllowSalvageShip || Player.CanBuildSalvageShips, "and with it the salvage ships");
-    }
-
-    [TestMethod]
-    public void TheFlagSurvivesASaveAndAnEmpireSavedBeforeSalvageShipsOrWithOneGoneTakesItsRaces()
-    {
-        Player.UnlockTech("SalvageShips", TechUnlockType.Normal);
         Player.data.DefaultSalvageShip = null; // as a save from before salvage ships
         Assert.AreNotEqual("Ralyeh Salvage Ship", Enemy.data.DefaultSalvageShip, "setup: not the other race's own");
         Enemy.data.DefaultSalvageShip = "Ralyeh Salvage Ship";
@@ -180,9 +225,7 @@ public class SalvageShipTests : StarDriveTest
         Assert.IsNotNull(loaded, "setup: the save loads");
 
         Empire player = loaded.UState.Player;
-        Assert.IsTrue(player.data.AllowSalvageShip, "the technology's flag survives the save");
         AssertEqual("Terran Salvage Ship", player.data.DefaultSalvageShip, "an empire saved without a salvage ship takes its race's");
-        Assert.IsTrue(player.CanBuildSalvageShips, "so it can build it");
         AssertEqual("Ralyeh Salvage Ship", loaded.UState.GetEmpireById(Enemy.Id).data.DefaultSalvageShip,
                     "one saved with a salvage ship keeps it");
         AssertEqual(thirdRaces, loaded.UState.GetEmpireById(ThirdMajor.Id).data.DefaultSalvageShip,

@@ -204,7 +204,7 @@ namespace Ship_Game
             // a salvage station never orbits a planet
             if (ShipToBuild.IsSalvageStation)
                 return targetPlanet == null && SalvageOps.CanOrderIn(Player, targetSystem)
-                    && SalvageOps.IsValidSite(targetSystem, Screen.CursorWorldPosition2D, SeenSalvageStations);
+                    && SalvageMission.IsValidSite(targetSystem, Screen.CursorWorldPosition2D, SeenSalvageStations);
 
             if (targetPlanet != null)
             {
@@ -260,7 +260,7 @@ namespace Ship_Game
             Planet[] planets = Screen.UState.GetVisiblePlanets();
             SolarSystem[] systems = Screen.UState.GetVisibleSystems();
             SeenSalvageStations = ShipToBuild?.IsSalvageStation == true
-                ? SalvageOps.StationsSeenBy(Player, Screen.UState.Objects.GetShips()) : Empty<Ship>.Array;
+                ? SalvageMission.SitesSeenBy(Player, Screen.UState.Objects.GetShips()) : Empty<Ship>.Array;
 
             foreach (Planet planet in planets)
             {
@@ -376,11 +376,11 @@ namespace Ship_Game
 
             foreach (Derelict derelict in Screen.UState.Derelicts.Current)
                 if (derelict.System == system && derelict.CanBeSalvaged)
-                    Screen.DrawCircleProjected(derelict.RestPosition, SalvageOps.Clearance, red, 2f, nodeTex, redFill);
+                    Screen.DrawCircleProjected(derelict.RestPosition, SalvageMission.Clearance, red, 2f, nodeTex, redFill);
 
             foreach (Ship station in SeenSalvageStations)
                 if (station.Position.InRadius(system.Position, system.Radius))
-                    Screen.DrawCircleProjected(station.Position, SalvageOps.Clearance, red, 2f, nodeTex, redFill);
+                    Screen.DrawCircleProjected(station.Position, SalvageMission.Clearance, red, 2f, nodeTex, redFill);
         }
 
         float CurrentRadiusSmoothed;

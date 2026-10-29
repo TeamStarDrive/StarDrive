@@ -51,7 +51,7 @@ namespace Ship_Game.AI.ExpansionAI
                     continue;
                 }
 
-                if (SalvageOps.FindSite(system, SalvageOps.StationsSeenBy(Owner, Universe.Objects.GetShips()), Owner.Random, out Vector2 site))
+                if (SalvageMission.FindSite(system, SalvageMission.SitesSeenBy(Owner, Universe.Objects.GetShips()), Owner.Random, out Vector2 site))
                 {
                     Owner.AI.AddGoalAndEvaluate(new SalvageOps(Owner, system, site, station));
                     return;

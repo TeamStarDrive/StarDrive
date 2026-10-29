@@ -98,74 +98,6 @@ namespace Ship_Game.Commands.Goals
             return count;
         }
 
-        public const float Clearance = 2000f; // from every salvageable derelict and every other salvage station
-
-        // from any thread: inside the system, clear of its star, radiation and planets' orbits, and of its derelicts and the salvage stations among `ships`
-        public static bool IsValidSite(SolarSystem system, Vector2 pos, Ship[] ships)
-        {
-            if (pos.OutsideRadius(system.Position, system.Radius * DeepSpaceBuildingWindow.SystemPlacementRadius)
-                || pos.InRadius(system.Position, DeepSpaceBuildingWindow.MinimumBuildDistanceFromSun)
-                || !system.InSafeDistanceFromRadiation(pos))
-                return false;
-
-            for (int i = 0; i < system.PlanetList.Count; ++i)
-                if (pos.InRadius(system.PlanetList[i].Position, DeepSpaceBuildingWindow.TetherRadius(system.PlanetList[i])))
-                    return false;
-
-            Derelict[] derelicts = system.Universe.Derelicts.Current;
-            for (int i = 0; i < derelicts.Length; ++i)
-                if (derelicts[i].System == system && derelicts[i].CanBeSalvaged && pos.InRadius(derelicts[i].RestPosition, Clearance))
-                    return false;
-
-            for (int i = 0; i < ships.Length; ++i)
-                if (ships[i].IsSalvageStation && ships[i].Active && !ships[i].Dying && pos.InRadius(ships[i].Position, Clearance))
-                    return false;
-
-            return true;
-        }
-
-        // the salvage stations an empire sees, its own among them, which a new one keeps clear of; the player's sight is read the UI-safe way
-        public static Ship[] StationsSeenBy(Empire empire, Ship[] ships)
-        {
-            return ships.Filter(s => s.IsSalvageStation && s.Active
-                && (s.Loyalty == empire || (empire.isPlayer ? s.KnownByEmpires.KnownByPlayer(empire.Universe)
-                                                            : s.KnownByEmpires.KnownBy(empire))));
-        }
-
-        public const float FirstSearchRadius = 1000f;
-        public const float SearchRadiusStep = 500f;
-
-        // a random point within 1000 of the derelicts' average spot, then within 1500, 2000 and on, until one is a valid site or the system's placement area is covered
-        public static bool FindSite(SolarSystem system, Ship[] ships, RandomBase random, out Vector2 site)
-        {
-            Derelict[] derelicts = system.Universe.Derelicts.Current;
-            Vector2 sum = Vector2.Zero;
-            int count = 0;
-            for (int i = 0; i < derelicts.Length; ++i)
-            {
-                if (derelicts[i].System == system && derelicts[i].CanBeSalvaged)
-                {
-                    sum += derelicts[i].RestPosition;
-                    ++count;
-                }
-            }
-
-            if (count > 0)
-            {
-                Vector2 center = sum / count;
-                float lastRadius = center.Distance(system.Position) + system.Radius * DeepSpaceBuildingWindow.SystemPlacementRadius;
-                for (float radius = FirstSearchRadius; radius <= lastRadius; radius += SearchRadiusStep)
-                {
-                    site = center + random.RandomPointInRing(0f, radius);
-                    if (IsValidSite(system, site, ships))
-                        return true;
-                }
-            }
-
-            site = Vector2.Zero;
-            return false;
-        }
-
         public enum OrderBlock { None, StationThere, NotHere, AllWorked, NoDesign }
 
         // why the derelict panel's button and the derelicts window cannot order a station in the system, or None when they can
@@ -183,31 +115,11 @@ namespace Ship_Game.Commands.Goals
         public static bool OrderNearDerelicts(Empire empire, SolarSystem system, Ship[] ships, RandomBase random)
         {
             if (WhyNoOrderIn(empire, system) != OrderBlock.None
-                || !FindSite(system, StationsSeenBy(empire, ships), random, out Vector2 site))
+                || !SalvageMission.FindSite(system, SalvageMission.SitesSeenBy(empire, ships), random, out Vector2 site))
                 return false;
 
             empire.AI.AddGoalAndEvaluate(new SalvageOps(empire, system, site, ShipBuilder.PickSalvageStation(empire, system)));
             return true;
-        }
-
-        // a station built costs the builder trust with each AI empire that has a colony in the system and knows it, unless they have open borders, an alliance or a war
-        public static void CostTrustOfColonyOwners(Empire builder, SolarSystem system)
-        {
-            if (builder.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
-                return;
-
-            foreach (Empire owner in system.OwnerList)
-            {
-                if (owner == builder || owner.isPlayer || owner.IsFaction || owner.data.DiplomaticPersonality == null
-                    || !owner.IsKnown(builder) || owner.IsOpenBordersTreaty(builder) || owner.IsAlliedWith(builder)
-                    || owner.IsAtWarWith(builder))
-                    continue;
-
-                float loss = owner.data.DiplomaticPersonality.SalvageStationTrustLoss;
-                if (builder.isPlayer)
-                    loss *= owner.DifficultyModifiers.SalvageStationTrustLossVsPlayer;
-                owner.GetRelations(builder).Trust -= loss;
-            }
         }
 
         // a ship is placed in its system a step after it spawns, so until then its position tells
@@ -298,7 +210,7 @@ namespace Ship_Game.Commands.Goals
                 StationCost = SalvageStation.GetCost(Owner);
                 if (Owner.isPlayer)
                     Owner.Universe.Notifications?.AddSalvageStationBuiltNotification(SalvageStation, TargetSystem);
-                CostTrustOfColonyOwners(Owner, TargetSystem);
+                SalvageMission.CostTrustOfColonyOwners(Owner, TargetSystem);
                 return GoalStep.GoToNextStep;
             }
 
@@ -327,7 +239,7 @@ namespace Ship_Game.Commands.Goals
                 }
                 bool workDone = CanEnd(SalvageStation) && NothingLeftToSalvage();
                 // what it holds goes with the station of an empire with nowhere to send it
-                if (workDone && (SalvageStation.GetProduction() < 1f || NowhereToSend(Owner)))
+                if (workDone && (SalvageStation.GetProduction() < 1f || SalvageMission.NowhereToSend(Owner)))
                     return ScrapStation(SalvageStation);
                 Haul(SalvageStation, workDone);
             }
@@ -340,9 +252,6 @@ namespace Ship_Game.Commands.Goals
             if (station.OrdAddedPerSecond <= 0f && !station.InCombat)
                 station.ChangeOrdnance(station.OrdinanceMax / 10f);
         }
-
-        // from any thread: rebels, who build no freighters, and an empire with no colony have nowhere to send what a station holds
-        public static bool NowhereToSend(Empire empire) => empire.NumPlanets == 0 || empire.data.IsRebelFaction;
 
         // one not yet placed in its system has yet to show its owner the derelicts there
         static bool CanEnd(Ship station) => station.System != null;

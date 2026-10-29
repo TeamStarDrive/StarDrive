@@ -384,6 +384,8 @@ namespace Ship_Game.AI
             {
                 UpdateResearchStationGoal(orbital, Owner.System, goal.OldShip);
                 UpdateSalvageOpsGoal(orbital, bg.TargetSystem);
+                if (goal is SalvageDerelict salvage)
+                    salvage.OnPlatformBuilt(orbital, Owner);
             }
         }
 

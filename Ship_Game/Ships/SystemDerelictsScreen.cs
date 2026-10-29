@@ -12,7 +12,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with orders to salvage or recover each; the game does not run under it, a covered universe running only the queued work of clicks, so it reads the goals as it opens and again once each click has reached the sim thread; opened over the running game, it pauses it
+// the salvageable derelicts the player knows of in one system, opened from its Exotic Systems row, with orders to salvage or recover each and the count of the player's salvage ships at work and idle; the game does not run under it, a covered universe running only the queued work of clicks, so it reads the goals as it opens and again once each click has reached the sim thread; opened over the running game, it pauses it
 public sealed class SystemDerelictsScreen : GameScreen
 {
     public override bool HelpKeyOpensCodex => true;
@@ -38,6 +38,7 @@ public sealed class SystemDerelictsScreen : GameScreen
     const int TechSpacing = 32;
     const int StatusX = 512;
     const int HeaderHeight = 22;
+    const int FooterHeight = 30;
 
     // a derelict's hull and name, its production left, the flag of the empire salvaging it, its techs and its salvage's status, and the Salvage and Recover buttons, as on its panel
     sealed class DerelictListItem : ScrollListItem<DerelictListItem>
@@ -116,7 +117,7 @@ public sealed class SystemDerelictsScreen : GameScreen
         void DrawButton(SpriteBatch batch, DerelictSalvageButton.Kind kind, SalvageDerelict.Block block, in Rectangle rect)
         {
             bool lit = DerelictSalvageButton.Lit(kind, block, Order);
-            DerelictSalvageButton.Draw(batch, rect, Universe.Player, kind, block, lit, rect.HitTest(Universe.Input.CursorPosition));
+            DerelictSalvageButton.Draw(batch, rect, kind, block, lit, rect.HitTest(Universe.Input.CursorPosition));
         }
 
         // the button's tooltip and click, where the cursor is on it; a click has the window read the goals again once it reaches the sim thread
@@ -205,9 +206,11 @@ public sealed class SystemDerelictsScreen : GameScreen
         var derelictsList = Add(new SubmenuScrollList<DerelictListItem>(rect, title, list));
         derelictsList.SetBackground(Colors.TransparentBlackFill);
         RectF area = derelictsList.ClientArea;
-        // the column titles above the list, inside the frame
-        list.RectF = new(area.X, area.Y + HeaderHeight, area.W, area.H - HeaderHeight);
+        // the column titles above the list, and the player's salvage ships below it, inside the frame
+        list.RectF = new(area.X, area.Y + HeaderHeight, area.W, area.H - HeaderHeight - FooterHeight);
         AddHeaders(area);
+        ShipsCount = Add(new UILabel(new Rectangle((int)area.X, (int)(area.Bottom - FooterHeight), (int)area.W, FooterHeight),
+                                     "", Fonts.Arial12Bold, Color.Wheat) { TextAlign = TextAlign.Center });
 
         Derelict[] derelicts = System.Universe.Derelicts.Current;
         for (int i = 0; i < derelicts.Length; ++i)
@@ -249,10 +252,15 @@ public sealed class SystemDerelictsScreen : GameScreen
     // queued after the click's own work, so it is set once that work is done
     void ReadAfterClick() => Universe.RunOnSimThread(() => ClickReached = true);
 
+    // the player's salvage ships at work and idle, as their missions stand
+    public UILabel ShipsCount { get; private set; }
+
     void ReadGoals()
     {
         for (int i = 0; i < Rows.NumEntries; ++i)
             Rows[i].Read();
+        SalvageMission.CountShips(Universe.Player, out int working, out int idle);
+        ShipsCount.Text = string.Format(Localizer.Token(GameText.SalvageShipsCount), working, idle);
     }
 
     public bool Lists(Derelict d) => Rows.Any(row => row.Derelict == d);

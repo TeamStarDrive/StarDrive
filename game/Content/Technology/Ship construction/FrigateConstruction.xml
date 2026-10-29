@@ -10,6 +10,9 @@
     <LeadsToTech>
       <UID>Cruisers</UID>
     </LeadsToTech>
+    <LeadsToTech>
+      <UID>SalvageShips</UID>
+    </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>
