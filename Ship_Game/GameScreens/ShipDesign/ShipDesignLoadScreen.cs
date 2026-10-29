@@ -438,10 +438,10 @@ namespace Ship_Game.GameScreens.ShipDesign
                 && ResourceManager.ShipRoles.TryGetValue(design.Role, out ShipRole sr) && !sr.Protected;
         }
 
-        // with salvage ops off, the salvage stations and the salvage platform are not listed, debug features or not
+        // with salvage ops off, the salvage stations, the salvage ships and the salvage platform are not listed, debug features or not
         public static bool IsTurnedOff(IShipDesign design, UniverseParams p)
         {
-            return !p.SalvageOps && (design.IsSalvageStation || design.IsSalvagePlatform);
+            return !p.SalvageOps && (design.IsSalvageStation || design.IsSalvageShip || design.IsSalvagePlatform);
         }
 
         void LoadShipToScreen()

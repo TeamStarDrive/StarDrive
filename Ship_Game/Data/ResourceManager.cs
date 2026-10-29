@@ -2297,6 +2297,10 @@ namespace Ship_Game
             return "no salvage module";
         }
 
+        // the race's salvage ship design, or null when it names none, or names a design that is not one
+        public static IShipDesign SalvageShipDesignOf(EmpireData race)
+            => Ships.GetDesign(race.DefaultSalvageShip, out IShipDesign ship) && ship.IsSalvageShip ? ship : null;
+
         // Added by RedFox: makes sure all required ship designs are present
         static void CheckForRequiredShipDesigns()
         {
@@ -2328,6 +2332,8 @@ namespace Ship_Game
                 {
                     Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", s => s.IsSalvageStation, "IsSalvageStation");
                     Assert(e, e.DefaultSalvageStation, "DefaultSalvageStation", ShipResupply.HasRoomForSalvageLoads, "BaseCargoSpace");
+                    if (!e.IsFactionOrMinorRace && SalvageShipDesignOf(e) == null)
+                        Log.Warning($"Race {e.Name} has no salvage ship design in DefaultSalvageShip ('{e.DefaultSalvageShip}')");
                 }
             }
 

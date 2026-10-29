@@ -22,7 +22,7 @@ namespace UnitTests.Ships;
 /// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
 /// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs and the empires that see
 /// them, an order's points for each tech, and an order whose platform stripped its derelict empty, with its derelict's
-/// techs and production, survive a save. Each level of the Salvage Speed tech, off Small Stations and hidden with salvage
+/// techs and production, survive a save. Each level of the Salvage Speed tech, off Salvage Ships and hidden with salvage
 /// ops off, strips a fifth more a turn, all five twice as much, a recovery working at twice it; pirates salvage a tenth
 /// faster for each level from level 3, set by the level they rise to. A researched level survives a save, and an older
 /// save without the tech loads with it to research. An empire absorbing another comes up to its level of the tech, a
@@ -441,10 +441,11 @@ public class SalvageWorkTests : StarDriveTest
     }
 
     [TestMethod]
-    public void TheSalvageSpeedTechLeadsOnFromSmallStationsAndIsHiddenWithSalvageOpsOff()
+    public void TheSalvageSpeedTechLeadsOnFromSalvageShipsAndIsHiddenWithSalvageOpsOff()
     {
         Assert.IsTrue(ResourceManager.TryGetTech("SalvageSpeed", out Technology tech), "the tech is loaded");
-        Assert.IsTrue(tech.ComesFrom.Any(t => t.UID == "SmallStations"), "Small Stations leads to it");
+        Assert.IsTrue(tech.ComesFrom.Any(t => t.UID == "SalvageShips"), "Salvage Ships leads to it");
+        Assert.IsFalse(tech.ComesFrom.Any(t => t.UID == "SmallStations"), "and Small Stations no longer does");
         AssertEqual(5, tech.MaxLevel, "in five levels");
 
         TechEntry entry = Player.GetTechEntry("SalvageSpeed");
@@ -531,7 +532,7 @@ public class SalvageWorkTests : StarDriveTest
     [TestMethod]
     public void ATechHiddenSinceTheSaveLeavesTheQueuesAndResearchsPicksAndUnresearchedTheTree()
     {
-        Player.UnlockTech("SmallStations", TechUnlockType.Normal);
+        Player.UnlockTech("SalvageShips", TechUnlockType.Normal);
         Player.UnlockTech("SalvageSpeed", TechUnlockType.Normal);
         Player.Research.AddToQueue("SalvageSpeed");
         Assert.IsTrue(Player.CurrentTechsResearchable().Any(t => t.UID == "SalvageSpeed"), "setup: its next level is open to research");

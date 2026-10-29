@@ -843,13 +843,14 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   not inherited: the constructor clears it after the copy (168).
 - **Off, by either switch (166):**
   - every derelict is a drifting one (visual only);
-  - the salvage module and the salvage station and platform designs are hidden from the design screen and build
-    lists;
-  - the Salvage Speed tech is hidden, by its `RequiresSalvageOps` flag (808 A).
+  - the salvage module and the salvage station, salvage ship and platform designs are hidden from the design screen
+    and build lists;
+  - the Salvage Ships and Salvage Speed techs are hidden, by their `RequiresSalvageOps` flag (808 A, 155).
 - **Off by the Globals flag, also (166):** the load-time checks for the salvage default ships are skipped.
   - That means the per-race default `DefaultSalvageStation`, checked like `DefaultMiningStation` in
     `CheckForRequiredShipDesigns` (`ResourceManager.cs:2274`), and the `Salvage Platform` design, required like the
-    designs in its `requiredShips` list (314).
+    designs in its `requiredShips` list (314), and the per-race `DefaultSalvageShip`, whose lack only logs a
+    warning (152).
   - A mod without salvage designs then logs no errors.
 - **The rule option when the Globals flag is off (167):** shown greyed out and ticked, with a tooltip that says
   salvage ops are off by the Globals flag or for want of salvage content, vanilla's flag included (931 A).
@@ -1496,7 +1497,7 @@ Implementation notes:
    recovery chance, which pirates get by their level (Gilad, 2026-10-22), are dropped (809 C).
    - Decisions (Gilad, 2026-10-23; 805-818):
      - One tech, Salvage Speed, a leaf off Small Stations, the tech that unlocks the Salvage Unit, as Mining Speed is
-       off Deep Core Mining (805 A). Mining Speed's shape: 5 levels, each adding a fifth of the salvage speed,
+       off Deep Core Mining (805 A); since 2026-10-29 a leaf off Salvage Ships instead (155). Mining Speed's shape: 5 levels, each adding a fifth of the salvage speed,
        costing 1000 and half as much again each level (806 A).
      - A turn's strip still stops at the room the platform's hold has, the break-in is unchanged, the strip's flashes
        and junk come faster with the speed, the AI researches it as any bonus tech, and its texts are 7224-7226 in

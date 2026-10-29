@@ -164,6 +164,10 @@ namespace Ship_Game
         public bool CanBuildResearchStations { get; private set; }
         public bool CanBuildMiningStations { get; private set; }
         public bool CanBuildSalvageStations { get; private set; }
+        // its race's salvage ship, or null for a race without one
+        public IShipDesign SalvageShipDesign => ResourceManager.SalvageShipDesignOf(data);
+        // researched the Salvage Ships technology, with a salvage ship for its race
+        public bool CanBuildSalvageShips => data.AllowSalvageShip && SalvageShipDesign != null;
         [StarData] public float CurrentMilitaryStrength;
         [StarData] public float OffensiveStrength; // No Orbitals
         [StarData] public LoyaltyLists EmpireShips;

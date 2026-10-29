@@ -31,6 +31,7 @@ public partial class ShipDesign
     // the one fixed platform design a salvage station builds beside a derelict, which the player never designs, builds, orders or refits
     public const string SalvagePlatformName = "Salvage Platform";
     public bool IsSalvagePlatform => Name == SalvagePlatformName;
+    public bool IsSalvageShip       { get; private set; } // a salvage module on a ship that is not a station or platform
     public bool IsUnitTestShip      { get; private set; }
     public bool IsSingleTroopShip   { get; private set; }
     public bool IsTroopShip         { get; private set; }
@@ -186,6 +187,7 @@ public partial class ShipDesign
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
         IsMiningStation   = IsPlatformOrStation && BaseRefiningPerTurn > 0;
         IsSalvageStation  = IsStation && NumSalvageModules > 0;
+        IsSalvageShip     = !IsPlatformOrStation && NumSalvageModules > 0;
         IsDysonSwarmController  = Name == DysonSwarm.DysonSwarmControllerName;
 
         // only enable this flag for non-testing environment
@@ -302,7 +304,7 @@ public partial class ShipDesign
 
     public bool CanBeAddedToBuildableShips(Empire empire)
     {
-        return IsValidDesign && !IsUnitTestShip && !IsSalvagePlatform
+        return IsValidDesign && !IsUnitTestShip && !IsSalvagePlatform && !IsSalvageShip
             && Role != RoleName.prototype
             && Role != RoleName.disabled
             && Role != RoleName.supply

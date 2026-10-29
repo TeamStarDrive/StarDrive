@@ -103,6 +103,7 @@ public interface IShipDesign
     bool IsMiningStation   { get; }
     bool IsSalvageStation  { get; }
     bool IsSalvagePlatform { get; }
+    bool IsSalvageShip     { get; }
     bool IsCandidateForTradingBuild { get; }
     bool IsDysonSwarmController     { get; }
 

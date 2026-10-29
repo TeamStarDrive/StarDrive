@@ -233,6 +233,7 @@ namespace Ship_Game
         [StarData] public float ExoticStorageMultiplier = 1;
         [StarData] public float MiningSpeedMultiplier = 1;
         [StarData] public float SalvageSpeedMultiplier = 1;
+        [StarData] public bool AllowSalvageShip; // the Salvage Ships technology
         [StarData] public float RefiningRatioMultiplier = 1;
 
         // Added by McShooterz: power bonus
@@ -266,6 +267,7 @@ namespace Ship_Game
         [StarData] public string DefaultResearchStation;
         [StarData] public string DefaultMiningStation;
         [StarData] public string DefaultSalvageStation;
+        [StarData] public string DefaultSalvageShip;
 
         // FB - Thruster Colors
         [StarData] public byte ThrustColor0R;
@@ -431,6 +433,9 @@ namespace Ship_Game
         {
             ShipModulesInResearchQueues = new(ShipModulesInResearchQueues);
             OwnTechBonuses();
+            // a saved salvage ship that is none, as from before salvage ships or a design since renamed, gives way to its race's
+            if (ResourceManager.SalvageShipDesignOf(this) == null)
+                DefaultSalvageShip = (ResourceManager.AllRaces.FirstOrDefault(r => r.ArchetypeName == ArchetypeName) as EmpireData)?.DefaultSalvageShip;
         }
 
         void OwnTechBonuses()
@@ -494,6 +499,7 @@ namespace Ship_Game
             BombEnvironmentDamageMultiplier = template.BombEnvironmentDamageMultiplier;
             OngoingDiplomaticModifier = template.OngoingDiplomaticModifier;
             SalvageSpeedMultiplier = template.SalvageSpeedMultiplier;
+            AllowSalvageShip = template.AllowSalvageShip;
         }
 
         public void ResetAllBonusModifiers(Empire empire)
