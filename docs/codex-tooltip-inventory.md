@@ -41,7 +41,7 @@ Tokens: 457. Already hooked: 393.
 | 26 | `RushAllConstructionTip` | Signals Continuous Construction rush of all items in your empire, including existing and future items.   WARNING: This will quickly spend your treasury and m... | AutomationWindow.cs |  | automation_construction |
 | 27 | `SalvageAlertsTip` | Alerts when one of your salvage platforms has sent its salvage ship its last load, with the production and research its salvage brought; when your salvage of... | AutomationWindow.cs |  | automation_alerts |
 | 28 | `ShipCrashAlertsTip` | Alerts when a ship crashes on a planet. With these off, you hear of a crash site only when a ship is recovered from it. | AutomationWindow.cs |  | automation_alerts |
-| 29 | `StationBuiltAlertsTip` | Alerts when one of your research, mining or salvage stations has been built. | AutomationWindow.cs |  | automation_alerts |
+| 29 | `StationBuiltAlertsTip` | Alerts when one of your research or mining stations has been built. | AutomationWindow.cs |  | automation_alerts |
 | 30 | `TheBestColonyShipWill` | The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons. | AutomationWindow.cs |  | automation_exploration |
 | 31 | `VolcanoAlertsTip` | Alerts when a volcano becomes active, calms after an eruption or goes dormant, and when a lava pool hardens into a bare tile. Eruptions are reported either way. | AutomationWindow.cs |  | automation_alerts |
 | 32 | `YourEmpireWillAutomaticallyCreate` | Your empire will automatically create and deploy colony ships to desirable planets. Colony ships will not be dispatched to planets with a known nearby enemy ... | AutomationWindow.cs |  | automation_exploration |

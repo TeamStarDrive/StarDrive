@@ -1,4 +1,4 @@
-# Salvage Ops: derelict ships, salvage stations, recovery
+# Salvage Ops: derelict ships, salvage ships, recovery
 
 An integration branch `feature/salvage-ops/base`, with sub-branches under it; the patch branch of the day is merged
 into `base` as fixes land. Status (2026-10-17): phase 1 (sub-branch 1, derelicts) shipped through
@@ -11,6 +11,10 @@ each derelict claimed by one empire, replace the yards and their salvage ships, 
 from sub-branch 4. The
 fixes_49 review settled 210, 212, 213, 216-218 and 220 for derelicts: one lock keeps the derelict list safe on the
 sim, save and UI threads, a ship leaves at most one derelict, and a failure to make one is logged.
+
+Status (2026-10-30): salvage ops shipped with salvage stations in release 00074 and were then turned off in vanilla to
+rework them. On `jupiter-1.60/fixes_54` salvage ships replace the stations, in steps 1-6 (2026-10-28 to 10-30), with
+decisions numbered anew from 133; those numbers are not the older decisions of the same value. See Salvage ships.
 
 ## The rules (Gilad, 2026-10-15)
 
@@ -141,7 +145,78 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
   derelict smokes from the same places. A derelict saved during its breakup comes back dark with no more blasts, and a
   drifting one starts to sink at once.
 
+### Salvage ships (Gilad, 2026-10-28 to 10-30; replaces the salvage station, its hauls and its picker)
+
+- **The ship (151, 177, 191, 195, 210 C):** any design that is not a platform or station and carries a salvage unit
+  (`ShipDesign.IsSalvageShip`). The unit (`SalvageUnit.xml`) is 4x4 IO with 50 cargo, 60 ordnance and a salvage bay,
+  and goes on no drone, fighter, corvette, platform or station hull. A design with a salvage bay takes the support
+  role. Each race names a `DefaultSalvageShip` (placeholders on its first frigate hull, weapons dropped and cargo
+  holds in their slots, until Gilad's hulls), and a mod with salvage ops on that leaves a race without one loads with
+  a warning (152). Salvage ships are ordinary buildable designs.
+- **The unlock (190 B):** the Salvage Ships tech (`SalvageShips`, 400, `RequiresSalvageOps`) after Frigate
+  Construction unlocks the unit, and Salvage Speed follows it. `Empire.CanBuildSalvageShips` comes from the ships it
+  can build. A race with no salvage ship design, none built and none to build cannot salvage: the buttons are hidden
+  (152); with a design but no tech they are gray (161 A).
+- **Cargo (184 A, 208 A):** a design needs cargo room for one platform load (the Salvage Platform design's hold, 75) a
+  unit, or the pickers and the Automation list skip it; the designer flags it Critical under one load a unit, Minor
+  under one and a half and Informative under two.
+- **Order and mission (220, 178 A, 181 A, 162 B, 229 A):** an order (`SalvageDerelict`) joins a mission
+  (`SalvageMission`, one ship in one system): the mission in its system with a free unit, else a mission on automatic
+  still queued with no order, else one for the idle salvage ship nearest the system, else one whose ship is built,
+  queued urgent at the safe shipyard planet nearest the site and first in the player's queue. With no shipyard it
+  waits; its shipyard lost or unsafe, the ship is queued again at the nearest; taken out of the queue, the mission is
+  called off.
+- **Site (219 A):** a random point within 1000 of the derelicts' average spot, then 1500, 2000 and on, inside the
+  system, clear of its star, radiation and planets' orbits, and 2000 from every salvageable derelict there and every
+  salvage ship or old station the empire sees.
+- **At work (168 A, 182 A, 206 A, 293 A):** the ship takes no player orders (no right-click order and no refit, scrap
+  or explore button), ignores combat and pays no upkeep. Parked at its site, a free unit launches the empire's
+  cheapest constructor for its order, spending the unit's ordnance (193 A); the constructor builds the Salvage
+  Platform beside the derelict at the platform's cost, at least 100 x pace, and one lost on the way is launched again.
+  The derelict is claimed, with the trust cost per platform, as the constructor starts to build (200 B, 201 A).
+- **The platform (192 A, 197 C, 202 A, 203 A, 204 A, 180 A):** it strips each turn what its hold takes, faster with
+  Salvage Speed, sends each full load to the parked ship, which takes what fits, and waits while the ship is away or
+  full; a recovering one works on with its load. The derelict's techs show once it stands and advance with each load
+  reaching the ship. Its work over, it packs up over 2 turns and its unit gets its launch ordnance back.
+- **Trips (179 A, 205 A, 214 A, 223 A, 194 A):** with its hold full, or short of the ordnance a waiting launch takes,
+  and no constructor out, the ship flies to the nearest safe colony and unloads once orbiting it, the store's overflow
+  paid as credits at the tax rate (with no safe colony, all of it where the ship is). It rearms in orbit while a
+  launch waits, then flies back. Its orders done, it brings home what it holds and stays in orbit there, idle.
+- **Idle (182 A, 207 A):** a salvage ship with a live unit in no mission or fleet, orbiting, holding or awaiting
+  orders, and not landing, dismantling, scuttling or changing hands. The player can move, refit or scrap it.
+- **Losses (140 A, 198 A, 217 A):** a ship destroyed or taken ends its mission and its orders, their platforms go, and
+  the player is told once for each order and once for the production aboard; a recovery whose roll succeeded still
+  brings its ship.
+- **UI (161 A, 166 A, 185 A):** Salvage and Recover buttons on every known salvageable derelict, the order's stage on
+  its panel and in the derelicts window, whose last line counts the salvage ships at work and idle, and a Salvage
+  Ships filter in the ship list. Notifications: salvage finished, platform destroyed, salvage ship lost, lost with
+  production aboard, claimed first, sank before the claim, and the recovery outcomes.
+- **Automation (211 A, 230 C, 231 A, 233 A, 235 A, 183 A):** Auto Salvage (`Empire.AutoSalvage`, saved as
+  AutoBuildSalvageStations) runs the player's salvage on the AI's planner (`SalvageOpsPlanner`): every few turns, the
+  closest systems first, derelicts with a fifth of their turns left or more, recovering ships stronger than any of
+  their role it can build; at most one ship built a run, up to ceil(planets / 5) clamped to 1-5 built or queued; no
+  call-off while it is on. Auto Pick Salvage Ships takes the most units up to the derelicts to work there, then the
+  fewest beyond them, then cargo, then strength per slot; off, the Automation list's design, else the race default.
+- **AI (232 B, 234 C, 240 A, 247 A, 248 A, 249 A):** no worth rule for a build, only the cap; idle ships beyond the
+  cap are scrapped, once orderless queued missions have left the queue; a fleet is asked for only where a ship could
+  go; builds are OrbitalUrgent without MoveToFront; salvage ships are never auto-refit.
+- **Pirates (144 B, 150 A, 257 A-275):** they no longer salvage. An orbital raid goes for a salvage platform at work
+  first, and only pirates can board one: the owner's order ends and its hold is lost, and the pirates recover the
+  derelict with an order of their own, or take the platform apart where they cannot, already recover it or protect its
+  owner. A salvage ship they board is taken to their base as a freighter is.
+- **Mergers and defeat (199 A, 236 A):** missions and orders end, platforms go, and salvage ships pass on as ordinary
+  ships.
+- **Stations gone (step 5, 277-292):** no empire builds a salvage station; the 24 vanilla station designs, the
+  freighter hauls and the station picker are deleted. A 00074 save loads with its stations as idle orbitals of the
+  player and pirates, while AI empires scrap theirs (281 A); one scraps for half its cost and can be called off
+  (278 A) and may be refitted (282 A). Its hauls are called off and its station builds cancelled (279 A, 280 B). The
+  code kept for those saves goes around 2026-12-29.
+- **Codex (step 6, 294 A):** a Salvage Ships page replaces Hauling under Derelicts.
+
 ### Salvage (Gilad, 2026-10-16; 269-302 replace the yards and salvage ships of 122 and 136)
+
+This is the salvage station design that release 00074 shipped. Salvage ships, above, replaces it: what it says of
+stations, hauls and the station picker no longer holds.
 
 - **The salvage station:**
   - A station-role design with a salvage module, `<Salvage>True</Salvage>` in the module's data, as a refining
