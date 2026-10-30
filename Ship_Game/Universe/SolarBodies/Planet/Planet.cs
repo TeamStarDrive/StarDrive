@@ -1708,7 +1708,7 @@ namespace Ship_Game
             for (int i = 0; i < System.ShipList.Count; i++)
             {
                 Ship ship = System.ShipList[i];
-                if (ship.Loyalty != Owner || ship.InCombat)
+                if (ship.Loyalty != Owner || ship.InCombat || ship.WorksForSalvage) // a salvage ship at work answers no call
                     continue;
 
                 if (!ship.IsFreighter 

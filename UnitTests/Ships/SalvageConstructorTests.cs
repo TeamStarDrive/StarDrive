@@ -159,8 +159,7 @@ public class SalvageConstructorTests : SalvageOrderTest
         Assert.AreSame(ship, constructor.Mothership, "from the salvage ship");
         ShipModule bay = BayOf(ship, constructor);
         Assert.IsTrue(bay is { IsSalvageBay: true }, "out of its salvage unit");
-        AssertGreaterThan(constructor.ShipOrdLaunchCost, 0f, "setup: a launch costs ordnance");
-        AssertEqual(0.01f, ordnance - constructor.ShipOrdLaunchCost, ship.Ordinance, "which the ship pays");
+        AssertEqual(0.01f, ordnance - 26f, ship.Ordinance, "which the ship pays, the constructor's 26");
         AssertEqual(0.01f, 30f, bay.HangarTimer, "and the unit waits out its 30 s timer");
 
         AssertEqual("BuildPlatform", order.StepName, "the order waits for its platform");
@@ -327,7 +326,6 @@ public class SalvageConstructorTests : SalvageOrderTest
         Derelict d = Forms(Wreck);
         SalvageDerelict order = OrderedAndLaunched(d);
         Ship ship = ShipOf(order);
-        float launch = order.FinishedShip.ShipOrdLaunchCost;
         float afterLaunch = ship.Ordinance;
         PlatformBuilt(order);
         AssertEqual(0.01f, afterLaunch, ship.Ordinance, "setup: the launch's ordnance is spent while the platform stands");
@@ -336,7 +334,7 @@ public class SalvageConstructorTests : SalvageOrderTest
         for (int turn = 0; turn < 1 + SalvageDerelict.DismantleTurns && Player.AI.HasGoal(order); ++turn)
             order.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(order) || order.Platform.Active, "setup: the platform has taken itself apart");
-        AssertEqual(0.01f, afterLaunch + launch, ship.Ordinance, "and its unit gets the launch's ordnance back");
+        AssertEqual(0.01f, afterLaunch + 26f, ship.Ordinance, "and its unit gets the launch's 26 ordnance back");
     }
 
     [TestMethod]
@@ -452,7 +450,7 @@ public class SalvageConstructorTests : SalvageOrderTest
         order.Evaluate();
         Assert.IsNull(boarded.Mothership, "the boarded constructor is no longer the ship's");
         Assert.IsNull(bay.HangarShip, "and its unit is free");
-        AssertEqual(0.01f, inSpace - boarded.ShipOrdLaunchCost, ship.Carrier.OrdnanceInSpace, "with the ordnance it took written off");
+        AssertEqual(0.01f, inSpace - 26f, ship.Carrier.OrdnanceInSpace, "with the 26 ordnance it took written off");
 
         bay.HangarTimer = 0f; // its timer ran out meanwhile
         order.Evaluate();

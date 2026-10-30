@@ -13,7 +13,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class SalvageMission : Goal
     {
-        // it stops at its site once this close
+        // its move to its site over, it parks there once this close
         public const float ArrivalRadius = 300f;
         // a site keeps this far from every salvageable derelict and every other salvage station or ship
         public const float Clearance = 2000f;
@@ -114,12 +114,15 @@ namespace Ship_Game.Commands.Goals
         public static bool OnAutomatic(Empire empire)
             => empire.Universe.P.SalvageOps && (empire.isPlayer ? empire.AutoSalvage : !empire.IsFaction);
 
-        // from any thread: the mission the salvage ship works for, or null
+        // from any thread: the mission the salvage ship works for, or null; one the queue reported built is its mission's before the mission's turn takes it
         public static SalvageMission OfShip(Ship ship)
-            => ship.Loyalty.AI.FindGoal(g => g is SalvageMission s && s.SalvageShip == ship) as SalvageMission;
+            => ship.Loyalty.AI.FindGoal(g => g is SalvageMission s && (s.SalvageShip == ship || s.BuiltForIt(ship))) as SalvageMission;
+
+        // read only once the ship is built, as reading the built ship clears a lost one
+        bool BuiltForIt(Ship ship) => SalvageShip == null && !Building && FinishedShip == ship;
 
         // from any thread: its ship's live salvage units, or before the ship is built its design's, less those its orders hold
-        public int FreeUnits => (SalvageShip != null ? LiveUnits(SalvageShip) : Design?.NumSalvageModules ?? 0) - NumOrders;
+        public int FreeUnits => (SalvageShip is { } ship ? LiveUnits(ship) : Design?.NumSalvageModules ?? 0) - NumOrders;
 
         int NumOrders => Owner.AI.CountGoals(g => g is SalvageDerelict s && s.Mission == this);
 
@@ -263,7 +266,7 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.RestartGoal;
         }
 
-        // it flies to its site, taking no orders and no fights; one refitted in the queue to another design ends the mission and is a ship like any other
+        // it flies to its site and parks once its move there has stopped it, taking no orders and no fights; one refitted in the queue to another design ends the mission and is a ship like any other
         GoalStep FlyToSite()
         {
             if (SalvageShip == null && FinishedShip is { } built)
@@ -279,16 +282,18 @@ namespace Ship_Game.Commands.Goals
                 return Lose();
             if (!HasOrders)
                 return End(ship);
+            if (ship.AI.State == AIState.MoveTo)
+            {
+                ship.AI.IgnoreCombat = true; // the end of its launch from the shipyard, or a route redrawn for a newly explored system, clears it
+                return GoalStep.TryAgain;
+            }
             if (ship.Position.InRadius(Site, ArrivalRadius))
             {
                 Park(ship);
                 return GoalStep.GoToNextStep;
             }
-            if (ship.AI.State != AIState.MoveTo)
-            {
-                ship.AI.OrderMoveTo(Site, ship.Position.DirectionToTarget(Site), AIState.MoveTo, MoveOrder.Regular);
-                ship.AI.IgnoreCombat = true;
-            }
+            ship.AI.OrderMoveTo(Site, ship.Position.DirectionToTarget(Site), AIState.MoveTo, MoveOrder.Regular);
+            ship.AI.IgnoreCombat = true;
             return GoalStep.TryAgain;
         }
 
@@ -311,6 +316,8 @@ namespace Ship_Game.Commands.Goals
                 return End(ship);
             if (ship.AI.State != AIState.HoldPosition)
                 Park(ship);
+            ship.AI.IgnoreCombat = true; // pushed off its spot, its hold flies it back, which drops these
+            ship.AI.SetPriorityOrder(true);
             if (!ConstructorsOut(ship) && (SalvageDerelict.HoldFull(ship) || HasOrderToLaunch && ShortOfLaunch(ship)))
                 return Trip(ship);
             return GoalStep.TryAgain;
@@ -383,7 +390,7 @@ namespace Ship_Game.Commands.Goals
             }
             if (!ship.IsOrbiting(Colony))
             {
-                if (ship.AI.State != AIState.Orbit)
+                if (ship.AI.State != AIState.Orbit || ship.AI.OrbitTarget != Colony)
                     Orbit(ship, Colony);
                 return GoalStep.TryAgain;
             }
@@ -427,6 +434,7 @@ namespace Ship_Game.Commands.Goals
         void LetGo(Ship ship)
         {
             SalvageShip = null;
+            FinishedShip = null; // so its end finds no ship to let go of again
             ship.AI.ClearOrders();
             if (Owner.IsDefeated)
                 return;

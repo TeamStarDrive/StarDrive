@@ -123,8 +123,8 @@ decisions numbered anew from 133; those numbers are not the older decisions of t
     grey, a column of icons at the top left with tooltips (the original owner's flag, whose tooltip names the empire,
     then a yellow hourglass with the turns left; 240, 241), and on the right, in the ship panel's first bar row, a bar
     of the production remaining out of what it started with (239, 242). The turns and production tooltips link to
-    the Codex. Under the bar sits the Build Salvage Station button, or the station order's status in its place
-    (452-455), and the Salvage and Recover buttons sit in its drawer (277, 327). Once it is claimed, the flag and name of
+    the Codex. Under the bar sits the stage of the player's salvage order, once one is placed, and the Salvage and
+    Recover buttons sit in its drawer (277, 327). Once it is claimed, the flag and name of
     the empire salvaging it show at the bottom, just above the panel's lower border, under the production icon
     (273; Gilad, 2026-10-17; 375 D); the flag and name pulse in that empire's colour, fading out and back, and a
     smaller font fits a long name. The hourglass pulses so while its timer runs, and is grey with its number while the
@@ -169,11 +169,14 @@ decisions numbered anew from 133; those numbers are not the older decisions of t
 - **Site (219 A):** a random point within 1000 of the derelicts' average spot, then 1500, 2000 and on, inside the
   system, clear of its star, radiation and planets' orbits, and 2000 from every salvageable derelict there and every
   salvage ship or old station the empire sees.
-- **At work (168 A, 182 A, 206 A, 293 A):** the ship takes no player orders (no right-click order and no refit, scrap
-  or explore button), ignores combat and pays no upkeep. Parked at its site, a free unit launches the empire's
-  cheapest constructor for its order, spending the unit's ordnance (193 A); the constructor builds the Salvage
-  Platform beside the derelict at the platform's cost, at least 100 x pace, and one lost on the way is launched again.
-  The derelict is claimed, with the trust cost per platform, as the constructor starts to build (200 B, 201 A).
+- **At work (168 A, 182 A, 206 A, 293 A, 303 A, 304 A, 306 A, 316 A, 317 A):** the ship takes no player orders (no
+  right-click order and no refit, scrap or explore button, even on a panel or refit window opened while it was idle),
+  joins no fleet, answers no AI colony's call for help, ignores combat on its way and at work, even pushed off its
+  spot, and pays no upkeep. It parks once its move to its site has stopped it there. Parked, a free unit launches the
+  empire's constructor for its order (the cheapest, or with Auto Pick Constructors off the player's choice), spending
+  the unit's ordnance (193 A); the constructor builds the Salvage Platform beside the derelict at the platform's
+  cost, at least 100 x pace, and one lost on the way is launched again. The derelict is claimed, with the trust cost
+  per platform, as the constructor starts to build (200 B, 201 A).
 - **The platform (192 A, 197 C, 202 A, 203 A, 204 A, 180 A):** it strips each turn what its hold takes, faster with
   Salvage Speed, sends each full load to the parked ship, which takes what fits, and waits while the ship is away or
   full; a recovering one works on with its load. The derelict's techs show once it stands and advance with each load
@@ -182,8 +185,9 @@ decisions numbered anew from 133; those numbers are not the older decisions of t
   and no constructor out, the ship flies to the nearest safe colony and unloads once orbiting it, the store's overflow
   paid as credits at the tax rate (with no safe colony, all of it where the ship is). It rearms in orbit while a
   launch waits, then flies back. Its orders done, it brings home what it holds and stays in orbit there, idle.
-- **Idle (182 A, 207 A):** a salvage ship with a live unit in no mission or fleet, orbiting, holding or awaiting
-  orders, and not landing, dismantling, scuttling or changing hands. The player can move, refit or scrap it.
+- **Idle (182 A, 207 A, 315 A):** a salvage ship with a live unit in no mission or fleet, orbiting, holding or
+  awaiting orders, and not landing, dismantling, scuttling or changing hands; one just built is its mission's from
+  the moment the queue reports it. The player can move, refit or scrap an idle one.
 - **Losses (140 A, 198 A, 217 A):** a ship destroyed or taken ends its mission and its orders, their platforms go, and
   the player is told once for each order and once for the production aboard; a recovery whose roll succeeded still
   brings its ship.
@@ -196,7 +200,8 @@ decisions numbered anew from 133; those numbers are not the older decisions of t
   closest systems first, derelicts with a fifth of their turns left or more, recovering ships stronger than any of
   their role it can build; at most one ship built a run, up to ceil(planets / 5) clamped to 1-5 built or queued; no
   call-off while it is on. Auto Pick Salvage Ships takes the most units up to the derelicts to work there, then the
-  fewest beyond them, then cargo, then strength per slot; off, the Automation list's design, else the race default.
+  fewest beyond them, then cargo, then strength per slot; off, the Automation list's design, else the race default,
+  else the one auto pick takes.
 - **AI (232 B, 234 C, 240 A, 247 A, 248 A, 249 A):** no worth rule for a build, only the cap; idle ships beyond the
   cap are scrapped, once orderless queued missions have left the queue; a fleet is asked for only where a ship could
   go; builds are OrbitalUrgent without MoveToFront; salvage ships are never auto-refit.
@@ -204,8 +209,8 @@ decisions numbered anew from 133; those numbers are not the older decisions of t
   first, and only pirates can board one: the owner's order ends and its hold is lost, and the pirates recover the
   derelict with an order of their own, or take the platform apart where they cannot, already recover it or protect its
   owner. A salvage ship they board is taken to their base as a freighter is.
-- **Mergers and defeat (199 A, 236 A):** missions and orders end, platforms go, and salvage ships pass on as ordinary
-  ships.
+- **Mergers and defeat (199 A, 236 A, 309 A):** missions and orders end, platforms go, a recovered ship still rising
+  sinks away, and salvage ships pass on as ordinary ships.
 - **Stations gone (step 5, 277-292):** no empire builds a salvage station; the 24 vanilla station designs, the
   freighter hauls and the station picker are deleted. A 00074 save loads with its stations as idle orbitals of the
   player and pirates, while AI empires scrap theirs (281 A); one scraps for half its cost and can be called off
@@ -216,7 +221,7 @@ decisions numbered anew from 133; those numbers are not the older decisions of t
 ### Salvage (Gilad, 2026-10-16; 269-302 replace the yards and salvage ships of 122 and 136)
 
 This is the salvage station design that release 00074 shipped. Salvage ships, above, replaces it: what it says of
-stations, hauls and the station picker no longer holds.
+stations, hauls, the station picker and orders and platforms passed on at a merger or defeat no longer holds.
 
 - **The salvage station:**
   - A station-role design with a salvage module, `<Salvage>True</Salvage>` in the module's data, as a refining
@@ -762,20 +767,20 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
 
 - **Ships only;** a station derelict can never come back as a ship (131). Remnant ships can be recovered (127), and so
   can the empire's own lost ships.
-- **The order (288, 518 A):** a recovery is a saved mode of the salvage order, so the claim, passing on, call-offs and
+- **The order (288, 518 A):** a recovery is a saved mode of the salvage order, so the claim, call-offs and
   the notifications work as they do for salvage. The Recover button sends a platform as the Salvage button does, so
   only the claiming empire works on it, and its second click calls the recovery off.
 - **Switching (520, 533 A, 558):** the same platform switches between the modes, at any time; the stop once half the
-  production was stripped (144) is gone. Recover on a derelict the platform strips sends what it holds to the station
-  first, then starts the break-in the next turn. Salvage during a recovery turns the platform to stripping and keeps the
-  work done, which a later Recover takes up again after a new break-in, at a chance lowered by what was stripped
-  meanwhile.
+  production was stripped (144) is gone. Recover on a derelict the platform strips sends what it holds to the salvage
+  ship first, then starts the break-in the next turn; with the ship away or full it starts at once and keeps its
+  load. Salvage during a recovery turns the platform to stripping and keeps the work done, which a later Recover
+  takes up again after a new break-in, at a chance lowered by what was stripped meanwhile.
 - **The work (Gilad, 2026-10-20; 519, 530 A, 532 A, 536 A, 554, 556 A, 557 B, 558 B, 559; 554 replaces the design
   cost of 519 and the 36 a turn of 531 B):** time only, nothing is paid.
   - The platform first breaks into the derelict for `SalvageRecoveryBreakInTurns` (Globals, default 10, at least 0)
     turns, whatever the ship's size and the production pace (559); the Salvage Speed tech does not shorten it. Only
     turns of work count: a turn spent sending the hold does not. Turning the order to salvage starts the break-in
-    again for a later recovery, and passing the order on keeps it.
+    again for a later recovery.
   - The work is the share of health the ship had lost at its death, times its slots (the design's surface area), times
     the production pace, times `SalvageRecoveryWorkFactor` (Globals, default 1.1), times 1 minus the race's Engineers
     value (below). The derelict saves its health at death for it.
@@ -784,8 +789,7 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   - A cruiser of 310 slots that died with 40% of its health needs 205, 9 turns after its 10 of break-in; the median
     vanilla designs take 13 turns for a frigate, 19 for a cruiser, 30 for a battleship and 54 for a capital in all,
     and the Behemoth's 4096 slots 123.
-  - Losing the station or the platform, or calling the recovery off, loses the work (522 A); passing the order on
-    keeps it (548).
+  - Losing the salvage ship or the platform, or calling the recovery off, loses the work (522 A).
 - **The chances (145, 173, 515 C, 520, 528 A, 529 A):**
   - base chance by hull role, as reverse engineering's: frigate 60, destroyer 50 (the table's default), cruiser 40,
     battleship 30, capital 20;
@@ -894,8 +898,8 @@ Gilad, 2026-10-20; 513-536, replacing 144 and the work and chances of 288 and 14
   nothing switches or calls off a recovery whose roll succeeded; its tooltip shows no turns left. If the derelict is
   still selected as the ship appears, the ship is selected in its place when it is the player's, and a rival's
   derelict is deselected (606 A). Once the roll succeeds the ship is the
-  empire's: it comes even if the platform or the station is lost during the rise, passing on with an order passed
-  on then, and an empire gone by then gets nothing, the derelict sinking away as one whose turns ran out.
+  empire's: it comes even if the platform or the salvage ship is lost during the rise, and an empire merged or
+  defeated by then gets nothing, the derelict sinking away as one whose turns ran out.
 - **How it gets home:**
   - Command modules carry repair (vanilla: Bridge 500, CIC 1200, Cockpit 200) and work at full rate at 4% while
     powered, a tenth without, so repair brings the engines back.

@@ -6307,6 +6307,7 @@ namespace Ship_Game
         DeliveringProductionTo = 7230,
         /// <summary>Cargo room for two loads per salvage unit:</summary>
         DesignIssueLowSalvageCargoTwoLoads = 7232,
+        // 7233 and 7234 are the Salvage Ships tech's texts, used by its XML
         /// <summary>Research Salvage Ships to build a salvage ship for this</summary>
         SalvageDerelictNoTechTip = 7236,
         /// <summary>Salvage ship ordered</summary>

@@ -23,6 +23,7 @@ namespace Ship_Game.Ships
         Empire Player => Universe.Player;
         Ship Ship;
         CombatState LastStanceSeen;
+        bool OrdersWhileWorking;
         private readonly Selector Sel;
         public Rectangle LeftRect;
         public Rectangle RightRect;
@@ -673,6 +674,8 @@ namespace Ship_Game.Ships
                 LastStanceSeen = Ship.AI.CombatState;
                 OrdersButtons.ResetButtons(Ship);
             }
+            if (Ship != null && Ship.WorksForSalvage != OrdersWhileWorking)
+                SetOrders(Ship); // a salvage ship that starts or stops work loses or gets back its order buttons
         }
 
         public void SetShip(Ship s)
@@ -684,14 +687,19 @@ namespace Ship_Game.Ships
             CanRename = s.Loyalty == Player;
             ShipNameArea.Enabled = CanRename;
             ShipNameArea.Reset(s.ShipName);
+            SetOrders(s);
+        }
 
+        void SetOrders(Ship s)
+        {
             Orders.Clear();
             OrdersButtons.ResetButtons(s);
             LastStanceSeen = s.AI?.CombatState ?? LastStanceSeen;
+            OrdersWhileWorking = s.WorksForSalvage;
             if (s.Loyalty != Player)
                 return;
 
-            if (s.IsSalvagePlatform || s.WorksForSalvage || s.DeliversRefund || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+            if (s.IsSalvagePlatform || OrdersWhileWorking || s.DeliversRefund || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
             if (s.ShipData.Role > RoleName.station && !s.IsConstructor)

@@ -407,7 +407,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
             if (platform.Loyalty != Owner)
-                return PassingOn(platform) || HandedOver(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
+                return HandedOver(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
 
             if (!Finished)
                 Derelict.TryClaim(Owner); // takes back a claim that a call-off caught halfway by a save dropped
@@ -441,16 +441,13 @@ namespace Ship_Game.Commands.Goals
             if (Platform is not { Active: true } platform)
                 return GoalStep.GoalFailed;
             if (platform.Loyalty != Owner)
-                return PassingOn(platform) || HandedOver(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
+                return HandedOver(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
             if (--DismantleTurnsLeft > 0)
                 return GoalStep.TryAgain;
             platform.FinishDismantling();
             Mission?.SalvageShip?.ChangeOrdnance(LaunchCost);
             return GoalStep.GoalComplete;
         }
-
-        // a platform passed on to the empire waits for its change of hands
-        bool PassingOn(Ship platform) => platform.LoyaltyTracker.ChangesTo(Owner);
 
         // a boarding this order missed, as one the UI or a save applied, hands the platform over to the pirates' order now, which ends this one
         bool HandedOver(Ship platform)

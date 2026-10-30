@@ -314,13 +314,13 @@ public class SalvageRecoveryTests : SalvageOrderTest
         bool Shown() => DerelictSalvageButton.Shown(SalvageDerelict.WhyNoOrder(Player, d));
         Assert.IsTrue(Shown(), "the player's race has a salvage ship");
         d.TryClaim(Enemy);
-        Assert.IsTrue(Shown(), "greyed while another empire salvages it");
+        Assert.IsTrue(Shown(), "grayed while another empire salvages it");
         d.ReleaseClaim();
 
         PropertyInfo canBuild = typeof(Empire).GetProperty(nameof(Empire.CanBuildSalvageShips))!;
         canBuild.SetValue(Player, false);
         AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, d), "setup: the player can build no salvage ship yet and has none");
-        Assert.IsTrue(Shown(), "they show, greyed, until it can");
+        Assert.IsTrue(Shown(), "they show, grayed, until it can");
         Ship own = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
         AssertEqual(Block.None, SalvageDerelict.WhyNoOrder(Player, d), "a salvage ship of its own can take the order meanwhile");
         own.QueueTotalRemoval();

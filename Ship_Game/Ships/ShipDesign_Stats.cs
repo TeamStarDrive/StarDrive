@@ -28,7 +28,7 @@ public partial class ShipDesign
     public bool IsResearchStation   { get; private set; }
     public bool IsMiningStation     { get; private set; }
     public bool IsSalvageStation    { get; private set; }
-    // the one fixed platform design a salvage station builds beside a derelict, which the player never designs, builds, orders or refits
+    // the one fixed platform design a salvage ship's constructor builds beside a derelict, which the player never designs, builds, orders or refits
     public const string SalvagePlatformName = "Salvage Platform";
     public bool IsSalvagePlatform => Name == SalvagePlatformName;
     public bool IsSalvageShip       { get; private set; } // a salvage module on a ship that is not a station or platform

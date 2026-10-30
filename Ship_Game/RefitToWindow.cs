@@ -162,6 +162,12 @@ namespace Ship_Game
 
         void OnRefitOneClicked(UIButton b)
         {
+            if (ShipToRefit.WorksForSalvage) // a salvage ship that started work while the window was open
+            {
+                GameAudio.NegativeClick();
+                ExitScreen();
+                return;
+            }
             Player.AI.AddGoalAndEvaluate(GetRefitGoal(ShipToRefit));
             GameAudio.EchoAffirmative();
             ExitScreen();

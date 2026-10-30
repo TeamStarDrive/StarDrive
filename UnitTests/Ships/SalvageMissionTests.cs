@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
@@ -28,6 +29,10 @@ namespace UnitTests.Ships;
 /// out survives a save, and an order saved with a salvage station's work ends on load. The derelicts window counts the
 /// player's salvage ships at work and idle, pauses the game, and reads the goals as it opens and once a click in it
 /// has reached the sim thread. On its way to unload, the ship takes no right-click order and joins no fleet.
+/// Flown out, it parks once its move has stopped it at its site; pushed off its spot it flies back still fighting
+/// nothing, and on its way to unload an orbit order elsewhere is undone. A mission waiting for its ship, or
+/// unloading, survives a save and load. A ship just reported built is its mission's at once, and it flies out
+/// fighting nothing once its launch from the shipyard ends.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -37,6 +42,17 @@ public class SalvageMissionTests : SalvageOrderTest
     void TrackNotifications() => Universe.NotificationManager = Notes = new NotificationManager(Universe.ScreenManager, Universe);
 
     static QueueItem QueuedFor(Planet shipyard, Goal mission) => shipyard.ConstructionQueue.FirstOrDefault(q => q.Goal == mission);
+
+    // runs the universe's objects while `running` holds, evaluating the mission once a simulated second, more often than its empire's 5 s turn
+    void RunWithMission(SalvageMission mission, double seconds, Func<bool> running)
+    {
+        int frame = 0;
+        RunSimWhile((seconds, fatal: true), running, () =>
+        {
+            if (++frame % 60 == 0 && mission.Owner.AI.HasGoal(mission))
+                mission.Evaluate();
+        });
+    }
 
     // far from its site, on its way
     Vector2 OnItsWay => Homeworld.Position + new Vector2(2_000f, 0);
@@ -569,6 +585,154 @@ public class SalvageMissionTests : SalvageOrderTest
         mission.Evaluate();
         loadedOrder.Evaluate();
         Assert.IsTrue(player.AI.HasGoal(mission) && player.AI.HasGoal(loadedOrder), "and they stand on");
+    }
+
+    [TestMethod]
+    public void FlownOutTheShipParksOnceItHasStoppedAtItsSiteAndHoldsThereFightingNothing()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Ship ship = ShipBuilt(order, at: mission.Site + new Vector2(30_000f, 0));
+        RunWithMission(mission, 120, () => mission.FlyingOut);
+        Assert.IsTrue(mission.Parked(out _), "setup: it flew to its site and parked");
+
+        float farthest = 0f;
+        for (int second = 0; second < 20; ++second)
+        {
+            RunSimWhile((1, fatal: false));
+            mission.Evaluate();
+            farthest = Math.Max(farthest, ship.Position.Distance(mission.Site));
+        }
+        AssertLessThan(farthest, 300f, "stopped before it parked, it never drifts off its site");
+        Assert.IsTrue(ship.AI.State == AIState.HoldPosition && ship.AI.IgnoreCombat && ship.AI.HasPriorityOrder,
+                      "where it holds, fighting nothing, and nothing orders it off");
+    }
+
+    [TestMethod]
+    public void PushedOffItsSpotTheParkedShipFliesBackStillFightingNothing()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(order);
+        SalvageMission mission = MissionOf(order);
+        Parked(order);
+        Vector2 spot = ship.Position;
+        ship.Position = spot + new Vector2(600f, 0);
+        RunSimWhile((1, fatal: false));
+        Assert.IsFalse(ship.AI.IgnoreCombat, "setup: its hold flies it back to its spot, which drops its order to fight nothing");
+
+        mission.Evaluate();
+        Assert.IsTrue(ship.AI.IgnoreCombat && ship.AI.HasPriorityOrder, "its next turn keeps it from fights and other orders");
+        for (int second = 0; second < 30 && ship.Position.OutsideRadius(spot, 100f); ++second)
+        {
+            RunSimWhile((1, fatal: false));
+            mission.Evaluate();
+        }
+        AssertLessThan(ship.Position.Distance(spot), 100f, "it flies back to its spot");
+        Assert.IsTrue(mission.Parked(out _) && ship.AI.IgnoreCombat && ship.AI.HasPriorityOrder, "parked there still, fighting nothing");
+    }
+
+    [TestMethod]
+    public void OnItsWayToUnloadAnOrbitOrderElsewhereIsUndoneOnItsNextTurn()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(order);
+        SalvageMission mission = MissionOf(order);
+        Parked(order);
+        ship.LoadProduction(ship.CargoRoom);
+        mission.Evaluate();
+        Assert.IsTrue(mission.Unloading && ship.AI.OrbitTarget == Homeworld, "setup: the full ship leaves to unload at the homeworld");
+
+        Planet other = AddHomeWorldToEmpire(Homeworld.Position + new Vector2(0, 60_000f), Player);
+        ship.AI.OrderOrbitPlanet(other, clearOrders: true); // as an order no guard refuses would
+        mission.Evaluate();
+        Assert.IsTrue(ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget == Homeworld, "its next turn sends it back to orbit its colony");
+    }
+
+    [TestMethod]
+    public void AMissionWaitingForItsShipSurvivesSaveAndLoad()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = Queued(order);
+        AssertEqual("WaitForShip", mission.StepName, "setup: its ship is queued");
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageMission", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+
+        Empire player = loaded.UState.Player;
+        SalvageMission loadedMission = player.AI.FindGoals<SalvageMission>().Single();
+        AssertEqual("WaitForShip", loadedMission.StepName, "the mission still waits for its ship");
+        Planet shipyard = loadedMission.PlanetBuildingAt;
+        AssertEqual(Homeworld.Id, shipyard?.Id ?? 0, "at its shipyard");
+        Assert.IsTrue(shipyard.ConstructionQueue.Any(q => q.Goal == loadedMission), "whose queue still builds the ship for it");
+        Assert.AreSame(loadedMission, player.AI.FindGoals<SalvageDerelict>().Single().Mission, "holding its order");
+        loadedMission.Evaluate();
+        Assert.IsTrue(player.AI.HasGoal(loadedMission) && loadedMission.StepName == "WaitForShip", "and it waits on");
+    }
+
+    [TestMethod]
+    public void AMissionUnloadingSurvivesSaveAndLoad()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(order);
+        SalvageMission mission = MissionOf(order);
+        Parked(order);
+        ship.LoadProduction(ship.CargoRoom);
+        float load = ship.GetProduction();
+        mission.Evaluate();
+        Assert.IsTrue(mission.Unloading, "setup: the full ship leaves to unload at the homeworld");
+        RunObjectsSim(TestSimStep); // a ship joins its empire's list, which the save writes, on an objects update
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.SalvageMission", throwOnError: true);
+        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+
+        Empire player = loaded.UState.Player;
+        SalvageMission loadedMission = player.AI.FindGoals<SalvageMission>().Single();
+        Assert.IsTrue(loadedMission.Unloading, "the mission still unloads");
+        AssertEqual(Homeworld.Id, loadedMission.Colony?.Id ?? 0, "at its colony");
+        Ship loadedShip = loadedMission.SalvageShip;
+        AssertEqual(ship.Id, loadedShip?.Id ?? 0, "with its ship");
+        AssertEqual(0.01f, load, loadedShip.GetProduction(), "and its load");
+        Assert.IsTrue(loadedShip.AI.OrbitTarget == loadedMission.Colony && loadedShip.AI.IgnoreCombat, "on its way there, fighting nothing");
+        loadedMission.Evaluate();
+        Assert.IsTrue(player.AI.HasGoal(loadedMission) && loadedMission.Unloading, "and it unloads on");
+    }
+
+    [TestMethod]
+    public void AShipJustReportedBuiltIsItsMissionsAtOnceSoAnOrderElsewhereDoesNotTakeIt()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(order, at: OnItsWay);
+        UState.Objects.UpdateLists(); // it joins its empire's ships
+        SalvageMission mission = MissionOf(order);
+        Assert.IsTrue(mission.FlyingOut && mission.SalvageShip == null, "setup: the queue reported it built, before the mission's turn takes it");
+        Assert.IsTrue(ship.WorksForSalvage && !SalvageMission.IsIdle(ship, Player), "it is its mission's at once");
+
+        Vector2 elsewhere = new(-600_000f, 600_000f);
+        AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true);
+        SalvageMission there = MissionOf(Ordered(Forms(elsewhere + new Vector2(30_000f, 0))));
+        Assert.IsTrue(there != mission && there.SalvageShip == null, "so an order elsewhere does not take it");
+        mission.Evaluate();
+        Assert.AreSame(ship, mission.SalvageShip, "and its mission's turn takes it");
+    }
+
+    [TestMethod]
+    public void LaunchedFromItsShipyardTheShipFliesOutFightingNothingOnceItsLaunchEnds()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(order, at: OnItsWay);
+        SalvageMission mission = MissionOf(order);
+        ship.InitLaunch(LaunchPlan.Planet, 0f); // as its shipyard launches it
+        mission.Evaluate();
+        Assert.IsTrue(ship.IsLaunching && ship.AI.State == AIState.MoveTo && ship.AI.IgnoreCombat, "setup: ordered out as it launches, fighting nothing");
+        RunSimWhile((simTimeout: 20, fatal: true), () => ship.IsLaunching);
+        Assert.IsFalse(ship.AI.IgnoreCombat, "setup: the launch's end lets it fight");
+
+        mission.Evaluate();
+        Assert.IsTrue(ship.AI.State == AIState.MoveTo && ship.AI.IgnoreCombat, "its next turn keeps it from fights on its way");
     }
 
     [TestMethod]

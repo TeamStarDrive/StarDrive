@@ -261,6 +261,7 @@ public class SalvageTechTests : SalvageOrderTest
         MissionOf(order).Evaluate();
         AssertEqual(Stage.ShipOnItsWay, SalvageDerelict.StageOf(Player, d, out _, out _), "while the ship flies out");
         ship.Position = MissionOf(order).Site;
+        ship.AI.ClearOrders(); // its move there over
         Ship constructor = Launched(order);
         Assert.IsNotNull(constructor, "setup: parked at its site, the ship launches the constructor");
         AssertEqual(Stage.BuildingPlatform, SalvageDerelict.StageOf(Player, d, out _, out _), "while the constructor flies out and builds");
