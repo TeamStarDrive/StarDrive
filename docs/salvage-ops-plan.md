@@ -159,8 +159,9 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   can build. A race with no salvage ship design, none built and none to build cannot salvage: the buttons are hidden
   (152); with a design but no tech they are gray (161 A).
 - **Cargo (184 A, 208 A):** a design needs cargo room for one platform load (the Salvage Platform design's hold, 75) a
-  unit, or the pickers and the Automation list skip it; the designer flags it Critical under one load a unit, Minor
-  under one and a half and Informative under two.
+  unit, or the pickers and the Automation list skip it; the designer flags it Critical (red) under one load a unit,
+  Major (orange) under 1.1, Minor (yellow) under four thirds and Informative (green) under five thirds, 82.5, 100
+  and 125 a unit for the 75 hold (Gilad, 2026-10-31).
 - **Order and mission (220, 178 A, 181 A, 162 B, 229 A):** an order (`SalvageDerelict`) joins a mission
   (`SalvageMission`, one ship in one system): the mission in its system with a free unit, else a mission on automatic
   still queued with no order, else one for the idle salvage ship nearest the system, else one whose ship is built,

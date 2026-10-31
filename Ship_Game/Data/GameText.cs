@@ -6305,8 +6305,8 @@ namespace Ship_Game
         DismantleOrbitalTip = 7229,
         /// <summary>Delivering production to</summary>
         DeliveringProductionTo = 7230,
-        /// <summary>Cargo room for two loads per salvage unit:</summary>
-        DesignIssueLowSalvageCargoTwoLoads = 7232,
+        /// <summary>Cargo room that clears this warning:</summary>
+        DesignIssueLowSalvageCargoClears = 7232,
         // 7233 and 7234 are the Salvage Ships tech's texts, used by its XML
         /// <summary>Research Salvage Ships to build a salvage ship for this</summary>
         SalvageDerelictNoTechTip = 7236,

@@ -573,7 +573,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowRefiningTimeNotGood)}" : "");
         }
 
-        // a salvage ship: red under a load for each salvage unit, which auto pick and the Automation window's list pass over, yellow under one and a half, green under two
+        // a salvage ship: red under a load for each salvage unit, which auto pick and the Automation window's list pass over, orange under 1.1 loads, yellow under four thirds, green under five thirds
         public void CheckLowSalvageCargo()
         {
             if (!Hull.IsSalvageShip)
@@ -583,13 +583,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             float cargo = Hull.BaseCargoSpace;
             WarningLevel severity = WarningLevel.Informative;
 
-            if      (cargo >= oneLoadEach * 2f)   return;
-            else if (cargo < oneLoadEach)         severity = WarningLevel.Critical;
-            else if (cargo < oneLoadEach * 1.5f)  severity = WarningLevel.Minor;
+            if      (cargo >= oneLoadEach * 5f / 3f)  return;
+            else if (cargo < oneLoadEach)             severity = WarningLevel.Critical;
+            else if (cargo < oneLoadEach * 11f / 10f) severity = WarningLevel.Major;
+            else if (cargo < oneLoadEach * 4f / 3f)   severity = WarningLevel.Minor;
 
             string needed = severity == WarningLevel.Critical
                 ? $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoNeeded)} {oneLoadEach.GetNumberString()}. {Localizer.Token(GameText.DesignIssueLowSalvageShipCargoSkipped)}"
-                : $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoTwoLoads)} {(oneLoadEach * 2f).GetNumberString()}.";
+                : $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoClears)} {(oneLoadEach * 5f / 3f).GetNumberString()}.";
             AddDesignIssue(DesignIssueType.LowSalvageShipCargo, severity, needed);
         }
 
