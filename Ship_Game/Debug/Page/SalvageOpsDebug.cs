@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.AI.ExpansionAI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
@@ -52,6 +53,7 @@ public class SalvageOpsDebug : DebugPage
         Text.SetCursor(left, Parent.Win.Y + 50, Color.White);
         Text.String($"Salvageable: {rows.Length}/{Derelicts.SalvageableCap(Universe)}   Drifting: {Universe.Derelicts.NumDrifting}/{Derelicts.DriftingCap(Universe)}"
                     + $"   Derelict chance: {Universe.Derelicts.Chance(Universe).String(1)}%");
+        DrawShipCounts();
         Text.NewLine();
         DrawHeaders();
 
@@ -70,6 +72,31 @@ public class SalvageOpsDebug : DebugPage
             Text.String(Color.Gray, $"Derelicts {FirstRow + 1}-{end} of {rows.Length}, the mouse wheel over the table scrolls");
 
         base.Draw(batch, elapsed);
+    }
+
+    // each empire's salvage ships, built and queued, over its cap, in its color, wrapping at the table's width; the cap holds only on automatic
+    void DrawShipCounts()
+    {
+        const string label = "Salvage ships (built + queued)/cap:";
+        Text.String(0, label, false);
+        float x = Text.Font.MeasureString(label).X + 15f;
+        Empire[] empires = Universe.ActiveMajorEmpires;
+        for (int i = 0; i < empires.Length; ++i)
+        {
+            Empire e = empires[i];
+            string entry = $"{e.Name} {SalvageOpsPlanner.Ships(e)}/{SalvageOpsPlanner.Cap(e)}" + (SalvageMission.OnAutomatic(e) ? "" : " (not on automatic)");
+            float width = Text.Font.MeasureString(entry).X;
+            if (x + width > TableWidth)
+            {
+                Text.NewLine();
+                x = 0f;
+            }
+            Text.Color = e.EmpireColor;
+            Text.String(x, entry, false);
+            x += width + 25f;
+        }
+        Text.Color = Color.White;
+        Text.NewLine();
     }
 
     // the first row of the last screen of rows, as far as the table scrolls down

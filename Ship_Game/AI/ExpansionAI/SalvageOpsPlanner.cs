@@ -133,29 +133,25 @@ namespace Ship_Game.AI.ExpansionAI
 
         // a ship of its would take an order there, or it can still build one this run
         bool CanSendShipTo(SolarSystem system, bool built)
-            => SalvageMission.HasShipFor(Owner, system) || !built && Owner.CanBuildSalvageShips && Ships() < Cap(Owner);
+            => SalvageMission.HasShipFor(Owner, system) || !built && Owner.CanBuildSalvageShips && Ships(Owner) < Cap(Owner);
 
         public static int Cap(Empire empire) => (int)Math.Ceiling(empire.NumPlanets / (float)PlanetsPerShip).Clamped(1, MaxShips);
 
-        // its salvage ships, with those queued, less those being scrapped
-        int Ships()
+        // from any thread: its salvage ships, with those queued, less those being scrapped
+        public static int Ships(Empire empire)
         {
             int ships = 0;
-            var owned = Owner.OwnedShips;
+            var owned = empire.OwnedShips;
             for (int i = 0; i < owned.Count; ++i)
                 if (owned[i] is { IsSalvageShip: true, Active: true, Dying: false, DoingScrap: false })
                     ++ships;
-            var goals = Owner.AI.Goals;
-            for (int i = 0; i < goals.Count; ++i)
-                if (goals[i] is SalvageMission { Over: false, Building: true })
-                    ++ships;
-            return ships;
+            return ships + empire.AI.CountGoals(g => g is SalvageMission { Over: false, Building: true });
         }
 
         // those left idle once the run has sent what it could, as after it took over another empire's, a queued one with no order leaving the queue first
         void ScrapIdleShipsBeyondCap()
         {
-            int beyond = Ships() - Cap(Owner);
+            int beyond = Ships(Owner) - Cap(Owner);
             for (; beyond > 0 && SalvageMission.Unordered(Owner) is { } queued; --beyond)
                 Owner.AI.RemoveGoal(queued);
             var owned = Owner.OwnedShips;
