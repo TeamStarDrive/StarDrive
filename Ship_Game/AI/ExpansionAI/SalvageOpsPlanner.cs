@@ -147,7 +147,7 @@ namespace Ship_Game.AI.ExpansionAI
             return ships + empire.AI.CountGoals(g => g is SalvageMission { Over: false, Building: true });
         }
 
-        // those beyond the cap once the run has sent what it could, as after the player's own orders or a ship taken over from another empire: queued ones with no order leave the queue, then an AI empire scraps those left idle, the player's being its own to scrap; none while an order whose ship was lost has yet to take another, as one starting again without a ship to take
+        // those beyond the cap once the run has sent what it could, as after the player's own orders or a ship taken over from another empire: queued ones with no order leave the queue, then an AI empire scraps those left idle, the player's being its own to scrap; none while an order of the empire's waits for a ship, as one whose ship was lost does until it takes another
         void DropShipsBeyondCap()
         {
             if (Owner.AI.HasGoal(g => g is SalvageDerelict { Mission: null or { Over: true, ShipLost: true } }))

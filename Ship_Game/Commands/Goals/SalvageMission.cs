@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public Planet Colony { get; private set; }
         // its ship was destroyed or taken, which its orders tell the player
         [StarData] public bool ShipLost { get; private set; }
-        // it has ended, so its orders end too
+        // it has ended, so its orders end too, or with its ship lost start again
         [StarData] public bool Over { get; private set; }
         // its ship's icon, kept for the notifications once the ship is gone
         [StarData] public string ShipIcon { get; private set; }
@@ -221,7 +221,7 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
-        // a mission that ends takes its ship out of the queue, and lets go of one still its empire's; its orders see it over and end
+        // a mission that ends takes its ship out of the queue, and lets go of one still its empire's; its orders see it over and end, or with its ship lost start again
         public override void OnRemoved()
         {
             Over = true;
@@ -508,7 +508,7 @@ namespace Ship_Game.Commands.Goals
                 ship.AI.OrderOrbitPlanet(home, clearOrders: true);
         }
 
-        // destroyed or in other hands, it ends its orders, each telling the player, who is told too of the production it had aboard
+        // destroyed or in other hands, it ends, and its orders tell the player and start again where they can, the player told too of the production it had aboard
         GoalStep Lose()
         {
             ShipLost = true;
