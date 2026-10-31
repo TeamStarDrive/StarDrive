@@ -181,8 +181,8 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   per platform, as the constructor starts to build (200 B, 201 A).
 - **The platform (192 A, 197 C, 202 A, 203 A, 204 A, 180 A):** it strips each turn what its hold takes, faster with
   Salvage Speed, sends each full load to the parked ship, which takes what fits, and waits while the ship is away or
-  full; a recovering one works on with its load. The derelict's techs show once it stands and advance with each load
-  reaching the ship. Its work over, it packs up over 2 turns and its unit gets its launch ordnance back.
+  full; a recovering one works on with its load. The derelict's techs show from the start (332 A) and advance with
+  each load reaching the ship. Its work over, it packs up over 2 turns and its unit gets its launch ordnance back.
 - **Trips (179 A, 205 A, 214 A, 223 A, 194 A):** with its hold full, or short of the ordnance a waiting launch takes,
   and no constructor out, the ship flies to the nearest safe colony and unloads once orbiting it, the store's overflow
   paid as credits at the tax rate (with no safe colony, all of it where the ship is). It rearms in orbit while a
@@ -223,7 +223,8 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
 ### Salvage (Gilad, 2026-10-16; 269-302 replace the yards and salvage ships of 122 and 136)
 
 This is the salvage station design that release 00074 shipped. Salvage ships, above, replaces it: what it says of
-stations, hauls, the station picker and orders and platforms passed on at a merger or defeat no longer holds.
+stations, hauls, the station picker, orders and platforms passed on at a merger or defeat, and techs hidden until a
+station stood in the system (they show from the start, 332 A) no longer holds.
 
 - **The salvage station:**
   - A station-role design with a salvage module, `<Salvage>True</Salvage>` in the module's data, as a refining

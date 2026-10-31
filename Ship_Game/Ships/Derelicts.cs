@@ -513,13 +513,6 @@ public sealed class Derelicts
         }
     }
 
-    // on the sim thread: the empire's salvage platform stands at it, so the empire sees its techs from then on
-    public void ShowTechs(Derelict d, Empire empire)
-    {
-        lock (Sync)
-            d.ShowTechsTo(empire);
-    }
-
     // a content reload takes every model out of the scene: the derelicts stay and get a model again when seen
     public void RemoveSceneObjects()
     {

@@ -48,14 +48,14 @@ public sealed class SystemDerelictsScreen : GameScreen
         readonly Action Clicked;
         readonly ProgressBar ProductionBar = new(0, 0, 150, 18) { color = "red" }; // as on the derelict's panel
         readonly ProgressBar RecoveryBar = DerelictSalvageButton.RecoveryBar(new(0, 0, 150, 18));
-        // the techs the player can learn from it as last drawn, empty while the player does not see them or recovers it
+        // the techs the player can learn from it as last drawn, empty while the player recovers it
         readonly Array<TechEntry> Learnable = new();
         readonly FittedStatus Status = new();
 
         // what it read from the goals at the window's last reading
         SalvageDerelict.Block Block, RecoverBlock;
         SalvageDerelict Order;
-        bool ButtonsShown, TechsSeen;
+        bool ButtonsShown;
         public SalvageDerelict.Stage Stage { get; private set; }
         Empire StageClaimant;
         SalvageDerelict StageOrder;
@@ -74,13 +74,11 @@ public sealed class SystemDerelictsScreen : GameScreen
             RecoverBlock = DerelictSalvageButton.BlockOf(DerelictSalvageButton.Kind.Recover, Block, Derelict);
             Order = DerelictSalvageButton.StandingOrder(player, Derelict, Block);
             ButtonsShown = DerelictSalvageButton.Shown(Block);
-            TechsSeen = SalvageDerelict.SeesTechs(player, Derelict);
             Stage = SalvageDerelict.StageOf(player, Derelict, out StageClaimant, out StageOrder);
         }
 
         Rectangle ProductionRect => new((int)X + NameX, (int)Y + 21, 16, 16);
         Rectangle ClaimRect => new((int)X + SalvagerX + SalvagerWidth / 2 - 10, (int)Y + 10, 20, 20);
-        Rectangle TechsRect => new((int)X + TechsX, (int)Y + 10, 19, 20);
         Rectangle TechRect(int i) => new((int)X + TechsX + i * TechSpacing, (int)Y + 6, 26, 22);
         // in the techs' place, at the production bar's sizes
         Rectangle RecoveryRect => new((int)X + TechsX, (int)Y + 12, 16, 16);
@@ -134,7 +132,7 @@ public sealed class SystemDerelictsScreen : GameScreen
             }
         }
 
-        // the count of all it holds until the player sees its techs, then the icons of those the player can learn, or while the player's order recovers it, the recovery's progress in their place
+        // the icons of the techs the player can learn, or while the player's order recovers it, the recovery's progress in their place
         void DrawTechs(SpriteBatch batch)
         {
             Empire player = Universe.Player;
@@ -143,12 +141,6 @@ public sealed class SystemDerelictsScreen : GameScreen
                 Learnable.Clear();
                 RecoveryBar.SetRect(RecoveryBarRect);
                 DerelictSalvageButton.DrawRecovery(batch, RecoveryRect, RecoveryBar, player, Derelict, Order);
-                return;
-            }
-            if (!TechsSeen)
-            {
-                Learnable.Clear();
-                DerelictTechIcons.DrawCount(batch, TechsRect, Derelict.Techs.Length);
                 return;
             }
             DerelictTechIcons.Learnable(player, Derelict, Learnable);
@@ -190,8 +182,6 @@ public sealed class SystemDerelictsScreen : GameScreen
                 ToolTip.CreateTooltip(GameText.DerelictProductionTip);
             else if ((RecoveryRect.HitTest(cursor) || RecoveryBarRect.HitTest(cursor)) && Order is { Recovering: true } recovery)
                 DerelictSalvageButton.RecoveryTooltip(Universe.Player, Derelict, recovery);
-            else if (TechsRect.HitTest(cursor) && !TechsSeen)
-                ToolTip.CreateTooltip(GameText.DerelictTechsHeldTip);
             else if (TechAt(cursor) is { } tech)
                 DerelictTechIcons.ShowTooltip(tech, Order);
             return base.HandleInput(input);

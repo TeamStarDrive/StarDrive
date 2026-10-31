@@ -6222,8 +6222,6 @@ namespace Ship_Game
         SalvageFinished = 7176,
         /// <summary>Dismantling</summary>
         PlatformDismantling = 7177,
-        /// <summary>Technologies this derelict holds. Once your salvage platform</summary>
-        DerelictTechsHeldTip = 7180,
         /// <summary>Technologies you can learn from this derelict. Each load</summary>
         DerelictTechsShownTip = 7181,
         /// <summary>Researched: {0}%</summary>

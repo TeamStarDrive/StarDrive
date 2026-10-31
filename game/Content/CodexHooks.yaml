@@ -473,7 +473,6 @@ RecoverDerelictStationTip: derelicts_recovering
 DerelictRecoveryChanceTip: derelicts_recovering
 DerelictRecoveryProgressTip: derelicts_recovering
 DerelictRisingTip: derelicts_recovering
-DerelictTechsHeldTip: derelicts_salvaging
 DerelictTechsShownTip: derelicts_salvaging
 DerelictTechResearched: derelicts_salvaging
 DerelictSalvagedBy: derelicts_salvaging

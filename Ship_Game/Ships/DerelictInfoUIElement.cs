@@ -10,7 +10,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// the selected derelict, laid out like the ship info panel: icons for its original owner, turns left, techs and the player's chance to recover it, a bar for its production remaining, the player's salvage or recovery of it under the bar, the techs the player sees under that, the empire salvaging it at the bottom, and its Salvage and Recover orders in the drawer that slides out to the right while the player's race has a salvage ship or with an order on it
+// the selected derelict, laid out like the ship info panel: icons for its original owner, turns left, techs and the player's chance to recover it, a bar for its production remaining, the player's salvage or recovery of it under the bar, the techs the player can learn under that, the empire salvaging it at the bottom, and its Salvage and Recover orders in the drawer that slides out to the right while the player's race has a salvage ship or with an order on it
 public sealed class DerelictInfoUIElement : UIElement
 {
     // the tech icons' size, and their spacing, which leaves room for the widest points under them
@@ -36,7 +36,7 @@ public sealed class DerelictInfoUIElement : UIElement
     readonly Rectangle FirstTechRect;
     readonly Rectangle RecoveryRect;
     readonly ProgressBar RecoveryBar;
-    // the techs the player can learn from it as last drawn, empty while the player does not see them or recovers it
+    // the techs the player can learn from it as last drawn, empty while the player recovers it
     readonly Array<TechEntry> Learnable = new();
 
     public DerelictInfoUIElement(Rectangle r, UniverseScreen universe)
@@ -129,16 +129,12 @@ public sealed class DerelictInfoUIElement : UIElement
         DerelictSalvageButton.Draw(batch, button, Universe.Player, kind, block, DerelictSalvageButton.Lit(kind, block, order), hovered);
     }
 
-    // the count under the turns; once the player sees its techs, the icons of those the player can learn, with the points the player's salvage of it has given each, or while the player's order recovers it, the recovery's progress in their place
+    // the count under the turns, and the icons of the techs the player can learn, with the points the player's salvage of it has given each, or while the player's order recovers it, the recovery's progress in their place
     void DrawTechs(SpriteBatch batch, Derelict d, SalvageDerelict order)
     {
         Empire player = Universe.Player;
-        bool seen = SalvageDerelict.SeesTechs(player, d);
-        if (seen)
-            DerelictTechIcons.Learnable(player, d, Learnable);
-        else
-            Learnable.Clear();
-        DerelictTechIcons.DrawCount(batch, TechsRect, DerelictTechIcons.Count(seen, d, Learnable));
+        DerelictTechIcons.Learnable(player, d, Learnable);
+        DerelictTechIcons.DrawCount(batch, TechsRect, Learnable.Count);
 
         if (order is { Recovering: true })
         {
@@ -257,7 +253,7 @@ public sealed class DerelictInfoUIElement : UIElement
         else if (TurnsRect.HitTest(cursor))
             ToolTip.CreateTooltip(claimant != null ? GameText.DerelictTurnsStandTip : GameText.DerelictTurnsLeftTip);
         else if (TechsRect.HitTest(cursor))
-            ToolTip.CreateTooltip(SalvageDerelict.SeesTechs(Universe.Player, d) ? GameText.DerelictTechsShownTip : GameText.DerelictTechsHeldTip);
+            ToolTip.CreateTooltip(GameText.DerelictTechsShownTip);
         else if (ChanceRect.HitTest(cursor) && DerelictRecovery.CanRecover(d))
             ChanceTooltip(d);
         else if ((RecoveryRect.HitTest(cursor) || RecoveryBar.pBar.HitTest(cursor))

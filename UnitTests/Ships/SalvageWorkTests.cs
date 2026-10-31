@@ -20,9 +20,9 @@ namespace UnitTests.Ships;
 /// derelict's flashes do; none launches once the platform is gone, and those already out fly back. A platform at work
 /// takes back a claim that a call-off caught halfway by a save dropped, even while it only waits to send its load. A derelict stripped empty can no longer be salvaged: it leaves its system's and the empires'
 /// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
-/// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs and the empires that see
-/// them, an order's points for each tech, and an order whose platform stripped its derelict empty, with its derelict's
-/// techs and production, survive a save. Each level of the Salvage Speed tech, off Salvage Ships and hidden with salvage
+/// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs, an order's points for
+/// each tech, and an order whose platform stripped its derelict empty, with its derelict's techs and production,
+/// survive a save. Each level of the Salvage Speed tech, off Salvage Ships and hidden with salvage
 /// ops off, strips a fifth more a turn, all five twice as much, a recovery working at twice it; pirates salvage a tenth
 /// faster for each level from level 3, set by the level they rise to. A researched level survives a save, and an older
 /// save without the tech loads with it to research. An empire absorbing another comes up to its level of the tech, a
@@ -286,7 +286,6 @@ public class SalvageWorkTests : SalvageOrderTest
         done.Evaluate();
         Assert.IsTrue(done.Emptied, "setup: the second platform stripped its derelict empty");
         AssertEqual(6, partly.Techs.Length, "setup: a capital's derelict holds 6 techs");
-        Assert.IsTrue(partly.ShowsTechsTo(Player), "setup: the player's platform shows the player its techs");
         working.Gained[0] = 37.5f;
         working.Gained[5] = 2f;
 
@@ -299,7 +298,6 @@ public class SalvageWorkTests : SalvageOrderTest
         Derelict loadedPartly = loaded.UState.Derelicts.Find(partly.Id);
         CollectionAssert.AreEqual(partly.Techs, loadedPartly.Techs, "a derelict keeps its techs");
         AssertEqual(0.01f, partly.ProductionLeft, loadedPartly.ProductionLeft, "and the production left in it");
-        Assert.IsTrue(loadedPartly.ShowsTechsTo(player), "and that the player sees its techs");
 
         SalvageDerelict[] orders = player.AI.FindGoals<SalvageDerelict>();
         SalvageDerelict loadedWorking = orders.First(o => o.DerelictId == partly.Id);

@@ -319,13 +319,11 @@ namespace Ship_Game.Commands.Goals
             to.AI.AddGoal(order);
         }
 
-        // from the constructor's deploy: the platform takes over the derelict, whose techs the empire sees from then on, and the ordnance its constructor took is spent
+        // from the constructor's deploy: the platform takes over the derelict, and the ordnance its constructor took is spent
         public void OnPlatformBuilt(Ship platform, Ship constructor)
         {
             Platform = platform;
             constructor.Mothership?.OnLaunchedShipDie(constructor);
-            if (Derelict is { } d)
-                UState.Derelicts.ShowTechs(d, Owner);
         }
 
         // it joins a mission once; orders placed together from the UI reach the sim thread together, and the first one holds the derelict; with no salvage ship to take it, it waits for one
@@ -505,9 +503,6 @@ namespace Ship_Game.Commands.Goals
                     best = Math.Max(best, designs[i].GetStrength(empire));
             return best < 0f || d.Design.GetStrength(empire) > best;
         }
-
-        // from any thread: an empire sees a derelict's techs once its salvage platform has stood at it
-        public static bool SeesTechs(Empire empire, Derelict d) => d.ShowsTechsTo(empire);
 
         public enum Stage { None, WaitingForShip, ShipOrdered, ShipOnItsWay, PlatformOrdered, BuildingPlatform, Salvaging, BreakingIn, Recovering }
 

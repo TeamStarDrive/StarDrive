@@ -279,7 +279,6 @@ public class SalvageConstructorTests : SalvageOrderTest
         int turns = d.TurnsLeft;
         UState.Derelicts.UpdateTurn();
         AssertEqual(turns, d.TurnsLeft, "and its timer stands");
-        Assert.IsFalse(d.ShowsTechsTo(Player), "its techs not shown before the platform stands");
 
         RunWithOrder(order, 120, () => order.Platform == null);
         Ship platform = order.Platform;
@@ -289,7 +288,6 @@ public class SalvageConstructorTests : SalvageOrderTest
         Assert.IsNull(bay.HangarShip, "its unit is free to launch again");
         AssertEqual(0.01f, 0f, ship.Carrier.OrdnanceInSpace, "and the ordnance the constructor took is spent");
         AssertEqual(0.01f, ordnance, ship.Ordinance, "not given back while the platform stands");
-        Assert.IsTrue(d.ShowsTechsTo(Player), "the empire sees the derelict's techs from then on");
 
         order.Evaluate();
         AssertEqual("Salvage", order.StepName, "the order goes on with the platform");
