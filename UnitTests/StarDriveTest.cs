@@ -55,6 +55,24 @@ public partial class StarDriveTest : IDisposable
         StarDriveTestContext.EnableMockInput(enabled);
     }
 
+    // the log's length now, so a test can read what it gains after
+    public static long LogLength()
+    {
+        Log.FlushAllLogs();
+        using var log = new FileStream(Log.LogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        return log.Length;
+    }
+
+    // what the log gained since it had that length
+    public static string LoggedSince(long length)
+    {
+        Log.FlushAllLogs();
+        using var log = new FileStream(Log.LogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        log.Seek(length, SeekOrigin.Begin);
+        using var reader = new StreamReader(log);
+        return reader.ReadToEnd();
+    }
+
     public void Dispose()
     {
         Dispose(true);

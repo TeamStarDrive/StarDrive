@@ -257,22 +257,6 @@ public class LaunchingShipProtectionTests : StarDriveTest
                           "a missile drops a ship that starts taking off at once, whatever it is doing");
     }
 
-    static long LogLength()
-    {
-        Log.FlushAllLogs();
-        using var log = new FileStream(Log.LogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        return log.Length;
-    }
-
-    static string LoggedSince(long length)
-    {
-        Log.FlushAllLogs();
-        using var log = new FileStream(Log.LogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        log.Seek(length, SeekOrigin.Begin);
-        using var reader = new StreamReader(log);
-        return reader.ReadToEnd();
-    }
-
     [TestMethod]
     public void APlainMissileWhoseTargetStartsTakingOffAsItsTargetCheckComesDueSelfDestructsOnce()
     {
