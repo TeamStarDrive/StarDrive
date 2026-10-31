@@ -149,7 +149,7 @@ namespace Ship_Game
             SB_STL     = new SortButton(EmpireUi.Player.data.SLSort, "STL");
             SB_Troop   = new SortButton(EmpireUi.Player.data.SLSort, "TROOP");
             SB_STR     = new SortButton(EmpireUi.Player.data.SLSort, "STR");
-            ShowRoles.ActiveIndex = Math.Min(IndexLast, ShowRoles.Count - 1);  //fbedard: remember last filter, which a game without salvage ops may not have
+            ShowRoles.ActiveIndex = IndexLast < ShowRoles.Count ? IndexLast : 0;  //fbedard: remember last filter, or All Ships in a game without salvage ops, which has no salvage filter
             ResetList(ShowRoles.ActiveValue);
         }
 

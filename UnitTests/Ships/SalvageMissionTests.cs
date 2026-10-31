@@ -380,6 +380,25 @@ public class SalvageMissionTests : SalvageOrderTest
     }
 
     [TestMethod]
+    public void WithItsHoldFullTheShipLaunchesAWaitingRecoveryItTakesOverBeforeItLeaves()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Ship ship = ShipBuilt(order);
+        Parked(order);
+        var recovery = new SalvageDerelict(Player, Forms(Wreck + new Vector2(0, 5_000f)), recover: true);
+        Player.AI.AddGoal(recovery); // as an order that has found no salvage ship
+        ship.LoadProduction(ship.CargoRoom);
+
+        mission.Evaluate();
+        Assert.IsTrue(recovery.Mission == mission && recovery.Launching, "with its hold full the ship takes over the waiting recovery, which moves on to its launch");
+        Assert.IsTrue(mission.Parked(out _), "so the ship waits to launch it");
+        recovery.Evaluate();
+        Assert.IsNotNull(recovery.FinishedShip, "which it then does");
+    }
+
+    [TestMethod]
     public void WithItsHoldFullTheShipLaunchesNoSalvageItHoldsUntilItHasRoom()
     {
         TwinShips();

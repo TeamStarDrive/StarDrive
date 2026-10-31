@@ -9,7 +9,7 @@ with its English text and where it appears. Fill the last two columns:
 Once a row has an Entry, it goes into `game/Content/CodexHooks.yaml` as `Token: entry_uid`.
 A site marked *raw string* wraps the token in `Localizer.Token(...)`, so the tooltip carries no id and cannot be hooked until the call passes the enum.
 
-Tokens: 456. Already hooked: 392.
+Tokens: 456. Already hooked: 393.
 
 | # | Token | English text | Used in | Kind | Entry |
 |---|---|---|---|---|---|
@@ -393,7 +393,7 @@ Tokens: 456. Already hooked: 392.
 | 378 | `RecoverDerelictStationTip` | A station cannot be recovered, only salvaged. | Ships/DerelictSalvageButton.cs |  | derelicts_recovering |
 | 379 | `RecoverDerelictSwitchTip` | Recover this ship instead: its salvage platform breaks in and works to bring the ship back, first sending what it holds to your salvage ship if the ship is t... | Ships/DerelictSalvageButton.cs |  | derelicts_recovering |
 | 380 | `RecoverDerelictTip` | Recover this ship: a salvage ship of yours already sent to this system takes the order if it has a free unit; otherwise a salvage ship flies here, an idle on... | Ships/DerelictSalvageButton.cs |  | derelicts_recovering |
-| 381 | `SalvageDerelictNoTechTip` | Research Salvage Ships to build a salvage ship for this derelict. | Ships/DerelictSalvageButton.cs |  |  |
+| 381 | `SalvageDerelictNoTechTip` | Research Salvage Ships to build a salvage ship for this derelict. | Ships/DerelictSalvageButton.cs |  | derelicts_salvage_ships |
 | 382 | `SalvageDerelictOrderedTip` | Your salvage ship is working this derelict. Click to call it off: its salvage platform, if built, sends what it has stripped to the ship and is dismantled. | Ships/DerelictSalvageButton.cs |  | derelicts_salvaging |
 | 383 | `SalvageDerelictSwitchTip` | Salvage this derelict instead: its salvage platform strips it for production and technology. The work done on the recovery is kept for a later one, which bre... | Ships/DerelictSalvageButton.cs |  | derelicts_recovering |
 | 384 | `SalvageDerelictTip` | Salvage this derelict: a salvage ship of yours already sent to this system takes the order if it has a free unit; otherwise a salvage ship flies here, an idl... | Ships/DerelictSalvageButton.cs |  | derelicts_salvaging |

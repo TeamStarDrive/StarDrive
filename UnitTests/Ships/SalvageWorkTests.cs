@@ -22,7 +22,7 @@ namespace UnitTests.Ships;
 /// lists at once and sinks away at twice the speed, while the order stands on with the platform. The platform's
 /// panel reads Salvaging and the derelict's design, or Salvage hold full. A derelict's techs, an order's points for
 /// each tech, and an order whose platform stripped its derelict empty, with its derelict's techs and production,
-/// survive a save. Each level of the Salvage Speed tech, off Salvage Ships and hidden with salvage
+/// survive a save, as does a call-off. Each level of the Salvage Speed tech, off Salvage Ships and hidden with salvage
 /// ops off, strips a fifth more a turn, all five twice as much, a recovery working at twice it; pirates salvage a tenth
 /// faster for each level from level 3, set by the level they rise to. A researched level survives a save, and an older
 /// save without the tech loads with it to research. An empire absorbing another comes up to its level of the tech, a
@@ -288,6 +288,10 @@ public class SalvageWorkTests : SalvageOrderTest
         AssertEqual(6, partly.Techs.Length, "setup: a capital's derelict holds 6 techs");
         working.Gained[0] = 37.5f;
         working.Gained[5] = 2f;
+        Derelict calledOff = Forms(Wreck + new Vector2(0, -5_000f));
+        Assert.IsTrue(calledOff.TryClaim(Player), "setup: a claim kept without its order");
+        SalvageDerelict.Cancel(Player, calledOff);
+        Assert.IsTrue(calledOff.CalledOffBy(Player) && calledOff.Claimant == null, "setup: the player calls it off");
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageWork", throwOnError: true);
@@ -298,6 +302,7 @@ public class SalvageWorkTests : SalvageOrderTest
         Derelict loadedPartly = loaded.UState.Derelicts.Find(partly.Id);
         CollectionAssert.AreEqual(partly.Techs, loadedPartly.Techs, "a derelict keeps its techs");
         AssertEqual(0.01f, partly.ProductionLeft, loadedPartly.ProductionLeft, "and the production left in it");
+        Assert.IsTrue(loaded.UState.Derelicts.Find(calledOff.Id).CalledOffBy(player), "and one called off stays called off");
 
         SalvageDerelict[] orders = player.AI.FindGoals<SalvageDerelict>();
         SalvageDerelict loadedWorking = orders.First(o => o.DerelictId == partly.Id);

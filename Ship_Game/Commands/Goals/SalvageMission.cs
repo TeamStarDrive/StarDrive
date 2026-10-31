@@ -232,7 +232,7 @@ namespace Ship_Game.Commands.Goals
 
         Planet NearestShipyard() => Owner.SafeSpacePorts.FindMin(p => p.Position.SqDist(Site));
 
-        // the queue reports the ship built; with its orders gone it leaves the queue, unless on automatic, where it waits for the next order and, built with none, is a ship like any other; its shipyard lost, or unsafe while a safe one is left, it is queued again at the nearest; taken out of the queue, the mission is called off
+        // the queue reports the ship built; with its orders gone it leaves the queue, unless on automatic, where it waits for the next order and, built with none, works any derelict left in its system or else is a ship like any other; its shipyard lost, or unsafe while a safe one is left, it is queued again at the nearest; taken out of the queue, the mission is called off
         GoalStep WaitForShip()
         {
             if (!HasOrders && !OnAutomatic(Owner))

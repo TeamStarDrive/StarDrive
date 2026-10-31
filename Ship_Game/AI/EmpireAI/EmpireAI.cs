@@ -468,7 +468,7 @@ namespace Ship_Game.AI
             }
         }
 
-        // a salvage station a save still holds on order is never built: its queue item is cancelled and a constructor on its way scrapped
+        // a salvage station a save still holds on order is never built: its queue item is canceled and a constructor on its way scrapped
         public void CancelSalvageStationBuilds()
         {
             Goal[] builds = GoalsList.Filter(g => g is BuildOrbital && g.ToBuild?.IsSalvageStation == true);

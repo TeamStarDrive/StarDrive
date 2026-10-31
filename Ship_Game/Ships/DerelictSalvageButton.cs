@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Color = Microsoft.Xna.Framework.Color;
@@ -94,7 +95,7 @@ public static class DerelictSalvageButton
     public static void ClaimTooltip(Derelict d, Empire claimant)
         => ToolTip.CreateTooltip(ClaimTip(d, claimant), codexUid: Codex.CodexHooks.Find(ClaimTipId(d, claimant)));
 
-    // from any thread: a salvage's stage as the derelicts window and the derelict's panel read it, with the turns left while its platform breaks in
+    // on the UI thread: a salvage's stage as the derelicts window and the derelict's panel read it, with the turns left while its platform breaks in
     public static string StageText(SalvageDerelict.Stage stage, SalvageDerelict order) => stage switch
     {
         SalvageDerelict.Stage.BreakingIn       => BreakingIn(order.BreakInTurnsLeft),
@@ -107,18 +108,21 @@ public static class DerelictSalvageButton
         _                                      => Localizer.Token(GameText.DerelictSalvaging),
     };
 
-    // on the UI thread: made again only when the turns left change, so a status keeps its fit
-    static string BreakingInText;
-    static int BreakingInTurns = -1;
+    // on the UI thread: the text for each count of turns left, made once while the language stays, so every status keeps its fit
+    static readonly Map<int, string> BreakingInTexts = new();
+    static string BreakingInFormat;
 
     static string BreakingIn(int turnsLeft)
     {
-        if (turnsLeft != BreakingInTurns)
+        string format = Localizer.Token(GameText.DerelictBreakingIn);
+        if (!ReferenceEquals(format, BreakingInFormat))
         {
-            BreakingInTurns = turnsLeft;
-            BreakingInText = string.Format(Localizer.Token(GameText.DerelictBreakingIn), turnsLeft);
+            BreakingInFormat = format;
+            BreakingInTexts.Clear();
         }
-        return BreakingInText;
+        if (!BreakingInTexts.TryGetValue(turnsLeft, out string text))
+            BreakingInTexts[turnsLeft] = text = string.Format(format, turnsLeft);
+        return text;
     }
 
     // a whole percent, as the panel shows it

@@ -175,13 +175,14 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        // on the sim thread: a parked salvage ship's mission with a free unit takes the order while it still waits for one
+        // on the sim thread: a parked salvage ship's mission with a free unit takes the order while it still waits for one, and the order moves on to its launch at once
         public bool JoinWaiting(SalvageMission mission)
         {
             if (!Pooled || Mission != null || StepName != nameof(Dispatch) || Derelict is not { CanBeSalvaged: true } d
                 || d.Claimant != null && d.Claimant != Owner || OrderOf(Owner, d) != this)
                 return false;
             Mission = mission;
+            ChangeToStep(LaunchConstructor);
             return true;
         }
 

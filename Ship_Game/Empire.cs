@@ -1281,7 +1281,7 @@ namespace Ship_Game
             AI.RunEconomicPlanner(fromSave: true);
         }
 
-        // a save with salvage stations at work: they leave the designs it can build, hauls from them are called off, a freighter that loaded keeping its cargo for trade, their builds are cancelled, and an AI empire scraps its stations
+        // a save with salvage stations at work: they leave the designs it can build, hauls from them are called off, a freighter that loaded keeping its cargo for trade, their builds are canceled, and an AI empire scraps its stations
         void EndSalvageStationWork()
         {
             bool removed = false;
