@@ -1142,7 +1142,6 @@ namespace Ship_Game
                 FixedSimTime elapsedTurnTime = new(UpdateTimer);
 
                 AssessSystemsInDanger(elapsedTurnTime);
-
                 if (isPlayer)
                 {
                     UpdateStats();
