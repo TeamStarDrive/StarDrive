@@ -158,13 +158,24 @@ namespace Ship_Game.Commands.Goals
         public static float PlatformConstruction(Empire empire, IShipDesign platform)
             => Math.Max(platform.GetCost(empire), MinPlatformConstruction * empire.Universe.ProductionPace);
 
-        // the empire's constructor, or with auto pick the cheapest whatever the platform costs, a job of no cost being small for every constructor; empty without one
+        // the constructor the empire can build that takes the least ordnance to launch, whatever it costs or the player picked; empty without one
         public static string ConstructorName(Empire empire)
         {
             if (!ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign _))
                 return "";
-            return ShipBuilder.PickConstructor(empire, 0f, GetCheapest: true)?.Name ?? "";
+            Ship lightest = null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+            {
+                if (design.IsConstructor && ResourceManager.GetShipTemplate(design.Name, out Ship constructor)
+                    && (lightest == null || constructor.ShipOrdLaunchCost < lightest.ShipOrdLaunchCost))
+                    lightest = constructor;
+            }
+            return lightest?.Name ?? "";
         }
+
+        // the ordnance a salvage unit spends to launch the empire's constructor, none without one
+        public static float ConstructorLaunchCost(Empire empire)
+            => ResourceManager.GetShipTemplate(ConstructorName(empire), out Ship constructor) ? constructor.ShipOrdLaunchCost : 0f;
 
         // the Salvage and Recover buttons, or a parked salvage ship's mission, which the order joins at once; false when the empire cannot order it
         public static bool Order(Empire empire, Derelict d, bool recover = false, SalvageMission by = null)

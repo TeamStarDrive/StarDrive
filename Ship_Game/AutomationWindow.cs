@@ -6,6 +6,7 @@ using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -308,8 +309,9 @@ namespace Ship_Game
 
         void InitSalvageShipDropDown()
         {
+            float launchCost = SalvageDerelict.ConstructorLaunchCost(Screen.Player);
             InitDropOptions(SalvageShipDropDown, ref Screen.Player.data.CurrentSalvageShip, Screen.Player.data.DefaultSalvageShip,
-                ship => ship.IsShipGoodToBuild(Screen.Player) && ShipBuilder.IsUsableSalvageShip(ship));
+                ship => ship.IsShipGoodToBuild(Screen.Player) && ShipBuilder.IsUsableSalvageShip(ship, launchCost));
         }
 
         public void UpdateDropDowns()

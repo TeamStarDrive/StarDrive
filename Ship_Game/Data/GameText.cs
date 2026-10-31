@@ -6340,6 +6340,16 @@ namespace Ship_Game
         SalvageShipsCount = 7254,
         /// <summary>Auto Salvage is on, so salvage orders cannot be called off.</summary>
         SalvageOnAutomaticTip = 7255,
+        /// <summary>Salvage Launch Short of Ordnance</summary>
+        DesignIssueSalvageLaunchOrdnanceTitle = 7256,
+        /// <summary>Each salvage unit launches your lightest constructor, the</summary>
+        DesignIssueSalvageLaunchOrdnanceProblem = 7257,
+        /// <summary>Add Ordnance Storage.</summary>
+        DesignIssueSalvageLaunchOrdnanceRemidiation = 7258,
+        /// <summary>Ordnance one launch takes:</summary>
+        DesignIssueSalvageLaunchOrdnanceNeeded = 7259,
+        /// <summary>The salvage ship list in the Automation window leaves this</summary>
+        DesignIssueSalvageLaunchOrdnanceSkipped = 7260,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

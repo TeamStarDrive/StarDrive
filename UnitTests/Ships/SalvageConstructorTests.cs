@@ -7,6 +7,7 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.LoadGame;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
@@ -16,9 +17,10 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// A salvage unit is a hangar bay, as a refining module is a mining bay: it carries 60 ordnance and launches the
-/// empire's constructor, or with auto pick the cheapest whatever the platform costs, never a fighter, for an order on
-/// a derelict, once its salvage ship is parked at its mission's site. The launch costs ordnance, so a ship short of it
-/// waits, and the unit then waits out its 30 s timer; a constructor lost on its way is launched again. After its
+/// constructor its empire can build that takes the least ordnance to launch, whatever it or the platform costs or the
+/// player picked, never a fighter, for an order on a derelict, once its salvage ship is parked at its mission's site. The launch costs ordnance, so a ship short
+/// of it waits, and the unit then waits out its 30 s timer; a design holding less than a launch takes is flagged red in
+/// the ship designer and no pick takes it. A constructor lost on its way is launched again. After its
 /// launch the constructor flies to a site 100 out from the derelict's radius, however far from its ship, and claims
 /// the derelict as it starts to build there, with the trust cost of salvaging in a system where another empire has a
 /// colony, once for each platform. Its construction is the platform's cost to the empire, never below 100, both times
@@ -123,24 +125,78 @@ public class SalvageConstructorTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void WithAutoPickAUnitLaunchesTheCheapestConstructorWhateverThePlatformCosts()
+    public void AUnitLaunchesTheConstructorTakingTheLeastOrdnanceWhateverItCostsOrThePlayerPicked()
     {
         ShipModule unit = SpawnShip("Terran Salvage Ship", Player, Homeworld.Position + new Vector2(5_000f, 0)).Modules.Find(m => m.Salvage);
-        IShipDesign cheap = ResourceManager.Ships.GetDesign("Owlwok Constructor");
+        IShipDesign light = ResourceManager.Ships.GetDesign("Owlwok Constructor");
         IShipDesign dearer = ResourceManager.Ships.GetDesign("Kulrathi Constructor");
-        Player.AddBuildableShip(cheap);
-        Player.AddBuildableShip(dearer);
-        Player.AutoPickConstructors = true;
-        AssertLessThan(cheap.GetCost(Player), dearer.GetCost(Player), "setup: one constructor is cheaper");
+        ShipDesign copy = ((ShipDesign)light).GetClone("TEST_Heavy Owlwok Constructor");
+        copy.SetDesignSlots(light.GetOrLoadDesignSlots().Select(s => s.ModuleUID == "Structure" ? new DesignSlot(s.Pos, "MeteorPart", s.Size, 0, s.ModuleRot, null) : s).ToArray(),
+                            updateRole: false);
+        Assert.IsTrue(ResourceManager.AddShipTemplate(copy, playerDesign: false), "setup: a copy of the light one with heavier armor");
+        try
+        {
+            IShipDesign heavy = ResourceManager.Ships.GetDesign(copy.Name);
+            Player.AddBuildableShip(light);
+            Player.AddBuildableShip(dearer);
+            Player.AddBuildableShip(heavy);
+            AssertEqual(0.01f, 21.8f, ResourceManager.GetShipTemplate(light.Name).ShipOrdLaunchCost, "setup: the light one takes the least ordnance to launch");
+            AssertEqual(0.01f, 25.4f, ResourceManager.GetShipTemplate(heavy.Name).ShipOrdLaunchCost, "setup: its copy more");
+            AssertLessThan(heavy.GetCost(Player), light.GetCost(Player), "setup: though the copy costs less");
+            Player.AutoPickConstructors = true;
+            Assert.AreSame(heavy, ShipBuilder.PickConstructor(Player, 0f, GetCheapest: true), "setup: so a small job gets the copy");
 
-        float construction = SalvageDerelict.PlatformConstruction(Player, ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName));
-        AssertGreaterThan(construction, dearer.GetCost(Player) * 2f, "setup: the platform takes more than twice either's cost");
-        Assert.AreSame(dearer, ShipBuilder.PickConstructor(Player, construction, GetCheapest: true),
-                       "setup: so a job of that size gets the faster one");
-        AssertEqual(cheap.Name, CarrierBays.HangarShipName(Player, unit), "a unit launches the cheapest");
+            float construction = SalvageDerelict.PlatformConstruction(Player, ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName));
+            Assert.AreSame(dearer, ShipBuilder.PickConstructor(Player, construction, GetCheapest: true), "setup: and a job the platform's size the faster one");
+            AssertEqual(light.Name, CarrierBays.HangarShipName(Player, unit), "a unit launches the light one");
 
-        Player.AutoPickConstructors = false;
-        AssertEqual(Constructor, CarrierBays.HangarShipName(Player, unit), "and without auto pick the empire's own");
+            Player.AutoPickConstructors = false;
+            Player.data.CurrentConstructor = dearer.Name;
+            Assert.AreSame(dearer, ShipBuilder.PickConstructor(Player, 0f, GetCheapest: true), "setup: without auto pick the player's choice goes to every job");
+            AssertEqual(light.Name, CarrierBays.HangarShipName(Player, unit), "and still a unit launches the light one");
+        }
+        finally
+        {
+            ResourceManager.Ships.Delete(copy.Name);
+        }
+    }
+
+    [TestMethod]
+    public void TheShipDesignerFlagsRedASalvageShipHoldingLessOrdnanceThanALaunchTakesAndNoPickTakesIt()
+    {
+        IShipDesign single = ResourceManager.Ships.GetDesign("Terran Salvage Ship");
+        var issues = new ShipDesignIssues(Universe, single);
+        issues.CheckSalvageLaunchOrdnance();
+        Assert.IsTrue(issues.CurrentDesignIssues.IsEmpty, "a salvage ship holding the ordnance a launch takes is not flagged");
+        CanBuild(Player, TwinShip);
+        AssertEqual("Terran Salvage Ship", ShipBuilder.PickSalvageShip(Player)?.Name, "setup: with no choice, the race's");
+
+        float multiplier = GlobalStats.Defaults.HangarCombatShipCostMultiplier;
+        GlobalStats.Defaults.HangarCombatShipCostMultiplier = 3f;
+        try
+        {
+            AssertEqual(0.01f, 78f, SalvageDerelict.ConstructorLaunchCost(Player), "setup: a launch takes more than the race's ship holds and less than the twin's");
+            issues.Reset();
+            issues.CheckSalvageLaunchOrdnance();
+            AssertEqual(1, issues.CurrentDesignIssues.Count, "the ship designer flags the race's");
+            DesignIssueDetails issue = issues.CurrentDesignIssues[0];
+            Assert.AreEqual(DesignIssueType.SalvageLaunchOrdnance, issue.Type, "as short of the ordnance a launch takes");
+            Assert.AreEqual(WarningLevel.Critical, issue.Severity, "in red");
+            StringAssert.StartsWith(issue.AdditionalText, $" {Localizer.Token(GameText.DesignIssueSalvageLaunchOrdnanceNeeded)} {78f.GetNumberString()}.",
+                                    "naming what a launch takes");
+            StringAssert.EndsWith(issue.AdditionalText, Localizer.Token(GameText.DesignIssueSalvageLaunchOrdnanceSkipped), "and that the salvage ship list and auto pick skip it");
+
+            var twin = new ShipDesignIssues(Universe, ResourceManager.Ships.GetDesign(TwinShip));
+            twin.CheckSalvageLaunchOrdnance();
+            Assert.IsTrue(twin.CurrentDesignIssues.IsEmpty, "but not the twin, holding enough");
+            AssertEqual(TwinShip, ShipBuilder.PickSalvageShip(Player)?.Name, "and the race's gives way to it");
+            Player.AutoPickBestSalvageShip = true;
+            AssertEqual(TwinShip, ShipBuilder.PickSalvageShip(Player, WreckSystem)?.Name, "and auto pick, which takes the fewest units with no derelict to work, passes over it too");
+        }
+        finally
+        {
+            GlobalStats.Defaults.HangarCombatShipCostMultiplier = multiplier;
+        }
     }
 
     [TestMethod]

@@ -9,6 +9,7 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -594,6 +595,20 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.LowSalvageShipCargo, severity, needed);
         }
 
+        // a salvage ship holding less ordnance than a launch of its empire's constructor takes, whose units never launch one, which auto pick and the Automation window's list pass over
+        public void CheckSalvageLaunchOrdnance()
+        {
+            if (!Hull.IsSalvageShip)
+                return;
+
+            float launchCost = SalvageDerelict.ConstructorLaunchCost(Player);
+            if (Hull.BaseOrdnanceMax >= launchCost)
+                return;
+
+            AddDesignIssue(DesignIssueType.SalvageLaunchOrdnance, WarningLevel.Critical,
+                $" {Localizer.Token(GameText.DesignIssueSalvageLaunchOrdnanceNeeded)} {launchCost.GetNumberString()}. {Localizer.Token(GameText.DesignIssueSalvageLaunchOrdnanceSkipped)}");
+        }
+
         string GetRangeLaunchText(int maxWeaponRange, out int minLaunchRangeWeapons, out bool usingMinimumCarrierRange)
         {
             usingMinimumCarrierRange = false;
@@ -739,7 +754,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         LowResearchTime,
         ConstructorCost,
         LowRefiningTime,
-        LowSalvageShipCargo
+        LowSalvageShipCargo,
+        SalvageLaunchOrdnance
     }
 
     public enum WarningLevel
@@ -980,6 +996,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem     = GameText.DesignIssueLowSalvageShipCargoProblem;
                     Remediation = GameText.DesignIssueLowSalvageCargoRemidiation;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowSalvageCargo");
+                    break;
+                case DesignIssueType.SalvageLaunchOrdnance:
+                    Title       = GameText.DesignIssueSalvageLaunchOrdnanceTitle;
+                    Problem     = GameText.DesignIssueSalvageLaunchOrdnanceProblem;
+                    Remediation = GameText.DesignIssueSalvageLaunchOrdnanceRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoOrdnance");
                     break;
             }
         }

@@ -162,6 +162,11 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   unit, or the pickers and the Automation list skip it; the designer flags it Critical (red) under one load a unit,
   Major (orange) under 1.1, Minor (yellow) under four thirds and Informative (green) under five thirds, 82.5, 100
   and 125 a unit for the 75 hold (Gilad, 2026-10-31).
+- **Ordnance (358 B, 359 A, 360 A, 362 A, 363; Gilad, 2026-10-31):** a unit launches the constructor the empire can
+  build that takes the least ordnance to launch, whatever it costs or the player picked in Automation, since only its
+  ordnance is paid, so a heavier constructor cannot leave it waiting. A design needs the ordnance one such launch takes, or the pickers and the Automation list skip it; the designer flags
+  it Critical (red), naming that ordnance (texts 7256-7260, the No Ordnance icon). Combined Arms, whose hangar launch
+  multiplier is 2, gives its unit 120 ordnance.
 - **Order and mission (220, 178 A, 181 A, 162 B, 229 A):** an order (`SalvageDerelict`) joins a mission
   (`SalvageMission`, one ship in one system): the mission in its system with a free unit, else a mission on automatic
   still queued with no order, else one for the idle salvage ship nearest the system, else one whose ship is built,
@@ -175,7 +180,7 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   right-click order and no refit, scrap or explore button, even on a panel or refit window opened while it was idle),
   joins no fleet, answers no AI colony's call for help, ignores combat on its way and at work, even pushed off its
   spot, and pays no upkeep. It parks once its move to its site has stopped it there. Parked, a free unit launches the
-  empire's constructor for its order (the cheapest, or with Auto Pick Constructors off the player's choice), spending
+  empire's constructor for its order (the one it can build taking the least ordnance to launch, whatever the player picked, 358 B, 362 A), spending
   the unit's ordnance (193 A); the constructor builds the Salvage Platform beside the derelict at the platform's
   cost, at least 100 x pace, and one lost on the way is launched again. The derelict is claimed, with the trust cost
   per platform, as the constructor starts to build (200 B, 201 A).
@@ -408,7 +413,7 @@ station stood in the system (they show from the start, 332 A) no longer holds.
     - As built (part 2): the order is a deep-space build goal for the Salvage Platform, in three steps (launch,
       build, platform; part 4 adds a fourth, the dismantling), and puts no build marker on the map, since the
       Salvage button calls it off. Its constructor is the one a small Deep Space Build job gets (the dropdown design,
-      or the cheapest with auto pick on, whatever the platform costs since 446 B), and a salvage bay launches nothing
+      or the cheapest with auto pick on, whatever the platform costs since 446 B; since 362 A always the one taking the least ordnance), and a salvage bay launches nothing
       else. It flies and builds as any constructor does and claims the derelict as it starts to build, within 200 of the site; the platform it builds takes over the derelict, and the ordnance the
       constructor took is spent. One boarded on its way is its boarder's ship, and its unit is free to launch another;
       one flying home to a station lost on the way is removed, as a miner is, and a station's death blast can destroy
@@ -504,7 +509,7 @@ station stood in the system (they show from the start, 332 A) no longer holds.
       (444 A), and no test pins that no tech unlocks them (445 B).
     - At 12 a turn a full hold takes 7 turns, and a salvage station needs cargo room for 75; every race's basic
       station holds 316.
-    - With auto pick a salvage unit launches the cheapest constructor whatever the platform costs (446 B): the
+    - With auto pick a salvage unit launches the cheapest constructor whatever the platform costs (446 B; since 362 A the one taking the least ordnance, with or without it): the
       platform's 156 is more than twice a constructor's cost of 78 or less, and a Deep Space Build job that size takes
       the fastest design with the most construction modules instead.
     - Review (447-451): the shuttle and construction tests were tightened (447) and the plan's wording fixed (448).

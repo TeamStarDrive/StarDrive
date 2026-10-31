@@ -374,7 +374,7 @@ namespace Ship_Game.Commands.Goals
         // short of the ordnance its unit spends to launch its empire's constructor, which its full load pays for
         bool ShortOfLaunch(Ship ship)
         {
-            float cost = ResourceManager.GetShipTemplate(SalvageDerelict.ConstructorName(Owner), out Ship constructor) ? constructor.ShipOrdLaunchCost : 0f;
+            float cost = SalvageDerelict.ConstructorLaunchCost(Owner);
             return ship.Ordinance < cost && cost <= ship.OrdinanceMax;
         }
 

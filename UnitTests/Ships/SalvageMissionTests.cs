@@ -573,7 +573,7 @@ public class SalvageMissionTests : SalvageOrderTest
         shortHold.SetDesignSlots(ResourceManager.Ships.GetDesign(TwinShip).GetOrLoadDesignSlots()
                                  .Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID) is { CargoCapacity: <= 0f } or { Salvage: true }),
                                  updateRole: false);
-        Assert.IsFalse(ShipBuilder.IsUsableSalvageShip(shortHold), "setup: a design short of a load a unit");
+        Assert.IsFalse(ShipBuilder.IsUsableSalvageShip(shortHold, 0f), "setup: a design short of a load a unit");
         Player.AddBuildableShip(shortHold);
         Player.data.CurrentSalvageShip = shortHold.Name;
         AssertEqual("Terran Salvage Ship", ShipBuilder.PickSalvageShip(Player, WreckSystem)?.Name, "a choice short of a load a unit gives way to the race's");

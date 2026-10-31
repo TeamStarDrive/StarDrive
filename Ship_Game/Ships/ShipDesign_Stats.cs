@@ -44,6 +44,7 @@ public partial class ShipDesign
     public bool  BaseCanWarp    { get; private set; }
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
+    public float BaseOrdnanceMax { get; private set; }
     public float BaseResearchPerTurn       { get; private set; }
     public float BaseRefiningPerTurn       { get; private set; }
     public byte NumConstructionModules     { get; private set; }
@@ -83,6 +84,7 @@ public partial class ShipDesign
         float baseWarp = 0f;
         float baseMass = 0f;
         float baseCargoSpace = 0f;
+        float baseOrdnanceMax = 0f;
         float startingColonyGoods = 0f;
         int numBuildingsDeployed = 0;
         float baseResearchPerTurn = 0;
@@ -112,6 +114,7 @@ public partial class ShipDesign
             baseWarp += m.WarpThrust;
             baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
             baseCargoSpace += m.CargoCapacity;
+            baseOrdnanceMax += m.OrdinanceCapacity;
             baseResearchPerTurn += m.ResearchPerTurn;
             baseProcessingPerTurn += m.Refining;
 
@@ -150,6 +153,7 @@ public partial class ShipDesign
         BaseCanWarp = baseWarp > 0;
         BaseMass = baseMass;
         BaseCargoSpace = baseCargoSpace;
+        BaseOrdnanceMax = baseOrdnanceMax;
         BaseResearchPerTurn = baseResearchPerTurn;
         BaseRefiningPerTurn = baseProcessingPerTurn;
 
