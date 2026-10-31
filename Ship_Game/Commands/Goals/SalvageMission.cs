@@ -133,6 +133,11 @@ namespace Ship_Game.Commands.Goals
         // an order of its waits to launch its constructor
         bool HasOrderToLaunch => Owner.AI.HasGoal(g => g is SalvageDerelict { Launching: true } s && s.Mission == this);
 
+        // a recovery of its waits to launch its constructor, which the ship holds the ordnance for
+        bool RecoveryToLaunch(Ship ship)
+            => Owner.AI.HasGoal(g => g is SalvageDerelict { Launching: true, Recovering: true } s && s.Mission == this)
+               && ResourceManager.GetShipTemplate(SalvageDerelict.ConstructorName(Owner), out Ship constructor) && ship.Ordinance >= constructor.ShipOrdLaunchCost;
+
         public static int LiveUnits(Ship ship)
         {
             int units = 0;
@@ -306,41 +311,47 @@ namespace Ship_Game.Commands.Goals
             ship.AI.IgnoreCombat = true;
         }
 
-        // it waits at its site while its orders work, a free unit taking on more of the system's derelicts; with its hold full, or without the ordnance a waiting launch takes that its full load pays for, it leaves for its empire's nearest safe colony once no constructor of its is out; with its orders all done and none left to take it ends
+        // it waits at its site while its orders work, a free unit taking on more of the system's derelicts; with its hold full, once a recovery waiting to launch has launched, or without the ordnance a waiting launch takes that its full load pays for, it leaves for its empire's nearest safe colony once no constructor of its is out; with its orders all done and none left to take it ends
         GoalStep Work()
         {
             if (ShipChangesHands)
                 return GoalStep.TryAgain;
             if (OwnShip() is not { } ship)
                 return Lose();
-            TakeMoreWork();
+            TakeMoreWork(ship);
             if (!HasOrders)
                 return End(ship);
             if (ship.AI.State != AIState.HoldPosition)
                 Park(ship);
             ship.AI.IgnoreCombat = true; // pushed off its spot, its hold flies it back, which drops these
             ship.AI.SetPriorityOrder(true);
-            if (!ConstructorsOut(ship) && (SalvageDerelict.HoldFull(ship) || HasOrderToLaunch && ShortOfLaunch(ship)))
+            if (!ConstructorsOut(ship) && (SalvageDerelict.HoldFull(ship) && !RecoveryToLaunch(ship) || HasOrderToLaunch && ShortOfLaunch(ship)))
                 return Trip(ship);
             return GoalStep.TryAgain;
         }
 
-        // for each free unit, an order in its system that waits for a salvage ship, else an order of its own on a derelict there it would order, recovering on automatic what the planner would
-        void TakeMoreWork()
+        // for each free unit, an order in its system that waits for a salvage ship, else an order of its own on a derelict there it would order, recovering on automatic what the planner would; with its hold full it takes only recoveries
+        void TakeMoreWork(Ship ship)
         {
             int free = FreeUnits;
+            bool full = SalvageDerelict.HoldFull(ship);
             var goals = Owner.AI.Goals;
             for (int i = 0; i < goals.Count && free > 0; ++i)
-                if (goals[i] is SalvageDerelict order && order.TargetSystem == TargetSystem && order.JoinWaiting(this))
+                if (goals[i] is SalvageDerelict order && order.TargetSystem == TargetSystem && (order.Recovering || !full) && order.JoinWaiting(this))
                     --free;
             if (free <= 0)
                 return;
 
             bool automatic = OnAutomatic(Owner);
+            if (full && !automatic)
+                return; // off automatic its own orders are salvages
             Derelict[] derelicts = ToOrder();
             for (int i = 0; i < derelicts.Length && free > 0; ++i)
-                if (SalvageDerelict.Order(Owner, derelicts[i], recover: automatic && SalvageDerelict.WouldRecover(Owner, derelicts[i]), by: this))
+            {
+                bool recover = automatic && SalvageDerelict.WouldRecover(Owner, derelicts[i]);
+                if ((recover || !full) && SalvageDerelict.Order(Owner, derelicts[i], recover, by: this))
                     --free;
+            }
         }
 
         // the derelicts in its system it would order itself, as the planner picks them, but none its empire called off, and on automatic only where the planner would work

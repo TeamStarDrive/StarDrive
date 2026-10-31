@@ -35,11 +35,13 @@ namespace UnitTests.Ships;
 /// fighting nothing once its launch from the shipyard ends. Parked with a free unit, the ship takes an order in its
 /// system still waiting for a salvage ship, then orders the salvage of the derelict there soonest to sink that its
 /// empire could order with a fifth of its turns left, on Auto Salvage recovering what Auto Salvage would, and never
-/// one whose order has a ship of its own; so its orders done it stays for a derelict left there, and with its hold
-/// full comes back for it. Its last order ended while it is away, it flies back for a derelict left there, unless it
-/// has no live unit. On Auto Salvage it orders derelicts itself only where Auto Salvage would, beside no rival's
-/// colony and with no hostile strength known there, salvaging the ships Auto Salvage would not recover, and its own
-/// order joins its own mission though a queued ship there has a free unit. A derelict called off it leaves alone.
+/// one whose order has a ship of its own; so its orders done it stays for a derelict left there. With its hold full
+/// it takes only a recovery, waiting or of its own, launches no salvage until it has room, launches a waiting
+/// recovery before it leaves unless no load of ordnance pays for it, and unloaded comes back for a salvage left
+/// there. Its last order ended while it is away, it flies back for a derelict left there, unless it has no live
+/// unit. On Auto Salvage it orders derelicts itself only where Auto Salvage would, beside no rival's colony and with
+/// no hostile strength known there, salvaging the ships Auto Salvage would not recover, and its own order joins its
+/// own mission though a queued ship there has a free unit. A derelict called off it leaves alone.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -304,7 +306,7 @@ public class SalvageMissionTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void ItsOrdersDoneTheShipStaysForADerelictLeftInItsSystemAndWithItsHoldFullComesBackForIt()
+    public void ItsOrdersDoneWithItsHoldFullTheShipTakesNoSalvageButUnloadedComesBackForTheDerelictLeft()
     {
         Derelict first = Forms(Wreck);
         SalvageDerelict order = Ordered(first);
@@ -322,13 +324,118 @@ public class SalvageMissionTests : SalvageOrderTest
         Player.AI.RemoveGoal(order);
         ship.LoadProduction(ship.CargoRoom);
         mission.Evaluate();
-        Assert.AreSame(mission, SalvageDerelict.OrderOf(Player, left)?.Mission, "its order done, its unit takes the derelict left to no salvage ship");
-        Assert.AreSame(itsOwn, ownShip.Mission, "not the one whose order has a ship of its own");
-        Assert.IsTrue(mission.Unloading, "with its hold full it goes home");
+        Assert.IsTrue(SalvageDerelict.OrderOf(Player, left) == null && mission.Unloading, "its order done and its hold full, it takes no salvage and goes home");
 
         InOrbitAtHomeworld(ship);
         mission.Evaluate();
-        Assert.IsTrue(ship.GetProduction() == 0f && mission.FlyingOut, "and once unloaded comes back for it");
+        Assert.IsTrue(ship.GetProduction() == 0f && mission.FlyingOut, "unloaded, it comes back");
+        ship.Position = mission.Site;
+        ship.AI.ClearOrders(); // its move there over
+        mission.Evaluate();
+        mission.Evaluate();
+        Assert.AreSame(mission, SalvageDerelict.OrderOf(Player, left)?.Mission, "and with room in its hold its unit takes the derelict left to no salvage ship");
+        Assert.AreSame(itsOwn, ownShip.Mission, "not the one whose order has a ship of its own");
+    }
+
+    [TestMethod]
+    public void WithItsHoldFullTheShipOrdersNoSalvageItselfButARecoveryAutoSalvagePicks()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Ship ship = ShipBuilt(order);
+        Launched(order);
+        Derelict other = Forms(Wreck + new Vector2(0, 5_000f));
+        ship.LoadProduction(ship.CargoRoom);
+
+        mission.Evaluate();
+        Assert.IsTrue(SalvageDerelict.OrderOf(Player, other) == null && mission.Parked(out _), "with its hold full and its constructor out, the ship stays and orders no salvage");
+        Player.AutoSalvage = true;
+        IShipDesign dreadnought = ResourceManager.Ships.GetDesign("Dreadnought mk1-a");
+        Assert.IsTrue(Player.AddBuildableShip(dreadnought) && !SalvageDerelict.WouldRecover(Player, other), "setup: building the same design, Auto Salvage would salvage it");
+        mission.Evaluate();
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, other), "nor a salvage Auto Salvage picks");
+        Assert.IsTrue(Player.RemoveBuildableShip(dreadnought) && SalvageDerelict.WouldRecover(Player, other), "setup: Auto Salvage would recover it");
+        mission.Evaluate();
+        Assert.IsTrue(SalvageDerelict.OrderOf(Player, other) is { Recovering: true }, "but on Auto Salvage it orders the recovery");
+    }
+
+    [TestMethod]
+    public void WithItsHoldFullTheShipTakesAWaitingRecoveryButNoWaitingSalvage()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Ship ship = ShipBuilt(order);
+        Launched(order);
+        var salvage = new SalvageDerelict(Player, Forms(Wreck + new Vector2(0, 5_000f)));
+        var recovery = new SalvageDerelict(Player, Forms(Wreck + new Vector2(0, -5_000f)), recover: true);
+        Player.AI.AddGoal(salvage); // as orders that have found no salvage ship
+        Player.AI.AddGoal(recovery);
+        ship.LoadProduction(ship.CargoRoom);
+
+        mission.Evaluate();
+        Assert.IsNull(salvage.Mission, "with its hold full the ship leaves a waiting salvage");
+        Assert.AreSame(mission, recovery.Mission, "but takes a waiting recovery");
+    }
+
+    [TestMethod]
+    public void WithItsHoldFullTheShipLaunchesNoSalvageItHoldsUntilItHasRoom()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(order);
+        Launched(order);
+        ship.LoadProduction(ship.CargoRoom);
+        SalvageDerelict clicked = Ordered(Forms(Wreck + new Vector2(0, 5_000f)));
+        Assert.AreSame(MissionOf(order), clicked.Mission, "setup: a salvage clicked in its system joins the full ship's free unit");
+
+        clicked.Evaluate();
+        Assert.IsTrue(clicked.FinishedShip == null && clicked.Launching, "with its hold full, the ship launches no constructor for it");
+        ship.UnloadProduction(ship.GetProduction());
+        clicked.Evaluate();
+        Assert.IsNotNull(clicked.FinishedShip, "once its hold has room, it does");
+    }
+
+    [TestMethod]
+    public void WithItsHoldFullTheShipLaunchesARecoveryBeforeItLeavesAndGoesOnceItsConstructorIsDone()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Ship ship = ShipBuilt(order);
+        Parked(order);
+        ship.LoadProduction(ship.CargoRoom);
+        SalvageDerelict recovery = Ordered(Forms(Wreck + new Vector2(0, 5_000f)), recover: true);
+        Assert.AreSame(mission, recovery.Mission, "setup: a recovery clicked in its system joins the full ship");
+
+        mission.Evaluate();
+        Assert.IsTrue(mission.Parked(out _), "with its hold full and no constructor out, the ship waits to launch the recovery");
+        recovery.Evaluate();
+        order.Evaluate();
+        Assert.IsTrue(recovery.FinishedShip != null && order.FinishedShip == null, "which launches, the salvage waiting for room");
+        mission.Evaluate();
+        Assert.IsTrue(mission.Parked(out _), "it stays while the recovery's constructor is out");
+        PlatformBuilt(recovery);
+        mission.Evaluate();
+        Assert.IsTrue(mission.Unloading, "and once it is done, goes to unload");
+    }
+
+    [TestMethod]
+    public void WithItsHoldFullAShipWhoseFullLoadPaysForNoLaunchLeavesWithoutWaitingForARecovery()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Ship ship = ShipBuilt(order);
+        Parked(order);
+        ship.ChangeOrdnance(-ship.Ordinance);
+        ship.OrdinanceMax = 1f; // as with a constructor whose launch costs more than the ship holds
+        ship.LoadProduction(ship.CargoRoom);
+        Ordered(Forms(Wreck + new Vector2(0, 5_000f)), recover: true);
+
+        mission.Evaluate();
+        Assert.IsTrue(mission.Unloading, "with its hold full it goes to unload, as no load of ordnance pays for the recovery's launch");
     }
 
     [TestMethod]

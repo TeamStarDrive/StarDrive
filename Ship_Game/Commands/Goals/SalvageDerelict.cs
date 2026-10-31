@@ -349,13 +349,15 @@ namespace Ship_Game.Commands.Goals
             return Mission != null ? GoalStep.GoToNextStep : GoalStep.TryAgain;
         }
 
-        // a free salvage unit of the parked ship launches the constructor when the ship has the ordnance for it
+        // a free salvage unit of the parked ship launches the constructor when the ship has the ordnance for it, and for a salvage only while the ship's hold has room
         GoalStep LaunchConstructor()
         {
             if (!Mission.Parked(out Ship ship))
                 return GoalStep.TryAgain;
             if (!HoldsAUnit(ship))
                 return GoalStep.GoalFailed;
+            if (!Recovering && HoldFull(ship))
+                return GoalStep.TryAgain;
 
             ShipModule bay = FreeBay(ship);
             Ship constructor = bay != null ? Ship.CreateShipFromHangar(UState, bay, Owner, ship.Position, ship) : null;

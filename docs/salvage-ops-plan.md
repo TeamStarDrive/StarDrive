@@ -182,7 +182,10 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
 - **More work (333 A, 335 A; Gilad, 2026-10-31):** parked with a free unit, the ship takes on more of its system: an
   order there still waiting for a salvage ship, then orders of its own on the derelicts there the empire could order
   with a fifth of their turns left, the fewest turns left first, as a click would, with the claim and its trust cost;
-  on automatic it recovers what the planner would. A derelict whose order has a ship of its own, queued, flying out
+  on automatic it recovers what the planner would; with its hold full it takes only recoveries, the player's waiting
+  ones or the planner's picks, launches no salvage until it has unloaded, and before it leaves launches a recovery
+  waiting to launch whose ordnance it holds (342 B, 343 A, 344 A; 2026-10-31). A derelict whose order has a ship of
+  its own, queued, flying out
   or at work, is left to it. So it goes home only with its hold full, coming back after, or with no work left there;
   its orders all ended while it is away, it goes back while such work is left and it has a live unit (337 A). On
   automatic it orders derelicts itself only where the planner would, safe to work with no known hostile strength
