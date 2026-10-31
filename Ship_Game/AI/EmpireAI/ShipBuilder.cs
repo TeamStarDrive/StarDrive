@@ -351,6 +351,15 @@ namespace Ship_Game.AI
             return design.IsSalvageShip && ShipResupply.HasRoomForSalvageLoads(design) && design.BaseOrdnanceMax >= launchCost;
         }
 
+        public static bool HasUsableSalvageShip(Empire empire)
+        {
+            float launchCost = SalvageDerelict.ConstructorLaunchCost(empire);
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+                if (IsUsableSalvageShip(design, launchCost))
+                    return true;
+            return false;
+        }
+
         static IShipDesign BuildableSalvageShip(Empire empire, string name)
         {
             if (name.IsEmpty())

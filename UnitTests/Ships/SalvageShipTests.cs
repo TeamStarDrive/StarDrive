@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
+using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Gameplay;
@@ -19,7 +20,8 @@ namespace UnitTests.Ships;
 /// faction never does, and none is ever a freighter, whatever its role; the design list leaves them out with salvage ops off.
 /// The Salvage Ships technology comes after Frigate Construction, unlocks the salvage unit
 /// and leads to Salvage Speed in place of Small Stations, costs 400 and is hidden with salvage ops off. An empire can build salvage ships once a buildable
-/// salvage ship has room for a platform's load for each of its units; a race naming a station or a ship without a
+/// salvage ship has room for a platform's load for each of its units and holds the ordnance a launch of its lightest
+/// constructor takes, checked again as a constructor becomes buildable; a race naming a station or a ship without a
 /// salvage unit names no salvage ship. An empire saved before salvage ships, or with a salvage ship that no longer is
 /// a design, takes its race's on load.
 /// </summary>
@@ -192,8 +194,10 @@ public class SalvageShipTests : StarDriveTest
                               .Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID) is { CargoCapacity: <= 0f } or { Salvage: true }),
                               updateRole: false);
         Assert.IsTrue(shortHold.IsSalvageShip && shortHold.BaseCargoSpace < ShipResupply.SalvageLoad, "setup: a salvage ship short of a load");
+        Enemy.AddBuildableShip(shortHold);
         Enemy.MarkShipRolesUsableForEmpire(shortHold);
         Assert.IsFalse(Enemy.CanBuildSalvageShips, "which does not count");
+        Enemy.AddBuildableShip(Design("Cordrazine Salvage Ship"));
         Enemy.MarkShipRolesUsableForEmpire(Design("Cordrazine Salvage Ship"));
         Assert.IsTrue(Enemy.CanBuildSalvageShips, "one with room for its load does");
 
@@ -202,6 +206,37 @@ public class SalvageShipTests : StarDriveTest
         Assert.IsNull(Player.SalvageShipDesign, "a race naming a salvage station names no salvage ship");
         Player.data.DefaultSalvageShip = "Terran Constructor";
         Assert.IsNull(Player.SalvageShipDesign, "nor one naming a ship without a salvage unit");
+    }
+
+    [TestMethod]
+    public void ALighterConstructorLetsASalvageShipTheEmpireAlreadyBuildsCount()
+    {
+        LoadStarterShips("Kulrathi Constructor", "Owlwok Constructor");
+        void Buildable(string name)
+        {
+            Enemy.AddBuildableShip(Design(name));
+            Enemy.MarkShipRolesUsableForEmpire(Design(name));
+        }
+
+        float multiplier = GlobalStats.Defaults.HangarCombatShipCostMultiplier;
+        GlobalStats.Defaults.HangarCombatShipCostMultiplier = 2.5f;
+        try
+        {
+            Assert.IsFalse(Enemy.CanBuildSalvageShips, "setup: the AI empire can build no salvage ship");
+            Buildable("Kulrathi Constructor");
+            AssertEqual(0.01f, 64.5f, SalvageDerelict.ConstructorLaunchCost(Enemy), "setup: its constructor takes 64.5 ordnance to launch");
+            AssertEqual(0.01f, 60f, Design("Cordrazine Salvage Ship").BaseOrdnanceMax, "setup: more than its salvage ship holds");
+            Buildable("Cordrazine Salvage Ship");
+            Assert.IsFalse(Enemy.CanBuildSalvageShips, "so that ship does not count");
+
+            Buildable("Owlwok Constructor");
+            AssertEqual(0.01f, 54.5f, SalvageDerelict.ConstructorLaunchCost(Enemy), "setup: a lighter constructor takes 54.5");
+            Assert.IsTrue(Enemy.CanBuildSalvageShips, "and with it the salvage ship counts");
+        }
+        finally
+        {
+            GlobalStats.Defaults.HangarCombatShipCostMultiplier = multiplier;
+        }
     }
 
     [TestMethod]

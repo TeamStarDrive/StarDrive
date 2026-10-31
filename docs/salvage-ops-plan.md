@@ -166,7 +166,12 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   build that takes the least ordnance to launch, whatever it costs or the player picked in Automation, since only its
   ordnance is paid, so a heavier constructor cannot leave it waiting. A design needs the ordnance one such launch takes, or the pickers and the Automation list skip it; the designer flags
   it Critical (red), naming that ordnance (texts 7256-7260, the No Ordnance icon). Combined Arms, whose hangar launch
-  multiplier is 2, gives its unit 120 ordnance.
+  multiplier is 2, gives its unit 120 ordnance. `CanBuildSalvageShips` is checked again whenever a salvage design or a
+  constructor becomes buildable, since a lighter constructor can make a design usable, and like the other CanBuild
+  flags it is never turned off (365 A, 367). Logged for later (366 A): if the lightest constructor stops being
+  buildable (only a player design can, by being deleted or overwritten), a ship already built that holds less than the
+  new launch cost waits at its site, and the flag stays on with no ship that can be picked. The race's default
+  constructor is always buildable, and a mod makes sure its salvage unit can launch it.
 - **Order and mission (220, 178 A, 181 A, 162 B, 229 A):** an order (`SalvageDerelict`) joins a mission
   (`SalvageMission`, one ship in one system): the mission in its system with a free unit, else a mission on automatic
   still queued with no order, else one for the idle salvage ship nearest the system, else one whose ship is built,

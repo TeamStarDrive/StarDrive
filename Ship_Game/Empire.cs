@@ -1398,7 +1398,8 @@ namespace Ship_Game
             if (s.IsMiningStation)
                 CanBuildMiningStations= true;
 
-            if (s.IsSalvageShip && ShipBuilder.IsUsableSalvageShip(s, SalvageDerelict.ConstructorLaunchCost(this)))
+            // a lighter constructor can make a salvage ship it already builds usable
+            if (!CanBuildSalvageShips && (s.IsSalvageShip || s.IsConstructor) && ShipBuilder.HasUsableSalvageShip(this))
                 CanBuildSalvageShips = true;
         }
 
