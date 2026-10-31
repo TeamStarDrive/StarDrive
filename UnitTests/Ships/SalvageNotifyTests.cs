@@ -12,9 +12,9 @@ namespace UnitTests.Ships;
 /// The player is told when a salvage platform has sent its salvage ship its last load and starts to come apart,
 /// whether its derelict was stripped empty or the order called off: the production its loads brought, then each tech
 /// with the research they gave it, a tech whose points show as 0 left out. The player is also told when a salvage ends
-/// early: its platform destroyed, its salvage ship lost (once for each order of its mission, one still waiting to
-/// launch its constructor too, under the ship's icon, and once more for the production it had aboard), a rival
-/// claiming the derelict first, or the derelict sinking away before the claim. None of these pauses the game. Nothing
+/// early: its platform destroyed, a rival claiming the derelict first, or the derelict sinking away before the claim;
+/// and when its salvage ship is lost, once for each order of its mission, one still waiting to launch its constructor
+/// too, under the ship's icon, and once more for the production it had aboard. None of these pauses the game. Nothing
 /// is told of an order called off before its platform is built, a platform lost while it comes apart, salvage ops
 /// turned off, or another empire's salvage. The Salvage alerts switch silences them all, and the Derelict alerts
 /// switch the notification of a new derelict. An order's production delivered and its derelict's name and icon
@@ -145,7 +145,7 @@ public class SalvageNotifyTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void ASalvageShipLostIsToldOnceForEachOrderItEndsAndOnceForTheProductionAboard()
+    public void ASalvageShipLostIsToldOnceForEachOfItsOrdersAndOnceForTheProductionAboard()
     {
         TwinShips();
         Derelict working = Forms(Wreck);
@@ -155,13 +155,14 @@ public class SalvageNotifyTests : SalvageOrderTest
         SalvageDerelict launching = Ordered(waiting);
         Assert.AreSame(MissionOf(atWork), MissionOf(launching), "setup: the ship's other unit is to launch for the second order");
         ship.LoadProduction(30f);
+        Ship platform = atWork.Platform;
         TrackNotifications();
         ship.Die(null, cleanupOnly: true);
 
         MissionOf(atWork).Evaluate();
         atWork.Evaluate();
         launching.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(atWork) || Player.AI.HasGoal(launching), "setup: both orders end");
+        Assert.IsTrue(Player.AI.HasGoal(atWork) && Player.AI.HasGoal(launching), "setup: both orders start again");
         Notification[] told = Told();
         AssertEqual(3, told.Length, "the player is told once for each order and once for the production aboard");
         AssertEqual("Your salvage ship was lost with 30 production aboard", told[0].Message, "the production aboard");
@@ -174,7 +175,7 @@ public class SalvageNotifyTests : SalvageOrderTest
             AssertEqual($"{WreckSystem.Name}: your salvage ship for the Dreadnought mk1-a was lost", n.Message);
         Assert.AreSame(working, told[1].ReferencedItem1, "a click selects each one's derelict");
         Assert.AreSame(waiting, told[2].ReferencedItem1);
-        Assert.IsFalse(atWork.Platform.Active, "and the platform is gone with the ship");
+        Assert.IsFalse(platform.Active, "and the platform is gone with the ship");
     }
 
     [TestMethod]

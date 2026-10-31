@@ -37,7 +37,8 @@ namespace UnitTests.Ships;
 /// crew, its repair modules, engines and the armor on its edge dead, its other armor at 2% and all else at 4%, with no
 /// ordnance, troops, power or shields, dark until its lights flicker on, and heads for its empire's nearest planet that
 /// repairs; the selection passes to it, and with that empire gone the derelict sinks away instead. Turning the
-/// order to salvage keeps the work but a later recovery breaks in again; saves keep both. A rival's
+/// order to salvage keeps the work but a later recovery breaks in again; saves keep both. Its salvage ship lost before
+/// the roll, the recovery starts again, breaking in anew with its work lost. A rival's
 /// recovery reads Recovering throughout, its break-in unshown. The player is told of each outcome of theirs, the ship
 /// as it appears and a failure or a blast at the roll, but not of a rival's ship, a recovery called off, or a platform
 /// or salvage ship lost during the rise; the Salvage alerts switch silences them all. A derelict's row leaves the derelicts
@@ -682,6 +683,24 @@ public class SalvageRecoveryTests : SalvageOrderTest
         order.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(order), "its salvage ship lost, the order ends");
         AssertEqual(0, notes.GetNotificationsAtomic().Length, "telling of no salvage ship lost, as the recovered ship still comes");
+    }
+
+    [TestMethod]
+    public void ARecoveryWhoseShipIsLostBeforeTheRollStartsItsWorkOver()
+    {
+        Derelict d = Forms(Wreck, health: 0.4f);
+        Player.data.SelectedTraitSet = "";
+        SalvageDerelict order = AtWork(d, recover: true);
+        Turns(order, 11);
+        AssertEqual(0.01f, 24f, order.RecoveryWork, "setup: broken in, and a turn's work done");
+
+        SalvageMission mission = order.Mission;
+        mission.SalvageShip.Die(null, cleanupOnly: true);
+        mission.Evaluate();
+        order.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(order) && order.Recovering, "its salvage ship lost, the recovery starts again");
+        AssertEqual(0, order.BreakInDone, "breaking in again");
+        AssertEqual(0.01f, 0f, order.RecoveryWork, "its work lost");
     }
 
     [TestMethod]

@@ -182,12 +182,18 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   constructors) skip the warp check their Automation lists apply; research and mining stations get none anywhere.
   Left as is (377 A): a design with no power store fails the check even with power to spare at warp, as it does for
   the AI. The Codex's Salvage Ships page names the rule under Warp range (380 A).
-- **Order and mission (220, 178 A, 181 A, 162 B, 229 A):** an order (`SalvageDerelict`) joins a mission
-  (`SalvageMission`, one ship in one system): the mission in its system with a free unit, else a mission on automatic
-  still queued with no order, else one for the idle salvage ship nearest the system, else one whose ship is built,
-  queued urgent at the safe shipyard planet nearest the site and first in the player's queue. With no shipyard it
-  waits; its shipyard lost or unsafe, the ship is queued again at the nearest; taken out of the queue, the mission is
-  called off.
+- **Order and mission (220, 178 A, 181 A, 162 B, 229 A, 394 A, 395, 397 A, 398, 400 A):** an order (`SalvageDerelict`)
+  joins a mission (`SalvageMission`, one ship in one system) as it is placed, a built ship first: the mission in its
+  system with a free unit whose ship is alive, its empire's and not being boarded, else one for the idle salvage ship
+  nearest the system (not being boarded either); then the mission there whose ship is queued with a free unit, else a
+  mission on automatic still queued with no order, else one whose ship is built, queued urgent at the safe shipyard
+  planet nearest the site and first in the player's queue. On automatic it is queued at the shipyard that would
+  finish it soonest instead (`FindPlanetToBuildShipAt`, the player's prioritized ports if it has any, while that one
+  is safe; 394 A, Gilad 2026-10-31, after a save where the AI stacked five builds at a colony putting about 3
+  production a turn into its queue). With no shipyard it waits; its shipyard lost or unsafe, the ship is queued again
+  at another; taken out of the queue, the mission is called off. The order keeps its queued ship though another comes
+  free, and nothing in the queue is cancelled for one (398, Gilad: "the goal should look for an available ship when
+  it is created, and if it finds none, it should build one"). One site search a join (397 A).
 - **Site (219 A):** a random point within 1000 of the derelicts' average spot, then 1500, 2000 and on, inside the
   system, clear of its star, radiation and planets' orbits, and 2000 from every salvageable derelict there and every
   salvage ship or old station the empire sees.
@@ -220,12 +226,16 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   paid as credits at the tax rate (with no safe colony, all of it where the ship is). It rearms in orbit while a
   launch waits, then flies back. Its orders done and no work left in its system, it brings home what it holds and
   stays in orbit there, idle.
-- **Idle (182 A, 207 A, 315 A):** a salvage ship with a live unit in no mission or fleet, orbiting, holding or
-  awaiting orders, and not landing, dismantling, scuttling or changing hands; one just built is its mission's from
-  the moment the queue reports it. The player can move, refit or scrap an idle one.
-- **Losses (140 A, 198 A, 217 A):** a ship destroyed or taken ends its mission and its orders, their platforms go, and
-  the player is told once for each order and once for the production aboard; a recovery whose roll succeeded still
-  brings its ship.
+- **Idle (182 A, 207 A, 315 A, 400 A):** a salvage ship with a live unit in no mission or fleet, orbiting, holding or
+  awaiting orders, and not landing, dismantling, scuttling, being boarded or changing hands; one just built is its
+  mission's from the moment the queue reports it. The player can move, refit or scrap an idle one.
+- **Losses (140 A, 198 A, 217 A, 398):** a ship destroyed or taken ends its mission, and the player is told once for
+  each order and once for the production aboard. Each order whose platform's work was not over starts again from its
+  dispatch, for the player off automatic too: its constructor scuttled, its platform gone with its hold, its claim
+  given up and a recovery's work lost, it takes a ship as a new order would, an idle one or one built for it (Gilad
+  2026-10-31: "if the goal's ship dies, it returns to pick from the available pool and if not, it builds again"; the
+  platform goes rather than waiting). An order whose work was over ends, and a recovery whose roll succeeded still
+  brings its ship; a defeated empire's orders end.
 - **UI (161 A, 166 A, 185 A):** Salvage and Recover buttons on every known salvageable derelict, the order's stage on
   its panel and in the derelicts window, whose last line counts the salvage ships at work and idle, and a Salvage
   Ships filter in the ship list. Notifications: salvage finished, platform destroyed, salvage ship lost, lost with
@@ -237,9 +247,10 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   call-off while it is on. Auto Pick Salvage Ships takes the most units up to the derelicts to work there, then the
   fewest beyond them, then cargo, then strength per slot; off, the Automation list's design, else the race default,
   else the one auto pick takes.
-- **AI (232 B, 234 C, 240 A, 247 A, 248 A, 249 A):** no worth rule for a build, only the cap; idle ships beyond the
-  cap are scrapped, once orderless queued missions have left the queue; a fleet is asked for only where a ship could
-  go; builds are OrbitalUrgent without MoveToFront; salvage ships are never auto-refit.
+- **AI (232 B, 234 C, 240 A, 247 A, 248 A, 249 A, 399 A):** no worth rule for a build, only the cap; idle ships beyond
+  the cap are scrapped, once orderless queued missions have left the queue, but none while an order whose ship was
+  lost has yet to take another; a fleet is asked for only where a ship could go; builds are OrbitalUrgent without
+  MoveToFront; salvage ships are never auto-refit.
 - **Pirates (144 B, 150 A, 257 A-275):** they no longer salvage. An orbital raid goes for a salvage platform at work
   first, and only pirates can board one: the owner's order ends and its hold is lost, and the pirates recover the
   derelict with an order of their own, or take the platform apart where they cannot, already recover it or protect its

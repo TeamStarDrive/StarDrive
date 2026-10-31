@@ -458,9 +458,10 @@ public class SalvageConstructorTests : SalvageOrderTest
 
         ship.Die(null, cleanupOnly: true);
         Assert.IsTrue(constructor.Active, "setup: the constructor outlives the ship's blast");
-        MissionOf(order).Evaluate();
+        SalvageMission mission = MissionOf(order);
+        mission.Evaluate();
         order.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(order), "the order ends with its ship");
+        Assert.IsTrue(Player.AI.HasGoal(order) && MissionOf(order) != mission, "the order starts again with another ship");
         Assert.IsFalse(constructor.Active, "and its constructor is scuttled at once");
     }
 
@@ -479,9 +480,10 @@ public class SalvageConstructorTests : SalvageOrderTest
         UState.Objects.UpdateLists();
         AssertEqual(Enemy, ship.Loyalty, "setup: the ship is boarded");
         AssertGreaterThan(ship.Carrier.OrdnanceInSpace, 0f, "setup: the constructor's ordnance is out with it");
-        MissionOf(order).Evaluate();
+        SalvageMission mission = MissionOf(order);
+        mission.Evaluate();
         order.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(order), "the order ends with its ship");
+        Assert.IsTrue(Player.AI.HasGoal(order) && MissionOf(order) != mission, "the order starts again with another ship");
         Assert.IsFalse(constructor.Active, "and its constructor is scuttled at once");
         AssertEqual(0.01f, 0f, ship.Carrier.OrdnanceInSpace, "the ship's new owner does not count its ordnance as out");
     }

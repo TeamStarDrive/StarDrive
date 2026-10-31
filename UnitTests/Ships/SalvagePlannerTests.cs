@@ -24,10 +24,13 @@ namespace UnitTests.Ships;
 /// ships the empire would recover recovered and the rest salvaged. A run orders as many as its salvage ships take, idle
 /// ones whatever their number, and builds one at most, a system with no free site spending none of it, none while the
 /// empire has as many salvage ships, built or queued, as one for every five planets, at least one and at most five;
-/// the AI then scraps its idle salvage ships beyond that, the player's never. On automatic, a mission whose orders all
-/// end while its ship is queued stays in the queue, queued again at the next shipyard when its own is lost, the next
-/// order anywhere taking it before an idle ship or a new build, and built with no order its ship waits idle at the
-/// nearest colony. With Auto Salvage on, a standing order's lit button calls nothing off, while
+/// the AI then scraps its idle salvage ships beyond that, the player's never. On automatic, the salvage ship is queued
+/// at the shipyard that would finish it soonest, though another is nearer, and a mission whose orders all end while
+/// its ship is queued stays in the queue, queued again at the next shipyard when its own is lost, the next order
+/// anywhere that finds no idle ship taking it before a new build, and built with no order its ship waits idle at the
+/// nearest colony. The AI scraps no idle salvage ship while an order whose ship was lost has yet to take another, and
+/// on automatic such an order ends where the planner would stay out, while the player's own starts again.
+/// With Auto Salvage on, a standing order's lit button calls nothing off, while
 /// ordering and switching still click. The switch and the planner's timer survive a save. The Automation window's Auto
 /// Salvage list resets a choice that can no longer be built to the race's, as it does one short of a load a unit. The
 /// AI's salvage ships join no fleet, are neither scrapped as support ships beyond its budget nor refitted, and none
@@ -81,6 +84,15 @@ public class SalvagePlannerTests : SalvageOrderTest
     Ship IdleShipOfTheAI(float x) => IdleShip(EnemyHome.Position + new Vector2(x, 0), Enemy, EnemysShip);
 
     static QueueItem QueuedFor(Planet shipyard, Goal mission) => shipyard.ConstructionQueue.FirstOrDefault(q => q.Goal == mission);
+
+    // two dreadnoughts in its queue, so another shipyard would finish a salvage ship sooner
+    static void Busy(Planet shipyard)
+    {
+        IShipDesign dreadnought = ResourceManager.Ships.GetDesign("Dreadnought mk1-a");
+        shipyard.Construction.Enqueue(dreadnought, QueueItemType.CombatShip);
+        shipyard.Construction.Enqueue(dreadnought, QueueItemType.CombatShip);
+        AssertEqual(2, shipyard.ConstructionQueue.Count, "setup: the shipyard is busy");
+    }
 
     // a hostile, the player's unless given, the empire knows of in the system
     void HostileThere(Empire empire, Empire hostile = null)
@@ -193,6 +205,47 @@ public class SalvagePlannerTests : SalvageOrderTest
         Ship left = ships.Single(s => !s.WorksForSalvage);
         Assert.IsTrue(left.DoingScrap, "the one left idle beyond the cap is scrapped");
         Assert.IsFalse(ships.Any(s => s.WorksForSalvage && s.DoingScrap), "and none at work");
+    }
+
+    [TestMethod]
+    public void OnAutomaticAnOrderWhoseShipWasLostWhereThePlannerWouldStayOutEndsWhileThePlayersOwnStartsAgain()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck, Enemy), empire: Enemy);
+        Ship ship = ShipBuilt(order);
+        Parked(order);
+        HostileThere(Enemy);
+        ship.Die(null, cleanupOnly: true);
+        MissionOf(order).Evaluate();
+        order.Evaluate();
+        Assert.IsFalse(Enemy.AI.HasGoal(order), "on automatic, its ship lost where the planner would stay out, the order ends");
+
+        SalvageDerelict players = Ordered(Forms(Wreck + new Vector2(0, 8_000f)));
+        Ship playersShip = ShipBuilt(players);
+        Parked(players);
+        HostileThere(Player, hostile: Enemy);
+        playersShip.Die(null, cleanupOnly: true);
+        MissionOf(players).Evaluate();
+        players.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(players) && MissionOf(players).Building, "the player's own order, off Auto Salvage, starts again");
+    }
+
+    [TestMethod]
+    public void TheAIScrapsNoIdleSalvageShipBeyondTheCapWhileAnOrderWhoseShipWasLostHasYetToTakeOne()
+    {
+        AssertEqual(1, SalvageOpsPlanner.Cap(Enemy), "setup: room for one salvage ship");
+        SalvageDerelict order = Ordered(Forms(Wreck, Enemy), empire: Enemy);
+        Ship ship = ShipBuilt(order);
+        Parked(order);
+        Ship[] idle = { IdleShipOfTheAI(5_000f), IdleShipOfTheAI(8_000f) };
+        ship.Die(null, cleanupOnly: true);
+        MissionOf(order).Evaluate();
+
+        Plans();
+        Assert.IsFalse(idle.Any(s => s.DoingScrap), "no idle ship is scrapped while the order whose ship was lost has yet to take one");
+        order.Evaluate();
+        Assert.IsTrue(idle.Any(s => s.WorksForSalvage), "then the order takes one");
+        Plans();
+        Assert.IsTrue(idle.Single(s => !s.WorksForSalvage).DoingScrap, "and the one left idle beyond the cap is scrapped");
     }
 
     [TestMethod]
@@ -355,14 +408,33 @@ public class SalvagePlannerTests : SalvageOrderTest
     }
 
     [TestMethod]
+    public void OnAutomaticTheShipIsQueuedAtTheShipyardThatWouldFinishItSoonestThoughAnotherIsNearer()
+    {
+        Planet near = AddHomeWorldToEmpire(SystemSite + new Vector2(-100_000f, 0), Enemy);
+        Enemy.UpdateRallyPoints();
+        Busy(near);
+        SalvageMission mission = Queued(Ordered(Forms(Wreck, Enemy), empire: Enemy));
+        Assert.IsNotNull(QueuedFor(EnemyHome, mission), "the AI queues its salvage ship at the shipyard that would finish it soonest");
+        Assert.IsNull(QueuedFor(near, mission), "not at the busy one nearer the site");
+
+        Player.AutoSalvage = true;
+        Planet playersNear = AddHomeWorldToEmpire(SystemSite + new Vector2(0, -100_000f), Player);
+        Player.UpdateRallyPoints();
+        Busy(playersNear);
+        SalvageMission players = Queued(Ordered(Forms(Wreck + new Vector2(0, 8_000f))));
+        Assert.IsNotNull(QueuedFor(Homeworld, players), "as does the player with Auto Salvage on");
+    }
+
+    [TestMethod]
     public void OnAutomaticAQueuedShipWithNoOrderIsQueuedAgainWhenItsShipyardIsLost()
     {
         Planet near = AddHomeWorldToEmpire(SystemSite + new Vector2(-100_000f, 0), Enemy);
         Enemy.UpdateRallyPoints();
+        Busy(EnemyHome);
         Derelict taken = Forms(Wreck, Enemy);
         SalvageDerelict order = Ordered(taken, empire: Enemy);
         SalvageMission mission = Queued(order);
-        Assert.IsNotNull(QueuedFor(near, mission), "setup: its ship is queued at the shipyard nearest the site");
+        Assert.IsNotNull(QueuedFor(near, mission), "setup: its ship is queued at the shipyard that would finish it soonest");
         Assert.IsTrue(taken.TryClaim(Player), "setup: a rival claims the derelict first");
         order.Evaluate();
         mission.Evaluate();
@@ -393,11 +465,14 @@ public class SalvagePlannerTests : SalvageOrderTest
         Vector2 elsewhere = new(-600_000f, 600_000f);
         SolarSystem other = AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true).System;
         Ship idle = IdleShipOfTheAI(5_000f);
-        SalvageDerelict next = Ordered(Forms(elsewhere + new Vector2(30_000f, 0), Enemy), empire: Enemy);
-        Assert.AreSame(mission, next.Mission, "the next order, in another system, takes it before an idle ship or a build");
+        SalvageDerelict sent = Ordered(Forms(elsewhere + new Vector2(30_000f, 0), Enemy), empire: Enemy);
+        Assert.AreSame(idle, sent.Mission.SalvageShip, "the next order, in another system, takes an idle ship first");
+        Assert.AreNotSame(mission, sent.Mission, "not the queued one");
+
+        SalvageDerelict next = Ordered(Forms(elsewhere + new Vector2(30_000f, 8_000f), Enemy), empire: Enemy);
+        Assert.AreSame(mission, next.Mission, "with none idle left, the order after takes it before a build");
         AssertEqual(other, mission.TargetSystem, "moving it there");
         Assert.IsTrue(SalvageMission.IsValidSite(other, mission.Site, Empty<Ship>.Array), "to a site among that system's derelicts");
-        Assert.IsTrue(SalvageMission.IsIdle(idle, Enemy), "the idle ship left idle");
 
         Assert.IsTrue(next.Derelict.TryClaim(Player), "setup: a rival claims that one too");
         next.Evaluate();

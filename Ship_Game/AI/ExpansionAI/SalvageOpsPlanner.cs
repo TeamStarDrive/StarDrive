@@ -148,9 +148,11 @@ namespace Ship_Game.AI.ExpansionAI
             return ships + empire.AI.CountGoals(g => g is SalvageMission { Over: false, Building: true });
         }
 
-        // those left idle once the run has sent what it could, as after it took over another empire's, a queued one with no order leaving the queue first
+        // those left idle once the run has sent what it could, as after it took over another empire's, a queued one with no order leaving the queue first; none while an order whose ship was lost has yet to take another, as one starting again without a ship to take
         void ScrapIdleShipsBeyondCap()
         {
+            if (Owner.AI.HasGoal(g => g is SalvageDerelict { Mission: null or { Over: true, ShipLost: true } }))
+                return;
             int beyond = Ships(Owner) - Cap(Owner);
             for (; beyond > 0 && SalvageMission.Unordered(Owner) is { } queued; --beyond)
                 Owner.AI.RemoveGoal(queued);
