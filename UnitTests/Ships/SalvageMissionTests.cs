@@ -13,12 +13,14 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// A salvage order joins a salvage ship's mission in its derelict's system: one with a free unit, else the empire's
-/// idle salvage ship nearest the system, one in no fleet orbiting, holding or awaiting orders, else a
-/// new salvage ship, built first in the queue of the empire's safe shipyard nearest the mission's site, waiting for a
-/// shipyard when there is none. The ship built is the one chosen in the Automation window, or the race's, or with auto
-/// pick the best for the system, never one short of a load a unit or of the warp range the AI needs. A shipyard lost,
-/// or turned unsafe while a safe one is left, has the ship queued again at the nearest; taking it out of the queue,
+/// A salvage order joins a built salvage ship first: its system's mission with a free unit, else the empire's idle
+/// salvage ship nearest the system, one in no fleet orbiting, holding or awaiting orders, and neither ship boarded;
+/// else a mission there whose ship is queued with a free unit, else a new salvage ship, built first in the queue of
+/// the empire's safe shipyard nearest the mission's site, waiting for a shipyard when there is none. The order keeps
+/// its queued ship though another comes free. The ship built is the one chosen in the Automation window, or the
+/// race's, or with auto pick the best for the system, never one short of a load a unit or of the warp range the AI
+/// needs. A shipyard lost, or turned unsafe while a safe one is left, has the ship queued again at the nearest;
+/// taking it out of the queue,
 /// or calling off its orders, ends the mission. The ship flies to its site taking no orders and no fights, paying no
 /// upkeep, launching nothing on its way, parks there, and goes to its empire's nearest safe colony to unload when its
 /// hold is full, or to rearm when it lacks the ordnance a waiting launch takes and its full load pays for, once no
@@ -42,7 +44,9 @@ namespace UnitTests.Ships;
 /// left there, unless it has no live unit. On Auto Salvage it orders derelicts itself only where Auto Salvage would,
 /// beside no rival's colony and with no hostile strength known there, salvaging the ships Auto Salvage would not
 /// recover, and its own order joins its own mission though a queued ship there has a free unit. A derelict called off
-/// it leaves alone.
+/// it leaves alone, and while boarders are aboard it orders none. With an idle ship but no free site, only a queued
+/// ship's free unit there takes an order. Its ship lost, an order whose work is not over starts again, its platform
+/// gone and a recovery's work lost, with an idle ship or else a new one, which the orders of the lost ship share.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -203,6 +207,122 @@ public class SalvageMissionTests : SalvageOrderTest
         SalvageMission third = Queued(Ordered(Forms(Wreck + new Vector2(0, -5_000f))));
         Assert.IsNull(third.SalvageShip, "and with none idle left");
         Assert.IsNotNull(QueuedFor(Homeworld, third), "one is built");
+    }
+
+    [TestMethod]
+    public void AnIdleShipTakesAnOrderBeforeAQueuedShipsFreeUnitInItsSystem()
+    {
+        TwinShips();
+        SalvageMission queued = MissionOf(Ordered(Forms(Wreck)));
+        AssertEqual(1, queued.FreeUnits, "setup: the twin-unit ship queued for the first order has a free unit");
+        Ship idle = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
+
+        SalvageMission sent = MissionOf(Ordered(Forms(Wreck + new Vector2(0, 5_000f))));
+        Assert.AreSame(idle, sent.SalvageShip, "the idle ship takes the next order");
+        AssertEqual(1, queued.FreeUnits, "and the queued ship's unit stays free");
+    }
+
+    [TestMethod]
+    public void AnOrderWhoseShipIsLostStartsAgainWithAnIdleShipElseANewOne()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(order);
+        Parked(order);
+        Ship idle = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
+
+        ship.Die(null, cleanupOnly: true);
+        MissionOf(order).Evaluate();
+        order.Evaluate();
+        Assert.AreSame(idle, MissionOf(order).SalvageShip, "its ship lost, the order starts again with the idle ship");
+        AssertEqual("LaunchConstructor", order.StepName, "and waits for it to launch");
+
+        idle.Die(null, cleanupOnly: true);
+        MissionOf(order).Evaluate();
+        order.Evaluate();
+        Assert.IsTrue(MissionOf(order).Building, "that one lost too, with none idle a new one is built for it");
+        Assert.IsNotNull(QueuedFor(Homeworld, Queued(order)), "queued at the shipyard");
+    }
+
+    [TestMethod]
+    public void TheOrdersOfALostShipShareOneNewShip()
+    {
+        TwinShips();
+        SalvageDerelict atWork = AtWork(Forms(Wreck));
+        SalvageDerelict other = Ordered(Forms(Wreck + new Vector2(0, 5_000f)));
+        Assert.AreSame(MissionOf(atWork), MissionOf(other), "setup: the ship's other unit is to launch for the second order");
+
+        MissionOf(atWork).SalvageShip.Die(null, cleanupOnly: true);
+        MissionOf(atWork).Evaluate();
+        atWork.Evaluate();
+        other.Evaluate();
+        Assert.IsTrue(MissionOf(atWork).Building, "its ship lost, with none idle a new one is built");
+        Assert.AreSame(MissionOf(atWork), MissionOf(other), "the one twin-unit ship for both orders");
+    }
+
+    [TestMethod]
+    public void AnIdleShipWithNoSiteLeavesTheOrderToAQueuedShipThereElseToNone()
+    {
+        TwinShips();
+        Derelict first = Forms(Wreck);
+        Derelict second = Forms(Wreck + new Vector2(0, 5_000f));
+        Derelict third = Forms(Wreck + new Vector2(0, -5_000f));
+        SalvageMission queued = MissionOf(Ordered(first));
+        AssertEqual(1, queued.FreeUnits, "setup: the twin-unit ship queued there has a free unit");
+        Ship idle = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
+        WreckSystem.Radius = 10_000f; // too small for a site clear of its star
+        Assert.IsFalse(SalvageMission.FindSite(WreckSystem, Empty<Ship>.Array, Player.Random, out _), "setup: no free site there");
+
+        Assert.AreSame(queued, MissionOf(Ordered(second)), "with no site for the idle ship, the queued ship's free unit takes the order");
+        Assert.IsNull(Ordered(third).Mission, "with that unit taken too, the order waits");
+        AssertEqual(1, Player.AI.CountGoals(g => g is SalvageMission), "no ship built for it");
+        Assert.IsTrue(SalvageMission.IsIdle(idle, Player), "and the idle ship stays idle");
+    }
+
+    [TestMethod]
+    public void AQueuedShipRefittedToAnotherDesignTakesNoNewOrder()
+    {
+        TwinShips();
+        SalvageMission mission = MissionOf(Ordered(Forms(Wreck)));
+        mission.AdvanceToNextStep();
+        mission.ReportShipComplete(SpawnShip("Dreadnought mk1-a", Player, Homeworld.Position + new Vector2(5_000f, 0)));
+        Assert.IsFalse(mission.Building, "setup: built as another design, with a unit of its design free");
+        Assert.AreNotSame(mission, MissionOf(Ordered(Forms(Wreck + new Vector2(0, 5_000f)))), "an order in its system does not join it");
+    }
+
+    [TestMethod]
+    public void AShipBeingBoardedIsNotIdleAndTakesNoNewOrder()
+    {
+        TwinShips();
+        SalvageDerelict first = Ordered(Forms(Wreck));
+        Ship ship = ShipBuilt(first);
+        Parked(first);
+        SalvageMission mission = MissionOf(first);
+        AssertEqual(1, mission.FreeUnits, "setup: the parked twin-unit ship has a free unit");
+        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(ship);
+        Assert.IsTrue(ship.TroopsAreBoardingShip, "setup: boarders fight aboard");
+        Assert.AreNotSame(mission, MissionOf(Ordered(Forms(Wreck + new Vector2(0, 5_000f)))), "an order in its system does not join a ship being boarded");
+        Derelict left = Forms(Wreck + new Vector2(0, -5_000f));
+        mission.Evaluate();
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, left), "nor does it order a derelict there itself");
+
+        Ship idle = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
+        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(idle);
+        Assert.IsFalse(SalvageMission.IsIdle(idle, Player), "nor is an idle one being boarded idle");
+    }
+
+    [TestMethod]
+    public void AnOrderKeepsItsQueuedShipThoughASalvageShipComesFree()
+    {
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission queued = Queued(order);
+        Assert.IsNotNull(QueuedFor(Homeworld, queued), "setup: with no salvage ship to send, one is queued");
+
+        Ship idle = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
+        order.Evaluate();
+        queued.Evaluate();
+        Assert.AreSame(queued, order.Mission, "the order keeps its queued ship");
+        Assert.IsNotNull(QueuedFor(Homeworld, queued), "which stays in the queue");
+        Assert.IsTrue(SalvageMission.IsIdle(idle, Player), "and the ship come free stays idle");
     }
 
     [TestMethod]

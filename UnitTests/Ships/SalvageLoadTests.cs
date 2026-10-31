@@ -310,15 +310,17 @@ public class SalvageLoadTests : SalvageOrderTest
         Assert.IsTrue(apart.Dismantling, "setup: one platform comes apart");
         AssertEqual(0.01f, 12f, working.Platform.GetProduction(), "setup: while the other holds a load");
 
+        Ship workingPlatform = working.Platform;
+        Ship apartPlatform = apart.Platform;
         ship.QueueTotalRemoval();
         MissionOf(working).Evaluate();
         working.Evaluate();
         apart.Evaluate();
-        Assert.IsFalse(working.Platform.Active, "a platform at work is gone with its ship, its load with it");
-        Assert.IsFalse(Player.AI.HasGoal(working), "its order ends");
-        Assert.IsNull(d.Claimant, "with its claim");
-        Assert.IsFalse(apart.Platform.Active, "and so is one coming apart");
-        Assert.IsFalse(Player.AI.HasGoal(apart), "with its order");
+        Assert.IsFalse(workingPlatform.Active, "a platform at work is gone with its ship, its load with it");
+        Assert.IsNull(d.Claimant, "its claim given up");
+        Assert.IsTrue(Player.AI.HasGoal(working) && MissionOf(working).Building, "and its order starts again, a new ship queued for it");
+        Assert.IsFalse(apartPlatform.Active, "one coming apart is gone too");
+        Assert.IsFalse(Player.AI.HasGoal(apart), "and its order, its work over, ends");
     }
 
     [TestMethod]

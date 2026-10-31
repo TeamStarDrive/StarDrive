@@ -10,7 +10,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
-    // an empire's salvage ship at work in one system: an idle one, or one built at its empire's safe shipyard nearest the system, flies to a site among the system's derelicts and waits there while its salvage units launch the constructors of its orders, a free unit taking on more of the system's derelicts; with its hold full, or without the ordnance a launch takes, it goes to its empire's nearest safe colony and comes back; once its orders are done and none is left for it there it brings home what it holds and waits at that colony for its next work
+    // an empire's salvage ship at work in one system: an idle one, or one built at its empire's safe shipyard nearest the system or, on automatic, the one that would finish it soonest, flies to a site among the system's derelicts and waits there while its salvage units launch the constructors of its orders, a free unit taking on more of the system's derelicts; with its hold full, or without the ordnance a launch takes, it goes to its empire's nearest safe colony and comes back; once its orders are done and none is left for it there it brings home what it holds and waits at that colony for its next work
     [StarDataType]
     public class SalvageMission : Goal
     {
@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public Planet Colony { get; private set; }
         // its ship was destroyed or taken, which its orders tell the player
         [StarData] public bool ShipLost { get; private set; }
-        // it has ended, so its orders end too
+        // it has ended, so its orders end too, or with its ship lost start again
         [StarData] public bool Over { get; private set; }
         // its ship's icon, kept for the notifications once the ship is gone
         [StarData] public string ShipIcon { get; private set; }
@@ -64,17 +64,22 @@ namespace Ship_Game.Commands.Goals
             ChangeToStep(FlyToSite);
         }
 
-        // on the sim thread, once for each order: its system's mission with a free unit takes it, else a mission left with no order while its ship is still to be built moves to the system and takes it, else the empire's idle salvage ship nearest the system starts one, else one is built for it; null with no salvage ship to send or build, or no site for it
+        // on the sim thread, as an order is placed or its salvage ship is lost: a built salvage ship takes it first, its system's mission with a free unit whose ship can take it, else the empire's idle salvage ship nearest the system starting one; else its system's mission with a free unit whose ship is still to be built, else a mission left with no order while its ship is still to be built moves to the system and takes it, else one is built for it; null with no salvage ship to send or build, or no site for it, which an idle ship not finding one leaves none to look for
         public static SalvageMission Join(Empire empire, SolarSystem system)
         {
-            if (WithFreeUnitIn(empire, system) is { } joined)
+            if (WithFreeUnitIn(empire, system, built: true) is { } joined)
                 return joined;
+            Ship ship = NearestIdleShip(empire, system.Position);
+            if (ship != null && FindSite(empire, system, out Vector2 site))
+                return Added(new(empire, system, site, ship));
+            if (WithFreeUnitIn(empire, system, built: false) is { } queued)
+                return queued;
+            if (ship != null)
+                return null;
 
             SalvageMission unordered = Unordered(empire);
-            Ship ship = unordered == null ? NearestIdleShip(empire, system.Position) : null;
-            IShipDesign design = unordered == null && ship == null ? ShipBuilder.PickSalvageShip(empire, system) : null;
-            if (unordered == null && ship == null && design == null
-                || !FindSite(system, SitesSeenBy(empire, empire.Universe.Objects.GetShips()), empire.Random, out Vector2 site))
+            IShipDesign design = unordered == null ? ShipBuilder.PickSalvageShip(empire, system) : null;
+            if (unordered == null && design == null || !FindSite(empire, system, out site))
                 return null;
 
             if (unordered != null)
@@ -83,25 +88,38 @@ namespace Ship_Game.Commands.Goals
                 unordered.Site = site;
                 return unordered;
             }
-            SalvageMission mission = ship != null ? new(empire, system, site, ship) : new(empire, system, site, design);
-            empire.AI.AddGoal(mission);
+            return Added(new(empire, system, site, design));
+        }
+
+        static SalvageMission Added(SalvageMission mission)
+        {
+            mission.Owner.AI.AddGoal(mission);
             return mission;
         }
 
+        static bool FindSite(Empire empire, SolarSystem system, out Vector2 site)
+            => FindSite(system, SitesSeenBy(empire, empire.Universe.Objects.GetShips()), empire.Random, out site);
+
         // from the sim thread: an order in the system would join a mission or an idle ship, so none is built for it
         public static bool HasShipFor(Empire empire, SolarSystem system)
-            => WithFreeUnitIn(empire, system) != null || Unordered(empire) != null || NearestIdleShip(empire, system.Position) != null;
+            => WithFreeUnitIn(empire, system, built: true) != null || WithFreeUnitIn(empire, system, built: false) != null
+               || Unordered(empire) != null || NearestIdleShip(empire, system.Position) != null;
 
-        static SalvageMission WithFreeUnitIn(Empire empire, SolarSystem system)
+        static SalvageMission WithFreeUnitIn(Empire empire, SolarSystem system, bool built)
         {
             var goals = empire.AI.Goals;
             for (int i = 0; i < goals.Count; ++i)
-                if (goals[i] is SalvageMission { Over: false } m && m.TargetSystem == system && m.FreeUnits > 0)
+                if (goals[i] is SalvageMission { Over: false } m && m.TargetSystem == system && m.Building != built && m.FreeUnits > 0
+                    && (!built || m.ShipCanTakeOrders))
                     return m;
             return null;
         }
 
-        // from the sim thread: one on automatic stays queued with its orders gone, for the next order
+        // its built ship is a salvage ship, alive, its empire's, and neither boarded nor changing hands
+        bool ShipCanTakeOrders => (SalvageShip ?? FinishedShip) is { Active: true, Dying: false, IsSalvageShip: true, TroopsAreBoardingShip: false } ship
+                                  && ship.Loyalty == Owner && !ship.LoyaltyTracker.ChangesFrom(Owner);
+
+        // from the sim thread: one on automatic stays queued with its orders gone, for the next order, unless its empire's planner finds it beyond the cap
         public static SalvageMission Unordered(Empire empire)
         {
             var goals = empire.AI.Goals;
@@ -166,9 +184,9 @@ namespace Ship_Game.Commands.Goals
         // boarded, it is another's at its next update
         bool ShipChangesHands => SalvageShip is { Active: true } ship && ship.Loyalty == Owner && ship.LoyaltyTracker.ChangesFrom(Owner);
 
-        // a salvage ship of the empire's with a live unit, in no mission or fleet, orbiting, holding or awaiting orders, and not landing, coming apart, counting down to its scuttling or about to change hands
+        // a salvage ship of the empire's with a live unit, in no mission or fleet, orbiting, holding or awaiting orders, and not landing, coming apart, counting down to its scuttling, boarded or about to change hands
         public static bool IsIdle(Ship ship, Empire empire)
-            => ship is { Active: true, Dying: false, IsSalvageShip: true, Dismantling: false, Fleet: null, IsLanding: false, IsHangarShip: false }
+            => ship is { Active: true, Dying: false, IsSalvageShip: true, Dismantling: false, Fleet: null, IsLanding: false, IsHangarShip: false, TroopsAreBoardingShip: false }
                && ship.Loyalty == empire && ship.ScuttleTimer < 0f && !ship.LoyaltyTracker.ChangesFrom(empire)
                && ship.AI.State is AIState.Orbit or AIState.HoldPosition or AIState.AwaitingOrders
                && LiveUnits(ship) > 0 && OfShip(ship) == null;
@@ -203,7 +221,7 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
-        // a mission that ends takes its ship out of the queue, and lets go of one still its empire's; its orders see it over and end
+        // a mission that ends takes its ship out of the queue, and lets go of one still its empire's; its orders see it over and end, or with its ship lost start again
         public override void OnRemoved()
         {
             Over = true;
@@ -215,12 +233,12 @@ namespace Ship_Game.Commands.Goals
                 LetGo(ship);
         }
 
-        // the design is queued as urgent at the empire's safe shipyard planet nearest the site, first in the player's queue; with none, it waits for one; with its orders gone it ends, unless on automatic
+        // the design is queued as urgent at its shipyard, first in the player's queue; with none, it waits for one; with its orders gone it ends, unless on automatic
         GoalStep BuildShip()
         {
             if (!HasOrders && !OnAutomatic(Owner))
                 return GoalStep.GoalFailed;
-            if (NearestShipyard() is not { } shipyard)
+            if (Shipyard() is not { } shipyard)
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = shipyard;
@@ -230,9 +248,16 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
-        Planet NearestShipyard() => Owner.SafeSpacePorts.FindMin(p => p.Position.SqDist(Site));
+        // on automatic the shipyard planet that would finish its ship soonest, picked as for the empire's other builds, the player's from its prioritized ports if it has any, while that one is safe; else the safe one nearest its site
+        Planet Shipyard()
+        {
+            Planet[] shipyards = Owner.SafeSpacePorts;
+            if (OnAutomatic(Owner) && shipyards.Length > 0 && Owner.FindPlanetToBuildShipAt(shipyards, Design, out Planet soonest) && soonest.Safe)
+                return soonest;
+            return shipyards.FindMin(p => p.Position.SqDist(Site));
+        }
 
-        // the queue reports the ship built; with its orders gone it leaves the queue, unless on automatic, where it waits for the next order and, built with none, works any derelict left in its system or else is a ship like any other; its shipyard lost, or unsafe while a safe one is left, it is queued again at the nearest; taken out of the queue, the mission is called off
+        // the queue reports the ship built; with its orders gone it leaves the queue, unless on automatic, where it waits for the next order and, built with none, works any derelict left in its system or else is a ship like any other; its shipyard lost, or unsafe while a safe one is left, it is queued again at another; taken out of the queue, the mission is called off
         GoalStep WaitForShip()
         {
             if (!HasOrders && !OnAutomatic(Owner))
@@ -242,7 +267,7 @@ namespace Ship_Game.Commands.Goals
                 return BuildAgain();
             if (QueuedItem(shipyard) == null)
                 return GoalStep.GoalFailed;
-            if (!shipyard.Safe && NearestShipyard() is { } safe && safe != shipyard)
+            if (!shipyard.Safe && Shipyard() is { } safe && safe != shipyard)
             {
                 Unqueue(shipyard);
                 return BuildAgain();
@@ -311,14 +336,15 @@ namespace Ship_Game.Commands.Goals
             ship.AI.IgnoreCombat = true;
         }
 
-        // it waits at its site while its orders work, a free unit taking on more of the system's derelicts; with its hold full, once a recovery waiting to launch has launched, or without the ordnance a waiting launch takes that its full load pays for, it leaves for its empire's nearest safe colony once no constructor of its is out; with its orders all done and none left to take it ends
+        // it waits at its site while its orders work, a free unit taking on more of the system's derelicts unless boarders are aboard; with its hold full, once a recovery waiting to launch has launched, or without the ordnance a waiting launch takes that its full load pays for, it leaves for its empire's nearest safe colony once no constructor of its is out; with its orders all done and none left to take it ends
         GoalStep Work()
         {
             if (ShipChangesHands)
                 return GoalStep.TryAgain;
             if (OwnShip() is not { } ship)
                 return Lose();
-            TakeMoreWork(ship);
+            if (!ship.TroopsAreBoardingShip)
+                TakeMoreWork(ship);
             if (!HasOrders)
                 return End(ship);
             if (ship.AI.State != AIState.HoldPosition)
@@ -482,7 +508,7 @@ namespace Ship_Game.Commands.Goals
                 ship.AI.OrderOrbitPlanet(home, clearOrders: true);
         }
 
-        // destroyed or in other hands, it ends its orders, each telling the player, who is told too of the production it had aboard
+        // destroyed or in other hands, it ends, and its orders tell the player and start again where they can, the player told too of the production it had aboard
         GoalStep Lose()
         {
             ShipLost = true;

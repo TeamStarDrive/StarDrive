@@ -16,8 +16,8 @@ namespace UnitTests.Ships;
 /// aboard, a right-click with a troop ship on it is refused, only a pirate carrier sends shuttles at it, a planet sends
 /// no boarders at it, and a transporter passes it over for the next ship; each check has a ship that can be boarded
 /// beside it. Pirates pick one at work for a raid as a salvage platform, never as a platform. A salvage ship boarded is
-/// its boarder's once it changes hands, its mission and orders ending then, and a ship like any other, which can be
-/// scrapped. An absorbed or defeated empire's salvage ends: its missions and orders end with their claims, its platforms
+/// its boarder's once it changes hands, its mission ending then while its order starts again, and a ship like any
+/// other, which can be scrapped. An absorbed or defeated empire's salvage ends: its missions and orders end with their claims, its platforms
 /// go, and its salvage ships pass to the absorber or its rebels as ships like any other, a constructor in flight
 /// scuttled rather than called home. The turn lets go of a defeated faction's claims though it keeps its goals. Ships
 /// changing hands in a system show its derelicts to their new owner, as entering it would, and the player is told;
@@ -107,7 +107,7 @@ public class SalvageTakeoverTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void ASalvageShipBoardedIsItsBoardersOnceItChangesHandsEndingItsMissionAndOrder()
+    public void ASalvageShipBoardedIsItsBoardersOnceItChangesHandsEndingItsMissionWhileItsOrderStartsAgain()
     {
         Derelict d = Forms(Wreck);
         SalvageDerelict order = Ordered(d);
@@ -123,7 +123,8 @@ public class SalvageTakeoverTests : SalvageOrderTest
         AssertEqual(Enemy, ship.Loyalty, "setup: the ship changes hands");
         mission.Evaluate();
         order.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(mission) || Player.AI.HasGoal(order), "then its mission ends, and its order with it");
+        Assert.IsFalse(Player.AI.HasGoal(mission), "then its mission ends");
+        Assert.IsTrue(Player.AI.HasGoal(order) && MissionOf(order) != mission && MissionOf(order).Building, "and its order starts again, a new ship queued for it");
         Assert.IsTrue(ship.Active, "and its boarder keeps the ship");
         Assert.IsTrue(!ship.WorksForSalvage && ship.CanBeScrapped, "a ship like any other, which can be scrapped");
     }

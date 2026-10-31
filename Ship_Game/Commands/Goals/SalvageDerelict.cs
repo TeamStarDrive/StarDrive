@@ -2,6 +2,7 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.AI.ExpansionAI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -272,7 +273,7 @@ namespace Ship_Game.Commands.Goals
         bool Stands => Owner.Universe.P.SalvageOps
                        && (Finished || RecoverySucceeded || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner));
 
-        // an order of an old save ends; one whose mission is over ends, the player told of a lost salvage ship unless the roll succeeded, as the ship still comes; one that no longer stands ends, the player told when a rival claimed its derelict first, or it sank before the claim
+        // an order of an old save ends; one whose mission is over ends, the player told of a lost salvage ship unless the roll succeeded, as the ship still comes, but one whose ship was lost before its platform's work was over starts again, unless on automatic where the planner would stay out; one that no longer stands ends, the player told when a rival claimed its derelict first, or it sank before the claim
         protected override GoalStep? PreEvaluate()
         {
             if (!Pooled)
@@ -281,7 +282,10 @@ namespace Ship_Game.Commands.Goals
             {
                 if (mission.ShipLost && !RecoverySucceeded)
                     PlayerNotifications?.AddSalvageShipLostNotification(this, mission.ShipIcon);
-                return GoalStep.GoalFailed;
+                if (!mission.ShipLost || Finished || RecoverySucceeded || Owner.IsDefeated
+                    || SalvageMission.OnAutomatic(Owner) && !SalvageOpsPlanner.WouldWork(Owner, TargetSystem))
+                    return GoalStep.GoalFailed;
+                StartOver();
             }
             if (Stands)
                 return null;
@@ -297,8 +301,24 @@ namespace Ship_Game.Commands.Goals
 
         NotificationManager PlayerNotifications => Owner.isPlayer ? UState.Notifications : null;
 
-        // an order that ends calls its constructor home, or scuttles it with its ship lost or its empire gone, takes its platform away unless it is in other hands, where it stops coming apart, and gives up its claim unless another order of its empire's works the derelict
-        public override void OnRemoved()
+        public override void OnRemoved() => LetGoOfWork();
+
+        // its constructor and platform gone with what the platform holds, its claim given up and its recovery's work lost, it joins a salvage ship's mission as a new order would, or one built for it
+        void StartOver()
+        {
+            LetGoOfWork();
+            ChangeToStep(Dispatch); // first, so the UI never reads a platform being built
+            Mission = null;
+            Platform = null;
+            FinishedShip = null;
+            StaticBuildPos = Vector2.Zero;
+            RecoveryWork = 0f;
+            BreakInDone = 0;
+            LaunchCost = 0f;
+        }
+
+        // as the order ends or starts again: it calls its constructor home, or scuttles it with its ship lost or its empire gone, takes its platform away unless it is in other hands, where it stops coming apart, and gives up its claim unless another order of its empire's works the derelict
+        void LetGoOfWork()
         {
             if (Constructor() is { } constructor)
             {
