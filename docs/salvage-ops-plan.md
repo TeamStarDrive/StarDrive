@@ -243,10 +243,12 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
 - **Automation (211 A, 230 C, 231 A, 233 A, 235 A, 183 A):** Auto Salvage (`Empire.AutoSalvage`, saved as
   AutoBuildSalvageStations) runs the player's salvage on the AI's planner (`SalvageOpsPlanner`): every few turns, the
   closest systems first, derelicts with a fifth of their turns left or more, recovering ships stronger than any of
-  their role it can build; at most one ship built a run, up to ceil(planets / 5) clamped to 1-5 built or queued; no
-  call-off while it is on. Auto Pick Salvage Ships takes the most units up to the derelicts to work there, then the
-  fewest beyond them, then cargo, then strength per slot; off, the Automation list's design, else the race default,
-  else the one auto pick takes.
+  their role it can build; at most one ship built a run, up to ceil(planets / 5) clamped to 1-10 built or queued
+  (Gilad, 2026-10-31; 413 A; 1-5 until then); no call-off while it is on. A queued ship whose orders all end stays
+  queued for the next order, and leaves the queue at a run only while the empire's other salvage ships fill the cap,
+  the player's as the AI's (Gilad, 2026-10-31; 412 A). Auto Pick Salvage Ships takes the most units up to the
+  derelicts to work there, then the fewest beyond them, then cargo, then strength per slot; off, the Automation list's
+  design, else the race default, else the one auto pick takes.
 - **AI (232 B, 234 C, 240 A, 247 A, 248 A, 249 A, 399 A):** no worth rule for a build, only the cap; idle ships beyond
   the cap are scrapped, once orderless queued missions have left the queue, but none while an order whose ship was
   lost has yet to take another; a fleet is asked for only where a ship could go; builds are OrbitalUrgent without

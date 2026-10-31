@@ -23,13 +23,14 @@ namespace UnitTests.Ships;
 /// fifth of its turns left is not ordered; the rest go the fewest turns left first and the closest system first, the
 /// ships the empire would recover recovered and the rest salvaged. A run orders as many as its salvage ships take, idle
 /// ones whatever their number, and builds one at most, a system with no free site spending none of it, none while the
-/// empire has as many salvage ships, built or queued, as one for every five planets, at least one and at most five;
+/// empire has as many salvage ships, built or queued, as one for every five planets, at least one and at most ten;
 /// the AI then scraps its idle salvage ships beyond that, the player's never. On automatic, the salvage ship is queued
 /// at the shipyard that would finish it soonest, though another is nearer, and a mission whose orders all end while
-/// its ship is queued stays in the queue, queued again at the next shipyard when its own is lost, the next order
-/// anywhere that finds no idle ship taking it before a new build, and built with no order its ship waits idle at the
-/// nearest colony. The AI scraps no idle salvage ship while an order whose ship was lost has yet to take another, and
-/// on automatic such an order ends where the planner would stay out, while the player's own starts again.
+/// its ship is queued stays in the queue unless the empire's other salvage ships fill the cap, the player's as the
+/// AI's, queued again at the next shipyard when its own is lost, the next order anywhere that finds no idle ship
+/// taking it before a new build, and built with no order its ship waits idle at the nearest colony. The AI scraps no
+/// idle salvage ship while an order whose ship was lost has yet to take another, and on automatic such an order ends
+/// where the planner would stay out, while the player's own starts again.
 /// With Auto Salvage on, a standing order's lit button calls nothing off, while
 /// ordering and switching still click. The switch and the planner's timer survive a save. The Automation window's Auto
 /// Salvage list resets a choice that can no longer be built to the race's, as it does one short of a load a unit. The
@@ -73,11 +74,15 @@ public class SalvagePlannerTests : SalvageOrderTest
         return d;
     }
 
-    // the AI's colonies, its homeworld among them, in rows across the north of the galaxy
+    // the AI's colonies, its homeworld among them, in rows of eleven across the north of the galaxy, then the south
     void ColoniesOfTheAI(int count)
     {
         for (int i = Enemy.NumPlanets - 1; i < count - 1; ++i)
-            AddDummyPlanetToEmpire(new Vector2(-1_750_000f + 350_000f * (i % 11), 1_050_000f + 350_000f * (i / 11)), Enemy);
+        {
+            int row = i / 11;
+            float y = row < 3 ? 1_050_000f + 350_000f * row : -1_050_000f - 350_000f * (row - 3);
+            AddDummyPlanetToEmpire(new Vector2(-1_750_000f + 350_000f * (i % 11), y), Enemy);
+        }
         AssertEqual(count, Enemy.NumPlanets, $"setup: {count} colonies");
     }
 
@@ -177,7 +182,7 @@ public class SalvagePlannerTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void AnEmpireKeepsOneSalvageShipForEveryFivePlanetsAtLeastOneAndAtMostFive()
+    public void AnEmpireKeepsOneSalvageShipForEveryFivePlanetsAtLeastOneAndAtMostTen()
     {
         CreateThirdMajorEmpire();
         AssertEqual(0, ThirdMajor.NumPlanets, "setup: an empire with no planet");
@@ -186,8 +191,8 @@ public class SalvagePlannerTests : SalvageOrderTest
         AssertEqual(1, SalvageOpsPlanner.Cap(Enemy), "as does one with five");
         ColoniesOfTheAI(6);
         AssertEqual(2, SalvageOpsPlanner.Cap(Enemy), "one with six keeps two");
-        ColoniesOfTheAI(26);
-        AssertEqual(5, SalvageOpsPlanner.Cap(Enemy), "and none keeps more than five");
+        ColoniesOfTheAI(51);
+        AssertEqual(10, SalvageOpsPlanner.Cap(Enemy), "and none keeps more than ten");
     }
 
     [TestMethod]
@@ -504,16 +509,24 @@ public class SalvagePlannerTests : SalvageOrderTest
     }
 
     [TestMethod]
-    public void WithAutoSalvageOnThePlayersQueuedShipWhoseOrdersEndStaysQueued()
+    public void WithAutoSalvageOnThePlayersQueuedShipWhoseOrdersEndStaysQueuedUnlessItsOtherShipsFillTheCap()
     {
         Player.AutoSalvage = true;
+        AssertEqual(1, SalvageOpsPlanner.Cap(Player), "setup: room for one salvage ship");
         Derelict taken = Forms(Wreck);
         SalvageDerelict order = Ordered(taken);
         SalvageMission mission = Queued(order);
         Assert.IsTrue(taken.TryClaim(Enemy), "setup: a rival claims the derelict first");
         order.Evaluate();
         mission.Evaluate();
-        Assert.IsTrue(Player.AI.HasGoal(mission) && QueuedFor(Homeworld, mission) != null, "the mission stays, its ship queued");
+        Plans(Player);
+        Assert.IsTrue(Player.AI.HasGoal(mission) && QueuedFor(Homeworld, mission) != null, "the mission stays, its ship queued, as it fills the cap");
+
+        Ship[] idle = { IdleShip(Homeworld.Position + new Vector2(5_000f, 0)), IdleShip(Homeworld.Position + new Vector2(8_000f, 0)) };
+        Plans(Player);
+        Assert.IsFalse(Player.AI.HasGoal(mission), "with idle ships filling the cap the planner's run ends it");
+        Assert.IsNull(QueuedFor(Homeworld, mission), "its ship out of the queue");
+        Assert.IsFalse(idle.Any(s => s.DoingScrap), "and scraps neither of the player's idle ships, though one is beyond the cap");
     }
 
     [TestMethod]

@@ -8,7 +8,7 @@ using Ship_Game.Universe;
 
 namespace Ship_Game.AI.ExpansionAI
 {
-    // every few turns, as the mining planner, for an AI empire or the player with Auto Salvage on: salvage orders on the derelicts in the systems worth working, the closest to the empire first, for as many as its salvage ships take, with at most one salvage ship built a run and none beyond its cap; an AI empire then scraps its idle salvage ships beyond the cap
+    // every few turns, as the mining planner, for an AI empire or the player with Auto Salvage on: salvage orders on the derelicts in the systems worth working, the closest to the empire first, for as many as its salvage ships take, with at most one salvage ship built a run and none beyond its cap; then beyond the cap its queued salvage ships with no order leave the queue, and an AI empire scraps its idle ones
     [StarDataType]
     public class SalvageOpsPlanner
     {
@@ -16,7 +16,7 @@ namespace Ship_Game.AI.ExpansionAI
         public const int MinTurnsLeftPercent = 20;
         // an empire's salvage ships, built or queued, number no more than one for every this many planets, at least one and at most MaxShips
         public const int PlanetsPerShip = 5;
-        public const int MaxShips = 5;
+        public const int MaxShips = 10;
 
         [StarData] readonly Empire Owner;
         [StarData] internal int TurnTimer;
@@ -66,8 +66,7 @@ namespace Ship_Game.AI.ExpansionAI
                 }
             }
 
-            if (!Owner.isPlayer)
-                ScrapIdleShipsBeyondCap();
+            DropShipsBeyondCap();
         }
 
         bool ShouldRun()
@@ -148,14 +147,16 @@ namespace Ship_Game.AI.ExpansionAI
             return ships + empire.AI.CountGoals(g => g is SalvageMission { Over: false, Building: true });
         }
 
-        // those left idle once the run has sent what it could, as after it took over another empire's, a queued one with no order leaving the queue first; none while an order whose ship was lost has yet to take another, as one starting again without a ship to take
-        void ScrapIdleShipsBeyondCap()
+        // those beyond the cap once the run has sent what it could, as after the player's own orders or a ship taken over from another empire: queued ones with no order leave the queue, then an AI empire scraps those left idle, the player's being its own to scrap; none while an order whose ship was lost has yet to take another, as one starting again without a ship to take
+        void DropShipsBeyondCap()
         {
             if (Owner.AI.HasGoal(g => g is SalvageDerelict { Mission: null or { Over: true, ShipLost: true } }))
                 return;
             int beyond = Ships(Owner) - Cap(Owner);
             for (; beyond > 0 && SalvageMission.Unordered(Owner) is { } queued; --beyond)
                 Owner.AI.RemoveGoal(queued);
+            if (Owner.isPlayer)
+                return;
             var owned = Owner.OwnedShips;
             for (int i = 0; i < owned.Count && beyond > 0; ++i)
             {

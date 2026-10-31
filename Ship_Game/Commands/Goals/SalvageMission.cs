@@ -119,7 +119,7 @@ namespace Ship_Game.Commands.Goals
         bool ShipCanTakeOrders => (SalvageShip ?? FinishedShip) is { Active: true, Dying: false, IsSalvageShip: true, TroopsAreBoardingShip: false } ship
                                   && ship.Loyalty == Owner && !ship.LoyaltyTracker.ChangesFrom(Owner);
 
-        // from the sim thread: one on automatic stays queued with its orders gone, for the next order
+        // from the sim thread: one on automatic stays queued with its orders gone, for the next order, unless its empire's planner finds it beyond the cap
         public static SalvageMission Unordered(Empire empire)
         {
             var goals = empire.AI.Goals;
