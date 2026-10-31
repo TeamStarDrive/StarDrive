@@ -15,6 +15,7 @@ sim, save and UI threads, a ship leaves at most one derelict, and a failure to m
 Status (2026-10-30): salvage ops shipped with salvage stations in release 00074 and were then turned off in vanilla to
 rework them. On `jupiter-1.60/fixes_54` salvage ships replace the stations, in steps 1-6 (2026-10-28 to 10-30), with
 decisions numbered anew from 133; those numbers are not the older decisions of the same value. See Salvage ships.
+On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship designs for every race.
 
 ## The rules (Gilad, 2026-10-15)
 
@@ -148,11 +149,11 @@ decisions numbered anew from 133; those numbers are not the older decisions of t
 ### Salvage ships (Gilad, 2026-10-28 to 10-30; replaces the salvage station, its hauls and its picker)
 
 - **The ship (151, 177, 191, 195, 210 C):** any design that is not a platform or station and carries a salvage unit
-  (`ShipDesign.IsSalvageShip`). The unit (`SalvageUnit.xml`) is 4x4 IO with 50 cargo, 60 ordnance and a salvage bay,
+  (`ShipDesign.IsSalvageShip`). The unit (`SalvageUnit.xml`) is 4x4 IO with 65 cargo, 60 ordnance and a salvage bay,
   and goes on no drone, fighter, corvette, platform or station hull. A design with a salvage bay takes the support
-  role. Each race names a `DefaultSalvageShip` (placeholders on its first frigate hull, weapons dropped and cargo
-  holds in their slots, until Gilad's hulls), and a mod with salvage ops on that leaves a race without one loads with
-  a warning (152). Salvage ships are ordinary buildable designs.
+  role. Each race names a `DefaultSalvageShip`, its base design on its first frigate hull, and has Mk1 to Mk3
+  designs on larger hulls with more units (Gilad, 2026-10-31); a mod with salvage ops on that leaves a race without
+  one loads with a warning (152). Salvage ships are ordinary buildable designs.
 - **The unlock (190 B):** the Salvage Ships tech (`SalvageShips`, 400, `RequiresSalvageOps`) after Frigate
   Construction unlocks the unit, and Salvage Speed follows it. `Empire.CanBuildSalvageShips` comes from the ships it
   can build. A race with no salvage ship design, none built and none to build cannot salvage: the buttons are hidden

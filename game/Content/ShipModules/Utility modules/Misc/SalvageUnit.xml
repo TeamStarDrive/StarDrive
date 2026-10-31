@@ -22,13 +22,13 @@
   <HealthMax>1500</HealthMax>
   <RepairDifficulty>5</RepairDifficulty>
   
-  <PowerDraw>150</PowerDraw>
+  <PowerDraw>50</PowerDraw>
   <Salvage>true</Salvage>
   <!-- for Hangar items -->
   <hangarShipUID>Doesnt Matter</hangarShipUID>
   <hangerTimerConstant>30</hangerTimerConstant>
   <OrdinanceCapacity>60</OrdinanceCapacity>
-  <CargoCapacity>50</CargoCapacity>
+  <CargoCapacity>65</CargoCapacity>
 
   <NameIndex>7142</NameIndex>
   <DescriptionIndex>7143</DescriptionIndex>

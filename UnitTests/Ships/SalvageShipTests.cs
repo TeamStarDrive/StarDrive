@@ -61,11 +61,12 @@ public class SalvageShipTests : StarDriveTest
         return false;
     }
 
-    // a copy of the design under the freighter role, with or without its salvage unit
+    // a copy of the design under the freighter role and a freighter's civilian category, with or without its salvage unit
     static ShipDesign AsFreighter(IShipDesign from, string name, bool keepUnit)
     {
         ShipDesign design = ((ShipDesign)from).GetClone(name);
         typeof(ShipDesign).GetProperty(nameof(ShipDesign.Role)).SetValue(design, RoleName.freighter);
+        design.ShipCategory = ShipCategory.Civilian;
         design.SetDesignSlots(from.GetOrLoadDesignSlots().Filter(s => keepUnit || !ResourceManager.GetModuleTemplate(s.ModuleUID).Salvage),
                               updateRole: false);
         return design;

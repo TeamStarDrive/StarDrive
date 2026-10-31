@@ -58,7 +58,7 @@ Globals:
   UseCombatRepair: false
   DisableRemnantStory: false
   DisablePirates: false
-  EnableSalvageOps: false # salvageable derelicts and salvage ships; mods do not inherit it and set it themselves
+  EnableSalvageOps: true # salvageable derelicts and salvage ships; mods do not inherit it and set it themselves
   AIUsesPlayerDesigns: true
   EnableRandomizedAIFleetSizes: false # Allows Ai to slightly alter fleet sizes within range specified in FleetBuildRatios.yaml
 
