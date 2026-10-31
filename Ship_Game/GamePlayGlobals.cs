@@ -23,7 +23,7 @@ public class GamePlayGlobals
     // GamePlay modifiers
     // How easy ships are to destroy. Ships which have active internal slots below this ratio, will Die()
     [StarData] public float ShipDestroyThreshold = 0.5f;
-    // Percent of the deaths of military ships (frigate and above) and untethered stations that leave a derelict, with no death blast, before the caps below lower it; with salvage ops on a roll by its hull decides whether it drifts, and with them off every one drifts
+    // Percent of the deaths of military ships (corvette and above) and untethered stations that leave a derelict, with no death blast, before the caps below lower it; with salvage ops on a roll by its hull decides whether it drifts (a corvette's always does), and with them off every one drifts
     [StarData] public float DerelictChance = 20;
     // Most drifting derelicts at once, seen or not, as a multiple of the galaxy's star systems from 0.1 to 10, a value outside it used as the nearer end with a warning in the log; the cap is rounded up, at least 1. Past it a seen derelict death takes the place of the oldest drifting one not seen, or shows the normal explosion, still with no death blast. With salvage ops off the derelict chance falls with their share of it, to none at the limit
     [StarData] public float DriftingDerelictCapMultiplier = 1f;
@@ -104,7 +104,7 @@ public class GamePlayGlobals
     [StarData] public bool DisableRemnantStory;
     // for mods that don't require pirates
     [StarData] public bool DisablePirates;
-    // salvageable derelicts and salvage stations; off, the Disable Salvage Ops rule option is locked on
+    // salvageable derelicts and salvage ships; off, the Disable Salvage Ops rule option is locked on
     [StarData] public bool EnableSalvageOps;
     [StarData] public bool AIUsesPlayerDesigns = true; // Can AI use player designs? This will make the AI stronger.
     // changes how upkeep is calculated, default:false means upkeep depends on ship cost

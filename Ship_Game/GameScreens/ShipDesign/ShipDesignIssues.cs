@@ -9,6 +9,7 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -573,24 +574,39 @@ namespace Ship_Game.GameScreens.ShipDesign
                 severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowRefiningTimeNotGood)}" : "");
         }
 
-        // red under a load for each salvage unit, which auto pick and the Automation window's list pass over, yellow under one and a half, green under two
+        // a salvage ship: red under a load for each salvage unit, which auto pick and the Automation window's list pass over, orange under 1.1 loads, yellow under four thirds, green under five thirds
         public void CheckLowSalvageCargo()
         {
-            if (!Hull.IsSalvageStation)
+            if (!Hull.IsSalvageShip)
                 return;
 
             float oneLoadEach = ShipResupply.SalvageCargoNeeded(Hull);
             float cargo = Hull.BaseCargoSpace;
             WarningLevel severity = WarningLevel.Informative;
 
-            if      (cargo >= oneLoadEach * 2f)   return;
-            else if (cargo < oneLoadEach)         severity = WarningLevel.Critical;
-            else if (cargo < oneLoadEach * 1.5f)  severity = WarningLevel.Minor;
+            if      (cargo >= oneLoadEach * 5f / 3f)  return;
+            else if (cargo < oneLoadEach)             severity = WarningLevel.Critical;
+            else if (cargo < oneLoadEach * 11f / 10f) severity = WarningLevel.Major;
+            else if (cargo < oneLoadEach * 4f / 3f)   severity = WarningLevel.Minor;
 
             string needed = severity == WarningLevel.Critical
-                ? $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoNeeded)} {oneLoadEach.GetNumberString()}. {Localizer.Token(GameText.DesignIssueLowSalvageCargoSkipped)}"
-                : $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoTwoLoads)} {(oneLoadEach * 2f).GetNumberString()}.";
-            AddDesignIssue(DesignIssueType.LowSalvageCargo, severity, needed);
+                ? $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoNeeded)} {oneLoadEach.GetNumberString()}. {Localizer.Token(GameText.DesignIssueLowSalvageShipCargoSkipped)}"
+                : $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoClears)} {(oneLoadEach * 5f / 3f).GetNumberString()}.";
+            AddDesignIssue(DesignIssueType.LowSalvageShipCargo, severity, needed);
+        }
+
+        // a salvage ship holding less ordnance than a launch of its empire's constructor takes, whose units never launch one, which auto pick and the Automation window's list pass over
+        public void CheckSalvageLaunchOrdnance()
+        {
+            if (!Hull.IsSalvageShip)
+                return;
+
+            float launchCost = SalvageDerelict.ConstructorLaunchCost(Player);
+            if (Hull.BaseOrdnanceMax >= launchCost)
+                return;
+
+            AddDesignIssue(DesignIssueType.SalvageLaunchOrdnance, WarningLevel.Critical,
+                $" {Localizer.Token(GameText.DesignIssueSalvageLaunchOrdnanceNeeded)} {launchCost.GetNumberString()}. {Localizer.Token(GameText.DesignIssueSalvageLaunchOrdnanceSkipped)}");
         }
 
         string GetRangeLaunchText(int maxWeaponRange, out int minLaunchRangeWeapons, out bool usingMinimumCarrierRange)
@@ -738,7 +754,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         LowResearchTime,
         ConstructorCost,
         LowRefiningTime,
-        LowSalvageCargo
+        LowSalvageShipCargo,
+        SalvageLaunchOrdnance
     }
 
     public enum WarningLevel
@@ -974,11 +991,17 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Remediation = GameText.DesignIssueLowRefiningTimeRemidiation;
                     Texture = ResourceManager.Texture("NewUI/IssueLowRefiingTime");
                     break;
-                case DesignIssueType.LowSalvageCargo:
+                case DesignIssueType.LowSalvageShipCargo:
                     Title       = GameText.DesignIssueLowSalvageCargoTitle;
-                    Problem     = GameText.DesignIssueLowSalvageCargoProblem;
+                    Problem     = GameText.DesignIssueLowSalvageShipCargoProblem;
                     Remediation = GameText.DesignIssueLowSalvageCargoRemidiation;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowSalvageCargo");
+                    break;
+                case DesignIssueType.SalvageLaunchOrdnance:
+                    Title       = GameText.DesignIssueSalvageLaunchOrdnanceTitle;
+                    Problem     = GameText.DesignIssueSalvageLaunchOrdnanceProblem;
+                    Remediation = GameText.DesignIssueSalvageLaunchOrdnanceRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoOrdnance");
                     break;
             }
         }

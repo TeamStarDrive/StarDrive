@@ -143,11 +143,11 @@
       UID: warfare_derelicts
       Children:
         -
+          UID: derelicts_salvage_ships
+        -
           UID: derelicts_salvaging
         -
           UID: derelicts_recovering
-        -
-          UID: derelicts_hauling
     -
       UID: warfare_ground_combat
       Children:

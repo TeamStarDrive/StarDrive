@@ -141,7 +141,7 @@ namespace Ship_Game.AI
             Planet importPlanet = g.Trade.ImportTo;
             if (!CanDeliver(importPlanet))
             {
-                AI.CallOffTrade(g.Trade);
+                AI.CancelTradePlan(g.Trade.ExportFrom);
                 return;
             }
 
@@ -164,7 +164,7 @@ namespace Ship_Game.AI
             Planet exportPlanet = g.Trade.ExportFrom;
             if (!CanDeliver(importPlanet))
             {
-                AI.CallOffTrade(g.Trade);
+                AI.CancelTradePlan(exportPlanet);
                 return 0f;
             }
 
@@ -207,7 +207,7 @@ namespace Ship_Game.AI
 
         public void CancelPickup(AIState newState)
         {
-            if (OrderQueue.TryPeekFirst(out ShipGoal g) && g.Plan is Plan.PickupGoods or Plan.PickupGoodsForStation or Plan.PickupGoodsFromStation)
+            if (OrderQueue.TryPeekFirst(out ShipGoal g) && g.Plan is Plan.PickupGoods or Plan.PickupGoodsForStation)
                 ClearOrders(newState);
         }
 
@@ -220,8 +220,6 @@ namespace Ship_Game.AI
             {
                 if (g.Plan == Plan.DropOffGoodsForStation && station == g.Trade.TargetStation)
                     UnloadGoodsForStation(g);
-                else if (g.Plan == Plan.PickupGoodsFromStation && station == g.Trade.FromStation)
-                    LoadGoodsFromStation(g);
                 return 0f;
             }
 
@@ -263,16 +261,6 @@ namespace Ship_Game.AI
             }
             Plan plan = Plan.PickupGoodsForStation;
             SetTradePlan(plan, exportPlanet, targetStation, goods);
-        }
-
-        public void SetupFreighterPlan(Ship fromStation, Planet importPlanet, Goods goods)
-        {
-            if (fromStation.System != null && (Owner.Loyalty == importPlanet.Owner || Owner.Loyalty.IsAlliedWith(importPlanet.Owner)))
-            {
-                Owner.Loyalty.AI.SpaceRoadsManager.AddSpaceRoadHeat(fromStation.System,
-                    importPlanet.System, Owner.CargoSpaceMax * 0.02f);
-            }
-            SetTradePlan(Plan.PickupGoodsFromStation, fromStation, importPlanet, goods);
         }
     }
 

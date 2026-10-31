@@ -9,7 +9,7 @@ using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Commands.Goals
 {
-    // an empire's order to salvage one derelict: a salvage unit of its station in the derelict's system launches a constructor, which builds a salvage platform beside it; the platform strips it for the station, then takes itself apart
+    // an empire's order to salvage one derelict: it joins a salvage ship's mission in the derelict's system, whose ship, once at its site, launches a constructor from a free salvage unit; the constructor builds a salvage platform beside the derelict, which strips it for the ship or recovers it, then takes itself apart; pirates who board a platform recover its derelict with an order of their own, which joins no mission
     [StarDataType]
     public class SalvageDerelict : DeepSpaceBuildGoal
     {
@@ -23,42 +23,52 @@ namespace Ship_Game.Commands.Goals
 
         [StarData] public int DerelictId;
         [StarData] public Ship Platform;
+        // the salvage ship's mission it joined, which holds one of the ship's units for it; none for the pirates' order of a platform they boarded
+        [StarData] public SalvageMission Mission { get; private set; }
+        // placed for a salvage ship's mission, or for a platform pirates boarded; an order saved with a salvage station's work, or a salvage ship of its own, ends on load
+        [StarData] bool Pooled;
         // its platform stripped the derelict empty
         [StarData] public bool Emptied { get; private set; }
         // the Salvage button's second click called the order off while its platform stood
         [StarData] public bool CalledOff { get; private set; }
         // the Recover button's order: its platform works to bring the derelict's ship back instead of stripping it
         [StarData] public bool Recovering { get; private set; }
-        // the work its platform has done on the recovery, kept while it strips and passed on with it
+        // the work its platform has done on the recovery, kept while it strips
         [StarData] public float RecoveryWork { get; private set; }
-        // the turns its platform has broken into the derelict since the order last turned to the recovery, passed on with it
+        // the turns its platform has broken into the derelict since the order last turned to the recovery
         [StarData] public int BreakInDone { get; private set; }
         // its roll broke the derelict apart, so its platform's work is over
         [StarData] public bool RecoveryFailed { get; private set; }
         // its roll succeeded: the derelict rises for its ship, which takes its place
         [StarData] public bool RecoverySucceeded { get; private set; }
         [StarData] int DismantleTurnsLeft;
+        // the ordnance its unit spent to launch its constructor, which the unit gets back once its platform has taken itself apart
+        [StarData] float LaunchCost;
         // its derelict's techs and whole production, kept for the loads sent once the derelict has sunk away
         [StarData] public string[] Techs { get; private set; } = Empty<string>.Array;
         [StarData] public float DerelictProduction { get; private set; }
-        // the research its loads have given each of those techs, by the techs' order; a passed order starts again from none
+        // the research its loads have given each of those techs, by the techs' order
         [StarData] public float[] Gained { get; private set; } = Empty<float>.Array;
-        // the production its loads have brought its station; a passed order starts again from none
+        // the production its loads have brought the salvage ship
         [StarData] public float Delivered { get; private set; }
         // its derelict's design name and hull icon, kept for the notifications once the derelict has sunk away
         [StarData] public string DerelictName { get; private set; }
         [StarData] public string DerelictIcon { get; private set; }
         Derelict Found;
-        // its station as last found, for the notification of its loss
-        Ship LastStation;
 
-        // its platform's work is over: it sends its station all it holds, then takes itself apart
+        // its platform's work is over: it sends the salvage ship all it holds, then takes itself apart
         public bool Finished => Emptied || CalledOff || RecoveryFailed || Recovered;
 
         // from any thread: the recovered ship has taken the derelict's place, which has left the list
         public bool Recovered => RecoverySucceeded && UState.Derelicts.Find(DerelictId) == null;
 
         public bool Dismantling => DismantleTurnsLeft > 0;
+
+        // from any thread: its mission's ship is to launch its constructor
+        public bool Launching => StepName == nameof(LaunchConstructor);
+
+        // its constructor is out, or its platform stands
+        bool Launched => Step > 1;
 
         public Derelict Derelict => Found ??= UState.Derelicts.Find(DerelictId);
 
@@ -70,6 +80,7 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
+                Dispatch,
                 LaunchConstructor,
                 BuildPlatform,
                 Salvage,
@@ -79,6 +90,7 @@ namespace Ship_Game.Commands.Goals
 
         public SalvageDerelict(Empire owner, Derelict derelict, bool recover = false) : this(owner)
         {
+            Pooled = true;
             DerelictId = derelict.Id;
             Recovering = recover;
             Techs = derelict.Techs;
@@ -90,53 +102,25 @@ namespace Ship_Game.Commands.Goals
             Found = derelict;
         }
 
-        // an order passed on with its platform, at work or coming apart
-        SalvageDerelict(Empire owner, SalvageDerelict passed) : this(owner)
+        // the pirates' order for a salvage platform they boarded: a recovery of the derelict its owner's order worked, from its start
+        SalvageDerelict(Empire pirates, SalvageDerelict held, Ship platform) : this(pirates)
         {
-            StarDateAdded = passed.StarDateAdded;
-            DerelictId = passed.DerelictId;
-            Techs = passed.Techs;
+            Pooled = true;
+            DerelictId = held.DerelictId;
+            Recovering = true;
+            Techs = held.Techs;
             Gained = new float[Techs.Length];
-            DerelictProduction = passed.DerelictProduction;
-            DerelictName = passed.DerelictName;
-            DerelictIcon = passed.DerelictIcon;
-            Initialize(ShipDesign.SalvagePlatformName, passed.StaticBuildPos, passed.TargetSystem);
-            Platform = passed.Platform;
-            Emptied = passed.Emptied;
-            CalledOff = passed.CalledOff;
-            Recovering = passed.Recovering;
-            RecoveryWork = passed.RecoveryWork;
-            BreakInDone = passed.BreakInDone;
-            RecoveryFailed = passed.RecoveryFailed;
-            RecoverySucceeded = passed.RecoverySucceeded;
-            DismantleTurnsLeft = passed.DismantleTurnsLeft;
-            ChangeToStep(passed.Dismantling ? Dismantle : Salvage);
+            DerelictProduction = held.DerelictProduction;
+            DerelictName = held.DerelictName;
+            DerelictIcon = held.DerelictIcon;
+            Initialize(ShipDesign.SalvagePlatformName, Vector2.Zero, held.TargetSystem);
+            Platform = platform;
+            ChangeToStep(Salvage);
         }
 
-        // on the sim thread, before the goals of an empire that leaves are cleared: its built platforms' orders pass to the empire absorbing it or to its rebels, with the claims of those still at work, the platforms changing hands a step later
-        public static void PassOn(Empire from, Empire to)
-        {
-            var goals = from.AI.Goals;
-            for (int i = goals.Count - 1; i >= 0; --i)
-            {
-                if (goals[i] is not SalvageDerelict { Platform: { Active: true } platform } order || platform.Loyalty != from)
-                    continue;
+        public enum Block { None, Ordered, ClaimedByOther, Gone, NotAShip, NoSalvageShip, NoTech, NoUsableShip }
 
-                to.AI.AddGoal(new SalvageDerelict(to, order));
-                if (!order.Finished && order.Derelict is { } d && d.Claimant == from) // a finished order's derelict can be claimed by an order not yet built, which ends
-                {
-                    d.ReleaseClaim();
-                    d.TryClaim(to);
-                    d.PassRecovery(from, to);
-                }
-                order.Platform = null; // its end no longer takes the platform away
-                from.AI.RemoveGoal(order);
-            }
-        }
-
-        public enum Block { None, Ordered, ClaimedByOther, NoStation, NoFreeUnit, Gone, NotAShip }
-
-        // from any thread: why the empire cannot order the derelict salvaged, Ordered while its order stands, or None when it can
+        // from any thread: why the empire cannot order the derelict salvaged, Ordered while its order stands, or None when it can; an empire that can build no salvage ship it could send and has none cannot, NoSalvageShip while its race names none, NoUsableShip while it builds salvage ships that all fall short, else NoTech
         public static Block WhyNoOrder(Empire empire, Derelict d)
         {
             if (!empire.Universe.P.SalvageOps || !d.CanBeSalvaged || !d.IsKnownBy(empire))
@@ -145,64 +129,82 @@ namespace Ship_Game.Commands.Goals
                 return Block.ClaimedByOther;
             if (d.Claimant == empire || OrderOf(empire, d) != null)
                 return Block.Ordered;
+            if (empire.CanBuildSalvageShips || HasSalvageShip(empire))
+                return Block.None;
+            if (empire.SalvageShipDesign == null)
+                return Block.NoSalvageShip;
+            return CanBuildAnySalvageShip(empire) ? Block.NoUsableShip : Block.NoTech;
+        }
 
-            Ship station = SalvageOps.StationIn(empire, d.System);
-            if (station == null)
-                return Block.NoStation;
-            return LiveUnits(station) > NumOrdersIn(empire, d.System) ? Block.None : Block.NoFreeUnit;
+        // from any thread: a salvage ship of the empire's with a live salvage unit, at work or idle
+        public static bool HasSalvageShip(Empire empire)
+        {
+            var ships = empire.OwnedShips;
+            for (int i = 0; i < ships.Count; ++i)
+                if (ships[i] is { IsSalvageShip: true, Active: true } ship && SalvageMission.LiveUnits(ship) > 0)
+                    return true;
+            return false;
+        }
+
+        // from any thread: a salvage ship design the empire can build, whether or not a pick could take it
+        static bool CanBuildAnySalvageShip(Empire empire)
+        {
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+                if (design.IsSalvageShip)
+                    return true;
+            return false;
         }
 
         // from any thread: as for salvage, but a station, which can only be salvaged, is NotAShip
         public static Block WhyNoRecovery(Empire empire, Derelict d) => RecoveryBlock(WhyNoOrder(empire, d), d);
 
         public static Block RecoveryBlock(Block salvageBlock, Derelict d)
-            => salvageBlock is Block.Gone or Block.NoStation || DerelictRecovery.CanRecover(d) ? salvageBlock : Block.NotAShip;
+            => salvageBlock is Block.Gone or Block.NoSalvageShip || DerelictRecovery.CanRecover(d) ? salvageBlock : Block.NotAShip;
 
         // an order whose platform's work is over is no longer the derelict's, though it holds its unit until its platform is gone
         public static SalvageDerelict OrderOf(Empire empire, Derelict d)
             => empire.AI.FindGoal(g => g is SalvageDerelict { Finished: false } s && s.DerelictId == d.Id) as SalvageDerelict;
 
-        // every order of the empire's in the system takes a unit of its one station there
-        static int NumOrdersIn(Empire empire, SolarSystem system)
-            => empire.AI.CountGoals(g => g is SalvageDerelict s && s.TargetSystem == system);
-
-        public static int LiveUnits(Ship station)
-        {
-            return station.Modules.Count(m => m.Salvage && m.Active);
-        }
-
         // the platform's cost to the empire, never below 100, both times the production pace
         public static float PlatformConstruction(Empire empire, IShipDesign platform)
             => Math.Max(platform.GetCost(empire), MinPlatformConstruction * empire.Universe.ProductionPace);
 
-        // the empire's constructor, or with auto pick the cheapest whatever the platform costs, a job of no cost being small for every constructor; pirates, who build none, launch the default constructor of the race whose station it is; empty without one
-        public static string ConstructorName(Empire empire, Ship station = null)
+        // the constructor the empire can build that takes the least ordnance to launch, whatever it costs or the player picked; empty without one
+        public static string ConstructorName(Empire empire)
         {
             if (!ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName, out IShipDesign _))
                 return "";
-            if (empire.WeArePirates)
-                return station != null ? RaceConstructorName(empire, station.ShipData.ShipStyle) : "";
-            return ShipBuilder.PickConstructor(empire, 0f, GetCheapest: true)?.Name ?? "";
-        }
-
-        static string RaceConstructorName(Empire empire, string shipStyle)
-        {
-            var empires = empire.Universe.Empires;
-            for (int i = 0; i < empires.Count; ++i)
+            Ship lightest = null;
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
             {
-                EmpireData data = empires[i].data;
-                if (data.Traits.ShipType == shipStyle)
-                    return ResourceManager.Ships.GetDesign(data.DefaultConstructor, out IShipDesign _) ? data.DefaultConstructor : "";
+                if (design.IsConstructor && ResourceManager.GetShipTemplate(design.Name, out Ship constructor)
+                    && (lightest == null || constructor.ShipOrdLaunchCost < lightest.ShipOrdLaunchCost))
+                    lightest = constructor;
             }
-            return "";
+            return lightest?.Name ?? "";
         }
 
-        // the Salvage and Recover buttons, and an AI empire's station; false when the empire cannot order it
-        public static bool Order(Empire empire, Derelict d, bool recover = false)
+        // the ordnance a salvage unit spends to launch the empire's constructor, none without one
+        public static float ConstructorLaunchCost(Empire empire)
+            => ResourceManager.GetShipTemplate(ConstructorName(empire), out Ship constructor) ? constructor.ShipOrdLaunchCost : 0f;
+
+        // the Salvage and Recover buttons, or a parked salvage ship's mission, which the order joins at once; false when the empire cannot order it
+        public static bool Order(Empire empire, Derelict d, bool recover = false, SalvageMission by = null)
         {
             if ((recover ? WhyNoRecovery(empire, d) : WhyNoOrder(empire, d)) != Block.None)
                 return false;
-            empire.AI.AddGoalAndEvaluate(new SalvageDerelict(empire, d, recover));
+            empire.AI.AddGoalAndEvaluate(new SalvageDerelict(empire, d, recover) { Mission = by });
+            return true;
+        }
+
+        // on the sim thread: a parked salvage ship's mission with a free unit takes the order while it still waits for one, and the order moves on to its launch at once
+        public bool JoinWaiting(SalvageMission mission)
+        {
+            if (!Pooled || Mission != null || StepName != nameof(Dispatch) || Derelict is not { CanBeSalvaged: true } d
+                || d.Claimant != null && d.Claimant != Owner || OrderOf(Owner, d) != this)
+                return false;
+            Mission = mission;
+            ChangeToStep(LaunchConstructor);
             return true;
         }
 
@@ -233,7 +235,7 @@ namespace Ship_Game.Commands.Goals
 
         public int BreakInTurnsLeft => (DerelictRecovery.BreakInTurns - BreakInDone).LowerBound(0);
 
-        // the button's second click calls the order off on the sim thread, where its claim is given up; a platform standing sends what it holds and takes itself apart; a successful roll is past calling off
+        // the button's second click calls the order off on the sim thread, where its claim is given up and its empire's salvage ships stop ordering the derelict themselves; a platform standing sends what it holds and takes itself apart; a successful roll is past calling off
         public static void Cancel(Empire empire, Derelict d)
         {
             if (empire.Universe.Screen is { IsOnSimThread: false } screen)
@@ -245,6 +247,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (order.RecoverySucceeded)
                     return;
+                d.SetCalledOffBy(empire);
                 if (order.Platform is { Active: true })
                     order.CallOff();
                 else
@@ -252,35 +255,37 @@ namespace Ship_Game.Commands.Goals
             }
             else if (d.Claimant == empire) // a claim kept without its order, as a save can catch it
             {
+                d.SetCalledOffBy(empire);
                 d.ReleaseClaim();
             }
         }
 
         // the derelict's turns run on, and any empire can salvage it
-        void CallOff()
+        public void CallOff()
         {
             CalledOff = true;
             if (Derelict is { } d && d.Claimant == Owner)
                 d.ReleaseClaim();
         }
 
-        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first or another order of its empire's has a platform at work on it, while the derelict rises after a successful roll, and once its platform's work is over
+        // an order stands while salvage ops are on and its derelict can be salvaged, unless another empire claimed it first, while the derelict rises after a successful roll, and once its platform's work is over
         bool Stands => Owner.Universe.P.SalvageOps
-                       && (Finished || RecoverySucceeded || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner) && !GivesWay);
+                       && (Finished || RecoverySucceeded || Derelict is { CanBeSalvaged: true } d && (d.Claimant == null || d.Claimant == Owner));
 
-        // an order not yet built gives way to one passed on to its empire with a platform at work on the derelict
-        bool GivesWay => Platform == null
-                         && Owner.AI.HasGoal(g => g != this && g is SalvageDerelict { Finished: false, Platform: { Active: true } } s
-                                                  && s.DerelictId == DerelictId);
-
-        bool Launched => Step > 0;
-
-        // an order that no longer stands ends; the player is told when a rival claimed its derelict first, or it sank before the claim
+        // an order of an old save ends; one whose mission is over ends, the player told of a lost salvage ship unless the roll succeeded, as the ship still comes; one that no longer stands ends, the player told when a rival claimed its derelict first, or it sank before the claim
         protected override GoalStep? PreEvaluate()
         {
+            if (!Pooled)
+                return GoalStep.GoalFailed;
+            if (Mission is { Over: true } mission)
+            {
+                if (mission.ShipLost && !RecoverySucceeded)
+                    PlayerNotifications?.AddSalvageShipLostNotification(this, mission.ShipIcon);
+                return GoalStep.GoalFailed;
+            }
             if (Stands)
                 return null;
-            if (Owner.Universe.P.SalvageOps && !GivesWay)
+            if (Owner.Universe.P.SalvageOps)
             {
                 if (Derelict is { CanBeSalvaged: true } d)
                     PlayerNotifications?.AddSalvageClaimedFirstNotification(this, d.Claimant);
@@ -292,12 +297,12 @@ namespace Ship_Game.Commands.Goals
 
         NotificationManager PlayerNotifications => Owner.isPlayer ? UState.Notifications : null;
 
-        // an order that ends calls its constructor home, or scuttles it with its station lost or its empire gone, takes its platform away unless it is in other hands, where it stops coming apart, and gives up its claim unless another order of its empire's works the derelict
+        // an order that ends calls its constructor home, or scuttles it with its ship lost or its empire gone, takes its platform away unless it is in other hands, where it stops coming apart, and gives up its claim unless another order of its empire's works the derelict
         public override void OnRemoved()
         {
             if (Constructor() is { } constructor)
             {
-                if (constructor.Mothership is { Active: true } station && station.Loyalty == Owner && !Owner.IsDefeated)
+                if (constructor.Mothership is { Active: true } ship && ship.Loyalty == Owner && !Owner.IsDefeated)
                 {
                     constructor.AI.OrderReturnToHangarDeferred();
                 }
@@ -320,6 +325,35 @@ namespace Ship_Game.Commands.Goals
                 d.ReleaseClaim();
         }
 
+        // as pirates board a salvage platform, its owner's order ends and what it holds is lost; their own order recovers the derelict's ship, or takes the platform apart at a derelict they cannot recover or already recover from another; one with no order, or boarded by pirates already defeated, is taken away; a save or the UI can apply the change of hands
+        public static void Captured(Ship platform, Empire from, Empire to)
+        {
+            if (platform.Universe.Screen is { IsOnSimThread: false } screen)
+            {
+                screen.RunOnSimThread(() => Captured(platform, from, to));
+                return;
+            }
+            // a queued call that the platform's fate, another change of hands or its owner's order has overtaken does nothing
+            if (!to.WeArePirates || !platform.Active || platform.Loyalty != to || OfPlatform(platform) != null)
+                return;
+
+            var held = from.AI.FindGoal(g => g is SalvageDerelict s && s.Platform == platform) as SalvageDerelict;
+            if (held != null)
+                from.AI.RemoveGoal(held);
+            if (held == null || to.IsDefeated) // defeated pirates run no orders
+            {
+                platform.QueueTotalRemoval();
+                return;
+            }
+            platform.UnloadProduction(platform.GetProduction());
+            Derelict d = held.Derelict;
+            bool recovers = d is { CanBeSalvaged: true } && DerelictRecovery.CanRecover(d) && OrderOf(to, d) == null && d.TryClaim(to);
+            var order = new SalvageDerelict(to, held, platform);
+            if (!recovers)
+                order.CalledOff = true; // it takes the platform apart, leaving any claim as it is
+            to.AI.AddGoal(order);
+        }
+
         // from the constructor's deploy: the platform takes over the derelict, and the ordnance its constructor took is spent
         public void OnPlatformBuilt(Ship platform, Ship constructor)
         {
@@ -327,21 +361,34 @@ namespace Ship_Game.Commands.Goals
             constructor.Mothership?.OnLaunchedShipDie(constructor);
         }
 
-        // a free salvage unit of the station launches the constructor when the station has the ordnance for it
+        // it joins a mission once; orders placed together from the UI reach the sim thread together, and the first one holds the derelict; with no salvage ship to take it, it waits for one
+        GoalStep Dispatch()
+        {
+            if (Mission != null)
+                return GoalStep.GoToNextStep;
+            if (OrderOf(Owner, Derelict) != this)
+                return GoalStep.GoalFailed;
+            Mission = SalvageMission.Join(Owner, TargetSystem);
+            return Mission != null ? GoalStep.GoToNextStep : GoalStep.TryAgain;
+        }
+
+        // a free salvage unit of the parked ship launches the constructor when the ship has the ordnance for it, and for a salvage only while the ship's hold has room
         GoalStep LaunchConstructor()
         {
-            Ship station = Station();
-            if (station == null)
-                return StationLost();
-            if (!HoldsAUnit(station))
+            if (!Mission.Parked(out Ship ship))
+                return GoalStep.TryAgain;
+            if (!HoldsAUnit(ship))
                 return GoalStep.GoalFailed;
+            if (!Recovering && HoldFull(ship))
+                return GoalStep.TryAgain;
 
-            ShipModule bay = FreeBay(station);
-            Ship constructor = bay != null ? Ship.CreateShipFromHangar(UState, bay, Owner, station.Position, station) : null;
+            ShipModule bay = FreeBay(ship);
+            Ship constructor = bay != null ? Ship.CreateShipFromHangar(UState, bay, Owner, ship.Position, ship) : null;
             if (constructor == null)
                 return GoalStep.TryAgain;
 
-            station.OnShipLaunched(constructor, bay);
+            ship.OnShipLaunched(constructor, bay);
+            LaunchCost = constructor.ShipOrdLaunchCost;
             FinishedShip = constructor;
             if (StaticBuildPos == Vector2.Zero)
                 StaticBuildPos = Derelict.RestPosition + MathExt.PointOnCircle(Owner.Random.Float(0f, 360f), Derelict.Radius + PlatformClearance);
@@ -349,19 +396,18 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
-        // the derelict becomes the empire's as its constructor starts to build; one lost on its way is launched again
+        // the derelict becomes the empire's as its constructor starts to build, with the trust cost of salvaging in a system where other empires have colonies; one lost on its way is launched again
         GoalStep BuildPlatform()
         {
             if (Platform != null)
                 return GoalStep.GoToNextStep;
             if (Constructor() is not { } constructor)
                 return GoalStep.RestartGoal;
-            if (Station() == null)
-                return StationLost();
 
             if (constructor.Position.InRadius(BuildPosition, ConstructionShip.ConstructingDistance))
             {
-                Derelict.TryClaim(Owner); // Stands holds off another empire's claim
+                if (Derelict.Claimant != Owner && Derelict.TryClaim(Owner)) // Stands holds off another empire's claim
+                    SalvageMission.CostTrustOfColonyOwners(Owner, TargetSystem);
                 constructor.Construction.TryConstruct(BuildPosition);
             }
             return GoalStep.TryAgain;
@@ -379,14 +425,14 @@ namespace Ship_Game.Commands.Goals
             return null;
         }
 
-        // a constructor in other hands is no longer its station's, and its unit is free, with the ordnance it took written off
-        static void LetGo(Ship station, Ship constructor)
+        // a constructor in other hands is no longer its ship's, and its unit is free, with the ordnance it took written off
+        static void LetGo(Ship mothership, Ship constructor)
         {
-            station?.OnLaunchedShipDie(constructor);
+            mothership?.OnLaunchedShipDie(constructor);
             constructor.Mothership = null;
         }
 
-        // each turn the platform strips what its hold has room for, or with its hold full sends it to the station, which takes what fits; a recovering one strips nothing, first sends all it holds, then works on the recovery; once its work is over it sends all it holds, then takes itself apart, the player told of a salvage's end but not a recovery's; one lost or in other hands ends the order, and a lost station takes its platform with it, the player told unless the roll succeeded, as the ship still comes
+        // each turn the platform strips what its hold has room for; with its hold full, its work over or a recovery begun it sends what it holds to the salvage ship while the ship is at its site, which takes what fits, and otherwise waits for it; a recovering one works on with a load it cannot send; once its work is over and its hold empty it takes itself apart, the player told of a salvage's end but not a recovery's; one lost or in other hands ends the order
         GoalStep Salvage()
         {
             if (Platform is not { Active: true } platform)
@@ -396,17 +442,15 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
             if (platform.Loyalty != Owner)
-                return PassingOn(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
-            if (Station() is not { } station)
-                return StationLost();
+                return HandedOver(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
 
             if (!Finished)
                 Derelict.TryClaim(Owner); // takes back a claim that a call-off caught halfway by a save dropped
-            if (Finished || HoldFull(platform) || Recovering && platform.GetProduction() > 0f)
-                SendLoad(platform, station);
-            else if (Recovering && Recover(platform, Derelict))
+            if (platform.GetProduction() > 0f && (Finished || Recovering || HoldFull(platform)) && Mission?.Parked(out Ship ship) == true && !HoldFull(ship))
+                SendLoad(platform, ship);
+            else if (Recovering && !Finished && Recover(platform, Derelict))
                 return Exploded(platform);
-            else if (!Recovering)
+            else if (!Recovering && !Finished && !HoldFull(platform))
                 Strip(platform, Derelict);
 
             if (!Finished || platform.GetProduction() > 0f)
@@ -426,48 +470,40 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoalFailed;
         }
 
-        // it is gone once its turns are over, freeing its unit
+        // it is gone once its turns are over, freeing its unit, which gets back the ordnance its launch took
         GoalStep Dismantle()
         {
             if (Platform is not { Active: true } platform)
                 return GoalStep.GoalFailed;
             if (platform.Loyalty != Owner)
-                return PassingOn(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
-            if (SalvageOps.StationIn(Owner, TargetSystem) == null)
-                return GoalStep.GoalFailed;
+                return HandedOver(platform) ? GoalStep.TryAgain : GoalStep.GoalFailed;
             if (--DismantleTurnsLeft > 0)
                 return GoalStep.TryAgain;
             platform.FinishDismantling();
+            Mission?.SalvageShip?.ChangeOrdnance(LaunchCost);
             return GoalStep.GoalComplete;
         }
 
-        // a platform passed on to the empire waits for its change of hands
-        bool PassingOn(Ship platform) => platform.LoyaltyTracker.ChangesTo(Owner);
-
-        Ship Station() => SalvageOps.StationIn(Owner, TargetSystem) is { } station ? LastStation = station : null;
-
-        // a station lost ends the order, and the player is told unless the station was scrapped or scuttled, coming apart or with its scuttle timer set, or the roll succeeded, as the ship still comes
-        GoalStep StationLost()
+        // a boarding this order missed, as one the UI or a save applied, hands the platform over to the pirates' order now, which ends this one
+        bool HandedOver(Ship platform)
         {
-            bool scrapped = LastStation != null && (LastStation.Dismantling || LastStation.ScuttleTimer != -1f);
-            if (!scrapped && !RecoverySucceeded)
-                PlayerNotifications?.AddSalvageStationLostNotification(this, LastStation);
-            return GoalStep.GoalFailed;
+            if (!platform.Loyalty.WeArePirates || OfPlatform(platform) != null)
+                return false;
+            Captured(platform, Owner, platform.Loyalty);
+            return true;
         }
 
-        // as much of its hold as the station has room for, its shuttles launching where the player sees either end
-        void SendLoad(Ship platform, Ship station)
+        // as much of its hold as the salvage ship has room for, its shuttles launching where the player sees either end
+        void SendLoad(Ship platform, Ship ship)
         {
-            float sent = station.LoadProduction(Math.Min(platform.GetProduction(), station.CargoRoom));
+            float sent = ship.LoadProduction(Math.Min(platform.GetProduction(), ship.CargoRoom));
             platform.UnloadProduction(sent);
-            if (SalvageOps.NowhereToSend(Owner))
-                platform.UnloadProduction(platform.GetProduction()); // what its station has no room for is lost, as it would wait for good
             if (sent <= 0f)
                 return;
             Delivered += sent;
             AdvanceTechs(sent);
-            if (UState.IsPlanetViewOrCloser && (SeenByPlayer(platform) || SeenByPlayer(station)))
-                UState.Screen.CargoShuttles.SendLoad(platform, station, Owner.EmpireColor, CargoShuttles.LoadShuttlesFor(sent));
+            if (UState.IsPlanetViewOrCloser && (SeenByPlayer(platform) || SeenByPlayer(ship)))
+                UState.Screen.CargoShuttles.SendLoad(platform, ship, Owner.EmpireColor, CargoShuttles.LoadShuttlesFor(sent));
         }
 
         // a load advances each of its derelict's techs the empire can learn by the salvage tech share of what the tech has left to research, times the load's share of the derelict's production, so salvage never completes one
@@ -490,16 +526,6 @@ namespace Ship_Game.Commands.Goals
         // a tech the empire has not researched and sees on its tree
         public static bool CanLearn(Empire empire, TechEntry tech) => tech.Locked && tech.Discovered && !tech.IsHidden(empire);
 
-        // a tech the derelict's design uses that the empire can still learn and its designs use, as anyone can tell from the ship whatever few of them it holds
-        public static bool DesignHasWantedTech(Empire empire, Derelict d)
-        {
-            Array<string> techs = Derelict.TechsOf(d.Design);
-            for (int i = 0; i < techs.Count; ++i)
-                if (empire.TryGetTechEntry(techs[i], out TechEntry tech) && CanLearn(empire, tech) && tech.shipDesignsCanuseThis)
-                    return true;
-            return false;
-        }
-
         // the AI's pick, from what the derelict is and never from its own draws: it recovers a ship stronger than the strongest design of that hull role it can build, or of a role it can build none of, and strips the rest
         public static bool WouldRecover(Empire empire, Derelict d)
         {
@@ -515,10 +541,7 @@ namespace Ship_Game.Commands.Goals
             return best < 0f || d.Design.GetStrength(empire) > best;
         }
 
-        // from any thread: an empire sees a derelict's techs while it has a salvage station built in the derelict's system, and from then on
-        public static bool SeesTechs(Empire empire, Derelict d) => d.ShowsTechsTo(empire) || SalvageOps.StationIn(empire, d.System) != null;
-
-        public enum Stage { None, PlatformOrdered, BuildingPlatform, Salvaging, BreakingIn, Recovering }
+        public enum Stage { None, WaitingForShip, ShipOrdered, ShipOnItsWay, PlatformOrdered, BuildingPlatform, Salvaging, BreakingIn, Recovering }
 
         // from any thread: how far the empire's salvage or recovery of the derelict has come, with its order, or Salvaging or Recovering while another empire holds it, with its claimant as read once
         public static Stage StageOf(Empire empire, Derelict d, out Empire claimant, out SalvageDerelict order)
@@ -528,10 +551,14 @@ namespace Ship_Game.Commands.Goals
             if (claimant != null && claimant != empire)
                 return OrderOf(claimant, d) is { Recovering: true } ? Stage.Recovering : Stage.Salvaging;
             if ((order = OrderOf(empire, d)) != null)
-                return !order.Launched ? Stage.PlatformOrdered : order.Platform == null ? Stage.BuildingPlatform
-                     : order.BreakingIn ? Stage.BreakingIn : order.Recovering ? Stage.Recovering : Stage.Salvaging;
+                return order.Platform != null ? (order.BreakingIn ? Stage.BreakingIn : order.Recovering ? Stage.Recovering : Stage.Salvaging)
+                     : order.Launched ? Stage.BuildingPlatform : order.ShipStage;
             return claimant == empire ? Stage.Salvaging : Stage.None;
         }
+
+        Stage ShipStage => Mission is not { } mission ? Stage.WaitingForShip
+                         : mission.Building ? Stage.ShipOrdered
+                         : mission.Parked(out _) ? Stage.PlatformOrdered : Stage.ShipOnItsWay;
 
         static bool SeenByPlayer(Ship ship) => ship.InFrustum && ship.InPlayerSensorRange;
 
@@ -609,39 +636,46 @@ namespace Ship_Game.Commands.Goals
                 UState.Screen.CargoShuttles.SendToHullAndBack(platform, new Vector3(d.Position, d.Z), d.Radius, Owner.EmpireColor, shuttles);
         }
 
-        // less room than this left in a platform's or a station's hold counts as full
+        // less room than this left in a platform's or a ship's hold counts as full
         const float FullHoldRoom = 0.01f;
 
         public static bool HoldFull(Ship ship) => ship.CargoRoom < FullHoldRoom;
 
-        // from any thread: with its hold full, its work over or a recovery begun, its load waits for room in its station
-        public bool LoadWaitsForStation(Ship platform)
-            => (Finished || Recovering || HoldFull(platform)) && platform.GetProduction() > 0f
-               && SalvageOps.StationIn(Owner, TargetSystem) is { } station && HoldFull(station);
+        // from any thread: with its hold full or its work over, its load waits for the salvage ship, which is away or has no room; a recovering one works on with its load
+        public bool LoadWaitsForShip(Ship platform, out bool shipFull)
+        {
+            shipFull = false;
+            if (Recovering && !Finished || !(Finished || HoldFull(platform)) || platform.GetProduction() <= 0f)
+                return false;
+            if (Mission?.Parked(out Ship ship) != true)
+                return true;
+            shipFull = HoldFull(ship);
+            return shipFull;
+        }
 
         // from any thread: the order a salvage platform works for, or null
         public static SalvageDerelict OfPlatform(Ship platform)
             => platform.Loyalty.AI.FindGoal(g => g is SalvageDerelict s && s.Platform == platform) as SalvageDerelict;
 
         // a bay whose constructor is in other hands, as one boarded on its way home after its order ended, lets it go here
-        static ShipModule FreeBay(Ship station)
+        static ShipModule FreeBay(Ship ship)
         {
-            ShipModule[] bays = station.Carrier.AllHangars;
+            ShipModule[] bays = ship.Carrier.AllHangars;
             for (int i = 0; i < bays.Length; ++i)
             {
                 ShipModule bay = bays[i];
                 if (!bay.IsSalvageBay || !bay.Active)
                     continue;
-                if (bay.TryGetHangarShipActive(out Ship launched) && launched.Loyalty != station.Loyalty)
-                    LetGo(station, launched);
+                if (bay.TryGetHangarShipActive(out Ship launched) && launched.Loyalty != ship.Loyalty)
+                    LetGo(ship, launched);
                 if (bay.HangarTimer <= 0f && !bay.IsHangarShipActive)
                     return bay;
             }
             return null;
         }
 
-        // launched orders hold the station's units first, then waiting ones as they were placed, and a second order for the same derelict ends, unless the first one's work is over; the goals are evaluated last to first
-        bool HoldsAUnit(Ship station)
+        // launched orders hold the ship's units first, then waiting ones as they were placed; the goals are evaluated last to first
+        bool HoldsAUnit(Ship ship)
         {
             int ahead = 0;
             bool placedBefore = true;
@@ -653,14 +687,10 @@ namespace Ship_Game.Commands.Goals
                     placedBefore = false;
                     continue;
                 }
-                if (goals[i] is SalvageDerelict s && s.TargetSystem == TargetSystem && s.Stands && (placedBefore || s.Launched))
-                {
-                    if (s.DerelictId == DerelictId && !s.Finished)
-                        return false;
+                if (goals[i] is SalvageDerelict s && s.Mission == Mission && (placedBefore || s.Launched))
                     ++ahead;
-                }
             }
-            return ahead < LiveUnits(station);
+            return ahead < SalvageMission.LiveUnits(ship);
         }
     }
 }

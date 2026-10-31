@@ -10,7 +10,7 @@ Globals:
 
   # gameplay modifiers
   ShipDestroyThreshold: 0.5 # ships with internal slots below this ratio will Die
-  DerelictChance: 20 # percent of military ship (frigate and above) and untethered station deaths that leave a derelict, with no death blast, before the caps below lower it; with salvage ops on a roll by its hull decides whether it drifts, and with them off every one drifts
+  DerelictChance: 20 # percent of military ship (corvette and above) and untethered station deaths that leave a derelict, with no death blast, before the caps below lower it; with salvage ops on a roll by its hull decides whether it drifts (a corvette's always does), and with them off every one drifts
   DriftingDerelictCapMultiplier: 1 # most drifting derelicts at once, seen or not, as a multiple of the galaxy's star systems, from 0.1 to 10 (a value outside it is used as the nearer end, with a warning in the log); the cap is rounded up, at least 1. With salvage ops off the derelict chance falls with their share of it
   SalvageableDerelictCapMultiplier: 1 # most salvageable derelicts at once, as a multiple of the galaxy's star systems, from 0.1 to 10 (a value outside it is used as the nearer end, with a warning in the log); the cap is rounded up, at least 1. With salvage ops on the derelict chance falls with their share of it
   SalvageSpeed: 12 # production a salvage platform strips from its derelict in a turn, while its hold has room, before the Salvage Speed research or pirates' level raise it; above 0, as a recovery works at twice it
@@ -58,7 +58,7 @@ Globals:
   UseCombatRepair: false
   DisableRemnantStory: false
   DisablePirates: false
-  EnableSalvageOps: false # salvageable derelicts and salvage stations; mods do not inherit it and set it themselves
+  EnableSalvageOps: true # salvageable derelicts and salvage ships; mods do not inherit it and set it themselves
   AIUsesPlayerDesigns: true
   EnableRandomizedAIFleetSizes: false # Allows Ai to slightly alter fleet sizes within range specified in FleetBuildRatios.yaml
 

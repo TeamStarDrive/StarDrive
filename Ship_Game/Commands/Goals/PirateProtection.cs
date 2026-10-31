@@ -74,6 +74,12 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // Target destroyed or they took it from us
 
             TargetShip.AI.OrderPirateFleeHome(signalRetreat: true); // Retreat our forces before returning the ship to the rightful owner
+            if (TargetShip.IsSalvagePlatform) // its owner's order ended as it was first taken, so it is taken apart instead, its derelict left free
+            {
+                SalvageDerelict.OfPlatform(TargetShip)?.CallOff();
+                return GoalStep.GoalComplete;
+            }
+
             TargetShip.DisengageExcessTroops(TargetShip.TroopCount);
             TargetShip.LoyaltyChangeByGift(EmpireToProtect);
             TargetShip.AI.ClearOrders();

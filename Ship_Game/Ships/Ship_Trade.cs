@@ -133,23 +133,6 @@ namespace Ship_Game.Ships
             Loyalty.AddExcessCargoMoney((food ? UnloadFood() : UnloadProduction()) * Loyalty.data.TaxRate);
         }
 
-        // a colony pickup's floor: a haul needs a freighter with room for at least this, and goes to a colony without an import slot only with room for at least this
-        public const float MinHaulLoad = 3f;
-
-        // a haul's turns: to the station, down on it and off again, then on to the colony and down there; a freighter holding other goods takes none, as a hold carries one kind of good
-        public bool TryGetHaulEta(Ship station, Planet importPlanet, out int eta)
-        {
-            eta = 0;
-            if (CargoRoom < MinHaulLoad || CargoSpaceUsed - GetProduction() >= 1f
-                || !CanTransportGoodsType(Goods.Production) || !InTradingZones(station) || !InTradingZones(importPlanet))
-                return false;
-
-            eta = (int)(GetTradeDepartureTime() + GetAstrogateTimeTo(station) + GetStationLandingTime()
-                        + LaunchShip.TakeOffSeconds(this, fromDock: true) / Universe.P.TurnTimer
-                        + GetAstrogateTimeBetween(station, importPlanet) + GetTradeLandingTime(importPlanet));
-            return TradeDistanceOk(importPlanet, eta);
-        }
-
         public struct ExportPlanetAndEta
         {
             public readonly Planet Planet;

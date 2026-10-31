@@ -9,7 +9,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships;
 
-// a derelict's techs as its panel and the derelicts window show them to the player: the count of all it holds until the player sees its techs, then the icons of those the player can learn, each over a bar of the player's research of it
+// a derelict's techs as its panel and the derelicts window show them to the player: the icons of those the player can learn, each over a bar of the player's research of it, and on the panel their count
 public static class DerelictTechIcons
 {
     static readonly Color IconBorder = new(32, 30, 18); // as on a research notification
@@ -27,9 +27,6 @@ public static class DerelictTechIcons
             if (empire.TryGetTechEntry(techs[i], out TechEntry tech) && SalvageDerelict.CanLearn(empire, tech))
                 learnable.Add(tech);
     }
-
-    // all it holds until the empire sees its techs, then only those the empire can learn
-    public static int Count(bool seen, Derelict d, Array<TechEntry> learnable) => seen ? learnable.Count : d.Techs.Length;
 
     // the research icon, with the count beside it as the ship info panel writes a ship's stats
     public static void DrawCount(SpriteBatch batch, in Rectangle iconRect, int count)

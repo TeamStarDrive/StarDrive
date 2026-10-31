@@ -203,6 +203,9 @@ namespace Ship_Game.Ships
         public bool IsMiningStation         => ShipData.IsMiningStation;
         public bool IsSalvageStation        => ShipData.IsSalvageStation;
         public bool IsSalvagePlatform       => ShipData.IsSalvagePlatform;
+        public bool IsSalvageShip           => ShipData.IsSalvageShip;
+        // a salvage ship takes no orders while its mission holds it; an idle or captured one is a ship like any other
+        public bool WorksForSalvage         => IsSalvageShip && Commands.Goals.SalvageMission.OfShip(this) != null;
 
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
@@ -321,7 +324,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool CanBeAddedToFleets() => CanBeAddedToFleets(ShipData, Loyalty);
+        public bool CanBeAddedToFleets() => CanBeAddedToFleets(ShipData, Loyalty) && !WorksForSalvage; // nor does a salvage ship at work
 
         /// <summary>
         /// Stations and platforms, subspace projectors, supply and builder shuttles, mining ships, constructors and drones never join a fleet
@@ -394,7 +397,7 @@ namespace Ship_Game.Ships
 
             if (Loyalty.isPlayer)
             {
-                if (IsSalvagePlatform || (!forAttack && (IsPlatformOrStation || IsSubspaceProjector)))
+                if (IsSalvagePlatform || WorksForSalvage || (!forAttack && (IsPlatformOrStation || IsSubspaceProjector)))
                     return false;
 
                 if (!CanTakeFleetOrders)
@@ -674,7 +677,7 @@ namespace Ship_Game.Ships
         public bool IsHangarShip   => Mothership != null;
         public bool IsHomeDefense  => HomePlanet != null;
         public bool CanBeRefitted  => CanBeScrapped && !Dismantling; // one coming apart also pays no upkeep
-        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false } && !IsSalvagePlatform && !DeliversRefund;
+        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense && LandShip is not { Trades: false } && !IsSalvagePlatform && !WorksForSalvage && !DeliversRefund;
         public bool DeliversRefund => IsSupplyShuttle && AI != null && AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal order) && order.Plan == ShipAI.Plan.DeliverRefund; // a builder carrying a refund takes no orders
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
@@ -804,28 +807,6 @@ namespace Ship_Game.Ships
                 distanceSTL += targetStation.GetTether().GravityWellForEmpire(Loyalty);
 
             return GetAstrogateTime(distance, distanceSTL, targetStation.Position);
-        }
-
-        public float GetAstrogateTimeTo(Ship station)
-        {
-            float distance    = Position.Distance(station.Position);
-            float distanceSTL = station.IsTethered ? station.GetTether().GravityWellForEmpire(Loyalty) : 0f;
-            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner if the ship is in one
-
-            if (planet != null && !IsInFriendlyProjectorRange)
-                distanceSTL += planet.GravityWellRadius;
-
-            return GetAstrogateTime(distance, distanceSTL, station.Position);
-        }
-
-        public float GetAstrogateTimeBetween(Ship originStation, Planet destination)
-        {
-            float distance    = originStation.Position.Distance(destination.Position);
-            float distanceSTL = destination.GravityWellForEmpire(Loyalty);
-            if (originStation.IsTethered)
-                distanceSTL += originStation.GetTether().GravityWellForEmpire(Loyalty);
-
-            return GetAstrogateTime(distance, distanceSTL, destination.Position);
         }
 
         public float GetAstrogateTimeBetween(Planet origin, Planet destination)
@@ -1731,8 +1712,9 @@ namespace Ship_Game.Ships
                 CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly, blast: !RolledDerelict);
         }
 
-        // with salvage ops on, it would stop in a system clear of the star's radiation
-        bool StopsWhereSalvageable => Universe.P.SalvageOps && Derelict.SalvageSystemAt(Universe, Derelict.StopPoint(this)) != null;
+        // with salvage ops on, a hull that can lie salvageable would stop in a system clear of the star's radiation
+        bool StopsWhereSalvageable => Universe.P.SalvageOps && Derelict.CanLieSalvageable(ShipData.HullRole)
+                                      && Derelict.SalvageSystemAt(Universe, Derelict.StopPoint(this)) != null;
 
         // salvageable when its hull's roll did not make it drift and it stops where it can be; else a drifting one, seen or not
         int DerelictAtDeath(bool seen)
@@ -1762,7 +1744,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        // frigate and bigger military ships, and untethered stations that are not research, mining, salvage, Dyson swarm or portal stations
+        // corvette and bigger military ships, and untethered stations that are not research, mining, salvage, Dyson swarm or portal stations
         public bool CanBecomeDerelict
         {
             get
@@ -1772,7 +1754,7 @@ namespace Ship_Game.Ships
                 if (ShipData.IsStation)
                     return TetheredTo == null && !IsResearchStation && !IsMiningStation && !IsSalvageStation && !IsDysonSwarmController
                         && !(Loyalty.WeAreRemnants && Name == Loyalty.data.RemnantPortal);
-                return ShipData.HullRole is >= RoleName.frigate and <= RoleName.capital
+                return ShipData.HullRole is >= RoleName.corvette and <= RoleName.capital
                     && DesignRoleType is RoleType.Warship or RoleType.WarSupport or RoleType.Troop;
             }
         }

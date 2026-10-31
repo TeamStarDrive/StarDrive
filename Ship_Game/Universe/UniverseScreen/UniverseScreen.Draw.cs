@@ -1184,9 +1184,9 @@ namespace Ship_Game
                 ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g) && g.Trade != null)
             {
                 Vector2 importPosition = g.Trade.ImportTo?.Position ?? g.Trade.TargetStation.Position;
-                Vector2 exportPosition = g.Trade.ExportPosition;
+                Vector2 exportPosition = g.Trade.ExportFrom.Position;
 
-                if (g.Plan is ShipAI.Plan.PickupGoods or ShipAI.Plan.PickupGoodsForStation or ShipAI.Plan.PickupGoodsFromStation)
+                if (g.Plan is ShipAI.Plan.PickupGoods or ShipAI.Plan.PickupGoodsForStation)
                 {
                     DrawLineToPlanet(start, exportPosition, Color.Blue);
                     DrawLineToPlanet(exportPosition, importPosition, Color.Gold);

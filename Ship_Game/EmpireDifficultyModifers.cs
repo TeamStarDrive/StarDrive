@@ -40,7 +40,7 @@
         public readonly int MiningOpsTurnsPerRun; // Mining Ops planner turn timer
         public readonly int MinimumThreatStr; // This is the minimum str empires begin to assess threat (number is in 1K)
         public readonly float WarBaitPenaltyMultiplier; // Multiplier to the anger and trust loss of a colony offer that would set us against a neighbour
-        public readonly float SalvageStationTrustLossVsPlayer; // Multiplier to the trust we lose in a player who builds a salvage station in a system where we have a colony
+        public readonly float SalvageStationTrustLossVsPlayer; // Multiplier to the trust we lose in a player who builds a salvage platform in a system where we have a colony
         public readonly float RecoveryChance; // Multiplier to the player's chance to recover a derelict ship, 1 for the AI
 
         // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier

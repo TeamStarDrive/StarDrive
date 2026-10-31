@@ -16,7 +16,7 @@
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <DefaultMiningShip>Opteris Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Opteris Basic Mining Station</DefaultMiningStation>  
-  <DefaultSalvageStation>Opteris Basic Salvage Station</DefaultSalvageStation>
+  <DefaultSalvageShip>Opteris Salvage Ship</DefaultSalvageShip>
   
   <RebelName>Liberated Opteris AI</RebelName>
   <RebelSing>Liberated AI</RebelSing>

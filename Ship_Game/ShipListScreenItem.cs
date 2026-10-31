@@ -167,14 +167,14 @@ namespace Ship_Game
             stlPos = stlPos.ToFloored();
             batch.DrawString(Fonts.Arial12, Ship.MaxSTLSpeed.ToString("0"), stlPos, Color.White);
 
-            if (IsCombat)
+            if (IsCombat && !Ship.WorksForSalvage)
             {
                 ExploreButton.Draw(batch);
                 //PatrolButton.Draw(batch); // FB - Disabled until we make it better
             }
-            if (!Ship.IsSubspaceProjector && !Ship.IsSalvageStation && !Ship.Dismantling && !Ship.DeliversRefund)
+            if (!Ship.IsSubspaceProjector && !Ship.Dismantling && !Ship.DeliversRefund && !Ship.WorksForSalvage)
                 RefitButton.Draw(batch);
-            if (!Ship.DeliversRefund)
+            if (!Ship.DeliversRefund && !Ship.WorksForSalvage)
                 ScrapButton.Draw(batch);
 
             batch.DrawRectangle(TotalEntrySize, new Color(118, 102, 67, 50).Premultiplied());
@@ -184,8 +184,21 @@ namespace Ship_Game
         {
             if (ship.Dismantling)
                 return Localizer.Token(GameText.PlatformDismantling);
+            if (ship.IsSalvageShip && SalvageMission.OfShip(ship) is { } mission)
+                return MissionStatus(ship, mission);
             string orders = GetOrdersText(ship);
             return ship.LandShip is { Docked: true } ? $"{orders} {Localizer.Token(GameText.ShipListDocked)}" : orders;
+        }
+
+        // a salvage ship at work: flying to its mission's system, salvaging there or waiting with its hold full, or at its colony delivering production or rearming
+        static string MissionStatus(Ship ship, SalvageMission mission)
+        {
+            if (mission.Unloading && mission.Colony is { } colony)
+                return $"{Localizer.Token(ship.GetProduction() > 0f ? GameText.DeliveringProductionTo : GameText.RearmingAt)} {colony.Name}";
+            string system = mission.TargetSystem.Name;
+            if (mission.FlyingOut)
+                return string.Format(Localizer.Token(GameText.SalvageShipFlyingTo), system);
+            return SalvageDerelict.HoldFull(ship) ? Localizer.Token(GameText.SalvageHoldFull) : string.Format(Localizer.Token(GameText.SalvagingIn), system);
         }
 
         static string GetOrdersText(Ship ship)
@@ -244,11 +257,10 @@ namespace Ship_Game
                         string status    = "";
                         switch (last2.Plan)
                         {
-                            case ShipAI.Plan.PickupGoods:
-                            case ShipAI.Plan.PickupGoodsFromStation: status = Localizer.Token(GameText.PickingUp); break;
+                            case ShipAI.Plan.PickupGoods:  status = Localizer.Token(GameText.PickingUp); break;
                             case ShipAI.Plan.DropOffGoods: status = Localizer.Token(GameText.Delivering); break;
                         }
-                        return $"{status} {goodsType} from {last2.Trade?.ExportName} to {last2.Trade?.ImportTo?.Name ?? last2.Trade?.TargetStation.Name} {blockade}";
+                        return $"{status} {goodsType} from {last2.Trade?.ExportFrom.Name} to {last2.Trade?.ImportTo?.Name ?? last2.Trade?.TargetStation.Name} {blockade}";
                     }
                     return $"{Localizer.Token(GameText.TradingGoods)} \n {Localizer.Token(GameText.SeekingRoute)}";
                 case AIState.Research:
@@ -369,7 +381,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (IsCombat)
+            if (IsCombat && !Ship.WorksForSalvage)
             {
                 // Explore button for ship list
                 if (ExploreButton.HandleInput(input))
@@ -387,14 +399,14 @@ namespace Ship_Game
                 }
             }
 
-            if (!Ship.IsSubspaceProjector && !Ship.IsSalvageStation && !Ship.Dismantling && !Ship.DeliversRefund && RefitButton.HandleInput(input))
+            if (!Ship.IsSubspaceProjector && !Ship.Dismantling && !Ship.DeliversRefund && !Ship.WorksForSalvage && RefitButton.HandleInput(input))
             {
                 GameAudio.EchoAffirmative();
                 Screen.ScreenManager.AddScreen(new RefitToWindow(Screen, this));
                 return true;
             }
 
-            if (!Ship.DeliversRefund && ScrapButton.HandleInput(input))
+            if (!Ship.DeliversRefund && !Ship.WorksForSalvage && ScrapButton.HandleInput(input))
             {
                 GameAudio.EchoAffirmative();
                 if (Dismantles && Ship.ScuttleTimer < 0f) // one counting down to its scuttling calls that off below

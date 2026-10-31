@@ -47,7 +47,7 @@ namespace Ship_Game.AI
             ChangeAIState(AIState.Boarding);
             var escortTarget = EscortTarget;
             if (Owner.TroopCount < 1 || escortTarget == null || escortTarget.IsDeadOrDying || escortTarget.IsLaunchingOrLanding
-                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoarded)
+                || escortTarget.Loyalty == Owner.Loyalty || !escortTarget.CanBeBoardedBy(Owner.Loyalty))
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -383,7 +383,6 @@ namespace Ship_Game.AI
             else
             {
                 UpdateResearchStationGoal(orbital, Owner.System, goal.OldShip);
-                UpdateSalvageOpsGoal(orbital, bg.TargetSystem);
                 if (goal is SalvageDerelict salvage)
                     salvage.OnPlatformBuilt(orbital, Owner);
             }
@@ -482,17 +481,6 @@ namespace Ship_Game.AI
 
             if (!planet.Mining.HasOpsOwner)
                 planet.Mining.ChangeOwnershipIfNeeded(Owner.Loyalty);
-        }
-
-        // an empire has one salvage station order per system, so the order there is this station's
-        void UpdateSalvageOpsGoal(Ship orbital, SolarSystem system)
-        {
-            if (!orbital.IsSalvageStation)
-                return;
-
-            Goal goal = Owner.Loyalty.AI.FindGoal(g => g.IsSalvageOpsGoal(system) && g.TargetShip == null);
-            if (goal != null)
-                goal.TargetShip = orbital;
         }
 
         // Gravity-well routing for the explore legs. The explore loop thrusts directly at the
@@ -803,7 +791,7 @@ namespace Ship_Game.AI
                 return;
 
             ShipWeight ship = NearByShips.Where(
-                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0 && s.Ship.CanBeBoarded
+                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0 && s.Ship.CanBeBoardedBy(Owner.Loyalty)
                          && s.Ship.Position.InRadius(Owner.Position, module.TransporterRange + 500f))
                 .OrderBy(sw => Owner.Position.SqDist(sw.Ship.Position))
                 .FirstOrDefault();

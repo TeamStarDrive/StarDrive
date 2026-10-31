@@ -396,7 +396,7 @@ namespace Ship_Game.AI
                     || !ship.CanBeRefitted
                     || ship.IsResearchStation
                     || ship.IsMiningStation
-                    || ship.IsSalvageStation
+                    || ship.IsSalvageShip
                     || ship.IsMiningShip
                     || ship.ShipData.IsColonyShip
                     || ship.IsConstructor)
@@ -468,23 +468,15 @@ namespace Ship_Game.AI
             }
         }
 
-        public void CancelSalvageStation(SolarSystem system)
+        // a salvage station a save still holds on order is never built: its queue item is canceled and a constructor on its way scrapped
+        public void CancelSalvageStationBuilds()
         {
-            Goal stationGoal = FindGoal(g => g.IsSalvageOpsGoal(system) && g.TargetShip == null);
-            if (stationGoal != null)
-                RemoveGoal(stationGoal);
-
-            CancelSalvageStationConstruction(system);
-        }
-
-        public void CancelSalvageStationConstruction(SolarSystem system)
-        {
-            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(system) && g.ToBuild?.IsSalvageStation == true);
-            if (constructionGoal != null)
+            Goal[] builds = GoalsList.Filter(g => g is BuildOrbital && g.ToBuild?.IsSalvageStation == true);
+            for (int i = 0; i < builds.Length; ++i)
             {
-                constructionGoal.FinishedShip?.AI.OrderScrapShip();
-                constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
-                RemoveGoal(constructionGoal);
+                builds[i].FinishedShip?.AI.OrderScrapShip();
+                builds[i].PlanetBuildingAt?.Construction.Cancel(builds[i]);
+                RemoveGoal(builds[i]);
             }
         }
 

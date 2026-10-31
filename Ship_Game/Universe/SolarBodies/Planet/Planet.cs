@@ -1332,7 +1332,7 @@ namespace Ship_Game
                 float chance = 20 + ship.Level * 2;
                 chance      *= 1 / Scale; // Gravity affects how hard is a crash
 
-                if (!ship.CanBeRefitted)
+                if (!ship.CanBeRefitted && !ship.WorksForSalvage) // a salvage ship at work crashes as any ship
                     chance *= 0.1f; // Dont recover hangar ships or home defense ships so easily.
 
                 if (!PType.Clouds)
@@ -1708,7 +1708,7 @@ namespace Ship_Game
             for (int i = 0; i < System.ShipList.Count; i++)
             {
                 Ship ship = System.ShipList[i];
-                if (ship.Loyalty != Owner || ship.InCombat)
+                if (ship.Loyalty != Owner || ship.InCombat || ship.WorksForSalvage) // a salvage ship at work answers no call
                     continue;
 
                 if (!ship.IsFreighter 

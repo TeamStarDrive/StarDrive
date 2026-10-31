@@ -233,7 +233,8 @@ public sealed partial class Empire
                 && !s.IsHomeDefense
                 && s.AI.State != AIState.Refit
                 && !s.AI.HasPriorityOrder
-                && !s.AI.HasPriorityTarget)
+                && !s.AI.HasPriorityTarget
+                && s.CanBeAddedToFleets())
             {
                 s.AI.ClearOrders();
                 fleet.AddExistingShip(s, node);
@@ -259,6 +260,7 @@ public sealed partial class Empire
                 || ship.IsPlatformOrStation
                 || ship.IsHomeDefense
                 || ship.IsConstructor
+                || ship.IsSalvageShip
                 || ship.IsHangarShip)
             {
                 continue;

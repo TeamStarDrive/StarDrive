@@ -21,7 +21,10 @@ namespace UnitTests.Ships;
 /// planet, or lands on the planet when the colony has none, and glides into a research or mining station it
 /// supplies. It takes off again from the same place. The goods move at touchdown, and the freighter keeps its
 /// trade orders while it is down, so the lines drawn for a selected freighter still show where it is going, and
-/// it still counts as a trading freighter. Trip estimates include the landings and the take-offs.
+/// it still counts as a trading freighter. Trip estimates include the landings and the take-offs. Only what a colony
+/// takes of a delivery is taxed; goods left aboard at a colony loading others go into its store as far as it has
+/// room, and the rest turns into credits, paid with the turn's income and kept in a save. A colony's trade called off
+/// flies back to the colony it loaded at.
 /// </summary>
 [TestClass]
 public class FreighterLandingTests : StarDriveTest
@@ -759,6 +762,56 @@ public class FreighterLandingTests : StarDriveTest
         AssertEqual(0.01f, colonies + 1.5f, Player.ExcessGoodsMoneyAddedThisTurn, "an update of incomes between turns still shows them");
         Player.DoMoney();
         AssertEqual(0.01f, colonies, Player.ExcessGoodsMoneyAddedThisTurn, "and the next turn's income does not pay them again");
+    }
+
+    [TestMethod]
+    public void CreditsForGoodsWithNoRoomStillToComeSurviveSaveAndLoad()
+    {
+        AddDummyPlanetToEmpire(new Vector2(900_000f, 200_000f), Enemy); // the loader needs a colony of each major empire
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        Player.AddExcessCargoMoney(1.5f);
+        SavedGame save = Universe.Save("UnitTest.ExcessCargoMoney", throwOnError: true);
+        UniverseScreen game = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        Assert.IsNotNull(game, "setup: the save loads");
+        AssertEqual(0.001f, 1.5f, game.UState.Player.ExcessCargoMoney, "credits for goods with no room, still to come with a turn's income, are kept");
+    }
+
+    [TestMethod]
+    public void OnlyWhatAColonyTakesOfADeliveryIsTaxed()
+    {
+        TaxAndCreditsAtAQuarter();
+        Ship first = SpawnFreighter(Importer, new Vector2(5000, 0));
+        first.LoadProduction(10f);
+        first.AI.SetTradePlan(ShipAI.Plan.DropOffGoods, Exporter, Importer, Goods.Production);
+        Importer.ProdHere = Importer.Storage.Max - 2f;
+        float before = Player.TradeMoneyAddedThisTurn;
+        first.AI.TradeAfterLanding(Importer, null);
+        AssertEqual(0.01f, 8f, first.GetProduction(), "setup: the colony takes 2 of 10, the rest stays aboard");
+        AssertEqual(0.01f, 2f, Player.TradeMoneyAddedThisTurn - before, "only the 2 the colony takes are taxed");
+
+        Importer.ProdHere = 0f;
+        Ship second = SpawnFreighter(Importer, new Vector2(6000, 0));
+        second.LoadProduction(10f);
+        second.AI.SetTradePlan(ShipAI.Plan.DropOffGoods, Exporter, Importer, Goods.Production);
+        before = Player.TradeMoneyAddedThisTurn;
+        second.AI.TradeAfterLanding(Importer, null);
+        AssertEqual(0.01f, 10f, Player.TradeMoneyAddedThisTurn - before, "a whole load delivered is taxed whole");
+    }
+
+    [TestMethod]
+    public void AColonysTradeCalledOffStillFliesBackToTheColonyItLoadedAt()
+    {
+        Planet loadedAt = AddDummyPlanet(new Vector2(200_000f, 450_000f), 1f, 1f, 1f, new Vector2(205_000f, 450_000f), explored: true);
+        loadedAt.SetOwner(Player);
+        Ship freighter = SpawnFreighter(Exporter, new Vector2(5000, 0));
+        Assert.IsTrue(Player.FindNearestRallyPoint(freighter.Position) == Exporter, "setup: the nearest rally point is another colony");
+        freighter.LoadFood(5f);
+        freighter.AI.SetTradePlan(ShipAI.Plan.DropOffGoods, loadedAt, Importer, Goods.Food);
+
+        Importer.SetOwner(Enemy);
+        RunObjectsSim(TestSimStep);
+        Assert.IsTrue(freighter.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal g) && g.Plan == ShipAI.Plan.Orbit && g.TargetPlanet == loadedAt,
+                      "with its colony lost, it flies back to the colony it loaded at, not to the rally point");
     }
 
     [TestMethod]

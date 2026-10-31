@@ -94,8 +94,8 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ADepletedStationOutOfCombatAsksAColonyForASupplyShuttle()
         {
-            LoadStarterShips("Terran Basic Salvage Station");
-            Ship station = SpawnShip("Terran Basic Salvage Station", Player, new Vector2(40000, 0));
+            LoadStarterShips("Vulfen Small Station mk1-a");
+            Ship station = SpawnShip("Vulfen Small Station mk1-a", Player, new Vector2(40000, 0));
             station.ChangeOrdnance(-station.OrdinanceMax);
             AssertLessThan(station.OrdnancePercent, ShipResupply.OrdnanceThresholdCombat, "setup: the station has run out of ordnance");
             AssertGreaterThan(Homeworld.NumSupplyShuttlesCanLaunch(), 0, "setup: the homeworld can launch a supply shuttle");

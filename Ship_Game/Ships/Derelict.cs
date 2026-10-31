@@ -102,8 +102,8 @@ public sealed class Derelict
     [StarData] public readonly bool Salvageable;
     // by empire id - 1; written on the sim thread, read on the UI thread
     [StarData] bool[] KnownBy;
-    // by empire id - 1: the empires that had a salvage station built in its system while it lay there, which see its techs from then on
-    [StarData] bool[] TechsShown = Empty<bool>.Array;
+    // by empire id - 1: the empires that called off their salvage of it, whose salvage ships no longer order it themselves; written and read on the sim thread
+    [StarData] bool[] CalledOff = Empty<bool>.Array;
     [StarData] public int TurnsLeft { get; private set; }
     // a salvageable one's production to salvage, fixed at its death, and what is still left of it
     [StarData] public readonly float Production;
@@ -267,6 +267,9 @@ public sealed class Derelict
         return null;
     }
 
+    // a corvette's derelict always drifts; a frigate or bigger, or a station, can lie to be salvaged
+    public static bool CanLieSalvageable(RoleName hullRole) => hullRole != RoleName.corvette;
+
     // the percent chance that a derelict of the hull's role drifts rather than lies to be salvaged
     public static float DriftingChance(RoleName hullRole) => hullRole switch
     {
@@ -338,10 +341,9 @@ public sealed class Derelict
     // under the list's lock
     internal void SetKnownBy(Empire empire) => Set(ref KnownBy, empire);
 
-    public bool ShowsTechsTo(Empire empire) => IsSet(TechsShown, empire);
+    public bool CalledOffBy(Empire empire) => IsSet(CalledOff, empire);
 
-    // under the list's lock
-    internal void ShowTechsTo(Empire empire) => Set(ref TechsShown, empire);
+    internal void SetCalledOffBy(Empire empire) => Set(ref CalledOff, empire);
 
     static bool IsSet(bool[] byEmpire, Empire empire)
     {
@@ -515,13 +517,6 @@ public sealed class Derelict
         RecoveredFor = empire;
         RecoveryEffectsLeft = 0f;
         RecoveredBy = null;
-    }
-
-    // on the sim thread: a recovery passed on as the derelict rises passes on the ship it rises for
-    internal void PassRecovery(Empire from, Empire to)
-    {
-        if (RecoveredFor == from)
-            RecoveredFor = to;
     }
 
     // under the list's lock, on the sim thread: risen to a ship's depth, it leaves the list for its ship to take its place

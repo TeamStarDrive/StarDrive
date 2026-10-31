@@ -1,0 +1,53 @@
+Version=1
+Name=Vulfar Salvage Ship Mk1
+Hull=Vulfen/Type VII
+Role=support
+Style=Vulfen
+Size=10,26
+GridCenter=5,13
+DefaultCombatState=Artillery
+ShipCategory=Conservative
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=PlaSteelArmorMed;PowerSolar;SalvageUnit;Shield_1KW;Maneuvering_Thruster_1x2;Fusion Reactor;LargeCargoHold;PowerConduit;Cockpit;Engine;WarpEngine_2x2;BasicCargoHold;WarpEngine_1x1;FrigateEngine
+Modules=36
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+4,0;0;2,2
+4,2;1
+5,2;1
+3,3;2;4,4;;;Vulfar Constructor
+3,7;1
+4,7;3;2,2
+6,7;1
+3,8;1
+6,8;1
+3,9;2;4,4;;;Vulfar Constructor
+3,13;2;4,4;;;Vulfar Constructor
+3,17;1
+4,17;3;2,2
+6,17;1
+2,18;4;2,1
+6,18;4;2,1
+1,19;4;2,1
+3,19;5;2,2
+5,19;5;2,2
+7,19;4;2,1
+0,20;6;3,3
+7,20;6;3,3
+3,21;7
+4,21;8
+5,21;8
+6,21;7
+3,22;9
+4,22;10;2,2
+6,22;9
+3,23;9
+6,23;9
+2,24;11
+3,24;12
+4,24;13;2,2
+6,24;12
+7,24;11

@@ -286,7 +286,7 @@ namespace Ship_Game.AI
             {
                 foreach (var ship in empire.OwnedShips)
                 {
-                    if (ship != null && ship.Active && ship.CanBeScrapped && ship.AI.State != AIState.Scrap)
+                    if (ship != null && ship.Active && !ship.IsSalvageShip && ship.CanBeScrapped && ship.AI.State != AIState.Scrap) // the salvage planner keeps its own
                     {
                         var combatRole = RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
                         if (currentShips.TryGetValue(combatRole, out RoleCounts roleCounts))
@@ -299,6 +299,8 @@ namespace Ship_Game.AI
             {
                 foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
                 {
+                    if (design.IsSalvageShip)
+                        continue;
                     var combatRole = RoleCounts.ShipRoleToCombatRole(design.Role);
                     if (buildableShips.TryGetValue(combatRole, out RoleCounts roleCounts))
                         roleCounts.AddToBuildableShips(design);

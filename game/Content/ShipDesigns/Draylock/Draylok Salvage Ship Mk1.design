@@ -1,0 +1,51 @@
+Version=1
+Name=Draylok Salvage Ship Mk1
+Hull=Draylok/Scythe
+Role=support
+Style=Draylok
+Size=14,10
+GridCenter=7,5
+DefaultCombatState=Artillery
+ShipCategory=Conservative
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=PlaSteelArmorSmall;MediumCargoHold;PlaSteelArmorMed;SalvageUnit;BasicCargoHold;Shield_1KW;Maneuvering_Thruster_1x1;Fusion Reactor;LaserTurret;PowerConduit;Cockpit;Engine;WarpEngine_2x2;FrigateEngine;WarpEngine_1x1;FuelCellSmallArmored
+Modules=34
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0
+12,0;0
+0,1;1;2,2
+6,1;2;2,2
+12,1;1;2,2
+0,3;1;2,2
+5,3;3;4,4;;;Draylok Constructor
+12,3;1;2,2
+0,5;4
+1,5;5;2,2
+3,5;6
+4,5;6
+9,5;6
+10,5;6
+11,5;5;2,2
+13,5;4
+0,6;4
+3,6;7;2,2
+9,6;7;2,2
+13,6;4
+1,7;8;2,2;345
+5,7;9
+6,7;10
+7,7;10
+8,7;9
+11,7;8;2,2;15
+3,8;6
+4,8;11
+5,8;12;2,2
+7,8;13;2,2
+9,8;14
+10,8;6
+2,9;15
+11,9;15

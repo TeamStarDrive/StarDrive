@@ -7,6 +7,8 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.LoadGame;
+using Ship_Game.GameScreens.ShipDesign;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
 using Vector2 = SDGraphics.Vector2;
@@ -15,55 +17,33 @@ namespace UnitTests.Ships;
 
 /// <summary>
 /// A salvage unit is a hangar bay, as a refining module is a mining bay: it carries 60 ordnance and launches the
-/// empire's constructor, or with auto pick the cheapest whatever the platform costs, never a fighter, for an order on
-/// a derelict. The launch costs ordnance, so a station short of
-/// it waits, and the unit then waits out its 30 s timer; a constructor lost on its way is launched again. After its
-/// launch the constructor flies to a site 100 out from the derelict's radius, however far from its station, and claims
-/// the derelict as it starts to build there. Its construction is the platform's cost to the empire, never below 100,
-/// both times the production pace. The platform it builds takes over the derelict, the constructor is gone with the
-/// ordnance it took, and its unit is free to launch again. A rival's constructor turns back when the derelict is
-/// claimed and docks, giving its ordnance back, and so does one whose order the second click calls off; one whose
-/// station is destroyed or boarded is scuttled at once, and one flying home to a lost station is removed. One boarded
-/// on its way is its boarder's ship, and its unit launches another for the order; one boarded on its way home leaves
-/// its unit to the next order. Launched
-/// orders hold the units before those waiting to launch. A platform's loss ends its order and its claim, and calling
-/// the order off gives up the claim at once while the platform stays to come apart. An order mid-flight survives a
-/// save and goes on to build.
+/// constructor its empire can build that takes the least ordnance to launch, whatever it or the platform costs or the
+/// player picked, never a fighter, for an order on a derelict, once its salvage ship is parked at its mission's site. The launch costs ordnance, so a ship short
+/// of it waits, and the unit then waits out its 30 s timer; a design holding less than a launch takes is flagged red in
+/// the ship designer and no pick takes it. A constructor lost on its way is launched again. After its
+/// launch the constructor flies to a site 100 out from the derelict's radius, however far from its ship, and claims
+/// the derelict as it starts to build there, with the trust cost of salvaging in a system where another empire has a
+/// colony, once for each platform. Its construction is the platform's cost to the empire, never below 100, both times
+/// the production pace. The platform it builds takes over the derelict, the constructor is gone with the ordnance it
+/// took, and its unit is free to launch again; once the platform has taken itself apart, the unit gets that ordnance
+/// back. A rival's constructor turns back when the derelict is claimed and docks, giving its ordnance back, and so does
+/// one whose order the second click calls off; one whose ship is destroyed or boarded is scuttled at once, and one
+/// flying home to a lost ship is removed. One boarded on its way is its boarder's ship, and its unit launches another
+/// for the order; one boarded on its way home leaves its unit to the next order. Launched orders hold the units before
+/// those waiting to launch. A ship whose last order ends waits for its constructor flying home to dock before it
+/// goes. A platform's loss ends its order and its claim, and calling the order off gives up the
+/// claim at once while the platform stays to come apart. An order mid-flight survives a save and goes on to build.
 /// </summary>
 [TestClass]
-public class SalvageConstructorTests : StarDriveTest
+public class SalvageConstructorTests : SalvageOrderTest
 {
-    static readonly Vector2 SystemSite = new(600_000f, 600_000f);
-    static readonly Vector2 Wreck = SystemSite + new Vector2(30_000f, 0);
-    static readonly Vector2 PlayerStation = SystemSite + new Vector2(33_000f, 0);
-    static readonly Vector2 EnemyStation = SystemSite + new Vector2(30_000f, 3_000f);
-    const string Constructor = "Terran Constructor";
-    readonly SolarSystem WreckSystem;
-    readonly IShipDesign Station;
-
     public SalvageConstructorTests()
     {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName,
-                         "Owlwok Constructor", "Kulrathi Constructor");
-        CreateUniverseAndPlayerEmpire();
-        UState.Objects.EnableParallelUpdate = false;
-        WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
-        AddHomeWorldToEmpire(new Vector2(200_000f), Player);
-        AddRemoteSystems(10);
-        Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Basic Salvage Station", out Station), "setup: the station is loaded");
-        Player.data.CurrentConstructor = Constructor;
-        Enemy.AddBuildableShip(ResourceManager.Ships.GetDesign(Constructor));
-    }
-
-    [TestCleanup]
-    public override void Cleanup()
-    {
-        UState.Derelicts.Clear();
-        base.Cleanup();
+        LoadStarterShips("Owlwok Constructor", "Kulrathi Constructor");
     }
 
     // a salvageable derelict of the player's, so the player knows of it, and its killer too; the ship itself is gone
-    Derelict Forms(Vector2 at, Empire killer = null)
+    Derelict FormsKilledBy(Vector2 at, Empire killer)
     {
         TestShip ship = SpawnShip("Dreadnought mk1-a", Player, at);
         Assert.IsTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false, killer), "setup: a salvageable derelict");
@@ -72,20 +52,11 @@ public class SalvageConstructorTests : StarDriveTest
         return UState.Derelicts.Current.Last();
     }
 
-    Ship BuiltStation(Empire owner, Vector2 at)
-    {
-        var order = new SalvageOps(owner, WreckSystem, at, Station);
-        owner.AI.AddGoal(order);
-        order.AdvanceToNextStep(); // past the queueing, which needs a port
-        order.TargetShip = SpawnShip(Station.Name, owner, at);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the station is built");
-        return order.TargetShip;
-    }
-
     static SalvageDerelict OrderOf(Empire empire, Derelict d) => SalvageDerelict.OrderOf(empire, d);
 
-    static ShipModule BayOf(Ship station, Ship launched) => station.Modules.Find(m => m.TryGetHangarShip(out Ship s) && s == launched);
+    static Ship ShipOf(SalvageDerelict order) => MissionOf(order).SalvageShip;
+
+    static ShipModule BayOf(Ship ship, Ship launched) => ship.Modules.Find(m => m.TryGetHangarShip(out Ship s) && s == launched);
 
     // runs the universe's objects while `running` holds, evaluating the order once a simulated second as its empire's turn does
     void RunWithOrder(SalvageDerelict order, double seconds, Func<bool> running)
@@ -100,22 +71,34 @@ public class SalvageConstructorTests : StarDriveTest
 
     void RunPastLaunch(Ship constructor) => RunSimWhile((simTimeout: 5, fatal: true), () => constructor.IsLaunching);
 
-    // out of reach of the station's death blast
-    void RunClearOf(Ship station, Ship constructor)
-        => RunSimWhile((simTimeout: 30, fatal: true), () => constructor.Position.InRadius(station.Position, 1500f));
+    // out of reach of the ship's death blast
+    void RunClearOf(Ship ship, Ship constructor)
+        => RunSimWhile((simTimeout: 30, fatal: true), () => constructor.Position.InRadius(ship.Position, 1500f));
 
-    SalvageDerelict OrderedAndLaunched(Derelict d, Empire empire)
+    // the empire's order, its salvage ship built at its site, its constructor launched
+    SalvageDerelict OrderedAndLaunched(Derelict d, Empire empire = null)
     {
-        Assert.IsTrue(SalvageDerelict.Order(empire, d), "setup: the derelict is ordered salvaged");
-        SalvageDerelict order = OrderOf(empire, d);
-        Assert.IsNotNull(order.FinishedShip, "setup: a constructor launches");
+        SalvageDerelict order = Ordered(d, empire: empire);
+        if (ShipOf(order) == null)
+            ShipBuilt(order);
+        Launched(order);
+        return order;
+    }
+
+    // the player's order, its constructor launched toward a platform site on the derelict's far side from the ship, so it flies clear of the ship's death blast
+    SalvageDerelict LaunchedAway(Derelict d)
+    {
+        SalvageDerelict order = Ordered(d);
+        Ship ship = ShipBuilt(order);
+        order.StaticBuildPos = d.RestPosition + ship.Position.DirectionToTarget(d.RestPosition) * (d.Radius + SalvageDerelict.PlatformClearance);
+        Launched(order);
         return order;
     }
 
     // the player's order with its platform built and at work
     SalvageDerelict WithItsPlatform(Derelict d)
     {
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
         RunWithOrder(order, 120, () => order.Platform == null);
         order.Evaluate();
         AssertEqual("Salvage", order.StepName, "setup: the platform is built");
@@ -125,14 +108,14 @@ public class SalvageConstructorTests : StarDriveTest
     [TestMethod]
     public void ASalvageUnitIsAHangarBayThatLaunchesTheEmpiresConstructorAndNoFighter()
     {
-        Ship station = BuiltStation(Player, PlayerStation);
-        ShipModule[] units = station.Modules.Filter(m => m.Salvage);
-        AssertEqual(2, units.Length, "setup: the station has two salvage units");
+        Ship ship = SpawnShip(TwinShip, Player, Homeworld.Position + new Vector2(5_000f, 0));
+        ShipModule[] units = ship.Modules.Filter(m => m.Salvage);
+        AssertEqual(2, units.Length, "setup: the ship has two salvage units");
         foreach (ShipModule unit in units)
             Assert.IsTrue(unit.IsSalvageBay && unit.Is(ShipModuleType.Hangar) && !unit.IsFighterHangar, "a salvage unit is a hangar bay but no fighter hangar");
-        AssertEqual(2, station.Carrier.AllHangars.Length, "the station's hangars are its units");
-        AssertEqual(0, station.Carrier.AllFighterHangars.Length, "and it has no fighter hangar");
-        AssertEqual(0.01f, 120f, station.OrdinanceMax, "each unit carries 60 ordnance");
+        AssertEqual(2, ship.Carrier.AllHangars.Length, "the ship's hangars are its units");
+        AssertEqual(0, ship.Carrier.AllFighterHangars.Length, "and it has no fighter hangar");
+        AssertEqual(0.01f, 120f, ship.OrdinanceMax, "each unit carries 60 ordnance");
 
         AssertEqual(Constructor, CarrierBays.HangarShipName(Player, units[0]), "a unit launches the empire's constructor");
         foreach (IShipDesign design in Enemy.ShipsWeCanBuildSnapshot)
@@ -142,41 +125,97 @@ public class SalvageConstructorTests : StarDriveTest
     }
 
     [TestMethod]
-    public void WithAutoPickAUnitLaunchesTheCheapestConstructorWhateverThePlatformCosts()
+    public void AUnitLaunchesTheConstructorTakingTheLeastOrdnanceWhateverItCostsOrThePlayerPicked()
     {
-        ShipModule unit = BuiltStation(Player, PlayerStation).Modules.Find(m => m.Salvage);
-        IShipDesign cheap = ResourceManager.Ships.GetDesign("Owlwok Constructor");
+        ShipModule unit = SpawnShip("Terran Salvage Ship", Player, Homeworld.Position + new Vector2(5_000f, 0)).Modules.Find(m => m.Salvage);
+        IShipDesign light = ResourceManager.Ships.GetDesign("Owlwok Constructor");
         IShipDesign dearer = ResourceManager.Ships.GetDesign("Kulrathi Constructor");
-        Player.AddBuildableShip(cheap);
-        Player.AddBuildableShip(dearer);
-        Player.AutoPickConstructors = true;
-        AssertLessThan(cheap.GetCost(Player), dearer.GetCost(Player), "setup: one constructor is cheaper");
+        ShipDesign copy = ((ShipDesign)light).GetClone("TEST_Heavy Owlwok Constructor");
+        copy.SetDesignSlots(light.GetOrLoadDesignSlots().Select(s => s.ModuleUID == "Structure" ? new DesignSlot(s.Pos, "MeteorPart", s.Size, 0, s.ModuleRot, null) : s).ToArray(),
+                            updateRole: false);
+        Assert.IsTrue(ResourceManager.AddShipTemplate(copy, playerDesign: false), "setup: a copy of the light one with heavier armor");
+        try
+        {
+            IShipDesign heavy = ResourceManager.Ships.GetDesign(copy.Name);
+            Player.AddBuildableShip(light);
+            Player.AddBuildableShip(dearer);
+            Player.AddBuildableShip(heavy);
+            AssertEqual(0.01f, 21.8f, ResourceManager.GetShipTemplate(light.Name).ShipOrdLaunchCost, "setup: the light one takes the least ordnance to launch");
+            AssertEqual(0.01f, 25.4f, ResourceManager.GetShipTemplate(heavy.Name).ShipOrdLaunchCost, "setup: its copy more");
+            AssertLessThan(heavy.GetCost(Player), light.GetCost(Player), "setup: though the copy costs less");
+            Player.AutoPickConstructors = true;
+            Assert.AreSame(heavy, ShipBuilder.PickConstructor(Player, 0f, GetCheapest: true), "setup: so a small job gets the copy");
 
-        float construction = SalvageDerelict.PlatformConstruction(Player, ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName));
-        AssertGreaterThan(construction, dearer.GetCost(Player) * 2f, "setup: the platform takes more than twice either's cost");
-        Assert.AreSame(dearer, ShipBuilder.PickConstructor(Player, construction, GetCheapest: true),
-                       "setup: so a job of that size gets the faster one");
-        AssertEqual(cheap.Name, CarrierBays.HangarShipName(Player, unit), "a unit launches the cheapest");
+            float construction = SalvageDerelict.PlatformConstruction(Player, ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName));
+            Assert.AreSame(dearer, ShipBuilder.PickConstructor(Player, construction, GetCheapest: true), "setup: and a job the platform's size the faster one");
+            AssertEqual(light.Name, CarrierBays.HangarShipName(Player, unit), "a unit launches the light one");
 
-        Player.AutoPickConstructors = false;
-        AssertEqual(Constructor, CarrierBays.HangarShipName(Player, unit), "and without auto pick the empire's own");
+            Player.AutoPickConstructors = false;
+            Player.data.CurrentConstructor = dearer.Name;
+            Assert.AreSame(dearer, ShipBuilder.PickConstructor(Player, 0f, GetCheapest: true), "setup: without auto pick the player's choice goes to every job");
+            AssertEqual(light.Name, CarrierBays.HangarShipName(Player, unit), "and still a unit launches the light one");
+        }
+        finally
+        {
+            ResourceManager.Ships.Delete(copy.Name);
+        }
     }
 
     [TestMethod]
-    public void AnOrderLaunchesTheConstructorFromAFreeUnitForItsOrdnance()
+    public void TheShipDesignerFlagsRedASalvageShipHoldingLessOrdnanceThanALaunchTakesAndNoPickTakesIt()
+    {
+        IShipDesign single = ResourceManager.Ships.GetDesign("Terran Salvage Ship");
+        var issues = new ShipDesignIssues(Universe, single);
+        issues.CheckSalvageLaunchOrdnance();
+        Assert.IsTrue(issues.CurrentDesignIssues.IsEmpty, "a salvage ship holding the ordnance a launch takes is not flagged");
+        CanBuild(Player, TwinShip);
+        AssertEqual("Terran Salvage Ship", ShipBuilder.PickSalvageShip(Player)?.Name, "setup: with no choice, the race's");
+
+        float multiplier = GlobalStats.Defaults.HangarCombatShipCostMultiplier;
+        GlobalStats.Defaults.HangarCombatShipCostMultiplier = 3f;
+        try
+        {
+            AssertEqual(0.01f, 78f, SalvageDerelict.ConstructorLaunchCost(Player), "setup: a launch takes more than the race's ship holds and less than the twin's");
+            issues.Reset();
+            issues.CheckSalvageLaunchOrdnance();
+            AssertEqual(1, issues.CurrentDesignIssues.Count, "the ship designer flags the race's");
+            DesignIssueDetails issue = issues.CurrentDesignIssues[0];
+            Assert.AreEqual(DesignIssueType.SalvageLaunchOrdnance, issue.Type, "as short of the ordnance a launch takes");
+            Assert.AreEqual(WarningLevel.Critical, issue.Severity, "in red");
+            StringAssert.StartsWith(issue.AdditionalText, $" {Localizer.Token(GameText.DesignIssueSalvageLaunchOrdnanceNeeded)} {78f.GetNumberString()}.",
+                                    "naming what a launch takes");
+            StringAssert.EndsWith(issue.AdditionalText, Localizer.Token(GameText.DesignIssueSalvageLaunchOrdnanceSkipped), "and that the salvage ship list and auto pick skip it");
+
+            var twin = new ShipDesignIssues(Universe, ResourceManager.Ships.GetDesign(TwinShip));
+            twin.CheckSalvageLaunchOrdnance();
+            Assert.IsTrue(twin.CurrentDesignIssues.IsEmpty, "but not the twin, holding enough");
+            AssertEqual(TwinShip, ShipBuilder.PickSalvageShip(Player)?.Name, "and the race's gives way to it");
+            Player.AutoPickBestSalvageShip = true;
+            AssertEqual(TwinShip, ShipBuilder.PickSalvageShip(Player, WreckSystem)?.Name, "and auto pick, which takes the fewest units with no derelict to work, passes over it too");
+        }
+        finally
+        {
+            GlobalStats.Defaults.HangarCombatShipCostMultiplier = multiplier;
+        }
+    }
+
+    [TestMethod]
+    public void AnOrderLaunchesTheConstructorFromAFreeUnitOfItsParkedShipForItsOrdnance()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        float ordnance = station.Ordinance;
+        SalvageDerelict order = Ordered(d);
+        Ship ship = ShipBuilt(order);
+        float ordnance = ship.Ordinance;
+        order.Evaluate();
+        Assert.IsNull(order.FinishedShip, "a ship not yet parked at its site launches nothing");
+        AssertEqual("LaunchConstructor", order.StepName, "and the order waits");
 
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
-        Ship constructor = order.FinishedShip;
-        Assert.IsTrue(constructor is { Name: Constructor, IsConstructor: true, IsLaunching: true }, "the order launches the empire's constructor as a hangar launches its ship");
-        Assert.AreSame(station, constructor.Mothership, "from the station");
-        ShipModule bay = BayOf(station, constructor);
-        Assert.IsTrue(bay is { IsSalvageBay: true }, "out of one of its salvage units");
-        AssertGreaterThan(constructor.ShipOrdLaunchCost, 0f, "setup: a launch costs ordnance");
-        AssertEqual(0.01f, ordnance - constructor.ShipOrdLaunchCost, station.Ordinance, "which the station pays");
+        Ship constructor = Launched(order);
+        Assert.IsTrue(constructor is { Name: Constructor, IsConstructor: true, IsLaunching: true }, "parked, it launches the empire's constructor as a hangar launches its ship");
+        Assert.AreSame(ship, constructor.Mothership, "from the salvage ship");
+        ShipModule bay = BayOf(ship, constructor);
+        Assert.IsTrue(bay is { IsSalvageBay: true }, "out of its salvage unit");
+        AssertEqual(0.01f, ordnance - 26f, ship.Ordinance, "which the ship pays, the constructor's 26");
         AssertEqual(0.01f, 30f, bay.HangarTimer, "and the unit waits out its 30 s timer");
 
         AssertEqual("BuildPlatform", order.StepName, "the order waits for its platform");
@@ -191,27 +230,31 @@ public class SalvageConstructorTests : StarDriveTest
     [TestMethod]
     public void AUnitWhoseConstructorStillFliesLaunchesNoOther()
     {
+        TwinShips();
         Derelict a = Forms(Wreck);
         Derelict b = Forms(Wreck + new Vector2(0, 5_000f));
-        Ship station = BuiltStation(Player, PlayerStation);
-        ShipModule flying = BayOf(station, OrderedAndLaunched(a, Player).FinishedShip);
-        foreach (ShipModule unit in station.Carrier.AllHangars)
+        SalvageDerelict first = OrderedAndLaunched(a);
+        Ship ship = ShipOf(first);
+        ShipModule flying = BayOf(ship, first.FinishedShip);
+        foreach (ShipModule unit in ship.Carrier.AllHangars)
             unit.HangarTimer = 0f; // its timer runs out while the constructor still flies
 
-        Ship second = OrderedAndLaunched(b, Player).FinishedShip;
-        Assert.AreNotSame(flying, BayOf(station, second), "the second order's constructor comes from the other unit");
+        Ship second = OrderedAndLaunched(b).FinishedShip;
+        Assert.AreNotSame(flying, BayOf(ship, second), "the second order's constructor comes from the other unit");
     }
 
     [TestMethod]
     public void ADeadUnitLaunchesNothing()
     {
+        TwinShips();
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        ShipModule[] units = station.Carrier.AllHangars;
+        SalvageDerelict order = Ordered(d);
+        Ship ship = ShipBuilt(order);
+        ShipModule[] units = ship.Carrier.AllHangars;
         units[0].Die(null, cleanupOnly: true);
 
-        Ship constructor = OrderedAndLaunched(d, Player).FinishedShip;
-        Assert.AreSame(units[1], BayOf(station, constructor), "the live unit launches the constructor");
+        Ship constructor = Launched(order);
+        Assert.AreSame(units[1], BayOf(ship, constructor), "the live unit launches the constructor");
     }
 
     [TestMethod]
@@ -220,8 +263,7 @@ public class SalvageConstructorTests : StarDriveTest
         IShipDesign platform = ResourceManager.Ships.GetDesign(ShipDesign.SalvagePlatformName);
         AssertGreaterThan(platform.GetCost(Player), 100f, "setup: the platform costs more than 100");
         AssertEqual(0.01f, platform.GetCost(Player), SalvageDerelict.PlatformConstruction(Player, platform), "so its construction is its cost");
-        BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(Forms(Wreck), Player);
+        SalvageDerelict order = OrderedAndLaunched(Forms(Wreck));
         AssertEqual(0.01f, platform.GetCost(Player), order.FinishedShip.Construction.ConstructionNeeded, "the constructor builds that much");
 
         Player.data.Traits.ShipCostMod = -0.5f;
@@ -231,35 +273,37 @@ public class SalvageConstructorTests : StarDriveTest
         UState.P.Pace = 3f;
         AssertLessThan(platform.GetCost(Player), 100f * UState.ProductionPace, "setup: at a slower pace it still costs less than 100 times it");
         AssertEqual(0.01f, 100f * UState.ProductionPace, SalvageDerelict.PlatformConstruction(Player, platform), "times the production pace");
-        SalvageDerelict floored = OrderedAndLaunched(Forms(Wreck + new Vector2(0, 5_000f)), Player);
+        SalvageDerelict floored = OrderedAndLaunched(Forms(Wreck + new Vector2(0, 5_000f)));
         AssertEqual(0.01f, 100f * UState.ProductionPace, floored.FinishedShip.Construction.ConstructionNeeded, "which the next constructor builds");
     }
 
     [TestMethod]
-    public void AStationShortOfOrdnanceLaunchesOnceItHasEnough()
+    public void AShipShortOfOrdnanceLaunchesOnceItHasEnough()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        station.ChangeOrdnance(-station.Ordinance);
+        SalvageDerelict order = Ordered(d);
+        Ship ship = ShipBuilt(order);
+        ship.ChangeOrdnance(-ship.Ordinance);
+        Parked(order);
 
-        Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: ordered");
-        SalvageDerelict order = OrderOf(Player, d);
-        Assert.IsNull(order.FinishedShip, "a station with no ordnance launches nothing");
+        order.Evaluate();
+        Assert.IsNull(order.FinishedShip, "a ship with no ordnance launches nothing");
         AssertEqual("LaunchConstructor", order.StepName, "and the order waits");
 
-        station.ChangeOrdnance(station.OrdinanceMax);
+        ship.ChangeOrdnance(ship.OrdinanceMax);
         order.Evaluate();
-        Assert.IsNotNull(order.FinishedShip, "it launches once the station has the ordnance");
+        Assert.IsNotNull(order.FinishedShip, "it launches once the ship has the ordnance");
     }
 
     [TestMethod]
     public void AConstructorLostOnItsWayIsLaunchedAgainOnceAUnitIsReady()
     {
+        TwinShips();
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
+        Ship ship = ShipOf(order);
         Ship lost = order.FinishedShip;
-        ShipModule[] units = station.Modules.Filter(m => m.IsSalvageBay);
+        ShipModule[] units = ship.Modules.Filter(m => m.IsSalvageBay);
         foreach (ShipModule unit in units)
             unit.HangarTimer = unit.HangarTimerConstant; // the other one launched lately too
 
@@ -278,11 +322,11 @@ public class SalvageConstructorTests : StarDriveTest
     public void TheConstructorFliesToItsSiteClaimsTheDerelictAsItStartsToBuildAndLeavesThePlatform()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
+        Ship ship = ShipOf(order);
         Ship constructor = order.FinishedShip;
-        ShipModule bay = BayOf(station, constructor);
-        float ordnance = station.Ordinance;
+        ShipModule bay = BayOf(ship, constructor);
+        float ordnance = ship.Ordinance;
 
         RunWithOrder(order, 120, () => d.Claimant == null);
         AssertEqual(Player, d.Claimant, "the derelict is claimed");
@@ -298,8 +342,8 @@ public class SalvageConstructorTests : StarDriveTest
         AssertLessThan(platform.Position.Distance(order.BuildPosition), 1f, "on its site");
         Assert.IsFalse(constructor.Active, "and goes, as a constructor that deploys does");
         Assert.IsNull(bay.HangarShip, "its unit is free to launch again");
-        AssertEqual(0.01f, 0f, station.Carrier.OrdnanceInSpace, "and the ordnance the constructor took is spent");
-        AssertEqual(0.01f, ordnance, station.Ordinance, "not given back");
+        AssertEqual(0.01f, 0f, ship.Carrier.OrdnanceInSpace, "and the ordnance the constructor took is spent");
+        AssertEqual(0.01f, ordnance, ship.Ordinance, "not given back while the platform stands");
 
         order.Evaluate();
         AssertEqual("Salvage", order.StepName, "the order goes on with the platform");
@@ -308,14 +352,54 @@ public class SalvageConstructorTests : StarDriveTest
     }
 
     [TestMethod]
+    public void EachPlatformCostsTheTrustOfAnAIWithAColonyInTheSystemAsItsConstructorStartsToBuild()
+    {
+        TwinShips();
+        Derelict first = Forms(Wreck);
+        Derelict second = Forms(Wreck + new Vector2(0, 5_000f));
+        WreckSystem.PlanetList[0].SetOwner(Enemy);
+        Enemy.GetRelations(Player).AtWar = Player.GetRelations(Enemy).AtWar = false;
+        Relationship aiToPlayer = Enemy.GetRelations(Player);
+        float trust = aiToPlayer.Trust;
+
+        SalvageDerelict a = OrderedAndLaunched(first);
+        AssertEqual(0.01f, trust, aiToPlayer.Trust, "no trust is lost as the ship parks or launches");
+        RunWithOrder(a, 120, () => first.Claimant == null);
+        AssertEqual(0.01f, trust - 5f, aiToPlayer.Trust, "the AI with a colony in the system trusts the player 5 less as the constructor starts to build");
+        RunWithOrder(a, 30, () => a.Platform == null);
+        AssertEqual(0.01f, trust - 5f, aiToPlayer.Trust, "once for that platform");
+
+        SalvageDerelict b = OrderedAndLaunched(second);
+        RunWithOrder(b, 120, () => second.Claimant == null);
+        AssertEqual(0.01f, trust - 10f, aiToPlayer.Trust, "and 5 more for the next");
+    }
+
+    [TestMethod]
+    public void APlatformThatTookItselfApartGivesItsUnitBackTheOrdnanceItsLaunchTook()
+    {
+        Derelict d = Forms(Wreck);
+        SalvageDerelict order = OrderedAndLaunched(d);
+        Ship ship = ShipOf(order);
+        float afterLaunch = ship.Ordinance;
+        PlatformBuilt(order);
+        AssertEqual(0.01f, afterLaunch, ship.Ordinance, "setup: the launch's ordnance is spent while the platform stands");
+
+        SalvageDerelict.Cancel(Player, d);
+        for (int turn = 0; turn < 1 + SalvageDerelict.DismantleTurns && Player.AI.HasGoal(order); ++turn)
+            order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order) || order.Platform.Active, "setup: the platform has taken itself apart");
+        AssertEqual(0.01f, afterLaunch + 26f, ship.Ordinance, "and its unit gets the launch's 26 ordnance back");
+    }
+
+    [TestMethod]
     public void ARivalsConstructorTurnsBackWhenTheDerelictIsClaimedAndDocks()
     {
-        Derelict d = Forms(Wreck, killer: Enemy);
-        Ship station = BuiltStation(Enemy, EnemyStation);
-        float full = station.Ordinance;
-        SalvageDerelict order = OrderedAndLaunched(d, Enemy);
-        Ship constructor = order.FinishedShip;
-        ShipModule bay = BayOf(station, constructor);
+        Derelict d = FormsKilledBy(Wreck, killer: Enemy);
+        SalvageDerelict order = Ordered(d, empire: Enemy);
+        Ship ship = ShipBuilt(order);
+        float full = ship.Ordinance;
+        Ship constructor = Launched(order);
+        ShipModule bay = BayOf(ship, constructor);
         RunPastLaunch(constructor);
 
         Assert.IsTrue(d.TryClaim(Player), "setup: the player's constructor starts to build there first");
@@ -325,7 +409,7 @@ public class SalvageConstructorTests : StarDriveTest
         AssertEqual(AIState.ReturnToHangar, constructor.AI.State, "and its constructor turns back");
 
         RunSimWhile((simTimeout: 60, fatal: true), () => constructor.Active);
-        AssertEqual(0.01f, full, station.Ordinance, "it docks at its station, which gets the launch ordnance back");
+        AssertEqual(0.01f, full, ship.Ordinance, "it docks at its salvage ship, which gets the launch ordnance back");
         Assert.IsNull(bay.HangarShip, "and its unit is free");
         AssertEqual(Player, d.Claimant, "and the claim stays the player's");
     }
@@ -334,8 +418,7 @@ public class SalvageConstructorTests : StarDriveTest
     public void TheSecondClickSendsAFlyingConstructorHome()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
         Ship constructor = order.FinishedShip;
         RunPastLaunch(constructor);
 
@@ -346,62 +429,85 @@ public class SalvageConstructorTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AConstructorInFlightWhoseStationIsDestroyedIsScuttledAtOnce()
+    public void AShipWhoseLastOrderEndsWaitsForItsConstructorToDockBeforeItGoes()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
+        SalvageMission mission = MissionOf(order);
+        Ship ship = ShipOf(order);
         Ship constructor = order.FinishedShip;
-        RunClearOf(station, constructor);
+        RunPastLaunch(constructor);
+        DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true);
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: its last order ends, its constructor flying home");
 
-        station.Die(null, cleanupOnly: true);
-        Assert.IsTrue(constructor.Active, "setup: the constructor outlives the station's blast");
+        mission.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(mission) && ship.WorksForSalvage, "the ship waits for its constructor");
+        RunSimWhile((simTimeout: 60, fatal: true), () => constructor.Active);
+        mission.Evaluate();
+        Assert.IsTrue(!Player.AI.HasGoal(mission) && !ship.WorksForSalvage, "and once it has docked, the ship goes, a ship like any other");
+    }
+
+    [TestMethod]
+    public void AConstructorInFlightWhoseShipIsDestroyedIsScuttledAtOnce()
+    {
+        Derelict d = Forms(Wreck);
+        SalvageDerelict order = LaunchedAway(d);
+        Ship ship = ShipOf(order);
+        Ship constructor = order.FinishedShip;
+        RunClearOf(ship, constructor);
+
+        ship.Die(null, cleanupOnly: true);
+        Assert.IsTrue(constructor.Active, "setup: the constructor outlives the ship's blast");
+        MissionOf(order).Evaluate();
         order.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(order), "the order ends with its station");
+        Assert.IsFalse(Player.AI.HasGoal(order), "the order ends with its ship");
         Assert.IsFalse(constructor.Active, "and its constructor is scuttled at once");
     }
 
     [TestMethod]
-    public void AConstructorInFlightWhoseStationIsBoardedIsScuttledAtOnce()
+    public void AConstructorInFlightWhoseShipIsBoardedIsScuttledAtOnce()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
+        Ship ship = ShipOf(order);
         Ship constructor = order.FinishedShip;
         RunPastLaunch(constructor);
 
-        station.KillAllTroops();
-        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(station);
-        station.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
+        ship.KillAllTroops();
+        ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(ship);
+        ship.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
         UState.Objects.UpdateLists();
-        AssertEqual(Enemy, station.Loyalty, "setup: the station is boarded");
-        AssertGreaterThan(station.Carrier.OrdnanceInSpace, 0f, "setup: the constructor's ordnance is out with it");
+        AssertEqual(Enemy, ship.Loyalty, "setup: the ship is boarded");
+        AssertGreaterThan(ship.Carrier.OrdnanceInSpace, 0f, "setup: the constructor's ordnance is out with it");
+        MissionOf(order).Evaluate();
         order.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(order), "the order ends with its station");
+        Assert.IsFalse(Player.AI.HasGoal(order), "the order ends with its ship");
         Assert.IsFalse(constructor.Active, "and its constructor is scuttled at once");
-        AssertEqual(0.01f, 0f, station.Carrier.OrdnanceInSpace, "the station's new owner does not count its ordnance as out");
+        AssertEqual(0.01f, 0f, ship.Carrier.OrdnanceInSpace, "the ship's new owner does not count its ordnance as out");
     }
 
     [TestMethod]
     public void AConstructorBoardedOnItsWayIsTheBoardersAndItsUnitLaunchesAnother()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
+        Ship ship = ShipOf(order);
         Ship boarded = order.FinishedShip;
-        ShipModule bay = BayOf(station, boarded);
+        ShipModule bay = BayOf(ship, boarded);
         RunPastLaunch(boarded);
-        float inSpace = station.Carrier.OrdnanceInSpace;
+        float inSpace = ship.Carrier.OrdnanceInSpace;
 
         ResourceManager.CreateTroop("Wyvern", Enemy).LandOnShip(boarded);
         boarded.LoyaltyChangeFromBoarding(Enemy, addNotification: false);
         UState.Objects.UpdateLists();
         AssertEqual(Enemy, boarded.Loyalty, "setup: the constructor is boarded");
         order.Evaluate();
-        Assert.IsNull(boarded.Mothership, "the boarded constructor is no longer the station's");
+        Assert.IsNull(boarded.Mothership, "the boarded constructor is no longer the ship's");
         Assert.IsNull(bay.HangarShip, "and its unit is free");
-        AssertEqual(0.01f, inSpace - boarded.ShipOrdLaunchCost, station.Carrier.OrdnanceInSpace, "with the ordnance it took written off");
+        AssertEqual(0.01f, inSpace - 26f, ship.Carrier.OrdnanceInSpace, "with the 26 ordnance it took written off");
 
+        bay.HangarTimer = 0f; // its timer ran out meanwhile
+        order.Evaluate();
         order.Evaluate();
         Assert.IsTrue(order.FinishedShip is { } another && another != boarded && another.Loyalty == Player, "the order launches another constructor");
         AssertEqual(Enemy, boarded.Loyalty, "and leaves the boarded one to its boarder");
@@ -410,14 +516,15 @@ public class SalvageConstructorTests : StarDriveTest
     [TestMethod]
     public void AConstructorBoardedOnItsWayHomeLeavesItsUnitToTheNextOrder()
     {
+        TwinShips();
         Derelict first = Forms(Wreck);
         Derelict second = Forms(Wreck + new Vector2(0, 5_000f));
         Derelict next = Forms(Wreck + new Vector2(0, -5_000f));
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(first, Player);
+        SalvageDerelict order = OrderedAndLaunched(first);
+        Ship ship = ShipOf(order);
         Ship boarded = order.FinishedShip;
-        ShipModule bay = BayOf(station, boarded);
-        OrderedAndLaunched(second, Player);
+        ShipModule bay = BayOf(ship, boarded);
+        OrderedAndLaunched(second);
         RunPastLaunch(boarded);
         SalvageDerelict.Cancel(Player, first);
         Assert.IsFalse(Player.AI.HasGoal(order), "setup: the order ends before its platform, its constructor flying home");
@@ -428,63 +535,67 @@ public class SalvageConstructorTests : StarDriveTest
         AssertEqual(Enemy, boarded.Loyalty, "setup: the constructor is boarded on its way home");
         bay.HangarTimer = 0f; // its timer ran out meanwhile
 
-        Assert.IsTrue(SalvageDerelict.Order(Player, next), "a new order counts the unit free");
-        Ship launched = OrderOf(Player, next).FinishedShip;
-        Assert.IsNotNull(launched, "and launches its constructor");
-        Assert.AreSame(bay, BayOf(station, launched), "from the boarded one's bay");
+        SalvageDerelict nextOrder = Ordered(next);
+        Assert.AreSame(MissionOf(order), MissionOf(nextOrder), "a new order counts the unit free");
+        Ship launched = Launched(nextOrder);
+        Assert.AreSame(bay, BayOf(ship, launched), "and launches its constructor from the boarded one's bay");
         Assert.IsNull(boarded.Mothership, "which lets the boarded constructor go");
         AssertEqual(Enemy, boarded.Loyalty, "to its boarder");
     }
 
     [TestMethod]
-    public void AConstructorFlyingHomeToAStationLostOnTheWayIsRemoved()
+    public void AConstructorFlyingHomeToAShipLostOnTheWayIsRemoved()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = LaunchedAway(d);
+        Ship ship = ShipOf(order);
         Ship constructor = order.FinishedShip;
-        RunClearOf(station, constructor);
+        RunClearOf(ship, constructor);
         DerelictSalvageButton.Click(Player, d, DerelictSalvageButton.Kind.Salvage, Block.Ordered, lit: true);
         RunObjectsSim(TestSimStep);
         AssertEqual(AIState.ReturnToHangar, constructor.AI.State, "setup: the constructor flies home");
 
-        station.Die(null, cleanupOnly: true);
-        Assert.IsTrue(constructor.Active, "setup: the constructor outlives the station's blast");
+        ship.Die(null, cleanupOnly: true);
+        Assert.IsTrue(constructor.Active, "setup: the constructor outlives the ship's blast");
         RunSimWhile((simTimeout: 5, fatal: true), () => constructor.Active);
     }
 
     [TestMethod]
-    public void AConstructorFliesOnAfterItsLaunchHoweverFarFromItsStation()
+    public void AConstructorFliesOnAfterItsLaunchHoweverFarFromItsShip()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
+        Ship ship = ShipOf(order);
         Ship constructor = order.FinishedShip;
         RunPastLaunch(constructor);
         RunObjectsSim(TestSimStep);
         Assert.IsTrue(constructor.AI.OrderQueue.PeekFirst is { Plan: ShipAI.Plan.DeployStructure }, "after its launch it flies on to build, where a fighter turns back to its carrier");
 
-        constructor.Position = station.Position + new Vector2(station.SensorRange + 10_000f, 0);
+        constructor.Position = ship.Position + new Vector2(ship.SensorRange + 10_000f, 0);
         RunSimWhile((simTimeout: 2, fatal: false));
-        Assert.IsTrue(constructor.AI.OrderQueue.PeekFirst is { Plan: ShipAI.Plan.DeployStructure }, "and beyond its station's sensors it is not called back");
+        Assert.IsTrue(constructor.AI.OrderQueue.PeekFirst is { Plan: ShipAI.Plan.DeployStructure }, "and beyond its ship's sensors it is not called back");
     }
 
     [TestMethod]
     public void LaunchedOrdersHoldTheUnitsBeforeOrdersWaitingToLaunch()
     {
+        TwinShips();
         Derelict a = Forms(Wreck);
         Derelict b = Forms(Wreck + new Vector2(0, 5_000f));
-        Ship station = BuiltStation(Player, PlayerStation);
-        float full = station.Ordinance;
-        station.ChangeOrdnance(-full);
-        Assert.IsTrue(SalvageDerelict.Order(Player, a), "setup: an order that cannot launch yet");
-        station.ChangeOrdnance(full);
-        SalvageDerelict waiting = OrderOf(Player, a);
-        SalvageDerelict launched = OrderedAndLaunched(b, Player);
+        SalvageDerelict waiting = Ordered(a);
+        Ship ship = ShipBuilt(waiting);
+        float full = ship.Ordinance;
+        ship.ChangeOrdnance(-full);
+        Parked(waiting);
+        waiting.Evaluate();
+        AssertEqual("LaunchConstructor", waiting.StepName, "setup: an order that cannot launch yet");
+        ship.ChangeOrdnance(full);
+        SalvageDerelict launched = Ordered(b);
+        Launched(launched);
         AssertEqual("LaunchConstructor", waiting.StepName, "setup: the first order still waits to launch");
 
-        BayOf(station, launched.FinishedShip).Die(null, cleanupOnly: true);
-        AssertEqual(1, SalvageDerelict.LiveUnits(station), "setup: the unit that launched the second order's constructor dies");
+        BayOf(ship, launched.FinishedShip).Die(null, cleanupOnly: true);
+        AssertEqual(1, SalvageMission.LiveUnits(ship), "setup: the unit that launched the second order's constructor dies");
         launched.Evaluate(); // the goals are evaluated last to first
         waiting.Evaluate();
         Assert.IsTrue(Player.AI.HasGoal(launched), "the launched order keeps the unit left counted busy");
@@ -495,7 +606,6 @@ public class SalvageConstructorTests : StarDriveTest
     public void ThePlatformsLossEndsTheOrderAndGivesUpItsClaim()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation(Player, PlayerStation);
         SalvageDerelict order = WithItsPlatform(d);
 
         order.Platform.Die(null, cleanupOnly: true);
@@ -508,7 +618,6 @@ public class SalvageConstructorTests : StarDriveTest
     public void CallingOffAnOrderWithItsPlatformBuiltGivesUpTheClaimAndLeavesThePlatformToComeApart()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation(Player, PlayerStation);
         SalvageDerelict order = WithItsPlatform(d);
         Ship platform = order.Platform;
 
@@ -522,8 +631,8 @@ public class SalvageConstructorTests : StarDriveTest
     public void AnOrderMidFlightSurvivesSaveAndLoadAndBuildsItsPlatform()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation(Player, PlayerStation);
-        SalvageDerelict order = OrderedAndLaunched(d, Player);
+        SalvageDerelict order = OrderedAndLaunched(d);
+        Ship ship = ShipOf(order);
         Ship constructor = order.FinishedShip;
         RunPastLaunch(constructor);
         RunSimWhile((simTimeout: 1, fatal: false));
@@ -539,9 +648,10 @@ public class SalvageConstructorTests : StarDriveTest
         AssertEqual("BuildPlatform", loadedOrder.StepName, "waiting for its platform");
         Ship flying = loadedOrder.FinishedShip;
         Assert.IsTrue(flying is { Active: true } && flying.Id == constructor.Id, "with its constructor in flight");
-        Assert.IsTrue(flying.Mothership?.Id == station.Id, "still its station's");
+        Assert.IsTrue(flying.Mothership?.Id == ship.Id, "still its salvage ship's");
         Assert.IsNotNull(BayOf(flying.Mothership, flying), "holding its unit");
         AssertEqual(order.BuildPosition, loadedOrder.BuildPosition, "bound for the same site");
+        Assert.IsTrue(loadedOrder.Mission?.SalvageShip?.Id == ship.Id, "its mission and ship with it");
 
         int frame = 0;
         for (double time = 0; loadedOrder.Platform == null; time += TestSimStepD)

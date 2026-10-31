@@ -13,13 +13,13 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// A platform, station or orbital shipyard scrapped where it stands, from its panel, its ship list row, the governor
-/// or a salvage station's end, comes apart over 1 turn per 50 slots, from 3 to 20 whatever the pace. It stops at
+/// A platform, station or orbital shipyard scrapped where it stands, from its panel, its ship list row or the
+/// governor, comes apart over 1 turn per 50 slots, from 3 to 20 whatever the pace. It stops at
 /// once: its weapons, shields, repair, supply, hangars and work go quiet, it pays no upkeep and cannot be refitted,
 /// and it leaves its planet's orbitals, its place there free. Once it is gone, the planet it orbits, when the
 /// empire's, gets half of its cost by its health and the production aboard, the excess paid as credits at the tax
 /// rate with the turn's income. Scrap again calls it off, the orbital whole and at work, while its place is still
-/// free: its planet its empire's or no one's, with room among its orbitals; a salvage station's cannot be. Another
+/// free: its planet its empire's or no one's, with room among its orbitals, a salvage station's too. Another
 /// Scrap of one coming apart, as a selection's, changes nothing, and one counting down to its scuttling is not taken
 /// apart. Boarded, given away or absorbed with its empire, it is whole for its new owner, among its planet's orbitals
 /// while the planet is no one's, its old owner's or its new owner's; dying, destroyed or scuttled, it gives nothing;
@@ -33,7 +33,7 @@ public class DismantleOrbitalTests : StarDriveTest
     const string PatrolStation = "Terran Small Patrol Station 1";
     const string BigStation = "T-Mining-Station mk1-a";
     const string Projector = "Subspace Projector";
-    const string SalvageStation = "Terran Basic Salvage Station";
+    const string SalvageStation = "TEST_Old Salvage Station";
     readonly Planet Colony;
 
     public DismantleOrbitalTests()
@@ -288,16 +288,16 @@ public class DismantleOrbitalTests : StarDriveTest
     }
 
     [TestMethod]
-    public void ASalvageStationsCannotBeCalledOff()
+    public void ASalvageStationsCanBeCalledOffAsAnyOrbitals()
     {
         Ship station = SpawnShip(SalvageStation, Player, new Vector2(600_000f));
         station.AI.OrderScrapShip();
         Assert.IsTrue(station.Dismantling, "setup: a salvage station comes apart");
-        Assert.IsFalse(DismantleOrbital.CanCallOff(station), "its work ended with its orders");
+        Assert.IsTrue(DismantleOrbital.CanCallOff(station), "its place in open space is still free");
 
         station.ScrapFromButton();
         Universe.InvokePendingSimThreadActions();
-        Assert.IsTrue(station.Dismantling && GoalOf(station) != null, "so Scrap again does not call it off");
+        Assert.IsFalse(station.Dismantling || GoalOf(station) != null, "so Scrap again calls it off");
     }
 
     [TestMethod]

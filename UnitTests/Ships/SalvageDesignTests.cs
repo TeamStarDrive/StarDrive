@@ -1,40 +1,32 @@
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
-using Ship_Game.AI;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Point = SDGraphics.Point;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships;
 
 /// <summary>
-/// Every race has a basic salvage station on its own small station hull, the Terran layout with two salvage units,
-/// which the AI's orbital pickers never choose. The salvage platform is one fixed design: no empire builds it from a
-/// list, and the player cannot order, refit, scrap or list it, nor pays upkeep for it. With salvage ops off, the ship
-/// designer and the build lists leave out the salvage unit, the salvage stations and the platform. The ship designer
-/// flags a salvage station red with less cargo room than one load, the platform's hold, for each of its salvage units,
-/// yellow under one and a half loads a unit and green under two, and flags no race's default.
+/// The salvage platform is one fixed design: no empire builds it from a list, and the player cannot order, refit,
+/// scrap or list it, nor pays upkeep for it. With salvage ops off, the ship designer and the build lists leave out the
+/// salvage unit, the salvage ships, the salvage stations and the platform. The ship designer flags a salvage ship red
+/// with less cargo room than one load, the platform's hold, for each of its salvage units, orange under 1.1 loads a
+/// unit, yellow under four thirds and green under five thirds, and flags no other design, a salvage station included.
 /// A mod that turns salvage ops on without the salvage platform has them off.
 /// </summary>
 [TestClass]
 public class SalvageDesignTests : StarDriveTest
 {
-    static readonly string[] Stations =
-    {
-        "Terran Basic Salvage Station", "Cordrazine Basic Salvage Station", "Draylok Basic Salvage Station",
-        "Kulrathi Basic Salvage Station", "Opteris Basic Salvage Station", "Pollops Basic Salvage Station",
-        "Ralyeh Basic Salvage Station", "Vulfar Basic Salvage Station",
-    };
+    const string SalvageShip = "Terran Salvage Ship";
+    const string TwinShip = "TEST_Twin Salvage Ship";
+    const string OldStation = "TEST_Old Salvage Station";
 
     public SalvageDesignTests()
     {
-        LoadStarterShips(Stations);
-        LoadStarterShips(ShipDesign.SalvagePlatformName);
+        LoadStarterShips(SalvageShip, TwinShip, OldStation, ShipDesign.SalvagePlatformName);
         CreateUniverseAndPlayerEmpire();
     }
 
@@ -81,57 +73,28 @@ public class SalvageDesignTests : StarDriveTest
         }
     }
 
-    [TestMethod]
-    public void EveryRaceHasABasicSalvageStationOnItsOwnSmallStationHull()
-    {
-        foreach (string name in Stations)
-        {
-            IShipDesign station = Design(name);
-            Assert.IsTrue(station.IsValidDesign, $"{name} is a valid design");
-            Assert.IsTrue(station.IsSalvageStation, $"{name} is a salvage station");
-            AssertEqual(2, station.NumSalvageModules, $"{name} carries two salvage units");
-            StringAssert.EndsWith(station.Hull, "_Station_Small", $"{name} is on a small station hull");
-            AssertEqual(station.BaseHull.Style, station.ShipStyle, $"{name} takes the style of its hull");
-
-            var cells = new HashSet<Point>();
-            foreach (HullSlot slot in station.BaseHull.HullSlots)
-                cells.Add(slot.Pos);
-            foreach (DesignSlot slot in station.GetOrLoadDesignSlots())
-                for (int x = 0; x < slot.Size.X; ++x)
-                    for (int y = 0; y < slot.Size.Y; ++y)
-                        Assert.IsTrue(cells.Contains(new Point(slot.Pos.X + x, slot.Pos.Y + y)),
-                                      $"{name}: {slot.ModuleUID} at {slot.Pos} sits on its hull");
-        }
-    }
-
-    [TestMethod]
-    public void EveryMajorRaceNamesItsOwnBasicSalvageStationAsItsDefault()
-    {
-        AssertEqual(Stations.Length, ResourceManager.MajorRaces.Count, "setup: one station per major race");
-        foreach (IEmpireData race in ResourceManager.MajorRaces)
-        {
-            var data = (EmpireData)race;
-            Assert.IsTrue(data.DefaultSalvageStation.NotEmpty(), $"{race.Name} names a default salvage station");
-            IShipDesign station = Design(data.DefaultSalvageStation);
-            Assert.IsTrue(station.IsSalvageStation, $"{race.Name}: {station.Name} is a salvage station");
-            Assert.IsTrue(ShipResupply.HasRoomForSalvageLoads(station), $"{race.Name}: {station.Name} holds a salvage load for each of its units");
-            var issues = new ShipDesignIssues(Universe, station);
-            issues.CheckLowSalvageCargo();
-            Assert.IsTrue(issues.CurrentDesignIssues.IsEmpty, $"{race.Name}: the ship designer flags nothing about {station.Name}'s cargo room");
-            AssertEqual(data.Traits.ShipType, station.BaseHull.Style, $"{race.Name}: {station.Name} is on its own hull");
-        }
-    }
-
-    // a copy of the design with its cargo holds taken off one at a time until its cargo room is under the limit
-    static ShipDesign CargoUnder(IShipDesign from, float limit, string name)
+    // a copy of the design with cargo holds taken off until its cargo room is under `high`, each the largest that leaves `low` or more, else the smallest
+    static ShipDesign CargoIn(IShipDesign from, float low, float high, string name)
     {
         ShipDesign design = ((ShipDesign)from).GetClone(name);
         var slots = new Array<DesignSlot>(from.GetOrLoadDesignSlots());
-        while (design.BaseCargoSpace >= limit)
+        while (design.BaseCargoSpace >= high)
         {
-            slots.Remove(slots.First(s => ResourceManager.GetModuleTemplate(s.ModuleUID).CargoCapacity > 0f));
+            float room = design.BaseCargoSpace;
+            DesignSlot[] holds = slots.Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID) is { CargoCapacity: > 0f, Salvage: false });
+            DesignSlot[] keeping = holds.Filter(s => room - ResourceManager.GetModuleTemplate(s.ModuleUID).CargoCapacity >= low);
+            slots.Remove(keeping.Length > 0 ? keeping.FindMax(s => ResourceManager.GetModuleTemplate(s.ModuleUID).CargoCapacity)
+                                            : holds.FindMin(s => ResourceManager.GetModuleTemplate(s.ModuleUID).CargoCapacity));
             design.SetDesignSlots(slots.ToArray(), updateRole: false);
         }
+        return design;
+    }
+
+    // a copy of the design with cargo room from `low` to under `high`
+    static ShipDesign Band(IShipDesign from, float low, float high, string name)
+    {
+        ShipDesign design = CargoIn(from, low, high, name);
+        Assert.IsTrue(design.BaseCargoSpace >= low && design.BaseCargoSpace < high, $"setup: {name} has room from {low} to under {high}, not {design.BaseCargoSpace}");
         return design;
     }
 
@@ -142,60 +105,59 @@ public class SalvageDesignTests : StarDriveTest
         issues.CheckLowSalvageCargo();
         AssertEqual(1, issues.CurrentDesignIssues.Count, $"{design.Name} is flagged");
         DesignIssueDetails issue = issues.CurrentDesignIssues[0];
-        Assert.AreEqual(DesignIssueType.LowSalvageCargo, issue.Type, $"{design.Name}: as low salvage cargo");
+        Assert.AreEqual(DesignIssueType.LowSalvageShipCargo, issue.Type, $"{design.Name}: as low salvage cargo");
         return issue;
     }
 
     [TestMethod]
-    public void TheShipDesignerFlagsASalvageStationRedUnderALoadAUnitYellowUnderOneAndAHalfAndGreenUnderTwo()
+    public void TheShipDesignerFlagsASalvageShipRedUnderALoadAUnitThenOrangeYellowAndGreenUnderFiveThirds()
     {
         float platformHold = Design(ShipDesign.SalvagePlatformName).BaseCargoSpace;
         AssertEqual(75f, platformHold, "setup: the platform holds 75");
         AssertEqual(platformHold, ShipResupply.SalvageLoad, "one load is the salvage platform's hold");
 
-        IShipDesign station = Design("Terran Basic Salvage Station");
-        AssertEqual(2, station.NumSalvageModules, "setup: a station with two salvage units");
-        Assert.IsTrue(station.BaseCargoSpace >= 300f, "setup: room for two loads a unit");
-        var issues = new ShipDesignIssues(Universe, station);
+        IShipDesign ship = Design(TwinShip);
+        AssertEqual(2, ship.NumSalvageModules, "setup: a ship with two salvage units");
+        var issues = new ShipDesignIssues(Universe, Band(ship, 250f, 251f, "Clear Salvage Ship"));
         issues.CheckLowSalvageCargo();
-        AssertEqual(0, issues.CurrentDesignIssues.Count, "room for two loads a unit is not flagged");
+        AssertEqual(0, issues.CurrentDesignIssues.Count, "room for 125 a unit is not flagged");
 
-        ShipDesign green = CargoUnder(station, 300f, "Green Salvage Station");
-        Assert.IsTrue(green.BaseCargoSpace >= 225f, "setup: room for one and a half loads a unit, not two");
-        DesignIssueDetails issue = CargoIssue(green);
-        Assert.AreEqual(WarningLevel.Informative, issue.Severity, "under two loads a unit, a green issue");
-        StringAssert.EndsWith(issue.AdditionalText, $" {300f.GetNumberString()}.", "whose remedy names the cargo room two loads a unit need");
+        DesignIssueDetails issue = CargoIssue(Band(ship, 200f, 201f, "Green Salvage Ship"));
+        Assert.AreEqual(WarningLevel.Informative, issue.Severity, "under 125 a unit, 100 among it, a green issue");
+        StringAssert.EndsWith(issue.AdditionalText, $" {Localizer.Token(GameText.DesignIssueLowSalvageCargoClears)} {250f.GetNumberString()}.",
+                              "whose remedy names the cargo room that clears it");
 
-        ShipDesign yellow = CargoUnder(station, 225f, "Yellow Salvage Station");
-        Assert.IsTrue(yellow.BaseCargoSpace >= 150f, "setup: room for a load a unit, not one and a half");
-        issue = CargoIssue(yellow);
-        Assert.AreEqual(WarningLevel.Minor, issue.Severity, "under one and a half, a yellow one");
-        StringAssert.EndsWith(issue.AdditionalText, $" {300f.GetNumberString()}.", "naming the same room");
+        issue = CargoIssue(Band(ship, 165f, 200f, "Yellow Salvage Ship"));
+        Assert.AreEqual(WarningLevel.Minor, issue.Severity, "under 100 a unit, a yellow one");
+        StringAssert.EndsWith(issue.AdditionalText, $" {250f.GetNumberString()}.", "naming the same room");
 
-        ShipDesign red = CargoUnder(station, 150f, "Red Salvage Station");
-        issue = CargoIssue(red);
+        issue = CargoIssue(Band(ship, 0f, 150f, "Red Salvage Ship"));
         Assert.AreEqual(WarningLevel.Critical, issue.Severity, "under a load a unit, a red one");
         StringAssert.Contains(issue.AdditionalText, $" {150f.GetNumberString()}.", "whose remedy names the cargo room a load a unit needs");
-        StringAssert.EndsWith(issue.AdditionalText, Localizer.Token(GameText.DesignIssueLowSalvageCargoSkipped), "and says the pickers skip it");
+        StringAssert.EndsWith(issue.AdditionalText, Localizer.Token(GameText.DesignIssueLowSalvageShipCargoSkipped), "and says the salvage ship list and auto pick skip it");
+
+        IShipDesign single = Design(SalvageShip);
+        AssertEqual(1, single.NumSalvageModules, "setup: a ship with one salvage unit, whose small holds step its room finely");
+        issue = CargoIssue(Band(single, 83f, 84f, "Yellow Single Salvage Ship"));
+        Assert.AreEqual(WarningLevel.Minor, issue.Severity, "from 82.5, yellow");
+        issue = CargoIssue(Band(single, 82f, 82.5f, "Orange Single Salvage Ship"));
+        Assert.AreEqual(WarningLevel.Major, issue.Severity, "under 82.5 a unit, an orange one");
+        StringAssert.EndsWith(issue.AdditionalText, $" {125f.GetNumberString()}.", "naming the room that clears it, 125 for its one unit");
+        issue = CargoIssue(Band(single, 75f, 76f, "Full Load Salvage Ship"));
+        Assert.AreEqual(WarningLevel.Major, issue.Severity, "a load a unit is orange, not red");
 
         ShipDesign research = Holdless(Design("Basic Research Station"), "Holdless Research Station");
         AssertLessThan(research.BaseCargoSpace, platformHold, "setup: a research station with less cargo room than one load");
         var other = new ShipDesignIssues(Universe, research);
         other.CheckLowSalvageCargo();
-        Assert.IsTrue(other.CurrentDesignIssues.IsEmpty, "other stations are never flagged for it");
-    }
+        Assert.IsTrue(other.CurrentDesignIssues.IsEmpty, "other designs are never flagged for it");
 
-    [TestMethod]
-    public void TheAIOrbitalPickersNeverChooseASalvageStation()
-    {
-        IShipDesign station = Design("Terran Basic Salvage Station");
-        Enemy.ClearShipsWeCanBuild();
-        Enemy.AddBuildableShip(station);
-        AssertEqual(RoleName.station, station.Role, "setup: a station-role design the empire can build");
-
-        Assert.IsNull(ShipBuilder.PickCostEffectiveShipToBuild(RoleName.station, Enemy, float.MaxValue, float.MaxValue),
-                      "the cost-effective orbital pick skips it");
-        Assert.IsNull(ShipBuilder.BestShipWeCanBuild(RoleName.station, Enemy), "and so does the best station pick");
+        ShipDesign station = CargoIn(Design(OldStation), 0f, 150f, "Short Salvage Station");
+        Assert.IsTrue(station.IsSalvageStation && station.BaseCargoSpace < station.NumSalvageModules * platformHold,
+                      "setup: a salvage station with less cargo room than a load a unit");
+        var old = new ShipDesignIssues(Universe, station);
+        old.CheckLowSalvageCargo();
+        Assert.IsTrue(old.CurrentDesignIssues.IsEmpty, "nor a salvage station, which no empire builds");
     }
 
     [TestMethod]
@@ -215,18 +177,20 @@ public class SalvageDesignTests : StarDriveTest
     public void WithSalvageOpsOffTheDesignerAndTheBuildListsLeaveOutTheSalvageUnitAndDesigns()
     {
         ShipModule unit = ResourceManager.GetModuleTemplate("SalvageUnit");
-        IShipDesign station = Design("Terran Basic Salvage Station");
+        IShipDesign station = Design(OldStation);
+        IShipDesign ship = Design(SalvageShip);
         IShipDesign platform = Design(ShipDesign.SalvagePlatformName);
         Assert.IsTrue(UState.P.SalvageOps, "setup: salvage ops on");
         Assert.IsFalse(ModuleSelectScrollList.IsTurnedOff(unit, UState.P), "setup: the designer lists the salvage unit");
         Assert.IsFalse(ShipDesignLoadScreen.IsTurnedOff(station, UState.P), "setup: and the salvage stations");
-        Assert.IsTrue(station.CanBeAddedToBuildableShips(Player), "setup: which the player can add to the buildable ships");
+        Assert.IsTrue(ship.CanBeAddedToBuildableShips(Player), "setup: the player can add a salvage ship to the buildable ships");
 
         UState.P.DisableSalvageOps = true;
         Assert.IsTrue(ModuleSelectScrollList.IsTurnedOff(unit, UState.P), "with salvage ops off the designer leaves out the salvage unit");
         Assert.IsTrue(ShipDesignLoadScreen.IsTurnedOff(station, UState.P), "and the salvage stations");
         Assert.IsTrue(ShipDesignLoadScreen.IsTurnedOff(platform, UState.P), "and the salvage platform");
-        Assert.IsFalse(station.CanBeAddedToBuildableShips(Player), "and no salvage station goes in the buildable ships");
+        Assert.IsTrue(ShipDesignLoadScreen.IsTurnedOff(ship, UState.P), "and the salvage ships");
+        Assert.IsFalse(ship.CanBeAddedToBuildableShips(Player), "and no salvage ship goes in the buildable ships");
 
         Assert.IsFalse(ModuleSelectScrollList.IsTurnedOff(ResourceManager.GetModuleTemplate("Structure"), UState.P),
                        "other modules stay listed");

@@ -10,9 +10,6 @@
     <LeadsToTech>
       <UID>Battle_Stations</UID>
     </LeadsToTech>  
-    <LeadsToTech>
-      <UID>SalvageSpeed</UID>
-    </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>
@@ -24,9 +21,6 @@
     <UnlockedMod>
       <ModuleUID>ProcessingUnit</ModuleUID>
     </UnlockedMod>		
-    <UnlockedMod>
-      <ModuleUID>SalvageUnit</ModuleUID>
-    </UnlockedMod>			
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />

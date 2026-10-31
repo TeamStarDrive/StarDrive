@@ -23,6 +23,7 @@ namespace Ship_Game.Ships
         Empire Player => Universe.Player;
         Ship Ship;
         CombatState LastStanceSeen;
+        bool OrdersWhileWorking;
         private readonly Selector Sel;
         public Rectangle LeftRect;
         public Rectangle RightRect;
@@ -155,8 +156,7 @@ namespace Ship_Game.Ships
 
             var shipStatus = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64).ToFloored();
             SalvageDerelict salvage = s.IsSalvagePlatform ? SalvageDerelict.OfPlatform(s) : null;
-            string status = s.IsSalvagePlatform ? SalvageStatus(s, salvage)
-                          : s.IsSalvageStation ? SalvageStationStatus(s) : ShipListScreenItem.GetStatusText(s);
+            string status = s.IsSalvagePlatform ? SalvageStatus(s, salvage) : ShipListScreenItem.GetStatusText(s);
             string text = Fonts.TahomaBold9.ParseText(status, 120);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
 
@@ -537,15 +537,15 @@ namespace Ship_Game.Ships
                 ToolTip.CreateTooltip(GameText.DerelictProductionTip);
         }
 
-        // a salvage platform takes no orders: it strips its derelict, sends its station its load, and takes itself apart once its work is over
+        // a salvage platform takes no orders: it strips its derelict, sends the salvage ship its load, waiting while the ship is away or full, and takes itself apart once its work is over
         internal static string SalvageStatus(Ship platform, SalvageDerelict salvage)
         {
             if (salvage == null)
                 return ShipListScreenItem.GetStatusText(platform);
             if (salvage.Dismantling)
                 return Localizer.Token(GameText.PlatformDismantling);
-            if (salvage.LoadWaitsForStation(platform))
-                return Localizer.Token(GameText.SalvageStationHoldFull);
+            if (salvage.LoadWaitsForShip(platform, out bool shipFull))
+                return Localizer.Token(shipFull ? GameText.SalvageShipHoldFull : GameText.WaitingForSalvageShip);
             if (salvage.Finished)
                 return Localizer.Token(salvage.RecoverySucceeded ? GameText.PlatformShipRecovered : GameText.SalvageFinished);
             if (SalvageDerelict.HoldFull(platform))
@@ -555,17 +555,6 @@ namespace Ship_Game.Ships
             if (salvage.Derelict is { Stripped: false } d)
                 return string.Format(Localizer.Token(salvage.Recovering ? GameText.RecoveringDerelict : GameText.SalvagingDerelict), d.Design.Name);
             return ShipListScreenItem.GetStatusText(platform);
-        }
-
-        // the player's salvage station: the freighters on their way to load at it, waiting for them while it holds production, or salvaging; another empire's, or one counting down to its scuttling or coming apart, shows its orders
-        internal static string SalvageStationStatus(Ship station)
-        {
-            if (!station.Loyalty.isPlayer || station.ScuttleTimer >= 0f || station.Dismantling)
-                return ShipListScreenItem.GetStatusText(station);
-            int coming = SalvageOps.HaulsComing(station, out _);
-            if (coming > 0)
-                return string.Format(Localizer.Token(GameText.SalvageStationFreightersComing), coming);
-            return Localizer.Token(station.GetProduction() >= 1f ? GameText.SalvageStationWaitingForFreighters : GameText.DerelictSalvaging);
         }
 
         void DrawCarrierStatus(Vector2 mousePos, Ship ship)  // Added by Fat Bastard - display hangar status
@@ -685,6 +674,8 @@ namespace Ship_Game.Ships
                 LastStanceSeen = Ship.AI.CombatState;
                 OrdersButtons.ResetButtons(Ship);
             }
+            if (Ship != null && Ship.WorksForSalvage != OrdersWhileWorking)
+                SetOrders(Ship); // a salvage ship that starts or stops work loses or gets back its order buttons
         }
 
         public void SetShip(Ship s)
@@ -696,14 +687,19 @@ namespace Ship_Game.Ships
             CanRename = s.Loyalty == Player;
             ShipNameArea.Enabled = CanRename;
             ShipNameArea.Reset(s.ShipName);
+            SetOrders(s);
+        }
 
+        void SetOrders(Ship s)
+        {
             Orders.Clear();
             OrdersButtons.ResetButtons(s);
             LastStanceSeen = s.AI?.CombatState ?? LastStanceSeen;
+            OrdersWhileWorking = s.WorksForSalvage;
             if (s.Loyalty != Player)
                 return;
 
-            if (s.IsSalvagePlatform || s.DeliversRefund || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+            if (s.IsSalvagePlatform || OrdersWhileWorking || s.DeliversRefund || s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
             if (s.ShipData.Role > RoleName.station && !s.IsConstructor)
@@ -807,7 +803,7 @@ namespace Ship_Game.Ships
             }
             if (s.CanBeScrapped)
             {
-                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.IsSalvageStation && !s.Dismantling)
+                if (!s.IsConstructor && !s.IsSubspaceProjector && !s.Dismantling)
                 {
                     var rf = new OrdersButton(s, OrderType.Refit, GameText.OrderShipRefit)
                     {

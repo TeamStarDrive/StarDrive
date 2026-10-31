@@ -1,5 +1,4 @@
-﻿using System;
-using Ship_Game.Ships;
+﻿using Ship_Game.Ships;
 using SDGraphics;
 
 namespace Ship_Game.AI
@@ -136,64 +135,6 @@ namespace Ship_Game.AI
             Planet toOrbit = Owner.Loyalty.FindNearestRallyPoint(Owner.Position);
             CancelTradePlan(toOrbit);
             Owner.Loyalty.CheckForRefitFreighter(Owner, 10);
-        }
-
-        // a haul flies to its station and loads as it lands there, unless other freighters took what the station held
-        public void DoPickupGoodsFromStation(FixedSimTime timeStep, ShipGoal g)
-        {
-            Ship station = g.Trade.FromStation;
-            if (!CanHaul(station, g.Trade.ImportTo))
-            {
-                CallOffTrade(g.Trade);
-                return;
-            }
-
-            if (WaitForBlockadeRemoval(g, station, timeStep))
-                return;
-
-            if (Owner.Position.InRadius(station.Position, LandShip.ShipyardLandingRange(Owner)) && station.GetProduction() < 1f)
-            {
-                CallOffTrade(g.Trade);
-                return;
-            }
-
-            FlyInToStation(timeStep, g, station);
-        }
-
-        // a trade called off flies back to its exporting colony, or a haul, with none, to the nearest rally point
-        public void CallOffTrade(TradePlan trade)
-            => CancelTradePlan(trade.ExportFrom ?? Owner.Loyalty.FindNearestRallyPoint(Owner.Position));
-
-        bool CanHaul(Ship station, Planet importPlanet)
-        {
-            return station is { Active: true, Dying: false, Dismantling: false }
-                   && station.Loyalty == Owner.Loyalty
-                   && importPlanet.Owner != null // colony was wiped out
-                   && !importPlanet.Quarantine
-                   && (importPlanet.Owner == Owner.Loyalty || importPlanet.Owner.IsTradeTreaty(Owner.Loyalty));
-        }
-
-        // at touchdown a haul fills its hold, whatever its colony's room, to move the production out of the station
-        void LoadGoodsFromStation(ShipGoal g)
-        {
-            Ship station = g.Trade.FromStation;
-            Planet importPlanet = g.Trade.ImportTo;
-            if (!CanHaul(station, importPlanet))
-            {
-                CallOffTrade(g.Trade);
-                return;
-            }
-
-            float load = Math.Min(Owner.CargoRoom, station.GetProduction());
-            if (load < 1f)
-            {
-                CallOffTrade(g.Trade);
-                return;
-            }
-
-            station.UnloadProduction(Owner.LoadProduction(load));
-            importPlanet.ChangeIncomingCargo(Goods.Production, Owner.GetCargo(Goods.Production));
-            SetTradePlan(Plan.DropOffGoods, station, importPlanet, Goods.Production);
         }
     }
 }

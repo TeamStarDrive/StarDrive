@@ -136,6 +136,8 @@ namespace Ship_Game
             ShowRoles.AddOption("Support Ships", 11);
             ShowRoles.AddOption("All Structures", 12);
             ShowRoles.AddOption("Civilian", 13);
+            if (EmpireUi.Player.Universe.P.SalvageOps)
+                ShowRoles.AddOption("Salvage Ships", 14);
 
             SortSystem = new SortButton(EmpireUi.Player.data.SLSort, Localizer.Token(GameText.System));
             SortName   = new SortButton(EmpireUi.Player.data.SLSort, Localizer.Token(GameText.Ship));
@@ -147,7 +149,7 @@ namespace Ship_Game
             SB_STL     = new SortButton(EmpireUi.Player.data.SLSort, "STL");
             SB_Troop   = new SortButton(EmpireUi.Player.data.SLSort, "TROOP");
             SB_STR     = new SortButton(EmpireUi.Player.data.SLSort, "STR");
-            ShowRoles.ActiveIndex = IndexLast;  //fbedard: remember last filter
+            ShowRoles.ActiveIndex = IndexLast < ShowRoles.Count ? IndexLast : 0;  //fbedard: remember last filter, or All Ships in a game without salvage ops, which has no salvage filter
             ResetList(ShowRoles.ActiveValue);
         }
 
@@ -376,6 +378,7 @@ namespace Ship_Game
                     case 11: return ship.DesignRole == RoleName.support;
                     case 12: return ship.DesignRole <= RoleName.platform || ship.DesignRole == RoleName.station;
                     case 13: return ship.IsConstructor || ship.DesignRole == RoleName.freighter || ship.ShipData.ShipCategory == ShipCategory.Civilian;
+                    case 14: return ship.IsSalvageShip;
                 }
 
                 return false;

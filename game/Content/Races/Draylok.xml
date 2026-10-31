@@ -17,7 +17,7 @@
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <DefaultMiningShip>Draylok Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Draylok Basic Mining Station</DefaultMiningStation>  
-  <DefaultSalvageStation>Draylok Basic Salvage Station</DefaultSalvageStation>
+  <DefaultSalvageShip>Draylok Salvage Ship</DefaultSalvageShip>
   
   <RebelName>Draylok Democrats</RebelName>
   <RebelSing>Democractic Rebel</RebelSing>

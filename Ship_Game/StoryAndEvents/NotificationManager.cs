@@ -842,31 +842,6 @@ namespace Ship_Game
             }, "smallservo");
         }
 
-        public void AddSalvageStationBuiltNotification(Ship s, SolarSystem system)
-        {
-            if (Screen.UState.P.DisableStationBuiltWarning)
-                return;
-
-            AddNotification(new Notification
-            {
-                Message         = $"{system.Name}: {s.Name} {Localizer.Token(GameText.SalvageStationBuiltSystemNotify)}",
-                Action          = "SnapToShip",
-                ReferencedItem1 = s,
-                IconPath        = s.ShipData.IconPath
-            }, "smallservo");
-        }
-
-        public void AddExcessSalvageStationRemoved(Ship station, SolarSystem system)
-        {
-            AddNotification(new Notification
-            {
-                Message         = Localizer.Token(GameText.RemoveExcessSalvageStation),
-                Action          = "SnapToSystem",
-                ReferencedItem1 = system,
-                IconPath        = station.ShipData.IconPath
-            }, "sd_ui_notification_encounter");
-        }
-
         // the derelict whose system just joined the player's list of systems with salvageable derelicts
         public void AddNewDerelictNotification(Derelict d)
         {
@@ -885,7 +860,7 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        // a salvage whose platform sent its station its last load: the production its loads brought, then each tech with the research they gave it
+        // a salvage whose platform sent the salvage ship its last load: the production its loads brought, then each tech with the research they gave it
         public void AddSalvageFinishedNotification(SalvageDerelict order)
         {
             if (Screen.UState.P.DisableSalvageWarning)
@@ -918,9 +893,23 @@ namespace Ship_Game
         public void AddSalvageClaimedFirstNotification(SalvageDerelict order, Empire claimant)
             => AddSalvageLostNotification(order, SalvageText(GameText.SalvageClaimedFirstNotify, order, claimant.Name), order.DerelictIcon, claimant);
 
-        // the station's icon, or with the station not found since a load the derelict's
-        public void AddSalvageStationLostNotification(SalvageDerelict order, Ship station)
-            => AddSalvageLostNotification(order, SalvageText(GameText.SalvageStationLostNotify, order), station?.ShipData.IconPath ?? order.DerelictIcon);
+        // the salvage ship of the order's mission destroyed or in other hands, with the ship's icon
+        public void AddSalvageShipLostNotification(SalvageDerelict order, string shipIcon)
+            => AddSalvageLostNotification(order, SalvageText(GameText.SalvageShipLostNotify, order), shipIcon ?? order.DerelictIcon);
+
+        // a salvage ship destroyed or in other hands with production aboard
+        public void AddSalvageShipLostLoadNotification(float load, string shipIcon)
+        {
+            if (Screen.UState.P.DisableSalvageWarning)
+                return;
+
+            AddNotification(new Notification
+            {
+                Pause    = false,
+                Message  = string.Format(Localizer.Token(GameText.SalvageShipLostLoadNotify), load.ToString("N0", CultureInfo.InvariantCulture)),
+                IconPath = shipIcon
+            }, "sd_ui_notification_warning");
+        }
 
         // a salvage whose derelict sank away before its constructor started to build
         public void AddSalvageSankNotification(SalvageDerelict order)

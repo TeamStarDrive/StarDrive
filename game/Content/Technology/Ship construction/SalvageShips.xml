@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+  <Version>2</Version>
+  <UID>SalvageShips</UID>
+  <IconPath>SalvageSpeed</IconPath>
+  <TechnologyType>General</TechnologyType>
+  <RequiresSalvageOps>true</RequiresSalvageOps>
+  <Cost>400</Cost>
+  <NameIndex>7233</NameIndex>
+  <DescriptionIndex>7234</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>SalvageSpeed</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>SalvageUnit</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

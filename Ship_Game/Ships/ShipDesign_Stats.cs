@@ -28,9 +28,10 @@ public partial class ShipDesign
     public bool IsResearchStation   { get; private set; }
     public bool IsMiningStation     { get; private set; }
     public bool IsSalvageStation    { get; private set; }
-    // the one fixed platform design a salvage station builds beside a derelict, which the player never designs, builds, orders or refits
+    // the one fixed platform design a salvage ship's constructor builds beside a derelict, which the player never designs, builds, orders or refits
     public const string SalvagePlatformName = "Salvage Platform";
     public bool IsSalvagePlatform => Name == SalvagePlatformName;
+    public bool IsSalvageShip       { get; private set; } // a salvage module on a ship that is not a station or platform
     public bool IsUnitTestShip      { get; private set; }
     public bool IsSingleTroopShip   { get; private set; }
     public bool IsTroopShip         { get; private set; }
@@ -43,6 +44,7 @@ public partial class ShipDesign
     public bool  BaseCanWarp    { get; private set; }
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
+    public float BaseOrdnanceMax { get; private set; }
     public float BaseResearchPerTurn       { get; private set; }
     public float BaseRefiningPerTurn       { get; private set; }
     public byte NumConstructionModules     { get; private set; }
@@ -82,6 +84,7 @@ public partial class ShipDesign
         float baseWarp = 0f;
         float baseMass = 0f;
         float baseCargoSpace = 0f;
+        float baseOrdnanceMax = 0f;
         float startingColonyGoods = 0f;
         int numBuildingsDeployed = 0;
         float baseResearchPerTurn = 0;
@@ -111,6 +114,7 @@ public partial class ShipDesign
             baseWarp += m.WarpThrust;
             baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
             baseCargoSpace += m.CargoCapacity;
+            baseOrdnanceMax += m.OrdinanceCapacity;
             baseResearchPerTurn += m.ResearchPerTurn;
             baseProcessingPerTurn += m.Refining;
 
@@ -149,6 +153,7 @@ public partial class ShipDesign
         BaseCanWarp = baseWarp > 0;
         BaseMass = baseMass;
         BaseCargoSpace = baseCargoSpace;
+        BaseOrdnanceMax = baseOrdnanceMax;
         BaseResearchPerTurn = baseResearchPerTurn;
         BaseRefiningPerTurn = baseProcessingPerTurn;
 
@@ -181,11 +186,12 @@ public partial class ShipDesign
         IsSingleTroopShip = Role == RoleName.troop;
         IsTroopShip       = Role is RoleName.troop or RoleName.troopShip;
         IsBomber          = Role == RoleName.bomber;
-        IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
+        IsSalvageStation  = IsStation && NumSalvageModules > 0;
+        IsSalvageShip     = !IsPlatformOrStation && NumSalvageModules > 0;
+        IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian && !IsSalvageShip; // trade never takes a salvage ship
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
         IsMiningStation   = IsPlatformOrStation && BaseRefiningPerTurn > 0;
-        IsSalvageStation  = IsStation && NumSalvageModules > 0;
         IsDysonSwarmController  = Name == DysonSwarm.DysonSwarmControllerName;
 
         // only enable this flag for non-testing environment
@@ -252,7 +258,7 @@ public partial class ShipDesign
             && (player.Universe.P.ShowAllDesigns || IsPlayerDesign);
     }
 
-    // used by AutomationWindow and TechLine focusing
+    // used by AutomationWindow, TechLine focusing and the salvage ship picks
     public bool IsShipGoodToBuild(Empire e)
     {
         if (!IsValidDesign || IsUnitTestShip)
@@ -309,7 +315,8 @@ public partial class ShipDesign
             && !ShipRole.Protected
             && (empire.isPlayer || IsShipGoodForGoals(empire))
             && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer)
-            && (!IsSalvageStation || empire.Universe.P.SalvageOps);
+            && !IsSalvageStation // no empire builds a salvage station, as salvage ships salvage
+            && (!IsSalvageShip || empire.Universe.P.SalvageOps && !empire.IsFaction); // factions build no salvage ships
     }
 
     public int GetCompletionPercent()

@@ -41,10 +41,10 @@ namespace Ship_Game.Commands.Goals
         // 1 turn per 50 slots, from 3 to 20, whatever the pace
         public static int Turns(Ship orbital) => ((int)Math.Ceiling(orbital.SurfaceArea / SlotsPerTurn)).Clamped(MinTurns, MaxTurns);
 
-        // Scrap again brings it back while its place is still free for it: its planet its empire's or no one's, with room among its orbitals, and a mining station's ops still its empire's; a salvage station's work ended with its orders
+        // Scrap again brings it back while its place is still free for it: its planet its empire's or no one's, with room among its orbitals, and a mining station's ops still its empire's
         public static bool CanCallOff(Ship orbital)
         {
-            if (orbital.IsSalvageStation || orbital.IsMiningStation && orbital.GetTether() is { IsMineable: true } mined && mined.Mining.Owner != orbital.Loyalty)
+            if (orbital.IsMiningStation && orbital.GetTether() is { IsMineable: true } mined && mined.Mining.Owner != orbital.Loyalty)
                 return false;
             Planet planet = orbital.GetTether();
             return planet == null || (planet.Owner == null || planet.Owner == orbital.Loyalty) && !planet.IsOutOfOrbitalsLimit(orbital.ShipData);
@@ -111,15 +111,8 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoalComplete;
         }
 
-        // half of what it costs to build, a salvage station all of the cost its order stored as it was built, less for its damage, and the production aboard in full
-        float Refund(Ship orbital)
-        {
-            float cost = orbital.GetCost(Owner) * RefundShare;
-            if (orbital.IsSalvageStation)
-                cost = Owner.AI.FindGoal(g => g is SalvageOps && g.TargetShip == orbital) is SalvageOps { StationCost: > 0f } order
-                     ? order.StationCost : orbital.GetCost(Owner);
-            return cost * orbital.HealthPercent + orbital.GetProduction();
-        }
+        // half of what it costs to build, less for its damage, and the production aboard in full
+        float Refund(Ship orbital) => orbital.GetCost(Owner) * RefundShare * orbital.HealthPercent + orbital.GetProduction();
 
         public static float Room(Planet planet) => (planet.Storage.Max - planet.ProdHere).LowerBound(0f);
 

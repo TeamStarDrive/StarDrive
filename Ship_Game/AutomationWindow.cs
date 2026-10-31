@@ -6,6 +6,7 @@ using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -29,7 +30,7 @@ namespace Ship_Game
         DropOptions<int> ConstructorDropDown;
         DropOptions<int> ResearchStationDropDown;
         DropOptions<int> MiningStationDropDown;
-        DropOptions<int> SalvageStationDropDown;
+        DropOptions<int> SalvageShipDropDown;
         bool ResearchStationsEnabled;
         bool MiningOpsEnabled;
         bool SalvageOpsEnabled;
@@ -84,7 +85,7 @@ namespace Ship_Game
             ConstructionSubMenu = new(win, new LocalizedText[] { GameText.Automation, GameText.Alerts });
             float top = ConstructionSubMenu.ClientArea.Y + 1f;
 
-            // the salvage station's row adds to the table above
+            // the salvage ship's row adds to the table above
             UIList rest = Rest = AddList(new(win.X + 10f, top + (SalvageOpsEnabled ? 308f : 264f)));
             rest.Padding = new(2f, 10f);
             rest.AddCheckbox(() => UState.Player.AutoPickConstructors,  title: GameText.AutoPickConstructorsName, tooltip: GameText.AutoPickConstructorsTip);
@@ -100,8 +101,8 @@ namespace Ship_Game
             if (MiningOpsEnabled && Screen.Player.CanBuildMiningStations)
                 rest.AddCheckbox(() => UState.Player.AutoPickBestMiningStation, title: GameText.AutoPickMiningStation, tooltip: GameText.AutoPickMiningStationTip);
 
-            if (SalvageOpsEnabled && Screen.Player.CanBuildSalvageStations)
-                rest.AddCheckbox(() => UState.Player.AutoPickBestSalvageStation, title: GameText.AutoPickSalvageStation, tooltip: GameText.AutoPickSalvageStationTip);
+            if (SalvageOpsEnabled && Screen.Player.CanBuildSalvageShips)
+                rest.AddCheckbox(() => UState.Player.AutoPickBestSalvageShip, title: GameText.AutoPickSalvageShip, tooltip: GameText.AutoPickSalvageShipTip);
 
             rest.AddCheckbox(() => RushConstruction,                      title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
             rest.AddCheckbox(() => UState.P.AllowPlayerInterTrade,        title: GameText.AllowPlayerInterTradeTitle, tooltip: GameText.AllowPlayerInterTradeTip);
@@ -152,8 +153,8 @@ namespace Ship_Game
                     .Create(() => Screen.Player.AutoBuildMiningStations, title: GameText.AutoBuildMiningStation, tooltip: GameText.AutoBuildMiningStationTip);
 
             if (SalvageOpsEnabled)
-                SalvageStationDropDown = ticks.Add(new CheckedDropdown())
-                    .Create(() => Screen.Player.AutoBuildSalvageStations, title: GameText.AutoBuildSalvageStation, tooltip: GameText.AutoBuildSalvageStationTip);
+                SalvageShipDropDown = ticks.Add(new CheckedDropdown())
+                    .Create(() => Screen.Player.AutoSalvage, title: GameText.AutoSalvage, tooltip: GameText.AutoSalvageTip);
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
@@ -175,7 +176,7 @@ namespace Ship_Game
             Alerts.Visible = tab == 1;
             foreach (DropOptions<int> dropDown in new[] { ScoutDropDown, ColonyShipDropDown, ConstructorDropDown,
                                                           FreighterDropDown, ResearchStationDropDown, MiningStationDropDown,
-                                                          SalvageStationDropDown })
+                                                          SalvageShipDropDown })
                 if (dropDown != null) { dropDown.Open = false; dropDown.Reset(); }
         }
 
@@ -232,10 +233,10 @@ namespace Ship_Game
             }
             if (SalvageOpsEnabled)
             {
-                bool canBuild = Screen.Player.CanBuildSalvageStations;
-                if (canBuild && SalvageStationDropDown.Count == 0)
-                    InitSalvageStationDropDown();
-                SalvageStationDropDown.Visible = !Screen.Player.AutoPickBestSalvageStation && canBuild;
+                bool canBuild = Screen.Player.CanBuildSalvageShips;
+                if (canBuild && SalvageShipDropDown.Count == 0)
+                    InitSalvageShipDropDown();
+                SalvageShipDropDown.Visible = !Screen.Player.AutoPickBestSalvageShip && canBuild;
             }
             base.Draw(batch, elapsed);
         }
@@ -260,8 +261,8 @@ namespace Ship_Game
                     playerData.CurrentResearchStation = ResearchStationDropDown.ActiveName;
                 if (MiningOpsEnabled && Screen.Player.CanBuildMiningStations)
                     playerData.CurrentMiningStation   = MiningStationDropDown.ActiveName;
-                if (SalvageOpsEnabled && SalvageStationDropDown.NotEmpty)
-                    playerData.CurrentSalvageStation  = SalvageStationDropDown.ActiveName;
+                if (SalvageOpsEnabled && SalvageShipDropDown.NotEmpty)
+                    playerData.CurrentSalvageShip     = SalvageShipDropDown.ActiveName;
 
                 return true;
             }
@@ -306,17 +307,18 @@ namespace Ship_Game
             }
         }
 
-        void InitSalvageStationDropDown()
+        void InitSalvageShipDropDown()
         {
-            InitDropOptions(SalvageStationDropDown, ref Screen.Player.data.CurrentSalvageStation, Screen.Player.data.DefaultSalvageStation,
-                ship => ship.IsShipGoodToBuild(Screen.Player) && ShipBuilder.IsUsableSalvageStation(ship));
+            float launchCost = SalvageDerelict.ConstructorLaunchCost(Screen.Player);
+            InitDropOptions(SalvageShipDropDown, ref Screen.Player.data.CurrentSalvageShip, Screen.Player.data.DefaultSalvageShip,
+                ship => ShipBuilder.IsUsableSalvageShip(ship, Screen.Player, launchCost));
         }
 
         public void UpdateDropDowns()
         {
             EmpireData playerData = Screen.Player.data;
-            if (SalvageOpsEnabled && Screen.Player.CanBuildSalvageStations)
-                InitSalvageStationDropDown();
+            if (SalvageOpsEnabled && Screen.Player.CanBuildSalvageShips)
+                InitSalvageShipDropDown();
 
             if (MiningOpsEnabled && Screen.Player.CanBuildMiningStations)
             {

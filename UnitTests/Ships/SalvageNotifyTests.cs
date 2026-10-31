@@ -9,90 +9,21 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Ships;
 
 /// <summary>
-/// The player is told when a salvage platform has sent its station its last load and starts to come apart, whether its
-/// derelict was stripped empty or the order called off: the production its loads brought, then each tech with the
-/// research they gave it, a tech whose points show as 0 left out. The player is also told when a salvage ends early:
-/// its platform destroyed, its station lost (once for each order there, one still waiting to launch its constructor
-/// too, under the derelict's icon when the order has not found its station since a load), a rival claiming the
-/// derelict first, or the derelict sinking away before the claim. None of these pauses the game. Nothing is told of
-/// an order called off before its platform is built, a platform lost while it comes apart, a station the player
-/// scraps, salvage ops turned off, or another empire's salvage. The Salvage alerts switch silences them all, and the
-/// Derelict alerts switch the notification of a new derelict. An order's production delivered and its derelict's name
-/// and icon survive a save, as do both switches.
+/// The player is told when a salvage platform has sent its salvage ship its last load and starts to come apart,
+/// whether its derelict was stripped empty or the order called off: the production its loads brought, then each tech
+/// with the research they gave it, a tech whose points show as 0 left out. The player is also told when a salvage ends
+/// early: its platform destroyed, its salvage ship lost (once for each order of its mission, one still waiting to
+/// launch its constructor too, under the ship's icon, and once more for the production it had aboard), a rival
+/// claiming the derelict first, or the derelict sinking away before the claim. None of these pauses the game. Nothing
+/// is told of an order called off before its platform is built, a platform lost while it comes apart, salvage ops
+/// turned off, or another empire's salvage. The Salvage alerts switch silences them all, and the Derelict alerts
+/// switch the notification of a new derelict. An order's production delivered and its derelict's name and icon
+/// survive a save, as do both switches.
 /// </summary>
 [TestClass]
-public class SalvageNotifyTests : StarDriveTest
+public class SalvageNotifyTests : SalvageOrderTest
 {
-    static readonly Vector2 SystemSite = new(600_000f, 600_000f);
-    static readonly Vector2 Wreck = SystemSite + new Vector2(30_000f, 0);
-    static readonly Vector2 PlayerStation = SystemSite + new Vector2(33_000f, 0);
-    static readonly Vector2 EnemyStation = SystemSite + new Vector2(-33_000f, 0);
-    readonly SolarSystem WreckSystem;
-    readonly IShipDesign Station;
     NotificationManager Notes;
-
-    public SalvageNotifyTests()
-    {
-        LoadStarterShips("Dreadnought mk1-a", "Terran Basic Salvage Station", ShipDesign.SalvagePlatformName);
-        CreateUniverseAndPlayerEmpire();
-        UState.Objects.EnableParallelUpdate = false;
-        WreckSystem = AddDummyPlanet(SystemSite, 1f, 1f, 1f, SystemSite + new Vector2(0, 60_000f), explored: true).System;
-        AddHomeWorldToEmpire(new Vector2(200_000f), Player);
-        AddRemoteSystems(10);
-        Assert.IsTrue(ResourceManager.Ships.GetDesign("Terran Basic Salvage Station", out Station), "setup: the station is loaded");
-        Player.data.CurrentConstructor = "Terran Constructor";
-    }
-
-    [TestCleanup]
-    public override void Cleanup()
-    {
-        UState.Derelicts.Clear();
-        base.Cleanup();
-    }
-
-    // a salvageable derelict of the owner's ship, so the owner knows of it; the ship itself is gone
-    Derelict Forms(Vector2 at, Empire owner = null)
-    {
-        TestShip ship = SpawnShip("Dreadnought mk1-a", owner ?? Player, at);
-        Assert.IsTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false), "setup: a salvageable derelict");
-        Universe.InvokePendingSimThreadActions();
-        ship.QueueTotalRemoval();
-        return UState.Derelicts.Current.Last();
-    }
-
-    Ship BuiltStation(Empire owner = null, Vector2? at = null)
-    {
-        owner ??= Player;
-        var order = new SalvageOps(owner, WreckSystem, at ?? PlayerStation, Station);
-        owner.AI.AddGoal(order);
-        order.AdvanceToNextStep(); // past the queueing, which needs a port
-        order.TargetShip = SpawnShip(Station.Name, owner, at ?? PlayerStation);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the station is built");
-        return order.TargetShip;
-    }
-
-    // the player's order with its platform built beside the derelict, about to strip
-    SalvageDerelict AtWork(Derelict d, float hold)
-    {
-        Assert.IsTrue(SalvageDerelict.Order(Player, d), "setup: ordered");
-        SalvageDerelict order = SalvageDerelict.OrderOf(Player, d);
-        Ship constructor = order.FinishedShip;
-        Assert.IsTrue(d.TryClaim(Player), "setup: the constructor claims the derelict as it starts to build");
-        Ship platform = SpawnShip(ShipDesign.SalvagePlatformName, Player, order.BuildPosition);
-        platform.CargoSpaceMax = hold;
-        constructor.QueueTotalRemoval();
-        order.OnPlatformBuilt(platform, constructor);
-        order.Evaluate();
-        AssertEqual("Salvage", order.StepName, "setup: the platform is built");
-        return order;
-    }
-
-    SalvageDerelict Ordered(Empire empire, Derelict d)
-    {
-        Assert.IsTrue(SalvageDerelict.Order(empire, d), "setup: ordered");
-        return SalvageDerelict.OrderOf(empire, d);
-    }
 
     void TrackNotifications()
     {
@@ -100,6 +31,8 @@ public class SalvageNotifyTests : StarDriveTest
     }
 
     Notification[] Told() => Notes.GetNotificationsAtomic();
+
+    static Ship ShipOf(SalvageDerelict order) => MissionOf(order).SalvageShip;
 
     // its order's next turn strips the 5 left
     void AllBut5Stripped(Derelict d) => UState.Derelicts.Strip(d, null, d.ProductionLeft - 5f);
@@ -126,13 +59,12 @@ public class SalvageNotifyTests : StarDriveTest
     public void APlatformThatSentItsLastLoadTellsTheProductionItsLoadsBroughtAndTheResearchEachTechGained()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation();
         SalvageDerelict order = AtWork(d, hold: 24f);
         TrackNotifications();
         order.Evaluate();
         order.Evaluate();
         order.Evaluate();
-        AssertEqual(0.01f, 24f, station.GetProduction(), "setup: a load of 24 reaches the station");
+        AssertEqual(0.01f, 24f, ShipOf(order).GetProduction(), "setup: a load of 24 reaches the salvage ship");
         AllBut5Stripped(d);
         order.Evaluate();
         Assert.IsTrue(order.Emptied, "setup: the platform strips the 5 left");
@@ -160,7 +92,6 @@ public class SalvageNotifyTests : StarDriveTest
     public void ACalledOffSalvageTellsTheSameOnceItsPlatformSentItsLastLoad()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation();
         SalvageDerelict order = AtWork(d, hold: 100f);
         order.Evaluate();
         TrackNotifications();
@@ -178,7 +109,6 @@ public class SalvageNotifyTests : StarDriveTest
     public void APlatformDestroyedAtWorkIsToldAndAClickSelectsTheDerelict()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation();
         SalvageDerelict order = AtWork(d, hold: 100f);
         TrackNotifications();
         Ship platform = order.Platform;
@@ -199,8 +129,7 @@ public class SalvageNotifyTests : StarDriveTest
     public void ARivalThatClaimedTheDerelictFirstIsToldUnderItsFlag()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation();
-        SalvageDerelict order = Ordered(Player, d);
+        SalvageDerelict order = Ordered(d);
         TrackNotifications();
         Assert.IsTrue(d.TryClaim(Enemy), "setup: a rival's constructor starts to build first");
 
@@ -216,90 +145,43 @@ public class SalvageNotifyTests : StarDriveTest
     }
 
     [TestMethod]
-    public void AStationLostIsToldOnceForEachOrderItEnds()
+    public void ASalvageShipLostIsToldOnceForEachOrderItEndsAndOnceForTheProductionAboard()
     {
+        TwinShips();
         Derelict working = Forms(Wreck);
         Derelict waiting = Forms(Wreck + new Vector2(0, 5_000f));
-        Ship station = BuiltStation();
-        SalvageDerelict atWork = AtWork(working, hold: 100f);
-        SalvageDerelict building = Ordered(Player, waiting);
+        SalvageDerelict atWork = AtWork(working, hold: 24f);
+        Ship ship = ShipOf(atWork);
+        SalvageDerelict launching = Ordered(waiting);
+        Assert.AreSame(MissionOf(atWork), MissionOf(launching), "setup: the ship's other unit is to launch for the second order");
+        ship.LoadProduction(30f);
         TrackNotifications();
-        station.Die(null, cleanupOnly: true);
+        ship.Die(null, cleanupOnly: true);
 
+        MissionOf(atWork).Evaluate();
         atWork.Evaluate();
-        for (int i = 0; i < 3 && Player.AI.HasGoal(building); ++i)
-            building.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(atWork) || Player.AI.HasGoal(building), "setup: both orders end");
+        launching.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(atWork) || Player.AI.HasGoal(launching), "setup: both orders end");
         Notification[] told = Told();
-        AssertEqual(2, told.Length, "the player is told once for each");
+        AssertEqual(3, told.Length, "the player is told once for each order and once for the production aboard");
+        AssertEqual("Your salvage ship was lost with 30 production aboard", told[0].Message, "the production aboard");
         foreach (Notification n in told)
         {
-            AssertEqual($"{WreckSystem.Name}: your salvage station was lost, and your salvage of the Dreadnought mk1-a with it", n.Message);
-            AssertEqual(station.ShipData.IconPath, n.IconPath, "under the station's icon");
+            AssertEqual(ship.ShipData.IconPath, n.IconPath, "under the ship's icon");
             Assert.IsFalse(n.Pause, "it does not pause the game");
         }
-        Assert.AreSame(working, told[0].ReferencedItem1, "a click selects each one's derelict");
-        Assert.AreSame(waiting, told[1].ReferencedItem1);
-    }
-
-    [TestMethod]
-    public void AnOrderWaitingToLaunchItsConstructorIsToldOfItsStationsLossToo()
-    {
-        Derelict d = Forms(Wreck);
-        Ship station = BuiltStation();
-        station.ChangeOrdnance(-station.Ordinance);
-        SalvageDerelict waiting = Ordered(Player, d);
-        AssertEqual("LaunchConstructor", waiting.StepName, "setup: short of ordnance, its unit waits to launch the constructor");
-        TrackNotifications();
-        station.Die(null, cleanupOnly: true);
-
-        waiting.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(waiting), "setup: the order ends");
-        Notification told = Told().Single();
-        AssertEqual($"{WreckSystem.Name}: your salvage station was lost, and your salvage of the Dreadnought mk1-a with it", told.Message, "the player is told");
-        AssertEqual(station.ShipData.IconPath, told.IconPath, "under the station's icon");
-    }
-
-    [TestMethod]
-    public void AStationLostBeforeTheOrderFoundItShowsTheDerelictsIcon()
-    {
-        Derelict d = Forms(Wreck);
-        Ship station = BuiltStation();
-        var order = new SalvageDerelict(Player, d);
-        Player.AI.AddGoal(order); // as a save loads it, before its first turn
-        TrackNotifications();
-        station.Die(null, cleanupOnly: true);
-
-        order.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(order), "setup: the order ends");
-        AssertEqual(d.Design.BaseHull.IconPath, Told().Single().IconPath, "the player is told under the derelict's hull icon");
-    }
-
-    [TestMethod]
-    public void AStationThePlayerScrapsTellsNothing()
-    {
-        Derelict working = Forms(Wreck);
-        Derelict waiting = Forms(Wreck + new Vector2(0, 5_000f));
-        Ship station = BuiltStation();
-        SalvageDerelict atWork = AtWork(working, hold: 100f);
-        SalvageDerelict building = Ordered(Player, waiting);
-        TrackNotifications();
-        station.AI.OrderScrapShip();
-        Assert.IsTrue(station.Active && station.Dismantling, "setup: the player scraps the station, which comes apart where it stands");
-
-        atWork.Evaluate();
-        for (int i = 0; i < 3 && Player.AI.HasGoal(building); ++i)
-            building.Evaluate();
-        Assert.IsFalse(Player.AI.HasGoal(atWork) || Player.AI.HasGoal(building), "setup: both orders end");
-        AssertEqual(0, Told().Length, "and the player, who scrapped it, is told nothing");
+        foreach (Notification n in told.Skip(1))
+            AssertEqual($"{WreckSystem.Name}: your salvage ship for the Dreadnought mk1-a was lost", n.Message);
+        Assert.AreSame(working, told[1].ReferencedItem1, "a click selects each one's derelict");
+        Assert.AreSame(waiting, told[2].ReferencedItem1);
+        Assert.IsFalse(atWork.Platform.Active, "and the platform is gone with the ship");
     }
 
     [TestMethod]
     public void ADerelictThatSankBeforeTheClaimIsTold()
     {
         Derelict d = Forms(Wreck);
-        BuiltStation();
-        SalvageDerelict order = Ordered(Player, d);
+        SalvageDerelict order = Ordered(d);
         TrackNotifications();
         SinksAway(d);
 
@@ -320,11 +202,9 @@ public class SalvageNotifyTests : StarDriveTest
         Derelict unbuilt = Forms(Wreck);
         Derelict apart = Forms(Wreck + new Vector2(0, 5_000f));
         Derelict theirs = Forms(Wreck + new Vector2(0, -5_000f), owner: Enemy);
-        BuiltStation();
-        BuiltStation(Enemy, EnemyStation);
         TrackNotifications();
 
-        SalvageDerelict called = Ordered(Player, unbuilt);
+        SalvageDerelict called = Ordered(unbuilt);
         SalvageDerelict.Cancel(Player, unbuilt);
         Assert.IsFalse(Player.AI.HasGoal(called), "setup: an order called off before its platform is built ends");
         AssertEqual(0, Told().Length, "and tells nothing");
@@ -340,14 +220,14 @@ public class SalvageNotifyTests : StarDriveTest
         Assert.IsFalse(Player.AI.HasGoal(order), "setup: its order ends");
         AssertEqual(1, Told().Length, "a platform lost while it comes apart tells nothing more");
 
-        SalvageDerelict stopped = Ordered(Player, unbuilt);
+        SalvageDerelict stopped = Ordered(unbuilt);
         UState.P.DisableSalvageOps = true;
         stopped.Evaluate();
         UState.P.DisableSalvageOps = false;
         Assert.IsFalse(Player.AI.HasGoal(stopped), "setup: salvage ops off ends an order");
         AssertEqual(1, Told().Length, "and tells nothing");
 
-        SalvageDerelict rival = Ordered(Enemy, theirs);
+        SalvageDerelict rival = Ordered(theirs, empire: Enemy);
         SinksAway(theirs);
         rival.Evaluate();
         Assert.IsFalse(Enemy.AI.HasGoal(rival), "setup: another empire's order ends with its derelict sunk");
@@ -360,7 +240,6 @@ public class SalvageNotifyTests : StarDriveTest
         Derelict stripped = Forms(Wreck);
         Derelict sinking = Forms(Wreck + new Vector2(0, 5_000f));
         Derelict claimed = Forms(Wreck + new Vector2(0, -5_000f));
-        BuiltStation();
         SalvageDerelict order = AtWork(stripped, hold: 100f);
         TrackNotifications();
         UState.P.DisableSalvageWarning = true;
@@ -369,14 +248,20 @@ public class SalvageNotifyTests : StarDriveTest
         order.Evaluate();
         order.Evaluate();
         Assert.IsTrue(order.Dismantling, "setup: a platform sent its last load");
-        SalvageDerelict lost = Ordered(Player, claimed);
+        SalvageDerelict lost = Ordered(claimed);
         Assert.IsTrue(claimed.TryClaim(Enemy), "setup: a rival claims a derelict first");
         lost.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(lost), "setup: that order ends");
-        SalvageDerelict sinks = Ordered(Player, sinking);
+        SalvageDerelict sinks = Ordered(sinking);
         SinksAway(sinking);
         sinks.Evaluate();
         Assert.IsFalse(Player.AI.HasGoal(sinks), "setup: an order's derelict sank");
+        Ship ship = ShipOf(order);
+        ship.LoadProduction(10f);
+        ship.Die(null, cleanupOnly: true);
+        MissionOf(order).Evaluate();
+        order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: a salvage ship with production aboard is lost");
         AssertEqual(0, Told().Length, "with Salvage alerts off, none is told");
 
         UState.P.DisableDerelictWarning = true;
@@ -391,12 +276,11 @@ public class SalvageNotifyTests : StarDriveTest
     public void AnOrdersProductionDeliveredItsDerelictsNameAndIconAndTheAlertSwitchesSurviveSaveAndLoad()
     {
         Derelict d = Forms(Wreck);
-        Ship station = BuiltStation();
         SalvageDerelict order = AtWork(d, hold: 24f);
         order.Evaluate();
         order.Evaluate();
         order.Evaluate();
-        AssertEqual(0.01f, 24f, station.GetProduction(), "setup: a load of 24 reaches the station");
+        AssertEqual(0.01f, 24f, ShipOf(order).GetProduction(), "setup: a load of 24 reaches the salvage ship");
         UState.P.DisableSalvageWarning = true;
         UState.P.DisableDerelictWarning = true;
 

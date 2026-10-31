@@ -103,6 +103,7 @@ public interface IShipDesign
     bool IsMiningStation   { get; }
     bool IsSalvageStation  { get; }
     bool IsSalvagePlatform { get; }
+    bool IsSalvageShip     { get; }
     bool IsCandidateForTradingBuild { get; }
     bool IsDysonSwarmController     { get; }
 
@@ -116,6 +117,7 @@ public interface IShipDesign
     bool  BaseCanWarp    { get; }
     float BaseMass       { get; }
     float BaseCargoSpace { get; }
+    float BaseOrdnanceMax { get; }
     float BaseResearchPerTurn { get; }
     float BaseRefiningPerTurn { get; }
 
