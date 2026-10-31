@@ -332,7 +332,7 @@ namespace Ship_Game.AI
             return a.GetStrength(empire) / a.SurfaceArea > b.GetStrength(empire) / b.SurfaceArea;
         }
 
-        // the player's Automation window design with auto pick off, else the race's default, as long as it can be built and holds a salvage platform's load for each of its salvage units and the ordnance a launch takes; otherwise the best pick for the derelicts the empire could work in the system, or with no system the most salvage units
+        // the player's Automation window design with auto pick off, else the race's default, as long as it can be built, has the warp range the AI needs, and holds a salvage platform's load for each of its salvage units and the ordnance a launch takes; otherwise the best pick for the derelicts the empire could work in the system, or with no system the most salvage units
         public static IShipDesign PickSalvageShip(Empire empire, SolarSystem system = null)
         {
             if (empire.isPlayer && !empire.AutoPickBestSalvageShip)
@@ -345,17 +345,18 @@ namespace Ship_Game.AI
             return BestSalvageShip(empire, system != null ? SalvageMission.DerelictsToWorkIn(empire, system) : int.MaxValue);
         }
 
-        // a salvage ship holding a salvage platform's load for each of its salvage units, and the ordnance a launch of its empire's constructor takes
-        public static bool IsUsableSalvageShip(IShipDesign design, float launchCost)
+        // a salvage ship holding a salvage platform's load for each of its salvage units and the ordnance a launch of its empire's constructor takes, and good to build for the empire, as with the warp range the AI needs
+        public static bool IsUsableSalvageShip(IShipDesign design, Empire empire, float launchCost)
         {
-            return design.IsSalvageShip && ShipResupply.HasRoomForSalvageLoads(design) && design.BaseOrdnanceMax >= launchCost;
+            return design.IsSalvageShip && ShipResupply.HasRoomForSalvageLoads(design) && design.BaseOrdnanceMax >= launchCost
+                && design.IsShipGoodToBuild(empire);
         }
 
         public static bool HasUsableSalvageShip(Empire empire)
         {
             float launchCost = SalvageDerelict.ConstructorLaunchCost(empire);
             foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
-                if (IsUsableSalvageShip(design, launchCost))
+                if (IsUsableSalvageShip(design, empire, launchCost))
                     return true;
             return false;
         }
@@ -366,7 +367,7 @@ namespace Ship_Game.AI
                 return null;
             float launchCost = SalvageDerelict.ConstructorLaunchCost(empire);
             foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
-                if (IsUsableSalvageShip(design, launchCost) && design.Name == name)
+                if (design.Name == name && IsUsableSalvageShip(design, empire, launchCost))
                     return design;
             return null;
         }
@@ -378,7 +379,7 @@ namespace Ship_Game.AI
             float launchCost = SalvageDerelict.ConstructorLaunchCost(empire);
             foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
             {
-                if (IsUsableSalvageShip(design, launchCost) && (best == null || IsBetterSalvageShip(design, best, empire, derelicts)))
+                if (IsUsableSalvageShip(design, empire, launchCost) && (best == null || IsBetterSalvageShip(design, best, empire, derelicts)))
                     best = design;
             }
             return best;

@@ -311,7 +311,7 @@ namespace Ship_Game
         {
             float launchCost = SalvageDerelict.ConstructorLaunchCost(Screen.Player);
             InitDropOptions(SalvageShipDropDown, ref Screen.Player.data.CurrentSalvageShip, Screen.Player.data.DefaultSalvageShip,
-                ship => ship.IsShipGoodToBuild(Screen.Player) && ShipBuilder.IsUsableSalvageShip(ship, launchCost));
+                ship => ShipBuilder.IsUsableSalvageShip(ship, Screen.Player, launchCost));
         }
 
         public void UpdateDropDowns()

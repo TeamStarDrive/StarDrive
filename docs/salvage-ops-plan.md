@@ -157,7 +157,8 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
 - **The unlock (190 B):** the Salvage Ships tech (`SalvageShips`, 400, `RequiresSalvageOps`) after Frigate
   Construction unlocks the unit, and Salvage Speed follows it. `Empire.CanBuildSalvageShips` comes from the ships it
   can build. A race with no salvage ship design, none built and none to build cannot salvage: the buttons are hidden
-  (152); with a design but no tech they are gray (161 A).
+  (152); with a design but no tech they are gray (161 A); with salvage ships to build that all fall short of the
+  checks below, they are gray with a tip naming what a design needs (374 B, text 7261).
 - **Cargo (184 A, 208 A):** a design needs cargo room for one platform load (the Salvage Platform design's hold, 75) a
   unit, or the pickers and the Automation list skip it; the designer flags it Critical (red) under one load a unit,
   Major (orange) under 1.1, Minor (yellow) under four thirds and Informative (green) under five thirds, 82.5, 100
@@ -172,6 +173,15 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   buildable (only a player design can, by being deleted or overwritten), a ship already built that holds less than the
   new launch cost waits at its site, and the flag stays on with no ship that can be picked. The race's default
   constructor is always buildable, and a mod makes sure its salvage unit can launch it.
+- **Warp range (369 B; Gilad, 2026-10-31):** a design must also be good to build for its empire, which for a salvage
+  ship is the warp range the AI needs (`MinAcceptableShipWarpRange`), or the pickers and the Automation list skip it.
+  AI empires' build lists already left such designs out; the player's picks now check it in
+  `ShipBuilder.IsUsableSalvageShip`. Logged for later (375 A, 386 A): `CanBuildSalvageShips` is not checked again
+  when an FTL bonus brings a design into range, so the buttons stay gray and tip 7261 says wrongly that none can take
+  an order. Logged for later (376 A, 381 A): the player's other auto picks (freighters, colony ships and
+  constructors) skip the warp check their Automation lists apply; research and mining stations get none anywhere.
+  Left as is (377 A): a design with no power store fails the check even with power to spare at warp, as it does for
+  the AI. The Codex's Salvage Ships page names the rule under Warp range (380 A).
 - **Order and mission (220, 178 A, 181 A, 162 B, 229 A):** an order (`SalvageDerelict`) joins a mission
   (`SalvageMission`, one ship in one system): the mission in its system with a free unit, else a mission on automatic
   still queued with no order, else one for the idle salvage ship nearest the system, else one whose ship is built,

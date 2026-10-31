@@ -258,7 +258,7 @@ public partial class ShipDesign
             && (player.Universe.P.ShowAllDesigns || IsPlayerDesign);
     }
 
-    // used by AutomationWindow and TechLine focusing
+    // used by AutomationWindow, TechLine focusing and the salvage ship picks
     public bool IsShipGoodToBuild(Empire e)
     {
         if (!IsValidDesign || IsUnitTestShip)

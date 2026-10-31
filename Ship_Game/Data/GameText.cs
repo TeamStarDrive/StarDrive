@@ -6350,6 +6350,8 @@ namespace Ship_Game
         DesignIssueSalvageLaunchOrdnanceNeeded = 7259,
         /// <summary>The salvage ship list in the Automation window leaves this</summary>
         DesignIssueSalvageLaunchOrdnanceSkipped = 7260,
+        /// <summary>You can build salvage ships, but none can take this</summary>
+        SalvageDerelictNoUsableShipTip = 7261,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

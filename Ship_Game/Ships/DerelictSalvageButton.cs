@@ -9,7 +9,7 @@ using Block = Ship_Game.Commands.Goals.SalvageDerelict.Block;
 
 namespace Ship_Game.Ships;
 
-// the Salvage and Recover buttons on the derelict's panel and on each row of the derelicts window, shown unless the derelict is gone or the player has no salvage ship, can build none and its race names none: gray, lit under the cursor when a click can order, and lit while the order stands in its button's work; gray while the player can build no salvage ship and has none; with Auto Salvage on, a lit button calls nothing off, as the planner would order the derelict again
+// the Salvage and Recover buttons on the derelict's panel and on each row of the derelicts window, shown unless the derelict is gone or the player has no salvage ship, can build none and its race names none: gray, lit under the cursor when a click can order, and lit while the order stands in its button's work; gray while the player has no salvage ship and can build none fit to send; with Auto Salvage on, a lit button calls nothing off, as the planner would order the derelict again
 public static class DerelictSalvageButton
 {
     public enum Kind { Salvage, Recover }
@@ -75,6 +75,7 @@ public static class DerelictSalvageButton
             Block.Ordered when lit => kind == Kind.Recover ? GameText.RecoverDerelictOrderedTip : GameText.SalvageDerelictOrderedTip,
             Block.Ordered => GameText.SalvageDerelictSwitchTip,
             Block.NoTech => GameText.SalvageDerelictNoTechTip,
+            Block.NoUsableShip => GameText.SalvageDerelictNoUsableShipTip,
             Block.NotAShip => GameText.RecoverDerelictStationTip,
             _ => LocalizedText.None,
         };

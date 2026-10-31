@@ -14,15 +14,15 @@ namespace UnitTests.Ships;
 /// <summary>
 /// The Salvage button orders a derelict salvaged when the empire knows of it, salvage ops are on, and it can build a
 /// salvage ship or has one with a live salvage unit; otherwise it says what is missing, the research while its race
-/// names a salvage ship and a salvage ship while it names none. Each derelict takes one order, and an empire may
-/// order as many as it likes. Orders placed together
-/// reach the sim thread one by one, so a second for the same derelict ends. A claim stops the derelict's timer and
-/// holds off other empires, whose orders on it end. Whatever ends an order gives up its claim, so the timer runs on:
-/// the button's second click, which calls off the order it finds on reaching the sim thread or gives up a claim kept
-/// without one, the clearing of an empire's goals, the derelict that can no longer be salvaged, salvage ops off; a
-/// duplicate's end leaves the claim of the order that stands. A claim kept without its order, as a save can catch one,
-/// is let go at the turn, while one whose order stands holds. An order and its claim survive a save, which keeps each
-/// derelict's id.
+/// names a salvage ship it cannot yet build, what a design needs while it builds salvage ships no pick takes, and a
+/// salvage ship while its race names none. Each derelict takes one order, and an empire may order as many as it
+/// likes. Orders placed together reach the sim thread one by one, so a second for the same derelict ends. A claim
+/// stops the derelict's timer and holds off other empires, whose orders on it end. Whatever ends an order gives up
+/// its claim, so the timer runs on: the button's second click, which calls off the order it finds on reaching the sim
+/// thread or gives up a claim kept without one, the clearing of an empire's goals, the derelict that can no longer be
+/// salvaged, salvage ops off; a duplicate's end leaves the claim of the order that stands. A claim kept without its
+/// order, as a save can catch one, is let go at the turn, while one whose order stands holds. An order and its claim
+/// survive a save, which keeps each derelict's id.
 /// </summary>
 [TestClass]
 public class SalvageDerelictTests : SalvageOrderTest
@@ -61,8 +61,13 @@ public class SalvageDerelictTests : SalvageOrderTest
 
         PropertyInfo canBuild = typeof(Empire).GetProperty(nameof(Empire.CanBuildSalvageShips))!;
         canBuild.SetValue(Player, false);
-        AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, first), "with no salvage ship to build or of its own");
+        AssertEqual(Block.NoUsableShip, SalvageDerelict.WhyNoOrder(Player, first), "with salvage ships to build and the flag off, as when none passes the checks, and none of its own");
         Assert.IsFalse(SalvageDerelict.Order(Player, first), "no order");
+        IShipDesign[] salvageShips = Player.ShipsWeCanBuildSnapshot.Where(s => s.IsSalvageShip).ToArray();
+        foreach (IShipDesign s in salvageShips)
+            Player.RemoveBuildableShip(s);
+        AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, first), "with no salvage ship to build");
+        Assert.IsFalse(SalvageDerelict.Order(Player, first), "nor then");
 
         string salvageShip = Player.data.DefaultSalvageShip;
         Player.data.DefaultSalvageShip = null;
@@ -76,6 +81,8 @@ public class SalvageDerelictTests : SalvageOrderTest
         AssertEqual(Block.NoSalvageShip, SalvageDerelict.WhyNoOrder(Player, first), "unless its salvage unit is destroyed");
         own.QueueTotalRemoval();
         Player.data.DefaultSalvageShip = salvageShip;
+        foreach (IShipDesign s in salvageShips)
+            Player.AddBuildableShip(s);
         canBuild.SetValue(Player, true);
 
         AssertEqual(Block.None, SalvageDerelict.WhyNoOrder(Player, first), "and one it can build");

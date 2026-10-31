@@ -464,6 +464,7 @@ DerelictProductionTip: warfare_derelicts
 DerelictTurnsStandTip: warfare_derelicts
 SalvageDerelictTip: derelicts_salvaging
 SalvageDerelictNoTechTip: derelicts_salvage_ships
+SalvageDerelictNoUsableShipTip: derelicts_salvage_ships
 SalvageDerelictOrderedTip: derelicts_salvaging
 SalvageOnAutomaticTip: derelicts_salvaging
 SalvageDerelictSwitchTip: derelicts_recovering

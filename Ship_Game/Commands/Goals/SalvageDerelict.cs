@@ -118,9 +118,9 @@ namespace Ship_Game.Commands.Goals
             ChangeToStep(Salvage);
         }
 
-        public enum Block { None, Ordered, ClaimedByOther, Gone, NotAShip, NoSalvageShip, NoTech }
+        public enum Block { None, Ordered, ClaimedByOther, Gone, NotAShip, NoSalvageShip, NoTech, NoUsableShip }
 
-        // from any thread: why the empire cannot order the derelict salvaged, Ordered while its order stands, or None when it can; an empire that can build no salvage ship and has none cannot, NoSalvageShip while its race names none, else NoTech
+        // from any thread: why the empire cannot order the derelict salvaged, Ordered while its order stands, or None when it can; an empire that can build no salvage ship it could send and has none cannot, NoSalvageShip while its race names none, NoUsableShip while it builds salvage ships that all fall short, else NoTech
         public static Block WhyNoOrder(Empire empire, Derelict d)
         {
             if (!empire.Universe.P.SalvageOps || !d.CanBeSalvaged || !d.IsKnownBy(empire))
@@ -131,7 +131,9 @@ namespace Ship_Game.Commands.Goals
                 return Block.Ordered;
             if (empire.CanBuildSalvageShips || HasSalvageShip(empire))
                 return Block.None;
-            return empire.SalvageShipDesign == null ? Block.NoSalvageShip : Block.NoTech;
+            if (empire.SalvageShipDesign == null)
+                return Block.NoSalvageShip;
+            return CanBuildAnySalvageShip(empire) ? Block.NoUsableShip : Block.NoTech;
         }
 
         // from any thread: a salvage ship of the empire's with a live salvage unit, at work or idle
@@ -140,6 +142,15 @@ namespace Ship_Game.Commands.Goals
             var ships = empire.OwnedShips;
             for (int i = 0; i < ships.Count; ++i)
                 if (ships[i] is { IsSalvageShip: true, Active: true } ship && SalvageMission.LiveUnits(ship) > 0)
+                    return true;
+            return false;
+        }
+
+        // from any thread: a salvage ship design the empire can build, whether or not a pick could take it
+        static bool CanBuildAnySalvageShip(Empire empire)
+        {
+            foreach (IShipDesign design in empire.ShipsWeCanBuildSnapshot)
+                if (design.IsSalvageShip)
                     return true;
             return false;
         }

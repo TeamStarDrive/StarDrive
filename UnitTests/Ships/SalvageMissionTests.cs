@@ -17,31 +17,32 @@ namespace UnitTests.Ships;
 /// idle salvage ship nearest the system, one in no fleet orbiting, holding or awaiting orders, else a
 /// new salvage ship, built first in the queue of the empire's safe shipyard nearest the mission's site, waiting for a
 /// shipyard when there is none. The ship built is the one chosen in the Automation window, or the race's, or with auto
-/// pick the best for the system, never one short of a load a unit. A shipyard lost, or turned unsafe while a safe one
-/// is left, has the ship queued again at the nearest; taking it out of the queue, or calling off its orders, ends the
-/// mission. The ship flies to its site taking no orders and no fights, paying no upkeep, launching nothing on its
-/// way, parks there, and goes to its empire's nearest safe colony to unload when its hold is full, or to rearm when it
-/// lacks the ordnance a waiting launch takes and its full load pays for, once no constructor of its is out; it unloads
-/// once in orbit there, a colony turned unsafe on its way swapped for the nearest safe one, then comes back. With no
-/// safe colony its hold is paid as credits. Its orders done, it brings home what it holds and waits in orbit at the
-/// colony it last unloaded at, though another be nearer, or, never unloaded, at the nearest safe colony, a ship like
-/// any other. A queued salvage ship refitted to another design ends its mission once built, untold. A mission flying
-/// out survives a save, and an order saved with a salvage station's work ends on load. The derelicts window counts the
-/// player's salvage ships at work and idle, pauses the game, and reads the goals as it opens and once a click in it
-/// has reached the sim thread. On its way to unload, the ship takes no right-click order and joins no fleet.
-/// Flown out, it parks once its move has stopped it at its site; pushed off its spot it flies back still fighting
-/// nothing, and on its way to unload an orbit order elsewhere is undone. A mission waiting for its ship, or
-/// unloading, survives a save and load. A ship just reported built is its mission's at once, and it flies out
-/// fighting nothing once its launch from the shipyard ends. Parked with a free unit, the ship takes an order in its
-/// system still waiting for a salvage ship, then orders the salvage of the derelict there soonest to sink that its
-/// empire could order with a fifth of its turns left, on Auto Salvage recovering what Auto Salvage would, and never
-/// one whose order has a ship of its own; so its orders done it stays for a derelict left there. With its hold full
-/// it takes only a recovery, waiting or of its own, launches no salvage until it has room, launches a waiting
-/// recovery before it leaves unless no load of ordnance pays for it, and unloaded comes back for a salvage left
-/// there. Its last order ended while it is away, it flies back for a derelict left there, unless it has no live
-/// unit. On Auto Salvage it orders derelicts itself only where Auto Salvage would, beside no rival's colony and with
-/// no hostile strength known there, salvaging the ships Auto Salvage would not recover, and its own order joins its
-/// own mission though a queued ship there has a free unit. A derelict called off it leaves alone.
+/// pick the best for the system, never one short of a load a unit or of the warp range the AI needs. A shipyard lost,
+/// or turned unsafe while a safe one is left, has the ship queued again at the nearest; taking it out of the queue,
+/// or calling off its orders, ends the mission. The ship flies to its site taking no orders and no fights, paying no
+/// upkeep, launching nothing on its way, parks there, and goes to its empire's nearest safe colony to unload when its
+/// hold is full, or to rearm when it lacks the ordnance a waiting launch takes and its full load pays for, once no
+/// constructor of its is out; it unloads once in orbit there, a colony turned unsafe on its way swapped for the
+/// nearest safe one, then comes back. With no safe colony its hold is paid as credits. Its orders done, it brings
+/// home what it holds and waits in orbit at the colony it last unloaded at, though another be nearer, or, never
+/// unloaded, at the nearest safe colony, a ship like any other. A queued salvage ship refitted to another design ends
+/// its mission once built, untold. A mission flying out survives a save, and an order saved with a salvage station's
+/// work ends on load. The derelicts window counts the player's salvage ships at work and idle, pauses the game, and
+/// reads the goals as it opens and once a click in it has reached the sim thread. On its way to unload, the ship
+/// takes no right-click order and joins no fleet. Flown out, it parks once its move has stopped it at its site;
+/// pushed off its spot it flies back still fighting nothing, and on its way to unload an orbit order elsewhere is
+/// undone. A mission waiting for its ship, or unloading, survives a save and load. A ship just reported built is its
+/// mission's at once, and it flies out fighting nothing once its launch from the shipyard ends. Parked with a free
+/// unit, the ship takes an order in its system still waiting for a salvage ship, then orders the salvage of the
+/// derelict there soonest to sink that its empire could order with a fifth of its turns left, on Auto Salvage
+/// recovering what Auto Salvage would, and never one whose order has a ship of its own; so its orders done it stays
+/// for a derelict left there. With its hold full it takes only a recovery, waiting or of its own, launches no salvage
+/// until it has room, launches a waiting recovery before it leaves unless no load of ordnance pays for it, and
+/// unloaded comes back for a salvage left there. Its last order ended while it is away, it flies back for a derelict
+/// left there, unless it has no live unit. On Auto Salvage it orders derelicts itself only where Auto Salvage would,
+/// beside no rival's colony and with no hostile strength known there, salvaging the ships Auto Salvage would not
+/// recover, and its own order joins its own mission though a queued ship there has a free unit. A derelict called off
+/// it leaves alone.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -573,7 +574,7 @@ public class SalvageMissionTests : SalvageOrderTest
         shortHold.SetDesignSlots(ResourceManager.Ships.GetDesign(TwinShip).GetOrLoadDesignSlots()
                                  .Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID) is { CargoCapacity: <= 0f } or { Salvage: true }),
                                  updateRole: false);
-        Assert.IsFalse(ShipBuilder.IsUsableSalvageShip(shortHold, 0f), "setup: a design short of a load a unit");
+        Assert.IsFalse(ShipBuilder.IsUsableSalvageShip(shortHold, Player, 0f), "setup: a design short of a load a unit");
         Player.AddBuildableShip(shortHold);
         Player.data.CurrentSalvageShip = shortHold.Name;
         AssertEqual("Terran Salvage Ship", ShipBuilder.PickSalvageShip(Player, WreckSystem)?.Name, "a choice short of a load a unit gives way to the race's");
@@ -587,6 +588,29 @@ public class SalvageMissionTests : SalvageOrderTest
         Assert.IsTrue(Player.RemoveBuildableShip(ResourceManager.Ships.GetDesign(TwinShip)), "setup: the twin ship no longer buildable");
         AssertEqual("Terran Salvage Ship", ShipBuilder.PickSalvageShip(Player, WreckSystem)?.Name,
                     "auto pick never takes one short of a load a unit, though it has the units for the system");
+    }
+
+    [TestMethod]
+    public void NoPickTakesAShipShortOfTheWarpRangeTheAINeedsThoughThePlayerCanBuildIt()
+    {
+        Forms(Wreck);
+        Forms(Wreck + new Vector2(0, 5_000f));
+        ShipDesign noPower = ((ShipDesign)ResourceManager.Ships.GetDesign(TwinShip)).GetClone("Powerless Twin Ship");
+        noPower.SetDesignSlots(ResourceManager.Ships.GetDesign(TwinShip).GetOrLoadDesignSlots()
+                               .Filter(s => ResourceManager.GetModuleTemplate(s.ModuleUID) is not { PowerFlowMax: > 0f }),
+                               updateRole: false);
+        Player.AddBuildableShip(noPower);
+        Assert.IsTrue(Player.ShipsWeCanBuildSnapshot.Contains(noPower), "setup: the player can build it");
+        Assert.IsTrue(ShipResupply.HasRoomForSalvageLoads(noPower) && noPower.BaseOrdnanceMax >= SalvageDerelict.ConstructorLaunchCost(Player),
+                      "setup: it holds a load a unit and the ordnance a launch takes");
+        Assert.IsFalse(noPower.IsWarpRangeGood(GlobalStats.Defaults.MinAcceptableShipWarpRange, ShipStats.GetFTLSpeed(noPower, Player)),
+                       "setup: with nothing making power it falls short of the warp range");
+
+        Player.data.CurrentSalvageShip = noPower.Name;
+        AssertEqual("Terran Salvage Ship", ShipBuilder.PickSalvageShip(Player, WreckSystem)?.Name, "the Automation window's choice gives way to the race's");
+        Player.AutoPickBestSalvageShip = true;
+        AssertEqual("Terran Salvage Ship", ShipBuilder.PickSalvageShip(Player, WreckSystem)?.Name,
+                    "auto pick passes it over, though it has the units for the system's two derelicts");
     }
 
     [TestMethod]

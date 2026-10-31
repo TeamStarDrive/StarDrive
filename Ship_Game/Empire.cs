@@ -165,7 +165,7 @@ namespace Ship_Game
         public bool CanBuildMiningStations { get; private set; }
         // its race's salvage ship, or null for a race without one
         public IShipDesign SalvageShipDesign => ResourceManager.SalvageShipDesignOf(data);
-        // a salvage ship with a platform's load of cargo room for each salvage unit, and the ordnance a launch takes, is among the designs it can build
+        // a salvage ship with a platform's load of cargo room for each salvage unit, the ordnance a launch takes, and the warp range the AI needs, is among the designs it can build
         public bool CanBuildSalvageShips { get; private set; }
         [StarData] public float CurrentMilitaryStrength;
         [StarData] public float OffensiveStrength; // No Orbitals

@@ -21,8 +21,8 @@ namespace UnitTests.Ships;
 /// The Recover button orders a derelict ship recovered: a saved mode of the salvage order in which its platform strips
 /// nothing, first sending what it holds to its salvage ship. While an order stands, the other button turns it to that button's work, and its own
 /// lit button calls it off; a station can only be salvaged. The buttons show unless the player has no salvage ship,
-/// can build none and its race names none, or salvage ops are off, grayed while the player can build no salvage ship
-/// and has none. The chance to recover
+/// can build none and its race names none, or salvage ops are off, grayed while the player has no salvage ship and
+/// can build none fit to send, their tip naming the research or what a design needs. The chance to recover
 /// a ship is its hull's, 60 for a frigate down to 20 for a capital, times 1 plus its race's engineers, read from its
 /// race's traits, which research leaves alone and rebels and saves keep, times the share of the derelict not yet
 /// stripped, half that for a ship of a Remnant design whoever lost it and a quarter more for one of the empire's own,
@@ -319,6 +319,11 @@ public class SalvageRecoveryTests : SalvageOrderTest
 
         PropertyInfo canBuild = typeof(Empire).GetProperty(nameof(Empire.CanBuildSalvageShips))!;
         canBuild.SetValue(Player, false);
+        AssertEqual(Block.NoUsableShip, SalvageDerelict.WhyNoOrder(Player, d), "setup: salvage ships to build and the flag off, as when none passes the checks, and none of its own");
+        Assert.IsTrue(Shown(), "they show, grayed, telling what a design needs");
+        IShipDesign[] salvageShips = Player.ShipsWeCanBuildSnapshot.Where(s => s.IsSalvageShip).ToArray();
+        foreach (IShipDesign s in salvageShips)
+            Player.RemoveBuildableShip(s);
         AssertEqual(Block.NoTech, SalvageDerelict.WhyNoOrder(Player, d), "setup: the player can build no salvage ship yet and has none");
         Assert.IsTrue(Shown(), "they show, grayed, until it can");
         Ship own = IdleShip(Homeworld.Position + new Vector2(5_000f, 0));
@@ -331,6 +336,8 @@ public class SalvageRecoveryTests : SalvageOrderTest
         Assert.IsTrue(Shown(), "but a claim of the player's shows them, to give it up");
         d.ReleaseClaim();
         Player.data.DefaultSalvageShip = "Terran Salvage Ship";
+        foreach (IShipDesign s in salvageShips)
+            Player.AddBuildableShip(s);
         canBuild.SetValue(Player, true);
 
         UState.P.DisableSalvageOps = true;
