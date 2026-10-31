@@ -179,6 +179,15 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
   the unit's ordnance (193 A); the constructor builds the Salvage Platform beside the derelict at the platform's
   cost, at least 100 x pace, and one lost on the way is launched again. The derelict is claimed, with the trust cost
   per platform, as the constructor starts to build (200 B, 201 A).
+- **More work (333 A, 335 A; Gilad, 2026-10-31):** parked with a free unit, the ship takes on more of its system: an
+  order there still waiting for a salvage ship, then orders of its own on the derelicts there the empire could order
+  with a fifth of their turns left, the fewest turns left first, as a click would, with the claim and its trust cost;
+  on automatic it recovers what the planner would. A derelict whose order has a ship of its own, queued, flying out
+  or at work, is left to it. So it goes home only with its hold full, coming back after, or with no work left there;
+  its orders all ended while it is away, it goes back while such work is left and it has a live unit (337 A). On
+  automatic it orders derelicts itself only where the planner would, safe to work with no known hostile strength
+  (338 A). A call-off marks the derelict for the empire (`Derelict.CalledOff`, saved), and its ships never order that
+  one themselves again, though the player still can (336, 339 A).
 - **The platform (192 A, 197 C, 202 A, 203 A, 204 A, 180 A):** it strips each turn what its hold takes, faster with
   Salvage Speed, sends each full load to the parked ship, which takes what fits, and waits while the ship is away or
   full; a recovering one works on with its load. The derelict's techs show from the start (332 A) and advance with
@@ -186,7 +195,8 @@ On 2026-10-31 salvage ops are on again in vanilla, with Gilad's salvage ship des
 - **Trips (179 A, 205 A, 214 A, 223 A, 194 A):** with its hold full, or short of the ordnance a waiting launch takes,
   and no constructor out, the ship flies to the nearest safe colony and unloads once orbiting it, the store's overflow
   paid as credits at the tax rate (with no safe colony, all of it where the ship is). It rearms in orbit while a
-  launch waits, then flies back. Its orders done, it brings home what it holds and stays in orbit there, idle.
+  launch waits, then flies back. Its orders done and no work left in its system, it brings home what it holds and
+  stays in orbit there, idle.
 - **Idle (182 A, 207 A, 315 A):** a salvage ship with a live unit in no mission or fleet, orbiting, holding or
   awaiting orders, and not landing, dismantling, scuttling or changing hands; one just built is its mission's from
   the moment the queue reports it. The player can move, refit or scrap an idle one.

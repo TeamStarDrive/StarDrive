@@ -102,6 +102,8 @@ public sealed class Derelict
     [StarData] public readonly bool Salvageable;
     // by empire id - 1; written on the sim thread, read on the UI thread
     [StarData] bool[] KnownBy;
+    // by empire id - 1: the empires that called off their salvage of it, whose salvage ships no longer order it themselves; written and read on the sim thread
+    [StarData] bool[] CalledOff = Empty<bool>.Array;
     [StarData] public int TurnsLeft { get; private set; }
     // a salvageable one's production to salvage, fixed at its death, and what is still left of it
     [StarData] public readonly float Production;
@@ -338,6 +340,10 @@ public sealed class Derelict
 
     // under the list's lock
     internal void SetKnownBy(Empire empire) => Set(ref KnownBy, empire);
+
+    public bool CalledOffBy(Empire empire) => IsSet(CalledOff, empire);
+
+    internal void SetCalledOffBy(Empire empire) => Set(ref CalledOff, empire);
 
     static bool IsSet(bool[] byEmpire, Empire empire)
     {

@@ -21,7 +21,6 @@ namespace Ship_Game.AI.ExpansionAI
         [StarData] readonly Empire Owner;
         [StarData] internal int TurnTimer;
 
-        UniverseState Universe => Owner.Universe;
         [StarDataConstructor] SalvageOpsPlanner() { }
 
         public SalvageOpsPlanner(Empire empire)
@@ -29,8 +28,6 @@ namespace Ship_Game.AI.ExpansionAI
             Owner = empire;
             TurnTimer = empire.DifficultyModifiers.MiningOpsTurnsPerRun + empire.Id;
         }
-
-        InfluenceStatus Influence(Vector2 pos) => Universe.Influence.GetInfluenceStatus(Owner, pos);
 
         // ignoreDistance is for tests
         public void RunSalvageOpsPlanner(bool ignoreDistance = false)
@@ -48,7 +45,7 @@ namespace Ship_Game.AI.ExpansionAI
                 if (!Candidate(system, averageDist, ignoreDistance))
                     continue;
 
-                Derelict[] derelicts = ToOrderIn(system);
+                Derelict[] derelicts = ToOrderIn(Owner, system);
                 if (derelicts.Length == 0)
                     continue;
 
@@ -86,29 +83,37 @@ namespace Ship_Game.AI.ExpansionAI
             return true;
         }
 
-        // explored, near enough, outside enemy influence, with no Remnant portal, and with no colony of a rival it is neither at war with nor has open borders or an alliance with
+        // safe to work and near enough
         bool Candidate(SolarSystem system, float averageDist, bool ignoreDistance)
+            => SafeToWork(Owner, system, out InfluenceStatus influence)
+               && (ignoreDistance || HelperFunctions.InGoodDistanceForReseachOrMiningOps(Owner, system, averageDist, influence));
+
+        // explored, outside enemy influence, with no Remnant portal, and with no colony of a rival it is neither at war with nor has open borders or an alliance with
+        static bool SafeToWork(Empire empire, SolarSystem system, out InfluenceStatus influence)
         {
-            InfluenceStatus influence = Influence(system.Position);
-            if (!system.IsExploredBy(Owner) || influence == InfluenceStatus.Enemy
-                || !ignoreDistance && !HelperFunctions.InGoodDistanceForReseachOrMiningOps(Owner, system, averageDist, influence))
+            influence = empire.Universe.Influence.GetInfluenceStatus(empire, system.Position);
+            if (!system.IsExploredBy(empire) || influence == InfluenceStatus.Enemy)
                 return false;
 
-            if (Universe.Remnants?.AI.HasGoal(g => g is RemnantPortal && g.TargetShip?.System == system) == true)
+            if (empire.Universe.Remnants?.AI.HasGoal(g => g is RemnantPortal && g.TargetShip?.System == system) == true)
                 return false;
 
             foreach (Empire e in system.OwnerList)
-                if (e != Owner && !Owner.IsAtWarWith(e) && !Owner.IsOpenBordersTreaty(e) && !Owner.IsAlliedWith(e))
+                if (e != empire && !empire.IsAtWarWith(e) && !empire.IsOpenBordersTreaty(e) && !empire.IsAlliedWith(e))
                     return false;
             return true;
         }
 
-        // the derelicts there it can order salvaged with a fifth of their turns left, the fewest turns left first, as a claim stops a derelict's clock
-        Derelict[] ToOrderIn(SolarSystem system)
+        // on the sim thread: where the planner would order salvage wherever the system lies, safe to work with no hostile strength the empire knows of
+        public static bool WouldWork(Empire empire, SolarSystem system)
+            => SafeToWork(empire, system, out _) && empire.KnownEnemyStrengthNoResearchStationsIn(system) <= 0f;
+
+        // the derelicts there the empire can order salvaged with a fifth of their turns left, the fewest turns left first, as a claim stops a derelict's clock
+        public static Derelict[] ToOrderIn(Empire empire, SolarSystem system)
         {
-            int lifetime = Derelict.LifetimeTurns(Universe);
-            Derelict[] derelicts = Universe.Derelicts.Current.Filter(d => d.System == system && d.TurnsLeft * 100 >= lifetime * MinTurnsLeftPercent
-                                                                       && SalvageDerelict.WhyNoOrder(Owner, d) == SalvageDerelict.Block.None);
+            int lifetime = Derelict.LifetimeTurns(empire.Universe);
+            Derelict[] derelicts = empire.Universe.Derelicts.Current.Filter(d => d.System == system && d.TurnsLeft * 100 >= lifetime * MinTurnsLeftPercent
+                                                                              && SalvageDerelict.WhyNoOrder(empire, d) == SalvageDerelict.Block.None);
             derelicts.Sort(d => d.TurnsLeft);
             return derelicts;
         }

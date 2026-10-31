@@ -166,12 +166,22 @@ namespace Ship_Game.Commands.Goals
             return ShipBuilder.PickConstructor(empire, 0f, GetCheapest: true)?.Name ?? "";
         }
 
-        // the Salvage and Recover buttons; false when the empire cannot order it
-        public static bool Order(Empire empire, Derelict d, bool recover = false)
+        // the Salvage and Recover buttons, or a parked salvage ship's mission, which the order joins at once; false when the empire cannot order it
+        public static bool Order(Empire empire, Derelict d, bool recover = false, SalvageMission by = null)
         {
             if ((recover ? WhyNoRecovery(empire, d) : WhyNoOrder(empire, d)) != Block.None)
                 return false;
-            empire.AI.AddGoalAndEvaluate(new SalvageDerelict(empire, d, recover));
+            empire.AI.AddGoalAndEvaluate(new SalvageDerelict(empire, d, recover) { Mission = by });
+            return true;
+        }
+
+        // on the sim thread: a parked salvage ship's mission with a free unit takes the order while it still waits for one
+        public bool JoinWaiting(SalvageMission mission)
+        {
+            if (!Pooled || Mission != null || StepName != nameof(Dispatch) || Derelict is not { CanBeSalvaged: true } d
+                || d.Claimant != null && d.Claimant != Owner || OrderOf(Owner, d) != this)
+                return false;
+            Mission = mission;
             return true;
         }
 
@@ -202,7 +212,7 @@ namespace Ship_Game.Commands.Goals
 
         public int BreakInTurnsLeft => (DerelictRecovery.BreakInTurns - BreakInDone).LowerBound(0);
 
-        // the button's second click calls the order off on the sim thread, where its claim is given up; a platform standing sends what it holds and takes itself apart; a successful roll is past calling off
+        // the button's second click calls the order off on the sim thread, where its claim is given up and its empire's salvage ships stop ordering the derelict themselves; a platform standing sends what it holds and takes itself apart; a successful roll is past calling off
         public static void Cancel(Empire empire, Derelict d)
         {
             if (empire.Universe.Screen is { IsOnSimThread: false } screen)
@@ -214,6 +224,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (order.RecoverySucceeded)
                     return;
+                d.SetCalledOffBy(empire);
                 if (order.Platform is { Active: true })
                     order.CallOff();
                 else
@@ -221,6 +232,7 @@ namespace Ship_Game.Commands.Goals
             }
             else if (d.Claimant == empire) // a claim kept without its order, as a save can catch it
             {
+                d.SetCalledOffBy(empire);
                 d.ReleaseClaim();
             }
         }

@@ -32,7 +32,14 @@ namespace UnitTests.Ships;
 /// Flown out, it parks once its move has stopped it at its site; pushed off its spot it flies back still fighting
 /// nothing, and on its way to unload an orbit order elsewhere is undone. A mission waiting for its ship, or
 /// unloading, survives a save and load. A ship just reported built is its mission's at once, and it flies out
-/// fighting nothing once its launch from the shipyard ends.
+/// fighting nothing once its launch from the shipyard ends. Parked with a free unit, the ship takes an order in its
+/// system still waiting for a salvage ship, then orders the salvage of the derelict there soonest to sink that its
+/// empire could order with a fifth of its turns left, on Auto Salvage recovering what Auto Salvage would, and never
+/// one whose order has a ship of its own; so its orders done it stays for a derelict left there, and with its hold
+/// full comes back for it. Its last order ended while it is away, it flies back for a derelict left there, unless it
+/// has no live unit. On Auto Salvage it orders derelicts itself only where Auto Salvage would, beside no rival's
+/// colony and with no hostile strength known there, salvaging the ships Auto Salvage would not recover, and its own
+/// order joins its own mission though a queued ship there has a free unit. A derelict called off it leaves alone.
 /// </summary>
 [TestClass]
 public class SalvageMissionTests : SalvageOrderTest
@@ -52,6 +59,15 @@ public class SalvageMissionTests : SalvageOrderTest
             if (++frame % 60 == 0 && mission.Owner.AI.HasGoal(mission))
                 mission.Evaluate();
         });
+    }
+
+    // a salvageable derelict of the player's, its turns run down by this many
+    Derelict Sinking(Vector2 at, int turnsGone)
+    {
+        Derelict d = Forms(at);
+        for (int i = 0; i < turnsGone; ++i)
+            d.UpdateTurn();
+        return d;
     }
 
     // far from its site, on its way
@@ -219,6 +235,203 @@ public class SalvageMissionTests : SalvageOrderTest
         Assert.AreSame(mission, MissionOf(Ordered(Forms(Wreck + new Vector2(0, 5_000f)))), "one in its system takes the free unit");
         AssertEqual(0, mission.FreeUnits, "which leaves none");
         Assert.AreNotSame(mission, MissionOf(Ordered(Forms(Wreck + new Vector2(0, -5_000f)))), "so the next starts another");
+    }
+
+    [TestMethod]
+    public void ParkedWithAFreeUnitTheShipOrdersTheSalvageOfTheDerelictInItsSystemSoonestToSinkThatItCould()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Vector2 elsewhere = new(-600_000f, 600_000f);
+        AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true);
+        Derelict otherSystem = Sinking(elsewhere + new Vector2(30_000f, 0), turnsGone: 130);
+        Derelict sinking = Sinking(Wreck + new Vector2(5_000f, 0), turnsGone: 161);
+        Derelict theirs = Sinking(Wreck + new Vector2(-5_000f, 0), turnsGone: 120);
+        Assert.IsTrue(theirs.TryClaim(Enemy), "setup: another empire salvages one");
+        Derelict later = Forms(Wreck + new Vector2(0, 5_000f));
+        Derelict sooner = Sinking(Wreck + new Vector2(0, -5_000f), turnsGone: 100);
+        AssertEqual(39, sinking.TurnsLeft, "setup: 39 of its 200 turns left");
+        ShipBuilt(order);
+        Parked(order);
+
+        mission.Evaluate();
+        SalvageDerelict taken = SalvageDerelict.OrderOf(Player, sooner);
+        Assert.IsNotNull(taken, "its free unit orders the derelict there soonest to sink");
+        Assert.AreSame(mission, taken.Mission, "which joins the ship's mission");
+        Assert.IsTrue(!taken.Recovering && SalvageDerelict.WouldRecover(Player, sooner), "salvaged, though Auto Salvage would recover it");
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, sinking), "not one with less than a fifth of its turns left");
+        Assert.IsTrue(SalvageDerelict.OrderOf(Player, theirs) == null && theirs.Claimant == Enemy, "nor one another empire salvages");
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, otherSystem), "nor one in another system");
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, later), "and no more than its free units take");
+    }
+
+    [TestMethod]
+    public void ParkedWithAFreeUnitTheShipFirstTakesAnOrderInItsSystemStillWaitingForASalvageShip()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Vector2 elsewhere = new(-600_000f, 600_000f);
+        AddDummyPlanet(elsewhere, 1f, 1f, 1f, elsewhere + new Vector2(0, 60_000f), explored: true);
+        var waitingElsewhere = new SalvageDerelict(Player, Forms(elsewhere + new Vector2(30_000f, 0)));
+        var waiting = new SalvageDerelict(Player, Forms(Wreck + new Vector2(0, 5_000f)));
+        Player.AI.AddGoal(waitingElsewhere); // as orders that have found no salvage ship
+        Player.AI.AddGoal(waiting);
+        Derelict sooner = Sinking(Wreck + new Vector2(0, -5_000f), turnsGone: 100);
+        ShipBuilt(order);
+        Parked(order);
+
+        mission.Evaluate();
+        Assert.AreSame(mission, waiting.Mission, "its free unit takes the order there that waits for a salvage ship");
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, sooner), "before it orders a derelict itself");
+        Assert.IsNull(waitingElsewhere.Mission, "and leaves one waiting in another system");
+    }
+
+    [TestMethod]
+    public void OnAutoSalvageTheShipRecoversTheShipsAutoSalvageWould()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Derelict other = Forms(Wreck + new Vector2(0, 5_000f));
+        Assert.IsTrue(SalvageDerelict.WouldRecover(Player, other), "setup: the player builds no ship of its role as strong");
+        ShipBuilt(order);
+        Parked(order);
+
+        Player.AutoSalvage = true;
+        MissionOf(order).Evaluate();
+        Assert.IsTrue(SalvageDerelict.OrderOf(Player, other) is { Recovering: true }, "on Auto Salvage the ship's own order recovers it");
+    }
+
+    [TestMethod]
+    public void ItsOrdersDoneTheShipStaysForADerelictLeftInItsSystemAndWithItsHoldFullComesBackForIt()
+    {
+        Derelict first = Forms(Wreck);
+        SalvageDerelict order = Ordered(first);
+        SalvageMission mission = MissionOf(order);
+        SalvageDerelict ownShip = Ordered(Forms(Wreck + new Vector2(0, 5_000f)));
+        SalvageMission itsOwn = MissionOf(ownShip);
+        Assert.AreNotSame(mission, itsOwn, "setup: the one-unit ship has no unit for a second order, which gets a ship of its own");
+        Derelict left = Forms(Wreck + new Vector2(0, -5_000f));
+        Ship ship = ShipBuilt(order);
+        Parked(order);
+        mission.Evaluate();
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, left), "setup: with no free unit, it orders nothing more");
+
+        UState.Derelicts.Strip(first, null, first.ProductionLeft);
+        Player.AI.RemoveGoal(order);
+        ship.LoadProduction(ship.CargoRoom);
+        mission.Evaluate();
+        Assert.AreSame(mission, SalvageDerelict.OrderOf(Player, left)?.Mission, "its order done, its unit takes the derelict left to no salvage ship");
+        Assert.AreSame(itsOwn, ownShip.Mission, "not the one whose order has a ship of its own");
+        Assert.IsTrue(mission.Unloading, "with its hold full it goes home");
+
+        InOrbitAtHomeworld(ship);
+        mission.Evaluate();
+        Assert.IsTrue(ship.GetProduction() == 0f && mission.FlyingOut, "and once unloaded comes back for it");
+    }
+
+    [TestMethod]
+    public void ItsLastOrderEndingOnItsTripHomeTheShipFliesBackForADerelictLeftInItsSystemUnlessItHasNoLiveUnit()
+    {
+        SalvageDerelict order = AtWork(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Ship ship = mission.SalvageShip;
+        Derelict left = Forms(Wreck + new Vector2(0, 5_000f));
+        ship.LoadProduction(ship.CargoRoom);
+        mission.Evaluate();
+        Assert.IsTrue(mission.Unloading && SalvageDerelict.OrderOf(Player, left) == null, "setup: the full ship leaves to unload, its one unit still held");
+        order.Platform.Die(null, cleanupOnly: true);
+        order.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(order), "setup: on its way its platform is lost, and its last order with it");
+
+        InOrbitAtHomeworld(ship);
+        mission.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(mission) && mission.FlyingOut, "unloaded, it flies back for the derelict left in its system");
+        mission.Evaluate();
+        Assert.IsTrue(Player.AI.HasGoal(mission) && ship.AI.State == AIState.MoveTo, "on its way with no order yet");
+
+        foreach (ShipModule unit in ship.Modules.Where(m => m.Salvage))
+            unit.SetHealth(0f, "Test");
+        mission.Evaluate();
+        Assert.IsFalse(Player.AI.HasGoal(mission), "but with no live unit its mission ends");
+    }
+
+    [TestMethod]
+    public void OnAutoSalvageTheShipSalvagesAShipAutoSalvageWouldNotRecover()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Derelict other = Forms(Wreck + new Vector2(0, 5_000f));
+        Assert.IsTrue(Player.AddBuildableShip(ResourceManager.Ships.GetDesign("Dreadnought mk1-a")), "setup: the player builds the same design");
+        Assert.IsFalse(SalvageDerelict.WouldRecover(Player, other), "setup: so Auto Salvage would not recover it");
+        ShipBuilt(order);
+        Parked(order);
+
+        Player.AutoSalvage = true;
+        MissionOf(order).Evaluate();
+        Assert.IsTrue(SalvageDerelict.OrderOf(Player, other) is { Recovering: false }, "on Auto Salvage the ship's own order salvages it");
+    }
+
+    [TestMethod]
+    public void OnAutoSalvageTheShipsOwnOrderJoinsItsMissionThoughAQueuedShipThereHasAFreeUnit()
+    {
+        Player.AutoSalvage = true;
+        Derelict queuedFor = Forms(Wreck + new Vector2(0, 5_000f));
+        SalvageDerelict first = Ordered(queuedFor);
+        SalvageMission queued = MissionOf(first);
+        Ship twin = IdleShip(SystemSite + new Vector2(0, 20_000f), design: TwinShip);
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        SalvageMission mission = MissionOf(order);
+        Assert.IsTrue(mission != queued && mission.SalvageShip == twin, "setup: with the queued ship's one unit held, the idle twin-unit ship takes the next order");
+        Player.AI.RemoveGoal(first);
+        Assert.IsTrue(Player.AI.HasGoal(queued) && queued.FreeUnits == 1, "setup: on automatic the queued ship waits, its unit free");
+        twin.Position = mission.Site;
+        twin.AI.ClearOrders(); // its move there over
+        Parked(order);
+
+        mission.Evaluate();
+        Assert.AreSame(mission, SalvageDerelict.OrderOf(Player, queuedFor)?.Mission, "the parked ship's own order on the derelict left joins its own mission");
+    }
+
+    [TestMethod]
+    public void OnAutoSalvageTheShipOrdersNothingItselfBesideARivalsColonyButOffItDoes()
+    {
+        TwinShips();
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Derelict other = Forms(Wreck + new Vector2(0, 5_000f));
+        ShipBuilt(order);
+        Parked(order);
+        Player.GetRelations(Enemy).AtWar = Enemy.GetRelations(Player).AtWar = false;
+        WreckSystem.PlanetList[0].SetOwner(Enemy);
+        WreckSystem.UpdateOwnerList();
+
+        Player.AutoSalvage = true;
+        MissionOf(order).Evaluate();
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, other), "on Auto Salvage the colony of a rival with no treaty keeps the ship's own orders out, as it keeps Auto Salvage out");
+        Player.AutoSalvage = false;
+        MissionOf(order).Evaluate();
+        Assert.IsNotNull(SalvageDerelict.OrderOf(Player, other), "off it, the ship orders the derelict as a click would");
+    }
+
+    [TestMethod]
+    public void OnAutoSalvageTheShipOrdersNothingItselfWhereItKnowsOfHostileStrength()
+    {
+        TwinShips();
+        Player.AutoSalvage = true;
+        SalvageDerelict order = Ordered(Forms(Wreck));
+        Derelict other = Forms(Wreck + new Vector2(0, 5_000f));
+        ShipBuilt(order);
+        Parked(order);
+        Player.GetRelations(Enemy).AtWar = Enemy.GetRelations(Player).AtWar = true;
+        SpawnShipNoCombatHoldPos("Vulcan Scout", Enemy, SystemSite + new Vector2(0, -20_000f));
+        SpawnShipNoCombatHoldPos("Vulcan Scout", Player, SystemSite + new Vector2(0, -21_000f));
+        UState.Objects.Update(new(time: 2f));
+        Player.Threats.Update(new(time: 2f));
+        AssertGreaterThan(Player.KnownEnemyStrengthNoResearchStationsIn(WreckSystem), 0f, "setup: the player knows of hostile strength there");
+
+        MissionOf(order).Evaluate();
+        Assert.IsNull(SalvageDerelict.OrderOf(Player, other), "on Auto Salvage, hostile strength it knows of keeps the ship's own orders out");
     }
 
     [TestMethod]

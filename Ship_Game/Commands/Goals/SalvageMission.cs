@@ -2,6 +2,7 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.AI.ExpansionAI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
@@ -9,7 +10,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
-    // an empire's salvage ship at work in one system: an idle one, or one built at its empire's safe shipyard nearest the system, flies to a site among the system's derelicts and waits there while its salvage units launch the constructors of its orders; with its hold full, or without the ordnance a launch takes, it goes to its empire's nearest safe colony and comes back; once its orders are done it brings home what it holds and waits at that colony for its next work
+    // an empire's salvage ship at work in one system: an idle one, or one built at its empire's safe shipyard nearest the system, flies to a site among the system's derelicts and waits there while its salvage units launch the constructors of its orders, a free unit taking on more of the system's derelicts; with its hold full, or without the ordnance a launch takes, it goes to its empire's nearest safe colony and comes back; once its orders are done and none is left for it there it brings home what it holds and waits at that colony for its next work
     [StarDataType]
     public class SalvageMission : Goal
     {
@@ -266,7 +267,7 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.RestartGoal;
         }
 
-        // it flies to its site and parks once its move there has stopped it, taking no orders and no fights; one refitted in the queue to another design ends the mission and is a ship like any other
+        // it flies to its site while it has orders or work left there and parks once its move there has stopped it, taking no orders and no fights; one refitted in the queue to another design ends the mission and is a ship like any other
         GoalStep FlyToSite()
         {
             if (SalvageShip == null && FinishedShip is { } built)
@@ -280,7 +281,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             if (OwnShip() is not { } ship)
                 return Lose();
-            if (!HasOrders)
+            if (!HasOrders && !WorkLeft(ship))
                 return End(ship);
             if (ship.AI.State == AIState.MoveTo)
             {
@@ -305,13 +306,14 @@ namespace Ship_Game.Commands.Goals
             ship.AI.IgnoreCombat = true;
         }
 
-        // it waits at its site while its orders work; with its hold full, or without the ordnance a waiting launch takes that its full load pays for, it leaves for its empire's nearest safe colony once no constructor of its is out; with its orders all done it ends
+        // it waits at its site while its orders work, a free unit taking on more of the system's derelicts; with its hold full, or without the ordnance a waiting launch takes that its full load pays for, it leaves for its empire's nearest safe colony once no constructor of its is out; with its orders all done and none left to take it ends
         GoalStep Work()
         {
             if (ShipChangesHands)
                 return GoalStep.TryAgain;
             if (OwnShip() is not { } ship)
                 return Lose();
+            TakeMoreWork();
             if (!HasOrders)
                 return End(ship);
             if (ship.AI.State != AIState.HoldPosition)
@@ -322,6 +324,32 @@ namespace Ship_Game.Commands.Goals
                 return Trip(ship);
             return GoalStep.TryAgain;
         }
+
+        // for each free unit, an order in its system that waits for a salvage ship, else an order of its own on a derelict there it would order, recovering on automatic what the planner would
+        void TakeMoreWork()
+        {
+            int free = FreeUnits;
+            var goals = Owner.AI.Goals;
+            for (int i = 0; i < goals.Count && free > 0; ++i)
+                if (goals[i] is SalvageDerelict order && order.TargetSystem == TargetSystem && order.JoinWaiting(this))
+                    --free;
+            if (free <= 0)
+                return;
+
+            bool automatic = OnAutomatic(Owner);
+            Derelict[] derelicts = ToOrder();
+            for (int i = 0; i < derelicts.Length && free > 0; ++i)
+                if (SalvageDerelict.Order(Owner, derelicts[i], recover: automatic && SalvageDerelict.WouldRecover(Owner, derelicts[i]), by: this))
+                    --free;
+        }
+
+        // the derelicts in its system it would order itself, as the planner picks them, but none its empire called off, and on automatic only where the planner would work
+        Derelict[] ToOrder()
+            => OnAutomatic(Owner) && !SalvageOpsPlanner.WouldWork(Owner, TargetSystem) ? Empty<Derelict>.Array
+             : SalvageOpsPlanner.ToOrderIn(Owner, TargetSystem).Filter(d => !d.CalledOffBy(Owner));
+
+        // its ship has a live unit and a derelict is left in its system that it would order
+        bool WorkLeft(Ship ship) => LiveUnits(ship) > 0 && ToOrder().Length > 0;
 
         static bool ConstructorsOut(Ship ship)
         {
@@ -407,10 +435,10 @@ namespace Ship_Game.Commands.Goals
             return Return(ship);
         }
 
-        // back to its site while it has orders, else a ship like any other
+        // back to its site while it has orders or work left there, else a ship like any other
         GoalStep Return(Ship ship)
         {
-            if (!HasOrders)
+            if (!HasOrders && !WorkLeft(ship))
                 return Release(ship);
             ChangeToStep(FlyToSite);
             return GoalStep.TryAgain;
