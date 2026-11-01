@@ -15,10 +15,8 @@
 
   <IconTexturePath>Modules/FlakAA</IconTexturePath>
   <Mass>14</Mass>
-  <Health>3800</Health>
   <HealthMax>3800</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
-  <energyreq>0</energyreq>
   <Description>FlakAA Cannon . Engage angle: 180 degree.
   </Description>
   <CrewRequired>10</CrewRequired>

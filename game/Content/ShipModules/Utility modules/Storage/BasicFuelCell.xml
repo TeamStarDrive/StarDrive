@@ -14,9 +14,7 @@
   <Name>Small Fuel Cell</Name>
   <IconTexturePath>Modules/small_fuelcell</IconTexturePath>
   <Mass>1</Mass>
-  <Health>400</Health>
   <HealthMax>400</HealthMax>
-  <energyreq>1</energyreq>
   
   
   

@@ -25,9 +25,7 @@
 
 
   <Mass>80</Mass>
-  <Health>14000</Health>
   <HealthMax>14000</HealthMax>
-  <energyreq>0</energyreq>
   <Description>Twin polaron cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire.</Description>
 
   <PowerDraw>30</PowerDraw>

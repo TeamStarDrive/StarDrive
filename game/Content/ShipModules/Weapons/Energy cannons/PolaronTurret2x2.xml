@@ -13,9 +13,7 @@
 
   <IconTexturePath>Modules/PolaronTurret2x2</IconTexturePath>
   <Mass>20</Mass>
-  <Health>3480</Health>
   <HealthMax>3480</HealthMax>
-  <energyreq>0</energyreq>
   <Description>A turret mounted polaron cannon weapon, highly effective against shielded targets.
   </Description>
   <CrewRequired>12</CrewRequired>

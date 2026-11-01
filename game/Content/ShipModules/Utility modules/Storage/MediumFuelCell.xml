@@ -14,7 +14,6 @@
   <Name>Medium Fuel Cell</Name>
   <IconTexturePath>Modules/med_fuelcell</IconTexturePath>
   <Mass>4</Mass>
-  <Health>1600</Health>
   <HealthMax>1600</HealthMax>
   <PowerDraw>0</PowerDraw>
 

@@ -16,9 +16,7 @@
 
   <IconTexturePath>Modules/engine_4x4</IconTexturePath>
   <Mass>73</Mass>
-  <Health>9280</Health>
   <HealthMax>9280</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This titanic engine requires considerable power but provides unparalleled thrust.  </Description>
   

@@ -14,7 +14,6 @@
 
   <IconTexturePath>Modules/power_capacitor_2x2</IconTexturePath>
   <Mass>1</Mass>
-  <Health>50</Health>
   <HealthMax>50</HealthMax>
   <PowerDraw>0</PowerDraw>
 

@@ -13,9 +13,7 @@
 
   <IconTexturePath>Modules/emp_torpedo</IconTexturePath>
   <Mass>10</Mass>
-  <Health>1000</Health>
   <HealthMax>1000</HealthMax>
-  <energyreq>0</energyreq>
   <Description>This torpedo tube launches slow-moving but devastating torpedos packed to the hilt with explosives.  They require substantial ordnance to fire</Description>
   
   

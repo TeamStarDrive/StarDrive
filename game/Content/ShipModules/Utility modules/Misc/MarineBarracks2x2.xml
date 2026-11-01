@@ -20,10 +20,8 @@
   <IconTexturePath>Modules/barracks_2x2</IconTexturePath>
   
   <Mass>24</Mass>
-  <Health>2000</Health>
   <HealthMax>2000</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
-  <energyreq>0</energyreq>
   
   <Description>These cramped quarters provide enough living space for a single platoon of marines. Marines increase a ship's boarding defense and can also be used offensively if their ship has an assault shuttle. Marines receive any racial ground combat bonuses or penalties. </Description>
   

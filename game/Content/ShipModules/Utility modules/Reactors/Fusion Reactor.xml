@@ -21,9 +21,7 @@
   <IconTexturePath>Modules/Fusion Reactor</IconTexturePath>
   
   <Mass>46</Mass>
-  <Health>1400</Health>
   <HealthMax>1400</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>Fusion Reactor, will explode when destroyed</Description>
   <CrewRequired>10</CrewRequired>

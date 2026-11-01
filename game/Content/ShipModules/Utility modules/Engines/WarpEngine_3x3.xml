@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/warpengine_3x3</IconTexturePath>
   <Mass>45</Mass>
-  <Health>4680</Health>
   <HealthMax>4680</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>A ship that requires more strategic mobility than tactical mobility would do well to install this massive warp engine. </Description>
   

@@ -17,9 +17,7 @@
   <TexturePath>Textures/transparent</TexturePath>
   <IconTexturePath>Modules/warpengine_2x2</IconTexturePath>
   <Mass>20</Mass>
-  <Health>1840</Health>
   <HealthMax>1840</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This medium-sized warp engine provides greater warp performance at the expense of sublight performance. </Description>
   

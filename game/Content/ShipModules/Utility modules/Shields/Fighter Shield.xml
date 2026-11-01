@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/Fighter Shield</IconTexturePath>
   <Mass>9</Mass>
-  <Health>200</Health>
   <HealthMax>200</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This shield has a decent sized protection radius but is only capable of taking a few hits. However it does have a quick recharge rate.</Description>
   

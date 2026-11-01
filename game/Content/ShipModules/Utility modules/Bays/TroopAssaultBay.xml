@@ -19,10 +19,8 @@
   <Name>Assault Shuttle Bay</Name>
   <IconTexturePath>Modules/AssaultShuttleBay</IconTexturePath>
   <Mass>32</Mass>
-  <Health>4800</Health>
   <HealthMax>4800</HealthMax>
   <RepairDifficulty>3</RepairDifficulty>
-  <energyreq>25</energyreq>
   
   <CrewRequired>10</CrewRequired>
   

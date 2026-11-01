@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/AF_Repeater</IconTexturePath>
   <Mass>30</Mass>
-  <Health>2060</Health>
   <HealthMax>2060</HealthMax>
-  <energyreq>0</energyreq>
   <Description>Anti fighter energy cannon</Description>
   <CrewRequired>12</CrewRequired>
   

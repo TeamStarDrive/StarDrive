@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/railgun_3x8</IconTexturePath>
   <Mass>240</Mass>
-  <Health>20880</Health>
   <HealthMax>20880</HealthMax>
-  <energyreq>0</energyreq>
   <Description>This monstrous cannon fires fast-moving, high explosive shells.  It consumes considerable ordnance to fire this weapon but its power is unquestionable.  That said, only a few few ships are large enough to mount this weapon.
   </Description>
   <CrewRequired>12</CrewRequired>

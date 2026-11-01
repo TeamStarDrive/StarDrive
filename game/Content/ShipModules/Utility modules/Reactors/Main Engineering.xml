@@ -21,9 +21,7 @@
   <DescriptionIndex>987</DescriptionIndex>
 
   <Mass>200</Mass>
-  <Health>7060</Health>
   <HealthMax>7060</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>If the bridge is the brain of a starship then Main Engineering is its beating heart. This module provides advanced, integrated power systems, damage control, and a boost to ship speed while at warp. However, if the main reactor is destroyed then a massive explosion will undoubtedly claim the ship. </Description>
   <CrewRequired>10</CrewRequired>

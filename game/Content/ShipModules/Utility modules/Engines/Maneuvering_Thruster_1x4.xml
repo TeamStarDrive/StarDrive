@@ -12,7 +12,6 @@
 
   <IconTexturePath>Modules/TurnThrust 1x4</IconTexturePath>
   <Mass>20</Mass>
-  <Health>2320</Health>
   <HealthMax>2320</HealthMax>
 
   <PowerDraw>40</PowerDraw>

@@ -15,9 +15,7 @@
   <Name>Fighter Bay</Name>
   <IconTexturePath>Modules/fighterBay</IconTexturePath>
   <Mass>144</Mass>
-  <Health>9600</Health>
   <HealthMax>9600</HealthMax>
-  <energyreq>25</energyreq>
   
   <CrewRequired>10</CrewRequired>
   

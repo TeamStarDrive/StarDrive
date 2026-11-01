@@ -15,10 +15,8 @@
 
   <IconTexturePath>Modules/LRMmk1</IconTexturePath>
   <Mass>77</Mass>
-  <Health>2300</Health>
   <HealthMax>2300</HealthMax>
   <RepairDifficulty>1.5</RepairDifficulty>
-  <energyreq>0</energyreq>
   <Description>This is a long range multiple rocket launching system.
   </Description>
   <CrewRequired>12</CrewRequired>

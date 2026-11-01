@@ -17,9 +17,7 @@
   <Name>Raider Bay</Name>
   <IconTexturePath>Modules/fighterbay_4x8</IconTexturePath>
   <Mass>190</Mass>
-  <Health>13000</Health>
   <HealthMax>13000</HealthMax>
-  <energyreq>25</energyreq>
   
   <CrewRequired>10</CrewRequired>
   

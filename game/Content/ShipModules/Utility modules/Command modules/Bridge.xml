@@ -19,10 +19,8 @@
   <IconTexturePath>Modules/Bridge</IconTexturePath>
   <IsCommandModule>true</IsCommandModule>
   <Mass>32</Mass>
-  <Health>2700</Health>
   <HealthMax>2700</HealthMax>
   <RepairDifficulty>4</RepairDifficulty>
-  <energyreq>0</energyreq>
   
   <Description>The bridge is the nerve center of a starship, providing basic sensor functionality, damage control, and life support for a moderate sized crew.</Description>
   <PowerDraw>8</PowerDraw>

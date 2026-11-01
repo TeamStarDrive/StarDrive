@@ -24,7 +24,6 @@
 
   <!-- Mass and Health -->
   <Mass>16</Mass>
-  <Health>3600</Health>
   <HealthMax>3600</HealthMax>
   <ExplosiveResist>0.75</ExplosiveResist>
 

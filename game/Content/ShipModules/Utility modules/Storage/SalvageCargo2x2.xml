@@ -30,7 +30,6 @@
   <IconTexturePath>Modules/salvagecargoMedium</IconTexturePath>
   <Mass>6</Mass>
   <HealthMax>1200</HealthMax>
-  <energyreq>0</energyreq>
   
   
   

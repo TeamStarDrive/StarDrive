@@ -13,9 +13,7 @@
 
   <IconTexturePath>Modules/sensors_2x2</IconTexturePath>
   <Mass>20</Mass>
-  <Health>1150</Health>
   <HealthMax>1150</HealthMax>
-  <energyreq>0</energyreq>
   <Description>Ships equipped with a subspace scanning module have an effective sensor range of 200,000.
   </Description>
   <PowerDraw>15</PowerDraw>

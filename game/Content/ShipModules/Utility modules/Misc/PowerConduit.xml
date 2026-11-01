@@ -17,9 +17,7 @@
 
   <IconTexturePath>Modules/Conduit</IconTexturePath>
   <Mass>1</Mass>
-  <Health>200</Health>
   <HealthMax>200</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>Carries power across a ship
   </Description>

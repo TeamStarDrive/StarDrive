@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/QT_Cannon_3x8</IconTexturePath>
   <Mass>250</Mass>
-  <Health>20500</Health>
   <HealthMax>20500</HealthMax>
-  <energyreq>0</energyreq>
   <Description>A devastatingly powerful energy cannon
   </Description>
   <CrewRequired>12</CrewRequired>

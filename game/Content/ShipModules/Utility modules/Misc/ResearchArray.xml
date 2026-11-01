@@ -26,10 +26,8 @@
 
   <IconTexturePath>Modules/ResearchArray</IconTexturePath>
   <Mass>40</Mass>
-  <Health>300</Health>
   <HealthMax>300</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
-  <energyreq>0</energyreq>
   
   <PowerDraw>100</PowerDraw>
   <ResearchPerTurn>0.15</ResearchPerTurn>

@@ -17,9 +17,7 @@
 
   <IconTexturePath>Modules/power_capacitor_2x2</IconTexturePath>
   <Mass>4</Mass>
-  <Health>1840</Health>
   <HealthMax>1840</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This is an inexpensive but bulky electromagnetic capacitor. Any ship equipped with pulse capacitors will be substantially more difficult to disable with electromagnetic pulse weaponry.
   </Description>

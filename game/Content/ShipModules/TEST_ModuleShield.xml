@@ -14,9 +14,7 @@
   <UID>TEST_ModuleShield</UID>
   <IconTexturePath>Modules/Fighter Shield</IconTexturePath>
   <Mass>2</Mass>
-  <Health>100</Health>
   <HealthMax>100</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This shield has a decent sized protection radius but is only capable of taking a few hits. However it does have a quick recharge rate.</Description>
    

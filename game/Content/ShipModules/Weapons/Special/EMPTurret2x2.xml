@@ -13,9 +13,7 @@
 
   <IconTexturePath>Modules/EMPTurret2x2</IconTexturePath>
   <Mass>16</Mass>
-  <Health>3120</Health>
   <HealthMax>3120</HealthMax>
-  <energyreq>0</energyreq>
   <Description>A turret mounted EMP cannon weapon, useful for disabling enemy ships. 
   </Description>
   <CrewRequired>12</CrewRequired>

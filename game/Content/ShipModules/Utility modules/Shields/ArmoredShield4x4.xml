@@ -15,9 +15,7 @@
   <Name>ArmoredShield4x4</Name>
   <IconTexturePath>Modules/ArmoredShield4x4</IconTexturePath>
   <Mass>144</Mass>
-  <Health>7500</Health>
   <HealthMax>7500</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This is a large shield that provides heavy protection at a heavy power cost</Description>
   

@@ -27,7 +27,6 @@
 
   <!-- Mass and Health -->
   <Mass>8</Mass>
-  <Health>1550</Health>
   <HealthMax>1550</HealthMax>
 
   <!-- Power Drawn -->

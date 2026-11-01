@@ -25,7 +25,6 @@
 
   <!-- Mass and Health -->
   <Mass>54</Mass>
-  <Health>25000</Health>
   <HealthMax>25000</HealthMax>
 
   <!-- Armor resistance -->

@@ -25,10 +25,8 @@
 
   <IconTexturePath>Modules/ConstructionArray</IconTexturePath>
   <Mass>36</Mass>
-  <Health>700</Health>
   <HealthMax>700</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
-  <energyreq>0</energyreq>
   
   <PowerDraw>20</PowerDraw>
   <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->

@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/FlakTurret</IconTexturePath>
   <Mass>10</Mass>
-  <Health>3760</Health>
   <HealthMax>3760</HealthMax>
-  <energyreq>0</energyreq>
   <Description>Disruptors fire fast-moving, high-energy projectiles.  </Description>
   <CrewRequired>12</CrewRequired>
   

@@ -14,9 +14,7 @@
   <Name>Colonization Module</Name>
   <IconTexturePath>Modules/colonyModule</IconTexturePath>
   <Mass>100</Mass>
-  <Health>100</Health>
   <HealthMax>100</HealthMax>
-  <energyreq>30</energyreq>
   
   
   
