@@ -256,6 +256,13 @@ namespace Ship_Game
 
             batch.DrawString(Fonts.Arial8Bold, Localizer.Token(GameText.Restrictions)+": "+rest, modTitlePos, Color.Orange);
             modTitlePos.Y += Fonts.Arial8Bold.LineSpacing;
+            int limit = Screen.SlotLimitOnShip(mod);
+            if (limit != int.MaxValue)
+            {
+                string limitText = string.Format(Localizer.Token(GameText.ModuleLimitOnHull), limit, mod.PercentLimitOnShips.String());
+                batch.DrawString(Fonts.Arial8Bold, limitText, modTitlePos, Color.Orange);
+                modTitlePos.Y += Fonts.Arial8Bold.LineSpacing;
+            }
             batch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
             modTitlePos.Y += (Fonts.Arial8Bold.LineSpacing + 11);
 

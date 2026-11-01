@@ -96,6 +96,47 @@ namespace Ship_Game
             return (slot = Get(gridPos)) != null;
         }
 
+        public int SlotsOf(string uid)
+        {
+            int slots = 0;
+            foreach (SlotStruct slot in Slots)
+                if (slot.Parent == null && slot.Module?.UID == uid)
+                    slots += slot.Module.XSize * slot.Module.YSize;
+            return slots;
+        }
+
+        readonly HashSet<ShipModule> Covered = new();
+
+        // a null slot installs nothing
+        public int SlotsOfAfterInstalls(string uid, SlotStruct slotA, ShipModule moduleA, SlotStruct slotB, ShipModule moduleB)
+        {
+            Covered.Clear();
+            int added = AddInstall(uid, slotA, moduleA) + AddInstall(uid, slotB, moduleB);
+            int removed = 0;
+            foreach (ShipModule m in Covered)
+                if (m.UID == uid)
+                    removed += m.XSize * m.YSize;
+            return SlotsOf(uid) - removed + added;
+        }
+
+        int AddInstall(string uid, SlotStruct slot, ShipModule module)
+        {
+            if (slot == null)
+                return 0;
+            ModuleRect span = GetModuleSpan(slot, module.XSize, module.YSize);
+            for (int x = span.X0; x <= span.X1; ++x)
+            for (int y = span.Y0; y <= span.Y1; ++y)
+            {
+                SlotStruct root = Grid[x + y*Width]?.Root;
+                if (root?.Module != null)
+                    Covered.Add(root.Module);
+            }
+            return module.UID == uid ? module.XSize * module.YSize : 0;
+        }
+
+        public int SlotsOfAfterReplace(string uid, string replacedUID)
+            => replacedUID == uid ? SlotsOf(uid) : SlotsOf(uid) + SlotsOf(replacedUID);
+
         public bool IsEmptyDesign()
         {
             foreach (SlotStruct slot in Slots)

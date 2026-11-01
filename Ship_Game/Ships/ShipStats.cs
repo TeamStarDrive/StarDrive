@@ -30,8 +30,8 @@ namespace Ship_Game.Ships
         public float ShieldAmplifyPerShield;
         public float ShieldMax;
 
-        public bool IsStationary => Hull.HullRole == RoleName.station
-                                 || Hull.HullRole == RoleName.platform;
+        public bool IsStationary => IsStationaryHull(Hull.HullRole);
+        public static bool IsStationaryHull(RoleName hullRole) => hullRole is RoleName.station or RoleName.platform;
 
         public ShipStats(Ship theShip)
         {

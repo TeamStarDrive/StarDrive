@@ -193,6 +193,15 @@ namespace Ship_Game.Ships
         public float ResearchPerTurn             => Flyweight.ResearchPerTurn;
         public float Refining                    => Flyweight.Refining;
         public bool Salvage                      => Flyweight.Salvage;
+        public float PercentLimitOnShips         => Flyweight.PercentLimitOnShips;
+
+        public const int MinModulesOnShip = 6;
+        public int SlotLimitOnShip(int surfaceArea)
+        {
+            if (PercentLimitOnShips <= 0f)
+                return int.MaxValue;
+            return Math.Max(MinModulesOnShip * XSize * YSize, (int)(surfaceArea * PercentLimitOnShips / 100f));
+        }
 
         /// <summary>
         /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(float)"/>
