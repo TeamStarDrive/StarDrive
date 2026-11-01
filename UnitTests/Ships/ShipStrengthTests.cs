@@ -299,7 +299,7 @@ namespace UnitTests.Ships
             AssertEqual(expected * Precision, expected, ship.GetStrength(), "setup: the damaged ship has the wrong strength");
 
             SavedGame save = Universe.Save("UnitTest.ShipStrength", throwOnError: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
             Ship loadedShip = loaded.UState.Objects.FindShip(ship.Id);
             Assert.IsNotNull(loadedShip, "setup: the ship was not in the save");
             float design = Design(Shielded).GetStrength(loaded.UState.Player);

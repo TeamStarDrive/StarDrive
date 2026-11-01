@@ -401,7 +401,7 @@ public class ScrapLandingTests : StarDriveTest
         float scrapCost = Scrapped.GetScrapCost();
 
         SavedGame save = Universe.Save("UnitTest.ScrapLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(Scrapped.Id);
         Ship loadedShipyard = loaded.UState.Objects.FindShip(shipyard.Id);
         Assert.IsTrue(landing is { Active: true, IsLanding: true, AI.State: AIState.Scrap },

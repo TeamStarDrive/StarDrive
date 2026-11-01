@@ -52,7 +52,7 @@ public class FreighterCountTests : StarDriveTest
 
         UState.StarDate = 1042.5f;
         SavedGame save = Universe.Save("UnitTest.FreighterCounts", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Planet importer = loaded.UState.Player.GetPlanets().FirstOrDefault(p => p.Id == Importer.Id);
         Planet exporter = loaded.UState.Player.GetPlanets().FirstOrDefault(p => p.Id == Exporter.Id);
         Assert.IsNotNull(loaded.UState.Objects.FindShip(freighter.Id), "setup: the freighter is in the save");

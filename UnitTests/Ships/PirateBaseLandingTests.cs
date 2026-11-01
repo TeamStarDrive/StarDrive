@@ -156,7 +156,7 @@ public class PirateBaseLandingTests : StarDriveTest
         RunWithBase(() => !captured.IsLanding);
 
         SavedGame save = Universe.Save("UnitTest.PirateBaseLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(captured.Id);
         Empire pirates = loaded.UState.GetEmpireById(Faction.Id);
         Assert.IsTrue(landing is { Active: true, IsLanding: true }, "a landing pirate ship must still be landing after a load");

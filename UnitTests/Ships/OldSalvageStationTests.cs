@@ -51,7 +51,7 @@ public class OldSalvageStationTests : StarDriveTest
     {
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.OldSalvageStations", throwOnError: true);
-        UniverseScreen game = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen game = LoadSave(save.SaveFile);
         Assert.IsNotNull(game, "setup: the save loads");
         game.InvokePendingSimThreadActions();
         return game;
@@ -205,7 +205,7 @@ public class OldSalvageStationTests : StarDriveTest
         try
         {
             Assert.IsFalse(ResourceManager.Ships.GetDesign(OldStation, out _), "setup: no content has the design");
-            UniverseScreen game = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen game = LoadSave(save.SaveFile);
             Assert.IsNotNull(game, "setup: the save loads");
             Ship loaded = game.UState.Objects.FindShip(station.Id);
             Assert.IsNotNull(loaded, "the station loads");

@@ -57,7 +57,7 @@ public class HostilePresenceAlertTests : StarDriveTest
         AssertEqual(1, Alerts(Universe), "setup: the player is alerted to the warship");
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.HostilePresenceAlert", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsNotNull(loaded, "setup: the save loads");
         loaded.NotificationManager = new NotificationManager(loaded.ScreenManager, loaded);
 

@@ -64,7 +64,7 @@ public class ShipDesignSaveTests : StarDriveTest
         try
         {
             (ShipDesign saved, _) = SaveADesignThenChangeIt(name, out SavedGame save, inUse: false, playerDesign: false);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
 
             IShipDesign design = ResourceManager.Ships.GetDesign(name);
             Assert.IsTrue(design.AreModulesEqual(saved), "setup: the save keeps the shipped design the game was played with");
@@ -84,7 +84,7 @@ public class ShipDesignSaveTests : StarDriveTest
         try
         {
             (_, ShipDesign changed) = SaveADesignThenChangeIt(name, out SavedGame save, inUse: false);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
 
             IShipDesign design = ResourceManager.Ships.GetDesign(name);
             Assert.IsFalse(design.IsReadonlyDesign, "the save does not turn the player's own design into a reserved one");
@@ -104,7 +104,7 @@ public class ShipDesignSaveTests : StarDriveTest
         try
         {
             (ShipDesign saved, _) = SaveADesignThenChangeIt(name, out SavedGame save, inUse: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
 
             IShipDesign design = ResourceManager.Ships.GetDesign(name);
             Assert.IsTrue(design.AreModulesEqual(saved), "the save keeps the design its ships were built from");
@@ -129,7 +129,7 @@ public class ShipDesignSaveTests : StarDriveTest
             home.Construction.Enqueue(ResourceManager.Ships.GetDesign(name), QueueItemType.CombatShip);
 
             SavedGame save = Universe.Save("UnitTest.QueuedDesign", throwOnError: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
 
             QueueItem queued = loaded.UState.GetPlanet(home.Id).ConstructionQueue.First(qi => qi.isShip);
             Assert.AreSame(ResourceManager.Ships.GetDesign(name), queued.ShipData, "the queue builds the design, not a copy the save brought");
@@ -149,7 +149,7 @@ public class ShipDesignSaveTests : StarDriveTest
         Assert.IsTrue(player.Length > 0, "setup: the player can build ships");
 
         SavedGame save = Universe.Save("UnitTest.BuildLists", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
 
         CollectionAssert.IsSubsetOf(player, loaded.UState.Player.ShipsWeCanBuildIds, "the player's build list");
         CollectionAssert.IsSubsetOf(enemy, loaded.UState.GetEmpireByName(Enemy.Name).ShipsWeCanBuildIds,

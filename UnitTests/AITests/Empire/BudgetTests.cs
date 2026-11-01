@@ -325,7 +325,7 @@ namespace UnitTests.AITests.Empire
             AssertGreaterThan(average, 0f, "setup: the freighters must have earned something");
 
             SavedGame save = Universe.Save("UnitTest.TradeAverage", throwOnError: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
 
             AssertEqual(0.001f, average, loaded.UState.Player.AverageTradeIncome,
                 "the lifetime average must not restart when a game is loaded");

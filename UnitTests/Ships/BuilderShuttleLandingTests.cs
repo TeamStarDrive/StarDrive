@@ -155,7 +155,7 @@ public class BuilderShuttleLandingTests : StarDriveTest
         RunUntilLanding(shuttle);
 
         SavedGame save = Universe.Save("UnitTest.BuilderLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(shuttle.Id);
         Ship loadedShipyard = loaded.UState.Objects.FindShip(shipyard.Id);
         Planet loadedHomeworld = loaded.UState.GetPlanet(Homeworld.Id);

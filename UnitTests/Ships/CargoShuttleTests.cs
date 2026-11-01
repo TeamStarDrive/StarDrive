@@ -150,7 +150,7 @@ public class CargoShuttleTests : StarDriveTest
         UState.StarDate = 1042.5f;
         Ship freighter = UnloadAndDockAtExporter(25f);
         SavedGame save = Universe.Save("UnitTest.CargoShuttles", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         ViewEverything(loaded);
         Ship docked = loaded.UState.Objects.FindShip(freighter.Id);
         Planet colony = loaded.UState.GetPlanet(Exporter.Id);

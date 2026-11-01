@@ -483,7 +483,7 @@ public class RefitLandingTests : StarDriveTest
         RunUntilQueued();
 
         SavedGame save = Universe.Save("UnitTest.RefitLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Goal loadedRefit = loaded.UState.Player.AI.FindGoal(g => g.Type == GoalType.Refit);
         Assert.IsNotNull(loadedRefit, "setup: the refit goal must survive the load");
         QueueItem refit = QueuedRefit(loadedRefit.PlanetBuildingAt, loadedRefit);

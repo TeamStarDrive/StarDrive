@@ -152,7 +152,7 @@ namespace UnitTests.EspionageTests
             float leeched = Player.GetEspionage(Enemy).TotalMoneyLeeched;
 
             SavedGame save = Universe.Save("UnitTest.LeechedMoney", throwOnError: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
             Empire player = loaded.UState.Player;
             float moneyBefore = player.Money;
             player.DoMoney();

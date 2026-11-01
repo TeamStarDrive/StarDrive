@@ -128,7 +128,7 @@ public class HomeDefenseLandingTests : StarDriveTest
         RunUntilLanding(ship);
 
         SavedGame save = Universe.Save("UnitTest.HomeDefenseLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(ship.Id);
         Planet loadedHomeworld = loaded.UState.GetPlanet(Homeworld.Id);
         Building loadedCapital = null;

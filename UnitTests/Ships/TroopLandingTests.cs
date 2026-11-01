@@ -423,7 +423,7 @@ public class TroopLandingTests : StarDriveTest
         Vector2 offset = shuttle.Position - EnemyPlanet.Position;
         UState.StarDate = 1042.5f;
         SavedGame save = Universe.Save("UnitTest.TroopLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship diving = loaded.UState.Objects.FindShip(shuttle.Id);
         Planet planet = loaded.UState.GetPlanet(EnemyPlanet.Id);
         Assert.IsTrue(diving is { Active: true, IsLanding: true }, "setup: the shuttle is still diving after the load");

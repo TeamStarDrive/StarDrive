@@ -69,7 +69,7 @@ public class ResetFleetTests : StarDriveTest
         AssertTrue(IsListed(Player, fleet), "the player's fleet update keeps a reset fleet, which the fleet design screen gives a key back");
 
         SavedGame save = Universe.Save("UnitTest.ResetFleets", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
 
         AssertEqual(0, CountResetFleets(loaded.UState.Player), "a load drops the player's reset fleets");
         AssertTrue(loaded.UState.Player.GetFleetOrNull(waitingKey) != null,

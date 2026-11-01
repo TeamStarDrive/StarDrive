@@ -184,7 +184,7 @@ public class SupplyShuttleLandingTests : StarDriveTest
         RunWithGoal(rearm, () => !shuttle.IsLanding);
 
         SavedGame save = Universe.Save("UnitTest.SupplyLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(shuttle.Id);
         Planet loadedHomeworld = loaded.UState.GetPlanet(Homeworld.Id);
         Assert.IsTrue(landing is { Active: true, IsLanding: true, AI.State: AIState.SupplyReturnHome },

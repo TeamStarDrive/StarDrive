@@ -134,7 +134,7 @@ public class MiningShipLandingTests : StarDriveTest
         RunSimWhile((simTimeout: 0.5, fatal: false));
 
         SavedGame save = Universe.Save("UnitTest.MiningShipLaunch", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship leaving = loaded.UState.Objects.FindShip(miner.Id);
         Assert.IsTrue(leaving is { Active: true, LaunchShip.LeavesHangar: true, AI.State: AIState.Mining },
                       "a miner leaving its station must still be leaving it after a load");
@@ -251,7 +251,7 @@ public class MiningShipLandingTests : StarDriveTest
         RunUntilLanding(miner);
 
         SavedGame save = Universe.Save("UnitTest.MiningShipLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(miner.Id);
         Ship loadedStation = loaded.UState.Objects.FindShip(Station.Id);
         Assert.IsTrue(landing is { Active: true, LandShip.InHangar: true, AI.State: AIState.ReturnToHangar },

@@ -12,6 +12,7 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
@@ -46,6 +47,9 @@ public partial class StarDriveTest : IDisposable
     public const double TestSimStepD = 1.0 / 60.0;
     public readonly FixedSimTime TestSimStep = new((float)TestSimStepD);
 
+    // the universes the test loaded from its saves, disposed with its own
+    readonly Array<UniverseScreen> LoadedUniverses = new();
+
     public StarDriveTest()
     {
     }
@@ -53,6 +57,15 @@ public partial class StarDriveTest : IDisposable
     public static void EnableMockInput(bool enabled)
     {
         StarDriveTestContext.EnableMockInput(enabled);
+    }
+
+    // the save loaded as the game loads one, with no sim thread; its universe is disposed after the test
+    public UniverseScreen LoadSave(FileInfo saveFile, bool verbose = false)
+    {
+        UniverseScreen loaded = new LoadGame(saveFile) { Verbose = verbose }.Load(noErrorDialogs: true, startSimThread: false);
+        if (loaded != null)
+            LoadedUniverses.Add(loaded);
+        return loaded;
     }
 
     // the log's length now, so a test can read what it gains after
@@ -255,9 +268,21 @@ public partial class StarDriveTest : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        Universe?.ExitScreen();
-        Universe?.Dispose();
-        Universe = null;
+        try
+        {
+            foreach (UniverseScreen loaded in LoadedUniverses)
+            {
+                loaded.ExitScreen();
+                loaded.Dispose();
+            }
+        }
+        finally
+        {
+            LoadedUniverses.Clear();
+            Universe?.ExitScreen();
+            Universe?.Dispose();
+            Universe = null;
+        }
     }
 
     public void UnlockAllShipsFor(Empire empire)

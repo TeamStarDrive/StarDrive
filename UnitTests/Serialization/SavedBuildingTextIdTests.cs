@@ -25,7 +25,7 @@ namespace UnitTests.Serialization
             saved.ShortDescriptionIndex = template.ShortDescriptionIndex + 12345;
 
             SavedGame save = Universe.Save("UnitTest.BuildingTextIds", throwOnError: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
             Assert.IsNotNull(loaded, "the save must load");
             Planet loadedHome = loaded.UState.Player.GetPlanets().FirstOrDefault(p => p.Name == home.Name);
             Assert.IsNotNull(loadedHome, "setup: the homeworld must survive the round trip");

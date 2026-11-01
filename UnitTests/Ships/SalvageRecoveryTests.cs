@@ -375,7 +375,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsNotNull(loaded, "setup: the save loads");
         SalvageDerelict loadedOrder = loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First();
         Assert.IsTrue(loadedOrder.Recovering, "a recovery stays one through a save");
@@ -586,7 +586,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Derelict again = loaded.UState.Derelicts.Current.First(x => x.Id == d.Id);
         AssertEqual(1234, loaded.UState.Player.LuckSeed, "a save keeps the empire's luck seed");
         Assert.AreEqual(DerelictRecovery.Draws(Player, d), DerelictRecovery.Draws(loaded.UState.Player, again), "so the player's draws are the same after a reload");
@@ -860,7 +860,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         var notes = loaded.NotificationManager = new NotificationManager(loaded.ScreenManager, loaded);
         SalvageDerelict order = loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First();
         Assert.IsTrue(order.Recovered && order.Finished, "its derelict gone, its platform's work is over");
@@ -959,7 +959,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsTrue(loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First().RecoverySucceeded, "the success survives a save");
         Derelict risen = loaded.UState.Derelicts.Current.First();
         Assert.IsTrue(risen.Rising, "and the derelict still rises");
@@ -1016,7 +1016,7 @@ public class SalvageRecoveryTests : SalvageOrderTest
 
         UState.StarDate = 1001f;
         SavedGame save = Universe.Save("UnitTest.SalvageRecovery", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsTrue(loaded.UState.Player.AI.FindGoals<SalvageDerelict>().First().RecoveryFailed, "the failure survives a save");
         Assert.IsTrue(loaded.UState.Derelicts.Current.First().BrokenApart, "and so does the broken derelict");
 

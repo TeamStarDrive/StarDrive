@@ -150,7 +150,7 @@ public class ProjectileInheritanceTests : StarDriveTest
         Assert.IsTrue(lit.TrailTurnedOn, "setup: the plain missile must be lit");
 
         SavedGame save = Universe.Save("UnitTest.MissileIgnition", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsNotNull(loaded, "the save must load");
         Projectile[] projectiles = loaded.UState.Objects.GetAllProjectilesAndBeams();
         Projectile loadedUnlit = projectiles.FirstOrDefault(p => p.Id == unlit.Id);

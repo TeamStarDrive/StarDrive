@@ -271,7 +271,7 @@ namespace UnitTests.NotificationTests
             float starDate = UState.StarDate;
 
             SavedGame save = Universe.Save("UnitTest.ImportantEvents", throwOnError: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
 
             ImportantNotification[] events = loaded.UState.GetImportantEvents();
             AssertEqual(1, events.Length);

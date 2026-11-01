@@ -210,7 +210,7 @@ public class SalvagePirateTests : SalvageOrderTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvagePirates", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Empire pirates = loaded.UState.Empires.First(e => e.WeArePirates);
         SalvageDerelict kept = pirates.AI.FindGoals<SalvageDerelict>().First();
         Assert.IsTrue(kept is { Recovering: true, BreakInDone: 1, Mission: null } && kept.Platform?.Loyalty == pirates,

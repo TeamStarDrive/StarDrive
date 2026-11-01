@@ -595,8 +595,8 @@ namespace UnitTests.AITests.Empire
 
             long logLength = LogLength();
             SavedGame save = Universe.Save("UnitTest.IdleGuardian", throwOnError: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
-            if (loaded == null) // it fails now and then on CI only, which shows no log
+            UniverseScreen loaded = LoadSave(save.SaveFile);
+            if (loaded == null)
                 Assert.Fail($"setup: the save loads; the log since the save:\n{LoggedSince(logLength)}");
             Ship loadedGuardian = loaded.UState.Objects.FindShip(guardian.Id);
             Planet nearest = loadedGuardian.System.PlanetList.FindMin(p => p.Position.SqDist(loadedGuardian.Position));

@@ -1306,7 +1306,7 @@ public class DerelictTests : StarDriveTest
     {
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.Derelicts", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         AssertTrue(loaded != null, "setup: the save loads");
         return loaded;
     }

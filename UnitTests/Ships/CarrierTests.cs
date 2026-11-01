@@ -278,7 +278,7 @@ namespace UnitTests.Ships
             float missingWithIncoming = Carrier.Supply.MissingOrdnanceWithIncoming;
 
             SavedGame save = Universe.Save("UnitTest.CarrierState", throwOnError: true);
-            UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+            UniverseScreen loaded = LoadSave(save.SaveFile);
             Ship ship = loaded.UState.Objects.FindShip(Carrier.Id);
 
             Assert.IsFalse(ship.Carrier.RecallFightersBeforeFTL, "recall fighters before FTL must survive a load");

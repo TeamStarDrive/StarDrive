@@ -559,7 +559,7 @@ public class SalvagePlannerTests : SalvageOrderTest
         Enemy.AI.SalvageOpsAI.TurnTimer = 7;
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvagePlanner", throwOnError: true);
-        UniverseScreen game = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen game = LoadSave(save.SaveFile);
         Assert.IsNotNull(game, "setup: the save loads");
 
         Assert.IsTrue(game.UState.Player.AutoSalvage, "Auto Salvage stays on");

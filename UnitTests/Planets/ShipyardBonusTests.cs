@@ -91,7 +91,7 @@ public class ShipyardBonusTests : StarDriveTest
         Homeworld.NumShipyards = 3; // a count left stale by an older build
 
         SavedGame save = Universe.Save("UnitTest.ShipyardCount", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Planet loadedHomeworld = loaded.UState.GetPlanet(Homeworld.Id);
         AssertEqual(1, loadedHomeworld.NumShipyards, "a loaded colony counts the shipyards it really has");
         AssertEqual(0.001f, 0.75f, loadedHomeworld.ShipCostModifier, "a loaded colony counts the shipyards it really has");

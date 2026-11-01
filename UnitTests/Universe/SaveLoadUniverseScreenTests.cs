@@ -72,7 +72,7 @@ namespace UnitTests.Universe
             SavedGame save1 = Universe.Save("UnitTest.IntegrityTest");
             if (save1 == null) throw new AssertFailedException("Save1 failed");
 
-            UniverseScreen us = LoadGame.Load(save1.SaveFile, noErrorDialogs:true, startSimThread:false);
+            UniverseScreen us = LoadSave(save1.SaveFile);
             SavedGame save2 = us.Save("UnitTest.IntegrityTest");
             if (save1 == null) throw new AssertFailedException("Save2 failed");
 

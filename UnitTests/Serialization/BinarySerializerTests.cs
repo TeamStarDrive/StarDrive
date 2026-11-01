@@ -1346,9 +1346,7 @@ namespace UnitTests.Serialization
 
             double memory3 = GetMemory(false);
 
-            var load = new LoadGame(save.SaveFile);
-            load.Verbose = verbose;
-            UniverseScreen us = load.Load(noErrorDialogs:true, startSimThread:false);
+            UniverseScreen us = LoadSave(save.SaveFile, verbose);
             Assert.IsNotNull(us, "Loaded universe cannot be null");
             us.SingleSimulationStep(TestSimStep);
 

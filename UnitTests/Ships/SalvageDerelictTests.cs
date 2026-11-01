@@ -289,7 +289,7 @@ public class SalvageDerelictTests : SalvageOrderTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageDerelict", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsNotNull(loaded, "setup: the save loads");
 
         Empire player = loaded.UState.Player;

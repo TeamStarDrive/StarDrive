@@ -252,7 +252,7 @@ public class SalvageShipTests : StarDriveTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageShips", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsNotNull(loaded, "setup: the save loads");
 
         Empire player = loaded.UState.Player;

@@ -45,7 +45,7 @@ public class RefiningEfficiencyTests : StarDriveTest
         Player.data.RefiningRatioMultiplier = 1.3f;
 
         SavedGame save = Universe.Save("UnitTest.RefiningEfficiency", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Empire player = loaded.UState.GetEmpireById(Player.Id);
         AssertEqual(0.0001f, 1.6f, player.data.RefiningRatioMultiplier, "three researched levels give 20% each after a load");
     }

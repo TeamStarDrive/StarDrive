@@ -131,7 +131,7 @@ public class ColonyShipLandingTests : StarDriveTest
         Colonize();
 
         SavedGame save = Universe.Save("UnitTest.ColonyShipLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(ColonyShip.Id);
         Assert.IsTrue(landing is { Active: true, IsLanding: true },
                       "a spent colony ship must still be landing after a load, not back in play");

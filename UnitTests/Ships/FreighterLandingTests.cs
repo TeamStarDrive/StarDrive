@@ -598,7 +598,7 @@ public class FreighterLandingTests : StarDriveTest
         RunObjectsSim(UState.P.TurnTimer * 0.5f);
         Assert.IsTrue(freighter.LandShip is { Docked: true }, "setup: the freighter must still be docked halfway through its wait");
         SavedGame save = Universe.Save("UnitTest.FreighterDocked", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship docked = loaded.UState.Objects.FindShip(freighter.Id);
         Assert.IsTrue(docked is { Active: true, LandShip.Docked: true }, "a docked freighter is still docked after a load");
 
@@ -771,7 +771,7 @@ public class FreighterLandingTests : StarDriveTest
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         Player.AddExcessCargoMoney(1.5f);
         SavedGame save = Universe.Save("UnitTest.ExcessCargoMoney", throwOnError: true);
-        UniverseScreen game = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen game = LoadSave(save.SaveFile);
         Assert.IsNotNull(game, "setup: the save loads");
         AssertEqual(0.001f, 1.5f, game.UState.Player.ExcessCargoMoney, "credits for goods with no room, still to come with a turn's income, are kept");
     }
@@ -1018,7 +1018,7 @@ public class FreighterLandingTests : StarDriveTest
         RunUntilLanding(freighter);
 
         SavedGame save = Universe.Save("UnitTest.FreighterStationLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(freighter.Id);
         Ship loadedStation = loaded.UState.Objects.FindShip(station.Id);
         Assert.IsTrue(landing is { Active: true, IsLanding: true } && landing.LandShip.Station == loadedStation,
@@ -1043,7 +1043,7 @@ public class FreighterLandingTests : StarDriveTest
         RunUntilLanding(freighter);
 
         SavedGame save = Universe.Save("UnitTest.FreighterLanding", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Ship landing = loaded.UState.Objects.FindShip(freighter.Id);
         Planet loadedExporter = loaded.UState.GetPlanet(Exporter.Id);
         Assert.IsTrue(landing is { Active: true, IsLanding: true }, "a landing freighter must still be landing after a load");

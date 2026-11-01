@@ -155,7 +155,7 @@ public class ColonyGraceTests : StarDriveTest
         PassTurns(10);
 
         SavedGame save = Universe.Save("UnitTest.ColonyGrace", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Planet lost = loaded.UState.Systems.SelectMany(s => s.PlanetList).First(p => p.Name == Lost.Name);
 
         AssertEqual(40, lost.ColonyGraceTurnsLeft(loaded.UState.Player));

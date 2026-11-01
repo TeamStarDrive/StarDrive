@@ -468,7 +468,7 @@ public class DismantleOrbitalTests : StarDriveTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.DismantleOrbital", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsNotNull(loaded, "setup: the save loads");
 
         Ship loadedStation = loaded.UState.Objects.FindShip(station.Id);

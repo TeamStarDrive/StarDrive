@@ -229,7 +229,7 @@ public class FleetSlotStanceTests : StarDriveTest
         UState.StarDate = 1001f; // a game past its first turn loads without a capital
 
         SavedGame save = Universe.Save("UnitTest.FleetSlotStance", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
 
         Fleet back = loaded.UState.Player.GetFleetOrNull(key);
         Assert.IsNotNull(back, "setup: the fleet loads");

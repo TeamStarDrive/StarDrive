@@ -287,7 +287,7 @@ public class SalvageNotifyTests : SalvageOrderTest
 
         UState.StarDate = 1001f; // the loader needs a stardate past 1000
         SavedGame save = Universe.Save("UnitTest.SalvageNotify", throwOnError: true);
-        UniverseScreen loaded = LoadGame.Load(save.SaveFile, noErrorDialogs: true, startSimThread: false);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsNotNull(loaded, "setup: the save loads");
 
         SalvageDerelict loadedOrder = loaded.UState.Player.AI.FindGoals<SalvageDerelict>().Single();
