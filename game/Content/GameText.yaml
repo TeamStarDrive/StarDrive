@@ -9249,7 +9249,7 @@ ThisShipDesignIsInvalid:
  PTB: "Este projeto de nave é inválido. Toda nave exige um módulo de comando, como cockpit, ponte ou centro de informações de combate. Além disso, todos os espaços disponíveis da nave devem estar preenchidos."
 TT_Mass:
  Id: 2050
- ENG: "A ship's total mass determines its maneuverability and maximum velocity both at warp and at sublight speeds. Mass has a floor that rises with hull size, so a large hull can never be made light."
+ ENG: "A ship's total mass determines its maneuverability and maximum velocity both at warp and at sublight speeds. Mass has a floor that rises with hull size, so a large hull can never be made light. Inertial dampers can take off at most half of the mass of the rest of the ship."
 AModulesHealthRepresentsHow:
  Id: 2051
  ENG: "A module's health represents how much damage it can take before being destroyed"
@@ -20482,6 +20482,30 @@ SalvageDerelictNoUsableShipTip:
  RUS: "Вы можете строить корабли утилизации, но ни один из них не может принять этот приказ: кораблю утилизации нужны грузовой объём на одну партию на каждый блок утилизации, боеприпасы на один запуск и достаточная дистанция варп-прыжка."
  UKR: "Ви можете будувати кораблі утилізації, але жоден з них не може прийняти цей наказ: кораблю утилізації потрібні вантажний об'єм на одну партію на кожен блок утилізації, боєприпаси на один запуск і достатній діапазон викривлення."
  PTB: "Você pode construir naves de salvamento, mas nenhuma delas pode receber esta ordem: uma nave de salvamento precisa de espaço de carga para um lote por unidade de salvamento, de munição para um lançamento e de alcance de dobra suficiente."
+DesignIssueDampersPastLimitTitle:
+ Id: 7262
+ ENG: "Inertial Dampers Past Their Limit"
+ RUS: "Гасители инерции сверх предела"
+ UKR: "Інерційні демпфери понад межу"
+ PTB: "Amortecedores Inerciais Além do Limite"
+DesignIssueDampersPastLimitProblem:
+ Id: 7263
+ ENG: "Inertial dampers can take off at most half of the mass of the rest of the ship, and never take it below the hull's mass floor. This design's dampers would take off more, so some of them only add cost and power draw."
+ RUS: "Гасители инерции могут снять не больше половины массы остального корабля и никогда не опускают её ниже минимальной массы корпуса. Гасители этого проекта сняли бы больше, поэтому часть из них лишь добавляет стоимость и расход энергии."
+ UKR: "Інерційні демпфери можуть зняти щонайбільше половину маси решти корабля і ніколи не опускають її нижче мінімальної маси корпусу. Демпфери цього проєкту зняли б більше, тому частина з них лише додає вартість і витрату енергії."
+ PTB: "Amortecedores inerciais podem remover no máximo metade da massa do resto da nave e nunca a reduzem abaixo da massa mínima do casco. Os amortecedores deste projeto removeriam mais, então alguns deles só acrescentam custo e consumo de energia."
+DesignIssueDampersPastLimitRemidiation:
+ Id: 7264
+ ENG: "Remove some inertial dampers."
+ RUS: "Уберите часть гасителей инерции."
+ UKR: "Приберіть частину інерційних демпферів."
+ PTB: "Remova alguns amortecedores inerciais."
+DesignIssueDampersPastLimitMass:
+ Id: 7265
+ ENG: "Damper mass past the limit:"
+ RUS: "Масса гасителей сверх предела:"
+ UKR: "Маса демпферів понад межу:"
+ PTB: "Massa dos amortecedores além do limite:"
 EncCorsairs000_Msg0:
  ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
  RUS: "Дорогие друзья SING,\n\nМы рады видеть прогресс вашей империи. Разве это не захватывающе - колонизировать новые миры и бороться с неизвестной средой? Однако все эти маленькие транспорты, курсирующие от планеты к планете, как послушные пчёлки, слишком уязвимы в глубоком космосе.\n\nПоэтому у нас есть предложение. Вы прямо сейчас заплатите нам MONEY кредитов. Если согласитесь, мы можем пообещать определённый уровень «защиты» для кораблей SING. Если нет - увы, мы ничего обещать не можем.\n\nС уважением,\n    Капитан Марток, независимый торговец и джентльмен"

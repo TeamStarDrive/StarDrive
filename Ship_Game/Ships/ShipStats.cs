@@ -159,6 +159,14 @@ namespace Ship_Game.Ships
 
         public float InitializeMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
         {
+            (float positiveMass, float dampersMass, int minMass) = GetMassParts(modules, loyalty, surfaceArea, ordnancePercent);
+            return Math.Max(MassAfterDampers(positiveMass, dampersMass), minMass);
+        }
+
+        // the hull's and modules' mass after the empire's mass bonus, and the mass the powered inertial dampers take off
+        public static (float Positive, float Dampers, int MinMass) GetMassParts(ShipModule[] modules, Empire loyalty,
+                                                                                int surfaceArea, float ordnancePercent)
+        {
             int minMass = (int)(surfaceArea * 0.5f * (1 + surfaceArea * 0.002f));
             float positiveMass = minMass;
             float negativeMass = 0f;
@@ -170,8 +178,22 @@ namespace Ship_Game.Ships
                 else         negativeMass += m;
             }
 
-            float mass = positiveMass * loyalty.data.MassModifier + negativeMass;
-            return Math.Max(mass, minMass);
+            return (positiveMass * loyalty.data.MassModifier, negativeMass, minMass);
+        }
+
+        // inertial dampers take off at most half of the mass of the rest of the ship
+        const float MassLeftByDampers = 0.5f;
+
+        public static float MassAfterDampers(float positiveMass, float dampersMass)
+        {
+            return Math.Max(positiveMass + dampersMass, positiveMass * MassLeftByDampers);
+        }
+
+        // the damper mass that takes nothing off, past that half or below the hull's mass floor
+        public static float DampersMassPastLimit(float positiveMass, float dampersMass, int minMass)
+        {
+            float mostTakenOff = (positiveMass - Math.Max(positiveMass * MassLeftByDampers, minMass)).LowerBound(0f);
+            return (-dampersMass - mostTakenOff).LowerBound(0f);
         }
 
         public float GetMass(Empire loyalty)

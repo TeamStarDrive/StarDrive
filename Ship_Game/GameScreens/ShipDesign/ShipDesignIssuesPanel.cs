@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -97,6 +98,8 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckIssueNoWarp(S.MaxSTLSpeed, S.MaxFTLSpeed);
                 Issues.CheckIssueSlowWarp(S.MaxFTLSpeed);
                 Issues.CheckIssueNoSpeed(S.MaxSTLSpeed);
+                (float positiveMass, float dampersMass, int minMass) = ShipStats.GetMassParts(S.Modules, S.Loyalty, S.SurfaceArea, S.OrdnancePercent);
+                Issues.CheckDampersPastLimit(positiveMass, dampersMass, minMass);
                 Issues.CheckTruePD(S.SurfaceArea, ds.PointDefenseValue);
                 Issues.CheckWeaponPowerTime(ds.HasEnergyWeapons, ds.PowerConsumed > 0, ds.EnergyDuration);
                 Issues.CheckCombatEfficiency(ds.PowerConsumed, ds.EnergyDuration, ds.PowerRecharge, ds.NumWeapons, ds.NumOrdWeapons);

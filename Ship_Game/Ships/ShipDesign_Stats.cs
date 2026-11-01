@@ -82,7 +82,8 @@ public partial class ShipDesign
         float baseThrust = 0f;
         float baseTurnThrust = 0f;
         float baseWarp = 0f;
-        float baseMass = 0f;
+        float basePositiveMass = 0f;
+        float baseDampersMass = 0f;
         float baseCargoSpace = 0f;
         float baseOrdnanceMax = 0f;
         float startingColonyGoods = 0f;
@@ -112,7 +113,9 @@ public partial class ShipDesign
             baseThrust += m.Thrust;
             baseTurnThrust += m.TurnThrust;
             baseWarp += m.WarpThrust;
-            baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
+            // WARNING: this is the unmodified mass, without any bonuses
+            if (m.Mass >= 0f) basePositiveMass += m.Mass;
+            else              baseDampersMass += m.Mass;
             baseCargoSpace += m.CargoCapacity;
             baseOrdnanceMax += m.OrdinanceCapacity;
             baseResearchPerTurn += m.ResearchPerTurn;
@@ -151,7 +154,7 @@ public partial class ShipDesign
         BaseTurnThrust = baseTurnThrust;
         BaseWarpThrust = baseWarp;
         BaseCanWarp = baseWarp > 0;
-        BaseMass = baseMass;
+        BaseMass = ShipStats.MassAfterDampers(basePositiveMass, baseDampersMass);
         BaseCargoSpace = baseCargoSpace;
         BaseOrdnanceMax = baseOrdnanceMax;
         BaseResearchPerTurn = baseResearchPerTurn;

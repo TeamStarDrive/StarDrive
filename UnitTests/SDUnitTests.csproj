@@ -181,6 +181,7 @@
     <Compile Include="Ships\CargoShuttleTests.cs" />
     <Compile Include="Ships\DerelictTests.cs" />
     <Compile Include="Ships\CivilianUpkeepTests.cs" />
+    <Compile Include="Ships\InertialDamperMassTests.cs" />
     <Compile Include="Ships\MiningShipLandingTests.cs" />
     <Compile Include="Ships\MiningStationVisualsTests.cs" />
     <Compile Include="Ships\LaunchingShipProtectionTests.cs" />
