@@ -825,13 +825,17 @@ namespace Ship_Game.Ships
             source?.OnDamageInflicted(this, amount);
         }
 
+        // a module exploding inside the hull, or a shot that penetrated the shields, hits a shield module's health, never its shield
+        bool HitsShields(GameObject source, bool moduleExplosion)
+            => ShieldsAreActive && !moduleExplosion && source is not Projectile { IgnoresShields: true };
+
         public void Damage(GameObject source, float damageAmount, out float damageRemainder, float beamModifier = 1f,
                            bool moduleExplosion = false)
         {
             float damageModifier = 1f;
             if (source != null)
             {
-                damageModifier = ShieldsAreActive
+                damageModifier = HitsShields(source, moduleExplosion)
                     ? source.DamageMod.GetShieldDamageMod(this)
                     : source.DamageMod.GetArmorDamageMod(this);
             }
@@ -936,7 +940,7 @@ namespace Ship_Game.Ships
             var beam = source as Beam;
             var proj = source as Projectile;
 
-            bool damagingShields = ShieldsAreActive;
+            bool damagingShields = HitsShields(source, moduleExplosion);
             if (beam == null) // only for projectiles
             {
                 if (!damagingShields && !moduleExplosion && proj?.PowerDamage > 0)

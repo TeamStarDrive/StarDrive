@@ -749,7 +749,9 @@ as designed and must not be "fixed".
 3. `[settled]` **Module-death blasts run through the killer's weapon.** As designed, Gilad
    2026-09-27. `ShipModule.Die` passes the killing projectile or beam as the source, so every
    module in the blast takes that weapon's EffectVsArmor, resistances and deflection roll, and a
-   beam's troop, tractor, repulsion and siphon effects. **Narrowed 2026-09-28 (Gilad, fixes_36
+   beam's troop, tractor and repulsion effects. Not its siphon, which drains shields only: since
+   2026-11-02 a module blast never hits a shield, and a shield generator caught in one takes it
+   on its health. **Narrowed 2026-09-28 (Gilad, fixes_36
    branch review): the blast carries none of the killer's EMP or power damage**, a beam's power
    damage included, whatever the killer - `moduleExplosion` in `ShipModule.TryDamageModule`, see
    Power item 2. Before, `CauseEmpDamage` and `CausePowerDamage` fired once per module the blast

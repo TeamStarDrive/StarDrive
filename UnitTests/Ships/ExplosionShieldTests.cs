@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
 using Ship_Game;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -182,6 +183,65 @@ namespace UnitTests.Ships
 
             Assert.IsTrue(reactor.Health < reactorBefore,
                 "Shield-piercing explosion must still damage the hull module it struck");
+        }
+
+        [TestMethod]
+        public void AModuleExplodingInsideTheHullHitsTheShieldGeneratorBesideItOnItsHealth()
+        {
+            Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+            Ship attacker = SpawnShip("TEST_ShipShield", Enemy, new Vector2(1000, 0));
+
+            ShipModule shield = ship.GetModuleAt(0, 2);
+            ShipModule reactor = ship.GetModuleAt(0, 3);
+            Assert.IsTrue(IsShield(shield) && shield.ShieldsAreActive, "setup: (0,2) must be a charged shield");
+            Assert.IsTrue(reactor.Explodes, "setup: the reactor at (0,3) must explode when destroyed");
+
+            // the shuttle dies with any of its reactors, and a dead ship takes no blast
+            float destroyThreshold = GlobalStats.Defaults.ShipDestroyThreshold;
+            GlobalStats.Defaults.ShipDestroyThreshold = 0f;
+            try
+            {
+                reactor.Damage(attacker, reactor.Health + 10f, out _);
+            }
+            finally
+            {
+                GlobalStats.Defaults.ShipDestroyThreshold = destroyThreshold;
+            }
+
+            Assert.IsFalse(reactor.Active, "setup: the reactor must be destroyed");
+            Assert.IsTrue(ship.Active, "setup: the ship must outlive its reactor, or there is no blast");
+            Assert.IsFalse(shield.Active, "the blast must destroy the shield generator through its health, not stop on its shield");
+        }
+
+        [TestMethod]
+        public void AShotThatPenetratedTheShieldsHitsTheShieldGeneratorOnItsHealth()
+        {
+            Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+            Ship attacker = SpawnShip("TEST_ShipShield", Enemy, new Vector2(1000, 0));
+            ShipModule shield = ship.GetModuleAt(0, 2);
+            Assert.IsTrue(IsShield(shield) && shield.ShieldsAreActive, "setup: (0,2) must be a charged shield");
+
+            Projectile Shot(bool penetrates)
+            {
+                Weapon w = ResourceManager.CreateWeapon(UState, "RemnantHV2x3", attacker, null); // 1.2 against shields
+                Projectile p = Projectile.Create(w, attacker, attacker.Position,
+                                                 (ship.Position - attacker.Position).Normalized(), ship, playSound: false);
+                Assert.IsFalse(p.Explodes, "setup: the shot must not explode");
+                p.DamageAmount = 40f;
+                p.IgnoresShields = penetrates;
+                return p;
+            }
+
+            float health = shield.Health;
+            float power = shield.ShieldPower;
+            Shot(penetrates: false).Touch(shield, shield.Position);
+            AssertEqual(0.01f, health, shield.Health, "a shot the shield stops must leave the generator's health alone");
+            AssertLessThan(shield.ShieldPower, power, "setup: a shot the shield stops drains its power");
+
+            power = shield.ShieldPower;
+            Shot(penetrates: true).Touch(shield, shield.Position);
+            AssertEqual(0.5f, health - 40f, shield.Health, "a shot that penetrated the shields must hit the generator's health, without its bonus against shields");
+            AssertEqual(0.01f, power, shield.ShieldPower, "a shot that penetrated the shields must leave the generator's shield alone");
         }
 
         // Solar radiation picks one shield per covered module and damages it once. The pick is
