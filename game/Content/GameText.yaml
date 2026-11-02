@@ -4699,11 +4699,11 @@ FusionBeamTurret:
  PTB: "Torreta de Feixe de Fusão"
 FusionParticleBeamsGainIncreased:
  Id: 965
- ENG: "Fusion particle beams gain increased damage over laser beams but are much less efficient. This particular model is mounted on a swivel to achieve a 45 degree field of fire."
- RUS: "Термоядерные лучи наносят больший урон, чем лазеры, но значительно менее эффективны в целом. Эта модель смонтирована на поворотной станине, обеспечивая 45-градусный сектор обстрела."
- SPA: "Los rayos de partículas de fusión causan más daño que los rayos láser, pero son mucho menos eficientes. Este modelo en concreto va montado sobre una torreta giratoria y dispone de un campo de fuego de 45 grados."
- UKR: "Промені термоядерних частинок завдають більшої шкоди, ніж лазерні промені, але набагато менш ефективні. Ця конкретна модель встановлена на поворотній платформі для досягнення 45-градусного поля вогню."
- PTB: "Feixes de partículas de fusão ganham dano aumentado em relação aos feixes laser, mas são muito menos eficientes. Este modelo específico é montado em uma base giratória para atingir um campo de tiro de 45 graus."
+ ENG: "Fusion particle beams gain increased damage over laser beams but are much less efficient. This particular model is mounted on a swivel for a wider field of fire."
+ RUS: "Термоядерные лучи наносят больший урон, чем лазеры, но значительно менее эффективны в целом. Эта модель смонтирована на поворотной станине, обеспечивая более широкий сектор обстрела."
+ SPA: "Los rayos de partículas de fusión causan más daño que los rayos láser, pero son mucho menos eficientes. Este modelo en concreto va montado sobre una torreta giratoria y dispone de un campo de fuego más amplio."
+ UKR: "Промені термоядерних частинок завдають більшої шкоди, ніж лазерні промені, але набагато менш ефективні. Ця конкретна модель встановлена на поворотній платформі для ширшого поля вогню."
+ PTB: "Feixes de partículas de fusão ganham dano aumentado em relação aos feixes laser, mas são muito menos eficientes. Este modelo específico é montado em uma base giratória para um campo de tiro mais amplo."
 HeavyLaserCannon:
  Id: 966
  ENG: "Heavy Laser Cannon"
@@ -4790,11 +4790,11 @@ LaserBeamTurret:
  PTB: "Torreta de Feixe Laser"
 ThisTurretmountedLaserBeamHas:
  Id: 979
- ENG: "This turret-mounted laser beam has a limited range and is useful in point defense roles"
- RUS: "Эта лазерная установка на поворотной станине имеет ограниченный радиус стрельбы и может использоваться для обеспечения точечной защиты."
- SPA: "Este rayo láser sobre torreta tiene un alcance limitado y es útil para la defensa puntual"
- UKR: "Цей лазерний промінь, встановлений на башті, має обмежену дальність дії і корисний для точкової оборони"
- PTB: "Este feixe laser montado em torreta tem alcance limitado e é útil em funções de defesa de ponto."
+ ENG: "This turret-mounted laser beam has a limited range."
+ RUS: "Эта лазерная установка на поворотной станине имеет ограниченный радиус стрельбы."
+ SPA: "Este rayo láser sobre torreta tiene un alcance limitado."
+ UKR: "Цей лазерний промінь, встановлений на башті, має обмежену дальність дії."
+ PTB: "Este feixe laser montado em torreta tem alcance limitado."
 PdLaserCannon:
  Id: 980
  ENG: "PD Laser Cannon"
