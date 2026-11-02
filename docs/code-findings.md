@@ -231,9 +231,12 @@ projectile splashes everything nearby" with that gate and called it "very rare".
   the spread radius is 0, so only that plate is hit, at the falloff for its own distance.
 - The falloff was `(1-d/R)²` against a radius that **grew with the damage**, so a bigger blast
   never actually fell off more — it still delivered two thirds at contact. Now
-  `ShipModule.ExplosionFalloff`: `100/(100+d)` with `d` floored at 10, so 0.91 at the centre,
-  half at 100 units, and a longer tail (at 1100u it delivers 5033 of a 60k blast where the old
-  curve gave 483).
+  `ShipModule.ExplosionFalloff`: `150/(150+d)` with `d` floored at 10, so 0.94 at the center,
+  half at 150 units, and a longer tail (at 1100u it delivers about 7,200 of a 60k blast where the
+  old curve gave 483). The half distance was 100 until 2026-11-02, when a blast stopped dealing
+  more than its damage: the struck plate takes what it can and the four corners share the rest,
+  each spending its quarter once on its nearest modules. At 100 a stripped capital's blast then
+  killed a Corsair only point-blank; at 150 it kills one at 400 units again.
 - The blast had a floor and **no ceiling**. `Ship.ExplosionDamageCap` adds one per hull role,
   mirroring `ExplosionEvadeBaseChance`: 15x radius for drone/scout/fighter up to 100x for
   capital/station. Small hulls carry reactors and ordnance out of all proportion to what they can
@@ -764,7 +767,8 @@ as designed and must not be "fixed".
 4. `[settled]` **Radial blasts hit big modules once per covered cell.** As designed, Gilad
    2026-09-27. `Ship.DamageExplosive` (`Ship_ModuleGrid.cs` ~525) has no dedupe, while the
    directional version dedupes via `SplashHitScratch`. The asymmetry stays: **do not add a dedupe
-   here to match.**
+   here to match.** Since 2026-11-02 each corner of a blast spends its quarter once, so the repeat
+   hits on a big module only take more of the same quarter.
 5. `[settled]` **A module-death blast wastes its root slot.** As designed, Gilad 2026-09-27. The
    blast centres on the dying, already-inactive module, so the full-damage root yields nothing and
    every direction starts at 25%.

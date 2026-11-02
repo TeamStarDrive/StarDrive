@@ -752,7 +752,7 @@ namespace Ship_Game.Ships
         }
 
         /// <summary>Distance at which a ship's death blast delivers half of its damage</summary>
-        public const float ExplosionHalfDamageDistance = 100f;
+        public const float ExplosionHalfDamageDistance = 150f;
 
         /// <summary>Closest distance a blast is measured from, so the falloff cannot spike</summary>
         public const float ExplosionMinDistance = 10f;
@@ -1114,9 +1114,7 @@ namespace Ship_Game.Ships
                 if (Explodes)
                 {
                     // ShipModule has died and will now explode internally
-                    // the 1,1 vector substruction ensures the Northwest quadrant is hit (floating point issues)
-                    Parent.DamageExplosive(source, ExplosionDamage, Position - new Vector2(1,1), ExplosionRadius, true,
-                                           moduleExplosion: true);
+                    Parent.DamageModuleExplosion(source, this);
                 }
             }
         }
