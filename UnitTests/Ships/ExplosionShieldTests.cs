@@ -5,6 +5,7 @@ using SDUtils;
 using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships
@@ -242,6 +243,37 @@ namespace UnitTests.Ships
             Shot(penetrates: true).Touch(shield, shield.Position);
             AssertEqual(0.5f, health - 40f, shield.Health, "a shot that penetrated the shields must hit the generator's health, without its bonus against shields");
             AssertEqual(0.01f, power, shield.ShieldPower, "a shot that penetrated the shields must leave the generator's shield alone");
+        }
+
+        // a beam from outside the hull toward the ship's center through the generator, so the generator is the first module on its way
+        unsafe Vector2 BeamEnd(Ship ship, Ship attacker, ShipModule shield, bool penetrates)
+        {
+            Weapon laser = ResourceManager.CreateWeapon(UState, "LaserBeam", attacker, null);
+            Vector2 outward = (shield.Position - ship.Position).Normalized();
+            var beam = new Beam(UState.CreateId(), laser, shield.Position + outward * 200f, ship.Position);
+            beam.IgnoresShields = penetrates;
+            var objects = new SpatialObjectBase[] { beam, ship };
+            CollisionPair* pairs = stackalloc CollisionPair[1];
+            pairs[0] = new CollisionPair(0, 1);
+            AssertEqual(1, NarrowPhase.Collide(TestSimStep, pairs, 1, objects), "setup: the beam must hit the ship");
+            return beam.ActualHitDestination;
+        }
+
+        [TestMethod]
+        public void ABeamThatPenetratedTheShieldsEndsOnTheShieldGeneratorItHits()
+        {
+            Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
+            Ship attacker = SpawnShip("TEST_ShipShield", Enemy, new Vector2(1000, 0));
+            ship.UpdateModulePositions(TestSimStep, forceUpdate: true);
+            ShipModule shield = ship.GetModuleAt(0, 2);
+            ShipModule farShield = ship.GetModuleAt(3, 2);
+            farShield.DamageShield(farShield.ShieldPower, null, out _); // only the generator's own bubble can stop the beam
+            Assert.IsTrue(IsShield(shield) && shield.ShieldsAreActive, "setup: (0,2) must be a charged shield");
+
+            AssertGreaterThan(BeamEnd(ship, attacker, shield, penetrates: false).Distance(shield.Position), shield.ShieldHitRadius,
+                              "setup: a beam the shield stops ends on its bubble");
+            AssertLessThan(BeamEnd(ship, attacker, shield, penetrates: true).Distance(shield.Position), 8f,
+                           "a beam that penetrated the shields must end on the generator it hits, not on its bubble");
         }
 
         // Solar radiation picks one shield per covered module and damages it once. The pick is

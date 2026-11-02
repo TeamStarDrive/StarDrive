@@ -740,9 +740,10 @@ namespace Ship_Game.Ships
             return (dx*dx + dy*dy) <= (r2*r2);
         }
 
-        public bool RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
+        // a ray that penetrated the shields ends on the module, not on its bubble
+        public bool RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields, out float distanceFromStart)
         {
-            if (ShieldsAreActive)
+            if (ShieldsAreActive && !ignoreShields)
             {
                 return Position.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
             }

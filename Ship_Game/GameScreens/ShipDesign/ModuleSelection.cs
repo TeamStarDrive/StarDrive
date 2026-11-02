@@ -259,7 +259,7 @@ namespace Ship_Game
             int limit = Screen.SlotLimitOnShip(mod);
             if (limit != int.MaxValue)
             {
-                string limitText = string.Format(Localizer.Token(GameText.ModuleLimitOnHull), limit, mod.PercentLimitOnShips.String());
+                string limitText = string.Format(Localizer.Token(GameText.ModuleLimitOnHull), limit);
                 batch.DrawString(Fonts.Arial8Bold, limitText, modTitlePos, Color.Orange);
                 modTitlePos.Y += Fonts.Arial8Bold.LineSpacing;
             }

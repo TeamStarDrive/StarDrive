@@ -6360,7 +6360,7 @@ namespace Ship_Game
         DesignIssueDampersPastLimitRemidiation = 7264,
         /// <summary>Damper mass past the limit:</summary>
         DesignIssueDampersPastLimitMass = 7265,
-        /// <summary>Limit on this hull: {0} slots ({1}%)</summary>
+        /// <summary>Limit on this hull: {0} slots</summary>
         ModuleLimitOnHull = 7266,
         /// <summary>This hull allows this module on no more than {0} of its slots.</summary>
         ModuleLimitOnShipReached = 7267,

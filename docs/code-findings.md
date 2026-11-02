@@ -250,7 +250,8 @@ floor. The ships that produce a large blast are the **135 vanilla designs carryi
 full health. Freighters (24), corvettes (21), supply (18), troop (17), fighters (16), stations (9),
 scouts, construction, colony, platforms. Exactly the ships that pile up at a planet or a shipyard.
 
-Measured, 8 stacked at 8 units with shields down, averaged over 20 trials:
+Measured, 8 stacked at 8 units with shields down, averaged over 20 trials, under the blast spread and
+falloff from before 2026-11-02 (not measured again since):
 
 | stack | before | after |
 | --- | --- | --- |
@@ -310,7 +311,8 @@ radius = 28,644 against 17-module freighters, and that reads as correct rather t
   detonates for 6,000 over 72 units, a quarter of it along each of four directions, fired
   synchronously from `ShipModule.Die`; small and medium nuclear reactors kill a neighbour of their
   kind outright, the larger ones once it is damaged. One `AntiMatterReactor` dying takes 34 modules
-  of a Heavy Carrier with it. Internal bulkheads are what absorb a reactor blast in a design that
+  of a Heavy Carrier with it (measured under the blast spread from before 2026-11-02, which spent
+  some damage twice). Internal bulkheads are what absorb a reactor blast in a design that
   places them; see "Do not fix these".
 
 ### 2. Show enemy strength per system in the planet list, from the threat matrix — SHIPPED
@@ -765,10 +767,11 @@ as designed and must not be "fixed".
    with deflection, which only mods have (86 in Combined Arms, none in vanilla), and the victim on
    screen at ship zoom, where ricochets are drawn.
 4. `[settled]` **Radial blasts hit big modules once per covered cell.** As designed, Gilad
-   2026-09-27. `Ship.DamageExplosive` (`Ship_ModuleGrid.cs` ~525) has no dedupe, while the
-   directional version dedupes via `SplashHitScratch`. The asymmetry stays: **do not add a dedupe
-   here to match.** Since 2026-11-02 each corner of a blast spends its quarter once, so the repeat
-   hits on a big module only take more of the same quarter.
+   2026-09-27. `Ship.DamageBlast` and `SpendBlastQuarter` (`Ship_ModuleGrid.cs` ~510) have no
+   dedupe, while the directional version dedupes via `SplashHitScratch`. The asymmetry stays: **do
+   not add a dedupe here to match.** Since 2026-11-02 each corner of a blast spends its quarter
+   once, so the repeat hits on a big module only take more of the same quarter, and a shield's
+   bubble over several cells takes no more of it once its shield is down.
 5. `[settled]` **A module-death blast wastes its root slot.** As designed, Gilad 2026-09-27. The
    blast centres on the dying, already-inactive module, so the full-damage root yields nothing and
    every direction starts at 25%.

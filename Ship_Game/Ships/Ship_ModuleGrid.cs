@@ -272,7 +272,7 @@ namespace Ship_Game.Ships
             // check the first center module
             // this will keep returning shields first, and then underlying module
             foreach (ShipModule m in GetModulesAt(c, checkShields))
-                yield return new ModuleQuadrant(m, root: true, distance: 1, quadrant: 1);
+                yield return new ModuleQuadrant(m, c, root: true, distance: 1, quadrant: 1);
 
             // special case: radius is very small and could only ever hit 1 slot
             if (firstX == lastX && firstY == lastY)
@@ -292,7 +292,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuadrant(m, root: false, distance, 1);
+                            yield return new ModuleQuadrant(m, p, root: false, distance, 1);
 
                         distance++;
                     }
@@ -306,7 +306,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuadrant(m, root: false, distance, 1);
+                            yield return new ModuleQuadrant(m, p, root: false, distance, 1);
 
                         distance++;
                     }
@@ -327,7 +327,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuadrant(m, root: false, distance, 2);
+                            yield return new ModuleQuadrant(m, p, root: false, distance, 2);
 
                         distance++;
                     }
@@ -341,7 +341,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuadrant(m, root: false, distance, 2);
+                            yield return new ModuleQuadrant(m, p, root: false, distance, 2);
 
                         distance++;
                     }
@@ -362,7 +362,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuadrant(m, root: false, distance, 3);
+                            yield return new ModuleQuadrant(m, p, root: false, distance, 3);
 
                         distance++;
                     }
@@ -376,7 +376,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuadrant(m, root: false, distance, 3);
+                            yield return new ModuleQuadrant(m, p, root: false, distance, 3);
 
                         distance++;
                     }
@@ -397,7 +397,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuadrant(m, root: false, distance, 4);
+                            yield return new ModuleQuadrant(m, p, root: false, distance, 4);
 
                         distance++;
                     }
@@ -411,7 +411,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuadrant(m, root: false, distance, 4);
+                            yield return new ModuleQuadrant(m, p, root: false, distance, 4);
 
                         distance++;
                     }
@@ -472,7 +472,7 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        // 1. A Projectile has hit the module and exploded
+        // 1. A space nuke has exploded near the ship
         // 2. A Ship has exploded and this is the closest affected module
         public void DamageExplosive(GameObject damageSource, float damageAmount,
                                     Vector2 worldHitPos, float hitRadius, bool ignoreShields)
@@ -552,7 +552,8 @@ namespace Ship_Game.Ships
             for (int i = 0; i < nearestFirst.Length && quarter > 0f; ++i)
             {
                 ShipModule m = nearestFirst[i].Module;
-                if (m.Active)
+                // a shield's bubble takes no more of the blast once its shield is down
+                if (m.Active && (!nearestFirst[i].Bubble || m.ShieldsAreActive))
                     m.DamageExplosive(damageSource, ref quarter, moduleExplosion);
             }
         }
@@ -837,12 +838,15 @@ namespace Ship_Game.Ships
     {
         public ShipModule Module;
         public bool Root; // in the cell the blast centers on
+        public bool Bubble; // a shield's bubble over the cell, not the module in it
         public int Distance;
         public int Quadrant;
-        public ModuleQuadrant(ShipModule module, bool root, int distance, int quadrant)
+        public ModuleQuadrant(ShipModule module, Point cell, bool root, int distance, int quadrant)
         {
             Module = module;
             Root   = root;
+            Bubble = cell.X < module.Pos.X || cell.X >= module.Pos.X + module.XSize
+                  || cell.Y < module.Pos.Y || cell.Y >= module.Pos.Y + module.YSize;
             Distance = distance;
             Quadrant = quadrant;
         }
