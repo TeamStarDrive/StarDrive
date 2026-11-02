@@ -179,7 +179,7 @@ namespace Ship_Game.Ships
         public float BeamResist                  => Flyweight.BeamResist.UpperBound(1f);
         public float ExplosiveResist             => Flyweight.ExplosiveResist.UpperBound(1f);
         public float Deflection                  => Flyweight.Deflection;
-        public int APResist                      => Flyweight.APResist;
+        public int APResist                      => Flyweight.APResist.LowerBound(0); // a negative value only marks the module as armor
         public bool AlwaysPowered                => Flyweight.IndirectPower;
         public int TargetTracking                => Flyweight.TargetTracking;
         public int TargetingAccuracy             => Flyweight.TargetAccuracy;
@@ -273,7 +273,7 @@ namespace Ship_Game.Ships
             {
                 case ShipModuleType.PowerPlant: return PowerFlowMax >= 1f;
                 case ShipModuleType.Shield:     return ShieldPowerMax >= 1f;
-                case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
+                case ShipModuleType.Armor:      return ModuleType == type || Flyweight.APResist != 0;
                 case ShipModuleType.Ordnance:   return ModuleType == type && OrdinanceCapacity > 0;
                 case ShipModuleType.Hangar:     return ModuleType == type || IsMiningBay || IsSalvageBay;
                 default:                        return ModuleType == type;
