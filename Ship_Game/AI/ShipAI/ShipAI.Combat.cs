@@ -692,9 +692,10 @@ namespace Ship_Game.AI
 
                     // automatically choose `Target` if ship does not have Priority
                     // or if current target already died
-                    if (!HasPriorityOrder && !HasPriorityTarget)
+                    if (!HasPriorityOrder && !HasPriorityTarget && selectedTarget != Target)
                     {
                         Target = selectedTarget;
+                        PlanFlankForNewTarget();
                     }
                 }
             }
@@ -760,6 +761,7 @@ namespace Ship_Game.AI
             if (!Owner.InCombat)
             {
                 Owner.InCombat = true;
+                PlanFlank();
                 //Log.Write(ConsoleColor.Green, $"ENTER combat: {Owner}");
             }
 
@@ -797,6 +799,7 @@ namespace Ship_Game.AI
 
             //Log.Write(ConsoleColor.Red, $"EXIT combat: {Owner}");
             Owner.InCombat = false;
+            IsFlanking = false;
 
             if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
                 OrderAwaitOrders(false);
