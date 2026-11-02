@@ -5007,11 +5007,11 @@ HeavymountPhasorArray:
  PTB: "Matriz de Phasor de Montagem Pesada"
 ThisHeavymountPhasorArrayHas:
  Id: 1013
- ENG: "This heavy-mount phasor array has a fixed spinal facing and a 45 degree field of fire."
- RUS: "Этот фазор большой мощности имеет фиксированное крепление сверху и может вести огонь в переднем 45-градусном секторе."
- SPA: "Esta matriz de fasores va montada sobre el lomo de la nave y tiene una orientación fija; su campo de fuego es de 45 grados."
- UKR: "Ця важка Фазорна батарея має фіксовану спрямованість і 45-градусне поле обстрілу."
- PTB: "Esta matriz de phasor de montagem pesada possui orientação espinhal fixa e campo de tiro de 45 graus."
+ ENG: "This heavy-mount phasor array has a fixed spinal facing and a narrow field of fire."
+ RUS: "Этот фазор большой мощности имеет фиксированное крепление сверху и может вести огонь в узком переднем секторе."
+ SPA: "Esta matriz de fasores va montada sobre el lomo de la nave y tiene una orientación fija; su campo de fuego es estrecho."
+ UKR: "Ця важка Фазорна батарея має фіксовану спрямованість і вузьке поле обстрілу."
+ PTB: "Esta matriz de phasor de montagem pesada possui orientação espinhal fixa e campo de tiro estreito."
 LightPhasorArray:
  Id: 1014
  ENG: "Light Phasor Array"
