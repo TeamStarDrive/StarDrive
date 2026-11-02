@@ -83,6 +83,8 @@ public class GuardFlankTests : StarDriveTest
 
     static Vector2 Toward(Vector2 from, Vector2 to) => from.DirectionToTarget(to);
 
+    static FlankGeometry.Keepout[] Keepouts(params Ship[] ships) => ships.Select(s => new FlankGeometry.Keepout(s.Position, 0f)).ToArray();
+
     void AssertKeepsTheRangeFromEveryRival(Vector2 point, string what)
     {
         foreach (TestShip rival in Rivals)
@@ -129,7 +131,7 @@ public class GuardFlankTests : StarDriveTest
         AssertLessThan(Toward(center, rear.FlankPoint).Y, -0.99f, "behind rivals facing the planet is -Y");
         AssertLessThan(Toward(center, rear.FlankWaypoint).X, -0.99f, "the way there goes round the side the guard is on, their right, -X");
         AssertKeepsTheRangeFromEveryRival(rear.FlankPoint, "the rear point");
-        Assert.IsTrue(FlankGeometry.IsLegClear(rear.FlankWaypoint, rear.FlankPoint, Rivals, FlankGeometry.WarpExitRange - 1f),
+        Assert.IsTrue(FlankGeometry.IsLegClear(rear.FlankWaypoint, rear.FlankPoint, Keepouts(Rivals), FlankGeometry.WarpExitRange - 1f),
                       "the leg from the side to the rear keeps the warp exit range");
     }
 
@@ -276,20 +278,23 @@ public class GuardFlankTests : StarDriveTest
     public void TheClearDistanceIsTheNearestPointOutAlongTheWayThatKeepsTheRangeFromEveryShip()
     {
         Vector2 center = new(300_000f, 300_000f);
-        TestShip onTheWay = SpawnShip(FrigateName, Player, center + new Vector2(1500f, 0f));
-        TestShip beside = SpawnShip(FrigateName, Player, center + new Vector2(0f, 3000f));
-        TestShip behind = SpawnShip(FrigateName, Player, center + new Vector2(-9000f, 0f));
+        FlankGeometry.Keepout onTheWay = new(center + new Vector2(1500f, 0f), 0f);
+        FlankGeometry.Keepout beside = new(center + new Vector2(0f, 3000f), 0f);
+        FlankGeometry.Keepout behind = new(center + new Vector2(-9000f, 0f), 0f);
         Vector2 right = new(1f, 0f);
 
-        AssertEqual(0.5f, 9000f, FlankGeometry.ClearDistance(center, right, new Ship[] { onTheWay }, 7500f), "7,500 past a ship 1,500 out on the way");
-        AssertEqual(0.5f, 6873.9f, FlankGeometry.ClearDistance(center, right, new Ship[] { beside }, 7500f), "where the way leaves the circle round a ship 3,000 beside it");
-        AssertEqual(0.5f, 0f, FlankGeometry.ClearDistance(center, right, new Ship[] { behind }, 7500f), "a ship behind the center pushes nothing out");
-        AssertEqual(0.5f, 9000f, FlankGeometry.ClearDistance(center, right, new Ship[] { onTheWay, beside, behind }, 7500f), "past ranges that overlap");
+        AssertEqual(0.5f, 9000f, FlankGeometry.ClearDistance(center, right, new[] { onTheWay }, 7500f), "7,500 past a ship 1,500 out on the way");
+        AssertEqual(0.5f, 6873.9f, FlankGeometry.ClearDistance(center, right, new[] { beside }, 7500f), "where the way leaves the circle round a ship 3,000 beside it");
+        AssertEqual(0.5f, 0f, FlankGeometry.ClearDistance(center, right, new[] { behind }, 7500f), "a ship behind the center pushes nothing out");
+        AssertEqual(0.5f, 9000f, FlankGeometry.ClearDistance(center, right, new[] { onTheWay, beside, behind }, 7500f), "past ranges that overlap");
 
-        TestShip nextOut = SpawnShip(FrigateName, Player, center + new Vector2(12_000f, 0f));
-        TestShip farOut = SpawnShip(FrigateName, Player, center + new Vector2(30_000f, 0f));
-        AssertEqual(0.5f, 19_500f, FlankGeometry.ClearDistance(center, right, new Ship[] { onTheWay, nextOut }, 7500f), "a range overlapping the first pushes on past it");
-        AssertEqual(0.5f, 9000f, FlankGeometry.ClearDistance(center, right, new Ship[] { farOut, onTheWay }, 7500f), "a ship far out on the way leaves the gap before it");
+        FlankGeometry.Keepout nextOut = new(center + new Vector2(12_000f, 0f), 0f);
+        FlankGeometry.Keepout farOut = new(center + new Vector2(30_000f, 0f), 0f);
+        AssertEqual(0.5f, 19_500f, FlankGeometry.ClearDistance(center, right, new[] { onTheWay, nextOut }, 7500f), "a range overlapping the first pushes on past it");
+        AssertEqual(0.5f, 9000f, FlankGeometry.ClearDistance(center, right, new[] { farOut, onTheWay }, 7500f), "a ship far out on the way leaves the gap before it");
+
+        FlankGeometry.Keepout spreadGroup = new(center + new Vector2(1500f, 0f), 2000f);
+        AssertEqual(0.5f, 11_000f, FlankGeometry.ClearDistance(center, right, new[] { spreadGroup }, 7500f), "a group's spread adds to the range");
     }
 
     [TestMethod]

@@ -25,9 +25,6 @@ namespace Ship_Game.AI
         bool HasFlankGroup;
         Vector2 FlankGroupCenter;
 
-        // the Remnants and the AI races; the player and the other factions come in head-on
-        static bool GuardsFlank(Empire empire) => empire.WeAreRemnants || !empire.isPlayer && !empire.IsFaction;
-
         static bool CanFlank(Ship ship) => ship.Fleet == null && !ship.IsHangarShip && !ship.Stats.IsStationary
                                            && (ship.Weapons.Count > 0 || ship.Carrier.HasActiveHangars);
 
@@ -41,13 +38,18 @@ namespace Ship_Game.AI
         }
 
         // a gravity well holds all but the Remnants out of warp, and a star's radiation hurts all but the immune
-        bool IsBadFlankExit(Vector2 position, SolarSystem system)
+        internal bool IsBadFlankExit(Vector2 position, SolarSystem system)
         {
             if (!Owner.IsImmuneToStarRadiation && !system.InSafeDistanceFromRadiation(position))
                 return true;
             Empire us = Owner.Loyalty;
             return !us.WeAreRemnants
                 && system.IdentifyGravityWell(us, position, Owner.Universe.Influence.GetInfluenceStatus(us, position) == InfluenceStatus.Friendly) != null;
+        }
+
+        FlankGeometry.FlankSearch FlankSearchFor(Vector2 center, Array<FlankGeometry.Keepout> enemies, float range, SolarSystem system)
+        {
+            return new(Owner.Position, center, enemies, range, (found, _) => found, at => IsBadFlankExit(at, system));
         }
 
         // a new target in combat drops the flank under way for one around it, unless it is in the group the flank was planned around
@@ -64,7 +66,7 @@ namespace Ship_Game.AI
             HasFlankWaypoint = false;
             HasFlankGroup = false;
             GameDifficulty difficulty = Owner.Universe.P.Difficulty;
-            if (!GuardsFlank(Owner.Loyalty) || difficulty == GameDifficulty.Normal || Target is not { } target || !CanFlank(Owner))
+            if (!FlankGeometry.Flanks(Owner.Loyalty) || difficulty == GameDifficulty.Normal || Target is not { } target || !CanFlank(Owner))
                 return;
 
             UpdateChaseLimits();
@@ -80,13 +82,13 @@ namespace Ship_Game.AI
                 return;
 
             // fighters are left out
-            var enemies = new Array<Ship>();
+            var enemies = new Array<FlankGeometry.Keepout>();
             var group = new Array<Ship>();
             foreach (Ship enemy in PotentialTargets)
             {
                 if (!enemy.Active || enemy.Dying || enemy.IsHangarShip || enemy.IsInWarp)
                     continue;
-                enemies.Add(enemy);
+                enemies.Add(new(enemy.Position, 0f));
                 if (enemy.Position.InRadius(target.Position, ThreatMatrix.RivalClusterJoinRadius))
                     group.Add(enemy);
             }
@@ -97,35 +99,19 @@ namespace Ship_Game.AI
             // the rear comes round the side nearer the ship
             bool onRight = role == FlankRole.Right || (role == FlankRole.Rear && (Owner.Position - center).Dot(left) < 0f);
             Vector2 side = onRight ? -left : left;
-            Vector2 rear = -front;
-            float clear = role == FlankRole.Rear
-                ? Math.Max(FlankGeometry.ClearDistance(center, side, enemies, range), FlankGeometry.ClearDistance(center, rear, enemies, range))
-                : FlankGeometry.ClearDistance(center, side, enemies, range);
-
-            // out to twice as far for a way there that keeps the range too, ending out of gravity wells and radiation; the rear goes round the side unless it is clear straight
-            for (int step = 0; step <= 4; ++step)
-            {
-                float distance = clear * (1f + step * 0.25f);
-                Vector2 waypoint = center + side * distance;
-                Vector2 point = role == FlankRole.Rear ? center + rear * distance : waypoint;
-                bool straight = FlankGeometry.IsLegClear(Owner.Position, point, enemies, range);
-                if (!straight && (role != FlankRole.Rear
-                                  || !FlankGeometry.IsLegClear(Owner.Position, waypoint, enemies, range)
-                                  || !FlankGeometry.IsLegClear(waypoint, point, enemies, range)
-                                  || IsBadFlankExit(waypoint, system)))
-                    continue;
-
-                if (IsBadFlankExit(point, system))
-                    continue;
-
-                IsFlanking = true;
-                HasFlankWaypoint = !straight;
-                FlankWaypoint = waypoint;
-                FlankPoint = point;
-                HasFlankGroup = true;
-                FlankGroupCenter = center;
+            FlankGeometry.FlankSearch search = FlankSearchFor(center, enemies, range, system);
+            Vector2 waypoint = default;
+            Vector2 point;
+            bool straight = true;
+            if (!(role == FlankRole.Rear ? search.TryRear(side, -front, out waypoint, out point, out straight) : search.TrySide(side, out point)))
                 return;
-            }
+
+            IsFlanking = true;
+            HasFlankWaypoint = !straight;
+            FlankWaypoint = role == FlankRole.Rear ? waypoint : point;
+            FlankPoint = point;
+            HasFlankGroup = true;
+            FlankGroupCenter = center;
         }
 
         // flown until the guard reaches its point, the waypoint first

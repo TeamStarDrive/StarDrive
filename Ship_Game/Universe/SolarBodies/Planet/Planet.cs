@@ -1662,6 +1662,16 @@ namespace Ship_Game
 
 
         public float TotalGeodeticOffense => BuildingGeodeticOffense + OrbitalStations.Sum(o => o.BaseStrength);
+
+        // the planet's guns fire no further than it sees
+        public float GunReach()
+        {
+            float reach = 0f;
+            foreach (Building b in Buildings)
+                if (b.IsWeapon)
+                    reach = Math.Max(reach, b.SpaceRange);
+            return Math.Min(reach, SensorRange);
+        }
         public int MaxDefenseShips => SumBuildings(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips => SumBuildings(b => b.CurrentNumDefenseShips) + System.ShipList.Count(s => s?.HomePlanet == this);
         

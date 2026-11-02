@@ -8,6 +8,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
+using Ship_Game.AI.CombatTactics;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Empires;
@@ -20,7 +21,7 @@ using Ship_Game.Ships.AI;
 namespace Ship_Game.Fleets
 {
     [StarDataType]
-    public sealed class Fleet : ShipGroup
+    public sealed partial class Fleet : ShipGroup
     {
         [StarData] public readonly Array<FleetDataNode> DataNodes = new();
         
@@ -2215,6 +2216,14 @@ namespace Ship_Game.Fleets
 
         Ship[] AvailableShips => AllButRearShips.Filter(ship => !ship.AI.HasPriorityOrder);
 
+        static bool CanBeSentAtGroup(Ship ship)
+        {
+            return !ship.AI.HasPriorityOrder
+                && !ship.InCombat
+                && ship.AI.State != AIState.AssaultPlanet
+                && ship.AI.State != AIState.Bombard;
+        }
+
         bool AttackEnemyStrengthClumpsInAO(MilitaryTask task)
         {
             return AttackEnemyStrengthClumpsInAO(task, AvailableShips);
@@ -2222,41 +2231,61 @@ namespace Ship_Game.Fleets
 
         bool AttackEnemyStrengthClumpsInAO(MilitaryTask task, IReadOnlyList<Ship> ships)
         {
-            if (ships.Count == 0)
+            if (ships.Count == 0 && FlankPlans.IsEmpty)
                 return false;
 
             ThreatCluster[] clusters = Owner.AI.ThreatMatrix.FindHostileClustersByDist(task.AO, task.AORadius);
             if (clusters.Length == 0)
+            {
+                FlankPlans.Clear();
+                return false;
+            }
+
+            PruneFlankPlans(task, clusters);
+            if (ships.Count == 0)
                 return false;
 
+            // from Hard the AI races and the Remnants split; at Insane the strongest group comes first, with half again its strength
+            GameDifficulty difficulty = Owner.Universe.P.Difficulty;
+            bool canSplit = difficulty > GameDifficulty.Normal && FlankGeometry.Flanks(Owner);
+            bool concentrate = canSplit && difficulty == GameDifficulty.Insane;
+            if (concentrate)
+                StrongestGroupFirst(clusters);
+
+            float freeStr = 0f;
+            if (canSplit)
+                for (int i = 0; i < ships.Count; i++)
+                    if (CanBeSentAtGroup(ships[i]))
+                        freeStr += ships[i].GetStrength();
 
             int clusterIndex = 0;
             float attackStr = 0;
             ThreatCluster currentCluster = clusters[0];
-            float clusterStr = currentCluster.Strength * Owner.GetFleetStrEmpireMultiplier(currentCluster.Loyalty);
-            Vector2 facing = AveragePosition().DirectionToTarget(currentCluster.Position);
+            float clusterStr = GroupStrength(currentCluster);
+            float wantedStr = concentrate ? clusterStr * SplitAtStrength : clusterStr;
+            var sent = new Array<Ship>();
+            // a batch of one comes in head-on
+            bool Splits() => canSplit && sent.Count > 1 && freeStr >= clusterStr * SplitAtStrength;
             int shipIndex = 0;
             for (int i = 0; i < ships.Count; i++)
             {
                 shipIndex = i;
                 Ship ship = ships[i];
-                if (ship.AI.HasPriorityOrder
-                      || ship.InCombat
-                      || ship.AI.State == AIState.AssaultPlanet
-                      || ship.AI.State == AIState.Bombard)
-                {
+                if (!CanBeSentAtGroup(ship))
                     continue;
-                }
 
-                ship.AI.OrderAttackMoveTo(currentCluster.Position + GetPositionFromDirection(ship, facing));
+                sent.Add(ship);
                 attackStr += ship.GetStrength();
-                if (attackStr >= clusterStr)
+                if (attackStr >= wantedStr)
                 {
+                    SendAtGroup(sent, currentCluster, clusters, Splits());
+                    freeStr -= attackStr;
+                    sent.Clear();
                     if (++clusterIndex < clusters.Length)
                     {
                         currentCluster = clusters[clusterIndex];
-                        clusterStr = currentCluster.Strength * Owner.GetFleetStrEmpireMultiplier(currentCluster.Loyalty);
-                        facing = AveragePosition().DirectionToTarget(currentCluster.Position);
+                        clusterStr = GroupStrength(currentCluster);
+                        wantedStr = clusterStr;
                         attackStr = 0;
                     }
                     else
@@ -2265,6 +2294,9 @@ namespace Ship_Game.Fleets
                     }
                 }
             }
+
+            if (sent.Count > 0)
+                SendAtGroup(sent, currentCluster, clusters, Splits());
 
             // if some ships remaining, let them escort the rear ships (which are usually troop ships)
             for (int i = shipIndex + 1, j = 0; i < ships.Count && j < RearShips.Count; i++, j++)
@@ -2833,6 +2865,8 @@ namespace Ship_Game.Fleets
             Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;
             FleetTask = null;
+            FlankPlans.Clear();
+            FlankPlansTask = null;
             Key = 0;
         }
 

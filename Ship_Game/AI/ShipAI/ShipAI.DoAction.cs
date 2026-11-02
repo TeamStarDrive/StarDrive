@@ -264,7 +264,7 @@ namespace Ship_Game.AI
             }
         }
 
-        const float MaxGroupSpread = 3750f;
+        internal const float MaxGroupSpread = 3750f;
 
         // the point where a straight line from this ship passes the target at its place in its fleet or group
         Vector2 SpreadByGroupPlace(Vector2 targetPos)
