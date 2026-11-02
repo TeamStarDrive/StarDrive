@@ -450,10 +450,17 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            // for a cool death effect, make the ship accelerate out of control:
-            SubLightAccelerate(100f);
-            UpdateVelocityAndPosition(timeStep);
-            PlanetCrash?.Update(Universe.Screen.Particles, timeStep);
+            // for a cool death effect, make the ship accelerate out of control; a ship crashing on a planet falls without thrust
+            if (PlanetCrash == null)
+            {
+                SubLightAccelerate(100f);
+                UpdateVelocityAndPosition(timeStep);
+            }
+            else
+            {
+                UpdateVelocityAndPosition(timeStep.FixedTime, default, isZeroAcc: true);
+                PlanetCrash.Update(Universe.Screen.Particles, timeStep);
+            }
 
             bool visible = IsVisibleToPlayer;
             bool visibleAndNotPaused = visible && timeStep.FixedTime > 0f;

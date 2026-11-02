@@ -14,6 +14,7 @@ namespace Ship_Game.Ships
         [StarData] readonly float Distance;
         [StarData] readonly Vector2 CrashPos;
         [StarData] readonly Ship Owner;
+        [StarData] float Seconds;
         [StarData] public float Scale { get; private set; } = 2;
         ParticleEmitter TrailEmitter;
         ParticleEmitter FireTrailEmitter;
@@ -25,9 +26,12 @@ namespace Ship_Game.Ships
             Owner    = owner;
             CrashPos = P.Position.GenerateRandomPointInsideCircle(P.Radius, p.Random);
             Distance = Owner.Position.Distance(CrashPos).LowerBound(1);
+            if (Owner.Velocity.Length() > Owner.MaxSTLSpeed) // a ship hit at warp falls from its top sublight speed
+                Owner.Velocity = Owner.Velocity.Normalized(Owner.MaxSTLSpeed);
+            Owner.Acceleration = Vector2.Zero; // a falling ship has no thrust
 
             Owner.SetDieTimer(2);
-            if (Owner.IsPlatformOrStation && Owner.GetTether() != null)
+            if (Owner.GetTether() != null) // a tethered ship would be held in place and never reach the planet
             {
                 Owner.GetTether().RemoveFromOrbitalStations(Owner);
                 Owner.RemoveTether();
@@ -42,8 +46,9 @@ namespace Ship_Game.Ships
         {
             Owner.Dying = true;
             Vector2 dir = Owner.Position.DirectionToTarget(CrashPos);
-            Owner.Velocity = dir * (Owner.MaxSTLSpeed * 0.8f).LowerBound(200);
-            Scale = Owner.Position.Distance(CrashPos) / Distance;
+            float speed = (Owner.MaxSTLSpeed * 0.8f).LowerBound(200);
+            PullTowardCrash(dir * speed, speed, timeStep.FixedTime);
+            Scale = (Owner.Position.Distance(CrashPos) / Distance).UpperBound(Scale.UpperBound(1)); // the ship only sinks toward the planet
 
             if (Owner.Position.InRadius(CrashPos, 200f))
             {
@@ -54,15 +59,14 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (Scale < 1.01f)
-                Owner.SetDieTimer(2); // If ship shot out of the Atmosphere (scale bigger than 1) - dont update the timer and let it die
+            Owner.SetDieTimer(2); // the ship dies when it reaches the crash point
 
             // Fiery trail atmospheric entry
             if (!P.PType.Clouds || !Owner.Position.InRadius(P.Position, P.Radius + 1000f))
                 return;
 
             float z = Owner.GetSO()?.World.Translation.Z - 20 ?? 0;
-            Vector3 trailPos = (Owner.Position + dir * Owner.Radius * Scale * 0.5f).ToVec3(z);
+            Vector3 trailPos = (Owner.Position + Owner.Velocity.Normalized() * Owner.Radius * Scale * 0.5f).ToVec3(z);
 
             if (Owner.Position.InRadius(P.Position, P.Radius + 1000f) &&
                 !Owner.Position.InRadius(P.Position, P.Radius))
@@ -84,6 +88,14 @@ namespace Ship_Game.Ships
 
                 TrailEmitter.Update(timeStep.FixedTime, trailPos);
             }
+        }
+
+        // the velocity at death turns evenly into the fall velocity over the time a straight fall would take, 2 to 5 seconds
+        void PullTowardCrash(Vector2 fallVelocity, float speed, float dt)
+        {
+            float remaining = (Distance / speed).Clamped(2f, 5f) - Seconds;
+            Seconds += dt;
+            Owner.Velocity = remaining > dt ? Owner.Velocity + (fallVelocity - Owner.Velocity) * (dt / remaining) : fallVelocity;
         }
 
         public static bool GetPlanetToCrashOn(Ship ship, out Planet planet)
