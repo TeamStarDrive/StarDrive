@@ -28,6 +28,7 @@ namespace Ship_Game.Ships
             Distance = Owner.Position.Distance(CrashPos).LowerBound(1);
             if (Owner.Velocity.Length() > Owner.MaxSTLSpeed) // a ship hit at warp falls from its top sublight speed
                 Owner.Velocity = Owner.Velocity.Normalized(Owner.MaxSTLSpeed);
+            Owner.Acceleration = Vector2.Zero; // a falling ship has no thrust
 
             Owner.SetDieTimer(2);
             if (Owner.GetTether() != null) // a tethered ship would be held in place and never reach the planet
@@ -47,7 +48,7 @@ namespace Ship_Game.Ships
             Vector2 dir = Owner.Position.DirectionToTarget(CrashPos);
             float speed = (Owner.MaxSTLSpeed * 0.8f).LowerBound(200);
             PullTowardCrash(dir * speed, speed, timeStep.FixedTime);
-            Scale = (Owner.Position.Distance(CrashPos) / Distance).UpperBound(1);
+            Scale = (Owner.Position.Distance(CrashPos) / Distance).UpperBound(Scale.UpperBound(1)); // the ship only sinks toward the planet
 
             if (Owner.Position.InRadius(CrashPos, 200f))
             {

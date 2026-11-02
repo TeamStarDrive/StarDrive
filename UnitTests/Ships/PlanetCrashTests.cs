@@ -99,12 +99,14 @@ public class PlanetCrashTests : StarDriveTest
     {
         Ship ship = SpawnShip("Vulcan Scout", Player, CrashPlanet.Position + new Vector2(3000f, 0f));
         ship.Velocity = new Vector2(0f, ship.MaxSTLSpeed * 20f);
+        ship.Acceleration = new Vector2(0f, 15_000f); // speeding up at warp
         ship.PlanetCrash = new PlanetCrash(CrashPlanet, ship);
         ship.Dying = true;
 
         AssertEqual(0.01f, ship.MaxSTLSpeed, ship.Velocity.Length(), "the fall starts at the ship's top sublight speed");
         AssertEqual(0.01f, 0f, ship.Velocity.X, "in the direction it flew");
-        CrashUntilDead(ship, out _);
+        float largestChange = CrashUntilDead(ship, out _);
+        AssertLessThan(largestChange, 3f, "the warp acceleration is gone, the velocity changes a little at a time");
         AssertDiedOnThePlanet(ship, "a ship hit at warp");
     }
 
