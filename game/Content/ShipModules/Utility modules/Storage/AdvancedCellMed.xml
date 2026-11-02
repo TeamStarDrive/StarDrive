@@ -15,9 +15,7 @@
   <Name>Med adv Fuel Cell</Name>
   <IconTexturePath>Modules/Med_AdvancedCell</IconTexturePath>
   <Mass>4</Mass>
-  <Health>2080</Health>
   <HealthMax>2080</HealthMax>
-  <energyreq>1</energyreq>
   
   
   

@@ -31,9 +31,7 @@
 
   <IconTexturePath>Modules/DarkMatterCannon_2x2</IconTexturePath>
   <Mass>16</Mass>
-  <Health>2880</Health>
   <HealthMax>2880</HealthMax>
-  <energyreq>0</energyreq>
   <Description>A crude but effective high-energy cannon weapon </Description>
   <CrewRequired>12</CrewRequired>
   

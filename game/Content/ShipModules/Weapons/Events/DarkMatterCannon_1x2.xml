@@ -40,7 +40,6 @@
 
   <!-- Mass and Health -->
   <Mass>8</Mass>
-  <Health>1440</Health>
   <HealthMax>1440</HealthMax>
   <RepairDifficulty>4</RepairDifficulty>
 

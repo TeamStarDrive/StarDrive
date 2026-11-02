@@ -23,9 +23,7 @@
 
 
   <Mass>45</Mass>
-  <Health>7020</Health>
   <HealthMax>7020</HealthMax>
-  <energyreq>0</energyreq>
   <Description>Twin photon cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire.</Description>
 
   <PowerDraw>10</PowerDraw>

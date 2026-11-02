@@ -6352,6 +6352,18 @@ namespace Ship_Game
         DesignIssueSalvageLaunchOrdnanceSkipped = 7260,
         /// <summary>You can build salvage ships, but none can take this</summary>
         SalvageDerelictNoUsableShipTip = 7261,
+        /// <summary>Inertial Dampers Past Their Limit</summary>
+        DesignIssueDampersPastLimitTitle = 7262,
+        /// <summary>Inertial dampers can take off at most half of the mass of</summary>
+        DesignIssueDampersPastLimitProblem = 7263,
+        /// <summary>Remove some inertial dampers.</summary>
+        DesignIssueDampersPastLimitRemidiation = 7264,
+        /// <summary>Damper mass past the limit:</summary>
+        DesignIssueDampersPastLimitMass = 7265,
+        /// <summary>Limit on this hull: {0} slots</summary>
+        ModuleLimitOnHull = 7266,
+        /// <summary>This hull allows this module on no more than {0} of its slots.</summary>
+        ModuleLimitOnShipReached = 7267,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

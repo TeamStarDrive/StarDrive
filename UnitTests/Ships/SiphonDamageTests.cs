@@ -90,8 +90,10 @@ namespace UnitTests.Ships
             w = ResourceManager.CreateWeapon(UState, weaponUid, attacker, null);
             AssertGreaterThan(w.PowerDamage, 0f, $"{weaponUid} should carry power damage");
             Assert.IsFalse(w.IsBeam, $"{weaponUid} must be a projectile weapon for this test");
-            return Projectile.Create(w, attacker, attacker.Position,
-                                     (target.Position - attacker.Position).Normalized(), target, playSound: false);
+            Projectile p = Projectile.Create(w, attacker, attacker.Position,
+                                             (target.Position - attacker.Position).Normalized(), target, playSound: false);
+            p.IgnoresShields = false; // a shot that rolled its shield penetration passes the shield it strikes
+            return p;
         }
 
         [TestMethod]

@@ -17,7 +17,6 @@
   <IconTexturePath>Modules/cargoSmall</IconTexturePath>
   <Mass>3</Mass>
   <HealthMax>300</HealthMax>
-  <energyreq>0</energyreq>
   
   
   

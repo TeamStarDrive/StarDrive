@@ -22,9 +22,7 @@
   <DescriptionIndex>1003</DescriptionIndex>
 
   <Mass>30</Mass>
-  <Health>800</Health>
   <HealthMax>800</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>Reactors are the beating hearts of spaceships.  This basic fission model provides a moderate level of power output and power storage. Explodes when destroyed. </Description>
   <CrewRequired>10</CrewRequired>

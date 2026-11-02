@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/Fabricator</IconTexturePath>
   <Mass>15</Mass>
-  <Health>2600</Health>
   <HealthMax>2600</HealthMax>
-  <energyreq>0</energyreq>
   <Description>.
   </Description>
   

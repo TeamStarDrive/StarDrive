@@ -458,6 +458,8 @@ namespace Ship_Game
         {
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
+            if (input.LeftMouseClick)
+                LimitOnShipShown = false;
 
             if (slotUnderCursor == null)
             { 
@@ -479,18 +481,36 @@ namespace Ship_Game
             if (!input.IsShiftKeyDown)
             {
                 GameAudio.SubBassMouseOver();
-                InstallActiveModule(new SlotInstall(slotUnderCursor, ActiveModule));
+                ShipModule placed = ActiveModule;
+                LimitOutcome outcome = InstallActiveModule(new SlotInstall(slotUnderCursor, ActiveModule));
+                if (outcome != LimitOutcome.Within)
+                    ShowLimitOnShip(input, placed, refused: outcome == LimitOutcome.Refused);
                 DisplayBulkReplacementTip(input.CursorPosition);
             }
             else if (slotUnderCursor.ModuleUID != ActiveModule.UID || slotUnderCursor.Module?.HangarShipUID != ActiveModule.HangarShipUID)
             {
                 GameAudio.SubBassMouseOver();
-                ReplaceModulesWith(slotUnderCursor, ActiveModule); // ReplaceModules created by Fat Bastard
+                if (ReplaceModulesWith(slotUnderCursor, ActiveModule)) // ReplaceModules created by Fat Bastard
+                    ShowLimitOnShip(input, ActiveModule, refused: true);
             }
             else
             {
                 GameAudio.NegativeClick();
             }
+        }
+
+        bool LimitOnShipShown;
+
+        // once a press, so dragging over many slots does not repeat it
+        void ShowLimitOnShip(InputState input, ShipModule module, bool refused)
+        {
+            if (LimitOnShipShown)
+                return;
+            LimitOnShipShown = true;
+            if (refused)
+                GameAudio.NegativeClick();
+            string text = string.Format(Localizer.Token(GameText.ModuleLimitOnShipReached), SlotLimitOnShip(module));
+            ToolTip.CreateFloatingText(text, "", input.CursorPosition, 5);
         }
 
         void DisplayBulkReplacementTip(Vector2 pos)

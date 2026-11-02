@@ -17,9 +17,7 @@
 
   <IconTexturePath>Modules/AdvancedDualFlak</IconTexturePath>
   <Mass>54</Mass>
-  <Health>4140</Health>
   <HealthMax>4140</HealthMax>
-  <energyreq>0</energyreq>
   <Description>Flak Turrets are mounted on omni-directional swivel platforms for a full field of fire.  They fire explosive shells with a wide damaging radius, but the projectiles are somewhat slow and have a limited range.  Furthermore, this weapon requires ordnance to fire.
   </Description>
   <CrewRequired>12</CrewRequired>

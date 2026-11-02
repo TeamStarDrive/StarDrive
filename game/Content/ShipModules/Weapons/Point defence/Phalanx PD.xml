@@ -16,9 +16,7 @@
 
   <IconTexturePath>Modules/Phalanx</IconTexturePath>
   <Mass>14</Mass>
-  <Health>3800</Health>
   <HealthMax>3800</HealthMax>
-  <energyreq>0</energyreq>
 
   <CrewRequired>12</CrewRequired>
   

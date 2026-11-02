@@ -20,9 +20,7 @@
   <IconTexturePath>Modules/Cockpit</IconTexturePath>
   <IsCommandModule>true</IsCommandModule>
   <Mass>2</Mass>
-  <Health>500</Health>
   <HealthMax>500</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This cockpit has enough room for a small flight crew and their workstations.   From here, the crew can receive basic sensor data, coordinate ship repairs, and pilot the ship.</Description>
 

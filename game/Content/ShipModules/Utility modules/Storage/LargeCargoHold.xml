@@ -21,7 +21,6 @@
   <IconTexturePath>Modules/cargoLarge</IconTexturePath>
   <Mass>15</Mass>
   <HealthMax>3105</HealthMax>
-  <energyreq>0</energyreq>
   
   
   

@@ -17,9 +17,7 @@
   <Name>Small Cargo Hold</Name>
   <IconTexturePath>Modules/ContainerDeck</IconTexturePath>
   <Mass>18</Mass>
-  <Health>4680</Health>
   <HealthMax>4680</HealthMax>
-  <energyreq>0</energyreq>
   
   
   

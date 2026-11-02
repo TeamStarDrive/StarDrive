@@ -49,7 +49,7 @@ namespace UnitTests.Ships
 
         int TrialSite;
 
-        Vector2 NextSite() => new(++TrialSite * 200000f, 0);
+        Vector2 NextSite() => new(++TrialSite * 30000f, 0);
 
         TestShip[] SpawnStack(string shipName, int count, float spacing)
         {
@@ -72,10 +72,10 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ExplosionFalloffHalvesAtTheReferenceDistance()
         {
-            AssertEqual(0.001f, 100f / 110f, ShipModule.ExplosionFalloff(0f),
+            AssertEqual(0.001f, 150f / 160f, ShipModule.ExplosionFalloff(0f),
                 "at the blast center the distance floor still applies");
-            AssertEqual(0.001f, 0.5f, ShipModule.ExplosionFalloff(ShipModule.ExplosionHalfDamageDistance));
-            AssertEqual(0.001f, 0.25f, ShipModule.ExplosionFalloff(300f));
+            AssertEqual(0.001f, 0.5f, ShipModule.ExplosionFalloff(150f));
+            AssertEqual(0.001f, 0.25f, ShipModule.ExplosionFalloff(450f));
 
             float previous = float.MaxValue;
             for (float d = 0; d <= 4000f; d += 50f)
@@ -291,29 +291,36 @@ namespace UnitTests.Ships
         [TestMethod]
         public void BlastStillBitesNearTheEdgeOfItsRadius()
         {
-            // The old (1-d/R)^2 curve collapsed to almost nothing near the blast edge - at 1100u
-            // it delivered 483 of a 60k blast where the inverse curve delivers 5033. This pins
-            // ShipExplode to the inverse curve: the blast hits softer up close but reaches out.
-            // The frigate is outside point-blank range here, so it keeps its full evade and
-            // dodges half the time - the trial count has to swamp that or the test flakes.
-            int killed = 0;
+            // outside point-blank range the frigate dodges half the time, so the trial count has to swamp that
+            int killedAt400 = 0;
+            float mostLostAt1100 = 0f;
             for (int trial = 0; trial < 30; ++trial)
             {
-                Vector2 site = NextSite();
-                TestShip victim = SpawnShip("Dreadnought mk1-a", Player, site);
-                TestShip frigate = SpawnShip("Corsair", Player, site + new Vector2(1100f, 0));
-                UState.Objects.Update(TestSimStep);
-                StripResistArmor(victim);
-                DrainShields(frigate);
-
-                victim.Die(null, cleanupOnly: false);
-                if (!frigate.Active)
-                    ++killed;
+                if (FrigateBesideDyingCapital(400f, out _))
+                    ++killedAt400;
+                FrigateBesideDyingCapital(1100f, out float lost);
+                mostLostAt1100 = Math.Max(mostLostAt1100, lost);
             }
 
-            AssertGreaterThan(killed, 0,
-                "a frigate near the edge of a capital's blast radius should still be destroyed " +
-                "at least once in 30 tries");
+            AssertGreaterThan(killedAt400, 0,
+                "a frigate 400 units from a dying capital should be destroyed at least once in 30 tries");
+            AssertGreaterThan(mostLostAt1100, 10_000f,
+                "a frigate 1100 units from a dying capital should lose a real share of its health at least once in 30 tries");
+        }
+
+        bool FrigateBesideDyingCapital(float distance, out float healthLost)
+        {
+            Vector2 site = NextSite();
+            TestShip victim = SpawnShip("Dreadnought mk1-a", Player, site);
+            TestShip frigate = SpawnShip("Corsair", Player, site + new Vector2(distance, 0));
+            UState.Objects.Update(TestSimStep);
+            StripResistArmor(victim);
+            DrainShields(frigate);
+
+            float before = frigate.Health;
+            victim.Die(null, cleanupOnly: false);
+            healthLost = before - frigate.Health;
+            return !frigate.Active;
         }
 
         [TestMethod]

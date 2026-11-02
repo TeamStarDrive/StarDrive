@@ -17,9 +17,7 @@
 
   <IconTexturePath>Modules/PhotonTurret_2x2</IconTexturePath>
   <Mass>20</Mass>
-  <Health>3120</Health>
   <HealthMax>3120</HealthMax>
-  <energyreq>0</energyreq>
   <Description>A turret mounted photon cannon weapon, highly effective in any combat situation.  
   </Description>
   <CrewRequired>12</CrewRequired>

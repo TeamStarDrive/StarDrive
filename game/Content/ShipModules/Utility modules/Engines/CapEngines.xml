@@ -16,9 +16,7 @@
 
   <IconTexturePath>Modules/engine_3x3</IconTexturePath>
   <Mass>42</Mass>
-  <Health>4680</Health>
   <HealthMax>4680</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This massive engine will provide awesome thrust at an awesome power cost.  </Description>
   

@@ -18,9 +18,7 @@
   <IconTexturePath>Modules/warpreactor_3x3</IconTexturePath>
   
   <Mass>135</Mass>
-  <Health>3450</Health>
   <HealthMax>3450</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>Harnesses a matter/anti-matter reaction to create large amounts of power</Description>
   <CrewRequired>10</CrewRequired>

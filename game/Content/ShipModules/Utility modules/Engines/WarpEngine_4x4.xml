@@ -16,9 +16,7 @@
 
   <IconTexturePath>Modules/warpengine_4x4</IconTexturePath>
   <Mass>80</Mass>
-  <Health>9280</Health>
   <HealthMax>9280</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>A massive warp engine for a massive ship. </Description>
   

@@ -17,9 +17,7 @@
   <UID>TEST_ModuleResist</UID>
   <IconTexturePath>Modules/Fighter Shield</IconTexturePath>
   <Mass>2</Mass>
-  <Health>100</Health>
   <HealthMax>100</HealthMax>
-  <energyreq>0</energyreq>
 
   <Description>Unit test armor with out of range resistances.</Description>
 

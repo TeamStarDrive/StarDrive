@@ -193,6 +193,15 @@ namespace Ship_Game.Ships
         public float ResearchPerTurn             => Flyweight.ResearchPerTurn;
         public float Refining                    => Flyweight.Refining;
         public bool Salvage                      => Flyweight.Salvage;
+        public float PercentLimitOnShips         => Flyweight.PercentLimitOnShips;
+
+        public const int MinModulesOnShip = 6;
+        public int SlotLimitOnShip(int surfaceArea)
+        {
+            if (PercentLimitOnShips <= 0f)
+                return int.MaxValue;
+            return Math.Max(MinModulesOnShip * XSize * YSize, (int)(surfaceArea * PercentLimitOnShips / 100f));
+        }
 
         /// <summary>
         /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(float)"/>
@@ -731,9 +740,10 @@ namespace Ship_Game.Ships
             return (dx*dx + dy*dy) <= (r2*r2);
         }
 
-        public bool RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
+        // a ray that penetrated the shields ends on the module, not on its bubble
+        public bool RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields, out float distanceFromStart)
         {
-            if (ShieldsAreActive)
+            if (ShieldsAreActive && !ignoreShields)
             {
                 return Position.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
             }
@@ -743,7 +753,7 @@ namespace Ship_Game.Ships
         }
 
         /// <summary>Distance at which a ship's death blast delivers half of its damage</summary>
-        public const float ExplosionHalfDamageDistance = 100f;
+        public const float ExplosionHalfDamageDistance = 150f;
 
         /// <summary>Closest distance a blast is measured from, so the falloff cannot spike</summary>
         public const float ExplosionMinDistance = 10f;
@@ -816,13 +826,17 @@ namespace Ship_Game.Ships
             source?.OnDamageInflicted(this, amount);
         }
 
+        // a module exploding inside the hull, or a shot that penetrated the shields, hits a shield module's health, never its shield
+        bool HitsShields(GameObject source, bool moduleExplosion)
+            => ShieldsAreActive && !moduleExplosion && source is not Projectile { IgnoresShields: true };
+
         public void Damage(GameObject source, float damageAmount, out float damageRemainder, float beamModifier = 1f,
                            bool moduleExplosion = false)
         {
             float damageModifier = 1f;
             if (source != null)
             {
-                damageModifier = ShieldsAreActive
+                damageModifier = HitsShields(source, moduleExplosion)
                     ? source.DamageMod.GetShieldDamageMod(this)
                     : source.DamageMod.GetArmorDamageMod(this);
             }
@@ -927,7 +941,7 @@ namespace Ship_Game.Ships
             var beam = source as Beam;
             var proj = source as Projectile;
 
-            bool damagingShields = ShieldsAreActive;
+            bool damagingShields = HitsShields(source, moduleExplosion);
             if (beam == null) // only for projectiles
             {
                 if (!damagingShields && !moduleExplosion && proj?.PowerDamage > 0)
@@ -1101,9 +1115,7 @@ namespace Ship_Game.Ships
                 if (Explodes)
                 {
                     // ShipModule has died and will now explode internally
-                    // the 1,1 vector substruction ensures the Northwest quadrant is hit (floating point issues)
-                    Parent.DamageExplosive(source, ExplosionDamage, Position - new Vector2(1,1), ExplosionRadius, true,
-                                           moduleExplosion: true);
+                    Parent.DamageModuleExplosion(source, this);
                 }
             }
         }

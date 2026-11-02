@@ -19,10 +19,8 @@
   <IconTexturePath>Modules/Hellstorm</IconTexturePath>
 
   <Mass>150</Mass>
-  <Health>1600</Health>
   <HealthMax>1600</HealthMax>
   <RepairDifficulty>2.5</RepairDifficulty>
-  <energyreq>5</energyreq>
   <Description>This is a long range multiple rocket launching system.</Description>
 
   <CrewRequired>12</CrewRequired>

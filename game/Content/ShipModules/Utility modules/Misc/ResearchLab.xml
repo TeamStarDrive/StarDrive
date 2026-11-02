@@ -26,10 +26,8 @@
 
   <IconTexturePath>Modules/ResearchLab</IconTexturePath>
   <Mass>200</Mass>
-  <Health>1200</Health>
   <HealthMax>1200</HealthMax>
   <RepairDifficulty>4</RepairDifficulty>
-  <energyreq>0</energyreq>
   
   <PowerDraw>450</PowerDraw>
   <ResearchPerTurn>0.6</ResearchPerTurn>

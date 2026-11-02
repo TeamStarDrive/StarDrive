@@ -16,10 +16,8 @@
 
     <IconTexturePath>Modules/RemnantNuker</IconTexturePath>
     <Mass>16</Mass>
-    <Health>2400</Health>
     <HealthMax>2400</HealthMax>
     <RepairDifficulty>2</RepairDifficulty>
-    <energyreq>0</energyreq>
     <Description>RemnantNuker</Description>
     
     

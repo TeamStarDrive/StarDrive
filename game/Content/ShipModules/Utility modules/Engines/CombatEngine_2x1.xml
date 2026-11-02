@@ -24,9 +24,7 @@
   <TexturePath>Textures/transparent</TexturePath>
   <IconTexturePath>Modules/CombatEngine_1x2</IconTexturePath>
   <Mass>6</Mass>
-  <Health>1040</Health>
   <HealthMax>1040</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This is a medium-sized engine.  It is more efficient than using four smaller engines in every way. </Description>
   

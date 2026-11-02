@@ -13,7 +13,6 @@
   
   <IconTexturePath>Modules/VulcanCannon</IconTexturePath>
   <Mass>4</Mass>
-  <Health>810</Health>
   <HealthMax>810</HealthMax>
   <Description>The Vulcan cannon is a small, rapid fire machine gun capable of shredding lightly armored targets in a storm of uranium-tipped rounds.  Point Defense weapons automatically track and engage incoming missiles. </Description>
   <PowerDraw>1</PowerDraw>

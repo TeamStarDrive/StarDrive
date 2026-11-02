@@ -1180,7 +1180,7 @@ namespace Ship_Game.Gameplay
             // the blast PAST the armor onto an internal module (the armor-bypass bug). The struck
             // module's own position always sits on the armor, and the directional explosion handles
             // penetration from there.
-            if (victim.ShieldsAreActive)
+            if (!IgnoresShields && victim.ShieldsAreActive)
             {
                 // ...but a shield module's center is the BUBBLE center, up to ShieldHitRadius
                 // (~60-210u) behind the surface the projectile actually struck. Anchoring there

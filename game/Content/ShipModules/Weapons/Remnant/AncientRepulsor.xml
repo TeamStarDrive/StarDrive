@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/DisruptorTurret2x2</IconTexturePath>
   <Mass>10</Mass>
-  <Health>450</Health>
   <HealthMax>450</HealthMax>
-  <energyreq>0</energyreq>
   <Description>A very old and very powerful repulsor weapon that acts as a sort of reverse tractor beam. </Description>
   <CrewRequired>12</CrewRequired>
   

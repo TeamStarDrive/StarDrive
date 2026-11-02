@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/Fletchette_2x2</IconTexturePath>
   <Mass>30</Mass>
-  <Health>2760</Health>
   <HealthMax>2760</HealthMax>
-  <energyreq>0</energyreq>
 
   <CrewRequired>12</CrewRequired>
   

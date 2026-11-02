@@ -22,10 +22,8 @@
   <IconTexturePath>Modules/CIC_4x4</IconTexturePath>
   <IsCommandModule>true</IsCommandModule>
   <Mass>128</Mass>
-  <Health>12480</Health>
   <HealthMax>12480</HealthMax>
   <RepairDifficulty>8</RepairDifficulty>
-  <energyreq>0</energyreq>
   
   <Description>The combat information center consolidates all command and control functions into a single module. From here the crew can coordinate sensor data, manage damage control teams, organize shipboard defensive actions, and more. </Description>
   <PowerDraw>32</PowerDraw>

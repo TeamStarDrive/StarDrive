@@ -18,9 +18,7 @@
   <IconTexturePath>Modules/sickbay_4x4</IconTexturePath>
   
   <Mass>96</Mass>
-  <Health>8000</Health>
   <HealthMax>8000</HealthMax>
-  <energyreq>16</energyreq>
   
   <PowerDraw>25</PowerDraw>
 

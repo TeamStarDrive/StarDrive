@@ -42,7 +42,6 @@
 
   <!-- Mass and Health -->
   <Mass>6</Mass>
-  <Health>4565</Health>
   <HealthMax>4565</HealthMax>
   <RepairDifficulty>6</RepairDifficulty>
   <Deflection>0</Deflection>

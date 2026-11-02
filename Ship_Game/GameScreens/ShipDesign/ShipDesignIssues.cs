@@ -346,6 +346,17 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.NoSpeed, WarningLevel.Critical);
         }
 
+        // inertial dampers past half of the mass of the rest of the ship or below the hull's mass floor, whose excess takes off nothing
+        public void CheckDampersPastLimit(float positiveMass, float dampersMass, int minMass)
+        {
+            float pastLimit = ShipStats.DampersMassPastLimit(positiveMass, dampersMass, minMass);
+            if (pastLimit <= 0f)
+                return;
+
+            AddDesignIssue(DesignIssueType.DampersPastLimit, WarningLevel.Major,
+                $" {Localizer.Token(GameText.DesignIssueDampersPastLimitMass)} {pastLimit.GetNumberString()}.");
+        }
+
         public void CheckTargetExclusions(bool hasWeapons, bool canTargetFighters,
             bool  canTargetCorvettes, bool canTargetCapitals, HangarOptions designation)
         {
@@ -755,7 +766,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         ConstructorCost,
         LowRefiningTime,
         LowSalvageShipCargo,
-        SalvageLaunchOrdnance
+        SalvageLaunchOrdnance,
+        DampersPastLimit
     }
 
     public enum WarningLevel
@@ -1002,6 +1014,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem     = GameText.DesignIssueSalvageLaunchOrdnanceProblem;
                     Remediation = GameText.DesignIssueSalvageLaunchOrdnanceRemidiation;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoOrdnance");
+                    break;
+                case DesignIssueType.DampersPastLimit:
+                    Title       = GameText.DesignIssueDampersPastLimitTitle;
+                    Problem     = GameText.DesignIssueDampersPastLimitProblem;
+                    Remediation = GameText.DesignIssueDampersPastLimitRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueDampersPastLimit");
                     break;
             }
         }

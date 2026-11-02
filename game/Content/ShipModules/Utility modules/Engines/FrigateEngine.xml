@@ -19,9 +19,7 @@
   <TexturePath>Textures/transparent</TexturePath>
   <IconTexturePath>Modules/EngineMedium</IconTexturePath>
   <Mass>19</Mass>
-  <Health>1840</Health>
   <HealthMax>1840</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>This is a medium-sized engine.  It is more efficient than using four smaller engines in every way. </Description>
   

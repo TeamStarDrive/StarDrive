@@ -173,7 +173,7 @@ namespace Ship_Game
         {
             public readonly SlotStruct Slot;
             public readonly ShipModule Mod;
-            bool CanInstall;
+            public bool CanInstall { get; private set; }
             public SlotInstall() {}
             public SlotInstall(SlotStruct slot, ShipModule mod)
             {
@@ -210,13 +210,25 @@ namespace Ship_Game
             return new SlotInstall();
         }
 
-        void InstallActiveModule(SlotInstall active)
+        enum LimitOutcome { Within, MirrorLeftOut, Refused }
+
+        LimitOutcome InstallActiveModule(SlotInstall active)
         {
             SlotInstall mirror = CreateMirrorInstall(active);
             bool canInstall  = active.UpdateCanInstallTo(ModuleGrid);
                  canInstall |= mirror.UpdateCanInstallTo(ModuleGrid);
+            var outcome = LimitOutcome.Within;
             if (canInstall)
             {
+                if (InstallPastLimitOnShip(active, mirror))
+                {
+                    // the module goes in alone when its mirror is what takes it past the limit
+                    if (!active.CanInstall || !mirror.CanInstall || InstallPastLimitOnShip(active, new SlotInstall()))
+                        return LimitOutcome.Refused;
+                    mirror = new SlotInstall();
+                    outcome = LimitOutcome.MirrorLeftOut;
+                }
+
                 ModuleGrid.StartUndoableAction();
                 {
                     active.TryInstallTo(ModuleGrid);
@@ -227,19 +239,45 @@ namespace Ship_Game
                 ShipModule m = active.Mod;
                 SpawnActiveModule(m.UID, m.ModuleRot, m.TurretAngle, m.HangarShipUID);
             }
+            return outcome;
         }
 
-        void ReplaceModulesWith(SlotStruct slot, ShipModule template)
+        public static int SlotLimitOnShip(ShipModule module, ShipHull hull)
+            => ShipStats.IsStationaryHull(hull.Role) ? int.MaxValue : module.SlotLimitOnShip(hull.SurfaceArea);
+
+        public int SlotLimitOnShip(ShipModule module) => SlotLimitOnShip(module, CurrentHull);
+
+        // a design over the limit keeps what it has and may shed some, but takes no more
+        public static bool PastLimitOnShip(int limit, int before, int after) => after > limit && after > before;
+
+        bool InstallPastLimitOnShip(SlotInstall active, SlotInstall mirror)
+        {
+            ShipModule module = active.Mod;
+            int limit = SlotLimitOnShip(module);
+            if (limit == int.MaxValue)
+                return false;
+
+            int after = ModuleGrid.SlotsOfAfterInstalls(module.UID, active.CanInstall ? active.Slot : null, active.Mod,
+                                                        mirror.CanInstall ? mirror.Slot : null, mirror.Mod);
+            return PastLimitOnShip(limit, ModuleGrid.SlotsOf(module.UID), after);
+        }
+
+        // true when the module's limit on ships refused the replacement
+        bool ReplaceModulesWith(SlotStruct slot, ShipModule template)
         {
             if (!slot.IsModuleReplaceableWith(template))
             {
                 GameAudio.NegativeClick();
-                return;
+                return false;
             }
+
+            string replacementId = slot.Module.UID;
+            int after = ModuleGrid.SlotsOfAfterReplace(template.UID, replacementId);
+            if (PastLimitOnShip(SlotLimitOnShip(template), ModuleGrid.SlotsOf(template.UID), after))
+                return true;
 
             ModuleGrid.StartUndoableAction();
 
-            string replacementId = slot.Module.UID;
             foreach (SlotStruct replaceAt in ModuleGrid.SlotsList)
             {
                 if (replaceAt.ModuleUID == replacementId)
@@ -251,6 +289,7 @@ namespace Ship_Game
             }
             
             OnDesignChanged();
+            return false;
         }
 
         void DeleteModuleAtSlot(SlotStruct slot)

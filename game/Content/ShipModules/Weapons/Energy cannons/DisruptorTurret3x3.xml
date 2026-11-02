@@ -14,9 +14,7 @@
 
   <IconTexturePath>Modules/DisruptorTurret3x3</IconTexturePath>
   <Mass>45</Mass>
-  <Health>6210</Health>
   <HealthMax>6210</HealthMax>
-  <energyreq>0</energyreq>
   <Description>A crude but effective high-energy cannon weapon </Description>
   <CrewRequired>12</CrewRequired>
   

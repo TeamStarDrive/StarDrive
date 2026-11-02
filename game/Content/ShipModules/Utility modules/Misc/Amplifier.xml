@@ -18,7 +18,6 @@
     <DescriptionIndex>17496</DescriptionIndex>
     <!-- Mass and Health -->
     <Mass>2</Mass>
-    <Health>600</Health>
     <HealthMax>600</HealthMax>
     <RepairDifficulty>3</RepairDifficulty>                          
     <!-- Power Drawn -->

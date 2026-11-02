@@ -16,9 +16,7 @@
 
   <IconTexturePath>Modules/HVTurret_2x2</IconTexturePath>
   <Mass>24</Mass>
-  <Health>3480</Health>
   <HealthMax>3480</HealthMax>
-  <energyreq>0</energyreq>
   <Description>Flak Turrets are mounted on omni-directional swivel platforms for a 90 degree field of fire.  They fire explosive shells with a moderate damaging radius, but the projectiles are somewhat slow and ill-suited for tracking swift targets.  Furthermore, this weapon requires ordnance to fire.
   </Description>
   <CrewRequired>12</CrewRequired>

@@ -16,9 +16,7 @@
 
   <IconTexturePath>Modules/missileRack</IconTexturePath>
   <Mass>6</Mass>
-  <Health>500</Health>
   <HealthMax>500</HealthMax>
-  <energyreq>0</energyreq>
   <Description>This rocket launchers stores and fires light guided rockets.</Description>
   
   

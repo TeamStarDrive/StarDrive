@@ -28,7 +28,6 @@
 
   <!-- Mass and Health -->
   <Mass>200</Mass>
-  <Health>3840</Health>
   <HealthMax>3840</HealthMax>
 
   <InhibitionRadius>40000</InhibitionRadius>

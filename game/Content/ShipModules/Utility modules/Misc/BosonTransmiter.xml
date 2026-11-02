@@ -17,9 +17,7 @@
 
   <IconTexturePath>Modules/BosonTransmiter</IconTexturePath>
   <Mass>5</Mass>
-  <Health>600</Health>
   <HealthMax>600</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>Carries power across a ship</Description>
   

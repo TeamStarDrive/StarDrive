@@ -15,9 +15,7 @@
   <Name>Adv Small Fuel Cell</Name>
   <IconTexturePath>Modules/Small_AdvancedCell</IconTexturePath>
   <Mass>1</Mass>
-  <Health>520</Health>
   <HealthMax>520</HealthMax>
-  <energyreq>1</energyreq>
   
   
   

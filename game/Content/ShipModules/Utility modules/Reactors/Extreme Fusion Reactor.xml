@@ -18,9 +18,7 @@
   <IconTexturePath>Modules/Overload Fusion Reactor</IconTexturePath>
   
   <Mass>56</Mass>
-  <Health>1550</Health>
   <HealthMax>1550</HealthMax>
-  <energyreq>0</energyreq>
   
   <Description>Overload AntiMatter, will provide more power(1.5 times) than normal ones. But very unstateable and have a small power supply range.</Description>
   <CrewRequired>10</CrewRequired>

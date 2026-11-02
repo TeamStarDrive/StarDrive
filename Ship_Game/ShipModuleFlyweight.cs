@@ -107,6 +107,7 @@ namespace Ship_Game.Gameplay
         [StarData] public float ResearchPerTurn;
         [StarData] public float Refining;
         [StarData] public readonly bool Salvage;
+        [StarData] public readonly float PercentLimitOnShips;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
 
@@ -208,6 +209,7 @@ namespace Ship_Game.Gameplay
             ResearchPerTurn             = s.ResearchPerTurn;
             Refining                    = s.Refining;
             Salvage                     = s.Salvage;
+            PercentLimitOnShips         = s.PercentLimitOnShips;
             WeaponInaccuracyBase        = WeaponTemplate.GetWeaponInaccuracyBase(s.XSize * s.YSize, s.AccuracyPercent);
 
             if (s.ExplosionDamage > 0)
@@ -337,5 +339,6 @@ namespace Ship_Game.Gameplay
         public float ResearchPerTurn;
         public float Refining;
         public bool Salvage;
+        public float PercentLimitOnShips;
     }
 }
