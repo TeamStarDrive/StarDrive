@@ -29,9 +29,13 @@ namespace Ship_Game.AI.Tasks
             return Owner.AI.ThreatMatrix.GetHostileStrengthAt(pos, radius);
         }
 
+        // a planet nobody has owned yet has no level
+        int TargetLevel => TargetPlanet.Level.LowerBound(1);
+
+        // the troops asked for a planet count its ground strength times its level, so more come for a developed world
         private int GetTargetPlanetGroundStrength(int minimumStrength)
         {
-            return (int)(TargetPlanet.GetGroundStrengthOther(Owner) * TargetPlanet.InvasionResistance).LowerBound(minimumStrength);
+            return (int)(TargetPlanet.GetGroundStrengthOther(Owner) * TargetPlanet.InvasionResistance * TargetLevel).LowerBound(minimumStrength);
         }
 
         Array<Troop> GetTroopsOnPlanets(Vector2 rallyPoint, float strengthNeeded, out float totalStrength,
@@ -128,12 +132,16 @@ namespace Ship_Game.AI.Tasks
         private int BombTimeNeeded()
         {
             //ground landing spots. if we dont have a significant space to land troops. create them. 
-            int bombTime =  TargetPlanet.TotalDefensiveStrength / 20  ;
+            int bombTime =  TargetPlanet.TotalDefensiveStrength * TargetLevel / 20  ;
 
             //shields are a real pain. this may need a lot more code to deal with. 
             bombTime += (int)TargetPlanet.ShieldStrengthMax / 50;
             return bombTime;
         }
+
+        // glassing bombs out the ground defenses, times the planet's level, and its people
+        int GlassBombTimeNeeded()
+            => (TargetPlanet.TotalDefensiveStrength * TargetLevel / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion) * 2;
 
         void RequisitionDefenseForce()
         {
@@ -331,8 +339,7 @@ namespace Ship_Game.AI.Tasks
             EnemyStrength         = (GetHostileStrengthAtAO() + geodeticOffense).LowerBound(EnemyStrength);
 
             UpdateMinimumTaskForceStrength(lowerBound);
-            int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion) * 2;
-            InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: bombTimeNeeded);
+            InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: GlassBombTimeNeeded());
 
             if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
                 NeedEvaluation = false;
@@ -464,14 +471,7 @@ namespace Ship_Game.AI.Tasks
 
             if (NeededTroopStrength > 0)
             {
-                int bombDeficit = (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).LowerBound(0);
-                // if we cant build bombers then convert bombtime to troops. 
-                // This assume a standard troop strength of 10 
-                if (bombDeficit > 0)
-                {
-                    NeededTroopStrength += bombDeficit * 10;
-                    TaskBombTimeNeeded = 0;
-                }
+                CoverMissingBombingWithTroops(fleetShips.BombSecsAvailable);
 
                 // See if we need to gather troops from planets. Bail if not enough
                 if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out troopsOnPlanets, rallyPoint.Position, highTroopPriority))
@@ -508,6 +508,14 @@ namespace Ship_Game.AI.Tasks
             Owner.ShipsReadyForFleet.RemoveUsableFleets(fleetSetsGot);
             ReqStatus = RequisitionStatus.Complete;
             return ReqStatus;
+        }
+
+        // the bombing time the bombers cannot cover is made up with troops, at a standard troop strength of 10
+        public void CoverMissingBombingWithTroops(int bombSecsAvailable)
+        {
+            int bombDeficit = (TaskBombTimeNeeded - bombSecsAvailable).LowerBound(0);
+            NeededTroopStrength += bombDeficit * 10;
+            TaskBombTimeNeeded -= bombDeficit;
         }
 
         float GetTaskForceStrength()

@@ -426,10 +426,11 @@ public class InvasionPlanningTests : StarDriveTest
         var task = new MilitaryTask(capital, Enemy, MilitaryTaskImportance.Normal);
         var planned = (int)typeof(MilitaryTask).GetMethod("GetTargetPlanetGroundStrength", BindingFlags.Instance | BindingFlags.NonPublic)!
                                               .Invoke(task, new object[] { 40 });
-        AssertEqual((int)(ground * 1.5f), planned, "the troops the AI gathers are planned for half again the capital's ground strength");
+        AssertEqual((int)(ground * 1.5f * capital.Level), planned,
+                    $"the troops the AI gathers are planned for half again the capital's ground strength, times its level {capital.Level}");
 
         var fleet = new Fleet(UState, Enemy);
         var atLanding = (float)CallFleet(fleet, "GetGroundStrOfPlanet", capital);
-        AssertEqual(0.01f, ground * 1.5f, atLanding, "and so are the landings");
+        AssertEqual(0.01f, ground * 1.5f, atLanding, "the landings count half again its ground strength, without the level");
     }
 }
