@@ -137,7 +137,7 @@ namespace UnitTests.Ships
             AssertEqual(new Point(3, 2), new Point(grid.Width, grid.Height));
             AssertEqual(new Vector2(16f, 16f), grid.GridLocalCenter);
             AssertEqual(0.01f, 28.84f, grid.Radius);
-            AssertEqual(1, grid.NumInternalSlots);
+            AssertEqual(0, grid.NumInternalSlots, "no hull, so no internal slots");
             
             Ship dummy = SpawnShip("TEST_Vulcan Scout", Player, Vector2.Zero);
             ShipModule[] modules = design.Select(slot => ShipModule.Create(null, slot, dummy, false));
@@ -185,7 +185,10 @@ namespace UnitTests.Ships
             AssertEqual(new Point(4, 4), new Point(grid.Width, grid.Height));
             AssertEqual(new Vector2(32f, 32f), grid.GridLocalCenter);
             AssertEqual(0.01f, 45.25f, grid.Radius);
-            AssertEqual(9, grid.NumInternalSlots);
+            AssertEqual(4, grid.NumInternalSlots, "the four I slots");
+            AssertEqual(1, grid.InternalSlotsOf(modules[0]), "a cannon on an IO and an I slot counts its I slot");
+            AssertEqual(1, grid.InternalSlotsOf(modules[3]), "a reactor on an I slot");
+            AssertEqual(0, grid.InternalSlotsOf(modules[5]), "a cockpit on an IO slot");
 
             // check all 16 slots
             AssertEqual(null,       grid[modules, 0, 0]); // line0
@@ -345,6 +348,57 @@ namespace UnitTests.Ships
             AssertEqual(shield2, HitTestShields(8, 20)); // shielded 1x1 ordnance
             AssertEqual(shield2, HitTestShields(4, 25)); // shielded 2x2 engine
             AssertEqual(shield2, HitTestShields(5, 20)); // shielded 2x2 shield (self)
+        }
+
+        static ShipHull Hull(Point center, params HullSlot[] slots) => new() { HullSlots = slots, GridCenter = center };
+
+        ShipModule[] ModulesOf(DesignSlot[] design)
+        {
+            Ship dummy = SpawnShip("TEST_Vulcan Scout", Player, Vector2.Zero);
+            return design.Select(slot => ShipModule.Create(null, slot, dummy, false));
+        }
+
+        [TestMethod]
+        public void OnlyTheHullsISlotsCountAsInternal()
+        {
+            // I__|IO_|O__ with armor on all three
+            ShipHull hull = Hull(new(1, 0), new(0, 0, Restrictions.I), new(1, 0, Restrictions.IO), new(2, 0, Restrictions.O));
+            var design = new[] { MakeDesignSlot(0, 0, "SteelArmorSmall"), MakeDesignSlot(1, 0, "SteelArmorSmall"), MakeDesignSlot(2, 0, "SteelArmorSmall") };
+            var grid = new ModuleGridFlyweight("test", new ShipGridInfo(design), design, hull);
+            ShipModule[] modules = ModulesOf(design);
+
+            AssertEqual(1, grid.NumInternalSlots);
+            AssertEqual(1, grid.InternalSlotsOf(modules[0]), "any module on an I slot");
+            AssertEqual(0, grid.InternalSlotsOf(modules[1]), "an IO slot does not count while an I slot holds a module");
+        }
+
+        [TestMethod]
+        public void AHullWithNoISlotHoldingAModuleCountsItsIOSlots()
+        {
+            // IO_|IO_|O__ with armor on all three, and an empty I slot below
+            ShipHull hull = Hull(new(1, 0), new(0, 0, Restrictions.IO), new(1, 0, Restrictions.IO), new(2, 0, Restrictions.O), new(1, 1, Restrictions.I));
+            var design = new[] { MakeDesignSlot(0, 0, "SteelArmorSmall"), MakeDesignSlot(1, 0, "SteelArmorSmall"), MakeDesignSlot(2, 0, "SteelArmorSmall") };
+            var info = new ShipGridInfo { Size = new(3, 2), Center = new(1, 0), SurfaceArea = 4 };
+            var grid = new ModuleGridFlyweight("test", info, design, hull);
+            ShipModule[] modules = ModulesOf(design);
+
+            AssertEqual(2, grid.NumInternalSlots);
+            AssertEqual(1, grid.InternalSlotsOf(modules[0]));
+            AssertEqual(0, grid.InternalSlotsOf(modules[2]), "an O slot never counts");
+        }
+
+        [TestMethod]
+        public void ADesignGridOffsetFromItsHullIsMatchedThroughBothCenters()
+        {
+            // hull IO_|I__ centered on its first slot, the design's grid one column wider on the left and one row taller on top
+            ShipHull hull = Hull(new(0, 0), new(0, 0, Restrictions.IO), new(1, 0, Restrictions.I));
+            var design = new[] { MakeDesignSlot(1, 1, "SteelArmorSmall"), MakeDesignSlot(2, 1, "SteelArmorSmall") };
+            var info = new ShipGridInfo { Size = new(3, 2), Center = new(1, 1), SurfaceArea = 2 };
+            var grid = new ModuleGridFlyweight("test", info, design, hull);
+            ShipModule[] modules = ModulesOf(design);
+
+            AssertEqual(0, grid.InternalSlotsOf(modules[0]), "on the hull's IO slot");
+            AssertEqual(1, grid.InternalSlotsOf(modules[1]), "on the hull's I slot");
         }
     }
 }

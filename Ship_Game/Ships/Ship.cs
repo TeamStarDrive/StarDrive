@@ -96,8 +96,7 @@ namespace Ship_Game.Ships
         // Total sum of all active shield module's current power
         public float ShieldPower { get; private set; }
 
-        // total number of installed module SLOTS with Internal Restrictions
-        // example: a 2x2 internal module would give +4
+        // the hull's I slots that hold a module, or its IO slots when no I slot holds one
         public int NumInternalSlots => Grid.NumInternalSlots;
 
         // active internal modules SLOTS that have health > 0
@@ -1136,7 +1135,8 @@ namespace Ship_Game.Ships
         public void SetActiveInternalSlotCount(int activeInternalSlots)
         {
             ActiveInternalModuleSlots = activeInternalSlots;
-            InternalSlotsHealthPercent = (float)activeInternalSlots / NumInternalSlots;
+            // a design with no module on an I or IO slot has no internal slots to lose
+            InternalSlotsHealthPercent = NumInternalSlots > 0 ? (float)activeInternalSlots / NumInternalSlots : 1f;
         }
 
         // TODO: This needs a performance refactor

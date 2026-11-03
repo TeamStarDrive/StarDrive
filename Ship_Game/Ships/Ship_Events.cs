@@ -29,9 +29,10 @@ namespace Ship_Game.Ships
                 ShouldRecalculatePower = true;
             if (m.IsExternal)
                 UpdateExternalSlots(m);
-            if (m.HasInternalRestrictions)
+            int internalSlots = Grid.InternalSlotsOf(m);
+            if (internalSlots > 0)
             {
-                SetActiveInternalSlotCount(ActiveInternalModuleSlots - m.Area);
+                SetActiveInternalSlotCount(ActiveInternalModuleSlots - internalSlots);
             }
 
             // kill the ship if all modules exploded or internal slot percent is below critical
@@ -50,9 +51,10 @@ namespace Ship_Game.Ships
             if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
                 ShouldRecalculatePower = true;
             UpdateExternalSlots(m);
-            if (m.HasInternalRestrictions)
+            int internalSlots = Grid.InternalSlotsOf(m);
+            if (internalSlots > 0)
             {
-                SetActiveInternalSlotCount(ActiveInternalModuleSlots + m.Area);
+                SetActiveInternalSlotCount(ActiveInternalModuleSlots + internalSlots);
             }
         }
 

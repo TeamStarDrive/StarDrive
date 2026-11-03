@@ -77,8 +77,8 @@ namespace Ship_Game.Ships
             {
                 ShipModule module = modules[i];
                 bool active = module.Active;
-                if (active && module.HasInternalRestrictions) // active internal slots
-                    activeInternalSlots += module.XSize * module.YSize;
+                if (active) // active internal slots
+                    activeInternalSlots += S.Grid.InternalSlotsOf(module);
 
                 // FB - so destroyed/unpowered modules with repair wont have full repair rate
                 S.RepairRate += module.ActualBonusRepairRate * (active && module.Powered ? 1f : 0.1f);

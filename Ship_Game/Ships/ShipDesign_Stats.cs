@@ -76,7 +76,7 @@ public partial class ShipDesign
         var info = GridInfo;
         info.SurfaceArea = hull.SurfaceArea;
         GridInfo = info;
-        Grid = new(Name, info, designSlots);
+        Grid = new(Name, info, designSlots, hull);
 
         float baseCost = 0f;
         float baseThrust = 0f;

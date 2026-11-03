@@ -51,11 +51,14 @@ namespace Ship_Game.Ships
         readonly short[] ShieldsIndex; // all shield module indices
         readonly short[] AmplifiersIndex; // all amplifier module indices
 
-        // total number of installed module SLOTS with Internal Restrictions
-        // example: a 2x2 internal module would give +4
+        // total number of the hull's I slots that hold a module, or its IO slots when no I slot holds one
+        // example: a 2x2 module on four I slots gives +4
         public readonly int NumInternalSlots;
 
-        public ModuleGridFlyweight(string name, in ShipGridInfo info, DesignSlot[] slots)
+        // for each module index, how many of the internal slots counted it holds
+        readonly byte[] InternalSlotsOfModule;
+
+        public ModuleGridFlyweight(string name, in ShipGridInfo info, DesignSlot[] slots, ShipHull hull = null)
         {
             SurfaceArea = info.SurfaceArea;
             Width  = info.Size.X;
@@ -75,7 +78,11 @@ namespace Ship_Game.Ships
             var shields = new Array<(DesignSlot, ShipModule, int)>();
             var shieldIndices = new Array<short>();
             var amplifierIndices = new Array<short>();
-            
+            var iSlotsOfModule = new Array<byte>();
+            var ioSlotsOfModule = new Array<byte>();
+            (bool[] hullI, bool[] hullIO) = HullInternalSlots(hull, info, Width, Height);
+            int numISlots = 0, numIOSlots = 0;
+
             int moduleIndex = 0; // the actual module index, needed for handling invalid modules
             foreach (DesignSlot s in slots)
             {
@@ -90,6 +97,7 @@ namespace Ship_Game.Ships
 
                 Point p = s.Pos;
                 int endX = p.X + s.Size.X, endY = p.Y + s.Size.Y;
+                int iSlots = 0, ioSlots = 0;
                 for (int y = p.Y; y < endY; ++y)
                 for (int x = p.X; x < endX; ++x)
                 {
@@ -99,7 +107,18 @@ namespace Ship_Game.Ships
                         Log.Error($"Overlapping DesignSlot in design={name} slot={s}");
                     }
                     ModuleIndexGrid[index] = (short)moduleIndex;
+                    if (hullI[index])
+                        ++iSlots;
+                    else if (hullIO[index])
+                        ++ioSlots;
                 }
+
+                byte iCounted = SlotsAsByte(name, s, iSlots);
+                byte ioCounted = SlotsAsByte(name, s, ioSlots);
+                iSlotsOfModule.Add(iCounted);
+                ioSlotsOfModule.Add(ioCounted);
+                numISlots += iCounted;
+                numIOSlots += ioCounted;
 
                 if (m.ShieldPowerMax > 0f)
                 {
@@ -110,14 +129,16 @@ namespace Ship_Game.Ships
                 if (m.AmplifyShields > 0f)
                     amplifierIndices.Add((short)moduleIndex);
 
-                if (m.HasInternalRestrictions)
-                    NumInternalSlots += s.Size.X * s.Size.Y;
-
                 ++moduleIndex;
             }
 
             ShieldsIndex = shieldIndices.ToArray();
             AmplifiersIndex = amplifierIndices.ToArray();
+
+            // a hull with no I slot holding a module counts its IO slots instead
+            bool countIO = numISlots == 0;
+            InternalSlotsOfModule = (countIO ? ioSlotsOfModule : iSlotsOfModule).ToArray();
+            NumInternalSlots = countIO ? numIOSlots : numISlots;
 
             // create the Shield Grid
             // WARNING: THIS DOES NOT WORK IF SHIELD RADIUS CHANGES DURING GAME
@@ -154,6 +175,41 @@ namespace Ship_Game.Ships
             {
                 DebugDumpGrid(name, slots);
             }
+        }
+
+        // the hull's I and IO slots on this design's grid, matched through both grid centers
+        static (bool[] I, bool[] IO) HullInternalSlots(ShipHull hull, in ShipGridInfo info, int width, int height)
+        {
+            var i = new bool[width * height];
+            var io = new bool[width * height];
+            if (hull == null)
+                return (i, io);
+
+            foreach (HullSlot slot in hull.HullSlots)
+            {
+                if (slot.R != Restrictions.I && slot.R != Restrictions.IO)
+                    continue;
+                int x = slot.Pos.X - hull.GridCenter.X + info.Center.X;
+                int y = slot.Pos.Y - hull.GridCenter.Y + info.Center.Y;
+                if ((uint)x < (uint)width && (uint)y < (uint)height)
+                    (slot.R == Restrictions.I ? i : io)[x + y * width] = true;
+            }
+            return (i, io);
+        }
+
+        static byte SlotsAsByte(string name, DesignSlot s, int slots)
+        {
+            if (slots <= byte.MaxValue)
+                return (byte)slots;
+            Log.Warning($"ModuleGrid {name}: {s.ModuleUID} holds {slots} internal slots, counted as {byte.MaxValue}");
+            return byte.MaxValue;
+        }
+
+        // how many of the internal slots counted this module holds
+        [Pure] public int InternalSlotsOf(ShipModule m)
+        {
+            int moduleIndex = ModuleIndexGrid[m.Pos.X + m.Pos.Y * Width];
+            return moduleIndex >= 0 ? InternalSlotsOfModule[moduleIndex] : 0;
         }
 
         public void DebugDumpGrid(IShipDesign design)

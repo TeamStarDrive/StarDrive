@@ -68,7 +68,7 @@ namespace Ship_Game
             foreach (ShipModule m in DesignedShip.Modules)
             {
                 var rect = new RectF(ModuleGrid.GridPosToWorld(m.Pos), m.WorldSize);
-                if (m.HasInternalRestrictions)
+                if (DesignedShip.Grid.InternalSlotsOf(m) > 0)
                     DrawRectangleProjected(rect, Color.Green);
                 else if (m.IsExternal)
                     DrawRectangleProjected(rect, Color.Blue);
