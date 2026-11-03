@@ -511,7 +511,7 @@ namespace Ship_Game.AI.Tasks
         }
 
         // the bombing time the bombers cannot cover is made up with troops, at a standard troop strength of 10
-        public void CoverMissingBombingWithTroops(int bombSecsAvailable)
+        void CoverMissingBombingWithTroops(int bombSecsAvailable)
         {
             int bombDeficit = (TaskBombTimeNeeded - bombSecsAvailable).LowerBound(0);
             NeededTroopStrength += bombDeficit * 10;

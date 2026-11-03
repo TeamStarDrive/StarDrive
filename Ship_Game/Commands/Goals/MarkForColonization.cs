@@ -103,8 +103,9 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
-        // a goal the planner made can move to another planet until its claim fleet forms or its colony ship lands or reaches the target's system
+        // a goal the planner made can move to another planet until its claim fleet forms, its colony ship lands or reaches the target's system, or the planet is ours
         public bool CanSwitchTarget => !IsManualColonizationOrder
+                                       && TargetPlanet.Owner != Owner
                                        && Task?.Fleet == null
                                        && FinishedShip is not { IsLanding: true }
                                        && FinishedShip?.System != TargetPlanet.System;

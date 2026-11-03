@@ -240,10 +240,8 @@ namespace Ship_Game.AI
             }
         }
 
-        // returns the bombing seconds of the bombers taken
-        public int GetBombers(HashSet<Ship> results, int bombSecsWanted, int fleetCount)
+        public void GetBombers(HashSet<Ship> results, int bombSecsWanted, int fleetCount)
         {
-            int bombSecsTaken = 0;
             if (bombSecsWanted > 0 && Ratios.MinBombers > 0)
             {
                 int bombsWanted = bombSecsWanted;
@@ -255,7 +253,6 @@ namespace Ship_Game.AI
                     if (bombs > 0)
                     {
                         results.Add(s);
-                        bombSecsTaken += bombs;
                         bombsWanted -= bombs;
                         if (bombsWanted <= 0)
                             break;
@@ -266,7 +263,6 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            return bombSecsTaken;
         }
 
         void GetShips(HashSet<Ship> results, float wanted, RoleName role)
@@ -313,12 +309,9 @@ namespace Ship_Game.AI
             if (fleetCount == 0 || ships.Count == 0)
                 return new Array<Ship>();
 
-            int bombSecsTaken = GetBombers(ships, task.TaskBombTimeNeeded, fleetCount);
+            GetBombers(ships, task.TaskBombTimeNeeded, fleetCount);
             if (task.NeededTroopStrength > 0)
-            {
-                task.CoverMissingBombingWithTroops(bombSecsTaken);
                 GetTroops(ships, task.NeededTroopStrength);
-            }
 
             if (task.FleetWouldCallItselfOff(ships.Sum(s => s.GetStrength())))
             {

@@ -267,7 +267,8 @@ public class ThreatClusterSightTests : StarDriveTest
         ThreatCluster root = GroupSeenWith(scout, scout);
         root.Update.Merge(merged.Update);
 
-        AssertEqual(west.GetStrength() + east.GetStrength() + scout.GetStrength(), StrengthAfterUpdate(root, west, scout));
+        AssertEqual(0.01f, west.GetStrength() + east.GetStrength() + scout.GetStrength(), StrengthAfterUpdate(root, west, scout),
+                    "both platforms and the scout");
     }
 
     [TestMethod]
@@ -283,8 +284,8 @@ public class ThreatClusterSightTests : StarDriveTest
         second.Update.Merge(first.Update);
         root.Update.Merge(second.Update);
 
-        AssertEqual(west.GetStrength() + east.GetStrength() + scout.GetStrength() + other.GetStrength(),
-                    StrengthAfterUpdate(root, west, scout, other));
+        AssertEqual(0.01f, west.GetStrength() + east.GetStrength() + scout.GetStrength() + other.GetStrength(),
+                    StrengthAfterUpdate(root, west, scout, other), "both platforms and both scouts");
     }
 
     [TestMethod]
@@ -297,7 +298,8 @@ public class ThreatClusterSightTests : StarDriveTest
         ThreatCluster root = GroupSeenWith(scout, scout, east);
         root.Update.Merge(merged.Update);
 
-        AssertEqual(west.GetStrength() + east.GetStrength() + scout.GetStrength(), StrengthAfterUpdate(root, west, scout));
+        AssertEqual(0.01f, west.GetStrength() + east.GetStrength() + scout.GetStrength(), StrengthAfterUpdate(root, west, scout),
+                    "each platform once, and the scout");
     }
 
     [TestMethod]

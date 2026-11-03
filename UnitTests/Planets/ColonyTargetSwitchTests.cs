@@ -310,4 +310,53 @@ public class ColonyTargetSwitchTests : StarDriveTest
 
         AssertEqual(1, GuardsFor(Enemy, guarded), "a planet a fleet is already asked to guard gets no second one");
     }
+
+    [TestMethod]
+    public void APlanetAScoutFindsOnItsExploreOrderTakesTheWeakestTarget()
+    {
+        TargetMids(4);
+        Planet weak = AddWeak();
+        MarkForColonization weakGoal = Target(weak);
+        Planet better = AddBetter(explored: false);
+        better.System.SetExploredBy(Player);
+        Ship scout = SpawnShipNoCombatHoldPos("Vulcan Scout", Player, better.Position + new Vector2(300, 0));
+        scout.AI.OrderExplore();
+        scout.AI.ExplorationTarget = better.System;
+
+        // only the explore order runs, not the ship's own look around once a second
+        scout.AI.Update(TestSimStep);
+        Assert.IsTrue(better.IsExploredBy(Player), "setup: the explore order explores the planet beside the scout");
+
+        CompareATurnLater();
+
+        AssertEqual(better, weakGoal.TargetPlanet, "the planet the explore order found takes the place of the weakest target");
+    }
+
+    static MarkForColonization GoalFor(Empire empire, string planet)
+        => empire.AI.Goals.OfType<MarkForColonization>().FirstOrDefault(g => g.TargetPlanet.Name == planet);
+
+    [TestMethod]
+    public void PlanetsFoundBeforeASaveAreComparedAfterItLoads()
+    {
+        TargetMids(4);
+        Target(AddWeak());
+        Planet better = AddBetter();
+        Planet best = AddPlanet("Best", 24f);
+        Planner.AddFoundPlanet(better);
+        Planner.SwitchColonyGoalsToFoundPlanets();
+        Planner.AddFoundPlanet(best);
+        Assert.IsNotNull(GoalFor(Player, "Weak"), "setup: no target switched before the save");
+
+        UState.StarDate = 1001f; // past the start, so the load neither adds starting ships nor runs a first turn that compares the found planets
+        SavedGame save = Universe.Save("UnitTest.ColonyTargetSwitch", throwOnError: true);
+        Empire player = LoadSave(save.SaveFile).UState.Player;
+
+        player.AI.ExpansionAI.SwitchColonyGoalsToFoundPlanets();
+        Assert.IsNull(GoalFor(player, "Weak"), "the planet found a turn before the save takes the weakest target");
+        Assert.IsNotNull(GoalFor(player, "Better"), "the goal now targets the planet found before the save");
+        Assert.IsNull(GoalFor(player, "Best"), "the planet found in the turn of the save waits for the next compare");
+
+        player.AI.ExpansionAI.SwitchColonyGoalsToFoundPlanets();
+        Assert.IsNotNull(GoalFor(player, "Best"), "the planet found in the turn of the save is compared a turn later");
+    }
 }

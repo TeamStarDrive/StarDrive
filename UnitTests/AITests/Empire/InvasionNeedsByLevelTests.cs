@@ -14,12 +14,11 @@ namespace UnitTests.AITests.Empire;
 public class InvasionNeedsByLevelTests : StarDriveTest
 {
     const string Bomber = "Neutron Bomber Mk1";
-    const string Fighter = "TEST_Vulcan Scout";
     readonly Planet Target;
 
     public InvasionNeedsByLevelTests()
     {
-        LoadStarterShips(Bomber, Fighter);
+        LoadStarterShips(Bomber);
         CreateUniverseAndPlayerEmpire();
         Target = AddHomeWorldToEmpire(new Vector2(200_000), Player);
         for (int i = 0; i < 6; ++i)
@@ -92,23 +91,6 @@ public class InvasionNeedsByLevelTests : StarDriveTest
         typeof(MilitaryTask).GetMethod("CreateTaskFleet", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(task, new object[] { 1f, false });
         AssertEqual(onHand, task.TaskBombTimeNeeded, "the bombing time on hand is asked for");
         AssertEqual(450, task.NeededTroopStrength, "the 40 missing seconds become 400 troop strength");
-    }
-
-    [TestMethod]
-    public void TheBombingAFleetsLimitOnBombersLeavesHomeIsMadeUpWithTroops()
-    {
-        Ship bomber = SpawnShip(Bomber, Enemy, new Vector2(-201_000));
-        FleetShips ready = ReadyForFleet(SpawnShip(Fighter, Enemy, new Vector2(-200_000)), bomber,
-                                         SpawnShip(Bomber, Enemy, new Vector2(-202_000)));
-        FieldInfo ratiosField = typeof(FleetShips).GetField("Ratios", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        object ratios = ratiosField.GetValue(ready)!;
-        typeof(FleetRatios).GetProperty(nameof(FleetRatios.MinBombers))!.SetValue(ratios, 1f); // one bomber a fleet
-        ratiosField.SetValue(ready, ratios);
-
-        var task = new MilitaryTask(Target, Enemy, MilitaryTaskImportance.Normal) { TaskBombTimeNeeded = ready.BombSecsAvailable, NeededTroopStrength = 50 };
-        ready.ExtractShipSet(0f, new Array<Troop>(), 1, task, out _, out _);
-        AssertEqual(bomber.BombsGoodFor60Secs, task.TaskBombTimeNeeded, "the fleet takes one of the two bombers");
-        AssertEqual(50 + bomber.BombsGoodFor60Secs * 10, task.NeededTroopStrength, "troops make up the bomber left home");
     }
 
     [TestMethod]

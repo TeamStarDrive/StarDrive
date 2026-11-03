@@ -827,6 +827,29 @@ public class FleetFlankTests : StarDriveTest
     }
 
     [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void AShipOnAFlankLegIsNotSentOnWithTheShipsLeftOver(bool withRearShip)
+    {
+        ThreatCluster group = FleetAgainstAGroup(GameDifficulty.Hard, 2.5f, Screen, Left, Right, Screen, Screen);
+        if (withRearShip)
+        {
+            TestShip rear = Quiet(SpawnShip(FrigateName, Attacker, GroupCenter + new Vector2(0f, FleetOut + 3000f), Vectors.Up));
+            AIFleet.AddShip(rear);
+            FlankList("RearShips").Add(rear);
+        }
+        AssertTrue(Attack(), "setup: the whole fleet attacks");
+        Vector2 left = FlankPointOf(FleetShips[1], group, "setup: the left ship");
+        Vector2 right = FlankPointOf(FleetShips[2], group, "setup: the right ship");
+
+        group.Strength = 0.5f * FleetShips[0].GetStrength() / Attacker.GetFleetStrEmpireMultiplier(group.Loyalty);
+        AssertTrue(Attack(), "setup: the whole fleet attacks again, and the screen ship alone now covers the group");
+
+        AssertLessThan(FlankPointOf(FleetShips[1], group, "the left ship").Distance(left), 1f, "the left ship keeps its leg");
+        AssertLessThan(FlankPointOf(FleetShips[2], group, "the right ship").Distance(right), 1f, "the right ship keeps its leg");
+    }
+
+    [TestMethod]
     public void OneShipSentAtAGroupComesInHeadOn()
     {
         ThreatCluster group = FleetAgainstAGroup(GameDifficulty.Hard, 0.5f, SideShips);
