@@ -300,6 +300,7 @@
     <Compile Include="Universe\GenericQtreeTests.cs" />
     <Compile Include="Universe\ResearchStationCartoucheTests.cs" />
     <Compile Include="Universe\GenericQtreeVisualization.cs" />
+    <Compile Include="Universe\ThreatClusterSightTests.cs" />
     <Compile Include="Universe\ThreatMatrixTests.cs" />
     <Compile Include="Universe\SaveLoadUniverseScreenTests.cs" />
     <Compile Include="Universe\SpatialVisualization.cs" />

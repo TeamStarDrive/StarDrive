@@ -35,7 +35,8 @@ public sealed partial class ThreatMatrix
     /// <summary>
     /// How much beyond a Cluster's center until a cluster
     /// is considered as fully observed.
-    /// If a fully observed cluster contains no ships, it is then deleted.
+    /// If none of a fully observed cluster's ships is seen, it is then deleted,
+    /// unless it holds platforms or stations out of view.
     /// </summary>
     public const float FullyObservedClusterRadius = 1000f;
 

@@ -59,7 +59,7 @@ public sealed class ThreatCluster : SpatialObjectBase
         Active = true;
         Update = new(this, ship);
 
-        // set some defaults to avoid this cluster being immediately deleted
+        // set some defaults until the update counts every ship seen in it
         Strength = ship.GetStrength();
         SetTimeToLive(ship.System != null);
     }
