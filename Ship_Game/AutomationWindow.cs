@@ -118,6 +118,8 @@ namespace Ship_Game
                                title: GameText.VolcanoAlerts, tooltip: GameText.VolcanoAlertsTip);
             alerts.AddCheckbox(() => !UState.P.DisableCrashSiteWarning, v => UState.P.DisableCrashSiteWarning = !v,
                                title: GameText.ShipCrashAlerts, tooltip: GameText.ShipCrashAlertsTip);
+            alerts.AddCheckbox(() => !UState.P.DisableBoardingWarning, v => UState.P.DisableBoardingWarning = !v,
+                               title: GameText.BoardingAlerts, tooltip: GameText.BoardingAlertsTip);
             alerts.AddCheckbox(() => !UState.P.DisableStationBuiltWarning, v => UState.P.DisableStationBuiltWarning = !v,
                                title: GameText.StationBuiltAlerts, tooltip: GameText.StationBuiltAlertsTip);
             if (SalvageOpsEnabled)
@@ -128,6 +130,9 @@ namespace Ship_Game
                                    title: GameText.SalvageAlerts, tooltip: GameText.SalvageAlertsTip);
             }
             alerts.AddCheckbox(() => UState.P.EnableStarvationWarning, title: GameText.StarvationAlerts, tooltip: GameText.EnableStarvationWarningTip);
+            if (Screen.Player.NewEspionageEnabled)
+                alerts.AddCheckbox(() => !UState.P.DisableTechLeechWarning, v => UState.P.DisableTechLeechWarning = !v,
+                                   title: GameText.TechLeechAlerts, tooltip: GameText.TechLeechAlertsTip);
 
             UIList ticks = Ticks = AddList(new Vector2(win.X + 10f, top));
             ticks.Padding = new Vector2(2f, 10f);

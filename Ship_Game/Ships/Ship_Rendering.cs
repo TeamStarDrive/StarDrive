@@ -237,7 +237,7 @@ namespace Ship_Game.Ships
                         }
 
                         // draw the module restriction info
-                        string info = slot.HasInternalRestrictions ? "Int" : slot.IsExternal ? "Ext" : null;
+                        string info = Grid.InternalSlotsOf(slot) > 0 ? "Int" : slot.IsExternal ? "Ext" : null;
                         if (info.NotEmpty())
                             sc.DrawString(posOnScreen.ToVec2f(), shipRotation, (float)(600.0 / camHeight), Color.Yellow, info);
                     }

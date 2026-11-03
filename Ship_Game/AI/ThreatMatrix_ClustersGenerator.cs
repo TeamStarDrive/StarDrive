@@ -24,18 +24,23 @@ public sealed partial class ThreatMatrix
             Array<ThreatCluster> results = new();
             foreach (ThreatCluster c in Clusters)
             {
-                if (c.Update.ShouldBeRemoved)
-                {
-                    Threats.ClustersMap.Remove(c);
-                }
-                else
+                if (!c.Update.ShouldBeRemoved)
                 {
                     // this will update all cluster stats and bounds
-                    if (c.Update.Update(timeStep, owner))
-                        Threats.ClustersMap.Update(c);
+                    bool boundsChanged = c.Update.Update(timeStep, owner);
 
-                    results.Add(c);
+                    // no point in keeping 0 strength clusters, judged once the ships seen in them are counted
+                    if (c.Strength > 0f)
+                    {
+                        if (boundsChanged)
+                            Threats.ClustersMap.Update(c);
+
+                        results.Add(c);
+                        continue;
+                    }
                 }
+
+                Threats.ClustersMap.Remove(c);
             }
             return results.ToArr();
         }
@@ -94,6 +99,75 @@ public sealed partial class ThreatMatrix
             }
 
             MergeOverlappingClusters();
+
+            lock (Threats.Seen)
+            {
+                foreach (ThreatCluster c in Clusters)
+                    c.Update.KeepUnseenStatics(Threats.Seen);
+            }
+
+            SplitOffStaticsLeftBehind();
+        }
+
+        // platforms and stations out of view with no ship of their cluster seen near them stay where they are, in clusters of those near each other
+        void SplitOffStaticsLeftBehind()
+        {
+            Array<(Empire Loyalty, Ship[] Statics)> leftBehind = null;
+            foreach (ThreatCluster c in Clusters)
+            {
+                Ship[] statics = c.Update.TakeStaticsAwayFromSeen(RivalClusterJoinRadius);
+                if (statics != null)
+                    (leftBehind ??= new()).Add((c.Loyalty, statics));
+            }
+
+            if (leftBehind == null)
+                return;
+            foreach ((Empire loyalty, Ship[] statics) in leftBehind)
+            {
+                Array<Array<Ship>> groups = GroupsNearEachOther(statics, RivalClusterJoinRadius);
+                for (int i = 0; i < groups.Count; ++i)
+                {
+                    Ship[] group = groups[i].ToArray();
+                    AddNewCluster(loyalty, group[0]).Update.HoldOnlyUnseen(group);
+                }
+            }
+        }
+
+        // each ship is within the radius of another ship of its group
+        static Array<Array<Ship>> GroupsNearEachOther(Ship[] ships, float radius)
+        {
+            Array<Array<Ship>> groups = new();
+            for (int i = 0; i < ships.Length; ++i)
+            {
+                Ship s = ships[i];
+                Array<Ship> joined = null;
+                for (int g = groups.Count - 1; g >= 0; --g)
+                {
+                    if (!AnyWithin(groups[g], s.Position, radius))
+                        continue;
+                    if (joined == null)
+                    {
+                        joined = groups[g];
+                        joined.Add(s);
+                    }
+                    else
+                    {
+                        joined.AddRange(groups[g]);
+                        groups.RemoveAt(g);
+                    }
+                }
+                if (joined == null)
+                    groups.Add(new() { s });
+            }
+            return groups;
+        }
+
+        static bool AnyWithin(Array<Ship> ships, Vector2 pos, float radius)
+        {
+            for (int i = 0; i < ships.Count; ++i)
+                if (ships[i].Position.InRadius(pos, radius))
+                    return true;
+            return false;
         }
 
         HashSet<ThreatCluster> ObserveRivalClusters(ThreatCluster[] ours, Span<Ship> nonCombatShips)

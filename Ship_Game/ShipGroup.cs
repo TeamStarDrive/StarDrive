@@ -519,7 +519,7 @@ namespace Ship_Game
 
         /// <summary>
         /// This will force all ships in fleet to orbit planet.
-        /// There are no checks here for ships already in some action.
+        /// Only ships on a move the group must not cut short are left alone, not other ships already in some action.
         /// this can cause a cancel current order and orbit loop.
         /// </summary>
         internal void DoOrbitAreaRestricted(Planet planet, Vector2 position, float radius, bool excludeInvade = false)
@@ -530,7 +530,7 @@ namespace Ship_Game
                 if (excludeInvade && (ship.DesignRole == RoleName.troopShip || ship.ShipData.Role == RoleName.troop))
                     continue;
 
-                if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius))
+                if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius) || KeepsItsMove(ship))
                     continue;
 
                 ship.OrderToOrbit(planet, clearOrders: true, MoveOrder.Aggressive);
@@ -646,14 +646,18 @@ namespace Ship_Game
             if (!ship.CanTakeFleetOrders || ship.Position.OutsideRadius(position + ship.FleetOffset, combatRadius))
                 return CombatStatus.ClearSpace;
 
-            if (ship.InCombat) return CombatStatus.InCombat;
+            // a ship kept on its move into the fight is in it
+            if (ship.InCombat || ship.AI.BadGuysNear && KeepsItsMove(ship)) return CombatStatus.InCombat;
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
             return CombatStatus.ClearSpace;
         }
 
+        // a ship on a move the group's own checks must not cut short
+        protected virtual bool KeepsItsMove(Ship ship) => false;
+
         protected void ClearPriorityOrderIfSubLight(Ship ship)
         {
-            if (!ship.Loyalty.isPlayer && !ship.IsSpoolingOrInWarp)
+            if (!ship.Loyalty.isPlayer && !ship.IsSpoolingOrInWarp && !KeepsItsMove(ship))
             {
                 ship.AI.ClearPriorityOrderAndTarget();
                 ship.AI.ChangeAIState(AIState.AwaitingOrders);

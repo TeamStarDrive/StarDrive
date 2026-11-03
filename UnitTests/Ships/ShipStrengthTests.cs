@@ -22,10 +22,11 @@ namespace UnitTests.Ships
         const string LightlyArmed = "Kuma Oki L"; // an armed freighter, weapons on under 10% of the hull and defense above offense
         const string Freighter = "Large Freighter";
         const string Scout = "Vingscout";
+        const string Platform = "Platform Base mk1-a";
 
         public ShipStrengthTests()
         {
-            LoadStarterShips(Shielded, Carrier, Fighter, LightlyArmed, Freighter, Scout);
+            LoadStarterShips(Shielded, Carrier, Fighter, LightlyArmed, Freighter, Scout, Platform);
             CreateUniverseAndPlayerEmpire("Human"); // a carrier with no buildable fighters falls back to their Vulcan Scout
         }
 
@@ -133,6 +134,25 @@ namespace UnitTests.Ships
             float rule = 2f * offense + 0.1f * defense;
             AssertEqual(rule * Precision, rule, Design(LightlyArmed).GetStrength(Player), "The design does not follow the low weapon rule");
             AssertSameStrength(LightlyArmed);
+        }
+
+        [TestMethod]
+        public void APlatformCountsHalfTheStrengthOfItsModules()
+        {
+            TestShip ship = SpawnShip(Platform, Player, FarAway);
+            float half = 0.5f * StrengthOfLiveModules(ship);
+            AssertEqual(half * Precision, half, Design(Platform).GetStrength(Player), "a platform cannot move, so it counts half");
+            AssertSameStrength(Platform);
+        }
+
+        [TestMethod]
+        public void APlatformDesignsOwnStrengthCountsHalfToo()
+        {
+            var platform = (ShipDesign)Design(Platform);
+            ShipDesign moving = platform.GetClone("TEST moving platform");
+            typeof(ShipDesign).GetProperty(nameof(ShipDesign.IsPlatformOrStation))!.SetValue(moving, false);
+            float full = ShipStrength.OfDesign(moving, platform.GetOrLoadDesignSlots(), null);
+            AssertEqual(full * Precision, 0.5f * full, platform.BaseStrength, "the design's stored strength, which template ships show");
         }
 
         [TestMethod]

@@ -364,6 +364,12 @@ namespace Ship_Game
 
         public Planet IdentifyGravityWell(Ship ship)
         {
+            return IdentifyGravityWell(ship.Loyalty, ship.Position, ship.IsInFriendlyProjectorRange);
+        }
+
+        // the planet whose gravity well holds a ship of the empire at the position out of warp
+        public Planet IdentifyGravityWell(Empire loyalty, Vector2 position, bool inFriendlyProjectorRange)
+        {
             if (Universe.P.GravityWellRange > 0f)
             {
                 // @todo QuadTree. need to have planets in the quad tree.
@@ -371,15 +377,14 @@ namespace Ship_Game
                 for (int i = 0; i < PlanetList.Count; i++)
                 {
                     Planet planet= PlanetList[i];
-                    float wellReduction = 1 - ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
-                    bool inFriendlyProjectorRange = ship.IsInFriendlyProjectorRange;
-                    bool planetInhibitsAtWar = planet.Owner?.WillInhibit(ship.Loyalty) == true;
+                    float wellReduction = 1 - loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
+                    bool planetInhibitsAtWar = planet.Owner?.WillInhibit(loyalty) == true;
                     bool checkGravityWell = !inFriendlyProjectorRange || planetInhibitsAtWar;
                     float wellRadius = inFriendlyProjectorRange && planetInhibitsAtWar 
                                      ? planet.GravityWellRadius * wellReduction
                                      : planet.GravityWellRadius;
 
-                    if (checkGravityWell && ship.Position.InRadius(planet.Position, wellRadius))
+                    if (checkGravityWell && position.InRadius(planet.Position, wellRadius))
                         return planet;
                 }
             }

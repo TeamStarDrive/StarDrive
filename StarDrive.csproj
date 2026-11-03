@@ -321,6 +321,8 @@
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.DoAction.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Flank.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\FlankGeometry.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goals.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Movement.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderAction.cs" />
@@ -900,6 +902,7 @@
     <Compile Include="Ship_Game\GameScreens\FleetDesign\RequisitionScreen.cs" />
     <Compile Include="Ship_Game\Primitives2D.cs" />
     <Compile Include="Ship_Game\Fleets\Fleet.cs" />
+    <Compile Include="Ship_Game\Fleets\Fleet.Flank.cs" />
     <Compile Include="Ship_Game\FTLManager.cs" />
     <Compile Include="Ship_Game\Good.cs" />
     <Compile Include="Ship_Game\UI\Selector.cs" />

@@ -30,8 +30,8 @@ namespace Ship_Game.Ships
         // Setting a default value here to reduce impact of ship respawn loops.
         public float InhibitedCheckTimer = 0.1f;
 
-        public InhibitionType InhibitionSource { get; protected set; }
-        public bool Inhibited { get; protected set; }
+        [StarData] public InhibitionType InhibitionSource { get; protected set; }
+        [StarData] public bool Inhibited { get; protected set; }
         [StarData] public MoveState engineState;
 
          // [0.0 to 1.0], current Warp thrust percentage
@@ -205,7 +205,7 @@ namespace Ship_Game.Ships
         }
 
         // TODO: This needs optimization, make use of InfluenceTree
-        bool IsInhibitedFromEnemyShips()
+        public bool IsInhibitedFromEnemyShips(bool mobileOnly = false)
         {
             for (int x = 0; x < Universe.Empires.Count; x++)
             {
@@ -215,7 +215,7 @@ namespace Ship_Game.Ships
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {
                         Ship ship = e.Inhibitors[i];
-                        if (ship != null && Position.InRadius(ship.Position, ship.InhibitionRadius))
+                        if (ship != null && !(mobileOnly && ship.IsPlatformOrStation) && Position.InRadius(ship.Position, ship.InhibitionRadius))
                             return true;
                     }
                 }

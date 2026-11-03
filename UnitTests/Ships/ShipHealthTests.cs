@@ -20,7 +20,7 @@ namespace UnitTests.Ships
         public void ShipHealthInit()
         {
             Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
-            AssertEqual(10, ship.NumInternalSlots);
+            AssertEqual(4, ship.NumInternalSlots, "the hull's four I slots");
             AssertEqual(1, ship.HealthPercent);
             AssertEqual(ship.Health, ship.HealthMax);
         }
@@ -45,34 +45,48 @@ namespace UnitTests.Ships
         public void ShipInternalModuleDamage()
         {
             Ship ship = SpawnShip("Colony Ship", Player, Vector2.Zero);
-            // colony ship has a total of 18 modules, and 14 with I/IO restrictions
             AssertEqual(18, ship.Modules.Count(m => m.Active));
-            AssertEqual(10, ship.Modules.Count(m => m.HasInternalRestrictions));
 
-            // Internal slots are counted using Module SurfaceArea
-            // This way big 3x3 modules give 9 points, instead of mere 1
+            // internal slots are the hull's I slots that hold a module, so a 2x2 reactor on four of them gives 4
             AssertEqual(26, ship.SurfaceArea);
-            AssertEqual(18, ship.NumInternalSlots);
-            AssertEqual(18, ship.ActiveInternalModuleSlots);
+            AssertEqual(8, ship.NumInternalSlots);
+            AssertEqual(8, ship.ActiveInternalModuleSlots);
             AssertEqual(1, ship.HealthPercent);
             AssertEqual(1, ship.InternalSlotsHealthPercent);
-            
-            // kill half of internal modules
-            var killed = KillModules(7, ship, m => m.HasInternalRestrictions);
-            int surfaceKilled = killed.Sum(m => m.Area);
-            AssertEqual(12, surfaceKilled);
 
-            AssertEqual(18-7, ship.Modules.Count(m => m.Active));
-            AssertEqual(18, ship.NumInternalSlots);
+            // the first two modules on I slots, a structure and the cockpit
+            var killed = KillModules(2, ship, m => ship.Grid.InternalSlotsOf(m) > 0);
+            AssertEqual(2, killed.Sum(m => ship.Grid.InternalSlotsOf(m)));
+
+            AssertEqual(18-2, ship.Modules.Count(m => m.Active));
+            AssertEqual(8, ship.NumInternalSlots);
             AssertEqual(6, ship.ActiveInternalModuleSlots);
-            AssertEqual((1f - surfaceKilled/18f), ship.InternalSlotsHealthPercent);
+            AssertEqual(0.75f, ship.InternalSlotsHealthPercent);
+        }
+
+        [TestMethod]
+        public void OnlyModulesOnISlotsCountTowardIntegrity()
+        {
+            Ship ship = SpawnShip("Colony Ship", Player, Vector2.Zero);
+            ShipModule colonyModule = Array.Find(ship.Modules, m => m.UID == "ColonyModule");
+            ShipModule conduit = Array.Find(ship.Modules, m => m.UID == "PowerConduit");
+            AssertEqual(0, ship.Grid.InternalSlotsOf(colonyModule), "test setup: an IO module on IO slots");
+            AssertEqual(1, ship.Grid.InternalSlotsOf(conduit), "test setup: a conduit on an I slot");
+
+            colonyModule.Die(null, cleanupOnly: true);
+            AssertEqual(8, ship.ActiveInternalModuleSlots, "a module on IO slots takes nothing off");
+            conduit.Die(null, cleanupOnly: true);
+            AssertEqual(7, ship.ActiveInternalModuleSlots, "any module on an I slot counts");
+
+            conduit.SetHealth(conduit.ActualMaxHealth, null);
+            AssertEqual(8, ship.ActiveInternalModuleSlots, "and counts again once it is back");
         }
 
         [TestMethod]
         public void ShipDiesIfInternalModulesDestroyed()
         {
             Ship ship = SpawnShip("Colony Ship", Player, Vector2.Zero);
-            AssertEqual(10, ship.Modules.Count(m => m.HasInternalRestrictions));
+            AssertEqual(8, ship.NumInternalSlots);
             AssertEqual(1, ship.InternalSlotsHealthPercent);
 
             int slotsToDestroy = (int)Math.Ceiling(GlobalStats.Defaults.ShipDestroyThreshold * ship.NumInternalSlots) + 1;
@@ -80,7 +94,7 @@ namespace UnitTests.Ships
             foreach (ShipModule m in ship.Modules)
             {
                 m.Die(null, cleanupOnly: true);
-                destroyed += m.Area;
+                destroyed += ship.Grid.InternalSlotsOf(m);
                 if (destroyed >= slotsToDestroy)
                     break;
             }

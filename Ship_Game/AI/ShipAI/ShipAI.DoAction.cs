@@ -101,6 +101,7 @@ namespace Ship_Game.AI
             Target = PotentialTargets.Find(t => IsTargetValid(t)
                                                 && t.Position.InRadius(Owner.Position, Owner.SensorRange)
                                                 && MayChase(t));
+            PlanFlankForNewTarget();
             return Target;
         }
 
@@ -141,6 +142,7 @@ namespace Ship_Game.AI
             }
             else // we are in range:
             {
+                IsFlanking = false; // a flanker in reach of its target is in the fight
                 // Disengage from warp if we get close enough to the target
                 // For big ships this can be 110% of DesiredCombatRange,
                 // but also ensure we are far enough to prevent warping on top of enemy fleets
@@ -200,6 +202,9 @@ namespace Ship_Game.AI
 
         internal void MoveToEngageTarget(Ship target, FixedSimTime timeStep)
         {
+            if (FlyToFlank(timeStep))
+                return;
+
             if (!Owner.Loyalty.isPlayer && ShouldTryOvertakeTarget() && !Owner.IsInhibitedByUnfriendlyGravityWell)
             {
                 Vector2 heading = target.CurrentVelocity > 1f ? target.VelocityDirection : target.Direction;
@@ -259,7 +264,7 @@ namespace Ship_Game.AI
             }
         }
 
-        const float MaxGroupSpread = 3750f;
+        internal const float MaxGroupSpread = 3750f;
 
         // the point where a straight line from this ship passes the target at its place in its fleet or group
         Vector2 SpreadByGroupPlace(Vector2 targetPos)
@@ -569,6 +574,7 @@ namespace Ship_Game.AI
                 if (Owner.Position.InRadius(MovePosition, Owner.ExplorePlanetDistance))
                 {
                     PatrolTarget.SetExploredBy(Owner.Loyalty);
+                    Owner.Loyalty.AI.ExpansionAI.AddFoundPlanet(PatrolTarget);
                     Owner.AddExoticFoundNotification(PatrolTarget);
                 }
             }

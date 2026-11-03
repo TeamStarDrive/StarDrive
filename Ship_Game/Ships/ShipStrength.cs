@@ -76,8 +76,12 @@ public static class ShipStrength
 
         if (empire != null && offensiveArea == 0 && IsUnarmedSupport(design, empire))
             return 0f;
-        return Combine(surfaceArea, offensiveArea, offense, defense);
+        float strength = Combine(surfaceArea, offensiveArea, offense, defense);
+        return design.IsPlatformOrStation ? strength * StationaryStrength : strength;
     }
+
+    // a platform or station cannot move, so it counts half
+    public const float StationaryStrength = 0.5f;
 
     // the shields which amplifiers boost, as in ShipStats.UpdateShieldAmplification
     static bool IsMainShield(ShipModule m) => m.ShieldPowerMax > 0f && m.ModuleType == ShipModuleType.Shield;

@@ -1088,10 +1088,10 @@ Implementation notes:
 - **Border anger.** `Relationship.UpdateAngerBorders` (`Relationship.cs:725`) adds anger from the known military
   STRENGTH of the other empire's ships inside our borders, and is skipped under open borders or an alliance. An
   unarmed station and its platforms add next to nothing, so the 152 trust penalty is the real lever.
-- **The death line.** A ship dies when its intact internal slots fall below 50% (`Ship_Events.cs:38`). Internal
-  slots are I or IO modules (`ShipModule.cs:254`), armour included: Internal Bulkhead and Reinforced Bulkhead (I),
-  Structure and Ancient Armor (IO). The Codex entry "How a ship dies" (id 100093) said only I; sub-branch 1 fixed
-  it while it edited that entry.
+- **The death line.** A ship dies when its intact internal slots fall below 50% (`Ship_Events.cs`). Internal
+  slots are the hull's I slots that hold a module of any kind, counted slot by slot, or its IO slots when no I slot
+  holds one (`ModuleGridFlyweight.InternalSlotsOf`, since 2026-11-03; before, they were the area of modules with
+  the I or IO restriction wherever they sat).
 - **Command.** `HasCommand` needs a live command module that is powered or draws no power (`ShipStats.cs:87-89`);
   platforms and projectors always have it (`ShipStats.cs:69`). Without it the engines give no thrust
   (`ShipEngines.cs:65`) and `Resupply()` returns `NoCommand` (`ShipResupply.cs:87`).

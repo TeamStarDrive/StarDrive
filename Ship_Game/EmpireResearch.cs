@@ -203,9 +203,12 @@ namespace Ship_Game
                                 leecher.Universe?.Notifications.AddResearchComplete(tech.UID, leecher);
                         }
 
-                        ResourceManager.TryGetTech(techName, out Technology technology);
-                        string message = $"{Empire.data.Traits.Name} - {Localizer.Token(GameText.NotifyLeechedTech)} {technology?.Name.Text ?? techName}";
-                        leecher.Universe.Notifications.AddAgentResult(true, message, leecher);
+                        if (leecher.isPlayer && !leecher.Universe.P.DisableTechLeechWarning)
+                        {
+                            ResourceManager.TryGetTech(techName, out Technology technology);
+                            string message = $"{Empire.data.Traits.Name} - {Localizer.Token(GameText.NotifyLeechedTech)} {technology?.Name.Text ?? techName}";
+                            leecher.Universe.Notifications.AddAgentResult(true, message, leecher);
+                        }
                     }
                 }
             }

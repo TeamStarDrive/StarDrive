@@ -52,6 +52,7 @@
     <Compile Include="AITests\Empire\RemnantRaidTargetTests.cs" />
     <Compile Include="AITests\Empire\OpenBordersOfferTests.cs" />
     <Compile Include="AITests\Empire\SharedSystemColonyGiftTests.cs" />
+    <Compile Include="AITests\Empire\InvasionNeedsByLevelTests.cs" />
     <Compile Include="AITests\Empire\StrikeRequisitionTests.cs" />
     <Compile Include="AITests\Empire\TreatyTrustOfferTests.cs" />
     <Compile Include="AITests\Empire\TrustGainTests.cs" />
@@ -64,6 +65,9 @@
     <Compile Include="AITests\Ships\TestGravityWellRouter.cs" />
     <Compile Include="AITests\Ships\BoardingShuttleTargetTests.cs" />
     <Compile Include="AITests\Ships\ChaseLimitTests.cs" />
+    <Compile Include="AITests\Ships\InhibitedFleetMoveTests.cs" />
+    <Compile Include="AITests\Ships\SafeRebaseTests.cs" />
+    <Compile Include="AITests\Ships\GuardFlankTests.cs" />
     <Compile Include="AITests\Ships\TestShipExploration.cs" />
     <Compile Include="AITests\Ships\TestShipMove.cs" />
     <Compile Include="AssertExtensions.cs" />
@@ -109,6 +113,7 @@
     <Compile Include="ExoticSystems\ResearchStations.cs" />
     <Compile Include="ExoticSystems\StationDesignPicks.cs" />
     <Compile Include="Fleets\FleetCatchUpTests.cs" />
+    <Compile Include="Fleets\FleetFlankTests.cs" />
     <Compile Include="Fleets\FleetFocusFireTests.cs" />
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="Fleets\ResetFleetTests.cs" />
@@ -135,6 +140,7 @@
     <Compile Include="Planets\BlueprintTerraformerGateTests.cs" />
     <Compile Include="Planets\CapitalTransfer.cs" />
     <Compile Include="Planets\ColonyGraceTests.cs" />
+    <Compile Include="Planets\ColonyTargetSwitchTests.cs" />
     <Compile Include="Planets\ColonyTilePickingTests.cs" />
     <Compile Include="Planets\CrashSiteOwnershipTests.cs" />
     <Compile Include="Planets\CyberneticProdStateTests.cs" />
@@ -298,6 +304,7 @@
     <Compile Include="Universe\GenericQtreeTests.cs" />
     <Compile Include="Universe\ResearchStationCartoucheTests.cs" />
     <Compile Include="Universe\GenericQtreeVisualization.cs" />
+    <Compile Include="Universe\ThreatClusterSightTests.cs" />
     <Compile Include="Universe\ThreatMatrixTests.cs" />
     <Compile Include="Universe\SaveLoadUniverseScreenTests.cs" />
     <Compile Include="Universe\SpatialVisualization.cs" />

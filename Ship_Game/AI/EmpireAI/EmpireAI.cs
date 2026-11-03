@@ -157,6 +157,7 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
+                ExpansionAI.SwitchColonyGoalsToFoundPlanets();
 
                 if (ResearchStationsAI == null)
                     ResearchStationsAI = new(OwnerEmpire);

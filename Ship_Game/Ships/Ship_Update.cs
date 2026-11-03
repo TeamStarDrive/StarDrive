@@ -352,6 +352,7 @@ namespace Ship_Game.Ships
 
                     AddExoticFoundNotification(p);
                     p.SetExploredBy(Loyalty);
+                    Loyalty.AI.ExpansionAI.AddFoundPlanet(p);
                     System.SetExploredBy(Loyalty); // in case no one was on sensor range from the Star itself
                     System.UpdateFullyExploredBy(Loyalty);
                 }

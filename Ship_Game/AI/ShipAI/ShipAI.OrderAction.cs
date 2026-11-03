@@ -619,9 +619,13 @@ namespace Ship_Game.AI
                 planets = Owner.Loyalty.Universe.Planets;
             }
 
-            Planet planet = planets.FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
+            Planet planet = planets.FindClosestTo(Owner.Position, p => !p.MightBeAWarZone(Owner.Loyalty)
+                                                                       && p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
             if (planet == null)
             {
+                if (WaitAtNearestOwnedSystem())
+                    return;
+
                 ChangeAIState(AIState.AwaitingOrders);
                 Log.Info($"Could not find a planet to rebase for {Owner.Name}.");
                 return;
@@ -629,6 +633,20 @@ namespace Ship_Game.AI
 
             IgnoreCombat = true;
             OrderMoveAndRebase(planet);
+        }
+
+        // with every planet a war zone or full, the troops wait just outside the nearest system we hold, on their side of it
+        bool WaitAtNearestOwnedSystem()
+        {
+            var systems = Owner.Loyalty.GetOwnedSystems();
+            SolarSystem system = systems.FindClosestTo(systems.Count, Owner.Position);
+            if (system == null)
+                return false;
+
+            Vector2 outward = system.Position.DirectionToTarget(Owner.Position);
+            OrderMoveTo(system.Position + outward * system.Radius * 1.05f, -outward, AIState.AwaitingOrders);
+            IgnoreCombat = true;
+            return true;
         }
 
         public void OrderRebaseToShip(Ship ship)

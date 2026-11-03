@@ -577,7 +577,7 @@ public class DerelictTests : StarDriveTest
         ViewEverything();
         TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
         UState.Objects.Update(TestSimStep);
-        ShipModule[] smoky = ship.Modules.Where(m => m.CanVisualizeDamage && !m.HasInternalRestrictions
+        ShipModule[] smoky = ship.Modules.Where(m => m.CanVisualizeDamage && ship.Grid.InternalSlotsOf(m) == 0
                                                      && m.ModuleType != ShipModuleType.PowerConduit).Take(8).ToArray();
         AssertEqual(8, smoky.Length, "setup: modules that can smoke");
         foreach (ShipModule m in smoky)
@@ -614,7 +614,7 @@ public class DerelictTests : StarDriveTest
         Universe.Particles = new ParticleManager(Content) { ExplosionSmoke = smoke };
         TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));
         UState.Objects.Update(TestSimStep);
-        ShipModule[] smoky = ship.Modules.Where(m => m.CanVisualizeDamage && !m.HasInternalRestrictions
+        ShipModule[] smoky = ship.Modules.Where(m => m.CanVisualizeDamage && ship.Grid.InternalSlotsOf(m) == 0
                                                      && m.ModuleType != ShipModuleType.PowerConduit).ToArray();
         int fifth = (int)(ship.Modules.Length * Derelict.SmokeSourcesPerModule + 0.5f);
         AssertGreaterThan(smoky.Length, fifth, "setup: more dead modules than a fifth of them");
@@ -1246,7 +1246,7 @@ public class DerelictTests : StarDriveTest
         GlobalStats.Defaults.DerelictChance = 100;
         Ship ship = SpawnPlainShip("Dreadnought mk1-a", position);
         UState.Objects.Update(TestSimStep); // sets its top speed
-        foreach (ShipModule m in ship.Modules.Where(m => m.CanVisualizeDamage && !m.HasInternalRestrictions
+        foreach (ShipModule m in ship.Modules.Where(m => m.CanVisualizeDamage && ship.Grid.InternalSlotsOf(m) == 0
                                                          && m.ModuleType != ShipModuleType.PowerConduit).Take(10))
             m.SetHealth(0f, "Test");
         AssertTrue(ship.Active, "setup: the ship lives on without them");
@@ -1511,7 +1511,7 @@ public class DerelictTests : StarDriveTest
         AssertEqual(0.001f, 2f, UState.ProductionPace, "setup: a slower pace, which the cost includes");
         Enemy.data.Traits.ShipCostMod = 0.5f;
         TestShip ship = SpawnShip("Dreadnought mk1-a", Enemy, Site(0));
-        foreach (ShipModule m in ship.Modules.Where(m => m.CanVisualizeDamage && !m.HasInternalRestrictions).Take(10))
+        foreach (ShipModule m in ship.Modules.Where(m => m.CanVisualizeDamage && ship.Grid.InternalSlotsOf(m) == 0).Take(10))
             m.SetHealth(0f, "Test");
         float health = ship.HealthPercent;
         AssertTrue(health is > 0f and < 0.99f, "setup: the ship is damaged");
@@ -1532,7 +1532,7 @@ public class DerelictTests : StarDriveTest
 
         TestShip wreck = SpawnShip("Corsair", Enemy, Site(2));
         foreach (ShipModule m in wreck.Modules) // its internal modules intact, as a ship still alive has them
-            m.SetHealth(m.HasInternalRestrictions ? 1f : 0f, "Test");
+            m.SetHealth(wreck.Grid.InternalSlotsOf(m) > 0 ? 1f : 0f, "Test");
         AssertLessThan(wreck.HealthPercent * 0.5f * (int)(wreck.ShipData.BaseCost * 2f), 100f, "setup: a cheap wreck worth less than the floor");
         UState.Derelicts.TryAdd(wreck, salvageable: true, seen: false);
         AssertEqual(0.01f, 50f * 2f, Newest().Production, "still holds 50, times the production pace");

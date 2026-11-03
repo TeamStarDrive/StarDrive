@@ -292,18 +292,23 @@ namespace UnitTests.Ships
         public void BlastStillBitesNearTheEdgeOfItsRadius()
         {
             // outside point-blank range the frigate dodges half the time, so the trial count has to swamp that
-            int killedAt400 = 0;
+            int killedAt200 = 0;
+            float mostLostAt400 = 0f;
             float mostLostAt1100 = 0f;
             for (int trial = 0; trial < 30; ++trial)
             {
-                if (FrigateBesideDyingCapital(400f, out _))
-                    ++killedAt400;
+                if (FrigateBesideDyingCapital(200f, out _))
+                    ++killedAt200;
+                FrigateBesideDyingCapital(400f, out float lostAt400);
+                mostLostAt400 = Math.Max(mostLostAt400, lostAt400);
                 FrigateBesideDyingCapital(1100f, out float lost);
                 mostLostAt1100 = Math.Max(mostLostAt1100, lost);
             }
 
-            AssertGreaterThan(killedAt400, 0,
-                "a frigate 400 units from a dying capital should be destroyed at least once in 30 tries");
+            AssertGreaterThan(killedAt200, 0,
+                "a frigate 200 units from a dying capital should be destroyed at least once in 30 tries");
+            AssertGreaterThan(mostLostAt400, 25_000f,
+                "a frigate 400 units from a dying capital should lose about a fifth of its health at least once in 30 tries");
             AssertGreaterThan(mostLostAt1100, 10_000f,
                 "a frigate 1100 units from a dying capital should lose a real share of its health at least once in 30 tries");
         }
