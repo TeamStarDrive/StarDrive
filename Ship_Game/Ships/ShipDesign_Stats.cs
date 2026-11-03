@@ -149,7 +149,6 @@ public partial class ShipDesign
         }
 
         BaseCost = baseCost;
-        BaseStrength = ShipStrength.OfDesign(this, designSlots, null);
         BaseThrust = baseThrust;
         BaseTurnThrust = baseTurnThrust;
         BaseWarpThrust = baseWarp;
@@ -196,6 +195,9 @@ public partial class ShipDesign
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
         IsMiningStation   = IsPlatformOrStation && BaseRefiningPerTurn > 0;
         IsDysonSwarmController  = Name == DysonSwarm.DysonSwarmControllerName;
+
+        // after the role, which decides whether it is stationary
+        BaseStrength = ShipStrength.OfDesign(this, designSlots, null);
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");

@@ -299,6 +299,8 @@ namespace Ship_Game
             modTitlePos.X = 10;
 
             float strength = mod.CalculateModuleOffenseDefense(Screen.CurrentHull.SurfaceArea);
+            if (Screen.CurrentDesign?.IsPlatformOrStation == true)
+                strength *= ShipStrength.StationaryStrength;
             DrawStat(ref modTitlePos, GameText.Strength, strength, GameText.TT_ShipOffense);
 
             if (mod.BombType == null && !mod.IsWeapon || mod.InstalledWeapon == null)
