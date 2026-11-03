@@ -833,11 +833,7 @@ public class FleetFlankTests : StarDriveTest
     {
         ThreatCluster group = FleetAgainstAGroup(GameDifficulty.Hard, 2.5f, Screen, Left, Right, Screen, Screen);
         if (withRearShip)
-        {
-            TestShip rear = Quiet(SpawnShip(FrigateName, Attacker, GroupCenter + new Vector2(0f, FleetOut + 3000f), Vectors.Up));
-            AIFleet.AddShip(rear);
-            FlankList("RearShips").Add(rear);
-        }
+            RearShipOfTheFleet();
         AssertTrue(Attack(), "setup: the whole fleet attacks");
         Vector2 left = FlankPointOf(FleetShips[1], group, "setup: the left ship");
         Vector2 right = FlankPointOf(FleetShips[2], group, "setup: the right ship");
@@ -847,6 +843,54 @@ public class FleetFlankTests : StarDriveTest
 
         AssertLessThan(FlankPointOf(FleetShips[1], group, "the left ship").Distance(left), 1f, "the left ship keeps its leg");
         AssertLessThan(FlankPointOf(FleetShips[2], group, "the right ship").Distance(right), 1f, "the right ship keeps its leg");
+    }
+
+    TestShip RearShipOfTheFleet()
+    {
+        TestShip rear = Quiet(SpawnShip(FrigateName, Attacker, GroupCenter + new Vector2(0f, FleetOut + 3000f), Vectors.Up));
+        AIFleet.AddShip(rear);
+        FlankList("RearShips").Add(rear);
+        return rear;
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void AShipAlreadyFightingIsNotSentOnWithTheShipsLeftOver(bool withRearShip)
+    {
+        FleetAgainstAGroup(GameDifficulty.Normal, 0.5f, Screen, Screen, Screen, Screen);
+        TestShip rear = withRearShip ? RearShipOfTheFleet() : null;
+        TestShip fighter = FleetShips[1];
+        fighter.InCombat = true;
+        Assert.IsFalse(fighter.AI.HasPriorityOrder, "setup: the fighting ship is on no locked move");
+
+        AssertTrue(Attack(), "setup: the whole fleet attacks, and the first ship alone covers the group");
+        if (withRearShip)
+            AssertEqual(rear, FleetShips[2].AI.EscortTarget, "setup: the next ship left over escorts the rear ship");
+        else
+            Assert.IsTrue(FleetShips[2].AI.HasPriorityOrder, "setup: the next ship left over is locked onto a move to the area");
+
+        Assert.IsFalse(fighter.AI.HasPriorityOrder, "a ship already fighting is not locked onto a move to the area");
+        Assert.AreNotEqual(AIState.Escort, fighter.AI.State, "nor sent to escort the rear ships");
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void ARearShipLeftOverInAWholeFleetPassTakesNoOrder(bool firstLeftOver)
+    {
+        FleetAgainstAGroup(GameDifficulty.Normal, 0.5f, Screen, Screen, Screen);
+        TestShip rear = RearShipOfTheFleet();
+        Assert.IsFalse(rear.AI.HasPriorityOrder || rear.InCombat, "setup: the rear ship is free to take orders");
+        Ship[] ships = firstLeftOver
+            ? new Ship[] { FleetShips[0], rear, FleetShips[1], FleetShips[2] }
+            : new Ship[] { FleetShips[0], FleetShips[1], rear, FleetShips[2] };
+
+        AssertTrue(Attack(ships), "setup: the first ship alone covers the group");
+
+        Assert.IsNull(rear.AI.EscortTarget, "the rear ship is not told to escort, least of all itself");
+        Assert.IsFalse(rear.AI.HasPriorityOrder, "nor locked onto a move to the area");
+        AssertEqual(rear, FleetShips[1].AI.EscortTarget, "a free ship left over escorts it instead");
     }
 
     [TestMethod]

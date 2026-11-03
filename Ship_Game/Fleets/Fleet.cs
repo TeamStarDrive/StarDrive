@@ -2298,20 +2298,20 @@ namespace Ship_Game.Fleets
             if (sent.Count > 0)
                 SendAtGroup(sent, currentCluster, clusters, Splits());
 
-            // if some ships remaining, let them escort the rear ships (which are usually troop ships); a ship on its flank leg keeps it
+            // if some ships remaining, let them escort the rear ships (which are usually troop ships); only free ships, never the rear ships, take left-over orders
             for (int i = shipIndex + 1, j = 0; i < ships.Count && j < RearShips.Count; i++)
             {
                 Ship ship = ships[i];
                 shipIndex = i;
-                if (!KeepsItsMove(ship))
+                if (CanBeSentAtGroup(ship) && !RearShips.ContainsRef(ship))
                     ship.DoEscort(RearShips[j++]);
             }
 
-            // remaining ships should move 
+            // remaining free ships move to the area
             for (int i = shipIndex+1; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
-                if (!KeepsItsMove(ship))
+                if (CanBeSentAtGroup(ship) && !RearShips.ContainsRef(ship))
                     ship.AI.OrderMoveTo(task.AO, FinalPosition.DirectionToTarget(task.AO));
             }
 
