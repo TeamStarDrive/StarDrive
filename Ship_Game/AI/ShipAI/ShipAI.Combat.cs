@@ -478,7 +478,7 @@ namespace Ship_Game.AI
 
         static bool FiresOn(Ship attacker, Ship victim) => TargetOf(attacker) == victim && Reaches(attacker, victim);
 
-        // once a second in combat, a guard past 1.5 system radii or a moving fleet ship past its fleet's longest sensor range goes back on a locked order
+        // once a second in combat, a guard past 1.5 system radii or a moving fleet ship past its fleet's longest sensor range and not fighting back against an inhibitor goes back on a locked order
         bool PullBackFromChase(FixedSimTime timeStep)
         {
             PullBackTimer -= timeStep.FixedTime;
@@ -506,7 +506,7 @@ namespace Ship_Game.AI
             }
 
             Fleet fleet = Owner.Fleet;
-            if (!OnFleetMove || fleet == null)
+            if (!OnFleetMove || fleet == null || FightBackSpot != Vector2.Zero)
                 return false;
 
             // a ship already near its spot at the fleet's destination has nothing to rejoin
@@ -518,6 +518,55 @@ namespace Ship_Game.AI
             ResetPriorityOrder(clearOrders: false);
             OrderMoveTo(spot, fleet.FinalDirection, AIState.FormationMoveTo);
             return true;
+        }
+
+        // where this AI fleet ship's locked move was turned aggressive while an enemy ship held it out of warp
+        [StarData] Vector2 FightBackSpot;
+
+        // an enemy ship that moves, not a platform or station, holds this ship out of warp with its inhibitor
+        bool HeldByMobileEnemyInhibitor => Owner.Inhibited && Owner.InhibitionSource == Ship.InhibitionType.EnemyShip
+                                           && Owner.IsInhibitedFromEnemyShips(mobileOnly: true);
+
+        // once a second, an AI fleet ship on its fleet's locked move fights back while an enemy ship holds it out of warp, and moves locked again once free
+        public void UpdateFightBackOnFleetMove()
+        {
+            if (FightBackSpot == Vector2.Zero && !(Owner.Inhibited && HasPriorityOrder && State == AIState.FormationMoveTo))
+                return;
+
+            bool heldByEnemy = HeldByMobileEnemyInhibitor;
+            ShipGoal leg = Owner.Fleet != null && !Owner.Loyalty.isPlayer ? LastFleetMoveLeg() : null;
+            if (FightBackSpot != Vector2.Zero)
+            {
+                bool switchedLeg = leg is { HasAggressiveMoveOrder: true } && leg.MovePosition == FightBackSpot;
+                if (switchedLeg && heldByEnemy)
+                    return;
+
+                FightBackSpot = Vector2.Zero;
+                if (switchedLeg && !Owner.Resupplying)
+                {
+                    ResetPriorityOrder(clearOrders: false);
+                    OrderMoveTo(leg.MovePosition, leg.Direction, AIState.FormationMoveTo);
+                }
+                return;
+            }
+
+            if (heldByEnemy && leg is { HasAggressiveMoveOrder: false })
+            {
+                FightBackSpot = leg.MovePosition;
+                OrderMoveTo(leg.MovePosition, leg.Direction, AIState.FormationMoveTo, MoveOrder.Aggressive);
+            }
+        }
+
+        // the last leg of this ship's part in its fleet's move
+        ShipGoal LastFleetMoveLeg()
+        {
+            for (int i = OrderQueue.Count - 1; i >= 0; --i)
+            {
+                ShipGoal goal = OrderQueue[i];
+                if (goal is { WantedState: AIState.FormationMoveTo, Plan: Plan.MoveToWithin1000 or Plan.MakeFinalApproach })
+                    return goal;
+            }
+            return null;
         }
 
         // Set this to get debug output of GetTargetPriority() weights

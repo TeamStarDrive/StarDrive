@@ -1228,6 +1228,7 @@ namespace Ship_Game.Ships
                 RecallHangarShipIfTooFarFromCarrier();
                 UpdateSystem();
                 UpdateRebaseTarget();
+                AI.UpdateFightBackOnFleetMove();
                 SecondsAlive += 1;
                 if (Loyalty.WeAreRemnants)
                     RemnantGuardianBombard();
