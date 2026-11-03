@@ -6364,6 +6364,8 @@ namespace Ship_Game
         ModuleLimitOnHull = 7266,
         /// <summary>This hull allows this module on no more than {0} of its slots.</summary>
         ModuleLimitOnShipReached = 7267,
+        /// <summary>Autocolonize: the colony target {0} was switched to {1}, a better planet.</summary>
+        AutocolonizeTargetSwitched = 7268,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

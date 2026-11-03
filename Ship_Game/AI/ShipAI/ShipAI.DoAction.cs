@@ -574,6 +574,7 @@ namespace Ship_Game.AI
                 if (Owner.Position.InRadius(MovePosition, Owner.ExplorePlanetDistance))
                 {
                     PatrolTarget.SetExploredBy(Owner.Loyalty);
+                    Owner.Loyalty.AI.ExpansionAI.AddFoundPlanet(PatrolTarget);
                     Owner.AddExoticFoundNotification(PatrolTarget);
                 }
             }

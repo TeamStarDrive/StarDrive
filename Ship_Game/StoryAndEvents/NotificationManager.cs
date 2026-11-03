@@ -132,6 +132,20 @@ namespace Ship_Game
             }, "sd_ui_notification_colonized_01");
         }
 
+        // auto colonize moved a colony target to a better planet our ships found
+        public void AddColonyTargetSwitchedNotification(Planet from, Planet to)
+        {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = string.Format(Localizer.Token(GameText.AutocolonizeTargetSwitched), from.Name, to.Name),
+                ReferencedItem1 = to.System,
+                ReferencedItem2 = to,
+                IconPath        = to.IconPath,
+                Action          = "SnapToExpandSystem"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddCapitalTransfer(Planet from, Planet to)
         {
             AddNotification(new Notification

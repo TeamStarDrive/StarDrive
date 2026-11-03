@@ -17,7 +17,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public sealed override Empire TargetEmpire { get; set; }
         [StarData] public sealed override Planet TargetPlanet { get; set; }
         [StarData] public bool IsManualColonizationOrder;
-        [StarData] readonly bool CheckNewOwnersInSystem;
+        [StarData] bool CheckNewOwnersInSystem;
 
         public override bool IsColonizationGoal(Planet planet) => TargetPlanet == planet;
 
@@ -39,12 +39,7 @@ namespace Ship_Game.Commands.Goals
         {
             TargetPlanet = toColonize;
             IsManualColonizationOrder = isManual;
-            if (!owner.isPlayer
-                && (TargetPlanet.System.OwnerList.Count == 0
-                    || TargetPlanet.System.OwnerList.Count > 0 && TargetPlanet.System.IsExclusivelyOwnedBy(Owner)))
-            {
-                CheckNewOwnersInSystem = true;
-            }
+            CheckNewOwnersInSystem = ShouldCheckNewOwnersInSystem();
 
             if (AIControlsColonization && PositiveEnemyPresence(out _))
                 return;
@@ -89,13 +84,64 @@ namespace Ship_Game.Commands.Goals
 
                 empireAi.AddPendingTask(Task);
             }
-            else if (Owner.Universe.P.Difficulty > GameDifficulty.Normal && !Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System))
+            else
+            {
+                RequestGuardBeforeColonize();
+            }
+
+            return GoalStep.GoToNextStep;
+        }
+
+        void RequestGuardBeforeColonize()
+        {
+            if (Owner.Universe.P.Difficulty > GameDifficulty.Normal
+                && !Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System)
+                && !Owner.AI.HasGuardBeforeColonizeTask(TargetPlanet))
             {
                 // This task is independent and not related to this goal Task var
                 Owner.AI.AddPendingTask(MilitaryTask.CreateGuardTask(Owner, TargetPlanet));
             }
+        }
 
-            return GoalStep.GoToNextStep;
+        // a goal the planner made can move to another planet until its claim fleet forms or its colony ship lands or reaches the target's system
+        public bool CanSwitchTarget => !IsManualColonizationOrder
+                                       && Task?.Fleet == null
+                                       && FinishedShip is not { IsLanding: true }
+                                       && FinishedShip?.System != TargetPlanet.System;
+
+        // moves this goal to a safe planet: the old target's claim and guard fleets are called off and the colony ship is re-routed
+        public void SwitchTargetPlanet(Planet planet)
+        {
+            Task?.EndTask();
+            Owner.AI.EndGuardBeforeColonizeTasks(TargetPlanet);
+            TargetPlanet = planet;
+            TargetEmpire = null;
+            CheckNewOwnersInSystem = ShouldCheckNewOwnersInSystem();
+            if (!Owner.isPlayer)
+                RequestGuardBeforeColonize();
+
+            if (FinishedShip != null)
+            {
+                FinishedShip.OrderColonization(planet, this);
+                ChangeToStep(WaitForColonizationComplete);
+            }
+            else if (IsPlanetBuildingColonyShip(out int queueIndex))
+            {
+                QueueItem queued = PlanetBuildingAt.ConstructionQueue[queueIndex];
+                queued.DisplayName = $"{queued.ShipData.Name} ({planet.Name})";
+                queued.QType = QueueItemType.ColonyShip;
+            }
+            else
+            {
+                ChangeToStep(CheckIfColonizationIsSafe);
+            }
+        }
+
+        // the AI watches for others settling a target system that was empty or only ours
+        bool ShouldCheckNewOwnersInSystem()
+        {
+            SolarSystem system = TargetPlanet.System;
+            return !Owner.isPlayer && (system.OwnerList.Count == 0 || system.IsExclusivelyOwnedBy(Owner));
         }
 
         GoalStep CheckIfColonizationIsSafe()
@@ -329,11 +375,13 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
-        bool PositiveEnemyPresence(out float spaceStrength)
+        bool PositiveEnemyPresence(out float spaceStrength) => PositiveEnemyPresence(Owner, TargetPlanet, out spaceStrength);
+
+        public static bool PositiveEnemyPresence(Empire owner, Planet planet, out float spaceStrength)
         {
-            spaceStrength = Owner.KnownEnemyStrengthIn(TargetPlanet.System);
-            float groundStr = TargetPlanet.GetGroundStrengthOther(Owner);
-            if (TargetPlanet.Owner?.IsFaction  == true && groundStr < 1)
+            spaceStrength = owner.KnownEnemyStrengthIn(planet.System);
+            float groundStr = planet.GetGroundStrengthOther(owner);
+            if (planet.Owner?.IsFaction  == true && groundStr < 1)
                 groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty
 
             return spaceStrength > 10 || groundStr > 0;

@@ -146,6 +146,22 @@ namespace Ship_Game.AI
             return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendVsRemnants);
         }
 
+        static bool IsGuardBeforeColonize(MilitaryTask task, Planet p)
+            => task.Type == MilitaryTask.TaskType.GuardBeforeColonize && task.TargetPlanet == p && !task.QueuedForRemoval;
+
+        // a fleet is asked to guard this planet before it is colonized, maybe not added yet
+        public bool HasGuardBeforeColonizeTask(Planet p)
+            => TaskList.Any(t => IsGuardBeforeColonize(t, p)) || TasksToAdd.Any(t => IsGuardBeforeColonize(t, p));
+
+        // ends the fleets asked to guard this planet before it is colonized, those not added yet too
+        public void EndGuardBeforeColonizeTasks(Planet p)
+        {
+            foreach (MilitaryTask task in TaskList.Filter(t => IsGuardBeforeColonize(t, p)))
+                task.EndTask();
+            foreach (MilitaryTask task in TasksToAdd.Filter(t => IsGuardBeforeColonize(t, p)))
+                task.EndTask();
+        }
+
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
             return FindGoals(g => g.IsRemnantEngageAtPlanet(p) && g is FleetGoal { Fleet.TaskStep: < 9 });

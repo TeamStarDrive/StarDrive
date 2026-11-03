@@ -18,6 +18,11 @@ namespace Ship_Game.AI.ExpansionAI
         [StarData] public int ExpandSearchTimer { get; private set; }
         [StarData] public int MaxSystemsToCheckedDiv { get; private set; }
         [StarData] int ExpansionIntervalTimer = 100_000; // how often to check for expansion?
+        // planets our ships explored this turn, and those of the turn before, compared once the threat memory has seen what the scouts saw
+        [StarData] readonly Array<Planet> PlanetsFoundThisTurn = new();
+        [StarData] readonly Array<Planet> PlanetsFoundLastTurn = new();
+        // a found planet takes a colony target's place only when worth more than a quarter more
+        const float SwitchTargetValueRatio = 1.25f;
 
         [StarDataConstructor] ExpansionPlanner() {}
 
@@ -143,14 +148,7 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
-            int desiredGoals = DesiredColonyGoals();
-
-            // we are going to ignore some of the blocked colony goals based on difficulty.
-            // at brutal no blocked colony goals will be counted.
-            int blockedColonyGoals = GetNumOfBlockedColonyGoals();
-            blockedColonyGoals = (int)(blockedColonyGoals * Owner.DifficultyModifiers.ColonyGoalMultiplier);
-
-            if (currentColonizationGoals.Length - blockedColonyGoals >= desiredGoals)
+            if (AtColonyGoalCap(currentColonizationGoals.Length))
                 return;
 
             Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {popRatio.String(2)}");
@@ -184,6 +182,114 @@ namespace Ship_Game.AI.ExpansionAI
                 PlanetRanker bestValuePlanet = allPlanetsRanker.FindMax(pr => pr.Value);
                 CreateColonyGoals(bestValuePlanet.Planet, currentColonizationGoals.Length);
             }
+        }
+
+        bool AtColonyGoalCap(int numColonyGoals)
+        {
+            // we are going to ignore some of the blocked colony goals based on difficulty.
+            // at brutal no blocked colony goals will be counted.
+            int blockedColonyGoals = GetNumOfBlockedColonyGoals();
+            blockedColonyGoals = (int)(blockedColonyGoals * Owner.DifficultyModifiers.ColonyGoalMultiplier);
+            return numColonyGoals - blockedColonyGoals >= DesiredColonyGoals();
+        }
+
+        // one of our ships explored this planet; called from the parallel ship updates
+        public void AddFoundPlanet(Planet p)
+        {
+            if (Owner.IsFaction || Owner.isPlayer && !Owner.AutoColonize)
+                return;
+
+            lock (PlanetsFoundThisTurn)
+                PlanetsFoundThisTurn.AddUnique(p);
+        }
+
+        // at the cap, each planet found a turn ago, best first, may take the place of the weakest colony target it beats by more than a quarter
+        public void SwitchColonyGoalsToFoundPlanets()
+        {
+            Planet[] found = PlanetsFoundLastTurn.ToArray();
+            PlanetsFoundLastTurn.Clear();
+            lock (PlanetsFoundThisTurn)
+            {
+                PlanetsFoundLastTurn.AddRange(PlanetsFoundThisTurn);
+                PlanetsFoundThisTurn.Clear();
+            }
+
+            if (found.Length == 0 || Owner.isPlayer && !Owner.AutoColonize)
+                return;
+
+            Planet[] targets = GetColonizationGoalPlanets();
+            if (!AtColonyGoalCap(targets.Length))
+                return;
+
+            var candidates = new Array<Planet>();
+            foreach (Planet p in found)
+            {
+                if (!targets.Contains(p) && CanSwitchTo(p))
+                    candidates.Add(p);
+            }
+
+            if (candidates.Count == 0)
+                return;
+
+            MarkForColonization[] goals = GetColonizationGoals();
+            Vector2 empireCenter = Owner.WeightedCenter;
+            float longestDistance = 1f;
+            foreach (Planet p in candidates)
+                longestDistance = Math.Max(longestDistance, p.Position.Distance(empireCenter));
+            foreach (MarkForColonization goal in goals)
+                longestDistance = Math.Max(longestDistance, goal.TargetPlanet.Position.Distance(empireCenter));
+
+            var ranked = new Array<PlanetRanker>();
+            foreach (Planet p in candidates)
+            {
+                var pr = new PlanetRanker(Owner, p, longestDistance, empireCenter);
+                if (pr.CanColonize)
+                    ranked.Add(pr);
+            }
+
+            ranked.Sort(pr => -pr.Value);
+            foreach (PlanetRanker best in ranked)
+            {
+                MarkForColonization weakest = WeakestSwitchableGoal(goals, longestDistance, empireCenter, out float weakestValue);
+                if (weakest == null || best.Value <= weakestValue * SwitchTargetValueRatio)
+                    return; // the rest are worth less
+
+                Planet oldTarget = weakest.TargetPlanet;
+                Log.Info(ConsoleColor.Magenta, $"Colonize switch {oldTarget} -> {best.Planet} | {Owner}");
+                weakest.SwitchTargetPlanet(best.Planet);
+                if (Owner.isPlayer)
+                    Owner.Universe.Screen?.NotificationManager?.AddColonyTargetSwitchedNotification(oldTarget, best.Planet);
+            }
+        }
+
+        // the planner's own rules for a target, and no enemies known there
+        bool CanSwitchTo(Planet p)
+        {
+            SolarSystem system = p.System;
+            return CanBeColonized(p)
+                && (system.HasPlanetsOwnedBy(Owner) ? StrongEnoughToClaim(system) : CanBeColonized(system))
+                && !MarkForColonization.PositiveEnemyPresence(Owner, p, out _);
+        }
+
+        MarkForColonization WeakestSwitchableGoal(MarkForColonization[] goals, float longestDistance, Vector2 empireCenter,
+                                                  out float weakestValue)
+        {
+            MarkForColonization weakest = null;
+            weakestValue = float.MaxValue;
+            foreach (MarkForColonization goal in goals)
+            {
+                if (!goal.CanSwitchTarget)
+                    continue;
+
+                float value = new PlanetRanker(Owner, goal.TargetPlanet, longestDistance, empireCenter).Value;
+                if (value < weakestValue)
+                {
+                    weakest = goal;
+                    weakestValue = value;
+                }
+            }
+
+            return weakest;
         }
 
         /// <summary>
