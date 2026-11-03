@@ -6366,6 +6366,14 @@ namespace Ship_Game
         ModuleLimitOnShipReached = 7267,
         /// <summary>Autocolonize: the colony target {0} was switched to {1}, a better planet.</summary>
         AutocolonizeTargetSwitched = 7268,
+        /// <summary>Boarding Alerts</summary>
+        BoardingAlerts = 7269,
+        /// <summary>Alerts when one of your ships is captured by boarding, when you capture one, and for each station</summary>
+        BoardingAlertsTip = 7270,
+        /// <summary>Tech Leech Alerts</summary>
+        TechLeechAlerts = 7271,
+        /// <summary>Alerts when your spy network gains you research progress on a technology</summary>
+        TechLeechAlertsTip = 7272,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

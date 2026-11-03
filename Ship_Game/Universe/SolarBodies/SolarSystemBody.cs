@@ -609,7 +609,7 @@ namespace Ship_Game
             {
                 if (station.Loyalty != newOwner)
                 {
-                    station.LoyaltyChangeByGift(newOwner);
+                    station.LoyaltyChangeByGift(newOwner, addNotification: !Universe.P.DisableBoardingWarning);
                     Log.Info($"Owner of platform tethered to {Name} changed from {oldOwner.PortraitName} to {newOwner.PortraitName}");
                 }
             }

@@ -123,7 +123,7 @@ namespace Ship_Game.Ships.Components
             if (ship.IsSalvagePlatform)
                 SalvageDerelict.Captured(ship, oldLoyalty, newLoyalty);
 
-            if (notification)
+            if (notification && !ship.Universe.P.DisableBoardingWarning)
             {
                 newLoyalty.AddBoardSuccessNotification(ship);
                 oldLoyalty.AddBoardedNotification(ship, newLoyalty);
