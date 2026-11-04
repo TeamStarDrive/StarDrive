@@ -37,7 +37,16 @@ namespace Ship_Game
         UITextBox DescriptionTextList;
 
         public int FlagIndex { get; set; }
-        public Color PlayerColor { get => Picker.CurrentColor; set => Picker.CurrentColor = value; }
+        public Color PlayerColor { get => Picker.CurrentColor; private set => Picker.CurrentColor = value; }
+
+        // a color the player takes other than the race's own ticks the player's hull color box; only the player unticks it
+        public void PickPlayerColor(Color color)
+        {
+            PlayerColor = color;
+            if (color != SelectedData.Traits.Color)
+                P.PlayerHullColors = true;
+        }
+
         public UniverseParams Params => P;
         // the borders of the upper and lower panel rows, which the Game Setup panels line up with
         public (int Top, int UpperBottom, int LowerTop, int Bottom) PanelRows { get; private set; }
@@ -94,6 +103,7 @@ namespace Ship_Game
             foreach (var look in P.OpponentLooks)
                 settings.OpponentLooks[look.Key] = look.Value;
             P = settings;
+            PickPlayerColor(PlayerColor); // a color other than the race's own ticks the box again whatever the setup holds
             VerifySelectedOpponents();
         }
         
@@ -320,7 +330,13 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             if (Picker.Visible)
-                return Picker.HandleInput(input);
+            {
+                Color before = PlayerColor;
+                bool captured = Picker.HandleInput(input);
+                if (PlayerColor != before)
+                    PickPlayerColor(PlayerColor);
+                return captured;
+            }
 
             if (FlagRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {

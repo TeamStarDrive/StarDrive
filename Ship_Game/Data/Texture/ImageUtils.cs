@@ -107,7 +107,15 @@ namespace Ship_Game.Data.Texture
         public static Texture2D LoadDds(GraphicsDevice device, string filename)
         {
             using FileStream fs = File.OpenRead(filename);
-            var dds = new DxtReader(fs);
+            DxtReader dds;
+            try
+            {
+                dds = new DxtReader(fs);
+            }
+            catch (Exception e) when (e is not OutOfMemoryException)
+            {
+                throw new Exception($"Load DDS {filename} failed: {e.Message}", e);
+            }
             if (dds.DecodedImage.Length == 0 || dds.Width == 0 || dds.Height == 0)
                 throw new Exception($"Load DDS {filename} failed: DxtReader produced no pixels");
             // DxtReader's internal buffer is over-sized; trim to base-level pixel count.

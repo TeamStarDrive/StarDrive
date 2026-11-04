@@ -119,6 +119,7 @@
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="Fleets\ResetFleetTests.cs" />
     <Compile Include="Graphics\BloomFilterTests.cs" />
+    <Compile Include="Graphics\DdsReaderTests.cs" />
     <Compile Include="Graphics\DistortionComponentTests.cs" />
     <Compile Include="Graphics\FillRectangleRectFTests.cs" />
     <Compile Include="Graphics\FogOfWarTests.cs" />

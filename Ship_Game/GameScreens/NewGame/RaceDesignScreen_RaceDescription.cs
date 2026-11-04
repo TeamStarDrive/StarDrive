@@ -181,6 +181,7 @@ namespace Ship_Game
 
             ChooseRaceList.OnItemClicked(archetype); // click on the archetype faction
             SetRacialTraits(traits);
+            PickPlayerColor(traits.Color);
             EnvMenu.UpdatePreferences(RaceSummary);
         }
 

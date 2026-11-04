@@ -17,6 +17,7 @@
   <DefaultMiningShip>Pollops Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Pollops Basic Mining Station</DefaultMiningStation>  
   <DefaultSalvageShip>Pollops Salvage Ship</DefaultSalvageShip>
+  <HullColors>Paint</HullColors>
 
 
   <RebelName>Pollop Vegetarians</RebelName>

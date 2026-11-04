@@ -280,7 +280,7 @@ namespace Ship_Game.GameScreens.NewGame
             {
                 if (PlayerFlagRect.HitTest(input.CursorPosition))
                 {
-                    PickPlayerColor();
+                    OpenPlayerColorPicker();
                     return true;
                 }
                 if (FlagLeftArrow(PlayerFlagRect).HitTest(input.CursorPosition))
@@ -325,8 +325,8 @@ namespace Ship_Game.GameScreens.NewGame
             ModeBtn.Tooltip = GetModeTip();
             if (Picker.Visible)
             {
-                if (PickingPlayerColor)
-                    RaceScreen.PlayerColor = Picker.CurrentColor;
+                if (PickingPlayerColor && Picker.CurrentColor != RaceScreen.PlayerColor)
+                    RaceScreen.PickPlayerColor(Picker.CurrentColor);
                 else if (PickingColorFor != null && Picker.CurrentColor != LookOf(PickingColorFor).Color)
                     Params.OpponentLooks[PickingColorFor] = (Picker.CurrentColor, LookOf(PickingColorFor).Flag);
             }
@@ -380,7 +380,7 @@ namespace Ship_Game.GameScreens.NewGame
             OpenPicker(LookOf(race).Color);
         }
 
-        void PickPlayerColor()
+        void OpenPlayerColorPicker()
         {
             PickingColorFor = null;
             PickingPlayerColor = true;

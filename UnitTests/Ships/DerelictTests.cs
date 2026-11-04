@@ -1458,6 +1458,7 @@ public class DerelictTests : StarDriveTest
     {
         ViewEverything();
         Player.data.HullColors = HullColorParts.Paint;
+        UState.P.PlayerHullColors = true;
         AssertEqual(0.001f, 1f, Player.HullTint.W, "setup: the player's ships are colored");
 
         TestShip ship = SpawnShip("Dreadnought mk1-a", Player, Site(0));

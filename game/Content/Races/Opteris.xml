@@ -17,6 +17,7 @@
   <DefaultMiningShip>Opteris Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Opteris Basic Mining Station</DefaultMiningStation>  
   <DefaultSalvageShip>Opteris Salvage Ship</DefaultSalvageShip>
+  <HullColors>Paint</HullColors>
   
   <RebelName>Liberated Opteris AI</RebelName>
   <RebelSing>Liberated AI</RebelSing>

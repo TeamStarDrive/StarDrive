@@ -16,9 +16,10 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Graphics;
 
 /// <summary>
-/// The player's ships take the empire color while the player's hull color box is on, and an opponent's whose color the
-/// player picked while the opponents' box is, as both are by default: on the hull paint their model's tint map marks
-/// when the race paints its ships, or on the lights of the race's own hulls.
+/// The player's ships take the empire color while the player's hull color box is on, as it is once the player takes a
+/// color other than the race's own, and an opponent's whose color the player picked while the opponents' box is, as it is
+/// by default: on the hull paint their model's tint map marks when the race paints its ships, or on the lights of the
+/// race's own hulls.
 /// </summary>
 [TestClass]
 public class HullColorTests : StarDriveTest
@@ -28,7 +29,7 @@ public class HullColorTests : StarDriveTest
     [DataRow("Model/Ships/Vulfen/ship14_d2.dds", "Model/Ships/Vulfen/ship14_t2.dds")]
     [DataRow("mod models/Vulfar/ship13_d_0.dds", "mod models/Vulfar/ship13_t_0.dds")]
     [DataRow("Model/Ships/Terran/ship07_altglow_d.dds", "Model/Ships/Terran/ship07_altglow_t.dds")]
-    [DataRow("Model/Ships/Kulrathi/SciFi_Ship_Escort-Diffuse.dds", null)]
+    [DataRow("Model/Ships/Kulrathi/SciFi_Ship_Escort-Diffuse.dds", "Model/Ships/Kulrathi/SciFi_Ship_Escort-Tint.dds")]
     [DataRow("Model/Ships/my_dir/hull.dds", null)]
     [DataRow("", null)]
     public void ATintMapSitsNextToItsDiffuseMapWithTForD(string diffuseMap, string tintMap)
@@ -36,18 +37,63 @@ public class HullColorTests : StarDriveTest
         Assert.AreEqual(tintMap, MeshInterface.TintMapFileOf(diffuseMap));
     }
 
-    // the shipped tint maps load with their models, and a model with none has none
+    // the shipped tint maps load with their models, marking the share of the texture their race paints; a model with none has none
     [TestMethod]
-    [DataRow("Model/Ships/Vulfen/TypeXIII.fbx", true)]
-    [DataRow("Model/Ships/Vulfen/TypeXIX.fbx", true)]
-    [DataRow("Model/Ships/Cordrazine/ship16e.fbx", false)]
-    [DataRow("Model/Ships/Terran/Battleship/Battleship.fbx", false)]
-    public void AShipModelTakesTheTintMapNextToItsDiffuseMap(string model, bool hasTintMap)
+    [DataRow("Model/Ships/Vulfen/TypeXIII.fbx", 0.069f)]
+    [DataRow("Model/Ships/Vulfen/TypeXIX.fbx", 0.069f)]
+    [DataRow("Model/Ships/Draylok/ship18c.fbx", 0.801f)]
+    [DataRow("Model/Ships/Ralyeh/ship17c.fbx", 0.301f)]
+    [DataRow("Model/Ships/Pollops/Fern.fbx", 0.818f)]
+    [DataRow("Model/Ships/Opteris/ship19d.fbx", 0.676f)]
+    [DataRow("Model/Ships/Kulrathi/ship11f.fbx", 0.700f)]
+    [DataRow("Model/Ships/Kulrathi/ship12d.fbx", 0.869f)]
+    [DataRow("Model/Ships/Kulrathi/Yamamoto.fbx", 0.337f)]
+    [DataRow("Model/Ships/Cordrazine/ship16e.fbx", 0f)]
+    [DataRow("Model/Ships/Terran/Battleship/Battleship.fbx", 0.042f)]
+    [DataRow("Model/Ships/Terran/SharedTextures/LightCruiser.fbx", 0.042f)]
+    [DataRow("Model/Ships/Terran/Hunter/Fighter1.fbx", 0.110f)]
+    [DataRow("Model/Ships/Terran/Caravan/Caravan.fbx", 0.058f)]
+    [DataRow("Model/Ships/Terran/Shuttle/ship08.fbx", 0.204f)]
+    public void AShipModelTakesTheTintMapNextToItsDiffuseMap(string model, float markedShare)
     {
         StaticMesh mesh = Content.LoadStaticMesh(model);
         LightingEffect fx = mesh.GetFirstEffect<LightingEffect>();
         Assert.IsNotNull(fx?.DiffuseMapTexture, $"setup: {model} loads with its diffuse map");
-        Assert.AreEqual(hasTintMap, fx.TintMapTexture != null, $"{model} tint map {fx.TintMapFile}");
+        Assert.AreEqual(markedShare > 0f, fx.TintMapTexture != null, $"{model} tint map {fx.TintMapFile}");
+        if (fx.TintMapTexture != null)
+            AssertEqual(0.002f, markedShare, MarkedShare(fx.TintMapTexture), $"{fx.TintMapFile} marks its whole region");
+    }
+
+    // a vanilla model's relative texture paths start at Content/, and its tint map is found with a mod running too
+    [TestMethod]
+    public void AVanillaModelFindsItsTintMapWithAModRunning()
+    {
+        try
+        {
+            GlobalStats.SetActiveModNoSave(new ModEntry(GamePlayGlobals.Deserialize(new System.IO.FileInfo("Mods/ExampleMod/Globals.yaml"))));
+            Assert.IsTrue(GlobalStats.HasMod, "setup: a mod is running");
+            using var content = new Ship_Game.Data.GameContentManager(Content.ServiceProvider, "ModTintMapTest");
+            StaticMesh mesh = content.LoadStaticMesh("Model/Ships/Terran/Gunboat/Gunboat.fbx");
+            LightingEffect fx = mesh.GetFirstEffect<LightingEffect>();
+            Assert.IsNotNull(fx?.DiffuseMapTexture, "setup: the Gunboat loads with its diffuse map");
+            StringAssert.StartsWith(fx.DiffuseMapFile, "Content/", "setup: its diffuse map path starts at Content/");
+            Assert.IsNotNull(fx.TintMapTexture, $"the Gunboat's tint map {fx.TintMapFile} loads under the mod");
+        }
+        finally
+        {
+            GlobalStats.SetActiveModNoSave(null);
+        }
+    }
+
+    static float MarkedShare(Microsoft.Xna.Framework.Graphics.Texture2D mask)
+    {
+        var texels = new Color[mask.Width * mask.Height];
+        mask.GetData(texels);
+        int marked = 0;
+        foreach (Color texel in texels)
+            if (texel.R > 127)
+                ++marked;
+        return marked / (float)texels.Length;
     }
 
     [TestMethod]
@@ -56,7 +102,10 @@ public class HullColorTests : StarDriveTest
         CreateUniverseAndPlayerEmpire("Vulfen", "Cordrazine");
         Assert.AreEqual(HullColorParts.Paint, Player.data.HullColors, "setup: Vulfen paint their hulls");
         Assert.AreEqual(HullColorParts.Lights, Enemy.data.HullColors, "setup: the Cordrazine color their lights");
-        Assert.AreEqual(new Vector4(Player.EmpireColor.ToVector3(), 1f), Player.HullTint, "both boxes are on by default: the player's ships take the empire color");
+        Assert.AreEqual(0f, Player.HullTint.W, "the player's box is off in a new game, so the player's ships keep their look");
+
+        UState.P.PlayerHullColors = true;
+        Assert.AreEqual(new Vector4(Player.EmpireColor.ToVector3(), 1f), Player.HullTint, "with it on the player's ships take the empire color");
         Assert.AreEqual(0f, Player.LightsTint("Vulfen").W, "on their paint, not their lights");
         Assert.AreEqual(0f, Enemy.LightsTint("Cordrazine").W, "an opponent whose color the player did not pick keeps its look");
 
@@ -82,6 +131,7 @@ public class HullColorTests : StarDriveTest
     public void TheCordrazineColorTheLightsOfTheirOwnHullsOnly()
     {
         CreateUniverseAndPlayerEmpire("Cordrazine", "Vulfen");
+        UState.P.PlayerHullColors = true;
         Assert.AreEqual(HullColorParts.Lights, Player.data.HullColors, "setup: the Cordrazine color their lights");
         Assert.AreEqual(new Vector4(Player.EmpireColor.ToVector3(), 1f), Player.LightsTint("Cordrazine"), "their own hulls' lights take the empire color");
         Assert.AreEqual(0f, Player.LightsTint("Vulfen").W, "a captured Vulfen hull keeps its lights");
@@ -91,12 +141,15 @@ public class HullColorTests : StarDriveTest
         Assert.AreEqual(0f, Player.LightsTint("Cordrazine").W, "with the box off their own lights keep their color too");
     }
 
-    // the race file's setting is never saved, so a loaded game takes it from the player's race
+    // the race file's setting is never saved, so a loaded game takes it from the player's race; the boxes load as saved, at their defaults or not
     [TestMethod]
-    public void ALoadedGameTakesItsHullColorsFromThePlayersRace()
+    [DataRow(true, false)]
+    [DataRow(false, true)]
+    public void ALoadedGameTakesItsHullColorsFromThePlayersRace(bool playerBox, bool opponentsBox)
     {
         CreateUniverseAndPlayerEmpire("Vulfen");
-        UState.P.PlayerHullColors = false;
+        UState.P.PlayerHullColors = playerBox;
+        UState.P.OpponentHullColors = opponentsBox;
         Player.data.HullColors = HullColorParts.None;
 
         UState.StarDate = 1001f; // past the start, so the load adds no starting ships
@@ -104,15 +157,15 @@ public class HullColorTests : StarDriveTest
         UniverseState loaded = LoadSave(save.SaveFile).UState;
 
         Assert.AreEqual(HullColorParts.Paint, loaded.Player.data.HullColors, "the Vulfen race file paints their hulls");
-        Assert.IsFalse(loaded.P.PlayerHullColors, "the player's box is saved with the game, here off");
-        Assert.IsTrue(loaded.P.OpponentHullColors, "and the opponents' box, here on");
+        Assert.AreEqual(playerBox, loaded.P.PlayerHullColors, "the player's box is saved with the game");
+        Assert.AreEqual(opponentsBox, loaded.P.OpponentHullColors, "and the opponents' box");
     }
 
     [TestMethod]
     public void AGameSavedBeforeTheHullColorBoxesLoadsWithBothOff()
     {
         var p = new UniverseParams(); // a load builds it as a new game does, then sets the fields its save has
-        Assert.IsTrue(p.PlayerHullColors && p.OpponentHullColors, "setup: built as for a new game, both boxes are on");
+        Assert.IsTrue(p.OpponentHullColors, "setup: built as for a new game, the opponents' box is on");
         p.OnDeserialized(); // a save from before the boxes has none of their fields
         Assert.IsFalse(p.PlayerHullColors, "a game saved before them loads with the player's box off");
         Assert.IsFalse(p.OpponentHullColors, "and the opponents' box off");
@@ -191,6 +244,7 @@ public class HullColorTests : StarDriveTest
     {
         LoadStarterShips("Terran-Prototype");
         CreateUniverseAndPlayerEmpire("Vulfen", "Cordrazine");
+        UState.P.PlayerHullColors = true;
         AssertEqual(0.001f, 1f, Player.HullTint.W, "setup: the player's ships are colored");
         TestShip ship = SpawnShip("Terran-Prototype", Enemy, new Vector2(1000f, 1000f));
         SceneObject so = GiveSceneObject(ship);
@@ -220,6 +274,7 @@ public class HullColorTests : StarDriveTest
     {
         LoadStarterShips("Cordrazine Small Station Mk1", "Terran-Prototype");
         CreateUniverseAndPlayerEmpire("Cordrazine");
+        UState.P.PlayerHullColors = true;
         TestShip own = SpawnShip("Cordrazine Small Station Mk1", Player, new Vector2(1000f, 1000f));
         TestShip other = SpawnShip("Terran-Prototype", Player, new Vector2(5000f, 1000f));
         Assert.AreEqual("Cordrazine", own.ShipData.BaseHull.Style, "setup: a Cordrazine hull");
@@ -237,6 +292,7 @@ public class HullColorTests : StarDriveTest
     {
         LoadStarterShips("Cordrazine Small Station Mk1");
         CreateUniverseAndPlayerEmpire("Cordrazine");
+        UState.P.PlayerHullColors = true;
         Universe.Particles = new ParticleManager(Content);
         Universe.Frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(0, 1_000_000, 1_000_000, 0, -10_000, 10_000));
         UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
@@ -264,6 +320,7 @@ public class HullColorTests : StarDriveTest
     public void ASpacePortBuiltWithItsRacesModelLightsUpInTheOwnersColor(bool raceModel)
     {
         CreateUniverseAndPlayerEmpire("Cordrazine");
+        UState.P.PlayerHullColors = true;
         if (!raceModel)
             Player.data.SpacePortModel = null;
         Planet home = AddHomeWorldToEmpire(new Vector2(400_000f), Player);
@@ -283,6 +340,7 @@ public class HullColorTests : StarDriveTest
     public void ASpacePortTakesItsOwnersColorsAsAHullOfItsModelsRace(string modelStyle, float lit)
     {
         CreateUniverseAndPlayerEmpire("Cordrazine");
+        UState.P.PlayerHullColors = true;
         Planet home = AddHomeWorldToEmpire(new Vector2(400_000f), Player);
         var station = new SpaceStation();
         var so = new SceneObject("station");

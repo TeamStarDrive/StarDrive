@@ -84,7 +84,7 @@ public class UniverseParams
     [StarData] public bool DisableSalvageWarning;
     [StarData] public bool DisableBoardingWarning;
     [StarData] public bool DisableTechLeechWarning;
-    [StarData(DefaultValue=true)] public bool PlayerHullColors = true;
+    [StarData] public bool PlayerHullColors; // off in a new game until the player takes a color other than the race's own
     [StarData(DefaultValue=true)] public bool OpponentHullColors = true;
     [StarData] bool SavedWithHullColors; // set as it is saved, so a game saved before the hull color boxes loads with both off
     [StarData] public bool PrioitizeProjectors;

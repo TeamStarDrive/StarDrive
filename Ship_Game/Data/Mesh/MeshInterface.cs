@@ -592,7 +592,7 @@ namespace Ship_Game.Data.Mesh
             fx.NormalMapTexture = TryLoadTexture(content, fx.NormalMapFile);
             fx.SpecularColorMapTexture = TryLoadTexture(content, fx.SpecularColorMapFile);
             fx.TintMapFile = TintMapFileOf(fx.DiffuseMapFile);
-            if (fx.TintMapFile != null && File.Exists(RawContentLoader.GetContentPath(fx.TintMapFile)))
+            if (fx.TintMapFile != null && TintMapExists(fx.TintMapFile))
                 fx.TintMapTexture = TryLoadTexture(content, fx.TintMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
@@ -628,13 +628,26 @@ namespace Ship_Game.Data.Mesh
 
         static readonly System.Text.RegularExpressions.Regex DiffuseMapSuffix =
             new(@"_d(\d*(?:_\d+)?)(\.[^./\\]+)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        static readonly System.Text.RegularExpressions.Regex DiffuseMapWord =
+            new(@"-Diffuse(\.[^./\\]+)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-        // a model's tint map sits next to its diffuse map with "_t" for the diffuse's "_d": ship14_d.dds -> ship14_t.dds, ship13_d_0.dds -> ship13_t_0.dds
+        // a model's tint map sits next to its diffuse map with "_t" for its "_d" or "-Tint" for its "-Diffuse": ship13_d_0.dds -> ship13_t_0.dds
         public static string TintMapFileOf(string diffuseMapFile)
         {
-            if (diffuseMapFile.IsEmpty() || !DiffuseMapSuffix.IsMatch(diffuseMapFile))
+            if (diffuseMapFile.IsEmpty())
                 return null;
-            return DiffuseMapSuffix.Replace(diffuseMapFile, "_t$1$2");
+            if (DiffuseMapSuffix.IsMatch(diffuseMapFile))
+                return DiffuseMapSuffix.Replace(diffuseMapFile, "_t$1$2");
+            if (DiffuseMapWord.IsMatch(diffuseMapFile))
+                return DiffuseMapWord.Replace(diffuseMapFile, "-Tint$1");
+            return null;
+        }
+
+        // a path the model's folder gave may already start at Content/, which the content lookup adds itself after trying a running mod's file
+        static bool TintMapExists(string tintMapFile)
+        {
+            string name = tintMapFile.StartsWith("Content/", StringComparison.OrdinalIgnoreCase) ? tintMapFile.Substring("Content/".Length) : tintMapFile;
+            return File.Exists(RawContentLoader.GetContentPath(name));
         }
 
         static Texture2D TryLoadTexture(GameContentManager content, string texturePath)
