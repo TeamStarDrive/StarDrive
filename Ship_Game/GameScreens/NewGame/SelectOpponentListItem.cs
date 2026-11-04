@@ -8,11 +8,11 @@ namespace Ship_Game
 {
     public class SelectOpponentListItem : ScrollListItem<SelectOpponentListItem>
     {
-        public SelectOpponentsScreen Screen;
+        public GameSetupScreen Screen;
         public IEmpireData EmpireData;
         public SubTexture Portrait;
 
-        public SelectOpponentListItem(SelectOpponentsScreen screen, IEmpireData empireData)
+        public SelectOpponentListItem(GameSetupScreen screen, IEmpireData empireData)
         {
             Screen = screen;
             EmpireData = empireData;
@@ -22,8 +22,6 @@ namespace Ship_Game
         bool Chosen => Screen.Params.SelectedOpponents.Contains(EmpireData);
 
         Rectangle FlagRect => new((int)Right - 120, (int)CenterY - 40, 80, 80);
-        static Rectangle LeftArrow(in Rectangle flag) => new(flag.X - 20, flag.CenterY() - 10, 20, 20);
-        static Rectangle RightArrow(in Rectangle flag) => new(flag.Right, flag.CenterY() - 10, 20, 20);
 
         public override bool HandleInput(InputState input)
         {
@@ -35,12 +33,12 @@ namespace Ship_Game
                     Screen.PickColor(EmpireData);
                     return true;
                 }
-                if (LeftArrow(flag).HitTest(input.CursorPosition))
+                if (GameSetupScreen.FlagLeftArrow(flag).HitTest(input.CursorPosition))
                 {
                     Screen.StepFlag(EmpireData, -1);
                     return true;
                 }
-                if (RightArrow(flag).HitTest(input.CursorPosition))
+                if (GameSetupScreen.FlagRightArrow(flag).HitTest(input.CursorPosition))
                 {
                     Screen.StepFlag(EmpireData, +1);
                     return true;
@@ -64,10 +62,7 @@ namespace Ship_Game
 
             (Color color, int flagIndex) = Screen.LookOf(EmpireData);
             batch.DrawRectangle(portrait, color, thickness: 2);
-            Rectangle flag = FlagRect;
-            batch.Draw(ResourceManager.Flag(flagIndex), flag, color);
-            batch.Draw(ResourceManager.Texture("UI/leftArrow"), LeftArrow(flag), Color.BurlyWood);
-            batch.Draw(ResourceManager.Texture("UI/rightArrow"), RightArrow(flag), Color.BurlyWood);
+            GameSetupScreen.DrawFlag(batch, FlagRect, flagIndex, color);
         }
     }
 }

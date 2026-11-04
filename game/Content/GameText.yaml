@@ -8051,18 +8051,18 @@ InhibitionAlertsAreDisplayedWhen:
  RUS: "Предупреждения о запрете отображаются, когда выбран один корабль, и он заблокирован. Обычно он предназначен для начинающих игроков и по умолчанию будет отключен при запуске игры на сложности выше «Тяжелый»."
  UKR: "Сповіщення про блокування з'являються, коли вибрано один корабель і він заблокований. Зазвичай воно призначене для гравців-початківців і за замовчуванням вимкнене, коли ви починаєте гру на рівні, вищому за «Важкий»."
  PTB: "Alertas de Inibição são exibidos quando uma única nave está selecionada e está inibida. Em geral, isso é destinado a jogadores novatos e ficará desativado por padrão ao iniciar uma partida acima do Difícil."
-DisableRemnantStory:
+RemnantStoryExtension:
  Id: 1844
- ENG: "Disable Remnant Story"
- RUS: "Отключить Историю Предтечь"
- UKR: "Вимкнути історію Древніх"
- PTB: "Desativar História dos Remanescentes"
-IfCheckedRemnantForcesIn:
+ ENG: "Remnant Story"
+ RUS: "История Предтеч"
+ UKR: "Історія Древніх"
+ PTB: "História dos Remanescentes"
+RemnantStoryExtensionTip:
  Id: 1845
- ENG: "If checked, Remnant forces in the game will act as passive planet Guardians only."
- RUS: "Если этот флажок установлен,то войска Преддечь в игре будут действовать только как пассивные стражи планет."
- UKR: "Якщо відмічено, то сили Древніх у грі діятимуть лише як пасивні охоронці планети."
- PTB: "Se marcado, as forças Remanescentes na partida atuarão apenas como Guardiões planetários passivos."
+ ENG: "The Remnants follow a story and can expand. Unticked, they act only as passive guardians of their planets."
+ RUS: "Предтечи следуют своей истории и могут расширяться. Если снять флажок, они будут лишь пассивными стражами своих планет."
+ UKR: "Древні дотримуються своєї історії та можуть розширюватися. Якщо зняти позначку, вони будуть лише пасивними охоронцями своїх планет."
+ PTB: "Os Remanescentes seguem uma história e podem se expandir. Desmarcado, eles agem apenas como guardiões passivos de seus planetas."
 RemnantTitanEngine:
  Id: 1846
  ENG: "Remnant Titan Engine"
@@ -8203,18 +8203,18 @@ RawMineralsWereDiscoverednmineralRichness:
  RUS: "- Минералы обнаружены.\nМинеральное богатство увеличено на"
  UKR: "- Виявлено корисні копалини.\nБагатство корисних копалин збільшилося на"
  PTB: "- Minerais brutos foram descobertos.\nA Riqueza Mineral aumentou em"
-DisablePirates:
+PiratesExtension:
  Id: 1868
- ENG: "Disable Pirates"
- RUS: "Отключить Пиратов"
- UKR: "Вимкнути піратів"
- PTB: "Desativar Piratas"
-DisablesAllPirateFactionsFor:
+ ENG: "Pirates"
+ RUS: "Пираты"
+ UKR: "Пірати"
+ PTB: "Piratas"
+PiratesExtensionTip:
  Id: 1869
- ENG: "Disables all pirate factions for this game."
- RUS: "Отключает все пиратские фракции в этой игре."
- UKR: "Вимикає всі піратські фракції для цієї гри."
- PTB: "Desativa todas as facções piratas para esta partida."
+ ENG: "Pirate factions take part in this game. Unticked, there are no pirates."
+ RUS: "В этой игре участвуют пиратские фракции. Если снять флажок, пиратов не будет."
+ UKR: "У цій грі беруть участь піратські фракції. Якщо зняти позначку, піратів не буде."
+ PTB: "Facções piratas participam desta partida. Desmarcado, não há piratas."
 ClearBuildableItemsFilter:
  Id: 1870
  ENG: "Clears the buildable items filter."
@@ -15574,30 +15574,30 @@ EmpireRefiningEfficiency:
  RUS: "Имперский модификатор эффективности переработки"
  UKR: "Модифікатор ефективності нафтопереробки"
  PTB: "Modificador de Eficiência de Refino"
-DisableResearchStationsName: 
+ResearchStationsExtension:
  Id: 4487
- ENG: "Disable Research Stations"
- RUS: "Отключить Научные станции"
- UKR: "Вимкнути дослідницькі станції"
- PTB: "Desativar Estações de Pesquisa"
-DisableResearchStationsTip: 
+ ENG: "Research Stations"
+ RUS: "Научные станции"
+ UKR: "Дослідницькі станції"
+ PTB: "Estações de Pesquisa"
+ResearchStationsExtensionTip:
  Id: 4488
- ENG: "The game will not have researchable planets and therefore, no research stations."  
- RUS: "В игре не будет исследуемых планет, следовательно - и Научных станций."
- UKR: "У грі не буде планет, які дають дослідження на орбіті і, відповідно, дослідницьких станцій."
- PTB: "O jogo não terá planetas pesquisáveis e, portanto, não haverá estações de pesquisa."
-DisableMiningOpsName: 
+ ENG: "The galaxy has researchable planets and stars to place research stations at. Unticked, there are none."
+ RUS: "В галактике есть исследуемые планеты и звёзды для научных станций. Если снять флажок, их не будет."
+ UKR: "У галактиці є планети та зорі, які можна досліджувати дослідницькими станціями. Якщо зняти позначку, їх не буде."
+ PTB: "A galáxia tem planetas e estrelas pesquisáveis para estações de pesquisa. Desmarcado, não há nenhum."
+MiningOpsExtension:
  Id: 4489
- ENG: "Disable Mining Ops" 
- RUS: "Отключить Горные операции"
- UKR: "Вимкнути Mining Ops"
- PTB: "Desativar Operações de Mineração"
-DisableMiningOpsTip: 
+ ENG: "Mining Ops"
+ RUS: "Горные операции"
+ UKR: "Гірничодобувні операції"
+ PTB: "Operações de Mineração"
+MiningOpsExtensionTip:
  Id: 4490
- ENG: "The game will not have mineable planets and therefore, no Mining Ops."   
- RUS: "В игре не будет планет, пригодных для добычи, следовательно - и Горных операций."
- UKR: "У грі не буде планет, придатних для видобутку корисних копалин на орбіті, а отже, не буде гірничодобувних операцій."
- PTB: "O jogo não terá planetas mineráveis e, portanto, não haverá Operações de Mineração."
+ ENG: "The galaxy has mineable planets for Mining Ops. Unticked, there are none."
+ RUS: "В галактике есть планеты, пригодные для Горных операций. Если снять флажок, их не будет."
+ UKR: "У галактиці є планети, придатні для гірничодобувних операцій. Якщо зняти позначку, їх не буде."
+ PTB: "A galáxia tem planetas mineráveis para Operações de Mineração. Desmarcado, não há nenhum."
 ExoticResourceBonusTip: 
  Id: 4491
  ENG: "Current bonus your empire gets per exotic resource with color coding:\nGold: The maximum bonus was reached.\nGreen: The bonus rate increased from last turn.\nRed: The bonus rate decreased from last turn.\nWhite: Unchanged bonus from last turn.\nGray: bonus is not yet possible to achieve."    
@@ -18440,16 +18440,18 @@ RefitInFleetTip:
  ENG: "All Ships of the same type in the selected ship's fleet will be refitted."    
  RUS: "Все корабли того же типа в выбранном флоте будут переоснащены."
  PTB: "Todas as Naves do mesmo tipo na frota da nave selecionada serão reequipadas."
-UseLegacyEspionage:
+InfiltrationExtension:
  Id: 6226
- ENG: "Enable Legacy Espionage"    
- RUS: "Включить классическую систему шпионажа"
- PTB: "Ativar Espionagem Clássica"
-UseLegacyEspionageTip:
+ ENG: "Infiltration"
+ RUS: "Внедрение"
+ UKR: "Проникнення"
+ PTB: "Infiltração"
+InfiltrationExtensionTip:
  Id: 6227
- ENG: "Enable Legacy Espionage (Agents) instead of the rewritten system (Infiltration Levels)"    
- RUS: "Включает «классических Агентов» вместо переписанной системы (Уровни Внедрения)."
- PTB: "Ativa a Espionagem Clássica (Agentes) em vez do sistema refeito (Níveis de Infiltração)"
+ ENG: "Espionage works through infiltration levels in each empire you meet. Unticked, the legacy agent system of the original game is used instead."
+ RUS: "Шпионаж работает через уровни внедрения в каждую встреченную империю. Если снять флажок, используется классическая система агентов из оригинальной игры."
+ UKR: "Шпигунство працює через рівні проникнення в кожну зустрінуту імперію. Якщо зняти позначку, використовується класична система агентів з оригінальної гри."
+ PTB: "A espionagem funciona por níveis de infiltração em cada império que você conhece. Desmarcado, usa-se o sistema clássico de agentes do jogo original."
 InfiltrationDefesneTip:
  Id: 6228
  ENG: "Indicates budget weight invested in Infiltration Defense by this empire. The higher the percentage, the slower they can progress in setting up spy networks within their empire, but the better they defend against offensive spy operations. Increased budget will also affect this. 100% means the invest all their Espionage points in defense but this does not guarantee immunity to offensive operations."
@@ -19844,18 +19846,18 @@ ModInstallUnfinished:
 ColonistsPerCargoUnit:
  Id: 7123
  ENG: "Colonists per Cargo Unit"
-DisableSalvageOpsName:
+SalvageOpsExtension:
  Id: 7124
- ENG: "Disable Salvage Ops"
- RUS: "Отключить операции утилизации"
- UKR: "Вимкнути операції утилізації"
- PTB: "Desativar Operações de Salvamento"
-DisableSalvageOpsTip:
+ ENG: "Salvage Ops"
+ RUS: "Операции утилизации"
+ UKR: "Операції утилізації"
+ PTB: "Operações de Salvamento"
+SalvageOpsExtensionTip:
  Id: 7125
- ENG: "Every derelict drifts and sinks away, so there are no wrecks to salvage."
- RUS: "Все брошенные корабли дрейфуют и исчезают, так что утилизировать нечего."
- UKR: "Усі покинуті кораблі дрейфують і зникають, тож утилізувати нічого."
- PTB: "Toda nave abandonada fica à deriva e desaparece, então não há destroços para salvar."
+ ENG: "Some derelicts come to rest in their systems and can be salvaged. Unticked, every derelict drifts and sinks away."
+ RUS: "Часть брошенных кораблей останавливается в своих системах, и их можно утилизировать. Если снять флажок, все они дрейфуют и исчезают."
+ UKR: "Частина покинутих кораблів зупиняється у своїх системах, і їх можна утилізувати. Якщо зняти позначку, усі вони дрейфують і зникають."
+ PTB: "Algumas naves abandonadas param em seus sistemas e podem ser salvas. Desmarcado, toda nave abandonada fica à deriva e desaparece."
 DisableSalvageOpsModTip:
  Id: 7126
  ENG: "Salvage ops are off: EnableSalvageOps is false in Globals.yaml, or the mod has no salvage content."
@@ -20573,6 +20575,42 @@ OpponentsHullColorTip:
  RUS: "Корабли ваших соперников принимают цвет своей империи, на окраске корпуса или на огнях, в зависимости от своей расы. Так окрашиваются корабли лишь некоторых рас."
  UKR: "Кораблі ваших суперників набувають кольору своєї імперії, на фарбуванні корпусу або на вогнях, залежно від своєї раси. Так фарбуються кораблі лише деяких рас."
  PTB: "As naves dos seus oponentes recebem a cor do próprio império, na pintura do casco ou nas luzes, conforme a própria raça. Apenas as naves de algumas raças são coloridas assim."
+GameSetup:
+ Id: 7277
+ ENG: "Game Setup"
+ RUS: "Настройка игры"
+ UKR: "Налаштування гри"
+ PTB: "Configuração do Jogo"
+YourEmpire:
+ Id: 7278
+ ENG: "Your Empire"
+ RUS: "Ваша империя"
+ UKR: "Ваша імперія"
+ PTB: "Seu Império"
+Galaxy:
+ Id: 7279
+ ENG: "Galaxy"
+ RUS: "Галактика"
+ UKR: "Галактика"
+ PTB: "Galáxia"
+GameExtensions:
+ Id: 7280
+ ENG: "Game Extensions"
+ RUS: "Расширения игры"
+ UKR: "Розширення гри"
+ PTB: "Extensões do Jogo"
+Back:
+ Id: 7281
+ ENG: "Back"
+ RUS: "Назад"
+ UKR: "Назад"
+ PTB: "Voltar"
+ChooseOpponentsHint:
+ Id: 7282
+ ENG: "Choose the opponents you want to play against, or leave the places open for random ones."
+ RUS: "Выберите соперников, с которыми хотите играть, или оставьте места для случайных."
+ UKR: "Оберіть суперників, з якими хочете грати, або залиште місця для випадкових."
+ PTB: "Escolha os oponentes contra quem quer jogar, ou deixe as vagas para oponentes aleatórios."
 EncCorsairs000_Msg0:
  ENG: "Dearest SING friends,\n\nWe are delighted to see your empire's progress. Isn't this exciting, to colonize new worlds and struggle with unknown environment? However, all these little freighters, moving from planet to planet like loyal bees are so exposed out there in deep space.\n\nSo we have a proposal for you. You will pay us MONEY credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.\n\nRegards,\n    Captain Martok, Independent Trader and Gentleman"
  RUS: "Дорогие друзья SING,\n\nМы рады видеть прогресс вашей империи. Разве это не захватывающе - колонизировать новые миры и бороться с неизвестной средой? Однако все эти маленькие транспорты, курсирующие от планеты к планете, как послушные пчёлки, слишком уязвимы в глубоком космосе.\n\nПоэтому у нас есть предложение. Вы прямо сейчас заплатите нам MONEY кредитов. Если согласитесь, мы можем пообещать определённый уровень «защиты» для кораблей SING. Если нет - увы, мы ничего обещать не можем.\n\nС уважением,\n    Капитан Марток, независимый торговец и джентльмен"
@@ -23835,7 +23873,7 @@ CodexEspionageAgentsOverviewShort:
  PTB: "Visão geral do uso de Agentes"
 CodexEspionageAgentsOverviewText:
  Id: 100121
- ENG: "Legacy espionage runs when the Legacy Espionage rule option is on. It works through agents you recruit on the Espionage screen, opened by the Espionage Management button (E).\n\n<color=Caption>Recruiting</color>\n<li>An agent costs 200 credits and starts a 25-turn training mission that costs 50 more, so the button shows 250 and needs that much in the treasury.</li>\n<li>You may hold three agents, or one per three colonies if that is more. The lock icon shows how many slots remain.</li>\n<li>Missions can be given to defending agents and to undercover ones. Training is refused to agents of level 3 or higher.</li>\n\n<color=Caption>Levels</color>\nAgents start at level 1 and gain experience from mission outcomes, not levels directly. The next level costs twice the current level in experience: 2 points to reach level 2, 4 to reach level 3, and so on to level 10. An agent that earns past level 10 retires, and every agent below level 6 gains a level from its tutoring. The Repeat Missions box sends an agent back on the same mission when it finishes, paying the fee again and skipping the repeat when the treasury cannot cover it; training repeats only until level 3.\n\n<color=Caption>Defending</color>\nAgents with no mission defend. Your spy defense is the sum of the defending agents' levels times 3, divided by your colonies over three (at least 1), plus your racial spy modifier and any defensive bonus from research. It is subtracted from every enemy agent's roll against you, and one defending agent gains a point of experience whenever an enemy mission ends with the agent injured or dead.\n\n<color=Caption>Injuries and consequences</color>\nA bad failure injures the agent: it recovers for 20 turns, then returns to defending, or goes back on its mission at full fee if Repeat Missions is on. A critical failure kills it. Most detected outcomes also damage relations with the victim, who is told who sent the agent; the amounts under Agent Missions are base values that an AI scales by its personality and the difficulty. See Espionage Calculations for the roll and Agent Missions for each mission."
+ ENG: "Legacy espionage runs when the Infiltration box was unticked as the game was set up. It works through agents you recruit on the Espionage screen, opened by the Espionage Management button (E).\n\n<color=Caption>Recruiting</color>\n<li>An agent costs 200 credits and starts a 25-turn training mission that costs 50 more, so the button shows 250 and needs that much in the treasury.</li>\n<li>You may hold three agents, or one per three colonies if that is more. The lock icon shows how many slots remain.</li>\n<li>Missions can be given to defending agents and to undercover ones. Training is refused to agents of level 3 or higher.</li>\n\n<color=Caption>Levels</color>\nAgents start at level 1 and gain experience from mission outcomes, not levels directly. The next level costs twice the current level in experience: 2 points to reach level 2, 4 to reach level 3, and so on to level 10. An agent that earns past level 10 retires, and every agent below level 6 gains a level from its tutoring. The Repeat Missions box sends an agent back on the same mission when it finishes, paying the fee again and skipping the repeat when the treasury cannot cover it; training repeats only until level 3.\n\n<color=Caption>Defending</color>\nAgents with no mission defend. Your spy defense is the sum of the defending agents' levels times 3, divided by your colonies over three (at least 1), plus your racial spy modifier and any defensive bonus from research. It is subtracted from every enemy agent's roll against you, and one defending agent gains a point of experience whenever an enemy mission ends with the agent injured or dead.\n\n<color=Caption>Injuries and consequences</color>\nA bad failure injures the agent: it recovers for 20 turns, then returns to defending, or goes back on its mission at full fee if Repeat Missions is on. A critical failure kills it. Most detected outcomes also damage relations with the victim, who is told who sent the agent; the amounts under Agent Missions are base values that an AI scales by its personality and the difficulty. See Espionage Calculations for the roll and Agent Missions for each mission."
 CodexDiplomacyEspionageCalculations:
  Id: 100122
  ENG: "Espionage Calculations"
@@ -24003,7 +24041,7 @@ CodexAutomationAlertsShort:
  ENG: "Which notifications the boxes on the Alerts tab show, and the two hull color boxes"
 CodexAutomationAlertsText:
  Id: 100173
- ENG: "The Alerts tab of the automation window has a box for each alert below; a ticked box means the alert is shown. Its last two boxes, Your Hull Color and Opponents' Hull Color, are not alerts.\n\n<color=Caption>Building alerts</color>A notification arrives when a building you queued yourself, or a capital, is finished, unless you are looking at that colony at the time. Unticking the box silences those. Buildings the governor queued, or whose lock you removed while they were queued, never notify.\n\n<color=Caption>Inhibition alerts</color>The Inhibited flag drawn on a selected ship held by a gravity well. A ship stopped by enemy inhibitors or a flux event shows only its status icon, which this box does not touch. The flag is also hidden while the FTL overlay is up. Off by default when starting above Hard.\n\n<color=Caption>Volcano alerts</color>Notifications when a volcano becomes active, calms after an eruption, or goes dormant on any world you own or have troops on, and when a lava pool hardens into a bare tile on a world you own. The eruption itself, a lava pool hardening into a new building, and a building lost to lava are always reported.\n\n<color=Caption>Ship crash alerts</color>Notifications when a ship crashes on one of your planets, or on an explored planet within sensor range of one of your ships. With them off you still hear when a crashed ship is actually recovered.\n\n<color=Caption>Boarding alerts</color>A notification when one of your ships is captured by boarding, one when you capture a ship by boarding, and one for each platform or station that comes with a planet you take. A pirate mutiny, won or put down, is always reported, and the box does not cover ships handed over to you.\n\n<color=Caption>Station built alerts</color>A notification when one of your research or mining stations has been built.\n\n<color=Caption>Derelict alerts</color>A notification when you learn of salvageable derelicts in a system where you knew of none. This box and the next show only in games with salvage ops on.\n\n<color=Caption>Salvage alerts</color>A notification when one of your salvage platforms has sent its salvage ship its last load, listing the production its loads brought and the research points each technology gained, whether the derelict was stripped empty or you called the salvage off; one when your salvage of a derelict ends early: its platform destroyed, another empire starting on the derelict first, or the derelict sinking away before your platform was built; one when its salvage ship is lost; one when a salvage ship is lost with production aboard; and one with the outcome of each of your recoveries: the ship recovered, or the derelict broken apart or blown up. Losing the platform or the salvage ship once the roll has succeeded tells nothing, as the ship still comes. Calling off a recovery brings none, and a platform boarded by pirates brings only the boarding alert that a ship of yours was captured.\n\n<color=Caption>Starvation alerts</color>A notification the moment a colony starts to starve. Off by default.\n\n<color=Caption>Tech leech alerts</color>A notification each time your spy network gains you research progress on a technology another empire has just finished; see What Each Level Gives. The research alert still comes when that progress completes the technology. The Espionage screen's Disable Messages box also silences these alerts. This box is hidden in games played with legacy espionage.\n\n<color=Caption>Your hull color</color>Ticked, your ships and your colonies' space ports take your empire color, on their hull paint or on their lights depending on your race, and so do the derelicts your ships leave behind. A ship you capture takes it on the paint its hull carries for it when your race colors paint; lights change only on your own race's hulls. Only some races' ships are colored this way; if yours are not, the box changes nothing.\n\n<color=Caption>Opponents' hull color</color>Ticked, the empires you play against do the same, each in its own color. Pirates, Remnants and rebels keep their look. Both boxes are on in a new game; a game saved before they existed loads with them off.\n\n<color=Caption>Picking opponents' colors</color>Both boxes are also on the Select Opponents screen before a game starts. There each opponent you choose shows its flag in its color: click the flag to pick another color, or its arrows for another flag. An opponent you drop and choose again shows its race's own."
+ ENG: "The Alerts tab of the automation window has a box for each alert below; a ticked box means the alert is shown. Its last two boxes, Your Hull Color and Opponents' Hull Color, are not alerts.\n\n<color=Caption>Building alerts</color>A notification arrives when a building you queued yourself, or a capital, is finished, unless you are looking at that colony at the time. Unticking the box silences those. Buildings the governor queued, or whose lock you removed while they were queued, never notify.\n\n<color=Caption>Inhibition alerts</color>The Inhibited flag drawn on a selected ship held by a gravity well. A ship stopped by enemy inhibitors or a flux event shows only its status icon, which this box does not touch. The flag is also hidden while the FTL overlay is up. Off by default when starting above Hard.\n\n<color=Caption>Volcano alerts</color>Notifications when a volcano becomes active, calms after an eruption, or goes dormant on any world you own or have troops on, and when a lava pool hardens into a bare tile on a world you own. The eruption itself, a lava pool hardening into a new building, and a building lost to lava are always reported.\n\n<color=Caption>Ship crash alerts</color>Notifications when a ship crashes on one of your planets, or on an explored planet within sensor range of one of your ships. With them off you still hear when a crashed ship is actually recovered.\n\n<color=Caption>Boarding alerts</color>A notification when one of your ships is captured by boarding, one when you capture a ship by boarding, and one for each platform or station that comes with a planet you take. A pirate mutiny, won or put down, is always reported, and the box does not cover ships handed over to you.\n\n<color=Caption>Station built alerts</color>A notification when one of your research or mining stations has been built.\n\n<color=Caption>Derelict alerts</color>A notification when you learn of salvageable derelicts in a system where you knew of none. This box and the next show only in games with salvage ops on.\n\n<color=Caption>Salvage alerts</color>A notification when one of your salvage platforms has sent its salvage ship its last load, listing the production its loads brought and the research points each technology gained, whether the derelict was stripped empty or you called the salvage off; one when your salvage of a derelict ends early: its platform destroyed, another empire starting on the derelict first, or the derelict sinking away before your platform was built; one when its salvage ship is lost; one when a salvage ship is lost with production aboard; and one with the outcome of each of your recoveries: the ship recovered, or the derelict broken apart or blown up. Losing the platform or the salvage ship once the roll has succeeded tells nothing, as the ship still comes. Calling off a recovery brings none, and a platform boarded by pirates brings only the boarding alert that a ship of yours was captured.\n\n<color=Caption>Starvation alerts</color>A notification the moment a colony starts to starve. Off by default.\n\n<color=Caption>Tech leech alerts</color>A notification each time your spy network gains you research progress on a technology another empire has just finished; see What Each Level Gives. The research alert still comes when that progress completes the technology. The Espionage screen's Disable Messages box also silences these alerts. This box is hidden in games played with legacy espionage.\n\n<color=Caption>Your hull color</color>Ticked, your ships and your colonies' space ports take your empire color, on their hull paint or on their lights depending on your race, and so do the derelicts your ships leave behind. A ship you capture takes it on the paint its hull carries for it when your race colors paint; lights change only on your own race's hulls. Only some races' ships are colored this way; if yours are not, the box changes nothing.\n\n<color=Caption>Opponents' hull color</color>Ticked, the empires you play against do the same, each in its own color. Pirates, Remnants and rebels keep their look. Both boxes are on in a new game; a game saved before they existed loads with them off.\n\n<color=Caption>Picking colors before a game</color>Both boxes are also on the Game Setup screen before a game starts, Your Hull Color under your empire and Opponents' Hull Color under the opponents. There your empire and each opponent you choose show their flag in their color: click a flag to pick another color, or its arrows for another flag. An opponent you drop and choose again shows its race's own."
 CodexOverviewMapOverlays:
  Id: 100174
  ENG: "Map Overlays"
@@ -24033,13 +24071,13 @@ CodexOverviewRuleOptionsShort:
  ENG: "What each rule on the advanced options panel changes"
 CodexOverviewRuleOptionsText:
  Id: 100182
- ENG: "These are the settings you pick in the Rule Options screen before a new game begins, and they cannot be changed once it has started. Leaving them alone gives the standard game; they are here for when you want a slower pace, a different galaxy, or a feature switched off entirely.\n\n<color=Caption>Pace and travel</color>\n<li>Seconds per turn: how much real time one turn takes, 5 by default. Food, production, research and money are settled once a turn, and everything paced in turns, such as when an idle freighter is scrapped, stretches or shrinks in real time with it.</li>\n<li>In-system FTL speed: warp speed anywhere inside a solar system, 100% by default. Inside the projector influence of your own empire, an ally or a trade partner, ships gain their in-borders bonus on top, half again as fast for most races.</li>\n<li>Hostile influence FTL speed: warp speed inside the projector influence of an empire you are at war with, in a system or in deep space, 50% by default. Inside a system the two penalties multiply.</li>\n<li>Gravity well radius: how far from a planet a ship must be to warp, 8000 by default, scaled up for larger planets. See Map Overlays for what a well does.</li>\n\n<color=Caption>Empires and the AI</color>\n<li>Prevent AI federations: from stardate 1100, every ten stardates, an AI that finds you holding half of all score and twice its own may absorb a weaker AI it knows, by merger or surrender, and declare war on you. This box stops that check. AI empires can still merge through a long alliance or a lost war.</li>\n<li>Fixed ship and building cost: above Normal difficulty the credit charge on ships and military buildings stays at the Normal rate rather than rising with the difficulty.</li>\n<li>AI uses player designs: designs you have saved become candidates for AI empires as well, when they suit the AI's needs. Good player designs can carry the AI further than its own.</li>\n<li>Disable alternate AI traits: each AI race normally draws one of several trait sets at the start of a game. With this on it always uses the set shown in the race design screen.</li>\n<li>Legacy espionage: the agent system from the original game replaces infiltration levels.</li>\n\n<color=Caption>Features you can switch off</color>\n<li>Pirates: every pirate faction starts the game defeated.</li>\n<li>Remnant story: the Remnants pick no story and never expand, and act only as guardians of the planets they were placed at. Without a story the presence roll at galaxy creation runs a little higher, so expect a few more guardians.</li>\n<li>Research stations: no planet or star is generated as researchable, so there is nothing to place a research station at.</li>\n<li>Mining ops: no gas giant holds an exotic resource, so there is nothing to mine, and the Mining Ships Speed, Refining Efficiency and Exotic Storage technologies are hidden.</li>\n<li>Salvage ops: every derelict drifts and sinks away, so none stays in a system to be salvaged, and the Salvage Ships and Salvage Speed technologies are hidden. While salvage ops are off in Globals.yaml (EnableSalvageOps), or in a mod without salvage content, this box stays ticked and cannot be unticked.</li>\n\n<color=Caption>Planets and economy</color>\n<li>Extra planets: raises the number of planet rings each system rolls, from 0 to 3, and makes lone stars rarer. Each step also raises the settings side of the research cost modifier by 25%, lowers the chance of researchable and mineable planets, and speeds the Remnants a little.</li>\n<li>Starting richness bonus: added to the mineral richness of every planet an empire starts with.</li>\n<li>Mineral decay rate: multiplies the chance, each turn, that a planet loses richness for the production it puts out. The base chance also depends on difficulty.</li>\n<li>Volcanic activity: multiplies the chance a volcano wakes, rolled per volcano when it forms and again after each eruption calms. An awake volcano erupts at ten times that chance and goes dormant at five times it. Heavy bombardment can create volcanoes, and this setting caps how likely a single bomb is to do so.</li>\n<li>Maintenance multiplier: multiplies the upkeep of every ship except subspace projectors, from 1 to 2.</li>\n<li>Hull size based upkeep: upkeep becomes 1% of the hull's slots plus the capacity of its fighter hangars, instead of 0.4% of the ship's cost with the usual role discounts. A refined design then costs no more to keep than a crude one of the same size. Stations and platforms pay 70% of it, where under cost-based upkeep they pay 35%.</li>"
+ ENG: "These are the settings you pick in the Rule Options screen, opened from the Game Setup screen before a new game begins, and they cannot be changed once it has started. Leaving them alone gives the standard game; they are here for when you want a slower pace, a different galaxy, or a feature switched off entirely.\n\n<color=Caption>Pace and travel</color>\n<li>Seconds per turn: how much real time one turn takes, 5 by default. Food, production, research and money are settled once a turn, and everything paced in turns, such as when an idle freighter is scrapped, stretches or shrinks in real time with it.</li>\n<li>In-system FTL speed: warp speed anywhere inside a solar system, 100% by default. Inside the projector influence of your own empire, an ally or a trade partner, ships gain their in-borders bonus on top, half again as fast for most races.</li>\n<li>Hostile influence FTL speed: warp speed inside the projector influence of an empire you are at war with, in a system or in deep space, 50% by default. Inside a system the two penalties multiply.</li>\n<li>Gravity well radius: how far from a planet a ship must be to warp, 8000 by default, scaled up for larger planets. See Map Overlays for what a well does.</li>\n\n<color=Caption>Empires and the AI</color>\n<li>Prevent AI federations: from stardate 1100, every ten stardates, an AI that finds you holding half of all score and twice its own may absorb a weaker AI it knows, by merger or surrender, and declare war on you. This box stops that check. AI empires can still merge through a long alliance or a lost war.</li>\n<li>Fixed ship and building cost: above Normal difficulty the credit charge on ships and military buildings stays at the Normal rate rather than rising with the difficulty.</li>\n<li>AI uses player designs: designs you have saved become candidates for AI empires as well, when they suit the AI's needs. Good player designs can carry the AI further than its own.</li>\n<li>Disable alternate AI traits: each AI race normally draws one of several trait sets at the start of a game. With this on it always uses the set shown in the race design screen.</li>\n\n<color=Caption>Game extensions</color>Six features you can switch off. Their boxes are also under Game Extensions on the Game Setup screen, and both places show the same ticks. A ticked box keeps its feature on; unticked:\n<li>Pirates: every pirate faction starts the game defeated.</li>\n<li>Remnant story: the Remnants pick no story and never expand, and act only as guardians of the planets they were placed at. Without a story the presence roll at galaxy creation runs a little higher, so expect a few more guardians.</li>\n<li>Infiltration: the agent system from the original game replaces infiltration levels.</li>\n<li>Research stations: no planet or star is generated as researchable, so there is nothing to place a research station at.</li>\n<li>Mining ops: no gas giant holds an exotic resource, so there is nothing to mine, and the Mining Ships Speed, Refining Efficiency and Exotic Storage technologies are hidden.</li>\n<li>Salvage ops: every derelict drifts and sinks away, so none stays in a system to be salvaged, and the Salvage Ships and Salvage Speed technologies are hidden. While salvage ops are off in Globals.yaml (EnableSalvageOps), or in a mod without salvage content, this box stays unticked and cannot be ticked.</li>\n\n<color=Caption>Planets and economy</color>\n<li>Extra planets: raises the number of planet rings each system rolls, from 0 to 3, and makes lone stars rarer. Each step also raises the settings side of the research cost modifier by 25%, lowers the chance of researchable and mineable planets, and speeds the Remnants a little.</li>\n<li>Starting richness bonus: added to the mineral richness of every planet an empire starts with.</li>\n<li>Mineral decay rate: multiplies the chance, each turn, that a planet loses richness for the production it puts out. The base chance also depends on difficulty.</li>\n<li>Volcanic activity: multiplies the chance a volcano wakes, rolled per volcano when it forms and again after each eruption calms. An awake volcano erupts at ten times that chance and goes dormant at five times it. Heavy bombardment can create volcanoes, and this setting caps how likely a single bomb is to do so.</li>\n<li>Maintenance multiplier: multiplies the upkeep of every ship except subspace projectors, from 1 to 2.</li>\n<li>Hull size based upkeep: upkeep becomes 1% of the hull's slots plus the capacity of its fighter hangars, instead of 0.4% of the ship's cost with the usual role discounts. A refined design then costs no more to keep than a crude one of the same size. Stations and platforms pay 70% of it, where under cost-based upkeep they pay 35%.</li>\n\n<color=Caption>Saved setups</color>Save Setup, at the bottom of the screen, keeps these rules under a name together with the Game Setup screen's galaxy settings and boxes; Load Setup brings a saved one back. Your race, flag and color, and the opponents you chose, are not part of a setup: loading one keeps them, though chosen opponents beyond its number of opponents are dropped."
 CodexDiplomacyEspionageShort:
  Id: 100183
  ENG: "Two spy systems: infiltration levels, or the legacy agents"
 CodexDiplomacyEspionageText:
  Id: 100184
- ENG: "StarDrive carries two espionage systems and a game runs one of them, chosen by the Legacy Espionage box in the rule options when the galaxy is created.\n\n<li>Infiltration levels, the default. There are no agents. You split espionage points between your own defense and the empires you have met, and your network in each of them climbs through five levels. Every level opens more of their dossier on the diplomacy screen, adds a passive effect and unlocks operations you switch on and leave running. The Espionage Management button (E) opens the Infiltration screen.</li>\n<li>Legacy agents, the system of the original game. You recruit agents, train them and send them on missions one at a time, and idle agents defend. The same button opens the Espionage screen.</li>\n\nThe topics below are grouped by system. Only the rules of the system your game runs apply, and the diplomacy screen reveals intelligence according to that system."
+ ENG: "StarDrive carries two espionage systems and a game runs one of them, chosen by the Infiltration box, under Game Extensions on the Game Setup screen and in the rule options, when the galaxy is created.\n\n<li>Infiltration levels, the default, with the box ticked. There are no agents. You split espionage points between your own defense and the empires you have met, and your network in each of them climbs through five levels. Every level opens more of their dossier on the diplomacy screen, adds a passive effect and unlocks operations you switch on and leave running. The Espionage Management button (E) opens the Infiltration screen.</li>\n<li>Legacy agents, the system of the original game, with the box unticked. You recruit agents, train them and send them on missions one at a time, and idle agents defend. The same button opens the Espionage screen.</li>\n\nThe topics below are grouped by system. Only the rules of the system your game runs apply, and the diplomacy screen reveals intelligence according to that system."
 CodexEspionageAgentsOverview:
  Id: 100185
  ENG: "Agents Overview"

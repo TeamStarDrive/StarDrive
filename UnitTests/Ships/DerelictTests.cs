@@ -713,16 +713,16 @@ public class DerelictTests : StarDriveTest
         AssertEqual(GlobalStats.VanillaDefaults.SalvageableDerelictCapMultiplier, mod.SalvageableDerelictCapMultiplier, "as it does the other vanilla values");
 
         var p = new UniverseParams();
-        AssertFalse(p.DisableSalvageOps, "with salvage content the rule option starts unticked");
+        AssertFalse(p.DisableSalvageOps, "with salvage content the Salvage Ops box starts ticked");
         AssertTrue(p.SalvageOps, "so salvage ops are on");
         p.DisableSalvageOps = true;
-        AssertFalse(p.SalvageOps, "ticked, it turns them off");
+        AssertFalse(p.SalvageOps, "unticked, it turns them off");
 
         GlobalStats.Defaults.EnableSalvageOps = false;
         p = new UniverseParams();
-        AssertTrue(p.DisableSalvageOps, "without salvage content it starts ticked");
+        AssertTrue(p.DisableSalvageOps, "without salvage content it starts unticked");
         p.DisableSalvageOps = false;
-        AssertFalse(p.SalvageOps, "and unticking it cannot turn them on");
+        AssertFalse(p.SalvageOps, "and ticking it cannot turn them on");
     }
 
     [TestMethod]

@@ -261,7 +261,7 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenusDescr.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\UnelevatedProcess.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\SelectOpponentListItem.cs" />
-    <Compile Include="Ship_Game\GameScreens\NewGame\SelectOpponentsScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\GameSetupScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\UniverseGenerator.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\ObjectSpawnInfo.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneActions.cs" />

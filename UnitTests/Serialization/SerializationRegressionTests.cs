@@ -73,14 +73,14 @@ public class SerializationRegressionTests : StarDriveTest
         File.WriteAllLines(path, withoutMark);
 
         SetupSave load = SaveNewGameSetupScreen.Load(new(path));
-        AssertTrue(load.Settings.DisableSalvageOps, "setup: the setup holds the box ticked");
+        AssertTrue(load.Settings.DisableSalvageOps, "setup: the setup holds the box unticked");
         AssertFalse(load.SettingsToStart().DisableSalvageOps, "a new game from it has salvage ops on, as the Globals flag does");
     }
 
     [TestMethod]
-    public void ASetupKeepsTheSalvageOpsBoxThePlayerTicked()
+    public void ASetupKeepsTheSalvageOpsBoxThePlayerUnticked()
     {
-        var save = new SetupSave(new() { DisableSalvageOps = true }) { Name = "Ticked by the player" };
+        var save = new SetupSave(new() { DisableSalvageOps = true }) { Name = "Unticked by the player" };
         AssertTrue(save.SalvageOpsChosen, "setup: with salvage ops on in Globals the box is the player's");
         AssertTrue(SavedAndLoaded(save).SettingsToStart().DisableSalvageOps, "a new game from it keeps salvage ops off");
     }
@@ -89,18 +89,18 @@ public class SerializationRegressionTests : StarDriveTest
     public void ASetupSavedWhileTheGlobalsFlagWasOffLeavesSalvageOpsToTheFlag()
     {
         SetupSave save = WithSalvageOpsFlag(false, () => new SetupSave(new()) { Name = "Saved with no salvage content" });
-        AssertTrue(save.Settings.DisableSalvageOps, "setup: with the flag off the box was locked ticked");
+        AssertTrue(save.Settings.DisableSalvageOps, "setup: with the flag off the box was locked unticked");
         AssertFalse(SavedAndLoaded(save).SettingsToStart().DisableSalvageOps, "once the flag is on, a new game from it has salvage ops on");
     }
 
     [TestMethod]
-    public void WhileTheGlobalsFlagIsOffEverySetupStartsWithTheSalvageOpsBoxTicked()
+    public void WhileTheGlobalsFlagIsOffEverySetupStartsWithTheSalvageOpsBoxUnticked()
     {
-        SetupSave load = SavedAndLoaded(new SetupSave(new() { DisableSalvageOps = false }) { Name = "Unticked by the player" });
+        SetupSave load = SavedAndLoaded(new SetupSave(new() { DisableSalvageOps = false }) { Name = "Ticked by the player" });
         AssertTrue(load.SalvageOpsChosen, "setup: the box was the player's");
-        AssertFalse(load.Settings.DisableSalvageOps, "setup: the player unticked it");
+        AssertFalse(load.Settings.DisableSalvageOps, "setup: the player ticked it");
         AssertTrue(WithSalvageOpsFlag(false, () => load.SettingsToStart().DisableSalvageOps),
-                   "loaded in a mod with the flag off, as a vanilla setup can be, the box is ticked");
+                   "loaded in a mod with the flag off, as a vanilla setup can be, the box is unticked");
     }
 
     // The save list draws the player's flag straight from the header, using FlagIndex == -1

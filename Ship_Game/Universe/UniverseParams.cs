@@ -27,7 +27,7 @@ public class UniverseParams
 
     public Array<IEmpireData> SelectedOpponents = new();
 
-    // the color and flag picked for a chosen opponent on the Select Opponents screen
+    // the color and flag picked for a chosen opponent on the Game Setup screen
     public readonly Map<IEmpireData, (Color Color, int Flag)> OpponentLooks = new();
 
     [StarData] public int NumSystems;
@@ -102,7 +102,14 @@ public class UniverseParams
     [StarData] bool SavedWithSalvageOps; // set as it is saved, so a game saved before salvage ops existed loads with them off
 
     // the Globals flag, vanilla's or a mod's, is a hard switch: with it off they stay off whatever the rule option says
-    public bool SalvageOps => !DisableSalvageOps && GlobalStats.Defaults.EnableSalvageOps;
+    public bool SalvageOps { get => !DisableSalvageOps && GlobalStats.Defaults.EnableSalvageOps; set => DisableSalvageOps = !value; }
+
+    // the Game Extensions boxes, ticked while the feature is on
+    public bool Pirates { get => !DisablePirates; set => DisablePirates = !value; }
+    public bool RemnantStory { get => !DisableRemnantStory; set => DisableRemnantStory = !value; }
+    public bool Infiltration { get => !UseLegacyEspionage; set => UseLegacyEspionage = !value; }
+    public bool ResearchStations { get => !DisableResearchStations; set => DisableResearchStations = !value; }
+    public bool MiningOps { get => !DisableMiningOps; set => DisableMiningOps = !value; }
 
     [StarDataSerialize]
     StarDataDynamicField[] OnSerialize()
