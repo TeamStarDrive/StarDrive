@@ -349,6 +349,33 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
+        public void RegenerationCountsTheSameWhateverTheModulesRepairDifficulty()
+        {
+            FieldInfo regenerate = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.Regenerate));
+            FieldInfo repairDifficulty = typeof(ShipModuleFlyweight).GetField(nameof(ShipModuleFlyweight.RepairDifficulty));
+            ShipModule armor = ResourceManager.GetModuleTemplate("Ceramic Armor Small");
+            Assert.AreEqual(0f, armor.Regenerate, "setup: the armor does not regenerate");
+            object difficulty = repairDifficulty.GetValue(armor.Flyweight);
+            float without = armor.CalculateModuleDefense(100, EmpireHullBonuses.Default, 0f);
+            try
+            {
+                regenerate.SetValue(armor.Flyweight, 50f);
+                repairDifficulty.SetValue(armor.Flyweight, 1f);
+                float easyToRepair = armor.CalculateModuleDefense(100, EmpireHullBonuses.Default, 0f);
+                Assert.IsTrue(easyToRepair > without, "regeneration adds to the armor's defense");
+
+                repairDifficulty.SetValue(armor.Flyweight, 3f);
+                AssertEqual(easyToRepair * Precision, easyToRepair, armor.CalculateModuleDefense(100, EmpireHullBonuses.Default, 0f),
+                    "a module regenerates whatever its repair difficulty, so its regeneration counts the same");
+            }
+            finally
+            {
+                regenerate.SetValue(armor.Flyweight, 0f);
+                repairDifficulty.SetValue(armor.Flyweight, difficulty);
+            }
+        }
+
+        [TestMethod]
         public void CarriersTakeTheStrengthOfFightersTheEmpireCanNowBuild()
         {
             RemoveBuildableShipsButTheCarrier();
