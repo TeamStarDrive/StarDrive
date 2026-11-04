@@ -2693,6 +2693,10 @@ namespace Ship_Game
             if (targetEmpire == this || targetEmpire == null)
                 return false;
 
+            // the Remnants leave meteor showers to the empires whose planets they fall on
+            if (WeAreRemnants && target is Ship { IsMeteor: true })
+                return false;
+
             Relationship rel = GetRelations(targetEmpire);
 
             if ((rel.CanAttack && target == null) || (scanOnly && !rel.Known))
