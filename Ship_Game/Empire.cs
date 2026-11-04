@@ -102,9 +102,10 @@ namespace Ship_Game
 
         [StarData] public Color EmpireColor;
 
-        // the player's ships take the empire color while the Alerts tab box is on; W = 0 for none
+        // the player's ships take the empire color while the player's box is on, the AI major empires' while the opponents' box is; W = 0 for none
         Microsoft.Xna.Framework.Vector4 OwnHullColor
-            => isPlayer && Universe.P.PlayerHullColors ? new(EmpireColor.ToVector3(), 1f) : default;
+            => (isPlayer ? Universe.P.PlayerHullColors : !IsFaction && Universe.P.OpponentHullColors)
+                ? new(EmpireColor.ToVector3(), 1f) : default;
 
         // on the tint-mapped paint of any hull, when its race paints its ships
         public Microsoft.Xna.Framework.Vector4 HullTint

@@ -463,7 +463,6 @@ namespace Ship_Game
             P.NumOpponents += OptionIncrement;
             if (P.NumOpponents > maxOpponents) P.NumOpponents = 1;
             else if (P.NumOpponents < 1)       P.NumOpponents = maxOpponents;
-            SelectOpponentsBtn.Visible = P.NumOpponents != maxOpponents;
             VerifySelectedOpponents();
         }
 
@@ -564,10 +563,9 @@ namespace Ship_Game
 
         void VerifySelectedOpponents()
         {
-            P.SelectedOpponents.Remove(SelectedData);
-            if (P.SelectedOpponents.Count > P.NumOpponents)
-                for (int i = P.SelectedOpponents.Count - 1; i >= P.NumOpponents; --i)
-                    P.SelectedOpponents.RemoveAt(i);
+            P.DropOpponent(SelectedData);
+            for (int i = P.SelectedOpponents.Count - 1; i >= P.NumOpponents; --i)
+                P.DropOpponent(P.SelectedOpponents[i]);
         }
 
         void OnEngageClicked(UIButton b)

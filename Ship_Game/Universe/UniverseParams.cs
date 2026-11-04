@@ -2,6 +2,7 @@
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using static Ship_Game.RaceDesignScreen;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Ship_Game.Universe;
 
@@ -25,6 +26,9 @@ public class UniverseParams
     public ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
 
     public Array<IEmpireData> SelectedOpponents = new();
+
+    // the color and flag picked for a chosen opponent on the Select Opponents screen
+    public readonly Map<IEmpireData, (Color Color, int Flag)> OpponentLooks = new();
 
     [StarData] public int NumSystems;
     [StarData] public int NumOpponents;
@@ -81,6 +85,8 @@ public class UniverseParams
     [StarData] public bool DisableBoardingWarning;
     [StarData] public bool DisableTechLeechWarning;
     [StarData(DefaultValue=true)] public bool PlayerHullColors = true;
+    [StarData(DefaultValue=true)] public bool OpponentHullColors = true;
+    [StarData] bool SavedWithHullColors; // set as it is saved, so a game saved before the hull color boxes loads with both off
     [StarData] public bool PrioitizeProjectors;
     [StarData(DefaultValue=true)] public bool ShowAllDesigns = true;
     [StarData] public bool FilterOldModules;
@@ -102,6 +108,7 @@ public class UniverseParams
     StarDataDynamicField[] OnSerialize()
     {
         SavedWithSalvageOps = true;
+        SavedWithHullColors = true;
         return null;
     }
 
@@ -139,5 +146,26 @@ public class UniverseParams
         // a game saved before salvage ops existed keeps them off
         if (!SavedWithSalvageOps)
             DisableSalvageOps = true;
+
+        if (!SavedWithHullColors)
+            PlayerHullColors = OpponentHullColors = false;
+    }
+
+    // drops a chosen opponent and the look picked for it, so choosing it again shows its race's own
+    public bool DropOpponent(IEmpireData race)
+    {
+        OpponentLooks.Remove(race);
+        return SelectedOpponents.Remove(race);
+    }
+
+    // the race to create a chosen opponent from: its own, or a copy wearing the color and flag picked for it
+    public IEmpireData OpponentData(IEmpireData race)
+    {
+        if (!OpponentLooks.TryGetValue(race, out (Color Color, int Flag) look))
+            return race;
+        EmpireData data = race.CreateInstance();
+        data.Traits.Color = look.Color;
+        data.Traits.FlagIndex = look.Flag;
+        return data;
     }
 }

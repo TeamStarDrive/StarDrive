@@ -1480,7 +1480,7 @@ public class DerelictTests : StarDriveTest
         Derelict enemyWreck = Drifting(enemyShip, enemySO);
         Step(enemyWreck, 0.1f);
         AssertEqual(GlobalStats.ShipVisibility, enemySO.Visibility, "setup: an enemy's wreck on screen is drawn");
-        AssertEqual(0.001f, 0f, enemySO.HullTint.W, "bare, as its owner was not the player");
+        AssertEqual(0.001f, 0f, enemySO.HullTint.W, "bare, as the Cordrazine paint no hulls");
     }
 
     [TestMethod]

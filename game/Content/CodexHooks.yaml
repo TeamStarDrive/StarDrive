@@ -176,6 +176,8 @@ DerelictAlertsTip: automation_alerts
 SalvageAlertsTip: automation_alerts
 EnableStarvationWarningTip: automation_alerts
 TechLeechAlertsTip: automation_alerts
+YourHullColorTip: automation_alerts
+OpponentsHullColorTip: automation_alerts
 
 # Budget screen
 TaxesAreCollectedFromYour: economy_budget_screen

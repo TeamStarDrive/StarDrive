@@ -215,7 +215,7 @@ namespace Ship_Game.GameScreens.NewGame
             step.Start(SelectedOpponents.Count + ResourceManager.MinorRaces.Count);
             foreach (IEmpireData readOnlyData in SelectedOpponents)
             {
-                Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
+                Empire e = UState.CreateEmpire(UState.P.OpponentData(readOnlyData), isPlayer: false, difficulty: Difficulty);
                 RacialTrait t = e.data.Traits;
                 e.data.FlatMoneyBonus += e.DifficultyModifiers.FlatMoneyBonus;
                 t.ShipCostMod += e.DifficultyModifiers.ShipCostMod;

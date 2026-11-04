@@ -6374,10 +6374,14 @@ namespace Ship_Game
         TechLeechAlerts = 7271,
         /// <summary>Alerts when your spy network gains you research progress on a technology</summary>
         TechLeechAlertsTip = 7272,
-        /// <summary>Hull Colors</summary>
-        HullColors = 7273,
+        /// <summary>Your Hull Color</summary>
+        YourHullColor = 7273,
         /// <summary>Your ships take your empire color, on their hull paint or on their lights depending on your race.</summary>
-        HullColorsTip = 7274,
+        YourHullColorTip = 7274,
+        /// <summary>Opponents' Hull Color</summary>
+        OpponentsHullColor = 7275,
+        /// <summary>Your opponents' ships take their empire colors, on their hull paint or on their lights depending on their race.</summary>
+        OpponentsHullColorTip = 7276,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
