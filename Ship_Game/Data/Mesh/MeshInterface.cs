@@ -591,6 +591,9 @@ namespace Ship_Game.Data.Mesh
             fx.EmissiveMapTexture = TryLoadTexture(content, fx.EmissiveMapFile);
             fx.NormalMapTexture = TryLoadTexture(content, fx.NormalMapFile);
             fx.SpecularColorMapTexture = TryLoadTexture(content, fx.SpecularColorMapFile);
+            fx.TintMapFile = TintMapFileOf(fx.DiffuseMapFile);
+            if (fx.TintMapFile != null && File.Exists(RawContentLoader.GetContentPath(fx.TintMapFile)))
+                fx.TintMapTexture = TryLoadTexture(content, fx.TintMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
             fx.Skinned         = isSkinned;
@@ -621,6 +624,17 @@ namespace Ship_Game.Data.Mesh
             fx.AddressModeV  = TextureAddressMode.Wrap;
             fx.AddressModeW  = TextureAddressMode.Wrap;
             return fx;
+        }
+
+        static readonly System.Text.RegularExpressions.Regex DiffuseMapSuffix =
+            new(@"_d(\d*(?:_\d+)?)(\.[^./\\]+)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        // a model's tint map sits next to its diffuse map with "_t" for the diffuse's "_d": ship14_d.dds -> ship14_t.dds, ship13_d_0.dds -> ship13_t_0.dds
+        public static string TintMapFileOf(string diffuseMapFile)
+        {
+            if (diffuseMapFile.IsEmpty() || !DiffuseMapSuffix.IsMatch(diffuseMapFile))
+                return null;
+            return DiffuseMapSuffix.Replace(diffuseMapFile, "_t$1$2");
         }
 
         static Texture2D TryLoadTexture(GameContentManager content, string texturePath)

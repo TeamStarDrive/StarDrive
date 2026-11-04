@@ -17,6 +17,7 @@
   <DefaultMiningShip>Owlwok Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Cordrazine Basic Mining Station</DefaultMiningStation>  
   <DefaultSalvageShip>Cordrazine Salvage Ship</DefaultSalvageShip>
+  <HullColors>Lights</HullColors>
   
   <RebelName>Free Owlwok Nation</RebelName>
   <RebelSing>Free Owlwok</RebelSing>

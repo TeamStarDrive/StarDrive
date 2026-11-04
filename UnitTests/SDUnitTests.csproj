@@ -123,6 +123,7 @@
     <Compile Include="Graphics\FogOfWarTests.cs" />
     <Compile Include="Graphics\FbxMaterialSurveyTests.cs" />
     <Compile Include="Graphics\ForwardRendererTests.cs" />
+    <Compile Include="Graphics\HullColorTests.cs" />
     <Compile Include="Graphics\LightingEffectBinderTests.cs" />
     <Compile Include="Graphics\MeshLightingEffectTests.cs" />
     <Compile Include="Graphics\ParticleManagerTests.cs" />

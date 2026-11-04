@@ -13,6 +13,7 @@ public sealed class SpaceStation
     SceneObject OuterSO;
     bool IsLoadingSO;
     bool DisableLoading;
+    string ModelStyle; // the race whose station model it shows, null for the common one
 
     float ZRotation;
     internal float Scale { get; private set; }
@@ -33,7 +34,8 @@ public sealed class SpaceStation
 
     void UpdateTransforms(Vector2 position)
     {
-        if (InnerSO == null && OuterSO == null)
+        SceneObject inner = InnerSO, outer = OuterSO; // the sim thread may take them out meanwhile
+        if (inner == null && outer == null)
             return;
 
         Matrix transform = Matrix.CreateScale(Scale)
@@ -42,10 +44,28 @@ public sealed class SpaceStation
                            * Matrix.CreateRotationY(65f.ToRadians())
                            * Matrix.CreateRotationZ(90f.ToRadians())
                            * Matrix.CreateTranslation(position.X, position.Y, PosZ);
-        if (InnerSO != null)
-            InnerSO.World = transform;
-        if (OuterSO != null)
-            OuterSO.World = transform;
+        if (inner != null)
+            inner.World = transform;
+        if (outer != null)
+            outer.World = transform;
+    }
+
+    // the station takes its owner's colors like the owner's ships do, as a hull of the race whose model it shows
+    void UpdateColors(Empire owner)
+    {
+        SceneObject inner = InnerSO, outer = OuterSO; // the sim thread may take them out meanwhile
+        if (inner != null)
+            ColorModel(inner, owner);
+        if (outer != null)
+            ColorModel(outer, owner);
+    }
+
+    void ColorModel(SceneObject so, Empire owner)
+    {
+        if (owner != null)
+            owner.ColorModel(so, ModelStyle);
+        else
+            so.HullTint = so.LightsTint = default;
     }
 
     internal void CreateSceneObject(Planet planet, Empire owner)
@@ -55,6 +75,7 @@ public sealed class SpaceStation
         // use the root content manager, because there is not much point to clear this resource
         var content = ResourceManager.RootContent;
 
+        ModelStyle = HasRaceModel(owner) ? owner.data.ShipType : null;
         if (!HasRaceModel(owner))
         {
             innerModel = StaticMesh.LoadMesh(content, "Model/Stations/spacestation01_inner");
@@ -89,6 +110,7 @@ public sealed class SpaceStation
         }
 
         UpdateTransforms(planet.Position);
+        UpdateColors(owner);
     }
 
     public void RemoveSceneObject()
@@ -111,6 +133,7 @@ public sealed class SpaceStation
         {
             ZRotation += RadiansPerSecond * timeStep.FixedTime;
             UpdateTransforms(planet.Position);
+            UpdateColors(planet.Owner);
         }
         else if (!IsLoadingSO && !DisableLoading)
         {

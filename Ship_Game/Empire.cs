@@ -18,6 +18,7 @@ using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI.Tasks;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -100,6 +101,25 @@ namespace Ship_Game
         [StarData] public Remnants Remnants { get; private set; }
 
         [StarData] public Color EmpireColor;
+
+        // the player's ships take the empire color while the Alerts tab box is on; W = 0 for none
+        Microsoft.Xna.Framework.Vector4 OwnHullColor
+            => isPlayer && Universe.P.PlayerHullColors ? new(EmpireColor.ToVector3(), 1f) : default;
+
+        // on the tint-mapped paint of any hull, when its race paints its ships
+        public Microsoft.Xna.Framework.Vector4 HullTint
+            => data.HullColors == HullColorParts.Paint ? OwnHullColor : default;
+
+        // on the lights of its own race's hulls, when its race colors their lights
+        public Microsoft.Xna.Framework.Vector4 LightsTint(string hullStyle)
+            => data.HullColors == HullColorParts.Lights && hullStyle == data.ShipType ? OwnHullColor : default;
+
+        // gives the model of a hull of the given race style this owner's colors
+        public void ColorModel(SceneObject so, string hullStyle)
+        {
+            so.HullTint = HullTint;
+            so.LightsTint = LightsTint(hullStyle);
+        }
 
         [StarData] public UniverseState Universe;
 

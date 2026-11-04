@@ -97,6 +97,10 @@ float  SpecularPower   = 16.0;
 float  SpecularAmount  = 1.0;
 // Per-draw scale of the glow map: a ship's lights go dark without power and stutter under EMP or while dying.
 float  EmissiveScale   = 1.0;
+// Per-draw owner's color for the hull paint the tint map (`_t`) marks; .w = 0 leaves the paint as it is.
+float4 HullTint        = float4(1, 1, 1, 0);
+// Per-draw owner's color for the glow map's lights and the paint under them; .w = 0 leaves them as they are.
+float4 LightsTint      = float4(1, 1, 1, 0);
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
@@ -105,6 +109,8 @@ bool   TextureEnabled         = false;
 bool   EmissiveMapEnabled     = false;
 bool   SpecularMapEnabled     = false;
 bool   NormalMapEnabled       = false;
+bool   TintMapEnabled         = false;
+bool   LightsTintEnabled      = false;
 bool   FogEnabled             = false;
 
 float3 AmbientLightColor = float3(0, 0, 0);
@@ -230,6 +236,17 @@ texture NormalMap;
 sampler2D NormalSampler = sampler_state
 {
     Texture   = (NormalMap);
+    MinFilter = Linear;
+    MagFilter = Linear;
+    MipFilter = Linear;
+    AddressU  = Wrap;
+    AddressV  = Wrap;
+};
+
+texture TintMap;
+sampler2D TintSampler = sampler_state
+{
+    Texture   = (TintMap);
     MinFilter = Linear;
     MagFilter = Linear;
     MipFilter = Linear;
@@ -396,9 +413,31 @@ float SampleShadowFactor(float4 positionLS)
     return (occluderDepth + ShadowParams.y < receiverDepth) ? 0.0 : 1.0;
 }
 
+float Luminance(float3 c)
+{
+    return dot(c, float3(0.3, 0.59, 0.11));
+}
+
+// the tint's hue and saturation at the given luminance, pulled back into range without changing that luminance
+float3 TintAtLuminance(float3 tint, float lum)
+{
+    float3 c = tint + (lum - Luminance(tint));
+    float l = Luminance(c);
+    float n = min(c.r, min(c.g, c.b));
+    float x = max(c.r, max(c.g, c.b));
+    if (n < 0.0) c = l + (c - l) * l / max(l - n, 0.00001);
+    if (x > 1.0) c = l + (c - l) * (1.0 - l) / max(x - l, 0.00001);
+    return c;
+}
+
 float4 PSDefault(VSOutput input) : SV_TARGET
 {
     float4 texColor = TextureEnabled ? tex2D(TextureSampler, input.TexCoord) : float4(1, 1, 1, 1);
+
+    // the owner's color takes the paint the tint map marks, at the texture's own brightness
+    if (TintMapEnabled)
+        texColor.rgb = lerp(texColor.rgb, TintAtLuminance(HullTint.rgb, Luminance(texColor.rgb)),
+                            tex2D(TintSampler, input.TexCoord).r * HullTint.w);
 
     // Per-pixel emissive: glow map (`_g`) is the source of truth when bound;
     // it carries the full emissive color in its RGB channels (cockpit windows,
@@ -412,9 +451,17 @@ float4 PSDefault(VSOutput input) : SV_TARGET
     // when an emissive map was present was effectively "the map IS the
     // emissive" — multiplication added per-material tint that almost never
     // diverged from white in practice.
-    float3 emissive = EmissiveMapEnabled
-        ? tex2D(EmissiveSampler, input.TexCoord).rgb * EmissiveScale
-        : EmissiveColor;
+    float3 glow = EmissiveMapEnabled ? tex2D(EmissiveSampler, input.TexCoord).rgb : float3(0, 0, 0);
+
+    // the owner's color takes the lights, at the glow's own brightness, and the paint under them
+    if (LightsTintEnabled)
+    {
+        float lit = saturate(max(glow.r, max(glow.g, glow.b)) * 2.0) * LightsTint.w;
+        texColor.rgb = lerp(texColor.rgb, TintAtLuminance(LightsTint.rgb, Luminance(texColor.rgb)), lit);
+        glow = lerp(glow, TintAtLuminance(LightsTint.rgb, Luminance(glow)), LightsTint.w);
+    }
+
+    float3 emissive = EmissiveMapEnabled ? glow * EmissiveScale : EmissiveColor;
 
     // Per-pixel specular mask: `_s` map controls specularity. Chrome panels
     // → bright; matte hull paint → dim. Sampled into a single multiplier

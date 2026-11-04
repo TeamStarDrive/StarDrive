@@ -133,6 +133,7 @@ namespace Ship_Game
             if (Screen.Player.NewEspionageEnabled)
                 alerts.AddCheckbox(() => !UState.P.DisableTechLeechWarning, v => UState.P.DisableTechLeechWarning = !v,
                                    title: GameText.TechLeechAlerts, tooltip: GameText.TechLeechAlertsTip);
+            alerts.AddCheckbox(() => UState.P.PlayerHullColors, title: GameText.HullColors, tooltip: GameText.HullColorsTip);
 
             UIList ticks = Ticks = AddList(new Vector2(win.X + 10f, top));
             ticks.Padding = new Vector2(2f, 10f);

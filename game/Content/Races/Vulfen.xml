@@ -17,6 +17,7 @@
   <DefaultMiningShip>Vulfar Mining Ship</DefaultMiningShip>
   <DefaultMiningStation>Vulfar Basic Mining Station</DefaultMiningStation>  
   <DefaultSalvageShip>Vulfar Salvage Ship</DefaultSalvageShip>
+  <HullColors>Paint</HullColors>
   
   <RebelName>Vulfar Technocrats</RebelName>
   <RebelSing>Technocrat</RebelSing>
