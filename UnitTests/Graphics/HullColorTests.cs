@@ -16,9 +16,9 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.Graphics;
 
 /// <summary>
-/// The player's ships take the empire color while the player's hull color box is on, and the AI major empires' while
-/// the opponents' box is, as both are by default: on the hull paint their model's tint map marks when the race paints
-/// its ships, or on the lights of the race's own hulls.
+/// The player's ships take the empire color while the player's hull color box is on, and an opponent's whose color the
+/// player picked while the opponents' box is, as both are by default: on the hull paint their model's tint map marks
+/// when the race paints its ships, or on the lights of the race's own hulls.
 /// </summary>
 [TestClass]
 public class HullColorTests : StarDriveTest
@@ -58,7 +58,10 @@ public class HullColorTests : StarDriveTest
         Assert.AreEqual(HullColorParts.Lights, Enemy.data.HullColors, "setup: the Cordrazine color their lights");
         Assert.AreEqual(new Vector4(Player.EmpireColor.ToVector3(), 1f), Player.HullTint, "both boxes are on by default: the player's ships take the empire color");
         Assert.AreEqual(0f, Player.LightsTint("Vulfen").W, "on their paint, not their lights");
-        Assert.AreEqual(new Vector4(Enemy.EmpireColor.ToVector3(), 1f), Enemy.LightsTint("Cordrazine"), "and an AI empire's ships take its own");
+        Assert.AreEqual(0f, Enemy.LightsTint("Cordrazine").W, "an opponent whose color the player did not pick keeps its look");
+
+        Enemy.ColorPicked = true;
+        Assert.AreEqual(new Vector4(Enemy.EmpireColor.ToVector3(), 1f), Enemy.LightsTint("Cordrazine"), "one whose color the player picked takes it");
 
         UState.P.OpponentHullColors = false;
         Assert.AreEqual(0f, Enemy.LightsTint("Cordrazine").W, "with the opponents' box off theirs are bare");
@@ -72,9 +75,6 @@ public class HullColorTests : StarDriveTest
         UState.P.PlayerHullColors = true;
         Player.data.HullColors = HullColorParts.None;
         Assert.AreEqual(0f, Player.HullTint.W, "a race that paints no hulls keeps them bare");
-
-        Enemy.IsFaction = true;
-        Assert.AreEqual(0f, Enemy.LightsTint("Cordrazine").W, "and a faction's ships keep their look");
     }
 
     // a race that colors its lights does so only on its own race's hulls, and leaves their paint alone
@@ -143,32 +143,46 @@ public class HullColorTests : StarDriveTest
         Assert.AreSame(race, UState.P.OpponentData(race), "chosen again, it plays as its race");
     }
 
+    // only an opponent picked a color other than its race's own has its ships colored, not one picked just a flag or a random one
     [TestMethod]
     public void ANewGalaxyCreatesAChosenOpponentInTheColorAndFlagPickedForIt()
     {
         LoadAllGameData();
         IEmpireData race = ResourceManager.MajorRaces.First(e => e.ArchetypeName.Contains("Cordrazine"));
+        IEmpireData flagOnly = ResourceManager.MajorRaces.First(e => e.ArchetypeName.Contains("Kulrathi"));
         EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
         playerData.DiplomaticPersonality = new DTrait();
-        (int numStars, float starsModifier) = RaceDesignScreen.GetNumStars(RaceDesignScreen.StarsAbundance.Normal, GalSize.Tiny, 1);
+        (int numStars, float starsModifier) = RaceDesignScreen.GetNumStars(RaceDesignScreen.StarsAbundance.Normal, GalSize.Tiny, 3);
         var p = new UniverseParams
         {
             PlayerData = playerData,
             Mode = RaceDesignScreen.GameMode.Sandbox,
             GalaxySize = GalSize.Tiny,
             NumSystems = numStars,
-            NumOpponents = 1,
+            NumOpponents = 3,
             StarsModifier = starsModifier,
         };
         var picked = new Color(0, 200, 255);
+        Assert.AreNotEqual(12, flagOnly.Traits.FlagIndex, "setup: a flag the Kulrathi do not have");
         p.SelectedOpponents.Add(race);
         p.OpponentLooks[race] = (picked, 12);
+        p.SelectedOpponents.Add(flagOnly);
+        p.OpponentLooks[flagOnly] = (flagOnly.Traits.Color, 12);
 
         CreateCustomUniverse(p);
         Empire opponent = UState.GetEmpireByName(race.Name);
         Assert.IsNotNull(opponent, "setup: the chosen opponent is in the galaxy");
         Assert.AreEqual(picked, opponent.EmpireColor, "in the picked color");
         Assert.AreEqual(12, opponent.data.Traits.FlagIndex, "under the picked flag");
+        Assert.IsTrue(opponent.ColorPicked, "and its ships take that color");
+
+        Empire flagged = UState.GetEmpireByName(flagOnly.Name);
+        Assert.IsNotNull(flagged, "setup: the other chosen opponent is in the galaxy");
+        Assert.AreEqual(12, flagged.data.Traits.FlagIndex, "setup: the other chosen opponent is under the picked flag");
+        Assert.IsFalse(flagged.ColorPicked, "a flag alone leaves its ships in their look");
+
+        Empire random = UState.NonPlayerMajorEmpires.First(e => e != opponent && e != flagged);
+        Assert.IsFalse(random.ColorPicked, "and so does a random opponent's");
     }
 
     // a ship's model takes its owner's color as the ship updates, so a captured ship is drawn in its captor's at once

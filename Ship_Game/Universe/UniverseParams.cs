@@ -165,6 +165,10 @@ public class UniverseParams
         return SelectedOpponents.Remove(race);
     }
 
+    // whether a chosen opponent was picked a color other than its race's own; a picked flag alone does not count
+    public bool IsColorPicked(IEmpireData race)
+        => OpponentLooks.TryGetValue(race, out (Color Color, int Flag) look) && look.Color != race.Traits.Color;
+
     // the race to create a chosen opponent from: its own, or a copy wearing the color and flag picked for it
     public IEmpireData OpponentData(IEmpireData race)
     {

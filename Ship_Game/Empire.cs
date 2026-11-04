@@ -101,10 +101,11 @@ namespace Ship_Game
         [StarData] public Remnants Remnants { get; private set; }
 
         [StarData] public Color EmpireColor;
+        [StarData] public bool ColorPicked; // the player picked this opponent's color on the Game Setup screen
 
-        // the player's ships take the empire color while the player's box is on, the AI major empires' while the opponents' box is; W = 0 for none
+        // the player's ships take the empire color while the player's box is on, an opponent's while the opponents' box is and its color was picked; W = 0 for none
         Microsoft.Xna.Framework.Vector4 OwnHullColor
-            => (isPlayer ? Universe.P.PlayerHullColors : !IsFaction && Universe.P.OpponentHullColors)
+            => (isPlayer ? Universe.P.PlayerHullColors : ColorPicked && Universe.P.OpponentHullColors)
                 ? new(EmpireColor.ToVector3(), 1f) : default;
 
         // on the tint-mapped paint of any hull, when its race paints its ships

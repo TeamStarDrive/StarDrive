@@ -216,6 +216,7 @@ namespace Ship_Game.GameScreens.NewGame
             foreach (IEmpireData readOnlyData in SelectedOpponents)
             {
                 Empire e = UState.CreateEmpire(UState.P.OpponentData(readOnlyData), isPlayer: false, difficulty: Difficulty);
+                e.ColorPicked = UState.P.IsColorPicked(readOnlyData);
                 RacialTrait t = e.data.Traits;
                 e.data.FlatMoneyBonus += e.DifficultyModifiers.FlatMoneyBonus;
                 t.ShipCostMod += e.DifficultyModifiers.ShipCostMod;
