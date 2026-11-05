@@ -512,10 +512,8 @@ namespace SynapseGaming.LightingSystem.Core
             EffectTechnique dissolve = fx.DissolveTechnique;
             if (dissolve == null)
                 return;
-            EffectTechnique whole = fx.CurrentTechnique;
             for (int part = 0; rm.NextPartComingBack(shown, ref part, out int start, out int primitives, out float share);)
             {
-                fx.CurrentTechnique = dissolve;
                 fx.ShareShown = share;
                 foreach (EffectPass pass in dissolve.Passes)
                 {
@@ -523,7 +521,6 @@ namespace SynapseGaming.LightingSystem.Core
                     GraphicsDevice.DrawIndexedPrimitives(rm.PrimitiveType, rm.BaseVertex, start, primitives);
                 }
             }
-            fx.CurrentTechnique = whole;
             fx.ShareShown = 1f;
         }
 
