@@ -601,7 +601,7 @@ namespace Ship_Game.Data.Mesh
 
             string alphaPath = RebaseAbsolute(mat->AlphaPath.AsString, modelDir);
             Texture2D alphaMap = alphaPath.NotEmpty()
-                ? content.Load<Texture2D>(alphaPath)
+                ? content.LoadModelTexture(alphaPath)
                 : fx.DiffuseMapTexture;
 
             fx.SetTransparencyModeAndMap(TransparencyMode.None, mat->Alpha, alphaMap);
@@ -656,7 +656,7 @@ namespace Ship_Game.Data.Mesh
                 return null;
             try
             {
-                return content.Load<Texture2D>(texturePath);
+                return content.LoadModelTexture(texturePath);
             }
             catch (Exception e)
             {
@@ -683,15 +683,7 @@ namespace Ship_Game.Data.Mesh
         {
             if (texturePath.IsEmpty())
                 return texturePath;
-            // Shared-texture models bake a parent-relative ref ("..\ship09_d.dds")
-            // while living in sibling subfolders (Remnant/XenoCruiser, Remnant/
-            // XenoFighterGreen, ...). The OS collapses ".." when it OPENS the file,
-            // so every variant reads the one real Remnant/ship09_d.dds — but the
-            // content cache keys on the raw, un-collapsed string, so each subfolder
-            // becomes a distinct key and the SAME 16 MB texture is decoded once per
-            // folder. A Remnant fleet => a dozen redundant DXT decodes (~128 MB of
-            // throwaway LOH) in one frame, which trips a blocking Gen2 GC. Collapse
-            // ".." here so all variants converge on a single cache entry / decode.
+            // collapse ".." so every model sharing a texture ("..\ship09_d.dds") shares one cache entry
             if (!Path.IsPathRooted(texturePath))
                 return CollapseRelativePath(texturePath);
             string fileName = Path.GetFileName(texturePath);

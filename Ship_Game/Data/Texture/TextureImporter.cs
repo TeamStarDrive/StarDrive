@@ -34,6 +34,16 @@ namespace Ship_Game.Data.Texture
             return Load(textureFile.FullName);
         }
 
+        // a model's DXT1 texture stays compressed on the GPU
+        public Texture2D LoadModelTexture(string texturePath)
+        {
+            if (Type != ImporterType.ImageUtilsPNG_XnaDDS || !texturePath.EndsWith(".dds", StringComparison.OrdinalIgnoreCase))
+                return Load(texturePath);
+            Texture2D tex = ImageUtils.LoadDds(Device, texturePath, keepDxt1: true);
+            tex.Name = FileSystemExtensions.GetAppRootRelPath(texturePath);
+            return tex;
+        }
+
         Texture2D LoadTexture(string fullPath)
         {
             if (Type == ImporterType.ImageUtilsPNG_XnaDDS)

@@ -128,6 +128,7 @@
     <Compile Include="Graphics\HullColorTests.cs" />
     <Compile Include="Graphics\LightingEffectBinderTests.cs" />
     <Compile Include="Graphics\MeshLightingEffectTests.cs" />
+    <Compile Include="Graphics\ModelTextureTests.cs" />
     <Compile Include="Graphics\ParticleManagerTests.cs" />
     <Compile Include="Graphics\PostProcessChainTests.cs" />
     <Compile Include="Graphics\ShadowMapTests.cs" />

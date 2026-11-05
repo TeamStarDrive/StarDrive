@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game.Data.Texture;
@@ -48,6 +49,33 @@ public class DdsReaderTests
     {
         var dds = new DxtReader(Dxt(dxt5, 4, 4, PlainFlags, 0u, new[] { color }));
         Assert.AreEqual(new Color(red, green, blue), dds.DecodedImage[0], dxt5 ? "DXT5" : "DXT1");
+    }
+
+    // a GPU samples DXT1 only in whole 4x4 blocks of one image, so only such an image keeps its blocks undecoded, knowing its base level's size
+    [TestMethod]
+    [DataRow(false, 8u, 8u, 1u, PlainFlags, 0u, true)]
+    [DataRow(false, 8u, 8u, 1u, LinearSizeFlags, 32u, true)]
+    [DataRow(false, 6u, 8u, 1u, PlainFlags, 0u, false)]
+    [DataRow(false, 8u, 6u, 1u, PlainFlags, 0u, false)]
+    [DataRow(false, 8u, 8u, 2u, PlainFlags, 0u, false)]
+    [DataRow(true, 8u, 8u, 1u, PlainFlags, 0u, false)]
+    public void OnlyADxt1ImageOfWholeBlocksKeepsItsBlocks(bool dxt5, uint width, uint height, uint depth, uint flags, uint linearSize, bool kept)
+    {
+        // blocks past the four of an 8x8 base level, as smaller levels or a second slice would be
+        byte[] file = Dxt(dxt5, width, height, flags, linearSize, new ushort[] { 0x001F, 0x07E0, 0xF800, 0xFFFF, 0x1234, 0x4321, 0x0001, 0x0002, 0x0003 });
+        BitConverter.GetBytes(depth).CopyTo(file, 24); // the header's depth
+        var dds = new DxtReader(new MemoryStream(file), keepDxt1Blocks: true);
+        if (kept)
+        {
+            Assert.AreEqual(32, dds.Dxt1BaseLevelSize, "the base level's four blocks");
+            CollectionAssert.AreEqual(file.AsSpan(128, 32).ToArray(), dds.Dxt1Blocks.AsSpan(0, 32).ToArray(), "as the file holds them");
+            Assert.AreEqual(0, dds.DecodedImage.Length, "and nothing decoded");
+        }
+        else
+        {
+            Assert.IsNull(dds.Dxt1Blocks, "no blocks kept");
+            Assert.AreEqual(new Color(0, 0, 255), dds.DecodedImage[0], "the image decoded instead");
+        }
     }
 
     static bool IsWhiteBlock(int bx, int by) => (bx + by) % 2 == 0;

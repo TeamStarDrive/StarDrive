@@ -25,6 +25,10 @@ namespace Ship_Game.Data.Texture
         // even when they're intentionally empty, which would otherwise false-
         // positive the broken-plane fallback.
         public PixelFormat Format { get; private set; } = PixelFormat.UNKNOWN;
+        // the undecoded DXT1 data from the base level on, when the reader was asked to keep it and a GPU can sample it as it is
+        public byte[] Dxt1Blocks { get; private set; }
+        // the bytes at the start of Dxt1Blocks that hold the base level
+        public int Dxt1BaseLevelSize { get; private set; }
 
         public DxtReader(byte[] ddsImage)
         {
@@ -43,18 +47,18 @@ namespace Ship_Game.Data.Texture
             }
         }
 
-        public DxtReader(Stream ddsImage)
+        public DxtReader(Stream ddsImage, bool keepDxt1Blocks = false)
         {
             if (ddsImage == null) return;
             if (!ddsImage.CanRead) return;
 
             using (var reader = new BinaryReader(ddsImage))
             {
-                Parse(reader);
+                Parse(reader, keepDxt1Blocks);
             }
         }
 
-        Color[] Parse(BinaryReader reader)
+        Color[] Parse(BinaryReader reader, bool keepDxt1Blocks = false)
         {
             var header = new DDSHeader();
 
@@ -75,6 +79,14 @@ namespace Ship_Game.Data.Texture
             // the decoders read a whole base level without bounds checks, so a file holding less is refused
             if (data != null && data.Length < baseLevelSize)
                 throw new InvalidDataException($"DDS holds {data.Length} bytes of image data, its {Width}x{Height} base level needs {baseLevelSize}");
+            // a GPU samples DXT1 only in whole 4x4 blocks of a single image
+            if (keepDxt1Blocks && data != null && format == PixelFormat.DXT1 && header.depth == 1
+                && Width > 0 && Height > 0 && Width % 4 == 0 && Height % 4 == 0)
+            {
+                Dxt1Blocks = data;
+                Dxt1BaseLevelSize = (int)baseLevelSize;
+                return DecodedImage;
+            }
             if (data != null)
             {
                 DecodedImage = DecompressData(header, data, format);

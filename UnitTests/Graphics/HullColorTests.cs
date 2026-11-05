@@ -91,13 +91,22 @@ public class HullColorTests : StarDriveTest
 
     static float MarkedShare(Microsoft.Xna.Framework.Graphics.Texture2D mask)
     {
-        var texels = new Color[mask.Width * mask.Height];
-        mask.GetData(texels);
+        Color[] texels;
+        if (mask.Format == Microsoft.Xna.Framework.Graphics.SurfaceFormat.Dxt1)
+        {
+            texels = Ship_Game.Data.Texture.ImageUtils.DecompressDxt1(mask);
+        }
+        else
+        {
+            texels = new Color[mask.Width * mask.Height];
+            mask.GetData(texels);
+        }
+        int count = mask.Width * mask.Height; // the decoder's array runs past the image
         int marked = 0;
-        foreach (Color texel in texels)
-            if (texel.R > 127)
+        for (int i = 0; i < count; ++i)
+            if (texels[i].R > 127 && texels[i].A > 127) // a transparent DXT1 texel samples as black
                 ++marked;
-        return marked / (float)texels.Length;
+        return marked / (float)count;
     }
 
     [TestMethod]

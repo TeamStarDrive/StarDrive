@@ -104,6 +104,11 @@ namespace Ship_Game.Data
             return TexImport.Load(contentPath);
         }
 
+        public Texture2D LoadModelTexture(string fileNameWithExt)
+        {
+            return TexImport.LoadModelTexture(GetContentPath(fileNameWithExt));
+        }
+
         // loads an RGB texture and converts it to an AlphaMap, from RGB luminosity
         /// <summary>
         /// loads an RGB texture and converts it to an AlphaMap, from RGB luminosity
