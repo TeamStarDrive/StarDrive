@@ -621,6 +621,36 @@ namespace SynapseGaming.LightingSystem.Rendering
 
         public void Add(ModelMesh m, Effect e) { if (m != null) ModelMeshes.Add((m, e)); }
         public void Add(RenderableMesh m) { if (m != null) Renderables.Add(m); }
+
+        // another object drawing the same meshes, placed and shown on its own, as a hull part flying off its ship
+        public SceneObject CopyMeshes()
+        {
+            var copy = new SceneObject(Name)
+            {
+                ObjectType = ObjectType,
+                WorldBoundingBox = WorldBoundingBox,
+                ObjectBoundingSphere = ObjectBoundingSphere,
+                World = World,
+                EmissiveScale = EmissiveScale,
+                HullTint = HullTint,
+                Visibility = Visibility,
+                AnimationPlayer = AnimationPlayer,
+            };
+            foreach (RenderableMesh rm in Renderables)
+            {
+                copy.Add(new RenderableMesh(copy, rm.Effect, rm.World, rm.BoundingSphere, rm.IndexBuffer, rm.VertexBuffer,
+                                            rm.VertexDeclaration, rm.StreamOffset, rm.PrimitiveType, rm.PrimitiveCount,
+                                            rm.BaseVertex, rm.NumVertices, rm.StartIndex, rm.VertexStride)
+                {
+                    PartStart = rm.PartStart,
+                    PartPrimitives = rm.PartPrimitives,
+                    DiffuseTexture = rm.DiffuseTexture,
+                });
+            }
+            foreach ((ModelMesh mesh, Effect effect) in ModelMeshes)
+                copy.Add(mesh, effect);
+            return copy;
+        }
         public void UpdateAnimation(float deltaTime)
         {
             AnimationPlayer?.Update(deltaTime);

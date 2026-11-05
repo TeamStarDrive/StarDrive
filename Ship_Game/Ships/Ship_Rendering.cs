@@ -500,8 +500,12 @@ namespace Ship_Game.Ships
 
         public void RenderThrusters(ref Matrix view, ref Matrix projection)
         {
+            float[] shown = PartShown;
+            byte[] thrusterParts = shown != null ? BaseHull.ThrusterParts : null;
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
+                if (ThrusterOut(i, shown, thrusterParts))
+                    continue;
                 Thruster thruster = ThrusterList[i];
                 // thruster.Draw self-guards against null Effect/technique (Phase 2.2
                 // stub for Effects/Thrust.xnb). Removed the Log.Assert that fired on

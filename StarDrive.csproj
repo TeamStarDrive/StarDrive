@@ -368,6 +368,7 @@
     <Compile Include="Ship_Game\Ships\EngineTrail.cs" />
     <Compile Include="Ship_Game\Ships\ExternalSlotGrid.cs" />
     <Compile Include="Ship_Game\Ships\HangarOptions.cs" />
+    <Compile Include="Ship_Game\Ships\HullPartDebris.cs" />
     <Compile Include="Ship_Game\Ships\IShipDesign.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyModuleSlotData.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData.cs" />

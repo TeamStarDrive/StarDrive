@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
@@ -33,18 +35,18 @@ namespace Ship_Game.Ships
             PartsOutdated = true;
         }
 
-        // a part may be lost by the roll of an update with a death under it, and comes back as its modules do; a part with no modules stays on
-        void UpdateLostParts()
+        // a part may be lost by the roll of an update with a death under it, and comes back as its modules do; a part with no modules stays on; returns the parts it lost
+        uint UpdateLostParts()
         {
             ShipHull hull = BaseHull;
             if (hull.NumParts == 0)
             {
                 if (hull.ModelInOnePiece)
                     PartsOutdated = false; // until a module comes back
-                return;
+                return 0u;
             }
             if (!Grid.GetParts(out int[] area))
-                return;
+                return 0u;
             PartsOutdated = false; // before the count, so a module dying meanwhile is counted on the next update
             uint hit = Interlocked.Exchange(ref PartsHit, 0u);
 
@@ -66,6 +68,7 @@ namespace Ship_Game.Ships
             Span<float> shown = stackalloc float[numParts];
             shown.Fill(1f);
             bool anyLost = false;
+            uint lostNow = 0u;
             for (int part = 1; part < numParts; ++part)
             {
                 int lowest = low[part];
@@ -77,6 +80,7 @@ namespace Ship_Game.Ships
                     if (pastShare <= 0f || !Loyalty.Random.RollDice(100f * pastShare))
                         continue;
                     lowest = alive[part];
+                    lostNow |= 1u << part;
                 }
                 else if (alive[part] >= area[part])
                 {
@@ -91,6 +95,24 @@ namespace Ship_Game.Ships
             // a new array only when it changes, as a save or the UI may be reading the one there
             LostPartLow = !anyLost ? null : saved != null && low.SequenceEqual(saved) ? saved : low.ToArray();
             PartShown = !anyLost ? null : PartShown is { } before && shown.SequenceEqual(before) ? before : shown.ToArray();
+            return lostNow;
+        }
+
+        // the parts just lost fly off the model as it is drawn now, for a ship the player sees
+        internal void ThrowOffParts(uint lostNow, SceneObject model)
+        {
+            for (int part = 1; part < StaticMesh.MaxParts; ++part)
+                if ((lostNow & 1u << part) != 0)
+                    HullPartDebris.ThrowOff(this, model, part);
+        }
+
+        // a thruster on a part not whole is out, as is its engine trail
+        internal static bool ThrusterOut(int thruster, float[] shown, byte[] thrusterParts)
+        {
+            if (shown == null || thrusterParts == null || (uint)thruster >= (uint)thrusterParts.Length)
+                return false;
+            int part = thrusterParts[thruster];
+            return part < shown.Length && shown[part] < 1f;
         }
 
         // how much of each hull part shows, counted again if a module died or came back since; on the sim thread, or for a ship that died
@@ -101,10 +123,11 @@ namespace Ship_Game.Ships
             return PartShown;
         }
 
-        // each hull part shown, 1, or lost, 0, as counted now or, before the hull's model has loaded, as saved; null while no part is lost
-        internal float[] WholePartsNow()
+        // each hull part shown, 1, or lost, 0, as counted now or, before the hull's model has loaded, as saved; null while no part is lost; lostNow, the parts this count lost
+        internal float[] WholePartsNow(out uint lostNow)
         {
-            float[] shown = PartShownNow();
+            lostNow = PartsOutdated ? UpdateLostParts() : 0u;
+            float[] shown = PartShown;
             int[] low = LostPartLow;
             if (shown == null && low == null)
                 return null;

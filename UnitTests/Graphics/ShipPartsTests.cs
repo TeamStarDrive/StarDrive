@@ -875,4 +875,270 @@ public class ShipPartsTests : StarDriveTest
             triangles.SetValue(ship.BaseHull, loadedTriangles);
         }
     }
+
+    [TestMethod]
+    [DataRow("Terran/HeavyGunboat", new byte[] { 6, 5 })]
+    [DataRow("Terran/Heavy Gunboat", new byte[] { 6, 5, 0 })]
+    public void AThrusterGoesWithThePartOnTopAtItsSpotSeenFromAbove(string hullName, byte[] parts)
+    {
+        Assert.IsTrue(Ship_Game.ResourceManager.Hull(hullName, out ShipHull hull), $"setup: the {hullName} hull");
+        Assert.IsTrue(hull.LoadModel(out SceneObject _, Content), "setup: its model loads");
+        CollectionAssert.AreEqual(parts, hull.ThrusterParts, "the side thrusters ride the back plates over the core's nearer edge, a middle one the core");
+    }
+
+    [TestMethod]
+    public void AThrusterOffTheModelsOutlineGoesWithTheNearestSurface()
+    {
+        ShipHull hull = LoadedGunboatHull();
+        var triangles = (Microsoft.Xna.Framework.Vector3[][])typeof(ShipHull)
+            .GetField("PartTriangles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(hull);
+        Assert.AreEqual(5, ShipHull.PartUnder(triangles, new(-60f, 103f, 0f)), "left of the back-left plate");
+        Assert.AreEqual(2, ShipHull.PartUnder(triangles, new(60f, -70f, 0f)), "right of the front-right plate");
+    }
+
+    [TestMethod]
+    public void AThrusterOnAPlateNotWholeIsOutTillThePlateIsWholeAgain()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        byte[] thrusterParts = ship.BaseHull.ThrusterParts;
+        Assert.AreEqual(6, thrusterParts[0], "setup: the first thruster rides the back-right plate");
+        Assert.AreEqual(5, thrusterParts[1], "setup: the second the back-left one");
+
+        ShipModule[] plate = ModulesOf(ship, 5, out int _);
+        foreach (ShipModule m in plate)
+            Kill(m);
+        float[] shown = ship.PartShownNow();
+        Assert.IsTrue(Ship.ThrusterOut(1, shown, thrusterParts), "the thruster on the lost plate is out");
+        Assert.IsFalse(Ship.ThrusterOut(0, shown, thrusterParts), "the one on the plate still on burns on");
+
+        Repair(plate[0]);
+        shown = ship.PartShownNow();
+        Assert.IsTrue(shown[5] > 0f && shown[5] < 1f, "setup: the plate is coming back");
+        Assert.IsTrue(Ship.ThrusterOut(1, shown, thrusterParts), "its thruster stays out while it comes back");
+
+        foreach (ShipModule m in plate)
+            Repair(m);
+        shown = ship.PartShownNow();
+        Assert.IsFalse(Ship.ThrusterOut(1, shown, thrusterParts), "and burns again once the plate is whole");
+    }
+
+    [TestMethod]
+    public void MovingTheModelOrAThrusterMovesWhichPartTheThrusterSitsOn()
+    {
+        ShipHull hull = LoadedGunboatHull();
+        CollectionAssert.AreEqual(new byte[] { 6, 5 }, hull.ThrusterParts, "setup: the thrusters ride the back plates");
+
+        ShipHull moved = hull.GetClone(); // as the hull editor's mesh offset slider does
+        moved.MeshOffset = new(hull.MeshOffset.X + 40f, hull.MeshOffset.Y);
+        CollectionAssert.AreEqual(new byte[] { 5, 5 }, moved.ThrusterParts, "the model 40 to the right puts the left plate under the right thruster, and the left thruster off its outline beside it");
+
+        ShipHull edited = hull.GetClone();
+        CollectionAssert.AreEqual(new byte[] { 6, 5 }, edited.ThrusterParts, "setup: a copy's thrusters ride the same plates");
+        edited.Thrusters[1].Position = new(21f, 129f, -2f); // as the hull editor drags a thruster
+        CollectionAssert.AreEqual(new byte[] { 6, 6 }, edited.ThrusterParts, "a thruster dragged over the right plate rides it");
+    }
+
+    [TestMethod]
+    public void AThrusterOutMovesWithItsShipSoItRelightsWhereItsShipIs()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        Assert.IsTrue(Ship.ThrusterOut(1, ship.PartShownNow(), ship.BaseHull.ThrusterParts), "setup: the thruster on the lost plate is out");
+        SDGraphics.Vector3 before = ship.ThrusterList[1].WorldPos;
+
+        ship.Position += new SDGraphics.Vector2(500f, 0f);
+        ship.UpdateThrusters(TestSimStep);
+        AssertEqual(0.01f, before.X + 500f, ship.ThrusterList[1].WorldPos.X, "it keeps its place on the ship while out");
+    }
+
+    // the ship's thrusters burning hot, drawn from above as the universe draws them: the number of pixels they light
+    int ThrusterPixels(Ship ship)
+    {
+        var device = Game.GraphicsDevice;
+        ship.UpdateThrusters(TestSimStep);
+        foreach (Thruster t in ship.ThrusterList)
+        {
+            t.LoadAndAssignDefaultEffects(Content);
+            t.Update(ship.Direction3D, 1f, 0.002f, Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.White);
+        }
+        SDGraphics.Vector2 at = ship.Position;
+        var view = SDGraphics.Matrix.CreateLookAt(new(at.X, at.Y, -1000f), new(at.X, at.Y, 0f), new(0f, -1f, 0f));
+        var projection = SDGraphics.Matrix.CreateOrthographic(400f, 400f, 1f, 5000f);
+
+        using var rt = new Microsoft.Xna.Framework.Graphics.RenderTarget2D(device, 128, 128, false,
+            Microsoft.Xna.Framework.Graphics.SurfaceFormat.Color, Microsoft.Xna.Framework.Graphics.DepthFormat.Depth24);
+        var previous = device.GetRenderTargets();
+        try
+        {
+            device.SetRenderTarget(rt);
+            device.Clear(Microsoft.Xna.Framework.Color.Black);
+            device.BlendState = Microsoft.Xna.Framework.Graphics.BlendState.Additive;
+            device.DepthStencilState = Microsoft.Xna.Framework.Graphics.DepthStencilState.None;
+            device.RasterizerState = Microsoft.Xna.Framework.Graphics.RasterizerState.CullNone;
+            ship.RenderThrusters(ref view, ref projection);
+        }
+        finally
+        {
+            device.SetRenderTargets(previous);
+        }
+        var pixels = new Microsoft.Xna.Framework.Color[128 * 128];
+        rt.GetData(pixels);
+        int lit = 0;
+        foreach (var px in pixels)
+            if (px.R + px.G + px.B > 0)
+                ++lit;
+        return lit;
+    }
+
+    [TestMethod]
+    public void AThrusterOnALostPlateIsNotDrawn()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        int whole = ThrusterPixels(ship);
+        Assert.IsTrue(whole > 0, "setup: the thrusters draw");
+
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        ship.PartShownNow();
+        int oneOut = ThrusterPixels(ship);
+        Assert.IsTrue(oneOut > 0 && oneOut < whole, $"the one on the lost plate is left out, the other drawn: {oneOut} of {whole}");
+    }
+
+    // the ship's model, made by hand as the screen would make it
+    static SceneObject GiveModel(Ship ship, SceneObject so)
+    {
+        typeof(Ship).GetField("ShipSO", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(ship, so);
+        return so;
+    }
+
+    // a gunboat seen up close, its model made, for the plates it loses to fly off
+    Ship GunboatOnScreen(bool dying, out SceneObject model)
+    {
+        SetupGunboats();
+        Universe.Particles = new Ship_Game.Graphics.Particles.ParticleManager(Content);
+        UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
+        Universe.Frustum = new Microsoft.Xna.Framework.BoundingFrustum(
+            Microsoft.Xna.Framework.Matrix.CreateOrthographicOffCenter(0, 1_000_000, 1_000_000, 0, -10_000, 10_000));
+        Ship ship = SpawnGunboat();
+        model = GiveModel(ship, Content.LoadStaticMesh("Model/Ships/Terran/HeavyGunboat/ship10b.fbx").CreateSceneObject());
+        if (dying)
+        {
+            ship.Dying = true;
+            ship.SetDieTimer(10f);
+        }
+        ShowOnScreen(ship);
+        return ship;
+    }
+
+    HullPartDebris[] Debris() => System.Linq.Enumerable.ToArray(System.Linq.Enumerable.OfType<HullPartDebris>(UState.JunkList));
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void AShipOnScreenThrowsOffThePlatesItLosesAsItsModelDrewThem(bool dying)
+    {
+        Ship ship = GunboatOnScreen(dying, out SceneObject model);
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        foreach (ShipModule m in ModulesOf(ship, 3, out int _))
+            Kill(m);
+        ship.Update(TestSimStep);
+        Assert.AreEqual(0f, model.PartShown?[5], "setup: the ship's model leaves the back-left plate out");
+        Assert.AreEqual(0f, model.PartShown?[3], "setup: and the middle-left one");
+
+        HullPartDebris[] debris = Debris();
+        Assert.AreEqual(2, debris.Length, "a piece of debris for each plate lost");
+        HullPartDebris backLeft = System.Array.Find(debris, d => d.So.PartShown[5] == 1f);
+        HullPartDebris midLeft = System.Array.Find(debris, d => d.So.PartShown[3] == 1f);
+        Assert.IsNotNull(backLeft, "one for the back-left plate");
+        Assert.IsNotNull(midLeft, "one for the middle-left plate");
+        CollectionAssert.AreEqual(new[] { 0f, 0f, 0f, 0f, 0f, 1f, 0f }, backLeft.So.PartShown, "each draws only its own plate");
+        CollectionAssert.AreEqual(new[] { 0f, 0f, 0f, 1f, 0f, 0f, 0f }, midLeft.So.PartShown, "each draws only its own plate");
+        foreach (HullPartDebris plate in debris)
+        {
+            Assert.AreEqual(model.World, plate.So.World, "where the ship's model drew it");
+            Assert.AreEqual(0f, plate.So.EmissiveScale, "its lights out");
+            SDGraphics.Vector2 push = plate.Drift - ship.Velocity;
+            Assert.IsTrue(push.Length() >= 15f && push.Length() <= 30f, $"it keeps the ship's velocity and drifts off at 15 to 30 a second: {push.Length()}");
+            Assert.IsTrue(push.Dot(plate.Position.ToVec2() - ship.Position) > 0f, "outward from the ship");
+        }
+
+        Repair(ModulesOf(ship, 5, out int _)[0]);
+        ship.Update(TestSimStep);
+        Assert.IsTrue(ship.PartShown[5] > 0f, "setup: counted again, the plate coming back");
+        Assert.AreEqual(2, Debris().Length, "a plate already lost throws off nothing more");
+    }
+
+    [TestMethod]
+    [DataRow(true, 1)]
+    [DataRow(false, 0)]
+    public void ADerelictMadeByTheBlowThatLosesAPlateThrowsItOffWhenSeen(bool seen, int thrown)
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject model);
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m); // the killing blow, with no update to count it
+
+        var d = new Derelict(ship, model, salvageable: false, seen);
+        Assert.AreEqual(0f, d.PartShown?[5], "setup: the derelict has lost the plate");
+        HullPartDebris[] debris = Debris();
+        Assert.AreEqual(thrown, debris.Length, seen ? "the plate flies off the derelict the player sees made" : "none where no one sees it");
+        if (seen)
+            CollectionAssert.AreEqual(new[] { 0f, 0f, 0f, 0f, 0f, 1f, 0f }, debris[0].So.PartShown, "the lost plate");
+    }
+
+    [TestMethod]
+    public void AShipOffScreenLosesThePlateButThrowsOffNothing()
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject model);
+        ship.InFrustum = false;
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        ship.Update(TestSimStep);
+        Assert.AreEqual(0f, ship.PartShown?[5], "the plate is lost");
+        Assert.AreEqual(0, Debris().Length, "with no one to see it fly off");
+    }
+
+    [TestMethod]
+    public void AThrownOffPlateDriftsOutTurningFlatAndGoesAtTheEndOfItsFlight()
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject _);
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        ship.Update(TestSimStep);
+        HullPartDebris plate = Debris()[0];
+        Assert.IsTrue(plate.Lifetime >= 8f && plate.Lifetime <= 12f, $"a flight of 8 to 12 seconds: {plate.Lifetime}");
+
+        Assert.IsTrue(ship.BaseHull.GetPartBounds(5, out Microsoft.Xna.Framework.Vector3 center, out float _, out int _), "setup: the plate's center in the model");
+        SDGraphics.Vector3 start = plate.Position;
+        Microsoft.Xna.Framework.Vector3 up = Microsoft.Xna.Framework.Vector3.Normalize(plate.So.World.Backward);
+        float leastUp = System.MathF.Cos(0.35f) * System.MathF.Cos(0.35f);
+        while (plate.Age < plate.Lifetime - 0.5f)
+        {
+            plate.Update(TestSimStep);
+            SDGraphics.Vector2 moved = plate.Drift * plate.Age;
+            Microsoft.Xna.Framework.Vector3 drawnAt = Microsoft.Xna.Framework.Vector3.Transform(center, plate.So.World);
+            AssertEqual(0.1f, start.X + moved.X, drawnAt.X, "its model drifts at its velocity, turning about the plate's center");
+            AssertEqual(0.1f, start.Y + moved.Y, drawnAt.Y, "its model drifts at its velocity, turning about the plate's center");
+            AssertEqual(0.1f, start.Z, drawnAt.Z, "in the plane it broke off in");
+            float upNow = Microsoft.Xna.Framework.Vector3.Dot(up, Microsoft.Xna.Framework.Vector3.Normalize(plate.So.World.Backward));
+            Assert.IsTrue(upNow >= leastUp - 0.0001f, $"its top stays toward the camera, tilted no more than 0.35 each way: {upNow} at {plate.Age}");
+        }
+        Assert.IsTrue(UState.JunkList.Contains(plate), "setup: still flying");
+
+        UState.ViewState = UniverseScreen.UnivScreenState.SectorView;
+        plate.Update(TestSimStep);
+        Assert.AreEqual(SynapseGaming.LightingSystem.Core.ObjectVisibility.None, plate.So.Visibility, "zoomed out it is hidden, not left hanging");
+        UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
+        plate.Update(TestSimStep);
+        Assert.AreEqual(GlobalStats.ShipVisibility, plate.So.Visibility, "and drawn again in view");
+
+        while (plate.Age < plate.Lifetime)
+            plate.Update(TestSimStep);
+        Assert.IsFalse(UState.JunkList.Contains(plate), "gone at the end of its flight");
+        Assert.IsNull(plate.So, "and out of the scene");
+    }
 }

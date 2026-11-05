@@ -114,6 +114,145 @@ namespace Ship_Game.Ships
             return grid;
         }
 
+        // the part each thruster sits on, with the model, placement and thruster positions it was found for
+        sealed record ThrusterPartList(XnaVector3[][] Triangles, Vector2 MeshOffset, Vector3[] Positions, byte[] Parts);
+        ThrusterPartList ThrusterPartsFound;
+
+        // the part each thruster sits on, which takes it out while not whole; null until the model loads, or for a model in one piece
+        public byte[] ThrusterParts
+        {
+            get
+            {
+                XnaVector3[][] triangles = PartTriangles;
+                if (triangles == null)
+                    return null;
+                ThrusterZone[] thrusters = Thrusters;
+                ThrusterPartList found = ThrusterPartsFound;
+                if (found == null || found.Triangles != triangles || found.MeshOffset != MeshOffset || !SamePositions(found.Positions, thrusters))
+                {
+                    var positions = new Vector3[thrusters.Length];
+                    var parts = new byte[thrusters.Length];
+                    for (int i = 0; i < parts.Length; ++i)
+                    {
+                        Vector3 pos = positions[i] = thrusters[i].Position;
+                        parts[i] = (byte)PartUnder(triangles, new XnaVector3(pos.X - MeshOffset.X, pos.Y - MeshOffset.Y, pos.Z));
+                    }
+                    found = new(triangles, MeshOffset, positions, parts);
+                    ThrusterPartsFound = found;
+                }
+                return found.Parts;
+            }
+        }
+
+        // the hull editor moves thrusters in place
+        static bool SamePositions(Vector3[] positions, ThrusterZone[] thrusters)
+        {
+            if (positions.Length != thrusters.Length)
+                return false;
+            for (int i = 0; i < positions.Length; ++i)
+                if (positions[i] != thrusters[i].Position)
+                    return false;
+            return true;
+        }
+
+        // a part's center in the model, the radius about it that holds it, and the model's part count; false before the model loads, or for a part with no triangles
+        public bool GetPartBounds(int part, out XnaVector3 center, out float radius, out int numParts)
+        {
+            center = default;
+            radius = 0f;
+            XnaVector3[][] triangles = PartTriangles;
+            numParts = triangles?.Length ?? 0;
+            if (triangles == null || (uint)part >= (uint)triangles.Length || triangles[part].Length == 0)
+                return false;
+            var min = new XnaVector3(float.MaxValue);
+            var max = new XnaVector3(float.MinValue);
+            foreach (XnaVector3 v in triangles[part])
+            {
+                min = XnaVector3.Min(min, v);
+                max = XnaVector3.Max(max, v);
+            }
+            center = (min + max) * 0.5f;
+            radius = (max - min).Length() * 0.5f;
+            return true;
+        }
+
+        // the part whose surface is on top at a model point seen from above, as a module's, or for a point off the model's outline the part with the surface nearest it
+        public static int PartUnder(XnaVector3[][] partTriangles, XnaVector3 p)
+        {
+            int top = -1;
+            float topZ = float.MaxValue;
+            for (int part = 0; part < partTriangles.Length; ++part)
+            {
+                XnaVector3[] corners = partTriangles[part];
+                for (int t = 0; t + 2 < corners.Length; t += 3)
+                {
+                    XnaVector3 a = corners[t], b = corners[t + 1], c = corners[t + 2];
+                    float area = (b.X - a.X) * (c.Y - a.Y) - (c.X - a.X) * (b.Y - a.Y);
+                    if (Math.Abs(area) < 1e-6f)
+                        continue; // edge-on from above, as a side wall
+                    float wa = ((b.X - p.X) * (c.Y - p.Y) - (c.X - p.X) * (b.Y - p.Y)) / area;
+                    float wb = ((c.X - p.X) * (a.Y - p.Y) - (a.X - p.X) * (c.Y - p.Y)) / area;
+                    float wc = 1f - wa - wb;
+                    const float edge = -1e-4f;
+                    if (wa < edge || wb < edge || wc < edge)
+                        continue;
+                    float z = wa * a.Z + wb * b.Z + wc * c.Z; // most negative is on top
+                    if (z < topZ)
+                    {
+                        topZ = z;
+                        top = part;
+                    }
+                }
+            }
+            if (top >= 0)
+                return top;
+
+            int nearest = 0;
+            float nearestSq = float.MaxValue;
+            for (int part = 0; part < partTriangles.Length; ++part)
+            {
+                XnaVector3[] corners = partTriangles[part];
+                for (int t = 0; t + 2 < corners.Length; t += 3)
+                {
+                    float distanceSq = XnaVector3.DistanceSquared(p, ClosestOnTriangle(p, corners[t], corners[t + 1], corners[t + 2]));
+                    if (distanceSq < nearestSq)
+                    {
+                        nearestSq = distanceSq;
+                        nearest = part;
+                    }
+                }
+            }
+            return nearest;
+        }
+
+        // the point of triangle abc closest to p
+        static XnaVector3 ClosestOnTriangle(XnaVector3 p, XnaVector3 a, XnaVector3 b, XnaVector3 c)
+        {
+            XnaVector3 ab = b - a, ac = c - a, ap = p - a;
+            float d1 = XnaVector3.Dot(ab, ap), d2 = XnaVector3.Dot(ac, ap);
+            if (d1 <= 0f && d2 <= 0f)
+                return a;
+            XnaVector3 bp = p - b;
+            float d3 = XnaVector3.Dot(ab, bp), d4 = XnaVector3.Dot(ac, bp);
+            if (d3 >= 0f && d4 <= d3)
+                return b;
+            float vc = d1 * d4 - d3 * d2;
+            if (vc <= 0f && d1 >= 0f && d3 <= 0f)
+                return a + ab * (d1 / (d1 - d3));
+            XnaVector3 cp = p - c;
+            float d5 = XnaVector3.Dot(ab, cp), d6 = XnaVector3.Dot(ac, cp);
+            if (d6 >= 0f && d5 <= d6)
+                return c;
+            float vb = d5 * d2 - d1 * d6;
+            if (vb <= 0f && d2 >= 0f && d6 <= 0f)
+                return a + ac * (d2 / (d2 - d6));
+            float va = d3 * d6 - d5 * d4;
+            if (va <= 0f && d4 - d3 >= 0f && d5 - d6 >= 0f)
+                return b + (c - b) * ((d4 - d3) / (d4 - d3 + (d5 - d6)));
+            float denom = 1f / (va + vb + vc);
+            return a + ab * (vb * denom) + ac * (vc * denom);
+        }
+
         // Lift VFX slightly toward the camera so emitters sit just above the
         // deck instead of co-planar with the mesh surface.
         const float SurfaceLift = -2f;

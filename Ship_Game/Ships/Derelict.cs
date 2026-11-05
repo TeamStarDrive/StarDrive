@@ -173,7 +173,7 @@ public sealed class Derelict
         float spin = 50f / ship.SurfaceArea;
         Spin = new(random.Float(-1f, 1f) * spin, random.Float(-1f, 1f) * spin, random.Float(-1f, 1f) * spin);
         BreakupSeconds = random.Float(MinBreakupSeconds, MaxBreakupSeconds);
-        PartShown = ship.WholePartsNow();
+        PartShown = ship.WholePartsNow(out uint partsLostNow);
         if (so != null)
             so.PartShown = PartShown;
         Smoke = PickSmokeSources(ship);
@@ -211,6 +211,8 @@ public sealed class Derelict
         GameAudio.PlaySfxAsync("sd_explosion_ship_det_small", ship.SoundEmitter);
         SpaceJunk.SpawnJunk(Universe, (int)(Radius * 0.03f), Position, DriftVelocity, ship,
                             maxSize: Radius * 0.1f, ignite: true);
+        if (so != null && partsLostNow != 0u)
+            ship.ThrowOffParts(partsLostNow, so);
     }
 
     [StarDataConstructor]
