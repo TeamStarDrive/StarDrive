@@ -50,11 +50,16 @@ namespace Ship_Game
 
         public UniverseParams Params => P;
         // the borders of the upper and lower panel rows, which the Game Setup panels line up with
-        public (int Top, int UpperBottom, int LowerTop, int Bottom) PanelRows { get; private set; }
+        public (int Top, int UpperBottom, int LowerTop) PanelRows { get; private set; }
         public int TotalPointsUsed { get; private set; }
 
         public IEmpireData SelectedData { get; private set; }
 
+        UIButton GameSetupButton;
+        UIButton AbortButton;
+        // Game Setup's Back and Engage come out of these two
+        public Vector2 AbortPos => AbortButton.Pos;
+        public Vector2 GameSetupPos => GameSetupButton.Pos;
         UITextEntry NameEntry;
         UITextEntry SingEntry;
         UITextEntry PlurEntry;
@@ -143,7 +148,7 @@ namespace Ship_Game
                                   (int)NameMenu.Bottom + 5,
                                   (int)(ScreenWidth * 0.5f), 
                                   (int)(ScreenHeight - TitleBar.Bottom - 0.25f*ScreenHeight));
-            PanelRows = ((int)NameMenu.Y, (int)NameMenu.Bottom, (int)traitsList.Y, (int)traitsList.Bottom);
+            PanelRows = ((int)NameMenu.Y, (int)NameMenu.Bottom, (int)traitsList.Y);
 
             LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition, "Environment" };
             Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20, -10), traitNames));
@@ -190,8 +195,8 @@ namespace Ship_Game
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked)
                 .SetLocalPos(containerPaddingLeft, DescriptionTextList.Height + containerMarginBottom);
 
-            Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.GameSetup, click: OnGameSetupClicked);
-            Button(ButtonStyle.BigDip, 10, ScreenHeight - 40, GameText.Abort, click: OnAbortClicked);
+            GameSetupButton = Button(ButtonStyle.Military, ScreenWidth - 180, ScreenHeight - 40, GameText.GameSetup, click: OnGameSetupClicked);
+            AbortButton = Button(ButtonStyle.BigDip, 10, ScreenHeight - 40, GameText.Abort, click: OnAbortClicked);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
@@ -307,7 +312,11 @@ namespace Ship_Game
 
         void OnGameSetupClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new GameSetupScreen(this));
+            // Game Setup puts its own Back and Engage on this screen's button row while it is open
+            GameSetupButton.Visible = AbortButton.Visible = false;
+            var setup = new GameSetupScreen(this);
+            setup.OnExit += () => GameSetupButton.Visible = AbortButton.Visible = true;
+            ScreenManager.AddScreen(setup);
         }
 
         void OnAbortClicked(UIButton b)

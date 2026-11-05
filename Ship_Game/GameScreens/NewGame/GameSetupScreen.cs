@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 using SDGraphics;
@@ -30,8 +31,18 @@ namespace Ship_Game.GameScreens.NewGame
         bool PickingPlayerColor;
         bool PickerAwaitsRelease;
         SubTexture PlayerPortrait;
-        Rectangle PlayerPortraitRect;
-        Rectangle PlayerFlagRect;
+        Rectangle PortraitRest;
+        Rectangle FlagRest;
+        Menu1 EmpireMenu;
+        Vector2 EmpireMenuRest;
+        readonly Array<(UIElementV2 Element, Vector2 Offset)> Slides = new();
+        UIButton BackButton;
+        UIButton EngageButton;
+
+        // the screen draws the portrait and flag itself, so they follow the empire panel as it slides
+        Rectangle PlayerPortraitRect => FollowEmpireMenu(PortraitRest);
+        Rectangle PlayerFlagRect => FollowEmpireMenu(FlagRest);
+        Rectangle FollowEmpireMenu(in Rectangle r) => new(r.X + (int)(EmpireMenu.X - EmpireMenuRest.X), r.Y + (int)(EmpireMenu.Y - EmpireMenuRest.Y), r.Width, r.Height);
 
         public GameSetupScreen(RaceDesignScreen raceScreen) : base(raceScreen, toPause: null)
         {
@@ -39,6 +50,7 @@ namespace Ship_Game.GameScreens.NewGame
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
             RaceScreen = raceScreen;
+            OnExit += SlideOut;
         }
 
         public override void LoadContent()
@@ -49,25 +61,32 @@ namespace Ship_Game.GameScreens.NewGame
                                  ScreenWidth - gap - pickerWidth - gap - listWidth - gap - leftWidth);
             int listX = leftX + leftWidth + gap;
             int titleY = LowRes ? 10 : 44;
-            (int top, int upperBottom, int lowerTop, int bottom) = RaceScreen.PanelRows;
+            (int top, int upperBottom, int lowerTop) = RaceScreen.PanelRows;
+            // Back and Engage take the race screen's button row, whose own buttons hide meanwhile, and the panels reach down to it
+            int bottom = ScreenHeight - 50;
+            Slides.Clear();
 
+            int first = Elements.Count;
             Menu2 titleBar = Add(new Menu2(new Rectangle(leftX, titleY, leftWidth + gap + listWidth, 80), Color.Black));
             float titleWidth = Fonts.Laserian14.MeasureString(Localizer.Token(GameText.GameSetup)).X;
             Add(new UILabel(new Vector2(titleBar.CenterX - titleWidth / 2f, titleBar.CenterY - Fonts.Laserian14.LineSpacing / 2),
                             GameText.GameSetup, Fonts.Laserian14, Color.Wheat));
+            SlideFrom(first, new Vector2(0, -(titleY + 80)));
 
+            first = Elements.Count;
             var empirePanel = new Rectangle(leftX, top, leftWidth, upperBottom - top);
             var galaxyPanel = new Rectangle(leftX, lowerTop, leftWidth, 300);
             var extensionsPanel = new Rectangle(leftX, galaxyPanel.Bottom + gap, leftWidth, bottom - galaxyPanel.Bottom - gap);
-            Add(new Menu1(empirePanel));
+            EmpireMenu = Add(new Menu1(empirePanel));
+            EmpireMenuRest = EmpireMenu.Pos;
             Add(new Menu1(galaxyPanel));
             Add(new Menu1(extensionsPanel));
 
             AddHeading(empirePanel, GameText.YourEmpire);
             PlayerPortrait = ResourceManager.Texture("Races/" + RaceScreen.SelectedData.VideoPath);
-            PlayerPortraitRect = new Rectangle(empirePanel.X + pad, empirePanel.Y + 38, (int)PlayerPortrait.GetWidthFromHeightAspect(80), 80);
-            PlayerFlagRect = new Rectangle(PlayerPortraitRect.Right + 32, PlayerPortraitRect.Y, 80, 80);
-            UIList empireBoxes = AddList(new Vector2(empirePanel.X + pad, PlayerPortraitRect.Bottom + 3));
+            PortraitRest = new Rectangle(empirePanel.X + pad, empirePanel.Y + 38, (int)PlayerPortrait.GetWidthFromHeightAspect(80), 80);
+            FlagRest = new Rectangle(PortraitRest.Right + 32, PortraitRest.Y, 80, 80);
+            UIList empireBoxes = AddList(new Vector2(empirePanel.X + pad, PortraitRest.Bottom + 3));
             empireBoxes.AddCheckbox(() => Params.PlayerHullColors, title: GameText.YourHullColor, tooltip: GameText.YourHullColorTip);
 
             AddHeading(galaxyPanel, GameText.Galaxy);
@@ -83,19 +102,25 @@ namespace Ship_Game.GameScreens.NewGame
             MidGameWarning = labelFont.ParseText("Warning, performance issues are expected mid to late game.", warningWidth);
 
             AddHeading(extensionsPanel, GameText.GameExtensions);
-            UIList extensions = AddList(new Vector2(extensionsPanel.X + pad, extensionsPanel.Y + 40));
-            extensions.Padding = new Vector2(2f, 10f);
-            extensions.AddCheckbox(() => Params.Pirates, title: GameText.PiratesExtension, tooltip: GameText.PiratesExtensionTip);
-            extensions.AddCheckbox(() => Params.RemnantStory, title: GameText.RemnantStoryExtension, tooltip: GameText.RemnantStoryExtensionTip);
-            extensions.AddCheckbox(() => Params.Infiltration, title: GameText.InfiltrationExtension, tooltip: GameText.InfiltrationExtensionTip);
-            extensions.AddCheckbox(() => Params.ResearchStations, title: GameText.ResearchStationsExtension, tooltip: GameText.ResearchStationsExtensionTip);
-            extensions.AddCheckbox(() => Params.MiningOps, title: GameText.MiningOpsExtension, tooltip: GameText.MiningOpsExtensionTip);
+            int extensionCount = 0;
+            ExtensionToggle AddExtension(Expression<Func<bool>> binding, string icon, GameText title, GameText tooltip)
+            {
+                var pos = new Vector2(extensionsPanel.X + pad, extensionsPanel.Y + 40 + extensionCount++ * 54);
+                return Add(new ExtensionToggle(pos, extensionsPanel.Width - 2 * pad, binding, icon, title, tooltip));
+            }
+            AddExtension(() => Params.Pirates, "Pirates", GameText.PiratesExtension, GameText.PiratesExtensionTip);
+            AddExtension(() => Params.RemnantStory, "RemnantStory", GameText.RemnantStoryExtension, GameText.RemnantStoryExtensionTip);
+            AddExtension(() => Params.Infiltration, "Infiltration", GameText.InfiltrationExtension, GameText.InfiltrationExtensionTip);
+            AddExtension(() => Params.ResearchStations, "ResearchStations", GameText.ResearchStationsExtension, GameText.ResearchStationsExtensionTip);
+            AddExtension(() => Params.MiningOps, "MiningOps", GameText.MiningOpsExtension, GameText.MiningOpsExtensionTip);
             bool salvageOpsEnabled = GlobalStats.Defaults.EnableSalvageOps;
-            extensions.AddCheckbox(() => Params.SalvageOps, title: GameText.SalvageOpsExtension,
-                                   tooltip: salvageOpsEnabled ? GameText.SalvageOpsExtensionTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
+            AddExtension(() => Params.SalvageOps, "SalvageOps", GameText.SalvageOpsExtension,
+                         salvageOpsEnabled ? GameText.SalvageOpsExtensionTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
             Button(ButtonStyle.Default, extensionsPanel.X + extensionsPanel.Width / 2 - 84, extensionsPanel.Bottom - 39,
                    GameText.RuleOptions, click: OnRuleOptionsClicked);
+            SlideFrom(first, new Vector2(-(leftX + leftWidth), 0));
 
+            first = Elements.Count;
             const int boxesHeight = 40;
             string hint = Fonts.Arial12.ParseText(GameText.ChooseOpponentsHint, listWidth - 90);
             int countY = top + 16 + hint.Split('\n').Length * Fonts.Arial12.LineSpacing + 6;
@@ -113,9 +138,10 @@ namespace Ship_Game.GameScreens.NewGame
                 ChooseRaceList.AddItem(new SelectOpponentListItem(this, e));
             UIList opponentBoxes = AddList(new Vector2(racesListRect.X + 30, background.Bottom + 15));
             opponentBoxes.AddCheckbox(() => Params.OpponentHullColors, title: GameText.OpponentsHullColor, tooltip: GameText.OpponentsHullColorTip);
+            SlideFrom(first, new Vector2(ScreenWidth - listX, 0));
 
-            Button(ButtonStyle.BigDip, leftX, bottom + 10, GameText.Back, click: _ => ExitScreen());
-            Button(ButtonStyle.Military, listX + listWidth - 168, bottom + 10, GameText.Engage, click: _ => RaceScreen.Engage());
+            BackButton = Button(ButtonStyle.BigDip, leftX, bottom + 10, GameText.Back, click: _ => ExitScreen());
+            EngageButton = Button(ButtonStyle.Military, listX + listWidth - 168, bottom + 10, GameText.Engage, click: _ => RaceScreen.Engage());
 
             Picker = Add(new UIColorPicker(new Rectangle(listX + listWidth + gap, top, pickerWidth, pickerHeight)));
             Picker.Visible = false;
@@ -124,7 +150,30 @@ namespace Ship_Game.GameScreens.NewGame
                 Picker, TransientContent, () => PickingPlayerColor ? RaceScreen.SelectedData : PickingColorFor,
                 () => PickingPlayerColor ? Params.PlayerHullColors : Params.OpponentHullColors && Params.IsColorPicked(PickingColorFor)));
 
+            for (int i = 0; i < Slides.Count; ++i)
+                Slides[i].Element.SlideInFromOffset(Slides[i].Offset, TransitionOnTime);
+            // Back and Engage come out of the race screen's Abort and Game Setup, which they stand in for
+            BackButton.SlideInFromOffset(RaceScreen.AbortPos - BackButton.Pos, TransitionOnTime);
+            EngageButton.SlideInFromOffset(RaceScreen.GameSetupPos - EngageButton.Pos, TransitionOnTime);
             base.LoadContent();
+        }
+
+        // the elements added from [first] on slide in from [offset] as the screen opens, and back out as it closes, like the race screen's panels
+        void SlideFrom(int first, Vector2 offset)
+        {
+            for (int i = first; i < Elements.Count; ++i)
+                Slides.Add((Elements[i], offset));
+        }
+
+        void SlideOut()
+        {
+            BackButton.Visible = EngageButton.Visible = false; // they vanish as the race screen's own buttons come back
+            for (int i = 0; i < Slides.Count; ++i)
+            {
+                UIElementV2 e = Slides[i].Element;
+                e.ClearEffects(); // closed while still sliding in, it leaves from where it is
+                e.SlideOutToOffset(Slides[i].Offset, TransitionOffTime);
+            }
         }
 
         void AddHeading(in Rectangle panel, LocalizedText text)
@@ -322,11 +371,7 @@ namespace Ship_Game.GameScreens.NewGame
         {
             RandomOpponentsCount.Text = $"Random Opponents: {Params.NumOpponents - Params.SelectedOpponents.Count}";
             RandomOpponentsCount.Color = Params.SelectedOpponents.Count == Params.NumOpponents ? Color.Gray : Color.Green;
-            int numSystems = GetNumStars(Params.StarsCount, Params.GalaxySize, Params.NumOpponents).NumStars;
-            NumSystemsLabel.Text = $"Solar Systems: {numSystems}";
-            ShowPerformanceWarning(numSystems);
-            ExtraPlanetsLabel.Visible = Params.ExtraPlanets > 0;
-            ExtraPlanetsLabel.Text = $"Extra Planets: {Params.ExtraPlanets}";
+            UpdateGalaxyLabels();
             ModeBtn.Tooltip = GetModeTip();
             if (Picker.Visible)
             {
@@ -338,9 +383,16 @@ namespace Ship_Game.GameScreens.NewGame
             base.Update(fixedDeltaTime);
         }
 
+        void UpdateGalaxyLabels()
+        {
+            int numSystems = GetNumStars(Params.StarsCount, Params.GalaxySize, Params.NumOpponents).NumStars;
+            NumSystemsLabel.Text = $"Solar Systems: {numSystems}";
+            ShowPerformanceWarning(numSystems);
+            ExtraPlanetsLabel.Text = Params.ExtraPlanets > 0 ? $"Extra Planets: {Params.ExtraPlanets}" : "";
+        }
+
         void ShowPerformanceWarning(int numSystems)
         {
-            PerformanceWarning.Visible = numSystems >= 100;
             if (numSystems >= 200)
             {
                 PerformanceWarning.Color = NumSystemsLabel.Color = Color.Orange;
@@ -354,6 +406,7 @@ namespace Ship_Game.GameScreens.NewGame
             else
             {
                 NumSystemsLabel.Color = Color.SteelBlue;
+                PerformanceWarning.Text = "";
             }
         }
 

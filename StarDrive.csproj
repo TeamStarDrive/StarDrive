@@ -570,6 +570,7 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneObj.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneShipAI.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\ExtensionToggle.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ShipColorPreview.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\UIColorPicker.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen_RaceDescription.cs" />
