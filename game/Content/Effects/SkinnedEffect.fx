@@ -75,6 +75,8 @@ float  SpecularAmount  = 1.0;
 float  EmissiveScale   = 1.0;
 // see MeshLighting.fx
 float4 HullTint        = float4(1, 1, 1, 0);
+// see MeshLighting.fx
+float4 PartLook        = float4(1, 0, 1, 0);
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
@@ -221,6 +223,8 @@ struct VSOutput
     float3 BinormalWS : TEXCOORD4;
     float  FogFactor  : TEXCOORD5;
     float4 PositionLS : TEXCOORD6;
+    // see MeshLighting.fx
+    float3 PositionOS : TEXCOORD7;
 };
 
 float ComputeFogFactor(float dist)
@@ -244,6 +248,8 @@ float4x3 ComputeSkinning(int4 indices, float4 weights)
 }
 
 struct LightTerms { float3 Diffuse; float3 Specular; };
+// see MeshLighting.fx
+static float Shininess;
 
 LightTerms ComputeDirectional(
     float3 normalWS, float3 viewDirWS,
@@ -258,7 +264,7 @@ LightTerms ComputeDirectional(
     float3 halfWay = normalize(toLight + viewDirWS);
     float ndh = saturate(dot(normalWS, halfWay));
     float specMask = ndl > 0 ? 1.0 : 0.0;
-    terms.Specular = lightSpecular * pow(ndh, SpecularPower) * specMask;
+    terms.Specular = lightSpecular * pow(ndh, Shininess) * specMask;
 
     return terms;
 }
@@ -289,7 +295,7 @@ LightTerms ComputePoint(
     float3 halfWay = normalize(toLight + viewDirWS);
     float ndh = saturate(dot(normalWS, halfWay));
     float specMask = ndl > 0 ? 1.0 : 0.0;
-    terms.Specular = specularColor * pow(ndh, SpecularPower) * specMask * atten;
+    terms.Specular = specularColor * pow(ndh, Shininess) * specMask * atten;
 
     return terms;
 }
@@ -319,6 +325,7 @@ VSOutput VSSkinned(VSInputSkinned input)
     output.TexCoord   = input.TexCoord;
     output.FogFactor  = ComputeFogFactor(length(viewPos.xyz));
     output.PositionLS = mul(worldPos, LightViewProjection);
+    output.PositionOS = skinnedPosition;
     return output;
 }
 
@@ -357,8 +364,102 @@ float3 TintAtLuminance(float3 tint, float lum)
     return c;
 }
 
-float4 PSDefault(VSOutput input) : SV_TARGET
+// three random numbers in [0,1) for a lattice cell
+float3 CellRandom(int3 cell)
 {
+    uint3 v = (uint3)cell * 1664525u + 1013904223u;
+    v.x += v.y * v.z; v.y += v.z * v.x; v.z += v.x * v.y;
+    v ^= v >> 16u;
+    v.x += v.y * v.z; v.y += v.z * v.x; v.z += v.x * v.y;
+    return float3(v >> 8u) * (1.0 / 16777216.0);
+}
+
+// smooth noise in [0,1]
+float ValueNoise(float3 p)
+{
+    float3 fl = floor(p);
+    int3 c = (int3)fl;
+    float3 f = p - fl;
+    f = f * f * (3.0 - 2.0 * f);
+    float a = CellRandom(c).x,                  b = CellRandom(c + int3(1, 0, 0)).x;
+    float d = CellRandom(c + int3(0, 1, 0)).x,  e = CellRandom(c + int3(1, 1, 0)).x;
+    float g = CellRandom(c + int3(0, 0, 1)).x,  h = CellRandom(c + int3(1, 0, 1)).x;
+    float k = CellRandom(c + int3(0, 1, 1)).x,  m = CellRandom(c + int3(1, 1, 1)).x;
+    return lerp(lerp(lerp(a, b, f.x), lerp(d, e, f.x), f.y),
+                lerp(lerp(g, h, f.x), lerp(k, m, f.x), f.y), f.z);
+}
+
+// a part coming back shows a speck where this is below its share shown
+float SpeckNoise(float3 p)
+{
+    float n = 0.65 * ValueNoise(p / 7.0) + 0.35 * ValueNoise(p / 2.5);
+    return saturate((n - 0.5) * 2.2 + 0.5);
+}
+
+// the nearest of the seeds scattered one to a lattice cell: its distance and its random
+struct CellHit { float Distance; float Id; };
+CellHit NearestSeed(float3 p)
+{
+    float3 fl = floor(p);
+    int3 cell = (int3)fl;
+    float3 f = p - fl;
+    CellHit hit;
+    hit.Distance = 8.0;
+    hit.Id = 0.0;
+    [loop] for (int z = -1; z <= 1; ++z)
+    [loop] for (int y = -1; y <= 1; ++y)
+    [loop] for (int x = -1; x <= 1; ++x)
+    {
+        int3 o = int3(x, y, z);
+        float3 r = CellRandom(cell + o);
+        float3 d = float3(o) + r - f;
+        float dd = dot(d, d);
+        if (dd < hit.Distance)
+        {
+            hit.Distance = dd;
+            hit.Id = frac(r.x * 13.37 + r.y * 7.91 + r.z * 3.17);
+        }
+    }
+    hit.Distance = sqrt(hit.Distance);
+    return hit;
+}
+
+// the inside of a hull torn open: charred metal with red and orange embers glowing into it, as hot as heat says; its own shine and power on any hull
+struct Burnt { float3 Color; float3 Glow; float Shine; float Power; };
+Burnt BurntInside(float3 p, float heat)
+{
+    Burnt b;
+    b.Color = float3(0.0245, 0.02275, 0.021) * lerp(0.6, 1.2, ValueNoise(p / 10.0));
+    b.Shine = 0.12;
+    b.Power = 16.0;
+
+    // embers too small to see blend into their mean glow, so they don't shimmer, and need no search
+    float pixel = max(length(ddx(p)), length(ddy(p)));
+    float blur = saturate(pixel * 0.75 - 0.3);
+    b.Glow = float3(1.0, 0.315, 0.0525) * 0.1875 * blur;
+    [branch] if (blur < 1.0)
+    {
+        CellHit ember = NearestSeed(p / 2.0);
+        float lit = step(0.25, ember.Id); // three seeds in four
+        float r = lerp(0.08, 0.28, frac(ember.Id * 3.1));
+        float spot = 1.0 - smoothstep(r * 0.4, r + pixel * 0.5, ember.Distance);
+        float soft = 1.0 - smoothstep(r, r * 2.8, ember.Distance);
+        float3 color = frac(ember.Id * 7.3) < 0.5 ? float3(1.0, 0.48, 0.07) : float3(1.0, 0.15, 0.035);
+        b.Glow += color * (spot * 1.6 + soft * 0.4) * lit * (1.0 - blur);
+    }
+    b.Glow *= heat;
+    return b;
+}
+
+float4 PSDefault(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
+{
+    bool burnt = !isFront && PartLook.y > 0.5;
+    Burnt inside = (Burnt)0;
+    if (burnt)
+        inside = BurntInside(input.PositionOS, PartLook.z);
+    Shininess = burnt ? inside.Power : SpecularPower;
+    float3 diffuseColor = burnt ? float3(1, 1, 1) : DiffuseColor;
+
     float4 texColor = TextureEnabled ? tex2D(TextureSampler, input.TexCoord) : float4(1, 1, 1, 1);
 
     if (TintMapEnabled)
@@ -372,11 +473,23 @@ float4 PSDefault(VSOutput input) : SV_TARGET
         ? tex2D(SpecularSampler, input.TexCoord).rgb
         : float3(1, 1, 1);
 
+    float3 specularGain = SpecularColor * specularMask * SpecularAmount;
+    if (burnt)
+    {
+        texColor.rgb = inside.Color;
+        emissive = inside.Glow;
+        specularGain = float3(inside.Shine, inside.Shine, inside.Shine);
+    }
+
     float3 rgb;
     if (LightingEnabled)
     {
         float3 normalWS;
-        if (NormalMapEnabled)
+        if (burnt)
+        {
+            normalWS = -normalize(input.NormalWS);
+        }
+        else if (NormalMapEnabled)
         {
             float3 tangentSpaceN = tex2D(NormalSampler, input.TexCoord).rgb * 2.0 - 1.0;
             float3 T = normalize(input.TangentWS);
@@ -390,7 +503,7 @@ float4 PSDefault(VSOutput input) : SV_TARGET
         }
         float3 viewDirWS = normalize(EyePosition - input.PositionWS);
 
-        float3 ambient = AmbientLightColor * DiffuseColor;
+        float3 ambient = AmbientLightColor * diffuseColor;
 
         LightTerms l0 = ComputeDirectional(normalWS, viewDirWS,
             DirLight0Direction, DirLight0DiffuseColor, DirLight0SpecularColor);
@@ -425,12 +538,12 @@ float4 PSDefault(VSOutput input) : SV_TARGET
         float3 diffuseAcc  = (l0.Diffuse  + l1.Diffuse  + l2.Diffuse
                             + p0.Diffuse  + p1.Diffuse  + p2.Diffuse
                             + d0.Diffuse  + d1.Diffuse  + d2.Diffuse + d3.Diffuse
-                            + d4.Diffuse  + d5.Diffuse  + d6.Diffuse + d7.Diffuse) * DiffuseColor;
+                            + d4.Diffuse  + d5.Diffuse  + d6.Diffuse + d7.Diffuse) * diffuseColor;
         float3 specularAcc = (l0.Specular + l1.Specular + l2.Specular
                             + p0.Specular + p1.Specular + p2.Specular
                             + d0.Specular + d1.Specular + d2.Specular + d3.Specular
                             + d4.Specular + d5.Specular + d6.Specular + d7.Specular)
-                            * SpecularColor * specularMask * SpecularAmount;
+                            * specularGain;
 
         float shadowFactor = SampleShadowFactor(input.PositionLS);
         diffuseAcc  *= shadowFactor;
@@ -440,7 +553,7 @@ float4 PSDefault(VSOutput input) : SV_TARGET
     }
     else
     {
-        rgb = DiffuseColor * texColor.rgb + emissive;
+        rgb = diffuseColor * texColor.rgb + emissive;
     }
 
     if (FogEnabled)
@@ -462,5 +575,21 @@ technique Default
         // the static effect for a unified DX10 minimum-spec promise.
         VertexShader = compile vs_4_0 VSSkinned();
         PixelShader  = compile ps_4_0 PSDefault();
+    }
+}
+
+// see MeshLighting.fx
+float4 PSDissolve(VSOutput input, bool isFront : SV_IsFrontFace) : SV_TARGET
+{
+    clip(PartLook.x - SpeckNoise(input.PositionOS));
+    return PSDefault(input, isFront);
+}
+
+technique Dissolve
+{
+    pass Pass1
+    {
+        VertexShader = compile vs_4_0 VSSkinned();
+        PixelShader  = compile ps_4_0 PSDissolve();
     }
 }

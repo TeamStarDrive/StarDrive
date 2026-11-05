@@ -327,6 +327,32 @@ public class ShipPartsTests : StarDriveTest
         Assert.AreEqual("30+12", Runs(rm, new[] { 0f }), "shown levels mean nothing to a model with no parts");
     }
 
+    static string PartsComingBack(RenderableMesh rm, float[] shown)
+    {
+        var parts = new System.Collections.Generic.List<string>();
+        for (int part = 0; rm.NextPartComingBack(shown, ref part, out int start, out int primitives, out float share);)
+            parts.Add(System.FormattableString.Invariant($"{start}+{primitives}@{share}"));
+        return string.Join(" ", parts);
+    }
+
+    [TestMethod]
+    [DataRow(new[] { 4, 1, 2, 3 }, new[] { 1f, 0.5f, 0f, 0.25f }, "12+1@0.5 21+3@0.25")]
+    [DataRow(new[] { 4, 1, 2, 3 }, new[] { 1f, 1f, 0f, 1f }, "")]
+    [DataRow(new[] { 4, 1, 2, 3 }, new[] { 0.5f, 1f }, "0+4@0.5", DisplayName = "the parts past the levels given are whole")]
+    [DataRow(new[] { 4, 0, 3 }, new[] { 1f, 0.5f, 0.75f }, "12+3@0.75", DisplayName = "a part with no triangles draws nothing")]
+    public void EachPartComingBackIsDrawnOnItsOwnWithTheShareOfItShown(int[] primitives, float[] shown, string parts)
+    {
+        Assert.AreEqual(parts, PartsComingBack(PartsMesh(primitives), shown));
+    }
+
+    [TestMethod]
+    public void AModelInOnePieceHasNoPartComingBack()
+    {
+        var rm = new RenderableMesh(null, null, default, default, null, null, null, 0,
+                                    Microsoft.Xna.Framework.Graphics.PrimitiveType.TriangleList, 12, 0, 0, 30, 0);
+        Assert.AreEqual("", PartsComingBack(rm, new[] { 0.5f }));
+    }
+
     const string GunboatDesign = "TEST_Spearhead mk1-a";
 
     // a universe whose player can spawn ships on the Heavy Gunboat hull; with sure rolls every chance above none comes up for the player
@@ -1117,6 +1143,27 @@ public class ShipPartsTests : StarDriveTest
         Assert.AreEqual(thrown, debris.Length, seen ? "the plate flies off the derelict the player sees made" : "none where no one sees it");
         if (seen)
             CollectionAssert.AreEqual(new[] { 0f, 0f, 0f, 0f, 0f, 1f, 0f }, debris[0].So.PartShown, "the lost plate");
+    }
+
+    [TestMethod]
+    public void ADerelictsTornInsidesCoolOutOverItsFirstMinute()
+    {
+        Ship ship = GunboatOnScreen(dying: false, out SceneObject model);
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        var d = new Derelict(ship, model, salvageable: false, seen: true);
+        Assert.AreEqual(0f, d.PartShown?[5], "setup: the derelict has lost the plate");
+        Assert.AreEqual(1f, d.InsidesHeat, "its insides glow hot at its death");
+
+        while (d.Age < 30f)
+            d.Update(TestSimStep);
+        AssertEqual(0.01f, 0.5f, d.InsidesHeat, "half cooled after half a minute");
+        AssertEqual(0.0001f, d.InsidesHeat, model.InsidesHeat, "its model glowing as hot");
+
+        while (d.Age < 61f)
+            d.Update(TestSimStep);
+        Assert.AreEqual(0f, d.InsidesHeat, "cold after a minute");
+        Assert.AreEqual(0f, model.InsidesHeat, "its model too");
     }
 
     [TestMethod]

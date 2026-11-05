@@ -41,6 +41,8 @@ public sealed class Derelict
     public const float SmokeSourcesPerModule = 0.2f;
     public const int MinSmokeSources = 6;
     public const float SmokeThinSeconds = 60f;
+    // the embers in its torn insides cool out over this time
+    public const float InsidesCoolSeconds = 60f;
     // the breakup's small blasts, with their volume and limit in AudioConfig.yaml
     public const string BreakupBlastSound = "sd_derelict_breakup";
     // a recovery's sounds, with their volumes in AudioConfig.yaml: each break-in turn's static, a plain failure's as the derelict gives way, and a success's as it rises
@@ -612,6 +614,9 @@ public sealed class Derelict
     // salvageable or drifting, it slows linearly to a stop
     public Vector2 VelocityNow => DriftVelocity * (1f - Age / StopSeconds).Clamped(0f, 1f);
 
+    // how hot the embers in its torn insides still glow, 1 at its death, 0 once cooled out
+    public float InsidesHeat => (1f - Age / InsidesCoolSeconds).Clamped(0f, 1f);
+
     // where it comes to rest: slowing linearly, it covers half its speed times the time left
     public Vector2 RestPosition => Position + VelocityNow * ((StopSeconds - Age) * 0.5f);
 
@@ -640,6 +645,7 @@ public sealed class Derelict
         so.EmissiveScale = 0f;
         so.HullTint = Owner.HullTint;
         so.PartShown = PartShown;
+        so.InsidesHeat = InsidesHeat;
         so.Visibility = GlobalStats.ShipVisibility;
         So = so;
         Universe.Screen.AddObject(so);
@@ -700,6 +706,7 @@ public sealed class Derelict
         so.World = World(rotation, scale);
         so.EmissiveScale = Age < BreakupSeconds ? LightsAtDeath * FluorescentLight.Level(FluorescentLight.TurnOff, Age / BreakupSeconds) : 0f;
         so.HullTint = Owner.HullTint; // a derelict keeps its last owner's color
+        so.InsidesHeat = InsidesHeat;
 
         ParticleManager particles = Universe.Screen.Particles;
         if (dt <= 0f || particles == null)

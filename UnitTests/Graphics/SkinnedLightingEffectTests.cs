@@ -156,13 +156,56 @@ public class SkinnedLightingEffectTests : StarDriveTest
         return pixels.Where(px => px != Color.Magenta).Sum(px => (long)px.B);
     }
 
-    // a unit cube bound whole to bone 0, drawn with no lights onto a 64x64 magenta target
-    static Color[] RenderSkinnedCube(System.Action<SkinnedLightingEffect> configure)
+    // a cube seen from its center, drawn white from both sides, its insides burnt or not
+    static System.Action<SkinnedLightingEffect> InsideTheCube(bool burnt) => fx =>
+    {
+        fx.World = Matrix.CreateScale(1f, 1f, -1f); // mirrored, so its faces wind as a ship model's
+        fx.View = Matrix.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.Up);
+        fx.TextureEnabled = false;
+        fx.DiffuseColor = Vector3.One;
+        fx.InsidesBurnt = burnt;
+    };
+
+    // Animated hulls with a part off show their insides burnt like static hulls do.
+    [TestMethod]
+    public void SkinnedLightingEffect_DrawsTheInsidesBurnt()
+    {
+        Color[] plain = RenderSkinnedCube(InsideTheCube(burnt: false), bothSides: true, size: 40f);
+        Assert.IsTrue(plain.All(px => px.R > 200 && px.G > 200 && px.B > 200), "setup: the insides drawn plain white");
+
+        Color[] burnt = RenderSkinnedCube(InsideTheCube(burnt: true), bothSides: true, size: 40f);
+        int embers = burnt.Count(px => px.R > 120 && px.R > px.B * 2 + 40);
+        int charred = burnt.Count(px => px.R + px.G + px.B < 90);
+        Assert.IsTrue(embers > 0, $"embers glowing red and orange: {embers} of {burnt.Length}");
+        Assert.IsTrue(charred > burnt.Length / 2, $"on charred metal: {charred} of {burnt.Length}");
+    }
+
+    // Animated hulls draw a part coming back in specks like static hulls do.
+    [TestMethod]
+    public void SkinnedLightingEffect_DrawsAPartComingBackInSpecks()
+    {
+        int Drawn(float share) => RenderSkinnedCube(fx =>
+        {
+            fx.World = Matrix.CreateScale(1f, 1f, -1f); // mirrored, so its faces wind as a ship model's
+            fx.View = Matrix.CreateLookAt(new Vector3(0f, 0f, 90f), Vector3.Zero, Vector3.Up);
+            fx.CurrentTechnique = fx.DissolveTechnique;
+            fx.ShareShown = share;
+        }, size: 40f).Count(px => px != Color.Magenta);
+        using (var fx = new SkinnedLightingEffect(Game.GraphicsDevice))
+            Assert.IsNotNull(fx.DissolveTechnique, "setup: the skinned effect can dissolve");
+        int whole = Drawn(1f);
+        int half = Drawn(0.5f);
+        Assert.IsTrue(whole > 500, $"setup: drawn whole it fills much of the view: {whole}");
+        Assert.IsTrue(half > whole / 4 && half < whole * 3 / 4, $"about half at half repaired: {half} of {whole}");
+    }
+
+    // a cube of the given size bound whole to bone 0, drawn with no lights onto a 64x64 magenta target
+    static Color[] RenderSkinnedCube(System.Action<SkinnedLightingEffect> configure, bool bothSides = false, float size = 1f)
     {
         GraphicsDevice device = Game.GraphicsDevice;
         SkinnedVertex[] vertices = ForwardRendererTests.BuildCubeVertices().Select(v => new SkinnedVertex
         {
-            Position = v.Position, Weights = new Vector4(1f, 0f, 0f, 0f),
+            Position = v.Position * size, Weights = new Vector4(1f, 0f, 0f, 0f),
             Normal = v.Normal, TexCoord = v.TextureCoordinate,
         }).ToArray();
         short[] indices = ForwardRendererTests.BuildCubeIndices();
@@ -191,7 +234,7 @@ public class SkinnedLightingEffectTests : StarDriveTest
             device.Clear(Color.Magenta);
             device.BlendState = BlendState.Opaque;
             device.DepthStencilState = DepthStencilState.Default;
-            device.RasterizerState = RasterizerState.CullCounterClockwise;
+            device.RasterizerState = bothSides ? RasterizerState.CullNone : RasterizerState.CullCounterClockwise;
             device.SetVertexBuffer(vb);
             device.Indices = ib;
             foreach (EffectPass pass in fx.CurrentTechnique.Passes)
