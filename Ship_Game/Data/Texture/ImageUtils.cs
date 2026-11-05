@@ -116,6 +116,8 @@ namespace Ship_Game.Data.Texture
             {
                 throw new Exception($"Load DDS {filename} failed: {e.Message}", e);
             }
+            if (dds.MissingBytes > 0)
+                Log.Warning($"LoadDds '{filename}': the file is {dds.MissingBytes} bytes short of its image, which loads blank there");
             // the GPU decodes each DXT1 texel as the decoding and premultiplying below do: opaque, or transparent black
             if (dds.Dxt1Blocks != null)
             {

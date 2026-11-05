@@ -44,6 +44,15 @@ public class WeaponDamagePerSecondTests : StarDriveTest
     }
 
     [TestMethod]
+    public void ARailgunWithAKineticBonusDealsItsBoostedDamageOverItsFireDelay()
+    {
+        Player.data.WeaponTags[WeaponTag.Kinetic].Damage = 0.25f;
+
+        AssertEqual(0.01f, 79.6875f, WeaponTemplate.DamagePerSecondWithTechs(Weapon("Railgun"), Player.data),
+                    "510 damage every 8 seconds, 25% more with the kinetic bonus");
+    }
+
+    [TestMethod]
     public void AMirvWeaponTakesTheBonusesOfItsWarheads()
     {
         IWeaponTemplate missile = Weapon("ClusterMissiles");

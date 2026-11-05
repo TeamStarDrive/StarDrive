@@ -29,6 +29,8 @@ namespace Ship_Game.Data.Texture
         public byte[] Dxt1Blocks { get; private set; }
         // the bytes at the start of Dxt1Blocks that hold the base level
         public int Dxt1BaseLevelSize { get; private set; }
+        // the bytes an uncompressed image lacks at the end of its file, which read as zeros
+        public int MissingBytes { get; private set; }
 
         public DxtReader(byte[] ddsImage)
         {
@@ -75,7 +77,8 @@ namespace Ship_Game.Data.Texture
                 throw new InvalidFileHeaderException();
             Format = format;
 
-            byte[] data = ReadData(reader, header, baseLevelSize);
+            byte[] data = ReadData(reader, header, baseLevelSize, out int missingBytes);
+            MissingBytes = missingBytes;
             // the decoders read a whole base level without bounds checks, so a file holding less is refused
             if (data != null && data.Length < baseLevelSize)
                 throw new InvalidDataException($"DDS holds {data.Length} bytes of image data, its {Width}x{Height} base level needs {baseLevelSize}");
@@ -94,10 +97,11 @@ namespace Ship_Game.Data.Texture
             return DecodedImage;
         }
 
-        static byte[] ReadData(BinaryReader reader, DDSHeader header, uint baseLevelSize)
+        static byte[] ReadData(BinaryReader reader, DDSHeader header, uint baseLevelSize, out int missingBytes)
         {
             byte[] compdata;
             uint compsize;
+            missingBytes = 0;
 
             // a flagged linear size too small for the base level is a pitch some tools write there, so it is not trusted
             if ((header.flags & DDSD_LINEARSIZE) > 1 && header.sizeorpitch != 0 && header.sizeorpitch >= baseLevelSize)
@@ -122,6 +126,7 @@ namespace Ship_Game.Data.Texture
                         mem.Write(temp, 0, temp.Length);
                     }
                 }
+                missingBytes = (int)(compsize - mem.Length);
                 mem.Seek(0, SeekOrigin.Begin);
 
                 mem.Read(compdata, 0, compdata.Length);

@@ -119,7 +119,8 @@ namespace Ship_Game.Ships
             if (visibleToPlayer) NotVisibleToPlayerTimer = 0f;
             else                 NotVisibleToPlayerTimer += timeStep.FixedTime;
 
-            if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
+            SceneObject so = ShipSO; // the UI thread may take it out meanwhile
+            if (so != null) // allow null SceneObject to support ship.Update in UnitTests
             {
                 // a landed ship is down on its planet, dock or carrier, out of sight until its launch makes a model again
                 if (LandShip is { Done: true } || !visibleToPlayer && NotVisibleToPlayerTimer > RemoveInvisibleSceneObjectsAfterTime)
@@ -128,7 +129,7 @@ namespace Ship_Game.Ships
                 }
                 else
                 {
-                    ShipSO.Visibility = visibleToPlayer ? GlobalStats.ShipVisibility : ObjectVisibility.None;
+                    so.Visibility = visibleToPlayer ? GlobalStats.ShipVisibility : ObjectVisibility.None;
                 }
             }
         }
@@ -223,14 +224,15 @@ namespace Ship_Game.Ships
             }
             else if (visibleToPlayer)
             {
-                if (ShipSO != null)
+                SceneObject model = ShipSO; // the UI thread may take it out meanwhile
+                if (model != null)
                 {
-                    ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
-                                 * Matrix.CreateRotationY(YRotation)
-                                 * Matrix.CreateRotationZ(Rotation)
-                                 * Matrix.CreateTranslation(new Vector3(Position, 0f));
+                    model.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
+                                * Matrix.CreateRotationY(YRotation)
+                                * Matrix.CreateRotationZ(Rotation)
+                                * Matrix.CreateTranslation(new Vector3(Position, 0f));
 
-                    ShipSO.UpdateAnimation(timeStep.FixedTime);
+                    model.UpdateAnimation(timeStep.FixedTime);
 
                     UpdateThrusters(timeStep);
                 }
@@ -243,10 +245,11 @@ namespace Ship_Game.Ships
             if (Dismantling && timeStep.FixedTime > 0f)
                 UpdateDismantling(timeStep, visibleToPlayer);
 
-            if (ShipSO != null)
+            SceneObject so = ShipSO; // the UI thread may take it out meanwhile
+            if (so != null)
             {
-                ShipSO.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
-                ShipSO.HullTint = Loyalty.HullTint;
+                so.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
+                so.HullTint = Loyalty.HullTint;
             }
 
             SoundEmitter.Position = new Vector3(Position, 0);
@@ -472,18 +475,19 @@ namespace Ship_Game.Ships
             float scale = PlanetCrash?.Scale ?? 1;
             float scaledRadius = Radius * scale;
 
-            if (visibleAndNotPaused && ShipSO != null)
+            SceneObject so = ShipSO; // the UI thread may take it out meanwhile
+            if (visibleAndNotPaused && so != null)
             {
-                ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
-                             * Matrix.CreateScale(scale)
-                             * Matrix.CreateRotationY(YRotation)
-                             * Matrix.CreateRotationX(XRotation)
-                             * Matrix.CreateRotationZ(Rotation)
-                             * Matrix.CreateTranslation(new Vector3(Position, 0f));
+                so.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
+                         * Matrix.CreateScale(scale)
+                         * Matrix.CreateRotationY(YRotation)
+                         * Matrix.CreateRotationX(XRotation)
+                         * Matrix.CreateRotationZ(Rotation)
+                         * Matrix.CreateTranslation(new Vector3(Position, 0f));
 
-                ShipSO.UpdateAnimation(timeStep.FixedTime);
-                ShipSO.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
-                ShipSO.HullTint = Loyalty.HullTint;
+                so.UpdateAnimation(timeStep.FixedTime);
+                so.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
+                so.HullTint = Loyalty.HullTint;
             }
 
             if (visibleAndNotPaused && !IsMeteor)
