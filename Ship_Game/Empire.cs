@@ -18,7 +18,6 @@ using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI.Tasks;
-using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -103,25 +102,14 @@ namespace Ship_Game
         [StarData] public Color EmpireColor;
         [StarData] public bool ColorPicked; // the player picked this opponent's color on the Game Setup screen
 
-        // the player's ships take the empire color while the player's box is on, an opponent's while the opponents' box is and its color was picked; W = 0 for none
-        Microsoft.Xna.Framework.Vector4 OwnHullColor
-            => (isPlayer ? Universe.P.PlayerHullColors : ColorPicked && Universe.P.OpponentHullColors)
-                ? new(EmpireColor.ToVector3(), 1f) : default;
+        // the player's ships take the empire color while the player's box is on, an opponent's while the opponents' box is and its color was picked
+        bool WearsOwnColor => isPlayer ? Universe.P.PlayerHullColors : ColorPicked && Universe.P.OpponentHullColors;
 
-        // on the tint-mapped paint of any hull, when its race paints its ships
-        public Microsoft.Xna.Framework.Vector4 HullTint
-            => data.HullColors == HullColorParts.Paint ? OwnHullColor : default;
+        public Microsoft.Xna.Framework.Vector4 HullTint => HullTintOf(data.HullColors, EmpireColor, WearsOwnColor);
 
-        // on the lights of its own race's hulls, when its race colors their lights
-        public Microsoft.Xna.Framework.Vector4 LightsTint(string hullStyle)
-            => data.HullColors == HullColorParts.Lights && hullStyle == data.ShipType ? OwnHullColor : default;
-
-        // gives the model of a hull of the given race style this owner's colors
-        public void ColorModel(SceneObject so, string hullStyle)
-        {
-            so.HullTint = HullTint;
-            so.LightsTint = LightsTint(hullStyle);
-        }
+        // on the tint-mapped paint of any hull, when its race paints its ships; W = 0 for none
+        public static Microsoft.Xna.Framework.Vector4 HullTintOf(HullColorParts parts, Color color, bool worn)
+            => worn && parts == HullColorParts.Paint ? new(color.ToVector3(), 1f) : default;
 
         [StarData] public UniverseState Universe;
 

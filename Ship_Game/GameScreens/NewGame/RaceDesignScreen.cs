@@ -31,6 +31,7 @@ namespace Ship_Game
         ScrollList<TraitsListItem> TraitsList;
         Menu1 TraitsBg;
         UIColorPicker Picker;
+        ShipColorPreview ShipPreview;
 
         Rectangle FlagRect;
         ScrollList<RaceArchetypeListItem> ChooseRaceList;
@@ -179,6 +180,10 @@ namespace Ship_Game
 
             Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
             Picker.Visible = false;
+            // the cruiser goes under the picker, above the buttons
+            int previewTop = ScreenHeight / 2 + 290;
+            ShipPreview = Add(new ShipColorPreview(new Rectangle(ScreenWidth / 2 - 310, previewTop, 620, ScreenHeight - 50 - previewTop),
+                Picker, TransientContent, () => SelectedData, () => P.PlayerHullColors));
 
             const int containerMarginBottom = 10;
             const int containerPaddingLeft = 10;
@@ -331,6 +336,8 @@ namespace Ship_Game
         {
             if (Picker.Visible)
             {
+                if (ShipPreview.HandleInput(input))
+                    return true;
                 Color before = PlayerColor;
                 bool captured = Picker.HandleInput(input);
                 if (PlayerColor != before)

@@ -75,8 +75,6 @@ float  SpecularAmount  = 1.0;
 float  EmissiveScale   = 1.0;
 // see MeshLighting.fx
 float4 HullTint        = float4(1, 1, 1, 0);
-// see MeshLighting.fx
-float4 LightsTint      = float4(1, 1, 1, 0);
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
@@ -86,7 +84,6 @@ bool   EmissiveMapEnabled     = false;
 bool   SpecularMapEnabled     = false;
 bool   NormalMapEnabled       = false;
 bool   TintMapEnabled         = false;
-bool   LightsTintEnabled      = false;
 bool   FogEnabled             = false;
 
 float3 AmbientLightColor = float3(0, 0, 0);
@@ -369,14 +366,6 @@ float4 PSDefault(VSOutput input) : SV_TARGET
                             tex2D(TintSampler, input.TexCoord).r * HullTint.w);
 
     float3 glow = EmissiveMapEnabled ? tex2D(EmissiveSampler, input.TexCoord).rgb : float3(0, 0, 0);
-
-    if (LightsTintEnabled)
-    {
-        float lit = saturate(max(glow.r, max(glow.g, glow.b)) * 2.0) * LightsTint.w;
-        texColor.rgb = lerp(texColor.rgb, TintAtLuminance(LightsTint.rgb, Luminance(texColor.rgb)), lit);
-        glow = lerp(glow, TintAtLuminance(LightsTint.rgb, Luminance(glow)), LightsTint.w);
-    }
-
     float3 emissive = EmissiveMapEnabled ? glow * EmissiveScale : EmissiveColor;
 
     float3 specularMask = SpecularMapEnabled

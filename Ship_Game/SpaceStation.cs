@@ -13,7 +13,6 @@ public sealed class SpaceStation
     SceneObject OuterSO;
     bool IsLoadingSO;
     bool DisableLoading;
-    string ModelStyle; // the race whose station model it shows, null for the common one
 
     float ZRotation;
     internal float Scale { get; private set; }
@@ -50,22 +49,15 @@ public sealed class SpaceStation
             outer.World = transform;
     }
 
-    // the station takes its owner's colors like the owner's ships do, as a hull of the race whose model it shows
+    // the station takes its owner's color like the owner's ships do
     void UpdateColors(Empire owner)
     {
         SceneObject inner = InnerSO, outer = OuterSO; // the sim thread may take them out meanwhile
+        var color = owner?.HullTint ?? default;
         if (inner != null)
-            ColorModel(inner, owner);
+            inner.HullTint = color;
         if (outer != null)
-            ColorModel(outer, owner);
-    }
-
-    void ColorModel(SceneObject so, Empire owner)
-    {
-        if (owner != null)
-            owner.ColorModel(so, ModelStyle);
-        else
-            so.HullTint = so.LightsTint = default;
+            outer.HullTint = color;
     }
 
     internal void CreateSceneObject(Planet planet, Empire owner)
@@ -75,7 +67,6 @@ public sealed class SpaceStation
         // use the root content manager, because there is not much point to clear this resource
         var content = ResourceManager.RootContent;
 
-        ModelStyle = HasRaceModel(owner) ? owner.data.ShipType : null;
         if (!HasRaceModel(owner))
         {
             innerModel = StaticMesh.LoadMesh(content, "Model/Stations/spacestation01_inner");

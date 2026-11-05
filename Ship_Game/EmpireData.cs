@@ -30,10 +30,10 @@ namespace Ship_Game
         Damage, Range, Speed, Armor, Shield
     }
 
-    // Paint: the hull paint a model's tint map marks; Lights: the glow map's lights and the paint under them
+    // Paint: the hull paint a model's tint map marks
     public enum HullColorParts
     {
-        None, Paint, Lights
+        None, Paint
     }
 
     [StarDataType]
@@ -139,6 +139,7 @@ namespace Ship_Game
 
         // RaceDesignScreen:
         string ShipType { get; }
+        HullColorParts HullColors { get; }
         string VideoPath { get; }
         string Singular { get; }
         string Plural { get; }
@@ -283,6 +284,7 @@ namespace Ship_Game
 
         // the part of its ships that takes the empire color, from the race file and never saved, so a loaded game takes its race's
         public HullColorParts HullColors;
+        HullColorParts IEmpireData.HullColors => HullColors;
 
 
         // FB - Minimum Troop Level

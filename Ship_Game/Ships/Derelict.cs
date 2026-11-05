@@ -631,7 +631,7 @@ public sealed class Derelict
             return false;
         so.World = World(Rotation, Scale);
         so.EmissiveScale = 0f;
-        Owner.ColorModel(so, Design.BaseHull.Style);
+        so.HullTint = Owner.HullTint;
         so.Visibility = GlobalStats.ShipVisibility;
         So = so;
         Universe.Screen.AddObject(so);
@@ -691,7 +691,7 @@ public sealed class Derelict
         var center = new Vector3(Position, Z);
         so.World = World(rotation, scale);
         so.EmissiveScale = Age < BreakupSeconds ? LightsAtDeath * FluorescentLight.Level(FluorescentLight.TurnOff, Age / BreakupSeconds) : 0f;
-        Owner.ColorModel(so, Design.BaseHull.Style); // a derelict keeps its last owner's colors
+        so.HullTint = Owner.HullTint; // a derelict keeps its last owner's color
 
         ParticleManager particles = Universe.Screen.Particles;
         if (dt <= 0f || particles == null)

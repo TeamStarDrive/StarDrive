@@ -71,7 +71,7 @@ namespace Ship_Game.Ships
             so.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
             // a launching or landing ship's model waits for its next update, which gives it its launch or land look
             so.Visibility = IsLaunching || IsLanding ? ObjectVisibility.None : GlobalStats.ShipVisibility;
-            Loyalty.ColorModel(so, ShipData.BaseHull.Style);
+            so.HullTint = Loyalty.HullTint;
             ScreenManager.Instance.AddObject(so);
             ShipSO = so; // last, so the sim can only take out a model that is already in the scene
         }
@@ -246,7 +246,7 @@ namespace Ship_Game.Ships
             if (ShipSO != null)
             {
                 ShipSO.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
-                Loyalty.ColorModel(ShipSO, ShipData.BaseHull.Style);
+                ShipSO.HullTint = Loyalty.HullTint;
             }
 
             SoundEmitter.Position = new Vector3(Position, 0);
@@ -483,7 +483,7 @@ namespace Ship_Game.Ships
 
                 ShipSO.UpdateAnimation(timeStep.FixedTime);
                 ShipSO.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
-                Loyalty.ColorModel(ShipSO, ShipData.BaseHull.Style);
+                ShipSO.HullTint = Loyalty.HullTint;
             }
 
             if (visibleAndNotPaused && !IsMeteor)

@@ -437,7 +437,6 @@ namespace SynapseGaming.LightingSystem.Core
                 fx.World = so.World * rm.World;
                 fx.EmissiveScale = so.EmissiveScale; // effects are shared by every ship of a model
                 fx.HullTint = so.HullTint;
-                fx.LightsTint = so.LightsTint;
 
                 // Phase 2.8.C hotfix #5: per-mesh effects (PlanetType.Material,
                 // ship Materials, etc.) need View/Projection from the current
@@ -499,7 +498,6 @@ namespace SynapseGaming.LightingSystem.Core
                 fx.World = so.World;
                 fx.EmissiveScale = so.EmissiveScale;
                 fx.HullTint = so.HullTint;
-                fx.LightsTint = so.LightsTint;
                 if (fx != SharedFx) // see DrawRenderables for hotfix #5
                 {
                     fx.View = SharedFx.View;
@@ -598,8 +596,6 @@ namespace SynapseGaming.LightingSystem.Rendering
         public float EmissiveScale { get; set; } = 1f;
         // the owner's color on the model's tint-mapped paint, W = 0 for the bare texture
         public Vector4 HullTint { get; set; }
-        // the owner's color on the model's lights and the paint under them, W = 0 for their own colors
-        public Vector4 LightsTint { get; set; }
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
 
@@ -896,9 +892,9 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         // ── EffectParameter handles (cached at ctor) ────────────────────────
         readonly EffectParameter pWorld, pView, pProjection;
         readonly EffectParameter pDiffuseColor, pEmissiveColor, pSpecularColor;
-        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pHullTint, pLightsTint, pAlpha, pEyePosition;
+        readonly EffectParameter pSpecularPower, pSpecularAmount, pEmissiveScale, pHullTint, pAlpha, pEyePosition;
         readonly EffectParameter pLightingEnabled, pTextureEnabled, pFogEnabled;
-        readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled, pTintMapEnabled, pLightsTintEnabled;
+        readonly EffectParameter pEmissiveMapEnabled, pSpecularMapEnabled, pNormalMapEnabled, pTintMapEnabled;
         readonly EffectParameter pAmbientLightColor;
         // §4.6 #2: FogStart+FogEnd packed into a float2 (FogStartEnd) on the
         // GPU — see MeshLighting.fx — to free a const register. C# surface
@@ -955,9 +951,6 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
 
         // the owner's color for the next draw's tint-mapped paint, W = 0 for none; the renderer sets it from each SceneObject
         public Vector4 HullTint { get; set; }
-
-        // the owner's color for the next draw's lights and the paint under them, W = 0 for none; set like HullTint
-        public Vector4 LightsTint { get; set; }
 
         // View setter caches the inverse-view eye position so OnApply doesn't
         // re-invert per drawn mesh. View typically changes once per frame
@@ -1047,7 +1040,6 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pSpecularAmount     = Parameters["SpecularAmount"];
             pEmissiveScale      = Parameters["EmissiveScale"];
             pHullTint           = Parameters["HullTint"];
-            pLightsTint         = Parameters["LightsTint"];
             pAlpha              = Parameters["Alpha"];
             pEyePosition        = Parameters["EyePosition"];
             pLightingEnabled    = Parameters["LightingEnabled"];
@@ -1056,7 +1048,6 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pSpecularMapEnabled = Parameters["SpecularMapEnabled"];
             pNormalMapEnabled   = Parameters["NormalMapEnabled"];
             pTintMapEnabled     = Parameters["TintMapEnabled"];
-            pLightsTintEnabled  = Parameters["LightsTintEnabled"];
             pFogEnabled         = Parameters["FogEnabled"];
             pAmbientLightColor  = Parameters["AmbientLightColor"];
             pFogColor           = Parameters["FogColor"];
@@ -1268,8 +1259,6 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
             pEmissiveMapEnabled?.SetValue(emissiveMapBound);
             if (emissiveMapBound)
                 pEmissiveMap?.SetValue(EmissiveMapTexture);
-            pLightsTintEnabled?.SetValue(emissiveMapBound && LightsTint.W > 0f);
-            pLightsTint?.SetValue(LightsTint);
 
             bool specularMapBound = SpecularColorMapTexture != null;
             pSpecularMapEnabled?.SetValue(specularMapBound);

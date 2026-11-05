@@ -245,44 +245,18 @@ public class MeshLightingEffectTests : StarDriveTest
         AssertEqual(1f, 128f, px.B, "blue");
     }
 
-    // The owner's color takes the lights at the glow's own brightness, and the paint under a lit glow.
+    // Every ship of a model shares the model's effect, so each SceneObject's own color must reach the draw.
     [TestMethod]
-    public void LightsTint_ColorsTheGlowAndThePaintUnderIt()
-    {
-        Color px = CenterPixelOfGrayPaintUnderGlow(glowRed: 128, new Vector4(0f, 0f, 1f, 1f));
-        AssertEqual(3f, 166f, px.R, "blue paint and blue glow at their own brightness keep some red");
-        AssertEqual(3f, 166f, px.G, "and as much green");
-        AssertEqual(3f, 255f, px.B, "and are mostly blue");
-    }
-
-    // Paint under no light, and lights drawn with no owner's color, keep their look.
-    [TestMethod]
-    [DataRow(0, 1f, 128, 128, 128)]
-    [DataRow(128, 0f, 255, 192, 128)]
-    public void LightsTint_LeavesUnlitPaintAndUncoloredLightsAlone(int glowRed, float tintWeight, int red, int green, int blue)
-    {
-        Color px = CenterPixelOfGrayPaintUnderGlow(glowRed, new Vector4(0f, 0f, 1f, tintWeight));
-        AssertEqual(1f, red, px.R, "red");
-        AssertEqual(1f, green, px.G, "green");
-        AssertEqual(1f, blue, px.B, "blue");
-    }
-
-    // Every ship of a model shares the model's effect, so each SceneObject's own colors must reach the draw.
-    [TestMethod]
-    [DataRow(false)]
-    [DataRow(true)]
-    public void SceneObjectsSharingAnEffectEachDrawWithTheirOwnHullColors(bool lights)
+    public void SceneObjectsSharingAnEffectEachDrawWithTheirOwnHullColors()
     {
         GraphicsDevice device = Game.GraphicsDevice;
         using var paint = MakeSolidColorTexture(device, new Color(128, 128, 128, 255));
         using var mask = MakeSolidColorTexture(device, Color.White);
-        using var glow = MakeSolidColorTexture(device, new Color(128, 64, 0, 255));
         (StaticMesh mesh, VertexBuffer vb, IndexBuffer ib) = BuildUnitCube(device);
         using var fx = new LightingEffect(device)
         {
             DiffuseMapTexture = paint,
-            TintMapTexture = lights ? null : mask,
-            EmissiveMapTexture = lights ? glow : null,
+            TintMapTexture = mask,
         };
         SceneObject bare = mesh.CreateSceneObject(effect: fx);
         bare.World = Matrix.CreateTranslation(-0.8f, 0f, 0f);
@@ -290,10 +264,7 @@ public class MeshLightingEffectTests : StarDriveTest
         SceneObject tinted = mesh.CreateSceneObject(effect: fx);
         tinted.World = Matrix.CreateTranslation(0.8f, 0f, 0f);
         tinted.Visibility = ObjectVisibility.Rendered;
-        if (lights)
-            tinted.LightsTint = new Vector4(0f, 0f, 1f, 1f);
-        else
-            tinted.HullTint = new Vector4(0f, 0f, 1f, 1f);
+        tinted.HullTint = new Vector4(0f, 0f, 1f, 1f);
 
         using var scene = new SceneInterface(Game.Graphics);
         var state = new SceneState();
@@ -339,24 +310,6 @@ public class MeshLightingEffectTests : StarDriveTest
             fx.TextureEnabled = true;
             fx.TintMapTexture = mask;
             fx.HullTint = hullTint;
-        });
-        var pixels = new Color[rt.Width * rt.Height];
-        rt.GetData(pixels);
-        return pixels[rt.Height / 2 * rt.Width + rt.Width / 2];
-    }
-
-    // an unlit cube painted mid gray under an orange glow map, read at its center
-    static Color CenterPixelOfGrayPaintUnderGlow(int glowRed, Vector4 lightsTint)
-    {
-        using var paint = MakeSolidColorTexture(Game.GraphicsDevice, new Color(128, 128, 128, 255));
-        using var glow = MakeSolidColorTexture(Game.GraphicsDevice, new Color(glowRed, glowRed / 2, 0, 255));
-        using var rt = RenderUnitCubeWith(fx =>
-        {
-            fx.LightingEnabled = false;
-            fx.Texture = paint;
-            fx.TextureEnabled = true;
-            fx.EmissiveMapTexture = glow;
-            fx.LightsTint = lightsTint;
         });
         var pixels = new Color[rt.Width * rt.Height];
         rt.GetData(pixels);

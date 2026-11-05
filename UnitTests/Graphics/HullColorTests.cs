@@ -18,8 +18,7 @@ namespace UnitTests.Graphics;
 /// <summary>
 /// The player's ships take the empire color while the player's hull color box is on, as it is once the player takes a
 /// color other than the race's own, and an opponent's whose color the player picked while the opponents' box is, as it is
-/// by default: on the hull paint their model's tint map marks when the race paints its ships, or on the lights of the
-/// race's own hulls.
+/// by default: on the hull paint their model's tint map marks when the race paints its ships.
 /// </summary>
 [TestClass]
 public class HullColorTests : StarDriveTest
@@ -37,7 +36,7 @@ public class HullColorTests : StarDriveTest
         Assert.AreEqual(tintMap, MeshInterface.TintMapFileOf(diffuseMap));
     }
 
-    // the shipped tint maps load with their models, marking the share of the texture their race paints; a model with none has none
+    // the shipped tint maps load with their models, marking the share of the texture an owner paints; a model with none has none
     [TestMethod]
     [DataRow("Model/Ships/Vulfen/TypeXIII.fbx", 0.069f)]
     [DataRow("Model/Ships/Vulfen/TypeXIX.fbx", 0.069f)]
@@ -48,12 +47,17 @@ public class HullColorTests : StarDriveTest
     [DataRow("Model/Ships/Kulrathi/ship11f.fbx", 0.700f)]
     [DataRow("Model/Ships/Kulrathi/ship12d.fbx", 0.869f)]
     [DataRow("Model/Ships/Kulrathi/Yamamoto.fbx", 0.337f)]
-    [DataRow("Model/Ships/Cordrazine/ship16e.fbx", 0f)]
+    [DataRow("Model/Ships/Cordrazine/ship16e.fbx", 0.982f)]
     [DataRow("Model/Ships/Terran/Battleship/Battleship.fbx", 0.042f)]
     [DataRow("Model/Ships/Terran/SharedTextures/LightCruiser.fbx", 0.042f)]
     [DataRow("Model/Ships/Terran/Hunter/Fighter1.fbx", 0.110f)]
     [DataRow("Model/Ships/Terran/Caravan/Caravan.fbx", 0.058f)]
     [DataRow("Model/Ships/Terran/Shuttle/ship08.fbx", 0.204f)]
+    [DataRow("Model/Stations/Station_Small.fbx", 0.013f)]
+    [DataRow("Model/Stations/spacestation01_outer.fbx", 0.013f)]
+    [DataRow("Model/Ships/CargoShips/CargoHaulerShort.fbx", 0.279f)]
+    [DataRow("Model/Ships/Platforms/platform_base.fbx", 0.112f)]
+    [DataRow("Model/Ships/Remnant/ship09e.fbx", 0f)]
     public void AShipModelTakesTheTintMapNextToItsDiffuseMap(string model, float markedShare)
     {
         StaticMesh mesh = Content.LoadStaticMesh(model);
@@ -101,44 +105,28 @@ public class HullColorTests : StarDriveTest
     {
         CreateUniverseAndPlayerEmpire("Vulfen", "Cordrazine");
         Assert.AreEqual(HullColorParts.Paint, Player.data.HullColors, "setup: Vulfen paint their hulls");
-        Assert.AreEqual(HullColorParts.Lights, Enemy.data.HullColors, "setup: the Cordrazine color their lights");
+        Assert.AreEqual(HullColorParts.Paint, Enemy.data.HullColors, "setup: and so do the Cordrazine");
         Assert.AreEqual(0f, Player.HullTint.W, "the player's box is off in a new game, so the player's ships keep their look");
 
         UState.P.PlayerHullColors = true;
         Assert.AreEqual(new Vector4(Player.EmpireColor.ToVector3(), 1f), Player.HullTint, "with it on the player's ships take the empire color");
-        Assert.AreEqual(0f, Player.LightsTint("Vulfen").W, "on their paint, not their lights");
-        Assert.AreEqual(0f, Enemy.LightsTint("Cordrazine").W, "an opponent whose color the player did not pick keeps its look");
+        Assert.AreEqual(0f, Enemy.HullTint.W, "an opponent whose color the player did not pick keeps its look");
 
         Enemy.ColorPicked = true;
-        Assert.AreEqual(new Vector4(Enemy.EmpireColor.ToVector3(), 1f), Enemy.LightsTint("Cordrazine"), "one whose color the player picked takes it");
+        Assert.AreEqual(new Vector4(Enemy.EmpireColor.ToVector3(), 1f), Enemy.HullTint, "one whose color the player picked takes it");
 
         UState.P.OpponentHullColors = false;
-        Assert.AreEqual(0f, Enemy.LightsTint("Cordrazine").W, "with the opponents' box off theirs are bare");
+        Assert.AreEqual(0f, Enemy.HullTint.W, "with the opponents' box off theirs are bare");
         AssertEqual(0.001f, 1f, Player.HullTint.W, "and the player's keep the color");
 
         UState.P.OpponentHullColors = true;
         UState.P.PlayerHullColors = false;
         Assert.AreEqual(0f, Player.HullTint.W, "with the player's box off the player's are bare");
-        AssertEqual(0.001f, 1f, Enemy.LightsTint("Cordrazine").W, "and the AI empire's keep theirs");
+        AssertEqual(0.001f, 1f, Enemy.HullTint.W, "and the AI empire's keep theirs");
 
         UState.P.PlayerHullColors = true;
         Player.data.HullColors = HullColorParts.None;
         Assert.AreEqual(0f, Player.HullTint.W, "a race that paints no hulls keeps them bare");
-    }
-
-    // a race that colors its lights does so only on its own race's hulls, and leaves their paint alone
-    [TestMethod]
-    public void TheCordrazineColorTheLightsOfTheirOwnHullsOnly()
-    {
-        CreateUniverseAndPlayerEmpire("Cordrazine", "Vulfen");
-        UState.P.PlayerHullColors = true;
-        Assert.AreEqual(HullColorParts.Lights, Player.data.HullColors, "setup: the Cordrazine color their lights");
-        Assert.AreEqual(new Vector4(Player.EmpireColor.ToVector3(), 1f), Player.LightsTint("Cordrazine"), "their own hulls' lights take the empire color");
-        Assert.AreEqual(0f, Player.LightsTint("Vulfen").W, "a captured Vulfen hull keeps its lights");
-        Assert.AreEqual(0f, Player.HullTint.W, "and no hull's paint changes");
-
-        UState.P.PlayerHullColors = false;
-        Assert.AreEqual(0f, Player.LightsTint("Cordrazine").W, "with the box off their own lights keep their color too");
     }
 
     // the race file's setting is never saved, so a loaded game takes it from the player's race; the boxes load as saved, at their defaults or not
@@ -249,7 +237,7 @@ public class HullColorTests : StarDriveTest
         TestShip ship = SpawnShip("Terran-Prototype", Enemy, new Vector2(1000f, 1000f));
         SceneObject so = GiveSceneObject(ship);
         ship.Update(TestSimStep);
-        Assert.AreEqual(0f, so.HullTint.W, "the Cordrazine paint no hulls, so their ship is drawn bare");
+        Assert.AreEqual(0f, so.HullTint.W, "an opponent whose color the player did not pick is drawn bare");
 
         ship.LoyaltyChangeByGift(Player, addNotification: false);
         UState.Objects.Update(TestSimStep);
@@ -268,56 +256,11 @@ public class HullColorTests : StarDriveTest
         Assert.AreEqual(Player.HullTint, so.HullTint, "and keeps it while it dies");
     }
 
-    // a ship passes its hull's race to its owner's colors, so only the owner's own race's hulls light up in them
-    [TestMethod]
-    public void AShipOfTheOwnersRaceDrawsItsLightsInItsColorAndAnotherRacesDoesNot()
-    {
-        LoadStarterShips("Cordrazine Small Station Mk1", "Terran-Prototype");
-        CreateUniverseAndPlayerEmpire("Cordrazine");
-        UState.P.PlayerHullColors = true;
-        TestShip own = SpawnShip("Cordrazine Small Station Mk1", Player, new Vector2(1000f, 1000f));
-        TestShip other = SpawnShip("Terran-Prototype", Player, new Vector2(5000f, 1000f));
-        Assert.AreEqual("Cordrazine", own.ShipData.BaseHull.Style, "setup: a Cordrazine hull");
-        SceneObject ownSO = GiveSceneObject(own), otherSO = GiveSceneObject(other);
-        own.Update(TestSimStep);
-        other.Update(TestSimStep);
-        Assert.AreEqual(Player.LightsTint("Cordrazine"), ownSO.LightsTint, "the Cordrazine hull's lights take the player's color");
-        AssertEqual(0.001f, 1f, ownSO.LightsTint.W, "setup: the player's color is on");
-        Assert.AreEqual(0f, otherSO.LightsTint.W, "the Terran hull's keep theirs");
-    }
-
-    // a wreck of the owner's own race keeps its last owner's color on its lights, on a model handed over at death or loaded later
-    [TestMethod]
-    public void ADerelictOfTheOwnersRaceKeepsItsLightsColor()
-    {
-        LoadStarterShips("Cordrazine Small Station Mk1");
-        CreateUniverseAndPlayerEmpire("Cordrazine");
-        UState.P.PlayerHullColors = true;
-        Universe.Particles = new ParticleManager(Content);
-        Universe.Frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(0, 1_000_000, 1_000_000, 0, -10_000, 10_000));
-        UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
-        Vector4 color = Player.LightsTint("Cordrazine");
-        AssertEqual(0.001f, 1f, color.W, "setup: the player's Cordrazine hulls are colored");
-
-        TestShip ship = SpawnShip("Cordrazine Small Station Mk1", Player, new Vector2(200_000f));
-        var so = new SceneObject(ship.Name);
-        var wreck = new Derelict(ship, so, salvageable: false, seen: true);
-        wreck.Update(TestSimStep);
-        AssertEqual(GlobalStats.ShipVisibility, so.Visibility, "setup: on screen, it is drawn");
-        Assert.AreEqual(color, so.LightsTint, "its lights keep the player's color");
-
-        AssertTrue(UState.Derelicts.TryAdd(SpawnShip("Cordrazine Small Station Mk1", Player, new Vector2(220_000f)), salvageable: false, seen: false),
-                   "setup: another wreck of the player's, with no model");
-        var loaded = new SceneObject("loaded");
-        AssertTrue(UState.Derelicts.TryAttachModel(UState.Derelicts.ToArray().Last(), loaded), "setup: a model loaded later is attached");
-        Assert.AreEqual(color, loaded.LightsTint, "so do the lights of one whose model loads later");
-    }
-
-    // a space port built with its race's model lights up as a hull of that race, and with the common model it does not
+    // a space port takes its owner's color like the owner's ships do, built with its race's model or the common one
     [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
-    public void ASpacePortBuiltWithItsRacesModelLightsUpInTheOwnersColor(bool raceModel)
+    public void ASpacePortTakesItsOwnersColor(bool raceModel)
     {
         CreateUniverseAndPlayerEmpire("Cordrazine");
         UState.P.PlayerHullColors = true;
@@ -328,16 +271,14 @@ public class HullColorTests : StarDriveTest
         station.CreateSceneObject(home, Player);
         var outer = (SceneObject)typeof(SpaceStation).GetField("OuterSO", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(station);
         Assert.IsNotNull(outer, "setup: the port's model loaded");
-        AssertEqual(0.001f, raceModel ? 1f : 0f, outer.LightsTint.W,
-                    raceModel ? "the Cordrazine port's lights take the color" : "the common port's keep theirs");
+        AssertEqual(0.001f, 1f, Player.HullTint.W, "setup: the player's ships are colored");
+        Assert.AreEqual(Player.HullTint, outer.HullTint, raceModel ? "the Cordrazine port takes the player's color" : "and so does the common port");
         station.RemoveSceneObject();
     }
 
-    // a space port takes its owner's colors as a hull of the race whose model it shows
+    // a space port's model follows its owner's color as it updates
     [TestMethod]
-    [DataRow("Cordrazine", 1f)]
-    [DataRow(null, 0f)]
-    public void ASpacePortTakesItsOwnersColorsAsAHullOfItsModelsRace(string modelStyle, float lit)
+    public void ASpacePortFollowsItsOwnersColorAsItUpdates()
     {
         CreateUniverseAndPlayerEmpire("Cordrazine");
         UState.P.PlayerHullColors = true;
@@ -345,10 +286,12 @@ public class HullColorTests : StarDriveTest
         var station = new SpaceStation();
         var so = new SceneObject("station");
         typeof(SpaceStation).GetField("OuterSO", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(station, so);
-        typeof(SpaceStation).GetField("ModelStyle", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(station, modelStyle);
 
         station.UpdateVisibleStation(home, TestSimStep);
-        AssertEqual(0.001f, lit, so.LightsTint.W, modelStyle == null ? "the common model keeps its lights" : "the Cordrazine model's lights take the color");
+        AssertEqual(0.001f, 1f, so.HullTint.W, "the port takes the player's color");
+        UState.P.PlayerHullColors = false;
+        station.UpdateVisibleStation(home, TestSimStep);
+        Assert.AreEqual(0f, so.HullTint.W, "and drops it with the player's box off");
     }
 
     [TestCleanup]

@@ -6376,11 +6376,11 @@ namespace Ship_Game
         TechLeechAlertsTip = 7272,
         /// <summary>Your Hull Color</summary>
         YourHullColor = 7273,
-        /// <summary>Your ships take your empire color, on their hull paint or on their lights depending on your race.</summary>
+        /// <summary>Your ships take your empire color on their hull paint. Some mod races' ships have no part marked for the color.</summary>
         YourHullColorTip = 7274,
         /// <summary>Opponents' Hull Color</summary>
         OpponentsHullColor = 7275,
-        /// <summary>Your opponents' ships take their empire colors, on their hull paint or on their lights depending on their race.</summary>
+        /// <summary>Opponents you picked a color for before the game wear it on their ships' hull paint; the others keep their look. Some mod races' ships have no part marked for the color.</summary>
         OpponentsHullColorTip = 7276,
         /// <summary>Game Setup</summary>
         GameSetup = 7277,
@@ -6394,6 +6394,8 @@ namespace Ship_Game
         Back = 7281,
         /// <summary>Choose the opponents you want to play against, or leave the places open for random ones.</summary>
         ChooseOpponentsHint = 7282,
+        /// <summary>Drag to turn</summary>
+        DragToTurn = 7283,
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>

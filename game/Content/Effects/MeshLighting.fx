@@ -99,8 +99,6 @@ float  SpecularAmount  = 1.0;
 float  EmissiveScale   = 1.0;
 // Per-draw owner's color for the hull paint the tint map (`_t`) marks; .w = 0 leaves the paint as it is.
 float4 HullTint        = float4(1, 1, 1, 0);
-// Per-draw owner's color for the glow map's lights and the paint under them; .w = 0 leaves them as they are.
-float4 LightsTint      = float4(1, 1, 1, 0);
 float  Alpha           = 1.0;
 float3 EyePosition     = float3(0, 0, 0);
 
@@ -110,7 +108,6 @@ bool   EmissiveMapEnabled     = false;
 bool   SpecularMapEnabled     = false;
 bool   NormalMapEnabled       = false;
 bool   TintMapEnabled         = false;
-bool   LightsTintEnabled      = false;
 bool   FogEnabled             = false;
 
 float3 AmbientLightColor = float3(0, 0, 0);
@@ -452,15 +449,6 @@ float4 PSDefault(VSOutput input) : SV_TARGET
     // emissive" — multiplication added per-material tint that almost never
     // diverged from white in practice.
     float3 glow = EmissiveMapEnabled ? tex2D(EmissiveSampler, input.TexCoord).rgb : float3(0, 0, 0);
-
-    // the owner's color takes the lights, at the glow's own brightness, and the paint under them
-    if (LightsTintEnabled)
-    {
-        float lit = saturate(max(glow.r, max(glow.g, glow.b)) * 2.0) * LightsTint.w;
-        texColor.rgb = lerp(texColor.rgb, TintAtLuminance(LightsTint.rgb, Luminance(texColor.rgb)), lit);
-        glow = lerp(glow, TintAtLuminance(LightsTint.rgb, Luminance(glow)), LightsTint.w);
-    }
-
     float3 emissive = EmissiveMapEnabled ? glow * EmissiveScale : EmissiveColor;
 
     // Per-pixel specular mask: `_s` map controls specularity. Chrome panels

@@ -118,30 +118,6 @@ public class SkinnedLightingEffectTests : StarDriveTest
         AssertEqual(3f, blue, px.B, "blue");
     }
 
-    // Animated hulls take their owner's color on their lights and the paint under them like static hulls do.
-    [TestMethod]
-    [DataRow(1f, 166, 166, 255)]
-    [DataRow(0f, 255, 192, 128)]
-    public void SkinnedLightingEffect_LightsTintColorsTheLightsAndThePaintUnderThem(float tintWeight, int red, int green, int blue)
-    {
-        GraphicsDevice device = Game.GraphicsDevice;
-        using var paint = new Texture2D(device, 1, 1);
-        paint.SetData(new[] { new Color(128, 128, 128, 255) });
-        using var glow = new Texture2D(device, 1, 1);
-        glow.SetData(new[] { new Color(128, 64, 0, 255) });
-        Color[] pixels = RenderSkinnedCube(fx =>
-        {
-            fx.Texture = paint;
-            fx.TextureEnabled = true;
-            fx.EmissiveMapTexture = glow;
-            fx.LightsTint = new Vector4(0f, 0f, 1f, tintWeight);
-        });
-        Color px = pixels[32 * 64 + 32];
-        AssertEqual(3f, red, px.R, "red");
-        AssertEqual(3f, green, px.G, "green");
-        AssertEqual(3f, blue, px.B, "blue");
-    }
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     struct SkinnedVertex : IVertexType
     {

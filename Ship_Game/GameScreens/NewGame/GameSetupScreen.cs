@@ -25,6 +25,7 @@ namespace Ship_Game.GameScreens.NewGame
         string MidGameWarning;
         UIButton ModeBtn;
         UIColorPicker Picker;
+        ShipColorPreview ShipPreview;
         IEmpireData PickingColorFor;
         bool PickingPlayerColor;
         bool PickerAwaitsRelease;
@@ -66,7 +67,7 @@ namespace Ship_Game.GameScreens.NewGame
             PlayerPortrait = ResourceManager.Texture("Races/" + RaceScreen.SelectedData.VideoPath);
             PlayerPortraitRect = new Rectangle(empirePanel.X + pad, empirePanel.Y + 38, (int)PlayerPortrait.GetWidthFromHeightAspect(80), 80);
             PlayerFlagRect = new Rectangle(PlayerPortraitRect.Right + 32, PlayerPortraitRect.Y, 80, 80);
-            UIList empireBoxes = AddList(new Vector2(empirePanel.X + pad, PlayerPortraitRect.Bottom + 8));
+            UIList empireBoxes = AddList(new Vector2(empirePanel.X + pad, PlayerPortraitRect.Bottom + 3));
             empireBoxes.AddCheckbox(() => Params.PlayerHullColors, title: GameText.YourHullColor, tooltip: GameText.YourHullColorTip);
 
             AddHeading(galaxyPanel, GameText.Galaxy);
@@ -118,6 +119,10 @@ namespace Ship_Game.GameScreens.NewGame
 
             Picker = Add(new UIColorPicker(new Rectangle(listX + listWidth + gap, top, pickerWidth, pickerHeight)));
             Picker.Visible = false;
+            int previewTop = top + pickerHeight + gap;
+            ShipPreview = Add(new ShipColorPreview(new Rectangle(listX + listWidth + gap, previewTop, pickerWidth, bottom - previewTop),
+                Picker, TransientContent, () => PickingPlayerColor ? RaceScreen.SelectedData : PickingColorFor,
+                () => PickingPlayerColor ? Params.PlayerHullColors : Params.OpponentHullColors && Params.IsColorPicked(PickingColorFor)));
 
             base.LoadContent();
         }
@@ -273,7 +278,7 @@ namespace Ship_Game.GameScreens.NewGame
                     PickerAwaitsRelease = input.LeftMouseDown;
                     return true;
                 }
-                return Picker.HandleInput(input);
+                return ShipPreview.HandleInput(input) || Picker.HandleInput(input);
             }
 
             if (input.LeftMouseClick)
