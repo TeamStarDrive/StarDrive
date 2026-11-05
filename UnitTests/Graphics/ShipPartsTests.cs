@@ -54,15 +54,13 @@ public class ShipPartsTests : StarDriveTest
         StaticMesh mesh = Content.LoadStaticMesh("Model/Ships/Terran/Battleship/Battleship.fbx");
         Assert.AreEqual(0, mesh.NumParts);
         Assert.IsNull(mesh.RawMeshes[0].PartStart);
-        Assert.IsNull(mesh.CreateSceneObject().PartShown, "its model shows no parts");
     }
 
     [TestMethod]
-    public void AModelCutIntoPartsStartsWithEveryPartShown()
+    public void AModelCutIntoPartsStartsDrawnWhole()
     {
         StaticMesh mesh = Content.LoadStaticMesh("Model/Ships/Terran/HeavyGunboat/ship10b.fbx");
-        SceneObject so = mesh.CreateSceneObject();
-        CollectionAssert.AreEqual(new[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f }, so.PartShown);
+        Assert.IsNull(mesh.CreateSceneObject().PartShown);
     }
 
     // the model seen from above, as the game shows it: the number of pixels it covers
@@ -209,9 +207,9 @@ public class ShipPartsTests : StarDriveTest
         };
         var grid = new ModuleGridFlyweight("test", info, slots.ToArray(), hull);
 
-        Assert.IsTrue(grid.GetParts(out byte[] partOfModule, out int[] _));
+        Assert.IsTrue(grid.GetParts(out int[] _));
         for (int i = 0; i < slots.Count; ++i)
-            Assert.AreEqual(map[hull.HullSlots[i].Pos.X, hull.HullSlots[i].Pos.Y], partOfModule[i], $"the module on hull slot {hull.HullSlots[i].Pos}");
+            Assert.AreEqual(map[hull.HullSlots[i].Pos.X, hull.HullSlots[i].Pos.Y], grid.PartOf(slots[i].Pos), $"the module on hull slot {hull.HullSlots[i].Pos}");
     }
 
     [TestMethod]
@@ -225,12 +223,12 @@ public class ShipPartsTests : StarDriveTest
         var info = new ShipGridInfo { Size = hull.Size, Center = hull.GridCenter, SurfaceArea = slots.Count };
         var grid = new ModuleGridFlyweight("test", info, slots.ToArray(), hull);
 
-        Assert.IsTrue(grid.GetParts(out byte[] partOfModule, out int[] partArea));
+        Assert.IsTrue(grid.GetParts(out int[] partArea));
         var area = new int[hull.NumParts];
         for (int i = 0; i < slots.Count; ++i)
         {
             int part = map[slots[i].Pos.X, slots[i].Pos.Y];
-            Assert.AreEqual(part, partOfModule[i], $"the module at {slots[i].Pos}");
+            Assert.AreEqual(part, grid.PartOf(slots[i].Pos), $"the module at {slots[i].Pos}");
             ++area[part];
         }
         CollectionAssert.AreEqual(area, partArea, "each part's slot area");
@@ -250,9 +248,10 @@ public class ShipPartsTests : StarDriveTest
             var slot = new DesignSlot(new(x, y), "SteelArmorMed", new(2, 2), 0, ModuleOrientation.Normal, null);
             var info = new ShipGridInfo { Size = hull.Size, Center = hull.GridCenter, SurfaceArea = 4 };
             var grid = new ModuleGridFlyweight("test", info, new[] { slot }, hull);
-            Assert.IsTrue(grid.GetParts(out byte[] partOfModule, out int[] partArea));
+            Assert.IsTrue(grid.GetParts(out int[] partArea));
             int expected = ShipHull.MostCovered(cover);
-            Assert.AreEqual(expected, partOfModule[0], $"the 2x2 module at {x},{y}");
+            Assert.AreEqual(expected, grid.PartOf(new(x, y)), $"the 2x2 module at {x},{y}");
+            Assert.AreEqual(expected, grid.PartOf(new(x + 1, y + 1)), $"the 2x2 module at {x},{y}, from its far cell");
             Assert.AreEqual(4, partArea[expected], "its whole area counts for that part");
         }
     }
@@ -274,8 +273,9 @@ public class ShipPartsTests : StarDriveTest
         var hull = new ShipHull { HullSlots = new[] { new HullSlot(0, 0, Restrictions.IO) } };
         var slots = new[] { new DesignSlot(new(0, 0), "SteelArmorSmall", new(1, 1), 0, ModuleOrientation.Normal, null) };
         var grid = new ModuleGridFlyweight("test", new ShipGridInfo { Size = new(1, 1), SurfaceArea = 1 }, slots, hull);
-        Assert.IsFalse(grid.GetParts(out byte[] partOfModule, out int[] _));
-        Assert.IsNull(partOfModule);
+        Assert.IsFalse(grid.GetParts(out int[] partArea));
+        Assert.IsNull(partArea);
+        Assert.AreEqual(-1, grid.PartOf(new(0, 0)), "and its module no part");
     }
 
     static RenderableMesh PartsMesh(int[] primitives)
@@ -325,5 +325,426 @@ public class ShipPartsTests : StarDriveTest
                                     Microsoft.Xna.Framework.Graphics.PrimitiveType.TriangleList, 12, 0, 0, 30, 0);
         Assert.AreEqual("30+12", Runs(rm, null));
         Assert.AreEqual("30+12", Runs(rm, new[] { 0f }), "shown levels mean nothing to a model with no parts");
+    }
+
+    const string GunboatDesign = "TEST_Spearhead mk1-a";
+
+    // a universe whose player can spawn ships on the Heavy Gunboat hull
+    void SetupGunboats()
+    {
+        CreateUniverseAndPlayerEmpire();
+        LoadStarterShips(GunboatDesign);
+    }
+
+    [TestCleanup]
+    public override void Cleanup()
+    {
+        if (Universe != null)
+        {
+            Universe.Particles?.Dispose();
+            Universe.Particles = null;
+        }
+        base.Cleanup();
+    }
+
+    // away from the camera
+    Ship SpawnGunboat(float x = 200_000f) => SpawnGunboatAt(new(x, 200_000f));
+
+    // its hull's model loaded, so the hull knows its parts
+    Ship SpawnGunboatAt(SDGraphics.Vector2 at)
+    {
+        Ship ship = SpawnShip(GunboatDesign, Player, at);
+        Assert.IsTrue(ship.BaseHull.LoadModel(out SceneObject _, Content), "setup: its hull's model loads");
+        Assert.IsTrue(ship.Grid.GetParts(out int[] _), "setup: its hull knows its parts");
+        return ship;
+    }
+
+    // a part's modules, smallest first, and its slot area
+    static ShipModule[] ModulesOf(Ship ship, int part, out int area)
+    {
+        ship.Grid.GetParts(out int[] partArea);
+        area = partArea[part];
+        var modules = new System.Collections.Generic.List<ShipModule>();
+        int moduleArea = 0;
+        foreach (ShipModule m in ship.Modules)
+        {
+            if (ship.Grid.PartOf(m.Pos) == part)
+            {
+                modules.Add(m);
+                moduleArea += m.Area;
+            }
+        }
+        modules.Sort((a, b) => a.Area.CompareTo(b.Area));
+        Assert.IsTrue(modules.Count > 1, $"setup: modules under part {part}");
+        Assert.AreEqual(area, moduleArea, $"setup: part {part}'s slot area is its modules'");
+        return modules.ToArray();
+    }
+
+    static void Kill(ShipModule m) => m.SetHealth(0f, "Test");
+    static void Repair(ShipModule m) => m.SetHealth(m.ActualMaxHealth, "Test");
+
+    [TestMethod]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    [DataRow(4)]
+    [DataRow(5)]
+    [DataRow(6)]
+    public void APlateIsLostOnceThreeQuartersOfItsSlotAreaIsDead(int plate)
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        ShipModule[] modules = ModulesOf(ship, plate, out int area);
+        Assert.IsNull(ship.PartShownNow(), "a ship with no damage has every part on");
+
+        int dead = 0;
+        foreach (ShipModule m in modules)
+        {
+            Kill(m);
+            dead += m.Area;
+            float[] shown = ship.PartShownNow();
+            if (dead < 0.75f * area)
+            {
+                Assert.IsNull(shown, $"{dead} of {area} dead, the plate stays on");
+                continue;
+            }
+            Assert.IsNotNull(shown, $"{dead} of {area} dead, the plate is lost");
+            for (int part = 0; part < shown.Length; ++part)
+                Assert.AreEqual(part == plate ? 0f : 1f, shown[part], $"{dead} of {area} dead: part {part}");
+        }
+        Assert.IsTrue(ship.Active, "setup: the ship lives through it");
+    }
+
+    [TestMethod]
+    public void ALostPlateComesBackByItsRepairsSinceItsLowest()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        const int plate = 1;
+        ShipModule[] modules = ModulesOf(ship, plate, out int area);
+        int alive = area, living = modules.Length;
+        while (ship.PartShownNow() == null) // the biggest first, leaving small ones
+        {
+            Kill(modules[--living]);
+            alive -= modules[living].Area;
+        }
+
+        ShipModule last = modules[0];
+        Kill(last);
+        int lowest = alive - last.Area;
+        Assert.IsTrue(lowest > 0, "setup: its lowest is above none, so a repair counts from there");
+        Assert.AreEqual(0f, ship.PartShownNow()[plate], "dying on, the lost plate shows nothing");
+
+        Repair(last);
+        AssertEqual(0.0001f, (alive - lowest) / (float)(area - lowest), ship.PartShownNow()[plate],
+                    "a repair brings it back by its share of what was dead at its lowest");
+        for (int i = living; i < modules.Length; ++i)
+            Repair(modules[i]);
+        Assert.IsNull(ship.PartShownNow(), "repaired whole, the plate is on again");
+    }
+
+    [TestMethod]
+    public void AShipsModelLeavesOutItsLostPlatesFromItsNextUpdate()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        SceneObject so = Content.LoadStaticMesh("Model/Ships/Terran/HeavyGunboat/ship10b.fbx").CreateSceneObject();
+        typeof(Ship).GetField("ShipSO", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(ship, so);
+        ShipModule[] modules = ModulesOf(ship, 5, out int _);
+        foreach (ShipModule m in modules)
+            Kill(m);
+
+        UState.Objects.Update(TestSimStep);
+        CollectionAssert.AreEqual(new[] { 1f, 1f, 1f, 1f, 1f, 0f, 1f }, so.PartShown, "the lost plate is left out");
+
+        foreach (ShipModule m in modules)
+            Repair(m);
+        UState.Objects.Update(TestSimStep);
+        Assert.IsNull(so.PartShown, "repaired whole, the model is drawn whole");
+    }
+
+    [TestMethod]
+    public void AModuleUnderALostPlateShowsNoDamageTillThePlateIsWhole()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        ShipModule[] lost = ModulesOf(ship, 5, out int _);
+        ShipModule[] on = ModulesOf(ship, 6, out int _);
+        foreach (ShipModule m in lost)
+            Kill(m);
+        Kill(on[0]);
+        ship.PartShownNow();
+        Repair(lost[0]);
+        ship.PartShownNow();
+        Assert.IsTrue(ship.PartShown[5] is > 0f and < 1f, "setup: the lost plate is on its way back");
+
+        Assert.IsTrue(ship.UnderLostPart(lost[1]), "a dead module under the lost plate went with it");
+        Assert.IsTrue(ship.UnderLostPart(lost[0]), "and one repaired under it shows no damage either while the plate is not whole");
+        Assert.IsFalse(ship.UnderLostPart(on[0]), "a dead one under a plate still on shows its damage");
+        foreach (ShipModule m in lost)
+            Repair(m);
+        ship.PartShownNow();
+        Assert.IsFalse(ship.UnderLostPart(lost[0]), "the plate whole again, its modules show their damage");
+    }
+
+    [TestMethod]
+    public void ASaveKeepsTheLostPlatesAndTheirRepairsSince()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        ShipModule[] modules = ModulesOf(ship, 3, out int _);
+        foreach (ShipModule m in modules)
+            Kill(m);
+        Assert.AreEqual(0f, ship.PartShownNow()[3], "setup: the plate is lost");
+        Repair(modules[0]);
+        float[] before = ship.PartShownNow();
+        Assert.IsTrue(before[3] > 0f && before[3] < 1f, "setup: the lost plate is on its way back");
+
+        UState.Objects.Update(TestSimStep); // in its empire's list, to be saved
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.ShipParts", throwOnError: true);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+        Ship after = loaded.UState.Objects.FindShip(ship.Id);
+        CollectionAssert.AreEqual(before, after.PartShownNow(), "the lost plate and its repairs since come back");
+    }
+
+    [TestMethod]
+    public void ADerelictShowsOnlyTheShipsWholePlatesAndSmokesNotUnderTheLostOnes()
+    {
+        SetupGunboats();
+        Ship whole = SpawnGunboat();
+        ShipModule[] modules = ModulesOf(whole, 5, out int area);
+        int dead = 0;
+        foreach (ShipModule m in modules)
+        {
+            if (dead + m.Area >= 0.75f * area)
+                break;
+            Kill(m);
+            dead += m.Area;
+        }
+        var onWreck = new Derelict(whole, null, salvageable: false, seen: false);
+        Assert.IsNull(onWreck.PartShown, "setup: the plate is still on");
+        Assert.IsTrue(onWreck.NumSmokeSources > 0, "setup: the dead modules under a plate still on smoke");
+
+        Ship ship = SpawnGunboat(210_000f);
+        ShipModule[] lost = ModulesOf(ship, 5, out int _);
+        foreach (ShipModule m in lost)
+            Kill(m);
+        ship.PartShownNow();
+        Repair(lost[0]);
+        Assert.IsTrue(ship.PartShownNow()[5] is > 0f and < 1f, "setup: the lost plate is on its way back");
+
+        var model = new SceneObject("ship"); // the ship's model, seen at its death, which the derelict takes over
+        var d = new Derelict(ship, model, salvageable: false, seen: true);
+        CollectionAssert.AreEqual(new[] { 1f, 1f, 1f, 1f, 1f, 0f, 1f }, d.PartShown, "the derelict shows only the plates the ship had whole");
+        Assert.AreSame(d.PartShown, model.PartShown, "on the model it takes over");
+        Assert.AreEqual(0, d.NumSmokeSources, "and no smoke from under the lost plate, where the only damage is");
+
+        var unseen = new Derelict(ship, null, salvageable: false, seen: false);
+        var so = new SceneObject("derelict");
+        Assert.IsTrue(unseen.AttachModel(so), "setup: a model is attached later");
+        Assert.AreSame(unseen.PartShown, so.PartShown, "which leaves the plate out too");
+    }
+
+    [TestMethod]
+    public void ARecoveredShipKeepsItsDerelictsLostPlateAndLosesNoneToItsRecovery()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        var d = new Derelict(ship, null, salvageable: false, seen: false);
+
+        Ship recovered = Ship.CreateRecoveredShip(UState, d, Player, model: null);
+        float[] shown = recovered.PartShownNow();
+        Assert.IsNotNull(shown, "the recovered ship has a lost plate");
+        Assert.AreEqual(0f, shown[5], "its derelict's, coming back with its repairs");
+        bool deadOn = false;
+        for (int part = 1; part < shown.Length; ++part)
+        {
+            if (part == 5)
+                continue;
+            int dead = 0;
+            foreach (ShipModule m in ModulesOf(recovered, part, out int area))
+            {
+                if (!m.Active)
+                    dead += m.Area;
+                deadOn |= dead >= 0.75f * area;
+            }
+            Assert.AreEqual(1f, shown[part], $"part {part} stays on through the recovery's damage");
+        }
+        Assert.IsTrue(deadOn, "setup: the recovery leaves another plate three quarters dead");
+    }
+
+    // a plate at least three quarters dead, 0 for none
+    static int ThreeQuartersDeadPlate(Ship ship)
+    {
+        ship.Grid.GetParts(out int[] partArea);
+        for (int part = 1; part < partArea.Length; ++part)
+        {
+            ShipModule[] modules = ModulesOf(ship, part, out int area);
+            int dead = 0;
+            foreach (ShipModule m in modules)
+                if (!m.Active)
+                    dead += m.Area;
+            if (dead >= 0.75f * area)
+                return part;
+        }
+        return 0;
+    }
+
+    [TestMethod]
+    public void ADeathBeforeTheDesignKnowsItsPartsHitsOnlyItsOwnPart()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        var d = new Derelict(ship, null, salvageable: false, seen: false);
+        Ship recovered = Ship.CreateRecoveredShip(UState, d, Player, model: null);
+        Assert.IsNull(recovered.PartShownNow(), "setup: the recovery's damage loses no plate");
+        int deadOn = ThreeQuartersDeadPlate(recovered);
+        Assert.IsTrue(deadOn > 0, "setup: the recovery leaves a plate three quarters dead");
+
+        int other = deadOn == 1 ? 2 : 1;
+        ShipModule alive = System.Array.Find(ModulesOf(recovered, other, out int _), m => m.Active);
+        Assert.IsNotNull(alive, $"setup: a module alive under plate {other}");
+        typeof(ModuleGridFlyweight).GetField("Parts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                                   .SetValue(recovered.Grid, null); // as before any ship of the design counted its parts
+        Kill(alive);
+
+        float[] shown = recovered.PartShownNow();
+        Assert.IsTrue(shown == null || shown[deadOn] == 1f, $"plate {deadOn} stays on, as no module died under it");
+    }
+
+    static object DamageVisualOf(ShipModule m)
+    {
+        return typeof(ShipModule).GetField("DamageVisualizer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(m);
+    }
+
+    // seen by the player, in the camera's view
+    void ShowOnScreen(Ship ship)
+    {
+        ship.InFrustum = true;
+        ship.KnownByEmpires.SetSeen(Player);
+    }
+
+    static ShipModule[] Burning(ShipModule[] modules)
+    {
+        ShipModule[] burning = System.Array.FindAll(modules, m => m.CanVisualizeDamage);
+        Assert.IsTrue(burning.Length > 0, "setup: modules that show damage");
+        return burning;
+    }
+
+    [TestMethod]
+    public void AShipShowsNoDamageUnderALostPlateAliveOrDying()
+    {
+        SetupGunboats();
+        Universe.Particles = new Ship_Game.Graphics.Particles.ParticleManager(Content);
+        UState.ViewState = UniverseScreen.UnivScreenState.PlanetView;
+        Ship ship = SpawnGunboat();
+        ShipModule[] lost = Burning(ModulesOf(ship, 5, out int _));
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        ShipModule onPlateOn = Burning(ModulesOf(ship, 6, out int _))[0];
+        Kill(onPlateOn);
+        ship.PartShownNow();
+
+        ShowOnScreen(ship);
+        ship.UpdateModulePositions(TestSimStep, forceUpdate: true);
+        Assert.IsNotNull(DamageVisualOf(onPlateOn), "setup: a dead module under a plate still on burns");
+        foreach (ShipModule m in lost)
+            Assert.IsNull(DamageVisualOf(m), "one under the lost plate shows nothing");
+
+        SceneObject so = Content.LoadStaticMesh("Model/Ships/Terran/HeavyGunboat/ship10b.fbx").CreateSceneObject();
+        typeof(Ship).GetField("ShipSO", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(ship, so);
+        ship.Dying = true;
+        ship.SetDieTimer(10f);
+        ShipModule[] lostDying = Burning(ModulesOf(ship, 3, out int _));
+        foreach (ShipModule m in ModulesOf(ship, 3, out int _))
+            Kill(m);
+        ShowOnScreen(ship);
+        ship.Update(TestSimStep);
+        Assert.IsTrue(ship.Dying && ship.Active, "setup: the ship is tumbling");
+        Assert.IsNotNull(so.PartShown, "a plate lost as it tumbles");
+        Assert.AreEqual(0f, so.PartShown[3], "leaves its model");
+        Assert.IsNotNull(DamageVisualOf(onPlateOn), "setup: the dead module under a plate still on burns as it dies");
+        foreach (ShipModule m in lostDying)
+            Assert.IsNull(DamageVisualOf(m), "one under the plate lost as it tumbles shows nothing");
+    }
+
+    [TestMethod]
+    public void ASaveKeepsADerelictsLostPlates()
+    {
+        SetupGunboats();
+        var site = new SDGraphics.Vector2(600_000f, 600_000f);
+        AddDummyPlanet(site, 1f, 1f, 1f, site + new SDGraphics.Vector2(0, 60_000f), explored: true);
+        Ship ship = SpawnGunboatAt(site + new SDGraphics.Vector2(30_000f, 0));
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        Assert.IsTrue(UState.Derelicts.TryAdd(ship, salvageable: true, seen: false), "setup: a salvageable derelict");
+        Universe.InvokePendingSimThreadActions();
+        ship.QueueTotalRemoval();
+        Derelict d = System.Linq.Enumerable.Last(UState.Derelicts.Current);
+        CollectionAssert.AreEqual(new[] { 1f, 1f, 1f, 1f, 1f, 0f, 1f }, d.PartShown, "setup: the derelict has the lost plate");
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.ShipPartsDerelict", throwOnError: true);
+        UniverseScreen loaded = LoadSave(save.SaveFile);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+        Derelict after = System.Array.Find(loaded.UState.Derelicts.ToArray(), x => x.Id == d.Id);
+        Assert.IsNotNull(after, "setup: the derelict comes back");
+        CollectionAssert.AreEqual(d.PartShown, after.PartShown, "with its lost plate");
+    }
+
+    static object ShipField(Ship ship, string name)
+    {
+        return typeof(Ship).GetField(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(ship);
+    }
+
+    [TestMethod]
+    public void ASaveKeepsADeathNotCountedYet()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        UState.Objects.Update(TestSimStep); // in its empire's list, to be saved
+        foreach (ShipModule m in ModulesOf(ship, 3, out int _))
+            Kill(m); // the plate's deaths come just before the save, with no update to count them
+
+        UState.StarDate = 1001f; // the loader needs a stardate past 1000
+        SavedGame save = Universe.Save("UnitTest.ShipPartsHit", throwOnError: true);
+        Assert.IsNull(ShipField(ship, "LostPartLow"), "setup: the save came before the count");
+        UniverseScreen loaded = LoadSave(save.SaveFile);
+        Assert.IsNotNull(loaded, "setup: the save loads");
+        float[] shown = loaded.UState.Objects.FindShip(ship.Id).PartShownNow();
+        Assert.IsNotNull(shown, "the deaths count after loading");
+        Assert.AreEqual(0f, shown[3], "and the plate is lost");
+    }
+
+    [TestMethod]
+    public void ADerelictMadeBeforeItsHullsModelLoadsTakesTheLostPlatesAsSaved()
+    {
+        SetupGunboats();
+        Ship ship = SpawnGunboat();
+        foreach (ShipModule m in ModulesOf(ship, 5, out int _))
+            Kill(m);
+        Assert.IsNotNull(ship.PartShownNow(), "setup: the plate is lost");
+
+        // as loaded from a save in a game that has not drawn the hull yet
+        var triangles = typeof(ShipHull).GetField("PartTriangles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        object loadedTriangles = triangles.GetValue(ship.BaseHull);
+        try
+        {
+            triangles.SetValue(ship.BaseHull, null);
+            typeof(Ship).GetProperty(nameof(Ship.PartShown))!.SetValue(ship, null);
+            typeof(Ship).GetField("PartsOutdated", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(ship, true);
+            Assert.IsNull(ship.PartShownNow(), "setup: the parts cannot be counted");
+
+            var d = new Derelict(ship, null, salvageable: false, seen: false);
+            CollectionAssert.AreEqual(new[] { 1f, 1f, 1f, 1f, 1f, 0f, 1f }, d.PartShown, "the derelict takes the lost plate as saved");
+        }
+        finally
+        {
+            triangles.SetValue(ship.BaseHull, loadedTriangles);
+        }
     }
 }

@@ -80,6 +80,8 @@ namespace Ship_Game.Ships
         // a model cut into parts: each part's triangles, once the model has loaded
         XnaVector3[][] PartTriangles;
         public int NumParts => PartTriangles?.Length ?? 0;
+        // its model has loaded in one piece, so its ships have no parts to count
+        public bool ModelInOnePiece { get; private set; }
 
         // the part map with the model and grid placement it was made for, so a hull editor's change of placement makes it again
         sealed record PartGrid(XnaVector3[][] Triangles, Vector2 MeshOffset, Point GridCenter, Point Size, byte[,] Map);
@@ -186,6 +188,7 @@ namespace Ship_Game.Ships
                 }
 
                 PartTriangles = mesh.NumParts > 0 ? mesh.PartTriangles : null; // a reloaded hull may show another model
+                ModelInOnePiece = PartTriangles == null;
                 return true;
             }
         }

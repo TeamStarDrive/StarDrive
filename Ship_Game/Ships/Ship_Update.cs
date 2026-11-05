@@ -72,6 +72,7 @@ namespace Ship_Game.Ships
             // a launching or landing ship's model waits for its next update, which gives it its launch or land look
             so.Visibility = IsLaunching || IsLanding ? ObjectVisibility.None : GlobalStats.ShipVisibility;
             so.HullTint = Loyalty.HullTint;
+            so.PartShown = PartShown;
             ScreenManager.Instance.AddObject(so);
             ShipSO = so; // last, so the sim can only take out a model that is already in the scene
         }
@@ -245,11 +246,15 @@ namespace Ship_Game.Ships
             if (Dismantling && timeStep.FixedTime > 0f)
                 UpdateDismantling(timeStep, visibleToPlayer);
 
+            if (PartsOutdated)
+                UpdateLostParts();
+
             SceneObject so = ShipSO; // the UI thread may take it out meanwhile
             if (so != null)
             {
                 so.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
                 so.HullTint = Loyalty.HullTint;
+                so.PartShown = PartShown;
             }
 
             SoundEmitter.Position = new Vector3(Position, 0);
@@ -475,6 +480,9 @@ namespace Ship_Game.Ships
             float scale = PlanetCrash?.Scale ?? 1;
             float scaledRadius = Radius * scale;
 
+            if (PartsOutdated)
+                UpdateLostParts();
+
             SceneObject so = ShipSO; // the UI thread may take it out meanwhile
             if (visibleAndNotPaused && so != null)
             {
@@ -488,6 +496,7 @@ namespace Ship_Game.Ships
                 so.UpdateAnimation(timeStep.FixedTime);
                 so.EmissiveScale = LightLevel(Universe.Screen?.CurrentSimTime ?? 0f);
                 so.HullTint = Loyalty.HullTint;
+                so.PartShown = PartShown;
             }
 
             if (visibleAndNotPaused && !IsMeteor)
@@ -522,9 +531,11 @@ namespace Ship_Game.Ships
 
             SoundEmitter.Position = new Vector3(Position, 0);
 
+            bool partsLost = PartShown != null;
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
-                ModuleSlotList[i].UpdateWhileDying(timeStep, scale, visible);
+                ShipModule m = ModuleSlotList[i];
+                m.UpdateWhileDying(timeStep, scale, visible && !(partsLost && UnderLostPart(m)));
             }
         }
     }

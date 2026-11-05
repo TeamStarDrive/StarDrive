@@ -178,12 +178,6 @@ public sealed class StaticMesh : IDisposable
                         PartPrimitives = mesh.PartPrimitives,
                     });
                 }
-                if (NumParts > 0)
-                {
-                    var shown = new float[NumParts];
-                    Array.Fill(shown, 1f);
-                    so.PartShown = shown;
-                }
             }
 
             // Phase 3.10.B.7: auto-attach a per-instance animation player and

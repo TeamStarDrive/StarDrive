@@ -599,7 +599,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         public float EmissiveScale { get; set; } = 1f;
         // the owner's color on the model's tint-mapped paint, W = 0 for the bare texture
         public Vector4 HullTint { get; set; }
-        // how much of each part of a model cut into parts is shown, 1 whole, below 1 left out; null for a model in one piece
+        // how much of each part of a model cut into parts is shown, 1 whole, below 1 left out; null draws the model whole
         public float[] PartShown { get; set; }
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }

@@ -221,13 +221,22 @@ namespace Ship_Game.Ships
             return moduleIndex >= 0 ? InternalSlotsOfModule[moduleIndex] : 0;
         }
 
-        // each module's hull part, by most of its cells, and each part's slot area; false until the hull's model has made its part map
-        public bool GetParts(out byte[] partOfModule, out int[] partArea)
+        // each hull part's slot area; false until the hull's model has made its part map
+        public bool GetParts(out int[] partArea)
         {
             PartTable parts = Parts ?? BuildParts();
-            partOfModule = parts?.PartOfModule;
             partArea = parts?.PartArea;
             return parts != null;
+        }
+
+        // the hull part the module on a grid cell sits under, by most of its cells: 0 for the core or no module, -1 until the parts are known
+        [Pure] public int PartOf(Point gridPos)
+        {
+            PartTable parts = Parts;
+            if (parts == null)
+                return -1;
+            int moduleIndex = ModuleIndexGrid[gridPos.X + gridPos.Y * Width];
+            return moduleIndex >= 0 ? parts.PartOfModule[moduleIndex] : 0;
         }
 
         PartTable BuildParts()

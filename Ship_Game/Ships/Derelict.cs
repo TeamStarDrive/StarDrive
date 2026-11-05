@@ -133,6 +133,8 @@ public sealed class Derelict
     [StarData] public Empire RecoveredFor { get; private set; }
     // the ship's name at its death, which a recovered ship keeps
     [StarData] public readonly string ShipName;
+    // each hull part shown, 1, or not, 0: the parts the ship had whole at its death, which a recovered ship keeps; null while no part is lost
+    [StarData] internal readonly float[] PartShown;
     // the ship that took its place at a ship's depth, set on the sim thread and read on the UI thread; not saved, as the derelict is gone from then on
     public Ship RecoveredAs { get; private set; }
     public int NumSmokeSources => Smoke.Length;
@@ -171,6 +173,9 @@ public sealed class Derelict
         float spin = 50f / ship.SurfaceArea;
         Spin = new(random.Float(-1f, 1f) * spin, random.Float(-1f, 1f) * spin, random.Float(-1f, 1f) * spin);
         BreakupSeconds = random.Float(MinBreakupSeconds, MaxBreakupSeconds);
+        PartShown = ship.WholePartsNow();
+        if (so != null)
+            so.PartShown = PartShown;
         Smoke = PickSmokeSources(ship);
 
         KnownBy = new bool[Universe.NumEmpires];
@@ -562,7 +567,7 @@ public sealed class Derelict
         return r > RadMath.PI ? r - RadMath.TwoPI : r;
     }
 
-    // dead modules first, then damaged ones; conduits only spark, so they are left out
+    // dead modules first, then damaged ones; conduits only spark, and a module under a lost part went with it, so they are left out
     static SmokeSource[] PickSmokeSources(Ship ship)
     {
         var dead = new Array<ShipModule>();
@@ -571,7 +576,7 @@ public sealed class Derelict
         for (int i = 0; i < modules.Length; ++i)
         {
             ShipModule m = modules[i];
-            if (!m.CanVisualizeDamage || m.ModuleType == ShipModuleType.PowerConduit)
+            if (!m.CanVisualizeDamage || m.ModuleType == ShipModuleType.PowerConduit || ship.UnderLostPart(m))
                 continue;
             if (!m.Active)
                 dead.Add(m);
@@ -632,6 +637,7 @@ public sealed class Derelict
         so.World = World(Rotation, Scale);
         so.EmissiveScale = 0f;
         so.HullTint = Owner.HullTint;
+        so.PartShown = PartShown;
         so.Visibility = GlobalStats.ShipVisibility;
         So = so;
         Universe.Screen.AddObject(so);
