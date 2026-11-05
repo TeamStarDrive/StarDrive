@@ -202,7 +202,7 @@ namespace Ship_Game.Gameplay
             DamagePerSecond = GetDamagePerSecond();
         }
 
-        float GetDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
+        float GetDamagePerSecond()
         {
             IWeaponTemplate wOrMirv = this;
             if (IsMirv)

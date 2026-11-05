@@ -60,6 +60,7 @@ namespace Ship_Game
         // Game Setup's Back and Engage come out of these two
         public Vector2 AbortPos => AbortButton.Pos;
         public Vector2 GameSetupPos => GameSetupButton.Pos;
+        public void ShowButtonRow(bool show) => GameSetupButton.Visible = AbortButton.Visible = show;
         UITextEntry NameEntry;
         UITextEntry SingEntry;
         UITextEntry PlurEntry;
@@ -312,11 +313,7 @@ namespace Ship_Game
 
         void OnGameSetupClicked(UIButton b)
         {
-            // Game Setup puts its own Back and Engage on this screen's button row while it is open
-            GameSetupButton.Visible = AbortButton.Visible = false;
-            var setup = new GameSetupScreen(this);
-            setup.OnExit += () => GameSetupButton.Visible = AbortButton.Visible = true;
-            ScreenManager.AddScreen(setup);
+            ScreenManager.AddScreen(new GameSetupScreen(this));
         }
 
         void OnAbortClicked(UIButton b)

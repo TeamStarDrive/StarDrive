@@ -62,7 +62,7 @@ namespace Ship_Game.GameScreens.NewGame
             int listX = leftX + leftWidth + gap;
             int titleY = LowRes ? 10 : 44;
             (int top, int upperBottom, int lowerTop) = RaceScreen.PanelRows;
-            // Back and Engage take the race screen's button row, whose own buttons hide meanwhile, and the panels reach down to it
+            // Back and Engage take the race screen's button row, and the panels reach down to it
             int bottom = ScreenHeight - 50;
             Slides.Clear();
 
@@ -152,7 +152,8 @@ namespace Ship_Game.GameScreens.NewGame
 
             for (int i = 0; i < Slides.Count; ++i)
                 Slides[i].Element.SlideInFromOffset(Slides[i].Offset, TransitionOnTime);
-            // Back and Engage come out of the race screen's Abort and Game Setup, which they stand in for
+            // Back and Engage come out of the race screen's Abort and Game Setup, which hide until this screen closes
+            RaceScreen.ShowButtonRow(false);
             BackButton.SlideInFromOffset(RaceScreen.AbortPos - BackButton.Pos, TransitionOnTime);
             EngageButton.SlideInFromOffset(RaceScreen.GameSetupPos - EngageButton.Pos, TransitionOnTime);
             base.LoadContent();
@@ -168,6 +169,7 @@ namespace Ship_Game.GameScreens.NewGame
         void SlideOut()
         {
             BackButton.Visible = EngageButton.Visible = false; // they vanish as the race screen's own buttons come back
+            RaceScreen.ShowButtonRow(true);
             for (int i = 0; i < Slides.Count; ++i)
             {
                 UIElementV2 e = Slides[i].Element;
