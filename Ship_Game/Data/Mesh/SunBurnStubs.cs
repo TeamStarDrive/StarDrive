@@ -266,12 +266,14 @@ namespace SynapseGaming.LightingSystem.Core
                     if (iso is not Rendering.SceneObject so || !so.HasMeshes) continue;
                     if (so.Visibility == ObjectVisibility.None) continue;
 
+                    float[] shown = so.PartShown;
                     foreach (Rendering.RenderableMesh rm in so.RenderableMeshes)
                     {
                         if (rm.PrimitiveCount == 0 || rm.VertexBuffer == null || rm.IndexBuffer == null)
                             continue;
-                        ShadowMap.DrawCaster(so.World * rm.World, rm.VertexBuffer, rm.IndexBuffer,
-                            rm.PrimitiveType, rm.BaseVertex, rm.StartIndex, rm.PrimitiveCount);
+                        for (int part = 0; rm.NextShownRun(shown, ref part, out int start, out int primitives);)
+                            ShadowMap.DrawCaster(so.World * rm.World, rm.VertexBuffer, rm.IndexBuffer,
+                                rm.PrimitiveType, rm.BaseVertex, start, primitives);
                     }
 
                     foreach ((ModelMesh mesh, Effect _) in so.AddedModelMeshes)
@@ -424,6 +426,7 @@ namespace SynapseGaming.LightingSystem.Core
 
         void DrawRenderables(Rendering.SceneObject so)
         {
+            float[] shown = so.PartShown;
             foreach (Rendering.RenderableMesh rm in so.RenderableMeshes)
             {
                 if (rm.PrimitiveCount == 0 || rm.VertexBuffer == null || rm.IndexBuffer == null)
@@ -481,8 +484,8 @@ namespace SynapseGaming.LightingSystem.Core
                 foreach (EffectPass pass in fx.CurrentTechnique.Passes)
                 {
                     pass.Apply();
-                    GraphicsDevice.DrawIndexedPrimitives(rm.PrimitiveType,
-                        rm.BaseVertex, rm.StartIndex, rm.PrimitiveCount);
+                    for (int part = 0; rm.NextShownRun(shown, ref part, out int start, out int primitives);)
+                        GraphicsDevice.DrawIndexedPrimitives(rm.PrimitiveType, rm.BaseVertex, start, primitives);
                 }
             }
         }
@@ -596,6 +599,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         public float EmissiveScale { get; set; } = 1f;
         // the owner's color on the model's tint-mapped paint, W = 0 for the bare texture
         public Vector4 HullTint { get; set; }
+        // how much of each part of a model cut into parts is shown, 1 whole, below 1 left out; null for a model in one piece
+        public float[] PartShown { get; set; }
         public SynapseGaming.LightingSystem.Core.ObjectVisibility Visibility { get; set; }
         public AnimationStub Animation { get; set; }
 
@@ -641,6 +646,9 @@ namespace SynapseGaming.LightingSystem.Rendering
         public int NumVertices { get; }
         public int StartIndex { get; }
         public int VertexStride { get; }
+        // a model cut into parts: each part's first index and triangle count, in part order; null for a model in one piece
+        public int[] PartStart { get; init; }
+        public int[] PartPrimitives { get; init; }
 
         // Material data — Phase 2 only uses DiffuseTexture; reserve MaterialOverrides
         // dict for Phase 3 normal-map / specular / emissive additions.
@@ -668,6 +676,40 @@ namespace SynapseGaming.LightingSystem.Rendering
             StartIndex = startIndex;
             VertexStride = vertexStride;
         }
+
+        // the next run of shown parts from part on, as one index range, since the parts lie in part order; a model in one piece is one run
+        public bool NextShownRun(float[] shown, ref int part, out int startIndex, out int primitives)
+        {
+            if (PartStart == null || shown == null)
+            {
+                startIndex = StartIndex;
+                primitives = PrimitiveCount;
+                bool first = part == 0;
+                part = int.MaxValue;
+                return first && primitives > 0;
+            }
+
+            startIndex = 0;
+            primitives = 0;
+            for (; part < PartStart.Length; ++part)
+            {
+                if (PartPrimitives[part] == 0)
+                    continue;
+                if (part < shown.Length && shown[part] < 1f)
+                {
+                    if (primitives > 0)
+                    {
+                        ++part;
+                        return true;
+                    }
+                    continue;
+                }
+                if (primitives == 0)
+                    startIndex = PartStart[part];
+                primitives += PartPrimitives[part];
+            }
+            return primitives > 0;
+        }
     }
 
     public sealed class MeshData : IDisposable
@@ -683,6 +725,9 @@ namespace SynapseGaming.LightingSystem.Rendering
         public VertexBuffer VertexBuffer { get; set; }
         public IndexBuffer IndexBuffer { get; set; }
         public Effect Effect { get; set; }
+        // a model cut into parts: each part's first index and triangle count, in part order; null for a model in one piece
+        public int[] PartStart { get; set; }
+        public int[] PartPrimitives { get; set; }
         public void Dispose()
         {
             VertexDeclaration?.Dispose(); VertexDeclaration = null;

@@ -58,8 +58,17 @@ namespace Ship_Game.Ships
         // for each module index, how many of the internal slots counted it holds
         readonly byte[] InternalSlotsOfModule;
 
+        // the hull and this grid's center on it, for the hull's part map
+        readonly ShipHull Hull;
+        readonly Point Center;
+        // for each module index, the hull part it sits under, and each part's slot area; built once the hull's model has made its part map
+        sealed record PartTable(byte[] PartOfModule, int[] PartArea);
+        PartTable Parts;
+
         public ModuleGridFlyweight(string name, in ShipGridInfo info, DesignSlot[] slots, ShipHull hull = null)
         {
+            Hull = hull;
+            Center = info.Center;
             SurfaceArea = info.SurfaceArea;
             Width  = info.Size.X;
             Height = info.Size.Y;
@@ -210,6 +219,44 @@ namespace Ship_Game.Ships
         {
             int moduleIndex = ModuleIndexGrid[m.Pos.X + m.Pos.Y * Width];
             return moduleIndex >= 0 ? InternalSlotsOfModule[moduleIndex] : 0;
+        }
+
+        // each module's hull part, by most of its cells, and each part's slot area; false until the hull's model has made its part map
+        public bool GetParts(out byte[] partOfModule, out int[] partArea)
+        {
+            PartTable parts = Parts ?? BuildParts();
+            partOfModule = parts?.PartOfModule;
+            partArea = parts?.PartArea;
+            return parts != null;
+        }
+
+        PartTable BuildParts()
+        {
+            ShipHull hull = Hull;
+            if (hull == null || !hull.GetPartMap(out byte[,] map, out int numParts))
+                return null;
+
+            int numModules = InternalSlotsOfModule.Length;
+            var cells = new int[numModules * numParts];
+            for (int y = 0; y < Height; ++y)
+            for (int x = 0; x < Width; ++x)
+            {
+                int moduleIndex = ModuleIndexGrid[x + y * Width];
+                if (moduleIndex >= 0)
+                    ++cells[moduleIndex * numParts + ShipHull.PartAt(map, new(x - Center.X + hull.GridCenter.X, y - Center.Y + hull.GridCenter.Y))];
+            }
+
+            var partOf = new byte[numModules];
+            var area = new int[numParts];
+            for (int m = 0; m < numModules; ++m)
+            {
+                var moduleCells = new ReadOnlySpan<int>(cells, m * numParts, numParts);
+                int part = ShipHull.MostCovered(moduleCells);
+                partOf[m] = (byte)part;
+                foreach (int n in moduleCells)
+                    area[part] += n;
+            }
+            return Parts = new(partOf, area);
         }
 
         public void DebugDumpGrid(IShipDesign design)

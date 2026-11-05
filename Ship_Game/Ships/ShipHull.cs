@@ -77,6 +77,41 @@ namespace Ship_Game.Ships
         // and the most-positive, the surface that faces the camera when the hull is upside down, as a tumbling derelict
         float[,] BackSurfaceMap;
 
+        // a model cut into parts: each part's triangles, once the model has loaded
+        XnaVector3[][] PartTriangles;
+        public int NumParts => PartTriangles?.Length ?? 0;
+
+        // the part map with the model and grid placement it was made for, so a hull editor's change of placement makes it again
+        sealed record PartGrid(XnaVector3[][] Triangles, Vector2 MeshOffset, Point GridCenter, Point Size, byte[,] Map);
+        PartGrid PartMapGrid;
+        const int PartSamples = 4; // a cell's samples a side
+
+        // the part of a model cut into parts each grid cell shows from above, 0 for the core; null until the model loads, or for a model in one piece
+        public byte[,] PartMap => CurrentPartGrid()?.Map;
+
+        // the part map and its part count, read together
+        public bool GetPartMap(out byte[,] map, out int numParts)
+        {
+            PartGrid grid = CurrentPartGrid();
+            map = grid?.Map;
+            numParts = grid?.Triangles.Length ?? 0;
+            return grid != null;
+        }
+
+        PartGrid CurrentPartGrid()
+        {
+            XnaVector3[][] triangles = PartTriangles;
+            if (triangles == null)
+                return null;
+            PartGrid grid = PartMapGrid;
+            if (grid == null || grid.Triangles != triangles || grid.MeshOffset != MeshOffset || grid.GridCenter != GridCenter || grid.Size != Size)
+            {
+                grid = new(triangles, MeshOffset, GridCenter, Size, BuildPartMap(triangles));
+                PartMapGrid = grid;
+            }
+            return grid;
+        }
+
         // Lift VFX slightly toward the camera so emitters sit just above the
         // deck instead of co-planar with the mesh surface.
         const float SurfaceLift = -2f;
@@ -149,8 +184,98 @@ namespace Ship_Game.Ships
                     if (positions != null)
                         BuildSurfaceMap(positions);
                 }
+
+                PartTriangles = mesh.NumParts > 0 ? mesh.PartTriangles : null; // a reloaded hull may show another model
                 return true;
             }
+        }
+
+        // each cell takes the part whose surface is on top at most of its samples, seen from above as the grid sits on the model
+        byte[,] BuildPartMap(XnaVector3[][] partTriangles)
+        {
+            int w = Math.Max(Size.X, 0), h = Math.Max(Size.Y, 0);
+            int numParts = partTriangles.Length;
+
+            int sw = w * PartSamples, sh = h * PartSamples;
+            var top = new float[sw * sh];
+            var topPart = new byte[sw * sh];
+            Array.Fill(top, float.MaxValue);
+            for (int part = 0; part < partTriangles.Length; ++part)
+            {
+                XnaVector3[] corners = partTriangles[part];
+                for (int t = 0; t + 2 < corners.Length; t += 3)
+                    RasterizeTop(corners[t], corners[t + 1], corners[t + 2], (byte)part, top, topPart, sw, sh);
+            }
+
+            var map = new byte[w, h];
+            var samples = new int[numParts];
+            for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+            {
+                Array.Clear(samples);
+                for (int sy = 0; sy < PartSamples; ++sy)
+                for (int sx = 0; sx < PartSamples; ++sx)
+                {
+                    int i = (x * PartSamples + sx) + (y * PartSamples + sy) * sw;
+                    if (top[i] < float.MaxValue)
+                        ++samples[topPart[i]];
+                }
+                map[x, y] = (byte)MostCovered(samples);
+            }
+            return map;
+        }
+
+        // the part covering the most, a tie going to a part over the core, then to the lower part number
+        public static int MostCovered(ReadOnlySpan<int> coverByPart)
+        {
+            int best = 0;
+            for (int part = 1; part < coverByPart.Length; ++part)
+                if (coverByPart[part] > 0 && (best == 0 ? coverByPart[part] >= coverByPart[0] : coverByPart[part] > coverByPart[best]))
+                    best = part;
+            return best;
+        }
+
+        // the triangle's top surface over the samples it covers, sample i of a row centered at (i + 0.5) / PartSamples cells
+        void RasterizeTop(XnaVector3 a, XnaVector3 b, XnaVector3 c, byte part, float[] top, byte[] topPart, int sw, int sh)
+        {
+            float ax = SampleX(a), ay = SampleY(a), bx = SampleX(b), by = SampleY(b), cx = SampleX(c), cy = SampleY(c);
+            float area = (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);
+            if (Math.Abs(area) < 1e-6f)
+                return; // edge-on from above, as a side wall
+
+            int minX = Math.Max(0, (int)Math.Ceiling(Math.Min(ax, Math.Min(bx, cx))));
+            int maxX = Math.Min(sw - 1, (int)Math.Floor(Math.Max(ax, Math.Max(bx, cx))));
+            int minY = Math.Max(0, (int)Math.Ceiling(Math.Min(ay, Math.Min(by, cy))));
+            int maxY = Math.Min(sh - 1, (int)Math.Floor(Math.Max(ay, Math.Max(by, cy))));
+            const float edge = -1e-4f;
+            for (int py = minY; py <= maxY; ++py)
+            for (int px = minX; px <= maxX; ++px)
+            {
+                float wa = ((bx - px) * (cy - py) - (cx - px) * (by - py)) / area;
+                float wb = ((cx - px) * (ay - py) - (ax - px) * (cy - py)) / area;
+                float wc = 1f - wa - wb;
+                if (wa < edge || wb < edge || wc < edge)
+                    continue;
+                float z = wa * a.Z + wb * b.Z + wc * c.Z; // most negative is on top
+                int i = px + py * sw;
+                if (z < top[i])
+                {
+                    top[i] = z;
+                    topPart[i] = part;
+                }
+            }
+        }
+
+        // a model point's place in sample units, as BuildSurfaceMap places it on the grid
+        float SampleX(XnaVector3 v) => ((v.X + MeshOffset.X) / 16f + GridCenter.X) * PartSamples - 0.5f;
+        float SampleY(XnaVector3 v) => ((v.Y + MeshOffset.Y) / 16f + GridCenter.Y) * PartSamples - 0.5f;
+
+        // the part shown from above at a grid cell, 0 for the core, outside the grid, or before the model loads
+        public static int PartAt(byte[,] map, Point cell)
+        {
+            if (map == null || (uint)cell.X >= (uint)map.GetLength(0) || (uint)cell.Y >= (uint)map.GetLength(1))
+                return 0;
+            return map[cell.X, cell.Y];
         }
 
         // Bins mesh vertices into module-grid cells, keeping the most-negative

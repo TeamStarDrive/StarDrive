@@ -39,6 +39,27 @@ public sealed class StaticMesh : IDisposable
     // to build a per-module surface-Z map for damage-VFX placement.
     public XnaVector3[] VertexPositions;
 
+    // a model cut into parts names each object with its part number first, "03_MidLeft"; part 0 is the core, which stays
+    public const int MaxParts = 32; // a ship's lost parts fit one uint
+    public int NumParts; // highest part number + 1, 0 for a model in one piece
+    // each part's object-space triangles, three corners each, for the hull's part map
+    public XnaVector3[][] PartTriangles;
+
+    // the part number at the start of an object's name, -1 when it has none
+    public static int PartIdOf(string objectName)
+    {
+        if (objectName.IsEmpty() || !char.IsAsciiDigit(objectName[0]))
+            return -1;
+        int id = 0;
+        for (int i = 0; i < objectName.Length && char.IsAsciiDigit(objectName[i]); ++i)
+        {
+            id = id * 10 + (objectName[i] - '0');
+            if (id >= MaxParts)
+                return -1;
+        }
+        return id;
+    }
+
     public StaticMesh(string name, in BoundingBox bounds)
     {
         Name = name;
@@ -151,7 +172,17 @@ public sealed class StaticMesh : IDisposable
                         PrimitiveType.TriangleList,
                         mesh.PrimitiveCount,
                         0, mesh.VertexCount,
-                        0, mesh.VertexStride));
+                        0, mesh.VertexStride)
+                    {
+                        PartStart = mesh.PartStart,
+                        PartPrimitives = mesh.PartPrimitives,
+                    });
+                }
+                if (NumParts > 0)
+                {
+                    var shown = new float[NumParts];
+                    Array.Fill(shown, 1f);
+                    so.PartShown = shown;
                 }
             }
 
