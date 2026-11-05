@@ -232,6 +232,7 @@
     <Compile Include="UI\UndoRedoKeyTests.cs" />
     <Compile Include="Ships\MissileJamTests.cs" />
     <Compile Include="Ships\FlakBurstTests.cs" />
+    <Compile Include="Ships\WeaponDamagePerSecondTests.cs" />
     <Compile Include="Ships\PointDefenseCollisionTests.cs" />
     <Compile Include="Ships\PointDefenseTargetTests.cs" />
     <Compile Include="Ships\ShipEmpRecoveryTests.cs" />
