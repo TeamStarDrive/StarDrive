@@ -130,8 +130,8 @@ namespace Ship_Game.AI
                 if (potentialMissions.NotEmpty)
                 {
                     AgentMission am = OwnerEmpire.Random.Item(potentialMissions);
-                    agent.AssignMission(am, OwnerEmpire, target.data.Traits.Name);
-                    currentMissions++;
+                    if (agent.AssignMission(am, OwnerEmpire, target.data.Traits.Name))
+                        currentMissions++;
                 }
             }
         }
@@ -375,7 +375,7 @@ namespace Ship_Game.AI
             OwnerEmpire.data.AgentList.Add(agent);
             OwnerEmpire.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
             DeductSpyBudget(ResourceManager.AgentMissionData.AgentCost);
-            agent.AssignMission(AgentMission.Training, OwnerEmpire, OwnerEmpire.Name);
+            agent.AssignMission(AgentMission.Training, OwnerEmpire, "");
         }
 
         private string[] SpyNames()
