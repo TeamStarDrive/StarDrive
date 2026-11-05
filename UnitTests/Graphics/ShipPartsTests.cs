@@ -329,11 +329,41 @@ public class ShipPartsTests : StarDriveTest
 
     const string GunboatDesign = "TEST_Spearhead mk1-a";
 
-    // a universe whose player can spawn ships on the Heavy Gunboat hull
-    void SetupGunboats()
+    // a universe whose player can spawn ships on the Heavy Gunboat hull; with sure rolls every chance above none comes up for the player
+    void SetupGunboats(bool sureRolls = true)
     {
         CreateUniverseAndPlayerEmpire();
         LoadStarterShips(GunboatDesign);
+        if (sureRolls)
+            SetDice(Player, SureDice());
+    }
+
+    static void SetDice(Empire empire, Ship_Game.Utils.RandomBase dice)
+    {
+        typeof(Empire).GetField(nameof(Empire.Random))!.SetValue(empire, dice);
+    }
+
+    // a roll of any chance above none succeeds, or none ever does
+    static FixedDice SureDice() => new(0.0);
+    static FixedDice NeverDice() => new(0.999999);
+
+    // every draw the same, counted
+    sealed class FixedDice : Ship_Game.Utils.RandomBase
+    {
+        readonly Draws Source;
+        public FixedDice(double draw) : base(1) => Source = new(draw);
+        public int Count => Source.Count;
+        protected override System.Random Rand => Source;
+
+        sealed class Draws(double draw) : System.Random
+        {
+            public int Count;
+            public override double NextDouble() { ++Count; return draw; }
+            protected override double Sample() => draw;
+            public override int Next() => 0;
+            public override int Next(int maxValue) => (int)(draw * maxValue);
+            public override int Next(int minValue, int maxValue) => minValue + (int)(draw * (maxValue - minValue));
+        }
     }
 
     [TestCleanup]
@@ -390,7 +420,7 @@ public class ShipPartsTests : StarDriveTest
     [DataRow(4)]
     [DataRow(5)]
     [DataRow(6)]
-    public void APlateIsLostOnceThreeQuartersOfItsSlotAreaIsDead(int plate)
+    public void APlateCanGoOnlyOnceMoreThanThreeQuartersOfItIsDead(int plate)
     {
         SetupGunboats();
         Ship ship = SpawnGunboat();
@@ -403,16 +433,112 @@ public class ShipPartsTests : StarDriveTest
             Kill(m);
             dead += m.Area;
             float[] shown = ship.PartShownNow();
-            if (dead < 0.75f * area)
+            if (dead <= 0.75f * area)
             {
-                Assert.IsNull(shown, $"{dead} of {area} dead, the plate stays on");
+                Assert.IsNull(shown, $"{dead} of {area} dead, the plate stays on whatever the roll");
                 continue;
             }
-            Assert.IsNotNull(shown, $"{dead} of {area} dead, the plate is lost");
+            Assert.IsNotNull(shown, $"{dead} of {area} dead, a sure roll loses the plate");
             for (int part = 0; part < shown.Length; ++part)
                 Assert.AreEqual(part == plate ? 0f : 1f, shown[part], $"{dead} of {area} dead: part {part}");
         }
         Assert.IsTrue(ship.Active, "setup: the ship lives through it");
+    }
+
+    [TestMethod]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    [DataRow(4)]
+    [DataRow(5)]
+    [DataRow(6)]
+    public void ADeathPastThreeQuartersLosesThePlateByTheShareDeadPastIt(int plate)
+    {
+        SetupGunboats(sureRolls: false);
+        Ship ship = SpawnGunboat();
+        ShipModule[] modules = ModulesOf(ship, plate, out int area);
+        const int tries = 4000;
+
+        int before = 0, killed = 0;
+        while (before + modules[killed].Area <= 0.75f * area)
+            before += modules[killed++].Area;
+        float past = (before + modules[killed].Area) / (float)area - 0.75f;
+        AssertLossRate(past, LossRate(ship, System.MemoryExtensions.AsSpan(modules, 0, killed).ToArray(), modules[killed], tries), tries,
+                       $"the death taking the plate to {before + modules[killed].Area} of {area} dead");
+
+        AssertLossRate(0.25f, LossRate(ship, System.MemoryExtensions.AsSpan(modules, 1).ToArray(), modules[0], tries), tries,
+                       "the death of its last module");
+    }
+
+    // how often the last module's death loses the plate, the others dead: real dice for that roll, none that succeed between them
+    static float LossRate(Ship ship, ShipModule[] others, ShipModule last, int tries)
+    {
+        Empire owner = ship.Loyalty;
+        Ship_Game.Utils.RandomBase dice = owner.Random;
+        SetDice(owner, NeverDice());
+        foreach (ShipModule m in others)
+            Kill(m);
+        Assert.IsNull(ship.PartShownNow(), "setup: the others dead, the plate is on");
+
+        int lost = 0;
+        for (int t = 0; t < tries; ++t)
+        {
+            SetDice(owner, dice);
+            Kill(last);
+            bool gone = ship.PartShownNow() != null;
+            SetDice(owner, NeverDice());
+            Repair(last);
+            if (gone)
+            {
+                ++lost;
+                foreach (ShipModule m in others)
+                    Repair(m);
+                Assert.IsNull(ship.PartShownNow(), "setup: repaired whole");
+                foreach (ShipModule m in others)
+                    Kill(m);
+            }
+            ship.PartShownNow();
+        }
+
+        foreach (ShipModule m in others)
+            Repair(m);
+        Assert.IsNull(ship.PartShownNow(), "setup: whole again after the tries");
+        SetDice(owner, dice);
+        return lost / (float)tries;
+    }
+
+    static void AssertLossRate(float expected, float rate, int tries, string what)
+    {
+        float tolerance = 5f * (float)System.Math.Sqrt(expected * (1f - expected) / tries) + 0.003f;
+        Assert.IsTrue(expected > tolerance, $"setup: {what} has a chance told from none");
+        AssertEqual(tolerance, expected, rate, $"{what}: lost on {expected:P1} of the deaths");
+    }
+
+    [TestMethod]
+    public void DeathsUnderAPlateInOneUpdateRollOnce()
+    {
+        SetupGunboats(sureRolls: false);
+        Ship ship = SpawnGunboat();
+        ShipModule[] modules = ModulesOf(ship, 1, out int area);
+        int together = modules.Length - 3; // its three biggest die in one update
+        int dead = 0;
+        for (int i = 0; i < together && dead + modules[i].Area <= 0.75f * area; ++i)
+        {
+            dead += modules[i].Area;
+            Kill(modules[i]);
+        }
+        Assert.IsNull(ship.PartShownNow(), "setup: three quarters dead or less, the plate is on");
+
+        FixedDice dice = NeverDice();
+        SetDice(Player, dice);
+        for (int i = together; i < modules.Length; ++i)
+        {
+            Kill(modules[i]);
+            dead += modules[i].Area;
+        }
+        Assert.IsTrue(dead > 0.75f * area, "setup: they take it past three quarters");
+        ship.PartShownNow();
+        Assert.AreEqual(1, dice.Count, "three deaths under it in one update roll once");
     }
 
     [TestMethod]
@@ -518,7 +644,7 @@ public class ShipPartsTests : StarDriveTest
         int dead = 0;
         foreach (ShipModule m in modules)
         {
-            if (dead + m.Area >= 0.75f * area)
+            if (dead + m.Area > 0.75f * area)
                 break;
             Kill(m);
             dead += m.Area;
@@ -570,14 +696,14 @@ public class ShipPartsTests : StarDriveTest
             {
                 if (!m.Active)
                     dead += m.Area;
-                deadOn |= dead >= 0.75f * area;
+                deadOn |= dead > 0.75f * area;
             }
             Assert.AreEqual(1f, shown[part], $"part {part} stays on through the recovery's damage");
         }
-        Assert.IsTrue(deadOn, "setup: the recovery leaves another plate three quarters dead");
+        Assert.IsTrue(deadOn, "setup: the recovery leaves another plate more than three quarters dead");
     }
 
-    // a plate at least three quarters dead, 0 for none
+    // a plate more than three quarters dead, 0 for none
     static int ThreeQuartersDeadPlate(Ship ship)
     {
         ship.Grid.GetParts(out int[] partArea);
@@ -588,7 +714,7 @@ public class ShipPartsTests : StarDriveTest
             foreach (ShipModule m in modules)
                 if (!m.Active)
                     dead += m.Area;
-            if (dead >= 0.75f * area)
+            if (dead > 0.75f * area)
                 return part;
         }
         return 0;
@@ -603,7 +729,7 @@ public class ShipPartsTests : StarDriveTest
         Ship recovered = Ship.CreateRecoveredShip(UState, d, Player, model: null);
         Assert.IsNull(recovered.PartShownNow(), "setup: the recovery's damage loses no plate");
         int deadOn = ThreeQuartersDeadPlate(recovered);
-        Assert.IsTrue(deadOn > 0, "setup: the recovery leaves a plate three quarters dead");
+        Assert.IsTrue(deadOn > 0, "setup: the recovery leaves a plate more than three quarters dead");
 
         int other = deadOn == 1 ? 2 : 1;
         ShipModule alive = System.Array.Find(ModulesOf(recovered, other, out int _), m => m.Active);
@@ -715,7 +841,9 @@ public class ShipPartsTests : StarDriveTest
         Assert.IsNull(ShipField(ship, "LostPartLow"), "setup: the save came before the count");
         UniverseScreen loaded = LoadSave(save.SaveFile);
         Assert.IsNotNull(loaded, "setup: the save loads");
-        float[] shown = loaded.UState.Objects.FindShip(ship.Id).PartShownNow();
+        Ship after = loaded.UState.Objects.FindShip(ship.Id);
+        SetDice(after.Loyalty, SureDice()); // the loaded empire rolls anew
+        float[] shown = after.PartShownNow();
         Assert.IsNotNull(shown, "the deaths count after loading");
         Assert.AreEqual(0f, shown[3], "and the plate is lost");
     }
