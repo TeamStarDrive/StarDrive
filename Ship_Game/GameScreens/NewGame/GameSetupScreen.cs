@@ -56,10 +56,11 @@ namespace Ship_Game.GameScreens.NewGame
         public override void LoadContent()
         {
             const int leftWidth = 430, listWidth = 580, pickerWidth = 620, pickerHeight = 560, gap = 10, pad = 25;
-            // the color picker opens right of the list, so the panels move left where the screen is too narrow for all three
-            int leftX = Math.Min(ScreenWidth / 2 - (leftWidth + gap + listWidth) / 2,
-                                 ScreenWidth - gap - pickerWidth - gap - listWidth - gap - leftWidth);
+            // the color picker opens right of the list, so the panels move left where the screen is too narrow for all three, and the picker over the list where even that is not enough
+            int leftX = Math.Max(gap, Math.Min(ScreenWidth / 2 - (leftWidth + gap + listWidth) / 2,
+                                               ScreenWidth - gap - pickerWidth - gap - listWidth - gap - leftWidth));
             int listX = leftX + leftWidth + gap;
+            int pickerX = Math.Min(listX + listWidth + gap, ScreenWidth - gap - pickerWidth);
             int titleY = LowRes ? 10 : 44;
             (int top, int upperBottom, int lowerTop) = RaceScreen.PanelRows;
             // Back and Engage take the race screen's button row, and the panels reach down to it
@@ -102,20 +103,24 @@ namespace Ship_Game.GameScreens.NewGame
             MidGameWarning = labelFont.ParseText("Warning, performance issues are expected mid to late game.", warningWidth);
 
             AddHeading(extensionsPanel, GameText.GameExtensions);
-            int extensionCount = 0;
-            ExtensionToggle AddExtension(Expression<Func<bool>> binding, string icon, GameText title, GameText tooltip)
+            // the six icons fit from 1050 high; below it the extensions are switched in Rule Options
+            if (ScreenHeight >= 1050)
             {
-                var pos = new Vector2(extensionsPanel.X + pad, extensionsPanel.Y + 40 + extensionCount++ * 54);
-                return Add(new ExtensionToggle(pos, extensionsPanel.Width - 2 * pad, binding, icon, title, tooltip));
+                int extensionCount = 0;
+                ExtensionToggle AddExtension(Expression<Func<bool>> binding, string icon, GameText title, GameText tooltip)
+                {
+                    var pos = new Vector2(extensionsPanel.X + pad, extensionsPanel.Y + 40 + extensionCount++ * 54);
+                    return Add(new ExtensionToggle(pos, extensionsPanel.Width - 2 * pad, binding, icon, title, tooltip));
+                }
+                AddExtension(() => Params.Pirates, "Pirates", GameText.PiratesExtension, GameText.PiratesExtensionTip);
+                AddExtension(() => Params.RemnantStory, "RemnantStory", GameText.RemnantStoryExtension, GameText.RemnantStoryExtensionTip);
+                AddExtension(() => Params.Infiltration, "Infiltration", GameText.InfiltrationExtension, GameText.InfiltrationExtensionTip);
+                AddExtension(() => Params.ResearchStations, "ResearchStations", GameText.ResearchStationsExtension, GameText.ResearchStationsExtensionTip);
+                AddExtension(() => Params.MiningOps, "MiningOps", GameText.MiningOpsExtension, GameText.MiningOpsExtensionTip);
+                bool salvageOpsEnabled = GlobalStats.Defaults.EnableSalvageOps;
+                AddExtension(() => Params.SalvageOps, "SalvageOps", GameText.SalvageOpsExtension,
+                             salvageOpsEnabled ? GameText.SalvageOpsExtensionTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
             }
-            AddExtension(() => Params.Pirates, "Pirates", GameText.PiratesExtension, GameText.PiratesExtensionTip);
-            AddExtension(() => Params.RemnantStory, "RemnantStory", GameText.RemnantStoryExtension, GameText.RemnantStoryExtensionTip);
-            AddExtension(() => Params.Infiltration, "Infiltration", GameText.InfiltrationExtension, GameText.InfiltrationExtensionTip);
-            AddExtension(() => Params.ResearchStations, "ResearchStations", GameText.ResearchStationsExtension, GameText.ResearchStationsExtensionTip);
-            AddExtension(() => Params.MiningOps, "MiningOps", GameText.MiningOpsExtension, GameText.MiningOpsExtensionTip);
-            bool salvageOpsEnabled = GlobalStats.Defaults.EnableSalvageOps;
-            AddExtension(() => Params.SalvageOps, "SalvageOps", GameText.SalvageOpsExtension,
-                         salvageOpsEnabled ? GameText.SalvageOpsExtensionTip : GameText.DisableSalvageOpsModTip).Locked = !salvageOpsEnabled;
             Button(ButtonStyle.Default, extensionsPanel.X + extensionsPanel.Width / 2 - 84, extensionsPanel.Bottom - 39,
                    GameText.RuleOptions, click: OnRuleOptionsClicked);
             SlideFrom(first, new Vector2(-(leftX + leftWidth), 0));
@@ -143,10 +148,10 @@ namespace Ship_Game.GameScreens.NewGame
             BackButton = Button(ButtonStyle.BigDip, leftX, bottom + 10, GameText.Back, click: _ => ExitScreen());
             EngageButton = Button(ButtonStyle.Military, listX + listWidth - 168, bottom + 10, GameText.Engage, click: _ => RaceScreen.Engage());
 
-            Picker = Add(new UIColorPicker(new Rectangle(listX + listWidth + gap, top, pickerWidth, pickerHeight)));
+            Picker = Add(new UIColorPicker(new Rectangle(pickerX, top, pickerWidth, pickerHeight)));
             Picker.Visible = false;
             int previewTop = top + pickerHeight + gap;
-            ShipPreview = Add(new ShipColorPreview(new Rectangle(listX + listWidth + gap, previewTop, pickerWidth, bottom - previewTop),
+            ShipPreview = Add(new ShipColorPreview(new Rectangle(pickerX, previewTop, pickerWidth, bottom - previewTop),
                 Picker, TransientContent, () => PickingPlayerColor ? RaceScreen.SelectedData : PickingColorFor,
                 () => PickingPlayerColor ? Params.PlayerHullColors : Params.OpponentHullColors && Params.IsColorPicked(PickingColorFor)));
 

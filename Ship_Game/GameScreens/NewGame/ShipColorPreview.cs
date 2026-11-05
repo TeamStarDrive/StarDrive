@@ -23,6 +23,7 @@ public sealed class ShipColorPreview : UIElementV2
     const float TurnPerPixel = 0.01f;
     const float Elevation = 30f * RadMath.Deg1AsRads;
     const float Margin = 1.1f;
+    const int MinShipAreaHeight = 80; // a shorter area leaves the panel out
 
     // the hull lies lengthwise with its nose to the right, seen from a little above its side
     static readonly XnaMatrix Pose = XnaMatrix.CreateRotationX(RadMath.PI)
@@ -41,7 +42,7 @@ public sealed class ShipColorPreview : UIElementV2
     SceneObject Ship;
     XnaVector3 ShipCenter;
     float Radius;
-    float CenterX, CenterY, HalfWidth, HalfHeight; // what the hull covers on screen over a whole turn, in model units
+    float CoverX, CoverY, HalfWidth, HalfHeight; // what the hull covers on screen over a whole turn, in model units
     float Turn;
     bool Dragging;
     float DragX;
@@ -98,9 +99,11 @@ public sealed class ShipColorPreview : UIElementV2
         return aArea != bArea ? aArea > bArea : string.CompareOrdinal(a.HullName, b.HullName) < 0;
     }
 
+    bool Shown => Picker.Visible && ShipArea.Height >= MinShipAreaHeight;
+
     public override void Update(float fixedDeltaTime)
     {
-        if (Picker.Visible && Scene != null)
+        if (Shown && Scene != null)
         {
             Show(Race());
             if (!Dragging)
@@ -191,13 +194,13 @@ public sealed class ShipColorPreview : UIElementV2
 
         if (maxX < 0)
         {
-            CenterX = CenterY = 0f;
+            CoverX = CoverY = 0f;
             HalfWidth = HalfHeight = reach;
             return;
         }
         float unit = 2f * reach / size;
-        CenterX = ((minX + maxX + 1) * 0.5f - size * 0.5f) * unit;
-        CenterY = (size * 0.5f - (minY + maxY + 1) * 0.5f) * unit;
+        CoverX = ((minX + maxX + 1) * 0.5f - size * 0.5f) * unit;
+        CoverY = (size * 0.5f - (minY + maxY + 1) * 0.5f) * unit;
         HalfWidth = (maxX - minX + 1) * 0.5f * unit;
         HalfHeight = (maxY - minY + 1) * 0.5f * unit;
     }
@@ -219,7 +222,7 @@ public sealed class ShipColorPreview : UIElementV2
 
     public override bool HandleInput(InputState input)
     {
-        if (!Picker.Visible)
+        if (!Shown)
         {
             Dragging = false;
             return false;
@@ -247,7 +250,7 @@ public sealed class ShipColorPreview : UIElementV2
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
     {
-        if (!Picker.Visible || Ship == null || Scene == null)
+        if (!Shown || Ship == null || Scene == null)
             return;
 
         Frame.Draw(batch, elapsed);
@@ -286,7 +289,7 @@ public sealed class ShipColorPreview : UIElementV2
 
             Ship.HullTint = Empire.HullTintOf(ShownRace.HullColors, Picker.CurrentColor, ColorWorn());
             float halfHeight = Math.Max(HalfHeight, HalfWidth * h / w) * Margin;
-            Render(Turn, CenterX, CenterY, halfHeight * w / h, halfHeight);
+            Render(Turn, CoverX, CoverY, halfHeight * w / h, halfHeight);
         }
         catch (Exception e)
         {
